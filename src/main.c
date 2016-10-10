@@ -103,122 +103,117 @@ main(int argc, char** argv)
 SDL_bool
 render_scene(int demo_number){
   SDL_Event event;
-  switch(demo_number){
-  case 0:
-    {
-      /*
-       *  Demo 0 -- black screen
-       */
-      glClear(GL_COLOR_BUFFER_BIT);
-      // handle events
-      while (SDL_PollEvent(&event))
-        {
-          if (event.type == SDL_QUIT){
-            return SDL_TRUE;        
-          }
-        }
-      return SDL_FALSE;
-    }
-  case 1:
-    {
-      /*
-       *  Demo 1 -- two rectangles
-       */
-      // handle events
-      glClear(GL_COLOR_BUFFER_BIT);
-      while (SDL_PollEvent(&event))
-        {
-          if (event.type == SDL_QUIT){
-            return SDL_TRUE;        
-          }
-        }
-
-      // draw paddle 1
-      glColor3f(1.0,1.0,1.0);
-      glBegin(GL_QUADS);
+  if(0 == demo_number){
+    /*
+     *  Demo 0 -- black screen
+     */
+    glClear(GL_COLOR_BUFFER_BIT);
+    // handle events
+    while (SDL_PollEvent(&event))
       {
-        glVertex2f(-1.0,-0.3);
-        glVertex2f(-0.8,-0.3);
-        glVertex2f(-0.8,0.3);
-        glVertex2f(-1.0,0.3);
-        glEnd();
-      }
-        // draw paddle 2
-      glColor3f(1.0,1.0,0.0);
-      glBegin(GL_QUADS);
-      {
-        glVertex2f(0.8,-0.3);
-        glVertex2f(1.0,-0.3);
-        glVertex2f(1.0,0.3);
-        glVertex2f(0.8,0.3);
-        glEnd();
-      }
-
-      return SDL_FALSE;
-    }
-  case 2:
-    {
-      /*
-       *  Demo 2 -- two paddles and handle events
-       */
-      // handle events
-      glClear(GL_COLOR_BUFFER_BIT);
-      while (SDL_PollEvent(&event))
-        {
-          if (event.type == SDL_QUIT){
-            return SDL_TRUE;        
-          }
-        }
-
-      static float paddle_1_offset_Y = 0.0;
-      static float paddle_2_offset_Y = 0.0;
-
-      const Uint8 *state = SDL_GetKeyboardState(NULL);
-
-      // handle keyboard input
-      {
-        if (state[SDL_SCANCODE_S]) {
-          paddle_1_offset_Y -= 0.1;
-        }
-        if (state[SDL_SCANCODE_W]) {
-          paddle_1_offset_Y += 0.1;
-        }
-        if (state[SDL_SCANCODE_K]) {
-          paddle_2_offset_Y -= 0.1;
-        }
-        if (state[SDL_SCANCODE_I]) {
-          paddle_2_offset_Y += 0.1;
+        if (event.type == SDL_QUIT){
+          return SDL_TRUE;        
         }
       }
-
-      // draw paddle 1, relative to the offset
-      glColor3f(1.0,1.0,1.0);
-      glBegin(GL_QUADS);
-      {
-        glVertex2f(-1.0,-0.3+paddle_1_offset_Y);
-        glVertex2f(-0.8,-0.3+paddle_1_offset_Y);
-        glVertex2f(-0.8,0.3+paddle_1_offset_Y);
-        glVertex2f(-1.0,0.3+paddle_1_offset_Y);
-        glEnd();
-      }
-        // draw paddle 2, relative to the offset
-      glColor3f(1.0,1.0,0.0);
-      glBegin(GL_QUADS);
-      {
-        glVertex2f(0.8,-0.3+paddle_2_offset_Y);
-        glVertex2f(1.0,-0.3+paddle_2_offset_Y);
-        glVertex2f(1.0,0.3+paddle_2_offset_Y);
-        glVertex2f(0.8,0.3+paddle_2_offset_Y);
-        glEnd();
-      }
-
-      return SDL_FALSE;
-    }
+    return SDL_FALSE;
   }
-
+  if(1 == demo_number){
+    /*
+     *  Demo 1 -- two rectangles
+     */
+    // handle events
+    glClear(GL_COLOR_BUFFER_BIT);
+    while (SDL_PollEvent(&event))
+      {
+        if (event.type == SDL_QUIT){
+          return SDL_TRUE;        
+        }
+      }
+    
+    // draw paddle 1
+    glColor3f(1.0,1.0,1.0);
+    glBegin(GL_QUADS);
+    {
+      glVertex2f(-1.0,-0.3);
+      glVertex2f(-0.8,-0.3);
+      glVertex2f(-0.8,0.3);
+      glVertex2f(-1.0,0.3);
+      glEnd();
+    }
+    // draw paddle 2
+    glColor3f(1.0,1.0,0.0);
+    glBegin(GL_QUADS);
+    {
+      glVertex2f(0.8,-0.3);
+      glVertex2f(1.0,-0.3);
+      glVertex2f(1.0,0.3);
+      glVertex2f(0.8,0.3);
+      glEnd();
+    }
+    
+    return SDL_FALSE;
+  }
+  if(2 == demo_number){
+    /*
+     *  Demo 2 -- two paddles and handle events
+     */
+    // handle events
+    glClear(GL_COLOR_BUFFER_BIT);
+    while (SDL_PollEvent(&event))
+      {
+        if (event.type == SDL_QUIT){
+          return SDL_TRUE;        
+        }
+      }
+    
+    static float paddle_1_offset_Y = 0.0;
+    static float paddle_2_offset_Y = 0.0;
+    
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+    
+    // handle keyboard input
+    {
+      if (state[SDL_SCANCODE_S]) {
+        paddle_1_offset_Y -= 0.1;
+      }
+      if (state[SDL_SCANCODE_W]) {
+        paddle_1_offset_Y += 0.1;
+      }
+      if (state[SDL_SCANCODE_K]) {
+        paddle_2_offset_Y -= 0.1;
+      }
+      if (state[SDL_SCANCODE_I]) {
+        paddle_2_offset_Y += 0.1;
+      }
+    }
+    
+    // draw paddle 1, relative to the offset
+    glColor3f(1.0,1.0,1.0);
+    glBegin(GL_QUADS);
+    {
+      glVertex2f(-1.0,-0.3+paddle_1_offset_Y);
+      glVertex2f(-0.8,-0.3+paddle_1_offset_Y);
+      glVertex2f(-0.8,0.3+paddle_1_offset_Y);
+      glVertex2f(-1.0,0.3+paddle_1_offset_Y);
+      glEnd();
+    }
+    // draw paddle 2, relative to the offset
+    glColor3f(1.0,1.0,0.0);
+    glBegin(GL_QUADS);
+    {
+      glVertex2f(0.8,-0.3+paddle_2_offset_Y);
+      glVertex2f(1.0,-0.3+paddle_2_offset_Y);
+      glVertex2f(1.0,0.3+paddle_2_offset_Y);
+      glVertex2f(0.8,0.3+paddle_2_offset_Y);
+      glEnd();
+    }
+    
+    return SDL_FALSE;
+  }
+  
   // in later demos,
   //glClearDepth( 1.0f );
   //glEnable( GL_DEPTH_TEST );
   //glDepthFunc( GL_LEQUAL );
-
+  
 }
