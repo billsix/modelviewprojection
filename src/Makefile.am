@@ -14,4 +14,5 @@ math4graphics_CXXFLAGS= \
 math4graphics_LDADD = \
 	$(GLEW_LIBS) \
 	$(SDL_LIBS) \
-	$(OPENGL_LIB)
+	$(OPENGL_LIB) \
+	-lm
