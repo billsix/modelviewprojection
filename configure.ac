@@ -1,6 +1,6 @@
 AC_INIT([math4graphics], [0.0.1],  [William Emerison Six <billsix@gmail.com>], [math4graphics])
 AC_CANONICAL_SYSTEM
-AC_CONFIG_SRCDIR([src/main.c])
+AC_CONFIG_SRCDIR([src/main.cpp])
 AC_CONFIG_HEADER([config.h])
 AC_CHECK_HEADER([stdio.h])
 AC_REVISION([: 0.0.1 $])
