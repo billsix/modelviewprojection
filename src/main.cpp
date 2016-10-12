@@ -642,7 +642,7 @@ render_scene(int demo_number){
 
   if(8 == demo_number){
     /*
-     *  Demo 8 - Relative location
+     *  Demo 8 - Translate Relative location
      */
     // handle events
     glClear(GL_COLOR_BUFFER_BIT);
