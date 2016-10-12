@@ -621,19 +621,19 @@ render_scene(int demo_number){
       glBegin(GL_QUADS);
       {
         struct vertex local_v_1;
-        local_v_1.x = -1.0; local_v_1.y = -1.0;
+        local_v_1.x = -5.0; local_v_1.y = -5.0;
         struct vertex global_v_1 = f(local_v_1);
         glVertex2f(global_v_1.x,global_v_1.y);
         struct vertex local_v_2 ;
-        local_v_2.x = 1.0, local_v_2.y = -1.0;
+        local_v_2.x = 5.0, local_v_2.y = -5.0;
         struct vertex global_v_2 = f(local_v_2);
         glVertex2f(global_v_2.x,global_v_2.y);
         struct vertex local_v_3;
-        local_v_3.x = 1.0;local_v_3.y = 1.0;
+        local_v_3.x = 5.0;local_v_3.y = 5.0;
         struct vertex global_v_3 = f(local_v_3);
         glVertex2f(global_v_3.x,global_v_3.y);
         struct vertex local_v_4;
-        local_v_4.x = -1.0; local_v_4.y = 1.0;
+        local_v_4.x = -5.0; local_v_4.y = 5.0;
         struct vertex global_v_4 = f(local_v_4);
         glVertex2f(global_v_4.x,global_v_4.y);
         glEnd();
@@ -722,7 +722,7 @@ render_scene(int demo_number){
       draw_paddle_programmable(local_coordinates_to_device_coordinates);
     }
     // draw square, relative to paddle 1
-    glColor3f(1.0,1.0,1.0);
+    glColor3f(0.0,0.0,1.0);
     {
       vertex_transformer local_coordinates_to_device_coordinates =
         [&](struct vertex vertex_local_coordinates){
