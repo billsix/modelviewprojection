@@ -1026,7 +1026,8 @@ render_scene(int demo_number){
     [&](std::vector<vertex_transformer> s){
        glBegin(GL_QUADS);
        {
-         vertex_transformer f = [&](struct vertex v){return v;};
+         vertex_transformer identity = [&](struct vertex v){return v;};
+         vertex_transformer f = identity;
          
          struct vertex local_v_1;
          local_v_1.x = -10.0; local_v_1.y = -30.0;
