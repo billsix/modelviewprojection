@@ -1,0 +1,5 @@
+replace comments like
+// draw paddle 2, relative to the offset
+
+with
+// draw paddle 2, relative to the global origin

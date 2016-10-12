@@ -1066,132 +1066,170 @@ render_scene(int demo_number){
     }
     return SDL_FALSE;
   }
-  // std::function<void()> draw_paddle_opengl2point1 = [&](){
-  //   glBegin(GL_QUADS);
-  //   {
-  //     glVertex2f(-10.0, -30.0);
-  //     glVertex2f(10.0, -30.0);
-  //     glVertex2f(10.0, 30.0);
-  //     glVertex2f(-10.0, 30.0);
-  //     glEnd();
-  //   }
-  // };
+  std::function<void()> draw_square_opengl2point1 = [&](){
+    glBegin(GL_QUADS);
+    {
+      glVertex2f(-1.0, -1.0);
+      glVertex2f(1.0, -1.0);
+      glVertex2f(1.0, 1.0);
+      glVertex2f(-1.0, 1.0);
+      glEnd();
+    }
+  };
 
-  // std::function<double(double)> RAD_TO_DEG = [&](double rad){
-  //   return 57.296 * rad;
-  // };
-  // if(8 == demo_number){
-  //   /*
-  //    *  Demo 7 - OpenGL Matricies
-  //    */
-  //   // handle events
-  //   glClear(GL_COLOR_BUFFER_BIT);
-  //   while (SDL_PollEvent(&event))
-  //     {
-  //       if (event.type == SDL_QUIT){
-  //         return SDL_TRUE;
-  //       }
-  //       if (event.type == SDL_WINDOWEVENT){
-  //         if(event.window.event == SDL_WINDOWEVENT_RESIZED){
-  //           int w = event.window.data1, h = event.window.data2;
-  //           glViewport(0,0,w,h);
-  //         }
-  //       }
-  //     }
+  std::function<double(double)> RAD_TO_DEG = [&](double rad){
+    return 57.296 * rad;
+  };
+  if(11 == demo_number){
+    /*
+     *  Demo 11 - OpenGL Matricies
+     */
+    // handle events
+    glClear(GL_COLOR_BUFFER_BIT);
+    while (SDL_PollEvent(&event))
+      {
+        if (event.type == SDL_QUIT){
+          return SDL_TRUE;
+        }
+        if (event.type == SDL_WINDOWEVENT){
+          if(event.window.event == SDL_WINDOWEVENT_RESIZED){
+            int w = event.window.data1, h = event.window.data2;
+            glViewport(0,0,w,h);
+          }
+        }
+      }
 
-  //   static float camera_x = 0.0;
-  //   static float camera_y = 0.0;
+    static float camera_x = 0.0;
+    static float camera_y = 0.0;
 
-  //   static float paddle_1_offset_Y = 0.0;
-  //   static float paddle_2_offset_Y = 0.0;
-  //   static float paddle_1_rotation = 0.0;
-  //   static float paddle_2_rotation = 0.0;
+    static float paddle_1_offset_Y = 0.0;
+    static float paddle_2_offset_Y = 0.0;
+    static float paddle_1_rotation = 0.0;
+    static float paddle_2_rotation = 0.0;
+    static float square_rotation = 0.0;
+    static float rotation_around_paddle_1 = 0.0;
 
-  //   const Uint8 *state = SDL_GetKeyboardState(NULL);
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
 
-  //   // handle keyboard input
-  //   {
-  //     if (state[SDL_SCANCODE_S]) {
-  //       paddle_1_offset_Y -= 10.0;
-  //     }
-  //     if (state[SDL_SCANCODE_W]) {
-  //       paddle_1_offset_Y += 10.0;
-  //     }
-  //     if (state[SDL_SCANCODE_K]) {
-  //       paddle_2_offset_Y -= 10.0;
-  //     }
-  //     if (state[SDL_SCANCODE_I]) {
-  //       paddle_2_offset_Y += 10.0;
-  //     }
-  //     if (state[SDL_SCANCODE_A]) {
-  //       paddle_1_rotation -= 0.1;
-  //     }
-  //     if (state[SDL_SCANCODE_D]) {
-  //       paddle_1_rotation += 0.1;
-  //     }
-  //     if (state[SDL_SCANCODE_J]) {
-  //       paddle_2_rotation -= 0.1;
-  //     }
-  //     if (state[SDL_SCANCODE_L]) {
-  //       paddle_2_rotation += 0.1;
-  //     }
-  //     if (state[SDL_SCANCODE_UP]) {
-  //       camera_y += 10.0;
-  //     }
-  //     if (state[SDL_SCANCODE_DOWN]) {
-  //       camera_y -= 10.0;
-  //     }
-  //     if (state[SDL_SCANCODE_LEFT]) {
-  //       camera_x -= 10.0;
-  //     }
-  //     if (state[SDL_SCANCODE_RIGHT]) {
-  //       camera_x += 10.0;
-  //     }
-  //   }
+    // handle keyboard input
+    {
+      if (state[SDL_SCANCODE_S]) {
+        paddle_1_offset_Y -= 10.0;
+      }
+      if (state[SDL_SCANCODE_W]) {
+        paddle_1_offset_Y += 10.0;
+      }
+      if (state[SDL_SCANCODE_K]) {
+        paddle_2_offset_Y -= 10.0;
+      }
+      if (state[SDL_SCANCODE_I]) {
+        paddle_2_offset_Y += 10.0;
+      }
+      if (state[SDL_SCANCODE_A]) {
+        paddle_1_rotation -= 0.1;
+      }
+      if (state[SDL_SCANCODE_D]) {
+        paddle_1_rotation += 0.1;
+      }
+      if (state[SDL_SCANCODE_J]) {
+        paddle_2_rotation -= 0.1;
+      }
+      if (state[SDL_SCANCODE_L]) {
+        paddle_2_rotation += 0.1;
+      }
+      if (state[SDL_SCANCODE_UP]) {
+        camera_y += 10.0;
+      }
+      if (state[SDL_SCANCODE_DOWN]) {
+        camera_y -= 10.0;
+      }
+      if (state[SDL_SCANCODE_LEFT]) {
+        camera_x -= 10.0;
+      }
+      if (state[SDL_SCANCODE_RIGHT]) {
+        camera_x += 10.0;
+      }
+      if (state[SDL_SCANCODE_Q]) {
+        square_rotation += 0.1;
+      }
+      if (state[SDL_SCANCODE_E]) {
+        rotation_around_paddle_1 += 0.1;
+      }
+    }
 
-  //   // set up Camera
-  //   {
-  //     // define the projection
-  //     glMatrixMode(GL_PROJECTION);
-  //     glLoadIdentity();
-  //     glOrtho(-100,100,-100,100,-100,100);
-  //     // move the "camera"
-  //     glMatrixMode(GL_MODELVIEW);
-  //     glLoadIdentity();
-  //     glTranslatef(-camera_x,
-  //                  -camera_y,
-  //                  0.0);
-  //   }
+    // set up Camera
+    {
+      // define the projection
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      glOrtho(-100,100,-100,100,-100,100);
+      // move the "camera"
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+      glTranslatef(-camera_x,
+                   -camera_y,
+                   0.0);
+    }
 
-  //   // draw paddle 1, relative to the offset
-  //   glPushMatrix();
-  //   glColor3f(1.0,1.0,1.0);
-  //   glTranslatef(-90.0f,
-  //                0.0f + paddle_1_offset_Y,
-  //                0.0);
-  //   glRotatef(RAD_TO_DEG(paddle_1_rotation),
-  //             0.0,
-  //             0.0,
-  //             1.0);
-  //   draw_paddle_opengl2point1();
-  //   glPopMatrix();
+    // draw paddle 1, relative to the offset
+    glPushMatrix();
+    {
+      glColor3f(1.0,1.0,1.0);
+      glTranslatef(-90.0f,
+                   0.0f + paddle_1_offset_Y,
+                   0.0);
+      glRotatef(RAD_TO_DEG(paddle_1_rotation),
+                0.0,
+                0.0,
+                1.0);
+      // scaling of this object should not affect the relative square
+      glPushMatrix();
+      {
+        glScalef(10.0f,
+                 30.0f,
+                 0.0f);
+        draw_square_opengl2point1();
+        glPopMatrix();
+      }
 
+      // draw square, relative to paddle 1
+      glColor3f(0.0,0.0,1.0);
+      glRotatef(RAD_TO_DEG(rotation_around_paddle_1),
+                0.0f,
+                0.0f,
+                1.0f);
+      glTranslatef(20.0f,
+                   0.0f,
+                   0.0f);
+      glRotatef(RAD_TO_DEG(square_rotation),
+                0.0f,
+                0.0f,
+                1.0f);
+      glScalef(5.0f,
+               5.0f,
+               5.0f);
+      draw_square_opengl2point1();
+      glPopMatrix();
+    }
 
-  //   // draw paddle 2, relative to the offset
-  //   glPushMatrix();
-  //   glColor3f(1.0,1.0,0.0);
-  //   glTranslatef(90.0f,
-  //                0.0f + paddle_2_offset_Y,
-  //                0.0);
-  //   glRotatef(RAD_TO_DEG(paddle_2_rotation),
-  //              0.0,
-  //              0.0,
-  //              1.0);
-  //   draw_paddle_opengl2point1();
-  //   glPopMatrix();
+    // draw paddle 2, relative to the offset
+    glPushMatrix();
+    glColor3f(1.0,1.0,0.0);
+    glTranslatef(90.0f,
+                 0.0f + paddle_2_offset_Y,
+                 0.0);
+    glRotatef(RAD_TO_DEG(paddle_2_rotation),
+               0.0,
+               0.0,
+               1.0);
+    glScalef(10.0f,
+             30.0f,
+             0.0f);
+    draw_square_opengl2point1();
+    glPopMatrix();
 
-  //   return SDL_FALSE;
-  // }
+    return SDL_FALSE;
+  }
 
   // in later demos,
   //glClearDepth( 1.0f );
