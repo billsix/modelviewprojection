@@ -999,7 +999,6 @@ render_scene(int demo_number){
            camera_coordinates.y = vertex_translated.y - camera_y;
            return model_space_to_device_space(camera_coordinates);
       };
-
       draw_square_programmable(local_coordinates_to_device_coordinates);
     }
     // draw paddle 2, relative to the offset
