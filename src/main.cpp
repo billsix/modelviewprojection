@@ -1093,24 +1093,33 @@ render_scene(int demo_number){
     }
 
     std::stack<vertex_transformer> vertex_transformer_stack;
-    
+    vertex_transformer_stack.push([&](struct vertex vertex_local_coordinates){
+        struct vertex camera_coordinates;
+        camera_coordinates.x = vertex_local_coordinates.x - camera_x;
+        camera_coordinates.y = vertex_local_coordinates.y - camera_y;
+        return model_space_to_device_space(camera_coordinates);
+      }
+    );
+    vertex_transformer_stack.push([&](struct vertex vertex_local_coordinates){
+        return translate(-90.0f,
+                         0.0f + paddle_1_offset_Y,
+                         vertex_local_coordinates);
+      }
+      );
+    vertex_transformer_stack.push([&](struct vertex vertex_local_coordinates){
+        return rotate(paddle_1_rotation,
+                      vertex_local_coordinates);
+      }
+      );
+
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      vertex_transformer local_coordinates_to_device_coordinates =
-        [&](struct vertex vertex_local_coordinates){
-           struct vertex vertex_rotated = rotate(paddle_1_rotation,
-                                                 vertex_local_coordinates);
-           struct vertex vertex_translated = translate(-90.0f,
-                                                       0.0f + paddle_1_offset_Y,
-                                                       vertex_rotated);
-           struct vertex camera_coordinates;
-           camera_coordinates.x = vertex_translated.x - camera_x;
-           camera_coordinates.y = vertex_translated.y - camera_y;
-           return model_space_to_device_space(camera_coordinates);
-      };
+      // vertex_transformer local_coordinates_to_device_coordinates =
+      //   [&](struct vertex vertex_local_coordinates){
+      //      struct vertex vertex_rotated =       };
 
-      draw_paddle_programmable(local_coordinates_to_device_coordinates);
+      // draw_paddle_programmable(local_coordinates_to_device_coordinates);
     }
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
