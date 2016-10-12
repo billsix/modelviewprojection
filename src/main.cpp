@@ -824,7 +824,7 @@ render_scene(int demo_number){
         camera_x += 10.0;
       }
       if (state[SDL_SCANCODE_Q]) {
-        square_rotation += 10.0;
+        square_rotation += 0.1;
       }
     }
 
