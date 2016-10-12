@@ -210,9 +210,13 @@ render_scene(int demo_number){
 
     return SDL_FALSE;
   }
-  struct vertex { float x; float y;};
-  std::function<void(struct vertex)> draw_paddle_relative_to =
-    [&](struct vertex center){
+  class vertex {
+  public:
+    float x;
+    float y;
+  };
+  std::function<void(vertex)> draw_paddle_relative_to =
+    [&](vertex center){
        glBegin(GL_QUADS);
        {
          glVertex2f(center.x-0.1,center.y-0.3);
@@ -259,7 +263,7 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      struct vertex center;
+      vertex center;
       center.x = -0.9f;
       center.y= 0.0f + paddle_1_offset_Y;
       draw_paddle_relative_to(center);
@@ -267,17 +271,17 @@ render_scene(int demo_number){
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      struct vertex center;
+      vertex center;
       center.x = 0.9f;
       center.y= 0.0f + paddle_2_offset_Y;
       draw_paddle_relative_to(center);
     }
     return SDL_FALSE;
   }
-  typedef std::function<struct vertex (struct vertex)> vertex_transformer;
+  typedef std::function<vertex (vertex)> vertex_transformer;
   vertex_transformer model_space_to_device_space =
-    [&](struct vertex modelspace){
-      struct vertex device_coordinate ;
+    [&](vertex modelspace){
+      vertex device_coordinate ;
       device_coordinate.x=modelspace.x/100.0f;
       device_coordinate.y=modelspace.y/100.0f;
       return device_coordinate;
@@ -319,7 +323,7 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      struct vertex center;
+      vertex center;
       center.x = -90.0f;
       center.y= 0.0f + paddle_1_offset_Y;
       draw_paddle_relative_to(model_space_to_device_space(center));
@@ -327,7 +331,7 @@ render_scene(int demo_number){
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      struct vertex center;
+      vertex center;
       center.x = 90.0f;
       center.y= 0.0f + paddle_2_offset_Y;
       draw_paddle_relative_to(model_space_to_device_space(center));
@@ -340,29 +344,29 @@ render_scene(int demo_number){
     [&](vertex_transformer f){
       glBegin(GL_QUADS);
       {
-        struct vertex local_v_1;
+        vertex local_v_1;
         local_v_1.x = -10.0; local_v_1.y = -30.0;
-        struct vertex global_v_1 = f(local_v_1);
+        vertex global_v_1 = f(local_v_1);
         glVertex2f(global_v_1.x,global_v_1.y);
-        struct vertex local_v_2 ;
+        vertex local_v_2 ;
         local_v_2.x = 10.0, local_v_2.y = -30.0;
-        struct vertex global_v_2 = f(local_v_2);
+        vertex global_v_2 = f(local_v_2);
         glVertex2f(global_v_2.x,global_v_2.y);
-        struct vertex local_v_3;
+        vertex local_v_3;
         local_v_3.x = 10.0;local_v_3.y = 30.0;
-        struct vertex global_v_3 = f(local_v_3);
+        vertex global_v_3 = f(local_v_3);
         glVertex2f(global_v_3.x,global_v_3.y);
-        struct vertex local_v_4;
+        vertex local_v_4;
         local_v_4.x = -10.0; local_v_4.y = 30.0;
-        struct vertex global_v_4 = f(local_v_4);
+        vertex global_v_4 = f(local_v_4);
         glVertex2f(global_v_4.x,global_v_4.y);
         glEnd();
       }
   };
   auto translate = [&](float x,
                        float y,
-                       struct vertex modelspace){
-    struct vertex translated_vertex;
+                       vertex modelspace){
+    vertex translated_vertex;
     translated_vertex.x = modelspace.x + x;
     translated_vertex.y = modelspace.y + y;
     return translated_vertex;
@@ -405,10 +409,10 @@ render_scene(int demo_number){
     glColor3f(1.0,1.0,1.0);
     {
       vertex_transformer local_coordinates_to_device_coordinates =
-        [&](struct vertex vertex_local_coordinates){
-           struct vertex vertex_translated = translate(-90.0f,
-                                                       0.0f + paddle_1_offset_Y,
-                                                       vertex_local_coordinates);
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_translated = translate(-90.0f,
+                                                0.0f + paddle_1_offset_Y,
+                                                vertex_local_coordinates);
            return model_space_to_device_space(vertex_translated);
       };
 
@@ -418,10 +422,10 @@ render_scene(int demo_number){
     glColor3f(1.0,1.0,0.0);
     {
       vertex_transformer local_coordinates_to_device_coordinates =
-        [&](struct vertex vertex_local_coordinates){
-           struct vertex vertex_translated = translate(90.0f,
-                                                       0.0f + paddle_2_offset_Y,
-                                                       vertex_local_coordinates);
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_translated = translate(90.0f,
+                                                0.0f + paddle_2_offset_Y,
+                                                vertex_local_coordinates);
            return model_space_to_device_space(vertex_translated);
       };
       draw_paddle_programmable(local_coordinates_to_device_coordinates);
@@ -429,8 +433,8 @@ render_scene(int demo_number){
     return SDL_FALSE;
   }
   auto rotate = [&](float angle_in_radians,
-                   struct vertex modelspace){
-    struct vertex rotated_vertex;
+                   vertex modelspace){
+    vertex rotated_vertex;
     rotated_vertex.x = ((float) modelspace.x*cos(angle_in_radians)
                         - modelspace.y*sin(angle_in_radians));
     rotated_vertex.y = ((float) modelspace.x*sin(angle_in_radians)
@@ -489,12 +493,12 @@ render_scene(int demo_number){
     glColor3f(1.0,1.0,1.0);
     {
       vertex_transformer local_coordinates_to_device_coordinates =
-        [&](struct vertex vertex_local_coordinates){
-           struct vertex vertex_rotated = rotate(paddle_1_rotation,
-                                                 vertex_local_coordinates);
-           struct vertex vertex_translated = translate(-90.0f,
-                                                       0.0f + paddle_1_offset_Y,
-                                                       vertex_rotated);
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_rotated = rotate(paddle_1_rotation,
+                                          vertex_local_coordinates);
+           vertex vertex_translated = translate(-90.0f,
+                                                0.0f + paddle_1_offset_Y,
+                                                vertex_rotated);
            return model_space_to_device_space(vertex_translated);
       };
 
@@ -504,12 +508,12 @@ render_scene(int demo_number){
     glColor3f(1.0,1.0,0.0);
     {
       vertex_transformer local_coordinates_to_device_coordinates =
-        [&](struct vertex vertex_local_coordinates){
-           struct vertex vertex_rotated = rotate(paddle_2_rotation,
-                                                 vertex_local_coordinates);
-           struct vertex vertex_translated = translate(90.0f,
-                                                       0.0f + paddle_2_offset_Y,
-                                                       vertex_rotated);
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_rotated = rotate(paddle_2_rotation,
+                                          vertex_local_coordinates);
+           vertex vertex_translated = translate(90.0f,
+                                                0.0f + paddle_2_offset_Y,
+                                                vertex_rotated);
            return model_space_to_device_space(vertex_translated);
       };
       draw_paddle_programmable(local_coordinates_to_device_coordinates);
@@ -583,13 +587,13 @@ render_scene(int demo_number){
     glColor3f(1.0,1.0,1.0);
     {
       vertex_transformer local_coordinates_to_device_coordinates =
-        [&](struct vertex vertex_local_coordinates){
-           struct vertex vertex_rotated = rotate(paddle_1_rotation,
-                                                 vertex_local_coordinates);
-           struct vertex vertex_translated = translate(-90.0f,
-                                                       0.0f + paddle_1_offset_Y,
-                                                       vertex_rotated);
-           struct vertex camera_coordinates;
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_rotated = rotate(paddle_1_rotation,
+                                          vertex_local_coordinates);
+           vertex vertex_translated = translate(-90.0f,
+                                                0.0f + paddle_1_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
            camera_coordinates.x = vertex_translated.x - camera_x;
            camera_coordinates.y = vertex_translated.y - camera_y;
            return model_space_to_device_space(camera_coordinates);
@@ -601,13 +605,13 @@ render_scene(int demo_number){
     glColor3f(1.0,1.0,0.0);
     {
       vertex_transformer local_coordinates_to_device_coordinates =
-        [&](struct vertex vertex_local_coordinates){
-           struct vertex vertex_rotated = rotate(paddle_2_rotation,
-                                                 vertex_local_coordinates);
-           struct vertex vertex_translated = translate(90.0f,
-                                                       0.0f + paddle_2_offset_Y,
-                                                       vertex_rotated);
-           struct vertex camera_coordinates;
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_rotated = rotate(paddle_2_rotation,
+                                          vertex_local_coordinates);
+           vertex vertex_translated = translate(90.0f,
+                                                0.0f + paddle_2_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
            camera_coordinates.x = vertex_translated.x - camera_x;
            camera_coordinates.y = vertex_translated.y - camera_y;
            return model_space_to_device_space(camera_coordinates);
@@ -616,23 +620,33 @@ render_scene(int demo_number){
     }
     return SDL_FALSE;
   }
-  std::function<void()> draw_paddle_opengl2point1 = [&](){
-    glBegin(GL_QUADS);
-    {
-      glVertex2f(-10.0, -30.0);
-      glVertex2f(10.0, -30.0);
-      glVertex2f(10.0, 30.0);
-      glVertex2f(-10.0, 30.0);
-      glEnd();
-    }
+  std::function<void (vertex_transformer)> draw_square_programmable =
+    [&](vertex_transformer f){
+      glBegin(GL_QUADS);
+      {
+        vertex local_v_1;
+        local_v_1.x = -5.0; local_v_1.y = -5.0;
+        vertex global_v_1 = f(local_v_1);
+        glVertex2f(global_v_1.x,global_v_1.y);
+        vertex local_v_2 ;
+        local_v_2.x = 5.0, local_v_2.y = -5.0;
+        vertex global_v_2 = f(local_v_2);
+        glVertex2f(global_v_2.x,global_v_2.y);
+        vertex local_v_3;
+        local_v_3.x = 5.0;local_v_3.y = 5.0;
+        vertex global_v_3 = f(local_v_3);
+        glVertex2f(global_v_3.x,global_v_3.y);
+        vertex local_v_4;
+        local_v_4.x = -5.0; local_v_4.y = 5.0;
+        vertex global_v_4 = f(local_v_4);
+        glVertex2f(global_v_4.x,global_v_4.y);
+        glEnd();
+      }
   };
 
-  std::function<double(double)> RAD_TO_DEG = [&](double rad){
-    return 57.296 * rad;
-  };
   if(8 == demo_number){
     /*
-     *  Demo 7 - OpenGL Matricies
+     *  Demo 8 - Translate Relative location
      */
     // handle events
     glClear(GL_COLOR_BUFFER_BIT);
@@ -640,12 +654,6 @@ render_scene(int demo_number){
       {
         if (event.type == SDL_QUIT){
           return SDL_TRUE;
-        }
-        if (event.type == SDL_WINDOWEVENT){
-          if(event.window.event == SDL_WINDOWEVENT_RESIZED){
-            int w = event.window.data1, h = event.window.data2;
-            glViewport(0,0,w,h);
-          }
         }
       }
 
@@ -699,49 +707,491 @@ render_scene(int demo_number){
       }
     }
 
-    // set up Camera
+    // draw paddle 1, relative to the offset
+    glColor3f(1.0,1.0,1.0);
     {
-      // define the projection
-      glMatrixMode(GL_PROJECTION);
-      glLoadIdentity();
-      glOrtho(-100,100,-100,100,-100,100);
-      // move the "camera"
-      glMatrixMode(GL_MODELVIEW);
-      glLoadIdentity();
-      glTranslatef(-camera_x,
-                   -camera_y,
-                   0.0);
+      vertex_transformer local_coordinates_to_device_coordinates =
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_rotated = rotate(paddle_1_rotation,
+                                          vertex_local_coordinates);
+           vertex vertex_translated = translate(-90.0f,
+                                                0.0f + paddle_1_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
+           camera_coordinates.x = vertex_translated.x - camera_x;
+           camera_coordinates.y = vertex_translated.y - camera_y;
+           return model_space_to_device_space(camera_coordinates);
+      };
+
+      draw_paddle_programmable(local_coordinates_to_device_coordinates);
+    }
+    // draw square, relative to paddle 1
+    glColor3f(0.0,0.0,1.0);
+    {
+      vertex_transformer local_coordinates_to_device_coordinates =
+        [&](vertex vertex_local_coordinates){
+           vertex square_translated = translate(20.0f,
+                                                0.0f,
+                                                vertex_local_coordinates);
+           vertex vertex_rotated = rotate(paddle_1_rotation,
+                                          square_translated);
+           vertex vertex_translated = translate(-90.0f,
+                                                0.0f + paddle_1_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
+           camera_coordinates.x = vertex_translated.x - camera_x;
+           camera_coordinates.y = vertex_translated.y - camera_y;
+           return model_space_to_device_space(camera_coordinates);
+      };
+
+      draw_square_programmable(local_coordinates_to_device_coordinates);
+    }
+    // draw paddle 2, relative to the offset
+    glColor3f(1.0,1.0,0.0);
+    {
+      vertex_transformer local_coordinates_to_device_coordinates =
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_rotated = rotate(paddle_2_rotation,
+                                          vertex_local_coordinates);
+           vertex vertex_translated = translate(90.0f,
+                                                0.0f + paddle_2_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
+           camera_coordinates.x = vertex_translated.x - camera_x;
+           camera_coordinates.y = vertex_translated.y - camera_y;
+           return model_space_to_device_space(camera_coordinates);
+      };
+      draw_paddle_programmable(local_coordinates_to_device_coordinates);
+    }
+    return SDL_FALSE;
+  }
+  if(9 == demo_number){
+    /*
+     *  Demo 9 - Rotation of square
+     */
+    // handle events
+    glClear(GL_COLOR_BUFFER_BIT);
+    while (SDL_PollEvent(&event))
+      {
+        if (event.type == SDL_QUIT){
+          return SDL_TRUE;
+        }
+      }
+
+    static float camera_x = 0.0;
+    static float camera_y = 0.0;
+
+    static float paddle_1_offset_Y = 0.0;
+    static float paddle_2_offset_Y = 0.0;
+    static float paddle_1_rotation = 0.0;
+    static float paddle_2_rotation = 0.0;
+    static float square_rotation = 0.0;
+
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+    // handle keyboard input
+    {
+      if (state[SDL_SCANCODE_S]) {
+        paddle_1_offset_Y -= 10.0;
+      }
+      if (state[SDL_SCANCODE_W]) {
+        paddle_1_offset_Y += 10.0;
+      }
+      if (state[SDL_SCANCODE_K]) {
+        paddle_2_offset_Y -= 10.0;
+      }
+      if (state[SDL_SCANCODE_I]) {
+        paddle_2_offset_Y += 10.0;
+      }
+      if (state[SDL_SCANCODE_A]) {
+        paddle_1_rotation -= 0.1;
+      }
+      if (state[SDL_SCANCODE_D]) {
+        paddle_1_rotation += 0.1;
+      }
+      if (state[SDL_SCANCODE_J]) {
+        paddle_2_rotation -= 0.1;
+      }
+      if (state[SDL_SCANCODE_L]) {
+        paddle_2_rotation += 0.1;
+      }
+      if (state[SDL_SCANCODE_UP]) {
+        camera_y += 10.0;
+      }
+      if (state[SDL_SCANCODE_DOWN]) {
+        camera_y -= 10.0;
+      }
+      if (state[SDL_SCANCODE_LEFT]) {
+        camera_x -= 10.0;
+      }
+      if (state[SDL_SCANCODE_RIGHT]) {
+        camera_x += 10.0;
+      }
+      if (state[SDL_SCANCODE_Q]) {
+        square_rotation += 0.1;
+      }
     }
 
     // draw paddle 1, relative to the offset
-    glPushMatrix();
     glColor3f(1.0,1.0,1.0);
-    glTranslatef(-90.0f,
-                 0.0f + paddle_1_offset_Y,
-                 0.0);
-    glRotatef(RAD_TO_DEG(paddle_1_rotation),
-              0.0,
-              0.0,
-              1.0);
-    draw_paddle_opengl2point1();
-    glPopMatrix();
+    {
+      vertex_transformer local_coordinates_to_device_coordinates =
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_rotated = rotate(paddle_1_rotation,
+                                          vertex_local_coordinates);
+           vertex vertex_translated = translate(-90.0f,
+                                                0.0f + paddle_1_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
+           camera_coordinates.x = vertex_translated.x - camera_x;
+           camera_coordinates.y = vertex_translated.y - camera_y;
+           return model_space_to_device_space(camera_coordinates);
+      };
 
+      draw_paddle_programmable(local_coordinates_to_device_coordinates);
+    }
+    // draw square, relative to paddle 1
+    glColor3f(0.0,0.0,1.0);
+    {
+      vertex_transformer local_coordinates_to_device_coordinates =
+        [&](vertex vertex_local_coordinates){
+           vertex square_rotated = rotate(square_rotation,
+                                          vertex_local_coordinates);
+           vertex square_translated = translate(20.0f,
+                                                0.0f,
+                                                square_rotated);
+           vertex vertex_rotated = rotate(paddle_1_rotation,
+                                          square_translated);
+           vertex vertex_translated = translate(-90.0f,
+                                                0.0f + paddle_1_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
+           camera_coordinates.x = vertex_translated.x - camera_x;
+           camera_coordinates.y = vertex_translated.y - camera_y;
+           return model_space_to_device_space(camera_coordinates);
+      };
 
+      draw_square_programmable(local_coordinates_to_device_coordinates);
+    }
     // draw paddle 2, relative to the offset
-    glPushMatrix();
     glColor3f(1.0,1.0,0.0);
-    glTranslatef(90.0f,
-                 0.0f + paddle_2_offset_Y,
-                 0.0);
-    glRotatef(RAD_TO_DEG(paddle_2_rotation),
-               0.0,
-               0.0,
-               1.0);
-    draw_paddle_opengl2point1();
-    glPopMatrix();
-
+    {
+      vertex_transformer local_coordinates_to_device_coordinates =
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_rotated = rotate(paddle_2_rotation,
+                                          vertex_local_coordinates);
+           vertex vertex_translated = translate(90.0f,
+                                                0.0f + paddle_2_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
+           camera_coordinates.x = vertex_translated.x - camera_x;
+           camera_coordinates.y = vertex_translated.y - camera_y;
+           return model_space_to_device_space(camera_coordinates);
+      };
+      draw_paddle_programmable(local_coordinates_to_device_coordinates);
+    }
     return SDL_FALSE;
   }
+  auto scale = [&](float scale_x,
+                   float scale_y,
+                   vertex modelspace){
+    vertex scaled_vertex;
+    scaled_vertex.x = modelspace.x * scale_x;
+    scaled_vertex.y = modelspace.y * scale_y;
+    return scaled_vertex;
+
+  };
+  // change the definition of square to positive and negative 1.0
+  draw_square_programmable =
+    [&](vertex_transformer f){
+      glBegin(GL_QUADS);
+      {
+        vertex local_v_1;
+        local_v_1.x = -1.0; local_v_1.y = -1.0;
+        vertex global_v_1 = f(local_v_1);
+        glVertex2f(global_v_1.x,global_v_1.y);
+        vertex local_v_2 ;
+        local_v_2.x = 1.0, local_v_2.y = -1.0;
+        vertex global_v_2 = f(local_v_2);
+        glVertex2f(global_v_2.x,global_v_2.y);
+        vertex local_v_3;
+        local_v_3.x = 1.0;local_v_3.y = 1.0;
+        vertex global_v_3 = f(local_v_3);
+        glVertex2f(global_v_3.x,global_v_3.y);
+        vertex local_v_4;
+        local_v_4.x = -1.0; local_v_4.y = 1.0;
+        vertex global_v_4 = f(local_v_4);
+        glVertex2f(global_v_4.x,global_v_4.y);
+        glEnd();
+      }
+  };
+  if(10 == demo_number){
+    /*
+     *  Demo 10 - Scaling
+     */
+    // handle events
+    glClear(GL_COLOR_BUFFER_BIT);
+    while (SDL_PollEvent(&event))
+      {
+        if (event.type == SDL_QUIT){
+          return SDL_TRUE;
+        }
+      }
+
+    static float camera_x = 0.0;
+    static float camera_y = 0.0;
+
+    static float paddle_1_offset_Y = 0.0;
+    static float paddle_2_offset_Y = 0.0;
+    static float paddle_1_rotation = 0.0;
+    static float paddle_2_rotation = 0.0;
+    static float square_rotation = 0.0;
+    static float rotation_around_paddle_1 = 0.0;
+
+    const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+    // handle keyboard input
+    {
+      if (state[SDL_SCANCODE_S]) {
+        paddle_1_offset_Y -= 10.0;
+      }
+      if (state[SDL_SCANCODE_W]) {
+        paddle_1_offset_Y += 10.0;
+      }
+      if (state[SDL_SCANCODE_K]) {
+        paddle_2_offset_Y -= 10.0;
+      }
+      if (state[SDL_SCANCODE_I]) {
+        paddle_2_offset_Y += 10.0;
+      }
+      if (state[SDL_SCANCODE_A]) {
+        paddle_1_rotation -= 0.1;
+      }
+      if (state[SDL_SCANCODE_D]) {
+        paddle_1_rotation += 0.1;
+      }
+      if (state[SDL_SCANCODE_J]) {
+        paddle_2_rotation -= 0.1;
+      }
+      if (state[SDL_SCANCODE_L]) {
+        paddle_2_rotation += 0.1;
+      }
+      if (state[SDL_SCANCODE_UP]) {
+        camera_y += 10.0;
+      }
+      if (state[SDL_SCANCODE_DOWN]) {
+        camera_y -= 10.0;
+      }
+      if (state[SDL_SCANCODE_LEFT]) {
+        camera_x -= 10.0;
+      }
+      if (state[SDL_SCANCODE_RIGHT]) {
+        camera_x += 10.0;
+      }
+      if (state[SDL_SCANCODE_Q]) {
+        square_rotation += 0.1;
+      }
+      if (state[SDL_SCANCODE_E]) {
+        rotation_around_paddle_1 += 0.1;
+      }
+    }
+
+    // draw paddle 1, relative to the offset
+    glColor3f(1.0,1.0,1.0);
+    {
+      vertex_transformer local_coordinates_to_device_coordinates =
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_scaled = scale(10.0f,
+                                        30.0f,
+                                        vertex_local_coordinates);
+           vertex vertex_rotated = rotate(paddle_1_rotation,
+                                          vertex_scaled);
+           vertex vertex_translated = translate(-90.0f,
+                                                0.0f + paddle_1_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
+           camera_coordinates.x = vertex_translated.x - camera_x;
+           camera_coordinates.y = vertex_translated.y - camera_y;
+           return model_space_to_device_space(camera_coordinates);
+      };
+
+      draw_square_programmable(local_coordinates_to_device_coordinates);
+    }
+    // draw square, relative to paddle 1
+    glColor3f(0.0,0.0,1.0);
+    {
+      vertex_transformer local_coordinates_to_device_coordinates =
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_scaled = scale(5.0f,
+                                        5.0f,
+                                        vertex_local_coordinates);
+           vertex square_rotated = rotate(square_rotation,
+                                          vertex_scaled);
+           vertex square_translated = translate(20.0f,
+                                                0.0f,
+                                                square_rotated);
+           vertex around_paddle_1 = rotate(rotation_around_paddle_1,
+                                           square_translated);
+           vertex vertex_rotated = rotate(paddle_1_rotation,
+                                          around_paddle_1);
+           vertex vertex_translated = translate(-90.0f,
+                                                0.0f + paddle_1_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
+           camera_coordinates.x = vertex_translated.x - camera_x;
+           camera_coordinates.y = vertex_translated.y - camera_y;
+           return model_space_to_device_space(camera_coordinates);
+      };
+      draw_square_programmable(local_coordinates_to_device_coordinates);
+    }
+    // draw paddle 2, relative to the offset
+    glColor3f(1.0,1.0,0.0);
+    {
+      vertex_transformer local_coordinates_to_device_coordinates =
+        [&](vertex vertex_local_coordinates){
+           vertex vertex_scaled = scale(10.0f,
+                                        30.0f,
+                                        vertex_local_coordinates);
+           vertex vertex_rotated = rotate(paddle_2_rotation,
+                                          vertex_scaled);
+           vertex vertex_translated = translate(90.0f,
+                                                0.0f + paddle_2_offset_Y,
+                                                vertex_rotated);
+           vertex camera_coordinates;
+           camera_coordinates.x = vertex_translated.x - camera_x;
+           camera_coordinates.y = vertex_translated.y - camera_y;
+           return model_space_to_device_space(camera_coordinates);
+      };
+      draw_square_programmable(local_coordinates_to_device_coordinates);
+    }
+    return SDL_FALSE;
+  }
+  // std::function<void()> draw_paddle_opengl2point1 = [&](){
+  //   glBegin(GL_QUADS);
+  //   {
+  //     glVertex2f(-10.0, -30.0);
+  //     glVertex2f(10.0, -30.0);
+  //     glVertex2f(10.0, 30.0);
+  //     glVertex2f(-10.0, 30.0);
+  //     glEnd();
+  //   }
+  // };
+
+  // std::function<double(double)> RAD_TO_DEG = [&](double rad){
+  //   return 57.296 * rad;
+  // };
+  // if(8 == demo_number){
+  //   /*
+  //    *  Demo 7 - OpenGL Matricies
+  //    */
+  //   // handle events
+  //   glClear(GL_COLOR_BUFFER_BIT);
+  //   while (SDL_PollEvent(&event))
+  //     {
+  //       if (event.type == SDL_QUIT){
+  //         return SDL_TRUE;
+  //       }
+  //       if (event.type == SDL_WINDOWEVENT){
+  //         if(event.window.event == SDL_WINDOWEVENT_RESIZED){
+  //           int w = event.window.data1, h = event.window.data2;
+  //           glViewport(0,0,w,h);
+  //         }
+  //       }
+  //     }
+
+  //   static float camera_x = 0.0;
+  //   static float camera_y = 0.0;
+
+  //   static float paddle_1_offset_Y = 0.0;
+  //   static float paddle_2_offset_Y = 0.0;
+  //   static float paddle_1_rotation = 0.0;
+  //   static float paddle_2_rotation = 0.0;
+
+  //   const Uint8 *state = SDL_GetKeyboardState(NULL);
+
+  //   // handle keyboard input
+  //   {
+  //     if (state[SDL_SCANCODE_S]) {
+  //       paddle_1_offset_Y -= 10.0;
+  //     }
+  //     if (state[SDL_SCANCODE_W]) {
+  //       paddle_1_offset_Y += 10.0;
+  //     }
+  //     if (state[SDL_SCANCODE_K]) {
+  //       paddle_2_offset_Y -= 10.0;
+  //     }
+  //     if (state[SDL_SCANCODE_I]) {
+  //       paddle_2_offset_Y += 10.0;
+  //     }
+  //     if (state[SDL_SCANCODE_A]) {
+  //       paddle_1_rotation -= 0.1;
+  //     }
+  //     if (state[SDL_SCANCODE_D]) {
+  //       paddle_1_rotation += 0.1;
+  //     }
+  //     if (state[SDL_SCANCODE_J]) {
+  //       paddle_2_rotation -= 0.1;
+  //     }
+  //     if (state[SDL_SCANCODE_L]) {
+  //       paddle_2_rotation += 0.1;
+  //     }
+  //     if (state[SDL_SCANCODE_UP]) {
+  //       camera_y += 10.0;
+  //     }
+  //     if (state[SDL_SCANCODE_DOWN]) {
+  //       camera_y -= 10.0;
+  //     }
+  //     if (state[SDL_SCANCODE_LEFT]) {
+  //       camera_x -= 10.0;
+  //     }
+  //     if (state[SDL_SCANCODE_RIGHT]) {
+  //       camera_x += 10.0;
+  //     }
+  //   }
+
+  //   // set up Camera
+  //   {
+  //     // define the projection
+  //     glMatrixMode(GL_PROJECTION);
+  //     glLoadIdentity();
+  //     glOrtho(-100,100,-100,100,-100,100);
+  //     // move the "camera"
+  //     glMatrixMode(GL_MODELVIEW);
+  //     glLoadIdentity();
+  //     glTranslatef(-camera_x,
+  //                  -camera_y,
+  //                  0.0);
+  //   }
+
+  //   // draw paddle 1, relative to the offset
+  //   glPushMatrix();
+  //   glColor3f(1.0,1.0,1.0);
+  //   glTranslatef(-90.0f,
+  //                0.0f + paddle_1_offset_Y,
+  //                0.0);
+  //   glRotatef(RAD_TO_DEG(paddle_1_rotation),
+  //             0.0,
+  //             0.0,
+  //             1.0);
+  //   draw_paddle_opengl2point1();
+  //   glPopMatrix();
+
+
+  //   // draw paddle 2, relative to the offset
+  //   glPushMatrix();
+  //   glColor3f(1.0,1.0,0.0);
+  //   glTranslatef(90.0f,
+  //                0.0f + paddle_2_offset_Y,
+  //                0.0);
+  //   glRotatef(RAD_TO_DEG(paddle_2_rotation),
+  //              0.0,
+  //              0.0,
+  //              1.0);
+  //   draw_paddle_opengl2point1();
+  //   glPopMatrix();
+
+  //   return SDL_FALSE;
+  // }
 
   // in later demos,
   //glClearDepth( 1.0f );
