@@ -1021,6 +1021,7 @@ render_scene(int demo_number){
     }
     return SDL_FALSE;
   }
+  // I'm tired of long types. it won't fit in a book.  "auto"s it is
   auto draw_paddle_programmable_stack =
     [&](std::vector<vertex_transformer> s){
        glBegin(GL_QUADS);
