@@ -9,7 +9,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <functional>
-#include <stack>
+#include <vector>
 #include "main.h"
 
 
@@ -1021,6 +1021,32 @@ render_scene(int demo_number){
     }
     return SDL_FALSE;
   }
+  auto draw_paddle_programmable_stack =
+    [&](std::vector<vertex_transformer> s){
+       glBegin(GL_QUADS);
+       {
+         vertex_transformer f = [&](struct vertex v){return v;};
+         
+         struct vertex local_v_1;
+         local_v_1.x = -10.0; local_v_1.y = -30.0;
+         struct vertex global_v_1 = f(local_v_1);
+         glVertex2f(global_v_1.x,global_v_1.y);
+         struct vertex local_v_2 ;
+         local_v_2.x = 10.0, local_v_2.y = -30.0;
+         struct vertex global_v_2 = f(local_v_2);
+         glVertex2f(global_v_2.x,global_v_2.y);
+         struct vertex local_v_3;
+         local_v_3.x = 10.0;local_v_3.y = 30.0;
+         struct vertex global_v_3 = f(local_v_3);
+         glVertex2f(global_v_3.x,global_v_3.y);
+         struct vertex local_v_4;
+         local_v_4.x = -10.0; local_v_4.y = 30.0;
+         struct vertex global_v_4 = f(local_v_4);
+         glVertex2f(global_v_4.x,global_v_4.y);
+         glEnd();
+       }
+  };
+
   if(11 == demo_number){
     /*
      *  Demo 10 - Stack of Transformations
@@ -1092,21 +1118,21 @@ render_scene(int demo_number){
       }
     }
 
-    std::stack<vertex_transformer> vertex_transformer_stack;
-    vertex_transformer_stack.push([&](struct vertex vertex_local_coordinates){
+    std::vector<vertex_transformer> vertex_transformer_stack;
+    vertex_transformer_stack.push_back([&](struct vertex vertex_local_coordinates){
         struct vertex camera_coordinates;
         camera_coordinates.x = vertex_local_coordinates.x - camera_x;
         camera_coordinates.y = vertex_local_coordinates.y - camera_y;
         return model_space_to_device_space(camera_coordinates);
       }
     );
-    vertex_transformer_stack.push([&](struct vertex vertex_local_coordinates){
+    vertex_transformer_stack.push_back([&](struct vertex vertex_local_coordinates){
         return translate(-90.0f,
                          0.0f + paddle_1_offset_Y,
                          vertex_local_coordinates);
       }
       );
-    vertex_transformer_stack.push([&](struct vertex vertex_local_coordinates){
+    vertex_transformer_stack.push_back([&](struct vertex vertex_local_coordinates){
         return rotate(paddle_1_rotation,
                       vertex_local_coordinates);
       }
