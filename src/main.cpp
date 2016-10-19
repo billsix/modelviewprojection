@@ -395,6 +395,21 @@ render_scene(int demo_number){
   };
   static float paddle_1_rotation = 0.0;
   static float paddle_2_rotation = 0.0;
+  std::function<void()> rotate_paddles = [&](){
+    if (state[SDL_SCANCODE_A]) {
+      paddle_1_rotation -= 0.1;
+    }
+    if (state[SDL_SCANCODE_D]) {
+      paddle_1_rotation += 0.1;
+    }
+    if (state[SDL_SCANCODE_J]) {
+      paddle_2_rotation -= 0.1;
+    }
+    if (state[SDL_SCANCODE_L]) {
+      paddle_2_rotation += 0.1;
+    }
+  };
+
   if(6 == demo_number){
     /*
      *  Demo 3
@@ -409,22 +424,7 @@ render_scene(int demo_number){
       }
     
     move_paddle();
-
-    // handle keyboard input
-    {
-      if (state[SDL_SCANCODE_A]) {
-        paddle_1_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_D]) {
-        paddle_1_rotation += 0.1;
-      }
-      if (state[SDL_SCANCODE_J]) {
-        paddle_2_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_L]) {
-        paddle_2_rotation += 0.1;
-      }
-    }
+    rotate_paddles();
 
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -470,21 +470,9 @@ render_scene(int demo_number){
       }
 
     move_paddle();
-
+    rotate_paddles();
     // handle keyboard input
     {
-      if (state[SDL_SCANCODE_A]) {
-        paddle_1_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_D]) {
-        paddle_1_rotation += 0.1;
-      }
-      if (state[SDL_SCANCODE_J]) {
-        paddle_2_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_L]) {
-        paddle_2_rotation += 0.1;
-      }
       if (state[SDL_SCANCODE_UP]) {
         camera_y += 10.0;
       }
@@ -571,21 +559,9 @@ render_scene(int demo_number){
       }
     
     move_paddle();
-
+    rotate_paddles();
     // handle keyboard input
     {
-      if (state[SDL_SCANCODE_A]) {
-        paddle_1_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_D]) {
-        paddle_1_rotation += 0.1;
-      }
-      if (state[SDL_SCANCODE_J]) {
-        paddle_2_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_L]) {
-        paddle_2_rotation += 0.1;
-      }
       if (state[SDL_SCANCODE_UP]) {
         camera_y += 10.0;
       }
@@ -670,20 +646,9 @@ render_scene(int demo_number){
       }
 
     move_paddle();
+    rotate_paddles();
     // handle keyboard input
     {
-      if (state[SDL_SCANCODE_A]) {
-        paddle_1_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_D]) {
-        paddle_1_rotation += 0.1;
-      }
-      if (state[SDL_SCANCODE_J]) {
-        paddle_2_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_L]) {
-        paddle_2_rotation += 0.1;
-      }
       if (state[SDL_SCANCODE_UP]) {
         camera_y += 10.0;
       }
@@ -807,20 +772,9 @@ render_scene(int demo_number){
     static float rotation_around_paddle_1 = 0.0;
 
     move_paddle();
+    rotate_paddles();
     // handle keyboard input
     {
-      if (state[SDL_SCANCODE_A]) {
-        paddle_1_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_D]) {
-        paddle_1_rotation += 0.1;
-      }
-      if (state[SDL_SCANCODE_J]) {
-        paddle_2_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_L]) {
-        paddle_2_rotation += 0.1;
-      }
       if (state[SDL_SCANCODE_UP]) {
         camera_y += 10.0;
       }
@@ -947,20 +901,9 @@ render_scene(int demo_number){
     static float rotation_around_paddle_1 = 0.0;
 
     move_paddle();
+    rotate_paddles();
     // handle keyboard input
     {
-      if (state[SDL_SCANCODE_A]) {
-        paddle_1_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_D]) {
-        paddle_1_rotation += 0.1;
-      }
-      if (state[SDL_SCANCODE_J]) {
-        paddle_2_rotation -= 0.1;
-      }
-      if (state[SDL_SCANCODE_L]) {
-        paddle_2_rotation += 0.1;
-      }
       if (state[SDL_SCANCODE_UP]) {
         camera_y += 10.0;
       }
