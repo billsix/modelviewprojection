@@ -319,21 +319,29 @@ render_scene(int demo_number){
       glBegin(GL_QUADS);
       {
         vertex local_v_1;
-        local_v_1.x = -10.0; local_v_1.y = -30.0;
-        vertex global_v_1 = f(local_v_1);
-        glVertex2f(global_v_1.x,global_v_1.y);
+	{
+	  local_v_1.x = -10.0; local_v_1.y = -30.0;
+	  vertex global_v_1 = f(local_v_1);
+	  glVertex2f(global_v_1.x,global_v_1.y);
+	}
         vertex local_v_2 ;
-        local_v_2.x = 10.0, local_v_2.y = -30.0;
-        vertex global_v_2 = f(local_v_2);
-        glVertex2f(global_v_2.x,global_v_2.y);
+        {
+	  local_v_2.x = 10.0, local_v_2.y = -30.0;
+	  vertex global_v_2 = f(local_v_2);
+	  glVertex2f(global_v_2.x,global_v_2.y);
+	}
         vertex local_v_3;
-        local_v_3.x = 10.0;local_v_3.y = 30.0;
-        vertex global_v_3 = f(local_v_3);
-        glVertex2f(global_v_3.x,global_v_3.y);
+	{
+	  local_v_3.x = 10.0;local_v_3.y = 30.0;
+	  vertex global_v_3 = f(local_v_3);
+	  glVertex2f(global_v_3.x,global_v_3.y);
+	}
         vertex local_v_4;
-        local_v_4.x = -10.0; local_v_4.y = 30.0;
-        vertex global_v_4 = f(local_v_4);
-        glVertex2f(global_v_4.x,global_v_4.y);
+	{
+	  local_v_4.x = -10.0; local_v_4.y = 30.0;
+	  vertex global_v_4 = f(local_v_4);
+	  glVertex2f(global_v_4.x,global_v_4.y);
+	}
         glEnd();
       }
   };
