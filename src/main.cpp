@@ -828,7 +828,7 @@ render_scene(int demo_number){
       return Vertex3(modelspace.x * scale_x,
                      modelspace.y * scale_y,
                      modelspace.y * scale_z);
-      
+
     };
   std::function<void (Vertex3_transformer)>
     draw_square3_programmable =
@@ -912,11 +912,11 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinates){
+      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinate){
           Vertex3 Vertex3_scaled = scale3(10.0f,
                                           30.0f,
                                           1.0f,
-                                          Vertex3_local_coordinates);
+                                          Vertex3_local_coordinate);
           Vertex3 Vertex3_rotated = rotate3Z(paddle_1_rotation,
                                              Vertex3_scaled);
           Vertex3 Vertex3_translated = translate3(-90.0f,
@@ -935,11 +935,11 @@ render_scene(int demo_number){
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
-      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinates){
+      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinate){
           Vertex3 Vertex3_scaled = scale3(5.0f,
                                           5.0f,
                                           0.0f,
-                                          Vertex3_local_coordinates);
+                                          Vertex3_local_coordinate);
           Vertex3 square_rotated = rotate3Z(square_rotation,
                                             Vertex3_scaled);
           Vertex3 square_translated = translate3(20.0f,
@@ -966,11 +966,11 @@ render_scene(int demo_number){
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinates){
+      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinate){
           Vertex3 Vertex3_scaled = scale3(10.0f,
                                           30.0f,
                                           1.0f,
-                                          Vertex3_local_coordinates);
+                                          Vertex3_local_coordinate);
           Vertex3 Vertex3_rotated = rotate3Z(paddle_2_rotation,
                                              Vertex3_scaled);
           Vertex3 Vertex3_translated = translate3(90.0f,
