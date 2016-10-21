@@ -210,17 +210,17 @@ render_scene(int demo_number){
 
     return SDL_FALSE;
   }
-  class vertex {
+  class Vertex {
   public:
-    vertex(float the_x, float the_y):
+    Vertex(float the_x, float the_y):
       x(the_x),
       y(the_y)
     {}
     float x;
     float y;
   };
-  std::function<void(vertex)> draw_paddle_relative_to =
-    [&](vertex center)
+  std::function<void(Vertex)> draw_paddle_relative_to =
+    [&](Vertex center)
     {
       glBegin(GL_QUADS);
       {
@@ -249,22 +249,22 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      draw_paddle_relative_to(vertex(-0.9f,
+      draw_paddle_relative_to(Vertex(-0.9f,
                                      0.0f + paddle_1_offset_Y));
     }
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      draw_paddle_relative_to(vertex(0.9f,
+      draw_paddle_relative_to(Vertex(0.9f,
                                      0.0f + paddle_2_offset_Y));
     }
     return SDL_FALSE;
   }
-  typedef std::function<vertex (vertex)> vertex_transformer;
+  typedef std::function<Vertex (Vertex)> vertex_transformer;
   vertex_transformer model_space_to_device_space =
-    [&](vertex modelspace)
+    [&](Vertex modelspace)
     {
-      return vertex(modelspace.x/100.0f,
+      return Vertex(modelspace.x/100.0f,
                     modelspace.y/100.0f);
     };
   from_keyboard_update_paddle_positions = [&]()
@@ -300,13 +300,13 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      vertex center(-90.0f, 0.0f + paddle_1_offset_Y);
+      Vertex center(-90.0f, 0.0f + paddle_1_offset_Y);
       draw_paddle_relative_to(model_space_to_device_space(center));
     }
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      vertex center(90.0f, 0.0f + paddle_2_offset_Y);
+      Vertex center(90.0f, 0.0f + paddle_2_offset_Y);
       draw_paddle_relative_to(model_space_to_device_space(center));
     }
     return SDL_FALSE;
@@ -318,26 +318,26 @@ render_scene(int demo_number){
     {
       glBegin(GL_QUADS);
       {
-        vertex local_v_1(-10.0,-30.0);
-        vertex global_v_1 = f(local_v_1);
+        Vertex local_v_1(-10.0,-30.0);
+        Vertex global_v_1 = f(local_v_1);
         glVertex2f(global_v_1.x,global_v_1.y);
-        vertex local_v_2 (10.0, -30.0);
-        vertex global_v_2 = f(local_v_2);
+        Vertex local_v_2 (10.0, -30.0);
+        Vertex global_v_2 = f(local_v_2);
         glVertex2f(global_v_2.x,global_v_2.y);
-        vertex local_v_3(10.0,30.0);
-        vertex global_v_3 = f(local_v_3);
+        Vertex local_v_3(10.0,30.0);
+        Vertex global_v_3 = f(local_v_3);
         glVertex2f(global_v_3.x,global_v_3.y);
-        vertex local_v_4(-10.0, 30.0);
-        vertex global_v_4 = f(local_v_4);
+        Vertex local_v_4(-10.0, 30.0);
+        Vertex global_v_4 = f(local_v_4);
         glVertex2f(global_v_4.x,global_v_4.y);
         glEnd();
       }
     };
   auto translate = [&](float x,
                        float y,
-                       vertex modelspace)
+                       Vertex modelspace)
     {
-      return vertex(modelspace.x + x,
+      return Vertex(modelspace.x + x,
                     modelspace.y + y);
     };
   if(5 == demo_number){
@@ -358,8 +358,8 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      draw_paddle_programmable([&](vertex modelspace_vertex){
-	  vertex vertex_translated = translate(-90.0f,
+      draw_paddle_programmable([&](Vertex modelspace_vertex){
+	  Vertex vertex_translated = translate(-90.0f,
 					       0.0f + paddle_1_offset_Y,
 					       modelspace_vertex);
 	  return model_space_to_device_space(vertex_translated);
@@ -369,8 +369,8 @@ render_scene(int demo_number){
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      draw_paddle_programmable([&](vertex modelspace_vertex){
-	  vertex vertex_translated = translate(90.0f,
+      draw_paddle_programmable([&](Vertex modelspace_vertex){
+	  Vertex vertex_translated = translate(90.0f,
 					       0.0f + paddle_2_offset_Y,
 					       modelspace_vertex);
 	  return model_space_to_device_space(vertex_translated);
@@ -380,8 +380,8 @@ render_scene(int demo_number){
     return SDL_FALSE;
   }
   auto rotate = [&](float angle_in_radians,
-                    vertex modelspace){
-    return vertex(((float) modelspace.x*cos(angle_in_radians)
+                    Vertex modelspace){
+    return Vertex(((float) modelspace.x*cos(angle_in_radians)
                    - modelspace.y*sin(angle_in_radians)),
                   ((float) modelspace.x*sin(angle_in_radians)
                    + modelspace.y*cos(angle_in_radians)));
@@ -422,10 +422,10 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      draw_paddle_programmable([&](vertex modelspace_vertex){
-	  vertex vertex_rotated = rotate(paddle_1_rotation,
+      draw_paddle_programmable([&](Vertex modelspace_vertex){
+	  Vertex vertex_rotated = rotate(paddle_1_rotation,
 					 modelspace_vertex);
-	  vertex vertex_translated = translate(-90.0f,
+	  Vertex vertex_translated = translate(-90.0f,
 					       0.0f + paddle_1_offset_Y,
 					       vertex_rotated);
 	  return model_space_to_device_space(vertex_translated);
@@ -435,10 +435,10 @@ render_scene(int demo_number){
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      draw_paddle_programmable([&](vertex modelspace_vertex){
-	  vertex vertex_rotated = rotate(paddle_2_rotation,
+      draw_paddle_programmable([&](Vertex modelspace_vertex){
+	  Vertex vertex_rotated = rotate(paddle_2_rotation,
 					 modelspace_vertex);
-	  vertex vertex_translated = translate(90.0f,
+	  Vertex vertex_translated = translate(90.0f,
 					       0.0f + paddle_2_offset_Y,
 					       vertex_rotated);
 	  return model_space_to_device_space(vertex_translated);
@@ -484,13 +484,13 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      draw_paddle_programmable([&](vertex modelspace_vertex){
-	  vertex vertex_rotated = rotate(paddle_1_rotation,
+      draw_paddle_programmable([&](Vertex modelspace_vertex){
+	  Vertex vertex_rotated = rotate(paddle_1_rotation,
 					 modelspace_vertex);
-	  vertex vertex_translated = translate(-90.0f,
+	  Vertex vertex_translated = translate(-90.0f,
 					       0.0f + paddle_1_offset_Y,
 					       vertex_rotated);
-	  vertex camera_coordinates(vertex_translated.x - camera_x,
+	  Vertex camera_coordinates(vertex_translated.x - camera_x,
                                     vertex_translated.y - camera_y);
 	  return model_space_to_device_space(camera_coordinates);
 	});
@@ -499,13 +499,13 @@ render_scene(int demo_number){
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      draw_paddle_programmable([&](vertex modelspace_vertex){
-	  vertex vertex_rotated = rotate(paddle_2_rotation,
+      draw_paddle_programmable([&](Vertex modelspace_vertex){
+	  Vertex vertex_rotated = rotate(paddle_2_rotation,
 					 modelspace_vertex);
-	  vertex vertex_translated = translate(90.0f,
+	  Vertex vertex_translated = translate(90.0f,
 					       0.0f + paddle_2_offset_Y,
 					       vertex_rotated);
-	  vertex camera_coordinates(vertex_translated.x - camera_x,
+	  Vertex camera_coordinates(vertex_translated.x - camera_x,
                                     vertex_translated.y - camera_y);
 	  return model_space_to_device_space(camera_coordinates);
 	});
@@ -518,17 +518,17 @@ render_scene(int demo_number){
     {
       glBegin(GL_QUADS);
       {
-        vertex local_v_1(-5.0, -5.0);
-        vertex global_v_1 = f(local_v_1);
+        Vertex local_v_1(-5.0, -5.0);
+        Vertex global_v_1 = f(local_v_1);
         glVertex2f(global_v_1.x,global_v_1.y);
-        vertex local_v_2 (5.0, -5.0);
-        vertex global_v_2 = f(local_v_2);
+        Vertex local_v_2 (5.0, -5.0);
+        Vertex global_v_2 = f(local_v_2);
         glVertex2f(global_v_2.x,global_v_2.y);
-        vertex local_v_3(5.0, 5.0);
-        vertex global_v_3 = f(local_v_3);
+        Vertex local_v_3(5.0, 5.0);
+        Vertex global_v_3 = f(local_v_3);
         glVertex2f(global_v_3.x,global_v_3.y);
-        vertex local_v_4(-5.0,5.0);
-        vertex global_v_4 = f(local_v_4);
+        Vertex local_v_4(-5.0,5.0);
+        Vertex global_v_4 = f(local_v_4);
         glVertex2f(global_v_4.x,global_v_4.y);
         glEnd();
       }
@@ -554,13 +554,13 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      draw_paddle_programmable([&](vertex modelspace_vertex){
-	  vertex vertex_rotated = rotate(paddle_1_rotation,
+      draw_paddle_programmable([&](Vertex modelspace_vertex){
+	  Vertex vertex_rotated = rotate(paddle_1_rotation,
 					 modelspace_vertex);
-	  vertex vertex_translated = translate(-90.0f,
+	  Vertex vertex_translated = translate(-90.0f,
 					       0.0f + paddle_1_offset_Y,
 					       vertex_rotated);
-	  vertex camera_coordinates(vertex_translated.x - camera_x,
+	  Vertex camera_coordinates(vertex_translated.x - camera_x,
                                     vertex_translated.y - camera_y);
 	  return model_space_to_device_space(camera_coordinates);
 	});
@@ -569,16 +569,16 @@ render_scene(int demo_number){
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
-      draw_square_programmable([&](vertex modelspace_vertex){
-          vertex square_translated = translate(20.0f,
+      draw_square_programmable([&](Vertex modelspace_vertex){
+          Vertex square_translated = translate(20.0f,
                                                0.0f,
                                                modelspace_vertex);
-          vertex vertex_rotated = rotate(paddle_1_rotation,
+          Vertex vertex_rotated = rotate(paddle_1_rotation,
                                          square_translated);
-          vertex vertex_translated = translate(-90.0f,
+          Vertex vertex_translated = translate(-90.0f,
                                                0.0f + paddle_1_offset_Y,
                                                vertex_rotated);
-          vertex camera_coordinates(vertex_translated.x - camera_x,
+          Vertex camera_coordinates(vertex_translated.x - camera_x,
                                     vertex_translated.y - camera_y);
           return model_space_to_device_space(camera_coordinates);
         }
@@ -587,14 +587,14 @@ render_scene(int demo_number){
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      draw_paddle_programmable([&](vertex modelspace_vertex){
-	  vertex vertex_rotated = rotate(paddle_2_rotation,
-					 modelspace_vertex);
-	  vertex vertex_translated = translate(90.0f,
+      draw_paddle_programmable([&](Vertex modelspace_Vertex){
+	  Vertex Vertex_rotated = rotate(paddle_2_rotation,
+					 modelspace_Vertex);
+	  Vertex Vertex_translated = translate(90.0f,
 					       0.0f + paddle_2_offset_Y,
-					       vertex_rotated);
-	  vertex camera_coordinates(vertex_translated.x - camera_x,
-                                    vertex_translated.y - camera_y);
+					       Vertex_rotated);
+	  Vertex camera_coordinates(Vertex_translated.x - camera_x,
+                                    Vertex_translated.y - camera_y);
 	  return model_space_to_device_space(camera_coordinates);
 	});
 
@@ -629,14 +629,14 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      draw_paddle_programmable([&](vertex modelspace_vertex){
-	  vertex vertex_rotated = rotate(paddle_1_rotation,
-					 modelspace_vertex);
-	  vertex vertex_translated = translate(-90.0f,
+      draw_paddle_programmable([&](Vertex modelspace_Vertex){
+	  Vertex Vertex_rotated = rotate(paddle_1_rotation,
+					 modelspace_Vertex);
+	  Vertex Vertex_translated = translate(-90.0f,
 					       0.0f + paddle_1_offset_Y,
-					       vertex_rotated);
-	  vertex camera_coordinates(vertex_translated.x - camera_x,
-                                    vertex_translated.y - camera_y);
+					       Vertex_rotated);
+	  Vertex camera_coordinates(Vertex_translated.x - camera_x,
+                                    Vertex_translated.y - camera_y);
 	  return model_space_to_device_space(camera_coordinates);
 	});
 
@@ -644,33 +644,33 @@ render_scene(int demo_number){
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
-      draw_square_programmable([&](vertex modelspace_vertex){
-          vertex square_rotated = rotate(square_rotation,
-                                         modelspace_vertex);
-          vertex square_translated = translate(20.0f,
+      draw_square_programmable([&](Vertex modelspace_Vertex){
+          Vertex square_rotated = rotate(square_rotation,
+                                         modelspace_Vertex);
+          Vertex square_translated = translate(20.0f,
                                                0.0f,
                                                square_rotated);
-          vertex vertex_rotated = rotate(paddle_1_rotation,
+          Vertex Vertex_rotated = rotate(paddle_1_rotation,
                                          square_translated);
-          vertex vertex_translated = translate(-90.0f,
+          Vertex Vertex_translated = translate(-90.0f,
                                                0.0f + paddle_1_offset_Y,
-                                               vertex_rotated);
-          vertex camera_coordinates(vertex_translated.x - camera_x,
-                                    vertex_translated.y - camera_y);
+                                               Vertex_rotated);
+          Vertex camera_coordinates(Vertex_translated.x - camera_x,
+                                    Vertex_translated.y - camera_y);
           return model_space_to_device_space(camera_coordinates);
         });
     }
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      draw_paddle_programmable([&](vertex modelspace_vertex){
-	  vertex vertex_rotated = rotate(paddle_2_rotation,
-					 modelspace_vertex);
-	  vertex vertex_translated = translate(90.0f,
+      draw_paddle_programmable([&](Vertex modelspace_Vertex){
+	  Vertex Vertex_rotated = rotate(paddle_2_rotation,
+					 modelspace_Vertex);
+	  Vertex Vertex_translated = translate(90.0f,
 					       0.0f + paddle_2_offset_Y,
-					       vertex_rotated);
-	  vertex camera_coordinates(vertex_translated.x - camera_x,
-                                    vertex_translated.y - camera_y);
+					       Vertex_rotated);
+	  Vertex camera_coordinates(Vertex_translated.x - camera_x,
+                                    Vertex_translated.y - camera_y);
 	  return model_space_to_device_space(camera_coordinates);
 	});
 
@@ -679,8 +679,8 @@ render_scene(int demo_number){
   }
   auto scale = [&](float scale_x,
                    float scale_y,
-                   vertex modelspace){
-    return vertex(modelspace.x * scale_x,
+                   Vertex modelspace){
+    return Vertex(modelspace.x * scale_x,
                   modelspace.y * scale_y);
   };
   // change the definition of square to positive and negative 1.0
@@ -689,18 +689,18 @@ render_scene(int demo_number){
     {
       glBegin(GL_QUADS);
       {
-        vertex local_v_1(-1.0, -1.0);
-        vertex global_v_1 = f(local_v_1);
+        Vertex local_v_1(-1.0, -1.0);
+        Vertex global_v_1 = f(local_v_1);
         printf("2d %f %f\n",global_v_1.x,global_v_1.y);
         glVertex2f(global_v_1.x,global_v_1.y);
-        vertex local_v_2(1.0, -1.0);
-        vertex global_v_2 = f(local_v_2);
+        Vertex local_v_2(1.0, -1.0);
+        Vertex global_v_2 = f(local_v_2);
         glVertex2f(global_v_2.x,global_v_2.y);
-        vertex local_v_3(1.0, 1.0);
-        vertex global_v_3 = f(local_v_3);
+        Vertex local_v_3(1.0, 1.0);
+        Vertex global_v_3 = f(local_v_3);
         glVertex2f(global_v_3.x,global_v_3.y);
-        vertex local_v_4(-1.0,1.0);
-        vertex global_v_4 = f(local_v_4);
+        Vertex local_v_4(-1.0,1.0);
+        Vertex global_v_4 = f(local_v_4);
         glVertex2f(global_v_4.x,global_v_4.y);
         glEnd();
       }
@@ -734,67 +734,67 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      draw_square_programmable([&](vertex modelspace_vertex){
-          vertex vertex_scaled = scale(10.0f,
+      draw_square_programmable([&](Vertex modelspace_Vertex){
+          Vertex Vertex_scaled = scale(10.0f,
                                        30.0f,
-                                       modelspace_vertex);
-          vertex vertex_rotated = rotate(paddle_1_rotation,
-                                         vertex_scaled);
-          vertex vertex_translated = translate(-90.0f,
+                                       modelspace_Vertex);
+          Vertex Vertex_rotated = rotate(paddle_1_rotation,
+                                         Vertex_scaled);
+          Vertex Vertex_translated = translate(-90.0f,
                                                0.0f + paddle_1_offset_Y,
-                                               vertex_rotated);
-          vertex camera_coordinates(vertex_translated.x - camera_x,
-                                    vertex_translated.y - camera_y);
+                                               Vertex_rotated);
+          Vertex camera_coordinates(Vertex_translated.x - camera_x,
+                                    Vertex_translated.y - camera_y);
           return model_space_to_device_space(camera_coordinates);
         });
     }
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
-      draw_square_programmable([&](vertex modelspace_vertex){
-          vertex vertex_scaled = scale(5.0f,
+      draw_square_programmable([&](Vertex modelspace_Vertex){
+          Vertex Vertex_scaled = scale(5.0f,
                                        5.0f,
-                                       modelspace_vertex);
-          vertex square_rotated = rotate(square_rotation,
-                                         vertex_scaled);
-          vertex square_translated = translate(20.0f,
+                                       modelspace_Vertex);
+          Vertex square_rotated = rotate(square_rotation,
+                                         Vertex_scaled);
+          Vertex square_translated = translate(20.0f,
                                                0.0f,
                                                square_rotated);
-          vertex around_paddle_1 = rotate(rotation_around_paddle_1,
+          Vertex around_paddle_1 = rotate(rotation_around_paddle_1,
                                           square_translated);
-          vertex vertex_rotated = rotate(paddle_1_rotation,
+          Vertex Vertex_rotated = rotate(paddle_1_rotation,
                                          around_paddle_1);
-          vertex vertex_translated = translate(-90.0f,
+          Vertex Vertex_translated = translate(-90.0f,
                                                0.0f + paddle_1_offset_Y,
-                                               vertex_rotated);
-          vertex camera_coordinates(vertex_translated.x - camera_x,
-                                    vertex_translated.y - camera_y);
+                                               Vertex_rotated);
+          Vertex camera_coordinates(Vertex_translated.x - camera_x,
+                                    Vertex_translated.y - camera_y);
           return model_space_to_device_space(camera_coordinates);
         });
     }
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      draw_square_programmable([&](vertex modelspace_vertex){
-          vertex vertex_scaled = scale(10.0f,
+      draw_square_programmable([&](Vertex modelspace_Vertex){
+          Vertex Vertex_scaled = scale(10.0f,
                                        30.0f,
-                                       modelspace_vertex);
-          vertex vertex_rotated = rotate(paddle_2_rotation,
-                                         vertex_scaled);
-          vertex vertex_translated = translate(90.0f,
+                                       modelspace_Vertex);
+          Vertex Vertex_rotated = rotate(paddle_2_rotation,
+                                         Vertex_scaled);
+          Vertex Vertex_translated = translate(90.0f,
                                                0.0f + paddle_2_offset_Y,
-                                               vertex_rotated);
-          vertex camera_coordinates(vertex_translated.x - camera_x,
-                                    vertex_translated.y - camera_y);
+                                               Vertex_rotated);
+          Vertex camera_coordinates(Vertex_translated.x - camera_x,
+                                    Vertex_translated.y - camera_y);
           return model_space_to_device_space(camera_coordinates);
         });
     }
     return SDL_FALSE;
   }
 
-  class vertex3 {
+  class Vertex3 {
   public:
-    vertex3(float the_x, float the_y, float the_z):
+    Vertex3(float the_x, float the_y, float the_z):
       x(the_x),
       y(the_y),
       z(the_z)
@@ -803,18 +803,18 @@ render_scene(int demo_number){
     float y;
     float z;
   };
-  typedef std::function<vertex3 (vertex3)> vertex3_transformer;
+  typedef std::function<Vertex3 (Vertex3)> Vertex3_transformer;
   auto translate3 = [&](float x,
                         float y,
                         float z,
-                        vertex3 modelspace){
-    return vertex3(modelspace.x + x,
+                        Vertex3 modelspace){
+    return Vertex3(modelspace.x + x,
                    modelspace.y + y,
                    modelspace.z + z);
   };
   auto rotate3Z = [&](float angle_in_radians,
-                      vertex3 modelspace){
-    return vertex3(((float) modelspace.x*cos(angle_in_radians)
+                      Vertex3 modelspace){
+    return Vertex3(((float) modelspace.x*cos(angle_in_radians)
                     - modelspace.y*sin(angle_in_radians)),
                    ((float) modelspace.x*sin(angle_in_radians)
                     + modelspace.y*cos(angle_in_radians)),
@@ -823,37 +823,37 @@ render_scene(int demo_number){
   auto scale3 = [&](float scale_x,
                     float scale_y,
                     float scale_z,
-                    vertex3 modelspace){
-    return vertex3(modelspace.x * scale_x,
+                    Vertex3 modelspace){
+    return Vertex3(modelspace.x * scale_x,
                    modelspace.y * scale_y,
                    modelspace.y * scale_z);
 
   };
-  std::function<void (vertex3_transformer)>
+  std::function<void (Vertex3_transformer)>
     draw_square3_programmable =
-    [&](vertex3_transformer f)
+    [&](Vertex3_transformer f)
     {
       glBegin(GL_QUADS);
       {
-        vertex3 local_v_1(-1.0,
+        Vertex3 local_v_1(-1.0,
                           -1.0,
                           0.0);
-        vertex3 global_v_1 = f(local_v_1);
+        Vertex3 global_v_1 = f(local_v_1);
         glVertex3f(global_v_1.x,
                    global_v_1.y,
                    global_v_1.z);
-        vertex3 local_v_2 ( 1.0, -1.0, 0.0);
-        vertex3 global_v_2 = f(local_v_2);
+        Vertex3 local_v_2 ( 1.0, -1.0, 0.0);
+        Vertex3 global_v_2 = f(local_v_2);
         glVertex3f(global_v_2.x,
                    global_v_2.y,
                    global_v_2.z);
-        vertex3 local_v_3( 1.0, 1.0, 0.0);
-        vertex3 global_v_3 = f(local_v_3);
+        Vertex3 local_v_3( 1.0, 1.0, 0.0);
+        Vertex3 global_v_3 = f(local_v_3);
         glVertex3f(global_v_3.x,
                    global_v_3.y,
                    global_v_3.z);
-        vertex3 local_v_4( -1.0, 1.0, 0.0);
-        vertex3 global_v_4 = f(local_v_4);
+        Vertex3 local_v_4( -1.0, 1.0, 0.0);
+        Vertex3 global_v_4 = f(local_v_4);
         glVertex3f(global_v_4.x,
                    global_v_4.y,
                    global_v_4.z);
@@ -861,22 +861,22 @@ render_scene(int demo_number){
       }
     };
 
-  auto vertex3_ortho =
+  auto Vertex3_ortho =
     [&](float xmin,
         float xmax,
         float ymin,
         float ymax,
         float zmin,
         float zmax,
-        vertex3 pos){
+        Vertex3 pos){
     float x_length = xmax-xmin;
     float y_length = ymax-ymin;
     float z_length = zmax-zmin;
-    vertex3 translated = translate3(xmax-x_length/2.0,
+    Vertex3 translated = translate3(xmax-x_length/2.0,
                                     ymax-y_length/2.0,
                                     zmax-z_length/2.0,
                                     pos);
-    vertex3 scaled = scale3(1/(x_length/2.0),
+    Vertex3 scaled = scale3(1/(x_length/2.0),
                             1/(y_length/2.0),
                             1/(z_length/2.0),
                             translated);
@@ -910,21 +910,21 @@ render_scene(int demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
-      draw_square3_programmable([&](vertex3 vertex3_local_coordinates){
-          vertex3 vertex3_scaled = scale3(10.0f,
+      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinates){
+          Vertex3 Vertex3_scaled = scale3(10.0f,
                                           30.0f,
                                           1.0f,
-                                          vertex3_local_coordinates);
-          vertex3 vertex3_rotated = rotate3Z(paddle_1_rotation,
-                                             vertex3_scaled);
-          vertex3 vertex3_translated = translate3(-90.0f,
+                                          Vertex3_local_coordinates);
+          Vertex3 Vertex3_rotated = rotate3Z(paddle_1_rotation,
+                                             Vertex3_scaled);
+          Vertex3 Vertex3_translated = translate3(-90.0f,
                                                   0.0f + paddle_1_offset_Y,
                                                   0.0f,
-                                                  vertex3_rotated);
-          vertex3 camera_coordinates(vertex3_translated.x - camera_x,
-                                     vertex3_translated.y - camera_y,
-                                     vertex3_translated.z);
-          return vertex3_ortho(-100.0f,100.0f,
+                                                  Vertex3_rotated);
+          Vertex3 camera_coordinates(Vertex3_translated.x - camera_x,
+                                     Vertex3_translated.y - camera_y,
+                                     Vertex3_translated.z);
+          return Vertex3_ortho(-100.0f,100.0f,
                                -100.0f,100.0f,
                                -100.0f,100.0f,
                                camera_coordinates);
@@ -933,29 +933,29 @@ render_scene(int demo_number){
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
-      draw_square3_programmable([&](vertex3 vertex3_local_coordinates){
-          vertex3 vertex3_scaled = scale3(5.0f,
+      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinates){
+          Vertex3 Vertex3_scaled = scale3(5.0f,
                                           5.0f,
                                           0.0f,
-                                          vertex3_local_coordinates);
-          vertex3 square_rotated = rotate3Z(square_rotation,
-                                            vertex3_scaled);
-          vertex3 square_translated = translate3(20.0f,
+                                          Vertex3_local_coordinates);
+          Vertex3 square_rotated = rotate3Z(square_rotation,
+                                            Vertex3_scaled);
+          Vertex3 square_translated = translate3(20.0f,
                                                  0.0f,
                                                  0.0f,
                                                  square_rotated);
-          vertex3 around_paddle_1 = rotate3Z(rotation_around_paddle_1,
+          Vertex3 around_paddle_1 = rotate3Z(rotation_around_paddle_1,
                                              square_translated);
-          vertex3 vertex3_rotated = rotate3Z(paddle_1_rotation,
+          Vertex3 Vertex3_rotated = rotate3Z(paddle_1_rotation,
                                              around_paddle_1);
-          vertex3 vertex3_translated = translate3(-90.0f,
+          Vertex3 Vertex3_translated = translate3(-90.0f,
                                                   0.0f + paddle_1_offset_Y,
                                                   0.0f,
-                                                  vertex3_rotated);
-          vertex3 camera_coordinates(vertex3_translated.x - camera_x,
-                                     vertex3_translated.y - camera_y,
-                                     vertex3_translated.z);
-          return vertex3_ortho(-100.0f,100.0f,
+                                                  Vertex3_rotated);
+          Vertex3 camera_coordinates(Vertex3_translated.x - camera_x,
+                                     Vertex3_translated.y - camera_y,
+                                     Vertex3_translated.z);
+          return Vertex3_ortho(-100.0f,100.0f,
                                -100.0f,100.0f,
                                -100.0f,100.0f,
                                camera_coordinates);
@@ -964,21 +964,21 @@ render_scene(int demo_number){
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
-      draw_square3_programmable([&](vertex3 vertex3_local_coordinates){
-          vertex3 vertex3_scaled = scale3(10.0f,
+      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinates){
+          Vertex3 Vertex3_scaled = scale3(10.0f,
                                           30.0f,
                                           1.0f,
-                                          vertex3_local_coordinates);
-          vertex3 vertex3_rotated = rotate3Z(paddle_2_rotation,
-                                             vertex3_scaled);
-          vertex3 vertex3_translated = translate3(90.0f,
+                                          Vertex3_local_coordinates);
+          Vertex3 Vertex3_rotated = rotate3Z(paddle_2_rotation,
+                                             Vertex3_scaled);
+          Vertex3 Vertex3_translated = translate3(90.0f,
                                                   0.0f + paddle_2_offset_Y,
                                                   0.0f,
-                                                  vertex3_rotated);
-          vertex3 camera_coordinates(vertex3_translated.x - camera_x,
-                                     vertex3_translated.y - camera_y,
-                                     vertex3_translated.z);
-          return vertex3_ortho(-100.0f,100.0f,
+                                                  Vertex3_rotated);
+          Vertex3 camera_coordinates(Vertex3_translated.x - camera_x,
+                                     Vertex3_translated.y - camera_y,
+                                     Vertex3_translated.z);
+          return Vertex3_ortho(-100.0f,100.0f,
                                -100.0f,100.0f,
                                -100.0f,100.0f,
                                camera_coordinates);
