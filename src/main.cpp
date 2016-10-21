@@ -121,7 +121,6 @@ render_scene(int demo_number){
     /*
      *  Demo 1 -- two rectangles
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -176,7 +175,6 @@ render_scene(int demo_number){
     /*
      *  Demo 2 -- two paddles and handle events
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -235,7 +233,6 @@ render_scene(int demo_number){
     /*
      *  Demo 3
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -286,7 +283,6 @@ render_scene(int demo_number){
     /*
      *  Demo 3
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -345,7 +341,6 @@ render_scene(int demo_number){
     /*
      *  Demo 3
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -410,7 +405,6 @@ render_scene(int demo_number){
     /*
      *  Demo 3
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -471,7 +465,6 @@ render_scene(int demo_number){
     /*
      *  Demo 7 - moving camera
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -541,7 +534,6 @@ render_scene(int demo_number){
     /*
      *  Demo 8 - Translate Relative location
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -615,7 +607,6 @@ render_scene(int demo_number){
     /*
      *  Demo 9 - Rotation of square
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -715,7 +706,6 @@ render_scene(int demo_number){
     /*
      *  Demo 10 - Scaling
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -900,7 +890,6 @@ render_scene(int demo_number){
     /*
      *  Demo 11 - Ortho projection in 3d
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
@@ -1015,9 +1004,8 @@ render_scene(int demo_number){
   };
   if(40 == demo_number){
     /*
-     *  Demo 11 - OpenGL Matricies
+     *  Demo 40 - OpenGL Matricies
      */
-    // handle events
     glClear(GL_COLOR_BUFFER_BIT);
     while (SDL_PollEvent(&event))
       {
