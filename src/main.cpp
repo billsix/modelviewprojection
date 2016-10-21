@@ -156,7 +156,8 @@ render_scene(int demo_number){
   static float paddle_1_offset_Y = 0.0;
   static float paddle_2_offset_Y = 0.0;
   const Uint8 *state = SDL_GetKeyboardState(NULL);
-  std::function<void()> move_paddle = [&]()
+  std::function<void()> from_keyboard_update_paddle_positions =
+    [&]()
     {
       if (state[SDL_SCANCODE_S]) {
         paddle_1_offset_Y -= 0.1;
