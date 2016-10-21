@@ -333,9 +333,10 @@ render_scene(int demo_number){
         glEnd();
       }
     };
-  auto translate = [&](float x,
-                       float y,
-                       Vertex modelspace)
+  std::function<Vertex(float, float,Vertex)>translate
+    = [&](float x,
+          float y,
+          Vertex modelspace)
     {
       return Vertex(modelspace.x + x,
                     modelspace.y + y);
@@ -379,13 +380,15 @@ render_scene(int demo_number){
     }
     return SDL_FALSE;
   }
-  auto rotate = [&](float angle_in_radians,
-                    Vertex modelspace){
-    return Vertex(((float) modelspace.x*cos(angle_in_radians)
-                   - modelspace.y*sin(angle_in_radians)),
-                  ((float) modelspace.x*sin(angle_in_radians)
-                   + modelspace.y*cos(angle_in_radians)));
-  };
+  std::function<Vertex(float,Vertex)> rotate =
+    [&](float angle_in_radians,
+        Vertex modelspace)
+    {
+      return Vertex(((float) modelspace.x*cos(angle_in_radians)
+                     - modelspace.y*sin(angle_in_radians)),
+                    ((float) modelspace.x*sin(angle_in_radians)
+                     + modelspace.y*cos(angle_in_radians)));
+    };
   static float paddle_1_rotation = 0.0;
   static float paddle_2_rotation = 0.0;
   std::function<void()> from_keyboard_update_rotation_of_paddles = [&](){
@@ -677,12 +680,14 @@ render_scene(int demo_number){
     }
     return SDL_FALSE;
   }
-  auto scale = [&](float scale_x,
-                   float scale_y,
-                   Vertex modelspace){
-    return Vertex(modelspace.x * scale_x,
-                  modelspace.y * scale_y);
-  };
+  std::function<Vertex(float, float,Vertex)> scale =
+    [&](float scale_x,
+        float scale_y,
+        Vertex modelspace)
+    {
+      return Vertex(modelspace.x * scale_x,
+                    modelspace.y * scale_y);
+    };
   // change the definition of square to positive and negative 1.0
   draw_square_programmable =
     [&](vertex_transformer f)
@@ -804,31 +809,37 @@ render_scene(int demo_number){
     float z;
   };
   typedef std::function<Vertex3 (Vertex3)> Vertex3_transformer;
-  auto translate3 = [&](float x,
-                        float y,
-                        float z,
-                        Vertex3 modelspace){
-    return Vertex3(modelspace.x + x,
-                   modelspace.y + y,
-                   modelspace.z + z);
-  };
-  auto rotate3Z = [&](float angle_in_radians,
-                      Vertex3 modelspace){
-    return Vertex3(((float) modelspace.x*cos(angle_in_radians)
-                    - modelspace.y*sin(angle_in_radians)),
-                   ((float) modelspace.x*sin(angle_in_radians)
-                    + modelspace.y*cos(angle_in_radians)),
-                   modelspace.z);
-  };
-  auto scale3 = [&](float scale_x,
-                    float scale_y,
-                    float scale_z,
-                    Vertex3 modelspace){
-    return Vertex3(modelspace.x * scale_x,
-                   modelspace.y * scale_y,
-                   modelspace.y * scale_z);
-
-  };
+  std::function<Vertex3(float, float,float,Vertex3)> translate3 =
+    [&](float x,
+        float y,
+        float z,
+        Vertex3 modelspace)
+    {
+      return Vertex3(modelspace.x + x,
+                     modelspace.y + y,
+                     modelspace.z + z);
+    };
+  std::function<Vertex3(float,Vertex3)> rotate3Z =
+    [&](float angle_in_radians,
+        Vertex3 modelspace)
+    {
+      return Vertex3(((float) modelspace.x*cos(angle_in_radians)
+                      - modelspace.y*sin(angle_in_radians)),
+                     ((float) modelspace.x*sin(angle_in_radians)
+                      + modelspace.y*cos(angle_in_radians)),
+                     modelspace.z);
+    };
+  std::function<Vertex3(float, float, float, Vertex3)> scale3 =
+    [&](float scale_x,
+        float scale_y,
+        float scale_z,
+        Vertex3 modelspace)
+    {
+      return Vertex3(modelspace.x * scale_x,
+                     modelspace.y * scale_y,
+                     modelspace.y * scale_z);
+      
+    };
   std::function<void (Vertex3_transformer)>
     draw_square3_programmable =
     [&](Vertex3_transformer f)
@@ -861,7 +872,9 @@ render_scene(int demo_number){
       }
     };
 
-  auto Vertex3_ortho =
+  std::function<Vertex3(float,float,float,
+                        float,float,float,
+                        Vertex3)> Vertex3_ortho =
     [&](float xmin,
         float xmax,
         float ymin,
