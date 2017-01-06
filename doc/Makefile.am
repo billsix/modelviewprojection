@@ -1,1 +1,1 @@
-man1_MANS = math4graphics.man
+man1_MANS = modelviewprojection.man

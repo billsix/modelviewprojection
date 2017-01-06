@@ -1,13 +1,13 @@
-bin_PROGRAMS = math4graphics
-math4graphics_SOURCES = \
+bin_PROGRAMS = modelviewprojection
+modelviewprojection_SOURCES = \
 	main.cpp
 
-math4graphics_CXXFLAGS= \
+modelviewprojection_CXXFLAGS= \
 	$(GLEW_CFLAGS) \
 	$(SDL_CFLAGS) \
 	-std=c++11
 
-math4graphics_LDADD = \
+modelviewprojection_LDADD = \
 	$(GLEW_LIBS) \
 	$(SDL_LIBS) \
 	$(OPENGL_LIB) \

@@ -1,0 +1,14 @@
+.TH man 1 "@MVP_BUILD_DATE@" "@PACKAGE_VERSION@" "modelviewprojection man page"
+.
+.SH NAME
+modelviewprojection \- Minimal Math for Useful OpenGL graphics programming
+.
+.SH SYNOPSIS
+.B synopsis
+.
+.SH DESCRIPTION
+.
+.SH AUTHOR
+William Emerison Six <billsix@gmail.com
+.
+.SH SEE ALSO

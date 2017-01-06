@@ -9,6 +9,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <functional>
+#include <vector>
 #include "main.h"
 
 
@@ -19,7 +20,7 @@ SDL_PixelFormat RGBAFormat;
 
 void
 print_usage(){
-  puts("Usage -- math4graphics demonumber");
+  puts("Usage -- modelviewprojection demonumber");
 }
 
 
@@ -61,7 +62,7 @@ main(int argc, char** argv)
     SDL_DisplayMode current;
     SDL_GetCurrentDisplayMode(0, &current);
 
-    if(NULL == (window = SDL_CreateWindow("math4graphics",
+    if(NULL == (window = SDL_CreateWindow("modelviewprojection",
                                           SDL_WINDOWPOS_CENTERED,
                                           SDL_WINDOWPOS_CENTERED,
                                           500,
@@ -257,8 +258,8 @@ render_scene(int demo_number){
     }
     return SDL_FALSE;
   }
-  typedef std::function<Vertex (Vertex)> vertex_transformer;
-  vertex_transformer model_space_to_device_space =
+  typedef std::function<Vertex (Vertex)> Vertex_transformer;
+  Vertex_transformer model_space_to_device_space =
     [&](Vertex modelspace)
     {
       return Vertex(modelspace.x/100.0f,
@@ -309,8 +310,8 @@ render_scene(int demo_number){
   }
 
 
-  std::function<void (vertex_transformer)> draw_paddle_programmable =
-    [&](vertex_transformer f)
+  std::function<void (Vertex_transformer)> draw_paddle_programmable =
+    [&](Vertex_transformer f)
     {
       glBegin(GL_QUADS);
       {
@@ -509,8 +510,8 @@ render_scene(int demo_number){
     }
     return SDL_FALSE;
   }
-  std::function<void (vertex_transformer)> draw_square_programmable =
-    [&](vertex_transformer f)
+  std::function<void (Vertex_transformer)> draw_square_programmable =
+    [&](Vertex_transformer f)
     {
       glBegin(GL_QUADS);
       {
@@ -681,13 +682,12 @@ render_scene(int demo_number){
     };
   // change the definition of square to positive and negative 1.0
   draw_square_programmable =
-    [&](vertex_transformer f)
+    [&](Vertex_transformer f)
     {
       glBegin(GL_QUADS);
       {
         Vertex local_v_1(-1.0, -1.0);
         Vertex global_v_1 = f(local_v_1);
-        printf("2d %f %f\n",global_v_1.x,global_v_1.y);
         glVertex2f(global_v_1.x,global_v_1.y);
         Vertex local_v_2(1.0, -1.0);
         Vertex global_v_2 = f(local_v_2);
@@ -988,6 +988,170 @@ render_scene(int demo_number){
     }
     return SDL_FALSE;
   }
+
+
+  // use stacks for transformations
+  std::vector<Vertex3_transformer> transformationStack;
+  Vertex3_transformer applyTransformations = [&](Vertex3 v){
+    Vertex3 result = v;
+    for(std::vector<Vertex3_transformer>::reverse_iterator rit = transformationStack.rbegin();
+        rit!=transformationStack.rend();
+        rit++)
+      {
+        result = (*rit)(result);
+      }
+    return result;
+  };
+  if(12 == demo_number){
+    /*
+     *  Demo 12 - Stack of transformations
+     */
+    glClear(GL_COLOR_BUFFER_BIT);
+    while (SDL_PollEvent(&event))
+      {
+        if (event.type == SDL_QUIT){
+          return SDL_TRUE;
+        }
+      }
+
+    from_keyboard_update_paddle_positions();
+    from_keyboard_update_rotation_of_paddles();
+    from_keyboard_update_camera_position();
+    from_keyboard_update_square_rotation();
+    // handle keyboard input
+    {
+      if (state[SDL_SCANCODE_E]) {
+        rotation_around_paddle_1 += 0.1;
+      }
+    }
+
+    // every shape is projected the same way
+    transformationStack.push_back([&](Vertex3 v){
+        return Vertex3_ortho(-100.0f,100.0f,
+                             -100.0f,100.0f,
+                             -100.0f,100.0f,
+                             v);
+      });
+
+    // every shape is relative to the camera
+    transformationStack.push_back([&](Vertex3 v){
+        return Vertex3(v.x - camera_x,
+                       v.y - camera_y,
+                       v.z);
+      });
+
+    transformationStack.push_back([&](Vertex3 v){
+        return translate3(-90.0f,
+                          0.0f + paddle_1_offset_Y,
+                          0.0f,
+                          v);
+      });
+
+    // draw paddle 1, relative to the offset
+    glColor3f(1.0,1.0,1.0);
+    {
+      transformationStack.push_back([&](Vertex3 v){
+          return rotate3Z(paddle_1_rotation,
+                          v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return scale3(10.0f,
+                        30.0f,
+                        1.0f,
+                        v);
+        });
+
+      draw_square3_programmable(applyTransformations);
+
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+    }
+
+    // draw square, relative to paddle 1
+    glColor3f(0.0,0.0,1.0);
+    {
+      transformationStack.push_back([&](Vertex3 v){
+          return rotate3Z(paddle_1_rotation,
+                          v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return rotate3Z(rotation_around_paddle_1,
+                          v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return translate3(20.0f,
+                            0.0f,
+                            0.0f,
+                            v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return rotate3Z(square_rotation,
+                          v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return scale3(5.0f,
+                        5.0f,
+                        0.0f,
+                        v);
+        });
+      draw_square3_programmable(applyTransformations);
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+    }
+
+    // get back to the global origin
+    transformationStack.pop_back();
+    // draw paddle 2, relative to the offset
+    glColor3f(1.0,1.0,0.0);
+    {
+
+      transformationStack.push_back([&](Vertex3 v){
+          return translate3(90.0f,
+                            0.0f + paddle_2_offset_Y,
+                            0.0f,
+                            v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return rotate3Z(paddle_2_rotation,
+                          v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return scale3(10.0f,
+                        30.0f,
+                        1.0f,
+                        v);
+        });
+      draw_square3_programmable(applyTransformations);
+
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+
+    }
+    return SDL_FALSE;
+  }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   std::function<void()> draw_square_opengl2point1 = [&](){
     glBegin(GL_QUADS);
     {

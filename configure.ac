@@ -1,4 +1,4 @@
-AC_INIT([math4graphics], [0.0.1],  [William Emerison Six <billsix@gmail.com>], [math4graphics])
+AC_INIT([modelviewprojection], [0.0.1],  [William Emerison Six <billsix@gmail.com>], [modelviewprojection])
 AC_CANONICAL_SYSTEM
 AC_CONFIG_SRCDIR([src/main.cpp])
 AC_CONFIG_HEADER([config.h])
@@ -8,7 +8,10 @@ AM_INIT_AUTOMAKE()
 AC_PROG_CC
 AC_PROG_CXX
 AC_PROG_INSTALL
-AC_CONFIG_FILES([Makefile doc/Makefile src/Makefile])
+AC_CONFIG_FILES([Makefile
+        doc/Makefile
+        doc/modelviewprojection.man
+        src/Makefile])
 
 case "$target_os" in
     darwin*)
@@ -34,5 +37,9 @@ AM_PATH_SDL2($SDL_VERSION,
 
 dnl Check for glew and set cflags/libs
 PKG_CHECK_MODULES(GLEW, glew >= 1.10)
+
+
+MVP_BUILD_DATE=$(date +'%d %B %Y')
+AC_SUBST(MVP_BUILD_DATE)
 
 AC_OUTPUT
