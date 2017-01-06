@@ -13,7 +13,8 @@ main.pdf: main.tex
 
 
 modelviewprojection_SOURCES = \
-	main.cpp
+	main.cpp \
+	main.h
 
 modelviewprojection_CXXFLAGS= \
 	$(GLEW_CFLAGS) \

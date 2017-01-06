@@ -1,3 +1,3 @@
-EXTRA_DIST = configure doc/hurtbox.man
+EXTRA_DIST = autogen.sh configure doc/modelviewprojection.man
 SUBDIRS = doc src
 
