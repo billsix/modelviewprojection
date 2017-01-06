@@ -1,6 +1,6 @@
 AC_INIT([modelviewprojection], [0.0.1],  [William Emerison Six <billsix@gmail.com>], [modelviewprojection])
 AC_CANONICAL_SYSTEM
-AC_CONFIG_SRCDIR([src/main.cpp])
+AC_CONFIG_SRCDIR([src/main.book.cpp])
 AC_CONFIG_HEADER([config.h])
 AC_CHECK_HEADER([stdio.h])
 AC_REVISION([: 0.0.1 $])
