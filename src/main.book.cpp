@@ -90,9 +90,7 @@
 // \begin{code}
 
 SDL_Window *window;
-SDL_Renderer *renderer;
 SDL_GLContext glcontext;
-SDL_PixelFormat RGBAFormat;
 
 void print_usage(){
   puts("Usage -- modelviewprojection demonumber");
