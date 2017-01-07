@@ -61,7 +61,7 @@
 // \null\vfill
 // \noindent
 // Copyright \textcopyright 2016 -- William Emerison Six\  \
-// All rights reserved 
+// All rights reserved
 //
 // \tableofcontents
 // \break
@@ -70,28 +70,35 @@
 //  Foo bar baz.
 //
 //
-// \chapter{SDL}
+// \chapter{Opening a Window using Simple DirectMedia Layer 2.0(SDL)}
 // \begin{code}
-
-
-/*
+/*  src/main.cpp
+ *
  * Copyright 2016 - William Emerison Six
  * All rights reserved
- * For main.cpp, (but not the book)
- * Distributed under LGPL 2.1 or Apache 2.0
+ * main.cpp is Distributed under LGPL 2.1 or Apache 2.0
  */
-
 #include <stdio.h>
 #include <math.h>
 #include <functional>
 #include <vector>
 #include "main.h"
 // \end{code}
+//
+// \section{Global Variables}
+//
 // \begin{code}
-
 SDL_Window *window;
 SDL_GLContext glcontext;
-
+// \end{code}
+//
+// \section{Running the Program}
+//
+//  ``modelviewprojection'' is a program intended to be run from the command
+//  line, with a number as an argument to specify the demo number to be
+//  run.
+//
+// \begin{code}
 void print_usage(){
   puts("Usage -- modelviewprojection demonumber");
 }
@@ -99,76 +106,71 @@ void print_usage(){
 // \begin{code}
 int main(int argc, char** argv)
 {
-  int demo_number = 0;
+  if(argc == 1){
+    print_usage();
+    return 0;
+  }
   // get demo number from the command line
-  {
-    if(argc == 1){
-      print_usage();
-      return 0;
-    }
-    demo_number = atoi(argv[1]);
-  }
-
+  int demo_number = atoi(argv[1]);
 // \end{code}
+//
+//  \subsection{Initialize the Global Variables, SDL, OpenGL, and GLEW}
+//
 // \begin{code}
-  // initial SDL, OpenGL, GLEW
-  {
-    if (SDL_Init(SDL_INIT_EVERYTHING) != 0)
-      {
-        SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
-                       SDL_LOG_PRIORITY_ERROR,
-                       "Error: %s\n",
-                       SDL_GetError());
-        return 1;
-      }
-
-    // Initialize SDL Attributes
-    SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-    SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-    SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-    // put the next few lines in only when running opengl 3.2+
-    /* SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, */
-    /*                     SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); */
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                        SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-    SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-    SDL_DisplayMode current;
-    SDL_GetCurrentDisplayMode(0, &current);
-
-// \end{code}
-// \begin{code}
-    if(NULL == (window = SDL_CreateWindow("modelviewprojection",
-                                          SDL_WINDOWPOS_CENTERED,
-                                          SDL_WINDOWPOS_CENTERED,
-                                          500,
-                                          500,
-                                          (SDL_WINDOW_OPENGL |
-                                           SDL_WINDOW_RESIZABLE))))
-      {
-      SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
-                     SDL_LOG_PRIORITY_ERROR,
-                     "Could not create window: %s\n",
-                     SDL_GetError());
-      return 1;
-    }
-
-// \end{code}
-// \begin{code}
-    glcontext = SDL_GL_CreateContext(window);
-    // init GLEW
-    glewExperimental = GL_TRUE;
-    glewInit();
-    SDL_GL_MakeCurrent(window,glcontext);
-    // log opengl version
+  if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
     SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
-                   SDL_LOG_PRIORITY_INFO,
-                   "OpenGL version loaded: %s\n",
-                   glGetString(GL_VERSION));
-    // initialize OpenGL 
-   glClearColor(0,0,0,1);
+                   SDL_LOG_PRIORITY_ERROR,
+                   "Error: %s\n",
+                   SDL_GetError());
+    return 1;
   }
-
+  // Initialize SDL Attributes
+  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+  // put the next few lines in only when running opengl 3.2+
+  /* SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, */
+  /*                     SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); */
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
+                      SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+  SDL_DisplayMode current;
+  SDL_GetCurrentDisplayMode(0, &current);
+// \end{code}
+// \begin{code}
+  if(NULL == (window = SDL_CreateWindow("modelviewprojection",
+                                        SDL_WINDOWPOS_CENTERED,
+                                        SDL_WINDOWPOS_CENTERED,
+                                        500,
+                                        500,
+                                        (SDL_WINDOW_OPENGL |
+                                         SDL_WINDOW_RESIZABLE)))){
+    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
+                   SDL_LOG_PRIORITY_ERROR,
+                   "Could not create window: %s\n",
+                   SDL_GetError());
+    return 1;
+  }
+// \end{code}
+// \begin{code}
+  glcontext = SDL_GL_CreateContext(window);
+  // init GLEW
+  glewExperimental = GL_TRUE;
+  glewInit();
+  SDL_GL_MakeCurrent(window,glcontext);
+  // log opengl version
+  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
+                 SDL_LOG_PRIORITY_INFO,
+                 "OpenGL version loaded: %s\n",
+                 glGetString(GL_VERSION));
+  // initialize OpenGL
+  glClearColor(0,0,0,1);
+// \end{code}
+//
+//  \subsection{Execute the Event Loop}
+//
+// \begin{code}
   SDL_bool quit = SDL_FALSE;
   do{
     quit = render_scene(demo_number);
@@ -181,27 +183,28 @@ int main(int argc, char** argv)
   return 0;
 }
 // \end{code}
+//
+//  \subsection{Render Demo}
+//
+// \begin{code}
+SDL_bool render_scene(int demo_number){
+  SDL_Event event;
+  glClear(GL_COLOR_BUFFER_BIT);
+// \end{code}
 
 // \chapter{Hello OpenGL}
 
-// \begin{code}
-SDL_bool
-render_scene(int demo_number){
-  SDL_Event event;
-// \end{code}
 //
 // \section{Demo 0, Black Screen}
 //
 // \begin{code}
   if(0 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
     // handle events
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
     return SDL_FALSE;
   }
 
@@ -212,13 +215,11 @@ render_scene(int demo_number){
 // \begin{code}
 
   if(1 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
     // draw paddle 1
     glColor3f(1.0,1.0,1.0);
     glBegin(GL_QUADS);
@@ -266,13 +267,11 @@ render_scene(int demo_number){
       }
     };
   if(2 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
     from_keyboard_update_paddle_positions();
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -316,25 +315,18 @@ render_scene(int demo_number){
     [&](Vertex center)
     {
       glBegin(GL_QUADS);
-      {
-        glVertex2f(center.x-0.1,center.y-0.3);
-        glVertex2f(center.x+0.1,center.y-0.3);
-        glVertex2f(center.x+0.1,center.y+0.3);
-        glVertex2f(center.x-0.1,center.y+0.3);
-        glEnd();
-      }
+      glVertex2f(center.x-0.1,center.y-0.3);
+      glVertex2f(center.x+0.1,center.y-0.3);
+      glVertex2f(center.x+0.1,center.y+0.3);
+      glVertex2f(center.x-0.1,center.y+0.3);
+      glEnd();
     };
   if(3 == demo_number){
-    /*
-     *  Demo 3
-     */
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
     from_keyboard_update_paddle_positions();
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -385,13 +377,11 @@ render_scene(int demo_number){
 //
 // \begin{code}
   if(4 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
     from_keyboard_update_paddle_positions();
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -418,26 +408,20 @@ render_scene(int demo_number){
     [&](Vertex_transformer f)
     {
       glBegin(GL_QUADS);
-      {
-        Vertex local_v_1(-10.0,-30.0);
-        Vertex ndc_v_1 = f(local_v_1);
-        glVertex2f(ndc_v_1.x,ndc_v_1.y);
-        Vertex local_v_2 (10.0, -30.0);
-        Vertex ndc_v_2 = f(local_v_2);
-        glVertex2f(ndc_v_2.x,ndc_v_2.y);
-        Vertex local_v_3(10.0,30.0);
-        Vertex ndc_v_3 = f(local_v_3);
-        glVertex2f(ndc_v_3.x,ndc_v_3.y);
-        Vertex local_v_4(-10.0, 30.0);
-        Vertex ndc_v_4 = f(local_v_4);
-        glVertex2f(ndc_v_4.x,ndc_v_4.y);
-        glEnd();
-      }
+      Vertex ndc_v_1 = f(Vertex(-10.0,-30.0));
+      glVertex2f(ndc_v_1.x,ndc_v_1.y);
+      Vertex ndc_v_2 = f(Vertex(10.0, -30.0));
+      glVertex2f(ndc_v_2.x,ndc_v_2.y);
+      Vertex ndc_v_3 = f(Vertex(10.0,30.0));
+      glVertex2f(ndc_v_3.x,ndc_v_3.y);
+      Vertex ndc_v_4 = f(Vertex(-10.0, 30.0));
+      glVertex2f(ndc_v_4.x,ndc_v_4.y);
+      glEnd();
     };
 // \end{code}
 // \begin{code}
-  std::function<Vertex(float, float,Vertex)>translate
-    = [&](float x,
+  std::function<Vertex(float, float,Vertex)> translate =
+      [&](float x,
           float y,
           Vertex modelspace)
     {
@@ -447,13 +431,11 @@ render_scene(int demo_number){
 // \end{code}
 // \begin{code}
   if(5 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
     from_keyboard_update_paddle_positions();
 // \end{code}
 // \begin{code}
@@ -520,13 +502,11 @@ render_scene(int demo_number){
 // \end{code}
 // \begin{code}
   if(6 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
 // \end{code}
 // \begin{code}
     from_keyboard_update_paddle_positions();
@@ -572,31 +552,28 @@ render_scene(int demo_number){
   static float camera_y = 0.0;
 // \end{code}
 // \begin{code}
-  std::function<void()> from_keyboard_update_camera_position = [&]()
-    {
-      if (state[SDL_SCANCODE_UP]) {
-        camera_y += 10.0;
-      }
-      if (state[SDL_SCANCODE_DOWN]) {
-        camera_y -= 10.0;
-      }
-      if (state[SDL_SCANCODE_LEFT]) {
-        camera_x -= 10.0;
-      }
-      if (state[SDL_SCANCODE_RIGHT]) {
-        camera_x += 10.0;
-      }
-    };
+  std::function<void()> from_keyboard_update_camera_position = [&](){
+    if (state[SDL_SCANCODE_UP]) {
+      camera_y += 10.0;
+    }
+    if (state[SDL_SCANCODE_DOWN]) {
+      camera_y -= 10.0;
+    }
+    if (state[SDL_SCANCODE_LEFT]) {
+      camera_x -= 10.0;
+    }
+    if (state[SDL_SCANCODE_RIGHT]) {
+      camera_x += 10.0;
+    }
+  };
 // \end{code}
 // \begin{code}
   if(7 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
 // \end{code}
 // \begin{code}
     from_keyboard_update_paddle_positions();
@@ -646,17 +623,13 @@ render_scene(int demo_number){
     {
       glBegin(GL_QUADS);
       {
-        Vertex local_v_1(-5.0, -5.0);
-        Vertex ndc_v_1 = f(local_v_1);
+        Vertex ndc_v_1 = f(Vertex(-5.0, -5.0));
         glVertex2f(ndc_v_1.x,ndc_v_1.y);
-        Vertex local_v_2 (5.0, -5.0);
-        Vertex ndc_v_2 = f(local_v_2);
+        Vertex ndc_v_2 = f(Vertex(5.0, -5.0));
         glVertex2f(ndc_v_2.x,ndc_v_2.y);
-        Vertex local_v_3(5.0, 5.0);
-        Vertex ndc_v_3 = f(local_v_3);
+        Vertex ndc_v_3 = f(Vertex(5.0, 5.0));
         glVertex2f(ndc_v_3.x,ndc_v_3.y);
-        Vertex local_v_4(-5.0,5.0);
-        Vertex ndc_v_4 = f(local_v_4);
+        Vertex ndc_v_4 = f(Vertex(-5.0,5.0));
         glVertex2f(ndc_v_4.x,ndc_v_4.y);
         glEnd();
       }
@@ -664,13 +637,11 @@ render_scene(int demo_number){
 // \end{code}
 // \begin{code}
   if(8 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
 // \end{code}
 // \begin{code}
     from_keyboard_update_paddle_positions();
@@ -738,22 +709,19 @@ render_scene(int demo_number){
 //
 // \begin{code}
   static float square_rotation = 0.0;
-  std::function<void()> from_keyboard_update_square_rotation = [&]()
-    {
-      if (state[SDL_SCANCODE_Q]) {
-        square_rotation += 0.1;
-      }
-    };
+  std::function<void()> from_keyboard_update_square_rotation = [&](){
+    if (state[SDL_SCANCODE_Q]) {
+      square_rotation += 0.1;
+    }
+  };
 // \end{code}
 // \begin{code}
   if(9 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
 // \end{code}
 // \begin{code}
     from_keyboard_update_paddle_positions();
@@ -837,17 +805,13 @@ render_scene(int demo_number){
     {
       glBegin(GL_QUADS);
       {
-        Vertex local_v_1(-1.0, -1.0);
-        Vertex ndc_v_1 = f(local_v_1);
+        Vertex ndc_v_1 = f(Vertex(-1.0, -1.0));
         glVertex2f(ndc_v_1.x,ndc_v_1.y);
-        Vertex local_v_2(1.0, -1.0);
-        Vertex ndc_v_2 = f(local_v_2);
+        Vertex ndc_v_2 = f(Vertex(1.0, -1.0));
         glVertex2f(ndc_v_2.x,ndc_v_2.y);
-        Vertex local_v_3(1.0, 1.0);
-        Vertex ndc_v_3 = f(local_v_3);
+        Vertex ndc_v_3 = f(Vertex(1.0, 1.0));
         glVertex2f(ndc_v_3.x,ndc_v_3.y);
-        Vertex local_v_4(-1.0,1.0);
-        Vertex ndc_v_4 = f(local_v_4);
+        Vertex ndc_v_4 = f(Vertex(-1.0,1.0));
         glVertex2f(ndc_v_4.x,ndc_v_4.y);
         glEnd();
       }
@@ -858,13 +822,11 @@ render_scene(int demo_number){
 // \end{code}
 // \begin{code}
   if(10 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
 // \end{code}
 // \begin{code}
     from_keyboard_update_paddle_positions();
@@ -873,11 +835,8 @@ render_scene(int demo_number){
     from_keyboard_update_square_rotation();
 // \end{code}
 // \begin{code}
-    // handle keyboard input
-    {
-      if (state[SDL_SCANCODE_E]) {
-        rotation_around_paddle_1 += 0.1;
-      }
+    if (state[SDL_SCANCODE_E]) {
+      rotation_around_paddle_1 += 0.1;
     }
 // \end{code}
 // \begin{code}
@@ -1006,31 +965,18 @@ render_scene(int demo_number){
     [&](Vertex3_transformer f)
     {
       glBegin(GL_QUADS);
-      {
-        Vertex3 local_v_1(-1.0,
-                          -1.0,
-                          0.0);
-        Vertex3 ndc_v_1 = f(local_v_1);
-        glVertex3f(ndc_v_1.x,
-                   ndc_v_1.y,
-                   ndc_v_1.z);
-        Vertex3 local_v_2 ( 1.0, -1.0, 0.0);
-        Vertex3 ndc_v_2 = f(local_v_2);
-        glVertex3f(ndc_v_2.x,
-                   ndc_v_2.y,
-                   ndc_v_2.z);
-        Vertex3 local_v_3( 1.0, 1.0, 0.0);
-        Vertex3 ndc_v_3 = f(local_v_3);
-        glVertex3f(ndc_v_3.x,
-                   ndc_v_3.y,
-                   ndc_v_3.z);
-        Vertex3 local_v_4( -1.0, 1.0, 0.0);
-        Vertex3 ndc_v_4 = f(local_v_4);
-        glVertex3f(ndc_v_4.x,
-                   ndc_v_4.y,
-                   ndc_v_4.z);
-        glEnd();
-      }
+      Vertex3 ndc_v_1 = f(Vertex3(-1.0,-1.0,0.0));
+      glVertex3f(ndc_v_1.x,ndc_v_1.y,ndc_v_1.z);
+
+      Vertex3 ndc_v_2 = f(Vertex3(1.0,-1.0,0.0));
+      glVertex3f(ndc_v_2.x,ndc_v_2.y,ndc_v_2.z);
+
+      Vertex3 ndc_v_3 = f(Vertex3(1.0,1.0,0.0));
+      glVertex3f(ndc_v_3.x,ndc_v_3.y,ndc_v_3.z);
+
+      Vertex3 ndc_v_4 = f(Vertex3(-1.0,1.0,0.0));
+      glVertex3f(ndc_v_4.x,ndc_v_4.y,ndc_v_4.z);
+      glEnd();
     };
 // \end{code}
 // \begin{code}
@@ -1060,22 +1006,19 @@ render_scene(int demo_number){
 // \end{code}
 // \begin{code}
   std::function<void()>
-    from_keyboard_update_rotation_around_paddle_1 = [&]()
-    {
-      if (state[SDL_SCANCODE_E]) {
-        rotation_around_paddle_1 += 0.1;
-      }
-    };
+    from_keyboard_update_rotation_around_paddle_1 = [&](){
+    if (state[SDL_SCANCODE_E]) {
+      rotation_around_paddle_1 += 0.1;
+    }
+  };
 // \end{code}
 // \begin{code}
   if(11 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
 // \end{code}
 // \begin{code}
     from_keyboard_update_paddle_positions();
@@ -1189,13 +1132,11 @@ render_scene(int demo_number){
 // \end{code}
 // \begin{code}
   if(12 == demo_number){
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
       }
+    }
 // \end{code}
 // \begin{code}
     from_keyboard_update_paddle_positions();
@@ -1319,15 +1260,12 @@ render_scene(int demo_number){
 // \begin{code}
   std::function<void()> draw_square_opengl2point1 = [&](){
     glBegin(GL_QUADS);
-    {
-      glVertex2f(-1.0, -1.0);
-      glVertex2f(1.0, -1.0);
-      glVertex2f(1.0, 1.0);
-      glVertex2f(-1.0, 1.0);
-      glEnd();
-    }
+    glVertex2f(-1.0, -1.0);
+    glVertex2f(1.0, -1.0);
+    glVertex2f(1.0, 1.0);
+    glVertex2f(-1.0, 1.0);
+    glEnd();
   };
-
 // \end{code}
 // \begin{code}
   std::function<double(double)> RAD_TO_DEG = [&](double rad){
@@ -1339,21 +1277,17 @@ render_scene(int demo_number){
     /*
      *  Demo 40 - OpenGL Matricies
      */
-    glClear(GL_COLOR_BUFFER_BIT);
-    while (SDL_PollEvent(&event))
-      {
-        if (event.type == SDL_QUIT){
-          return SDL_TRUE;
-        }
-        if (event.type == SDL_WINDOWEVENT){
-          if(event.window.event == SDL_WINDOWEVENT_RESIZED){
-            int w = event.window.data1, h = event.window.data2;
-            glViewport(0,0,w,h);
-          }
+    while (SDL_PollEvent(&event)){
+      if (event.type == SDL_QUIT){
+        return SDL_TRUE;
+      }
+      if (event.type == SDL_WINDOWEVENT){
+        if(event.window.event == SDL_WINDOWEVENT_RESIZED){
+          int w = event.window.data1, h = event.window.data2;
+          glViewport(0,0,w,h);
         }
       }
-
-
+    }
 // \end{code}
 // \begin{code}
     from_keyboard_update_paddle_positions();
@@ -1361,7 +1295,6 @@ render_scene(int demo_number){
     from_keyboard_update_camera_position();
     from_keyboard_update_square_rotation();
     from_keyboard_update_rotation_around_paddle_1();
-
 // \end{code}
 // \begin{code}
     // set up Camera
@@ -1377,7 +1310,6 @@ render_scene(int demo_number){
                    -camera_y,
                    0.0);
     }
-
 // \end{code}
 // \begin{code}
     // draw paddle 1, relative to the offset
@@ -1422,7 +1354,6 @@ render_scene(int demo_number){
       draw_square_opengl2point1();
       glPopMatrix();
     }
-
 // \end{code}
 // \begin{code}
     // draw paddle 2, relative to the offset
@@ -1443,7 +1374,6 @@ render_scene(int demo_number){
 
     return SDL_FALSE;
   }
-
   // in later demos,
   //glClearDepth(1.0f );
   //glEnable(GL_DEPTH_TEST );
