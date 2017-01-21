@@ -335,7 +335,7 @@ SDL_bool render_scene(int demo_number){
 
 // \begin{code}
   typedef std::function<Vertex (Vertex)> Vertex_transformer;
-  Vertex_transformer model_space_to_ndc_space =
+  Vertex_transformer camera_space_to_ndc_space =
     [&](Vertex modelspace)
     {
       return Vertex(modelspace.x/100.0f,
@@ -370,13 +370,13 @@ SDL_bool render_scene(int demo_number){
 // \begin{code}
     {
       Vertex center(-90.0f, 0.0f + paddle_1_offset_Y);
-      draw_paddle_relative_to(model_space_to_ndc_space(center));
+      draw_paddle_relative_to(camera_space_to_ndc_space(center));
     }
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
       Vertex center(90.0f, 0.0f + paddle_2_offset_Y);
-      draw_paddle_relative_to(model_space_to_ndc_space(center));
+      draw_paddle_relative_to(camera_space_to_ndc_space(center));
     }
     return SDL_FALSE;
   }
@@ -419,7 +419,7 @@ SDL_bool render_scene(int demo_number){
 	  Vertex vertex_translated = translate(-90.0f,
 					       0.0f + paddle_1_offset_Y,
 					       modelspace_vertex);
-	  return model_space_to_ndc_space(vertex_translated);
+	  return camera_space_to_ndc_space(vertex_translated);
 	});
 
     }
@@ -432,7 +432,7 @@ SDL_bool render_scene(int demo_number){
 	  Vertex vertex_translated = translate(90.0f,
 					       0.0f + paddle_2_offset_Y,
 					       modelspace_vertex);
-	  return model_space_to_ndc_space(vertex_translated);
+	  return camera_space_to_ndc_space(vertex_translated);
 	});
 
     }
@@ -483,7 +483,7 @@ SDL_bool render_scene(int demo_number){
 	  Vertex vertex_translated = translate(-90.0f,
 					       0.0f + paddle_1_offset_Y,
 					       vertex_rotated);
-	  return model_space_to_ndc_space(vertex_translated);
+	  return camera_space_to_ndc_space(vertex_translated);
 	});
     }
 // \end{code}
@@ -497,7 +497,7 @@ SDL_bool render_scene(int demo_number){
 	  Vertex vertex_translated = translate(90.0f,
 					       0.0f + paddle_2_offset_Y,
 					       vertex_rotated);
-	  return model_space_to_ndc_space(vertex_translated);
+	  return camera_space_to_ndc_space(vertex_translated);
 	});
 // \end{code}
 // \begin{code}
@@ -540,7 +540,7 @@ SDL_bool render_scene(int demo_number){
 					       vertex_rotated);
 	  Vertex camera_coordinates(vertex_translated.x - camera_x,
                                     vertex_translated.y - camera_y);
-	  return model_space_to_ndc_space(camera_coordinates);
+	  return camera_space_to_ndc_space(camera_coordinates);
 	});
     }
 // \end{code}
@@ -556,7 +556,7 @@ SDL_bool render_scene(int demo_number){
 					       vertex_rotated);
 	  Vertex camera_coordinates(vertex_translated.x - camera_x,
                                     vertex_translated.y - camera_y);
-	  return model_space_to_ndc_space(camera_coordinates);
+	  return camera_space_to_ndc_space(camera_coordinates);
 	});
     }
     return SDL_FALSE;
@@ -596,7 +596,7 @@ SDL_bool render_scene(int demo_number){
 					       vertex_rotated);
 	  Vertex camera_coordinates(vertex_translated.x - camera_x,
                                     vertex_translated.y - camera_y);
-	  return model_space_to_ndc_space(camera_coordinates);
+	  return camera_space_to_ndc_space(camera_coordinates);
 	});
 
     }
@@ -616,7 +616,7 @@ SDL_bool render_scene(int demo_number){
                                                vertex_rotated);
           Vertex camera_coordinates(vertex_translated.x - camera_x,
                                     vertex_translated.y - camera_y);
-          return model_space_to_ndc_space(camera_coordinates);
+          return camera_space_to_ndc_space(camera_coordinates);
         }
         );
     }
@@ -633,7 +633,7 @@ SDL_bool render_scene(int demo_number){
 					       Vertex_rotated);
 	  Vertex camera_coordinates(Vertex_translated.x - camera_x,
                                     Vertex_translated.y - camera_y);
-	  return model_space_to_ndc_space(camera_coordinates);
+	  return camera_space_to_ndc_space(camera_coordinates);
 	});
 
     }
@@ -663,7 +663,7 @@ SDL_bool render_scene(int demo_number){
 					       Vertex_rotated);
 	  Vertex camera_coordinates(Vertex_translated.x - camera_x,
                                     Vertex_translated.y - camera_y);
-	  return model_space_to_ndc_space(camera_coordinates);
+	  return camera_space_to_ndc_space(camera_coordinates);
 	});
     }
 // \end{code}
@@ -684,7 +684,7 @@ SDL_bool render_scene(int demo_number){
                                                Vertex_rotated);
           Vertex camera_coordinates(Vertex_translated.x - camera_x,
                                     Vertex_translated.y - camera_y);
-          return model_space_to_ndc_space(camera_coordinates);
+          return camera_space_to_ndc_space(camera_coordinates);
         });
     }
 // \end{code}
@@ -700,7 +700,7 @@ SDL_bool render_scene(int demo_number){
 					       Vertex_rotated);
 	  Vertex camera_coordinates(Vertex_translated.x - camera_x,
                                     Vertex_translated.y - camera_y);
-	  return model_space_to_ndc_space(camera_coordinates);
+	  return camera_space_to_ndc_space(camera_coordinates);
 	});
 
     }
@@ -761,7 +761,7 @@ SDL_bool render_scene(int demo_number){
                                                Vertex_rotated);
           Vertex camera_coordinates(Vertex_translated.x - camera_x,
                                     Vertex_translated.y - camera_y);
-          return model_space_to_ndc_space(camera_coordinates);
+          return camera_space_to_ndc_space(camera_coordinates);
         });
     }
 // \end{code}
@@ -787,7 +787,7 @@ SDL_bool render_scene(int demo_number){
                                                Vertex_rotated);
           Vertex camera_coordinates(Vertex_translated.x - camera_x,
                                     Vertex_translated.y - camera_y);
-          return model_space_to_ndc_space(camera_coordinates);
+          return camera_space_to_ndc_space(camera_coordinates);
         });
     }
 // \end{code}
@@ -806,7 +806,7 @@ SDL_bool render_scene(int demo_number){
                                                Vertex_rotated);
           Vertex camera_coordinates(Vertex_translated.x - camera_x,
                                     Vertex_translated.y - camera_y);
-          return model_space_to_ndc_space(camera_coordinates);
+          return camera_space_to_ndc_space(camera_coordinates);
         });
     }
     return SDL_FALSE;
@@ -1003,7 +1003,7 @@ SDL_bool render_scene(int demo_number){
 // \begin{code}
   // use stacks for transformations
   std::vector<Vertex3_transformer> transformationStack;
-  Vertex3_transformer applyTransformations = [&](Vertex3 v){
+  Vertex3_transformer applyTransformationStack = [&](Vertex3 v){
     Vertex3 result = v;
     for(std::vector<Vertex3_transformer>::reverse_iterator
           rit = transformationStack.rbegin();
@@ -1053,7 +1053,7 @@ SDL_bool render_scene(int demo_number){
                         1.0f,
                         v);
         });
-      draw_square3_programmable(applyTransformations);
+      draw_square3_programmable(applyTransformationStack);
       transformationStack.pop_back();
       transformationStack.pop_back();
     }
@@ -1088,7 +1088,7 @@ SDL_bool render_scene(int demo_number){
         });
 // \end{code}
 // \begin{code}
-      draw_square3_programmable(applyTransformations);
+      draw_square3_programmable(applyTransformationStack);
 // \end{code}
 // \begin{code}
       transformationStack.pop_back();
@@ -1120,7 +1120,7 @@ SDL_bool render_scene(int demo_number){
                         1.0f,
                         v);
         });
-      draw_square3_programmable(applyTransformations);
+      draw_square3_programmable(applyTransformationStack);
       transformationStack.pop_back();
       transformationStack.pop_back();
       transformationStack.pop_back();
