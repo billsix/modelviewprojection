@@ -190,6 +190,12 @@ int main(int argc, char** argv)
 SDL_bool render_scene(int demo_number){
   SDL_Event event;
   glClear(GL_COLOR_BUFFER_BIT);
+  // handle events
+  while (SDL_PollEvent(&event)){
+    if (event.type == SDL_QUIT){
+      return SDL_TRUE;
+    }
+  }
 // \end{code}
 
 // \chapter{Hello OpenGL}
@@ -199,12 +205,6 @@ SDL_bool render_scene(int demo_number){
 //
 // \begin{code}
   if(0 == demo_number){
-    // handle events
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
     return SDL_FALSE;
   }
 
@@ -215,11 +215,6 @@ SDL_bool render_scene(int demo_number){
 // \begin{code}
 
   if(1 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
     // draw paddle 1
     glColor3f(1.0,1.0,1.0);
     glBegin(GL_QUADS);
@@ -250,29 +245,25 @@ SDL_bool render_scene(int demo_number){
   static float paddle_1_offset_Y = 0.0;
   static float paddle_2_offset_Y = 0.0;
   const Uint8 *state = SDL_GetKeyboardState(NULL);
-  std::function<void()> from_keyboard_update_paddle_positions =
-    [&]()
-    {
-      if (state[SDL_SCANCODE_S]) {
-        paddle_1_offset_Y -= 0.1;
-      }
-      if (state[SDL_SCANCODE_W]) {
-        paddle_1_offset_Y += 0.1;
-      }
-      if (state[SDL_SCANCODE_K]) {
-        paddle_2_offset_Y -= 0.1;
-      }
-      if (state[SDL_SCANCODE_I]) {
-        paddle_2_offset_Y += 0.1;
-      }
-    };
+
+  // update_paddle_positions
+  if (state[SDL_SCANCODE_S]) {
+    paddle_1_offset_Y -= 0.1;
+  }
+  if (state[SDL_SCANCODE_W]) {
+    paddle_1_offset_Y += 0.1;
+  }
+  if (state[SDL_SCANCODE_K]) {
+    paddle_2_offset_Y -= 0.1;
+  }
+  if (state[SDL_SCANCODE_I]) {
+    paddle_2_offset_Y += 0.1;
+  }
+// \end{code}
+
+
+// \begin{code}
   if(2 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-    from_keyboard_update_paddle_positions();
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     glBegin(GL_QUADS);
@@ -322,12 +313,6 @@ SDL_bool render_scene(int demo_number){
       glEnd();
     };
   if(3 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-    from_keyboard_update_paddle_positions();
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -356,33 +341,29 @@ SDL_bool render_scene(int demo_number){
       return Vertex(modelspace.x/100.0f,
                     modelspace.y/100.0f);
     };
-  from_keyboard_update_paddle_positions = [&]()
-    {
-      if (state[SDL_SCANCODE_S]) {
-        paddle_1_offset_Y -= 10.0f;
-      }
-      if (state[SDL_SCANCODE_W]) {
-        paddle_1_offset_Y += 10.0f;
-      }
-      if (state[SDL_SCANCODE_K]) {
-        paddle_2_offset_Y -= 10.0f;
-      }
-      if (state[SDL_SCANCODE_I]) {
-        paddle_2_offset_Y += 10.0f;
-      }
-    };
+  if (state[SDL_SCANCODE_S]) {
+    // add 0.1 to correct for the previous calculation
+    paddle_1_offset_Y += 0.1;
+    paddle_1_offset_Y -= 10.0f;
+  }
+  if (state[SDL_SCANCODE_W]) {
+    paddle_1_offset_Y -= 0.1;
+    paddle_1_offset_Y += 10.0f;
+  }
+  if (state[SDL_SCANCODE_K]) {
+    paddle_2_offset_Y += 0.1;
+    paddle_2_offset_Y -= 10.0f;
+  }
+  if (state[SDL_SCANCODE_I]) {
+    paddle_2_offset_Y -= 0.1;
+    paddle_2_offset_Y += 10.0f;
+  }
 // \end{code}
 //
 // \section{Demo 4}
 //
 // \begin{code}
   if(4 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-    from_keyboard_update_paddle_positions();
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
 // \end{code}
@@ -431,14 +412,6 @@ SDL_bool render_scene(int demo_number){
 // \end{code}
 // \begin{code}
   if(5 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-    from_keyboard_update_paddle_positions();
-// \end{code}
-// \begin{code}
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -485,34 +458,22 @@ SDL_bool render_scene(int demo_number){
   static float paddle_2_rotation = 0.0;
 // \end{code}
 // \begin{code}
-  std::function<void()> from_keyboard_update_rotation_of_paddles = [&](){
-    if (state[SDL_SCANCODE_A]) {
-      paddle_1_rotation -= 0.1;
-    }
-    if (state[SDL_SCANCODE_D]) {
-      paddle_1_rotation += 0.1;
-    }
-    if (state[SDL_SCANCODE_J]) {
-      paddle_2_rotation -= 0.1;
-    }
-    if (state[SDL_SCANCODE_L]) {
-      paddle_2_rotation += 0.1;
-    }
-  };
+  // update_rotation_of_paddles
+  if (state[SDL_SCANCODE_A]) {
+    paddle_1_rotation -= 0.1;
+  }
+  if (state[SDL_SCANCODE_D]) {
+    paddle_1_rotation += 0.1;
+  }
+  if (state[SDL_SCANCODE_J]) {
+    paddle_2_rotation -= 0.1;
+  }
+  if (state[SDL_SCANCODE_L]) {
+    paddle_2_rotation += 0.1;
+  }
 // \end{code}
 // \begin{code}
   if(6 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-// \end{code}
-// \begin{code}
-    from_keyboard_update_paddle_positions();
-    from_keyboard_update_rotation_of_paddles();
-// \end{code}
-// \begin{code}
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -552,35 +513,22 @@ SDL_bool render_scene(int demo_number){
   static float camera_y = 0.0;
 // \end{code}
 // \begin{code}
-  std::function<void()> from_keyboard_update_camera_position = [&](){
-    if (state[SDL_SCANCODE_UP]) {
-      camera_y += 10.0;
-    }
-    if (state[SDL_SCANCODE_DOWN]) {
-      camera_y -= 10.0;
-    }
-    if (state[SDL_SCANCODE_LEFT]) {
-      camera_x -= 10.0;
-    }
-    if (state[SDL_SCANCODE_RIGHT]) {
-      camera_x += 10.0;
-    }
-  };
+  // update_camera_position
+  if (state[SDL_SCANCODE_UP]) {
+    camera_y += 10.0;
+  }
+  if (state[SDL_SCANCODE_DOWN]) {
+    camera_y -= 10.0;
+  }
+  if (state[SDL_SCANCODE_LEFT]) {
+    camera_x -= 10.0;
+  }
+  if (state[SDL_SCANCODE_RIGHT]) {
+    camera_x += 10.0;
+  }
 // \end{code}
 // \begin{code}
   if(7 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-// \end{code}
-// \begin{code}
-    from_keyboard_update_paddle_positions();
-    from_keyboard_update_rotation_of_paddles();
-    from_keyboard_update_camera_position();
-// \end{code}
-// \begin{code}
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -637,18 +585,6 @@ SDL_bool render_scene(int demo_number){
 // \end{code}
 // \begin{code}
   if(8 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-// \end{code}
-// \begin{code}
-    from_keyboard_update_paddle_positions();
-    from_keyboard_update_rotation_of_paddles();
-    from_keyboard_update_camera_position();
-// \end{code}
-// \begin{code}
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -709,27 +645,13 @@ SDL_bool render_scene(int demo_number){
 //
 // \begin{code}
   static float square_rotation = 0.0;
-  std::function<void()> from_keyboard_update_square_rotation = [&](){
-    if (state[SDL_SCANCODE_Q]) {
-      square_rotation += 0.1;
-    }
-  };
+  // update_square_rotation
+  if (state[SDL_SCANCODE_Q]) {
+    square_rotation += 0.1;
+  }
 // \end{code}
 // \begin{code}
   if(9 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-// \end{code}
-// \begin{code}
-    from_keyboard_update_paddle_positions();
-    from_keyboard_update_rotation_of_paddles();
-    from_keyboard_update_camera_position();
-    from_keyboard_update_square_rotation();
-// \end{code}
-// \begin{code}
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -819,27 +741,12 @@ SDL_bool render_scene(int demo_number){
 // \end{code}
 // \begin{code}
   static float rotation_around_paddle_1 = 0.0;
+  if (state[SDL_SCANCODE_E]) {
+    rotation_around_paddle_1 += 0.1;
+  }
 // \end{code}
 // \begin{code}
   if(10 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-// \end{code}
-// \begin{code}
-    from_keyboard_update_paddle_positions();
-    from_keyboard_update_rotation_of_paddles();
-    from_keyboard_update_camera_position();
-    from_keyboard_update_square_rotation();
-// \end{code}
-// \begin{code}
-    if (state[SDL_SCANCODE_E]) {
-      rotation_around_paddle_1 += 0.1;
-    }
-// \end{code}
-// \begin{code}
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -1005,29 +912,7 @@ SDL_bool render_scene(int demo_number){
   };
 // \end{code}
 // \begin{code}
-  std::function<void()>
-    from_keyboard_update_rotation_around_paddle_1 = [&](){
-    if (state[SDL_SCANCODE_E]) {
-      rotation_around_paddle_1 += 0.1;
-    }
-  };
-// \end{code}
-// \begin{code}
   if(11 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-// \end{code}
-// \begin{code}
-    from_keyboard_update_paddle_positions();
-    from_keyboard_update_rotation_of_paddles();
-    from_keyboard_update_camera_position();
-    from_keyboard_update_square_rotation();
-    from_keyboard_update_rotation_around_paddle_1();
-// \end{code}
-// \begin{code}
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -1132,20 +1017,6 @@ SDL_bool render_scene(int demo_number){
 // \end{code}
 // \begin{code}
   if(12 == demo_number){
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-    }
-// \end{code}
-// \begin{code}
-    from_keyboard_update_paddle_positions();
-    from_keyboard_update_rotation_of_paddles();
-    from_keyboard_update_camera_position();
-    from_keyboard_update_square_rotation();
-    from_keyboard_update_rotation_around_paddle_1();
-// \end{code}
-// \begin{code}
     // every shape is projected the same way
     transformationStack.push_back([&](Vertex3 v){
         return Vertex3_ortho(-100.0f,100.0f,
@@ -1277,26 +1148,6 @@ SDL_bool render_scene(int demo_number){
     /*
      *  Demo 40 - OpenGL Matricies
      */
-    while (SDL_PollEvent(&event)){
-      if (event.type == SDL_QUIT){
-        return SDL_TRUE;
-      }
-      if (event.type == SDL_WINDOWEVENT){
-        if(event.window.event == SDL_WINDOWEVENT_RESIZED){
-          int w = event.window.data1, h = event.window.data2;
-          glViewport(0,0,w,h);
-        }
-      }
-    }
-// \end{code}
-// \begin{code}
-    from_keyboard_update_paddle_positions();
-    from_keyboard_update_rotation_of_paddles();
-    from_keyboard_update_camera_position();
-    from_keyboard_update_square_rotation();
-    from_keyboard_update_rotation_around_paddle_1();
-// \end{code}
-// \begin{code}
     // set up Camera
     {
       // define the projection
