@@ -1133,7 +1133,10 @@ SDL_bool render_scene(int *demo_number){
       transformationStack.pop_back();
       transformationStack.pop_back();
       transformationStack.pop_back();
+
     }
+    transformationStack.pop_back();
+    transformationStack.pop_back();
     return SDL_FALSE;
   }
 // \end{code}
@@ -1198,13 +1201,16 @@ SDL_bool render_scene(int *demo_number){
 
       });
 
+    // every shape is relative to the camera
+    // camera transformation #3 - tilt your head down
     transformationStack.push_back([&](Vertex3 v){
         return rotate3X(moving_camera_rot_x, v);
       });
+    // camera transformation #2 - turn your head to the side
     transformationStack.push_back([&](Vertex3 v){
         return rotate3Y(-moving_camera_rot_y, v);
       });
-    // every shape is relative to the camera
+    // camera transformation #1 - move to the origin
     transformationStack.push_back([&](Vertex3 v){
         return Vertex3(v.x - moving_camera_x,
                        v.y - moving_camera_y,
@@ -1305,6 +1311,10 @@ SDL_bool render_scene(int *demo_number){
       transformationStack.pop_back();
       transformationStack.pop_back();
     }
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    transformationStack.pop_back();
     return SDL_FALSE;
   }
 // \end{code}
