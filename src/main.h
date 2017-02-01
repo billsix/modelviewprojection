@@ -23,7 +23,7 @@
 #include "SDL.h"
 #include <GL/glew.h>
 #include <assert.h>
-
+#include <GL/glu.h>
 
 
 extern SDL_Window *window;
@@ -31,7 +31,7 @@ extern SDL_Renderer *renderer;
 extern SDL_GLContext glcontext;
 
 SDL_bool
-render_scene(int demo_number);
+render_scene(int *demo_number);
 
 
 #endif
