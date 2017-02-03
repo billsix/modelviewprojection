@@ -1342,28 +1342,26 @@ SDL_bool render_scene(int *demo_number){
   std::function<double(double)> RAD_TO_DEG = [&](double rad){
     return 57.296 * rad;
   };
+  std::function<double(double)> DEG_TO_RAD = [&](double degree){
+    return degree / 57.296;
+  };
 // \end{code}
 // \begin{code}
   std::function<Vertex3(float,float,Vertex3)> Vertex3_perspective =
     [&](float nearZ,
         float farZ,
         Vertex3 pos){
-    const float field_of_view =  RAD_TO_DEG(45.0/4.0);
-    float max_non_clipped_x = abs(pos.z) * tan(field_of_view);
-    float x_min_of_box = abs(nearZ) * tan(field_of_view);
-    float sheared_x = pos.x / max_non_clipped_x * x_min_of_box;
-
+    const float field_of_view =  DEG_TO_RAD(45.0/2.0);
+    
     int w, h;
     SDL_GetWindowSize(window,&w,&h);
     float y_angle =  ((float)h / (float)w) * field_of_view;
-    float max_non_clipped_y = abs(pos.z) * tan(y_angle);
-    float y_min_of_box = abs(nearZ) * tan(y_angle);
-    float sheared_y = pos.y / max_non_clipped_x * x_min_of_box;
-
-
-    printf("%f %f \n",x_min_of_box, y_min_of_box);
     
+    float sheared_x = pos.x / abs(pos.z) * abs(nearZ);
+    float sheared_y = pos.y / abs(pos.z) * abs(nearZ);
     Vertex3 projected =  Vertex3(sheared_x, sheared_y, pos.z);
+    float x_min_of_box = abs(nearZ) * tan(field_of_view);
+    float y_min_of_box = abs(nearZ) * tan(y_angle);
     return Vertex3_ortho(-x_min_of_box, x_min_of_box,
                          -y_min_of_box, y_min_of_box,
                          nearZ, farZ,
@@ -1533,7 +1531,7 @@ SDL_bool render_scene(int *demo_number){
         int w, h;
         SDL_GetWindowSize(window,&w,&h);
 
-        gluPerspective(90.0f,
+        gluPerspective(45.0f,
                        (GLdouble)w / (GLdouble)h,
                        0.1f,
                        1000.0f);
