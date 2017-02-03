@@ -196,6 +196,19 @@ SDL_bool render_scene(int *demo_number){
   glClear(GL_DEPTH_BUFFER_BIT);
   glClearDepth(-1.1f );
   glDepthFunc(GL_GREATER);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  // set viewport
+  {
+    int w, h;
+    SDL_GetWindowSize(window,&w,&h);
+    glViewport(0, 0,
+               w, h);
+  }
+
   // handle events
   while (SDL_PollEvent(&event)){
     if (event.type == SDL_QUIT){
@@ -1144,9 +1157,6 @@ SDL_bool render_scene(int *demo_number){
   static float moving_camera_x = 0.0;
   static float moving_camera_y = 0.0;
   static float moving_camera_z = 0.0;
-  static float moving_camera_heading_x = 0.0;
-  static float moving_camera_heading_y = 0.0;
-  static float moving_camera_heading_z = -1.0;
   static float moving_camera_rot_y = 0.0;
   static float moving_camera_rot_x = 0.0;
 
@@ -1174,6 +1184,7 @@ SDL_bool render_scene(int *demo_number){
 
   // update camera from the keyboard
   {
+    const float move_multiple = 15.0;
     if (state[SDL_SCANCODE_RIGHT]) {
       moving_camera_rot_y -= (GLfloat)0.03;
     }
@@ -1181,12 +1192,12 @@ SDL_bool render_scene(int *demo_number){
       moving_camera_rot_y += (GLfloat)0.03;
     }
     if (state[SDL_SCANCODE_UP]) {
-      moving_camera_x -= (GLfloat)sin(moving_camera_rot_y);
-      moving_camera_z -= (GLfloat)cos(moving_camera_rot_y);
+      moving_camera_x -= move_multiple * (GLfloat)sin(moving_camera_rot_y);
+      moving_camera_z -= move_multiple * (GLfloat)cos(moving_camera_rot_y);
     }
     if (state[SDL_SCANCODE_DOWN]) {
-      moving_camera_x += (GLfloat)sin(moving_camera_rot_y);
-      moving_camera_z += (GLfloat)cos(moving_camera_rot_y);
+      moving_camera_x += move_multiple * (GLfloat)sin(moving_camera_rot_y);
+      moving_camera_z += move_multiple * (GLfloat)cos(moving_camera_rot_y);
     }
   }
 // \end{code}
@@ -1352,16 +1363,16 @@ SDL_bool render_scene(int *demo_number){
         float farZ,
         Vertex3 pos){
     const float field_of_view =  DEG_TO_RAD(45.0/2.0);
-    
+
     int w, h;
     SDL_GetWindowSize(window,&w,&h);
-    float y_angle =  ((float)h / (float)w) * field_of_view;
-    
-    float sheared_x = pos.x / abs(pos.z) * abs(nearZ);
+    float x_angle =  ((float)w / (float)h) * field_of_view;
+
     float sheared_y = pos.y / abs(pos.z) * abs(nearZ);
+    float sheared_x = pos.x / abs(pos.z) * abs(nearZ);
     Vertex3 projected =  Vertex3(sheared_x, sheared_y, pos.z);
-    float x_min_of_box = abs(nearZ) * tan(field_of_view);
-    float y_min_of_box = abs(nearZ) * tan(y_angle);
+    float y_min_of_box = abs(nearZ) * tan(field_of_view);
+    float x_min_of_box = abs(nearZ) * tan(x_angle);
     return Vertex3_ortho(-x_min_of_box, x_min_of_box,
                          -y_min_of_box, y_min_of_box,
                          nearZ, farZ,
@@ -1498,7 +1509,7 @@ SDL_bool render_scene(int *demo_number){
   }
 // \end{code}
 // \begin{code}
-  if(*demo_number >= 15){
+  if(*demo_number >= 16){
 
     // for whatever reason, gluPerspective flips the z values
     glClearDepth(1.1f );
@@ -1530,7 +1541,6 @@ SDL_bool render_scene(int *demo_number){
       {
         int w, h;
         SDL_GetWindowSize(window,&w,&h);
-
         gluPerspective(45.0f,
                        (GLdouble)w / (GLdouble)h,
                        0.1f,
