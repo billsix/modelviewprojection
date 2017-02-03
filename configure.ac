@@ -19,10 +19,10 @@ case "$target_os" in
              OPENGL_LIB=""
              ;;
     ming*)
-             OPENGL_LIB="-lopengl32"
+             OPENGL_LIB="-lopengl32 -lglu32"
              ;;
     *)
-             OPENGL_LIB="-lGL"
+             OPENGL_LIB="-lGL -lGLU"
              ;;
 
 esac

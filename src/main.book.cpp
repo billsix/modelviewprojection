@@ -1330,16 +1330,181 @@ SDL_bool render_scene(int *demo_number){
   }
 // \end{code}
 // \begin{code}
-  if(*demo_number >= 15){
-
-    // for whatever reason, gluPerspective flips the z values
-    glClearDepth(1.1f );
-    glDepthFunc(GL_LEQUAL);
+// \begin{code}
+  if(*demo_number >= 14){
     static bool first_frame = true;
     if(first_frame){
       moving_camera_z = 400.0; // for the perspective to look right
       first_frame = false;
     }
+  }
+// \end{code}
+  std::function<double(double)> RAD_TO_DEG = [&](double rad){
+    return 57.296 * rad;
+  };
+// \end{code}
+// \begin{code}
+  std::function<Vertex3(float,float,Vertex3)> Vertex3_perspective =
+    [&](float nearZ,
+        float farZ,
+        Vertex3 pos){
+    const float field_of_view =  RAD_TO_DEG(45.0/4.0);
+    float max_non_clipped_x = abs(pos.z) * tan(field_of_view);
+    float x_min_of_box = abs(nearZ) * tan(field_of_view);
+    float sheared_x = pos.x / max_non_clipped_x * x_min_of_box;
+
+    int w, h;
+    SDL_GetWindowSize(window,&w,&h);
+    float y_angle =  ((float)h / (float)w) * field_of_view;
+    float max_non_clipped_y = abs(pos.z) * tan(y_angle);
+    float y_min_of_box = abs(nearZ) * tan(y_angle);
+    float sheared_y = pos.y / max_non_clipped_x * x_min_of_box;
+
+
+    printf("%f %f \n",x_min_of_box, y_min_of_box);
+    
+    Vertex3 projected =  Vertex3(sheared_x, sheared_y, pos.z);
+    return Vertex3_ortho(-x_min_of_box, x_min_of_box,
+                         -y_min_of_box, y_min_of_box,
+                         nearZ, farZ,
+                         projected);
+  };
+
+// \end{code}
+// \begin{code}
+  if(15 == *demo_number){
+    // every shape is projected the same way
+    transformationStack.push_back([&](Vertex3 v){
+        return Vertex3_perspective(-0.1f,
+                                   -1000.0f,
+                                   v);
+      });
+
+    // THE REST IS THE SAME AS THE PREVIOUS
+
+    // every shape is relative to the camera
+    // camera transformation #3 - tilt your head down
+    transformationStack.push_back([&](Vertex3 v){
+        return rotate3X(moving_camera_rot_x, v);
+      });
+    // camera transformation #2 - turn your head to the side
+    transformationStack.push_back([&](Vertex3 v){
+        return rotate3Y(-moving_camera_rot_y, v);
+      });
+    // camera transformation #1 - move to the origin
+    transformationStack.push_back([&](Vertex3 v){
+        return Vertex3(v.x - moving_camera_x,
+                       v.y - moving_camera_y,
+                       v.z - moving_camera_z);
+      });
+// \end{code}
+// \begin{code}
+    transformationStack.push_back([&](Vertex3 v){
+        return translate3(-90.0f,
+                          0.0f + paddle_1_offset_Y,
+                          0.0f,
+                          v);
+      });
+// \end{code}
+// \begin{code}
+    // draw paddle 1, relative to the offset
+    glColor3f(1.0,1.0,1.0);
+    {
+      transformationStack.push_back([&](Vertex3 v){
+          return rotate3Z(paddle_1_rotation,
+                          v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return scale3(10.0f,
+                        30.0f,
+                        1.0f,
+                        v);
+        });
+      draw_square3_programmable(applyTransformationStack);
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+    }
+// \end{code}
+// \begin{code}
+    // draw square, relative to paddle 1
+    glColor3f(0.0,0.0,1.0);
+    {
+      transformationStack.push_back([&](Vertex3 v){
+          return rotate3Z(paddle_1_rotation,
+                          v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return rotate3Z(rotation_around_paddle_1,
+                          v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return translate3(20.0f,
+                            0.0f,
+                            -10.0f, // NEW, using a non zero
+                            v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return rotate3Z(square_rotation,
+                          v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return scale3(5.0f,
+                        5.0f,
+                        0.0f,
+                        v);
+        });
+// \end{code}
+// \begin{code}
+      draw_square3_programmable(applyTransformationStack);
+// \end{code}
+// \begin{code}
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+    }
+    // get back to the global origin
+    transformationStack.pop_back();
+// \end{code}
+// \begin{code}
+    // draw paddle 2, relative to the offset
+    glColor3f(1.0,1.0,0.0);
+    {
+      transformationStack.push_back([&](Vertex3 v){
+          return translate3(90.0f,
+                            0.0f + paddle_2_offset_Y,
+                            0.0f,
+                            v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return rotate3Z(paddle_2_rotation,
+                          v);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return scale3(10.0f,
+                        30.0f,
+                        1.0f,
+                        v);
+        });
+      draw_square3_programmable(applyTransformationStack);
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+    }
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    return SDL_FALSE;
+  }
+// \end{code}
+// \begin{code}
+  if(*demo_number >= 15){
+
+    // for whatever reason, gluPerspective flips the z values
+    glClearDepth(1.1f );
+    glDepthFunc(GL_LEQUAL);
   }
 // \end{code}
 // \begin{code}
@@ -1350,11 +1515,6 @@ SDL_bool render_scene(int *demo_number){
     glVertex2f(1.0, 1.0);
     glVertex2f(-1.0, 1.0);
     glEnd();
-  };
-// \end{code}
-// \begin{code}
-  std::function<double(double)> RAD_TO_DEG = [&](double rad){
-    return 57.296 * rad;
   };
 // \end{code}
 // \begin{code}
@@ -1373,7 +1533,7 @@ SDL_bool render_scene(int *demo_number){
         int w, h;
         SDL_GetWindowSize(window,&w,&h);
 
-        gluPerspective(45.0f,
+        gluPerspective(90.0f,
                        (GLdouble)w / (GLdouble)h,
                        0.1f,
                        1000.0f);
