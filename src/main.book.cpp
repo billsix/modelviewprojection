@@ -104,14 +104,17 @@ void print_usage(){
 }
 // \end{code}
 // \begin{code}
-int main(int argc, char** argv)
+int SDL_main(int argc, char** argv)
 {
+  int demo_number;
   if(argc == 1){
     print_usage();
-    return 0;
+    demo_number = 15;
   }
-  // get demo number from the command line
-  int demo_number = atoi(argv[1]);
+  else{
+    // get demo number from the command line
+    demo_number = atoi(argv[1]);
+  }
 // \end{code}
 //
 //  \subsection{Initialize the Global Variables, SDL, OpenGL, and GLEW}
@@ -156,7 +159,10 @@ int main(int argc, char** argv)
 // \begin{code}
   glcontext = SDL_GL_CreateContext(window);
   // init GLEW
+#ifdef linux
   glewExperimental = GL_TRUE;
+#elif _WIN32
+#endif
   glewInit();
   SDL_GL_MakeCurrent(window,glcontext);
   // log opengl version
