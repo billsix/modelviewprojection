@@ -228,13 +228,23 @@ SDL_bool render_scene(int *demo_number){
 //
 // \section{Demo 0, Black Screen}
 //
+// \section{Demo 1, Two Rectangles}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Create a SDL window, filled entirely with black.
+//   \end{itemize}
+//
 // \begin{code}
   if(0 == *demo_number){
     return SDL_FALSE;
   }
 // \end{code}
 //
-// \section{Demo 1, Two Rectangles}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Draw two pong paddles using normalized device coordinates
+//   \end{itemize}
+//
 //
 // \begin{code}
   if(1 == *demo_number){
@@ -263,6 +273,10 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 //
 // \section{Demo 2, Two Paddles and Handle Events}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Use input from the keyboard to move the paddles by a relative offset value.
+//   \end{itemize}
 //
 // \begin{code}
   static float paddle_1_offset_Y = 0.0;
@@ -283,7 +297,6 @@ SDL_bool render_scene(int *demo_number){
     paddle_2_offset_Y += 0.1;
   }
 // \end{code}
-
 
 // \begin{code}
   if(2 == *demo_number){
@@ -314,6 +327,11 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 //
 // \section{Demo 3}
+//
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Draw the paddles as if they were in the center of the screen, i.e., using a local coordinate system.
+//   \end{itemize}
 //
 // \begin{code}
   class Vertex {
@@ -355,6 +373,10 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 
 // \chapter{Beginning Transformations}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Translate the paddles to their proper position using ``model-space'' coordinates, instead of normalized device coordinates.
+//   \end{itemize}
 
 // \begin{code}
   typedef std::function<Vertex (Vertex)> Vertex_transformer;
@@ -407,6 +429,11 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 //
 // \section{Demo 5}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Draw the paddles using ``model-space'' coordinates.  Use a vertex-transformer to
+//            translate from model-space to normalized device coordinates.
+//   \end{itemize}
 //
 // \begin{code}
   std::function<void (Vertex_transformer)> draw_paddle_programmable =
@@ -464,6 +491,10 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 //
 // \section{Demo 6}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Learn how to rotate objects.
+//   \end{itemize}
 //
 // \begin{code}
   std::function<Vertex(float,Vertex)> rotate =
@@ -530,6 +561,10 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 //
 // \section{Demo 7, Moving Camera}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Learn how to move the ``camera''.
+//   \end{itemize}
 //
 // \begin{code}
   static float camera_x = 0.0;
@@ -587,6 +622,10 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 //
 // \section{Demo 8, Translate Relative Location}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Learn how to draw some object relative to another object.
+//   \end{itemize}
 //
 // \begin{code}
   std::function<void (Vertex_transformer)> draw_square_programmable =
@@ -665,6 +704,10 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 //
 // \section{Demo 9, Rotation Of The Square}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Learn how to rotate a relative object.
+//   \end{itemize}
 //
 // \begin{code}
   static float square_rotation = 0.0;
@@ -732,6 +775,10 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 //
 // \section{Demo 10, Scaling}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Learn how make objects bigger or smaller, i.e. scaling.
+//   \end{itemize}
 //
 // \begin{code}
   std::function<Vertex(float, float,Vertex)> scale =
@@ -837,6 +884,11 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 //
 // \section{Demo 11, Orthogonal Projection in 3D}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Learn about the third dimension of space, and how to
+//            reduce 3D space (the real world) to 2D space (the monitor).
+//   \end{itemize}
 //
 // \begin{code}
   class Vertex3 {
@@ -1027,6 +1079,12 @@ SDL_bool render_scene(int *demo_number){
 // \end{code}
 //
 // \section{Demo 12, Stacks of Transformations}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item Learn how to represent the scene as an object graph,
+//            and that a simple stack is sufficient to represent the
+//            graph.
+//   \end{itemize}
 //
 // \begin{code}
   // use stacks for transformations
@@ -1207,6 +1265,14 @@ SDL_bool render_scene(int *demo_number){
     }
   }
 // \end{code}
+// \section{Demo 13}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item
+//
+//
+//   \end{itemize}
+//
 // \begin{code}
   if(13 == *demo_number){
     // every shape is projected the same way
@@ -1335,6 +1401,13 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 // \end{code}
+// \section{Demo 14}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item  Learn how to not draw hidden objects
+//
+//
+//   \end{itemize}
 // \begin{code}
   if(*demo_number >= 14){
     glEnable(GL_DEPTH_TEST);
@@ -1363,6 +1436,12 @@ SDL_bool render_scene(int *demo_number){
     return degree / 57.296;
   };
 // \end{code}
+// \section{Demo 15}
+// \subsection{Learing Goals}
+//   \begin{itemize}
+//      \item  Learn how to warp space so that houses don't look
+//             liked blueprints.
+//   \end{itemize}
 // \begin{code}
   std::function<Vertex3(float,float,Vertex3)> Vertex3_perspective =
     [&](float nearZ,
