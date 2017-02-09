@@ -10,6 +10,7 @@ bin_PROGRAMS = modelviewprojection
 main.book.cpp:
 	echo
 
+
 # In my private repo, remove all of the LaTeX code embedded
 #   in CPP comments
 # In the public repo, do nothing

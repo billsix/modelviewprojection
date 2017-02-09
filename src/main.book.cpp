@@ -1,77 +1,45 @@
-// %Copyright 2014-2016 - William Emerison Six
-// %All rights reserved
+//Model View Projection
+//====================
+//Bill Six
+//v1.0, 2003-12
+//:doctype: book
 //
 //
-// \documentclass[twoside]{book}
-// \pagenumbering{gobble}
-// \usepackage[paperwidth=8.25in,
-//             paperheight=10.75in,
-//             bindingoffset=1.0in,
-//             left=0.5in,
-//             right=0.5in,
-//             textheight=8.25in,
-//             footskip=0.1in,
-//             voffset=0.5in]{geometry}
-// \usepackage{times}
-// \usepackage{listings}
-// \usepackage{courier}
-// \usepackage{color}
-// \usepackage{makeidx}
-// \usepackage{amsmath}
-// \usepackage{titlesec}
-// \usepackage{appendix}
-// \lstnewenvironment{code}[1][]%
-//  {  \noindent
-//     \minipage{\linewidth}
-//     \vspace{0.5\baselineskip}
-//     \lstset{language=C++, frame=single,framerule=.8pt, numbers=left,
-//             basicstyle=\ttfamily,
-//             identifierstyle=\ttfamily,keywordstyle=\ttfamily,
-//             showstringspaces=false,#1}}
-//  {\endminipage}
+//[dedication]
+//Example Dedication
+//------------------
+//Optional dedication.
 //
-// \lstnewenvironment{examplecode}[1][]%
-//  {  \noindent
-//     \minipage{\linewidth}
-//     \vspace{0.5\baselineskip}
-//     \lstset{language=C++, frame=single,framerule=.0pt,
-//             basicstyle=\ttfamily,
-//             identifierstyle=\ttfamily,keywordstyle=\ttfamily,
-//             showstringspaces=false,#1}}
-//  {\endminipage}
+//This document is an AsciiDoc book skeleton containing briefly
+//annotated example elements plus a couple of example index entries and
+//footnotes.
 //
-// \raggedbottom
-// \makeindex
-// \titleformat{\chapter}[display]
-//  {\normalsize \huge  \color{black}}%
-//  {\flushright\normalsize \color{black}%
-//   \MakeUppercase{\chaptertitlename}\hspace{1ex}%
-//   {\fontfamily{courier}\fontsize{60}{60}\selectfont\thechapter}}%
-//  {10 pt}%
-//  {\bfseries\huge}%
-// \date{}
-// \begin{document}
-// \bibliographystyle{alpha}
-// % Article top matter
-// \title{Model View Projection}
-//
-// \author{Bill Six}
-//
-// \maketitle
-// \null\vfill
-// \noindent
-// Copyright \textcopyright 2016 -- William Emerison Six\  \
-// All rights reserved
-//
-// \tableofcontents
-// \break
-// \chapter*{Preface}
-//
-//  Foo bar baz.
+//Books are normally used to generate DocBook markup and the titles of
+//the preface, appendix, bibliography, glossary and index sections are
+//significant ('specialsections').
 //
 //
-// \chapter{Opening a Window using Simple DirectMedia Layer 2.0(SDL)}
-// \begin{code}
+//[preface]
+//Example Preface
+//---------------
+//Optional preface.
+//
+//Preface Sub-section
+//~~~~~~~~~~~~~~~~~~~
+//Preface sub-section body.
+//
+//
+//The First Chapter
+//-----------------
+//Chapters can contain sub-sections nested up to three deep.
+//footnote:[An example footnote.]
+//indexterm:[Example index entry]
+//
+//Chapters can have their own bibliography, glossary and index.
+//
+//[source,C]
+//----
+
 /*  src/main.cpp
  *
  * Copyright 2016 - William Emerison Six
@@ -83,27 +51,23 @@
 #include <functional>
 #include <vector>
 #include "main.h"
-// \end{code}
-//
-// \section{Global Variables}
-//
-// \begin{code}
+
+
+
+
 SDL_Window *window;
 SDL_GLContext glcontext;
-// \end{code}
+
 //
-// \section{Running the Program}
 //
-//  ``modelviewprojection'' is a program intended to be run from the command
-//  line, with a number as an argument to specify the demo number to be
-//  run.
-//
-// \begin{code}
+
+
 void print_usage(){
   puts("Usage -- modelviewprojection demonumber");
 }
-// \end{code}
-// \begin{code}
+
+
+
 int SDL_main(int argc, char** argv)
 {
   int demo_number;
@@ -115,11 +79,11 @@ int SDL_main(int argc, char** argv)
     // get demo number from the command line
     demo_number = atoi(argv[1]);
   }
-// \end{code}
+
 //
-//  \subsection{Initialize the Global Variables, SDL, OpenGL, and GLEW}
 //
-// \begin{code}
+
+
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
     SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
                    SDL_LOG_PRIORITY_ERROR,
@@ -140,8 +104,9 @@ int SDL_main(int argc, char** argv)
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
   SDL_DisplayMode current;
   SDL_GetCurrentDisplayMode(0, &current);
-// \end{code}
-// \begin{code}
+
+
+
   if(NULL == (window = SDL_CreateWindow("modelviewprojection",
                                         SDL_WINDOWPOS_CENTERED,
                                         SDL_WINDOWPOS_CENTERED,
@@ -155,8 +120,9 @@ int SDL_main(int argc, char** argv)
                    SDL_GetError());
     return 1;
   }
-// \end{code}
-// \begin{code}
+
+
+
   glcontext = SDL_GL_CreateContext(window);
   // init GLEW
 #ifdef linux
@@ -172,11 +138,11 @@ int SDL_main(int argc, char** argv)
                  glGetString(GL_VERSION));
   // initialize OpenGL
   glClearColor(0,0,0,1);
-// \end{code}
+
 //
-//  \subsection{Execute the Event Loop}
 //
-// \begin{code}
+
+
   SDL_bool quit = SDL_FALSE;
   do{
     quit = render_scene(&demo_number);
@@ -188,14 +154,12 @@ int SDL_main(int argc, char** argv)
   SDL_Quit();
   return 0;
 }
-// \end{code}
-//
-//  \subsection{Render Demo}
-//
-//  The reason for passing demo number in by reference will be apparant in demo 14.
+
 //
 //
-// \begin{code}
+//
+
+
 SDL_bool render_scene(int *demo_number){
   SDL_Event event;
   glClear(GL_COLOR_BUFFER_BIT);
@@ -221,32 +185,19 @@ SDL_bool render_scene(int *demo_number){
       return SDL_TRUE;
     }
   }
-// \end{code}
 
-// \chapter{Hello OpenGL}
 
 //
-// \section{Demo 0, Black Screen}
-//
-// \section{Demo 1, Two Rectangles}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Create a SDL window, filled entirely with black.
-//   \end{itemize}
-//
-// \begin{code}
+
+
   if(0 == *demo_number){
     return SDL_FALSE;
   }
-// \end{code}
-//
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Draw two pong paddles using normalized device coordinates
-//   \end{itemize}
+
 //
 //
-// \begin{code}
+
+
   if(1 == *demo_number){
     // draw paddle 1
     glColor3f(1.0,1.0,1.0);
@@ -270,15 +221,11 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-// \end{code}
+
+
 //
-// \section{Demo 2, Two Paddles and Handle Events}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Use input from the keyboard to move the paddles by a relative offset value.
-//   \end{itemize}
-//
-// \begin{code}
+
+
   static float paddle_1_offset_Y = 0.0;
   static float paddle_2_offset_Y = 0.0;
   const Uint8 *state = SDL_GetKeyboardState(NULL);
@@ -296,9 +243,10 @@ SDL_bool render_scene(int *demo_number){
   if (state[SDL_SCANCODE_I]) {
     paddle_2_offset_Y += 0.1;
   }
-// \end{code}
 
-// \begin{code}
+
+
+
   if(2 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -313,8 +261,9 @@ SDL_bool render_scene(int *demo_number){
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     glBegin(GL_QUADS);
-// \end{code}
-// \begin{code}
+
+
+
     {
       glVertex2f(0.8,-0.3+paddle_2_offset_Y);
       glVertex2f(1.0,-0.3+paddle_2_offset_Y);
@@ -324,16 +273,12 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-// \end{code}
+
 //
-// \section{Demo 3}
+
 //
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Draw the paddles as if they were in the center of the screen, i.e., using a local coordinate system.
-//   \end{itemize}
-//
-// \begin{code}
+
+
   class Vertex {
   public:
     Vertex(float the_x, float the_y):
@@ -353,8 +298,9 @@ SDL_bool render_scene(int *demo_number){
       glVertex2f(center.x-0.1,center.y+0.3);
       glEnd();
     };
-// \end{code}
-// \begin{code}
+
+
+
   if(3 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -370,15 +316,10 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-// \end{code}
 
-// \chapter{Beginning Transformations}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Translate the paddles to their proper position using ``model-space'' coordinates, instead of normalized device coordinates.
-//   \end{itemize}
 
-// \begin{code}
+
+
   typedef std::function<Vertex (Vertex)> Vertex_transformer;
 
   Vertex_transformer camera_space_to_ndc_space =
@@ -404,16 +345,17 @@ SDL_bool render_scene(int *demo_number){
     paddle_2_offset_Y -= 0.1;
     paddle_2_offset_Y += 10.0f;
   }
-// \end{code}
+
 //
-// \section{Demo 4}
 //
-// \begin{code}
+
+
   if(4 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
-// \end{code}
-// \begin{code}
+
+
+
     {
       Vertex center(-90.0f, 0.0f + paddle_1_offset_Y);
       draw_paddle_relative_to(camera_space_to_ndc_space(center));
@@ -426,16 +368,11 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-// \end{code}
+
 //
-// \section{Demo 5}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Draw the paddles using ``model-space'' coordinates.  Use a vertex-transformer to
-//            translate from model-space to normalized device coordinates.
-//   \end{itemize}
 //
-// \begin{code}
+
+
   std::function<void (Vertex_transformer)> draw_paddle_programmable =
     [&](Vertex_transformer f)
     {
@@ -459,8 +396,9 @@ SDL_bool render_scene(int *demo_number){
       return Vertex(modelspace.x + x,
                     modelspace.y + y);
     };
-// \end{code}
-// \begin{code}
+
+
+
   if(5 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -473,8 +411,9 @@ SDL_bool render_scene(int *demo_number){
 	});
 
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -488,15 +427,11 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-// \end{code}
+
 //
-// \section{Demo 6}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Learn how to rotate objects.
-//   \end{itemize}
 //
-// \begin{code}
+
+
   std::function<Vertex(float,Vertex)> rotate =
     [&](float angle_in_radians,
         Vertex modelspace)
@@ -506,12 +441,14 @@ SDL_bool render_scene(int *demo_number){
                     ((float) modelspace.x*sin(angle_in_radians)
                      + modelspace.y*cos(angle_in_radians)));
     };
-// \end{code}
-// \begin{code}
+
+
+
   static float paddle_1_rotation = 0.0;
   static float paddle_2_rotation = 0.0;
-// \end{code}
-// \begin{code}
+
+
+
   // update_rotation_of_paddles
   if (state[SDL_SCANCODE_A]) {
     paddle_1_rotation -= 0.1;
@@ -525,8 +462,9 @@ SDL_bool render_scene(int *demo_number){
   if (state[SDL_SCANCODE_L]) {
     paddle_2_rotation += 0.1;
   }
-// \end{code}
-// \begin{code}
+
+
+
   if(6 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -540,8 +478,9 @@ SDL_bool render_scene(int *demo_number){
 	  return camera_space_to_ndc_space(vertex_translated);
 	});
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -553,24 +492,22 @@ SDL_bool render_scene(int *demo_number){
 					       vertex_rotated);
 	  return camera_space_to_ndc_space(vertex_translated);
 	});
-// \end{code}
-// \begin{code}
+
+
+
     }
     return SDL_FALSE;
   }
-// \end{code}
+
 //
-// \section{Demo 7, Moving Camera}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Learn how to move the ``camera''.
-//   \end{itemize}
 //
-// \begin{code}
+
+
   static float camera_x = 0.0;
   static float camera_y = 0.0;
-// \end{code}
-// \begin{code}
+
+
+
   // update_camera_position
   if (state[SDL_SCANCODE_UP]) {
     camera_y += 10.0;
@@ -584,8 +521,9 @@ SDL_bool render_scene(int *demo_number){
   if (state[SDL_SCANCODE_RIGHT]) {
     camera_x += 10.0;
   }
-// \end{code}
-// \begin{code}
+
+
+
   if(7 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -601,8 +539,9 @@ SDL_bool render_scene(int *demo_number){
 	  return camera_space_to_ndc_space(camera_coordinates);
 	});
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -619,15 +558,11 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-// \end{code}
+
 //
-// \section{Demo 8, Translate Relative Location}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Learn how to draw some object relative to another object.
-//   \end{itemize}
 //
-// \begin{code}
+
+
   std::function<void (Vertex_transformer)> draw_square_programmable =
     [&](Vertex_transformer f)
     {
@@ -644,8 +579,9 @@ SDL_bool render_scene(int *demo_number){
         glEnd();
       }
     };
-// \end{code}
-// \begin{code}
+
+
+
   if(8 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -662,8 +598,9 @@ SDL_bool render_scene(int *demo_number){
 	});
 
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -682,8 +619,9 @@ SDL_bool render_scene(int *demo_number){
         }
         );
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -701,22 +639,19 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-// \end{code}
+
 //
-// \section{Demo 9, Rotation Of The Square}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Learn how to rotate a relative object.
-//   \end{itemize}
 //
-// \begin{code}
+
+
   static float square_rotation = 0.0;
   // update_square_rotation
   if (state[SDL_SCANCODE_Q]) {
     square_rotation += 0.1;
   }
-// \end{code}
-// \begin{code}
+
+
+
   if(9 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -732,8 +667,9 @@ SDL_bool render_scene(int *demo_number){
 	  return camera_space_to_ndc_space(camera_coordinates);
 	});
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -753,8 +689,9 @@ SDL_bool render_scene(int *demo_number){
           return camera_space_to_ndc_space(camera_coordinates);
         });
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -772,15 +709,11 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-// \end{code}
+
 //
-// \section{Demo 10, Scaling}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Learn how make objects bigger or smaller, i.e. scaling.
-//   \end{itemize}
 //
-// \begin{code}
+
+
   std::function<Vertex(float, float,Vertex)> scale =
     [&](float scale_x,
         float scale_y,
@@ -789,8 +722,9 @@ SDL_bool render_scene(int *demo_number){
       return Vertex(modelspace.x * scale_x,
                     modelspace.y * scale_y);
     };
-// \end{code}
-// \begin{code}
+
+
+
   // change the definition of square to positive and negative 1.0
   draw_square_programmable =
     [&](Vertex_transformer f)
@@ -808,14 +742,16 @@ SDL_bool render_scene(int *demo_number){
         glEnd();
       }
     };
-// \end{code}
-// \begin{code}
+
+
+
   static float rotation_around_paddle_1 = 0.0;
   if (state[SDL_SCANCODE_E]) {
     rotation_around_paddle_1 += 0.1;
   }
-// \end{code}
-// \begin{code}
+
+
+
   if(10 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -834,8 +770,9 @@ SDL_bool render_scene(int *demo_number){
           return camera_space_to_ndc_space(camera_coordinates);
         });
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -860,8 +797,9 @@ SDL_bool render_scene(int *demo_number){
           return camera_space_to_ndc_space(camera_coordinates);
         });
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -881,16 +819,11 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-// \end{code}
+
 //
-// \section{Demo 11, Orthogonal Projection in 3D}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Learn about the third dimension of space, and how to
-//            reduce 3D space (the real world) to 2D space (the monitor).
-//   \end{itemize}
 //
-// \begin{code}
+
+
   class Vertex3 {
   public:
     Vertex3(float the_x, float the_y, float the_z):
@@ -902,8 +835,9 @@ SDL_bool render_scene(int *demo_number){
     float y;
     float z;
   };
-// \end{code}
-// \begin{code}
+
+
+
   typedef std::function<Vertex3 (Vertex3)> Vertex3_transformer;
   std::function<Vertex3(float, float,float,Vertex3)> translate3 =
     [&](float x,
@@ -915,8 +849,9 @@ SDL_bool render_scene(int *demo_number){
                      modelspace.y + y,
                      modelspace.z + z);
     };
-// \end{code}
-// \begin{code}
+
+
+
   std::function<Vertex3(float,Vertex3)> rotate3Z =
     [&](float angle_in_radians,
         Vertex3 modelspace)
@@ -927,8 +862,9 @@ SDL_bool render_scene(int *demo_number){
                       + modelspace.y*cos(angle_in_radians)),
                      modelspace.z);
     };
-// \end{code}
-// \begin{code}
+
+
+
   std::function<Vertex3(float, float, float, Vertex3)> scale3 =
     [&](float scale_x,
         float scale_y,
@@ -940,8 +876,9 @@ SDL_bool render_scene(int *demo_number){
                      modelspace.z * scale_z);
 
     };
-// \end{code}
-// \begin{code}
+
+
+
   std::function<void (Vertex3_transformer)>
     draw_square3_programmable =
     [&](Vertex3_transformer f)
@@ -960,8 +897,9 @@ SDL_bool render_scene(int *demo_number){
       glVertex3f(ndc_v_4.x,ndc_v_4.y,ndc_v_4.z);
       glEnd();
     };
-// \end{code}
-// \begin{code}
+
+
+
 
   std::function<Vertex3(float,float,float,
                         float,float,float,
@@ -990,8 +928,9 @@ SDL_bool render_scene(int *demo_number){
     //printf("s %f %f %f\n", scaled.x,scaled.y,scaled.z);
     return scaled;
   };
-// \end{code}
-// \begin{code}
+
+
+
   if(11 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -1016,8 +955,9 @@ SDL_bool render_scene(int *demo_number){
                                camera_coordinates);
         });
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -1049,8 +989,9 @@ SDL_bool render_scene(int *demo_number){
                                camera_coordinates);
         });
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -1076,17 +1017,11 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-// \end{code}
+
 //
-// \section{Demo 12, Stacks of Transformations}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item Learn how to represent the scene as an object graph,
-//            and that a simple stack is sufficient to represent the
-//            graph.
-//   \end{itemize}
 //
-// \begin{code}
+
+
   // use stacks for transformations
   std::vector<Vertex3_transformer> transformationStack;
   Vertex3_transformer applyTransformationStack = [&](Vertex3 v){
@@ -1100,8 +1035,9 @@ SDL_bool render_scene(int *demo_number){
       }
     return result;
   };
-// \end{code}
-// \begin{code}
+
+
+
   if(12 == *demo_number){
     // every shape is projected the same way
     transformationStack.push_back([&](Vertex3 v){
@@ -1116,16 +1052,18 @@ SDL_bool render_scene(int *demo_number){
                        v.y - camera_y,
                        v.z);
       });
-// \end{code}
-// \begin{code}
+
+
+
     transformationStack.push_back([&](Vertex3 v){
         return translate3(-90.0f,
                           0.0f + paddle_1_offset_Y,
                           0.0f,
                           v);
       });
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -1143,8 +1081,9 @@ SDL_bool render_scene(int *demo_number){
       transformationStack.pop_back();
       transformationStack.pop_back();
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -1172,11 +1111,13 @@ SDL_bool render_scene(int *demo_number){
                         0.0f,
                         v);
         });
-// \end{code}
-// \begin{code}
+
+
+
       draw_square3_programmable(applyTransformationStack);
-// \end{code}
-// \begin{code}
+
+
+
       transformationStack.pop_back();
       transformationStack.pop_back();
       transformationStack.pop_back();
@@ -1185,8 +1126,9 @@ SDL_bool render_scene(int *demo_number){
     }
     // get back to the global origin
     transformationStack.pop_back();
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -1216,8 +1158,9 @@ SDL_bool render_scene(int *demo_number){
     transformationStack.pop_back();
     return SDL_FALSE;
   }
-// \end{code}
-// \begin{code}
+
+
+
   static float moving_camera_x = 0.0;
   static float moving_camera_y = 0.0;
   static float moving_camera_z = 0.0;
@@ -1264,16 +1207,10 @@ SDL_bool render_scene(int *demo_number){
       moving_camera_z += move_multiple * (GLfloat)cos(moving_camera_rot_y);
     }
   }
-// \end{code}
-// \section{Demo 13}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item
+
 //
-//
-//   \end{itemize}
-//
-// \begin{code}
+
+
   if(13 == *demo_number){
     // every shape is projected the same way
     transformationStack.push_back([&](Vertex3 v){
@@ -1299,16 +1236,18 @@ SDL_bool render_scene(int *demo_number){
                        v.y - moving_camera_y,
                        v.z - moving_camera_z);
       });
-// \end{code}
-// \begin{code}
+
+
+
     transformationStack.push_back([&](Vertex3 v){
         return translate3(-90.0f,
                           0.0f + paddle_1_offset_Y,
                           0.0f,
                           v);
       });
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -1326,8 +1265,9 @@ SDL_bool render_scene(int *demo_number){
       transformationStack.pop_back();
       transformationStack.pop_back();
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -1355,11 +1295,13 @@ SDL_bool render_scene(int *demo_number){
                         0.0f,
                         v);
         });
-// \end{code}
-// \begin{code}
+
+
+
       draw_square3_programmable(applyTransformationStack);
-// \end{code}
-// \begin{code}
+
+
+
       transformationStack.pop_back();
       transformationStack.pop_back();
       transformationStack.pop_back();
@@ -1368,8 +1310,9 @@ SDL_bool render_scene(int *demo_number){
     }
     // get back to the global origin
     transformationStack.pop_back();
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -1400,27 +1343,24 @@ SDL_bool render_scene(int *demo_number){
     transformationStack.pop_back();
     return SDL_FALSE;
   }
-// \end{code}
-// \section{Demo 14}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item  Learn how to not draw hidden objects
-//
-//
-//   \end{itemize}
-// \begin{code}
+
+
+
+
   if(*demo_number >= 14){
     glEnable(GL_DEPTH_TEST);
   }
-// \end{code}
-// \begin{code}
+
+
+
   if(14 == *demo_number){
     *demo_number = 13;
     return SDL_FALSE;
   }
-// \end{code}
-// \begin{code}
-// \begin{code}
+
+
+
+
   if(*demo_number >= 14){
     static bool first_frame = true;
     if(first_frame){
@@ -1428,21 +1368,16 @@ SDL_bool render_scene(int *demo_number){
       first_frame = false;
     }
   }
-// \end{code}
   std::function<double(double)> RAD_TO_DEG = [&](double rad){
     return 57.296 * rad;
   };
   std::function<double(double)> DEG_TO_RAD = [&](double degree){
     return degree / 57.296;
   };
-// \end{code}
-// \section{Demo 15}
-// \subsection{Learing Goals}
-//   \begin{itemize}
-//      \item  Learn how to warp space so that houses don't look
-//             liked blueprints.
-//   \end{itemize}
-// \begin{code}
+
+
+
+
   std::function<Vertex3(float,float,Vertex3)> Vertex3_perspective =
     [&](float nearZ,
         float farZ,
@@ -1464,8 +1399,9 @@ SDL_bool render_scene(int *demo_number){
                          projected);
   };
 
-// \end{code}
-// \begin{code}
+
+
+
   if(15 == *demo_number){
     // every shape is projected the same way
     transformationStack.push_back([&](Vertex3 v){
@@ -1491,16 +1427,18 @@ SDL_bool render_scene(int *demo_number){
                        v.y - moving_camera_y,
                        v.z - moving_camera_z);
       });
-// \end{code}
-// \begin{code}
+
+
+
     transformationStack.push_back([&](Vertex3 v){
         return translate3(-90.0f,
                           0.0f + paddle_1_offset_Y,
                           0.0f,
                           v);
       });
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -1518,8 +1456,9 @@ SDL_bool render_scene(int *demo_number){
       transformationStack.pop_back();
       transformationStack.pop_back();
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -1547,11 +1486,13 @@ SDL_bool render_scene(int *demo_number){
                         0.0f,
                         v);
         });
-// \end{code}
-// \begin{code}
+
+
+
       draw_square3_programmable(applyTransformationStack);
-// \end{code}
-// \begin{code}
+
+
+
       transformationStack.pop_back();
       transformationStack.pop_back();
       transformationStack.pop_back();
@@ -1560,8 +1501,9 @@ SDL_bool render_scene(int *demo_number){
     }
     // get back to the global origin
     transformationStack.pop_back();
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -1592,16 +1534,18 @@ SDL_bool render_scene(int *demo_number){
     transformationStack.pop_back();
     return SDL_FALSE;
   }
-// \end{code}
-// \begin{code}
+
+
+
   if(*demo_number >= 16){
 
     // for whatever reason, gluPerspective flips the z values
     glClearDepth(1.1f );
     glDepthFunc(GL_LEQUAL);
   }
-// \end{code}
-// \begin{code}
+
+
+
   std::function<void()> draw_square_opengl2point1 = [&](){
     glBegin(GL_QUADS);
     glVertex2f(-1.0, -1.0);
@@ -1610,8 +1554,9 @@ SDL_bool render_scene(int *demo_number){
     glVertex2f(-1.0, 1.0);
     glEnd();
   };
-// \end{code}
-// \begin{code}
+
+
+
   if(40 == *demo_number){
     /*
      *  Demo 40 - OpenGL Matricies
@@ -1647,8 +1592,9 @@ SDL_bool render_scene(int *demo_number){
                    -moving_camera_z);
 
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 1, relative to the offset
     glPushMatrix();
     {
@@ -1670,8 +1616,9 @@ SDL_bool render_scene(int *demo_number){
         glPopMatrix();
       }
 
-// \end{code}
-// \begin{code}
+
+
+
       // draw square, relative to paddle 1
       glColor3f(0.0,0.0,1.0);
       glRotatef(RAD_TO_DEG(rotation_around_paddle_1),
@@ -1691,8 +1638,9 @@ SDL_bool render_scene(int *demo_number){
       draw_square_opengl2point1();
       glPopMatrix();
     }
-// \end{code}
-// \begin{code}
+
+
+
     // draw paddle 2, relative to the offset
     glPushMatrix();
     glColor3f(1.0,1.0,0.0);
@@ -1718,5 +1666,122 @@ SDL_bool render_scene(int *demo_number){
   return SDL_FALSE;
 }
 
-// \end{code}
-//\end{document}  %End of document.
+
+//----
+//And now for something completely different: ((monkeys)), lions and
+//tigers (Bengal and Siberian) using the alternative syntax index
+//entries.
+//(((Big cats,Lions)))
+//(((Big cats,Tigers,Bengal Tiger)))
+//(((Big cats,Tigers,Siberian Tiger)))
+//Note that multi-entry terms generate separate index entries.
+//
+//Here are a couple of image examples: an image:images/smallnew.png[]
+//example inline image followed by an example block image:
+//
+//.Tiger block image
+//image::images/tiger.png[Tiger image]
+//
+//Followed by an example table:
+//
+//.An example table
+//[width="60%",options="header"]
+//|==============================================
+//| Option          | Description
+//| -a 'USER GROUP' | Add 'USER' to 'GROUP'.
+//| -R 'GROUP'      | Disables access to 'GROUP'.
+//|==============================================
+//
+//.An example example
+//===============================================
+//Lorum ipum...
+//===============================================
+//
+//[[X1]]
+//Sub-section with Anchor
+//~~~~~~~~~~~~~~~~~~~~~~~
+//Sub-section at level 2.
+//
+//Chapter Sub-section
+//^^^^^^^^^^^^^^^^^^^
+//Sub-section at level 3.
+//
+//Chapter Sub-section
+//+++++++++++++++++++
+//Sub-section at level 4.
+//
+//This is the maximum sub-section depth supported by the distributed
+//AsciiDoc configuration.
+//footnote:[A second example footnote.]
+//
+//
+//The Second Chapter
+//------------------
+//An example link to anchor at start of the <<X1,first sub-section>>.
+//indexterm:[Second example index entry]
+//
+//An example link to a bibliography entry <<taoup>>.
+//
+//
+//The Third Chapter
+//-----------------
+//Book chapters are at level 1 and can contain sub-sections.
+//
+//
+//:numbered!:
+//
+//[appendix]
+//Example Appendix
+//----------------
+//One or more optional appendixes go here at section level 1.
+//
+//Appendix Sub-section
+//~~~~~~~~~~~~~~~~~~~
+//Sub-section body.
+//
+//
+//[bibliography]
+//Example Bibliography
+//--------------------
+//The bibliography list is a style of AsciiDoc bulleted list.
+//
+//[bibliography]
+//.Books
+//- [[[taoup]]] Eric Steven Raymond. 'The Art of Unix
+//  Programming'. Addison-Wesley. ISBN 0-13-142901-9.
+//  - [[[walsh-muellner]]] Norman Walsh & Leonard Muellner.
+//    'DocBook - The Definitive Guide'. O'Reilly & Associates. 1999.
+//      ISBN 1-56592-580-7.
+//
+//[bibliography]
+//.Articles
+//- [[[abc2003]]] Gall Anonim. 'An article', Whatever. 2003.
+//
+//
+//[glossary]
+//Example Glossary
+//----------------
+//Glossaries are optional. Glossaries entries are an example of a style
+//of AsciiDoc labeled lists.
+//
+//[glossary]
+//A glossary term::
+//  The corresponding (indented) definition.
+//
+//A second glossary term::
+//  The corresponding (indented) definition.
+//
+//
+//[colophon]
+//Example Colophon
+//----------------
+//Text at the end of a book describing facts about its production.
+//
+//
+//[index]
+//Example Index
+//-------------
+//////////////////////////////////////////////////////////////////
+//The index is normally left completely empty, it's contents being
+//generated automatically by the DocBook toolchain.
+//////////////////////////////////////////////////////////////////
