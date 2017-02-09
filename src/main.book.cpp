@@ -37,9 +37,8 @@
 //
 //Chapters can have their own bibliography, glossary and index.
 //
-//[source,C]
+//[source,C,linenums]
 //----
-
 /*  src/main.cpp
  *
  * Copyright 2016 - William Emerison Six
@@ -52,22 +51,14 @@
 #include <cmath>
 #include <vector>
 #include "main.h"
-
-
-
-
 SDL_Window *window;
 SDL_GLContext glcontext;
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
 void print_usage(){
   puts("Usage -- modelviewprojection demonumber");
 }
-
-
 #if _WIN32
 int SDL_main(int argc, char** argv)
 #else
@@ -83,11 +74,9 @@ int main(int argc, char** argv)
     // get demo number from the command line
     demo_number = atoi(argv[1]);
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
     SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
                    SDL_LOG_PRIORITY_ERROR,
@@ -108,9 +97,6 @@ int main(int argc, char** argv)
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
   SDL_DisplayMode current;
   SDL_GetCurrentDisplayMode(0, &current);
-
-
-
   if(NULL == (window = SDL_CreateWindow("modelviewprojection",
                                         SDL_WINDOWPOS_CENTERED,
                                         SDL_WINDOWPOS_CENTERED,
@@ -124,9 +110,6 @@ int main(int argc, char** argv)
                    SDL_GetError());
     return 1;
   }
-
-
-
   glcontext = SDL_GL_CreateContext(window);
   // init GLEW
 #ifdef linux
@@ -142,11 +125,9 @@ int main(int argc, char** argv)
                  glGetString(GL_VERSION));
   // initialize OpenGL
   glClearColor(0,0,0,1);
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   SDL_bool quit = SDL_FALSE;
   do{
     quit = render_scene(&demo_number);
@@ -158,19 +139,15 @@ int main(int argc, char** argv)
   SDL_Quit();
   return 0;
 }
-
-//
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
 SDL_bool render_scene(int *demo_number){
   SDL_Event event;
   glClear(GL_COLOR_BUFFER_BIT);
   glClear(GL_DEPTH_BUFFER_BIT);
   glClearDepth(-1.1f );
   glDepthFunc(GL_GREATER);
-
   glMatrixMode(GL_PROJECTION);
   glLoadIdentity();
   glMatrixMode(GL_MODELVIEW);
@@ -182,26 +159,21 @@ SDL_bool render_scene(int *demo_number){
     glViewport(0, 0,
                w, h);
   }
-
   // handle events
   while (SDL_PollEvent(&event)){
     if (event.type == SDL_QUIT){
       return SDL_TRUE;
     }
   }
-
-
-//
-
-
+//----
+//[source,C,linenums]
+//----
   if(0 == *demo_number){
     return SDL_FALSE;
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   if(1 == *demo_number){
     // draw paddle 1
     glColor3f(1.0,1.0,1.0);
@@ -225,15 +197,12 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-
-
-//
-
-
+//----
+//[source,C,linenums]
+//----
   static float paddle_1_offset_Y = 0.0;
   static float paddle_2_offset_Y = 0.0;
   const Uint8 *state = SDL_GetKeyboardState(NULL);
-
   // update_paddle_positions
   if (state[SDL_SCANCODE_S]) {
     paddle_1_offset_Y -= 0.1;
@@ -247,10 +216,9 @@ SDL_bool render_scene(int *demo_number){
   if (state[SDL_SCANCODE_I]) {
     paddle_2_offset_Y += 0.1;
   }
-
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(2 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -265,9 +233,6 @@ SDL_bool render_scene(int *demo_number){
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     glBegin(GL_QUADS);
-
-
-
     {
       glVertex2f(0.8,-0.3+paddle_2_offset_Y);
       glVertex2f(1.0,-0.3+paddle_2_offset_Y);
@@ -277,12 +242,9 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-
-//
-
-//
-
-
+//----
+//[source,C,linenums]
+//----
   class Vertex {
   public:
     Vertex(float the_x, float the_y):
@@ -302,9 +264,9 @@ SDL_bool render_scene(int *demo_number){
       glVertex2f(center.x-0.1,center.y+0.3);
       glEnd();
     };
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(3 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -320,12 +282,10 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-
-
-
-
+//----
+//[source,C,linenums]
+//----
   typedef std::function<Vertex (Vertex)> Vertex_transformer;
-
   Vertex_transformer camera_space_to_ndc_space =
     [&](Vertex modelspace)
     {
@@ -349,17 +309,12 @@ SDL_bool render_scene(int *demo_number){
     paddle_2_offset_Y -= 0.1;
     paddle_2_offset_Y += 10.0f;
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   if(4 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
-
-
-
     {
       Vertex center(-90.0f, 0.0f + paddle_1_offset_Y);
       draw_paddle_relative_to(camera_space_to_ndc_space(center));
@@ -372,11 +327,9 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   std::function<void (Vertex_transformer)> draw_paddle_programmable =
     [&](Vertex_transformer f)
     {
@@ -391,7 +344,6 @@ SDL_bool render_scene(int *demo_number){
       glVertex2f(ndc_v_4.x,ndc_v_4.y);
       glEnd();
     };
-
   std::function<Vertex(float, float,Vertex)> translate =
       [&](float x,
           float y,
@@ -400,9 +352,9 @@ SDL_bool render_scene(int *demo_number){
       return Vertex(modelspace.x + x,
                     modelspace.y + y);
     };
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(5 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -413,11 +365,7 @@ SDL_bool render_scene(int *demo_number){
 					       modelspace_vertex);
 	  return camera_space_to_ndc_space(vertex_translated);
 	});
-
     }
-
-
-
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -427,15 +375,12 @@ SDL_bool render_scene(int *demo_number){
 					       modelspace_vertex);
 	  return camera_space_to_ndc_space(vertex_translated);
 	});
-
     }
     return SDL_FALSE;
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   std::function<Vertex(float,Vertex)> rotate =
     [&](float angle_in_radians,
         Vertex modelspace)
@@ -445,14 +390,8 @@ SDL_bool render_scene(int *demo_number){
                     ((float) modelspace.x*sin(angle_in_radians)
                      + modelspace.y*cos(angle_in_radians)));
     };
-
-
-
   static float paddle_1_rotation = 0.0;
   static float paddle_2_rotation = 0.0;
-
-
-
   // update_rotation_of_paddles
   if (state[SDL_SCANCODE_A]) {
     paddle_1_rotation -= 0.1;
@@ -466,9 +405,9 @@ SDL_bool render_scene(int *demo_number){
   if (state[SDL_SCANCODE_L]) {
     paddle_2_rotation += 0.1;
   }
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(6 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -482,9 +421,6 @@ SDL_bool render_scene(int *demo_number){
 	  return camera_space_to_ndc_space(vertex_translated);
 	});
     }
-
-
-
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -496,22 +432,14 @@ SDL_bool render_scene(int *demo_number){
 					       vertex_rotated);
 	  return camera_space_to_ndc_space(vertex_translated);
 	});
-
-
-
     }
     return SDL_FALSE;
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   static float camera_x = 0.0;
   static float camera_y = 0.0;
-
-
-
   // update_camera_position
   if (state[SDL_SCANCODE_UP]) {
     camera_y += 10.0;
@@ -525,9 +453,9 @@ SDL_bool render_scene(int *demo_number){
   if (state[SDL_SCANCODE_RIGHT]) {
     camera_x += 10.0;
   }
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(7 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -543,9 +471,6 @@ SDL_bool render_scene(int *demo_number){
 	  return camera_space_to_ndc_space(camera_coordinates);
 	});
     }
-
-
-
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -562,11 +487,9 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   std::function<void (Vertex_transformer)> draw_square_programmable =
     [&](Vertex_transformer f)
     {
@@ -583,9 +506,9 @@ SDL_bool render_scene(int *demo_number){
         glEnd();
       }
     };
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(8 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -600,11 +523,7 @@ SDL_bool render_scene(int *demo_number){
                                     vertex_translated.y - camera_y);
 	  return camera_space_to_ndc_space(camera_coordinates);
 	});
-
     }
-
-
-
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -623,9 +542,6 @@ SDL_bool render_scene(int *demo_number){
         }
         );
     }
-
-
-
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -639,23 +555,17 @@ SDL_bool render_scene(int *demo_number){
                                     Vertex_translated.y - camera_y);
 	  return camera_space_to_ndc_space(camera_coordinates);
 	});
-
     }
     return SDL_FALSE;
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   static float square_rotation = 0.0;
   // update_square_rotation
   if (state[SDL_SCANCODE_Q]) {
     square_rotation += 0.1;
   }
-
-
-
   if(9 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -671,9 +581,6 @@ SDL_bool render_scene(int *demo_number){
 	  return camera_space_to_ndc_space(camera_coordinates);
 	});
     }
-
-
-
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -693,9 +600,6 @@ SDL_bool render_scene(int *demo_number){
           return camera_space_to_ndc_space(camera_coordinates);
         });
     }
-
-
-
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -709,15 +613,12 @@ SDL_bool render_scene(int *demo_number){
                                     Vertex_translated.y - camera_y);
 	  return camera_space_to_ndc_space(camera_coordinates);
 	});
-
     }
     return SDL_FALSE;
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   std::function<Vertex(float, float,Vertex)> scale =
     [&](float scale_x,
         float scale_y,
@@ -726,9 +627,6 @@ SDL_bool render_scene(int *demo_number){
       return Vertex(modelspace.x * scale_x,
                     modelspace.y * scale_y);
     };
-
-
-
   // change the definition of square to positive and negative 1.0
   draw_square_programmable =
     [&](Vertex_transformer f)
@@ -746,16 +644,13 @@ SDL_bool render_scene(int *demo_number){
         glEnd();
       }
     };
-
-
-
   static float rotation_around_paddle_1 = 0.0;
   if (state[SDL_SCANCODE_E]) {
     rotation_around_paddle_1 += 0.1;
   }
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(10 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -774,9 +669,6 @@ SDL_bool render_scene(int *demo_number){
           return camera_space_to_ndc_space(camera_coordinates);
         });
     }
-
-
-
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -801,9 +693,6 @@ SDL_bool render_scene(int *demo_number){
           return camera_space_to_ndc_space(camera_coordinates);
         });
     }
-
-
-
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -823,11 +712,9 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   class Vertex3 {
   public:
     Vertex3(float the_x, float the_y, float the_z):
@@ -839,9 +726,6 @@ SDL_bool render_scene(int *demo_number){
     float y;
     float z;
   };
-
-
-
   typedef std::function<Vertex3 (Vertex3)> Vertex3_transformer;
   std::function<Vertex3(float, float,float,Vertex3)> translate3 =
     [&](float x,
@@ -853,9 +737,6 @@ SDL_bool render_scene(int *demo_number){
                      modelspace.y + y,
                      modelspace.z + z);
     };
-
-
-
   std::function<Vertex3(float,Vertex3)> rotate3Z =
     [&](float angle_in_radians,
         Vertex3 modelspace)
@@ -866,9 +747,6 @@ SDL_bool render_scene(int *demo_number){
                       + modelspace.y*cos(angle_in_radians)),
                      modelspace.z);
     };
-
-
-
   std::function<Vertex3(float, float, float, Vertex3)> scale3 =
     [&](float scale_x,
         float scale_y,
@@ -878,11 +756,7 @@ SDL_bool render_scene(int *demo_number){
       return Vertex3(modelspace.x * scale_x,
                      modelspace.y * scale_y,
                      modelspace.z * scale_z);
-
     };
-
-
-
   std::function<void (Vertex3_transformer)>
     draw_square3_programmable =
     [&](Vertex3_transformer f)
@@ -890,21 +764,14 @@ SDL_bool render_scene(int *demo_number){
       glBegin(GL_QUADS);
       Vertex3 ndc_v_1 = f(Vertex3(-1.0,-1.0,0.0));
       glVertex3f(ndc_v_1.x,ndc_v_1.y,ndc_v_1.z);
-
       Vertex3 ndc_v_2 = f(Vertex3(1.0,-1.0,0.0));
       glVertex3f(ndc_v_2.x,ndc_v_2.y,ndc_v_2.z);
-
       Vertex3 ndc_v_3 = f(Vertex3(1.0,1.0,0.0));
       glVertex3f(ndc_v_3.x,ndc_v_3.y,ndc_v_3.z);
-
       Vertex3 ndc_v_4 = f(Vertex3(-1.0,1.0,0.0));
       glVertex3f(ndc_v_4.x,ndc_v_4.y,ndc_v_4.z);
       glEnd();
     };
-
-
-
-
   std::function<Vertex3(float,float,float,
                         float,float,float,
                         Vertex3)> Vertex3_ortho =
@@ -930,9 +797,9 @@ SDL_bool render_scene(int *demo_number){
     // to flip the data
     return scaled;
   };
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(11 == *demo_number){
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
@@ -957,9 +824,6 @@ SDL_bool render_scene(int *demo_number){
                                camera_coordinates);
         });
     }
-
-
-
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -991,9 +855,6 @@ SDL_bool render_scene(int *demo_number){
                                camera_coordinates);
         });
     }
-
-
-
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -1019,11 +880,9 @@ SDL_bool render_scene(int *demo_number){
     }
     return SDL_FALSE;
   }
-
-//
-//
-
-
+//----
+//[source,C,linenums]
+//----
   // use stacks for transformations
   std::vector<Vertex3_transformer> transformationStack;
   Vertex3_transformer applyTransformationStack = [&](Vertex3 v){
@@ -1037,9 +896,9 @@ SDL_bool render_scene(int *demo_number){
       }
     return result;
   };
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(12 == *demo_number){
     // every shape is projected the same way
     transformationStack.push_back([&](Vertex3 v){
@@ -1054,18 +913,12 @@ SDL_bool render_scene(int *demo_number){
                        v.y - camera_y,
                        v.z);
       });
-
-
-
     transformationStack.push_back([&](Vertex3 v){
         return translate3(-90.0f,
                           0.0f + paddle_1_offset_Y,
                           0.0f,
                           v);
       });
-
-
-
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -1083,9 +936,6 @@ SDL_bool render_scene(int *demo_number){
       transformationStack.pop_back();
       transformationStack.pop_back();
     }
-
-
-
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -1113,13 +963,7 @@ SDL_bool render_scene(int *demo_number){
                         0.0f,
                         v);
         });
-
-
-
       draw_square3_programmable(applyTransformationStack);
-
-
-
       transformationStack.pop_back();
       transformationStack.pop_back();
       transformationStack.pop_back();
@@ -1128,9 +972,6 @@ SDL_bool render_scene(int *demo_number){
     }
     // get back to the global origin
     transformationStack.pop_back();
-
-
-
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -1154,22 +995,19 @@ SDL_bool render_scene(int *demo_number){
       transformationStack.pop_back();
       transformationStack.pop_back();
       transformationStack.pop_back();
-
     }
     transformationStack.pop_back();
     transformationStack.pop_back();
     return SDL_FALSE;
   }
-
-
-
+//----
+//[source,C,linenums]
+//----
   static float moving_camera_x = 0.0;
   static float moving_camera_y = 0.0;
   static float moving_camera_z = 0.0;
   static float moving_camera_rot_y = 0.0;
   static float moving_camera_rot_x = 0.0;
-
-
   std::function<Vertex3(float,Vertex3)> rotate3X =
     [&](float angle_in_radians,
         Vertex3 modelspace)
@@ -1190,7 +1028,6 @@ SDL_bool render_scene(int *demo_number){
                      ((float) modelspace.z*cos(angle_in_radians)
                       - modelspace.x*sin(angle_in_radians)));
     };
-
   // update camera from the keyboard
   {
     const float move_multiple = 15.0;
@@ -1209,10 +1046,9 @@ SDL_bool render_scene(int *demo_number){
       moving_camera_z += move_multiple * (GLfloat)cos(moving_camera_rot_y);
     }
   }
-
-//
-
-
+//----
+//[source,C,linenums]
+//----
   if(13 == *demo_number){
     // every shape is projected the same way
     transformationStack.push_back([&](Vertex3 v){
@@ -1220,9 +1056,7 @@ SDL_bool render_scene(int *demo_number){
                              -100.0f,100.0f,
                              100.0f,-100.0f,
                              v);
-
       });
-
     // every shape is relative to the camera
     // camera transformation #3 - tilt your head down
     transformationStack.push_back([&](Vertex3 v){
@@ -1238,18 +1072,12 @@ SDL_bool render_scene(int *demo_number){
                        v.y - moving_camera_y,
                        v.z - moving_camera_z);
       });
-
-
-
     transformationStack.push_back([&](Vertex3 v){
         return translate3(-90.0f,
                           0.0f + paddle_1_offset_Y,
                           0.0f,
                           v);
       });
-
-
-
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -1267,9 +1095,6 @@ SDL_bool render_scene(int *demo_number){
       transformationStack.pop_back();
       transformationStack.pop_back();
     }
-
-
-
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -1297,13 +1122,7 @@ SDL_bool render_scene(int *demo_number){
                         0.0f,
                         v);
         });
-
-
-
       draw_square3_programmable(applyTransformationStack);
-
-
-
       transformationStack.pop_back();
       transformationStack.pop_back();
       transformationStack.pop_back();
@@ -1312,9 +1131,6 @@ SDL_bool render_scene(int *demo_number){
     }
     // get back to the global origin
     transformationStack.pop_back();
-
-
-
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -1345,24 +1161,16 @@ SDL_bool render_scene(int *demo_number){
     transformationStack.pop_back();
     return SDL_FALSE;
   }
-
-
-
-
   if(*demo_number >= 14){
     glEnable(GL_DEPTH_TEST);
   }
-
-
-
   if(14 == *demo_number){
     *demo_number = 13;
     return SDL_FALSE;
   }
-
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(*demo_number >= 14){
     static bool first_frame = true;
     if(first_frame){
@@ -1376,16 +1184,11 @@ SDL_bool render_scene(int *demo_number){
   std::function<double(double)> DEG_TO_RAD = [&](double degree){
     return degree / 57.296;
   };
-
-
-
-
   std::function<Vertex3(float,float,Vertex3)> Vertex3_perspective =
     [&](float nearZ,
         float farZ,
         Vertex3 pos){
     const float field_of_view =  DEG_TO_RAD(45.0/2.0);
-
     int w, h;
     SDL_GetWindowSize(window,&w,&h);
     float y_angle =  ((float)h / (float)w) * field_of_view;
@@ -1400,10 +1203,9 @@ SDL_bool render_scene(int *demo_number){
                          nearZ, farZ,
                          projected);
   };
-
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(15 == *demo_number){
     // every shape is projected the same way
     transformationStack.push_back([&](Vertex3 v){
@@ -1411,9 +1213,7 @@ SDL_bool render_scene(int *demo_number){
                                    -1000.0f,
                                    v);
       });
-
     // THE REST IS THE SAME AS THE PREVIOUS
-
     // every shape is relative to the camera
     // camera transformation #3 - tilt your head down
     transformationStack.push_back([&](Vertex3 v){
@@ -1429,18 +1229,12 @@ SDL_bool render_scene(int *demo_number){
                        v.y - moving_camera_y,
                        v.z - moving_camera_z);
       });
-
-
-
     transformationStack.push_back([&](Vertex3 v){
         return translate3(-90.0f,
                           0.0f + paddle_1_offset_Y,
                           0.0f,
                           v);
       });
-
-
-
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
     {
@@ -1458,9 +1252,6 @@ SDL_bool render_scene(int *demo_number){
       transformationStack.pop_back();
       transformationStack.pop_back();
     }
-
-
-
     // draw square, relative to paddle 1
     glColor3f(0.0,0.0,1.0);
     {
@@ -1488,13 +1279,7 @@ SDL_bool render_scene(int *demo_number){
                         0.0f,
                         v);
         });
-
-
-
       draw_square3_programmable(applyTransformationStack);
-
-
-
       transformationStack.pop_back();
       transformationStack.pop_back();
       transformationStack.pop_back();
@@ -1503,9 +1288,6 @@ SDL_bool render_scene(int *demo_number){
     }
     // get back to the global origin
     transformationStack.pop_back();
-
-
-
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
     {
@@ -1536,18 +1318,17 @@ SDL_bool render_scene(int *demo_number){
     transformationStack.pop_back();
     return SDL_FALSE;
   }
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(*demo_number >= 16){
-
     // for whatever reason, gluPerspective flips the z values
     glClearDepth(1.1f );
     glDepthFunc(GL_LEQUAL);
   }
-
-
-
+//----
+//[source,C,linenums]
+//----
   std::function<void()> draw_square_opengl2point1 = [&](){
     glBegin(GL_QUADS);
     glVertex2f(-1.0, -1.0);
@@ -1556,9 +1337,9 @@ SDL_bool render_scene(int *demo_number){
     glVertex2f(-1.0, 1.0);
     glEnd();
   };
-
-
-
+//----
+//[source,C,linenums]
+//----
   if(40 == *demo_number){
     /*
      *  Demo 40 - OpenGL Matricies
@@ -1568,7 +1349,6 @@ SDL_bool render_scene(int *demo_number){
       // define the projection
       glMatrixMode(GL_PROJECTION);
       glLoadIdentity();
-
       glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
       {
         int w, h;
@@ -1592,11 +1372,7 @@ SDL_bool render_scene(int *demo_number){
       glTranslatef(-moving_camera_x,
                    -moving_camera_y,
                    -moving_camera_z);
-
     }
-
-
-
     // draw paddle 1, relative to the offset
     glPushMatrix();
     {
@@ -1617,10 +1393,6 @@ SDL_bool render_scene(int *demo_number){
         draw_square_opengl2point1();
         glPopMatrix();
       }
-
-
-
-
       // draw square, relative to paddle 1
       glColor3f(0.0,0.0,1.0);
       glRotatef(RAD_TO_DEG(rotation_around_paddle_1),
@@ -1640,9 +1412,6 @@ SDL_bool render_scene(int *demo_number){
       draw_square_opengl2point1();
       glPopMatrix();
     }
-
-
-
     // draw paddle 2, relative to the offset
     glPushMatrix();
     glColor3f(1.0,1.0,0.0);
@@ -1658,7 +1427,6 @@ SDL_bool render_scene(int *demo_number){
              0.0f);
     draw_square_opengl2point1();
     glPopMatrix();
-
     return SDL_FALSE;
   }
   // in later demos,
@@ -1667,8 +1435,6 @@ SDL_bool render_scene(int *demo_number){
   //glDepthFunc(GL_LEQUAL );
   return SDL_FALSE;
 }
-
-
 //----
 //And now for something completely different: ((monkeys)), lions and
 //tigers (Bengal and Siberian) using the alternative syntax index

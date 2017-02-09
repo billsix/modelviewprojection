@@ -23,10 +23,9 @@ main.cpp: main.book.cpp
 main.tex: main.book.cpp
 	if [ -e main.book.cpp ]; then  sed -e 's/^\/\///g' main.book.cpp > main.tex; fi;
 
-main.pdf: main.tex
-	pdflatex main.tex
-	makeindex main.idx
-	pdflatex main.tex
+main.html: main.tex
+	asciidoc -b html5 -a icons -a toc2 -a theme=flask main.tex
+
 
 
 modelviewprojection_SOURCES = \
