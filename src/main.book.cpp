@@ -81,6 +81,7 @@
 #include <stdio.h>
 #include <math.h>
 #include <functional>
+#include <cmath>
 #include <vector>
 #include "main.h"
 // \end{code}
@@ -909,14 +910,12 @@ SDL_bool render_scene(int *demo_number){
                                     -(top-y_length/2.0),
                                     -(farVal-z_length/2.0),
                                     pos);
-    //printf("t %f %f %f\n", translated.x,translated.y,translated.z);
     Vertex3 scaled = scale3(1/(x_length/2.0),
                             1/(y_length/2.0),
                             1/(-z_length/2.0),
                             translated);
     // negate z length because it is already negative, and don't want
     // to flip the data
-    //printf("s %f %f %f\n", scaled.x,scaled.y,scaled.z);
     return scaled;
   };
 // \end{code}
@@ -1357,11 +1356,11 @@ SDL_bool render_scene(int *demo_number){
     SDL_GetWindowSize(window,&w,&h);
     float y_angle =  ((float)h / (float)w) * field_of_view;
     
-    float sheared_x = pos.x / abs(pos.z) * abs(nearZ);
-    float sheared_y = pos.y / abs(pos.z) * abs(nearZ);
+    float sheared_x = pos.x / fabs(pos.z) * fabs(nearZ);
+    float sheared_y = pos.y / fabs(pos.z) * fabs(nearZ);
     Vertex3 projected =  Vertex3(sheared_x, sheared_y, pos.z);
-    float x_min_of_box = abs(nearZ) * tan(field_of_view);
-    float y_min_of_box = abs(nearZ) * tan(y_angle);
+    float x_min_of_box = fabs(nearZ) * tan(field_of_view);
+    float y_min_of_box = fabs(nearZ) * tan(y_angle);
     return Vertex3_ortho(-x_min_of_box, x_min_of_box,
                          -y_min_of_box, y_min_of_box,
                          nearZ, farZ,
