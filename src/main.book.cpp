@@ -278,16 +278,6 @@ SDL_bool render_scene(int *demo_number){
                     this->y * scale_y);
     };
   };
-  std::function<void(Vertex)> draw_paddle_relative_to =
-    [&](Vertex center)
-    {
-      glBegin(GL_QUADS);
-      glVertex2f(center.x-0.1,center.y-0.3);
-      glVertex2f(center.x+0.1,center.y-0.3);
-      glVertex2f(center.x+0.1,center.y+0.3);
-      glVertex2f(center.x-0.1,center.y+0.3);
-      glEnd();
-    };
 //----
 //[source,C,linenums]
 //----
@@ -367,35 +357,16 @@ SDL_bool render_scene(int *demo_number){
       glBegin(GL_QUADS);
       glColor3f(1.0,1.0,0.0);
       for(Vertex v : paddle){
-        Vertex newPosition = v.translate(90.0,
-                                         paddle_2_offset_Y)
-                               .scale(1.0/100.0,
-                                      1.0/100.0);
-        glVertex2f(newPosition.x, newPosition.y);
+        Vertex worldSpace = v.translate(90.0,
+                                        paddle_2_offset_Y);
+        Vertex ndcSpace = worldSpace.scale(1.0/100.0,
+                                           1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
       }
       glEnd();
     }
     return SDL_FALSE;
   }
-//----
-//// TODO -- remove this
-//[source,C,linenums]
-//----
-  typedef std::function<Vertex (Vertex)> Vertex_transformer;
-  std::function<void (Vertex_transformer)> draw_paddle_programmable =
-    [&](Vertex_transformer f)
-    {
-      glBegin(GL_QUADS);
-      Vertex ndc_v_1 = f(Vertex(-10.0,-30.0));
-      glVertex2f(ndc_v_1.x,ndc_v_1.y);
-      Vertex ndc_v_2 = f(Vertex(10.0, -30.0));
-      glVertex2f(ndc_v_2.x,ndc_v_2.y);
-      Vertex ndc_v_3 = f(Vertex(10.0,30.0));
-      glVertex2f(ndc_v_3.x,ndc_v_3.y);
-      Vertex ndc_v_4 = f(Vertex(-10.0, 30.0));
-      glVertex2f(ndc_v_4.x,ndc_v_4.y);
-      glEnd();
-    };
 //----
 //Rotate the Paddles About their Center
 //-------------------------------------
@@ -425,12 +396,12 @@ SDL_bool render_scene(int *demo_number){
       glColor3f(1.0,1.0,1.0);
       glBegin(GL_QUADS);
       for(Vertex v : paddle){
-        Vertex newPosition = v.rotate(paddle_1_rotation)
+        Vertex worldSpace = v.rotate(paddle_1_rotation)
                               .translate(-90.0,
-                                         paddle_1_offset_Y)
-                              .scale(1.0/100.0,
-                                     1.0/100.0);
-        glVertex2f(newPosition.x, newPosition.y);
+                                         paddle_1_offset_Y);
+        Vertex ndcSpace = worldSpace.scale(1.0/100.0,
+                                           1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
       }
       glEnd();
     }
@@ -439,12 +410,12 @@ SDL_bool render_scene(int *demo_number){
       glBegin(GL_QUADS);
       glColor3f(1.0,1.0,0.0);
       for(Vertex v : paddle){
-        Vertex newPosition = v.rotate(paddle_2_rotation)
+        Vertex worldSpace = v.rotate(paddle_2_rotation)
                               .translate(90.0,
-                                         paddle_2_offset_Y)
-                              .scale(1.0/100.0,
-                                     1.0/100.0);
-        glVertex2f(newPosition.x, newPosition.y);
+                                         paddle_2_offset_Y);
+        Vertex ndcSpace = worldSpace.scale(1.0/100.0,
+                                           1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
       }
       glEnd();
     }
@@ -479,14 +450,14 @@ SDL_bool render_scene(int *demo_number){
       glColor3f(1.0,1.0,1.0);
       glBegin(GL_QUADS);
       for(Vertex v : paddle){
-        Vertex newPosition = v.rotate(paddle_1_rotation)
+        Vertex worldSpace = v.rotate(paddle_1_rotation)
                               .translate(-90.0,
-                                         paddle_1_offset_Y)
-                              .translate(- camera_x,
-                                         - camera_y)
-                              .scale(1.0/100.0,
-                                     1.0/100.0);
-        glVertex2f(newPosition.x, newPosition.y);
+                                         paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(-camera_x,
+                                                  -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                            1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
       }
       glEnd();
     }
@@ -495,14 +466,14 @@ SDL_bool render_scene(int *demo_number){
       glBegin(GL_QUADS);
       glColor3f(1.0,1.0,0.0);
       for(Vertex v : paddle){
-        Vertex newPosition = v.rotate(paddle_2_rotation)
-                              .translate(90.0,
-                                         paddle_2_offset_Y)
-                              .translate(- camera_x,
-                                         - camera_y)
-                              .scale(1.0/100.0,
-                                     1.0/100.0);
-        glVertex2f(newPosition.x, newPosition.y);
+        Vertex worldSpace = v.rotate(paddle_2_rotation)
+                             .translate(90.0,
+                                        paddle_2_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(- camera_x,
+                                                  - camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                             1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
       }
       glEnd();
     }
@@ -517,22 +488,6 @@ SDL_bool render_scene(int *demo_number){
     Vertex(5.0, 5.0),
     Vertex(-5.0, 5.0)
   };
-  std::function<void (Vertex_transformer)> draw_square_programmable =
-    [&](Vertex_transformer f)
-    {
-      glBegin(GL_QUADS);
-      {
-        Vertex ndc_v_1 = f(Vertex(-5.0, -5.0));
-        glVertex2f(ndc_v_1.x,ndc_v_1.y);
-        Vertex ndc_v_2 = f(Vertex(5.0, -5.0));
-        glVertex2f(ndc_v_2.x,ndc_v_2.y);
-        Vertex ndc_v_3 = f(Vertex(5.0, 5.0));
-        glVertex2f(ndc_v_3.x,ndc_v_3.y);
-        Vertex ndc_v_4 = f(Vertex(-5.0,5.0));
-        glVertex2f(ndc_v_4.x,ndc_v_4.y);
-        glEnd();
-      }
-    };
 //----
 //Draw a Small Square Relative to the Left Paddle
 //-----------------------------------------------
@@ -544,14 +499,14 @@ SDL_bool render_scene(int *demo_number){
       glColor3f(1.0,1.0,1.0);
       glBegin(GL_QUADS);
       for(Vertex v : paddle){
-        Vertex newPosition = v.rotate(paddle_1_rotation)
-                              .translate(-90.0,
-                                         paddle_1_offset_Y)
-                              .translate(- camera_x,
-                                         - camera_y)
-                              .scale(1.0/100.0,
-                                     1.0/100.0);
-        glVertex2f(newPosition.x, newPosition.y);
+        Vertex worldSpace = v.rotate(paddle_1_rotation)
+                             .translate(-90.0,
+                                        paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(-camera_x,
+                                                  -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                            1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
       }
       glEnd();
     }
@@ -560,16 +515,16 @@ SDL_bool render_scene(int *demo_number){
       glColor3f(0.0,0.0,1.0);
       glBegin(GL_QUADS);
       for(Vertex v : square){
-        Vertex newPosition = v.translate(20.0f,
-                                         0.0f)
-                              .rotate(paddle_1_rotation)
-                              .translate(-90.0,
-                                         paddle_1_offset_Y)
-                              .translate(- camera_x,
-                                         - camera_y)
-                              .scale(1.0/100.0,
-                                     1.0/100.0);
-        glVertex2f(newPosition.x, newPosition.y);
+        Vertex worldSpace = v.translate(20.0f,
+                                        0.0f)
+                             .rotate(paddle_1_rotation)
+                             .translate(-90.0,
+                                        paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(-camera_x,
+                                                  -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                            1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
       }
       glEnd();
     }
@@ -578,14 +533,14 @@ SDL_bool render_scene(int *demo_number){
       glBegin(GL_QUADS);
       glColor3f(1.0,1.0,0.0);
       for(Vertex v : paddle){
-        Vertex newPosition = v.rotate(paddle_2_rotation)
-                              .translate(90.0,
-                                         paddle_2_offset_Y)
-                              .translate(- camera_x,
-                                         - camera_y)
-                              .scale(1.0/100.0,
-                                     1.0/100.0);
-        glVertex2f(newPosition.x, newPosition.y);
+        Vertex worldSpace = v.rotate(paddle_2_rotation)
+                             .translate(90.0,
+                                        paddle_2_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(-camera_x,
+                                                  -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                            1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
       }
       glEnd();
     }
@@ -593,6 +548,8 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
+//Rotate the Square About Its Origin
+//----------------------------------
 //[source,C,linenums]
 //----
   static float square_rotation = 0.0;
@@ -602,125 +559,122 @@ SDL_bool render_scene(int *demo_number){
   }
   if(9 == *demo_number){
     // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
     {
-      draw_paddle_programmable([&](Vertex modelspace_vertex){
-	  return modelspace_vertex
-            .rotate(paddle_1_rotation)
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-	});
+      glColor3f(1.0,1.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex v : paddle){
+        Vertex worldSpace = v.rotate(paddle_1_rotation)
+                             .translate(-90.0,
+                                        paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(-camera_x,
+                                                  -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                            1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
+      }
+      glEnd();
     }
     // draw square, relative to paddle 1
-    glColor3f(0.0,0.0,1.0);
     {
-      draw_square_programmable([&](Vertex modelspace_vertex){
-          return modelspace_vertex
-            .rotate(square_rotation)
-            .translate(20.0f,
-                       0.0f)
-            .rotate(paddle_1_rotation)
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-        });
+      glColor3f(0.0,0.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex v : square){
+        Vertex worldSpace  = v.rotate(square_rotation)
+                              .translate(20.0f,
+                                         0.0f)
+                              .rotate(paddle_1_rotation)
+                              .translate(-90.0,
+                                         paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(-camera_x,
+                                                  -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                            1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
+      }
+      glEnd();
     }
     // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
     {
-      draw_paddle_programmable([&](Vertex modelspace_vertex){
-	  return modelspace_vertex
-            .rotate(paddle_2_rotation)
-            .translate(90.0f,
-                       0.0f + paddle_2_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-	});
+      glBegin(GL_QUADS);
+      glColor3f(1.0,1.0,0.0);
+      for(Vertex v : paddle){
+        Vertex worldSpace  = v.rotate(paddle_2_rotation)
+                              .translate(90.0,
+                                         paddle_2_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(-camera_x,
+                                                  -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                            1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
+      }
+      glEnd();
     }
     return SDL_FALSE;
   }
 //----
 //[source,C,linenums]
 //----
-  // change the definition of square to positive and negative 1.0
-  draw_square_programmable =
-    [&](Vertex_transformer f)
-    {
-      glBegin(GL_QUADS);
-      {
-        Vertex ndc_v_1 = f(Vertex(-1.0, -1.0));
-        glVertex2f(ndc_v_1.x,ndc_v_1.y);
-        Vertex ndc_v_2 = f(Vertex(1.0, -1.0));
-        glVertex2f(ndc_v_2.x,ndc_v_2.y);
-        Vertex ndc_v_3 = f(Vertex(1.0, 1.0));
-        glVertex2f(ndc_v_3.x,ndc_v_3.y);
-        Vertex ndc_v_4 = f(Vertex(-1.0,1.0));
-        glVertex2f(ndc_v_4.x,ndc_v_4.y);
-        glEnd();
-      }
-    };
   static float rotation_around_paddle_1 = 0.0;
   if (state[SDL_SCANCODE_E]) {
     rotation_around_paddle_1 += 0.1;
   }
 //----
+//Rotate the Square About the Paddle
+//----------------------------------
 //[source,C,linenums]
 //----
   if(10 == *demo_number){
     // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
     {
-      draw_square_programmable([&](Vertex modelspace_vertex){
-          return modelspace_vertex
-            .scale(10.0f,
-                   30.0f)
-            .rotate(paddle_1_rotation)
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-        });
+      glColor3f(1.0,1.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex v : paddle){
+        Vertex worldSpace  = v.rotate(paddle_1_rotation)
+                              .translate(-90.0,
+                                         paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(-camera_x,
+                                                  -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                            1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
+      }
+      glEnd();
     }
     // draw square, relative to paddle 1
-    glColor3f(0.0,0.0,1.0);
     {
-      draw_square_programmable([&](Vertex modelspace_vertex){
-          return modelspace_vertex
-            .scale(5.0f,
-                   5.0f)
-            .rotate(square_rotation)
-            .translate(20.0f,
-                       0.0f)
-            .rotate(rotation_around_paddle_1)
-            .rotate(paddle_1_rotation)
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-        });
+      glColor3f(0.0,0.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex v : square){
+        Vertex worldSpace  = v.rotate(square_rotation)
+                              .translate(20.0f,
+                                         0.0f)
+                              .rotate(rotation_around_paddle_1)
+                              .rotate(paddle_1_rotation)
+                              .translate(-90.0,
+                                         paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(-camera_x,
+                                                  -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                            1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
+      }
+      glEnd();
     }
     // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
     {
-      draw_square_programmable([&](Vertex modelspace_vertex){
-          return modelspace_vertex
-            .scale(10.0f,
-                   30.0f)
-            .rotate(paddle_2_rotation)
-            .translate(90.0f,
-                       0.0f + paddle_2_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-        });
+      glBegin(GL_QUADS);
+      glColor3f(1.0,1.0,0.0);
+      for(Vertex v : paddle){
+        Vertex worldSpace  = v.rotate(paddle_2_rotation)
+                              .translate(90.0,
+                                         paddle_2_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(-camera_x,
+                                                  -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(1.0/100.0,
+                                            1.0/100.0);
+        glVertex2f(ndcSpace.x, ndcSpace.y);
+      }
+      glEnd();
     }
     return SDL_FALSE;
   }
@@ -837,71 +791,83 @@ SDL_bool render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
+  const std::vector<Vertex3> paddle3D = {
+    Vertex3(-10.0, -30.0, 0.0),
+    Vertex3(10.0, -30.0, 0.0),
+    Vertex3(10.0, 30.0, 0.0),
+    Vertex3(-10.0, 30.0, 0.0)
+  };
+  const std::vector<Vertex3> square3D = {
+    Vertex3(-5.0, -5.0, 0.0),
+    Vertex3(5.0, -5.0, 0.0),
+    Vertex3(5.0, 5.0, 0.0),
+    Vertex3(-5.0, 5.0, 0.0)
+  };
+
+
+//// TODO -- update newposition to have better names for 3d
   if(11 == *demo_number){
     // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
     {
-      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinate){
-          return Vertex3_local_coordinate
-            .scale(10.0f,
-                    30.0f,
-                    1.0f)
-            .rotateZ(paddle_1_rotation)
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y,
-                       0.0f)
-            .translate(- camera_x,
-                       - camera_y,
-                       0)
-            .ortho(-100.0f,100.0f,
-                   -100.0f,100.0f,
-                   100.0f,-100.0f);
-        });
+      glColor3f(1.0,1.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex3 v : paddle3D){
+        Vertex3 newPosition = v.rotateZ(paddle_1_rotation)
+                               .translate(-90.0,
+                                          paddle_1_offset_Y,
+                                          0.0)
+                               .translate(-camera_x,
+                                          -camera_y,
+                                          0.0)
+                               .ortho(-100.0f,100.0f,
+                                      -100.0f,100.0f,
+                                      100.0f,-100.0f);
+        glVertex3f(newPosition.x, newPosition.y, newPosition.z);
+      }
+      glEnd();
     }
     // draw square, relative to paddle 1
-    glColor3f(0.0,0.0,1.0);
     {
-      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinate){
-          return Vertex3_local_coordinate
-            .scale(5.0f,
-                   5.0f,
-                   0.0f)
-            .rotateZ(square_rotation)
-            .translate(20.0f,
-                       0.0f,
-                       0.0f)
-            .rotateZ(rotation_around_paddle_1)
-            .rotateZ(paddle_1_rotation)
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y,
-                       0.0f)
-            .translate(- camera_x,
-                       - camera_y,
-                       0)
-            .ortho(-100.0f,100.0f,
-                   -100.0f,100.0f,
-                   100.0f,-100.0f);
-        });
+      glColor3f(0.0,0.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex3 v : square3D){
+        Vertex3 newPosition = v.rotateZ(square_rotation)
+                               .translate(20.0f,
+                                          0.0f,
+                                          -10.0f)  // NEW, using a different Z value
+                               .rotateZ(rotation_around_paddle_1)
+                               .rotateZ(paddle_1_rotation)
+                               .translate(-90.0,
+                                          paddle_1_offset_Y,
+                                          0.0)
+                               .translate(-camera_x,
+                                          -camera_y,
+                                          0.0)
+                               .ortho(-100.0f,100.0f,
+                                      -100.0f,100.0f,
+                                      100.0f,-100.0f);
+        glVertex3f(newPosition.x, newPosition.y, newPosition.y);
+      }
+      glEnd();
     }
     // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
     {
-      draw_square3_programmable([&](Vertex3 Vertex3_local_coordinate){
-          return Vertex3_local_coordinate
-            .scale(10.0f,
-                   30.0f,
-                   1.0f)
-            .rotateZ(paddle_2_rotation)
-            .translate(90.0f,
-                       0.0f + paddle_2_offset_Y,
-                       0.0f)
-            .translate(- camera_x,
-                       - camera_y,
-                       0)
-            .ortho(-100.0f,100.0f,
-                   -100.0f,100.0f,
-                   100.0f,-100.0f);
-        });
+      glBegin(GL_QUADS);
+      glColor3f(1.0,1.0,0.0);
+      for(Vertex3 v : paddle3D){
+        Vertex3 newPosition = v.rotateZ(paddle_2_rotation)
+                               .translate(90.0,
+                                          paddle_2_offset_Y,
+                                          0.0)
+                               .translate(-camera_x,
+                                          -camera_y,
+                                          0.0)
+                               .ortho(-100.0f,100.0f,
+                                      -100.0f,100.0f,
+                                      100.0f,-100.0f);
+        glVertex3f(newPosition.x, newPosition.y, newPosition.z);
+      }
+      glEnd();
     }
     return SDL_FALSE;
   }
@@ -921,98 +887,6 @@ SDL_bool render_scene(int *demo_number){
       }
     return result;
   };
-//----
-//[source,C,linenums]
-//----
-  if(12 == *demo_number){
-    // every shape is projected the same way
-    transformationStack.push_back([&](Vertex3 v){
-        return v.ortho(-100.0f,100.0f,
-                       -100.0f,100.0f,
-                       100.0f,-100.0f);
-      });
-    // every shape is relative to the camera
-    transformationStack.push_back([&](Vertex3 v){
-        return v.translate(- camera_x,
-                           - camera_y,
-                           0.0);
-      });
-    transformationStack.push_back([&](Vertex3 v){
-        return v.translate(-90.0f,
-                           0.0f + paddle_1_offset_Y,
-                           0.0f);
-      });
-    // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
-    {
-      transformationStack.push_back([&](Vertex3 v){
-          return v.rotateZ(paddle_1_rotation);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.scale(10.0f,
-                         30.0f,
-                         1.0f);
-        });
-      draw_square3_programmable(applyTransformationStack);
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-    }
-    // draw square, relative to paddle 1
-    glColor3f(0.0,0.0,1.0);
-    {
-      transformationStack.push_back([&](Vertex3 v){
-          return v.rotateZ(paddle_1_rotation);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.rotateZ(rotation_around_paddle_1);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.translate(20.0f,
-                              0.0f,
-                             -10.0f); // NEW, using a non zero
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.rotateZ(square_rotation);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.scale(5.0f,
-                         5.0f,
-                         0.0f);
-        });
-      draw_square3_programmable(applyTransformationStack);
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-    }
-    // get back to the global origin
-    transformationStack.pop_back();
-    // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
-    {
-      transformationStack.push_back([&](Vertex3 v){
-          return v.translate(90.0f,
-                             0.0f + paddle_2_offset_Y,
-                             0.0f);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.rotateZ(paddle_2_rotation);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.scale(10.0f,
-                         30.0f,
-                         1.0f);
-        });
-      draw_square3_programmable(applyTransformationStack);
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-    }
-    transformationStack.pop_back();
-    transformationStack.pop_back();
-    return SDL_FALSE;
-  }
 //----
 //[source,C,linenums]
 //----
@@ -1042,106 +916,89 @@ SDL_bool render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
+
+
   if(13 == *demo_number){
-    // every shape is projected the same way
-    transformationStack.push_back([&](Vertex3 v){
-        return v.ortho(-100.0f,100.0f,
-                       -100.0f,100.0f,
-                       100.0f,-100.0f);
-      });
-    // every shape is relative to the camera
-    // camera transformation #3 - tilt your head down
-    transformationStack.push_back([&](Vertex3 v){
-        return v.rotateX(moving_camera_rot_x);
-      });
-    // camera transformation #2 - turn your head to the side
-    transformationStack.push_back([&](Vertex3 v){
-        return v.rotateY(-moving_camera_rot_y);
-      });
-    // camera transformation #1 - move to the origin
-    transformationStack.push_back([&](Vertex3 v){
-        return v.translate(- moving_camera_x,
-                           - moving_camera_y,
-                           - moving_camera_z);
-      });
-    transformationStack.push_back([&](Vertex3 v){
-        return v.translate(-90.0f,
-                           0.0f + paddle_1_offset_Y,
-                           0.0f);
-      });
     // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
     {
-      transformationStack.push_back([&](Vertex3 v){
-          return v.rotateZ(paddle_1_rotation);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.scale(10.0f,
-                         30.0f,
-                         1.0f);
-        });
-      draw_square3_programmable(applyTransformationStack);
-      transformationStack.pop_back();
-      transformationStack.pop_back();
+      glColor3f(1.0,1.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex3 v : paddle3D){
+        Vertex3 newPosition = v.rotateZ(paddle_1_rotation)
+                               .translate(-90.0,
+                                          paddle_1_offset_Y,
+                                          0.0)
+          // new camera transformations
+                               .translate(-moving_camera_x,
+                                          -moving_camera_y,
+                                          -moving_camera_z)
+                               .rotateY(-moving_camera_rot_y)
+                               .rotateX(moving_camera_rot_x)
+          // end new camera transformations
+                               .ortho(-100.0f,100.0f,
+                                      -100.0f,100.0f,
+                                      100.0f,-100.0f);
+        glVertex3f(newPosition.x, newPosition.y, newPosition.z);
+      }
+      glEnd();
     }
     // draw square, relative to paddle 1
-    glColor3f(0.0,0.0,1.0);
     {
-      transformationStack.push_back([&](Vertex3 v){
-          return v.rotateZ(paddle_1_rotation);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.rotateZ(rotation_around_paddle_1);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.translate(20.0f,
-                             0.0f,
-                             -10.0f); // NEW, using a non zero
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.rotateZ(square_rotation);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.scale(5.0f,
-                         5.0f,
-                         0.0f);
-        });
-      draw_square3_programmable(applyTransformationStack);
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-      transformationStack.pop_back();
+      glColor3f(0.0,0.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex3 v : square3D){
+        Vertex3 newPosition = v.rotateZ(square_rotation)
+                               .translate(20.0f,
+                                          0.0f,
+                                          -10.0f)  // NEW, using a different Z value
+                               .rotateZ(rotation_around_paddle_1)
+                               .rotateZ(paddle_1_rotation)
+                               .translate(-90.0,
+                                          paddle_1_offset_Y,
+                                          0.0)
+          // new camera transformations
+                               .translate(-moving_camera_x,
+                                          -moving_camera_y,
+                                          -moving_camera_z)
+                               .rotateY(-moving_camera_rot_y)
+                               .rotateX(moving_camera_rot_x)
+          // end new camera transformations
+                               .ortho(-100.0f,100.0f,
+                                      -100.0f,100.0f,
+                                      100.0f,-100.0f);
+        glVertex3f(newPosition.x, newPosition.y, newPosition.z);
+      }
+      glEnd();
     }
-    // get back to the global origin
-    transformationStack.pop_back();
+
     // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
     {
-      transformationStack.push_back([&](Vertex3 v){
-          return v.translate(90.0f,
-                             0.0f + paddle_2_offset_Y,
-                             0.0f);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.rotateZ(paddle_2_rotation);
-        });
-      transformationStack.push_back([&](Vertex3 v){
-          return v.scale(10.0f,
-                         30.0f,
-                         1.0f);
-        });
-      draw_square3_programmable(applyTransformationStack);
-      transformationStack.pop_back();
-      transformationStack.pop_back();
-      transformationStack.pop_back();
+      glBegin(GL_QUADS);
+      glColor3f(1.0,1.0,0.0);
+      for(Vertex3 v : paddle3D){
+        Vertex3 newPosition = v.rotateZ(paddle_2_rotation)
+                               .translate(90.0,
+                                          paddle_2_offset_Y,
+                                          0.0)
+          // new camera transformations
+                               .translate(-moving_camera_x,
+                                          -moving_camera_y,
+                                          -moving_camera_z)
+                               .rotateY(-moving_camera_rot_y)
+                               .rotateX(moving_camera_rot_x)
+          // end new camera transformations
+                               .ortho(-100.0f,100.0f,
+                                      -100.0f,100.0f,
+                                      100.0f,-100.0f);
+        glVertex3f(newPosition.x, newPosition.y, newPosition.z);
+      }
+      glEnd();
     }
-    transformationStack.pop_back();
-    transformationStack.pop_back();
-    transformationStack.pop_back();
-    transformationStack.pop_back();
     return SDL_FALSE;
   }
+
+
+
   if(*demo_number >= 14){
     glEnable(GL_DEPTH_TEST);
   }
