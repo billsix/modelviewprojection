@@ -6,30 +6,18 @@
 //
 //
 //[dedication]
-//Example Dedication
-//------------------
-//Optional dedication.
-//
-//This document is an AsciiDoc book skeleton containing briefly
-//annotated example elements plus a couple of example index entries and
-//footnotes.
-//
-//Books are normally used to generate DocBook markup and the titles of
-//the preface, appendix, bibliography, glossary and index sections are
-//significant ('specialsections').
+//Dedication
+//----------
+//To Teresa, Liam, Adam, and Kate.
 //
 //
 //[preface]
-//Example Preface
-//---------------
-//Optional preface.
+//Preface
+//-------
+//This book teaches how to program interactive computer graphics
+//and games.
 //
-//Preface Sub-section
-//~~~~~~~~~~~~~~~~~~~
-//Preface sub-section body.
-//
-//
-//The First Chapter
+//Opening a Window
 //-----------------
 //Chapters can contain sub-sections nested up to three deep.
 //footnote:[An example footnote.]
@@ -37,6 +25,10 @@
 //
 //Chapters can have their own bibliography, glossary and index.
 //
+//
+//The code for the entire book is contained within "main.cpp", licenced
+//under the LGPL 2.1 or Apache 2.0.
+
 //[source,C,linenums]
 //----
 /*  src/main.cpp
@@ -45,39 +37,39 @@
  * All rights reserved
  * main.cpp is Distributed under LGPL 2.1 or Apache 2.0
  */
-#include <stdio.h>
-#include <math.h>
+#include <iostream>
+#include <vector>
 #include <functional>
 #include <cmath>
-#include <vector>
 #include "main.h"
+//----
+//
+//In order to create graphics, firstly we need a window.
+
+//Although OpenGL provides a cross-platform API to create graphical applications, the specification does
+//not contain APIs for window-management and input.  Simple Direct-Media Layer fills that gap.
+//
+//[source,C,linenums]
+//----
 SDL_Window *window;
 SDL_GLContext glcontext;
 //----
+//
+//On Line 1, create a pointer to an SDL window.
+//On Line 2, I don't know what a glcontext is, and frankly it doesn't matter
+//for this book. 
+//
 //[source,C,linenums]
 //----
-#define RAD_TO_DEG(rad) (57.296 * rad)
-#define DEG_TO_RAD(degree) (degree / 57.296)
-void print_usage(){
-  puts("Usage -- modelviewprojection demonumber");
-}
-
-
-// Use C linkage because of SDL_main
+//// Use C linkage because of SDL_main
 #ifdef __cplusplus
 extern "C"
 #endif
 int main(int argc, char *argv[])
 {
+  std::cout << "Input demo number to run: (1-15): " << std::endl;
   int demo_number;
-  if(argc == 1){
-    print_usage();
-    demo_number = 15;
-  }
-  else{
-    // get demo number from the command line
-    demo_number = atoi(argv[1]);
-  }
+  std::cin >> demo_number ;
 //----
 //[source,C,linenums]
 //----
@@ -176,6 +168,8 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
+//Draw "Pong" Paddles
+//-------------------
 //[source,C,linenums]
 //----
   if(1 == *demo_number){
@@ -202,6 +196,8 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
+//Move the Paddles using the Keyboard
+//-----------------------------------
 //[source,C,linenums]
 //----
   static float paddle_1_offset_Y = 0.0;
@@ -247,14 +243,21 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
+//Model Vertices with a Data-Structure
+//------------------------------------
 //[source,C,linenums]
 //----
   class Vertex {
   public:
+    // members
+    float x;
+    float y;
+    // construtor
     Vertex(float the_x, float the_y):
       x(the_x),
       y(the_y)
     {}
+    // transformations
     Vertex translate(float x,
                      float y)
     {
@@ -274,9 +277,6 @@ SDL_bool render_scene(int *demo_number){
       return Vertex(this->x * scale_x,
                     this->y * scale_y);
     };
-
-    float x;
-    float y;
   };
   std::function<void(Vertex)> draw_paddle_relative_to =
     [&](Vertex center)
@@ -292,18 +292,31 @@ SDL_bool render_scene(int *demo_number){
 //[source,C,linenums]
 //----
   if(3 == *demo_number){
+    std::vector<Vertex> paddle = {
+      Vertex(-0.1, -0.3),
+      Vertex(0.1, -0.3),
+      Vertex(0.1, 0.3),
+      Vertex(-0.1, 0.3)
+    };
     // draw paddle 1, relative to the offset
     glColor3f(1.0,1.0,1.0);
-    {
-      draw_paddle_relative_to(Vertex(-0.9f,
-                                     0.0f + paddle_1_offset_Y));
+    glBegin(GL_QUADS);
+    for(Vertex v : paddle){
+      Vertex newPosition = v.translate(-0.9,
+                                       paddle_1_offset_Y);
+      glVertex2f(newPosition.x, newPosition.y);
     }
+    glEnd();
+    
     // draw paddle 2, relative to the offset
     glColor3f(1.0,1.0,0.0);
-    {
-      draw_paddle_relative_to(Vertex(0.9f,
-                                     0.0f + paddle_2_offset_Y));
+    glBegin(GL_QUADS);
+    for(Vertex v : paddle){
+      Vertex newPosition = v.translate(0.9,
+                                       paddle_2_offset_Y);
+      glVertex2f(newPosition.x, newPosition.y);
     }
+    glEnd();
     return SDL_FALSE;
   }
 //----
@@ -329,22 +342,43 @@ SDL_bool render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
+  const std::vector<Vertex> paddle = {
+    Vertex(-10.0, -30.0),
+    Vertex(10.0, -30.0),
+    Vertex(10.0, 30.0),
+    Vertex(-10.0, 30.0)
+  };
   if(4 == *demo_number){
     // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
     {
-      Vertex center(-90.0f, 0.0f + paddle_1_offset_Y);
-      draw_paddle_relative_to(center.scale(1.0/100.0, 1.0/100.0));
+      glColor3f(1.0,1.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex v : paddle){
+        Vertex newPosition = v.translate(-90.0,
+                                         paddle_1_offset_Y)
+                              .scale(1.0/100.0,
+                                     1.0/100.0);
+        glVertex2f(newPosition.x, newPosition.y);
+      }
+      glEnd();
     }
     // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
     {
-      Vertex center(90.0f, 0.0f + paddle_2_offset_Y);
-      draw_paddle_relative_to(center.scale(1.0/100.0, 1.0/100.0));
+      glBegin(GL_QUADS);
+      glColor3f(1.0,1.0,0.0);
+      for(Vertex v : paddle){
+        Vertex newPosition = v.translate(90.0,
+                                         paddle_2_offset_Y)
+                               .scale(1.0/100.0,
+                                      1.0/100.0);
+        glVertex2f(newPosition.x, newPosition.y);
+      }
+      glEnd();
     }
     return SDL_FALSE;
   }
 //----
+//// TODO -- remove this
 //[source,C,linenums]
 //----
   typedef std::function<Vertex (Vertex)> Vertex_transformer;
@@ -363,32 +397,8 @@ SDL_bool render_scene(int *demo_number){
       glEnd();
     };
 //----
-//[source,C,linenums]
-//----
-  if(5 == *demo_number){
-    // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
-    {
-      draw_paddle_programmable([&](Vertex modelspace_vertex){
-	  return modelspace_vertex
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y)
-            .scale(1.0/100.0, 1.0/100.0);
-	});
-    }
-    // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
-    {
-      draw_paddle_programmable([&](Vertex modelspace_vertex){
-	  return modelspace_vertex
-            .translate(90.0f,
-                       0.0f + paddle_2_offset_Y)
-            .scale(1.0/100.0, 1.0/100.0);
-	});
-    }
-    return SDL_FALSE;
-  }
-//----
+//Rotate the Paddles About their Center
+//-------------------------------------
 //[source,C,linenums]
 //----
   static float paddle_1_rotation = 0.0;
@@ -411,30 +421,38 @@ SDL_bool render_scene(int *demo_number){
 //----
   if(6 == *demo_number){
     // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
     {
-      draw_paddle_programmable([&](Vertex modelspace_vertex){
-	  return modelspace_vertex
-            .rotate(paddle_1_rotation)
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y)
-            .scale(1.0/100.0, 1.0/100.0);
-	});
+      glColor3f(1.0,1.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex v : paddle){
+        Vertex newPosition = v.rotate(paddle_1_rotation)
+                              .translate(-90.0,
+                                         paddle_1_offset_Y)
+                              .scale(1.0/100.0,
+                                     1.0/100.0);
+        glVertex2f(newPosition.x, newPosition.y);
+      }
+      glEnd();
     }
     // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
     {
-      draw_paddle_programmable([&](Vertex modelspace_vertex){
-	  return modelspace_vertex
-            .rotate(paddle_2_rotation)
-            .translate(90.0f,
-                       0.0f + paddle_2_offset_Y)
-            .scale(1.0/100.0, 1.0/100.0);
-	});
+      glBegin(GL_QUADS);
+      glColor3f(1.0,1.0,0.0);
+      for(Vertex v : paddle){
+        Vertex newPosition = v.rotate(paddle_2_rotation)
+                              .translate(90.0,
+                                         paddle_2_offset_Y)
+                              .scale(1.0/100.0,
+                                     1.0/100.0);
+        glVertex2f(newPosition.x, newPosition.y);
+      }
+      glEnd();
     }
     return SDL_FALSE;
   }
 //----
+//Make a Movable Camera
+//---------------------
 //[source,C,linenums]
 //----
   static float camera_x = 0.0;
@@ -457,36 +475,48 @@ SDL_bool render_scene(int *demo_number){
 //----
   if(7 == *demo_number){
     // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
     {
-      draw_paddle_programmable([&](Vertex modelspace_vertex){
-	  return modelspace_vertex
-            .rotate(paddle_1_rotation)
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-	});
+      glColor3f(1.0,1.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex v : paddle){
+        Vertex newPosition = v.rotate(paddle_1_rotation)
+                              .translate(-90.0,
+                                         paddle_1_offset_Y)
+                              .translate(- camera_x,
+                                         - camera_y)
+                              .scale(1.0/100.0,
+                                     1.0/100.0);
+        glVertex2f(newPosition.x, newPosition.y);
+      }
+      glEnd();
     }
     // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
     {
-      draw_paddle_programmable([&](Vertex modelspace_vertex){
-	  return modelspace_vertex
-            .rotate(paddle_2_rotation)
-            .translate(90.0f,
-                       0.0f + paddle_2_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-	});
+      glBegin(GL_QUADS);
+      glColor3f(1.0,1.0,0.0);
+      for(Vertex v : paddle){
+        Vertex newPosition = v.rotate(paddle_2_rotation)
+                              .translate(90.0,
+                                         paddle_2_offset_Y)
+                              .translate(- camera_x,
+                                         - camera_y)
+                              .scale(1.0/100.0,
+                                     1.0/100.0);
+        glVertex2f(newPosition.x, newPosition.y);
+      }
+      glEnd();
     }
     return SDL_FALSE;
   }
 //----
 //[source,C,linenums]
 //----
+  const std::vector<Vertex> square = {
+    Vertex(-5.0, -5.0),
+    Vertex(5.0, -5.0),
+    Vertex(5.0, 5.0),
+    Vertex(-5.0, 5.0)
+  };
   std::function<void (Vertex_transformer)> draw_square_programmable =
     [&](Vertex_transformer f)
     {
@@ -504,51 +534,62 @@ SDL_bool render_scene(int *demo_number){
       }
     };
 //----
+//Draw a Small Square Relative to the Left Paddle
+//-----------------------------------------------
 //[source,C,linenums]
 //----
   if(8 == *demo_number){
     // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
     {
-      draw_paddle_programmable([&](Vertex modelspace_vertex){
-          return modelspace_vertex
-            .rotate(paddle_1_rotation)
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-	});
+      glColor3f(1.0,1.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex v : paddle){
+        Vertex newPosition = v.rotate(paddle_1_rotation)
+                              .translate(-90.0,
+                                         paddle_1_offset_Y)
+                              .translate(- camera_x,
+                                         - camera_y)
+                              .scale(1.0/100.0,
+                                     1.0/100.0);
+        glVertex2f(newPosition.x, newPosition.y);
+      }
+      glEnd();
     }
     // draw square, relative to paddle 1
-    glColor3f(0.0,0.0,1.0);
     {
-      draw_square_programmable([&](Vertex modelspace_vertex){
-          return modelspace_vertex
-            .translate(20.0f,
-                       0.0f)
-            .rotate(paddle_1_rotation)
-            .translate(-90.0f,
-                       0.0f + paddle_1_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-        }
-        );
+      glColor3f(0.0,0.0,1.0);
+      glBegin(GL_QUADS);
+      for(Vertex v : square){
+        Vertex newPosition = v.translate(20.0f,
+                                         0.0f)
+                              .rotate(paddle_1_rotation)
+                              .translate(-90.0,
+                                         paddle_1_offset_Y)
+                              .translate(- camera_x,
+                                         - camera_y)
+                              .scale(1.0/100.0,
+                                     1.0/100.0);
+        glVertex2f(newPosition.x, newPosition.y);
+      }
+      glEnd();
     }
     // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
     {
-      draw_paddle_programmable([&](Vertex modelspace_vertex){
-	  return modelspace_vertex
-            .rotate(paddle_2_rotation)
-            .translate(90.0f,
-                       0.0f + paddle_2_offset_Y)
-            .translate(- camera_x,
-                       - camera_y)
-            .scale(1.0/100.0, 1.0/100.0);
-	});
+      glBegin(GL_QUADS);
+      glColor3f(1.0,1.0,0.0);
+      for(Vertex v : paddle){
+        Vertex newPosition = v.rotate(paddle_2_rotation)
+                              .translate(90.0,
+                                         paddle_2_offset_Y)
+                              .translate(- camera_x,
+                                         - camera_y)
+                              .scale(1.0/100.0,
+                                     1.0/100.0);
+        glVertex2f(newPosition.x, newPosition.y);
+      }
+      glEnd();
     }
+    return SDL_FALSE;
     return SDL_FALSE;
   }
 //----
@@ -753,6 +794,9 @@ SDL_bool render_scene(int *demo_number){
         // negate z length because it is already negative, and don't want
         // to flip the data
     }
+
+#define RAD_TO_DEG(rad) (57.296 * rad)
+#define DEG_TO_RAD(degree) (degree / 57.296)
     Vertex3 perspective(float nearZ,
                         float farZ){
       const float field_of_view =  DEG_TO_RAD(45.0/2.0);
@@ -1336,6 +1380,7 @@ SDL_bool render_scene(int *demo_number){
   return SDL_FALSE;
 }
 //----
+//
 //And now for something completely different: ((monkeys)), lions and
 //tigers (Bengal and Siberian) using the alternative syntax index
 //entries.

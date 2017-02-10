@@ -26,6 +26,9 @@ main.tex: main.book.cpp
 main.html: main.tex
 	asciidoc -b html5 -a icons -a toc2 -a theme=flask main.tex
 
+main.pdf: main.tex
+	a2x -dbook --no-xmllint main.tex
+
 
 
 modelviewprojection_SOURCES = \
