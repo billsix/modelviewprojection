@@ -61,11 +61,13 @@ SDL_GLContext glcontext;
 void print_usage(){
   puts("Usage -- modelviewprojection demonumber");
 }
-#if _WIN32
-int SDL_main(int argc, char** argv)
-#else
-int main(int argc, char** argv)
+
+
+// Use C linkage because of SDL_main
+#ifdef __cplusplus
+extern "C"
 #endif
+int main(int argc, char *argv[])
 {
   int demo_number;
   if(argc == 1){
