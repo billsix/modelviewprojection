@@ -29,7 +29,7 @@
 //----
 /*  src/main.cpp
  *
- * Copyright 2016 - William Emerison Six
+ * Copyright 2016-2017 - William Emerison Six
  * All rights reserved
  * main.cpp is Distributed under Apache 2.0
  */
