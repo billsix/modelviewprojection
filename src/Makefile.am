@@ -24,7 +24,7 @@ main.tex: main.book.cpp
 	if [ -e main.book.cpp ]; then  sed -e 's/^\/\///g' main.book.cpp > main.tex; fi;
 
 main.html: main.tex
-	asciidoc -b html5 -a icons -a toc2 -a theme=flask main.tex
+	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n main.tex
 
 main.pdf: main.tex
 	a2x -dbook --no-xmllint main.tex

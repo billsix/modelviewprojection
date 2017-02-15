@@ -6,36 +6,32 @@
 //
 //
 //[dedication]
-//Dedication
-//----------
+//= Dedication
+//
 //To Teresa, Liam, Adam, and Kate.
 //
 //
 //[preface]
-//Preface
-//-------
+//= Preface
+//
 //This book teaches how to program interactive computer graphics
 //and games.
 //
-//Opening a Window
-//-----------------
-//Chapters can contain sub-sections nested up to three deep.
-//footnote:[An example footnote.]
-//indexterm:[Example index entry]
-//
-//Chapters can have their own bibliography, glossary and index.
+//== Opening a Window
 //
 //
 //The code for the entire book is contained within "main.cpp", licenced
-//under the LGPL 2.1 or Apache 2.0.
-
+//under the Apache 2.0 license. 
+//
+//Include the necessary headers.
+//
 //[source,C,linenums]
 //----
 /*  src/main.cpp
  *
  * Copyright 2016 - William Emerison Six
  * All rights reserved
- * main.cpp is Distributed under LGPL 2.1 or Apache 2.0
+ * main.cpp is Distributed under Apache 2.0
  */
 #include <iostream>
 #include <vector>
@@ -44,10 +40,16 @@
 #include "main.h"
 //----
 //
-//In order to create graphics, firstly we need a window.
-
-//Although OpenGL provides a cross-platform API to create graphical applications, the specification does
-//not contain APIs for window-management and input.  Simple Direct-Media Layer fills that gap.
+//In order to create graphics, first we need to be able to create a window.
+//As OpenGL provides no window management,
+//we will use Simple Direct-Media Layer, as it provides this functionality in a cross platform manner.
+//
+//
+//Create a pointer for the window.  If you are new to C++, don't fret
+//over what a pointer is.  The majority of the book doesn't use them.
+//
+//The author does not know what "glcontext" provides, other than it is necessary,
+//so don't worry about it.
 //
 //[source,C,linenums]
 //----
@@ -55,24 +57,37 @@ SDL_Window *window;
 SDL_GLContext glcontext;
 //----
 //
-//On Line 1, create a pointer to an SDL window.
-//On Line 2, I don't know what a glcontext is, and frankly it doesn't matter
-//for this book. 
+//
+//Use C linkage for main.  Knowing why isn't terribly important,
+//but for the interested reader,
+//<<linkageAppendix,the appendix>>  provides a description of
+//C-linkage vs. C++ linkage.
 //
 //[source,C,linenums]
 //----
-//// Use C linkage because of SDL_main
 #ifdef __cplusplus
 extern "C"
 #endif
 int main(int argc, char *argv[])
 {
+//----
+//=== Let the User Pick the Demo to Run.
+//[source,C,linenums]
+//----
   std::cout << "Input demo number to run: (1-15): " << std::endl;
   int demo_number;
   std::cin >> demo_number ;
 //----
+//=== SDL/OpenGL Initialization
+//
+//You don't really need to know what this code does yet.
+//Later sections will explain pertinent parts.
+//
+//
+//
 //[source,C,linenums]
 //----
+  //initialize video support, joystick support, etc.
   if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
     SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
                    SDL_LOG_PRIORITY_ERROR,
@@ -80,10 +95,17 @@ int main(int argc, char *argv[])
                    SDL_GetError());
     return 1;
   }
-  // Initialize SDL Attributes
+  // Definetely need two buffers.  Who in their right mind
+  // would use only one?
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
+  // used later for depth testing, don't worry about it for now
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
+  // Stecils will not be covered in this book.
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
+  // OpenGL has had multiple versions, which vary in what the
+  // provide.  Specify the version of OpenGL which we will
+  // use
+  
   // put the next few lines in only when running opengl 3.2+
   /* SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, */
   /*                     SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); */
@@ -91,8 +113,13 @@ int main(int argc, char *argv[])
                       SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+  // the following two lines are not important to discuss
   SDL_DisplayMode current;
   SDL_GetCurrentDisplayMode(0, &current);
+//----
+//Create a 500 pixel by 500 pixel window, which the user can resize.
+//[source,C,linenums]
+//----
   if(NULL == (window = SDL_CreateWindow("modelviewprojection",
                                         SDL_WINDOWPOS_CENTERED,
                                         SDL_WINDOWPOS_CENTERED,
@@ -100,6 +127,8 @@ int main(int argc, char *argv[])
                                         500,
                                         (SDL_WINDOW_OPENGL |
                                          SDL_WINDOW_RESIZABLE)))){
+    // if a window can't be created, inform the user
+    // and quit.
     SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
                    SDL_LOG_PRIORITY_ERROR,
                    "Could not create window: %s\n",
@@ -107,21 +136,53 @@ int main(int argc, char *argv[])
     return 1;
   }
   glcontext = SDL_GL_CreateContext(window);
-  // init GLEW
-#ifdef linux
-  glewExperimental = GL_TRUE;
-#elif _WIN32
-#endif
-  glewInit();
+//----
+//When distributing a native application which uses shared libraries,
+//the procedure calls provided by the library are known at compile-time.
+//Unlike typical shared libraries, OpenGL's shared library is providid
+//to the user by the vendor of the graphics card, as
+//different cards offer different functionality.
+//"GLEW" is a project which allows us to use OpenGL nicely.  See
+//<<sharedLibAppendix,the appendix>> for a more full explanantion.
+//[source,C,linenums]
+//----
+  glewInit(); // make OpenGL calls possible
   SDL_GL_MakeCurrent(window,glcontext);
   // log opengl version
   SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
                  SDL_LOG_PRIORITY_INFO,
                  "OpenGL version loaded: %s\n",
                  glGetString(GL_VERSION));
-  // initialize OpenGL
+//----
+//For every frame drawn, each pixel has a default color, set by
+//calling "glClearColor". "0,0,0,1", means black "0,0,0", without
+//transparency (the "1").
+//[source,C,linenums]
+//----
   glClearColor(0,0,0,1);
 //----
+//=== The Event Loop
+//
+//When you pause a movie, motion stops and you see one picture.
+//The video for movies is a sequence of pictures, which when
+//rendered in quick succession, provide the illusion of motion.
+//
+//Interactive computer graphics are rendered the same way,
+//one "frame" at a time.
+//
+//Render a frame for the selected demo, swap the buffers
+//footnote:[Because one "frame" is created incrementally, yet the
+//user doesn't want half-drawn pictures on his monitor, the programmer
+//must inform the graphics card when to "flush" the framebuffer
+//(the array of pixels).  Flushing the framebuffer takes time,
+//and should that call to flush the buffer "block", meaning
+//it would not return until the flush is complete, we would
+//have wasted CPU time.  To avoid wasting the CPU time,
+//OpenGL has two "framebuffers".  "SDL_GL_SwapWindow" initializes the flushing
+//the current buffer, switches the current writable framebuffer to the
+//other one, thus allowing a non-blocking call.],
+//and unless the user closed the window, repeat.
+//
 //[source,C,linenums]
 //----
   SDL_bool quit = SDL_FALSE;
@@ -129,54 +190,101 @@ int main(int argc, char *argv[])
     quit = render_scene(&demo_number);
     SDL_GL_SwapWindow(window);
   } while (quit != SDL_TRUE);
-  // Cleanup
+//----
+//=== The User Closed the App, Cleanup After Yourself
+//[source,C,linenums]
+//----
   SDL_GL_DeleteContext(glcontext);
   SDL_DestroyWindow(window);
   SDL_Quit();
   return 0;
-}
+} // end main
 //----
+//== Render the Current Demo
+//
+//Regardless of which demo will be run, certain things need
+//to happen every frame.  The default color of each pixel withith
+//the current framebuffer needs
+//to be reset to the current clear color.  If the window was
+//resized, it should act correctly
+//
 //[source,C,linenums]
 //----
 SDL_bool render_scene(int *demo_number){
-  SDL_Event event;
   glClear(GL_COLOR_BUFFER_BIT);
-  glClear(GL_DEPTH_BUFFER_BIT);
-  glClearDepth(-1.1f );
-  glDepthFunc(GL_GREATER);
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  // set viewport
+  glClear(GL_DEPTH_BUFFER_BIT); // don't worry for now
+  glClearDepth(-1.1f ); // don't worry for now
+  glDepthFunc(GL_GREATER); // don't worry for now
+  glMatrixMode(GL_PROJECTION); // don't worry for now
+  glLoadIdentity(); // don't worry for now
+  glMatrixMode(GL_MODELVIEW); // don't worry for now
+  glLoadIdentity(); // don't worry for now
+  // map the normalized device-coordinates to screen coordinates,
+  // explained  later.
   {
     int w, h;
     SDL_GetWindowSize(window,&w,&h);
     glViewport(0, 0,
                w, h);
   }
-  // handle events
+//----
+//
+//When a graphics application is executing, it is creating new
+//frames (pictures) at some rate (e.g. 60 frames per second).  At any given
+//frame, the user of the application might do something, (e.g.
+//move the mouse, click, type on the keyboard, close the application).  
+//  
+//At the beginning of every frame, ask OpenGL if it received one
+//of these events since we last asked (i.e., the previous frame).  
+//
+//  
+//
+//[source,C,linenums]
+//----
+  // if the user hits the "X" button to close the window,
+  // then quit
+  SDL_Event event;
   while (SDL_PollEvent(&event)){
     if (event.type == SDL_QUIT){
       return SDL_TRUE;
     }
   }
 //----
+//== Black Screen
+//
+//Since the color of each pixel in the current framebuffer
+//has already been set to black, demo 0 will only show a 
+//black window.
+//
 //[source,C,linenums]
 //----
   if(0 == *demo_number){
     return SDL_FALSE;
   }
 //----
-//Draw "Pong" Paddles
-//-------------------
+//== Draw "Pong" Paddles
+//
+//A black screen is not particularly interesting.  So instead
+//let's draw something slightly more interesting.  Let's make
+//something that looks like "Pong", a game from Atari in which
+//two players each control a paddle on their side of the screen.
+//
+//"glColor3f" sets the color for the upcoming graphical "primitive".
+//"paddle1" is white, "paddle2" is yellow.
+//  
+//"glBegin(GL_QUADS)" tells OpenGL that we are about to draw a
+//quadrilateral, whose vertices are specified by calls to "glVertex2f".
+//
+//"glEnd()" tells OpenGL that we have finished providing vertices for
+//the primitive.
+//  
 //[source,C,linenums]
 //----
   if(1 == *demo_number){
     // draw paddle 1
-    glColor3f(1.0,1.0,1.0);
-    glBegin(GL_QUADS);
     {
+      glColor3f(1.0,1.0,1.0);
+      glBegin(GL_QUADS);
       glVertex2f(-1.0,-0.3);
       glVertex2f(-0.8,-0.3);
       glVertex2f(-0.8,0.3);
@@ -184,9 +292,9 @@ SDL_bool render_scene(int *demo_number){
       glEnd();
     }
     // draw paddle 2
-    glColor3f(1.0,1.0,0.0);
-    glBegin(GL_QUADS);
     {
+      glColor3f(1.0,1.0,0.0);
+      glBegin(GL_QUADS);
       glVertex2f(0.8,-0.3);
       glVertex2f(1.0,-0.3);
       glVertex2f(1.0,0.3);
@@ -196,8 +304,23 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
-//Move the Paddles using the Keyboard
-//-----------------------------------
+//=== Screen-space vs normalized device coordinates-space
+//My monitor has 1920x1200 pixels.  Not every monitor in existence
+//has that exact number of pixels.  To ensure that graphical programs
+//may run on computers with varying numbers of pixels, OpenGL
+//makes the "domain" of drawable pixels from -1.0 to 1.0, for both the
+//x and y coordinates.  
+//(-1.0,-1.0) is the lower left pixel on your screen, (1.0,1.0) is the
+//upper right pixel.  
+//
+//== Move the Paddles using the Keyboard
+//
+//Paddles which don't move are boring.  Use keyboard input from SDL
+//to move the paddles up or down.
+//
+//(static variables are initialized only the first time the code is executed,
+//in subsequent calls to "render_scene", they retain the value they had the last time
+//"render-scene" was called.)
 //[source,C,linenums]
 //----
   static float paddle_1_offset_Y = 0.0;
@@ -217,13 +340,18 @@ SDL_bool render_scene(int *demo_number){
     paddle_2_offset_Y += 0.1;
   }
 //----
+//
+//Change the y coordinate of the paddle's vertices based on
+//the keyboard input of the user.
+//
+//
 //[source,C,linenums]
 //----
   if(2 == *demo_number){
     // draw paddle 1, relative to the offset
-    glColor3f(1.0,1.0,1.0);
-    glBegin(GL_QUADS);
     {
+      glColor3f(1.0,1.0,1.0);
+      glBegin(GL_QUADS);
       glVertex2f(-1.0,-0.3+paddle_1_offset_Y);
       glVertex2f(-0.8,-0.3+paddle_1_offset_Y);
       glVertex2f(-0.8,0.3+paddle_1_offset_Y);
@@ -231,9 +359,9 @@ SDL_bool render_scene(int *demo_number){
       glEnd();
     }
     // draw paddle 2, relative to the offset
-    glColor3f(1.0,1.0,0.0);
-    glBegin(GL_QUADS);
     {
+      glColor3f(1.0,1.0,0.0);
+      glBegin(GL_QUADS);
       glVertex2f(0.8,-0.3+paddle_2_offset_Y);
       glVertex2f(1.0,-0.3+paddle_2_offset_Y);
       glVertex2f(1.0,0.3+paddle_2_offset_Y);
@@ -243,8 +371,12 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
-//Model Vertices with a Data-Structure
-//------------------------------------
+//== Model Vertices with a Data-Structure
+//
+//
+//Modeling vertices, along with transformations of them,
+//is important.  So let's make a class to encapsulate  
+//modifications to verticies.
 //[source,C,linenums]
 //----
   class Vertex {
@@ -258,24 +390,43 @@ SDL_bool render_scene(int *demo_number){
       y(the_y)
     {}
     // transformations
+//----
+//
+//Rather than incrementing y values before calling "glVertex",
+//instead call "translate" on the vertex.
+//[source,C,linenums]
+//----
     Vertex translate(float x,
                      float y)
     {
       return Vertex(this->x + x,
                     this->y + y);
     };
+//----
+//
+//Similarly, we can expand or shink the size of an object
+//by "scale"ing each of the vertices of the object, assuming
+//the object's center is at (0,0).    
+//[source,C,linenums]
+//----
+    Vertex scale(float scale_x,
+                 float scale_y)
+    {
+      return Vertex(this->x * scale_x,
+                    this->y * scale_y);
+    };
+//----
+//
+//We can also rotate an object around (0,0).  This won't
+//be used until later.
+//[source,C,linenums]
+//----
     Vertex rotate(float angle_in_radians)
     {
       return Vertex(((float) this->x*cos(angle_in_radians)
                      - this->y*sin(angle_in_radians)),
                     ((float) this->x*sin(angle_in_radians)
                      + this->y*cos(angle_in_radians)));
-    };
-    Vertex scale(float scale_x,
-                 float scale_y)
-    {
-      return Vertex(this->x * scale_x,
-                    this->y * scale_y);
     };
   };
 //----
@@ -368,8 +519,8 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
-//Rotate the Paddles About their Center
-//-------------------------------------
+//== Rotate the Paddles About their Center
+//
 //[source,C,linenums]
 //----
   static float paddle_1_rotation = 0.0;
@@ -422,8 +573,8 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
-//Make a Movable Camera
-//---------------------
+//== Make a Movable Camera
+//
 //[source,C,linenums]
 //----
   static float camera_x = 0.0;
@@ -489,8 +640,8 @@ SDL_bool render_scene(int *demo_number){
     Vertex(-5.0, 5.0)
   };
 //----
-//Draw a Small Square Relative to the Left Paddle
-//-----------------------------------------------
+//== Draw a Small Square Relative to the Left Paddle
+//
 //[source,C,linenums]
 //----
   if(8 == *demo_number){
@@ -548,8 +699,8 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
-//Rotate the Square About Its Origin
-//----------------------------------
+//== Rotate the Square About Its Origin
+//
 //[source,C,linenums]
 //----
   static float square_rotation = 0.0;
@@ -619,8 +770,8 @@ SDL_bool render_scene(int *demo_number){
     rotation_around_paddle_1 += 0.1;
   }
 //----
-//Rotate the Square About the Paddle
-//----------------------------------
+//== Rotate the Square About the Paddle
+//
 //[source,C,linenums]
 //----
   if(10 == *demo_number){
@@ -904,6 +1055,12 @@ SDL_bool render_scene(int *demo_number){
     if (state[SDL_SCANCODE_LEFT]) {
       moving_camera_rot_y += (GLfloat)0.03;
     }
+    if (state[SDL_SCANCODE_PAGEUP]) {
+      moving_camera_rot_x += (GLfloat)0.03;
+    }
+    if (state[SDL_SCANCODE_PAGEDOWN]) {
+      moving_camera_rot_x -= (GLfloat)0.03;
+    }
     if (state[SDL_SCANCODE_UP]) {
       moving_camera_x -= move_multiple * (GLfloat)sin(moving_camera_rot_y);
       moving_camera_z -= move_multiple * (GLfloat)cos(moving_camera_rot_y);
@@ -933,7 +1090,7 @@ SDL_bool render_scene(int *demo_number){
                                           -moving_camera_y,
                                           -moving_camera_z)
                                .rotateY(-moving_camera_rot_y)
-                               .rotateX(moving_camera_rot_x)
+                               .rotateX(-moving_camera_rot_x)
           // end new camera transformations
                                .ortho(-100.0f,100.0f,
                                       -100.0f,100.0f,
@@ -961,7 +1118,7 @@ SDL_bool render_scene(int *demo_number){
                                           -moving_camera_y,
                                           -moving_camera_z)
                                .rotateY(-moving_camera_rot_y)
-                               .rotateX(moving_camera_rot_x)
+                               .rotateX(-moving_camera_rot_x)
           // end new camera transformations
                                .ortho(-100.0f,100.0f,
                                       -100.0f,100.0f,
@@ -985,7 +1142,7 @@ SDL_bool render_scene(int *demo_number){
                                           -moving_camera_y,
                                           -moving_camera_z)
                                .rotateY(-moving_camera_rot_y)
-                               .rotateX(moving_camera_rot_x)
+                               .rotateX(-moving_camera_rot_x)
           // end new camera transformations
                                .ortho(-100.0f,100.0f,
                                       -100.0f,100.0f,
@@ -1029,7 +1186,7 @@ SDL_bool render_scene(int *demo_number){
     // every shape is relative to the camera
     // camera transformation #3 - tilt your head down
     transformationStack.push_back([&](Vertex3 v){
-        return v.rotateX(moving_camera_rot_x);
+        return v.rotateX(-moving_camera_rot_x);
       });
     // camera transformation #2 - turn your head to the side
     transformationStack.push_back([&](Vertex3 v){
@@ -1162,7 +1319,7 @@ SDL_bool render_scene(int *demo_number){
       // move the "camera"
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
-      glRotatef(RAD_TO_DEG(moving_camera_rot_x),
+      glRotatef(RAD_TO_DEG(-moving_camera_rot_x),
                 1.0,
                 0.0,
                 0.0);
@@ -1238,76 +1395,17 @@ SDL_bool render_scene(int *demo_number){
 }
 //----
 //
-//And now for something completely different: ((monkeys)), lions and
-//tigers (Bengal and Siberian) using the alternative syntax index
-//entries.
-//(((Big cats,Lions)))
-//(((Big cats,Tigers,Bengal Tiger)))
-//(((Big cats,Tigers,Siberian Tiger)))
-//Note that multi-entry terms generate separate index entries.
-//
-//Here are a couple of image examples: an image:images/smallnew.png[]
-//example inline image followed by an example block image:
-//
-//.Tiger block image
-//image::images/tiger.png[Tiger image]
-//
-//Followed by an example table:
-//
-//.An example table
-//[width="60%",options="header"]
-//|==============================================
-//| Option          | Description
-//| -a 'USER GROUP' | Add 'USER' to 'GROUP'.
-//| -R 'GROUP'      | Disables access to 'GROUP'.
-//|==============================================
-//
-//.An example example
-//===============================================
-//Lorum ipum...
-//===============================================
-//
-//[[X1]]
-//Sub-section with Anchor
-//~~~~~~~~~~~~~~~~~~~~~~~
-//Sub-section at level 2.
-//
-//Chapter Sub-section
-//^^^^^^^^^^^^^^^^^^^
-//Sub-section at level 3.
-//
-//Chapter Sub-section
-//+++++++++++++++++++
-//Sub-section at level 4.
-//
-//This is the maximum sub-section depth supported by the distributed
-//AsciiDoc configuration.
-//footnote:[A second example footnote.]
-//
-//
-//The Second Chapter
-//------------------
-//An example link to anchor at start of the <<X1,first sub-section>>.
-//indexterm:[Second example index entry]
-//
-//An example link to a bibliography entry <<taoup>>.
-//
-//
-//The Third Chapter
-//-----------------
-//Book chapters are at level 1 and can contain sub-sections.
-//
-//
-//:numbered!:
-//
+//[[linkageAppendix]]
 //[appendix]
-//Example Appendix
-//----------------
-//One or more optional appendixes go here at section level 1.
+//= Linkage
 //
-//Appendix Sub-section
-//~~~~~~~~~~~~~~~~~~~
-//Sub-section body.
+//Foo bar baz
+//
+//[[sharedLibAppendix]]
+//[appendix]
+//= Shared Libraries
+//
+//Foo bar baz2
 //
 //
 //[bibliography]
