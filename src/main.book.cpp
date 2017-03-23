@@ -88,7 +88,10 @@ int main(int argc, char *argv[])
 //[source,C,linenums]
 //----
   //initialize video support, joystick support, etc.
-  if (SDL_Init(SDL_INIT_EVERYTHING) != 0){
+  if (SDL_Init(SDL_INIT_TIMER
+               | SDL_INIT_AUDIO
+               | SDL_INIT_VIDEO
+               | SDL_INIT_EVENTS) != 0){
     SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
                    SDL_LOG_PRIORITY_ERROR,
                    "Error: %s\n",
