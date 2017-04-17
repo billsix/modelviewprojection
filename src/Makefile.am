@@ -27,7 +27,7 @@ main.html: main.tex
 	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n main.tex
 
 main.pdf: main.tex
-	a2x -dbook --no-xmllint main.tex
+	a2x -dbook --dblatex-opts "-P latex.output.revhistory=0" --no-xmllint main.tex
 
 
 

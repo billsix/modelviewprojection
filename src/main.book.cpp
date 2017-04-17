@@ -1,9 +1,8 @@
 //Model View Projection
 //====================
 //Bill Six
-//v1.0, 2003-12
+//v1.0, 2017-
 //:doctype: book
-//
 //
 //[dedication]
 //= Dedication
@@ -14,9 +13,38 @@
 //[preface]
 //= Preface
 //
-//This book teaches how to program interactive computer graphics
-//and games.
+//"I had no idea how much math was involved in computer graphics."
 //
+//Unfortunately many students of computer graphics come away with
+//that impression, which this book attempts to remedy.  Creating basic
+//2D and 3D
+//graphics really only requires knowledge of high-school level
+//geometry.  Based on that knowledge, this book builds both 2D and 3D
+//applications from the ground up. 
+//
+//Thoughout the book, I show how to place objects in 3D,
+//how to draw 3D objects relative to other objects, how to add a 
+//camera which moves over time to the scene, and how to transform all
+//that 3D data into the 2D coordinates
+//of the computer screen.  By the end, you will understand the basics of
+//how to create first-person
+//and third-person games.  I made this book to show how to make the kind
+//of graphics programs which programmers want to make, shown using
+//math they aleady know.
+//
+//With that said, this books is purposely limited in scope, and
+//the applications produced are not particurly pretty nor realistic-looking.
+//For advanced graphics topics, you'll need to consult another reference.
+//Although this book fills a huge gap that other books don't address,
+//those other books are excellent reference books for advanced topics.
+//
+//
+//
+//:toc:
+//
+//[[intro]]
+//= Introduction
+//[[openWindow]]
 //== Opening a Window
 //
 //
@@ -71,14 +99,14 @@ extern "C"
 int main(int argc, char *argv[])
 {
 //----
-//=== Let the User Pick the Demo to Run.
+//== Let the User Pick the Demo to Run.
 //[source,C,linenums]
 //----
   std::cout << "Input demo number to run: (1-15): " << std::endl;
   int demo_number;
   std::cin >> demo_number ;
 //----
-//=== SDL/OpenGL Initialization
+//== SDL/OpenGL Initialization
 //
 //You don't really need to know what this code does yet.
 //Later sections will explain pertinent parts.
@@ -164,7 +192,7 @@ int main(int argc, char *argv[])
 //----
   glClearColor(0,0,0,1);
 //----
-//=== The Event Loop
+//== The Event Loop
 //
 //When you pause a movie, motion stops and you see one picture.
 //The video for movies is a sequence of pictures, which when
@@ -194,7 +222,7 @@ int main(int argc, char *argv[])
     SDL_GL_SwapWindow(window);
   } while (quit != SDL_TRUE);
 //----
-//=== The User Closed the App, Cleanup After Yourself
+//== The User Closed the App, Cleanup After Yourself
 //[source,C,linenums]
 //----
   SDL_GL_DeleteContext(glcontext);
@@ -1483,13 +1511,13 @@ SDL_bool render_scene(int *demo_number){
 //
 //[[linkageAppendix]]
 //[appendix]
-//= Linkage
+//== Linkage
 //
 //Foo bar baz
 //
 //[[sharedLibAppendix]]
 //[appendix]
-//= Shared Libraries
+//== Shared Libraries
 //
 //Foo bar baz2
 //
