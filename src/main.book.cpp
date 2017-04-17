@@ -20,22 +20,24 @@
 //2D and 3D
 //graphics really only requires knowledge of high-school level
 //geometry.  Based on that knowledge, this book builds both 2D and 3D
-//applications from the ground up. 
+//applications from the ground up using OpenGL, a standard for graphics
+//programming.
 //
 //Thoughout the book, I show how to place objects in 3D,
-//how to draw 3D objects relative to other objects, how to add a 
-//camera which moves over time to the scene, and how to transform all
+//how to draw 3D objects relative to other objects, how to add a
+//camera which moves based on user input, and how to transform all
 //that 3D data into the 2D coordinates
 //of the computer screen.  By the end, you will understand the basics of
 //how to create first-person
-//and third-person games.  I made this book to show how to make the kind
-//of graphics programs which programmers want to make, shown using
+//and third-person applications/games.  I made this book to show how to make the kind
+//of graphics programs which programmers want to make, using
 //math they aleady know.
 //
 //With that said, this books is purposely limited in scope, and
 //the applications produced are not particurly pretty nor realistic-looking.
-//For advanced graphics topics, you'll need to consult another reference.
-//Although this book fills a huge gap that other books don't address,
+//For advanced graphics topics, you'll need to consult other references,
+//such as the OpenGL "red book" and "blue book".
+//Although this book fills a huge gap that other books do not address,
 //those other books are excellent reference books for advanced topics.
 //
 //
@@ -51,12 +53,15 @@
 //
 //The smallest light-emitting component on a computer's monitor is called
 //a pixel.  An individual pixel can be instructed to display
-//one specific color at a time.  Pixels are arranged in a 2D grid; 
+//one specific color at a time.  Pixels are arranged in a 2D grid;
 //the aggregate of the colors at one moment in time, called a frame,
 //provides a picture that has some meaning to the human user.  Frames
 //are updated and changed at a rate over time, called the framerate,
-//measured in Hertz.  So if a game renders 60 frames per second,
+//measured in Hertz.  If a game renders 30 frames per second,
+//that's called 30 Hertz, colloquially known as "weak-sauce".
+//If a game renders 60 frames per second,
 //that's called 60 Hertz.
+
 //
 //
 //
@@ -66,17 +71,17 @@
 //=== Opening a Window
 //
 //Desktop operating systems allow the user to run more than one
-//program at a time, with programs each draw into a subsect of
+//program at a time, where each program draws into a subsect of
 //the monitor called a window.
 //
 //TODO - insert picture.
 
 //
-//The first step in creating a graphical application therefore is
-//to open a window.  To do this in a cross-platform manner, this
-//book will call procedures provided by the widely-ported SDL library.
+//The first step in creating a graphical application is
+//to create and to open a window.  To do this in a cross-platform manner, this
+//book will call procedures provided by the widely-ported SDL library (which supports Windows, macOS, Linux).
 //Additionally,
-//SDL will called get keyboard input, controller (xbox 360) input, and
+//SDL will be called to get keyboard input, controller input (tested with a wired XBox 360 controller), and
 //to load images from the filesystem.
 //
 //
@@ -101,9 +106,6 @@
 #include "main.h"
 //----
 //
-//In order to create graphics, first we need to be able to create a window.
-//As OpenGL provides no window management,
-//we will use Simple Direct-Media Layer, as it provides this functionality in a cross platform manner.
 //
 //
 //==== Create Data Structure to Represent the Window
@@ -143,11 +145,8 @@ int main(int argc, char *argv[])
 //----
 //==== SDL/OpenGL Initialization
 //
-//You don't really need to know what this code does yet.
-//Later sections will explain pertinent parts.
-//
-//
-//
+//-Initialize SDL, including the video, audio, timer, and event subsystems.
+//Log any errors.
 //[source,C,linenums]
 //----
   //initialize video support, joystick support, etc.
@@ -161,8 +160,21 @@ int main(int argc, char *argv[])
                    SDL_GetError());
     return 1;
   }
-  // Definetely need two buffers.  Who in their right mind
-  // would use only one?
+//----
+//-Set OpenGL to be double-buffered.
+//
+//Because one frame is created incrementally, yet the
+//user doesn't want half-drawn pictures on his monitor, the programmer
+//must inform the graphics card when to "flush" the framebuffer
+//(the array of pixels).  Flushing the framebuffer to the monitor takes time,
+//and should that call to flush the buffer block, meaning
+//it would not return until the flush is complete, we would
+//have wasted CPU time.  To avoid wasting the CPU time,
+//OpenGL has two "framebuffers".  "SDL_GL_SwapWindow" initializes the flushing
+//the current buffer, switches the current writable framebuffer to the
+//other one, thus allowing a non-blocking call without data contention issues.
+//[source,C,linenums]
+//----
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
   // used later for depth testing, don't worry about it for now
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
@@ -236,17 +248,7 @@ int main(int argc, char *argv[])
 //Interactive computer graphics are rendered the same way,
 //one "frame" at a time.
 //
-//Render a frame for the selected demo, swap the buffers
-//footnote:[Because one "frame" is created incrementally, yet the
-//user doesn't want half-drawn pictures on his monitor, the programmer
-//must inform the graphics card when to "flush" the framebuffer
-//(the array of pixels).  Flushing the framebuffer takes time,
-//and should that call to flush the buffer "block", meaning
-//it would not return until the flush is complete, we would
-//have wasted CPU time.  To avoid wasting the CPU time,
-//OpenGL has two "framebuffers".  "SDL_GL_SwapWindow" initializes the flushing
-//the current buffer, switches the current writable framebuffer to the
-//other one, thus allowing a non-blocking call.],
+//Render a frame for the selected demo, swap the buffers,
 //and unless the user closed the window, repeat.
 //
 //[source,C,linenums]
@@ -316,7 +318,7 @@ SDL_bool render_scene(int *demo_number){
     }
   }
 //----
-//== Black Screen
+//== Black Screen, aka "Doom 3"
 //
 //Since the color of each pixel in the current framebuffer
 //has already been set to black, demo 0 will only show a
@@ -624,7 +626,7 @@ SDL_bool render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
-  if(6 == *demo_number){
+  if(5 == *demo_number){
     // draw paddle 1, relative to the offset
     {
       glColor3f(1.0,1.0,1.0);
@@ -682,7 +684,7 @@ SDL_bool render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
-  if(7 == *demo_number){
+  if(6 == *demo_number){
     // draw paddle 1, relative to the offset
     {
       glColor3f(1.0,1.0,1.0);
@@ -735,7 +737,7 @@ SDL_bool render_scene(int *demo_number){
 //
 //[source,C,linenums]
 //----
-  if(8 == *demo_number){
+  if(7 == *demo_number){
     // draw paddle 1, relative to the offset
     {
       glColor3f(1.0,1.0,1.0);
@@ -804,7 +806,7 @@ SDL_bool render_scene(int *demo_number){
   if (state[SDL_SCANCODE_Q]) {
     square_rotation += 0.1;
   }
-  if(9 == *demo_number){
+  if(8 == *demo_number){
     // draw paddle 1, relative to the offset
     {
       glColor3f(1.0,1.0,1.0);
@@ -876,7 +878,7 @@ SDL_bool render_scene(int *demo_number){
 //
 //[source,C,linenums]
 //----
-  if(10 == *demo_number){
+  if(9 == *demo_number){
     // draw paddle 1, relative to the offset
     {
       glColor3f(1.0,1.0,1.0);
@@ -1072,7 +1074,7 @@ SDL_bool render_scene(int *demo_number){
 
 
 //// TODO -- update newposition to have better names for 3d
-  if(11 == *demo_number){
+  if(10 == *demo_number){
     // draw paddle 1, relative to the offset
     {
       glColor3f(1.0,1.0,1.0);
@@ -1205,7 +1207,7 @@ SDL_bool render_scene(int *demo_number){
 //----
 
 
-  if(13 == *demo_number){
+  if(11 == *demo_number){
     // draw paddle 1, relative to the offset
     {
       glColor3f(1.0,1.0,1.0);
@@ -1301,17 +1303,17 @@ SDL_bool render_scene(int *demo_number){
 
 
 
-  if(*demo_number >= 14){
+  if(*demo_number >= 12){
     glEnable(GL_DEPTH_TEST);
   }
-  if(14 == *demo_number){
-    *demo_number = 13;
+  if(12 == *demo_number){
+    *demo_number = 11;
     return SDL_FALSE;
   }
 //----
 //[source,C,linenums]
 //----
-  if(*demo_number >= 14){
+  if(*demo_number >= 13){
     static bool first_frame = true;
     if(first_frame){
       moving_camera_z = 400.0; // for the perspective to look right
@@ -1321,7 +1323,7 @@ SDL_bool render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
-  if(15 == *demo_number){
+  if(13 == *demo_number){
     // every shape is projected the same way
     transformationStack.push_back([&](Vertex3 v){
         return v.perspective(-0.1f,
@@ -1424,7 +1426,7 @@ SDL_bool render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
-  if(*demo_number >= 16){
+  if(*demo_number >= 14){
     // for whatever reason, gluPerspective flips the z values
     glClearDepth(1.1f );
     glDepthFunc(GL_LEQUAL);
