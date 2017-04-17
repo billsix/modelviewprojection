@@ -44,14 +44,47 @@
 //
 //[[intro]]
 //= Introduction
+//
+//[[basics]]
+//== Basics
+//
+//
+//The smallest light-emitting component on a computer's monitor is called
+//a pixel.  An individual pixel can be instructed to display
+//one specific color at a time.  Pixels are arranged in a 2D grid; 
+//the aggregate of the colors at one moment in time, called a frame,
+//provides a picture that has some meaning to the human user.  Frames
+//are updated and changed at a rate over time, called the framerate,
+//measured in Hertz.  So if a game renders 60 frames per second,
+//that's called 60 Hertz.
+//
+//
+//
+//TODO - insert picture.
+
 //[[openWindow]]
-//== Opening a Window
+//=== Opening a Window
+//
+//Desktop operating systems allow the user to run more than one
+//program at a time, with programs each draw into a subsect of
+//the monitor called a window.
+//
+//TODO - insert picture.
+
+//
+//The first step in creating a graphical application therefore is
+//to open a window.  To do this in a cross-platform manner, this
+//book will call procedures provided by the widely-ported SDL library.
+//Additionally,
+//SDL will called get keyboard input, controller (xbox 360) input, and
+//to load images from the filesystem.
 //
 //
 //The code for the entire book is contained within "main.cpp", licenced
 //under the Apache 2.0 license.
 //
-//Include the necessary headers.
+//==== Include Headers
+//
 //
 //[source,C,linenums]
 //----
@@ -73,11 +106,12 @@
 //we will use Simple Direct-Media Layer, as it provides this functionality in a cross platform manner.
 //
 //
-//Create a pointer for the window.  If you are new to C++, don't fret
-//over what a pointer is.  The majority of the book doesn't use them.
-//
-//The author does not know what "glcontext" provides, other than it is necessary,
-//so don't worry about it.
+//==== Create Data Structure to Represent the Window
+//Create a pointer for the window.  If you are new to C or C++, don't fret
+//over what a pointer is.  Just know that the window is a variable.
+//The vast majority of this book does not require knowledge of pointers,
+//and as such, programmers of any mainstream language (Java, Python, C#, etc)
+//should be able to understand the content of this book.
 //
 //[source,C,linenums]
 //----
@@ -86,6 +120,7 @@ SDL_GLContext glcontext;
 //----
 //
 //
+//==== Define main
 //Use C linkage for main.  Knowing why isn't terribly important,
 //but for the interested reader,
 //<<linkageAppendix,the appendix>>  provides a description of
@@ -99,14 +134,14 @@ extern "C"
 int main(int argc, char *argv[])
 {
 //----
-//== Let the User Pick the Demo to Run.
+//==== Let the User Pick the Demo to Run.
 //[source,C,linenums]
 //----
   std::cout << "Input demo number to run: (1-15): " << std::endl;
   int demo_number;
   std::cin >> demo_number ;
 //----
-//== SDL/OpenGL Initialization
+//==== SDL/OpenGL Initialization
 //
 //You don't really need to know what this code does yet.
 //Later sections will explain pertinent parts.
@@ -192,7 +227,7 @@ int main(int argc, char *argv[])
 //----
   glClearColor(0,0,0,1);
 //----
-//== The Event Loop
+//==== The Event Loop
 //
 //When you pause a movie, motion stops and you see one picture.
 //The video for movies is a sequence of pictures, which when
