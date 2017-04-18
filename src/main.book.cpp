@@ -391,6 +391,14 @@ SDL_bool render_scene(int *demo_number){
 //
 //== Move the Paddles using the Keyboard
 //
+//[width="75%",frame="topbot",options="header,footer"]
+//|=======================================
+//|Keyboard Input |Action
+//|w              |Move Left Paddle Up
+//|s              |Move Left Paddle Down
+//|k              |Move Right Paddle Up
+//|i              |Move Right Paddle Down
+//|=======================================
 //Paddles which don't move are boring.  Use keyboard input from SDL
 //to move the paddles up or down.
 //
@@ -457,6 +465,14 @@ SDL_bool render_scene(int *demo_number){
 //----
 //== Model Vertices with a Data-Structure
 //
+//[width="75%",frame="topbot",options="header,footer"]
+//|=======================================
+//|Keyboard Input |Action
+//|w              |Move Left Paddle Up
+//|s              |Move Left Paddle Down
+//|k              |Move Right Paddle Up
+//|i              |Move Right Paddle Down
+//|=======================================
 //
 //Modeling vertices, along with transformations of them,
 //is important.  So let's make a class to encapsulate
@@ -547,6 +563,17 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
+//== Use More Desirable Coordinate System
+//
+//[width="75%",frame="topbot",options="header,footer"]
+//|=======================================
+//|Keyboard Input |Action
+//|w              |Move Left Paddle Up
+//|s              |Move Left Paddle Down
+//|k              |Move Right Paddle Up
+//|i              |Move Right Paddle Down
+//|=======================================
+
 //[source,C,linenums]
 //----
   if (state[SDL_SCANCODE_S]) {
@@ -606,6 +633,20 @@ SDL_bool render_scene(int *demo_number){
 //----
 //== Rotate the Paddles About their Center
 //
+//[width="75%",frame="topbot",options="header,footer"]
+//|=======================================
+//|Keyboard Input |Action
+//|w              |Move Left Paddle Up
+//|s              |Move Left Paddle Down
+//|k              |Move Right Paddle Up
+//|i              |Move Right Paddle Down
+//|               |
+//|d              |Increase Left Paddle's Rotation
+//|a              |Decrease Left Paddle's Rotation
+//|l              |Increase Right Paddle's Rotation
+//|j              |Decrease Right Paddle's Rotation
+//|=======================================
+
 //[source,C,linenums]
 //----
   static GLfloat paddle_1_rotation = 0.0;
@@ -664,6 +705,24 @@ SDL_bool render_scene(int *demo_number){
 //----
 //== Make a Movable Camera
 //
+//[width="75%",frame="topbot",options="header,footer"]
+//|=======================================
+//|Keyboard Input |Action
+//|w              |Move Left Paddle Up
+//|s              |Move Left Paddle Down
+//|k              |Move Right Paddle Up
+//|i              |Move Right Paddle Down
+//|               |
+//|d              |Increase Left Paddle's Rotation
+//|a              |Decrease Left Paddle's Rotation
+//|l              |Increase Right Paddle's Rotation
+//|j              |Decrease Right Paddle's Rotation
+//|               |
+//|UP             |Move the Camera Up
+//|DOWN           |Move the Camera Down
+//|LEFT           |Move the Camera Left
+//|RIGHT          |Move the Camera Right
+//|=======================================
 //[source,C,linenums]
 //----
   static GLfloat camera_x = 0.0;
@@ -735,6 +794,24 @@ SDL_bool render_scene(int *demo_number){
 //----
 //== Draw a Small Square Relative to the Left Paddle
 //
+//[width="75%",frame="topbot",options="header,footer"]
+//|=======================================
+//|Keyboard Input |Action
+//|w              |Move Left Paddle Up
+//|s              |Move Left Paddle Down
+//|k              |Move Right Paddle Up
+//|i              |Move Right Paddle Down
+//|               |
+//|d              |Increase Left Paddle's Rotation
+//|a              |Decrease Left Paddle's Rotation
+//|l              |Increase Right Paddle's Rotation
+//|j              |Decrease Right Paddle's Rotation
+//|               |
+//|UP             |Move the Camera Up
+//|DOWN           |Move the Camera Down
+//|LEFT           |Move the Camera Left
+//|RIGHT          |Move the Camera Right
+//|=======================================
 //[source,C,linenums]
 //----
   if(7 == *demo_number){
@@ -799,6 +876,26 @@ SDL_bool render_scene(int *demo_number){
 //----
 //== Rotate the Square About Its Origin
 //
+//[width="75%",frame="topbot",options="header,footer"]
+//|=======================================
+//|Keyboard Input |Action
+//|w              |Move Left Paddle Up
+//|s              |Move Left Paddle Down
+//|k              |Move Right Paddle Up
+//|i              |Move Right Paddle Down
+//|               |
+//|d              |Increase Left Paddle's Rotation
+//|a              |Decrease Left Paddle's Rotation
+//|l              |Increase Right Paddle's Rotation
+//|j              |Decrease Right Paddle's Rotation
+//|               |
+//|UP             |Move the Camera Up
+//|DOWN           |Move the Camera Down
+//|LEFT           |Move the Camera Left
+//|RIGHT          |Move the Camera Right
+//|               |
+//|q              |Rotate the square around its center.
+//|=======================================
 //[source,C,linenums]
 //----
   static GLfloat square_rotation = 0.0;
@@ -867,6 +964,29 @@ SDL_bool render_scene(int *demo_number){
     return SDL_FALSE;
   }
 //----
+//== Rotate the Square About the Paddle
+//[width="75%",frame="topbot",options="header,footer"]
+//|=======================================
+//|Keyboard Input |Action
+//|w              |Move Left Paddle Up
+//|s              |Move Left Paddle Down
+//|k              |Move Right Paddle Up
+//|i              |Move Right Paddle Down
+//|               |
+//|d              |Increase Left Paddle's Rotation
+//|a              |Decrease Left Paddle's Rotation
+//|l              |Increase Right Paddle's Rotation
+//|j              |Decrease Right Paddle's Rotation
+//|               |
+//|UP             |Move the Camera Up
+//|DOWN           |Move the Camera Down
+//|LEFT           |Move the Camera Left
+//|RIGHT          |Move the Camera Right
+//|               |
+//|q              |Rotate the square around its center.
+//|e              |Rotate the square around the left paddle
+//|=======================================
+//
 //[source,C,linenums]
 //----
   static GLfloat rotation_around_paddle_1 = 0.0;
@@ -874,8 +994,6 @@ SDL_bool render_scene(int *demo_number){
     rotation_around_paddle_1 += 0.1;
   }
 //----
-//== Rotate the Square About the Paddle
-//
 //[source,C,linenums]
 //----
   if(9 == *demo_number){
