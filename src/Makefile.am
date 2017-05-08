@@ -11,11 +11,14 @@ main.book.cpp:
 	echo
 
 
+
+
 # In my private repo, remove all of the LaTeX code embedded
 #   in CPP comments
 # In the public repo, do nothing
 main.cpp: main.book.cpp
 	if [ -e main.book.cpp ] ; then sed -e '/^\/\// d' main.book.cpp > main.cpp; fi;
+	gnuplot drawplot1.gp
 
 # In my private repo, remove all of the double forward slashes at the beginning
 #   of lines which were there to denote LaTeX code
