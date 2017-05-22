@@ -10,15 +10,16 @@ bin_PROGRAMS = modelviewprojection
 main.book.cpp:
 	echo
 
+%.png : %.gp
+	gnuplot $<
 
 
 
 # In my private repo, remove all of the LaTeX code embedded
 #   in CPP comments
 # In the public repo, do nothing
-main.cpp: main.book.cpp
+main.cpp: main.book.cpp plot1.png
 	if [ -e main.book.cpp ] ; then sed -e '/^\/\// d' main.book.cpp > main.cpp; fi;
-	gnuplot drawplot1.gp
 
 # In my private repo, remove all of the double forward slashes at the beginning
 #   of lines which were there to denote LaTeX code

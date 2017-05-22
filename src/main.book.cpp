@@ -9,6 +9,16 @@
 //
 //To Teresa, Liam, Adam, and Kate.
 //
+//ifdef::pdf[]
+//:max-width: 450
+//:half-width: 275
+//:quarter-width: 137
+//endif::[]
+//ifndef::pdf[]
+//:max-width: 300
+//:half-width: 150
+//:quarter-width: 75
+//endif::[]
 //
 //[preface]
 //= Preface
@@ -259,7 +269,7 @@ int main(int argc, char *argv[])
     SDL_GL_SwapWindow(window);
   } while (quit != SDL_TRUE);
 //----
-//== The User Closed the App, Cleanup After Yourself
+//==== The User Closed the App, Cleanup After Yourself
 //[source,C,linenums]
 //----
   SDL_GL_DeleteContext(glcontext);
@@ -268,7 +278,7 @@ int main(int argc, char *argv[])
   return 0;
 } // end main
 //----
-//== Render the Current Demo
+//=== Render the Current Demo
 //
 //Regardless of which demo will be run, certain things need
 //to happen every frame.  The default color of each pixel withith
@@ -332,6 +342,8 @@ SDL_bool render_scene(int *demo_number){
 //----
 //== Draw "Pong" Paddles
 //
+//image:plot1.png[title="Foo",width={max-width}] 
+//
 //A black screen is not particularly interesting.  So instead
 //let's draw something slightly more interesting.  Let's make
 //something that looks like "Pong", a game from Atari in which
@@ -388,6 +400,7 @@ SDL_bool render_scene(int *demo_number){
 //x and y coordinates.
 //(-1.0,-1.0) is the lower left pixel on your screen, (1.0,1.0) is the
 //upper right pixel.
+//
 //
 //== Move the Paddles using the Keyboard
 //
