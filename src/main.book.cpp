@@ -54,7 +54,7 @@
 //
 //:toc:
 //
-//[[intro]]
+//[intro]
 //= Introduction
 //
 //[[basics]]
