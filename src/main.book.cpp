@@ -828,6 +828,7 @@ SDL_bool render_scene(int *demo_number){
 //[source,C,linenums]
 //----
   if(7 == *demo_number){
+    // TODO -- extract draw paddle 1 here, into a lambda, because of repetition
     // draw paddle 1, relative to the offset
     {
       glColor3f(1.0,1.0,1.0);
@@ -1015,7 +1016,7 @@ SDL_bool render_scene(int *demo_number){
       glColor3f(1.0,1.0,1.0);
       glBegin(GL_QUADS);
       for(Vertex modelspace : paddle){
-        Vertex worldSpace  = modelspace
+        Vertex worldSpace = modelspace
 	  .rotate(paddle_1_rotation)
 	  .translate(-90.0,
 		     paddle_1_offset_Y);
