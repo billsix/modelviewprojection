@@ -289,14 +289,27 @@ int main(int argc, char *argv[])
 //[source,C,linenums]
 //----
 SDL_bool render_scene(int *demo_number){
+  // clear the framebuffer
   glClear(GL_COLOR_BUFFER_BIT);
-  glClear(GL_DEPTH_BUFFER_BIT); // don't worry for now
-  glClearDepth(-1.1f ); // don't worry for now
-  glDepthFunc(GL_GREATER); // don't worry for now
-  glMatrixMode(GL_PROJECTION); // don't worry for now
-  glLoadIdentity(); // don't worry for now
-  glMatrixMode(GL_MODELVIEW); // don't worry for now
-  glLoadIdentity(); // don't worry for now
+  glClear(GL_DEPTH_BUFFER_BIT);
+
+  // set the default depth for all fragments
+  glClearDepth(-1.1f );
+  // set the depth test for all fragments
+  glDepthFunc(GL_GREATER);
+
+  // enable blending of new values in a fragment
+  // with the old value
+  glEnable(GL_BLEND);
+  // specify how the old value and the new value
+  // are combining to make a blended value.
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
   // map the normalized device-coordinates to screen coordinates,
   // explained  later.
   {
