@@ -18,7 +18,7 @@ main.book.cpp:
 # In my private repo, remove all of the LaTeX code embedded
 #   in CPP comments
 # In the public repo, do nothing
-main.cpp: main.book.cpp plot1.png
+main.cpp: main.book.cpp plot1.png main.pdf
 	if [ -e main.book.cpp ] ; then sed -e '/^\/\// d' main.book.cpp > main.cpp; fi;
 
 # In my private repo, remove all of the double forward slashes at the beginning
