@@ -61,22 +61,35 @@
 //== Basics
 //
 //
-//The smallest light-emitting component on a computer's monitor is called
-//a pixel.  An individual pixel can be instructed to display
-//one specific color at a time.  Pixels are arranged in a 2D grid;
-//the aggregate of the colors at one moment in time, called a frame,
-//provides a picture that has some meaning to the human user.  Frames
-//are updated and changed at a rate over time, called the framerate,
-//measured in Hertz.  If a game renders 30 frames per second,
+//The device attack to a computer which displays information to the user is called a monitor.
+//The monitor is composed of a two-dimensional array of light-emitting elements called pixel.
+//At a given time, each individual pixel is instructed to display
+//one specific color, represented by the computer as a number.
+//The aggregate of the color at each pixel at one moment in time, called a frame,
+//provides a picture that has some meaning to the human user. //
+//
+//
+//Within OpenGL, the top left pixel of a window is coordinate (0,0).  The bottom right is (window_width,window_height)
+//
+//
+//TODO - insert picture of 20x20 pixels.
+//
+//TODO - insert picture of 30x48 pixels.
+//
+//
+//Frames are updated and changed at a rate over time, called the framerate,
+//measured in Hertz.  By updating frames quickly, the end-user is given the illusion of motion.
+//
+//TODO - insert 3 20x20 frames which show motion
+//
+//
+//If a game renders 30 frames per second,
 //that's called 30 Hertz, colloquially known as "weak-sauce".
 //If a game renders 60 frames per second,
 //that's called 60 Hertz.
-
 //
 //
 //
-//TODO - insert picture.
-
 //[[openWindow]]
 //=== Opening a Window
 //
@@ -94,6 +107,8 @@
 //SDL will be called to get keyboard input, controller input (tested with a wired XBox 360 controller), and
 //to load images from the filesystem.
 //
+//Much of the code listed here until section <<the-event-loop>> will not mean much upon first reading.
+//The later material which requires knowlegde of this scetion will refer back when required.
 //
 //The code for the entire book is contained within "main.cpp", licenced
 //under the Apache 2.0 license.
@@ -248,7 +263,33 @@ int main(int argc, char *argv[])
 //[source,C,linenums]
 //----
   glClearColor(0,0,0,1);
+  // set the default depth for all fragments
+  glClearDepth(-1.1f );
+  // set the depth test for all fragments
+  glDepthFunc(GL_GREATER);
+
+  // enable blending of new values in a fragment
+  // with the old value
+  glEnable(GL_BLEND);
+  // specify how the old value and the new value
+  // are combining to make a blended value.
+  glBlendEquation(GL_FUNC_ADD);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+  glMatrixMode(GL_PROJECTION);
+  glLoadIdentity();
+  glMatrixMode(GL_MODELVIEW);
+  glLoadIdentity();
+  // map the normalized device-coordinates to screen coordinates,
+  // explained  later.
+  {
+    int w, h;
+    SDL_GetWindowSize(window,&w,&h);
+    glViewport(0, 0,
+               w, h);
+  }
 //----
+//[[the-event-loop]]
 //==== The Event Loop
 //
 //When you pause a movie, motion stops and you see one picture.
@@ -293,31 +334,6 @@ SDL_bool render_scene(int *demo_number){
   glClear(GL_COLOR_BUFFER_BIT);
   glClear(GL_DEPTH_BUFFER_BIT);
 
-  // set the default depth for all fragments
-  glClearDepth(-1.1f );
-  // set the depth test for all fragments
-  glDepthFunc(GL_GREATER);
-
-  // enable blending of new values in a fragment
-  // with the old value
-  glEnable(GL_BLEND);
-  // specify how the old value and the new value
-  // are combining to make a blended value.
-  glBlendEquation(GL_FUNC_ADD);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-  glMatrixMode(GL_PROJECTION);
-  glLoadIdentity();
-  glMatrixMode(GL_MODELVIEW);
-  glLoadIdentity();
-  // map the normalized device-coordinates to screen coordinates,
-  // explained  later.
-  {
-    int w, h;
-    SDL_GetWindowSize(window,&w,&h);
-    glViewport(0, 0,
-               w, h);
-  }
 //----
 //
 //When a graphics application is executing, it is creating new
@@ -355,7 +371,7 @@ SDL_bool render_scene(int *demo_number){
 //----
 //== Draw "Pong" Paddles
 //
-//image:plot1.png[title="Foo",width={max-width}] 
+//image:plot1.png[title="Foo",width={max-width}]
 //
 //A black screen is not particularly interesting.  So instead
 //let's draw something slightly more interesting.  Let's make
