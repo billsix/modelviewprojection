@@ -1,5 +1,14 @@
 bin_PROGRAMS = modelviewprojection
 
+ENABLE_PDF = @ENABLE_PDF@
+
+OBJECTS_TO_BUILD = main.book.cpp
+
+
+if BUILD_PDF
+   OBJECTS_TO_BUILD += plot1.png main.pdf
+endif
+
 # main.book.cpp is the book in my private Git repository, with
 # the source code embedded into it.  To make public releases
 # of the LGPL/Apache `main.cpp', (the code without the book's
@@ -18,7 +27,7 @@ main.book.cpp:
 # In my private repo, remove all of the LaTeX code embedded
 #   in CPP comments
 # In the public repo, do nothing
-main.cpp: main.book.cpp plot1.png main.pdf
+main.cpp:  $(OBJECTS_TO_BUILD)
 	if [ -e main.book.cpp ] ; then sed -e '/^\/\// d' main.book.cpp > main.cpp; fi;
 
 # In my private repo, remove all of the double forward slashes at the beginning

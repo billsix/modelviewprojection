@@ -28,6 +28,20 @@ case "$target_os" in
 esac
 AC_SUBST(OPENGL_LIB)
 
+AC_ARG_ENABLE(pdf,
+              AC_HELP_STRING([--enable-pdf],
+                             [build the PDF version of the code (default is NO)]),
+              ENABLE_PDF=$enableval,
+              ENABLE_PDF=no)
+if test "$ENABLE_PDF" = yes; then
+   echo MAKE PDF
+fi
+AC_SUBST(ENABLE_PDF)
+AM_CONDITIONAL(BUILD_PDF, [test x"$ENABLE_PDF" = xyes])
+AC_SUBST(BUILD_PDF)
+
+
+
 dnl Check for SDL
 SDL_VERSION=2.0
 AM_PATH_SDL2($SDL_VERSION,
@@ -41,5 +55,6 @@ PKG_CHECK_MODULES(GLEW, glew >= 1.10)
 
 MVP_BUILD_DATE=$(date +'%d %B %Y')
 AC_SUBST(MVP_BUILD_DATE)
+
 
 AC_OUTPUT
