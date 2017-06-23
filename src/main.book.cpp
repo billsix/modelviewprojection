@@ -25,25 +25,26 @@
 //
 //"I had no idea how much math was involved in computer graphics."
 //
-//Unfortunately many students of computer graphics come away with
-//that impression, which this book attempts to remedy.  Creating basic
-//2D and 3D
-//graphics really only requires knowledge of high-school level
-//geometry.  Based on that knowledge, this book builds both 2D and 3D
+//Unfortunately many students of computer graphics have the impression
+//that the writing of computer graphics programs requires knowledge of
+//advanced math; which is patently untrue.
+//Only the understanding of high-school level geometry is required.
+//Using math you already know, this book builds both 2D and 3D
 //applications from the ground up using OpenGL, a standard for graphics
 //programming.
 //
-//Thoughout the book, I show how to place objects in 3D,
-//how to draw 3D objects relative to other objects, how to add a
-//camera which moves based on user input, and how to transform all
-//that 3D data into the 2D coordinates
-//of the computer screen.  By the end, you will understand the basics of
+//Thoughout the book, I show how to place objects in space,
+//how to draw objects relative to other objects, how to add a
+//camera which moves over time based on user input, and how to transform all
+//the objects into the 2D pixel coordinates
+//of the computer screen.  By the end of this book, you will understand the basics of
 //how to create first-person
-//and third-person applications/games.  I made this book to show how to make the kind
-//of graphics programs which programmers want to make, using
+//and third-person applications/games.  I made this book to show programmers
+//how to make the kind
+//of graphics programs which they want to make, using
 //math they aleady know.
 //
-//With that said, this books is purposely limited in scope, and
+//This book is purposely limited in scope, and
 //the applications produced are not particurly pretty nor realistic-looking.
 //For advanced graphics topics, you'll need to consult other references,
 //such as the OpenGL "red book" and "blue book".
@@ -61,15 +62,16 @@
 //== Basics
 //
 //
-//The device attack to a computer which displays information to the user is called a monitor.
-//The monitor is composed of a two-dimensional array of light-emitting elements called pixel.
+//The device attached to a computer which displays information to the user is called a *monitor*.
+//The monitor is composed of a two-dimensional array of light-emitting elements called *pixel*.
 //At a given time, each individual pixel is instructed to display
-//one specific color, represented by the computer as a number.
-//The aggregate of the color at each pixel at one moment in time, called a frame,
-//provides a picture that has some meaning to the human user. //
+//one specific color, represented within the computer as a number.
+//The aggregate of the colors at each pixel at one moment in time, called a *frame*,
+//provides a picture that has some meaning to the human user.
 //
 //
-//Within OpenGL, the top left pixel of a window is coordinate (0,0).  The bottom right is (window_width,window_height)
+//
+//In OpenGL, the top left pixel of a window is coordinate (0,0).  The bottom right is (window_width,window_height)
 //
 //
 //TODO - insert picture of 20x20 pixels.
@@ -77,16 +79,12 @@
 //TODO - insert picture of 30x48 pixels.
 //
 //
-//Frames are updated and changed at a rate over time, called the framerate,
-//measured in Hertz.  By updating frames quickly, the end-user is given the illusion of motion.
+//Frames are created within the computer and sent to the monitor
+//at a rate over time, called the *framerate*,
+//measured in *Hertz*.  By updating frames quickly and at a constant rate, the computer
+//provides the end-user with the illusion of motion.
 //
 //TODO - insert 3 20x20 frames which show motion
-//
-//
-//If a game renders 30 frames per second,
-//that's called 30 Hertz, colloquially known as "weak-sauce".
-//If a game renders 60 frames per second,
-//that's called 60 Hertz.
 //
 //
 //
@@ -100,18 +98,18 @@
 //TODO - insert picture.
 
 //
-//The first step in creating a graphical application is
-//to create and to open a window.  To do this in a cross-platform manner, this
-//book will call procedures provided by the widely-ported SDL library (which supports Windows, macOS, Linux).
-//Additionally,
-//SDL will be called to get keyboard input, controller input (tested with a wired XBox 360 controller), and
+//To create and to open a window in a cross-platform manner, this
+//book will call procedures provided by the widely-ported SDL2 library (supporting Windows, macOS, Linux).
+//SDL2 also provides procedures for receiving
+//keyboard input, controller inputfootnote:[tested with a wired XBox 360 controller], and
 //to load images from the filesystem.
 //
-//Much of the code listed here until section <<the-event-loop>> will not mean much upon first reading.
-//The later material which requires knowlegde of this scetion will refer back when required.
+//Much of the code listed from here until section<<the-event-loop>> will be of little interest upon first reading.
+//As such, the reader may choose to skip ahead to section<<the-event-loop>> now.
 //
-//The code for the entire book is contained within "main.cpp", licenced
-//under the Apache 2.0 license.
+//The code for the entire book is available at https://github.com/billsix/modelviewprojection,
+//contained within "src/main.cpp". The code, but not the contents of the book, is licenced
+//using the open-source Apache 2.0 license.
 //
 //==== Include Headers
 //
@@ -135,9 +133,9 @@
 //
 //==== Create Data Structure to Represent the Window
 //Create a pointer for the window.  If you are new to C or C++, don't fret
-//over what a pointer is.  Just know that the window is a variable.
-//The vast majority of this book does not require knowledge of pointers,
-//and as such, programmers of any mainstream language (Java, Python, C#, etc)
+//over what a pointer is, as
+//the majority of this book does not require knowledge of pointers.
+//Programmers of any mainstream language (Java, Python, C#, etc)
 //should be able to understand the content of this book.
 //
 //[source,C,linenums]
@@ -149,8 +147,7 @@ SDL_GLContext glcontext;
 //
 //==== Define main
 //Use C linkage for main.  Knowing why isn't terribly important,
-//but for the interested reader,
-//<<linkageAppendix,the appendix>>  provides a description of
+//but for the interested reader, <<linkageAppendix>>  provides a description of
 //C-linkage vs. C++ linkage.
 //
 //[source,C,linenums]
@@ -175,10 +172,10 @@ int main(int argc, char *argv[])
 //[source,C,linenums]
 //----
   //initialize video support, joystick support, etc.
-  if (SDL_Init(SDL_INIT_TIMER
-               | SDL_INIT_AUDIO
-               | SDL_INIT_VIDEO
-               | SDL_INIT_EVENTS) != 0){
+  if (0 != SDL_Init(SDL_INIT_TIMER
+                    | SDL_INIT_AUDIO
+                    | SDL_INIT_VIDEO
+                    | SDL_INIT_EVENTS)){
     SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
                    SDL_LOG_PRIORITY_ERROR,
                    "Error: %s\n",
@@ -188,26 +185,24 @@ int main(int argc, char *argv[])
 //----
 //-Set OpenGL to be double-buffered.
 //
-//Because one frame is created incrementally, yet the
-//user doesn't want half-drawn pictures on his monitor, the programmer
-//must inform the graphics card when to "flush" the framebuffer
-//(the array of pixels).  Flushing the framebuffer to the monitor takes time,
-//and should that call to flush the buffer block, meaning
-//it would not return until the flush is complete, we would
-//have wasted CPU time.  To avoid wasting the CPU time,
-//OpenGL has two "framebuffers".  "SDL_GL_SwapWindow" initializes the flushing
-//the current buffer, switches the current writable framebuffer to the
-//other one, thus allowing a non-blocking call without data contention issues.
+//One frame is created incrementally over time on the CPU, but the frame
+//is sent to the monitor
+//only when frame is completely drawn, and each pixel has a color.
+//The act of sending the frame to the monitor is called *flushing*
+//the frame.
+//Flushing takes time,
+//and if the call to flush were to blockfootnote:[meaning it would not return control back to the call-ing procedure until the flush is complete], we would
+//have wasted CPU time.  To avoid this,
+//OpenGL has two *framebuffers*footnote:[regions of memory which will eventually contain the full data for a frame],
+//only one of which is "active", or writable, at a given time.
+//"SDL_GL_SwapWindow" is a non-blocking call which initiates the flushing
+//the current buffer, and which switches the current writable framebuffer to the
+//other one, thus allowing the CPU to resume.
 //[source,C,linenums]
 //----
   SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  // used later for depth testing, don't worry about it for now
   SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-  // Stecils will not be covered in this book.
   SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-  // OpenGL has had multiple versions, which vary in what the
-  // provide.  Specify the version of OpenGL which we will
-  // use
 
   // put the next few lines in only when running opengl 3.2+
   /* SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, */
@@ -216,7 +211,7 @@ int main(int argc, char *argv[])
                       SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
-  // the following two lines are not important to discuss
+
   SDL_DisplayMode current;
   SDL_GetCurrentDisplayMode(0, &current);
 //----
@@ -245,8 +240,8 @@ int main(int argc, char *argv[])
 //Unlike typical shared libraries, OpenGL's shared library is providid
 //to the user by the vendor of the graphics card, as
 //different cards offer different functionality.
-//"GLEW" is a project which allows us to use OpenGL nicely.  See
-//<<sharedLibAppendix,the appendix>> for a more full explanantion.
+//"GLEW" is a project which allows us to use OpenGL nicely.
+//See <<sharedLibAppendix>> for a more full explanantion.
 //[source,C,linenums]
 //----
   glewInit(); // make OpenGL calls possible
