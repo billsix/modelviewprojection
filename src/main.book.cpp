@@ -235,12 +235,14 @@ int main(int argc, char *argv[])
   }
   glcontext = SDL_GL_CreateContext(window);
 //----
-//When distributing a native application which uses shared libraries,
-//the procedure calls provided by the library are known at compile-time.
-//Unlike typical shared libraries, OpenGL's shared library is providid
-//to the user by the vendor of the graphics card, as
-//different cards offer different functionality.
-//"GLEW" is a project which allows us to use OpenGL nicely.
+//A native application which links against shared libraries typically knows at compile-time
+//exactly which procedures are provided by the shared libraries.
+//But unlike typical shared libraries, a system's OpenGL shared library is supplied
+//to the user by the graphics card vendor, who may not provide every OpenGL procedure from
+//every version of OpenGL (of which there are many).
+//To make programming in OpenGL easier, all calls to OpenGL are actually calls to "GLEW" procedures,
+//which effectively are function pointers.  To ensure that those function pointers are initialized,
+//call "glewInit".
 //See <<sharedLibAppendix>> for a more full explanantion.
 //[source,C,linenums]
 //----
