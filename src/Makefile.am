@@ -6,7 +6,16 @@ OBJECTS_TO_BUILD = main.book.cpp
 
 
 if BUILD_PDF
-   OBJECTS_TO_BUILD += plot1.png main.pdf
+   OBJECTS_TO_BUILD += plot1.png \
+	monitor.png \
+	monitor2.png \
+	screenspace.png \
+	screenspace2.png \
+	ndcSpace.png \
+	ndcSpace1.png \
+	ndcSpace2.png \
+	plot2.png \
+	main.pdf
 endif
 
 # main.book.cpp is the book in my private Git repository, with

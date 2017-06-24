@@ -30,7 +30,7 @@ extern SDL_Window *window;
 extern SDL_Renderer *renderer;
 extern SDL_GLContext glcontext;
 
-SDL_bool
+void
 render_scene(int *demo_number);
 
 
