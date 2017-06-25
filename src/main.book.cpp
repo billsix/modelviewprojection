@@ -471,22 +471,20 @@ void render_scene(int *demo_number){
 //-Exercise 1.  How would you convert from ndc-space to screen-space, given
 //a monitor width _w_ and height _h_?
 
-//== Demo 1 - Draw "Pong" Paddles
+//== Demo 1 - Draw Paddles
 //
 //
-//A black screen is not particularly interesting.  So instead
-//let's draw something slightly more interesting.  Let's make
-//something that looks like "Pong", a game from Atari in which
-//two players each control a paddle on their side of the screen.
+//A black screen is not particularly interesting, so
+//let's draw something.  Let's draw two rectangles.
+//Where should they be, and what color should they be?
+
+//"glColor3f" sets a global variable, which makes it the color to be used
+//for the subsequently-drawn graphical shape.  The background will be black,
+//so lets make the first paddle white, and a second paddle yellow.
 //
-//"glColor3f" sets the color for the upcoming graphical "primitive".
-//"paddle1" is white, "paddle2" is yellow.
-//
-//"glBegin(GL_QUADS)" tells OpenGL that we are about to draw a
-//quadrilateral, whose vertices are specified by calls to "glVertex2f".
-//
-//"glEnd()" tells OpenGL that we have finished providing vertices for
-//the primitive.
+//"glBegin(GL_QUADS)" tells OpenGL that we will soon specify 4 *vertices*,
+//(i.e. points) which define the
+//quadrilateral.  The vertices will be specified by calling "glVertex2f" 4 times.
 //
 //[source,C,linenums]
 //----
@@ -495,6 +493,7 @@ void render_scene(int *demo_number){
 //Draw paddle 1.
 //[source,C,linenums]
 //----
+    // the color white has 1.0 for r,g,and b components.
     glColor3f(/*red*/   1.0,
               /*green*/ 1.0,
               /*blue*/  1.0);
@@ -511,6 +510,9 @@ void render_scene(int *demo_number){
     }
     glEnd();
 //----
+//"glEnd()" tells OpenGL that we have finished providing vertices for
+//the begun quadrilateral.
+//
 
 //The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
 
@@ -520,6 +522,9 @@ void render_scene(int *demo_number){
 //Draw paddle 2.
 //[source,C,linenums]
 //----
+    // the color yellow has 1.0 for r and g components,
+    // with 0.0 for b.
+    // Why is that?  The author doesn't know, consult the internet
     glColor3f(/*red*/   1.0,
               /*green*/ 1.0,
               /*blue*/  0.0);
@@ -558,18 +563,35 @@ void render_scene(int *demo_number){
 //|k              |Move Right Paddle Up
 //|i              |Move Right Paddle Down
 //|=======================================
-//Paddles which don't move are boring.  Use keyboard input from SDL
-//to move the paddles up or down.
+//Paddles which don't move are quite boring.  Let's make them move up or down
+//by getting keyboard input.
 //
-//(static variables are initialized only the first time the code is executed,
-//in subsequent calls to "render_scene", they retain the value they had the last time
-//"render-scene" was called.)
+//
+//Static variables are initialized to a value only the first time the procedure is executed.
+//In subsequent calls to "render_scene", they retain the value they had the last time
+//"render_scene" was calledfootnote:[Since the rest of the demos are entirely defined
+//within "render_scene", all statically defined variables, such as these offsets, are
+//available to every demo, and as such, future demos will reference these values].
 //[source,C,linenums]
 //----
   static GLfloat paddle_1_offset_Y = 0.0;
   static GLfloat paddle_2_offset_Y = 0.0;
   const Uint8 *state = SDL_GetKeyboardState(NULL);
-  // update_paddle_positions
+//----
+//-If 's' is pressed this frame, subtract 0.1 more from paddle_1_offset_Y.  If the
+//key continues to be held down over time, paddle_1_offset_Y will continue to decrease.
+
+//-If 'w' is pressed this frame, add 0.1 more to paddle_1_offset_Y.
+
+//-If 'k' is pressed this frame, subtract 0.1 more from paddle_2_offset_Y.
+
+//-If 'i' is pressed this frame, add 0.1 more to paddle_2_offset_Y.
+
+//Remember, these are static variables, so changes to these variables will
+//accumulate across frames.
+//
+//[source,C,linenums]
+//----
   if (state[SDL_SCANCODE_S]) {
     paddle_1_offset_Y -= 0.1;
   }
@@ -584,9 +606,6 @@ void render_scene(int *demo_number){
   }
 //----
 //
-//Change the y coordinate of the paddle's vertices based on
-//the keyboard input of the user.
-//
 //
 //[source,C,linenums]
 //----
@@ -598,6 +617,10 @@ void render_scene(int *demo_number){
     glColor3f(/*red*/   1.0,
               /*green*/ 1.0,
               /*blue*/  1.0);
+//----
+//Add paddle_1_offset_Y to the "y" component of every vertex
+//[source,C,linenums]
+//----
     glBegin(GL_QUADS);
     {
       glVertex2f(/*x*/ -1.0,
@@ -611,12 +634,20 @@ void render_scene(int *demo_number){
     }
     glEnd();
 //----
+
+//image:plot3.png[title="Foo",width={max-width}]
+
+
 //Draw paddle 2, relative to the offset.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
               /*green*/ 1.0,
               /*blue*/  0.0);
+//----
+//Add paddle_2_offset_Y to the "y" component of every vertex
+//[source,C,linenums]
+//----
     glBegin(GL_QUADS);
     {
       glVertex2f(/*x*/ 0.8,
@@ -632,6 +663,9 @@ void render_scene(int *demo_number){
     return;
   }
 //----
+
+//image:plot4.png[title="Foo",width={max-width}]
+
 
 //== Demo 3 - Model Vertices with a Data-Structure
 //

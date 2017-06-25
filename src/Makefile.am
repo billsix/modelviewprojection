@@ -15,6 +15,8 @@ if BUILD_PDF
 	ndcSpace1.png \
 	ndcSpace2.png \
 	plot2.png \
+	plot3.png \
+	plot4.png \
 	main.pdf
 endif
 
