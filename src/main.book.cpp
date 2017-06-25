@@ -593,7 +593,8 @@ void render_scene(int *chapter_number){
 
 //or a large monitor.
 
-//image:ndcSpace2.png[align="center",title="Programming using Screen Space on Large Monitor",width={max-width}]
+//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width={max-width}]
+
 
 //-Exercise 1.  The application configured SDL so that the end user can resize the window.
 //Do the paddles both  still appear in the window if you make it really thin?  What if

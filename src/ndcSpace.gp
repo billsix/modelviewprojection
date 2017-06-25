@@ -6,5 +6,6 @@ set xtics format ""
 set x2tics
 set xrange [-1.0:1.0]
 set yrange [-1.0:1.0]
-set object 1 rect from -.75,0.75 to .75,-.75 fc rgb "white"
+set object 1 rect from -.895,.833 to -.375,0.0 fc rgb "white"
+set object 2 rect from -.322,.833 to .614,0.0 fc rgb "white"
 plot -50 axes x2y1 notitle
