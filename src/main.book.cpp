@@ -73,10 +73,12 @@
 //
 //In OpenGL, the top left pixel of a window is coordinate (0,0).  The bottom right is (window_width,window_height)
 //
+//.1024x768 monitor
+//[caption="Figure 1: "]
+//image:monitor.png[align="center",title="Foo",width={max-width}]
 //
-//image:monitor.png[title="Foo",width={max-width}]
-//
-//image:monitor2.png[title="Foo",width={max-width}]
+//.1920x1200 monitor
+//image:monitor2.png[align="center",title="Foo",width={max-width}]
 //
 //
 //Frames are created within the computer and sent to the monitor
@@ -158,12 +160,12 @@ extern "C"
 int main(int argc, char *argv[])
 {
 //----
-//==== Let the User Pick the Demo to Run.
+//==== Let the User Pick the Chapter Number to Run.
 //[source,C,linenums]
 //----
-  std::cout << "Input demo number to run: (1-15): " << std::endl;
-  int demo_number;
-  std::cin >> demo_number ;
+  std::cout << "Input Chapter Number to run: (2-15): " << std::endl;
+  int chapter_number;
+  std::cin >> chapter_number ;
 //----
 //==== SDL/OpenGL Initialization
 //
@@ -321,9 +323,8 @@ int main(int argc, char *argv[])
 //[source,C,linenums]
 //----
   while (true){
-    render_scene(&demo_number);
-    // if the user hits the "X" button to close the window,
-    // then quit
+    render_scene(&chapter_number);
+    // if the user hits the "window close" button, quit
     SDL_Event event;
     while (SDL_PollEvent(&event)){
       if (SDL_QUIT == event.type){
@@ -361,7 +362,7 @@ int main(int argc, char *argv[])
 //
 //[source,C,linenums]
 //----
-void render_scene(int *demo_number){
+void render_scene(int *chapter_number){
   // clear the framebuffer
   glClear(GL_COLOR_BUFFER_BIT);
   glClear(GL_DEPTH_BUFFER_BIT);
@@ -378,7 +379,7 @@ void render_scene(int *demo_number){
 //
 //
 //
-//== Demo 0 - Black Screen
+//== Black Screen
 //
 //To understand the material of this book well, the reader is advised to
 //run the compile the program and run the demos.  To do so, the source
@@ -407,7 +408,7 @@ void render_scene(int *demo_number){
 //
 //[source,C,linenums]
 //----
-  if(0 == *demo_number){
+  if(2 == *chapter_number){
     return;
   }
 //----
@@ -419,63 +420,13 @@ void render_scene(int *demo_number){
 //we draw nothing, a black screen will be diplayed every frame until the user
 //closes the window, and says to himself, "why did I buy Doom 3"?
 
-//=== Normalized-Device-Coordinates
-//
-//The author owns two monitors, one which has 1024x768 pixels, and one which has
-//1920x1200 pixels.  When he purchases a game from Steam, he expects that his game
-//will run correctly on either monitor, in full-screen mode.  If a graphics programmer
-//had to explictly set each indiviual pixel's color, the the programmer would have to
-//program using "screen-space"footnote:[Any "space" means a system of numbers which you're using.
-//Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be red].
-
-//What looks alright is screen-space on a large monitor...
-
-//image:screenspace2.png[title="Programming using Screen Space on Large Monitor",width={max-width}]
-
-//isn't even the same picture on a smaller monitor.
-
-//image:screenspace.png[title="Programming using Screen Space on Small Monitor",width={max-width}]
 
 
-
-//Like any good program or library, OpenGL abstracts over screen-space, thus freeing the
-//programmer from caring about screen size.  If a programmer does not want to program
-//in discretefootnote:[discrete means integer values, not continuous] screen-space,
-//what type of numbers should he use?  Firstly, it should be a continuous space, meaning
-//that it should be in decimal numbers.  Because if a real-world object is 10.3 meters long, a programmer
-//should be able to enter "float foo = 10.3".  Secondly, it should be a fixed range vertically
-//and an fixed range horizontally.  OpenGL will have to convert points from some space to screen-space,
-//and since OpenGL does this in hardware (i.e. you can't programmatically change how the conversion
-//happens), it should be a fixed size.
-
-//OpenGL uses *normalized-device-coordinates*footnote:[normalized- meaning a distance value of
-//1; device- the monitor; coordinates- the system of numbers (i.e. space) in which you are working],
-//which is a continous space from -1.0 to 1.0 horizontally,
-//and -1.0 to 1.0 vertically.
-
-
-//By specifying geometry using normalized-device-coordinates,
-//OpenGL will automatically convert from a continuous, -1.0 to 1.0 space,
-//to discrete pixel-space.
-
-//image:ndcSpace.png[title="Programming using Screen Space on Large Monitor",width={max-width}]
-
-//Whether we own a small monitor
-
-//image:ndcSpace1.png[title="Programming using Screen Space on Small Monitor",width={max-width}]
-
-//or a large monitor.
-
-//image:ndcSpace2.png[title="Programming using Screen Space on Large Monitor",width={max-width}]
-
-//-Exercise 1.  How would you convert from ndc-space to screen-space, given
-//a monitor width _w_ and height _h_?
-
-//== Demo 1 - Draw Paddles
+//== Draw Paddles
 //
 //
 //A black screen is not particularly interesting, so
-//let's draw something.  Let's draw two rectangles.
+//let's draw something, say, two rectangles.
 //Where should they be, and what color should they be?
 
 //"glColor3f" sets a global variable, which makes it the color to be used
@@ -488,7 +439,7 @@ void render_scene(int *demo_number){
 //
 //[source,C,linenums]
 //----
-  if(1 == *demo_number){
+  if(3 == *chapter_number){
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -516,7 +467,7 @@ void render_scene(int *demo_number){
 
 //The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
 
-//image:plot1.png[title="Foo",width={max-width}]
+//image:plot1.png[align="center",title="Foo",width={max-width}]
 
 
 //Draw paddle 2.
@@ -544,7 +495,7 @@ void render_scene(int *demo_number){
 
 //The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
 
-//image:plot2.png[title="Foo",width={max-width}]
+//image:plot2.png[align="center",title="Foo",width={max-width}]
 
 //[source,C,linenums]
 //----
@@ -552,10 +503,72 @@ void render_scene(int *demo_number){
   }
 //----
 
+//=== Normalized-Device-Coordinates
 //
-//== Demo 2 - Move the Paddles using the Keyboard
+//The author owns two monitors, one which has 1024x768 pixels, and one which has
+//1920x1200 pixels.  When he purchases a game from Steam, he expects that his game
+//will run correctly on either monitor, in full-screen mode.  If a graphics programmer
+//had to explictly set each indiviual pixel's color, the the programmer would have to
+//program using "screen-space"footnote:[Any "space" means a system of numbers which you're using.
+//Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be red].
+
+//What looks alright is screen-space on a large monitor...
+
+//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width={max-width}]
+
+//isn't even the same picture on a smaller monitor.
+
+//image:screenspace.png[align="center",title="Programming using Screen Space on Small Monitor",width={max-width}]
+
+
+
+//Like any good program or library, OpenGL abstracts over screen-space, thus freeing the
+//programmer from caring about screen size.  If a programmer does not want to program
+//in discretefootnote:[discrete means integer values, not continuous] screen-space,
+//what type of numbers should he use?  Firstly, it should be a continuous space, meaning
+//that it should be in decimal numbers.  Because if a real-world object is 10.3 meters long, a programmer
+//should be able to enter "float foo = 10.3".  Secondly, it should be a fixed range vertically
+//and an fixed range horizontally.  OpenGL will have to convert points from some space to screen-space,
+//and since OpenGL does this in hardware (i.e. you can't programmatically change how the conversion
+//happens), it should be a fixed size.
+
+//OpenGL uses *normalized-device-coordinates* footnote:[normalized- meaning a distance value of
+//1; device- the monitor; coordinates- the system of numbers (i.e. space) in which you are working],
+//which is a continous space from -1.0 to 1.0 horizontally,
+//and -1.0 to 1.0 vertically.
+
+
+//By specifying geometry using normalized-device-coordinates,
+//OpenGL will automatically convert from a continuous, -1.0 to 1.0 space,
+//to discrete pixel-space.
+
+//image:ndcSpace.png[align="center",title="Programming using Screen Space on Large Monitor",width={max-width}]
+
+//Whether we own a small monitor
+
+//image:ndcSpace1.png[align="center",title="Programming using Screen Space on Small Monitor",width={max-width}]
+
+//or a large monitor.
+
+//image:ndcSpace2.png[align="center",title="Programming using Screen Space on Large Monitor",width={max-width}]
+
+//-Exercise 1.  The application configured SDL so that the end user can resize the window.
+//Do the paddles both  still appear in the window if you make it really thin?  What if
+//you make it very wide?
+
+
+//Answer - (Regardless of the window's width to height ratio, the pixel in the upper left of
+//the window still maps to normalized-device-coordinate (-1.0,-1.0), and the pixel
+//in the bottom right of the window still maps to (1.0,1.0).
+
+//-Exercise 2.  How would you convert from ndc-space to screen-space, given
+//a monitor width _w_ and height _h_?
+
+
 //
-//[width="75%",frame="topbot",options="header,footer"]
+//== Move the Paddles using the Keyboard
+//
+//[width="75%",options="header,footer"]
 //|=======================================
 //|Keyboard Input |Action
 //|w              |Move Left Paddle Up
@@ -609,9 +622,9 @@ void render_scene(int *demo_number){
 //
 //[source,C,linenums]
 //----
-  if(2 == *demo_number){
+  if(4 == *chapter_number){
 //----
-//Draw paddle 1, relative to the offset.
+//Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
@@ -635,10 +648,10 @@ void render_scene(int *demo_number){
     glEnd();
 //----
 
-//image:plot3.png[title="Foo",width={max-width}]
+//image:plot3.png[align="center",title="Foo",width={max-width}]
 
 
-//Draw paddle 2, relative to the offset.
+//Draw paddle 2, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
@@ -664,12 +677,12 @@ void render_scene(int *demo_number){
   }
 //----
 
-//image:plot4.png[title="Foo",width={max-width}]
+//image:plot4.png[align="center",title="Foo",width={max-width}]
 
 
-//== Demo 3 - Model Vertices with a Data-Structure
+//== Model Vertices with a Data-Structure
 //
-//[width="75%",frame="topbot",options="header,footer"]
+//[width="75%",options="header,footer"]
 //|=======================================
 //|Keyboard Input |Action
 //|w              |Move Left Paddle Up
@@ -730,11 +743,30 @@ void render_scene(int *demo_number){
       return Vertex(x*cos(angle_in_radians) - y*sin(angle_in_radians),
                     x*sin(angle_in_radians) + y*cos(angle_in_radians));
     };
+//----
+
+//Rotations can occur around an arbitrary point by translating the vertex
+//to the origin (0.0,0.0), rotating it, and then translating the result
+//back to its positionfootnote:[To the advanced reader, yes, this is unwise to do.
+//Real world development involves making mistakes.  Presenting solutions
+//without making mistakes deprives the learner.].
+
+//[source,C,linenums]
+//----
+    Vertex rotate(GLfloat angle_in_radians,
+                  Vertex center)
+    {
+      return translate(/*x*/ -center.x,
+                       /*y*/ -center.y).
+        rotate(angle_in_radians).
+        translate(/*x*/ center.x,
+                  /*y*/ center.y);
+    };
   };
 //----
 //[source,C,linenums]
 //----
-  if(3 == *demo_number){
+  if(5 == *chapter_number){
     std::vector<Vertex> paddle = {
       Vertex(-0.1, -0.3),
       Vertex(0.1, -0.3),
@@ -742,7 +774,7 @@ void render_scene(int *demo_number){
       Vertex(-0.1, 0.3)
     };
 //----
-//Draw paddle 1, relative to the offset.
+//Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
@@ -759,7 +791,7 @@ void render_scene(int *demo_number){
     }
     glEnd();
 //----
-//Draw paddle 2, relative to the offset.
+//Draw paddle 2, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
@@ -778,9 +810,9 @@ void render_scene(int *demo_number){
     return;
   }
 //----
-//== Demo 4 - Use More Desirable Coordinate System
+//== Use More Desirable Coordinate System
 //
-//[width="75%",frame="topbot",options="header,footer"]
+//[width="75%",options="header,footer"]
 //|=======================================
 //|Keyboard Input |Action
 //|w              |Move Left Paddle Up
@@ -812,9 +844,9 @@ void render_scene(int *demo_number){
     Vertex(10.0, 30.0),
     Vertex(-10.0, 30.0)
   };
-  if(4 == *demo_number){
+  if(6 == *chapter_number){
 //----
-//Draw paddle 1, relative to the offset.
+//Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
@@ -823,18 +855,17 @@ void render_scene(int *demo_number){
     glBegin(GL_QUADS);
     {
       for(Vertex modelspace : paddle){
-        Vertex newPosition = modelspace
-          .translate(/*x*/ -90.0,
-                     /*y*/ paddle_1_offset_Y)
-          .scale(/*x*/ 1.0/100.0,
-                 /*y*/ 1.0/100.0);
-        glVertex2f(/*x*/ newPosition.x,
-                   /*y*/ newPosition.y);
+        Vertex worldSpace = modelspace.translate(/*x*/ -90.0,
+                                                 /*y*/ paddle_1_offset_Y);
+        Vertex ndcSpace = worldSpace.scale(/*x*/ 1.0/100.0,
+                                           /*y*/ 1.0/100.0);
+        glVertex2f(/*x*/ ndcSpace.x,
+                   /*y*/ ndcSpace.y);
       }
     }
     glEnd();
 //----
-//Draw paddle 2, relative to the offset
+//Draw paddle 2, relative to the world-space origin
 //[source,C,linenums]
 //----
     glBegin(GL_QUADS);
@@ -855,9 +886,9 @@ void render_scene(int *demo_number){
     return;
   }
 //----
-//== Demo 5 - Rotate the Paddles About their Center
+//== Rotate the Paddles About their Center
 //
-//[width="75%",frame="topbot",options="header,footer"]
+//[width="75%",options="header,footer"]
 //|=======================================
 //|Keyboard Input |Action
 //|w              |Move Left Paddle Up
@@ -877,23 +908,23 @@ void render_scene(int *demo_number){
   static GLfloat paddle_2_rotation = 0.0;
   // update_rotation_of_paddles
   if (state[SDL_SCANCODE_A]) {
-    paddle_1_rotation -= 0.1;
-  }
-  if (state[SDL_SCANCODE_D]) {
     paddle_1_rotation += 0.1;
   }
+  if (state[SDL_SCANCODE_D]) {
+    paddle_1_rotation -= 0.1;
+  }
   if (state[SDL_SCANCODE_J]) {
-    paddle_2_rotation -= 0.1;
+    paddle_2_rotation += 0.1;
   }
   if (state[SDL_SCANCODE_L]) {
-    paddle_2_rotation += 0.1;
+    paddle_2_rotation -= 0.1;
   }
 //----
 //[source,C,linenums]
 //----
-  if(5 == *demo_number){
+  if(7 == *chapter_number){
 //----
-//Draw paddle 1, relative to the offset.
+//Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
@@ -903,9 +934,11 @@ void render_scene(int *demo_number){
     {
       for(Vertex modelspace : paddle){
         Vertex worldSpace = modelspace
-          .rotate(/*radians*/ paddle_1_rotation)
           .translate(/*x*/ -90.0,
-                     /*y*/ paddle_1_offset_Y);
+                     /*y*/ paddle_1_offset_Y)
+          .rotate(/*radians*/ paddle_1_rotation,
+                  Vertex(/*x*/ -90.0,
+                         /*y*/ paddle_1_offset_Y));
         Vertex ndcSpace = worldSpace.scale(/*x*/ 1.0/100.0,
                                            /*y*/ 1.0/100.0);
         glVertex2f(/*x*/ ndcSpace.x,
@@ -914,7 +947,10 @@ void render_scene(int *demo_number){
     }
     glEnd();
 //----
-//Draw paddle 2, relative to the offset
+
+// TODO -- explain why the translate first, and then the rotate, is poor form. Besides inefficiency, this system doesn't compose, as a vertex subject to multiple rotations may not know where its modelspace origin is, and as such, cannot translate to the origin.
+//
+//Draw paddle 2, relative to the world-space origin
 //[source,C,linenums]
 //----
     glBegin(GL_QUADS);
@@ -938,9 +974,9 @@ void render_scene(int *demo_number){
   }
 //----
 
-//== Demo 6 - Make a Movable Camera
+//== A Movable Camera
 //
-//[width="75%",frame="topbot",options="header,footer"]
+//[width="75%",options="header,footer"]
 //|=======================================
 //|Keyboard Input |Action
 //|w              |Move Left Paddle Up
@@ -978,9 +1014,9 @@ void render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
-  if(6 == *demo_number){
+  if(8 == *chapter_number){
 //----
-//Draw paddle 1, relative to the offset.
+//Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
@@ -1003,7 +1039,7 @@ void render_scene(int *demo_number){
     }
     glEnd();
 //----
-//Draw paddle 2, relative to the offset
+//Draw paddle 2, relative to the world-space origin
 //[source,C,linenums]
 //----
     glBegin(GL_QUADS);
@@ -1037,9 +1073,9 @@ void render_scene(int *demo_number){
     Vertex(-5.0, 5.0)
   };
 //----
-//== Demo 7 - Draw a Small Square Relative to the Left Paddle
+//== Draw a Small Square Relative to the Left Paddle
 //
-//[width="75%",frame="topbot",options="header,footer"]
+//[width="75%",options="header,footer"]
 //|=======================================
 //|Keyboard Input |Action
 //|w              |Move Left Paddle Up
@@ -1106,7 +1142,7 @@ void render_scene(int *demo_number){
 //
 //[source,C,linenums]
 //----
-  if(7 == *demo_number){
+  if(9 == *chapter_number){
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -1145,9 +1181,9 @@ void render_scene(int *demo_number){
     return;
   }
 //----
-//== Demo 8 - Rotate the Square About Its Origin
+//== Rotate the Square About Its Origin
 //
-//[width="75%",frame="topbot",options="header,footer"]
+//[width="75%",options="header,footer"]
 //|=======================================
 //|Keyboard Input |Action
 //|w              |Move Left Paddle Up
@@ -1174,7 +1210,7 @@ void render_scene(int *demo_number){
   if (state[SDL_SCANCODE_Q]) {
     square_rotation += 0.1;
   }
-  if(8 == *demo_number){
+  if(10 == *chapter_number){
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -1214,8 +1250,8 @@ void render_scene(int *demo_number){
     return;
   }
 //----
-//== Demo 9 - Rotate the Square About the Paddle
-//[width="75%",frame="topbot",options="header,footer"]
+//== Rotate the Square About the Paddle
+//[width="75%",options="header,footer"]
 //|=======================================
 //|Keyboard Input |Action
 //|w              |Move Left Paddle Up
@@ -1246,7 +1282,7 @@ void render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
-  if(9 == *demo_number){
+  if(11 == *chapter_number){
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -1287,7 +1323,7 @@ void render_scene(int *demo_number){
     return;
   }
 //----
-//== Demo 10
+//== Adding Depth
 
 //[source,C,linenums]
 //----
@@ -1449,7 +1485,7 @@ void render_scene(int *demo_number){
 
 
 //// TODO -- update newposition to have better names for 3d
-  if(10 == *demo_number){
+  if(12 == *chapter_number){
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -1501,7 +1537,7 @@ void render_scene(int *demo_number){
   }
 //----
 //
-//== Demo 11
+//== Moving the Camera in 3D
 //[source,C,linenums]
 //----
   static GLfloat moving_camera_x = 0.0;
@@ -1536,11 +1572,9 @@ void render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
-
-
-  if(11 == *demo_number){
+  if(13 == *chapter_number){
 //----
-//Draw paddle 1, relative to the offset.
+//Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
@@ -1617,7 +1651,7 @@ void render_scene(int *demo_number){
       glEnd();
     }
 //----
-//Draw paddle 2, relative to the offset.
+//Draw paddle 2, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glBegin(GL_QUADS);
@@ -1657,19 +1691,22 @@ void render_scene(int *demo_number){
 
 
 
-//== Demo 12
-  if(*demo_number >= 12){
+//----
+//== Considering Depth
+//[source,C,linenums]
+//----
+  if(*chapter_number >= 14){
     glEnable(GL_DEPTH_TEST);
   }
-  if(12 == *demo_number){
-    *demo_number = 11;
+  if(14 == *chapter_number){
+    *chapter_number = 11;
     return;
   }
 //----
-//== Demo 13
+//== Perspective Viewing
 //[source,C,linenums]
 //----
-  if(*demo_number >= 13){
+  if(*chapter_number >= 15){
     static bool first_frame = true;
     if(first_frame){
       moving_camera_z = 400.0; // for the perspective to look right
@@ -1695,7 +1732,7 @@ void render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
-  if(13 == *demo_number){
+  if(15 == *chapter_number){
     // every shape is projected the same way
     transformationStack.push_back([&](Vertex3 v){
         return v.perspective(-0.1f,
@@ -1723,7 +1760,7 @@ void render_scene(int *demo_number){
                            /*z*/ 0.0f);
       });
 //----
-//Draw paddle 1, relative to the offset.
+//Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
@@ -1774,10 +1811,10 @@ void render_scene(int *demo_number){
       transformationStack.pop_back();
       transformationStack.pop_back();
     }
-    // get back to the global origin
+    // get back to the world-space origin
     transformationStack.pop_back();
 //----
-//Draw paddle 2, relative to the offset.
+//Draw paddle 2, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glColor3f(/*red*/   1.0,
@@ -1807,10 +1844,10 @@ void render_scene(int *demo_number){
     return;
   }
 //----
-//== Demo 14
+//== OpenGL 2.0 Matricies
 //[source,C,linenums]
 //----
-  if(*demo_number >= 14){
+  if(*chapter_number >= 16){
     // for whatever reason, gluPerspective flips the z values
     glClearDepth(1.1f );
     glDepthFunc(GL_LEQUAL);
@@ -1835,7 +1872,7 @@ void render_scene(int *demo_number){
 //----
 //[source,C,linenums]
 //----
-  if(40 == *demo_number){
+  if(16 == *chapter_number){
     /*
      *  Demo 40 - OpenGL Matricies
      */
@@ -1869,7 +1906,7 @@ void render_scene(int *demo_number){
                    /*z*/ -moving_camera_z);
     }
 //----
-//Draw paddle 1, relative to the offset.
+//Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glPushMatrix();
@@ -1916,7 +1953,7 @@ void render_scene(int *demo_number){
     draw_square_opengl2point1();
     glPopMatrix();
 //----
-//Draw paddle 2, relative to the offset.
+//Draw paddle 2, relative to the world-space origin.
 //[source,C,linenums]
 //----
     glPushMatrix();
