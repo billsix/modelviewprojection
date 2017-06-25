@@ -387,7 +387,7 @@ void render_scene(int *chapter_number){
 //It has been tested on Windows 10 (Visual Studio Community 2017),
 //Linux, and OS X.
 //
-//Once built, execute "modelviewprojection". When prompted, type "0" and then press the "Enter" key.
+//Once built, execute "modelviewprojection". When prompted, type "2" and then press the "Enter" key.
 //
 //The first demo is the least interesting graphical program possible.
 //
@@ -413,9 +413,30 @@ void render_scene(int *chapter_number){
   }
 //----
 
-//When this code returns, the event loop flushes the frame to the monitor.  Since
+//When this code returns, the event loop flushes (i.e) sends the frame to the monitor.  Since
 //no geometry was drawn, the color value for each pixel is still black.
 //
+//Each color is represende by a number, so the frame is something like this:
+//
+//
+//....
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//....
+//
+//
+//
+
 //The event loop then calls this code over and over again, and since we retain no state and
 //we draw nothing, a black screen will be diplayed every frame until the user
 //closes the window, and says to himself, "why did I buy Doom 3"?
@@ -502,7 +523,29 @@ void render_scene(int *chapter_number){
     return;
   }
 //----
+//The frame sent to the monitor is a set of values like this:
+//....
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//wwwwwbbbbbbbbbbbbbbbbbbbbbbbbbbbyyyyy
+//wwwwwbbbbbbbbbbbbbbbbbbbbbbbbbbbyyyyy
+//wwwwwbbbbbbbbbbbbbbbbbbbbbbbbbbbyyyyy
+//wwwwwbbbbbbbbbbbbbbbbbbbbbbbbbbbyyyyy
+//wwwwwbbbbbbbbbbbbbbbbbbbbbbbbbbbyyyyy
+//wwwwwbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+//....
 
+//What do we have to do to convert from normalized-device-coordinates
+//into individual colors for each pixel?  Nothing, OpenGL does that for us; therefore
+//we never have to think in terms of pixels, only in terms of vertices of shapes,
+//specified by normalized-device-coordinates.
+//
+//Why is that desirable?
+//
 //=== Normalized-Device-Coordinates
 //
 //The author owns two monitors, one which has 1024x768 pixels, and one which has
