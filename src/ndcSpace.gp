@@ -2,7 +2,7 @@ set term png
 set output 'ndcSpace.png'
 set linetype 11 lc rgb 'black'
 set border lc 11
-set xtics format ""
+unset xtics
 set x2tics
 set xrange [-1.0:1.0]
 set yrange [-1.0:1.0]
