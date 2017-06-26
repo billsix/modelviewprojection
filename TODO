@@ -1,2 +1,1 @@
-----
-Fix the NDC diagrams to actually use the paddles, not two random squares
+fix ndc_space_to_pixel_space, as 0,0 is not the upper left corner

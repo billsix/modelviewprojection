@@ -71,7 +71,7 @@
 //
 //
 //
-//In OpenGL, the top left pixel of a window is coordinate (0,0).  The bottom right is (window_width,window_height)
+//In OpenGL, the bottom left pixel of a window is coordinate (0,0).  The top right is (window_width,window_height)
 //
 //.1024x768 monitor
 //[caption="Figure 1: "]
