@@ -303,8 +303,8 @@ int main(int argc, char *argv[])
                       /*height*/ &h);
     glViewport(/*min_x*/ 0,
                /*min_y*/ 0,
-               /*max_x*/ w,
-               /*max_y*/ h);
+               /*width_x*/ w,
+               /*width_y*/ h);
   }
 //----
 //[[the-event-loop]]
@@ -335,8 +335,8 @@ int main(int argc, char *argv[])
         SDL_GetWindowSize(window,&w,&h);
         glViewport(/*min_x*/ 0,
                    /*min_y*/ 0,
-                   /*max_x*/ w,
-                   /*max_y*/ h);
+                   /*width_x*/ w,
+                   /*width_y*/ h);
       }
     }
     // flush the frame
@@ -608,6 +608,88 @@ void render_scene(int *chapter_number){
 //-Exercise 2.  How would you convert from ndc-space to screen-space, given
 //a monitor width _w_ and height _h_?
 
+//== Draw Paddles 2
+//
+//[source,C,linenums]
+//----
+  if(4 == *chapter_number){
+    // clear all of the background to grey
+    glClearColor(/*red*/   0.2,
+                 /*green*/ 0.2,
+                 /*blue*/  0.2,
+                 /*alpha*/ 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    // resize drawing area
+    int w, h;
+    SDL_GetWindowSize(window,&w,&h);
+    int min = w < h ? w : h;
+    glViewport(/*min_x*/ 0 + (w - min)/2,
+               /*min_y*/ 0 + (h - min)/2,
+               /*width_x*/ min,
+               /*width_y*/ min);
+
+    glEnable(GL_SCISSOR_TEST);
+    glScissor(/*min_x*/ 0 + (w - min)/2,
+              /*min_y*/ 0 + (h - min)/2,
+              /*width_x*/ min,
+              /*width_y*/ min);
+
+    glClearColor(/*red*/   0.0,
+                 /*green*/ 0.0,
+                 /*blue*/  0.0,
+                 /*alpha*/ 1.0);
+    glClear(GL_COLOR_BUFFER_BIT);
+    glDisable(GL_SCISSOR_TEST);
+//----
+//Draw paddle 1.
+//[source,C,linenums]
+//----
+    // the color white has 1.0 for r,g,and b components.
+    glColor3f(/*red*/   1.0,
+              /*green*/ 1.0,
+              /*blue*/  1.0);
+    glBegin(GL_QUADS);
+    {
+      glVertex2f(/*x*/ -1.0,
+                 /*y*/ -0.3);
+      glVertex2f(/*x*/ -0.8,
+                 /*y*/ -0.3);
+      glVertex2f(/*x*/ -0.8,
+                 /*y*/ 0.3);
+      glVertex2f(/*x*/ -1.0,
+                 /*y*/ 0.3);
+    }
+    glEnd();
+//----
+//Draw paddle 2.
+//[source,C,linenums]
+//----
+    // the color yellow has 1.0 for r and g components,
+    // with 0.0 for b.
+    // Why is that?  The author doesn't know, consult the internet
+    glColor3f(/*red*/   1.0,
+              /*green*/ 1.0,
+              /*blue*/  0.0);
+    glBegin(GL_QUADS);
+    {
+      glVertex2f(/*x*/ 0.8,
+                 /*y*/ -0.3);
+      glVertex2f(/*x*/ 1.0,
+                 /*y*/ -0.3);
+      glVertex2f(/*x*/ 1.0,
+                 /*y*/ 0.3);
+      glVertex2f(/*x*/ 0.8,
+                 /*y*/ 0.3);
+    }
+    glEnd();
+//----
+
+//[source,C,linenums]
+//----
+    return;
+  }
+//----
 
 //
 //== Move the Paddles using the Keyboard
