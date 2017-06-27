@@ -612,7 +612,7 @@ void render_scene(int *chapter_number){
 //
 //[source,C,linenums]
 //----
-  if(4 == *chapter_number){
+  std::function<void()> draw_in_square_viewport = [&](){
     // clear all of the background to grey
     glClearColor(/*red*/   0.2,
                  /*green*/ 0.2,
@@ -641,6 +641,12 @@ void render_scene(int *chapter_number){
                  /*alpha*/ 1.0);
     glClear(GL_COLOR_BUFFER_BIT);
     glDisable(GL_SCISSOR_TEST);
+  };
+//----
+//[source,C,linenums]
+//----
+  if(4 == *chapter_number){
+    draw_in_square_viewport();
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -748,7 +754,8 @@ void render_scene(int *chapter_number){
 //
 //[source,C,linenums]
 //----
-  if(4 == *chapter_number){
+  if(5 == *chapter_number){
+    draw_in_square_viewport();
 //----
 //Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
@@ -892,7 +899,8 @@ void render_scene(int *chapter_number){
 //----
 //[source,C,linenums]
 //----
-  if(5 == *chapter_number){
+  if(6 == *chapter_number){
+    draw_in_square_viewport();
     std::vector<Vertex> paddle = {
       Vertex(-0.1, -0.3),
       Vertex(0.1, -0.3),
@@ -970,7 +978,8 @@ void render_scene(int *chapter_number){
     Vertex(10.0, 30.0),
     Vertex(-10.0, 30.0)
   };
-  if(6 == *chapter_number){
+  if(7 == *chapter_number){
+    draw_in_square_viewport();
 //----
 //Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
@@ -1048,7 +1057,8 @@ void render_scene(int *chapter_number){
 //----
 //[source,C,linenums]
 //----
-  if(7 == *chapter_number){
+  if(8 == *chapter_number){
+    draw_in_square_viewport();
 //----
 //Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
@@ -1140,7 +1150,8 @@ void render_scene(int *chapter_number){
 //----
 //[source,C,linenums]
 //----
-  if(8 == *chapter_number){
+  if(9 == *chapter_number){
+    draw_in_square_viewport();
 //----
 //Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
@@ -1268,7 +1279,8 @@ void render_scene(int *chapter_number){
 //
 //[source,C,linenums]
 //----
-  if(9 == *chapter_number){
+  if(10 == *chapter_number){
+    draw_in_square_viewport();
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -1336,7 +1348,8 @@ void render_scene(int *chapter_number){
   if (state[SDL_SCANCODE_Q]) {
     square_rotation += 0.1;
   }
-  if(10 == *chapter_number){
+  if(11 == *chapter_number){
+    draw_in_square_viewport();
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -1408,7 +1421,8 @@ void render_scene(int *chapter_number){
 //----
 //[source,C,linenums]
 //----
-  if(11 == *chapter_number){
+  if(12 == *chapter_number){
+    draw_in_square_viewport();
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -1611,7 +1625,8 @@ void render_scene(int *chapter_number){
 
 
 //// TODO -- update newposition to have better names for 3d
-  if(12 == *chapter_number){
+  if(13 == *chapter_number){
+    draw_in_square_viewport();
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -1698,7 +1713,8 @@ void render_scene(int *chapter_number){
 //----
 //[source,C,linenums]
 //----
-  if(13 == *chapter_number){
+  if(14 == *chapter_number){
+    draw_in_square_viewport();
 //----
 //Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
@@ -1821,18 +1837,18 @@ void render_scene(int *chapter_number){
 //== Considering Depth
 //[source,C,linenums]
 //----
-  if(*chapter_number >= 14){
+  if(*chapter_number >= 15){
     glEnable(GL_DEPTH_TEST);
   }
-  if(14 == *chapter_number){
-    *chapter_number = 11;
+  if(15 == *chapter_number){
+    *chapter_number = 14;
     return;
   }
 //----
 //== Perspective Viewing
 //[source,C,linenums]
 //----
-  if(*chapter_number >= 15){
+  if(*chapter_number >= 16){
     static bool first_frame = true;
     if(first_frame){
       moving_camera_z = 400.0; // for the perspective to look right
@@ -1858,7 +1874,7 @@ void render_scene(int *chapter_number){
 //----
 //[source,C,linenums]
 //----
-  if(15 == *chapter_number){
+  if(16 == *chapter_number){
     // every shape is projected the same way
     transformationStack.push_back([&](Vertex3 v){
         return v.perspective(-0.1f,
@@ -1973,7 +1989,7 @@ void render_scene(int *chapter_number){
 //== OpenGL 2.0 Matricies
 //[source,C,linenums]
 //----
-  if(*chapter_number >= 16){
+  if(*chapter_number >= 17){
     // for whatever reason, gluPerspective flips the z values
     glClearDepth(1.1f );
     glDepthFunc(GL_LEQUAL);
@@ -1998,7 +2014,7 @@ void render_scene(int *chapter_number){
 //----
 //[source,C,linenums]
 //----
-  if(16 == *chapter_number){
+  if(17 == *chapter_number){
     /*
      *  Demo 40 - OpenGL Matricies
      */
