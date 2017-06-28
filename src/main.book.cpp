@@ -488,7 +488,7 @@ void render_scene(int *chapter_number){
 
 //The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
 
-//image:plot1.png[align="center",title="Foo",width=200]
+//image:plot1.png[align="center",title="Foo",width=220]
 
 
 //Draw paddle 2.
@@ -516,7 +516,7 @@ void render_scene(int *chapter_number){
 
 //The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
 
-//image:plot2.png[align="center",title="Foo",width=200]
+//image:plot2.png[align="center",title="Foo",width=220]
 
 //[source,C,linenums]
 //----
@@ -557,11 +557,11 @@ void render_scene(int *chapter_number){
 
 //What looks alright is screen-space on a large monitor...
 
-//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width=200]
+//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
 
 //isn't even the same picture on a smaller monitor.
 
-//image:screenspace.png[align="center",title="Programming using Screen Space on Small Monitor",width=200]
+//image:screenspace.png[align="center",title="Programming using Screen Space on Small Monitor",width=220]
 
 
 
@@ -585,15 +585,15 @@ void render_scene(int *chapter_number){
 //OpenGL will automatically convert from a continuous, -1.0 to 1.0 space,
 //to discrete pixel-space.
 
-//image:ndcSpace.png[align="center",title="Programming using Screen Space on Large Monitor",width=200]
+//image:ndcSpace.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
 
 //Whether we own a small monitor
 
-//image:ndcSpace1.png[align="center",title="Programming using Screen Space on Small Monitor",width=200]
+//image:ndcSpace1.png[align="center",title="Programming using Screen Space on Small Monitor",width=220]
 
 //or a large monitor.
 
-//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width=200]
+//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
 
 
 //-Exercise 1.  The application configured SDL so that the end user can resize the window.
@@ -781,7 +781,7 @@ void render_scene(int *chapter_number){
     glEnd();
 //----
 
-//image:plot3.png[align="center",title="Foo",width=200]
+//image:plot3.png[align="center",title="Foo",width=220]
 
 
 //Draw paddle 2, relative to the world-space origin.
@@ -810,7 +810,7 @@ void render_scene(int *chapter_number){
   }
 //----
 
-//image:plot4.png[align="center",title="Foo",width=200]
+//image:plot4.png[align="center",title="Foo",width=220]
 
 
 //== Model Vertices with a Data-Structure
@@ -853,7 +853,7 @@ void render_scene(int *chapter_number){
     };
 //----
 
-//image:translate.png[align="center",title="Foo",width=200]
+//image:translate.png[align="center",title="Foo",width=220]
 
 //
 //Similarly, we can expand or shink the size of an object
@@ -869,7 +869,7 @@ void render_scene(int *chapter_number){
     };
 //----
 
-//image:scale.png[align="center",title="Foo",width=200]
+//image:scale.png[align="center",title="Foo",width=220]
 
 //
 //We can also rotate an object around (0,0).  This won't
