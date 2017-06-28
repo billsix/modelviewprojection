@@ -883,6 +883,11 @@ void render_scene(int *chapter_number){
     };
 //----
 
+//image:rotate.png[align="center",title="Foo",width=220]
+
+//image:rotate2.png[align="center",title="Foo",width=220]
+
+
 //Rotations can occur around an arbitrary point by translating the vertex
 //to the origin (0.0,0.0), rotating it, and then translating the result
 //back to its positionfootnote:[To the advanced reader, yes, this is unwise to do.
@@ -949,7 +954,7 @@ void render_scene(int *chapter_number){
     return;
   }
 //----
-//== Use More Desirable Coordinate System
+//== Model-space
 //
 //[width="75%",options="header,footer"]
 //|=======================================
@@ -959,6 +964,32 @@ void render_scene(int *chapter_number){
 //|k              |Move Right Paddle Up
 //|i              |Move Right Paddle Down
 //|=======================================
+
+//Normalized-device-coordinates are not a natural system of
+//numbers for use by humans.  Imagine that the paddles in the previous
+//chapters exist in real life, and are 20 meters wide and 60 meters tall.
+//The graphics programmer should be able to use those numbers directly;
+//they shouldn't have to manually trasform the distances into normalized-device-coordinates.
+//
+//Whatever a convenient numbering system is (i.e. coordinate system) for modeling objects
+//is called "model-space".  Since a paddle has four corners, which corner should be a
+//the origin (0,0)?  If you don't already know what you want at the origin, then
+//none of the corners should be; instead put the center of the object
+//at the originfootnote:[By putting the center of the object at the origin,
+//scaling and rotating the object are trivial].
+
+//[source,C,linenums]
+//----
+  const std::vector<Vertex> paddle = {
+    Vertex(-10.0, -30.0),
+    Vertex(10.0, -30.0),
+    Vertex(10.0, 30.0),
+    Vertex(-10.0, 30.0)
+  };
+//----
+
+
+//image:modelspace.png[align="center",title="Foo",width=300]
 
 //[source,C,linenums]
 //----
@@ -975,20 +1006,11 @@ void render_scene(int *chapter_number){
     paddle_2_offset_Y += 10.0f;
   }
 //----
-//[source,C,linenums]
-//----
-  const std::vector<Vertex> paddle = {
-    Vertex(-10.0, -30.0),
-    Vertex(10.0, -30.0),
-    Vertex(10.0, 30.0),
-    Vertex(-10.0, 30.0)
-  };
-  if(7 == *chapter_number){
-    draw_in_square_viewport();
-//----
 //Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
+  if(7 == *chapter_number){
+    draw_in_square_viewport();
     glColor3f(/*red*/   1.0,
               /*green*/ 1.0,
               /*blue*/  1.0);
