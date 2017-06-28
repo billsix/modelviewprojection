@@ -18,6 +18,7 @@ if BUILD_PDF
 	plot3.png \
 	plot4.png \
 	translate.png \
+	scale.png \
 	main.pdf
 endif
 

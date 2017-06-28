@@ -868,6 +868,9 @@ void render_scene(int *chapter_number){
                     y * scale_y);
     };
 //----
+
+//image:scale.png[align="center",title="Foo",width={max-width}]
+
 //
 //We can also rotate an object around (0,0).  This won't
 //be used until later.
