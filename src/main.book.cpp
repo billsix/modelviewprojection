@@ -824,9 +824,9 @@ void render_scene(int *chapter_number){
 //|i              |Move Right Paddle Down
 //|=======================================
 //
-//Modeling vertices, along with transformations of them,
-//is important.  So let's make a class to encapsulate
-//modifications to verticies.
+//Transforming vertices, such as translating, is the core concept
+//of computer graphics.  So create a class for common transformations.
+
 //[source,C,linenums]
 //----
   class Vertex {
@@ -839,7 +839,6 @@ void render_scene(int *chapter_number){
       x(the_x),
       y(the_y)
     {}
-    // transformations
 //----
 //
 //Rather than incrementing y values before calling "glVertex",
@@ -853,6 +852,9 @@ void render_scene(int *chapter_number){
                     y + translate_y);
     };
 //----
+
+//image:translate.png[align="center",title="Foo",width={max-width}]
+
 //
 //Similarly, we can expand or shink the size of an object
 //by "scale"ing each of the vertices of the object, assuming
