@@ -211,8 +211,8 @@ int main(int argc, char *argv[])
   /*                     SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); */
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                       SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
 
   SDL_DisplayMode current;
   SDL_GetCurrentDisplayMode(0, &current);
