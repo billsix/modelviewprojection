@@ -6,9 +6,13 @@ EXTRA_DIST = monitor.gp \
 	ndcSpace1.gp \
 	ndcSpace2.gp \
 	plot1.gp \
+	plot1.dat \
 	plot2.gp \
+	plot2.dat \
 	plot3.gp \
+	plot3.dat \
 	plot4.gp \
+	plot4.dat \
 	screenspace.gp \
 	screenspace2.gp \
 	main.book.cpp
