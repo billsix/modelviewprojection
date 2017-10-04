@@ -1,5 +1,19 @@
 bin_PROGRAMS = modelviewprojection
 
+EXTRA_DIST = monitor.gp \
+	monitor2.gp \
+	ndcSpace.gp \
+	ndcSpace1.gp \
+	ndcSpace2.gp \
+	plot1.gp \
+	plot2.gp \
+	plot3.gp \
+	plot4.gp \
+	screenspace.gp \
+	screenspace2.gp \
+	main.book.cpp
+
+
 ENABLE_PDF = @ENABLE_PDF@
 
 OBJECTS_TO_BUILD = main.book.cpp
