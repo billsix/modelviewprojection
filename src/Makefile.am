@@ -16,11 +16,15 @@ EXTRA_DIST = monitor.gp \
 	screenspace.gp \
 	screenspace2.gp \
         translate.gp \
+	translate.dat \
         scale.gp \
+	scale.dat \
         rotate.gp \
         rotate2.gp \
         modelspace.gp \
 	main.book.cpp
+
+
 
 
 ENABLE_PDF = @ENABLE_PDF@
