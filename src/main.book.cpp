@@ -80,10 +80,10 @@
 //
 //.1024x768 monitor
 //[caption="Figure 1: "]
-//image:monitor.png[align="center",title="Foo",width={max-width}]
+//image:monitor.png[align="center",title="Foo",width=300]
 //
 //.1920x1200 monitor
-//image:monitor2.png[align="center",title="Foo",width={max-width}]
+//image:monitor2.png[align="center",title="Foo",width=300]
 //
 //
 //Frames are created within the computer and sent to the monitor
@@ -216,8 +216,8 @@ int main(int argc, char *argv[])
   /*                     SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); */
   SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
                       SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 2);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
+  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
 
   SDL_DisplayMode current;
   SDL_GetCurrentDisplayMode(0, &current);
@@ -493,7 +493,7 @@ void render_scene(int *chapter_number){
 
 //The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
 
-//image:plot1.png[align="center",title="Foo",width={max-width}]
+//image:plot1.png[align="center",title="Foo",width=220]
 
 
 //Draw paddle 2.
@@ -521,7 +521,7 @@ void render_scene(int *chapter_number){
 
 //The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
 
-//image:plot2.png[align="center",title="Foo",width={max-width}]
+//image:plot2.png[align="center",title="Foo",width=220]
 
 //[source,C,linenums]
 //----
@@ -562,11 +562,11 @@ void render_scene(int *chapter_number){
 
 //What looks alright is screen-space on a large monitor...
 
-//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width={max-width}]
+//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
 
 //isn't even the same picture on a smaller monitor.
 
-//image:screenspace.png[align="center",title="Programming using Screen Space on Small Monitor",width={max-width}]
+//image:screenspace.png[align="center",title="Programming using Screen Space on Small Monitor",width=220]
 
 
 
@@ -590,15 +590,15 @@ void render_scene(int *chapter_number){
 //OpenGL will automatically convert from a continuous, -1.0 to 1.0 space,
 //to discrete pixel-space.
 
-//image:ndcSpace.png[align="center",title="Programming using Screen Space on Large Monitor",width={max-width}]
+//image:ndcSpace.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
 
 //Whether we own a small monitor
 
-//image:ndcSpace1.png[align="center",title="Programming using Screen Space on Small Monitor",width={max-width}]
+//image:ndcSpace1.png[align="center",title="Programming using Screen Space on Small Monitor",width=220]
 
 //or a large monitor.
 
-//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width={max-width}]
+//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
 
 
 //-Exercise 1.  The application configured SDL so that the end user can resize the window.
@@ -786,7 +786,7 @@ void render_scene(int *chapter_number){
     glEnd();
 //----
 
-//image:plot3.png[align="center",title="Foo",width={max-width}]
+//image:plot3.png[align="center",title="Foo",width=220]
 
 
 //Draw paddle 2, relative to the world-space origin.
@@ -815,7 +815,7 @@ void render_scene(int *chapter_number){
   }
 //----
 
-//image:plot4.png[align="center",title="Foo",width={max-width}]
+//image:plot4.png[align="center",title="Foo",width=220]
 
 
 //== Model Vertices with a Data-Structure
@@ -829,9 +829,9 @@ void render_scene(int *chapter_number){
 //|i              |Move Right Paddle Down
 //|=======================================
 //
-//Modeling vertices, along with transformations of them,
-//is important.  So let's make a class to encapsulate
-//modifications to verticies.
+//Transforming vertices, such as translating, is the core concept
+//of computer graphics.  So create a class for common transformations.
+
 //[source,C,linenums]
 //----
   class Vertex {
@@ -844,7 +844,6 @@ void render_scene(int *chapter_number){
       x(the_x),
       y(the_y)
     {}
-    // transformations
 //----
 //
 //Rather than incrementing y values before calling "glVertex",
@@ -858,6 +857,9 @@ void render_scene(int *chapter_number){
                     y + translate_y);
     };
 //----
+
+//image:translate.png[align="center",title="Foo",width=220]
+
 //
 //Similarly, we can expand or shink the size of an object
 //by "scale"ing each of the vertices of the object, assuming
@@ -871,6 +873,9 @@ void render_scene(int *chapter_number){
                     y * scale_y);
     };
 //----
+
+//image:scale.png[align="center",title="Foo",width=220]
+
 //
 //We can also rotate an object around (0,0).  This won't
 //be used until later.
@@ -882,6 +887,11 @@ void render_scene(int *chapter_number){
                     x*sin(angle_in_radians) + y*cos(angle_in_radians));
     };
 //----
+
+//image:rotate.png[align="center",title="Foo",width=220]
+
+//image:rotate2.png[align="center",title="Foo",width=220]
+
 
 //Rotations can occur around an arbitrary point by translating the vertex
 //to the origin (0.0,0.0), rotating it, and then translating the result
@@ -949,7 +959,7 @@ void render_scene(int *chapter_number){
     return;
   }
 //----
-//== Use More Desirable Coordinate System
+//== Model-space
 //
 //[width="75%",options="header,footer"]
 //|=======================================
@@ -959,6 +969,32 @@ void render_scene(int *chapter_number){
 //|k              |Move Right Paddle Up
 //|i              |Move Right Paddle Down
 //|=======================================
+
+//Normalized-device-coordinates are not a natural system of
+//numbers for use by humans.  Imagine that the paddles in the previous
+//chapters exist in real life, and are 20 meters wide and 60 meters tall.
+//The graphics programmer should be able to use those numbers directly;
+//they shouldn't have to manually trasform the distances into normalized-device-coordinates.
+//
+//Whatever a convenient numbering system is (i.e. coordinate system) for modeling objects
+//is called "model-space".  Since a paddle has four corners, which corner should be a
+//the origin (0,0)?  If you don't already know what you want at the origin, then
+//none of the corners should be; instead put the center of the object
+//at the originfootnote:[By putting the center of the object at the origin,
+//scaling and rotating the object are trivial].
+
+//[source,C,linenums]
+//----
+  const std::vector<Vertex> paddle = {
+    Vertex(-10.0, -30.0),
+    Vertex(10.0, -30.0),
+    Vertex(10.0, 30.0),
+    Vertex(-10.0, 30.0)
+  };
+//----
+
+
+//image:modelspace.png[align="center",title="Foo",width=300]
 
 //[source,C,linenums]
 //----
@@ -975,20 +1011,11 @@ void render_scene(int *chapter_number){
     paddle_2_offset_Y += 10.0f;
   }
 //----
-//[source,C,linenums]
-//----
-  const std::vector<Vertex> paddle = {
-    Vertex(-10.0, -30.0),
-    Vertex(10.0, -30.0),
-    Vertex(10.0, 30.0),
-    Vertex(-10.0, 30.0)
-  };
-  if(7 == *chapter_number){
-    draw_in_square_viewport();
-//----
 //Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
+  if(7 == *chapter_number){
+    draw_in_square_viewport();
     glColor3f(/*red*/   1.0,
               /*green*/ 1.0,
               /*blue*/  1.0);

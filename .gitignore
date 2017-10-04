@@ -26,12 +26,5 @@ src/main.pdf
 src/main.tex
 src/modelviewprojection
 src/modelviewprojection-main.o
-src/monitor.png
-src/monitor2.png
-src/ndcSpace.png
-src/ndcSpace1.png
-src/ndcSpace2.png
-src/plot1.png
-src/screenspace.png
-src/screenspace2.png
+src/*.png
 stamp-h1

@@ -35,6 +35,11 @@ if BUILD_PDF
 	plot2.png \
 	plot3.png \
 	plot4.png \
+	translate.png \
+	scale.png \
+	rotate.png \
+	rotate2.png \
+	modelspace.png \
 	main.pdf
 endif
 
