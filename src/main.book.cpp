@@ -1,3 +1,8 @@
+////Book licensed under Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0)
+////https://creativecommons.org/licenses/by-nc-sa/4.0/
+////
+////Generated graphics C++ code licensed under Apache 2.0 license
+
 //Model View Projection
 //====================
 //Bill Six
