@@ -3,11 +3,10 @@
 ////
 ////Generated graphics C++ code licensed under Apache 2.0 license
 
-//Model View Projection
-//====================
-//Bill Six
-//v1.0, 2017-
+//= Model View Projection
+//:author: Bill Six <billsix@gmail.com>
 //:doctype: book
+//:toc:
 //
 //[dedication]
 //= Dedication
@@ -58,7 +57,6 @@
 //
 //
 //
-//:toc:
 //
 //[intro]
 //= Introduction
@@ -168,7 +166,7 @@ int main(int argc, char *argv[])
 //==== Let the User Pick the Chapter Number to Run.
 //[source,C,linenums]
 //----
-  std::cout << "Input Chapter Number to run: (2-15): " << std::endl;
+  std::cout << "Input Chapter Number to run: (2-17): " << std::endl;
   int chapter_number;
   std::cin >> chapter_number ;
 //----
@@ -371,7 +369,6 @@ void render_scene(int *chapter_number){
   // clear the framebuffer
   glClear(GL_COLOR_BUFFER_BIT);
   glClear(GL_DEPTH_BUFFER_BIT);
-
 //----
 //
 //When a graphics application is executing, it is creating new
@@ -1502,8 +1499,11 @@ void render_scene(int *chapter_number){
     return;
   }
 //----
+//
 //== Adding Depth
-
+////TODO - discuss what the z component is, show graphs.
+////TODO - show X, Y, and Z rotations graphically with gnuplot.
+////TODO - make appendix for rotation around arbitrary axis
 //[source,C,linenums]
 //----
   class Vertex3 {
@@ -1547,6 +1547,7 @@ void render_scene(int *chapter_number){
                      y * scale_y,
                      z * scale_z);
     };
+////TODO - explain that ortho will be decribed later
     Vertex3 ortho(GLfloat min_x,
                   GLfloat max_x,
                   GLfloat min_y,
@@ -1570,6 +1571,7 @@ void render_scene(int *chapter_number){
 
 #define RAD_TO_DEG(rad) (57.296 * rad)
 #define DEG_TO_RAD(degree) (degree / 57.296)
+////TODO -  explain that perspective will be explained later
     Vertex3 perspective(GLfloat nearZ,
                         GLfloat farZ){
       const GLfloat field_of_view =  DEG_TO_RAD(45.0/2.0);
@@ -1595,6 +1597,8 @@ void render_scene(int *chapter_number){
     GLfloat y;
     GLfloat z;
   };
+
+////TODO -  explain that we are externalizeing the aggregate transformation into a procedure
 
   typedef std::function<Vertex3 (Vertex3)> Vertex3_transformer;
   std::function<void (Vertex3_transformer)>
@@ -1670,6 +1674,7 @@ void render_scene(int *chapter_number){
 //Draw paddle 1.
 //[source,C,linenums]
 //----
+//// TODO -- draw_paddle_1 is still using only 2D, explain implicit 3D of z have 0 for a value
     draw_paddle_1();
 //----
 //Draw square, relative to paddle 1.
@@ -1695,6 +1700,7 @@ void render_scene(int *chapter_number){
           .translate(/*x*/ -camera_x,
                      /*y*/ -camera_y,
                      /*z*/ 0.0);
+////TODO -  explain ortho
         Vertex3 ndcSpace = cameraSpace
           .ortho(/*min_x*/ -100.0f,
                  /*max_x*/ 100.0f,
@@ -1740,6 +1746,8 @@ void render_scene(int *chapter_number){
     if (state[SDL_SCANCODE_PAGEDOWN]) {
       moving_camera_rot_x -= 0.03;
     }
+////TODO -  explaing movement on XZ-plane
+////TODO -  show camera movement in graphviz
     if (state[SDL_SCANCODE_UP]) {
       moving_camera_x -= move_multiple * sin(moving_camera_rot_y);
       moving_camera_z -= move_multiple * cos(moving_camera_rot_y);
@@ -1777,6 +1785,7 @@ void render_scene(int *chapter_number){
           .rotateY(/*radians*/ -moving_camera_rot_y)    // NEW
           .rotateX(/*radians*/ -moving_camera_rot_x);   // NEW
         // end new camera transformations
+////TODO -  discuss order of rotations, use moving head analogy to show that rotations are not commutative
         Vertex3 ndcSpace = cameraSpace
           .ortho(/*min_x*/ -100.0f,
                  /*max_x*/ 100.0f,
@@ -1870,7 +1879,12 @@ void render_scene(int *chapter_number){
     return;
   }
 
-
+////TODO - discuss the framebuffer, and how it allows us to draw in
+////       a depth-independent manner.  we could force the programmer
+////       to sort objects by depth before drawing, but that's why mario64
+////       looked good and crash bandicoot had limited perspectives.
+////       also reference the section in the beginning which clears the
+////       depth buffer.
 
 //----
 //== Considering Depth
@@ -1879,12 +1893,29 @@ void render_scene(int *chapter_number){
   if(*chapter_number >= 15){
     glEnable(GL_DEPTH_TEST);
   }
+////TODO - write something about how "now that depth testing is enabled for all subequent demos, rerun the previous demo to show that the square becomes hidden as the user navigates
+
   if(15 == *chapter_number){
     *chapter_number = 14;
     return;
   }
 //----
 //== Perspective Viewing
+
+
+////TODO -  make a new chapter which uses perspective, but
+////        doesn't use lambdas
+////TODO -  afterwards, in this chapter, explain perspective
+////TODO -  use graphviz to show the stack of transforamations.
+////        combine them into a tree.
+////        talk about how how I used to think that the important
+////        "objects" were the vertices, colors, etc, but the important
+////        concept is relative spaces, i.e. the coordinate frame of references.
+////
+////        Since it's a stack, the last operator is pushed first, but applied last.
+////        This means that transformations need to be "read" backwards to understand
+////        what's happening.
+
 //[source,C,linenums]
 //----
   if(*chapter_number >= 16){
@@ -1899,7 +1930,7 @@ void render_scene(int *chapter_number){
 //----
   // use stacks for transformations
   std::vector<Vertex3_transformer> transformationStack;
-  Vertex3_transformer applyTransformationStack = [&](Vertex3 v){
+  Vertex3_transformer withTransformations = [&](Vertex3 v){
     Vertex3 result = v;
     for(std::vector<Vertex3_transformer>::reverse_iterator
           rit = transformationStack.rbegin();
@@ -1911,6 +1942,8 @@ void render_scene(int *chapter_number){
     return result;
   };
 //----
+
+
 //[source,C,linenums]
 //----
   if(16 == *chapter_number){
@@ -1955,7 +1988,7 @@ void render_scene(int *chapter_number){
                        /*y*/ 30.0f,
                        /*z*/ 1.0f);
       });
-    draw_square3_programmable(applyTransformationStack);
+    draw_square3_programmable(withTransformations);
     transformationStack.pop_back();
     transformationStack.pop_back();
 //----
@@ -1983,9 +2016,9 @@ void render_scene(int *chapter_number){
       transformationStack.push_back([&](Vertex3 v){
           return v.scale(/*x*/ 5.0f,
                          /*y*/ 5.0f,
-                         /*z*/ 0.0f);
+                         /*z*/ 1.0f);
         });
-      draw_square3_programmable(applyTransformationStack);
+      draw_square3_programmable(withTransformations);
       transformationStack.pop_back();
       transformationStack.pop_back();
       transformationStack.pop_back();
@@ -2014,7 +2047,7 @@ void render_scene(int *chapter_number){
                        /*y*/ 30.0f,
                        /*z*/ 1.0f);
       });
-    draw_square3_programmable(applyTransformationStack);
+    draw_square3_programmable(withTransformations);
     transformationStack.pop_back();
     transformationStack.pop_back();
     transformationStack.pop_back();
@@ -2029,7 +2062,9 @@ void render_scene(int *chapter_number){
 //[source,C,linenums]
 //----
   if(*chapter_number >= 17){
-    // for whatever reason, gluPerspective flips the z values
+////TODO - discuss that OpenGL uses left hand rule by default, so Z
+////TODO - into the screen is positive.  I don't know why that is,
+////TODO - but perhaps it is to save a bit since you're never gonna look at stuff behind you
     glClearDepth(1.1f );
     glDepthFunc(GL_LEQUAL);
   }
@@ -2051,11 +2086,13 @@ void render_scene(int *chapter_number){
     glEnd();
   };
 //----
+////TODO - describe matricies as efficient substitions for our vertex transforamiotns.
+////TODO - describe how they act as a stack, similarly to how was done in the above.
 //[source,C,linenums]
 //----
   if(17 == *chapter_number){
     /*
-     *  Demo 40 - OpenGL Matricies
+     *  Demo 17 - OpenGL 1.4 Matricies
      */
     // set up Camera
     {
@@ -2074,6 +2111,7 @@ void render_scene(int *chapter_number){
       // move the "camera"
       glMatrixMode(GL_MODELVIEW);
       glLoadIdentity();
+////TODO - describe how these matrix rotations act on arbitrary axises, not just XYZ
       glRotatef(/*degrees*/ RAD_TO_DEG(-moving_camera_rot_x),
                 /*x*/ 1.0,
                 /*y*/ 0.0,
@@ -2106,7 +2144,7 @@ void render_scene(int *chapter_number){
     {
       glScalef(/*x*/ 10.0f,
                /*y*/ 30.0f,
-               /*z*/ 0.0f);
+               /*z*/ 1.0f);
       draw_square_opengl2point1();
       glPopMatrix();
     }
@@ -2150,7 +2188,7 @@ void render_scene(int *chapter_number){
               /*z*/ 1.0);
     glScalef(/*x*/ 10.0f,
              /*y*/ 30.0f,
-             /*z*/ 0.0f);
+             /*z*/ 1.0f);
     draw_square_opengl2point1();
     glPopMatrix();
     return;
