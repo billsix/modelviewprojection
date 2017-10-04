@@ -15,6 +15,11 @@ EXTRA_DIST = monitor.gp \
 	plot4.dat \
 	screenspace.gp \
 	screenspace2.gp \
+        translate.gp \
+        scale.gp \
+        rotate.gp \
+        rotate2.gp \
+        modelspace.gp \
 	main.book.cpp
 
 
