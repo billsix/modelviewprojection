@@ -708,10 +708,10 @@ void render_scene(int *chapter_number){
 //[width="75%",options="header,footer"]
 //|=======================================
 //|Keyboard Input |Action
-//|w              |Move Left Paddle Up
-//|s              |Move Left Paddle Down
-//|k              |Move Right Paddle Up
-//|i              |Move Right Paddle Down
+//|*w*              |*Move Left Paddle Up*
+//|*s*              |*Move Left Paddle Down*
+//|*k*              |*Move Right Paddle Up*
+//|*i*              |*Move Right Paddle Down*
 //|=======================================
 //Paddles which don't move are quite boring.  Let's make them move up or down
 //by getting keyboard input.
@@ -853,8 +853,8 @@ void render_scene(int *chapter_number){
     Vertex translate(GLfloat translate_x,
                      GLfloat translate_y)
     {
-      return Vertex(x + translate_x,
-                    y + translate_y);
+      return Vertex(/*x*/ x + translate_x,
+                    /*y*/ y + translate_y);
     };
 //----
 
@@ -869,8 +869,8 @@ void render_scene(int *chapter_number){
     Vertex scale(GLfloat scale_x,
                  GLfloat scale_y)
     {
-      return Vertex(x * scale_x,
-                    y * scale_y);
+      return Vertex(/*x*/ x * scale_x,
+                    /*y*/ y * scale_y);
     };
 //----
 
@@ -883,8 +883,8 @@ void render_scene(int *chapter_number){
 //----
     Vertex rotate(GLfloat angle_in_radians)
     {
-      return Vertex(x*cos(angle_in_radians) - y*sin(angle_in_radians),
-                    x*sin(angle_in_radians) + y*cos(angle_in_radians));
+      return Vertex(/*x*/ x*cos(angle_in_radians) - y*sin(angle_in_radians),
+                    /*y*/ x*sin(angle_in_radians) + y*cos(angle_in_radians));
     };
 //----
 
@@ -1063,11 +1063,17 @@ void render_scene(int *chapter_number){
 //|k              |Move Right Paddle Up
 //|i              |Move Right Paddle Down
 //|               |
-//|d              |Increase Left Paddle's Rotation
-//|a              |Decrease Left Paddle's Rotation
-//|l              |Increase Right Paddle's Rotation
-//|j              |Decrease Right Paddle's Rotation
+//|*d*              |*Increase Left Paddle's Rotation*
+//|*a*              |*Decrease Left Paddle's Rotation*
+//|*l*              |*Increase Right Paddle's Rotation*
+//|*j*              |*Decrease Right Paddle's Rotation*
 //|=======================================
+
+//// TODO - describe angle as radians
+//// TODO - show unit circle
+//// TODO - show orthonormal basis
+//// TODO - show basic proof of rotate
+
 
 //[source,C,linenums]
 //----
@@ -1092,6 +1098,8 @@ void render_scene(int *chapter_number){
   if(8 == *chapter_number){
     draw_in_square_viewport();
 //----
+//// TODO - discuss method chaining
+//// TODO - gnuplot the modelspace, rotated, and translated
 //Draw paddle 1, relative to the world-space origin.
 //[source,C,linenums]
 //----
@@ -1142,7 +1150,7 @@ void render_scene(int *chapter_number){
   }
 //----
 
-//== A Movable Camera
+//== Camera Management
 //
 //[width="75%",options="header,footer"]
 //|=======================================
@@ -1157,12 +1165,14 @@ void render_scene(int *chapter_number){
 //|l              |Increase Right Paddle's Rotation
 //|j              |Decrease Right Paddle's Rotation
 //|               |
-//|UP             |Move the Camera Up
-//|DOWN           |Move the Camera Down
-//|LEFT           |Move the Camera Left
-//|RIGHT          |Move the Camera Right
+//|*UP*             |*Move the Camera Up*
+//|*DOWN*           |*Move the Camera Down*
+//|*LEFT*           |*Move the Camera Left*
+//|*RIGHT*          |*Move the Camera Right*
 //|=======================================
 //[source,C,linenums]
+//// TODO - describe implicit camera at origin, and making it's location explicit
+//// TODO - descriibe desire for moving camera
 //----
   static GLfloat camera_x = 0.0;
   static GLfloat camera_y = 0.0;
@@ -1233,16 +1243,7 @@ void render_scene(int *chapter_number){
     return;
   }
 //----
-//[source,C,linenums]
-//----
-  const std::vector<Vertex> square = {
-    Vertex(-5.0, -5.0),
-    Vertex(5.0, -5.0),
-    Vertex(5.0, 5.0),
-    Vertex(-5.0, 5.0)
-  };
-//----
-//== Draw a Small Square Relative to the Left Paddle
+//== Relative Objects
 //
 //[width="75%",options="header,footer"]
 //|=======================================
@@ -1265,6 +1266,12 @@ void render_scene(int *chapter_number){
 //
 //[source,C,linenums]
 //----
+  const std::vector<Vertex> square = {
+    Vertex(-5.0, -5.0),
+    Vertex(5.0, -5.0),
+    Vertex(5.0, 5.0),
+    Vertex(-5.0, 5.0)
+  };
   std::function<void()> draw_paddle_1 = [&](){
     glColor3f(/*red*/   1.0,
               /*green*/ 1.0,
@@ -1371,7 +1378,7 @@ void render_scene(int *chapter_number){
 //|LEFT           |Move the Camera Left
 //|RIGHT          |Move the Camera Right
 //|               |
-//|q              |Rotate the square around its center.
+//|*q*              |*Rotate the square around its center.*
 //|=======================================
 //[source,C,linenums]
 //----
@@ -1421,7 +1428,7 @@ void render_scene(int *chapter_number){
     return;
   }
 //----
-//== Rotate the Square About the Paddle
+//== Relative Rotation
 //[width="75%",options="header,footer"]
 //|=======================================
 //|Keyboard Input |Action
@@ -1440,8 +1447,8 @@ void render_scene(int *chapter_number){
 //|LEFT           |Move the Camera Left
 //|RIGHT          |Move the Camera Right
 //|               |
-//|q              |Rotate the square around its center.
-//|e              |Rotate the square around the left paddle
+//|q              |Rotate the square around its center
+//|*e*              |*Rotate the square around the left paddle*
 //|=======================================
 //
 //[source,C,linenums]
