@@ -288,7 +288,6 @@ int main(int argc, char *argv[])
 //blended value is then set for the fragment.
 //[source,C,linenums]
 //----
-  glBlendEquation(GL_FUNC_ADD);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
   glMatrixMode(GL_PROJECTION);

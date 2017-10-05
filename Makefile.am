@@ -4,6 +4,7 @@ EXTRA_DIST = autogen.sh \
 	ModelViewProjection.VC.db \
 	ModelViewProjection.sln \
 	ModelViewProjection.vcxproj \
-	ModelViewProjection.vcxproj.filters
+	ModelViewProjection.vcxproj.filters \
+	packages.config
 
 SUBDIRS = doc src
