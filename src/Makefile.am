@@ -93,11 +93,10 @@ modelviewprojection_SOURCES = \
 
 modelviewprojection_CXXFLAGS= \
 	$(GLEW_CFLAGS) \
-	$(SDL_CFLAGS) \
 	-std=c++11
 
 modelviewprojection_LDADD = \
 	$(GLEW_LIBS) \
-	$(SDL_LIBS) \
 	$(OPENGL_LIB) \
+	-lglfw
 	-lm

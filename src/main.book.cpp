@@ -104,8 +104,8 @@
 
 //
 //To create and to open a window in a cross-platform manner, this
-//book will call procedures provided by the widely-ported SDL2 library (supporting Windows, macOS, Linux).
-//SDL2 also provides procedures for receiving
+//book will call procedures provided by the widely-ported GLFW library (supporting Windows, macOS, Linux).
+//GLFW also provides procedures for receiving
 //keyboard input, controller inputfootnote:[tested with a wired XBox 360 controller], and
 //to load images from the filesystem.
 //
@@ -145,51 +145,46 @@
 //
 //[source,C,linenums]
 //----
-SDL_Window *window;
-SDL_GLContext glcontext;
+GLFWwindow* window;
+static void error_callback(int error, const char* description)
+{
+    fprintf(stderr, "Error: %s\n", description);
+}
 //----
 //
 //
 //==== Define main
-//Use C linkage for main.  Knowing why isn't terribly important,
-//but for the interested reader, <<linkageAppendix>>  provides a description of
-//C-linkage vs. C++ linkage.
 //
 //[source,C,linenums]
 //----
-#ifdef __cplusplus
-extern "C"
-#endif
 int main(int argc, char *argv[])
 {
 //----
 //==== Let the User Pick the Chapter Number to Run.
 //[source,C,linenums]
 //----
+  glfwSetErrorCallback(error_callback);
+
   std::cout << "Input Chapter Number to run: (2-17): " << std::endl;
   int chapter_number;
   std::cin >> chapter_number ;
 //----
-//==== SDL/OpenGL Initialization
+//==== GLFW/OpenGL Initialization
 //
-//-Initialize SDL, including the video, audio, timer, and event subsystems.
+//-Initialize GLFW, including the video, audio, timer, and event subsystems.
 //Log any errors.
 //[source,C,linenums]
 //----
   //initialize video support, joystick support, etc.
-  if (0 != SDL_Init(SDL_INIT_TIMER
-                    | SDL_INIT_AUDIO
-                    | SDL_INIT_VIDEO
-                    | SDL_INIT_EVENTS)){
-    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
-                   SDL_LOG_PRIORITY_ERROR,
-                   "Error: %s\n",
-                   SDL_GetError());
-    return 1;
+  if (!glfwInit()){
+      printf("dying1");
+    return -1;
   }
 //----
 //-Set OpenGL to be double-buffered.
 //
+//
+// TODO -- rewrite this section as SDL is not used anymore.  GLFW uses double buffering by default
 //One frame is created incrementally over time on the CPU, but the frame
 //is sent to the monitor
 //only when frame is completely drawn, and each pixel has a color.
@@ -205,40 +200,23 @@ int main(int argc, char *argv[])
 //other one, thus allowing the CPU to resume.
 //[source,C,linenums]
 //----
-  SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
-  SDL_GL_SetAttribute(SDL_GL_DEPTH_SIZE, 24);
-  SDL_GL_SetAttribute(SDL_GL_STENCIL_SIZE, 8);
-
-  // put the next few lines in only when running opengl 3.2+
-  /* SDL_GL_SetAttribute(SDL_GL_CONTEXT_FLAGS, */
-  /*                     SDL_GL_CONTEXT_FORWARD_COMPATIBLE_FLAG); */
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_PROFILE_MASK,
-                      SDL_GL_CONTEXT_PROFILE_COMPATIBILITY);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MAJOR_VERSION, 1);
-  SDL_GL_SetAttribute(SDL_GL_CONTEXT_MINOR_VERSION, 4);
-
-  SDL_DisplayMode current;
-  SDL_GetCurrentDisplayMode(0, &current);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
+  glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 4);
 //----
 //Create a 500 pixel by 500 pixel window, which the user can resize.
 //[source,C,linenums]
 //----
-  if(NULL == (window = SDL_CreateWindow("modelviewprojection",
-                                        SDL_WINDOWPOS_CENTERED,
-                                        SDL_WINDOWPOS_CENTERED,
-                                        500,
-                                        500,
-                                        (SDL_WINDOW_OPENGL
-                                         | SDL_WINDOW_RESIZABLE)))){
-    // if a window can't be created, inform the user
-    // and quit.
-    SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
-                   SDL_LOG_PRIORITY_ERROR,
-                   "Could not create window: %s\n",
-                   SDL_GetError());
-    return 1;
-  }
-  glcontext = SDL_GL_CreateContext(window);
+  /* Create a windowed mode window and its OpenGL context */
+  if(!(window = glfwCreateWindow(500,
+                                 500,
+                                 "modelviewprojection",
+                                 NULL,
+                                 NULL)))
+    {
+      glfwTerminate();
+      printf("dying2");
+      return -1;
+    }
 //----
 //A native application which links against shared libraries typically knows at compile-time
 //exactly which procedures are provided by the shared libraries.
@@ -252,12 +230,8 @@ int main(int argc, char *argv[])
 //[source,C,linenums]
 //----
   glewInit(); // make OpenGL calls possible
-  SDL_GL_MakeCurrent(window,glcontext);
-  // log opengl version
-  SDL_LogMessage(SDL_LOG_CATEGORY_APPLICATION,
-                 SDL_LOG_PRIORITY_INFO,
-                 "OpenGL version loaded: %s\n",
-                 glGetString(GL_VERSION));
+  /* Make the window's context current */
+  glfwMakeContextCurrent(window);
 //----
 //For every frame drawn, each pixel has a default color, set by
 //calling "glClearColor". "0,0,0,1", means black "0,0,0", without
@@ -300,9 +274,7 @@ int main(int argc, char *argv[])
 //----
   {
     int w, h;
-    SDL_GetWindowSize(window,
-                      /*width*/  &w,
-                      /*height*/ &h);
+    glfwGetFramebufferSize(window, &w, &h);
     glViewport(/*min_x*/ 0,
                /*min_y*/ 0,
                /*width_x*/ w,
@@ -324,34 +296,26 @@ int main(int argc, char *argv[])
 //
 //[source,C,linenums]
 //----
-  while (true){
-    render_scene(&chapter_number);
-    // if the user hits the "window close" button, quit
-    SDL_Event event;
-    while (SDL_PollEvent(&event)){
-      if (SDL_QUIT == event.type){
-        goto endOfEventLoop;
-      }
-      if (SDL_WINDOWEVENT == event.type){
-        int w, h;
-        SDL_GetWindowSize(window,&w,&h);
-        glViewport(/*min_x*/ 0,
-                   /*min_y*/ 0,
-                   /*width_x*/ w,
-                   /*width_y*/ h);
-      }
+  while (!glfwWindowShouldClose(window))
+    {
+      // set viewport
+      int width = 0, height = 0;
+      glfwGetFramebufferSize(window, &width, &height);
+      glViewport(0, 0,
+                 width, height);
+
+      render_scene(&chapter_number);
+      // flush the frame
+      glfwSwapBuffers(window);
+
+      /* Poll for and process events */
+      glfwPollEvents();
     }
-    // flush the frame
-    SDL_GL_SwapWindow(window);
-  }
 //----
-//==== The User Closed the App, Delete the Window.
+//==== The User Closed the App, Exit Cleanly.
 //[source,C,linenums]
 //----
- endOfEventLoop:
-  SDL_GL_DeleteContext(glcontext);
-  SDL_DestroyWindow(window);
-  SDL_Quit();
+  glfwTerminate();
   return 0;
 } // end main
 //----
@@ -623,7 +587,7 @@ void render_scene(int *chapter_number){
 
     // resize drawing area
     int w, h;
-    SDL_GetWindowSize(window,&w,&h);
+    glfwGetFramebufferSize(window, &w, &h);
     int min = w < h ? w : h;
     glViewport(/*min_x*/ 0 + (w - min)/2,
                /*min_y*/ 0 + (h - min)/2,
@@ -722,7 +686,6 @@ void render_scene(int *chapter_number){
 //----
   static GLfloat paddle_1_offset_Y = 0.0;
   static GLfloat paddle_2_offset_Y = 0.0;
-  const Uint8 *state = SDL_GetKeyboardState(NULL);
 //----
 //-If 's' is pressed this frame, subtract 0.1 more from paddle_1_offset_Y.  If the
 //key continues to be held down over time, paddle_1_offset_Y will continue to decrease.
@@ -738,16 +701,21 @@ void render_scene(int *chapter_number){
 //
 //[source,C,linenums]
 //----
-  if (state[SDL_SCANCODE_S]) {
+  int state = glfwGetKey(window, GLFW_KEY_S);
+  if (state == GLFW_PRESS){
     paddle_1_offset_Y -= 0.1;
   }
-  if (state[SDL_SCANCODE_W]) {
+  state = glfwGetKey(window, GLFW_KEY_W);
+  if (state == GLFW_PRESS){
     paddle_1_offset_Y += 0.1;
   }
-  if (state[SDL_SCANCODE_K]) {
+
+  state = glfwGetKey(window, GLFW_KEY_K);
+  if (state == GLFW_PRESS){
     paddle_2_offset_Y -= 0.1;
   }
-  if (state[SDL_SCANCODE_I]) {
+  state = glfwGetKey(window, GLFW_KEY_I);
+  if (state == GLFW_PRESS){
     paddle_2_offset_Y += 0.1;
   }
 //----
@@ -994,17 +962,22 @@ void render_scene(int *chapter_number){
 
 //[source,C,linenums]
 //----
-  if (state[SDL_SCANCODE_S]) {
-    paddle_1_offset_Y -= 10.0f;
+  state = glfwGetKey(window, GLFW_KEY_S);
+  if (state == GLFW_PRESS){
+    paddle_1_offset_Y -= 10.0;
   }
-  if (state[SDL_SCANCODE_W]) {
-    paddle_1_offset_Y += 10.0f;
+  state = glfwGetKey(window, GLFW_KEY_W);
+  if (state == GLFW_PRESS){
+    paddle_1_offset_Y += 10.0;
   }
-  if (state[SDL_SCANCODE_K]) {
-    paddle_2_offset_Y -= 10.0f;
+
+  state = glfwGetKey(window, GLFW_KEY_K);
+  if (state == GLFW_PRESS){
+    paddle_2_offset_Y -= 10.0;
   }
-  if (state[SDL_SCANCODE_I]) {
-    paddle_2_offset_Y += 10.0f;
+  state = glfwGetKey(window, GLFW_KEY_I);
+  if (state == GLFW_PRESS){
+    paddle_2_offset_Y += 10.0;
   }
 //----
 //Draw paddle 1, relative to the world-space origin.
@@ -1076,16 +1049,21 @@ void render_scene(int *chapter_number){
   static GLfloat paddle_1_rotation = 0.0;
   static GLfloat paddle_2_rotation = 0.0;
   // update_rotation_of_paddles
-  if (state[SDL_SCANCODE_A]) {
+  state = glfwGetKey(window, GLFW_KEY_A);
+  if (state == GLFW_PRESS){
     paddle_1_rotation += 0.1;
   }
-  if (state[SDL_SCANCODE_D]) {
+  state = glfwGetKey(window, GLFW_KEY_D);
+  if (state == GLFW_PRESS){
     paddle_1_rotation -= 0.1;
   }
-  if (state[SDL_SCANCODE_J]) {
+
+  state = glfwGetKey(window, GLFW_KEY_J);
+  if (state == GLFW_PRESS){
     paddle_2_rotation += 0.1;
   }
-  if (state[SDL_SCANCODE_L]) {
+  state = glfwGetKey(window, GLFW_KEY_L);
+  if (state == GLFW_PRESS){
     paddle_2_rotation -= 0.1;
   }
 //----
@@ -1173,16 +1151,21 @@ void render_scene(int *chapter_number){
   static GLfloat camera_x = 0.0;
   static GLfloat camera_y = 0.0;
   // update_camera_position
-  if (state[SDL_SCANCODE_UP]) {
+  state = glfwGetKey(window, GLFW_KEY_UP);
+  if (state == GLFW_PRESS){
     camera_y += 10.0;
   }
-  if (state[SDL_SCANCODE_DOWN]) {
+  state = glfwGetKey(window, GLFW_KEY_DOWN);
+  if (state == GLFW_PRESS){
     camera_y -= 10.0;
   }
-  if (state[SDL_SCANCODE_LEFT]) {
+
+  state = glfwGetKey(window, GLFW_KEY_LEFT);
+  if (state == GLFW_PRESS){
     camera_x -= 10.0;
   }
-  if (state[SDL_SCANCODE_RIGHT]) {
+  state = glfwGetKey(window, GLFW_KEY_RIGHT);
+  if (state == GLFW_PRESS){
     camera_x += 10.0;
   }
 //----
@@ -1380,7 +1363,8 @@ void render_scene(int *chapter_number){
 //----
   static GLfloat square_rotation = 0.0;
   // update_square_rotation
-  if (state[SDL_SCANCODE_Q]) {
+  state = glfwGetKey(window, GLFW_KEY_Q);
+  if (state == GLFW_PRESS){
     square_rotation += 0.1;
   }
   if(11 == *chapter_number){
@@ -1450,7 +1434,8 @@ void render_scene(int *chapter_number){
 //[source,C,linenums]
 //----
   static GLfloat rotation_around_paddle_1 = 0.0;
-  if (state[SDL_SCANCODE_E]) {
+  state = glfwGetKey(window, GLFW_KEY_E);
+  if (state == GLFW_PRESS){
     rotation_around_paddle_1 += 0.1;
   }
 //----
@@ -1575,7 +1560,7 @@ void render_scene(int *chapter_number){
                         GLfloat farZ){
       const GLfloat field_of_view =  DEG_TO_RAD(45.0/2.0);
       int w, h;
-      SDL_GetWindowSize(window,&w,&h);
+      glfwGetFramebufferSize(window, &w, &h);
       GLfloat y_angle =  (w / h) * field_of_view;
 
       GLfloat sheared_x = x / fabs(z) * fabs(nearZ);
@@ -1733,25 +1718,32 @@ void render_scene(int *chapter_number){
   // update camera from the keyboard
   {
     const GLfloat move_multiple = 15.0;
-    if (state[SDL_SCANCODE_RIGHT]) {
+    state = glfwGetKey(window, GLFW_KEY_RIGHT);
+    if (state == GLFW_PRESS){
       moving_camera_rot_y -= 0.03;
     }
-    if (state[SDL_SCANCODE_LEFT]) {
+    state = glfwGetKey(window, GLFW_KEY_LEFT);
+    if (state == GLFW_PRESS){
       moving_camera_rot_y += 0.03;
     }
-    if (state[SDL_SCANCODE_PAGEUP]) {
+
+    state = glfwGetKey(window, GLFW_KEY_PAGE_UP);
+    if (state == GLFW_PRESS){
       moving_camera_rot_x += 0.03;
     }
-    if (state[SDL_SCANCODE_PAGEDOWN]) {
+    state = glfwGetKey(window, GLFW_KEY_PAGE_DOWN);
+    if (state == GLFW_PRESS){
       moving_camera_rot_x -= 0.03;
     }
 ////TODO -  explaing movement on XZ-plane
 ////TODO -  show camera movement in graphviz
-    if (state[SDL_SCANCODE_UP]) {
+    state = glfwGetKey(window, GLFW_KEY_UP);
+    if (state == GLFW_PRESS){
       moving_camera_x -= move_multiple * sin(moving_camera_rot_y);
       moving_camera_z -= move_multiple * cos(moving_camera_rot_y);
     }
-    if (state[SDL_SCANCODE_DOWN]) {
+    state = glfwGetKey(window, GLFW_KEY_DOWN);
+    if (state == GLFW_PRESS){
       moving_camera_x += move_multiple * sin(moving_camera_rot_y);
       moving_camera_z += move_multiple * cos(moving_camera_rot_y);
     }
@@ -2101,7 +2093,7 @@ void render_scene(int *chapter_number){
       glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
       {
         int w, h;
-        SDL_GetWindowSize(window,&w,&h);
+        glfwGetFramebufferSize(window, &w, &h);
         gluPerspective(45.0f,
                        (GLdouble)w / (GLdouble)h,
                        0.1f,
@@ -2199,12 +2191,6 @@ void render_scene(int *chapter_number){
   return;
 }
 //----
-//
-//[[linkageAppendix]]
-//[appendix]
-//== Linkage
-//
-//Foo bar baz
 //
 //[[sharedLibAppendix]]
 //[appendix]
