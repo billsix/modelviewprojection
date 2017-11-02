@@ -100,8 +100,6 @@
 //program at a time, where each program draws into a subsect of
 //the monitor called a window.
 //
-//TODO - insert picture.
-
 //
 //To create and to open a window in a cross-platform manner, this
 //book will call procedures provided by the widely-ported GLFW library (supporting Windows, macOS, Linux).
@@ -146,6 +144,12 @@
 //[source,C,linenums]
 //----
 GLFWwindow* window;
+//----
+
+//-Log any errors.
+
+//[source,C,linenums]
+//----
 static void error_callback(int error, const char* description)
 {
     fprintf(stderr, "Error: %s\n", description);
@@ -155,36 +159,32 @@ static void error_callback(int error, const char* description)
 //
 //==== Define main
 //
+//-Set the error-handling callback
 //[source,C,linenums]
 //----
 int main(int argc, char *argv[])
 {
+  glfwSetErrorCallback(error_callback);
+
 //----
 //==== Let the User Pick the Chapter Number to Run.
 //[source,C,linenums]
 //----
-  glfwSetErrorCallback(error_callback);
-
   std::cout << "Input Chapter Number to run: (2-17): " << std::endl;
   int chapter_number;
   std::cin >> chapter_number ;
 //----
 //==== GLFW/OpenGL Initialization
 //
-//-Initialize GLFW, including the video, audio, timer, and event subsystems.
-//Log any errors.
+//-Initialize GLFW.
 //[source,C,linenums]
 //----
   //initialize video support, joystick support, etc.
   if (!glfwInit()){
-      printf("dying1");
     return -1;
   }
 //----
-//-Set OpenGL to be double-buffered.
 //
-//
-// TODO -- rewrite this section as SDL is not used anymore.  GLFW uses double buffering by default
 //One frame is created incrementally over time on the CPU, but the frame
 //is sent to the monitor
 //only when frame is completely drawn, and each pixel has a color.
@@ -195,9 +195,14 @@ int main(int argc, char *argv[])
 //have wasted CPU time.  To avoid this,
 //OpenGL has two *framebuffers*footnote:[regions of memory which will eventually contain the full data for a frame],
 //only one of which is "active", or writable, at a given time.
-//"SDL_GL_SwapWindow" is a non-blocking call which initiates the flushing
+//"glfwSwapBuffers" is a non-blocking call which initiates the flushing
 //the current buffer, and which switches the current writable framebuffer to the
 //other one, thus allowing the CPU to resume.
+//
+//-Set the version of OpenGL
+//
+//OpenGL has been around a long time, and has multiple, possibly incompatible versions.
+//
 //[source,C,linenums]
 //----
   glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 1);
@@ -214,7 +219,6 @@ int main(int argc, char *argv[])
                                  NULL)))
     {
       glfwTerminate();
-      printf("dying2");
       return -1;
     }
 //----
@@ -426,6 +430,7 @@ void render_scene(int *chapter_number){
 //[source,C,linenums]
 //----
   if(3 == *chapter_number){
+  chapter3:
 //----
 //Draw paddle 1.
 //[source,C,linenums]
@@ -561,7 +566,7 @@ void render_scene(int *chapter_number){
 //image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
 
 
-//-Exercise 1.  The application configured SDL so that the end user can resize the window.
+//-Exercise 1.  The window is resizable by the user while it runs.
 //Do the paddles both  still appear in the window if you make it really thin?  What if
 //you make it very wide?
 
@@ -573,7 +578,49 @@ void render_scene(int *chapter_number){
 //-Exercise 2.  How would you convert from ndc-space to screen-space, given
 //a monitor width _w_ and height _h_?
 
-//== Draw Paddles 2
+//== Keeping the Paddles Proportional
+//
+//=== Create procedure to ensure proportionality
+//In the previous chapter, if the user resized the window, the paddles looked bad,
+//as they were shrunk in one direction if the window became too thin or too fat.
+
+
+//image:disproportionate1.png[align="center",title="Foo",width=220]
+
+
+//image:disproportionate2.png[align="center",title="Foo",width=220]
+
+
+//Assume that this is a problem for the application we are making.  What
+//would a solution be?  Ideally, we would like to draw our paddles with
+//a black background within a square region in the center of the window, regardless of the dimensions
+//of the window.
+
+//OpenGL has a solution for us.  The *viewport* is a rectangular region
+//within the window into which OpenGL will render.  The normalized-device-coordinates
+//will therefore resolve to the sub-screen space of the viewport, instead of the whole
+//window.
+//
+
+//image:viewport.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
+
+//Because we will only draw in a subset of the window, and because all subsequent
+//chapters will use this functionality, I have created a procedure for use
+//in all chapters. "draw_in_square_viewport" is a C++ lambda, which just
+//means that it's a procedure defined at runtime.  Don't worry about the details
+//of lambdas, just know that the following two types are the same:
+
+//----
+  //void draw_in_square_viewport();
+  //std::function<void()> draw_in_square_viewport;
+//----
+//
+//The pattern is
+//----
+  //RETURN_TYPE function_name(ARG_LIST);
+  //std::function<RETURN_TYPE(ARGLIST)> functionName;
+//----
+
 //
 //[source,C,linenums]
 //----
@@ -608,59 +655,19 @@ void render_scene(int *chapter_number){
     glDisable(GL_SCISSOR_TEST);
   };
 //----
+
+//=== Set the viewport, and then execute the code from chapter 3.
+
 //[source,C,linenums]
 //----
   if(4 == *chapter_number){
     draw_in_square_viewport();
-//----
-//Draw paddle 1.
-//[source,C,linenums]
-//----
-    // the color white has 1.0 for r,g,and b components.
-    glColor3f(/*red*/   1.0,
-              /*green*/ 1.0,
-              /*blue*/  1.0);
-    glBegin(GL_QUADS);
-    {
-      glVertex2f(/*x*/ -1.0,
-                 /*y*/ -0.3);
-      glVertex2f(/*x*/ -0.8,
-                 /*y*/ -0.3);
-      glVertex2f(/*x*/ -0.8,
-                 /*y*/ 0.3);
-      glVertex2f(/*x*/ -1.0,
-                 /*y*/ 0.3);
-    }
-    glEnd();
-//----
-//Draw paddle 2.
-//[source,C,linenums]
-//----
-    // the color yellow has 1.0 for r and g components,
-    // with 0.0 for b.
-    // Why is that?  The author doesn't know, consult the internet
-    glColor3f(/*red*/   1.0,
-              /*green*/ 1.0,
-              /*blue*/  0.0);
-    glBegin(GL_QUADS);
-    {
-      glVertex2f(/*x*/ 0.8,
-                 /*y*/ -0.3);
-      glVertex2f(/*x*/ 1.0,
-                 /*y*/ -0.3);
-      glVertex2f(/*x*/ 1.0,
-                 /*y*/ 0.3);
-      glVertex2f(/*x*/ 0.8,
-                 /*y*/ 0.3);
-    }
-    glEnd();
-//----
-
-//[source,C,linenums]
-//----
-    return;
+    goto chapter3;
   }
 //----
+//
+//Yes, the author is aware that "goto" statements are frowned upon.
+//But would the reader prefer for chapter 3's code to be duplicated here?
 
 //
 //== Move the Paddles using the Keyboard
@@ -701,21 +708,16 @@ void render_scene(int *chapter_number){
 //
 //[source,C,linenums]
 //----
-  int state = glfwGetKey(window, GLFW_KEY_S);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
     paddle_1_offset_Y -= 0.1;
   }
-  state = glfwGetKey(window, GLFW_KEY_W);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
     paddle_1_offset_Y += 0.1;
   }
-
-  state = glfwGetKey(window, GLFW_KEY_K);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS){
     paddle_2_offset_Y -= 0.1;
   }
-  state = glfwGetKey(window, GLFW_KEY_I);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS){
     paddle_2_offset_Y += 0.1;
   }
 //----
@@ -810,8 +812,13 @@ void render_scene(int *chapter_number){
     {}
 //----
 //
+//=== Translation
 //Rather than incrementing y values before calling "glVertex",
 //instead call "translate" on the vertex.
+
+//image:translate.png[align="center",title="Foo",width=220]
+
+
 //[source,C,linenums]
 //----
     Vertex translate(GLfloat translate_x,
@@ -822,10 +829,13 @@ void render_scene(int *chapter_number){
     };
 //----
 
-//image:translate.png[align="center",title="Foo",width=220]
+
+//=== Scaling
+
+//image:scale.png[align="center",title="Foo",width=220]
 
 //
-//Similarly, we can expand or shink the size of an object
+//Similarly, we can expand or shrink the size of an object
 //by "scale"ing each of the vertices of the object, assuming
 //the object's center is at (0,0).
 //[source,C,linenums]
@@ -838,11 +848,64 @@ void render_scene(int *chapter_number){
     };
 //----
 
-//image:scale.png[align="center",title="Foo",width=220]
 
+//=== Rotation Around Origin (0,0)
 //
-//We can also rotate an object around (0,0).  This won't
+//We can also rotate an object around (0,0) by rotating
+//all of the object's vertices around (0,0).  Although defined now,
+//this won't
 //be used until later.
+
+//In high school math, you will have learned about sin, cos, and tangent.
+//Typically the angles are described on the unit circle, where a rotation
+//starts from the positive x axis.  We can expand on this knowledge, allowing
+//us to rotate a given vertex around the origin (0,0).  This is done
+//by separating the x and y value, rotating each of them seperately,
+//and then adding the results together.
+
+//That might not have been fully clear.  Let me try again.
+//The vertex (0.5,0.4) can be separated into two vertices, (0.5,0) and (0,0.4).
+
+//image:rotate3.png[align="center",title="Foo",width=220]
+
+//image:rotate4.png[align="center",title="Foo",width=220]
+
+
+//These vertices can be added together to create the original vertex.
+//But, before we do that, let's rotate each of the vertices.
+//
+//(0.5,0) is on the x-axis, so rotating it by "angle" degrees, results
+//in vertex (0.5*cos(angle), 0.5*sin(angle)).  Notice that both the x and
+//y values are multiplied by 0.5.  This is because rotations should not affect
+//the distance of the point from the origin (0,0).  (0.5,0) has length 0.5.
+//(cos(angle), sin(angle) has length 1. By multipling both the x and y
+//component by 0.5, we are scaling the vertex back to its original distance
+//from the origin.
+
+//image:rotate.png[align="center",title="Foo",width=220]
+
+//(0,0.4) is on the y-axis, so rotating it by "angle" degrees, results
+//in vertex (0.4*-sin(angle), 0.4*cos(angle)).
+
+//image:rotate2.png[align="center",title="Foo",width=220]
+
+//Wait.  Why is negative
+//sin applied to the angle to make the x value, and cos applied to angle to make the y value?
+//Trigonometric operations such as sin, cos, and tangent assume that the rotation is happening on
+//the unit circle, starting from (1,0) on the x axis.  Since we want
+//to rotate an angle starting from (0,1) on the y axis, we sin and
+//cos must be swapped.  Sin is positive from 0 to 90 degrees, but
+//we want a negative value for our rotation of the y axis since the rotation is happening counter-clockwise,
+//hence the negative sin.
+//
+
+
+//After the rotations have been applied, sum the results to
+//get your vertex rotated around the origin!
+
+//(0.5*cos(angle), 0.5*sin(angle)) + (0.4*-sin(angle), 0.4*cos(angle)) =
+//(0.5*cos(angle) + 0.4*-sin(angle), 0.5*sin(angle) + 0.4*cos(angle))
+
 //[source,C,linenums]
 //----
     Vertex rotate(GLfloat angle_in_radians)
@@ -852,15 +915,14 @@ void render_scene(int *chapter_number){
     };
 //----
 
-//image:rotate.png[align="center",title="Foo",width=220]
+//=== Rotation Around Arbitrary Vertex
+//But what if we don't want to rotate around the origin?  What if you want to
+//rotate around any other vertex?
 
-//image:rotate2.png[align="center",title="Foo",width=220]
-
-
-//Rotations can occur around an arbitrary point by translating the vertex
-//to the origin (0.0,0.0), rotating it, and then translating the result
-//back to its positionfootnote:[To the advanced reader, yes, this is unwise to do.
-//Real world development involves making mistakes.  Presenting solutions
+//It's quite simple.  Translate the vertex to be rotated into a vertex which is
+//relative to the rotation point. Rotate it around the origin. Then reverse the
+//translation.footnote:[To the advanced reader, yes, this is unwise to do in practice.
+//Real world development is Mistake-Driven-Development.  Presenting solutions
 //without making mistakes deprives the learner.].
 
 //[source,C,linenums]
@@ -962,21 +1024,16 @@ void render_scene(int *chapter_number){
 
 //[source,C,linenums]
 //----
-  state = glfwGetKey(window, GLFW_KEY_S);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS){
     paddle_1_offset_Y -= 10.0;
   }
-  state = glfwGetKey(window, GLFW_KEY_W);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS){
     paddle_1_offset_Y += 10.0;
   }
-
-  state = glfwGetKey(window, GLFW_KEY_K);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS){
     paddle_2_offset_Y -= 10.0;
   }
-  state = glfwGetKey(window, GLFW_KEY_I);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS){
     paddle_2_offset_Y += 10.0;
   }
 //----
@@ -1049,21 +1106,16 @@ void render_scene(int *chapter_number){
   static GLfloat paddle_1_rotation = 0.0;
   static GLfloat paddle_2_rotation = 0.0;
   // update_rotation_of_paddles
-  state = glfwGetKey(window, GLFW_KEY_A);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS){
     paddle_1_rotation += 0.1;
   }
-  state = glfwGetKey(window, GLFW_KEY_D);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS){
     paddle_1_rotation -= 0.1;
   }
-
-  state = glfwGetKey(window, GLFW_KEY_J);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS){
     paddle_2_rotation += 0.1;
   }
-  state = glfwGetKey(window, GLFW_KEY_L);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS){
     paddle_2_rotation -= 0.1;
   }
 //----
@@ -1098,7 +1150,7 @@ void render_scene(int *chapter_number){
     glEnd();
 //----
 
-// TODO -- explain why the translate first, and then the rotate, is poor form. Besides inefficiency, this system doesn't compose, as a vertex subject to multiple rotations may not know where its modelspace origin is, and as such, cannot translate to the origin.
+//// TODO -- explain why the translate first, and then the rotate, is poor form. Besides inefficiency, this system doesn't compose, as a vertex subject to multiple rotations may not know where its modelspace origin is, and as such, cannot translate to the origin.
 //
 //Draw paddle 2, relative to the world-space origin
 //[source,C,linenums]
@@ -1151,21 +1203,16 @@ void render_scene(int *chapter_number){
   static GLfloat camera_x = 0.0;
   static GLfloat camera_y = 0.0;
   // update_camera_position
-  state = glfwGetKey(window, GLFW_KEY_UP);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
     camera_y += 10.0;
   }
-  state = glfwGetKey(window, GLFW_KEY_DOWN);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
     camera_y -= 10.0;
   }
-
-  state = glfwGetKey(window, GLFW_KEY_LEFT);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
     camera_x -= 10.0;
   }
-  state = glfwGetKey(window, GLFW_KEY_RIGHT);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
     camera_x += 10.0;
   }
 //----
@@ -1363,8 +1410,7 @@ void render_scene(int *chapter_number){
 //----
   static GLfloat square_rotation = 0.0;
   // update_square_rotation
-  state = glfwGetKey(window, GLFW_KEY_Q);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS){
     square_rotation += 0.1;
   }
   if(11 == *chapter_number){
@@ -1434,8 +1480,7 @@ void render_scene(int *chapter_number){
 //[source,C,linenums]
 //----
   static GLfloat rotation_around_paddle_1 = 0.0;
-  state = glfwGetKey(window, GLFW_KEY_E);
-  if (state == GLFW_PRESS){
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
     rotation_around_paddle_1 += 0.1;
   }
 //----
@@ -1718,32 +1763,25 @@ void render_scene(int *chapter_number){
   // update camera from the keyboard
   {
     const GLfloat move_multiple = 15.0;
-    state = glfwGetKey(window, GLFW_KEY_RIGHT);
-    if (state == GLFW_PRESS){
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
       moving_camera_rot_y -= 0.03;
     }
-    state = glfwGetKey(window, GLFW_KEY_LEFT);
-    if (state == GLFW_PRESS){
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
       moving_camera_rot_y += 0.03;
     }
-
-    state = glfwGetKey(window, GLFW_KEY_PAGE_UP);
-    if (state == GLFW_PRESS){
+    if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS){
       moving_camera_rot_x += 0.03;
     }
-    state = glfwGetKey(window, GLFW_KEY_PAGE_DOWN);
-    if (state == GLFW_PRESS){
+    if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS){
       moving_camera_rot_x -= 0.03;
     }
 ////TODO -  explaing movement on XZ-plane
 ////TODO -  show camera movement in graphviz
-    state = glfwGetKey(window, GLFW_KEY_UP);
-    if (state == GLFW_PRESS){
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
       moving_camera_x -= move_multiple * sin(moving_camera_rot_y);
       moving_camera_z -= move_multiple * cos(moving_camera_rot_y);
     }
-    state = glfwGetKey(window, GLFW_KEY_DOWN);
-    if (state == GLFW_PRESS){
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
       moving_camera_x += move_multiple * sin(moving_camera_rot_y);
       moving_camera_z += move_multiple * cos(moving_camera_rot_y);
     }

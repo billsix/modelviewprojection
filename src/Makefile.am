@@ -20,9 +20,17 @@ EXTRA_DIST = monitor.gp \
         scale.gp \
 	scale.dat \
         rotate.gp \
+        rotate.dat \
         rotate2.gp \
+        rotate2.dat \
+        rotate3.gp \
+        rotate3.dat \
+        rotate4.gp \
+        rotate4.dat \
         modelspace.gp \
-	main.book.cpp
+        disproportionate1.gp \
+        disproportionate2.gp \
+        viewport.gp
 
 
 
@@ -48,7 +56,12 @@ if BUILD_PDF
 	scale.png \
 	rotate.png \
 	rotate2.png \
+	rotate3.png \
+	rotate4.png \
 	modelspace.png \
+        disproportionate1.png \
+        disproportionate2.png \
+        viewport.png \
 	main.pdf
 endif
 
@@ -76,7 +89,7 @@ main.cpp:  $(OBJECTS_TO_BUILD)
 # In my private repo, remove all of the double forward slashes at the beginning
 #   of lines which were there to denote LaTeX code
 # In the public repo, do nothing
-main.tex: main.book.cpp
+main.tex: main.book.cpp $(EXTRA_DIST)
 	if [ -e main.book.cpp ]; then  sed -e 's/^\/\///g' main.book.cpp > main.tex; fi;
 
 main.html: main.tex
@@ -98,5 +111,5 @@ modelviewprojection_CXXFLAGS= \
 modelviewprojection_LDADD = \
 	$(GLEW_LIBS) \
 	$(OPENGL_LIB) \
-	-lglfw
+	-lglfw \
 	-lm
