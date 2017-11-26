@@ -58,9 +58,15 @@
 //
 //
 //
-//[intro]
+//[[intro]]
 //= Introduction
 //
+
+//== Copyright
+//
+//(C) 2017, William Emerison Six. This book is free, licensed under Attribution-NonCommercial-ShareAlike 4.0 International (CC BY-NC-SA 4.0).
+//https://creativecommons.org/licenses/by-nc-sa/4.0/.  The source code is licensed under the Apache 2.0 license.
+
 //[[basics]]
 //== Basics
 //

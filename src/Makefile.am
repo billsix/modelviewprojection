@@ -62,7 +62,7 @@ if BUILD_PDF
         disproportionate1.png \
         disproportionate2.png \
         viewport.png \
-	main.pdf
+	main.html
 endif
 
 # main.book.cpp is the book in my private Git repository, with
@@ -84,7 +84,7 @@ main.book.cpp:
 #   in CPP comments
 # In the public repo, do nothing
 main.cpp:  $(OBJECTS_TO_BUILD)
-	if [ -e main.book.cpp ] ; then sed -e '/^\/\// d' main.book.cpp > main.cpp; fi;
+	if [ -e main.book.cpp ] ; then sed -e '/^\/\// d' main.book.cpp | sed -e '/^$$/d' > main.cpp; fi;
 
 # In my private repo, remove all of the double forward slashes at the beginning
 #   of lines which were there to denote LaTeX code
