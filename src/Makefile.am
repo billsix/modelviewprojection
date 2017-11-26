@@ -89,14 +89,14 @@ main.cpp:  $(OBJECTS_TO_BUILD)
 # In my private repo, remove all of the double forward slashes at the beginning
 #   of lines which were there to denote LaTeX code
 # In the public repo, do nothing
-main.tex: main.book.cpp $(EXTRA_DIST)
-	if [ -e main.book.cpp ]; then  sed -e 's/^\/\///g' main.book.cpp > main.tex; fi;
+modelviewprojection.adoc: main.book.cpp $(EXTRA_DIST)
+	if [ -e main.book.cpp ]; then  sed -e 's/^\/\///g' main.book.cpp > modelviewprojection.adoc; fi;
 
-modelviewprojection.html: main.tex
-	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n main.tex
+modelviewprojection.html: modelviewprojection.adoc
+	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n modelviewprojection.adoc
 
-main.pdf: main.tex
-	a2x -dbook --dblatex-opts "-P latex.output.revhistory=0 -P doc.publisher.show=0 -P doc.pdfcreator.show=0" --no-xmllint main.tex
+main.pdf: modelviewprojection.adoc
+	a2x -dbook --dblatex-opts "-P latex.output.revhistory=0 -P doc.publisher.show=0 -P doc.pdfcreator.show=0" --no-xmllint modelviewprojection.adoc
 
 
 
