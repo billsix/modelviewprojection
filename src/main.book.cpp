@@ -13,16 +13,6 @@
 //
 //To Teresa, Liam, Adam, and Kate.
 //
-//ifdef::pdf[]
-//:max-width: 450
-//:half-width: 275
-//:quarter-width: 137
-//endif::[]
-//ifndef::pdf[]
-//:max-width: 300
-//:half-width: 150
-//:quarter-width: 75
-//endif::[]
 //
 //[preface]
 //= Preface
@@ -84,10 +74,10 @@
 //
 //.1024x768 monitor
 //[caption="Figure 1: "]
-//image:monitor.png[align="center",title="Foo",width=300]
+//image:monitor.png[align="center",title="Foo"]
 //
 //.1920x1200 monitor
-//image:monitor2.png[align="center",title="Foo",width=300]
+//image:monitor2.png[align="center",title="Foo"]
 //
 //
 //Frames are created within the computer and sent to the monitor
@@ -464,7 +454,7 @@ void render_scene(int *chapter_number){
 
 //The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
 
-//image:plot1.png[align="center",title="Foo",width=220]
+//image:plot1.png[align="center",title="Foo"]
 
 
 //Draw paddle 2.
@@ -492,7 +482,7 @@ void render_scene(int *chapter_number){
 
 //The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
 
-//image:plot2.png[align="center",title="Foo",width=220]
+//image:plot2.png[align="center",title="Foo"]
 
 //[source,C,linenums]
 //----
@@ -533,11 +523,11 @@ void render_scene(int *chapter_number){
 
 //What looks alright is screen-space on a large monitor...
 
-//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
+//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor"]
 
 //isn't even the same picture on a smaller monitor.
 
-//image:screenspace.png[align="center",title="Programming using Screen Space on Small Monitor",width=220]
+//image:screenspace.png[align="center",title="Programming using Screen Space on Small Monitor"]
 
 
 
@@ -561,15 +551,15 @@ void render_scene(int *chapter_number){
 //OpenGL will automatically convert from a continuous, -1.0 to 1.0 space,
 //to discrete pixel-space.
 
-//image:ndcSpace.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
+//image:ndcSpace.png[align="center",title="Programming using Screen Space on Large Monitor"]
 
 //Whether we own a small monitor
 
-//image:ndcSpace1.png[align="center",title="Programming using Screen Space on Small Monitor",width=220]
+//image:ndcSpace1.png[align="center",title="Programming using Screen Space on Small Monitor"]
 
 //or a large monitor.
 
-//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
+//image:screenspace2.png[align="center",title="Programming using Screen Space on Large Monitor"]
 
 
 //-Exercise 1.  The window is resizable by the user while it runs.
@@ -591,10 +581,10 @@ void render_scene(int *chapter_number){
 //as they were shrunk in one direction if the window became too thin or too fat.
 
 
-//image:disproportionate1.png[align="center",title="Foo",width=220]
+//image:disproportionate1.png[align="center",title="Foo"]
 
 
-//image:disproportionate2.png[align="center",title="Foo",width=220]
+//image:disproportionate2.png[align="center",title="Foo"]
 
 
 //Assume that this is a problem for the application we are making.  What
@@ -608,7 +598,7 @@ void render_scene(int *chapter_number){
 //window.
 //
 
-//image:viewport.png[align="center",title="Programming using Screen Space on Large Monitor",width=220]
+//image:viewport.png[align="center",title="Programming using Screen Space on Large Monitor"]
 
 //Because we will only draw in a subset of the window, and because all subsequent
 //chapters will use this functionality, I have created a procedure for use
@@ -758,7 +748,7 @@ void render_scene(int *chapter_number){
     glEnd();
 //----
 
-//image:plot3.png[align="center",title="Foo",width=220]
+//image:plot3.png[align="center",title="Foo"]
 
 
 //Draw paddle 2, relative to the world-space origin.
@@ -787,7 +777,7 @@ void render_scene(int *chapter_number){
   }
 //----
 
-//image:plot4.png[align="center",title="Foo",width=220]
+//image:plot4.png[align="center",title="Foo"]
 
 
 //== Model Vertices with a Data-Structure
@@ -822,7 +812,7 @@ void render_scene(int *chapter_number){
 //Rather than incrementing y values before calling "glVertex",
 //instead call "translate" on the vertex.
 
-//image:translate.png[align="center",title="Foo",width=220]
+//image:translate.png[align="center",title="Foo"]
 
 
 //[source,C,linenums]
@@ -838,7 +828,7 @@ void render_scene(int *chapter_number){
 
 //=== Scaling
 
-//image:scale.png[align="center",title="Foo",width=220]
+//image:scale.png[align="center",title="Foo"]
 
 //
 //Similarly, we can expand or shrink the size of an object
@@ -872,9 +862,9 @@ void render_scene(int *chapter_number){
 //That might not have been fully clear.  Let me try again.
 //The vertex (0.5,0.4) can be separated into two vertices, (0.5,0) and (0,0.4).
 
-//image:rotate3.png[align="center",title="Foo",width=220]
+//image:rotate3.png[align="center",title="Foo"]
 
-//image:rotate4.png[align="center",title="Foo",width=220]
+//image:rotate4.png[align="center",title="Foo"]
 
 
 //These vertices can be added together to create the original vertex.
@@ -888,12 +878,12 @@ void render_scene(int *chapter_number){
 //component by 0.5, we are scaling the vertex back to its original distance
 //from the origin.
 
-//image:rotate.png[align="center",title="Foo",width=220]
+//image:rotate.png[align="center",title="Foo"]
 
 //(0,0.4) is on the y-axis, so rotating it by "angle" degrees, results
 //in vertex (0.4*-sin(angle), 0.4*cos(angle)).
 
-//image:rotate2.png[align="center",title="Foo",width=220]
+//image:rotate2.png[align="center",title="Foo"]
 
 //Wait.  Why is negative
 //sin applied to the angle to make the x value, and cos applied to angle to make the y value?
@@ -1026,7 +1016,7 @@ void render_scene(int *chapter_number){
 //----
 
 
-//image:modelspace.png[align="center",title="Foo",width=300]
+//image:modelspace.png[align="center",title="Foo"]
 
 //[source,C,linenums]
 //----
