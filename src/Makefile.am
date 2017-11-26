@@ -62,7 +62,7 @@ if BUILD_PDF
         disproportionate1.png \
         disproportionate2.png \
         viewport.png \
-	main.html
+	modelviewprojection.html
 endif
 
 # main.book.cpp is the book in my private Git repository, with
@@ -92,7 +92,7 @@ main.cpp:  $(OBJECTS_TO_BUILD)
 main.tex: main.book.cpp $(EXTRA_DIST)
 	if [ -e main.book.cpp ]; then  sed -e 's/^\/\///g' main.book.cpp > main.tex; fi;
 
-main.html: main.tex
+modelviewprojection.html: main.tex
 	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n main.tex
 
 main.pdf: main.tex
