@@ -403,7 +403,7 @@ void render_scene(int *chapter_number){
 //
 
 //The event loop then calls this code over and over again, and since we retain no state and
-//we draw nothing, a black screen will be diplayed every frame until the user
+//we draw nothing, a black screen will be displayed every frame until the user
 //closes the window, and says to himself, "why did I buy Doom 3"?
 
 
