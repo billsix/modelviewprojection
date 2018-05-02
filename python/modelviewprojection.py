@@ -215,29 +215,6 @@ def translate(self, x, y):
     return Vertex(x=self.x + x, y=self.y + y)
 Vertex.translate = translate
 
-# add scale method to Vertex
-def scale(self, x, y):
-    return Vertex(x=self.x * x, y=self.y * y)
-
-Vertex.scale = scale
-
-# add rotate method to Vertex
-def rotate(self,angle_in_radians):
-    return Vertex(x= self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-                  y= self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians))
-
-Vertex.rotate = rotate
-
-# add rotate around method to Vertex
-def rotate_around(angle_in_radians, center):
-    translateToCenter = translate(-center.x,
-                                  -center.y)
-    rotatedAroundOrigin = translateToCenter.rotate(angle_in_radians)
-    backToCenter = rotatedAroundOrigin.translate(center.x,
-                                                 center.y)
-    return backToCenter
-
-Vertex.rotate_around = rotate_around
 
 paddle = [Vertex(x=-0.1, y=-0.3),
           Vertex(x= 0.1, y=-0.3),
@@ -272,6 +249,220 @@ def demo5():
     gl.glEnd()
 
 
+paddle = [Vertex(x=-10.0, y=-30.0),
+          Vertex(x= 10.0, y=-30.0),
+          Vertex(x= 10.0, y=30.0),
+          Vertex(x=-10.0, y=30.0)]
 
-render_scene = demo5
+def handle_inputs():
+    global paddle_1_offset_Y, paddle_2_offset_Y
+
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_S) == glfw.GLFW_PRESS:
+        paddle_1_offset_Y -= 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_W) == glfw.GLFW_PRESS:
+        paddle_1_offset_Y += 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_K) == glfw.GLFW_PRESS:
+        paddle_2_offset_Y -= 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_I) == glfw.GLFW_PRESS:
+        paddle_2_offset_Y += 10.0
+
+# add scale method to Vertex
+def scale(self, x, y):
+    return Vertex(x=self.x * x, y=self.y * y)
+
+Vertex.scale = scale
+
+
+def demo6():
+    draw_in_square_viewport()
+    handle_inputs()
+
+    gl.glColor3f(1.0, #r
+                 1.0, #g
+                 1.0) #b
+    gl.glBegin(gl.GL_QUADS)
+    for modelspace in paddle:
+        worldSpace = modelspace.translate(x=-90.0,
+                                          y=paddle_1_offset_Y);
+        ndcSpace = worldSpace.scale(x=1.0/100.0,
+                                    y=1.0/100.0)
+        gl.glVertex2f(ndcSpace.x,
+                      ndcSpace.y)
+    gl.glEnd()
+
+
+    gl.glColor3f(1.0, #r
+                 1.0, #g
+                 0.0) #b
+    gl.glBegin(gl.GL_QUADS)
+    for modelspace in paddle:
+        worldSpace = modelspace.translate(x=90.0,
+                                          y=paddle_2_offset_Y);
+        ndcSpace = worldSpace.scale(x=1.0/100.0,
+                                    y=1.0/100.0)
+        gl.glVertex2f(ndcSpace.x,
+                      ndcSpace.y)
+    gl.glEnd()
+
+
+
+paddle_1_rotation = 0.0
+paddle_2_rotation = 0.0
+
+
+def handle_inputs():
+    global paddle_1_offset_Y, paddle_2_offset_Y
+
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_S) == glfw.GLFW_PRESS:
+        paddle_1_offset_Y -= 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_W) == glfw.GLFW_PRESS:
+        paddle_1_offset_Y += 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_K) == glfw.GLFW_PRESS:
+        paddle_2_offset_Y -= 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_I) == glfw.GLFW_PRESS:
+        paddle_2_offset_Y += 10.0
+
+    global paddle_1_rotation, paddle_2_rotation
+
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_A) == glfw.GLFW_PRESS:
+        paddle_1_rotation += 0.1;
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_D) == glfw.GLFW_PRESS:
+        paddle_1_rotation -= 0.1;
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_J) == glfw.GLFW_PRESS:
+        paddle_2_rotation += 0.1;
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_L) == glfw.GLFW_PRESS:
+        paddle_2_rotation -= 0.1;
+
+
+
+# add rotate method to Vertex
+def rotate(self,angle_in_radians):
+    return Vertex(x= self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
+                  y= self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians))
+
+Vertex.rotate = rotate
+
+
+
+def demo7():
+    draw_in_square_viewport()
+    handle_inputs()
+
+    gl.glColor3f(1.0, #r
+                 1.0, #g
+                 1.0) #b
+    gl.glBegin(gl.GL_QUADS)
+    for modelspace in paddle:
+        worldSpace = modelspace.rotate(paddle_1_rotation).translate(x=-90.0,
+                                                                    y=paddle_1_offset_Y);
+        ndcSpace = worldSpace.scale(x=1.0/100.0,
+                                    y=1.0/100.0)
+        gl.glVertex2f(ndcSpace.x,
+                      ndcSpace.y)
+    gl.glEnd()
+
+
+    gl.glColor3f(1.0, #r
+                 1.0, #g
+                 0.0) #b
+    gl.glBegin(gl.GL_QUADS)
+    for modelspace in paddle:
+        worldSpace = modelspace.rotate(paddle_2_rotation).translate(x=90.0,
+                                                                    y=paddle_2_offset_Y);
+        ndcSpace = worldSpace.scale(x=1.0/100.0,
+                                    y=1.0/100.0)
+        gl.glVertex2f(ndcSpace.x,
+                      ndcSpace.y)
+    gl.glEnd()
+
+
+# add rotate around method to Vertex
+def rotate_around(angle_in_radians, center):
+    translateToCenter = translate(-center.x,
+                                  -center.y)
+    rotatedAroundOrigin = translateToCenter.rotate(angle_in_radians)
+    backToCenter = rotatedAroundOrigin.translate(center.x,
+                                                 center.y)
+    return backToCenter
+
+Vertex.rotate_around = rotate_around
+
+
+camera_x = 0.0
+camera_y = 0.0
+
+
+def handle_inputs():
+    global paddle_1_offset_Y, paddle_2_offset_Y
+
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_S) == glfw.GLFW_PRESS:
+        paddle_1_offset_Y -= 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_W) == glfw.GLFW_PRESS:
+        paddle_1_offset_Y += 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_K) == glfw.GLFW_PRESS:
+        paddle_2_offset_Y -= 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_I) == glfw.GLFW_PRESS:
+        paddle_2_offset_Y += 10.0
+
+    global paddle_1_rotation, paddle_2_rotation
+
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_A) == glfw.GLFW_PRESS:
+        paddle_1_rotation += 0.1;
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_D) == glfw.GLFW_PRESS:
+        paddle_1_rotation -= 0.1;
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_J) == glfw.GLFW_PRESS:
+        paddle_2_rotation += 0.1;
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_L) == glfw.GLFW_PRESS:
+        paddle_2_rotation -= 0.1;
+
+    global camera_x, camera_y
+
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_UP) == glfw.GLFW_PRESS:
+        camera_y += 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_DOWN) == glfw.GLFW_PRESS:
+        camera_y -= 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_LEFT) == glfw.GLFW_PRESS:
+        camera_x -= 10.0
+    if glfw.glfwGetKey(window, glfw.GLFW_KEY_RIGHT) == glfw.GLFW_PRESS:
+        camera_x += 10.0
+
+
+
+def demo8():
+    draw_in_square_viewport()
+    handle_inputs()
+
+    gl.glColor3f(1.0, #r
+                 1.0, #g
+                 1.0) #b
+    gl.glBegin(gl.GL_QUADS)
+    for modelspace in paddle:
+        worldSpace = modelspace.rotate(paddle_1_rotation).translate(x=-90.0,
+                                                                    y=paddle_1_offset_Y);
+        cameraSpace = worldSpace.translate(x=-camera_x,
+                                           y=-camera_y)
+        ndcSpace = cameraSpace.scale(x=1.0/100.0,
+                                     y=1.0/100.0)
+        gl.glVertex2f(ndcSpace.x,
+                      ndcSpace.y)
+    gl.glEnd()
+
+
+    gl.glColor3f(1.0, #r
+                 1.0, #g
+                 0.0) #b
+    gl.glBegin(gl.GL_QUADS)
+    for modelspace in paddle:
+        worldSpace = modelspace.rotate(paddle_2_rotation).translate(x=90.0,
+                                                                    y=paddle_2_offset_Y);
+        cameraSpace = worldSpace.translate(x=-camera_x,
+                                           y=-camera_y)
+        ndcSpace = cameraSpace.scale(x=1.0/100.0,
+                                     y=1.0/100.0)
+        gl.glVertex2f(ndcSpace.x,
+                      ndcSpace.y)
+    gl.glEnd()
+
+
+render_scene = demo8
 main_loop()
