@@ -71,14 +71,14 @@
 
 ##== Copyright
 ##
-##(C) 2017, William Emerison Six. The source, and the generated book, are free under the MIT licence
+##(C) 2017-2018, William Emerison Six. The source, and the generated book, are free under the MIT licence
 
 ##[[basics]]
 ##== Basics
 ##
 ##
 ##The device attached to a computer which displays information to the user is called a *monitor*.
-##The monitor is composed of a two-dimensional array of light-emitting elements called *pixel*.
+##The monitor is composed of a two-dimensional array of light-emitting elements, each called a *pixel*.
 ##At a given time, each individual pixel is instructed to display
 ##one specific color, represented within the computer as a number.
 ##The aggregate of the colors at each pixel at one moment in time, called a *frame*,
@@ -116,15 +116,14 @@
 ##To create and to open a window in a cross-platform manner, this
 ##book will call procedures provided by the widely-ported GLFW library (supporting Windows, macOS, Linux).
 ##GLFW also provides procedures for receiving
-##keyboard input, controller inputfootnote:[tested with a wired XBox 360 controller], and
-##to load images from the filesystem.
+##keyboard input and for controller inputfootnote:[tested with a wired XBox 360 controller].
 ##
 ##Much of the code listed from here until section<<the-event-loop>> will be of little interest upon first reading.
 ##As such, the reader may choose to skip ahead to section<<the-event-loop>> now.
 ##
-##The code for the entire book is available at https:##github.com/billsix/modelviewprojection,
-##contained within "src/main.cpp". The code, but not the contents of the book, is licenced
-##using the open-source Apache 2.0 license.
+##The code for the entire book is available at https://github.com/billsix/modelviewprojection,
+##contained within "mvp/modelviewprojection.py". The code and the contents of the book are licenced
+##using the open-source MIT license.
 ##
 ##
 ##==== Include Headers
@@ -289,8 +288,6 @@ def main_loop():
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 ##----
 
-##=== Render the Selected Demo
-##
 ##Regardless of which demo will be run, certain things need
 ##to happen every frame.  The color of each pixel withith
 ##the current framebuffer
@@ -302,11 +299,10 @@ def main_loop():
         render_scene()
 ##----
 
-##==== The User Closed the App, Exit Cleanly.
-        # done with frame, flush and swap buffers
-        # Swap front and back buffers
 ##[source,Python,linenums]
 ##----
+        # done with frame, flush and swap buffers
+        # Swap front and back buffers
         glfwSwapBuffers(window)
 
     glfwTerminate()
@@ -325,12 +321,12 @@ def main_loop():
 ##== Black Screen
 ##
 ##To understand the material of this book well, the reader is advised to
-##run the compile the program and run the demos.  To do so, the source
-##code for this book may be obtained at https:##github.com/billsix/modelviewprojection.
-##It has been tested on Windows 10 (Visual Studio Community 2017),
-##Linux, and OS X.
+##execute the demos.  To do so, the source
+##code for this book may be obtained at https://github.com/billsix/modelviewprojection.
+##It has been tested on macOS and on Linux.  Install Python3 and NumPy.
 ##
-##Once built, execute "modelviewprojection". When prompted, type "2" and then press the "Enter" key.
+##Add the "mvp" direction to your PYTHONPATH, and type
+##"python modelviewprojection.py". When prompted, type "1" and then press the "Enter" key.
 ##
 ##The first demo is the least interesting graphical program possible.
 ##
@@ -357,7 +353,7 @@ def demo1():
 ##When this code returns, the event loop flushes (i.e) sends the frame to the monitor.  Since
 ##no geometry was drawn, the color value for each pixel is still black.
 ##
-##Each color is represende by a number, so the frame is something like this:
+##Each color is represented by a number, so the frame is something like this:
 ##
 ##
 ##....
@@ -404,12 +400,7 @@ def demo1():
 ##----
 @demoNumber(2)
 def demo2():
-##----
-
-##Draw paddle 1.
-
-##[source,Python,linenums]
-##----
+    # draw paddle 1
     glColor3f(1.0, #r
               1.0, #g
               1.0) #b
@@ -434,11 +425,9 @@ def demo2():
 ##image:plot1.png[align="center",title="Foo"]
 
 
-##Draw paddle 2.
-
-
 ##[source,Python,linenums]
 ##----
+    # draw paddle 2
     glColor3f(1.0,
               1.0,
               0.0)
@@ -588,17 +577,11 @@ def draw_in_square_viewport():
                  0.2, #b
                  1.0) #a
     glClear(GL_COLOR_BUFFER_BIT)
-##----
 
-##[source,Python,linenums]
-##----
     width, height = glfwGetFramebufferSize(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-##----
 
-##[source,Python,linenums]
-##----
     min = width if width < height else height
 
     glViewport(int(0.0 + (width - min)/2.0),  #min x
@@ -611,10 +594,7 @@ def draw_in_square_viewport():
               int(0.0 + (height - min)/2.0), #min y
               min,                           #width x
               min)                           #width y
-##----
 
-##[source,Python,linenums]
-##----
     glClearColor(0.0, #r
                  0.0, #g
                  0.0, #b
@@ -635,8 +615,6 @@ def demo3():
     demo2()
 ##----
 
-##Yes, the author is aware that "goto" statements are frowned upon.
-##But would the reader prefer for chapter 3's code to be duplicated here?
 
 ##
 ##== Move the Paddles using the Keyboard
@@ -653,17 +631,39 @@ def demo3():
 ##by getting keyboard input.
 ##
 ##
-##Static variables are initialized to a value only the first time the procedure is executed.
-##In subsequent calls to "render_scene", they retain the value they had the last time
-##"render_scene" was calledfootnote:[Since the rest of the demos are entirely defined
-##within "render_scene", all statically defined variables, such as these offsets, are
-##available to every demo, and as such, future demos will reference these values].
-
 
 ##[source,Python,linenums]
 ##----
-paddle_1_offset_Y = 0.0
-paddle_2_offset_Y = 0.0
+class Vertex:
+    def __init__(self,x,y):
+        self.x = x
+        self.y = y
+
+class Paddle:
+    def __init__(self,vertices, r, g, b, offsetX=0.0, offsetY=0.0):
+        self.vertices = vertices
+        self.r = r
+        self.g = g
+        self.b = b
+        self.offsetX = offsetX
+        self.offsetY = offsetY
+
+paddle1 = Paddle(vertices=[Vertex(-1.0,-0.3),
+                           Vertex(-0.8,-0.3),
+                           Vertex(-0.8,0.3),
+                           Vertex(-1.0,0.3)],
+                 r=1.0,
+                 g=1.0,
+                 b=1.0)
+
+paddle2 = Paddle(vertices=[Vertex(0.8,-0.3),
+                           Vertex(1.0,-0.3),
+                           Vertex(1.0,0.3),
+                           Vertex(0.8,0.3)],
+                 r=1.0,
+                 g=1.0,
+                 b=0.0)
+
 
 inputHandlers = []
 def handle_inputs():
@@ -671,25 +671,50 @@ def handle_inputs():
         f()
 
 def handle_movement_of_paddles():
-    global paddle_1_offset_Y, paddle_2_offset_Y
+    global paddle1, paddle2
 
     if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
-        paddle_1_offset_Y -= 0.1
+        paddle1.offsetY -= 0.1
     if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
-        paddle_1_offset_Y += 0.1
+        paddle1.offsetY += 0.1
     if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
-        paddle_2_offset_Y -= 0.1
+        paddle2.offsetY -= 0.1
     if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
-        paddle_2_offset_Y += 0.1
+        paddle2.offsetY += 0.1
 inputHandlers.append(handle_movement_of_paddles)
+##----
+
+##Define a draw method on the Paddle class.  Python allows
+##both instance variables and methods to be added to a class
+##after it has already been defined.  Although the author
+##doesn't recommend cavalier use of this concept, graphics
+##are best explained incrementally, and the dynamic features
+##of Python help towards this goal.
+##
+
+##[source,Python,linenums]
+##----
+# define the method, currently unbound to a class
+def draw(self):
+    glColor3f(self.r,
+              self.g,
+              self.b)
+
+    glBegin(GL_QUADS)
+    for vertex in self.vertices:
+        glVertex2f(vertex.x,
+                   vertex.y + self.offsetY)
+    glEnd()
+# add the draw method to the Paddle class
+Paddle.draw = draw
 ##----
 
 
 
-##-If 's' is pressed this frame, subtract 0.1 more from paddle_1_offset_Y.  If the
-##key continues to be held down over time, paddle_1_offset_Y will continue to decrease.
+##-If 's' is pressed this frame, subtract 0.1 more from paddle1.offsetY.  If the
+##key continues to be held down over time, paddle1.offsetY will continue to decrease.
 
-##-If 'w' is pressed this frame, add 0.1 more to paddle_1_offset_Y.
+##-If 'w' is pressed this frame, add 0.1 more to paddle1.offsetY.
 
 ##-If 'k' is pressed this frame, subtract 0.1 more from paddle_2_offset_Y.
 
@@ -709,23 +734,11 @@ def demo4():
 ##----
 
 ##Draw paddle 1, relative to the world-space origin.
-##Add paddle_1_offset_Y to the "y" component of every vertex
+##Add paddle1.offsetY to the "y" component of every vertex
 
 ##[source,Python,linenums]
 ##----
-    glColor3f(1.0, #r
-              1.0, #g
-              1.0) #b
-    glBegin(GL_QUADS)
-    glVertex2f(-1.0, #x
-               -0.3+paddle_1_offset_Y) #y
-    glVertex2f(-0.8, #x
-               -0.3+paddle_1_offset_Y) #y
-    glVertex2f(-0.8, #x
-               0.3+paddle_1_offset_Y)  #y
-    glVertex2f(-1.0, #x
-               0.3+paddle_1_offset_Y)  #y
-    glEnd()
+    paddle1.draw()
 ##----
 
 ##image:plot3.png[align="center",title="Foo"]
@@ -737,26 +750,13 @@ def demo4():
 
 ##[source,Python,linenums]
 ##----
-    glColor3f(1.0,
-              1.0,
-              0.0)
-    glBegin(GL_QUADS)
-
-    glVertex2f(0.8,
-               -0.3+paddle_2_offset_Y)
-    glVertex2f(1.0,
-               -0.3+paddle_2_offset_Y)
-    glVertex2f(1.0,
-               0.3+paddle_2_offset_Y)
-    glVertex2f(0.8,
-               0.3+paddle_2_offset_Y)
-    glEnd()
+    paddle2.draw()
 ##----
 
 ##image:plot4.png[align="center",title="Foo"]
 
 
-##== Model Vertices with a Data-Structure
+##== Translation
 ##
 ##[width="75%",options="header,footer"]
 ##|=======================================
@@ -768,77 +768,46 @@ def demo4():
 ##|=======================================
 ##
 ##Transforming vertices, such as translating, is the core concept
-##of computer graphics.  So create a class for common transformations.
+##of computer graphics.
 
 
-##[source,Python,linenums]
-##----
-class Vertex:
-    def __init__(self,x,y):
-        self.x = x
-        self.y = y
-##----
 
 ##=== Translation
 ##Rather than incrementing y values before calling "glVertex",
-##instead call "translate" on the vertex.
+##instead call "translate" on the vertex, and call "glVertex2f"
+##on the translated vertex.
 
 ##image:translate.png[align="center",title="Foo"]
 
-
+## TODO -- rename translate's x and y to tx and ty
 ##[source,Python,linenums]
 ##----
 # add translate method to Vertex
-def translate(self, x, y):
-    return Vertex(x=self.x + x, y=self.y + y)
+def translate(self, tx, ty):
+    return Vertex(x=self.x + tx, y=self.y + ty)
 Vertex.translate = translate
-##----
 
+def draw(self):
+    glColor3f(self.r,
+              self.g,
+              self.b)
 
-##[source,Python,linenums]
-##----
-paddle = [Vertex(x=-0.1, y=-0.3),
-          Vertex(x= 0.1, y=-0.3),
-          Vertex(x= 0.1, y=0.3),
-          Vertex(x=-0.1, y=0.3)]
-##----
+    glBegin(GL_QUADS)
+    for vertex in self.vertices:
+        translated = vertex.translate(tx=0.0,
+                                      ty=self.offsetY)
+        glVertex2f(translated.x,
+                   translated.y)
+    glEnd()
+Paddle.draw = draw
 
-
-##[source,Python,linenums]
-##----
 @demoNumber(5)
 def demo5():
     draw_in_square_viewport()
     handle_inputs()
-##----
-##Draw paddle 1, relative to the world-space origin.
-##[source,Python,linenums]
-##----
-    glColor3f(1.0, #r
-              1.0, #g
-              1.0) #b
-    glBegin(GL_QUADS)
-    for v in paddle:
-        newPosition = v.translate(x=-0.9,
-                                  y=paddle_1_offset_Y)
-        glVertex2f(newPosition.x,
-                   newPosition.y)
-    glEnd()
-##----
 
-##Draw paddle 2, relative to the world-space origin.
-##[source,Python,linenums]
-##----
-    glColor3f(1.0, #r
-              1.0, #g
-              0.0) #b
-    glBegin(GL_QUADS)
-    for v in paddle:
-        newPosition = v.translate(x=0.9,
-                                  y=paddle_2_offset_Y)
-        glVertex2f(newPosition.x,
-                      newPosition.y)
-    glEnd()
+    paddle1.draw()
+    paddle2.draw()
 ##----
 
 
@@ -872,10 +841,36 @@ def demo5():
 
 ##[source,Python,linenums]
 ##----
-paddle = [Vertex(x=-10.0, y=-30.0),
-          Vertex(x= 10.0, y=-30.0),
-          Vertex(x= 10.0, y=30.0),
-          Vertex(x=-10.0, y=30.0)]
+paddle1.globalPosition = Vertex(-90.0,0.0)
+paddle1.vertices=[Vertex(x=-10.0, y=-30.0),
+                  Vertex(x= 10.0, y=-30.0),
+                  Vertex(x= 10.0, y=30.0),
+                  Vertex(x=-10.0, y=30.0)]
+
+paddle2.globalPosition = Vertex(90.0,0.0)
+paddle2.vertices = [Vertex(x=-10.0, y=-30.0),
+                    Vertex(x= 10.0, y=-30.0),
+                    Vertex(x= 10.0, y=30.0),
+                    Vertex(x=-10.0, y=30.0)]
+
+def draw(self):
+    glColor3f(self.r,
+              self.g,
+              self.b)
+
+    glBegin(GL_QUADS)
+    for modelspace in self.vertices:
+        worldSpace = modelspace.translate(tx=self.globalPosition.x,
+                                          ty=self.globalPosition.y) \
+                               .translate(tx=0.0,
+                                          ty=self.offsetY)
+
+        ndcSpace = worldSpace.scale(x=1.0/100.0,
+                                    y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+Paddle.draw = draw
 ##----
 
 ##=== Scaling
@@ -900,16 +895,16 @@ Vertex.scale = scale
 ##[source,Python,linenums]
 ##----
 def handle_movement_of_paddles():
-    global paddle_1_offset_Y, paddle_2_offset_Y
+    global paddle1, paddle2
 
     if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
-        paddle_1_offset_Y -= 10.0
+        paddle1.offsetY -= 10.0
     if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
-        paddle_1_offset_Y += 10.0
+        paddle1.offsetY += 10.0
     if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
-        paddle_2_offset_Y -= 10.0
+        paddle2.offsetY -= 10.0
     if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
-        paddle_2_offset_Y += 10.0
+        paddle2.offsetY += 10.0
 inputHandlers = []
 inputHandlers.append(handle_movement_of_paddles)
 ##----
@@ -921,37 +916,8 @@ inputHandlers.append(handle_movement_of_paddles)
 def demo6():
     draw_in_square_viewport()
     handle_inputs()
-##----
-##[source,Python,linenums]
-##----
-    glColor3f(1.0, #r
-              1.0, #g
-              1.0) #b
-    glBegin(GL_QUADS)
-    for modelspace in paddle:
-        worldSpace = modelspace.translate(x=-90.0,
-                                          y=paddle_1_offset_Y)
-        ndcSpace = worldSpace.scale(x=1.0/100.0,
-                                    y=1.0/100.0)
-        glVertex2f(ndcSpace.x,
-                   ndcSpace.y)
-    glEnd()
-##----
-
-##[source,Python,linenums]
-##----
-    glColor3f(1.0, #r
-              1.0, #g
-              0.0) #b
-    glBegin(GL_QUADS)
-    for modelspace in paddle:
-        worldSpace = modelspace.translate(x=90.0,
-                                          y=paddle_2_offset_Y)
-        ndcSpace = worldSpace.scale(x=1.0/100.0,
-                                    y=1.0/100.0)
-        glVertex2f(ndcSpace.x,
-                   ndcSpace.y)
-    glEnd()
+    paddle1.draw()
+    paddle2.draw()
 ##----
 
 ##=== Rotation Around Origin (0,0)
@@ -1016,8 +982,8 @@ def demo6():
 
 ##[source,Python,linenums]
 ##----
-paddle_1_rotation = 0.0
-paddle_2_rotation = 0.0
+paddle1.rotation = 0.0
+paddle2.rotation = 0.0
 ##----
 
 
@@ -1050,10 +1016,10 @@ Vertex.rotate = rotate
 ##|*j*              |*Decrease Right Paddle's Rotation*
 ##|=======================================
 
-#### TODO - describe angle as radians
-#### TODO - show unit circle
-#### TODO - show orthonormal basis
-#### TODO - show basic proof of rotate
+### TODO - describe angle as radians
+### TODO - show unit circle
+### TODO - show orthonormal basis
+### TODO - show basic proof of rotate
 
 ##[source,Python,linenums]
 ##----
@@ -1061,57 +1027,47 @@ def handle_paddle_rotations():
     global paddle_1_rotation, paddle_2_rotation
 
     if glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS:
-        paddle_1_rotation += 0.1
+        paddle1.rotation += 0.1
     if glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS:
-        paddle_1_rotation -= 0.1
+        paddle1.rotation -= 0.1
     if glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS:
-        paddle_2_rotation += 0.1
+        paddle2.rotation += 0.1
     if glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS:
-        paddle_2_rotation -= 0.1
+        paddle2.rotation -= 0.1
 inputHandlers.append(handle_paddle_rotations)
 ##----
 
 
 ##[source,Python,linenums]
 ##----
+def draw(self):
+    glColor3f(self.r,
+              self.g,
+              self.b)
+
+    glBegin(GL_QUADS)
+    for modelspace in self.vertices:
+        worldSpace = modelspace.rotate(self.rotation) \
+                               .translate(tx=self.globalPosition.x,
+                                          ty=self.globalPosition.y) \
+                               .translate(tx=0.0,
+                                          ty=self.offsetY)
+
+        ndcSpace = worldSpace.scale(x=1.0/100.0,
+                                    y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+Paddle.draw = draw
+
+
 @demoNumber(7)
 def demo7():
     draw_in_square_viewport()
     handle_inputs()
-##----
-##[source,Python,linenums]
-##----
-    glColor3f(1.0, #r
-              1.0, #g
-              1.0) #b
-    glBegin(GL_QUADS)
-    for modelspace in paddle:
-        worldSpace = modelspace.rotate(paddle_1_rotation) \
-                               .translate(x=-90.0,
-                                          y=paddle_1_offset_Y)
-        ndcSpace = worldSpace.scale(x=1.0/100.0,
-                                    y=1.0/100.0)
-        glVertex2f(ndcSpace.x,
-                   ndcSpace.y)
-    glEnd()
-##----
 
-##[source,Python,linenums]
-##----
-    glColor3f(1.0, #r
-              1.0, #g
-              0.0) #b
-    glBegin(GL_QUADS)
-    for modelspace in paddle:
-        worldSpace = modelspace.rotate(paddle_2_rotation) \
-                               .translate(x=90.0,
-                                          y=paddle_2_offset_Y)
-        ndcSpace = worldSpace.scale(x=1.0/100.0,
-                                    y=1.0/100.0)
-        glVertex2f(ndcSpace.x,
-                   ndcSpace.y)
-    glEnd()
-
+    paddle1.draw()
+    paddle2.draw()
 ##----
 
 
@@ -1124,8 +1080,8 @@ def rotate_around(angle_in_radians, center):
     translateToCenter = translate(-center.x,
                                   -center.y)
     rotatedAroundOrigin = translateToCenter.rotate(angle_in_radians)
-    backToCenter = rotatedAroundOrigin.translate(center.x,
-                                                 center.y)
+    backToCenter = rotatedAroundOrigin.translate(tx=center.x,
+                                                 ty=center.y)
     return backToCenter
 
 Vertex.rotate_around = rotate_around
@@ -1153,8 +1109,8 @@ Vertex.rotate_around = rotate_around
 ##|*RIGHT*          |*Move the Camera Right*
 ##|=======================================
 ##[source,C,linenums]
-#### TODO - describe implicit camera at origin, and making it's location explicit
-#### TODO - descriibe desire for moving camera
+# TODO - describe implicit camera at origin, and making it's location explicit
+# TODO - descriibe desire for moving camera
 
 
 ##[source,Python,linenums]
@@ -1182,48 +1138,37 @@ inputHandlers.append(handle_camera_movement)
 
 ##[source,Python,linenums]
 ##----
+def draw(self):
+    glColor3f(self.r,
+              self.g,
+              self.b)
+
+    glBegin(GL_QUADS)
+    for modelspace in self.vertices:
+        worldSpace = modelspace.rotate(self.rotation) \
+                               .translate(tx=self.globalPosition.x,
+                                          ty=self.globalPosition.y) \
+                               .translate(tx=0.0,
+                                          ty=self.offsetY)
+
+        cameraSpace = worldSpace.translate(tx=-camera_x,
+                                           ty=-camera_y)
+        ndcSpace = cameraSpace.scale(x=1.0/100.0,
+                                     y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+Paddle.draw = draw
+
 @demoNumber(8)
 def demo8():
     draw_in_square_viewport()
     handle_inputs()
-##----
-##[source,Python,linenums]
-##----
-    glColor3f(1.0, #r
-              1.0, #g
-              1.0) #b
-    glBegin(GL_QUADS)
-    for modelspace in paddle:
-        worldSpace = modelspace.rotate(paddle_1_rotation) \
-                               .translate(x=-90.0,
-                                          y=paddle_1_offset_Y)
-        cameraSpace = worldSpace.translate(x=-camera_x,
-                                           y=-camera_y)
-        ndcSpace = cameraSpace.scale(x=1.0/100.0,
-                                     y=1.0/100.0)
-        glVertex2f(ndcSpace.x,
-                   ndcSpace.y)
-    glEnd()
+
+    paddle1.draw()
+    paddle2.draw()
 ##----
 
-##[source,Python,linenums]
-##----
-    glColor3f(1.0, #r
-              1.0, #g
-              0.0) #b
-    glBegin(GL_QUADS)
-    for modelspace in paddle:
-        worldSpace = modelspace.rotate(paddle_2_rotation) \
-                               .translate(x=90.0,
-                                          y=paddle_2_offset_Y)
-        cameraSpace = worldSpace.translate(x=-camera_x,
-                                           y=-camera_y)
-        ndcSpace = cameraSpace.scale(x=1.0/100.0,
-                                     y=1.0/100.0)
-        glVertex2f(ndcSpace.x,
-                   ndcSpace.y)
-    glEnd()
-##----
 
 ##== Relative Objects
 ##
@@ -1244,47 +1189,12 @@ def demo8():
 ##|DOWN           |Move the Camera Down
 ##|LEFT           |Move the Camera Left
 ##|RIGHT          |Move the Camera Right
+##|               |
 ##|=======================================
 
-##[source,Python,linenums]
-##----
-def draw_paddle_1():
-    glColor3f(1.0, #r
-              1.0, #g
-              1.0) #b
-    glBegin(GL_QUADS)
-    for modelspace in paddle:
-        worldSpace = modelspace.rotate(paddle_1_rotation) \
-                               .translate(x=-90.0,
-                                          y=paddle_1_offset_Y)
-        cameraSpace = worldSpace.translate(x=-camera_x,
-                                           y=-camera_y)
-        ndcSpace = cameraSpace.scale(x=1.0/100.0,
-                                     y=1.0/100.0)
-        glVertex2f(ndcSpace.x,
-                   ndcSpace.y)
-    glEnd()
-##----
 
 ##[source,Python,linenums]
 ##----
-def draw_paddle_2():
-    glColor3f(1.0, #r
-              1.0, #g
-              0.0) #b
-    glBegin(GL_QUADS)
-    for modelspace in paddle:
-        worldSpace = modelspace.rotate(paddle_2_rotation) \
-                               .translate(x=90.0,
-                                          y=paddle_2_offset_Y)
-        cameraSpace = worldSpace.translate(x=-camera_x,
-                                           y=-camera_y)
-        ndcSpace = cameraSpace.scale(x=1.0/100.0,
-                                     y=1.0/100.0)
-        glVertex2f(ndcSpace.x,
-                   ndcSpace.y)
-    glEnd()
-
 square = [Vertex(x=-5.0, y=-5.0),
           Vertex(x= 5.0, y=-5.0),
           Vertex(x= 5.0, y= 5.0),
@@ -1296,27 +1206,29 @@ def demo9():
     draw_in_square_viewport()
     handle_inputs()
 
-    draw_paddle_1()
+    paddle1.draw()
 
-
+    # draw the square relative to paddle 1
     glColor3f(0.0, #r
               0.0, #g
               1.0) #b
     glBegin(GL_QUADS)
     for modelspace in square:
-        worldSpace = modelspace.translate(20.0, 0.0) \
-                               .rotate(paddle_1_rotation) \
-                               .translate(x=-90.0,
-                                          y=paddle_1_offset_Y)
-        cameraSpace = worldSpace.translate(x=-camera_x,
-                                           y=-camera_y)
+        worldSpace = modelspace.translate(tx=20.0, ty=0.0) \
+                               .rotate(paddle1.rotation) \
+                               .translate(tx=paddle1.globalPosition.x,
+                                          ty=paddle1.globalPosition.y) \
+                               .translate(tx=paddle1.offsetX,
+                                          ty=paddle1.offsetY)
+        cameraSpace = worldSpace.translate(tx=-camera_x,
+                                           ty=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
                                      y=1.0/100.0)
         glVertex2f(ndcSpace.x,
                    ndcSpace.y)
     glEnd()
 
-    draw_paddle_2()
+    paddle2.draw()
 ##----
 
 ##== Rotate the Square About Its Origin
@@ -1370,7 +1282,7 @@ def demo10():
 
 ##[source,Python,linenums]
 ##----
-    draw_paddle_1()
+    paddle1.draw()
 
     glColor3f(0.0, #r
               0.0, #g
@@ -1378,19 +1290,22 @@ def demo10():
     glBegin(GL_QUADS)
     for modelspace in square:
         worldSpace = modelspace.rotate(square_rotation) \
-                               .translate(20.0, 0.0) \
-                               .rotate(paddle_1_rotation) \
-                               .translate(x=-90.0,
-                                          y=paddle_1_offset_Y)
-        cameraSpace = worldSpace.translate(x=-camera_x,
-                                           y=-camera_y)
+                               .translate(tx=20.0, ty=0.0) \
+                               .rotate(paddle1.rotation) \
+                               .translate(tx=paddle1.globalPosition.x,
+                                          ty=paddle1.globalPosition.y) \
+                               .translate(tx=paddle1.offsetX,
+                                          ty=paddle1.offsetY)
+
+        cameraSpace = worldSpace.translate(tx=-camera_x,
+                                           ty=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
                                      y=1.0/100.0)
         glVertex2f(ndcSpace.x,
                    ndcSpace.y)
     glEnd()
 
-    draw_paddle_2()
+    paddle2.draw()
 ##----
 
 ##== Relative Rotation
@@ -1419,16 +1334,16 @@ def demo10():
 
 ##[source,C,linenums]
 ##----
-rotation_around_paddle_1 = 0.0
+rotationAroundPaddle1 = 0.0
 ##----
 
 
 ##[source,Python,linenums]
 ##----
 def handle_relative_rotation():
-    global rotation_around_paddle_1
+    global rotationAroundPaddle1
     if glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS:
-        rotation_around_paddle_1 += 0.1
+        rotationAroundPaddle1 += 0.1
 inputHandlers.append(handle_relative_rotation)
 ##----
 
@@ -1442,7 +1357,7 @@ def demo11():
 
 ##[source,Python,linenums]
 ##----
-    draw_paddle_1()
+    paddle1.draw()
 
     glColor3f(0.0, #r
               0.0, #g
@@ -1450,18 +1365,249 @@ def demo11():
     glBegin(GL_QUADS)
     for modelspace in square:
         worldSpace = modelspace.rotate(square_rotation) \
-                               .translate(20.0, 0.0) \
-                               .rotate(rotation_around_paddle_1) \
-                               .rotate(paddle_1_rotation) \
-                               .translate(x=-90.0,
-                                          y=paddle_1_offset_Y)
-        cameraSpace = worldSpace.translate(x=-camera_x,
-                                           y=-camera_y)
+                               .translate(tx=20.0, ty=0.0) \
+                               .rotate(rotationAroundPaddle1) \
+                               .rotate(paddle1.rotation) \
+                               .translate(tx=paddle1.globalPosition.x,
+                                          ty=paddle1.globalPosition.y) \
+                               .translate(tx=paddle1.offsetX,
+                                          ty=paddle1.offsetY)
+
+        cameraSpace = worldSpace.translate(tx=-camera_x,
+                                           ty=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
                                      y=1.0/100.0)
         glVertex2f(ndcSpace.x,
                    ndcSpace.y)
     glEnd()
 
-    draw_paddle_2()
+    paddle2.draw()
+##----
+
+
+##== Adding Depth
+##//TODO - discuss what the z component is, show graphs.
+##//TODO - show X, Y, and Z rotations graphically with gnuplot.
+##//TODO - make appendix for rotation around arbitrary axis
+##[source,C,linenums]
+##----
+class Vertex3:
+    def __init__(self,x,y,z):
+        self.x = x
+        self.y = y
+        self.z = z
+
+def translate(self, tx, ty, tz):
+    return Vertex3(x=self.x + tx,
+                   y=self.y + ty,
+                   z=self.z + tz)
+Vertex3.translate = translate
+
+
+def rotateX(self, angle_in_radians):
+    return Vertex3(x=self.x,
+                   y=self.y*math.cos(angle_in_radians) - self.z*math.sin(angle_in_radians),
+                   z=self.y*math.sin(angle_in_radians) + self.z*math.cos(angle_in_radians))
+Vertex3.rotateX = rotateX
+
+def rotateY(self, angle_in_radians):
+    return Vertex3(x=self.z*math.sin(angle_in_radians) + self.x*math.cos(angle_in_radians),
+                   y=self.y,
+                   z=self.z*math.cos(angle_in_radians) - self.x*math.sin(angle_in_radians))
+Vertex3.rotateY = rotateY
+
+def rotateZ(self, angle_in_radians):
+    return Vertex3(x=self.x*math.cos(angle_in_radians) - self.y*math.sin(angle_in_radians),
+                   y=self.x*math.sin(angle_in_radians) + self.y*math.cos(angle_in_radians),
+                   z=self.z)
+Vertex3.rotateZ = rotateZ
+
+def scale(self, scale_x, scale_y, scale_z):
+    return Vertex3(x=self.x * scale_x,
+                   y=self.y * scale_y,
+                   z=self.z * scale_z)
+Vertex3.scale = scale
+
+def ortho(self,
+          min_x,
+          max_x,
+          min_y,
+          max_y,
+          min_z,
+          max_z):
+    x_length = max_x-min_x
+    y_length = max_y-min_y
+    z_length = max_z-min_z
+    return self.translate(tx=-(max_x-x_length/2.0),
+		          ty=-(max_y-y_length/2.0),
+		          tz=-(max_z-z_length/2.0)) \
+               .scale(1/(x_length/2.0),
+                      1/(y_length/2.0),
+                      1/(-z_length/2.0))
+Vertex3.ortho = ortho
+
+# Install a key handler
+# negate z length because it is already negative, and do not want to flip the data
+
+def rad_to_deg(rad):
+    return 57.296 * rad
+def deg_to_rad(degree):
+    return degree / 57.296
+
+def perspective(nearZ,
+                farZ):
+    field_of_view =  deg_to_rad(45.0/2.0)
+    width, height = glfwGetFramebufferSize(window)
+    y_angle =  (w / h) * field_of_view
+
+    sheared_x = self.x / math.fabs(z) * math.fabs(nearZ)
+    sheared_y = self.y / math.fabs(z) * math.fabs(nearZ)
+    projected =  Vertex3(sheared_x,
+			 sheared_y,
+			 self.z)
+
+    x_min_of_box = math.fabs(nearZ) * math.tan(field_of_view)
+    y_min_of_box = fabs(nearZ) * tan(y_angle)
+    return projected.ortho(min_x= -x_min_of_box,
+			   max_x= x_min_of_box,
+                           min_y= -y_min_of_box,
+			   max_y= y_min_of_box,
+                           min_z= nearZ,
+			   max_z= farZ)
+
+##----
+
+##[source,Python,linenums]
+##----
+paddle1.vertices = [Vertex3(x=-10.0, y=-30.0, z=0.0),
+                    Vertex3(x= 10.0, y=-30.0, z=0.0),
+                    Vertex3(x= 10.0, y= 30.0, z=0.0),
+                    Vertex3(x=-10.0, y=30.0,  z=0.0)]
+paddle2.vertices = paddle1.vertices
+
+square = [Vertex3(x=-5.0, y=-5.0, z=0.0),
+          Vertex3(x= 5.0, y=-5.0, z=0.0),
+          Vertex3(x= 5.0, y= 5.0, z=0.0),
+          Vertex3(x=-5.0, y=5.0,  z=0.0)]
+##----
+
+##[source,Python,linenums]
+##----
+def draw(self):
+    glColor3f(self.r,
+              self.g,
+              self.b)
+
+    glBegin(GL_QUADS)
+    for modelspace in self.vertices:
+        worldSpace = modelspace.rotateZ(self.rotation) \
+                               .translate(tx=self.globalPosition.x,
+                                          ty=self.globalPosition.y,
+                                          tz=0.0) \
+                               .translate(tx=0.0,
+                                          ty=self.offsetY,
+                                          tz=0.0)
+
+        cameraSpace = worldSpace.translate(tx=-camera_x,
+                                           ty=-camera_y,
+                                           tz=0.0)
+        ndcSpace = cameraSpace.ortho(min_x= -100.0,
+                                     max_x= 100.0,
+                                     min_y= -100.0,
+                                     max_y= 100.0,
+                                     min_z= 100.0,
+                                     max_z= -100.0)
+        glVertex3f(ndcSpace.x,
+                   ndcSpace.y,
+                   ndcSpace.z)
+    glEnd()
+Paddle.draw = draw
+
+
+@demoNumber(12)
+def demo12():
+    draw_in_square_viewport()
+    handle_inputs()
+
+##----
+
+
+##// TODO -- draw_paddle_1 is still using only 2D, explain implicit 3D of z have 0 for a value
+##Draw square, relative to paddle 1.
+##[source,C,linenums]
+##----
+    paddle1.draw()
+
+    glColor3f(0.0, #r
+              0.0, #g
+              1.0) #b
+    glBegin(GL_QUADS)
+    for modelspace in square:
+        worldSpace = modelspace.rotateZ(square_rotation) \
+                               .translate(tx=20.0, ty=0.0, tz=0.0) \
+                               .rotateZ(rotationAroundPaddle1) \
+                               .rotateZ(paddle1.rotation) \
+                               .translate(tx=paddle1.globalPosition.x,
+                                          ty=paddle1.globalPosition.y,
+                                          tz=0.0) \
+                               .translate(tx=paddle1.offsetX,
+                                          ty=paddle1.offsetY,
+                                          tz=0.0)
+
+        cameraSpace = worldSpace.translate(tx=-camera_x,
+                                           ty=-camera_y,
+                                           tz=0.0)
+        ndcSpace = cameraSpace.ortho(min_x= -100.0,
+                                     max_x= 100.0,
+                                     min_y= -100.0,
+                                     max_y= 100.0,
+                                     min_z= 100.0,
+                                     max_z= -100.0)
+        glVertex3f(ndcSpace.x,
+                   ndcSpace.y,
+                   ndcSpace.z)
+    glEnd()
+
+    paddle2.draw()
+##----
+
+##== Moving the Camera in 3D
+
+##[source,C,linenums]
+##----
+moving_camera_x = 0.0
+moving_camera_y = 0.0
+moving_camera_z = 0.0
+moving_camera_rot_y = 0.0
+moving_camera_rot_x = 0.0
+
+
+def handle_3D_movement():
+    global moving_camera_x
+    global moving_camera_y
+    global moving_camera_z
+    global moving_camera_rot_x
+    global moving_camera_rot_y
+
+    move_multiple = 15.0
+    if glfw.glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS:
+        moving_camera_rot_y -= 0.03
+    if glfw.glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS:
+        moving_camera_rot_y += 0.03
+    if glfw.glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS:
+        moving_camera_rot_x += 0.03
+    if glfw.glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS:
+        moving_camera_rot_x -= 0.03;
+##//TODO -  explaing movement on XZ-plane
+##//TODO -  show camera movement in graphviz
+    if glfw.glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS:
+        moving_camera_x -= move_multiple * sin(moving_camera_rot_y)
+        moving_camera_z -= move_multiple * cos(moving_camera_rot_y)
+    if glfw.glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS:
+        moving_camera_x += move_multiple * sin(moving_camera_rot_y);
+        moving_camera_z += move_multiple * cos(moving_camera_rot_y);
+
+inputHandlers.append(handle_3D_movement)
+
+
 ##----
