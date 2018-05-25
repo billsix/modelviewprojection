@@ -422,7 +422,7 @@ def demo2():
                0.3)  #y
     glVertex2f(-1.0, #x
                0.3)  #y
-    glEnd();
+    glEnd()
 ##----
 
 ##"glEnd()" tells OpenGL that we have finished providing vertices for
@@ -587,7 +587,7 @@ def draw_in_square_viewport():
                  0.2, #g
                  0.2, #b
                  1.0) #a
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT)
 ##----
 
 ##[source,Python,linenums]
@@ -606,7 +606,7 @@ def draw_in_square_viewport():
                min,                           #width x
                min)                           #width y
 
-    glEnable(GL_SCISSOR_TEST);
+    glEnable(GL_SCISSOR_TEST)
     glScissor(int(0.0 + (width - min)/2.0),  #min x
               int(0.0 + (height - min)/2.0), #min y
               min,                           #width x
@@ -619,8 +619,8 @@ def draw_in_square_viewport():
                  0.0, #g
                  0.0, #b
                  1.0) #a
-    glClear(GL_COLOR_BUFFER_BIT);
-    glDisable(GL_SCISSOR_TEST);
+    glClear(GL_COLOR_BUFFER_BIT)
+    glDisable(GL_SCISSOR_TEST)
 ##----
 
 
@@ -662,8 +662,8 @@ def demo3():
 
 ##[source,Python,linenums]
 ##----
-paddle_1_offset_Y = 0.0;
-paddle_2_offset_Y = 0.0;
+paddle_1_offset_Y = 0.0
+paddle_2_offset_Y = 0.0
 
 inputHandlers = []
 def handle_inputs():
@@ -725,7 +725,7 @@ def demo4():
                0.3+paddle_1_offset_Y)  #y
     glVertex2f(-1.0, #x
                0.3+paddle_1_offset_Y)  #y
-    glEnd();
+    glEnd()
 ##----
 
 ##image:plot3.png[align="center",title="Foo"]
@@ -820,7 +820,7 @@ def demo5():
     glBegin(GL_QUADS)
     for v in paddle:
         newPosition = v.translate(x=-0.9,
-                                  y=paddle_1_offset_Y);
+                                  y=paddle_1_offset_Y)
         glVertex2f(newPosition.x,
                    newPosition.y)
     glEnd()
@@ -835,7 +835,7 @@ def demo5():
     glBegin(GL_QUADS)
     for v in paddle:
         newPosition = v.translate(x=0.9,
-                                  y=paddle_2_offset_Y);
+                                  y=paddle_2_offset_Y)
         glVertex2f(newPosition.x,
                       newPosition.y)
     glEnd()
@@ -930,7 +930,7 @@ def demo6():
     glBegin(GL_QUADS)
     for modelspace in paddle:
         worldSpace = modelspace.translate(x=-90.0,
-                                          y=paddle_1_offset_Y);
+                                          y=paddle_1_offset_Y)
         ndcSpace = worldSpace.scale(x=1.0/100.0,
                                     y=1.0/100.0)
         glVertex2f(ndcSpace.x,
@@ -946,7 +946,7 @@ def demo6():
     glBegin(GL_QUADS)
     for modelspace in paddle:
         worldSpace = modelspace.translate(x=90.0,
-                                          y=paddle_2_offset_Y);
+                                          y=paddle_2_offset_Y)
         ndcSpace = worldSpace.scale(x=1.0/100.0,
                                     y=1.0/100.0)
         glVertex2f(ndcSpace.x,
@@ -1061,13 +1061,13 @@ def handle_paddle_rotations():
     global paddle_1_rotation, paddle_2_rotation
 
     if glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS:
-        paddle_1_rotation += 0.1;
+        paddle_1_rotation += 0.1
     if glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS:
-        paddle_1_rotation -= 0.1;
+        paddle_1_rotation -= 0.1
     if glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS:
-        paddle_2_rotation += 0.1;
+        paddle_2_rotation += 0.1
     if glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS:
-        paddle_2_rotation -= 0.1;
+        paddle_2_rotation -= 0.1
 inputHandlers.append(handle_paddle_rotations)
 ##----
 
@@ -1088,7 +1088,7 @@ def demo7():
     for modelspace in paddle:
         worldSpace = modelspace.rotate(paddle_1_rotation) \
                                .translate(x=-90.0,
-                                          y=paddle_1_offset_Y);
+                                          y=paddle_1_offset_Y)
         ndcSpace = worldSpace.scale(x=1.0/100.0,
                                     y=1.0/100.0)
         glVertex2f(ndcSpace.x,
@@ -1105,7 +1105,7 @@ def demo7():
     for modelspace in paddle:
         worldSpace = modelspace.rotate(paddle_2_rotation) \
                                .translate(x=90.0,
-                                          y=paddle_2_offset_Y);
+                                          y=paddle_2_offset_Y)
         ndcSpace = worldSpace.scale(x=1.0/100.0,
                                     y=1.0/100.0)
         glVertex2f(ndcSpace.x,
@@ -1196,7 +1196,7 @@ def demo8():
     for modelspace in paddle:
         worldSpace = modelspace.rotate(paddle_1_rotation) \
                                .translate(x=-90.0,
-                                          y=paddle_1_offset_Y);
+                                          y=paddle_1_offset_Y)
         cameraSpace = worldSpace.translate(x=-camera_x,
                                            y=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
@@ -1215,7 +1215,7 @@ def demo8():
     for modelspace in paddle:
         worldSpace = modelspace.rotate(paddle_2_rotation) \
                                .translate(x=90.0,
-                                          y=paddle_2_offset_Y);
+                                          y=paddle_2_offset_Y)
         cameraSpace = worldSpace.translate(x=-camera_x,
                                            y=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
@@ -1256,7 +1256,7 @@ def draw_paddle_1():
     for modelspace in paddle:
         worldSpace = modelspace.rotate(paddle_1_rotation) \
                                .translate(x=-90.0,
-                                          y=paddle_1_offset_Y);
+                                          y=paddle_1_offset_Y)
         cameraSpace = worldSpace.translate(x=-camera_x,
                                            y=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
@@ -1276,7 +1276,7 @@ def draw_paddle_2():
     for modelspace in paddle:
         worldSpace = modelspace.rotate(paddle_2_rotation) \
                                .translate(x=90.0,
-                                          y=paddle_2_offset_Y);
+                                          y=paddle_2_offset_Y)
         cameraSpace = worldSpace.translate(x=-camera_x,
                                            y=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
@@ -1307,7 +1307,7 @@ def demo9():
         worldSpace = modelspace.translate(20.0, 0.0) \
                                .rotate(paddle_1_rotation) \
                                .translate(x=-90.0,
-                                          y=paddle_1_offset_Y);
+                                          y=paddle_1_offset_Y)
         cameraSpace = worldSpace.translate(x=-camera_x,
                                            y=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
@@ -1344,7 +1344,7 @@ def demo9():
 
 ##[source,Python,linenums]
 ##----
-square_rotation = 0.0;
+square_rotation = 0.0
 ##----
 
 ##[source,Python,linenums]
@@ -1381,7 +1381,7 @@ def demo10():
                                .translate(20.0, 0.0) \
                                .rotate(paddle_1_rotation) \
                                .translate(x=-90.0,
-                                          y=paddle_1_offset_Y);
+                                          y=paddle_1_offset_Y)
         cameraSpace = worldSpace.translate(x=-camera_x,
                                            y=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
@@ -1419,7 +1419,7 @@ def demo10():
 
 ##[source,C,linenums]
 ##----
-rotation_around_paddle_1 = 0.0;
+rotation_around_paddle_1 = 0.0
 ##----
 
 
@@ -1454,7 +1454,7 @@ def demo11():
                                .rotate(rotation_around_paddle_1) \
                                .rotate(paddle_1_rotation) \
                                .translate(x=-90.0,
-                                          y=paddle_1_offset_Y);
+                                          y=paddle_1_offset_Y)
         cameraSpace = worldSpace.translate(x=-camera_x,
                                            y=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
