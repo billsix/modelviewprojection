@@ -143,6 +143,9 @@ import ctypes
 
 if __name__ != '__main__':
     sys.exit(1)
+
+print("Which Chapter would you like to execute?")
+chapterNumber = input()
 ##----
 
 ##==== GLFW/OpenGL Initialization
@@ -333,6 +336,11 @@ def main_loop():
 def demo1():
     # The baseline behavior.  A black screen.
     pass
+
+if int(chapterNumber) == 1:
+    render_scene = demo1
+    main_loop()
+    sys.exit(0)
 ##----
 
 ##When this code returns, the event loop flushes (i.e) sends the frame to the monitor.  Since
@@ -403,6 +411,11 @@ def demo2():
     glVertex2f(-1.0, #x
                0.3)  #y
     glEnd();
+
+if int(chapterNumber) == 2:
+    render_scene = demo2
+    main_loop()
+    sys.exit(0)
 ##----
 
 ##"glEnd()" tells OpenGL that we have finished providing vertices for
@@ -612,6 +625,12 @@ def draw_in_square_viewport():
 def demo3():
     draw_in_square_viewport()
     demo2()
+
+if int(chapterNumber) == 3:
+    render_scene = demo3
+    main_loop()
+    sys.exit(0)
+
 ##----
 
 ##Yes, the author is aware that "goto" statements are frowned upon.
@@ -662,8 +681,9 @@ paddle_2_offset_Y = 0.0;
 
 ##[source,Python,linenums]
 ##----
-# will be overridden per demo
-def handle_inputs():
+def demo4():
+    draw_in_square_viewport()
+
     global paddle_1_offset_Y, paddle_2_offset_Y
 
     if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
@@ -674,14 +694,6 @@ def handle_inputs():
         paddle_2_offset_Y -= 0.1
     if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
         paddle_2_offset_Y += 0.1
-##----
-
-
-##[source,Python,linenums]
-##----
-def demo4():
-    draw_in_square_viewport()
-    handle_inputs()
 ##----
 
 ##Draw paddle 1, relative to the world-space origin.
@@ -727,6 +739,12 @@ def demo4():
     glVertex2f(0.8,
                0.3+paddle_2_offset_Y)
     glEnd()
+
+if int(chapterNumber) == 4:
+    render_scene = demo4
+    main_loop()
+    sys.exit(0)
+
 ##----
 
 ##image:plot4.png[align="center",title="Foo"]
@@ -784,7 +802,18 @@ paddle = [Vertex(x=-0.1, y=-0.3),
 ##----
 def demo5():
     draw_in_square_viewport()
-    handle_inputs()
+
+    global paddle_1_offset_Y, paddle_2_offset_Y
+
+    if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
+        paddle_1_offset_Y -= 0.1
+    if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
+        paddle_1_offset_Y += 0.1
+    if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
+        paddle_2_offset_Y -= 0.1
+    if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
+        paddle_2_offset_Y += 0.1
+
 
 ##----
 ##Draw paddle 1, relative to the world-space origin.
@@ -815,6 +844,12 @@ def demo5():
         glVertex2f(newPosition.x,
                       newPosition.y)
     glEnd()
+
+if int(chapterNumber) == 5:
+    render_scene = demo5
+    main_loop()
+    sys.exit(0)
+
 ##----
 
 
@@ -854,21 +889,6 @@ paddle = [Vertex(x=-10.0, y=-30.0),
           Vertex(x=-10.0, y=30.0)]
 ##----
 
-##[source,Python,linenums]
-##----
-def handle_inputs():
-    global paddle_1_offset_Y, paddle_2_offset_Y
-
-    if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
-        paddle_1_offset_Y -= 10.0
-    if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
-        paddle_1_offset_Y += 10.0
-    if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
-        paddle_2_offset_Y -= 10.0
-    if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
-        paddle_2_offset_Y += 10.0
-##----
-
 ##=== Scaling
 
 ##image:scale.png[align="center",title="Foo"]
@@ -892,7 +912,18 @@ Vertex.scale = scale
 ##----
 def demo6():
     draw_in_square_viewport()
-    handle_inputs()
+
+    global paddle_1_offset_Y, paddle_2_offset_Y
+
+    if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
+        paddle_1_offset_Y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
+        paddle_1_offset_Y += 10.0
+    if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
+        paddle_2_offset_Y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
+        paddle_2_offset_Y += 10.0
+
 
 ##----
 ##[source,Python,linenums]
@@ -925,6 +956,11 @@ def demo6():
         glVertex2f(ndcSpace.x,
                    ndcSpace.y)
     glEnd()
+
+if int(chapterNumber) == 6:
+    render_scene = demo6
+    main_loop()
+    sys.exit(0)
 ##----
 
 ##=== Rotation Around Origin (0,0)
@@ -994,38 +1030,6 @@ paddle_2_rotation = 0.0
 ##----
 
 
-##[source,Python,linenums]
-##----
-def handle_inputs():
-    global paddle_1_offset_Y, paddle_2_offset_Y
-
-##----
-##[source,Python,linenums]
-##----
-    if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
-        paddle_1_offset_Y -= 10.0
-    if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
-        paddle_1_offset_Y += 10.0
-    if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
-        paddle_2_offset_Y -= 10.0
-    if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
-        paddle_2_offset_Y += 10.0
-##----
-##[source,Python,linenums]
-##----
-
-    global paddle_1_rotation, paddle_2_rotation
-
-    if glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS:
-        paddle_1_rotation += 0.1;
-    if glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS:
-        paddle_1_rotation -= 0.1;
-    if glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS:
-        paddle_2_rotation += 0.1;
-    if glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS:
-        paddle_2_rotation -= 0.1;
-##----
-
 
 
 
@@ -1066,8 +1070,28 @@ Vertex.rotate = rotate
 ##----
 def demo7():
     draw_in_square_viewport()
-    handle_inputs()
 
+    global paddle_1_offset_Y, paddle_2_offset_Y
+
+    if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
+        paddle_1_offset_Y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
+        paddle_1_offset_Y += 10.0
+    if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
+        paddle_2_offset_Y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
+        paddle_2_offset_Y += 10.0
+
+    global paddle_1_rotation, paddle_2_rotation
+
+    if glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS:
+        paddle_1_rotation += 0.1;
+    if glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS:
+        paddle_1_rotation -= 0.1;
+    if glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS:
+        paddle_2_rotation += 0.1;
+    if glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS:
+        paddle_2_rotation -= 0.1;
 ##----
 ##[source,Python,linenums]
 ##----
@@ -1076,8 +1100,9 @@ def demo7():
               1.0) #b
     glBegin(GL_QUADS)
     for modelspace in paddle:
-        worldSpace = modelspace.rotate(paddle_1_rotation).translate(x=-90.0,
-                                                                    y=paddle_1_offset_Y);
+        worldSpace = modelspace.rotate(paddle_1_rotation) \
+                               .translate(x=-90.0,
+                                          y=paddle_1_offset_Y);
         ndcSpace = worldSpace.scale(x=1.0/100.0,
                                     y=1.0/100.0)
         glVertex2f(ndcSpace.x,
@@ -1092,13 +1117,20 @@ def demo7():
               0.0) #b
     glBegin(GL_QUADS)
     for modelspace in paddle:
-        worldSpace = modelspace.rotate(paddle_2_rotation).translate(x=90.0,
-                                                                    y=paddle_2_offset_Y);
+        worldSpace = modelspace.rotate(paddle_2_rotation) \
+                               .translate(x=90.0,
+                                          y=paddle_2_offset_Y);
         ndcSpace = worldSpace.scale(x=1.0/100.0,
                                     y=1.0/100.0)
         glVertex2f(ndcSpace.x,
                    ndcSpace.y)
     glEnd()
+
+if int(chapterNumber) == 7:
+    render_scene = demo7
+    main_loop()
+    sys.exit(0)
+
 ##----
 
 
@@ -1150,14 +1182,14 @@ camera_x = 0.0
 camera_y = 0.0
 ##----
 
+
 ##[source,Python,linenums]
 ##----
-def handle_inputs():
+def demo8():
+    draw_in_square_viewport()
+
     global paddle_1_offset_Y, paddle_2_offset_Y
 
-##----
-##[source,Python,linenums]
-##----
     if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
         paddle_1_offset_Y -= 10.0
     if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
@@ -1166,9 +1198,7 @@ def handle_inputs():
         paddle_2_offset_Y -= 10.0
     if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
         paddle_2_offset_Y += 10.0
-##----
-##[source,Python,linenums]
-##----
+
     global paddle_1_rotation, paddle_2_rotation
 
     if glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS:
@@ -1179,9 +1209,7 @@ def handle_inputs():
         paddle_2_rotation += 0.1;
     if glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS:
         paddle_2_rotation -= 0.1;
-##----
-##[source,Python,linenums]
-##----
+
     global camera_x, camera_y
 
     if glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS:
@@ -1193,16 +1221,6 @@ def handle_inputs():
     if glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS:
         camera_x += 10.0
 ##----
-
-
-
-##[source,Python,linenums]
-##----
-def demo8():
-    draw_in_square_viewport()
-    handle_inputs()
-
-##----
 ##[source,Python,linenums]
 ##----
     glColor3f(1.0, #r
@@ -1210,8 +1228,9 @@ def demo8():
               1.0) #b
     glBegin(GL_QUADS)
     for modelspace in paddle:
-        worldSpace = modelspace.rotate(paddle_1_rotation).translate(x=-90.0,
-                                                                    y=paddle_1_offset_Y);
+        worldSpace = modelspace.rotate(paddle_1_rotation) \
+                               .translate(x=-90.0,
+                                          y=paddle_1_offset_Y);
         cameraSpace = worldSpace.translate(x=-camera_x,
                                            y=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
@@ -1228,8 +1247,9 @@ def demo8():
               0.0) #b
     glBegin(GL_QUADS)
     for modelspace in paddle:
-        worldSpace = modelspace.rotate(paddle_2_rotation).translate(x=90.0,
-                                                                    y=paddle_2_offset_Y);
+        worldSpace = modelspace.rotate(paddle_2_rotation) \
+                               .translate(x=90.0,
+                                          y=paddle_2_offset_Y);
         cameraSpace = worldSpace.translate(x=-camera_x,
                                            y=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
@@ -1237,6 +1257,12 @@ def demo8():
         glVertex2f(ndcSpace.x,
                    ndcSpace.y)
     glEnd()
+
+if int(chapterNumber) == 8:
+    render_scene = demo8
+    main_loop()
+    sys.exit(0)
+
 ##----
 
 ##== Relative Objects
@@ -1260,12 +1286,333 @@ def demo8():
 ##|RIGHT          |Move the Camera Right
 ##|=======================================
 
+##[source,Python,linenums]
+##----
+def draw_paddle_1():
+    glColor3f(1.0, #r
+              1.0, #g
+              1.0) #b
+    glBegin(GL_QUADS)
+    for modelspace in paddle:
+        worldSpace = modelspace.rotate(paddle_1_rotation) \
+                               .translate(x=-90.0,
+                                          y=paddle_1_offset_Y);
+        cameraSpace = worldSpace.translate(x=-camera_x,
+                                           y=-camera_y)
+        ndcSpace = cameraSpace.scale(x=1.0/100.0,
+                                     y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+##----
+
+##[source,Python,linenums]
+##----
+def draw_paddle_2():
+    glColor3f(1.0, #r
+              1.0, #g
+              0.0) #b
+    glBegin(GL_QUADS)
+    for modelspace in paddle:
+        worldSpace = modelspace.rotate(paddle_2_rotation) \
+                               .translate(x=90.0,
+                                          y=paddle_2_offset_Y);
+        cameraSpace = worldSpace.translate(x=-camera_x,
+                                           y=-camera_y)
+        ndcSpace = cameraSpace.scale(x=1.0/100.0,
+                                     y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+
+square = [Vertex(x=-5.0, y=-5.0),
+          Vertex(x= 5.0, y=-5.0),
+          Vertex(x= 5.0, y= 5.0),
+          Vertex(x=-5.0, y= 5.0)]
 
 
+def demo9():
+    draw_in_square_viewport()
+
+    global paddle_1_offset_Y, paddle_2_offset_Y
+
+    if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
+        paddle_1_offset_Y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
+        paddle_1_offset_Y += 10.0
+    if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
+        paddle_2_offset_Y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
+        paddle_2_offset_Y += 10.0
+
+    global paddle_1_rotation, paddle_2_rotation
+
+    if glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS:
+        paddle_1_rotation += 0.1;
+    if glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS:
+        paddle_1_rotation -= 0.1;
+    if glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS:
+        paddle_2_rotation += 0.1;
+    if glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS:
+        paddle_2_rotation -= 0.1;
+
+    global camera_x, camera_y
+
+    if glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS:
+        camera_y += 10.0
+    if glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS:
+        camera_y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS:
+        camera_x -= 10.0
+    if glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS:
+        camera_x += 10.0
+
+    draw_paddle_1()
+
+
+    glColor3f(0.0, #r
+              0.0, #g
+              1.0) #b
+    glBegin(GL_QUADS)
+    for modelspace in square:
+        worldSpace = modelspace.translate(20.0, 0.0) \
+                               .rotate(paddle_1_rotation) \
+                               .translate(x=-90.0,
+                                          y=paddle_1_offset_Y);
+        cameraSpace = worldSpace.translate(x=-camera_x,
+                                           y=-camera_y)
+        ndcSpace = cameraSpace.scale(x=1.0/100.0,
+                                     y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+
+    draw_paddle_2()
+
+
+if int(chapterNumber) == 9:
+    render_scene = demo9
+    main_loop()
+    sys.exit(0)
+##----
+
+##== Rotate the Square About Its Origin
+##
+##[width="75%",options="header,footer"]
+##|=======================================
+##|Keyboard Input |Action
+##|w              |Move Left Paddle Up
+##|s              |Move Left Paddle Down
+##|k              |Move Right Paddle Up
+##|i              |Move Right Paddle Down
+##|               |
+##|d              |Increase Left Paddle's Rotation
+##|a              |Decrease Left Paddle's Rotation
+##|l              |Increase Right Paddle's Rotation
+##|j              |Decrease Right Paddle's Rotation
+##|               |
+##|UP             |Move the Camera Up
+##|DOWN           |Move the Camera Down
+##|LEFT           |Move the Camera Left
+##|RIGHT          |Move the Camera Right
+##|               |
+##|*q*              |*Rotate the square around its center.*
+##|=======================================
+
+##[source,Python,linenums]
+##----
+square_rotation = 0.0;
+##----
+
+##[source,Python,linenums]
+##----
+def demo10():
+    draw_in_square_viewport()
+
+    global paddle_1_offset_Y, paddle_2_offset_Y
+
+    if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
+        paddle_1_offset_Y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
+        paddle_1_offset_Y += 10.0
+    if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
+        paddle_2_offset_Y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
+        paddle_2_offset_Y += 10.0
+
+    global paddle_1_rotation, paddle_2_rotation
+
+    if glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS:
+        paddle_1_rotation += 0.1;
+    if glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS:
+        paddle_1_rotation -= 0.1;
+    if glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS:
+        paddle_2_rotation += 0.1;
+    if glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS:
+        paddle_2_rotation -= 0.1;
+
+    global camera_x, camera_y
+
+    if glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS:
+        camera_y += 10.0
+    if glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS:
+        camera_y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS:
+        camera_x -= 10.0
+    if glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS:
+        camera_x += 10.0
+##----
+
+##Handle the rotation.
+
+##[source,Python,linenums]
+##----
+    global square_rotation
+    if glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS:
+        square_rotation += 0.1
+##----
 
 
 ##[source,Python,linenums]
 ##----
-render_scene = demo8
-main_loop()
+    draw_paddle_1()
+
+    glColor3f(0.0, #r
+              0.0, #g
+              1.0) #b
+    glBegin(GL_QUADS)
+    for modelspace in square:
+        worldSpace = modelspace.rotate(square_rotation) \
+                               .translate(20.0, 0.0) \
+                               .rotate(paddle_1_rotation) \
+                               .translate(x=-90.0,
+                                          y=paddle_1_offset_Y);
+        cameraSpace = worldSpace.translate(x=-camera_x,
+                                           y=-camera_y)
+        ndcSpace = cameraSpace.scale(x=1.0/100.0,
+                                     y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+
+    draw_paddle_2()
+
+
+if int(chapterNumber) == 10:
+    render_scene = demo10
+    main_loop()
+    sys.exit(0)
+##----
+
+##== Relative Rotation
+##[width="75%",options="header,footer"]
+##|=======================================
+##|Keyboard Input |Action
+##|w              |Move Left Paddle Up
+##|s              |Move Left Paddle Down
+##|k              |Move Right Paddle Up
+##|i              |Move Right Paddle Down
+##|               |
+##|d              |Increase Left Paddle's Rotation
+##|a              |Decrease Left Paddle's Rotation
+##|l              |Increase Right Paddle's Rotation
+##|j              |Decrease Right Paddle's Rotation
+##|               |
+##|UP             |Move the Camera Up
+##|DOWN           |Move the Camera Down
+##|LEFT           |Move the Camera Left
+##|RIGHT          |Move the Camera Right
+##|               |
+##|q              |Rotate the square around its center
+##|*e*              |*Rotate the square around the left paddle*
+##|=======================================
+##
+
+##[source,C,linenums]
+##----
+rotation_around_paddle_1 = 0.0;
+##----
+
+##[source,Python,linenums]
+##----
+def demo11():
+    draw_in_square_viewport()
+
+    global paddle_1_offset_Y, paddle_2_offset_Y
+
+    if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
+        paddle_1_offset_Y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
+        paddle_1_offset_Y += 10.0
+    if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
+        paddle_2_offset_Y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
+        paddle_2_offset_Y += 10.0
+
+    global paddle_1_rotation, paddle_2_rotation
+
+    if glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS:
+        paddle_1_rotation += 0.1;
+    if glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS:
+        paddle_1_rotation -= 0.1;
+    if glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS:
+        paddle_2_rotation += 0.1;
+    if glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS:
+        paddle_2_rotation -= 0.1;
+
+    global camera_x, camera_y
+
+    if glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS:
+        camera_y += 10.0
+    if glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS:
+        camera_y -= 10.0
+    if glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS:
+        camera_x -= 10.0
+    if glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS:
+        camera_x += 10.0
+
+    global square_rotation
+    if glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS:
+        square_rotation += 0.1
+##----
+
+
+##[source,Python,linenums]
+##----
+    global rotation_around_paddle_1
+    if glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS:
+        rotation_around_paddle_1 += 0.1
+##----
+
+
+##[source,Python,linenums]
+##----
+    draw_paddle_1()
+
+    glColor3f(0.0, #r
+              0.0, #g
+              1.0) #b
+    glBegin(GL_QUADS)
+    for modelspace in square:
+        worldSpace = modelspace.rotate(square_rotation) \
+                               .translate(20.0, 0.0) \
+                               .rotate(rotation_around_paddle_1) \
+                               .rotate(paddle_1_rotation) \
+                               .translate(x=-90.0,
+                                          y=paddle_1_offset_Y);
+        cameraSpace = worldSpace.translate(x=-camera_x,
+                                           y=-camera_y)
+        ndcSpace = cameraSpace.scale(x=1.0/100.0,
+                                     y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+
+    draw_paddle_2()
+
+
+if int(chapterNumber) == 11:
+    render_scene = demo11
+    main_loop()
+    sys.exit(0)
 ##----
