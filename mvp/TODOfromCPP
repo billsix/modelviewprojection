@@ -1,0 +1,990 @@
+  const std::vector<Vertex> square = {
+    Vertex(-5.0, -5.0),
+    Vertex(5.0, -5.0),
+    Vertex(5.0, 5.0),
+    Vertex(-5.0, 5.0)
+  };
+  std::function<void()> draw_paddle_1 = [&](){
+    glColor3f(/*red*/   1.0,
+              /*green*/ 1.0,
+              /*blue*/  1.0);
+    glBegin(GL_QUADS);
+    {
+      for(Vertex modelspace : paddle){
+        Vertex worldSpace = modelspace
+          .rotate(/*radians*/ paddle_1_rotation)
+          .translate(/*x*/ -90.0,
+                     /*y*/ paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(/*x*/ -camera_x,
+                                                  /*y*/ -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(/*x*/ 1.0/100.0,
+                                            /*y*/ 1.0/100.0);
+        glVertex2f(/*x*/ ndcSpace.x,
+                   /*y*/ ndcSpace.y);
+      }
+    }
+    glEnd();
+  };
+  std::function<void()> draw_paddle_2 = [&](){
+    glBegin(GL_QUADS);
+    {
+      glColor3f(/*red*/   1.0,
+                /*green*/ 1.0,
+                /*blue*/  0.0);
+      for(Vertex modelspace : paddle){
+        Vertex worldSpace = modelspace
+          .rotate(/*radians*/ paddle_2_rotation)
+          .translate(/*x*/ 90.0,
+                     /*y*/ paddle_2_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(/*x*/ -camera_x,
+                                                  /*y*/ -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(/*x*/ 1.0/100.0,
+                                            /*y*/ 1.0/100.0);
+        glVertex2f(/*x*/ ndcSpace.x,
+                   /*y*/ ndcSpace.y);
+      }
+    }
+    glEnd();
+  };
+//----
+//
+//[source,C,linenums]
+//----
+  if(10 == *chapter_number){
+    draw_in_square_viewport();
+//----
+//Draw paddle 1.
+//[source,C,linenums]
+//----
+    draw_paddle_1();
+//----
+//Draw square, relative to paddle 1.
+//[source,C,linenums]
+//----
+    glColor3f(/*red*/   0.0,
+              /*green*/ 0.0,
+              /*blue*/  1.0);
+    glBegin(GL_QUADS);
+    {
+      for(Vertex modelspace : square){
+        Vertex worldSpace = modelspace
+          .translate(/*x*/ 20.0f,
+                     /*y*/ 0.0f)
+          .rotate(/*radians*/ paddle_1_rotation)
+          .translate(/*x*/ -90.0,
+                     /*y*/ paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(/*x*/ -camera_x,
+                                                  /*y*/ -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(/*x*/ 1.0/100.0,
+                                            /*y*/ 1.0/100.0);
+        glVertex2f(/*x*/ ndcSpace.x,
+                   /*y*/ ndcSpace.y);
+      }
+    }
+    glEnd();
+//----
+//Draw paddle 2.
+//[source,C,linenums]
+//----
+    draw_paddle_2();
+    return;
+  }
+//----
+//== Rotate the Square About Its Origin
+//
+//[width="75%",options="header,footer"]
+//|=======================================
+//|Keyboard Input |Action
+//|w              |Move Left Paddle Up
+//|s              |Move Left Paddle Down
+//|k              |Move Right Paddle Up
+//|i              |Move Right Paddle Down
+//|               |
+//|d              |Increase Left Paddle's Rotation
+//|a              |Decrease Left Paddle's Rotation
+//|l              |Increase Right Paddle's Rotation
+//|j              |Decrease Right Paddle's Rotation
+//|               |
+//|UP             |Move the Camera Up
+//|DOWN           |Move the Camera Down
+//|LEFT           |Move the Camera Left
+//|RIGHT          |Move the Camera Right
+//|               |
+//|*q*              |*Rotate the square around its center.*
+//|=======================================
+//[source,C,linenums]
+//----
+  static GLfloat square_rotation = 0.0;
+  // update_square_rotation
+  if (glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS){
+    square_rotation += 0.1;
+  }
+  if(11 == *chapter_number){
+    draw_in_square_viewport();
+//----
+//Draw paddle 1.
+//[source,C,linenums]
+//----
+    draw_paddle_1();
+//----
+//Draw square, relative to paddle 1.
+//[source,C,linenums]
+//----
+    glColor3f(/*red*/   0.0,
+              /*green*/ 0.0,
+              /*blue*/  1.0);
+    glBegin(GL_QUADS);
+    {
+      for(Vertex modelspace : square){
+        Vertex worldSpace  = modelspace
+          .rotate(/*radians*/ square_rotation)
+          .translate(/*x*/ 20.0f,
+                     /*y*/ 0.0f)
+          .rotate(/*radians*/ paddle_1_rotation)
+          .translate(/*x*/ -90.0,
+                     /*y*/ paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(/*x*/ -camera_x,
+                                                  /*y*/ -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(/*x*/ 1.0/100.0,
+                                            /*y*/ 1.0/100.0);
+        glVertex2f(/*x*/ ndcSpace.x,
+                   /*y*/ ndcSpace.y);
+      }
+      glEnd();
+    }
+//----
+//Draw paddle 2.
+//[source,C,linenums]
+//----
+    draw_paddle_2();
+    return;
+  }
+//----
+//== Relative Rotation
+//[width="75%",options="header,footer"]
+//|=======================================
+//|Keyboard Input |Action
+//|w              |Move Left Paddle Up
+//|s              |Move Left Paddle Down
+//|k              |Move Right Paddle Up
+//|i              |Move Right Paddle Down
+//|               |
+//|d              |Increase Left Paddle's Rotation
+//|a              |Decrease Left Paddle's Rotation
+//|l              |Increase Right Paddle's Rotation
+//|j              |Decrease Right Paddle's Rotation
+//|               |
+//|UP             |Move the Camera Up
+//|DOWN           |Move the Camera Down
+//|LEFT           |Move the Camera Left
+//|RIGHT          |Move the Camera Right
+//|               |
+//|q              |Rotate the square around its center
+//|*e*              |*Rotate the square around the left paddle*
+//|=======================================
+//
+//[source,C,linenums]
+//----
+  static GLfloat rotation_around_paddle_1 = 0.0;
+  if (glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS){
+    rotation_around_paddle_1 += 0.1;
+  }
+//----
+//[source,C,linenums]
+//----
+  if(12 == *chapter_number){
+    draw_in_square_viewport();
+//----
+//Draw paddle 1.
+//[source,C,linenums]
+//----
+    draw_paddle_1();
+//----
+//Draw square, relative to paddle 1.
+//[source,C,linenums]
+//----
+    glColor3f(/*red*/   0.0,
+              /*green*/ 0.0,
+              /*blue*/  1.0);
+    glBegin(GL_QUADS);
+    {
+      for(Vertex modelspace : square){
+        Vertex worldSpace  = modelspace
+          .rotate(/*radians*/ square_rotation)
+          .translate(/*x*/ 20.0f,
+                     /*y*/ 0.0f)
+          .rotate(/*radians*/ rotation_around_paddle_1)
+          .rotate(/*radians*/ paddle_1_rotation)
+          .translate(/*x*/ -90.0,
+                     /*y*/ paddle_1_offset_Y);
+        Vertex cameraSpace = worldSpace.translate(/*x*/ -camera_x,
+                                                  /*y*/ -camera_y);
+        Vertex ndcSpace = cameraSpace.scale(/*x*/ 1.0/100.0,
+                                            /*y*/ 1.0/100.0);
+        glVertex2f(/*x*/ ndcSpace.x,
+                   /*y*/ ndcSpace.y);
+      }
+      glEnd();
+    }
+//----
+//Draw paddle 2.
+//[source,C,linenums]
+//----
+    draw_paddle_2();
+    return;
+  }
+//----
+//
+//== Adding Depth
+////TODO - discuss what the z component is, show graphs.
+////TODO - show X, Y, and Z rotations graphically with gnuplot.
+////TODO - make appendix for rotation around arbitrary axis
+//[source,C,linenums]
+//----
+  class Vertex3 {
+  public:
+    Vertex3(GLfloat the_x, GLfloat the_y, GLfloat the_z):
+      x(the_x),
+      y(the_y),
+      z(the_z)
+    {}
+    Vertex3 translate(GLfloat translate_x,
+                      GLfloat translate_y,
+                      GLfloat translate_z)
+    {
+      return Vertex3(x + translate_x,
+                     y + translate_y,
+		     z + translate_z);
+    };
+    Vertex3 rotateX(GLfloat angle_in_radians)
+    {
+      return Vertex3(x,
+                     y*cos(angle_in_radians) - z*sin(angle_in_radians),
+		     y*sin(angle_in_radians) + z*cos(angle_in_radians));
+    };
+    Vertex3 rotateY(GLfloat angle_in_radians)
+    {
+      return Vertex3(z*sin(angle_in_radians) + x*cos(angle_in_radians),
+                     y,
+		     z*cos(angle_in_radians) - x*sin(angle_in_radians));
+    };
+    Vertex3 rotateZ(GLfloat angle_in_radians)
+    {
+      return Vertex3(x*cos(angle_in_radians) - y*sin(angle_in_radians),
+                     x*sin(angle_in_radians) + y*cos(angle_in_radians),
+                     z);
+    };
+    Vertex3 scale(GLfloat scale_x,
+                  GLfloat scale_y,
+                  GLfloat scale_z)
+    {
+      return Vertex3(x * scale_x,
+                     y * scale_y,
+                     z * scale_z);
+    };
+////TODO - explain that ortho will be decribed later
+    Vertex3 ortho(GLfloat min_x,
+                  GLfloat max_x,
+                  GLfloat min_y,
+                  GLfloat max_y,
+                  GLfloat min_z,
+                  GLfloat max_z)
+    {
+      GLfloat x_length = max_x-min_x;
+      GLfloat y_length = max_y-min_y;
+      GLfloat z_length = max_z-min_z;
+      return
+	translate(-(max_x-x_length/2.0),
+		  -(max_y-y_length/2.0),
+		  -(max_z-z_length/2.0))
+        .scale(/*x*/ 1/(x_length/2.0),
+               /*y*/ 1/(y_length/2.0),
+               /*z*/ 1/(-z_length/2.0));
+      // negate z length because it is already negative, and don't want
+      // to flip the data
+    }
+
+#define RAD_TO_DEG(rad) (57.296 * rad)
+#define DEG_TO_RAD(degree) (degree / 57.296)
+////TODO -  explain that perspective will be explained later
+    Vertex3 perspective(GLfloat nearZ,
+                        GLfloat farZ){
+      const GLfloat field_of_view =  DEG_TO_RAD(45.0/2.0);
+      int w, h;
+      glfwGetFramebufferSize(window, &w, &h);
+      GLfloat y_angle =  (w / h) * field_of_view;
+
+      GLfloat sheared_x = x / fabs(z) * fabs(nearZ);
+      GLfloat sheared_y = y / fabs(z) * fabs(nearZ);
+      Vertex3 projected =  Vertex3(/*x*/ sheared_x,
+				   /*y*/ sheared_y,
+				   /*z*/ z);
+      GLfloat x_min_of_box = fabs(nearZ) * tan(field_of_view);
+      GLfloat y_min_of_box = fabs(nearZ) * tan(y_angle);
+      return projected.ortho(/*min_x*/ -x_min_of_box,
+			     /*max_x*/ x_min_of_box,
+                             /*min_y*/ -y_min_of_box,
+			     /*max_y*/ y_min_of_box,
+                             /*min_z*/ nearZ,
+			     /*max_z*/ farZ);
+    };
+    GLfloat x;
+    GLfloat y;
+    GLfloat z;
+  };
+
+////TODO -  explain that we are externalizeing the aggregate transformation into a procedure
+
+  typedef std::function<Vertex3 (Vertex3)> Vertex3_transformer;
+  std::function<void (Vertex3_transformer)>
+    draw_square3_programmable =
+    [&](Vertex3_transformer f)
+    {
+      glBegin(GL_QUADS);
+      {
+        Vertex3 ndc_v_1 = f(Vertex3(/*x*/ -1.0,
+                                    /*y*/ -1.0,
+                                    /*z*/ 0.0));
+        glVertex3f(/*x*/ ndc_v_1.x,
+                   /*y*/ ndc_v_1.y,
+                   /*z*/ ndc_v_1.z);
+        Vertex3 ndc_v_2 = f(Vertex3(/*x*/ 1.0,
+                                    /*y*/ -1.0,
+                                    /*z*/ 0.0));
+        glVertex3f(/*x*/ ndc_v_2.x,
+                   /*y*/ ndc_v_2.y,
+                   /*z*/ ndc_v_2.z);
+        Vertex3 ndc_v_3 = f(Vertex3(/*x*/ 1.0,
+                                    /*y*/ 1.0,
+                                    /*z*/ 0.0));
+        glVertex3f(/*x*/ ndc_v_3.x,
+                   /*y*/ ndc_v_3.y,
+                   /*z*/ ndc_v_3.z);
+        Vertex3 ndc_v_4 = f(Vertex3(/*x*/ -1.0,
+                                    /*y*/ 1.0,
+                                    /*z*/ 0.0));
+        glVertex3f(/*x*/ ndc_v_4.x,
+                   /*y*/ ndc_v_4.y,
+                   /*z*/ ndc_v_4.z);
+      }
+      glEnd();
+    };
+//----
+//[source,C,linenums]
+//----
+  const std::vector<Vertex3> paddle3D = {
+    Vertex3(/*x*/ -10.0,
+            /*y*/ -30.0,
+            /*z*/ 0.0),
+    Vertex3(/*x*/ 10.0,
+            /*y*/ -30.0,
+            /*z*/ 0.0),
+    Vertex3(/*x*/ 10.0,
+            /*y*/ 30.0,
+            /*z*/ 0.0),
+    Vertex3(/*x*/ -10.0,
+            /*y*/ 30.0,
+            /*z*/ 0.0)
+  };
+  const std::vector<Vertex3> square3D = {
+    Vertex3(/*x*/ -5.0,
+            /*y*/ -5.0,
+            /*z*/ 0.0),
+    Vertex3(/*x*/ 5.0,
+            /*y*/ -5.0,
+            /*z*/ 0.0),
+    Vertex3(/*x*/ 5.0,
+            /*y*/ 5.0,
+            /*z*/ 0.0),
+    Vertex3(/*x*/ -5.0,
+            /*y*/ 5.0,
+            /*z*/ 0.0)
+  };
+
+
+//// TODO -- update newposition to have better names for 3d
+  if(13 == *chapter_number){
+    draw_in_square_viewport();
+//----
+//Draw paddle 1.
+//[source,C,linenums]
+//----
+//// TODO -- draw_paddle_1 is still using only 2D, explain implicit 3D of z have 0 for a value
+    draw_paddle_1();
+//----
+//Draw square, relative to paddle 1.
+//[source,C,linenums]
+//----
+    glColor3f(/*red*/   0.0,
+              /*green*/ 0.0,
+              /*blue*/  1.0);
+    glBegin(GL_QUADS);
+    {
+      for(Vertex3 modelspace : square3D){
+        Vertex3 worldSpace = modelspace
+          .rotateZ(/*radians*/ square_rotation)
+          .translate(/*x*/ 20.0f,
+                     /*y*/ 0.0f,
+                     /*z*/ -10.0f)  // NEW, using a different Z value
+          .rotateZ(/*radians*/ rotation_around_paddle_1)
+          .rotateZ(/*radians*/ paddle_1_rotation)
+          .translate(/*x*/ -90.0,
+                     /*y*/ paddle_1_offset_Y,
+                     /*z*/ 0.0);
+        Vertex3 cameraSpace = worldSpace
+          .translate(/*x*/ -camera_x,
+                     /*y*/ -camera_y,
+                     /*z*/ 0.0);
+////TODO -  explain ortho
+        Vertex3 ndcSpace = cameraSpace
+          .ortho(/*min_x*/ -100.0f,
+                 /*max_x*/ 100.0f,
+                 /*min_y*/ -100.0f,
+                 /*max_y*/ 100.0f,
+                 /*min_z*/ 100.0f,
+                 /*max_z*/ -100.0f);
+        glVertex3f(/*x*/ ndcSpace.x,
+                   /*y*/ ndcSpace.y,
+                   /*z*/ ndcSpace.y);
+      }
+      glEnd();
+    }
+//----
+//Draw paddle 2.
+//[source,C,linenums]
+//----
+    draw_paddle_2();
+    return;
+  }
+//----
+//
+//== Moving the Camera in 3D
+//[source,C,linenums]
+//----
+  static GLfloat moving_camera_x = 0.0;
+  static GLfloat moving_camera_y = 0.0;
+  static GLfloat moving_camera_z = 0.0;
+  static GLfloat moving_camera_rot_y = 0.0;
+  static GLfloat moving_camera_rot_x = 0.0;
+  // update camera from the keyboard
+  {
+    const GLfloat move_multiple = 15.0;
+    if (glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS){
+      moving_camera_rot_y -= 0.03;
+    }
+    if (glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS){
+      moving_camera_rot_y += 0.03;
+    }
+    if (glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS){
+      moving_camera_rot_x += 0.03;
+    }
+    if (glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS){
+      moving_camera_rot_x -= 0.03;
+    }
+////TODO -  explaing movement on XZ-plane
+////TODO -  show camera movement in graphviz
+    if (glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS){
+      moving_camera_x -= move_multiple * sin(moving_camera_rot_y);
+      moving_camera_z -= move_multiple * cos(moving_camera_rot_y);
+    }
+    if (glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS){
+      moving_camera_x += move_multiple * sin(moving_camera_rot_y);
+      moving_camera_z += move_multiple * cos(moving_camera_rot_y);
+    }
+  }
+//----
+//[source,C,linenums]
+//----
+  if(14 == *chapter_number){
+    draw_in_square_viewport();
+//----
+//Draw paddle 1, relative to the world-space origin.
+//[source,C,linenums]
+//----
+    glColor3f(/*red*/   1.0,
+              /*green*/ 1.0,
+              /*blue*/  1.0);
+    glBegin(GL_QUADS);
+    {
+      for(Vertex3 modelspace : paddle3D){
+        Vertex3 worldSpace = modelspace
+          .rotateZ(/*radians*/ paddle_1_rotation)
+          .translate(/*x*/ -90.0,
+                     /*y*/ paddle_1_offset_Y,
+                     /*z*/ 0.0);
+        // new camera transformations
+        Vertex3 cameraSpace = worldSpace
+          .translate(/*x*/ -moving_camera_x,      // NEW
+                     /*y*/ -moving_camera_y,      // NEW
+                     /*z*/ -moving_camera_z)      // NEW
+          .rotateY(/*radians*/ -moving_camera_rot_y)    // NEW
+          .rotateX(/*radians*/ -moving_camera_rot_x);   // NEW
+        // end new camera transformations
+////TODO -  discuss order of rotations, use moving head analogy to show that rotations are not commutative
+        Vertex3 ndcSpace = cameraSpace
+          .ortho(/*min_x*/ -100.0f,
+                 /*max_x*/ 100.0f,
+                 /*min_y*/ -100.0f,
+                 /*max_y*/ 100.0f,
+                 /*min_z*/ 100.0f,
+                 /*max_z*/ -100.0f);
+        glVertex3f(/*x*/ ndcSpace.x,
+                   /*y*/ ndcSpace.y,
+                   /*z*/ ndcSpace.z);
+      }
+    }
+    glEnd();
+//----
+//Draw square, relative to paddle 1.
+//[source,C,linenums]
+//----
+    glColor3f(/*red*/   0.0,
+              /*green*/ 0.0,
+              /*blue*/  1.0);
+    glBegin(GL_QUADS);
+    {
+      for(Vertex3 modelspace : square3D){
+        Vertex3 worldSpace = modelspace
+          .rotateZ(/*radians*/ square_rotation)
+          .translate(/*x*/ 20.0f,
+                     /*y*/ 0.0f,
+                     /*z*/ -10.0f)  // NEW, using a different Z value
+          .rotateZ(/*radians*/ rotation_around_paddle_1)
+          .rotateZ(/*radians*/ paddle_1_rotation)
+          .translate(/*x*/ -90.0,
+                     /*y*/ paddle_1_offset_Y,
+                     /*z*/ 0.0);
+        // new camera transformations
+        Vertex3 cameraSpace = worldSpace
+          .translate(/*x*/ -moving_camera_x,      // NEW
+                     /*y*/ -moving_camera_y,      // NEW
+                     /*z*/ -moving_camera_z)      // NEW
+          .rotateY(/*radians*/ -moving_camera_rot_y)    // NEW
+          .rotateX(/*radians*/ -moving_camera_rot_x);   // NEW
+        // end new camera transformations
+        Vertex3 ndcSpace = cameraSpace
+          .ortho(/*min_x*/ -100.0f,
+                 /*max_x*/ 100.0f,
+                 /*min_y*/ -100.0f,
+                 /*max_y*/ 100.0f,
+                 /*min_z*/ 100.0f,
+                 /*max_z*/ -100.0f);
+        glVertex3f(/*x*/ ndcSpace.x,
+                   /*y*/ ndcSpace.y,
+                   /*z*/ ndcSpace.z);
+      }
+      glEnd();
+    }
+//----
+//Draw paddle 2, relative to the world-space origin.
+//[source,C,linenums]
+//----
+    glBegin(GL_QUADS);
+    {
+      glColor3f(/*red*/   1.0,
+                /*green*/ 1.0,
+                /*blue*/  0.0);
+      for(Vertex3 modelspace : paddle3D){
+        Vertex3 worldSpace = modelspace
+          .rotateZ(/*radians*/ paddle_2_rotation)
+          .translate(/*x*/ 90.0,
+                     /*y*/ paddle_2_offset_Y,
+                     /*z*/ 0.0);
+        // new camera transformations
+        Vertex3 cameraSpace = worldSpace
+          .translate(/*x*/ -moving_camera_x,      // NEW
+                     /*y*/ -moving_camera_y,      // NEW
+                     /*z*/ -moving_camera_z)      // NEW
+          .rotateY(/*radians*/ -moving_camera_rot_y)    // NEW
+          .rotateX(/*radians*/ -moving_camera_rot_x);   // NEW
+        // end new camera transformations
+        Vertex3 ndcSpace = cameraSpace
+          .ortho(/*min_x*/ -100.0f,
+                 /*max_x*/ 100.0f,
+                 /*min_y*/ -100.0f,
+                 /*max_y*/ 100.0f,
+                 /*min_z*/ 100.0f,
+                 /*max_z*/ -100.0f);
+        glVertex3f(/*x*/ ndcSpace.x,
+                   /*y*/ ndcSpace.y,
+                   /*z*/ ndcSpace.z);
+      }
+    }
+    glEnd();
+    return;
+  }
+
+////TODO - discuss the framebuffer, and how it allows us to draw in
+////       a depth-independent manner.  we could force the programmer
+////       to sort objects by depth before drawing, but that's why mario64
+////       looked good and crash bandicoot had limited perspectives.
+////       also reference the section in the beginning which clears the
+////       depth buffer.
+
+//----
+//== Considering Depth
+//[source,C,linenums]
+//----
+  if(*chapter_number >= 15){
+    glEnable(GL_DEPTH_TEST);
+  }
+////TODO - write something about how "now that depth testing is enabled for all subequent demos, rerun the##//vious demo to show that the square becomes hidden as the user navigates
+
+  if(15 == *chapter_number){
+    *chapter_number = 14;
+    return;
+  }
+//----
+//== Perspective Viewing
+
+
+////TODO -  make a new chapter which uses perspective, but
+////        doesn't use lambdas
+////TODO -  afterwards, in this chapter, explain perspective
+////TODO -  use graphviz to show the stack of transforamations.
+////        combine them into a tree.
+////        talk about how how I used to think that the important
+////        "objects" were the vertices, colors, etc, but the important
+////        concept is relative spaces, i.e. the coordinate frame of references.
+////
+////        Since it's a stack, the last operator is pushed first, but applied last.
+////        This means that transformations need to be "read" backwards to understand
+////        what's happening.
+
+//[source,C,linenums]
+//----
+  if(*chapter_number >= 16){
+    static bool first_frame = true;
+    if(first_frame){
+      moving_camera_z = 400.0; // for the perspective to look right
+      first_frame = false;
+    }
+  }
+//----
+//[source,C,linenums]
+//----
+  // use stacks for transformations
+  std::vector<Vertex3_transformer> transformationStack;
+  Vertex3_transformer withTransformations = [&](Vertex3 v){
+    Vertex3 result = v;
+    for(std::vector<Vertex3_transformer>::reverse_iterator
+          rit = transformationStack.rbegin();
+        rit!=transformationStack.rend();
+        rit++)
+      {
+        result = (*rit)(result);
+      }
+    return result;
+  };
+//----
+
+
+//[source,C,linenums]
+//----
+  if(16 == *chapter_number){
+    // every shape is projected the same way
+    transformationStack.push_back([&](Vertex3 v){
+        return v.perspective(-0.1f,
+                             -1000.0f);
+      });
+    // THE REST IS THE SAME AS THE PREVIOUS
+    // every shape is relative to the camera
+    // camera transformation #3 - tilt your head down
+    transformationStack.push_back([&](Vertex3 v){
+        return v.rotateX(/*radians*/ -moving_camera_rot_x);
+      });
+    // camera transformation #2 - turn your head to the side
+    transformationStack.push_back([&](Vertex3 v){
+        return v.rotateY(/*radians*/ -moving_camera_rot_y);
+      });
+    // camera transformation #1 - move to the origin
+    transformationStack.push_back([&](Vertex3 v){
+        return v.translate(/*x*/ - moving_camera_x,
+                           /*y*/ - moving_camera_y,
+                           /*z*/ - moving_camera_z);
+      });
+    transformationStack.push_back([&](Vertex3 v){
+        return v.translate(/*x*/ -90.0f,
+                           /*y*/ 0.0f + paddle_1_offset_Y,
+                           /*z*/ 0.0f);
+      });
+//----
+//Draw paddle 1, relative to the world-space origin.
+//[source,C,linenums]
+//----
+    glColor3f(/*red*/   1.0,
+              /*green*/ 1.0,
+              /*blue*/  1.0);
+    transformationStack.push_back([&](Vertex3 v){
+        return v.rotateZ(/*radians*/ paddle_1_rotation);
+      });
+    transformationStack.push_back([&](Vertex3 v){
+        return v.scale(/*x*/ 10.0f,
+                       /*y*/ 30.0f,
+                       /*z*/ 1.0f);
+      });
+    draw_square3_programmable(withTransformations);
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+//----
+//Draw square, relative to paddle 1.
+//[source,C,linenums]
+//----
+    glColor3f(/*red*/   0.0,
+              /*green*/ 0.0,
+              /*blue*/  1.0);
+    {
+      transformationStack.push_back([&](Vertex3 v){
+          return v.rotateZ(/*radians*/ paddle_1_rotation);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return v.rotateZ(/*radians*/ rotation_around_paddle_1);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return v.translate(/*x*/ 20.0f,
+                             /*y*/ 0.0f,
+                             /*z*/ -10.0f); // NEW, using a non zero
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return v.rotateZ(/*radians*/ square_rotation);
+        });
+      transformationStack.push_back([&](Vertex3 v){
+          return v.scale(/*x*/ 5.0f,
+                         /*y*/ 5.0f,
+                         /*z*/ 1.0f);
+        });
+      draw_square3_programmable(withTransformations);
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+      transformationStack.pop_back();
+    }
+    // get back to the world-space origin
+    transformationStack.pop_back();
+//----
+//Draw paddle 2, relative to the world-space origin.
+//[source,C,linenums]
+//----
+    glColor3f(/*red*/   1.0,
+              /*green*/ 1.0,
+              /*blue*/  0.0);
+    transformationStack.push_back([&](Vertex3 v){
+        return v.translate(/*x*/ 90.0f,
+                           /*y*/ 0.0f + paddle_2_offset_Y,
+                           /*z*/ 0.0f);
+      });
+    transformationStack.push_back([&](Vertex3 v){
+        return v.rotateZ(/*radians*/ paddle_2_rotation);
+      });
+    transformationStack.push_back([&](Vertex3 v){
+        return v.scale(/*x*/ 10.0f,
+                       /*y*/ 30.0f,
+                       /*z*/ 1.0f);
+      });
+    draw_square3_programmable(withTransformations);
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    transformationStack.pop_back();
+    return;
+  }
+//----
+//== OpenGL 2.0 Matricies
+//[source,C,linenums]
+//----
+  if(*chapter_number >= 17){
+////TODO - discuss that OpenGL uses left hand rule by default, so Z
+////TODO - into the screen is positive.  I don't know why that is,
+////TODO - but perhaps it is to save a bit since you're never gonna look at stuff behind you
+    glClearDepth(1.1f );
+    glDepthFunc(GL_LEQUAL);
+  }
+//----
+//[source,C,linenums]
+//----
+  std::function<void()> draw_square_opengl2point1 = [&](){
+    glBegin(GL_QUADS);
+    {
+      glVertex2f(/*x*/ -1.0,
+                 /*y*/ -1.0);
+      glVertex2f(/*x*/ 1.0,
+                 /*y*/ -1.0);
+      glVertex2f(/*x*/ 1.0,
+                 /*y*/ 1.0);
+      glVertex2f(/*x*/ -1.0,
+                 /*y*/ 1.0);
+    }
+    glEnd();
+  };
+//----
+////TODO - describe matricies as efficient substitions for our vertex transforamiotns.
+////TODO - describe how they act as a stack, similarly to how was done in the above.
+//[source,C,linenums]
+//----
+  if(17 == *chapter_number){
+    /*
+     *  Demo 17 - OpenGL 1.4 Matricies
+     */
+    // set up Camera
+    {
+      // define the projection
+      glMatrixMode(GL_PROJECTION);
+      glLoadIdentity();
+      glHint( GL_PERSPECTIVE_CORRECTION_HINT, GL_NICEST );
+      {
+        int w, h;
+        glfwGetFramebufferSize(window, &w, &h);
+        gluPerspective(45.0f,
+                       (GLdouble)w / (GLdouble)h,
+                       0.1f,
+                       1000.0f);
+      }
+      // move the "camera"
+      glMatrixMode(GL_MODELVIEW);
+      glLoadIdentity();
+////TODO - describe how these matrix rotations act on arbitrary axises, not just XYZ
+      glRotatef(/*degrees*/ RAD_TO_DEG(-moving_camera_rot_x),
+                /*x*/ 1.0,
+                /*y*/ 0.0,
+                /*z*/ 0.0);
+      glRotatef(/*degrees*/ RAD_TO_DEG(-moving_camera_rot_y),
+                /*x*/ 0.0,
+                /*y*/ 1.0,
+                /*z*/ 0.0);
+      glTranslatef(/*x*/ -moving_camera_x,
+                   /*y*/ -moving_camera_y,
+                   /*z*/ -moving_camera_z);
+    }
+//----
+//Draw paddle 1, relative to the world-space origin.
+//[source,C,linenums]
+//----
+    glPushMatrix();
+    glColor3f(/*red*/   1.0,
+              /*green*/ 1.0,
+              /*blue*/  1.0);
+    glTranslatef(/*x*/ -90.0f,
+                 /*y*/ 0.0f + paddle_1_offset_Y,
+                 /*z*/ 0.0);
+    glRotatef(/*degrees*/ RAD_TO_DEG(paddle_1_rotation),
+              /*x*/ 0.0,
+              /*y*/ 0.0,
+              /*z*/ 1.0);
+    // scaling of this object should not affect the relative square
+    glPushMatrix();
+    {
+      glScalef(/*x*/ 10.0f,
+               /*y*/ 30.0f,
+               /*z*/ 1.0f);
+      draw_square_opengl2point1();
+      glPopMatrix();
+    }
+//----
+//Draw square, relative to paddle 1.
+//[source,C,linenums]
+//----
+    glColor3f(/*red*/   0.0,
+              /*green*/ 0.0,
+              /*blue*/  1.0);
+    glRotatef(/*degrees*/ RAD_TO_DEG(rotation_around_paddle_1),
+              /*x*/ 0.0f,
+              /*y*/ 0.0f,
+              /*z*/ 1.0f);
+    glTranslatef(/*x*/ 20.0f,
+                 /*y*/ 0.0f,
+                 /*z*/ -10.0f);
+    glRotatef(/*degrees*/ RAD_TO_DEG(square_rotation),
+              /*x*/ 0.0f,
+              /*y*/ 0.0f,
+              /*z*/ 1.0f);
+    glScalef(/*x*/ 5.0f,
+             /*y*/ 5.0f,
+             /*z*/ 5.0f);
+    draw_square_opengl2point1();
+    glPopMatrix();
+//----
+//Draw paddle 2, relative to the world-space origin.
+//[source,C,linenums]
+//----
+    glPushMatrix();
+    glColor3f(/*red*/   1.0,
+              /*green*/ 1.0,
+              /*blue*/  0.0);
+    glTranslatef(/*x*/ 90.0f,
+                 /*y*/ 0.0f + paddle_2_offset_Y,
+                 /*z*/ 0.0);
+    glRotatef(/*degrees*/ RAD_TO_DEG(paddle_2_rotation),
+              /*x*/ 0.0,
+              /*y*/ 0.0,
+              /*z*/ 1.0);
+    glScalef(/*x*/ 10.0f,
+             /*y*/ 30.0f,
+             /*z*/ 1.0f);
+    draw_square_opengl2point1();
+    glPopMatrix();
+    return;
+  }
+  // in later demos,
+  //glClearDepth(1.0f );
+  //glEnable(GL_DEPTH_TEST );
+  //glDepthFunc(GL_LEQUAL );
+  return;
+}
+//----
+//
+//[[sharedLibAppendix]]
+//[appendix]
+//== Shared Libraries
+//
+//Foo bar baz2
+//
+//
+//[bibliography]
+//Example Bibliography
+//--------------------
+//The bibliography list is a style of AsciiDoc bulleted list.
+//
+//[bibliography]
+//.Books
+//- [[[taoup]]] Eric Steven Raymond. 'The Art of Unix
+//  Programming'. Addison-Wesley. ISBN 0-13-142901-9.
+//  - [[[walsh-muellner]]] Norman Walsh & Leonard Muellner.
+//    'DocBook - The Definitive Guide'. O'Reilly & Associates. 1999.
+//      ISBN 1-56592-580-7.
+//
+//[bibliography]
+//.Articles
+//- [[[abc2003]]] Gall Anonim. 'An article', Whatever. 2003.
+//
+//
+//[glossary]
+//Example Glossary
+//----------------
+//Glossaries are optional. Glossaries entries are an example of a style
+//of AsciiDoc labeled lists.
+//
+//[glossary]
+//A glossary term::
+//  The corresponding (indented) definition.
+//
+//A second glossary term::
+//  The corresponding (indented) definition.
+//
+//
+//[colophon]
+//Example Colophon
+//----------------
+//Text at the end of a book describing facts about its production.
+//
+//
+//[index]
+//Example Index
+//-------------
+//////////////////////////////////////////////////////////////////
+//The index is normally left completely empty, it's contents being
+//generated automatically by the DocBook toolchain.
+//////////////////////////////////////////////////////////////////
