@@ -23,13 +23,18 @@ OBJECTS_TO_BUILD = plot1.png \
         disproportionate2.png \
         viewport.png
 
+dist: modelviewprojection.html
+	mkdir dist
+	cp $(OBJECTS_TO_BUILD) dist/
+	cp modelviewprojection.html dist/index.html
+
 modelviewprojection.html: modelviewprojection.adoc
 	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n modelviewprojection.adoc
 
 
-modelviewprojection.adoc:  modelviewprojection.py $(OBJECTS_TO_BUILD)
+modelviewprojection.adoc:  ../modelviewprojection.py $(OBJECTS_TO_BUILD)
 	echo FOO
-	sed -e 's/^\#\#//g' modelviewprojection.py > modelviewprojection.adoc
+	sed -e 's/^\#\#//g' ../modelviewprojection.py > modelviewprojection.adoc
 
 
 
