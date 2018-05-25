@@ -161,22 +161,6 @@ def demoNumber(theDemoNumber):
         else:
             return F
     return actualDecorator
-
-# Append function F to the list of callables called
-# on handling input
-def inputHandler(F):
-    global handle_inputs
-    try:
-        handle_inputs
-    except Exception:
-        return F
-
-    oldHandler = handle_inputs
-    def chainThem():
-        oldHandler()
-        F()
-    return chainThem
-
 ##----
 
 ##==== GLFW/OpenGL Initialization
@@ -681,8 +665,12 @@ def demo3():
 paddle_1_offset_Y = 0.0;
 paddle_2_offset_Y = 0.0;
 
-@inputHandler
+inputHandlers = []
 def handle_inputs():
+    for f in inputHandlers:
+        f()
+
+def handle_movement_of_paddles():
     global paddle_1_offset_Y, paddle_2_offset_Y
 
     if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
@@ -693,6 +681,7 @@ def handle_inputs():
         paddle_2_offset_Y -= 0.1
     if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
         paddle_2_offset_Y += 0.1
+inputHandlers.append(handle_movement_of_paddles)
 ##----
 
 
@@ -910,8 +899,7 @@ Vertex.scale = scale
 
 ##[source,Python,linenums]
 ##----
-@inputHandler
-def handle_inputs():
+def handle_movement_of_paddles():
     global paddle_1_offset_Y, paddle_2_offset_Y
 
     if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
@@ -922,6 +910,8 @@ def handle_inputs():
         paddle_2_offset_Y -= 10.0
     if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
         paddle_2_offset_Y += 10.0
+inputHandlers = []
+inputHandlers.append(handle_movement_of_paddles)
 ##----
 
 
@@ -1067,8 +1057,7 @@ Vertex.rotate = rotate
 
 ##[source,Python,linenums]
 ##----
-@inputHandler
-def handle_inputs():
+def handle_paddle_rotations():
     global paddle_1_rotation, paddle_2_rotation
 
     if glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS:
@@ -1079,6 +1068,7 @@ def handle_inputs():
         paddle_2_rotation += 0.1;
     if glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS:
         paddle_2_rotation -= 0.1;
+inputHandlers.append(handle_paddle_rotations)
 ##----
 
 
@@ -1175,8 +1165,7 @@ camera_y = 0.0
 
 ##[source,Python,linenums]
 ##----
-@inputHandler
-def handle_inputs():
+def handle_camera_movement():
     global camera_x, camera_y
 
     if glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS:
@@ -1187,6 +1176,7 @@ def handle_inputs():
         camera_x -= 10.0
     if glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS:
         camera_x += 10.0
+inputHandlers.append(handle_camera_movement)
 ##----
 
 
@@ -1359,11 +1349,11 @@ square_rotation = 0.0;
 
 ##[source,Python,linenums]
 ##----
-@inputHandler
-def handle_inputs():
+def handle_square_rotation():
     global square_rotation
     if glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS:
         square_rotation += 0.1
+inputHandlers.append(handle_square_rotation)
 ##----
 
 
@@ -1435,11 +1425,11 @@ rotation_around_paddle_1 = 0.0;
 
 ##[source,Python,linenums]
 ##----
-@inputHandler
-def handle_inputs():
+def handle_relative_rotation():
     global rotation_around_paddle_1
     if glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS:
         rotation_around_paddle_1 += 0.1
+inputHandlers.append(handle_relative_rotation)
 ##----
 
 ##[source,Python,linenums]
