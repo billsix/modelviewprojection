@@ -25,7 +25,7 @@ import matplotlib.pyplot as plt
 
 extraLinesMultiplier = 3
 
-def plotaxis(graphBounds):
+def generategridlines(graphBounds):
     for x in range(-graphBounds[0]*extraLinesMultiplier,graphBounds[0]*extraLinesMultiplier,1):
         thickness = 3 if np.isclose(x,0.0) else 1
         yield [x,x], [-graphBounds[1]*extraLinesMultiplier,graphBounds[1]*extraLinesMultiplier], thickness
