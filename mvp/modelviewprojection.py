@@ -389,7 +389,7 @@ def demo1():
 
 ##"glColor3f" sets a global variable, which makes it the color to be used
 ##for the subsequently-drawn graphical shape.  The background will be black,
-##so lets make the first paddle white, and a second paddle yellow.
+##so lets make the first paddle purple, and a second paddle red.
 ##
 ##"glBegin(GL_QUADS)" tells OpenGL that we will soon specify 4 *vertices*,
 ##(i.e. points) which define the
@@ -401,9 +401,9 @@ def demo1():
 @demoNumber(2)
 def demo2():
     # draw paddle 1
-    glColor3f(1.0, #r
-              1.0, #g
-              1.0) #b
+    glColor3f(0.578123, #r
+              0.0,      #g
+              1.0)      #b
     glBegin(GL_QUADS)
     glVertex2f(-1.0, #x
                -0.3) #y
@@ -429,7 +429,7 @@ def demo2():
 ##----
     # draw paddle 2
     glColor3f(1.0,
-              1.0,
+              0.0,
               0.0)
     glBegin(GL_QUADS)
 
@@ -652,8 +652,8 @@ paddle1 = Paddle(vertices=[Vertex(-1.0,-0.3),
                            Vertex(-0.8,-0.3),
                            Vertex(-0.8,0.3),
                            Vertex(-1.0,0.3)],
-                 r=1.0,
-                 g=1.0,
+                 r=0.578123,
+                 g=0.0,
                  b=1.0)
 
 paddle2 = Paddle(vertices=[Vertex(0.8,-0.3),
@@ -661,7 +661,7 @@ paddle2 = Paddle(vertices=[Vertex(0.8,-0.3),
                            Vertex(1.0,0.3),
                            Vertex(0.8,0.3)],
                  r=1.0,
-                 g=1.0,
+                 g=0.0,
                  b=0.0)
 
 
@@ -873,6 +873,22 @@ def draw(self):
 Paddle.draw = draw
 ##----
 
+Model-space to World-space.
+
+##image:modelspacePaddle1.png[align="center",title="Foo"]
+
+##image:modelspacePaddle2.png[align="center",title="Foo"]
+
+##image:modelspacePaddle3.png[align="center",title="Foo"]
+
+##image:modelspacePaddle4.png[align="center",title="Foo"]
+
+##image:modelspacePaddle5.png[align="center",title="Foo"]
+
+##image:modelspacePaddle6.png[align="center",title="Foo"]
+
+
+
 ##=== Scaling
 
 ##image:scale.png[align="center",title="Foo"]
@@ -890,6 +906,13 @@ def scale(self, x, y):
     return Vertex(x=self.x * x, y=self.y * y)
 Vertex.scale = scale
 ##----
+
+##image:modelspacePaddle7.png[align="center",title="Foo"]
+
+World-space to NDC-space.
+
+##image:modelspacePaddle8.png[align="center",title="Foo"]
+
 
 
 ##[source,Python,linenums]

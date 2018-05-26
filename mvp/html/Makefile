@@ -23,10 +23,14 @@ OBJECTS_TO_BUILD = plot1.png \
         disproportionate2.png \
         viewport.png
 
-dist: modelviewprojection.html
-	mkdir dist
-	cp $(OBJECTS_TO_BUILD) dist/
+
+dist: modelviewprojection.html plots
+	mkdir -p dist
+	cp *png dist/
 	cp modelviewprojection.html dist/index.html
+
+plots: generatePlots.py
+	python generatePlots.py
 
 modelviewprojection.html: modelviewprojection.adoc
 	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n modelviewprojection.adoc

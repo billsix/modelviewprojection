@@ -25,7 +25,7 @@ import sys
 import itertools
 
 import generategridlines
-
+import mpltransformations as mplt
 
 N = 50
 x = np.random.rand(N) * 10
@@ -40,118 +40,18 @@ axes.set_xlim([-2.0,graphBounds[0]])
 axes.set_ylim([-2.0,graphBounds[1]])
 
 
-def _rotatePoint(angle, x, y):
-    """Rotate an X and Y value by an angle
-
-    >>> x = 1.0
-    >>> y = 0.0
-    >>> _rotatePoint(math.radians(0.0),x,y)
-    (1.0, 0.0)
-
-    >>> x = 0.0
-    >>> y = 1.0
-    >>> _rotatePoint(math.radians(0.0),x,y)
-    (0.0, 1.0)
-
-    >>> x = 1.0
-    >>> y = 0.0
-    >>> _rotatePoint(math.radians(45.0),x,y)
-    (0.7071067811865476, 0.7071067811865475)
-
-    >>> x = 5.0
-    >>> y = 0.0
-    >>> _rotatePoint(math.radians(45.0),x,y)
-    (3.5355339059327378, 3.5355339059327373)
-
-
-    >>> x = 5.0
-    >>> y = 0.0
-    >>> _rotatePoint(math.radians(0.1),x,y)
-    (4.999992384566438, 0.008726641829491543)
-    """
-    return x*math.cos(angle) - y*math.sin(angle), x*math.sin(angle) + y*math.cos(angle)
-
-
-def mapMatplotlibData(f,*pointsOnAxis):
-    """In plotting with numpy, the points on a given axis are supposed to be their own arrays,
-    which is not helpful when wanting to transform points.  mapMatplotlibData
-    allows the programmer to transform each x,y pair by function f
-
-    >>> xs = np.array([-5.0,5.0])
-    >>> ys = np.array([0.0,0.0])
-    >>> for transformedAxis in mapMatplotlibData(lambda point: (point[0]+1.0, point[1]+1.0),
-    ...                                          xs,
-    ...                                          ys):
-    ...          print(transformedAxis)
-    (-4.0, 6.0)
-    (1.0, 1.0)
-
-    >>> # regardless of the number of arguments, mapMatplotlibData works!
-    >>> xs = np.array([-5.0,5.0])
-    >>> ys = np.array([0.0,0.0])
-    >>> zs = np.array([2.0,3.0])
-    >>> for transformedAxis in mapMatplotlibData(lambda point: (point[0]+1.0, point[1]+1.0, point[2]-1.0),
-    ...                                          xs,
-    ...                                          ys,
-    ...                                          zs):
-    ...          print(transformedAxis)
-    (-4.0, 6.0)
-    (1.0, 1.0)
-    (1.0, 2.0)
-    """
-    return zip(*map(f,
-                    zip(*pointsOnAxis)))
-
-def rotate(angle, xs,ys):
-    """Rotate the xs and ys by angle
-    >>> xs = np.array([-5.0,5.0])
-    >>> ys = np.array([0.0,0.0])
-    >>> for transformedAxis in rotate(math.radians(0.1), xs,ys):
-    ...      print(transformedAxis)
-    (-4.999992384566438, 4.999992384566438)
-    (-0.008726641829491543, 0.008726641829491543)
-    """
-    return mapMatplotlibData(lambda point: _rotatePoint(angle,point[0],point[1]),
-                             xs,
-                             ys)
-
-
-def scale(scaleX, scaleY, xs,ys):
-    """Scale the xs and ys
-
-    >>> xs = np.array([-5.0,5.0])
-    >>> ys = np.array([1.0,1.0])
-    >>> for transformedAxis in scale(2,2, xs,ys):
-    ...      print(transformedAxis)
-    (-10.0, 10.0)
-    (2.0, 2.0)
-    """
-    return mapMatplotlibData(lambda point: (point[0] * scaleX , point[1] * scaleY),
-                             xs,
-                             ys)
-
-def translate(tx, ty, xs,ys):
-    """translate the xs and ys
-
-    >>> xs = np.array([-5.0,5.0])
-    >>> ys = np.array([1.0,1.0])
-    >>> for transformedAxis in translate(1,2, xs,ys):
-    ...      print(transformedAxis)
-    (-4.0, 6.0)
-    (3.0, 3.0)
-    """
-    return mapMatplotlibData(lambda point: (point[0] + tx , point[1] + ty),
-                             xs,
-                             ys)
-
-
 if __name__ == "__main__":
     import doctest
-    try:
-        doctest.testmod(raise_on_error=True)
-    except Exception:
-        print(doctest.testmod())
-        sys.exit(1)
+    modules = [mplt]
+    for m in modules:
+        try:
+            doctest.testmod(m,
+                            raise_on_error=True)
+            print(doctest.testmod(m))
+        except Exception:
+            print("foo")
+            print(doctest.testmod())
+            sys.exit(1)
 
     #plot natural basis
     for xs, ys, thickness in generategridlines.generategridlines(graphBounds):
@@ -159,11 +59,11 @@ if __name__ == "__main__":
 
     #plot different basis
     for xs, ys, thickness in generategridlines.generategridlines(graphBounds):
-        transformedXs, transformedYs = list(translate(2,
-                                                      2,
-                                                      *scale(math.sqrt(8),
-                                                             math.sqrt(8),
-                                                             *rotate(math.radians(45.0), xs, ys))))
+        transformedXs, transformedYs = list(mplt.translate(2,
+                                                           2,
+                                                           *mplt.scale(math.sqrt(8),
+                                                                       math.sqrt(8),
+                                                                       *mplt.rotate(math.radians(45.0), xs, ys))))
         plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color='green')
 
     # make sure the x and y axis are equally proportional in screen space

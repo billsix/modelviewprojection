@@ -25,11 +25,11 @@ import matplotlib.pyplot as plt
 
 extraLinesMultiplier = 3
 
-def generategridlines(graphBounds):
-    for x in range(-graphBounds[0]*extraLinesMultiplier,graphBounds[0]*extraLinesMultiplier,1):
+def generategridlines(graphBounds, interval=1):
+    for x in range(-graphBounds[0]*extraLinesMultiplier,graphBounds[0]*extraLinesMultiplier,interval):
         thickness = 4 if np.isclose(x,0.0) else 1
         yield [x,x], [-graphBounds[1]*extraLinesMultiplier,graphBounds[1]*extraLinesMultiplier], thickness
 
-    for y in range(-graphBounds[1]*extraLinesMultiplier,graphBounds[1]*extraLinesMultiplier,1):
+    for y in range(-graphBounds[1]*extraLinesMultiplier,graphBounds[1]*extraLinesMultiplier,interval):
         thickness = 4 if np.isclose(y,0.0) else 1
         yield [-graphBounds[0]*extraLinesMultiplier,graphBounds[0]*extraLinesMultiplier], [y,y], thickness
