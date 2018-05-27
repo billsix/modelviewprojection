@@ -730,9 +730,10 @@ axes.set_ylim([-graphBounds[1],graphBounds[1]])
 
 # #plot different basis
 for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
-   transformedXs, transformedYs = list(mplt.rotate(math.radians(45.0),
-                                                   xs,
-                                                   ys))
+   transformedXs, transformedYs = list(mplt.translate(0.0,
+                                                      20.0,
+                                                      xs,
+                                                      ys))
    plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
 # make sure the x and y axis are equally proportional in screen space
@@ -750,11 +751,12 @@ axes.set_ylim([-graphBounds[1],graphBounds[1]])
 
 # #plot different basis
 for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
-   transformedXs, transformedYs = list(mplt.translate(-90.0,
-                                                      0.0,
-                                                      *mplt.rotate(math.radians(45.0),
-                                                                   xs,
-                                                                   ys)))
+   transformedXs, transformedYs = list(mplt.translate(0.0,
+                                                      20.0,
+                                                      *mplt.translate(-90.0,
+                                                                      0.0,
+                                                                      xs,
+                                                                      ys)))
    plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
 # make sure the x and y axis are equally proportional in screen space
@@ -873,8 +875,8 @@ plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(0.578123, 0.0, 1.0))
 
 # #plot different basis
 for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
-   transformedXs, transformedYs = mplt.translate(90.0,
-                                                 0.0,
+   transformedXs, transformedYs = mplt.translate(0.0,
+                                                 -40.0,
                                                  xs,
                                                  ys)
    plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
