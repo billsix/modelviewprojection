@@ -37,10 +37,9 @@ modelviewprojection.html: modelviewprojection.adoc
 
 
 modelviewprojection.adoc:  ../modelviewprojection.py $(OBJECTS_TO_BUILD)
-	echo FOO
 	sed -e 's/^\#\#//g' ../modelviewprojection.py > modelviewprojection.adoc
 
 
 
-main.pdf: modelviewprojection.adoc
+main.pdf: modelviewprojection.adoc plots
 	a2x -dbook --dblatex-opts "-P latex.output.revhistory=0 -P doc.publisher.show=0 -P doc.pdfcreator.show=0" --no-xmllint modelviewprojection.adoc

@@ -875,32 +875,10 @@ Paddle.draw = draw
 
 ##Model-space to World-space.
 
-##You can view the transformations incrementally by mentally
-##applying each transformation in one, fixed, global coordinate
-##system.  (this works well for world-space to camera-space,
+##You can view the transformations from first transformation to last,
+##where all transformations happen relative to the world-space origin.
+##(this works well for world-space to camera-space,
 ##but not so well for model-space transformations)
-
-##image:modelspacePaddle1.png[align="center",title="Foo"]
-
-##image:modelspacePaddle2.png[align="center",title="Foo"]
-
-
-##image:modelspacePaddle3.png[align="center",title="Foo"]
-
-##image:modelspacePaddle4.png[align="center",title="Foo"]
-
-
-##image:modelspacePaddle5.png[align="center",title="Foo"]
-
-##image:modelspacePaddle6.png[align="center",title="Foo"]
-
-
-##Instead, for model-space to world-space transformations,
-##it's easier to look at each transformation from modelspace
-##to world space as a relative change of coordinate systems, where the origin
-##and the axis move to new locations, and then the modelspace coordinates
-##are drawn in that transformed coordinate system.
-
 
 ##image:modelspacePaddleMovingFrame1.png[align="center",title="Foo"]
 
@@ -919,6 +897,42 @@ Paddle.draw = draw
 ##image:modelspacePaddleMovingFrame6.png[align="center",title="Foo"]
 
 ##image:modelspacePaddleMovingFrame6.5.png[align="center",title="Foo"]
+
+
+##Instead, for model-space to world-space transformations (and for these transformations only),
+##it's easier to read the transformations backwards, where the transformations
+##aren't relative to the global origin, instead it's from the local frame of reference.
+
+
+##image:modelspacePaddleMovingFramebackwards1.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFramebackwards2.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFramebackwards3.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFramebackwards3.5.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFramebackwards4.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFramebackwards4.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFramebackwards5.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFramebackwards6.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFramebackwards6.5.png[align="center",title="Foo"]
+
+
+##Why do the two different views of the transformations matter?  In model-space
+##to world-space transformations, especially once rotation and scaling of model-space
+##is used, it allows the programmer to forget about most details, just specify
+##where new objects are relative to that which you are already drawing.
+
+##With that said, that doesn't mean that reading the transformations front to back
+##has no value.  But it only has value in world-space to camera-space conversions,
+##and from camera-space to ndc-space.
+
+##This will make more sense once rotation is involved.
 
 
 
