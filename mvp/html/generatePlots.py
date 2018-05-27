@@ -94,10 +94,7 @@ plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(0.578123, 0.0, 1.0))
 
 # #plot different basis
 for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
-   transformedXs, transformedYs = list(mplt.translate(-90.0,
-                                                      0.0,
-                                                      xs,
-                                                      ys))
+   transformedXs, transformedYs = xs, ys
    plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
 # make sure the x and y axis are equally proportional in screen space
@@ -123,12 +120,7 @@ plt.plot(paddleXs, paddleYs, 'k-', lw=1,  color=(0.578123, 0.0, 1.0))
 
 # #plot different basis
 for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
-   transformedXs, transformedYs = list(mplt.translate(0.0,
-                                                      20.0,
-                                                      *mplt.translate(-90.0,
-                                                                      0.0,
-                                                                      xs,
-                                                                      ys)))
+   transformedXs, transformedYs = xs, ys
    plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
 # make sure the x and y axis are equally proportional in screen space
@@ -192,10 +184,7 @@ plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(1.0, 0.0, 0.0))
 
 # #plot different basis
 for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
-   transformedXs, transformedYs = mplt.translate(90.0,
-                                                 0.0,
-                                                 xs,
-                                                 ys)
+   transformedXs, transformedYs = xs, ys
    plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
 # make sure the x and y axis are equally proportional in screen space
@@ -230,12 +219,7 @@ plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(1.0, 0.0, 0.0))
 
 # #plot different basis
 for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
-   transformedXs, transformedYs = mplt.translate(0.0,
-                                                 -40.0,
-                                                 *mplt.translate(90.0,
-                                                                 0.0,
-                                                                 xs,
-                                                                 ys))
+   transformedXs, transformedYs = xs, ys
    plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
 # make sure the x and y axis are equally proportional in screen space
@@ -316,4 +300,692 @@ for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interv
 # make sure the x and y axis are equally proportional in screen space
 plt.gca().set_aspect('equal', adjustable='box')
 fig.savefig('modelspacePaddle8.png')
+plt.close(fig)
+
+
+
+
+
+
+
+
+
+
+
+## Translation Plots - moving frame of reference
+
+### Step 1
+graphBounds = (100,100)
+
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+
+
+
+#plot natural basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = xs,ys
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacePaddleMovingFrame1.png')
+plt.close(fig)
+
+
+
+
+
+### Step 2
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = list(mplt.translate(-90.0,
+                                                      0.0,
+                                                      xs,
+                                                      ys))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacePaddleMovingFrame2.png')
+plt.close(fig)
+
+
+
+### Step 3
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = list(mplt.translate(0.0,
+                                                      20.0,
+                                                      *mplt.translate(-90.0,
+                                                                      0.0,
+                                                                      xs,
+                                                                      ys)))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacePaddleMovingFrame3.png')
+plt.close(fig)
+
+
+### Step 3.5
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]]))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1,  color=(0.578123, 0.0, 1.0))
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = list(mplt.translate(0.0,
+                                                      20.0,
+                                                      *mplt.translate(-90.0,
+                                                                      0.0,
+                                                                      xs,
+                                                                      ys)))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacePaddleMovingFrame3.5.png')
+plt.close(fig)
+
+
+
+
+
+
+### Step 4
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]]))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(0.578123, 0.0, 1.0))
+
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = xs,ys
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacePaddleMovingFrame4.png')
+plt.close(fig)
+
+
+
+
+### Step 5
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]]))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1,  color=(0.578123, 0.0, 1.0))
+
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = mplt.translate(90.0,
+                                                 0.0,
+                                                 xs,
+                                                 ys)
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacePaddleMovingFrame5.png')
+plt.close(fig)
+
+
+
+### Step 6
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]]))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1,  color=(0.578123, 0.0, 1.0))
+
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = mplt.translate(0.0,
+                                                 -40.0,
+                                                 *mplt.translate(90.0,
+                                                                 0.0,
+                                                                 xs,
+                                                                 ys))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacePaddleMovingFrame6.png')
+plt.close(fig)
+
+
+### Step 6.5
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]]))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1,  color=(0.578123, 0.0, 1.0))
+
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    -40.0,
+                                    *mplt.translate(90.0,
+                                                    0.0,
+                                                    *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]]))))
+
+plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(1.0, 0.0, 0.0))
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = mplt.translate(0.0,
+                                                 -40.0,
+                                                 *mplt.translate(90.0,
+                                                                 0.0,
+                                                                 xs,
+                                                                 ys))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacePaddleMovingFrame6.5.png')
+plt.close(fig)
+
+
+
+
+### Step 7
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]]))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1,  color=(0.578123, 0.0, 1.0))
+
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    -40.0,
+                                    *mplt.translate(90.0,
+                                                    0.0,
+                                                    *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]]))))
+
+plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(1.0, 0.0, 0.0))
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = xs, ys
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacePaddleMovingFrame7.png')
+plt.close(fig)
+
+
+
+### Step 8
+
+
+graphBounds = (1,1)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.scale(1.0/100.0,
+                                1.0/100.0,
+                                *mplt.translate(0.0,
+                                                20.0,
+                                                *mplt.translate(-90.0,
+                                                                0.0,
+                                                                *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]])))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1,  color=(0.578123, 0.0, 1.0))
+
+paddleXs, paddleYs = mplt.scale(1.0/100.0,
+                                1.0/100.0,
+                                *mplt.translate(0.0,
+                                                -40.0,
+                                                *mplt.translate(90.0,
+                                                                0.0,
+                                                                *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]])))))
+
+plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(1.0, 0.0, 0.0))
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=1):
+   transformedXs, transformedYs = xs, ys
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacePaddleMovingFrame8.png')
+plt.close(fig)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# Rotation
+### Step 1
+graphBounds = (100,100)
+
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+
+
+
+#plot natural basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = xs,ys
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+
+
+# #plot different basis
+# for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=25):
+#    transformedXs, transformedYs = list(mplt.translate(-90.0,
+#                                                       0.0,
+#                                                       xs,
+#                                                       ys))
+#    plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.0, 1.0, 0.0, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation.png')
+plt.close(fig)
+
+
+
+
+
+### Step 2
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = list(mplt.rotate(math.radians(45.0),
+                                                   xs,
+                                                   ys))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation2.png')
+plt.close(fig)
+
+
+### Step 2.5
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = list(mplt.translate(-90.0,
+                                                      0.0,
+                                                      *mplt.rotate(math.radians(45.0),
+                                                                   xs,
+                                                                   ys)))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation2.5.png')
+plt.close(fig)
+
+
+
+### Step 3
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = list(mplt.translate(0.0,
+                                                      20.0,
+                                                      *mplt.translate(-90.0,
+                                                                      0.0,
+                                                                      *mplt.rotate(math.radians(45.0),
+                                                                                   xs,
+                                                                                   ys))))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation3.png')
+plt.close(fig)
+
+
+
+
+### Step 4
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *mplt.rotate(math.radians(45.0),
+                                                                 *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]])))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(0.578123, 0.0, 1.0))
+
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = mplt.translate(0.0,
+                                                 20.0,
+                                                 *mplt.translate(-90.0,
+                                                                 0.0,
+                                                                 *mplt.rotate(math.radians(45.0),
+                                                                              xs,ys)))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation4.png')
+plt.close(fig)
+
+
+
+### Step 4.5
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *mplt.rotate(math.radians(45.0),
+                                                                 *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]])))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(0.578123, 0.0, 1.0))
+
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = xs,ys
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation4.5.png')
+plt.close(fig)
+
+
+
+
+### Step 5
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *mplt.rotate(math.radians(45.0),
+                                                                 *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]])))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(0.578123, 0.0, 1.0))
+
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = mplt.translate(90.0,
+                                                 0.0,
+                                                 xs,
+                                                 ys)
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation5.png')
+plt.close(fig)
+
+
+
+### Step 6
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *mplt.rotate(math.radians(45.0),
+                                                                 *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]])))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(0.578123, 0.0, 1.0))
+
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = mplt.translate(0.0,
+                                                 -40.0,
+                                                 *mplt.translate(90.0,
+                                                                 0.0,
+                                                                 xs,
+                                                                 ys))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation6.png')
+plt.close(fig)
+
+
+
+
+### Step 7
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *mplt.rotate(math.radians(45.0),
+                                                                 *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]])))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1,  color=(0.578123, 0.0, 1.0))
+
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = mplt.translate(0.0,
+                                                 -40.0,
+                                                 *mplt.translate(90.0,
+                                                                 0.0,
+                                                                 *mplt.rotate(math.radians(-10.0),
+                                                                              xs,
+                                                                              ys)))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation7.png')
+plt.close(fig)
+
+
+
+### Step 7.5
+
+
+graphBounds = (100,100)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    20.0,
+                                    *mplt.translate(-90.0,
+                                                    0.0,
+                                                    *mplt.rotate(math.radians(45.0),
+                                                                 *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]])))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1,  color=(0.578123, 0.0, 1.0))
+
+paddleXs, paddleYs = mplt.translate(0.0,
+                                    -40.0,
+                                    *mplt.translate(90.0,
+                                                    0.0,
+                                                    *mplt.rotate(math.radians(-10.0),
+                                                                 *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]])))))
+
+plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(1.0, 0.0, 0.0))
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
+   transformedXs, transformedYs = mplt.translate(0.0,
+                                                 -40.0,
+                                                 *mplt.translate(90.0,
+                                                                 0.0,
+                                                                 *mplt.rotate(math.radians(-10.0),
+                                                                              xs,
+                                                                              ys)))
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation7.5.png')
+plt.close(fig)
+
+
+
+### Step 8
+
+
+graphBounds = (1,1)
+fig, axes = plt.subplots()
+axes.set_xlim([-graphBounds[0],graphBounds[0]])
+axes.set_ylim([-graphBounds[1],graphBounds[1]])
+paddleXs, paddleYs = mplt.scale(1.0/100.0,
+                                1.0/100.0,
+                                *mplt.translate(0.0,
+                                                20.0,
+                                                *mplt.translate(-90.0,
+                                                                0.0,
+                                                                *mplt.rotate(math.radians(45.0),
+                                                                             *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]]))))))
+plt.plot(paddleXs, paddleYs, 'k-', lw=1,  color=(0.578123, 0.0, 1.0))
+
+paddleXs, paddleYs = mplt.scale(1.0/100.0,
+                                1.0/100.0,
+                                *mplt.translate(0.0,
+                                                -40.0,
+                                                *mplt.translate(90.0,
+                                                                0.0,
+                                                                *mplt.rotate(math.radians(-10.0),
+                                                                             *zip(*np.array([[-10.0,-30.0],[10.0,-30.0],[10.0,30.0],[-10.0,30.0],[-10.0,-30.0]]))))))
+
+plt.plot(paddleXs, paddleYs, 'k-', lw=1, color=(1.0, 0.0, 0.0))
+
+
+# #plot different basis
+for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=1):
+   transformedXs, transformedYs = xs, ys
+   plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
+
+# make sure the x and y axis are equally proportional in screen space
+plt.gca().set_aspect('equal', adjustable='box')
+fig.savefig('modelspacerotation8.png')
 plt.close(fig)

@@ -873,19 +873,53 @@ def draw(self):
 Paddle.draw = draw
 ##----
 
-Model-space to World-space.
+##Model-space to World-space.
+
+##You can view the transformations incrementally by mentally
+##applying each transformation in one, fixed, global coordinate
+##system.  (this works well for world-space to camera-space,
+##but not so well for model-space transformations)
 
 ##image:modelspacePaddle1.png[align="center",title="Foo"]
 
 ##image:modelspacePaddle2.png[align="center",title="Foo"]
 
+
 ##image:modelspacePaddle3.png[align="center",title="Foo"]
 
 ##image:modelspacePaddle4.png[align="center",title="Foo"]
 
+
 ##image:modelspacePaddle5.png[align="center",title="Foo"]
 
 ##image:modelspacePaddle6.png[align="center",title="Foo"]
+
+
+##Instead, for model-space to world-space transformations,
+##it's easier to look at each transformation from modelspace
+##to world space as a relative change of coordinate systems, where the origin
+##and the axis move to new locations, and then the modelspace coordinates
+##are drawn in that transformed coordinate system.
+
+
+##image:modelspacePaddleMovingFrame1.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFrame2.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFrame3.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFrame3.5.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFrame4.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFrame4.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFrame5.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFrame6.png[align="center",title="Foo"]
+
+##image:modelspacePaddleMovingFrame6.5.png[align="center",title="Foo"]
+
 
 
 
@@ -1092,6 +1126,31 @@ def demo7():
     paddle1.draw()
     paddle2.draw()
 ##----
+
+
+##image:modelspacerotation.png[align="center",title="Foo"]
+
+##image:modelspacerotation2.png[align="center",title="Foo"]
+
+##image:modelspacerotation2.5.png[align="center",title="Foo"]
+
+
+##image:modelspacerotation3.png[align="center",title="Foo"]
+
+##image:modelspacerotation4.png[align="center",title="Foo"]
+
+##image:modelspacerotation4.5.png[align="center",title="Foo"]
+
+
+##image:modelspacerotation5.png[align="center",title="Foo"]
+
+##image:modelspacerotation6.png[align="center",title="Foo"]
+
+##image:modelspacerotation7.png[align="center",title="Foo"]
+
+##image:modelspacerotation7.5.png[align="center",title="Foo"]
+
+##image:modelspacerotation8.png[align="center",title="Foo"]
 
 
 
