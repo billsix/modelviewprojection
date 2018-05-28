@@ -20,6 +20,7 @@
 
 import numpy as np
 import math
+import itertools
 
 
 def mapMatplotlibData(f,*pointsOnAxis):
@@ -51,6 +52,7 @@ def mapMatplotlibData(f,*pointsOnAxis):
     """
     return zip(*map(f,
                     zip(*pointsOnAxis)))
+
 
 
 def _rotatePoint(angle, x, y):
