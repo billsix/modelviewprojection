@@ -957,7 +957,7 @@ Vertex.scale = scale
 
 ##image:modelspacePaddle7.png[align="center",title="Foo"]
 
-World-space to NDC-space.
+#World-space to NDC-space.
 
 ##image:modelspacePaddle8.png[align="center",title="Foo"]
 
