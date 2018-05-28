@@ -33,7 +33,7 @@ if __name__ != "__main__":
 
 
 # TODO, generalize to any number of dimensions
-def accumulate_transformation(procedures):
+def accumulate_transformation(procedures, backwards=False):
     """Foobar
 
     >>> fs = [lambda x,y: mplt.translate(5,0,x,y),
@@ -54,14 +54,24 @@ def accumulate_transformation(procedures):
         return x,y
     yield id
 
-    for index1 in range(len(procedures)):
-        def process(x,y):
-            resultx, resulty = x,y
-            for index2 in range(index1+1):
-                resultx,resulty = procedures[index2](resultx,resulty)
-            return resultx, resulty
-        yield process
-
+    if not backwards:
+        for index1 in range(len(procedures)):
+            def process(x,y):
+                resultx, resulty = x,y
+                for index2 in range(index1+1):
+                    resultx,resulty = procedures[index2](resultx,resulty)
+                return resultx, resulty
+            yield process
+    else:
+        foo = list(range(len(procedures)))
+        foo.reverse()
+        for index1 in foo:
+            def process(x,y):
+                resultx, resulty = x,y
+                for index2 in range(index1, len(procedures)):
+                    resultx,resulty = procedures[index2](resultx,resulty)
+                return resultx, resulty
+            yield process
 
 
 
@@ -101,12 +111,10 @@ paddleData = list(zip(*np.array([[-10.0,-30.0],
 def createGraphs(filename, points, procedures, color, backwards=False):
 
     procs = procedures.copy()
-    if backwards:
-        procs.reverse()
 
     count = 0
     lastTransform = None
-    for t in accumulate_transformation(procs):
+    for t in accumulate_transformation(procs, backwards):
         lastTransform = t
         print(t((1, 2, 3), (4, 5, 6)))
 
