@@ -49,7 +49,6 @@ if __name__ == "__main__":
                             raise_on_error=True)
             print(doctest.testmod(m))
         except Exception:
-            print("foo")
             print(doctest.testmod())
             sys.exit(1)
 

@@ -34,19 +34,19 @@ if __name__ != "__main__":
 
 # TODO, generalize to any number of dimensions
 def accumulate_transformation(procedures, backwards=False):
-    """Foobar
+    """Given a pipeline of functions, provide all intermediate results via a function.
 
     >>> fs = [lambda x,y: mplt.translate(5,0,x,y),
     ...       lambda x,y: mplt.translate(0,10,x,y)]
     >>> f = accumulate_transformation(fs)
-    >>> baz = next(f)
-    >>> baz((1, 2, 3), (4, 5, 6))
+    >>> f1 = next(f)
+    >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
-    >>> baz = next(f)
-    >>> baz((1, 2, 3), (4, 5, 6))
+    >>> f2 = next(f)
+    >>> f2((1, 2, 3), (4, 5, 6))
     ((6, 7, 8), (4, 5, 6))
-    >>> baz = next(f)
-    >>> baz((1, 2, 3), (4, 5, 6))
+    >>> f3 = next(f)
+    >>> f3((1, 2, 3), (4, 5, 6))
     ((6, 7, 8), (14, 15, 16))
     """
 
@@ -63,9 +63,9 @@ def accumulate_transformation(procedures, backwards=False):
                 return resultx, resulty
             yield process
     else:
-        foo = list(range(len(procedures)))
-        foo.reverse()
-        for index1 in foo:
+        reversedProcs = list(range(len(procedures)))
+        reversedProcs.reverse()
+        for index1 in reversedProcs:
             def process(x,y):
                 resultx, resulty = x,y
                 for index2 in range(index1, len(procedures)):
@@ -84,7 +84,6 @@ for m in modules:
         print(doctest.testmod(m))
     except Exception:
         print(doctest.testmod(m))
-        print("foo")
         sys.exit(1)
 
 
@@ -116,13 +115,12 @@ def createGraphs(filename, points, procedures, color, backwards=False):
     lastTransform = None
     for t in accumulate_transformation(procs, backwards):
         lastTransform = t
-        print(t((1, 2, 3), (4, 5, 6)))
 
         fig, axes = plt.subplots()
         axes.set_xlim([-graphBounds[0],graphBounds[0]])
         axes.set_ylim([-graphBounds[1],graphBounds[1]])
 
-        #plot natural basis
+        #plot transformed basis
         for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
             transformedXs, transformedYs = t(xs,ys)
             plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
@@ -139,7 +137,7 @@ def createGraphs(filename, points, procedures, color, backwards=False):
     axes.set_xlim([-graphBounds[0],graphBounds[0]])
     axes.set_ylim([-graphBounds[1],graphBounds[1]])
 
-    #plot natural basis
+    #plot transformed basis
     for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
         transformedXs, transformedYs = lastTransform(xs,ys)
         plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))

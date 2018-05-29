@@ -30,24 +30,26 @@ def mapMatplotlibData(f,*pointsOnAxis):
 
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([0.0,0.0])
-    >>> for transformedAxis in mapMatplotlibData(lambda point: (point[0]+1.0, point[1]+1.0),
-    ...                                          xs,
-    ...                                          ys):
-    ...          print(transformedAxis)
+    >>> txs, tys = mapMatplotlibData(lambda point: (point[0]+1.0, point[1]+1.0),
+    ...                              xs,
+    ...                              ys)
+    >>> txs
     (-4.0, 6.0)
+    >>> tys
     (1.0, 1.0)
-
     >>> # regardless of the number of arguments, mapMatplotlibData works!
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([0.0,0.0])
     >>> zs = np.array([2.0,3.0])
-    >>> for transformedAxis in mapMatplotlibData(lambda point: (point[0]+1.0, point[1]+1.0, point[2]-1.0),
-    ...                                          xs,
-    ...                                          ys,
-    ...                                          zs):
-    ...          print(transformedAxis)
+    >>> txs, tys, tzs =mapMatplotlibData(lambda point: (point[0]+1.0, point[1]+1.0, point[2]-1.0),
+    ...                                  xs,
+    ...                                  ys,
+    ...                                  zs)
+    >>> txs
     (-4.0, 6.0)
+    >>> tys
     (1.0, 1.0)
+    >>> tzs
     (1.0, 2.0)
     """
     return zip(*map(f,
