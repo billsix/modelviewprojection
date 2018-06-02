@@ -1118,6 +1118,120 @@ def draw(self):
 
     glBegin(GL_QUADS)
     for modelspace in self.vertices:
+        worldSpace = modelspace.translate(tx=self.globalPosition.x,
+                                          ty=self.globalPosition.y) \
+                               .translate(tx=0.0,
+                                          ty=self.offsetY) \
+                               .rotate(self.rotation)
+        ndcSpace = worldSpace.scale(x=1.0/100.0,
+                                    y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+Paddle.draw = draw
+
+@demoNumber(7)
+def demo7():
+    draw_in_square_viewport()
+    handle_inputs()
+
+    paddle1.draw()
+    paddle2.draw()
+##----
+
+## TODO - Explain how this does not do what we want.  Show example graphs.
+
+
+
+##[source,Python,linenums]
+##----
+# add rotate around method to Vertex
+def rotate_around(self, angle_in_radians, center):
+    translateToCenter = self.translate(tx=-center.x,
+                                       ty=-center.y)
+    rotatedAroundOrigin = translateToCenter.rotate(angle_in_radians)
+    backToCenter = rotatedAroundOrigin.translate(tx=center.x,
+                                                 ty=center.y)
+    return backToCenter
+Vertex.rotate_around = rotate_around
+
+
+##[source,Python,linenums]
+##----
+def draw(self):
+    glColor3f(self.r,
+              self.g,
+              self.b)
+
+    glBegin(GL_QUADS)
+    print("fo")
+    for modelspace in self.vertices:
+        rotatePoint = Vertex(0.0,0.0).translate(tx=self.globalPosition.x,
+                                                ty=self.globalPosition.y) \
+                                     .translate(tx=0.0,
+                                                ty=self.offsetY)
+        worldSpace = modelspace.translate(tx=self.globalPosition.x,
+                                          ty=self.globalPosition.y) \
+                                .translate(tx=0.0,
+                                           ty=self.offsetY)
+        worldSpace = worldSpace.rotate_around(self.rotation, rotatePoint)
+        ndcSpace = worldSpace.scale(x=1.0/100.0,
+                                    y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+Paddle.draw = draw
+
+@demoNumber(8)
+def demo8():
+    draw_in_square_viewport()
+    handle_inputs()
+
+    paddle1.draw()
+    paddle2.draw()
+
+##----
+
+
+## TODO - explain that translate each points and the origin.  We then rotate around the new origin
+## by translating back to the global origin, doing the rotation, and then redoing the translation.
+## Regardless of the inefficiency of this calculation, it should be clear to the reader
+## that we are not thinking about this correctly.  The initial translate is effectively canceled out,
+## leaving a rotation and then a translation.
+
+##[source,Python,linenums]
+##----
+def draw(self):
+    glColor3f(self.r,
+              self.g,
+              self.b)
+
+    glBegin(GL_QUADS)
+    for modelspace in self.vertices:
+        worldSpace = modelspace.rotate(self.rotation) \
+                               .translate(tx=self.globalPosition.x,
+                                          ty=self.globalPosition.y) \
+                               .translate(tx=0.0,
+                                          ty=self.offsetY)
+
+        ndcSpace = worldSpace.scale(x=1.0/100.0,
+                                    y=1.0/100.0)
+        glVertex2f(ndcSpace.x,
+                   ndcSpace.y)
+    glEnd()
+Paddle.draw = draw
+##----
+
+
+##[source,Python,linenums]
+##----
+def draw(self):
+    glColor3f(self.r,
+              self.g,
+              self.b)
+
+    glBegin(GL_QUADS)
+    for modelspace in self.vertices:
         worldSpace = modelspace.rotate(self.rotation) \
                                .translate(tx=self.globalPosition.x,
                                           ty=self.globalPosition.y) \
@@ -1132,8 +1246,8 @@ def draw(self):
 Paddle.draw = draw
 
 
-@demoNumber(7)
-def demo7():
+@demoNumber(9)
+def demo9():
     draw_in_square_viewport()
     handle_inputs()
 
@@ -1167,21 +1281,6 @@ def demo7():
 ##image:modelspacerotation8.png[align="center",title="Foo"]
 
 
-
-
-##[source,Python,linenums]
-##----
-# add rotate around method to Vertex
-def rotate_around(angle_in_radians, center):
-    translateToCenter = translate(-center.x,
-                                  -center.y)
-    rotatedAroundOrigin = translateToCenter.rotate(angle_in_radians)
-    backToCenter = rotatedAroundOrigin.translate(tx=center.x,
-                                                 ty=center.y)
-    return backToCenter
-
-Vertex.rotate_around = rotate_around
-##----
 
 
 ##== Camera Management
@@ -1256,8 +1355,8 @@ def draw(self):
     glEnd()
 Paddle.draw = draw
 
-@demoNumber(8)
-def demo8():
+@demoNumber(10)
+def demo10():
     draw_in_square_viewport()
     handle_inputs()
 
@@ -1297,8 +1396,8 @@ square = [Vertex(x=-5.0, y=-5.0),
           Vertex(x=-5.0, y= 5.0)]
 
 
-@demoNumber(9)
-def demo9():
+@demoNumber(11)
+def demo11():
     draw_in_square_viewport()
     handle_inputs()
 
@@ -1367,8 +1466,8 @@ inputHandlers.append(handle_square_rotation)
 
 ##[source,Python,linenums]
 ##----
-@demoNumber(10)
-def demo10():
+@demoNumber(12)
+def demo12():
     draw_in_square_viewport()
     handle_inputs()
 ##----
@@ -1445,8 +1544,8 @@ inputHandlers.append(handle_relative_rotation)
 
 ##[source,Python,linenums]
 ##----
-@demoNumber(11)
-def demo11():
+@demoNumber(13)
+def demo13():
     draw_in_square_viewport()
     handle_inputs()
 ##----
@@ -1620,8 +1719,8 @@ def draw(self):
 Paddle.draw = draw
 
 
-@demoNumber(12)
-def demo12():
+@demoNumber(14)
+def demo14():
     draw_in_square_viewport()
     handle_inputs()
 
