@@ -777,7 +777,7 @@ def demo4():
 ##instead call "translate" on the vertex, and call "glVertex2f"
 ##on the translated vertex.
 
-##image:translate.png[align="center",title="Foo"]
+##image:translationF.gif[align="center",title="Foo"]
 
 ## TODO -- rename translate's x and y to tx and ty
 ##[source,Python,linenums]
@@ -880,23 +880,7 @@ Paddle.draw = draw
 ##(this works well for world-space to camera-space,
 ##but not so well for model-space transformations)
 
-##image:modelspacePaddleMovingFrame1.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFrame2.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFrame3.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFrame3.5.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFrame4.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFrame4.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFrame5.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFrame6.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFrame6.5.png[align="center",title="Foo"]
+##image:translation2F.gif[align="center",title="Foo"]
 
 
 ##Instead, for model-space to world-space transformations (and for these transformations only),
@@ -904,23 +888,8 @@ Paddle.draw = draw
 ##aren't relative to the global origin, instead it's from the local frame of reference.
 
 
-##image:modelspacePaddleMovingFramebackwards1.png[align="center",title="Foo"]
+##image:translation2B.gif[align="center",title="Foo"]
 
-##image:modelspacePaddleMovingFramebackwards2.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFramebackwards3.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFramebackwards3.5.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFramebackwards4.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFramebackwards4.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFramebackwards5.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFramebackwards6.png[align="center",title="Foo"]
-
-##image:modelspacePaddleMovingFramebackwards6.5.png[align="center",title="Foo"]
 
 
 ##Why do the two different views of the transformations matter?  In model-space
@@ -1139,7 +1108,7 @@ def demo7():
     paddle2.draw()
 ##----
 
-## TODO - Explain how this does not do what we want.  Show example graphs.
+##TODO - Explain how this does not do what we want.  Show example graphs.
 
 
 
@@ -1154,6 +1123,7 @@ def rotate_around(self, angle_in_radians, center):
                                                  ty=center.y)
     return backToCenter
 Vertex.rotate_around = rotate_around
+##----
 
 
 ##[source,Python,linenums]
@@ -1164,7 +1134,6 @@ def draw(self):
               self.b)
 
     glBegin(GL_QUADS)
-    print("fo")
     for modelspace in self.vertices:
         rotatePoint = Vertex(0.0,0.0).translate(tx=self.globalPosition.x,
                                                 ty=self.globalPosition.y) \
@@ -1256,29 +1225,10 @@ def demo9():
 ##----
 
 
-##image:modelspacerotation.png[align="center",title="Foo"]
+##image:rotation1F.gif[align="center",title="Foo"]
 
-##image:modelspacerotation2.png[align="center",title="Foo"]
+##image:rotation1B.gif[align="center",title="Foo"]
 
-##image:modelspacerotation2.5.png[align="center",title="Foo"]
-
-
-##image:modelspacerotation3.png[align="center",title="Foo"]
-
-##image:modelspacerotation4.png[align="center",title="Foo"]
-
-##image:modelspacerotation4.5.png[align="center",title="Foo"]
-
-
-##image:modelspacerotation5.png[align="center",title="Foo"]
-
-##image:modelspacerotation6.png[align="center",title="Foo"]
-
-##image:modelspacerotation7.png[align="center",title="Foo"]
-
-##image:modelspacerotation7.5.png[align="center",title="Foo"]
-
-##image:modelspacerotation8.png[align="center",title="Foo"]
 
 
 

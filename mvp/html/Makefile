@@ -26,11 +26,28 @@ OBJECTS_TO_BUILD = plot1.png \
 
 dist: modelviewprojection.html plots
 	mkdir -p dist
-	cp *png dist/
+	cp *png *gif dist/
 	cp modelviewprojection.html dist/index.html
 
 plots: generatePlots.py
 	python generatePlots.py
+	convert -loop 0 -delay 100 translation-forwards* translationF.gif
+	rm translation-f*png
+	convert -loop 0 -delay 100 translation-ba* translationB.gif
+	rm translation-b*png
+	convert -loop 0 -delay 100 translation2-forwards* translation2F.gif
+	rm translation2-f*png
+	convert -loop 0 -delay 100 translation2-ba* translation2B.gif
+	rm translation2-b*png
+	convert -loop 0 -delay 100 rotate1-forwards* rotation1F.gif
+	rm rotate1-f*png
+	convert -loop 0 -delay 100 rotate1-ba* rotation1B.gif
+	rm rotate1-b*png
+	convert -loop 0 -delay 100 rotate2-forwards* rotation2F.gif
+	rm rotate2-f*png
+	convert -loop 0 -delay 100 rotate2-ba* rotation2B.gif
+	rm rotate2-b*png
+
 
 modelviewprojection.html: modelviewprojection.adoc
 	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n modelviewprojection.adoc

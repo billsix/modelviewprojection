@@ -112,9 +112,7 @@ def createGraphs(filename, points, procedures, color, backwards=False):
     procs = procedures.copy()
 
     count = 0
-    lastTransform = None
     for t in accumulate_transformation(procs, backwards):
-        lastTransform = t
 
         fig, axes = plt.subplots()
         axes.set_xlim([-graphBounds[0],graphBounds[0]])
@@ -125,6 +123,11 @@ def createGraphs(filename, points, procedures, color, backwards=False):
             transformedXs, transformedYs = t(xs,ys)
             plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
+            #plot the points
+            transformedXs, transformedYs = t(*points)
+            plt.plot(transformedXs, transformedYs, 'k-', lw=2, color=color)
+
+
 
         # make sure the x and y axis are equally proportional in screen space
         plt.gca().set_aspect('equal', adjustable='box')
@@ -132,30 +135,10 @@ def createGraphs(filename, points, procedures, color, backwards=False):
         plt.close(fig)
 
         count += 1
-    #
-    fig, axes = plt.subplots()
-    axes.set_xlim([-graphBounds[0],graphBounds[0]])
-    axes.set_ylim([-graphBounds[1],graphBounds[1]])
-
-    #plot transformed basis
-    for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
-        transformedXs, transformedYs = lastTransform(xs,ys)
-        plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
-
-    #plot the points
-    transformedXs, transformedYs = lastTransform(*points)
-    plt.plot(transformedXs, transformedYs, 'k-', lw=2, color=color)
 
 
 
-    # make sure the x and y axis are equally proportional in screen space
-    plt.gca().set_aspect('equal', adjustable='box')
-    fig.savefig(str.format("{}-{}.png",filename, count ))
-    plt.close(fig)
-
-
-
-createGraphs(filename="translation",
+createGraphs(filename="translation-forwards",
              points = paddleData,
              procedures= [lambda x,y: mplt.translate(0.0,
                                                      20.0,
@@ -178,7 +161,7 @@ createGraphs(filename="translation-backwards",
                                                      y)],
              color=(0.578123, 0.0, 1.0),
              backwards=True)
-createGraphs(filename="translation2",
+createGraphs(filename="translation2-forwards",
              points = paddleData,
              procedures= [lambda x,y: mplt.translate(0.0,
                                                      -40.0,
@@ -205,7 +188,7 @@ createGraphs(filename="translation2-backwards",
 
 
 
-createGraphs(filename="rotate1",
+createGraphs(filename="rotate1-forwards",
              points = paddleData,
              procedures= [lambda x,y: mplt.rotate(math.radians(45.0), x, y),
                           lambda x,y: mplt.translate(0.0,
@@ -232,7 +215,7 @@ createGraphs(filename="rotate1-backwards",
              backwards=True)
 
 
-createGraphs(filename="rotate2",
+createGraphs(filename="rotate2-forwards",
              points = paddleData,
              procedures= [lambda x,y: mplt.rotate(math.radians(-10.0), x, y),
                           lambda x,y: mplt.translate(90.0,
