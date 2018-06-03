@@ -344,7 +344,8 @@ def main_loop():
 ##
 ##[source,Python,linenums]
 ##----
-@demoNumber(1)
+demoNumberDevPurposes = 1
+@demoNumber(demoNumberDevPurposes)
 def demo1():
     # The baseline behavior.  A black screen.
     pass
@@ -398,7 +399,8 @@ def demo1():
 
 ##[source,Python,linenums]
 ##----
-@demoNumber(2)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo2():
     # draw paddle 1
     glColor3f(0.578123, #r
@@ -609,7 +611,8 @@ def draw_in_square_viewport():
 
 ##[source,Python,linenums]
 ##----
-@demoNumber(3)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo3():
     draw_in_square_viewport()
     demo2()
@@ -727,7 +730,8 @@ Paddle.draw = draw
 
 ##[source,Python,linenums]
 ##----
-@demoNumber(4)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo4():
     draw_in_square_viewport()
     handle_inputs()
@@ -801,7 +805,8 @@ def draw(self):
     glEnd()
 Paddle.draw = draw
 
-@demoNumber(5)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo5():
     draw_in_square_viewport()
     handle_inputs()
@@ -952,7 +957,8 @@ inputHandlers.append(handle_movement_of_paddles)
 
 ##[source,Python,linenums]
 ##----
-@demoNumber(6)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo6():
     draw_in_square_viewport()
     handle_inputs()
@@ -1099,7 +1105,8 @@ def draw(self):
     glEnd()
 Paddle.draw = draw
 
-@demoNumber(7)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo7():
     draw_in_square_viewport()
     handle_inputs()
@@ -1151,7 +1158,8 @@ def draw(self):
     glEnd()
 Paddle.draw = draw
 
-@demoNumber(8)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo8():
     draw_in_square_viewport()
     handle_inputs()
@@ -1215,7 +1223,8 @@ def draw(self):
 Paddle.draw = draw
 
 
-@demoNumber(9)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo9():
     draw_in_square_viewport()
     handle_inputs()
@@ -1305,7 +1314,8 @@ def draw(self):
     glEnd()
 Paddle.draw = draw
 
-@demoNumber(10)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo10():
     draw_in_square_viewport()
     handle_inputs()
@@ -1346,7 +1356,8 @@ square = [Vertex(x=-5.0, y=-5.0),
           Vertex(x=-5.0, y= 5.0)]
 
 
-@demoNumber(11)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo11():
     draw_in_square_viewport()
     handle_inputs()
@@ -1416,7 +1427,8 @@ inputHandlers.append(handle_square_rotation)
 
 ##[source,Python,linenums]
 ##----
-@demoNumber(12)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo12():
     draw_in_square_viewport()
     handle_inputs()
@@ -1494,7 +1506,8 @@ inputHandlers.append(handle_relative_rotation)
 
 ##[source,Python,linenums]
 ##----
-@demoNumber(13)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo13():
     draw_in_square_viewport()
     handle_inputs()
@@ -1669,7 +1682,8 @@ def draw(self):
 Paddle.draw = draw
 
 
-@demoNumber(14)
+demoNumberDevPurposes += 1
+@demoNumber(demoNumberDevPurposes)
 def demo14():
     draw_in_square_viewport()
     handle_inputs()
