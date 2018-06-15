@@ -107,7 +107,7 @@ paddleData = list(zip(*np.array([[-10.0,-30.0],
                                  [-10.0,30.0],
                                  [-10.0,-30.0]])))
 
-def createGraphs(filename, points, procedures, color, backwards=False):
+def createGraphs(title, filename, points, procedures, color, backwards=False):
 
     procs = procedures.copy()
 
@@ -125,6 +125,7 @@ def createGraphs(filename, points, procedures, color, backwards=False):
 
             #plot the points
             transformedXs, transformedYs = t(*points)
+            plt.title(str.format("{}\nStep {}", title, str(count+1)))
             plt.plot(transformedXs, transformedYs, 'k-', lw=2, color=color)
 
 
@@ -138,7 +139,8 @@ def createGraphs(filename, points, procedures, color, backwards=False):
 
 
 
-createGraphs(filename="translation-forwards",
+createGraphs(title="Translation",
+             filename="translation-forwards",
              points = paddleData,
              procedures= [lambda x,y: mplt.translate(0.0,
                                                      20.0,
@@ -149,19 +151,9 @@ createGraphs(filename="translation-forwards",
                                                      x,
                                                      y)],
              color=(0.578123, 0.0, 1.0))
-createGraphs(filename="translation-backwards",
-             points = paddleData,
-             procedures= [lambda x,y: mplt.translate(0.0,
-                                                     20.0,
-                                                     x,
-                                                     y),
-                          lambda x,y: mplt.translate(-90.0,
-                                                     0.0,
-                                                     x,
-                                                     y)],
-             color=(0.578123, 0.0, 1.0),
-             backwards=True)
-createGraphs(filename="translation2-forwards",
+
+createGraphs(title="Translation",
+             filename="translation2-forwards",
              points = paddleData,
              procedures= [lambda x,y: mplt.translate(0.0,
                                                      -40.0,
@@ -173,22 +165,10 @@ createGraphs(filename="translation2-forwards",
                                                      y)],
              color=(1.0, 0.0, 0.0, 1.0))
 
-createGraphs(filename="translation2-backwards",
-             points = paddleData,
-             procedures= [lambda x,y: mplt.translate(0.0,
-                                                     -40.0,
-                                                     x,
-                                                     y),
-                          lambda x,y: mplt.translate(90.0,
-                                                     0.0,
-                                                     x,
-                                                     y)],
-             color=(1.0, 0.0, 0.0, 1.0),
-             backwards=True)
 
 
-
-createGraphs(filename="rotate1-forwards",
+createGraphs(title="Rotation, Relative to Global Space",
+             filename="rotate1-forwards",
              points = paddleData,
              procedures= [lambda x,y: mplt.rotate(math.radians(45.0), x, y),
                           lambda x,y: mplt.translate(0.0,
@@ -200,7 +180,8 @@ createGraphs(filename="rotate1-forwards",
                                                      x,
                                                      y)],
              color=(0.578123, 0.0, 1.0))
-createGraphs(filename="rotate1-backwards",
+createGraphs(title="Rotation, Relative to Local Space",
+             filename="rotate1-backwards",
              points = paddleData,
              procedures= [lambda x,y: mplt.rotate(math.radians(45.0), x, y),
                           lambda x,y: mplt.translate(0.0,
@@ -215,7 +196,8 @@ createGraphs(filename="rotate1-backwards",
              backwards=True)
 
 
-createGraphs(filename="rotate2-forwards",
+createGraphs(title="Rotation, Global Space",
+             filename="rotate2-forwards",
              points = paddleData,
              procedures= [lambda x,y: mplt.rotate(math.radians(-10.0), x, y),
                           lambda x,y: mplt.translate(90.0,
@@ -227,7 +209,8 @@ createGraphs(filename="rotate2-forwards",
                                                      x,
                                                      y)],
              color=(1.0, 0.0, 0.0))
-createGraphs(filename="rotate2-backwards",
+createGraphs(title="Rotation, Relative to Local Space",
+             filename="rotate2-backwards",
              points = paddleData,
              procedures= [lambda x,y: mplt.rotate(math.radians(-10.0), x, y),
                           lambda x,y: mplt.translate(90.0,
