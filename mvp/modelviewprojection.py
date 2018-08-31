@@ -1608,7 +1608,7 @@ square = [Vertex3(x=-5.0, y=-5.0, z=0.0),
 ##----
 moving_camera_x = 0.0
 moving_camera_y = 0.0
-moving_camera_z = 0.0
+moving_camera_z = 400.0
 moving_camera_rot_y = 0.0
 moving_camera_rot_x = 0.0
 
@@ -1650,6 +1650,18 @@ inputHandlers.append(handle_3D_movement)
 
 ##----
 
+##[source,Python,linenums]
+##----
+def cameraSpaceToNDCSpaceFn(self):
+    return self.ortho(min_x= -100.0,
+                      max_x= 100.0,
+                      min_y= -100.0,
+                      max_y= 100.0,
+                      min_z= 100.0,
+                      max_z= -100.0)
+Vertex3.cameraSpaceToNDCSpaceFn = cameraSpaceToNDCSpaceFn
+##----
+
 
 ##[source,Python,linenums]
 ##----
@@ -1673,12 +1685,7 @@ def draw(self):
                                            tz=-moving_camera_z) \
                                 .rotateY( -moving_camera_rot_y) \
                                 .rotateX( -moving_camera_rot_x)
-        ndcSpace = cameraSpace.ortho(min_x= -100.0,
-                                     max_x= 100.0,
-                                     min_y= -100.0,
-                                     max_y= 100.0,
-                                     min_z= 100.0,
-                                     max_z= -100.0)
+        ndcSpace = cameraSpace.cameraSpaceToNDCSpaceFn()
         glVertex3f(ndcSpace.x,
                    ndcSpace.y,
                    ndcSpace.z)
@@ -1721,12 +1728,7 @@ def demo14():
                                            tz=-moving_camera_z) \
                                 .rotateY( -moving_camera_rot_y) \
                                 .rotateX( -moving_camera_rot_x)
-        ndcSpace = cameraSpace.ortho(min_x= -100.0,
-                                     max_x= 100.0,
-                                     min_y= -100.0,
-                                     max_y= 100.0,
-                                     min_z= 100.0,
-                                     max_z= -100.0)
+        ndcSpace = cameraSpace.cameraSpaceToNDCSpaceFn()
         glVertex3f(ndcSpace.x,
                    ndcSpace.y,
                    ndcSpace.z)
@@ -1772,24 +1774,42 @@ def demo15():
 ##[source,Python,linenums]
 ##----
 
-def perspective(nearZ,
-                farZ):
+def perspective(self, nearZ, farZ):
     field_of_view =  math.radians(45.0/2.0)
     width, height = glfwGetFramebufferSize(window)
-    y_angle =  (w / h) * field_of_view
+    y_angle =  (width / height) * field_of_view
 
-    sheared_x = self.x / math.fabs(z) * math.fabs(nearZ)
-    sheared_y = self.y / math.fabs(z) * math.fabs(nearZ)
+
+    sheared_x = self.x / math.fabs(self.z) * math.fabs(nearZ)
+    sheared_y = self.y / math.fabs(self.z) * math.fabs(nearZ)
     projected =  Vertex3(sheared_x,
 			 sheared_y,
 			 self.z)
 
     x_min_of_box = math.fabs(nearZ) * math.tan(field_of_view)
-    y_min_of_box = fabs(nearZ) * tan(y_angle)
+    y_min_of_box = math.fabs(nearZ) * math.tan(y_angle)
     return projected.ortho(min_x= -x_min_of_box,
 			   max_x= x_min_of_box,
                            min_y= -y_min_of_box,
 			   max_y= y_min_of_box,
                            min_z= nearZ,
 			   max_z= farZ)
+Vertex3.perspective = perspective
+
+##----
+
+
+##[source,Python,linenums]
+##----
+def cameraSpaceToNDCSpaceFn(self):
+    return self.perspective(-0.1, -10000.0)
+Vertex3.cameraSpaceToNDCSpaceFn = cameraSpaceToNDCSpaceFn
+##----
+
+##[source,Python,linenums]
+##----
+
+@registerDemo
+def demo16():
+    demo15()
 ##----
