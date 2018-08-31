@@ -150,16 +150,18 @@ chapterNumber = input()
 # - if the user selected this demo, then run it now.
 # this way, overridden/updated functions do not affect this
 # demo
-def demoNumber(theDemoNumber):
-    def actualDecorator(F):
-        if int(chapterNumber) == theDemoNumber:
-            global render_scene
-            render_scene = F
-            main_loop()
-            sys.exit(0)
-        else:
-            return F
-    return actualDecorator
+
+demoNumber = 1
+def registerDemo(F):
+    global demoNumber
+    if int(chapterNumber) == demoNumber:
+        global render_scene
+        render_scene = F
+        main_loop()
+        sys.exit(0)
+    else:
+        demoNumber += 1
+        return F
 ##----
 
 ##==== GLFW/OpenGL Initialization
@@ -231,16 +233,6 @@ glClearColor(0.0,
              1.0)
 ##----
 
-##Set the default depth for all fragments
-##[source,Python,linenums]
-##----
-glClearDepth(-1.0)
-##----
-##Set the depth test for all fragments.
-##[source,Python,linenums]
-##----
-glDepthFunc(GL_GREATER)
-##----
 ##Enable blending of new values in a fragment with the old value.
 ##[source,Python,linenums]
 ##----
@@ -252,7 +244,6 @@ glEnable(GL_BLEND)
 ##----
 glBlendFunc(GL_SRC_ALPHA,
             GL_ONE_MINUS_SRC_ALPHA)
-glEnable(GL_DEPTH_TEST)
 
 glMatrixMode(GL_PROJECTION);
 glLoadIdentity();
@@ -344,8 +335,7 @@ def main_loop():
 ##
 ##[source,Python,linenums]
 ##----
-demoNumberDevPurposes = 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo1():
     # The baseline behavior.  A black screen.
     pass
@@ -399,8 +389,7 @@ def demo1():
 
 ##[source,Python,linenums]
 ##----
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo2():
     # draw paddle 1
     glColor3f(0.578123, #r
@@ -611,8 +600,7 @@ def draw_in_square_viewport():
 
 ##[source,Python,linenums]
 ##----
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo3():
     draw_in_square_viewport()
     demo2()
@@ -730,8 +718,7 @@ Paddle.draw = draw
 
 ##[source,Python,linenums]
 ##----
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo4():
     draw_in_square_viewport()
     handle_inputs()
@@ -805,8 +792,7 @@ def draw(self):
     glEnd()
 Paddle.draw = draw
 
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo5():
     draw_in_square_viewport()
     handle_inputs()
@@ -957,8 +943,7 @@ inputHandlers.append(handle_movement_of_paddles)
 
 ##[source,Python,linenums]
 ##----
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo6():
     draw_in_square_viewport()
     handle_inputs()
@@ -1105,8 +1090,7 @@ def draw(self):
     glEnd()
 Paddle.draw = draw
 
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo7():
     draw_in_square_viewport()
     handle_inputs()
@@ -1158,8 +1142,7 @@ def draw(self):
     glEnd()
 Paddle.draw = draw
 
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo8():
     draw_in_square_viewport()
     handle_inputs()
@@ -1223,8 +1206,7 @@ def draw(self):
 Paddle.draw = draw
 
 
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo9():
     draw_in_square_viewport()
     handle_inputs()
@@ -1314,8 +1296,7 @@ def draw(self):
     glEnd()
 Paddle.draw = draw
 
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo10():
     draw_in_square_viewport()
     handle_inputs()
@@ -1356,8 +1337,7 @@ square = [Vertex(x=-5.0, y=-5.0),
           Vertex(x=-5.0, y= 5.0)]
 
 
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo11():
     draw_in_square_viewport()
     handle_inputs()
@@ -1427,8 +1407,7 @@ inputHandlers.append(handle_square_rotation)
 
 ##[source,Python,linenums]
 ##----
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo12():
     draw_in_square_viewport()
     handle_inputs()
@@ -1506,8 +1485,7 @@ inputHandlers.append(handle_relative_rotation)
 
 ##[source,Python,linenums]
 ##----
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo13():
     draw_in_square_viewport()
     handle_inputs()
@@ -1607,32 +1585,6 @@ Vertex3.ortho = ortho
 # Install a key handler
 # negate z length because it is already negative, and do not want to flip the data
 
-def rad_to_deg(rad):
-    return 57.296 * rad
-def deg_to_rad(degree):
-    return degree / 57.296
-
-def perspective(nearZ,
-                farZ):
-    field_of_view =  deg_to_rad(45.0/2.0)
-    width, height = glfwGetFramebufferSize(window)
-    y_angle =  (w / h) * field_of_view
-
-    sheared_x = self.x / math.fabs(z) * math.fabs(nearZ)
-    sheared_y = self.y / math.fabs(z) * math.fabs(nearZ)
-    projected =  Vertex3(sheared_x,
-			 sheared_y,
-			 self.z)
-
-    x_min_of_box = math.fabs(nearZ) * math.tan(field_of_view)
-    y_min_of_box = fabs(nearZ) * tan(y_angle)
-    return projected.ortho(min_x= -x_min_of_box,
-			   max_x= x_min_of_box,
-                           min_y= -y_min_of_box,
-			   max_y= y_min_of_box,
-                           min_z= nearZ,
-			   max_z= farZ)
-
 ##----
 
 ##[source,Python,linenums]
@@ -1648,6 +1600,56 @@ square = [Vertex3(x=-5.0, y=-5.0, z=0.0),
           Vertex3(x= 5.0, y= 5.0, z=0.0),
           Vertex3(x=-5.0, y=5.0,  z=0.0)]
 ##----
+
+
+##== Moving the Camera in 3D
+
+##[source,C,linenums]
+##----
+moving_camera_x = 0.0
+moving_camera_y = 0.0
+moving_camera_z = 0.0
+moving_camera_rot_y = 0.0
+moving_camera_rot_x = 0.0
+
+
+def handle_3D_movement():
+    global moving_camera_x
+    global moving_camera_y
+    global moving_camera_z
+    global moving_camera_rot_x
+    global moving_camera_rot_y
+
+    move_multiple = 15.0
+    if glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS:
+        moving_camera_rot_y -= 0.03
+    if glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS:
+        moving_camera_rot_y += 0.03
+    if glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS:
+        moving_camera_rot_x += 0.03
+    if glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS:
+        moving_camera_rot_x -= 0.03;
+##//TODO -  explaing movement on XZ-plane
+##//TODO -  show camera movement in graphviz
+    if glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS:
+        moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
+        moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)
+    if glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS:
+        moving_camera_x += move_multiple * math.sin(moving_camera_rot_y);
+        moving_camera_z += move_multiple * math.cos(moving_camera_rot_y);
+
+
+inputHandlers = []
+inputHandlers.append(handle_movement_of_paddles)
+inputHandlers.append(handle_paddle_rotations)
+inputHandlers.append(handle_square_rotation)
+inputHandlers.append(handle_relative_rotation)
+
+inputHandlers.append(handle_3D_movement)
+
+
+##----
+
 
 ##[source,Python,linenums]
 ##----
@@ -1666,9 +1668,11 @@ def draw(self):
                                           ty=self.offsetY,
                                           tz=0.0)
 
-        cameraSpace = worldSpace.translate(tx=-camera_x,
-                                           ty=-camera_y,
-                                           tz=0.0)
+        cameraSpace = worldSpace.translate(tx=-moving_camera_x,
+                                           ty=-moving_camera_y,
+                                           tz=-moving_camera_z) \
+                                .rotateY( -moving_camera_rot_y) \
+                                .rotateX( -moving_camera_rot_x)
         ndcSpace = cameraSpace.ortho(min_x= -100.0,
                                      max_x= 100.0,
                                      min_y= -100.0,
@@ -1682,8 +1686,7 @@ def draw(self):
 Paddle.draw = draw
 
 
-demoNumberDevPurposes += 1
-@demoNumber(demoNumberDevPurposes)
+@registerDemo
 def demo14():
     draw_in_square_viewport()
     handle_inputs()
@@ -1711,11 +1714,13 @@ def demo14():
                                           tz=0.0) \
                                .translate(tx=paddle1.offsetX,
                                           ty=paddle1.offsetY,
-                                          tz=0.0)
+                                          tz=-10.0) # TODO - explain why this should be visible
 
-        cameraSpace = worldSpace.translate(tx=-camera_x,
-                                           ty=-camera_y,
-                                           tz=0.0)
+        cameraSpace = worldSpace.translate(tx=-moving_camera_x,
+                                           ty=-moving_camera_y,
+                                           tz=-moving_camera_z) \
+                                .rotateY( -moving_camera_rot_y) \
+                                .rotateX( -moving_camera_rot_x)
         ndcSpace = cameraSpace.ortho(min_x= -100.0,
                                      max_x= 100.0,
                                      min_y= -100.0,
@@ -1730,43 +1735,61 @@ def demo14():
     paddle2.draw()
 ##----
 
-##== Moving the Camera in 3D
 
-##[source,C,linenums]
+####TODO - discuss the framebuffer, and how it allows us to draw in
+####       a depth-independent manner.  we could force the programmer
+####       to sort objects by depth before drawing, but that's why mario64
+####       looked good and crash bandicoot had limited perspectives.
+####       also reference the section in the beginning which clears the
+####       depth buffer.
+
+
+##Set the default depth for all fragments
+##[source,Python,linenums]
 ##----
-moving_camera_x = 0.0
-moving_camera_y = 0.0
-moving_camera_z = 0.0
-moving_camera_rot_y = 0.0
-moving_camera_rot_x = 0.0
+glClearDepth(-1.0)
+##----
+##Set the depth test for all fragments.
+##[source,Python,linenums]
+##----
+glDepthFunc(GL_GREATER)
+##----
 
 
-def handle_3D_movement():
-    global moving_camera_x
-    global moving_camera_y
-    global moving_camera_z
-    global moving_camera_rot_x
-    global moving_camera_rot_y
+##[source,Python,linenums]
+##----
+# for all demos from now on, actually use the depth test
+glEnable(GL_DEPTH_TEST)
 
-    move_multiple = 15.0
-    if glfw.glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS:
-        moving_camera_rot_y -= 0.03
-    if glfw.glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS:
-        moving_camera_rot_y += 0.03
-    if glfw.glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS:
-        moving_camera_rot_x += 0.03
-    if glfw.glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS:
-        moving_camera_rot_x -= 0.03;
-##//TODO -  explaing movement on XZ-plane
-##//TODO -  show camera movement in graphviz
-    if glfw.glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS:
-        moving_camera_x -= move_multiple * sin(moving_camera_rot_y)
-        moving_camera_z -= move_multiple * cos(moving_camera_rot_y)
-    if glfw.glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS:
-        moving_camera_x += move_multiple * sin(moving_camera_rot_y);
-        moving_camera_z += move_multiple * cos(moving_camera_rot_y);
+@registerDemo
+def demo15():
+    demo14()
+##----
 
-inputHandlers.append(handle_3D_movement)
+####TODO - write something about how "now that depth testing is enabled for all subequent demos, rerun the##//vious demo to show that the square becomes hidden as the user navigates
 
 
+##[source,Python,linenums]
+##----
+
+def perspective(nearZ,
+                farZ):
+    field_of_view =  math.radians(45.0/2.0)
+    width, height = glfwGetFramebufferSize(window)
+    y_angle =  (w / h) * field_of_view
+
+    sheared_x = self.x / math.fabs(z) * math.fabs(nearZ)
+    sheared_y = self.y / math.fabs(z) * math.fabs(nearZ)
+    projected =  Vertex3(sheared_x,
+			 sheared_y,
+			 self.z)
+
+    x_min_of_box = math.fabs(nearZ) * math.tan(field_of_view)
+    y_min_of_box = fabs(nearZ) * tan(y_angle)
+    return projected.ortho(min_x= -x_min_of_box,
+			   max_x= x_min_of_box,
+                           min_y= -y_min_of_box,
+			   max_y= y_min_of_box,
+                           min_z= nearZ,
+			   max_z= farZ)
 ##----
