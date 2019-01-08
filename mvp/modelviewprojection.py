@@ -1,3 +1,4 @@
+#!/usr/bin/env python
 ##// The MIT License (MIT)
 ##//
 ##// Copyright (c) 2017-2018 William Emerison Six
@@ -139,9 +140,6 @@ from OpenGL.GL import *
 import glfw
 import ctypes
 
-
-if __name__ != '__main__':
-    sys.exit(1)
 
 print("Which Chapter would you like to execute?")
 chapterNumber = input()
