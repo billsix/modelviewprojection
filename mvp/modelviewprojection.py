@@ -136,7 +136,7 @@ import os
 import numpy as np
 import math
 from OpenGL.GL import *
-from glfw.glfw import *
+import glfw
 import ctypes
 
 
@@ -169,7 +169,7 @@ def registerDemo(F):
 ##-Initialize GLFW.
 ##[source,Python,linenums]
 ##----
-if not glfwInit():
+if not glfw.init():
     sys.exit()
 ##----
 ##
@@ -193,33 +193,33 @@ if not glfwInit():
 ##
 ##[source,Python,linenums]
 ##----
-glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,1)
-glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,4)
+glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR,1)
+glfw.window_hint(glfw.CONTEXT_VERSION_MINOR,4)
 ##----
 
 ##Create a 500 pixel by 500 pixel window, which the user can resize.
 ##[source,Python,linenums]
 ##----
-window = glfwCreateWindow(500,
-                          500,
-                          str.encode("pyNuklear demo - GLFW OpenGL2"),
-                          None,
-                          None)
+window = glfw.create_window(500,
+                            500,
+                            "ModelViewProjection",
+                            None,
+                            None)
 if not window:
-    glfwTerminate()
+    glfw.terminate()
     sys.exit()
 ##----
 
 ##[source,Python,linenums]
 ##----
 # Make the window's context current
-glfwMakeContextCurrent(window)
+glfw.make_context_current(window)
 
 # Install a key handler
 def on_key(window, key, scancode, action, mods):
-    if key == GLFW_KEY_ESCAPE and action == GLFW_PRESS:
-        glfwSetWindowShouldClose(window,1)
-glfwSetKeyCallback(window, on_key)
+    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
+        glfw.set_window_should_close(window,1)
+glfw.set_key_callback(window, on_key)
 ##----
 
 ##For every frame drawn, each pixel has a default color, set by
@@ -270,11 +270,11 @@ glLoadIdentity();
 ##----
 def main_loop():
     # Loop until the user closes the window
-    while not glfwWindowShouldClose(window):
+    while not glfw.window_should_close(window):
         # Poll for and process events
-        glfwPollEvents()
+        glfw.poll_events()
 
-        width, height = glfwGetFramebufferSize(window)
+        width, height = glfw.get_framebuffer_size(window)
         glViewport(0, 0, width, height)
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 ##----
@@ -294,9 +294,9 @@ def main_loop():
 ##----
         # done with frame, flush and swap buffers
         # Swap front and back buffers
-        glfwSwapBuffers(window)
+        glfw.swap_buffers(window)
 
-    glfwTerminate()
+    glfw.terminate()
 ##----
 
 ##When a graphics application is executing, it is creating new
@@ -569,7 +569,7 @@ def draw_in_square_viewport():
                  1.0) #a
     glClear(GL_COLOR_BUFFER_BIT)
 
-    width, height = glfwGetFramebufferSize(window)
+    width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
@@ -664,13 +664,13 @@ def handle_inputs():
 def handle_movement_of_paddles():
     global paddle1, paddle2
 
-    if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
         paddle1.offsetY -= 0.1
-    if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
         paddle1.offsetY += 0.1
-    if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
         paddle2.offsetY -= 0.1
-    if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.offsetY += 0.1
 inputHandlers.append(handle_movement_of_paddles)
 ##----
@@ -928,13 +928,13 @@ Vertex.scale = scale
 def handle_movement_of_paddles():
     global paddle1, paddle2
 
-    if glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
         paddle1.offsetY -= 10.0
-    if glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
         paddle1.offsetY += 10.0
-    if glfwGetKey(window, GLFW_KEY_K) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
         paddle2.offsetY -= 10.0
-    if glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.offsetY += 10.0
 inputHandlers = []
 inputHandlers.append(handle_movement_of_paddles)
@@ -1057,13 +1057,13 @@ Vertex.rotate = rotate
 def handle_paddle_rotations():
     global paddle_1_rotation, paddle_2_rotation
 
-    if glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
-    if glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
         paddle1.rotation -= 0.1
-    if glfwGetKey(window, GLFW_KEY_J) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_J) == glfw.PRESS:
         paddle2.rotation += 0.1
-    if glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
         paddle2.rotation -= 0.1
 inputHandlers.append(handle_paddle_rotations)
 ##----
@@ -1260,13 +1260,13 @@ camera_y = 0.0
 def handle_camera_movement():
     global camera_x, camera_y
 
-    if glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera_y += 10.0
-    if glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         camera_y -= 10.0
-    if glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
         camera_x -= 10.0
-    if glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera_x += 10.0
 inputHandlers.append(handle_camera_movement)
 ##----
@@ -1399,7 +1399,7 @@ square_rotation = 0.0
 ##----
 def handle_square_rotation():
     global square_rotation
-    if glfwGetKey(window, GLFW_KEY_Q) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
 inputHandlers.append(handle_square_rotation)
 ##----
@@ -1478,7 +1478,7 @@ rotationAroundPaddle1 = 0.0
 ##----
 def handle_relative_rotation():
     global rotationAroundPaddle1
-    if glfwGetKey(window, GLFW_KEY_E) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotationAroundPaddle1 += 0.1
 inputHandlers.append(handle_relative_rotation)
 ##----
@@ -1621,20 +1621,20 @@ def handle_3D_movement():
     global moving_camera_rot_y
 
     move_multiple = 15.0
-    if glfwGetKey(window, GLFW_KEY_RIGHT) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         moving_camera_rot_y -= 0.03
-    if glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
         moving_camera_rot_y += 0.03
-    if glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
         moving_camera_rot_x += 0.03
-    if glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         moving_camera_rot_x -= 0.03;
 ##//TODO -  explaing movement on XZ-plane
 ##//TODO -  show camera movement in graphviz
-    if glfwGetKey(window, GLFW_KEY_UP) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
         moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)
-    if glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS:
+    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         moving_camera_x += move_multiple * math.sin(moving_camera_rot_y);
         moving_camera_z += move_multiple * math.cos(moving_camera_rot_y);
 
@@ -1776,7 +1776,7 @@ def demo15():
 
 def perspective(self, nearZ, farZ):
     field_of_view =  math.radians(45.0/2.0)
-    width, height = glfwGetFramebufferSize(window)
+    width, height = glfw.get_framebuffer_size(window)
     y_angle =  (width / height) * field_of_view
 
 
@@ -1813,3 +1813,6 @@ Vertex3.cameraSpaceToNDCSpaceFn = cameraSpaceToNDCSpaceFn
 def demo16():
     demo15()
 ##----
+
+
+#### TODO -- add in notion of matrix stacks
