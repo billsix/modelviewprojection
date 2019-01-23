@@ -1606,7 +1606,7 @@ square = [Vertex3(x=-5.0, y=-5.0, z=0.0),
 ##----
 moving_camera_x = 0.0
 moving_camera_y = 0.0
-moving_camera_z = 400.0
+moving_camera_z = 40.0
 moving_camera_rot_y = 0.0
 moving_camera_rot_x = 0.0
 
@@ -1771,6 +1771,11 @@ def demo15():
 
 ##[source,Python,linenums]
 ##----
+moving_camera_x = 0.0
+moving_camera_y = 0.0
+moving_camera_z = 400.0
+moving_camera_rot_y = 0.0
+moving_camera_rot_x = 0.0
 
 def perspective(self, nearZ, farZ):
     field_of_view =  math.radians(45.0/2.0)
