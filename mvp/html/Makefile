@@ -50,8 +50,10 @@ modelviewprojection.html: modelviewprojection.adoc
 
 
 modelviewprojection.adoc:  ../modelviewprojection.py $(OBJECTS_TO_BUILD)
-	sed -e 's/^\#\#//g' ../modelviewprojection.py > modelviewprojection.adoc
-
+	sed -e 's/^\#\#//g' ../modelviewprojection.py > modelviewprojectionbad.adoc
+	# delete first line of generated file, as it just runs python,
+	# which would cause docbook to fail
+	tail -n +2 modelviewprojectionbad.adoc > modelviewprojection.adoc
 
 
 main.pdf: modelviewprojection.adoc plots
