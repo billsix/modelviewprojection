@@ -120,7 +120,7 @@ def createGraphs(title, filename, points, procedures, color, backwards=False):
 
         #plot transformed basis
         for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
-            transformedXs, transformedYs = t(xs,ys)
+            transformedXs, transformedYs = t(xs,ys) if backwards else (xs,ys)
             plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
             #plot the points
