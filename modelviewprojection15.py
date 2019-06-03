@@ -13,7 +13,7 @@ glfw.window_hint(glfw.CONTEXT_VERSION_MINOR,4)
 
 window = glfw.create_window(500,
                             500,
-                            "ModelViewProjection",
+                            "ModelViewProjection Demo 15",
                             None,
                             None)
 if not window:
