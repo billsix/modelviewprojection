@@ -4,3 +4,7 @@
  is inlined into the book.
 -determine if I should show the scaling to NDC for paddle 1 before I show
 the transformations for paddle2
+- Put the scissor test later in the book, not the beginning
+- Determine which animated plots should go where
+- make plots from worldspace to ndcspace, (and camera space, where appropriate)
+- Connect the animated plots to the framebuffer

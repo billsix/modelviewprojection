@@ -1,4 +1,0 @@
-- Put the scissor test later in the book, not the beginning
-- Determine which animated plots should go where
-- make plots from worldspace to ndcspace, (and camera space, where appropriate)
-- Connect the animated plots to the framebuffer
