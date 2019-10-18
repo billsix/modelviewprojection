@@ -304,16 +304,16 @@ while not glfw.window_should_close(window):
               1.0) #b
     glBegin(GL_QUADS)
     for modelspace in square:
-        worldSpace = modelspace.rotateZ(square_rotation) \
-                               .translate(tx=20.0, ty=0.0, tz=0.0) \
-                               .rotateZ(rotationAroundPaddle1) \
-                               .rotateZ(paddle1.rotation) \
-                               .translate(tx=paddle1.globalPosition.x,
-                                          ty=paddle1.globalPosition.y,
-                                          tz=0.0) \
-                               .translate(tx=paddle1.offsetX,
-                                          ty=paddle1.offsetY,
-                                          tz=-10.0) # TODO - explain why this should be visible
+        paddle1Space = modelspace.rotateZ(square_rotation) \
+                                 .translate(tx=20.0, ty=0.0, tz=0.0) \
+                                 .rotateZ(rotationAroundPaddle1)
+        worldSpace = paddle1Space.rotateZ(paddle1.rotation) \
+                                 .translate(tx=paddle1.globalPosition.x,
+                                            ty=paddle1.globalPosition.y,
+                                            tz=0.0) \
+                                 .translate(tx=paddle1.offsetX,
+                                            ty=paddle1.offsetY,
+                                            tz=-10.0) # TODO - explain why this should be visible
 
         cameraSpace = worldSpace.translate(tx=-moving_camera_x,
                                            ty=-moving_camera_y,

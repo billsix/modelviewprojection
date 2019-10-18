@@ -221,13 +221,13 @@ while not glfw.window_should_close(window):
               1.0) #b
     glBegin(GL_QUADS)
     for modelspace in square:
-        worldSpace = modelspace.rotate(square_rotation) \
-                               .translate(tx=20.0, ty=0.0) \
-                               .rotate(paddle1.rotation) \
-                               .translate(tx=paddle1.globalPosition.x,
-                                          ty=paddle1.globalPosition.y) \
-                               .translate(tx=paddle1.offsetX,
-                                          ty=paddle1.offsetY)
+        paddle1Space = modelspace.rotate(square_rotation) \
+                                 .translate(tx=20.0, ty=0.0)
+        worldSpace = paddle1Space.rotate(paddle1.rotation) \
+                                 .translate(tx=paddle1.globalPosition.x,
+                                            ty=paddle1.globalPosition.y) \
+                                 .translate(tx=paddle1.offsetX,
+                                            ty=paddle1.offsetY)
         cameraSpace = worldSpace.translate(tx=-camera_x,
                                            ty=-camera_y)
         ndcSpace = cameraSpace.scale(x=1.0/100.0,
