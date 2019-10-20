@@ -45,15 +45,8 @@ plots: generatePlots.py
 	rm rotate2-b*png
 
 
-modelviewprojection.html: modelviewprojection.adoc
+modelviewprojection.html: modelviewprojection.adoc $(OBJECTS_TO_BUILD) plots
 	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n modelviewprojection.adoc
-
-
-modelviewprojection.adoc:  ../modelviewprojection.py $(OBJECTS_TO_BUILD)
-	sed -e 's/^\#\#//g' modelviewprojection.py > modelviewprojectionbad.adoc
-	# delete first line of generated file, as it just runs python,
-	# which would cause docbook to fail
-	tail -n +2 modelviewprojectionbad.adoc > modelviewprojection.adoc
 
 
 main.pdf: modelviewprojection.adoc plots
