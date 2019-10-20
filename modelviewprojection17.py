@@ -91,28 +91,28 @@ class Vertex:
 
     def translate(self, tx, ty, tz):
         return Vertex(x=self.x + tx,
-                       y=self.y + ty,
-                       z=self.z + tz)
+                      y=self.y + ty,
+                      z=self.z + tz)
 
-    def rotateX(self, angle_in_radians):
+    def rotate_x(self, angle_in_radians):
         return Vertex(x=self.x,
-                       y=self.y*math.cos(angle_in_radians) - self.z*math.sin(angle_in_radians),
-                       z=self.y*math.sin(angle_in_radians) + self.z*math.cos(angle_in_radians))
+                      y=self.y*math.cos(angle_in_radians) - self.z*math.sin(angle_in_radians),
+                      z=self.y*math.sin(angle_in_radians) + self.z*math.cos(angle_in_radians))
 
-    def rotateY(self, angle_in_radians):
+    def rotate_y(self, angle_in_radians):
         return Vertex(x=self.z*math.sin(angle_in_radians) + self.x*math.cos(angle_in_radians),
-                       y=self.y,
-                       z=self.z*math.cos(angle_in_radians) - self.x*math.sin(angle_in_radians))
+                      y=self.y,
+                      z=self.z*math.cos(angle_in_radians) - self.x*math.sin(angle_in_radians))
 
-    def rotateZ(self, angle_in_radians):
+    def rotate_z(self, angle_in_radians):
         return Vertex(x=self.x*math.cos(angle_in_radians) - self.y*math.sin(angle_in_radians),
-                       y=self.x*math.sin(angle_in_radians) + self.y*math.cos(angle_in_radians),
-                       z=self.z)
+                      y=self.x*math.sin(angle_in_radians) + self.y*math.cos(angle_in_radians),
+                      z=self.z)
 
     def scale(self, scale_x, scale_y, scale_z):
         return Vertex(x=self.x * scale_x,
-                       y=self.y * scale_y,
-                       z=self.z * scale_z)
+                      y=self.y * scale_y,
+                      z=self.z * scale_z)
 
     def ortho(self,
               min_x,
@@ -140,8 +140,8 @@ class Vertex:
         sheared_x = self.x / math.fabs(self.z) * math.fabs(nearZ)
         sheared_y = self.y / math.fabs(self.z) * math.fabs(nearZ)
         projected =  Vertex(sheared_x,
-                             sheared_y,
-                             self.z)
+                            sheared_y,
+                            self.z)
 
         x_min_of_box = math.fabs(nearZ) * math.tan(field_of_view)
         y_min_of_box = math.fabs(nearZ) * math.tan(y_angle)
@@ -153,20 +153,20 @@ class Vertex:
                                max_z= farZ)
 
 
-    def cameraSpaceToNDCSpaceFn(self):
+    def camera_space_to_ndc_space_fn(self):
         return self.perspective(-0.1, -10000.0)
 
 
 class Paddle:
-    def __init__(self,vertices, r, g, b, globalPosition, rotation=0.0, offsetX=0.0, offsetY=0.0):
+    def __init__(self,vertices, r, g, b, global_position, rotation=0.0, offset_x=0.0, offset_y=0.0):
         self.vertices = vertices
         self.r = r
         self.g = g
         self.b = b
         self.rotation = rotation
-        self.offsetX = offsetX
-        self.offsetY = offsetY
-        self.globalPosition = globalPosition
+        self.offset_x = offset_x
+        self.offset_y = offset_y
+        self.global_position = global_position
 
     def draw(self):
         glColor3f(self.r,
@@ -174,13 +174,13 @@ class Paddle:
                   self.b)
 
         glBegin(GL_QUADS)
-        for modelspace in self.vertices:
-            worldSpace = apply_stack(modelspace, model_stack)
-            cameraSpace = apply_stack(worldSpace, view_stack)
-            ndcSpace = apply_stack(cameraSpace, projection_stack)
-            glVertex3f(ndcSpace.x,
-                       ndcSpace.y,
-                       ndcSpace.z)
+        for model_space in self.vertices:
+            world_space = apply_stack(model_space, model_stack)
+            camera_space = apply_stack(world_space, view_stack)
+            ndc_space = apply_stack(camera_space, projection_stack)
+            glVertex3f(ndc_space.x,
+                       ndc_space.y,
+                       ndc_space.z)
         glEnd()
 
 
@@ -191,7 +191,7 @@ paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0, z=0.0),
                  r=0.578123,
                  g=0.0,
                  b=1.0,
-                 globalPosition=Vertex(x=-90.0,y=0.0,z=0.0))
+                 global_position=Vertex(x=-90.0,y=0.0,z=0.0))
 
 paddle2 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0, z=0.0),
                            Vertex(x= 10.0, y=-30.0, z=0.0),
@@ -200,7 +200,7 @@ paddle2 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0, z=0.0),
                  r=1.0,
                  g=0.0,
                  b=0.0,
-                 globalPosition=Vertex(x=90.0,y=0.0,z=0.0))
+                 global_position=Vertex(x=90.0,y=0.0,z=0.0))
 
 moving_camera_x = 0.0
 moving_camera_y = 0.0
@@ -214,13 +214,13 @@ square = [Vertex(x=-5.0, y=-5.0, z=0.0),
           Vertex(x= 5.0, y= 5.0, z=0.0),
           Vertex(x=-5.0, y=5.0,  z=0.0)]
 square_rotation = 0.0
-rotationAroundPaddle1 = 0.0
+rotation_around_paddle1 = 0.0
 
 
 def handle_inputs():
-    global rotationAroundPaddle1
+    global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
-        rotationAroundPaddle1 += 0.1
+        rotation_around_paddle1 += 0.1
 
     global square_rotation
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
@@ -253,13 +253,13 @@ def handle_inputs():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.offsetY -= 10.0
+        paddle1.offset_y -= 10.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.offsetY += 10.0
+        paddle1.offset_y += 10.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.offsetY -= 10.0
+        paddle2.offset_y -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.offsetY += 10.0
+        paddle2.offset_y += 10.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -299,14 +299,14 @@ while not glfw.window_should_close(window):
 
 
     # every object uses the same projection
-    projection_stack.append(lambda v: v.cameraSpaceToNDCSpaceFn())
+    projection_stack.append(lambda v: v.camera_space_to_ndc_space_fn())
 
     # every object is from the same view
     # Unlike in previous demos, because the transformations
     # are on a stack, the fns on the view stack need to
     # be read in reverse
-    view_stack.append(lambda v: v.rotateX( -moving_camera_rot_x))
-    view_stack.append(lambda v: v.rotateY( -moving_camera_rot_y))
+    view_stack.append(lambda v: v.rotate_x( -moving_camera_rot_x))
+    view_stack.append(lambda v: v.rotate_y( -moving_camera_rot_y))
     view_stack.append(lambda v: v.translate(tx=-moving_camera_x,
                                             ty=-moving_camera_y,
                                             tz=-moving_camera_z))
@@ -316,13 +316,13 @@ while not glfw.window_should_close(window):
     # are on a stack, the fns on the model stack can
     # be read forwards, where each operation translates/rotates/scales
     # the current space
-    model_stack.append(lambda v: v.translate(tx=paddle1.offsetX,
-                                             ty=paddle1.offsetY,
+    model_stack.append(lambda v: v.translate(tx=paddle1.offset_x,
+                                             ty=paddle1.offset_y,
                                              tz=0.0))
-    model_stack.append(lambda v: v.translate(tx=paddle1.globalPosition.x,
-                                             ty=paddle1.globalPosition.y,
+    model_stack.append(lambda v: v.translate(tx=paddle1.global_position.x,
+                                             ty=paddle1.global_position.y,
                                              tz=0.0))
-    model_stack.append(lambda v: v.rotateZ(paddle1.rotation))
+    model_stack.append(lambda v: v.rotate_z(paddle1.rotation))
 
     paddle1.draw()
 
@@ -336,37 +336,37 @@ while not glfw.window_should_close(window):
     # just add the transformations relative to it
     # before paddle 2 is drawn, we need to remove
     # the square's 3 model_space transformations
-    model_stack.append(lambda v: v.rotateZ(rotationAroundPaddle1))
+    model_stack.append(lambda v: v.rotate_z(rotation_around_paddle1))
     model_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0))
-    model_stack.append(lambda v: v.rotateZ(square_rotation))
+    model_stack.append(lambda v: v.rotate_z(square_rotation))
 
     glBegin(GL_QUADS)
-    for modelspace in square:
-        worldSpace = apply_stack(modelspace, model_stack)
-        cameraSpace = apply_stack(worldSpace, view_stack)
-        ndcSpace = apply_stack(cameraSpace, projection_stack)
+    for model_space in square:
+        world_space = apply_stack(model_space, model_stack)
+        camera_space = apply_stack(world_space, view_stack)
+        ndc_space = apply_stack(camera_space, projection_stack)
 
-        glVertex3f(ndcSpace.x,
-                   ndcSpace.y,
-                   ndcSpace.z)
+        glVertex3f(ndc_space.x,
+                   ndc_space.y,
+                   ndc_space.z)
     glEnd()
     model_stack.pop()
     model_stack.pop()
     model_stack.pop()
 
 
-    # since paddle2's modelspace is independent of paddle 1's space
+    # since paddle2's model_space is independent of paddle 1's space
     # just clear the stack
     model_stack.clear()
 
     # draw paddle 2
-    model_stack.append(lambda v: v.translate(tx=paddle2.offsetX,
-                                             ty=paddle2.offsetY,
+    model_stack.append(lambda v: v.translate(tx=paddle2.offset_x,
+                                             ty=paddle2.offset_y,
                                              tz=0.0))
-    model_stack.append(lambda v: v.translate(tx=paddle2.globalPosition.x,
-                                             ty=paddle2.globalPosition.y,
+    model_stack.append(lambda v: v.translate(tx=paddle2.global_position.x,
+                                             ty=paddle2.global_position.y,
                                              tz=0.0))
-    model_stack.append(lambda v: v.rotateZ(paddle2.rotation))
+    model_stack.append(lambda v: v.rotate_z(paddle2.rotation))
     paddle2.draw()
 
 

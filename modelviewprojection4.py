@@ -85,13 +85,13 @@ class Vertex:
         self.y = y
 
 class Paddle:
-    def __init__(self,vertices, r, g, b, offsetX=0.0, offsetY=0.0):
+    def __init__(self,vertices, r, g, b, offset_x=0.0, offset_y=0.0):
         self.vertices = vertices
         self.r = r
         self.g = g
         self.b = b
-        self.offsetX = offsetX
-        self.offsetY = offsetY
+        self.offset_x = offset_x
+        self.offset_y = offset_y
 
     def draw(self):
         glColor3f(self.r,
@@ -101,7 +101,7 @@ class Paddle:
         glBegin(GL_QUADS)
         for vertex in self.vertices:
             glVertex2f(vertex.x,
-                       vertex.y + self.offsetY)
+                       vertex.y + self.offset_y)
         glEnd()
 
 
@@ -126,13 +126,13 @@ def handle_movement_of_paddles():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.offsetY -= 0.1
+        paddle1.offset_y -= 0.1
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.offsetY += 0.1
+        paddle1.offset_y += 0.1
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.offsetY -= 0.1
+        paddle2.offset_y -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.offsetY += 0.1
+        paddle2.offset_y += 0.1
 
 
 # Loop until the user closes the window

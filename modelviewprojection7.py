@@ -95,15 +95,15 @@ class Vertex:
                       y= self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians))
 
 class Paddle:
-    def __init__(self,vertices, r, g, b, globalPosition, rotation=0.0, offsetX=0.0, offsetY=0.0):
+    def __init__(self,vertices, r, g, b, global_position, rotation=0.0, offset_x=0.0, offset_y=0.0):
         self.vertices = vertices
         self.r = r
         self.g = g
         self.b = b
         self.rotation = rotation
-        self.offsetX = offsetX
-        self.offsetY = offsetY
-        self.globalPosition = globalPosition
+        self.offset_x = offset_x
+        self.offset_y = offset_y
+        self.global_position = global_position
 
     def draw(self):
         glColor3f(self.r,
@@ -111,16 +111,16 @@ class Paddle:
                   self.b)
 
         glBegin(GL_QUADS)
-        for modelspace in self.vertices:
-            worldSpace = modelspace.translate(tx=self.globalPosition.x,
-                                              ty=self.globalPosition.y) \
-                                   .translate(tx=self.offsetX,
-                                              ty=self.offsetY) \
-                                   .rotate(self.rotation)
-            ndcSpace = worldSpace.scale(x=1.0/100.0,
-                                        y=1.0/100.0)
-            glVertex2f(ndcSpace.x,
-                       ndcSpace.y)
+        for model_space in self.vertices:
+            world_space = model_space.translate(tx=self.global_position.x,
+                                                ty=self.global_position.y) \
+                                     .translate(tx=self.offset_x,
+                                                ty=self.offset_y) \
+                                     .rotate(self.rotation)
+            ndc_space = world_space.scale(x=1.0/100.0,
+                                          y=1.0/100.0)
+            glVertex2f(ndc_space.x,
+                       ndc_space.y)
         glEnd()
 
 
@@ -132,7 +132,7 @@ paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                  r=0.578123,
                  g=0.0,
                  b=1.0,
-                 globalPosition=Vertex(-90.0,0.0))
+                 global_position=Vertex(-90.0,0.0))
 
 paddle2 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                            Vertex(x= 10.0, y=-30.0),
@@ -141,20 +141,20 @@ paddle2 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                  r=1.0,
                  g=0.0,
                  b=0.0,
-                 globalPosition=Vertex(90.0,0.0))
+                 global_position=Vertex(90.0,0.0))
 
 
 def handle_movement_of_paddles():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.offsetY -= 10.0
+        paddle1.offset_y -= 10.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.offsetY += 10.0
+        paddle1.offset_y += 10.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.offsetY -= 10.0
+        paddle2.offset_y -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.offsetY += 10.0
+        paddle2.offset_y += 10.0
 
     global paddle_1_rotation, paddle_2_rotation
 

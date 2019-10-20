@@ -95,23 +95,23 @@ class Vertex:
                       y= self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians))
 
     def rotate_around(self, angle_in_radians, center):
-        translateToCenter = self.translate(tx=-center.x,
-                                           ty=-center.y)
-        rotatedAroundOrigin = translateToCenter.rotate(angle_in_radians)
-        backToCenter = rotatedAroundOrigin.translate(tx=center.x,
-                                                     ty=center.y)
-        return backToCenter
+        translate_to_center = self.translate(tx=-center.x,
+                                             ty=-center.y)
+        rotated_around_origin = translate_to_center.rotate(angle_in_radians)
+        back_to_center = rotated_around_origin.translate(tx=center.x,
+                                                         ty=center.y)
+        return back_to_center
 
 class Paddle:
-    def __init__(self,vertices, r, g, b, globalPosition, rotation=0.0, offsetX=0.0, offsetY=0.0):
+    def __init__(self,vertices, r, g, b, global_position, rotation=0.0, offset_x=0.0, offset_y=0.0):
         self.vertices = vertices
         self.r = r
         self.g = g
         self.b = b
         self.rotation = rotation
-        self.offsetX = offsetX
-        self.offsetY = offsetY
-        self.globalPosition = globalPosition
+        self.offset_x = offset_x
+        self.offset_y = offset_y
+        self.global_position = global_position
 
     def draw(self):
         glColor3f(self.r,
@@ -119,19 +119,19 @@ class Paddle:
                   self.b)
 
         glBegin(GL_QUADS)
-        for modelspace in self.vertices:
-            worldSpace = modelspace.rotate(self.rotation) \
-                                   .translate(tx=self.globalPosition.x,
-                                              ty=self.globalPosition.y) \
-                                   .translate(tx=self.offsetX,
-                                              ty=self.offsetY)
+        for model_space in self.vertices:
+            world_space = model_space.rotate(self.rotation) \
+                                     .translate(tx=self.global_position.x,
+                                                ty=self.global_position.y) \
+                                     .translate(tx=self.offset_x,
+                                                ty=self.offset_y)
 
-            cameraSpace = worldSpace.translate(tx=-camera_x,
-                                               ty=-camera_y)
-            ndcSpace = cameraSpace.scale(x=1.0/100.0,
-                                         y=1.0/100.0)
-            glVertex2f(ndcSpace.x,
-                       ndcSpace.y)
+            camera_space = world_space.translate(tx=-camera_x,
+                                                 ty=-camera_y)
+            ndc_space = camera_space.scale(x=1.0/100.0,
+                                           y=1.0/100.0)
+            glVertex2f(ndc_space.x,
+                       ndc_space.y)
         glEnd()
 
 
@@ -142,7 +142,7 @@ paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                  r=0.578123,
                  g=0.0,
                  b=1.0,
-                 globalPosition=Vertex(-90.0,0.0))
+                 global_position=Vertex(-90.0,0.0))
 
 paddle2 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                            Vertex(x= 10.0, y=-30.0),
@@ -151,7 +151,7 @@ paddle2 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                  r=1.0,
                  g=0.0,
                  b=0.0,
-                 globalPosition=Vertex(90.0,0.0))
+                 global_position=Vertex(90.0,0.0))
 camera_x = 0.0
 camera_y = 0.0
 
@@ -171,13 +171,13 @@ def handle_inputs():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.offsetY -= 10.0
+        paddle1.offset_y -= 10.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.offsetY += 10.0
+        paddle1.offset_y += 10.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.offsetY -= 10.0
+        paddle2.offset_y -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.offsetY += 10.0
+        paddle2.offset_y += 10.0
 
     global paddle_1_rotation, paddle_2_rotation
 
