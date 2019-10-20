@@ -23,23 +23,6 @@ OBJECTS_TO_BUILD = plot1.png \
         disproportionate2.png \
         viewport.png
 
-diffs:
-	diff -C 10 ../modelviewprojection1.py ../modelviewprojection2.py  > modelviewprojection2.diff ; \
-	diff -C 10 ../modelviewprojection2.py ../modelviewprojection3.py  > modelviewprojection3.diff ; \
-	diff -C 10 ../modelviewprojection3.py ../modelviewprojection4.py  > modelviewprojection4.diff ; \
-	diff -C 10 ../modelviewprojection4.py ../modelviewprojection5.py  > modelviewprojection5.diff ; \
-	diff -C 10 ../modelviewprojection5.py ../modelviewprojection6.py  > modelviewprojection6.diff ; \
-	diff -C 10 ../modelviewprojection6.py ../modelviewprojection7.py  > modelviewprojection7.diff ; \
-	diff -C 10 ../modelviewprojection7.py ../modelviewprojection8.py  > modelviewprojection8.diff ; \
-	diff -C 10 ../modelviewprojection8.py ../modelviewprojection9.py  > modelviewprojection9.diff ; \
-	diff -C 10 ../modelviewprojection9.py ../modelviewprojection10.py > modelviewprojection10.diff ; \
-	diff -C 10 ../modelviewprojection10.py ../modelviewprojection11.py > modelviewprojection11.diff ; \
-	diff -C 10 ../modelviewprojection11.py ../modelviewprojection12.py > modelviewprojection12.diff ; \
-	diff -C 10 ../modelviewprojection12.py ../modelviewprojection13.py > modelviewprojection13.diff ; \
-	diff -C 10 ../modelviewprojection13.py ../modelviewprojection14.py > modelviewprojection14.diff ; \
-	diff -C 10 ../modelviewprojection14.py ../modelviewprojection15.py > modelviewprojection15.diff ; \
-	diff -C 10 ../modelviewprojection15.py ../modelviewprojection16.py > modelviewprojection16.diff ; \
-	echo diffs
 
 dist: modelviewprojection.html plots
 	mkdir -p dist
@@ -67,7 +50,7 @@ modelviewprojection.html: modelviewprojection.adoc
 
 
 modelviewprojection.adoc:  ../modelviewprojection.py $(OBJECTS_TO_BUILD)
-	sed -e 's/^\#\#//g' ../modelviewprojection.py > modelviewprojectionbad.adoc
+	sed -e 's/^\#\#//g' modelviewprojection.py > modelviewprojectionbad.adoc
 	# delete first line of generated file, as it just runs python,
 	# which would cause docbook to fail
 	tail -n +2 modelviewprojectionbad.adoc > modelviewprojection.adoc
