@@ -670,6 +670,10 @@ image:rotation1F.gif[align="center",title="Foo"]
 
 image:rotation1B.gif[align="center",title="Foo"]
 
+image:rotation2F.gif[align="center",title="Foo"]
+
+image:rotation2B.gif[align="center",title="Foo"]
+
 
 
 
