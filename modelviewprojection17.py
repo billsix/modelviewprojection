@@ -336,6 +336,7 @@ while not glfw.window_should_close(window):
     # just add the transformations relative to it
     # before paddle 2 is drawn, we need to remove
     # the square's 3 model_space transformations
+    model_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0))
     model_stack.append(lambda v: v.rotate_z(rotation_around_paddle1))
     model_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0))
     model_stack.append(lambda v: v.rotate_z(square_rotation))

@@ -306,14 +306,17 @@ while not glfw.window_should_close(window):
     for model_space in square:
         paddle_1_space = model_space.rotate_z(square_rotation) \
                                     .translate(tx=20.0, ty=0.0, tz=0.0) \
-                                    .rotate_z(rotation_around_paddle1)
+                                    .rotate_z(rotation_around_paddle1) \
+                                    .translate(tx=0.0,
+                                               ty=0.0,
+                                               tz=-10.0)
         world_space = paddle_1_space.rotate_z(paddle1.rotation) \
                                     .translate(tx=paddle1.global_position.x,
                                                ty=paddle1.global_position.y,
                                                tz=0.0) \
                                     .translate(tx=paddle1.offset_x,
                                                ty=paddle1.offset_y,
-                                               tz=-10.0) # TODO - explain why this should be visible
+                                               tz=-0.0)
 
         camera_space = world_space.translate(tx=-moving_camera_x,
                                              ty=-moving_camera_y,
