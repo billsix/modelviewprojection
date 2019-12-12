@@ -131,30 +131,28 @@ class Vertex:
                           1/(y_length/2.0),
                           1/(-z_length/2.0))
 
-    def perspective(self, nearZ, farZ):
-        field_of_view =  math.radians(45.0/2.0)
-        width, height = glfw.get_framebuffer_size(window)
-        y_angle =  (width / height) * field_of_view
-
+    def perspective(self, fov, aspectRatio, nearZ, farZ):
+        top = math.fabs(nearZ) * math.tan(math.radians(fov)/ 2.0)
+        right = top * aspectRatio
 
         sheared_x = self.x / math.fabs(self.z) * math.fabs(nearZ)
         sheared_y = self.y / math.fabs(self.z) * math.fabs(nearZ)
         projected =  Vertex(sheared_x,
                             sheared_y,
                             self.z)
-
-        x_min_of_box = math.fabs(nearZ) * math.tan(field_of_view)
-        y_min_of_box = math.fabs(nearZ) * math.tan(y_angle)
-        return projected.ortho(min_x= -x_min_of_box,
-                               max_x= x_min_of_box,
-                               min_y= -y_min_of_box,
-                               max_y= y_min_of_box,
+        return projected.ortho(min_x= -right,
+                               max_x= right,
+                               min_y= -top,
+                               max_y= top,
                                min_z= nearZ,
                                max_z= farZ)
 
 
     def camera_space_to_ndc_space_fn(self):
-        return self.perspective(-0.1, -10000.0)
+        return self.perspective(fov=45.0,
+                                aspectRatio=width / height,
+                                nearZ=-0.1,
+                                farZ=-10000.0)
 
 
 class Paddle:
