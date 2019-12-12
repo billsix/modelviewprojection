@@ -132,6 +132,54 @@ class Vertex:
                           1/(-z_length/2.0))
 
     def perspective(self, fov, aspectRatio, nearZ, farZ):
+        # fov, field of view, is angle of y
+        # aspectRatio is xwidth / ywidth
+
+#              ------------------------------ far z
+#              \             |              /
+#               \            |             /
+#                \ (x,z) *   |            /
+#                 \          |           /
+#                  \         |          /
+#                   \        |         /
+#                    \       |        /
+#                     \      |       /
+#                      \     |      /
+#                       ------------ near z
+#                       \    |    /
+#                        \   |   /
+#                         \  |  /
+#                          \ | /
+#                           \|/
+#      ----------------------*-(0,0)-------------------
+
+
+# because right angle and tan(theta) = tan(theta)
+# x / z = projX / nearZ
+# projX = x / z * nearZ
+
+#                       ----------- far z
+#                       |          |
+#                       |          |
+#        (x / z * nearZ,z) *       |   non-linear -- the transformation of x depends on its z value
+#                       |          |
+#                       |          |
+#                       |          |
+#                       |          |
+#                       |          |
+#                       |          |
+#                       |          |
+#                       |          |
+#                       ------------ near z
+#                       \    |    /
+#                        \   |   /
+#                         \  |  /
+#                          \ | /
+#                           \|/
+#      ----------------------*-(0,0)-------------------
+
+
+
         top = math.fabs(nearZ) * math.tan(math.radians(fov)/ 2.0)
         right = top * aspectRatio
 
