@@ -202,83 +202,90 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    glMatrixMode(GL_PROJECTION);
-    glLoadIdentity();
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-
+    ms.setToIdentityMatrix(ms.MatrixStack.model)
+    ms.setToIdentityMatrix(ms.MatrixStack.view)
+    ms.setToIdentityMatrix(ms.MatrixStack.projection)
 
     # set the projection matrix to be perspective
-    glMatrixMode(GL_PROJECTION);
-    gluPerspective(45.0,
-                   width / height,
-                   0.1,
-                   10000.0)
+    ms.perspective(fov=45.0,
+                   aspectRatio=width / height,
+                   nearZ=0.1,
+                   farZ=10000.0)
+    glMatrixMode(GL_PROJECTION)
+    glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.projection).T))
 
-
-    glMatrixMode(GL_MODELVIEW);
     # note - opengl matricies use degrees
-    glRotatef(math.degrees(-moving_camera_rot_x), 1.0, 0.0, 0.0)
-    glRotatef(math.degrees(-moving_camera_rot_y), 0.0, 1.0, 0.0)
-    glTranslatef(-moving_camera_x,
+    ms.rotate_x(ms.MatrixStack.view,-moving_camera_rot_x)
+    ms.rotate_y(ms.MatrixStack.view,-moving_camera_rot_y)
+    ms.translate(ms.MatrixStack.view,
+                 -moving_camera_x,
                  -moving_camera_y,
                  -moving_camera_z)
 
+    with ms.PushMatrix(ms.MatrixStack.model):
 
-    glPushMatrix(GL_MODELVIEW_MATRIX)
-    # draw paddle 1
-    # Unlike in previous demos, because the transformations
-    # are on a stack, the fns on the model stack can
-    # be read forwards, where each operation translates/rotates/scales
-    # the current space
-    glColor3f(paddle1.r,
-              paddle1.g,
-              paddle1.b)
+        # draw paddle 1
+        # Unlike in previous demos, because the transformations
+        # are on a stack, the fns on the model stack can
+        # be read forwards, where each operation translates/rotates/scales
+        # the current space
+        glColor3f(paddle1.r,
+                  paddle1.g,
+                  paddle1.b)
 
-    glTranslatef(paddle1.offset_x,
-                 paddle1.offset_y,
-                 0.0)
-    glTranslatef(paddle1.global_position[0],
-                 paddle1.global_position[1],
-                 0.0)
-    glRotatef(math.degrees(paddle1.rotation), 0.0, 0.0, 1.0)
+        ms.translate(ms.MatrixStack.model,
+                     paddle1.offset_x,
+                     paddle1.offset_y,
+                     0.0)
+        ms.translate(ms.MatrixStack.model,
+                     paddle1.global_position[0],
+                     paddle1.global_position[1],
+                     0.0)
+        ms.rotate_z(ms.MatrixStack.model,
+                    paddle1.rotation)
+
+        glMatrixMode(GL_MODELVIEW)
+        glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
+        glBegin(GL_QUADS)
+        for model_space in paddle1.vertices:
+            glVertex3f(model_space[0],
+                       model_space[1],
+                       model_space[2])
+        glEnd()
+
+        # # draw the square
+        glColor3f(0.0,  # r
+                  0.0,  # g
+                  1.0)  # b
+
+        # since the modelstack is already in paddle1's space
+        # just add the transformations relative to it
+        # before paddle 2 is drawn, we need to remove
+        # the square's 3 model_space transformations
+        ms.translate(ms.MatrixStack.model,
+                     0.0,
+                     0.0,
+                     -10.0)
+        ms.rotate_z(ms.MatrixStack.model,
+                    rotation_around_paddle1)
+        ms.translate(ms.MatrixStack.model,
+                     20.0,
+                     0.0,
+                     0.0)
+        ms.rotate_z(ms.MatrixStack.model,
+                    square_rotation)
 
 
-    glBegin(GL_QUADS)
-    for model_space in paddle1.vertices:
-        glVertex3f(model_space[0],
-                   model_space[1],
-                   model_space[2])
-    glEnd()
+        glMatrixMode(GL_MODELVIEW)
+        glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
+        glBegin(GL_QUADS)
+        for model_space in square_vertices:
+            glVertex3f(model_space[0],
+                       model_space[1],
+                       model_space[2])
+        glEnd()
 
-    # # draw the square
-    glColor3f(0.0,  # r
-              0.0,  # g
-              1.0)  # b
-
-    # since the modelstack is already in paddle1's space
-    # just add the transformations relative to it
-    # before paddle 2 is drawn, we need to remove
-    # the square's 3 model_space transformations
-    glTranslate(0.0,
-                0.0,
-                -10.0)
-    glRotatef(math.degrees(rotation_around_paddle1), 0.0, 0.0, 1.0)
-    glTranslate(20.0,
-                0.0,
-                0.0)
-    glRotatef(math.degrees(square_rotation), 0.0, 0.0, 1.0)
-
-
-    glBegin(GL_QUADS)
-    for model_space in square_vertices:
-        glVertex3f(model_space[0],
-                   model_space[1],
-                   model_space[2])
-    glEnd()
-
-    # get back to center of global space
-    glPopMatrix(GL_MODELVIEW_MATRIX)
+    #get back to center of global space
 
 
     # draw paddle 2
@@ -286,14 +293,19 @@ while not glfw.window_should_close(window):
               paddle2.g,
               paddle2.b)
 
-    glTranslatef(paddle2.offset_x,
+    ms.translate(ms.MatrixStack.model,
+                 paddle2.offset_x,
                  paddle2.offset_y,
                  0.0)
-    glTranslatef(paddle2.global_position[0],
+    ms.translate(ms.MatrixStack.model,
+                 paddle2.global_position[0],
                  paddle2.global_position[1],
                  0.0)
-    glRotatef(math.degrees(paddle2.rotation), 0.0, 0.0, 1.0)
+    ms.rotate_z(ms.MatrixStack.model,
+                paddle2.rotation)
 
+    glMatrixMode(GL_MODELVIEW)
+    glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         glVertex3f(model_space[0],

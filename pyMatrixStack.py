@@ -107,6 +107,17 @@ def __popMatrix__(matrixStack):
         pass
 
 
+class PushMatrix:
+    def __init__(self, m):
+        self.m = m
+
+    def __enter__(self):
+        __pushMatrix__(self.m)
+
+    def __exit__(self, type, val, tp):
+        __popMatrix__(self.m)
+
+
 @contextmanager
 def push_matrix(m):
     """Instead of manually pushing and poping the matrix stack,
@@ -357,9 +368,8 @@ def perspective(fov, aspectRatio, nearZ, farZ):
     right = top * aspectRatio
 
     __projectionStack__[len(__projectionStack__) - 1] = np.matrix(
-        [[nearZ / right, 0.0,         0.0,                         0.0],
-         [0.0,         nearZ / top,   0.0,                         0.0],
-         [0.0,         0.0,         -
-             (farZ + nearZ) / (farZ - nearZ),  -2 * (farZ * nearZ) / (farZ - nearZ)],
-         [0.0,         0.0,         -1.0,                        0.0]],
+        [[nearZ / right, 0.0,         0.0,                               0.0],
+         [0.0,           nearZ / top, 0.0,                               0.0],
+         [0.0,           0.0,         -(farZ + nearZ) / (farZ - nearZ),  -2 * (farZ * nearZ) / (farZ - nearZ)],
+         [0.0,           0.0,         -1.0,                              0.0]],
         dtype=np.float32)
