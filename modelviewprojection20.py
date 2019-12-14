@@ -33,7 +33,7 @@ glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 window = glfw.create_window(500,
                             500,
-                            "ModelViewProjection Demo 19",
+                            "ModelViewProjection Demo 20",
                             None,
                             None)
 if not window:
@@ -140,10 +140,10 @@ class Paddle:
 
         # initialize shaders
 
-        with open(os.path.join(pwd, 'shaders', 'triangle19.vert'), 'r') as f:
+        with open(os.path.join(pwd, 'shaders', 'triangle20.vert'), 'r') as f:
             vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
 
-        with open(os.path.join(pwd, 'shaders', 'triangle19.frag'), 'r') as f:
+        with open(os.path.join(pwd, 'shaders', 'triangle20.frag'), 'r') as f:
             fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
 
         self.shader = shaders.compileProgram(vs, fs)

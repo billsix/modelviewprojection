@@ -212,6 +212,7 @@ while not glfw.window_should_close(window):
                    nearZ=0.1,
                    farZ=10000.0)
     glMatrixMode(GL_PROJECTION)
+    # ascontiguousarray puts the array in column major order
     glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.projection).T))
 
     # note - opengl matricies use degrees
@@ -245,6 +246,7 @@ while not glfw.window_should_close(window):
                     paddle1.rotation)
 
         glMatrixMode(GL_MODELVIEW)
+        # ascontiguousarray puts the array in column major order
         glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
         glBegin(GL_QUADS)
         for model_space in paddle1.vertices:
@@ -277,6 +279,7 @@ while not glfw.window_should_close(window):
 
 
         glMatrixMode(GL_MODELVIEW)
+        # ascontiguousarray puts the array in column major order
         glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
         glBegin(GL_QUADS)
         for model_space in square_vertices:
@@ -305,6 +308,7 @@ while not glfw.window_should_close(window):
                 paddle2.rotation)
 
     glMatrixMode(GL_MODELVIEW)
+    # ascontiguousarray puts the array in column major order
     glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
