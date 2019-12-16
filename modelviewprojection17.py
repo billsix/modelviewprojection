@@ -115,37 +115,36 @@ class Vertex:
                       z=self.z * scale_z)
 
     def ortho(self,
-              min_x,
-              max_x,
-              min_y,
-              max_y,
-              min_z,
-              max_z):
-        x_length = max_x-min_x
-        y_length = max_y-min_y
-        z_length = max_z-min_z
-        return self.translate(tx=-(max_x-x_length/2.0),
-                              ty=-(max_y-y_length/2.0),
-                              tz=-(max_z-z_length/2.0)) \
-                   .scale(1/(x_length/2.0),
-                          1/(y_length/2.0),
-                          1/(-z_length/2.0))
+              left,
+              right,
+              bottom,
+              top,
+              near,
+              far):
+        midpoint_x, midpoint_y, midpoint_z = (left+right)/2.0, (bottom + top)/2.0, (near+far)/2.0
+        length_x, length_y, length_z = right - left, top - bottom, far - near
+        return self.translate(tx=-midpoint_x,
+                              ty=-midpoint_y,
+                              tz=-midpoint_z) \
+                   .scale(2.0/length_x,
+                          2.0/length_y,
+                          2.0/(-length_z))
 
     def perspective(self, fov, aspectRatio, nearZ, farZ):
         top = math.fabs(nearZ) * math.tan(math.radians(fov)/ 2.0)
         right = top * aspectRatio
 
-        sheared_x = self.x / math.fabs(self.z) * math.fabs(nearZ)
-        sheared_y = self.y / math.fabs(self.z) * math.fabs(nearZ)
-        projected =  Vertex(sheared_x,
-                            sheared_y,
+        scaled_x = self.x / math.fabs(self.z) * math.fabs(nearZ)
+        scaled_y = self.y / math.fabs(self.z) * math.fabs(nearZ)
+        projected =  Vertex(scaled_x,
+                            scaled_y,
                             self.z)
-        return projected.ortho(min_x= -right,
-                               max_x= right,
-                               min_y= -top,
-                               max_y= top,
-                               min_z= nearZ,
-                               max_z= farZ)
+        return projected.ortho(left = -right,
+                               right = right,
+                               bottom = -top,
+                               top = top,
+                               near = nearZ,
+                               far = farZ)
 
 
     def camera_space_to_ndc_space_fn(self):

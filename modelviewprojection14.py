@@ -111,29 +111,31 @@ class Vertex:
                       z=self.z * scale_z)
 
     def ortho(self,
-              min_x,
-              max_x,
-              min_y,
-              max_y,
-              min_z,
-              max_z):
-        x_length = max_x-min_x
-        y_length = max_y-min_y
-        z_length = max_z-min_z
-        return self.translate(tx=-(max_x-x_length/2.0),
-                              ty=-(max_y-y_length/2.0),
-                              tz=-(max_z-z_length/2.0)) \
-                   .scale(1/(x_length/2.0),
-                          1/(y_length/2.0),
-                          1/(-z_length/2.0))
+              left,
+              right,
+              bottom,
+              top,
+              near,
+              far):
+        midpoint_x, midpoint_y, midpoint_z = (left+right)/2.0, (bottom + top)/2.0, (near+far)/2.0
+        length_x, length_y, length_z = right - left, top - bottom, far - near
+        return self.translate(tx=-midpoint_x,
+                              ty=-midpoint_y,
+                              tz=-midpoint_z) \
+                   .scale(2.0/length_x,
+                          2.0/length_y,
+                          2.0/(-length_z))
+                   # .scale(1.0/(x_length/2.0),
+                   #        1.0/(y_length/2.0),
+                   #        1.0/(-z_length/2.0))
 
     def camera_space_to_ndc_space_fn(self):
-        return self.ortho(min_x= -100.0,
-                          max_x= 100.0,
-                          min_y= -100.0,
-                          max_y= 100.0,
-                          min_z= 100.0,
-                          max_z= -100.0)
+        return self.ortho(left= -100.0,
+                          right= 100.0,
+                          bottom= -100.0,
+                          top= 100.0,
+                          near= 100.0,
+                          far= -100.0)
 
 
 class Paddle:

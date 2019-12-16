@@ -18,36 +18,60 @@ vec4 project(vec4 cameraSpace){
     float top = abs(nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
     float right = top * aspectRatio;
 
-     // use transpose to put the matrix in column major order
-     mat4 shear_x = transpose(mat4(
-          abs(nearZ)/abs(cameraSpace.z), 0.0, 0.0, 0.0,
-          0.0,                           1.0, 0.0, 0.0,
-          0.0,                           0.0, 1.0, 0.0,
-          0.0,                           0.0, 0.0, 1.0));
-     mat4 shear_y = transpose(mat4(
-          1.0, 0.0,                            0.0, 0.0,
-          0.0, abs(nearZ)/abs(cameraSpace.z),  0.0, 0.0,
-          0.0, 0.0,                            1.0, 0.0,
-          0.0, 0.0,                            0.0, 1.0));
+     //// use transpose to put the matrix in column major order
+     //mat4 scale_x = transpose(mat4(
+     //     abs(nearZ)/abs(cameraSpace.z), 0.0, 0.0, 0.0,
+     //     0.0,                           1.0, 0.0, 0.0,
+     //     0.0,                           0.0, 1.0, 0.0,
+     //     0.0,                           0.0, 0.0, 1.0));
+     //mat4 scale_y = transpose(mat4(
+     //     1.0, 0.0,                            0.0, 0.0,
+     //     0.0, abs(nearZ)/abs(cameraSpace.z),  0.0, 0.0,
+     //     0.0, 0.0,                            1.0, 0.0,
+     //     0.0, 0.0,                            0.0, 1.0));
 
-
-    float x_length = right * 2;
-    float y_length = top * 2;
-    float z_length = farZ - nearZ;
 
     // ortho
-    mat4 translate_to_origin = transpose(mat4(
-          1.0, 0.0, 0.0, -(right - x_length/2.0),
-          0.0, 1.0, 0.0, -(top - y_length/2.0),
-          0.0, 0.0, 1.0, -(farZ - z_length/2.0),
-          0.0, 0.0, 0.0, 1.0));
-     mat4 scale_to_ndc = transpose(mat4(
-          2.0/x_length,  0.0,           0.0,             0.0,
-          0.0,           2.0/y_length,  0.0,             0.0,
-          0.0,           0.0,           2.0/-z_length,   0.0,
-          0.0,           0.0,           0.0,             1.0));
+    //mat4 translate_to_origin = transpose(mat4(
+    //      1.0, 0.0, 0.0, 0.0,
+    //      0.0, 1.0, 0.0, 0.0,
+    //      0.0, 0.0, 1.0, -((farZ + nearZ) / 2.0),
+    //      0.0, 0.0, 0.0, 1.0));
+    // mat4 scale_to_ndc = transpose(mat4(
+    //      1.0/right,     0.0,           0.0,                  0.0,
+    //      0.0,           1.0/top,       0.0,                  0.0,
+    //      0.0,           0.0,           2.0/(nearZ - farZ),   0.0,
+    //      0.0,           0.0,           0.0,                  1.0));
 
-     return (scale_to_ndc * translate_to_origin  * shear_y * shear_x) * cameraSpace;
+    //scale_y * scale_x =
+    //      abs(nearZ)/abs(cameraSpace.z), 0.0,                           0.0, 0.0,
+    //      0.0,                           abs(nearZ)/abs(cameraSpace.z), 0.0, 0.0,
+    //      0.0,                           0.0,                           1.0, 0.0,
+    //      0.0,                           0.0,                           0.0, 1.0))
+    // translate_to_origin * scale_y * scale_x =
+    //      abs(nearZ)/abs(cameraSpace.z), 0.0,                           0.0, 0.0,
+    //      0.0,                           abs(nearZ)/abs(cameraSpace.z), 0.0, 0.0,
+    //      0.0,                           0.0,                           1.0, -((farZ + nearZ) / 2.0),
+    //      0.0,                           0.0,                           0.0, 1.0))
+    // scale_to_ndc * translate_to_origin * scale_y * scale_x =
+    //      abs(nearZ)/(right * abs(cameraSpace.z)), 0.0,                                 0.0,                0.0,
+    //      0.0,                                     abs(nearZ)/(top*abs(cameraSpace.z)), 0.0,                0.0,
+    //      0.0,                                     0.0,                                 2.0/(nearZ - farZ), 2.0/(nearZ - farZ) * -((farZ + nearZ) / 2.0),
+    //      0.0,                                     0.0,                                 0.0,              1.0))
+    // scale_to_ndc * translate_to_origin * scale_y * scale_x =
+    //      abs(nearZ)/(right * abs(cameraSpace.z)), 0.0,                                 0.0,                0.0,
+    //      0.0,                                     abs(nearZ)/(top*abs(cameraSpace.z)), 0.0,                0.0,
+    //      0.0,                                     0.0,                                 2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
+    //      0.0,                                     0.0,                                 0.0,              1.0))
+
+     mat4 pre_multiplied = transpose(mat4(
+          abs(nearZ)/(right * abs(cameraSpace.z)), 0.0,                                 0.0,                0.0,
+          0.0,                                     abs(nearZ)/(top*abs(cameraSpace.z)), 0.0,                0.0,
+          0.0,                                     0.0,                                 2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
+          0.0,                                     0.0,                                 0.0,                1.0));
+
+
+     return pre_multiplied * cameraSpace;
 }
 
 vec4 project_standard_way(vec4 cameraSpace){
