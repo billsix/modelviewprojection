@@ -91,7 +91,7 @@ while not glfw.window_should_close(window):
     glEnd()
 
     # The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
-    # eog plot1.png
+    # eog images/plot1.png
 
 
     # draw paddle 2
@@ -111,7 +111,7 @@ while not glfw.window_should_close(window):
     glEnd()
 
     # The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
-    # eog plot2.png
+    # eog images/plot2.png
 
 
     # done with frame, flush and swap buffers
@@ -155,10 +155,10 @@ glfw.terminate()
 # Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be red].
 
 # What looks alright is screen-space on a large monitor...
-# eog screenspace2.png
+# eog images/screenspace2.png
 
 # isn't even the same picture on a smaller monitor.
-# eog screenspace.png
+# eog images/screenspace.png
 
 
 
@@ -182,15 +182,15 @@ glfw.terminate()
 # OpenGL will automatically convert from a continuous, -1.0 to 1.0 space,
 # to discrete pixel-space.
 
-# eog ndcSpace.png
+# eog images/ndcSpace.png
 
 # Whether we own a small monitor
 
-# eog ndcSpace1.png
+# eog images/ndcSpace1.png
 
 # or a large monitor.
 
-# eog screenspace2.png
+# eog images/screenspace2.png
 
 
 # -Exercise 1.  The window is resizable by the user while it runs.

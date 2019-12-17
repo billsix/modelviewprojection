@@ -37,10 +37,10 @@
 # In OpenGL, the bottom left pixel of a window is coordinate (0,0).  The top right is (window_width,window_height)
 #
 # 1024x768 monitor
-# eog monitor.png
+# eog images/monitor.png
 #
 # 1920x1200 monitor
-# eog monitor2.png
+# eog images/monitor2.png
 #
 #
 # Frames are created within the computer and sent to the monitor

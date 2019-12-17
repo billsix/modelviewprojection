@@ -24,10 +24,10 @@ OBJECTS_TO_BUILD = plot1.png \
         viewport.png
 
 
-dist: modelviewprojection.html plots
-	mkdir -p dist
-	cp *png *gif dist/
-	cp modelviewprojection.html dist/index.html
+all: plots $(OBJECTS_TO_BUILD)
+
+
+
 
 plots: generatePlots.py
 	python generatePlots.py
@@ -43,11 +43,3 @@ plots: generatePlots.py
 	rm rotate2-f*png
 	convert -loop 0 -delay 100 rotate2-ba* rotation2B.gif
 	rm rotate2-b*png
-
-
-modelviewprojection.html: modelviewprojection.adoc $(OBJECTS_TO_BUILD) plots
-	asciidoc -b html5 -a icons -a toc2 -a theme=flask -n modelviewprojection.adoc
-
-
-main.pdf: modelviewprojection.adoc plots
-	a2x -dbook --dblatex-opts "-P latex.output.revhistory=0 -P doc.publisher.show=0 -P doc.pdfcreator.show=0" --no-xmllint modelviewprojection.adoc
