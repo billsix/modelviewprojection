@@ -64,14 +64,14 @@ vec4 project(vec4 cameraSpace){
     //      0.0,                                     0.0,                                 2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
     //      0.0,                                     0.0,                                 0.0,              1.0))
 
-     mat4 pre_multiplied = transpose(mat4(
+     mat4 camera_space_to_ndc_space = transpose(mat4(
           abs(nearZ)/(right * abs(cameraSpace.z)), 0.0,                                 0.0,                0.0,
           0.0,                                     abs(nearZ)/(top*abs(cameraSpace.z)), 0.0,                0.0,
           0.0,                                     0.0,                                 2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
           0.0,                                     0.0,                                 0.0,                1.0));
 
 
-     return pre_multiplied * cameraSpace;
+     return camera_space_to_ndc_space * cameraSpace;
 }
 
 vec4 project_standard_way(vec4 cameraSpace){

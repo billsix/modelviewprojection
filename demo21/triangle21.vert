@@ -26,21 +26,21 @@ vec4 project(vec4 cameraSpace){
     // vertex, make the w_clip be the cameraSpace's z
 
      // cameraSpace.z is negative, so abs(cameraSpace.z) = - cameraSpace.z
-     mat4 to_clip_space = transpose(mat4(
+     mat4 ndc_space_to_clip_space = transpose(mat4(
           (-cameraSpace.z), 0.0,              0.0,              0.0,
           0.0,              (-cameraSpace.z), 0.0,                0.0,
           0.0,              0.0,              (-cameraSpace.z), 0.0,
           0.0,              0.0,              0.0,                (-cameraSpace.z)));
 
 
-     mat4 modelspace_to_ndc = transpose(mat4(
+     mat4 camera_space_to_ndc_space = transpose(mat4(
           abs(nearZ)/(right * (-cameraSpace.z)), 0.0,                                 0.0,              0.0,
           0.0,                                   abs(nearZ)/(top*(-cameraSpace.z)), 0.0,                0.0,
           0.0,                                   0.0,                               2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
           0.0,                                   0.0,                               0.0,                1.0));
 
-     // pre_multiplied = to_clip_space * modelspace_to_ndc
-     mat4 pre_multiplied = transpose(mat4(
+     // camera_space_to_clip_space = ndc_space_to_clip_space * camera_space_to_ndc_space
+     mat4 camera_space_to_clip_space = transpose(mat4(
           abs(nearZ)/right,         0.0,            0.0,                                   0.0,
           0.0,                      abs(nearZ)/top, 0.0,                                   0.0,
           0.0,                      0.0,            2.0*(-cameraSpace.z)/(nearZ - farZ),   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)),
@@ -64,9 +64,7 @@ vec4 project(vec4 cameraSpace){
 
 
      // modelspace to ndc, then ndc back to clip space, which the hardware turns back into NDC
-     // we went down the wrong path though, as we still are creating a projection matrix per vertex
-     //return to_clip_space * modespace_to_ndc * cameraSpace;
-     return pre_multiplied * cameraSpace;
+     return camera_space_to_clip_space * cameraSpace;
 }
 
 vec4 project_standard_way(vec4 cameraSpace){
