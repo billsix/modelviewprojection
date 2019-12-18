@@ -1,3 +1,5 @@
+# no need for the square viewport anymore since we went to 3D, just use the aspect ratio
+
 import sys
 import os
 import numpy as np
@@ -63,41 +65,6 @@ glClearColor(0.0,
 glClearDepth(-1.0)
 glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
-
-
-
-def draw_in_square_viewport():
-
-    glClearColor(0.2,  # r
-                 0.2,  # g
-                 0.2,  # b
-                 1.0)  # a
-    glClear(GL_COLOR_BUFFER_BIT)
-
-    width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-    min = width if width < height else height
-
-    glViewport(int(0.0 + (width - min)/2.0),  # min x
-               int(0.0 + (height - min)/2.0),  # min y
-               min,  # width x
-               min)  # width y
-
-    glEnable(GL_SCISSOR_TEST)
-    glScissor(int(0.0 + (width - min)/2.0),  # min x
-              int(0.0 + (height - min)/2.0),  # min y
-              min,  # width x
-              min)  # width y
-
-    glClearColor(0.0,  # r
-                 0.0,  # g
-                 0.0,  # b
-                 1.0)  # a
-    glClear(GL_COLOR_BUFFER_BIT)
-    glDisable(GL_SCISSOR_TEST)
-
 
 
 
@@ -345,7 +312,14 @@ while not glfw.window_should_close(window):
     ms.setToIdentityMatrix(ms.MatrixStack.projection)
 
     # render scene
-    draw_in_square_viewport()
+    width, height = glfw.get_framebuffer_size(window)
+    glViewport(0, 0, width, height)
+    glClearColor(0.0,  # r
+                 0.0,  # g
+                 0.0,  # b
+                 1.0)  # a
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
     handle_inputs()
 
     # note - opengl matricies use degrees

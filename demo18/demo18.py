@@ -208,7 +208,7 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be perspective
     ms.perspective(fov=45.0,
-                   aspectRatio=width / height,
+                   aspectRatio=1.0,  #since the viewport is always square
                    nearZ=0.1,
                    farZ=10000.0)
     glMatrixMode(GL_PROJECTION)

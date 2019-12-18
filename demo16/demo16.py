@@ -199,7 +199,7 @@ class Vertex:
 
     def camera_space_to_ndc_space_fn(self):
         return self.perspective(fov=45.0,
-                                aspectRatio=width / height,
+                                aspectRatio=1.0,  #since the viewport is always square
                                 nearZ=-0.1,
                                 farZ=-10000.0)
 
