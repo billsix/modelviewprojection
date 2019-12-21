@@ -15,7 +15,7 @@ out VS_OUT {
 
 vec4 project(vec4 cameraSpace){
 
-    float top = abs(nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
+    float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
     float right = top * aspectRatio;
 
     // put into clipspace, not ndc.
@@ -25,26 +25,25 @@ vec4 project(vec4 cameraSpace){
     // to ensure that we don't have to make a new projection matrix for each
     // vertex, make the w_clip be the cameraSpace's z
 
-     // cameraSpace.z is negative, so abs(cameraSpace.z) = - cameraSpace.z
      mat4 ndc_space_to_clip_space = transpose(mat4(
           (-cameraSpace.z), 0.0,              0.0,              0.0,
-          0.0,              (-cameraSpace.z), 0.0,                0.0,
+          0.0,              (-cameraSpace.z), 0.0,              0.0,
           0.0,              0.0,              (-cameraSpace.z), 0.0,
-          0.0,              0.0,              0.0,                (-cameraSpace.z)));
+          0.0,              0.0,              0.0,              (-cameraSpace.z)));
 
 
      mat4 camera_space_to_ndc_space = transpose(mat4(
-          abs(nearZ)/(right * (-cameraSpace.z)), 0.0,                                 0.0,              0.0,
-          0.0,                                   abs(nearZ)/(top*(-cameraSpace.z)), 0.0,                0.0,
-          0.0,                                   0.0,                               2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
-          0.0,                                   0.0,                               0.0,                1.0));
+          nearZ/(right * cameraSpace.z), 0.0,                       0.0,                0.0,
+          0.0,                           nearZ/(top*cameraSpace.z), 0.0,                0.0,
+          0.0,                           0.0,                       2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
+          0.0,                           0.0,                       0.0,                1.0));
 
      // camera_space_to_clip_space = ndc_space_to_clip_space * camera_space_to_ndc_space
      mat4 camera_space_to_clip_space = transpose(mat4(
-          abs(nearZ)/right,         0.0,            0.0,                                   0.0,
-          0.0,                      abs(nearZ)/top, 0.0,                                   0.0,
-          0.0,                      0.0,            2.0*(-cameraSpace.z)/(nearZ - farZ),   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)),
-          0.0,                      0.0,            0.0,                                   -cameraSpace.z));
+          -nearZ/right,         0.0,        0.0,                                   0.0,
+          0.0,                  -nearZ/top, 0.0,                                   0.0,
+          0.0,                  0.0,        2.0*(-cameraSpace.z)/(nearZ - farZ),   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)),
+          0.0,                  0.0,        0.0,                                   -cameraSpace.z));
 
 
      // z_ndc(cameraSpace) = (cameraSpace.z * (2.0*(-cameraSpace.z)/(nearZ - farZ)) +   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)))/cameraSpace.z
@@ -64,12 +63,13 @@ vec4 project(vec4 cameraSpace){
 
 
      // modelspace to ndc, then ndc back to clip space, which the hardware turns back into NDC
+     //        return ndc_space_to_clip_space * camera_space_to_ndc_space * cameraSpace;
      return camera_space_to_clip_space * cameraSpace;
 }
 
 vec4 project_standard_way(vec4 cameraSpace){
 
-    float top = abs(nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
+    float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
     float right = top * aspectRatio;
 
     mat4 proj =  mat4(

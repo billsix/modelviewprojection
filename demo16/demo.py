@@ -180,11 +180,11 @@ class Vertex:
 
 
 
-        top = math.fabs(nearZ) * math.tan(math.radians(fov)/ 2.0)
+        top = -nearZ * math.tan(math.radians(fov)/ 2.0)
         right = top * aspectRatio
 
-        scaled_x = self.x / math.fabs(self.z) * math.fabs(nearZ)
-        scaled_y = self.y / math.fabs(self.z) * math.fabs(nearZ)
+        scaled_x = self.x / self.z * nearZ
+        scaled_y = self.y / self.z * nearZ
         projected =  Vertex(scaled_x,
                             scaled_y,
                             self.z)

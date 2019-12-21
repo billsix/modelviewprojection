@@ -131,11 +131,11 @@ class Vertex:
                           2.0/(-length_z))
 
     def perspective(self, fov, aspectRatio, nearZ, farZ):
-        top = math.fabs(nearZ) * math.tan(math.radians(fov)/ 2.0)
+        top = -nearZ * math.tan(math.radians(fov)/ 2.0)
         right = top * aspectRatio
 
-        scaled_x = self.x / math.fabs(self.z) * math.fabs(nearZ)
-        scaled_y = self.y / math.fabs(self.z) * math.fabs(nearZ)
+        scaled_x = self.x * nearZ / self.z
+        scaled_y = self.y * nearZ / self.z
         projected =  Vertex(scaled_x,
                             scaled_y,
                             self.z)

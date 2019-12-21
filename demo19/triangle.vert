@@ -15,27 +15,27 @@ out VS_OUT {
 
 vec4 project(vec4 cameraSpace){
 
-    float top = abs(nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
+    float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
     float right = top * aspectRatio;
 
      // use transpose to put the matrix in column major order
-     // cameraSpace visible range for .x [-right/(abs(nearZ)/abs(cameraSpace.z)), (right/abs(nearZ)/abs(cameraSpace.z))]
-     // cameraSpace visible range for .y [-top/(abs(nearZ)/abs(cameraSpace.z)), top/(abs(nearZ)/abs(cameraSpace.z))]
+     // cameraSpace visible range for .x [-right/((-nearZ)/-cameraSpace.z), (right/(-nearZ)/-cameraSpace.z)]
+     // cameraSpace visible range for .y [-top/((-nearZ)/-cameraSpace.z), top/((-nearZ)/-cameraSpace.z)]
      // cameraSpace visible range for .z [near,far]
 
      mat4 scale_x = transpose(mat4(
-          abs(nearZ)/abs(cameraSpace.z), 0.0, 0.0, 0.0,
-          0.0,                           1.0, 0.0, 0.0,
-          0.0,                           0.0, 1.0, 0.0,
-          0.0,                           0.0, 0.0, 1.0));
+          nearZ/cameraSpace.z, 0.0, 0.0, 0.0,
+          0.0,                 1.0, 0.0, 0.0,
+          0.0,                 0.0, 1.0, 0.0,
+          0.0,                 0.0, 0.0, 1.0));
      // scale_x visible range for .x [-right, right]
-     // scale_x visible range for .y [-top/(abs(nearZ)/abs(cameraSpace.z)), top/(abs(nearZ)/abs(cameraSpace.z))]
+     // scale_x visible range for .y [-top/((-nearZ)/(-cameraSpace.z)), top/((-nearZ)/(-cameraSpace.z))]
      // scale_z visible range for .z [near,far]
      mat4 scale_y = transpose(mat4(
-          1.0, 0.0,                            0.0, 0.0,
-          0.0, abs(nearZ)/abs(cameraSpace.z),  0.0, 0.0,
-          0.0, 0.0,                            1.0, 0.0,
-          0.0, 0.0,                            0.0, 1.0));
+          1.0, 0.0,                  0.0, 0.0,
+          0.0, nearZ/cameraSpace.z,  0.0, 0.0,
+          0.0, 0.0,                  1.0, 0.0,
+          0.0, 0.0,                  0.0, 1.0));
      // scale_y visible range for .x [-right,right]
      // scale_y visible range for .y [-top,top]
      // scale_y visible range for .z [near,far]
@@ -88,7 +88,7 @@ vec4 project(vec4 cameraSpace){
 
 vec4 project_standard_way(vec4 cameraSpace){
 
-    float top = abs(nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
+    float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
     float right = top * aspectRatio;
 
     mat4 proj =  mat4(
