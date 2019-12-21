@@ -94,14 +94,6 @@ class Vertex:
         return Vertex(x= self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
                       y= self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians))
 
-    def rotate_around(self, angle_in_radians, center):
-        translate_to_center = self.translate(tx=-center.x,
-                                           ty=-center.y)
-        rotated_around_origin = translate_to_center.rotate(angle_in_radians)
-        back_to_center = rotated_around_origin.translate(tx=center.x,
-                                                     ty=center.y)
-        return back_to_center
-
 class Paddle:
     def __init__(self,vertices, r, g, b, global_position, rotation=0.0, offset_x=0.0, offset_y=0.0):
         self.vertices = vertices
