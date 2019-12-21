@@ -93,17 +93,6 @@ class Paddle:
         self.offset_x = offset_x
         self.offset_y = offset_y
 
-    def draw(self):
-        glColor3f(self.r,
-                  self.g,
-                  self.b)
-
-        glBegin(GL_QUADS)
-        for vertex in self.vertices:
-            glVertex2f(vertex.x,
-                       vertex.y + self.offset_y)
-        glEnd()
-
 
 paddle1 = Paddle(vertices=[Vertex(-1.0,-0.3),
                            Vertex(-0.8,-0.3),
@@ -148,8 +137,29 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
-    paddle1.draw()
-    paddle2.draw()
+    # draw paddle 1
+    glColor3f(paddle1.r,
+              paddle1.g,
+              paddle1.b)
+
+    glBegin(GL_QUADS)
+    for vertex in paddle1.vertices:
+        glVertex2f(vertex.x,
+                   vertex.y + paddle1.offset_y)
+    glEnd()
+
+    # draw paddle 2
+    glColor3f(paddle2.r,
+              paddle2.g,
+              paddle2.b)
+
+    glBegin(GL_QUADS)
+    for vertex in paddle2.vertices:
+        glVertex2f(vertex.x,
+                   vertex.y + paddle2.offset_y)
+    glEnd()
+
+
 
 
     # done with frame, flush and swap buffers

@@ -165,21 +165,6 @@ class Paddle:
         self.offset_y = offset_y
         self.global_position = global_position
 
-    def draw(self):
-        glColor3f(self.r,
-                  self.g,
-                  self.b)
-
-        glBegin(GL_QUADS)
-        for model_space in self.vertices:
-            world_space = apply_stack(model_space, model_stack)
-            camera_space = apply_stack(world_space, view_stack)
-            ndc_space = apply_stack(camera_space, projection_stack)
-            glVertex3f(ndc_space.x,
-                       ndc_space.y,
-                       ndc_space.z)
-        glEnd()
-
 
 paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0, z=0.0),
                            Vertex(x= 10.0, y=-30.0, z=0.0),
@@ -321,7 +306,21 @@ while not glfw.window_should_close(window):
                                              tz=0.0))
     model_stack.append(lambda v: v.rotate_z(paddle1.rotation))
 
-    paddle1.draw()
+    # draw paddle 1
+    glColor3f(paddle1.r,
+              paddle1.g,
+              paddle1.b)
+
+    glBegin(GL_QUADS)
+    for model_space in paddle1.vertices:
+        world_space = apply_stack(model_space, model_stack)
+        camera_space = apply_stack(world_space, view_stack)
+        ndc_space = apply_stack(camera_space, projection_stack)
+        glVertex3f(ndc_space.x,
+                   ndc_space.y,
+                   ndc_space.z)
+    glEnd()
+
 
 
     # draw the square
@@ -365,7 +364,21 @@ while not glfw.window_should_close(window):
                                              ty=paddle2.global_position.y,
                                              tz=0.0))
     model_stack.append(lambda v: v.rotate_z(paddle2.rotation))
-    paddle2.draw()
+
+    # draw paddle 2
+    glColor3f(paddle2.r,
+              paddle2.g,
+              paddle2.b)
+
+    glBegin(GL_QUADS)
+    for model_space in paddle2.vertices:
+        world_space = apply_stack(model_space, model_stack)
+        camera_space = apply_stack(world_space, view_stack)
+        ndc_space = apply_stack(camera_space, projection_stack)
+        glVertex3f(ndc_space.x,
+                   ndc_space.y,
+                   ndc_space.z)
+    glEnd()
 
 
     # done with frame, flush and swap buffers

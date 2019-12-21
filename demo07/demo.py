@@ -105,24 +105,6 @@ class Paddle:
         self.offset_y = offset_y
         self.global_position = global_position
 
-    def draw(self):
-        glColor3f(self.r,
-                  self.g,
-                  self.b)
-
-        glBegin(GL_QUADS)
-        for model_space in self.vertices:
-            world_space = model_space.translate(tx=self.global_position.x,
-                                                ty=self.global_position.y) \
-                                     .translate(tx=self.offset_x,
-                                                ty=self.offset_y) \
-                                     .rotate(self.rotation)
-            ndc_space = world_space.scale(x=1.0/100.0,
-                                          y=1.0/100.0)
-            glVertex2f(ndc_space.x,
-                       ndc_space.y)
-        glEnd()
-
 
 
 paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
@@ -181,8 +163,40 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
-    paddle1.draw()
-    paddle2.draw()
+    # draw paddle1
+    glColor3f(paddle1.r,
+              paddle1.g,
+              paddle1.b)
+
+    glBegin(GL_QUADS)
+    for model_space in paddle1.vertices:
+        world_space = model_space.translate(tx=paddle1.global_position.x,
+                                            ty=paddle1.global_position.y) \
+                                 .translate(tx=paddle1.offset_x,
+                                            ty=paddle1.offset_y) \
+                                 .rotate(paddle1.rotation)
+        ndc_space = world_space.scale(x=1.0/100.0,
+                                      y=1.0/100.0)
+        glVertex2f(ndc_space.x,
+                   ndc_space.y)
+    glEnd()
+    # draw paddle2
+    glColor3f(paddle2.r,
+              paddle2.g,
+              paddle2.b)
+
+    glBegin(GL_QUADS)
+    for model_space in paddle2.vertices:
+        world_space = model_space.translate(tx=paddle2.global_position.x,
+                                            ty=paddle2.global_position.y) \
+                                 .translate(tx=paddle2.offset_x,
+                                            ty=paddle2.offset_y) \
+                                 .rotate(paddle2.rotation)
+        ndc_space = world_space.scale(x=1.0/100.0,
+                                      y=1.0/100.0)
+        glVertex2f(ndc_space.x,
+                   ndc_space.y)
+    glEnd()
 
 
     # done with frame, flush and swap buffers

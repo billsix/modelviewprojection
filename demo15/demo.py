@@ -150,33 +150,6 @@ class Paddle:
         self.offset_y = offset_y
         self.global_position = global_position
 
-    def draw(self):
-        glColor3f(self.r,
-                  self.g,
-                  self.b)
-
-        glBegin(GL_QUADS)
-        for model_space in self.vertices:
-            world_space = model_space.rotate_z(self.rotation) \
-                                     .translate(tx=self.global_position.x,
-                                                ty=self.global_position.y,
-                                                tz=0.0) \
-                                     .translate(tx=self.offset_x,
-                                                ty=self.offset_y,
-                                                tz=0.0)
-
-            camera_space = world_space.translate(tx=-moving_camera_x,
-                                                 ty=-moving_camera_y,
-                                                 tz=-moving_camera_z) \
-                                      .rotate_y( -moving_camera_rot_y) \
-                                      .rotate_x( -moving_camera_rot_x)
-            ndc_space = camera_space.camera_space_to_ndc_space_fn()
-            glVertex3f(ndc_space.x,
-                       ndc_space.y,
-                       ndc_space.z)
-        glEnd()
-
-
 paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0, z=0.0),
                            Vertex(x= 10.0, y=-30.0, z=0.0),
                            Vertex(x= 10.0, y= 30.0, z=0.0),
@@ -279,8 +252,34 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    paddle1.draw()
+    # draw paddle1
+    glColor3f(paddle1.r,
+              paddle1.g,
+              paddle1.b)
 
+    glBegin(GL_QUADS)
+    for model_space in paddle1.vertices:
+        world_space = model_space.rotate_z(paddle1.rotation) \
+                                 .translate(tx=paddle1.global_position.x,
+                                            ty=paddle1.global_position.y,
+                                            tz=0.0) \
+                                 .translate(tx=paddle1.offset_x,
+                                            ty=paddle1.offset_y,
+                                            tz=0.0)
+
+        camera_space = world_space.translate(tx=-moving_camera_x,
+                                             ty=-moving_camera_y,
+                                             tz=-moving_camera_z) \
+                                  .rotate_y( -moving_camera_rot_y) \
+                                  .rotate_x( -moving_camera_rot_x)
+        ndc_space = camera_space.camera_space_to_ndc_space_fn()
+        glVertex3f(ndc_space.x,
+                   ndc_space.y,
+                   ndc_space.z)
+    glEnd()
+
+
+    # draw square
     glColor3f(0.0, #r
               0.0, #g
               1.0) #b
@@ -311,7 +310,32 @@ while not glfw.window_should_close(window):
                    ndc_space.z)
     glEnd()
 
-    paddle2.draw()
+    # draw paddle2
+    glColor3f(paddle2.r,
+              paddle2.g,
+              paddle2.b)
+
+    glBegin(GL_QUADS)
+    for model_space in paddle2.vertices:
+        world_space = model_space.rotate_z(paddle2.rotation) \
+                                 .translate(tx=paddle2.global_position.x,
+                                            ty=paddle2.global_position.y,
+                                            tz=0.0) \
+                                 .translate(tx=paddle2.offset_x,
+                                            ty=paddle2.offset_y,
+                                            tz=0.0)
+
+        camera_space = world_space.translate(tx=-moving_camera_x,
+                                             ty=-moving_camera_y,
+                                             tz=-moving_camera_z) \
+                                  .rotate_y( -moving_camera_rot_y) \
+                                  .rotate_x( -moving_camera_rot_x)
+        ndc_space = camera_space.camera_space_to_ndc_space_fn()
+        glVertex3f(ndc_space.x,
+                   ndc_space.y,
+                   ndc_space.z)
+    glEnd()
+
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers
