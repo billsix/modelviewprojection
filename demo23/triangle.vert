@@ -84,10 +84,6 @@ vec4 project_standard_way(vec4 cameraSpace){
 
 void main()
 {
-   // if you change the depth to be 1.0, and LEQUAL, instead of -1.0, and GREATER, and if
-   // you change the nearZ farZ by negating them, then you could use the standard
-   // projection matrix here:
-   // gl_Position = project_standard_way(mvMatrix * vec4(position,1.0));
    gl_Position = project(mvMatrix * vec4(position,1.0));
    vs_out.color = vec4(color_in,1.0);
 }
