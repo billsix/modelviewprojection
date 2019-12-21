@@ -105,10 +105,10 @@ class Paddle:
 
         # initialize shaders
 
-        with open(os.path.join(pwd, 'triangle20.vert'), 'r') as f:
+        with open(os.path.join(pwd, 'triangle.vert'), 'r') as f:
             vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
 
-        with open(os.path.join(pwd, 'triangle20.frag'), 'r') as f:
+        with open(os.path.join(pwd, 'triangle.frag'), 'r') as f:
             fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
 
         self.shader = shaders.compileProgram(vs, fs)
