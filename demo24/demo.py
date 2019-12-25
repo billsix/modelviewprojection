@@ -10,6 +10,7 @@ import pyMatrixStack as ms
 
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
+import staticlocal
 
 if not glfw.init():
     sys.exit()
@@ -323,24 +324,12 @@ while not glfw.window_should_close(window):
     imgui.text("Bar")
     imgui.text_colored("Eggs", 0.2, 1., 0.)
 
-    try:
-        foo_bool
-        foo_float
-    except:
-        foo_bool = True
-        foo_float = 1.0
-    clicked_foo_bool, foo_bool = imgui.checkbox("foo_bool", foo_bool)
-    clicked_foo_float, foo_float = imgui.slider_float("float", foo_float, 0.0, 1.0)
-
-
-    #        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-    #        ImGui::Checkbox("Another Window", &show_another_window);
-
-    #        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-    #        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-    #        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-    #            counter++;
+    # use static local istead of try: except
+    # normally you would pass the present function name to staticlocal.var
+    # , but since we are not in a function, pass the current module
+    staticlocal.var(sys.modules[__name__], test_bool=True, test_float=1.0)
+    clicked_test_bool, test_bool = imgui.checkbox("test_bool", test_bool)
+    clicked_test_float, test_float = imgui.slider_float("float", test_float, 0.0, 1.0)
 
     imgui.end()
 
