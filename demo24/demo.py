@@ -8,6 +8,9 @@ import OpenGL.GL.shaders as shaders
 import glfw
 import pyMatrixStack as ms
 
+import imgui
+from imgui.integrations.glfw import GlfwRenderer
+
 if not glfw.init():
     sys.exit()
 
@@ -31,9 +34,10 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 # for osx
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
+imgui.create_context()
 window = glfw.create_window(500,
                             500,
-                            "ModelViewProjection Demo 21",
+                            "ModelViewProjection Demo 24 - GUI elements",
                             None,
                             None)
 if not window:
@@ -42,6 +46,7 @@ if not window:
 
 # Make the window's context current
 glfw.make_context_current(window)
+impl = GlfwRenderer(window)
 
 # Install a key handler
 
@@ -59,9 +64,8 @@ glClearColor(0.0,
              1.0)
 
 
-# NEW - TODO - talk about opengl matricies and z pos/neg
-glClearDepth(-1.0)
-glDepthFunc(GL_GREATER)
+glClearDepth(1.0)
+glDepthFunc(GL_LEQUAL)
 glEnable(GL_DEPTH_TEST)
 
 
@@ -168,9 +172,9 @@ class Paddle:
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio");
         glUniform1f(aspect_loc, width/height);
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
-        glUniform1f(nearZ_loc, -0.1);
+        glUniform1f(nearZ_loc, 0.1);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -10000.0);
+        glUniform1f(farZ_loc, 10000.0);
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(self.mvMatrixLoc,
@@ -298,6 +302,49 @@ square_vertices = np.array([[-5.0, -5.0,  0.0],
 while not glfw.window_should_close(window):
     # Poll for and process events
     glfw.poll_events()
+    impl.process_inputs()
+
+    imgui.new_frame()
+
+    if imgui.begin_main_menu_bar():
+       if imgui.begin_menu("File", True):
+           clicked_quit, selected_quit = imgui.menu_item(
+               "Quit", 'Cmd+Q', False, True
+           )
+
+           if clicked_quit:
+               exit(1)
+
+           imgui.end_menu()
+       imgui.end_main_menu_bar()
+
+
+    imgui.begin("Custom window", True)
+    imgui.text("Bar")
+    imgui.text_colored("Eggs", 0.2, 1., 0.)
+
+    try:
+        foo_bool
+        foo_float
+    except:
+        foo_bool = True
+        foo_float = 1.0
+    clicked_foo_bool, foo_bool = imgui.checkbox("foo_bool", foo_bool)
+    clicked_foo_float, foo_float = imgui.slider_float("float", foo_float, 0.0, 1.0)
+
+
+    #        ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+    #        ImGui::Checkbox("Another Window", &show_another_window);
+
+    #        ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+    #        ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+
+    #        if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+    #            counter++;
+
+    imgui.end()
+
+
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
@@ -390,6 +437,8 @@ while not glfw.window_should_close(window):
         paddle2.render()
 
 
+    imgui.render()
+    impl.render(imgui.get_draw_data())
     # done with frame, flush and swap buffers
     # Swap front and back buffers
     glfw.swap_buffers(window)
