@@ -1,13 +1,3 @@
-# "I had no idea how much math was involved in computer graphics."
-
-# Unfortunately many students of computer graphics have the impression
-# that the writing of computer graphics programs requires knowledge of
-# advanced math; which is patently untrue.
-# Only the understanding of high-school level geometry is required.
-# Using math you already know, this book builds both 2D and 3D
-# applications from the ground up using OpenGL, a standard for graphics
-# programming.
-
 # Thoughout the book, I show how to place objects in space,
 # how to draw objects relative to other objects, how to add a
 # camera which moves over time based on user input, and how to transform all
@@ -37,10 +27,10 @@
 # In OpenGL, the bottom left pixel of a window is coordinate (0,0).  The top right is (window_width,window_height)
 #
 # 1024x768 monitor
-# eog images/monitor.png
+# eog ../images/monitor.png
 #
 # 1920x1200 monitor
-# eog images/monitor2.png
+# eog ../images/monitor2.png
 #
 #
 # Frames are created within the computer and sent to the monitor
@@ -48,7 +38,6 @@
 # measured in *Hertz*.  By updating frames quickly and at a constant rate, the computer
 # provides the end-user with the illusion of motion.
 #
-# TODO - insert 3 20x20 frames which show motion
 
 import sys
 import os
