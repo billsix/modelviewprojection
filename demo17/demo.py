@@ -255,14 +255,11 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
+fn_stack = []
 
-projection_stack = []
-view_stack = []
-model_stack = []
-
-def apply_stack(vertex, stack):
+def apply_stack(vertex):
     v = vertex
-    for fn in reversed(stack):
+    for fn in reversed(fn_stack):
         v = fn(v)
     return v
 
@@ -281,30 +278,30 @@ while not glfw.window_should_close(window):
 
 
     # every object uses the same projection
-    projection_stack.append(lambda v: v.camera_space_to_ndc_space_fn())
+    fn_stack.append(lambda v: v.camera_space_to_ndc_space_fn()) # (1)
 
     # every object is from the same view
     # Unlike in previous demos, because the transformations
     # are on a stack, the fns on the view stack need to
     # be read in reverse
-    view_stack.append(lambda v: v.rotate_x( -moving_camera_rot_x))
-    view_stack.append(lambda v: v.rotate_y( -moving_camera_rot_y))
-    view_stack.append(lambda v: v.translate(tx=-moving_camera_x,
-                                            ty=-moving_camera_y,
-                                            tz=-moving_camera_z))
+    fn_stack.append(lambda v: v.rotate_x( -moving_camera_rot_x)) # (2)
+    fn_stack.append(lambda v: v.rotate_y( -moving_camera_rot_y)) # (3)
+    fn_stack.append(lambda v: v.translate(tx=-moving_camera_x,   # (4)
+                                          ty=-moving_camera_y,
+                                          tz=-moving_camera_z))
 
     # draw paddle 1
     # Unlike in previous demos, because the transformations
     # are on a stack, the fns on the model stack can
     # be read forwards, where each operation translates/rotates/scales
     # the current space
-    model_stack.append(lambda v: v.translate(tx=paddle1.offset_x,
-                                             ty=paddle1.offset_y,
-                                             tz=0.0))
-    model_stack.append(lambda v: v.translate(tx=paddle1.global_position.x,
-                                             ty=paddle1.global_position.y,
-                                             tz=0.0))
-    model_stack.append(lambda v: v.rotate_z(paddle1.rotation))
+    fn_stack.append(lambda v: v.translate(tx=paddle1.offset_x, # (5)
+                                          ty=paddle1.offset_y,
+                                          tz=0.0))
+    fn_stack.append(lambda v: v.translate(tx=paddle1.global_position.x,  # (6)
+                                          ty=paddle1.global_position.y,
+                                          tz=0.0))
+    fn_stack.append(lambda v: v.rotate_z(paddle1.rotation)) # (7)
 
     # draw paddle 1
     glColor3f(paddle1.r,
@@ -313,9 +310,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        world_space = apply_stack(model_space, model_stack)
-        camera_space = apply_stack(world_space, view_stack)
-        ndc_space = apply_stack(camera_space, projection_stack)
+        ndc_space = apply_stack(model_space)
         glVertex3f(ndc_space.x,
                    ndc_space.y,
                    ndc_space.z)
@@ -332,38 +327,38 @@ while not glfw.window_should_close(window):
     # just add the transformations relative to it
     # before paddle 2 is drawn, we need to remove
     # the square's 3 model_space transformations
-    model_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0))
-    model_stack.append(lambda v: v.rotate_z(rotation_around_paddle1))
-    model_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0))
-    model_stack.append(lambda v: v.rotate_z(square_rotation))
+    fn_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0)) # (8)
+    fn_stack.append(lambda v: v.rotate_z(rotation_around_paddle1)) # (9)
+    fn_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0)) # (10)
+    fn_stack.append(lambda v: v.rotate_z(square_rotation)) # (11)
 
     glBegin(GL_QUADS)
     for model_space in square:
-        world_space = apply_stack(model_space, model_stack)
-        camera_space = apply_stack(world_space, view_stack)
-        ndc_space = apply_stack(camera_space, projection_stack)
-
+        ndc_space = apply_stack(model_space)
         glVertex3f(ndc_space.x,
                    ndc_space.y,
                    ndc_space.z)
     glEnd()
-    model_stack.pop()
-    model_stack.pop()
-    model_stack.pop()
+    fn_stack.pop() # pop off (11)
+    fn_stack.pop() # pop off (10)
+    fn_stack.pop() # pop off (9)
+    fn_stack.pop() # pop off (8)
+    fn_stack.pop() # pop off (7)
+    fn_stack.pop() # pop off (6)
+    fn_stack.pop() # pop off (5)
 
 
-    # since paddle2's model_space is independent of paddle 1's space
-    # just clear the stack
-    model_stack.clear()
+    # since paddle2's model_space is independent of paddle 1's space, only
+    # leave the view and projection fns (1) - (4)
 
     # draw paddle 2
-    model_stack.append(lambda v: v.translate(tx=paddle2.offset_x,
-                                             ty=paddle2.offset_y,
-                                             tz=0.0))
-    model_stack.append(lambda v: v.translate(tx=paddle2.global_position.x,
-                                             ty=paddle2.global_position.y,
-                                             tz=0.0))
-    model_stack.append(lambda v: v.rotate_z(paddle2.rotation))
+    fn_stack.append(lambda v: v.translate(tx=paddle2.offset_x, # (12)
+                                          ty=paddle2.offset_y,
+                                          tz=0.0))
+    fn_stack.append(lambda v: v.translate(tx=paddle2.global_position.x,  # (13)
+                                          ty=paddle2.global_position.y,
+                                          tz=0.0))
+    fn_stack.append(lambda v: v.rotate_z(paddle2.rotation)) # (14)
 
     # draw paddle 2
     glColor3f(paddle2.r,
@@ -372,9 +367,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        world_space = apply_stack(model_space, model_stack)
-        camera_space = apply_stack(world_space, view_stack)
-        ndc_space = apply_stack(camera_space, projection_stack)
+        ndc_space = apply_stack(model_space)
         glVertex3f(ndc_space.x,
                    ndc_space.y,
                    ndc_space.z)
@@ -385,9 +378,8 @@ while not glfw.window_should_close(window):
     # Swap front and back buffers
     glfw.swap_buffers(window)
 
-    projection_stack.clear()
-    view_stack.clear()
-    model_stack.clear()
+    # remove all fns from the function stack, as the next frame will set them
+    fn_stack.clear()
 
 
 

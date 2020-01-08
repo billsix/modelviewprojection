@@ -7,6 +7,7 @@ from OpenGL.GL import *
 import OpenGL.GL.shaders as shaders
 import glfw
 import pyMatrixStack as ms
+import atexit
 
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
@@ -47,6 +48,25 @@ if not window:
 
 # Make the window's context current
 glfw.make_context_current(window)
+
+def on_exit():
+    # delete the objects
+    paddle1.__del__()
+    paddle2.__del__()
+    square.__del__()
+
+    # normally in Python, you should call "del paddle1",
+    # but that would not guarantee that the object would
+    # actually be garbage collected at that moment, and
+    # the OpenGL context could be destroyed before the garbage
+    # collection happens, therefore, force the destruction
+    # of the VAO and VBO by immediately calling __del__
+    #
+    # This is not normal Python practice to call
+    # this type of method directly, but oh well.
+atexit.register(on_exit)
+
+
 impl = GlfwRenderer(window)
 
 # Install a key handler
@@ -121,8 +141,8 @@ class Paddle:
 
 
         # send the modelspace data to the GPU
-        vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, vbo)
+        self.vbo = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
 
         position = glGetAttribLocation(self.shader, 'position')
         glEnableVertexAttribArray(position)
@@ -162,6 +182,12 @@ class Paddle:
         # reset VAO/VBO to default
         glBindVertexArray(0)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+    # destructor
+    def __del__(self):
+        glDeleteVertexArrays(1, [self.vao])
+        glDeleteBuffers(1, [self.vbo])
+        glDeleteProgram(self.shader)
 
     def render(self):
         glUseProgram(self.shader)

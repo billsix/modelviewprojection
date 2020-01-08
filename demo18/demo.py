@@ -223,6 +223,27 @@ while not glfw.window_should_close(window):
                  -moving_camera_y,
                  -moving_camera_z)
 
+    # because matricies can be multiplied together, we can reduce the
+    # previous demo's transformation stack to one matrix.
+    #
+    # but many times we need to hold onto a transformation stack (matrix),
+    # so that we can do something else now, and return to this context later,
+    # so we have a stack composed of matricies.
+    #
+    # "with" is a Python keyword which allows for bounded contexts, where
+    # the library code can specify what happens before execution of the block,
+    # and after.  This is similar to RAII within C++, in which a constructor
+    # sets a context, and the destructor destroys it.
+    #
+    # The author uses a debugger to do dynamic analysis of code, as compared
+    # to static, as the language knows its own control flow, and where modules
+    # are located in the filesystem.  I recommend using a debugger (PDB on linux/macos,
+    # the built in functionality in VS Community), to set a breakpoint here, step in,
+    # step out, etc
+    #
+    # "PushMatrix" describes what the function does, but its purpose is to
+    # save onto the current coordinate system for later drawing modelspace
+    # data.
     with ms.PushMatrix(ms.MatrixStack.model):
 
         # draw paddle 1
