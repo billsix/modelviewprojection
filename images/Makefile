@@ -43,3 +43,7 @@ plots: generatePlots.py
 	rm rotate2-f*png
 	convert -loop 0 -delay 100 rotate2-ba* rotation2B.gif
 	rm rotate2-b*png
+	convert -loop 0 -delay 100 covariance-for* covarF.gif
+	#rm covariance-f*png
+	convert -loop 0 -delay 100 covariance-ba* covarB.gif
+	#rm covariance-b*png

@@ -223,3 +223,35 @@ createGraphs(title="Rotation, Relative to Local Space",
                                                      y)],
              color=(1.0, 0.0, 0.0),
              backwards=True)
+
+
+squareData = list(zip(*np.array([[-10.0,-10.0],
+                                 [10.0,-10.0],
+                                 [10.0,10.0],
+                                 [-10.0,10.0],
+                                 [-10.0,-10.0]])))
+
+
+createGraphs(title="Covariance, Relative to Local Space",
+             filename="covariance-backwards",
+             points = squareData,
+             procedures= [lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
+                          lambda x,y: mplt.scale(scaleX=2.0,
+                                                 scaleY=4.5,
+                                                 xs=x,
+                                                 ys=y),
+                          lambda x,y: mplt.rotate(math.radians(45.0), x, y)],
+             color=(1.0, 0.0, 0.0),
+             backwards=True)
+
+createGraphs(title="Covariance, Relative to Global Space",
+             filename="covariance-forwards",
+             points = squareData,
+             procedures= [lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
+                          lambda x,y: mplt.scale(scaleX=2.0,
+                                                 scaleY=4.5,
+                                                 xs=x,
+                                                 ys=y),
+                          lambda x,y: mplt.rotate(math.radians(45.0), x, y)],
+             color=(1.0, 0.0, 0.0),
+             backwards=False)
