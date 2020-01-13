@@ -32,18 +32,10 @@ all: plots $(OBJECTS_TO_BUILD)
 plots: generatePlots.py
 	python generatePlots.py
 	convert -loop 0 -delay 100 translation-forwards* translationF.gif
-	rm translation-f*png
 	convert -loop 0 -delay 100 translation2-forwards* translation2F.gif
-	rm translation2-f*png
 	convert -loop 0 -delay 100 rotate1-forwards* rotation1F.gif
-	rm rotate1-f*png
 	convert -loop 0 -delay 100 rotate1-ba* rotation1B.gif
-	rm rotate1-b*png
 	convert -loop 0 -delay 100 rotate2-forwards* rotation2F.gif
-	rm rotate2-f*png
 	convert -loop 0 -delay 100 rotate2-ba* rotation2B.gif
-	rm rotate2-b*png
 	convert -loop 0 -delay 100 covariance-for* covarF.gif
-	#rm covariance-f*png
 	convert -loop 0 -delay 100 covariance-ba* covarB.gif
-	#rm covariance-b*png
