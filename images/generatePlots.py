@@ -131,6 +131,15 @@ def createGraphs(title, filename, geometry, procedures, backwards=False):
             transformedXs, transformedYs = t(xs,ys) if backwards else (xs,ys)
             plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
+        # x axis
+        transformedXs, transformedYs = t([0.0,10.0],[0.0,0.0])
+        plt.plot(transformedXs, transformedYs, 'k-', lw=4.0, color=(0.0, 0.0, 1.0, 1.0))
+
+        # y axis
+        transformedXs, transformedYs = t([0.0,0.0],[0.0,10.0])
+        plt.plot(transformedXs, transformedYs, 'k-', lw=4.0, color=(1.0, 0.0, 1.0, 1.0))
+
+
         #plot the points
         transformedXs, transformedYs = t(*geometry.points)
         plt.title(str.format("{}\nStep {}", title, str(count+1)))
@@ -288,12 +297,10 @@ createGraphs(title="Circle, Relative to Local Space",
 createGraphs(title="Circle, Relative to Global Space",
              filename="circle-forwards",
              geometry=circle,
-             procedures= [lambda x,y: (x,y), # identity is here to ensure that the axises are drawn before the object is drawn
-                          lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
+             procedures= [lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
                           lambda x,y: mplt.scale(scaleX=2.0,
                                                  scaleY=4.5,
                                                  xs=x,
                                                  ys=y),
                           lambda x,y: mplt.rotate(math.radians(45.0), x, y)],
-
              backwards=False)
