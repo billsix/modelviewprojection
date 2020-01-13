@@ -26,7 +26,7 @@ import itertools
 
 import generategridlines
 import mpltransformations as mplt
-
+from collections import namedtuple
 
 if __name__ != "__main__":
     sys.exit(0)
@@ -39,39 +39,39 @@ def accumulate_transformation(procedures, backwards=False):
     >>> fs = [lambda x,y: mplt.translate(5,0,x,y),
     ...       lambda x,y: mplt.translate(0,10,x,y)]
     >>> f = accumulate_transformation(fs)
-    >>> f1 = next(f)
+    >>> f1, isLast = next(f)
     >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
-    >>> f2 = next(f)
+    >>> f2, isLast = next(f)
     >>> f2((1, 2, 3), (4, 5, 6))
     ((6, 7, 8), (4, 5, 6))
-    >>> f3 = next(f)
+    >>> f3, isLast = next(f)
     >>> f3((1, 2, 3), (4, 5, 6))
     ((6, 7, 8), (14, 15, 16))
     """
 
     def id(x,y):
         return x,y
-    yield id
+    yield id, not bool(procedures)
 
     if not backwards:
-        for index1 in range(len(procedures)):
+        for number_of_fns_to_apply_this_round in [x + 1 for x in range(len(procedures))]:
             def process(x,y):
                 resultx, resulty = x,y
-                for index2 in range(index1+1):
-                    resultx,resulty = procedures[index2](resultx,resulty)
+                for current_fn_index in range(number_of_fns_to_apply_this_round):
+                    resultx,resulty = procedures[current_fn_index](resultx,resulty)
                 return resultx, resulty
-            yield process
+            yield process, True if number_of_fns_to_apply_this_round == len(procedures) else False
     else:
         reversedProcs = list(range(len(procedures)))
         reversedProcs.reverse()
-        for index1 in reversedProcs:
+        for proc_index in reversedProcs:
             def process(x,y):
                 resultx, resulty = x,y
-                for index2 in range(index1, len(procedures)):
-                    resultx,resulty = procedures[index2](resultx,resulty)
+                for current_fn_index in range(proc_index, len(procedures)):
+                    resultx,resulty = procedures[current_fn_index](resultx,resulty)
                 return resultx, resulty
-            yield process
+            yield process, True if proc_index == 0  else False
 
 
 
@@ -99,20 +99,28 @@ fig, axes = plt.subplots()
 axes.set_xlim([-graphBounds[0],graphBounds[0]])
 axes.set_ylim([-graphBounds[1],graphBounds[1]])
 
+Geometry = namedtuple('Geometry', 'points color')
 
+paddle1 = Geometry(points=list(zip(*np.array([[-10.0,-30.0],
+                                              [10.0,-30.0],
+                                              [10.0,30.0],
+                                              [-10.0,30.0],
+                                              [-10.0,-30.0]]))),
+                   color=(0.578123, 0.0, 1.0))
 
-paddleData = list(zip(*np.array([[-10.0,-30.0],
-                                 [10.0,-30.0],
-                                 [10.0,30.0],
-                                 [-10.0,30.0],
-                                 [-10.0,-30.0]])))
+paddle2 = Geometry(points=list(zip(*np.array([[-10.0,-30.0],
+                                              [10.0,-30.0],
+                                              [10.0,30.0],
+                                              [-10.0,30.0],
+                                              [-10.0,-30.0]]))),
+                   color=(1.0, 0.0, 0.0, 1.0))
 
-def createGraphs(title, filename, points, procedures, color, backwards=False):
+def createGraphs(title, filename, geometry, procedures, backwards=False):
 
     procs = procedures.copy()
 
     count = 0
-    for t in accumulate_transformation(procs, backwards):
+    for t, isLast in accumulate_transformation(procs, backwards):
 
         fig, axes = plt.subplots()
         axes.set_xlim([-graphBounds[0],graphBounds[0]])
@@ -123,10 +131,11 @@ def createGraphs(title, filename, points, procedures, color, backwards=False):
             transformedXs, transformedYs = t(xs,ys) if backwards else (xs,ys)
             plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
-            #plot the points
-            transformedXs, transformedYs = t(*points)
-            plt.title(str.format("{}\nStep {}", title, str(count+1)))
-            plt.plot(transformedXs, transformedYs, 'k-', lw=2, color=color)
+        #plot the points
+        transformedXs, transformedYs = t(*geometry.points)
+        plt.title(str.format("{}\nStep {}", title, str(count+1)))
+        if (backwards and isLast) or not backwards:
+            plt.plot(transformedXs, transformedYs, 'k-', lw=2, color=geometry.color)
 
 
 
@@ -141,7 +150,7 @@ def createGraphs(title, filename, points, procedures, color, backwards=False):
 
 createGraphs(title="Translation",
              filename="translation-forwards",
-             points = paddleData,
+             geometry=paddle1,
              procedures= [lambda x,y: mplt.translate(0.0,
                                                      20.0,
                                                      x,
@@ -149,12 +158,12 @@ createGraphs(title="Translation",
                           lambda x,y: mplt.translate(-90.0,
                                                      0.0,
                                                      x,
-                                                     y)],
-             color=(0.578123, 0.0, 1.0))
+                                                     y)])
+
 
 createGraphs(title="Translation",
              filename="translation2-forwards",
-             points = paddleData,
+             geometry=paddle2,
              procedures= [lambda x,y: mplt.translate(0.0,
                                                      -40.0,
                                                      x,
@@ -162,14 +171,13 @@ createGraphs(title="Translation",
                           lambda x,y: mplt.translate(90.0,
                                                      0.0,
                                                      x,
-                                                     y)],
-             color=(1.0, 0.0, 0.0, 1.0))
+                                                     y)])
 
 
 
 createGraphs(title="Rotation, Relative to Global Space",
              filename="rotate1-forwards",
-             points = paddleData,
+             geometry=paddle1,
              procedures= [lambda x,y: mplt.rotate(math.radians(45.0), x, y),
                           lambda x,y: mplt.translate(0.0,
                                                      20.0,
@@ -178,12 +186,13 @@ createGraphs(title="Rotation, Relative to Global Space",
                           lambda x,y: mplt.translate(-90.0,
                                                      0.0,
                                                      x,
-                                                     y)],
-             color=(0.578123, 0.0, 1.0))
+                                                     y)])
+
 createGraphs(title="Rotation, Relative to Local Space",
              filename="rotate1-backwards",
-             points = paddleData,
-             procedures= [lambda x,y: mplt.rotate(math.radians(45.0), x, y),
+             geometry=paddle1,
+             procedures= [lambda x,y: (x,y),
+                          lambda x,y: mplt.rotate(math.radians(45.0), x, y),
                           lambda x,y: mplt.translate(0.0,
                                                      20.0,
                                                      x,
@@ -192,13 +201,12 @@ createGraphs(title="Rotation, Relative to Local Space",
                                                      0.0,
                                                      x,
                                                      y)],
-             color=(0.578123, 0.0, 1.0),
              backwards=True)
 
 
 createGraphs(title="Rotation, Global Space",
              filename="rotate2-forwards",
-             points = paddleData,
+             geometry=paddle2,
              procedures= [lambda x,y: mplt.rotate(math.radians(-10.0), x, y),
                           lambda x,y: mplt.translate(90.0,
                                                      0.0,
@@ -207,12 +215,13 @@ createGraphs(title="Rotation, Global Space",
                           lambda x,y: mplt.translate(0.0,
                                                      -40.0,
                                                      x,
-                                                     y)],
-             color=(1.0, 0.0, 0.0))
+                                                     y)])
+
 createGraphs(title="Rotation, Relative to Local Space",
              filename="rotate2-backwards",
-             points = paddleData,
-             procedures= [lambda x,y: mplt.rotate(math.radians(-10.0), x, y),
+             geometry=paddle2,
+             procedures= [lambda x,y: (x,y),
+                          lambda x,y: mplt.rotate(math.radians(-10.0), x, y),
                           lambda x,y: mplt.translate(90.0,
                                                      0.0,
                                                      x,
@@ -221,37 +230,38 @@ createGraphs(title="Rotation, Relative to Local Space",
                                                      -40.0,
                                                      x,
                                                      y)],
-             color=(1.0, 0.0, 0.0),
              backwards=True)
 
+square = Geometry(points=list(zip(*np.array([[-10.0,-10.0],
+                                             [10.0,-10.0],
+                                             [10.0,10.0],
+                                             [-10.0,10.0],
+                                             [-10.0,-10.0]]))),
+                  color=(1.0, 0.0, 0.0, 1.0))
 
-squareData = list(zip(*np.array([[-10.0,-10.0],
-                                 [10.0,-10.0],
-                                 [10.0,10.0],
-                                 [-10.0,10.0],
-                                 [-10.0,-10.0]])))
 
 
 createGraphs(title="Covariance, Relative to Local Space",
              filename="covariance-backwards",
-             points = squareData,
-             procedures= [lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
+             geometry=square,
+             procedures= [lambda x,y: (x,y),
+                          lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
                           lambda x,y: mplt.scale(scaleX=2.0,
                                                  scaleY=4.5,
                                                  xs=x,
                                                  ys=y),
                           lambda x,y: mplt.rotate(math.radians(45.0), x, y)],
-             color=(1.0, 0.0, 0.0),
              backwards=True)
 
 createGraphs(title="Covariance, Relative to Global Space",
              filename="covariance-forwards",
-             points = squareData,
-             procedures= [lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
+             geometry=square,
+             procedures= [lambda x,y: (x,y),
+                          lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
                           lambda x,y: mplt.scale(scaleX=2.0,
                                                  scaleY=4.5,
                                                  xs=x,
                                                  ys=y),
                           lambda x,y: mplt.rotate(math.radians(45.0), x, y)],
-             color=(1.0, 0.0, 0.0),
+
              backwards=False)
