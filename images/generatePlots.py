@@ -191,7 +191,7 @@ createGraphs(title="Rotation, Relative to Global Space",
 createGraphs(title="Rotation, Relative to Local Space",
              filename="rotate1-backwards",
              geometry=paddle1,
-             procedures= [lambda x,y: (x,y),
+             procedures= [lambda x,y: (x,y), # identity is here to ensure that the axises are drawn before the object is drawn
                           lambda x,y: mplt.rotate(math.radians(45.0), x, y),
                           lambda x,y: mplt.translate(0.0,
                                                      20.0,
@@ -220,7 +220,7 @@ createGraphs(title="Rotation, Global Space",
 createGraphs(title="Rotation, Relative to Local Space",
              filename="rotate2-backwards",
              geometry=paddle2,
-             procedures= [lambda x,y: (x,y),
+             procedures= [lambda x,y: (x,y), # identity is here to ensure that the axises are drawn before the object is drawn
                           lambda x,y: mplt.rotate(math.radians(-10.0), x, y),
                           lambda x,y: mplt.translate(90.0,
                                                      0.0,
@@ -244,7 +244,7 @@ square = Geometry(points=list(zip(*np.array([[-10.0,-10.0],
 createGraphs(title="Covariance, Relative to Local Space",
              filename="covariance-backwards",
              geometry=square,
-             procedures= [lambda x,y: (x,y),
+             procedures= [lambda x,y: (x,y), # identity is here to ensure that the axises are drawn before the object is drawn
                           lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
                           lambda x,y: mplt.scale(scaleX=2.0,
                                                  scaleY=4.5,
@@ -256,7 +256,39 @@ createGraphs(title="Covariance, Relative to Local Space",
 createGraphs(title="Covariance, Relative to Global Space",
              filename="covariance-forwards",
              geometry=square,
-             procedures= [lambda x,y: (x,y),
+             procedures= [lambda x,y: (x,y), # identity is here to ensure that the axises are drawn before the object is drawn
+                          lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
+                          lambda x,y: mplt.scale(scaleX=2.0,
+                                                 scaleY=4.5,
+                                                 xs=x,
+                                                 ys=y),
+                          lambda x,y: mplt.rotate(math.radians(45.0), x, y)],
+
+             backwards=False)
+
+
+
+t = np.linspace(0,np.pi*2,100)
+circ = [list(np.cos(t) * 10),list(np.sin(t) * 10)]
+circle = Geometry(points=circ,
+                  color=(0.0,1.0,0.0,1.0))
+
+createGraphs(title="Circle, Relative to Local Space",
+             filename="circle-backwards",
+             geometry=circle,
+             procedures= [lambda x,y: (x,y), # identity is here to ensure that the axises are drawn before the object is drawn
+                          lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
+                          lambda x,y: mplt.scale(scaleX=2.0,
+                                                 scaleY=4.5,
+                                                 xs=x,
+                                                 ys=y),
+                          lambda x,y: mplt.rotate(math.radians(45.0), x, y)],
+             backwards=True)
+
+createGraphs(title="Circle, Relative to Global Space",
+             filename="circle-forwards",
+             geometry=circle,
+             procedures= [lambda x,y: (x,y), # identity is here to ensure that the axises are drawn before the object is drawn
                           lambda x,y: mplt.rotate(math.radians(-45.0), x, y),
                           lambda x,y: mplt.scale(scaleX=2.0,
                                                  scaleY=4.5,
