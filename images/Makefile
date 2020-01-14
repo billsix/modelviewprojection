@@ -39,3 +39,5 @@ plots: generatePlots.py
 	convert -loop 0 -delay 100 rotate2-ba* rotation2B.gif
 	convert -loop 0 -delay 100 covariance-for* covarF.gif
 	convert -loop 0 -delay 100 covariance-ba* covarB.gif
+	convert -loop 0 -delay 100 circle-for* circleF.gif
+	convert -loop 0 -delay 100 circle-ba* circleB.gif
