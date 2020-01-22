@@ -132,13 +132,6 @@ glClearColor(0.0,
              0.0,
              1.0)
 
-#Enable blending of new values in a fragment with the old value.
-glEnable(GL_BLEND)
-
-# Specify how a given fragment's color value within the framebuffer combines with a second color.  This new
-#blended value is then set for the fragment.
-glBlendFunc(GL_SRC_ALPHA,
-            GL_ONE_MINUS_SRC_ALPHA)
 
 glMatrixMode(GL_PROJECTION);
 glLoadIdentity();
