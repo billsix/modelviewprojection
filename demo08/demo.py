@@ -18,6 +18,26 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+
+# PURPOSE
+#
+# Fix the rotation problem from the previous demo in a seemingly intuitive
+# way, but do it inelegantly.
+#
+#
+
+# The problem in the last demo is that all rotations happen relative
+# to (0,0).  By translating our paddles to their position,
+# they are then rotated not around their modelspace center,
+# but by global space's center.
+# In this demo, we move the paddles to their position,
+# back to the origin, rotate, and then back to their position.
+# This works, but it should be clear that it's an inefficient
+# method at best; at worst, we are not thinking about
+# the transformations clearly.
+#
+
+
 import sys
 import os
 import numpy as np
@@ -110,6 +130,10 @@ class Vertex:
         return Vertex(x= self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
                       y= self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians))
 
+    # NEW
+    # translate the Vertex so that the paddle's center goes
+    # to the origin, call the existing rotate call,
+    # and then translate back to the paddle's position
     def rotate_around(self, angle_in_radians, center):
         translate_to_center = self.translate(tx=-center.x,
                                              ty=-center.y)
@@ -192,15 +216,17 @@ while not glfw.window_should_close(window):
               paddle1.b)
 
     glBegin(GL_QUADS)
+    rotatePoint = Vertex(0.0,0.0).translate(tx=paddle1.global_position.x,
+                                            ty=paddle1.global_position.y) \
+                                 .translate(tx=paddle1.offset_x,
+                                            ty=paddle1.offset_y)
     for model_space in paddle1.vertices:
-        rotatePoint = Vertex(0.0,0.0).translate(tx=paddle1.global_position.x,
-                                                ty=paddle1.global_position.y) \
-                                     .translate(tx=paddle1.offset_x,
-                                                ty=paddle1.offset_y)
         world_space = model_space.translate(tx=paddle1.global_position.x,
                                             ty=paddle1.global_position.y) \
                                  .translate(tx=paddle1.offset_x,
                                             ty=paddle1.offset_y)
+        # NEW
+        # do the rotate around the paddle's center
         world_space = world_space.rotate_around(paddle1.rotation, rotatePoint)
         ndc_space = world_space.scale(x=1.0/100.0,
                                       y=1.0/100.0)
@@ -213,15 +239,17 @@ while not glfw.window_should_close(window):
               paddle2.b)
 
     glBegin(GL_QUADS)
+    rotatePoint = Vertex(0.0,0.0).translate(tx=paddle2.global_position.x,
+                                            ty=paddle2.global_position.y) \
+                                 .translate(tx=paddle2.offset_x,
+                                            ty=paddle2.offset_y)
     for model_space in paddle2.vertices:
-        rotatePoint = Vertex(0.0,0.0).translate(tx=paddle2.global_position.x,
-                                                ty=paddle2.global_position.y) \
-                                     .translate(tx=paddle2.offset_x,
-                                                ty=paddle2.offset_y)
         world_space = model_space.translate(tx=paddle2.global_position.x,
                                             ty=paddle2.global_position.y) \
                                  .translate(tx=paddle2.offset_x,
                                             ty=paddle2.offset_y)
+        # NEW
+        # do the rotate around the paddle's center
         world_space = world_space.rotate_around(paddle2.rotation, rotatePoint)
         ndc_space = world_space.scale(x=1.0/100.0,
                                       y=1.0/100.0)

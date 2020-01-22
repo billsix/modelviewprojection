@@ -18,6 +18,37 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# PURPOSE
+#
+# Make the rotations work correctly by thinking about the problem
+# more clearly
+#
+# In the previous demo, The initial translate is effectively canceled out,
+# leaving a rotation and then a translation.
+# Translate inverse(Translate) Rotate Translate
+#
+# Translate inverse(Translate) = Identity.  i.e. 5 * 1/5 = 1,
+# so we really just need to do a rotation first, and then a translation,
+# but this can be counterintuitive at first because we like to think
+# in relative terms.
+
+# To understand why the code in this demo works, you can think
+# about it in one of two ways.  Either there is a sequence
+# of function calls, all of which happen relative to the global
+# origin; or, you can read the transformations backwards,
+# where instead of doing operations on points, the operations
+# all modifying the current axis to a new relative axises,
+# and all subsequent functions move those relative axises to
+# new relative axises.
+
+# Strong suggestion for computer graphics, especially from
+# modelspace to global space:
+# Read the transformations in the latter.
+
+# See the transformations below, and the associated animated gifs.
+
+
+
 import sys
 import os
 import numpy as np
@@ -110,6 +141,9 @@ class Vertex:
         return Vertex(x= self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
                       y= self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians))
 
+    # NEW
+    # removed rotate_around, as it was useless for our purpose
+
 class Paddle:
     def __init__(self,vertices, r, g, b, global_position, rotation=0.0, offset_x=0.0, offset_y=0.0):
         self.vertices = vertices
@@ -183,6 +217,33 @@ while not glfw.window_should_close(window):
               paddle1.g,
               paddle1.b)
 
+
+    # if you read the operations below as rotate, translate1, translate2,
+    # you should imagine it as follows
+    # eog ../images/rotation1F.gif
+
+    # if instead you read them backwards, imagine the transformations
+    # as follows
+    # eog ../images/rotation1B.gif
+
+    # side note.  Typically I use a debugger as an interactive evaluator,
+    # in order to understand how code which I do not understand works.
+    # In computer graphics, the debugger is of limited help because
+    # the transformations on the individual points is not worth
+    # thinking about, and therefore the intermediat results
+    # are worthless for reasoning.
+    #
+    # In order to be successful, I highly recommend reading the transformations
+    # backwards, with a moving/rotating/scaled axises.
+    #
+    # (This advise will be modified when I introduce transformation stacks,
+    # but the same principle will apply.  Also, on the note of transformation
+    # stacks, N.B. that the scaling from world space to ndc is shared
+    # for both paddles, and that changing the code in one place would
+    # required changing the code for all shapes.)
+    #
+
+
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
         world_space = model_space.rotate(paddle1.rotation) \
@@ -201,6 +262,10 @@ while not glfw.window_should_close(window):
               paddle2.g,
               paddle2.b)
 
+    # Same thing for the second paddle.
+    # eog ../images/rotation2F.gif
+
+    # eog ../images/rotation2B.gif
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         world_space = model_space.rotate(paddle2.rotation) \

@@ -18,6 +18,98 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# PURPOSE
+#
+# Learn about rotations, and the order in which to read
+# a sequence of transformations.  This demo does not
+# work correctly, because of a misunderstanding
+# of how rotations work.
+
+# == Rotate the Paddles About their Center
+
+# [width="75%",options="header,footer"]
+# |=======================================
+# |Keyboard Input |Action
+# |w              |Move Left Paddle Up
+# |s              |Move Left Paddle Down
+# |k              |Move Right Paddle Up
+# |i              |Move Right Paddle Down
+# |               |
+# |*d*              |*Increase Left Paddle's Rotation*
+# |*a*              |*Decrease Left Paddle's Rotation*
+# |*l*              |*Increase Right Paddle's Rotation*
+# |*j*              |*Decrease Right Paddle's Rotation*
+# |=======================================
+
+
+
+# === Rotation Around Origin (0,0)
+
+# We can also rotate an object around (0,0) by rotating
+# all of the object's vertices around (0,0).
+
+# In high school math, you will have learned about sin, cos, and tangent.
+# Typically the angles are described on the unit circle, where a rotation
+# starts from the positive x axis.  We can expand on this knowledge, allowing
+# us to rotate a given vertex around the origin (0,0).  This is done
+# by separating the x and y value, rotating each of them seperately,
+# and then adding the results together.
+
+# That might not have been fully clear.  Let me try again.
+# The vertex (0.5,0.4) can be separated into two vertices, (0.5,0) and (0,0.4).
+
+# eog ../images/rotate3.png
+
+# eog ../images/rotate4.png
+
+# These vertices can be added together to create the original vertex.
+# But, before we do that, let's rotate each of the vertices.
+
+# (0.5,0) is on the x-axis, so rotating it by "angle" degrees, results
+# in vertex (0.5*cos(angle), 0.5*sin(angle)).  Notice that both the x and
+# y values are multiplied by 0.5.  This is because rotations should not affect
+# the distance of the point from the origin (0,0).  (0.5,0) has length 0.5.
+# (cos(angle), sin(angle) has length 1. By multipling both the x and y
+# component by 0.5, we are scaling the vertex back to its original distance
+# from the origin.
+
+# eog ../images/rotate.png
+
+# (0,0.4) is on the y-axis, so rotating it by "angle" degrees, results
+# in vertex (0.4*-sin(angle), 0.4*cos(angle)).
+
+# eog ../images/rotate2.png
+
+# Wait.  Why is negative sin applied to the angle to make the x value,
+# and cos applied to angle to make the y value?
+# Trigonometric operations such as sin, cos, and tangent assume that the rotation is happening on
+# the unit circle, starting from (1,0) on the x axis.  Since we want
+# to rotate an angle starting from (0,1) on the y axis, sin and
+# cos must be swapped.  Sin is positive from 0 to 90 degrees, but
+# we want a negative value for our rotation of the y axis since the rotation is happening counter-clockwise,
+# hence the negative sin.
+
+
+
+# After the rotations have been applied, sum the results to
+# get your vertex rotated around the origin!
+
+# (0.5*cos(angle), 0.5*sin(angle)) + (0.4*-sin(angle), 0.4*cos(angle)) =
+# (0.5*cos(angle) + 0.4*-sin(angle), 0.5*sin(angle) + 0.4*cos(angle))
+
+# I prefer to think graphically instead of symbolically.
+# Another way you can think of this is to rotate the the x axis
+# and y axis, create graph paper (tick marks) along those new
+# axis, and then draw the geometry on that new "basis",
+# instead of the natural basis. (Natural basis just means
+# the normal x and y axis).
+# Think of basis as an origin, a unit in various directions,
+# a graph paper lines drawn.  Then your geometry is drawn
+# in that space.
+
+
+
+
 import sys
 import os
 import numpy as np
@@ -106,11 +198,19 @@ class Vertex:
     def scale(self, x, y):
         return Vertex(x=self.x * x, y=self.y * y)
 
+    # NEW
+    # definition of rotate, from the description above
+    # cos and sin are defined in the math module.
+    #
+    # Question - how can you determine if math.cos and math.sin
+    # are defined in terms of radians or in terms of degrees?
     def rotate(self,angle_in_radians):
         return Vertex(x= self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
                       y= self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians))
 
 class Paddle:
+    # NEW
+    # a rotation instance variable is defined, with a default value of 0
     def __init__(self,vertices, r, g, b, global_position, rotation=0.0, offset_x=0.0, offset_y=0.0):
         self.vertices = vertices
         self.r = r

@@ -218,7 +218,7 @@ while not glfw.window_should_close(window):
         # eog ../images/translationF.gif
         # eog ../images/translation2F.gif
 
-        # Instead, for model-space to world-space transformations (and for these transformations only),
+        # Instead, for model-space to world-space transformations,
         # it's easier to read the transformations backwards, where the transformations
         # aren't relative to the global origin, instead it's from the local frame of reference.
 
@@ -251,8 +251,9 @@ while not glfw.window_should_close(window):
 
 
         # Similarly, we can expand or shrink the size of an object
-        # by "scale"ing each of the vertices of the object, assuming
-        # the object's center is at (0,0).
+        # by "scale"ing each of the vertices of the object.
+        # Our global space is -100 to 100 in both dimesnions,
+        # and to get it into NDC, we need to scale by dividing by 100
 
         ndc_space = world_space.scale(x=1.0/100.0,
                                     y=1.0/100.0)
