@@ -18,6 +18,23 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# PURPOSE
+# Learn how to open a window, make a black screen, and close
+# the window.
+
+
+
+# before running this code, you need a virtual environment,
+# with dependencies installed.
+# Visual Studio takes care of this for you, but on a Mac or
+# on Linux, run
+#   python3 -m venv venv
+#   source venv/bin/activate
+#   pip install --upgrade pip setuptools
+#   pip install -r requirements.txt
+#
+#
+#
 
 # Thoughout the book, I show how to place objects in space,
 # how to draw objects relative to other objects, how to add a
@@ -60,12 +77,22 @@
 # provides the end-user with the illusion of motion.
 #
 
-import sys
-import os
-import numpy as np
-import math
-from OpenGL.GL import *
-import glfw
+
+# Import Python modules.  Python's modules are a way of distributing code
+# without namespace collisions
+import sys # sys is imported, all function calls will be of sys.function
+import os # basic operating system functions
+import numpy as np # numpy is a fast math/matrix library.
+import math  # basic math utilities
+from OpenGL.GL import * # here, we are importing OpenGL's submodule GL
+                        # but we will not need the module's prefix to call
+                        # the functions.  I did this for uniformity
+                        # with the C++ code in the Superbible book.
+import glfw  # the windowing library
+
+# on a Python prompt, you can use tab-complete to see which functions
+# are defined on a module.  you can also type help(modulename) (q is
+# used to quit out of the pager).  help works on any object, including modules.
 
 ##### Opening a Window
 #
@@ -85,25 +112,36 @@ import glfw
 #
 # -Initialize GLFW.
 #
-if not glfw.init():
-    sys.exit()
-# One frame is created incrementally over time on the CPU, but the frame
+if not glfw.init():  # many objects can be treating as booleans,
+                     # and the Python keyword "not" negates it
+                     # Python does not use brackets to show nesting.
+                     # instead it uses whitespace.
+                     # You probably want to find keyboard shortcuts
+                     # to indent/unindent.  On Emacs, I use tab
+    sys.exit() # if you can't create a window, quit
+
+# One frame is created incrementally at a time on the CPU, but the frame
 # is sent to the monitor
 # only when frame is completely drawn, and each pixel has a color.
 # The act of sending the frame to the monitor is called *flushing*
 # the frame.
 # Flushing takes time,
-# and if the call to flush were to blockfootnote:[meaning it would not return control back to the call-ing procedure until the flush is complete], we would
+# and if the call to flush were to block (meaning it would not return control
+# back to the call-ing procedure until the flush is complete), we would
 # have wasted CPU time.  To avoid this,
-# OpenGL has two *framebuffers*footnote:[regions of memory which will eventually contain the full data for a frame],
+# OpenGL has two *framebuffers* (regions of memory which will eventually
+# contain the full data for a frame),
 # only one of which is "active", or writable, at a given time.
 # "glfwSwapBuffers" is a non-blocking call which initiates the flushing
 # the current buffer, and which switches the current writable framebuffer to the
-# other one, thus allowing the CPU to resume.
+# other one, thus allowing the CPU to resume.  If this doesn't make
+# sense right now, don't worry.
 #
-# -Set the version of OpenGL
+# Set the version of OpenGL
+#
 # OpenGL has been around a long time, and has multiple, possibly incompatible versions.
-glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR,1)
+glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR,1) # python methods normally use lower case
+                                               # and words are seperated by underscores.
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR,4)
 # Create a 500 pixel by 500 pixel window, which the user can resize.
 window = glfw.create_window(500,
@@ -111,8 +149,10 @@ window = glfw.create_window(500,
                             "ModelViewProjection Demo 1",
                             None,
                             None)
+# None is the equivalent of null.
+# I frequently will put argument lists vertically, though it in not required.
 if not window:
-    glfw.terminate()
+    glfw.terminate() # need to clean up gracefully
     sys.exit()
 
 # Make the window's context current
@@ -123,6 +163,9 @@ def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window,1)
 glfw.set_key_callback(window, on_key)
+#functions are first class values in Python, and are objects just
+#like anything else.  The can be passed as arguments, for evaluation
+#later
 
 # For every frame drawn, each pixel has a default color, set by
 # calling "glClearColor". "0,0,0,1", means black "0,0,0", without
@@ -132,7 +175,8 @@ glClearColor(0.0,
              0.0,
              1.0)
 
-
+# don't worry about the 4 lines here.  Although they are necessary,
+# we will cover them later.
 glMatrixMode(GL_PROJECTION);
 glLoadIdentity();
 glMatrixMode(GL_MODELVIEW);
@@ -152,7 +196,7 @@ glLoadIdentity();
 # Render a frame, flush the complete frame to the monitor.
 # Unless the user closed the window, repeat indefinitely.
 #
-# The color of each pixel withith
+# The color of each pixel within
 # the current framebuffer
 # is reset to a default color.
 #
@@ -170,8 +214,18 @@ while not glfw.window_should_close(window):
     # Poll for and process events
     glfw.poll_events()
 
+    # get the size of the framebuffer.  Python
+    # allows the returning of multiple values
+    # in the form of a tuple.  Assigning
+    # to the variables this way is a form of "destructuring"
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
+    # since the frame is about to be drawn, make it a blank slate.
+    # the color of each pixel will be the clear color.
+    # Programming in OpenGL is a bit different than normal programming,
+    # in that individual function calls do not always do everything you need
+    # in isolation.  Instead, they mutate state, which may require
+    # multiple function calls to complete a certain task.
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     # render scene
@@ -186,8 +240,7 @@ glfw.terminate()
 
 ###### Black Screen
 #
-# Add the "mvp" direction to your PYTHONPATH, and type
-# "python modelviewprojection.py". When prompted, type "1" and then press the "Enter" key.
+# Type "python demo.py", or "python3 demo.py" to run.
 #
 # The first demo is the least interesting graphical program possible.
 #

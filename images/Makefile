@@ -33,6 +33,8 @@ plots: generatePlots.py
 	python generatePlots.py
 	convert -loop 0 -delay 100 translation-forwards* translationF.gif
 	convert -loop 0 -delay 100 translation2-forwards* translation2F.gif
+	convert -loop 0 -delay 100 translation-back* translationB.gif
+	convert -loop 0 -delay 100 translation2-back* translation2B.gif
 	convert -loop 0 -delay 100 rotate1-forwards* rotation1F.gif
 	convert -loop 0 -delay 100 rotate1-ba* rotation1B.gif
 	convert -loop 0 -delay 100 rotate2-forwards* rotation2F.gif

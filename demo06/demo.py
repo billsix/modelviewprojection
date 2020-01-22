@@ -18,6 +18,38 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+
+# PURPOSE
+#
+# Learn about modelspace.
+
+
+
+# == Model-space
+
+# |=======================================
+# |Keyboard Input |Action
+# |w              |Move Left Paddle Up
+# |s              |Move Left Paddle Down
+# |k              |Move Right Paddle Up
+# |i              |Move Right Paddle Down
+# |=======================================
+
+# Normalized-device-coordinates are not a natural system of
+# numbers for use by humans.  Imagine that the paddles in the previous
+# chapters exist in real life, and are 20 meters wide and 60 meters tall.
+# The graphics programmer should be able to use those numbers directly;
+# they shouldn't have to manually transform the distances into normalized-device-coordinates.
+
+# Whatever a convenient numbering system is (i.e. coordinate system) for modeling objects
+# is called "model-space".  Since a paddle has four corners, which corner should be a
+# the origin (0,0)?  If you don't already know what you want at the origin, then
+# none of the corners should be; instead put the center of the object
+# at the origin (By putting the center of the object at the origin,
+# scaling and rotating the object are trivial).
+
+# eog ../images/modelspace.png
+
 import sys
 import os
 import numpy as np
@@ -103,6 +135,7 @@ class Vertex:
     def translate(self, tx, ty):
         return Vertex(x=self.x + tx, y=self.y + ty)
 
+    # NEW!
     def scale(self, x, y):
         return Vertex(x=self.x * x, y=self.y * y)
 
@@ -116,8 +149,12 @@ class Paddle:
         self.offset_x = offset_x
         self.offset_y = offset_y
         self.global_position = global_position
+        # global position is probably poorly named.
+        # it's the initial position for use if no inputs
+        # are inputs, and the offset x and y are the aggregate
+        # of the user's input.
 
-
+# NEW! paddles are using modelspace coordinates instead of NDC
 paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                            Vertex(x= 10.0, y=-30.0),
                            Vertex(x= 10.0, y=30.0),
@@ -171,10 +208,51 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
+
+        # Model-space to World-space.
+
+        # You can view the transformations from first transformation to last,
+        # where all transformations happen relative to the world-space origin.
+        # (this works well for world-space to camera-space,
+        # but not so well for model-space transformations)
+        # eog ../images/translationF.gif
+        # eog ../images/translation2F.gif
+
+        # Instead, for model-space to world-space transformations (and for these transformations only),
+        # it's easier to read the transformations backwards, where the transformations
+        # aren't relative to the global origin, instead it's from the local frame of reference.
+
+        # When reading the transformations backwards, I think it's best to think of it
+        # as moving the axises, and the plotting the data once the axies are in
+        # their final place.
+
+        # eog ../images/translationB.gif
+        # eog ../images/translation2B.gif
+
+
+
+        # Why do the two different views of the transformations matter?  In model-space
+        # to world-space transformations, especially once rotation and scaling of model-space
+        # is used, it allows the programmer to forget about most details, just specify
+        # where new objects are relative to that which you are already drawing.
+
+        # With that said, that doesn't mean that reading the transformations front to back
+        # has no value.
+
+        # This will make more sense once rotation is involved.
         world_space = model_space.translate(tx=paddle1.global_position.x,
-                                          ty=paddle1.global_position.y) \
-                               .translate(tx=paddle1.offset_x,
-                                          ty=paddle1.offset_y)
+                                            ty=paddle1.global_position.y) \
+                                 .translate(tx=paddle1.offset_x,
+                                            ty=paddle1.offset_y)
+
+        # === Scaling
+
+        # eog ../images/scale.png
+
+
+        # Similarly, we can expand or shrink the size of an object
+        # by "scale"ing each of the vertices of the object, assuming
+        # the object's center is at (0,0).
 
         ndc_space = world_space.scale(x=1.0/100.0,
                                     y=1.0/100.0)
@@ -189,13 +267,16 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
+
+        # Do the same transformations to the second paddle
+
         world_space = model_space.translate(tx=paddle2.global_position.x,
-                                          ty=paddle2.global_position.y) \
-                               .translate(tx=paddle2.offset_x,
-                                          ty=paddle2.offset_y)
+                                            ty=paddle2.global_position.y) \
+                                 .translate(tx=paddle2.offset_x,
+                                            ty=paddle2.offset_y)
 
         ndc_space = world_space.scale(x=1.0/100.0,
-                                    y=1.0/100.0)
+                                      y=1.0/100.0)
         glVertex2f(ndc_space.x,
                    ndc_space.y)
     glEnd()

@@ -18,25 +18,8 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
-# == Draw Paddles
-
-
-# A black screen is not particularly interesting, so
-# let's draw something, say, two rectangles.
-# Where should they be, and what color should they be?
-
-# "glColor3f" sets a global variable, which makes it the color to be used
-# for the subsequently-drawn graphical shape.  The background will be black,
-# so lets make the first paddle purple, and a second paddle red.
-
-# "glBegin(GL_QUADS)" tells OpenGL that we will soon specify 4 *vertices*,
-# (i.e. points) which define the
-# quadrilateral.  The vertices will be specified by calling "glVertex2f" 4 times.
-
-# "glEnd()" tells OpenGL that we have finished providing vertices for
-# the begun quadrilateral.
-
-
+# PURPOSE
+# Learn how to open draw some geometry, and give it a color
 
 
 import sys
@@ -89,6 +72,26 @@ while not glfw.window_should_close(window):
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+
+    # Draw Paddles
+
+
+    # A black screen is not particularly interesting, so
+    # let's draw something, say, two rectangles.
+    # Where should they be, and what color should they be?
+
+    # "glColor3f" sets a global variable, which makes it the color to be used
+    # for the subsequently-drawn graphical shape.  The background will be black,
+    # so lets make the first paddle purple, and a second paddle red.
+
+    # "glBegin(GL_QUADS)" tells OpenGL that we will soon specify 4 *vertices*,
+    # (i.e. points) which define the
+    # quadrilateral.  The vertices will be specified by calling "glVertex2f" 4 times.
+
+    # "glEnd()" tells OpenGL that we have finished providing vertices for
+    # the begun quadrilateral.
+
 
     # render scene
     # draw paddle 1
@@ -167,8 +170,8 @@ glfw.terminate()
 # 1920x1200 pixels.  When he purchases a game from Steam, he expects that his game
 # will run correctly on either monitor, in full-screen mode.  If a graphics programmer
 # had to explictly set each indiviual pixel's color, the the programmer would have to
-# program using "screen-space"footnote:[Any "space" means a system of numbers which you're using.
-# Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be red].
+# program using "screen-space"(Any "space" means a system of numbers which you're using.
+# Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be red).
 
 # What looks alright is screen-space on a large monitor...
 # eog ../images/screenspace2.png
@@ -180,7 +183,7 @@ glfw.terminate()
 
 # Like any good program or library, OpenGL abstracts over screen-space, thus freeing the
 # programmer from caring about screen size.  If a programmer does not want to program
-# in discretefootnote:[discrete means integer values, not continuous] screen-space,
+# in discrete (discrete means integer values, not continuous) screen-space,
 # what type of numbers should he use?  Firstly, it should be a continuous space, meaning
 # that it should be in decimal numbers.  Because if a real-world object is 10.3 meters long, a programmer
 # should be able to enter "float foo = 10.3".  Secondly, it should be a fixed range vertically
@@ -188,8 +191,8 @@ glfw.terminate()
 # and since OpenGL does this in hardware (i.e. you can't programmatically change how the conversion
 # happens), it should be a fixed size.
 
-# OpenGL uses *normalized-device-coordinates* footnote:[normalized- meaning a distance value of
-# 1; device- the monitor; coordinates- the system of numbers (i.e. space) in which you are working],
+# OpenGL uses *normalized-device-coordinates* (normalized- meaning a distance value of
+# 1; device- the monitor; coordinates- the system of numbers (i.e. space) in which you are working),
 # which is a continous space from -1.0 to 1.0 horizontally,
 # and -1.0 to 1.0 vertically.
 

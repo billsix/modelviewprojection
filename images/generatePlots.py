@@ -160,12 +160,12 @@ def createGraphs(title, filename, geometry, procedures, backwards=False):
 createGraphs(title="Translation",
              filename="translation-forwards",
              geometry=paddle1,
-             procedures= [lambda x,y: mplt.translate(0.0,
-                                                     20.0,
+             procedures= [lambda x,y: mplt.translate(-90.0,
+                                                     0.0,
                                                      x,
                                                      y),
-                          lambda x,y: mplt.translate(-90.0,
-                                                     0.0,
+                          lambda x,y: mplt.translate(0.0,
+                                                     20.0,
                                                      x,
                                                      y)])
 
@@ -173,14 +173,43 @@ createGraphs(title="Translation",
 createGraphs(title="Translation",
              filename="translation2-forwards",
              geometry=paddle2,
-             procedures= [lambda x,y: mplt.translate(0.0,
-                                                     -40.0,
+             procedures= [lambda x,y: mplt.translate(90.0,
+                                                     0.0,
                                                      x,
                                                      y),
+                          lambda x,y: mplt.translate(0.0,
+                                                     -40.0,
+                                                     x,
+                                                     y)])
+
+createGraphs(title="Translation",
+             filename="translation-backwards",
+             geometry=paddle1,
+             procedures= [lambda x,y: (x,y), # identity is here to ensure that the axises are drawn before the object is drawn,
+                          lambda x,y: mplt.translate(-90.0,
+                                                     0.0,
+                                                     x,
+                                                     y),
+                          lambda x,y: mplt.translate(0.0,
+                                                     20.0,
+                                                     x,
+                                                     y)],
+             backwards=True)
+
+
+createGraphs(title="Translation",
+             filename="translation2-backwards",
+             geometry=paddle2,
+             procedures= [lambda x,y: (x,y), # identity is here to ensure that the axises are drawn before the object is drawn,
                           lambda x,y: mplt.translate(90.0,
                                                      0.0,
                                                      x,
-                                                     y)])
+                                                     y),
+                          lambda x,y: mplt.translate(0.0,
+                                                     -40.0,
+                                                     x,
+                                                     y)],
+             backwards=True)
 
 
 

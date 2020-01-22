@@ -18,6 +18,28 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# PURPOSE
+#
+# restructure the code towards future knowledge, i.e. the model view projection
+# pipeline.
+
+
+
+
+# == Translation
+
+# |=======================================
+# |Keyboard Input |Action
+# |w              |Move Left Paddle Up
+# |s              |Move Left Paddle Down
+# |k              |Move Right Paddle Up
+# |i              |Move Right Paddle Down
+# |=======================================
+
+# Transforming vertices, such as translating, is the core concept
+# of computer graphics.
+
+
 import sys
 import os
 import numpy as np
@@ -100,9 +122,20 @@ class Vertex:
         self.x = x
         self.y = y
 
+
+# === Translation
+# Rather than incrementing y values before calling "glVertex",
+# instead call "translate" on the vertex, and call "glVertex2f"
+# on the translated vertex.
+
+
     def translate(self, tx, ty):
         return Vertex(x=self.x + tx, y=self.y + ty)
-
+    # returning a new instance will be very useful for method chaining.
+    # I would not use this code for production code, because of efficincy,
+    # but the use of method chaining will be towards furthering your understanding
+    # of a sequence of transformations, and the order in which you probably
+    # want to read them.
 
 class Paddle:
     def __init__(self,vertices, r, g, b, offset_x=0.0, offset_y=0.0):
