@@ -31,8 +31,8 @@
 # |Keyboard Input |Action
 # |w              |Move Left Paddle Up
 # |s              |Move Left Paddle Down
-# |k              |Move Right Paddle Up
-# |i              |Move Right Paddle Down
+# |i              |Move Right Paddle Up
+# |k              |Move Right Paddle Down
 # |=======================================
 
 # Normalized-device-coordinates are not a natural system of
@@ -136,8 +136,8 @@ class Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty)
 
     # NEW!
-    def scale(self, x, y):
-        return Vertex(x=self.x * x, y=self.y * y)
+    def scale(self, scale_x, scale_y):
+        return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
 
 class Paddle:
@@ -229,8 +229,6 @@ while not glfw.window_should_close(window):
         # eog ../images/translationB.gif
         # eog ../images/translation2B.gif
 
-
-
         # Why do the two different views of the transformations matter?  In model-space
         # to world-space transformations, especially once rotation and scaling of model-space
         # is used, it allows the programmer to forget about most details, just specify
@@ -255,8 +253,8 @@ while not glfw.window_should_close(window):
         # Our global space is -100 to 100 in both dimesnions,
         # and to get it into NDC, we need to scale by dividing by 100
 
-        ndc_space = world_space.scale(x=1.0/100.0,
-                                    y=1.0/100.0)
+        ndc_space = world_space.scale(scale_x=1.0/100.0,
+                                      scale_y=1.0/100.0)
         glVertex2f(ndc_space.x,
                    ndc_space.y)
     glEnd()
@@ -276,8 +274,8 @@ while not glfw.window_should_close(window):
                                  .translate(tx=paddle2.offset_x,
                                             ty=paddle2.offset_y)
 
-        ndc_space = world_space.scale(x=1.0/100.0,
-                                      y=1.0/100.0)
+        ndc_space = world_space.scale(scale_x=1.0/100.0,
+                                      scale_y=1.0/100.0)
         glVertex2f(ndc_space.x,
                    ndc_space.y)
     glEnd()

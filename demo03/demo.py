@@ -26,7 +26,7 @@
 # == Keeping the Paddles Proportional
 
 # === Create procedure to ensure proportionality
-# In the previous chapter, if the user resized the window, the paddles looked bad,
+# In the previous demo, if the user resized the window, the paddles looked bad,
 # as they were shrunk in one direction if the window became too thin or too fat.
 
 
@@ -112,7 +112,7 @@ def draw_in_square_viewport():
 
     # the scissor test allows us to specify a region
     # of the framebuffer into which the opengl operations
-    # will apply.  In this case, in framebuffer is all gray.
+    # will apply.  In this case, in the framebuffer is all gray.
     # by calling glScissor, we are setting a value on a square
     # of pixels which says "only do the opengl call on these".
     # As we will learn later, OpenGL stores much more information

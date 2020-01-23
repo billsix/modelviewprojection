@@ -24,14 +24,14 @@
 
 # == Move the Paddles using the Keyboard
 
-# [width="75%",options="header,footer"]
 # |=======================================
 # |Keyboard Input |Action
 # |*w*              |*Move Left Paddle Up*
 # |*s*              |*Move Left Paddle Down*
-# |*k*              |*Move Right Paddle Up*
-# |*i*              |*Move Right Paddle Down*
+# |*k*              |*Move Right Paddle Down*
+# |*i*              |*Move Right Paddle Up*
 # |=======================================
+
 # Paddles which don't move are quite boring.  Let's make them move up or down
 # by getting keyboard input.
 

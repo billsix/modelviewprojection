@@ -19,7 +19,7 @@
 #SOFTWARE.
 
 # PURPOSE
-# Learn how to open draw some geometry, and give it a color
+# Learn how to draw some geometry, and give it a color
 
 
 import sys

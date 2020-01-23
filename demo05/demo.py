@@ -32,8 +32,8 @@
 # |Keyboard Input |Action
 # |w              |Move Left Paddle Up
 # |s              |Move Left Paddle Down
-# |k              |Move Right Paddle Up
-# |i              |Move Right Paddle Down
+# |i              |Move Right Paddle Up
+# |k              |Move Right Paddle Down
 # |=======================================
 
 # Transforming vertices, such as translating, is the core concept

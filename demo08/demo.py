@@ -123,8 +123,8 @@ class Vertex:
     def translate(self, tx, ty):
         return Vertex(x=self.x + tx, y=self.y + ty)
 
-    def scale(self, x, y):
-        return Vertex(x=self.x * x, y=self.y * y)
+    def scale(self, scale_x, scale_y):
+        return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
     def rotate(self,angle_in_radians):
         return Vertex(x= self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
@@ -228,8 +228,8 @@ while not glfw.window_should_close(window):
         # NEW
         # do the rotate around the paddle's center
         world_space = world_space.rotate_around(paddle1.rotation, rotatePoint)
-        ndc_space = world_space.scale(x=1.0/100.0,
-                                      y=1.0/100.0)
+        ndc_space = world_space.scale(scale_x=1.0/100.0,
+                                      scale_y=1.0/100.0)
         glVertex2f(ndc_space.x,
                    ndc_space.y)
     glEnd()
@@ -251,8 +251,8 @@ while not glfw.window_should_close(window):
         # NEW
         # do the rotate around the paddle's center
         world_space = world_space.rotate_around(paddle2.rotation, rotatePoint)
-        ndc_space = world_space.scale(x=1.0/100.0,
-                                      y=1.0/100.0)
+        ndc_space = world_space.scale(scale_x=1.0/100.0,
+                                      scale_y=1.0/100.0)
         glVertex2f(ndc_space.x,
                    ndc_space.y)
     glEnd()

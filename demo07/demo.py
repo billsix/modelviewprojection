@@ -32,8 +32,8 @@
 # |Keyboard Input |Action
 # |w              |Move Left Paddle Up
 # |s              |Move Left Paddle Down
-# |k              |Move Right Paddle Up
-# |i              |Move Right Paddle Down
+# |i              |Move Right Paddle Up
+# |k              |Move Right Paddle Down
 # |               |
 # |*d*              |*Increase Left Paddle's Rotation*
 # |*a*              |*Decrease Left Paddle's Rotation*
@@ -195,8 +195,8 @@ class Vertex:
     def translate(self, tx, ty):
         return Vertex(x=self.x + tx, y=self.y + ty)
 
-    def scale(self, x, y):
-        return Vertex(x=self.x * x, y=self.y * y)
+    def scale(self, scale_x, scale_y):
+        return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
     # NEW
     # definition of rotate, from the description above
@@ -291,8 +291,8 @@ while not glfw.window_should_close(window):
                                  .translate(tx=paddle1.offset_x,
                                             ty=paddle1.offset_y) \
                                  .rotate(paddle1.rotation)
-        ndc_space = world_space.scale(x=1.0/100.0,
-                                      y=1.0/100.0)
+        ndc_space = world_space.scale(scale_x=1.0/100.0,
+                                      scale_y=1.0/100.0)
         glVertex2f(ndc_space.x,
                    ndc_space.y)
     glEnd()
@@ -308,8 +308,8 @@ while not glfw.window_should_close(window):
                                  .translate(tx=paddle2.offset_x,
                                             ty=paddle2.offset_y) \
                                  .rotate(paddle2.rotation)
-        ndc_space = world_space.scale(x=1.0/100.0,
-                                      y=1.0/100.0)
+        ndc_space = world_space.scale(scale_x=1.0/100.0,
+                                      scale_y=1.0/100.0)
         glVertex2f(ndc_space.x,
                    ndc_space.y)
     glEnd()
