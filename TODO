@@ -1,3 +1,3 @@
 - Problem - certain systems are having issues with movement being too fast
-  - possible solution - use vsync?
-  - possible solution - manually limit framerate with timer function
+  - current solution - manually limit framerate with timer function
+    - investigate other solutions in the "Game Engine Architecture" book

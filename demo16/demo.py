@@ -320,9 +320,19 @@ def handle_inputs():
     if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
         paddle2.rotation -= 0.1
 
+TARGET_FRAMERATE = 60 # fps
+
+# to try to standardize on 60 fps, compare times between frames
+time_at_beginning_of_previous_frame = glfw.get_time()
 
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
+    # poll the time to try to get a constant framerate
+    while glfw.get_time() < time_at_beginning_of_previous_frame +  1.0/TARGET_FRAMERATE:
+        pass
+    # set for comparison on the next frame
+    time_at_beginning_of_previous_frame = glfw.get_time()
+
     # Poll for and process events
     glfw.poll_events()
 
