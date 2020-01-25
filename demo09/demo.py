@@ -131,6 +131,9 @@ class Vertex:
         self.x = x
         self.y = y
 
+    def __repr__(self):
+        return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
+
     def translate(self, tx, ty):
         return Vertex(x=self.x + tx, y=self.y + ty)
 
@@ -155,6 +158,8 @@ class Paddle:
         self.offset_y = offset_y
         self.global_position = global_position
 
+    def __repr__(self):
+        return f"Paddle(vertices={repr(self.vertices)},r={repr(self.r)},g={repr(self.g)},b={repr(self.b)},global_position={repr(self.global_position)},rotation={repr(self.rotation)},offset_x={repr(self.offset_x)},offset_y={repr({self.offset_y})})"
 
 paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                            Vertex(x= 10.0, y=-30.0),

@@ -132,6 +132,9 @@ class Vertex:
         self.x = x
         self.y = y
 
+    def __repr__(self):
+        return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
+
     def translate(self, tx, ty):
         return Vertex(x=self.x + tx, y=self.y + ty)
 
@@ -153,6 +156,9 @@ class Paddle:
         # it's the initial position for use if no inputs
         # are inputs, and the offset x and y are the aggregate
         # of the user's input.
+
+    def __repr__(self):
+        return f"Paddle(vertices={repr(self.vertices)},r={repr(self.r)},g={repr(self.g)},b={repr(self.b)},global_position={repr(self.global_position)},offset_x={repr(self.offset_x)},offset_y={repr({self.offset_y})})"
 
 # NEW! paddles are using modelspace coordinates instead of NDC
 paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),

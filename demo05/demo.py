@@ -122,6 +122,8 @@ class Vertex:
         self.x = x
         self.y = y
 
+    def __repr__(self):
+        return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
 
 # === Translation
 # Rather than incrementing y values before calling "glVertex",
@@ -145,6 +147,10 @@ class Paddle:
         self.b = b
         self.offset_x = offset_x
         self.offset_y = offset_y
+
+    def __repr__(self):
+        return f"Paddle(vertices={repr(self.vertices)},r={repr(self.r)},g={repr(self.g)},b={repr(self.b)},offset_x={repr(self.offset_x)},offset_y={repr({self.offset_y})})"
+
 
 paddle1 = Paddle(vertices=[Vertex(-1.0,-0.3),
                            Vertex(-0.8,-0.3),

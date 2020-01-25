@@ -121,6 +121,9 @@ class Vertex:
         self.x = x
         self.y = y
 
+    def __repr__(self):
+        return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
+
 # define a class for the Paddle
 class Paddle:
     def __init__(self,vertices, r, g, b, offset_x=0.0, offset_y=0.0):
@@ -132,6 +135,8 @@ class Paddle:
         self.b = b
         self.offset_x = offset_x
         self.offset_y = offset_y
+    def __repr__(self):
+        return f"Paddle(vertices={repr(self.vertices)},r={repr(self.r)},g={repr(self.g)},b={repr(self.b)},offset_x={repr(self.offset_x)},offset_y={repr({self.offset_y})})"
 
 
 paddle1 = Paddle(vertices=[Vertex(x=-1.0,y=-0.3), # keyword arguments
@@ -149,6 +154,7 @@ paddle2 = Paddle(vertices=[Vertex(0.8,-0.3),
                  r=1.0,
                  g=0.0,
                  b=0.0)
+
 
 
 # -If 's' is pressed this frame, subtract 0.1 more from paddle1.offsetY.  If the
