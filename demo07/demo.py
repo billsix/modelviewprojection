@@ -25,9 +25,11 @@
 # work correctly, because of a misunderstanding
 # of how rotations work.
 
+# SIDE NOTE -- discuss method chaining
+#
+
 # == Rotate the Paddles About their Center
 
-# [width="75%",options="header,footer"]
 # |=======================================
 # |Keyboard Input |Action
 # |w              |Move Left Paddle Up
@@ -96,16 +98,6 @@
 
 # (0.5*cos(angle), 0.5*sin(angle)) + (0.4*-sin(angle), 0.4*cos(angle)) =
 # (0.5*cos(angle) + 0.4*-sin(angle), 0.5*sin(angle) + 0.4*cos(angle))
-
-# I prefer to think graphically instead of symbolically.
-# Another way you can think of this is to rotate the the x axis
-# and y axis, create graph paper (tick marks) along those new
-# axis, and then draw the geometry on that new "basis",
-# instead of the natural basis. (Natural basis just means
-# the normal x and y axis).
-# Think of basis as an origin, a unit in various directions,
-# a graph paper lines drawn.  Then your geometry is drawn
-# in that space.
 
 
 
@@ -303,6 +295,8 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r,
               paddle1.g,
               paddle1.b)
+
+    # Run the program now.  Does it do what you would expect?
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:

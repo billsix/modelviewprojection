@@ -262,6 +262,26 @@ while not glfw.window_should_close(window):
     # for both paddles, and that changing the code in one place would
     # required changing the code for all shapes.)
     #
+    # I prefer to think graphically instead of symbolically.
+    # Another way you can think of this is to rotate the the x axis
+    # and y axis, create graph paper (tick marks) along those new
+    # axis, and then draw the geometry on that new "basis",
+    # instead of the natural basis. (Natural basis just means
+    # the normal x and y axis).
+    # Think of basis as an origin, a unit in various directions,
+    # a graph paper lines drawn.  Then your geometry is drawn
+    # in that space.
+
+    # In revisting demo 6's space, if we read all of the transformations
+    # below in order, it's following the order of function application.
+    #
+    # If instead we read the transformation between spaces backwards in code,
+    # (and going the opposite direction of the arrows), we can view a coordinate
+    # system that is changing (origin can move, and axises can rotate/scale)
+    # eog ../images/demo06.png
+
+    # ALSO, see mvpVisualization/demo.py and mvpVisualization/demoAnimation.py.
+    # THESE WILL SHOW THE TRANSMORTAIONS backwards much more intuitively.
 
 
     glBegin(GL_QUADS)

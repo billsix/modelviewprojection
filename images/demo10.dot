@@ -1,0 +1,18 @@
+digraph {
+    rankdir="BT"
+    nodesep=1
+    ranksep=1
+    "Paddle 1 Space" -> "World Space"[label="f4",weight="0.2"];
+    "Paddle 2 Space" -> "World Space"[label="f3",weight="0.2"];
+    "World Space" -> "Camera Space" [label="f2",weight="0.2"];
+    "Camera Space" -> "NDC" [label="f1",weight="0.2"];
+    p1 [label = "Paddle 1 Space"];
+    p2 [label = "Paddle 2 Space"] ;
+    cs [label = "Camera Space"];
+    ws [label = "World Space"];
+    ndc [label = "NDC"];
+    p1 -> ws  [label="f4",weight="0.2"];
+    p2 -> ws [label="f3",weight="0.2"];
+    cs -> ws [label="inverse(f2)",weight="0.2"];
+    cs -> ndc [label="f1",weight="0.2"];
+}

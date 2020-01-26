@@ -1,0 +1,6 @@
+digraph {
+    rankdir="BT"
+    "Paddle 1 Space" -> "World Space"[label="f2",weight="0.2"];
+    "Paddle 2 Space" -> "World Space"[label="f3",weight="0.2"];
+    "World Space" -> "NDC" [label="f1 (Identity, just draws from -1 to 1 in all dimensions",weight="0.2"];
+}

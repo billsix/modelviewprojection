@@ -1,0 +1,14 @@
+digraph {
+    rankdir="BT"
+    nodesep=1
+    ranksep=1
+    gs [label = "Gold Standard (1 ounce)"];
+    us [label = "US Dollar"];
+    bc [label = "Bit Coin"];
+    ca [label = "Canadian Dollar"];
+    eu [label = "Euro"];
+    us -> gs  [label="f1(x) = x * 2 ",weight="0.2"];
+    bc -> us [label="f2(x) = x * 0.2",weight="0.2"];
+    ca -> gs [label="f3(x) = x * 1.0",weight="0.2"];
+    eu -> gs [label="f4(x) = x * 1.5",weight="0.2"];
+}

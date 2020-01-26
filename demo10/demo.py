@@ -18,6 +18,15 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+
+# PURPOSE
+#
+# Demonstrate having a camera space, and how to think about the transformations
+# differently.
+#
+# eog ../images/demo10.png TODO - describe this
+
+
 import sys
 import os
 import numpy as np

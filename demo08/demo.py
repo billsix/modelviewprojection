@@ -35,7 +35,12 @@
 # This works, but it should be clear that it's an inefficient
 # method at best; at worst, we are not thinking about
 # the transformations clearly.
-#
+
+# Taking a look at the various spaces, the code in this demo
+# is going to go back and forth between those spaces.  The code
+# in this demo is the wrong way to think about rendering.
+
+# eog ../images/demo06.png
 
 
 import sys

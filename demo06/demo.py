@@ -50,6 +50,9 @@
 
 # eog ../images/modelspace.png
 
+# Modelspace - the coordinate system (origin plus axis), in which some object's
+# geometry is defined.
+
 import sys
 import os
 import numpy as np
@@ -256,7 +259,8 @@ while not glfw.window_should_close(window):
         # where new objects are relative to that which you are already drawing.
 
         # With that said, that doesn't mean that reading the transformations front to back
-        # has no value.
+        # has no value.  Front to back can useful when dealing with cameraspace transformations,
+        # introduced later.
 
         # This will make more sense once rotation is involved.
         world_space = model_space.translate(tx=paddle1.initial_position.x,
@@ -278,6 +282,13 @@ while not glfw.window_should_close(window):
                                       scale_y=1.0/100.0)
         glVertex2f(ndc_space.x,
                    ndc_space.y)
+
+        # The follwing diagrams shows the functions that transition between spaces.
+        # The arrow represents a function from one space to another.  All spaces
+        # will resolve to NDC.
+
+        # eog ../images/demo06.png
+
     glEnd()
 
     # draw paddle2

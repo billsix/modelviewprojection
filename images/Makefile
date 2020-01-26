@@ -26,8 +26,10 @@ OBJECTS_TO_BUILD = plot1.png \
 
 all: plots $(OBJECTS_TO_BUILD)
 
+%.png: %.dot
+	dot -Tpng $< -o $@
 
-
+graphs: demo06.png demo10.png currency.png
 
 plots: generatePlots.py
 	python generatePlots.py
