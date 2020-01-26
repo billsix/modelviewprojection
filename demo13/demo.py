@@ -111,15 +111,15 @@ class Vertex:
                       y= self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians))
 
 class Paddle:
-    def __init__(self,vertices, r, g, b, global_position, rotation=0.0, offset_x=0.0, offset_y=0.0):
+    def __init__(self,vertices, r, g, b, initial_position, rotation=0.0, input_offset_x=0.0, input_offset_y=0.0):
         self.vertices = vertices
         self.r = r
         self.g = g
         self.b = b
         self.rotation = rotation
-        self.offset_x = offset_x
-        self.offset_y = offset_y
-        self.global_position = global_position
+        self.input_offset_x = input_offset_x
+        self.input_offset_y = input_offset_y
+        self.initial_position = initial_position
 
 
 paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
@@ -129,7 +129,7 @@ paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                  r=0.578123,
                  g=0.0,
                  b=1.0,
-                 global_position=Vertex(-90.0,0.0))
+                 initial_position=Vertex(-90.0,0.0))
 
 paddle2 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                            Vertex(x= 10.0, y=-30.0),
@@ -138,7 +138,7 @@ paddle2 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0),
                  r=1.0,
                  g=0.0,
                  b=0.0,
-                 global_position=Vertex(90.0,0.0))
+                 initial_position=Vertex(90.0,0.0))
 camera_x = 0.0
 camera_y = 0.0
 
@@ -173,13 +173,13 @@ def handle_inputs():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.offset_y -= 10.0
+        paddle1.input_offset_y -= 10.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.offset_y += 10.0
+        paddle1.input_offset_y += 10.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.offset_y -= 10.0
+        paddle2.input_offset_y -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.offset_y += 10.0
+        paddle2.input_offset_y += 10.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -224,10 +224,10 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
         world_space = model_space.rotate(paddle1.rotation) \
-                                 .translate(tx=paddle1.global_position.x,
-                                            ty=paddle1.global_position.y) \
-                                 .translate(tx=paddle1.offset_x,
-                                            ty=paddle1.offset_y)
+                                 .translate(tx=paddle1.initial_position.x,
+                                            ty=paddle1.initial_position.y) \
+                                 .translate(tx=paddle1.input_offset_x,
+                                            ty=paddle1.input_offset_y)
 
         camera_space = world_space.translate(tx=-camera_x,
                                              ty=-camera_y)
@@ -247,10 +247,10 @@ while not glfw.window_should_close(window):
                                     .translate(tx=20.0, ty=0.0) \
                                     .rotate(rotation_around_paddle1)
         world_space = paddle_1_space.rotate(paddle1.rotation) \
-                                    .translate(tx=paddle1.global_position.x,
-                                               ty=paddle1.global_position.y) \
-                                    .translate(tx=paddle1.offset_x,
-                                               ty=paddle1.offset_y)
+                                    .translate(tx=paddle1.initial_position.x,
+                                               ty=paddle1.initial_position.y) \
+                                    .translate(tx=paddle1.input_offset_x,
+                                               ty=paddle1.input_offset_y)
         camera_space = world_space.translate(tx=-camera_x,
                                              ty=-camera_y)
         ndc_space = camera_space.scale(scale_x=1.0/100.0,
@@ -267,10 +267,10 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         world_space = model_space.rotate(paddle2.rotation) \
-                                 .translate(tx=paddle2.global_position.x,
-                                            ty=paddle2.global_position.y) \
-                                 .translate(tx=paddle2.offset_x,
-                                            ty=paddle2.offset_y)
+                                 .translate(tx=paddle2.initial_position.x,
+                                            ty=paddle2.initial_position.y) \
+                                 .translate(tx=paddle2.input_offset_x,
+                                            ty=paddle2.input_offset_y)
 
         camera_space = world_space.translate(tx=-camera_x,
                                              ty=-camera_y)

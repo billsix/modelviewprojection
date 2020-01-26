@@ -126,17 +126,17 @@ class Vertex:
 
 # define a class for the Paddle
 class Paddle:
-    def __init__(self,vertices, r, g, b, offset_x=0.0, offset_y=0.0):
+    def __init__(self,vertices, r, g, b, input_offset_x=0.0, input_offset_y=0.0):
         # Python allows default values to parameters, and allows
         # the calling function to specify the name of the argument
         self.vertices = vertices
         self.r = r
         self.g = g
         self.b = b
-        self.offset_x = offset_x
-        self.offset_y = offset_y
+        self.input_offset_x = input_offset_x
+        self.input_offset_y = input_offset_y
     def __repr__(self):
-        return f"Paddle(vertices={repr(self.vertices)},r={repr(self.r)},g={repr(self.g)},b={repr(self.b)},offset_x={repr(self.offset_x)},offset_y={repr({self.offset_y})})"
+        return f"Paddle(vertices={repr(self.vertices)},r={repr(self.r)},g={repr(self.g)},b={repr(self.b)},input_offset_x={repr(self.input_offset_x)},input_offset_y={repr({self.input_offset_y})})"
 
 
 paddle1 = Paddle(vertices=[Vertex(x=-1.0,y=-0.3), # keyword arguments
@@ -162,9 +162,9 @@ paddle2 = Paddle(vertices=[Vertex(0.8,-0.3),
 
 # -If 'w' is pressed this frame, add 0.1 more to paddle1.offsetY.
 
-# -If 'k' is pressed this frame, subtract 0.1 more from paddle_2_offset_Y.
+# -If 'k' is pressed this frame, subtract 0.1 more from paddle_2_input_offsetY.
 
-# -If 'i' is pressed this frame, add 0.1 more to paddle_2_offset_Y.
+# -If 'i' is pressed this frame, add 0.1 more to paddle_2_input_offsetY.
 
 
 
@@ -179,13 +179,13 @@ def handle_movement_of_paddles():
 
     # this is how you test if a key was pressed
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.offset_y -= 0.1
+        paddle1.input_offset_y -= 0.1
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.offset_y += 0.1
+        paddle1.input_offset_y += 0.1
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.offset_y -= 0.1
+        paddle2.input_offset_y -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.offset_y += 0.1
+        paddle2.input_offset_y += 0.1
 
 
 TARGET_FRAMERATE = 60 # fps
@@ -228,7 +228,7 @@ while not glfw.window_should_close(window):
     # bound to "vertex" for the loop
     for vertex in paddle1.vertices:
         glVertex2f(vertex.x,
-                   vertex.y + paddle1.offset_y) # add in the offset so that the paddle moves
+                   vertex.y + paddle1.input_offset_y) # add in the offset so that the paddle moves
     glEnd()
 
     # draw paddle 2
@@ -237,12 +237,12 @@ while not glfw.window_should_close(window):
               paddle2.b)
 
     # Draw paddle 2, relative to the world-space origin.
-    # Add paddle_2_offset_Y to the "y" component of every vertex
+    # Add paddle_2_input_offsetY to the "y" component of every vertex
     # eog ../images/plot4.png
     glBegin(GL_QUADS)
     for vertex in paddle2.vertices:
         glVertex2f(vertex.x,
-                   vertex.y + paddle2.offset_y)
+                   vertex.y + paddle2.input_offset_y)
     glEnd()
 
 

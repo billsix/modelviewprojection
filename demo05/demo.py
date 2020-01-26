@@ -140,16 +140,16 @@ class Vertex:
     # want to read them.
 
 class Paddle:
-    def __init__(self,vertices, r, g, b, offset_x=0.0, offset_y=0.0):
+    def __init__(self,vertices, r, g, b, input_offset_x=0.0, input_offset_y=0.0):
         self.vertices = vertices
         self.r = r
         self.g = g
         self.b = b
-        self.offset_x = offset_x
-        self.offset_y = offset_y
+        self.input_offset_x = input_offset_x
+        self.input_offset_y = input_offset_y
 
     def __repr__(self):
-        return f"Paddle(vertices={repr(self.vertices)},r={repr(self.r)},g={repr(self.g)},b={repr(self.b)},offset_x={repr(self.offset_x)},offset_y={repr({self.offset_y})})"
+        return f"Paddle(vertices={repr(self.vertices)},r={repr(self.r)},g={repr(self.g)},b={repr(self.b)},input_offset_x={repr(self.input_offset_x)},input_offset_y={repr({self.input_offset_y})})"
 
 
 paddle1 = Paddle(vertices=[Vertex(-1.0,-0.3),
@@ -173,13 +173,13 @@ def handle_movement_of_paddles():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.offset_y -= 0.1
+        paddle1.input_offset_y -= 0.1
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.offset_y += 0.1
+        paddle1.input_offset_y += 0.1
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.offset_y -= 0.1
+        paddle2.input_offset_y -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.offset_y += 0.1
+        paddle2.input_offset_y += 0.1
 
 TARGET_FRAMERATE = 60 # fps
 
@@ -213,7 +213,7 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for vertex in paddle1.vertices:
         translated = vertex.translate(tx=0.0,
-                                      ty=paddle1.offset_y)
+                                      ty=paddle1.input_offset_y)
         glVertex2f(translated.x,
                    translated.y)
     glEnd()
@@ -226,7 +226,7 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for vertex in paddle2.vertices:
         translated = vertex.translate(tx=0.0,
-                                      ty=paddle2.offset_y)
+                                      ty=paddle2.input_offset_y)
         glVertex2f(translated.x,
                    translated.y)
     glEnd()

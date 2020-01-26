@@ -104,14 +104,14 @@ def draw_in_square_viewport():
 
 
 class Paddle:
-    def __init__(self, r, g, b, global_position, rotation=0.0, offset_x=0.0, offset_y=0.0):
+    def __init__(self, r, g, b, initial_position, rotation=0.0, input_offset_x=0.0, input_offset_y=0.0):
         self.r = r
         self.g = g
         self.b = b
         self.rotation = rotation
-        self.offset_x = offset_x
-        self.offset_y = offset_y
-        self.global_position = global_position
+        self.input_offset_x = input_offset_x
+        self.input_offset_y = input_offset_y
+        self.initial_position = initial_position
         self.vertices = np.array([[-10.0, -30.0,  0.0],
                                   [10.0,  -30.0,  0.0],
                                   [10.0,   30.0,  0.0],
@@ -122,12 +122,12 @@ class Paddle:
 paddle1 = Paddle(r=0.578123,
                  g=0.0,
                  b=1.0,
-                 global_position=np.array([-90.0, 0.0, 0.0]))
+                 initial_position=np.array([-90.0, 0.0, 0.0]))
 
 paddle2 = Paddle(r=1.0,
                  g=0.0,
                  b=0.0,
-                 global_position=np.array([90.0, 0.0, 0.0]))
+                 initial_position=np.array([90.0, 0.0, 0.0]))
 
 moving_camera_x = 0.0
 moving_camera_y = 0.0
@@ -176,13 +176,13 @@ def handle_inputs():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.offset_y -= 10.0
+        paddle1.input_offset_y -= 10.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.offset_y += 10.0
+        paddle1.input_offset_y += 10.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.offset_y -= 10.0
+        paddle2.input_offset_y -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.offset_y += 10.0
+        paddle2.input_offset_y += 10.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -282,12 +282,12 @@ while not glfw.window_should_close(window):
                   paddle1.b)
 
         ms.translate(ms.MatrixStack.model,
-                     paddle1.offset_x,
-                     paddle1.offset_y,
+                     paddle1.input_offset_x,
+                     paddle1.input_offset_y,
                      0.0)
         ms.translate(ms.MatrixStack.model,
-                     paddle1.global_position[0],
-                     paddle1.global_position[1],
+                     paddle1.initial_position[0],
+                     paddle1.initial_position[1],
                      0.0)
         ms.rotate_z(ms.MatrixStack.model,
                     paddle1.rotation)
@@ -344,12 +344,12 @@ while not glfw.window_should_close(window):
               paddle2.b)
 
     ms.translate(ms.MatrixStack.model,
-                 paddle2.offset_x,
-                 paddle2.offset_y,
+                 paddle2.input_offset_x,
+                 paddle2.input_offset_y,
                  0.0)
     ms.translate(ms.MatrixStack.model,
-                 paddle2.global_position[0],
-                 paddle2.global_position[1],
+                 paddle2.initial_position[0],
+                 paddle2.initial_position[1],
                  0.0)
     ms.rotate_z(ms.MatrixStack.model,
                 paddle2.rotation)
