@@ -45,7 +45,7 @@
 # is called "model-space".  Since a paddle has four corners, which corner should be a
 # the origin (0,0)?  If you don't already know what you want at the origin, then
 # none of the corners should be; instead put the center of the object
-# at the origin (By putting the center of the object at the origin,
+# at the origin (Because by putting the center of the object at the origin,
 # scaling and rotating the object are trivial).
 
 # eog ../images/modelspace.png

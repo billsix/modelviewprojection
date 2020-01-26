@@ -118,10 +118,10 @@ def draw_in_square_viewport():
     # As we will learn later, OpenGL stores much more information
     # per pixel than just it's current color.
     glEnable(GL_SCISSOR_TEST)
-    glScissor(int(0.0 + (width - min)/2.0),  #min x
-              int(0.0 + (height - min)/2.0), #min y
-              min,                           #width x
-              min)                           #width y
+    glScissor(int((width - min)/2.0),  #min x
+              int((height - min)/2.0), #min y
+              min,                     #width x
+              min)                     #width y
 
     glClearColor(0.0, #r
                  0.0, #g
