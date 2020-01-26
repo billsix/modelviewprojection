@@ -128,20 +128,26 @@ class Paddle:
 paddle1 = Paddle(r=0.578123,
                  g=0.0,
                  b=1.0,
-                 global_position=np.array([-90.0, 0.0, 0.0]))
+                 global_position=np.array([-90.0, 0.0, 0.0]),
+                 rotation = math.radians(45.0),
+                 offset_x=0.0,
+                 offset_y=10.0)
 
 paddle2 = Paddle(r=1.0,
                  g=1.0,
                  b=0.2,
-                 global_position=np.array([90.0, 0.0, 0.0]))
+                 global_position=np.array([90.0, 0.0, 0.0]),
+                 rotation = math.radians(-45.0),
+                 offset_x=0.0,
+                 offset_y=5.0)
 
 moving_camera_r = 300
 moving_camera_rot_y = math.radians(45.0)
 moving_camera_rot_x = math.radians(35.264)
 
 
-square_rotation = 0.0
-rotation_around_paddle1 = 0.0
+square_rotation = math.radians(90.0)
+rotation_around_paddle1 = math.radians(30.0)
 
 
 def handle_inputs():
@@ -275,6 +281,9 @@ TARGET_FRAMERATE = 60 # fps
 # to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame = glfw.get_time()
 
+animation_time = 0.0
+animation_paused = False
+
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
@@ -282,6 +291,9 @@ while not glfw.window_should_close(window):
         pass
     # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
+
+    if not animation_paused:
+        animation_time += 1.0/60.0
 
     # Poll for and process events
     glfw.poll_events()
@@ -303,16 +315,8 @@ while not glfw.window_should_close(window):
 
 
     imgui.begin("Custom window", True)
-    imgui.text("Bar")
-    imgui.text_colored("Eggs", 0.2, 1., 0.)
 
-    # use static local istead of try: except
-    # normally you would pass the present function name to staticlocal.var
-    # , but since we are not in a function, pass the current module
-    staticlocal.var(sys.modules[__name__], test_bool=True, test_float=1.0)
-    clicked_test_bool, test_bool = imgui.checkbox("test_bool", test_bool)
-    clicked_test_float, test_float = imgui.slider_float("float", test_float, 0.0, 1.0)
-
+    clicked_pause, animation_paused = imgui.checkbox("Pause", animation_paused)
     clicked_camera_r, moving_camera_r = imgui.slider_float("moving_camera_r", moving_camera_r, 0.0, 600.0)
 
     imgui.end()
@@ -357,103 +361,118 @@ while not glfw.window_should_close(window):
 
     glMatrixMode(GL_MODELVIEW)
     draw_ground()
-    draw_axises()
-
+    if animation_time < 5.0 or (animation_time > 40.0 and animation_time < 45.0):
+        draw_axises()
+    else:
+        draw_axises(grayed_out=True)
 
 
     with ms.PushMatrix(ms.MatrixStack.model):
 
-        # draw paddle 1
+        if animation_time > 5.0:
+            # draw paddle 1
+            ms.translate(ms.MatrixStack.model,
+                         paddle1.offset_x * min(1.0, (animation_time - 5.0) / 5.0),
+                         paddle1.offset_y * min(1.0, (animation_time - 5.0) / 5.0),
+                         0.0)
 
-        ms.translate(ms.MatrixStack.model,
-                     paddle1.offset_x,
-                     paddle1.offset_y,
-                     0.0)
-        ms.translate(ms.MatrixStack.model,
-                     paddle1.global_position[0],
-                     paddle1.global_position[1],
-                     0.0)
-        ms.rotate_z(ms.MatrixStack.model,
-                    paddle1.rotation)
+        if animation_time > 10.0:
+            ms.translate(ms.MatrixStack.model,
+                         paddle1.global_position[0] * min(1.0, (animation_time - 10.0) / 5.0),
+                         paddle1.global_position[1] * min(1.0, (animation_time - 10.0) / 5.0),
+                         0.0)
+        if(animation_time > 15.0):
+            ms.rotate_z(ms.MatrixStack.model,
+                        paddle1.rotation * min(1.0, (animation_time - 15.0) / 5.0))
 
-        draw_axises()
+        if animation_time > 5.0 and animation_time < 20.0:
+            draw_axises()
         glColor3f(paddle1.r,
                   paddle1.g,
                   paddle1.b)
-        # ascontiguousarray puts the array in column major order
-        glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
-        glBegin(GL_QUADS)
-        for model_space in paddle1.vertices:
-            glVertex3f(model_space[0],
-                       model_space[1],
-                       model_space[2])
-        glEnd()
+        if animation_time > 20.0:
+            # ascontiguousarray puts the array in column major order
+            glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
+            glBegin(GL_QUADS)
+            for model_space in paddle1.vertices:
+                glVertex3f(model_space[0],
+                           model_space[1],
+                           model_space[2])
+            glEnd()
 
         # # draw the square
 
-        ms.translate(ms.MatrixStack.model,
-                     0.0,
-                     0.0,
-                     -10.0)
-        ms.rotate_z(ms.MatrixStack.model,
-                    rotation_around_paddle1)
-        ms.translate(ms.MatrixStack.model,
-                     20.0,
-                     0.0,
-                     0.0)
-        ms.rotate_z(ms.MatrixStack.model,
-                    square_rotation)
+        if animation_time > 20.0:
+            ms.translate(ms.MatrixStack.model,
+                         0.0,
+                         0.0,
+                         -10.0 * min(1.0, (animation_time - 20.0) / 5.0))
+        if animation_time > 25.0:
+            ms.rotate_z(ms.MatrixStack.model,
+                        rotation_around_paddle1 * min(1.0, (animation_time - 25.0) / 5.0))
+        if animation_time > 30.0:
+            ms.translate(ms.MatrixStack.model,
+                         20.0 * min(1.0, (animation_time - 30.0) / 5.0),
+                         0.0,
+                         0.0)
+        if animation_time > 35.0:
+            ms.rotate_z(ms.MatrixStack.model,
+                        square_rotation * min(1.0, (animation_time - 35.0) / 5.0))
 
-        draw_axises()
+        if animation_time > 20.0 and animation_time < 40.0:
+            draw_axises()
 
         glColor3f(0.0,  # r
                   0.0,  # g
                   1.0)  # b
-        # ascontiguousarray puts the array in column major order
-        glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
-        glBegin(GL_QUADS)
-        for model_space in square_vertices:
-            glVertex3f(model_space[0],
-                       model_space[1],
-                       model_space[2])
-        glEnd()
+        if animation_time > 40.0:
+            # ascontiguousarray puts the array in column major order
+            glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
+            glBegin(GL_QUADS)
+            for model_space in square_vertices:
+                glVertex3f(model_space[0],
+                           model_space[1],
+                           model_space[2])
+            glEnd()
 
     #get back to center of global space
 
 
     with ms.PushMatrix(ms.MatrixStack.model):
 
-
-        ms.translate(ms.MatrixStack.model,
-                     paddle2.offset_x,
-                     paddle2.offset_y,
-                     0.0)
-        ms.translate(ms.MatrixStack.model,
-                     paddle2.global_position[0],
-                     paddle2.global_position[1],
-                     0.0)
-        ms.rotate_z(ms.MatrixStack.model,
-                    paddle2.rotation)
-
-        draw_axises()
-
         # draw paddle 2
+        if(animation_time > 45.0):
+
+            ms.translate(ms.MatrixStack.model,
+                         paddle2.offset_x * min(1.0, (animation_time - 45.0) / 5.0),
+                         paddle2.offset_y * min(1.0, (animation_time - 45.0) / 5.0),
+                         0.0)
+        if(animation_time > 50.0):
+            ms.translate(ms.MatrixStack.model,
+                         paddle2.global_position[0] * min(1.0, (animation_time - 50.0) / 5.0),
+                         paddle2.global_position[1] * min(1.0, (animation_time - 50.0) / 5.0),
+                         0.0)
+        if(animation_time > 55.0):
+            ms.rotate_z(ms.MatrixStack.model,
+                        paddle2.rotation * min(1.0, (animation_time - 55.0) / 5.0))
+
+        if animation_time > 45.0 and animation_time < 60.0:
+            draw_axises()
+
         glColor3f(paddle2.r,
                   paddle2.g,
                   paddle2.b)
-        # ascontiguousarray puts the array in column major order
-        glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
-        glBegin(GL_QUADS)
-        for model_space in paddle2.vertices:
-            glVertex3f(model_space[0],
-                       model_space[1],
-                       model_space[2])
-        glEnd()
+        if(animation_time > 60.0):
+            # ascontiguousarray puts the array in column major order
+            glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
+            glBegin(GL_QUADS)
+            for model_space in paddle2.vertices:
+                glVertex3f(model_space[0],
+                           model_space[1],
+                           model_space[2])
+            glEnd()
 
 
-    print(math.degrees(moving_camera_rot_y))
-    print(math.degrees(moving_camera_rot_x))
-    print()
 
     imgui.render()
     impl.render(imgui.get_draw_data())
