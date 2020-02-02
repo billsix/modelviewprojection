@@ -27,6 +27,9 @@
 
 # SIDE NOTE -- discuss method chaining
 #
+# For a trigonometry  explanation of rotating in 2D,
+# see
+# https://www.alanzucconi.com/2016/02/03/2d-rotations/
 
 # == Rotate the Paddles About their Center
 

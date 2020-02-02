@@ -29,7 +29,7 @@ all: plots $(OBJECTS_TO_BUILD)
 %.png: %.dot
 	dot -Tpng $< -o $@
 
-graphs: demo06.png demo10.png currency.png
+graphs: demo06.png demo10.png demo11.png currency.png
 
 plots: generatePlots.py
 	python generatePlots.py

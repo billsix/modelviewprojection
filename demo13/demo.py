@@ -18,6 +18,37 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+
+# PURPOSE
+#
+# Rotate the square around paddle1's center.  Reading the modelspace to
+# world space transformations should make this straightforward.
+# Try reading them from the top down.  Does in make sense that way?
+#
+#
+#
+
+# |=======================================
+# |Keyboard Input |Action
+# |w              |Move Left Paddle Up
+# |s              |Move Left Paddle Down
+# |i              |Move Right Paddle Up
+# |k              |Move Right Paddle Down
+# |               |
+# |d              |Increase Left Paddle's Rotation
+# |a              |Decrease Left Paddle's Rotation
+# |l              |Increase Right Paddle's Rotation
+# |j              |Decrease Right Paddle's Rotation
+# |               |
+# |q              |Rotate the square around it's center
+# |e              |Rotate the square around paddle 1's center
+# |               |
+# |UP             |Move the camera up, moving the objects down
+# |DOWN           |Move the camera down, moving the objects up
+# |LEFT           |Move the camera left, moving the objects right
+# |RIGHT          |Move the camera right, moving the objects left
+# |=======================================
+
 import sys
 import os
 import numpy as np
@@ -248,6 +279,12 @@ while not glfw.window_should_close(window):
               1.0) #b
     glBegin(GL_QUADS)
     for model_space in square:
+        # translate, translate, rotate paddle1 and thus the square.
+        # The square's modelspace is centered at paddle1's modelspace.
+        # To rotate the square around paddle1's origin, rotate by
+        # the set amount, translate down the rotate frame's x axis.
+        # Then, just like the previous demo, rotate the square around
+        # it's origin.
         paddle_1_space = model_space.rotate(square_rotation) \
                                     .translate(tx=20.0, ty=0.0) \
                                     .rotate(rotation_around_paddle1)

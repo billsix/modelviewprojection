@@ -19,6 +19,38 @@
 #SOFTWARE.
 
 
+# PURPOSE
+#
+# Do the same stuff as the previous demo, but use 3D coordinates,
+# where the negative z axis goes into the screen (because
+# of the right hand rule).
+#
+#
+#
+
+# |=======================================
+# |Keyboard Input |Action
+# |w              |Move Left Paddle Up
+# |s              |Move Left Paddle Down
+# |i              |Move Right Paddle Up
+# |k              |Move Right Paddle Down
+# |               |
+# |d              |Increase Left Paddle's Rotation
+# |a              |Decrease Left Paddle's Rotation
+# |l              |Increase Right Paddle's Rotation
+# |j              |Decrease Right Paddle's Rotation
+# |               |
+# |q              |Rotate the square around it's center
+# |e              |Rotate the square around paddle 1's center
+# |               |
+# |UP             |Move the camera up, moving the objects down
+# |DOWN           |Move the camera down, moving the objects up
+# |LEFT           |Move the camera left, moving the objects right
+# |RIGHT          |Move the camera right, moving the objects left
+# |=======================================
+
+
+
 import sys
 import os
 import numpy as np
@@ -112,6 +144,15 @@ class Vertex:
                       y=self.y + ty,
                       z=self.z + tz)
 
+    # NEW - Rotations around an angle in 3D space follow the right hand rule
+    #   With open palm, fingers on the x axis, rotating the fingers to y axis,
+    # means that the positive z axis is in the direction of the thumb.  Positive Theta
+    # moves in the direction that your fingers did.
+
+    # starting on the y axis, rotating to z axis, thumb is on the positive x axis.
+
+    # starting on the z axis, rotating to x axis, thumb is on the positive y axis.
+
     def rotate_x(self, angle_in_radians):
         return Vertex(x=self.x,
                       y=self.y*math.cos(angle_in_radians) - self.z*math.sin(angle_in_radians),
@@ -122,6 +163,7 @@ class Vertex:
                       y=self.y,
                       z=self.z*math.cos(angle_in_radians) - self.x*math.sin(angle_in_radians))
 
+    # NEW - this is the rotate that we used in the previous demo, but generarlized to 3D space.
     def rotate_z(self, angle_in_radians):
         return Vertex(x=self.x*math.cos(angle_in_radians) - self.y*math.sin(angle_in_radians),
                       y=self.x*math.sin(angle_in_radians) + self.y*math.cos(angle_in_radians),
@@ -132,6 +174,10 @@ class Vertex:
                       y=self.y * scale_y,
                       z=self.z * scale_z)
 
+    # NEW - ortho takes an arbitrary rectangular prism, moves the center of it to NDC,
+    # and scales the dimensions down to NDC, so that any objects within the rectangular
+    # prism are visible within NDC.  Since this is a transformation that happens
+    # from camera space to NDC, we can read them from top down.
     def ortho(self,
               left,
               right,

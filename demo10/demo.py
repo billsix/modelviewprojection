@@ -27,6 +27,25 @@
 # eog ../images/demo10.png
 
 
+# |=======================================
+# |Keyboard Input |Action
+# |w              |Move Left Paddle Up
+# |s              |Move Left Paddle Down
+# |i              |Move Right Paddle Up
+# |k              |Move Right Paddle Down
+# |               |
+# |d              |Increase Left Paddle's Rotation
+# |a              |Decrease Left Paddle's Rotation
+# |l              |Increase Right Paddle's Rotation
+# |j              |Decrease Right Paddle's Rotation
+# |               |
+# |UP             |Move the camera up, moving the objects down
+# |DOWN           |Move the camera down, moving the objects up
+# |LEFT           |Move the camera left, moving the objects right
+# |RIGHT          |Move the camera right, moving the objects left
+# |=======================================
+
+
 import sys
 import os
 import numpy as np
