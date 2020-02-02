@@ -37,7 +37,7 @@
 # of function calls, all of which happen relative to the global
 # origin; or, you can read the transformations backwards,
 # where instead of doing operations on points, the operations
-# all modifying the current axis to a new relative axises,
+# all modify the current axis to a new relative axis,
 # and all subsequent functions move those relative axises to
 # new relative axises.
 
