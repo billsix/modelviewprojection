@@ -211,7 +211,59 @@ def draw_virtual_camera():
                     virtual_camera_rot_x)
         ms.rotate_y(ms.MatrixStack.model,
                     virtual_camera_rot_y)
+
         draw_axises()
+        ms.scale(ms.MatrixStack.model,
+                 5.0,
+                 5.0,
+                 5.0)
+
+        glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
+
+        glColor3f(1.0,1.0,1.0)
+        glLineWidth(3.0)
+        glBegin(GL_LINES)
+        glVertex3f(-1.0, -1.0, -1.0)
+        glVertex3f(1.0, -1.0, -1.0)
+
+        glVertex3f(1.0, -1.0, -1.0)
+        glVertex3f(1.0, 1.0, -1.0)
+
+        glVertex3f(1.0, 1.0, -1.0)
+        glVertex3f(-1.0, 1.0, -1.0)
+
+        glVertex3f(-1.0, 1.0, -1.0)
+        glVertex3f(-1.0, -1.0, -1.0)
+
+        glVertex3f(-1.0, -1.0, 1.0)
+        glVertex3f(1.0, -1.0, 1.0)
+
+        glVertex3f(1.0, -1.0, 1.0)
+        glVertex3f(1.0, 1.0, 1.0)
+
+        glVertex3f(1.0, 1.0, 1.0)
+        glVertex3f(-1.0, 1.0, 1.0)
+
+        glVertex3f(-1.0, 1.0, 1.0)
+        glVertex3f(-1.0, -1.0, 1.0)
+
+
+
+
+        # connect the squares
+        glVertex3f(1.0, 1.0, -1.0)
+        glVertex3f(1.0, 1.0, 1.0)
+        glVertex3f(1.0, -1.0, -1.0)
+        glVertex3f(1.0, -1.0, 1.0)
+        glVertex3f(-1.0, 1.0, -1.0)
+        glVertex3f(-1.0, 1.0, 1.0)
+        glVertex3f(-1.0, -1.0, -1.0)
+        glVertex3f(-1.0, -1.0, 1.0)
+
+
+        glEnd()
+
+
 
 def draw_ground():
     # ascontiguousarray puts the array in column major order
