@@ -132,7 +132,7 @@ paddle2 = Paddle(r=1.0,
 
 moving_camera_r = 300
 moving_camera_rot_y = math.radians(45.0)
-moving_camera_rot_x = math.radians(35.264)
+moving_camera_rot_x = math.radians(-35.264)
 
 
 square_rotation = 0.0
@@ -157,9 +157,9 @@ def handle_inputs():
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
         moving_camera_rot_y += math.radians(1.0) % 360.0
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        moving_camera_rot_x -= math.radians(1.0) % 360.0
-    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         moving_camera_rot_x += math.radians(1.0) % 360.0
+    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
+        moving_camera_rot_x -= math.radians(1.0) % 360.0
 
     global paddle1, paddle2
 
@@ -315,7 +315,7 @@ while not glfw.window_should_close(window):
                  0.0,
                  -moving_camera_r)
     ms.rotate_x(ms.MatrixStack.view,
-                moving_camera_rot_x)
+                -moving_camera_rot_x)
     ms.rotate_y(ms.MatrixStack.view,
                 -moving_camera_rot_y)
 

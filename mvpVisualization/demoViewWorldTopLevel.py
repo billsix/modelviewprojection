@@ -197,7 +197,7 @@ square_vertices = np.array([[-5.0, -5.0,  0.0],
                            dtype=np.float32)
 virtual_camera_position = np.array([-40.0, 0.0,  80.0], dtype=np.float32)
 virtual_camera_rot_y = math.radians(-30.0)
-virtual_camera_rot_x = math.radians(0.0)
+virtual_camera_rot_x = math.radians(15.0)
 
 
 def draw_virtual_camera():
