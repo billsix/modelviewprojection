@@ -133,6 +133,7 @@ def draw_in_square_viewport():
                min)                           #width y
 
 
+# NEW - 3 dimensions of data
 class Vertex:
     def __init__(self,x,y,z):
         self.x = x
@@ -275,8 +276,6 @@ def handle_inputs():
         moving_camera_rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         moving_camera_rot_x -= 0.03;
-##//TODO -  explaing movement on XZ-plane
-##//TODO -  show camera movement in graphviz
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
         moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)
@@ -375,8 +374,6 @@ while not glfw.window_should_close(window):
         camera_space = world_space.translate(tx=-moving_camera_x,
                                              ty=-moving_camera_y,
                                              tz=-moving_camera_z) \
-                                  .rotate_y( -moving_camera_rot_y) \
-                                  .rotate_x( -moving_camera_rot_x)
         ndc_space = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x,
                    ndc_space.y,

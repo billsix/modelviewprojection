@@ -18,6 +18,13 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# PURPOSE
+#
+# Implement a perspective project so that objects
+# further away are smaller than the would be
+# if they were close by
+
+
 import sys
 import os
 import numpy as np

@@ -18,6 +18,14 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# PURPOSE
+#
+# Use the depth buffer to make further objects hidden
+# if nearer objects are drawn in front
+#
+# Movement of the camera in 3D space (TODO - explain)
+#
+
 
 import sys
 import os
@@ -303,7 +311,7 @@ while not glfw.window_should_close(window):
                                              ty=-moving_camera_y,
                                              tz=-moving_camera_z) \
                                   .rotate_y( -moving_camera_rot_y) \
-                                  .rotate_x( -moving_camera_rot_x)
+                                  .rotate_x( -moving_camera_rot_x) # TODO - explain this
         ndc_space = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x,
                    ndc_space.y,
