@@ -200,71 +200,6 @@ virtual_camera_rot_y = math.radians(-30.0)
 virtual_camera_rot_x = math.radians(15.0)
 
 
-def draw_virtual_camera():
-
-    with ms.push_matrix(ms.MatrixStack.model):
-        ms.translate(ms.MatrixStack.model,
-                     virtual_camera_position[0],
-                     virtual_camera_position[1],
-                     virtual_camera_position[2])
-        ms.rotate_x(ms.MatrixStack.model,
-                    virtual_camera_rot_x)
-        ms.rotate_y(ms.MatrixStack.model,
-                    virtual_camera_rot_y)
-
-        draw_axises()
-        ms.scale(ms.MatrixStack.model,
-                 5.0,
-                 5.0,
-                 5.0)
-
-        glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
-
-        glColor3f(1.0,1.0,1.0)
-        glLineWidth(3.0)
-        glBegin(GL_LINES)
-        glVertex3f(-1.0, -1.0, -1.0)
-        glVertex3f(1.0, -1.0, -1.0)
-
-        glVertex3f(1.0, -1.0, -1.0)
-        glVertex3f(1.0, 1.0, -1.0)
-
-        glVertex3f(1.0, 1.0, -1.0)
-        glVertex3f(-1.0, 1.0, -1.0)
-
-        glVertex3f(-1.0, 1.0, -1.0)
-        glVertex3f(-1.0, -1.0, -1.0)
-
-        glVertex3f(-1.0, -1.0, 1.0)
-        glVertex3f(1.0, -1.0, 1.0)
-
-        glVertex3f(1.0, -1.0, 1.0)
-        glVertex3f(1.0, 1.0, 1.0)
-
-        glVertex3f(1.0, 1.0, 1.0)
-        glVertex3f(-1.0, 1.0, 1.0)
-
-        glVertex3f(-1.0, 1.0, 1.0)
-        glVertex3f(-1.0, -1.0, 1.0)
-
-
-
-
-        # connect the squares
-        glVertex3f(1.0, 1.0, -1.0)
-        glVertex3f(1.0, 1.0, 1.0)
-        glVertex3f(1.0, -1.0, -1.0)
-        glVertex3f(1.0, -1.0, 1.0)
-        glVertex3f(-1.0, 1.0, -1.0)
-        glVertex3f(-1.0, 1.0, 1.0)
-        glVertex3f(-1.0, -1.0, -1.0)
-        glVertex3f(-1.0, -1.0, 1.0)
-
-
-        glEnd()
-
-
-
 def draw_ground():
     # ascontiguousarray puts the array in column major order
     glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
@@ -337,6 +272,53 @@ def draw_axises(grayed_out=False):
             glColor3f(0.5,0.5,0.5)
         draw_y_axis()
 
+# this isn't really NDC, I scaled it so that it looks good, not be correct
+def draw_ndc():
+    glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
+
+    glColor3f(1.0,1.0,1.0)
+    glLineWidth(3.0)
+    glBegin(GL_LINES)
+    glVertex3f(-1.0, -1.0, -1.0)
+    glVertex3f(1.0, -1.0, -1.0)
+
+    glVertex3f(1.0, -1.0, -1.0)
+    glVertex3f(1.0, 1.0, -1.0)
+
+    glVertex3f(1.0, 1.0, -1.0)
+    glVertex3f(-1.0, 1.0, -1.0)
+
+    glVertex3f(-1.0, 1.0, -1.0)
+    glVertex3f(-1.0, -1.0, -1.0)
+
+    glVertex3f(-1.0, -1.0, 1.0)
+    glVertex3f(1.0, -1.0, 1.0)
+
+    glVertex3f(1.0, -1.0, 1.0)
+    glVertex3f(1.0, 1.0, 1.0)
+
+    glVertex3f(1.0, 1.0, 1.0)
+    glVertex3f(-1.0, 1.0, 1.0)
+
+    glVertex3f(-1.0, 1.0, 1.0)
+    glVertex3f(-1.0, -1.0, 1.0)
+
+
+
+
+    # connect the squares
+    glVertex3f(1.0, 1.0, -1.0)
+    glVertex3f(1.0, 1.0, 1.0)
+    glVertex3f(1.0, -1.0, -1.0)
+    glVertex3f(1.0, -1.0, 1.0)
+    glVertex3f(-1.0, 1.0, -1.0)
+    glVertex3f(-1.0, 1.0, 1.0)
+    glVertex3f(-1.0, -1.0, -1.0)
+    glVertex3f(-1.0, -1.0, 1.0)
+
+
+    glEnd()
+
 
 
 TARGET_FRAMERATE = 60 # fps
@@ -402,22 +384,51 @@ while not glfw.window_should_close(window):
 
     glMatrixMode(GL_MODELVIEW)
 
+    # draw NDC in global space, so that we can see the camera space
+    # go to NDC
+    with ms.PushMatrix(ms.MatrixStack.model):
+        ms.scale(ms.MatrixStack.model,
+                 5.0,
+                 5.0,
+                 5.0)
+
+        draw_ndc()
     draw_ground()
 
-    if(animation_time > 70.0):
-        ms.rotate_y(ms.MatrixStack.model,
-                    -virtual_camera_rot_y  * min(1.0, (animation_time - 70.0) / 5.0))
-    if(animation_time > 65.0):
+    if(animation_time > 85.0):
         ms.rotate_x(ms.MatrixStack.model,
-                    -virtual_camera_rot_x   * min(1.0, (animation_time - 65.0) / 5.0))
-    if(animation_time > 60.0):
+                    -virtual_camera_rot_x   * min(1.0, (animation_time - 85.0) / 5.0))
+    if(animation_time > 80.0):
+        ms.rotate_y(ms.MatrixStack.model,
+                    -virtual_camera_rot_y  * min(1.0, (animation_time - 80.0) / 5.0))
+    if(animation_time > 75.0):
         ms.translate(ms.MatrixStack.model,
-                     -virtual_camera_position[0]   * min(1.0, (animation_time - 60.0) / 5.0),
-                     -virtual_camera_position[1]   * min(1.0, (animation_time - 60.0) / 5.0),
-                     -virtual_camera_position[2]   * min(1.0, (animation_time - 60.0) / 5.0))
+                     -virtual_camera_position[0]   * min(1.0, (animation_time - 75.0) / 5.0),
+                     -virtual_camera_position[1]   * min(1.0, (animation_time - 75.0) / 5.0),
+                     -virtual_camera_position[2]   * min(1.0, (animation_time - 75.0) / 5.0))
 
+    #draw virtual camera
+    if animation_time > 60:
+        with ms.push_matrix(ms.MatrixStack.model):
+            if animation_time > 60:
+                ms.translate(ms.MatrixStack.model,
+                             virtual_camera_position[0]  * min(1.0, (animation_time - 60.0) / 5.0),
+                             virtual_camera_position[1]  * min(1.0, (animation_time - 60.0) / 5.0),
+                             virtual_camera_position[2]  * min(1.0, (animation_time - 60.0) / 5.0))
+            if animation_time > 65:
+                ms.rotate_y(ms.MatrixStack.model,
+                            virtual_camera_rot_y  * min(1.0, (animation_time - 65.0) / 5.0))
+            if animation_time > 70:
+               ms.rotate_x(ms.MatrixStack.model,
+                            virtual_camera_rot_x   * min(1.0, (animation_time - 70.0) / 5.0))
 
-    draw_virtual_camera()
+            draw_axises()
+            ms.scale(ms.MatrixStack.model,
+                     5.0,
+                     5.0,
+                     5.0)
+
+            draw_ndc()
 
     if animation_time < 5.0 or (animation_time > 40.0 and animation_time < 45.0):
         draw_axises()
