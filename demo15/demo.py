@@ -23,7 +23,13 @@
 # Use the depth buffer to make further objects hidden
 # if nearer objects are drawn in front
 #
-# Movement of the camera in 3D space (TODO - explain)
+
+# NEW
+#  Set the clear depth to -1 (just like clearcolor, it's the default
+#  depth on a given fragment (pixel).
+#  Set the depth func, i.e. the test to see if the newly drawn object
+#  should overwrite the color in the current fragment or not.
+#  Enable the depth test.
 #
 
 
@@ -64,6 +70,7 @@ glClearColor(0.0,
              1.0)
 
 
+# NEW
 glClearDepth(-1.0)
 glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
@@ -286,6 +293,8 @@ while not glfw.window_should_close(window):
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
+    # NEW - clear the depth buffer to the cleardepth value,
+    # just like clearcolor clears to the clearcolor
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     # render scene
@@ -337,7 +346,7 @@ while not glfw.window_should_close(window):
                                                tz=0.0) \
                                     .translate(tx=paddle1.input_offset_x,
                                                ty=paddle1.input_offset_y,
-                                               tz=-0.0)
+                                               tz=0.0)
 
         camera_space = world_space.translate(tx=-moving_camera_x,
                                              ty=-moving_camera_y,

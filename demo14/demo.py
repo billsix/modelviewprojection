@@ -18,14 +18,208 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# TODO -- this demo needs to be redone, as I'm mixing two different concepts,
+# 1) poor depth management fixed in demo 15, 2) camera position/orientation in 3D space, and controls.
+# Really, I should focus on 1), fix it in demo 15, and then make the subsequent demo
+# on 2).  Apologies to the class, will do the best that I can in class, and will fix later.
+
 
 # PURPOSE
 #
 # Do the same stuff as the previous demo, but use 3D coordinates,
 # where the negative z axis goes into the screen (because
-# of the right hand rule).
+# of the right hand rule).  Use Ortho to put a rectangular prism
+# into NDC.
+
+# Things that this demo purposefully does poorly.  Show the demo and
+# it's failures.
+#
+# 1) The blue square is always drawn, even
+# when it's behind the purple paddle.  The solution will be
+# zbuffering https://en.wikipedia.org/wiki/Z-buffering#Mathematics,
+# and it is implemented in the next demo.
+#
+# 2) When moving front to back, parts of the geometry disappears.
+#   This is because it gets "clipped out", as the geometry is outside
+#   of NDC, (-1 to 1 on all three axis).  We could fix this by making
+#   a bigger ortho rectangular prism, but because of problem 3, we'll
+#   ignore that for now.
+#
+# 3) This doesn't look like a 3D application should, where further away
+#  objects are smaller.  This will be fixed in 2 demos, demo16.
+#
+# FIRST - DISCUSS Z POSITION DATA, show that the square is always visible,
+# and show the how the next demo fixes it.  Then move on to the next
+# paragraph.
+#
+# PAUSE -- now that we have returned from demo 15, let's talk about
+# 3d movement and camera controls!
+
+# NEW CAMERA CONTROLS for up, left, down, right, page up, page down
+# Camera now moves through the 3D world, as you would expect to see
+# in any first person game, but very poorly as perspective is not
+# taken into account.  (Perspective meaning that objects that are
+# further away down the negative z axis appear smaller in terms
+# of their x and y coordinate)
+#
+# The camera has an x,y,z position, and two rotations (one around
+# the x axis, and one around the y axis).
+#
+# NOTE - the camera space transformtions are the most unintuitive aspects
+# of graphics programming.  If you read the transformations
+# here from top down, you are envisioning moving all of the objects
+# in the scene, and that your camera is fixed, the diagram
+# on the left side of the following image.
+#
+# eog ../images/demo10.png
+#
+# That is the equivalent of when driving, that your car is fixed,
+# and that you are rotating the earth.  This way of thinking,
+# may suffice to you, and if you can keep it straight, great.
+# The camera isn't moving, everything else has a velocity
+# that's in the opposite direction.
+#
+# If instead, you view that the camera is defined in terms of world
+# space, and it's movement is relative to that world space, (the right
+# diagram in demo10.png), then the intepretation is a bit harder.
+# First, think of the transformations that put your camera in the
+# correct position and orientation.  Write them down.
+# 1) translate to the camera's position, using the actual position values
+#  of camera position (not their negatives)
+# 2) rotate around the y axis
+# 3) rotate around the x axis
+# The ordering of 1) before 2) and 3) should be clear, as
+# we are imagining a coordinate system that moves, just
+# like we do for the modelspace to world space transformations.
+# The ordering of 2) and 3) is very important, and 2 rotations
+# across different axises are not commutative.
+# https://en.wikipedia.org/wiki/Commutative_property.
 #
 #
+#     (Remember, read bottom up, just like the previous demos
+#      for modelspace to worldspace data)
+#
+#        camera_space = world_space.rotate_x(moving_camera_rot_x)
+#                                  .rotate_y(moving_camera_rot_y)
+#                                  .translate(tx=moving_camera_x,
+#                                             ty=moving_camera_y,
+#                                             tz=moving_camera_z)
+
+
+# We rotate on the y axis first, then the x axis. (described later)
+#
+# Try this.  Rotate your head to the right a little more that
+# 45 degrees.  Now rotate your head back a little more than 45 degrees.
+#
+# Now, reset your head (glPopMatrix). Try rotating your head back 45 degrees.  Once it's there,
+# rotate your head (not your neck), 45 degrees.  It's different, and uncomfortable!
+#
+# We rotate the camera by the y axis first, then by the relative x axis,
+# for the same reason.
+#
+#
+# Back to the point, we are envisioning the camera relative to the world
+# space by making a moving coordinate system (composed of an origin, 1 unit
+# in the "x" axis, 1 unit in the "y" axis, and 1 unit in the axis), where
+# each subsequent transformation is relative to the previous coordinate system.
+# (This system is beneficial btw because it allows us to think of one coordinate
+# system at a time, and forget how we got there, (similar to a Markov process,
+# https://en.wikipedia.org/wiki/Markov_chain))
+#
+# But that system of thinking works only when we are placing the camera into
+# it's position/orientation.  Looking at the right hand picture of ../images/demo10.png,
+# thinking in this way would allow us to transform vertices defined in camera space
+# to world space, just like the paddles/square.
+#
+# But we don't want that.  Instead, we want to take the modelspace geometry from,
+# say Paddle1 space, to world space,
+# and then to camera space (which is going in the opposite direction, therefore requires
+# an inverse operation, just like in the univariate currency example from Bitcoin to Euro.
+#
+# eog ../images/demo10.png
+#
+# Given that the inverse of a sequence of transformations is the sequence backwards,
+# with each transformations inverted, we must do that to get from world space
+# to camera space.
+#
+# If I tell you to take two steps to the left, rotate 90 degrees, and then reverse it,
+# you'd rotate 90 degress in the opposite direction, and then take two steps to the right.
+#
+# (See https://en.wikipedia.org/wiki/Matrix_multiplication, under
+#  the section on square matricies, which say that (A*B)^-1 = (B^-1) * (A^-1) )
+#
+
+# The inverted form is
+#        camera_space = world_space.translate(tx=-moving_camera_x,
+#                                             ty=-moving_camera_y,
+#                                             tz=-moving_camera_z) \
+#                                  .rotate_y( -moving_camera_rot_y) \
+#                                  .rotate_x( -moving_camera_rot_x)
+
+# Trying to reason about the camera's position and orientation is difficult.
+# As such, in this demo, I have added the non-inverted transformations
+# in the comments, but will not do so in subsequent demos.
+#
+#
+#
+# Before we start, take a look at ../mvpVisualization/demo.py
+# to see the 3D geometry drawn both in world space and in their modelspace.
+#
+# To count in the modelspace, look at a given axis (which I've drawn in units
+# of 10 for ease of viewing, although it should normally be in units of 1)
+# On the red axis, it's 2*10 units wide, and 6*10 units tall, which matches
+# the modelspace data in the constructor for the Paddles.
+#
+# Take a look at ../mvpVisualization/demoAnimation.py to see an animated
+# version of the axis being moved from into their world space positions,
+# relative to which the modelspace data is drawn.
+#
+# The gray axis in the middle happens when we hold onto the original
+# axises, as we first draw paddle 1 relative to it, the square relative
+# to paddle1, but we need to later get back to world space so that we
+# can draw paddle2.  In later code, we will use glPushMatrix to
+# save onto a copy of the current axises, and glPopMatrix to discard
+# our "current at the time" axis, returning back to the saved axis.  Like a quicksave
+# in a video game.
+#
+# To follow along with the code, read the transformations from modelspace
+# to worldspace backwards, and you will see how the axises are moving and
+# why.
+#
+# Take a look at ../mvpVisualization/demoViewWorldTopLevel.py to see an
+# animated version that shows the objects being placed in world space,
+# the camera being put into it's space using the normal way of thinking
+# of a coordinate system being moved, but then the transformations
+# are inverted, brining the objects in world space with it,
+# in backwards order, to put the NDC cube defined in camera
+# space to the NDC defined in world space.  One way to think of it,
+# is that NDC is defined at the top level of the tree of transformations,
+# so in world space.  We need to get the -1 to 1 space in x,y,z relative
+# to NDC to match the -1 to 1 space in world space.
+#
+# eog ../images/demo10.png
+#
+# Why do we do this?  Because it doesn't matter how we think about
+# the coordinate transformations, the computer will always execute
+# the code from top down, take the resulting coordinates, and clip
+# out anything outside of -1 to 1. So, world space. The computer has no notion
+# of camera space, it's our own invention, so we need to get the coordinates
+# that we care about into that space.
+
+# After looking at the demos and explaining the code, now cover the camera movement code.
+
+# Other things added
+# Added rotations around the x axis, y axis, and z axis.
+# https://en.wikipedia.org/wiki/Rotation_matrix
+#
+# Added translate in 3D.  Added scale in 3D.  These are just like
+# the 2D versions, just with the same process applied to the z axis.
+#
+# They direction of the rotation is defined by the right hand rule.
+#
+# https://en.wikipedia.org/wiki/Right-hand_rule
+#
+
 #
 
 # |=======================================
@@ -47,6 +241,10 @@
 # |DOWN           |Move the camera down, moving the objects up
 # |LEFT           |Move the camera left, moving the objects right
 # |RIGHT          |Move the camera right, moving the objects left
+# |               |
+# |PAGEUP         |
+# |PAGEDOWN       |Move the camera down, moving the objects up
+
 # |=======================================
 
 
@@ -267,15 +465,37 @@ def handle_inputs():
     global moving_camera_rot_x
     global moving_camera_rot_y
 
+    # NEW
+    # The input for the camera is completely different
     move_multiple = 15.0
+    # pressing right or left changs the rotation of the y axis,
+    # making you look left or right
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         moving_camera_rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
         moving_camera_rot_y += 0.03
+    # pressing page up or page down changes how you'll rotate
+    # on the relative x axis to look up or down, after
+    # you've rotated left or right
     if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
         moving_camera_rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         moving_camera_rot_x -= 0.03;
+    # up should make us move forward in the world
+    # since our movement is constrained to the xz plane, for the purposes
+    # of movement, we can ignore the moving_camera_rot_x, as that looks
+    # up or down.
+    # TODO - explain this better, with diagrams.
+    # the gist is, you can imagine your camera in a local coordinate system,
+    # like showed in the ../mvpVisualization/demoViewWorldTopLevel.py.
+    # in that frame of reference (before rotating on the x axis),
+    # moving forward means moving down
+    # the local negative z axis.  Moving right means moving in the
+    # local x axis.  These calculations convert our local x and z coordinates
+    # from camera space into world space, so that the movements happen in world
+    # space.
+    # TODO - perhaps do that calculation of translating spaces by inverse operations,
+    # as it will still work because we have not scaled nonuniformly.
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
         moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)
@@ -343,6 +563,14 @@ while not glfw.window_should_close(window):
                                             ty=paddle1.input_offset_y,
                                             tz=0.0)
 
+#   The camera's position would be placed here, but we need
+#   to do the inverse transformation to get from worldspace
+#   to camera space, from which NDC will be defined.
+#                       world_space.rotate_x(moving_camera_rot_x)
+#                                  .rotate_y(moving_camera_rot_y)
+#                                  .translate(tx=moving_camera_x,
+#                                             ty=moving_camera_y,
+#                                             tz=moving_camera_z)
         camera_space = world_space.translate(tx=-moving_camera_x,
                                              ty=-moving_camera_y,
                                              tz=-moving_camera_z) \
@@ -362,18 +590,37 @@ while not glfw.window_should_close(window):
     for model_space in square:
         paddle_1_space = model_space.rotate_z(square_rotation) \
                                     .translate(tx=20.0, ty=0.0, tz=0.0) \
-                                    .rotate_z(rotation_around_paddle1)
+                                    .rotate_z(rotation_around_paddle1) \
+                                    .translate(tx=0.0,
+                                               ty=0.0,
+                                               tz=-10.0)
+        # the square should not be visible when hidden behind the paddle1,
+        # as we did a translate by -10.
+        # this is because without depth buffering, the object drawn last
+        # clobbers the color of any previously drawn object at the pixel.
+        # Try moving the square drawing code to the beginning, and you will
+        # see that the square can be hidden behind the paddle.
         world_space = paddle_1_space.rotate_z(paddle1.rotation) \
                                     .translate(tx=paddle1.initial_position.x,
                                                ty=paddle1.initial_position.y,
                                                tz=0.0) \
                                     .translate(tx=paddle1.input_offset_x,
                                                ty=paddle1.input_offset_y,
-                                               tz=-10.0) # TODO - explain why this should be visible
+                                               tz=0.0)
 
+#   The camera's position would be placed here, but we need
+#   to do the inverse transformation to get from worldspace
+#   to camera space, from which NDC will be defined.
+#                       world_space.rotate_x(moving_camera_rot_x)
+#                                  .rotate_y(moving_camera_rot_y)
+#                                  .translate(tx=moving_camera_x,
+#                                             ty=moving_camera_y,
+#                                             tz=moving_camera_z)
         camera_space = world_space.translate(tx=-moving_camera_x,
                                              ty=-moving_camera_y,
                                              tz=-moving_camera_z) \
+                                  .rotate_y( -moving_camera_rot_y) \
+                                  .rotate_x( -moving_camera_rot_x)
         ndc_space = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x,
                    ndc_space.y,
@@ -394,6 +641,14 @@ while not glfw.window_should_close(window):
                                             ty=paddle2.input_offset_y,
                                             tz=0.0)
 
+#   The camera's position would be placed here, but we need
+#   to do the inverse transformation to get from worldspace
+#   to camera space, from which NDC will be defined.
+#                       world_space.rotate_x(moving_camera_rot_x)
+#                                  .rotate_y(moving_camera_rot_y)
+#                                  .translate(tx=moving_camera_x,
+#                                             ty=moving_camera_y,
+#                                             tz=moving_camera_z)
         camera_space = world_space.translate(tx=-moving_camera_x,
                                              ty=-moving_camera_y,
                                              tz=-moving_camera_z) \

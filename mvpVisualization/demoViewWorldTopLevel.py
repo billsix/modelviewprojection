@@ -203,7 +203,7 @@ virtual_camera_rot_x = math.radians(15.0)
 def draw_ground():
     # ascontiguousarray puts the array in column major order
     glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
-    glColor3f(1.0,1.0,1.0)
+    glColor3f(0.1,0.1,0.1)
     glBegin(GL_LINES)
     for x in range(-200,201,20):
         for z in range(-200,201,20):
