@@ -18,6 +18,19 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# PURPOSE
+#
+# Replace lambda stacks with matrix stacks.  This is how preshader
+# opengl worked (well, they provided matrix operations, but I replaced
+# them with my own to make the matrix operations transparent).
+#
+# Use glPushMatrix and glPopMatrix to save/restore a local coordinate
+# system, that way a tree of objects can be drawn without one child
+# destroying the relative coordinate system of the parent node.
+#
+# In mvpVisualization/demoViewWorldTopLevel.py, the grayed out
+# coordinate system is one thas has been pushed onto the stack,
+# and it regains it's color when it is reactivated by "glPopMatrix"
 
 import sys
 import os
@@ -246,7 +259,18 @@ while not glfw.window_should_close(window):
     # ascontiguousarray puts the array in column major order
     glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.projection).T))
 
-    # note - opengl matricies use degrees
+    # The camera's position is described as follows
+    # ms.translate(ms.MatrixStack.view,
+    #              moving_camera_x,
+    #              moving_camera_y,
+    #              moving_camera_z)
+    # ms.rotate_y(ms.MatrixStack.view,moving_camera_rot_y)
+    # ms.rotate_x(ms.MatrixStack.view,moving_camera_rot_x)
+    #
+    # Therefore, to take the object's world space coordinates
+    # and transform them into camera space, we need to
+    # do the inverse operations to the view stack.
+
     ms.rotate_x(ms.MatrixStack.view,-moving_camera_rot_x)
     ms.rotate_y(ms.MatrixStack.view,-moving_camera_rot_y)
     ms.translate(ms.MatrixStack.view,

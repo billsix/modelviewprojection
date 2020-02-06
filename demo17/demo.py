@@ -18,6 +18,23 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+# PURPOSE
+#
+# Remove repetition in the coordinate transformations,
+# as previous demos had very similar transformtions,
+# especially from camera space to NDC space.
+# Each node in the tree of the graph of objects (../images/demo11.png)
+# should only be specified once.
+#
+# Noticing in the previous demos that the lower parts of the transformations
+# have a common pattern, we can create a stack of functions.
+# When drawing geometry, we add any functions to the top of the stack,
+# apply all of our functions in the stack, and before we return to the parent
+# node, we pop our added functions off of the stack, to ensure that
+# we return the stack to the state that the parent node gave us.
+
+
+
 import sys
 import os
 import numpy as np
@@ -276,13 +293,24 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
+# NEW - function stack.  The bottom of the stack has
+# the low index, the top of the stack has the highest
+# index
 fn_stack = []
 
+# NEW -
+# Given an input vertex, apply the function at the top
+# of the stack to the vertex, capture the output vertex,
+# to be used as input to the next lower function on the
+# stack.  Continue doing this until we get the value
+# returned from the function at the bottom of the stack.
 def apply_stack(vertex):
     v = vertex
     for fn in reversed(fn_stack):
         v = fn(v)
     return v
+
+
 TARGET_FRAMERATE = 60 # fps
 
 # to try to standardize on 60 fps, compare times between frames
@@ -307,22 +335,40 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
+    # In previous demos, camera_space_to_ndc_space_fn was always
+    # the last functtion called.  put it on the bottom of the stack,
+    # so that "apply_stack" calls this function last
 
     # every object uses the same projection
     fn_stack.append(lambda v: v.camera_space_to_ndc_space_fn()) # (1)
 
-    # every object is from the same view
-    # Unlike in previous demos, because the transformations
-    # are on a stack, the fns on the view stack need to
-    # be read in reverse
+    # DON'T READ THIS PART ON CAMERA SPACE UTIL YOU READ THE MODELSPACE
+    # CODE, Starting with draw paddle 1, below.
+    #
+    # Ok, back?  So we no longer have to read modelspace->worldspace
+    # transformtions backwards.  Same thing goes the position
+    # of the camera in world space.  But, just like in previous demos
+    # we must invert those transformations.
+
+    # The camera's position is
+    # fn_stack.append(lambda v: v.translate(tx=moving_camera_x,
+    #                                      ty=moving_camera_y,
+    #                                      tz=moving_camera_z))
+    # fn_stack.append(lambda v: v.rotate_y( moving_camera_rot_y))
+    # fn_stack.append(lambda v: v.rotate_x( moving_camera_rot_x))
+
+    # Therefore the transformations to put the world space into
+    # camera space are.
     fn_stack.append(lambda v: v.rotate_x( -moving_camera_rot_x)) # (2)
     fn_stack.append(lambda v: v.rotate_y( -moving_camera_rot_y)) # (3)
     fn_stack.append(lambda v: v.translate(tx=-moving_camera_x,   # (4)
                                           ty=-moving_camera_y,
                                           tz=-moving_camera_z))
 
+
     # draw paddle 1
-    # Unlike in previous demos, because the transformations
+    # Unlike in previous demos in which we read the transformations
+    # from model space to world space backwards; because the transformations
     # are on a stack, the fns on the model stack can
     # be read forwards, where each operation translates/rotates/scales
     # the current space
@@ -357,7 +403,7 @@ while not glfw.window_should_close(window):
     # since the modelstack is already in paddle1's space
     # just add the transformations relative to it
     # before paddle 2 is drawn, we need to remove
-    # the square's 3 model_space transformations
+    # the square's 4 model_space transformations
     fn_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0)) # (8)
     fn_stack.append(lambda v: v.rotate_z(rotation_around_paddle1)) # (9)
     fn_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0)) # (10)
@@ -404,13 +450,13 @@ while not glfw.window_should_close(window):
                    ndc_space.z)
     glEnd()
 
+    # remove all fns from the function stack, as the next frame will set them
+    fn_stack.clear()
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers
     glfw.swap_buffers(window)
 
-    # remove all fns from the function stack, as the next frame will set them
-    fn_stack.clear()
 
 
 
