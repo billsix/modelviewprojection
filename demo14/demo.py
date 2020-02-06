@@ -99,7 +99,7 @@
 #     (Remember, read bottom up, just like the previous demos
 #      for modelspace to worldspace data)
 #
-#        camera_space = world_space.rotate_x(moving_camera_rot_x)
+#        world_space = camera_space.rotate_x(moving_camera_rot_x)
 #                                  .rotate_y(moving_camera_rot_y)
 #                                  .translate(tx=moving_camera_x,
 #                                             ty=moving_camera_y,
@@ -127,7 +127,8 @@
 # https://en.wikipedia.org/wiki/Markov_chain))
 #
 # But that system of thinking works only when we are placing the camera into
-# it's position/orientation.  Looking at the right hand picture of ../images/demo10.png,
+# it's position/orientation.  Looking at the right hand picture of
+# eog ../images/demo10.png
 # thinking in this way would allow us to transform vertices defined in camera space
 # to world space, just like the paddles/square.
 #
@@ -136,7 +137,7 @@
 # and then to camera space (which is going in the opposite direction, therefore requires
 # an inverse operation, just like in the univariate currency example from Bitcoin to Euro.
 #
-# eog ../images/demo10.png
+# eog ../images/currency.png
 #
 # Given that the inverse of a sequence of transformations is the sequence backwards,
 # with each transformations inverted, we must do that to get from world space
@@ -195,7 +196,7 @@
 # space to the NDC defined in world space.  One way to think of it,
 # is that NDC is defined at the top level of the tree of transformations,
 # so in world space.  We need to get the -1 to 1 space in x,y,z relative
-# to NDC to match the -1 to 1 space in world space.
+# to camera space to match the -1 to 1 space in world space.
 #
 # eog ../images/demo10.png
 #
@@ -237,6 +238,7 @@
 # |q              |Rotate the square around it's center
 # |e              |Rotate the square around paddle 1's center
 # |               |
+# TODO - fix this
 # |UP             |Move the camera up, moving the objects down
 # |DOWN           |Move the camera down, moving the objects up
 # |LEFT           |Move the camera left, moving the objects right
@@ -549,6 +551,7 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
+
     # draw paddle 1
     glColor3f(paddle1.r,
               paddle1.g,
@@ -626,6 +629,8 @@ while not glfw.window_should_close(window):
                    ndc_space.y,
                    ndc_space.z)
     glEnd()
+
+
 
     # draw paddle 2
     glColor3f(paddle2.r,
