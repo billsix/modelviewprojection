@@ -22,11 +22,14 @@
 
 layout (location = 0) in vec3 position;
 
-uniform mat4 mvMatrix;
+uniform mat4 mMatrix;
+uniform mat4 vMatrix;
+uniform mat4 pMatrix;
 uniform float fov;
 uniform float aspectRatio;
 uniform float nearZ;
 uniform float farZ;
+uniform float time;
 
 out VS_OUT {
   vec4 color;
@@ -113,6 +116,6 @@ void main()
    // you change the nearZ farZ by negating them, then you could use the standard
    // projection matrix here:
    // gl_Position = project_standard_way(mvMatrix * vec4(position,1.0));
-   gl_Position = project(mvMatrix * vec4(position,1.0));
+   gl_Position = pMatrix * vMatrix * mMatrix * vec4(position,1.0);
    vs_out.color = vec4(1.0,1.0,1.0,1.0);
 }
