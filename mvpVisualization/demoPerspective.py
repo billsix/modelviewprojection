@@ -28,6 +28,9 @@ import OpenGL.GL.shaders as shaders
 import glfw
 import pyMatrixStack as ms
 import atexit
+import imgui
+from imgui.integrations.glfw import GlfwRenderer
+import staticlocal
 
 
 # NEW - for shader location
@@ -47,6 +50,7 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 # for osx
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
+
 window = glfw.create_window(800,
                             800,
                             "ModelViewProjection Demo of Coordinates",
@@ -56,8 +60,11 @@ if not window:
     glfw.terminate()
     sys.exit()
 
+
 # Make the window's context current
 glfw.make_context_current(window)
+imgui.create_context()
+impl = GlfwRenderer(window)
 
 # Install a key handler
 
@@ -78,6 +85,43 @@ glClearDepth(1.0)
 glDepthFunc(GL_LESS)
 glEnable(GL_DEPTH_TEST)
 
+def draw_in_square_viewport():
+    # clear to gray.
+    glClearColor(0.2, #r
+                 0.2, #g
+                 0.2, #b
+                 1.0) #a
+    glClear(GL_COLOR_BUFFER_BIT)
+
+    width, height = glfw.get_framebuffer_size(window)
+    # figure out the minimum dimension of the window
+    min = width if width < height else height
+
+    # per pixel than just it's current color.
+    glEnable(GL_SCISSOR_TEST)
+    glScissor(int((width - min)/2.0),  #min x
+              int((height - min)/2.0), #min y
+              min,                     #width x
+              min)                     #width y
+
+    glClearColor(0.0, #r
+                 0.0, #g
+                 0.0, #b
+                 1.0) #a
+    # gl clear will only update the square to black values.
+    glClear(GL_COLOR_BUFFER_BIT)
+    # disable the scissor test, so now any opengl calls will
+    # happen as usual.
+    glDisable(GL_SCISSOR_TEST)
+
+    # But, we only want to draw within the black square.
+    # We set the viewport, so that the NDC coordinates
+    # will be mapped the the region of screen coordinates
+    # that we care about, which is the black square.
+    glViewport(int(0.0 + (width - min)/2.0),  #min x
+               int(0.0 + (height - min)/2.0), #min y
+               min,                           #width x
+               min)                           #width y
 
 def on_exit():
     # delete the objects
@@ -210,12 +254,11 @@ class Paddle:
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -50.0);
+        glUniform1f(farZ_loc, -500.0);
 
         time_loc = glGetUniformLocation(self.shader, "time");
         glUniform1f(time_loc, animation_time);
 
-        print(animation_time)
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(self.mMatrixLoc,
                            1,
@@ -390,7 +433,7 @@ class Ground:
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -50.0);
+        glUniform1f(farZ_loc, -500.0);
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(self.mMatrixLoc,
@@ -533,14 +576,10 @@ class Axis:
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -50.0);
+        glUniform1f(farZ_loc, -500.0);
         # TODO, set the color
 
         with ms.push_matrix(ms.MatrixStack.model):
-            ms.scale(ms.MatrixStack.model,
-                     10.0,
-                     10.0,
-                     10.0)
 
             # x axis
             with ms.push_matrix(ms.MatrixStack.model):
@@ -847,7 +886,7 @@ class NDCCube:
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -50.0);
+        glUniform1f(farZ_loc, -500.0);
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(self.mMatrixLoc,
@@ -877,6 +916,201 @@ class NDCCube:
         glBindVertexArray(0)
 cube = NDCCube()
 cube.prepare_to_render()
+
+
+
+
+class Frustum:
+    def __init__(self):
+        pass
+
+
+    def vertices(self):
+
+        verts = []
+        verts.append(-2.071067811865475)
+        verts.append(-2.071067811865475)
+        verts.append(-5.0)
+        verts.append(2.071067811865475)
+        verts.append(-2.071067811865475)
+        verts.append(-5.0)
+        verts.append(2.071067811865475)
+        verts.append(-2.071067811865475)
+        verts.append(-5.0)
+        verts.append(2.071067811865475)
+        verts.append(2.071067811865475)
+        verts.append(-5.0)
+        verts.append(2.071067811865475)
+        verts.append(2.071067811865475)
+        verts.append(-5.0)
+        verts.append(-2.071067811865475)
+        verts.append(2.071067811865475)
+        verts.append(-5.0)
+        verts.append(-2.071067811865475)
+        verts.append(2.071067811865475)
+        verts.append(-5.0)
+        verts.append(-2.071067811865475)
+        verts.append(-2.071067811865475)
+        verts.append(-5.0)
+
+        verts.append(-207.1067811865475)
+        verts.append(-207.1067811865475)
+        verts.append(-500.0)
+        verts.append(207.1067811865475)
+        verts.append(-207.1067811865475)
+        verts.append(-500.0)
+        verts.append(207.1067811865475)
+        verts.append(-207.1067811865475)
+        verts.append(-500.0)
+        verts.append(207.1067811865475)
+        verts.append(207.1067811865475)
+        verts.append(-500.0)
+        verts.append(207.1067811865475)
+        verts.append(207.1067811865475)
+        verts.append(-500.0)
+        verts.append(-207.1067811865475)
+        verts.append(207.1067811865475)
+        verts.append(-500.0)
+        verts.append(-207.1067811865475)
+        verts.append(207.1067811865475)
+        verts.append(-500.0)
+        verts.append(-207.1067811865475)
+        verts.append(-207.1067811865475)
+        verts.append(-500.0)
+
+        # connect the faces
+        verts.append(-2.071067811865475)
+        verts.append(-2.071067811865475)
+        verts.append(-5.0)
+        verts.append(-207.1067811865475)
+        verts.append(-207.1067811865475)
+        verts.append(-500.0)
+
+        verts.append(2.071067811865475)
+        verts.append(-2.071067811865475)
+        verts.append(-5.0)
+        verts.append(207.1067811865475)
+        verts.append(-207.1067811865475)
+        verts.append(-500.0)
+
+        verts.append(2.071067811865475)
+        verts.append(2.071067811865475)
+        verts.append(-5.0)
+        verts.append(207.1067811865475)
+        verts.append(207.1067811865475)
+        verts.append(-500.0)
+
+        verts.append(-2.071067811865475)
+        verts.append(2.071067811865475)
+        verts.append(-5.0)
+        verts.append(-207.1067811865475)
+        verts.append(207.1067811865475)
+        verts.append(-500.0)
+
+        return np.array(verts,
+                        dtype=np.float32)
+
+    def prepare_to_render(self):
+        # GL_QUADS aren't available anymore, only triangles
+        # need 6 vertices instead of 4
+        vertices = self.vertices()
+        self.numberOfVertices = np.size(vertices) // floatsPerVertex
+
+        self.vao = glGenVertexArrays(1)
+        glBindVertexArray(self.vao)
+
+        # initialize shaders
+
+        with open(os.path.join(pwd, 'frustum.vert'), 'r') as f:
+            vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
+
+        with open(os.path.join(pwd, 'frustum.frag'), 'r') as f:
+            fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
+
+        self.shader = shaders.compileProgram(vs, fs)
+
+        self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
+        self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
+        self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
+
+
+        # send the modelspace data to the GPU
+        self.vbo = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
+
+        position = glGetAttribLocation(self.shader, 'position')
+        glEnableVertexAttribArray(position)
+
+        glVertexAttribPointer(position,
+                              floatsPerVertex,
+                              GL_FLOAT,
+                              False,
+                              0,
+                              ctypes.c_void_p(0))
+
+        glBufferData(GL_ARRAY_BUFFER,
+                     glfloat_size * np.size(vertices),
+                     vertices,
+                     GL_STATIC_DRAW)
+
+
+        # send the modelspace data to the GPU
+        # TODO, send color to the shader
+
+        # reset VAO/VBO to default
+        glBindVertexArray(0)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+    # destructor
+    def __del__(self):
+        glDeleteVertexArrays(1, [self.vao])
+        glDeleteBuffers(1, [self.vbo])
+        glDeleteProgram(self.shader)
+
+    def render(self, time):
+        glUseProgram(self.shader)
+        glBindVertexArray(self.vao)
+
+        # pass projection parameters to the shader
+        fov_loc = glGetUniformLocation(self.shader, "fov");
+        glUniform1f(fov_loc, 45.0);
+        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio");
+        glUniform1f(aspect_loc, width/height);
+        nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
+        glUniform1f(nearZ_loc, -5.0);
+        farZ_loc = glGetUniformLocation(self.shader, "farZ");
+        glUniform1f(farZ_loc, -500.0);
+        time_loc = glGetUniformLocation(self.shader, "time");
+        glUniform1f(time_loc, animation_time);
+
+        # ascontiguousarray puts the array in column major order
+        glUniformMatrix4fv(self.mMatrixLoc,
+                           1,
+                           GL_TRUE,
+                           np.ascontiguousarray(
+                               ms.getCurrentMatrix(
+                                   ms.MatrixStack.model),
+                               dtype=np.float32))
+        glUniformMatrix4fv(self.vMatrixLoc,
+                           1,
+                           GL_TRUE,
+                           np.ascontiguousarray(
+                               ms.getCurrentMatrix(
+                                   ms.MatrixStack.view),
+                               dtype=np.float32))
+        glUniformMatrix4fv(self.pMatrixLoc,
+                           1,
+                           GL_TRUE,
+                           np.ascontiguousarray(
+                               ms.getCurrentMatrix(
+                                   ms.MatrixStack.projection),
+                               dtype=np.float32))
+        glDrawArrays(GL_LINES,
+                     0,
+                     self.numberOfVertices)
+        glBindVertexArray(0)
+frustum = Frustum()
+frustum.prepare_to_render()
 
 
 
@@ -937,24 +1171,9 @@ def handle_inputs():
 
 
 
-virtual_camera_position = np.array([-40.0, 0.0,  80.0], dtype=np.float32)
-virtual_camera_rot_y = math.radians(-30.0)
+virtual_camera_position = np.array([-20.0, 0.0,  140.0], dtype=np.float32)
+virtual_camera_rot_y = math.radians(10.0)
 virtual_camera_rot_x = math.radians(15.0)
-
-
-
-
-
-
-def draw_frustum():
-    glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
-
-    #glColor3f(1.0,1.0,1.0)
-    glLineWidth(3.0)
-    glBegin(GL_LINES)
-    glVertex3f(-1.0, -1.0, -1.0)
-    glVertex3f(1.0, -1.0, -1.0)
-    glEnd()
 
 
 
@@ -965,6 +1184,7 @@ TARGET_FRAMERATE = 60 # fps
 time_at_beginning_of_previous_frame = glfw.get_time()
 
 animation_time = 0.0
+animation_time_multiplier = 1.0
 animation_paused = False
 
 # Loop until the user closes the window
@@ -976,10 +1196,34 @@ while not glfw.window_should_close(window):
     time_at_beginning_of_previous_frame = glfw.get_time()
 
     if not animation_paused:
-        animation_time += 1.0/60.0
+        animation_time += 1.0/60.0 * animation_time_multiplier
 
     # Poll for and process events
     glfw.poll_events()
+    impl.process_inputs()
+
+    imgui.new_frame()
+
+    if imgui.begin_main_menu_bar():
+       if imgui.begin_menu("File", True):
+           clicked_quit, selected_quit = imgui.menu_item(
+               "Quit", 'Cmd+Q', False, True
+           )
+
+           if clicked_quit:
+               exit(1)
+
+           imgui.end_menu()
+       imgui.end_main_menu_bar()
+
+
+    imgui.begin("Custom window", True)
+
+    clicked_animation_paused, animation_paused = imgui.checkbox("Pause", animation_paused)
+    clicked_moving_camera_r, moving_camera_r = imgui.slider_float("Camera Radius", moving_camera_r,  10, 1000.0)
+    clicked_animation_time_multiplier, animation_time_multiplier = imgui.slider_float("Sim Speed", animation_time_multiplier,  0.1, 10.0)
+
+    imgui.end()
 
 
     width, height = glfw.get_framebuffer_size(window)
@@ -988,6 +1232,7 @@ while not glfw.window_should_close(window):
 
     # render scene
     handle_inputs()
+    draw_in_square_viewport()
 
     ms.setToIdentityMatrix(ms.MatrixStack.model)
     ms.setToIdentityMatrix(ms.MatrixStack.view)
@@ -1014,12 +1259,10 @@ while not glfw.window_should_close(window):
     # draw NDC in global space, so that we can see the camera space
     # go to NDC
     with ms.PushMatrix(ms.MatrixStack.model):
-        ms.scale(ms.MatrixStack.model,
-                 5.0,
-                 5.0,
-                 5.0)
         cube.render(animation_time)
     ground.render(animation_time)
+
+
 
     if(animation_time > 85.0):
         ms.rotate_x(ms.MatrixStack.model,
@@ -1048,12 +1291,8 @@ while not glfw.window_should_close(window):
                ms.rotate_x(ms.MatrixStack.model,
                             virtual_camera_rot_x   * min(1.0, (animation_time - 70.0) / 5.0))
 
+            frustum.render(animation_time)
             axis.render(animation_time)
-            ms.scale(ms.MatrixStack.model,
-                     5.0,
-                     5.0,
-                     5.0)
-
             cube.render(animation_time)
 
     if animation_time < 5.0 or (animation_time > 40.0 and animation_time < 45.0):
@@ -1139,6 +1378,8 @@ while not glfw.window_should_close(window):
             paddle2.render(animation_time)
 
 
+    imgui.render()
+    impl.render(imgui.get_draw_data())
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers
