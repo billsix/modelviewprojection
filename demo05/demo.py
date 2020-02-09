@@ -83,7 +83,7 @@ glMatrixMode(GL_MODELVIEW);
 glLoadIdentity();
 
 
- def draw_in_square_viewport():
+def draw_in_square_viewport():
     # clear to gray.
     glClearColor(0.2, #r
                  0.2, #g
