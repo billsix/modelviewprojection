@@ -569,7 +569,7 @@ while not glfw.window_should_close(window):
 #   The camera's position would be placed here, but we need
 #   to do the inverse transformation to get from worldspace
 #   to camera space, from which NDC will be defined.
-#                       world_space.rotate_x(moving_camera_rot_x)
+#       world_space=   camera_space.rotate_x(moving_camera_rot_x)
 #                                  .rotate_y(moving_camera_rot_y)
 #                                  .translate(tx=moving_camera_x,
 #                                             ty=moving_camera_y,

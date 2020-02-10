@@ -1293,7 +1293,8 @@ while not glfw.window_should_close(window):
                ms.rotate_x(ms.MatrixStack.model,
                             virtual_camera_rot_x   * min(1.0, (animation_time - 70.0) / 5.0))
 
-            frustum.render(animation_time)
+            if animation_time > 65.0:
+                frustum.render(animation_time)
             axis.render(animation_time)
             cube.render(animation_time)
 
