@@ -250,7 +250,7 @@ class Paddle:
         fov_loc = glGetUniformLocation(self.shader, "fov");
         glUniform1f(fov_loc, 45.0);
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio");
-        glUniform1f(aspect_loc, width/height);
+        glUniform1f(aspect_loc, 1.0);
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
@@ -429,7 +429,7 @@ class Ground:
         fov_loc = glGetUniformLocation(self.shader, "fov");
         glUniform1f(fov_loc, 45.0);
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio");
-        glUniform1f(aspect_loc, width/height);
+        glUniform1f(aspect_loc, 1.0);
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
@@ -572,7 +572,7 @@ class Axis:
         fov_loc = glGetUniformLocation(self.shader, "fov");
         glUniform1f(fov_loc, 45.0);
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio");
-        glUniform1f(aspect_loc, width/height);
+        glUniform1f(aspect_loc, 1.0);
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
@@ -882,7 +882,7 @@ class NDCCube:
         fov_loc = glGetUniformLocation(self.shader, "fov");
         glUniform1f(fov_loc, 45.0);
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio");
-        glUniform1f(aspect_loc, width/height);
+        glUniform1f(aspect_loc, 1.0);
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
@@ -1075,7 +1075,7 @@ class Frustum:
         fov_loc = glGetUniformLocation(self.shader, "fov");
         glUniform1f(fov_loc, 45.0);
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio");
-        glUniform1f(aspect_loc, width/height);
+        glUniform1f(aspect_loc, 1.0);
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
@@ -1222,6 +1222,8 @@ while not glfw.window_should_close(window):
     clicked_animation_paused, animation_paused = imgui.checkbox("Pause", animation_paused)
     clicked_moving_camera_r, moving_camera_r = imgui.slider_float("Camera Radius", moving_camera_r,  10, 1000.0)
     clicked_animation_time_multiplier, animation_time_multiplier = imgui.slider_float("Sim Speed", animation_time_multiplier,  0.1, 10.0)
+    if imgui.button("Restart"):
+        animation_time = 0.0
 
     imgui.end()
 
