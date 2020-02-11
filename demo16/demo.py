@@ -213,16 +213,16 @@ class Vertex:
 
         scaled_x = self.x / self.z * nearZ
         scaled_y = self.y / self.z * nearZ
-        projected =  Vertex(scaled_x,
-                            scaled_y,
-                            self.z)
+        retangular_prism =  Vertex(scaled_x,
+                                   scaled_y,
+                                   self.z)
 
-        return projected.ortho(left = -right,
-                               right = right,
-                               bottom = -top,
-                               top = top,
-                               near = nearZ,
-                               far= farZ)
+        return retangular_prism.ortho(left = -right,
+                                      right = right,
+                                      bottom = -top,
+                                      top = top,
+                                      near = nearZ,
+                                      far= farZ)
 
 
     def camera_space_to_ndc_space_fn(self):
