@@ -24,6 +24,14 @@
 # opengl worked (well, they provided matrix operations, but I replaced
 # them with my own to make the matrix operations transparent).
 #
+# The concepts behind the function stack, in which the first function
+# added to the stack is the last function applied, hold true for
+# matricies as well.  But matricies are a much more efficient
+# representation computationally than the function stack,
+# and instead of adding fns and later having to remove them,
+# we can save onto the current frame of reference with a "glPushStack",
+# and restore the saved state by "glPopStack"
+#
 # Use glPushMatrix and glPopMatrix to save/restore a local coordinate
 # system, that way a tree of objects can be drawn without one child
 # destroying the relative coordinate system of the parent node.
@@ -246,15 +254,27 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
+    # set the model, view, and projection matrix to the identity
+    # matrix.  This just means that the functions (currently)
+    # will not transform data.
+    # In univariate terms, f(x) = x
     ms.setToIdentityMatrix(ms.MatrixStack.model)
     ms.setToIdentityMatrix(ms.MatrixStack.view)
     ms.setToIdentityMatrix(ms.MatrixStack.projection)
 
+    # change the perspective matrix to convert the frustum
+    # to NDC.
     # set the projection matrix to be perspective
     ms.perspective(fov=45.0,
                    aspectRatio=1.0,  #since the viewport is always square
                    nearZ=0.1,
                    farZ=10000.0)
+
+    # the ms namespace is pyMatrixStack, located in this folder.
+    # we need to send the matrix to OpenGL, by setting the matrix
+    # mode to be projection, and then call "loadmatrix", which
+    # we get from pyMatrixStack.  (Don't sweat the details
+    # of ascontigousarray, just copy and paste)
     glMatrixMode(GL_PROJECTION)
     # ascontiguousarray puts the array in column major order
     glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.projection).T))
@@ -277,13 +297,22 @@ while not glfw.window_should_close(window):
                  -moving_camera_x,
                  -moving_camera_y,
                  -moving_camera_z)
+    # Each call above actually modifies the matrix, as matricies
+    # can be premultiplied together for efficiency.
+    #  |a b|     |e f|         |ae+bg  af+bh|
+    #  |c d|  *  |g h|  =      |ce+dg  cf+dh|
+    # this means that rotate_x, rotate_y, translate, etc
+    # are destructive operations.  Instead of creating a stack
+    # of matricies, these operations aggregate the transformations,
+    # but add no new matricies to the stack
 
-    # because matricies can be multiplied together, we can reduce the
-    # previous demo's transformation stack to one matrix.
+
     #
     # but many times we need to hold onto a transformation stack (matrix),
     # so that we can do something else now, and return to this context later,
     # so we have a stack composed of matricies.
+    #
+    # This is what GLPushMatrix, and GLPopMatrix do.
     #
     # "with" is a Python keyword which allows for bounded contexts, where
     # the library code can specify what happens before execution of the block,
@@ -299,6 +328,13 @@ while not glfw.window_should_close(window):
     # "PushMatrix" describes what the function does, but its purpose is to
     # save onto the current coordinate system for later drawing modelspace
     # data.
+
+    # the model stack is currently the identity matrix, meaning
+    # it does nothing.  The view and the projection matrix
+    # are set to transform from world space into camera space,
+    # and then take the frustum and convert it to NDC.
+
+    # save onto the current model stack
     with ms.PushMatrix(ms.MatrixStack.model):
 
         # draw paddle 1
@@ -321,11 +357,18 @@ while not glfw.window_should_close(window):
         ms.rotate_z(ms.MatrixStack.model,
                     paddle1.rotation)
 
+        # load our model and view matrix (premultiplied) to
+        # openGL's matrix
+        # set the current matrix (as we don't want to load into OpenGL's
+        # perspective matrix
         glMatrixMode(GL_MODELVIEW)
         # ascontiguousarray puts the array in column major order
         glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
         glBegin(GL_QUADS)
         for model_space in paddle1.vertices:
+            # NEW!!! glVertex data is specified in modelspace coordinates,
+            # but since we loaded the projection matrix and the modelview
+            # matrix into OpenGL, glVertex3f will apply those transformations.
             glVertex3f(model_space[0],
                        model_space[1],
                        model_space[2])
@@ -354,6 +397,7 @@ while not glfw.window_should_close(window):
                     square_rotation)
 
 
+        # render just like with paddle 1
         glMatrixMode(GL_MODELVIEW)
         # ascontiguousarray puts the array in column major order
         glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
@@ -364,9 +408,13 @@ while not glfw.window_should_close(window):
                        model_space[2])
         glEnd()
 
-    #get back to center of global space
+    # glPopMatrix was implictly called because of the "with" keyword
+    # therefore, our model matrix is set to identity.  view is still
+    # configure correctly, and is the projection matrix
 
-
+    # no Need to push matrix here, as this is the last object that
+    # we are drawing, and upon the next iteration of the event loop,
+    # all 3 matricies will be reset to the identity
     # draw paddle 2
     glColor3f(paddle2.r,
               paddle2.g,
