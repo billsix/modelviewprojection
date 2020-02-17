@@ -97,8 +97,9 @@ glClearColor(0.0,
              1.0)
 
 
-glClearDepth(1.0)
-glDepthFunc(GL_LEQUAL)
+# NEW - TODO - talk about opengl matricies and z pos/neg
+glClearDepth(-1.0)
+glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
 
 
@@ -211,9 +212,9 @@ class Paddle:
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio");
         glUniform1f(aspect_loc, width/height);
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
-        glUniform1f(nearZ_loc, 0.1);
+        glUniform1f(nearZ_loc, -0.1);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, 10000.0);
+        glUniform1f(farZ_loc, -10000.0);
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(self.mvMatrixLoc,

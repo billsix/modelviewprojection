@@ -38,19 +38,50 @@ vec4 project(vec4 cameraSpace){
     float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
     float right = top * aspectRatio;
 
-    // put into clipspace, not ndc.
-    // clip space to ndc, given [x_clip,y_clip,z_clip,w_clip] =
-    // [x_clip/w_clip,y_clip/w_clip,z_clip/w_clip,w_clip/w_clip]
+     //// use transpose to put the matrix in column major order
+     //mat4 scale_x = transpose(mat4(
+     //     nearZ)/cameraSpace.z, 0.0, 0.0, 0.0,
+     //     0.0,                  1.0, 0.0, 0.0,
+     //     0.0,                  0.0, 1.0, 0.0,
+     //     0.0,                  0.0, 0.0, 1.0));
+     //mat4 scale_y = transpose(mat4(
+     //     1.0, 0.0,                 0.0, 0.0,
+     //     0.0, nearZ/cameraSpace.z, 0.0, 0.0,
+     //     0.0, 0.0,                 1.0, 0.0,
+     //     0.0, 0.0,                 0.0, 1.0));
 
-    // to ensure that we don't have to make a new projection matrix for each
-    // vertex, make the w_clip be the cameraSpace's z
+    // ortho
+    //mat4 translate_to_origin = transpose(mat4(
+    //      1.0, 0.0, 0.0, 0.0,
+    //      0.0, 1.0, 0.0, 0.0,
+    //      0.0, 0.0, 1.0, -((farZ + nearZ) / 2.0),
+    //      0.0, 0.0, 0.0, 1.0));
+    // mat4 scale_to_ndc = transpose(mat4(
+    //      1.0/right,     0.0,           0.0,                  0.0,
+    //      0.0,           1.0/top,       0.0,                  0.0,
+    //      0.0,           0.0,           2.0/(nearZ - farZ),   0.0,
+    //      0.0,           0.0,           0.0,                  1.0));
 
-     mat4 ndc_space_to_clip_space = transpose(mat4(
-          (-cameraSpace.z), 0.0,              0.0,              0.0,
-          0.0,              (-cameraSpace.z), 0.0,              0.0,
-          0.0,              0.0,              (-cameraSpace.z), 0.0,
-          0.0,              0.0,              0.0,              (-cameraSpace.z)));
-
+    //scale_y * scale_x =
+    //      nearZ/cameraSpace.z, 0.0,                 0.0, 0.0,
+    //      0.0,                 nearZ/cameraSpace.z, 0.0, 0.0,
+    //      0.0,                 0.0,                 1.0, 0.0,
+    //      0.0,                 0.0,                 0.0, 1.0))
+    // translate_to_origin * scale_y * scale_x =
+    //      nearZ/cameraSpace.z, 0.0,                 0.0, 0.0,
+    //      0.0,                 nearZ/cameraSpace.z, 0.0, 0.0,
+    //      0.0,                 0.0,                 1.0, -((farZ + nearZ) / 2.0),
+    //      0.0,                 0.0,                 0.0, 1.0))
+    // scale_to_ndc * translate_to_origin * scale_y * scale_x =
+    //      nearZ/(right * cameraSpace.z), 0.0,                       0.0,                0.0,
+    //      0.0,                           nearZ/(top*cameraSpace.z), 0.0,                0.0,
+    //      0.0,                           0.0,                       2.0/(nearZ - farZ), 2.0/(nearZ - farZ) * -((farZ + nearZ) / 2.0),
+    //      0.0,                           0.0,                       0.0,                1.0))
+    // scale_to_ndc * translate_to_origin * scale_y * scale_x =
+    //      nearZ/(right * cameraSpace.z), 0.0,                       0.0,                0.0,
+    //      0.0,                           nearZ/(top*cameraSpace.z), 0.0,                0.0,
+    //      0.0,                           0.0,                       2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
+    //      0.0,                           0.0,                       0.0,                1.0))
 
      mat4 camera_space_to_ndc_space = transpose(mat4(
           nearZ/(right * cameraSpace.z), 0.0,                       0.0,                0.0,
@@ -58,33 +89,8 @@ vec4 project(vec4 cameraSpace){
           0.0,                           0.0,                       2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
           0.0,                           0.0,                       0.0,                1.0));
 
-     // camera_space_to_clip_space = ndc_space_to_clip_space * camera_space_to_ndc_space
-     mat4 camera_space_to_clip_space = transpose(mat4(
-          -nearZ/right,         0.0,        0.0,                                   0.0,
-          0.0,                  -nearZ/top, 0.0,                                   0.0,
-          0.0,                  0.0,        2.0*(-cameraSpace.z)/(nearZ - farZ),   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)),
-          0.0,                  0.0,        0.0,                                   -cameraSpace.z));
 
-
-     // z_ndc(cameraSpace) = (cameraSpace.z * (2.0*(-cameraSpace.z)/(nearZ - farZ)) +   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)))/cameraSpace.z
-     // z_ndc(cameraSpace) = (2.0*(-cameraSpace.z)/(nearZ - farZ)) +   ((farZ + nearZ)/(nearZ - farZ))
-     // z_ndc(nearZ) = (2.0*(-nearZ)/(nearZ - farZ)) +   ((farZ + nearZ)/(nearZ - farZ))
-     // z_ndc(nearZ) = (2.0*(-nearZ) + (farZ + nearZ))/(nearZ - farZ)
-     // z_ndc(nearZ) = (2.0*(-nearZ) + (farZ + nearZ))/(nearZ - farZ)
-     // z_ndc(nearZ) = (farZ - nearZ))/(nearZ - farZ)
-     // z_ndc(nearZ) = (farZ - nearZ))/(nearZ - farZ)
-     // z_ndc(nearZ) = -1.0
-
-
-     // z_ndc(farZ) = (2.0*(-farZ)/(nearZ - farZ)) +   ((farZ + nearZ)/(nearZ - farZ))
-     // z_ndc(farZ) = ((2.0*(-farZ) + (farZ + nearZ))/(nearZ - farZ))
-     // z_ndc(farZ) = ( nearZ - farZ)/(nearZ - farZ))
-     // z_ndc(farZ) = 1.0
-
-
-     // modelspace to ndc, then ndc back to clip space, which the hardware turns back into NDC
-     //        return ndc_space_to_clip_space * camera_space_to_ndc_space * cameraSpace;
-     return camera_space_to_clip_space * cameraSpace;
+     return camera_space_to_ndc_space * cameraSpace;
 }
 
 vec4 project_standard_way(vec4 cameraSpace){

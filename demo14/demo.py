@@ -473,21 +473,13 @@ def handle_inputs():
         moving_camera_rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         moving_camera_rot_x -= 0.03;
-    # up should make us move forward in the world
-    # since our movement is constrained to the xz plane, for the purposes
-    # of movement, we can ignore the moving_camera_rot_x, as that looks
-    # up or down.
-    # TODO - explain this better, with diagrams.
-    # the gist is, you can imagine your camera in a local coordinate system,
-    # like showed in the ../mvpVisualization/demoViewWorldTopLevel.py.
-    # in that frame of reference (before rotating on the x axis),
-    # moving forward means moving down
-    # the local negative z axis.  Moving right means moving in the
-    # local x axis.  These calculations convert our local x and z coordinates
-    # from camera space into world space, so that the movements happen in world
-    # space.
-    # TODO - perhaps do that calculation of translating spaces by inverse operations,
-    # as it will still work because we have not scaled nonuniformly.
+    # Don't worry about understanding the movement of the camera in 3D
+    # space for now, this will be explained in demo18.
+    # But, if you want a preview, run ../mvpVisualization/demoViewWorldTopLevel.py,
+    # and look at when the camera translates to it's position, and rotates horizontally.
+    # (before rotating vertically to look up).  The relative negative z axis is where
+    # pressing up will take you, strafing to the right would be in the direction of
+    # the local x axis.
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
         moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)

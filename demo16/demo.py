@@ -291,8 +291,6 @@ def handle_inputs():
         moving_camera_rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         moving_camera_rot_x -= 0.03;
-##//TODO -  explaing movement on XZ-plane
-##//TODO -  show camera movement in graphviz
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
         moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)

@@ -64,6 +64,7 @@ if not window:
 # Make the window's context current
 glfw.make_context_current(window)
 
+
 def on_exit():
     # delete the objects
     paddle1.__del__()
@@ -101,6 +102,7 @@ glClearColor(0.0,
 glClearDepth(-1.0)
 glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
+
 
 
 class Paddle:
@@ -365,11 +367,13 @@ while not glfw.window_should_close(window):
     # render scene
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
+
     glClearColor(0.0,  # r
                  0.0,  # g
                  0.0,  # b
                  1.0)  # a
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
 
     handle_inputs()
 

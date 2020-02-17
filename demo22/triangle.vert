@@ -38,75 +38,52 @@ vec4 project(vec4 cameraSpace){
     float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
     float right = top * aspectRatio;
 
-     //mat4 camera_space_to_clip_space = transpose(mat4(
-     //     -nearZ/right,         0.0,        0.0,                                   0.0,
-     //     0.0,                  -nearZ/top, 0.0,                                   0.0,
-     //     0.0,                  0.0,        2.0*(-cameraSpace.z)/(nearZ - farZ),   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)),
-     //     0.0,                  0.0,        0.0,                                   -cameraSpace.z));
+    // put into clipspace, not ndc.
+    // clip space to ndc, given [x_clip,y_clip,z_clip,w_clip] =
+    // [x_clip/w_clip,y_clip/w_clip,z_clip/w_clip,w_clip/w_clip]
 
-     // we had successfully moved cameraSpace.z out of the upper left quadrant, but moved it down
-     // to the lower right.
-     // How can we get rid of it there too?
-     // Since the vector multiplied by this matrix will provide cameraSpace.z as it's third element,
-     // we can change the fourth row as follows
+    // to ensure that we don't have to make a new projection matrix for each
+    // vertex, make the w_clip be the cameraSpace's z
 
-     mat4 camera_space_to_clip_space1 = transpose(mat4(
+     mat4 ndc_space_to_clip_space = transpose(mat4(
+          (-cameraSpace.z), 0.0,              0.0,              0.0,
+          0.0,              (-cameraSpace.z), 0.0,              0.0,
+          0.0,              0.0,              (-cameraSpace.z), 0.0,
+          0.0,              0.0,              0.0,              (-cameraSpace.z)));
+
+
+     mat4 camera_space_to_ndc_space = transpose(mat4(
+          nearZ/(right * cameraSpace.z), 0.0,                       0.0,                0.0,
+          0.0,                           nearZ/(top*cameraSpace.z), 0.0,                0.0,
+          0.0,                           0.0,                       2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
+          0.0,                           0.0,                       0.0,                1.0));
+
+     // camera_space_to_clip_space = ndc_space_to_clip_space * camera_space_to_ndc_space
+     mat4 camera_space_to_clip_space = transpose(mat4(
           -nearZ/right,         0.0,        0.0,                                   0.0,
           0.0,                  -nearZ/top, 0.0,                                   0.0,
           0.0,                  0.0,        2.0*(-cameraSpace.z)/(nearZ - farZ),   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)),
-          0.0,                  0.0,        -1.0,                                  0.0));
-     return camera_space_to_clip_space1 * cameraSpace;
+          0.0,                  0.0,        0.0,                                   -cameraSpace.z));
 
-     // to remove camera.Z from the matrix, all that is left is row 3.
-     // Row three ensures two important properties:
-     //   1) fn(nearZ) -> -1.0, and fn(farZ) -> 1.0
-     //   2) Ordering is preserved after the function is applied, i.e. monotonicity.  if a < b, then fn(a) < fn(b).
-     // If we can make a function, that like the third row of the matrix, has those properties, we can replace the
-     // third row and remove cameraSpace.z from the matrix.  This was (is) desirable because we do not need
-     // to create a custom pespective matrix per vertex.
 
-     //  [ X X X X ] [c.x, c.y, c.z, 1.0]'  (here the X in the matrix means a value that we don't care about.
-     //  [ X X X X ]
-     //  [ 0 0 A B ]
-     //  [ X X X X ]
+     // z_ndc(cameraSpace) = (cameraSpace.z * (2.0*(-cameraSpace.z)/(nearZ - farZ)) +   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)))/cameraSpace.z
+     // z_ndc(cameraSpace) = (2.0*(-cameraSpace.z)/(nearZ - farZ)) +   ((farZ + nearZ)/(nearZ - farZ))
+     // z_ndc(nearZ) = (2.0*(-nearZ)/(nearZ - farZ)) +   ((farZ + nearZ)/(nearZ - farZ))
+     // z_ndc(nearZ) = (2.0*(-nearZ) + (farZ + nearZ))/(nearZ - farZ)
+     // z_ndc(nearZ) = (2.0*(-nearZ) + (farZ + nearZ))/(nearZ - farZ)
+     // z_ndc(nearZ) = (farZ - nearZ))/(nearZ - farZ)
+     // z_ndc(nearZ) = (farZ - nearZ))/(nearZ - farZ)
+     // z_ndc(nearZ) = -1.0
 
-     //  clipSpace.z = A* c.z + B * 1.0  (the first column and the second column are zero because z is independent of x and y)
-     //  for nearZ, which must map to -1.0,
-     //    ndc.z = clipSpace.z / clipSpace.w =   (A * nearZ + B) / nearZ = -1.0
-     //  for farZ, which must map to 1.0,
-     //    ndc.z = clipSpace.z / clipSpace.w =   (A * farZ + B) / farZ = 1.0
-     //
-     //   (A * nearZ + B) = -nearZ                                           (1)
-     //   (A * farZ + B)  = farZ                                             (2)
-     //
-     //   B = -nearZ - A * nearZ                                             (3) (from 1)
-     //   (A * farZ + -nearZ - A * nearZ)  = farZ                            (4) (from 2 and 3)
-     //   (farZ - nearZ)*A  + -nearZ )  = farZ                               (5)
-     //   A = (farZ + nearZ)/(farZ-nearZ)                                    (6)
-     //
-     //   we found A, now substitute that in to get B
-     //
-     //  (farZ + nearZ)/(farZ-nearZ) * nearZ + B = -nearZ                    (from 1 and 6)
-     //  B = -nearZ - (farZ + nearZ)/(farZ-nearZ) * nearZ
-     //  B = (-1 - (farZ + nearZ)/(farZ-nearZ)) * nearZ
-     //  B = -(1 + (farZ + nearZ)/(farZ-nearZ)) * nearZ
-     //  B = -( (farZ-nearZ + (farZ + nearZ))/(farZ-nearZ)) * nearZ
-     //  B = -( (2*farZ)/(farZ-nearZ)) * nearZ
-     //  B = (-2*farZ*nearZ)/(farZ-nearZ)
-     //
-     // now that we have A and B, write down the function, and ensure that it is
-     // monotonic from (nearZ, farZ), inclusive
 
-     // z_ndc = ((farZ + nearZ)/(farZ-nearZ) * cameraSpace.z +  (-2*farZ*nearZ)/(farZ-nearZ)) / cameraSpace.z
-     // TODO -- proof of monotonicity
+     // z_ndc(farZ) = (2.0*(-farZ)/(nearZ - farZ)) +   ((farZ + nearZ)/(nearZ - farZ))
+     // z_ndc(farZ) = ((2.0*(-farZ) + (farZ + nearZ))/(nearZ - farZ))
+     // z_ndc(farZ) = ( nearZ - farZ)/(nearZ - farZ))
+     // z_ndc(farZ) = 1.0
 
-     // NOW OUR PERSPECTIVE MATRIX IS INDEPENDENT OF cameraSpace.z!!!
-     mat4 camera_space_to_clip_space = transpose(mat4(
-          -nearZ/right,         0.0,        0.0,                           0.0,
-          0.0,                  -nearZ/top, 0.0,                           0.0,
-          0.0,                  0.0,        (farZ + nearZ)/(farZ-nearZ),  (-2*farZ*nearZ)/(farZ-nearZ),
-          0.0,                  0.0,        -1.0,                          0.0));
 
+     // modelspace to ndc, then ndc back to clip space, which the hardware turns back into NDC
+     //        return ndc_space_to_clip_space * camera_space_to_ndc_space * cameraSpace;
      return camera_space_to_clip_space * cameraSpace;
 }
 
