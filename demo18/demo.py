@@ -246,7 +246,7 @@ def handle_inputs():
 # your feet, the second is rotating your neck to make your head
 # look up or down.
 #
-# These transformations are as follows.
+# These transformations can be thought about as follows.
 #
 # fn_stack.append(lambda v: v.translate(tx=moving_camera_x,
 #                                       ty=moving_camera_y,
