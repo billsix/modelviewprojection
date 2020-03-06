@@ -254,7 +254,7 @@ class Paddle:
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -500.0);
+        glUniform1f(farZ_loc, -150.00);
 
         time_loc = glGetUniformLocation(self.shader, "time");
         glUniform1f(time_loc, animation_time);
@@ -433,7 +433,7 @@ class Ground:
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -500.0);
+        glUniform1f(farZ_loc, -150.00);
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(self.mMatrixLoc,
@@ -576,7 +576,7 @@ class Axis:
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -500.0);
+        glUniform1f(farZ_loc, -150.00);
         # TODO, set the color
 
         with ms.push_matrix(ms.MatrixStack.model):
@@ -886,7 +886,7 @@ class NDCCube:
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -500.0);
+        glUniform1f(farZ_loc, -150.00);
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(self.mMatrixLoc,
@@ -953,59 +953,59 @@ class Frustum:
         verts.append(-2.071067811865475)
         verts.append(-5.0)
 
-        verts.append(-207.1067811865475)
-        verts.append(-207.1067811865475)
-        verts.append(-500.0)
-        verts.append(207.1067811865475)
-        verts.append(-207.1067811865475)
-        verts.append(-500.0)
-        verts.append(207.1067811865475)
-        verts.append(-207.1067811865475)
-        verts.append(-500.0)
-        verts.append(207.1067811865475)
-        verts.append(207.1067811865475)
-        verts.append(-500.0)
-        verts.append(207.1067811865475)
-        verts.append(207.1067811865475)
-        verts.append(-500.0)
-        verts.append(-207.1067811865475)
-        verts.append(207.1067811865475)
-        verts.append(-500.0)
-        verts.append(-207.1067811865475)
-        verts.append(207.1067811865475)
-        verts.append(-500.0)
-        verts.append(-207.1067811865475)
-        verts.append(-207.1067811865475)
-        verts.append(-500.0)
+        verts.append(-61.06601717798213)
+        verts.append(-61.06601717798213)
+        verts.append(-150.00)
+        verts.append(61.06601717798213)
+        verts.append(-61.06601717798213)
+        verts.append(-150.00)
+        verts.append(61.06601717798213)
+        verts.append(-61.06601717798213)
+        verts.append(-150.00)
+        verts.append(61.06601717798213)
+        verts.append(61.06601717798213)
+        verts.append(-150.00)
+        verts.append(61.06601717798213)
+        verts.append(61.06601717798213)
+        verts.append(-150.00)
+        verts.append(-61.06601717798213)
+        verts.append(61.06601717798213)
+        verts.append(-150.00)
+        verts.append(-61.06601717798213)
+        verts.append(61.06601717798213)
+        verts.append(-150.00)
+        verts.append(-61.06601717798213)
+        verts.append(-61.06601717798213)
+        verts.append(-150.00)
 
         # connect the faces
         verts.append(-2.071067811865475)
         verts.append(-2.071067811865475)
         verts.append(-5.0)
-        verts.append(-207.1067811865475)
-        verts.append(-207.1067811865475)
-        verts.append(-500.0)
+        verts.append(-61.06601717798213)
+        verts.append(-61.06601717798213)
+        verts.append(-150.00)
 
         verts.append(2.071067811865475)
         verts.append(-2.071067811865475)
         verts.append(-5.0)
-        verts.append(207.1067811865475)
-        verts.append(-207.1067811865475)
-        verts.append(-500.0)
+        verts.append(61.06601717798213)
+        verts.append(-61.06601717798213)
+        verts.append(-150.00)
 
         verts.append(2.071067811865475)
         verts.append(2.071067811865475)
         verts.append(-5.0)
-        verts.append(207.1067811865475)
-        verts.append(207.1067811865475)
-        verts.append(-500.0)
+        verts.append(61.06601717798213)
+        verts.append(61.06601717798213)
+        verts.append(-150.00)
 
         verts.append(-2.071067811865475)
         verts.append(2.071067811865475)
         verts.append(-5.0)
-        verts.append(-207.1067811865475)
-        verts.append(207.1067811865475)
-        verts.append(-500.0)
+        verts.append(-61.06601717798213)
+        verts.append(61.06601717798213)
+        verts.append(-150.00)
 
         return np.array(verts,
                         dtype=np.float32)
@@ -1079,7 +1079,7 @@ class Frustum:
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -5.0);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -500.0);
+        glUniform1f(farZ_loc, -150.00);
         time_loc = glGetUniformLocation(self.shader, "time");
         glUniform1f(time_loc, animation_time);
 
@@ -1116,7 +1116,7 @@ frustum.prepare_to_render()
 
 
 
-moving_camera_r = 300
+moving_camera_r = 250
 moving_camera_rot_y = math.radians(45.0)
 moving_camera_rot_x = math.radians(35.264)
 
@@ -1171,8 +1171,8 @@ def handle_inputs():
 
 
 
-virtual_camera_position = np.array([-20.0, 0.0,  140.0], dtype=np.float32)
-virtual_camera_rot_y = math.radians(10.0)
+virtual_camera_position = np.array([-15.0, 0.0,  85.0], dtype=np.float32)
+virtual_camera_rot_y = math.radians(25.0)
 virtual_camera_rot_x = math.radians(15.0)
 
 
