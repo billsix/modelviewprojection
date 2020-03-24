@@ -85,43 +85,6 @@ glClearDepth(1.0)
 glDepthFunc(GL_LESS)
 glEnable(GL_DEPTH_TEST)
 
-def draw_in_square_viewport():
-    # clear to gray.
-    glClearColor(0.2, #r
-                 0.2, #g
-                 0.2, #b
-                 1.0) #a
-    glClear(GL_COLOR_BUFFER_BIT)
-
-    width, height = glfw.get_framebuffer_size(window)
-    # figure out the minimum dimension of the window
-    min = width if width < height else height
-
-    # per pixel than just it's current color.
-    glEnable(GL_SCISSOR_TEST)
-    glScissor(int((width - min)/2.0),  #min x
-              int((height - min)/2.0), #min y
-              min,                     #width x
-              min)                     #width y
-
-    glClearColor(0.0, #r
-                 0.0, #g
-                 0.0, #b
-                 1.0) #a
-    # gl clear will only update the square to black values.
-    glClear(GL_COLOR_BUFFER_BIT)
-    # disable the scissor test, so now any opengl calls will
-    # happen as usual.
-    glDisable(GL_SCISSOR_TEST)
-
-    # But, we only want to draw within the black square.
-    # We set the viewport, so that the NDC coordinates
-    # will be mapped the the region of screen coordinates
-    # that we care about, which is the black square.
-    glViewport(int(0.0 + (width - min)/2.0),  #min x
-               int(0.0 + (height - min)/2.0), #min y
-               min,                           #width x
-               min)                           #width y
 
 def on_exit():
     # delete the objects
@@ -1234,7 +1197,6 @@ while not glfw.window_should_close(window):
 
     # render scene
     handle_inputs()
-    draw_in_square_viewport()
 
     ms.setToIdentityMatrix(ms.MatrixStack.model)
     ms.setToIdentityMatrix(ms.MatrixStack.view)
@@ -1242,7 +1204,7 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be perspective
     ms.perspective(fov=45.0,
-                   aspectRatio=1.0,  #since the viewport is always square
+                   aspectRatio=float(width)/float(height),
                    nearZ=0.1,
                    farZ=10000.0)
 

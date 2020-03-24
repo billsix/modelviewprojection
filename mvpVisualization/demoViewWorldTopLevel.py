@@ -68,41 +68,6 @@ glDepthFunc(GL_LEQUAL)
 
 
 
-def draw_in_square_viewport():
-
-    glClearColor(0.2,  # r
-                 0.2,  # g
-                 0.2,  # b
-                 1.0)  # a
-    glClear(GL_COLOR_BUFFER_BIT)
-
-    width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-    min = width if width < height else height
-
-    glViewport(int(0.0 + (width - min)/2.0),  # min x
-               int(0.0 + (height - min)/2.0),  # min y
-               min,  # width x
-               min)  # width y
-
-    glEnable(GL_SCISSOR_TEST)
-    glScissor(int(0.0 + (width - min)/2.0),  # min x
-              int(0.0 + (height - min)/2.0),  # min y
-              min,  # width x
-              min)  # width y
-
-    glClearColor(0.0,  # r
-                 0.0,  # g
-                 0.0,  # b
-                 1.0)  # a
-    glClear(GL_COLOR_BUFFER_BIT)
-    glDisable(GL_SCISSOR_TEST)
-
-
-
-
 class Paddle:
     def __init__(self, r, g, b, global_position, rotation=0.0, offset_x=0.0, offset_y=0.0):
         self.r = r
@@ -357,7 +322,7 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be perspective
     ms.perspective(fov=45.0,
-                   aspectRatio=1.0,  #since the viewport is always square
+                   aspectRatio=float(width)/float(height),
                    nearZ=0.1,
                    farZ=10000.0)
     # ms.ortho(left=-150.0,
