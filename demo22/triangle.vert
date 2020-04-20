@@ -45,6 +45,10 @@ vec4 project(vec4 cameraSpace){
     // to ensure that we don't have to make a new projection matrix for each
     // vertex, make the w_clip be the cameraSpace's z
 
+
+    // because cameraSpace's z coordinate is negative, we want to scale
+    // all dimensions without flipping, hence the negative sign
+    // in front of cameraSpace.z
      mat4 ndc_space_to_clip_space = transpose(mat4(
           (-cameraSpace.z), 0.0,              0.0,              0.0,
           0.0,              (-cameraSpace.z), 0.0,              0.0,
@@ -81,33 +85,14 @@ vec4 project(vec4 cameraSpace){
      // z_ndc(farZ) = ( nearZ - farZ)/(nearZ - farZ))
      // z_ndc(farZ) = 1.0
 
-
      // modelspace to ndc, then ndc back to clip space, which the hardware turns back into NDC
      //        return ndc_space_to_clip_space * camera_space_to_ndc_space * cameraSpace;
      return camera_space_to_clip_space * cameraSpace;
 }
 
-vec4 project_standard_way(vec4 cameraSpace){
-
-    float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
-    float right = top * aspectRatio;
-
-    mat4 proj =  mat4(
-         nearZ / right, 0.0,         0.0,                               0.0,
-         0.0,           nearZ / top, 0.0,                               0.0,
-         0.0,           0.0,         -(farZ + nearZ) / (farZ - nearZ),  -2 * (farZ * nearZ) / (farZ - nearZ),
-         0.0,           0.0,         -1.0,                              0.0);
-
-     return transpose(proj)  * cameraSpace;
-}
-
 
 void main()
 {
-   // if you change the depth to be 1.0, and LEQUAL, instead of -1.0, and GREATER, and if
-   // you change the nearZ farZ by negating them, then you could use the standard
-   // projection matrix here:
-   // gl_Position = project_standard_way(mvMatrix * vec4(position,1.0));
    gl_Position = project(mvMatrix * vec4(position,1.0));
    vs_out.color = vec4(color_in,1.0);
 }

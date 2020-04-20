@@ -19,14 +19,17 @@
 #SOFTWARE.
 
 
-# no need for the square viewport anymore since we went to 3D, just use the aspect ratio
+# Purpose.
+#
+# Use OpenGL 3.3, Core profile.  No more glBegin/glVertex/glEnd.
+# We need to use vertex array objects and vertexbuffer objects.
+
 
 import sys
 import os
 import numpy as np
 import math
 from OpenGL.GL import *
-# new - SHADERS
 import OpenGL.GL.shaders as shaders
 import glfw
 import pyMatrixStack as ms
@@ -35,7 +38,6 @@ import atexit
 if not glfw.init():
     sys.exit()
 
-# NEW - for shader location
 pwd = os.path.dirname(os.path.abspath(__file__))
 
 # NEW - for shaders
@@ -102,7 +104,6 @@ glClearColor(0.0,
              1.0)
 
 
-# NEW - TODO - talk about opengl matricies and z pos/neg
 glClearDepth(-1.0)
 glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
@@ -133,7 +134,11 @@ class Paddle:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
+        # get the number of vertices, for a later call to glDrawArrays
         self.numberOfVertices = np.size(vertices) // floatsPerVertex
+        # Make a color array of the same length as the number of verticies.
+        # it would have been more efficient to use indices, but I don't
+        # want to put too much in this demo.
         color = np.array([self.r, self.g, self.b,
                           self.r, self.g, self.b,
                           self.r, self.g, self.b,
@@ -143,11 +148,32 @@ class Paddle:
                          dtype=np.float32)
         self.numberOfColors = np.size(color) // floatsPerColor
 
+        # Create a vertex array object.
+        # Before I talk about vertex array objects, I want to talk about
+        # vertex buffer objects.
+        # This topic is discussed in the OpenGL Blue book, but the gist is that
+        # we push our modelspace data onto the graphics card's GPU memory,
+        # either every frame (for data that changes per frame), or less frequently.
+        # This is because function calls are expensive; every time you call
+        # glBegin, glVertex, glEnd, there is subroutine linkage overhead.
+        #
+        # And worse, if you modelspace data rarely changes, what's the point of
+        # sending that from RAM to the GPU every frame?
+        #
+        # So what are Vertex Array Objects then?  Well, in OpenGL Superbible
+        # v4, there were a lot of predefined variables in the shaders.  You didn't
+        # have to do anything to populate the modelviewprojection matrix, the vertices,
+        # the color etc.
+        #
+        # Vertex array objects are a collection of vbos, and they can be configured
+        # to pass data into the shader.
+        #
+        # create the vao
         self.vao = glGenVertexArrays(1)
+        # make it the current VAO
         glBindVertexArray(self.vao)
 
         # initialize shaders
-
         with open(os.path.join(pwd, 'triangle.vert'), 'r') as f:
             vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
 
@@ -156,29 +182,79 @@ class Paddle:
 
         self.shader = shaders.compileProgram(vs, fs)
 
-        self.mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
-
-
-        # send the modelspace data to the GPU
+        # create a vbo for the vertices, to send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
+        # make the vbo current
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
 
+        # get the handle for the position variable within the shader
         position = glGetAttribLocation(self.shader, 'position')
+        # enable the position in the VAO, so that data will be fed from the
+        # VBO
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position,
-                              floatsPerVertex,
-                              GL_FLOAT,
-                              False,
-                              0,
-                              ctypes.c_void_p(0))
+        # specify how the vertex data should be fed from the VBO into the VAO
+        glVertexAttribPointer(position, #index
+                              floatsPerVertex, #size
+                              GL_FLOAT, #type
+                              False, #normalized (should be called normalize - a verb)
+                              0, #stride (this is for interleaved arrays, meaning
+                                 # [V1x, V1y, V1z, C1r, C1g, C1b, V2x .....]
+                              ctypes.c_void_p(0)) #pointer (offset pointer, 0 because we start
+                                                  # with the first vertex position
+                                                  # if we used interleaved arrays,
+                                                  # we would have this number be greater than 0
+                                                  # to specify the offset of the first color
 
+        # From the OpenGL docs
+        #Parameters
+
+        #index
+        #
+        #    Specifies the index of the generic vertex attribute to be modified.
+        #
+        #size
+        #
+        #    Specifies the number of components per generic vertex attribute. Must be 1, 2, 3, 4. Additionally,
+        #    the symbolic constant GL_BGRA is accepted by glVertexAttribPointer. The initial value is 4.
+        #
+        #type
+        #
+        #    Specifies the data type of each component in the array. The symbolic constants GL_BYTE, GL_UNSIGNED_BYTE,
+        #    GL_SHORT, GL_UNSIGNED_SHORT, GL_INT, and GL_UNSIGNED_INT are accepted by glVertexAttribPointer and
+        #    glVertexAttribIPointer. Additionally GL_HALF_FLOAT, GL_FLOAT, GL_DOUBLE, GL_FIXED, GL_INT_2_10_10_10_REV,
+        #    GL_UNSIGNED_INT_2_10_10_10_REV and GL_UNSIGNED_INT_10F_11F_11F_REV
+        #    are accepted by glVertexAttribPointer. GL_DOUBLE is also accepted by glVertexAttribLPointer and is the only token
+        #    accepted by the type parameter for that function. The initial value is GL_FLOAT.
+        #
+        #normalized
+        #
+        #    For glVertexAttribPointer, specifies whether fixed-point data values should be normalized (GL_TRUE) or converted directly
+        #    as fixed-point values (GL_FALSE) when they are accessed.
+        #
+        #stride
+        #
+        #    Specifies the byte offset between consecutive generic vertex attributes. If stride is 0, the generic vertex
+        #    attributes are understood to be tightly packed in the array. The initial value is 0.
+        #
+        #pointer
+        #
+        #    Specifies a offset of the first component of the first generic vertex attribute in the array
+        #    in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target. The initial value is 0.
+        #
+
+        # Send the data over.  GL_STATIC_DRAW means that we don't expect to change the contents of the
+        # vertex buffer frequently.  There are other options, take a look at the opengl docs.
+        # These options are basically hints to the opengl driver, so that it can put the data
+        # on the graphic card's GPU memory in an efficient place.  I don't know the implementation
+        # details of how drivers utilize this information.
         glBufferData(GL_ARRAY_BUFFER,
                      glfloat_size * np.size(vertices),
                      vertices,
                      GL_STATIC_DRAW)
 
 
+        # Do the same thing for the colors
         # send the modelspace data to the GPU
         vboColor = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, vboColor)
@@ -204,35 +280,69 @@ class Paddle:
 
     # destructor
     def __del__(self):
+        # when the object is deleted, delete the VAO and VBO
         glDeleteVertexArrays(1, [self.vao])
         glDeleteBuffers(1, [self.vbo])
+        # It would be more efficient to have muliple paddles use
+        # just one program.  For the ease of implementation and
+        # understanding, each object gets its own copy of the program
         glDeleteProgram(self.shader)
 
     def render(self):
+        # active the program
         glUseProgram(self.shader)
+        # bind the VAO, so that all of the linkages to the shader
+        # are active
         glBindVertexArray(self.vao)
 
+        # uniform variables within the shader are how we pass
+        # in data that doesn't vary vertex to vertex.
+
         # pass projection parameters to the shader
+        # (it would be more efficient to get these locs
+        #  when we set up the VAO.  I put the code here for
+        #  clarity)
         fov_loc = glGetUniformLocation(self.shader, "fov");
+        # send 1 float into the shader, into the uniform fov
         glUniform1f(fov_loc, 45.0);
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio");
         glUniform1f(aspect_loc, width/height);
+        # Here, I'm still using negative z values for nearZ and
+        # farZ, because that's consistent both with the math that I've
+        # taught you so far and with the right hand rule.
+        # By the end of lesson 25, we will use positive nearZ
+        # and farZ values, as is consistent with the "standard"
+        # perspective projection matrix.
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
         glUniform1f(nearZ_loc, -0.1);
         farZ_loc = glGetUniformLocation(self.shader, "farZ");
         glUniform1f(farZ_loc, -10000.0);
 
+        # Here we have to send the modelview matrix over ourselves.
+        # Unlike what you have learned in the OPenGL Superbible,
+        # In Core Profile, there are very few predefined variables in shaders.
+        mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
         # ascontiguousarray puts the array in column major order
-        glUniformMatrix4fv(self.mvMatrixLoc,
+        glUniformMatrix4fv(mvMatrixLoc,
                            1,
                            GL_TRUE,
                            np.ascontiguousarray(
                                ms.getCurrentMatrix(
                                    ms.MatrixStack.modelview),
                                dtype=np.float32))
+        # Invoke the shaders.  Linkages are already set up from the VBOs (via
+        # the VAO), and from the
+        # uniforms.
+        # Vertex Data will come from the VBO
+        # into the shader's "position" variable, which is defined
+        # within the shader, and will need to output "gl_Position",
+        # one of the few special variables in OpenGL 3.3 Core Profile
+        # mode.
+
         glDrawArrays(GL_TRIANGLES,
                      0,
                      self.numberOfVertices)
+        # unset the current VAO
         glBindVertexArray(0)
 
 
@@ -345,18 +455,16 @@ square_vertices = np.array([[-5.0, -5.0,  0.0],
 
 TARGET_FRAMERATE = 60 # fps
 
-# to try to standardize on 60 fps, compare times between frames
+
 time_at_beginning_of_previous_frame = glfw.get_time()
 
-# Loop until the user closes the window
+
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
     while glfw.get_time() < time_at_beginning_of_previous_frame +  1.0/TARGET_FRAMERATE:
         pass
-    # set for comparison on the next frame
+
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
@@ -368,7 +476,6 @@ while not glfw.window_should_close(window):
     ms.setToIdentityMatrix(ms.MatrixStack.view)
     ms.setToIdentityMatrix(ms.MatrixStack.projection)
 
-    # render scene
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClearColor(0.0,  # r
@@ -379,7 +486,6 @@ while not glfw.window_should_close(window):
 
     handle_inputs()
 
-    # note - opengl matricies use degrees
     ms.rotate_x(ms.MatrixStack.view,
                -moving_camera_rot_x)
     ms.rotate_y(ms.MatrixStack.view,
@@ -390,11 +496,6 @@ while not glfw.window_should_close(window):
                  -moving_camera_z)
 
     with ms.push_matrix(ms.MatrixStack.model):
-        # draw paddle 1
-        # Unlike in previous demos, because the transformations
-        # are on a stack, the fns on the model stack can
-        # be read forwards, where each operation translates/rotates/scales
-        # the current space
         ms.translate(ms.MatrixStack.model,
                      paddle1.input_offset_x,
                      paddle1.input_offset_y,
@@ -405,16 +506,10 @@ while not glfw.window_should_close(window):
                      0.0)
         ms.rotate_z(ms.MatrixStack.model,
                    paddle1.rotation)
+        # NEW
         paddle1.render()
 
         with ms.push_matrix(ms.MatrixStack.model):
-            # # draw the square
-
-            # since the modelstack is already in paddle1's space
-            # just add the transformations relative to it
-            # before paddle 2 is drawn, we need to remove
-            # the square's 3 model_space transformations
-
             ms.translate(ms.MatrixStack.model,
                          0.0,
                          0.0,
@@ -429,14 +524,10 @@ while not glfw.window_should_close(window):
             ms.rotate_z(ms.MatrixStack.model,
                        square.rotation)
 
+            # NEW
             square.render()
-        # back to padde 1 space
-    # get back to center of global space
-
 
     with ms.push_matrix(ms.MatrixStack.model):
-        # draw paddle 2
-
         ms.translate(ms.MatrixStack.model,
                      paddle2.input_offset_x,
                      paddle2.input_offset_y,
@@ -447,11 +538,9 @@ while not glfw.window_should_close(window):
                      0.0)
         ms.rotate_z(ms.MatrixStack.model,
                    paddle2.rotation)
+        # NEW
         paddle2.render()
 
-
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 

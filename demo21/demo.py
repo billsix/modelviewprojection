@@ -18,6 +18,17 @@
 #OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 #SOFTWARE.
 
+
+# Purpose
+#
+# Begin transformation to the standard perspective projection
+# All new work is in the vertex shader.
+#
+# In the vertex shader, we premultiply the matricies
+# together to get one perspective projection matrix.
+
+
+
 import sys
 import os
 import numpy as np
