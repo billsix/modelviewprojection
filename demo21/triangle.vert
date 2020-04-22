@@ -40,7 +40,7 @@ vec4 project(vec4 cameraSpace){
 
      //// use transpose to put the matrix in column major order
      //mat4 scale_x = transpose(mat4(
-     //     nearZ)/cameraSpace.z, 0.0, 0.0, 0.0,
+     //     nearZ/cameraSpace.z, 0.0, 0.0, 0.0,
      //     0.0,                  1.0, 0.0, 0.0,
      //     0.0,                  0.0, 1.0, 0.0,
      //     0.0,                  0.0, 0.0, 1.0));

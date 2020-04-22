@@ -21,14 +21,14 @@
 
 # Purpose
 #
-# Within the shader, convert the data from NDC to clip-space.
+# Within the vertex shader, convert the data from NDC to clip-space.
 # We have never used clip-space in the class, only NDC,
 # because 4D space is confusing geometrically, nevermind
 # the fact that (NDCx NDCy NDCz) = (Clipx/Clipw, Clipy/Clipy, Clipz/Clipz)
 #
 # The purpose of going to clip space is that eventually we will be
 # able to remove the camera space's z coordinate from the matrix.
-# This will allow us to use one perspective matrix, regardless
+# This will allow us to use one perspective projection matrix, regardless
 # of input vertex.
 # I assume, without any evidence to support me, that this
 # was done for efficiency reasons.

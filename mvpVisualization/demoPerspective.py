@@ -1174,7 +1174,7 @@ while not glfw.window_should_close(window):
            )
 
            if clicked_quit:
-               exit(1)
+               exit(0)
 
            imgui.end_menu()
        imgui.end_main_menu_bar()

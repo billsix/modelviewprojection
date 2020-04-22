@@ -149,8 +149,8 @@ class Paddle:
         self.numberOfColors = np.size(color) // floatsPerColor
 
         # Create a vertex array object.
-        # Before I talk about vertex array objects, I want to talk about
-        # vertex buffer objects.
+        # Before I talk about vertex array objects (VAO), I want to talk about
+        # vertex buffer objects (VBO).
         # This topic is discussed in the OpenGL Blue book, but the gist is that
         # we push our modelspace data onto the graphics card's GPU memory,
         # either every frame (for data that changes per frame), or less frequently.
