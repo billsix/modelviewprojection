@@ -28,8 +28,10 @@
 #
 # The purpose of going to clip space is that eventually we will be
 # able to remove the camera space's z coordinate from the matrix.
-# This will allow us to use one perspective projection matrix, regardless
-# of input vertex.
+#
+# This will allow us to use one perspective projection matrix for
+# all vertices, independent of the z coordinate of each input vertex.
+#
 # I assume, without any evidence to support me, that this
 # was done for efficiency reasons.
 # (Side note, the standard perspective projection matrix,
