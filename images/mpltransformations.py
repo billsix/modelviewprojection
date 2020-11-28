@@ -91,44 +91,44 @@ def _rotatePoint(angle, x, y):
 
 
 
-def rotate(angle, xs,ys):
+def rotate(angle):
     """Rotate the xs and ys by angle
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([0.0,0.0])
-    >>> for transformedAxis in rotate(math.radians(0.1), xs,ys):
+    >>> for transformedAxis in rotate(math.radians(0.1))(xs,ys):
     ...      print(transformedAxis)
     (-4.999992384566438, 4.999992384566438)
     (-0.008726641829491543, 0.008726641829491543)
     """
-    return mapMatplotlibData(lambda point: _rotatePoint(angle,point[0],point[1]),
-                             xs,
-                             ys)
+    return lambda xs, ys: mapMatplotlibData(lambda point: _rotatePoint(angle,point[0],point[1]),
+                                            xs,
+                                            ys)
 
 
-def scale(scaleX, scaleY, xs,ys):
+def scale(scaleX, scaleY):
     """Scale the xs and ys
 
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([1.0,1.0])
-    >>> for transformedAxis in scale(2,2, xs,ys):
+    >>> for transformedAxis in scale(2,2)(xs,ys):
     ...      print(transformedAxis)
     (-10.0, 10.0)
     (2.0, 2.0)
     """
-    return mapMatplotlibData(lambda point: (point[0] * scaleX , point[1] * scaleY),
-                             xs,
-                             ys)
+    return lambda xs, ys: mapMatplotlibData(lambda point: (point[0] * scaleX , point[1] * scaleY),
+                                            xs,
+                                            ys)
 
-def translate(tx, ty, xs,ys):
+def translate(tx, ty):
     """translate the xs and ys
 
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([1.0,1.0])
-    >>> for transformedAxis in translate(1,2, xs,ys):
+    >>> for transformedAxis in translate(1,2)(xs,ys):
     ...      print(transformedAxis)
     (-4.0, 6.0)
     (3.0, 3.0)
     """
-    return mapMatplotlibData(lambda point: (point[0] + tx , point[1] + ty),
-                             xs,
-                             ys)
+    return lambda xs, ys: mapMatplotlibData(lambda point: (point[0] + tx , point[1] + ty),
+                                            xs,
+                                            ys)
