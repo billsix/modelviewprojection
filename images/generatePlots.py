@@ -124,11 +124,11 @@ def createGraphs(title, filename, geometry, procedures, backwards=False):
     if backwards:
         procs.insert(0,lambda x,y: (x,y))
 
-    count = 0
 
-    animated_images_list = []
 
-    for t, isLast in accumulate_transformation(procs, backwards):
+    def create_single_frame(t, isLast):
+        count = 0
+
 
         fig, axes = plt.subplots()
         axes.set_xlim([-graphBounds[0],graphBounds[0]])
@@ -161,10 +161,16 @@ def createGraphs(title, filename, geometry, procedures, backwards=False):
         fig.canvas.draw()
         image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
         image  = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-        animated_images_list.append(image)
         plt.close(fig)
 
         count += 1
+        return image
+
+
+
+    animated_images_list = [create_single_frame(t, isLast) for (t, isLast) in accumulate_transformation(procs, backwards)]
+
+
     kwargs_write = {'fps':1.0, 'quantizer':'nq'}
     imageio.mimsave("./" + filename + '.gif', animated_images_list, fps=1)
 
