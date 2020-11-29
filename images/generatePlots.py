@@ -117,6 +117,8 @@ paddle2 = Geometry(points=list(zip(*np.array([[-10.0,-30.0],
                    color=(1.0, 0.0, 0.0, 1.0))
 
 def createGraphs(title, filename, geometry, procedures, backwards=False):
+    """Creates an animated dif of the geometry, through a sequence of transformations
+    """
 
     procs = procedures.copy()
     # when plotting the transformations is backwards order, show the axis
@@ -125,32 +127,29 @@ def createGraphs(title, filename, geometry, procedures, backwards=False):
         procs.insert(0,lambda x,y: (x,y))
 
 
-
-    def create_single_frame(t, isLast):
-        count = 0
-
-
+    # create a single frame of the animated gif
+    def create_single_frame(fn, isLast, frame_number):
         fig, axes = plt.subplots()
         axes.set_xlim([-graphBounds[0],graphBounds[0]])
         axes.set_ylim([-graphBounds[1],graphBounds[1]])
 
         #plot transformed basis
         for xs, ys, thickness in generategridlines.generategridlines(graphBounds, interval=5):
-            transformedXs, transformedYs = t(xs,ys) if backwards else (xs,ys)
+            transformedXs, transformedYs = fn(xs,ys) if backwards else (xs,ys)
             plt.plot(transformedXs, transformedYs, 'k-', lw=thickness, color=(0.1, 0.2, 0.5, 0.3))
 
         # x axis
-        transformedXs, transformedYs = t([0.0,10.0],[0.0,0.0])
+        transformedXs, transformedYs = fn([0.0,10.0],[0.0,0.0])
         plt.plot(transformedXs, transformedYs, 'k-', lw=4.0, color=(0.0, 0.0, 1.0, 1.0))
 
         # y axis
-        transformedXs, transformedYs = t([0.0,0.0],[0.0,10.0])
+        transformedXs, transformedYs = fn([0.0,0.0],[0.0,10.0])
         plt.plot(transformedXs, transformedYs, 'k-', lw=4.0, color=(1.0, 0.0, 1.0, 1.0))
 
 
         #plot the points
-        transformedXs, transformedYs = t(*geometry.points)
-        plt.title(str.format("{}\nStep {}", title, str(count+1)))
+        transformedXs, transformedYs = fn(*geometry.points)
+        plt.title(str.format("{}\nStep {}", title, str(frame_number)))
         if (backwards and isLast) or not backwards:
             plt.plot(transformedXs, transformedYs, 'k-', lw=2, color=geometry.color)
 
@@ -163,12 +162,12 @@ def createGraphs(title, filename, geometry, procedures, backwards=False):
         image  = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
         plt.close(fig)
 
-        count += 1
         return image
 
-
-
-    animated_images_list = [create_single_frame(t, isLast) for (t, isLast) in accumulate_transformation(procs, backwards)]
+    # create a single frame
+    animated_images_list = [create_single_frame(fn, isLast, frame_number)
+                            for (fn, isLast), frame_number in zip(accumulate_transformation(procs, backwards),
+                                                                 itertools.count(start=1))]
 
 
     kwargs_write = {'fps':1.0, 'quantizer':'nq'}
