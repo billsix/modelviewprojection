@@ -25,8 +25,8 @@ import sys
 import itertools
 import imageio
 
-import generategridlines
-import mpltransformations as mplt
+import plotutils.generategridlines as generategridlines
+import plotutils.mpltransformations as mplt
 from collections import namedtuple
 
 if __name__ != "__main__":
