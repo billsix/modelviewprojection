@@ -23,6 +23,7 @@ import matplotlib.pyplot as plt
 import math
 import sys
 import itertools
+import imageio
 
 import generategridlines
 import mpltransformations as mplt
@@ -124,6 +125,9 @@ def createGraphs(title, filename, geometry, procedures, backwards=False):
         procs.insert(0,lambda x,y: (x,y))
 
     count = 0
+
+    animated_images_list = []
+
     for t, isLast in accumulate_transformation(procs, backwards):
 
         fig, axes = plt.subplots()
@@ -154,11 +158,15 @@ def createGraphs(title, filename, geometry, procedures, backwards=False):
 
         # make sure the x and y axis are equally proportional in screen space
         plt.gca().set_aspect('equal', adjustable='box')
-        fig.savefig(str.format("{}-{}.png",filename, count))
+        fig.canvas.draw()
+        image = np.frombuffer(fig.canvas.tostring_rgb(), dtype='uint8')
+        image  = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+        animated_images_list.append(image)
         plt.close(fig)
 
         count += 1
-
+    kwargs_write = {'fps':1.0, 'quantizer':'nq'}
+    imageio.mimsave("./" + filename + '.gif', animated_images_list, fps=1)
 
 
 createGraphs(title="Translation",
