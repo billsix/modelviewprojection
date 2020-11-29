@@ -1,29 +1,29 @@
-#Copyright (c) 2018-2020 William Emerison Six
+# Copyright (c) 2018-2020 William Emerison Six
 #
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 import numpy as np
 import math
 import itertools
 
 
-def mapMatplotlibData(f,*pointsOnAxis):
+def mapMatplotlibData(f, *pointsOnAxis):
     """In plotting with numpy, the points on a given axis are supposed to be their own arrays,
     which is not helpful when wanting to transform points.  mapMatplotlibData
     allows the programmer to transform each x,y pair by function f
@@ -52,9 +52,7 @@ def mapMatplotlibData(f,*pointsOnAxis):
     >>> tzs
     (1.0, 2.0)
     """
-    return zip(*map(f,
-                    zip(*pointsOnAxis)))
-
+    return zip(*map(f, zip(*pointsOnAxis)))
 
 
 def _rotatePoint(angle, x, y):
@@ -86,9 +84,10 @@ def _rotatePoint(angle, x, y):
     >>> _rotatePoint(math.radians(0.1),x,y)
     (4.999992384566438, 0.008726641829491543)
     """
-    return x*math.cos(angle) - y*math.sin(angle), x*math.sin(angle) + y*math.cos(angle)
-
-
+    return (
+        x * math.cos(angle) - y * math.sin(angle),
+        x * math.sin(angle) + y * math.cos(angle),
+    )
 
 
 def rotate(angle):
@@ -100,9 +99,9 @@ def rotate(angle):
     (-4.999992384566438, 4.999992384566438)
     (-0.008726641829491543, 0.008726641829491543)
     """
-    return lambda xs, ys: mapMatplotlibData(lambda point: _rotatePoint(angle,point[0],point[1]),
-                                            xs,
-                                            ys)
+    return lambda xs, ys: mapMatplotlibData(
+        lambda point: _rotatePoint(angle, point[0], point[1]), xs, ys
+    )
 
 
 def scale(scaleX, scaleY):
@@ -115,9 +114,10 @@ def scale(scaleX, scaleY):
     (-10.0, 10.0)
     (2.0, 2.0)
     """
-    return lambda xs, ys: mapMatplotlibData(lambda point: (point[0] * scaleX , point[1] * scaleY),
-                                            xs,
-                                            ys)
+    return lambda xs, ys: mapMatplotlibData(
+        lambda point: (point[0] * scaleX, point[1] * scaleY), xs, ys
+    )
+
 
 def translate(tx, ty):
     """translate the xs and ys
@@ -129,6 +129,6 @@ def translate(tx, ty):
     (-4.0, 6.0)
     (3.0, 3.0)
     """
-    return lambda xs, ys: mapMatplotlibData(lambda point: (point[0] + tx , point[1] + ty),
-                                            xs,
-                                            ys)
+    return lambda xs, ys: mapMatplotlibData(
+        lambda point: (point[0] + tx, point[1] + ty), xs, ys
+    )

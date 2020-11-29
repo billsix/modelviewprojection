@@ -1,27 +1,26 @@
-#Copyright (c) 2018-2020 William Emerison Six
+# Copyright (c) 2018-2020 William Emerison Six
 #
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 # PURPOSE
 # Learn how to open a window, make a black screen, and close
 # the window.
-
 
 
 # before running this code, you need a virtual environment,
@@ -80,14 +79,15 @@
 
 # Import Python modules.  Python's modules are a way of distributing code
 # without namespace collisions
-import sys # sys is imported, all function calls will be of sys.function
-import os # basic operating system functions
-import numpy as np # numpy is a fast math/matrix library.
+import sys  # sys is imported, all function calls will be of sys.function
+import os  # basic operating system functions
+import numpy as np  # numpy is a fast math/matrix library.
 import math  # basic math utilities
-from OpenGL.GL import * # here, we are importing OpenGL's submodule GL
-                        # but we will not need the module's prefix to call
-                        # the functions.  I did this for uniformity
-                        # with the C++ code in the Superbible book.
+from OpenGL.GL import *  # here, we are importing OpenGL's submodule GL
+
+# but we will not need the module's prefix to call
+# the functions.  I did this for uniformity
+# with the C++ code in the Superbible book.
 import glfw  # the windowing library
 
 # on a Python prompt, you can use tab-complete to see which functions
@@ -113,12 +113,12 @@ import glfw  # the windowing library
 # -Initialize GLFW.
 #
 if not glfw.init():  # many objects can be treating as booleans,
-                     # and the Python keyword "not" negates it
-                     # Python does not use brackets to show nesting.
-                     # instead it uses whitespace.
-                     # You probably want to find keyboard shortcuts
-                     # to indent/unindent.  On Emacs, I use tab
-    sys.exit() # if you can't create a window, quit
+    # and the Python keyword "not" negates it
+    # Python does not use brackets to show nesting.
+    # instead it uses whitespace.
+    # You probably want to find keyboard shortcuts
+    # to indent/unindent.  On Emacs, I use tab
+    sys.exit()  # if you can't create a window, quit
 
 # One frame is created incrementally at a time on the CPU, but the frame
 # is sent to the monitor
@@ -140,19 +140,17 @@ if not glfw.init():  # many objects can be treating as booleans,
 # Set the version of OpenGL
 #
 # OpenGL has been around a long time, and has multiple, possibly incompatible versions.
-glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR,1) # python methods normally use lower case
-                                               # and words are seperated by underscores.
-glfw.window_hint(glfw.CONTEXT_VERSION_MINOR,4)
+glfw.window_hint(
+    glfw.CONTEXT_VERSION_MAJOR, 1
+)  # python methods normally use lower case
+# and words are seperated by underscores.
+glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 # Create a 500 pixel by 500 pixel window, which the user can resize.
-window = glfw.create_window(500,
-                            500,
-                            "ModelViewProjection Demo 1",
-                            None,
-                            None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 1", None, None)
 # None is the equivalent of null.
 # I frequently will put argument lists vertically, though it in not required.
 if not window:
-    glfw.terminate() # need to clean up gracefully
+    glfw.terminate()  # need to clean up gracefully
     sys.exit()
 
 # Make the window's context current
@@ -161,27 +159,25 @@ glfw.make_context_current(window)
 # Install a key handler
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window,1)
+        glfw.set_window_should_close(window, 1)
+
+
 glfw.set_key_callback(window, on_key)
-#functions are first class values in Python, and are objects just
-#like anything else.  The can be passed as arguments, for evaluation
-#later
+# functions are first class values in Python, and are objects just
+# like anything else.  The can be passed as arguments, for evaluation
+# later
 
 # For every frame drawn, each pixel has a default color, set by
 # calling "glClearColor". "0,0,0,1", means black "0,0,0", without
 # transparency (the "1").
-glClearColor(0.0,
-             0.0,
-             0.0,
-             1.0)
+glClearColor(0.0, 0.0, 0.0, 1.0)
 
 # don't worry about the 4 lines here.  Although they are necessary,
 # we will cover them later.
-glMatrixMode(GL_PROJECTION);
-glLoadIdentity();
-glMatrixMode(GL_MODELVIEW);
-glLoadIdentity();
-
+glMatrixMode(GL_PROJECTION)
+glLoadIdentity()
+glMatrixMode(GL_MODELVIEW)
+glLoadIdentity()
 
 
 ###### The Event Loop
@@ -272,8 +268,6 @@ glfw.terminate()
 # bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 # bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 # ....
-
-
 
 
 # The event loop then calls this code over and over again, and since we retain no state and

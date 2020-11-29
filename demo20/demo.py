@@ -1,22 +1,22 @@
-#Copyright (c) 2018-2020 William Emerison Six
+# Copyright (c) 2018-2020 William Emerison Six
 #
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 
 # Purpose.
@@ -57,11 +57,7 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 # for osx
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
-window = glfw.create_window(500,
-                            500,
-                            "ModelViewProjection Demo 20",
-                            None,
-                            None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 20", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -87,8 +83,9 @@ def on_exit():
     #
     # This is not normal Python practice to call
     # this type of method directly, but oh well.
-atexit.register(on_exit)
 
+
+atexit.register(on_exit)
 
 
 def on_key(window, key, scancode, action, mods):
@@ -98,10 +95,7 @@ def on_key(window, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0,
-             0.0,
-             0.0,
-             1.0)
+glClearColor(0.0, 0.0, 0.0, 1.0)
 
 
 glClearDepth(-1.0)
@@ -109,9 +103,17 @@ glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
 
 
-
 class Paddle:
-    def __init__(self, r, g, b, initial_position, rotation=0.0, input_offset_x=0.0, input_offset_y=0.0):
+    def __init__(
+        self,
+        r,
+        g,
+        b,
+        initial_position,
+        rotation=0.0,
+        input_offset_x=0.0,
+        input_offset_y=0.0,
+    ):
         self.r = r
         self.g = g
         self.b = b
@@ -120,15 +122,30 @@ class Paddle:
         self.input_offset_y = input_offset_y
         self.initial_position = initial_position
 
-
     def vertices(self):
-        return np.array([-10.0, -30.0,  0.0,
-                         10.0,  -30.0,  0.0,
-                         10.0,   30.0,  0.0,
-                         10.0,   30.0,  0.0,
-                         -10.0,  30.0,  0.0,
-                         -10.0, -30.0,  0.0],
-                        dtype=np.float32)
+        return np.array(
+            [
+                -10.0,
+                -30.0,
+                0.0,
+                10.0,
+                -30.0,
+                0.0,
+                10.0,
+                30.0,
+                0.0,
+                10.0,
+                30.0,
+                0.0,
+                -10.0,
+                30.0,
+                0.0,
+                -10.0,
+                -30.0,
+                0.0,
+            ],
+            dtype=np.float32,
+        )
 
     def prepare_to_render(self):
         # GL_QUADS aren't available anymore, only triangles
@@ -139,13 +156,29 @@ class Paddle:
         # Make a color array of the same length as the number of verticies.
         # it would have been more efficient to use indices, but I don't
         # want to put too much in this demo.
-        color = np.array([self.r, self.g, self.b,
-                          self.r, self.g, self.b,
-                          self.r, self.g, self.b,
-                          self.r, self.g, self.b,
-                          self.r, self.g, self.b,
-                          self.r, self.g, self.b],
-                         dtype=np.float32)
+        color = np.array(
+            [
+                self.r,
+                self.g,
+                self.b,
+                self.r,
+                self.g,
+                self.b,
+                self.r,
+                self.g,
+                self.b,
+                self.r,
+                self.g,
+                self.b,
+                self.r,
+                self.g,
+                self.b,
+                self.r,
+                self.g,
+                self.b,
+            ],
+            dtype=np.float32,
+        )
         self.numberOfColors = np.size(color) // floatsPerColor
 
         # Create a vertex array object.
@@ -175,10 +208,10 @@ class Paddle:
         glBindVertexArray(self.vao)
 
         # initialize shaders
-        with open(os.path.join(pwd, 'triangle.vert'), 'r') as f:
+        with open(os.path.join(pwd, "triangle.vert"), "r") as f:
             vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
 
-        with open(os.path.join(pwd, 'triangle.frag'), 'r') as f:
+        with open(os.path.join(pwd, "triangle.frag"), "r") as f:
             fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
 
         self.shader = shaders.compileProgram(vs, fs)
@@ -189,37 +222,39 @@ class Paddle:
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
 
         # get the handle for the position variable within the shader
-        position = glGetAttribLocation(self.shader, 'position')
+        position = glGetAttribLocation(self.shader, "position")
         # enable the position in the VAO, so that data will be fed from the
         # VBO
         glEnableVertexAttribArray(position)
 
         # specify how the vertex data should be fed from the VBO into the VAO
-        glVertexAttribPointer(position, #index
-                              floatsPerVertex, #size
-                              GL_FLOAT, #type
-                              False, #normalized (should be called normalize - a verb)
-                              0, #stride (this is for interleaved arrays, meaning
-                                 # [V1x, V1y, V1z, C1r, C1g, C1b, V2x .....]
-                              ctypes.c_void_p(0)) #pointer (offset pointer, 0 because we start
-                                                  # with the first vertex position
-                                                  # if we used interleaved arrays,
-                                                  # we would have this number be greater than 0
-                                                  # to specify the offset of the first color
+        glVertexAttribPointer(
+            position,  # index
+            floatsPerVertex,  # size
+            GL_FLOAT,  # type
+            False,  # normalized (should be called normalize - a verb)
+            0,  # stride (this is for interleaved arrays, meaning
+            # [V1x, V1y, V1z, C1r, C1g, C1b, V2x .....]
+            ctypes.c_void_p(0),
+        )  # pointer (offset pointer, 0 because we start
+        # with the first vertex position
+        # if we used interleaved arrays,
+        # we would have this number be greater than 0
+        # to specify the offset of the first color
 
         # From the OpenGL docs
-        #Parameters
+        # Parameters
 
-        #index
+        # index
         #
         #    Specifies the index of the generic vertex attribute to be modified.
         #
-        #size
+        # size
         #
         #    Specifies the number of components per generic vertex attribute. Must be 1, 2, 3, 4. Additionally,
         #    the symbolic constant GL_BGRA is accepted by glVertexAttribPointer. The initial value is 4.
         #
-        #type
+        # type
         #
         #    Specifies the data type of each component in the array. The symbolic constants GL_BYTE, GL_UNSIGNED_BYTE,
         #    GL_SHORT, GL_UNSIGNED_SHORT, GL_INT, and GL_UNSIGNED_INT are accepted by glVertexAttribPointer and
@@ -228,17 +263,17 @@ class Paddle:
         #    are accepted by glVertexAttribPointer. GL_DOUBLE is also accepted by glVertexAttribLPointer and is the only token
         #    accepted by the type parameter for that function. The initial value is GL_FLOAT.
         #
-        #normalized
+        # normalized
         #
         #    For glVertexAttribPointer, specifies whether fixed-point data values should be normalized (GL_TRUE) or converted directly
         #    as fixed-point values (GL_FALSE) when they are accessed.
         #
-        #stride
+        # stride
         #
         #    Specifies the byte offset between consecutive generic vertex attributes. If stride is 0, the generic vertex
         #    attributes are understood to be tightly packed in the array. The initial value is 0.
         #
-        #pointer
+        # pointer
         #
         #    Specifies a offset of the first component of the first generic vertex attribute in the array
         #    in the data store of the buffer currently bound to the GL_ARRAY_BUFFER target. The initial value is 0.
@@ -249,31 +284,24 @@ class Paddle:
         # These options are basically hints to the opengl driver, so that it can put the data
         # on the graphic card's GPU memory in an efficient place.  I don't know the implementation
         # details of how drivers utilize this information.
-        glBufferData(GL_ARRAY_BUFFER,
-                     glfloat_size * np.size(vertices),
-                     vertices,
-                     GL_STATIC_DRAW)
-
+        glBufferData(
+            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+        )
 
         # Do the same thing for the colors
         # send the modelspace data to the GPU
         vboColor = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, vboColor)
 
-        colorAttribLoc = glGetAttribLocation(self.shader, 'color_in')
+        colorAttribLoc = glGetAttribLocation(self.shader, "color_in")
         glEnableVertexAttribArray(colorAttribLoc)
-        glVertexAttribPointer(colorAttribLoc,
-                              floatsPerColor,
-                              GL_FLOAT,
-                              False,
-                              0,
-                              ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            colorAttribLoc, floatsPerColor, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
-        glBufferData(GL_ARRAY_BUFFER,
-                     glfloat_size * np.size(color),
-                     color,
-                     GL_STATIC_DRAW)
-
+        glBufferData(
+            GL_ARRAY_BUFFER, glfloat_size * np.size(color), color, GL_STATIC_DRAW
+        )
 
         # reset VAO/VBO to default
         glBindVertexArray(0)
@@ -303,34 +331,35 @@ class Paddle:
         # (it would be more efficient to get these locs
         #  when we set up the VAO.  I put the code here for
         #  clarity)
-        fov_loc = glGetUniformLocation(self.shader, "fov");
+        fov_loc = glGetUniformLocation(self.shader, "fov")
         # send 1 float into the shader, into the uniform fov
-        glUniform1f(fov_loc, 45.0);
-        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio");
-        glUniform1f(aspect_loc, width/height);
+        glUniform1f(fov_loc, 45.0)
+        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
+        glUniform1f(aspect_loc, width / height)
         # Here, I'm still using negative z values for nearZ and
         # farZ, because that's consistent both with the math that I've
         # taught you so far and with the right hand rule.
         # By the end of lesson 25, we will use positive nearZ
         # and farZ values, as is consistent with the "standard"
         # perspective projection matrix.
-        nearZ_loc = glGetUniformLocation(self.shader, "nearZ");
-        glUniform1f(nearZ_loc, -0.1);
-        farZ_loc = glGetUniformLocation(self.shader, "farZ");
-        glUniform1f(farZ_loc, -10000.0);
+        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
+        glUniform1f(nearZ_loc, -0.1)
+        farZ_loc = glGetUniformLocation(self.shader, "farZ")
+        glUniform1f(farZ_loc, -10000.0)
 
         # Here we have to send the modelview matrix over ourselves.
         # Unlike what you have learned in the OPenGL Superbible,
         # In Core Profile, there are very few predefined variables in shaders.
         mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
         # ascontiguousarray puts the array in column major order
-        glUniformMatrix4fv(mvMatrixLoc,
-                           1,
-                           GL_TRUE,
-                           np.ascontiguousarray(
-                               ms.getCurrentMatrix(
-                                   ms.MatrixStack.modelview),
-                               dtype=np.float32))
+        glUniformMatrix4fv(
+            mvMatrixLoc,
+            1,
+            GL_TRUE,
+            np.ascontiguousarray(
+                ms.getCurrentMatrix(ms.MatrixStack.modelview), dtype=np.float32
+            ),
+        )
         # Invoke the shaders.  Linkages are already set up from the VBOs (via
         # the VAO), and from the
         # uniforms.
@@ -340,26 +369,18 @@ class Paddle:
         # one of the few special variables in OpenGL 3.3 Core Profile
         # mode.
 
-        glDrawArrays(GL_TRIANGLES,
-                     0,
-                     self.numberOfVertices)
+        glDrawArrays(GL_TRIANGLES, 0, self.numberOfVertices)
         # unset the current VAO
         glBindVertexArray(0)
 
 
-paddle1 = Paddle(r=0.578123,
-                 g=0.0,
-                 b=1.0,
-                 initial_position=np.array([-90.0, 0.0, 0.0]))
+paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, initial_position=np.array([-90.0, 0.0, 0.0]))
 paddle1.prepare_to_render()
-paddle2 = Paddle(r=1.0,
-                 g=0.0,
-                 b=0.0,
-                 initial_position=np.array([90.0, 0.0, 0.0]))
+paddle2 = Paddle(r=1.0, g=0.0, b=0.0, initial_position=np.array([90.0, 0.0, 0.0]))
 paddle2.prepare_to_render()
 
 
-class Square (Paddle):
+class Square(Paddle):
     def __init__(self, r, g, b):
         self.r = r
         self.g = g
@@ -367,19 +388,21 @@ class Square (Paddle):
         self.rotation = 0.0
         self.rotation_around_paddle1 = 0.0
 
-
     def vertices(self):
-        return np.array([[-5.0, -5.0,  0.0],
-                         [5.0, -5.0,  0.0],
-                         [5.0,  5.0,  0.0],
-                         [5.0,  5.0,  0.0],
-                         [-5.0, 5.0,  0.0],
-                         [-5.0, -5.0,  0.0]],
-                        dtype=np.float32)
+        return np.array(
+            [
+                [-5.0, -5.0, 0.0],
+                [5.0, -5.0, 0.0],
+                [5.0, 5.0, 0.0],
+                [5.0, 5.0, 0.0],
+                [-5.0, 5.0, 0.0],
+                [-5.0, -5.0, 0.0],
+            ],
+            dtype=np.float32,
+        )
 
-square = Square(r=0.0,
-                g=0.0,
-                b=1.0)
+
+square = Square(r=0.0, g=0.0, b=1.0)
 
 square.prepare_to_render()
 
@@ -389,7 +412,6 @@ moving_camera_y = 0.0
 moving_camera_z = 400.0
 moving_camera_rot_y = 0.0
 moving_camera_rot_x = 0.0
-
 
 
 def handle_inputs():
@@ -414,8 +436,8 @@ def handle_inputs():
         moving_camera_rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         moving_camera_rot_x -= 0.03
-# //TODO -  explaing movement on XZ-plane
-# //TODO -  show camera movement in graphviz
+    # //TODO -  explaing movement on XZ-plane
+    # //TODO -  show camera movement in graphviz
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
         moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)
@@ -446,22 +468,22 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
-
-square_vertices = np.array([[-5.0, -5.0,  0.0],
-                            [5.0, -5.0,  0.0],
-                            [5.0,  5.0,  0.0],
-                            [-5.0, 5.0,  0.0]],
-                           dtype=np.float32)
+square_vertices = np.array(
+    [[-5.0, -5.0, 0.0], [5.0, -5.0, 0.0], [5.0, 5.0, 0.0], [-5.0, 5.0, 0.0]],
+    dtype=np.float32,
+)
 
 
-TARGET_FRAMERATE = 60 # fps
+TARGET_FRAMERATE = 60  # fps
 
 
 time_at_beginning_of_previous_frame = glfw.get_time()
 
 
 while not glfw.window_should_close(window):
-    while glfw.get_time() < time_at_beginning_of_previous_frame +  1.0/TARGET_FRAMERATE:
+    while (
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+    ):
         pass
 
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -472,73 +494,58 @@ while not glfw.window_should_close(window):
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-
     ms.setToIdentityMatrix(ms.MatrixStack.model)
     ms.setToIdentityMatrix(ms.MatrixStack.view)
     ms.setToIdentityMatrix(ms.MatrixStack.projection)
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
-    glClearColor(0.0,  # r
-                 0.0,  # g
-                 0.0,  # b
-                 1.0)  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     handle_inputs()
 
-    ms.rotate_x(ms.MatrixStack.view,
-               -moving_camera_rot_x)
-    ms.rotate_y(ms.MatrixStack.view,
-               -moving_camera_rot_y)
-    ms.translate(ms.MatrixStack.view,
-                 -moving_camera_x,
-                 -moving_camera_y,
-                 -moving_camera_z)
+    ms.rotate_x(ms.MatrixStack.view, -moving_camera_rot_x)
+    ms.rotate_y(ms.MatrixStack.view, -moving_camera_rot_y)
+    ms.translate(
+        ms.MatrixStack.view, -moving_camera_x, -moving_camera_y, -moving_camera_z
+    )
 
     with ms.push_matrix(ms.MatrixStack.model):
-        ms.translate(ms.MatrixStack.model,
-                     paddle1.input_offset_x,
-                     paddle1.input_offset_y,
-                     0.0)
-        ms.translate(ms.MatrixStack.model,
-                     paddle1.initial_position[0],
-                     paddle1.initial_position[1],
-                     0.0)
-        ms.rotate_z(ms.MatrixStack.model,
-                   paddle1.rotation)
+        ms.translate(
+            ms.MatrixStack.model, paddle1.input_offset_x, paddle1.input_offset_y, 0.0
+        )
+        ms.translate(
+            ms.MatrixStack.model,
+            paddle1.initial_position[0],
+            paddle1.initial_position[1],
+            0.0,
+        )
+        ms.rotate_z(ms.MatrixStack.model, paddle1.rotation)
         # NEW
         paddle1.render()
 
         with ms.push_matrix(ms.MatrixStack.model):
-            ms.translate(ms.MatrixStack.model,
-                         0.0,
-                         0.0,
-                         -10.0)
-            ms.rotate_z(ms.MatrixStack.model,
-                       square.rotation_around_paddle1)
+            ms.translate(ms.MatrixStack.model, 0.0, 0.0, -10.0)
+            ms.rotate_z(ms.MatrixStack.model, square.rotation_around_paddle1)
 
-            ms.translate(ms.MatrixStack.model,
-                         20.0,
-                         0.0,
-                         0.0)
-            ms.rotate_z(ms.MatrixStack.model,
-                       square.rotation)
+            ms.translate(ms.MatrixStack.model, 20.0, 0.0, 0.0)
+            ms.rotate_z(ms.MatrixStack.model, square.rotation)
 
             # NEW
             square.render()
 
     with ms.push_matrix(ms.MatrixStack.model):
-        ms.translate(ms.MatrixStack.model,
-                     paddle2.input_offset_x,
-                     paddle2.input_offset_y,
-                     0.0)
-        ms.translate(ms.MatrixStack.model,
-                     paddle2.initial_position[0],
-                     paddle2.initial_position[1],
-                     0.0)
-        ms.rotate_z(ms.MatrixStack.model,
-                   paddle2.rotation)
+        ms.translate(
+            ms.MatrixStack.model, paddle2.input_offset_x, paddle2.input_offset_y, 0.0
+        )
+        ms.translate(
+            ms.MatrixStack.model,
+            paddle2.initial_position[0],
+            paddle2.initial_position[1],
+            0.0,
+        )
+        ms.rotate_z(ms.MatrixStack.model, paddle2.rotation)
         # NEW
         paddle2.render()
 

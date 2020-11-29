@@ -24,6 +24,7 @@ from enum import Enum
 import math
 from contextlib import contextmanager
 
+
 class MatrixStack(Enum):
     model = 1
     view = 2
@@ -32,23 +33,41 @@ class MatrixStack(Enum):
     modelviewprojection = 5
 
 
-__modelStack__ = [np.matrix([[1.0, 0.0, 0.0, 0.0],
-                             [0.0, 1.0, 0.0, 0.0],
-                             [0.0, 0.0, 1.0, 0.0],
-                             [0.0, 0.0, 0.0, 1.0]],
-                            dtype=np.float32)]
+__modelStack__ = [
+    np.matrix(
+        [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+        dtype=np.float32,
+    )
+]
 
-__viewStack__ = [np.matrix([[1.0, 0.0, 0.0, 0.0],
-                            [0.0, 1.0, 0.0, 0.0],
-                            [0.0, 0.0, 1.0, 0.0],
-                            [0.0, 0.0, 0.0, 1.0]],
-                           dtype=np.float32)]
+__viewStack__ = [
+    np.matrix(
+        [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+        dtype=np.float32,
+    )
+]
 
-__projectionStack__ = [np.matrix([[1.0, 0.0, 0.0, 0.0],
-                                  [0.0, 1.0, 0.0, 0.0],
-                                  [0.0, 0.0, 1.0, 0.0],
-                                  [0.0, 0.0, 0.0, 1.0]],
-                                 dtype=np.float32)]
+__projectionStack__ = [
+    np.matrix(
+        [
+            [1.0, 0.0, 0.0, 0.0],
+            [0.0, 1.0, 0.0, 0.0],
+            [0.0, 0.0, 1.0, 0.0],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+        dtype=np.float32,
+    )
+]
 
 
 def getCurrentMatrix(matrixStack):
@@ -59,12 +78,18 @@ def getCurrentMatrix(matrixStack):
     if matrixStack == MatrixStack.projection:
         return __projectionStack__[len(__projectionStack__) - 1]
     if matrixStack == MatrixStack.modelview:
-        return np.matmul(__viewStack__[len(__viewStack__) - 1],
-                         __modelStack__[len(__modelStack__) - 1])
+        return np.matmul(
+            __viewStack__[len(__viewStack__) - 1],
+            __modelStack__[len(__modelStack__) - 1],
+        )
     if matrixStack == MatrixStack.modelviewprojection:
-        return np.matmul(__projectionStack__[len(__projectionStack__) - 1],
-                         np.matmul(__viewStack__[len(__viewStack__) - 1],
-                                   __modelStack__[len(__modelStack__) - 1]))
+        return np.matmul(
+            __projectionStack__[len(__projectionStack__) - 1],
+            np.matmul(
+                __viewStack__[len(__viewStack__) - 1],
+                __modelStack__[len(__modelStack__) - 1],
+            ),
+        )
 
 
 def setCurrentMatrix(matrixStack, m):
@@ -121,8 +146,7 @@ class PushMatrix:
 @contextmanager
 def push_matrix(m):
     """Instead of manually pushing and poping the matrix stack,
-this allows using the "with" keyword.
-"""
+    this allows using the "with" keyword."""
     matrixStack = m
     try:
         __pushMatrix__(matrixStack)
@@ -132,11 +156,18 @@ this allows using the "with" keyword.
 
 
 def setToIdentityMatrix(m):
-    setCurrentMatrix(m, np.matrix([[1.0, 0.0, 0.0, 0.0],
-                                   [0.0, 1.0, 0.0, 0.0],
-                                   [0.0, 0.0, 1.0, 0.0],
-                                   [0.0, 0.0, 0.0, 1.0]],
-                                  dtype=np.float32))
+    setCurrentMatrix(
+        m,
+        np.matrix(
+            [
+                [1.0, 0.0, 0.0, 0.0],
+                [0.0, 1.0, 0.0, 0.0],
+                [0.0, 0.0, 1.0, 0.0],
+                [0.0, 0.0, 0.0, 1.0],
+            ],
+            dtype=np.float32,
+        ),
+    )
 
 
 def rotate_x(matrixStack, rads):
@@ -323,8 +354,7 @@ def scale(matrixStack, x, y, z):
 
 
 def multiply(matrixStack, rhs):
-    """ Matrix multiply
-    """
+    """Matrix multiply"""
     m = getCurrentMatrix(matrixStack)
     m[0:4, 0:4] = np.matmul(m.copy(), rhs)
 
@@ -345,11 +375,14 @@ def ortho(left, right, back, top, near, far):
     rz = -(far + near) / (far - near)
 
     __projectionStack__[len(__projectionStack__) - 1] = np.matrix(
-        [[2.0 / dx,  0.0,     0.0,       rx],
-         [0.0,      2.0 / dy, 0.0,       ry],
-         [0.0,      0.0,    -2.0 / dz,   rz],
-         [0.0,      0.0,    0.0,       1.0]],
-        dtype=np.float32)
+        [
+            [2.0 / dx, 0.0, 0.0, rx],
+            [0.0, 2.0 / dy, 0.0, ry],
+            [0.0, 0.0, -2.0 / dz, rz],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+        dtype=np.float32,
+    )
 
 
 def perspective(fov, aspectRatio, nearZ, farZ):
@@ -368,8 +401,16 @@ def perspective(fov, aspectRatio, nearZ, farZ):
     right = top * aspectRatio
 
     __projectionStack__[len(__projectionStack__) - 1] = np.matrix(
-        [[nearZ / right, 0.0,         0.0,                               0.0],
-         [0.0,           nearZ / top, 0.0,                               0.0],
-         [0.0,           0.0,         -(farZ + nearZ) / (farZ - nearZ),  -2 * (farZ * nearZ) / (farZ - nearZ)],
-         [0.0,           0.0,         -1.0,                              0.0]],
-        dtype=np.float32)
+        [
+            [nearZ / right, 0.0, 0.0, 0.0],
+            [0.0, nearZ / top, 0.0, 0.0],
+            [
+                0.0,
+                0.0,
+                -(farZ + nearZ) / (farZ - nearZ),
+                -2 * (farZ * nearZ) / (farZ - nearZ),
+            ],
+            [0.0, 0.0, -1.0, 0.0],
+        ],
+        dtype=np.float32,
+    )

@@ -1,22 +1,22 @@
-#Copyright (c) 2018-2020 William Emerison Six
+# Copyright (c) 2018-2020 William Emerison Six
 #
-#Permission is hereby granted, free of charge, to any person obtaining a copy
-#of this software and associated documentation files (the "Software"), to deal
-#in the Software without restriction, including without limitation the rights
-#to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-#copies of the Software, and to permit persons to whom the Software is
-#furnished to do so, subject to the following conditions:
+# Permission is hereby granted, free of charge, to any person obtaining a copy
+# of this software and associated documentation files (the "Software"), to deal
+# in the Software without restriction, including without limitation the rights
+# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+# copies of the Software, and to permit persons to whom the Software is
+# furnished to do so, subject to the following conditions:
 #
-#The above copyright notice and this permission notice shall be included in all
-#copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in all
+# copies or substantial portions of the Software.
 #
-#THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-#IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-#FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-#AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-#LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-#OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-#SOFTWARE.
+# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+# SOFTWARE.
 
 # PURPOSE
 #
@@ -155,9 +155,6 @@
 #     ndc_space = camera_space.camera_space_to_ndc_space_fn()               push this first  (because first in, last applied)
 
 
-
-
-
 # Notice that we will now be pushing everything in reverse order,
 # at least relative to how the previous demos have worked.
 #
@@ -170,7 +167,6 @@
 #                                 stacks will be used in the same way
 #                                 as this function stack is)
 #
-
 
 
 # Then, to draw the square relative to paddle one, those six
@@ -232,14 +228,10 @@ import glfw
 if not glfw.init():
     sys.exit()
 
-glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR,1)
-glfw.window_hint(glfw.CONTEXT_VERSION_MINOR,4)
+glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
+glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500,
-                            500,
-                            "ModelViewProjection Demo 17",
-                            None,
-                            None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 17", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -250,127 +242,127 @@ glfw.make_context_current(window)
 # Install a key handler
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window,1)
+        glfw.set_window_should_close(window, 1)
+
+
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0,
-             0.0,
-             0.0,
-             1.0)
+glClearColor(0.0, 0.0, 0.0, 1.0)
 
 
 glClearDepth(-1.0)
 glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
 
-glMatrixMode(GL_PROJECTION);
-glLoadIdentity();
-glMatrixMode(GL_MODELVIEW);
-glLoadIdentity();
+glMatrixMode(GL_PROJECTION)
+glLoadIdentity()
+glMatrixMode(GL_MODELVIEW)
+glLoadIdentity()
 
 
 def draw_in_square_viewport():
-    glClearColor(0.2, #r
-                 0.2, #g
-                 0.2, #b
-                 1.0) #a
+    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
     min = width if width < height else height
 
     glEnable(GL_SCISSOR_TEST)
-    glScissor(int((width - min)/2.0),  #min x
-              int((height - min)/2.0), #min y
-              min,                     #width x
-              min)                     #width y
+    glScissor(
+        int((width - min) / 2.0),  # min x
+        int((height - min) / 2.0),  # min y
+        min,  # width x
+        min,
+    )  # width y
 
-    glClearColor(0.0, #r
-                 0.0, #g
-                 0.0, #b
-                 1.0) #a
+    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
-    glViewport(int(0.0 + (width - min)/2.0),  #min x
-               int(0.0 + (height - min)/2.0), #min y
-               min,                           #width x
-               min)                           #width y
+    glViewport(
+        int(0.0 + (width - min) / 2.0),  # min x
+        int(0.0 + (height - min) / 2.0),  # min y
+        min,  # width x
+        min,
+    )  # width y
 
 
 class Vertex:
-    def __init__(self,x,y,z):
+    def __init__(self, x, y, z):
         self.x = x
         self.y = y
         self.z = z
 
     def translate(self, tx, ty, tz):
-        return Vertex(x=self.x + tx,
-                      y=self.y + ty,
-                      z=self.z + tz)
+        return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
 
     def rotate_x(self, angle_in_radians):
-        return Vertex(x=self.x,
-                      y=self.y*math.cos(angle_in_radians) - self.z*math.sin(angle_in_radians),
-                      z=self.y*math.sin(angle_in_radians) + self.z*math.cos(angle_in_radians))
+        return Vertex(
+            x=self.x,
+            y=self.y * math.cos(angle_in_radians) - self.z * math.sin(angle_in_radians),
+            z=self.y * math.sin(angle_in_radians) + self.z * math.cos(angle_in_radians),
+        )
 
     def rotate_y(self, angle_in_radians):
-        return Vertex(x=self.z*math.sin(angle_in_radians) + self.x*math.cos(angle_in_radians),
-                      y=self.y,
-                      z=self.z*math.cos(angle_in_radians) - self.x*math.sin(angle_in_radians))
+        return Vertex(
+            x=self.z * math.sin(angle_in_radians) + self.x * math.cos(angle_in_radians),
+            y=self.y,
+            z=self.z * math.cos(angle_in_radians) - self.x * math.sin(angle_in_radians),
+        )
 
     def rotate_z(self, angle_in_radians):
-        return Vertex(x=self.x*math.cos(angle_in_radians) - self.y*math.sin(angle_in_radians),
-                      y=self.x*math.sin(angle_in_radians) + self.y*math.cos(angle_in_radians),
-                      z=self.z)
+        return Vertex(
+            x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
+            y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
+            z=self.z,
+        )
 
     def scale(self, scale_x, scale_y, scale_z):
-        return Vertex(x=self.x * scale_x,
-                      y=self.y * scale_y,
-                      z=self.z * scale_z)
+        return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
 
-    def ortho(self,
-              left,
-              right,
-              bottom,
-              top,
-              near,
-              far):
-        midpoint_x, midpoint_y, midpoint_z = (left+right)/2.0, (bottom + top)/2.0, (near+far)/2.0
+    def ortho(self, left, right, bottom, top, near, far):
+        midpoint_x, midpoint_y, midpoint_z = (
+            (left + right) / 2.0,
+            (bottom + top) / 2.0,
+            (near + far) / 2.0,
+        )
         length_x, length_y, length_z = right - left, top - bottom, far - near
-        return self.translate(tx=-midpoint_x,
-                              ty=-midpoint_y,
-                              tz=-midpoint_z) \
-                   .scale(2.0/length_x,
-                          2.0/length_y,
-                          2.0/(-length_z))
+        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
+            2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
+        )
 
     def perspective(self, fov, aspectRatio, nearZ, farZ):
-        top = -nearZ * math.tan(math.radians(fov)/ 2.0)
+        top = -nearZ * math.tan(math.radians(fov) / 2.0)
         right = top * aspectRatio
 
         scaled_x = self.x * nearZ / self.z
         scaled_y = self.y * nearZ / self.z
-        projected =  Vertex(scaled_x,
-                            scaled_y,
-                            self.z)
-        return projected.ortho(left = -right,
-                               right = right,
-                               bottom = -top,
-                               top = top,
-                               near = nearZ,
-                               far = farZ)
-
+        projected = Vertex(scaled_x, scaled_y, self.z)
+        return projected.ortho(
+            left=-right, right=right, bottom=-top, top=top, near=nearZ, far=farZ
+        )
 
     def camera_space_to_ndc_space_fn(self):
-        return self.perspective(fov=45.0,
-                                aspectRatio=1.0,  #since the viewport is always square
-                                nearZ=-0.1,
-                                farZ=-10000.0)
+        return self.perspective(
+            fov=45.0,
+            aspectRatio=1.0,  # since the viewport is always square
+            nearZ=-0.1,
+            farZ=-10000.0,
+        )
 
 
 class Paddle:
-    def __init__(self,vertices, r, g, b, initial_position, rotation=0.0, input_offset_x=0.0, input_offset_y=0.0):
+    def __init__(
+        self,
+        vertices,
+        r,
+        g,
+        b,
+        initial_position,
+        rotation=0.0,
+        input_offset_x=0.0,
+        input_offset_y=0.0,
+    ):
         self.vertices = vertices
         self.r = r
         self.g = g
@@ -381,23 +373,31 @@ class Paddle:
         self.initial_position = initial_position
 
 
-paddle1 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0, z=0.0),
-                           Vertex(x= 10.0, y=-30.0, z=0.0),
-                           Vertex(x= 10.0, y= 30.0, z=0.0),
-                           Vertex(x=-10.0, y=30.0,  z=0.0)],
-                 r=0.578123,
-                 g=0.0,
-                 b=1.0,
-                 initial_position=Vertex(x=-90.0,y=0.0,z=0.0))
+paddle1 = Paddle(
+    vertices=[
+        Vertex(x=-10.0, y=-30.0, z=0.0),
+        Vertex(x=10.0, y=-30.0, z=0.0),
+        Vertex(x=10.0, y=30.0, z=0.0),
+        Vertex(x=-10.0, y=30.0, z=0.0),
+    ],
+    r=0.578123,
+    g=0.0,
+    b=1.0,
+    initial_position=Vertex(x=-90.0, y=0.0, z=0.0),
+)
 
-paddle2 = Paddle(vertices=[Vertex(x=-10.0, y=-30.0, z=0.0),
-                           Vertex(x= 10.0, y=-30.0, z=0.0),
-                           Vertex(x= 10.0, y= 30.0, z=0.0),
-                           Vertex(x=-10.0, y=30.0,  z=0.0)],
-                 r=1.0,
-                 g=0.0,
-                 b=0.0,
-                 initial_position=Vertex(x=90.0,y=0.0,z=0.0))
+paddle2 = Paddle(
+    vertices=[
+        Vertex(x=-10.0, y=-30.0, z=0.0),
+        Vertex(x=10.0, y=-30.0, z=0.0),
+        Vertex(x=10.0, y=30.0, z=0.0),
+        Vertex(x=-10.0, y=30.0, z=0.0),
+    ],
+    r=1.0,
+    g=0.0,
+    b=0.0,
+    initial_position=Vertex(x=90.0, y=0.0, z=0.0),
+)
 
 moving_camera_x = 0.0
 moving_camera_y = 0.0
@@ -406,10 +406,12 @@ moving_camera_rot_y = 0.0
 moving_camera_rot_x = 0.0
 
 
-square = [Vertex(x=-5.0, y=-5.0, z=0.0),
-          Vertex(x= 5.0, y=-5.0, z=0.0),
-          Vertex(x= 5.0, y= 5.0, z=0.0),
-          Vertex(x=-5.0, y=5.0,  z=0.0)]
+square = [
+    Vertex(x=-5.0, y=-5.0, z=0.0),
+    Vertex(x=5.0, y=-5.0, z=0.0),
+    Vertex(x=5.0, y=5.0, z=0.0),
+    Vertex(x=-5.0, y=5.0, z=0.0),
+]
 square_rotation = 0.0
 rotation_around_paddle1 = 0.0
 
@@ -437,13 +439,13 @@ def handle_inputs():
     if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
         moving_camera_rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        moving_camera_rot_x -= 0.03;
+        moving_camera_rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
         moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        moving_camera_x += move_multiple * math.sin(moving_camera_rot_y);
-        moving_camera_z += move_multiple * math.cos(moving_camera_rot_y);
+        moving_camera_x += move_multiple * math.sin(moving_camera_rot_y)
+        moving_camera_z += move_multiple * math.cos(moving_camera_rot_y)
 
     global paddle1, paddle2
 
@@ -486,7 +488,7 @@ def apply_stack(vertex):
     return v
 
 
-TARGET_FRAMERATE = 60 # fps
+TARGET_FRAMERATE = 60  # fps
 
 # to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame = glfw.get_time()
@@ -494,7 +496,9 @@ time_at_beginning_of_previous_frame = glfw.get_time()
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
-    while glfw.get_time() < time_at_beginning_of_previous_frame +  1.0/TARGET_FRAMERATE:
+    while (
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+    ):
         pass
     # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -520,7 +524,7 @@ while not glfw.window_should_close(window):
     # and the end of the list to be the top of the stack.
 
     # every object uses the same projection
-    fn_stack.append(lambda v: v.camera_space_to_ndc_space_fn()) # (1)
+    fn_stack.append(lambda v: v.camera_space_to_ndc_space_fn())  # (1)
 
     # NEW
     # Unlike in previous demos in which we read the transformations
@@ -544,12 +548,13 @@ while not glfw.window_should_close(window):
 
     # Therefore the transformations to put the world space into
     # camera space are.
-    fn_stack.append(lambda v: v.rotate_x( -moving_camera_rot_x)) # (2)
-    fn_stack.append(lambda v: v.rotate_y( -moving_camera_rot_y)) # (3)
-    fn_stack.append(lambda v: v.translate(tx=-moving_camera_x,   # (4)
-                                          ty=-moving_camera_y,
-                                          tz=-moving_camera_z))
-
+    fn_stack.append(lambda v: v.rotate_x(-moving_camera_rot_x))  # (2)
+    fn_stack.append(lambda v: v.rotate_y(-moving_camera_rot_y))  # (3)
+    fn_stack.append(
+        lambda v: v.translate(
+            tx=-moving_camera_x, ty=-moving_camera_y, tz=-moving_camera_z  # (4)
+        )
+    )
 
     # NEW
     # draw paddle 1
@@ -558,19 +563,27 @@ while not glfw.window_should_close(window):
     # are on a stack, the fns on the model stack can
     # be read forwards, where each operation translates/rotates/scales
     # the current space
-    fn_stack.append(lambda v: v.translate(tx=paddle1.input_offset_x, # (5) translate the local origin
-                                          ty=paddle1.input_offset_y,
-                                          tz=0.0))
-    fn_stack.append(lambda v: v.translate(tx=paddle1.initial_position.x,  # (6) translate the local origin
-                                          ty=paddle1.initial_position.y,
-                                          tz=0.0))
-    fn_stack.append(lambda v: v.rotate_z(paddle1.rotation)) # (7) (rotate around the local z axis
+    fn_stack.append(
+        lambda v: v.translate(
+            tx=paddle1.input_offset_x,  # (5) translate the local origin
+            ty=paddle1.input_offset_y,
+            tz=0.0,
+        )
+    )
+    fn_stack.append(
+        lambda v: v.translate(
+            tx=paddle1.initial_position.x,  # (6) translate the local origin
+            ty=paddle1.initial_position.y,
+            tz=0.0,
+        )
+    )
+    fn_stack.append(
+        lambda v: v.rotate_z(paddle1.rotation)
+    )  # (7) (rotate around the local z axis
 
     # draw paddle 1
     # set the color
-    glColor3f(paddle1.r,
-              paddle1.g,
-              paddle1.b)
+    glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     # NEW
     # specify that we are drawing a quadrilateral
@@ -581,37 +594,29 @@ while not glfw.window_should_close(window):
         ndc_space = apply_stack(model_space)
         # this results in coordinate data in NDC space,
         # which we can pass to glVertex3f
-        glVertex3f(ndc_space.x,
-                   ndc_space.y,
-                   ndc_space.z)
+        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-
-
 
     # NEW
     # draw the square
-    glColor3f(0.0, #r
-              0.0, #g
-              1.0) #b
+    glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
 
     # since the modelstack is already in paddle1's space,
     # and since the blue square is defined relative to paddle1,
     # just add the transformations relative to it
     # before the blue square is drawn.  Draw the square, and then
     # remove these 4 transformations from the stack (done below)
-    fn_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0)) # (8)
-    fn_stack.append(lambda v: v.rotate_z(rotation_around_paddle1)) # (9)
-    fn_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0)) # (10)
-    fn_stack.append(lambda v: v.rotate_z(square_rotation)) # (11)
+    fn_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0))  # (8)
+    fn_stack.append(lambda v: v.rotate_z(rotation_around_paddle1))  # (9)
+    fn_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0))  # (10)
+    fn_stack.append(lambda v: v.rotate_z(square_rotation))  # (11)
 
     # same as for paddle 1, apply the stack to get modelspace->ndc, call
     # glvertex on the result
     glBegin(GL_QUADS)
     for model_space in square:
         ndc_space = apply_stack(model_space)
-        glVertex3f(ndc_space.x,
-                   ndc_space.y,
-                   ndc_space.z)
+        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
     # NEW
@@ -619,40 +624,39 @@ while not glfw.window_should_close(window):
     # matrix stack would convert from world space to NDC.
     # This will allow us to just add the transformaions from
     # world space to paddle2 space on the stack.
-    fn_stack.pop() # pop off (11)
-    fn_stack.pop() # pop off (10)
-    fn_stack.pop() # pop off (9)
-    fn_stack.pop() # pop off (8)
-    fn_stack.pop() # pop off (7)
-    fn_stack.pop() # pop off (6)
-    fn_stack.pop() # pop off (5)
-
+    fn_stack.pop()  # pop off (11)
+    fn_stack.pop()  # pop off (10)
+    fn_stack.pop()  # pop off (9)
+    fn_stack.pop()  # pop off (8)
+    fn_stack.pop()  # pop off (7)
+    fn_stack.pop()  # pop off (6)
+    fn_stack.pop()  # pop off (5)
 
     # NEW
     # since paddle2's model_space is independent of paddle 1's space, only
     # leave the view and projection fns (1) - (4)
 
     # draw paddle 2
-    fn_stack.append(lambda v: v.translate(tx=paddle2.input_offset_x, # (12)
-                                          ty=paddle2.input_offset_y,
-                                          tz=0.0))
-    fn_stack.append(lambda v: v.translate(tx=paddle2.initial_position.x,  # (13)
-                                          ty=paddle2.initial_position.y,
-                                          tz=0.0))
-    fn_stack.append(lambda v: v.rotate_z(paddle2.rotation)) # (14)
+    fn_stack.append(
+        lambda v: v.translate(
+            tx=paddle2.input_offset_x, ty=paddle2.input_offset_y, tz=0.0  # (12)
+        )
+    )
+    fn_stack.append(
+        lambda v: v.translate(
+            tx=paddle2.initial_position.x, ty=paddle2.initial_position.y, tz=0.0  # (13)
+        )
+    )
+    fn_stack.append(lambda v: v.rotate_z(paddle2.rotation))  # (14)
 
     # NEW
     # draw paddle 2
-    glColor3f(paddle2.r,
-              paddle2.g,
-              paddle2.b)
+    glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         ndc_space = apply_stack(model_space)
-        glVertex3f(ndc_space.x,
-                   ndc_space.y,
-                   ndc_space.z)
+        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
     # remove all fns from the function stack, as the next frame will set them
@@ -663,8 +667,6 @@ while not glfw.window_should_close(window):
     # done with frame, flush and swap buffers
     # Swap front and back buffers
     glfw.swap_buffers(window)
-
-
 
 
 glfw.terminate()
