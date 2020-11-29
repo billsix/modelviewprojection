@@ -62,24 +62,24 @@ def accumulate_transformation(procedures, backwards=False):
         ]:
 
             def process(x, y):
-                resultx, resulty = x, y
+                result_x, result_y = x, y
                 for current_fn_index in range(number_of_fns_to_apply_this_round):
-                    resultx, resulty = procedures[current_fn_index](resultx, resulty)
-                return resultx, resulty
+                    result_x, result_y = procedures[current_fn_index](result_x, result_y)
+                return result_x, result_y
 
             yield process, True if number_of_fns_to_apply_this_round == len(
                 procedures
             ) else False
     else:
-        reversedProcs = list(range(len(procedures)))
-        reversedProcs.reverse()
-        for proc_index in reversedProcs:
+        reversed_procs = list(range(len(procedures)))
+        reversed_procs.reverse()
+        for proc_index in reversed_procs:
 
             def process(x, y):
-                resultx, resulty = x, y
+                result_x, result_y = x, y
                 for current_fn_index in range(proc_index, len(procedures)):
-                    resultx, resulty = procedures[current_fn_index](resultx, resulty)
-                return resultx, resulty
+                    result_x, result_y = procedures[current_fn_index](result_x, result_y)
+                return result_x, result_y
 
             yield process, True if proc_index == 0 else False
 
@@ -102,11 +102,11 @@ for m in modules:
 ## Translation Plots - reading the transformations forward
 
 ### Step 1
-graphBounds = (100, 100)
+graph_bounds = (100, 100)
 
 fig, axes = plt.subplots()
-axes.set_xlim([-graphBounds[0], graphBounds[0]])
-axes.set_ylim([-graphBounds[1], graphBounds[1]])
+axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
+axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
 Geometry = namedtuple("Geometry", "points color")
 
@@ -145,7 +145,7 @@ paddle2 = Geometry(
 )
 
 
-def createGraphs(title, filename, geometry, procedures, backwards=False):
+def create_graphs(title, filename, geometry, procedures, backwards=False):
     """Creates an animated dif of the geometry, through a sequence of transformations"""
 
     procs = procedures.copy()
@@ -157,35 +157,35 @@ def createGraphs(title, filename, geometry, procedures, backwards=False):
     # create a single frame of the animated gif
     def create_single_frame(fn, isLast, frame_number):
         fig, axes = plt.subplots()
-        axes.set_xlim([-graphBounds[0], graphBounds[0]])
-        axes.set_ylim([-graphBounds[1], graphBounds[1]])
+        axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
+        axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
         # plot transformed basis
         for xs, ys, thickness in generategridlines.generategridlines(
-            graphBounds, interval=5
+            graph_bounds, interval=5
         ):
-            transformedXs, transformedYs = fn(xs, ys) if backwards else (xs, ys)
+            transformed_xs, transformed_ys = fn(xs, ys) if backwards else (xs, ys)
             plt.plot(
-                transformedXs,
-                transformedYs,
+                transformed_xs,
+                transformed_ys,
                 "k-",
                 lw=thickness,
                 color=(0.1, 0.2, 0.5, 0.3),
             )
 
         # x axis
-        transformedXs, transformedYs = fn([0.0, 10.0], [0.0, 0.0])
-        plt.plot(transformedXs, transformedYs, "k-", lw=4.0, color=(0.0, 0.0, 1.0, 1.0))
+        transformed_xs, transformed_ys = fn([0.0, 10.0], [0.0, 0.0])
+        plt.plot(transformed_xs, transformed_ys, "k-", lw=4.0, color=(0.0, 0.0, 1.0, 1.0))
 
         # y axis
-        transformedXs, transformedYs = fn([0.0, 0.0], [0.0, 10.0])
-        plt.plot(transformedXs, transformedYs, "k-", lw=4.0, color=(1.0, 0.0, 1.0, 1.0))
+        transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, 10.0])
+        plt.plot(transformed_xs, transformed_ys, "k-", lw=4.0, color=(1.0, 0.0, 1.0, 1.0))
 
         # plot the points
-        transformedXs, transformedYs = fn(*geometry.points)
+        transformed_xs, transformed_ys = fn(*geometry.points)
         plt.title(str.format("{}\nStep {}", title, str(frame_number)))
         if (backwards and isLast) or not backwards:
-            plt.plot(transformedXs, transformedYs, "k-", lw=2, color=geometry.color)
+            plt.plot(transformed_xs, transformed_ys, "k-", lw=2, color=geometry.color)
 
         # make sure the x and y axis are equally proportional in screen space
         plt.gca().set_aspect("equal", adjustable="box")
@@ -208,7 +208,7 @@ def createGraphs(title, filename, geometry, procedures, backwards=False):
     imageio.mimsave("./" + filename + ".gif", animated_images_list, fps=1)
 
 
-createGraphs(
+create_graphs(
     title="Translation",
     filename="translation-forwards",
     geometry=paddle1,
@@ -216,14 +216,14 @@ createGraphs(
 )
 
 
-createGraphs(
+create_graphs(
     title="Translation",
     filename="translation2-forwards",
     geometry=paddle2,
     procedures=[mplt.translate(90.0, 0.0), mplt.translate(0.0, -40.0)],
 )
 
-createGraphs(
+create_graphs(
     title="Translation",
     filename="translation-backwards",
     geometry=paddle1,
@@ -232,7 +232,7 @@ createGraphs(
 )
 
 
-createGraphs(
+create_graphs(
     title="Translation",
     filename="translation2-backwards",
     geometry=paddle2,
@@ -241,7 +241,7 @@ createGraphs(
 )
 
 
-createGraphs(
+create_graphs(
     title="Rotation, Relative to Global Space",
     filename="rotate1-forwards",
     geometry=paddle1,
@@ -252,7 +252,7 @@ createGraphs(
     ],
 )
 
-createGraphs(
+create_graphs(
     title="Rotation, Relative to Local Space",
     filename="rotate1-backwards",
     geometry=paddle1,
@@ -265,7 +265,7 @@ createGraphs(
 )
 
 
-createGraphs(
+create_graphs(
     title="Rotation, Global Space",
     filename="rotate2-forwards",
     geometry=paddle2,
@@ -276,7 +276,7 @@ createGraphs(
     ],
 )
 
-createGraphs(
+create_graphs(
     title="Rotation, Relative to Local Space",
     filename="rotate2-backwards",
     geometry=paddle2,
@@ -306,7 +306,7 @@ square = Geometry(
 )
 
 
-createGraphs(
+create_graphs(
     title="Covariance, Relative to Local Space",
     filename="covariance-backwards",
     geometry=square,
@@ -318,7 +318,7 @@ createGraphs(
     backwards=True,
 )
 
-createGraphs(
+create_graphs(
     title="Covariance, Relative to Global Space",
     filename="covariance-forwards",
     geometry=square,
@@ -335,7 +335,7 @@ t = np.linspace(0, np.pi * 2, 100)
 circ = [list(np.cos(t) * 10), list(np.sin(t) * 10)]
 circle = Geometry(points=circ, color=(0.0, 1.0, 0.0, 1.0))
 
-createGraphs(
+create_graphs(
     title="Circle, Relative to Local Space",
     filename="circle-backwards",
     geometry=circle,
@@ -347,7 +347,7 @@ createGraphs(
     backwards=True,
 )
 
-createGraphs(
+create_graphs(
     title="Circle, Relative to Global Space",
     filename="circle-forwards",
     geometry=circle,
