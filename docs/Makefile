@@ -18,3 +18,9 @@ help:
 # "make mode" option.  $(O) is meant as a shortcut for $(SPHINXOPTS).
 %: Makefile
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	cd _build/html && \
+           find . -iname '*pyc' | xargs rm && \
+	   mv _static static && \
+           grep -ir '_static' * | cut -d ':' -f 1 | uniq | xargs sed -i -e 's/_static/static/g' && \
+           mv _images images && \
+           grep -ir '_images' * | cut -d ':' -f 1 | uniq | xargs sed -i -e 's/_images\//images\//g'
