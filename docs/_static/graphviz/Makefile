@@ -1,4 +1,5 @@
 all: graphs
+	mv *.png ../
 
 %.png: %.dot
 	dot -Tpng $< -o $@
