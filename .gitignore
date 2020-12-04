@@ -1,8 +1,7 @@
 __pycache__
 *~
-mvp/html/dist/
-mvp/html/modelviewprojection.adoc
-mvp/html/modelviewprojection.html
+*png
+*.gif
 
 
 # Byte-compiled / optimized / DLL files

@@ -61,12 +61,12 @@ while not glfw.window_should_close(window):
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    glColor3f(0.578123, 0.0, 1.0)  # r  # g  # b
+    glColor3f(0.578123, 0.0, 1.0)
     glBegin(GL_QUADS)
-    glVertex2f(-1.0, -0.3)  # x  # y
-    glVertex2f(-0.8, -0.3)  # x  # y
-    glVertex2f(-0.8, 0.3)  # x  # y
-    glVertex2f(-1.0, 0.3)  # x  # y
+    glVertex2f(-1.0, -0.3)
+    glVertex2f(-0.8, -0.3)
+    glVertex2f(-0.8, 0.3)
+    glVertex2f(-1.0, 0.3)
     glEnd()
 
     glColor3f(1.0, 0.0, 0.0)
