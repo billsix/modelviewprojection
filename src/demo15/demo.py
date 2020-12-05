@@ -18,20 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# PURPOSE
-#
-# Use the depth buffer to make further objects hidden
-# if nearer objects are drawn in front
-#
-
-# NEW
-#  Set the clear depth to -1 (just like clearcolor, it's the default
-#  depth on a given fragment (pixel).
-#  Set the depth func, i.e. the test to see if the newly drawn object
-#  should overwrite the color in the current fragment or not.
-#  Enable the depth test.
-#
-
 
 import sys
 import os
@@ -51,10 +37,9 @@ if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
 
-# Install a key handler
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -64,11 +49,10 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
-
-# NEW
 glClearDepth(-1.0)
 glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
+
 
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
@@ -77,7 +61,7 @@ glLoadIdentity()
 
 
 def draw_in_square_viewport():
-    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
@@ -85,22 +69,22 @@ def draw_in_square_viewport():
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),  # min x
-        int((height - min) / 2.0),  # min y
-        min,  # width x
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),  # min x
-        int(0.0 + (height - min) / 2.0),  # min y
-        min,  # width x
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
 
 class Vertex:
@@ -135,22 +119,6 @@ class Vertex:
 
     def scale(self, scale_x, scale_y, scale_z):
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
-
-    def ortho(self, left, right, bottom, top, near, far):
-        midpoint_x, midpoint_y, midpoint_z = (
-            (left + right) / 2.0,
-            (bottom + top) / 2.0,
-            (near + far) / 2.0,
-        )
-        length_x, length_y, length_z = right - left, top - bottom, far - near
-        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
-            2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
-        )
-
-    def camera_space_to_ndc_space_fn(self):
-        return self.ortho(
-            left=-100.0, right=100.0, bottom=-100.0, top=100.0, near=100.0, far=-100.0
-        )
 
 
 class Paddle:
@@ -201,12 +169,8 @@ paddle2 = Paddle(
     initial_position=Vertex(x=90.0, y=0.0, z=0.0),
 )
 
-moving_camera_x = 0.0
-moving_camera_y = 0.0
-moving_camera_z = 40.0
-moving_camera_rot_y = 0.0
-moving_camera_rot_x = 0.0
-
+camera_x = 0.0
+camera_y = 0.0
 
 square = [
     Vertex(x=-5.0, y=-5.0, z=0.0),
@@ -214,6 +178,7 @@ square = [
     Vertex(x=5.0, y=5.0, z=0.0),
     Vertex(x=-5.0, y=5.0, z=0.0),
 ]
+
 square_rotation = 0.0
 rotation_around_paddle1 = 0.0
 
@@ -227,27 +192,16 @@ def handle_inputs():
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
 
-    global moving_camera_x
-    global moving_camera_y
-    global moving_camera_z
-    global moving_camera_rot_x
-    global moving_camera_rot_y
+    global camera_x, camera_y
 
-    move_multiple = 15.0
-    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        moving_camera_rot_y -= 0.03
-    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        moving_camera_rot_y += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
-        moving_camera_rot_x += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        moving_camera_rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
-        moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)
+        camera_y += 10.0
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        moving_camera_x += move_multiple * math.sin(moving_camera_rot_y)
-        moving_camera_z += move_multiple * math.cos(moving_camera_rot_y)
+        camera_y -= 10.0
+    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
+        camera_x -= 10.0
+    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
+        camera_x += 10.0
 
     global paddle1, paddle2
 
@@ -272,37 +226,29 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE = 60
 
-# to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame = glfw.get_time()
 
-# Loop until the user closes the window
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
+
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-    # set for comparison on the next frame
+
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
-    # NEW - clear the depth buffer to the cleardepth value,
-    # just like clearcolor clears to the clearcolor
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # render scene
     draw_in_square_viewport()
     handle_inputs()
 
-    # draw paddle1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
-
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
         world_space = (
@@ -313,27 +259,31 @@ while not glfw.window_should_close(window):
             .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y, tz=0.0)
         )
 
-        camera_space = (
-            world_space.translate(
-                tx=-moving_camera_x, ty=-moving_camera_y, tz=-moving_camera_z
-            )
-            .rotate_y(-moving_camera_rot_y)
-            .rotate_x(-moving_camera_rot_x)
-        )  # TODO - explain this
-        ndc_space = camera_space.camera_space_to_ndc_space_fn()
-        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
+        camera_space = world_space.translate(tx=-camera_x, ty=-camera_y, tz=0.0)
+        ndc_space = camera_space.scale(
+            scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
+        )
+        glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
     # draw square
-    glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
+    glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
         paddle_1_space = (
             model_space.rotate_z(square_rotation)
             .translate(tx=20.0, ty=0.0, tz=0.0)
             .rotate_z(rotation_around_paddle1)
-            .translate(tx=0.0, ty=0.0, tz=-10.0)
+            .translate(
+                tx=0.0, ty=0.0, tz=-10.0
+            )  # NEW - translating 10 units into the screen
         )
+        # the square should not be visible when hidden behind the paddle1,
+        # as we did a translate by -10.
+        # this is because without depth buffering, the object drawn last
+        # clobbers the color of any previously drawn object at the pixel.
+        # Try moving the square drawing code to the beginning, and you will
+        # see that the square can be hidden behind the paddle.
         world_space = (
             paddle_1_space.rotate_z(paddle1.rotation)
             .translate(
@@ -342,20 +292,15 @@ while not glfw.window_should_close(window):
             .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y, tz=0.0)
         )
 
-        camera_space = (
-            world_space.translate(
-                tx=-moving_camera_x, ty=-moving_camera_y, tz=-moving_camera_z
-            )
-            .rotate_y(-moving_camera_rot_y)
-            .rotate_x(-moving_camera_rot_x)
+        camera_space = world_space.translate(tx=-camera_x, ty=-camera_y, tz=0.0)
+        ndc_space = camera_space.scale(
+            scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
         )
-        ndc_space = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
-    # draw paddle2
+    # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
-
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         world_space = (
@@ -366,14 +311,10 @@ while not glfw.window_should_close(window):
             .translate(tx=paddle2.input_offset_x, ty=paddle2.input_offset_y, tz=0.0)
         )
 
-        camera_space = (
-            world_space.translate(
-                tx=-moving_camera_x, ty=-moving_camera_y, tz=-moving_camera_z
-            )
-            .rotate_y(-moving_camera_rot_y)
-            .rotate_x(-moving_camera_rot_x)
+        camera_space = world_space.translate(tx=-camera_x, ty=-camera_y, tz=0.0)
+        ndc_space = camera_space.scale(
+            scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
         )
-        ndc_space = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 

@@ -1,0 +1,95 @@
+Adding Depth - Enable Depth Buffer - Demo 15
+============================================
+
+Purpose
+^^^^^^^
+Fix the issue from the last demo, in which the square
+was drawn over Paddle 1, even though the square
+is further away from the camera.
+
+
+
+Move the Paddles using the Keyboard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+==============  ==============================================
+Keyboard Input  Action
+==============  ==============================================
+*w*             Move Left Paddle Up
+*s*             Move Left Paddle Down
+*k*             Move Right Paddle Down
+*i*             Move Right Paddle Up
+
+*d*             Increase Left Paddle's Rotation
+*a*             Decrease Left Paddle's Rotation
+*l*             Increase Right Paddle's Rotation
+*j*             Decrease Right Paddle's Rotation
+
+*UP*            Move the camera up, moving the objects down
+*DOWN*          Move the camera down, moving the objects up
+*LEFT*          Move the camera left, moving the objects right
+*RIGHT*         Move the camera right, moving the objects left
+
+*q*             Rotate the square around it's center
+*e*             Rotate the square around paddle 1's center
+==============  ==============================================
+
+Description
+^^^^^^^^^^^
+
+Use the depth buffer to make further objects hidden
+if nearer objects are drawn in front
+
+
+
+#. Set the clear depth to -1 (just like clearcolor, it's the default depth on a given fragment (pixel).
+
+#. Set the depth func, i.e. the test to see if the newly drawn object should overwrite the color in the current fragment or not.
+
+#. Enable the depth test.
+
+
+..
+   TODO
+   Show what the color buffer and depth buffer would look like
+
+
+
+.. code:: Python
+   :number-lines:
+
+      # before the event loop
+      glClearDepth(-1.0)
+      glDepthFunc(GL_GREATER)
+      glEnable(GL_DEPTH_TEST)
+
+
+
+Event Loop
+^^^^^^^^^^
+
+
+.. code:: Python
+   :number-lines:
+
+     ...
+     while not glfw.window_should_close(window):
+
+         while (
+             glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+         ):
+             pass
+
+         time_at_beginning_of_previous_frame = glfw.get_time()
+
+         glfw.poll_events()
+
+         width, height = glfw.get_framebuffer_size(window)
+         glViewport(0, 0, width, height)
+         # NEW - clear the depth buffer to the cleardepth value,
+         # just like clearcolor clears to the clearcolor
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+         draw_in_square_viewport()
+         handle_inputs()
+         ...
