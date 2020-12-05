@@ -1,8 +1,6 @@
 Window Resizing and Proportionality - Demo 03
 =============================================
 
-.. toctree::
-
 
 Purpose
 ^^^^^^^
@@ -60,7 +58,8 @@ Code
 ^^^^
 
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      def draw_in_square_viewport():
 
@@ -105,7 +104,8 @@ Code
              min,
          )  # width y
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      while not glfw.window_should_close(window):
          glfw.poll_events()

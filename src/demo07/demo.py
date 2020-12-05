@@ -18,88 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# PURPOSE
-#
-# Learn about rotations, and the order in which to read
-# a sequence of transformations.  This demo does not
-# work correctly, because of a misunderstanding
-# of how rotations work.
-
-# SIDE NOTE -- discuss method chaining
-#
-# For a trigonometry  explanation of rotating in 2D,
-# see
-# https://www.alanzucconi.com/2016/02/03/2d-rotations/
-
-# == Rotate the Paddles About their Center
-
-# |=======================================
-# |Keyboard Input |Action
-# |w              |Move Left Paddle Up
-# |s              |Move Left Paddle Down
-# |i              |Move Right Paddle Up
-# |k              |Move Right Paddle Down
-# |               |
-# |*d*              |*Increase Left Paddle's Rotation*
-# |*a*              |*Decrease Left Paddle's Rotation*
-# |*l*              |*Increase Right Paddle's Rotation*
-# |*j*              |*Decrease Right Paddle's Rotation*
-# |=======================================
-
-
-# === Rotation Around Origin (0,0)
-
-# We can also rotate an object around (0,0) by rotating
-# all of the object's vertices around (0,0).
-
-# In high school math, you will have learned about sin, cos, and tangent.
-# Typically the angles are described on the unit circle, where a rotation
-# starts from the positive x axis.  We can expand on this knowledge, allowing
-# us to rotate a given vertex around the origin (0,0).  This is done
-# by separating the x and y value, rotating each of them seperately,
-# and then adding the results together.
-
-# That might not have been fully clear.  Let me try again.
-# The vertex (0.5,0.4) can be separated into two vertices, (0.5,0) and (0,0.4).
-
-# eog ../images/rotate3.png
-
-# eog ../images/rotate4.png
-
-# These vertices can be added together to create the original vertex.
-# But, before we do that, let's rotate each of the vertices.
-
-# (0.5,0) is on the x-axis, so rotating it by "angle" degrees, results
-# in vertex (0.5*cos(angle), 0.5*sin(angle)).  Notice that both the x and
-# y values are multiplied by 0.5.  This is because rotations should not affect
-# the distance of the point from the origin (0,0).  (0.5,0) has length 0.5.
-# (cos(angle), sin(angle) has length 1. By multipling both the x and y
-# component by 0.5, we are scaling the vertex back to its original distance
-# from the origin.
-
-# eog ../images/rotate.png
-
-# (0,0.4) is on the y-axis, so rotating it by "angle" degrees, results
-# in vertex (0.4*-sin(angle), 0.4*cos(angle)).
-
-# eog ../images/rotate2.png
-
-# Wait.  Why is negative sin applied to the angle to make the x value,
-# and cos applied to angle to make the y value?
-# Trigonometric operations such as sin, cos, and tangent assume that the rotation is happening on
-# the unit circle, starting from (1,0) on the x axis.  Since we want
-# to rotate an angle starting from (0,1) on the y axis, sin and
-# cos must be swapped.  Sin is positive from 0 to 90 degrees, but
-# we want a negative value for our rotation of the y axis since the rotation is happening counter-clockwise,
-# hence the negative sin.
-
-
-# After the rotations have been applied, sum the results to
-# get your vertex rotated around the origin!
-
-# (0.5*cos(angle), 0.5*sin(angle)) + (0.4*-sin(angle), 0.4*cos(angle)) =
-# (0.5*cos(angle) + 0.4*-sin(angle), 0.5*sin(angle) + 0.4*cos(angle))
-
 
 import sys
 import os
@@ -119,10 +37,9 @@ if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
 
-# Install a key handler
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -132,7 +49,6 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
-
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
 glMatrixMode(GL_MODELVIEW)
@@ -140,7 +56,7 @@ glLoadIdentity()
 
 
 def draw_in_square_viewport():
-    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
@@ -148,22 +64,22 @@ def draw_in_square_viewport():
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),  # min x
-        int((height - min) / 2.0),  # min y
-        min,  # width x
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),  # min x
-        int(0.0 + (height - min) / 2.0),  # min y
-        min,  # width x
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
 
 class Vertex:
@@ -180,12 +96,6 @@ class Vertex:
     def scale(self, scale_x, scale_y):
         return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
-    # NEW
-    # definition of rotate, from the description above
-    # cos and sin are defined in the math module.
-    #
-    # Question - how can you determine if math.cos and math.sin
-    # are defined in terms of radians or in terms of degrees?
     def rotate(self, angle_in_radians):
         return Vertex(
             x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
@@ -194,8 +104,6 @@ class Vertex:
 
 
 class Paddle:
-    # NEW
-    # a rotation instance variable is defined, with a default value of 0
     def __init__(
         self,
         vertices,
@@ -271,36 +179,27 @@ def handle_movement_of_paddles():
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE = 60
 
-# to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame = glfw.get_time()
 
-# Loop until the user closes the window
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-    # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # render scene
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
-    # draw paddle1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
-
-    # Run the program now.  Does it do what you would expect?
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
@@ -314,7 +213,7 @@ while not glfw.window_should_close(window):
         ndc_space = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # draw paddle2
+
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -330,8 +229,6 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 glfw.terminate()

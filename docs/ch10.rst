@@ -1,0 +1,178 @@
+Camera Space - Demo 10
+======================
+
+Purpose
+^^^^^^^
+
+Demonstrate having a camera space, and how to think about the transformations
+differently.
+
+.. figure:: _static/demo10.png
+    :align: center
+    :alt: Demo 10
+    :figclass: align-center
+
+    Demo 10
+
+
+Move the Paddles using the Keyboard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+==============  ==============================================
+Keyboard Input  Action
+==============  ==============================================
+*w*             Move Left Paddle Up
+*s*             Move Left Paddle Down
+*k*             Move Right Paddle Down
+*i*             Move Right Paddle Up
+
+*d*             Increase Left Paddle's Rotation
+*a*             Decrease Left Paddle's Rotation
+*l*             Increase Right Paddle's Rotation
+*j*             Decrease Right Paddle's Rotation
+
+*UP*            Move the camera up, moving the objects down
+*DOWN*          Move the camera down, moving the objects up
+*LEFT*          Move the camera left, moving the objects right
+*RIGHT*         Move the camera right, moving the objects left
+
+==============  ==============================================
+
+Description
+^^^^^^^^^^^
+
+..
+   TODO -- add in a DFA of the camera space, add in decent description
+
+
+camera space.  The coordinates of the object relative to
+the camera.  Notice that the translation from world space
+to camera space is the negative value of the camera's x and
+y position.
+
+If you view the camera as fixed, where NDC is relative to it,
+the world has moved in the opposite direction of the camera.
+If you view the camera space as being defined relative to
+world space, then we need to put the origin of the camera
+space at the origin of the world space, and as such,
+the transformations needed to be applied to the data
+are the inverse of the tranforamiotns from world
+space to camera space.
+
+.. figure:: _static/demo10.png
+    :align: center
+    :alt: Demo 10
+    :figclass: align-center
+
+    Demo 10
+
+
+.. code:: Python
+   :number-lines:
+
+     # NEW
+     camera_x = 0.0
+     camera_y = 0.0
+
+
+.. code:: Python
+   :number-lines:
+
+     def handle_inputs():
+         # NEW
+         global camera_x, camera_y
+
+         if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
+             camera_y += 10.0
+         if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
+             camera_y -= 10.0
+         if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
+             camera_x -= 10.0
+         if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
+             camera_x += 10.0
+
+         global paddle1, paddle2
+
+         if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
+             paddle1.input_offset_y -= 10.0
+         if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
+             paddle1.input_offset_y += 10.0
+         if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
+             paddle2.input_offset_y -= 10.0
+         if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
+             paddle2.input_offset_y += 10.0
+
+         global paddle_1_rotation, paddle_2_rotation
+
+         if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
+             paddle1.rotation += 0.1
+         if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
+             paddle1.rotation -= 0.1
+         if glfw.get_key(window, glfw.KEY_J) == glfw.PRESS:
+             paddle2.rotation += 0.1
+         if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
+             paddle2.rotation -= 0.1
+
+
+Event Loop
+^^^^^^^^^^
+
+.. code:: Python
+   :number-lines:
+
+     while not glfw.window_should_close(window):
+
+         while (
+             glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+         ):
+             pass
+
+         time_at_beginning_of_previous_frame = glfw.get_time()
+
+
+         glfw.poll_events()
+
+         width, height = glfw.get_framebuffer_size(window)
+         glViewport(0, 0, width, height)
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+
+         draw_in_square_viewport()
+         handle_inputs()
+
+
+         glColor3f(paddle1.r, paddle1.g, paddle1.b)
+
+         glBegin(GL_QUADS)
+         for model_space in paddle1.vertices:
+             world_space = (
+                 model_space.rotate(paddle1.rotation)
+                 .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
+                 .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
+             )
+
+             # NEW
+             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
+             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
+             glVertex2f(ndc_space.x, ndc_space.y)
+         glEnd()
+
+         glColor3f(paddle2.r, paddle2.g, paddle2.b)
+
+         glBegin(GL_QUADS)
+         for model_space in paddle2.vertices:
+             world_space = (
+                 model_space.rotate(paddle2.rotation)
+                 .translate(tx=paddle2.initial_position.x, ty=paddle2.initial_position.y)
+                 .translate(tx=paddle2.input_offset_x, ty=paddle2.input_offset_y)
+             )
+
+             # NEW
+             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
+             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
+             glVertex2f(ndc_space.x, ndc_space.y)
+         glEnd()
+
+         glfw.swap_buffers(window)
+
+     glfw.terminate()

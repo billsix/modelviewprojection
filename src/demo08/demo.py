@@ -19,30 +19,6 @@
 # SOFTWARE.
 
 
-# PURPOSE
-#
-# Fix the rotation problem from the previous demo in a seemingly intuitive
-# way, but do it inelegantly.
-#
-#
-
-# The problem in the last demo is that all rotations happen relative
-# to (0,0).  By translating our paddles to their position,
-# they are then rotated not around their modelspace center,
-# but by global space's center.
-# In this demo, we move the paddles to their position,
-# back to the origin, rotate, and then back to their position.
-# This works, but it should be clear that it's an inefficient
-# method at best; at worst, we are not thinking about
-# the transformations clearly.
-
-# Taking a look at the various spaces, the code in this demo
-# is going to go back and forth between those spaces.  The code
-# in this demo is the wrong way to think about rendering.
-
-# eog ../images/demo06.png
-
-
 import sys
 import os
 import numpy as np
@@ -61,10 +37,9 @@ if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
 
-# Install a key handler
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -82,7 +57,7 @@ glLoadIdentity()
 
 
 def draw_in_square_viewport():
-    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
@@ -90,22 +65,22 @@ def draw_in_square_viewport():
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),  # min x
-        int((height - min) / 2.0),  # min y
-        min,  # width x
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),  # min x
-        int(0.0 + (height - min) / 2.0),  # min y
-        min,  # width x
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
 
 class Vertex:
@@ -128,10 +103,6 @@ class Vertex:
             y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
         )
 
-    # NEW
-    # translate the Vertex so that the paddle's center goes
-    # to the origin, call the existing rotate call,
-    # and then translate back to the paddle's position
     def rotate_around(self, angle_in_radians, center):
         translate_to_center = self.translate(tx=-center.x, ty=-center.y)
         rotated_around_origin = translate_to_center.rotate(angle_in_radians)
@@ -215,36 +186,31 @@ def handle_movement_of_paddles():
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE = 60
 
-# to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame = glfw.get_time()
 
-# Loop until the user closes the window
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-    # set for comparison on the next frame
+
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # render scene
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
-    # draw paddle1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
+    # NEW - the point around which paddle 1 must rotate
     rotatePoint = (
         Vertex(0.0, 0.0)
         .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
@@ -260,10 +226,11 @@ while not glfw.window_should_close(window):
         ndc_space = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # draw paddle1
+
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
+    # NEW - the point around which paddle 2 must rotate
     rotatePoint = (
         Vertex(0.0, 0.0)
         .translate(tx=paddle2.initial_position.x, ty=paddle2.initial_position.y)
@@ -280,8 +247,6 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 glfw.terminate()

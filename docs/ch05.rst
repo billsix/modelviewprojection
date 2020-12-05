@@ -1,0 +1,96 @@
+Add Translate Method to Vertex - Demo 05
+========================================
+
+
+Purpose
+^^^^^^^
+Restructure the code towards future knowledge, i.e. the model view projection
+pipeline.
+
+Transforming vertices, such as translating, is the core concept
+of computer graphics.
+
+
+
+Move the Paddles using the Keyboard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+==============  ======================
+Keyboard Input  Action
+==============  ======================
+*w*             Move Left Paddle Up
+*s*             Move Left Paddle Down
+*k*             Move Right Paddle Down
+*i*             Move Right Paddle Up
+==============  ======================
+
+
+Translation
+~~~~~~~~~~~
+
+Rather than incrementing y values before calling "glVertex",
+instead call "translate" on the vertex, and call "glVertex2f"
+on the translated vertex.
+
+Returning a new instance will be very useful for method chaining.
+I would not use this code for production code, because of efficincy,
+but the use of method chaining will be towards furthering your understanding
+of a sequence of transformations, and the order in which you probably
+want to read them.
+
+
+
+.. code:: Python
+   :number-lines:
+
+    class Vertex:
+        def __init__(self, x, y):
+            self.x = x
+            self.y = y
+
+        def __repr__(self):
+            return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
+
+
+        def translate(self, tx, ty):
+            return Vertex(x=self.x + tx, y=self.y + ty)
+
+
+.. code:: Python
+   :number-lines:
+
+    while not glfw.window_should_close(window):
+
+        while (
+            glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        ):
+            pass
+
+        time_at_beginning_of_previous_frame = glfw.get_time()
+
+        glfw.poll_events()
+
+        width, height = glfw.get_framebuffer_size(window)
+        glViewport(0, 0, width, height)
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+
+        draw_in_square_viewport()
+        handle_movement_of_paddles()
+
+        glColor3f(paddle1.r, paddle1.g, paddle1.b)
+
+        glBegin(GL_QUADS)
+        for vertex in paddle1.vertices:
+            translated = vertex.translate(tx=0.0, ty=paddle1.input_offset_y)
+            glVertex2f(translated.x, translated.y)
+        glEnd()
+
+        glColor3f(paddle2.r, paddle2.g, paddle2.b)
+
+        glBegin(GL_QUADS)
+        for vertex in paddle2.vertices:
+            translated = vertex.translate(tx=0.0, ty=paddle2.input_offset_y)
+            glVertex2f(translated.x, translated.y)
+        glEnd()
+
+        glfw.swap_buffers(window)

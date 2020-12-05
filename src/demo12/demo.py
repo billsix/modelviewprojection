@@ -19,35 +19,6 @@
 # SOFTWARE.
 
 
-# PURPOSE
-#
-# Rotate the square around it's origin.  Reading the modelspace to
-# world space transformations should make this straightforward.
-# Try reading them from the top down.  Does in make sense that way?
-#
-#
-#
-
-# |=======================================
-# |Keyboard Input |Action
-# |w              |Move Left Paddle Up
-# |s              |Move Left Paddle Down
-# |i              |Move Right Paddle Up
-# |k              |Move Right Paddle Down
-# |               |
-# |d              |Increase Left Paddle's Rotation
-# |a              |Decrease Left Paddle's Rotation
-# |l              |Increase Right Paddle's Rotation
-# |j              |Decrease Right Paddle's Rotation
-# |               |
-# |q              |Rotate the square around it's center
-# |               |
-# |UP             |Move the camera up, moving the objects down
-# |DOWN           |Move the camera down, moving the objects up
-# |LEFT           |Move the camera left, moving the objects right
-# |RIGHT          |Move the camera right, moving the objects left
-# |=======================================
-
 import sys
 import os
 import numpy as np
@@ -66,10 +37,9 @@ if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
 
-# Install a key handler
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -87,7 +57,7 @@ glLoadIdentity()
 
 
 def draw_in_square_viewport():
-    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
@@ -95,22 +65,22 @@ def draw_in_square_viewport():
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),  # min x
-        int((height - min) / 2.0),  # min y
-        min,  # width x
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),  # min x
-        int(0.0 + (height - min) / 2.0),  # min y
-        min,  # width x
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
 
 class Vertex:
@@ -187,6 +157,7 @@ square = [
     Vertex(x=5.0, y=5.0),
     Vertex(x=-5.0, y=5.0),
 ]
+
 # NEW
 square_rotation = 0.0
 
@@ -231,33 +202,27 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE = 60
 
-# to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame = glfw.get_time()
 
-# Loop until the user closes the window
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-    # set for comparison on the next frame
+
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # render scene
     draw_in_square_viewport()
     handle_inputs()
 
-    # draw paddle1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -273,8 +238,7 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    # draw square
-    glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
+    glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
         paddle_1_space = model_space.rotate(square_rotation).translate(tx=20.0, ty=0.0)
@@ -288,7 +252,6 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    # draw paddle2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -304,8 +267,6 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 glfw.terminate()

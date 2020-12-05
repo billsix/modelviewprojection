@@ -18,35 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# PURPOSE
-#
-# Make the rotations work correctly by thinking about the problem
-# more clearly
-#
-# In the previous demo, The initial translate is effectively canceled out,
-# leaving a rotation and then a translation.
-# Translate inverse(Translate) Rotate Translate
-#
-# Translate inverse(Translate) = Identity.  i.e. 5 * 1/5 = 1,
-# so we really just need to do a rotation first, and then a translation,
-# but this can be counterintuitive at first because we like to think
-# in relative terms.
-
-# To understand why the code in this demo works, you can think
-# about it in one of two ways.  Either there is a sequence
-# of function calls, all of which happen relative to the global
-# origin; or, you can read the transformations backwards,
-# where instead of doing operations on points, the operations
-# all modify the current axis to a new relative axis,
-# and all subsequent functions move those relative axises to
-# new relative axises.
-
-# Strong suggestion for computer graphics, especially from
-# modelspace to global space:
-# Read the transformations in the latter.
-
-# See the transformations below, and the associated animated gifs.
-
 
 import sys
 import os
@@ -66,10 +37,9 @@ if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
 
-# Install a key handler
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -87,7 +57,7 @@ glLoadIdentity()
 
 
 def draw_in_square_viewport():
-    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
@@ -95,22 +65,22 @@ def draw_in_square_viewport():
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),  # min x
-        int((height - min) / 2.0),  # min y
-        min,  # width x
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),  # min x
-        int(0.0 + (height - min) / 2.0),  # min y
-        min,  # width x
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
 
 class Vertex:
@@ -132,9 +102,6 @@ class Vertex:
             x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
             y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
         )
-
-    # NEW
-    # removed rotate_around, as it was useless for our purpose
 
 
 class Paddle:
@@ -213,79 +180,29 @@ def handle_movement_of_paddles():
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE = 60
 
-# to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame = glfw.get_time()
 
-# Loop until the user closes the window
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
+
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-    # set for comparison on the next frame
+
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # render scene
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
-    # draw paddle1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
-
-    # if you read the operations below as rotate, translate1, translate2,
-    # you should imagine it as follows
-    # eog ../images/rotation1F.gif
-
-    # if instead you read them backwards, imagine the transformations
-    # as follows
-    # eog ../images/rotation1B.gif
-
-    # side note.  Typically I use a debugger as an interactive evaluator,
-    # in order to understand how code which I do not understand works.
-    # In computer graphics, the debugger is of limited help because
-    # the transformations on the individual points is not worth
-    # thinking about, and therefore the intermediat results
-    # are worthless for reasoning.
-    #
-    # In order to be successful, I highly recommend reading the transformations
-    # backwards, with a moving/rotating/scaled axises.
-    #
-    # (This advise will be modified when I introduce transformation stacks,
-    # but the same principle will apply.  Also, on the note of transformation
-    # stacks, N.B. that the scaling from world space to ndc is shared
-    # for both paddles, and that changing the code in one place would
-    # required changing the code for all shapes.)
-    #
-    # I prefer to think graphically instead of symbolically.
-    # Another way you can think of this is to rotate the the x axis
-    # and y axis, create graph paper (tick marks) along those new
-    # axis, and then draw the geometry on that new "basis",
-    # instead of the natural basis. (Natural basis just means
-    # the normal x and y axis).
-    # Think of basis as an origin, a unit in various directions,
-    # a graph paper lines drawn.  Then your geometry is drawn
-    # in that space.
-
-    # In revisting demo 6's space, if we read all of the transformations
-    # below in order, it's following the order of function application.
-    #
-    # If instead we read the transformation between spaces backwards in code,
-    # (and going the opposite direction of the arrows), we can view a coordinate
-    # system that is changing (origin can move, and axises can rotate/scale)
-    # eog ../images/demo06.png
-
-    # ALSO, see mvpVisualization/demo.py and mvpVisualization/demoAnimation.py.
-    # THESE WILL SHOW THE TRANSMORTAIONS backwards much more intuitively.
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
@@ -298,13 +215,9 @@ while not glfw.window_should_close(window):
         ndc_space = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # draw paddle2
+
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
-    # Same thing for the second paddle.
-    # eog ../images/rotation2F.gif
-
-    # eog ../images/rotation2B.gif
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         world_space = (
@@ -317,8 +230,6 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 glfw.terminate()

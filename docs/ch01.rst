@@ -51,7 +51,8 @@ Code
 Import Python modules.  Python's modules are a way of distributing code
 without namespace collisions
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
    import sys  # sys is imported, all function calls will be of sys.function
    import os  # basic operating system functions
@@ -65,7 +66,8 @@ But we will not need the module's prefix to call
 the functions.  I did this for uniformity
 with the C++ code in the Superbible book.
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
    import glfw  # the windowing library
 
@@ -94,7 +96,8 @@ GLFW/OpenGL Initialization
 
 Initialize GLFW.
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      if not glfw.init():  # many objects can be treating as booleans,
          # and the Python keyword "not" negates it
@@ -127,7 +130,8 @@ Set the version of OpenGL
 
 OpenGL has been around a long time, and has multiple, possibly incompatible versions.
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      glfw.window_hint(
          glfw.CONTEXT_VERSION_MAJOR, 1
@@ -139,7 +143,8 @@ OpenGL has been around a long time, and has multiple, possibly incompatible vers
 Create a 500 pixel by 500 pixel window, which the user can resize.
 
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      window = glfw.create_window(500, 500, "ModelViewProjection Demo 1", None, None)
 
@@ -149,7 +154,8 @@ I frequently will put argument lists vertically, though it in not required.
 If GLFW cannot open the window, quit.  Unlike MC Hammer, we are quite legit, yet still
 able to quit.
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      if not window:
          glfw.terminate()  # need to clean up gracefully
@@ -159,14 +165,16 @@ able to quit.
 Make the window's context current
 
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      glfw.make_context_current(window)
 
 Install a key handler.
 
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      def on_key(window, key, scancode, action, mods):
          if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
@@ -184,7 +192,8 @@ calling "glClearColor". "0,0,0,1", means black "0,0,0", without
 transparency (the "1").
 
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      glClearColor(0.0, 0.0, 0.0, 1.0)
 
@@ -192,7 +201,8 @@ transparency (the "1").
 Don't worry about the 4 lines here.  Although they are necessary,
 we will cover them later.
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      glMatrixMode(GL_PROJECTION)
      glLoadIdentity()
@@ -228,7 +238,8 @@ of these events since we last asked (i.e., the previous frame).
 Loop until the user closes the window
 
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
      while not glfw.window_should_close(window):
          # Poll for and process events

@@ -1,8 +1,6 @@
 Draw A Rectange - Demo 02
 =========================
 
-.. toctree::
-
 
 Purpose
 ^^^^^^^
@@ -38,7 +36,8 @@ quadrilateral.  The vertices will be specified by calling "glVertex2f" 4 times.
 "glEnd()" tells OpenGL that we have finished providing vertices for
 the begun quadrilateral.
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
     # render scene
     # draw paddle 1
@@ -60,7 +59,8 @@ The framebuffer, which has not yet been flushed to the monitor, has geometry whi
     Rectangle
 
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
     # draw paddle 2
     glColor3f(1.0, 0.0, 0.0)
@@ -82,7 +82,8 @@ has geometry which looks like this:
 
     Rectangle
 
-.. code-block:: Python
+.. code:: Python
+   :number-lines:
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers

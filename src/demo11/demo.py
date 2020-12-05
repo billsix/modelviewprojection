@@ -18,53 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# PURPOSE
-#
-# Introduce relative objects, by making a small blue square
-# that is defined relative to the left paddle, but offset
-# some in the x direction.
-# When the paddle on the left moves or rotates, the blue square
-# moves with it, because it is defined relative to it.
-#
-# eog ../images/demo11.png
-#
-# Things to note.
-# 1) When dealing with any object space to world space,
-#   I recommend reading the order of transformations backwards,
-#   imagining a moving origin, x and y axis.
-# 2) Reading the code from world space to camera space requires
-#   a different interpretation.  You can think of the camera
-#   as being defined relative to world space, and you can develop
-#   a mental model of the transformations in the same manner that
-#   you would do for any object.  But, because NDC is going to
-#   be defined relative to camera space, the transformations
-#   that you need to apply to an object (paddle1, square 1, etc)
-#   are the inverse of what you would do to the "camera".
-# 3) We in looking at the code for the three objects we are drawing
-#   you might notice that we are duplicating a lot of code, and
-#   that if we decide to change paddle1's transformations, that
-#   we would need to change the code in multiple places.
-#   Later demos will show how to handle this problem more gracefully.
-
-
-# |=======================================
-# |Keyboard Input |Action
-# |w              |Move Left Paddle Up
-# |s              |Move Left Paddle Down
-# |i              |Move Right Paddle Up
-# |k              |Move Right Paddle Down
-# |               |
-# |d              |Increase Left Paddle's Rotation
-# |a              |Decrease Left Paddle's Rotation
-# |l              |Increase Right Paddle's Rotation
-# |j              |Decrease Right Paddle's Rotation
-# |               |
-# |UP             |Move the camera up, moving the objects down
-# |DOWN           |Move the camera down, moving the objects up
-# |LEFT           |Move the camera left, moving the objects right
-# |RIGHT          |Move the camera right, moving the objects left
-# |=======================================
-
 
 import sys
 import os
@@ -84,10 +37,9 @@ if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
 
-# Install a key handler
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -104,7 +56,7 @@ glLoadIdentity()
 
 
 def draw_in_square_viewport():
-    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
@@ -112,22 +64,22 @@ def draw_in_square_viewport():
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),  # min x
-        int((height - min) / 2.0),  # min y
-        min,  # width x
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),  # min x
-        int(0.0 + (height - min) / 2.0),  # min y
-        min,  # width x
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
 
 class Vertex:
@@ -247,33 +199,30 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE = 60
 
-# to try to standardize on 60 fps, compare times between frames
+
 time_at_beginning_of_previous_frame = glfw.get_time()
 
-# Loop until the user closes the window
+
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
+
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-    # set for comparison on the next frame
+
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # render scene
     draw_in_square_viewport()
     handle_inputs()
 
-    # draw paddle1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -289,39 +238,23 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    # NEW - draw the square relative to paddle 1
-    glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
+    glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
-        # Translate the square to the right by 20 units.
-        # We are dealing with a -100 to 100 world space, which
-        # later gets scaled down to NDC.
         paddle1space = model_space.translate(tx=20.0, ty=0.0)
-        # Since the square is defined relative to the first paddle,
-        # do all of the transformations that happen to paddle1
-        # I recommend reading the square's transformations bacwards,
-        # translate, translate, rotate, rotate, as this allows
-        # us to envision a moving origin and x a y axis relative to
-        # world space
+
         world_space = (
             paddle1space.rotate(paddle1.rotation)
             .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
             .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
         )
-        # Do the inverse of the transformations from world space to camera space
+
         camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
-        # shrink the world space of -100, 100, down to NDC (-1 to 1)
-        # Technically, I've been misleading you guys, because OpenGL actually
-        # reduces down to "clip-space", a 4D coordinate, but we'll get to that later,
-        # and thinking of everything in terms of NDC is more clear.
-        # The reason that I am misleading you is I'd rather give a simple but incorrect
-        # explanation that makes sense now, and add complexity in later when
-        # we have solid fundamentals under our belt.
+
         ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    # draw paddle2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -337,8 +270,6 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 glfw.terminate()

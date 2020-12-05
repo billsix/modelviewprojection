@@ -18,25 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# PURPOSE
-#
-# restructure the code towards future knowledge, i.e. the model view projection
-# pipeline.
-
-
-# == Translation
-
-# |=======================================
-# |Keyboard Input |Action
-# |w              |Move Left Paddle Up
-# |s              |Move Left Paddle Down
-# |i              |Move Right Paddle Up
-# |k              |Move Right Paddle Down
-# |=======================================
-
-# Transforming vertices, such as translating, is the core concept
-# of computer graphics.
-
 
 import sys
 import os
@@ -56,10 +37,9 @@ if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
 
-# Install a key handler
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -69,7 +49,6 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
-
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
 glMatrixMode(GL_MODELVIEW)
@@ -77,7 +56,7 @@ glLoadIdentity()
 
 
 def draw_in_square_viewport():
-    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
@@ -85,22 +64,22 @@ def draw_in_square_viewport():
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),  # min x
-        int((height - min) / 2.0),  # min y
-        min,  # width x
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),  # min x
-        int(0.0 + (height - min) / 2.0),  # min y
-        min,  # width x
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
 
 class Vertex:
@@ -111,19 +90,8 @@ class Vertex:
     def __repr__(self):
         return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
 
-    # === Translation
-    # Rather than incrementing y values before calling "glVertex",
-    # instead call "translate" on the vertex, and call "glVertex2f"
-    # on the translated vertex.
-
     def translate(self, tx, ty):
         return Vertex(x=self.x + tx, y=self.y + ty)
-
-    # returning a new instance will be very useful for method chaining.
-    # I would not use this code for production code, because of efficincy,
-    # but the use of method chaining will be towards furthering your understanding
-    # of a sequence of transformations, and the order in which you probably
-    # want to read them.
 
 
 class Paddle:
@@ -141,10 +109,10 @@ class Paddle:
 
 paddle1 = Paddle(
     vertices=[
-        Vertex(-1.0, -0.3),
-        Vertex(-0.8, -0.3),
-        Vertex(-0.8, 0.3),
-        Vertex(-1.0, 0.3),
+        Vertex(x=-1.0, y=-0.3),
+        Vertex(x=-0.8, y=-0.3),
+        Vertex(x=-0.8, y=0.3),
+        Vertex(x=-1.0, y=0.3),
     ],
     r=0.578123,
     g=0.0,
@@ -172,33 +140,28 @@ def handle_movement_of_paddles():
         paddle2.input_offset_y += 0.1
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE = 60
 
-# to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame = glfw.get_time()
 
-# Loop until the user closes the window
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
+
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-    # set for comparison on the next frame
+
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # render scene
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
-    # draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -207,7 +170,6 @@ while not glfw.window_should_close(window):
         glVertex2f(translated.x, translated.y)
     glEnd()
 
-    # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -216,8 +178,6 @@ while not glfw.window_should_close(window):
         glVertex2f(translated.x, translated.y)
     glEnd()
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 glfw.terminate()

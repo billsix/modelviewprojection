@@ -19,33 +19,6 @@
 # SOFTWARE.
 
 
-# PURPOSE
-#
-# Demonstrate having a camera space, and how to think about the transformations
-# differently.
-#
-# eog ../images/demo10.png
-
-
-# |=======================================
-# |Keyboard Input |Action
-# |w              |Move Left Paddle Up
-# |s              |Move Left Paddle Down
-# |i              |Move Right Paddle Up
-# |k              |Move Right Paddle Down
-# |               |
-# |d              |Increase Left Paddle's Rotation
-# |a              |Decrease Left Paddle's Rotation
-# |l              |Increase Right Paddle's Rotation
-# |j              |Decrease Right Paddle's Rotation
-# |               |
-# |UP             |Move the camera up, moving the objects down
-# |DOWN           |Move the camera down, moving the objects up
-# |LEFT           |Move the camera left, moving the objects right
-# |RIGHT          |Move the camera right, moving the objects left
-# |=======================================
-
-
 import sys
 import os
 import numpy as np
@@ -64,10 +37,9 @@ if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
 
-# Install a key handler
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -77,7 +49,6 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
-
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
 glMatrixMode(GL_MODELVIEW)
@@ -85,7 +56,7 @@ glLoadIdentity()
 
 
 def draw_in_square_viewport():
-    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
@@ -93,22 +64,22 @@ def draw_in_square_viewport():
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),  # min x
-        int((height - min) / 2.0),  # min y
-        min,  # width x
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),  # min x
-        int(0.0 + (height - min) / 2.0),  # min y
-        min,  # width x
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
 
 class Vertex:
@@ -182,6 +153,7 @@ paddle2 = Paddle(
     b=0.0,
     initial_position=Vertex(90.0, 0.0),
 )
+
 camera_x = 0.0
 camera_y = 0.0
 
@@ -221,33 +193,28 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE = 60
 
-# to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame = glfw.get_time()
 
-# Loop until the user closes the window
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
+
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-    # set for comparison on the next frame
+
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # render scene
     draw_in_square_viewport()
     handle_inputs()
 
-    # draw paddle1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -258,23 +225,11 @@ while not glfw.window_should_close(window):
             .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
         )
 
-        # NEW - camera space.  The coordinates of the object relative to
-        # the camera.  Notice that the translation from world space
-        # to camera space is the negative value of the camera's x and
-        # y position.
-        # If you view the camera as fixed, where NDC is relative to it,
-        # the world has moved in the opposite direction of the camera.
-        # If you view the camera space as being defined relative to
-        # world space, then we need to put the origin of the camera
-        # space at the origin of the world space, and as such,
-        # the transformations needed to be applied to the data
-        # are the inverse of the tranforamiotns from world
-        # space to camera space.  See eog ../images/demo10.png
         camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
         ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # draw paddle1
+
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -290,8 +245,6 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 glfw.terminate()

@@ -1,0 +1,85 @@
+Rotate the Square Around Paddle 1 - Demo 13
+===========================================
+
+Purpose
+^^^^^^^
+Rotate the square around paddle1's center.  Reading the modelspace to
+world space transformations should make this straightforward.
+Try reading them from the top down.  Does in make sense that way?
+
+
+
+
+Move the Paddles using the Keyboard
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+==============  ==============================================
+Keyboard Input  Action
+==============  ==============================================
+*w*             Move Left Paddle Up
+*s*             Move Left Paddle Down
+*k*             Move Right Paddle Down
+*i*             Move Right Paddle Up
+
+*d*             Increase Left Paddle's Rotation
+*a*             Decrease Left Paddle's Rotation
+*l*             Increase Right Paddle's Rotation
+*j*             Decrease Right Paddle's Rotation
+
+*UP*            Move the camera up, moving the objects down
+*DOWN*          Move the camera down, moving the objects up
+*LEFT*          Move the camera left, moving the objects right
+*RIGHT*         Move the camera right, moving the objects left
+
+*q*             Rotate the square around it's center
+*e*             Rotate the square around paddle 1's center
+==============  ==============================================
+
+Description
+^^^^^^^^^^^
+
+.. code:: Python
+   :number-lines:
+
+      ...
+      rotation_around_paddle1 = 0.0
+
+      def handle_inputs():
+          global rotation_around_paddle1
+          if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
+              rotation_around_paddle1 += 0.1
+      ...
+
+
+Event Loop
+^^^^^^^^^^
+
+
+.. code:: Python
+   :number-lines:
+
+         ...
+         glColor3f(0.0, 0.0, 1.0)
+         glBegin(GL_QUADS)
+         for model_space in square:
+             # translate, translate, rotate paddle1 and thus the square.
+             # The square's modelspace is centered at paddle1's modelspace.
+             # To rotate the square around paddle1's origin, rotate by
+             # the set amount, translate down the rotate frame's x axis.
+             # Then, just like the previous demo, rotate the square around
+             # it's origin.
+             paddle_1_space = (
+                 model_space.rotate(square_rotation)
+                 .translate(tx=20.0, ty=0.0)
+                 .rotate(rotation_around_paddle1)
+             )
+             world_space = (
+                 paddle_1_space.rotate(paddle1.rotation)
+                 .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
+                 .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
+             )
+             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
+             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
+             glVertex2f(ndc_space.x, ndc_space.y)
+         glEnd()
+         ...
