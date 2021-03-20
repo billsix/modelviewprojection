@@ -681,44 +681,28 @@ class NDCCube:
         verts.append(-1.0)
         verts.append(-1.0)
 
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(-1.0)
         verts.append(-1.0)
 
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(-1.0)
         verts.append(-1.0)
 
-        verts.append(
-            1.0,
-        )
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
+        verts.append(1.0)
         verts.append(-1.0)
 
-        verts.append(
-            1.0,
-        )
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
+        verts.append(1.0)
         verts.append(-1.0)
 
         verts.append(-1.0)
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(-1.0)
 
         verts.append(-1.0)
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(-1.0)
 
         verts.append(-1.0)
@@ -729,44 +713,28 @@ class NDCCube:
         verts.append(-1.0)
         verts.append(1.0)
 
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(-1.0)
         verts.append(1.0)
 
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(-1.0)
         verts.append(1.0)
 
-        verts.append(
-            1.0,
-        )
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
+        verts.append(1.0)
         verts.append(1.0)
 
-        verts.append(
-            1.0,
-        )
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
+        verts.append(1.0)
         verts.append(1.0)
 
         verts.append(-1.0)
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(1.0)
 
         verts.append(-1.0)
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(1.0)
 
         verts.append(-1.0)
@@ -774,44 +742,28 @@ class NDCCube:
         verts.append(1.0)
 
         # connect the squares
-        verts.append(
-            1.0,
-        )
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
+        verts.append(1.0)
         verts.append(-1.0)
 
-        verts.append(
-            1.0,
-        )
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
+        verts.append(1.0)
         verts.append(1.0)
 
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(-1.0)
         verts.append(-1.0)
 
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(-1.0)
         verts.append(1.0)
 
         verts.append(-1.0)
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(-1.0)
 
         verts.append(-1.0)
-        verts.append(
-            1.0,
-        )
+        verts.append(1.0)
         verts.append(1.0)
 
         verts.append(-1.0)

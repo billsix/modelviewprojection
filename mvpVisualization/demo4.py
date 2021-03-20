@@ -346,10 +346,7 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be perspective
     ms.perspective(
-        fov=45.0,
-        aspectRatio=1.0,  # since the viewport is always square
-        nearZ=0.1,
-        farZ=10000.0,
+        fov=45.0, aspectRatio=float(width) / float(height), nearZ=0.1, farZ=10000.0
     )
     # ms.ortho(left=-150.0,
     #          right=150.0,
