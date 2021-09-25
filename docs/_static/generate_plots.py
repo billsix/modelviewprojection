@@ -151,8 +151,11 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
     procs = procedures.copy()
     # when plotting the transformations is backwards order, show the axis
     # at the last step first before plotting the data
+    idProc = lambda x, y: (x, y)
     if backwards:
-        procs.insert(0, lambda x, y: (x, y))
+        procs.insert(0, idProc)
+    else:
+        procs.append(idProc)
 
     # create a single frame of the animated gif
     def create_single_frame(fn, isLast, frame_number):
@@ -168,24 +171,30 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
             plt.plot(
                 transformed_xs,
                 transformed_ys,
-                "k-",
+                "-",
                 lw=thickness,
                 color=(0.1, 0.2, 0.5, 0.3),
             )
 
-        # x axis
-        transformed_xs, transformed_ys = fn([0.0, 10.0], [0.0, 0.0])
-        plt.plot(transformed_xs, transformed_ys, "k-", lw=4.0, color=(0.0, 0.0, 1.0, 1.0))
+        if backwards:
+            # x axis
+            transformed_xs, transformed_ys = fn([0.0, 10.0], [0.0, 0.0])
+            plt.plot(transformed_xs, transformed_ys, "-", lw=4.0, color=(0.0, 0.0, 1.0, 1.0))
 
-        # y axis
-        transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, 10.0])
-        plt.plot(transformed_xs, transformed_ys, "k-", lw=4.0, color=(1.0, 0.0, 1.0, 1.0))
+            # y axis
+            transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, 10.0])
+            plt.plot(transformed_xs, transformed_ys, "-", lw=4.0, color=(1.0, 0.0, 1.0, 1.0))
 
+
+        if backwards or isLast:
+            plotCharacter = "-"
+        else:
+            plotCharacter = "."
         # plot the points
         transformed_xs, transformed_ys = fn(*geometry.points)
         plt.title(str.format("{}\nStep {}", title, str(frame_number)))
         if (backwards and isLast) or not backwards:
-            plt.plot(transformed_xs, transformed_ys, "k-", lw=2, color=geometry.color)
+            plt.plot(transformed_xs, transformed_ys, plotCharacter, lw=2, color=geometry.color)
 
         # make sure the x and y axis are equally proportional in screen space
         plt.gca().set_aspect("equal", adjustable="box")
@@ -212,7 +221,7 @@ create_graphs(
     title="Translation",
     filename="translation-forwards",
     geometry=paddle1,
-    procedures=[mplt.translate(-90.0, 0.0), mplt.translate(0.0, 20.0)],
+    procedures=[mplt.translate(-90.0, 20.0)],
 )
 
 
@@ -220,14 +229,14 @@ create_graphs(
     title="Translation",
     filename="translation2-forwards",
     geometry=paddle2,
-    procedures=[mplt.translate(90.0, 0.0), mplt.translate(0.0, -40.0)],
+    procedures=[mplt.translate(90.0, -40.0)],
 )
 
 create_graphs(
     title="Translation",
     filename="translation-backwards",
     geometry=paddle1,
-    procedures=[mplt.translate(-90.0, 0.0), mplt.translate(0.0, 20.0)],
+    procedures=[mplt.translate(-90.0, 20.0)],
     backwards=True,
 )
 
@@ -236,7 +245,7 @@ create_graphs(
     title="Translation",
     filename="translation2-backwards",
     geometry=paddle2,
-    procedures=[mplt.translate(90.0, 0.0), mplt.translate(0.0, -40.0)],
+    procedures=[mplt.translate(90.0, -40.0)],
     backwards=True,
 )
 
@@ -247,8 +256,7 @@ create_graphs(
     geometry=paddle1,
     procedures=[
         mplt.rotate(math.radians(45.0)),
-        mplt.translate(0.0, 20.0),
-        mplt.translate(-90.0, 0.0),
+        mplt.translate(-90.0, 20.0),
     ],
 )
 
@@ -258,8 +266,7 @@ create_graphs(
     geometry=paddle1,
     procedures=[
         mplt.rotate(math.radians(45.0)),
-        mplt.translate(0.0, 20.0),
-        mplt.translate(-90.0, 0.0),
+        mplt.translate(-90.0, 20.0),
     ],
     backwards=True,
 )
@@ -271,8 +278,7 @@ create_graphs(
     geometry=paddle2,
     procedures=[
         mplt.rotate(math.radians(-10.0)),
-        mplt.translate(90.0, 0.0),
-        mplt.translate(0.0, -40.0),
+        mplt.translate(90.0, -40.0)
     ],
 )
 
@@ -282,8 +288,7 @@ create_graphs(
     geometry=paddle2,
     procedures=[
         mplt.rotate(math.radians(-10.0)),
-        mplt.translate(90.0, 0.0),
-        mplt.translate(0.0, -40.0),
+        mplt.translate(90.0, -40.0),
     ],
     backwards=True,
 )

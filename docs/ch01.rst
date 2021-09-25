@@ -51,14 +51,48 @@ Code
 Import Python modules.  Python's modules are a way of distributing code
 without namespace collisions
 
-.. code:: Python
-   :number-lines:
 
-   import sys  # sys is imported, all function calls will be of sys.function
-   import os  # basic operating system functions
-   import numpy as np  # numpy is a fast math/matrix library.
-   import math  # basic math utilities
-   from OpenGL.GL import *  # here, we are importing OpenGL's submodule GL
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 21
+   :lines: 21
+
+*  sys is imported, all function calls will be written as sys.function
+
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 22
+   :lines: 22
+
+*  basic operating system functions
+
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 23
+   :lines: 23
+
+*  numpy is a fast math/matrix library.
+
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 24
+   :lines: 24
+
+*  basic math utilities
+
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 25
+   :lines: 25
+
+* here, we are importing OpenGL's submodule GL
+  into the current namespace, and we can call its functions
+  without the OpenGL.GL prefix
 
 
 
@@ -96,16 +130,23 @@ GLFW/OpenGL Initialization
 
 Initialize GLFW.
 
-.. code:: Python
-   :number-lines:
 
-     if not glfw.init():  # many objects can be treating as booleans,
-         # and the Python keyword "not" negates it
-         # Python does not use brackets to show nesting.
-         # instead it uses whitespace.
-         # You probably want to find keyboard shortcuts
-         # to indent/unindent.  On Emacs, I use tab
-         sys.exit()  # if you can't create a window, quit
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 29
+   :lines: 29-30
+
+
+If you can't create a window, quit.  Otherwise, continue
+
+
+* Python note - many objects can be treating as booleans,
+  and the Python keyword "not" negates it
+  Python does not use brackets to show nesting.
+  instead it uses whitespace.
+  You probably want to find keyboard shortcuts for your editeor
+  to indent/unindent.  On Emacs, I use tab
 
 
 One frame is created incrementally at a time on the CPU, but the frame
@@ -130,84 +171,90 @@ Set the version of OpenGL
 
 OpenGL has been around a long time, and has multiple, possibly incompatible versions.
 
-.. code:: Python
-   :number-lines:
 
-     glfw.window_hint(
-         glfw.CONTEXT_VERSION_MAJOR, 1
-     )  # python methods normally use lower case
-     # and words are seperated by underscores.
-     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 32
+   :lines: 32-33
 
-
-Create a 500 pixel by 500 pixel window, which the user can resize.
+*  Set the preferred version open OpenGL to be 1.4
 
 
-.. code:: Python
-   :number-lines:
 
-     window = glfw.create_window(500, 500, "ModelViewProjection Demo 1", None, None)
+
+
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 35
+   :lines: 35
+
+*  Create a 500 pixel by 500 pixel window, which the user can resize.
+
 
 None is the equivalent of null.
-I frequently will put argument lists vertically, though it in not required.
 
-If GLFW cannot open the window, quit.  Unlike MC Hammer, we are quite legit, yet still
-able to quit.
-
-.. code:: Python
-   :number-lines:
-
-     if not window:
-         glfw.terminate()  # need to clean up gracefully
-         sys.exit()
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 37
+   :lines: 37-39
 
 
-Make the window's context current
+*  If GLFW cannot open the window, quit.  Unlike MC Hammer, we are quite legit, yet still
+   able to quit.
 
 
-.. code:: Python
-   :number-lines:
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 41
+   :lines: 41
 
-     glfw.make_context_current(window)
 
-Install a key handler.
+* Make the window's context current
 
 
-.. code:: Python
-   :number-lines:
 
-     def on_key(window, key, scancode, action, mods):
-         if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-             glfw.set_window_should_close(window, 1)
 
-     glfw.set_key_callback(window, on_key)
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 44
+   :lines: 44-49
+
+* Define an register a key handler.
 
 
 Functions are first class values in Python, and are objects just
 like anything else.  The can be passed as arguments, for evaluation
 later
 
-For every frame drawn, each pixel has a default color, set by
-calling "glClearColor". "0,0,0,1", means black "0,0,0", without
-transparency (the "1").
 
 
-.. code:: Python
-   :number-lines:
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 51
+   :lines: 51
 
-     glClearColor(0.0, 0.0, 0.0, 1.0)
+
+* For every frame drawn, each pixel has a default color, set by
+  calling "glClearColor". "0,0,0,1", means black "0,0,0", without
+  transparency (the "1").
 
 
-Don't worry about the 4 lines here.  Although they are necessary,
-we will cover them later.
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 53
+   :lines: 53-56
 
-.. code:: Python
-   :number-lines:
 
-     glMatrixMode(GL_PROJECTION)
-     glLoadIdentity()
-     glMatrixMode(GL_MODELVIEW)
-     glLoadIdentity()
+* Don't worry about the 4 lines here.  Although they are necessary,
+  we will cover them later.
+
 
 The Event Loop
 ^^^^^^^^^^^^^^
@@ -237,36 +284,36 @@ of these events since we last asked (i.e., the previous frame).
 
 Loop until the user closes the window
 
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 59
+   :lines: 59-67
 
-.. code:: Python
-   :number-lines:
+* On line 60, poll the operating system for any events, such as mouse movements,
+  keyboard input, etc
 
-     while not glfw.window_should_close(window):
-         # Poll for and process events
-         glfw.poll_events()
+* On line 62, get the size of the framebuffer.  Python
+  allows the returning of multiple values
+  in the form of a tuple.  Assigning
+  to the variables this way is a form of "destructuring"
 
-         # get the size of the framebuffer.  Python
-         # allows the returning of multiple values
-         # in the form of a tuple.  Assigning
-         # to the variables this way is a form of "destructuring"
-         width, height = glfw.get_framebuffer_size(window)
-         glViewport(0, 0, width, height)
-         # since the frame is about to be drawn, make it a blank slate.
-         # the color of each pixel will be the clear color.
-         # Programming in OpenGL is a bit different than normal programming,
-         # in that individual function calls do not always do everything you need
-         # in isolation.  Instead, they mutate state, which may require
-         # multiple function calls to complete a certain task.
-         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+* On line 63, tell OpenGL that we wish to draw in the entire
+  framebuffer
 
-         # render scene
-         # do nothing
+* On line 64, since the frame is about to be drawn, make it a blank slate.
+  The color of each pixel will be the clear color.
+  Programming in OpenGL is a bit different than normal programming,
+  in that individual function calls do not always do everything you need
+  in isolation.  Instead, they mutate state, which may require
+  multiple function calls to complete a certain task.
 
-         # done with frame, flush and swap buffers
-         # Swap front and back buffers
-         glfw.swap_buffers(window)
+* Nothing will be rendered, so nothing to do
 
-     glfw.terminate()
+* On Line 65, we are done with the frame, flush the frame to
+  the monitor, and swap the back and front buffers
+
+
 
 Black Screen
 ^^^^^^^^^^^^
@@ -276,33 +323,30 @@ Type "python demo.py", or "python3 demo.py" to run.
 The first demo is the least interesting graphical program possible.
 
 #. Sets the color at every pixel black.  (A constant color is better than whatever
-color happened to be the previous time it was drawn.)
+   color happened to be the previous time it was drawn.)
 
 #. If the user resized the window, reset OpenGL's mappings from *normalized-device-coordinates*
-to *screen-coordinates*.
+   to *screen-coordinates*.
 
 #. Cleared the depth buffer (don't worry about this for now).
 
 When this code returns, the event loop flushes (i.e) sends the frame to the monitor.  Since
 no geometry was drawn, the color value for each pixel is still black.
 
-Each color is represented by a number, so the frame is something like this:
+Each color is represented by a number, so the frame is something like this ::
 
-
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-
-
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
 The event loop then calls this code over and over again, and since we retain no state and
 we draw nothing, a black screen will be displayed every frame until the user

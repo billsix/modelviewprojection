@@ -50,18 +50,31 @@ those other books are excellent reference books for advanced topics.
 Required Software
 ^^^^^^^^^^^^^^^^^
 
-Bbefore running this code, you need a virtual environment,
+Before running this code, you need a virtual environment,
 with dependencies installed.
 
-Visual Studio takes care of this for you, but on a Mac or
-on Linux, run
+On Windows, if you use the Developer command prompt, run
+
+.. code-block::
+
+   python -m venv venv
+   cd venv\Scripts
+   activate.bat
+   cd ..\..\
+   python -m pip install --upgrade pip setuptools
+   python -m pip install -r requirements.txt
+
+
+If you use Visual Studio on Windows, it takes care of this for you.
+
+On a Mac or on Linux, run
 
 .. code-block:: bash
 
    python3 -m venv venv
    source venv/bin/activate
-   pip install --upgrade pip setuptools
-   pip install -r requirements.txt
+   python3 -m pip install --upgrade pip setuptools
+   python3 -m pip install -r requirements.txt
 
 
 Windows
