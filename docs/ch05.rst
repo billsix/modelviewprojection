@@ -13,7 +13,7 @@ of computer graphics.
 
 
 Move the Paddles using the Keyboard
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ==============  ======================
 Keyboard Input  Action
@@ -66,6 +66,8 @@ want to read them.
 * New!  We put the ransformation on the center of the paddle, instead
   of directly on each vertex
 
+The Event Loop
+^^^^^^^^^^^^^^
 
 
 .. literalinclude:: ../src/demo05/demo.py

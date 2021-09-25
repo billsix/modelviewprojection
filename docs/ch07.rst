@@ -12,7 +12,7 @@ of how rotations work.
 
 
 Move the Paddles using the Keyboard
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ==============  ================================
 Keyboard Input  Action

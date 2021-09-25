@@ -9,7 +9,7 @@ Add movement to the paddles using keyboard input.
 
 
 Move the Paddles using the Keyboard
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ==============  ======================
 Keyboard Input  Action
@@ -70,6 +70,10 @@ by getting keyboard input.
 Monitors can have variable framerates, and in order to ensure
 that movement is consistent across different monitors, we choose
 to only flush the screen at 60 hertz (frames per second).
+
+The Event Loop
+^^^^^^^^^^^^^^
+
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python

@@ -41,7 +41,7 @@ Later demos will show how to handle this problem more gracefully.
 
 
 Move the Paddles using the Keyboard
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ==============  ==============================================
 Keyboard Input  Action

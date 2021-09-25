@@ -119,11 +119,16 @@ We set the viewport, so that the NDC coordinates
 will be mapped the the region of screen coordinates
 that we care about, which is the black square.
 
+
+
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
    :lineno-start: 78
    :lines: 78-83
+
+The Event Loop
+^^^^^^^^^^^^^^
 
 
 .. literalinclude:: ../src/demo03/demo.py

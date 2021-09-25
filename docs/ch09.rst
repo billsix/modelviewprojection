@@ -9,7 +9,7 @@ more clearly.
 
 
 Move the Paddles using the Keyboard
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ==============  ================================
 Keyboard Input  Action

@@ -19,7 +19,11 @@ Within the event loop, demo02/demo.py draws 2 rectangles, as one might see in
 a game of Pong.
 
 
+The Event Loop
+^^^^^^^^^^^^^^
+
 Draw Paddles
+~~~~~~~~~~~~
 
 A black screen is not particularly interesting, so
 let's draw something, say, two rectangles.

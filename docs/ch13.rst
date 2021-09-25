@@ -11,7 +11,7 @@ Try reading them from the top down.  Does in make sense that way?
 
 
 Move the Paddles using the Keyboard
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 ==============  ==============================================
 Keyboard Input  Action
