@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 William Emerison Six
+# Copyright (c) 2018-2021 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -43,11 +43,8 @@
 # Here is paddle 1 code
 # for model_space in paddle1.vertices:
 #     world_space = model_space.rotate_z(paddle1.rotation) \
-#                              .translate(tx=paddle1.initial_position.x,
-#                                         ty=paddle1.initial_position.y,
-#                                         tz=0.0) \
-#                              .translate(tx=paddle1.input_offset_x,
-#                                         ty=paddle1.input_offset_y,
+#                              .translate(tx=paddle1.position.x,
+#                                         ty=paddle1.position.y,
 #                                         tz=0.0)
 #      camera_space = world_space.translate(tx=-moving_camera_x,
 #                                          ty=-moving_camera_y,
@@ -65,12 +62,9 @@
 #                                            ty=0.0,                           added
 #                                            tz=-10.0)                         added
 #     world_space = paddle_1_space.rotate_z(paddle1.rotation) \                same
-#                                 .translate(tx=paddle1.initial_position.x,    same
-#                                            ty=paddle1.initial_position.y,    same
-#                                            tz=0.0) \                         same
-#                                 .translate(tx=paddle1.input_offset_x,        same
-#                                            ty=paddle1.input_offset_y,        same
-#                                            tz=-0.0)                          same
+#                                 .translate(tx=paddle1.position.x,    same
+#                                            ty=paddle1.position.y,    same
+#                                            tz=0.0)                           same
 #      camera_space = world_space.translate(tx=-moving_camera_x,               same
 #                                          ty=-moving_camera_y,                same
 #                                          tz=-moving_camera_z) \              same
@@ -141,11 +135,8 @@
 # Here is paddle 1 code
 # for model_space in paddle1.vertices:
 #     world_space = model_space.rotate_z(paddle1.rotation) \                push this seventh (because last in, first applied)
-#                              .translate(tx=paddle1.initial_position.x,    push this sixth
-#                                         ty=paddle1.initial_position.y,
-#                                         tz=0.0) \
-#                              .translate(tx=paddle1.input_offset_x,        push this fifth
-#                                         ty=paddle1.input_offset_y,
+#                              .translate(tx=paddle1.position.x,    push this sixth
+#                                         ty=paddle1.position.y,
 #                                         tz=0.0)
 #      camera_space = world_space.translate(tx=-moving_camera_x,            push this fourth
 #                                          ty=-moving_camera_y,
@@ -183,12 +174,9 @@
 #                                            ty=0.0,
 #                                            tz=-10.0)
 #     world_space = paddle_1_space.rotate_z(paddle1.rotation) \             (nothing to push here or below,
-#                                 .translate(tx=paddle1.initial_position.x, as they are already on the stack
-#                                            ty=paddle1.initial_position.y,
-#                                            tz=0.0) \
-#                                 .translate(tx=paddle1.input_offset_x,
-#                                            ty=paddle1.input_offset_y,
-#                                            tz=-0.0)
+#                                 .translate(tx=paddle1.position.x, as they are already on the stack
+#                                            ty=paddle1.position.y,
+#                                            tz=0.0)
 #      camera_space = world_space.translate(tx=-moving_camera_x,
 #                                          ty=-moving_camera_y,
 #                                          tz=-moving_camera_z) \
@@ -224,6 +212,8 @@ import numpy as np
 import math
 from OpenGL.GL import *
 import glfw
+
+from dataclasses import dataclass
 
 if not glfw.init():
     sys.exit()
@@ -287,11 +277,11 @@ def draw_in_square_viewport():
     )  # width y
 
 
+@dataclass
 class Vertex:
-    def __init__(self, x, y, z):
-        self.x = x
-        self.y = y
-        self.z = z
+    x: float
+    y: float
+    z: float
 
     def translate(self, tx, ty, tz):
         return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
@@ -351,26 +341,14 @@ class Vertex:
         )
 
 
+@dataclass
 class Paddle:
-    def __init__(
-        self,
-        vertices,
-        r,
-        g,
-        b,
-        initial_position,
-        rotation=0.0,
-        input_offset_x=0.0,
-        input_offset_y=0.0,
-    ):
-        self.vertices = vertices
-        self.r = r
-        self.g = g
-        self.b = b
-        self.rotation = rotation
-        self.input_offset_x = input_offset_x
-        self.input_offset_y = input_offset_y
-        self.initial_position = initial_position
+    vertices: list[Vertex]
+    r: float
+    g: float
+    b: float
+    position: Vertex
+    rotation: float = 0.0
 
 
 paddle1 = Paddle(
@@ -383,7 +361,7 @@ paddle1 = Paddle(
     r=0.578123,
     g=0.0,
     b=1.0,
-    initial_position=Vertex(x=-90.0, y=0.0, z=0.0),
+    position=Vertex(x=-90.0, y=0.0, z=0.0),
 )
 
 paddle2 = Paddle(
@@ -396,14 +374,20 @@ paddle2 = Paddle(
     r=1.0,
     g=0.0,
     b=0.0,
-    initial_position=Vertex(x=90.0, y=0.0, z=0.0),
+    position=Vertex(x=90.0, y=0.0, z=0.0),
 )
 
-moving_camera_x = 0.0
-moving_camera_y = 0.0
-moving_camera_z = 400.0
-moving_camera_rot_y = 0.0
-moving_camera_rot_x = 0.0
+
+@dataclass
+class Camera:
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    rot_y: float = 0.0
+    rot_x: float = 0.0
+
+
+camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
 
 
 square = [
@@ -425,38 +409,34 @@ def handle_inputs():
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
 
-    global moving_camera_x
-    global moving_camera_y
-    global moving_camera_z
-    global moving_camera_rot_x
-    global moving_camera_rot_y
+    global camera
 
     move_multiple = 15.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        moving_camera_rot_y -= 0.03
+        camera.rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        moving_camera_rot_y += 0.03
+        camera.rot_y += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
-        moving_camera_rot_x += 0.03
+        camera.rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        moving_camera_rot_x -= 0.03
+        camera.rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
-        moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)
+        camera.x -= move_multiple * math.sin(camera.rot_y)
+        camera.z -= move_multiple * math.cos(camera.rot_y)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        moving_camera_x += move_multiple * math.sin(moving_camera_rot_y)
-        moving_camera_z += move_multiple * math.cos(moving_camera_rot_y)
+        camera.x += move_multiple * math.sin(camera.rot_y)
+        camera.z += move_multiple * math.cos(camera.rot_y)
 
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.input_offset_y -= 10.0
+        paddle1.position.y -= 10.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.input_offset_y += 10.0
+        paddle1.position.y += 10.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.input_offset_y -= 10.0
+        paddle2.position.y -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.input_offset_y += 10.0
+        paddle2.position.y += 10.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -536,11 +516,11 @@ while not glfw.window_should_close(window):
     # The camera's position and orientation are defined relative
     # to world space like so, read top to bottom:
 
-    # fn_stack.append(lambda v: v.translate(tx=moving_camera_x,
-    #                                       ty=moving_camera_y,
-    #                                       tz=moving_camera_z))
-    # fn_stack.append(lambda v: v.rotate_y( moving_camera_rot_y))
-    # fn_stack.append(lambda v: v.rotate_x( moving_camera_rot_x))
+    # fn_stack.append(lambda v: v.translate(tx=camera.x,
+    #                                       ty=camera.y,
+    #                                       tz=camera.z))
+    # fn_stack.append(lambda v: v.rotate_y( camera.rot_y))
+    # fn_stack.append(lambda v: v.rotate_x( camera.rot_x))
 
     # But, since we are dealing with world-space to camera space,
     # they must be inverted by reversing the order, and negating
@@ -548,12 +528,10 @@ while not glfw.window_should_close(window):
 
     # Therefore the transformations to put the world space into
     # camera space are.
-    fn_stack.append(lambda v: v.rotate_x(-moving_camera_rot_x))  # (2)
-    fn_stack.append(lambda v: v.rotate_y(-moving_camera_rot_y))  # (3)
+    fn_stack.append(lambda v: v.rotate_x(-camera.rot_x))  # (2)
+    fn_stack.append(lambda v: v.rotate_y(-camera.rot_y))  # (3)
     fn_stack.append(
-        lambda v: v.translate(
-            tx=-moving_camera_x, ty=-moving_camera_y, tz=-moving_camera_z  # (4)
-        )
+        lambda v: v.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z)  # (4)
     )
 
     # NEW
@@ -565,15 +543,8 @@ while not glfw.window_should_close(window):
     # the current space
     fn_stack.append(
         lambda v: v.translate(
-            tx=paddle1.input_offset_x,  # (5) translate the local origin
-            ty=paddle1.input_offset_y,
-            tz=0.0,
-        )
-    )
-    fn_stack.append(
-        lambda v: v.translate(
-            tx=paddle1.initial_position.x,  # (6) translate the local origin
-            ty=paddle1.initial_position.y,
+            tx=paddle1.position.x,  # (6) translate the local origin
+            ty=paddle1.position.y,
             tz=0.0,
         )
     )
@@ -630,7 +601,6 @@ while not glfw.window_should_close(window):
     fn_stack.pop()  # pop off (8)
     fn_stack.pop()  # pop off (7)
     fn_stack.pop()  # pop off (6)
-    fn_stack.pop()  # pop off (5)
 
     # NEW
     # since paddle2's model_space is independent of paddle 1's space, only
@@ -639,12 +609,7 @@ while not glfw.window_should_close(window):
     # draw paddle 2
     fn_stack.append(
         lambda v: v.translate(
-            tx=paddle2.input_offset_x, ty=paddle2.input_offset_y, tz=0.0  # (12)
-        )
-    )
-    fn_stack.append(
-        lambda v: v.translate(
-            tx=paddle2.initial_position.x, ty=paddle2.initial_position.y, tz=0.0  # (13)
+            tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0  # (13)
         )
     )
     fn_stack.append(lambda v: v.rotate_z(paddle2.rotation))  # (14)

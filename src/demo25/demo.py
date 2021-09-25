@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 William Emerison Six
+# Copyright (c) 2018-2021 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +23,9 @@ import os
 import numpy as np
 import math
 from OpenGL.GL import *
+
+from dataclasses import dataclass
+
 
 # new - SHADERS
 import OpenGL.GL.shaders as shaders
@@ -109,54 +112,44 @@ glDepthFunc(GL_LEQUAL)
 glEnable(GL_DEPTH_TEST)
 
 
+@dataclass
 class Paddle:
-    def __init__(
-        self,
-        r,
-        g,
-        b,
-        initial_position,
-        rotation=0.0,
-        input_offset_x=0.0,
-        input_offset_y=0.0,
-    ):
-        self.r = r
-        self.g = g
-        self.b = b
-        self.rotation = rotation
-        self.input_offset_x = input_offset_x
-        self.input_offset_y = input_offset_y
-        self.initial_position = initial_position
-
-    def vertices(self):
-        return np.array(
-            [
-                -10.0,
-                -30.0,
-                0.0,
-                10.0,
-                -30.0,
-                0.0,
-                10.0,
-                30.0,
-                0.0,
-                10.0,
-                30.0,
-                0.0,
-                -10.0,
-                30.0,
-                0.0,
-                -10.0,
-                -30.0,
-                0.0,
-            ],
-            dtype=np.float32,
-        )
+    r: float
+    g: float
+    b: float
+    position: any
+    rotation: float = 0.0
+    vertices: np.array = np.array(
+        [
+            -10.0,
+            -30.0,
+            0.0,
+            10.0,
+            -30.0,
+            0.0,
+            10.0,
+            30.0,
+            0.0,
+            10.0,
+            30.0,
+            0.0,
+            -10.0,
+            30.0,
+            0.0,
+            -10.0,
+            -30.0,
+            0.0,
+        ],
+        dtype=np.float32,
+    )
+    vao: int = 0
+    vbo: int = 0
+    shader: int = 0
 
     def prepare_to_render(self):
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
-        vertices = self.vertices()
+        vertices = self.vertices
         self.numberOfVertices = np.size(vertices) // floatsPerVertex
         color = np.array(
             [
@@ -264,44 +257,44 @@ class Paddle:
         glBindVertexArray(0)
 
 
-paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, initial_position=np.array([-90.0, 0.0, 0.0]))
+paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
 paddle1.prepare_to_render()
-paddle2 = Paddle(r=1.0, g=0.0, b=0.0, initial_position=np.array([90.0, 0.0, 0.0]))
+paddle2 = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
 paddle2.prepare_to_render()
 
 
+@dataclass
 class Square(Paddle):
-    def __init__(self, r, g, b):
-        self.r = r
-        self.g = g
-        self.b = b
-        self.rotation = 0.0
-        self.rotation_around_paddle1 = 0.0
+    rotation_around_paddle1: float = 0.0
 
-    def vertices(self):
-        return np.array(
-            [
-                [-5.0, -5.0, 0.0],
-                [5.0, -5.0, 0.0],
-                [5.0, 5.0, 0.0],
-                [5.0, 5.0, 0.0],
-                [-5.0, 5.0, 0.0],
-                [-5.0, -5.0, 0.0],
-            ],
-            dtype=np.float32,
-        )
+    vertices: np.array = np.array(
+        [
+            [-5.0, -5.0, 0.0],
+            [5.0, -5.0, 0.0],
+            [5.0, 5.0, 0.0],
+            [5.0, 5.0, 0.0],
+            [-5.0, 5.0, 0.0],
+            [-5.0, -5.0, 0.0],
+        ],
+        dtype=np.float32,
+    )
 
 
-square = Square(r=0.0, g=0.0, b=1.0)
+square = Square(r=0.0, g=0.0, b=1.0, position=[0.0, 0.0, 0.0])
 
 square.prepare_to_render()
 
 
-moving_camera_x = 0.0
-moving_camera_y = 0.0
-moving_camera_z = 400.0
-moving_camera_rot_y = 0.0
-moving_camera_rot_x = 0.0
+@dataclass
+class Camera:
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    rot_y: float = 0.0
+    rot_x: float = 0.0
+
+
+camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
 
 
 def handle_inputs():
@@ -311,40 +304,36 @@ def handle_inputs():
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square.rotation += 0.1
 
-    global moving_camera_x
-    global moving_camera_y
-    global moving_camera_z
-    global moving_camera_rot_x
-    global moving_camera_rot_y
+    global camera
 
     move_multiple = 15.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        moving_camera_rot_y -= 0.03
+        camera.rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        moving_camera_rot_y += 0.03
+        camera.rot_y += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
-        moving_camera_rot_x += 0.03
+        camera.rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        moving_camera_rot_x -= 0.03
+        camera.rot_x -= 0.03
     # //TODO -  explaing movement on XZ-plane
     # //TODO -  show camera movement in graphviz
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
-        moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)
+        camera.x -= move_multiple * math.sin(camera.rot_y)
+        camera.z -= move_multiple * math.cos(camera.rot_y)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        moving_camera_x += move_multiple * math.sin(moving_camera_rot_y)
-        moving_camera_z += move_multiple * math.cos(moving_camera_rot_y)
+        camera.x += move_multiple * math.sin(camera.rot_y)
+        camera.z += move_multiple * math.cos(camera.rot_y)
 
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.input_offset_y -= 10.0
+        paddle1.position[1] -= 10.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.input_offset_y += 10.0
+        paddle1.position[1] += 10.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.input_offset_y -= 10.0
+        paddle2.position[1] -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.input_offset_y += 10.0
+        paddle2.position[1] += 10.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -425,11 +414,9 @@ while not glfw.window_should_close(window):
     handle_inputs()
 
     # note - opengl matricies use degrees
-    ms.rotate_x(ms.MatrixStack.view, -moving_camera_rot_x)
-    ms.rotate_y(ms.MatrixStack.view, -moving_camera_rot_y)
-    ms.translate(
-        ms.MatrixStack.view, -moving_camera_x, -moving_camera_y, -moving_camera_z
-    )
+    ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
+    ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
+    ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)
 
     with ms.push_matrix(ms.MatrixStack.model):
         # draw paddle 1
@@ -438,12 +425,9 @@ while not glfw.window_should_close(window):
         # be read forwards, where each operation translates/rotates/scales
         # the current space
         ms.translate(
-            ms.MatrixStack.model, paddle1.input_offset_x, paddle1.input_offset_y, 0.0
-        )
-        ms.translate(
             ms.MatrixStack.model,
-            paddle1.initial_position[0],
-            paddle1.initial_position[1],
+            paddle1.position[0],
+            paddle1.position[1],
             0.0,
         )
         ms.rotate_z(ms.MatrixStack.model, paddle1.rotation)
@@ -471,12 +455,9 @@ while not glfw.window_should_close(window):
         # draw paddle 2
 
         ms.translate(
-            ms.MatrixStack.model, paddle2.input_offset_x, paddle2.input_offset_y, 0.0
-        )
-        ms.translate(
             ms.MatrixStack.model,
-            paddle2.initial_position[0],
-            paddle2.initial_position[1],
+            paddle2.position[0],
+            paddle2.position[1],
             0.0,
         )
         ms.rotate_z(ms.MatrixStack.model, paddle2.rotation)

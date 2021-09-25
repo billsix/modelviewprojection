@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 William Emerison Six
+# Copyright (c) 2018-2021 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,8 @@ import numpy as np
 import math
 from OpenGL.GL import *
 import glfw
+
+from dataclasses import dataclass
 
 if not glfw.init():
     sys.exit()
@@ -82,26 +84,18 @@ def draw_in_square_viewport():
     )
 
 
+@dataclass
 class Vertex:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __repr__(self):
-        return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
+    x: float
+    y: float
 
 
+@dataclass
 class Paddle:
-    def __init__(self, vertices, r, g, b, input_offset_x=0.0, input_offset_y=0.0):
-        self.vertices = vertices
-        self.r = r
-        self.g = g
-        self.b = b
-        self.input_offset_x = input_offset_x
-        self.input_offset_y = input_offset_y
-
-    def __repr__(self):
-        return f"Paddle(vertices={repr(self.vertices)},r={repr(self.r)},g={repr(self.g)},b={repr(self.b)},input_offset_x={repr(self.input_offset_x)},input_offset_y={repr({self.input_offset_y})})"
+    vertices: list[Vertex]
+    r: float
+    g: float
+    b: float
 
 
 paddle1 = Paddle(
@@ -127,13 +121,17 @@ paddle2 = Paddle(
 def handle_movement_of_paddles():
     global paddle1, paddle2
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.input_offset_y -= 0.1
+        for v in paddle1.vertices:
+            v.y -= 0.1
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.input_offset_y += 0.1
+        for v in paddle1.vertices:
+            v.y += 0.1
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.input_offset_y -= 0.1
+        for v in paddle2.vertices:
+            v.y -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.input_offset_y += 0.1
+        for v in paddle2.vertices:
+            v.y += 0.1
 
 
 TARGET_FRAMERATE = 60
@@ -163,14 +161,14 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for vertex in paddle1.vertices:
-        glVertex2f(vertex.x, vertex.y + paddle1.input_offset_y)
+        glVertex2f(vertex.x, vertex.y)
     glEnd()
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
     for vertex in paddle2.vertices:
-        glVertex2f(vertex.x, vertex.y + paddle2.input_offset_y)
+        glVertex2f(vertex.x, vertex.y)
     glEnd()
 
     glfw.swap_buffers(window)

@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 William Emerison Six
+# Copyright (c) 2018-2021 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -25,6 +25,8 @@ import numpy as np
 import math
 from OpenGL.GL import *
 import glfw
+
+from dataclasses import dataclass
 
 if not glfw.init():
     sys.exit()
@@ -82,48 +84,43 @@ def draw_in_square_viewport():
     )
 
 
+@dataclass
 class Vertex:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-    def __repr__(self):
-        return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
+    x: float
+    y: float
 
     def translate(self, tx, ty):
         return Vertex(x=self.x + tx, y=self.y + ty)
 
 
+@dataclass
 class Paddle:
-    def __init__(self, vertices, r, g, b, input_offset_x=0.0, input_offset_y=0.0):
-        self.vertices = vertices
-        self.r = r
-        self.g = g
-        self.b = b
-        self.input_offset_x = input_offset_x
-        self.input_offset_y = input_offset_y
-
-    def __repr__(self):
-        return f"Paddle(vertices={repr(self.vertices)},r={repr(self.r)},g={repr(self.g)},b={repr(self.b)},input_offset_x={repr(self.input_offset_x)},input_offset_y={repr({self.input_offset_y})})"
+    vertices: list[Vertex]
+    r: float
+    g: float
+    b: float
+    position: Vertex
 
 
 paddle1 = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-0.3),
-        Vertex(x=-0.8, y=-0.3),
-        Vertex(x=-0.8, y=0.3),
-        Vertex(x=-1.0, y=0.3),
+        Vertex(x=-0.1, y=-0.3),
+        Vertex(x=-0.1, y=-0.3),
+        Vertex(x=-0.1, y=0.3),
+        Vertex(x=-0.1, y=0.3),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
+    position=Vertex(-0.9, 0.0),
 )
 
 paddle2 = Paddle(
-    vertices=[Vertex(0.8, -0.3), Vertex(1.0, -0.3), Vertex(1.0, 0.3), Vertex(0.8, 0.3)],
+    vertices=[Vertex(0.1, -0.3), Vertex(0.1, -0.3), Vertex(0.1, 0.3), Vertex(0.1, 0.3)],
     r=1.0,
     g=0.0,
     b=0.0,
+    position=Vertex(0.9, 0.0),
 )
 
 
@@ -131,13 +128,13 @@ def handle_movement_of_paddles():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.input_offset_y -= 0.1
+        paddle1.position[1] -= 0.1
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.input_offset_y += 0.1
+        paddle1.position[1] += 0.1
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.input_offset_y -= 0.1
+        paddle2.position[1] -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.input_offset_y += 0.1
+        paddle2.position[1] += 0.1
 
 
 TARGET_FRAMERATE = 60
@@ -166,7 +163,6 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for vertex in paddle1.vertices:
-        translated = vertex.translate(tx=0.0, ty=paddle1.input_offset_y)
         glVertex2f(translated.x, translated.y)
     glEnd()
 
@@ -174,7 +170,6 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for vertex in paddle2.vertices:
-        translated = vertex.translate(tx=0.0, ty=paddle2.input_offset_y)
         glVertex2f(translated.x, translated.y)
     glEnd()
 

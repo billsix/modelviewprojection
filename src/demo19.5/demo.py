@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 William Emerison Six
+# Copyright (c) 2018-2021 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,9 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 import glfw
 import pyMatrixStack as ms
+
+from dataclasses import dataclass
+
 
 if not glfw.init():
     sys.exit()
@@ -89,49 +92,42 @@ def draw_in_square_viewport():
     )  # width y
 
 
+@dataclass
 class Paddle:
-    def __init__(
-        self,
-        r,
-        g,
-        b,
-        initial_position,
-        rotation=0.0,
-        input_offset_x=0.0,
-        input_offset_y=0.0,
-    ):
-        self.r = r
-        self.g = g
-        self.b = b
-        self.rotation = rotation
-        self.input_offset_x = input_offset_x
-        self.input_offset_y = input_offset_y
-        self.initial_position = initial_position
-        self.vertices = np.array(
-            [
-                [-10.0, -30.0, 0.0],
-                [10.0, -30.0, 0.0],
-                [10.0, 30.0, 0.0],
-                [-10.0, 30.0, 0.0],
-            ],
-            dtype=np.float32,
-        )
+    r: float
+    g: float
+    b: float
+    position: any
+    rotation: float = 0.0
+    vertices: np.array = np.array(
+        [
+            [-10.0, -30.0, 0.0],
+            [10.0, -30.0, 0.0],
+            [10.0, 30.0, 0.0],
+            [-10.0, 30.0, 0.0],
+        ],
+        dtype=np.float32,
+    )
 
+paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
 
-paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, initial_position=np.array([-90.0, 0.0, 0.0]))
-
-paddle2 = Paddle(r=1.0, g=0.0, b=0.0, initial_position=np.array([90.0, 0.0, 0.0]))
+paddle2 = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
 
 
 # NEW
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 print(number_of_controllers)
 
-moving_camera_x = 0.0
-moving_camera_y = 0.0
-moving_camera_z = 400.0
-moving_camera_rot_y = 0.0
-moving_camera_rot_x = 0.0
+@dataclass
+class Camera:
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    rot_y: float = 0.0
+    rot_x: float = 0.0
+
+
+camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
 
 
 square_rotation = 0.0
@@ -147,40 +143,36 @@ def handle_inputs():
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
 
-    global moving_camera_x
-    global moving_camera_y
-    global moving_camera_z
-    global moving_camera_rot_x
-    global moving_camera_rot_y
+    global camera
 
     move_multiple = 15.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        moving_camera_rot_y -= 0.03
+        camera.rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        moving_camera_rot_y += 0.03
+        camera.rot_y += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
-        moving_camera_rot_x += 0.03
+        camera.rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        moving_camera_rot_x -= 0.03
+        camera.rot_x -= 0.03
     # //TODO -  explaing movement on XZ-plane
     # //TODO -  show camera movement in graphviz
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        moving_camera_x -= move_multiple * math.sin(moving_camera_rot_y)
-        moving_camera_z -= move_multiple * math.cos(moving_camera_rot_y)
+        camera.x -= move_multiple * math.sin(camera.rot_y)
+        camera.z -= move_multiple * math.cos(camera.rot_y)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        moving_camera_x += move_multiple * math.sin(moving_camera_rot_y)
-        moving_camera_z += move_multiple * math.cos(moving_camera_rot_y)
+        camera.x += move_multiple * math.sin(camera.rot_y)
+        camera.z += move_multiple * math.cos(camera.rot_y)
 
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.input_offset_y -= 10.0
+        paddle1.position[1] -= 10.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.input_offset_y += 10.0
+        paddle1.position[1] += 10.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.input_offset_y -= 10.0
+        paddle2.position[1] -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.input_offset_y += 10.0
+        paddle2.position[1] += 10.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -255,24 +247,25 @@ while not glfw.window_should_close(window):
     # may register a random value.  Therefore, set up a gating value
     # (in this case 0.19), which will not register to the application
     # as an input
-    if len(axes_list) >= 1 and math.fabs(float(axes_list[0][0])) > 0.19:
-        # vertical
-        # TODO - show the math
-        moving_camera_x += 10.0 * axes_list[0][0] * math.cos(moving_camera_rot_y)
-        moving_camera_z -= 10.0 * axes_list[0][0] * math.sin(moving_camera_rot_y)
-    # axes_list[0][1] is the horizontal component of the left stick
-    if len(axes_list) >= 1 and math.fabs(float(axes_list[0][1])) > 0.19:
-        # horizontal
-        # TODO - show the math
-        moving_camera_x += 10.0 * axes_list[0][1] * math.sin(moving_camera_rot_y)
-        moving_camera_z += 10.0 * axes_list[0][1] * math.cos(moving_camera_rot_y)
+    if len(axes_list) >= 1 and axes_list[0]:
+        if math.fabs(float(axes_list[0][0])) > 0.19:
+            # vertical
+            # TODO - show the math
+            camera.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            camera.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
+        # axes_list[0][1] is the horizontal component of the left stick
+        if math.fabs(float(axes_list[0][1])) > 0.19:
+            # horizontal
+            # TODO - show the math
+            camera.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            camera.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
 
-    # axes_list[0][1] is the horizontal component of the right stick
-    if math.fabs(axes_list[0][3]) > 0.19:
-        moving_camera_rot_y -= 3.0 * axes_list[0][3] * 0.01
-    # axes_list[0][4] is the vertical component of the right stick
-    if math.fabs(axes_list[0][4]) > 0.19:
-        moving_camera_rot_x += axes_list[0][4] * 0.01
+        # axes_list[0][1] is the horizontal component of the right stick
+        if math.fabs(axes_list[0][3]) > 0.19:
+            camera.rot_y -= 3.0 * axes_list[0][3] * 0.01
+        # axes_list[0][4] is the vertical component of the right stick
+        if math.fabs(axes_list[0][4]) > 0.19:
+            camera.rot_x += axes_list[0][4] * 0.01
 
     glMatrixMode(GL_PROJECTION)
     glLoadMatrixf(
@@ -281,20 +274,20 @@ while not glfw.window_should_close(window):
 
     # The camera's position is described as follows
     # ms.translate(ms.MatrixStack.view,
-    #              moving_camera_x,
-    #              moving_camera_y,
-    #              moving_camera_z)
-    # ms.rotate_y(ms.MatrixStack.view,moving_camera_rot_y)
-    # ms.rotate_x(ms.MatrixStack.view,moving_camera_rot_x)
+    #              camera.x,
+    #              camera.y,
+    #              camera.z)
+    # ms.rotate_y(ms.MatrixStack.view,camera.rot_y)
+    # ms.rotate_x(ms.MatrixStack.view,camera.rot_x)
     #
     # Therefore, to take the object's world space coordinates
     # and transform them into camera space, we need to
     # do the inverse operations to the view stack.
 
-    ms.rotate_x(ms.MatrixStack.view, -moving_camera_rot_x)
-    ms.rotate_y(ms.MatrixStack.view, -moving_camera_rot_y)
+    ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
+    ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
     ms.translate(
-        ms.MatrixStack.view, -moving_camera_x, -moving_camera_y, -moving_camera_z
+        ms.MatrixStack.view, -camera.x, -camera.y, -camera.z
     )
     with ms.PushMatrix(ms.MatrixStack.model):
 
@@ -302,12 +295,9 @@ while not glfw.window_should_close(window):
         glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
         ms.translate(
-            ms.MatrixStack.model, paddle1.input_offset_x, paddle1.input_offset_y, 0.0
-        )
-        ms.translate(
             ms.MatrixStack.model,
-            paddle1.initial_position[0],
-            paddle1.initial_position[1],
+            paddle1.position[0],
+            paddle1.position[1],
             0.0,
         )
         ms.rotate_z(ms.MatrixStack.model, paddle1.rotation)
@@ -341,12 +331,9 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     ms.translate(
-        ms.MatrixStack.model, paddle2.input_offset_x, paddle2.input_offset_y, 0.0
-    )
-    ms.translate(
         ms.MatrixStack.model,
-        paddle2.initial_position[0],
-        paddle2.initial_position[1],
+        paddle2.position[0],
+        paddle2.position[1],
         0.0,
     )
     ms.rotate_z(ms.MatrixStack.model, paddle2.rotation)
