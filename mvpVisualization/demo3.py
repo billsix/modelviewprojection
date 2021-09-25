@@ -28,6 +28,7 @@ from OpenGL.GLU import *
 import glfw
 import pyMatrixStack as ms
 
+from dataclasses import dataclass
 
 if not glfw.init():
     sys.exit()
@@ -63,51 +64,49 @@ glClearDepth(1.0)
 glDepthFunc(GL_LEQUAL)
 
 
+@dataclass
 class Paddle:
-    def __init__(
-        self, r, g, b, global_position, rotation=0.0, offset_x=0.0, offset_y=0.0
-    ):
-        self.r = r
-        self.g = g
-        self.b = b
-        self.rotation = rotation
-        self.offset_x = offset_x
-        self.offset_y = offset_y
-        self.global_position = global_position
-        self.vertices = np.array(
-            [
-                [-10.0, -30.0, 0.0],
-                [10.0, -30.0, 0.0],
-                [10.0, 30.0, 0.0],
-                [-10.0, 30.0, 0.0],
-            ],
-            dtype=np.float32,
-        )
+    r: float
+    g: float
+    b: float
+    position: any
+    rotation: float = 0.0
+    vertices: np.array = np.array(
+        [
+            [-10.0, -30.0, 0.0],
+            [10.0, -30.0, 0.0],
+            [10.0, 30.0, 0.0],
+            [-10.0, 30.0, 0.0],
+        ],
+        dtype=np.float32,
+    )
 
 
 paddle1 = Paddle(
     r=0.578123,
     g=0.0,
     b=1.0,
-    global_position=np.array([-90.0, 0.0, 0.0]),
+    position=np.array([-90.0, 10.0, 0.0]),
     rotation=math.radians(45.0),
-    offset_x=0.0,
-    offset_y=10.0,
 )
 
 paddle2 = Paddle(
     r=1.0,
-    g=1.0,
-    b=0.2,
-    global_position=np.array([90.0, 0.0, 0.0]),
+    g=0.0,
+    b=0.0,
+    position=np.array([90.0, 5.0, 0.0]),
     rotation=math.radians(-45.0),
-    offset_x=0.0,
-    offset_y=5.0,
 )
 
-moving_camera_r = 300
-moving_camera_rot_y = math.radians(45.0)
-moving_camera_rot_x = math.radians(35.264)
+
+@dataclass
+class Camera:
+    r: float = 0.0
+    rot_y: float = 0.0
+    rot_x: float = 0.0
+
+
+camera = Camera(r=300.0, rot_y=math.radians(45.0), rot_x=math.radians(35.264))
 
 
 square_rotation = math.radians(90.0)
@@ -123,29 +122,28 @@ def handle_inputs():
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
 
-    global moving_camera_rot_y
-    global moving_camera_rot_x
+    global camera
 
     move_multiple = 15.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        moving_camera_rot_y -= math.radians(1.0) % 360.0
+        camera.rot_y -= math.radians(1.0) % 360.0
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        moving_camera_rot_y += math.radians(1.0) % 360.0
+        camera.rot_y += math.radians(1.0) % 360.0
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        moving_camera_rot_x -= math.radians(1.0) % 360.0
+        camera.rot_x -= math.radians(1.0) % 360.0
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        moving_camera_rot_x += math.radians(1.0) % 360.0
+        camera.rot_x += math.radians(1.0) % 360.0
 
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.offset_y -= 10.0
+        paddle1.position[1] -= 10.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.offset_y += 10.0
+        paddle1.position[1] += 10.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.offset_y -= 10.0
+        paddle2.position[1] -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.offset_y += 10.0
+        paddle2.position[1] += 10.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -331,9 +329,9 @@ while not glfw.window_should_close(window):
     )
 
     # note - opengl matricies use degrees
-    ms.translate(ms.MatrixStack.view, 0.0, 0.0, -moving_camera_r)
-    ms.rotate_x(ms.MatrixStack.view, moving_camera_rot_x)
-    ms.rotate_y(ms.MatrixStack.view, -moving_camera_rot_y)
+    ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
+    ms.rotate_x(ms.MatrixStack.view, camera.rot_x)
+    ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
 
     glMatrixMode(GL_MODELVIEW)
 
@@ -345,46 +343,46 @@ while not glfw.window_should_close(window):
         draw_ndc()
     draw_ground()
 
-    if animation_time > 85.0:
+    if animation_time > 80.0:
         ms.rotate_x(
             ms.MatrixStack.model,
-            -virtual_camera_rot_x * min(1.0, (animation_time - 85.0) / 5.0),
-        )
-    if animation_time > 80.0:
-        ms.rotate_y(
-            ms.MatrixStack.model,
-            -virtual_camera_rot_y * min(1.0, (animation_time - 80.0) / 5.0),
+            -virtual_camera_rot_x * min(1.0, (animation_time - 80.0) / 5.0),
         )
     if animation_time > 75.0:
+        ms.rotate_y(
+            ms.MatrixStack.model,
+            -virtual_camera_rot_y * min(1.0, (animation_time - 75.0) / 5.0),
+        )
+    if animation_time > 70.0:
         ms.translate(
             ms.MatrixStack.model,
-            -virtual_camera_position[0] * min(1.0, (animation_time - 75.0) / 5.0),
-            -virtual_camera_position[1] * min(1.0, (animation_time - 75.0) / 5.0),
-            -virtual_camera_position[2] * min(1.0, (animation_time - 75.0) / 5.0),
+            -virtual_camera_position[0] * min(1.0, (animation_time - 70.0) / 5.0),
+            -virtual_camera_position[1] * min(1.0, (animation_time - 70.0) / 5.0),
+            -virtual_camera_position[2] * min(1.0, (animation_time - 70.0) / 5.0),
         )
 
     # draw virtual camera
-    if animation_time > 60:
+    if animation_time > 55:
         with ms.push_matrix(ms.MatrixStack.model):
-            if animation_time > 60:
+            if animation_time > 55:
                 ms.translate(
                     ms.MatrixStack.model,
                     virtual_camera_position[0]
-                    * min(1.0, (animation_time - 60.0) / 5.0),
+                    * min(1.0, (animation_time - 55.0) / 5.0),
                     virtual_camera_position[1]
-                    * min(1.0, (animation_time - 60.0) / 5.0),
+                    * min(1.0, (animation_time - 55.0) / 5.0),
                     virtual_camera_position[2]
-                    * min(1.0, (animation_time - 60.0) / 5.0),
+                    * min(1.0, (animation_time - 55.0) / 5.0),
                 )
-            if animation_time > 65:
+            if animation_time > 60:
                 ms.rotate_y(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_y * min(1.0, (animation_time - 65.0) / 5.0),
+                    virtual_camera_rot_y * min(1.0, (animation_time - 60.0) / 5.0),
                 )
-            if animation_time > 70:
+            if animation_time > 65:
                 ms.rotate_x(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_x * min(1.0, (animation_time - 70.0) / 5.0),
+                    virtual_camera_rot_x * min(1.0, (animation_time - 65.0) / 5.0),
                 )
 
             draw_axises()
@@ -392,7 +390,11 @@ while not glfw.window_should_close(window):
 
             draw_ndc()
 
-    if animation_time < 5.0 or (animation_time > 40.0 and animation_time < 45.0):
+    if (
+        animation_time < 5.0
+        or (animation_time > 35.0 and animation_time < 40.0)
+        or (animation_time > 50.0 and animation_time < 55.0)
+    ):
         draw_axises()
     else:
         draw_axises(grayed_out=True)
@@ -400,31 +402,22 @@ while not glfw.window_should_close(window):
     with ms.PushMatrix(ms.MatrixStack.model):
 
         if animation_time > 5.0:
-            # draw paddle 1
             ms.translate(
                 ms.MatrixStack.model,
-                paddle1.offset_x * min(1.0, (animation_time - 5.0) / 5.0),
-                paddle1.offset_y * min(1.0, (animation_time - 5.0) / 5.0),
+                paddle1.position[0] * min(1.0, (animation_time - 5.0) / 5.0),
+                paddle1.position[1] * min(1.0, (animation_time - 5.0) / 5.0),
                 0.0,
             )
-
         if animation_time > 10.0:
-            ms.translate(
-                ms.MatrixStack.model,
-                paddle1.global_position[0] * min(1.0, (animation_time - 10.0) / 5.0),
-                paddle1.global_position[1] * min(1.0, (animation_time - 10.0) / 5.0),
-                0.0,
-            )
-        if animation_time > 15.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                paddle1.rotation * min(1.0, (animation_time - 15.0) / 5.0),
+                paddle1.rotation * min(1.0, (animation_time - 10.0) / 5.0),
             )
 
-        if animation_time > 5.0 and animation_time < 20.0:
+        if animation_time > 5.0 and animation_time < 15.0:
             draw_axises()
         glColor3f(paddle1.r, paddle1.g, paddle1.b)
-        if animation_time > 20.0:
+        if animation_time > 15.0:
             # ascontiguousarray puts the array in column major order
             glLoadMatrixf(
                 np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
@@ -436,36 +429,36 @@ while not glfw.window_should_close(window):
 
         # # draw the square
 
-        if animation_time > 20.0:
+        if animation_time > 15.0:
             ms.translate(
                 ms.MatrixStack.model,
                 0.0,
                 0.0,
-                -10.0 * min(1.0, (animation_time - 20.0) / 5.0),
+                -10.0 * min(1.0, (animation_time - 15.0) / 5.0),
+            )
+        if animation_time > 20.0:
+            ms.rotate_z(
+                ms.MatrixStack.model,
+                rotation_around_paddle1 * min(1.0, (animation_time - 20.0) / 5.0),
             )
         if animation_time > 25.0:
-            ms.rotate_z(
-                ms.MatrixStack.model,
-                rotation_around_paddle1 * min(1.0, (animation_time - 25.0) / 5.0),
-            )
-        if animation_time > 30.0:
             ms.translate(
                 ms.MatrixStack.model,
-                20.0 * min(1.0, (animation_time - 30.0) / 5.0),
+                20.0 * min(1.0, (animation_time - 25.0) / 5.0),
                 0.0,
                 0.0,
             )
-        if animation_time > 35.0:
+        if animation_time > 30.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                square_rotation * min(1.0, (animation_time - 35.0) / 5.0),
+                square_rotation * min(1.0, (animation_time - 30.0) / 5.0),
             )
 
-        if animation_time > 20.0 and animation_time < 40.0:
+        if animation_time > 10.0 and animation_time < 35.0:
             draw_axises()
 
         glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
-        if animation_time > 40.0:
+        if animation_time > 35.0:
             # ascontiguousarray puts the array in column major order
             glLoadMatrixf(
                 np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
@@ -480,32 +473,25 @@ while not glfw.window_should_close(window):
     with ms.PushMatrix(ms.MatrixStack.model):
 
         # draw paddle 2
-        if animation_time > 45.0:
 
+        if animation_time > 40.0:
             ms.translate(
                 ms.MatrixStack.model,
-                paddle2.offset_x * min(1.0, (animation_time - 45.0) / 5.0),
-                paddle2.offset_y * min(1.0, (animation_time - 45.0) / 5.0),
+                paddle2.position[0] * min(1.0, (animation_time - 40.0) / 5.0),
+                paddle2.position[1] * min(1.0, (animation_time - 40.0) / 5.0),
                 0.0,
             )
-        if animation_time > 50.0:
-            ms.translate(
-                ms.MatrixStack.model,
-                paddle2.global_position[0] * min(1.0, (animation_time - 50.0) / 5.0),
-                paddle2.global_position[1] * min(1.0, (animation_time - 50.0) / 5.0),
-                0.0,
-            )
-        if animation_time > 55.0:
+        if animation_time > 45.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                paddle2.rotation * min(1.0, (animation_time - 55.0) / 5.0),
+                paddle2.rotation * min(1.0, (animation_time - 45.0) / 5.0),
             )
 
-        if animation_time > 45.0 and animation_time < 60.0:
+        if animation_time > 40.0 and animation_time < 50.0:
             draw_axises()
 
         glColor3f(paddle2.r, paddle2.g, paddle2.b)
-        if animation_time > 60.0:
+        if animation_time > 50.0:
             # ascontiguousarray puts the array in column major order
             glLoadMatrixf(
                 np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
