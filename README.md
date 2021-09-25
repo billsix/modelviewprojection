@@ -1,7 +1,7 @@
-3D Graphics Using High-School Math
-==================================
+ModelViewProjection
+===================
 
-Learn how to build 3D graphics using math you already know.
+Learn how to build 3D graphics from the ground up.
 This codebase demonstrates how to create objects, put
 them where you want them to go, view the scene with a camera
 that can move, and how to project that 3D data to a 2D screen.
@@ -28,10 +28,76 @@ Windows
 -------
 Use Visual Studio 2019 (Tested on community, but I'm sure it will work on others).
 
+Using Developer Command Prompt
+
+        python -m venv venv
+        cd venv\Scripts
+        activate.bat
+        cd ..\..\
+        python -m pip install --upgrade pip setuptools
+        python -m pip install -r requirements.txt
+        python src\demo05\demo.py
+
+
 Linux
 -----
 Install Python3, glfw via a package manager.  Use pip and virtualenv to install dependencies
 
+
+#### Linux
+
+
+        python -m venv venv
+        source venv/bin/activate
+        python -m pip install --upgrade pip setuptools
+        python -m pip install -r requirements.txt
+        python src/demo05/demo.py
+
+
 Mac
 ---
 Python Python3 (via anaconda, homebrew, macports, whatever), and use pip and virtualenv to install dependencies.
+
+#### Mac OS X
+
+        python -m venv venv
+        source venv/bin/activate
+        python -m pip install --upgrade pip setuptools
+        python -m pip install -r requirements.txt
+        python src/demo05/demo.py
+
+
+### Build the book
+
+Install Python, either through Cygwin, Visual Studio, brew, or apt.
+
+#### Windows, using Developer Command Prompt
+
+        python -m venv venv
+        cd venv\Scripts
+        activate.bat
+        cd ..\..\
+        python -m pip install --upgrade pip setuptools
+        python -m pip install -r requirements.txt
+        cd doc
+        make html
+
+#### Mac OS X
+
+        python -m venv venv
+        source venv/bin/activate
+        python -m pip install --upgrade pip setuptools
+        python -m pip install -r requirements.txt
+        cd doc
+        make html
+
+#### Linux
+
+
+        python -m venv venv
+        source venv/bin/activate
+        python -m pip install --upgrade pip setuptools
+        python -m pip install -r requirements.txt
+        cd doc
+        make html
+        make latexpdf
