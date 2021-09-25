@@ -36,18 +36,15 @@ quadrilateral.  The vertices will be specified by calling "glVertex2f" 4 times.
 "glEnd()" tells OpenGL that we have finished providing vertices for
 the begun quadrilateral.
 
-.. code:: Python
-   :number-lines:
 
-    # render scene
-    # draw paddle 1
-    glColor3f(0.578123, 0.0, 1.0)  # r  # g  # b
-    glBegin(GL_QUADS)
-    glVertex2f(-1.0, -0.3)  # x  # y
-    glVertex2f(-0.8, -0.3)  # x  # y
-    glVertex2f(-0.8, 0.3)  # x  # y
-    glVertex2f(-1.0, 0.3)  # x  # y
-    glEnd()
+.. literalinclude:: ../src/demo02/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 64
+   :lines: 64-70
+
+
+
 
 The framebuffer, which has not yet been flushed to the monitor, has geometry which looks like this:
 
@@ -59,18 +56,11 @@ The framebuffer, which has not yet been flushed to the monitor, has geometry whi
     Rectangle
 
 
-.. code:: Python
-   :number-lines:
-
-    # draw paddle 2
-    glColor3f(1.0, 0.0, 0.0)
-    glBegin(GL_QUADS)
-
-    glVertex2f(0.8, -0.3)
-    glVertex2f(1.0, -0.3)
-    glVertex2f(1.0, 0.3)
-    glVertex2f(0.8, 0.3)
-    glEnd()
+.. literalinclude:: ../src/demo02/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 72
+   :lines: 72-78
 
 The framebuffer, which has not yet been flushed to the monitor,
 has geometry which looks like this:
@@ -82,28 +72,30 @@ has geometry which looks like this:
 
     Rectangle
 
-.. code:: Python
-   :number-lines:
+.. literalinclude:: ../src/demo02/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 80
+   :lines: 80
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
-    glfw.swap_buffers(window)
+* done with frame, flush and swap buffers
+* Swap front and back buffers
 
 
-The frame sent to the monitor is a set of values like this:
+The frame sent to the monitor is a set of values like this ::
 
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
-pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
-pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
-pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
-pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
-pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
+    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
+    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
+    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
+    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
+    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
 
 What do we have to do to convert from normalized-device-coordinates

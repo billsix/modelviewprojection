@@ -105,8 +105,8 @@ class Paddle:
 paddle1 = Paddle(
     vertices=[
         Vertex(x=-0.1, y=-0.3),
-        Vertex(x=-0.1, y=-0.3),
-        Vertex(x=-0.1, y=0.3),
+        Vertex(x=0.1, y=-0.3),
+        Vertex(x=0.1, y=0.3),
         Vertex(x=-0.1, y=0.3),
     ],
     r=0.578123,
@@ -116,7 +116,7 @@ paddle1 = Paddle(
 )
 
 paddle2 = Paddle(
-    vertices=[Vertex(0.1, -0.3), Vertex(0.1, -0.3), Vertex(0.1, 0.3), Vertex(0.1, 0.3)],
+    vertices=[Vertex(-0.1, -0.3), Vertex(0.1, -0.3), Vertex(0.1, 0.3), Vertex(-0.1, 0.3)],
     r=1.0,
     g=0.0,
     b=0.0,
@@ -128,13 +128,13 @@ def handle_movement_of_paddles():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position[1] -= 0.1
+        paddle1.position.y -= 0.1
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position[1] += 0.1
+        paddle1.position.y += 0.1
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position[1] -= 0.1
+        paddle2.position.y -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position[1] += 0.1
+        paddle2.position.y += 0.1
 
 
 TARGET_FRAMERATE = 60
@@ -162,15 +162,17 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for vertex in paddle1.vertices:
-        glVertex2f(translated.x, translated.y)
+    for modelSpace in paddle1.vertices:
+        worldSpace = paddle1.position.translate(tx=modelSpace.x, ty=modelSpace.y)
+        glVertex2f(worldSpace.x, worldSpace.y)
     glEnd()
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    for vertex in paddle2.vertices:
-        glVertex2f(translated.x, translated.y)
+    for modelSpace in paddle2.vertices:
+        worldSpace = paddle2.position.translate(tx=modelSpace.x, ty=modelSpace.y)
+        glVertex2f(worldSpace.x, worldSpace.y)
     glEnd()
 
     glfw.swap_buffers(window)

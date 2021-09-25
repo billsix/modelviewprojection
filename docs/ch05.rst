@@ -39,22 +39,40 @@ of a sequence of transformations, and the order in which you probably
 want to read them.
 
 
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 87
+   :lines: 87-93
 
-.. code:: Python
-   :number-lines:
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 96
+   :lines: 96-102
 
-    class Vertex:
-        def __init__(self, x, y):
-            self.x = x
-            self.y = y
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 105
+   :lines: 105-124
 
-        def __repr__(self):
-            return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 127
+   :lines: 127-137
+
+* New!  We put the ransformation on the center of the paddle, instead
+  of directly on each vertex
 
 
-        def translate(self, tx, ty):
-            return Vertex(x=self.x + tx, y=self.y + ty)
 
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 144
+   :lines: 144-163
 
 .. code:: Python
    :number-lines:
