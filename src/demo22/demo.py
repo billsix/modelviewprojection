@@ -42,6 +42,7 @@
 # close to nearZ, and more problems with Z-fighting
 # near farZ)
 
+from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
 import numpy as np

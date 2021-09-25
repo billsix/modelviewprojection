@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 
+from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
 import numpy as np
@@ -89,7 +90,7 @@ class Vertex:
     x: float
     y: float
 
-    def translate(self, tx, ty):
+    def translate(self: Vertex, tx: float, ty: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty)
 
 
@@ -102,7 +103,7 @@ class Paddle:
     position: Vertex
 
 
-paddle1 = Paddle(
+paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-0.1, y=-0.3),
         Vertex(x=0.1, y=-0.3),
@@ -115,8 +116,13 @@ paddle1 = Paddle(
     position=Vertex(-0.9, 0.0),
 )
 
-paddle2 = Paddle(
-    vertices=[Vertex(-0.1, -0.3), Vertex(0.1, -0.3), Vertex(0.1, 0.3), Vertex(-0.1, 0.3)],
+paddle2: Paddle = Paddle(
+    vertices=[
+        Vertex(-0.1, -0.3),
+        Vertex(0.1, -0.3),
+        Vertex(0.1, 0.3),
+        Vertex(-0.1, 0.3),
+    ],
     r=1.0,
     g=0.0,
     b=0.0,
@@ -124,7 +130,7 @@ paddle2 = Paddle(
 )
 
 
-def handle_movement_of_paddles():
+def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
@@ -137,9 +143,9 @@ def handle_movement_of_paddles():
         paddle2.position.y += 0.1
 
 
-TARGET_FRAMERATE = 60
+TARGET_FRAMERATE: int = 60
 
-time_at_beginning_of_previous_frame = glfw.get_time()
+time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 while not glfw.window_should_close(window):
 

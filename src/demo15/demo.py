@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 
+from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
 import numpy as np
@@ -63,7 +64,7 @@ glMatrixMode(GL_MODELVIEW)
 glLoadIdentity()
 
 
-def draw_in_square_viewport():
+def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
@@ -96,31 +97,31 @@ class Vertex:
     y: float
     z: float
 
-    def translate(self, tx, ty, tz):
+    def translate(self: Vertex, tx: float, ty: float, tz: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
 
-    def rotate_x(self, angle_in_radians):
+    def rotate_x(self: Vertex, angle_in_radians: Vertex):
         return Vertex(
             x=self.x,
             y=self.y * math.cos(angle_in_radians) - self.z * math.sin(angle_in_radians),
             z=self.y * math.sin(angle_in_radians) + self.z * math.cos(angle_in_radians),
         )
 
-    def rotate_y(self, angle_in_radians):
+    def rotate_y(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.z * math.sin(angle_in_radians) + self.x * math.cos(angle_in_radians),
             y=self.y,
             z=self.z * math.cos(angle_in_radians) - self.x * math.sin(angle_in_radians),
         )
 
-    def rotate_z(self, angle_in_radians):
+    def rotate_z(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
             y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
             z=self.z,
         )
 
-    def scale(self, scale_x, scale_y, scale_z):
+    def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
 
 
@@ -134,7 +135,7 @@ class Paddle:
     rotation: float = 0.0
 
 
-paddle1 = Paddle(
+paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-10.0, y=-30.0, z=0.0),
         Vertex(x=10.0, y=-30.0, z=0.0),
@@ -147,7 +148,7 @@ paddle1 = Paddle(
     position=Vertex(x=-90.0, y=0.0, z=0.0),
 )
 
-paddle2 = Paddle(
+paddle2: Paddle = Paddle(
     vertices=[
         Vertex(x=-10.0, y=-30.0, z=0.0),
         Vertex(x=10.0, y=-30.0, z=0.0),
@@ -167,23 +168,23 @@ class Camera:
     y: float = 0.0
 
 
-camera = Camera(
+camera: Camera = Camera(
     x=0.0,
     y=0.0,
 )
 
-square = [
+square: Paddle = [
     Vertex(x=-5.0, y=-5.0, z=0.0),
     Vertex(x=5.0, y=-5.0, z=0.0),
     Vertex(x=5.0, y=5.0, z=0.0),
     Vertex(x=-5.0, y=5.0, z=0.0),
 ]
 
-square_rotation = 0.0
-rotation_around_paddle1 = 0.0
+square_rotation: float = 0.0
+rotation_around_paddle1: float = 0.0
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -226,9 +227,9 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE = 60
+TARGET_FRAMERATE: int = 60
 
-time_at_beginning_of_previous_frame = glfw.get_time()
+time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 while not glfw.window_should_close(window):
 
@@ -251,12 +252,12 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        world_space = model_space.rotate_z(paddle1.rotation).translate(
+        world_space: Vertex = model_space.rotate_z(paddle1.rotation).translate(
             tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
         )
 
-        camera_space = world_space.translate(tx=-camera.x, ty=-camera.y, tz=0.0)
-        ndc_space = camera_space.scale(
+        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=0.0)
+        ndc_space: Vertex = camera_space.scale(
             scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
         )
         glVertex2f(ndc_space.x, ndc_space.y)
@@ -266,7 +267,7 @@ while not glfw.window_should_close(window):
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
-        paddle_1_space = (
+        paddle_1_space: Vertex = (
             model_space.rotate_z(square_rotation)
             .translate(tx=20.0, ty=0.0, tz=0.0)
             .rotate_z(rotation_around_paddle1)
@@ -280,12 +281,12 @@ while not glfw.window_should_close(window):
         # clobbers the color of any previously drawn object at the pixel.
         # Try moving the square drawing code to the beginning, and you will
         # see that the square can be hidden behind the paddle.
-        world_space = paddle_1_space.rotate_z(paddle1.rotation).translate(
+        world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation).translate(
             tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
         )
 
-        camera_space = world_space.translate(tx=-camera.x, ty=-camera.y, tz=0.0)
-        ndc_space = camera_space.scale(
+        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=0.0)
+        ndc_space: Vertex = camera_space.scale(
             scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
         )
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
@@ -295,12 +296,12 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        world_space = model_space.rotate_z(paddle2.rotation).translate(
+        world_space: Vertex = model_space.rotate_z(paddle2.rotation).translate(
             tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0
         )
 
-        camera_space = world_space.translate(tx=-camera.x, ty=-camera.y, tz=0.0)
-        ndc_space = camera_space.scale(
+        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=0.0)
+        ndc_space: Vertex = camera_space.scale(
             scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
         )
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)

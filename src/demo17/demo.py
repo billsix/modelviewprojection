@@ -206,6 +206,7 @@
 # We can then push the transformations from world space to
 # paddle2 space, shown below.  Search for NEW to find the NEW CODE
 
+from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
 import numpy as np
@@ -250,7 +251,7 @@ glMatrixMode(GL_MODELVIEW)
 glLoadIdentity()
 
 
-def draw_in_square_viewport():
+def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
     glClear(GL_COLOR_BUFFER_BIT)
 
@@ -283,56 +284,69 @@ class Vertex:
     y: float
     z: float
 
-    def translate(self, tx, ty, tz):
+    def translate(self: Vertex, tx: float, ty: float, tz: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
 
-    def rotate_x(self, angle_in_radians):
+    def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.x,
             y=self.y * math.cos(angle_in_radians) - self.z * math.sin(angle_in_radians),
             z=self.y * math.sin(angle_in_radians) + self.z * math.cos(angle_in_radians),
         )
 
-    def rotate_y(self, angle_in_radians):
+    def rotate_y(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.z * math.sin(angle_in_radians) + self.x * math.cos(angle_in_radians),
             y=self.y,
             z=self.z * math.cos(angle_in_radians) - self.x * math.sin(angle_in_radians),
         )
 
-    def rotate_z(self, angle_in_radians):
+    def rotate_z(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
             y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
             z=self.z,
         )
 
-    def scale(self, scale_x, scale_y, scale_z):
+    def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
 
-    def ortho(self, left, right, bottom, top, near, far):
+    def ortho(
+        self: Vertex,
+        left: float,
+        right: float,
+        bottom: float,
+        top: float,
+        near: float,
+        far: float,
+    ) -> Vertex:
         midpoint_x, midpoint_y, midpoint_z = (
             (left + right) / 2.0,
             (bottom + top) / 2.0,
             (near + far) / 2.0,
         )
+        length_x: float
+        length_y: float
+        length_z: float
         length_x, length_y, length_z = right - left, top - bottom, far - near
         return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
             2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
         )
 
-    def perspective(self, fov, aspectRatio, nearZ, farZ):
-        top = -nearZ * math.tan(math.radians(fov) / 2.0)
-        right = top * aspectRatio
+    def perspective(
+        self: Vertex, fov: float, aspectRatio: float, nearZ: float, farZ: float
+    ) -> Vertex:
+        top: float = -nearZ * math.tan(math.radians(fov) / 2.0)
+        right: float = top * aspectRatio
 
-        scaled_x = self.x * nearZ / self.z
-        scaled_y = self.y * nearZ / self.z
-        projected = Vertex(scaled_x, scaled_y, self.z)
+        scaled_x: float = self.x * nearZ / self.z
+        scaled_y: float = self.y * nearZ / self.z
+        projected: Vertex = Vertex(scaled_x, scaled_y, self.z)
         return projected.ortho(
             left=-right, right=right, bottom=-top, top=top, near=nearZ, far=farZ
         )
 
-    def camera_space_to_ndc_space_fn(self):
+    def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
         return self.perspective(
             fov=45.0,
             aspectRatio=1.0,  # since the viewport is always square
@@ -351,7 +365,7 @@ class Paddle:
     rotation: float = 0.0
 
 
-paddle1 = Paddle(
+paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-10.0, y=-30.0, z=0.0),
         Vertex(x=10.0, y=-30.0, z=0.0),
@@ -364,7 +378,7 @@ paddle1 = Paddle(
     position=Vertex(x=-90.0, y=0.0, z=0.0),
 )
 
-paddle2 = Paddle(
+paddle2: Paddle = Paddle(
     vertices=[
         Vertex(x=-10.0, y=-30.0, z=0.0),
         Vertex(x=10.0, y=-30.0, z=0.0),
@@ -387,20 +401,20 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
+camera: Camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
 
 
-square = [
+square: Paddle = [
     Vertex(x=-5.0, y=-5.0, z=0.0),
     Vertex(x=5.0, y=-5.0, z=0.0),
     Vertex(x=5.0, y=5.0, z=0.0),
     Vertex(x=-5.0, y=5.0, z=0.0),
 ]
-square_rotation = 0.0
-rotation_around_paddle1 = 0.0
+square_rotation: float = 0.0
+rotation_around_paddle1: float = 0.0
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -453,7 +467,7 @@ def handle_inputs():
 # NEW - function stack.  The bottom of the stack has
 # the low index, the top of the stack has the highest
 # index
-fn_stack = []
+fn_stack: List[Callable[Vertex, Vertex]] = []
 
 # NEW -
 # Given an input vertex, apply the function at the top
@@ -461,17 +475,17 @@ fn_stack = []
 # to be used as input to the next lower function on the
 # stack.  Continue doing this until we get the value
 # returned from the function at the bottom of the stack.
-def apply_stack(vertex):
+def apply_stack(vertex: Vertex) -> Vertex:
     v = vertex
     for fn in reversed(fn_stack):
         v = fn(v)
     return v
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE: int = 60  # fps
 
 # to try to standardize on 60 fps, compare times between frames
-time_at_beginning_of_previous_frame = glfw.get_time()
+time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
@@ -620,7 +634,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        ndc_space = apply_stack(model_space)
+        ndc_space: Vertex = apply_stack(model_space)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 

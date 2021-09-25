@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 
+from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
 import numpy as np
@@ -58,7 +59,7 @@ glMatrixMode(GL_MODELVIEW)
 glLoadIdentity()
 
 
-def draw_in_square_viewport():
+def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
@@ -90,13 +91,13 @@ class Vertex:
     x: float
     y: float
 
-    def translate(self, tx, ty):
+    def translate(self: Vertex, tx: float, ty: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty)
 
-    def scale(self, scale_x, scale_y):
+    def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
-    def rotate(self, angle_in_radians):
+    def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
             y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
@@ -113,7 +114,7 @@ class Paddle:
     rotation: float = 0.0
 
 
-paddle1 = Paddle(
+paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-10.0, y=-30.0),
         Vertex(x=10.0, y=-30.0),
@@ -126,7 +127,7 @@ paddle1 = Paddle(
     position=Vertex(-90.0, 0.0),
 )
 
-paddle2 = Paddle(
+paddle2: Paddle = Paddle(
     vertices=[
         Vertex(x=-10.0, y=-30.0),
         Vertex(x=10.0, y=-30.0),
@@ -146,13 +147,13 @@ class Camera:
     y: float = 0.0
 
 
-camera = Camera(
+camera: Camera = Camera(
     x=0.0,
     y=0.0,
 )
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
@@ -187,9 +188,9 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE = 60
+TARGET_FRAMERATE: int = 60
 
-time_at_beginning_of_previous_frame = glfw.get_time()
+time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 while not glfw.window_should_close(window):
 
@@ -213,12 +214,12 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        world_space = model_space.rotate(paddle1.rotation).translate(
+        world_space: Vertex = model_space.rotate(paddle1.rotation).translate(
             tx=paddle1.position.x, ty=paddle1.position.y
         )
 
-        camera_space = world_space.translate(tx=-camera.x, ty=-camera.y)
-        ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
+        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y)
+        ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
@@ -226,12 +227,12 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        world_space = model_space.rotate(paddle2.rotation).translate(
+        world_space: Vertex = model_space.rotate(paddle2.rotation).translate(
             tx=paddle2.position.x, ty=paddle2.position.y
         )
 
-        camera_space = world_space.translate(tx=-camera.x, ty=-camera.y)
-        ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
+        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y)
+        ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 

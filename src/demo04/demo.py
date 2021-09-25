@@ -57,7 +57,7 @@ glMatrixMode(GL_MODELVIEW)
 glLoadIdentity()
 
 
-def draw_in_square_viewport():
+def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
@@ -118,7 +118,7 @@ paddle2 = Paddle(
 )
 
 
-def handle_movement_of_paddles():
+def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
         for v in paddle1.vertices:
@@ -134,9 +134,9 @@ def handle_movement_of_paddles():
             v.y += 0.1
 
 
-TARGET_FRAMERATE = 60
+TARGET_FRAMERATE: int = 60
 
-time_at_beginning_of_previous_frame = glfw.get_time()
+time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 
 while not glfw.window_should_close(window):

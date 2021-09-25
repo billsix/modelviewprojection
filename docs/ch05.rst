@@ -42,26 +42,26 @@ want to read them.
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 87
-   :lines: 87-93
+   :lineno-start: 88
+   :lines: 88-94
 
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 96
-   :lines: 96-102
+   :lineno-start: 97
+   :lines: 97-103
 
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 105
-   :lines: 105-124
+   :lineno-start: 106
+   :lines: 106-130
 
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 127
-   :lines: 127-137
+   :lineno-start: 133
+   :lines: 133-143
 
 * New!  We put the ransformation on the center of the paddle, instead
   of directly on each vertex
@@ -71,44 +71,11 @@ want to read them.
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 144
-   :lines: 144-163
+   :lineno-start: 150
+   :lines: 150-169
 
-.. code:: Python
-   :number-lines:
-
-    while not glfw.window_should_close(window):
-
-        while (
-            glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-        ):
-            pass
-
-        time_at_beginning_of_previous_frame = glfw.get_time()
-
-        glfw.poll_events()
-
-        width, height = glfw.get_framebuffer_size(window)
-        glViewport(0, 0, width, height)
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-
-        draw_in_square_viewport()
-        handle_movement_of_paddles()
-
-        glColor3f(paddle1.r, paddle1.g, paddle1.b)
-
-        glBegin(GL_QUADS)
-        for vertex in paddle1.vertices:
-            translated = vertex.translate(tx=0.0, ty=paddle1.input_offset_y)
-            glVertex2f(translated.x, translated.y)
-        glEnd()
-
-        glColor3f(paddle2.r, paddle2.g, paddle2.b)
-
-        glBegin(GL_QUADS)
-        for vertex in paddle2.vertices:
-            translated = vertex.translate(tx=0.0, ty=paddle2.input_offset_y)
-            glVertex2f(translated.x, translated.y)
-        glEnd()
-
-        glfw.swap_buffers(window)
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 170
+   :lines: 170-182

@@ -22,6 +22,7 @@
 #
 # Explain movement in 3D space.
 
+from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
 import numpy as np
@@ -63,7 +64,7 @@ glClearDepth(1.0)
 glDepthFunc(GL_LEQUAL)
 
 
-def draw_in_square_viewport():
+def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
     glClear(GL_COLOR_BUFFER_BIT)
 
@@ -108,9 +109,9 @@ class Paddle:
     )
 
 
-paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
+paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
 
-paddle2 = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
+paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
 
 
 @dataclass
@@ -122,14 +123,14 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
+camera: Camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
 
 
-square_rotation = 0.0
-rotation_around_paddle1 = 0.0
+square_rotation: float = 0.0
+rotation_around_paddle1: float = 0.0
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -214,10 +215,10 @@ square_vertices = np.array(
 )
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE: int = 60  # fps
 
 # to try to standardize on 60 fps, compare times between frames
-time_at_beginning_of_previous_frame = glfw.get_time()
+time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # Loop until the user closes the window
 while not glfw.window_should_close(window):

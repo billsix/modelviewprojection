@@ -21,6 +21,7 @@
 # PURPOSE
 # use a game controller.  Tested with Wired XBOX 360 controller
 
+from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
 import numpy as np
@@ -65,7 +66,7 @@ glClearDepth(1.0)
 glDepthFunc(GL_LEQUAL)
 
 
-def draw_in_square_viewport():
+def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
     glClear(GL_COLOR_BUFFER_BIT)
 
@@ -109,14 +110,16 @@ class Paddle:
         dtype=np.float32,
     )
 
-paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
 
-paddle2 = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
+paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
+
+paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
 
 
 # NEW
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 print(number_of_controllers)
+
 
 @dataclass
 class Camera:
@@ -127,14 +130,14 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
+camera: Camer = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
 
 
-square_rotation = 0.0
-rotation_around_paddle1 = 0.0
+square_rotation: float = 0.0
+rotation_around_paddle1: float = 0.0
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -286,9 +289,7 @@ while not glfw.window_should_close(window):
 
     ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
-    ms.translate(
-        ms.MatrixStack.view, -camera.x, -camera.y, -camera.z
-    )
+    ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)
     with ms.PushMatrix(ms.MatrixStack.model):
 
         # draw paddle 1

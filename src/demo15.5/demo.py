@@ -250,6 +250,7 @@
 # |=======================================
 
 
+from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
 import numpy as np
@@ -291,7 +292,7 @@ glMatrixMode(GL_MODELVIEW)
 glLoadIdentity()
 
 
-def draw_in_square_viewport():
+def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
     glClear(GL_COLOR_BUFFER_BIT)
 
@@ -326,7 +327,7 @@ class Vertex:
 
     # NEW - 3 dimensions of data
 
-    def translate(self, tx, ty, tz):
+    def translate(self: Vertex, tx: float, ty: float, tz: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
 
     # NEW - Rotations around an angle in 3D space follow the right hand rule
@@ -338,14 +339,14 @@ class Vertex:
 
     # starting on the z axis, rotating to x axis, thumb is on the positive y axis.
 
-    def rotate_x(self, angle_in_radians):
+    def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.x,
             y=self.y * math.cos(angle_in_radians) - self.z * math.sin(angle_in_radians),
             z=self.y * math.sin(angle_in_radians) + self.z * math.cos(angle_in_radians),
         )
 
-    def rotate_y(self, angle_in_radians):
+    def rotate_y(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.z * math.sin(angle_in_radians) + self.x * math.cos(angle_in_radians),
             y=self.y,
@@ -353,26 +354,29 @@ class Vertex:
         )
 
     # NEW - this is the rotate that we used in the previous demo, but generarlized to 3D space.
-    def rotate_z(self, angle_in_radians):
+    def rotate_z(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
             y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
             z=self.z,
         )
 
-    def scale(self, scale_x, scale_y, scale_z):
+    def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
 
     # NEW - ortho takes an arbitrary rectangular prism, moves the center of it to NDC,
     # and scales the dimensions down to NDC, so that any objects within the rectangular
     # prism are visible within NDC.  Since this is a transformation that happens
     # from camera space to NDC, we can read them from top down.
-    def ortho(self, left, right, bottom, top, near, far):
+    def ortho(self: Vertex, left: float, right: float, bottom: float, top: float, near: float, far: float) -> Vertex:
         midpoint_x, midpoint_y, midpoint_z = (
             (left + right) / 2.0,
             (bottom + top) / 2.0,
             (near + far) / 2.0,
         )
+        length_x : float
+        length_y : float
+        length_z : float
         length_x, length_y, length_z = right - left, top - bottom, far - near
         return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
             2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
@@ -381,7 +385,7 @@ class Vertex:
         #        1.0/(y_length/2.0),
         #        1.0/(-z_length/2.0))
 
-    def camera_space_to_ndc_space_fn(self):
+    def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
         return self.ortho(
             left=-100.0, right=100.0, bottom=-100.0, top=100.0, near=100.0, far=-100.0
         )
@@ -397,7 +401,7 @@ class Paddle:
     rotation: float = 0.0
 
 
-paddle1 = Paddle(
+paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-10.0, y=-30.0, z=0.0),
         Vertex(x=10.0, y=-30.0, z=0.0),
@@ -410,7 +414,7 @@ paddle1 = Paddle(
     position=Vertex(x=-90.0, y=0.0, z=0.0),
 )
 
-paddle2 = Paddle(
+paddle2: Paddle = Paddle(
     vertices=[
         Vertex(x=-10.0, y=-30.0, z=0.0),
         Vertex(x=10.0, y=-30.0, z=0.0),
@@ -433,20 +437,20 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera = Camera(x=0.0, y=0.0, z=40.0, rot_y=0.0, rot_x=0.0)
+camera: Camera = Camera(x=0.0, y=0.0, z=40.0, rot_y=0.0, rot_x=0.0)
 
 
-square = [
+square: Paddle = [
     Vertex(x=-5.0, y=-5.0, z=0.0),
     Vertex(x=5.0, y=-5.0, z=0.0),
     Vertex(x=5.0, y=5.0, z=0.0),
     Vertex(x=-5.0, y=5.0, z=0.0),
 ]
-square_rotation = 0.0
-rotation_around_paddle1 = 0.0
+square_rotation: float = 0.0
+rotation_around_paddle1: float = 0.0
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -514,10 +518,10 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE: int = 60  # fps
 
 # to try to standardize on 60 fps, compare times between frames
-time_at_beginning_of_previous_frame = glfw.get_time()
+time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
@@ -544,7 +548,7 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        world_space = model_space.rotate_z(paddle1.rotation).translate(
+        world_space: Vertex = model_space.rotate_z(paddle1.rotation).translate(
             tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
         )
 
@@ -556,12 +560,12 @@ while not glfw.window_should_close(window):
         #                                  .translate(tx=camera.x,
         #                                             ty=camera.y,
         #                                             tz=camera.z)
-        camera_space = (
+        camera_space: Vertex = (
             world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z)
             .rotate_y(-camera.rot_y)
             .rotate_x(-camera.rot_x)
         )
-        ndc_space = camera_space.camera_space_to_ndc_space_fn()
+        ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
@@ -569,7 +573,7 @@ while not glfw.window_should_close(window):
     glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
     glBegin(GL_QUADS)
     for model_space in square:
-        paddle_1_space = (
+        paddle_1_space: Vertex = (
             model_space.rotate_z(square_rotation)
             .translate(tx=20.0, ty=0.0, tz=0.0)
             .rotate_z(rotation_around_paddle1)
@@ -581,7 +585,7 @@ while not glfw.window_should_close(window):
         # clobbers the color of any previously drawn object at the pixel.
         # Try moving the square drawing code to the beginning, and you will
         # see that the square can be hidden behind the paddle.
-        world_space = paddle_1_space.rotate_z(paddle1.rotation).translate(
+        world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation).translate(
             tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
         )
 
@@ -593,12 +597,12 @@ while not glfw.window_should_close(window):
         #                                  .translate(tx=camera.x,
         #                                             ty=camera.y,
         #                                             tz=camera.z)
-        camera_space = (
+        camera_space: Vertex = (
             world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z)
             .rotate_y(-camera.rot_y)
             .rotate_x(-camera.rot_x)
         )
-        ndc_space = camera_space.camera_space_to_ndc_space_fn()
+        ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
@@ -606,7 +610,7 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        world_space = model_space.rotate_z(paddle2.rotation).translate(
+        world_space: Vertex = model_space.rotate_z(paddle2.rotation).translate(
             tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0
         )
 
@@ -618,12 +622,12 @@ while not glfw.window_should_close(window):
         #                                  .translate(tx=camera.x,
         #                                             ty=camera.y,
         #                                             tz=camera.z)
-        camera_space = (
+        camera_space: Vertex = (
             world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z)
             .rotate_y(-camera.rot_y)
             .rotate_x(-camera.rot_x)
         )
-        ndc_space = camera_space.camera_space_to_ndc_space_fn()
+        ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
