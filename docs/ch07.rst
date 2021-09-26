@@ -160,7 +160,7 @@ get your vertex rotated around the origin!
 .. math::
 
     \begin{equation*}
-     \vec{Translate}(\vec{v};\vec{t}) =
+     \vec{T}(\vec{v};\vec{t}) =
     \begin{bmatrix}
     v_{x} \\
     v_{y}
@@ -175,7 +175,7 @@ get your vertex rotated around the origin!
 .. math::
 
     \begin{equation*}
-    \vec{Rotate}(\vec{v};\theta) = v_x *
+    \vec{R}(\vec{v};\theta) = v_x *
     \begin{bmatrix}
     cos(\theta) \\
     sin(\theta)
@@ -190,7 +190,7 @@ get your vertex rotated around the origin!
 .. math::
 
     \begin{equation*}
-    \vec{Scale}(\vec{v};\vec{s}) =
+    \vec{S}(\vec{v};\vec{s}) =
     \begin{bmatrix}
     s_x * v_x \\
     s_y * v_y
@@ -210,7 +210,7 @@ get your vertex rotated around the origin!
 
     \begin{equation*}
     \vec{f}_{p1}^{w}(\vec{v_{modelspace_{p1}}}) =
-    \vec{Rotate}(\vec{Translate}(\vec{v_{modelspace_{p1}}}; \vec{v_{offset_{p1}}}), \theta_{p1})
+    \vec{R}(\vec{T}(\vec{v_{modelspace_{p1}}}; \vec{v_{offset_{p1}}}), \theta_{p1})
     \end{equation*}
 
 .. math::
@@ -218,7 +218,7 @@ get your vertex rotated around the origin!
 
     \begin{equation*}
     \vec{f}_{p2}^{w}(\vec{v_{modelspace_{p2}}}) =
-    \vec{Rotate}(\vec{Translate}(\vec{v_{modelspace_{p2}}}; \vec{v_{offset_{p2}}}), \theta_{p2})
+    \vec{R}(\vec{T}(\vec{v_{modelspace_{p2}}}; \vec{v_{offset_{p2}}}), \theta_{p2})
     \end{equation*}
 
 
@@ -230,14 +230,14 @@ and where v_{offset} is the vector offset from the world space's origin to the c
 
     \begin{equation*}
     \vec{f}_{p1}^{w}(\vec{v_{modelspace_{p1}}}) =
-    (\vec{Rotate}(;\theta_{p1}) \circ \vec{Translate}(; \vec{v_{offset_{p1}}})) (\vec{v_{modelspace_{p1}}})
+    (\vec{R}(;\theta_{p1}) \circ \vec{T}(; \vec{v_{offset_{p1}}})) (\vec{v_{modelspace_{p1}}})
     \end{equation*}
 
 .. math::
 
     \begin{equation*}
     \vec{f}_{p2}^{w}(\vec{v_{modelspace_{p2}}}) =
-    (\vec{Rotate}(;\theta_{p2}) \circ \vec{Translate}(; \vec{v_{offset_{p2}}})) (\vec{v_{modelspace_{p2}}})
+    (\vec{R}(;\theta_{p2}) \circ \vec{T}(; \vec{v_{offset_{p2}}})) (\vec{v_{modelspace_{p2}}})
     \end{equation*}
 
 
@@ -251,14 +251,14 @@ aoetnsunstaoeu
 
     \begin{equation*}
     \vec{f}_{p1}^{w} =
-    \vec{Rotate}(;\theta_{p1}) \circ \vec{Translate}(; \vec{v_{offset_{p1}}})
+    \vec{R}(;\theta_{p1}) \circ \vec{T}(; \vec{v_{offset_{p1}}})
     \end{equation*}
 
 .. math::
 
     \begin{equation*}
     \vec{f}_{p2}^{w} =
-    \vec{Rotate}(;\theta_{p2}) \circ \vec{Translate}(; \vec{v_{offset_{p2}}})
+    \vec{R}(;\theta_{p2}) \circ \vec{T}(; \vec{v_{offset_{p2}}})
     \end{equation*}
 
 
@@ -267,7 +267,7 @@ aoetnsunstaoeu
 
     \begin{equation*}
     \vec{f}_{w}^{ndc} =
-    \vec{Scale}(; \begin{bmatrix}
+    \vec{S}(; \begin{bmatrix}
     1/100 \\
     1/100
     \end{bmatrix})

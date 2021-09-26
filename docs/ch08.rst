@@ -7,6 +7,9 @@ Purpose
 Fix the rotation problem from the previous demo in a seemingly intuitive
 way, but do it inelegantly.
 
+Lesson learned by end of Demo 08.  Read function composition from left
+to right, instead of from right to left.
+
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -42,12 +45,176 @@ Taking a look at the various spaces, the code in this demo
 is going to go back and forth between those spaces.  The code
 in this demo is the wrong way to think about rendering.
 
-.. figure:: _static/demo06.png
+
+
+.. math::
+
+    \begin{equation*}
+     \vec{T}(\vec{v};\vec{t}) =
+    \begin{bmatrix}
+    v_{x} \\
+    v_{y}
+    \end{bmatrix} +
+    \begin{bmatrix}
+    t_{x} \\
+    t_{y}
+    \end{bmatrix}
+    \end{equation*}
+
+.. math::
+
+    \begin{equation*}
+     \vec{T}^{-1}(\vec{v};\vec{t}) =
+    \begin{bmatrix}
+    v_{x} \\
+    v_{y}
+    \end{bmatrix} -
+    \begin{bmatrix}
+    t_{x} \\
+    t_{y}
+    \end{bmatrix}
+    \end{equation*}
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{R}(\vec{v};\theta) = v_x *
+    \begin{bmatrix}
+    cos(\theta) \\
+    sin(\theta)
+    \end{bmatrix} + v_y *
+    \begin{bmatrix}
+    -sin(\theta) \\
+    cos(\theta)
+    \end{bmatrix}
+    \end{equation*}
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{R}^{-1}(\vec{v};\theta) = v_x *
+    \begin{bmatrix}
+    cos(\theta) \\
+    -sin(\theta)
+    \end{bmatrix} + v_y *
+    \begin{bmatrix}
+    sin(\theta) \\
+    cos(\theta)
+    \end{bmatrix}
+    \end{equation*}
+
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{S}(\vec{v};\vec{s}) =
+    \begin{bmatrix}
+    s_x * v_x \\
+    s_y * v_y
+    \end{bmatrix}
+    \end{equation*}
+
+.. math::
+
+    \begin{equation*}
+    \vec{S}^{-1}(\vec{v};\vec{s}) =
+    \begin{bmatrix}
+    1/s_x * v_x \\
+    1/s_y * v_y
+    \end{bmatrix}
+    \end{equation*}
+
+
+
+
+
+.. figure:: _static/demo08.png
     :align: center
-    :alt: Demo 06
+    :alt: Demo 08
     :figclass: align-center
 
-    Demo 06
+
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{p1}^{w} =
+    \vec{R}(;\theta_{p1}) \circ \vec{T}(; \vec{v_{offset_{p1}}})
+    \end{equation*}
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}^{-1}{_{p1}^{w}} =
+    \vec{R}(;\theta_{p1}) \circ \vec{T}(; \vec{v_{offset_{p1}}})
+    \end{equation*}
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{p2}^{w} =
+    \vec{R}(;\theta_{p2}) \circ \vec{T}(; \vec{v_{offset_{p2}}})
+    \end{equation*}
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}^{-1}{_{p2}^{w}} =
+    \vec{R}(;\theta_{p2}) \circ \vec{T}(; \vec{v_{offset_{p2}}})
+    \end{equation*}
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{g}_{p1}^{w} =
+    \vec{T}(; \vec{v_{offset_{p1}}})
+    \end{equation*}
+
+.. math::
+
+    \begin{equation*}
+    \vec{g}^{-1}{_{p1}^{w}} =
+    \vec{T}(; \vec{v_{offset_{p1}}})
+    \end{equation*}
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{p1}^{w} = \vec{g}_{p1}^{w} \circ \vec{R}(;\theta_{p1}) \circ \vec{g}^{-1}{_{p1}^{w}} \circ \vec{g}_{p1}^{w}
+    \end{equation*}
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{p1}^{w} = \vec{g}_{p1}^{w} \circ \vec{R}(;\theta_{p1})
+    \end{equation*}
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{p1}^{w} = \vec{T}(; \vec{v_{offset_{p1}}}) \circ \vec{R}(;\theta_{p1})
+    \end{equation*}
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{w}^{ndc} =
+    \vec{S}(; \begin{bmatrix}
+    1/100 \\
+    1/100
+    \end{bmatrix})
+    \end{equation*}
+
+
 
 
 .. code:: Python

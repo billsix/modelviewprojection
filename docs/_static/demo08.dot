@@ -1,0 +1,8 @@
+digraph {
+    rankdir="BT"
+    "Paddle 1 Space" -> "World Space" [label=<f<SUB>p1</SUB><SUP>w</SUP>>];
+    "Paddle 2 Space" -> "World Space" [label=<f<SUB>p2</SUB><SUP>w</SUP>>];
+    "World Space" -> "Paddle 1 Space" [label=<f<SUP>-1</SUP><SUB>p1</SUB><SUP>w</SUP>>];
+    "World Space" -> "Paddle 2 Space" [label=<f<SUP>-1</SUP><SUB>p2</SUB><SUP>w</SUP>>];
+    "World Space" -> "NDC" [label=<f<SUB>w</SUB><SUP>ndc</SUP>>];
+}
