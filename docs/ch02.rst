@@ -11,19 +11,24 @@ Learn how to plot a rectangle.  Learn about OpenGL's coordinate system.
 Code
 ^^^^
 
+GLFW/OpenGL Initialization
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 The setup code is the same.  Initialize GLFW.  Set the OpenGL version.
 Create the window.  Set a key handler for closing.  Set the background to be black.
 Execute the event/drawing loop.
+
+
+
+The Event Loop
+~~~~~~~~~~~~~~
 
 Within the event loop, demo02/demo.py draws 2 rectangles, as one might see in
 a game of Pong.
 
 
-The Event Loop
-^^^^^^^^^^^^^^
-
 Draw Paddles
-~~~~~~~~~~~~
+&&&&&&&&&&&&
 
 A black screen is not particularly interesting, so
 let's draw something, say, two rectangles.
@@ -82,7 +87,7 @@ has geometry which looks like this:
    :lineno-start: 80
    :lines: 80
 
-* done with frame, flush and swap buffers
+* done with frame, flush the current buffer to the monitor
 * Swap front and back buffers
 
 
@@ -91,12 +96,12 @@ The frame sent to the monitor is a set of values like this ::
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
-    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
-    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
-    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
-    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbrrrrr
-    pppppbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    PPPPPbbbbbbbbbbbbbbbbbbbbbbbbbbbRRRRR
+    PPPPPbbbbbbbbbbbbbbbbbbbbbbbbbbbRRRRR
+    PPPPPbbbbbbbbbbbbbbbbbbbbbbbbbbbRRRRR
+    PPPPPbbbbbbbbbbbbbbbbbbbbbbbbbbbRRRRR
+    PPPPPbbbbbbbbbbbbbbbbbbbbbbbbbbbRRRRR
+    PPPPPbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
@@ -140,7 +145,8 @@ Isn't even the same picture on a smaller monitor.
 
 
 
-Like any good program or library, OpenGL abstracts over screen-space, thus freeing the
+Like any good program or library, OpenGL creates an abstraction.
+In this case, it abstracts over screen-space, thus freeing the
 programmer from caring about screen size.  If a programmer does not want to program
 in discrete (discrete means integer values, not continuous) screen-space,
 what type of numbers should he use?  Firstly, it should be a continuous space, meaning
@@ -150,8 +156,7 @@ and an fixed range horizontally.  OpenGL will have to convert points from some s
 and since OpenGL does this in hardware (i.e. you can't programmatically change how the conversion
 happens), it should be a fixed size.
 
-OpenGL uses *normalized-device-coordinates* (normalized- meaning a distance value of
-1; device- the monitor; coordinates- the system of numbers (i.e. space) in which you are working),
+OpenGL uses *normalized-device-coordinates*,
 which is a continous space from -1.0 to 1.0 horizontally,
 and -1.0 to 1.0 vertically.
 
@@ -185,17 +190,3 @@ Or a large monitor.
     :figclass: align-center
 
     NDC space
-
-
-
--Exercise 1.  The window is resizable by the user while it runs.
-Do the paddles both  still appear in the window if you make it really thin?  What if
-you make it very wide?
-
-
-Answer - (Regardless of the window's width to height ratio, the pixel in the upper left of
-the window still maps to normalized-device-coordinate (-1.0,-1.0), and the pixel
-in the bottom right of the window still maps to (1.0,1.0).
-
--Exercise 2.  How would you convert from ndc-space to screen-space, given
-a monitor width _w_ and height _h_?

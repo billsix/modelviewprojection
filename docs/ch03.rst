@@ -1,12 +1,19 @@
 Window Resizing and Proportionality - Demo 03
 =============================================
 
+Problem With Previous Demo
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+Run Demo 2 again, but resize the window; first make it skinny,
+and then wide.  Look at what happens to the rectangles.
+
 
 Purpose
 ^^^^^^^
 
-Given the goal of keeping the paddles proportial regardless of window
-size, fix the previous demo.
+Modify the previous demo, so that if the user resizes the window
+of the OpenGL program, that the picture does not become distorted.
+
 
 Keeping the Paddles Proportional
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -38,7 +45,7 @@ of the window.
 
 OpenGL has a solution for us.  The *viewport* is a rectangular region
 within the window into which OpenGL will render.  The normalized-device-coordinates
-will therefore resolve to the sub-screen space of the viewport, instead of the whole
+will therefore resolve to the sub-window space of the viewport, instead of the whole
 window.
 
 
@@ -57,6 +64,16 @@ in all chapters. "draw_in_square_viewport" is a function.
 Code
 ^^^^
 
+GLFW/OpenGL Initialization
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+The setup code is the same.  Initialize GLFW.  Set the OpenGL version.
+Create the window.  Set a key handler for closing.
+Execute the event/drawing loop.
+
+
+Set to Draw in Square Subsection Of Window
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
@@ -128,8 +145,12 @@ that we care about, which is the black square.
    :lines: 78-83
 
 The Event Loop
-^^^^^^^^^^^^^^
+&&&&&&&&&&&&&&
 
+The event loop is just like the previous demo,
+but this time we call the procedure to
+ensure that we only draw in a square subset of
+the window.
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python

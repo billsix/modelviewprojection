@@ -24,6 +24,18 @@ Keyboard Input  Action
 Paddles which don't move are quite boring.  Let's make them move up or down
 by getting keyboard input.
 
+And while we are at it, let's go ahead and create data structures for a Vertex,
+and for the collection of verticies that make up a Paddle.
+
+Code
+^^^^
+
+
+Data Structures
+~~~~~~~~~~~~~~~
+
+Here we use dataclasses, which allow use to have the constructor, and pretty-printer,
+auto-generated for us.
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
@@ -43,13 +55,10 @@ by getting keyboard input.
    :lineno-start: 101
    :lines: 101-118
 
+* Create two instances of a Paddle.
 
-
-- If 's' is pressed this frame, subtract 0.1 more from paddle1.offsetY.  If the
-  key continues to be held down over time, paddle1.offsetY will continue to decrease.
-- If 'w' is pressed this frame, add 0.1 more to paddle1.offsetY.
-- If 'k' is pressed this frame, subtract 0.1 more from paddle_2_input_offsetY.
-- If 'i' is pressed this frame, add 0.1 more to paddle_2_input_offsetY.
+Apply User Input
+~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
@@ -58,21 +67,28 @@ by getting keyboard input.
    :lines: 121-134
 
 
-* when writing to global variables within a nested scope,
-  you need to declare their scope at the top of the nested scope.
-  global paddle1, paddle2
-  for data that is just read, this is not needed.
-  it's a quick of Python's scope resolution rules,
-  but hey, Python is popular because of the good decisions
-  made in the aggregate, with some weirdness in corner cases
+- If 's' is pressed this frame, subtract 0.1 from the y component of each of
+  the vertices in the paddle. If the
+  key continues to be held down over time, this value will continue to decrease.
+- If 'w' is pressed this frame, add 0.1 more to the y component of each of
+  the vertices in the paddle
+- If 'k' is pressed this frame, subtract 0.1.
+- If 'i' is pressed this frame, add 0.1 more.
 
+
+
+* when writing to global variables within a nested scope,
+  you need to declare their scope as global at the top of the nested scope.
+
+
+
+
+The Event Loop
+~~~~~~~~~~~~~~
 
 Monitors can have variable framerates, and in order to ensure
 that movement is consistent across different monitors, we choose
 to only flush the screen at 60 hertz (frames per second).
-
-The Event Loop
-^^^^^^^^^^^^^^
 
 
 .. literalinclude:: ../src/demo04/demo.py
@@ -106,6 +122,10 @@ The Event Loop
    :lineno-start: 174
    :lines: 174
 
+* When glVertex is now called, we are not directly
+  passing numbers into it, but instead we are getting
+  the numbers from the data structures of Paddle and its
+  associated vertcies.
 
 
 

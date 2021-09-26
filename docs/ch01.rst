@@ -7,8 +7,8 @@ Purpose
 Learn how to open a window, make a black screen, and close
 the window.
 
-Basics
-^^^^^^^
+Terminology
+^^^^^^^^^^^
 
 The device attached to a computer which displays information to the user is called a *monitor*.
 
@@ -48,8 +48,10 @@ provides the end-user with the illusion of motion.
 Code
 ^^^^
 
-Import Python modules.  Python's modules are a way of distributing code
-without namespace collisions
+Importing Libraries
+~~~~~~~~~~~~~~~~~~~
+
+Import Python modules, which are Python programmer's main form of libraries.
 
 
 .. literalinclude:: ../src/demo01/demo.py
@@ -112,7 +114,8 @@ used to quit out of the pager).  help works on any object, including modules.
 
 
 Opening A Window
-^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~
+
 
 Desktop operating systems allow the user to run more than one
 program at a time, where each program draws into a subsection of
@@ -126,10 +129,11 @@ keyboard input and for controller.
 
 
 GLFW/OpenGL Initialization
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
 
 Initialize GLFW.
-
+&&&&&&&&&&&&&&&&
 
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
@@ -138,38 +142,12 @@ Initialize GLFW.
    :lines: 29-30
 
 
-If you can't create a window, quit.  Otherwise, continue
-
-
-* Python note - many objects can be treating as booleans,
-  and the Python keyword "not" negates it
-  Python does not use brackets to show nesting.
-  instead it uses whitespace.
-  You probably want to find keyboard shortcuts for your editeor
-  to indent/unindent.  On Emacs, I use tab
-
-
-One frame is created incrementally at a time on the CPU, but the frame
-is sent to the monitor
-only when frame is completely drawn, and each pixel has a color.
-The act of sending the frame to the monitor is called *flushing*
-the frame.
-Flushing takes time,
-and if the call to flush were to block (meaning it would not return control
-back to the call-ing procedure until the flush is complete), we would
-have wasted CPU time.  To avoid this,
-OpenGL has two *framebuffers* (regions of memory which will eventually
-contain the full data for a frame),
-only one of which is "active", or writable, at a given time.
-"glfwSwapBuffers" is a non-blocking call which initiates the flushing
-the current buffer, and which switches the current writable framebuffer to the
-other one, thus allowing the CPU to resume.  If this doesn't make
-sense right now, don't worry.
-
 
 Set the version of OpenGL
+&&&&&&&&&&&&&&&&&&&&&&&&&
 
 OpenGL has been around a long time, and has multiple, possibly incompatible versions.
+For this demo, we use OpenGL 1.4.
 
 
 .. literalinclude:: ../src/demo01/demo.py
@@ -178,10 +156,8 @@ OpenGL has been around a long time, and has multiple, possibly incompatible vers
    :lineno-start: 32
    :lines: 32-33
 
-*  Set the preferred version open OpenGL to be 1.4
-
-
-
+Create a Window
+&&&&&&&&&&&&&&&
 
 
 .. literalinclude:: ../src/demo01/demo.py
@@ -190,10 +166,6 @@ OpenGL has been around a long time, and has multiple, possibly incompatible vers
    :lineno-start: 35
    :lines: 35
 
-*  Create a 500 pixel by 500 pixel window, which the user can resize.
-
-
-None is the equivalent of null.
 
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
@@ -213,8 +185,8 @@ None is the equivalent of null.
    :lines: 41
 
 
-* Make the window's context current
-
+* Make the window's context current.  The details of this do not matter
+  for this book.
 
 
 
@@ -228,8 +200,8 @@ None is the equivalent of null.
 
 
 Functions are first class values in Python, and are objects just
-like anything else.  The can be passed as arguments, for evaluation
-later
+like anything else.  The can be passed as arguments, stored in argument,
+and evaluated later zero, 1, or more times.
 
 
 
@@ -240,8 +212,9 @@ later
    :lines: 51
 
 
-* For every frame drawn, each pixel has a default color, set by
-  calling "glClearColor". "0,0,0,1", means black "0,0,0", without
+* Before a frame is drawn, it is first turned into a blank slate,
+  where the color of each pixel is set to some value representing a
+  color.  Calling "glClearColor" "0,0,0,1", means black "0,0,0", without
   transparency (the "1").
 
 
@@ -253,36 +226,22 @@ later
 
 
 * Don't worry about the 4 lines here.  Although they are necessary,
-  we will cover them later.
+  we will cover them in depth later.
 
 
 The Event Loop
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
 When you pause a movie, motion stops and you see one picture.
 Movies are composed of sequence of pictures, when
 rendered in quick succession, provide the illusion of motion.
-
 Interactive computer graphics are rendered the same way,
 one "frame" at a time.
 
 Render a frame, flush the complete frame to the monitor.
-Unless the user closed the window, repeat indefinitely.
+Until the user closed the window, or the program needs
+to terminate, repeat indefinitely.
 
-The color of each pixel within
-the current framebuffer
-is reset to a default color.
-
-When a graphics application is executing, it is creating new
-frames (pictures) at some rate (e.g. 60 frames per second).  At any given
-frame, the user of the application might do something, (e.g.
-move the mouse, click, type on the keyboard, close the application).
-
-At the beginning of every frame, ask GLFW if it received one
-of these events since we last asked (i.e., the previous frame).
-
-
-Loop until the user closes the window
 
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
@@ -302,23 +261,43 @@ Loop until the user closes the window
   framebuffer
 
 * On line 64, since the frame is about to be drawn, make it a blank slate.
-  The color of each pixel will be the clear color.
+  The color of each pixel will be the clear color, which we set on line 51.
   Programming in OpenGL is a bit different than normal programming,
-  in that individual function calls do not always do everything you need
-  in isolation.  Instead, they mutate state, which may require
-  multiple function calls to complete a certain task.
-
-* Nothing will be rendered, so nothing to do
+  in that individual function calls do not complete self-contained tasks,
+  as subroutines typically do.
+  Instead, the OpenGL calls only make sense based off of the context
+  in which they are evaluated, and the sequence of OpenGL calls
+  to complete a task.
 
 * On Line 65, we are done with the frame, flush the frame to
-  the monitor, and swap the back and front buffers
+  the monitor, and swap the back and front buffers.
+
+
+
+One frame is created incrementally at a time on the CPU, but the frame
+is sent to the monitor
+only when frame is completely drawn, and each pixel has a color.
+The act of sending the frame to the monitor is called *flushing*
+the frame.
+Flushing takes time,
+and if the call to flush were to block (meaning it would not return control
+back to the call-ing procedure until the flush is complete), we would
+have wasted CPU time.  To avoid this,
+OpenGL has two *framebuffers* (regions of memory which will eventually
+contain the full data for a frame),
+only one of which is "active", or writable, at a given time.
+"glfwSwapBuffers" initiates the flushing
+the current buffer, and which switches the current writable framebuffer to the
+other one, thus allowing the CPU to resume.  If this doesn't make
+sense right now, don't worry.
+
 
 
 
 Black Screen
 ^^^^^^^^^^^^
 
-Type "python demo.py", or "python3 demo.py" to run.
+Type "python src/demo01/demo.py", or "python3 src/demo01/demo.py" to run.
 
 The first demo is the least interesting graphical program possible.
 
@@ -333,7 +312,7 @@ The first demo is the least interesting graphical program possible.
 When this code returns, the event loop flushes (i.e) sends the frame to the monitor.  Since
 no geometry was drawn, the color value for each pixel is still black.
 
-Each color is represented by a number, so the frame is something like this ::
+Each color is represented by a number, so the frame is something like this, where 'b' represents black ::
 
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb

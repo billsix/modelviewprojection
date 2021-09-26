@@ -26,18 +26,46 @@ Keyboard Input  Action
 
 
 Translation
-~~~~~~~~~~~
+^^^^^^^^^^^
 
-Rather than incrementing y values before calling "glVertex",
-instead call "translate" on the vertex, and call "glVertex2f"
-on the translated vertex.
+Dealing with the two Paddles the way we did before is not
+ideal.  Both Paddles have the same size, but they are placed
+in different spots of the screen.  We should be able to
+create geometry for the Paddle that is independent of it's
+placement.
 
-Returning a new instance will be very useful for method chaining.
-I would not use this code for production code, because of efficincy,
-but the use of method chaining will be towards furthering your understanding
-of a sequence of transformations, and the order in which you probably
-want to read them.
+Rather than using absolute values for each vertex, in the
+Paddle data structure, each vertex will be an offset from
+the center of the Paddle, which is point x=0, y=0.
+Before rendering, each Paddle's
+vertices will need to be translated to its actual position.
 
+
+All methods on verticies will be returning new verticies,
+rather than mutating the instance variables.  The author
+does this on purpose to enable method-chaining the Python
+methods, which will be useful later on.
+
+
+.. math::
+
+    \begin{equation*}
+     \vec{T}(\vec{v};\vec{t}) =
+    \begin{bmatrix}
+    v_{x} \\
+    v_{y}
+    \end{bmatrix} +
+    \begin{bmatrix}
+    t_{x} \\
+    t_{y}
+    \end{bmatrix}
+    \end{equation*}
+
+Code
+^^^^
+
+Data Structures
+~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
@@ -51,11 +79,18 @@ want to read them.
    :lineno-start: 97
    :lines: 97-103
 
+Instantiation of the Paddles
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
    :lineno-start: 106
    :lines: 106-130
+
+Handling User Input
+~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
@@ -63,12 +98,14 @@ want to read them.
    :lineno-start: 133
    :lines: 133-143
 
-* New!  We put the ransformation on the center of the paddle, instead
+* New!  We put the transformation on the center of the paddle, instead
   of directly on each vertex
 
 The Event Loop
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
+
+TODO -- put in Cayley graph here and explain
 
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
