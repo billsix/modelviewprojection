@@ -131,138 +131,178 @@ get your vertex rotated around the origin!
 (0.5*cos(angle) + 0.4*-sin(angle), 0.5*sin(angle) + 0.4*cos(angle))
 
 
-.. code:: Python
-   :number-lines:
-
-     class Vertex:
-         def __init__(self, x, y):
-             self.x = x
-             self.y = y
-
-         def __repr__(self):
-             return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
-
-         def translate(self, tx, ty):
-             return Vertex(x=self.x + tx, y=self.y + ty)
-
-         def scale(self, scale_x, scale_y):
-             return Vertex(x=self.x * scale_x, y=self.y * scale_y)
-
-         # NEW
-         # definition of rotate, from the description above
-         # cos and sin are defined in the math module.
-         #
-         # Question - how can you determine if math.cos and math.sin
-         # are defined in terms of radians or in terms of degrees?
-         def rotate(self, angle_in_radians):
-             return Vertex(
-                 x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-                 y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
-             )
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 89
+   :lines: 89-104
 
 
-     class Paddle:
-         # NEW
-         # a rotation instance variable is defined, with a default value of 0
-         def __init__(
-             self,
-             vertices,
-             r,
-             g,
-             b,
-             initial_position,
-             rotation=0.0,
-             input_offset_x=0.0,
-             input_offset_y=0.0,
-         ):
-             self.vertices = vertices
-             self.r = r
-             self.g = g
-             self.b = b
-             self.rotation = rotation
-             self.input_offset_x = input_offset_x
-             self.input_offset_y = input_offset_y
-             self.initial_position = initial_position
+* Note the definition of rotate, from the description above.
+  cos and sin are defined in the math module.
 
-.. code:: Python
-   :number-lines:
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 107
+   :lines: 107-114
 
-     def handle_movement_of_paddles():
-         global paddle1, paddle2
+* a rotation instance variable is defined, with a default value of 0
 
-         if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-             paddle1.input_offset_y -= 10.0
-         if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-             paddle1.input_offset_y += 10.0
-         if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-             paddle2.input_offset_y -= 10.0
-         if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-             paddle2.input_offset_y += 10.0
-
-         # NEW -- handle inputs for rotation
-         global paddle_1_rotation, paddle_2_rotation
-
-         if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
-             paddle1.rotation += 0.1
-         if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
-             paddle1.rotation -= 0.1
-         if glfw.get_key(window, glfw.KEY_J) == glfw.PRESS:
-             paddle2.rotation += 0.1
-         if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
-             paddle2.rotation -= 0.1
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 144
+   :lines: 144-165
 
 
-.. code:: Python
-   :number-lines:
 
-     while not glfw.window_should_close(window):
-         while (
-             glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-         ):
-             pass
-         time_at_beginning_of_previous_frame = glfw.get_time()
+.. math::
 
-         glfw.poll_events()
+    \begin{equation*}
+     \vec{Translate}(\vec{v};\vec{t}) =
+    \begin{bmatrix}
+    v_{x} \\
+    v_{y}
+    \end{bmatrix} +
+    \begin{bmatrix}
+    t_{x} \\
+    t_{y}
+    \end{bmatrix}
+    \end{equation*}
 
-         width, height = glfw.get_framebuffer_size(window)
-         glViewport(0, 0, width, height)
-         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-         draw_in_square_viewport()
-         handle_movement_of_paddles()
+.. math::
 
-         glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    \begin{equation*}
+    \vec{Rotate}(\vec{v};\theta) = v_x *
+    \begin{bmatrix}
+    cos(\theta) \\
+    sin(\theta)
+    \end{bmatrix} + v_y *
+    \begin{bmatrix}
+    -sin(\theta) \\
+    cos(\theta)
+    \end{bmatrix}
+    \end{equation*}
 
-         glBegin(GL_QUADS)
-         for model_space in paddle1.vertices:
-             # NEW - does rotate work as you'd expect?
-             world_space = (
-                 model_space.translate(
-                     tx=paddle1.initial_position.x, ty=paddle1.initial_position.y
-                 )
-                 .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
-                 .rotate(paddle1.rotation)
-             )
-             ndc_space = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
 
-         glColor3f(paddle2.r, paddle2.g, paddle2.b)
+.. math::
 
-         glBegin(GL_QUADS)
-         for model_space in paddle2.vertices:
-             # NEW - does rotate work as you'd expect?
-             world_space = (
-                 model_space.translate(
-                     tx=paddle2.initial_position.x, ty=paddle2.initial_position.y
-                 )
-                 .translate(tx=paddle2.input_offset_x, ty=paddle2.input_offset_y)
-                 .rotate(paddle2.rotation)
-             )
-             ndc_space = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
+    \begin{equation*}
+    \vec{Scale}(\vec{v};\vec{s}) =
+    \begin{bmatrix}
+    s_x * v_x \\
+    s_y * v_y
+    \end{bmatrix}
+    \end{equation*}
 
-         glfw.swap_buffers(window)
 
-     glfw.terminate()
+
+
+.. figure:: _static/demo06.png
+    :align: center
+    :alt: Demo 06
+    :figclass: align-center
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{p1}^{w}(\vec{v_{modelspace_{p1}}}) =
+    \vec{Rotate}(\vec{Translate}(\vec{v_{modelspace_{p1}}}; \vec{v_{offset_{p1}}}), \theta_{p1})
+    \end{equation*}
+
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{p2}^{w}(\vec{v_{modelspace_{p2}}}) =
+    \vec{Rotate}(\vec{Translate}(\vec{v_{modelspace_{p2}}}; \vec{v_{offset_{p2}}}), \theta_{p2})
+    \end{equation*}
+
+
+where x_p1, y_p1, z_p1  are the modelspace coordinates of the paddle's vertices,
+and where v_{offset} is the vector offset from the world space's origin to the center of the paddle, i.e. the translation, and where \theta is that paddle's rotation.
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{p1}^{w}(\vec{v_{modelspace_{p1}}}) =
+    (\vec{Rotate}(;\theta_{p1}) \circ \vec{Translate}(; \vec{v_{offset_{p1}}})) (\vec{v_{modelspace_{p1}}})
+    \end{equation*}
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{p2}^{w}(\vec{v_{modelspace_{p2}}}) =
+    (\vec{Rotate}(;\theta_{p2}) \circ \vec{Translate}(; \vec{v_{offset_{p2}}})) (\vec{v_{modelspace_{p2}}})
+    \end{equation*}
+
+
+aeotsnhaoentsuhan
+tosuns
+aeonsu
+aoetnsunstaoeu
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{p1}^{w} =
+    \vec{Rotate}(;\theta_{p1}) \circ \vec{Translate}(; \vec{v_{offset_{p1}}})
+    \end{equation*}
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{p2}^{w} =
+    \vec{Rotate}(;\theta_{p2}) \circ \vec{Translate}(; \vec{v_{offset_{p2}}})
+    \end{equation*}
+
+
+
+.. math::
+
+    \begin{equation*}
+    \vec{f}_{w}^{ndc} =
+    \vec{Scale}(; \begin{bmatrix}
+    1/100 \\
+    1/100
+    \end{bmatrix})
+    \end{equation*}
+
+
+
+
+
+
+The Event Loop
+^^^^^^^^^^^^^^
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 172
+   :lines: 172
+
+::
+
+    ...
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 188
+   :lines: 188-197
+
+::
+
+    ...
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 199
+   :lines: 199-208

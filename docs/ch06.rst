@@ -156,29 +156,25 @@ will resolve to NDC.
      \vec{f}_{p1}^{w}
     \begin{bmatrix}
     x_{p1} \\
-    y_{p1} \\
-    z_{p1}
+    y_{p1}
     \end{bmatrix} =
     \begin{bmatrix}
     x_{p1} \\
-    y_{p1} \\
-    z_{p1}
+    y_{p1}
     \end{bmatrix} +
     \begin{bmatrix}
     t\text{_}x_{worldspace} \\
-    t\text{_}x_{worldspace} \\
-    t\text{_}x_{worldspace}
+    t\text{_}y_{worldspace}
     \end{bmatrix} =
     \begin{bmatrix}
     x_{w} \\
-    y_{w} \\
-    z_{w}
+    y_{w}
     \end{bmatrix}
     \end{equation*}
 
 
-where x_p1, y_p1, z_p1  are the modelspace coordinates of the paddle's vertices,
-and where t_x_worldspace, t_y_worldspace, t_z_worldspace,
+where x_p1, y_p1  are the modelspace coordinates of the paddle's vertices,
+and where t_x_worldspace, t_y_worldspace,
 are the offset from the world space's origin to the center of the paddle, i.e. the translation.
 
 
@@ -189,18 +185,15 @@ are the offset from the world space's origin to the center of the paddle, i.e. t
      \vec{f}_{p2}^{w}
     \begin{bmatrix}
     x_{p2} \\
-    y_{p2} \\
-    z_{p2}
+    y_{p2}
     \end{bmatrix} =
     \begin{bmatrix}
     x_{p2} \\
-    y_{p2} \\
-    z_{p2}
+    y_{p2}
     \end{bmatrix} +
     \begin{bmatrix}
     p2\text{_}center\text{_}x_{worldspace} \\
-    p2\text{_}center\text{_}y_{worldspace} \\
-    p2\text{_}center\text{_}z_{worldspace}
+    p2\text{_}center\text{_}y_{worldspace}
     \end{bmatrix}
     \end{equation*}
 
@@ -212,13 +205,11 @@ are the offset from the world space's origin to the center of the paddle, i.e. t
      \vec{f}_{w}^{ndc}
     \begin{bmatrix}
     x_{w} \\
-    y_{w} \\
-    z_{w}
+    y_{w}
     \end{bmatrix} = 1/100 *
     \begin{bmatrix}
     x_{w} \\
-    y_{w} \\
-    z_{w}
+    y_{w}
     \end{bmatrix}
     \end{equation*}
 
