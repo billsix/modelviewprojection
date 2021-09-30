@@ -49,7 +49,7 @@ in this demo is the wrong way to think about rendering.
 
 .. math::
 
-    \begin{equation*}
+    \begin{equation}
      \vec{T}(\vec{v};\vec{t}) =
     \begin{bmatrix}
     v_{x} \\
@@ -59,11 +59,11 @@ in this demo is the wrong way to think about rendering.
     t_{x} \\
     t_{y}
     \end{bmatrix}
-    \end{equation*}
+    \end{equation}
 
 .. math::
 
-    \begin{equation*}
+    \begin{equation}
      \vec{T}^{-1}(\vec{v};\vec{t}) =
     \begin{bmatrix}
     v_{x} \\
@@ -73,12 +73,12 @@ in this demo is the wrong way to think about rendering.
     t_{x} \\
     t_{y}
     \end{bmatrix}
-    \end{equation*}
+    \end{equation}
 
 
 .. math::
 
-    \begin{equation*}
+    \begin{equation}
     \vec{R}(\vec{v};\theta) = v_x *
     \begin{bmatrix}
     cos(\theta) \\
@@ -88,12 +88,12 @@ in this demo is the wrong way to think about rendering.
     -sin(\theta) \\
     cos(\theta)
     \end{bmatrix}
-    \end{equation*}
+    \end{equation}
 
 
 .. math::
 
-    \begin{equation*}
+    \begin{equation}
     \vec{R}^{-1}(\vec{v};\theta) = v_x *
     \begin{bmatrix}
     cos(\theta) \\
@@ -103,29 +103,29 @@ in this demo is the wrong way to think about rendering.
     sin(\theta) \\
     cos(\theta)
     \end{bmatrix}
-    \end{equation*}
+    \end{equation}
 
 
 
 .. math::
 
-    \begin{equation*}
+    \begin{equation}
     \vec{S}(\vec{v};\vec{s}) =
     \begin{bmatrix}
     s_x * v_x \\
     s_y * v_y
     \end{bmatrix}
-    \end{equation*}
+    \end{equation}
 
 .. math::
 
-    \begin{equation*}
+    \begin{equation}
     \vec{S}^{-1}(\vec{v};\vec{s}) =
     \begin{bmatrix}
     1/s_x * v_x \\
     1/s_y * v_y
     \end{bmatrix}
-    \end{equation*}
+    \end{equation}
 
 
 
@@ -138,82 +138,60 @@ in this demo is the wrong way to think about rendering.
 
 
 
-
 .. math::
 
-    \begin{equation*}
-    \vec{f}_{p1}^{w} =
-    \vec{R}(;\theta_{p1}) \circ \vec{T}(; \vec{v_{offset_{p1}}})
-    \end{equation*}
-
-
-.. math::
-
-    \begin{equation*}
-    \vec{f}^{-1}{_{p1}^{w}} =
-    \vec{R}(;\theta_{p1}) \circ \vec{T}(; \vec{v_{offset_{p1}}})
-    \end{equation*}
-
-.. math::
-
-    \begin{equation*}
-    \vec{f}_{p2}^{w} =
-    \vec{R}(;\theta_{p2}) \circ \vec{T}(; \vec{v_{offset_{p2}}})
-    \end{equation*}
-
-.. math::
-
-    \begin{equation*}
-    \vec{f}^{-1}{_{p2}^{w}} =
-    \vec{R}(;\theta_{p2}) \circ \vec{T}(; \vec{v_{offset_{p2}}})
-    \end{equation*}
-
-
-.. math::
-
-    \begin{equation*}
+    \begin{equation}
     \vec{g}_{p1}^{w} =
     \vec{T}(; \vec{v_{offset_{p1}}})
-    \end{equation*}
+    \end{equation}
 
 .. math::
 
-    \begin{equation*}
+    \begin{equation}
     \vec{g}^{-1}{_{p1}^{w}} =
-    \vec{T}(; \vec{v_{offset_{p1}}})
-    \end{equation*}
+    \vec{T}(; -1 * \vec{v_{offset_{p1}}})
+    \end{equation}
 
 
 .. math::
 
-    \begin{equation*}
-    \vec{f}_{p1}^{w} = \vec{g}_{p1}^{w} \circ \vec{R}(;\theta_{p1}) \circ \vec{g}^{-1}{_{p1}^{w}} \circ \vec{g}_{p1}^{w}
-    \end{equation*}
+    \begin{equation}
+    \begin{split}
+    \vec{f}_{p1}^{w} & = \vec{g}_{p1}^{w} \circ \vec{R}(;\theta_{p1}) \circ \vec{g}^{-1}{_{p1}^{w}} \circ \vec{g}_{p1}^{w} \\
+                     & = \vec{g}_{p1}^{w} \circ \vec{R}(;\theta_{p1}) \\
+                     & = \vec{T}(; \vec{v_{offset_{p1}}}) \circ \vec{R}(;\theta_{p1})
+    \end{split}
+    \end{equation}
 
 
-.. math::
-
-    \begin{equation*}
-    \vec{f}_{p1}^{w} = \vec{g}_{p1}^{w} \circ \vec{R}(;\theta_{p1})
-    \end{equation*}
-
-.. math::
-
-    \begin{equation*}
-    \vec{f}_{p1}^{w} = \vec{T}(; \vec{v_{offset_{p1}}}) \circ \vec{R}(;\theta_{p1})
-    \end{equation*}
-
+and
 
 .. math::
 
-    \begin{equation*}
+    \begin{equation}
+    \begin{split}
+    \vec{f}_{p2}^{w} & = \vec{g}_{p2}^{w} \circ \vec{R}(;\theta_{p2}) \circ \vec{g}^{-1}{_{p2}^{w}} \circ \vec{g}_{p2}^{w} \\
+                     & = \vec{g}_{p2}^{w} \circ \vec{R}(;\theta_{p2}) \\
+                     & = \vec{T}(; \vec{v_{offset_{p2}}}) \circ \vec{R}(;\theta_{p2})
+    \end{split}
+    \end{equation}
+
+
+
+
+.. math::
+   :label: euler
+
+    \begin{equation}
     \vec{f}_{w}^{ndc} =
     \vec{S}(; \begin{bmatrix}
     1/100 \\
     1/100
     \end{bmatrix})
-    \end{equation*}
+    \end{equation}
 
+
+foo bar :eq:`euler`
 
 
 

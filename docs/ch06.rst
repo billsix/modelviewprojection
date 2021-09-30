@@ -153,11 +153,13 @@ will resolve to NDC.
 .. math::
 
     \begin{equation*}
-     \vec{f}_{p1}^{w}
+    \begin{split}
+    \vec{f}_{p1}^{w}
     \begin{bmatrix}
     x_{p1} \\
     y_{p1}
-    \end{bmatrix} =
+    \end{bmatrix}
+    & =
     \begin{bmatrix}
     x_{p1} \\
     y_{p1}
@@ -165,11 +167,13 @@ will resolve to NDC.
     \begin{bmatrix}
     t\text{_}x_{worldspace} \\
     t\text{_}y_{worldspace}
-    \end{bmatrix} =
+    \end{bmatrix} \\
+    & =
     \begin{bmatrix}
     x_{w} \\
     y_{w}
     \end{bmatrix}
+    \end{split}
     \end{equation*}
 
 
@@ -182,7 +186,7 @@ are the offset from the world space's origin to the center of the paddle, i.e. t
 .. math::
 
     \begin{equation*}
-     \vec{f}_{p2}^{w}
+    \vec{f}_{p2}^{w}
     \begin{bmatrix}
     x_{p2} \\
     y_{p2}
@@ -202,15 +206,22 @@ are the offset from the world space's origin to the center of the paddle, i.e. t
 .. math::
 
     \begin{equation*}
-     \vec{f}_{w}^{ndc}
+    \begin{split}
+    \vec{f}_{w}^{ndc}
     \begin{bmatrix}
     x_{w} \\
     y_{w}
-    \end{bmatrix} = 1/100 *
+    \end{bmatrix} & = 1/100 *
     \begin{bmatrix}
     x_{w} \\
     y_{w}
+    \end{bmatrix} \\
+    &  =
+    \begin{bmatrix}
+    x_{ndc} \\
+    y_{ndc}
     \end{bmatrix}
+    \end{split}
     \end{equation*}
 
 
