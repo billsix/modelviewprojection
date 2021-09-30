@@ -64,7 +64,9 @@ def accumulate_transformation(procedures, backwards=False):
             def process(x, y):
                 result_x, result_y = x, y
                 for current_fn_index in range(number_of_fns_to_apply_this_round):
-                    result_x, result_y = procedures[current_fn_index](result_x, result_y)
+                    result_x, result_y = procedures[current_fn_index](
+                        result_x, result_y
+                    )
                 return result_x, result_y
 
             yield process, True if number_of_fns_to_apply_this_round == len(
@@ -78,7 +80,9 @@ def accumulate_transformation(procedures, backwards=False):
             def process(x, y):
                 result_x, result_y = x, y
                 for current_fn_index in range(proc_index, len(procedures)):
-                    result_x, result_y = procedures[current_fn_index](result_x, result_y)
+                    result_x, result_y = procedures[current_fn_index](
+                        result_x, result_y
+                    )
                 return result_x, result_y
 
             yield process, True if proc_index == 0 else False
@@ -179,12 +183,15 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
         if backwards:
             # x axis
             transformed_xs, transformed_ys = fn([0.0, 10.0], [0.0, 0.0])
-            plt.plot(transformed_xs, transformed_ys, "-", lw=4.0, color=(0.0, 0.0, 1.0, 1.0))
+            plt.plot(
+                transformed_xs, transformed_ys, "-", lw=4.0, color=(0.0, 0.0, 1.0, 1.0)
+            )
 
             # y axis
             transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, 10.0])
-            plt.plot(transformed_xs, transformed_ys, "-", lw=4.0, color=(1.0, 0.0, 1.0, 1.0))
-
+            plt.plot(
+                transformed_xs, transformed_ys, "-", lw=4.0, color=(1.0, 0.0, 1.0, 1.0)
+            )
 
         if backwards or isLast:
             plotCharacter = "-"
@@ -194,7 +201,13 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
         transformed_xs, transformed_ys = fn(*geometry.points)
         plt.title(str.format("{}\nStep {}", title, str(frame_number)))
         if (backwards and isLast) or not backwards:
-            plt.plot(transformed_xs, transformed_ys, plotCharacter, lw=2, color=geometry.color)
+            plt.plot(
+                transformed_xs,
+                transformed_ys,
+                plotCharacter,
+                lw=2,
+                color=geometry.color,
+            )
 
         # make sure the x and y axis are equally proportional in screen space
         plt.gca().set_aspect("equal", adjustable="box")
@@ -276,10 +289,7 @@ create_graphs(
     title="Rotation, Global Space",
     filename="rotate2-forwards",
     geometry=paddle2,
-    procedures=[
-        mplt.rotate(math.radians(-10.0)),
-        mplt.translate(90.0, -40.0)
-    ],
+    procedures=[mplt.rotate(math.radians(-10.0)), mplt.translate(90.0, -40.0)],
 )
 
 create_graphs(

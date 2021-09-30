@@ -368,15 +368,23 @@ class Vertex:
     # and scales the dimensions down to NDC, so that any objects within the rectangular
     # prism are visible within NDC.  Since this is a transformation that happens
     # from camera space to NDC, we can read them from top down.
-    def ortho(self: Vertex, left: float, right: float, bottom: float, top: float, near: float, far: float) -> Vertex:
+    def ortho(
+        self: Vertex,
+        left: float,
+        right: float,
+        bottom: float,
+        top: float,
+        near: float,
+        far: float,
+    ) -> Vertex:
         midpoint_x, midpoint_y, midpoint_z = (
             (left + right) / 2.0,
             (bottom + top) / 2.0,
             (near + far) / 2.0,
         )
-        length_x : float
-        length_y : float
-        length_z : float
+        length_x: float
+        length_y: float
+        length_z: float
         length_x, length_y, length_z = right - left, top - bottom, far - near
         return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
             2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)

@@ -169,7 +169,9 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for modelSpace in paddle1.vertices:
-        worldSpace: Vertex = paddle1.position.translate(tx=modelSpace.x, ty=modelSpace.y)
+        worldSpace: Vertex = paddle1.position.translate(
+            tx=modelSpace.x, ty=modelSpace.y
+        )
         glVertex2f(worldSpace.x, worldSpace.y)
     glEnd()
 
@@ -177,7 +179,9 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for modelSpace in paddle2.vertices:
-        worldSpace: Vertex = paddle2.position.translate(tx=modelSpace.x, ty=modelSpace.y)
+        worldSpace: Vertex = paddle2.position.translate(
+            tx=modelSpace.x, ty=modelSpace.y
+        )
         glVertex2f(worldSpace.x, worldSpace.y)
     glEnd()
 
