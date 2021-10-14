@@ -262,6 +262,26 @@ create_graphs(
     backwards=True,
 )
 
+create_graphs(
+    title="Rotation Relative to Origin",
+    filename="rotate0",
+    geometry=paddle1,
+    procedures=[
+        mplt.rotate(math.radians(45.0)),
+    ],
+)
+
+
+create_graphs(
+    title="Scale Relative to Origin",
+    filename="scale",
+    geometry=paddle1,
+    procedures=[
+        mplt.scale(0.2, 0.5),
+    ],
+)
+
+
 
 create_graphs(
     title="Rotation, Relative to Global Space",

@@ -5,8 +5,8 @@ set style line 1 lc rgb 'black' pt 5   # square
 set linetype 11 lc rgb 'black'
 
 set polar
-set xtics axis nomirror
-set ytics axis nomirror
+unset xtics
+unset ytics
 unset rtics
 set samples 160
 
@@ -14,11 +14,23 @@ set zeroaxis
 
 set trange [pi/2:3*pi/4]
 
-set label "(0,1)" at -0.05,0.9
-set label "(-sin(angle),cos(angle))" at -0.9,0.6
+set trange [0:pi/4]
 
-set label "(0,0.4)" at -0.05,0.35
-set label "(0.4*-sin(angle),0.4*cos(angle))" at -0.7,0.2
+set label "(1,0)" at 0.9,0.05
+set label "(Y, X) = (cos(angle),-sin(angle))" at 0.4,0.8
+
+set label "(0.4,0)" at 0.32,0.05
+set label "(Y, X) = (0.4*cos(angle),0.4*-sin(angle))" at 0.0,0.4
+
+set rmargin 10
+set bmargin 5
+
+set xlabel "X" rotate by 0 offset 0,-2
+show xlabel
+
+set ylabel "Y" rotate by 0 offset 62,0
+show ylabel
+
 
 
 plot      1  notitle, 0.4  notitle, 'rotate2.dat' using 1:2 with points ls 1  notitle

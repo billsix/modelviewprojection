@@ -61,6 +61,14 @@ Rotation Around Origin (0,0)
 We can also rotate an object around (0,0) by rotating
 all of the object's vertices around (0,0).
 
+.. figure:: _static/rotate0.gif
+    :align: center
+    :alt: Rotate
+    :figclass: align-center
+
+    Rotate
+
+
 In high school math, you will have learned about sin, cos, and tangent.
 Typically the angles are described on the unit circle, where a rotation
 starts from the positive x axis.  We can expand on this knowledge, allowing

@@ -6,6 +6,14 @@ set linetype 11 lc rgb 'black'
 set xrange [-1:1]
 set yrange [-1:1]
 
+set rmargin 10
+set tmargin 5
+
+set xlabel "Y" rotate by 0 offset 0,28
+show xlabel
+
+set ylabel "X" rotate by 0 offset 62,0
+show ylabel
 
 
 set zeroaxis
