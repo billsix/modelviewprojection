@@ -160,13 +160,11 @@ square: Paddle = [
     Vertex(x=-5.0, y=5.0),
 ]
 
-# NEW
 square_rotation: float = 0.0
 
 
 def handle_inputs() -> None:
     global square_rotation
-    # NEW
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
 

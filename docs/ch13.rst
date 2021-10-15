@@ -38,48 +38,42 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-.. code:: Python
-   :number-lines:
 
-      ...
-      rotation_around_paddle1 = 0.0
+Cayley Graph
+^^^^^^^^^^^^
 
-      def handle_inputs():
-          global rotation_around_paddle1
-          if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
-              rotation_around_paddle1 += 0.1
-      ...
+
+.. figure:: _static/demo11.png
+    :align: center
+    :alt: Demo 13
+    :figclass: align-center
+
+    Demo 13
+
+
+.. literalinclude:: ../src/demo13/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 163
+   :lines: 163
 
 
 Event Loop
 ^^^^^^^^^^
 
 
-.. code:: Python
-   :number-lines:
+.. literalinclude:: ../src/demo13/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 213
+   :lines: 213
 
-         ...
-         glColor3f(0.0, 0.0, 1.0)
-         glBegin(GL_QUADS)
-         for model_space in square:
-             # translate, translate, rotate paddle1 and thus the square.
-             # The square's modelspace is centered at paddle1's modelspace.
-             # To rotate the square around paddle1's origin, rotate by
-             # the set amount, translate down the rotate frame's x axis.
-             # Then, just like the previous demo, rotate the square around
-             # it's origin.
-             paddle_1_space = (
-                 model_space.rotate(square_rotation)
-                 .translate(tx=20.0, ty=0.0)
-                 .rotate(rotation_around_paddle1)
-             )
-             world_space = (
-                 paddle_1_space.rotate(paddle1.rotation)
-                 .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
-                 .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
-             )
-             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
-             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
-         ...
+::
+
+    ...
+
+.. literalinclude:: ../src/demo13/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 244
+   :lines: 244-258

@@ -164,7 +164,56 @@ get your vertex rotated around the origin!
    :lines: 144-165
 
 
+Cayley Graph
+^^^^^^^^^^^^
 
+.. figure:: _static/demo06.png
+    :align: center
+    :alt: Demo 06
+    :figclass: align-center
+
+
+
+
+
+
+Code
+^^^^
+
+
+The Event Loop
+~~~~~~~~~~~~~~
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 172
+   :lines: 172
+
+::
+
+    ...
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 188
+   :lines: 188-197
+
+::
+
+    ...
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 199
+   :lines: 199-208
+
+
+
+Math
+^^^^
 .. math::
 
     \begin{equation*}
@@ -206,12 +255,6 @@ get your vertex rotated around the origin!
     \end{equation*}
 
 
-
-
-.. figure:: _static/demo06.png
-    :align: center
-    :alt: Demo 06
-    :figclass: align-center
 
 
 .. math::
@@ -280,40 +323,3 @@ aoetnsunstaoeu
     1/100
     \end{bmatrix})
     \end{equation*}
-
-
-
-
-
-Code
-^^^^
-
-
-The Event Loop
-~~~~~~~~~~~~~~
-
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 172
-   :lines: 172
-
-::
-
-    ...
-
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 188
-   :lines: 188-197
-
-::
-
-    ...
-
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 199
-   :lines: 199-208

@@ -37,73 +37,56 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-.. code:: Python
-   :number-lines:
-
-     # NEW
-     square_rotation = 0.0
+Cayley Graph
+^^^^^^^^^^^^
 
 
-.. code:: Python
-   :number-lines:
+.. figure:: _static/demo11.png
+    :align: center
+    :alt: Demo 12
+    :figclass: align-center
 
-     def handle_inputs():
-         global square_rotation
-         # NEW
-         if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
-             square_rotation += 0.1
+    Demo 12
 
-         global camera_x, camera_y
 
-         if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-             camera_y += 10.0
-         if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-             camera_y -= 10.0
-         if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-             camera_x -= 10.0
-         if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-             camera_x += 10.0
+Code
+^^^^
 
-         global paddle1, paddle2
 
-         if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-             paddle1.input_offset_y -= 10.0
-         if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-             paddle1.input_offset_y += 10.0
-         if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-             paddle2.input_offset_y -= 10.0
-         if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-             paddle2.input_offset_y += 10.0
+.. literalinclude:: ../src/demo12/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 163
+   :lines: 163
 
-         global paddle_1_rotation, paddle_2_rotation
 
-         if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
-             paddle1.rotation += 0.1
-         if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
-             paddle1.rotation -= 0.1
-         if glfw.get_key(window, glfw.KEY_J) == glfw.PRESS:
-             paddle2.rotation += 0.1
-         if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
-             paddle2.rotation -= 0.1
+.. literalinclude:: ../src/demo12/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 166
+   :lines: 166-169
 
+::
+
+    ...
 
 
 Event Loop
-^^^^^^^^^^
+~~~~~~~~~~
 
-.. code:: Python
-   :number-lines:
+.. literalinclude:: ../src/demo12/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 209
+   :lines: 209
 
-         glColor3f(0.0, 0.0, 1.0)
-         glBegin(GL_QUADS)
-         for model_space in square:
-             paddle_1_space = model_space.rotate(square_rotation).translate(tx=20.0, ty=0.0)
-             world_space = (
-                 paddle_1_space.rotate(paddle1.rotation)
-                 .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
-                 .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
-             )
-             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
-             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
+::
+
+    ...
+
+
+.. literalinclude:: ../src/demo12/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 239
+   :lines: 239-251

@@ -10,6 +10,40 @@ some in the x direction.
 When the paddle on the left moves or rotates, the blue square
 moves with it, because it is defined relative to it.
 
+
+
+
+Move the Paddles using the Keyboard
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+==============  ==============================================
+Keyboard Input  Action
+==============  ==============================================
+*w*             Move Left Paddle Up
+*s*             Move Left Paddle Down
+*k*             Move Right Paddle Down
+*i*             Move Right Paddle Up
+
+*d*             Increase Left Paddle's Rotation
+*a*             Decrease Left Paddle's Rotation
+*l*             Increase Right Paddle's Rotation
+*j*             Decrease Right Paddle's Rotation
+
+*UP*            Move the camera up, moving the objects down
+*DOWN*          Move the camera down, moving the objects up
+*LEFT*          Move the camera left, moving the objects right
+*RIGHT*         Move the camera right, moving the objects left
+
+==============  ==============================================
+
+Description
+^^^^^^^^^^^
+
+
+Cayley Graph
+^^^^^^^^^^^^
+
+
 .. figure:: _static/demo11.png
     :align: center
     :alt: Demo 11
@@ -39,32 +73,6 @@ we would need to change the code in multiple places.
 Later demos will show how to handle this problem more gracefully.
 
 
-
-Move the Paddles using the Keyboard
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-==============  ==============================================
-Keyboard Input  Action
-==============  ==============================================
-*w*             Move Left Paddle Up
-*s*             Move Left Paddle Down
-*k*             Move Right Paddle Down
-*i*             Move Right Paddle Up
-
-*d*             Increase Left Paddle's Rotation
-*a*             Decrease Left Paddle's Rotation
-*l*             Increase Right Paddle's Rotation
-*j*             Decrease Right Paddle's Rotation
-
-*UP*            Move the camera up, moving the objects down
-*DOWN*          Move the camera down, moving the objects up
-*LEFT*          Move the camera left, moving the objects right
-*RIGHT*         Move the camera right, moving the objects left
-
-==============  ==============================================
-
-Description
-^^^^^^^^^^^
 
 Code
 ^^^^

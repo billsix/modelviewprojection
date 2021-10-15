@@ -110,6 +110,9 @@ If instead we read the transformation between spaces backwards in code,
 (and going the opposite direction of the arrows), we can view a coordinate
 system that is changing (origin can move, and axises can rotate/scale)
 
+Cayley Graph
+^^^^^^^^^^^^
+
 .. figure:: _static/demo06.png
     :align: center
     :alt: Demo 06

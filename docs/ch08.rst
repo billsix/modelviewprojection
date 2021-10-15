@@ -46,6 +46,66 @@ is going to go back and forth between those spaces.  The code
 in this demo is the wrong way to think about rendering.
 
 
+Cayley Graph
+^^^^^^^^^^^^
+
+.. figure:: _static/demo08.png
+    :align: center
+    :alt: Demo 08
+    :figclass: align-center
+
+
+
+Code
+^^^^
+
+
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 90
+   :lines: 90-114
+
+
+The Event Loop
+~~~~~~~~~~~~~~
+
+
+
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 181
+   :lines: 181
+
+::
+
+    ...
+
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 198
+   :lines: 198-212
+
+
+::
+
+    ...
+
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 214
+   :lines: 214-230
+
+Math
+^^^^
+
 
 .. math::
 
@@ -131,12 +191,6 @@ in this demo is the wrong way to think about rendering.
 
 
 
-.. figure:: _static/demo08.png
-    :align: center
-    :alt: Demo 08
-    :figclass: align-center
-
-
 
 .. math::
 
@@ -192,50 +246,3 @@ and
 
 
 foo bar :eq:`euler`
-
-Code
-^^^^
-
-
-
-.. literalinclude:: ../src/demo08/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 90
-   :lines: 90-114
-
-
-The Event Loop
-~~~~~~~~~~~~~~
-
-
-
-
-.. literalinclude:: ../src/demo08/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 181
-   :lines: 181
-
-::
-
-    ...
-
-
-.. literalinclude:: ../src/demo08/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 198
-   :lines: 198-212
-
-
-::
-
-    ...
-
-
-.. literalinclude:: ../src/demo08/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 214
-   :lines: 214-230

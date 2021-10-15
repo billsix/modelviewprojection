@@ -100,7 +100,7 @@ class Vertex:
     def translate(self: Vertex, tx: float, ty: float, tz: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
 
-    def rotate_x(self: Vertex, angle_in_radians: Vertex):
+    def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.x,
             y=self.y * math.cos(angle_in_radians) - self.z * math.sin(angle_in_radians),

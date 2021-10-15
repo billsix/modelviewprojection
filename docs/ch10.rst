@@ -7,19 +7,6 @@ Purpose
 Demonstrate having a camera space, and how to think about the transformations
 differently.
 
-.. figure:: _static/demo10.png
-    :align: center
-    :alt: Demo 10
-    :figclass: align-center
-
-    Demo 10
-
-.. figure:: _static/demo10-2.png
-    :align: center
-    :alt: Demo 10
-    :figclass: align-center
-
-    Demo 10
 
 
 
@@ -66,6 +53,10 @@ space at the origin of the world space, and as such,
 the transformations needed to be applied to the data
 are the inverse of the tranforamiotns from world
 space to camera space.
+
+Cayley Graph
+^^^^^^^^^^^^
+
 
 .. figure:: _static/demo10.png
     :align: center
