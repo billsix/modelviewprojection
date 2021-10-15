@@ -66,20 +66,19 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-.. code:: Python
-   :number-lines:
+Code
+^^^^
 
-     square = [
-         Vertex(x=-5.0, y=-5.0),
-         Vertex(x=5.0, y=-5.0),
-         Vertex(x=5.0, y=5.0),
-         Vertex(x=-5.0, y=5.0),
-     ]
 
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 154
+   :lines: 154-159
 
 
 Event Loop
-^^^^^^^^^^
+~~~~~~~~~~
 
 .. code:: Python
    :number-lines:

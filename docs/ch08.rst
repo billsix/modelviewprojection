@@ -193,102 +193,49 @@ and
 
 foo bar :eq:`euler`
 
+Code
+^^^^
 
 
-.. code:: Python
-   :number-lines:
 
-     class Vertex:
-         def __init__(self, x, y):
-             self.x = x
-             self.y = y
-
-         def __repr__(self):
-             return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
-
-         def translate(self, tx, ty):
-             return Vertex(x=self.x + tx, y=self.y + ty)
-
-         def scale(self, scale_x, scale_y):
-             return Vertex(x=self.x * scale_x, y=self.y * scale_y)
-
-         def rotate(self, angle_in_radians):
-             return Vertex(
-                 x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-                 y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
-             )
-
-         # NEW
-         # translate the Vertex so that the paddle's center goes
-         # to the origin, call the existing rotate call,
-         # and then translate back to the paddle's position
-         def rotate_around(self, angle_in_radians, center):
-             translate_to_center = self.translate(tx=-center.x, ty=-center.y)
-             rotated_around_origin = translate_to_center.rotate(angle_in_radians)
-             back_to_position = rotated_around_origin.translate(tx=center.x, ty=center.y)
-             return back_to_position
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 90
+   :lines: 90-114
 
 
-.. code:: Python
-   :number-lines:
+The Event Loop
+~~~~~~~~~~~~~~
 
-     while not glfw.window_should_close(window):
-         while (
-             glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-         ):
-             pass
 
-         time_at_beginning_of_previous_frame = glfw.get_time()
 
-         glfw.poll_events()
 
-         width, height = glfw.get_framebuffer_size(window)
-         glViewport(0, 0, width, height)
-         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 181
+   :lines: 181
 
-         draw_in_square_viewport()
-         handle_movement_of_paddles()
+::
 
-         glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    ...
 
-         glBegin(GL_QUADS)
-         # NEW - the point around which paddle 1 must rotate
-         rotatePoint = (
-             Vertex(0.0, 0.0)
-             .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
-             .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
-         )
-         for model_space in paddle1.vertices:
-             world_space = model_space.translate(
-                 tx=paddle1.initial_position.x, ty=paddle1.initial_position.y
-             ).translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
-             # NEW
-             # do the rotate around the paddle's center
-             world_space = world_space.rotate_around(paddle1.rotation, rotatePoint)
-             ndc_space = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
-         # draw paddle1
-         glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
-         glBegin(GL_QUADS)
-         # NEW - the point around which paddle 2 must rotate
-         rotatePoint = (
-             Vertex(0.0, 0.0)
-             .translate(tx=paddle2.initial_position.x, ty=paddle2.initial_position.y)
-             .translate(tx=paddle2.input_offset_x, ty=paddle2.input_offset_y)
-         )
-         for model_space in paddle2.vertices:
-             world_space = model_space.translate(
-                 tx=paddle2.initial_position.x, ty=paddle2.initial_position.y
-             ).translate(tx=paddle2.input_offset_x, ty=paddle2.input_offset_y)
-             # NEW
-             # do the rotate around the paddle's center
-             world_space = world_space.rotate_around(paddle2.rotation, rotatePoint)
-             ndc_space = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 198
+   :lines: 198-212
 
-         glfw.swap_buffers(window)
 
-     glfw.terminate()
+::
+
+    ...
+
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 214
+   :lines: 214-230

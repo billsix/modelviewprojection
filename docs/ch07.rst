@@ -285,9 +285,12 @@ aoetnsunstaoeu
 
 
 
+Code
+^^^^
+
 
 The Event Loop
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
 .. literalinclude:: ../src/demo07/demo.py
    :language: python

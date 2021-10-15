@@ -260,8 +260,12 @@ are the offset from the world space's origin to the center of the paddle, i.e. t
 
 * Movement code needs to happen in Modelspace's units.
 
+Code
+^^^^
+
+
 The Event Loop
-^^^^^^^^^^^^^^
+~~~~~~~~~~~~~~
 
 
 .. literalinclude:: ../src/demo06/demo.py

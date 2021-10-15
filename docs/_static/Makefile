@@ -6,7 +6,7 @@ all: plots graphs
 
 
 
-graphs: currency.png demo11.png demo10.png demo06.png demo08.png
+graphs: currency.png demo11.png demo10.png demo10-2.png demo06.png demo08.png
 
 
 

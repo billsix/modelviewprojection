@@ -14,6 +14,14 @@ differently.
 
     Demo 10
 
+.. figure:: _static/demo10-2.png
+    :align: center
+    :alt: Demo 10
+    :figclass: align-center
+
+    Demo 10
+
+
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -66,113 +74,56 @@ space to camera space.
 
     Demo 10
 
+.. figure:: _static/demo10-2.png
+    :align: center
+    :alt: Demo 10
+    :figclass: align-center
 
-.. code:: Python
-   :number-lines:
+    Demo 10
 
-     # NEW
-     camera_x = 0.0
-     camera_y = 0.0
-
-
-.. code:: Python
-   :number-lines:
-
-     def handle_inputs():
-         # NEW
-         global camera_x, camera_y
-
-         if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-             camera_y += 10.0
-         if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-             camera_y -= 10.0
-         if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-             camera_x -= 10.0
-         if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-             camera_x += 10.0
-
-         global paddle1, paddle2
-
-         if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-             paddle1.input_offset_y -= 10.0
-         if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-             paddle1.input_offset_y += 10.0
-         if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-             paddle2.input_offset_y -= 10.0
-         if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-             paddle2.input_offset_y += 10.0
-
-         global paddle_1_rotation, paddle_2_rotation
-
-         if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
-             paddle1.rotation += 0.1
-         if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
-             paddle1.rotation -= 0.1
-         if glfw.get_key(window, glfw.KEY_J) == glfw.PRESS:
-             paddle2.rotation += 0.1
-         if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
-             paddle2.rotation -= 0.1
+Code
+^^^^
 
 
-Event Loop
-^^^^^^^^^^
-
-.. code:: Python
-   :number-lines:
-
-     while not glfw.window_should_close(window):
-
-         while (
-             glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-         ):
-             pass
-
-         time_at_beginning_of_previous_frame = glfw.get_time()
+.. literalinclude:: ../src/demo10/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 144
+   :lines: 144-154
 
 
-         glfw.poll_events()
+.. literalinclude:: ../src/demo10/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 156
+   :lines: 156-167
 
-         width, height = glfw.get_framebuffer_size(window)
-         glViewport(0, 0, width, height)
-         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+::
+
+    ...
 
 
-         draw_in_square_viewport()
-         handle_inputs()
 
 
-         glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
-         glBegin(GL_QUADS)
-         for model_space in paddle1.vertices:
-             world_space = (
-                 model_space.rotate(paddle1.rotation)
-                 .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
-                 .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
-             )
 
-             # NEW
-             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
-             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
 
-         glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
-         glBegin(GL_QUADS)
-         for model_space in paddle2.vertices:
-             world_space = (
-                 model_space.rotate(paddle2.rotation)
-                 .translate(tx=paddle2.initial_position.x, ty=paddle2.initial_position.y)
-                 .translate(tx=paddle2.input_offset_x, ty=paddle2.input_offset_y)
-             )
+The Event Loop
+~~~~~~~~~~~~~~
 
-             # NEW
-             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
-             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
+.. literalinclude:: ../src/demo10/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 213
+   :lines: 213-224
 
-         glfw.swap_buffers(window)
+::
 
-     glfw.terminate()
+    ...
+
+.. literalinclude:: ../src/demo10/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 226
+   :lines: 226-237

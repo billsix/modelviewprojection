@@ -195,10 +195,10 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
+    # draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    # NEW - the point around which paddle 1 must rotate
     rotatePoint = Vertex(0.0, 0.0).translate(
         tx=paddle1.position.x, ty=paddle1.position.y
     )
@@ -206,17 +206,15 @@ while not glfw.window_should_close(window):
         world_space: Vertex = model_space.translate(
             tx=paddle1.position.x, ty=paddle1.position.y
         )
-        # NEW
-        # do the rotate around the paddle's center
         world_space: Vertex = world_space.rotate_around(paddle1.rotation, rotatePoint)
         ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
+    # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    # NEW - the point around which paddle 2 must rotate
     rotatePoint = Vertex(0.0, 0.0).translate(
         tx=paddle2.position.x, ty=paddle2.position.y
     )
@@ -224,8 +222,6 @@ while not glfw.window_should_close(window):
         world_space: Vertex = model_space.translate(
             tx=paddle2.position.x, ty=paddle2.position.y
         )
-        # NEW
-        # do the rotate around the paddle's center
         world_space: Vertex = world_space.rotate_around(paddle2.rotation, rotatePoint)
         ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)

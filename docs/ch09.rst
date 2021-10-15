@@ -52,34 +52,7 @@ Read the transformations in the latter.
 
 See the transformations below, and the associated animated gifs.
 
-.. code:: Python
-   :number-lines:
 
-     class Vertex:
-         def __init__(self, x, y):
-             self.x = x
-             self.y = y
-
-         def __repr__(self):
-             return f"Vertex(x={repr(self.x)},y={repr(self.y)})"
-
-         def translate(self, tx, ty):
-             return Vertex(x=self.x + tx, y=self.y + ty)
-
-         def scale(self, scale_x, scale_y):
-             return Vertex(x=self.x * scale_x, y=self.y * scale_y)
-
-         def rotate(self, angle_in_radians):
-             return Vertex(
-                 x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-                 y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
-             )
-
-         # NEW
-         # removed rotate_around, as it was useless for our purpose
-
-Event Loop
-^^^^^^^^^^
 
 if you read the operations below as rotate, translate1, translate2,
 you should imagine it as follows
@@ -166,57 +139,37 @@ Same thing for the second paddle.
     Rotate Paddle 2 Backwards
 
 
+Code
+^^^^
 
-.. code:: Python
-   :number-lines:
 
-     while not glfw.window_should_close(window):
-         while (
-             glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-         ):
-             pass
+The Event Loop
+~~~~~~~~~~~~~~
 
-         time_at_beginning_of_previous_frame = glfw.get_time()
 
-         glfw.poll_events()
 
-         width, height = glfw.get_framebuffer_size(window)
-         glViewport(0, 0, width, height)
-         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+.. literalinclude:: ../src/demo09/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 172
+   :lines: 172
 
-         draw_in_square_viewport()
-         handle_movement_of_paddles()
+::
 
-         glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    ...
 
-         glBegin(GL_QUADS)
-         for model_space in paddle1.vertices:
-             world_space = (
-                 model_space.rotate(paddle1.rotation)
-                 .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
-                 .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
-             )
+.. literalinclude:: ../src/demo09/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 190
+   :lines: 190-201
 
-             ndc_space = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
-         # draw paddle2
-         glColor3f(paddle2.r, paddle2.g, paddle2.b)
+::
 
-         glBegin(GL_QUADS)
-         for model_space in paddle2.vertices:
-             world_space = (
-                 model_space.rotate(paddle2.rotation)
-                 .translate(tx=paddle2.initial_position.x, ty=paddle2.initial_position.y)
-                 .translate(tx=paddle2.input_offset_x, ty=paddle2.input_offset_y)
-             )
+    ...
 
-             ndc_space = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
-
-         # done with frame, flush and swap buffers
-         # Swap front and back buffers
-         glfw.swap_buffers(window)
-
-     glfw.terminate()
+.. literalinclude:: ../src/demo09/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 203
+   :lines: 203-214
