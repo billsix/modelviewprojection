@@ -20,7 +20,191 @@
 
 # PURPOSE
 #
-# Explain movement in 3D space.
+# Remove repetition in the coordinate transformations,
+# as previous demos had very similar transformtions,
+# especially from camera space to NDC space.
+# Each node in the tree of the graph of objects (../images/demo11.png)
+# should only be specified once.
+#
+# Noticing in the previous demos that the lower parts of the transformations
+# have a common pattern, we can create a stack of functions for later application.
+# Before drawing geometry, we add any functions to the top of the stack,
+# apply all of our functions in the stack to our modelspace data to
+# get NDC data,
+# and before we return to the parent
+# node, we pop the functions we added off of the stack, to ensure that
+# we return the stack to the state that the parent node gave us.
+
+
+# To explain in more detail ---
+#
+# What's the difference between drawing paddle 1 and the square?
+#
+# Here is paddle 1 code
+# for model_space in paddle1.vertices:
+#     world_space = model_space.rotate_z(paddle1.rotation) \
+#                              .translate(tx=paddle1.position.x,
+#                                         ty=paddle1.position.y,
+#                                         tz=0.0)
+#      camera_space = world_space.translate(tx=-moving_camera_x,
+#                                          ty=-moving_camera_y,
+#                                          tz=-moving_camera_z) \
+#                               .rotate_y( -moving_camera_rot_y) \
+#                               .rotate_x( -moving_camera_rot_x)
+#     ndc_space = camera_space.camera_space_to_ndc_space_fn()
+
+# Here is the square's code:
+# for model_space in square:
+#     paddle_1_space = model_space.rotate_z(square_rotation) \                 added
+#                                 .translate(tx=20.0, ty=0.0, tz=0.0) \        added
+#                                 .rotate_z(rotation_around_paddle1) \         added
+#                                 .translate(tx=0.0,                           added
+#                                            ty=0.0,                           added
+#                                            tz=-10.0)                         added
+#     world_space = paddle_1_space.rotate_z(paddle1.rotation) \                same
+#                                 .translate(tx=paddle1.position.x,    same
+#                                            ty=paddle1.position.y,    same
+#                                            tz=0.0)                           same
+#      camera_space = world_space.translate(tx=-moving_camera_x,               same
+#                                          ty=-moving_camera_y,                same
+#                                          tz=-moving_camera_z) \              same
+#                               .rotate_y( -moving_camera_rot_y) \             same
+#                               .rotate_x( -moving_camera_rot_x)               same
+#     ndc_space = camera_space.camera_space_to_ndc_space_fn()                  same
+
+
+# The only difference is the square's model-space to paddle1 space.
+# In a graphics program, because the scene is a hierarchy of relative
+# objects, it's unwise to put this much repetition in the transformation
+# sequence.  Especially if we might change how the camera operates,
+# or from perspective to ortho.  It would required a lot of code changes.
+# And I don't like reading from the bottom of the code up.  Code doesn't
+# execute that way.  I want to read from top to bottom.
+
+# When reading the transformation sequences from top down
+# the transformation at the top is applied first, the transformation
+# at the bottom is applied last, with the intermediate results method-chained together.
+# (look up above for a reminder)
+
+#
+#  With a function stack, the function at the top of the stack (f5) is applied first,
+#  the result of this is then given as input to f4 (second on the stack), all
+#  the way down to f1, which was the first fn to be placed on the stack,
+#  and as such, the last to be applied. (Last In First Applied - LIFA)
+#
+###### TOP OF STACK
+#              |-------------------|
+# (MODELSPACE) |                   |
+#   (x,y,z)->  |       f5          |--
+#              |-------------------| |
+#                                    |
+#           -------------------------
+#           |
+#           |  |-------------------|
+#           |  |                   |
+#            ->|       f4          |--
+#              |-------------------| |
+#                                    |
+#           -------------------------
+#           |
+#           |  |-------------------|
+#           |  |                   |
+#            ->|       f3          |--
+#              |-------------------| |
+#                                    |
+#           -------------------------
+#           |
+#           |  |-------------------|
+#           |  |                   |
+#            ->|       f2          |--
+#              |-------------------| |
+#                                    |
+#           -------------------------
+#           |
+#           |  |-------------------|
+#           |  |                   |
+#            ->|       f1          |-->  (x,y,z) NDC
+#              |-------------------|
+###### BOTTOM OF STACK
+
+
+# So, in order to ensure that the functions in a stack will execute
+# in the same order as all of the previous demos, they need to
+# push as listed below:
+
+# Here is paddle 1 code
+# for model_space in paddle1.vertices:
+#     world_space = model_space.rotate_z(paddle1.rotation) \                push this seventh (because last in, first applied)
+#                              .translate(tx=paddle1.position.x,    push this sixth
+#                                         ty=paddle1.position.y,
+#                                         tz=0.0)
+#      camera_space = world_space.translate(tx=-moving_camera_x,            push this fourth
+#                                          ty=-moving_camera_y,
+#                                          tz=-moving_camera_z) \
+#                               .rotate_y( -moving_camera_rot_y) \          push this third
+#                               .rotate_x( -moving_camera_rot_x)            push this second
+#     ndc_space = camera_space.camera_space_to_ndc_space_fn()               push this first  (because first in, last applied)
+
+
+# Notice that we will now be pushing everything in reverse order,
+# at least relative to how the previous demos have worked.
+#
+# This means that from modelspace to world space, we can now
+# read the transformations FROM TOP TO BOTTOM (lexigraphically).  YEAH!!!!
+#
+# FUNCTION STACKS FTW!!!!!!!!!!  (I use function stacks to attempt to
+#                                 transition to matricies, without having
+#                                 to cover linear algebra material.  Matrix
+#                                 stacks will be used in the same way
+#                                 as this function stack is)
+#
+
+
+# Then, to draw the square relative to paddle one, those six
+# transformations will already be on the stack, therefore
+# only push the differences, and then apply the stack to
+# the paddle's modelspace data
+
+# Here is the square's code:
+# for model_space in square:
+#     paddle_1_space = model_space.rotate_z(square_rotation) \             push this eleventh
+#                                 .translate(tx=20.0, ty=0.0, tz=0.0) \    push this tenth
+#                                 .rotate_z(rotation_around_paddle1) \     push this ninth
+#                                 .translate(tx=0.0,                       push this eigth
+#                                            ty=0.0,
+#                                            tz=-10.0)
+#     world_space = paddle_1_space.rotate_z(paddle1.rotation) \             (nothing to push here or below,
+#                                 .translate(tx=paddle1.position.x, as they are already on the stack
+#                                            ty=paddle1.position.y,
+#                                            tz=0.0)
+#      camera_space = world_space.translate(tx=-moving_camera_x,
+#                                          ty=-moving_camera_y,
+#                                          tz=-moving_camera_z) \
+#                               .rotate_y( -moving_camera_rot_y) \
+#                               .rotate_x( -moving_camera_rot_x)
+#     ndc_space = camera_space.camera_space_to_ndc_space_fn()
+#     glVertex3f(ndc_space.x,
+#                ndc_space.y,
+#                ndc_space.z)
+
+# when we have drawn the blue square, we are done drawing from
+# this part of the tree, and need to go back up to world space
+# eog ../images/demo11.png
+
+# Therefore, we just need to pop off the correct number of
+# functions, to just leave worldspace->cameraspace->ndc.
+# Effectively, the following computation is all that
+# will remain on the matrix stack.
+
+#      camera_space = world_space.translate(tx=-moving_camera_x,
+#                                          ty=-moving_camera_y,
+#                                          tz=-moving_camera_z) \
+#                               .rotate_y( -moving_camera_rot_y) \
+#                               .rotate_x( -moving_camera_rot_x)
+#     ndc_space = camera_space.camera_space_to_ndc_space_fn()
+
+# We can then push the transformations from world space to
+# paddle2 space, shown below.  Search for NEW to find the NEW CODE
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
@@ -28,12 +212,9 @@ import os
 import numpy as np
 import math
 from OpenGL.GL import *
-from OpenGL.GLU import *
 import glfw
-import pyMatrixStack as ms
 
 from dataclasses import dataclass
-
 
 if not glfw.init():
     sys.exit()
@@ -41,15 +222,15 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 19", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 18", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
 
-
+# Make the window's context current
 glfw.make_context_current(window)
 
-
+# Install a key handler
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -59,9 +240,15 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
+
+glClearDepth(-1.0)
+glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
-glClearDepth(1.0)
-glDepthFunc(GL_LEQUAL)
+
+glMatrixMode(GL_PROJECTION)
+glLoadIdentity()
+glMatrixMode(GL_MODELVIEW)
+glLoadIdentity()
 
 
 def draw_in_square_viewport() -> None:
@@ -92,26 +279,117 @@ def draw_in_square_viewport() -> None:
 
 
 @dataclass
+class Vertex:
+    x: float
+    y: float
+    z: float
+
+    def translate(self: Vertex, tx: float, ty: float, tz: float) -> Vertex:
+        return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
+
+    def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
+        return Vertex(
+            x=self.x,
+            y=self.y * math.cos(angle_in_radians) - self.z * math.sin(angle_in_radians),
+            z=self.y * math.sin(angle_in_radians) + self.z * math.cos(angle_in_radians),
+        )
+
+    def rotate_y(self: Vertex, angle_in_radians: float) -> Vertex:
+        return Vertex(
+            x=self.z * math.sin(angle_in_radians) + self.x * math.cos(angle_in_radians),
+            y=self.y,
+            z=self.z * math.cos(angle_in_radians) - self.x * math.sin(angle_in_radians),
+        )
+
+    def rotate_z(self: Vertex, angle_in_radians: float) -> Vertex:
+        return Vertex(
+            x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
+            y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
+            z=self.z,
+        )
+
+    def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
+        return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
+
+    def ortho(
+        self: Vertex,
+        left: float,
+        right: float,
+        bottom: float,
+        top: float,
+        near: float,
+        far: float,
+    ) -> Vertex:
+        midpoint_x, midpoint_y, midpoint_z = (
+            (left + right) / 2.0,
+            (bottom + top) / 2.0,
+            (near + far) / 2.0,
+        )
+        length_x: float
+        length_y: float
+        length_z: float
+        length_x, length_y, length_z = right - left, top - bottom, far - near
+        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
+            2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
+        )
+
+    def perspective(
+        self: Vertex, fov: float, aspectRatio: float, nearZ: float, farZ: float
+    ) -> Vertex:
+        top: float = -nearZ * math.tan(math.radians(fov) / 2.0)
+        right: float = top * aspectRatio
+
+        scaled_x: float = self.x * nearZ / self.z
+        scaled_y: float = self.y * nearZ / self.z
+        projected: Vertex = Vertex(scaled_x, scaled_y, self.z)
+        return projected.ortho(
+            left=-right, right=right, bottom=-top, top=top, near=nearZ, far=farZ
+        )
+
+    def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
+        return self.perspective(
+            fov=45.0,
+            aspectRatio=1.0,  # since the viewport is always square
+            nearZ=-0.1,
+            farZ=-10000.0,
+        )
+
+
+@dataclass
 class Paddle:
+    vertices: list[Vertex]
     r: float
     g: float
     b: float
-    position: any
+    position: Vertex
     rotation: float = 0.0
-    vertices: np.array = np.array(
-        [
-            [-10.0, -30.0, 0.0],
-            [10.0, -30.0, 0.0],
-            [10.0, 30.0, 0.0],
-            [-10.0, 30.0, 0.0],
-        ],
-        dtype=np.float32,
-    )
 
 
-paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
+paddle1: Paddle = Paddle(
+    vertices=[
+        Vertex(x=-10.0, y=-30.0, z=0.0),
+        Vertex(x=10.0, y=-30.0, z=0.0),
+        Vertex(x=10.0, y=30.0, z=0.0),
+        Vertex(x=-10.0, y=30.0, z=0.0),
+    ],
+    r=0.578123,
+    g=0.0,
+    b=1.0,
+    position=Vertex(x=-90.0, y=0.0, z=0.0),
+)
 
-paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
+paddle2: Paddle = Paddle(
+    vertices=[
+        Vertex(x=-10.0, y=-30.0, z=0.0),
+        Vertex(x=10.0, y=-30.0, z=0.0),
+        Vertex(x=10.0, y=30.0, z=0.0),
+        Vertex(x=-10.0, y=30.0, z=0.0),
+    ],
+    r=1.0,
+    g=0.0,
+    b=0.0,
+    position=Vertex(x=90.0, y=0.0, z=0.0),
+)
 
 
 @dataclass
@@ -126,6 +404,12 @@ class Camera:
 camera: Camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
 
 
+square: Paddle = [
+    Vertex(x=-5.0, y=-5.0, z=0.0),
+    Vertex(x=5.0, y=-5.0, z=0.0),
+    Vertex(x=5.0, y=5.0, z=0.0),
+    Vertex(x=-5.0, y=5.0, z=0.0),
+]
 square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
 
@@ -150,52 +434,23 @@ def handle_inputs() -> None:
         camera.rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
-
-    # NEW -- reason about moving in 3D space just like placing
-    # objects.  If the up button is pressed
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        # describe the vector to move forwards.
-        # -1 unit in the z direction is forwards
-        #
-        # Although we have not covered linear algebra and
-        # matrix multiplication in depth, all coordinates
-        # in OpenGL are in 4D space, (x,y,z,w),
-        # where to convert to NDC, use (x/w,y/w,z/w)
-        #
-        # For most purposes, by setting w to 1, we can
-        # think in normal 3D space
-        #
-        forwards = np.array([0.0, 0.0, -1.0, 1.0])
-        # push matrix on the view stack, as we are going
-        # to use the view matrix to determine the new position,
-        # but then will reset the value of the view matrix
-        with ms.PushMatrix(ms.MatrixStack.view):
-            ms.translate(ms.MatrixStack.view, camera.x, camera.y, camera.z)
-            ms.rotate_y(ms.MatrixStack.view, camera.rot_y)
-            ms.scale(ms.MatrixStack.view, 5.0, 5.0, 5.0)
-            camera.x, camera.y, camera.z, _ = (
-                ms.getCurrentMatrix(ms.MatrixStack.view) @ forwards
-            )
+        camera.x -= move_multiple * math.sin(camera.rot_y)
+        camera.z -= move_multiple * math.cos(camera.rot_y)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        backwards = np.array([0.0, 0.0, 1.0, 1.0])
-        with ms.PushMatrix(ms.MatrixStack.view):
-            ms.translate(ms.MatrixStack.view, camera.x, camera.y, camera.z)
-            ms.rotate_y(ms.MatrixStack.view, camera.rot_y)
-            ms.scale(ms.MatrixStack.view, 5.0, 5.0, 5.0)
-            camera.x, camera.y, camera.z, _ = (
-                ms.getCurrentMatrix(ms.MatrixStack.view) @ backwards
-            )
+        camera.x += move_multiple * math.sin(camera.rot_y)
+        camera.z += move_multiple * math.cos(camera.rot_y)
 
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position[1] -= 10.0
+        paddle1.position.y -= 10.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position[1] += 10.0
+        paddle1.position.y += 10.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position[1] -= 10.0
+        paddle2.position.y -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position[1] += 10.0
+        paddle2.position.y += 10.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -209,10 +464,22 @@ def handle_inputs() -> None:
         paddle2.rotation -= 0.1
 
 
-square_vertices = np.array(
-    [[-5.0, -5.0, 0.0], [5.0, -5.0, 0.0], [5.0, 5.0, 0.0], [-5.0, 5.0, 0.0]],
-    dtype=np.float32,
-)
+# NEW - function stack.  The bottom of the stack has
+# the low index, the top of the stack has the highest
+# index
+fn_stack: List[Callable[Vertex, Vertex]] = []
+
+# NEW -
+# Given an input vertex, apply the function at the top
+# of the stack to the vertex, capture the output vertex,
+# to be used as input to the next lower function on the
+# stack.  Continue doing this until we get the value
+# returned from the function at the bottom of the stack.
+def apply_stack(vertex: Vertex) -> Vertex:
+    v = vertex
+    for fn in reversed(fn_stack):
+        v = fn(v)
+    return v
 
 
 TARGET_FRAMERATE: int = 60  # fps
@@ -239,93 +506,142 @@ while not glfw.window_should_close(window):
 
     # render scene
     draw_in_square_viewport()
-
-    ms.setToIdentityMatrix(ms.MatrixStack.model)
-    ms.setToIdentityMatrix(ms.MatrixStack.view)
-    ms.setToIdentityMatrix(ms.MatrixStack.projection)
-
     handle_inputs()
 
-    ms.perspective(fov=45.0, aspectRatio=1.0, nearZ=0.1, farZ=10000.0)
+    # NEW
+    # In previous demos, camera_space_to_ndc_space_fn was always
+    # the last function called by the computer.  put it on the bottom of the stack,
+    # so that "apply_stack" calls this function last
 
-    glMatrixMode(GL_PROJECTION)
-    glLoadMatrixf(
-        np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.projection).T)
+    # "append" adds the function to the end of a list, where
+    # we conisder the front of the list to be the bottom of the stack,
+    # and the end of the list to be the top of the stack.
+
+    # every object uses the same projection
+    fn_stack.append(lambda v: v.camera_space_to_ndc_space_fn())  # (1)
+
+    # NEW
+    # Unlike in previous demos in which we read the transformations
+    # from model space to world space backwards; because the transformations
+    # are on a stack, the fns on the model stack can
+    # be read forwards, where each operation translates/rotates/scales
+    # the current space
+
+    # The camera's position and orientation are defined relative
+    # to world space like so, read top to bottom:
+
+    # fn_stack.append(lambda v: v.translate(tx=camera.x,
+    #                                       ty=camera.y,
+    #                                       tz=camera.z))
+    # fn_stack.append(lambda v: v.rotate_y( camera.rot_y))
+    # fn_stack.append(lambda v: v.rotate_x( camera.rot_x))
+
+    # But, since we are dealing with world-space to camera space,
+    # they must be inverted by reversing the order, and negating
+    # the arguments
+
+    # Therefore the transformations to put the world space into
+    # camera space are.
+    fn_stack.append(lambda v: v.rotate_x(-camera.rot_x))  # (2)
+    fn_stack.append(lambda v: v.rotate_y(-camera.rot_y))  # (3)
+    fn_stack.append(
+        lambda v: v.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z)  # (4)
     )
 
-    # The camera's position is described as follows
-    # ms.translate(ms.MatrixStack.view,
-    #              camera.x,
-    #              camera.y,
-    #              camera.z)
-    # ms.rotate_y(ms.MatrixStack.view,camera.rot_y)
-    # ms.rotate_x(ms.MatrixStack.view,camera.rot_x)
-    #
-    # Therefore, to take the object's world space coordinates
-    # and transform them into camera space, we need to
-    # do the inverse operations to the view stack.
-
-    ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
-    ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
-    ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)
-
-    with ms.PushMatrix(ms.MatrixStack.model):
-
-        # draw paddle 1
-        glColor3f(paddle1.r, paddle1.g, paddle1.b)
-
-        ms.translate(
-            ms.MatrixStack.model,
-            paddle1.position[0],
-            paddle1.position[1],
-            0.0,
+    # NEW
+    # draw paddle 1
+    # Unlike in previous demos in which we read the transformations
+    # from model space to world space backwards; because the transformations
+    # are on a stack, the fns on the model stack can
+    # be read forwards, where each operation translates/rotates/scales
+    # the current space
+    fn_stack.append(
+        lambda v: v.translate(
+            tx=paddle1.position.x,  # (6) translate the local origin
+            ty=paddle1.position.y,
+            tz=0.0,
         )
-        ms.rotate_z(ms.MatrixStack.model, paddle1.rotation)
+    )
+    fn_stack.append(
+        lambda v: v.rotate_z(paddle1.rotation)
+    )  # (7) (rotate around the local z axis
 
-        glMatrixMode(GL_MODELVIEW)
-        glLoadMatrixf(
-            np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
+    # draw paddle 1
+    # set the color
+    glColor3f(paddle1.r, paddle1.g, paddle1.b)
+
+    # NEW
+    # specify that we are drawing a quadrilateral
+    glBegin(GL_QUADS)
+    for model_space in paddle1.vertices:
+        # for each of the modelspace coordinates, apply all
+        # of the procedures on the stack from top to bottom
+        ndc_space = apply_stack(model_space)
+        # this results in coordinate data in NDC space,
+        # which we can pass to glVertex3f
+        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
+    glEnd()
+
+    # NEW
+    # draw the square
+    glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
+
+    # since the modelstack is already in paddle1's space,
+    # and since the blue square is defined relative to paddle1,
+    # just add the transformations relative to it
+    # before the blue square is drawn.  Draw the square, and then
+    # remove these 4 transformations from the stack (done below)
+    fn_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0))  # (8)
+    fn_stack.append(lambda v: v.rotate_z(rotation_around_paddle1))  # (9)
+    fn_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0))  # (10)
+    fn_stack.append(lambda v: v.rotate_z(square_rotation))  # (11)
+
+    # same as for paddle 1, apply the stack to get modelspace->ndc, call
+    # glvertex on the result
+    glBegin(GL_QUADS)
+    for model_space in square:
+        ndc_space = apply_stack(model_space)
+        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
+    glEnd()
+
+    # NEW
+    # Now we need to remove fns from the stack so that the
+    # matrix stack would convert from world space to NDC.
+    # This will allow us to just add the transformaions from
+    # world space to paddle2 space on the stack.
+    fn_stack.pop()  # pop off (11)
+    fn_stack.pop()  # pop off (10)
+    fn_stack.pop()  # pop off (9)
+    fn_stack.pop()  # pop off (8)
+    fn_stack.pop()  # pop off (7)
+    fn_stack.pop()  # pop off (6)
+
+    # NEW
+    # since paddle2's model_space is independent of paddle 1's space, only
+    # leave the view and projection fns (1) - (4)
+
+    # draw paddle 2
+    fn_stack.append(
+        lambda v: v.translate(
+            tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0  # (13)
         )
-        glBegin(GL_QUADS)
-        for model_space in paddle1.vertices:
-            glVertex3f(model_space[0], model_space[1], model_space[2])
-        glEnd()
+    )
+    fn_stack.append(lambda v: v.rotate_z(paddle2.rotation))  # (14)
 
-        # # draw the square
-        glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
-
-        ms.translate(ms.MatrixStack.model, 0.0, 0.0, -10.0)
-        ms.rotate_z(ms.MatrixStack.model, rotation_around_paddle1)
-        ms.translate(ms.MatrixStack.model, 20.0, 0.0, 0.0)
-        ms.rotate_z(ms.MatrixStack.model, square_rotation)
-
-        glMatrixMode(GL_MODELVIEW)
-        glLoadMatrixf(
-            np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
-        )
-        glBegin(GL_QUADS)
-        for model_space in square_vertices:
-            glVertex3f(model_space[0], model_space[1], model_space[2])
-        glEnd()
-
+    # NEW
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
-    ms.translate(
-        ms.MatrixStack.model,
-        paddle2.position[0],
-        paddle2.position[1],
-        0.0,
-    )
-    ms.rotate_z(ms.MatrixStack.model, paddle2.rotation)
-
-    glMatrixMode(GL_MODELVIEW)
-    # ascontiguousarray puts the array in column major order
-    glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        glVertex3f(model_space[0], model_space[1], model_space[2])
+        ndc_space: Vertex = apply_stack(model_space)
+        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
+
+    # remove all fns from the function stack, as the next frame will set them
+    # clear makes the list empty, as the list (stack) will be repopulated
+    # the next iteration of the event loop.
+    fn_stack.clear()
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers

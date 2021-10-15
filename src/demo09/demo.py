@@ -187,6 +187,7 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
+    # draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -199,6 +200,7 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
+    # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)

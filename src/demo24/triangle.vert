@@ -18,7 +18,6 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
-
 #version 330 core
 
 layout (location = 0) in vec3 position;
@@ -35,71 +34,60 @@ out VS_OUT {
 } vs_out;
 
 vec4 project(vec4 cameraSpace){
-    // (1) nearZ and farZ have been made positive in the Python code
-    // (2) the Default depth in the python code is 1.0, and the depth buffer tests <= the current depth.
-    //    therefore, we need to reflect over the Z axis.  Why is this done?  I don't know the reason
-    //    but it works either way
 
-    // For (1)
-
-    //float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
-    //float right = top * aspectRatio;
-
-    // mat4 camera_space_to_clip_space = transpose(mat4(
-    //      -nearZ/right,         0.0,        0.0,                           0.0,
-    //      0.0,                  -nearZ/top, 0.0,                           0.0,
-    //      0.0,                  0.0,        (farZ + nearZ)/(farZ-nearZ),  (-2*farZ*nearZ)/(farZ-nearZ),
-    //      0.0,                  0.0,        -1.0,                          0.0));
-
-    // return camera_space_to_clip_space * cameraSpace;
-
-    float top = nearZ * tan(fov * 3.14159265358979323846 / 360.0);
+    float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
     float right = top * aspectRatio;
 
-    // mat4 camera_space_to_clip_space = transpose(mat4(
-    //      --nearZ/right,         0.0,        0.0,                           0.0,
-    //      0.0,                  --nearZ/top, 0.0,                           0.0,
-    //      0.0,                  0.0,        (-farZ + -nearZ)/(-farZ--nearZ),  (-2*-farZ*-nearZ)/(-farZ--nearZ),
-    //      0.0,                  0.0,        -1.0,                          0.0));
-     mat4 camera_space_to_clip_space1 = transpose(mat4(
-          nearZ/right,         0.0,       0.0,                           0.0,
-          0.0,                 nearZ/top, 0.0,                           0.0,
-          0.0,                 0.0,       -(farZ + nearZ)/(-farZ+nearZ), (-2*farZ*nearZ)/(-farZ+nearZ),
-          0.0,                 0.0,       -1.0,                          0.0));
+    // put into clipspace, not ndc.
+    // clip space to ndc, given [x_clip,y_clip,z_clip,w_clip] =
+    // [x_clip/w_clip,y_clip/w_clip,z_clip/w_clip,w_clip/w_clip]
 
-    // End (1)
-    // For (2)
-     mat4 reflect_z = transpose(mat4(
-          1.0,  0.0, 0.0,  0.0,
-          0.0,  1.0, 0.0,  0.0,
-          0.0,  0.0, -1.0, 0.0,
-          0.0,  0.0, 0.0,  1.0));
+    // to ensure that we don't have to make a new projection matrix for each
+    // vertex, make the w_clip be the cameraSpace's z
 
-     // camera_space_to_clip_space2 = reflect_z * camera_space_to_clip_space1
-     mat4 camera_space_to_clip_space2 = transpose(mat4(
-          nearZ/right,         0.0,       0.0,                           0.0,
-          0.0,                 nearZ/top, 0.0,                           0.0,
-          0.0,                 0.0,       -(farZ + nearZ)/(farZ-nearZ), (-2*farZ*nearZ)/(farZ-nearZ),
-          0.0,                 0.0,       -1.0,                          0.0));
-    // End (2)
 
-     return camera_space_to_clip_space2 * cameraSpace;
+    // because cameraSpace's z coordinate is negative, we want to scale
+    // all dimensions without flipping, hence the negative sign
+    // in front of cameraSpace.z
+     mat4 ndc_space_to_clip_space = transpose(mat4(
+          (-cameraSpace.z), 0.0,              0.0,              0.0,
+          0.0,              (-cameraSpace.z), 0.0,              0.0,
+          0.0,              0.0,              (-cameraSpace.z), 0.0,
+          0.0,              0.0,              0.0,              (-cameraSpace.z)));
 
-}
 
-vec4 project_standard_way(vec4 cameraSpace){
+     mat4 camera_space_to_ndc_space = transpose(mat4(
+          nearZ/(right * cameraSpace.z), 0.0,                       0.0,                0.0,
+          0.0,                           nearZ/(top*cameraSpace.z), 0.0,                0.0,
+          0.0,                           0.0,                       2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
+          0.0,                           0.0,                       0.0,                1.0));
 
-    // now that nearZ is a positive value, no need to negate it
-    float top = nearZ * tan(fov * 3.14159265358979323846 / 360.0);
-    float right = top * aspectRatio;
+     // camera_space_to_clip_space = ndc_space_to_clip_space * camera_space_to_ndc_space
+     mat4 camera_space_to_clip_space = transpose(mat4(
+          -nearZ/right,         0.0,        0.0,                                   0.0,
+          0.0,                  -nearZ/top, 0.0,                                   0.0,
+          0.0,                  0.0,        2.0*(-cameraSpace.z)/(nearZ - farZ),   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)),
+          0.0,                  0.0,        0.0,                                   -cameraSpace.z));
 
-    mat4 proj =  mat4(
-         nearZ / right, 0.0,         0.0,                               0.0,
-         0.0,           nearZ / top, 0.0,                               0.0,
-         0.0,           0.0,         -(farZ + nearZ) / (farZ - nearZ),  -2 * (farZ * nearZ) / (farZ - nearZ),
-         0.0,           0.0,         -1.0,                              0.0);
 
-     return transpose(proj)  * cameraSpace;
+     // z_ndc(cameraSpace) = (cameraSpace.z * (2.0*(-cameraSpace.z)/(nearZ - farZ)) +   (-cameraSpace.z)*(-(farZ + nearZ)/(nearZ - farZ)))/cameraSpace.z
+     // z_ndc(cameraSpace) = (2.0*(-cameraSpace.z)/(nearZ - farZ)) +   ((farZ + nearZ)/(nearZ - farZ))
+     // z_ndc(nearZ) = (2.0*(-nearZ)/(nearZ - farZ)) +   ((farZ + nearZ)/(nearZ - farZ))
+     // z_ndc(nearZ) = (2.0*(-nearZ) + (farZ + nearZ))/(nearZ - farZ)
+     // z_ndc(nearZ) = (2.0*(-nearZ) + (farZ + nearZ))/(nearZ - farZ)
+     // z_ndc(nearZ) = (farZ - nearZ))/(nearZ - farZ)
+     // z_ndc(nearZ) = (farZ - nearZ))/(nearZ - farZ)
+     // z_ndc(nearZ) = -1.0
+
+
+     // z_ndc(farZ) = (2.0*(-farZ)/(nearZ - farZ)) +   ((farZ + nearZ)/(nearZ - farZ))
+     // z_ndc(farZ) = ((2.0*(-farZ) + (farZ + nearZ))/(nearZ - farZ))
+     // z_ndc(farZ) = ( nearZ - farZ)/(nearZ - farZ))
+     // z_ndc(farZ) = 1.0
+
+     // modelspace to ndc, then ndc back to clip space, which the hardware turns back into NDC
+     //        return ndc_space_to_clip_space * camera_space_to_ndc_space * cameraSpace;
+     return camera_space_to_clip_space * cameraSpace;
 }
 
 

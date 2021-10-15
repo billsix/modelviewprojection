@@ -18,6 +18,16 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+
+# Purpose
+#
+# Begin transformation to the standard perspective projection
+# All new work is in the vertex shader.
+#
+# In the vertex shader, we premultiply the matricies
+# together to get one perspective projection matrix.
+
+
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
@@ -374,6 +384,7 @@ while not glfw.window_should_close(window):
     # render scene
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
+
     glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 

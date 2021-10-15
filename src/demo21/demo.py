@@ -18,15 +18,27 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
-# Purpose
+# PURPOSE
 #
-# Begin transformation to the standard perspective projection
-# All new work is in the vertex shader.
+# Replace lambda stacks with matrix stacks.  This is how preshader
+# opengl worked (well, they provided matrix operations, but I replaced
+# them with my own to make the matrix operations transparent).
 #
-# In the vertex shader, we premultiply the matricies
-# together to get one perspective projection matrix.
-
+# The concepts behind the function stack, in which the first function
+# added to the stack is the last function applied, hold true for
+# matricies as well.  But matricies are a much more efficient
+# representation computationally than the function stack,
+# and instead of adding fns and later having to remove them,
+# we can save onto the current frame of reference with a "glPushStack",
+# and restore the saved state by "glPopStack"
+#
+# Use glPushMatrix and glPopMatrix to save/restore a local coordinate
+# system, that way a tree of objects can be drawn without one child
+# destroying the relative coordinate system of the parent node.
+#
+# In mvpVisualization/demoViewWorldTopLevel.py, the grayed out
+# coordinate system is one thas has been pushed onto the stack,
+# and it regains it's color when it is reactivated by "glPopMatrix"
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
@@ -34,38 +46,17 @@ import os
 import numpy as np
 import math
 from OpenGL.GL import *
-
-from dataclasses import dataclass
-
-
-# new - SHADERS
-import OpenGL.GL.shaders as shaders
+from OpenGL.GLU import *
 import glfw
 import pyMatrixStack as ms
-import atexit
+
+from dataclasses import dataclass
 
 if not glfw.init():
     sys.exit()
 
-# NEW - for shader location
-pwd = os.path.dirname(os.path.abspath(__file__))
-
-# NEW - for shaders
-glfloat_size = 4
-floatsPerVertex = 3
-floatsPerColor = 3
-
-
-glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
-glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
-# CORE profile means no fixed functions.
-# compatibility profile would mean access to legacy fixed functions
-# compatibility mode isn't supported by every graphics driver,
-# particulary on laptops which switch between integrated graphics
-# and a discrete card over time based off of usage.
-glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-# for osx
-glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
+glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
+glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
 window = glfw.create_window(500, 500, "ModelViewProjection Demo 21", None, None)
 if not window:
@@ -74,26 +65,6 @@ if not window:
 
 # Make the window's context current
 glfw.make_context_current(window)
-
-
-def on_exit():
-    # delete the objects
-    paddle1.__del__()
-    paddle2.__del__()
-    square.__del__()
-
-    # normally in Python, you should call "del paddle1",
-    # but that would not guarantee that the object would
-    # actually be garbage collected at that moment, and
-    # the OpenGL context could be destroyed before the garbage
-    # collection happens, therefore, force the destruction
-    # of the VAO and VBO by immediately calling __del__
-    #
-    # This is not normal Python practice to call
-    # this type of method directly, but oh well.
-
-
-atexit.register(on_exit)
 
 # Install a key handler
 
@@ -107,11 +78,37 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
-
 # NEW - TODO - talk about opengl matricies and z pos/neg
-glClearDepth(-1.0)
-glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
+glClearDepth(1.0)
+glDepthFunc(GL_LEQUAL)
+
+
+def draw_in_square_viewport() -> None:
+    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClear(GL_COLOR_BUFFER_BIT)
+
+    width, height = glfw.get_framebuffer_size(window)
+    min = width if width < height else height
+
+    glEnable(GL_SCISSOR_TEST)
+    glScissor(
+        int((width - min) / 2.0),  # min x
+        int((height - min) / 2.0),  # min y
+        min,  # width x
+        min,
+    )  # width y
+
+    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClear(GL_COLOR_BUFFER_BIT)
+    glDisable(GL_SCISSOR_TEST)
+
+    glViewport(
+        int(0.0 + (width - min) / 2.0),  # min x
+        int(0.0 + (height - min) / 2.0),  # min y
+        min,  # width x
+        min,
+    )  # width y
 
 
 @dataclass
@@ -123,168 +120,18 @@ class Paddle:
     rotation: float = 0.0
     vertices: np.array = np.array(
         [
-            -10.0,
-            -30.0,
-            0.0,
-            10.0,
-            -30.0,
-            0.0,
-            10.0,
-            30.0,
-            0.0,
-            10.0,
-            30.0,
-            0.0,
-            -10.0,
-            30.0,
-            0.0,
-            -10.0,
-            -30.0,
-            0.0,
-        ],
-        dtype=np.float32,
-    )
-    vao: int = 0
-    vbo: int = 0
-    shader: int = 0
-
-    def prepare_to_render(self):
-        # GL_QUADS aren't available anymore, only triangles
-        # need 6 vertices instead of 4
-        vertices = self.vertices
-        self.numberOfVertices = np.size(vertices) // floatsPerVertex
-        color = np.array(
-            [
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-            ],
-            dtype=np.float32,
-        )
-        self.numberOfColors = np.size(color) // floatsPerColor
-
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
-
-        # initialize shaders
-
-        with open(os.path.join(pwd, "triangle.vert"), "r") as f:
-            vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
-
-        with open(os.path.join(pwd, "triangle.frag"), "r") as f:
-            fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
-
-        self.shader = shaders.compileProgram(vs, fs)
-
-        self.mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
-
-        # send the modelspace data to the GPU
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-
-        position = glGetAttribLocation(self.shader, "position")
-        glEnableVertexAttribArray(position)
-
-        glVertexAttribPointer(
-            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
-        )
-
-        glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
-        )
-
-        # send the modelspace data to the GPU
-        vboColor = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, vboColor)
-
-        colorAttribLoc = glGetAttribLocation(self.shader, "color_in")
-        glEnableVertexAttribArray(colorAttribLoc)
-        glVertexAttribPointer(
-            colorAttribLoc, floatsPerColor, GL_FLOAT, False, 0, ctypes.c_void_p(0)
-        )
-
-        glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(color), color, GL_STATIC_DRAW
-        )
-
-        # reset VAO/VBO to default
-        glBindVertexArray(0)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
-
-    # destructor
-    def __del__(self):
-        glDeleteVertexArrays(1, [self.vao])
-        glDeleteBuffers(1, [self.vbo])
-        glDeleteProgram(self.shader)
-
-    def render(self):
-        glUseProgram(self.shader)
-        glBindVertexArray(self.vao)
-
-        # pass projection parameters to the shader
-        fov_loc = glGetUniformLocation(self.shader, "fov")
-        glUniform1f(fov_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
-        glUniform1f(aspect_loc, width / height)
-        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -0.1)
-        farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -10000.0)
-
-        # ascontiguousarray puts the array in column major order
-        glUniformMatrix4fv(
-            self.mvMatrixLoc,
-            1,
-            GL_TRUE,
-            np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.modelview), dtype=np.float32
-            ),
-        )
-        glDrawArrays(GL_TRIANGLES, 0, self.numberOfVertices)
-        glBindVertexArray(0)
-
-
-paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
-paddle1.prepare_to_render()
-paddle2 = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
-paddle2.prepare_to_render()
-
-
-@dataclass
-class Square(Paddle):
-    rotation_around_paddle1: float = 0.0
-
-    vertices: np.array = np.array(
-        [
-            [-5.0, -5.0, 0.0],
-            [5.0, -5.0, 0.0],
-            [5.0, 5.0, 0.0],
-            [5.0, 5.0, 0.0],
-            [-5.0, 5.0, 0.0],
-            [-5.0, -5.0, 0.0],
+            [-10.0, -30.0, 0.0],
+            [10.0, -30.0, 0.0],
+            [10.0, 30.0, 0.0],
+            [-10.0, 30.0, 0.0],
         ],
         dtype=np.float32,
     )
 
 
-square = Square(r=0.0, g=0.0, b=1.0, position=[0.0, 0.0, 0.0])
+paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
 
-square.prepare_to_render()
+paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
 
 
 @dataclass
@@ -296,15 +143,21 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
+camera: Camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
+
+
+square_rotation: float = 0.0
+rotation_around_paddle1: float = 0.0
 
 
 def handle_inputs():
+    global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
-        square.rotation_around_paddle1 += 0.1
+        rotation_around_paddle1 += 0.1
 
+    global square_rotation
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
-        square.rotation += 0.1
+        square_rotation += 0.1
 
     global camera
 
@@ -349,16 +202,16 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
-square_vertices = np.array(
+square_vertices: np.array = np.array(
     [[-5.0, -5.0, 0.0], [5.0, -5.0, 0.0], [5.0, 5.0, 0.0], [-5.0, 5.0, 0.0]],
     dtype=np.float32,
 )
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE: int = 60  # fps
 
 # to try to standardize on 60 fps, compare times between frames
-time_at_beginning_of_previous_frame = glfw.get_time()
+time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
@@ -377,30 +230,100 @@ while not glfw.window_should_close(window):
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+    # render scene
+    draw_in_square_viewport()
+    handle_inputs()
+
+    # set the model, view, and projection matrix to the identity
+    # matrix.  This just means that the functions (currently)
+    # will not transform data.
+    # In univariate terms, f(x) = x
     ms.setToIdentityMatrix(ms.MatrixStack.model)
     ms.setToIdentityMatrix(ms.MatrixStack.view)
     ms.setToIdentityMatrix(ms.MatrixStack.projection)
 
-    # render scene
-    width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
+    # change the perspective matrix to convert the frustum
+    # to NDC.
+    # set the projection matrix to be perspective
+    ms.perspective(
+        fov=45.0,
+        aspectRatio=1.0,  # since the viewport is always square
+        nearZ=0.1,
+        farZ=10000.0,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    # the ms namespace is pyMatrixStack, located in this folder.
+    # we need to send the matrix to OpenGL, by setting the matrix
+    # mode to be projection, and then call "loadmatrix", which
+    # we get from pyMatrixStack.  (Don't sweat the details
+    # of ascontigousarray, just copy and paste)
+    glMatrixMode(GL_PROJECTION)
+    # ascontiguousarray puts the array in column major order
+    glLoadMatrixf(
+        np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.projection).T)
+    )
 
-    handle_inputs()
+    # The camera's position is described as follows
+    # ms.translate(ms.MatrixStack.view,
+    #              camera.x,
+    #              camera.y,
+    #              camera.z)
+    # ms.rotate_y(ms.MatrixStack.view,camera.rot_y)
+    # ms.rotate_x(ms.MatrixStack.view,camera.rot_x)
+    #
+    # Therefore, to take the object's world space coordinates
+    # and transform them into camera space, we need to
+    # do the inverse operations to the view stack.
 
-    # note - opengl matricies use degrees
     ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
     ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)
+    # Each call above actually modifies the matrix, as matricies
+    # can be premultiplied together for efficiency.
+    #  |a b|     |e f|         |ae+bg  af+bh|
+    #  |c d|  *  |g h|  =      |ce+dg  cf+dh|
+    # this means that rotate_x, rotate_y, translate, etc
+    # are destructive operations.  Instead of creating a stack
+    # of matricies, these operations aggregate the transformations,
+    # but add no new matricies to the stack
 
-    with ms.push_matrix(ms.MatrixStack.model):
+    #
+    # but many times we need to hold onto a transformation stack (matrix),
+    # so that we can do something else now, and return to this context later,
+    # so we have a stack composed of matricies.
+    #
+    # This is what GLPushMatrix, and GLPopMatrix do.
+    #
+    # "with" is a Python keyword which allows for bounded contexts, where
+    # the library code can specify what happens before execution of the block,
+    # and after.  This is similar to RAII within C++, in which a constructor
+    # sets a context, and the destructor destroys it.
+    #
+    # The author uses a debugger to do dynamic analysis of code, as compared
+    # to static, as the language knows its own control flow, and where modules
+    # are located in the filesystem.  I recommend using a debugger (PDB on linux/macos,
+    # the built in functionality in VS Community), to set a breakpoint here, step in,
+    # step out, etc
+    #
+    # "PushMatrix" describes what the function does, but its purpose is to
+    # save onto the current coordinate system for later drawing modelspace
+    # data.
+
+    # the model stack is currently the identity matrix, meaning
+    # it does nothing.  The view and the projection matrix
+    # are set to transform from world space into camera space,
+    # and then take the frustum and convert it to NDC.
+
+    # save onto the current model stack
+    with ms.PushMatrix(ms.MatrixStack.model):
+
         # draw paddle 1
         # Unlike in previous demos, because the transformations
         # are on a stack, the fns on the model stack can
         # be read forwards, where each operation translates/rotates/scales
         # the current space
+        glColor3f(paddle1.r, paddle1.g, paddle1.b)
+
         ms.translate(
             ms.MatrixStack.model,
             paddle1.position[0],
@@ -408,37 +331,72 @@ while not glfw.window_should_close(window):
             0.0,
         )
         ms.rotate_z(ms.MatrixStack.model, paddle1.rotation)
-        paddle1.render()
 
-        with ms.push_matrix(ms.MatrixStack.model):
-            # # draw the square
-
-            # since the modelstack is already in paddle1's space
-            # just add the transformations relative to it
-            # before paddle 2 is drawn, we need to remove
-            # the square's 3 model_space transformations
-
-            ms.translate(ms.MatrixStack.model, 0.0, 0.0, -10.0)
-            ms.rotate_z(ms.MatrixStack.model, square.rotation_around_paddle1)
-
-            ms.translate(ms.MatrixStack.model, 20.0, 0.0, 0.0)
-            ms.rotate_z(ms.MatrixStack.model, square.rotation)
-
-            square.render()
-        # back to padde 1 space
-    # get back to center of global space
-
-    with ms.push_matrix(ms.MatrixStack.model):
-        # draw paddle 2
-
-        ms.translate(
-            ms.MatrixStack.model,
-            paddle2.position[0],
-            paddle2.position[1],
-            0.0,
+        # load our model and view matrix (premultiplied) to
+        # openGL's matrix
+        # set the current matrix (as we don't want to load into OpenGL's
+        # perspective matrix
+        glMatrixMode(GL_MODELVIEW)
+        # ascontiguousarray puts the array in column major order
+        glLoadMatrixf(
+            np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
         )
-        ms.rotate_z(ms.MatrixStack.model, paddle2.rotation)
-        paddle2.render()
+        glBegin(GL_QUADS)
+        for model_space in paddle1.vertices:
+            # NEW!!! glVertex data is specified in modelspace coordinates,
+            # but since we loaded the projection matrix and the modelview
+            # matrix into OpenGL, glVertex3f will apply those transformations.
+            glVertex3f(model_space[0], model_space[1], model_space[2])
+        glEnd()
+
+        # # draw the square
+        glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
+
+        # since the modelstack is already in paddle1's space
+        # just add the transformations relative to it
+        # before paddle 2 is drawn, we need to remove
+        # the square's 3 model_space transformations
+        ms.translate(ms.MatrixStack.model, 0.0, 0.0, -10.0)
+        ms.rotate_z(ms.MatrixStack.model, rotation_around_paddle1)
+        ms.translate(ms.MatrixStack.model, 20.0, 0.0, 0.0)
+        ms.rotate_z(ms.MatrixStack.model, square_rotation)
+
+        # render just like with paddle 1
+        glMatrixMode(GL_MODELVIEW)
+        # ascontiguousarray puts the array in column major order
+        glLoadMatrixf(
+            np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
+        )
+        glBegin(GL_QUADS)
+        for model_space in square_vertices:
+            glVertex3f(model_space[0], model_space[1], model_space[2])
+        glEnd()
+
+    # glPopMatrix was implictly called because of the "with" keyword
+    # therefore, our model matrix is set to identity.  view is still
+    # configure correctly, and is the projection matrix
+
+    # no Need to push matrix here, as this is the last object that
+    # we are drawing, and upon the next iteration of the event loop,
+    # all 3 matricies will be reset to the identity
+    # draw paddle 2
+    glColor3f(paddle2.r, paddle2.g, paddle2.b)
+
+    ms.translate(
+        ms.MatrixStack.model,
+        paddle2.position[0],
+        paddle2.position[1],
+        0.0,
+    )
+    ms.rotate_z(ms.MatrixStack.model, paddle2.rotation)
+
+    glMatrixMode(GL_MODELVIEW)
+    # ascontiguousarray puts the array in column major order
+    glLoadMatrixf(np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T))
+    glBegin(GL_QUADS)
+    for model_space in paddle2.vertices:
+        glVertex3f(model_space[0], model_space[1], model_space[2])
+    glEnd()
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers
