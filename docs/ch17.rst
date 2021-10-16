@@ -1,0 +1,111 @@
+3D Perspective - Demo 17
+========================
+
+Purpose
+^^^^^^^
+
+Implement a perspective project so that objects
+further away are smaller than the would be
+if they were close by
+
+
+
+
+Move the Paddles using the Keyboard
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+==============  ==============================================
+Keyboard Input  Action
+==============  ==============================================
+*w*             Move Left Paddle Up
+*s*             Move Left Paddle Down
+*k*             Move Right Paddle Down
+*i*             Move Right Paddle Up
+
+*d*             Increase Left Paddle's Rotation
+*a*             Decrease Left Paddle's Rotation
+*l*             Increase Right Paddle's Rotation
+*j*             Decrease Right Paddle's Rotation
+
+*UP*            Move the camera up, moving the objects down
+*DOWN*          Move the camera down, moving the objects up
+*LEFT*          Move the camera left, moving the objects right
+*RIGHT*         Move the camera right, moving the objects left
+
+*q*             Rotate the square around it's center
+*e*             Rotate the square around paddle 1's center
+==============  ==============================================
+
+Description
+^^^^^^^^^^^
+
+
+::
+
+
+                      ------------------------------ far z
+                      \             |              /
+                       \            |             /
+                        \ (x,z) *   |            /
+                         \          |           /
+                          \         |          /
+                           \        |         /
+                            \       |        /
+                             \      |       /
+                              \     |      /
+                               ------------ near z
+                               \    |    /
+                                \   |   /
+                                 \  |  /
+                                  \ | /
+                                   \|/
+              ----------------------*-(0,0)-------------------
+
+        because right angle and tan(theta) = tan(theta)
+        x / z = projX / nearZ
+        projX = x / z * nearZ
+
+                               ----------- far z
+                               |          |
+                               |          |
+                (x / z * nearZ,z) *       |   non-linear -- the transformation of x depends on its z value
+                               |          |
+                               |          |
+                               |          |
+                               |          |
+                               |          |
+                               |          |
+                               |          |
+                               |          |
+                               ------------ near z
+                               \    |    /
+                                \   |   /
+                                 \  |  /
+                                  \ | /
+                                   \|/
+              ----------------------*-(0,0)-------------------
+
+
+
+
+.. literalinclude:: ../src/demo17/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 94
+   :lines: 94
+
+::
+
+   ...
+
+.. literalinclude:: ../src/demo17/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 148
+   :lines: 148-171
+
+.. literalinclude:: ../src/demo17/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 304
+   :lines: 304-361

@@ -18,12 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# PURPOSE
-#
-# Implement a perspective project so that objects
-# further away are smaller than the would be
-# if they were close by
-
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
@@ -47,10 +41,8 @@ if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
 
-# Install a key handler
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -72,7 +64,7 @@ glLoadIdentity()
 
 
 def draw_in_square_viewport() -> None:
-    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
@@ -80,22 +72,22 @@ def draw_in_square_viewport() -> None:
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),  # min x
-        int((height - min) / 2.0),  # min y
-        min,  # width x
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),  # min x
-        int(0.0 + (height - min) / 2.0),  # min y
-        min,  # width x
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
 
 @dataclass
@@ -104,7 +96,7 @@ class Vertex:
     y: float
     z: float
 
-    def translate(self: Vertex, tx: float, ty: float, tz: float):
+    def translate(self: Vertex, tx: float, ty: float, tz: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
 
     def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
@@ -159,48 +151,6 @@ class Vertex:
         # fov, field of view, is angle of y
         # aspectRatio is xwidth / ywidth
 
-        #              ------------------------------ far z
-        #              \             |              /
-        #               \            |             /
-        #                \ (x,z) *   |            /
-        #                 \          |           /
-        #                  \         |          /
-        #                   \        |         /
-        #                    \       |        /
-        #                     \      |       /
-        #                      \     |      /
-        #                       ------------ near z
-        #                       \    |    /
-        #                        \   |   /
-        #                         \  |  /
-        #                          \ | /
-        #                           \|/
-        #      ----------------------*-(0,0)-------------------
-
-        # because right angle and tan(theta) = tan(theta)
-        # x / z = projX / nearZ
-        # projX = x / z * nearZ
-
-        #                       ----------- far z
-        #                       |          |
-        #                       |          |
-        #        (x / z * nearZ,z) *       |   non-linear -- the transformation of x depends on its z value
-        #                       |          |
-        #                       |          |
-        #                       |          |
-        #                       |          |
-        #                       |          |
-        #                       |          |
-        #                       |          |
-        #                       |          |
-        #                       ------------ near z
-        #                       \    |    /
-        #                        \   |   /
-        #                         \  |  /
-        #                          \ | /
-        #                           \|/
-        #      ----------------------*-(0,0)-------------------
-
         top: float = -nearZ * math.tan(math.radians(fov) / 2.0)
         right: float = top * aspectRatio
 
@@ -215,7 +165,7 @@ class Vertex:
     def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
         return self.perspective(
             fov=45.0,
-            aspectRatio=1.0,  # since the viewport is always square
+            aspectRatio=1.0,
             nearZ=-0.1,
             farZ=-10000.0,
         )
@@ -330,29 +280,23 @@ def handle_inputs() -> None:
         paddle2.rotation -= 0.1
 
 
-TARGET_FRAMERATE: int = 60  # fps
+TARGET_FRAMERATE: int = 60
 
-# to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# Loop until the user closes the window
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-    # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # render scene
     draw_in_square_viewport()
     handle_inputs()
 
@@ -376,7 +320,7 @@ while not glfw.window_should_close(window):
 
     # draw square
 
-    glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
+    glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
         paddle_1_space: Vertex = (
@@ -416,8 +360,6 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 glfw.terminate()

@@ -9,6 +9,15 @@ of the right hand rule).  Positive z comes out of the monitor
 towards your face.
 
 
+Things that this demo purposefully does poorly.  Show the demo and
+it's failures.
+
+1) The blue square is always drawn, even
+when it's behind the purple paddle.  The solution will be
+zbuffering https://en.wikipedia.org/wiki/Z-buffering#Mathematics,
+and it is implemented in the next demo.
+
+
 
 
 Move the Paddles using the Keyboard
@@ -62,90 +71,89 @@ and it is implemented in the next demo.
    https://en.wikipedia.org/wiki/Right-hand_rule
 
 
+NEW - Rotations around an angle in 3D space follow the right hand rule
+
+With open palm, fingers on the x axis, rotating the fingers to y axis,
+means that the positive z axis is in the direction of the thumb.  Positive Theta
+moves in the direction that your fingers did.
+
+starting on the y axis, rotating to z axis, thumb is on the positive x axis.
+
+starting on the z axis, rotating to x axis, thumb is on the positive y axis.
 
 
-.. code:: Python
-   :number-lines:
+NEW - ortho takes an arbitrary rectangular prism, moves the center of it to NDC,
+and scales the dimensions down to NDC, so that any objects within the rectangular
+prism are visible within NDC.  Since this is a transformation that happens
+from camera space to NDC, we can read them from top down.
 
-     # NEW - 3 dimensions of data
-     class Vertex:
-         def __init__(self, x, y, z):
-             self.x = x
-             self.y = y
-             self.z = z
 
-         def translate(self, tx, ty, tz):
-             return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 90
+   :lines: 90-121
 
-         # NEW - Rotations around an angle in 3D space follow the right hand rule
-         #   With open palm, fingers on the x axis, rotating the fingers to y axis,
-         # means that the positive z axis is in the direction of the thumb.  Positive Theta
-         # moves in the direction that your fingers did.
 
-         # starting on the y axis, rotating to z axis, thumb is on the positive x axis.
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 134
+   :lines: 134-158
 
-         # starting on the z axis, rotating to x axis, thumb is on the positive y axis.
-
-         def rotate_x(self, angle_in_radians):
-             return Vertex(
-                 x=self.x,
-                 y=self.y * math.cos(angle_in_radians) - self.z * math.sin(angle_in_radians),
-                 z=self.y * math.sin(angle_in_radians) + self.z * math.cos(angle_in_radians),
-             )
-
-         def rotate_y(self, angle_in_radians):
-             return Vertex(
-                 x=self.z * math.sin(angle_in_radians) + self.x * math.cos(angle_in_radians),
-                 y=self.y,
-                 z=self.z * math.cos(angle_in_radians) - self.x * math.sin(angle_in_radians),
-             )
-
-         # NEW - this is the rotate that we used in the previous demo, but generarlized to 3D space.
-         def rotate_z(self, angle_in_radians):
-             return Vertex(
-                 x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-                 y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
-                 z=self.z,
-             )
-
-         def scale(self, scale_x, scale_y, scale_z):
-             return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 172
+   :lines: 172-177
 
 
 Event Loop
 ^^^^^^^^^^
 
 
-.. code:: Python
-   :number-lines:
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 230
+   :lines: 230
 
-         ...
-         # draw square
-         glColor3f(0.0, 0.0, 1.0)
-         glBegin(GL_QUADS)
-         for model_space in square:
-             paddle_1_space = (
-                 model_space.rotate_z(square_rotation)
-                 .translate(tx=20.0, ty=0.0, tz=0.0)
-                 .rotate_z(rotation_around_paddle1)
-                 .translate(tx=0.0, ty=0.0, tz=-10.0) # NEW - translating 10 units into the screen
-             )
-             # the square should not be visible when hidden behind the paddle1,
-             # as we did a translate by -10.
-             # this is because without depth buffering, the object drawn last
-             # clobbers the color of any previously drawn object at the pixel.
-             # Try moving the square drawing code to the beginning, and you will
-             # see that the square can be hidden behind the paddle.
-             world_space = (
-                 paddle_1_space.rotate_z(paddle1.rotation)
-                 .translate(
-                     tx=paddle1.initial_position.x, ty=paddle1.initial_position.y, tz=0.0
-                 )
-                 .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y, tz=0.0)
-             )
+::
 
-             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y, tz=0.0)
-             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0)
-             glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
-         glEnd()
-         ...
+    ...
+
+
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 248
+   :lines: 248-260
+
+the square should not be visible when hidden behind the paddle1,
+as we did a translate by -10.
+this is because without depth buffering, the object drawn last
+clobbers the color of any previously drawn object at the pixel.
+Try moving the square drawing code to the beginning, and you will
+see that the square can be hidden behind the paddle.
+
+
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 262
+   :lines: 262-282
+
+
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 284
+   :lines: 284-297
+
+
+Added translate in 3D.  Added scale in 3D.  These are just like
+the 2D versions, just with the same process applied to the z axis.
+
+They direction of the rotation is defined by the right hand rule.
+
+https://en.wikipedia.org/wiki/Right-hand_rule

@@ -271,16 +271,8 @@ while not glfw.window_should_close(window):
             model_space.rotate_z(square_rotation)
             .translate(tx=20.0, ty=0.0, tz=0.0)
             .rotate_z(rotation_around_paddle1)
-            .translate(
-                tx=0.0, ty=0.0, tz=-10.0
-            )  # NEW - translating 10 units into the screen
+            .translate(tx=0.0, ty=0.0, tz=-10.0)
         )
-        # the square should not be visible when hidden behind the paddle1,
-        # as we did a translate by -10.
-        # this is because without depth buffering, the object drawn last
-        # clobbers the color of any previously drawn object at the pixel.
-        # Try moving the square drawing code to the beginning, and you will
-        # see that the square can be hidden behind the paddle.
         world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation).translate(
             tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
         )
@@ -307,8 +299,6 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 glfw.terminate()
