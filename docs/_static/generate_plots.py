@@ -33,6 +33,20 @@ if __name__ != "__main__":
     sys.exit(0)
 
 
+# without this function, accumulate_transformation
+# would have an error in it, because of scope in a nested
+# function being retained.  I should figure out what is actually
+# happening there.
+def python_scoping_is_dumb(r, procedures):
+    def foo(x, y):
+        result_x, result_y = x, y
+        for current_fn_index in r:
+            result_x, result_y = procedures[current_fn_index](result_x, result_y)
+        return result_x, result_y
+
+    return foo
+
+
 # TODO, generalize to any number of dimensions
 def accumulate_transformation(procedures, backwards=False):
     """Given a pipeline of functions, provide all intermediate results via a function.
@@ -61,31 +75,17 @@ def accumulate_transformation(procedures, backwards=False):
             x + 1 for x in range(len(procedures))
         ]:
 
-            def process(x, y):
-                result_x, result_y = x, y
-                for current_fn_index in range(number_of_fns_to_apply_this_round):
-                    result_x, result_y = procedures[current_fn_index](
-                        result_x, result_y
-                    )
-                return result_x, result_y
-
-            yield process, True if number_of_fns_to_apply_this_round == len(
-                procedures
-            ) else False
+            yield python_scoping_is_dumb(
+                range(number_of_fns_to_apply_this_round), procedures
+            ), True if number_of_fns_to_apply_this_round == len(procedures) else False
     else:
         reversed_procs = list(range(len(procedures)))
         reversed_procs.reverse()
         for proc_index in reversed_procs:
 
-            def process(x, y):
-                result_x, result_y = x, y
-                for current_fn_index in range(proc_index, len(procedures)):
-                    result_x, result_y = procedures[current_fn_index](
-                        result_x, result_y
-                    )
-                return result_x, result_y
-
-            yield process, True if proc_index == 0 else False
+            yield python_scoping_is_dumb(
+                range(proc_index, len(procedures)), procedures
+            ), True if proc_index == 0 else False
 
 
 import doctest
@@ -162,72 +162,92 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
         procs.append(idProc)
 
     # create a single frame of the animated gif
-    def create_single_frame(fn, isLast, frame_number):
-        fig, axes = plt.subplots()
-        axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
-        axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
+    def create_single_frame(accumfn, isLast, fn, frame_number):
 
-        # plot transformed basis
-        for xs, ys, thickness in generategridlines.generategridlines(
-            graph_bounds, interval=5
-        ):
-            transformed_xs, transformed_ys = fn(xs, ys) if backwards else (xs, ys)
-            plt.plot(
-                transformed_xs,
-                transformed_ys,
-                "-",
-                lw=thickness,
-                color=(0.1, 0.2, 0.5, 0.3),
-            )
+        for round_number in [1] if backwards else [1, 2]:
+            fig, axes = plt.subplots()
+            axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
+            axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
-        if backwards:
+            # plot transformed basis
+            for xs, ys, thickness in generategridlines.generategridlines(
+                graph_bounds, interval=5
+            ):
+                if backwards:
+                    transformed_xs, transformed_ys = accumfn(xs, ys)
+                elif round_number == 1 and frame_number != 1:
+                    transformed_xs, transformed_ys = fn(xs, ys)
+                else:
+                    transformed_xs, transformed_ys = xs, ys
+                plt.plot(
+                    transformed_xs,
+                    transformed_ys,
+                    "-",
+                    lw=thickness,
+                    color=(0.1, 0.2, 0.5, 0.3),
+                )
+
             # x axis
-            transformed_xs, transformed_ys = fn([0.0, 10.0], [0.0, 0.0])
+            if backwards:
+                transformed_xs, transformed_ys = accumfn([0.0, 10.0], [0.0, 0.0])
+            elif round_number == 1 and frame_number != 1:
+                transformed_xs, transformed_ys = fn([0.0, 10.0], [0.0, 0.0])
+            else:
+                transformed_xs, transformed_ys = [0.0, 10.0], [0.0, 0.0]
             plt.plot(
                 transformed_xs, transformed_ys, "-", lw=4.0, color=(0.0, 0.0, 1.0, 1.0)
             )
 
             # y axis
-            transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, 10.0])
+            if backwards:
+                transformed_xs, transformed_ys = accumfn([0.0, 0.0], [0.0, 10.0])
+            elif round_number == 1 and frame_number != 1:
+                transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, 10.0])
+            else:
+                transformed_xs, transformed_ys = [0.0, 0.0], [0.0, 10.0]
             plt.plot(
                 transformed_xs, transformed_ys, "-", lw=4.0, color=(1.0, 0.0, 1.0, 1.0)
             )
 
-        if backwards or isLast:
-            plotCharacter = "-"
-        else:
-            plotCharacter = "."
-        # plot the points
-        transformed_xs, transformed_ys = fn(*geometry.points)
-        plt.title(str.format("{}\nStep {}", title, str(frame_number)))
-        if (backwards and isLast) or not backwards:
-            plt.plot(
-                transformed_xs,
-                transformed_ys,
-                plotCharacter,
-                lw=2,
-                color=geometry.color,
-            )
+            if backwards or isLast:
+                plotCharacter = "-"
+            else:
+                plotCharacter = "."
+            # plot the points
+            transformed_xs, transformed_ys = accumfn(*geometry.points)
+            plt.title(str.format("{}\nStep {}", title, str(frame_number)))
+            if (backwards and isLast) or not backwards:
+                plt.plot(
+                    transformed_xs,
+                    transformed_ys,
+                    plotCharacter,
+                    lw=2,
+                    color=geometry.color,
+                )
 
-        # make sure the x and y axis are equally proportional in screen space
-        plt.gca().set_aspect("equal", adjustable="box")
-        fig.canvas.draw()
-        image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
-        image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
-        plt.close(fig)
+            # make sure the x and y axis are equally proportional in screen space
+            plt.gca().set_aspect("equal", adjustable="box")
+            fig.canvas.draw()
+            image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
+            image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+            plt.close(fig)
 
-        return image
+            yield image
 
     # create a single frame
     animated_images_list = [
-        create_single_frame(fn, isLast, frame_number)
-        for (fn, isLast), frame_number in zip(
-            accumulate_transformation(procs, backwards), itertools.count(start=1)
+        create_single_frame(accumfn, isLast, fn, frame_number)
+        for (accumfn, isLast), fn, frame_number in zip(
+            accumulate_transformation(procs, backwards),
+            [procs[0], *procs],
+            itertools.count(start=1),
         )
     ]
 
+    flattened_animated_images_list = list(itertools.chain(*animated_images_list))
+
     kwargs_write = {"fps": 1.0, "quantizer": "nq"}
-    imageio.mimsave("./" + filename + ".gif", animated_images_list, fps=1)
+    imageio.mimsave("./" + filename + ".gif", flattened_animated_images_list, fps=1)
 
 
 create_graphs(
@@ -280,7 +300,6 @@ create_graphs(
         mplt.scale(0.2, 0.5),
     ],
 )
-
 
 
 create_graphs(
