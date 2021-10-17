@@ -12,13 +12,30 @@ Terminology
 
 The device attached to a computer which displays information to the user is called a *monitor*.
 
+
+.. figure:: _static/ccbysa3.0/wikipedia-Yaohua2000/1280px-20020811203148_-_NOI_2002.jpg
+    :align: center
+    :alt: Picture of Monitor
+    :figclass: align-center
+
+    Computer Monitor
+
+
 The monitor is composed of a two-dimensional array of light-emitting elements, each called a *pixel*.
+
+
+.. figure:: _static/ccbysa3.0/wikipedia-Kprateek88/Closeup_of_pixels.JPG
+    :align: center
+    :alt: Picture of Pixel
+    :figclass: align-center
+
+    Pixels
 
 At a given time, each individual pixel is instructed by the computer to display
 one specific color, represented within the computer as a number.
 The aggregate of the colors at each pixel at one moment in time, called a *frame*,
 provides a picture that has some meaning to the human user.
-# In OpenGL, the bottom left pixel of a window is coordinate (0,0).  The top right is (window_width,window_height)
+In OpenGL, the bottom left pixel of a window is coordinate (0,0).  The top right is (window_width,window_height)
 
 
 .. figure:: _static/monitor.png
@@ -43,6 +60,14 @@ Frames are created within the computer and sent to the monitor
 at a rate over time, called the *framerate*,
 measured in *Hertz*.  By updating frames quickly and at a constant rate, the computer
 provides the end-user with the illusion of motion.
+
+.. figure:: _static/ccbysa2.5/wikipedia-Janke/Animhorse.gif
+    :align: center
+    :alt: Motion
+    :figclass: align-center
+
+    14 Hertz Motion
+
 
 
 Code
@@ -97,15 +122,14 @@ Import Python modules, which are Python programmer's main form of libraries.
   without the OpenGL.GL prefix
 
 
-
-But we will not need the module's prefix to call
-the functions.  I did this for uniformity
-with the C++ code in the Superbible book.
-
 .. code:: Python
    :number-lines:
 
-   import glfw  # the windowing library
+   import glfw
+
+* GLFW is a library which allows us to create windows, get keyboard and
+  mouse input, on Linux, Windows, and MacOS
+
 
 
 On a Python prompt, you can use tab-complete to see which functions
@@ -120,6 +144,14 @@ Opening A Window
 Desktop operating systems allow the user to run more than one
 program at a time, where each program draws into a subsection of
 the monitor called a window.
+
+
+.. figure:: _static/ccbysa3.0/wikipedia-Shmuel\ Csaba\ Otto\ Traian/1920px-Window_(windowing_system).svg.png
+    :align: center
+    :alt: Window
+    :figclass: align-center
+
+    Window
 
 
 To create and to open a window in a cross-platform manner, this
