@@ -408,13 +408,13 @@ while not glfw.window_should_close(window):
                 paddle2.position[1] * min(1.0, (animation_time - 40.0) / 5.0),
                 0.0,
             )
-        if animation_time > 50.0:
+        if animation_time > 45.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                paddle2.rotation * min(1.0, (animation_time - 50.0) / 5.0),
+                paddle2.rotation * min(1.0, (animation_time - 45.0) / 5.0),
             )
 
-        if animation_time > 40.0 and animation_time < 55.0:
+        if animation_time > 40.0 and animation_time < 50.0:
             draw_axises()
 
         glColor3f(paddle2.r, paddle2.g, paddle2.b)
