@@ -21,7 +21,8 @@ The device attached to a computer which displays information to the user is call
     Computer Monitor
 
 
-The monitor is composed of a two-dimensional array of light-emitting elements, each called a *pixel*.
+The monitor is composed of a two-dimensional array of light-emitting elements, each called a *pixel*, typically
+composed of 3 components, red, green, and blue.
 
 
 .. figure:: _static/ccbysa3.0/wikipedia-Kprateek88/Closeup_of_pixels.JPG
@@ -61,12 +62,51 @@ at a rate over time, called the *framerate*,
 measured in *Hertz*.  By updating frames quickly and at a constant rate, the computer
 provides the end-user with the illusion of motion.
 
+
+
 .. figure:: _static/ccbysa2.5/wikipedia-Janke/Animhorse.gif
     :align: center
     :alt: Motion
     :figclass: align-center
 
     14 Hertz Motion
+
+
+.. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-0.png
+    :align: center
+    :alt: Motion
+    :figclass: align-center
+
+
+.. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-1.png
+    :align: center
+    :alt: Motion
+    :figclass: align-center
+
+.. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-2.png
+    :align: center
+    :alt: Motion
+    :figclass: align-center
+
+.. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-3.png
+    :align: center
+    :alt: Motion
+    :figclass: align-center
+
+.. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-4.png
+    :align: center
+    :alt: Motion
+    :figclass: align-center
+
+.. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-5.png
+    :align: center
+    :alt: Motion
+    :figclass: align-center
+
+.. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-6.png
+    :align: center
+    :alt: Motion
+    :figclass: align-center
 
 
 

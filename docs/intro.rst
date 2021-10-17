@@ -1,23 +1,9 @@
 Introduction
 ============
 
-Learn how to build 3D graphics using math you already know.
-This codebase demonstrates how to create objects, put
-them where you want them to go, view the scene with a camera
-that can move, and how to project that 3D data to a 2D screen.
+Learn how to program in 3D computer graphics in Python!
 
 
-For further information, such as lighting, shadows, and
-OpenGL in more explicit detail, consult
-
-#. OpenGL redbook/bluebook. (OpenGL superbible v4, because it covers fixed function and shaders)
-#. Mathematics for 3D Game Programming and Computer Graphics
-#. Computer Graphics: Principles and Practice in C (2nd Edition)
-
-For RayTracing
-
-#. Physically Based Rendering
-#. Ray Tracing from the Ground Up
 
 
 Approach
@@ -46,12 +32,41 @@ Although this book fills a huge gap that other books do not address,
 those other books are excellent reference books for advanced topics.
 
 
+Pre-requisities
+^^^^^^^^^^^^^^^
+
+#. Basic programming concepts in Python.
+
+   #. YouTube videos
+
+      #. Learn Python with Socratica_
+      #. Microsoft_ Python Tutorials
+
+   #. Books
+
+      #. https://en.wikibooks.org/wiki/A_Beginner%27s_Python_Tutorial
+      #. https://learnbyexample.github.io/100_page_python_intro/preface.html
+      #. https://diveintopython3.problemsolving.io/
+
+#. High school trigonometry
+
+#. Linear Algebra (optional)
+
+   #. 3Blue1Brown - Linear Transformations_
+   #. 3Blue1Brown - Matrix Multiplication as Composition_
+
+.. _Socratica: https://www.youtube.com/watch?v=bY6m6_IIN94&list=PLi01XoE8jYohWFPpC17Z-wWhPOSuh8Er-&index=2
+.. _Microsoft: https://www.youtube.com/watch?v=jFCNu1-Xdsw&list=PLlrxD0HtieHhS8VzuMCfQD4uJ9yne1mE6
+.. _Transformations: https://www.youtube.com/watch?v=kYB8IZa5AuE
+.. _Composition: https://www.youtube.com/watch?v=XkY2DOUCWMU
 
 Required Software
 ^^^^^^^^^^^^^^^^^
 
+You will need to install Python.  https://en.wikibooks.org/wiki/A_Beginner%27s_Python_Tutorial/Installing_Python
+
 Before running this code, you need a virtual environment,
-with dependencies installed.
+with dependencies installed. https://docs.python.org/3/tutorial/venv.html
 
 On Windows, if you use the Developer command prompt, run
 
