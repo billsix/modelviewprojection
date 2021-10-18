@@ -288,7 +288,7 @@ create_graphs(
 )
 
 create_graphs(
-    title="Rotation Relative to Origin",
+    title="Rotation Relative to NDC",
     filename="rotate0",
     geometry=paddle1,
     procedures=[
@@ -298,7 +298,7 @@ create_graphs(
 
 
 create_graphs(
-    title="Scale Relative to Origin",
+    title="Scale Relative to NDC",
     filename="scale",
     geometry=paddle1,
     procedures=[
@@ -308,7 +308,7 @@ create_graphs(
 
 
 create_graphs(
-    title="Rotation, Relative to Global Space",
+    title="Rotation, Relative to NDC",
     filename="rotate1-forwards",
     geometry=paddle1,
     procedures=[
@@ -316,6 +316,29 @@ create_graphs(
         mplt.translate(-90.0, 20.0),
     ],
 )
+
+create_graphs(
+    title="Incorrect Rotation, Relative to NDC",
+    filename="incorrectrotate-forwards",
+    geometry=paddle1,
+    procedures=[
+        mplt.translate(-90.0, 20.0),
+        mplt.rotate(math.radians(45.0)),
+    ],
+)
+
+create_graphs(
+    title="Incorrect Rotation, Relative to Local Space",
+    filename="incorrectrotate-backwards",
+    geometry=paddle1,
+    procedures=[
+        mplt.translate(-90.0, 20.0),
+        mplt.rotate(math.radians(45.0)),
+    ],
+    backwards=True,
+)
+
+
 
 create_graphs(
     title="Rotation, Relative to Local Space",
@@ -330,7 +353,7 @@ create_graphs(
 
 
 create_graphs(
-    title="Rotation, Global Space",
+    title="Rotation, Relative to NDC",
     filename="rotate2-forwards",
     geometry=paddle2,
     procedures=[mplt.rotate(math.radians(-10.0)), mplt.translate(90.0, -40.0)],
@@ -378,7 +401,7 @@ create_graphs(
 )
 
 create_graphs(
-    title="Covariance, Relative to Global Space",
+    title="Covariance, Relative to NDC",
     filename="covariance-forwards",
     geometry=square,
     procedures=[
@@ -407,7 +430,7 @@ create_graphs(
 )
 
 create_graphs(
-    title="Circle, Relative to Global Space",
+    title="Circle, Relative to NDC",
     filename="circle-forwards",
     geometry=circle,
     procedures=[
