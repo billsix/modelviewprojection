@@ -34,22 +34,9 @@ if __name__ != "__main__":
     sys.exit(0)
 
 matplotlib.use('agg')
-    
-# without this function, accumulate_transformation
-# would have an error in it, because of scope in a nested
-# function being retained.  I should figure out what is actually
-# happening there.
-def python_scoping_is_dumb(r, procedures):
-    def foo(x, y):
-        result_x, result_y = x, y
-        for current_fn_index in r:
-            result_x, result_y = procedures[current_fn_index](result_x, result_y)
-        return result_x, result_y
-
-    return foo
 
 
-    
+
 # TODO, generalize to any number of dimensions
 def accumulate_transformation(procedures, backwards=False):
     """Given a pipeline of functions, provide all intermediate results via a function.
@@ -66,7 +53,22 @@ def accumulate_transformation(procedures, backwards=False):
     >>> f3, isLast = next(f)
     >>> f3((1, 2, 3), (4, 5, 6))
     ((6, 7, 8), (14, 15, 16))
+    >>> f1((1, 2, 3), (4, 5, 6))
+    ((1, 2, 3), (4, 5, 6))
     """
+    # without this function, accumulate_transformation
+    # would have an error in it, because of scope in a nested
+    # function being retained.  I should figure out what is actually
+    # happening there.
+    def python_scoping_is_dumb(r, procedures):
+        def foo(x, y):
+            result_x, result_y = x, y
+            for current_fn_index in r:
+                result_x, result_y = procedures[current_fn_index](result_x, result_y)
+            return result_x, result_y
+
+        return foo
+
 
     def id(x, y):
         return x, y
@@ -300,7 +302,7 @@ create_graphs(
     filename="scale",
     geometry=paddle1,
     procedures=[
-        mplt.scale(0.2, 0.5),
+        mplt.scale(2.0, 2.0),
     ],
 )
 
