@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import math
 import sys
@@ -32,7 +33,8 @@ from collections import namedtuple
 if __name__ != "__main__":
     sys.exit(0)
 
-
+matplotlib.use('agg')
+    
 # without this function, accumulate_transformation
 # would have an error in it, because of scope in a nested
 # function being retained.  I should figure out what is actually
@@ -47,6 +49,7 @@ def python_scoping_is_dumb(r, procedures):
     return foo
 
 
+    
 # TODO, generalize to any number of dimensions
 def accumulate_transformation(procedures, backwards=False):
     """Given a pipeline of functions, provide all intermediate results via a function.
