@@ -43,6 +43,7 @@ if not window:
 
 glfw.make_context_current(window)
 
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -237,7 +238,6 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         camera.x += move_multiple * math.sin(camera.rot_y)
         camera.z += move_multiple * math.cos(camera.rot_y)
-
 
     global paddle1, paddle2
 

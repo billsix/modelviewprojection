@@ -43,6 +43,7 @@ if not window:
 
 glfw.make_context_current(window)
 
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)

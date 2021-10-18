@@ -19,6 +19,7 @@
 # SOFTWARE.
 
 import numpy as np
+import matplotlib
 import matplotlib.pyplot as plt
 import math
 import sys
@@ -26,6 +27,9 @@ import itertools
 
 import generategridlines
 import mpltransformations as mplt
+
+
+matplotlib.use('TkAgg')
 
 N = 50
 x = np.random.rand(N) * 10
@@ -61,9 +65,9 @@ if __name__ == "__main__":
         transformedXs, transformedYs = list(
             mplt.translate(
                 2,
-                2,
+                2)(
                 *mplt.scale(
-                    math.sqrt(8), math.sqrt(8), *mplt.rotate(math.radians(45.0), xs, ys)
+                    math.sqrt(8), math.sqrt(8))( *mplt.rotate(math.radians(45.0))( xs, ys)
                 )
             )
         )
