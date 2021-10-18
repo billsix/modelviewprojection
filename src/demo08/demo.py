@@ -197,7 +197,7 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    rotatePoint = Vertex(0.0, 0.0).translate(tx=paddle1.position.x, ty=paddle1.position.y)
+    rotatePoint: Vertex = Vertex(0.0, 0.0).translate(tx=paddle1.position.x, ty=paddle1.position.y)
     for model_space in paddle1.vertices:
         world_space: Vertex = model_space.translate(tx=paddle1.position.x, ty=paddle1.position.y)
         world_space: Vertex = world_space.rotate_around(paddle1.rotation, rotatePoint)
@@ -209,7 +209,7 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    rotatePoint = Vertex(0.0, 0.0).translate(tx=paddle2.position.x, ty=paddle2.position.y)
+    rotatePoint: Vertex = Vertex(0.0, 0.0).translate(tx=paddle2.position.x, ty=paddle2.position.y)
     for model_space in paddle2.vertices:
         world_space: Vertex = model_space.translate(tx=paddle2.position.x, ty=paddle2.position.y)
         world_space: Vertex = world_space.rotate_around(paddle2.rotation, rotatePoint)

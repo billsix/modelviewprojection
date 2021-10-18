@@ -81,7 +81,7 @@ Code
    :language: python
    :linenos:
    :lineno-start: 90
-   :lines: 90-114
+   :lines: 90-111
 
 
 The Event Loop
@@ -93,8 +93,8 @@ The Event Loop
 .. literalinclude:: ../src/demo08/demo.py
    :language: python
    :linenos:
-   :lineno-start: 181
-   :lines: 181
+   :lineno-start: 179
+   :lines: 179
 
 ::
 
@@ -104,8 +104,8 @@ The Event Loop
 .. literalinclude:: ../src/demo08/demo.py
    :language: python
    :linenos:
-   :lineno-start: 198
-   :lines: 198-212
+   :lineno-start: 197
+   :lines: 197-206
 
 
 ::
@@ -116,8 +116,8 @@ The Event Loop
 .. literalinclude:: ../src/demo08/demo.py
    :language: python
    :linenos:
-   :lineno-start: 214
-   :lines: 214-230
+   :lineno-start: 209
+   :lines: 209-218
 
 Math
 ^^^^

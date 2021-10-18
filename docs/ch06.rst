@@ -287,21 +287,3 @@ The Event Loop
 ::
 
     ...
-
-Why it's Wrong
-^^^^^^^^^^^^^^
-
-.. figure:: _static/incorrectrotate-forwards.gif
-    :align: center
-    :alt:
-    :figclass: align-center
-
-    Not what we wanted
-
-
-.. figure:: _static/incorrectrotate-backwards.gif
-    :align: center
-    :alt:
-    :figclass: align-center
-
-    Not what we wanted

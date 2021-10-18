@@ -88,5 +88,18 @@ Event Loop
 .. literalinclude:: ../src/demo12/demo.py
    :language: python
    :linenos:
-   :lineno-start: 239
-   :lines: 239-251
+   :lineno-start: 226
+   :lines: 226-235
+
+
+.. literalinclude:: ../src/demo12/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 237
+   :lines: 237-247
+
+.. literalinclude:: ../src/demo12/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 249
+   :lines: 249-258

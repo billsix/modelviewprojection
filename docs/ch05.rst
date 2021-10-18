@@ -111,10 +111,10 @@ TODO -- put in Cayley graph here and explain
    :language: python
    :linenos:
    :lineno-start: 150
-   :lines: 150-169
+   :lines: 150-166
 
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 170
-   :lines: 170-182
+   :lineno-start: 168
+   :lines: 168-182

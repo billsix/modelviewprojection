@@ -127,7 +127,7 @@ Event Loop
    :language: python
    :linenos:
    :lineno-start: 248
-   :lines: 248-260
+   :lines: 248-258
 
 the square should not be visible when hidden behind the paddle1,
 as we did a translate by -10.
@@ -140,15 +140,15 @@ see that the square can be hidden behind the paddle.
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 262
-   :lines: 262-282
+   :lineno-start: 260
+   :lines: 260-275
 
 
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 284
-   :lines: 284-297
+   :lineno-start: 277
+   :lines: 277-288
 
 
 Added translate in 3D.  Added scale in 3D.  These are just like

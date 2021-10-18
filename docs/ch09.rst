@@ -164,8 +164,8 @@ The Event Loop
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
    :linenos:
-   :lineno-start: 190
-   :lines: 190-201
+   :lineno-start: 191
+   :lines: 191-199
 
 ::
 
@@ -174,5 +174,5 @@ The Event Loop
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
    :linenos:
-   :lineno-start: 203
-   :lines: 203-214
+   :lineno-start: 204
+   :lines: 204-210

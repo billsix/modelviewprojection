@@ -75,5 +75,17 @@ Event Loop
 .. literalinclude:: ../src/demo13/demo.py
    :language: python
    :linenos:
-   :lineno-start: 244
-   :lines: 244-258
+   :lineno-start: 231
+   :lines: 231-240
+
+.. literalinclude:: ../src/demo13/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 242
+   :lines: 242-253
+
+.. literalinclude:: ../src/demo13/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 255
+   :lines: 255-264
