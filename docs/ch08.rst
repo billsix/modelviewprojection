@@ -11,6 +11,22 @@ Lesson learned by end of Demo 08.  Read function composition from left
 to right, instead of from right to left.
 
 
+.. figure:: _static/rotate-sloppy-forwards.gif
+    :align: center
+    :alt:
+    :figclass: align-center
+
+    Works but sloppy
+
+.. figure:: _static/rotate-sloppy-backwards.gif
+    :align: center
+    :alt:
+    :figclass: align-center
+
+    Works but sloppy
+
+
+
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

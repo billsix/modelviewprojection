@@ -339,6 +339,34 @@ create_graphs(
 )
 
 
+create_graphs(
+    title="Correct but Sloppy Rotation, Relative to Local Space",
+    filename="rotate-sloppy-backwards",
+    geometry=paddle1,
+    procedures=[
+        mplt.translate(-90.0, 20.0),
+        mplt.translate(90.0, -20.0),
+        mplt.rotate(math.radians(45.0)),
+        mplt.translate(-90.0, 20.0),
+    ],
+    backwards=True,
+)
+
+create_graphs(
+    title="Correct but Sloppy Rotation, Relative to NDC",
+    filename="rotate-sloppy-forwards",
+    geometry=paddle1,
+    procedures=[
+        mplt.translate(-90.0, 20.0),
+        mplt.translate(90.0, -20.0),
+        mplt.rotate(math.radians(45.0)),
+        mplt.translate(-90.0, 20.0),
+    ],
+)
+
+
+
+
 
 create_graphs(
     title="Rotation, Relative to Local Space",
