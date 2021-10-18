@@ -253,7 +253,8 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
 
     kwargs_write = {"fps": 1.0, "quantizer": "nq"}
     imageio.mimsave("./" + filename + ".gif", flattened_animated_images_list, fps=1)
-
+    for number, image in enumerate(flattened_animated_images_list):
+        imageio.imsave("./" + filename + "-" + str(number) + ".png", image)
 
 create_graphs(
     title="Translation",
