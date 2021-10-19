@@ -7,6 +7,12 @@ Fix the issue from the last demo, in which the square
 was drawn over Paddle 1, even though the square
 is further away from the camera.
 
+.. figure:: _static/screenshots/demo15.png
+    :align: center
+    :alt: Demo 15
+    :figclass: align-center
+
+    Demo 15
 
 
 Move the Paddles using the Keyboard

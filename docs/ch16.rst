@@ -19,6 +19,12 @@ This doesn't look like a 3D application should, where further away
 objects are smaller.  This will be fixed in demo17
 
 
+.. figure:: _static/screenshots/demo16.png
+    :align: center
+    :alt: Demo 16
+    :figclass: align-center
+
+    Demo 16
 
 
 Move the Paddles using the Keyboard

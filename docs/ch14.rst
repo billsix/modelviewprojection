@@ -18,6 +18,28 @@ zbuffering https://en.wikipedia.org/wiki/Z-buffering#Mathematics,
 and it is implemented in the next demo.
 
 
+.. figure:: _static/screenshots/demo14.png
+    :align: center
+    :alt: Demo 14
+    :figclass: align-center
+
+    Demo 14
+
+
+.. figure:: _static/screenshots/camera1.png
+    :align: center
+    :alt: Camera Space
+    :figclass: align-center
+
+    Camera Space
+
+.. figure:: _static/screenshots/camera2.png
+    :align: center
+    :alt: Camera Space
+    :figclass: align-center
+
+    Camera Space
+
 
 
 Move the Paddles using the Keyboard

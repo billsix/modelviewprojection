@@ -8,6 +8,12 @@ Demonstrate having a camera space, and how to think about the transformations
 differently.
 
 
+.. figure:: _static/screenshots/demo10.png
+    :align: center
+    :alt: Demo 10
+    :figclass: align-center
+
+    Demo 10
 
 
 Move the Paddles using the Keyboard

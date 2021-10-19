@@ -11,6 +11,12 @@ When the paddle on the left moves or rotates, the blue square
 moves with it, because it is defined relative to it.
 
 
+.. figure:: _static/screenshots/demo11.png
+    :align: center
+    :alt: Demo 11
+    :figclass: align-center
+
+    Demo 11
 
 
 Move the Paddles using the Keyboard
@@ -50,6 +56,15 @@ Cayley Graph
     :figclass: align-center
 
     Demo 11
+
+.. figure:: _static/screenshots/coordinateframes.png
+    :align: center
+    :alt: Coordinate Frames
+    :figclass: align-center
+
+    Coordinate Frames
+
+
 
 Things to note.
 

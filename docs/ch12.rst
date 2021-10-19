@@ -8,6 +8,12 @@ world space transformations should make this straightforward.
 Try reading them from the top down.  Does in make sense that way?
 
 
+.. figure:: _static/screenshots/demo12.png
+    :align: center
+    :alt: Demo 12
+    :figclass: align-center
+
+    Demo 12
 
 
 Move the Paddles using the Keyboard
