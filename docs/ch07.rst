@@ -10,6 +10,13 @@ a sequence of transformations.  This demo does not
 work correctly, because of a misunderstanding
 of how rotations work.
 
+.. figure:: _static/screenshots/demo07.png
+    :align: center
+    :alt: Demo 07
+    :figclass: align-center
+
+    Demo 07
+
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

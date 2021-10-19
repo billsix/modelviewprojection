@@ -8,6 +8,13 @@ Make the rotations work correctly by thinking about the problem
 more clearly.
 
 
+.. figure:: _static/screenshots/demo09.png
+    :align: center
+    :alt: Demo 09
+    :figclass: align-center
+
+    Demo 09
+
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

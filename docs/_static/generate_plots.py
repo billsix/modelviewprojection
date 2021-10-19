@@ -324,7 +324,7 @@ create_graphs(
     geometry=paddle1,
     procedures=[
         mplt.translate(-90.0, 20.0),
-        mplt.rotate(math.radians(45.0)),
+        mplt.rotate(math.radians(65.0)),
     ],
 )
 
@@ -334,7 +334,7 @@ create_graphs(
     geometry=paddle1,
     procedures=[
         mplt.translate(-90.0, 20.0),
-        mplt.rotate(math.radians(45.0)),
+        mplt.rotate(math.radians(65.0)),
     ],
     backwards=True,
 )

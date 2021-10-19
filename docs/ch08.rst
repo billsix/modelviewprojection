@@ -10,6 +10,14 @@ way, but do it inelegantly.
 Lesson learned by end of Demo 08.  Read function composition from left
 to right, instead of from right to left.
 
+.. figure:: _static/screenshots/demo08.png
+    :align: center
+    :alt: Demo 08
+    :figclass: align-center
+
+    Demo 08
+
+
 
 .. figure:: _static/rotate-sloppy-forwards.gif
     :align: center

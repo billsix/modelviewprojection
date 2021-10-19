@@ -7,6 +7,13 @@ Purpose
 
 Learn how to plot a rectangle.  Learn about OpenGL's coordinate system.
 
+.. figure:: _static/screenshots/demo02.png
+    :align: center
+    :alt: Demo 02
+    :figclass: align-center
+
+    Demo 02
+
 
 Code
 ^^^^

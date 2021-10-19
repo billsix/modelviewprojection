@@ -7,6 +7,14 @@ Purpose
 Learn how to open a window, make a black screen, and close
 the window.
 
+.. figure:: _static/screenshots/demo01.png
+    :align: center
+    :alt: Demo 01
+    :figclass: align-center
+
+    Demo 01
+
+
 Terminology
 ^^^^^^^^^^^
 

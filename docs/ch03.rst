@@ -7,6 +7,12 @@ Problem With Previous Demo
 Run Demo 2 again, but resize the window; first make it skinny,
 and then wide.  Look at what happens to the rectangles.
 
+.. figure:: _static/screenshots/demo03.png
+    :align: center
+    :alt: Demo 03
+    :figclass: align-center
+
+    Demo 03
 
 Purpose
 ^^^^^^^

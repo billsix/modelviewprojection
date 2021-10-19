@@ -11,6 +11,12 @@ Transforming vertices, such as translating, is the core concept
 of computer graphics.
 
 
+.. figure:: _static/screenshots/demo05.png
+    :align: center
+    :alt: Demo 05
+    :figclass: align-center
+
+    Demo 05
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

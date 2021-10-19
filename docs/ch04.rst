@@ -7,6 +7,13 @@ Purpose
 
 Add movement to the paddles using keyboard input.
 
+.. figure:: _static/screenshots/demo04.png
+    :align: center
+    :alt: Demo 01
+    :figclass: align-center
+
+    Demo 04
+
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
