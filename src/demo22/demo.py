@@ -66,10 +66,7 @@ if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
-
-# Install a key handler
 
 
 def on_exit():

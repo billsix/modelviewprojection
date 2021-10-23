@@ -1,0 +1,251 @@
+Matrix Stacks - Demo 19
+=======================
+
+Purpose
+^^^^^^^
+
+Replace lambda stacks with matrix stacks.  This is how preshader
+opengl worked (well, they provided matrix operations, but I replaced
+them with my own to make the matrix operations transparent).
+
+The concepts behind the function stack, in which the first function
+added to the stack is the last function applied, hold true for
+matricies as well.  But matricies are a much more efficient
+representation computationally than the function stack,
+and instead of adding fns and later having to remove them,
+we can save onto the current frame of reference with a "glPushStack",
+and restore the saved state by "glPopStack"
+
+Use glPushMatrix and glPopMatrix to save/restore a local coordinate
+system, that way a tree of objects can be drawn without one child
+destroying the relative coordinate system of the parent node.
+
+In mvpVisualization/demoViewWorldTopLevel.py, the grayed out
+coordinate system is one thas has been pushed onto the stack,
+and it regains it's color when it is reactivated by "glPopMatrix"
+
+
+
+
+
+
+Move the Paddles using the Keyboard
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+==============  ==============================================
+Keyboard Input  Action
+==============  ==============================================
+*w*             Move Left Paddle Up
+*s*             Move Left Paddle Down
+*k*             Move Right Paddle Down
+*i*             Move Right Paddle Up
+
+*d*             Increase Left Paddle's Rotation
+*a*             Decrease Left Paddle's Rotation
+*l*             Increase Right Paddle's Rotation
+*j*             Decrease Right Paddle's Rotation
+
+*UP*            Move the camera up, moving the objects down
+*DOWN*          Move the camera down, moving the objects up
+*LEFT*          Move the camera left, moving the objects right
+*RIGHT*         Move the camera right, moving the objects left
+
+*q*             Rotate the square around it's center
+*e*             Rotate the square around paddle 1's center
+==============  ==============================================
+
+Description
+^^^^^^^^^^^
+
+
+
+# NEW - TODO - talk about opengl matricies and z pos/neg
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 57
+   :lines: 57-59
+
+
+set the model, view, and projection matrix to the identity
+matrix.  This just means that the functions (currently)
+will not transform data.
+In univariate terms, f(x) = x
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 204
+   :lines: 204-206
+
+
+change the perspective matrix to convert the frustum
+to NDC.
+set the projection matrix to be perspective.  Since
+the viewport is always square, set the aspect ratio to be 1.0.
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 208
+   :lines: 208-213
+
+the ms namespace is pyMatrixStack, located in this folder.
+we need to send the matrix to OpenGL, by setting the matrix
+mode to be projection, and then call "loadmatrix", which
+we get from pyMatrixStack.  (Don't sweat the details
+of ascontigousarray, just copy and paste)
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 215
+   :lines: 215
+
+ascontiguousarray puts the array in column major order
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 216
+   :lines: 216-218
+
+The camera's position is described as follows
+
+::
+
+     ms.translate(ms.MatrixStack.view,
+                  camera.x,
+                  camera.y,
+                  camera.z)
+     ms.rotate_y(ms.MatrixStack.view,camera.rot_y)
+     ms.rotate_x(ms.MatrixStack.view,camera.rot_x)
+
+Therefore, to take the object's world space coordinates
+and transform them into camera space, we need to
+do the inverse operations to the view stack.
+
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 220
+   :lines: 220-222
+
+
+
+Each call above actually modifies the matrix, as matricies
+can be premultiplied together for efficiency.
+ |a b|     |e f|         |ae+bg  af+bh|
+ |c d|  *  |g h|  =      |ce+dg  cf+dh|
+this means that rotate_x, rotate_y, translate, etc
+are destructive operations.  Instead of creating a stack
+of matricies, these operations aggregate the transformations,
+but add no new matricies to the stack
+
+but many times we need to hold onto a transformation stack (matrix),
+so that we can do something else now, and return to this context later,
+so we have a stack composed of matricies.
+
+This is what GLPushMatrix, and GLPopMatrix do.
+
+"with" is a Python keyword which allows for bounded contexts, where
+the library code can specify what happens before execution of the block,
+and after.  This is similar to RAII within C++, in which a constructor
+sets a context, and the destructor destroys it.
+
+The author uses a debugger to do dynamic analysis of code, as compared
+to static, as the language knows its own control flow, and where modules
+are located in the filesystem.  I recommend using a debugger (PDB on linux/macos,
+the built in functionality in VS Community), to set a breakpoint here, step in,
+step out, etc
+
+"PushMatrix" describes what the function does, but its purpose is to
+save onto the current coordinate system for later drawing modelspace
+data.
+
+the model stack is currently the identity matrix, meaning
+it does nothing.  The view and the projection matrix
+are set to transform from world space into camera space,
+and then take the frustum and convert it to NDC.
+
+save onto the current model stack
+
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 224
+   :lines: 224
+
+
+draw paddle 1
+~~~~~~~~~~~~~
+
+Unlike in previous demos, because the transformations
+are on a stack, the fns on the model stack can
+be read forwards, where each operation translates/rotates/scales
+the current space
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 226
+   :lines: 226-235
+
+
+
+load our model and view matrix (premultiplied) to
+openGL's matrix
+set the current matrix (as we don't want to load into OpenGL's
+perspective matrix
+
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 236
+   :lines: 236-240
+
+
+NEW!!! glVertex data is specified in modelspace coordinates,
+but since we loaded the projection matrix and the modelview
+matrix into OpenGL, glVertex3f will apply those transformations.
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 241
+   :lines: 241-244
+
+draw the square relative to paddle 1
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+since the modelstack is already in paddle1's space
+just add the transformations relative to it
+before paddle 2 is drawn, we need to remove
+the square's 3 model_space transformations
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 253
+   :lines: 253-260
+
+glPopMatrix was implictly called because of the "with" keyword
+therefore, our model matrix is set to identity.  view is still
+configure correctly, and is the projection matrix
+
+no Need to push matrix here, as this is the last object that
+we are drawing, and upon the next iteration of the event loop,
+all 3 matricies will be reset to the identity
+
+draw paddle 2
+~~~~~~~~~~~~~
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 262
+   :lines: 262-277
