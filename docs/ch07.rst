@@ -231,12 +231,77 @@ Why it's Wrong
     Not what we wanted
 
 
-.. figure:: _static/incorrectrotate-backwards.gif
+
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 192
+   :lines: 192-193
+
+
+* Modelspace vertices
+
+
+.. figure:: _static/incorrectrotate-forwards-1.png
     :align: center
     :alt:
     :figclass: align-center
 
-    Not what we wanted
+
+* Translate
+
+
+.. figure:: _static/incorrectrotate-forwards-2.png
+    :align: center
+    :alt:
+    :figclass: align-center
+
+
+* Reset the coordinate system
+
+.. figure:: _static/incorrectrotate-forwards-3.png
+    :align: center
+    :alt:
+    :figclass: align-center
+
+    Modelspace
+
+* Rotate around NDC's origin
+
+.. figure:: _static/incorrectrotate-forwards-4.png
+    :align: center
+    :alt:
+    :figclass: align-center
+
+    Modelspace
+
+* Reset the coordinate system
+
+
+.. figure:: _static/incorrectrotate-forwards-5.png
+    :align: center
+    :alt:
+    :figclass: align-center
+
+    Modelspace
+
+* Final world space coordinates
+
+
+.. figure:: _static/incorrectrotate-forwards-6.png
+    :align: center
+    :alt:
+    :figclass: align-center
+
+    Modelspace
+
+
+
+
+
+
+
 
 
 

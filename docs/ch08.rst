@@ -26,12 +26,6 @@ to right, instead of from right to left.
 
     Works but sloppy
 
-.. figure:: _static/rotate-sloppy-backwards.gif
-    :align: center
-    :alt:
-    :figclass: align-center
-
-    Works but sloppy
 
 
 

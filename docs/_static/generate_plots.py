@@ -44,17 +44,43 @@ def accumulate_transformation(procedures, backwards=False):
     >>> fs = [mplt.translate(5,0),
     ...       mplt.translate(0,10)]
     >>> f = accumulate_transformation(fs)
-    >>> f1, isLast = next(f)
+    >>> f1, stepsRemaining = next(f)
     >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
-    >>> f2, isLast = next(f)
+    >>> stepsRemaining
+    2
+    >>> f2, stepsRemaining = next(f)
     >>> f2((1, 2, 3), (4, 5, 6))
     ((6, 7, 8), (4, 5, 6))
-    >>> f3, isLast = next(f)
+    >>> stepsRemaining
+    1
+    >>> f3, stepsRemaining = next(f)
     >>> f3((1, 2, 3), (4, 5, 6))
     ((6, 7, 8), (14, 15, 16))
+    >>> stepsRemaining
+    0
     >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
+    >>> f = accumulate_transformation(fs, backwards=True)
+    >>> f1, stepsRemaining = next(f)
+    >>> f1((1, 2, 3), (4, 5, 6))
+    ((1, 2, 3), (4, 5, 6))
+    >>> stepsRemaining
+    2
+    >>> f2, stepsRemaining = next(f)
+    >>> f2((1, 2, 3), (4, 5, 6))
+    ((1, 2, 3), (14, 15, 16))
+    >>> stepsRemaining
+    1
+    >>> f3, stepsRemaining = next(f)
+    >>> f3((1, 2, 3), (4, 5, 6))
+    ((6, 7, 8), (14, 15, 16))
+    >>> stepsRemaining
+    0
+    >>> f1((1, 2, 3), (4, 5, 6))
+    ((1, 2, 3), (4, 5, 6))
+
+
     """
     # without this function, accumulate_transformation
     # would have an error in it, because of scope in a nested
@@ -73,7 +99,7 @@ def accumulate_transformation(procedures, backwards=False):
     def id(x, y):
         return x, y
 
-    yield id, not bool(procedures)
+    yield id, len(procedures)
 
     if not backwards:
         for number_of_fns_to_apply_this_round in [
@@ -82,7 +108,7 @@ def accumulate_transformation(procedures, backwards=False):
 
             yield python_scoping_is_dumb(
                 range(number_of_fns_to_apply_this_round), procedures
-            ), True if number_of_fns_to_apply_this_round == len(procedures) else False
+            ), len(procedures) - number_of_fns_to_apply_this_round
     else:
         reversed_procs = list(range(len(procedures)))
         reversed_procs.reverse()
@@ -90,7 +116,7 @@ def accumulate_transformation(procedures, backwards=False):
 
             yield python_scoping_is_dumb(
                 range(proc_index, len(procedures)), procedures
-            ), True if proc_index == 0 else False
+            ), proc_index
 
 
 import doctest
@@ -163,11 +189,12 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
     idProc = lambda x, y: (x, y)
     if backwards:
         procs.insert(0, idProc)
+        procs.insert(0, idProc)
     else:
         procs.append(idProc)
 
     # create a single frame of the animated gif
-    def create_single_frame(accumfn, isLast, fn, frame_number):
+    def create_single_frame(accumfn, stepsRemaining, fn, frame_number):
 
         for round_number in [1] if backwards else [1, 2]:
             fig, axes = plt.subplots()
@@ -178,9 +205,9 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
             for xs, ys, thickness in generategridlines.generategridlines(
                 graph_bounds, interval=5
             ):
-                if backwards:
+                if backwards and stepsRemaining > 1:
                     transformed_xs, transformed_ys = accumfn(xs, ys)
-                elif round_number == 1 and frame_number != 1:
+                elif not backwards and round_number == 1 and frame_number != 1:
                     transformed_xs, transformed_ys = fn(xs, ys)
                 else:
                     transformed_xs, transformed_ys = xs, ys
@@ -193,9 +220,9 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
                 )
 
             # x axis
-            if backwards:
+            if backwards and stepsRemaining > 1:
                 transformed_xs, transformed_ys = accumfn([0.0, 10.0], [0.0, 0.0])
-            elif round_number == 1 and frame_number != 1:
+            elif not backwards and round_number == 1 and frame_number != 1:
                 transformed_xs, transformed_ys = fn([0.0, 10.0], [0.0, 0.0])
             else:
                 transformed_xs, transformed_ys = [0.0, 10.0], [0.0, 0.0]
@@ -204,9 +231,9 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
             )
 
             # y axis
-            if backwards:
+            if backwards and stepsRemaining > 1:
                 transformed_xs, transformed_ys = accumfn([0.0, 0.0], [0.0, 10.0])
-            elif round_number == 1 and frame_number != 1:
+            elif not backwards and  round_number == 1 and frame_number != 1:
                 transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, 10.0])
             else:
                 transformed_xs, transformed_ys = [0.0, 0.0], [0.0, 10.0]
@@ -214,21 +241,20 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
                 transformed_xs, transformed_ys, "-", lw=4.0, color=(1.0, 0.0, 1.0, 1.0)
             )
 
-            if backwards or isLast:
+            if stepsRemaining <= 0:
                 plotCharacter = "-"
             else:
                 plotCharacter = "."
             # plot the points
             transformed_xs, transformed_ys = accumfn(*geometry.points)
             plt.title(str.format("{}\nStep {}", title, str(frame_number)))
-            if (backwards and isLast) or not backwards:
-                plt.plot(
-                    transformed_xs,
-                    transformed_ys,
-                    plotCharacter,
-                    lw=2,
-                    color=geometry.color,
-                )
+            plt.plot(
+                transformed_xs,
+                transformed_ys,
+                plotCharacter,
+                lw=2,
+                color=geometry.color,
+            )
 
             # make sure the x and y axis are equally proportional in screen space
             plt.gca().set_aspect("equal", adjustable="box")
@@ -241,8 +267,8 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
 
     # create a single frame
     animated_images_list = [
-        create_single_frame(accumfn, isLast, fn, frame_number)
-        for (accumfn, isLast), fn, frame_number in zip(
+        create_single_frame(accumfn, stepsRemaining, fn, frame_number)
+        for (accumfn, stepsRemaining), fn, frame_number in zip(
             accumulate_transformation(procs, backwards),
             [procs[0], *procs],
             itertools.count(start=1),
