@@ -244,7 +244,7 @@ https://en.wikipedia.org/wiki/Rotation_matrix
    :language: python
    :linenos:
    :lineno-start: 285
-   :lines: 285-337
+   :lines: 285-326
 
 
 the square should not be visible when hidden behind the paddle1,

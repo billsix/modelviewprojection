@@ -18,8 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# PURPOSE
-# use a game controller.  Tested with Wired XBOX 360 controller
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
@@ -33,22 +31,18 @@ import pyMatrixStack as ms
 
 from dataclasses import dataclass
 
-
 if not glfw.init():
     sys.exit()
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 20", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 19", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
-
-# Install a key handler
 
 
 def on_key(window, key, scancode, action, mods):
@@ -60,14 +54,13 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
-# NEW - TODO - talk about opengl matricies and z pos/neg
 glEnable(GL_DEPTH_TEST)
 glClearDepth(1.0)
 glDepthFunc(GL_LEQUAL)
 
 
 def draw_in_square_viewport() -> None:
-    glClearColor(0.2, 0.2, 0.2, 1.0)  # r  # g  # b  # a
+    glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
@@ -75,22 +68,22 @@ def draw_in_square_viewport() -> None:
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),  # min x
-        int((height - min) / 2.0),  # min y
-        min,  # width x
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),  # min x
-        int(0.0 + (height - min) / 2.0),  # min y
-        min,  # width x
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
         min,
-    )  # width y
+        min,
+    )
 
 
 @dataclass
@@ -116,11 +109,6 @@ paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0
 paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
 
 
-# NEW
-number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
-print(number_of_controllers)
-
-
 @dataclass
 class Camera:
     x: float = 0.0
@@ -130,14 +118,14 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera: Camer = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
+camera: Camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
 
 
 square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
 
 
-def handle_inputs() -> None:
+def handle_inputs():
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -157,8 +145,6 @@ def handle_inputs() -> None:
         camera.rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
-    # //TODO -  explaing movement on XZ-plane
-    # //TODO -  show camera movement in graphviz
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera.x -= move_multiple * math.sin(camera.rot_y)
         camera.z -= move_multiple * math.cos(camera.rot_y)
@@ -189,110 +175,54 @@ def handle_inputs() -> None:
         paddle2.rotation -= 0.1
 
 
-square_vertices = np.array(
+square_vertices: np.array = np.array(
     [[-5.0, -5.0, 0.0], [5.0, -5.0, 0.0], [5.0, 5.0, 0.0], [-5.0, 5.0, 0.0]],
     dtype=np.float32,
 )
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE: int = 60
 
-# to try to standardize on 60 fps, compare times between frames
-time_at_beginning_of_previous_frame = glfw.get_time()
+time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# Loop until the user closes the window
 while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-    # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
 
-    # Poll for and process events
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # render scene
     draw_in_square_viewport()
     handle_inputs()
 
-    # set the model, view, and projection matrix to the identity
-    # matrix.  This just means that the functions (currently)
-    # will not transform data.
-    # In univariate terms, f(x) = x
     ms.setToIdentityMatrix(ms.MatrixStack.model)
     ms.setToIdentityMatrix(ms.MatrixStack.view)
     ms.setToIdentityMatrix(ms.MatrixStack.projection)
 
-    # change the perspective matrix to convert the frustum
-    # to NDC.
-    # set the projection matrix to be perspective
     ms.perspective(
         fov=45.0,
-        aspectRatio=1.0,  # since the viewport is always square
+        aspectRatio=1.0,
         nearZ=0.1,
         farZ=10000.0,
     )
-
-    # NEW -- handle controller input
-    axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
-
-    # axes_list[0] is controller 1
-    # axes_list[0][0] is controller 1's vertical axis
-
-    # the value can be between -1 and 1.  also, there is a dead zone
-    # area around 0, meaning that the value of a non-pressed controller
-    # may register a random value.  Therefore, set up a gating value
-    # (in this case 0.19), which will not register to the application
-    # as an input
-    if len(axes_list) >= 1 and axes_list[0]:
-        if math.fabs(float(axes_list[0][0])) > 0.19:
-            # vertical
-            # TODO - show the math
-            camera.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
-            camera.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
-        # axes_list[0][1] is the horizontal component of the left stick
-        if math.fabs(float(axes_list[0][1])) > 0.19:
-            # horizontal
-            # TODO - show the math
-            camera.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
-            camera.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
-
-        # axes_list[0][1] is the horizontal component of the right stick
-        if math.fabs(axes_list[0][3]) > 0.19:
-            camera.rot_y -= 3.0 * axes_list[0][3] * 0.01
-        # axes_list[0][4] is the vertical component of the right stick
-        if math.fabs(axes_list[0][4]) > 0.19:
-            camera.rot_x += axes_list[0][4] * 0.01
 
     glMatrixMode(GL_PROJECTION)
     glLoadMatrixf(
         np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.projection).T)
     )
 
-    # The camera's position is described as follows
-    # ms.translate(ms.MatrixStack.view,
-    #              camera.x,
-    #              camera.y,
-    #              camera.z)
-    # ms.rotate_y(ms.MatrixStack.view,camera.rot_y)
-    # ms.rotate_x(ms.MatrixStack.view,camera.rot_x)
-    #
-    # Therefore, to take the object's world space coordinates
-    # and transform them into camera space, we need to
-    # do the inverse operations to the view stack.
-
     ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
     ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)
+
     with ms.PushMatrix(ms.MatrixStack.model):
 
-        # draw paddle 1
         glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
         ms.translate(
@@ -304,6 +234,7 @@ while not glfw.window_should_close(window):
         ms.rotate_z(ms.MatrixStack.model, paddle1.rotation)
 
         glMatrixMode(GL_MODELVIEW)
+        # ascontiguousarray puts the array in column major order
         glLoadMatrixf(
             np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
         )
@@ -312,8 +243,7 @@ while not glfw.window_should_close(window):
             glVertex3f(model_space[0], model_space[1], model_space[2])
         glEnd()
 
-        # # draw the square
-        glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
+        glColor3f(0.0, 0.0, 1.0)
 
         ms.translate(ms.MatrixStack.model, 0.0, 0.0, -10.0)
         ms.rotate_z(ms.MatrixStack.model, rotation_around_paddle1)
@@ -346,8 +276,6 @@ while not glfw.window_should_close(window):
         glVertex3f(model_space[0], model_space[1], model_space[2])
     glEnd()
 
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
     glfw.swap_buffers(window)
 
 

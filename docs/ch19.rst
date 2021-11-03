@@ -1,31 +1,176 @@
-Matrix Stacks - Demo 19
-=======================
+Lambda Stack - Demo 19
+======================
 
 Purpose
 ^^^^^^^
 
-Replace lambda stacks with matrix stacks.  This is how preshader
-opengl worked (well, they provided matrix operations, but I replaced
-them with my own to make the matrix operations transparent).
 
-The concepts behind the function stack, in which the first function
-added to the stack is the last function applied, hold true for
-matricies as well.  But matricies are a much more efficient
-representation computationally than the function stack,
-and instead of adding fns and later having to remove them,
-we can save onto the current frame of reference with a "glPushStack",
-and restore the saved state by "glPopStack"
+Remove repetition in the coordinate transformations,
+as previous demos had very similar transformtions,
+especially from camera space to NDC space.
+Each node in the tree of the graph of objects (../images/demo11.png)
+should only be specified once.
 
-Use glPushMatrix and glPopMatrix to save/restore a local coordinate
-system, that way a tree of objects can be drawn without one child
-destroying the relative coordinate system of the parent node.
-
-In mvpVisualization/demoViewWorldTopLevel.py, the grayed out
-coordinate system is one thas has been pushed onto the stack,
-and it regains it's color when it is reactivated by "glPopMatrix"
+Noticing in the previous demos that the lower parts of the transformations
+have a common pattern, we can create a stack of functions for later application.
+Before drawing geometry, we add any functions to the top of the stack,
+apply all of our functions in the stack to our modelspace data to
+get NDC data,
+and before we return to the parent
+node, we pop the functions we added off of the stack, to ensure that
+we return the stack to the state that the parent node gave us.
 
 
+To explain in more detail ---
 
+What's the difference between drawing paddle 1 and the square?
+
+Here is paddle 1 code
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 305
+   :lines: 305-316
+
+
+Here is the square's code:
+
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 320
+   :lines: 320-334
+
+
+
+
+The only difference is the square's model-space to paddle1 space.
+In a graphics program, because the scene is a hierarchy of relative
+objects, it's unwise to put this much repetition in the transformation
+sequence.  Especially if we might change how the camera operates,
+or from perspective to ortho.  It would required a lot of code changes.
+And I don't like reading from the bottom of the code up.  Code doesn't
+execute that way.  I want to read from top to bottom.
+
+When reading the transformation sequences from top down
+the transformation at the top is applied first, the transformation
+at the bottom is applied last, with the intermediate results method-chained together.
+(look up above for a reminder)
+
+
+ With a function stack, the function at the top of the stack (f5) is applied first,
+ the result of this is then given as input to f4 (second on the stack), all
+ the way down to f1, which was the first fn to be placed on the stack,
+ and as such, the last to be applied. (Last In First Applied - LIFA)
+
+
+::
+
+                  |-------------------|
+     (MODELSPACE) |                   |
+       (x,y,z)->  |       f5          |--
+                  |-------------------| |
+                                        |
+               -------------------------
+               |
+               |  |-------------------|
+               |  |                   |
+                ->|       f4          |--
+                  |-------------------| |
+                                        |
+               -------------------------
+               |
+               |  |-------------------|
+               |  |                   |
+                ->|       f3          |--
+                  |-------------------| |
+                                        |
+               -------------------------
+               |
+               |  |-------------------|
+               |  |                   |
+                ->|       f2          |--
+                  |-------------------| |
+                                        |
+               -------------------------
+               |
+               |  |-------------------|
+               |  |                   |
+                ->|       f1          |-->  (x,y,z) NDC
+                  |-------------------|
+
+
+
+So, in order to ensure that the functions in a stack will execute
+in the same order as all of the previous demos, they need to
+push as in reverse order
+
+
+This means that from modelspace to world space, we can now
+read the transformations FROM TOP TO BOTTOM (lexigraphically).  YEAH!!!!
+
+# FUNCTION STACKS FTW!!!!!!!!!!  (I use function stacks to attempt to
+#                                 transition to matricies, without having
+#                                 to cover linear algebra material.  Matrix
+#                                 stacks will be used in the same way
+#                                 as this function stack is)
+#
+
+
+Then, to draw the square relative to paddle one, those six
+transformations will already be on the stack, therefore
+only push the differences, and then apply the stack to
+the paddle's modelspace data
+
+Here is the square's code:
+# for model_space in square:
+#     paddle_1_space = model_space.rotate_z(square_rotation) \             push this eleventh
+#                                 .translate(tx=20.0, ty=0.0, tz=0.0) \    push this tenth
+#                                 .rotate_z(rotation_around_paddle1) \     push this ninth
+#                                 .translate(tx=0.0,                       push this eigth
+#                                            ty=0.0,
+#                                            tz=-10.0)
+#     world_space = paddle_1_space.rotate_z(paddle1.rotation) \             (nothing to push here or below,
+#                                 .translate(tx=paddle1.position.x, as they are already on the stack
+#                                            ty=paddle1.position.y,
+#                                            tz=0.0)
+#      camera_space = world_space.translate(tx=-moving_camera_x,
+#                                          ty=-moving_camera_y,
+#                                          tz=-moving_camera_z) \
+#                               .rotate_y( -moving_camera_rot_y) \
+#                               .rotate_x( -moving_camera_rot_x)
+#     ndc_space = camera_space.camera_space_to_ndc_space_fn()
+#     glVertex3f(ndc_space.x,
+#                ndc_space.y,
+#                ndc_space.z)
+
+when we have drawn the blue square, we are done drawing from
+this part of the tree, and need to go back up to world space
+
+.. figure:: _static/demo11.png
+    :align: center
+    :alt: Demo 18
+    :figclass: align-center
+
+    Demo 18
+
+
+Therefore, we just need to pop off the correct number of
+functions, to just leave worldspace->cameraspace->ndc.
+Effectively, the following computation is all that
+will remain on the matrix stack.
+
+#      camera_space = world_space.translate(tx=-moving_camera_x,
+#                                          ty=-moving_camera_y,
+#                                          tz=-moving_camera_z) \
+#                               .rotate_y( -moving_camera_rot_y) \
+#                               .rotate_x( -moving_camera_rot_x)
+#     ndc_space = camera_space.camera_space_to_ndc_space_fn()
+
+We can then push the transformations from world space to
+paddle2 space, shown below.  Search for NEW to find the NEW CODE
 
 
 
@@ -57,195 +202,160 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
+aoeutnhaeosnt
 
 
-# NEW - TODO - talk about opengl matricies and z pos/neg
 
-.. literalinclude:: ../src/demo19/demo.py
+function stack.  The bottom of the stack has
+the low index, the top of the stack has the highest
+index
+
+.. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 57
-   :lines: 57-59
+   :lineno-start: 282
+   :lines: 282
 
+Given an input vertex, apply the function at the top
+of the stack to the vertex, capture the output vertex,
+to be used as input to the next lower function on the
+stack.  Continue doing this until we get the value
+returned from the function at the bottom of the stack.
 
-set the model, view, and projection matrix to the identity
-matrix.  This just means that the functions (currently)
-will not transform data.
-In univariate terms, f(x) = x
-
-.. literalinclude:: ../src/demo19/demo.py
+.. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 204
-   :lines: 204-206
+   :lineno-start: 284
+   :lines: 284-288
 
 
-change the perspective matrix to convert the frustum
-to NDC.
-set the projection matrix to be perspective.  Since
-the viewport is always square, set the aspect ratio to be 1.0.
-
-.. literalinclude:: ../src/demo19/demo.py
+Event Loop
+^^^^^^^^^^
+.. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 208
-   :lines: 208-213
-
-the ms namespace is pyMatrixStack, located in this folder.
-we need to send the matrix to OpenGL, by setting the matrix
-mode to be projection, and then call "loadmatrix", which
-we get from pyMatrixStack.  (Don't sweat the details
-of ascontigousarray, just copy and paste)
-
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 215
-   :lines: 215
-
-ascontiguousarray puts the array in column major order
-
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 216
-   :lines: 216-218
-
-The camera's position is described as follows
+   :lineno-start: 295
+   :lines: 295
 
 ::
 
-     ms.translate(ms.MatrixStack.view,
-                  camera.x,
-                  camera.y,
-                  camera.z)
-     ms.rotate_y(ms.MatrixStack.view,camera.rot_y)
-     ms.rotate_x(ms.MatrixStack.view,camera.rot_x)
-
-Therefore, to take the object's world space coordinates
-and transform them into camera space, we need to
-do the inverse operations to the view stack.
+    ...
 
 
-.. literalinclude:: ../src/demo19/demo.py
+
+In previous demos, camera_space_to_ndc_space_fn was always
+the last function called by the computer.  put it on the bottom of the stack,
+so that "apply_stack" calls this function last
+
+"append" adds the function to the end of a list, where
+we conisder the front of the list to be the bottom of the stack,
+and the end of the list to be the top of the stack.
+
+every object uses the same projection
+
+.. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 220
-   :lines: 220-222
+   :lineno-start: 312
+   :lines: 312
 
 
-
-Each call above actually modifies the matrix, as matricies
-can be premultiplied together for efficiency.
- |a b|     |e f|         |ae+bg  af+bh|
- |c d|  *  |g h|  =      |ce+dg  cf+dh|
-this means that rotate_x, rotate_y, translate, etc
-are destructive operations.  Instead of creating a stack
-of matricies, these operations aggregate the transformations,
-but add no new matricies to the stack
-
-but many times we need to hold onto a transformation stack (matrix),
-so that we can do something else now, and return to this context later,
-so we have a stack composed of matricies.
-
-This is what GLPushMatrix, and GLPopMatrix do.
-
-"with" is a Python keyword which allows for bounded contexts, where
-the library code can specify what happens before execution of the block,
-and after.  This is similar to RAII within C++, in which a constructor
-sets a context, and the destructor destroys it.
-
-The author uses a debugger to do dynamic analysis of code, as compared
-to static, as the language knows its own control flow, and where modules
-are located in the filesystem.  I recommend using a debugger (PDB on linux/macos,
-the built in functionality in VS Community), to set a breakpoint here, step in,
-step out, etc
-
-"PushMatrix" describes what the function does, but its purpose is to
-save onto the current coordinate system for later drawing modelspace
-data.
-
-the model stack is currently the identity matrix, meaning
-it does nothing.  The view and the projection matrix
-are set to transform from world space into camera space,
-and then take the frustum and convert it to NDC.
-
-save onto the current model stack
-
-
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 224
-   :lines: 224
-
-
-draw paddle 1
-~~~~~~~~~~~~~
-
-Unlike in previous demos, because the transformations
+Unlike in previous demos in which we read the transformations
+from model space to world space backwards; because the transformations
 are on a stack, the fns on the model stack can
 be read forwards, where each operation translates/rotates/scales
 the current space
 
-.. literalinclude:: ../src/demo19/demo.py
+The camera's position and orientation are defined relative
+to world space like so, read top to bottom:
+
+::
+
+     fn_stack.append(lambda v: v.translate(tx=camera.x,
+                                           ty=camera.y,
+                                           tz=camera.z))
+     fn_stack.append(lambda v: v.rotate_y( camera.rot_y))
+     fn_stack.append(lambda v: v.rotate_x( camera.rot_x))
+
+But, since we are dealing with world-space to camera space,
+they must be inverted by reversing the order, and negating
+the arguments
+
+Therefore the transformations to put the world space into
+camera space are.
+
+.. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 226
-   :lines: 226-235
+   :lineno-start: 314
+   :lines: 314-318
 
+draw paddle 1
+~~~~~~~~~~~~~
 
+Unlike in previous demos in which we read the transformations
+from model space to world space backwards; because the transformations
+are on a stack, the fns on the model stack can
+be read forwards, where each operation translates/rotates/scales
+the current space
 
-load our model and view matrix (premultiplied) to
-openGL's matrix
-set the current matrix (as we don't want to load into OpenGL's
-perspective matrix
-
-
-.. literalinclude:: ../src/demo19/demo.py
+.. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 236
-   :lines: 236-240
+   :lineno-start: 320
+   :lines: 320-337
 
+for each of the modelspace coordinates, apply all
+of the procedures on the stack from top to bottom
+this results in coordinate data in NDC space,
+which we can pass to glVertex3f
 
-NEW!!! glVertex data is specified in modelspace coordinates,
-but since we loaded the projection matrix and the modelview
-matrix into OpenGL, glVertex3f will apply those transformations.
+draw the square
+~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 241
-   :lines: 241-244
-
-draw the square relative to paddle 1
-&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
-
-since the modelstack is already in paddle1's space
+since the modelstack is already in paddle1's space,
+and since the blue square is defined relative to paddle1,
 just add the transformations relative to it
-before paddle 2 is drawn, we need to remove
-the square's 3 model_space transformations
+before the blue square is drawn.  Draw the square, and then
+remove these 4 transformations from the stack (done below)
 
-.. literalinclude:: ../src/demo19/demo.py
+.. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 253
-   :lines: 253-260
+   :lineno-start: 339
+   :lines: 339-350
 
-glPopMatrix was implictly called because of the "with" keyword
-therefore, our model matrix is set to identity.  view is still
-configure correctly, and is the projection matrix
+Now we need to remove fns from the stack so that the
+matrix stack would convert from world space to NDC.
+This will allow us to just add the transformaions from
+world space to paddle2 space on the stack.
 
-no Need to push matrix here, as this is the last object that
-we are drawing, and upon the next iteration of the event loop,
-all 3 matricies will be reset to the identity
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 352
+   :lines: 352-357
+
+since paddle2's model_space is independent of paddle 1's space, only
+leave the view and projection fns (1) - (4)
+
 
 draw paddle 2
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../src/demo19/demo.py
+.. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 262
-   :lines: 262-277
+   :lineno-start: 360
+   :lines: 360-373
+
+
+remove all fns from the function stack, as the next frame will set them
+clear makes the list empty, as the list (stack) will be repopulated
+the next iteration of the event loop.
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 375
+   :lines: 375

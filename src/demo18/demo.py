@@ -19,8 +19,6 @@
 # SOFTWARE.
 
 
-
-
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
@@ -31,21 +29,21 @@ import glfw
 
 from dataclasses import dataclass
 
+
 if not glfw.init():
     sys.exit()
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 18", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 17", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
 
-# Make the window's context current
 glfw.make_context_current(window)
 
-# Install a key handler
+
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
@@ -151,13 +149,17 @@ class Vertex:
     def perspective(
         self: Vertex, fov: float, aspectRatio: float, nearZ: float, farZ: float
     ) -> Vertex:
+        # fov, field of view, is angle of y
+        # aspectRatio is xwidth / ywidth
+
         top: float = -nearZ * math.tan(math.radians(fov) / 2.0)
         right: float = top * aspectRatio
 
-        scaled_x: float = self.x * nearZ / self.z
-        scaled_y: float = self.y * nearZ / self.z
-        projected: Vertex = Vertex(scaled_x, scaled_y, self.z)
-        return projected.ortho(
+        scaled_x: float = self.x / self.z * nearZ
+        scaled_y: float = self.y / self.z * nearZ
+        retangular_prism: Vertex = Vertex(scaled_x, scaled_y, self.z)
+
+        return retangular_prism.ortho(
             left=-right, right=right, bottom=-top, top=top, near=nearZ, far=farZ
         )
 
@@ -279,15 +281,6 @@ def handle_inputs() -> None:
         paddle2.rotation -= 0.1
 
 
-fn_stack: List[Callable[Vertex, Vertex]] = []
-
-def apply_stack(vertex: Vertex) -> Vertex:
-    v = vertex
-    for fn in reversed(fn_stack):
-        v = fn(v)
-    return v
-
-
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
@@ -297,7 +290,6 @@ while not glfw.window_should_close(window):
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-
     time_at_beginning_of_previous_frame = glfw.get_time()
 
     glfw.poll_events()
@@ -309,72 +301,52 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    fn_stack.append(lambda v: v.camera_space_to_ndc_space_fn())  # (1)
-
-    fn_stack.append(lambda v: v.rotate_x(-camera.rot_x))  # (2)
-    fn_stack.append(lambda v: v.rotate_y(-camera.rot_y))  # (3)
-    fn_stack.append(
-        lambda v: v.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z)  # (4)
-    )
-
-    fn_stack.append(
-        lambda v: v.translate(
-            tx=paddle1.position.x,  # (6) translate the local origin
-            ty=paddle1.position.y,
-            tz=0.0,
-        )
-    )
-    fn_stack.append(
-        lambda v: v.rotate_z(paddle1.rotation)
-    )  # (7) (rotate around the local z axis
-
+    # draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        ndc_space = apply_stack(model_space)
+        world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
+                                         .translate(tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0)
+        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z) \
+                                          .rotate_y(-camera.rot_y) \
+                                          .rotate_x(-camera.rot_x)
+        ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
+
+    # draw square
 
     glColor3f(0.0, 0.0, 1.0)
-
-    fn_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0))  # (8)
-    fn_stack.append(lambda v: v.rotate_z(rotation_around_paddle1))  # (9)
-    fn_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0))  # (10)
-    fn_stack.append(lambda v: v.rotate_z(square_rotation))  # (11)
-
     glBegin(GL_QUADS)
     for model_space in square:
-        ndc_space = apply_stack(model_space)
+        paddle_1_space: Vertex = model_space.rotate_z(square_rotation) \
+                                            .translate(tx=20.0, ty=0.0, tz=0.0) \
+                                            .rotate_z(rotation_around_paddle1) \
+                                            .translate(tx=0.0, ty=0.0, tz=-10.0)
+        world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation) \
+                                            .translate(tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0)
+        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z) \
+                                          .rotate_y(-camera.rot_y) \
+                                          .rotate_x(-camera.rot_x)
+        ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
-    fn_stack.pop()  # pop off (11)
-    fn_stack.pop()  # pop off (10)
-    fn_stack.pop()  # pop off (9)
-    fn_stack.pop()  # pop off (8)
-    fn_stack.pop()  # pop off (7)
-    fn_stack.pop()  # pop off (6)
-
-
-    fn_stack.append(
-        lambda v: v.translate(
-            tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0  # (13)
-        )
-    )
-    fn_stack.append(lambda v: v.rotate_z(paddle2.rotation))  # (14)
-
+    # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        ndc_space: Vertex = apply_stack(model_space)
+        world_space: Vertex = model_space.rotate_z(paddle2.rotation) \
+                                         .translate(tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0)
+        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z) \
+                                          .rotate_y(-camera.rot_y) \
+                                          .rotate_x(-camera.rot_x)
+        ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
-    fn_stack.clear()
-
     glfw.swap_buffers(window)
-
 
 glfw.terminate()
