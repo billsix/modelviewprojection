@@ -176,7 +176,7 @@ paddle2 = Geometry(
             )
         )
     ),
-    color=(1.0, 0.0, 0.0, 1.0),
+    color=(1.0, 0.0, 0.0),
 )
 
 
@@ -216,7 +216,8 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
                     transformed_ys,
                     "-",
                     lw=thickness,
-                    color=(0.1, 0.2, 0.5, 0.3),
+                    color=(0.1, 0.2, 0.5),
+                    alpha=0.3,
                 )
 
             # x axis
@@ -227,7 +228,7 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
             else:
                 transformed_xs, transformed_ys = [0.0, 10.0], [0.0, 0.0]
             plt.plot(
-                transformed_xs, transformed_ys, "-", lw=4.0, color=(0.0, 0.0, 1.0, 1.0)
+                transformed_xs, transformed_ys, "-", lw=4.0, color=(0.0, 0.0, 1.0)
             )
 
             # y axis
@@ -238,7 +239,7 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
             else:
                 transformed_xs, transformed_ys = [0.0, 0.0], [0.0, 10.0]
             plt.plot(
-                transformed_xs, transformed_ys, "-", lw=4.0, color=(1.0, 0.0, 1.0, 1.0)
+                transformed_xs, transformed_ys, "-", lw=4.0, color=(1.0, 0.0, 1.0)
             )
 
             if stepsRemaining <= 0:
@@ -253,7 +254,7 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
                 transformed_ys,
                 plotCharacter,
                 lw=2,
-                color=geometry.color,
+                color=geometry.color
             )
 
             # make sure the x and y axis are equally proportional in screen space
@@ -439,7 +440,7 @@ square = Geometry(
             )
         )
     ),
-    color=(1.0, 0.0, 0.0, 1.0),
+    color=(1.0, 0.0, 0.0),
 )
 
 
@@ -470,7 +471,7 @@ create_graphs(
 
 t = np.linspace(0, np.pi * 2, 100)
 circ = [list(np.cos(t) * 10), list(np.sin(t) * 10)]
-circle = Geometry(points=circ, color=(0.0, 1.0, 0.0, 1.0))
+circle = Geometry(points=circ, color=(0.0, 1.0, 0.0))
 
 create_graphs(
     title="Circle, Relative to Local Space",
