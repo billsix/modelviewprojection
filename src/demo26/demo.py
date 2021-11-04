@@ -276,6 +276,10 @@ square = Square(r=0.0, g=0.0, b=1.0, position=[0.0, 0.0, 0.0])
 square.prepare_to_render()
 
 
+number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
+print(number_of_controllers)
+
+
 @dataclass
 class Camera:
     x: float = 0.0
@@ -377,6 +381,21 @@ while not glfw.window_should_close(window):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     handle_inputs()
+
+    axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
+    if len(axes_list) >= 1 and axes_list[0]:
+        if math.fabs(float(axes_list[0][0])) > 0.19:
+            camera.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            camera.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
+        if math.fabs(float(axes_list[0][1])) > 0.19:
+            camera.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            camera.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
+
+        if math.fabs(axes_list[0][3]) > 0.19:
+            camera.rot_y -= 3.0 * axes_list[0][3] * 0.01
+        if math.fabs(axes_list[0][4]) > 0.19:
+            camera.rot_x += axes_list[0][4] * 0.01
+
 
     # note - opengl matricies use degrees
     ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)

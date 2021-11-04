@@ -113,6 +113,9 @@ paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0
 
 paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
 
+number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
+print(number_of_controllers)
+
 
 @dataclass
 class Camera:
@@ -245,6 +248,21 @@ while not glfw.window_should_close(window):
     ms.setToIdentityMatrix(ms.MatrixStack.projection)
 
     handle_inputs()
+
+    axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
+    if len(axes_list) >= 1 and axes_list[0]:
+        if math.fabs(float(axes_list[0][0])) > 0.19:
+            camera.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            camera.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
+        if math.fabs(float(axes_list[0][1])) > 0.19:
+            camera.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            camera.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
+
+        if math.fabs(axes_list[0][3]) > 0.19:
+            camera.rot_y -= 3.0 * axes_list[0][3] * 0.01
+        if math.fabs(axes_list[0][4]) > 0.19:
+            camera.rot_x += axes_list[0][4] * 0.01
+
 
     ms.perspective(fov=45.0, aspectRatio=1.0, nearZ=0.1, farZ=10000.0)
 
