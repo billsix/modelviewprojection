@@ -121,6 +121,8 @@ provides the end-user with the illusion of motion.
 Code
 ^^^^
 
+That's enough terms for now, let's get on to a working program!
+
 Importing Libraries
 ~~~~~~~~~~~~~~~~~~~
 
@@ -227,7 +229,7 @@ Set the version of OpenGL
 &&&&&&&&&&&&&&&&&&&&&&&&&
 
 OpenGL has been around a long time, and has multiple, possibly incompatible versions.
-For this demo, we use OpenGL 1.4.
+For this demo, we use OpenGL 1.4.  By the end of this book, we will be using OpenGL 3.3.
 
 
 .. literalinclude:: ../src/demo01/demo.py
@@ -283,6 +285,18 @@ Functions are first class values in Python, and are objects just
 like anything else.  The can be passed as arguments, stored in argument,
 and evaluated later zero, 1, or more times.
 
+.. code:: Python
+   :number-lines:
+
+      >>> def doubler(x):
+      ...     return x * 2
+      ...
+      >>> def add_five_to_result_of(f, x):
+      ...     return 5 + f(x)
+      ...
+      >>> add_five_to_result_of(doubler, 3)
+      11
+
 
 
 .. literalinclude:: ../src/demo01/demo.py
@@ -306,7 +320,8 @@ and evaluated later zero, 1, or more times.
 
 
 * Don't worry about the 4 lines here.  Although they are necessary,
-  we will cover them in depth later.
+  we will cover them in depth later.  After all, this
+  book is called ModelViewProjection. :-)
 
 
 The Event Loop
@@ -330,7 +345,8 @@ to terminate, repeat indefinitely.
    :lines: 59-67
 
 * On line 60, poll the operating system for any events, such as mouse movements,
-  keyboard input, etc
+  keyboard input, etc.  This does not handle them, just registers
+  them as having happened.
 
 * On line 62, get the size of the framebuffer.  Python
   allows the returning of multiple values
@@ -338,11 +354,13 @@ to terminate, repeat indefinitely.
   to the variables this way is a form of "destructuring"
 
 * On line 63, tell OpenGL that we wish to draw in the entire
-  framebuffer
+  framebuffer, from the bottom left corner to the upper
+  right corner.
 
 * On line 64, since the frame is about to be drawn, make it a blank slate.
   The color of each pixel will be the clear color, which we set on line 51.
-  Programming in OpenGL is a bit different than normal programming,
+  Programming in OpenGL is a bit different than normal programming in
+  a normal language,
   in that individual function calls do not complete self-contained tasks,
   as subroutines typically do.
   Instead, the OpenGL calls only make sense based off of the context
@@ -359,17 +377,13 @@ is sent to the monitor
 only when frame is completely drawn, and each pixel has a color.
 The act of sending the frame to the monitor is called *flushing*
 the frame.
-Flushing takes time,
-and if the call to flush were to block (meaning it would not return control
-back to the call-ing procedure until the flush is complete), we would
-have wasted CPU time.  To avoid this,
+
 OpenGL has two *framebuffers* (regions of memory which will eventually
 contain the full data for a frame),
 only one of which is "active", or writable, at a given time.
 "glfwSwapBuffers" initiates the flushing
 the current buffer, and which switches the current writable framebuffer to the
-other one, thus allowing the CPU to resume.  If this doesn't make
-sense right now, don't worry.
+other one.
 
 
 

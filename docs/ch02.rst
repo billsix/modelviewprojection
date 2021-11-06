@@ -5,7 +5,9 @@ Draw A Rectange - Demo 02
 Purpose
 ^^^^^^^
 
-Learn how to plot a rectangle.  Learn about OpenGL's coordinate system.
+Learn how to plot a rectangle.  Learn about OpenGL's coordinate system, normalized-device coordinates,
+which are from -1.0 to 1.0, in the X, Y, and Z directions.  Anything drawn entirely outside
+of this region will not be displayed on the screen.
 
 .. figure:: _static/screenshots/demo02.png
     :align: center
@@ -39,12 +41,16 @@ Draw Paddles
 
 A black screen is not particularly interesting, so
 let's draw something, say, two rectangles.
-Where should they be, and what color should they be?
 
+We need to figure out what colors to use, and the positions of the rectangles, defined
+below.
+
+To set the color, we will use "glColor3f".
 "glColor3f" sets a global variable, which makes it the color to be used
-for the subsequently-drawn graphical shape.  The background will be black,
+for the subsequently-drawn graphical shape.  Given that the background will be black,
 so lets make the first paddle purple, and a second paddle red.
 
+To specify the corners of the rectangle,
 "glBegin(GL_QUADS)" tells OpenGL that we will soon specify 4 *vertices*,
 (i.e. points) which define the
 quadrilateral.  The vertices will be specified by calling "glVertex2f" 4 times.
@@ -114,9 +120,9 @@ The frame sent to the monitor is a set of values like this ::
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
 
-What do we have to do to convert from normalized-device-coordinates
-into individual colors for each pixel?  Nothing, OpenGL does that for us; therefore
-we never have to think in terms of pixels, only in terms of vertices of shapes,
+What do we have to do to convert from normalized-device-coordinates (i.e. (1.0, 0.8))
+into pixel coordinates (i.e. pixel (10,15))?  Nothing, OpenGL does that for us automatically; therefore
+we never have to think in terms of pixels coordinates, only in terms of vertices of shapes,
 specified by normalized-device-coordinates.
 
 Why is that desirable?
@@ -127,8 +133,8 @@ Normalized-Device-Coordinates
 The author owns two monitors, one which has 1024x768 pixels, and one which has
 1920x1200 pixels.  When he purchases a game from Steam, he expects that his game
 will run correctly on either monitor, in full-screen mode.  If a graphics programmer
-had to explictly set each indiviual pixel's color, the the programmer would have to
-program using "screen-space"(Any "space" means a system of numbers which you're using.
+had to explictly set the color of individual pixels using the pixel's coordinates, the the programmer would have to
+program using "screen-space" (Any "space" means a system of numbers which you're using.
 Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be red).
 
 What looks alright is screen-space on a large monitor...
@@ -141,7 +147,7 @@ What looks alright is screen-space on a large monitor...
     Screenspace
 
 
-Isn't even the same picture on a smaller monitor.
+Isn't the same picture on a smaller monitor.
 
 .. figure:: _static/screenspace.png
     :align: center
@@ -163,14 +169,15 @@ and an fixed range horizontally.  OpenGL will have to convert points from some s
 and since OpenGL does this in hardware (i.e. you can't programmatically change how the conversion
 happens), it should be a fixed size.
 
-OpenGL uses *normalized-device-coordinates*,
+OpenGL uses what's called *normalized-device-coordinates*,
 which is a continous space from -1.0 to 1.0 horizontally,
-and -1.0 to 1.0 vertically.
+-1.0 to 1.0 vertically, and from -1.0 to 1.0 depthally.  (Is there an
+actual word for that???)
 
 
-By specifying geometry using normalized-device-coordinates,
-OpenGL will automatically convert from a continuous, -1.0 to 1.0 space,
-to discrete pixel-space.
+The programmer specifies geometry using normalized-device-coordinates, and
+OpenGL will convert from a continuous, -1.0 to 1.0 space,
+to discrete pixel-space, and the programmer cannot change this.
 
 .. figure:: _static/ndcSpace.png
     :align: center
@@ -197,3 +204,11 @@ Or a large monitor.
     :figclass: align-center
 
     NDC space
+
+
+.. figure:: _static/demo02.png
+    :align: center
+    :alt: Demo 02
+    :figclass: align-center
+
+    Demo 02

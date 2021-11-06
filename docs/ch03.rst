@@ -20,13 +20,13 @@ Purpose
 Modify the previous demo, so that if the user resizes the window
 of the OpenGL program, that the picture does not become distorted.
 
+Create procedure to ensure proportionality.
+
 
 Keeping the Paddles Proportional
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Create procedure to ensure proportionality
-
-In the previous demo, if the user resized the window, the paddles looked bad,
+In the previous demo, if the user resized the window, the paddles appear distorted,
 as they were shrunk in one direction if the window became too thin or too fat.
 
 .. figure:: _static/disproportionate1.png
@@ -44,15 +44,18 @@ as they were shrunk in one direction if the window became too thin or too fat.
     Yuck
 
 
-Assume that this is a problem for the application we are making.  What
-would a solution be?  Ideally, we would like to draw our paddles with
+Assume that this is a problem for the application we are making, how could
+we solve it and keep proportionality regardless of the dimensions of the window?
+Ideally, we would like to draw our paddles with
 a black background within a square region in the center of the window, regardless of the dimensions
 of the window.
 
-OpenGL has a solution for us.  The *viewport* is a rectangular region
-within the window into which OpenGL will render.  The normalized-device-coordinates
-will therefore resolve to the sub-window space of the viewport, instead of the whole
+OpenGL has a solution for us.  The *viewport* is a rectangular region contained
+within the window into which OpenGL will render.  By specifing a viewport, OpenGL
+will convert the normalized-device-coordinates
+to the sub-window space of the viewport, instead of the whole
 window.
+
 
 
 .. figure:: _static/viewport.png
@@ -61,6 +64,9 @@ window.
     :figclass: align-center
 
     Nice
+
+N.B, we now have 3 coordinate systems.  NDC, viewport, and screenspace.  In later sections,
+we will will have many, many more.
 
 Because we will only draw in a subset of the window, and because all subsequent
 chapters will use this functionality, I have created a procedure for use
@@ -73,9 +79,10 @@ Code
 GLFW/OpenGL Initialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The setup code is the same.  Initialize GLFW.  Set the OpenGL version.
+The setup code is the same as the previous demo's setup.  Initialize GLFW.  Set the OpenGL version.
 Create the window.  Set a key handler for closing.
-Execute the event/drawing loop.
+Execute the event/drawing loop.  The only code showed in this book will be the relevant parts.
+Consult the python source for the full, working code.
 
 
 Set to Draw in Square Subsection Of Window
@@ -95,7 +102,7 @@ Set to Draw in Square Subsection Of Window
    :lineno-start: 59
    :lines: 59-60
 
-* clear the color of the window to gray
+* set the clear color to be gray.  clear the color of every pixel in the whole frame buffer
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
@@ -111,13 +118,15 @@ Set to Draw in Square Subsection Of Window
    :lineno-start: 66
    :lines: 66-72
 
+* Enable the scissor test
 * the scissor test allows us to specify a region
   of the framebuffer into which the opengl operations
-  will apply.  In this case, in the framebuffer is all gray.
-  by calling glScissor, we are setting a value on a square
-  of pixels which says "only do the opengl call on these".
+  will apply.  In this case, the color in every pixel in the framebuffer is gray.
+  By calling glScissor, we are setting a value in each fragment (i.e., pixel) on a square
+  region of pixels to be true (and false everywhere else) which means "only do the opengl call on these fragments,
+  ignore the others".
   As we will learn later, OpenGL stores much more information
-  per pixel than just it's current color.
+  per fragment (i.e. pixel) than just it's current color.
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
@@ -137,8 +146,10 @@ Set to Draw in Square Subsection Of Window
 * disable the scissor test, so now any opengl calls will
   happen as usual.
 
-But, we only want to draw within the black square.
-We set the viewport, so that the NDC coordinates
+So we've drawn gray into a square, but any subsequent OpenGL calls
+will still be drawn into the full framebuffer, as the viewport is
+still set to the whole framebuffer.  But, we only want to draw within the black square.
+We set the viewport again, so that the NDC coordinates
 will be mapped the the region of screen coordinates
 that we care about, which is the black square.
 
@@ -176,3 +187,12 @@ the window.
    :linenos:
    :lineno-start: 95
    :lines: 95-112
+
+
+
+.. figure:: _static/demo03.png
+    :align: center
+    :alt: Demo 03
+    :figclass: align-center
+
+    Demo 03
