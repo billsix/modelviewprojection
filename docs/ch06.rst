@@ -146,7 +146,7 @@ is unchanged.  That is world space, which has not changed.
 Paddle 1's vertices in WorldSpace Coordinates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. figure:: _static/translation-forwards-4.png
+.. figure:: _static/translation-forwards-3.png
     :align: center
     :alt: Paddle 1's Verticies in World Space
     :figclass: align-center
@@ -197,7 +197,7 @@ Paddle 2's vertices in WorldSpace Coordinates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-.. figure:: _static/translation2-forwards-4.png
+.. figure:: _static/translation2-forwards-3.png
     :align: center
     :alt: Paddle 1's Verticies in World Space
     :figclass: align-center
@@ -463,12 +463,20 @@ Rendering Paddle 1
    :lines: 173-175
 
 
-.. figure:: _static/translation-forwards-4.png
+.. figure:: _static/translation-forwards-2.png
     :align: center
     :alt: Paddle 1's Modelspace Superimposed on World Space
     :figclass: align-center
 
     Paddle 1's Modelspace Superimposed on World Space
+
+.. figure:: _static/translation-forwards-3.png
+    :align: center
+    :alt: Paddle 1's Modelspace Superimposed on World Space
+    :figclass: align-center
+
+    Reset coordinate system.
+
 
 The coordinate system now resets back to the coordinate system specified
 on the left and below.
@@ -476,6 +484,8 @@ Now, we must scale everything by 1/100.  I have
 not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.
+
+
 
 
 .. literalinclude:: ../src/demo06/demo.py
@@ -513,13 +523,21 @@ Rendering Paddle 2
    :lineno-start: 187
    :lines: 187-189
 
-
-.. figure:: _static/translation2-forwards-4.png
+.. figure:: _static/translation2-forwards-2.png
     :align: center
     :alt: Paddle 2's Modelspace Superimposed on World Space
     :figclass: align-center
 
     Paddle 2's Modelspace Superimposed on World Space
+
+
+
+.. figure:: _static/translation2-forwards-3.png
+    :align: center
+    :alt: Paddle 2's Modelspace Superimposed on World Space
+    :figclass: align-center
+
+    Reset coordinate system.
 
 
 The coordinate system is reset.  Now scale everything by 1/200.  I have
