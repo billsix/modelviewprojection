@@ -18,7 +18,7 @@ How to Execute
 ^^^^^^^^^^^^^^
 
 On Linux or on MacOS, in a command prompt, type "python src/demo01/demo.py".
-On Windows, in a command prompt, type "python src\demo01\demo.py".
+On Windows, in a command prompt, type "python src\\demo01\\demo.py".
 
 
 Terminology
@@ -340,7 +340,7 @@ Interactive computer graphics are rendered the same way,
 one "frame" at a time.
 
 Render a frame, flush the complete frame to the monitor.
-Until the user closed the window, or the program needs
+Until the user closes the window, or the program needs
 to terminate, repeat indefinitely.
 
 
@@ -354,7 +354,9 @@ to terminate, repeat indefinitely.
   keyboard input, etc.  This does not handle them, just registers
   them as having happened.
 
-* On line 62, get the size of the framebuffer.  Python
+* On line 62, get the size of the framebuffer.  The *framebuffer*
+  contains data representing all the pixels in a complete video frame.
+  Python
   allows the returning of multiple values
   in the form of a tuple.  Assigning
   to the variables this way is a form of "destructuring"

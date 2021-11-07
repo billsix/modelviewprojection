@@ -13,7 +13,8 @@ graphs: currency.png \
 	demo06.png \
 	demo08.png \
 	demo02.png \
-	demo03.png
+	demo03.png \
+	cayleygraph.png
 
 
 

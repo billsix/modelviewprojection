@@ -1,0 +1,12 @@
+digraph {
+    rankdir="BT"
+    nodesep=1
+    ranksep=1
+    a [label = "A"];
+    b [label = "B"];
+    c [label = "C"];
+    d [label = "D"];
+    b -> a [label=<f<SUB>b</SUB><SUP>a</SUP>>,weight="0.2"];
+    c -> a [label=<f<SUB>c</SUB><SUP>a</SUP>>,weight="0.2"];
+    d -> c [label=<f<SUB>d</SUB><SUP>c</SUP>>,weight="0.2"];
+}
