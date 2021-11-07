@@ -48,7 +48,7 @@ Code
 Data Structures
 ~~~~~~~~~~~~~~~
 
-Here we use dataclasses, which allow use to have the constructor, and pretty-printer,
+Here we use dataclasses, which allow use to have the constructor, getters and setters, and pretty-printer,
 auto-generated for us.
 
 .. literalinclude:: ../src/demo04/demo.py
@@ -63,6 +63,12 @@ auto-generated for us.
    :lineno-start: 93
    :lines: 93-98
 
+Although Python is a dynamically-typed language, we can add type information as helpful hints to the reader,
+and for use with static type-checking tools for Python, such as `mypy`_.
+
+.. _mypy: http://mypy-lang.org/
+
+
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
@@ -70,6 +76,10 @@ auto-generated for us.
    :lines: 101-118
 
 * Create two instances of a Paddle.
+
+I make heavy use of `keyword arguments`_ in Python.
+
+.. _keyword arguments: https://www.pythontutorial.net/python-basics/python-keyword-arguments/
 
 Apply User Input
 ~~~~~~~~~~~~~~~~
@@ -129,6 +139,9 @@ to only flush the screen at 60 hertz (frames per second).
    :linenos:
    :lineno-start: 157
    :lines: 157-172
+
+* on line 163, while rendering, we now loop over the verticies of the paddle.  The callback had updated the values
+  based off of the user input, so the paddles may be displaced from their original position.
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python

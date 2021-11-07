@@ -14,6 +14,7 @@ graphs: currency.png \
 	demo08.png \
 	demo02.png \
 	demo03.png \
+	demo05.png \
 	cayleygraph.png
 
 

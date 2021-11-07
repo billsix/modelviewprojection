@@ -371,3 +371,6 @@ Since we're dealing with function composition mainly, we don't even need to spec
     \vec{f}_{d}^{b}  & = {\vec{f}_{b}^{a}}^{-1} \circ {\vec{f}_{c}^{a}} \circ \vec{f}_{d}^{c}
     \end{split}
     \end{equation}
+
+If this seems to abstract for now, don't worry.  By the end of the course, it should be clear.
+The goal of this book is to make it clear, and then, obvious.

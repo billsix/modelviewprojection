@@ -55,26 +55,14 @@ see https://www.alanzucconi.com/2016/02/03/2d-rotations/
 Rotate the Paddles About their Center
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-
-
-Normalized-device-coordinates are not a natural system of
-numbers for use by humans.  Imagine that the paddles in the previous
-chapters exist in real life, and are 20 meters wide and 60 meters tall.
-The graphics programmer should be able to use those numbers directly;
-they shouldn't have to manually transform the distances into normalized-device-coordinates.
-
-Whatever a convenient numbering system is (i.e. coordinate system) for modeling objects
-is called "model-space".  Since a paddle has four corners, which corner should be a
-the origin (0,0)?  If you don't already know what you want at the origin, then
-none of the corners should be; instead put the center of the object
-at the origin (Because by putting the center of the object at the origin,
-scaling and rotating the object are trivial).
+Besides translate and scale, the third main operation in computer
+graphics is to rotate an object.
 
 
 Rotation Around Origin (0,0)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-We can also rotate an object around (0,0) by rotating
+We can rotate an object around (0,0) by rotating
 all of the object's vertices around (0,0).
 
 .. figure:: _static/rotate0.gif
@@ -88,8 +76,8 @@ all of the object's vertices around (0,0).
 In high school math, you will have learned about sin, cos, and tangent.
 Typically the angles are described on the unit circle, where a rotation
 starts from the positive x axis.  We can expand on this knowledge, allowing
-us to rotate a given vertex around the origin (0,0).  This is done
-by separating the x and y value, rotating each of them seperately,
+us to rotate a given vertex, wherever it is, around the origin (0,0).  This is done
+by separating the x and y value, rotating each component seperately,
 and then adding the results together.
 
 That might not have been fully clear.  Let me try again.
@@ -114,38 +102,36 @@ These vertices can be added together to create the original vertex.
 But, before we do that, let's rotate each of the vertices.
 
 (0.5,0) is on the x-axis, so rotating it by "angle" degrees, results
-in vertex (0.5*cos(angle), 0.5*sin(angle)).  Notice that both the x and
-y values are multiplied by 0.5.  This is because rotations should not affect
-the distance of the point from the origin (0,0).  (0.5,0) has length 0.5.
-(cos(angle), sin(angle) has length 1. By multipling both the x and y
-component by 0.5, we are scaling the vertex back to its original distance
-from the origin.
+in vertex (0.5*cos(angle), 0.5*sin(angle)).  This is high school
+geometry, and won't be explained here in detail.
 
 .. figure:: _static/rotate.png
     :align: center
     :alt: Rotate
     :figclass: align-center
 
-    Rotate
+    Rotate the x component.
 
-(0,0.4) is on the y-axis, so rotating it by "angle" degrees, results
-in vertex (0.4*-sin(angle), 0.4*cos(angle)).
+But what may not be obvious, is what happens to the y component?
+Turns out, it's easy.  Just rotate your point of view, and it's
+the same thing, with one minor difference, in that the x value
+is negated.
 
 .. figure:: _static/rotate2.png
     :align: center
     :alt: Rotate
     :figclass: align-center
 
-    Rotate
+    Rotate the y component
+
+(0,0.4) is on the y-axis, so rotating it by "angle" degrees, results
+in vertex (0.4*-sin(angle), 0.4*cos(angle)).
+
 
 Wait.  Why is negative sin applied to the angle to make the x value,
-and cos applied to angle to make the y value?
-Trigonometric operations such as sin, cos, and tangent assume that the rotation is happening on
-the unit circle, starting from (1,0) on the x axis.  Since we want
-to rotate an angle starting from (0,1) on the y axis, sin and
-cos must be swapped.  Sin is positive from 0 to 90 degrees, but
-we want a negative value for our rotation of the y axis since the rotation is happening counter-clockwise,
-hence the negative sin.
+and cos applied to angle to make the y value?  It's because positive
+1 unit on the x axis goes downwards.  The top of the plot is in
+units of -1.
 
 
 After the rotations have been applied, sum the results to
@@ -210,6 +196,20 @@ The Event Loop
 
     ...
 
+So to rotate paddle 1 about its center,
+we should translate to its position, and then rotate
+around the paddle's center.
+
+This composed sequence of function calls is our definion of
+
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{p1}^{w}
+    \end{equation*}
+
+
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
@@ -219,6 +219,22 @@ The Event Loop
 ::
 
     ...
+
+
+Likewise, to rotate paddle 2 about its center,
+we should translate to its position, and then rotate
+around the paddle's center.
+
+This composed sequence of function calls is our definion of
+
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{p2}^{w}
+    \end{equation*}
+
+
 
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
@@ -230,6 +246,20 @@ The Event Loop
 Why it's Wrong
 ^^^^^^^^^^^^^^
 
+Turns out, our program doesn't work as predicted, even though
+translate, scale, and rotate are all correct.
+
+Let's take a look in detail about what our paddlespace to
+world space transformations are doing.
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 192
+   :lines: 192-193
+
+
+
 .. figure:: _static/incorrectrotate-forwards.gif
     :align: center
     :alt:
@@ -239,12 +269,6 @@ Why it's Wrong
 
 
 
-
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 192
-   :lines: 192-193
 
 
 * Modelspace vertices
@@ -274,7 +298,7 @@ Why it's Wrong
 
     Modelspace
 
-* Rotate around NDC's origin
+* Rotate around World Spaces's origin
 
 .. figure:: _static/incorrectrotate-forwards-4.png
     :align: center
@@ -306,120 +330,125 @@ Why it's Wrong
 
 
 
+So then what the heck are we supposed to do in order to
+rotate around an object's center?  The next section
+provides a solution.
 
 
 
 
-
-
-Math
-^^^^
-.. math::
-
-    \begin{equation*}
-     \vec{T}(\vec{v};\vec{t}) =
-    \begin{bmatrix}
-    v_{x} \\
-    v_{y}
-    \end{bmatrix} +
-    \begin{bmatrix}
-    t_{x} \\
-    t_{y}
-    \end{bmatrix}
-    \end{equation*}
-
-
-.. math::
-
-    \begin{equation*}
-    \vec{R}(\vec{v};\theta) = v_x *
-    \begin{bmatrix}
-    cos(\theta) \\
-    sin(\theta)
-    \end{bmatrix} + v_y *
-    \begin{bmatrix}
-    -sin(\theta) \\
-    cos(\theta)
-    \end{bmatrix}
-    \end{equation*}
-
-
-.. math::
-
-    \begin{equation*}
-    \vec{S}(\vec{v};\vec{s}) =
-    \begin{bmatrix}
-    s_x * v_x \\
-    s_y * v_y
-    \end{bmatrix}
-    \end{equation*}
+..
 
 
 
+   Math
+   ^^^^
+   .. math::
 
-.. math::
-
-    \begin{equation*}
-    \vec{f}_{p1}^{w}(\vec{v_{modelspace_{p1}}}) =
-    \vec{R}(\vec{T}(\vec{v_{modelspace_{p1}}}; \vec{v_{offset_{p1}}}), \theta_{p1})
-    \end{equation*}
-
-.. math::
-
-
-    \begin{equation*}
-    \vec{f}_{p2}^{w}(\vec{v_{modelspace_{p2}}}) =
-    \vec{R}(\vec{T}(\vec{v_{modelspace_{p2}}}; \vec{v_{offset_{p2}}}), \theta_{p2})
-    \end{equation*}
-
-
-where x_p1, y_p1, z_p1  are the modelspace coordinates of the paddle's vertices,
-and where v_{offset} is the vector offset from the world space's origin to the center of the paddle, i.e. the translation, and where \theta is that paddle's rotation.
+       \begin{equation*}
+        \vec{T}(\vec{v};\vec{t}) =
+       \begin{bmatrix}
+       v_{x} \\
+       v_{y}
+       \end{bmatrix} +
+       \begin{bmatrix}
+       t_{x} \\
+       t_{y}
+       \end{bmatrix}
+       \end{equation*}
 
 
-.. math::
+   .. math::
 
-    \begin{equation*}
-    \vec{f}_{p1}^{w}(\vec{v_{modelspace_{p1}}}) =
-    (\vec{R}(;\theta_{p1}) \circ \vec{T}(; \vec{v_{offset_{p1}}})) (\vec{v_{modelspace_{p1}}})
-    \end{equation*}
-
-.. math::
-
-    \begin{equation*}
-    \vec{f}_{p2}^{w}(\vec{v_{modelspace_{p2}}}) =
-    (\vec{R}(;\theta_{p2}) \circ \vec{T}(; \vec{v_{offset_{p2}}})) (\vec{v_{modelspace_{p2}}})
-    \end{equation*}
-
-
-aeotsnhaoentsuhan
-tosuns
-aeonsu
-aoetnsunstaoeu
+       \begin{equation*}
+       \vec{R}(\vec{v};\theta) = v_x *
+       \begin{bmatrix}
+       cos(\theta) \\
+       sin(\theta)
+       \end{bmatrix} + v_y *
+       \begin{bmatrix}
+       -sin(\theta) \\
+       cos(\theta)
+       \end{bmatrix}
+       \end{equation*}
 
 
-.. math::
+   .. math::
 
-    \begin{equation*}
-    \vec{f}_{p1}^{w} =
-    \vec{R}(;\theta_{p1}) \circ \vec{T}(; \vec{v_{offset_{p1}}})
-    \end{equation*}
-
-.. math::
-
-    \begin{equation*}
-    \vec{f}_{p2}^{w} =
-    \vec{R}(;\theta_{p2}) \circ \vec{T}(; \vec{v_{offset_{p2}}})
-    \end{equation*}
+       \begin{equation*}
+       \vec{S}(\vec{v};\vec{s}) =
+       \begin{bmatrix}
+       s_x * v_x \\
+       s_y * v_y
+       \end{bmatrix}
+       \end{equation*}
 
 
 
-.. math::
 
-    \begin{equation*}
-    \vec{f}_{w}^{ndc} =
-    \vec{S}(; \begin{bmatrix}
-    1/100 \\
-    1/100
-    \end{bmatrix})
-    \end{equation*}
+   .. math::
+
+       \begin{equation*}
+       \vec{f}_{p1}^{w}(\vec{v_{modelspace_{p1}}}) =
+       \vec{R}(\vec{T}(\vec{v_{modelspace_{p1}}}; \vec{v_{offset_{p1}}}), \theta_{p1})
+       \end{equation*}
+
+   .. math::
+
+
+       \begin{equation*}
+       \vec{f}_{p2}^{w}(\vec{v_{modelspace_{p2}}}) =
+       \vec{R}(\vec{T}(\vec{v_{modelspace_{p2}}}; \vec{v_{offset_{p2}}}), \theta_{p2})
+       \end{equation*}
+
+
+   where x_p1, y_p1, z_p1  are the modelspace coordinates of the paddle's vertices,
+   and where v_{offset} is the vector offset from the world space's origin to the center of the paddle, i.e. the translation, and where \theta is that paddle's rotation.
+
+
+   .. math::
+
+       \begin{equation*}
+       \vec{f}_{p1}^{w}(\vec{v_{modelspace_{p1}}}) =
+       (\vec{R}(;\theta_{p1}) \circ \vec{T}(; \vec{v_{offset_{p1}}})) (\vec{v_{modelspace_{p1}}})
+       \end{equation*}
+
+   .. math::
+
+       \begin{equation*}
+       \vec{f}_{p2}^{w}(\vec{v_{modelspace_{p2}}}) =
+       (\vec{R}(;\theta_{p2}) \circ \vec{T}(; \vec{v_{offset_{p2}}})) (\vec{v_{modelspace_{p2}}})
+       \end{equation*}
+
+
+   aeotsnhaoentsuhan
+   tosuns
+   aeonsu
+   aoetnsunstaoeu
+
+
+   .. math::
+
+       \begin{equation*}
+       \vec{f}_{p1}^{w} =
+       \vec{R}(;\theta_{p1}) \circ \vec{T}(; \vec{v_{offset_{p1}}})
+       \end{equation*}
+
+   .. math::
+
+       \begin{equation*}
+       \vec{f}_{p2}^{w} =
+       \vec{R}(;\theta_{p2}) \circ \vec{T}(; \vec{v_{offset_{p2}}})
+       \end{equation*}
+
+
+
+   .. math::
+
+       \begin{equation*}
+       \vec{f}_{w}^{ndc} =
+       \vec{S}(; \begin{bmatrix}
+       1/100 \\
+       1/100
+       \end{bmatrix})
+       \end{equation*}

@@ -4,7 +4,7 @@ Add Translate Method to Vertex - Demo 05
 
 Purpose
 ^^^^^^^
-Restructure the code towards future knowledge, i.e. the model view projection
+Restructure the code towards the model view projection
 pipeline.
 
 Transforming vertices, such as translating, is the core concept
@@ -42,16 +42,25 @@ Translation
 ^^^^^^^^^^^
 
 Dealing with the two Paddles the way we did before is not
-ideal.  Both Paddles have the same size, but they are placed
+ideal.  Both Paddles have the same size, although they are placed
 in different spots of the screen.  We should be able to
-create geometry for the Paddle that is independent of it's
-placement.
+a set of vertices for the Paddle, relative to the paddle's center,
+that is independent of its
+placement in NDC.
 
-Rather than using absolute values for each vertex, in the
+Rather than using values for each vertex relative to NDC, in the
 Paddle data structure, each vertex will be an offset from
-the center of the Paddle, which is point x=0, y=0.
+the center of the Paddle.  The center of the paddle will be considered x=0, y=0.
 Before rendering, each Paddle's
-vertices will need to be translated to its actual position.
+vertices will need to be translated to its center relative to NDC.
+
+.. figure:: _static/demo05.png
+    :align: center
+    :alt:
+    :figclass: align-center
+
+    Paddle space
+
 
 
 All methods on verticies will be returning new verticies,
@@ -86,11 +95,19 @@ Data Structures
    :lineno-start: 88
    :lines: 88-94
 
+We added a translate method to the Vertex class.  Given a translation amount, the vertex
+will be shifted by that amount.  This is a primitive that we will be using to transform
+from one space to another.
+
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
    :lineno-start: 97
    :lines: 97-103
+
+Add a position instance variable to the Paddle class.  This position is the center of
+the paddle, defined relative to NDC.  The vertices of the paddle will be defined
+relative to the center of the paddle.
 
 Instantiation of the Paddles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -101,6 +118,10 @@ Instantiation of the Paddles
    :linenos:
    :lineno-start: 106
    :lines: 106-130
+
+* The verticies are now defined as relative distances from the center of the paddle.  The centers
+  of each paddle are placed in positions relative to NDC that preserve the positions of the
+  paddles, as they were in the previous demo.
 
 Handling User Input
 ~~~~~~~~~~~~~~~~~~~
@@ -118,7 +139,6 @@ The Event Loop
 ~~~~~~~~~~~~~~
 
 
-TODO -- put in Cayley graph here and explain
 
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
@@ -131,3 +151,25 @@ TODO -- put in Cayley graph here and explain
    :linenos:
    :lineno-start: 168
    :lines: 168-182
+
+
+.. figure:: _static/demo05.png
+    :align: center
+    :alt:
+    :figclass: align-center
+
+    Paddle space
+
+Since previous demos covered transformations from NDC to viewport, and since
+OpenGL does the conversions from viewport to window, we can ignore those
+parts of this Cayley graph.
+
+The only part of the diagram that we need to think about is the function
+that converts from paddle1's space to NDC, and from paddle2's space to NDC.
+
+These functions in the Python code are the translation of the paddle's center (i.e. paddle1.position)
+by the vertex's offset from the center.
+
+N.B.  In the code, I name the vertices by their space.  I.e. "modelSpace" instead of "vertex_relative_to_modelspace".
+I do this to emphasize that you should view the transformation as happening to the "graph paper", instead of to each
+of the points.  This will be explained more clearly later.

@@ -1,5 +1,7 @@
 digraph {
     rankdir="BT"
+    "Paddle 1 Space" -> "NDC" [label=<f<SUB>p1</SUB><SUP>ndc</SUP>>];
+    "Paddle 2 Space" -> "NDC" [label=<f<SUB>p2</SUB><SUP>ndc</SUP>>];
     "NDC" -> "Viewport Space" [label=<f<SUB>ndc</SUB><SUP>v</SUP>>];
     "Viewport Space" -> "Screen Space" [label=<f<SUB>v</SUB><SUP>s</SUP>>];
 }

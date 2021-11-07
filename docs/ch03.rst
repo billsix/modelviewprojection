@@ -75,6 +75,14 @@ window.
 N.B, we now have 3 coordinate systems.  NDC, viewport, and screenspace.  In later sections,
 we will will have many, many more.
 
+.. figure:: _static/demo03.png
+    :align: center
+    :alt: Demo 03
+    :figclass: align-center
+
+    Demo 03
+
+
 Because we will only draw in a subset of the window, and because all subsequent
 chapters will use this functionality, I have created a procedure for use
 in all chapters. "draw_in_square_viewport" is a function.
@@ -101,7 +109,7 @@ Set to Draw in Square Subsection Of Window
    :lineno-start: 57
    :lines: 57
 
-* declare a function to draw only in a square subset of the monitor
+* declare a function to configure OpenGL to draw only in a square subset of the monitor, i.e. the viewport
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
@@ -109,7 +117,7 @@ Set to Draw in Square Subsection Of Window
    :lineno-start: 59
    :lines: 59-60
 
-* set the clear color to be gray.  clear the color of every pixel in the whole frame buffer
+* set the clear color to be gray.  clear the color of every pixel in the whole frame buffer, not just the viewport
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
@@ -194,12 +202,3 @@ the window.
    :linenos:
    :lineno-start: 95
    :lines: 95-112
-
-
-
-.. figure:: _static/demo03.png
-    :align: center
-    :alt: Demo 03
-    :figclass: align-center
-
-    Demo 03

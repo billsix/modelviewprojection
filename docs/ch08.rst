@@ -7,8 +7,6 @@ Purpose
 Fix the rotation problem from the previous demo in a seemingly intuitive
 way, but do it inelegantly.
 
-Lesson learned by end of Demo 08.  Read function composition from left
-to right, instead of from right to left.
 
 .. figure:: _static/screenshots/demo08.png
     :align: center
@@ -55,9 +53,9 @@ Description
 ^^^^^^^^^^^
 
 The problem in the last demo is that all rotations happen relative
-to (0,0).  By translating our paddles to their position,
+to World Space's (0,0) and axises.  By translating our paddles to their position,
 they are then rotated not around their modelspace center,
-but by global space's center.
+but by World Space's oriign.
 In this demo, we move the paddles to their position,
 back to the origin, rotate, and then back to their position.
 This works, but it should be clear that it's an inefficient
@@ -68,14 +66,6 @@ Taking a look at the various spaces, the code in this demo
 is going to go back and forth between those spaces.  The code
 in this demo is the wrong way to think about rendering.
 
-
-Cayley Graph
-^^^^^^^^^^^^
-
-.. figure:: _static/demo08.png
-    :align: center
-    :alt: Demo 08
-    :figclass: align-center
 
 
 
@@ -89,6 +79,70 @@ Code
    :linenos:
    :lineno-start: 90
    :lines: 90-111
+
+"rotate_around" allows us to rotate around a point by taking
+world space vertices
+
+.. figure:: _static/rotate-sloppy-forwards-3.png
+    :align: center
+    :alt: Demo 08
+    :figclass: align-center
+
+translating back to the origin
+
+.. figure:: _static/rotate-sloppy-forwards-4.png
+    :align: center
+    :alt: Demo 08
+    :figclass: align-center
+
+resetting the coordinate system
+
+.. figure:: _static/rotate-sloppy-forwards-5.png
+    :align: center
+    :alt: Demo 08
+    :figclass: align-center
+
+
+rotating
+
+.. figure:: _static/rotate-sloppy-forwards-6.png
+    :align: center
+    :alt: Demo 08
+    :figclass: align-center
+
+resetting the coordinate system
+
+.. figure:: _static/rotate-sloppy-forwards-7.png
+    :align: center
+    :alt: Demo 08
+    :figclass: align-center
+
+
+
+and them translating them back to their original origin
+
+.. figure:: _static/rotate-sloppy-forwards-8.png
+    :align: center
+    :alt: Demo 08
+    :figclass: align-center
+
+
+
+
+Cayley Graph
+^^^^^^^^^^^^
+
+.. figure:: _static/demo08.png
+    :align: center
+    :alt: Demo 08
+    :figclass: align-center
+
+
+Although this works for now, this is so sloppy.  We apply a transformation
+from paddle space to world space, then do the inverse, then rotate,
+and then do the first transformation from paddle space to world space again.
+
+
 
 
 The Event Loop
