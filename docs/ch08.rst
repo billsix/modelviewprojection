@@ -27,6 +27,11 @@ to right, instead of from right to left.
     Works but sloppy
 
 
+How to Execute
+^^^^^^^^^^^^^^
+
+On Linux or on MacOS, in a command prompt, type "python src/demo08/demo.py".
+On Windows, in a command prompt, type "python src\demo08\demo.py".
 
 
 Move the Paddles using the Keyboard

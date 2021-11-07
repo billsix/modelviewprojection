@@ -14,6 +14,13 @@ and then wide.  Look at what happens to the rectangles.
 
     Demo 03
 
+How to Execute
+^^^^^^^^^^^^^^
+
+On Linux or on MacOS, in a command prompt, type "python src/demo03/demo.py".
+On Windows, in a command prompt, type "python src\demo03\demo.py".
+
+
 Purpose
 ^^^^^^^
 

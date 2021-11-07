@@ -16,6 +16,12 @@ of this region will not be displayed on the screen.
 
     Demo 02
 
+How to Execute
+^^^^^^^^^^^^^^
+
+On Linux or on MacOS, in a command prompt, type "python src/demo02/demo.py".
+On Windows, in a command prompt, type "python src\demo02\demo.py".
+
 
 Code
 ^^^^

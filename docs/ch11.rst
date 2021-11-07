@@ -18,6 +18,13 @@ moves with it, because it is defined relative to it.
 
     Demo 11
 
+How to Execute
+^^^^^^^^^^^^^^
+
+On Linux or on MacOS, in a command prompt, type "python src/demo11/demo.py".
+On Windows, in a command prompt, type "python src\demo11\demo.py".
+
+
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

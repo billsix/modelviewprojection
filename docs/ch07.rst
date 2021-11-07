@@ -18,6 +18,13 @@ of how rotations work.
     Demo 07
 
 
+How to Execute
+^^^^^^^^^^^^^^
+
+On Linux or on MacOS, in a command prompt, type "python src/demo07/demo.py".
+On Windows, in a command prompt, type "python src\demo07\demo.py".
+
+
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

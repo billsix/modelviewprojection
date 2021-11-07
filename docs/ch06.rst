@@ -15,6 +15,13 @@ Learn about modelspace.
     Demo 06
 
 
+How to Execute
+^^^^^^^^^^^^^^
+
+On Linux or on MacOS, in a command prompt, type "python src/demo06/demo.py".
+On Windows, in a command prompt, type "python src\demo06\demo.py".
+
+
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 

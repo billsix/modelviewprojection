@@ -40,6 +40,12 @@ and it is implemented in the next demo.
 
     Camera Space
 
+How to Execute
+^^^^^^^^^^^^^^
+
+On Linux or on MacOS, in a command prompt, type "python src/demo14/demo.py".
+On Windows, in a command prompt, type "python src\demo14\demo.py".
+
 
 
 Move the Paddles using the Keyboard
