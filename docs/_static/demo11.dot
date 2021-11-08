@@ -13,6 +13,6 @@ digraph {
     p2 -> ws [label=<f<SUB>p2</SUB><SUP>w</SUP>>,weight="0.2"];
     cs -> ws [label=<f<SUB>c</SUB><SUP>w</SUP>>,weight="0.2"];
     cs -> ndc [label=<f<SUB>c</SUB><SUP>ndc</SUP>>,weight="0.2"];
-    "NDC" -> "Viewport Space" [label=<f<SUB>ndc</SUB><SUP>v</SUP>>];
+    ndc -> "Viewport Space" [label=<f<SUB>ndc</SUB><SUP>v</SUP>>];
     "Viewport Space" -> "Screen Space" [label=<f<SUB>v</SUB><SUP>S</SUP>>];
 }

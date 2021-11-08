@@ -83,6 +83,55 @@ Code
 "rotate_around" allows us to rotate around a point by taking
 world space vertices
 
+
+
+
+The Event Loop
+~~~~~~~~~~~~~~
+
+
+
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 179
+   :lines: 179
+
+::
+
+    ...
+
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 197
+   :lines: 197-206
+
+
+::
+
+    ...
+
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 209
+   :lines: 209-218
+
+
+Although this works for now and looks like decent code, this is so sloppy, and
+not thought out well at all.  We apply a transformation
+from paddle space to world space, then do the inverse, then rotate,
+and then do the first transformation from paddle space to world space again.
+
+The images of the transformation sequence below should show how brain-dead it is,
+and the Cayley graph is gross.
+
+
+
 .. figure:: _static/rotate-sloppy-forwards-3.png
     :align: center
     :alt: Demo 08
@@ -136,190 +185,3 @@ Cayley Graph
     :align: center
     :alt: Demo 08
     :figclass: align-center
-
-
-Although this works for now, this is so sloppy.  We apply a transformation
-from paddle space to world space, then do the inverse, then rotate,
-and then do the first transformation from paddle space to world space again.
-
-
-
-
-The Event Loop
-~~~~~~~~~~~~~~
-
-
-
-
-.. literalinclude:: ../src/demo08/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 179
-   :lines: 179
-
-::
-
-    ...
-
-
-.. literalinclude:: ../src/demo08/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 197
-   :lines: 197-206
-
-
-::
-
-    ...
-
-
-.. literalinclude:: ../src/demo08/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 209
-   :lines: 209-218
-
-Math
-^^^^
-
-
-.. math::
-
-    \begin{equation}
-     \vec{T}(\vec{v};\vec{t}) =
-    \begin{bmatrix}
-    v_{x} \\
-    v_{y}
-    \end{bmatrix} +
-    \begin{bmatrix}
-    t_{x} \\
-    t_{y}
-    \end{bmatrix}
-    \end{equation}
-
-.. math::
-
-    \begin{equation}
-     \vec{T}^{-1}(\vec{v};\vec{t}) =
-    \begin{bmatrix}
-    v_{x} \\
-    v_{y}
-    \end{bmatrix} -
-    \begin{bmatrix}
-    t_{x} \\
-    t_{y}
-    \end{bmatrix}
-    \end{equation}
-
-
-.. math::
-
-    \begin{equation}
-    \vec{R}(\vec{v};\theta) = v_x *
-    \begin{bmatrix}
-    cos(\theta) \\
-    sin(\theta)
-    \end{bmatrix} + v_y *
-    \begin{bmatrix}
-    -sin(\theta) \\
-    cos(\theta)
-    \end{bmatrix}
-    \end{equation}
-
-
-.. math::
-
-    \begin{equation}
-    \vec{R}^{-1}(\vec{v};\theta) = v_x *
-    \begin{bmatrix}
-    cos(\theta) \\
-    -sin(\theta)
-    \end{bmatrix} + v_y *
-    \begin{bmatrix}
-    sin(\theta) \\
-    cos(\theta)
-    \end{bmatrix}
-    \end{equation}
-
-
-
-.. math::
-
-    \begin{equation}
-    \vec{S}(\vec{v};\vec{s}) =
-    \begin{bmatrix}
-    s_x * v_x \\
-    s_y * v_y
-    \end{bmatrix}
-    \end{equation}
-
-.. math::
-
-    \begin{equation}
-    \vec{S}^{-1}(\vec{v};\vec{s}) =
-    \begin{bmatrix}
-    1/s_x * v_x \\
-    1/s_y * v_y
-    \end{bmatrix}
-    \end{equation}
-
-
-
-
-
-
-.. math::
-
-    \begin{equation}
-    \vec{g}_{p1}^{w} =
-    \vec{T}(; \vec{v_{offset_{p1}}})
-    \end{equation}
-
-.. math::
-
-    \begin{equation}
-    \vec{g}^{-1}{_{p1}^{w}} =
-    \vec{T}(; -1 * \vec{v_{offset_{p1}}})
-    \end{equation}
-
-
-.. math::
-
-    \begin{equation}
-    \begin{split}
-    \vec{f}_{p1}^{w} & = \vec{g}_{p1}^{w} \circ \vec{R}(;\theta_{p1}) \circ \vec{g}^{-1}{_{p1}^{w}} \circ \vec{g}_{p1}^{w} \\
-                     & = \vec{g}_{p1}^{w} \circ \vec{R}(;\theta_{p1}) \\
-                     & = \vec{T}(; \vec{v_{offset_{p1}}}) \circ \vec{R}(;\theta_{p1})
-    \end{split}
-    \end{equation}
-
-
-and
-
-.. math::
-
-    \begin{equation}
-    \begin{split}
-    \vec{f}_{p2}^{w} & = \vec{g}_{p2}^{w} \circ \vec{R}(;\theta_{p2}) \circ \vec{g}^{-1}{_{p2}^{w}} \circ \vec{g}_{p2}^{w} \\
-                     & = \vec{g}_{p2}^{w} \circ \vec{R}(;\theta_{p2}) \\
-                     & = \vec{T}(; \vec{v_{offset_{p2}}}) \circ \vec{R}(;\theta_{p2})
-    \end{split}
-    \end{equation}
-
-
-
-
-.. math::
-   :label: euler
-
-    \begin{equation}
-    \vec{f}_{w}^{ndc} =
-    \vec{S}(; \begin{bmatrix}
-    1/100 \\
-    1/100
-    \end{bmatrix})
-    \end{equation}
-
-
-foo bar :eq:`euler`

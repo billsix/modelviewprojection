@@ -4,8 +4,12 @@ Camera Space - Demo 10
 Purpose
 ^^^^^^^
 
-Demonstrate having a camera space, and how to think about the transformations
-differently.
+Graphical programs in which the viewer never "moves" are boring.
+Model a virtual "camera", and let the user move the camera around
+in the scene.  In this picture, notice that the purple paddle
+is no longer on the left side of the screen, but towards the right,
+horizontally.
+
 
 
 .. figure:: _static/screenshots/demo10.png
@@ -47,27 +51,15 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-..
-   TODO -- add in a DFA of the camera space, add in decent description
+"Camera space" means the coordinates of everything relative
+to a camera, not relative to world space.
 
+Camera space will be between world space and NDC, but
+which way should the direction of the edge be?
 
-camera space.  The coordinates of the object relative to
-the camera.  Notice that the translation from world space
-to camera space is the negative value of the camera's x and
-y position.
+It could be
 
-If you view the camera as fixed, where NDC is relative to it,
-the world has moved in the opposite direction of the camera.
-If you view the camera space as being defined relative to
-world space, then we need to put the origin of the camera
-space at the origin of the world space, and as such,
-the transformations needed to be applied to the data
-are the inverse of the tranforamiotns from world
-space to camera space.
-
-Cayley Graph
-^^^^^^^^^^^^
-
+* From world space to camera space.
 
 .. figure:: _static/demo10.png
     :align: center
@@ -76,12 +68,106 @@ Cayley Graph
 
     Demo 10
 
+* From camera space to world space.
+
 .. figure:: _static/demo10-2.png
     :align: center
     :alt: Demo 10
     :figclass: align-center
 
     Demo 10
+
+
+Since the camera will be described relative to world space,
+it makes more sense to use the latter, in which the directed edge
+goes from camera space to world space.
+
+
+Think about it this way.  Imagine you a driving.  Are you staying
+in a constant position, and the wheels of your car rotate the entire
+earth and solar system around yourself?  That's one way to look at
+it, and the earth revolves around me too, but the math of it
+is messy.
+The math is easier if you describe your position as moving relative
+to earth.
+
+But this introduces a new problem.  Follow from the paddle's modelspace
+to screen space.  Up until this demo, we've always been
+following the directed edges.  This time, when going from world
+space to camera space, we're moving in the opposite direction
+of the edge.
+
+Going against the direction
+of an edge in a Cayley Graph means that we don't apply the function,
+but instead we apply the inverse of the function.  This concept
+comes from Group Theory in Abstract Algebra, the details of which won't
+be discussed here.
+
+
+The inverse of
+
+.. code:: Python
+
+      >>> v.translate(x,y)
+
+is
+
+.. code:: Python
+
+      >>> v.translate(-x,-y)
+
+The inverse of
+
+.. code:: Python
+
+      >>> v.rotate(theta)
+
+is
+
+.. code:: Python
+
+      >>> v.rotate(-theta)
+
+The inverse of
+
+.. code:: Python
+
+      >>> v.scale(x,y)
+
+is
+
+.. code:: Python
+
+      >>> v.scale(1.0/x,1.0/y)
+
+
+
+Think of it this way.  Find a little space, and look forward.
+Keeping your eyes straight ahead, sidestep a few steps to the
+left.  From your perspective, the objects in your room all moved
+to the right.  Now, rotate your head to the right, keeping your eyes
+looking directly in front of your head.  Which way did the room move?
+Towards the left.
+
+Unfortunately, the author doesn't have visualizations for this in 2D space.
+
+.. figure:: _static/screenshots/camera3.png
+    :align: center
+    :alt: Demo 10
+    :figclass: align-center
+
+    Camera is 3D space
+
+Looking at the graph paper on the ground there, that's world space.
+The camera gets placed in world space just like any other modelspace data.
+In order to render from the camera's point of view, we need to get -1.0 to 1.0
+box in all three dimensions to match the -1.0 to 1.0 box in world space.
+
+Run "python mvpVisualization/demo3.py", and follow along with the Cayley
+graph.  The camera will be placed like any other modelspace data, but then
+the inverse of the transformations will be applied to all of the verticies.
+
+
 
 Code
 ^^^^
@@ -118,7 +204,26 @@ The Event Loop
    :language: python
    :linenos:
    :lineno-start: 213
-   :lines: 213-222
+   :lines: 213-218
+
+The camera's position is at camera.x, camera.y.  So
+apply the inverse of the camera's transformations
+to paddle 1's vertices, i.e. translate with the negative
+values.
+
+.. literalinclude:: ../src/demo10/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 219
+   :lines: 219
+
+.. literalinclude:: ../src/demo10/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 220
+   :lines: 220-222
+
+
 
 ::
 
@@ -128,4 +233,23 @@ The Event Loop
    :language: python
    :linenos:
    :lineno-start: 224
-   :lines: 224-233
+   :lines: 224-229
+
+The camera's position is at camera.x, camera.y.  So
+apply the inverse of the camera's  transformations
+to paddle 2's vertices, i.e. translate with the negative
+values.
+
+
+.. literalinclude:: ../src/demo10/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 230
+   :lines: 230
+
+
+.. literalinclude:: ../src/demo10/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 231
+   :lines: 231-233
