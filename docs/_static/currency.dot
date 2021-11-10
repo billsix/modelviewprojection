@@ -2,11 +2,13 @@ digraph {
     rankdir="BT"
     nodesep=1
     ranksep=1
-    gs [label = "Gold Standard (1 ounce)"];
-    us [label = "US Dollar"];
-    ca [label = "Canadian Dollar"];
-    eu [label = "Euro"];
-    us -> gs [label=<f<SUB>us</SUB><SUP>gs</SUP>(x) = x * 2.0>,weight="0.2"];
-    ca -> gs [label=<f<SUB>ca</SUB><SUP>gs</SUP>(x) = x * 4.0>,weight="0.2"];
-    eu -> gs [label=<f<SUB>eu</SUB><SUP>gs</SUP>(x) = x * 5.0>,weight="0.2"];
+    penny [label = "1 Penny"];
+    nickel [label = "1 Nickel"];
+    dime [label = "1 Dime"];
+    quarter [label = "1 Quarter"];
+    dollar [label = "1 Dollar"];
+    nickel -> penny [label=<f<SUB>nickel</SUB><SUP>penny</SUP>>,weight="0.2"];
+    dime -> penny  [label=<f<SUB>dime</SUB><SUP>penny</SUP>>,weight="0.2"];
+    quarter -> penny [label=<f<SUB>quarter</SUB><SUP>penny</SUP>>,weight="0.2"];
+    dollar -> penny [label=<f<SUB>dollar</SUB><SUP>penny</SUP>>,weight="0.2"];
 }

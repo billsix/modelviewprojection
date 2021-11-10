@@ -241,14 +241,8 @@ Introduction to Cayley Graphs
 The wikipedia article for Cayley graphs (https://en.wikipedia.org/wiki/Cayley_graph) is intimidating,
 but for our purposes, it's use is very simple.
 
-For example, as Americans, we use US Currency.  If we were to travel to another country,
-we would like to convert our currency into a currency which is accepted locally.
-
-Let's assume that the world still used the Gold Standard, and put that space at the top of the diagram.  All
-other currencies will be defined as their value relative to this standard.
-As such, we create functions that convert currency from each of US, Canada, and EU, into the number of
-ounces of gold.
-
+An univariate example use of Cayley graphs is exchanging coins with
+a bank.
 
 .. figure:: _static/currency.png
     :align: center
@@ -257,50 +251,131 @@ ounces of gold.
 
     Cayley graph of univariate coordinate conversion for money.
 
-The following conversions are all made up.
+.. math::
+   \begin{equation*}
+    f_{nickel}^{penny}(x) = 5.0 * x \\
+  \end{equation*}
 
-::
-
-    1 US Dollar = 2 ounces of gold
-
-    1 Canadian Dollar = 4 ounces of gold
-
-    1 Euro =  5 ounces of gold.
-
-The directed edges in the Cayley graph show the direction that the function, i.e. transformation, applies.
-Another way to think about the arrows, in our hypothetical example, is that the US Dollar is define relative
-to Gold Ounces, since the directed edge goes from US Dollar to Canadian Dollar.  The Canadian Dollar is defined relative to Gold Ounces,
-for the same reason, as is the Euro.  This concept will be important later.
+.. math::
+   \begin{equation*}
+    f_{dime}^{penny}(x) = 10.0 * x \\
+  \end{equation*}
 
 
-To convert 15 US Dollars to ounces of Gold,
+.. math::
+   \begin{equation*}
+    f_{quarter}^{penny}(x) = 25.0 * x \\
+  \end{equation*}
+
+
+.. math::
+   \begin{equation*}
+    f_{dollar}^{penny}(x) = 100.0 * x
+  \end{equation*}
+
+
+The directed edges in the Cayley graph show the direction that
+the function, i.e. transformation, applies.
+
+
+To convert 20 nickels into pennies, start at nickel,
+move to penny, while applying the appropriate function
+along the way.
 
 
 .. math::
 
     \begin{equation*}
-    f_{us}^{gs}(x) = 2 * x
+    f_{nickel}^{penny}(x) = 5.0 * x
     \end{equation*}
 
 .. math::
 
     \begin{equation}
     \begin{split}
-    f_{us}^{gs}(15)  & = 2 * 15\\
-                     & = 30
+    f_{nickel}^{penny}(20)  & = 5.0 * 20\\
+                     & = 100
     \end{split}
     \end{equation}
 
 
-These conversion functions are invertible by taking the reciprical of the coefficient.
-To convert 10 Ounces of Gold to US dollars, we will be going against the direction of the
-edge, so we need to apply the inverse of the function to the number of ounces of gold.
+
+To convert those 100 penny into quarters, move from
+penny to quarter, but since we are moving in the opposite
+direction of the edge, we must apply the inverse
+of that function.  These functions are invertible by
+taking the reciprical of the coefficient, thus satisfying
 
 
 
-In order
-to convert from Gold Standard to US Currency, we are going against the arrow, so the inverse
-of the function is to be applied.
+
+
+.. math::
+
+    \begin{equation*}
+    f_{quarter}^{penny}(x) = 25.0 * x
+    \end{equation*}
+
+.. math::
+
+    \begin{equation*}
+    \begin{split}
+    f_{penny}^{quarter}(x) & = {f_{penny}^{quarter}}^{-1}(x) \\
+    & =  1/25.0 * x
+    \end{split}
+    \end{equation*}
+
+
+.. math::
+
+    \begin{equation}
+    \begin{split}
+    f_{penny}^{quarters}(100)  & = 1/25.0 * x\\
+                     & = 4
+    \end{split}
+    \end{equation}
+
+
+By taking the inverse of the coefficient, we satisfy a definition
+of an inverse
+
+.. math::
+
+   \begin{equation}
+   (f \circ f^{-1})(x)  = x
+   \end{equation}
+
+
+
+To convert between any denomination, say dimes to dollars,
+just compose the functions, remembering to take the inverse
+of any directed edge that you against.
+
+
+.. math::
+
+    \begin{equation}
+    \begin{split}
+    f_{dime}^{dollar}(x)  & = f_{penny}^{dollar}(f_{dime}^{penny}(x)) \\
+                              & = {f_{dollar}^{penny}}^{-1}(f_{dime}^{penny}(x)) \\
+    \end{split}
+    \end{equation}
+
+
+.. math::
+
+    \begin{equation}
+    \begin{split}
+    f_{dime}^{dollar}  & = {f_{dollar}^{penny}}^{-1} \circ f_{dime}^{penny}
+    \end{split}
+    \end{equation}
+
+
+
+
+
+
+
 
 
 .. math::
