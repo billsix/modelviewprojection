@@ -19,11 +19,6 @@
 # SOFTWARE.
 
 
-# Purpose.
-#
-# Use OpenGL 3.3, Core profile.  No more glBegin/glVertex/glEnd.
-# We need to use vertex array objects and vertexbuffer objects.
-
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
