@@ -1,3 +1,6 @@
+.vs
+*.ini
+
 __pycache__
 *~
 docs/_static/*gif
