@@ -50,7 +50,7 @@ is called "model-space".  Since a paddle has four corners, which corner should b
 the origin (0,0)?  If you don't already know what you want at the origin, then
 none of the corners should be; instead put the center of the object
 at the origin (Because by putting the center of the object at the origin,
-scaling and rotating the object are trivial).
+scaling and rotating the object are trivial, as shown in later chapters).
 
 
 .. figure:: _static/modelspace.png
@@ -130,8 +130,8 @@ Modelspace of Paddle 1 Superimposed on Worldspace after the translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Paddle 1's graph paper gets -90 units in the x direction, and some
-number of units in the y direction based off of user input.  The origin
+Paddle 1's graph paper gets translated -90 units in the x direction, and some
+number of units in the y direction, 0 during the first frame, based off of user input.  The origin
 is translated, and the graph paper comes with it, onto which you can
 plot the vertices.  Notice that the coordinate system below and to the left
 is unchanged.  That is world space, which has not changed.
@@ -231,8 +231,16 @@ Paddle 2's vertices in WorldSpace Coordinates
 Scaling
 ~~~~~~~
 
-As a demostration (that we don't use exactly in this code), let's make an
-object's width twice as large, and height three times as large.
+Our paddles are now well outside of NDC, and as such, they would not
+be displayed, as they would be *clipped* out.  Their values are outside
+of -1.0 to 1.0.  All we will need to do to convert them from
+world space to NDC is divide each component, x and y, by 100.
+
+As a demonstration of how scaling works, let's make an
+object's width twice as large, and height three times as large. (The author
+tried doing the actual scaling in an animated gif, and it looked awful,
+therefore a different scaling gif is showed here, but the concept
+is the same).
 
 We can expand or shrink the size of an object
 by "scale"ing each component of the vertices by some coefficient.
@@ -362,6 +370,10 @@ are the offset from the world space's origin to the center of the paddle, i.e. t
     \end{equation*}
 
 
+Now, the coordinates for paddle 1 and for paddle 2 are in world
+space, and we need the match to take any world space coordinates
+and convert them to NDC.
+    
 
 .. math::
 

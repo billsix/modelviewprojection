@@ -99,6 +99,18 @@ We added a translate method to the Vertex class.  Given a translation amount, th
 will be shifted by that amount.  This is a primitive that we will be using to transform
 from one space to another.
 
+
+If the reader wishes to use the data structures to test them out,
+import them and try the methods
+
+.. code:: Python
+
+       >>> import src.demo05.demo as demo
+       >>> a = demo.Vertex(x=1,y=2)
+       >>> a.translate(tx=3,ty=4)
+       Vertex(x=4, y=6)
+
+
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:

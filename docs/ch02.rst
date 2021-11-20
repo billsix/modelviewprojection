@@ -143,8 +143,12 @@ The author owns two monitors, one which has 1024x768 pixels, and one which has
 1920x1200 pixels.  When he purchases a game from Steam, he expects that his game
 will run correctly on either monitor, in full-screen mode.  If a graphics programmer
 had to explictly set the color of individual pixels using the pixel's coordinates, the the programmer would have to
-program using "screen-space" (Any "space" means a system of numbers which you're using.
+program using "screen-space" (Any space_ means a system of numbers which you're using.
 Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be red).
+
+.. _space: https://en.wikipedia.org/wiki/Space_(mathematics)
+
+
 
 What looks alright is screen-space on a large monitor...
 
@@ -175,7 +179,7 @@ what type of numbers should he use?  Firstly, it should be a continuous space, m
 that it should be in decimal numbers.  Because if a real-world object is 10.3 meters long, a programmer
 should be able to enter "float foo = 10.3".  Secondly, it should be a fixed range vertically
 and an fixed range horizontally.  OpenGL will have to convert points from some space to screen-space,
-and since OpenGL does this in hardware (i.e. you can't programmatically change how the conversion
+and since this is done in hardware (i.e. you can't programmatically change how the conversion
 happens), it should be a fixed size.
 
 OpenGL uses what's called *normalized-device-coordinates*,
@@ -218,11 +222,16 @@ Or a large monitor.
 Graph of Spaces
 ^^^^^^^^^^^^^^^
 
-The following is a graph (https://en.wikipedia.org/wiki/Graph_theory), specifically
-a Cayley Graph (https://en.wikipedia.org/wiki/Cayley_graph), of the two spaces
-shown so far.  The nodes represent a coordinate system (i.e. origin and axis),
-and the directed edge reprsents a conversion from coordinates from one
-coordinate system to another.
+The following is a graph_, specifically
+a Cayley_ Graph, of the two spaces
+shown so far.  The nodes represent a coordinate system (i.e. origin and axises),
+and the directed edge represents a function that converts coordinates from one
+coordinate system to another.  
+
+
+.. _graph: https://en.wikipedia.org/wiki/Graph_theory
+.. _Cayley:  https://en.wikipedia.org/wiki/Cayley_graph
+
 
 .. figure:: _static/demo02.png
     :align: center
@@ -233,6 +242,8 @@ coordinate system to another.
 
 The function that converts from NDC to Screen space is named f, subscripted by "NDC", superscripted
 by "S".  This is a common notation when creating functions that change basis, i.e. coordinate conversion.
+A definition of this function is not provided in this text, because we can't change it.
+But we must recognize that it exists.
 
 
 Introduction to Cayley Graphs
@@ -240,6 +251,8 @@ Introduction to Cayley Graphs
 
 The wikipedia article for Cayley graphs (https://en.wikipedia.org/wiki/Cayley_graph) is intimidating,
 but for our purposes, it's use is very simple.
+
+
 
 An univariate example use of Cayley graphs is exchanging coins with
 a bank.
@@ -330,7 +343,7 @@ taking the reciprical of the coefficient, thus satisfying
 
     \begin{equation}
     \begin{split}
-    f_{penny}^{quarters}(100)  & = 1/25.0 * x\\
+    {f_{penny}^{quarters}}^{-1}(100)  & = 1/25.0 * x\\
                      & = 4
     \end{split}
     \end{equation}
@@ -372,40 +385,22 @@ of any directed edge that you against.
 
 
 
+Notice in the last equation that we defined the function via function composition,
+and didn't specify and arguments.  We just focus on the types of units in and the units
+out, but the details of those functions are not relevant when traversing the Cayley graph.
+    
 
 
 
-
-
-
-.. math::
-
-    \begin{equation*}
-    f_{gs}^{us}(x) = {f_{us}^{gs}}^{-1}(x)
-    \end{equation*}
-
-
-.. math::
-
-    \begin{equation}
-    \begin{split}
-    f_{gs}^{us}(x)  & = {f_{us}^{gs}}^{-1}(x) \\
-                    & = 1/2 * x \\
-                    & = 1/2 * 10 \
-                    & = 5
-    \end{split}
-    \end{equation}
 
 
 Learning what to ignore
 ~~~~~~~~~~~~~~~~~~~~~~~
 
 A big part of being able to understand graphics well is being able
-to figure out what to ignore.  In this book, all of the transformations
-we will use are invertible.  So how would we convert coordinates from space
-D to space B?  (What do those names mean?  It doesn't matter.  The x has an arrow
-over it, which means it's a vector.  How many dimensions does it have?  It doesn't matter.
-All that matters is that the function exists and it is invertible.)
+to figure out what to ignore.  So how would we convert coordinates from space
+D to space B (defined below)?  What do those names mean?  It doesn't matter.  All that
+matters is that the function exists and that the function is invertible.
 
 
 .. figure:: _static/cayleygraph.png
@@ -416,7 +411,8 @@ All that matters is that the function exists and it is invertible.)
     Generic Cayley Graph
 
 
-Well, D is defined relative to C, C is defined relative to A, and B is defined
+Well to convert data fram space D to space B,
+we know that D is defined relative to C, C is defined relative to A, and B is defined
 relative to A.  Because of the arrows, we know that we are given a function from
 D to C, a function from C to A, and a function from B to A.  We are not directly
 given their inverses, but we can calculate them easily enough, or have a computer do it

@@ -48,8 +48,12 @@ Code
 Data Structures
 ~~~~~~~~~~~~~~~
 
-Here we use dataclasses, which allow use to have the constructor, getters and setters, and pretty-printer,
+Here we use dataclasses_, which allow use to have the constructor, getters and setters, and pretty-printer,
 auto-generated for us.
+
+.. _dataclasses: https://www.youtube.com/watch?v=vRVVyl9uaZc
+
+
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
@@ -140,8 +144,9 @@ to only flush the screen at 60 hertz (frames per second).
    :lineno-start: 157
    :lines: 157-172
 
-* on line 163, while rendering, we now loop over the verticies of the paddle.  The callback had updated the values
-  based off of the user input, so the paddles may be displaced from their original position.
+* on line 163, while rendering, we now loop over the verticies of the paddle.
+  The paddles may be displaced from their original position that was hardcoded,
+  as the callback may have updated the values based off of the user input.
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python

@@ -143,6 +143,9 @@ Set to Draw in Square Subsection Of Window
   As we will learn later, OpenGL stores much more information
   per fragment (i.e. pixel) than just it's current color.
 
+* Look at the image above of NDC superimposed on Screen Space.  From this,
+  the arguments sent to glScissor should be clear.
+  
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
@@ -196,7 +199,9 @@ the window.
    :lineno-start: 93
    :lines: 93
 
-
+* The event loop is the same as the previous demo, except
+  that we call draw_in_square_viewport every frame at the beginning.
+	   
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:

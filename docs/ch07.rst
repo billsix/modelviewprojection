@@ -47,8 +47,10 @@ Keyboard Input  Action
 ..
    TODO -- discuss method chaining
 
-For a trigonometry  explanation of rotating in 2D,
-see https://www.alanzucconi.com/2016/02/03/2d-rotations/
+For another person's explanation of the trigonometry_ of rotating in 2D,
+see 
+
+.. _trigonometry: https://www.alanzucconi.com/2016/02/03/2d-rotations/
 
 
 

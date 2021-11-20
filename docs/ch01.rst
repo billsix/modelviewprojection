@@ -178,10 +178,12 @@ Import Python modules, which are Python programmer's main form of libraries.
   without the OpenGL.GL prefix
 
 
-.. code:: Python
-   :number-lines:
+.. literalinclude:: ../src/demo01/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 26
+   :lines: 26
 
-   import glfw
 
 * GLFW is a library which allows us to create windows, get keyboard and
   mouse input, on Linux, Windows, and MacOS
@@ -292,7 +294,6 @@ like anything else.  The can be passed as arguments, stored in argument,
 and evaluated later zero, 1, or more times.
 
 .. code:: Python
-   :number-lines:
 
       >>> def doubler(x):
       ...     return x * 2
@@ -366,12 +367,12 @@ to terminate, repeat indefinitely.
   right corner.
 
 * On line 64, since the frame is about to be drawn, make it a blank slate.
-  The color of each pixel will be the clear color, which we set on line 51.
+  The color of each pixel will be the clear color, which we had set on line 51.
   Programming in OpenGL is a bit different than normal programming in
   a normal language,
   in that individual function calls do not complete self-contained tasks,
   as subroutines typically do.
-  Instead, the OpenGL calls only make sense based off of the context
+  Instead, the procedure calls to OpenGL functions only make sense based off of the context
   in which they are evaluated, and the sequence of OpenGL calls
   to complete a task.
 
