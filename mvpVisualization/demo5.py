@@ -1145,7 +1145,7 @@ while not glfw.window_should_close(window):
             imgui.end_menu()
         imgui.end_main_menu_bar()
 
-    imgui.begin("Custom window", True)
+    imgui.begin("Time", True)
 
     clicked_animation_paused, animation_paused = imgui.checkbox(
         "Pause", animation_paused

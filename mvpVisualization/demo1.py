@@ -27,6 +27,9 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 import glfw
 import pyMatrixStack as ms
+import imgui
+from imgui.integrations.glfw import GlfwRenderer
+
 
 
 if not glfw.init():
@@ -44,6 +47,8 @@ if not window:
 
 # Make the window's context current
 glfw.make_context_current(window)
+imgui.create_context()
+impl = GlfwRenderer(window)
 
 # Install a key handler
 
@@ -258,6 +263,11 @@ TARGET_FRAMERATE = 60  # fps
 # to try to standardize on 60 fps, compare times between frames
 time_at_beginning_of_previous_frame = glfw.get_time()
 
+animation_time = 0.0
+animation_time_multiplier = 1.0
+animation_paused = False
+
+
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
@@ -268,8 +278,29 @@ while not glfw.window_should_close(window):
     # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
 
+    if not animation_paused:
+        animation_time += 1.0 / 60.0 * animation_time_multiplier
+
+
     # Poll for and process events
     glfw.poll_events()
+    impl.process_inputs()
+
+    imgui.new_frame()
+
+    imgui.begin("Time", True)
+
+    clicked_animation_paused, animation_paused = imgui.checkbox(
+        "Pause", animation_paused
+    )
+    clicked_animation_time_multiplier, animation_time_multiplier = imgui.slider_float(
+        "Sim Speed", animation_time_multiplier, 0.1, 10.0
+    )
+    if imgui.button("Restart"):
+        animation_time = 0.0
+
+    imgui.end()
+
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
@@ -380,6 +411,9 @@ while not glfw.window_should_close(window):
         for model_space in paddle2.vertices:
             glVertex3f(model_space[0], model_space[1], model_space[2])
         glEnd()
+
+    imgui.render()
+    impl.render(imgui.get_draw_data())
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers
