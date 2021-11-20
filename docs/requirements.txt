@@ -1,5 +1,5 @@
-imageio==2.10.4
-matplotlib==3.4.3
+imageio==2.11.1
+matplotlib==3.5.0
 numpy==1.21.4
 Pillow==8.4.0
 Sphinx==4.3.0
