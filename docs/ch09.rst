@@ -9,9 +9,7 @@ more clearly.
 
 We do this by the following:
 
-* Read a sequence of transformations from bottom to top,
-  where each transformation of the graph paper is relative
-  to the current coordinate system.
+* Read sequence of transformations in the reverse order, from bottom to top.
 
 
 .. figure:: _static/screenshots/demo09.png
@@ -48,13 +46,22 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-In the previous demo, The initial translate is effectively canceled out,
-leaving a rotation and then a translation.
-Translate inverse(Translate) Rotate Translate
+In the previous demo, the initial translate is effectively canceled out,
+leaving just a rotation and then a translation.
 
-So we really just need to do a rotation first, and then a translation.
-But this can be counterintuitive at first because we like to think
-in relative terms.
+
+.. math::
+    \begin{equation}
+    \begin{split}
+    \vec{f}_{p}^{w}  & = \vec{t} \circ \vec{r} \circ {\vec{t}}^{-1} \circ \vec{t} \\
+                     & = \vec{t} \circ \vec{r}
+    \end{split}
+    \end{equation}
+
+Where t and r are the translate and rotate functions for a paddle.
+
+    
+So we really just need to apply the rotation first, and then the translation.
 
 To understand why the code in this demo works, you can think
 about it in one of two ways, forwards or backwards.
@@ -86,9 +93,9 @@ Reading transformations bottom-up
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-or, you can read the transformations backwards,
+Alternatively, you can read the transformations backwards,
 where the operations
-all modify the current axises and origin, i.e. basis, to a new basis.
+all cumulatively modify the current axises and origin, i.e. basis, to a new basis.
 All subsequent functions move that relative basis to a new relative basis.
 
 
@@ -110,7 +117,8 @@ Suggested Order
 
 The author has a strong opinion on the matter for computer graphics.
 
-Start at world space.
+Start at world space node.  As a reminder, this is the toplevel coordinate
+system that we choose to use.  It's whatever you want it to be.
 
 .. figure:: _static/demo06.png
     :align: center
@@ -119,10 +127,27 @@ Start at world space.
 
     Demo 06
 
-Think of the origin, x and y axises.  Move towards each modelspace,
-imagining a transformed local coordinate system, and read the transformations
-backwards.  The data you plot will be relative to that transformed coordinate
+Think of world space's origin, x and y axises.  On the Cayley graph, move towards each modelspace node,
+which is against the direction of the edge,  Look at that edge's correponding
+sequence of function calls in the graphics code.  Read the transformations
+from the bottom up, imagining a transformed local coordinate system against which
+each function in the sequence operates.
+
+The data you plot that is in its own modelspace will actually be plotted relative to that transformed coordinate
 system.
+
+
+For the linear-algebra inclined reader, we've used
+
+.. math::
+    \begin{equation}
+    L * (M * \vec{x})     = (L * M) * \vec{x}
+     \end{equation}
+
+to understand a complex system of equations, sometimes looking at the left
+side of the equations, sometimes looking at the right side.
+     
+
 
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
@@ -131,10 +156,11 @@ system.
    :lines: 195-196
 
 
-Now go back to world space.  It's the origin coordinate system, and think
-of everything of having already been "plotted".
-For every transformations towards screen space, read the transformations
-from top down, resetting the coordinate system after every transformation.
+Now go back to world space.  Think
+of all modelspace data as having already been "plotted".  So now follow
+the edges to screen space,
+reading the transformations
+from top down, and resetting the coordinate system after every transformation.
 
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
@@ -146,47 +172,11 @@ from top down, resetting the coordinate system after every transformation.
 
 
 
+As a side note,	the computer has no notion of coordinate systems.  It just has a sequence of procedures
+to apply on a sequence of numbers.  For us humans to make sense of what we are modeling,
+and to implement it correctly, we need to be able to reason and compose our thoughts clearly.
 
-I prefer to think graphically instead of symbolically.
-Another way you can think of this is to rotate the the x axis
-and y axis, create graph paper (tick marks) along those new
-axis, and then draw the geometry on that new "basis",
-instead of the natural basis. (Natural basis just means
-the normal x and y axis).
-Think of basis as an origin, a unit in various directions,
-a graph paper lines drawn.  Then your geometry is drawn
-in that space.
-
-In revisting demo 6's space, if we read all of the transformations
-below in order, it's following the order of function application.
-
-If instead we read the transformation between spaces backwards in code,
-(and going the opposite direction of the arrows), we can view a coordinate
-system that is changing (origin can move, and axises can rotate/scale)
-
-
-
-ALSO, see mvpVisualization/demo.py and mvpVisualization/demoAnimation.py.
-THESE WILL SHOW THE TRANSMORTAIONS backwards much more intuitively.
-
-
-Same thing for the second paddle.
-
-.. figure:: _static/rotate2-forwards.gif
-    :align: center
-    :alt: Rotate Paddle 2 Forwards
-    :figclass: align-center
-
-    Rotate Paddle 2 Forwards
-
-.. figure:: _static/rotate2-backwards.gif
-    :align: center
-    :alt: Rotate Paddle 2 Backwards
-    :figclass: align-center
-
-    Rotate Paddle 2 Backwards
-
-
+    
 Code
 ^^^^
 
@@ -212,6 +202,11 @@ The Event Loop
    :lineno-start: 191
    :lines: 191-199
 
+* Read line 196
+* Read line 195
+* Reset the coordinate system
+* Read line 197
+	   
 ::
 
     ...
@@ -221,3 +216,14 @@ The Event Loop
    :linenos:
    :lineno-start: 204
    :lines: 204-210
+
+* Read line 206
+* Read line 207
+* Reset the coordinate system
+* Read line 208
+
+	   
+
+ALSO, see mvpVisualization/demo2.py.  This is an animation of the code, albeit in 3D space.
+
+	   

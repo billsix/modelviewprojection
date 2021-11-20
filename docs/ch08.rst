@@ -17,13 +17,6 @@ way, but do it inelegantly.
 
 
 
-.. figure:: _static/rotate-sloppy-forwards.gif
-    :align: center
-    :alt:
-    :figclass: align-center
-
-    Works but sloppy
-
 
 How to Execute
 ^^^^^^^^^^^^^^
@@ -56,39 +49,30 @@ The problem in the last demo is that all rotations happen relative
 to World Space's (0,0) and axises.  By translating our paddles to their position,
 they are then rotated not around their modelspace center,
 but by World Space's origin.
-In this demo, we translate the paddles to their position,
-then to rotate about the paddle's center, we translate
-back to the origin, rotate, and then translate again back to the paddle's position.
-This works, but it should be clear that it's an inefficient
-method at best; at worst, we are not thinking about
-the transformations clearly.
 
-Taking a look at the various spaces, the code in this demo
-is going to go back and forth between those spaces.  The code
-in this demo is the wrong way to think about rendering.
-
-
-
-
-Code
-^^^^
+In this demo, we try to solve the problem by making a method to rotate
+around a point in world space, in this case, the paddle's center.
 
 
 
 .. literalinclude:: ../src/demo08/demo.py
    :language: python
    :linenos:
-   :lineno-start: 90
-   :lines: 90-111
+   :lineno-start: 91
+   :lines: 91
 
-"rotate_around" allows us to rotate around a point by taking
-world space vertices
+::
+
+   ...
+   
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 107
+   :lines: 107-111
 
 
-
-
-The Event Loop
-~~~~~~~~~~~~~~
+Within the event loop, this seems quite reasonable
 
 
 
@@ -122,6 +106,26 @@ The Event Loop
    :lineno-start: 209
    :lines: 209-218
 
+
+All we did was add a rotate around method, and call it, with the
+paddle's center as the rotate point.
+
+
+
+
+
+
+
+
+
+
+.. figure:: _static/rotate-sloppy-forwards.gif
+    :align: center
+    :alt:
+    :figclass: align-center
+
+    Works but sloppy
+	   
 
 Although this works for now and looks like decent code, this is so sloppy, and
 not thought out well at all.  We apply a transformation
@@ -169,7 +173,7 @@ resetting the coordinate system
 
 
 
-and them translating them back to their original origin
+and them translating them back to the paddle space origin
 
 .. figure:: _static/rotate-sloppy-forwards-8.png
     :align: center
@@ -181,6 +185,10 @@ and them translating them back to their original origin
 
 Cayley Graph
 ^^^^^^^^^^^^
+
+Note, this is gross, and the edge from the paddlespace to itself doesn't even
+make any sense, but the author did not know how else to represent
+this code.
 
 .. figure:: _static/demo08.png
     :align: center
