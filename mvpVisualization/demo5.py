@@ -1157,6 +1157,51 @@ while not glfw.window_should_close(window):
     if imgui.button("Restart"):
         animation_time = 0.0
 
+    (
+        clicked_virtual_camera_positionx_clicked,
+        virtual_camera_position[0],
+    ) = imgui.slider_float("Camera X", virtual_camera_position[0], -100, 100.0)
+    (
+        clicked_virtual_camera_positiony_clicked,
+        virtual_camera_position[1],
+    ) = imgui.slider_float("Camera Y", virtual_camera_position[1], -100, 100.0)
+    (
+        clicked_virtual_camera_positionz_clicked,
+        virtual_camera_position[2],
+    ) = imgui.slider_float("Camera Z", virtual_camera_position[2], -100, 100.0)
+    (
+        clicked_virtual_camera_positionrotx_clicked,
+        virtual_camera_rot_x,
+    ) = imgui.slider_float("Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi)
+    (
+        clicked_virtual_camera_positionroty_clicked,
+        virtual_camera_rot_y,
+    ) = imgui.slider_float("Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi)
+
+    if imgui.button("Paddle 1"):
+        animation_time = 15.0
+    imgui.same_line()
+    if imgui.button("Square"):
+        animation_time = 35.0
+    imgui.same_line()
+    if imgui.button("Paddle 2"):
+        animation_time = 45.0
+    if imgui.button("Camera Orient"):
+        animation_time = 50.0
+    imgui.same_line()
+    if imgui.button("Camera Inverse"):
+        animation_time = 65.0
+    if imgui.button("Frustum squash X"):
+        animation_time = 90.0
+    imgui.same_line()
+    if imgui.button("Frustum squash Y"):
+        animation_time = 95.0
+    imgui.same_line()
+    if imgui.button("Prism center"):
+        animation_time = 100.0
+    if imgui.button("Prism scale"):
+        animation_time = 105.0
+
     imgui.end()
 
     width, height = glfw.get_framebuffer_size(window)

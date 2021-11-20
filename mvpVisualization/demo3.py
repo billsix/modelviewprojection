@@ -320,7 +320,6 @@ while not glfw.window_should_close(window):
 
     imgui.end()
 
-
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)

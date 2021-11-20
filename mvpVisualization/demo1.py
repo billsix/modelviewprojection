@@ -31,7 +31,6 @@ import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
 
-
 if not glfw.init():
     sys.exit()
 
@@ -281,7 +280,6 @@ while not glfw.window_should_close(window):
     if not animation_paused:
         animation_time += 1.0 / 60.0 * animation_time_multiplier
 
-
     # Poll for and process events
     glfw.poll_events()
     impl.process_inputs()
@@ -300,7 +298,6 @@ while not glfw.window_should_close(window):
         animation_time = 0.0
 
     imgui.end()
-
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
