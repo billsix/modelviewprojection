@@ -29,8 +29,6 @@ import glfw
 import pyMatrixStack as ms
 
 from dataclasses import dataclass
-import imgui
-from imgui.integrations.glfw import GlfwRenderer
 
 if not glfw.init():
     sys.exit()
@@ -47,8 +45,6 @@ if not window:
 
 # Make the window's context current
 glfw.make_context_current(window)
-imgui.create_context()
-impl = GlfwRenderer(window)
 
 # Install a key handler
 
@@ -159,6 +155,22 @@ def handle_inputs():
         paddle2.rotation += 0.1
     if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
         paddle2.rotation -= 0.1
+
+
+    global animation_time
+    if glfw.get_key(window, glfw.KEY_1) == glfw.PRESS:
+        animation_time = 5.0
+    if glfw.get_key(window, glfw.KEY_2) == glfw.PRESS:
+        animation_time = 15.0
+    if glfw.get_key(window, glfw.KEY_3) == glfw.PRESS:
+        animation_time = 35.0
+    if glfw.get_key(window, glfw.KEY_4) == glfw.PRESS:
+        animation_time = 55.0
+    if glfw.get_key(window, glfw.KEY_5) == glfw.PRESS:
+        animation_time = 70.0
+    if glfw.get_key(window, glfw.KEY_6) == glfw.PRESS:
+        animation_time = 85.0
+
 
 
 square_vertices = np.array(
@@ -304,21 +316,6 @@ while not glfw.window_should_close(window):
 
     # Poll for and process events
     glfw.poll_events()
-    impl.process_inputs()
-    imgui.new_frame()
-
-    imgui.begin("Time", True)
-
-    clicked_animation_paused, animation_paused = imgui.checkbox(
-        "Pause", animation_paused
-    )
-    clicked_animation_time_multiplier, animation_time_multiplier = imgui.slider_float(
-        "Sim Speed", animation_time_multiplier, 0.1, 10.0
-    )
-    if imgui.button("Restart"):
-        animation_time = 0.0
-
-    imgui.end()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
@@ -521,8 +518,6 @@ while not glfw.window_should_close(window):
                 glVertex3f(model_space[0], model_space[1], model_space[2])
             glEnd()
 
-    imgui.render()
-    impl.render(imgui.get_draw_data())
     # done with frame, flush and swap buffers
     # Swap front and back buffers
     glfw.swap_buffers(window)
