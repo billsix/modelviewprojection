@@ -190,14 +190,14 @@ paddle2: Paddle = Paddle(
 
 @dataclass
 class Camera:
-    x: float = 0.0
-    y: float = 0.0
-    z: float = 0.0
+    position_worldspace: Vertex = Vertex(x=0.0,y=0.0,z=0.0)
     rot_y: float = 0.0
     rot_x: float = 0.0
 
 
-camera: Camera = Camera(x=0.0, y=0.0, z=40.0, rot_y=0.0, rot_x=0.0)
+
+camera: Camera = Camera()
+
 
 
 square: Paddle = [
@@ -232,17 +232,17 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         forwards_camera_space = Vertex(x=0.0, y=0.0, z=-1.0)
         forward_world_space = forwards_camera_space.rotate_y(camera.rot_y) \
-                                                   .translate(tx=camera.x, ty=camera.y, tz=camera.z)
-        camera.x = forward_world_space.x
-        camera.y = forward_world_space.y
-        camera.z = forward_world_space.z
+                                                   .translate(tx=camera.position_worldspace.x, ty=camera.position_worldspace.y, tz=camera.position_worldspace.z)
+        camera.position_worldspace.x = forward_world_space.x
+        camera.position_worldspace.y = forward_world_space.y
+        camera.position_worldspace.z = forward_world_space.z
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         forwards_camera_space = Vertex(x=0.0, y=0.0, z=1.0)
         forward_world_space = forwards_camera_space.rotate_y(camera.rot_y) \
-                                                   .translate(tx=camera.x, ty=camera.y, tz=camera.z)
-        camera.x = forward_world_space.x
-        camera.y = forward_world_space.y
-        camera.z = forward_world_space.z
+                                                   .translate(tx=camera.position_worldspace.x, ty=camera.position_worldspace.y, tz=camera.position_worldspace.z)
+        camera.position_worldspace.x = forward_world_space.x
+        camera.position_worldspace.y = forward_world_space.y
+        camera.position_worldspace.z = forward_world_space.z
 
     global paddle1, paddle2
 
@@ -294,8 +294,8 @@ while not glfw.window_should_close(window):
                                          .translate(tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0)
         # world_space: Vertex =  camera_space.rotate_x(camera.rot_x) \
         #                                    .rotate_y(camera.rot_y) \
-        #                                    .translate(tx=camera.x, ty=camera.y, tz=camera.z)
-        camera_space: Vertex =  world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z)  \
+        #                                    .translate(tx=camera.position_worldspace.x, ty=camera.position_worldspace.y, tz=camera.position_worldspace.z)
+        camera_space: Vertex =  world_space.translate(tx=-camera.position_worldspace.x, ty=-camera.position_worldspace.y, tz=-camera.position_worldspace.z)  \
                                            .rotate_y(-camera.rot_y) \
                                            .rotate_x(-camera.rot_x)
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
@@ -313,8 +313,8 @@ while not glfw.window_should_close(window):
                                             .translate(tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0)
         # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
         #                                   .rotate_y(camera.rot_y) \
-        #                                   .translate(tx=camera.x, ty=camera.y, tz=camera.z)
-        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z) \
+        #                                   .translate(tx=camera.position_worldspace.x, ty=camera.position_worldspace.y, tz=camera.position_worldspace.z)
+        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x, ty=-camera.position_worldspace.y, tz=-camera.position_worldspace.z) \
                                           .rotate_y(-camera.rot_y) \
                                           .rotate_x(-camera.rot_x)
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
@@ -328,8 +328,8 @@ while not glfw.window_should_close(window):
                                          .translate(tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0)
         # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
         #                                   .rotate_y(camera.rot_y) \
-        #                                   .translate(tx=camera.x, ty=camera.y, tz=camera.z)
-        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z) \
+        #                                   .translate(tx=camera.position_worldspace.x, ty=camera.position_worldspace.y, tz=camera.position_worldspace.z)
+        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x, ty=-camera.position_worldspace.y, tz=-camera.position_worldspace.z) \
                                           .rotate_y(-camera.rot_y) \
                                           .rotate_x(-camera.rot_x)
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()

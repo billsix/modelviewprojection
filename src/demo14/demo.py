@@ -160,14 +160,14 @@ paddle2: Paddle = Paddle(
 
 @dataclass
 class Camera:
-    x: float = 0.0
-    y: float = 0.0
+    position_worldspace: Vertex = Vertex(x=0.0,y=0.0,z=0.0)
 
 
-camera: Camera = Camera(
-    x=0.0,
-    y=0.0,
-)
+camera: Camera = Camera()
+
+
+
+
 
 square: Paddle = [
     Vertex(x=-5.0, y=-5.0, z=0.0),
@@ -192,13 +192,13 @@ def handle_inputs() -> None:
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.y += 10.0
+        camera.position_worldspace.y += 10.0
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.y -= 10.0
+        camera.position_worldspace.y -= 10.0
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.x -= 10.0
+        camera.position_worldspace.x -= 10.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.x += 10.0
+        camera.position_worldspace.x += 10.0
 
     global paddle1, paddle2
 
@@ -250,7 +250,7 @@ while not glfw.window_should_close(window):
     for model_space in paddle1.vertices:
         world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
                                          .translate(tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0)
-        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=0.0)
+        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x, ty=-camera.position_worldspace.y, tz=0.0)
         ndc_space: Vertex = camera_space.scale(
             scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
         )
@@ -267,7 +267,7 @@ while not glfw.window_should_close(window):
                                             .translate(tx=0.0, ty=0.0, tz=-10.0)
         world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation) \
                                             .translate(tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0)
-        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=0.0)
+        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x, ty=-camera.position_worldspace.y, tz=0.0)
         ndc_space: Vertex = camera_space.scale(
             scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
         )
@@ -280,7 +280,7 @@ while not glfw.window_should_close(window):
     for model_space in paddle2.vertices:
         world_space: Vertex = model_space.rotate_z(paddle2.rotation) \
                                          .translate(tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0)
-        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=0.0)
+        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x, ty=-camera.position_worldspace.y, tz=0.0)
         ndc_space: Vertex = camera_space.scale(
             scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
         )

@@ -78,7 +78,7 @@ It could be
     Demo 10
 
 
-Since the camera will be described relative to world space,
+Since the camera's position will be described relative to world space, in world space coordinates,
 it makes more sense to use the latter, in which the directed edge
 goes from camera space to world space.
 

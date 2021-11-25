@@ -6,6 +6,5 @@ digraph {
     "Paddle 2 Space" -> "World Space"[label=<f<SUB>p2</SUB><SUP>w</SUP>>,weight="0.2"];
     "World Space" -> "Camera Space" [label=<f<SUB>w</SUB><SUP>c</SUP>>,weight="0.2"];
     "Camera Space" -> "NDC" [label=<f<SUB>c</SUB><SUP>ndc</SUP>>,weight="0.2"];
-    "NDC" -> "Viewport Space" [label=<f<SUB>ndc</SUB><SUP>v</SUP>>];
-    "Viewport Space" -> "Screen Space" [label=<f<SUB>v</SUB><SUP>s</SUP>>];
+    "NDC" -> "Screen Space" [label=<f<SUB>ndc</SUB><SUP>S</SUP>>];
 }

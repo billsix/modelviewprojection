@@ -91,6 +91,8 @@ you would
 #. rotate around the y axis
 #. rotate around the x axis
 
+To visualize this, run "python mvpVisualization/demo3.py"
+
 The ordering of 1) before 2) and 3) should be clear, as
 we are imagining a coordinate system that moves, just
 like we do for the modelspace to world space transformations.
@@ -99,19 +101,6 @@ across different axises are not commutative.
 https://en.wikipedia.org/wiki/Commutative_property.
 
 
-(Remember, read bottom up, just like the previous demos
-for modelspace to worldspace data)
-
-::
-
-        world_space = camera_space.rotate_x(camera.rot_x)
-                                  .rotate_y(camera.rot_y)
-                                  .translate(tx=camera.x,
-                                             ty=camera.y,
-                                             tz=camera.z)
-
-
-We rotate on the y axis first, then the x axis. (described later)
 
 Try this.  Rotate your head to the right a little more that
 45 degrees.  Now rotate your head back a little more than 45 degrees.
@@ -123,52 +112,63 @@ We rotate the camera by the y axis first, then by the relative x axis,
 for the same reason.
 
 
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 295
+   :lines: 295-297
+
+
+(Remember, read bottom up, just like the previous demos
+for modelspace to worldspace data)
+
+
 Back to the point, we are envisioning the camera relative to the world
 space by making a moving coordinate system (composed of an origin, 1 unit
-in the "x" axis, 1 unit in the "y" axis, and 1 unit in the axis), where
+in the "x" axis, 1 unit in the "y" axis, and 1 unit in the "z" axis), where
 each subsequent transformation is relative to the previous coordinate system.
 (This system is beneficial btw because it allows us to think of one coordinate
 system at a time, and forget how we got there, (similar to a Markov process,
 https://en.wikipedia.org/wiki/Markov_chain))
 
 But that system of thinking works only when we are placing the camera into
-it's position/orientation.  Looking at the right hand picture of
-eog ../images/demo10.png
+it's position/orientation.  Looking at
+
+.. figure:: _static/demo10-2.png
+    :align: center
+    :alt: Demo 10
+    :figclass: align-center
+
+    Demo 10
+
 thinking in this way would allow us to transform vertices defined in camera space
 to world space, just like the paddles/square.
 
 But we don't want that.  Instead, we want to take the modelspace geometry from,
 say Paddle1 space, to world space,
 and then to camera space (which is going in the opposite direction, therefore requires
-an inverse operation, just like in the univariate currency example from Bitcoin to Euro.
-
-eog ../images/currency.png
+an inverse operation.
 
 Given that the inverse of a sequence of transformations is the sequence backwards,
 with each transformations inverted, we must do that to get from world space
 to camera space.
 
-If I tell you to take two steps to the left, rotate 90 degrees, and then reverse it,
-you'd rotate 90 degress in the opposite direction, and then take two steps to the right.
-
-(See https://en.wikipedia.org/wiki/Matrix_multiplication, under
- the section on square matricies, which say that (A*B)^-1 = (B^-1) * (A^-1) )
 
 The inverted form is
 
-::
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 298
+   :lines: 298-300
 
-       camera_space = world_space.translate(tx=-camera.x,
-                                            ty=-camera.y,
-                                            tz=-camera.z)
-                                 .rotate_y( -camera.rot_y)
-                                 .rotate_x( -camera.rot_x)
+
 
 Trying to reason about the camera's position and orientation is difficult.
-As such, in this demo, I have added the non-inverted transformations
+As such, in this demo, I have added the non-inverted transformations for camera
+placement in world space
 in the comments, but will not do so in subsequent demos.
-
-
+p
 
 Before we start, take a look at ../mvpVisualization/demo.py
 to see the 3D geometry drawn both in world space and in their modelspace.
