@@ -1154,6 +1154,7 @@ while not glfw.window_should_close(window):
             imgui.end_menu()
         imgui.end_main_menu_bar()
 
+    imgui.set_next_window_bg_alpha(0.05)
     imgui.begin("Time", True)
 
     clicked_animation_paused, animation_paused = imgui.checkbox(
@@ -1229,10 +1230,9 @@ while not glfw.window_should_close(window):
             animation_time = 105.0
         imgui.tree_pop()
 
-
-
     imgui.end()
 
+    imgui.set_next_window_bg_alpha(0.05)
     imgui.begin("Display Options", True)
 
     clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
@@ -1240,7 +1240,7 @@ while not glfw.window_should_close(window):
     )
     imgui.end()
 
-
+    imgui.set_next_window_bg_alpha(0.05)
     imgui.begin("Camera Options", True)
 
     (
@@ -1361,7 +1361,7 @@ while not glfw.window_should_close(window):
             axis.render(animation_time)
             cube.render(animation_time)
 
-    if animation_time < 5.0 :
+    if animation_time < 5.0:
         axis.render(animation_time)
     else:
         axis.render(animation_time, grayed_out=True)
