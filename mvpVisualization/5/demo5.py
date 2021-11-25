@@ -525,6 +525,7 @@ class Axis:
         glDeleteProgram(self.shader)
 
     def render(self, time, grayed_out=False):
+        glDisable(GL_DEPTH_TEST)
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 
@@ -650,6 +651,7 @@ class Axis:
             )
             glDrawArrays(GL_LINES, 0, self.numberOfVertices)
             glBindVertexArray(0)
+        glEnable(GL_DEPTH_TEST)
 
 
 axis = Axis()
@@ -1166,38 +1168,52 @@ while not glfw.window_should_close(window):
 
     if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
         if imgui.tree_node("Paddle 1"):
-            if imgui.button("Rotate"):
-                animation_time = 10.0
+            imgui.text("f_paddle_to_world(x) = (")
             imgui.same_line()
             if imgui.button("Translate"):
                 animation_time = 5.0
-            imgui.tree_pop()
-        if imgui.tree_node("Square"):
-            if imgui.button("Translate X"):
-                animation_time = 25.0
             imgui.same_line()
-            if imgui.button("Rotate Z"):
-                animation_time = 20.0
+            imgui.text(" o ")
             imgui.same_line()
-            if imgui.button("Translate -Z"):
-                animation_time = 15.0
+            if imgui.button("Rotate"):
+                animation_time = 10.0
+            imgui.same_line()
+            imgui.text(" ) (x) ")
+            if imgui.tree_node("Square"):
+                imgui.text("f_square_to_world(x) = (f_square_to_world o (")
+                imgui.same_line()
+                if imgui.button("Translate -Z"):
+                    animation_time = 15.0
+                imgui.same_line()
+                imgui.text(" o ")
+                imgui.same_line()
+                if imgui.button("Rotate Z"):
+                    animation_time = 20.0
+                imgui.same_line()
+                imgui.text(" o ")
+                imgui.same_line()
+                if imgui.button("Translate X"):
+                    animation_time = 25.0
+                imgui.same_line()
+                imgui.text(" ) (x) ")
+                imgui.tree_pop()
             imgui.tree_pop()
         if imgui.tree_node("Paddle 2"):
-            if imgui.button("Rotate"):
-                animation_time = 40.0
-            imgui.same_line()
             if imgui.button("Translate"):
                 animation_time = 35.0
+            imgui.same_line()
+            if imgui.button("Rotate"):
+                animation_time = 40.0
             imgui.tree_pop()
         if imgui.tree_node("Camera Orient"):
-            if imgui.button("Rotate Camera X"):
-                animation_time = 60.0
+            if imgui.button("Translate Camera"):
+                animation_time = 50.0
             imgui.same_line()
             if imgui.button("Rotate Camera Y"):
                 animation_time = 55.0
             imgui.same_line()
-            if imgui.button("Translate Camera"):
-                animation_time = 50.0
+            if imgui.button("Rotate Camera X"):
+                animation_time = 60.0
             imgui.tree_pop()
         imgui.tree_pop()
     if imgui.tree_node("Towards NDC, With Arrows, Top Down Reading"):
