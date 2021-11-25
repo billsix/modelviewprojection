@@ -144,8 +144,12 @@ class Vertex:
         length_y: float
         length_z: float
         length_x, length_y, length_z = right - left, top - bottom, far - near
-        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
-            2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
+        return self.translate(tx=-midpoint_x,
+                              ty=-midpoint_y,
+                              tz=-midpoint_z) \
+                   .scale(2.0 / length_x,
+                          2.0 / length_y,
+                          2.0 / (-length_z)
         )
 
     def perspective(
@@ -332,14 +336,15 @@ while not glfw.window_should_close(window):
     fn_stack.append(lambda v: v.rotate_x(-camera.rot_x))  # (2)
     fn_stack.append(lambda v: v.rotate_y(-camera.rot_y))  # (3)
     fn_stack.append(
-        lambda v: v.translate(tx=-camera.position_worldspace.x, ty=-camera.position_worldspace.y, tz=-camera.position_worldspace.z)  # (4)
+        lambda v: v.translate(tx=-camera.position_worldspace.x,
+                              ty=-camera.position_worldspace.y,
+                              tz=-camera.position_worldspace.z)  # (4)
     )
 
     fn_stack.append(
-        lambda v: v.translate(
-            tx=paddle1.position.x,  # (6) translate the local origin
-            ty=paddle1.position.y,
-            tz=0.0,
+        lambda v: v.translate(tx=paddle1.position.x,  # (6) translate the local origin
+                              ty=paddle1.position.y,
+                              tz=0.0,
         )
     )
     fn_stack.append(
@@ -356,9 +361,13 @@ while not glfw.window_should_close(window):
 
     glColor3f(0.0, 0.0, 1.0)
 
-    fn_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0))  # (8)
+    fn_stack.append(lambda v: v.translate(tx=0.0,
+                                          ty=0.0,
+                                          tz=-10.0))  # (8)
     fn_stack.append(lambda v: v.rotate_z(rotation_around_paddle1))  # (9)
-    fn_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0))  # (10)
+    fn_stack.append(lambda v: v.translate(tx=20.0,
+                                          ty=0.0,
+                                          tz=0.0))  # (10)
     fn_stack.append(lambda v: v.rotate_z(square_rotation))  # (11)
 
     glBegin(GL_QUADS)
@@ -376,9 +385,9 @@ while not glfw.window_should_close(window):
 
 
     fn_stack.append(
-        lambda v: v.translate(
-            tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0  # (13)
-        )
+        lambda v: v.translate(tx=paddle2.position.x,
+                              ty=paddle2.position.y,
+                              tz=0.0)  # (13)
     )
     fn_stack.append(lambda v: v.rotate_z(paddle2.rotation))  # (14)
 

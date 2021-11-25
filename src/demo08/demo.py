@@ -105,9 +105,11 @@ class Vertex:
         )
 
     def rotate_around(self: Vertex, angle_in_radians: float, center: Vertex) -> Vertex:
-        translate_to_center: Vertex = self.translate(tx=-center.x, ty=-center.y)
+        translate_to_center: Vertex = self.translate(tx=-center.x,
+                                                     ty=-center.y)
         rotated_around_origin: Vertex = translate_to_center.rotate(angle_in_radians)
-        back_to_position: Vertex = rotated_around_origin.translate(tx=center.x, ty=center.y)
+        back_to_position: Vertex = rotated_around_origin.translate(tx=center.x,
+                                                                   ty=center.y)
         return back_to_position
 
 
@@ -199,9 +201,11 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     rotatePoint: Vertex = paddle1.position
     for model_space in paddle1.vertices:
-        world_space: Vertex = model_space.translate(tx=paddle1.position.x, ty=paddle1.position.y)
+        world_space: Vertex = model_space.translate(tx=paddle1.position.x,
+                                                    ty=paddle1.position.y)
         world_space: Vertex = world_space.rotate_around(paddle1.rotation, rotatePoint)
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
+        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
+                                              scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
@@ -211,9 +215,11 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     rotatePoint: Vertex = paddle2.position
     for model_space in paddle2.vertices:
-        world_space: Vertex = model_space.translate(tx=paddle2.position.x, ty=paddle2.position.y)
+        world_space: Vertex = model_space.translate(tx=paddle2.position.x,
+                                                    ty=paddle2.position.y)
         world_space: Vertex = world_space.rotate_around(paddle2.rotation, rotatePoint)
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
+        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
+                                              scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 

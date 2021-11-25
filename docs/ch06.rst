@@ -493,7 +493,7 @@ Rendering Paddle 1
    :language: python
    :linenos:
    :lineno-start: 173
-   :lines: 173-175
+   :lines: 173-174
 
 
 .. figure:: _static/translation-forwards-2.png
@@ -524,8 +524,8 @@ on the bottom and on the left.
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 177
-   :lines: 177
+   :lineno-start: 175
+   :lines: 175-179
 
 
 
@@ -537,8 +537,8 @@ Rendering Paddle 2
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 182
-   :lines: 182-185
+   :lineno-start: 181
+   :lines: 181-184
 
 
 
@@ -553,8 +553,8 @@ Rendering Paddle 2
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 187
-   :lines: 187-189
+   :lineno-start: 185
+   :lines: 185-186
 
 .. figure:: _static/translation2-forwards-2.png
     :align: center
@@ -582,5 +582,5 @@ on the bottom and on the left.
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 191
-   :lines: 191
+   :lineno-start: 187
+   :lines: 187-190

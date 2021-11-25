@@ -99,7 +99,7 @@ is set back to the origin basis.
    :language: python
    :linenos:
    :lineno-start: 195
-   :lines: 195-196
+   :lines: 195-197
 
 
 .. figure:: _static/rotate1-forwards.gif
@@ -124,7 +124,7 @@ All subsequent functions move that relative basis to a new relative basis.
    :language: python
    :linenos:
    :lineno-start: 195
-   :lines: 195-196
+   :lines: 195-197
 
 .. figure:: _static/rotate1-backwards.gif
     :align: center
@@ -174,7 +174,7 @@ side of the equations, sometimes looking at the right side.
    :language: python
    :linenos:
    :lineno-start: 195
-   :lines: 195-196
+   :lines: 195-197
 
 
 Now go back to world space.  Think
@@ -186,8 +186,8 @@ from top down, and resetting the coordinate system after every transformation.
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
    :linenos:
-   :lineno-start: 197
-   :lines: 197
+   :lineno-start: 198
+   :lines: 198-199
 
 
 
@@ -221,12 +221,12 @@ The Event Loop
    :language: python
    :linenos:
    :lineno-start: 191
-   :lines: 191-199
+   :lines: 191-201
 
-* Read line 196
+* Read line 196-197
 * Read line 195
 * Reset the coordinate system
-* Read line 197
+* Read line 198-199
 
 ::
 
@@ -236,12 +236,12 @@ The Event Loop
    :language: python
    :linenos:
    :lineno-start: 204
-   :lines: 204-210
+   :lines: 204-214
 
-* Read line 206
-* Read line 207
-* Reset the coordinate system
+* Read line 209-210
 * Read line 208
+* Reset the coordinate system
+* Read line 211-212
 
 
 

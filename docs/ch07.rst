@@ -237,7 +237,7 @@ This composed sequence of function calls is our definion of
    :language: python
    :linenos:
    :lineno-start: 188
-   :lines: 188-196
+   :lines: 188-197
 
 ::
 
@@ -262,8 +262,8 @@ This composed sequence of function calls is our definion of
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 200
-   :lines: 200-206
+   :lineno-start: 201
+   :lines: 201-208
 
 
 Why it's Wrong
@@ -279,7 +279,7 @@ world space transformations are doing.
    :language: python
    :linenos:
    :lineno-start: 192
-   :lines: 192-193
+   :lines: 192-194
 
 
 

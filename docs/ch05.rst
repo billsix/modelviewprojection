@@ -183,7 +183,7 @@ The Event Loop
    :language: python
    :linenos:
    :lineno-start: 168
-   :lines: 168-182
+   :lines: 168-184
 
 
 .. figure:: _static/demo05.png
