@@ -19,6 +19,10 @@
 # SOFTWARE.
 
 
+# PURPOSE
+# use a game controller.  Tested with Wired XBOX 360 controller
+
+
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
@@ -36,7 +40,7 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 17", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 16", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -53,10 +57,10 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
-
 glClearDepth(-1.0)
 glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
+
 
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
@@ -142,33 +146,12 @@ class Vertex:
         length_y: float
         length_z: float
         length_x, length_y, length_z = right - left, top - bottom, far - near
-        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
-            2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
-        )
-
-    def perspective(
-        self: Vertex, fov: float, aspectRatio: float, nearZ: float, farZ: float
-    ) -> Vertex:
-        # fov, field of view, is angle of y
-        # aspectRatio is xwidth / ywidth
-
-        top: float = -nearZ * math.tan(math.radians(fov) / 2.0)
-        right: float = top * aspectRatio
-
-        scaled_x: float = self.x / self.z * nearZ
-        scaled_y: float = self.y / self.z * nearZ
-        retangular_prism: Vertex = Vertex(scaled_x, scaled_y, self.z)
-
-        return retangular_prism.ortho(
-            left=-right, right=right, bottom=-top, top=top, near=nearZ, far=farZ
-        )
+        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z) \
+                   .scale(2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z))
 
     def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
-        return self.perspective(
-            fov=45.0,
-            aspectRatio=1.0,
-            nearZ=-0.1,
-            farZ=-10000.0,
+        return self.ortho(
+            left=-100.0, right=100.0, bottom=-100.0, top=100.0, near=100.0, far=-100.0
         )
 
 
@@ -222,7 +205,7 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera: Camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
+camera: Camera = Camera(x=0.0, y=0.0, z=40.0, rot_y=0.0, rot_x=0.0)
 
 
 square: Paddle = [
@@ -247,6 +230,7 @@ def handle_inputs() -> None:
     global camera
 
     move_multiple = 15.0
+
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
@@ -305,37 +289,53 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
+
+    # NEW -- handle controller input
     axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
+
+    # axes_list[0] is controller 1
+    # axes_list[0][0] is controller 1's vertical axis
+
+    # the value can be between -1 and 1.  also, there is a dead zone
+    # area around 0, meaning that the value of a non-pressed controller
+    # may register a random value.  Therefore, set up a gating value
+    # (in this case 0.19), which will not register to the application
+    # as an input
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.19:
+            # vertical
+            # TODO - show the math
             camera.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
             camera.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
+        # axes_list[0][1] is the horizontal component of the left stick
         if math.fabs(float(axes_list[0][1])) > 0.19:
+            # horizontal
+            # TODO - show the math
             camera.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
             camera.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
 
+        # axes_list[0][1] is the horizontal component of the right stick
         if math.fabs(axes_list[0][3]) > 0.19:
             camera.rot_y -= 3.0 * axes_list[0][3] * 0.01
+        # axes_list[0][4] is the vertical component of the right stick
         if math.fabs(axes_list[0][4]) > 0.19:
             camera.rot_x += axes_list[0][4] * 0.01
 
 
 
-    # draw paddle 1
-    glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
+
+    glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
         world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
                                          .translate(tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0)
-        camera_space: Vertex = world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z) \
-                                          .rotate_y(-camera.rot_y) \
-                                          .rotate_x(-camera.rot_x)
+        camera_space: Vertex =  world_space.translate(tx=-camera.x, ty=-camera.y, tz=-camera.z)  \
+                                           .rotate_y(-camera.rot_y) \
+                                           .rotate_x(-camera.rot_x)
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-
-    # draw square
 
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
@@ -353,9 +353,7 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
-    # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
-
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         world_space: Vertex = model_space.rotate_z(paddle2.rotation) \

@@ -7,16 +7,25 @@ Purpose
 Make a moving camera in 3D space.  Use Ortho to put a rectangular prism
 into NDC.
 
-Problem purposefully put in
+.. figure:: _static/screenshots/camera1.png
+    :align: center
+    :alt: Camera
+    :figclass: align-center
 
-When moving front to back, parts of the geometry disappears.
-This is because it gets "clipped out", as the geometry is outside
+    Camera space
+
+
+Problem purposefully put in
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+When moving front to back, parts of the geometry will disappear.
+This is because it gets "clipped out", as the geometry will be outside
 of NDC, (-1 to 1 on all three axis).  We could fix this by making
-a bigger ortho rectangular prism, but because of problem 3, we'll
-ignore that for now.
+a bigger ortho rectangular prism, but that won't solve the fundamental
+problem.
 
 This doesn't look like a 3D application should, where further away
-objects are smaller.  This will be fixed in demo17
+objects are smaller.  This will be fixed in demo17.
 
 
 .. figure:: _static/screenshots/demo16.png
@@ -62,35 +71,20 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-NEW CAMERA CONTROLS for up, left, down, right, page up, page down
-Camera now moves through the 3D world, as you would expect to see
-in any first person game, but very poorly as perspective is not
-taken into account.  (Perspective meaning that objects that are
-further away down the negative z axis appear smaller in terms
-of their x and y coordinate)
+There are new keyboard inputs to control the moving camera.
+As you would expect to see
+in a first person game, up moves the camera forward (-z),
+down moves the camera backwards (z), left rotates the camera
+as would happen if you rotated your body to the left, and likewise
+for right. Page UP and Page DOWN rotate the camera to look up
+or to look down.
 
-The camera has an x,y,z position, and two rotations (one around
-the x axis, and one around the y axis).
+To enable this, the camera is modeled with a data structure,
+having a position in x,y,z, and two rotations (one around
+the camera's x axis, and one around the camera's y axis).
 
-NOTE - the camera space transformtions are the most unintuitive aspects
-of graphics programming.  If you read the transformations
-here from top down, you are envisioning moving all of the objects
-in the scene, and that your camera is fixed, the diagram
-on the left side of the following image.
-
-eog ../images/demo10.png
-
-That is the equivalent of when driving, that your car is fixed,
-and that you are rotating the earth.  This way of thinking,
-may suffice to you, and if you can keep it straight, great.
-The camera isn't moving, everything else has a velocity
-that's in the opposite direction.
-
-If instead, you view that the camera is defined in terms of world
-space, and it's movement is relative to that world space, (the right
-diagram in demo10.png), then the intepretation is a bit harder.
-First, think of the transformations that put your camera in the
-correct position and orientation.  Write them down.
+To position the camera, with all operations relative to world space,
+you would
 
 #. translate to the camera's position, using the actual position values
    of camera position (not their negatives)

@@ -103,6 +103,11 @@ but instead we apply the inverse of the function.  This concept
 comes from Group Theory in Abstract Algebra, the details of which won't
 be discussed here.
 
+Inverses
+~~~~~~~~
+
+Inverse Of Translate
+&&&&&&&&&&&&&&&&&&&&
 
 The inverse of
 
@@ -116,6 +121,11 @@ is
 
       >>> v.translate(-x,-y)
 
+Inverse Of Rotate
+&&&&&&&&&&&&&&&&&
+
+
+
 The inverse of
 
 .. code:: Python
@@ -128,6 +138,9 @@ is
 
       >>> v.rotate(-theta)
 
+Inverse Of Scale
+&&&&&&&&&&&&&&&&
+
 The inverse of
 
 .. code:: Python
@@ -139,6 +152,33 @@ is
 .. code:: Python
 
       >>> v.scale(1.0/x,1.0/y)
+
+
+Inverse Of Sequence Of Functions
+&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
+
+The inverse of a sequence of functions is the inverse of each function, applied in reverse order.
+
+For the linear-algebra inclined reader,
+
+.. math::
+    \begin{equation}
+    {(A * B)}^{-1}     = {B}^{-1}*{A}^{-1}
+     \end{equation}
+
+The inverse of
+
+.. code:: Python
+
+      >>> v.scale(x,y).translate(tx,tx)
+
+is
+
+.. code:: Python
+
+      >>> v.translate(-tx,-tx).scale(1.0/x,1.0/y)
+
+
 
 
 
