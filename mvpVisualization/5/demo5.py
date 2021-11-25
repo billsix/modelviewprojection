@@ -1168,19 +1168,24 @@ while not glfw.window_should_close(window):
         "Enlarged Axises", enlarged_axis
     )
 
-
     (
         clicked_virtual_camera_positionx_clicked,
         virtual_camera_position[0],
-    ) = imgui.slider_float("Camera X_Worldspace", virtual_camera_position[0], -200, 200.0)
+    ) = imgui.slider_float(
+        "Camera X_Worldspace", virtual_camera_position[0], -200, 200.0
+    )
     (
         clicked_virtual_camera_positiony_clicked,
         virtual_camera_position[1],
-    ) = imgui.slider_float("Camera Y_Worldspace", virtual_camera_position[1], -200, 200.0)
+    ) = imgui.slider_float(
+        "Camera Y_Worldspace", virtual_camera_position[1], -200, 200.0
+    )
     (
         clicked_virtual_camera_positionz_clicked,
         virtual_camera_position[2],
-    ) = imgui.slider_float("Camera Z_Worldspace", virtual_camera_position[2], -200, 200.0)
+    ) = imgui.slider_float(
+        "Camera Z_Worldspace", virtual_camera_position[2], -200, 200.0
+    )
     (
         clicked_virtual_camera_positionrotx_clicked,
         virtual_camera_rot_x,
