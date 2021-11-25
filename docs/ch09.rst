@@ -1,3 +1,24 @@
+..
+   Copyright (c) 2018-2021 William Emerison Six
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
 Rotation Fixed - Sequence of Transformations - Demo 09
 ======================================================
 
@@ -60,7 +81,7 @@ leaving just a rotation and then a translation.
 
 Where t and r are the translate and rotate functions for a paddle.
 
-    
+
 So we really just need to apply the rotation first, and then the translation.
 
 To understand why the code in this demo works, you can think
@@ -146,7 +167,7 @@ For the linear-algebra inclined reader, we've used
 
 to understand a complex system of equations, sometimes looking at the left
 side of the equations, sometimes looking at the right side.
-     
+
 
 
 .. literalinclude:: ../src/demo09/demo.py
@@ -176,7 +197,7 @@ As a side note,	the computer has no notion of coordinate systems.  It just has a
 to apply on a sequence of numbers.  For us humans to make sense of what we are modeling,
 and to implement it correctly, we need to be able to reason and compose our thoughts clearly.
 
-    
+
 Code
 ^^^^
 
@@ -206,7 +227,7 @@ The Event Loop
 * Read line 195
 * Reset the coordinate system
 * Read line 197
-	   
+
 ::
 
     ...
@@ -222,8 +243,6 @@ The Event Loop
 * Reset the coordinate system
 * Read line 208
 
-	   
+
 
 ALSO, see mvpVisualization/demo2.py.  This is an animation of the code, albeit in 3D space.
-
-	   
