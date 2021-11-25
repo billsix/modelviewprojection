@@ -193,7 +193,7 @@ paddle2: Paddle = Paddle(
 
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
-print(number_of_controllers)
+
 
 
 @dataclass

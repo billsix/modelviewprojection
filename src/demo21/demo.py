@@ -114,7 +114,7 @@ paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0
 paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
-print(number_of_controllers)
+
 
 
 @dataclass

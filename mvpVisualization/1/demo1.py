@@ -228,19 +228,6 @@ class Paddle:
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 
-        # pass projection parameters to the shader
-        fov_loc = glGetUniformLocation(self.shader, "fov")
-        glUniform1f(fov_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
-        glUniform1f(aspect_loc, 1.0)
-        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
-        farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
-
-        time_loc = glGetUniformLocation(self.shader, "time")
-        glUniform1f(time_loc, animation_time)
-
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
             self.mMatrixLoc,
@@ -275,7 +262,7 @@ paddle1 = Paddle(
     g=0.0,
     b=1.0,
     position=np.array([-90.0, 10.0, 0.0]),
-    rotation=math.radians(45.0),
+    rotation=math.radians(0.0),
 )
 paddle1.prepare_to_render()
 
@@ -284,7 +271,7 @@ paddle2 = Paddle(
     g=0.0,
     b=0.0,
     position=np.array([90.0, 5.0, 0.0]),
-    rotation=math.radians(-20.0),
+    rotation=math.radians(0.0),
 )
 
 paddle2.prepare_to_render()
@@ -392,16 +379,6 @@ class Ground:
     def render(self, time):
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
-
-        # pass projection parameters to the shader
-        fov_loc = glGetUniformLocation(self.shader, "fov")
-        glUniform1f(fov_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
-        glUniform1f(aspect_loc, 1.0)
-        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
-        farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
@@ -525,19 +502,10 @@ class Axis:
         glDeleteProgram(self.shader)
 
     def render(self, time, grayed_out=False):
+        glDisable(GL_DEPTH_TEST)
+
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
-
-        # pass projection parameters to the shader
-        fov_loc = glGetUniformLocation(self.shader, "fov")
-        glUniform1f(fov_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
-        glUniform1f(aspect_loc, 1.0)
-        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
-        farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
-        # TODO, set the color
 
         with ms.push_matrix(ms.MatrixStack.model):
 
@@ -545,6 +513,8 @@ class Axis:
             with ms.push_matrix(ms.MatrixStack.model):
                 ms.rotate_z(ms.MatrixStack.model, math.radians(-90.0))
 
+                if enlarged_axis:
+                    ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
                 glUniform3f(self.colorLoc, 1.0, 0.0, 0.0)
                 if grayed_out:
                     glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
@@ -581,6 +551,8 @@ class Axis:
             with ms.push_matrix(ms.MatrixStack.model):
                 ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
                 ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
+                if enlarged_axis:
+                    ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
 
                 glUniform3f(self.colorLoc, 0.0, 0.0, 1.0)
                 if grayed_out:
@@ -610,9 +582,14 @@ class Axis:
                         ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
                     ),
                 )
+                if enlarged_axis:
+                    ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
                 glDrawArrays(GL_LINES, 0, self.numberOfVertices)
 
             # y
+            if enlarged_axis:
+                ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
+
             glUniform3f(self.colorLoc, 0.0, 1.0, 0.0)
             # glColor3f(0.0,1.0,0.0) # green y
             if grayed_out:
@@ -644,6 +621,7 @@ class Axis:
             )
             glDrawArrays(GL_LINES, 0, self.numberOfVertices)
             glBindVertexArray(0)
+            glEnable(GL_DEPTH_TEST)
 
 
 axis = Axis()
@@ -812,16 +790,6 @@ class NDCCube:
     def render(self, time):
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
-
-        # pass projection parameters to the shader
-        fov_loc = glGetUniformLocation(self.shader, "fov")
-        glUniform1f(fov_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
-        glUniform1f(aspect_loc, 1.0)
-        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
-        farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
@@ -999,18 +967,6 @@ class Frustum:
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 
-        # pass projection parameters to the shader
-        fov_loc = glGetUniformLocation(self.shader, "fov")
-        glUniform1f(fov_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
-        glUniform1f(aspect_loc, 1.0)
-        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
-        farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
-        time_loc = glGetUniformLocation(self.shader, "time")
-        glUniform1f(time_loc, animation_time)
-
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
             self.mMatrixLoc,
@@ -1054,8 +1010,8 @@ class Camera:
 camera = Camera(r=250.0, rot_y=math.radians(45.0), rot_x=math.radians(35.264))
 
 
-square_rotation = math.radians(90.0)
-rotation_around_paddle1 = math.radians(30.0)
+square_rotation = math.radians(0.0)
+rotation_around_paddle1 = math.radians(0.0)
 
 
 def handle_inputs():
@@ -1115,6 +1071,12 @@ time_at_beginning_of_previous_frame = glfw.get_time()
 animation_time = 0.0
 animation_time_multiplier = 1.0
 animation_paused = False
+enlarged_axis = True
+
+view_ndc = True
+view_paddle1 = False
+view_square = False
+view_paddle2 = False
 
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
@@ -1145,62 +1107,36 @@ while not glfw.window_should_close(window):
             imgui.end_menu()
         imgui.end_main_menu_bar()
 
-    imgui.begin("Time", True)
+    imgui.begin("Camera Control", True)
 
-    clicked_animation_paused, animation_paused = imgui.checkbox(
-        "Pause", animation_paused
+    if view_ndc:
+        clicked_camera, camera.r = imgui.slider_float(
+            "Camera Radius", camera.r, 10, 1000.0
+        )
+    clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
+        "Enlarged Axises", enlarged_axis
     )
-    clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
-    clicked_animation_time_multiplier, animation_time_multiplier = imgui.slider_float(
-        "Sim Speed", animation_time_multiplier, 0.1, 10.0
-    )
-    if imgui.button("Restart"):
-        animation_time = 0.0
 
-    (
-        clicked_virtual_camera_positionx_clicked,
-        virtual_camera_position[0],
-    ) = imgui.slider_float("Camera X", virtual_camera_position[0], -100, 100.0)
-    (
-        clicked_virtual_camera_positiony_clicked,
-        virtual_camera_position[1],
-    ) = imgui.slider_float("Camera Y", virtual_camera_position[1], -100, 100.0)
-    (
-        clicked_virtual_camera_positionz_clicked,
-        virtual_camera_position[2],
-    ) = imgui.slider_float("Camera Z", virtual_camera_position[2], -100, 100.0)
-    (
-        clicked_virtual_camera_positionrotx_clicked,
-        virtual_camera_rot_x,
-    ) = imgui.slider_float("Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi)
-    (
-        clicked_virtual_camera_positionroty_clicked,
-        virtual_camera_rot_y,
-    ) = imgui.slider_float("Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi)
-
+    if imgui.button("NDC"):
+        view_ndc = True
+        view_paddle1 = False
+        view_square = False
+        view_paddle2 = False
     if imgui.button("Paddle 1"):
-        animation_time = 15.0
-    imgui.same_line()
+        view_ndc = False
+        view_paddle1 = True
+        view_square = False
+        view_paddle2 = False
     if imgui.button("Square"):
-        animation_time = 35.0
-    imgui.same_line()
+        view_ndc = False
+        view_paddle1 = False
+        view_square = True
+        view_paddle2 = False
     if imgui.button("Paddle 2"):
-        animation_time = 45.0
-    if imgui.button("Camera Orient"):
-        animation_time = 50.0
-    imgui.same_line()
-    if imgui.button("Camera Inverse"):
-        animation_time = 65.0
-    if imgui.button("Frustum squash X"):
-        animation_time = 90.0
-    imgui.same_line()
-    if imgui.button("Frustum squash Y"):
-        animation_time = 95.0
-    imgui.same_line()
-    if imgui.button("Prism center"):
-        animation_time = 100.0
-    if imgui.button("Prism scale"):
-        animation_time = 105.0
+        view_ndc = False
+        view_paddle1 = False
+        view_square = False
+        view_paddle2 = True
 
     imgui.end()
 
@@ -1221,9 +1157,70 @@ while not glfw.window_should_close(window):
     )
 
     # note - opengl matricies use degrees
-    ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
-    ms.rotate_x(ms.MatrixStack.view, camera.rot_x)
-    ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
+    if view_ndc:
+        ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
+        ms.rotate_x(ms.MatrixStack.view, camera.rot_x)
+        ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
+
+    if view_paddle1 or view_square:
+        if view_square:
+            ms.rotate_z(
+                ms.MatrixStack.model,
+                -square_rotation,
+            )
+            ms.translate(
+                ms.MatrixStack.model,
+                -15.0,
+                0.0,
+                0.0,
+            )
+            ms.rotate_z(
+                ms.MatrixStack.model,
+                -rotation_around_paddle1,
+            )
+            ms.translate(
+                ms.MatrixStack.model,
+                0.0,
+                0.0,
+                5.0,
+            )
+
+        ms.rotate_z(
+            ms.MatrixStack.model,
+            -paddle1.rotation,
+        )
+        ms.translate(
+            ms.MatrixStack.model,
+            -paddle1.position[0],
+            -paddle1.position[1],
+            0.0,
+        )
+
+        ms.translate(
+            ms.MatrixStack.model,
+            0.0,
+            0.0,
+            -100.0,
+        )
+
+    if view_paddle2:
+        ms.rotate_z(
+            ms.MatrixStack.model,
+            -paddle2.rotation,
+        )
+        ms.translate(
+            ms.MatrixStack.model,
+            -paddle2.position[0],
+            -paddle2.position[1],
+            0.0,
+        )
+
+        ms.translate(
+            ms.MatrixStack.model,
+            0.0,
+            0.0,
+            -100.0,
+        )
 
     # draw NDC in global space, so that we can see the camera space
     # go to NDC
@@ -1231,135 +1228,69 @@ while not glfw.window_should_close(window):
         cube.render(animation_time)
     ground.render(animation_time)
 
-    if animation_time > 75.0:
-        ms.rotate_x(
-            ms.MatrixStack.model,
-            -virtual_camera_rot_x * min(1.0, (animation_time - 75.0) / 5.0),
-        )
-    if animation_time > 70.0:
-        ms.rotate_y(
-            ms.MatrixStack.model,
-            -virtual_camera_rot_y * min(1.0, (animation_time - 70.0) / 5.0),
-        )
-    if animation_time > 65.0:
-        ms.translate(
-            ms.MatrixStack.model,
-            -virtual_camera_position[0] * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[1] * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[2] * min(1.0, (animation_time - 65.0) / 5.0),
-        )
-
-    # draw virtual camera
-    if animation_time > 50.0:
-        with ms.push_matrix(ms.MatrixStack.model):
-            if animation_time > 50.0:
-                ms.translate(
-                    ms.MatrixStack.model,
-                    virtual_camera_position[0]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
-                    virtual_camera_position[1]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
-                    virtual_camera_position[2]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
-                )
-            if animation_time > 55.0:
-                ms.rotate_y(
-                    ms.MatrixStack.model,
-                    virtual_camera_rot_y * min(1.0, (animation_time - 55.0) / 5.0),
-                )
-            if animation_time > 60.0:
-                ms.rotate_x(
-                    ms.MatrixStack.model,
-                    virtual_camera_rot_x * min(1.0, (animation_time - 60.0) / 5.0),
-                )
-
-            if animation_time > 55.0:
-                frustum.render(animation_time)
-            axis.render(animation_time)
-            cube.render(animation_time)
-
-    if animation_time < 5.0 or (animation_time > 35.0 and animation_time < 40.0):
-        axis.render(animation_time)
-    else:
-        axis.render(animation_time, grayed_out=True)
+    axis.render(animation_time)
 
     with ms.PushMatrix(ms.MatrixStack.model):
 
-        if animation_time > 5.0:
-            ms.translate(
-                ms.MatrixStack.model,
-                paddle1.position[0] * min(1.0, (animation_time - 5.0) / 5.0),
-                paddle1.position[1] * min(1.0, (animation_time - 5.0) / 5.0),
-                0.0,
-            )
-        if animation_time > 10.0:
-            ms.rotate_z(
-                ms.MatrixStack.model,
-                paddle1.rotation * min(1.0, (animation_time - 10.0) / 5.0),
-            )
+        ms.translate(
+            ms.MatrixStack.model,
+            paddle1.position[0],
+            paddle1.position[1],
+            0.0,
+        )
+        ms.rotate_z(
+            ms.MatrixStack.model,
+            paddle1.rotation,
+        )
 
-        if animation_time > 0.0 and animation_time < 15.0:
-            axis.render(animation_time)
-        if animation_time > 15.0:
-            # ascontiguousarray puts the array in column major order
-            paddle1.render(animation_time)
+        # ascontiguousarray puts the array in column major order
+        paddle1.render(animation_time)
+        axis.render(animation_time)
 
         # # draw the square
 
-        if animation_time > 15.0:
-            ms.translate(
-                ms.MatrixStack.model,
-                0.0,
-                0.0,
-                -5.0 * min(1.0, (animation_time - 15.0) / 5.0),
-            )
-        if animation_time > 20.0:
-            ms.rotate_z(
-                ms.MatrixStack.model,
-                rotation_around_paddle1 * min(1.0, (animation_time - 20.0) / 5.0),
-            )
-        if animation_time > 25.0:
-            ms.translate(
-                ms.MatrixStack.model,
-                15.0 * min(1.0, (animation_time - 25.0) / 5.0),
-                0.0,
-                0.0,
-            )
-        if animation_time > 30.0:
-            ms.rotate_z(
-                ms.MatrixStack.model,
-                square_rotation * min(1.0, (animation_time - 30.0) / 5.0),
-            )
+        ms.translate(
+            ms.MatrixStack.model,
+            0.0,
+            0.0,
+            -5.0,
+        )
+        ms.rotate_z(
+            ms.MatrixStack.model,
+            rotation_around_paddle1,
+        )
+        ms.translate(
+            ms.MatrixStack.model,
+            15.0,
+            0.0,
+            0.0,
+        )
+        ms.rotate_z(
+            ms.MatrixStack.model,
+            square_rotation,
+        )
 
-        if animation_time > 10.0 and animation_time < 35.0:
-            axis.render(animation_time)
-
-        if animation_time > 35.0:
-            square.render(animation_time)
+        square.render(animation_time)
+        axis.render(animation_time)
 
     # get back to center of global space
 
     with ms.PushMatrix(ms.MatrixStack.model):
 
         # draw paddle 2
-        if animation_time > 35.0:
-            ms.translate(
-                ms.MatrixStack.model,
-                paddle2.position[0] * min(1.0, (animation_time - 40.0) / 5.0),
-                paddle2.position[1] * min(1.0, (animation_time - 40.0) / 5.0),
-                0.0,
-            )
-        if animation_time > 40.0:
-            ms.rotate_z(
-                ms.MatrixStack.model,
-                paddle2.rotation * min(1.0, (animation_time - 40.0) / 5.0),
-            )
+        ms.translate(
+            ms.MatrixStack.model,
+            paddle2.position[0],
+            paddle2.position[1],
+            0.0,
+        )
+        ms.rotate_z(
+            ms.MatrixStack.model,
+            paddle2.rotation,
+        )
 
-        if animation_time > 40.0 and animation_time < 45.0:
-            axis.render(animation_time)
-
-        if animation_time > 45.0:
-            paddle2.render(animation_time)
+        paddle2.render(animation_time)
+        axis.render(animation_time)
 
     imgui.render()
     impl.render(imgui.get_draw_data())

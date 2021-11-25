@@ -156,7 +156,6 @@ def handle_inputs():
     if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
         paddle2.rotation -= 0.1
 
-
     global animation_time
     if glfw.get_key(window, glfw.KEY_1) == glfw.PRESS:
         animation_time = 5.0
@@ -170,7 +169,6 @@ def handle_inputs():
         animation_time = 70.0
     if glfw.get_key(window, glfw.KEY_6) == glfw.PRESS:
         animation_time = 85.0
-
 
 
 square_vertices = np.array(

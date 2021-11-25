@@ -286,7 +286,7 @@ square = Square(r=0.0, g=0.0, b=1.0, position=[0.0, 0.0, 0.0])
 square.prepare_to_render()
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
-print(number_of_controllers)
+
 
 
 @dataclass
