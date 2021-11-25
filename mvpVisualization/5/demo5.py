@@ -1164,9 +1164,68 @@ while not glfw.window_should_close(window):
     if imgui.button("Restart"):
         animation_time = 0.0
 
+    if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
+        if imgui.tree_node("Paddle 1"):
+            if imgui.button("Rotate"):
+                animation_time = 10.0
+            imgui.same_line()
+            if imgui.button("Translate"):
+                animation_time = 5.0
+            imgui.tree_pop()
+        if imgui.tree_node("Square"):
+            if imgui.button("Translate X"):
+                animation_time = 25.0
+            imgui.same_line()
+            if imgui.button("Rotate Z"):
+                animation_time = 20.0
+            imgui.same_line()
+            if imgui.button("Translate -Z"):
+                animation_time = 15.0
+            imgui.tree_pop()
+        if imgui.tree_node("Paddle 2"):
+            if imgui.button("Rotate"):
+                animation_time = 40.0
+            imgui.same_line()
+            if imgui.button("Translate"):
+                animation_time = 35.0
+            imgui.tree_pop()
+        if imgui.tree_node("Camera Orient"):
+            if imgui.button("Rotate Camera X"):
+                animation_time = 60.0
+            imgui.same_line()
+            if imgui.button("Rotate Camera Y"):
+                animation_time = 55.0
+            imgui.same_line()
+            if imgui.button("Translate Camera"):
+                animation_time = 50.0
+            imgui.tree_pop()
+        imgui.tree_pop()
+    if imgui.tree_node("Towards NDC, With Arrows, Top Down Reading"):
+        if imgui.button("Camera Inverse"):
+            animation_time = 65.0
+        if imgui.button("Frustum squash X"):
+            animation_time = 90.0
+        if imgui.button("Frustum squash Y"):
+            animation_time = 95.0
+        if imgui.button("Prism center"):
+            animation_time = 100.0
+        if imgui.button("Prism scale"):
+            animation_time = 105.0
+        imgui.tree_pop()
+
+
+
+    imgui.end()
+
+    imgui.begin("Display Options", True)
+
     clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
         "Enlarged Axises", enlarged_axis
     )
+    imgui.end()
+
+
+    imgui.begin("Camera Options", True)
 
     (
         clicked_virtual_camera_positionx_clicked,
@@ -1209,30 +1268,6 @@ while not glfw.window_should_close(window):
         virtual_camera_position[0] -= math.cos(virtual_camera_rot_y)
         virtual_camera_position[2] += math.sin(virtual_camera_rot_y)
     imgui.pop_button_repeat()
-
-    if imgui.button("Paddle 1"):
-        animation_time = 15.0
-    imgui.same_line()
-    if imgui.button("Square"):
-        animation_time = 35.0
-    imgui.same_line()
-    if imgui.button("Paddle 2"):
-        animation_time = 45.0
-    if imgui.button("Camera Orient"):
-        animation_time = 50.0
-    imgui.same_line()
-    if imgui.button("Camera Inverse"):
-        animation_time = 65.0
-    if imgui.button("Frustum squash X"):
-        animation_time = 90.0
-    imgui.same_line()
-    if imgui.button("Frustum squash Y"):
-        animation_time = 95.0
-    imgui.same_line()
-    if imgui.button("Prism center"):
-        animation_time = 100.0
-    if imgui.button("Prism scale"):
-        animation_time = 105.0
 
     imgui.end()
 
@@ -1310,7 +1345,7 @@ while not glfw.window_should_close(window):
             axis.render(animation_time)
             cube.render(animation_time)
 
-    if animation_time < 5.0 or (animation_time > 35.0 and animation_time < 40.0):
+    if animation_time < 5.0 :
         axis.render(animation_time)
     else:
         axis.render(animation_time, grayed_out=True)
@@ -1377,8 +1412,8 @@ while not glfw.window_should_close(window):
         if animation_time > 35.0:
             ms.translate(
                 ms.MatrixStack.model,
-                paddle2.position[0] * min(1.0, (animation_time - 40.0) / 5.0),
-                paddle2.position[1] * min(1.0, (animation_time - 40.0) / 5.0),
+                paddle2.position[0] * min(1.0, (animation_time - 35.0) / 5.0),
+                paddle2.position[1] * min(1.0, (animation_time - 35.0) / 5.0),
                 0.0,
             )
         if animation_time > 40.0:
@@ -1387,7 +1422,7 @@ while not glfw.window_should_close(window):
                 paddle2.rotation * min(1.0, (animation_time - 40.0) / 5.0),
             )
 
-        if animation_time > 40.0 and animation_time < 45.0:
+        if animation_time > 35.0 and animation_time < 45.0:
             axis.render(animation_time)
 
         if animation_time > 45.0:
