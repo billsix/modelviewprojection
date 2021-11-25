@@ -1,5 +1,6 @@
 %.png: %.dot
-	dot -Tpng $< -o $@
+	dot -Tpng -Gsize=6,9\! -Gdpi=200 $< -o $@
+
 
 all: graphs pythonplots
 	cd gnuplot && make
