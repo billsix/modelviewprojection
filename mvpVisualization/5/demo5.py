@@ -1130,12 +1130,12 @@ enlarged_axis = True
 def highlighted_button(text, start_time, time):
     highlight = time > start_time and (time - start_time) < 5
     if highlight:
-        imgui.push_id(str(2))
-        r, g, b = colorsys.hsv_to_rgb(2 / 7.0, 0.6, 0.6)
+        imgui.push_id(str(3))
+        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.6, 0.6)
         imgui.push_style_color(imgui.COLOR_BUTTON, r, g, b)
-        r, g, b = colorsys.hsv_to_rgb(2 / 7.0, 0.7, 0.7)
+        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.7, 0.7)
         imgui.push_style_color(imgui.COLOR_BUTTON_HOVERED, r, g, b)
-        r, g, b = colorsys.hsv_to_rgb(2 / 7.0, 0.8, 0.8)
+        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.8, 0.8)
         imgui.push_style_color(imgui.COLOR_BUTTON_ACTIVE, r, g, b)
     return_value = imgui.button(label=text)
     if highlight:
@@ -1186,116 +1186,126 @@ while not glfw.window_should_close(window):
     if imgui.button("Restart"):
         animation_time = 0.0
 
-    if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
-        if imgui.tree_node("Paddle 1->World"):
-            imgui.text("f_paddle1_to_world(x) = (")
+    if imgui.tree_node(
+        "From World Space, Against Arrows, Read Bottom Up", imgui.TREE_NODE_DEFAULT_OPEN
+    ):
+        if imgui.tree_node("Paddle 1->World", imgui.TREE_NODE_DEFAULT_OPEN):
+            imgui.text("f_paddle1_to_world(x) = ")
+            imgui.text(" = (")
             imgui.same_line()
-            if highlighted_button("Translate", 5, animation_time):
+            if highlighted_button("T", 5, animation_time):
                 animation_time = 5.0
             imgui.same_line()
             imgui.text(" o ")
             imgui.same_line()
-            if highlighted_button("Rotate", 10 , animation_time):
+            if highlighted_button("R_z", 10, animation_time):
                 animation_time = 10.0
             imgui.same_line()
             imgui.text(" ) (x) ")
-            if imgui.tree_node("Square->World"):
-                imgui.text("f_square_to_world(x) = (f_square_to_world o (")
+            if imgui.tree_node("Square->World", imgui.TREE_NODE_DEFAULT_OPEN):
+                imgui.text("f_square_to_world(x) = ")
+                imgui.text(" f_square_to_world o (")
+                imgui.text("      ")
                 imgui.same_line()
-                if highlighted_button("Translate -Z", 15, animation_time):
+                if highlighted_button("T_-Z", 15, animation_time):
                     animation_time = 15.0
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
-                if highlighted_button("Rotate Z", 20, animation_time):
+                if highlighted_button("R_Z", 20, animation_time):
                     animation_time = 20.0
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
-                if highlighted_button("Translate X", 25, animation_time):
+                if highlighted_button("T_X", 25, animation_time):
                     animation_time = 25.0
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
-                if highlighted_button("Rotate Z around Paddle Center", 30, animation_time):
+                if highlighted_button("R2_Z", 30, animation_time):
                     animation_time = 30.0
                 imgui.same_line()
                 imgui.text(" ) (x) ")
                 imgui.tree_pop()
             imgui.tree_pop()
-        if imgui.tree_node("Paddle 2->World"):
+        if imgui.tree_node("Paddle 2->World", imgui.TREE_NODE_DEFAULT_OPEN):
             imgui.text("f_paddle2_to_world(x) = (")
             imgui.same_line()
-            if highlighted_button("Translate", 35, animation_time):
+            if highlighted_button("T", 35, animation_time):
                 animation_time = 35.0
             imgui.same_line()
             imgui.text(" o ")
             imgui.same_line()
-            if highlighted_button("Rotate", 40, animation_time):
+            if highlighted_button("R", 40, animation_time):
                 animation_time = 40.0
             imgui.same_line()
             imgui.text(" ) (x) ")
             imgui.tree_pop()
-        if imgui.tree_node("Camera->World"):
+        if imgui.tree_node("Camera->World", imgui.TREE_NODE_DEFAULT_OPEN):
             imgui.text("f_camera_to_world(x) = (")
             imgui.same_line()
-            if highlighted_button("Translate Camera", 50, animation_time):
+            if highlighted_button("T", 50, animation_time):
                 animation_time = 50.0
             imgui.same_line()
             imgui.text(" o ")
             imgui.same_line()
-            if highlighted_button("Rotate Camera Y", 55, animation_time):
+            if highlighted_button("R_Y", 55, animation_time):
                 animation_time = 55.0
             imgui.same_line()
             imgui.text(" o ")
             imgui.same_line()
-            if highlighted_button("Rotate Camera X", 60, animation_time):
+            if highlighted_button("R_X", 60, animation_time):
                 animation_time = 60.0
             imgui.same_line()
             imgui.text(" ) (x) ")
             imgui.tree_pop()
         imgui.tree_pop()
-    if imgui.tree_node("Towards NDC, With Arrows, Top Down Reading"):
-        if imgui.tree_node("World->Camera"):
-            imgui.text("f_camera_to_world^-1 = f_world_to_camera(x) = ")
+    if imgui.tree_node(
+        "Towards NDC, With Arrows, Top Down Reading", imgui.TREE_NODE_DEFAULT_OPEN
+    ):
+        if imgui.tree_node("World->Camera", imgui.TREE_NODE_DEFAULT_OPEN):
+            imgui.text("f_camera_to_world^-1(x) = f_world_to_camera(x) = ")
+            imgui.text("   ")
             imgui.same_line()
-            if highlighted_button("Inverse Rotate Camera X", 75, animation_time):
+            if highlighted_button("R^-1_X", 75, animation_time):
                 animation_time = 75.0
             imgui.same_line()
             imgui.text("* (")
             imgui.same_line()
-            if highlighted_button("Inverse Rotate Camera Y", 70, animation_time):
+            if highlighted_button("R^-1_Y", 70, animation_time):
                 animation_time = 70.0
             imgui.same_line()
             imgui.text("* (")
             imgui.same_line()
-            if highlighted_button("Inverse Translate Camera", 65, animation_time):
+            if highlighted_button("T^-1", 65, animation_time):
                 animation_time = 65.0
             imgui.same_line()
             imgui.text("* x))")
             imgui.tree_pop()
-        if imgui.tree_node("Frustum->Rectangular Prism"):
+        if imgui.tree_node("Frustum->Rectangular Prism", imgui.TREE_NODE_DEFAULT_OPEN):
             imgui.text("f_frustum_to_prism(x) = ")
             imgui.same_line()
-            if highlighted_button("Frustum squash Y", 95, animation_time):
+            if highlighted_button("Squash Y", 95, animation_time):
                 animation_time = 95.0
             imgui.same_line()
             imgui.text(" * (")
             imgui.same_line()
-            if highlighted_button("Frustum squash X", 90, animation_time):
+            if highlighted_button("Squash X", 90, animation_time):
                 animation_time = 90.0
             imgui.same_line()
             imgui.text(" * x)")
             imgui.tree_pop()
-        if imgui.tree_node("Ortho, Rectangular Prism->NDC"):
+        if imgui.tree_node(
+            "Ortho, Rectangular Prism->NDC", imgui.TREE_NODE_DEFAULT_OPEN
+        ):
             imgui.text("f_ortho(x) = ")
             imgui.same_line()
-            if highlighted_button("Prism scale", 105, animation_time):
+            if highlighted_button("Scale", 105, animation_time):
                 animation_time = 105.0
             imgui.same_line()
             imgui.text(" * (")
             imgui.same_line()
-            if highlighted_button("Prism center", 100, animation_time):
+            if highlighted_button("T - Center", 100, animation_time):
                 animation_time = 100.0
             imgui.same_line()
             imgui.text(" * x)")
