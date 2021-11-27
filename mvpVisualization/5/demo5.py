@@ -1270,12 +1270,12 @@ while not glfw.window_should_close(window):
             if highlighted_button("R^-1_X", 75, animation_time):
                 animation_time = 75.0
             imgui.same_line()
-            imgui.text("* (")
+            imgui.text(" (")
             imgui.same_line()
             if highlighted_button("R^-1_Y", 70, animation_time):
                 animation_time = 70.0
             imgui.same_line()
-            imgui.text("* (")
+            imgui.text(" (")
             imgui.same_line()
             if highlighted_button("T^-1", 65, animation_time):
                 animation_time = 65.0
@@ -1288,7 +1288,7 @@ while not glfw.window_should_close(window):
             if highlighted_button("Squash Y", 95, animation_time):
                 animation_time = 95.0
             imgui.same_line()
-            imgui.text(" * (")
+            imgui.text(" (")
             imgui.same_line()
             if highlighted_button("Squash X", 90, animation_time):
                 animation_time = 90.0
@@ -1303,7 +1303,7 @@ while not glfw.window_should_close(window):
             if highlighted_button("Scale", 105, animation_time):
                 animation_time = 105.0
             imgui.same_line()
-            imgui.text(" * (")
+            imgui.text(" (")
             imgui.same_line()
             if highlighted_button("T - Center", 100, animation_time):
                 animation_time = 100.0
