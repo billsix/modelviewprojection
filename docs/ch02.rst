@@ -336,7 +336,7 @@ along the way.
 
 To convert those 100 penny into quarters, move from
 penny to quarter, but since we are moving in the opposite
-direction of the edge, we must apply the inverse
+direction of the edge, we must apply the multiplicative inverse
 of that function.  These functions are invertible by
 taking the reciprical of the coefficient, thus satisfying
 
@@ -406,10 +406,12 @@ of any directed edge that you against.
 
 
 
-Notice in the last equation that we defined the function via function composition,
+Notice in the last equation that we defined the function via function composition_,
 and didn't specify and arguments.  We just focus on the types of units in and the units
 out, but the details of those functions are not relevant when traversing the Cayley graph.
 
+
+.. _composition: https://en.wikipedia.org/wiki/Function_composition
 
 
 
