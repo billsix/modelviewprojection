@@ -1,6 +1,6 @@
-imageio==2.11.1
-matplotlib==3.5.0
+imageio==2.13.3
+matplotlib==3.5.1
 numpy==1.21.4
 Pillow==8.4.0
-Sphinx==4.3.0
+Sphinx==4.3.1
 sphinx-rtd-theme==1.0.0
