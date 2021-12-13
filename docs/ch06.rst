@@ -107,8 +107,6 @@ For our demo with paddles, the author arbitralily defines the WorldSpace to be 2
 Modelspace to WorldSpace
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-Model-space to World-space.
-
 The author prefers to view transformations as changes to the graph paper,
 as compared to view tranformations as changes to points.
 
@@ -259,7 +257,7 @@ world space to NDC is divide each component, x and y, by 100.
 
 As a demonstration of how scaling works, let's make an
 object's width twice as large, and height three times as large. (The author
-tried doing the actual scaling in an animated gif, and it looked awful,
+tried doing the actual scaling of 1/100 in an animated gif, and it looked awful,
 therefore a different scaling gif is showed here, but the concept
 is the same).
 

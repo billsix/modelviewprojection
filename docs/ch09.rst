@@ -30,8 +30,8 @@ more clearly.
 
 We do this by the following:
 
-* Read sequence of transformations in the reverse order, from bottom to top.
-
+* Read sequence of transformations from modelspace to worldspace in the reverse order, from bottom to top.
+* Each subsequent transformation is relative to the current local coordinate system.
 
 .. figure:: _static/screenshots/demo09.png
     :align: center
@@ -165,8 +165,8 @@ For the linear-algebra inclined reader, we've used
     L * (M * \vec{x})     = (L * M) * \vec{x}
      \end{equation}
 
-to understand a complex system of equations, sometimes looking at the left
-side of the equations, sometimes looking at the right side.
+to understand a complicated sequence of matrix multiplications, modifying
+L by a right-multiplication of M.
 
 
 

@@ -26,10 +26,10 @@ Rotations - Demo 07
 Purpose
 ^^^^^^^
 
-Learn about rotations, and the order in which to read
-a sequence of transformations.  This demo does not
+Attempt to rotate the paddles around their center.
+Learn about rotations.  This demo does not
 work correctly, because of a misunderstanding
-of how rotations work.
+of how to interprete a sequence of transformations.
 
 .. figure:: _static/screenshots/demo07.png
     :align: center
@@ -98,7 +98,15 @@ all of the object's vertices around (0,0).
 
 In high school math, you will have learned about sin, cos, and tangent.
 Typically the angles are described on the unit circle, where a rotation
-starts from the positive x axis.  We can expand on this knowledge, allowing
+starts from the positive x axis.
+
+.. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_1.svg
+    :align: center
+    :alt: Demo 07
+    :figclass: align-center
+
+
+We can expand on this knowledge, allowing
 us to rotate a given vertex, wherever it is, around the origin (0,0).  This is done
 by separating the x and y value, rotating each component seperately,
 and then adding the results together.
@@ -135,10 +143,22 @@ geometry, and won't be explained here in detail.
 
     Rotate the x component.
 
+.. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_2.svg
+    :align: center
+    :alt: Demo 07
+    :figclass: align-center
+
+
+
+
 But what may not be obvious, is what happens to the y component?
 Turns out, it's easy.  Just rotate your point of view, and it's
 the same thing, with one minor difference, in that the x value
 is negated.
+
+
+
+
 
 .. figure:: _static/rotate2.png
     :align: center
@@ -146,6 +166,12 @@ is negated.
     :figclass: align-center
 
     Rotate the y component
+
+.. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_3.svg
+    :align: center
+    :alt: Demo 07
+    :figclass: align-center
+
 
 (0,0.4) is on the y-axis, so rotating it by "angle" degrees, results
 in vertex (0.4*-sin(angle), 0.4*cos(angle)).
@@ -223,7 +249,13 @@ So to rotate paddle 1 about its center,
 we should translate to its position, and then rotate
 around the paddle's center.
 
-This composed sequence of function calls is our definion of
+
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 188
+   :lines: 188-191
 
 .. math::
 
@@ -236,8 +268,33 @@ This composed sequence of function calls is our definion of
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 188
-   :lines: 188-197
+   :lineno-start: 192
+   :lines: 192-194
+
+
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{w}^{ndc}
+    \end{equation*}
+
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 195
+   :lines: 195
+
+
+
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 196
+   :lines: 196-197
+
 
 ::
 
@@ -248,7 +305,15 @@ Likewise, to rotate paddle 2 about its center,
 we should translate to its position, and then rotate
 around the paddle's center.
 
-This composed sequence of function calls is our definion of
+
+
+
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 201
+   :lines: 201-202
 
 .. math::
 
@@ -258,19 +323,42 @@ This composed sequence of function calls is our definion of
     \end{equation*}
 
 
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 203
+   :lines: 203-205
+
+
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{w}^{ndc}
+    \end{equation*}
+
+
 
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 201
-   :lines: 201-208
+   :lineno-start: 206
+   :lines: 206
+
+.. literalinclude:: ../src/demo07/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 207
+   :lines: 207-208
+
 
 
 Why it's Wrong
 ^^^^^^^^^^^^^^
 
 Turns out, our program doesn't work as predicted, even though
-translate, scale, and rotate are all correct.
+translate, scale, and rotate are all defined correctly.  The paddles
+are not rotating around their center.
 
 Let's take a look in detail about what our paddlespace to
 world space transformations are doing.

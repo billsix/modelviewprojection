@@ -193,11 +193,7 @@ The Event Loop
 
     Paddle space
 
-Since previous demos covered transformations from NDC to viewport, and since
-OpenGL does the conversions from viewport to window, we can ignore those
-parts of this Cayley graph.
-
-The only part of the diagram that we need to think about is the function
+The only part of the diagram that we need to think about right now is the function
 that converts from paddle1's space to NDC, and from paddle2's space to NDC.
 
 These functions in the Python code are the translation of the paddle's center (i.e. paddle1.position)

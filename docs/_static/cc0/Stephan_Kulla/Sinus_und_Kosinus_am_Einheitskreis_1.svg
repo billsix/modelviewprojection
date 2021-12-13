@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="410" height="410">
+<defs>
+<marker id="a" orient="auto" overflow="visible">
+<path stroke="#000" stroke-width=".5" d="M-4,0l-2,2 7,-2 -7,-2 2,2z"/>
+</marker>
+</defs>
+<g stroke="#000" stroke-width="3">
+<circle cx="195" cy="215" r="169" fill="#f2f2f2" stroke="gray"/>
+<path fill="#ddcad4" stroke="purple" d="M215,167a52,52 0 0 1 32,48h-52z"/>
+<path marker-end="url(#a)" d="M195,400V15"/>
+<path marker-end="url(#a)" d="M10,215h385"/>
+<path d="M195 215l65-156"/>
+</g>
+<g stroke-linecap="round" stroke-width="5">
+<path stroke="#3c803f" d="M260 59v156"/>
+<path stroke="#2d2f92" d="M195 215h65"/>
+</g>
+<circle cx="260" cy="59" r="3"/>
+<g font-size="26">
+<text x="217" y="107">1</text>
+<text x="212" y="207" fill="purple" font-style="italic">θ</text>
+<text x="267" y="190" fill="#3c8031">sin(<tspan font-style="italic">θ</tspan>)</text>
+<text x="200" y="241" fill="#2d2f92">cos(<tspan font-style="italic">θ</tspan>)</text>
+</g>
+</svg>
