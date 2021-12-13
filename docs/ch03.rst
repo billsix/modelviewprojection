@@ -93,8 +93,6 @@ window.
 
     Nice
 
-N.B, we now have 3 coordinate systems.  NDC, viewport, and screenspace.  In later sections,
-we will will have many, many more.
 
 .. figure:: _static/demo03.png
     :align: center
