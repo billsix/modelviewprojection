@@ -51,7 +51,7 @@ and it regains it's color when it is reactivated by "glPopMatrix"
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a command prompt, type "python src/demo20/demo.py".
+On Linux or on MacOS, in a shell, type "python src/demo20/demo.py".
 On Windows, in a command prompt, type "python src\\demo20\\demo.py".
 
 

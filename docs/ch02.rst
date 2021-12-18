@@ -40,7 +40,7 @@ of this region will not be displayed on the screen.
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a command prompt, type "python src/demo02/demo.py".
+On Linux or on MacOS, in a shell, type "python src/demo02/demo.py".
 On Windows, in a command prompt, type "python src\\demo02\\demo.py".
 
 

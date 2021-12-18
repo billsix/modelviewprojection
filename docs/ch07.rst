@@ -42,7 +42,7 @@ of how to interprete a sequence of transformations.
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a command prompt, type "python src/demo07/demo.py".
+On Linux or on MacOS, in a shell, type "python src/demo07/demo.py".
 On Windows, in a command prompt, type "python src\\demo07\\demo.py".
 
 

@@ -197,7 +197,7 @@ paddle2 space, shown below.  Search for NEW to find the NEW CODE
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a command prompt, type "python src/demo19/demo.py".
+On Linux or on MacOS, in a shell, type "python src/demo19/demo.py".
 On Windows, in a command prompt, type "python src\\demo19\\demo.py".
 
 
