@@ -71,6 +71,35 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
+Early in this book we used the stencil buffer, but didn't go into
+much detail about it.  Each pixel in the framebuffer is a fragment,
+which is more information than just the color to be drawn.
+
+.. figure:: _static/ccbysa3.0/williamsix/fragment.png
+    :align: center
+    :alt: Fragment
+    :figclass: align-center
+
+Besides the color, there is also
+
+* Stecil buffer, being true or false, to specify whether subsequent OpenGL calls
+  should affect this fragment or leave it alone
+* Depth - When an object in NDC is drawn, the color is updated to the new
+  value, but the z-component of the NDC is placed into the depth buffer.
+  When a new object is drawn at this pixel later, its Z value will
+  be compared to the existing Z value, to determine which object is in
+  front.  If the new object is farther away from the camera than the
+  already-draw object, then the fragment will not be updated.
+* Alpha, for transparency, which we have not yet covered.
+
+For a history of what 3D programming for game systems was like
+without having a z-buffer, take a look at some history of
+the Nintendo_ 64, and comments on hacker_ news about it.
+
+.. _Nintendo: http://shmuplations.com/mario64/
+.. _hacker: https://news.ycombinator.com/item?id=12558589
+
+
 Use the depth buffer to make further objects hidden
 if nearer objects are drawn in front
 
