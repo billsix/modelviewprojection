@@ -135,7 +135,57 @@ Description
    :language: python
    :linenos:
    :lineno-start: 90
-   :lines: 90-121
+   :lines: 90-97
+
+Rotate Z is the same rotate that we've used so far, but doesn't affect
+the z component at all.
+
+.. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_2.svg
+    :align: center
+    :alt: Rotate Z
+    :figclass: align-center
+
+
+
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 113
+   :lines: 113-118
+
+
+.. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_4.svg
+    :align: center
+    :alt: Rotate X
+    :figclass: align-center
+
+
+
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 99
+   :lines: 99-104
+
+.. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_5.svg
+    :align: center
+    :alt: Rotate Y
+    :figclass: align-center
+
+
+
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 106
+   :lines: 106-111
+
+
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 120
+   :lines: 120-121
 
 
 The only new aspect of the code below is that the paddles have
