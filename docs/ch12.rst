@@ -24,9 +24,7 @@ Rotate the Square - Demo 12
 
 Purpose
 ^^^^^^^
-Rotate the square around it's origin.  Reading the modelspace to
-world space transformations should make this straightforward.
-Try reading them from the top down.  Does in make sense that way?
+Rotate the square around its origin.
 
 
 .. figure:: _static/screenshots/demo12.png
@@ -86,11 +84,15 @@ Code
 ^^^^
 
 
+Make a variable to determine the angle that the square will be rotated.
+
 .. literalinclude:: ../src/demo12/demo.py
    :language: python
    :linenos:
    :lineno-start: 163
    :lines: 163
+
+When 'q' is pressed, increase the angle.
 
 
 .. literalinclude:: ../src/demo12/demo.py
@@ -107,32 +109,26 @@ Code
 Event Loop
 ~~~~~~~~~~
 
-.. literalinclude:: ../src/demo12/demo.py
+In the previous chapter, this was the rendering code for
+the square.
+
+.. literalinclude:: ../src/demo11/demo.py
    :language: python
    :linenos:
-   :lineno-start: 209
-   :lines: 209
+   :lineno-start: 235
+   :lines: 235-249
 
-::
-
-    ...
-
-
-.. literalinclude:: ../src/demo12/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 226
-   :lines: 226-235
+Since we just want to add one rotation at the end of the sequence
+of transformations from paddle 1 space to square space, just add
+a rotate call at the top.
 
 
-.. literalinclude:: ../src/demo12/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 237
-   :lines: 237-247
 
 .. literalinclude:: ../src/demo12/demo.py
    :language: python
    :linenos:
-   :lineno-start: 249
-   :lines: 249-258
+   :lineno-start: 240
+   :lines: 240-254
+
+The author is getting really tired of having to look at all the different
+transformation functions repeatedly defined for each object being drawn.

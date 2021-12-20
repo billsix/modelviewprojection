@@ -75,7 +75,25 @@ Description
 "Camera space" means the coordinates of everything relative
 to a camera, not relative to world space.
 
-Camera space will be between world space and NDC, but
+.. figure:: _static/screenshots/camera3.png
+    :align: center
+    :alt: Demo 10
+    :figclass: align-center
+
+    Camera is 3D space
+
+In the picture above, using 3D space, NDC is the cube in the center
+of the screen, and its coordinate system is defined by the three gray vectiors.
+The cube to the left is the position of the camera; its local X coordinate
+is the red arrow, its local Y coordinate is the green arrow, its local
+Z coordinate is the blue arrow.  We will get to 3D later,
+but the point is that the coordinates of the paddle can be described
+in world space, or in camera space, and that we can create functions
+to convert coordinates between the two spaces.
+
+
+
+Towards that, in the Cayley graph, camera space will be between world space and NDC, but
 which way should the direction of the edge be?
 
 It could be
@@ -99,7 +117,8 @@ It could be
     Demo 10
 
 
-Since the camera's position will be described relative to world space, in world space coordinates,
+Since the camera's position will be described relative to world space in world space coordinates,
+just like the paddles are,
 it makes more sense to use the latter, in which the directed edge
 goes from camera space to world space.
 
@@ -107,22 +126,23 @@ goes from camera space to world space.
 Think about it this way.  Imagine you a driving.  Are you staying
 in a constant position, and the wheels of your car rotate the entire
 earth and solar system around yourself?  That's one way to look at
-it, and the earth revolves around me too, but the math of it
-is messy.
-The math is easier if you describe your position as moving relative
+it, and the earth revolves around me too, but the mathematical
+descriptions of everything else that's not you breaks down.
+
+The math is easier in the aggregate if you describe your position as moving relative
 to earth.
 
 But this introduces a new problem.  Follow from the paddle's modelspace
 to screen space.  Up until this demo, we've always been
-following the directed edges.  This time, when going from world
+following the the direction of each edges.  In our new Cayley graph, when going from world
 space to camera space, we're moving in the opposite direction
 of the edge.
 
 Going against the direction
-of an edge in a Cayley Graph means that we don't apply the function,
-but instead we apply the inverse of the function.  This concept
+of an edge in a Cayley Graph means that we don't apply the function itself;
+instead we apply the inverse of the function.  This concept
 comes from Group Theory in Abstract Algebra, the details of which won't
-be discussed here.
+be discussed here, but we will use it to help us reason about the transformations.
 
 Inverses
 ~~~~~~~~
@@ -203,14 +223,17 @@ is
 
 
 
-Think of it this way.  Find a little space, and look forward.
+Think of the inverses this way.  Stand up.  Make sure that nothing
+is close around you that you could trip on or that you would walk into.
+Look forward.
 Keeping your eyes straight ahead, sidestep a few steps to the
 left.  From your perspective, the objects in your room all moved
-to the right.  Now, rotate your head to the right, keeping your eyes
+to the right.  Now, rotate your head to your right, keeping your eyes
 looking directly in front of your head.  Which way did the room move?
 Towards the left.
 
-Unfortunately, the author doesn't have visualizations for this in 2D space.
+
+Back to camera space.  Unfortunately, the author doesn't have visualizations for this in 2D space.
 
 .. figure:: _static/screenshots/camera3.png
     :align: center
@@ -221,31 +244,79 @@ Unfortunately, the author doesn't have visualizations for this in 2D space.
 
 Looking at the graph paper on the ground there, that's world space.
 The camera gets placed in world space just like any other modelspace data.
-In order to render from the camera's point of view, we need to get -1.0 to 1.0
-box in all three dimensions to match the -1.0 to 1.0 box in world space.
+In order to render from the camera's point of view, we need to move and orient the -1.0 to 1.0
+box relative to the camera to match the -1.0 to 1.0 box in world space.
 
-Run "python mvpVisualization/demo3.py", and follow along with the Cayley
+Run "python mvpVisualization/4/demo4.py", and follow along with the Cayley
 graph.  The camera will be placed like any other modelspace data, but then
 the inverse of the transformations will be applied to all of the verticies.
 
+For the attentive reader
+~~~~~~~~~~~~~~~~~~~~~~~~
+
+The purpose of watching that animation was to see how the camera was placed just like
+the modelspace data was placed, while not modifying the modelspace data,
+but then the inverse was applied, moving the modelspace data.
+
+The attentive reader may notice: "Bill, you said the the inverse causes the operations
+to be run in opposite order, yet I saw them run in the same order.  For camera
+placement, I saw translate,
+then rotate sideways, then rotate up.  For the inverse, I saw inverse translate, then
+inverse rotate sideways, then inverse rotate up.  What gives?"
+
+Well, the answer, which we talk about later in more detail, is that we change the
+order in which we read the sequence of transformations.
+
+Let's say we read the following from left to right
+
+.. math::
+    \begin{equation}
+    \begin{split}
+    \vec{f}  & = \vec{a} \circ \vec{b} \circ \vec{c}
+    \end{split}
+    \end{equation}
+
+So we imagine the a transformation, then the b transformation, then the c.
+
+To take the inverse, we reverse the order of the transformations, and invert them.
+
+.. math::
+    \begin{equation}
+    \begin{split}
+    \vec{f}^{-1}  & = \vec{c}^{-1} \circ \vec{b}^{-1} \circ \vec{a}^{-1}
+    \end{split}
+    \end{equation}
+
+But now we read the transformations from right to left.
+
+So we imagine the a inverse transformation, then the b inverse
+transformation, then the c inverse.
+
+The author understands that this may be confusing to the reader, and
+seems illogical.  Camera placement is, in the author's opinion,
+the most difficult concept for a novice to grasp, and the author
+is unaware of a better explanation.  Bear with the author, by the end of this book,
+it should make more sense to the reader.
 
 
 Code
 ^^^^
 
 
+
+
 .. literalinclude:: ../src/demo10/demo.py
    :language: python
    :linenos:
    :lineno-start: 144
-   :lines: 144-154
+   :lines: 144-149
 
 
 .. literalinclude:: ../src/demo10/demo.py
    :language: python
    :linenos:
    :lineno-start: 156
-   :lines: 156-167
+   :lines: 156-166
 
 ::
 

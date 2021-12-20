@@ -77,6 +77,8 @@ Description
 Cayley Graph
 ^^^^^^^^^^^^
 
+In the graph below, all we have added is "Square space", relative
+to paddle 1 space.
 
 .. figure:: _static/demo11.png
     :align: center
@@ -84,6 +86,10 @@ Cayley Graph
     :figclass: align-center
 
     Demo 11
+
+In the picture below, in 3D space, we see that the square has its
+own modelspace (as evidenced by the 3 arrows), and we are going
+to define its position and orientation relative to paddle 1.
 
 .. figure:: _static/screenshots/coordinateframes.png
     :align: center
@@ -94,31 +100,20 @@ Cayley Graph
 
 
 
-Things to note.
 
-#. When dealing with any object space to world space,
-I recommend reading the order of transformations backwards,
-imagining a moving origin, x and y axis.
-
-#. Reading the code from world space to camera space requires
-a different interpretation.  You can think of the camera
-as being defined relative to world space, and you can develop
-a mental model of the transformations in the same manner that
-you would do for any object.  But, because NDC is going to
-be defined relative to camera space, the transformations
-that you need to apply to an object (paddle1, square 1, etc)
-are the inverse of what you would do to the "camera".
-
-#. We in looking at the code for the three objects we are drawing
-you might notice that we are duplicating a lot of code, and
-that if we decide to change paddle1's transformations, that
-we would need to change the code in multiple places.
-Later demos will show how to handle this problem more gracefully.
 
 
 
 Code
 ^^^^
+..
+   We in looking at the code for the three objects we are drawing
+   you might notice that we are duplicating a lot of code, and
+   that if we decide to change paddle1's transformations, that
+   we would need to change the code in multiple places.
+   Later demos will show how to handle this problem more gracefully.
+
+Define the geometry of the square it it's own modelspace.
 
 
 .. literalinclude:: ../src/demo11/demo.py
@@ -131,95 +126,72 @@ Code
 Event Loop
 ~~~~~~~~~~
 
-.. code:: Python
-   :number-lines:
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 203
+   :lines: 203
 
-     while not glfw.window_should_close(window):
+::
 
-         while (
-             glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-         ):
-             pass
-
-         time_at_beginning_of_previous_frame = glfw.get_time()
+    ...
 
 
-         glfw.poll_events()
-
-         width, height = glfw.get_framebuffer_size(window)
-         glViewport(0, 0, width, height)
-         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+Draw paddle 1, just as before.
 
 
-         draw_in_square_viewport()
-         handle_inputs()
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 221
+   :lines: 221-233
+
+As a refresher, the author recommends reading the code from modelspace
+to worldspace from the bottom up, and from worldspace to NDC from top down.
+
+* Read line 226-227
+* Read line 225
+* Reset the coordinate system
+* Read line 228-229
+* Read line 230-231
+
+New part!  Draw the square relative to the first paddle!
+Translate the square to the right by 20 units.
+We are dealing with a -100 to 100 world space, which
+later gets scaled down to NDC.
 
 
-         glColor3f(paddle1.r, paddle1.g, paddle1.b)
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 235
+   :lines: 235-249
 
-         glBegin(GL_QUADS)
-         for model_space in paddle1.vertices:
-             world_space = (
-                 model_space.rotate(paddle1.rotation)
-                 .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
-                 .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
-             )
+Towards that, we need to do all of the transformations to the square
+that we would to the paddle, and then do any extra transformations
+afterwards.
 
-             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
-             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
+As such, read
 
-         # NEW - draw the square relative to paddle 1
-         glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
-         glBegin(GL_QUADS)
-         for model_space in square:
-             # Translate the square to the right by 20 units.
-             # We are dealing with a -100 to 100 world space, which
-             # later gets scaled down to NDC.
-             paddle1space = model_space.translate(tx=20.0, ty=0.0)
-             # Since the square is defined relative to the first paddle,
-             # do all of the transformations that happen to paddle1
-             # I recommend reading the square's transformations bacwards,
-             # translate, translate, rotate, rotate, as this allows
-             # us to envision a moving origin and x a y axis relative to
-             # world space
-             world_space = (
-                 paddle1space.rotate(paddle1.rotation)
-                 .translate(tx=paddle1.initial_position.x, ty=paddle1.initial_position.y)
-                 .translate(tx=paddle1.input_offset_x, ty=paddle1.input_offset_y)
-             )
-             # Do the inverse of the transformations from world space to camera space
-             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
-             # shrink the world space of -100, 100, down to NDC (-1 to 1)
-             # Technically, I've been misleading you guys, because OpenGL actually
-             # reduces down to "clip-space", a 4D coordinate, but we'll get to that later,
-             # and thinking of everything in terms of NDC is more clear.
-             # The reason that I am misleading you is I'd rather give a simple but incorrect
-             # explanation that makes sense now, and add complexity in later when
-             # we have solid fundamentals under our belt.
-             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
+* Read line 241-242
+* Read line 240
 
-         # draw paddle2
-         glColor3f(paddle2.r, paddle2.g, paddle2.b)
+If we were to plot the square now, it would be in paddle 1's space.  We don't want
+that, we want in to be moved in the X direction some units.  Therefore
 
-         glBegin(GL_QUADS)
-         for model_space in paddle2.vertices:
-             world_space = (
-                 model_space.rotate(paddle2.rotation)
-                 .translate(tx=paddle2.initial_position.x, ty=paddle2.initial_position.y)
-                 .translate(tx=paddle2.input_offset_x, ty=paddle2.input_offset_y)
-             )
+* Read line 238-239
 
-             camera_space = world_space.translate(tx=-camera_x, ty=-camera_y)
-             ndc_space = camera_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
-             glVertex2f(ndc_space.x, ndc_space.y)
-         glEnd()
+Now the square's geometry will be in it's own space!
 
-         # done with frame, flush and swap buffers
-         # Swap front and back buffers
-         glfw.swap_buffers(window)
+* Reset the coordinate system
+* Read line 243-244, the inverse of the transformations from world space to camera space
+* Read line 246-247, shrink the world space of -100, 100, down to NDC (-1 to 1)
 
-     glfw.terminate()
+
+Draw paddle 2 just like before.
+
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 251
+   :lines: 251-263

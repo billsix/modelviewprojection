@@ -1,3 +1,1 @@
-- Problem - certain systems are having issues with movement being too fast
-  - current solution - manually limit framerate with timer function
-    - investigate other solutions in the "Game Engine Architecture" book
+- Add in an image of everything that the depth buffer has

@@ -19,7 +19,7 @@ currency.png: currency.dot
 	dot -Tpng -Gsize=6,9\! -Gdpi=200 $< -o $@
 
 demo11.png: demo11.dot
-	dot -Tpng -Gsize=6,9\! -Gdpi=200 $< -o $@
+	dot -Tpng $< -o $@
 
 demo10.png: demo10.dot
 	dot -Tpng $< -o $@

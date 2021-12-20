@@ -24,9 +24,7 @@ Rotate the Square Around Paddle 1 - Demo 13
 
 Purpose
 ^^^^^^^
-Rotate the square around paddle1's center.  Reading the modelspace to
-world space transformations should make this straightforward.
-Try reading them from the top down.  Does in make sense that way?
+Rotate the square around paddle1's center.
 
 .. figure:: _static/screenshots/demo13.png
     :align: center
@@ -99,20 +97,9 @@ Event Loop
 
     ...
 
-.. literalinclude:: ../src/demo13/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 231
-   :lines: 231-240
 
 .. literalinclude:: ../src/demo13/demo.py
    :language: python
    :linenos:
-   :lineno-start: 242
-   :lines: 242-253
-
-.. literalinclude:: ../src/demo13/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 255
-   :lines: 255-264
+   :lineno-start: 245
+   :lines: 245-260
