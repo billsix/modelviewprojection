@@ -1204,7 +1204,7 @@ while not glfw.window_should_close(window):
             imgui.text(" ) (x) ")
             if imgui.tree_node("Square->World", imgui.TREE_NODE_DEFAULT_OPEN):
                 imgui.text("f_square_to_world(x) = ")
-                imgui.text(" f_square_to_world o (")
+                imgui.text(" f_paddle1_to_world o (")
                 imgui.text("      ")
                 imgui.same_line()
                 if highlighted_button("T_-Z", 15, animation_time):

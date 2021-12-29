@@ -28,6 +28,7 @@ import OpenGL.GL.shaders as shaders
 import glfw
 import pyMatrixStack as ms
 import atexit
+import colorsys
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 import staticlocal
@@ -897,6 +898,23 @@ animation_time_multiplier = 1.0
 animation_paused = False
 enlarged_axis = True
 
+def highlighted_button(text, start_time, time):
+    highlight = time > start_time and (time - start_time) < 5
+    if highlight:
+        imgui.push_id(str(3))
+        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.6, 0.6)
+        imgui.push_style_color(imgui.COLOR_BUTTON, r, g, b)
+        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.7, 0.7)
+        imgui.push_style_color(imgui.COLOR_BUTTON_HOVERED, r, g, b)
+        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.8, 0.8)
+        imgui.push_style_color(imgui.COLOR_BUTTON_ACTIVE, r, g, b)
+    return_value = imgui.button(label=text)
+    if highlight:
+        imgui.pop_style_color(3)
+        imgui.pop_id()
+    return return_value
+
+
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
@@ -942,22 +960,115 @@ while not glfw.window_should_close(window):
         "Enlarged Axises", enlarged_axis
     )
 
-    if imgui.button("Paddle 1"):
-        animation_time = 5.0
-    imgui.same_line()
-    if imgui.button("Common Frame of Reference"):
-        animation_time = 15.0
-    if imgui.button("Square1"):
-        animation_time = 20.0
-    imgui.same_line()
-    if imgui.button("Square2"):
-        animation_time = 40.0
-    imgui.same_line()
-    if imgui.button("Square3"):
-        animation_time = 60.0
-    imgui.same_line()
-    if imgui.button("Square4"):
-        animation_time = 80.0
+    if imgui.tree_node(
+        "From World Space, Against Arrows, Read Bottom Up", imgui.TREE_NODE_DEFAULT_OPEN
+    ):
+        if imgui.tree_node("Paddle 1->World", imgui.TREE_NODE_DEFAULT_OPEN):
+            imgui.text("f_paddle1_to_world(x) = ")
+            imgui.text(" = (")
+            imgui.same_line()
+            if highlighted_button("T", 5, animation_time):
+                animation_time = 5.0
+            imgui.same_line()
+            imgui.text(" o ")
+            imgui.same_line()
+            if highlighted_button("R_z", 10, animation_time):
+                animation_time = 10.0
+            imgui.same_line()
+            imgui.text(" ) (x) ")
+            if imgui.tree_node("Square->World", imgui.TREE_NODE_DEFAULT_OPEN):
+                imgui.text("f_translate_neg_z(x) = ")
+                imgui.text(" f_paddle1_to_world o ")
+                imgui.same_line()
+                if highlighted_button("T_-Z", 15, animation_time):
+                    animation_time = 15.0
+                imgui.text(" f_paddle1_to_world o (")
+                if imgui.tree_node("4 Squares", imgui.TREE_NODE_DEFAULT_OPEN):
+
+                    imgui.text("f_square1(x) = ")
+                    imgui.text(" f_translate_neg_z o (")
+                    imgui.text("     ")
+                    imgui.same_line()
+                    if highlighted_button("R_Z", 20, animation_time):
+                        animation_time = 20.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("T_X", 25, animation_time):
+                        animation_time = 25.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("R2_Z", 30, animation_time):
+                        animation_time = 30.0
+                    imgui.same_line()
+                    imgui.text(" ) (x) ")
+
+
+                    imgui.text("f_square2(x) = ")
+                    imgui.text(" f_translate_neg_z o (")
+                    imgui.text("     ")
+                    imgui.same_line()
+                    if highlighted_button("R_Z+90Deg", 40, animation_time):
+                        animation_time = 40.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("T_X", 45, animation_time):
+                        animation_time = 45.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("R2_Z", 50, animation_time):
+                        animation_time = 50.0
+                    imgui.same_line()
+                    imgui.text(" ) (x) ")
+
+
+                    imgui.text("f_square3(x) = ")
+                    imgui.text(" f_translate_neg_z o (")
+                    imgui.text("     ")
+                    imgui.same_line()
+                    if highlighted_button("R_Z+180Deg", 60, animation_time):
+                        animation_time = 60.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("T_X", 65, animation_time):
+                        animation_time = 65.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("R2_Z", 70, animation_time):
+                        animation_time = 70.0
+                    imgui.same_line()
+                    imgui.text(" ) (x) ")
+
+
+                    imgui.text("f_square4(x) = ")
+                    imgui.text(" f_translate_neg_z o (")
+                    imgui.text("     ")
+                    imgui.same_line()
+                    if highlighted_button("R_Z+270Deg", 80, animation_time):
+                        animation_time = 80.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("T_X", 85, animation_time):
+                        animation_time = 85.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("R2_Z", 90, animation_time):
+                        animation_time = 90.0
+                    imgui.same_line()
+                    imgui.text(" ) (x) ")
+                    imgui.tree_pop()
+
+
+                imgui.tree_pop()
+            imgui.tree_pop()
+        imgui.tree_pop()
 
     imgui.end()
 

@@ -28,6 +28,7 @@ import OpenGL.GL.shaders as shaders
 import glfw
 import pyMatrixStack as ms
 import atexit
+import colorsys
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 import staticlocal
@@ -897,6 +898,23 @@ animation_time_multiplier = 1.0
 animation_paused = False
 enlarged_axis = True
 
+def highlighted_button(text, start_time, time):
+    highlight = time > start_time and (time - start_time) < 5
+    if highlight:
+        imgui.push_id(str(3))
+        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.6, 0.6)
+        imgui.push_style_color(imgui.COLOR_BUTTON, r, g, b)
+        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.7, 0.7)
+        imgui.push_style_color(imgui.COLOR_BUTTON_HOVERED, r, g, b)
+        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.8, 0.8)
+        imgui.push_style_color(imgui.COLOR_BUTTON_ACTIVE, r, g, b)
+    return_value = imgui.button(label=text)
+    if highlight:
+        imgui.pop_style_color(3)
+        imgui.pop_id()
+    return return_value
+
+
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
@@ -942,15 +960,62 @@ while not glfw.window_should_close(window):
         "Enlarged Axises", enlarged_axis
     )
 
-    if imgui.button("Paddle 1"):
-        animation_time = 5.0
-    imgui.same_line()
-    if imgui.button("Square"):
-        animation_time = 15.0
-    imgui.same_line()
-    if imgui.button("Paddle 2"):
-        animation_time = 35.0
-
+    if imgui.tree_node(
+        "From World Space, Against Arrows, Read Bottom Up", imgui.TREE_NODE_DEFAULT_OPEN
+    ):
+        if imgui.tree_node("Paddle 1->World", imgui.TREE_NODE_DEFAULT_OPEN):
+            imgui.text("f_paddle1_to_world(x) = ")
+            imgui.text(" = (")
+            imgui.same_line()
+            if highlighted_button("T", 5, animation_time):
+                animation_time = 5.0
+            imgui.same_line()
+            imgui.text(" o ")
+            imgui.same_line()
+            if highlighted_button("R_z", 10, animation_time):
+                animation_time = 10.0
+            imgui.same_line()
+            imgui.text(" ) (x) ")
+            if imgui.tree_node("Square->World", imgui.TREE_NODE_DEFAULT_OPEN):
+                imgui.text("f_square_to_world(x) = ")
+                imgui.text(" f_paddle1_to_world o (")
+                imgui.text("      ")
+                imgui.same_line()
+                if highlighted_button("T_-Z", 15, animation_time):
+                    animation_time = 15.0
+                imgui.same_line()
+                imgui.text(" o ")
+                imgui.same_line()
+                if highlighted_button("R_Z", 20, animation_time):
+                    animation_time = 20.0
+                imgui.same_line()
+                imgui.text(" o ")
+                imgui.same_line()
+                if highlighted_button("T_X", 25, animation_time):
+                    animation_time = 25.0
+                imgui.same_line()
+                imgui.text(" o ")
+                imgui.same_line()
+                if highlighted_button("R2_Z", 30, animation_time):
+                    animation_time = 30.0
+                imgui.same_line()
+                imgui.text(" ) (x) ")
+                imgui.tree_pop()
+            imgui.tree_pop()
+        if imgui.tree_node("Paddle 2->World", imgui.TREE_NODE_DEFAULT_OPEN):
+            imgui.text("f_paddle2_to_world(x) = (")
+            imgui.same_line()
+            if highlighted_button("T", 35, animation_time):
+                animation_time = 35.0
+            imgui.same_line()
+            imgui.text(" o ")
+            imgui.same_line()
+            if highlighted_button("R", 40, animation_time):
+                animation_time = 40.0
+            imgui.same_line()
+            imgui.text(" ) (x) ")
+            imgui.tree_pop()
+        imgui.tree_pop()
     imgui.end()
 
     width, height = glfw.get_framebuffer_size(window)
