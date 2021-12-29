@@ -147,6 +147,8 @@ The frame sent to the monitor is a set of values like this ::
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
 
+
+
 What do we have to do to convert from normalized-device-coordinates (i.e. (1.0, 0.8))
 into pixel coordinates (i.e. pixel (10,15))?  Nothing, OpenGL does that for us automatically; therefore
 we never have to think in terms of pixels coordinates, only in terms of vertices of shapes,

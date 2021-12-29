@@ -24,14 +24,21 @@ Introduction
 
 Learn how to program in 3D computer graphics in Python!
 
+.. figure:: _static/screenshots/frustum1.png
+    :align: center
+    :alt: frustum1
+    :figclass: align-center
+
+
 
 
 
 Approach
 ^^^^^^^^
 
-This book uses "mistake-driven-development".  I show incrementally
-how to build a more complex graphics application, making mistakes along
+This book uses "mistake-driven-development"; instead of listing math formulae
+in their final form, instead this book incrementally shows, via working
+code, how to build complex graphics applications, making mistakes along
 the way, and then fixing the mistakes.
 
 
@@ -43,7 +50,7 @@ By the end of this book, you will understand the basics of
 how to create first-person and third-person applications/games.
 I made this book to show programmers how to make the kind
 of graphics programs which they want to make, using
-math they aleady know.
+math they mostly aleady know.
 
 This book is purposely limited in scope, and
 the applications produced are not particurly pretty nor realistic-looking.

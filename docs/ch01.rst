@@ -454,3 +454,58 @@ Each color is represented by a number, so the frame is something like this, wher
 The event loop then calls this code over and over again, and since we retain no state and
 we draw nothing, a black screen will be displayed every frame until the user
 closes the window, and says to himself, "why did I buy Doom 3"?
+
+
+Questions
+^^^^^^^^^
+
+* In the following ASCII-art diagram of the framebuffer,
+  where 'b' represents black, 'R' represents red, and "G"
+  represents green, what is width and height of the framebuffer?
+
+::
+
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+
+* In the above ASCII-art diagram of the framebuffer, where 'b' represents black, 'R' represents red, and "G" represents green,
+  what is the color at pixel (1,1)?
+
+* In the below ASCII-art diagram of the framebuffer, where 'b' represents black, 'R' represents red, and "G" represents green, what is the color at pixel (2,3)? At (36,2)?
+
+::
+
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
+
+
+*
+
+
+Answers
+^^^^^^^
+
+* width - 37, column 0-36.  Height - 12, rows 0 - 11
+* 'b', for the color black
+* 'G' for Green, 'R' for red
