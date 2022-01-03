@@ -356,7 +356,7 @@ taking the reciprical of the coefficient, thus satisfying
 
     \begin{equation*}
     \begin{split}
-    f_{penny}^{quarter}(x) & = {f_{penny}^{quarter}}^{-1}(x) \\
+    f_{penny}^{quarter}(x) & = {f_{quarter}^{penny}}^{-1}(x) \\
     & =  1/25.0 * x
     \end{split}
     \end{equation*}
