@@ -92,7 +92,7 @@ Reading transformations top-down
 
 When reading a composition of function calls top down,
 all the transformations happen relative to the global
-origin and axises, i.e. the natural *basis*.  After each function call, the basis
+origin and axes, i.e. the natural *basis*.  After each function call, the basis
 is set back to the origin basis.
 
 .. literalinclude:: ../src/demo09/demo.py
@@ -116,7 +116,7 @@ Reading transformations bottom-up
 
 Alternatively, you can read the transformations backwards,
 where the operations
-all cumulatively modify the current axises and origin, i.e. basis, to a new basis.
+all cumulatively modify the current axes and origin, i.e. basis, to a new basis.
 All subsequent functions move that relative basis to a new relative basis.
 
 
@@ -148,7 +148,7 @@ system that we choose to use.  It's whatever you want it to be.
 
     Demo 06
 
-Think of world space's origin, x and y axises.  On the Cayley graph, move towards each modelspace node,
+Think of world space's origin, x and y axes.  On the Cayley graph, move towards each modelspace node,
 which is against the direction of the edge,  Look at that edge's correponding
 sequence of function calls in the graphics code.  Read the transformations
 from the bottom up, imagining a transformed local coordinate system against which

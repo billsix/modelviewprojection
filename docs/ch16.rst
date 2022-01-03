@@ -118,7 +118,7 @@ The ordering of 1) before 2) and 3) should be clear, as
 we are imagining a coordinate system that moves, just
 like we do for the modelspace to world space transformations.
 The ordering of 2) and 3) is very important, and 2 rotations
-across different axises are not commutative.
+across different axes are not commutative.
 https://en.wikipedia.org/wiki/Commutative_property.
 
 
@@ -204,15 +204,15 @@ version of the axis being moved from into their world space positions,
 relative to which the modelspace data is drawn.
 
 The gray axis in the middle happens when we hold onto the original
-axises, as we first draw paddle 1 relative to it, the square relative
+axes, as we first draw paddle 1 relative to it, the square relative
 to paddle1, but we need to later get back to world space so that we
 can draw paddle2.  In later code, we will use glPushMatrix to
-save onto a copy of the current axises, and glPopMatrix to discard
+save onto a copy of the current axes, and glPopMatrix to discard
 our "current at the time" axis, returning back to the saved axis.  Like a quicksave
 in a video game.
 
 To follow along with the code, read the transformations from modelspace
-to worldspace backwards, and you will see how the axises are moving and
+to worldspace backwards, and you will see how the axes are moving and
 why.
 
 Take a look at ../mvpVisualization/demoViewWorldTopLevel.py to see an

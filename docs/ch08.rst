@@ -67,7 +67,7 @@ Description
 ^^^^^^^^^^^
 
 The problem in the last demo is that all rotations happen relative
-to World Space's (0,0) and axises.  By translating our paddles to their position
+to World Space's (0,0) and axes.  By translating our paddles to their position
 before rotating, they are rotated around World Space's origin, instead
 of being rotated around their modelspace's center.
 

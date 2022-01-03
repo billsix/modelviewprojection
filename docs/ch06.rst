@@ -82,7 +82,7 @@ scaling and rotating the object are trivial, as shown in later chapters).
     Representing a Paddle using Modelspace
 
 
-Modelspace - the coordinate system (origin plus axises), in which some object's
+Modelspace - the coordinate system (origin plus axes), in which some object's
 verticies are defined.
 
 
@@ -231,7 +231,7 @@ Paddle 2's vertices in WorldSpace Coordinates
    aren't relative to the global origin, instead it's from the local frame of reference.
 
    When reading the transformations backwards, I think it's best to think of it
-   as moving the axises, and the plotting the data once the axies are in
+   as moving the axes, and the plotting the data once the axies are in
    their final place.
 
 

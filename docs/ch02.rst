@@ -247,7 +247,7 @@ Graph of Spaces
 
 The following is a graph_, specifically
 a Cayley_ Graph, of the two spaces
-shown so far.  The nodes represent a coordinate system (i.e. origin and axises),
+shown so far.  The nodes represent a coordinate system (i.e. origin and axes),
 and the directed edge represents a function that converts coordinates from one
 coordinate system to another.
 
@@ -409,7 +409,7 @@ of any directed edge that you against.
 
 
 Notice in the last equation that we defined the function via function composition_,
-and didn't specify and arguments.  We just focus on the types of units in and the units
+and didn't specify any arguments.  We just focus on the types of units in and the units
 out, but the details of those functions are not relevant when traversing the Cayley graph.
 
 
