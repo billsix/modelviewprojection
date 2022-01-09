@@ -882,14 +882,6 @@ def handle_inputs():
     global camera
 
     move_multiple = 15.0
-    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.rot_y -= math.radians(1.0) % 360.0
-    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.rot_y += math.radians(1.0) % 360.0
-    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.rot_x -= math.radians(1.0) % 360.0
-    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.rot_x += math.radians(1.0) % 360.0
 
     global paddle1, paddle2
 
@@ -926,7 +918,7 @@ animation_time = 0.0
 animation_time_multiplier = 1.0
 animation_paused = False
 enlarged_axis = True
-
+NDC = False
 
 def highlighted_button(text, start_time, time):
     highlight = time > start_time and (time - start_time) < 5
@@ -999,7 +991,7 @@ while not glfw.window_should_close(window):
             imgui.same_line()
             imgui.text(" o ")
             imgui.same_line()
-            if highlighted_button("R_z", 10, animation_time):
+            if highlighted_button("R", 10, animation_time):
                 animation_time = 10.0
             imgui.same_line()
             imgui.text(" ) (x) ")
@@ -1008,12 +1000,7 @@ while not glfw.window_should_close(window):
                 imgui.text(" f_square_to_world o (")
                 imgui.text("      ")
                 imgui.same_line()
-                if highlighted_button("T_-Z", 15, animation_time):
-                    animation_time = 15.0
-                imgui.same_line()
-                imgui.text(" o ")
-                imgui.same_line()
-                if highlighted_button("R_Z", 20, animation_time):
+                if highlighted_button("R1", 20, animation_time):
                     animation_time = 20.0
                 imgui.same_line()
                 imgui.text(" o ")
@@ -1023,7 +1010,7 @@ while not glfw.window_should_close(window):
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
-                if highlighted_button("R2_Z", 30, animation_time):
+                if highlighted_button("R2", 30, animation_time):
                     animation_time = 30.0
                 imgui.same_line()
                 imgui.text(" ) (x) ")
@@ -1032,71 +1019,44 @@ while not glfw.window_should_close(window):
         if imgui.tree_node("Paddle 2->World", imgui.TREE_NODE_DEFAULT_OPEN):
             imgui.text("f_paddle2_to_world(x) = (")
             imgui.same_line()
-            if highlighted_button("T", 35, animation_time):
-                animation_time = 35.0
+            if highlighted_button("T", 40, animation_time):
+                animation_time = 40.0
             imgui.same_line()
             imgui.text(" o ")
             imgui.same_line()
-            if highlighted_button("R", 40, animation_time):
-                animation_time = 40.0
+            if highlighted_button("R", 45, animation_time):
+                animation_time = 45.0
             imgui.same_line()
             imgui.text(" ) (x) ")
             imgui.tree_pop()
         if imgui.tree_node("Camera->World", imgui.TREE_NODE_DEFAULT_OPEN):
-            imgui.text("f_camera_to_world(x) = (")
+            imgui.text("f_camera_to_world(x) = ")
             imgui.same_line()
-            if highlighted_button("T", 50, animation_time):
-                animation_time = 50.0
-            imgui.same_line()
-            imgui.text(" o ")
-            imgui.same_line()
-            if highlighted_button("R_Y", 55, animation_time):
+            if highlighted_button("T", 55, animation_time):
                 animation_time = 55.0
             imgui.same_line()
-            imgui.text(" o ")
-            imgui.same_line()
-            if highlighted_button("R_X", 60, animation_time):
-                animation_time = 60.0
-            imgui.same_line()
-            imgui.text(" ) (x) ")
+            imgui.text("(x) ")
             imgui.tree_pop()
         imgui.tree_pop()
     if imgui.tree_node(
         "Towards NDC, With Arrows, Top Down Reading", imgui.TREE_NODE_DEFAULT_OPEN
     ):
         if imgui.tree_node("World->Camera", imgui.TREE_NODE_DEFAULT_OPEN):
-            imgui.text("f_camera_to_world^-1(x) = f_world_to_camera(x) = ")
-            imgui.text("   ")
+            imgui.text("f_camera_to_world^-1(x) = ")
+            imgui.text("     f_world_to_camera(x) = ")
             imgui.same_line()
-            if highlighted_button("R^-1_X", 75, animation_time):
-                animation_time = 75.0
+            if highlighted_button("T^-1", 60, animation_time):
+                animation_time = 60.0
             imgui.same_line()
-            imgui.text(" (")
+            imgui.text("(x)")
+            imgui.tree_pop()
+        if imgui.tree_node("Camera->NDC", imgui.TREE_NODE_DEFAULT_OPEN):
+            imgui.text("f_camera_to_ndc(x) = ortho(x) = ")
             imgui.same_line()
-            if highlighted_button("R^-1_Y", 70, animation_time):
-                animation_time = 70.0
-            imgui.same_line()
-            imgui.text(" (")
-            imgui.same_line()
-            if highlighted_button("T^-1", 65, animation_time):
+            if highlighted_button("Scale", 65, animation_time):
                 animation_time = 65.0
             imgui.same_line()
-            imgui.text("* x))")
-            imgui.tree_pop()
-        if imgui.tree_node(
-            "Ortho, Rectangular Prism->NDC", imgui.TREE_NODE_DEFAULT_OPEN
-        ):
-            imgui.text("f_ortho(x) = ")
-            imgui.same_line()
-            if highlighted_button("Scale", 105, animation_time):
-                animation_time = 105.0
-            imgui.same_line()
-            imgui.text(" (")
-            imgui.same_line()
-            if highlighted_button("T - Center", 100, animation_time):
-                animation_time = 100.0
-            imgui.same_line()
-            imgui.text(" * x)")
+            imgui.text("(x)")
             imgui.tree_pop()
         imgui.tree_pop()
 
@@ -1108,6 +1068,9 @@ while not glfw.window_should_close(window):
     clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
         "Enlarged Axises", enlarged_axis
     )
+    clicked_NDC, NDC = imgui.checkbox(
+        "NDC", NDC
+    )
     imgui.end()
 
     imgui.set_next_window_bg_alpha(0.05)
@@ -1117,19 +1080,19 @@ while not glfw.window_should_close(window):
         clicked_virtual_camera_positionx_clicked,
         virtual_camera_position[0],
     ) = imgui.slider_float(
-        "Camera X_Worldspace", virtual_camera_position[0], -200, 200.0
+        "Camera X_Worldspace", virtual_camera_position[0], -250, 250.0
     )
     (
         clicked_virtual_camera_positiony_clicked,
         virtual_camera_position[1],
     ) = imgui.slider_float(
-        "Camera Y_Worldspace", virtual_camera_position[1], -200, 200.0
+        "Camera Y_Worldspace", virtual_camera_position[1], -250, 250.0
     )
     (
         clicked_virtual_camera_positionz_clicked,
         virtual_camera_position[2],
     ) = imgui.slider_float(
-        "Camera Z_Worldspace", virtual_camera_position[2], -200, 200.0
+        "Camera Z_Worldspace", virtual_camera_position[2], -250, 250.0
     )
 
     imgui.push_button_repeat(True)
@@ -1163,9 +1126,14 @@ while not glfw.window_should_close(window):
     ms.setToIdentityMatrix(ms.MatrixStack.projection)
 
     # set the projection matrix to be ortho
-    ms.ortho(
-        left=-100.0, right=100.0, back=-100.0, top=100.0, near=0.0, far=500.0
-    )
+    if NDC:
+        ms.ortho(
+            left=-1.0, right=1.0, back=-1.0, top=1.0, near=0.0, far=550.0
+        )
+    else:
+        ms.ortho(
+            left=-100.0, right=100.0, back=-100.0, top=100.0, near=0.0, far=550.0
+        )
 
     # note - opengl matricies use degrees
     ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
@@ -1182,26 +1150,26 @@ while not glfw.window_should_close(window):
         ground.render(animation_time)
 
 
-    if animation_time > 65.0:
+    if animation_time > 60.0:
         ms.translate(
             ms.MatrixStack.model,
-            -virtual_camera_position[0] * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[1] * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[2] * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[0] * min(1.0, (animation_time - 60.0) / 5.0),
+            -virtual_camera_position[1] * min(1.0, (animation_time - 60.0) / 5.0),
+            -virtual_camera_position[2] * min(1.0, (animation_time - 60.0) / 5.0),
         )
 
     # draw virtual camera
-    if animation_time > 50.0:
+    if animation_time > 55.0:
         with ms.push_matrix(ms.MatrixStack.model):
-            if animation_time > 50.0:
+            if animation_time > 55.0:
                 ms.translate(
                     ms.MatrixStack.model,
                     virtual_camera_position[0]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    * min(1.0, (animation_time - 55.0) / 5.0),
                     virtual_camera_position[1]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    * min(1.0, (animation_time - 55.0) / 5.0),
                     virtual_camera_position[2]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    * min(1.0, (animation_time - 55.0) / 5.0),
                 )
 
             axis.render(animation_time)
@@ -1238,28 +1206,28 @@ while not glfw.window_should_close(window):
 
         # # draw the square
 
-        if animation_time > 15.0:
+        if animation_time > 20.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                rotation_around_paddle1 * min(1.0, (animation_time - 15.0) / 5.0),
-            )
-        if animation_time > 20.0:
-            ms.translate(
-                ms.MatrixStack.model,
-                15.0 * min(1.0, (animation_time - 20.0) / 5.0),
-                0.0,
-                0.0,
+                rotation_around_paddle1 * min(1.0, (animation_time - 20.0) / 5.0),
             )
         if animation_time > 25.0:
+            ms.translate(
+                ms.MatrixStack.model,
+                15.0 * min(1.0, (animation_time - 25.0) / 5.0),
+                0.0,
+                0.0,
+            )
+        if animation_time > 30.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                square_rotation * min(1.0, (animation_time - 25.0) / 5.0),
+                square_rotation * min(1.0, (animation_time - 30.0) / 5.0),
             )
 
-        if animation_time > 10.0 and animation_time < 30.0:
+        if animation_time > 10.0 and animation_time < 35.0:
             axis.render(animation_time)
 
-        if animation_time > 30.0:
+        if animation_time > 35.0:
             square.render(animation_time)
 
     # get back to center of global space
@@ -1267,23 +1235,23 @@ while not glfw.window_should_close(window):
     with ms.PushMatrix(ms.MatrixStack.model):
 
         # draw paddle 2
-        if animation_time > 35.0:
+        if animation_time > 40.0:
             ms.translate(
                 ms.MatrixStack.model,
-                paddle2.position[0] * min(1.0, (animation_time - 35.0) / 5.0),
-                paddle2.position[1] * min(1.0, (animation_time - 35.0) / 5.0),
+                paddle2.position[0] * min(1.0, (animation_time - 40.0) / 5.0),
+                paddle2.position[1] * min(1.0, (animation_time - 40.0) / 5.0),
                 0.0,
             )
-        if animation_time > 40.0:
+        if animation_time > 45.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                paddle2.rotation * min(1.0, (animation_time - 40.0) / 5.0),
+                paddle2.rotation * min(1.0, (animation_time - 45.0) / 5.0),
             )
 
-        if animation_time > 35.0 and animation_time < 45.0:
+        if animation_time > 40.0 and animation_time < 50.0:
             axis.render(animation_time)
 
-        if animation_time > 45.0:
+        if animation_time > 50.0:
             paddle2.render(animation_time)
 
     imgui.render()
