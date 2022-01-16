@@ -1,6 +1,8 @@
 ModelViewProjection
 ===================
 
+http://billsix.github.io/modelviewprojection/intro.html
+
 Learn how to build 3D graphics from the ground up.
 This codebase demonstrates how to create objects, put
 them where you want them to go, view the scene with a camera
