@@ -61,14 +61,14 @@ def draw_in_square_viewport() -> None:
 
     width, height = glfw.get_framebuffer_size(window)
 
-    min = width if width < height else height
+    square_size = width if width < height else height
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),
-        int((height - min) / 2.0),
-        min,
-        min,
+        int((width - square_size) / 2.0), # bottom left x_screenspace
+        int((height - square_size) / 2.0),# bottom left y_screenspace
+        square_size,                      # x width, screenspace
+        square_size,                      # y height, screenspace
     )
 
     glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -76,10 +76,10 @@ def draw_in_square_viewport() -> None:
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),
-        int(0.0 + (height - min) / 2.0),
-        min,
-        min,
+        int(0.0 + (width - square_size) / 2.0),
+        int(0.0 + (height - square_size) / 2.0),
+        square_size,
+        square_size,
     )
 
 

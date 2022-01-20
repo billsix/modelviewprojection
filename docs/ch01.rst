@@ -311,8 +311,8 @@ Create a Window
 
 
 Functions are first class values in Python, and are objects just
-like anything else.  The can be passed as arguments, stored in argument,
-and evaluated later zero, 1, or more times.
+like anything else.  The can be passed as arguments, stored in variables,
+and applied later zero, 1, or more times.
 
 .. code:: Python
 
@@ -336,7 +336,8 @@ and evaluated later zero, 1, or more times.
 
 * Before a frame is drawn, it is first turned into a blank slate,
   where the color of each pixel is set to some value representing a
-  color.  Calling "glClearColor" "0,0,0,1", means black "0,0,0", without
+  color.  We are not clearing the framebuffer right now, but setting what
+  color will be used for a later clear.  Calling "glClearColor" "0,0,0,1", means black "0,0,0", without
   transparency (the "1").
 
 
@@ -431,7 +432,7 @@ The first demo is the least interesting graphical program possible.
 #. If the user resized the window, reset OpenGL's mappings from *normalized-device-coordinates*
    to *screen-coordinates*.
 
-#. Cleared the depth buffer (don't worry about this for now).
+#. Cleared the color buffer and the depth buffer (don't worry about this for now).
 
 When this code returns, the event loop flushes (i.e) sends the frame to the monitor.  Since
 no geometry was drawn, the color value for each pixel is still black.

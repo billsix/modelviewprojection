@@ -136,7 +136,9 @@ Set to Draw in Square Subsection Of Window
    :lineno-start: 59
    :lines: 59-60
 
-* set the clear color to be gray.  clear the color of every pixel in the whole frame buffer, not just the viewport
+* set the clear color to be gray.
+* glClear clear the color of every pixel in the whole frame buffer, independent of viewport.
+  So now the entire framebuffer is gray.
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
@@ -145,6 +147,8 @@ Set to Draw in Square Subsection Of Window
    :lines: 62-64
 
 * figure out the minimum dimension of the window
+* To make a square subregion, we need a number for the distance between vertices of the square.
+  By using the minimium of the width and height, we can at least fill up the screen in one dimension.
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
@@ -152,7 +156,12 @@ Set to Draw in Square Subsection Of Window
    :lineno-start: 66
    :lines: 66-72
 
-* Enable the scissor test
+* Enable the scissor test.  Internally, OpenGL drivers likely have global variables
+  that we set by calling functions.  Every OpenGL feature isn't used by every OpenGL
+  program.  For instance, we are not using lighting to add realism.  We aren't using
+  texturing.  We are using the scissor test, so we must enable it.  We only enable
+  the features that we need so that the OpenGL driver doesn't waste time doing
+  unnecessary computations.
 * the scissor test allows us to specify a region
   of the framebuffer into which the opengl operations
   will apply.  In this case, the color in every pixel in the framebuffer is gray.
@@ -161,6 +170,12 @@ Set to Draw in Square Subsection Of Window
   ignore the others".
   As we will learn later, OpenGL stores much more information
   per fragment (i.e. pixel) than just it's current color.
+
+.. figure:: _static/ccbysa3.0/williamsix/fragment.png
+    :align: center
+    :alt: Fragment
+    :figclass: align-center
+
 
 * Look at the image above of NDC superimposed on Screen Space.  From this,
   the arguments sent to glScissor should be clear.
@@ -201,7 +216,10 @@ that we care about, which is the black square.
 The Event Loop
 &&&&&&&&&&&&&&
 
-The event loop is just like the previous demo,
+Draw in square viewport is a function definition.  It has not yet
+been run, but will be run in every iteration of the event loop.
+
+This demo's event loop is just like the previous demo,
 but this time we call the procedure to
 ensure that we only draw in a square subset of
 the window.
