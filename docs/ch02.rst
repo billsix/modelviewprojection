@@ -424,8 +424,10 @@ Learning what to ignore
 
 A big part of being able to understand graphics well is being able
 to figure out what to ignore.  So how would we convert coordinates from space
-D to space B (defined below)?  What do those names mean?  It doesn't matter.  All that
-matters is that the function exists and that the function is invertible.
+D to space B (defined below)?  What do those names mean?  It doesn't matter.
+What is the definition of all of the functions?  It doesn't matter. All that
+matters is that the function exists, the definition of the function is provided to us,
+the function is invertible, and that we can call a procedure to invert a function.
 
 
 .. figure:: _static/cayleygraph.png
@@ -456,6 +458,9 @@ the appropriate inverse(s).
                               & = {\vec{f}_{b}^{a}}^{-1}(\vec{f}_{c}^{a}(\vec{f}_{d}^{c}(\vec{x})))
     \end{split}
     \end{equation}
+
+A function from B to A is not provided to us, but is written in the equation as an idea of a function
+that we wish to have.  We can create this function by invoking inverse on the provide function from B to A.
 
 
 Since we're dealing with function composition mainly, we don't even need to specify the argument
