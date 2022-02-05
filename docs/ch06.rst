@@ -571,7 +571,7 @@ Rendering Paddle 2
     Reset coordinate system.
 
 
-The coordinate system is reset.  Now scale everything by 1/200.  I have
+The coordinate system is reset.  Now scale everything by 1/100.  I have
 not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.

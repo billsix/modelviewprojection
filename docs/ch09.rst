@@ -67,9 +67,30 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-In the previous demo, the initial translate is effectively canceled out,
-leaving just a rotation and then a translation.
 
+In Demo 07 we tried to represent the translation and then rotation
+around the paddle's center by code that worked as follows
+
+.. math::
+    \begin{equation}
+    \begin{split}
+    \vec{f}_{p}^{w}  & = \vec{r} \circ \vec{t}
+    \end{split}
+    \end{equation}
+
+where t and r are the translate and rotate functions for a paddle, and
+we read the functions from right to left.  (In code, we were reading
+the method chaining from top-down, as that is the order in which the
+function calls are evaluted.)
+
+
+But that caused erratic behavior of the paddle over time, as it was
+not rotating around it's own origin.  It was not working.
+
+So in Demo 08 we fixed it by writing a "rotate_around" method, in
+which we translated the paddle to its position, then in order to
+rotate around its center, we re-centered the paddle, did the rotation,
+and then re-translated to the paddle's position.
 
 .. math::
     \begin{equation}
@@ -79,10 +100,12 @@ leaving just a rotation and then a translation.
     \end{split}
     \end{equation}
 
-Where t and r are the translate and rotate functions for a paddle.
 
+So translate and inverse translate cancel out, and demonstrate to us
+that the rotate function actually needs to be applied first, then the
+translate function.  Which means that we were actually reading the
+function applications in the wrong order!  Intuition can lead us astray!
 
-So we really just need to apply the rotation first, and then the translation.
 
 To understand why the code in this demo works, you can think
 about it in one of two ways, forwards or backwards.
