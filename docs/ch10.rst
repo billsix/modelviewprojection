@@ -75,26 +75,26 @@ Description
 "Camera space" means the coordinates of everything relative
 to a camera, not relative to world space.
 
-.. figure:: _static/screenshots/camera3.png
+.. figure:: _static/screenshots/2dcameraspace.png
     :align: center
     :alt: Demo 10
     :figclass: align-center
 
-    Camera is 3D space
+    Camera space
 
-In the picture above, using 3D space, NDC is the cube in the center
-of the screen, and its coordinate system is defined by the three gray vectiors.
-The cube to the left is the position of the camera; its local X coordinate
-is the red arrow, its local Y coordinate is the green arrow, its local
-Z coordinate is the blue arrow.  We will get to 3D later,
-but the point is that the coordinates of the paddle can be described
+In the picture above, NDC is the square in the center
+of the screen, and its coordinate system is defined by its two axes X
+and Y. The square to the to the left and up is the position of the
+camera; which has its own X axis and Y axis.
+
+The coordinates of the paddle can be described
 in world space, or in camera space, and that we can create functions
 to convert coordinates between the two spaces.
 
 
 
-Towards that, in the Cayley graph, camera space will be between world space and NDC, but
-which way should the direction of the edge be?
+Towards that, in the Cayley graph, camera space will be between world
+space and NDC, but which way should the direction of the edge be?
 
 It could be
 
@@ -233,9 +233,10 @@ looking directly in front of your head.  Which way did the room move?
 Towards the left.
 
 
-Back to camera space.  Unfortunately, the author doesn't have visualizations for this in 2D space.
+Back to camera space. (run mvpVisualizations/6/demo6.py)
 
-.. figure:: _static/screenshots/camera3.png
+.. figure:: _static/screenshots/2dcameraspace.png
+
     :align: center
     :alt: Demo 10
     :figclass: align-center
