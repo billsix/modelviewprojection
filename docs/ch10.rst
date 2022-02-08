@@ -236,7 +236,6 @@ Towards the left.
 Back to camera space. (run mvpVisualizations/6/demo6.py)
 
 .. figure:: _static/screenshots/2dcameraspace.png
-
     :align: center
     :alt: Demo 10
     :figclass: align-center
