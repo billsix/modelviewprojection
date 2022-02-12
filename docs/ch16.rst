@@ -25,28 +25,28 @@ Moving Camera in 3D Space - Demo 16
 Purpose
 ^^^^^^^
 
-Make a moving camera in 3D space.  Use Ortho to put a rectangular prism
+Make a moving camera in 3D space.  Use Ortho to transform a rectangular prism, defined relative to camera space,
 into NDC.
 
-.. figure:: _static/screenshots/camera1.png
+.. figure:: _static/screenshots/ortho.png
     :align: center
     :alt: Camera
     :figclass: align-center
 
-    Camera space
+    Camera space with ortho volume
 
 
 Problem purposefully put in
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When moving front to back, parts of the geometry will disappear.
+When running this demo and moving the viewer, parts of the geometry will disappear.
 This is because it gets "clipped out", as the geometry will be outside
 of NDC, (-1 to 1 on all three axis).  We could fix this by making
 a bigger ortho rectangular prism, but that won't solve the fundamental
 problem.
 
-This doesn't look like a 3D application should, where further away
-objects are smaller.  This will be fixed in demo17.
+This doesn't look like a 3D application should, where objects further away
+from the viewer would appear smaller.  This will be fixed in demo17.
 
 
 .. figure:: _static/screenshots/demo16.png
@@ -54,7 +54,7 @@ objects are smaller.  This will be fixed in demo17.
     :alt: Demo 16
     :figclass: align-center
 
-    Demo 16
+    Demo 16, which looks like trash
 
 
 How to Execute
@@ -108,17 +108,18 @@ To position the camera, with all operations relative to world space,
 you would
 
 #. translate to the camera's position, using the actual position values
-   of camera position (not their negatives)
-#. rotate around the y axis
-#. rotate around the x axis
+   of camera position
+#. rotate around the local y axis
+#. rotate around the local x axis
 
-To visualize this, run "python mvpVisualization/demo3.py"
+To visualize this, run "python mvpVisualization/7/demo7.py"
 
 The ordering of 1) before 2) and 3) should be clear, as
 we are imagining a coordinate system that moves, just
 like we do for the modelspace to world space transformations.
-The ordering of 2) and 3) is very important, and 2 rotations
-across different axes are not commutative.
+The ordering of 2) before 3) is very important, as 2 rotations
+around different axes are not commutative, meaning that you can't
+change the order and still expect the same results
 https://en.wikipedia.org/wiki/Commutative_property.
 
 
@@ -126,8 +127,9 @@ https://en.wikipedia.org/wiki/Commutative_property.
 Try this.  Rotate your head to the right a little more that
 45 degrees.  Now rotate your head back a little more than 45 degrees.
 
-Now, reset your head (glPopMatrix). Try rotating your head back 45 degrees.  Once it's there,
-rotate your head (not your neck), 45 degrees.  It's different, and uncomfortable!
+Now, reset your head (glPopMatrix, which we have not yet covered).
+Try rotating your head back 45 degrees.  Once it's there,
+rotate your head (not your neck), 45 degrees.  It's different, and quite uncomfortable!
 
 We rotate the camera by the y axis first, then by the relative x axis,
 for the same reason.
@@ -136,8 +138,8 @@ for the same reason.
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 295
-   :lines: 295-297
+   :lineno-start: 305
+   :lines: 305-309
 
 
 (Remember, read bottom up, just like the previous demos
@@ -149,11 +151,12 @@ space by making a moving coordinate system (composed of an origin, 1 unit
 in the "x" axis, 1 unit in the "y" axis, and 1 unit in the "z" axis), where
 each subsequent transformation is relative to the previous coordinate system.
 (This system is beneficial btw because it allows us to think of one coordinate
-system at a time, and forget how we got there, (similar to a Markov process,
+system at a time, and allows us to forget how we got there, (similar to a Markov process,
 https://en.wikipedia.org/wiki/Markov_chain))
 
-But that system of thinking works only when we are placing the camera into
-it's position/orientation.  Looking at
+But this system of thinking works only when we are placing the camera into
+it's position/orientation relative to world space.  We don't need to place the camera.
+We need to move every already-plotted object towards NDC.  Looking at the following graph,
 
 .. figure:: _static/demo10-2.png
     :align: center
@@ -163,12 +166,14 @@ it's position/orientation.  Looking at
     Demo 10
 
 thinking in this way would allow us to transform vertices defined in camera space
-to world space, just like the paddles/square.
+to world space, just like the paddles/square.  (This way of thinking for the camera placement
+is relevant when we want to move
+the camera/viewer over time).
 
 But we don't want that.  Instead, we want to take the modelspace geometry from,
 say Paddle1 space, to world space,
-and then to camera space (which is going in the opposite direction, therefore requires
-an inverse operation.
+and then to camera space (which is going in the opposite direction of the arrow, therefore requires
+an inverse operation, because to plot data we go from modelspace to screen space on the graph.
 
 Given that the inverse of a sequence of transformations is the sequence backwards,
 with each transformations inverted, we must do that to get from world space
@@ -180,19 +185,16 @@ The inverted form is
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 298
-   :lines: 298-300
+   :lineno-start: 310
+   :lines: 310-314
 
 
 
 Trying to reason about the camera's position and orientation is difficult.
 As such, in this demo, I have added the non-inverted transformations for camera
 placement in world space
-in the comments, but will not do so in subsequent demos.
-p
+in the comments (listed first), and then the inverted form after, but will not do so in subsequent demos.
 
-Before we start, take a look at ../mvpVisualization/demo.py
-to see the 3D geometry drawn both in world space and in their modelspace.
 
 To count in the modelspace, look at a given axis (which I've drawn in units
 of 10 for ease of viewing, although it should normally be in units of 1)

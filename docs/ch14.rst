@@ -34,7 +34,7 @@ Things that this demo doesn't end up doing correctly:
 
 * The blue square is always drawn, even
   when its z-coordinate in world space is less than the paddle's.  The solution will be
-  z-buffering https://en.wikipedia.org/wiki/Z-buffering#Mathematics,
+  z-buffering https://en.wikipedia.org/wiki/Z-buffering,
   and it is implemented in the next demo.
 
 
