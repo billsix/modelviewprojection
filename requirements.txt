@@ -1,10 +1,10 @@
 glfw==2.5.0
-imageio==2.13.5
+imageio==2.15.0
 imgui==1.4.1
 matplotlib==3.5.1
 mypy==0.931
-numpy==1.22.1
-Pillow==9.0.0
+numpy==1.22.2
+Pillow==9.0.1
 pyMatrixStack==0.0.3
 PyOpenGL==3.1.5
 Sphinx==4.4.0
