@@ -19,7 +19,7 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-Towards Standard Projection Matrix Pt 2 Demo 24
+Towards Standard Projection Matrix Pt 2 Demo 23
 ===============================================
 
 Purpose
