@@ -25,7 +25,7 @@
 Purpose
 ^^^^^^^
 
-Implement a perspective project so that objects
+Implement a perspective projection so that objects
 further away are smaller than the would be
 if they were close by
 
