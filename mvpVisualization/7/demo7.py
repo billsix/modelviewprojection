@@ -1282,30 +1282,17 @@ while not glfw.window_should_close(window):
             imgui.same_line()
             imgui.text("* x))")
             imgui.tree_pop()
-        if imgui.tree_node("Frustum->Rectangular Prism", imgui.TREE_NODE_DEFAULT_OPEN):
-            imgui.text("f_frustum_to_prism(x) = ")
-            imgui.same_line()
-            if highlighted_button("Squash Y", 95, animation_time):
-                animation_time = 95.0
-            imgui.same_line()
-            imgui.text(" (")
-            imgui.same_line()
-            if highlighted_button("Squash X", 90, animation_time):
-                animation_time = 90.0
-            imgui.same_line()
-            imgui.text(" * x)")
-            imgui.tree_pop()
         if imgui.tree_node(
             "Ortho, Rectangular Prism->NDC", imgui.TREE_NODE_DEFAULT_OPEN
         ):
             imgui.text("f_ortho(x) = ")
             imgui.same_line()
-            if highlighted_button("Scale", 105, animation_time):
+            if highlighted_button("Scale", 95, animation_time):
                 animation_time = 105.0
             imgui.same_line()
             imgui.text(" (")
             imgui.same_line()
-            if highlighted_button("T - Center", 100, animation_time):
+            if highlighted_button("T - Center", 90, animation_time):
                 animation_time = 100.0
             imgui.same_line()
             imgui.text(" * x)")
