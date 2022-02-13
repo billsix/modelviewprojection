@@ -120,27 +120,38 @@ Description
 ::
 
 
-                      ------------------------------ far z
-                      \             |              /
-                       \            |             /
-                        \ (x,z) *   |            /
-                         \          |           /
-                          \         |          /
-                           \        |         /
-                            \       |        /
-                             \      |       /
-                              \     |      /
-                               ------------ near z
-                               \    |    /
-                                \   |   /
-                                 \  |  /
-                                  \ | /
-                                   \|/
-              ----------------------*-(0,0)-------------------
+                     ------------------------------- far z
+                     \              |              /
+                      \             |             /
+                       \ (x,z) *----|(0,z)       /
+                        \      |    |           /
+                         \     |    |          /
+                          \    |    |         /
+                           \   |    |        /
+                            \  |    |       /
+                             \ |    |      /
+                              \---*-------- near z
+                               |    |    /
+                               |\   |   /
+                               | \  |  /
+                               |  \ | /
+                               |   \|/
+              -----------------*----*-(0,0)-------------------
+                              (x,0)
+
+
+If we draw a straight line between (x,z) and (0,0), we will have a right triangle
+with vertices (0,0), (0,z), and (x,z).
+
+There also will be a similar right triangle with verticies (0,0), (0,nearZ), and
+whatever point the line above intersects the line at z=nearZ.  Let's call that point
+(projX, nearZ)
 
         because right angle and tan(theta) = tan(theta)
         x / z = projX / nearZ
         projX = x / z * nearZ
+
+        So use projX as the transformed x value, and keep the distance z.
 
                                ----------- far z
                                |          |
@@ -163,6 +174,59 @@ Description
               ----------------------*-(0,0)-------------------
 
 
+
+Top calculation based off of vertical field of view
+
+::
+
+                              /* top
+                             / |
+                            /  |
+                           /   |
+                          /    |
+                         /     |
+                        /      |
+                       /       |
+                      /        |
+                     /         |
+                    /          |
+                   /           |
+                  /            |
+           origin/             |
+                / fov/2        |
+          z----*---------------*
+               |\              |-nearZ
+               | \             |
+               |  \            |
+               x   \           |
+                    \          |
+                     \         |
+                      \        |
+                       \       |
+                        \      |
+                         \     |
+                          \    |
+                           \   |
+                            \  |
+                             \ |
+                              \|
+
+Right calculation based off of Top and aspect ration
+
+::
+
+                                   top
+           -------------------------------------------------------
+           |                                                     |
+           |                         y                           |
+           |                         |                           |
+           |                         |                           |
+           |                         *----x                      | right =
+           |                            origin                   |   top * aspectRatio
+           |                                                     |
+           |                                                     |  aspect ratio should be the viewport's
+           |                                                     |    width/height, not necessarily the
+           -------------------------------------------------------    window's
 
 
 .. literalinclude:: ../src/demo17/demo.py
