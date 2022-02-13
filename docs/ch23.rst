@@ -19,14 +19,17 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-Towards Standard Projection Matrix  Demo 23
-===========================================
+Towards Standard Projection Matrix Pt 2 Demo 24
+===============================================
 
 Purpose
 ^^^^^^^
+Remove cameraSpace.z entirely from the perspective matrix.
 
-In the vertex shader, we premultiply the matricies
-together to get one perspective projection matrix.
+This will allow us to use one perspective projection matrix for
+all vertices, independent of the z coordinate of each input vertex.
+
+
 
 
 
@@ -34,8 +37,8 @@ together to get one perspective projection matrix.
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a shell, type "python src/demo23/demo.py".
-On Windows, in a command prompt, type "python src\\demo23\\demo.py".
+On Linux or on MacOS, in a shell, type "python src/demo24/demo.py".
+On Windows, in a command prompt, type "python src\\demo24\\demo.py".
 
 
 Move the Paddles using the Keyboard

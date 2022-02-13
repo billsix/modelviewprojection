@@ -19,11 +19,12 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-Towards Standard Projection Matrix Pt 2 Demo 24
+Towards Standard Projection Matrix Pt 3 Demo 25
 ===============================================
 
 Purpose
 ^^^^^^^
+
 Remove cameraSpace.z entirely from the perspective matrix.
 
 This will allow us to use one perspective projection matrix for
@@ -33,12 +34,11 @@ all vertices, independent of the z coordinate of each input vertex.
 
 
 
-
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a shell, type "python src/demo24/demo.py".
-On Windows, in a command prompt, type "python src\\demo24\\demo.py".
+On Linux or on MacOS, in a shell, type "python src/demo25/demo.py".
+On Windows, in a command prompt, type "python src\\demo25\\demo.py".
 
 
 Move the Paddles using the Keyboard

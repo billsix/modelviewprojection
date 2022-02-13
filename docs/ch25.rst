@@ -19,16 +19,15 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-Towards Standard Projection Matrix Pt 3 Demo 25
+Towards Standard Projection Matrix Pt 4 Demo 26
 ===============================================
 
 Purpose
 ^^^^^^^
 
-Remove cameraSpace.z entirely from the perspective matrix.
 
-This will allow us to use one perspective projection matrix for
-all vertices, independent of the z coordinate of each input vertex.
+Use the standard perspective matrix, where the z axis
+is flipped.
 
 
 

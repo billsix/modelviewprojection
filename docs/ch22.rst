@@ -19,14 +19,14 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-OpenGL 3.3  Demo 22
-===================
+Towards Standard Projection Matrix  Demo 23
+===========================================
 
 Purpose
 ^^^^^^^
 
-Use OpenGL 3.3, Core profile.  No more glBegin/glVertex/glEnd.
-We need to use vertex array objects and vertexbuffer objects.
+In the vertex shader, we premultiply the matricies
+together to get one perspective projection matrix.
 
 
 
@@ -34,8 +34,8 @@ We need to use vertex array objects and vertexbuffer objects.
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a shell, type "python src/demo20/demo.py".
-On Windows, in a command prompt, type "python src\\demo20\\demo.py".
+On Linux or on MacOS, in a shell, type "python src/demo23/demo.py".
+On Windows, in a command prompt, type "python src\\demo23\\demo.py".
 
 
 Move the Paddles using the Keyboard

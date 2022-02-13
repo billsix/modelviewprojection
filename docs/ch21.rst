@@ -19,12 +19,14 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-May be not needed Demo 21
-=========================
+OpenGL 3.3  Demo 22
+===================
 
 Purpose
 ^^^^^^^
 
+Use OpenGL 3.3, Core profile.  No more glBegin/glVertex/glEnd.
+We need to use vertex array objects and vertexbuffer objects.
 
 
 

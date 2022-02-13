@@ -1,0 +1,389 @@
+..
+   Copyright (c) 2018-2022 William Emerison Six
+
+   Permission is hereby granted, free of charge, to any person obtaining a copy
+   of this software and associated documentation files (the "Software"), to deal
+   in the Software without restriction, including without limitation the rights
+   to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+   copies of the Software, and to permit persons to whom the Software is
+   furnished to do so, subject to the following conditions:
+
+   The above copyright notice and this permission notice shall be included in all
+   copies or substantial portions of the Software.
+
+   THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+   IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+   FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+   AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+   LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+   OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+   SOFTWARE.
+
+Lambda Stack - Demo 19
+======================
+
+Purpose
+^^^^^^^
+
+
+Remove repetition in the coordinate transformations,
+as previous demos had very similar transformtions,
+especially from camera space to NDC space.
+Each node in the tree of the graph of objects (../images/demo11.png)
+should only be specified once.
+
+Noticing in the previous demos that the lower parts of the transformations
+have a common pattern, we can create a stack of functions for later application.
+Before drawing geometry, we add any functions to the top of the stack,
+apply all of our functions in the stack to our modelspace data to
+get NDC data,
+and before we return to the parent
+node, we pop the functions we added off of the stack, to ensure that
+we return the stack to the state that the parent node gave us.
+
+
+To explain in more detail ---
+
+What's the difference between drawing paddle 1 and the square?
+
+Here is paddle 1 code
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 305
+   :lines: 305-316
+
+
+Here is the square's code:
+
+
+.. literalinclude:: ../src/demo19/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 320
+   :lines: 320-334
+
+
+
+
+The only difference is the square's model-space to paddle1 space.
+In a graphics program, because the scene is a hierarchy of relative
+objects, it's unwise to put this much repetition in the transformation
+sequence.  Especially if we might change how the camera operates,
+or from perspective to ortho.  It would required a lot of code changes.
+And I don't like reading from the bottom of the code up.  Code doesn't
+execute that way.  I want to read from top to bottom.
+
+When reading the transformation sequences from top down
+the transformation at the top is applied first, the transformation
+at the bottom is applied last, with the intermediate results method-chained together.
+(look up above for a reminder)
+
+
+ With a function stack, the function at the top of the stack (f5) is applied first,
+ the result of this is then given as input to f4 (second on the stack), all
+ the way down to f1, which was the first fn to be placed on the stack,
+ and as such, the last to be applied. (Last In First Applied - LIFA)
+
+
+::
+
+                  |-------------------|
+     (MODELSPACE) |                   |
+       (x,y,z)->  |       f5          |--
+                  |-------------------| |
+                                        |
+               -------------------------
+               |
+               |  |-------------------|
+               |  |                   |
+                ->|       f4          |--
+                  |-------------------| |
+                                        |
+               -------------------------
+               |
+               |  |-------------------|
+               |  |                   |
+                ->|       f3          |--
+                  |-------------------| |
+                                        |
+               -------------------------
+               |
+               |  |-------------------|
+               |  |                   |
+                ->|       f2          |--
+                  |-------------------| |
+                                        |
+               -------------------------
+               |
+               |  |-------------------|
+               |  |                   |
+                ->|       f1          |-->  (x,y,z) NDC
+                  |-------------------|
+
+
+
+So, in order to ensure that the functions in a stack will execute
+in the same order as all of the previous demos, they need to
+push as in reverse order
+
+
+This means that from modelspace to world space, we can now
+read the transformations FROM TOP TO BOTTOM (lexigraphically).  YEAH!!!!
+
+# FUNCTION STACKS FTW!!!!!!!!!!  (I use function stacks to attempt to
+#                                 transition to matricies, without having
+#                                 to cover linear algebra material.  Matrix
+#                                 stacks will be used in the same way
+#                                 as this function stack is)
+#
+
+
+Then, to draw the square relative to paddle one, those six
+transformations will already be on the stack, therefore
+only push the differences, and then apply the stack to
+the paddle's modelspace data
+
+Here is the square's code:
+# for model_space in square:
+#     paddle_1_space = model_space.rotate_z(square_rotation) \             push this eleventh
+#                                 .translate(tx=20.0, ty=0.0, tz=0.0) \    push this tenth
+#                                 .rotate_z(rotation_around_paddle1) \     push this ninth
+#                                 .translate(tx=0.0,                       push this eigth
+#                                            ty=0.0,
+#                                            tz=-10.0)
+#     world_space = paddle_1_space.rotate_z(paddle1.rotation) \             (nothing to push here or below,
+#                                 .translate(tx=paddle1.position.x, as they are already on the stack
+#                                            ty=paddle1.position.y,
+#                                            tz=0.0)
+#      camera_space = world_space.translate(tx=-moving_camera_x,
+#                                          ty=-moving_camera_y,
+#                                          tz=-moving_camera_z) \
+#                               .rotate_y( -moving_camera_rot_y) \
+#                               .rotate_x( -moving_camera_rot_x)
+#     ndc_space = camera_space.camera_space_to_ndc_space_fn()
+#     glVertex3f(ndc_space.x,
+#                ndc_space.y,
+#                ndc_space.z)
+
+when we have drawn the blue square, we are done drawing from
+this part of the tree, and need to go back up to world space
+
+.. figure:: _static/demo11.png
+    :align: center
+    :alt: Demo 18
+    :figclass: align-center
+
+    Demo 18
+
+
+Therefore, we just need to pop off the correct number of
+functions, to just leave worldspace->cameraspace->ndc.
+Effectively, the following computation is all that
+will remain on the matrix stack.
+
+#      camera_space = world_space.translate(tx=-moving_camera_x,
+#                                          ty=-moving_camera_y,
+#                                          tz=-moving_camera_z) \
+#                               .rotate_y( -moving_camera_rot_y) \
+#                               .rotate_x( -moving_camera_rot_x)
+#     ndc_space = camera_space.camera_space_to_ndc_space_fn()
+
+We can then push the transformations from world space to
+paddle2 space, shown below.  Search for NEW to find the NEW CODE
+
+
+How to Execute
+^^^^^^^^^^^^^^
+
+On Linux or on MacOS, in a shell, type "python src/demo19/demo.py".
+On Windows, in a command prompt, type "python src\\demo19\\demo.py".
+
+
+
+Move the Paddles using the Keyboard
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+==============  ==============================================
+Keyboard Input  Action
+==============  ==============================================
+*w*             Move Left Paddle Up
+*s*             Move Left Paddle Down
+*k*             Move Right Paddle Down
+*i*             Move Right Paddle Up
+
+*d*             Increase Left Paddle's Rotation
+*a*             Decrease Left Paddle's Rotation
+*l*             Increase Right Paddle's Rotation
+*j*             Decrease Right Paddle's Rotation
+
+*UP*            Move the camera up, moving the objects down
+*DOWN*          Move the camera down, moving the objects up
+*LEFT*          Move the camera left, moving the objects right
+*RIGHT*         Move the camera right, moving the objects left
+
+*q*             Rotate the square around it's center
+*e*             Rotate the square around paddle 1's center
+==============  ==============================================
+
+Description
+^^^^^^^^^^^
+
+aoeutnhaeosnt
+
+
+
+function stack.  The bottom of the stack has
+the low index, the top of the stack has the highest
+index
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 282
+   :lines: 282
+
+Given an input vertex, apply the function at the top
+of the stack to the vertex, capture the output vertex,
+to be used as input to the next lower function on the
+stack.  Continue doing this until we get the value
+returned from the function at the bottom of the stack.
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 284
+   :lines: 284-288
+
+
+Event Loop
+^^^^^^^^^^
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 295
+   :lines: 295
+
+::
+
+    ...
+
+
+
+In previous demos, camera_space_to_ndc_space_fn was always
+the last function called by the computer.  put it on the bottom of the stack,
+so that "apply_stack" calls this function last
+
+"append" adds the function to the end of a list, where
+we conisder the front of the list to be the bottom of the stack,
+and the end of the list to be the top of the stack.
+
+every object uses the same projection
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 312
+   :lines: 312
+
+
+Unlike in previous demos in which we read the transformations
+from model space to world space backwards; because the transformations
+are on a stack, the fns on the model stack can
+be read forwards, where each operation translates/rotates/scales
+the current space
+
+The camera's position and orientation are defined relative
+to world space like so, read top to bottom:
+
+::
+
+     fn_stack.append(lambda v: v.translate(tx=camera.x,
+                                           ty=camera.y,
+                                           tz=camera.z))
+     fn_stack.append(lambda v: v.rotate_y( camera.rot_y))
+     fn_stack.append(lambda v: v.rotate_x( camera.rot_x))
+
+But, since we are dealing with world-space to camera space,
+they must be inverted by reversing the order, and negating
+the arguments
+
+Therefore the transformations to put the world space into
+camera space are.
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 314
+   :lines: 314-318
+
+draw paddle 1
+~~~~~~~~~~~~~
+
+Unlike in previous demos in which we read the transformations
+from model space to world space backwards; because the transformations
+are on a stack, the fns on the model stack can
+be read forwards, where each operation translates/rotates/scales
+the current space
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 320
+   :lines: 320-337
+
+for each of the modelspace coordinates, apply all
+of the procedures on the stack from top to bottom
+this results in coordinate data in NDC space,
+which we can pass to glVertex3f
+
+draw the square
+~~~~~~~~~~~~~~~
+
+since the modelstack is already in paddle1's space,
+and since the blue square is defined relative to paddle1,
+just add the transformations relative to it
+before the blue square is drawn.  Draw the square, and then
+remove these 4 transformations from the stack (done below)
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 339
+   :lines: 339-350
+
+Now we need to remove fns from the stack so that the
+matrix stack would convert from world space to NDC.
+This will allow us to just add the transformaions from
+world space to paddle2 space on the stack.
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 352
+   :lines: 352-357
+
+since paddle2's model_space is independent of paddle 1's space, only
+leave the view and projection fns (1) - (4)
+
+
+draw paddle 2
+~~~~~~~~~~~~~
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 360
+   :lines: 360-373
+
+
+remove all fns from the function stack, as the next frame will set them
+clear makes the list empty, as the list (stack) will be repopulated
+the next iteration of the event loop.
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 375
+   :lines: 375
