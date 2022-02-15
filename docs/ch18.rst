@@ -27,10 +27,18 @@ Purpose
 
 
 Remove repetition in the coordinate transformations,
-as previous demos had very similar transformtions,
+as previous demos had very similar transformations,
 especially from camera space to NDC space.
-Each node in the tree of the graph of objects (../images/demo11.png)
-should only be specified once.
+Each edge of the graph of objects
+should only be specified once per frame.
+
+
+.. figure:: _static/demo11.png
+    :align: center
+    :alt: Demo 12
+    :figclass: align-center
+
+    Full Cayley graph.
 
 Noticing in the previous demos that the lower parts of the transformations
 have a common pattern, we can create a stack of functions for later application.
@@ -48,26 +56,26 @@ What's the difference between drawing paddle 1 and the square?
 
 Here is paddle 1 code
 
-.. literalinclude:: ../src/demo19/demo.py
+.. literalinclude:: ../src/demo17/demo.py
    :language: python
    :linenos:
-   :lineno-start: 305
-   :lines: 305-316
+   :lineno-start: 325
+   :lines: 325-346
 
 
 Here is the square's code:
 
 
-.. literalinclude:: ../src/demo19/demo.py
+.. literalinclude:: ../src/demo17/demo.py
    :language: python
    :linenos:
-   :lineno-start: 320
-   :lines: 320-334
+   :lineno-start: 350
+   :lines: 350-372
 
 
 
 
-The only difference is the square's model-space to paddle1 space.
+The only difference is the square's model-space to paddle1 space.  Everything else is exactly the same.
 In a graphics program, because the scene is a hierarchy of relative
 objects, it's unwise to put this much repetition in the transformation
 sequence.  Especially if we might change how the camera operates,
@@ -75,16 +83,16 @@ or from perspective to ortho.  It would required a lot of code changes.
 And I don't like reading from the bottom of the code up.  Code doesn't
 execute that way.  I want to read from top to bottom.
 
-When reading the transformation sequences from top down
+When reading the transformation sequences in the previous demos from top down
 the transformation at the top is applied first, the transformation
 at the bottom is applied last, with the intermediate results method-chained together.
 (look up above for a reminder)
 
 
- With a function stack, the function at the top of the stack (f5) is applied first,
- the result of this is then given as input to f4 (second on the stack), all
- the way down to f1, which was the first fn to be placed on the stack,
- and as such, the last to be applied. (Last In First Applied - LIFA)
+With a function stack, the function at the top of the stack (f5) is applied first,
+the result of this is then given as input to f4 (second on the stack), all
+the way down to f1, which was the first fn to be placed on the stack,
+and as such, the last to be applied. (Last In First Applied - LIFA)
 
 
 ::
@@ -125,80 +133,24 @@ at the bottom is applied last, with the intermediate results method-chained toge
 
 
 So, in order to ensure that the functions in a stack will execute
-in the same order as all of the previous demos, they need to
-push as in reverse order
+in the same order as all of the previous demos, they need to be
+pushed onto the stack in reverse order.
 
 
 This means that from modelspace to world space, we can now
-read the transformations FROM TOP TO BOTTOM (lexigraphically).  YEAH!!!!
-
-# FUNCTION STACKS FTW!!!!!!!!!!  (I use function stacks to attempt to
-#                                 transition to matricies, without having
-#                                 to cover linear algebra material.  Matrix
-#                                 stacks will be used in the same way
-#                                 as this function stack is)
-#
-
+read the transformations FROM TOP TO BOTTOM!!!!  SUCCESS!
 
 Then, to draw the square relative to paddle one, those six
 transformations will already be on the stack, therefore
 only push the differences, and then apply the stack to
-the paddle's modelspace data
-
-Here is the square's code:
-# for model_space in square:
-#     paddle_1_space = model_space.rotate_z(square_rotation) \             push this eleventh
-#                                 .translate(tx=20.0, ty=0.0, tz=0.0) \    push this tenth
-#                                 .rotate_z(rotation_around_paddle1) \     push this ninth
-#                                 .translate(tx=0.0,                       push this eigth
-#                                            ty=0.0,
-#                                            tz=-10.0)
-#     world_space = paddle_1_space.rotate_z(paddle1.rotation) \             (nothing to push here or below,
-#                                 .translate(tx=paddle1.position.x, as they are already on the stack
-#                                            ty=paddle1.position.y,
-#                                            tz=0.0)
-#      camera_space = world_space.translate(tx=-moving_camera_x,
-#                                          ty=-moving_camera_y,
-#                                          tz=-moving_camera_z) \
-#                               .rotate_y( -moving_camera_rot_y) \
-#                               .rotate_x( -moving_camera_rot_x)
-#     ndc_space = camera_space.camera_space_to_ndc_space_fn()
-#     glVertex3f(ndc_space.x,
-#                ndc_space.y,
-#                ndc_space.z)
-
-when we have drawn the blue square, we are done drawing from
-this part of the tree, and need to go back up to world space
-
-.. figure:: _static/demo11.png
-    :align: center
-    :alt: Demo 18
-    :figclass: align-center
-
-    Demo 18
-
-
-Therefore, we just need to pop off the correct number of
-functions, to just leave worldspace->cameraspace->ndc.
-Effectively, the following computation is all that
-will remain on the matrix stack.
-
-#      camera_space = world_space.translate(tx=-moving_camera_x,
-#                                          ty=-moving_camera_y,
-#                                          tz=-moving_camera_z) \
-#                               .rotate_y( -moving_camera_rot_y) \
-#                               .rotate_x( -moving_camera_rot_x)
-#     ndc_space = camera_space.camera_space_to_ndc_space_fn()
-
-We can then push the transformations from world space to
-paddle2 space, shown below.  Search for NEW to find the NEW CODE
+the paddle's modelspace data.
 
 
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a shell, type "python src/demo19/demo.py".
-On Windows, in a command prompt, type "python src\\demo19\\demo.py".
+On Linux or on MacOS, in a shell, type "python src/demo18/demo.py".
+On Windows, in a command prompt, type "python src\\demo18\\demo.py".
 
 
 
@@ -230,10 +182,6 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-aoeutnhaeosnt
-
-
-
 function stack.  The bottom of the stack has
 the low index, the top of the stack has the highest
 index
@@ -241,8 +189,10 @@ index
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 282
-   :lines: 282
+   :lineno-start: 290
+   :lines: 290
+
+
 
 Given an input vertex, apply the function at the top
 of the stack to the vertex, capture the output vertex,
@@ -253,8 +203,8 @@ returned from the function at the bottom of the stack.
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 284
-   :lines: 284-288
+   :lineno-start: 292
+   :lines: 292-296
 
 
 Event Loop
@@ -262,8 +212,8 @@ Event Loop
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 295
-   :lines: 295
+   :lineno-start: 303
+   :lines: 303
 
 ::
 
@@ -284,8 +234,8 @@ every object uses the same projection
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 312
-   :lines: 312
+   :lineno-start: 334
+   :lines: 334
 
 
 Unlike in previous demos in which we read the transformations
@@ -297,13 +247,12 @@ the current space
 The camera's position and orientation are defined relative
 to world space like so, read top to bottom:
 
-::
 
-     fn_stack.append(lambda v: v.translate(tx=camera.x,
-                                           ty=camera.y,
-                                           tz=camera.z))
-     fn_stack.append(lambda v: v.rotate_y( camera.rot_y))
-     fn_stack.append(lambda v: v.rotate_x( camera.rot_x))
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 337
+   :lines: 337-343
 
 But, since we are dealing with world-space to camera space,
 they must be inverted by reversing the order, and negating
@@ -315,8 +264,8 @@ camera space are.
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 314
-   :lines: 314-318
+   :lineno-start: 346
+   :lines: 346-352
 
 draw paddle 1
 ~~~~~~~~~~~~~
@@ -330,8 +279,8 @@ the current space
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 320
-   :lines: 320-337
+   :lineno-start: 353
+   :lines: 353-370
 
 for each of the modelspace coordinates, apply all
 of the procedures on the stack from top to bottom
@@ -350,8 +299,8 @@ remove these 4 transformations from the stack (done below)
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 339
-   :lines: 339-350
+   :lineno-start: 372
+   :lines: 372-387
 
 Now we need to remove fns from the stack so that the
 matrix stack would convert from world space to NDC.
@@ -361,8 +310,8 @@ world space to paddle2 space on the stack.
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 352
-   :lines: 352-357
+   :lineno-start: 389
+   :lines: 389-394
 
 since paddle2's model_space is independent of paddle 1's space, only
 leave the view and projection fns (1) - (4)
@@ -374,8 +323,8 @@ draw paddle 2
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 360
-   :lines: 360-373
+   :lineno-start: 397
+   :lines: 397-410
 
 
 remove all fns from the function stack, as the next frame will set them
@@ -385,5 +334,14 @@ the next iteration of the event loop.
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
-   :lineno-start: 375
-   :lines: 375
+   :lineno-start: 412
+   :lines: 412
+
+
+Swap buffers and execute another iteration of the event loop
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 414
+   :lines: 414
