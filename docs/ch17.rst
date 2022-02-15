@@ -147,6 +147,8 @@ There also will be a similar right triangle with verticies (0,0), (0,nearZ), and
 whatever point the line above intersects the line at z=nearZ.  Let's call that point
 (projX, nearZ)
 
+::
+
         because right angle and tan(theta) = tan(theta)
         x / z = projX / nearZ
         projX = x / z * nearZ
@@ -233,7 +235,7 @@ Right calculation based off of Top and aspect ration
    :language: python
    :linenos:
    :lineno-start: 94
-   :lines: 94
+   :lines: 94-95
 
 ::
 
