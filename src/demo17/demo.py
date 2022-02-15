@@ -330,6 +330,11 @@ while not glfw.window_should_close(window):
                                          .translate(tx=paddle1.position.x,
                                                     ty=paddle1.position.y,
                                                     tz=0.0)
+        # world_space: Vertex =  camera_space.rotate_x(camera.rot_x) \
+        #                                    .rotate_y(camera.rot_y) \
+        #                                    .translate(tx=camera.position_worldspace.x,
+        #                                               ty=camera.position_worldspace.y,
+        #                                               tz=camera.position_worldspace.z)
         camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
                                                      ty=-camera.position_worldspace.y,
                                                      tz=-camera.position_worldspace.z) \
