@@ -18,19 +18,16 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+
 #version 330 core
 
-// output of the fragment shader, color
 out vec4 color;
 
-// color that comes in after rasterization and interpolation,
-// based off of the values that come out of the vertex shader
 in VS_OUT {
   vec4 color;
 } fs_in;
 
 void main()
 {
-   // output the color
    color = fs_in.color;
 }

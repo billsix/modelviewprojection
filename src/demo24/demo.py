@@ -18,30 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
-# Purpose
-#
-# Within the vertex shader, convert the data from NDC to clip-space.
-# We have never used clip-space in the class, only NDC,
-# because 4D space is confusing geometrically, nevermind
-# the fact that (NDCx NDCy NDCz) = (Clipx/Clipw, Clipy/Clipy, Clipz/Clipz)
-#
-# The purpose of going to clip space is that eventually we will be
-# able to remove the camera space's z coordinate from the matrix.
-#
-# This will allow us to use one perspective projection matrix for
-# all vertices, independent of the z coordinate of each input vertex.
-#
-# I assume, without any evidence to support me, that this
-# was done for efficiency reasons.
-# (Side note, the standard perspective projection matrix,
-# which we will get to by demo 25, does not linearly
-# position the nearZ to farZ data into NDC. Everything
-# we've done so far in the class does.  The standard
-# perspective matrix ends up having less Z-fighting
-# close to nearZ, and more problems with Z-fighting
-# near farZ)
-
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
@@ -299,7 +275,6 @@ class Square(Paddle):
 square = Square(r=0.0, g=0.0, b=1.0, position=[0.0, 0.0, 0.0])
 
 square.prepare_to_render()
-
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 

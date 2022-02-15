@@ -19,9 +19,28 @@
 # SOFTWARE.
 
 
-# In the vertex shader, we premultiply the matricies
-# together to get one perspective projection matrix.
-
+# Purpose
+#
+# Within the vertex shader, convert the data from NDC to clip-space.
+# We have never used clip-space in the class, only NDC,
+# because 4D space is confusing geometrically, nevermind
+# the fact that (NDCx NDCy NDCz) = (Clipx/Clipw, Clipy/Clipy, Clipz/Clipz)
+#
+# The purpose of going to clip space is that eventually we will be
+# able to remove the camera space's z coordinate from the matrix.
+#
+# This will allow us to use one perspective projection matrix for
+# all vertices, independent of the z coordinate of each input vertex.
+#
+# I assume, without any evidence to support me, that this
+# was done for efficiency reasons.
+# (Side note, the standard perspective projection matrix,
+# which we will get to by demo 25, does not linearly
+# position the nearZ to farZ data into NDC. Everything
+# we've done so far in the class does.  The standard
+# perspective matrix ends up having less Z-fighting
+# close to nearZ, and more problems with Z-fighting
+# near farZ)
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
@@ -62,7 +81,7 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 # for osx
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 23", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 25", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -383,7 +402,6 @@ while not glfw.window_should_close(window):
     # render scene
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
-
     glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 

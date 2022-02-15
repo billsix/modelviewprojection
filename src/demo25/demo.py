@@ -57,7 +57,7 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 # for osx
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 25", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 26", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -98,9 +98,8 @@ glfw.set_key_callback(window, on_key)
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
 
-# NEW - TODO - talk about opengl matricies and z pos/neg
-glClearDepth(-1.0)
-glDepthFunc(GL_GREATER)
+glClearDepth(1.0)
+glDepthFunc(GL_LEQUAL)
 glEnable(GL_DEPTH_TEST)
 
 
@@ -232,9 +231,9 @@ class Paddle:
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
         glUniform1f(aspect_loc, width / height)
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -0.1)
+        glUniform1f(nearZ_loc, 0.1)
         farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -10000.0)
+        glUniform1f(farZ_loc, 10000.0)
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
@@ -275,6 +274,7 @@ class Square(Paddle):
 square = Square(r=0.0, g=0.0, b=1.0, position=[0.0, 0.0, 0.0])
 
 square.prepare_to_render()
+
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
