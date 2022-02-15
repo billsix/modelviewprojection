@@ -333,6 +333,16 @@ while not glfw.window_should_close(window):
 
     fn_stack.append(lambda v: v.camera_space_to_ndc_space_fn())  # (1)
 
+
+    # fn_stack.append(
+    #     lambda v: v.translate(tx=camera.position_worldspace.x,
+    #                           ty=camera.position_worldspace.y,
+    #                           tz=camera.position_worldspace.z)
+    # )
+    # fn_stack.append(lambda v: v.rotate_y(camera.rot_y))
+    # fn_stack.append(lambda v: v.rotate_x(camera.rot_x))
+
+
     fn_stack.append(lambda v: v.rotate_x(-camera.rot_x))  # (2)
     fn_stack.append(lambda v: v.rotate_y(-camera.rot_y))  # (3)
     fn_stack.append(
