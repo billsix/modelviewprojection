@@ -207,6 +207,64 @@ returned from the function at the bottom of the stack.
    :lines: 292-296
 
 
+There is an example at the bottom of src/demo18/demo.py
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 419
+   :lines: 419-429
+
+Define four functions, which we will compose on the stack.
+
+Push identity onto the stack, which will will never pop off of the stack.
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 432
+   :lines: 432-434
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 436
+   :lines: 436-438
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 440
+   :lines: 440-442
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 444
+   :lines: 444-446
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 448
+   :lines: 448-450
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 452
+   :lines: 452-454
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 456
+   :lines: 456-458
+
+
+
+
+
 Event Loop
 ^^^^^^^^^^
 .. literalinclude:: ../src/demo18/demo.py
@@ -222,14 +280,22 @@ Event Loop
 
 
 In previous demos, camera_space_to_ndc_space_fn was always
-the last function called by the computer.  put it on the bottom of the stack,
+the last function called in the method chained pipeline.  Put it on the bottom of the stack,
+by appending it first,
 so that "apply_stack" calls this function last
 
 "append" adds the function to the end of a list, where
 we conisder the front of the list to be the bottom of the stack,
 and the end of the list to be the top of the stack.
 
-every object uses the same projection
+
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{c}^{ndc}
+    \end{equation*}
+
 
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
@@ -239,13 +305,21 @@ every object uses the same projection
 
 
 Unlike in previous demos in which we read the transformations
-from model space to world space backwards; because the transformations
+from model space to world space backwards; this time because the transformations
 are on a stack, the fns on the model stack can
 be read forwards, where each operation translates/rotates/scales
 the current space
 
 The camera's position and orientation are defined relative
 to world space like so, read top to bottom:
+
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{c}^{w}
+    \end{equation*}
+
 
 
 .. literalinclude:: ../src/demo18/demo.py
@@ -254,12 +328,19 @@ to world space like so, read top to bottom:
    :lineno-start: 337
    :lines: 337-343
 
-But, since we are dealing with world-space to camera space,
+But, since we need to transform world-space to camera space,
 they must be inverted by reversing the order, and negating
 the arguments
 
 Therefore the transformations to put the world space into
 camera space are.
+
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{w}^{c}
+    \end{equation*}
 
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
@@ -275,6 +356,13 @@ from model space to world space backwards; because the transformations
 are on a stack, the fns on the model stack can
 be read forwards, where each operation translates/rotates/scales
 the current space
+
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{p1}^{w}
+    \end{equation*}
 
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
@@ -296,6 +384,14 @@ just add the transformations relative to it
 before the blue square is drawn.  Draw the square, and then
 remove these 4 transformations from the stack (done below)
 
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{s}^{p1}
+    \end{equation*}
+
+
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
@@ -303,7 +399,7 @@ remove these 4 transformations from the stack (done below)
    :lines: 372-387
 
 Now we need to remove fns from the stack so that the
-matrix stack would convert from world space to NDC.
+lambda stack will convert from world space to NDC.
 This will allow us to just add the transformaions from
 world space to paddle2 space on the stack.
 
@@ -319,6 +415,15 @@ leave the view and projection fns (1) - (4)
 
 draw paddle 2
 ~~~~~~~~~~~~~
+
+
+.. math::
+
+
+    \begin{equation*}
+    \vec{f}_{p2}^{w}
+    \end{equation*}
+
 
 .. literalinclude:: ../src/demo18/demo.py
    :language: python

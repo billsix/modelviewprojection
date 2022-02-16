@@ -219,10 +219,13 @@ while not glfw.window_should_close(window):
         if math.fabs(axes_list[0][4]) > 0.19:
             camera.rot_x += axes_list[0][4] * 0.01
 
-
+    # just like putting the identity function on the lambda stack
     ms.setToIdentityMatrix(ms.MatrixStack.model)
     ms.setToIdentityMatrix(ms.MatrixStack.view)
     ms.setToIdentityMatrix(ms.MatrixStack.projection)
+
+
+    # projection
 
     ms.perspective(
         fov=45.0,
@@ -236,10 +239,27 @@ while not glfw.window_should_close(window):
         np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.projection).T)
     )
 
+
+    # view
+
+    # ms.translate(ms.MatrixStack.view, camera.x, camera.y, camera.z)
+    # ms.rotate_y(ms.MatrixStack.view, camera.rot_y)
+    # ms.rotate_x(ms.MatrixStack.view, camera.rot_x)
+
     ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
     ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)
 
+
+    #model
+
+    # paddle  1 and square
+    # because 2 nodes are drawn off of world space
+    # we need to save onto the current "function",
+    # aka matrix, for the subsequent geometry
+    # the width statement ensures that the matrix is
+    # pushed onto a stack, and when the with block ends,
+    # it will be automatically popped off of the stack
     with ms.PushMatrix(ms.MatrixStack.model):
 
         glColor3f(paddle1.r, paddle1.g, paddle1.b)
@@ -262,22 +282,39 @@ while not glfw.window_should_close(window):
             glVertex3f(model_space[0], model_space[1], model_space[2])
         glEnd()
 
-        glColor3f(0.0, 0.0, 1.0)
+        # end of paddle 1
 
-        ms.translate(ms.MatrixStack.model, 0.0, 0.0, -10.0)
-        ms.rotate_z(ms.MatrixStack.model, rotation_around_paddle1)
-        ms.translate(ms.MatrixStack.model, 20.0, 0.0, 0.0)
-        ms.rotate_z(ms.MatrixStack.model, square_rotation)
+        # draw the square
+        # given that no nodes are defined relative to the square, we do not need
+        # to push a marix.  Here we will do so anyways, just to clarify what is
+        # happening
+        with ms.PushMatrix(ms.MatrixStack.model):
+            # the current model matrix will be copied and then the copy will be
+            # pushed onto the model stack
+            glColor3f(0.0, 0.0, 1.0)
 
-        glMatrixMode(GL_MODELVIEW)
-        glLoadMatrixf(
-            np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
-        )
-        glBegin(GL_QUADS)
-        for model_space in square_vertices:
-            glVertex3f(model_space[0], model_space[1], model_space[2])
-        glEnd()
+            # these functions change the current model matrix
+            ms.translate(ms.MatrixStack.model, 0.0, 0.0, -10.0)
+            ms.rotate_z(ms.MatrixStack.model, rotation_around_paddle1)
+            ms.translate(ms.MatrixStack.model, 20.0, 0.0, 0.0)
+            ms.rotate_z(ms.MatrixStack.model, square_rotation)
 
+            glMatrixMode(GL_MODELVIEW)
+            glLoadMatrixf(
+                np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
+            )
+            glBegin(GL_QUADS)
+            for model_space in square_vertices:
+                glVertex3f(model_space[0], model_space[1], model_space[2])
+            glEnd()
+        # the mode matrix that was on the model stack before the square
+        # was drawn will be restored
+
+
+    # draw paddle 2.  Nothing is defined relative to paddle to, so we don't
+    # need to push matrix, and on the next iteration of the event loop,
+    # all matricies will be cleared to identity, so who cares if we
+    # mutate the values for now.
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     ms.translate(

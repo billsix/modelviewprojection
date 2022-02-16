@@ -352,14 +352,14 @@ while not glfw.window_should_close(window):
     )
 
     fn_stack.append(
-        lambda v: v.translate(tx=paddle1.position.x,  # (6) translate the local origin
+        lambda v: v.translate(tx=paddle1.position.x,  # (5) translate the local origin
                               ty=paddle1.position.y,
                               tz=0.0,
         )
     )
     fn_stack.append(
         lambda v: v.rotate_z(paddle1.rotation)
-    )  # (7) (rotate around the local z axis
+    )  # (6) (rotate around the local z axis
 
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
@@ -373,12 +373,12 @@ while not glfw.window_should_close(window):
 
     fn_stack.append(lambda v: v.translate(tx=0.0,
                                           ty=0.0,
-                                          tz=-10.0))  # (8)
-    fn_stack.append(lambda v: v.rotate_z(rotation_around_paddle1))  # (9)
+                                          tz=-10.0))  # (7)
+    fn_stack.append(lambda v: v.rotate_z(rotation_around_paddle1))  # (8)
     fn_stack.append(lambda v: v.translate(tx=20.0,
                                           ty=0.0,
-                                          tz=0.0))  # (10)
-    fn_stack.append(lambda v: v.rotate_z(square_rotation))  # (11)
+                                          tz=0.0))  # (9)
+    fn_stack.append(lambda v: v.rotate_z(square_rotation))  # (10)
 
     glBegin(GL_QUADS)
     for model_space in square:
@@ -386,20 +386,20 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
-    fn_stack.pop()  # pop off (11)
     fn_stack.pop()  # pop off (10)
     fn_stack.pop()  # pop off (9)
     fn_stack.pop()  # pop off (8)
     fn_stack.pop()  # pop off (7)
     fn_stack.pop()  # pop off (6)
+    fn_stack.pop()  # pop off (5)
 
 
     fn_stack.append(
         lambda v: v.translate(tx=paddle2.position.x,
                               ty=paddle2.position.y,
-                              tz=0.0)  # (13)
+                              tz=0.0)  # (5)
     )
-    fn_stack.append(lambda v: v.rotate_z(paddle2.rotation))  # (14)
+    fn_stack.append(lambda v: v.rotate_z(paddle2.rotation))  # (6)
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
@@ -409,9 +409,53 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
-    fn_stack.clear()
+    fn_stack.clear() # done rendering everything, just go ahead and clean 1-6 off of the stack
 
     glfw.swap_buffers(window)
+
+
+fn_stack = []
+
+def identity(x):
+    return x
+
+def add_one(x):
+    return x + 1
+
+def multiply_by_2(x):
+    return x * 2
+
+def add_5(x):
+    return x + 5
+
+# never pop this off, otherwise can't apply the stack
+fn_stack.append(identity)
+print(fn_stack)
+print(apply_stack(1)) # x = 1
+
+fn_stack.append(add_one)
+print(fn_stack)
+print(apply_stack(1)) # x + 1 = 2
+
+fn_stack.append(multiply_by_2) # (x * 2) + 1 = 3
+print(fn_stack)
+print(apply_stack(1))
+
+fn_stack.append(add_5) # ((x + 5) * 2) + 1 = 13
+print(fn_stack)
+print(apply_stack(1))
+
+fn_stack.pop()
+print(fn_stack)
+print(apply_stack(1)) # (x * 2) + 1 = 3
+
+fn_stack.pop()
+print(fn_stack)
+print(apply_stack(1)) # x + 1 = 2
+
+fn_stack.pop()
+print(fn_stack)
+print(apply_stack(1)) # x = 1
 
 
 glfw.terminate()
