@@ -151,7 +151,7 @@ class Vertex:
 
     def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
         return self.ortho(
-            left=-100.0, right=100.0, bottom=-100.0, top=100.0, near=100.0, far=-100.0
+            left=-100.0, right=100.0, bottom=-100.0, top=100.0, near=-1.0, far=-100.0
         )
 
 
@@ -194,7 +194,7 @@ paddle2: Paddle = Paddle(
 
 @dataclass
 class Camera:
-    position_worldspace: Vertex = Vertex(x=0.0,y=0.0,z=0.0)
+    position_worldspace: Vertex = Vertex(x=0.0,y=0.0,z=50.0)
     rot_y: float = 0.0
     rot_x: float = 0.0
 
