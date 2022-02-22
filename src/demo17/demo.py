@@ -256,11 +256,23 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.position_worldspace.x -= move_multiple * math.sin(camera.rot_y)
-        camera.position_worldspace.z -= move_multiple * math.cos(camera.rot_y)
+        forwards_camera_space = Vertex(x=0.0, y=0.0, z=-3.0)
+        forward_world_space = forwards_camera_space.rotate_y(camera.rot_y) \
+                                                   .translate(tx=camera.position_worldspace.x,
+                                                              ty=camera.position_worldspace.y,
+                                                              tz=camera.position_worldspace.z)
+        camera.position_worldspace.x = forward_world_space.x
+        camera.position_worldspace.y = forward_world_space.y
+        camera.position_worldspace.z = forward_world_space.z
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.position_worldspace.x += move_multiple * math.sin(camera.rot_y)
-        camera.position_worldspace.z += move_multiple * math.cos(camera.rot_y)
+        forwards_camera_space = Vertex(x=0.0, y=0.0, z=3.0)
+        forward_world_space = forwards_camera_space.rotate_y(camera.rot_y) \
+                                                   .translate(tx=camera.position_worldspace.x,
+                                                              ty=camera.position_worldspace.y,
+                                                              tz=camera.position_worldspace.z)
+        camera.position_worldspace.x = forward_world_space.x
+        camera.position_worldspace.y = forward_world_space.y
+        camera.position_worldspace.z = forward_world_space.z
 
     global paddle1, paddle2
 
