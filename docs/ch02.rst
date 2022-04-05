@@ -366,7 +366,7 @@ taking the reciprical of the coefficient
 
     \begin{equation}
     \begin{split}
-    {f_{penny}^{quarters}}^{-1}(100)  & = 1/25 * x\\
+    {f_{penny}^{quarter}}(100)  & = 1/25 * x\\
                      & = 4
     \end{split}
     \end{equation}

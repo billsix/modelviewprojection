@@ -137,6 +137,10 @@ Description
    :lineno-start: 90
    :lines: 90-97
 
+Rotate Z
+~~~~~~~~
+
+
 Rotate Z is the same rotate that we've used so far, but doesn't affect
 the z component at all.
 
@@ -153,6 +157,10 @@ the z component at all.
    :lineno-start: 113
    :lines: 113-118
 
+Rotate X
+~~~~~~~~
+
+
 
 .. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_4.svg
     :align: center
@@ -166,6 +174,10 @@ the z component at all.
    :linenos:
    :lineno-start: 99
    :lines: 99-104
+
+
+Rotate Y
+~~~~~~~~
 
 .. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_5.svg
     :align: center
@@ -187,6 +199,8 @@ the z component at all.
    :lineno-start: 120
    :lines: 120-121
 
+Code
+^^^^
 
 The only new aspect of the code below is that the paddles have
 a z-coordinate of 0 in their modelspace.
@@ -212,7 +226,7 @@ are subject to be different.
 
 
 Event Loop
-^^^^^^^^^^
+~~~~~~~~~~
 
 
 .. literalinclude:: ../src/demo14/demo.py
