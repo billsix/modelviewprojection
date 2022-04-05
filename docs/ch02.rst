@@ -459,8 +459,9 @@ the appropriate inverse(s).
     \end{split}
     \end{equation}
 
-A function from B to A is not provided to us, but is written in the equation as an idea of a function
-that we wish to have.  We can create this function by invoking inverse on the provide function from B to A.
+A function from A to B is not provided to us, but we wrote it in the equation as an idea of a function
+that we wish to have, even though we don't currently have it.
+However, we can create this function by invoking inverse on the provide function from A to B.
 
 
 Since we're dealing with function composition mainly, we don't even need to specify the argument
