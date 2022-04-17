@@ -288,7 +288,6 @@ square.prepare_to_render()
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
-
 @dataclass
 class Camera:
     x: float = 0.0
@@ -430,7 +429,6 @@ while not glfw.window_should_close(window):
             camera.rot_y -= 3.0 * axes_list[0][3] * 0.01
         if math.fabs(axes_list[0][4]) > 0.19:
             camera.rot_x += axes_list[0][4] * 0.01
-
 
     # note - opengl matricies use degrees
     ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
