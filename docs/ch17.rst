@@ -244,15 +244,15 @@ Right calculation based off of Top and aspect ration
 .. literalinclude:: ../src/demo17/demo.py
    :language: python
    :linenos:
-   :lineno-start: 148
-   :lines: 148-171
+   :lineno-start: 149
+   :lines: 149-172
 
 
 .. literalinclude:: ../src/demo17/demo.py
    :language: python
    :linenos:
-   :lineno-start: 292
-   :lines: 292-293
+   :lineno-start: 304
+   :lines: 304-304
 
 ::
 
@@ -262,5 +262,5 @@ Right calculation based off of Top and aspect ration
 .. literalinclude:: ../src/demo17/demo.py
    :language: python
    :linenos:
-   :lineno-start: 324
-   :lines: 324-346
+   :lineno-start: 336
+   :lines: 336-358

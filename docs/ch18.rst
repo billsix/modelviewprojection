@@ -59,8 +59,8 @@ Here is paddle 1 code
 .. literalinclude:: ../src/demo17/demo.py
    :language: python
    :linenos:
-   :lineno-start: 325
-   :lines: 325-346
+   :lineno-start: 336
+   :lines: 336-358
 
 
 Here is the square's code:
@@ -69,8 +69,8 @@ Here is the square's code:
 .. literalinclude:: ../src/demo17/demo.py
    :language: python
    :linenos:
-   :lineno-start: 350
-   :lines: 350-372
+   :lineno-start: 360
+   :lines: 360-384
 
 
 
