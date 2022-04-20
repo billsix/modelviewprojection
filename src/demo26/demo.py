@@ -47,7 +47,7 @@ pwd = os.path.dirname(os.path.abspath(__file__))
 # NEW - for shaders
 glfloat_size = 4
 floatsPerVertex = 3
-floatsPerColor = 3
+floatsPerColor = 4
 
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
@@ -63,7 +63,7 @@ glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 imgui.create_context()
 window = glfw.create_window(
-    500, 500, "ModelViewProjection Demo 27 - GUI elements", None, None
+    500, 500, "ModelViewProjection Demo 26 ", None, None
 )
 if not window:
     glfw.terminate()
@@ -112,6 +112,10 @@ glClearDepth(1.0)
 glDepthFunc(GL_LEQUAL)
 glEnable(GL_DEPTH_TEST)
 
+__enable_blend__ = True
+if __enable_blend__:
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 @dataclass
 class Paddle:
@@ -157,21 +161,27 @@ class Paddle:
                 self.r,
                 self.g,
                 self.b,
+                0.75,
                 self.r,
                 self.g,
                 self.b,
+                0.75,
                 self.r,
                 self.g,
                 self.b,
+                0.75,
                 self.r,
                 self.g,
                 self.b,
+                0.75,
                 self.r,
                 self.g,
                 self.b,
+                0.75,
                 self.r,
                 self.g,
                 self.b,
+                0.75,
             ],
             dtype=np.float32,
         )
@@ -299,6 +309,121 @@ class Camera:
 
 camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
 
+class Ground:
+    def __init__(self):
+        pass
+
+    def vertices(self):
+
+        # glColor3f(0.1,0.1,0.1)
+        glBegin(GL_LINES)
+        verts = []
+        for x in range(-600, 601, 20):
+            for z in range(-600, 601, 20):
+                verts.append(float(-x))
+                verts.append(float(-50.0))
+                verts.append(float(z))
+                verts.append(float(x))
+                verts.append(float(-50.0))
+                verts.append(float(z))
+                verts.append(float(x))
+                verts.append(float(-50.0))
+                verts.append(float(-z))
+                verts.append(float(x))
+                verts.append(float(-50.0))
+                verts.append(float(z))
+
+        return np.array(verts, dtype=np.float32)
+
+    def prepare_to_render(self):
+        # GL_QUADS aren't available anymore, only triangles
+        # need 6 vertices instead of 4
+        vertices = self.vertices()
+        self.numberOfVertices = np.size(vertices) // floatsPerVertex
+
+        self.vao = glGenVertexArrays(1)
+        glBindVertexArray(self.vao)
+
+        # initialize shaders
+
+        with open(os.path.join(pwd, "ground.vert"), "r") as f:
+            vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
+
+        with open(os.path.join(pwd, "ground.frag"), "r") as f:
+            fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
+
+        self.shader = shaders.compileProgram(vs, fs)
+
+        self.mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
+
+        # send the modelspace data to the GPU
+        self.vbo = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
+
+        position = glGetAttribLocation(self.shader, "position")
+        glEnableVertexAttribArray(position)
+
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
+
+        glBufferData(
+            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+        )
+
+        # send the modelspace data to the GPU
+        # TODO, send color to the shader
+
+        # reset VAO/VBO to default
+        glBindVertexArray(0)
+        glBindBuffer(GL_ARRAY_BUFFER, 0)
+
+    # destructor
+    def __del__(self):
+        glDeleteVertexArrays(1, [self.vao])
+        glDeleteBuffers(1, [self.vbo])
+        glDeleteProgram(self.shader)
+
+    def render(self):
+        glUseProgram(self.shader)
+        glBindVertexArray(self.vao)
+
+        # pass projection parameters to the shader
+        fov_loc = glGetUniformLocation(self.shader, "fov")
+        glUniform1f(fov_loc, 45.0)
+        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
+        glUniform1f(aspect_loc, 1.0)
+        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
+        glUniform1f(nearZ_loc, -5.0)
+        farZ_loc = glGetUniformLocation(self.shader, "farZ")
+        glUniform1f(farZ_loc, -150.00)
+
+        # pass projection parameters to the shader
+        fov_loc = glGetUniformLocation(self.shader, "fov")
+        glUniform1f(fov_loc, 45.0)
+        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
+        glUniform1f(aspect_loc, width / height)
+        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
+        glUniform1f(nearZ_loc, 0.1)
+        farZ_loc = glGetUniformLocation(self.shader, "farZ")
+        glUniform1f(farZ_loc, 10000.0)
+
+        # ascontiguousarray puts the array in column major order
+        glUniformMatrix4fv(
+            self.mvMatrixLoc,
+            1,
+            GL_TRUE,
+            np.ascontiguousarray(
+                ms.getCurrentMatrix(ms.MatrixStack.modelview), dtype=np.float32
+            ),
+        )
+        glDrawArrays(GL_LINES, 0, self.numberOfVertices)
+        glBindVertexArray(0)
+
+
+ground = Ground()
+ground.prepare_to_render()
+
 
 def handle_inputs():
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
@@ -388,6 +513,17 @@ while not glfw.window_should_close(window):
         imgui.end_main_menu_bar()
 
     imgui.begin("Custom window", True)
+
+    changed, __enable_blend__ = imgui.checkbox(
+        label="Blend", state=__enable_blend__
+    )
+
+    if changed:
+        if __enable_blend__:
+            glEnable(GL_BLEND)
+        else:
+            glDisable(GL_BLEND)
+
     imgui.text("Bar")
     imgui.text_colored("Eggs", 0.2, 1.0, 0.0)
 
@@ -434,6 +570,10 @@ while not glfw.window_should_close(window):
     ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
     ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)
+
+
+    ground.render()
+
 
     with ms.push_matrix(ms.MatrixStack.model):
         # draw paddle 1
