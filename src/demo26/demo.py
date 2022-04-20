@@ -200,7 +200,6 @@ class Paddle:
 
         self.shader = shaders.compileProgram(vs, fs)
 
-        self.mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -255,9 +254,10 @@ class Paddle:
         farZ_loc = glGetUniformLocation(self.shader, "farZ")
         glUniform1f(farZ_loc, 10000.0)
 
+        mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
-            self.mvMatrixLoc,
+            mvMatrixLoc,
             1,
             GL_TRUE,
             np.ascontiguousarray(
@@ -354,8 +354,6 @@ class Ground:
 
         self.shader = shaders.compileProgram(vs, fs)
 
-        self.mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
-
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
@@ -408,9 +406,10 @@ class Ground:
         farZ_loc = glGetUniformLocation(self.shader, "farZ")
         glUniform1f(farZ_loc, 10000.0)
 
+        mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
-            self.mvMatrixLoc,
+            mvMatrixLoc,
             1,
             GL_TRUE,
             np.ascontiguousarray(
