@@ -50,14 +50,7 @@ Model View Projection
    ch17
    ch18
    ch19
-   ch20
-   ch21
-   ch22
-   ch23
-   ch24
-   ch25
-   ch26
-   ch27
+   perspective
 
 
 
