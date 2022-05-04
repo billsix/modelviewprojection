@@ -29,41 +29,17 @@ Derive the standard perspective matrix that OpenGL expects.
 
 
 
-
-How to Execute
-^^^^^^^^^^^^^^
-
-On Linux or on MacOS, in a shell, type "python src/demo20/demo.py".
-On Windows, in a command prompt, type "python src\\demo20\\demo.py".
-
-
-Move the Paddles using the Keyboard
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-==============  ==============================================
-Keyboard Input  Action
-==============  ==============================================
-*w*             Move Left Paddle Up
-*s*             Move Left Paddle Down
-*k*             Move Right Paddle Down
-*i*             Move Right Paddle Up
-
-*d*             Increase Left Paddle's Rotation
-*a*             Decrease Left Paddle's Rotation
-*l*             Increase Right Paddle's Rotation
-*j*             Decrease Right Paddle's Rotation
-
-*UP*            Move the camera up, moving the objects down
-*DOWN*          Move the camera down, moving the objects up
-*LEFT*          Move the camera left, moving the objects right
-*RIGHT*         Move the camera right, moving the objects left
-
-*q*             Rotate the square around it's center
-*e*             Rotate the square around paddle 1's center
-==============  ==============================================
-
 Description
 ^^^^^^^^^^^
+
+
+.. figure:: _static/perspective.png
+    :align: center
+    :alt: Demo 11
+    :figclass: align-center
+
+    Turn our NDC into Clip Space
+
 
 Matrix form of perspective projection
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&

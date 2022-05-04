@@ -12,6 +12,7 @@ graphs: currency.png \
 	demo02.png \
 	demo03.png \
 	demo05.png \
+	perspective.png \
 	cayleygraph.png
 
 
@@ -45,6 +46,8 @@ demo05.png: demo05.dot
 cayleygraph.png: cayleygraph.dot
 	dot -Tpng $< -o $@
 
+perspective.png: perspective.dot
+	dot -Tpng $< -o $@
 
 
 pythonplots: rotate0.gif
