@@ -24,10 +24,10 @@ import sys
 import os
 import numpy as np
 import math
-from OpenGL.GL import *
+import OpenGL.GL
 import glfw
 
-from dataclasses import dataclass
+import dataclasses
 
 if not glfw.init():
     sys.exit()
@@ -50,34 +50,34 @@ def on_key(window, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0, 0.0, 0.0, 1.0)
+OpenGL.GL.glClearColor(0.0, 0.0, 0.0, 1.0)
 
-glMatrixMode(GL_PROJECTION)
-glLoadIdentity()
-glMatrixMode(GL_MODELVIEW)
-glLoadIdentity()
+OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
+OpenGL.GL.glLoadIdentity()
+OpenGL.GL.glMatrixMode(OpenGL.GL.GL_MODELVIEW)
+OpenGL.GL.glLoadIdentity()
 
 
 def draw_in_square_viewport() -> None:
-    glClearColor(0.2, 0.2, 0.2, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT)
+    OpenGL.GL.glClearColor(0.2, 0.2, 0.2, 1.0)
+    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
     min = width if width < height else height
 
-    glEnable(GL_SCISSOR_TEST)
-    glScissor(
+    OpenGL.GL.glEnable(OpenGL.GL.GL_SCISSOR_TEST)
+    OpenGL.GL.glScissor(
         int((width - min) / 2.0),
         int((height - min) / 2.0),
         min,
         min,
     )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT)
-    glDisable(GL_SCISSOR_TEST)
+    OpenGL.GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT)
+    OpenGL.GL.glDisable(OpenGL.GL.GL_SCISSOR_TEST)
 
-    glViewport(
+    OpenGL.GL.glViewport(
         int(0.0 + (width - min) / 2.0),
         int(0.0 + (height - min) / 2.0),
         min,
@@ -85,7 +85,7 @@ def draw_in_square_viewport() -> None:
     )
 
 
-@dataclass
+@dataclasses.dataclass
 class Vertex:
     x: float
     y: float
@@ -94,7 +94,7 @@ class Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty)
 
 
-@dataclass
+@dataclasses.dataclass
 class Paddle:
     vertices: list[Vertex]
     r: float
@@ -159,29 +159,29 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    OpenGL.GL.glViewport(0, 0, width, height)
+    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT | OpenGL.GL.GL_DEPTH_BUFFER_BIT)
 
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
-    glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    OpenGL.GL.glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
-    glBegin(GL_QUADS)
+    OpenGL.GL.glBegin(OpenGL.GL.GL_QUADS)
     for modelSpace in paddle1.vertices:
         ndcSpace: Vertex = modelSpace.translate(tx=paddle1.position.x,
                                                 ty=paddle1.position.y)
-        glVertex2f(ndcSpace.x, ndcSpace.y)
-    glEnd()
+        OpenGL.GL.glVertex2f(ndcSpace.x, ndcSpace.y)
+    OpenGL.GL.glEnd()
 
-    glColor3f(paddle2.r, paddle2.g, paddle2.b)
+    OpenGL.GL.glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
-    glBegin(GL_QUADS)
+    OpenGL.GL.glBegin(OpenGL.GL.GL_QUADS)
     for modelSpace in paddle2.vertices:
         ndcSpace: Vertex = modelSpace.translate(tx=paddle2.position.x,
                                                 ty=paddle2.position.y)
-        glVertex2f(ndcSpace.x, ndcSpace.y)
-    glEnd()
+        OpenGL.GL.glVertex2f(ndcSpace.x, ndcSpace.y)
+    OpenGL.GL.glEnd()
 
     glfw.swap_buffers(window)
 

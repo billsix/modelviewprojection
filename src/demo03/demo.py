@@ -22,7 +22,7 @@ import sys
 import os
 import numpy as np
 import math
-from OpenGL.GL import *
+import OpenGL.GL
 import glfw
 
 if not glfw.init():
@@ -46,36 +46,36 @@ def on_key(window, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0, 0.0, 0.0, 1.0)
+OpenGL.GL.glClearColor(0.0, 0.0, 0.0, 1.0)
 
-glMatrixMode(GL_PROJECTION)
-glLoadIdentity()
-glMatrixMode(GL_MODELVIEW)
-glLoadIdentity()
+OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
+OpenGL.GL.glLoadIdentity()
+OpenGL.GL.glMatrixMode(OpenGL.GL.GL_MODELVIEW)
+OpenGL.GL.glLoadIdentity()
 
 
 def draw_in_square_viewport() -> None:
 
-    glClearColor(0.2, 0.2, 0.2, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT)
+    OpenGL.GL.glClearColor(0.2, 0.2, 0.2, 1.0)
+    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
 
     square_size = width if width < height else height
 
-    glEnable(GL_SCISSOR_TEST)
-    glScissor(
+    OpenGL.GL.glEnable(OpenGL.GL.GL_SCISSOR_TEST)
+    OpenGL.GL.glScissor(
         int((width - square_size) / 2.0), # bottom left x_screenspace
         int((height - square_size) / 2.0),# bottom left y_screenspace
         square_size,                      # x width, screenspace
         square_size,                      # y height, screenspace
     )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT)
-    glDisable(GL_SCISSOR_TEST)
+    OpenGL.GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT)
+    OpenGL.GL.glDisable(OpenGL.GL.GL_SCISSOR_TEST)
 
-    glViewport(
+    OpenGL.GL.glViewport(
         int(0.0 + (width - square_size) / 2.0),
         int(0.0 + (height - square_size) / 2.0),
         square_size,
@@ -87,27 +87,27 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    OpenGL.GL.glViewport(0, 0, width, height)
+    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT | OpenGL.GL.GL_DEPTH_BUFFER_BIT)
 
     draw_in_square_viewport()
 
-    glColor3f(0.578123, 0.0, 1.0)
-    glBegin(GL_QUADS)
-    glVertex2f(-1.0, -0.3)
-    glVertex2f(-0.8, -0.3)
-    glVertex2f(-0.8, 0.3)
-    glVertex2f(-1.0, 0.3)
-    glEnd()
+    OpenGL.GL.glColor3f(0.578123, 0.0, 1.0)
+    OpenGL.GL.glBegin(OpenGL.GL.GL_QUADS)
+    OpenGL.GL.glVertex2f(-1.0, -0.3)
+    OpenGL.GL.glVertex2f(-0.8, -0.3)
+    OpenGL.GL.glVertex2f(-0.8, 0.3)
+    OpenGL.GL.glVertex2f(-1.0, 0.3)
+    OpenGL.GL.glEnd()
 
-    glColor3f(1.0, 0.0, 0.0)
-    glBegin(GL_QUADS)
+    OpenGL.GL.glColor3f(1.0, 0.0, 0.0)
+    OpenGL.GL.glBegin(OpenGL.GL.GL_QUADS)
 
-    glVertex2f(0.8, -0.3)
-    glVertex2f(1.0, -0.3)
-    glVertex2f(1.0, 0.3)
-    glVertex2f(0.8, 0.3)
-    glEnd()
+    OpenGL.GL.glVertex2f(0.8, -0.3)
+    OpenGL.GL.glVertex2f(1.0, -0.3)
+    OpenGL.GL.glVertex2f(1.0, 0.3)
+    OpenGL.GL.glVertex2f(0.8, 0.3)
+    OpenGL.GL.glEnd()
 
     glfw.swap_buffers(window)
 
