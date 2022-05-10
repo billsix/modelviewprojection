@@ -854,8 +854,6 @@ cube = NDCCube()
 cube.prepare_to_render()
 
 
-
-
 @dataclass
 class Camera:
     r: float = 0.0
@@ -919,6 +917,7 @@ animation_time_multiplier = 1.0
 animation_paused = False
 enlarged_axis = True
 NDC = False
+
 
 def highlighted_button(text, start_time, time):
     highlight = time > start_time and (time - start_time) < 5
@@ -1058,9 +1057,7 @@ while not glfw.window_should_close(window):
     clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
         "Enlarged Axises", enlarged_axis
     )
-    clicked_NDC, NDC = imgui.checkbox(
-        "NDC", NDC
-    )
+    clicked_NDC, NDC = imgui.checkbox("NDC", NDC)
     imgui.end()
 
     imgui.set_next_window_bg_alpha(0.05)
@@ -1117,13 +1114,9 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be ortho
     if NDC:
-        ms.ortho(
-            left=-1.0, right=1.0, back=-1.0, top=1.0, near=0.0, far=550.0
-        )
+        ms.ortho(left=-1.0, right=1.0, back=-1.0, top=1.0, near=0.0, far=550.0)
     else:
-        ms.ortho(
-            left=-100.0, right=100.0, back=-100.0, top=100.0, near=0.0, far=550.0
-        )
+        ms.ortho(left=-100.0, right=100.0, back=-100.0, top=100.0, near=0.0, far=550.0)
 
     # note - opengl matricies use degrees
     ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
@@ -1138,7 +1131,6 @@ while not glfw.window_should_close(window):
         ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
         ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
         ground.render(animation_time)
-
 
     if animation_time > 60.0:
         ms.translate(
@@ -1166,7 +1158,6 @@ while not glfw.window_should_close(window):
             cube.render(animation_time)
 
     glClear(GL_DEPTH_BUFFER_BIT)
-
 
     if animation_time < 5.0:
         axis.render(animation_time)

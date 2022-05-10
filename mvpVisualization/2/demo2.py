@@ -898,6 +898,7 @@ animation_time_multiplier = 1.0
 animation_paused = False
 enlarged_axis = True
 
+
 def highlighted_button(text, start_time, time):
     highlight = time > start_time and (time - start_time) < 5
     if highlight:

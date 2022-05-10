@@ -898,6 +898,7 @@ animation_time_multiplier = 1.0
 animation_paused = False
 enlarged_axis = True
 
+
 def highlighted_button(text, start_time, time):
     highlight = time > start_time and (time - start_time) < 5
     if highlight:
@@ -1004,7 +1005,6 @@ while not glfw.window_should_close(window):
                     imgui.same_line()
                     imgui.text(" ) (x) ")
 
-
                     imgui.text("f_square2(x) = ")
                     imgui.text(" f_translate_neg_z o (")
                     imgui.text("     ")
@@ -1023,7 +1023,6 @@ while not glfw.window_should_close(window):
                         animation_time = 50.0
                     imgui.same_line()
                     imgui.text(" ) (x) ")
-
 
                     imgui.text("f_square3(x) = ")
                     imgui.text(" f_translate_neg_z o (")
@@ -1044,7 +1043,6 @@ while not glfw.window_should_close(window):
                     imgui.same_line()
                     imgui.text(" ) (x) ")
 
-
                     imgui.text("f_square4(x) = ")
                     imgui.text(" f_translate_neg_z o (")
                     imgui.text("     ")
@@ -1064,7 +1062,6 @@ while not glfw.window_should_close(window):
                     imgui.same_line()
                     imgui.text(" ) (x) ")
                     imgui.tree_pop()
-
 
                 imgui.tree_pop()
             imgui.tree_pop()
