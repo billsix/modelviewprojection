@@ -23,7 +23,52 @@ import sys
 import os
 import numpy as np
 import math
-from OpenGL.GL import *
+from OpenGL.GL import (
+    glClear,
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    glViewport,
+    glClearColor,
+    glEnable,
+    GL_SCISSOR_TEST,
+    glScissor,
+    glDisable,
+    glClearDepth,
+    glDepthFunc,
+    GL_GREATER,
+    GL_DEPTH_TEST,
+    GL_LEQUAL,
+    GL_TRUE,
+    GL_BLEND,
+    glBlendFunc,
+    GL_SRC_ALPHA,
+    GL_ONE_MINUS_SRC_ALPHA,
+    glGenVertexArrays,
+    glBindVertexArray,
+    GL_VERTEX_SHADER,
+    GL_FRAGMENT_SHADER,
+    glGenBuffers,
+    glBindBuffer,
+    GL_ARRAY_BUFFER,
+    glGetAttribLocation,
+    glEnableVertexAttribArray,
+    glVertexAttribPointer,
+    GL_FLOAT,
+    glBufferData,
+    GL_STATIC_DRAW,
+    glUseProgram,
+    glGetUniformLocation,
+    glUniform1f,
+    glUniformMatrix4fv,
+    glDrawArrays,
+    GL_LINES,
+    GL_TRIANGLES,
+    GL_LESS,
+    glDeleteVertexArrays,
+    glDeleteBuffers,
+    glDeleteProgram,
+    glUniform3f,
+)
 import OpenGL.GL.shaders as shaders
 import glfw
 import pyMatrixStack as ms
@@ -35,6 +80,7 @@ import staticlocal
 
 from dataclasses import dataclass
 
+import ctypes
 
 # NEW - for shader location
 pwd = os.path.dirname(os.path.abspath(__file__))
@@ -83,26 +129,6 @@ glClearColor(0.0, 0.0, 0.0, 1.0)
 glClearDepth(1.0)
 glDepthFunc(GL_LESS)
 glEnable(GL_DEPTH_TEST)
-
-
-def on_exit():
-    # delete the objects
-    paddle1.__del__()
-    paddle2.__del__()
-    square.__del__()
-
-    # normally in Python, you should call "del paddle1",
-    # but that would not guarantee that the object would
-    # actually be garbage collected at that moment, and
-    # the OpenGL context could be destroyed before the garbage
-    # collection happens, therefore, force the destruction
-    # of the VAO and VBO by immediately calling __del__
-    #
-    # This is not normal Python practice to call
-    # this type of method directly, but oh well.
-
-
-atexit.register(on_exit)
 
 
 def draw_in_square_viewport() -> None:
@@ -347,7 +373,6 @@ class Ground:
     def vertices(self):
 
         # glColor3f(0.1,0.1,0.1)
-        glBegin(GL_LINES)
         verts = []
         for x in range(-200, 201, 10):
             for z in range(-200, 201, 10):
@@ -471,7 +496,6 @@ class Axis:
     def vertices(self):
 
         # glColor3f(0.1,0.1,0.1)
-        glBegin(GL_LINES)
         verts = []
         verts.append(float(0.0))
         verts.append(float(0.0))
@@ -655,7 +679,6 @@ class NDCCube:
     def vertices(self):
 
         # glColor3f(0.1,0.1,0.1)
-        glBegin(GL_LINES)
         verts = []
         verts.append(-1.0)
         verts.append(-1.0)
