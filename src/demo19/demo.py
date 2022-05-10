@@ -24,12 +24,12 @@ import sys
 import os
 import numpy as np
 import math
-import OpenGL.GL
-import OpenGL.GLU
+from OpenGL.GL import *
+from OpenGL.GLU import *
 import glfw
 
 
-import dataclasses
+from dataclasses import dataclass
 
 if not glfw.init():
     sys.exit()
@@ -52,33 +52,33 @@ def on_key(window, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-OpenGL.GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+glClearColor(0.0, 0.0, 0.0, 1.0)
 
-OpenGL.GL.glEnable(OpenGL.GL.GL_DEPTH_TEST)
-OpenGL.GL.glClearDepth(1.0)
-OpenGL.GL.glDepthFunc(OpenGL.GL.GL_LEQUAL)
+glEnable(GL_DEPTH_TEST)
+glClearDepth(1.0)
+glDepthFunc(GL_LEQUAL)
 
 
 def draw_in_square_viewport() -> None:
-    OpenGL.GL.glClearColor(0.2, 0.2, 0.2, 1.0)
-    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT)
+    glClearColor(0.2, 0.2, 0.2, 1.0)
+    glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
     min = width if width < height else height
 
-    OpenGL.GL.glEnable(OpenGL.GL.GL_SCISSOR_TEST)
-    OpenGL.GL.glScissor(
+    glEnable(GL_SCISSOR_TEST)
+    glScissor(
         int((width - min) / 2.0),
         int((height - min) / 2.0),
         min,
         min,
     )
 
-    OpenGL.GL.glClearColor(0.0, 0.0, 0.0, 1.0)
-    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT)
-    OpenGL.GL.glDisable(OpenGL.GL.GL_SCISSOR_TEST)
+    glClearColor(0.0, 0.0, 0.0, 1.0)
+    glClear(GL_COLOR_BUFFER_BIT)
+    glDisable(GL_SCISSOR_TEST)
 
-    OpenGL.GL.glViewport(
+    glViewport(
         int(0.0 + (width - min) / 2.0),
         int(0.0 + (height - min) / 2.0),
         min,
@@ -86,7 +86,7 @@ def draw_in_square_viewport() -> None:
     )
 
 
-@dataclasses.dataclass
+@dataclass
 class Paddle:
     r: float
     g: float
@@ -113,7 +113,7 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
 
-@dataclasses.dataclass
+@dataclass
 class Camera:
     x: float = 0.0
     y: float = 0.0
@@ -199,8 +199,8 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
-    OpenGL.GL.glViewport(0, 0, width, height)
-    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT | OpenGL.GL.GL_DEPTH_BUFFER_BIT)
+    glViewport(0, 0, width, height)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     draw_in_square_viewport()
     handle_inputs()
@@ -220,15 +220,15 @@ while not glfw.window_should_close(window):
             camera.rot_x += axes_list[0][4] * 0.01
 
     # just like putting the identity function on the lambda stack
-    OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
-    OpenGL.GL.glLoadIdentity()
-    OpenGL.GL.glMatrixMode(OpenGL.GL.GL_MODELVIEW)
-    OpenGL.GL.glLoadIdentity()
+    glMatrixMode(GL_PROJECTION)
+    glLoadIdentity()
+    glMatrixMode(GL_MODELVIEW)
+    glLoadIdentity()
 
 
     # projection
-    OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
-    OpenGL.GLU.gluPerspective(
+    glMatrixMode(GL_PROJECTION)
+    gluPerspective(
         45.0, #fov
         1.0, #aspectRation
         0.1, # nearZ
@@ -239,12 +239,12 @@ while not glfw.window_should_close(window):
 
 
     # view
-    OpenGL.GL.glMatrixMode(OpenGL.GL.GL_MODELVIEW)
+    glMatrixMode(GL_MODELVIEW)
 
 
-    OpenGL.GL.glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
-    OpenGL.GL.glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
-    OpenGL.GL.glTranslate(-camera.x, -camera.y, -camera.z)
+    glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
+    glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
+    glTranslate(-camera.x, -camera.y, -camera.z)
 
 
     #model
@@ -256,21 +256,21 @@ while not glfw.window_should_close(window):
     # the width statement ensures that the matrix is
     # pushed onto a stack, and when the with block ends,
     # it will be automatically popped off of the stack
-    OpenGL.GL.glPushMatrix()
+    glPushMatrix()
 
-    OpenGL.GL.glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
-    OpenGL.GL.glTranslate(
+    glTranslate(
         paddle1.position[0],
         paddle1.position[1],
         0.0,
     )
-    OpenGL.GL.glRotatef(math.degrees(paddle1.rotation), 0.0, 0.0, 1.0)
+    glRotatef(math.degrees(paddle1.rotation), 0.0, 0.0, 1.0)
 
-    OpenGL.GL.glBegin(OpenGL.GL.GL_QUADS)
+    glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        OpenGL.GL.glVertex3f(model_space[0], model_space[1], model_space[2])
-    OpenGL.GL.glEnd()
+        glVertex3f(model_space[0], model_space[1], model_space[2])
+    glEnd()
 
     # end of paddle 1
 
@@ -278,44 +278,44 @@ while not glfw.window_should_close(window):
     # given that no nodes are defined relative to the square, we do not need
     # to push a marix.  Here we will do so anyways, just to clarify what is
     # happening
-    OpenGL.GL.glPushMatrix()
+    glPushMatrix()
     # the current model matrix will be copied and then the copy will be
     # pushed onto the model stack
-    OpenGL.GL.glColor3f(0.0, 0.0, 1.0)
+    glColor3f(0.0, 0.0, 1.0)
 
     # these functions change the current model matrix
-    OpenGL.GL.glTranslate(0.0, 0.0, -10.0)
-    OpenGL.GL.glRotatef(math.degrees(rotation_around_paddle1), 0.0, 0.0, 1.0)
-    OpenGL.GL.glTranslate(20.0, 0.0, 0.0)
-    OpenGL.GL.glRotatef(math.degrees(square_rotation), 0.0, 0.0, 1.0)
+    glTranslate(0.0, 0.0, -10.0)
+    glRotatef(math.degrees(rotation_around_paddle1), 0.0, 0.0, 1.0)
+    glTranslate(20.0, 0.0, 0.0)
+    glRotatef(math.degrees(square_rotation), 0.0, 0.0, 1.0)
 
-    OpenGL.GL.glBegin(OpenGL.GL.GL_QUADS)
+    glBegin(GL_QUADS)
     for model_space in square_vertices:
-        OpenGL.GL.glVertex3f(model_space[0], model_space[1], model_space[2])
-    OpenGL.GL.glEnd()
-    OpenGL.GL.glPopMatrix()
+        glVertex3f(model_space[0], model_space[1], model_space[2])
+    glEnd()
+    glPopMatrix()
     # the mode matrix that was on the model stack before the square
     # was drawn will be restored
-    OpenGL.GL.glPopMatrix()
+    glPopMatrix()
 
 
     # draw paddle 2.  Nothing is defined relative to paddle to, so we don't
     # need to push matrix, and on the next iteration of the event loop,
     # all matricies will be cleared to identity, so who cares if we
     # mutate the values for now.
-    OpenGL.GL.glColor3f(paddle2.r, paddle2.g, paddle2.b)
+    glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
-    OpenGL.GL.glTranslate(
+    glTranslate(
         paddle2.position[0],
         paddle2.position[1],
         0.0,
     )
-    OpenGL.GL.glRotatef(math.degrees(paddle2.rotation), 0.0, 0.0, 1.0)
+    glRotatef(math.degrees(paddle2.rotation), 0.0, 0.0, 1.0)
 
-    OpenGL.GL.glBegin(OpenGL.GL.GL_QUADS)
+    glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        OpenGL.GL.glVertex3f(model_space[0], model_space[1], model_space[2])
-    OpenGL.GL.glEnd()
+        glVertex3f(model_space[0], model_space[1], model_space[2])
+    glEnd()
 
     glfw.swap_buffers(window)
 

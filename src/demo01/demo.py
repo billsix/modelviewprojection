@@ -22,7 +22,7 @@ import sys
 import os
 import numpy as np
 import math
-import OpenGL.GL
+from OpenGL.GL import *
 import glfw
 
 
@@ -48,20 +48,20 @@ def on_key(window, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-OpenGL.GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+glClearColor(0.0, 0.0, 0.0, 1.0)
 
-OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
-OpenGL.GL.glLoadIdentity()
-OpenGL.GL.glMatrixMode(OpenGL.GL.GL_MODELVIEW)
-OpenGL.GL.glLoadIdentity()
+glMatrixMode(GL_PROJECTION)
+glLoadIdentity()
+glMatrixMode(GL_MODELVIEW)
+glLoadIdentity()
 
 
 while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
-    OpenGL.GL.glViewport(0, 0, width, height)
-    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT | OpenGL.GL.GL_DEPTH_BUFFER_BIT)
+    glViewport(0, 0, width, height)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glfw.swap_buffers(window)
 
 glfw.terminate()

@@ -26,10 +26,10 @@ import sys
 import os
 import numpy as np
 import math
-import OpenGL.GL
+from OpenGL.GL import *
 import glfw
 
-import dataclasses
+from dataclasses import dataclass
 
 if not glfw.init():
     sys.exit()
@@ -53,39 +53,39 @@ def on_key(window, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-OpenGL.GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+glClearColor(0.0, 0.0, 0.0, 1.0)
 
 
-OpenGL.GL.glClearDepth(-1.0)
-OpenGL.GL.glDepthFunc(OpenGL.GL.GL_GREATER)
-OpenGL.GL.glEnable(OpenGL.GL.GL_DEPTH_TEST)
+glClearDepth(-1.0)
+glDepthFunc(GL_GREATER)
+glEnable(GL_DEPTH_TEST)
 
-OpenGL.GL.glMatrixMode(OpenGL.GL.GL_PROJECTION)
-OpenGL.GL.glLoadIdentity()
-OpenGL.GL.glMatrixMode(OpenGL.GL.GL_MODELVIEW)
-OpenGL.GL.glLoadIdentity()
+glMatrixMode(GL_PROJECTION)
+glLoadIdentity()
+glMatrixMode(GL_MODELVIEW)
+glLoadIdentity()
 
 
 def draw_in_square_viewport() -> None:
-    OpenGL.GL.glClearColor(0.2, 0.2, 0.2, 1.0)
-    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT)
+    glClearColor(0.2, 0.2, 0.2, 1.0)
+    glClear(GL_COLOR_BUFFER_BIT)
 
     width, height = glfw.get_framebuffer_size(window)
     min = width if width < height else height
 
-    OpenGL.GL.glEnable(OpenGL.GL.GL_SCISSOR_TEST)
-    OpenGL.GL.glScissor(
+    glEnable(GL_SCISSOR_TEST)
+    glScissor(
         int((width - min) / 2.0),
         int((height - min) / 2.0),
         min,
         min,
     )
 
-    OpenGL.GL.glClearColor(0.0, 0.0, 0.0, 1.0)
-    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT)
-    OpenGL.GL.glDisable(OpenGL.GL.GL_SCISSOR_TEST)
+    glClearColor(0.0, 0.0, 0.0, 1.0)
+    glClear(GL_COLOR_BUFFER_BIT)
+    glDisable(GL_SCISSOR_TEST)
 
-    OpenGL.GL.glViewport(
+    glViewport(
         int(0.0 + (width - min) / 2.0),
         int(0.0 + (height - min) / 2.0),
         min,
@@ -93,7 +93,7 @@ def draw_in_square_viewport() -> None:
     )
 
 
-@dataclasses.dataclass
+@dataclass
 class Vertex:
     x: float
     y: float
@@ -174,7 +174,7 @@ class Vertex:
         )
 
 
-@dataclasses.dataclass
+@dataclass
 class Paddle:
     vertices: list[Vertex]
     r: float
@@ -215,7 +215,7 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
 
-@dataclasses.dataclass
+@dataclass
 class Camera:
     position_worldspace: Vertex = Vertex(x=0.0,y=0.0,z=400.0)
     rot_y: float = 0.0
@@ -311,8 +311,8 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
-    OpenGL.GL.glViewport(0, 0, width, height)
-    OpenGL.GL.glClear(OpenGL.GL.GL_COLOR_BUFFER_BIT | OpenGL.GL.GL_DEPTH_BUFFER_BIT)
+    glViewport(0, 0, width, height)
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     draw_in_square_viewport()
     handle_inputs()
@@ -361,15 +361,15 @@ while not glfw.window_should_close(window):
         lambda v: v.rotate_z(paddle1.rotation)
     )  # (6) (rotate around the local z axis
 
-    OpenGL.GL.glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
-    OpenGL.GL.glBegin(OpenGL.GL.GL_QUADS)
+    glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
         ndc_space = apply_stack(model_space)
-        OpenGL.GL.glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
-    OpenGL.GL.glEnd()
+        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
+    glEnd()
 
-    OpenGL.GL.glColor3f(0.0, 0.0, 1.0)
+    glColor3f(0.0, 0.0, 1.0)
 
     fn_stack.append(lambda v: v.translate(tx=0.0,
                                           ty=0.0,
@@ -380,11 +380,11 @@ while not glfw.window_should_close(window):
                                           tz=0.0))  # (9)
     fn_stack.append(lambda v: v.rotate_z(square_rotation))  # (10)
 
-    OpenGL.GL.glBegin(OpenGL.GL.GL_QUADS)
+    glBegin(GL_QUADS)
     for model_space in square:
         ndc_space = apply_stack(model_space)
-        OpenGL.GL.glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
-    OpenGL.GL.glEnd()
+        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
+    glEnd()
 
     fn_stack.pop()  # pop off (10)
     fn_stack.pop()  # pop off (9)
@@ -401,13 +401,13 @@ while not glfw.window_should_close(window):
     )
     fn_stack.append(lambda v: v.rotate_z(paddle2.rotation))  # (6)
 
-    OpenGL.GL.glColor3f(paddle2.r, paddle2.g, paddle2.b)
+    glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
-    OpenGL.GL.glBegin(OpenGL.GL.GL_QUADS)
+    glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         ndc_space: Vertex = apply_stack(model_space)
-        OpenGL.GL.glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
-    OpenGL.GL.glEnd()
+        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
+    glEnd()
 
     fn_stack.clear() # done rendering everything, just go ahead and clean 1-6 off of the stack
 
