@@ -23,10 +23,51 @@ import sys
 import os
 import numpy as np
 import math
-from OpenGL.GL import *
+from OpenGL.GL import (
+    glClear,
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    glViewport,
+    glClearColor,
+    glEnable,
+    GL_SCISSOR_TEST,
+    glScissor,
+    glDisable,
+    glClearDepth,
+    glDepthFunc,
+    GL_GREATER,
+    GL_DEPTH_TEST,
+    GL_LEQUAL,
+    GL_TRUE,
+    GL_BLEND,
+    glBlendFunc,
+    GL_SRC_ALPHA,
+    GL_ONE_MINUS_SRC_ALPHA,
+    glGenVertexArrays,
+    glBindVertexArray,
+    GL_VERTEX_SHADER,
+    GL_FRAGMENT_SHADER,
+    glGenBuffers,
+    glBindBuffer,
+    GL_ARRAY_BUFFER,
+    glGetAttribLocation,
+    glEnableVertexAttribArray,
+    glVertexAttribPointer,
+    GL_FLOAT,
+    glBufferData,
+    GL_STATIC_DRAW,
+    glUseProgram,
+    glGetUniformLocation,
+    glUniform1f,
+    glUniformMatrix4fv,
+    glDrawArrays,
+    GL_LINES,
+    GL_TRIANGLES
+)
 
 from dataclasses import dataclass
 
+import ctypes
 
 # new - SHADERS
 import OpenGL.GL.shaders as shaders
@@ -73,24 +114,6 @@ if not window:
 glfw.make_context_current(window)
 
 
-def on_exit():
-    # delete the objects
-    paddle1.__del__()
-    paddle2.__del__()
-    square.__del__()
-
-    # normally in Python, you should call "del paddle1",
-    # but that would not guarantee that the object would
-    # actually be garbage collected at that moment, and
-    # the OpenGL context could be destroyed before the garbage
-    # collection happens, therefore, force the destruction
-    # of the VAO and VBO by immediately calling __del__
-    #
-    # This is not normal Python practice to call
-    # this type of method directly, but oh well.
-
-
-atexit.register(on_exit)
 
 
 impl = GlfwRenderer(window)
@@ -316,7 +339,6 @@ class Ground:
     def vertices(self):
 
         # glColor3f(0.1,0.1,0.1)
-        glBegin(GL_LINES)
         verts = []
         for x in range(-600, 601, 20):
             for z in range(-600, 601, 20):

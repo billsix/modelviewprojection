@@ -26,7 +26,31 @@ import sys
 import os
 import numpy as np
 import math
-from OpenGL.GL import *
+from OpenGL.GL import (
+    glMatrixMode,
+    glLoadIdentity,
+    GL_PROJECTION,
+    GL_MODELVIEW,
+    glClear,
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    glViewport,
+    glClearColor,
+    glColor3f,
+    glBegin,
+    GL_QUADS,
+    glVertex2f,
+    glEnd,
+    glEnable,
+    GL_SCISSOR_TEST,
+    glScissor,
+    glDisable,
+    glVertex3f,
+    glClearDepth,
+    glDepthFunc,
+    GL_GREATER,
+    GL_DEPTH_TEST
+)
 import glfw
 
 from dataclasses import dataclass

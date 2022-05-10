@@ -22,7 +22,17 @@ import sys
 import os
 import numpy as np
 import math
-from OpenGL.GL import *
+from OpenGL.GL import (
+    glMatrixMode,
+    glLoadIdentity,
+    GL_PROJECTION,
+    GL_MODELVIEW,
+    glClear,
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    glViewport,
+    glClearColor,
+)
 import glfw
 
 
