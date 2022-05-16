@@ -7,8 +7,8 @@
 # copies of the Software, and to permit persons to whom the Software is
 # furnished to do so, subject to the following conditions:
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# The above copyright notice and this permission notice shall be included in
+# all copies or substantial portions of the Software.
 #
 # THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 # IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -21,8 +21,6 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
-import os
-import numpy as np
 import math
 from OpenGL.GL import (
     glMatrixMode,
@@ -37,7 +35,6 @@ from OpenGL.GL import (
     glColor3f,
     glBegin,
     GL_QUADS,
-    glVertex2f,
     glEnd,
     glEnable,
     GL_SCISSOR_TEST,
@@ -322,11 +319,15 @@ while not glfw.window_should_close(window):
         world_space: Vertex = model_space.rotate_z(paddle1.rotation).translate(
             tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
         )
-        # world_space: Vertex =  camera_space.rotate_x(camera.rot_x) \
-        #                                    .rotate_y(camera.rot_y) \
-        #                                    .translate(tx=camera.position_worldspace.x,
-        #                                               ty=camera.position_worldspace.y,
-        #                                               tz=camera.position_worldspace.z)
+        # world_space: Vertex = (
+        #     camera_space.rotate_x(camera.rot_x)
+        #     .rotate_y(camera.rot_y)
+        #     .translate(
+        #         tx=camera.position_worldspace.x,
+        #         ty=camera.position_worldspace.y,
+        #         tz=camera.position_worldspace.z,
+        #     )
+        # )
         camera_space: Vertex = (
             world_space.translate(
                 tx=-camera.position_worldspace.x,
@@ -349,14 +350,18 @@ while not glfw.window_should_close(window):
             .rotate_z(rotation_around_paddle1)
             .translate(tx=0.0, ty=0.0, tz=-10.0)
         )
-        world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation).translate(
+        world_space: Vertex = model_space.rotate_z(paddle1.rotation).translate(
             tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
         )
-        # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
-        #                                   .rotate_y(camera.rot_y) \
-        #                                   .translate(tx=camera.position_worldspace.x,
-        #                                              ty=camera.position_worldspace.y,
-        #                                              tz=camera.position_worldspace.z)
+        # world_space: Vertex = (
+        #     camera_space.rotate_x(camera.rot_x)
+        #     .rotate_y(camera.rot_y)
+        #     .translate(
+        #         tx=camera.position_worldspace.x,
+        #         ty=camera.position_worldspace.y,
+        #         tz=camera.position_worldspace.z,
+        #     )
+        # )
         camera_space: Vertex = (
             world_space.translate(
                 tx=-camera.position_worldspace.x,
@@ -376,11 +381,15 @@ while not glfw.window_should_close(window):
         world_space: Vertex = model_space.rotate_z(paddle2.rotation).translate(
             tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0
         )
-        # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
-        #                                   .rotate_y(camera.rot_y) \
-        #                                   .translate(tx=camera.position_worldspace.x,
-        #                                              ty=camera.position_worldspace.y,
-        #                                              tz=camera.position_worldspace.z)
+        # world_space: Vertex = (
+        #     camera_space.rotate_x(camera.rot_x)
+        #     .rotate_y(camera.rot_y)
+        #     .translate(
+        #         tx=camera.position_worldspace.x,
+        #         ty=camera.position_worldspace.y,
+        #         tz=camera.position_worldspace.z,
+        #     )
+        # )
         camera_space: Vertex = (
             world_space.translate(
                 tx=-camera.position_worldspace.x,
