@@ -36,7 +36,7 @@ from OpenGL.GL import (
     glBegin,
     GL_QUADS,
     glVertex2f,
-    glEnd
+    glEnd,
 )
 import glfw
 

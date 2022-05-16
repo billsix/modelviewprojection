@@ -47,7 +47,7 @@ from OpenGL.GL import (
     glClearDepth,
     glDepthFunc,
     GL_GREATER,
-    GL_DEPTH_TEST
+    GL_DEPTH_TEST,
 )
 import glfw
 
@@ -188,13 +188,10 @@ paddle2: Paddle = Paddle(
 
 @dataclass
 class Camera:
-    position_worldspace: Vertex = Vertex(x=0.0,y=0.0,z=0.0)
+    position_worldspace: Vertex = Vertex(x=0.0, y=0.0, z=0.0)
 
 
 camera: Camera = Camera()
-
-
-
 
 
 square: Paddle = [
@@ -276,16 +273,15 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
-                                         .translate(tx=paddle1.position.x,
-                                                    ty=paddle1.position.y,
-                                                    tz=0.0)
-        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
-                                                     ty=-camera.position_worldspace.y,
-                                                     tz=0.0)
-        ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 100.0,
-                                               scale_y=1.0 / 100.0,
-                                               scale_z=1.0 / 100.0)
+        world_space: Vertex = model_space.rotate_z(paddle1.rotation).translate(
+            tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
+        )
+        camera_space: Vertex = world_space.translate(
+            tx=-camera.position_worldspace.x, ty=-camera.position_worldspace.y, tz=0.0
+        )
+        ndc_space: Vertex = camera_space.scale(
+            scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
+        )
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
@@ -293,24 +289,21 @@ while not glfw.window_should_close(window):
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
-        paddle_1_space: Vertex = model_space.rotate_z(square_rotation) \
-                                            .translate(tx=20.0,
-                                                       ty=0.0,
-                                                       tz=0.0) \
-                                            .rotate_z(rotation_around_paddle1) \
-                                            .translate(tx=0.0,
-                                                       ty=0.0,
-                                                       tz=-10.0)
-        world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation) \
-                                            .translate(tx=paddle1.position.x,
-                                                       ty=paddle1.position.y,
-                                                       tz=0.0)
-        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
-                                                     ty=-camera.position_worldspace.y,
-                                                     tz=0.0)
-        ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 100.0,
-                                               scale_y=1.0 / 100.0,
-                                               scale_z=1.0 / 100.0)
+        paddle_1_space: Vertex = (
+            model_space.rotate_z(square_rotation)
+            .translate(tx=20.0, ty=0.0, tz=0.0)
+            .rotate_z(rotation_around_paddle1)
+            .translate(tx=0.0, ty=0.0, tz=-10.0)
+        )
+        world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation).translate(
+            tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
+        )
+        camera_space: Vertex = world_space.translate(
+            tx=-camera.position_worldspace.x, ty=-camera.position_worldspace.y, tz=0.0
+        )
+        ndc_space: Vertex = camera_space.scale(
+            scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
+        )
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
@@ -318,16 +311,15 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        world_space: Vertex = model_space.rotate_z(paddle2.rotation) \
-                                         .translate(tx=paddle2.position.x,
-                                                    ty=paddle2.position.y,
-                                                    tz=0.0)
-        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
-                                                     ty=-camera.position_worldspace.y,
-                                                     tz=0.0)
-        ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 100.0,
-                                               scale_y=1.0 / 100.0,
-                                               scale_z=1.0 / 100.0)
+        world_space: Vertex = model_space.rotate_z(paddle2.rotation).translate(
+            tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0
+        )
+        camera_space: Vertex = world_space.translate(
+            tx=-camera.position_worldspace.x, ty=-camera.position_worldspace.y, tz=0.0
+        )
+        ndc_space: Vertex = camera_space.scale(
+            scale_x=1.0 / 100.0, scale_y=1.0 / 100.0, scale_z=1.0 / 100.0
+        )
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 

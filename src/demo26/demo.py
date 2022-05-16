@@ -62,7 +62,7 @@ from OpenGL.GL import (
     glUniformMatrix4fv,
     glDrawArrays,
     GL_LINES,
-    GL_TRIANGLES
+    GL_TRIANGLES,
 )
 
 from dataclasses import dataclass
@@ -103,17 +103,13 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 imgui.create_context()
-window = glfw.create_window(
-    500, 500, "ModelViewProjection Demo 26 ", None, None
-)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 26 ", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
 
 # Make the window's context current
 glfw.make_context_current(window)
-
-
 
 
 impl = GlfwRenderer(window)
@@ -138,7 +134,8 @@ glEnable(GL_DEPTH_TEST)
 __enable_blend__ = True
 if __enable_blend__:
     glEnable(GL_BLEND)
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+
 
 @dataclass
 class Paddle:
@@ -222,7 +219,6 @@ class Paddle:
             fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
 
         self.shader = shaders.compileProgram(vs, fs)
-
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -331,6 +327,7 @@ class Camera:
 
 
 camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
+
 
 class Ground:
     def __init__(self):
@@ -535,9 +532,7 @@ while not glfw.window_should_close(window):
 
     imgui.begin("Custom window", True)
 
-    changed, __enable_blend__ = imgui.checkbox(
-        label="Blend", state=__enable_blend__
-    )
+    changed, __enable_blend__ = imgui.checkbox(label="Blend", state=__enable_blend__)
 
     if changed:
         if __enable_blend__:
@@ -592,9 +587,7 @@ while not glfw.window_should_close(window):
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
     ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)
 
-
     ground.render()
-
 
     with ms.push_matrix(ms.MatrixStack.model):
         # draw paddle 1

@@ -52,11 +52,9 @@ from OpenGL.GL import (
     glRotatef,
     glTranslate,
     glPushMatrix,
-    glPopMatrix
+    glPopMatrix,
 )
-from OpenGL.GLU  import (
-    gluPerspective
-)
+from OpenGL.GLU import gluPerspective
 import glfw
 
 
@@ -141,7 +139,6 @@ paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]
 
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
-
 
 
 @dataclass
@@ -256,29 +253,23 @@ while not glfw.window_should_close(window):
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
 
-
     # projection
     glMatrixMode(GL_PROJECTION)
     gluPerspective(
-        45.0, #fov
-        1.0, #aspectRation
-        0.1, # nearZ
-        10000.0, # farZ
+        45.0,  # fov
+        1.0,  # aspectRation
+        0.1,  # nearZ
+        10000.0,  # farZ
     )
-
-
-
 
     # view
     glMatrixMode(GL_MODELVIEW)
-
 
     glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
     glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
     glTranslate(-camera.x, -camera.y, -camera.z)
 
-
-    #model
+    # model
 
     # paddle  1 and square
     # because 2 nodes are drawn off of world space
@@ -328,7 +319,6 @@ while not glfw.window_should_close(window):
     # the mode matrix that was on the model stack before the square
     # was drawn will be restored
     glPopMatrix()
-
 
     # draw paddle 2.  Nothing is defined relative to paddle to, so we don't
     # need to push matrix, and on the next iteration of the event loop,

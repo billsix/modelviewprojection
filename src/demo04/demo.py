@@ -41,7 +41,7 @@ from OpenGL.GL import (
     glEnable,
     GL_SCISSOR_TEST,
     glScissor,
-    glDisable
+    glDisable,
 )
 import glfw
 

@@ -42,7 +42,7 @@ from OpenGL.GL import (
     glEnable,
     GL_SCISSOR_TEST,
     glScissor,
-    glDisable
+    glDisable,
 )
 import glfw
 
@@ -188,8 +188,9 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for modelSpace in paddle1.vertices:
-        ndcSpace: Vertex = modelSpace.translate(tx=paddle1.position.x,
-                                                ty=paddle1.position.y)
+        ndcSpace: Vertex = modelSpace.translate(
+            tx=paddle1.position.x, ty=paddle1.position.y
+        )
         glVertex2f(ndcSpace.x, ndcSpace.y)
     glEnd()
 
@@ -197,8 +198,9 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for modelSpace in paddle2.vertices:
-        ndcSpace: Vertex = modelSpace.translate(tx=paddle2.position.x,
-                                                ty=paddle2.position.y)
+        ndcSpace: Vertex = modelSpace.translate(
+            tx=paddle2.position.x, ty=paddle2.position.y
+        )
         glVertex2f(ndcSpace.x, ndcSpace.y)
     glEnd()
 

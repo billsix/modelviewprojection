@@ -40,7 +40,7 @@ from OpenGL.GL import (
     glEnable,
     GL_SCISSOR_TEST,
     glScissor,
-    glDisable
+    glDisable,
 )
 import glfw
 
@@ -84,10 +84,10 @@ def draw_in_square_viewport() -> None:
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - square_size) / 2.0), # bottom left x_screenspace
-        int((height - square_size) / 2.0),# bottom left y_screenspace
-        square_size,                      # x width, screenspace
-        square_size,                      # y height, screenspace
+        int((width - square_size) / 2.0),  # bottom left x_screenspace
+        int((height - square_size) / 2.0),  # bottom left y_screenspace
+        square_size,  # x width, screenspace
+        square_size,  # y height, screenspace
     )
 
     glClearColor(0.0, 0.0, 0.0, 1.0)

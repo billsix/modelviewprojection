@@ -42,7 +42,7 @@ from OpenGL.GL import (
     glEnable,
     GL_SCISSOR_TEST,
     glScissor,
-    glDisable
+    glDisable,
 )
 import glfw
 
@@ -211,11 +211,10 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        world_space: Vertex = model_space.rotate(paddle1.rotation) \
-                                         .translate(tx=paddle1.position.x,
-                                                    ty=paddle1.position.y)
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
-                                              scale_y=1.0 / 100.0)
+        world_space: Vertex = model_space.rotate(paddle1.rotation).translate(
+            tx=paddle1.position.x, ty=paddle1.position.y
+        )
+        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
@@ -224,11 +223,10 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        world_space: Vertex = model_space.rotate(paddle2.rotation) \
-                                         .translate(tx=paddle2.position.x,
-                                                    ty=paddle2.position.y)
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
-                                              scale_y=1.0 / 100.0)
+        world_space: Vertex = model_space.rotate(paddle2.rotation).translate(
+            tx=paddle2.position.x, ty=paddle2.position.y
+        )
+        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 

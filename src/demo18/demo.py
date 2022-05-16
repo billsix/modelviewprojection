@@ -19,8 +19,6 @@
 # SOFTWARE.
 
 
-
-
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import os
@@ -49,7 +47,7 @@ from OpenGL.GL import (
     glClearDepth,
     glDepthFunc,
     GL_GREATER,
-    GL_DEPTH_TEST
+    GL_DEPTH_TEST,
 )
 import glfw
 
@@ -168,12 +166,8 @@ class Vertex:
         length_y: float
         length_z: float
         length_x, length_y, length_z = right - left, top - bottom, far - near
-        return self.translate(tx=-midpoint_x,
-                              ty=-midpoint_y,
-                              tz=-midpoint_z) \
-                   .scale(2.0 / length_x,
-                          2.0 / length_y,
-                          2.0 / (-length_z)
+        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
+            2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
         )
 
     def perspective(
@@ -238,17 +232,14 @@ paddle2: Paddle = Paddle(
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
-
 @dataclass
 class Camera:
-    position_worldspace: Vertex = Vertex(x=0.0,y=0.0,z=400.0)
+    position_worldspace: Vertex = Vertex(x=0.0, y=0.0, z=400.0)
     rot_y: float = 0.0
     rot_x: float = 0.0
 
 
-
 camera: Camera = Camera()
-
 
 
 square: Paddle = [
@@ -313,6 +304,7 @@ def handle_inputs() -> None:
 
 fn_stack: List[Callable[Vertex, Vertex]] = []
 
+
 def apply_stack(vertex: Vertex) -> Vertex:
     v = vertex
     for fn in reversed(fn_stack):
@@ -344,11 +336,19 @@ while not glfw.window_should_close(window):
     axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.19:
-            camera.position_worldspace.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
-            camera.position_worldspace.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
+            camera.position_worldspace.x += (
+                10.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            )
+            camera.position_worldspace.z -= (
+                10.0 * axes_list[0][0] * math.sin(camera.rot_y)
+            )
         if math.fabs(float(axes_list[0][1])) > 0.19:
-            camera.position_worldspace.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
-            camera.position_worldspace.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
+            camera.position_worldspace.x += (
+                10.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            )
+            camera.position_worldspace.z += (
+                10.0 * axes_list[0][1] * math.cos(camera.rot_y)
+            )
 
         if math.fabs(axes_list[0][3]) > 0.19:
             camera.rot_y -= 3.0 * axes_list[0][3] * 0.01
@@ -356,7 +356,6 @@ while not glfw.window_should_close(window):
             camera.rot_x += axes_list[0][4] * 0.01
 
     fn_stack.append(lambda v: v.camera_space_to_ndc_space_fn())  # (1)
-
 
     # fn_stack.append(
     #     lambda v: v.translate(tx=camera.position_worldspace.x,
@@ -366,19 +365,21 @@ while not glfw.window_should_close(window):
     # fn_stack.append(lambda v: v.rotate_y(camera.rot_y))
     # fn_stack.append(lambda v: v.rotate_x(camera.rot_x))
 
-
     fn_stack.append(lambda v: v.rotate_x(-camera.rot_x))  # (2)
     fn_stack.append(lambda v: v.rotate_y(-camera.rot_y))  # (3)
     fn_stack.append(
-        lambda v: v.translate(tx=-camera.position_worldspace.x,
-                              ty=-camera.position_worldspace.y,
-                              tz=-camera.position_worldspace.z)  # (4)
+        lambda v: v.translate(
+            tx=-camera.position_worldspace.x,
+            ty=-camera.position_worldspace.y,
+            tz=-camera.position_worldspace.z,
+        )  # (4)
     )
 
     fn_stack.append(
-        lambda v: v.translate(tx=paddle1.position.x,  # (5) translate the local origin
-                              ty=paddle1.position.y,
-                              tz=0.0,
+        lambda v: v.translate(
+            tx=paddle1.position.x,  # (5) translate the local origin
+            ty=paddle1.position.y,
+            tz=0.0,
         )
     )
     fn_stack.append(
@@ -395,13 +396,9 @@ while not glfw.window_should_close(window):
 
     glColor3f(0.0, 0.0, 1.0)
 
-    fn_stack.append(lambda v: v.translate(tx=0.0,
-                                          ty=0.0,
-                                          tz=-10.0))  # (7)
+    fn_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0))  # (7)
     fn_stack.append(lambda v: v.rotate_z(rotation_around_paddle1))  # (8)
-    fn_stack.append(lambda v: v.translate(tx=20.0,
-                                          ty=0.0,
-                                          tz=0.0))  # (9)
+    fn_stack.append(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0))  # (9)
     fn_stack.append(lambda v: v.rotate_z(square_rotation))  # (10)
 
     glBegin(GL_QUADS)
@@ -417,11 +414,10 @@ while not glfw.window_should_close(window):
     fn_stack.pop()  # pop off (6)
     fn_stack.pop()  # pop off (5)
 
-
     fn_stack.append(
-        lambda v: v.translate(tx=paddle2.position.x,
-                              ty=paddle2.position.y,
-                              tz=0.0)  # (5)
+        lambda v: v.translate(
+            tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0
+        )  # (5)
     )
     fn_stack.append(lambda v: v.rotate_z(paddle2.rotation))  # (6)
 
@@ -433,53 +429,58 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
-    fn_stack.clear() # done rendering everything, just go ahead and clean 1-6 off of the stack
+    fn_stack.clear()  # done rendering everything, just go ahead and clean 1-6 off of the stack
 
     glfw.swap_buffers(window)
 
 
 fn_stack = []
 
+
 def identity(x):
     return x
+
 
 def add_one(x):
     return x + 1
 
+
 def multiply_by_2(x):
     return x * 2
+
 
 def add_5(x):
     return x + 5
 
+
 # never pop this off, otherwise can't apply the stack
 fn_stack.append(identity)
 print(fn_stack)
-print(apply_stack(1)) # x = 1
+print(apply_stack(1))  # x = 1
 
 fn_stack.append(add_one)
 print(fn_stack)
-print(apply_stack(1)) # x + 1 = 2
+print(apply_stack(1))  # x + 1 = 2
 
-fn_stack.append(multiply_by_2) # (x * 2) + 1 = 3
+fn_stack.append(multiply_by_2)  # (x * 2) + 1 = 3
 print(fn_stack)
 print(apply_stack(1))
 
-fn_stack.append(add_5) # ((x + 5) * 2) + 1 = 13
+fn_stack.append(add_5)  # ((x + 5) * 2) + 1 = 13
 print(fn_stack)
 print(apply_stack(1))
 
 fn_stack.pop()
 print(fn_stack)
-print(apply_stack(1)) # (x * 2) + 1 = 3
+print(apply_stack(1))  # (x * 2) + 1 = 3
 
 fn_stack.pop()
 print(fn_stack)
-print(apply_stack(1)) # x + 1 = 2
+print(apply_stack(1))  # x + 1 = 2
 
 fn_stack.pop()
 print(fn_stack)
-print(apply_stack(1)) # x = 1
+print(apply_stack(1))  # x = 1
 
 
 glfw.terminate()
