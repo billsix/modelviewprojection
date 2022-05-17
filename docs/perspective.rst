@@ -484,7 +484,8 @@ We need the
 
 * :math:`\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot \vec{f}_{c}^{clip} (\begin{bmatrix} {x_c} \\ {y_c} \\ \textcolor{red}{nearZ_c} \\ {w_c=1} \\ \end{bmatrix}) = \textcolor{red}{-1.0}`
 * :math:`\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot \vec{f}_{c}^{clip} (\begin{bmatrix} {x_c} \\ {y_c} \\ \textcolor{red}{farZ_c} \\ {w_c=1} \\ \end{bmatrix}) = \textcolor{red}{1.0}`
-* Ordering is preserved after the function is applied, i.e. monotonicity.  if :math:`a < b`, then :math:`\vec{f}_{c}^{clip}(a) < \vec{f}_{c}^{clip}(b)`.
+* Ordering is preserved after the function is applied, i.e. monotonicity.  if :math:`z_1 < z_2`,
+  then :math:`(\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot \vec{f}_{c}^{clip}(\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{z_1} \\ 0 \\ \end{bmatrix} )) < (\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot  \vec{f}_{c}^{clip}(\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{z_2} \\ 0 \\ \end{bmatrix} ) )`.
 
 If we can make a function, that like the third row of the matrix, has those properties, we can replace the
 third row and remove camera space's z, :math:`z_c`, from the matrix.  This is desirable because, if it were to exist,
