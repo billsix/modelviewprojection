@@ -13,6 +13,14 @@ graphs: currency.png \
 	demo03.png \
 	demo05.png \
 	perspective.png \
+	demo18-1.png \
+	demo18-2.png \
+	demo18-3.png \
+	demo18-4.png \
+	demo18-5.png \
+	demo18-6.png \
+	demo18-7.png \
+	demo18-8.png \
 	cayleygraph.png
 
 
@@ -47,6 +55,31 @@ cayleygraph.png: cayleygraph.dot
 	dot -Tpng $< -o $@
 
 perspective.png: perspective.dot
+	dot -Tpng $< -o $@
+
+
+demo18-1.png: demo18-1.dot
+	dot -Tpng $< -o $@
+
+demo18-2.png: demo18-2.dot
+	dot -Tpng $< -o $@
+
+demo18-3.png: demo18-3.dot
+	dot -Tpng $< -o $@
+
+demo18-4.png: demo18-4.dot
+	dot -Tpng $< -o $@
+
+demo18-5.png: demo18-5.dot
+	dot -Tpng $< -o $@
+
+demo18-6.png: demo18-6.dot
+	dot -Tpng $< -o $@
+
+demo18-7.png: demo18-7.dot
+	dot -Tpng $< -o $@
+
+demo18-8.png: demo18-8.dot
 	dot -Tpng $< -o $@
 
 

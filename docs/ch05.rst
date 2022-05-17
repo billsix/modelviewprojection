@@ -92,7 +92,6 @@ methods, which will be useful later on.
 
 .. math::
 
-    \begin{equation*}
      \vec{T}(\vec{v};\vec{t}) =
     \begin{bmatrix}
     v_{x} \\
@@ -102,7 +101,6 @@ methods, which will be useful later on.
     t_{x} \\
     t_{y}
     \end{bmatrix}
-    \end{equation*}
 
 Code
 ^^^^

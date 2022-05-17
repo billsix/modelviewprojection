@@ -260,9 +260,7 @@ around the paddle's center.
 .. math::
 
 
-    \begin{equation*}
     \vec{f}_{p1}^{w}
-    \end{equation*}
 
 
 .. literalinclude:: ../src/demo07/demo.py
@@ -275,9 +273,7 @@ around the paddle's center.
 .. math::
 
 
-    \begin{equation*}
     \vec{f}_{w}^{ndc}
-    \end{equation*}
 
 
 .. literalinclude:: ../src/demo07/demo.py
@@ -318,9 +314,7 @@ around the paddle's center.
 .. math::
 
 
-    \begin{equation*}
     \vec{f}_{p2}^{w}
-    \end{equation*}
 
 
 .. literalinclude:: ../src/demo07/demo.py
@@ -333,9 +327,7 @@ around the paddle's center.
 .. math::
 
 
-    \begin{equation*}
     \vec{f}_{w}^{ndc}
-    \end{equation*}
 
 
 

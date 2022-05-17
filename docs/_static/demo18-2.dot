@@ -9,9 +9,9 @@ digraph {
     ws [label = "World Space"];
     ndc [label = "NDC"];
     p1 -> ws  [label=<f<SUB>p1</SUB><SUP>w</SUP>>,weight="0.2"];
-    s1 -> p1  [label=<f<SUB>s1</SUB><SUP>p1</SUP>>,weight="0.2" color="red"];
+    s1 -> p1  [label=<f<SUB>s1</SUB><SUP>p1</SUP>>,weight="0.2"];
     p2 -> ws [label=<f<SUB>p2</SUB><SUP>w</SUP>>,weight="0.2"];
     cs -> ws [label=<f<SUB>c</SUB><SUP>w</SUP>>,weight="0.2"];
-    cs -> ndc [label=<f<SUB>c</SUB><SUP>ndc</SUP>>,weight="0.2"];
+    cs -> ndc [label=<f<SUB>c</SUB><SUP>ndc</SUP>>,weight="0.2" color="red"];
     ndc -> "Screen Space" [label=<f<SUB>ndc</SUB><SUP>S</SUP>>];
 }

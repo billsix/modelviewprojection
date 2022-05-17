@@ -72,11 +72,7 @@ In Demo 07 we tried to represent the translation and then rotation
 around the paddle's center by code that worked as follows
 
 .. math::
-    \begin{equation}
-    \begin{split}
-    \vec{f}_{p}^{w}  & = \vec{r} \circ \vec{t}
-    \end{split}
-    \end{equation}
+    \vec{f}_{p}^{w}   = \vec{r} \circ \vec{t}
 
 where t and r are the translate and rotate functions for a paddle, and
 we read the functions from right to left.  (In code, we were reading
@@ -93,12 +89,10 @@ rotate around its center, we re-centered the paddle, did the rotation,
 and then re-translated to the paddle's position.
 
 .. math::
-    \begin{equation}
     \begin{split}
     \vec{f}_{p}^{w}  & = \vec{t} \circ \vec{r} \circ {\vec{t}}^{-1} \circ \vec{t} \\
                      & = \vec{t} \circ \vec{r}
     \end{split}
-    \end{equation}
 
 
 So translate and inverse translate cancel out, and demonstrate to us
@@ -184,9 +178,7 @@ system.
 For the linear-algebra inclined reader, we've used
 
 .. math::
-    \begin{equation}
     L * (M * \vec{x})     = (L * M) * \vec{x}
-     \end{equation}
 
 to understand a complicated sequence of matrix multiplications, modifying
 L by a right-multiplication of M.

@@ -288,26 +288,18 @@ a bank.
     Cayley graph of univariate coordinate conversion for money.
 
 .. math::
-   \begin{equation*}
-    f_{nickel}^{penny}(x) = 5 * x \\
-  \end{equation*}
+    f_{nickel}^{penny}(x) = 5 * x
 
 .. math::
-   \begin{equation*}
-    f_{dime}^{penny}(x) = 10 * x \\
-  \end{equation*}
+    f_{dime}^{penny}(x) = 10 * x
 
 
 .. math::
-   \begin{equation*}
-    f_{quarter}^{penny}(x) = 25 * x \\
-  \end{equation*}
+    f_{quarter}^{penny}(x) = 25 * x
 
 
 .. math::
-   \begin{equation*}
     f_{dollar}^{penny}(x) = 100 * x
-  \end{equation*}
 
 
 The directed edges in the Cayley graph show the direction that
@@ -320,19 +312,11 @@ along the way.
 
 
 .. math::
-
-    \begin{equation*}
     f_{nickel}^{penny}(x) = 5 * x
-    \end{equation*}
 
 .. math::
-
-    \begin{equation}
-    \begin{split}
-    f_{nickel}^{penny}(20)  & = 5 * 20\\
+    f_{nickel}^{penny}(20)  & = 5 * 20 \\
                      & = 100
-    \end{split}
-    \end{equation}
 
 
 
@@ -347,39 +331,23 @@ taking the reciprical of the coefficient
 
 
 .. math::
-
-    \begin{equation*}
     f_{quarter}^{penny}(x) = 25 * x
-    \end{equation*}
 
 .. math::
-
-    \begin{equation*}
-    \begin{split}
     f_{penny}^{quarter}(x) & = {f_{quarter}^{penny}}^{-1}(x) \\
     & =  1/25 * x
-    \end{split}
-    \end{equation*}
 
 
 .. math::
-
-    \begin{equation}
-    \begin{split}
     {f_{penny}^{quarter}}(100)  & = 1/25 * x\\
                      & = 4
-    \end{split}
-    \end{equation}
 
 
 By taking the inverse of the coefficient, we satisfy a definition
 of an inverse
 
 .. math::
-
-   \begin{equation}
    (f \circ f^{-1})(x)  = x
-   \end{equation}
 
 
 
@@ -389,22 +357,12 @@ of any directed edge that you against.
 
 
 .. math::
-
-    \begin{equation}
-    \begin{split}
     f_{dime}^{dollar}(x)  & = f_{penny}^{dollar}(f_{dime}^{penny}(x)) \\
                               & = {f_{dollar}^{penny}}^{-1}(f_{dime}^{penny}(x)) \\
-    \end{split}
-    \end{equation}
 
 
 .. math::
-
-    \begin{equation}
-    \begin{split}
-    f_{dime}^{dollar}  & = {f_{dollar}^{penny}}^{-1} \circ f_{dime}^{penny}
-    \end{split}
-    \end{equation}
+    f_{dime}^{dollar}   = {f_{dollar}^{penny}}^{-1} \circ f_{dime}^{penny}
 
 
 
@@ -451,13 +409,8 @@ the appropriate inverse(s).
 
 
 .. math::
-
-    \begin{equation}
-    \begin{split}
     \vec{f}_{d}^{b}(\vec{x})  & = \vec{f}_{a}^{b}(\vec{f}_{c}^{a}(\vec{f}_{d}^{c}(\vec{x}))) \\
-                              & = {\vec{f}_{b}^{a}}^{-1}(\vec{f}_{c}^{a}(\vec{f}_{d}^{c}(\vec{x})))
-    \end{split}
-    \end{equation}
+                              & = {\vec{{f}_{b}^{a}}}^{-1}(\vec{f}_{c}^{a}(\vec{f}_{d}^{c}(\vec{x})))
 
 A function from A to B is not provided to us, but we wrote it in the equation as an idea of a function
 that we wish to have, even though we don't currently have it.
@@ -467,12 +420,7 @@ However, we can create this function by invoking inverse on the provide function
 Since we're dealing with function composition mainly, we don't even need to specify the argument
 
 .. math::
-
-    \begin{equation}
-    \begin{split}
-    \vec{f}_{d}^{b}  & = {\vec{f}_{b}^{a}}^{-1} \circ {\vec{f}_{c}^{a}} \circ \vec{f}_{d}^{c}
-    \end{split}
-    \end{equation}
+    \vec{f}_{d}^{b}  = {\vec{{f}_{b}^{a}}}^{-1} \circ {\vec{f}_{c}^{a}} \circ \vec{f}_{d}^{c}
 
 If this seems to abstract for now, don't worry.  By the end of the course, it should be clear.
 The goal of this book is to make it clear, and then, obvious.

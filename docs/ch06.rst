@@ -312,7 +312,6 @@ and to get it into NDC, we need to scale by dividing by 100
 
 ..
    .. math::
-      \begin{equation*}
        \vec{f}_{p1}^{w}
        \begin{bmatrix}
        x_{p1} \\
@@ -334,34 +333,26 @@ and to get it into NDC, we need to scale by dividing by 100
        y_{w} \\
        z_{w}
        \end{bmatrix}
-     \end{equation*}
 
 
 .. math::
-
-    \begin{equation*}
-    \begin{split}
-    \vec{f}_{p1}^{w}
+    \begin{bmatrix}
+    x_{w} \\
+    y_{w}
+    \end{bmatrix}  =
+    \vec{f}_{p1}^{w}(
     \begin{bmatrix}
     x_{p1} \\
     y_{p1}
-    \end{bmatrix}
-    & =
+    \end{bmatrix})  =
     \begin{bmatrix}
     x_{p1} \\
     y_{p1}
     \end{bmatrix} +
     \begin{bmatrix}
-    p1\text{_}center\text{_}x_{worldspace} \\
-    p1\text{_}center\text{_}y_{worldspace}
-    \end{bmatrix} \\
-    & =
-    \begin{bmatrix}
-    x_{w} \\
-    y_{w}
+    {p1}_{x} \\
+    {p1}_{y}
     \end{bmatrix}
-    \end{split}
-    \end{equation*}
 
 
 where x_p1, y_p1  are the modelspace coordinates of the paddle's vertices,
@@ -371,22 +362,23 @@ are the offset from the world space's origin to the center of the paddle, i.e. t
 
 
 .. math::
-
-    \begin{equation*}
-    \vec{f}_{p2}^{w}
+    \begin{bmatrix}
+    x_{w} \\
+    y_{w}
+    \end{bmatrix}  =
+    \vec{f}_{p2}^{w} (
     \begin{bmatrix}
     x_{p2} \\
     y_{p2}
-    \end{bmatrix} =
+    \end{bmatrix}) =
     \begin{bmatrix}
     x_{p2} \\
     y_{p2}
     \end{bmatrix} +
     \begin{bmatrix}
-    p2\text{_}center\text{_}x_{worldspace} \\
-    p2\text{_}center\text{_}y_{worldspace}
+    {p2}_{x} \\
+    {p2}_{y}
     \end{bmatrix}
-    \end{equation*}
 
 
 Now, the coordinates for paddle 1 and for paddle 2 are in world
@@ -395,25 +387,19 @@ and convert them to NDC.
 
 
 .. math::
-
-    \begin{equation*}
-    \begin{split}
-    \vec{f}_{w}^{ndc}
-    \begin{bmatrix}
-    x_{w} \\
-    y_{w}
-    \end{bmatrix} & = 1/100 *
-    \begin{bmatrix}
-    x_{w} \\
-    y_{w}
-    \end{bmatrix} \\
-    &  =
     \begin{bmatrix}
     x_{ndc} \\
     y_{ndc}
+    \end{bmatrix} =
+    \vec{f}_{w}^{ndc} (
+    \begin{bmatrix}
+    x_{w} \\
+    y_{w}
+    \end{bmatrix})  = 1/100 *
+    \begin{bmatrix}
+    x_{w} \\
+    y_{w}
     \end{bmatrix}
-    \end{split}
-    \end{equation*}
 
 
 
