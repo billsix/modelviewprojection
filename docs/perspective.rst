@@ -64,7 +64,7 @@ Scale Camera-space x by Camera-space z
                              {z_c} \\
                              {w_c=1} \\
                    \end{bmatrix}; nearZ_c)   = \begin{bmatrix}
-              {nearZ_c \over {z_c}} & 0 & 0 & 0 \\
+              {nearZ_c \over \textcolor{red}{z_c}} & 0 & 0 & 0 \\
               0  &               1 & 0 & 0 \\
               0  &               0 & 1 & 0 \\
               0, &               0 & 0 & 1
@@ -98,7 +98,7 @@ Scale Camera-space y by Camera-space z
                              {w_c=1}
                    \end{bmatrix})  = \begin{bmatrix}
           1 & 0 &                  0 & 0 \\
-          0 & {nearZ_c \over {z_c}}    &       0 & 0 \\
+          0 & {nearZ_c \over \textcolor{red}{z_c}}    &       0 & 0 \\
           0 & 0 &                  1 & 0 \\
           0 & 0 &                  0 & 1
                    \end{bmatrix}  *
@@ -234,8 +234,8 @@ we couldn't do without having the premultiplied matrix.
                              {z_{c}} \\
                              {w_{c}=1} \\
                    \end{bmatrix}; farZ_c, nearZ_c, top, right) = \begin{bmatrix}
-                      {nearZ_c \over {right * z}} &             0 &                      0 &                0 \\
-                      0 &                           {nearZ_c \over {top*z}} &           0 &                0 \\
+                      {nearZ_c \over {right * \textcolor{red}{z_c}}} &             0 &                      0 &                0 \\
+                      0 &                           {nearZ_c \over {top*\textcolor{red}{z_c}}} &           0 &                0 \\
                       0 &                           0 &                       {2 \over {nearZ_c - farZ_c}} & {-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
                       0 &                           0 &                       0 &                1
                    \end{bmatrix} *
@@ -384,7 +384,7 @@ all dimensions without flipping, hence the negative sign in front of :math:`-z_c
                    & = \begin{bmatrix}
                              {-nearZ_c \over right} &         0 &        0 &                                   0 \\
                              0 &                  {-nearZ_c \over top} & 0 &                                   0 \\
-                             0 &                  0 &        {2*(-z_c) \over {nearZ_c - farZ_c}} &   {-z_c*{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}}} \\
+                             0 &                  0 &        {2*\textcolor{red}{-z_c} \over {nearZ_c - farZ_c}} &   {\textcolor{red}{-z_c}*{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}}} \\
                              0 &                  0 &        0 &                                   -z_c
                    \end{bmatrix} *
                     \begin{bmatrix}
