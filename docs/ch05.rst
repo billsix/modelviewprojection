@@ -92,7 +92,13 @@ methods, which will be useful later on.
 
 .. math::
 
-     \vec{T}(\vec{v};\vec{t}) =
+     \vec{t}(\begin{bmatrix}
+    v_{x} \\
+    v_{y}
+    \end{bmatrix};\begin{bmatrix}
+    t_{x} \\
+    t_{y}
+    \end{bmatrix}) =
     \begin{bmatrix}
     v_{x} \\
     v_{y}

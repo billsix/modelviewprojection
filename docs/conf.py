@@ -54,7 +54,8 @@ release = "0.0.1"
 
 imgmath_image_format = 'svg'
 imgmath_font_size = 20  # for font size 14
-imgmath_latex_preamble =  '\\usepackage{amsmath}\n'
+imgmath_latex_preamble =  '\\usepackage{amsmath}\n' + \
+    '\\usepackage{xcolor}\n'
 
 extensions = ['sphinx.ext.imgmath']
 
