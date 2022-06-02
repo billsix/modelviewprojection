@@ -4,7 +4,7 @@ imgui==1.4.1
 matplotlib==3.5.2
 mypy==0.950
 numpy==1.22.3
-Pillow==9.1.0
+Pillow==9.1.1
 pyMatrixStack==0.0.3
 PyOpenGL==3.1.6
 Sphinx==4.5.0
