@@ -80,8 +80,8 @@ around a given point in world space, in this case, the paddle's center.
 .. literalinclude:: ../src/demo08/demo.py
    :language: python
    :linenos:
-   :lineno-start: 91
-   :lines: 91
+   :lineno-start: 108
+   :lines: 108
 
 ::
 
@@ -90,8 +90,8 @@ around a given point in world space, in this case, the paddle's center.
 .. literalinclude:: ../src/demo08/demo.py
    :language: python
    :linenos:
-   :lineno-start: 107
-   :lines: 107-112
+   :lineno-start: 124
+   :lines: 124-129
 
 
 Within the event loop, this seems quite reasonable
@@ -102,8 +102,8 @@ Within the event loop, this seems quite reasonable
 .. literalinclude:: ../src/demo08/demo.py
    :language: python
    :linenos:
-   :lineno-start: 181
-   :lines: 181
+   :lineno-start: 198
+   :lines: 198
 
 ::
 
@@ -113,8 +113,8 @@ Within the event loop, this seems quite reasonable
 .. literalinclude:: ../src/demo08/demo.py
    :language: python
    :linenos:
-   :lineno-start: 199
-   :lines: 199-210
+   :lineno-start: 216
+   :lines: 216-227
 
 
 ::
@@ -125,8 +125,8 @@ Within the event loop, this seems quite reasonable
 .. literalinclude:: ../src/demo08/demo.py
    :language: python
    :linenos:
-   :lineno-start: 213
-   :lines: 213-224
+   :lineno-start: 230
+   :lines: 230-241
 
 
 All we did was add a rotate around method, and call it, with the

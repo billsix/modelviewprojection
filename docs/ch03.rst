@@ -125,16 +125,16 @@ Set to Draw in Square Subsection Of Window
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
-   :lineno-start: 57
-   :lines: 57
+   :lineno-start: 73
+   :lines: 73
 
 * declare a function to configure OpenGL to draw only in a square subset of the monitor, i.e. the viewport
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
-   :lineno-start: 59
-   :lines: 59-60
+   :lineno-start: 75
+   :lines: 75-76
 
 * set the clear color to be gray.
 * glClear clear the color of every pixel in the whole frame buffer, independent of viewport.
@@ -143,8 +143,8 @@ Set to Draw in Square Subsection Of Window
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
-   :lineno-start: 62
-   :lines: 62-64
+   :lineno-start: 78
+   :lines: 78-80
 
 * figure out the minimum dimension of the window
 * To make a square subregion, we need a number for the distance between vertices of the square.
@@ -153,8 +153,8 @@ Set to Draw in Square Subsection Of Window
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
-   :lineno-start: 66
-   :lines: 66-72
+   :lineno-start: 82
+   :lines: 82-88
 
 * Enable the scissor test.  Internally, OpenGL drivers likely have global variables
   that we set by calling functions.  Every OpenGL feature isn't used by every OpenGL
@@ -183,8 +183,8 @@ Set to Draw in Square Subsection Of Window
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
-   :lineno-start: 74
-   :lines: 74-75
+   :lineno-start: 90
+   :lines: 90-91
 
 *  glClear will only update the square to black values.
 
@@ -192,8 +192,8 @@ Set to Draw in Square Subsection Of Window
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
-   :lineno-start: 76
-   :lines: 76
+   :lineno-start: 92
+   :lines: 92
 
 * disable the scissor test, so now any opengl calls will
   happen as usual.
@@ -210,8 +210,8 @@ that we care about, which is the black square.
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
-   :lineno-start: 78
-   :lines: 78-83
+   :lineno-start: 94
+   :lines: 94-99
 
 The Event Loop
 &&&&&&&&&&&&&&
@@ -227,14 +227,14 @@ the window.
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
-   :lineno-start: 86
-   :lines: 86-91
+   :lineno-start: 102
+   :lines: 102-107
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
-   :lineno-start: 93
-   :lines: 93
+   :lineno-start: 109
+   :lines: 109
 
 * The event loop is the same as the previous demo, except
   that we call draw_in_square_viewport every frame at the beginning.
@@ -242,5 +242,5 @@ the window.
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
    :linenos:
-   :lineno-start: 95
-   :lines: 95-112
+   :lineno-start: 111
+   :lines: 111-128

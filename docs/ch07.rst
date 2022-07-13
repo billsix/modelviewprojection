@@ -193,8 +193,8 @@ get your vertex rotated around the origin!
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 89
-   :lines: 89-104
+   :lineno-start: 106
+   :lines: 106-121
 
 
 * Note the definition of rotate, from the description above.
@@ -203,16 +203,16 @@ get your vertex rotated around the origin!
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 107
-   :lines: 107-114
+   :lineno-start: 124
+   :lines: 124-131
 
 * a rotation instance variable is defined, with a default value of 0
 
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 144
-   :lines: 144-165
+   :lineno-start: 161
+   :lines: 161-182
 
 
 Cayley Graph
@@ -238,8 +238,8 @@ The Event Loop
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 172
-   :lines: 172
+   :lineno-start: 189
+   :lines: 189
 
 ::
 
@@ -254,8 +254,8 @@ around the paddle's center.
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 188
-   :lines: 188-191
+   :lineno-start: 205
+   :lines: 205-208
 
 .. math::
 
@@ -266,8 +266,8 @@ around the paddle's center.
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 192
-   :lines: 192-194
+   :lineno-start: 209
+   :lines: 209-211
 
 
 .. math::
@@ -279,8 +279,8 @@ around the paddle's center.
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 195
-   :lines: 195
+   :lineno-start: 212
+   :lines: 212
 
 
 
@@ -288,8 +288,8 @@ around the paddle's center.
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 196
-   :lines: 196-197
+   :lineno-start: 213
+   :lines: 213-214
 
 
 ::
@@ -308,8 +308,8 @@ around the paddle's center.
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 201
-   :lines: 201-202
+   :lineno-start: 218
+   :lines: 218-219
 
 .. math::
 
@@ -320,8 +320,8 @@ around the paddle's center.
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 203
-   :lines: 203-205
+   :lineno-start: 220
+   :lines: 220-222
 
 
 .. math::
@@ -334,14 +334,14 @@ around the paddle's center.
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 206
-   :lines: 206
+   :lineno-start: 223
+   :lines: 223
 
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 207
-   :lines: 207-208
+   :lineno-start: 224
+   :lines: 224-225
 
 
 
@@ -358,8 +358,8 @@ world space transformations are doing.
 .. literalinclude:: ../src/demo07/demo.py
    :language: python
    :linenos:
-   :lineno-start: 192
-   :lines: 192-194
+   :lineno-start: 209
+   :lines: 209-211
 
 
 

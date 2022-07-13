@@ -164,46 +164,23 @@ Import Python modules, which are Python programmer's main form of libraries.
 
 *  sys is imported, all function calls will be written as sys.function
 
+
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
    :lineno-start: 22
-   :lines: 22
+   :lines: 22-32
 
-*  basic operating system functions
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 23
-   :lines: 23
-
-*  numpy is a fast math/matrix library.
-
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 24
-   :lines: 24
-
-*  basic math utilities
-
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 25
-   :lines: 25
-
-* here, we are importing OpenGL's submodule GL
-  into the current namespace, and we can call its functions
-  without the OpenGL.GL prefix
+* here, we are importing OpenGL's submodule GL's function
+  into the current namespace
 
 
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
-   :lineno-start: 26
-   :lines: 26
+   :lineno-start: 36
+   :lines: 36
 
 
 * GLFW is a library which allows us to create windows, get keyboard and
@@ -249,8 +226,8 @@ Initialize GLFW.
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
-   :lineno-start: 29
-   :lines: 29-30
+   :lineno-start: 39
+   :lines: 39-40
 
 
 
@@ -264,8 +241,8 @@ For this demo, we use OpenGL 1.4.  By the end of this book, we will be using Ope
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
-   :lineno-start: 32
-   :lines: 32-33
+   :lineno-start: 42
+   :lines: 42-43
 
 Create a Window
 &&&&&&&&&&&&&&&
@@ -274,15 +251,15 @@ Create a Window
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
-   :lineno-start: 35
-   :lines: 35
+   :lineno-start: 45
+   :lines: 45
 
 
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
-   :lineno-start: 37
-   :lines: 37-39
+   :lineno-start: 47
+   :lines: 47-49
 
 
 *  If GLFW cannot open the window, quit.  Unlike MC Hammer, we are quite legit, yet still
@@ -292,8 +269,8 @@ Create a Window
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
-   :lineno-start: 41
-   :lines: 41
+   :lineno-start: 51
+   :lines: 51
 
 
 * Make the window's context current.  The details of this do not matter
@@ -304,8 +281,8 @@ Create a Window
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
-   :lineno-start: 44
-   :lines: 44-49
+   :lineno-start: 54
+   :lines: 54-59
 
 * Define an register a key handler.
 
@@ -330,8 +307,8 @@ and applied later zero, 1, or more times.
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
-   :lineno-start: 51
-   :lines: 51
+   :lineno-start: 61
+   :lines: 61
 
 
 * Before a frame is drawn, it is first turned into a blank slate,
@@ -344,8 +321,8 @@ and applied later zero, 1, or more times.
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
-   :lineno-start: 53
-   :lines: 53-56
+   :lineno-start: 63
+   :lines: 63-66
 
 
 * Don't worry about the 4 lines here.  Although they are necessary,
@@ -370,26 +347,26 @@ to terminate, repeat indefinitely.
 .. literalinclude:: ../src/demo01/demo.py
    :language: python
    :linenos:
-   :lineno-start: 59
-   :lines: 59-67
+   :lineno-start: 69
+   :lines: 69-77
 
-* On line 60, poll the operating system for any events, such as mouse movements,
+* On line 70, poll the operating system for any events, such as mouse movements,
   keyboard input, etc.  This does not handle them, just registers
   them as having happened.
 
-* On line 62, get the size of the framebuffer.  The *framebuffer*
+* On line 72, get the size of the framebuffer.  The *framebuffer*
   contains data representing all the pixels in a complete video frame.
   Python
   allows the returning of multiple values
   in the form of a tuple.  Assigning
   to the variables this way is a form of "destructuring"
 
-* On line 63, tell OpenGL that we wish to draw in the entire
+* On line 73, tell OpenGL that we wish to draw in the entire
   framebuffer, from the bottom left corner to the upper
   right corner.
 
-* On line 64, since the frame is about to be drawn, make it a blank slate.
-  The color of each pixel will be the clear color, which we had set on line 51.
+* On line 74, since the frame is about to be drawn, make it a blank slate.
+  The color of each pixel will be the clear color, which we had set on line 61.
   Programming in OpenGL is a bit different than normal programming in
   a normal language,
   in that individual function calls do not complete self-contained tasks,
@@ -398,7 +375,7 @@ to terminate, repeat indefinitely.
   in which they are evaluated, and the sequence of OpenGL calls
   to complete a task.
 
-* On Line 65, we are done with the frame, flush the frame to
+* On Line 75, we are done with the frame, flush the frame to
   the monitor, and swap the back and front buffers.
 
 

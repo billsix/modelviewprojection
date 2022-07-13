@@ -79,14 +79,14 @@ auto-generated for us.
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
-   :lineno-start: 87
-   :lines: 87-90
+   :lineno-start: 103
+   :lines: 103-106
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
-   :lineno-start: 93
-   :lines: 93-98
+   :lineno-start: 109
+   :lines: 109-114
 
 Although Python is a dynamically-typed language, we can add type information as helpful hints to the reader,
 and for use with static type-checking tools for Python, such as `mypy`_.
@@ -97,8 +97,8 @@ and for use with static type-checking tools for Python, such as `mypy`_.
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
-   :lineno-start: 101
-   :lines: 101-118
+   :lineno-start: 117
+   :lines: 117-134
 
 * Create two instances of a Paddle.
 
@@ -112,8 +112,8 @@ Apply User Input
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
-   :lineno-start: 121
-   :lines: 121-134
+   :lineno-start: 137
+   :lines: 137-150
 
 
 - If 's' is pressed this frame, subtract 0.1 from the y component of each of
@@ -143,27 +143,27 @@ to only flush the screen at 60 hertz (frames per second).
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
-   :lineno-start: 137
-   :lines: 137-139
+   :lineno-start: 153
+   :lines: 153-155
 
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
-   :lineno-start: 142
-   :lines: 142-149
+   :lineno-start: 158
+   :lines: 158-165
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
-   :lineno-start: 151
-   :lines: 151-155
+   :lineno-start: 167
+   :lines: 167-171
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
-   :lineno-start: 157
-   :lines: 157-172
+   :lineno-start: 173
+   :lines: 173-188
 
 * on line 163, while rendering, we now loop over the verticies of the paddle.
   The paddles may be displaced from their original position that was hardcoded,
@@ -172,8 +172,8 @@ to only flush the screen at 60 hertz (frames per second).
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
-   :lineno-start: 174
-   :lines: 174
+   :lineno-start: 190
+   :lines: 190
 
 * When glVertex is now called, we are not directly
   passing numbers into it, but instead we are getting

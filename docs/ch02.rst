@@ -89,8 +89,8 @@ the begun quadrilateral.
 .. literalinclude:: ../src/demo02/demo.py
    :language: python
    :linenos:
-   :lineno-start: 64
-   :lines: 64-70
+   :lineno-start: 76
+   :lines: 76-82
 
 
 
@@ -109,7 +109,7 @@ The paddle looks like this relative to normalized device coordinates (NDC):
    :language: python
    :linenos:
    :lineno-start: 72
-   :lines: 72-78
+   :lines: 84-90
 
 The 2 paddles looks like this relative to normalized device coordinates (NDC):
 
@@ -123,8 +123,8 @@ The 2 paddles looks like this relative to normalized device coordinates (NDC):
 .. literalinclude:: ../src/demo02/demo.py
    :language: python
    :linenos:
-   :lineno-start: 80
-   :lines: 80
+   :lineno-start: 92
+   :lines: 92
 
 * done with frame, flush the current buffer to the monitor
 * Swap front and back buffers

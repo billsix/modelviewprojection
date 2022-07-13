@@ -407,14 +407,14 @@ and convert them to NDC.
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 88
-   :lines: 88-94
+   :lineno-start: 104
+   :lines: 104-110
 
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 96
-   :lines: 96-97
+   :lineno-start: 112
+   :lines: 112-113
 
 * NEW -- Add the ability to scale a vertex, to stretch or to shrink
 
@@ -423,16 +423,16 @@ and convert them to NDC.
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 109
-   :lines: 109-134
+   :lineno-start: 125
+   :lines: 125-150
 
 * paddles are using modelspace coordinates instead of NDC
 
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 136
-   :lines: 136-146
+   :lineno-start: 152
+   :lines: 152-162
 
 
 * Movement code needs to happen in Modelspace's units.
@@ -448,8 +448,8 @@ The Event Loop
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 153
-   :lines: 153-158
+   :lineno-start: 169
+   :lines: 169-174
 
 ::
 
@@ -462,8 +462,8 @@ Rendering Paddle 1
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 171
-   :lines: 171-172
+   :lineno-start: 187
+   :lines: 187-188
 
 
 .. figure:: _static/translation-forwards-0.png
@@ -476,8 +476,8 @@ Rendering Paddle 1
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 173
-   :lines: 173-174
+   :lineno-start: 189
+   :lines: 189-190
 
 
 .. figure:: _static/translation-forwards-2.png
@@ -508,8 +508,8 @@ on the bottom and on the left.
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 175
-   :lines: 175-179
+   :lineno-start: 192
+   :lines: 192-195
 
 
 
@@ -521,8 +521,8 @@ Rendering Paddle 2
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 181
-   :lines: 181-184
+   :lineno-start: 197
+   :lines: 197-200
 
 
 
@@ -537,8 +537,8 @@ Rendering Paddle 2
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 185
-   :lines: 185-186
+   :lineno-start: 201
+   :lines: 201-202
 
 .. figure:: _static/translation2-forwards-2.png
     :align: center
@@ -566,5 +566,5 @@ on the bottom and on the left.
 .. literalinclude:: ../src/demo06/demo.py
    :language: python
    :linenos:
-   :lineno-start: 187
-   :lines: 187-190
+   :lineno-start: 204
+   :lines: 204-206

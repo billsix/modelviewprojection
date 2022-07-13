@@ -115,8 +115,8 @@ is set back to the origin basis.
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
    :linenos:
-   :lineno-start: 195
-   :lines: 195-197
+   :lineno-start: 212
+   :lines: 212-214
 
 
 .. figure:: _static/rotate1-forwards.gif
@@ -140,8 +140,8 @@ All subsequent functions move that relative basis to a new relative basis.
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
    :linenos:
-   :lineno-start: 195
-   :lines: 195-197
+   :lineno-start: 212
+   :lines: 212-214
 
 .. figure:: _static/rotate1-backwards.gif
     :align: center
@@ -188,8 +188,8 @@ L by a right-multiplication of M.
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
    :linenos:
-   :lineno-start: 195
-   :lines: 195-197
+   :lineno-start: 212
+   :lines: 212-214
 
 
 Now go back to world space.  Think
@@ -201,8 +201,8 @@ from top down, and resetting the coordinate system after every transformation.
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
    :linenos:
-   :lineno-start: 198
-   :lines: 198-199
+   :lineno-start: 215
+   :lines: 215-216
 
 
 
@@ -225,8 +225,8 @@ The Event Loop
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
    :linenos:
-   :lineno-start: 172
-   :lines: 172
+   :lineno-start: 189
+   :lines: 189
 
 ::
 
@@ -235,13 +235,13 @@ The Event Loop
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
    :linenos:
-   :lineno-start: 191
-   :lines: 191-201
+   :lineno-start: 207
+   :lines: 207-217
 
-* Read line 196-197
-* Read line 195
+* Read line 212-213
+* Read line 211
 * Reset the coordinate system
-* Read line 198-199
+* Read line 214-215
 
 ::
 
@@ -250,13 +250,13 @@ The Event Loop
 .. literalinclude:: ../src/demo09/demo.py
    :language: python
    :linenos:
-   :lineno-start: 204
-   :lines: 204-214
+   :lineno-start: 220
+   :lines: 220-230
 
-* Read line 209-210
-* Read line 208
+* Read line 225-226
+* Read line 224
 * Reset the coordinate system
-* Read line 211-212
+* Read line 227-228
 
 
 

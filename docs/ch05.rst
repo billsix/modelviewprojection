@@ -117,8 +117,8 @@ Data Structures
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 88
-   :lines: 88-94
+   :lineno-start: 104
+   :lines: 104-110
 
 We added a translate method to the Vertex class.  Given a translation amount, the vertex
 will be shifted by that amount.  This is a primitive that we will be using to transform
@@ -139,8 +139,8 @@ import them and try the methods
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 97
-   :lines: 97-103
+   :lineno-start: 113
+   :lines: 113-119
 
 Add a position instance variable to the Paddle class.  This position is the center of
 the paddle, defined relative to NDC.  The vertices of the paddle will be defined
@@ -153,8 +153,8 @@ Instantiation of the Paddles
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 106
-   :lines: 106-130
+   :lineno-start: 122
+   :lines: 122-146
 
 * The verticies are now defined as relative distances from the center of the paddle.  The centers
   of each paddle are placed in positions relative to NDC that preserve the positions of the
@@ -166,8 +166,8 @@ Handling User Input
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 133
-   :lines: 133-143
+   :lineno-start: 149
+   :lines: 149-159
 
 * New!  We put the transformation on the center of the paddle, instead
   of directly on each vertex
@@ -180,14 +180,14 @@ The Event Loop
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 150
-   :lines: 150-166
+   :lineno-start: 166
+   :lines: 166-182
 
 .. literalinclude:: ../src/demo05/demo.py
    :language: python
    :linenos:
-   :lineno-start: 168
-   :lines: 168-184
+   :lineno-start: 184
+   :lines: 184-200
 
 
 .. figure:: _static/demo05.png
