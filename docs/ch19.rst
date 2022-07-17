@@ -102,8 +102,8 @@ Code
 .. literalinclude:: ../src/demo19/demo.py
    :language: python
    :linenos:
-   :lineno-start: 57
-   :lines: 57-59
+   :lineno-start: 83
+   :lines: 83-85
 
 
 The Event Loop
@@ -118,8 +118,8 @@ In univariate terms, f(x) = x
 .. literalinclude:: ../src/demo19/demo.py
    :language: python
    :linenos:
-   :lineno-start: 222
-   :lines: 222-226
+   :lineno-start: 247
+   :lines: 247-251
 
 
 change the perspective matrix to convert the frustum
@@ -140,8 +140,8 @@ in the next chapter.
 .. literalinclude:: ../src/demo19/demo.py
    :language: python
    :linenos:
-   :lineno-start: 230
-   :lines: 230-235
+   :lineno-start: 254
+   :lines: 254-260
 
 
 The camera's position is described as follows
@@ -157,12 +157,13 @@ Therefore, to take the object's world space coordinates
 and transform them into camera space, we need to
 do the inverse operations to the view stack.
 
+.. TODO - mention 2 stacks
 
 .. literalinclude:: ../src/demo19/demo.py
    :language: python
    :linenos:
-   :lineno-start: 245
-   :lines: 245-247
+   :lineno-start: 263
+   :lines: 263-267
 
 
 
@@ -201,8 +202,8 @@ to it.
 .. literalinclude:: ../src/demo19/demo.py
    :language: python
    :linenos:
-   :lineno-start: 259
-   :lines: 259
+   :lineno-start: 278
+   :lines: 278
 
 
 draw paddle 1
@@ -220,8 +221,8 @@ matrix into OpenGL, glVertex3f will apply those transformations for us!
 .. literalinclude:: ../src/demo19/demo.py
    :language: python
    :linenos:
-   :lineno-start: 261
-   :lines: 261-273
+   :lineno-start: 280
+   :lines: 280-292
 
 
 
@@ -240,8 +241,8 @@ the square's 3 model_space transformations
 .. literalinclude:: ../src/demo19/demo.py
    :language: python
    :linenos:
-   :lineno-start: 277
-   :lines: 277-298
+   :lineno-start: 296
+   :lines: 296-318
 
 No need to push matrix here, as this is the last object that
 we are drawing, and upon the next iteration of the event loop,
@@ -253,5 +254,5 @@ draw paddle 2
 .. literalinclude:: ../src/demo19/demo.py
    :language: python
    :linenos:
-   :lineno-start: 302
-   :lines: 302-318
+   :lineno-start: 320
+   :lines: 320-336

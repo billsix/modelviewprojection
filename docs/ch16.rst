@@ -146,8 +146,8 @@ for the same reason.
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 305
-   :lines: 305-309
+   :lineno-start: 322
+   :lines: 322-330
 
 
 (Remember, read bottom up, just like the previous demos
@@ -190,8 +190,8 @@ The inverted form is
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 310
-   :lines: 310-314
+   :lineno-start: 331
+   :lines: 331-339
 
 
 
@@ -258,8 +258,8 @@ The camera now has two angles as instance variables.
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 195
-   :lines: 195-199
+   :lineno-start: 213
+   :lines: 213-217
 
 Since we want the user to be able to control the camera, we need
 to read the input.
@@ -267,8 +267,8 @@ to read the input.
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 217
-   :lines: 217
+   :lineno-start: 233
+   :lines: 233
 
 ::
 
@@ -280,13 +280,13 @@ angle, page up and page down the vertical angle.
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 228
-   :lines: 228-235
+   :lineno-start: 244
+   :lines: 244-251
 
 
 The up arrow and down arrow make the user move forwards
 and backwards.  Unlike the camera space to world space
-transformation on line 305-309, here for movement code,
+transformation on line 326-330, here for movement code,
 we don't do the rotate around the x axis.  This is because
 users expect to simulate walking on the ground, not flying
 through the sky.  I.e, we want forward/backwards movement to happen relative
@@ -296,8 +296,8 @@ movement relative to camera space.
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 236
-   :lines: 236-253
+   :lineno-start: 252
+   :lines: 252-271
 
 
 
@@ -309,8 +309,8 @@ of the viewable region.
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 127
-   :lines: 127-151
+   :lineno-start: 148
+   :lines: 148-168
 
 We will make a wrapper function camera_space_to_ndc_space_fn which
 calls ortho, setting the size of the rectangular prism.
@@ -318,8 +318,8 @@ calls ortho, setting the size of the rectangular prism.
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 152
-   :lines: 152-155
+   :lineno-start: 170
+   :lines: 170-173
 
 
 
@@ -339,8 +339,8 @@ matricies solve for us.
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 282
-   :lines: 282
+   :lineno-start: 300
+   :lines: 300
 
 
 ::
@@ -352,8 +352,8 @@ Paddle 1
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 298
-   :lines: 298-317
+   :lineno-start: 316
+   :lines: 316-342
 
 
 
@@ -366,8 +366,8 @@ as we did a translate by -10 in the z direction.
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 319
-   :lines: 319-346
+   :lineno-start: 344
+   :lines: 344-376
 
 
 
@@ -376,5 +376,5 @@ Paddle 2
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
    :linenos:
-   :lineno-start: 348
-   :lines: 348-367
+   :lineno-start: 378
+   :lines: 378-404

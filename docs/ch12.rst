@@ -89,8 +89,8 @@ Make a variable to determine the angle that the square will be rotated.
 .. literalinclude:: ../src/demo12/demo.py
    :language: python
    :linenos:
-   :lineno-start: 163
-   :lines: 163
+   :lineno-start: 177
+   :lines: 177
 
 When 'q' is pressed, increase the angle.
 
@@ -98,8 +98,8 @@ When 'q' is pressed, increase the angle.
 .. literalinclude:: ../src/demo12/demo.py
    :language: python
    :linenos:
-   :lineno-start: 166
-   :lines: 166-169
+   :lineno-start: 180
+   :lines: 180-183
 
 ::
 
@@ -115,8 +115,8 @@ the square.
 .. literalinclude:: ../src/demo11/demo.py
    :language: python
    :linenos:
-   :lineno-start: 235
-   :lines: 235-249
+   :lineno-start: 249
+   :lines: 249-263
 
 Since we just want to add one rotation at the end of the sequence
 of transformations from paddle 1 space to square space, just add
@@ -127,8 +127,8 @@ a rotate call at the top.
 .. literalinclude:: ../src/demo12/demo.py
    :language: python
    :linenos:
-   :lineno-start: 240
-   :lines: 240-254
+   :lineno-start: 254
+   :lines: 254-268
 
 The author is getting really tired of having to look at all the different
 transformation functions repeatedly defined for each object being drawn.

@@ -53,7 +53,7 @@ from OpenGL.GL import (
     glPopMatrix,
     GL_VERTEX_SHADER,
     GL_FRAGMENT_SHADER,
-    glUseProgram
+    glUseProgram,
 )
 from OpenGL.GLU import gluPerspective
 import OpenGL.GL.shaders as shaders

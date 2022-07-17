@@ -120,8 +120,8 @@ if nearer objects are drawn in front
 .. literalinclude:: ../src/demo15/demo.py
    :language: python
    :linenos:
-   :lineno-start: 56
-   :lines: 56-58
+   :lineno-start: 78
+   :lines: 78-80
 
 the square should not be visible when hidden behind the paddle1,
 as we did a translate by -10.

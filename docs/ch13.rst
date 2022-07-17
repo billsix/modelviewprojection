@@ -79,8 +79,8 @@ Cayley Graph
 .. literalinclude:: ../src/demo13/demo.py
    :language: python
    :linenos:
-   :lineno-start: 163
-   :lines: 163
+   :lineno-start: 177
+   :lines: 177
 
 
 Event Loop
@@ -90,8 +90,8 @@ Event Loop
 .. literalinclude:: ../src/demo13/demo.py
    :language: python
    :linenos:
-   :lineno-start: 213
-   :lines: 213
+   :lineno-start: 227
+   :lines: 227
 
 ::
 
@@ -101,5 +101,5 @@ Event Loop
 .. literalinclude:: ../src/demo13/demo.py
    :language: python
    :linenos:
-   :lineno-start: 245
-   :lines: 245-260
+   :lineno-start: 259
+   :lines: 259-274

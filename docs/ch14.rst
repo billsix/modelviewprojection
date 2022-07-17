@@ -134,8 +134,8 @@ Description
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 90
-   :lines: 90-97
+   :lineno-start: 108
+   :lines: 108-115
 
 Rotate Z
 ~~~~~~~~
@@ -154,8 +154,8 @@ the z component at all.
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 113
-   :lines: 113-118
+   :lineno-start: 131
+   :lines: 131-136
 
 Rotate X
 ~~~~~~~~
@@ -172,8 +172,8 @@ Rotate X
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 99
-   :lines: 99-104
+   :lineno-start: 117
+   :lines: 117-122
 
 
 Rotate Y
@@ -189,15 +189,15 @@ Rotate Y
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 106
-   :lines: 106-111
+   :lineno-start: 124
+   :lines: 124-129
 
 
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 120
-   :lines: 120-121
+   :lineno-start: 138
+   :lines: 138-139
 
 Code
 ^^^^
@@ -208,8 +208,8 @@ a z-coordinate of 0 in their modelspace.
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 134
-   :lines: 134-158
+   :lineno-start: 152
+   :lines: 152-176
 
 The only new aspect of the square below is that the paddles have
 a z-coordinate of 0 in their modelspace.  N.B that since we
@@ -221,8 +221,8 @@ are subject to be different.
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 172
-   :lines: 172-177
+   :lineno-start: 190
+   :lines: 190-195
 
 
 Event Loop
@@ -232,8 +232,8 @@ Event Loop
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 230
-   :lines: 230
+   :lineno-start: 248
+   :lines: 248
 
 ::
 
@@ -245,8 +245,8 @@ Event Loop
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 248
-   :lines: 248-262
+   :lineno-start: 266
+   :lines: 266-280
 
 The square should not be visible when hidden behind the paddle1,
 as we do a translate by -10.  But in running the demo, you see
@@ -258,8 +258,8 @@ that the square is always drawn over the paddle.
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 264
-   :lines: 264-287
+   :lineno-start: 282
+   :lines: 282-301
 
 
 This is because without depth_ buffering, the object drawn last
@@ -270,13 +270,13 @@ see that the square can be hidden behind the paddle.
 .. _depth:  https://en.wikipedia.org/wiki/Fragment_(computer_graphics)
 
 
-* Draw Paddle 1
+* Draw Paddle 2
 
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 289
-   :lines: 289-304
+   :lineno-start: 304
+   :lines: 304-317
 
 
 Added translate in 3D.  Added scale in 3D.  These are just like
