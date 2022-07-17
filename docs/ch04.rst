@@ -69,8 +69,10 @@ Code
 Data Structures
 ~~~~~~~~~~~~~~~
 
-Here we use dataclasses_, which allow use to have the constructor, getters and setters, and pretty-printer,
-auto-generated for us.
+Here we use dataclasses_, which automatically creates on
+the class a
+constructor, accessor methods, and pretty-printer.  This saves
+a lot of boiler plate code.
 
 .. _dataclasses: https://www.youtube.com/watch?v=vRVVyl9uaZc
 
@@ -106,8 +108,39 @@ I make heavy use of `keyword arguments`_ in Python.
 
 .. _keyword arguments: https://www.pythontutorial.net/python-basics/python-keyword-arguments/
 
-Apply User Input
-~~~~~~~~~~~~~~~~
+Notice that I am nesting the constructors.  I could have instead have written the
+construction of paddle1 like this:
+
+
+.. code-block:: python
+
+       x = -1.0
+       y = -0.3
+       vertex_one = Vertex(x, y)
+       x = -0.8
+       y = -0.3
+       vertex_two = Vertex(x, y)
+       x = -0.8
+       y = 0.3
+       vertex_three = Vertex(x, y)
+       x = -1.0
+       y = 0.3
+       vertex_four = Vertex(x, y)
+       vertex_list = list(vertex_one, vertex_two, vertex_three, vertex_four)
+       r = 0.57
+       g = 0.0
+       b = 1.0
+       paddle1 = Paddle(vertex_list, r, g, b)
+
+But then I would have many local variables, some of whose values
+change frequently over time, and most of which are single use variables.
+By nesting the constructors as the author has done above, the author
+minimizes those issues at the expense of requiring a degree on non-linear
+reading of the code, which gets easy with practice.
+
+
+Query User Input and Use It To Animate
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
@@ -116,18 +149,20 @@ Apply User Input
    :lines: 137-150
 
 
-- If 's' is pressed this frame, subtract 0.1 from the y component of each of
+- If the user presses 's' this frame, subtract 0.1 from the y component of each of
   the vertices in the paddle. If the
   key continues to be held down over time, this value will continue to decrease.
-- If 'w' is pressed this frame, add 0.1 more to the y component of each of
+- If the user presses  'w' this frame, add 0.1 more to the y component of each of
   the vertices in the paddle
-- If 'k' is pressed this frame, subtract 0.1.
-- If 'i' is pressed this frame, add 0.1 more.
+- If the user presses  'k' this frame, subtract 0.1.
+- If the user presses 'i' this frame, add 0.1 more.
 
 
 
 * when writing to global variables within a nested scope,
   you need to declare their scope as global at the top of the nested scope.
+  (techincally it's not a global variable, it's local to the current python
+  module, but the point remains)
 
 
 
@@ -163,24 +198,35 @@ to only flush the screen at 60 hertz (frames per second).
    :language: python
    :linenos:
    :lineno-start: 173
-   :lines: 173-188
-
-* on line 163, while rendering, we now loop over the verticies of the paddle.
-  The paddles may be displaced from their original position that was hardcoded,
-  as the callback may have updated the values based off of the user input.
+   :lines: 173
 
 .. literalinclude:: ../src/demo04/demo.py
    :language: python
    :linenos:
-   :lineno-start: 190
-   :lines: 190
+   :lineno-start: 174
+   :lines: 174
+
+* We're still near the beginning of the event loop, and we
+  haven't drawn the paddles yet.  So we call the function
+  to query the user input, which will also modify the vertices'
+  values if there was input.
+
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 176
+   :lines: 176-181
+
+
+
+* on line 179, while rendering, we now loop over the verticies of the paddle.
+  The paddles may be displaced from their original position that was hardcoded,
+  as the callback may have updated the values based off of the user input.
 
 * When glVertex is now called, we are not directly
   passing numbers into it, but instead we are getting
   the numbers from the data structures of Paddle and its
   associated vertcies.
-
-
 
 .. figure:: _static/plot3.png
     :align: center
@@ -190,9 +236,23 @@ to only flush the screen at 60 hertz (frames per second).
     Adding input offset to Paddle 1
 
 
+
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 183
+   :lines: 183-188
+
 .. figure:: _static/plot4.png
     :align: center
     :alt: Adding input offset to Paddle 1
     :figclass: align-center
 
     Adding input offset to Paddle 2
+
+
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 190
+   :lines: 190

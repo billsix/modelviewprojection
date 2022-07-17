@@ -86,6 +86,10 @@ quadrilateral.  The vertices will be specified by calling "glVertex2f" 4 times.
 the begun quadrilateral.
 
 
+Draw Paddle 1
+^^^^^^^^^^^^^
+
+
 .. literalinclude:: ../src/demo02/demo.py
    :language: python
    :linenos:
@@ -105,11 +109,15 @@ The paddle looks like this relative to normalized device coordinates (NDC):
     Rectangle
 
 
+Draw Paddle 2
+^^^^^^^^^^^^^
 .. literalinclude:: ../src/demo02/demo.py
    :language: python
    :linenos:
-   :lineno-start: 72
+   :lineno-start: 84
    :lines: 84-90
+
+
 
 The 2 paddles looks like this relative to normalized device coordinates (NDC):
 
@@ -249,7 +257,13 @@ The following is a graph_, specifically
 a Cayley_ Graph, of the two spaces
 shown so far.  The nodes represent a coordinate system (i.e. origin and axes),
 and the directed edge represents a function that converts coordinates from one
-coordinate system to another.
+coordinate system to another.  If this isn't clear to the reader, look
+above at the 3 pictures of the 2 quadrilaterals.  The look the same, but
+if you label each vertex on all three graphs, and look at the axes to find
+their plotted values, you will find that they differ.  Changing between
+coordinate systems means to take vertices from one coordinate system and
+changing them to another, like converting from Celcius to Farenheit,
+meters to feet, etc.
 
 
 .. _graph: https://en.wikipedia.org/wiki/Graph_theory
@@ -263,8 +277,10 @@ coordinate system to another.
 
     Demo 02
 
-The function that converts from NDC to Screen space is named f, subscripted by "NDC", superscripted
-by "S".  This is a common notation when creating functions that change basis, i.e. coordinate conversion.
+The function that converts from NDC to Screen space is
+arbitrarily named f, subscripted by "NDC", superscripted
+by "S".  This is a common notation when creating
+functions that change basis, i.e. coordinate conversion.
 A definition of this function is not provided right now, because we can't change it in software.
 But we must recognize that it exists.
 
@@ -384,8 +400,15 @@ A big part of being able to understand graphics well is being able
 to figure out what to ignore.  So how would we convert coordinates from space
 D to space B (defined below)?  What do those names mean?  It doesn't matter.
 What is the definition of all of the functions?  It doesn't matter. All that
-matters is that the function exists, the definition of the function is provided to us,
-the function is invertible, and that we can call a procedure to invert a function.
+matters
+
+* is that the function exists
+
+* the definition of the function is provided to us
+
+* the function is invertible
+
+* and that we can call a procedure to invert a function.
 
 
 .. figure:: _static/cayleygraph.png
@@ -424,3 +447,11 @@ Since we're dealing with function composition mainly, we don't even need to spec
 
 If this seems to abstract for now, don't worry.  By the end of the course, it should be clear.
 The goal of this book is to make it clear, and then, obvious.
+
+
+Exercise
+^^^^^^^^
+
+* Run Demo 2.  Resize the window using the GUI controls provided
+  by the Operating system. first make it skinny, and then wide.
+  Observe at what happens to the rectangles.

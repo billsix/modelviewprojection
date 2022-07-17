@@ -22,11 +22,7 @@
 Window Resizing and Proportionality - Demo 03
 =============================================
 
-Problem With Previous Demo
-^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Run Demo 2 again, but resize the window; first make it skinny,
-and then wide.  Look at what happens to the rectangles.
 
 .. figure:: _static/screenshots/demo03.png
     :align: center
@@ -34,6 +30,16 @@ and then wide.  Look at what happens to the rectangles.
     :figclass: align-center
 
     Demo 03
+
+
+Problem With Previous Demo
+^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+When running Demo02, if the user resizes the windows,
+then the paddles lose their proportionality, as NDC
+no longer is mapped to a square screenspace.
+
+
 
 How to Execute
 ^^^^^^^^^^^^^^
@@ -104,7 +110,7 @@ window.
 
 Because we will only draw in a subset of the window, and because all subsequent
 chapters will use this functionality, I have created a procedure for use
-in all chapters. "draw_in_square_viewport" is a function.
+in all chapters named "draw_in_square_viewport".
 
 
 Code
@@ -146,7 +152,8 @@ Set to Draw in Square Subsection Of Window
    :lineno-start: 78
    :lines: 78-80
 
-* figure out the minimum dimension of the window
+* figure out the minimum dimension of the window.  In the image above, the "square_size" is 1200,
+  as the monitor's vertical screenspace is only 1200 pixels tall.
 * To make a square subregion, we need a number for the distance between vertices of the square.
   By using the minimium of the width and height, we can at least fill up the screen in one dimension.
 
@@ -164,7 +171,8 @@ Set to Draw in Square Subsection Of Window
   unnecessary computations.
 * the scissor test allows us to specify a region
   of the framebuffer into which the opengl operations
-  will apply.  In this case, the color in every pixel in the framebuffer is gray.
+  will apply.  In this case, the color in every pixel in the framebuffer is currently gray
+  because of the exisiting class to glClearColor.
   By calling glScissor, we are setting a value in each fragment (i.e., pixel) on a square
   region of pixels to be true (and false everywhere else) which means "only do the opengl call on these fragments,
   ignore the others".
@@ -198,10 +206,12 @@ Set to Draw in Square Subsection Of Window
 * disable the scissor test, so now any opengl calls will
   happen as usual.
 
-So we've drawn gray into a square, but any subsequent OpenGL calls
-will still be drawn into the full framebuffer, as the viewport is
-still set to the whole framebuffer.  But, we only want to draw within the black square.
-We set the viewport again, so that the NDC coordinates
+So we've drawn black into a square, and disabled the scissor test,
+so any subsequent OpenGL calls will still be drawn into the full framebuffer.
+But, we only want to draw within the black square, and the scissor
+test does not modify the NDC to screenspace transformations.
+To modify the NDC to screenspace transformations, we set the viewport again,
+so that the NDC coordinates
 will be mapped the the region of screen coordinates
 that we care about, which is the black square.
 
@@ -215,9 +225,6 @@ that we care about, which is the black square.
 
 The Event Loop
 &&&&&&&&&&&&&&
-
-Draw in square viewport is a function definition.  It has not yet
-been run, but will be run in every iteration of the event loop.
 
 This demo's event loop is just like the previous demo,
 but this time we call the procedure to

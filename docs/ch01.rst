@@ -71,7 +71,8 @@ At a given time, each individual pixel is instructed by the computer to display
 one specific color, represented within the computer as a number.
 The aggregate of the colors at each pixel at one moment in time, called a *frame*,
 provides a picture that has some meaning to the human user.
-In OpenGL, the bottom left pixel of a window is coordinate (0,0).  The top right is (window_width,window_height)
+In OpenGL, the bottom left pixel of a window is pixel coordinate (0,0).
+The top right is pixel coordinate (window_width,window_height).
 
 
 .. figure:: _static/monitor.png
@@ -162,7 +163,7 @@ Import Python modules, which are Python programmer's main form of libraries.
    :lineno-start: 21
    :lines: 21
 
-*  sys is imported, all function calls will be written as sys.function
+*  The "sys" module is imported.  To call functions from this module, the systax is sys.function
 
 
 .. literalinclude:: ../src/demo01/demo.py
@@ -172,8 +173,10 @@ Import Python modules, which are Python programmer's main form of libraries.
    :lines: 22-32
 
 
-* here, we are importing OpenGL's submodule GL's function
-  into the current namespace
+* GL is a submodule of the OpenGL module, and we are directly importing a
+  subset of the modules function into our current module.  This is because
+  we don't want to have to write "OpenGL.GL.function" every time, as we use
+  these functions frequently
 
 
 .. literalinclude:: ../src/demo01/demo.py
@@ -183,8 +186,8 @@ Import Python modules, which are Python programmer's main form of libraries.
    :lines: 35
 
 
-* GLFW is a library which allows us to create windows, get keyboard and
-  mouse input, on Linux, Windows, and MacOS
+* GLFW is a library which allows us to create windows, get input both from a
+  keyboard from mouse input, on Linux, Windows, and MacOS
 
 
 
@@ -213,7 +216,7 @@ the monitor called a window.
 To create and to open a window in a cross-platform manner, this
 book will call procedures provided by the widely-ported GLFW library (supporting Windows, macOS, Linux).
 GLFW also provides procedures for receiving
-keyboard input and for controller.
+input both from a keyboard input and from game controllers.
 
 
 GLFW/OpenGL Initialization
@@ -229,6 +232,10 @@ Initialize GLFW.
    :lineno-start: 38
    :lines: 38-39
 
+Initialize glfw.  If initialization fails, the program should terminate.
+What does the initialization do?  Doesn't matter.  Think of it like
+a constructor for a class; it initializes some state that it needs
+for later function calls.
 
 
 Set the version of OpenGL
@@ -286,6 +293,10 @@ Create a Window
 
 * Define an register a key handler.
 
+If the user presses the escape key while the program is running, inform
+GLFW that the user wants to quit.  We will handle this later in the event
+loop.
+
 
 Functions are first class values in Python, and are objects just
 like anything else.  The can be passed as arguments, stored in variables,
@@ -339,9 +350,10 @@ rendered in quick succession, provide the illusion of motion.
 Interactive computer graphics are rendered the same way,
 one "frame" at a time.
 
-Render a frame, flush the complete frame to the monitor.
-Until the user closes the window, or the program needs
-to terminate, repeat indefinitely.
+Render a frame, flush the complete framebuffer to the monitor.
+Repeat indefinitely
+until the user closes the window, or the program needs
+to terminate.
 
 
 .. literalinclude:: ../src/demo01/demo.py
@@ -365,8 +377,11 @@ to terminate, repeat indefinitely.
   framebuffer, from the bottom left corner to the upper
   right corner.
 
-* On line 73, since the frame is about to be drawn, make it a blank slate.
+* On line 73, make the framebuffer a blank slate by setting all of the pixels
+  to have the same color.
   The color of each pixel will be the clear color, which we had set on line 60.
+  If we hadn't cleared the framebuffer, then frame number n+1 would be drawing
+  on top of whatever was drawn on frame number n.
   Programming in OpenGL is a bit different than normal programming in
   a normal language,
   in that individual function calls do not complete self-contained tasks,
@@ -375,8 +390,21 @@ to terminate, repeat indefinitely.
   in which they are evaluated, and the sequence of OpenGL calls
   to complete a task.
 
-* On Line 74, we are done with the frame, flush the frame to
+* On Line 74, we have colored every pixel to be black, so flush the framebuffer to
   the monitor, and swap the back and front buffers.
+
+Exercise
+^^^^^^^^
+
+* Run the program, close it by hitting Escape.
+
+* On line 73, before the call to glClear, enter two new lines.
+  On the first, type "import pdb".
+  On the second type "pdb.set_trace()".
+  Now run the program again and observe what is different.
+  (pdb.set_trace() sets a breakpoint, meaning that the program
+  pauses execution, although the GLFW window is still on screen
+  over time)
 
 
 

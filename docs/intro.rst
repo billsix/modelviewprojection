@@ -37,12 +37,12 @@ Approach
 ^^^^^^^^
 
 This book uses "mistake-driven-development"; instead of listing math formulae
-in their final form, instead this book incrementally shows, via working
+in their final form, this book incrementally shows, via working
 code, how to build complex graphics applications, making mistakes along
 the way, and then fixing the mistakes.
 
 
-Thoughout the book, I show how to place objects in space,
+Thoughout the book, you will learn how to place objects in space,
 how to draw objects relative to other objects, how to add a
 camera which moves over time based on user input, and how to transform all
 the objects into the 2D pixel coordinates of the computer screen.
