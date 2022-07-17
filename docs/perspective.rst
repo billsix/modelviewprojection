@@ -91,7 +91,7 @@ Scale Camera-space y by Camera-space z
 
 
 .. math::
-        (\vec{f}_{2} \circ \vec{f}_{1} ; nearZ_c) ( \begin{bmatrix}
+        (\vec{f}_{2} ; nearZ_c) ( \begin{bmatrix}
                              {x_c} \\
                              {y_c} \\
                              {z_c} \\
@@ -134,7 +134,7 @@ Translate Rectangular Prism's Center to Center
 
 
 .. math::
-        (\vec{f}_{3} \circ \vec{f}_{2} \circ \vec{f}_{1} ; nearZ_c) ( \begin{bmatrix}
+        (\vec{f}_{3} ; nearZ_c) ( \begin{bmatrix}
                              {x_c} \\
                              {y_c} \\
                              {z_c} \\
@@ -173,7 +173,7 @@ Scale by inverse of the dimensions of the Rectangular Prism
 :math:`z_{length} = {nearZ}_c - {farZ}_c`;
 
 .. math::
-        (\vec{f}_{4} \circ \vec{f}_{3} \circ \vec{f}_{2} \circ \vec{f}_{1} ; nearZ_c, farZ_c) ( \begin{bmatrix}
+        (\vec{f}_{4} ; nearZ_c, farZ_c) ( \begin{bmatrix}
                              {x_c} \\
                              {y_c} \\
                              {z_c} \\
@@ -258,12 +258,11 @@ the fact that (NDCx NDCy NDCz) = (Clipx/Clipw, Clipy/Clipy, Clipz/Clipz)
 
 The purpose of going to clip space is that eventually we will be
 able to remove the camera space's z coordinate from the matrix.
-
 This will allow us to use one perspective projection matrix for
 all vertices, independent of the z coordinate of each input vertex.
 
 I assume, without any evidence to support me, that this
-was done for efficiency reasons.
+was done for efficiency reasons when using OpenGL's fixed function pipeline.
 (Side note, the standard perspective projection matrix,
 which we will get to by demo 25, does not linearly
 position the :math:`nearZ_c` to :math:`farZ_c` data into NDC. Everything
@@ -273,16 +272,15 @@ close to :math:`nearZ_c`, and more problems with Z-fighting
 near farZ_c)
 
 
-Given that OpenGL accepts clip space, which it itself
-will convert to NDC, we here are taking our NDC and turning
-it into clip space
+OpenGL will automatically convert from clip space to NDC
+such as follows.
 
 .. math::
     \vec{f}_{clip}^{ndc}(\begin{bmatrix}
-                             {x_{clip}} \\
-                             {y_{clip}} \\
-                             {z_{clip}} \\
-                             {w_{clip}} \\
+                             {x_{ndc}} \\
+                             {y_{ndc}} \\
+                             {z_{ndc}} \\
+                             {w_{ndc}} \\
                    \end{bmatrix}) =  \begin{bmatrix}
                       {1 \over {w_{clip}}} &  0 & 0 & 0 \\
                       0 &  {1 \over {w_{clip}}} & 0 & 0 \\
@@ -336,7 +334,8 @@ and do the inverse of the equation above
                    \end{bmatrix}
 
 
-Since we want to get the :math:`z_c` relative to camera space out of the matrix, we choose
+Since we want to get the :math:`z_c` relative to camera space out of
+the premultiplie matrix above, we choose
 the following
 
 .. math::
@@ -365,7 +364,7 @@ Remove Z of Camera Space from Part of the Matrix
 
 To get camera z out of the matrix, where it's currently in two denominators, we
 can use knowledge of clip space, wherein we put cameraspace's z into W.     because cameraSpace's z coordinate is negative, we want to scale
-all dimensions without flipping, hence the negative sign in front of :math:`-z_c`.
+all dimensions without reflecting over the origin, hence the negative sign in  :math:`-z_c`.
 
 
 .. math::
@@ -397,20 +396,20 @@ all dimensions without flipping, hence the negative sign in front of :math:`-z_c
 
 The result of this is in clip space, where for the first time, our w component is not 1, but :math:`-z_c`.
 
-Knowing that OpenGL will turn our clip space data back to NDC, let's verify that after dividing :math:`c_z` by :math:`c_w`, that :math:`nearZ_c` maps to :math:`-1`
+Knowing that OpenGL will turn our clip space data back to NDC, let's verify that after dividing :math:`z_clip` by :math:`w_clip`, that :math:`nearZ_c` maps to :math:`-1`
 and that :math:`farZ_c` maps to :math:`1`.
 
 
 For a given :math:`z`
 
 .. math::
-    {{clip_z} \over {clip_w}} & =  {{{z * {{2*{-z_c}} \over {nearZ_c - farZ_c}}} +   {-z_c}*{{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}}}} \over {z}} \\
+    {{z_clip} \over {w_clip}} & =  {{{z * {{2*{-z_c}} \over {nearZ_c - farZ_c}}} +   {-z_c}*{{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}}}} \over {z}} \\
                       & = 2*{{-z_c} \over {nearZ_c - farZ_c}} +   {{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}}
 
 Calculating that out for :math:`nearZ_c`
 
 .. math::
-    {{clip_z} \over {clip_w}} & = 2*{-nearZ_c \over {nearZ_c - farZ_c}} +   {{{farZ_c + nearZ_c}} \over  {nearZ_c - farZ_c}} \\
+    {{z_clip} \over {w_clip}} & = 2*{-nearZ_c \over {nearZ_c - farZ_c}} +   {{{farZ_c + nearZ_c}} \over  {nearZ_c - farZ_c}} \\
                       & = {{2*{-nearZ_c} + {farZ_c + nearZ_c}} \over {nearZ_c - farZ_c}} \\
                       & = {{2*{-nearZ_c} + {farZ_c + nearZ_c}} \over {nearZ_c - farZ_c}} \\
                       & = {{farZ_c - nearZ_c} \over {nearZ_c - farZ_c}} \\
@@ -420,7 +419,7 @@ Calculating that out for :math:`nearZ_c`
 Calculating that out for :math:`farZ_c`
 
 .. math::
-    {clip_z} \over {clip_w} & = 2* {{-nearZ_c} \over {nearZ_c - farZ_c}} +   {{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
+    {z_clip} \over {w_clip} & = 2* {{-nearZ_c} \over {nearZ_c - farZ_c}} +   {{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
                       & =  2*{{-farZ_c} \over {nearZ_c - farZ_c}} +   {{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
                       & = {{2*-farZ_c + farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
                       & = {{ nearZ_c - farZ_c} \over {nearZ_c - farZ_c}} \\
@@ -437,12 +436,19 @@ we can put :math:`-z_c` into the :math:`w` by taking the explicit vesion of it o
 and put :math:`-1` into the third column's :math:`w`.
 
 .. math::
-    \vec{f}_{c}^{clip}(\begin{bmatrix}
+   \begin{bmatrix}
+                             {x_{clip}} \\
+                             {y_{clip}} \\
+                             {z_{clip}} \\
+                             {w_{clip}} \\
+                   \end{bmatrix}
+                   & =  \vec{f}_{c}^{clip}(\begin{bmatrix}
                              {x_c} \\
                              {y_c} \\
                              {z_c} \\
                              {w_c=1} \\
-                   \end{bmatrix}; farZ_c, nearZ_c, top, right) & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
+                   \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
+                   & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
                     \begin{bmatrix}
                              {x_c} \\
                              {y_c} \\
