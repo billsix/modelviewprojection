@@ -184,9 +184,6 @@ class Camera:
 camera: Camera = Camera()
 
 
-
-
-
 square: Paddle = [
     Vertex(x=-5.0, y=-5.0, z=0.0),
     Vertex(x=5.0, y=-5.0, z=0.0),

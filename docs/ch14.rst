@@ -221,8 +221,8 @@ are subject to be different.
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 190
-   :lines: 190-195
+   :lineno-start: 187
+   :lines: 187-192
 
 
 Event Loop
@@ -232,8 +232,8 @@ Event Loop
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 248
-   :lines: 248
+   :lineno-start: 245
+   :lines: 245
 
 ::
 
@@ -245,8 +245,8 @@ Event Loop
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 266
-   :lines: 266-280
+   :lineno-start: 263
+   :lines: 263-277
 
 The square should not be visible when hidden behind the paddle1,
 as we do a translate by -10.  But in running the demo, you see
@@ -258,8 +258,8 @@ that the square is always drawn over the paddle.
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 282
-   :lines: 282-301
+   :lineno-start: 279
+   :lines: 279-298
 
 
 This is because without depth_ buffering, the object drawn last
@@ -275,8 +275,8 @@ see that the square can be hidden behind the paddle.
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :linenos:
-   :lineno-start: 304
-   :lines: 304-317
+   :lineno-start: 301
+   :lines: 301-314
 
 
 Added translate in 3D.  Added scale in 3D.  These are just like

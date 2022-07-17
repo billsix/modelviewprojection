@@ -32,7 +32,6 @@ from OpenGL.GL import (
 )
 
 
-
 import glfw
 
 

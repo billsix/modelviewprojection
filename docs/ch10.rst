@@ -309,8 +309,8 @@ Code
 .. literalinclude:: ../src/demo10/demo.py
    :language: python
    :linenos:
-   :lineno-start: 173
-   :lines: 173-183
+   :lineno-start: 169
+   :lines: 169-179
 
 ::
 
@@ -329,8 +329,8 @@ The Event Loop
 .. literalinclude:: ../src/demo10/demo.py
    :language: python
    :linenos:
-   :lineno-start: 212
-   :lines: 212
+   :lineno-start: 208
+   :lines: 208
 
 
 ::
@@ -340,8 +340,8 @@ The Event Loop
 .. literalinclude:: ../src/demo10/demo.py
    :language: python
    :linenos:
-   :lineno-start: 230
-   :lines: 230-236
+   :lineno-start: 226
+   :lines: 226-232
 
 The camera's position is at camera.x, camera.y.  So
 apply the inverse of the camera's transformations
@@ -351,14 +351,14 @@ values.
 .. literalinclude:: ../src/demo10/demo.py
    :language: python
    :linenos:
-   :lineno-start: 237
-   :lines: 237-238
+   :lineno-start: 233
+   :lines: 233-235
 
 .. literalinclude:: ../src/demo10/demo.py
    :language: python
    :linenos:
-   :lineno-start: 239
-   :lines: 239-242
+   :lineno-start: 236
+   :lines: 236-238
 
 
 
@@ -369,8 +369,8 @@ values.
 .. literalinclude:: ../src/demo10/demo.py
    :language: python
    :linenos:
-   :lineno-start: 244
-   :lines: 244-251
+   :lineno-start: 240
+   :lines: 240-246
 
 The camera's position is at camera.x, camera.y.  So
 apply the inverse of the camera's  transformations
@@ -381,12 +381,12 @@ values.
 .. literalinclude:: ../src/demo10/demo.py
    :language: python
    :linenos:
-   :lineno-start: 251
-   :lines: 251-252
+   :lineno-start: 247
+   :lines: 247-249
 
 
 .. literalinclude:: ../src/demo10/demo.py
    :language: python
    :linenos:
-   :lineno-start: 248
-   :lines: 253-256
+   :lineno-start: 250
+   :lines: 250-252

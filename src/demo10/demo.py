@@ -166,10 +166,6 @@ class Camera:
 camera: Camera = Camera()
 
 
-
-
-
-
 def handle_inputs() -> None:
     global camera
 

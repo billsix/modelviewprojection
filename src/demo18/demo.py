@@ -301,6 +301,7 @@ def handle_inputs() -> None:
 
 fn_stack: List[Callable[Vertex, Vertex]] = []
 
+
 def apply_stack(vertex: Vertex) -> Vertex:
     v = vertex
     for fn in reversed(fn_stack):
