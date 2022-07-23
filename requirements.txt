@@ -1,8 +1,8 @@
-glfw==2.5.3
-imageio==2.19.3
+glfw==2.5.4
+imageio==2.19.5
 imgui==1.4.1
 matplotlib==3.5.2
-mypy==0.961
+mypy==0.971
 numpy==1.23.1
 Pillow==9.2.0
 pyMatrixStack==0.0.3
