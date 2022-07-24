@@ -71,7 +71,6 @@ while not glfw.window_should_close(window):
 
     elapsed_time_in_seconds = glfw.get_time() - program_start_time
 
-
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
@@ -89,9 +88,9 @@ while not glfw.window_should_close(window):
     # math.sin uses radians
     offset_x = math.sin(elapsed_time_in_seconds)
     # to use degrees, you would do
-    #offset_x = math.sin(math.radians(elapsed_time_in_seconds))
+    # offset_x = math.sin(math.radians(elapsed_time_in_seconds))
 
-    float_between_0_and_1 =  abs(math.sin(elapsed_time_in_seconds))
+    float_between_0_and_1 = abs(math.sin(elapsed_time_in_seconds))
     # a float between 0 and 1 so that the color of the triagle changes over time
     glColor3f(float_between_0_and_1, float_between_0_and_1, 1.0)
     glBegin(GL_TRIANGLES)
@@ -166,9 +165,8 @@ while not glfw.window_should_close(window):
 
     glEnd()
 
-
     # generic plot function
-    def plot(fn,domain,interval):
+    def plot(fn, domain, interval):
         glBegin(GL_LINES)
         glVertex2f(domain[0], fn(domain[0]))
 
@@ -190,15 +188,14 @@ while not glfw.window_should_close(window):
         return (x - 0.5) ** 2
 
     glColor3f(1.0, 0.0, 0.0)
-    plot(fn=x_minus_onehalf_squared,
-         domain=(-1,1),
-         interval=0.001)
+    plot(fn=x_minus_onehalf_squared, domain=(-1, 1), interval=0.001)
 
     glColor3f(1.0, 0.0, 1.0)
-    plot(fn=lambda x: math.cos(x+elapsed_time_in_seconds*3.0),
-         domain=(-1,1),
-         interval=0.01)
-
+    plot(
+        fn=lambda x: math.cos(x + elapsed_time_in_seconds * 3.0),
+        domain=(-1, 1),
+        interval=0.01,
+    )
 
     glfw.swap_buffers(window)
 
