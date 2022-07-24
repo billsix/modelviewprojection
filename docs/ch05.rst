@@ -90,24 +90,6 @@ does this on purpose to enable method-chaining the Python
 methods, which will be useful later on.
 
 
-.. math::
-
-     \vec{t}(\begin{bmatrix}
-    v_{x} \\
-    v_{y}
-    \end{bmatrix};\begin{bmatrix}
-    t_{x} \\
-    t_{y}
-    \end{bmatrix}) =
-    \begin{bmatrix}
-    v_{x} \\
-    v_{y}
-    \end{bmatrix} +
-    \begin{bmatrix}
-    t_{x} \\
-    t_{y}
-    \end{bmatrix}
-
 Code
 ^^^^
 
@@ -169,8 +151,9 @@ Handling User Input
    :lineno-start: 149
    :lines: 149-159
 
-* New!  We put the transformation on the center of the paddle, instead
-  of directly on each vertex
+* We put the transformation on the center of the paddle, instead
+  of directly on each vertex.  This is because the vertices are
+  defined relative to the center of the paddle.
 
 The Event Loop
 ~~~~~~~~~~~~~~
@@ -187,7 +170,20 @@ The Event Loop
    :language: python
    :linenos:
    :lineno-start: 184
-   :lines: 184-200
+   :lines: 184-192
+
+
+Here each of paddle 1's vertices, which are in their "model-space",
+are converted to NDC by calling the translate method on the vertex.
+This function corresponds to the Cayley graph below, the function
+from Paddle 1 space to NDC.
+
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :linenos:
+   :lineno-start: 192
+   :lines: 192-202
+
 
 
 .. figure:: _static/demo05.png

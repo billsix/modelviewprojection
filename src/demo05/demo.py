@@ -184,21 +184,21 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for modelSpace in paddle1.vertices:
-        ndcSpace: Vertex = modelSpace.translate(
+    for model_space in paddle1.vertices:
+        ndc_space: Vertex = model_space.translate(
             tx=paddle1.position.x, ty=paddle1.position.y
         )
-        glVertex2f(ndcSpace.x, ndcSpace.y)
+        glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    for modelSpace in paddle2.vertices:
-        ndcSpace: Vertex = modelSpace.translate(
+    for model_space in paddle2.vertices:
+        ndc_space: Vertex = model_space.translate(
             tx=paddle2.position.x, ty=paddle2.position.y
         )
-        glVertex2f(ndcSpace.x, ndcSpace.y)
+        glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
     glfw.swap_buffers(window)
