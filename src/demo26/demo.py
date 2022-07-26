@@ -259,24 +259,15 @@ class Paddle:
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 
-        # pass projection parameters to the shader
-        fov_loc = glGetUniformLocation(self.shader, "fov")
-        glUniform1f(fov_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
-        glUniform1f(aspect_loc, width / height)
-        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, 0.1)
-        farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, 10000.0)
-
-        mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
+        mvpMatrixLoc = glGetUniformLocation(self.shader, "mvpMatrix")
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
-            mvMatrixLoc,
+            mvpMatrixLoc,
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.modelview), dtype=np.float32
+                ms.getCurrentMatrix(ms.MatrixStack.modelviewprojection),
+                dtype=np.float32,
             ),
         )
         glDrawArrays(GL_TRIANGLES, 0, self.numberOfVertices)
@@ -402,33 +393,15 @@ class Ground:
         glBindVertexArray(self.vao)
 
         # pass projection parameters to the shader
-        fov_loc = glGetUniformLocation(self.shader, "fov")
-        glUniform1f(fov_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
-        glUniform1f(aspect_loc, 1.0)
-        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
-        farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
-
-        # pass projection parameters to the shader
-        fov_loc = glGetUniformLocation(self.shader, "fov")
-        glUniform1f(fov_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
-        glUniform1f(aspect_loc, width / height)
-        nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, 0.1)
-        farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, 10000.0)
-
-        mvMatrixLoc = glGetUniformLocation(self.shader, "mvMatrix")
+        mvpMatrixLoc = glGetUniformLocation(self.shader, "mvpMatrix")
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
-            mvMatrixLoc,
+            mvpMatrixLoc,
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.modelview), dtype=np.float32
+                ms.getCurrentMatrix(ms.MatrixStack.modelviewprojection),
+                dtype=np.float32,
             ),
         )
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
@@ -555,6 +528,11 @@ while not glfw.window_should_close(window):
     ms.setToIdentityMatrix(ms.MatrixStack.model)
     ms.setToIdentityMatrix(ms.MatrixStack.view)
     ms.setToIdentityMatrix(ms.MatrixStack.projection)
+
+    # set the projection matrix to be perspective
+    ms.perspective(
+        fov=45.0, aspectRatio=float(width) / float(height), nearZ=0.1, farZ=10000.0
+    )
 
     # render scene
     width, height = glfw.get_framebuffer_size(window)
