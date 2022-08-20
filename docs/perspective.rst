@@ -236,7 +236,7 @@ we couldn't do without having the premultiplied matrix.
                    \end{bmatrix}; farZ_c, nearZ_c, top, right) = \begin{bmatrix}
                       {nearZ_c \over {right * \textcolor{red}{z_c}}} &             0 &                      0 &                0 \\
                       0 &                           {nearZ_c \over {top*\textcolor{red}{z_c}}} &           0 &                0 \\
-                      0 &                           0 &                       {2 \over {nearZ_c - farZ_c}} & {-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
+                      0 &                           0 &                       {2 \over {nearZ_c - farZ_c}} & {-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}} \\
                       0 &                           0 &                       0 &                1
                    \end{bmatrix} *
                     \begin{bmatrix}
@@ -383,7 +383,7 @@ all dimensions without reflecting over the origin, hence the negative sign in  :
                    & = \begin{bmatrix}
                              {-nearZ_c \over right} &         0 &        0 &                                   0 \\
                              0 &                  {-nearZ_c \over top} & 0 &                                   0 \\
-                             0 &                  0 &        {2*\textcolor{red}{-z_c} \over {nearZ_c - farZ_c}} &   {\textcolor{red}{-z_c}*{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}}} \\
+                             0 &                  0 &        {\textcolor{red}{-z_c}* {2 \over {nearZ_c - farZ_c}}} &   {\textcolor{red}{-z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}} \\
                              0 &                  0 &        0 &                                   -z_c
                    \end{bmatrix} *
                     \begin{bmatrix}
