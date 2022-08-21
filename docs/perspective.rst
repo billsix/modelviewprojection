@@ -439,13 +439,13 @@ Turning clip space back into NDC
                              {z_{clip} / z_{clip}} \\
                              {w_{clip} / z_{clip}} \\
                    \end{bmatrix} \\
-                   & = \begin{bmatrix}
-                                {{nearZ_c \over right} * x_{c}} \over \textcolor{red}{z_c}  \\
-                                {{nearZ_c \over top} * y_{c}}  \over \textcolor{red}{z_c}  \\
-                                {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}} \over \textcolor{red}{z_c}}\\
+                   & = {1 \over {z_c}} * \begin{bmatrix}
+                                {{nearZ_c \over right} * x_{c}}   \\
+                                {{nearZ_c \over top} * y_{c}}    \\
+                                {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
                                 {1} \\
                    \end{bmatrix} \\
-                   & = \begin{bmatrix}
+                   & = {1 \over {z_c}} * \begin{bmatrix}
                                 {{nearZ_c \over right} * x_{c}} \over \textcolor{red}{z_c}  \\
                                 {{nearZ_c \over top} * y_{c}}  \over \textcolor{red}{z_c}  \\
                                 {\textcolor{red}{z_c} * {2 \over {nearZ_c - farZ_c}} + {{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
