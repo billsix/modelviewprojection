@@ -508,47 +508,53 @@ and put :math:`-1` into the third column's :math:`w`.
 
 .. math::
    \begin{bmatrix}
-                             {x_{clip}} \\
-                             {y_{clip}} \\
-                             {z_{clip}} \\
-                             {w_{clip}} \\
+                             x_{clip} \\
+                             y_{clip} \\
+                             z_{clip} \\
+                             w_{clip} \\
                    \end{bmatrix}
                    & =  \vec{f}_{c}^{clip}(\begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1} \\
+                             x_c \\
+                             y_c \\
+                             z_c \\
+                             w_c=1 \\
                    \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
                    & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
                     \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1} \\
+                             x_c \\
+                             y_c \\
+                             z_c \\
+                             w_c=1 \\
                    \end{bmatrix} \\
-                   & = \begin{bmatrix}
-                             {-nearZ_c \over right} &         0 &        0 &                                   0 \\
-                             0 &                  {-nearZ_c \over top} & 0 &                                   0 \\
-                             0 &                  0 &        {2*(-z_c) \over {nearZ_c - farZ_c}} &   {-z_c*{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}}} \\
-                             0 &                  0 &        \textcolor{red}{0} &                                   \textcolor{red}{-z_c}
+                   & = {1 \over {z_c}} * \begin{bmatrix}
+                             nearZ_c \over right &         0 &        0 &                                   0 \\
+                             0 &                  nearZ_c \over top & 0 &                                   0 \\
+                             0 &                  0 &        z_c * {2 \over {nearZ_c - farZ_c}} &   z_c * {-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
+                             0 &                  0 &        \textcolor{red}{0} &                                   \textcolor{red}{z_c}
                    \end{bmatrix} *
                     \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
+                             x_c \\
+                             y_c \\
+                             z_c \\
                              \textcolor{red}{w_c=1} \\
                    \end{bmatrix} \\
-                   & = \begin{bmatrix}
-                             {-nearZ_c \over right} &         0 &        0 &                                   0 \\
-                             0 &                  {-nearZ_c \over top} & 0 &                                   0 \\
-                             0 &                  0 &        {2*(-z_c) \over {nearZ_c - farZ_c}} &   {-z_c*{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}}} \\
-                             0 &                  0 &        \textcolor{red}{-1} &                                   \textcolor{red}{0}
+                   & = {1 \over {z_c}} *  \begin{bmatrix}
+                             nearZ_c \over right &         0 &        0 &                                   0 \\
+                             0 &                  nearZ_c \over top & 0 &                                   0 \\
+                             0 &                  0 &        z_c * {2 \over {nearZ_c - farZ_c}} &  z_c*{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
+                             0 &                  0 &        \textcolor{red}{1} &                                   \textcolor{red}{0}
                    \end{bmatrix} *
                     \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1} \\
+                             x_c \\
+                             y_c \\
+                             z_c \\
+                             w_c=1 \\
+                   \end{bmatrix} \\
+                   & = {1 \over {z_c}} * \begin{bmatrix}
+                                {{nearZ_c \over right} * x_{c}}  \\
+                                {{nearZ_c \over top} * y_{c}}    \\
+                                {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + z_c * {{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
+                                \textcolor{red}{z_c} \\
                    \end{bmatrix}
 
 
