@@ -247,6 +247,23 @@ we couldn't do without having the premultiplied matrix.
                    \end{bmatrix}
 
 
+As a quick smoke test to ensure that the aggregate matrix works correctly, let's
+test the bounds of the frustum and make sure that they map to the NDC cube.
+
+Given that :math:`nearZ_c` is negative, assuming :math:`z_c` is equal to
+:math:`nearZ_c`, :math:`right` goes to :math:`1`, :math:`left` which is :math:`-right`
+goes to :math:`-1`.
+
+Given that :math:`nearZ_c` is negative, assuming :math:`z_c` is equal to
+:math:`nearZ_c`, :math:`top` goes to :math:`1`, :math:`bottom` which is :math:`-top`
+goes to :math:`-1`.
+
+Given that :math:`w_c` is :math:`1`, if :math:`z_c = nearZ_c`, :math:`z_{ndc} = 1`.
+Given that :math:`w_c` is :math:`1`, if :math:`z_c = farZ_c`, :math:`z_{ndc} = -1`.
+
+
+
+
 Clip Space
 &&&&&&&&&&
 
@@ -345,10 +362,10 @@ the following
                              {z_{ndc}} \\
                              {w_{ndc}=1} \\
                    \end{bmatrix}; z_c) =  \begin{bmatrix}
-                      -z_c &  0 & 0 & 0 \\
-                      0 &  -z_c & 0 & 0 \\
-                      0 &  0 & -z_c & 0 \\
-                      0 &  0 & 0 & -z_c
+                      z_c &  0 & 0 & 0 \\
+                      0 &  z_c & 0 & 0 \\
+                      0 &  0 & z_c & 0 \\
+                      0 &  0 & 0 & z_c
                    \end{bmatrix} *
                      \begin{bmatrix}
                              {x_{ndc}} \\
@@ -357,6 +374,8 @@ the following
                              {w_{ndc}}
                    \end{bmatrix}
 
+because multiplying by this matrix will remove the :math:`z_c` out of
+the upper left quadrant.
 
 Remove Z of Camera Space from Part of the Matrix
 ################################################
@@ -368,12 +387,20 @@ all dimensions without reflecting over the origin, hence the negative sign in  :
 
 
 .. math::
-    \vec{f}_{c}^{clip}(\begin{bmatrix}
+
+   \begin{bmatrix}
+                             {x_{clip}} \\
+                             {y_{clip}} \\
+                             {z_{clip}} \\
+                             {w_{clip}} \\
+                   \end{bmatrix}
+                   & =  \vec{f}_{c}^{clip}(\begin{bmatrix}
                              {x_c} \\
                              {y_c} \\
                              {z_c} \\
                              {w_c=1} \\
-                   \end{bmatrix}; farZ_c, nearZ_c, top, right) & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
+                   \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
+                   & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
                     \begin{bmatrix}
                              {x_c} \\
                              {y_c} \\
@@ -381,9 +408,9 @@ all dimensions without reflecting over the origin, hence the negative sign in  :
                              {w_c=1} \\
                    \end{bmatrix} \\
                    & = \begin{bmatrix}
-                             {-nearZ_c \over right} &         0 &        0 &                                   0 \\
-                             0 &                  {-nearZ_c \over top} & 0 &                                   0 \\
-                             0 &                  0 &        {\textcolor{red}{-z_c}* {2 \over {nearZ_c - farZ_c}}} &   {\textcolor{red}{-z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}} \\
+                             {nearZ_c \over right} &         0 &        0 &                                   0 \\
+                             0 &                  {nearZ_c \over top} & 0 &                                   0 \\
+                             0 &                  0 &        {\textcolor{red}{z_c}* {2 \over {nearZ_c - farZ_c}}} &   {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}} \\
                              0 &                  0 &        0 &                                   -z_c
                    \end{bmatrix} *
                     \begin{bmatrix}
@@ -394,36 +421,80 @@ all dimensions without reflecting over the origin, hence the negative sign in  :
                    \end{bmatrix}
 
 
-The result of this is in clip space, where for the first time, our w component is not 1, but :math:`-z_c`.
+The result of this is in clip space, where for the first time, our w component is not 1, but :math:`z_c`.
 
-Knowing that OpenGL will turn our clip space data back to NDC, let's verify that after dividing :math:`z_clip` by :math:`w_clip`, that :math:`nearZ_c` maps to :math:`-1`
-and that :math:`farZ_c` maps to :math:`1`.
-
-
-For a given :math:`z`
+Turning clip space back into NDC
 
 .. math::
-    {{z_clip} \over {w_clip}} & =  {{{z * {{2*{-z_c}} \over {nearZ_c - farZ_c}}} +   {-z_c}*{{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}}}} \over {z}} \\
-                      & = 2*{{-z_c} \over {nearZ_c - farZ_c}} +   {{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}}
 
-Calculating that out for :math:`nearZ_c`
+   \begin{bmatrix}
+                             {x_{ndc}} \\
+                             {y_{ndc}} \\
+                             {z_{ndc}} \\
+                             {w_{ndc}} \\
+                   \end{bmatrix}
+                   & =     \begin{bmatrix}
+                             {x_{clip} / z_{clip}} \\
+                             {y_{clip} / z_{clip}} \\
+                             {z_{clip} / z_{clip}} \\
+                             {w_{clip} / z_{clip}} \\
+                   \end{bmatrix} \\
+                   & = \begin{bmatrix}
+                                {{nearZ_c \over right} * x_{c}} \over \textcolor{red}{z_c}  \\
+                                {{nearZ_c \over top} * y_{c}}  \over \textcolor{red}{z_c}  \\
+                                {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}} \over \textcolor{red}{z_c}}\\
+                                {1} \\
+                   \end{bmatrix} \\
+                   & = \begin{bmatrix}
+                                {{nearZ_c \over right} * x_{c}} \over \textcolor{red}{z_c}  \\
+                                {{nearZ_c \over top} * y_{c}}  \over \textcolor{red}{z_c}  \\
+                                {\textcolor{red}{z_c} * {2 \over {nearZ_c - farZ_c}} + {{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
+                                {1} \\
+                   \end{bmatrix}
+
+
+To test a corner of the frustum as a smoke test, say
 
 .. math::
-    {{z_clip} \over {w_clip}} & = 2*{-nearZ_c \over {nearZ_c - farZ_c}} +   {{{farZ_c + nearZ_c}} \over  {nearZ_c - farZ_c}} \\
-                      & = {{2*{-nearZ_c} + {farZ_c + nearZ_c}} \over {nearZ_c - farZ_c}} \\
-                      & = {{2*{-nearZ_c} + {farZ_c + nearZ_c}} \over {nearZ_c - farZ_c}} \\
-                      & = {{farZ_c - nearZ_c} \over {nearZ_c - farZ_c}} \\
-                      & = {{farZ_c - nearZ_c} \over {nearZ_c - farZ_c}} \\
-                      & = -1
 
-Calculating that out for :math:`farZ_c`
+    \begin{bmatrix}
+      {x_{ndc}} \\
+      {y_{ndc}} \\
+      {z_{ndc}} \\
+      {w_{ndc}=1} \\
+    \end{bmatrix} & =               \vec{f}_{c}^{ndc}(\begin{bmatrix}
+                             {x_{c} = right} \\
+                             {y_{c} = top} \\
+                             {z_{c} = nearZ_c} \\
+                             {w_{c}=1} \\
+                   \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
+                   & = \begin{bmatrix}
+                                {{nearZ_c \over right} * x_{c}} \over \textcolor{red}{z_c}  \\
+                                {{nearZ_c \over top} * y_{c}}  \over \textcolor{red}{z_c}  \\
+                                {\textcolor{red}{z_c} * {2 \over {nearZ_c - farZ_c}} + {{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
+                                {1} \\
+                   \end{bmatrix} \\
+                   & = \begin{bmatrix}
+                                {1}  \\
+                                {1}  \\
+                                {1} \\
+                                {1} \\
+                   \end{bmatrix}
 
-.. math::
-    {z_clip} \over {w_clip} & = 2* {{-nearZ_c} \over {nearZ_c - farZ_c}} +   {{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
-                      & =  2*{{-farZ_c} \over {nearZ_c - farZ_c}} +   {{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
-                      & = {{2*-farZ_c + farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
-                      & = {{ nearZ_c - farZ_c} \over {nearZ_c - farZ_c}} \\
-                      & = 1
+
+And that's what we'd expect and the top right corner of the near plane of the frustum
+should go to the upper right corner with a z value of 1, as -1 is where the back plane must go.
+
+If we had used :math:`x_c = farZ_c`, then :math:`z_{ndc} = -1`, which is what we want, as negative :math:`z` axis
+goes into the monitor.
+
+..
+   TODO PICK UP FROM HERE
+
+
+
+
+
 
 Remove Z of Camera Space from the Rest of the Matrix
 ####################################################
