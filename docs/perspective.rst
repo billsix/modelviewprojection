@@ -228,7 +228,7 @@ we couldn't do without having the premultiplied matrix.
       {y_{ndc}} \\
       {z_{ndc}} \\
       {w_{ndc}=1} \\
-    \end{bmatrix}  =               \vec{f}_{c}^{ndc}(\begin{bmatrix}
+    \end{bmatrix}  =          \vec{f}_{c}^{ndc}(\begin{bmatrix}
                              {x_{c}} \\
                              {y_{c}} \\
                              {z_{c}} \\
@@ -389,36 +389,53 @@ all dimensions without reflecting over the origin, hence the negative sign in  :
 .. math::
 
    \begin{bmatrix}
-                             {x_{clip}} \\
-                             {y_{clip}} \\
-                             {z_{clip}} \\
-                             {w_{clip}} \\
-                   \end{bmatrix}
-                   & =  \vec{f}_{c}^{clip}(\begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1} \\
-                   \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
-                   & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
-                    \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1} \\
-                   \end{bmatrix} \\
-                   & = \begin{bmatrix}
-                             {nearZ_c \over right} &         0 &        0 &                                   0 \\
-                             0 &                  {nearZ_c \over top} & 0 &                                   0 \\
-                             0 &                  0 &        {\textcolor{red}{z_c}* {2 \over {nearZ_c - farZ_c}}} &   {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}} \\
-                             0 &                  0 &        0 &                                   -z_c
+               {x_{clip}} \\
+               {y_{clip}} \\
+               {z_{clip}} \\
+               {w_{clip}} \\
+     \end{bmatrix}
+     & =  \vec{f}_{c}^{clip}(\begin{bmatrix}
+               {x_c} \\
+               {y_c} \\
+               {z_c} \\
+               {w_c=1} \\
+     \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
+     & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
+      \begin{bmatrix}
+               {x_c} \\
+               {y_c} \\
+               {z_c} \\
+               {w_c=1} \\
+     \end{bmatrix} \\
+     & = \begin{bmatrix}
+                      \textcolor{red}{z_c} &  0 & 0 & 0 \\
+                      0 &  \textcolor{red}{z_c} & 0 & 0 \\
+                      0 &  0 & \textcolor{red}{z_c} & 0 \\
+                      0 &  0 & 0 & \textcolor{red}{z_c}
+                   \end{bmatrix} * \begin{bmatrix}
+                      {nearZ_c \over {right * \textcolor{red}{z_c}}} &             0 &                      0 &                0 \\
+                      0 &                           {nearZ_c \over {top*\textcolor{red}{z_c}}} &           0 &                0 \\
+                      0 &                           0 &                       {2 \over {nearZ_c - farZ_c}} & {-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}} \\
+                      0 &                           0 &                       0 &                1
                    \end{bmatrix} *
-                    \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1} \\
-                   \end{bmatrix}
+      \begin{bmatrix}
+               {x_c} \\
+               {y_c} \\
+               {z_c} \\
+               {w_c=1} \\
+     \end{bmatrix} \\
+     & = \begin{bmatrix}
+               {nearZ_c \over right} &         0 &        0 &                                   0 \\
+               0 &                  {nearZ_c \over top} & 0 &                                   0 \\
+               0 &                  0 &        { \textcolor{red}{z_c}* {2 \over {nearZ_c - farZ_c}}} &   { \textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}} \\
+               0 &                  0 &        0 &                                   \textcolor{red}{z_c}
+     \end{bmatrix} *
+      \begin{bmatrix}
+               {x_c} \\
+               {y_c} \\
+               {z_c} \\
+               {w_c=1} \\
+     \end{bmatrix}
 
 
 The result of this is in clip space, where for the first time, our w component is not 1, but :math:`z_c`.
@@ -439,17 +456,16 @@ Turning clip space back into NDC
                              {z_{clip} / z_{clip}} \\
                              {w_{clip} / z_{clip}} \\
                    \end{bmatrix} \\
-                   & = {1 \over {z_c}} * \begin{bmatrix}
+                   & = \begin{bmatrix}
+                      \textcolor{red}{{1 \over {z_c}}} &  0 & 0 & 0 \\
+                      0 &  \textcolor{red}{{1 \over {z_c}}} & 0 & 0 \\
+                      0 &  0 & \textcolor{red}{{1 \over {z_c}}} & 0 \\
+                      0 &  0 & 0 & \textcolor{red}{{1 \over {z_c}}}
+                   \end{bmatrix} * \begin{bmatrix}
                                 {{nearZ_c \over right} * x_{c}}   \\
                                 {{nearZ_c \over top} * y_{c}}    \\
                                 {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
-                                {1} \\
-                   \end{bmatrix} \\
-                   & = {1 \over {z_c}} * \begin{bmatrix}
-                                {{nearZ_c \over right} * x_{c}} \over \textcolor{red}{z_c}  \\
-                                {{nearZ_c \over top} * y_{c}}  \over \textcolor{red}{z_c}  \\
-                                {\textcolor{red}{z_c} * {2 \over {nearZ_c - farZ_c}} + {{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
-                                {1} \\
+                                {\textcolor{red}{z_c}} \\
                    \end{bmatrix}
 
 
@@ -469,9 +485,20 @@ To test a corner of the frustum as a smoke test, say
                              {w_{c}=1} \\
                    \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
                    & = \begin{bmatrix}
-                                {{nearZ_c \over right} * x_{c}} \over \textcolor{red}{z_c}  \\
-                                {{nearZ_c \over top} * y_{c}}  \over \textcolor{red}{z_c}  \\
-                                {\textcolor{red}{z_c} * {2 \over {nearZ_c - farZ_c}} + {{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
+                      \textcolor{red}{{1 \over {z_c}}} &  0 & 0 & 0 \\
+                      0 &  \textcolor{red}{{1 \over {z_c}}} & 0 & 0 \\
+                      0 &  0 & \textcolor{red}{{1 \over {z_c}}} & 0 \\
+                      0 &  0 & 0 & \textcolor{red}{{1 \over {z_c}}}
+                   \end{bmatrix} * \begin{bmatrix}
+                                {{nearZ_c \over right} * x_{c}}   \\
+                                {{nearZ_c \over top} * y_{c}}    \\
+                                {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
+                                {\textcolor{red}{z_c}} \\
+                   \end{bmatrix} \\
+                   & = \begin{bmatrix}
+                                {{nearZ_c \over right} * x_{c}}   \\
+                                {{nearZ_c \over top} * y_{c}}    \\
+                                {\textcolor{red}{z_c} * {2 \over {nearZ_c - farZ_c}} + {-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}\\
                                 {1} \\
                    \end{bmatrix} \\
                    & = \begin{bmatrix}
