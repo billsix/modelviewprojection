@@ -30,19 +30,11 @@ from OpenGL.GL import (
     glViewport,
     glClearColor,
     glEnable,
-    GL_SCISSOR_TEST,
-    glScissor,
     glDisable,
     glClearDepth,
     glDepthFunc,
-    GL_GREATER,
     GL_DEPTH_TEST,
-    GL_LEQUAL,
     GL_TRUE,
-    GL_BLEND,
-    glBlendFunc,
-    GL_SRC_ALPHA,
-    GL_ONE_MINUS_SRC_ALPHA,
     glGenVertexArrays,
     glBindVertexArray,
     GL_VERTEX_SHADER,
@@ -72,11 +64,9 @@ from OpenGL.GL import (
 import OpenGL.GL.shaders as shaders
 import glfw
 import pyMatrixStack as ms
-import atexit
 import colorsys
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
-import staticlocal
 
 from dataclasses import dataclass
 
@@ -224,7 +214,10 @@ class Paddle:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -234,11 +227,19 @@ class Paddle:
         colorAttribLoc = glGetAttribLocation(self.shader, "color_in")
         glEnableVertexAttribArray(colorAttribLoc)
         glVertexAttribPointer(
-            colorAttribLoc, floatsPerColor, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+            colorAttribLoc,
+            floatsPerColor,
+            GL_FLOAT,
+            False,
+            0,
+            ctypes.c_void_p(0),
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(color), color, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(color),
+            color,
+            GL_STATIC_DRAW,
         )
 
         # reset VAO/VBO to default
@@ -399,7 +400,10 @@ class Ground:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -533,7 +537,10 @@ class Axis:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -583,7 +590,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.model),
+                        dtype=np.float32,
                     ),
                 )
                 glUniformMatrix4fv(
@@ -591,7 +599,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.view),
+                        dtype=np.float32,
                     ),
                 )
                 glUniformMatrix4fv(
@@ -599,7 +608,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.projection),
+                        dtype=np.float32,
                     ),
                 )
                 glDrawArrays(GL_LINES, 0, self.numberOfVertices)
@@ -621,7 +631,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.model),
+                        dtype=np.float32,
                     ),
                 )
                 glUniformMatrix4fv(
@@ -629,7 +640,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.view),
+                        dtype=np.float32,
                     ),
                 )
                 glUniformMatrix4fv(
@@ -637,7 +649,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.projection),
+                        dtype=np.float32,
                     ),
                 )
                 glDrawArrays(GL_LINES, 0, self.numberOfVertices)
@@ -671,7 +684,8 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                    ms.getCurrentMatrix(ms.MatrixStack.projection),
+                    dtype=np.float32,
                 ),
             )
             glDrawArrays(GL_LINES, 0, self.numberOfVertices)
@@ -825,7 +839,10 @@ class NDCCube:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -1011,7 +1028,10 @@ class Frustum:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -1171,7 +1191,8 @@ def highlighted_button(text, start_time, time):
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -1188,7 +1209,9 @@ while not glfw.window_should_close(window):
 
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item("Quit", "Cmd+Q", False, True)
+            clicked_quit, selected_quit = imgui.menu_item(
+                "Quit", "Cmd+Q", False, True
+            )
 
             if clicked_quit:
                 exit(0)
@@ -1202,15 +1225,19 @@ while not glfw.window_should_close(window):
     clicked_animation_paused, animation_paused = imgui.checkbox(
         "Pause", animation_paused
     )
-    clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
-    clicked_animation_time_multiplier, animation_time_multiplier = imgui.slider_float(
-        "Sim Speed", animation_time_multiplier, 0.1, 10.0
+    clicked_camera, camera.r = imgui.slider_float(
+        "Camera Radius", camera.r, 10, 1000.0
     )
+    (
+        clicked_animation_time_multiplier,
+        animation_time_multiplier,
+    ) = imgui.slider_float("Sim Speed", animation_time_multiplier, 0.1, 10.0)
     if imgui.button("Restart"):
         animation_time = 0.0
 
     if imgui.tree_node(
-        "From World Space, Against Arrows, Read Bottom Up", imgui.TREE_NODE_DEFAULT_OPEN
+        "From World Space, Against Arrows, Read Bottom Up",
+        imgui.TREE_NODE_DEFAULT_OPEN,
     ):
         if imgui.tree_node("Paddle 1->World", imgui.TREE_NODE_DEFAULT_OPEN):
             imgui.text("f_paddle1_to_world(x) = ")
@@ -1284,7 +1311,8 @@ while not glfw.window_should_close(window):
             imgui.tree_pop()
         imgui.tree_pop()
     if imgui.tree_node(
-        "Towards NDC, With Arrows, Top Down Reading", imgui.TREE_NODE_DEFAULT_OPEN
+        "Towards NDC, With Arrows, Top Down Reading",
+        imgui.TREE_NODE_DEFAULT_OPEN,
     ):
         if imgui.tree_node("World->Camera", imgui.TREE_NODE_DEFAULT_OPEN):
             imgui.text("f_camera_to_world^-1(x) = f_world_to_camera(x) = ")
@@ -1356,11 +1384,15 @@ while not glfw.window_should_close(window):
     (
         clicked_virtual_camera_positionrotx_clicked,
         virtual_camera_rot_x,
-    ) = imgui.slider_float("Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi)
+    ) = imgui.slider_float(
+        "Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi
+    )
     (
         clicked_virtual_camera_positionroty_clicked,
         virtual_camera_rot_y,
-    ) = imgui.slider_float("Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi)
+    ) = imgui.slider_float(
+        "Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi
+    )
 
     imgui.push_button_repeat(True)
     if imgui.button("Translate -Z_Cameraspace"):
@@ -1392,7 +1424,10 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be perspective
     ms.perspective(
-        fov=45.0, aspectRatio=float(width) / float(height), nearZ=0.1, farZ=10000.0
+        fov=45.0,
+        aspectRatio=float(width) / float(height),
+        nearZ=0.1,
+        farZ=10000.0,
     )
 
     # note - opengl matricies use degrees
@@ -1419,9 +1454,12 @@ while not glfw.window_should_close(window):
     if animation_time > 65.0:
         ms.translate(
             ms.MatrixStack.model,
-            -virtual_camera_position[0] * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[1] * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[2] * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[0]
+            * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[1]
+            * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[2]
+            * min(1.0, (animation_time - 65.0) / 5.0),
         )
 
     # draw virtual camera
@@ -1440,12 +1478,14 @@ while not glfw.window_should_close(window):
             if animation_time > 55.0:
                 ms.rotate_y(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_y * min(1.0, (animation_time - 55.0) / 5.0),
+                    virtual_camera_rot_y
+                    * min(1.0, (animation_time - 55.0) / 5.0),
                 )
             if animation_time > 60.0:
                 ms.rotate_x(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_x * min(1.0, (animation_time - 60.0) / 5.0),
+                    virtual_camera_rot_x
+                    * min(1.0, (animation_time - 60.0) / 5.0),
                 )
 
             if animation_time > 55.0:
@@ -1491,7 +1531,8 @@ while not glfw.window_should_close(window):
         if animation_time > 20.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                rotation_around_paddle1 * min(1.0, (animation_time - 20.0) / 5.0),
+                rotation_around_paddle1
+                * min(1.0, (animation_time - 20.0) / 5.0),
             )
         if animation_time > 25.0:
             ms.translate(

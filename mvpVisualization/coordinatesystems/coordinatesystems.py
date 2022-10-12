@@ -30,19 +30,11 @@ from OpenGL.GL import (
     glViewport,
     glClearColor,
     glEnable,
-    GL_SCISSOR_TEST,
-    glScissor,
     glDisable,
     glClearDepth,
     glDepthFunc,
-    GL_GREATER,
     GL_DEPTH_TEST,
-    GL_LEQUAL,
     GL_TRUE,
-    GL_BLEND,
-    glBlendFunc,
-    GL_SRC_ALPHA,
-    GL_ONE_MINUS_SRC_ALPHA,
     glGenVertexArrays,
     glBindVertexArray,
     GL_VERTEX_SHADER,
@@ -58,7 +50,6 @@ from OpenGL.GL import (
     GL_STATIC_DRAW,
     glUseProgram,
     glGetUniformLocation,
-    glUniform1f,
     glUniformMatrix4fv,
     glDrawArrays,
     GL_LINES,
@@ -72,10 +63,8 @@ from OpenGL.GL import (
 import OpenGL.GL.shaders as shaders
 import glfw
 import pyMatrixStack as ms
-import atexit
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
-import staticlocal
 
 from dataclasses import dataclass
 
@@ -223,7 +212,10 @@ class Paddle:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -233,11 +225,19 @@ class Paddle:
         colorAttribLoc = glGetAttribLocation(self.shader, "color_in")
         glEnableVertexAttribArray(colorAttribLoc)
         glVertexAttribPointer(
-            colorAttribLoc, floatsPerColor, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+            colorAttribLoc,
+            floatsPerColor,
+            GL_FLOAT,
+            False,
+            0,
+            ctypes.c_void_p(0),
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(color), color, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(color),
+            color,
+            GL_STATIC_DRAW,
         )
 
         # reset VAO/VBO to default
@@ -385,7 +385,10 @@ class Ground:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -509,7 +512,10 @@ class Axis:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -549,7 +555,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.model),
+                        dtype=np.float32,
                     ),
                 )
                 glUniformMatrix4fv(
@@ -557,7 +564,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.view),
+                        dtype=np.float32,
                     ),
                 )
                 glUniformMatrix4fv(
@@ -565,7 +573,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.projection),
+                        dtype=np.float32,
                     ),
                 )
                 glDrawArrays(GL_LINES, 0, self.numberOfVertices)
@@ -587,7 +596,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.model),
+                        dtype=np.float32,
                     ),
                 )
                 glUniformMatrix4fv(
@@ -595,7 +605,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.view),
+                        dtype=np.float32,
                     ),
                 )
                 glUniformMatrix4fv(
@@ -603,7 +614,8 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                        ms.getCurrentMatrix(ms.MatrixStack.projection),
+                        dtype=np.float32,
                     ),
                 )
                 if enlarged_axis:
@@ -640,7 +652,8 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                    ms.getCurrentMatrix(ms.MatrixStack.projection),
+                    dtype=np.float32,
                 ),
             )
             glDrawArrays(GL_LINES, 0, self.numberOfVertices)
@@ -794,7 +807,10 @@ class NDCCube:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -970,7 +986,10 @@ class Frustum:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -1105,7 +1124,8 @@ view_paddle2 = False
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -1122,7 +1142,9 @@ while not glfw.window_should_close(window):
 
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item("Quit", "Cmd+Q", False, True)
+            clicked_quit, selected_quit = imgui.menu_item(
+                "Quit", "Cmd+Q", False, True
+            )
 
             if clicked_quit:
                 exit(0)
@@ -1176,7 +1198,10 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be perspective
     ms.perspective(
-        fov=45.0, aspectRatio=float(width) / float(height), nearZ=0.1, farZ=10000.0
+        fov=45.0,
+        aspectRatio=float(width) / float(height),
+        nearZ=0.1,
+        farZ=10000.0,
     )
 
     # note - opengl matricies use degrees
