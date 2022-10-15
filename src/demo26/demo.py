@@ -55,7 +55,6 @@ from OpenGL.GL import (
     GL_STATIC_DRAW,
     glUseProgram,
     glGetUniformLocation,
-    glUniform1f,
     glUniformMatrix4fv,
     glDrawArrays,
     GL_LINES,
