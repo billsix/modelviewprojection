@@ -68,7 +68,7 @@ import colorsys
 import imgui
 from imgui.integrations.glfw import GlfwRenderer
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import ctypes
 
@@ -119,14 +119,8 @@ glDepthFunc(GL_LESS)
 glEnable(GL_DEPTH_TEST)
 
 
-@dataclass
-class Paddle:
-    r: float
-    g: float
-    b: float
-    position: any
-    rotation: float = 0.0
-    vertices: np.array = np.array(
+def _paddle_vertices():
+    return np.array(
         [
             -10.0,
             -30.0,
@@ -149,6 +143,15 @@ class Paddle:
         ],
         dtype=np.float32,
     )
+
+@dataclass
+class Paddle:
+    r: float
+    g: float
+    b: float
+    position: any
+    rotation: float = 0.0
+    vertices: np.array = field(default_factory=_paddle_vertices)
     vao: int = 0
     vbo: int = 0
     shader: int = 0
@@ -308,11 +311,8 @@ paddle2 = Paddle(
 paddle2.prepare_to_render()
 
 
-@dataclass
-class Square(Paddle):
-    rotation_around_paddle1: float = 0.0
-
-    vertices: np.array = np.array(
+def _square_vertices():
+    return np.array(
         [
             [-5.0, -5.0, 0.0],
             [5.0, -5.0, 0.0],
@@ -323,6 +323,11 @@ class Square(Paddle):
         ],
         dtype=np.float32,
     )
+
+@dataclass
+class Square(Paddle):
+    rotation_around_paddle1: float = 0.0
+    vertices: np.array = field(default_factory=_square_vertices)
 
 
 square = Square(r=0.0, g=0.0, b=1.0, position=np.array([0.0, 0.0, 0.0]))
