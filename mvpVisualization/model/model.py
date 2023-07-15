@@ -263,7 +263,7 @@ class Paddle:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -271,7 +271,7 @@ class Paddle:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -279,7 +279,7 @@ class Paddle:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
             ),
         )
         glDrawArrays(GL_TRIANGLES, 0, self.numberOfVertices)
@@ -418,7 +418,7 @@ class Ground:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -426,7 +426,7 @@ class Ground:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -434,7 +434,7 @@ class Ground:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
             ),
         )
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
@@ -557,7 +557,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.model),
+                        ms.get_current_matrix(ms.MatrixStack.model),
                         dtype=np.float32,
                     ),
                 )
@@ -566,7 +566,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.view),
+                        ms.get_current_matrix(ms.MatrixStack.view),
                         dtype=np.float32,
                     ),
                 )
@@ -575,7 +575,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.projection),
+                        ms.get_current_matrix(ms.MatrixStack.projection),
                         dtype=np.float32,
                     ),
                 )
@@ -599,7 +599,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.model),
+                        ms.get_current_matrix(ms.MatrixStack.model),
                         dtype=np.float32,
                     ),
                 )
@@ -608,7 +608,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.view),
+                        ms.get_current_matrix(ms.MatrixStack.view),
                         dtype=np.float32,
                     ),
                 )
@@ -617,7 +617,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.projection),
+                        ms.get_current_matrix(ms.MatrixStack.projection),
                         dtype=np.float32,
                     ),
                 )
@@ -638,7 +638,7 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                    ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
                 ),
             )
             glUniformMatrix4fv(
@@ -646,7 +646,7 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                    ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
                 ),
             )
             glUniformMatrix4fv(
@@ -654,7 +654,7 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.projection),
+                    ms.get_current_matrix(ms.MatrixStack.projection),
                     dtype=np.float32,
                 ),
             )
@@ -837,7 +837,7 @@ class NDCCube:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -845,7 +845,7 @@ class NDCCube:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -853,7 +853,7 @@ class NDCCube:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
             ),
         )
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
@@ -1072,9 +1072,9 @@ while not glfw.window_should_close(window):
     # render scene
     handle_inputs()
 
-    ms.setToIdentityMatrix(ms.MatrixStack.model)
-    ms.setToIdentityMatrix(ms.MatrixStack.view)
-    ms.setToIdentityMatrix(ms.MatrixStack.projection)
+    ms.set_to_identity_matrix(ms.MatrixStack.model)
+    ms.set_to_identity_matrix(ms.MatrixStack.view)
+    ms.set_to_identity_matrix(ms.MatrixStack.projection)
 
     # set the projection matrix to be perspective
     ms.perspective(

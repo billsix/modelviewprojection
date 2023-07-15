@@ -184,7 +184,7 @@ virtual_camera_rot_x = math.radians(15.0)
 def draw_ground():
     # ascontiguousarray puts the array in column major order
     glLoadMatrixf(
-        np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
+        np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
     )
     glColor3f(0.1, 0.1, 0.1)
     glBegin(GL_LINES)
@@ -201,7 +201,7 @@ def draw_ground():
 def draw_y_axis():
     # ascontiguousarray puts the array in column major order
     glLoadMatrixf(
-        np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
+        np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
     )
 
     glLineWidth(3.0)
@@ -252,7 +252,7 @@ def draw_axises(grayed_out=False):
 # this isn't really NDC, I scaled it so that it looks good, not be correct
 def draw_ndc():
     glLoadMatrixf(
-        np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.modelview).T)
+        np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
     )
 
     glColor3f(1.0, 1.0, 1.0)
@@ -328,9 +328,9 @@ while not glfw.window_should_close(window):
     # render scene
     handle_inputs()
 
-    ms.setToIdentityMatrix(ms.MatrixStack.model)
-    ms.setToIdentityMatrix(ms.MatrixStack.view)
-    ms.setToIdentityMatrix(ms.MatrixStack.projection)
+    ms.set_to_identity_matrix(ms.MatrixStack.model)
+    ms.set_to_identity_matrix(ms.MatrixStack.view)
+    ms.set_to_identity_matrix(ms.MatrixStack.projection)
 
     # set the projection matrix to be perspective
     ms.perspective(
@@ -349,7 +349,7 @@ while not glfw.window_should_close(window):
     glMatrixMode(GL_PROJECTION)
     # ascontiguousarray puts the array in column major order
     glLoadMatrixf(
-        np.ascontiguousarray(ms.getCurrentMatrix(ms.MatrixStack.projection).T)
+        np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.projection).T)
     )
 
     # note - opengl matricies use degrees
@@ -449,7 +449,7 @@ while not glfw.window_should_close(window):
             # ascontiguousarray puts the array in column major order
             glLoadMatrixf(
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.modelview).T
+                    ms.get_current_matrix(ms.MatrixStack.modelview).T
                 )
             )
             glBegin(GL_QUADS)
@@ -493,7 +493,7 @@ while not glfw.window_should_close(window):
             # ascontiguousarray puts the array in column major order
             glLoadMatrixf(
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.modelview).T
+                    ms.get_current_matrix(ms.MatrixStack.modelview).T
                 )
             )
             glBegin(GL_QUADS)
@@ -527,7 +527,7 @@ while not glfw.window_should_close(window):
             # ascontiguousarray puts the array in column major order
             glLoadMatrixf(
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.modelview).T
+                    ms.get_current_matrix(ms.MatrixStack.modelview).T
                 )
             )
             glBegin(GL_QUADS)
