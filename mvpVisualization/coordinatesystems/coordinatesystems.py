@@ -1123,8 +1123,7 @@ view_paddle2 = False
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time()
-        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -1141,9 +1140,7 @@ while not glfw.window_should_close(window):
 
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item(
-                "Quit", "Cmd+Q", False, True
-            )
+            clicked_quit, selected_quit = imgui.menu_item("Quit", "Cmd+Q", False, True)
 
             if clicked_quit:
                 exit(0)

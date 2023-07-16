@@ -308,8 +308,7 @@ animation_paused = False
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time()
-        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -380,12 +379,9 @@ while not glfw.window_should_close(window):
     if animation_time > 70.0:
         ms.translate(
             ms.MatrixStack.model,
-            -virtual_camera_position[0]
-            * min(1.0, (animation_time - 70.0) / 5.0),
-            -virtual_camera_position[1]
-            * min(1.0, (animation_time - 70.0) / 5.0),
-            -virtual_camera_position[2]
-            * min(1.0, (animation_time - 70.0) / 5.0),
+            -virtual_camera_position[0] * min(1.0, (animation_time - 70.0) / 5.0),
+            -virtual_camera_position[1] * min(1.0, (animation_time - 70.0) / 5.0),
+            -virtual_camera_position[2] * min(1.0, (animation_time - 70.0) / 5.0),
         )
 
     # draw virtual camera
@@ -404,14 +400,12 @@ while not glfw.window_should_close(window):
             if animation_time > 60:
                 ms.rotate_y(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_y
-                    * min(1.0, (animation_time - 60.0) / 5.0),
+                    virtual_camera_rot_y * min(1.0, (animation_time - 60.0) / 5.0),
                 )
             if animation_time > 65:
                 ms.rotate_x(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_x
-                    * min(1.0, (animation_time - 65.0) / 5.0),
+                    virtual_camera_rot_x * min(1.0, (animation_time - 65.0) / 5.0),
                 )
 
             draw_axises()
@@ -448,9 +442,7 @@ while not glfw.window_should_close(window):
         if animation_time > 15.0:
             # ascontiguousarray puts the array in column major order
             glLoadMatrixf(
-                np.ascontiguousarray(
-                    ms.get_current_matrix(ms.MatrixStack.modelview).T
-                )
+                np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
             )
             glBegin(GL_QUADS)
             for model_space in paddle1.vertices:
@@ -469,8 +461,7 @@ while not glfw.window_should_close(window):
         if animation_time > 20.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                rotation_around_paddle1
-                * min(1.0, (animation_time - 20.0) / 5.0),
+                rotation_around_paddle1 * min(1.0, (animation_time - 20.0) / 5.0),
             )
         if animation_time > 25.0:
             ms.translate(
@@ -492,9 +483,7 @@ while not glfw.window_should_close(window):
         if animation_time > 35.0:
             # ascontiguousarray puts the array in column major order
             glLoadMatrixf(
-                np.ascontiguousarray(
-                    ms.get_current_matrix(ms.MatrixStack.modelview).T
-                )
+                np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
             )
             glBegin(GL_QUADS)
             for model_space in square_vertices:
@@ -526,9 +515,7 @@ while not glfw.window_should_close(window):
         if animation_time > 50.0:
             # ascontiguousarray puts the array in column major order
             glLoadMatrixf(
-                np.ascontiguousarray(
-                    ms.get_current_matrix(ms.MatrixStack.modelview).T
-                )
+                np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
             )
             glBegin(GL_QUADS)
             for model_space in paddle2.vertices:

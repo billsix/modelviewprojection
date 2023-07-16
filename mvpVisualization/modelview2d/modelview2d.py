@@ -979,8 +979,7 @@ def highlighted_button(text, start_time, time):
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time()
-        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -1001,9 +1000,7 @@ while not glfw.window_should_close(window):
     clicked_animation_paused, animation_paused = imgui.checkbox(
         "Pause", animation_paused
     )
-    clicked_camera, camera.r = imgui.slider_float(
-        "Camera Radius", camera.r, 10, 1000.0
-    )
+    clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
     (
         clicked_animation_time_multiplier,
         animation_time_multiplier,
@@ -1187,12 +1184,9 @@ while not glfw.window_should_close(window):
     if animation_time > 60.0:
         ms.translate(
             ms.MatrixStack.model,
-            -virtual_camera_position[0]
-            * min(1.0, (animation_time - 60.0) / 5.0),
-            -virtual_camera_position[1]
-            * min(1.0, (animation_time - 60.0) / 5.0),
-            -virtual_camera_position[2]
-            * min(1.0, (animation_time - 60.0) / 5.0),
+            -virtual_camera_position[0] * min(1.0, (animation_time - 60.0) / 5.0),
+            -virtual_camera_position[1] * min(1.0, (animation_time - 60.0) / 5.0),
+            -virtual_camera_position[2] * min(1.0, (animation_time - 60.0) / 5.0),
         )
 
     # draw virtual camera
@@ -1244,8 +1238,7 @@ while not glfw.window_should_close(window):
         if animation_time > 20.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                rotation_around_paddle1
-                * min(1.0, (animation_time - 20.0) / 5.0),
+                rotation_around_paddle1 * min(1.0, (animation_time - 20.0) / 5.0),
             )
         if animation_time > 25.0:
             ms.translate(

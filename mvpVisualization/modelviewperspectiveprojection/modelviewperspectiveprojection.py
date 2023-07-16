@@ -403,10 +403,8 @@ class Ground:
         self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
         self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
 
-
-        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness");
-        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size");
-
+        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness")
+        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size")
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -483,7 +481,6 @@ class Ground:
         glUniform1f(self.thicknessLoc, line_thickness)
         glUniform2f(self.viewportLoc, width, height)
 
-
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
         glBindVertexArray(0)
 
@@ -553,9 +550,8 @@ class Axis:
         self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
         self.colorLoc = glGetUniformLocation(self.shader, "color")
 
-        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness");
-        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size");
-
+        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness")
+        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size")
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -863,15 +859,14 @@ class NDCCube:
         with open(os.path.join(pwd, "cube.geom"), "r") as f:
             gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
 
-
         self.shader = shaders.compileProgram(vs, gs, fs)
 
         self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
         self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
         self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
 
-        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness");
-        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size");
+        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness")
+        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size")
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -1061,15 +1056,14 @@ class Frustum:
         with open(os.path.join(pwd, "frustum.geom"), "r") as f:
             gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
 
-
         self.shader = shaders.compileProgram(vs, gs, fs)
 
         self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
         self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
         self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
 
-        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness");
-        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size");
+        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness")
+        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size")
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -1251,8 +1245,7 @@ def highlighted_button(text, start_time, time):
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time()
-        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -1269,9 +1262,7 @@ while not glfw.window_should_close(window):
 
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item(
-                "Quit", "Cmd+Q", False, True
-            )
+            clicked_quit, selected_quit = imgui.menu_item("Quit", "Cmd+Q", False, True)
 
             if clicked_quit:
                 exit(0)
@@ -1285,9 +1276,7 @@ while not glfw.window_should_close(window):
     clicked_animation_paused, animation_paused = imgui.checkbox(
         "Pause", animation_paused
     )
-    clicked_camera, camera.r = imgui.slider_float(
-        "Camera Radius", camera.r, 10, 1000.0
-    )
+    clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
     (
         clicked_animation_time_multiplier,
         animation_time_multiplier,
@@ -1393,9 +1382,7 @@ while not glfw.window_should_close(window):
             imgui.same_line()
             imgui.text("* x))")
             imgui.tree_pop()
-        if imgui.tree_node(
-            "Frustum->Rectangular Prism", imgui.TREE_NODE_DEFAULT_OPEN
-        ):
+        if imgui.tree_node("Frustum->Rectangular Prism", imgui.TREE_NODE_DEFAULT_OPEN):
             imgui.text("f_frustum_to_prism(x) = ")
             imgui.same_line()
             if highlighted_button("Squash Y", 95, animation_time):
@@ -1459,15 +1446,11 @@ while not glfw.window_should_close(window):
     (
         clicked_virtual_camera_positionrotx_clicked,
         virtual_camera_rot_x,
-    ) = imgui.slider_float(
-        "Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi
-    )
+    ) = imgui.slider_float("Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi)
     (
         clicked_virtual_camera_positionroty_clicked,
         virtual_camera_rot_y,
-    ) = imgui.slider_float(
-        "Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi
-    )
+    ) = imgui.slider_float("Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi)
 
     imgui.push_button_repeat(True)
     if imgui.button("Translate -Z_Cameraspace"):
@@ -1529,12 +1512,9 @@ while not glfw.window_should_close(window):
     if animation_time > 65.0:
         ms.translate(
             ms.MatrixStack.model,
-            -virtual_camera_position[0]
-            * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[1]
-            * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[2]
-            * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[0] * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[1] * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[2] * min(1.0, (animation_time - 65.0) / 5.0),
         )
 
     # draw virtual camera
@@ -1553,14 +1533,12 @@ while not glfw.window_should_close(window):
             if animation_time > 55.0:
                 ms.rotate_y(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_y
-                    * min(1.0, (animation_time - 55.0) / 5.0),
+                    virtual_camera_rot_y * min(1.0, (animation_time - 55.0) / 5.0),
                 )
             if animation_time > 60.0:
                 ms.rotate_x(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_x
-                    * min(1.0, (animation_time - 60.0) / 5.0),
+                    virtual_camera_rot_x * min(1.0, (animation_time - 60.0) / 5.0),
                 )
 
             if animation_time > 55.0:
@@ -1605,8 +1583,7 @@ while not glfw.window_should_close(window):
         if animation_time > 20.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                rotation_around_paddle1
-                * min(1.0, (animation_time - 20.0) / 5.0),
+                rotation_around_paddle1 * min(1.0, (animation_time - 20.0) / 5.0),
             )
         if animation_time > 25.0:
             ms.translate(
