@@ -39,6 +39,7 @@ from OpenGL.GL import (
     glBindVertexArray,
     GL_VERTEX_SHADER,
     GL_FRAGMENT_SHADER,
+    GL_GEOMETRY_SHADER,
     glGenBuffers,
     glBindBuffer,
     GL_ARRAY_BUFFER,
@@ -59,6 +60,8 @@ from OpenGL.GL import (
     glDeleteVertexArrays,
     glDeleteBuffers,
     glDeleteProgram,
+    glUniform1f,
+    glUniform2f,
     glUniform3f,
 )
 import OpenGL.GL.shaders as shaders
@@ -79,6 +82,8 @@ pwd = os.path.dirname(os.path.abspath(__file__))
 glfloat_size = 4
 floatsPerVertex = 3
 floatsPerColor = 3
+
+line_thickness = 5.0
 
 if not glfw.init():
     sys.exit()
@@ -389,11 +394,19 @@ class Ground:
         with open(os.path.join(pwd, "ground.frag"), "r") as f:
             fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
 
-        self.shader = shaders.compileProgram(vs, fs)
+        with open(os.path.join(pwd, "ground.geom"), "r") as f:
+            gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
+
+        self.shader = shaders.compileProgram(vs, gs, fs)
 
         self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
         self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
         self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
+
+
+        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness");
+        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size");
+
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -466,6 +479,11 @@ class Ground:
                 dtype=np.float32,
             ),
         )
+
+        glUniform1f(self.thicknessLoc, line_thickness)
+        glUniform2f(self.viewportLoc, width, height)
+
+
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
         glBindVertexArray(0)
 
@@ -525,12 +543,19 @@ class Axis:
         with open(os.path.join(pwd, "axis.frag"), "r") as f:
             fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
 
-        self.shader = shaders.compileProgram(vs, fs)
+        with open(os.path.join(pwd, "axis.geom"), "r") as f:
+            gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
+
+        self.shader = shaders.compileProgram(vs, gs, fs)
 
         self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
         self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
         self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
         self.colorLoc = glGetUniformLocation(self.shader, "color")
+
+        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness");
+        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size");
+
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -618,6 +643,9 @@ class Axis:
                         dtype=np.float32,
                     ),
                 )
+                glUniform1f(self.thicknessLoc, line_thickness)
+                glUniform2f(self.viewportLoc, width, height)
+
                 glDrawArrays(GL_LINES, 0, self.numberOfVertices)
 
             # z
@@ -659,6 +687,9 @@ class Axis:
                         dtype=np.float32,
                     ),
                 )
+
+                glUniform1f(self.thicknessLoc, line_thickness)
+                glUniform2f(self.viewportLoc, width, height)
                 glDrawArrays(GL_LINES, 0, self.numberOfVertices)
 
             # y
@@ -695,6 +726,8 @@ class Axis:
                     dtype=np.float32,
                 ),
             )
+            glUniform1f(self.thicknessLoc, line_thickness)
+            glUniform2f(self.viewportLoc, width, height)
             glDrawArrays(GL_LINES, 0, self.numberOfVertices)
             glBindVertexArray(0)
         glEnable(GL_DEPTH_TEST)
@@ -827,11 +860,18 @@ class NDCCube:
         with open(os.path.join(pwd, "cube.frag"), "r") as f:
             fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
 
-        self.shader = shaders.compileProgram(vs, fs)
+        with open(os.path.join(pwd, "cube.geom"), "r") as f:
+            gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
+
+
+        self.shader = shaders.compileProgram(vs, gs, fs)
 
         self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
         self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
         self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
+
+        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness");
+        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size");
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -904,6 +944,8 @@ class NDCCube:
                 dtype=np.float32,
             ),
         )
+        glUniform1f(self.thicknessLoc, line_thickness)
+        glUniform2f(self.viewportLoc, width, height)
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
         glBindVertexArray(0)
 
@@ -1016,11 +1058,18 @@ class Frustum:
         with open(os.path.join(pwd, "frustum.frag"), "r") as f:
             fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
 
-        self.shader = shaders.compileProgram(vs, fs)
+        with open(os.path.join(pwd, "frustum.geom"), "r") as f:
+            gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
+
+
+        self.shader = shaders.compileProgram(vs, gs, fs)
 
         self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
         self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
         self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
+
+        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness");
+        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size");
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -1095,6 +1144,10 @@ class Frustum:
                 dtype=np.float32,
             ),
         )
+
+        glUniform1f(self.thicknessLoc, line_thickness)
+        glUniform2f(self.viewportLoc, width, height)
+
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
         glBindVertexArray(0)
 

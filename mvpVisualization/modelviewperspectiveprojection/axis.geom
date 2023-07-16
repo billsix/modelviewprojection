@@ -1,4 +1,4 @@
-//Copyright (c) 2018-2022 William Emerison Six
+//Copyright (c) 2023 William Emerison Six
 //
 //Permission is hereby granted, free of charge, to any person obtaining a copy
 //of this software and associated documentation files (the "Software"), to deal
@@ -21,11 +21,35 @@
 
 #version 330 core
 
-out vec4 color;
+layout (lines) in;
+layout (triangle_strip, max_vertices = 4) out;
 
-in vec4 fColor;
+uniform vec2 u_viewport_size;
+uniform float u_thickness;
 
-void main()
-{
-   color = fColor;
+in VS_OUT {
+  vec4 color;
+} gs_in[];
+
+
+out vec4 fColor;
+
+void main(){
+     vec4 p1 = gl_in[0].gl_Position;
+     vec4 p2 = gl_in[1].gl_Position;
+
+     fColor = gs_in[0].color;
+     vec2 dir = normalize((p2.xy / p2.w - p1.xy/p1.w) * u_viewport_size);
+     vec2 offset = vec2(-dir.y, dir.x) * u_thickness / u_viewport_size;
+
+     gl_Position = p1 + vec4(offset.xy * p1.w, 0.0, 0.0);
+     EmitVertex();
+     gl_Position = p1 - vec4(offset.xy * p1.w, 0.0, 0.0);
+     EmitVertex();
+     gl_Position = p2 + vec4(offset.xy * p2.w, 0.0, 0.0);
+     EmitVertex();
+     gl_Position = p2 - vec4(offset.xy * p2.w, 0.0, 0.0);
+     EmitVertex();
+     EndPrimitive();
+
 }
