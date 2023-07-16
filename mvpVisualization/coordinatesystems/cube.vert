@@ -25,9 +25,12 @@ layout (location = 0) in vec3 position;
 uniform mat4 mMatrix;
 uniform mat4 vMatrix;
 uniform mat4 pMatrix;
+uniform float u_distance;
+uniform float u_thickness;
 
 out VS_OUT {
   vec4 color;
+  float thickness;
 } vs_out;
 
 
@@ -35,4 +38,11 @@ void main()
 {
    gl_Position = pMatrix * vMatrix * mMatrix * vec4(position,1.0);
    vs_out.color = vec4(1.0,1.0,1.0,1.0);
+   if (u_distance > 200)
+      vs_out.thickness = 1;
+   else if (u_distance > 100)
+      vs_out.thickness = 2;
+   else if (u_distance > 75)
+      vs_out.thickness = 3;
+   else vs_out.thickness = u_thickness;
 }

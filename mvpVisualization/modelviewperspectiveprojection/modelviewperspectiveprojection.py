@@ -19,61 +19,59 @@
 # SOFTWARE.
 
 
-import sys
-import os
-import numpy as np
+import colorsys
+import ctypes
 import math
+import os
+import sys
+from dataclasses import dataclass, field
+
+import glfw
+import imgui
+import numpy as np
+import OpenGL.GL.shaders as shaders
+import pyMatrixStack as ms
+from imgui.integrations.glfw import GlfwRenderer
 from OpenGL.GL import (
-    glClear,
+    GL_ARRAY_BUFFER,
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
-    glViewport,
-    glClearColor,
-    glEnable,
-    glDisable,
-    glClearDepth,
-    glDepthFunc,
     GL_DEPTH_TEST,
-    GL_TRUE,
-    glGenVertexArrays,
-    glBindVertexArray,
-    GL_VERTEX_SHADER,
+    GL_FLOAT,
     GL_FRAGMENT_SHADER,
     GL_GEOMETRY_SHADER,
-    glGenBuffers,
-    glBindBuffer,
-    GL_ARRAY_BUFFER,
-    glGetAttribLocation,
-    glEnableVertexAttribArray,
-    glVertexAttribPointer,
-    GL_FLOAT,
-    glBufferData,
-    GL_STATIC_DRAW,
-    glUseProgram,
-    glGetUniformLocation,
-    glUniform1f,
-    glUniformMatrix4fv,
-    glDrawArrays,
-    GL_LINES,
-    GL_TRIANGLES,
     GL_LESS,
-    glDeleteVertexArrays,
+    GL_LINES,
+    GL_STATIC_DRAW,
+    GL_TRIANGLES,
+    GL_TRUE,
+    GL_VERTEX_SHADER,
+    glBindBuffer,
+    glBindVertexArray,
+    glBufferData,
+    glClear,
+    glClearColor,
+    glClearDepth,
     glDeleteBuffers,
     glDeleteProgram,
+    glDeleteVertexArrays,
+    glDepthFunc,
+    glDisable,
+    glDrawArrays,
+    glEnable,
+    glEnableVertexAttribArray,
+    glGenBuffers,
+    glGenVertexArrays,
+    glGetAttribLocation,
+    glGetUniformLocation,
     glUniform1f,
     glUniform2f,
     glUniform3f,
+    glUniformMatrix4fv,
+    glUseProgram,
+    glVertexAttribPointer,
+    glViewport,
 )
-import OpenGL.GL.shaders as shaders
-import glfw
-import pyMatrixStack as ms
-import colorsys
-import imgui
-from imgui.integrations.glfw import GlfwRenderer
-
-from dataclasses import dataclass, field
-
-import ctypes
 
 # NEW - for shader location
 pwd = os.path.dirname(os.path.abspath(__file__))

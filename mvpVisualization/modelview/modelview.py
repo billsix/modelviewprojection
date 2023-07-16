@@ -19,15 +19,15 @@
 # SOFTWARE.
 
 
-import sys
-import numpy as np
 import math
+import sys
+from dataclasses import dataclass, field
+
+import glfw
+import numpy as np
+import pyMatrixStack as ms
 from OpenGL.GL import *
 from OpenGL.GLU import *
-import glfw
-import pyMatrixStack as ms
-
-from dataclasses import dataclass, field
 
 if not glfw.init():
     sys.exit()

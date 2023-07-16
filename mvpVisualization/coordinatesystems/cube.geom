@@ -25,10 +25,10 @@ layout (lines) in;
 layout (triangle_strip, max_vertices = 4) out;
 
 uniform vec2 u_viewport_size;
-uniform float u_thickness;
 
 in VS_OUT {
   vec4 color;
+  float thickness;
 } gs_in[];
 
 
@@ -40,7 +40,7 @@ void main(){
 
      fColor = gs_in[0].color;
      vec2 dir = normalize((p2.xy / p2.w - p1.xy/p1.w) * u_viewport_size);
-     vec2 offset = vec2(-dir.y, dir.x) * u_thickness / u_viewport_size;
+     vec2 offset = vec2(-dir.y, dir.x) * gs_in[0].thickness / u_viewport_size;
 
      gl_Position = p1 + vec4(offset.xy * p1.w, 0.0, 0.0);
      EmitVertex();
