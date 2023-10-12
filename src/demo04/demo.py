@@ -100,20 +100,23 @@ def draw_in_square_viewport() -> None:
     )
 
 
+# begin defvertexclass
 @dataclass
 class Vertex:
     x: float
     y: float
+# end defvertexclass
 
-
+# begin defpaddleclass
 @dataclass
 class Paddle:
     vertices: list[Vertex]
     r: float
     g: float
     b: float
+# end defpaddleclass
 
-
+# begin defpaddles
 paddle1 = Paddle(
     vertices=[
         Vertex(x=-1.0, y=-0.3),
@@ -132,8 +135,10 @@ paddle2 = Paddle(
     g=0.0,
     b=0.0,
 )
+# end defpaddles
 
 
+# begin fnhandle
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
@@ -148,13 +153,15 @@ def handle_movement_of_paddles() -> None:
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         for v in paddle2.vertices:
             v.y += 0.1
+# end fnhandle
 
-
+# begin framerate
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
+# end framerate
 
-
+# begin eventloop
 while not glfw.window_should_close(window):
 
     while (
@@ -163,30 +170,44 @@ while not glfw.window_should_close(window):
         pass
 
     time_at_beginning_of_previous_frame = glfw.get_time()
+    # end eventloop
 
+    # begin startframe
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    # end startframe
 
+    # begin square
     draw_in_square_viewport()
-    handle_movement_of_paddles()
+    # end square
 
+    # begin movement
+    handle_movement_of_paddles()
+    # end movement
+
+    # begin paddle1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for vertex in paddle1.vertices:
         glVertex2f(vertex.x, vertex.y)
     glEnd()
+    # end paddle1
 
+    # begin paddle2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
     for vertex in paddle2.vertices:
         glVertex2f(vertex.x, vertex.y)
     glEnd()
+    # end paddle2
 
+    # begin swapbuffers
     glfw.swap_buffers(window)
+    # end swapbuffers
 
 glfw.terminate()

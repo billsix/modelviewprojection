@@ -101,17 +101,20 @@ def draw_in_square_viewport() -> None:
     )
 
 
+# begin vertexclass
 @dataclass
 class Vertex:
     x: float
     y: float
 
     def translate(self: Vertex, tx: float, ty: float) -> Vertex:
-        return Vertex(x=self.x + tx, y=self.y + ty)
+        return Vertex(x=(self.x + tx), y=(self.y + ty))
+    # end vertexclass
 
+    # begin scaledef
     def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
-        return Vertex(x=self.x * scale_x, y=self.y * scale_y)
-
+        return Vertex(x=(self.x * scale_x), y=(self.y * scale_y))
+    # end scaledef
 
 @dataclass
 class Paddle:
@@ -122,6 +125,7 @@ class Paddle:
     position: Vertex
 
 
+# begin paddledefs
 paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-10.0, y=-30.0),
@@ -147,8 +151,9 @@ paddle2: Paddle = Paddle(
     b=0.0,
     position=Vertex(90.0, 0.0),
 )
+# end paddledefs
 
-
+# begin fndef
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
@@ -160,12 +165,13 @@ def handle_movement_of_paddles() -> None:
         paddle2.position.y -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 10.0
-
+# end fndef
 
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
+# begin eventloop
 while not glfw.window_should_close(window):
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
@@ -181,30 +187,53 @@ while not glfw.window_should_close(window):
 
     draw_in_square_viewport()
     handle_movement_of_paddles()
+    # end eventloop
 
+    # begin paddle1loop
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        world_space: Vertex = model_space.translate(
-            tx=paddle1.position.x, ty=paddle1.position.y
-        )
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
+        # end paddle1loop
+        #fmt: off
+        # begin translate
+        world_space: Vertex = model_space.translate(tx=paddle1.position.x,
+                                                    ty=paddle1.position.y)
+        # end translate
+        # begin scale
+        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
+                                              scale_y=1.0 / 100.0)
+        # end scale
+        #fmt: off
+        # begin paddle1vertex
         glVertex2f(ndc_space.x, ndc_space.y)
 
     glEnd()
+    # end paddle1vertex
 
+    # begin paddle2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        world_space: Vertex = model_space.translate(
-            tx=paddle2.position.x, ty=paddle2.position.y
-        )
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0, scale_y=1.0 / 100.0)
+        # end paddle2
+        #fmt: off
+        # begin paddle2translate
+        world_space: Vertex = model_space.translate(tx=paddle2.position.x,
+                                                    ty=paddle2.position.y)
+        # end paddle2translate
+        # begin paddle2scale
+        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
+                                              scale_y=1.0 / 100.0)
+        # end paddle2scale
+        #fmt: on
+
+        # begin p2vertex
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
+    # end p2vertex
 
+    # begin swapbuf
     glfw.swap_buffers(window)
-
+    # end swapbuf
 glfw.terminate()

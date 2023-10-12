@@ -100,7 +100,7 @@ def draw_in_square_viewport() -> None:
         min,
     )
 
-
+# begin vertexclass
 @dataclass
 class Vertex:
     x: float
@@ -108,8 +108,9 @@ class Vertex:
 
     def translate(self: Vertex, tx: float, ty: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty)
+# end vertexclass
 
-
+# begin paddleclass
 @dataclass
 class Paddle:
     vertices: list[Vertex]
@@ -117,8 +118,9 @@ class Paddle:
     g: float
     b: float
     position: Vertex
+# end paddleclass
 
-
+# begin paddledef
 paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-0.1, y=-0.3),
@@ -144,8 +146,9 @@ paddle2: Paddle = Paddle(
     b=0.0,
     position=Vertex(0.9, 0.0),
 )
+# end paddledef
 
-
+#begin fnhandle
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
@@ -157,12 +160,13 @@ def handle_movement_of_paddles() -> None:
         paddle2.position.y -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 0.1
-
+# end fnhandle
 
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
+#begin eventloop
 while not glfw.window_should_close(window):
 
     while (
@@ -180,7 +184,9 @@ while not glfw.window_should_close(window):
 
     draw_in_square_viewport()
     handle_movement_of_paddles()
+    # end eventloop
 
+    # begin paddle1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -190,7 +196,9 @@ while not glfw.window_should_close(window):
         )
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
+    # end paddle1
 
+    # begin paddle2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -200,6 +208,7 @@ while not glfw.window_should_close(window):
         )
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
+    # end paddle2
 
     glfw.swap_buffers(window)
 
