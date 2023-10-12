@@ -157,20 +157,12 @@ Importing Libraries
 Import Python modules, which are Python programmer's main form of libraries.
 
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 21
-   :lines: 21
+.. LINENOS ../src/demo01/demo.py firstimport
 
 *  The "sys" module is imported.  To call functions from this module, the systax is sys.function
 
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 22
-   :lines: 22-32
+.. LINENOS ../src/demo01/demo.py fromimports
 
 
 * GL is a submodule of the OpenGL module, and we are directly importing a
@@ -179,11 +171,7 @@ Import Python modules, which are Python programmer's main form of libraries.
   these functions frequently
 
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 35
-   :lines: 35
+.. LINENOS ../src/demo01/demo.py importglfw
 
 
 * GLFW is a library which allows us to create windows, get input both from a
@@ -226,11 +214,8 @@ GLFW/OpenGL Initialization
 Initialize GLFW.
 &&&&&&&&&&&&&&&&
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 38
-   :lines: 38-39
+.. LINENOS ../src/demo01/demo.py initglfw
+
 
 Initialize glfw.  If initialization fails, the program should terminate.
 What does the initialization do?  Doesn't matter.  Think of it like
@@ -244,40 +229,24 @@ Set the version of OpenGL
 OpenGL has been around a long time, and has multiple, possibly incompatible versions.
 For this demo, we use OpenGL 1.4.  By the end of this book, we will be using OpenGL 3.3.
 
-
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 41
-   :lines: 41-42
+.. LINENOS ../src/demo01/demo.py openglversion
 
 Create a Window
 &&&&&&&&&&&&&&&
 
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 44
-   :lines: 44
+.. LINENOS ../src/demo01/demo.py createwindow
 
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 46
-   :lines: 46-48
+.. LINENOS ../src/demo01/demo.py windowopen
 
 
 *  If GLFW cannot open the window, quit.  Unlike MC Hammer, we are quite legit, yet still
    able to quit.
 
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 50
-   :lines: 50
+.. LINENOS ../src/demo01/demo.py contextcurrent
+
 
 
 * Make the window's context current.  The details of this do not matter
@@ -285,11 +254,7 @@ Create a Window
 
 
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 53
-   :lines: 53-58
+.. LINENOS ../src/demo01/demo.py callback
 
 * Define an register a key handler.
 
@@ -315,12 +280,7 @@ and applied later zero, 1, or more times.
 
 
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 60
-   :lines: 60
-
+.. LINENOS ../src/demo01/demo.py clearcolor
 
 * Before a frame is drawn, it is first turned into a blank slate,
   where the color of each pixel is set to some value representing a
@@ -329,12 +289,7 @@ and applied later zero, 1, or more times.
   transparency (the "1").
 
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 62
-   :lines: 62-65
-
+.. LINENOS ../src/demo01/demo.py matrixmode
 
 * Don't worry about the 4 lines here.  Although they are necessary,
   we will cover them in depth later.  After all, this
@@ -356,11 +311,7 @@ until the user closes the window, or the program needs
 to terminate.
 
 
-.. literalinclude:: ../src/demo01/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 68
-   :lines: 68-76
+.. LINENOS ../src/demo01/demo.py eventloop
 
 * On line 69, poll the operating system for any events, such as mouse movements,
   keyboard input, etc.  This does not handle them, just registers
