@@ -90,13 +90,7 @@ Draw Paddle 1
 ^^^^^^^^^^^^^
 
 
-.. literalinclude:: ../src/demo02/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 76
-   :lines: 76-82
-
-
+.. LINENOS ../src/demo02/demo.py paddle1
 
 
 The paddle looks like this relative to normalized device coordinates (NDC):
@@ -111,12 +105,8 @@ The paddle looks like this relative to normalized device coordinates (NDC):
 
 Draw Paddle 2
 ^^^^^^^^^^^^^
-.. literalinclude:: ../src/demo02/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 84
-   :lines: 84-90
 
+.. LINENOS ../src/demo02/demo.py paddle2
 
 
 The 2 paddles looks like this relative to normalized device coordinates (NDC):
@@ -128,11 +118,8 @@ The 2 paddles looks like this relative to normalized device coordinates (NDC):
 
     Rectangle
 
-.. literalinclude:: ../src/demo02/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 92
-   :lines: 92
+.. LINENOS ../src/demo02/demo.py swapbuffers
+
 
 * done with frame, flush the current buffer to the monitor
 * Swap front and back buffers

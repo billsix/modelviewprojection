@@ -128,40 +128,24 @@ Consult the python source for the full, working code.
 Set to Draw in Square Subsection Of Window
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-.. literalinclude:: ../src/demo03/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 73
-   :lines: 73
+.. LINENOS ../src/demo03/demo.py drawinsquare
 
 * declare a function to configure OpenGL to draw only in a square subset of the monitor, i.e. the viewport
 
-.. literalinclude:: ../src/demo03/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 75
-   :lines: 75-76
+.. LINENOS ../src/demo03/demo.py defaultclear
 
 * set the clear color to be gray.
 * glClear clear the color of every pixel in the whole frame buffer, independent of viewport.
   So now the entire framebuffer is gray.
 
-.. literalinclude:: ../src/demo03/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 78
-   :lines: 78-80
+.. LINENOS ../src/demo03/demo.py framebuffersize
 
 * figure out the minimum dimension of the window.  In the image above, the "square_size" is 1200,
   as the monitor's vertical screenspace is only 1200 pixels tall.
 * To make a square subregion, we need a number for the distance between vertices of the square.
   By using the minimium of the width and height, we can at least fill up the screen in one dimension.
 
-.. literalinclude:: ../src/demo03/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 82
-   :lines: 82-88
+.. LINENOS ../src/demo03/demo.py enablescissortest
 
 * Enable the scissor test.  Internally, OpenGL drivers likely have global variables
   that we set by calling functions.  Every OpenGL feature isn't used by every OpenGL
@@ -188,20 +172,12 @@ Set to Draw in Square Subsection Of Window
 * Look at the image above of NDC superimposed on Screen Space.  From this,
   the arguments sent to glScissor should be clear.
 
-.. literalinclude:: ../src/demo03/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 90
-   :lines: 90-91
+.. LINENOS ../src/demo03/demo.py scissorclear
 
 *  glClear will only update the square to black values.
 
 
-.. literalinclude:: ../src/demo03/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 92
-   :lines: 92
+.. LINENOS ../src/demo03/demo.py disablescissor
 
 * disable the scissor test, so now any opengl calls will
   happen as usual.
@@ -216,12 +192,8 @@ will be mapped the the region of screen coordinates
 that we care about, which is the black square.
 
 
+.. LINENOS ../src/demo03/demo.py viewportcall
 
-.. literalinclude:: ../src/demo03/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 94
-   :lines: 94-99
 
 The Event Loop
 &&&&&&&&&&&&&&
@@ -231,23 +203,11 @@ but this time we call the procedure to
 ensure that we only draw in a square subset of
 the window.
 
-.. literalinclude:: ../src/demo03/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 102
-   :lines: 102-107
+.. LINENOS ../src/demo03/demo.py eventloop
 
-.. literalinclude:: ../src/demo03/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 109
-   :lines: 109
+.. LINENOS ../src/demo03/demo.py callsquare
 
 * The event loop is the same as the previous demo, except
   that we call draw_in_square_viewport every frame at the beginning.
 
-.. literalinclude:: ../src/demo03/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 111
-   :lines: 111-128
+.. LINENOS ../src/demo03/demo.py drawpaddles

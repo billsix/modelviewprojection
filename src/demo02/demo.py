@@ -73,6 +73,7 @@ while not glfw.window_should_close(window):
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
+    # begin paddle1
     glColor3f(0.578123, 0.0, 1.0)
     glBegin(GL_QUADS)
     glVertex2f(-1.0, -0.3)
@@ -80,7 +81,9 @@ while not glfw.window_should_close(window):
     glVertex2f(-0.8, 0.3)
     glVertex2f(-1.0, 0.3)
     glEnd()
+    # end paddle1
 
+    # begin paddle2
     glColor3f(1.0, 0.0, 0.0)
     glBegin(GL_QUADS)
     glVertex2f(0.8, -0.3)
@@ -88,7 +91,10 @@ while not glfw.window_should_close(window):
     glVertex2f(1.0, 0.3)
     glVertex2f(0.8, 0.3)
     glEnd()
+    # end paddle2
 
+    # begin swapbuffers
     glfw.swap_buffers(window)
+    # end swapbuffers
 
 glfw.terminate()

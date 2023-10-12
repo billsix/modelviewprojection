@@ -28,3 +28,5 @@ def preprocess_file(filename, output_filename):
                     w.write("   :lines: " + str(int(begin_line_number) + 1) + '-' + str(int(end_line_number) - 1) + '\n')
 
 preprocess_file('ch01.in.rst', 'ch01.rst')
+preprocess_file('ch02.in.rst', 'ch02.rst')
+preprocess_file('ch03.in.rst', 'ch03.rst')

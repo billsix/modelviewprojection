@@ -70,15 +70,22 @@ glMatrixMode(GL_MODELVIEW)
 glLoadIdentity()
 
 
+# begin drawinsquare
 def draw_in_square_viewport() -> None:
+# end drawinsquare
 
+    # begin defaultclear
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
+    # end defaultclear
 
+    # begin framebuffersize
     width, height = glfw.get_framebuffer_size(window)
 
     square_size = width if width < height else height
+    # end framebuffersize
 
+    # begin enablescissortest
     glEnable(GL_SCISSOR_TEST)
     glScissor(
         int((width - square_size) / 2.0),  # bottom left x_screenspace
@@ -86,28 +93,37 @@ def draw_in_square_viewport() -> None:
         square_size,  # x width, screenspace
         square_size,  # y height, screenspace
     )
+    # end enablescissortest
 
+    # begin scissorclear
     glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
+    # end scissorclear
+    # begin disablescissor
     glDisable(GL_SCISSOR_TEST)
-
+    # end disablescissor
+    # begin viewportcall
     glViewport(
         int(0.0 + (width - square_size) / 2.0),
         int(0.0 + (height - square_size) / 2.0),
         square_size,
         square_size,
     )
+    # end viewportcall
 
-
+# begin eventloop
 while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    # end eventloop
 
+    # begin callsquare
     draw_in_square_viewport()
-
+    # end callsquare
+    # begin drawpaddles
     glColor3f(0.578123, 0.0, 1.0)
     glBegin(GL_QUADS)
     glVertex2f(-1.0, -0.3)
@@ -126,5 +142,5 @@ while not glfw.window_should_close(window):
     glEnd()
 
     glfw.swap_buffers(window)
-
+    #end drawpaddles
 glfw.terminate()
