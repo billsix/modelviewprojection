@@ -69,6 +69,7 @@ from OpenGL.GL import (
     glVertexAttribPointer,
     glViewport,
 )
+from numpy import ndarray
 
 # NEW - for shader location
 pwd = os.path.dirname(os.path.abspath(__file__))
@@ -155,7 +156,7 @@ class Paddle:
     vbo: int = 0
     shader: int = 0
 
-    def prepare_to_render(self):
+    def prepare_to_render(self) -> None:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices
@@ -252,7 +253,7 @@ class Paddle:
         glDeleteBuffers(1, [self.vbo])
         glDeleteProgram(self.shader)
 
-    def render(self, time):
+    def render(self, time: float) -> None:
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 
@@ -262,7 +263,7 @@ class Paddle:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -270,7 +271,7 @@ class Paddle:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -278,7 +279,7 @@ class Paddle:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
             ),
         )
         glDrawArrays(GL_TRIANGLES, 0, self.numberOfVertices)
@@ -330,10 +331,10 @@ square.prepare_to_render()
 
 
 class Ground:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def vertices(self):
+    def vertices(self) -> ndarray:
         # glColor3f(0.1,0.1,0.1)
         verts = []
         for x in range(-200, 201, 20):
@@ -353,7 +354,7 @@ class Ground:
 
         return np.array(verts, dtype=np.float32)
 
-    def prepare_to_render(self):
+    def prepare_to_render(self) -> None:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
@@ -407,7 +408,7 @@ class Ground:
         glDeleteBuffers(1, [self.vbo])
         glDeleteProgram(self.shader)
 
-    def render(self, time):
+    def render(self, time: float) -> None:
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 
@@ -417,7 +418,7 @@ class Ground:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -425,7 +426,7 @@ class Ground:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -433,7 +434,7 @@ class Ground:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
             ),
         )
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
@@ -445,10 +446,10 @@ ground.prepare_to_render()
 
 
 class Axis:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def vertices(self):
+    def vertices(self) -> ndarray:
         # glColor3f(0.1,0.1,0.1)
         verts = []
         verts.append(float(0.0))
@@ -478,7 +479,7 @@ class Axis:
 
         return np.array(verts, dtype=np.float32)
 
-    def prepare_to_render(self):
+    def prepare_to_render(self) -> None:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
@@ -533,7 +534,7 @@ class Axis:
         glDeleteBuffers(1, [self.vbo])
         glDeleteProgram(self.shader)
 
-    def render(self, time, grayed_out=False):
+    def render(self, time: float, grayed_out: bool=False) -> None:
         glDisable(GL_DEPTH_TEST)
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
@@ -556,7 +557,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.model),
+                        ms.get_current_matrix(ms.MatrixStack.model),
                         dtype=np.float32,
                     ),
                 )
@@ -565,7 +566,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.view),
+                        ms.get_current_matrix(ms.MatrixStack.view),
                         dtype=np.float32,
                     ),
                 )
@@ -574,7 +575,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.projection),
+                        ms.get_current_matrix(ms.MatrixStack.projection),
                         dtype=np.float32,
                     ),
                 )
@@ -598,7 +599,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.model),
+                        ms.get_current_matrix(ms.MatrixStack.model),
                         dtype=np.float32,
                     ),
                 )
@@ -607,7 +608,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.view),
+                        ms.get_current_matrix(ms.MatrixStack.view),
                         dtype=np.float32,
                     ),
                 )
@@ -616,7 +617,7 @@ class Axis:
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
-                        ms.getCurrentMatrix(ms.MatrixStack.projection),
+                        ms.get_current_matrix(ms.MatrixStack.projection),
                         dtype=np.float32,
                     ),
                 )
@@ -637,7 +638,7 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                    ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
                 ),
             )
             glUniformMatrix4fv(
@@ -645,7 +646,7 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                    ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
                 ),
             )
             glUniformMatrix4fv(
@@ -653,7 +654,7 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.getCurrentMatrix(ms.MatrixStack.projection),
+                    ms.get_current_matrix(ms.MatrixStack.projection),
                     dtype=np.float32,
                 ),
             )
@@ -667,10 +668,10 @@ axis.prepare_to_render()
 
 
 class NDCCube:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def vertices(self):
+    def vertices(self) -> ndarray:
         # glColor3f(0.1,0.1,0.1)
         verts = []
         verts.append(-1.0)
@@ -772,7 +773,7 @@ class NDCCube:
 
         return np.array(verts, dtype=np.float32)
 
-    def prepare_to_render(self):
+    def prepare_to_render(self) -> None:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
@@ -826,7 +827,7 @@ class NDCCube:
         glDeleteBuffers(1, [self.vbo])
         glDeleteProgram(self.shader)
 
-    def render(self, time):
+    def render(self, time: float) -> None:
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 
@@ -836,7 +837,7 @@ class NDCCube:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.model), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -844,7 +845,7 @@ class NDCCube:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.view), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
             ),
         )
         glUniformMatrix4fv(
@@ -852,7 +853,7 @@ class NDCCube:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
             ),
         )
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
@@ -877,7 +878,7 @@ square_rotation = math.radians(45.0)
 rotation_around_paddle1 = math.radians(10.0)
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -937,7 +938,7 @@ animation_paused = False
 enlarged_axis = True
 
 
-def highlighted_button(text, start_time, time):
+def highlighted_button(text: str, start_time: int, time: float) -> bool:
     highlight = time > start_time and (time - start_time) < 5
     if highlight:
         imgui.push_id(str(3))
@@ -1115,9 +1116,9 @@ while not glfw.window_should_close(window):
     # render scene
     handle_inputs()
 
-    ms.setToIdentityMatrix(ms.MatrixStack.model)
-    ms.setToIdentityMatrix(ms.MatrixStack.view)
-    ms.setToIdentityMatrix(ms.MatrixStack.projection)
+    ms.set_to_identity_matrix(ms.MatrixStack.model)
+    ms.set_to_identity_matrix(ms.MatrixStack.view)
+    ms.set_to_identity_matrix(ms.MatrixStack.projection)
 
     # set the projection matrix to be perspective
     ms.perspective(

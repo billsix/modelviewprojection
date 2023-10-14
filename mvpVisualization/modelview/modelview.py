@@ -114,7 +114,7 @@ square_rotation = math.radians(90.0)
 rotation_around_paddle1 = math.radians(30.0)
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -181,7 +181,7 @@ virtual_camera_rot_y = math.radians(-30.0)
 virtual_camera_rot_x = math.radians(15.0)
 
 
-def draw_ground():
+def draw_ground() -> None:
     # ascontiguousarray puts the array in column major order
     glLoadMatrixf(
         np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
@@ -198,7 +198,7 @@ def draw_ground():
     glEnd()
 
 
-def draw_y_axis():
+def draw_y_axis() -> None:
     # ascontiguousarray puts the array in column major order
     glLoadMatrixf(
         np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
@@ -218,7 +218,7 @@ def draw_y_axis():
     glEnd()
 
 
-def draw_axises(grayed_out=False):
+def draw_axises(grayed_out: bool=False) -> None:
     with ms.push_matrix(ms.MatrixStack.model):
         ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
 
@@ -250,7 +250,7 @@ def draw_axises(grayed_out=False):
 
 
 # this isn't really NDC, I scaled it so that it looks good, not be correct
-def draw_ndc():
+def draw_ndc() -> None:
     glLoadMatrixf(
         np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
     )

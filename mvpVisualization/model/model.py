@@ -69,6 +69,7 @@ from OpenGL.GL import (
     glVertexAttribPointer,
     glViewport,
 )
+from numpy import ndarray
 
 # NEW - for shader location
 pwd = os.path.dirname(os.path.abspath(__file__))
@@ -155,7 +156,7 @@ class Paddle:
     vbo: int = 0
     shader: int = 0
 
-    def prepare_to_render(self):
+    def prepare_to_render(self) -> None:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices
@@ -330,10 +331,10 @@ square.prepare_to_render()
 
 
 class Ground:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def vertices(self):
+    def vertices(self) -> ndarray:
         # glColor3f(0.1,0.1,0.1)
         verts = []
         for x in range(-200, 201, 20):
@@ -353,7 +354,7 @@ class Ground:
 
         return np.array(verts, dtype=np.float32)
 
-    def prepare_to_render(self):
+    def prepare_to_render(self) -> None:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
@@ -407,7 +408,7 @@ class Ground:
         glDeleteBuffers(1, [self.vbo])
         glDeleteProgram(self.shader)
 
-    def render(self, time):
+    def render(self, time: float) -> None:
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 
@@ -445,10 +446,10 @@ ground.prepare_to_render()
 
 
 class Axis:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def vertices(self):
+    def vertices(self) -> ndarray:
         # glColor3f(0.1,0.1,0.1)
         verts = []
         verts.append(float(0.0))
@@ -478,7 +479,7 @@ class Axis:
 
         return np.array(verts, dtype=np.float32)
 
-    def prepare_to_render(self):
+    def prepare_to_render(self) -> None:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
@@ -533,7 +534,7 @@ class Axis:
         glDeleteBuffers(1, [self.vbo])
         glDeleteProgram(self.shader)
 
-    def render(self, time, grayed_out=False):
+    def render(self, time: float, grayed_out: bool=False) -> None:
         glDisable(GL_DEPTH_TEST)
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
@@ -667,10 +668,10 @@ axis.prepare_to_render()
 
 
 class NDCCube:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def vertices(self):
+    def vertices(self) -> ndarray:
         # glColor3f(0.1,0.1,0.1)
         verts = []
         verts.append(-1.0)
@@ -772,7 +773,7 @@ class NDCCube:
 
         return np.array(verts, dtype=np.float32)
 
-    def prepare_to_render(self):
+    def prepare_to_render(self) -> None:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
@@ -826,7 +827,7 @@ class NDCCube:
         glDeleteBuffers(1, [self.vbo])
         glDeleteProgram(self.shader)
 
-    def render(self, time):
+    def render(self, time: float) -> None:
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 
@@ -877,7 +878,7 @@ square_rotation = math.radians(90.0)
 rotation_around_paddle1 = math.radians(30.0)
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -937,7 +938,7 @@ animation_paused = False
 enlarged_axis = True
 
 
-def highlighted_button(text, start_time, time):
+def highlighted_button(text: str, start_time: int, time: float) -> bool:
     highlight = time > start_time and (time - start_time) < 5
     if highlight:
         imgui.push_id(str(3))
