@@ -73,7 +73,7 @@ while not glfw.window_should_close(window):
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    # begin paddle1
+    # begin 1f8e965ae06faf5ab530a2df89117ac04c0cc8e4
     glColor3f(0.578123, 0.0, 1.0)
     glBegin(GL_QUADS)
     glVertex2f(-1.0, -0.3)
@@ -81,9 +81,9 @@ while not glfw.window_should_close(window):
     glVertex2f(-0.8, 0.3)
     glVertex2f(-1.0, 0.3)
     glEnd()
-    # end paddle1
+    # end 1f8e965ae06faf5ab530a2df89117ac04c0cc8e4
 
-    # begin paddle2
+    # begin 8c6c98d43b93df8ab7baffa3fc7aa3e073c15456
     glColor3f(1.0, 0.0, 0.0)
     glBegin(GL_QUADS)
     glVertex2f(0.8, -0.3)
@@ -91,10 +91,10 @@ while not glfw.window_should_close(window):
     glVertex2f(1.0, 0.3)
     glVertex2f(0.8, 0.3)
     glEnd()
-    # end paddle2
+    # end 8c6c98d43b93df8ab7baffa3fc7aa3e073c15456
 
-    # begin swapbuffers
+    # begin eb903e85756eb879f8371c3ed61c4de85801c970
     glfw.swap_buffers(window)
-    # end swapbuffers
+    # end eb903e85756eb879f8371c3ed61c4de85801c970
 
 glfw.terminate()

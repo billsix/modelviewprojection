@@ -404,19 +404,19 @@ and convert them to NDC.
 
 
 
-.. LINENOS ../src/demo06/demo.py vertexclass
+.. LINENOS ../src/demo06/demo.py 8d06005b531874a91efb0a652db8527497f3a345
 
-.. LINENOS ../src/demo06/demo.py scaledef
+.. LINENOS ../src/demo06/demo.py f8b77ac4a2656475404a658f038034e9ac9efb2e
 
 * NEW -- Add the ability to scale a vertex, to stretch or to shrink
 
 
 
-.. LINENOS ../src/demo06/demo.py paddledefs
+.. LINENOS ../src/demo06/demo.py be85f68c2e4e7e58096273ff1ab6a4abc162dc32
 
 * paddles are using modelspace coordinates instead of NDC
 
-.. LINENOS ../src/demo06/demo.py fndef
+.. LINENOS ../src/demo06/demo.py 1a17a9d680387b5c37d842115b617cdeb910be61
 
 
 * Movement code needs to happen in Modelspace's units.
@@ -428,7 +428,7 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. LINENOS ../src/demo06/demo.py eventloop
+.. LINENOS ../src/demo06/demo.py 3863f9f78b61a7b1c0c2faa12f9ea255c663edee
 
 
 
@@ -436,7 +436,7 @@ The Event Loop
 Rendering Paddle 1
 &&&&&&&&&&&&&&&&&&
 
-.. LINENOS ../src/demo06/demo.py paddle1loop
+.. LINENOS ../src/demo06/demo.py 57631feba3dbad52833765b9bfc51c42d90141af
 
 
 .. figure:: _static/translation-forwards-0.png
@@ -446,7 +446,7 @@ Rendering Paddle 1
 
     Paddle 1's Modelspace
 
-.. LINENOS ../src/demo06/demo.py translate
+.. LINENOS ../src/demo06/demo.py 5b1156f32f2d788cec10cedf43b7847fe92f5350
 
 
 
@@ -472,10 +472,10 @@ not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.
 
-.. LINENOS ../src/demo06/demo.py scale
+.. LINENOS ../src/demo06/demo.py 2091aa68e2d6d5bccdcb968391bf5d657fe9ad1a
 
 
-.. LINENOS ../src/demo06/demo.py paddle1vertex
+.. LINENOS ../src/demo06/demo.py 4788d1809c34fff4b8a6e63bd28c0ca90184457a
 
 
 
@@ -483,7 +483,7 @@ Rendering Paddle 2
 &&&&&&&&&&&&&&&&&&
 
 
-.. LINENOS ../src/demo06/demo.py paddle2
+.. LINENOS ../src/demo06/demo.py db2e4352f654c9b0309ed0470515ff61113aec8d
 
 
 
@@ -496,7 +496,7 @@ Rendering Paddle 2
     Paddle 2's Modelspace
 
 
-.. LINENOS ../src/demo06/demo.py paddle2translate
+.. LINENOS ../src/demo06/demo.py 8654606ea6b0f530930d8d43f6c0d110e867e0d8
 
 .. figure:: _static/translation2-forwards-2.png
     :align: center
@@ -514,14 +514,14 @@ Rendering Paddle 2
 
     Reset coordinate system.
 
-.. LINENOS ../src/demo06/demo.py paddle2scale
+.. LINENOS ../src/demo06/demo.py a9da863c1edd7395ad98084f43056476991a5c5c
 
 
-.. LINENOS ../src/demo06/demo.py p2vertex
+.. LINENOS ../src/demo06/demo.py 260c1301effa6c7ec13f1b36454be3ff448ee641
 
 The coordinate system is reset.  Now scale everything by 1/100.  I have
 not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.
 
-.. LINENOS ../src/demo06/demo.py swapbuf
+.. LINENOS ../src/demo06/demo.py 6d057656d804fe007498bc5d5314cb5a68788c67

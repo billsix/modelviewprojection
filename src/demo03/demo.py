@@ -70,22 +70,22 @@ glMatrixMode(GL_MODELVIEW)
 glLoadIdentity()
 
 
-# begin drawinsquare
+# begin 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
 def draw_in_square_viewport() -> None:
-# end drawinsquare
+# end 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
 
-    # begin defaultclear
+    # begin 263830783a8fbe25283deaa80688f95592917298
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
-    # end defaultclear
+    # end 263830783a8fbe25283deaa80688f95592917298
 
-    # begin framebuffersize
+    # begin 3db7c4975ad4354e344c0a2f0d4d94125195ce32
     width, height = glfw.get_framebuffer_size(window)
 
     square_size = width if width < height else height
-    # end framebuffersize
+    # end 3db7c4975ad4354e344c0a2f0d4d94125195ce32
 
-    # begin enablescissortest
+    # begin a2d0bcb5b525e8a68e0bc1ef213359f165981839enablescissortest
     glEnable(GL_SCISSOR_TEST)
     glScissor(
         int((width - square_size) / 2.0),  # bottom left x_screenspace
@@ -93,37 +93,37 @@ def draw_in_square_viewport() -> None:
         square_size,  # x width, screenspace
         square_size,  # y height, screenspace
     )
-    # end enablescissortest
+    # end a2d0bcb5b525e8a68e0bc1ef213359f165981839enablescissortest
 
-    # begin scissorclear
+    # begin db4245dba3c0c229416c97fe84da3cb87b1f439d
     glClearColor(0.0, 0.0, 0.0, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
-    # end scissorclear
-    # begin disablescissor
+    # end db4245dba3c0c229416c97fe84da3cb87b1f439d
+    # begin 9524935cab9f5725f921d11969872ebd9a54e508
     glDisable(GL_SCISSOR_TEST)
-    # end disablescissor
-    # begin viewportcall
+    # end 9524935cab9f5725f921d11969872ebd9a54e508
+    # begin defaeb0e6b9ada0b6c349a4dec907300e4c14acbviewportcall
     glViewport(
         int(0.0 + (width - square_size) / 2.0),
         int(0.0 + (height - square_size) / 2.0),
         square_size,
         square_size,
     )
-    # end viewportcall
+    # end defaeb0e6b9ada0b6c349a4dec907300e4c14acbviewportcall
 
-# begin eventloop
+# begin 33fecc926105eda74989fb02da7daca03e3bfea8
 while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    # end eventloop
+    # end 33fecc926105eda74989fb02da7daca03e3bfea8
 
-    # begin callsquare
+    # begin 415cedbd77f6cc02a34de30d2da1b24cab344c5c
     draw_in_square_viewport()
-    # end callsquare
-    # begin drawpaddles
+    # end 415cedbd77f6cc02a34de30d2da1b24cab344c5c
+    # begin bf9a23e3296c75d786d75f7b0e406448b773b23b
     glColor3f(0.578123, 0.0, 1.0)
     glBegin(GL_QUADS)
     glVertex2f(-1.0, -0.3)
@@ -142,5 +142,5 @@ while not glfw.window_should_close(window):
     glEnd()
 
     glfw.swap_buffers(window)
-    #end drawpaddles
+    #end bf9a23e3296c75d786d75f7b0e406448b773b23b
 glfw.terminate()

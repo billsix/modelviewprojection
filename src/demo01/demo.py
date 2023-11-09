@@ -18,10 +18,10 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# begin firstimport
+# begin 20134134fb054ac6764edfb4764935b86f20a795
 import sys
-# end firstimport
-# begin fromimports
+# end 20134134fb054ac6764edfb4764935b86f20a795
+# begin 6901922753dbf8df496fd46ae4a0eeb4e6243ef4
 from OpenGL.GL import (
     glMatrixMode,
     glLoadIdentity,
@@ -33,57 +33,57 @@ from OpenGL.GL import (
     glViewport,
     glClearColor,
 )
-# end fromimports
+# end 6901922753dbf8df496fd46ae4a0eeb4e6243ef4
 
-# begin importglfw
+# begin 4b5a486083da608751701fa7e42e37bbc4cfd06e
 import glfw
-# end importglfw
+# end 4b5a486083da608751701fa7e42e37bbc4cfd06e
 
-# begin initglfw
+# begin 0c30d0c1c7c793e097bcfb46208f14998d77dd0a
 if not glfw.init():
     sys.exit()
-# end initglfw
+# end 0c30d0c1c7c793e097bcfb46208f14998d77dd0a
 
-# begin openglversion
+# begin cbb5da55f24c88b41c195f36bbbf99969e95765c
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-# end openglversion
+# end cbb5da55f24c88b41c195f36bbbf99969e95765c
 
-# begin createwindow
+# begin d1e099847a03149e01d2ec4dc42bb261524b2a95
 window = glfw.create_window(500, 500, "ModelViewProjection Demo 1", None, None)
-# end createwindow
+# end d1e099847a03149e01d2ec4dc42bb261524b2a95
 
-# begin windowopen
+# begin a9948cba6a31fd1774c1a0e1ae634bbad8c6c7f3
 if not window:
     glfw.terminate()
     sys.exit()
-#end windowopen
+#end a9948cba6a31fd1774c1a0e1ae634bbad8c6c7f3
 
-# begin contextcurrent
+# begin 7ddbe862d3ff7b6ee489ac7ac565b8a5e72f7f9f
 glfw.make_context_current(window)
-# end contextcurrent
+# end 7ddbe862d3ff7b6ee489ac7ac565b8a5e72f7f9f
 
-# begin callback
+# begin 63277c9f3b6e8071722b93baf8e77bb8ee6c677d
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
-# end callback
+# end 63277c9f3b6e8071722b93baf8e77bb8ee6c677d
 
 glfw.set_key_callback(window, on_key)
 
-# begin clearcolor
+# begin 788fae9aeb2ebe9e911e2c3f6399f1b51a0bd956
 glClearColor(0.0, 0.0, 0.0, 1.0)
-# end clearcolor
+# end 788fae9aeb2ebe9e911e2c3f6399f1b51a0bd956
 
-# begin matrixmode
+# begin a3fdb44a76cc8a6b843c780a68e00366176eadab
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
 glMatrixMode(GL_MODELVIEW)
 glLoadIdentity()
-# end matrixmode
+# end a3fdb44a76cc8a6b843c780a68e00366176eadab
 
 
-# begin eventloop
+# begin b203706b4d71815e8490a9a65ff9fe1fe1db38cd
 while not glfw.window_should_close(window):
     glfw.poll_events()
 
@@ -91,6 +91,6 @@ while not glfw.window_should_close(window):
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glfw.swap_buffers(window)
-# end eventloop
+# end b203706b4d71815e8490a9a65ff9fe1fe1db38cd
 
 glfw.terminate()

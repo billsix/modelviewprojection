@@ -100,7 +100,7 @@ def draw_in_square_viewport() -> None:
         min,
     )
 
-# begin vertexclass
+# begin 45f8b976d5ca561e6551fced4b91491a0608e07c
 @dataclass
 class Vertex:
     x: float
@@ -108,9 +108,9 @@ class Vertex:
 
     def translate(self: Vertex, tx: float, ty: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty)
-# end vertexclass
+# end 45f8b976d5ca561e6551fced4b91491a0608e07c
 
-# begin paddleclass
+# begin c04057e28feefe7d49c375940e142dccd15bb006
 @dataclass
 class Paddle:
     vertices: list[Vertex]
@@ -118,9 +118,9 @@ class Paddle:
     g: float
     b: float
     position: Vertex
-# end paddleclass
+# end c04057e28feefe7d49c375940e142dccd15bb006
 
-# begin paddledef
+# begin 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
 paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-0.1, y=-0.3),
@@ -146,9 +146,9 @@ paddle2: Paddle = Paddle(
     b=0.0,
     position=Vertex(0.9, 0.0),
 )
-# end paddledef
+# end 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
 
-#begin fnhandle
+# begin b0d86b4d150b3ca92951137634b12d7881ee6350
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
@@ -160,13 +160,13 @@ def handle_movement_of_paddles() -> None:
         paddle2.position.y -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 0.1
-# end fnhandle
+# end b0d86b4d150b3ca92951137634b12d7881ee6350
 
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-#begin eventloop
+# begin 1cacf5f226065bc4b85826f7642bf817a36b6540
 while not glfw.window_should_close(window):
 
     while (
@@ -184,9 +184,9 @@ while not glfw.window_should_close(window):
 
     draw_in_square_viewport()
     handle_movement_of_paddles()
-    # end eventloop
+    # end 1cacf5f226065bc4b85826f7642bf817a36b6540
 
-    # begin paddle1
+    # begin 9de7437ce84e5390a8907af83bb84e955ca80286
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -196,9 +196,9 @@ while not glfw.window_should_close(window):
         )
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end paddle1
+    # end 9de7437ce84e5390a8907af83bb84e955ca80286
 
-    # begin paddle2
+    # begin 6b46719ca5e13f1c1c90c8ea495549599c6d0008
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -208,7 +208,7 @@ while not glfw.window_should_close(window):
         )
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end paddle2
+    # end 6b46719ca5e13f1c1c90c8ea495549599c6d0008
 
     glfw.swap_buffers(window)
 
