@@ -12,7 +12,7 @@ def find_line_numbers(filename, pattern):
 
 def preprocess_file(filename, output_filename):
     with open(filename) as f:
-        with open(output_filename, 'w') as w:
+        with open("source/" + output_filename, 'w') as w:
             for line in f.readlines():
                 if not line.startswith('.. LINENOS'):
                     w.write(line)
