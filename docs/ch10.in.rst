@@ -298,19 +298,9 @@ Code
 
 
 
+.. LINENOS ../src/demo10/demo.py 808b49966faf68394a1e4def233df33c08e37b27
 
-.. literalinclude:: ../src/demo10/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 161
-   :lines: 161-166
-
-
-.. literalinclude:: ../src/demo10/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 169
-   :lines: 169-179
+.. LINENOS ../src/demo10/demo.py e705ab925d5c7f3219b065cdf16eb13268f17ef9
 
 ::
 
@@ -326,67 +316,31 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../src/demo10/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 208
-   :lines: 208
+.. LINENOS ../src/demo10/demo.py 6d86d07154c99ed6e1c3feab73545d184153f9ae
 
 
-::
 
-    ...
-
-.. literalinclude:: ../src/demo10/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 226
-   :lines: 226-232
+.. LINENOS ../src/demo10/demo.py c1994fe03bc9e4428893f63706e07eb1d3bb14b5
 
 The camera's position is at camera.x, camera.y.  So
 apply the inverse of the camera's transformations
 to paddle 1's vertices, i.e. translate with the negative
 values.
 
-.. literalinclude:: ../src/demo10/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 233
-   :lines: 233-235
+.. LINENOS ../src/demo10/demo.py 9624d3a2dd009e3850cd5dce4470272fb9d9b4e0
 
-.. literalinclude:: ../src/demo10/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 236
-   :lines: 236-238
+.. LINENOS ../src/demo10/demo.py 4db386e7523575f5ab67841165a5297c8c0e1500
 
 
 
-::
 
-    ...
-
-.. literalinclude:: ../src/demo10/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 240
-   :lines: 240-246
+.. LINENOS ../src/demo10/demo.py 63cbaad0dbecc69f52bc428648308a48337e43c6
 
 The camera's position is at camera.x, camera.y.  So
 apply the inverse of the camera's  transformations
 to paddle 2's vertices, i.e. translate with the negative
 values.
 
+.. LINENOS ../src/demo10/demo.py ad53fd8251cc2c93fffec19223c3e70270e31410
 
-.. literalinclude:: ../src/demo10/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 247
-   :lines: 247-249
-
-
-.. literalinclude:: ../src/demo10/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 250
-   :lines: 250-252
+.. LINENOS ../src/demo10/demo.py 46159451e06ea71fbb3fc270b01f3b755a06040c

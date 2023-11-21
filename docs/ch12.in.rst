@@ -86,20 +86,11 @@ Code
 
 Make a variable to determine the angle that the square will be rotated.
 
-.. literalinclude:: ../src/demo12/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 177
-   :lines: 177
+.. LINENOS ../src/demo12/demo.py 3ae4d745b5afbd285e833b94972715efe8178822
 
 When 'q' is pressed, increase the angle.
 
-
-.. literalinclude:: ../src/demo12/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 180
-   :lines: 180-183
+.. LINENOS ../src/demo12/demo.py 430452dadde6cdec13eedba9906dc9aad1a25f2e
 
 ::
 
@@ -112,11 +103,8 @@ Event Loop
 In the previous chapter, this was the rendering code for
 the square.
 
-.. literalinclude:: ../src/demo11/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 249
-   :lines: 249-263
+.. LINENOS ../src/demo11/demo.py 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+
 
 Since we just want to add one rotation at the end of the sequence
 of transformations from paddle 1 space to square space, just add
@@ -124,11 +112,7 @@ a rotate call at the top.
 
 
 
-.. literalinclude:: ../src/demo12/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 254
-   :lines: 254-268
+.. LINENOS ../src/demo12/demo.py 7d764f79efa781036fc6d58825da898fca08d45c
 
 The author is getting really tired of having to look at all the different
 transformation functions repeatedly defined for each object being drawn.

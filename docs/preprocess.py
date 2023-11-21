@@ -18,11 +18,12 @@ def preprocess_file(filename, output_filename):
                 if not line.startswith('.. LINENOS'):
                     w.write(line)
                 else:
-                    source_file, pattern = line.split(' ')[2:]
-
                     try:
+                        source_file, pattern = line.split(' ')[2:]
                         begin_line_number, end_line_number = list(find_line_numbers(source_file, pattern))
                     except Exception as e:
+                        # import pdb
+                        # pdb.set_trace()
                         print(pattern)
                         print(e)
                         sys.exit(1)
