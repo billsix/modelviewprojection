@@ -1,4 +1,5 @@
 import re
+import sys
 
 def find_line_numbers(filename, pattern):
     with open(filename) as f:
@@ -19,7 +20,12 @@ def preprocess_file(filename, output_filename):
                 else:
                     source_file, pattern = line.split(' ')[2:]
 
-                    begin_line_number, end_line_number = list(find_line_numbers(source_file, pattern))
+                    try:
+                        begin_line_number, end_line_number = list(find_line_numbers(source_file, pattern))
+                    except Exception as e:
+                        print(pattern)
+                        print(e)
+                        sys.exit(1)
 
                     w.write(".. literalinclude:: " + source_file + '\n')
                     w.write("   :language: python\n")

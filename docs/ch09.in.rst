@@ -112,11 +112,7 @@ all the transformations happen relative to the global
 origin and axes, i.e. the natural *basis*.  After each function call, the basis
 is set back to the origin basis.
 
-.. literalinclude:: ../src/demo09/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 212
-   :lines: 212-214
+.. LINENOS ../src/demo09/demo.py 3b78276e1dad210e845c0455857c6ccad704f7c7
 
 
 .. figure:: _static/rotate1-forwards.gif
@@ -136,12 +132,7 @@ where the operations
 all cumulatively modify the current axes and origin, i.e. basis, to a new basis.
 All subsequent functions move that relative basis to a new relative basis.
 
-
-.. literalinclude:: ../src/demo09/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 212
-   :lines: 212-214
+.. LINENOS ../src/demo09/demo.py 3b78276e1dad210e845c0455857c6ccad704f7c7
 
 .. figure:: _static/rotate1-backwards.gif
     :align: center
@@ -185,11 +176,7 @@ L by a right-multiplication of M.
 
 
 
-.. literalinclude:: ../src/demo09/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 212
-   :lines: 212-214
+.. LINENOS ../src/demo09/demo.py 3b78276e1dad210e845c0455857c6ccad704f7c7
 
 
 Now go back to world space.  Think
@@ -198,12 +185,8 @@ the edges to screen space,
 reading the transformations
 from top down, and resetting the coordinate system after every transformation.
 
-.. literalinclude:: ../src/demo09/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 215
-   :lines: 215-216
 
+.. LINENOS ../src/demo09/demo.py bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
 
 
 
@@ -220,39 +203,22 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
+.. LINENOS ../src/demo09/demo.py 5748cc21902ad56527c65e167b4ef44bd62f392e
 
 
-.. literalinclude:: ../src/demo09/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 189
-   :lines: 189
+.. LINENOS ../src/demo09/demo.py 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
 
-::
-
-    ...
-
-.. literalinclude:: ../src/demo09/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 207
-   :lines: 207-217
-
+* TODO Fix these line numbers
 * Read line 212-213
 * Read line 211
 * Reset the coordinate system
 * Read line 214-215
 
-::
 
-    ...
+.. LINENOS ../src/demo09/demo.py c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
 
-.. literalinclude:: ../src/demo09/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 220
-   :lines: 220-230
 
+* TODO Fix these line numbers
 * Read line 225-226
 * Read line 224
 * Reset the coordinate system

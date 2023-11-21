@@ -190,29 +190,19 @@ get your vertex rotated around the origin!
 (0.5*cos(angle) + 0.4*-sin(angle), 0.5*sin(angle) + 0.4*cos(angle))
 
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 106
-   :lines: 106-121
+.. LINENOS ../src/demo07/demo.py 0650dc123c5604096222ab7f34523251869be0e3
 
 
 * Note the definition of rotate, from the description above.
   cos and sin are defined in the math module.
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 124
-   :lines: 124-131
+
+.. LINENOS ../src/demo07/demo.py cf32927e5bb15098767fad214706f03ddfe49a1c
 
 * a rotation instance variable is defined, with a default value of 0
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 161
-   :lines: 161-182
+.. LINENOS ../src/demo07/demo.py 1cf68248b869564df5f3133b98adb2e06601ed3b
+
 
 
 Cayley Graph
@@ -235,27 +225,16 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 189
-   :lines: 189
+.. LINENOS ../src/demo07/demo.py 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
 
-::
-
-    ...
 
 So to rotate paddle 1 about its center,
 we should translate to its position, and then rotate
 around the paddle's center.
 
 
+.. LINENOS ../src/demo07/demo.py 4ae8b0ebe66cd4de6b0150ac5cd4fa92abdd9985
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 205
-   :lines: 205-208
 
 .. math::
 
@@ -263,11 +242,7 @@ around the paddle's center.
     \vec{f}_{p1}^{w}
 
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 209
-   :lines: 209-211
+.. LINENOS ../src/demo07/demo.py 1699ece7b62ace3842c391a972f2d27c5e022993
 
 
 .. math::
@@ -276,20 +251,11 @@ around the paddle's center.
     \vec{f}_{w}^{ndc}
 
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 212
-   :lines: 212
 
+.. LINENOS ../src/demo07/demo.py ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
 
+.. LINENOS ../src/demo07/demo.py 46159451e06ea71fbb3fc270b01f3b755a06040c
 
-
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 213
-   :lines: 213-214
 
 
 ::
@@ -304,12 +270,7 @@ around the paddle's center.
 
 
 
-
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 218
-   :lines: 218-219
+.. LINENOS ../src/demo07/demo.py dd17b8cf2992da4f0752dd3f54dba416a5f04d64
 
 .. math::
 
@@ -317,11 +278,7 @@ around the paddle's center.
     \vec{f}_{p2}^{w}
 
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 220
-   :lines: 220-222
+.. LINENOS ../src/demo07/demo.py 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
 
 
 .. math::
@@ -331,17 +288,11 @@ around the paddle's center.
 
 
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 223
-   :lines: 223
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 224
-   :lines: 224-225
+.. LINENOS ../src/demo07/demo.py 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
+
+.. LINENOS ../src/demo07/demo.py 696e8248badabab740bf65566030cf31d8bae2f2
+
 
 
 
@@ -355,11 +306,8 @@ are not rotating around their center.
 Let's take a look in detail about what our paddlespace to
 world space transformations are doing.
 
-.. literalinclude:: ../src/demo07/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 209
-   :lines: 209-211
+.. LINENOS ../src/demo07/demo.py 1699ece7b62ace3842c391a972f2d27c5e022993
+
 
 
 
