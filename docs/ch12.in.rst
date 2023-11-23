@@ -37,8 +37,8 @@ Rotate the square around its origin.
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a shell, type "python src/demo13/demo.py".
-On Windows, in a command prompt, type "python src\\demo13\\demo.py".
+On Linux or on MacOS, in a shell, type "python src/demo12/demo.py".
+On Windows, in a command prompt, type "python src\\demo12\\demo.py".
 
 
 Move the Paddles using the Keyboard
