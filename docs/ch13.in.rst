@@ -75,31 +75,16 @@ Cayley Graph
 
     Demo 13
 
-
-.. literalinclude:: ../src/demo13/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 177
-   :lines: 177
+.. LINENOS ../src/demo13/demo.py 2a8e38cc39d597fceddccb30edce196ea046a770
 
 
 Event Loop
 ^^^^^^^^^^
 
-
-.. literalinclude:: ../src/demo13/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 227
-   :lines: 227
+.. LINENOS ../src/demo13/demo.py 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
 
 ::
 
     ...
 
-
-.. literalinclude:: ../src/demo13/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 259
-   :lines: 259-274
+.. LINENOS ../src/demo13/demo.py f4ab63a2bc7b673fa5f9d281d73aed0af2ab6e53
