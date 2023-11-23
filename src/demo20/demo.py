@@ -295,7 +295,7 @@ while not glfw.window_should_close(window):
     # we need to save onto the current "function",
     # aka matrix, for the subsequent geometry
     # the width statement ensures that the matrix is
-    # pushed onto a stack, and when the with block ends,
+    # pushed onto a stack, and when the with block doc-region-ends,
     # it will be automatically popped off of the stack
     glPushMatrix()
 
@@ -313,7 +313,7 @@ while not glfw.window_should_close(window):
         glVertex3f(model_space[0], model_space[1], model_space[2])
     glEnd()
 
-    # end of paddle 1
+    # doc-region-end of paddle 1
 
     # draw the square
     # given that no nodes are defined relative to the square, we do not need

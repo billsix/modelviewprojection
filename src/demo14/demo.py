@@ -105,7 +105,7 @@ def draw_in_square_viewport() -> None:
     )
 
 
-# begin d38e00f1c19bce775ae4216e4ed95a31a814eee0
+# doc-region-begin d38e00f1c19bce775ae4216e4ed95a31a814eee0
 @dataclass
 class Vertex:
     x: float
@@ -115,9 +115,9 @@ class Vertex:
     def translate(self: Vertex, tx: float, ty: float, tz: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
 
-    # end d38e00f1c19bce775ae4216e4ed95a31a814eee0
+    # doc-region-end d38e00f1c19bce775ae4216e4ed95a31a814eee0
 
-    # begin 3e09ecd4a77c68066fe97bfa4f06e89afb583f9d
+    # doc-region-begin 3e09ecd4a77c68066fe97bfa4f06e89afb583f9d
     def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.x,
@@ -125,9 +125,9 @@ class Vertex:
             z=self.y * math.sin(angle_in_radians) + self.z * math.cos(angle_in_radians),
         )
 
-    # end 3e09ecd4a77c68066fe97bfa4f06e89afb583f9d
+    # doc-region-end 3e09ecd4a77c68066fe97bfa4f06e89afb583f9d
 
-    # begin 256be1d4ab5b90068be656bb99ff1115268d8925
+    # doc-region-begin 256be1d4ab5b90068be656bb99ff1115268d8925
     def rotate_y(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.z * math.sin(angle_in_radians) + self.x * math.cos(angle_in_radians),
@@ -135,9 +135,9 @@ class Vertex:
             z=self.z * math.cos(angle_in_radians) - self.x * math.sin(angle_in_radians),
         )
 
-    # end 256be1d4ab5b90068be656bb99ff1115268d8925
+    # doc-region-end 256be1d4ab5b90068be656bb99ff1115268d8925
 
-    # begin 1b96b48e7e572197721cad2a7d082f167159f2d8
+    # doc-region-begin 1b96b48e7e572197721cad2a7d082f167159f2d8
     def rotate_z(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
             x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
@@ -145,13 +145,13 @@ class Vertex:
             z=self.z,
         )
 
-    # end 1b96b48e7e572197721cad2a7d082f167159f2d8
+    # doc-region-end 1b96b48e7e572197721cad2a7d082f167159f2d8
 
-    # begin dd45247963bb4a02bf2430d98a7f52e707c9e15a
+    # doc-region-begin dd45247963bb4a02bf2430d98a7f52e707c9e15a
     def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
 
-    # end dd45247963bb4a02bf2430d98a7f52e707c9e15a
+    # doc-region-end dd45247963bb4a02bf2430d98a7f52e707c9e15a
 
 
 @dataclass
@@ -164,7 +164,7 @@ class Paddle:
     rotation: float = 0.0
 
 
-# begin d5bd9d04649181c42a65f8a7d52125a0ef86a928
+# doc-region-begin d5bd9d04649181c42a65f8a7d52125a0ef86a928
 paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-10.0, y=-30.0, z=0.0),
@@ -190,7 +190,7 @@ paddle2: Paddle = Paddle(
     b=0.0,
     position=Vertex(x=90.0, y=0.0, z=0.0),
 )
-# end d5bd9d04649181c42a65f8a7d52125a0ef86a928
+# doc-region-end d5bd9d04649181c42a65f8a7d52125a0ef86a928
 
 
 @dataclass
@@ -200,14 +200,14 @@ class Camera:
 
 camera: Camera = Camera()
 
-# begin 603eda05b403ac6bd756d050f26d9e6497bf748a
+# doc-region-begin 603eda05b403ac6bd756d050f26d9e6497bf748a
 square: Paddle = [
     Vertex(x=-5.0, y=-5.0, z=0.0),
     Vertex(x=5.0, y=-5.0, z=0.0),
     Vertex(x=5.0, y=5.0, z=0.0),
     Vertex(x=-5.0, y=5.0, z=0.0),
 ]
-# end 603eda05b403ac6bd756d050f26d9e6497bf748a
+# doc-region-end 603eda05b403ac6bd756d050f26d9e6497bf748a
 
 square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
@@ -260,9 +260,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# begin ee882a76ee2962c327841e2a952998acce07cc2a
+# doc-region-begin ee882a76ee2962c327841e2a952998acce07cc2a
 while not glfw.window_should_close(window):
-    # end ee882a76ee2962c327841e2a952998acce07cc2a
+    # doc-region-end ee882a76ee2962c327841e2a952998acce07cc2a
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -280,7 +280,7 @@ while not glfw.window_should_close(window):
     handle_inputs()
 
     # fmt: off
-    # begin 2f5cb93361c42475b16dec8246c81c711b1a2db3
+    # doc-region-begin 2f5cb93361c42475b16dec8246c81c711b1a2db3
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
@@ -296,11 +296,11 @@ while not glfw.window_should_close(window):
                                                scale_z=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end 2f5cb93361c42475b16dec8246c81c711b1a2db3
+    # doc-region-end 2f5cb93361c42475b16dec8246c81c711b1a2db3
     # fmt: on
 
     # fmt: off
-    # begin 485064c9e30f4471b74d11b8cca3c8f0d142b552
+    # doc-region-begin 485064c9e30f4471b74d11b8cca3c8f0d142b552
     # draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
@@ -326,11 +326,11 @@ while not glfw.window_should_close(window):
         )
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-    # end 485064c9e30f4471b74d11b8cca3c8f0d142b552
+    # doc-region-end 485064c9e30f4471b74d11b8cca3c8f0d142b552
     # fmt: on
 
     # fmt: off
-    # begin 79bca06683ced2f641ea47f14d22bc330f75979f
+    # doc-region-begin 79bca06683ced2f641ea47f14d22bc330f75979f
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
@@ -347,7 +347,7 @@ while not glfw.window_should_close(window):
                                                scale_z=1.0 / 100.0)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-    # end 79bca06683ced2f641ea47f14d22bc330f75979f
+    # doc-region-end 79bca06683ced2f641ea47f14d22bc330f75979f
     # fmt: off
 
     glfw.swap_buffers(window)

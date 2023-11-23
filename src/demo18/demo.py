@@ -300,12 +300,12 @@ def handle_inputs() -> None:
         paddle2.rotation -= 0.1
 
 
-# begin 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842
+# doc-region-begin 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842
 fn_stack: List[Callable[Vertex, Vertex]] = []
-# end 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842
+# doc-region-end 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842
 
 
-# begin b10a3979fe71e9a6afb18fa102ceb44ab253abc6
+# doc-region-begin b10a3979fe71e9a6afb18fa102ceb44ab253abc6
 def apply_stack(vertex: Vertex) -> Vertex:
     v = vertex
     for fn in reversed(fn_stack):
@@ -313,15 +313,15 @@ def apply_stack(vertex: Vertex) -> Vertex:
     return v
 
 
-# end b10a3979fe71e9a6afb18fa102ceb44ab253abc6
+# doc-region-end b10a3979fe71e9a6afb18fa102ceb44ab253abc6
 
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# begin 6d86d07154c99ed6e1c3feab73545d184153f9ae
+# doc-region-begin 6d86d07154c99ed6e1c3feab73545d184153f9ae
 while not glfw.window_should_close(window):
-    # end 6d86d07154c99ed6e1c3feab73545d184153f9ae
+    # doc-region-end 6d86d07154c99ed6e1c3feab73545d184153f9ae
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -360,11 +360,11 @@ while not glfw.window_should_close(window):
         if math.fabs(axes_list[0][4]) > 0.19:
             camera.rot_x += axes_list[0][4] * 0.01
 
-    # begin 48bd13153ce54db3f6b9ea5833e91820b7d8b020
+    # doc-region-begin 48bd13153ce54db3f6b9ea5833e91820b7d8b020
     fn_stack.append(lambda v: v.camera_space_to_ndc_space_fn())  # (1)
-    # end 48bd13153ce54db3f6b9ea5833e91820b7d8b020
+    # doc-region-end 48bd13153ce54db3f6b9ea5833e91820b7d8b020
 
-    # begin f217e71c7f5a228622d5db86e6fe0dec1e072dca
+    # doc-region-begin f217e71c7f5a228622d5db86e6fe0dec1e072dca
     # fn_stack.append(
     #     lambda v: v.translate(tx=camera.position_worldspace.x,
     #                           ty=camera.position_worldspace.y,
@@ -372,25 +372,25 @@ while not glfw.window_should_close(window):
     # )
     # fn_stack.append(lambda v: v.rotate_y(camera.rot_y))
     # fn_stack.append(lambda v: v.rotate_x(camera.rot_x))
-    # end f217e71c7f5a228622d5db86e6fe0dec1e072dca
+    # doc-region-end f217e71c7f5a228622d5db86e6fe0dec1e072dca
 
     # fmt: off
-    # begin c0dcf40149c0b85d84f13b4421a114409a274432
+    # doc-region-begin c0dcf40149c0b85d84f13b4421a114409a274432
     fn_stack.append(lambda v: v.rotate_x(-camera.rot_x))  # (2)
     fn_stack.append(lambda v: v.rotate_y(-camera.rot_y))  # (3)
     fn_stack.append(lambda v: v.translate(tx=-camera.position_worldspace.x,
                                           ty=-camera.position_worldspace.y,
                                           tz=-camera.position_worldspace.z))  # (4)
-    # end c0dcf40149c0b85d84f13b4421a114409a274432
+    # doc-region-end c0dcf40149c0b85d84f13b4421a114409a274432
     # fmt: on
 
     # fmt: off
-    # begin 7de7248650b2809520898faed65be4050d2b441a
+    # doc-region-begin 7de7248650b2809520898faed65be4050d2b441a
     fn_stack.append(lambda v: v.translate(tx=paddle1.position.x,
                                           ty=paddle1.position.y,
                                           tz=0.0)) # (5) translate the local origin
     fn_stack.append(lambda v: v.rotate_z(paddle1.rotation)) # (6) (rotate around the local z axis
-    # end 7de7248650b2809520898faed65be4050d2b441a
+    # doc-region-end 7de7248650b2809520898faed65be4050d2b441a
     # fmt: on
 
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
@@ -401,7 +401,7 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
-    # begin 87d309a76468a5dd49f5805f739932d7a1b4dac1
+    # doc-region-begin 87d309a76468a5dd49f5805f739932d7a1b4dac1
     glColor3f(0.0, 0.0, 1.0)
 
     fn_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0))  # (7)
@@ -414,19 +414,19 @@ while not glfw.window_should_close(window):
         ndc_space = apply_stack(model_space)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-    # end 87d309a76468a5dd49f5805f739932d7a1b4dac1
+    # doc-region-end 87d309a76468a5dd49f5805f739932d7a1b4dac1
 
-    # begin 6e83cdfe078bb103bf04c3d53a4c4ec7cb22ef60
+    # doc-region-begin 6e83cdfe078bb103bf04c3d53a4c4ec7cb22ef60
     fn_stack.pop()  # pop off (10)
     fn_stack.pop()  # pop off (9)
     fn_stack.pop()  # pop off (8)
     fn_stack.pop()  # pop off (7)
     fn_stack.pop()  # pop off (6)
     fn_stack.pop()  # pop off (5)
-    # end 6e83cdfe078bb103bf04c3d53a4c4ec7cb22ef60
+    # doc-region-end 6e83cdfe078bb103bf04c3d53a4c4ec7cb22ef60
 
     # fmt: off
-    # begin 9206a08662c91ad536b41641910f7e8e951f7c9e
+    # doc-region-begin 9206a08662c91ad536b41641910f7e8e951f7c9e
     fn_stack.append(lambda v: v.translate(tx=paddle2.position.x,
                                           ty=paddle2.position.y,
                                           tz=0.0))  # (5)
@@ -439,21 +439,21 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = apply_stack(model_space)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-    # end 9206a08662c91ad536b41641910f7e8e951f7c9e
+    # doc-region-end 9206a08662c91ad536b41641910f7e8e951f7c9e
     # fmt: on
 
-    # begin 4d0f02db53413ede074a8693bb19e68292db3bd4
+    # doc-region-begin 4d0f02db53413ede074a8693bb19e68292db3bd4
     fn_stack.clear()  # done rendering everything, just go ahead and clean 1-6 off of the stack
-    # end 4d0f02db53413ede074a8693bb19e68292db3bd4
+    # doc-region-end 4d0f02db53413ede074a8693bb19e68292db3bd4
 
-    # begin 64809e2fccc9daa3f97239991d905b7fc3f03d62
+    # doc-region-begin 64809e2fccc9daa3f97239991d905b7fc3f03d62
     glfw.swap_buffers(window)
-    # end 64809e2fccc9daa3f97239991d905b7fc3f03d62
+    # doc-region-end 64809e2fccc9daa3f97239991d905b7fc3f03d62
 
 fn_stack = []
 
 
-# begin 1b3386db3fb40d61e80828a90a820b3a235ca940
+# doc-region-begin 1b3386db3fb40d61e80828a90a820b3a235ca940
 def identity(x):
     return x
 
@@ -470,49 +470,49 @@ def add_5(x):
     return x + 5
 
 
-# end 1b3386db3fb40d61e80828a90a820b3a235ca940
+# doc-region-end 1b3386db3fb40d61e80828a90a820b3a235ca940
 
 # never pop this off, otherwise can't apply the stack
-# begin 6e7a7ee4a8493ddc6478bcaf2dbb6fb4a2a9753a
+# doc-region-begin 6e7a7ee4a8493ddc6478bcaf2dbb6fb4a2a9753a
 fn_stack.append(identity)
 print(fn_stack)
 print(apply_stack(1))  # x = 1
-# end 6e7a7ee4a8493ddc6478bcaf2dbb6fb4a2a9753a
+# doc-region-end 6e7a7ee4a8493ddc6478bcaf2dbb6fb4a2a9753a
 
-# begin ccac3b1b9bc8c759e45929c467274c763f7671c7
+# doc-region-begin ccac3b1b9bc8c759e45929c467274c763f7671c7
 fn_stack.append(add_one)
 print(fn_stack)
 print(apply_stack(1))  # x + 1 = 2
-# end ccac3b1b9bc8c759e45929c467274c763f7671c7
+# doc-region-end ccac3b1b9bc8c759e45929c467274c763f7671c7
 
-# begin 24f3367f7ffaefa3d882a20f772ce7f089049391
+# doc-region-begin 24f3367f7ffaefa3d882a20f772ce7f089049391
 fn_stack.append(multiply_by_2)  # (x * 2) + 1 = 3
 print(fn_stack)
 print(apply_stack(1))
-# end 24f3367f7ffaefa3d882a20f772ce7f089049391
+# doc-region-end 24f3367f7ffaefa3d882a20f772ce7f089049391
 
-# begin b2d4aee29938ffba8e023e2d523e5a8b7b400bee
+# doc-region-begin b2d4aee29938ffba8e023e2d523e5a8b7b400bee
 fn_stack.append(add_5)  # ((x + 5) * 2) + 1 = 13
 print(fn_stack)
 print(apply_stack(1))
-# end b2d4aee29938ffba8e023e2d523e5a8b7b400bee
+# doc-region-end b2d4aee29938ffba8e023e2d523e5a8b7b400bee
 
-# begin 95d6bcea04206261224089df1734055b9b4196d3
+# doc-region-begin 95d6bcea04206261224089df1734055b9b4196d3
 fn_stack.pop()
 print(fn_stack)
 print(apply_stack(1))  # (x * 2) + 1 = 3
-# end 95d6bcea04206261224089df1734055b9b4196d3
+# doc-region-end 95d6bcea04206261224089df1734055b9b4196d3
 
-# begin 55dd21f698dbbde5bd5d1b332279d099a315f771
+# doc-region-begin 55dd21f698dbbde5bd5d1b332279d099a315f771
 fn_stack.pop()
 print(fn_stack)
 print(apply_stack(1))  # x + 1 = 2
-# end 55dd21f698dbbde5bd5d1b332279d099a315f771
+# doc-region-end 55dd21f698dbbde5bd5d1b332279d099a315f771
 
-# begin e09b968f9c8a2f9db13475d1c9ac310d94e54a2a
+# doc-region-begin e09b968f9c8a2f9db13475d1c9ac310d94e54a2a
 fn_stack.pop()
 print(fn_stack)
 print(apply_stack(1))  # x = 1
-# end e09b968f9c8a2f9db13475d1c9ac310d94e54a2a
+# doc-region-end e09b968f9c8a2f9db13475d1c9ac310d94e54a2a
 
 glfw.terminate()

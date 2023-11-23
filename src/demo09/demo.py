@@ -186,9 +186,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# begin 5748cc21902ad56527c65e167b4ef44bd62f392e
+# doc-region-begin 5748cc21902ad56527c65e167b4ef44bd62f392e
 while not glfw.window_should_close(window):
-    # end 5748cc21902ad56527c65e167b4ef44bd62f392e
+    # doc-region-end 5748cc21902ad56527c65e167b4ef44bd62f392e
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -207,28 +207,28 @@ while not glfw.window_should_close(window):
 
     # draw paddle 1
     # fmt: off
-    # begin 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
+    # doc-region-begin 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        # begin 3b78276e1dad210e845c0455857c6ccad704f7c7
+        # doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
         world_space: Vertex = model_space.rotate(paddle1.rotation) \
                                          .translate(tx=paddle1.position.x,
                                                     ty=paddle1.position.y)
-        # end 3b78276e1dad210e845c0455857c6ccad704f7c7
-        # begin bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
+        # doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
+        # doc-region-begin bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
         ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
                                               scale_y=1.0 / 100.0)
-        # end bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
+        # doc-region-end bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
+    # doc-region-end 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
     # fmt: on
 
     # draw paddle 2
     # fmt: off
-    # begin c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
+    # doc-region-begin c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -240,7 +240,7 @@ while not glfw.window_should_close(window):
                                               scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
+    # doc-region-end c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
     # fmt: on
     glfw.swap_buffers(window)
 

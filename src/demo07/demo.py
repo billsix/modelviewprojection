@@ -103,7 +103,7 @@ def draw_in_square_viewport() -> None:
     )
 
 
-# begin 0650dc123c5604096222ab7f34523251869be0e3
+# doc-region-begin 0650dc123c5604096222ab7f34523251869be0e3
 @dataclass
 class Vertex:
     x: float
@@ -121,10 +121,10 @@ class Vertex:
             y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
         )
 
-    # end 0650dc123c5604096222ab7f34523251869be0e3
+    # doc-region-end 0650dc123c5604096222ab7f34523251869be0e3
 
 
-# begin cf32927e5bb15098767fad214706f03ddfe49a1c
+# doc-region-begin cf32927e5bb15098767fad214706f03ddfe49a1c
 @dataclass
 class Paddle:
     vertices: list[Vertex]
@@ -133,7 +133,7 @@ class Paddle:
     b: float
     position: Vertex
     rotation: float = 0.0
-    # end cf32927e5bb15098767fad214706f03ddfe49a1c
+    # doc-region-end cf32927e5bb15098767fad214706f03ddfe49a1c
 
 
 paddle1: Paddle = Paddle(
@@ -163,7 +163,7 @@ paddle2: Paddle = Paddle(
 )
 
 
-# begin 1cf68248b869564df5f3133b98adb2e06601ed3b
+# doc-region-begin 1cf68248b869564df5f3133b98adb2e06601ed3b
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
@@ -186,16 +186,16 @@ def handle_movement_of_paddles() -> None:
         paddle2.rotation += 0.1
     if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
         paddle2.rotation -= 0.1
-    # end 1cf68248b869564df5f3133b98adb2e06601ed3b
+    # doc-region-end 1cf68248b869564df5f3133b98adb2e06601ed3b
 
 
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+# doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
 while not glfw.window_should_close(window):
-    # end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+    # doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -211,53 +211,53 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
-    # begin 4ae8b0ebe66cd4de6b0150ac5cd4fa92abdd9985
+    # doc-region-begin 4ae8b0ebe66cd4de6b0150ac5cd4fa92abdd9985
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        # end 4ae8b0ebe66cd4de6b0150ac5cd4fa92abdd9985
+        # doc-region-end 4ae8b0ebe66cd4de6b0150ac5cd4fa92abdd9985
         # fmt: off
-        # begin 1699ece7b62ace3842c391a972f2d27c5e022993
+        # doc-region-begin 1699ece7b62ace3842c391a972f2d27c5e022993
         world_space: Vertex = model_space.translate(tx=paddle1.position.x,
                                                     ty=paddle1.position.y) \
                                          .rotate(paddle1.rotation)
-        # end 1699ece7b62ace3842c391a972f2d27c5e022993
+        # doc-region-end 1699ece7b62ace3842c391a972f2d27c5e022993
         # fmt: on
         # fmt: off
-        # begin ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
+        # doc-region-begin ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
         ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
                                               scale_y=1.0 / 100.0)
-        # end ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
+        # doc-region-end ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
         # fmt: on
-        # begin 46159451e06ea71fbb3fc270b01f3b755a06040c
+        # doc-region-begin 46159451e06ea71fbb3fc270b01f3b755a06040c
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end 46159451e06ea71fbb3fc270b01f3b755a06040c
+    # doc-region-end 46159451e06ea71fbb3fc270b01f3b755a06040c
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
-    # begin dd17b8cf2992da4f0752dd3f54dba416a5f04d64
+    # doc-region-begin dd17b8cf2992da4f0752dd3f54dba416a5f04d64
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        # end dd17b8cf2992da4f0752dd3f54dba416a5f04d64
+        # doc-region-end dd17b8cf2992da4f0752dd3f54dba416a5f04d64
         # fmt: off
-        # begin 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
+        # doc-region-begin 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
         world_space: Vertex = model_space.translate(tx=paddle2.position.x,
                                                     ty=paddle2.position.y) \
                                          .rotate(paddle2.rotation)
-        # end 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
+        # doc-region-end 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
         # fmt: on
         # fmt: off
-        # begin 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
+        # doc-region-begin 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
         ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
                                               scale_y=1.0 / 100.0)
-        # end 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
+        # doc-region-end 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
         # fmt: on
-        # begin 696e8248badabab740bf65566030cf31d8bae2f2
+        # doc-region-begin 696e8248badabab740bf65566030cf31d8bae2f2
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end 696e8248badabab740bf65566030cf31d8bae2f2
+    # doc-region-end 696e8248badabab740bf65566030cf31d8bae2f2
     glfw.swap_buffers(window)
 
 glfw.terminate()

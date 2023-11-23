@@ -164,14 +164,14 @@ class Camera:
 camera: Camera = Camera()
 
 
-# begin 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
+# doc-region-begin 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
 square: Paddle = [
     Vertex(x=-5.0, y=-5.0),
     Vertex(x=5.0, y=-5.0),
     Vertex(x=5.0, y=5.0),
     Vertex(x=-5.0, y=5.0),
 ]
-# end 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
+# doc-region-end 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
 
 
 def handle_inputs() -> None:
@@ -214,9 +214,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+# doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
 while not glfw.window_should_close(window):
-    # end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+    # doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
 
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
@@ -235,7 +235,7 @@ while not glfw.window_should_close(window):
     handle_inputs()
 
     # fmt: off
-    # begin 7dab1135450b265814f775c59807f77b44273a4e
+    # doc-region-begin 7dab1135450b265814f775c59807f77b44273a4e
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -249,11 +249,11 @@ while not glfw.window_should_close(window):
                                                scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end 7dab1135450b265814f775c59807f77b44273a4e
+    # doc-region-end 7dab1135450b265814f775c59807f77b44273a4e
     # fmt: on
 
     # fmt: off
-    # begin 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+    # doc-region-begin 9a0ba48a086f35a4515bf32b4a856888c178b0e8
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
@@ -268,11 +268,11 @@ while not glfw.window_should_close(window):
                                                scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+    # doc-region-end 9a0ba48a086f35a4515bf32b4a856888c178b0e8
     # fmt: on
 
     # fmt: off
-    # begin 12cd2bedfe522c8c192106296c12e8344f1594d4
+    # doc-region-begin 12cd2bedfe522c8c192106296c12e8344f1594d4
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -286,7 +286,7 @@ while not glfw.window_should_close(window):
                                                scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end 12cd2bedfe522c8c192106296c12e8344f1594d4
+    # doc-region-end 12cd2bedfe522c8c192106296c12e8344f1594d4
     # fmt: on
 
     glfw.swap_buffers(window)

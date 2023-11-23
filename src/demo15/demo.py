@@ -75,11 +75,11 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
-# begin 133ee72ec8b92f7564d6c44a56a74067f9505bbf
+# doc-region-begin 133ee72ec8b92f7564d6c44a56a74067f9505bbf
 glClearDepth(-1.0)
 glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
-# end 133ee72ec8b92f7564d6c44a56a74067f9505bbf
+# doc-region-end 133ee72ec8b92f7564d6c44a56a74067f9505bbf
 
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()

@@ -105,9 +105,9 @@ def draw_in_square_viewport() -> None:
 
 
 @dataclass
-# begin 246327053a816d12360c1ce2d0496b8f157dcc92
+# doc-region-begin 246327053a816d12360c1ce2d0496b8f157dcc92
 class Vertex:
-    # end 246327053a816d12360c1ce2d0496b8f157dcc92
+    # doc-region-end 246327053a816d12360c1ce2d0496b8f157dcc92
     x: float
     y: float
 
@@ -124,7 +124,7 @@ class Vertex:
         )
 
     # fmt: off
-    # begin 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
+    # doc-region-begin 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
     def rotate_around(self: Vertex, angle_in_radians: float, center: Vertex) -> Vertex:
         translate_to_center: Vertex = self.translate(tx=-center.x,
                                                      ty=-center.y)
@@ -132,7 +132,7 @@ class Vertex:
         back_to_position: Vertex = rotated_around_origin.translate(tx=center.x,
                                                                    ty=center.y)
         return back_to_position
-    # end 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
+    # doc-region-end 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
     # fmt: on
 
 
@@ -201,9 +201,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+# doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
 while not glfw.window_should_close(window):
-    # end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+    # doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -222,7 +222,7 @@ while not glfw.window_should_close(window):
 
     # draw paddle 1
     # fmt: off
-    # begin b641b94ccea0c4270f96da2c06387477a7874816
+    # doc-region-begin b641b94ccea0c4270f96da2c06387477a7874816
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -235,12 +235,12 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
                                               scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
-        # end b641b94ccea0c4270f96da2c06387477a7874816
+        # doc-region-end b641b94ccea0c4270f96da2c06387477a7874816
     glEnd()
     # fmt: on
 
     # fmt: off
-    # begin ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
+    # doc-region-begin ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
@@ -255,7 +255,7 @@ while not glfw.window_should_close(window):
                                               scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # end ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
+    # doc-region-end ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
     # fmt: on
 
     glfw.swap_buffers(window)

@@ -5,10 +5,10 @@ import sys
 def find_line_numbers(filename, pattern):
     with open(filename) as f:
         for lineno, line in enumerate(f.readlines(), start=1):
-            x = re.search("begin " + pattern, line)
+            x = re.search("doc-region-begin " + pattern, line)
             if x:
                 yield lineno
-            x = re.search("end " + pattern, line)
+            x = re.search("doc-region-end " + pattern, line)
             if x:
                 yield lineno
 
