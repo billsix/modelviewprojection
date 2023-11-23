@@ -278,8 +278,7 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
 
     flattened_animated_images_list = list(itertools.chain(*animated_images_list))
 
-    kwargs_write = {"fps": 1.0, "quantizer": "nq"}
-    imageio.mimsave("./" + filename + ".gif", flattened_animated_images_list, fps=1)
+    imageio.mimsave("./" + filename + ".gif", flattened_animated_images_list, duration=1000)
     for number, image in enumerate(flattened_animated_images_list):
         imageio.imsave("./" + filename + "-" + str(number) + ".png", image)
 
