@@ -99,11 +99,7 @@ buffer is changed to be less than or equal to.
 Code
 ^^^^
 
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 83
-   :lines: 83-85
+.. LINENOS ../src/demo19/demo.py d901e3a3a161af321d120efcf3945187580c48c9
 
 
 The Event Loop
@@ -115,11 +111,7 @@ matrix.  This just means that the functions (currently)
 will not transform data.
 In univariate terms, f(x) = x
 
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 247
-   :lines: 247-251
+.. LINENOS ../src/demo19/demo.py c0820e6fdb329fb2e98863f0866b23d4e8329dde
 
 
 change the perspective matrix to convert the frustum
@@ -136,12 +128,7 @@ in the next chapter.
 
     Turn our NDC into Clip Space
 
-
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 254
-   :lines: 254-260
+.. LINENOS ../src/demo19/demo.py 9ea567ab2aefadcd20e817f9bff4d13cb9dd56dc
 
 
 The camera's position is described as follows
@@ -159,11 +146,7 @@ do the inverse operations to the view stack.
 
 .. TODO - mention 2 stacks
 
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 263
-   :lines: 263-267
+.. LINENOS ../src/demo19/demo.py bfe75259546e2177c77becae6c668c2dfc785410
 
 
 
@@ -198,12 +181,7 @@ and then take the frustum and convert it to NDC.
 Save onto the current model stack, so that paddle 2 can be drawn relative
 to it.
 
-
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 278
-   :lines: 278
+.. LINENOS ../src/demo19/demo.py 1342d0be4337963db469658a7d434fc94965c32a
 
 
 draw paddle 1
@@ -218,13 +196,7 @@ glVertex data is specified in modelspace coordinates,
 but since we loaded the projection matrix and the modelview
 matrix into OpenGL, glVertex3f will apply those transformations for us!
 
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 280
-   :lines: 280-292
-
-
+.. LINENOS ../src/demo19/demo.py 62fb018739e5043758a40caf704d4c79cd39f17d
 
 
 
@@ -238,11 +210,7 @@ just add the transformations relative to it
 before paddle 2 is drawn, we need to remove
 the square's 3 model_space transformations
 
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 296
-   :lines: 296-318
+.. LINENOS ../src/demo19/demo.py c2745ed5d713d331622335395a5c08d6d15f7de9
 
 No need to push matrix here, as this is the last object that
 we are drawing, and upon the next iteration of the event loop,
@@ -251,8 +219,4 @@ all 3 matricies will be reset to the identity
 draw paddle 2
 ~~~~~~~~~~~~~
 
-.. literalinclude:: ../src/demo19/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 320
-   :lines: 320-336
+.. LINENOS ../src/demo19/demo.py 1390df52e4311c23a50fc61a3e197f7c6e8ed593

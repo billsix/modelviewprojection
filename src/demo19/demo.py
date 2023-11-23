@@ -80,9 +80,11 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
+# begin d901e3a3a161af321d120efcf3945187580c48c9
 glEnable(GL_DEPTH_TEST)
 glClearDepth(1.0)
 glDepthFunc(GL_LEQUAL)
+# end d901e3a3a161af321d120efcf3945187580c48c9
 
 
 def draw_in_square_viewport() -> None:
@@ -245,12 +247,15 @@ while not glfw.window_should_close(window):
             camera.rot_x += axes_list[0][4] * 0.01
 
     # just like putting the identity function on the lambda stack
+    # begin c0820e6fdb329fb2e98863f0866b23d4e8329dde
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
+    # end c0820e6fdb329fb2e98863f0866b23d4e8329dde
 
     # projection
+    # begin 9ea567ab2aefadcd20e817f9bff4d13cb9dd56dc
     glMatrixMode(GL_PROJECTION)
     gluPerspective(
         45.0,  # fov
@@ -258,13 +263,16 @@ while not glfw.window_should_close(window):
         0.1,  # nearZ
         10000.0,  # farZ
     )
+    # end 9ea567ab2aefadcd20e817f9bff4d13cb9dd56dc
 
     # view
+    # begin bfe75259546e2177c77becae6c668c2dfc785410
     glMatrixMode(GL_MODELVIEW)
 
     glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
     glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
     glTranslate(-camera.x, -camera.y, -camera.z)
+    # end bfe75259546e2177c77becae6c668c2dfc785410
 
     # model
 
@@ -275,8 +283,11 @@ while not glfw.window_should_close(window):
     # the width statement ensures that the matrix is
     # pushed onto a stack, and when the with block ends,
     # it will be automatically popped off of the stack
+    # begin 1342d0be4337963db469658a7d434fc94965c32a
     glPushMatrix()
+    # end 1342d0be4337963db469658a7d434fc94965c32a
 
+    # begin 62fb018739e5043758a40caf704d4c79cd39f17d
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glTranslate(
@@ -290,9 +301,11 @@ while not glfw.window_should_close(window):
     for model_space in paddle1.vertices:
         glVertex3f(model_space[0], model_space[1], model_space[2])
     glEnd()
+    # end 62fb018739e5043758a40caf704d4c79cd39f17d
 
     # end of paddle 1
 
+    # begin c2745ed5d713d331622335395a5c08d6d15f7de9
     # draw the square
     # given that no nodes are defined relative to the square, we do not need
     # to push a marix.  Here we will do so anyways, just to clarify what is
@@ -316,7 +329,9 @@ while not glfw.window_should_close(window):
     # the mode matrix that was on the model stack before the square
     # was drawn will be restored
     glPopMatrix()
+    # end c2745ed5d713d331622335395a5c08d6d15f7de9
 
+    # begin 1390df52e4311c23a50fc61a3e197f7c6e8ed593
     # draw paddle 2.  Nothing is defined relative to paddle to, so we don't
     # need to push matrix, and on the next iteration of the event loop,
     # all matricies will be cleared to identity, so who cares if we
@@ -334,7 +349,7 @@ while not glfw.window_should_close(window):
     for model_space in paddle2.vertices:
         glVertex3f(model_space[0], model_space[1], model_space[2])
     glEnd()
-
+    # end 1390df52e4311c23a50fc61a3e197f7c6e8ed593
     glfw.swap_buffers(window)
 
 
