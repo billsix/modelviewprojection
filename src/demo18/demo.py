@@ -64,6 +64,7 @@ if not window:
 # Make the window's context current
 glfw.make_context_current(window)
 
+
 # Install a key handler
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
@@ -318,7 +319,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
+# begin 6d86d07154c99ed6e1c3feab73545d184153f9ae
 while not glfw.window_should_close(window):
+    # end 6d86d07154c99ed6e1c3feab73545d184153f9ae
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -357,8 +360,11 @@ while not glfw.window_should_close(window):
         if math.fabs(axes_list[0][4]) > 0.19:
             camera.rot_x += axes_list[0][4] * 0.01
 
+    # begin 48bd13153ce54db3f6b9ea5833e91820b7d8b020
     fn_stack.append(lambda v: v.camera_space_to_ndc_space_fn())  # (1)
+    # end 48bd13153ce54db3f6b9ea5833e91820b7d8b020
 
+    # begin f217e71c7f5a228622d5db86e6fe0dec1e072dca
     # fn_stack.append(
     #     lambda v: v.translate(tx=camera.position_worldspace.x,
     #                           ty=camera.position_worldspace.y,
@@ -366,27 +372,26 @@ while not glfw.window_should_close(window):
     # )
     # fn_stack.append(lambda v: v.rotate_y(camera.rot_y))
     # fn_stack.append(lambda v: v.rotate_x(camera.rot_x))
+    # end f217e71c7f5a228622d5db86e6fe0dec1e072dca
 
+    # fmt: off
+    # begin c0dcf40149c0b85d84f13b4421a114409a274432
     fn_stack.append(lambda v: v.rotate_x(-camera.rot_x))  # (2)
     fn_stack.append(lambda v: v.rotate_y(-camera.rot_y))  # (3)
-    fn_stack.append(
-        lambda v: v.translate(
-            tx=-camera.position_worldspace.x,
-            ty=-camera.position_worldspace.y,
-            tz=-camera.position_worldspace.z,
-        )  # (4)
-    )
+    fn_stack.append(lambda v: v.translate(tx=-camera.position_worldspace.x,
+                                          ty=-camera.position_worldspace.y,
+                                          tz=-camera.position_worldspace.z))  # (4)
+    # end c0dcf40149c0b85d84f13b4421a114409a274432
+    # fmt: on
 
-    fn_stack.append(
-        lambda v: v.translate(
-            tx=paddle1.position.x,  # (5) translate the local origin
-            ty=paddle1.position.y,
-            tz=0.0,
-        )
-    )
-    fn_stack.append(
-        lambda v: v.rotate_z(paddle1.rotation)
-    )  # (6) (rotate around the local z axis
+    # fmt: off
+    # begin 7de7248650b2809520898faed65be4050d2b441a
+    fn_stack.append(lambda v: v.translate(tx=paddle1.position.x,
+                                          ty=paddle1.position.y,
+                                          tz=0.0)) # (5) translate the local origin
+    fn_stack.append(lambda v: v.rotate_z(paddle1.rotation)) # (6) (rotate around the local z axis
+    # end 7de7248650b2809520898faed65be4050d2b441a
+    # fmt: on
 
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
@@ -396,6 +401,7 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
 
+    # begin 87d309a76468a5dd49f5805f739932d7a1b4dac1
     glColor3f(0.0, 0.0, 1.0)
 
     fn_stack.append(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0))  # (7)
@@ -408,19 +414,22 @@ while not glfw.window_should_close(window):
         ndc_space = apply_stack(model_space)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
+    # end 87d309a76468a5dd49f5805f739932d7a1b4dac1
 
+    # begin 6e83cdfe078bb103bf04c3d53a4c4ec7cb22ef60
     fn_stack.pop()  # pop off (10)
     fn_stack.pop()  # pop off (9)
     fn_stack.pop()  # pop off (8)
     fn_stack.pop()  # pop off (7)
     fn_stack.pop()  # pop off (6)
     fn_stack.pop()  # pop off (5)
+    # end 6e83cdfe078bb103bf04c3d53a4c4ec7cb22ef60
 
-    fn_stack.append(
-        lambda v: v.translate(
-            tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0
-        )  # (5)
-    )
+    # fmt: off
+    # begin 9206a08662c91ad536b41641910f7e8e951f7c9e
+    fn_stack.append(lambda v: v.translate(tx=paddle2.position.x,
+                                          ty=paddle2.position.y,
+                                          tz=0.0))  # (5)
     fn_stack.append(lambda v: v.rotate_z(paddle2.rotation))  # (6)
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
@@ -430,11 +439,16 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = apply_stack(model_space)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
+    # end 9206a08662c91ad536b41641910f7e8e951f7c9e
+    # fmt: on
 
+    # begin 4d0f02db53413ede074a8693bb19e68292db3bd4
     fn_stack.clear()  # done rendering everything, just go ahead and clean 1-6 off of the stack
+    # end 4d0f02db53413ede074a8693bb19e68292db3bd4
 
+    # begin 64809e2fccc9daa3f97239991d905b7fc3f03d62
     glfw.swap_buffers(window)
-
+    # end 64809e2fccc9daa3f97239991d905b7fc3f03d62
 
 fn_stack = []
 

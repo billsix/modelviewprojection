@@ -156,6 +156,7 @@ paddle2: Paddle = Paddle(
 )
 # end be85f68c2e4e7e58096273ff1ab6a4abc162dc32
 
+
 # begin 1a17a9d680387b5c37d842115b617cdeb910be61
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2

@@ -178,6 +178,7 @@ square: Paddle = [
 square_rotation: float = 0.0
 # end 3ae4d745b5afbd285e833b94972715efe8178822
 
+
 # begin 430452dadde6cdec13eedba9906dc9aad1a25f2e
 def handle_inputs() -> None:
     global square_rotation

@@ -113,6 +113,7 @@ class Vertex:
 
 # end 45f8b976d5ca561e6551fced4b91491a0608e07c
 
+
 # begin c04057e28feefe7d49c375940e142dccd15bb006
 @dataclass
 class Paddle:
@@ -153,6 +154,7 @@ paddle2: Paddle = Paddle(
 )
 # end 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
 
+
 # begin b0d86b4d150b3ca92951137634b12d7881ee6350
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
@@ -175,7 +177,6 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # begin 1cacf5f226065bc4b85826f7642bf817a36b6540
 while not glfw.window_should_close(window):
-
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):

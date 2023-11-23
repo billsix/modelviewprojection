@@ -320,7 +320,6 @@ class Ground:
         pass
 
     def vertices(self):
-
         # glColor3f(0.1,0.1,0.1)
         verts = []
         for x in range(-600, 601, 20):

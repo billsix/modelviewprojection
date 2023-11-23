@@ -21,8 +21,6 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
-import os
-import numpy as np
 import math
 from OpenGL.GL import *
 import glfw

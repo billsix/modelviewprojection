@@ -11,27 +11,31 @@
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
 import os
+
 # import sys
 # sys.path.insert(0, os.path.abspath('.'))
 
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 if not on_rtd:  # only import and set the theme if we're building docs locally
     import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
+
+    html_theme = "sphinx_rtd_theme"
     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+
     # Override default css to get a larger width for local build
     def setup(app):
-        #app.add_javascript("custom.js")
-        app.add_css_file('css/my_theme.css')
+        # app.add_javascript("custom.js")
+        app.add_css_file("css/my_theme.css")
+
 else:
     # Override default css to get a larger width for ReadTheDoc build
     html_context = {
-        'css_files': [
-            'https://media.readthedocs.org/css/sphinx_rtd_theme.css',
-            'https://media.readthedocs.org/css/readthedocs-doc-embed.css',
-            '_static/css/my_theme.css',
+        "css_files": [
+            "https://media.readthedocs.org/css/sphinx_rtd_theme.css",
+            "https://media.readthedocs.org/css/readthedocs-doc-embed.css",
+            "_static/css/my_theme.css",
         ],
     }
 
@@ -52,12 +56,11 @@ release = "0.0.1"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-imgmath_image_format = 'svg'
+imgmath_image_format = "svg"
 imgmath_font_size = 20  # for font size 14
-imgmath_latex_preamble =  '\\usepackage{amsmath}\n' + \
-    '\\usepackage{xcolor}\n'
+imgmath_latex_preamble = "\\usepackage{amsmath}\n" + "\\usepackage{xcolor}\n"
 
-extensions = ['sphinx.ext.imgmath']
+extensions = ["sphinx.ext.imgmath"]
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]

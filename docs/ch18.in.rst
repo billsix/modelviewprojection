@@ -219,12 +219,7 @@ Push identity onto the stack, which will will never pop off of the stack.
 
 Event Loop
 ^^^^^^^^^^
-.. LINENOS ../src/demo18/demo.py
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 316
-   :lines: 316
+.. LINENOS ../src/demo18/demo.py 6d86d07154c99ed6e1c3feab73545d184153f9ae
 
 ::
 
@@ -254,12 +249,7 @@ and the end of the list to be the top of the stack.
 
 
 
-.. LINENOS ../src/demo18/demo.py
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 355
-   :lines: 355
+.. LINENOS ../src/demo18/demo.py 48bd13153ce54db3f6b9ea5833e91820b7d8b020
 
 
 Unlike in previous demos in which we read the transformations
@@ -282,12 +272,7 @@ to world space like so, read top to bottom:
     :figclass: align-center
 
 
-.. LINENOS ../src/demo18/demo.py
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 357
-   :lines: 357-364
+.. LINENOS ../src/demo18/demo.py f217e71c7f5a228622d5db86e6fe0dec1e072dca
 
 But, since we need to transform world-space to camera space,
 they must be inverted by reversing the order, and negating
@@ -308,12 +293,7 @@ camera space are.
 
 
 
-.. LINENOS ../src/demo18/demo.py
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 365
-   :lines: 365-373
+.. LINENOS ../src/demo18/demo.py c0dcf40149c0b85d84f13b4421a114409a274432
 
 draw paddle 1
 ~~~~~~~~~~~~~
@@ -336,12 +316,7 @@ the current space
     :figclass: align-center
 
 
-.. LINENOS ../src/demo18/demo.py
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 375
-   :lines: 375-392
+.. LINENOS ../src/demo18/demo.py 7de7248650b2809520898faed65be4050d2b441a
 
 for each of the modelspace coordinates, apply all
 of the procedures on the stack from top to bottom
@@ -368,24 +343,14 @@ remove these 4 transformations from the stack (done below)
     :figclass: align-center
 
 
-.. LINENOS ../src/demo18/demo.py
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 394
-   :lines: 394-405
+.. LINENOS ../src/demo18/demo.py 87d309a76468a5dd49f5805f739932d7a1b4dac1
 
 Now we need to remove fns from the stack so that the
 lambda stack will convert from world space to NDC.
 This will allow us to just add the transformaions from
 world space to paddle2 space on the stack.
 
-.. LINENOS ../src/demo18/demo.py
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 407
-   :lines: 407-412
+.. LINENOS ../src/demo18/demo.py 6e83cdfe078bb103bf04c3d53a4c4ec7cb22ef60
 
 since paddle2's model_space is independent of paddle 1's space, only
 leave the view and projection fns (1) - (4)
@@ -406,31 +371,16 @@ draw paddle 2
     :figclass: align-center
 
 
-.. LINENOS ../src/demo18/demo.py
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 414
-   :lines: 414-427
+.. LINENOS ../src/demo18/demo.py 9206a08662c91ad536b41641910f7e8e951f7c9e
 
 
 remove all fns from the function stack, as the next frame will set them
 clear makes the list empty, as the list (stack) will be repopulated
 the next iteration of the event loop.
 
-.. LINENOS ../src/demo18/demo.py
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 429
-   :lines: 429
+.. LINENOS ../src/demo18/demo.py 4d0f02db53413ede074a8693bb19e68292db3bd4
 
 
 Swap buffers and execute another iteration of the event loop
 
-.. LINENOS ../src/demo18/demo.py
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 431
-   :lines: 431
+.. LINENOS ../src/demo18/demo.py 64809e2fccc9daa3f97239991d905b7fc3f03d62

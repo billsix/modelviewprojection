@@ -162,6 +162,7 @@ paddle2: Paddle = Paddle(
     position=Vertex(90.0, 0.0),
 )
 
+
 # begin 1cf68248b869564df5f3133b98adb2e06601ed3b
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2

@@ -94,7 +94,9 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 
-window = glfw.create_window(800, 800, "ModelViewProjection Demo of Coordinates", None, None)
+window = glfw.create_window(
+    800, 800, "ModelViewProjection Demo of Coordinates", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -215,7 +217,9 @@ class Paddle:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
         glBufferData(
             GL_ARRAY_BUFFER,
@@ -278,13 +282,17 @@ class Paddle:
             self.mMatrixLoc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.vMatrixLoc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.pMatrixLoc,
@@ -404,7 +412,9 @@ class Ground:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
         glBufferData(
             GL_ARRAY_BUFFER,
@@ -445,13 +455,17 @@ class Ground:
             self.mMatrixLoc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.vMatrixLoc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.pMatrixLoc,
@@ -545,7 +559,9 @@ class Axis:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
         glBufferData(
             GL_ARRAY_BUFFER,
@@ -692,7 +708,9 @@ class Axis:
                 self.vMatrixLoc,
                 1,
                 GL_TRUE,
-                np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
+                np.ascontiguousarray(
+                    ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
+                ),
             )
             glUniformMatrix4fv(
                 self.pMatrixLoc,
@@ -856,7 +874,9 @@ class NDCCube:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
         glBufferData(
             GL_ARRAY_BUFFER,
@@ -897,13 +917,17 @@ class NDCCube:
             self.mMatrixLoc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.vMatrixLoc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.pMatrixLoc,
@@ -1047,7 +1071,9 @@ class Frustum:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
         glBufferData(
             GL_ARRAY_BUFFER,
@@ -1090,13 +1116,17 @@ class Frustum:
             self.mMatrixLoc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.vMatrixLoc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.pMatrixLoc,
@@ -1213,7 +1243,9 @@ def highlighted_button(text: str, start_time: int, time: float) -> bool:
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
-    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
+    while (
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+    ):
         pass
     # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -1240,7 +1272,9 @@ while not glfw.window_should_close(window):
     imgui.set_next_window_bg_alpha(0.05)
     imgui.begin("Time", True)
 
-    clicked_animation_paused, animation_paused = imgui.checkbox("Pause", animation_paused)
+    clicked_animation_paused, animation_paused = imgui.checkbox(
+        "Pause", animation_paused
+    )
     clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
     (
         clicked_animation_time_multiplier,
@@ -1360,7 +1394,9 @@ while not glfw.window_should_close(window):
             imgui.same_line()
             imgui.text(" * x)")
             imgui.tree_pop()
-        if imgui.tree_node("Ortho, Rectangular Prism->NDC", imgui.TREE_NODE_DEFAULT_OPEN):
+        if imgui.tree_node(
+            "Ortho, Rectangular Prism->NDC", imgui.TREE_NODE_DEFAULT_OPEN
+        ):
             imgui.text("f_ortho(x) = ")
             imgui.same_line()
             if highlighted_button("Scale", 105, animation_time):
@@ -1380,7 +1416,9 @@ while not glfw.window_should_close(window):
     imgui.set_next_window_bg_alpha(0.05)
     imgui.begin("Display Options", True)
 
-    clicked_enlarged_axises, enlarged_axis = imgui.checkbox("Enlarged Axises", enlarged_axis)
+    clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
+        "Enlarged Axises", enlarged_axis
+    )
     imgui.end()
 
     imgui.set_next_window_bg_alpha(0.05)
@@ -1389,15 +1427,21 @@ while not glfw.window_should_close(window):
     (
         clicked_virtual_camera_positionx_clicked,
         virtual_camera_position[0],
-    ) = imgui.slider_float("Camera X_Worldspace", virtual_camera_position[0], -200, 200.0)
+    ) = imgui.slider_float(
+        "Camera X_Worldspace", virtual_camera_position[0], -200, 200.0
+    )
     (
         clicked_virtual_camera_positiony_clicked,
         virtual_camera_position[1],
-    ) = imgui.slider_float("Camera Y_Worldspace", virtual_camera_position[1], -200, 200.0)
+    ) = imgui.slider_float(
+        "Camera Y_Worldspace", virtual_camera_position[1], -200, 200.0
+    )
     (
         clicked_virtual_camera_positionz_clicked,
         virtual_camera_position[2],
-    ) = imgui.slider_float("Camera Z_Worldspace", virtual_camera_position[2], -200, 200.0)
+    ) = imgui.slider_float(
+        "Camera Z_Worldspace", virtual_camera_position[2], -200, 200.0
+    )
     (
         clicked_virtual_camera_positionrotx_clicked,
         virtual_camera_rot_x,
@@ -1478,9 +1522,12 @@ while not glfw.window_should_close(window):
             if animation_time > 50.0:
                 ms.translate(
                     ms.MatrixStack.model,
-                    virtual_camera_position[0] * min(1.0, (animation_time - 50.0) / 5.0),
-                    virtual_camera_position[1] * min(1.0, (animation_time - 50.0) / 5.0),
-                    virtual_camera_position[2] * min(1.0, (animation_time - 50.0) / 5.0),
+                    virtual_camera_position[0]
+                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    virtual_camera_position[1]
+                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    virtual_camera_position[2]
+                    * min(1.0, (animation_time - 50.0) / 5.0),
                 )
             if animation_time > 55.0:
                 ms.rotate_y(

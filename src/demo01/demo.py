@@ -66,6 +66,7 @@ if not window:
 glfw.make_context_current(window)
 # end 7ddbe862d3ff7b6ee489ac7ac565b8a5e72f7f9f
 
+
 # begin 63277c9f3b6e8071722b93baf8e77bb8ee6c677d
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
