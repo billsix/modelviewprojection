@@ -145,15 +145,16 @@ class Vertex:
     def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
 
-    def ortho(
-        self: Vertex,
-        left: float,
-        right: float,
-        bottom: float,
-        top: float,
-        near: float,
-        far: float,
-    ) -> Vertex:
+    #fmt: off
+    # begin f772cea61c9d02b6a9d8565f5427658c0e40cef3
+    def ortho(self: Vertex,
+              left: float,
+              right: float,
+              bottom: float,
+              top: float,
+              near: float,
+              far: float,
+              ) -> Vertex:
         midpoint_x, midpoint_y, midpoint_z = (
             (left + right) / 2.0,
             (bottom + top) / 2.0,
@@ -163,15 +164,26 @@ class Vertex:
         length_y: float
         length_z: float
         length_x, length_y, length_z = right - left, top - bottom, far - near
-        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
-            2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
-        )
+        return self.translate(tx=-midpoint_x,
+                              ty=-midpoint_y,
+                              tz=-midpoint_z) \
+                   .scale(2.0 / length_x,
+                          2.0 / length_y,
+                          2.0 / (-length_z))
+    # end f772cea61c9d02b6a9d8565f5427658c0e40cef3
+    #fmt: on
 
+    #fmt: off
+    # begin b23c753f650185c5b1e4a0e6c8008852afae73d9
     def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
-        return self.ortho(
-            left=-100.0, right=100.0, bottom=-100.0, top=100.0, near=-1.0, far=-100.0
-        )
-
+        return self.ortho(left=-100.0,
+                          right=100.0,
+                          bottom=-100.0,
+                          top=100.0,
+                          near=-1.0,
+                          far=-100.0)
+    # end b23c753f650185c5b1e4a0e6c8008852afae73d9
+    #fmt: on
 
 @dataclass
 class Paddle:
@@ -210,12 +222,13 @@ paddle2: Paddle = Paddle(
 )
 
 
+# begin ec5a4d2515c361a5f311d93c93b2c89b60eb2dfc
 @dataclass
 class Camera:
     position_worldspace: Vertex = Vertex(x=0.0, y=0.0, z=50.0)
     rot_y: float = 0.0
     rot_x: float = 0.0
-
+    # end ec5a4d2515c361a5f311d93c93b2c89b60eb2dfc
 
 camera: Camera = Camera()
 
@@ -230,7 +243,9 @@ square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
 
 
+# begin af7c283e5f33d95279c0b6223af95e9b16826acc
 def handle_inputs() -> None:
+    # end af7c283e5f33d95279c0b6223af95e9b16826acc
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -241,6 +256,7 @@ def handle_inputs() -> None:
 
     global camera
 
+    # begin 33b92ff8834a0e251991d9373983c374449eab36
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
@@ -249,26 +265,29 @@ def handle_inputs() -> None:
         camera.rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
+    # end 33b92ff8834a0e251991d9373983c374449eab36
+    #fmt: off
+    # begin 809cd77769244adb1e3866899e53ba3c203a535a
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         forwards_camera_space = Vertex(x=0.0, y=0.0, z=-1.0)
-        forward_world_space = forwards_camera_space.rotate_y(camera.rot_y).translate(
-            tx=camera.position_worldspace.x,
-            ty=camera.position_worldspace.y,
-            tz=camera.position_worldspace.z,
-        )
+        forward_world_space = forwards_camera_space.rotate_y(camera.rot_y) \
+                                                   .translate(tx=camera.position_worldspace.x,
+                                                              ty=camera.position_worldspace.y,
+                                                              tz=camera.position_worldspace.z)
         camera.position_worldspace.x = forward_world_space.x
         camera.position_worldspace.y = forward_world_space.y
         camera.position_worldspace.z = forward_world_space.z
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         forwards_camera_space = Vertex(x=0.0, y=0.0, z=1.0)
-        forward_world_space = forwards_camera_space.rotate_y(camera.rot_y).translate(
-            tx=camera.position_worldspace.x,
-            ty=camera.position_worldspace.y,
-            tz=camera.position_worldspace.z,
-        )
+        forward_world_space = forwards_camera_space.rotate_y(camera.rot_y) \
+                                                   .translate(tx=camera.position_worldspace.x,
+                                                              ty=camera.position_worldspace.y,
+                                                              tz=camera.position_worldspace.z)
         camera.position_worldspace.x = forward_world_space.x
         camera.position_worldspace.y = forward_world_space.y
         camera.position_worldspace.z = forward_world_space.z
+    # end 809cd77769244adb1e3866899e53ba3c203a535a
+    #fmt: on
 
     global paddle1, paddle2
 
@@ -297,7 +316,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
+# begin ee882a76ee2962c327841e2a952998acce07cc2a
 while not glfw.window_should_close(window):
+    # end ee882a76ee2962c327841e2a952998acce07cc2a
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -313,96 +334,95 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
+    #fmt: off
+    # begin 751192ea5ea95537db3cc34c4c3b1549d1fd91e4
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        world_space: Vertex = model_space.rotate_z(paddle1.rotation).translate(
-            tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
-        )
-        # world_space: Vertex = (
-        #     camera_space.rotate_x(camera.rot_x)
-        #     .rotate_y(camera.rot_y)
-        #     .translate(
-        #         tx=camera.position_worldspace.x,
-        #         ty=camera.position_worldspace.y,
-        #         tz=camera.position_worldspace.z,
-        #     )
-        # )
-        camera_space: Vertex = (
-            world_space.translate(
-                tx=-camera.position_worldspace.x,
-                ty=-camera.position_worldspace.y,
-                tz=-camera.position_worldspace.z,
-            )
-            .rotate_y(-camera.rot_y)
-            .rotate_x(-camera.rot_x)
-        )
+        world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
+                                         .translate(tx=paddle1.position.x,
+                                                    ty=paddle1.position.y,
+                                                    tz=0.0)
+        # begin d194601529be6fa90270809dd56628cb47360ff2
+        # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
+        #                                   .rotate_y(camera.rot_y) \
+        #                                   .translate(tx=camera.position_worldspace.x,
+        #                                              ty=camera.position_worldspace.y,
+        #                                              tz=camera.position_worldspace.z)
+        # end d194601529be6fa90270809dd56628cb47360ff2
+        # begin 21b5929d16e434165544480ad25b7ff015e239f7
+        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
+                                                     ty=-camera.position_worldspace.y,
+                                                     tz=-camera.position_worldspace.z) \
+                                          .rotate_y(-camera.rot_y) \
+                                          .rotate_x(-camera.rot_x)
+        # end 21b5929d16e434165544480ad25b7ff015e239f7
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
+    # end 751192ea5ea95537db3cc34c4c3b1549d1fd91e4
+    #fmt: on
 
+    #fmt: off
+    # begin 554eda2bd3b5edf8eee0c1441a1e8c8f366c575b
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
-        paddle_1_space: Vertex = (
-            model_space.rotate_z(square_rotation)
-            .translate(tx=20.0, ty=0.0, tz=0.0)
-            .rotate_z(rotation_around_paddle1)
-            .translate(tx=0.0, ty=0.0, tz=-10.0)
-        )
-        world_space: Vertex = model_space.rotate_z(paddle1.rotation).translate(
-            tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0
-        )
-        # world_space: Vertex = (
-        #     camera_space.rotate_x(camera.rot_x)
-        #     .rotate_y(camera.rot_y)
-        #     .translate(
-        #         tx=camera.position_worldspace.x,
-        #         ty=camera.position_worldspace.y,
-        #         tz=camera.position_worldspace.z,
-        #     )
-        # )
-        camera_space: Vertex = (
-            world_space.translate(
-                tx=-camera.position_worldspace.x,
-                ty=-camera.position_worldspace.y,
-                tz=-camera.position_worldspace.z,
-            )
-            .rotate_y(-camera.rot_y)
-            .rotate_x(-camera.rot_x)
-        )
+        paddle_1_space: Vertex = model_space.rotate_z(square_rotation) \
+                                            .translate(tx=20.0,
+                                                       ty=0.0,
+                                                       tz=0.0) \
+                                            .rotate_z(rotation_around_paddle1) \
+                                            .translate(tx=0.0, ty=0.0, tz=-10.0)
+
+        world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
+                                         .translate(tx=paddle1.position.x,
+                                                    ty=paddle1.position.y,
+                                                    tz=0.0)
+        # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
+        #                                   .rotate_y(camera.rot_y) \
+        #                                   .translate(tx=camera.position_worldspace.x,
+        #                                              ty=camera.position_worldspace.y,
+        #                                              tz=camera.position_worldspace.z)
+
+        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
+                                                     ty=-camera.position_worldspace.y,
+                                                     tz=-camera.position_worldspace.z,
+                                                     ) \
+                                          .rotate_y(-camera.rot_y) \
+                                          .rotate_x(-camera.rot_x)
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
+    # end 554eda2bd3b5edf8eee0c1441a1e8c8f366c575b
+    #fmt: on
 
+    #fmt: off
+    # begin ed9eeae978339791ef50c475f26ec4fe8bf018c7
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        world_space: Vertex = model_space.rotate_z(paddle2.rotation).translate(
-            tx=paddle2.position.x, ty=paddle2.position.y, tz=0.0
-        )
-        # world_space: Vertex = (
-        #     camera_space.rotate_x(camera.rot_x)
-        #     .rotate_y(camera.rot_y)
-        #     .translate(
-        #         tx=camera.position_worldspace.x,
-        #         ty=camera.position_worldspace.y,
-        #         tz=camera.position_worldspace.z,
-        #     )
-        # )
-        camera_space: Vertex = (
-            world_space.translate(
-                tx=-camera.position_worldspace.x,
-                ty=-camera.position_worldspace.y,
-                tz=-camera.position_worldspace.z,
-            )
-            .rotate_y(-camera.rot_y)
-            .rotate_x(-camera.rot_x)
-        )
+        world_space: Vertex = model_space.rotate_z(paddle2.rotation) \
+                                         .translate(tx=paddle2.position.x,
+                                                    ty=paddle2.position.y,
+                                                    tz=0.0)
+        # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
+        #                                   .rotate_y(camera.rot_y) \
+        #                                   .translate(tx=camera.position_worldspace.x,
+        #                                              ty=camera.position_worldspace.y,
+        #                                              tz=camera.position_worldspace.z)
+
+        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
+                                                     ty=-camera.position_worldspace.y,
+                                                     tz=-camera.position_worldspace.z) \
+                                          .rotate_y(-camera.rot_y) \
+                                          .rotate_x(-camera.rot_x)
+
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-
+    # end ed9eeae978339791ef50c475f26ec4fe8bf018c7
+    #fmt: on
     glfw.swap_buffers(window)
 
 glfw.terminate()

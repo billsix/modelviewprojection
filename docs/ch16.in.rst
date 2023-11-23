@@ -142,12 +142,7 @@ rotate your head (not your neck), 45 degrees.  It's different, and quite uncomfo
 We rotate the camera by the y axis first, then by the relative x axis,
 for the same reason.
 
-
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 322
-   :lines: 322-330
+.. LINENOS ../src/demo16/demo.py d194601529be6fa90270809dd56628cb47360ff2
 
 
 (Remember, read bottom up, just like the previous demos
@@ -187,12 +182,7 @@ to camera space.
 
 The inverted form is
 
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 331
-   :lines: 331-339
-
+.. LINENOS ../src/demo16/demo.py 21b5929d16e434165544480ad25b7ff015e239f7
 
 
 ..
@@ -255,20 +245,13 @@ Code
 
 The camera now has two angles as instance variables.
 
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 213
-   :lines: 213-217
+.. LINENOS ../src/demo16/demo.py ec5a4d2515c361a5f311d93c93b2c89b60eb2dfc
+
 
 Since we want the user to be able to control the camera, we need
 to read the input.
 
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 233
-   :lines: 233
+.. LINENOS ../src/demo16/demo.py af7c283e5f33d95279c0b6223af95e9b16826acc
 
 ::
 
@@ -277,11 +260,7 @@ to read the input.
 Left and right rotate the viewer's horizontal
 angle, page up and page down the vertical angle.
 
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 244
-   :lines: 244-251
+.. LINENOS ../src/demo16/demo.py 33b92ff8834a0e251991d9373983c374449eab36
 
 
 The up arrow and down arrow make the user move forwards
@@ -293,12 +272,7 @@ through the sky.  I.e, we want forward/backwards movement to happen relative
 to the XZ plane at the camera's position, not forward/backwards
 movement relative to camera space.
 
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 252
-   :lines: 252-271
-
+.. LINENOS ../src/demo16/demo.py 809cd77769244adb1e3866899e53ba3c203a535a
 
 
 Ortho is the function call that shrinks the viewable region
@@ -306,23 +280,13 @@ relative to camera space down to NDC, by moving the center of the rectangular
 prism to the origin, and scaling by the inverse of the width, height, and depth
 of the viewable region.
 
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 148
-   :lines: 148-168
+.. LINENOS ../src/demo16/demo.py f772cea61c9d02b6a9d8565f5427658c0e40cef3
+
 
 We will make a wrapper function camera_space_to_ndc_space_fn which
 calls ortho, setting the size of the rectangular prism.
 
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 170
-   :lines: 170-173
-
-
-
+.. LINENOS ../src/demo16/demo.py b23c753f650185c5b1e4a0e6c8008852afae73d9
 
 
 
@@ -336,11 +300,7 @@ put this repetition into the book on purpose, so that when we
 start using matricies later, the reader will fully appreciate what
 matricies solve for us.
 
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 300
-   :lines: 300
+.. LINENOS ../src/demo16/demo.py ee882a76ee2962c327841e2a952998acce07cc2a
 
 
 ::
@@ -349,12 +309,7 @@ matricies solve for us.
 
 Paddle 1
 
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 316
-   :lines: 316-342
-
+.. LINENOS ../src/demo16/demo.py 751192ea5ea95537db3cc34c4c3b1549d1fd91e4
 
 
 Square
@@ -362,19 +317,10 @@ Square
 the square should not be visible when hidden behind the paddle1,
 as we did a translate by -10 in the z direction.
 
-
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 344
-   :lines: 344-376
+.. LINENOS ../src/demo16/demo.py 554eda2bd3b5edf8eee0c1441a1e8c8f366c575b
 
 
 
 Paddle 2
 
-.. literalinclude:: ../src/demo16/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 378
-   :lines: 378-404
+.. LINENOS ../src/demo16/demo.py ed9eeae978339791ef50c475f26ec4fe8bf018c7
