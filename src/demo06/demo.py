@@ -109,12 +109,15 @@ class Vertex:
 
     def translate(self: Vertex, tx: float, ty: float) -> Vertex:
         return Vertex(x=(self.x + tx), y=(self.y + ty))
+
     # end 8d06005b531874a91efb0a652db8527497f3a345
 
     # begin f8b77ac4a2656475404a658f038034e9ac9efb2e
     def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
         return Vertex(x=(self.x * scale_x), y=(self.y * scale_y))
+
     # end f8b77ac4a2656475404a658f038034e9ac9efb2e
+
 
 @dataclass
 class Paddle:
@@ -165,6 +168,8 @@ def handle_movement_of_paddles() -> None:
         paddle2.position.y -= 10.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 10.0
+
+
 # end 1a17a9d680387b5c37d842115b617cdeb910be61
 
 TARGET_FRAMERATE: int = 60
@@ -195,7 +200,7 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
         # end 57631feba3dbad52833765b9bfc51c42d90141af
-        #fmt: off
+        # fmt: off
         # begin 5b1156f32f2d788cec10cedf43b7847fe92f5350
         world_space: Vertex = model_space.translate(tx=paddle1.position.x,
                                                     ty=paddle1.position.y)
@@ -204,7 +209,7 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
                                               scale_y=1.0 / 100.0)
         # end 2091aa68e2d6d5bccdcb968391bf5d657fe9ad1a
-        #fmt: off
+        # fmt: off
         # begin 4788d1809c34fff4b8a6e63bd28c0ca90184457a
         glVertex2f(ndc_space.x, ndc_space.y)
 
@@ -217,7 +222,7 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         # end db2e4352f654c9b0309ed0470515ff61113aec8d
-        #fmt: off
+        # fmt: off
         # begin 8654606ea6b0f530930d8d43f6c0d110e867e0d8
         world_space: Vertex = model_space.translate(tx=paddle2.position.x,
                                                     ty=paddle2.position.y)
@@ -226,7 +231,7 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
                                               scale_y=1.0 / 100.0)
         # end a9da863c1edd7395ad98084f43056476991a5c5c
-        #fmt: on
+        # fmt: on
 
         # begin 260c1301effa6c7ec13f1b36454be3ff448ee641
         glVertex2f(ndc_space.x, ndc_space.y)

@@ -20,6 +20,7 @@
 
 # begin 20134134fb054ac6764edfb4764935b86f20a795
 import sys
+
 # end 20134134fb054ac6764edfb4764935b86f20a795
 # begin 6901922753dbf8df496fd46ae4a0eeb4e6243ef4
 from OpenGL.GL import (
@@ -33,10 +34,12 @@ from OpenGL.GL import (
     glViewport,
     glClearColor,
 )
+
 # end 6901922753dbf8df496fd46ae4a0eeb4e6243ef4
 
 # begin 4b5a486083da608751701fa7e42e37bbc4cfd06e
 import glfw
+
 # end 4b5a486083da608751701fa7e42e37bbc4cfd06e
 
 # begin 0c30d0c1c7c793e097bcfb46208f14998d77dd0a
@@ -57,7 +60,7 @@ window = glfw.create_window(500, 500, "ModelViewProjection Demo 1", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
-#end a9948cba6a31fd1774c1a0e1ae634bbad8c6c7f3
+# end a9948cba6a31fd1774c1a0e1ae634bbad8c6c7f3
 
 # begin 7ddbe862d3ff7b6ee489ac7ac565b8a5e72f7f9f
 glfw.make_context_current(window)
@@ -67,6 +70,8 @@ glfw.make_context_current(window)
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
+
+
 # end 63277c9f3b6e8071722b93baf8e77bb8ee6c677d
 
 glfw.set_key_callback(window, on_key)

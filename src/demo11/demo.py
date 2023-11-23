@@ -234,7 +234,7 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    #fmt: off
+    # fmt: off
     # begin 7dab1135450b265814f775c59807f77b44273a4e
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
@@ -250,9 +250,9 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # end 7dab1135450b265814f775c59807f77b44273a4e
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # begin 9a0ba48a086f35a4515bf32b4a856888c178b0e8
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
@@ -269,9 +269,9 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # end 9a0ba48a086f35a4515bf32b4a856888c178b0e8
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # begin 12cd2bedfe522c8c192106296c12e8344f1594d4
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
@@ -287,8 +287,7 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # end 12cd2bedfe522c8c192106296c12e8344f1594d4
-    #fmt: on
-
+    # fmt: on
 
     glfw.swap_buffers(window)
 

@@ -230,37 +230,21 @@ Right calculation based off of Top and aspect ration
            |                                                     |    width/height, not necessarily the
            -------------------------------------------------------    window's
 
+.. LINENOS ../src/demo17/demo.py 24b2f9fc341605b61f191425ea7a8e7a2ac42873
 
-.. literalinclude:: ../src/demo17/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 115
-   :lines: 115-116
 
 ::
 
    ...
 
-.. literalinclude:: ../src/demo17/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 170
-   :lines: 170-193
+.. LINENOS ../src/demo17/demo.py 7f3ac095c4dfe0c0162e607a871f4e12e6fd633c
 
 
-.. literalinclude:: ../src/demo17/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 324
-   :lines: 324
+.. LINENOS ../src/demo17/demo.py 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
 
 ::
 
    ...
 
 
-.. literalinclude:: ../src/demo17/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 362
-   :lines: 362-391
+.. LINENOS ../src/demo17/demo.py 2ced82a1c3de464adbfe5d303faffdd2314c17c2

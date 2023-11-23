@@ -100,6 +100,7 @@ def draw_in_square_viewport() -> None:
         min,
     )
 
+
 # begin 45f8b976d5ca561e6551fced4b91491a0608e07c
 @dataclass
 class Vertex:
@@ -108,6 +109,8 @@ class Vertex:
 
     def translate(self: Vertex, tx: float, ty: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty)
+
+
 # end 45f8b976d5ca561e6551fced4b91491a0608e07c
 
 # begin c04057e28feefe7d49c375940e142dccd15bb006
@@ -118,6 +121,8 @@ class Paddle:
     g: float
     b: float
     position: Vertex
+
+
 # end c04057e28feefe7d49c375940e142dccd15bb006
 
 # begin 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
@@ -160,6 +165,8 @@ def handle_movement_of_paddles() -> None:
         paddle2.position.y -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 0.1
+
+
 # end b0d86b4d150b3ca92951137634b12d7881ee6350
 
 TARGET_FRAMERATE: int = 60

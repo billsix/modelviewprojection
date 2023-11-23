@@ -56,21 +56,13 @@ What's the difference between drawing paddle 1 and the square?
 
 Here is paddle 1 code
 
-.. literalinclude:: ../src/demo17/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 362
-   :lines: 362-391
+.. LINENOS ../src/demo17/demo.py 2ced82a1c3de464adbfe5d303faffdd2314c17c2
 
 
 Here is the square's code:
 
 
-.. literalinclude:: ../src/demo17/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 393
-   :lines: 393-418
+.. LINENOS ../src/demo17/demo.py 23cd906b0bec259766279f1a9277922719cf1e2b
 
 
 
@@ -186,11 +178,7 @@ function stack.  The bottom of the stack has
 the low index, the top of the stack has the highest
 index
 
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 302
-   :lines: 302
+.. LINENOS ../src/demo18/demo.py 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842
 
 
 
@@ -200,66 +188,30 @@ to be used as input to the next lower function on the
 stack.  Continue doing this until we get the value
 returned from the function at the bottom of the stack.
 
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 305
-   :lines: 305-309
+.. LINENOS ../src/demo18/demo.py b10a3979fe71e9a6afb18fa102ceb44ab253abc6
 
 
 There is an example at the bottom of src/demo18/demo.py
 
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 437
-   :lines: 437-450
+.. LINENOS ../src/demo18/demo.py 1b3386db3fb40d61e80828a90a820b3a235ca940
 
 Define four functions, which we will compose on the stack.
 
 Push identity onto the stack, which will will never pop off of the stack.
 
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 454
-   :lines: 454-456
+.. LINENOS ../src/demo18/demo.py 6e7a7ee4a8493ddc6478bcaf2dbb6fb4a2a9753a
 
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 458
-   :lines: 458-460
+.. LINENOS ../src/demo18/demo.py ccac3b1b9bc8c759e45929c467274c763f7671c7
 
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 462
-   :lines: 462-464
+.. LINENOS ../src/demo18/demo.py 24f3367f7ffaefa3d882a20f772ce7f089049391
 
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 466
-   :lines: 466-468
+.. LINENOS ../src/demo18/demo.py b2d4aee29938ffba8e023e2d523e5a8b7b400bee
 
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 470
-   :lines: 470-472
+.. LINENOS ../src/demo18/demo.py 95d6bcea04206261224089df1734055b9b4196d3
 
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 474
-   :lines: 474-476
+.. LINENOS ../src/demo18/demo.py 55dd21f698dbbde5bd5d1b332279d099a315f771
 
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :linenos:
-   :lineno-start: 478
-   :lines: 478-480
+.. LINENOS ../src/demo18/demo.py e09b968f9c8a2f9db13475d1c9ac310d94e54a2a
 
 
 
@@ -267,6 +219,7 @@ Push identity onto the stack, which will will never pop off of the stack.
 
 Event Loop
 ^^^^^^^^^^
+.. LINENOS ../src/demo18/demo.py
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
@@ -301,6 +254,7 @@ and the end of the list to be the top of the stack.
 
 
 
+.. LINENOS ../src/demo18/demo.py
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
@@ -328,6 +282,7 @@ to world space like so, read top to bottom:
     :figclass: align-center
 
 
+.. LINENOS ../src/demo18/demo.py
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
@@ -353,6 +308,7 @@ camera space are.
 
 
 
+.. LINENOS ../src/demo18/demo.py
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
@@ -380,6 +336,7 @@ the current space
     :figclass: align-center
 
 
+.. LINENOS ../src/demo18/demo.py
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
@@ -411,6 +368,7 @@ remove these 4 transformations from the stack (done below)
     :figclass: align-center
 
 
+.. LINENOS ../src/demo18/demo.py
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
@@ -422,6 +380,7 @@ lambda stack will convert from world space to NDC.
 This will allow us to just add the transformaions from
 world space to paddle2 space on the stack.
 
+.. LINENOS ../src/demo18/demo.py
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
@@ -447,6 +406,7 @@ draw paddle 2
     :figclass: align-center
 
 
+.. LINENOS ../src/demo18/demo.py
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
@@ -458,6 +418,7 @@ remove all fns from the function stack, as the next frame will set them
 clear makes the list empty, as the list (stack) will be repopulated
 the next iteration of the event loop.
 
+.. LINENOS ../src/demo18/demo.py
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:
@@ -467,6 +428,7 @@ the next iteration of the event loop.
 
 Swap buffers and execute another iteration of the event loop
 
+.. LINENOS ../src/demo18/demo.py
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :linenos:

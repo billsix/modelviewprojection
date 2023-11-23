@@ -105,6 +105,8 @@ def draw_in_square_viewport() -> None:
 class Vertex:
     x: float
     y: float
+
+
 # end ca6358d2d0e38e03d5c0642954e9a34ed62ab406
 
 # begin ecf8e1a61285c18b321fef38792c6e6a5c1ca79c
@@ -114,6 +116,8 @@ class Paddle:
     r: float
     g: float
     b: float
+
+
 # end ecf8e1a61285c18b321fef38792c6e6a5c1ca79c
 
 # begin 6ab0efd624f5d076b983e875700a2b2307788cc2
@@ -153,6 +157,8 @@ def handle_movement_of_paddles() -> None:
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         for v in paddle2.vertices:
             v.y += 0.1
+
+
 # end 4b68726b67eef939645c430941518f4fb374f0c8
 
 # begin 2ef80e67f318610c9d846513e604bdff5d037285

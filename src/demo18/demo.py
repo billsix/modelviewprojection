@@ -299,15 +299,20 @@ def handle_inputs() -> None:
         paddle2.rotation -= 0.1
 
 
+# begin 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842
 fn_stack: List[Callable[Vertex, Vertex]] = []
+# end 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842
 
 
+# begin b10a3979fe71e9a6afb18fa102ceb44ab253abc6
 def apply_stack(vertex: Vertex) -> Vertex:
     v = vertex
     for fn in reversed(fn_stack):
         v = fn(v)
     return v
 
+
+# end b10a3979fe71e9a6afb18fa102ceb44ab253abc6
 
 TARGET_FRAMERATE: int = 60
 
@@ -434,6 +439,7 @@ while not glfw.window_should_close(window):
 fn_stack = []
 
 
+# begin 1b3386db3fb40d61e80828a90a820b3a235ca940
 def identity(x):
     return x
 
@@ -450,34 +456,49 @@ def add_5(x):
     return x + 5
 
 
+# end 1b3386db3fb40d61e80828a90a820b3a235ca940
+
 # never pop this off, otherwise can't apply the stack
+# begin 6e7a7ee4a8493ddc6478bcaf2dbb6fb4a2a9753a
 fn_stack.append(identity)
 print(fn_stack)
 print(apply_stack(1))  # x = 1
+# end 6e7a7ee4a8493ddc6478bcaf2dbb6fb4a2a9753a
 
+# begin ccac3b1b9bc8c759e45929c467274c763f7671c7
 fn_stack.append(add_one)
 print(fn_stack)
 print(apply_stack(1))  # x + 1 = 2
+# end ccac3b1b9bc8c759e45929c467274c763f7671c7
 
+# begin 24f3367f7ffaefa3d882a20f772ce7f089049391
 fn_stack.append(multiply_by_2)  # (x * 2) + 1 = 3
 print(fn_stack)
 print(apply_stack(1))
+# end 24f3367f7ffaefa3d882a20f772ce7f089049391
 
+# begin b2d4aee29938ffba8e023e2d523e5a8b7b400bee
 fn_stack.append(add_5)  # ((x + 5) * 2) + 1 = 13
 print(fn_stack)
 print(apply_stack(1))
+# end b2d4aee29938ffba8e023e2d523e5a8b7b400bee
 
+# begin 95d6bcea04206261224089df1734055b9b4196d3
 fn_stack.pop()
 print(fn_stack)
 print(apply_stack(1))  # (x * 2) + 1 = 3
+# end 95d6bcea04206261224089df1734055b9b4196d3
 
+# begin 55dd21f698dbbde5bd5d1b332279d099a315f771
 fn_stack.pop()
 print(fn_stack)
 print(apply_stack(1))  # x + 1 = 2
+# end 55dd21f698dbbde5bd5d1b332279d099a315f771
 
+# begin e09b968f9c8a2f9db13475d1c9ac310d94e54a2a
 fn_stack.pop()
 print(fn_stack)
 print(apply_stack(1))  # x = 1
-
+# end e09b968f9c8a2f9db13475d1c9ac310d94e54a2a
 
 glfw.terminate()

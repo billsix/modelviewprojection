@@ -122,7 +122,8 @@ class Vertex:
             x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
             y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
         )
-    #fmt: off
+
+    # fmt: off
     # begin 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
     def rotate_around(self: Vertex, angle_in_radians: float, center: Vertex) -> Vertex:
         translate_to_center: Vertex = self.translate(tx=-center.x,
@@ -132,7 +133,8 @@ class Vertex:
                                                                    ty=center.y)
         return back_to_position
     # end 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
-    #fmt: on
+    # fmt: on
+
 
 @dataclass
 class Paddle:
@@ -219,7 +221,7 @@ while not glfw.window_should_close(window):
     handle_movement_of_paddles()
 
     # draw paddle 1
-    #fmt: off
+    # fmt: off
     # begin b641b94ccea0c4270f96da2c06387477a7874816
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
@@ -235,9 +237,9 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
         # end b641b94ccea0c4270f96da2c06387477a7874816
     glEnd()
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # begin ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
@@ -254,7 +256,7 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # end ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
-    #fmt: on
+    # fmt: on
 
     glfw.swap_buffers(window)
 

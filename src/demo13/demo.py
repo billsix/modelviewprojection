@@ -178,6 +178,7 @@ square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
 # end 2a8e38cc39d597fceddccb30edce196ea046a770
 
+
 def handle_inputs():
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
@@ -258,7 +259,7 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
 
-    #fmt: off
+    # fmt: off
     # begin f4ab63a2bc7b673fa5f9d281d73aed0af2ab6e53
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
@@ -277,9 +278,9 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # end f4ab63a2bc7b673fa5f9d281d73aed0af2ab6e53
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -293,7 +294,7 @@ while not glfw.window_should_close(window):
                                                scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    #fmt: on
+    # fmt: on
 
     glfw.swap_buffers(window)
 

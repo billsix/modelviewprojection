@@ -206,7 +206,7 @@ while not glfw.window_should_close(window):
     handle_movement_of_paddles()
 
     # draw paddle 1
-    #fmt: off
+    # fmt: off
     # begin 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
@@ -224,10 +224,10 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # end 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
-    #fmt: on
+    # fmt: on
 
     # draw paddle 2
-    #fmt: off
+    # fmt: off
     # begin c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
@@ -240,8 +240,8 @@ while not glfw.window_should_close(window):
                                               scale_y=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    #end c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
-    #fmt: on
+    # end c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
+    # fmt: on
     glfw.swap_buffers(window)
 
 glfw.terminate()

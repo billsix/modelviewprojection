@@ -145,7 +145,7 @@ class Vertex:
     def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
 
-    #fmt: off
+    # fmt: off
     # begin f772cea61c9d02b6a9d8565f5427658c0e40cef3
     def ortho(self: Vertex,
               left: float,
@@ -171,9 +171,9 @@ class Vertex:
                           2.0 / length_y,
                           2.0 / (-length_z))
     # end f772cea61c9d02b6a9d8565f5427658c0e40cef3
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # begin b23c753f650185c5b1e4a0e6c8008852afae73d9
     def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
         return self.ortho(left=-100.0,
@@ -183,7 +183,8 @@ class Vertex:
                           near=-1.0,
                           far=-100.0)
     # end b23c753f650185c5b1e4a0e6c8008852afae73d9
-    #fmt: on
+    # fmt: on
+
 
 @dataclass
 class Paddle:
@@ -230,6 +231,7 @@ class Camera:
     rot_x: float = 0.0
     # end ec5a4d2515c361a5f311d93c93b2c89b60eb2dfc
 
+
 camera: Camera = Camera()
 
 
@@ -266,7 +268,7 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
     # end 33b92ff8834a0e251991d9373983c374449eab36
-    #fmt: off
+    # fmt: off
     # begin 809cd77769244adb1e3866899e53ba3c203a535a
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         forwards_camera_space = Vertex(x=0.0, y=0.0, z=-1.0)
@@ -287,7 +289,7 @@ def handle_inputs() -> None:
         camera.position_worldspace.y = forward_world_space.y
         camera.position_worldspace.z = forward_world_space.z
     # end 809cd77769244adb1e3866899e53ba3c203a535a
-    #fmt: on
+    # fmt: on
 
     global paddle1, paddle2
 
@@ -334,7 +336,7 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    #fmt: off
+    # fmt: off
     # begin 751192ea5ea95537db3cc34c4c3b1549d1fd91e4
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
@@ -361,9 +363,9 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
     # end 751192ea5ea95537db3cc34c4c3b1549d1fd91e4
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # begin 554eda2bd3b5edf8eee0c1441a1e8c8f366c575b
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
@@ -395,9 +397,9 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
     # end 554eda2bd3b5edf8eee0c1441a1e8c8f366c575b
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # begin ed9eeae978339791ef50c475f26ec4fe8bf018c7
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
@@ -422,7 +424,7 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
     # end ed9eeae978339791ef50c475f26ec4fe8bf018c7
-    #fmt: on
+    # fmt: on
     glfw.swap_buffers(window)
 
 glfw.terminate()

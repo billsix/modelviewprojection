@@ -164,6 +164,7 @@ class Camera:
     position_worldspace: Vertex = Vertex(x=0.0, y=0.0)
     # end 808b49966faf68394a1e4def233df33c08e37b27
 
+
 camera: Camera = Camera()
 
 
@@ -226,7 +227,7 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    #fmt: off
+    # fmt: off
     # begin c1994fe03bc9e4428893f63706e07eb1d3bb14b5
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
@@ -245,9 +246,9 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # end 4db386e7523575f5ab67841165a5297c8c0e1500
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # begin 63cbaad0dbecc69f52bc428648308a48337e43c6
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
@@ -263,7 +264,7 @@ while not glfw.window_should_close(window):
         # end ad53fd8251cc2c93fffec19223c3e70270e31410
         ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 100.0,
                                                scale_y=1.0 / 100.0)
-        #fmt: on
+        # fmt: on
         # begin 46159451e06ea71fbb3fc270b01f3b755a06040c
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()

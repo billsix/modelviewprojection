@@ -35,9 +35,7 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 0)
 
-window = glfw.create_window(
-    800, 800, "ModelViewProjection Demo of Coordinates", None, None
-)
+window = glfw.create_window(800, 800, "ModelViewProjection Demo of Coordinates", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -183,9 +181,7 @@ virtual_camera_rot_x = math.radians(15.0)
 
 def draw_ground() -> None:
     # ascontiguousarray puts the array in column major order
-    glLoadMatrixf(
-        np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
-    )
+    glLoadMatrixf(np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T))
     glColor3f(0.1, 0.1, 0.1)
     glBegin(GL_LINES)
     for x in range(-200, 201, 20):
@@ -200,9 +196,7 @@ def draw_ground() -> None:
 
 def draw_y_axis() -> None:
     # ascontiguousarray puts the array in column major order
-    glLoadMatrixf(
-        np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
-    )
+    glLoadMatrixf(np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T))
 
     glLineWidth(3.0)
     glBegin(GL_LINES)
@@ -218,7 +212,7 @@ def draw_y_axis() -> None:
     glEnd()
 
 
-def draw_axises(grayed_out: bool=False) -> None:
+def draw_axises(grayed_out: bool = False) -> None:
     with ms.push_matrix(ms.MatrixStack.model):
         ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
 
@@ -251,9 +245,7 @@ def draw_axises(grayed_out: bool=False) -> None:
 
 # this isn't really NDC, I scaled it so that it looks good, not be correct
 def draw_ndc() -> None:
-    glLoadMatrixf(
-        np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
-    )
+    glLoadMatrixf(np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T))
 
     glColor3f(1.0, 1.0, 1.0)
     glLineWidth(3.0)
@@ -307,9 +299,7 @@ animation_paused = False
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
-    while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
+    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
     # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -347,9 +337,7 @@ while not glfw.window_should_close(window):
 
     glMatrixMode(GL_PROJECTION)
     # ascontiguousarray puts the array in column major order
-    glLoadMatrixf(
-        np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.projection).T)
-    )
+    glLoadMatrixf(np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.projection).T))
 
     # note - opengl matricies use degrees
     ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
@@ -390,12 +378,9 @@ while not glfw.window_should_close(window):
             if animation_time > 55:
                 ms.translate(
                     ms.MatrixStack.model,
-                    virtual_camera_position[0]
-                    * min(1.0, (animation_time - 55.0) / 5.0),
-                    virtual_camera_position[1]
-                    * min(1.0, (animation_time - 55.0) / 5.0),
-                    virtual_camera_position[2]
-                    * min(1.0, (animation_time - 55.0) / 5.0),
+                    virtual_camera_position[0] * min(1.0, (animation_time - 55.0) / 5.0),
+                    virtual_camera_position[1] * min(1.0, (animation_time - 55.0) / 5.0),
+                    virtual_camera_position[2] * min(1.0, (animation_time - 55.0) / 5.0),
                 )
             if animation_time > 60:
                 ms.rotate_y(
@@ -441,9 +426,7 @@ while not glfw.window_should_close(window):
         glColor3f(paddle1.r, paddle1.g, paddle1.b)
         if animation_time > 15.0:
             # ascontiguousarray puts the array in column major order
-            glLoadMatrixf(
-                np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
-            )
+            glLoadMatrixf(np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T))
             glBegin(GL_QUADS)
             for model_space in paddle1.vertices:
                 glVertex3f(model_space[0], model_space[1], model_space[2])
@@ -482,9 +465,7 @@ while not glfw.window_should_close(window):
         glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
         if animation_time > 35.0:
             # ascontiguousarray puts the array in column major order
-            glLoadMatrixf(
-                np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
-            )
+            glLoadMatrixf(np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T))
             glBegin(GL_QUADS)
             for model_space in square_vertices:
                 glVertex3f(model_space[0], model_space[1], model_space[2])
@@ -514,9 +495,7 @@ while not glfw.window_should_close(window):
         glColor3f(paddle2.r, paddle2.g, paddle2.b)
         if animation_time > 50.0:
             # ascontiguousarray puts the array in column major order
-            glLoadMatrixf(
-                np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
-            )
+            glLoadMatrixf(np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T))
             glBegin(GL_QUADS)
             for model_space in paddle2.vertices:
                 glVertex3f(model_space[0], model_space[1], model_space[2])

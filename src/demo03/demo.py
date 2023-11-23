@@ -72,7 +72,7 @@ glLoadIdentity()
 
 # begin 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
 def draw_in_square_viewport() -> None:
-# end 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
+    # end 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
 
     # begin 263830783a8fbe25283deaa80688f95592917298
     glClearColor(0.2, 0.2, 0.2, 1.0)
@@ -111,6 +111,7 @@ def draw_in_square_viewport() -> None:
     )
     # end defaeb0e6b9ada0b6c349a4dec907300e4c14acbviewportcall
 
+
 # begin 33fecc926105eda74989fb02da7daca03e3bfea8
 while not glfw.window_should_close(window):
     glfw.poll_events()
@@ -142,5 +143,5 @@ while not glfw.window_should_close(window):
     glEnd()
 
     glfw.swap_buffers(window)
-    #end bf9a23e3296c75d786d75f7b0e406448b773b23b
+    # end bf9a23e3296c75d786d75f7b0e406448b773b23b
 glfw.terminate()

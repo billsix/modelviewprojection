@@ -269,7 +269,7 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    #fmt: off
+    # fmt: off
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
@@ -285,9 +285,9 @@ while not glfw.window_should_close(window):
                                                scale_z=1.0 / 100.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
@@ -311,9 +311,9 @@ while not glfw.window_should_close(window):
                                                scale_z=1.0 / 100.0)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
@@ -330,7 +330,7 @@ while not glfw.window_should_close(window):
                                                scale_z=1.0 / 100.0)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-    #fmt: on
+    # fmt: on
     glfw.swap_buffers(window)
 
 glfw.terminate()

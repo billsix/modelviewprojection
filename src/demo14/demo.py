@@ -104,6 +104,7 @@ def draw_in_square_viewport() -> None:
         min,
     )
 
+
 # begin d38e00f1c19bce775ae4216e4ed95a31a814eee0
 @dataclass
 class Vertex:
@@ -113,6 +114,7 @@ class Vertex:
 
     def translate(self: Vertex, tx: float, ty: float, tz: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
+
     # end d38e00f1c19bce775ae4216e4ed95a31a814eee0
 
     # begin 3e09ecd4a77c68066fe97bfa4f06e89afb583f9d
@@ -122,6 +124,7 @@ class Vertex:
             y=self.y * math.cos(angle_in_radians) - self.z * math.sin(angle_in_radians),
             z=self.y * math.sin(angle_in_radians) + self.z * math.cos(angle_in_radians),
         )
+
     # end 3e09ecd4a77c68066fe97bfa4f06e89afb583f9d
 
     # begin 256be1d4ab5b90068be656bb99ff1115268d8925
@@ -131,6 +134,7 @@ class Vertex:
             y=self.y,
             z=self.z * math.cos(angle_in_radians) - self.x * math.sin(angle_in_radians),
         )
+
     # end 256be1d4ab5b90068be656bb99ff1115268d8925
 
     # begin 1b96b48e7e572197721cad2a7d082f167159f2d8
@@ -140,12 +144,15 @@ class Vertex:
             y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
             z=self.z,
         )
+
     # end 1b96b48e7e572197721cad2a7d082f167159f2d8
 
     # begin dd45247963bb4a02bf2430d98a7f52e707c9e15a
     def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
+
     # end dd45247963bb4a02bf2430d98a7f52e707c9e15a
+
 
 @dataclass
 class Paddle:
@@ -155,6 +162,7 @@ class Paddle:
     b: float
     position: Vertex
     rotation: float = 0.0
+
 
 # begin d5bd9d04649181c42a65f8a7d52125a0ef86a928
 paddle1: Paddle = Paddle(
@@ -271,7 +279,7 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    #fmt: off
+    # fmt: off
     # begin 2f5cb93361c42475b16dec8246c81c711b1a2db3
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
@@ -289,9 +297,9 @@ while not glfw.window_should_close(window):
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # end 2f5cb93361c42475b16dec8246c81c711b1a2db3
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # begin 485064c9e30f4471b74d11b8cca3c8f0d142b552
     # draw square
     glColor3f(0.0, 0.0, 1.0)
@@ -319,9 +327,9 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
     # end 485064c9e30f4471b74d11b8cca3c8f0d142b552
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # begin 79bca06683ced2f641ea47f14d22bc330f75979f
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
@@ -340,7 +348,7 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
     # end 79bca06683ced2f641ea47f14d22bc330f75979f
-    #fmt: off
+    # fmt: off
 
     glfw.swap_buffers(window)
 
