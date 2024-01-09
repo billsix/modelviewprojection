@@ -90,7 +90,11 @@ Draw Paddle 1
 ^^^^^^^^^^^^^
 
 
-.. LINENOS ../src/demo02/demo.py 1f8e965ae06faf5ab530a2df89117ac04c0cc8e4
+.. literalinclude:: ../src/demo02/demo.py
+   :language: python
+   :start-after: doc-region-begin 1f8e965ae06faf5ab530a2df89117ac04c0cc8e4
+   :end-before: doc-region-end 1f8e965ae06faf5ab530a2df89117ac04c0cc8e4
+
 
 
 The paddle looks like this relative to normalized device coordinates (NDC):
@@ -106,7 +110,11 @@ The paddle looks like this relative to normalized device coordinates (NDC):
 Draw Paddle 2
 ^^^^^^^^^^^^^
 
-.. LINENOS ../src/demo02/demo.py 8c6c98d43b93df8ab7baffa3fc7aa3e073c15456
+.. literalinclude:: ../src/demo02/demo.py
+   :language: python
+   :start-after: doc-region-begin 8c6c98d43b93df8ab7baffa3fc7aa3e073c15456
+   :end-before: doc-region-end 8c6c98d43b93df8ab7baffa3fc7aa3e073c15456
+
 
 
 The 2 paddles looks like this relative to normalized device coordinates (NDC):
@@ -118,7 +126,11 @@ The 2 paddles looks like this relative to normalized device coordinates (NDC):
 
     Rectangle
 
-.. LINENOS ../src/demo02/demo.py eb903e85756eb879f8371c3ed61c4de85801c970
+.. literalinclude:: ../src/demo02/demo.py
+   :language: python
+   :start-after: doc-region-begin eb903e85756eb879f8371c3ed61c4de85801c970
+   :end-before: doc-region-end eb903e85756eb879f8371c3ed61c4de85801c970
+
 
 
 * done with frame, flush the current buffer to the monitor

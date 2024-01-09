@@ -86,11 +86,19 @@ Code
 
 Make a variable to determine the angle that the square will be rotated.
 
-.. LINENOS ../src/demo12/demo.py 3ae4d745b5afbd285e833b94972715efe8178822
+.. literalinclude:: ../src/demo12/demo.py
+   :language: python
+   :start-after: doc-region-begin 3ae4d745b5afbd285e833b94972715efe8178822
+   :end-before: doc-region-end 3ae4d745b5afbd285e833b94972715efe8178822
+
 
 When 'q' is pressed, increase the angle.
 
-.. LINENOS ../src/demo12/demo.py 430452dadde6cdec13eedba9906dc9aad1a25f2e
+.. literalinclude:: ../src/demo12/demo.py
+   :language: python
+   :start-after: doc-region-begin 430452dadde6cdec13eedba9906dc9aad1a25f2e
+   :end-before: doc-region-end 430452dadde6cdec13eedba9906dc9aad1a25f2e
+
 
 ::
 
@@ -103,7 +111,11 @@ Event Loop
 In the previous chapter, this was the rendering code for
 the square.
 
-.. LINENOS ../src/demo11/demo.py 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :start-after: doc-region-begin 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+   :end-before: doc-region-end 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+
 
 
 Since we just want to add one rotation at the end of the sequence
@@ -112,7 +124,11 @@ a rotate call at the top.
 
 
 
-.. LINENOS ../src/demo12/demo.py 7d764f79efa781036fc6d58825da898fca08d45c
+.. literalinclude:: ../src/demo12/demo.py
+   :language: python
+   :start-after: doc-region-begin 7d764f79efa781036fc6d58825da898fca08d45c
+   :end-before: doc-region-end 7d764f79efa781036fc6d58825da898fca08d45c
+
 
 The author is getting really tired of having to look at all the different
 transformation functions repeatedly defined for each object being drawn.

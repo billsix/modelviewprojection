@@ -96,7 +96,11 @@ Code
 Data Structures
 ~~~~~~~~~~~~~~~
 
-.. LINENOS ../src/demo05/demo.py 45f8b976d5ca561e6551fced4b91491a0608e07c
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :start-after: doc-region-begin 45f8b976d5ca561e6551fced4b91491a0608e07c
+   :end-before: doc-region-end 45f8b976d5ca561e6551fced4b91491a0608e07c
+
 
 We added a translate method to the Vertex class.  Given a translation amount, the vertex
 will be shifted by that amount.  This is a primitive that we will be using to transform
@@ -114,7 +118,11 @@ import them and try the methods
        Vertex(x=4, y=6)
 
 
-.. LINENOS ../src/demo05/demo.py c04057e28feefe7d49c375940e142dccd15bb006
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :start-after: doc-region-begin c04057e28feefe7d49c375940e142dccd15bb006
+   :end-before: doc-region-end c04057e28feefe7d49c375940e142dccd15bb006
+
 
 Add a position instance variable to the Paddle class.  This position is the center of
 the paddle, defined relative to NDC.  The vertices of the paddle will be defined
@@ -124,7 +132,11 @@ Instantiation of the Paddles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-.. LINENOS ../src/demo05/demo.py 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :start-after: doc-region-begin 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
+   :end-before: doc-region-end 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
+
 
 * The verticies are now defined as relative distances from the center of the paddle.  The centers
   of each paddle are placed in positions relative to NDC that preserve the positions of the
@@ -133,7 +145,11 @@ Instantiation of the Paddles
 Handling User Input
 ~~~~~~~~~~~~~~~~~~~
 
-.. LINENOS ../src/demo05/demo.py b0d86b4d150b3ca92951137634b12d7881ee6350
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :start-after: doc-region-begin b0d86b4d150b3ca92951137634b12d7881ee6350
+   :end-before: doc-region-end b0d86b4d150b3ca92951137634b12d7881ee6350
+
 
 * We put the transformation on the center of the paddle, instead
   of directly on each vertex.  This is because the vertices are
@@ -142,9 +158,17 @@ Handling User Input
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. LINENOS ../src/demo05/demo.py 1cacf5f226065bc4b85826f7642bf817a36b6540
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :start-after: doc-region-begin 1cacf5f226065bc4b85826f7642bf817a36b6540
+   :end-before: doc-region-end 1cacf5f226065bc4b85826f7642bf817a36b6540
 
-.. LINENOS ../src/demo05/demo.py 9de7437ce84e5390a8907af83bb84e955ca80286
+
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :start-after: doc-region-begin 9de7437ce84e5390a8907af83bb84e955ca80286
+   :end-before: doc-region-end 9de7437ce84e5390a8907af83bb84e955ca80286
+
 
 
 Here each of paddle 1's vertices, which are in their "model-space",
@@ -152,7 +176,11 @@ are converted to NDC by calling the translate method on the vertex.
 This function corresponds to the Cayley graph below, the function
 from Paddle 1 space to NDC.
 
-.. LINENOS ../src/demo05/demo.py 6b46719ca5e13f1c1c90c8ea495549599c6d0008
+.. literalinclude:: ../src/demo05/demo.py
+   :language: python
+   :start-after: doc-region-begin 6b46719ca5e13f1c1c90c8ea495549599c6d0008
+   :end-before: doc-region-end 6b46719ca5e13f1c1c90c8ea495549599c6d0008
+
 
 
 

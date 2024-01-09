@@ -112,7 +112,11 @@ all the transformations happen relative to the global
 origin and axes, i.e. the natural *basis*.  After each function call, the basis
 is set back to the origin basis.
 
-.. LINENOS ../src/demo09/demo.py 3b78276e1dad210e845c0455857c6ccad704f7c7
+.. literalinclude:: ../src/demo09/demo.py
+   :language: python
+   :start-after: doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
+   :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
+
 
 
 .. figure:: _static/rotate1-forwards.gif
@@ -132,7 +136,11 @@ where the operations
 all cumulatively modify the current axes and origin, i.e. basis, to a new basis.
 All subsequent functions move that relative basis to a new relative basis.
 
-.. LINENOS ../src/demo09/demo.py 3b78276e1dad210e845c0455857c6ccad704f7c7
+.. literalinclude:: ../src/demo09/demo.py
+   :language: python
+   :start-after: doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
+   :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
+
 
 .. figure:: _static/rotate1-backwards.gif
     :align: center
@@ -176,7 +184,11 @@ L by a right-multiplication of M.
 
 
 
-.. LINENOS ../src/demo09/demo.py 3b78276e1dad210e845c0455857c6ccad704f7c7
+.. literalinclude:: ../src/demo09/demo.py
+   :language: python
+   :start-after: doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
+   :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
+
 
 
 Now go back to world space.  Think
@@ -186,7 +198,11 @@ reading the transformations
 from top down, and resetting the coordinate system after every transformation.
 
 
-.. LINENOS ../src/demo09/demo.py bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
+.. literalinclude:: ../src/demo09/demo.py
+   :language: python
+   :start-after: doc-region-begin bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
+   :end-before: doc-region-end bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
+
 
 
 
@@ -203,10 +219,18 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. LINENOS ../src/demo09/demo.py 5748cc21902ad56527c65e167b4ef44bd62f392e
+.. literalinclude:: ../src/demo09/demo.py
+   :language: python
+   :start-after: doc-region-begin 5748cc21902ad56527c65e167b4ef44bd62f392e
+   :end-before: doc-region-end 5748cc21902ad56527c65e167b4ef44bd62f392e
 
 
-.. LINENOS ../src/demo09/demo.py 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
+
+.. literalinclude:: ../src/demo09/demo.py
+   :language: python
+   :start-after: doc-region-begin 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
+   :end-before: doc-region-end 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
+
 
 * TODO Fix these line numbers
 * Read line 212-213
@@ -215,7 +239,11 @@ The Event Loop
 * Read line 214-215
 
 
-.. LINENOS ../src/demo09/demo.py c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
+.. literalinclude:: ../src/demo09/demo.py
+   :language: python
+   :start-after: doc-region-begin c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
+   :end-before: doc-region-end c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
+
 
 
 * TODO Fix these line numbers

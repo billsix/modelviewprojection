@@ -142,7 +142,11 @@ rotate your head (not your neck), 45 degrees.  It's different, and quite uncomfo
 We rotate the camera by the y axis first, then by the relative x axis,
 for the same reason.
 
-.. LINENOS ../src/demo16/demo.py d194601529be6fa90270809dd56628cb47360ff2
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin d194601529be6fa90270809dd56628cb47360ff2
+   :end-before: doc-region-end d194601529be6fa90270809dd56628cb47360ff2
+
 
 
 (Remember, read bottom up, just like the previous demos
@@ -182,7 +186,11 @@ to camera space.
 
 The inverted form is
 
-.. LINENOS ../src/demo16/demo.py 21b5929d16e434165544480ad25b7ff015e239f7
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin 21b5929d16e434165544480ad25b7ff015e239f7
+   :end-before: doc-region-end 21b5929d16e434165544480ad25b7ff015e239f7
+
 
 
 ..
@@ -245,13 +253,21 @@ Code
 
 The camera now has two angles as instance variables.
 
-.. LINENOS ../src/demo16/demo.py ec5a4d2515c361a5f311d93c93b2c89b60eb2dfc
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin ec5a4d2515c361a5f311d93c93b2c89b60eb2dfc
+   :end-before: doc-region-end ec5a4d2515c361a5f311d93c93b2c89b60eb2dfc
+
 
 
 Since we want the user to be able to control the camera, we need
 to read the input.
 
-.. LINENOS ../src/demo16/demo.py af7c283e5f33d95279c0b6223af95e9b16826acc
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin af7c283e5f33d95279c0b6223af95e9b16826acc
+   :end-before: doc-region-end af7c283e5f33d95279c0b6223af95e9b16826acc
+
 
 ::
 
@@ -260,7 +276,11 @@ to read the input.
 Left and right rotate the viewer's horizontal
 angle, page up and page down the vertical angle.
 
-.. LINENOS ../src/demo16/demo.py 33b92ff8834a0e251991d9373983c374449eab36
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin 33b92ff8834a0e251991d9373983c374449eab36
+   :end-before: doc-region-end 33b92ff8834a0e251991d9373983c374449eab36
+
 
 
 The up arrow and down arrow make the user move forwards
@@ -272,7 +292,11 @@ through the sky.  I.e, we want forward/backwards movement to happen relative
 to the XZ plane at the camera's position, not forward/backwards
 movement relative to camera space.
 
-.. LINENOS ../src/demo16/demo.py 809cd77769244adb1e3866899e53ba3c203a535a
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin 809cd77769244adb1e3866899e53ba3c203a535a
+   :end-before: doc-region-end 809cd77769244adb1e3866899e53ba3c203a535a
+
 
 
 Ortho is the function call that shrinks the viewable region
@@ -280,13 +304,21 @@ relative to camera space down to NDC, by moving the center of the rectangular
 prism to the origin, and scaling by the inverse of the width, height, and depth
 of the viewable region.
 
-.. LINENOS ../src/demo16/demo.py f772cea61c9d02b6a9d8565f5427658c0e40cef3
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin f772cea61c9d02b6a9d8565f5427658c0e40cef3
+   :end-before: doc-region-end f772cea61c9d02b6a9d8565f5427658c0e40cef3
+
 
 
 We will make a wrapper function camera_space_to_ndc_space_fn which
 calls ortho, setting the size of the rectangular prism.
 
-.. LINENOS ../src/demo16/demo.py b23c753f650185c5b1e4a0e6c8008852afae73d9
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin b23c753f650185c5b1e4a0e6c8008852afae73d9
+   :end-before: doc-region-end b23c753f650185c5b1e4a0e6c8008852afae73d9
+
 
 
 
@@ -300,7 +332,11 @@ put this repetition into the book on purpose, so that when we
 start using matricies later, the reader will fully appreciate what
 matricies solve for us.
 
-.. LINENOS ../src/demo16/demo.py ee882a76ee2962c327841e2a952998acce07cc2a
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin ee882a76ee2962c327841e2a952998acce07cc2a
+   :end-before: doc-region-end ee882a76ee2962c327841e2a952998acce07cc2a
+
 
 
 ::
@@ -309,7 +345,11 @@ matricies solve for us.
 
 Paddle 1
 
-.. LINENOS ../src/demo16/demo.py 751192ea5ea95537db3cc34c4c3b1549d1fd91e4
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin 751192ea5ea95537db3cc34c4c3b1549d1fd91e4
+   :end-before: doc-region-end 751192ea5ea95537db3cc34c4c3b1549d1fd91e4
+
 
 
 Square
@@ -317,10 +357,17 @@ Square
 the square should not be visible when hidden behind the paddle1,
 as we did a translate by -10 in the z direction.
 
-.. LINENOS ../src/demo16/demo.py 554eda2bd3b5edf8eee0c1441a1e8c8f366c575b
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin 554eda2bd3b5edf8eee0c1441a1e8c8f366c575b
+   :end-before: doc-region-end 554eda2bd3b5edf8eee0c1441a1e8c8f366c575b
+
 
 
 
 Paddle 2
 
-.. LINENOS ../src/demo16/demo.py ed9eeae978339791ef50c475f26ec4fe8bf018c7
+.. literalinclude:: ../src/demo16/demo.py
+   :language: python
+   :start-after: doc-region-begin ed9eeae978339791ef50c475f26ec4fe8bf018c7
+   :end-before: doc-region-end ed9eeae978339791ef50c475f26ec4fe8bf018c7

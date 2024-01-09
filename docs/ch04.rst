@@ -77,9 +77,17 @@ a lot of boiler plate code.
 .. _dataclasses: https://www.youtube.com/watch?v=vRVVyl9uaZc
 
 
-.. LINENOS ../src/demo04/demo.py ca6358d2d0e38e03d5c0642954e9a34ed62ab406
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin ca6358d2d0e38e03d5c0642954e9a34ed62ab406
+   :end-before: doc-region-end ca6358d2d0e38e03d5c0642954e9a34ed62ab406
 
-.. LINENOS ../src/demo04/demo.py ecf8e1a61285c18b321fef38792c6e6a5c1ca79c
+
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin ecf8e1a61285c18b321fef38792c6e6a5c1ca79c
+   :end-before: doc-region-end ecf8e1a61285c18b321fef38792c6e6a5c1ca79c
+
 
 Although Python is a dynamically-typed language, we can add type information as helpful hints to the reader,
 and for use with static type-checking tools for Python, such as `mypy`_.
@@ -87,7 +95,11 @@ and for use with static type-checking tools for Python, such as `mypy`_.
 .. _mypy: http://mypy-lang.org/
 
 
-.. LINENOS ../src/demo04/demo.py 6ab0efd624f5d076b983e875700a2b2307788cc2
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin 6ab0efd624f5d076b983e875700a2b2307788cc2
+   :end-before: doc-region-end 6ab0efd624f5d076b983e875700a2b2307788cc2
+
 
 * Create two instances of a Paddle.
 
@@ -129,7 +141,11 @@ reading of the code, which gets easy with practice.
 Query User Input and Use It To Animate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. LINENOS ../src/demo04/demo.py 4b68726b67eef939645c430941518f4fb374f0c8
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin 4b68726b67eef939645c430941518f4fb374f0c8
+   :end-before: doc-region-end 4b68726b67eef939645c430941518f4fb374f0c8
+
 
 
 - If the user presses 's' this frame, subtract 0.1 from the y component of each of
@@ -158,22 +174,46 @@ that movement is consistent across different monitors, we choose
 to only flush the screen at 60 hertz (frames per second).
 
 
-.. LINENOS ../src/demo04/demo.py 2ef80e67f318610c9d846513e604bdff5d037285
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin 2ef80e67f318610c9d846513e604bdff5d037285
+   :end-before: doc-region-end 2ef80e67f318610c9d846513e604bdff5d037285
 
-.. LINENOS ../src/demo04/demo.py 89e003b98e8ebecccb7ad30f6cd29e35a1a6e0f2
 
-.. LINENOS ../src/demo04/demo.py c414af3df41f977118e25fb4e96de3194469a04a
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin 89e003b98e8ebecccb7ad30f6cd29e35a1a6e0f2
+   :end-before: doc-region-end 89e003b98e8ebecccb7ad30f6cd29e35a1a6e0f2
 
-.. LINENOS ../src/demo04/demo.py daaa146fafc0d1c453ca4dcc38b7b9df1f92b0fd
 
-.. LINENOS ../src/demo04/demo.py 96ff95610f3df28ee581dcad279dce732a45920c
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin c414af3df41f977118e25fb4e96de3194469a04a
+   :end-before: doc-region-end c414af3df41f977118e25fb4e96de3194469a04a
+
+
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin daaa146fafc0d1c453ca4dcc38b7b9df1f92b0fd
+   :end-before: doc-region-end daaa146fafc0d1c453ca4dcc38b7b9df1f92b0fd
+
+
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin 96ff95610f3df28ee581dcad279dce732a45920c
+   :end-before: doc-region-end 96ff95610f3df28ee581dcad279dce732a45920c
+
 
 * We're still near the beginning of the event loop, and we
   haven't drawn the paddles yet.  So we call the function
   to query the user input, which will also modify the vertices'
   values if there was input.
 
-.. LINENOS ../src/demo04/demo.py 43814a73075f8265e8b55941fded5bd024914743
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin 43814a73075f8265e8b55941fded5bd024914743
+   :end-before: doc-region-end 43814a73075f8265e8b55941fded5bd024914743
+
 
 
 
@@ -195,7 +235,11 @@ to only flush the screen at 60 hertz (frames per second).
 
 
 
-.. LINENOS ../src/demo04/demo.py 2126570070cea12469df9ade20858acf7ac414c7
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin 2126570070cea12469df9ade20858acf7ac414c7
+   :end-before: doc-region-end 2126570070cea12469df9ade20858acf7ac414c7
+
 
 .. figure:: _static/plot4.png
     :align: center
@@ -205,4 +249,7 @@ to only flush the screen at 60 hertz (frames per second).
     Adding input offset to Paddle 2
 
 
-.. LINENOS ../src/demo04/demo.py cda9e45b9bd0c4a866156e72290667c32015ea59
+.. literalinclude:: ../src/demo04/demo.py
+   :language: python
+   :start-after: doc-region-begin cda9e45b9bd0c4a866156e72290667c32015ea59
+   :end-before: doc-region-end cda9e45b9bd0c4a866156e72290667c32015ea59

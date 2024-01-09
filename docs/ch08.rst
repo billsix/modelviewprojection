@@ -77,9 +77,17 @@ around a given point in world space, in this case, the paddle's center.
 
 
 
-.. LINENOS ../src/demo08/demo.py 246327053a816d12360c1ce2d0496b8f157dcc92
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :start-after: doc-region-begin 246327053a816d12360c1ce2d0496b8f157dcc92
+   :end-before: doc-region-end 246327053a816d12360c1ce2d0496b8f157dcc92
 
-.. LINENOS ../src/demo08/demo.py 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :start-after: doc-region-begin 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
+   :end-before: doc-region-end 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
+
 
 
 
@@ -88,15 +96,27 @@ Within the event loop, this seems quite reasonable
 
 
 
-.. LINENOS ../src/demo08/demo.py 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :start-after: doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+   :end-before: doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
 
 
 
-.. LINENOS ../src/demo08/demo.py b641b94ccea0c4270f96da2c06387477a7874816
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :start-after: doc-region-begin b641b94ccea0c4270f96da2c06387477a7874816
+   :end-before: doc-region-end b641b94ccea0c4270f96da2c06387477a7874816
 
 
 
-.. LINENOS ../src/demo08/demo.py ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
+
+.. literalinclude:: ../src/demo08/demo.py
+   :language: python
+   :start-after: doc-region-begin ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
+   :end-before: doc-region-end ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
+
 
 
 

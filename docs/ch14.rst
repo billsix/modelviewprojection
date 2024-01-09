@@ -130,7 +130,11 @@ Description
 * starting on the z axis, rotating to x axis, thumb is on the positive y axis.
 
 
-.. LINENOS ../src/demo14/demo.py d38e00f1c19bce775ae4216e4ed95a31a814eee0
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin d38e00f1c19bce775ae4216e4ed95a31a814eee0
+   :end-before: doc-region-end d38e00f1c19bce775ae4216e4ed95a31a814eee0
+
 
 Rotate Z
 ~~~~~~~~
@@ -145,7 +149,11 @@ the z component at all.
     :figclass: align-center
 
 
-.. LINENOS ../src/demo14/demo.py 1b96b48e7e572197721cad2a7d082f167159f2d8
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin 1b96b48e7e572197721cad2a7d082f167159f2d8
+   :end-before: doc-region-end 1b96b48e7e572197721cad2a7d082f167159f2d8
+
 
 Rotate X
 ~~~~~~~~
@@ -158,7 +166,11 @@ Rotate X
     :figclass: align-center
 
 
-.. LINENOS ../src/demo14/demo.py 3e09ecd4a77c68066fe97bfa4f06e89afb583f9d
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin 3e09ecd4a77c68066fe97bfa4f06e89afb583f9d
+   :end-before: doc-region-end 3e09ecd4a77c68066fe97bfa4f06e89afb583f9d
+
 
 
 Rotate Y
@@ -170,12 +182,20 @@ Rotate Y
     :figclass: align-center
 
 
-.. LINENOS ../src/demo14/demo.py 256be1d4ab5b90068be656bb99ff1115268d8925
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin 256be1d4ab5b90068be656bb99ff1115268d8925
+   :end-before: doc-region-end 256be1d4ab5b90068be656bb99ff1115268d8925
+
 
 Scale
 ~~~~~
 
-.. LINENOS ../src/demo14/demo.py dd45247963bb4a02bf2430d98a7f52e707c9e15a
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin dd45247963bb4a02bf2430d98a7f52e707c9e15a
+   :end-before: doc-region-end dd45247963bb4a02bf2430d98a7f52e707c9e15a
+
 
 Code
 ^^^^
@@ -183,7 +203,11 @@ Code
 The only new aspect of the code below is that the paddles have
 a z-coordinate of 0 in their modelspace.
 
-.. LINENOS ../src/demo14/demo.py d5bd9d04649181c42a65f8a7d52125a0ef86a928
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin d5bd9d04649181c42a65f8a7d52125a0ef86a928
+   :end-before: doc-region-end d5bd9d04649181c42a65f8a7d52125a0ef86a928
+
 
 The only new aspect of the square below is that the paddles have
 a z-coordinate of 0 in their modelspace.  N.B that since we
@@ -191,13 +215,21 @@ do a sequence transformations to the modelspace data to get
 to worldspace coordinates, the X, Y, and Z coordinates
 are subject to be different.
 
-.. LINENOS ../src/demo14/demo.py 603eda05b403ac6bd756d050f26d9e6497bf748a
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin 603eda05b403ac6bd756d050f26d9e6497bf748a
+   :end-before: doc-region-end 603eda05b403ac6bd756d050f26d9e6497bf748a
+
 
 
 Event Loop
 ~~~~~~~~~~
 
-.. LINENOS ../src/demo14/demo.py ee882a76ee2962c327841e2a952998acce07cc2a
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin ee882a76ee2962c327841e2a952998acce07cc2a
+   :end-before: doc-region-end ee882a76ee2962c327841e2a952998acce07cc2a
+
 
 ::
 
@@ -205,7 +237,11 @@ Event Loop
 
 * Draw Paddle 1
 
-.. LINENOS ../src/demo14/demo.py 2f5cb93361c42475b16dec8246c81c711b1a2db3
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin 2f5cb93361c42475b16dec8246c81c711b1a2db3
+   :end-before: doc-region-end 2f5cb93361c42475b16dec8246c81c711b1a2db3
+
 
 The square should not be visible when hidden behind the paddle1,
 as we do a translate by -10.  But in running the demo, you see
@@ -214,7 +250,11 @@ that the square is always drawn over the paddle.
 
 * Draw the Square
 
-.. LINENOS ../src/demo14/demo.py 485064c9e30f4471b74d11b8cca3c8f0d142b552
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin 485064c9e30f4471b74d11b8cca3c8f0d142b552
+   :end-before: doc-region-end 485064c9e30f4471b74d11b8cca3c8f0d142b552
+
 
 
 This is because without depth_ buffering, the object drawn last
@@ -227,7 +267,11 @@ see that the square can be hidden behind the paddle.
 
 * Draw Paddle 2
 
-.. LINENOS ../src/demo14/demo.py 79bca06683ced2f641ea47f14d22bc330f75979f
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin 79bca06683ced2f641ea47f14d22bc330f75979f
+   :end-before: doc-region-end 79bca06683ced2f641ea47f14d22bc330f75979f
+
 
 
 Added translate in 3D.  Added scale in 3D.  These are just like

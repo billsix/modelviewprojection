@@ -117,7 +117,11 @@ if nearer objects are drawn in front
    Show what the color buffer and depth buffer would look like
 
 
-.. LINENOS ../src/demo15/demo.py 133ee72ec8b92f7564d6c44a56a74067f9505bbf
+.. literalinclude:: ../src/demo15/demo.py
+   :language: python
+   :start-after: doc-region-begin 133ee72ec8b92f7564d6c44a56a74067f9505bbf
+   :end-before: doc-region-end 133ee72ec8b92f7564d6c44a56a74067f9505bbf
+
 
 the square should not be visible when hidden behind the paddle1,
 as we did a translate by -10.

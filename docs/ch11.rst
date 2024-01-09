@@ -115,13 +115,21 @@ Code
 
 Define the geometry of the square in it's own modelspace.
 
-.. LINENOS ../src/demo11/demo.py 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :start-after: doc-region-begin 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
+   :end-before: doc-region-end 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
+
 
 
 Event Loop
 ~~~~~~~~~~
 
-.. LINENOS ../src/demo11/demo.py 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :start-after: doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+   :end-before: doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+
 
 ::
 
@@ -130,7 +138,11 @@ Event Loop
 
 Draw paddle 1, just as before.
 
-.. LINENOS ../src/demo11/demo.py 7dab1135450b265814f775c59807f77b44273a4e
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :start-after: doc-region-begin 7dab1135450b265814f775c59807f77b44273a4e
+   :end-before: doc-region-end 7dab1135450b265814f775c59807f77b44273a4e
+
 
 As a refresher, the author recommends reading the code from modelspace
 to worldspace from the bottom up, and from worldspace to NDC from top down.
@@ -147,7 +159,11 @@ Translate the square to the right by 20 units.
 We are dealing with a -100 to 100 world space, which
 later gets scaled down to NDC.
 
-.. LINENOS ../src/demo11/demo.py 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :start-after: doc-region-begin 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+   :end-before: doc-region-end 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+
 
 Towards that, we need to do all of the transformations to the square
 that we would to the paddle, and then do any extra transformations
@@ -175,4 +191,7 @@ Now the square's geometry will be in it's own space!
 
 Draw paddle 2 just like before.
 
-.. LINENOS ../src/demo11/demo.py 12cd2bedfe522c8c192106296c12e8344f1594d4
+.. literalinclude:: ../src/demo11/demo.py
+   :language: python
+   :start-after: doc-region-begin 12cd2bedfe522c8c192106296c12e8344f1594d4
+   :end-before: doc-region-end 12cd2bedfe522c8c192106296c12e8344f1594d4
