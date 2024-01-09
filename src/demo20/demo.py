@@ -312,7 +312,6 @@ while not glfw.window_should_close(window):
     for model_space in paddle1.vertices:
         glVertex3f(model_space[0], model_space[1], model_space[2])
     glEnd()
-
     # doc-region-end of paddle 1
 
     # draw the square
