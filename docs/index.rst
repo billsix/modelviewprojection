@@ -50,7 +50,8 @@ Model View Projection
    ch17
    ch18
    ch19
-   perspective
+   ..
+      perspective
 
 
 
