@@ -60,7 +60,7 @@ import OpenGL.GL.shaders as shaders
 import glfw
 
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 if not glfw.init():
     sys.exit()
@@ -118,14 +118,8 @@ def draw_in_square_viewport() -> None:
     )
 
 
-@dataclass
-class Paddle:
-    r: float
-    g: float
-    b: float
-    position: any
-    rotation: float = 0.0
-    vertices: np.array = np.array(
+def _default_paddle_verticies() -> np.array:
+    return np.array(
         [
             [-10.0, -30.0, 0.0],
             [10.0, -30.0, 0.0],
@@ -134,6 +128,17 @@ class Paddle:
         ],
         dtype=np.float32,
     )
+
+
+@dataclass
+class Paddle:
+    r: float
+    g: float
+    b: float
+    position: any
+    rotation: float = 0.0
+    vertices: np.array = field(default_factory=_default_paddle_verticies)
+
 
 
 paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))

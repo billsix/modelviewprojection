@@ -45,7 +45,7 @@ from OpenGL.GL import (
 )
 import glfw
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 if not glfw.init():
@@ -193,10 +193,12 @@ paddle2: Paddle = Paddle(
 # doc-region-end d5bd9d04649181c42a65f8a7d52125a0ef86a928
 
 
+def _default_camera_position() -> Vertex:
+    return Vertex(x=0.0, y=0.0, z=0.0)
+
 @dataclass
 class Camera:
-    position_worldspace: Vertex = Vertex(x=0.0, y=0.0, z=0.0)
-
+    position_worldspace: Vertex = field(default_factory=_default_camera_position)
 
 camera: Camera = Camera()
 

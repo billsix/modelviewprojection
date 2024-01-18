@@ -61,7 +61,7 @@ from OpenGL.GL import (
     GL_TRIANGLES,
 )
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 import ctypes
 
@@ -132,6 +132,20 @@ if __enable_blend__:
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 
+def _default_paddle_verticies() -> np.array:
+    return np.array(
+        [
+            [-10.0, -30.0, 0.0],
+            [10.0, -30.0, 0.0],
+            [10.0, 30.0, 0.0],
+            [10.0, 30.0, 0.0],
+            [-10.0, 30.0, 0.0],
+            [-10.0, -30.0, 0.0],
+        ],
+        dtype=np.float32,
+    )
+
+
 @dataclass
 class Paddle:
     r: float
@@ -139,29 +153,8 @@ class Paddle:
     b: float
     position: any
     rotation: float = 0.0
-    vertices: np.array = np.array(
-        [
-            -10.0,
-            -30.0,
-            0.0,
-            10.0,
-            -30.0,
-            0.0,
-            10.0,
-            30.0,
-            0.0,
-            10.0,
-            30.0,
-            0.0,
-            -10.0,
-            30.0,
-            0.0,
-            -10.0,
-            -30.0,
-            0.0,
-        ],
-        dtype=np.float32,
-    )
+    vertices: np.array = field(default_factory=_default_paddle_verticies)
+
     vao: int = 0
     vbo: int = 0
     shader: int = 0
@@ -265,7 +258,7 @@ class Paddle:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.modelviewprojection),
+                ms.get_current_matrix(ms.MatrixStack.modelviewprojection),
                 dtype=np.float32,
             ),
         )
@@ -279,11 +272,9 @@ paddle2 = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
 paddle2.prepare_to_render()
 
 
-@dataclass
-class Square(Paddle):
-    rotation_around_paddle1: float = 0.0
 
-    vertices: np.array = np.array(
+def _default_square_verticies() -> np.array:
+    return np.array(
         [
             [-5.0, -5.0, 0.0],
             [5.0, -5.0, 0.0],
@@ -294,6 +285,12 @@ class Square(Paddle):
         ],
         dtype=np.float32,
     )
+
+
+@dataclass
+class Square(Paddle):
+    rotation_around_paddle1: float = 0.0
+    vertices: np.array = field(default_factory=_default_square_verticies)
 
 
 square = Square(r=0.0, g=0.0, b=1.0, position=[0.0, 0.0, 0.0])
@@ -398,7 +395,7 @@ class Ground:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.getCurrentMatrix(ms.MatrixStack.modelviewprojection),
+                ms.get_current_matrix(ms.MatrixStack.modelviewprojection),
                 dtype=np.float32,
             ),
         )
@@ -523,9 +520,9 @@ while not glfw.window_should_close(window):
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
-    ms.setToIdentityMatrix(ms.MatrixStack.model)
-    ms.setToIdentityMatrix(ms.MatrixStack.view)
-    ms.setToIdentityMatrix(ms.MatrixStack.projection)
+    ms.set_to_identity_matrix(ms.MatrixStack.model)
+    ms.set_to_identity_matrix(ms.MatrixStack.view)
+    ms.set_to_identity_matrix(ms.MatrixStack.projection)
 
     # set the projection matrix to be perspective
     ms.perspective(
