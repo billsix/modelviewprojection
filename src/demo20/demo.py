@@ -57,6 +57,7 @@ from OpenGL.GL import (
     GL_FRAGMENT_SHADER,
     glUseProgram,
 )
+
 # doc-region-end c731ca97ef15896c876effbafec9d52a1354375f
 
 from OpenGL.GLU import gluPerspective
@@ -143,7 +144,6 @@ class Paddle:
     position: any
     rotation: float = 0.0
     vertices: np.array = field(default_factory=_default_paddle_verticies)
-
 
 
 paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
@@ -266,21 +266,13 @@ while not glfw.window_should_close(window):
     axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
-            camera.x += (
-                10.0 * axes_list[0][0] * math.cos(camera.rot_y)
-            )
-            camera.z -= (
-                10.0 * axes_list[0][0] * math.sin(camera.rot_y)
-            )
+            camera.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            camera.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
         if math.fabs(float(axes_list[0][1])) > 0.1:
-            camera.x += (
-                10.0 * axes_list[0][1] * math.sin(camera.rot_y)
-            )
-            camera.z += (
-                10.0 * axes_list[0][1] * math.cos(camera.rot_y)
-            )
+            camera.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            camera.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
 
-        #print(axes_list[0][4])
+        # print(axes_list[0][4])
         if math.fabs(axes_list[0][3]) > 0.10:
             camera.rot_x -= 3.0 * axes_list[0][3] * 0.01
         if math.fabs(axes_list[0][2]) > 0.10:

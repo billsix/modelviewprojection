@@ -236,25 +236,16 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-
     axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
-            camera.x += (
-                10.0 * axes_list[0][0] * math.cos(camera.rot_y)
-            )
-            camera.z -= (
-                10.0 * axes_list[0][0] * math.sin(camera.rot_y)
-            )
+            camera.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            camera.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
         if math.fabs(float(axes_list[0][1])) > 0.1:
-            camera.x += (
-                10.0 * axes_list[0][1] * math.sin(camera.rot_y)
-            )
-            camera.z += (
-                10.0 * axes_list[0][1] * math.cos(camera.rot_y)
-            )
+            camera.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            camera.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
 
-        #print(axes_list[0][4])
+        # print(axes_list[0][4])
         if math.fabs(axes_list[0][3]) > 0.10:
             camera.rot_x -= 3.0 * axes_list[0][3] * 0.01
         if math.fabs(axes_list[0][2]) > 0.10:

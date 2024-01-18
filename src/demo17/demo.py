@@ -243,14 +243,17 @@ paddle2: Paddle = Paddle(
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
+
 def _default_camera_position() -> Vertex:
     return Vertex(x=0.0, y=0.0, z=400.0)
+
 
 @dataclass
 class Camera:
     position_worldspace: Vertex = field(default_factory=_default_camera_position)
     rot_y: float = 0.0
     rot_x: float = 0.0
+
 
 camera: Camera = Camera()
 
@@ -368,7 +371,7 @@ while not glfw.window_should_close(window):
                 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
             )
 
-        #print(axes_list[0][4])
+        # print(axes_list[0][4])
         if math.fabs(axes_list[0][3]) > 0.10:
             camera.rot_x -= 3.0 * axes_list[0][3] * 0.01
         if math.fabs(axes_list[0][2]) > 0.10:

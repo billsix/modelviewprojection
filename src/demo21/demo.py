@@ -60,9 +60,8 @@ from OpenGL.GL import (
     GL_LINES,
     GL_TRIANGLES,
     glDeleteVertexArrays,
-    glDeleteShader,
     glDeleteBuffers,
-    glDeleteProgram
+    glDeleteProgram,
 )
 
 from dataclasses import dataclass, field
@@ -261,7 +260,6 @@ paddle2 = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
 paddle2.prepare_to_render()
 
 
-
 def _default_square_verticies() -> np.array:
     return np.array(
         [
@@ -457,7 +455,6 @@ square_vertices = np.array(
 # fmt: on
 
 
-
 TARGET_FRAMERATE = 60  # fps
 
 # to try to standardize on 60 fps, compare times between frames
@@ -535,21 +532,13 @@ while not glfw.window_should_close(window):
     axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
-            camera.x += (
-                10.0 * axes_list[0][0] * math.cos(camera.rot_y)
-            )
-            camera.z -= (
-                10.0 * axes_list[0][0] * math.sin(camera.rot_y)
-            )
+            camera.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            camera.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
         if math.fabs(float(axes_list[0][1])) > 0.1:
-            camera.x += (
-                10.0 * axes_list[0][1] * math.sin(camera.rot_y)
-            )
-            camera.z += (
-                10.0 * axes_list[0][1] * math.cos(camera.rot_y)
-            )
+            camera.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            camera.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
 
-        #print(axes_list[0][4])
+        # print(axes_list[0][4])
         if math.fabs(axes_list[0][3]) > 0.10:
             camera.rot_x -= 3.0 * axes_list[0][3] * 0.01
         if math.fabs(axes_list[0][2]) > 0.10:
