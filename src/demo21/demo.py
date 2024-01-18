@@ -59,6 +59,10 @@ from OpenGL.GL import (
     glDrawArrays,
     GL_LINES,
     GL_TRIANGLES,
+    glDeleteVertexArrays,
+    glDeleteShader,
+    glDeleteBuffers,
+    glDeleteProgram
 )
 
 from dataclasses import dataclass, field
@@ -164,35 +168,20 @@ class Paddle:
         # need 6 vertices instead of 4
         vertices = self.vertices
         self.numberOfVertices = np.size(vertices) // floatsPerVertex
+        # fmt: off
         color = np.array(
             [
-                self.r,
-                self.g,
-                self.b,
-                0.75,
-                self.r,
-                self.g,
-                self.b,
-                0.75,
-                self.r,
-                self.g,
-                self.b,
-                0.75,
-                self.r,
-                self.g,
-                self.b,
-                0.75,
-                self.r,
-                self.g,
-                self.b,
-                0.75,
-                self.r,
-                self.g,
-                self.b,
-                0.75,
+                self.r, self.g, self.b, 0.75,
+                self.r, self.g, self.b, 0.75,
+                self.r, self.g, self.b, 0.75,
+                self.r, self.g, self.b, 0.75,
+                self.r, self.g, self.b, 0.75,
+                self.r, self.g, self.b, 0.75,
             ],
             dtype=np.float32,
         )
+        # fmt: on
+
         self.numberOfColors = np.size(color) // floatsPerColor
 
         self.vao = glGenVertexArrays(1)
@@ -457,10 +446,16 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
+# fmt: off
 square_vertices = np.array(
-    [[-5.0, -5.0, 0.0], [5.0, -5.0, 0.0], [5.0, 5.0, 0.0], [-5.0, 5.0, 0.0]],
+    [[-5.0, -5.0, 0.0],
+     [5.0, -5.0, 0.0],
+     [5.0, 5.0, 0.0],
+     [-5.0, 5.0, 0.0]],
     dtype=np.float32,
 )
+# fmt: on
+
 
 
 TARGET_FRAMERATE = 60  # fps
