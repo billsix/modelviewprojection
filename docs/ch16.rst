@@ -285,7 +285,7 @@ angle, page up and page down the vertical angle.
 
 The up arrow and down arrow make the user move forwards
 and backwards.  Unlike the camera space to world space
-transformation on line 326-330, here for movement code,
+transformation, here for movement code,
 we don't do the rotate around the x axis.  This is because
 users expect to simulate walking on the ground, not flying
 through the sky.  I.e, we want forward/backwards movement to happen relative

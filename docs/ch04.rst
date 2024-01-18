@@ -217,7 +217,7 @@ to only flush the screen at 60 hertz (frames per second).
 
 
 
-* on line 179, while rendering, we now loop over the verticies of the paddle.
+* While rendering, we now loop over the verticies of the paddle.
   The paddles may be displaced from their original position that was hardcoded,
   as the callback may have updated the values based off of the user input.
 

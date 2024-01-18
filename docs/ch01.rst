@@ -361,24 +361,24 @@ to terminate.
    :end-before: doc-region-end b203706b4d71815e8490a9a65ff9fe1fe1db38cd
 
 
-* On line 69, poll the operating system for any events, such as mouse movements,
+* Poll the operating system for any events, such as mouse movements,
   keyboard input, etc.  This does not handle them, just registers
   them as having happened.
 
-* On line 71, get the size of the framebuffer.  The *framebuffer*
+* Get the size of the framebuffer.  The *framebuffer*
   contains data representing all the pixels in a complete video frame.
   Python
   allows the returning of multiple values
   in the form of a tuple.  Assigning
   to the variables this way is a form of "destructuring"
 
-* On line 72, tell OpenGL that we wish to draw in the entire
+* Tell OpenGL that we wish to draw in the entire
   framebuffer, from the bottom left corner to the upper
   right corner.
 
-* On line 73, make the framebuffer a blank slate by setting all of the pixels
+* Make the framebuffer a blank slate by setting all of the pixels
   to have the same color.
-  The color of each pixel will be the clear color, which we had set on line 60.
+  The color of each pixel will be the clear color.
   If we hadn't cleared the framebuffer, then frame number n+1 would be drawing
   on top of whatever was drawn on frame number n.
   Programming in OpenGL is a bit different than normal programming in
@@ -389,7 +389,7 @@ to terminate.
   in which they are evaluated, and the sequence of OpenGL calls
   to complete a task.
 
-* On Line 74, we have colored every pixel to be black, so flush the framebuffer to
+* We have colored every pixel to be black, so flush the framebuffer to
   the monitor, and swap the back and front buffers.
 
 Exercise
@@ -397,7 +397,7 @@ Exercise
 
 * Run the program, close it by hitting Escape.
 
-* On line 73, before the call to glClear, enter two new lines.
+* Before the call to glClear, enter two new lines.
   On the first, type "import pdb".
   On the second type "pdb.set_trace()".
   Now run the program again and observe what is different.
