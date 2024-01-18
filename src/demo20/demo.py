@@ -65,8 +65,8 @@ from dataclasses import dataclass, field
 if not glfw.init():
     sys.exit()
 
-glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
-glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 0)
+glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
+glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
 
 
 window = glfw.create_window(500, 500, "ModelViewProjection Demo 20", None, None)
