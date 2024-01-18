@@ -25,8 +25,10 @@ void main(void)
     // gl_Vertex is modelspace data
 
     vec4 camera_space = gl_ModelViewMatrix * gl_Vertex;
+    // in camera space, the frustum is on the negative z axis
     vec4 clip_space = gl_ProjectionMatrix * camera_space;
     vec3 ndc_space = clip_space.xyz / clip_space.w;
+    // in ndc space, x y and z need to be divided by w
 
     // normal MVP transform
     gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
