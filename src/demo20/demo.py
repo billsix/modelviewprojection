@@ -24,6 +24,8 @@ import sys
 import numpy as np
 import math
 import os
+
+# doc-region-begin c731ca97ef15896c876effbafec9d52a1354375f
 from OpenGL.GL import (
     glMatrixMode,
     glLoadIdentity,
@@ -55,6 +57,8 @@ from OpenGL.GL import (
     GL_FRAGMENT_SHADER,
     glUseProgram,
 )
+# doc-region-end c731ca97ef15896c876effbafec9d52a1354375f
+
 from OpenGL.GLU import gluPerspective
 import OpenGL.GL.shaders as shaders
 import glfw
@@ -65,9 +69,10 @@ from dataclasses import dataclass, field
 if not glfw.init():
     sys.exit()
 
+# doc-region-begin b05eee9a50507de99ecad16ffa3af2da709b361a
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-
+# doc-region-end b05eee9a50507de99ecad16ffa3af2da709b361a
 
 window = glfw.create_window(500, 500, "ModelViewProjection Demo 20", None, None)
 if not window:
@@ -226,6 +231,7 @@ TARGET_FRAMERATE: int = 60
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 
+# doc-region-begin e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
 # compile shaders
 
 # initialize shaders
@@ -239,7 +245,7 @@ with open(os.path.join(pwd, "triangle.frag"), "r") as f:
 
 shader = shaders.compileProgram(vs, fs)
 glUseProgram(shader)
-
+# doc-region-end e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
 
 while not glfw.window_should_close(window):
     while (
