@@ -215,6 +215,15 @@ do a sequence transformations to the modelspace data to get
 to worldspace coordinates, the X, Y, and Z coordinates
 are subject to be different.
 
+
+.. literalinclude:: ../src/demo14/demo.py
+   :language: python
+   :start-after: doc-region-begin 89d28adbbb797e4128facc7ee1497e4f2d469eff
+   :end-before: doc-region-end 89d28adbbb797e4128facc7ee1497e4f2d469eff
+
+The camera now has a z-coordinate of 0 also.
+
+
 .. literalinclude:: ../src/demo14/demo.py
    :language: python
    :start-after: doc-region-begin 603eda05b403ac6bd756d050f26d9e6497bf748a
