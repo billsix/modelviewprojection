@@ -107,6 +107,8 @@ glfw.make_context_current(window)
 imgui.create_context()
 impl = GlfwRenderer(window)
 
+
+imguiio = imgui.get_io()
 # Install a key handler
 
 
@@ -1219,13 +1221,14 @@ def handle_inputs(previous_mouse_position) -> None:
     new_mouse_position = glfw.get_cursor_pos(window)
     return_none = False
     if glfw.PRESS == glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT):
-        if previous_mouse_position:
-            camera.rot_y -= 0.2 * math.radians(
-                new_mouse_position[0] - previous_mouse_position[0]
-            )
-            camera.rot_x += 0.2 * math.radians(
-                new_mouse_position[1] - previous_mouse_position[1]
-            )
+        if not imguiio.want_capture_mouse:
+            if previous_mouse_position:
+                camera.rot_y -= 0.2 * math.radians(
+                    new_mouse_position[0] - previous_mouse_position[0]
+                )
+                camera.rot_x += 0.2 * math.radians(
+                    new_mouse_position[1] - previous_mouse_position[1]
+                )
     else:
         return_none = True
 
