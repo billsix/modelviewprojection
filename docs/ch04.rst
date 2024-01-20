@@ -224,7 +224,7 @@ to only flush the screen at 60 hertz (frames per second).
 * When glVertex is now called, we are not directly
   passing numbers into it, but instead we are getting
   the numbers from the data structures of Paddle and its
-  associated vertcies.
+  associated verticies.
 
 .. figure:: _static/plot3.png
     :align: center

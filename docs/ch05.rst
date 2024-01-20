@@ -89,6 +89,8 @@ rather than mutating the instance variables.  The author
 does this on purpose to enable method-chaining the Python
 methods, which will be useful later on.
 
+Method-chaining is the equivalent of function composition in math.
+
 
 Code
 ^^^^
@@ -116,6 +118,19 @@ import them and try the methods
        >>> a = demo.Vertex(x=1,y=2)
        >>> a.translate(tx=3,ty=4)
        Vertex(x=4, y=6)
+
+Note the use of "keyword arguments".  Without using keyword
+arguments, the code might look like this:
+
+.. code:: Python
+
+       >>> import src.demo05.demo as demo
+       >>> a = demo.Vertex(1,2)
+       >>> a.translate(3,4)
+       Vertex(x=4, y=6)
+
+Keyword arguments allow the reader to understand the purpose of the
+parameters are, at the call-site of the function.
 
 
 .. literalinclude:: ../src/demo05/demo.py

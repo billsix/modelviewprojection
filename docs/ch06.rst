@@ -92,6 +92,8 @@ WorldSpace
 WorldSpace is a toplevel space, independent of NDC, that we choose to use.  It's arbitrary.
 If you were to model a racetrack for a racing game, the origin of WorldSpace may be the center of that racetrack.
 If you were modelling our solar system, the center of the sun could be the origin of "WorldSpace".
+I personally would put the center of our flat earth at the origin, but reasonable people
+can disagree.
 
 For our demo with paddles, the author arbitralily defines the WorldSpace to be 200 units wide, 200 units tall, with the origin at the center.
 
@@ -113,7 +115,8 @@ as compared to view tranformations as changes to points.
 As such, for placing paddle1, we can view the translation as a change
 to the graph paper relative to world space coordinates (only incidentally
 bringing the vertices
-along with it) and then resetting the graph paper back to it's original position and orientation.
+along with it) and then resetting the graph paper (i.e. both origin and axes)
+back to it's original position and orientation.
 Although we will think of the paddle's vertices as relative to its own space
 (i.e. -10 to 10 horizontally, -30 to 30 vertically),
 we will not look at the numbers of what they are in world space coordinates,
@@ -130,6 +133,11 @@ as doing so
     :figclass: align-center
 
     Translating Paddle 1
+
+* As an example, figure out the world space coordinate of the upper rights
+  corner of the paddle after it's been translated, and ask yourself what
+  that means and what insight did you gain?
+
 
 
 The animation above shows multiple steps, shown now without animation.
@@ -152,7 +160,7 @@ Modelspace of Paddle 1 Superimposed on Worldspace after the translation
 Paddle 1's graph paper gets translated -90 units in the x direction, and some
 number of units in the y direction, 0 during the first frame, based off of user input.  The origin
 is translated, and the graph paper comes with it, onto which you can
-plot the vertices.  Notice that the coordinate system below and to the left
+plot the vertices.  Notice that the coordinate system labels below the plot and to the left of the plot
 is unchanged.  That is world space, which has not changed.
 
 .. figure:: _static/translation-forwards-2.png
@@ -173,9 +181,9 @@ Paddle 1's vertices in WorldSpace Coordinates
     Paddle 1's Verticies in World Space.   Don't concern yourself with what the numbers are.
 
 Now that the transformation has happened, the vertices are all in world space.
-Please don't look at the numbers, they will give you no insight.  The only numbers
+You could calculate their values in world space, but that will not give you any insight.  The only numbers
 that matter for insight as that the entire graph paper of modelspace, which originally
-was the same as world space, has changed, brining the verticies along with it.
+was the same as world space, has changed, bringing the verticies along with it.
 
 Same goes for Paddle 2's modelspace, relative to it's translation, which
 are different values.
