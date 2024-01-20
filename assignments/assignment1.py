@@ -1,6 +1,27 @@
 import sys
 import math
-from OpenGL.GL import *
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_LINES,
+    GL_MODELVIEW,
+    GL_PROJECTION,
+    GL_QUADS,
+    GL_SCISSOR_TEST,
+    GL_TRIANGLES,
+    glBegin,
+    glClear,
+    glClearColor,
+    glColor3f,
+    glDisable,
+    glEnable,
+    glEnd,
+    glLoadIdentity,
+    glMatrixMode,
+    glScissor,
+    glVertex2f,
+    glViewport,
+)
 import glfw
 import numpy as np
 

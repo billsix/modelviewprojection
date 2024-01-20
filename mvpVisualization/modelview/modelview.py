@@ -26,8 +26,32 @@ from dataclasses import dataclass, field
 import glfw
 import numpy as np
 import pyMatrixStack as ms
-from OpenGL.GL import *
-from OpenGL.GLU import *
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+    GL_LEQUAL,
+    GL_LINES,
+    GL_MODELVIEW,
+    GL_PROJECTION,
+    GL_QUADS,
+    glBegin,
+    glClear,
+    glClearColor,
+    glClearDepth,
+    glColor3f,
+    glDepthFunc,
+    glEnable,
+    glEnd,
+    glLineWidth,
+    glLoadMatrixf,
+    glMatrixMode,
+    glVertex3f,
+    glViewport,
+)
+import imgui
+from imgui.integrations.glfw import GlfwRenderer
+
 
 if not glfw.init():
     sys.exit()
@@ -44,6 +68,11 @@ if not window:
 
 # Make the window's context current
 glfw.make_context_current(window)
+imgui.create_context()
+impl = GlfwRenderer(window)
+
+
+imguiio = imgui.get_io()
 
 # Install a key handler
 
@@ -54,6 +83,16 @@ def on_key(window, key, scancode, action, mods):
 
 
 glfw.set_key_callback(window, on_key)
+
+
+def scroll_callback(window, xoffset, yoffset):
+    camera.r = camera.r + -1 * (yoffset * math.log(camera.r))
+    if camera.r < 3.0:
+        camera.r = 3.0
+
+
+glfw.set_scroll_callback(window, scroll_callback)
+
 
 glClearColor(0.0, 0.0, 0.0, 1.0)
 
@@ -114,7 +153,7 @@ square_rotation = math.radians(90.0)
 rotation_around_paddle1 = math.radians(30.0)
 
 
-def handle_inputs() -> None:
+def handle_inputs(previous_mouse_position) -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -170,6 +209,27 @@ def handle_inputs() -> None:
         animation_time = 70.0
     if glfw.get_key(window, glfw.KEY_6) == glfw.PRESS:
         animation_time = 85.0
+
+    new_mouse_position = glfw.get_cursor_pos(window)
+    return_none = False
+    if glfw.PRESS == glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT):
+        if not imguiio.want_capture_mouse:
+            if previous_mouse_position:
+                camera.rot_y -= 0.2 * math.radians(
+                    new_mouse_position[0] - previous_mouse_position[0]
+                )
+                camera.rot_x += 0.2 * math.radians(
+                    new_mouse_position[1] - previous_mouse_position[1]
+                )
+    else:
+        return_none = True
+
+    if camera.rot_x > math.pi / 2.0:
+        camera.rot_x = math.pi / 2.0
+    if camera.rot_x < -math.pi / 2.0:
+        camera.rot_x = -math.pi / 2.0
+
+    return None if return_none else new_mouse_position
 
 
 square_vertices = np.array(
@@ -304,6 +364,10 @@ animation_time = 0.0
 animation_time_multiplier = 1.0
 animation_paused = False
 
+
+# local variable for event loop
+previous_mouse_position = None
+
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
@@ -325,7 +389,7 @@ while not glfw.window_should_close(window):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     # render scene
-    handle_inputs()
+    previous_mouse_position = handle_inputs(previous_mouse_position)
 
     ms.set_to_identity_matrix(ms.MatrixStack.model)
     ms.set_to_identity_matrix(ms.MatrixStack.view)

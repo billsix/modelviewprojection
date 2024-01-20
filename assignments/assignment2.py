@@ -22,7 +22,30 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 import sys
 import math
-from OpenGL.GL import *
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+    GL_GREATER,
+    GL_MODELVIEW,
+    GL_PROJECTION,
+    GL_QUADS,
+    GL_SCISSOR_TEST,
+    glBegin,
+    glClear,
+    glClearColor,
+    glClearDepth,
+    glColor3f,
+    glDepthFunc,
+    glDisable,
+    glEnable,
+    glEnd,
+    glLoadIdentity,
+    glMatrixMode,
+    glScissor,
+    glVertex3f,
+    glViewport,
+)
 import glfw
 
 from dataclasses import dataclass
