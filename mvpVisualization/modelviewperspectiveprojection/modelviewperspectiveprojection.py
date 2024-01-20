@@ -373,18 +373,10 @@ class Ground:
         verts = []
         for x in range(-200, 201, 20):
             for z in range(-200, 201, 20):
-                verts.append(float(-x))
-                verts.append(float(-50.0))
-                verts.append(float(z))
-                verts.append(float(x))
-                verts.append(float(-50.0))
-                verts.append(float(z))
-                verts.append(float(x))
-                verts.append(float(-50.0))
-                verts.append(float(-z))
-                verts.append(float(x))
-                verts.append(float(-50.0))
-                verts.append(float(z))
+                verts.extend([float(-x), -50.0, float(z)])
+                verts.extend([float(x), -50.0, float(z)])
+                verts.extend([float(x), -50.0, float(-z)])
+                verts.extend([float(x), -50.0, float(z)])
 
         return np.array(verts, dtype=np.float32)
 
@@ -511,30 +503,17 @@ class Axis:
     def vertices(self) -> ndarray:
         # glColor3f(0.1,0.1,0.1)
         verts = []
-        verts.append(float(0.0))
-        verts.append(float(0.0))
-        verts.append(float(0.0))
-
-        verts.append(float(0.0))
-        verts.append(float(1.0))
-        verts.append(float(0.0))
+        verts.extend([0.0, 0.0, 0.0])
+        verts.extend([0.0, 1.0, 0.0])
 
         # arrow
-        verts.append(float(0.0))
-        verts.append(float(1.0))
-        verts.append(float(0.0))
+        verts.extend([0.0, 1.0, 0.0])
 
-        verts.append(float(0.25))
-        verts.append(float(0.75))
-        verts.append(float(0.0))
+        verts.extend([0.25, 0.75, 0.0])
 
-        verts.append(float(0.0))
-        verts.append(float(1.0))
-        verts.append(float(0.0))
+        verts.extend([0.0, 1.0, 0.0])
 
-        verts.append(float(-0.25))
-        verts.append(float(0.75))
-        verts.append(float(0.0))
+        verts.extend([-0.25, 0.75, 0.0])
 
         return np.array(verts, dtype=np.float32)
 
@@ -755,102 +734,32 @@ class NDCCube:
     def vertices(self) -> ndarray:
         # glColor3f(0.1,0.1,0.1)
         verts = []
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
+        verts.extend([-1.0, -1.0, -1.0])
+        verts.extend([1.0, -1.0, -1.0])
+        verts.extend([1.0, -1.0, -1.0])
+        verts.extend([1.0, 1.0, -1.0])
+        verts.extend([1.0, 1.0, -1.0])
+        verts.extend([-1.0, 1.0, -1.0])
+        verts.extend([-1.0, 1.0, -1.0])
+        verts.extend([-1.0, -1.0, -1.0])
+        verts.extend([-1.0, -1.0, 1.0])
+        verts.extend([1.0, -1.0, 1.0])
+        verts.extend([1.0, -1.0, 1.0])
+        verts.extend([1.0, 1.0, 1.0])
+        verts.extend([1.0, 1.0, 1.0])
+        verts.extend([-1.0, 1.0, 1.0])
+        verts.extend([-1.0, 1.0, 1.0])
+        verts.extend([-1.0, -1.0, 1.0])
 
         # connect the squares
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
+        verts.extend([1.0, 1.0, -1.0])
+        verts.extend([1.0, 1.0, 1.0])
+        verts.extend([1.0, -1.0, -1.0])
+        verts.extend([1.0, -1.0, 1.0])
+        verts.extend([-1.0, 1.0, -1.0])
+        verts.extend([-1.0, 1.0, 1.0])
+        verts.extend([-1.0, -1.0, -1.0])
+        verts.extend([-1.0, -1.0, 1.0])
 
         return np.array(verts, dtype=np.float32)
 
