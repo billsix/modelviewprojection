@@ -180,7 +180,7 @@ Screen-space means you're specifically using pixel coordinates, i.e, set pixel (
 
 
 
-What looks alright is screen-space on a large monitor...
+What looks alright in screen-space on a large monitor...
 
 .. figure:: _static/screenspace2.png
     :align: center
@@ -257,7 +257,7 @@ a Cayley_ Graph, of the two spaces
 shown so far.  The nodes represent a coordinate system (i.e. origin and axes),
 and the directed edge represents a function that converts coordinates from one
 coordinate system to another.  If this isn't clear to the reader, look
-above at the 3 pictures of the 2 quadrilaterals.  The look the same, but
+above at the 3 pictures of the 2 quadrilaterals.  They look the same, but
 if you label each vertex on all three graphs, and look at the axes to find
 their plotted values, you will find that they differ.  Changing between
 coordinate systems means to take vertices from one coordinate system and

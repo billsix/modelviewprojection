@@ -43,7 +43,7 @@ else:
 # -- Project information -----------------------------------------------------
 
 project = "Model View Projection"
-copyright = "2020, William Emerison Six"
+copyright = "2020-2024, William Emerison Six"
 author = "William Emerison Six"
 
 # The full version, including alpha/beta/rc tags

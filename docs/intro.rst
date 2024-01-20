@@ -59,7 +59,14 @@ math they mostly aleady know.
 This book is purposely limited in scope, and
 the applications produced are not particurly pretty nor realistic-looking.
 For advanced graphics topics, you'll need to consult other references,
-such as the OpenGL "red book" and "blue book".
+such as the OpenGL "red book" and "blue book", or the following tutorials
+
+#. logl_
+#. oglt
+
+.. _logl:  https://learnopengl.com/
+.. _oglt:  http://www.opengl-tutorial.org/
+
 Although this book fills a huge gap that other books do not address,
 those other books are excellent reference books for advanced topics.
 
