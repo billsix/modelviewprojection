@@ -487,9 +487,11 @@ class Ground:
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
         glBindVertexArray(0)
 
-        with ms.PushMatrix(ms.MatrixStack.model):
-            ms.translate(ms.MatrixStack.model, 0.0, -50.0, 0.0)
-            axis.render(animation_time)
+        if show_ground_axis:
+            with ms.PushMatrix(ms.MatrixStack.model):
+                ms.translate(ms.MatrixStack.model, 0.0, -50.0, 0.0)
+                ms.scale(ms.MatrixStack.model, 2.0, 2.0, 2.0)
+                axis.render(animation_time)
 
 
 ground = Ground()
@@ -1150,6 +1152,7 @@ animation_time = 0.0
 animation_time_multiplier = 1.0
 animation_paused = False
 enlarged_axis = True
+show_ground_axis = False
 
 
 def highlighted_button(text: str, start_time: int, time: float) -> bool:
@@ -1351,6 +1354,11 @@ while not glfw.window_should_close(window):
     clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
         "Enlarged Axises", enlarged_axis
     )
+
+    clicked_show_ground_axises, show_ground_axis = imgui.checkbox(
+        "Show Ground Axises", show_ground_axis
+    )
+
     imgui.end()
 
     imgui.set_next_window_bg_alpha(0.05)
