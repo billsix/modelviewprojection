@@ -495,6 +495,10 @@ class Ground:
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
         glBindVertexArray(0)
 
+        with ms.PushMatrix(ms.MatrixStack.model):
+            ms.translate(ms.MatrixStack.model, 0.0, -50.0, 0.0)
+            axis.render(animation_time)
+
 
 ground = Ground()
 ground.prepare_to_render()
