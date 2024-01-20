@@ -90,7 +90,9 @@ and then re-translated to the paddle's position.
 
 .. math::
     \begin{split}
-    \vec{f}_{p}^{w}  & = \vec{t} \circ \vec{r} \circ {\vec{t}}^{-1} \circ \vec{t} \\
+    \vec{f}_{p}^{w}  & = (\vec{t} \circ \vec{r} \circ {\vec{t}}^{-1}) \circ \vec{t} \\
+                     & = \vec{t} \circ \vec{r} \circ {\vec{t}}^{-1} \circ \vec{t} \\
+                     & = \vec{t} \circ \vec{r} \circ ({\vec{t}}^{-1} \circ \vec{t}) \\
                      & = \vec{t} \circ \vec{r}
     \end{split}
 
