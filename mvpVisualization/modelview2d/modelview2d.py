@@ -1202,6 +1202,10 @@ while not glfw.window_should_close(window):
                     virtual_camera_position[2]
                     * min(1.0, (animation_time - 55.0) / 5.0),
                 )
+            with ms.PushMatrix(ms.MatrixStack.model):
+                ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
+                ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
+                ground.render(animation_time)
 
             axis.render(animation_time)
             cube.render(animation_time)
@@ -1209,6 +1213,10 @@ while not glfw.window_should_close(window):
     glClear(GL_DEPTH_BUFFER_BIT)
 
     if animation_time < 5.0:
+        with ms.PushMatrix(ms.MatrixStack.model):
+            ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
+            ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
+            ground.render(animation_time)
         axis.render(animation_time)
     else:
         axis.render(animation_time, grayed_out=True)
@@ -1228,6 +1236,10 @@ while not glfw.window_should_close(window):
             )
 
         if animation_time > 0.0 and animation_time < 15.0:
+            with ms.PushMatrix(ms.MatrixStack.model):
+                ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
+                ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
+                ground.render(animation_time)
             axis.render(animation_time)
         if animation_time > 15.0:
             # ascontiguousarray puts the array in column major order
@@ -1254,6 +1266,10 @@ while not glfw.window_should_close(window):
             )
 
         if animation_time > 10.0 and animation_time < 35.0:
+            with ms.PushMatrix(ms.MatrixStack.model):
+                ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
+                ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
+                ground.render(animation_time)
             axis.render(animation_time)
 
         if animation_time > 35.0:
@@ -1277,6 +1293,10 @@ while not glfw.window_should_close(window):
             )
 
         if animation_time > 40.0 and animation_time < 50.0:
+            with ms.PushMatrix(ms.MatrixStack.model):
+                ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
+                ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
+                ground.render(animation_time)
             axis.render(animation_time)
 
         if animation_time > 50.0:
