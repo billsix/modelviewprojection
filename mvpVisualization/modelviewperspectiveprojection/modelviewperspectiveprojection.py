@@ -961,102 +961,17 @@ cube.prepare_to_render()
 
 
 class Frustum:
-    def __init__(self) -> None:
-        pass
-
-    def vertices(self) -> ndarray:
-        verts = []
-        verts.append(-2.071067811865475)
-        verts.append(-2.071067811865475)
-        verts.append(-5.0)
-        verts.append(2.071067811865475)
-        verts.append(-2.071067811865475)
-        verts.append(-5.0)
-        verts.append(2.071067811865475)
-        verts.append(-2.071067811865475)
-        verts.append(-5.0)
-        verts.append(2.071067811865475)
-        verts.append(2.071067811865475)
-        verts.append(-5.0)
-        verts.append(2.071067811865475)
-        verts.append(2.071067811865475)
-        verts.append(-5.0)
-        verts.append(-2.071067811865475)
-        verts.append(2.071067811865475)
-        verts.append(-5.0)
-        verts.append(-2.071067811865475)
-        verts.append(2.071067811865475)
-        verts.append(-5.0)
-        verts.append(-2.071067811865475)
-        verts.append(-2.071067811865475)
-        verts.append(-5.0)
-
-        verts.append(-61.06601717798213)
-        verts.append(-61.06601717798213)
-        verts.append(-150.00)
-        verts.append(61.06601717798213)
-        verts.append(-61.06601717798213)
-        verts.append(-150.00)
-        verts.append(61.06601717798213)
-        verts.append(-61.06601717798213)
-        verts.append(-150.00)
-        verts.append(61.06601717798213)
-        verts.append(61.06601717798213)
-        verts.append(-150.00)
-        verts.append(61.06601717798213)
-        verts.append(61.06601717798213)
-        verts.append(-150.00)
-        verts.append(-61.06601717798213)
-        verts.append(61.06601717798213)
-        verts.append(-150.00)
-        verts.append(-61.06601717798213)
-        verts.append(61.06601717798213)
-        verts.append(-150.00)
-        verts.append(-61.06601717798213)
-        verts.append(-61.06601717798213)
-        verts.append(-150.00)
-
-        # connect the faces
-        verts.append(-2.071067811865475)
-        verts.append(-2.071067811865475)
-        verts.append(-5.0)
-        verts.append(-61.06601717798213)
-        verts.append(-61.06601717798213)
-        verts.append(-150.00)
-
-        verts.append(2.071067811865475)
-        verts.append(-2.071067811865475)
-        verts.append(-5.0)
-        verts.append(61.06601717798213)
-        verts.append(-61.06601717798213)
-        verts.append(-150.00)
-
-        verts.append(2.071067811865475)
-        verts.append(2.071067811865475)
-        verts.append(-5.0)
-        verts.append(61.06601717798213)
-        verts.append(61.06601717798213)
-        verts.append(-150.00)
-
-        verts.append(-2.071067811865475)
-        verts.append(2.071067811865475)
-        verts.append(-5.0)
-        verts.append(-61.06601717798213)
-        verts.append(61.06601717798213)
-        verts.append(-150.00)
-
-        return np.array(verts, dtype=np.float32)
-
-    def prepare_to_render(self) -> None:
-        # GL_QUADS aren't available anymore, only triangles
-        # need 6 vertices instead of 4
-        vertices = self.vertices()
-        self.numberOfVertices = np.size(vertices) // floatsPerVertex
-
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
+    def __init__(
+        self, fov: float, aspect_ratio: float, near_z: float, far_z: float
+    ) -> None:
+        self.fov = fov
+        self.aspect_ratio = aspect_ratio
+        self.near_z = near_z
+        self.far_z = far_z
 
         # initialize shaders
+        self.vao = glGenVertexArrays(1)
+        glBindVertexArray(self.vao)
 
         with open(os.path.join(pwd, "frustum.vert"), "r") as f:
             vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
@@ -1075,6 +990,74 @@ class Frustum:
 
         self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness")
         self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size")
+
+    def prepare_to_render(self) -> None:
+        def create_vertices_of_frustum() -> np.array:
+            vertices = []
+
+            # front face
+            front_top: float = -self.near_z * math.tan(math.radians(self.fov) / 2.0)
+            front_right: float = front_top * self.aspect_ratio
+
+            front_left = -front_right
+            front_bottom = -front_top
+
+            vertices.extend([front_left, front_top, self.near_z])
+            vertices.extend([front_right, front_top, self.near_z])
+
+            vertices.extend([front_right, front_top, self.near_z])
+            vertices.extend([front_right, front_bottom, self.near_z])
+
+            vertices.extend([front_right, front_bottom, self.near_z])
+            vertices.extend([front_left, front_bottom, self.near_z])
+
+            vertices.extend([front_left, front_bottom, self.near_z])
+            vertices.extend([front_left, front_top, self.near_z])
+
+            # back face
+            back_top: float = -self.far_z * math.tan(math.radians(self.fov) / 2.0)
+            back_right: float = back_top * self.aspect_ratio
+
+            back_left = -back_right
+            back_bottom = -back_top
+
+            vertices.extend([back_left, back_top, self.far_z])
+            vertices.extend([back_right, back_top, self.far_z])
+
+            vertices.extend([back_right, back_top, self.far_z])
+            vertices.extend([back_right, back_bottom, self.far_z])
+
+            vertices.extend([back_right, back_bottom, self.far_z])
+            vertices.extend([back_left, back_bottom, self.far_z])
+
+            vertices.extend([back_left, back_bottom, self.far_z])
+            vertices.extend([back_left, back_top, self.far_z])
+
+            # connect the faces
+            vertices.extend([front_left, front_top, self.near_z])
+            vertices.extend([back_left, back_top, self.far_z])
+
+            vertices.extend([front_right, front_top, self.near_z])
+            vertices.extend([back_right, back_top, self.far_z])
+
+            vertices.extend([front_left, front_bottom, self.near_z])
+            vertices.extend([back_left, back_bottom, self.far_z])
+
+            vertices.extend([front_right, front_bottom, self.near_z])
+            vertices.extend([back_right, back_bottom, self.far_z])
+
+            # turn vertices into numpy array
+            return np.array(vertices, dtype=np.float32)
+
+        vertices = create_vertices_of_frustum()
+
+        # GL_QUADS aren't available anymore, only triangles
+        # need 6 vertices instead of 4
+        self.numberOfVertices = np.size(vertices) // floatsPerVertex
+
+        if hasattr(self, "vbo"):
+            glDeleteBuffers(1, [self.vbo])
+        glBindVertexArray(self.vao)
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -1113,13 +1096,13 @@ class Frustum:
 
         # pass projection parameters to the shader
         fov_loc = glGetUniformLocation(self.shader, "fov")
-        glUniform1f(fov_loc, 45.0)
+        glUniform1f(fov_loc, self.fov)
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
-        glUniform1f(aspect_loc, 1.0)
+        glUniform1f(aspect_loc, self.aspect_ratio)
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
+        glUniform1f(nearZ_loc, self.near_z)
         farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
+        glUniform1f(farZ_loc, self.far_z)
         time_loc = glGetUniformLocation(self.shader, "time")
         glUniform1f(time_loc, animation_time)
 
@@ -1157,7 +1140,7 @@ class Frustum:
         glBindVertexArray(0)
 
 
-frustum = Frustum()
+frustum = Frustum(fov=45.0, aspect_ratio=16.0 / 9.0, near_z=-10.0, far_z=-500.0)
 frustum.prepare_to_render()
 
 
@@ -1502,6 +1485,40 @@ while not glfw.window_should_close(window):
         virtual_camera_position[2] += math.sin(virtual_camera_rot_y)
     imgui.pop_button_repeat()
 
+    (
+        clicked_virtual_camera_fov,
+        frustum.fov,
+    ) = imgui.slider_float("Camera FOV", frustum.fov, 5.0, 60.0)
+
+    if clicked_virtual_camera_fov:
+        frustum.prepare_to_render()
+
+    (
+        clicked_virtual_camera_aspect_ratio,
+        frustum.aspect_ratio,
+    ) = imgui.slider_float("Camera AspectRatio", frustum.aspect_ratio, 0.1, 3.0)
+
+    if clicked_virtual_camera_aspect_ratio:
+        frustum.prepare_to_render()
+
+    (
+        clicked_virtual_camera_near_z,
+        frustum.near_z,
+    ) = imgui.slider_float("Camera near_z", frustum.near_z, -200.0, -1.0)
+
+    if clicked_virtual_camera_near_z:
+        frustum.prepare_to_render()
+
+    (
+        clicked_virtual_camera_far_z,
+        frustum.far_z,
+    ) = imgui.slider_float(
+        "Camera far_z", frustum.far_z, frustum.near_z, frustum.near_z - 500.0
+    )
+
+    if clicked_virtual_camera_far_z:
+        frustum.prepare_to_render()
+
     imgui.end()
 
     width, height = glfw.get_framebuffer_size(window)
@@ -1575,6 +1592,8 @@ while not glfw.window_should_close(window):
                     ms.MatrixStack.model,
                     virtual_camera_rot_x * min(1.0, (animation_time - 60.0) / 5.0),
                 )
+
+            ground.render(animation_time)
 
             if animation_time > 55.0:
                 frustum.render(animation_time)
