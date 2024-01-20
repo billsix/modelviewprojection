@@ -252,8 +252,7 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
             # make sure the x and y axis are equally proportional in screen space
             plt.gca().set_aspect("equal", adjustable="box")
             fig.canvas.draw()
-            image = np.frombuffer(fig.canvas.tostring_rgb(), dtype="uint8")
-            image = image.reshape(fig.canvas.get_width_height()[::-1] + (3,))
+            image = np.array(fig.canvas.renderer.buffer_rgba())
             plt.close(fig)
 
             yield image
