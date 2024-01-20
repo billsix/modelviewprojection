@@ -35,27 +35,9 @@ out VS_OUT {
   vec4 color;
 } vs_out;
 
-vec4 project(vec4 cameraSpace){
-
-    float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
-    float right = top * aspectRatio;
-
-     mat4 camera_space_to_ndc_space = transpose(mat4(
-          nearZ/(right * cameraSpace.z), 0.0,                       0.0,                0.0,
-          0.0,                           nearZ/(top*cameraSpace.z), 0.0,                0.0,
-          0.0,                           0.0,                       2.0/(nearZ - farZ), -(farZ + nearZ)/(nearZ - farZ),
-          0.0,                           0.0,                       0.0,                1.0));
-
-
-     return camera_space_to_ndc_space * cameraSpace;
-}
 
 void main()
 {
-   // if you change the depth to be 1.0, and LEQUAL, instead of -1.0, and GREATER, and if
-   // you change the nearZ farZ by negating them, then you could use the standard
-   // projection matrix here:
-   // gl_Position = project_standard_way(mvMatrix * vec4(position,1.0));
    gl_Position = pMatrix * vMatrix * mMatrix * vec4(position,1.0);
    vs_out.color = vec4(1.0,1.0,1.0,1.0);
 }

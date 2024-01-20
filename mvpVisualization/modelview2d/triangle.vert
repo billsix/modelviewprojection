@@ -63,5 +63,5 @@ void main()
   // mMatrix has the "virtual camera's" view transformations in it.
   // so, from right to left, model, view (virtual, moving camera), project, view (our view), project (our view)
   gl_Position = pMatrix * vMatrix * project(mMatrix * vec4(position,1.0));
-   vs_out.color = vec4(color_in,1.0);
+  vs_out.color = vec4(color_in,1.0);
 }
