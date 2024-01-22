@@ -542,7 +542,7 @@ while not glfw.window_should_close(window):
         if math.fabs(axes_list[0][3]) > 0.10:
             camera.rot_x -= 3.0 * axes_list[0][3] * 0.01
         if math.fabs(axes_list[0][2]) > 0.10:
-            camera.rot_y -= axes_list[0][2] * 0.01
+            camera.rot_y -= 3.0 * axes_list[0][2] * 0.01
 
     # note - opengl matricies use degrees
     ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
