@@ -96,93 +96,102 @@ while not glfw.window_should_close(window):
 
     draw_in_square_viewport()
 
-    glColor3f(0.578123, 0.0, 1.0)
-    glBegin(GL_QUADS)
-    glVertex2f(-1.0, -0.3)
-    glVertex2f(-0.8, -0.3)
-    glVertex2f(-0.8, 0.3)
-    glVertex2f(-1.0, 0.3)
-    glEnd()
+    def draw_a_triangle():
+        glColor3f(0.578123, 0.0, 1.0)
+        glBegin(GL_QUADS)
+        glVertex2f(-1.0, -0.3)
+        glVertex2f(-0.8, -0.3)
+        glVertex2f(-0.8, 0.3)
+        glVertex2f(-1.0, 0.3)
+        glEnd()
 
-    # math.sin uses radians
-    offset_x = math.sin(elapsed_time_in_seconds)
-    # to use degrees, you would do
-    # offset_x = math.sin(math.radians(elapsed_time_in_seconds))
+    draw_a_triangle()
 
-    float_between_0_and_1 = abs(math.sin(elapsed_time_in_seconds))
-    # a float between 0 and 1 so that the color of the triagle changes over time
-    glColor3f(float_between_0_and_1, float_between_0_and_1, 1.0)
-    glBegin(GL_TRIANGLES)
-    glVertex2f(0.0 + offset_x, 0.0)
-    glVertex2f(0.5 + offset_x, 0.0)
-    glVertex2f(0.0 + offset_x, 0.5)
-    glEnd()
+    def draw_an_oscillating_triangle():
+        # math.sin uses radians
+        offset_x = math.sin(elapsed_time_in_seconds)
+        # to use degrees, you would do
+        # offset_x = math.sin(math.radians(elapsed_time_in_seconds))
 
-    # f(x) = x^2
+        float_between_0_and_1 = abs(math.sin(elapsed_time_in_seconds))
+        # a float between 0 and 1 so that the color of the triagle changes over time
+        glColor3f(float_between_0_and_1, float_between_0_and_1, 1.0)
+        glBegin(GL_TRIANGLES)
+        glVertex2f(0.0 + offset_x, 0.0)
+        glVertex2f(0.5 + offset_x, 0.0)
+        glVertex2f(0.0 + offset_x, 0.5)
+        glEnd()
 
-    glColor3f(1.0, 1.0, 1.0)
-    glBegin(GL_LINES)
-    glVertex2f(-1.0, 1.0)
-    glVertex2f(-0.9, 0.81)
+    draw_an_oscillating_triangle()
 
-    glVertex2f(-0.9, 0.81)
-    glVertex2f(-0.8, 0.6400000000000001)
+    def draw_x_squared_with_precomputed_values():
+        # f(x) = x^2
 
-    glVertex2f(-0.8, 0.6400000000000001)
-    glVertex2f(-0.7, 0.48999999999999994)
+        glColor3f(1.0, 1.0, 1.0)
+        glBegin(GL_LINES)
+        glVertex2f(-1.0, 1.0)
+        glVertex2f(-0.9, 0.81)
 
-    glVertex2f(-0.7, 0.48999999999999994)
-    glVertex2f(-0.6, 0.36)
+        glVertex2f(-0.9, 0.81)
+        glVertex2f(-0.8, 0.6400000000000001)
 
-    glVertex2f(-0.6, 0.36)
-    glVertex2f(-0.5, 0.25)
+        glVertex2f(-0.8, 0.6400000000000001)
+        glVertex2f(-0.7, 0.48999999999999994)
 
-    glVertex2f(-0.5, 0.25)
-    glVertex2f(-0.4, 0.16000000000000003)
+        glVertex2f(-0.7, 0.48999999999999994)
+        glVertex2f(-0.6, 0.36)
 
-    glVertex2f(-0.4, 0.16000000000000003)
-    glVertex2f(-0.3, 0.09)
+        glVertex2f(-0.6, 0.36)
+        glVertex2f(-0.5, 0.25)
 
-    glVertex2f(-0.3, 0.09)
-    glVertex2f(-0.2, 0.04000000000000001)
+        glVertex2f(-0.5, 0.25)
+        glVertex2f(-0.4, 0.16000000000000003)
 
-    glVertex2f(-0.2, 0.04000000000000001)
-    glVertex2f(-0.1, 0.010000000000000002)
+        glVertex2f(-0.4, 0.16000000000000003)
+        glVertex2f(-0.3, 0.09)
 
-    glVertex2f(-0.1, 0.010000000000000002)
-    glVertex2f(0.0, 0.0)
+        glVertex2f(-0.3, 0.09)
+        glVertex2f(-0.2, 0.04000000000000001)
 
-    glVertex2f(0.0, 0.0)
-    glVertex2f(0.1, 0.010000000000000002)
+        glVertex2f(-0.2, 0.04000000000000001)
+        glVertex2f(-0.1, 0.010000000000000002)
 
-    glVertex2f(0.1, 0.010000000000000002)
-    glVertex2f(0.2, 0.04000000000000001)
+        glVertex2f(-0.1, 0.010000000000000002)
+        glVertex2f(0.0, 0.0)
 
-    glVertex2f(0.2, 0.04000000000000001)
-    glVertex2f(0.3, 0.09)
+        glVertex2f(0.0, 0.0)
+        glVertex2f(0.1, 0.010000000000000002)
 
-    glVertex2f(0.3, 0.09)
-    glVertex2f(0.4, 0.16000000000000003)
+        glVertex2f(0.1, 0.010000000000000002)
+        glVertex2f(0.2, 0.04000000000000001)
 
-    glVertex2f(0.4, 0.16000000000000003)
-    glVertex2f(0.5, 0.25)
+        glVertex2f(0.2, 0.04000000000000001)
+        glVertex2f(0.3, 0.09)
 
-    glVertex2f(0.5, 0.25)
-    glVertex2f(0.6, 0.36)
+        glVertex2f(0.3, 0.09)
+        glVertex2f(0.4, 0.16000000000000003)
 
-    glVertex2f(0.6, 0.36)
-    glVertex2f(0.7, 0.48999999999999994)
+        glVertex2f(0.4, 0.16000000000000003)
+        glVertex2f(0.5, 0.25)
 
-    glVertex2f(0.7, 0.48999999999999994)
-    glVertex2f(0.8, 0.6400000000000001)
+        glVertex2f(0.5, 0.25)
+        glVertex2f(0.6, 0.36)
 
-    glVertex2f(0.8, 0.6400000000000001)
-    glVertex2f(0.9, 0.81)
+        glVertex2f(0.6, 0.36)
+        glVertex2f(0.7, 0.48999999999999994)
 
-    glVertex2f(0.9, 0.81)
-    glVertex2f(1.0, 1.0)
+        glVertex2f(0.7, 0.48999999999999994)
+        glVertex2f(0.8, 0.6400000000000001)
 
-    glEnd()
+        glVertex2f(0.8, 0.6400000000000001)
+        glVertex2f(0.9, 0.81)
+
+        glVertex2f(0.9, 0.81)
+        glVertex2f(1.0, 1.0)
+
+        glEnd()
+
+    draw_x_squared_with_precomputed_values()
 
     # generic plot function
     def plot(fn, domain, interval):
@@ -203,18 +212,24 @@ while not glfw.window_should_close(window):
             glVertex2f(x, fn(x))
         glEnd()
 
-    def x_minus_onehalf_squared(x):
-        return (x - 0.5) ** 2
+    def use_plot_function_for_x_minus_onehalf_squared():
+        def x_minus_onehalf_squared(x):
+            return (x - 0.5) ** 2
 
-    glColor3f(1.0, 0.0, 0.0)
-    plot(fn=x_minus_onehalf_squared, domain=(-1, 1), interval=0.001)
+        glColor3f(1.0, 0.0, 0.0)
+        plot(fn=x_minus_onehalf_squared, domain=(-1, 1), interval=0.001)
 
-    glColor3f(1.0, 0.0, 1.0)
-    plot(
-        fn=lambda x: math.cos(x + elapsed_time_in_seconds * 3.0),
-        domain=(-1, 1),
-        interval=0.01,
-    )
+    use_plot_function_for_x_minus_onehalf_squared()
+
+    def use_plot_function_with_unnamed_function():
+        glColor3f(1.0, 0.0, 1.0)
+        plot(
+            fn=lambda x: math.cos(x + elapsed_time_in_seconds * 3.0),
+            domain=(-1, 1),
+            interval=0.01,
+        )
+
+    use_plot_function_with_unnamed_function()
 
     glfw.swap_buffers(window)
 
