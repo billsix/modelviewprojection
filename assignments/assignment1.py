@@ -241,7 +241,6 @@ while not glfw.window_should_close(window):
         scale_radius = 0.1
 
         for theta in np.arange(0.0, 2 * math.pi, theta_increment):
-            # glVertex is here twice because line segments are assumed to be in pairs
             glVertex2f(0.0, 0.0)
             glVertex2f(scale_radius * math.cos(theta), scale_radius * math.sin(theta))
             glVertex2f(
