@@ -231,6 +231,27 @@ while not glfw.window_should_close(window):
 
     use_plot_function_with_unnamed_function()
 
+    def draw_circle():
+        glBegin(GL_TRIANGLES)
+
+        theta_increment = 0.01
+
+        glColor3f(1.0, 1.0, 1.0)
+
+        scale_radius = 0.1
+
+        for theta in np.arange(0.0, 2 * math.pi, theta_increment):
+            # glVertex is here twice because line segments are assumed to be in pairs
+            glVertex2f(0.0, 0.0)
+            glVertex2f(scale_radius * math.cos(theta), scale_radius * math.sin(theta))
+            glVertex2f(
+                scale_radius * math.cos(theta + theta_increment),
+                scale_radius * math.sin(theta + theta_increment),
+            )
+        glEnd()
+
+    draw_circle()
+
     glfw.swap_buffers(window)
 
 glfw.terminate()
