@@ -24,6 +24,8 @@ from OpenGL.GL import (
 )
 import glfw
 import numpy as np
+from collections.abc import Callable
+
 
 if not glfw.init():
     sys.exit()
@@ -164,7 +166,9 @@ def draw_x_squared_with_precomputed_values() -> None:
 
 
 # generic plot function
-def plot(fn, domain, interval) -> None:
+def plot(
+    fn: Callable[[float], float], domain: tuple[float, float], interval: float
+) -> None:
     glBegin(GL_LINES)
     glVertex2f(domain[0], fn(domain[0]))
 
@@ -184,7 +188,7 @@ def plot(fn, domain, interval) -> None:
 
 
 def use_plot_function_for_x_minus_onehalf_squared() -> None:
-    def x_minus_onehalf_squared(x):
+    def x_minus_onehalf_squared(x) -> float:
         return (x - 0.5) ** 2
 
     glColor3f(1.0, 0.0, 0.0)
@@ -240,7 +244,7 @@ while not glfw.window_should_close(window):
 
     elapsed_time_in_seconds: float = glfw.get_time() - program_start_time
 
-    width: int, height: int = glfw.get_framebuffer_size(window)
+    width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
