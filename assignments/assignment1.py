@@ -240,7 +240,7 @@ while not glfw.window_should_close(window):
 
     elapsed_time_in_seconds: float = glfw.get_time() - program_start_time
 
-    width, height = glfw.get_framebuffer_size(window)
+    width: int, height: int = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
