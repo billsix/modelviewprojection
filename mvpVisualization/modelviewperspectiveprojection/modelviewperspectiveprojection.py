@@ -94,7 +94,7 @@ glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 
 window = glfw.create_window(
-    800, 800, "ModelViewProjection Demo of Coordinates", None, None
+    1920, 1080, "ModelViewProjection Demo of Coordinates", None, None
 )
 if not window:
     glfw.terminate()
@@ -1201,6 +1201,8 @@ while not glfw.window_should_close(window):
             imgui.end_menu()
         imgui.end_main_menu_bar()
 
+    imgui.set_next_window_size(453, 564, imgui.FIRST_USE_EVER)
+    imgui.set_next_window_position(15, 30, imgui.FIRST_USE_EVER)
     imgui.set_next_window_bg_alpha(0.05)
     imgui.begin("Time", True)
 
@@ -1345,19 +1347,8 @@ while not glfw.window_should_close(window):
 
     imgui.end()
 
-    imgui.set_next_window_bg_alpha(0.05)
-    imgui.begin("Display Options", True)
-
-    clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
-        "Enlarged Axises", enlarged_axis
-    )
-
-    clicked_show_ground_axises, show_ground_axis = imgui.checkbox(
-        "Show Ground Axises", show_ground_axis
-    )
-
-    imgui.end()
-
+    imgui.set_next_window_size(460, 347, imgui.FIRST_USE_EVER)
+    imgui.set_next_window_position(1042, 26, imgui.FIRST_USE_EVER)
     imgui.set_next_window_bg_alpha(0.05)
     imgui.begin("Camera Options", True)
 
@@ -1436,6 +1427,21 @@ while not glfw.window_should_close(window):
 
     if clicked_virtual_camera_far_z:
         frustum.prepare_to_render()
+
+    imgui.end()
+
+    imgui.set_next_window_size(300, 175, imgui.FIRST_USE_EVER)
+    imgui.set_next_window_position(8, 603, imgui.FIRST_USE_EVER)
+    imgui.set_next_window_bg_alpha(0.05)
+    imgui.begin("Display Options", True)
+
+    clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
+        "Enlarged Axises", enlarged_axis
+    )
+
+    clicked_show_ground_axises, show_ground_axis = imgui.checkbox(
+        "Show Ground Axises", show_ground_axis
+    )
 
     imgui.end()
 
