@@ -62,7 +62,7 @@ def on_key(window, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0, 0.0, 0.0, 1.0)
+glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
@@ -96,7 +96,7 @@ def draw_in_square_viewport() -> None:
     # doc-region-end a2d0bcb5b525e8a68e0bc1ef213359f165981839enablescissortest
 
     # doc-region-begin db4245dba3c0c229416c97fe84da3cb87b1f439d
-    glClearColor(0.0, 0.0, 0.0, 1.0)
+    glClearColor(0.0289, 0.071875, 0.0972, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     # doc-region-end db4245dba3c0c229416c97fe84da3cb87b1f439d
     # doc-region-begin 9524935cab9f5725f921d11969872ebd9a54e508

@@ -122,7 +122,7 @@ def on_key(window, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0, 0.0, 0.0, 1.0)
+glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 
 
 glClearDepth(1.0)
@@ -524,7 +524,7 @@ while not glfw.window_should_close(window):
     # render scene
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
-    glClearColor(0.0, 0.0, 0.0, 1.0)  # r  # g  # b  # a
+    glClearColor(0.0289, 0.071875, 0.0972, 1.0)  # r  # g  # b  # a
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     handle_inputs()

@@ -78,7 +78,7 @@ def on_key(window, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0, 0.0, 0.0, 1.0)
+glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 
 # doc-region-begin d901e3a3a161af321d120efcf3945187580c48c9
 glEnable(GL_DEPTH_TEST)
@@ -102,7 +102,7 @@ def draw_in_square_viewport() -> None:
         min,
     )
 
-    glClearColor(0.0, 0.0, 0.0, 1.0)
+    glClearColor(0.0289, 0.071875, 0.0972, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
     glDisable(GL_SCISSOR_TEST)
 

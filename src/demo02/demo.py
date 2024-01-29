@@ -59,7 +59,7 @@ def on_key(window, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0, 0.0, 0.0, 1.0)
+glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()

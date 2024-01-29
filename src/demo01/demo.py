@@ -78,7 +78,7 @@ def on_key(window, key, scancode, action, mods):
 glfw.set_key_callback(window, on_key)
 
 # doc-region-begin 788fae9aeb2ebe9e911e2c3f6399f1b51a0bd956
-glClearColor(0.0, 0.0, 0.0, 1.0)
+glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 # doc-region-end 788fae9aeb2ebe9e911e2c3f6399f1b51a0bd956
 
 # doc-region-begin a3fdb44a76cc8a6b843c780a68e00366176eadab
