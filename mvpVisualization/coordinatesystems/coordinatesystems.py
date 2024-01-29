@@ -55,7 +55,6 @@ from OpenGL.GL import (
     glDeleteProgram,
     glDeleteVertexArrays,
     glDepthFunc,
-    glDisable,
     glDrawArrays,
     glEnable,
     glEnableVertexAttribArray,
@@ -564,7 +563,6 @@ class Axis:
         glDeleteProgram(self.shader)
 
     def render(self, time: float, grayed_out: bool = False) -> None:
-        glDisable(GL_DEPTH_TEST)
 
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
@@ -695,7 +693,6 @@ class Axis:
             glUniform2f(self.viewportLoc, width, height)
             glDrawArrays(GL_LINES, 0, self.numberOfVertices)
             glBindVertexArray(0)
-            glEnable(GL_DEPTH_TEST)
 
 
 axis = Axis()
