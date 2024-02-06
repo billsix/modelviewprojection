@@ -234,11 +234,9 @@ The Event Loop
    :end-before: doc-region-end 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
 
 
-* TODO Fix these line numbers
-* Read line 212-213
-* Read line 211
+* Read the modelspace to world space, starting from the bottom, up.  Translate, then rotate
 * Reset the coordinate system
-* Read line 214-215
+* Read the worldspace to NDC
 
 
 .. literalinclude:: ../src/demo09/demo.py
@@ -248,12 +246,6 @@ The Event Loop
 
 
 
-* TODO Fix these line numbers
-* Read line 225-226
-* Read line 224
+* Read the modelspace to world space, starting from the bottom, up.  Translate, then rotate
 * Reset the coordinate system
-* Read line 227-228
-
-
-
-ALSO, see mvpVisualization/demo2.py.  This is an animation of the code, albeit in 3D space.
+* Read the worldspace to NDC

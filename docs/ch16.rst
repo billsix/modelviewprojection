@@ -93,7 +93,7 @@ Description
 ^^^^^^^^^^^
 
 
-Before starting this demo, run mvpVisualization/7/demo7.py, as
+Before starting this demo, run mvpVisualization/modelvieworthoprojection/modelvieworthoprojection.py, as
 it will show graphically all of the steps in this demo.  In the GUI,
 take a look at the camera options buttons, and once the camera
 is placed and oriented in world space, use the buttons to change the camera's position
@@ -120,7 +120,7 @@ you would
 #. rotate around the local y axis
 #. rotate around the local x axis
 
-To visualize this, run "python mvpVisualization/7/demo7.py"
+To visualize this, run "python mvpVisualization/modelvieworthoprojection/modelvieworthoprojection.py"
 
 The ordering of 1) before 2) and 3) should be clear, as
 we are imagining a coordinate system that moves, just

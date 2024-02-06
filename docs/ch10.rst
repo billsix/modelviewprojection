@@ -231,7 +231,6 @@ looking directly in front of your head.  Which way did the room move?
 Towards the left.
 
 
-Back to camera space. (run mvpVisualizations/6/demo6.py)
 
 .. figure:: _static/screenshots/2dcameraspace.png
     :align: center

@@ -147,12 +147,12 @@ Draw paddle 1, just as before.
 As a refresher, the author recommends reading the code from modelspace
 to worldspace from the bottom up, and from worldspace to NDC from top down.
 
-* TODO fix line nos
-* Read line 239-240
-* Read line 238
+* Read from modelspace to world space, bottom up
 * Reset the coordinate system
-* Read line 241-242
-* Read line 243-244
+* Read from world space to camera space, knowing that camera transformations
+  are implemented as the inverse of placing the camera space in world space.
+* Reset the coordinate system
+* Read cameraspace to NDC
 
 New part!  Draw the square relative to the first paddle!
 Translate the square to the right by 20 units.
@@ -171,22 +171,21 @@ afterwards.
 
 As such, read
 
-* TODO fix line nums
-* Read line 254-255
-* Read line 253
+* Read paddle1space to world space, from bottom up
 
 If we were to plot the square now, it would be in paddle 1's space.  We don't want
 that, we want in to be moved in the X direction some units.  Therefore
 
-* TODO Fixd line nos
-* Read line 251-252
+* Read modelspace to paddle1space, from bottom up
+* Reset the coordinate system.
 
 Now the square's geometry will be in it's own space!
 
-* TODO Fixd line nos
+* Read from worldspace to cameraspace, knowing that camera transformations
+  are implemented as the inverse of placing the camera space in world space.
+
 * Reset the coordinate system
-* Read line 256-257, the inverse of the transformations from world space to camera space
-* Read line 259-260, shrink the world space of -100, 100, down to NDC (-1 to 1)
+* Read cameraspace to NDC
 
 
 Draw paddle 2 just like before.

@@ -391,6 +391,13 @@ of the procedures on the stack from top to bottom
 this results in coordinate data in NDC space,
 which we can pass to glVertex3f
 
+
+.. literalinclude:: ../src/demo18/demo.py
+   :language: python
+   :start-after: doc-region-begin 6b57a4425b47582cdfb194a1c2fbb3ac9a17a163
+   :end-before: doc-region-end 6b57a4425b47582cdfb194a1c2fbb3ac9a17a163
+
+
 draw the square
 ~~~~~~~~~~~~~~~
 

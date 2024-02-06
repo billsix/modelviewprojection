@@ -49,6 +49,7 @@ from OpenGL.GL import (
 import glfw
 
 from dataclasses import dataclass, field
+from typing import List, Callable
 
 if not glfw.init():
     sys.exit()
@@ -398,6 +399,7 @@ while not glfw.window_should_close(window):
     # doc-region-end 7de7248650b2809520898faed65be4050d2b441a
     # fmt: on
 
+    # doc-region-begin 6b57a4425b47582cdfb194a1c2fbb3ac9a17a163
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -405,6 +407,7 @@ while not glfw.window_should_close(window):
         ndc_space = apply_stack(model_space)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
+    # doc-region-end 6b57a4425b47582cdfb194a1c2fbb3ac9a17a163
 
     # doc-region-begin 87d309a76468a5dd49f5805f739932d7a1b4dac1
     glColor3f(0.0, 0.0, 1.0)
