@@ -21,7 +21,8 @@ graphs: currency.png \
 	demo18-6.png \
 	demo18-7.png \
 	demo18-8.png \
-	cayleygraph.png
+	cayleygraph.png \
+	assignment2.png
 
 
 currency.png: currency.dot
@@ -35,6 +36,10 @@ demo10.png: demo10.dot
 
 demo10-2.png: demo10-2.dot
 	dot -Tpng $< -o $@
+
+assignment2.png: assignment2.dot
+	dot -Tpng $< -o $@
+
 
 demo06.png: demo06.dot
 	dot -Tpng $< -o $@

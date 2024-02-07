@@ -1,0 +1,19 @@
+digraph {
+    rankdir="BT"
+    nodesep=1
+    ranksep=1
+    p1 [label = "Paddle 1 Space"];
+    p2 [label = "Paddle 2 Space"] ;
+    cs [label = "Camera Space"];
+    ws [label = "World Space"];
+    ndc [label = "NDC"];
+    screen [label = "Screen Space"];
+    ndc2 [label = "NDC"];
+    p1 -> ws  [label=<f<SUB>p1</SUB><SUP>w</SUP>>,weight="0.2"];
+    p2 -> ws [label=<f<SUB>p2</SUB><SUP>w</SUP>>,weight="0.2"];
+    cs -> ws [label=<f<SUB>c</SUB><SUP>w</SUP>>,weight="0.2"];
+    cs -> ndc [label=<f<SUB>c</SUB><SUP>ndc</SUP>>,weight="0.2"];
+    ndc -> screen [label=<f<SUB>ndc</SUB><SUP>S</SUP>>,color="red"];
+    screen -> ndc2 [label="gluOrtho2d"];
+    ndc2 -> "Screen Space" [label="glViewport"];
+}
