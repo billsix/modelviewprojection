@@ -516,8 +516,8 @@ square_ndc = Geometry(
 
 
 create_graphs(
-    title="Ortho2d",
-    filename="ortho2d-backwards",
+    title="Inverse Ortho2d",
+    filename="inverse-ortho2d-backwards",
     geometry=square_ndc,
     procedures=[
         mplt.scale(scaleX=10.0 / 2.0, scaleY=7.0 / 2.0),
@@ -531,12 +531,61 @@ create_graphs(
 )
 
 create_graphs(
-    title="Ortho2d",
-    filename="ortho2d",
+    title="Inverse Ortho2d",
+    filename="inverse-ortho2d",
     geometry=square_ndc,
     procedures=[
         mplt.scale(scaleX=10.0 / 2.0, scaleY=7.0 / 2.0),
         mplt.translate(10.0 / 2, 7.0 / 2),
+    ],
+    backwards=False,
+    graph_bounds=(10, 10),
+    gridline_interval=1,
+    unit_x=1.0,
+    unit_y=1.0,
+)
+
+
+square_ndc = Geometry(
+    points=list(
+        zip(
+            *np.array(
+                [
+                    [0.0, 0.0],
+                    [10.0, 0.0],
+                    [10.0, 7.0],
+                    [0.0, 7.0],
+                    [0.0, 0.0],
+                ]
+            )
+        )
+    ),
+    color=(1.0, 0.0, 0.0),
+)
+
+
+create_graphs(
+    title="Ortho2d",
+    filename="ortho2d-backwards",
+    geometry=square_ndc,
+    procedures=[
+        mplt.translate(-10.0 / 2, -7.0 / 2),
+        mplt.scale(scaleX=1.0 / (10.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
+    ],
+    backwards=True,
+    graph_bounds=(10, 10),
+    gridline_interval=1,
+    unit_x=1.0,
+    unit_y=1.0,
+)
+
+create_graphs(
+    title="Ortho2d",
+    filename="ortho2d",
+    geometry=square_ndc,
+    procedures=[
+        mplt.translate(-10.0 / 2, -7.0 / 2),
+        mplt.scale(scaleX=1.0 / (10.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
     ],
     backwards=False,
     graph_bounds=(10, 10),
