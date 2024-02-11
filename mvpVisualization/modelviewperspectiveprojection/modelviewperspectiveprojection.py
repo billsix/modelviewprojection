@@ -1213,7 +1213,7 @@ while not glfw.window_should_close(window):
     (
         clicked_animation_time_multiplier,
         animation_time_multiplier,
-    ) = imgui.slider_float("Sim Speed", animation_time_multiplier, 0.1, 10.0)
+    ) = imgui.slider_float("Sim Speed", animation_time_multiplier, -10.0, 10.0)
     if imgui.button("Restart"):
         animation_time = 0.0
 
