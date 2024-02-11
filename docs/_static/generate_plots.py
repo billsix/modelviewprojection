@@ -134,11 +134,6 @@ for m in modules:
 ## Translation Plots - reading the transformations forward
 
 ### Step 1
-graph_bounds = (100, 100)
-
-fig, axes = plt.subplots()
-axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
-axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
 Geometry = namedtuple("Geometry", "points color")
 
@@ -177,8 +172,22 @@ paddle2 = Geometry(
 )
 
 
-def create_graphs(title, filename, geometry, procedures, backwards=False):
+def create_graphs(
+    title,
+    filename,
+    geometry,
+    procedures,
+    backwards=False,
+    graph_bounds=(100, 100),
+    gridline_interval=5,
+    unit_x=10.0,
+    unit_y=10.0,
+):
     """Creates an animated dif of the geometry, through a sequence of transformations"""
+
+    fig, axes = plt.subplots()
+    axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
+    axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
     procs = procedures.copy()
     # when plotting the transformations is backwards order, show the axis
@@ -199,7 +208,7 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
 
             # plot transformed basis
             for xs, ys, thickness in generategridlines.generategridlines(
-                graph_bounds, interval=5
+                graph_bounds, interval=gridline_interval
             ):
                 if backwards and stepsRemaining > 1:
                     transformed_xs, transformed_ys = accumfn(xs, ys)
@@ -218,20 +227,20 @@ def create_graphs(title, filename, geometry, procedures, backwards=False):
 
             # x axis
             if backwards and stepsRemaining > 1:
-                transformed_xs, transformed_ys = accumfn([0.0, 10.0], [0.0, 0.0])
+                transformed_xs, transformed_ys = accumfn([0.0, unit_x], [0.0, 0.0])
             elif not backwards and round_number == 1 and frame_number != 1:
-                transformed_xs, transformed_ys = fn([0.0, 10.0], [0.0, 0.0])
+                transformed_xs, transformed_ys = fn([0.0, unit_x], [0.0, 0.0])
             else:
-                transformed_xs, transformed_ys = [0.0, 10.0], [0.0, 0.0]
+                transformed_xs, transformed_ys = [0.0, unit_x], [0.0, 0.0]
             plt.plot(transformed_xs, transformed_ys, "-", lw=4.0, color=(0.0, 0.0, 1.0))
 
             # y axis
             if backwards and stepsRemaining > 1:
-                transformed_xs, transformed_ys = accumfn([0.0, 0.0], [0.0, 10.0])
+                transformed_xs, transformed_ys = accumfn([0.0, 0.0], [0.0, unit_y])
             elif not backwards and round_number == 1 and frame_number != 1:
-                transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, 10.0])
+                transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, unit_y])
             else:
-                transformed_xs, transformed_ys = [0.0, 0.0], [0.0, 10.0]
+                transformed_xs, transformed_ys = [0.0, 0.0], [0.0, unit_y]
             plt.plot(transformed_xs, transformed_ys, "-", lw=4.0, color=(1.0, 0.0, 1.0))
 
             if stepsRemaining <= 0:
@@ -485,4 +494,53 @@ create_graphs(
         mplt.rotate(math.radians(45.0)),
     ],
     backwards=False,
+)
+
+
+square_ndc = Geometry(
+    points=list(
+        zip(
+            *np.array(
+                [
+                    [-1.0, -1.0],
+                    [1.0, -1.0],
+                    [1.0, 1.0],
+                    [-1.0, 1.0],
+                    [-1.0, -1.0],
+                ]
+            )
+        )
+    ),
+    color=(1.0, 0.0, 0.0),
+)
+
+
+create_graphs(
+    title="Ortho2d",
+    filename="ortho2d-backwards",
+    geometry=square_ndc,
+    procedures=[
+        mplt.scale(scaleX=10.0 / 2.0, scaleY=7.0 / 2.0),
+        mplt.translate(10.0 / 2, 7.0 / 2),
+    ],
+    backwards=True,
+    graph_bounds=(10, 10),
+    gridline_interval=1,
+    unit_x=1.0,
+    unit_y=1.0,
+)
+
+create_graphs(
+    title="Ortho2d",
+    filename="ortho2d",
+    geometry=square_ndc,
+    procedures=[
+        mplt.scale(scaleX=10.0 / 2.0, scaleY=7.0 / 2.0),
+        mplt.translate(10.0 / 2, 7.0 / 2),
+    ],
+    backwards=False,
+    graph_bounds=(10, 10),
+    gridline_interval=1,
+    unit_x=1.0,
+    unit_y=1.0,
 )
