@@ -25,9 +25,9 @@ Matrix Stacks - Demo 19
 Purpose
 ^^^^^^^
 
-Replace lambda stacks with matrix stacks.  This is how preshader
-opengl worked (well, they provided matrix operations, but I replaced
-them with my own to make the matrix operations transparent).
+Replace lambda stacks with OpenGL 2.1 matrix stacks, provided
+by the driver for your graphics card.  This is how preshader
+opengl worked.
 
 The concepts behind the function stack, in which the first function
 added to the stack is the last function applied, hold true for
@@ -35,13 +35,13 @@ matricies as well.  But matricies are a much more efficient
 representation computationally than the function stack,
 and instead of adding fns and later having to remove them,
 we can save onto the current frame of reference with a "glPushStack",
-and restore the saved state by "glPopStack"
+and restore the saved state by "glPopStack".
 
 Use glPushMatrix and glPopMatrix to save/restore a local coordinate
 system, that way a tree of objects can be drawn without one child
 destroying the relative coordinate system of the parent node.
 
-In mvpVisualization/3/demo3.py, the grayed out
+In mvpVisualization/pushmatrix/pushmatrix.py, the grayed out
 coordinate system is one thas has been pushed onto the stack,
 and it regains it's color when it is reactivated by "glPopMatrix"
 
@@ -85,11 +85,14 @@ Description
 
 
 
-First thing to note is that we are now using OpenGL's official transformation
+First thing to note is that we are now using OpenGL 2.1's official transformation
 procedures, and in the perspective transformation, they flip the z axis, making
-it a left hand coordinate system.  The reason for this is discussed in the next
-chapter.  But for now, it means that we have to change how the depth test
-will be configured.
+it a left hand coordinate system.  The reason for this is long, and I
+have begun discusses in the "Standard Perspective Matrix" section, but it's an
+incomplete section for now.
+But for now, all it means that we have to change how the depth test
+will be configured, as after the perspective transformation, the far z
+value is 1.0, and the near z value is -1
 
 The clear depth that is set for each fragment each frame is now 1.0,
 and the test for a given fragment to overwrite the color in the color
@@ -167,7 +170,7 @@ do the inverse operations to the view stack.
 
 
 
-Each call above actually modifies the matrix, as matricies
+Each call above actually modifies the matrix at the top of the modelview stack of matricies, as matricies
 can be premultiplied together for efficiency.
 
 ::
@@ -176,9 +179,11 @@ can be premultiplied together for efficiency.
  |c d|  *  |g h|  =      |ce+dg  cf+dh|
 
 This means that rotate_x, rotate_y, translate, etc
-are destructive operations.  Instead of creating a stack
+are destructive operations to the matrix on the top of the stack.  Instead of creating new
+matrix to the top of the stack
 of matricies, these operations aggregate the transformations,
-but add no new matricies to the stack
+but add no new matricies to the stack, and as such are destructive operations
+to the current matrix.
 
 But many times we need to hold onto a transformation stack (matrix),
 so that we can do something else now, and return to this context later,

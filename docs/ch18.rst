@@ -269,12 +269,9 @@ Event Loop
 
 In previous demos, camera_space_to_ndc_space_fn was always
 the last function called in the method chained pipeline.  Put it on the bottom of the stack,
-by appending it first,
-so that "apply_stack" calls this function last
-
-"append" adds the function to the end of a list, where
-we conisder the front of the list to be the bottom of the stack,
-and the end of the list to be the top of the stack.
+by pushing it first,
+so that "apply_stack" calls this function last.  Each subsequent push will add
+a new function to the top of the stack.
 
 
 .. math::
@@ -466,3 +463,11 @@ Swap buffers and execute another iteration of the event loop
    :language: python
    :start-after: doc-region-begin 64809e2fccc9daa3f97239991d905b7fc3f03d62
    :end-before: doc-region-end 64809e2fccc9daa3f97239991d905b7fc3f03d62
+
+Notice in the above code, adding functions to the stack is creating a shared
+context for transformations, and before we call "glVertex3f", we always call
+"apply_stack" on the modelspace vertex.  In Demo 19, we will be using
+OpenGL 2.1 matrix stacks.  Although we don't have the code for the OpenGL
+driver, given that you'll see that we pass modelspace data directly to "glVertex3f",
+it should be clear that the OpenGL implementation must fetch the modelspace
+to NDC transformations from the ModelView and Projection matrix stacks.
