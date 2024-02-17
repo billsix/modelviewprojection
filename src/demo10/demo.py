@@ -159,13 +159,11 @@ paddle2: Paddle = Paddle(
 
 
 # doc-region-begin 808b49966faf68394a1e4def233df33c08e37b27
-def _default_camera_position() -> Vertex:
-    return Vertex(x=0.0, y=0.0)
 
 
 @dataclass
 class Camera:
-    position_worldspace: Vertex = field(default_factory=_default_camera_position)
+    position_worldspace: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0))
     # doc-region-end 808b49966faf68394a1e4def233df33c08e37b27
 
 

@@ -124,18 +124,6 @@ def draw_in_square_viewport() -> None:
     )
 
 
-def _default_paddle_verticies() -> np.array:
-    return np.array(
-        [
-            [-10.0, -30.0, 0.0],
-            [10.0, -30.0, 0.0],
-            [10.0, 30.0, 0.0],
-            [-10.0, 30.0, 0.0],
-        ],
-        dtype=np.float32,
-    )
-
-
 @dataclass
 class Paddle:
     r: float
@@ -143,7 +131,17 @@ class Paddle:
     b: float
     position: any
     rotation: float = 0.0
-    vertices: np.array = field(default_factory=_default_paddle_verticies)
+    vertices: np.array = field(
+        default_factory=lambda: np.array(
+            [
+                [-10.0, -30.0, 0.0],
+                [10.0, -30.0, 0.0],
+                [10.0, 30.0, 0.0],
+                [-10.0, 30.0, 0.0],
+            ],
+            dtype=np.float32,
+        )
+    )
 
 
 paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))

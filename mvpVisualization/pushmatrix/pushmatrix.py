@@ -138,31 +138,21 @@ class Paddle:
     b: float
     position: any
     rotation: float = 0.0
+    # fmt: off
     vertices: np.array = field(
         default_factory=lambda: np.array(
             [
-                -10.0,
-                -30.0,
-                0.0,
-                10.0,
-                -30.0,
-                0.0,
-                10.0,
-                30.0,
-                0.0,
-                10.0,
-                30.0,
-                0.0,
-                -10.0,
-                30.0,
-                0.0,
-                -10.0,
-                -30.0,
-                0.0,
+                -10.0, -30.0, 0.0,
+                10.0, -30.0, 0.0,
+                10.0, 30.0, 0.0,
+                10.0, 30.0, 0.0,
+                -10.0, 30.0, 0.0,
+                -10.0, -30.0, 0.0,
             ],
             dtype=np.float32,
         )
     )
+    # fmt: on
     vao: int = 0
     vbo: int = 0
     shader: int = 0
@@ -172,29 +162,19 @@ class Paddle:
         # need 6 vertices instead of 4
         vertices = self.vertices
         self.numberOfVertices = np.size(vertices) // floatsPerVertex
+        # fmt: off
         color = np.array(
             [
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
+                self.r, self.g, self.b,
+                self.r, self.g, self.b,
+                self.r, self.g, self.b,
+                self.r, self.g, self.b,
+                self.r, self.g, self.b,
+                self.r, self.g, self.b,
             ],
             dtype=np.float32,
         )
+        # fmt: on
         self.numberOfColors = np.size(color) // floatsPerColor
 
         self.vao = glGenVertexArrays(1)

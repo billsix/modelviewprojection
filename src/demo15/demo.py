@@ -185,13 +185,11 @@ paddle2: Paddle = Paddle(
 )
 
 
-def _default_camera_position() -> Vertex:
-    return Vertex(x=0.0, y=0.0, z=0.0)
-
-
 @dataclass
 class Camera:
-    position_worldspace: Vertex = field(default_factory=_default_camera_position)
+    position_worldspace: Vertex = field(
+        default_factory=lambda: Vertex(x=0.0, y=0.0, z=0.0)
+    )
 
 
 camera: Camera = Camera()

@@ -136,32 +136,6 @@ glDepthFunc(GL_LESS)
 glEnable(GL_DEPTH_TEST)
 
 
-def _paddle_vertices() -> ndarray:
-    return np.array(
-        [
-            -10.0,
-            -30.0,
-            0.0,
-            10.0,
-            -30.0,
-            0.0,
-            10.0,
-            30.0,
-            0.0,
-            10.0,
-            30.0,
-            0.0,
-            -10.0,
-            30.0,
-            0.0,
-            -10.0,
-            -30.0,
-            0.0,
-        ],
-        dtype=np.float32,
-    )
-
-
 @dataclass
 class Paddle:
     r: float
@@ -169,7 +143,19 @@ class Paddle:
     b: float
     position: any
     rotation: float = 0.0
-    vertices: np.array = field(default_factory=_paddle_vertices)
+    # fmt: off
+    vertices: np.array = field(default_factory=lambda: np.array(
+        [
+            -10.0, -30.0, 0.0,
+            10.0, -30.0, 0.0,
+            10.0, 30.0, 0.0,
+            10.0, 30.0, 0.0,
+            -10.0, 30.0, 0.0,
+            -10.0, -30.0, 0.0,
+        ],
+        dtype=np.float32,
+    ))
+    # fmt: on
     vao: int = 0
     vbo: int = 0
     shader: int = 0
@@ -338,24 +324,22 @@ paddle2 = Paddle(
 paddle2.prepare_to_render()
 
 
-def _square_vertices() -> ndarray:
-    return np.array(
-        [
-            [-5.0, -5.0, 0.0],
-            [5.0, -5.0, 0.0],
-            [5.0, 5.0, 0.0],
-            [5.0, 5.0, 0.0],
-            [-5.0, 5.0, 0.0],
-            [-5.0, -5.0, 0.0],
-        ],
-        dtype=np.float32,
-    )
-
-
 @dataclass
 class Square(Paddle):
     rotation_around_paddle1: float = 0.0
-    vertices: np.array = field(default_factory=_square_vertices)
+    vertices: np.array = field(
+        default_factory=lambda: np.array(
+            [
+                [-5.0, -5.0, 0.0],
+                [5.0, -5.0, 0.0],
+                [5.0, 5.0, 0.0],
+                [5.0, 5.0, 0.0],
+                [-5.0, 5.0, 0.0],
+                [-5.0, -5.0, 0.0],
+            ],
+            dtype=np.float32,
+        )
+    )
 
 
 square = Square(r=0.0, g=0.0, b=1.0, position=np.array([0.0, 0.0, 0.0]))
