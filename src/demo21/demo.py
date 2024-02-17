@@ -135,20 +135,6 @@ if __enable_blend__:
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
 
 
-def _default_paddle_verticies() -> np.array:
-    return np.array(
-        [
-            [-10.0, -30.0, 0.0],
-            [10.0, -30.0, 0.0],
-            [10.0, 30.0, 0.0],
-            [10.0, 30.0, 0.0],
-            [-10.0, 30.0, 0.0],
-            [-10.0, -30.0, 0.0],
-        ],
-        dtype=np.float32,
-    )
-
-
 @dataclass
 class Paddle:
     r: float
@@ -156,7 +142,19 @@ class Paddle:
     b: float
     position: any
     rotation: float = 0.0
-    vertices: np.array = field(default_factory=_default_paddle_verticies)
+    vertices: np.array = field(
+        default_factory=lambda: np.array(
+            [
+                [-10.0, -30.0, 0.0],
+                [10.0, -30.0, 0.0],
+                [10.0, 30.0, 0.0],
+                [10.0, 30.0, 0.0],
+                [-10.0, 30.0, 0.0],
+                [-10.0, -30.0, 0.0],
+            ],
+            dtype=np.float32,
+        )
+    )
 
     vao: int = 0
     vbo: int = 0

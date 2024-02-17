@@ -319,7 +319,7 @@ class FunctionStack:
     def clear(self):
         self.stack.clear()
 
-    def apply_stack(self, vertex: Vertex) -> Vertex:
+    def modelspace_to_ndc(self, vertex: Vertex) -> Vertex:
         v = vertex
         for fn in reversed(self.stack):
             v = fn(v)
@@ -414,7 +414,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        ndc_space = fn_stack.apply_stack(model_space)
+        ndc_space = fn_stack.modelspace_to_ndc(model_space)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
     # doc-region-end 6b57a4425b47582cdfb194a1c2fbb3ac9a17a163
@@ -429,7 +429,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in square:
-        ndc_space = fn_stack.apply_stack(model_space)
+        ndc_space = fn_stack.modelspace_to_ndc(model_space)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
     # doc-region-end 87d309a76468a5dd49f5805f739932d7a1b4dac1
@@ -454,7 +454,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        ndc_space: Vertex = fn_stack.apply_stack(model_space)
+        ndc_space: Vertex = fn_stack.modelspace_to_ndc(model_space)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
     # doc-region-end 9206a08662c91ad536b41641910f7e8e951f7c9e
@@ -494,43 +494,43 @@ def add_5(x):
 # doc-region-begin 6e7a7ee4a8493ddc6478bcaf2dbb6fb4a2a9753a
 fn_stack.push(identity)
 print(fn_stack)
-print(fn_stack.apply_stack(1))  # x = 1
+print(fn_stack.modelspace_to_ndc(1))  # x = 1
 # doc-region-end 6e7a7ee4a8493ddc6478bcaf2dbb6fb4a2a9753a
 
 # doc-region-begin ccac3b1b9bc8c759e45929c467274c763f7671c7
 fn_stack.push(add_one)
 print(fn_stack)
-print(fn_stack.apply_stack(1))  # x + 1 = 2
+print(fn_stack.modelspace_to_ndc(1))  # x + 1 = 2
 # doc-region-end ccac3b1b9bc8c759e45929c467274c763f7671c7
 
 # doc-region-begin 24f3367f7ffaefa3d882a20f772ce7f089049391
 fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
 print(fn_stack)
-print(fn_stack.apply_stack(1))
+print(fn_stack.modelspace_to_ndc(1))
 # doc-region-end 24f3367f7ffaefa3d882a20f772ce7f089049391
 ArithmeticError
 # doc-region-begin b2d4aee29938ffba8e023e2d523e5a8b7b400bee
 fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
 print(fn_stack)
-print(fn_stack.apply_stack(1))
+print(fn_stack.modelspace_to_ndc(1))
 # doc-region-end b2d4aee29938ffba8e023e2d523e5a8b7b400bee
 
 # doc-region-begin 95d6bcea04206261224089df1734055b9b4196d3
 fn_stack.pop()
 print(fn_stack)
-print(fn_stack.apply_stack(1))  # (x * 2) + 1 = 3
+print(fn_stack.modelspace_to_ndc(1))  # (x * 2) + 1 = 3
 # doc-region-end 95d6bcea04206261224089df1734055b9b4196d3
 
 # doc-region-begin 55dd21f698dbbde5bd5d1b332279d099a315f771
 fn_stack.pop()
 print(fn_stack)
-print(fn_stack.apply_stack(1))  # x + 1 = 2
+print(fn_stack.modelspace_to_ndc(1))  # x + 1 = 2
 # doc-region-end 55dd21f698dbbde5bd5d1b332279d099a315f771
 
 # doc-region-begin e09b968f9c8a2f9db13475d1c9ac310d94e54a2a
 fn_stack.pop()
 print(fn_stack)
-print(fn_stack.apply_stack(1))  # x = 1
+print(fn_stack.modelspace_to_ndc(1))  # x = 1
 # doc-region-end e09b968f9c8a2f9db13475d1c9ac310d94e54a2a
 
 glfw.terminate()
