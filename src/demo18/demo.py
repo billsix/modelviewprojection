@@ -319,15 +319,12 @@ class FunctionStack:
     def clear(self):
         self.stack.clear()
 
-    # doc-region-begin b10a3979fe71e9a6afb18fa102ceb44ab253abc6
     def apply_stack(self, vertex: Vertex) -> Vertex:
         v = vertex
         for fn in reversed(self.stack):
             v = fn(v)
         return v
 
-
-# doc-region-end b10a3979fe71e9a6afb18fa102ceb44ab253abc6
 
 fn_stack = FunctionStack()
 # doc-region-end 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842

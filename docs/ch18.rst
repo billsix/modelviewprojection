@@ -182,29 +182,17 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-function stack.  The bottom of the stack has
-the low index, the top of the stack has the highest
-index
+Function stack.  Internally it has a list, where index 0 is
+the bottom of the stack.  In python we can store any object
+as a variable, and we will be storing functions which transform
+a vertex to another vertex, through the "apply_stack" method.
+
+
 
 .. literalinclude:: ../src/demo18/demo.py
    :language: python
    :start-after: doc-region-begin 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842
    :end-before: doc-region-end 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842
-
-
-
-
-Given an input vertex, apply the function at the top
-of the stack to the vertex, capture the output vertex,
-to be used as input to the next lower function on the
-stack.  Continue doing this until we get the value
-returned from the function at the bottom of the stack.
-
-.. literalinclude:: ../src/demo18/demo.py
-   :language: python
-   :start-after: doc-region-begin b10a3979fe71e9a6afb18fa102ceb44ab253abc6
-   :end-before: doc-region-end b10a3979fe71e9a6afb18fa102ceb44ab253abc6
-
 
 
 There is an example at the bottom of src/demo18/demo.py
