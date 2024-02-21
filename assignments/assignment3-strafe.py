@@ -48,7 +48,7 @@ from OpenGL.GL import (
 )
 import glfw
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 if not glfw.init():
@@ -195,12 +195,27 @@ class Vertex:
 
 @dataclass
 class Paddle:
-    vertices: list[Vertex]
     r: float
     g: float
     b: float
     position: Vertex
     rotation: float = 0.0
+    vertices: list[Vertex] = field(
+        default_factory=lambda: [
+            -10.0,
+            -30.0,
+            0.0,
+            10.0,
+            -30.0,
+            0.0,
+            10.0,
+            30.0,
+            0.0,
+            -10.0,
+            30.0,
+            0.0,
+        ]
+    )
 
 
 paddle1: Paddle = Paddle(
@@ -235,7 +250,9 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 @dataclass
 class Camera:
-    position_worldspace: Vertex = Vertex(x=0.0, y=0.0, z=400.0)
+    position_worldspace: Vertex = field(
+        default_factory=lambda: Vertex(x=0.0, y=0.0, z=400.0)
+    )
     rot_y: float = 0.0
     rot_x: float = 0.0
 
