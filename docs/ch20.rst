@@ -26,7 +26,8 @@ Purpose
 ^^^^^^^
 
 Learn what "shaders" are, with a brief introduction to how
-to use them in OpenGL 2.0.
+to use them in OpenGL 2.1.
+
 
 
 
@@ -65,39 +66,98 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
+In the previous demo, in the footnote, we found that "glVertex"
+did a lot behind the scenes, sneakily grabbing data from the matrix
+stacks and the current color (and lots of other things we haven't covered in
+this book, like texturing and lighting).
+
+What did the graphics driver do with the data?  This older style of graphics
+programming is called "fixed-function" graphings programming, in that we can
+tweak some values, but the graphics card and it's driver are going to do
+whatever they were programmed to, and we can't control it.  Kind of like having
+a graphicing calculator, but not having the ability to program it - OpenGL is
+in control at this point, and we can just parameterize it.
+
+Programmers wanted more control, first over how lighting works (which we don't
+cover in this book).  Rather than having 3 or so lighting models to choose from,
+the programmers wanted to be able to specify the math of how their custom
+lighting worked.  So OpenGL 2.1 allowed the programmer to create "shaders",
+which I believe were called such because they allow the programmer to change
+the "shade" of a fragment [1]_.
+
+In this demo, we keep most of the code from the previous demo the same,
+we just add in programmable shaders.  So the calls to "glVertex"
+are no longer a black box, in which something happens of the graphics card;
+instead, before sending modelspace data to the graphics card, we program
+a sequence of transformations that happen on the graphics card per vertex,
+which a driver could implement in parallel.
+
+We have some new imports, "glUseProgram", "GL_VERTEX_SHADER", "GL_FRAGMENT_SHADER"
 
 .. literalinclude:: ../src/demo20/demo.py
    :language: python
    :start-after: doc-region-begin c731ca97ef15896c876effbafec9d52a1354375f
    :end-before: doc-region-end c731ca97ef15896c876effbafec9d52a1354375f
 
+We now ask the OpenGL driver to accept OpenGL 2.1 function calls.
+
 .. literalinclude:: ../src/demo20/demo.py
    :language: python
    :start-after: doc-region-begin b05eee9a50507de99ecad16ffa3af2da709b361a
    :end-before: doc-region-end b05eee9a50507de99ecad16ffa3af2da709b361a
 
+Before the event loop starts, we send two mini programs to the GPU, the vertex
+shader and the fragment shader.  The purpose of the vertex shader is to transform
+the modelspace data to clip-space (x,y,z,w), where to get NDC you would divide
+by the w; i.e. (x/w,y/w,z/w,1)
+
+I like to think of a matrix multiplication to a vector as a "function-application",
+in the same way we did in the lambda stack.
 
 .. literalinclude:: ../src/demo20/demo.py
    :language: python
    :start-after: doc-region-begin e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
    :end-before: doc-region-end e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
 
+In the vertex shader, there are a lot of predefined variable names with values
+provided to us. "gl_Modelview_matrix" is the matrix at the top of the modelview
+matrix stack at the time "glVertex" is called, "glProjectionMatrix" is the top of
+the projection matrix stack (although there is typically only one).  "glColor"
+is the color that was defined for this vertex by calling "glColor3f".
+
+In OpenGL 2.1, the output of the vertex shader that we use here is "glFrontColor",
+which is a variable name that we must use to get the data to the fragment shader,
+which we haven't covered.  (Actually there are a bunch of other predefined variable
+outputs, including "glBackColor", for the case that we are looking at the back face
+of the geometry.
+
 .. literalinclude:: ../src/demo20/triangle.vert
    :language: glsl
+
+This is the fragment shader.  Unlike the vertex shader, which took an vertex in (x,y,z)
+and outputed clipspace (NDC), the fragment shader for a given pixel is determining
+the color [2]_.  Is "glColor" in the fragment shader the same "glColor" from the vertex
+shader, or is it the value of the vertex shader's output "glFrontColor"?  Honestly,
+the author doesn't know, but it's set to the output of the fragment shader,
+and such questions are a moot point once we get to OpenGL 3.3 Core profile
+in the next section.
+
 
 .. literalinclude:: ../src/demo20/triangle.frag
    :language: glsl
 
+The explict mapping of variable names to values in OpenGL 3.3 Core Profile
+will make the flow of data from the CPU program, to the GPU vertex shader,
+to the fragment shader much more clear, albeit at the expense of verbosity.
 
 
+.. [1] To note.  The word "shader" now just means a small function
+       the executes on the GPU.  Taylor Swift would not write a song
+       saying "A Shader's gonna shade shade shade shade", because shaders
+       do all sorts of things now, like transformations of vertices
+       from modelspace to clip-space, or adding new geometry in the
+       middle of the graphic transformation pipeline.
 
-
-Code
-^^^^
-
-
-
-
-
-The Event Loop
-~~~~~~~~~~~~~~
+.. [2] We are not yet concerned about how the rasterization process works,
+       and the linear interpolation of color, normals, etc.  Online
+       resources like "LearnOpenGL" and "PortableGL" cover this.

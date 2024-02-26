@@ -29,6 +29,37 @@ Replace lambda stacks with OpenGL 2.1 matrix stacks, provided
 by the driver for your graphics card.  This is how preshader
 opengl worked.
 
+The function stack allowed us to aggregate the entirety of
+the transformations from modelspace to NDC, by creating a context
+of transformations, and a function to do the conversion.  We then
+needed to push or pop functions from the stack, depending on what
+space transition we were currently dealing with.
+
+A given matrix in OpenGL2.1 is the equivalent of a function stack;
+given one matrix, it can perform a sequence of transformations
+from one space to another, with one matrix multiplication.
+
+OpenGL 2.1 deals with two different types of matricies: 1) the projection
+matrix, which effectively is the function from camera space
+to NDC (clip space) and 2) The modelview matrix, which deals
+with the transformations from model space to camera space.
+
+Given that a matrix can perform a sequence of transformations
+across multiple spaces in the Cayley graph, it may appear
+that we no longer need any notion of a stack, as we had in the function
+stacks.  But that is not true.  For the ModelView matrix, we still
+need a stack of matricies, so that we can return to a previous
+transformation sequence.  For instance, if we are at world space,
+the ModelView matrix at the top of the matrix stack will convert
+from world space to camera space.  But we need to draw two relative
+child spaces to world space, paddle 1 space and paddle 2 space.
+So before we do the transformations to paddle 1 space, we "push"
+a copy of the current modelview matrix to the top of the modelview
+matrix stack, so that after we draw paddle 1 and the square, we can
+"pop" that matrix off, leaving us the matrix at the top of the
+modelview matrix stack that represents world space, so that
+we can then begin to transform to paddle 2 space.
+
 The concepts behind the function stack, in which the first function
 added to the stack is the last function applied, hold true for
 matricies as well.  But matricies are a much more efficient
@@ -86,12 +117,12 @@ Description
 
 
 First thing to note is that we are now using OpenGL 2.1's official transformation
-procedures, and in the perspective transformation, they flip the z axis, making
+procedures, and in the projection transformation, they flip the z axis, making
 it a left hand coordinate system.  The reason for this is long, and I
 have begun discusses in the "Standard Perspective Matrix" section, but it's an
 incomplete section for now.
 But for now, all it means that we have to change how the depth test
-will be configured, as after the perspective transformation, the far z
+will be configured, as after the projection transformation, the far z
 value is 1.0, and the near z value is -1
 
 The clear depth that is set for each fragment each frame is now 1.0,
@@ -126,7 +157,7 @@ In univariate terms, f(x) = x
 
 
 
-change the perspective matrix to convert the frustum
+change the projection matrix to convert the frustum
 to clip space
 set the projection matrix to be perspective.  Since
 the viewport is always square, set the aspect ratio to be 1.0.
@@ -145,9 +176,16 @@ in the next chapter.
    :start-after: doc-region-begin 9ea567ab2aefadcd20e817f9bff4d13cb9dd56dc
    :end-before: doc-region-end 9ea567ab2aefadcd20e817f9bff4d13cb9dd56dc
 
+"glMatrixMode" tells the computer which matrix stack should be the active one,
+against which subsequent matrix operations which affect.  In this case, we set
+the current matrix stack to be the projection one.  We then call "gluPerspective"
+to set the projection transformation, which we covered in previous sections,
+and we will ignore the implementation of it; it's now a black box.
 
+Now onto camera space!
 
-The camera's position is described as follows
+The camera's position could be described relative to world space by
+the following sequence of transformations.
 
 ::
 
@@ -167,11 +205,23 @@ do the inverse operations to the view stack.
    :start-after: doc-region-begin bfe75259546e2177c77becae6c668c2dfc785410
    :end-before: doc-region-end bfe75259546e2177c77becae6c668c2dfc785410
 
+First thing we did was set the current matrix to be the modelview matrix, instead
+of the projection matrix.  Most of our work will be with the modelview matrix,
+as looking at the Cayley graph, there's only one function from camera space
+to NDC.  N.B., OpenGL 2.1 transformations use degrees, not radians, so
+we need to convert to degrees.
 
 
 
-Each call above actually modifies the matrix at the top of the modelview stack of matricies, as matricies
+
+Unlike in the lambda stack demo, in which a new function was added to the
+top of the stack, without modifying any functions below it on the stack,
+with OpenGL matricies, each transformation, such as translate, rotate, and scale,
+actually destructively modifies the matrix at the top of the stack, as matricies
 can be premultiplied together for efficiency.
+
+In linear algebra terms, the matrix multiplication takes place, but then the resulting
+values of the matrix replace the values of the matrix at the top of the stack.
 
 ::
 
@@ -195,12 +245,10 @@ This is what glPushMatrix, and glPopMatrix do.
 save onto the current coordinate system for later drawing modelspace
 data.
 
-The model stack is currently the identity matrix, meaning
-it does nothing.  The view and the projection matrix
-are set to transform from world space into camera space,
-and then take the frustum and convert it to NDC.
-
-Save onto the current model stack, so that paddle 2 can be drawn relative
+The modelview matrix stack is currently the transformation from world space into camera space.
+Since we now have to draw paddle 1, the square, and paddle 2,
+save onto the current modelview stack, to hold onto world space, so that after
+we draw paddle 1 and the square, we can restore the world space, so that paddle 2 can be drawn relative
 to it.
 
 .. literalinclude:: ../src/demo19/demo.py
@@ -213,20 +261,19 @@ to it.
 draw paddle 1
 ~~~~~~~~~~~~~
 
-Unlike in previous demos, because the transformations
-are on a stack, the fns on the model stack can
+Unlike in previous demos before the lambda stack, because the transformations
+are now on a stack, the functions on the model stack can
 be read forwards, where each operation translates/rotates/scales
-the current space
+the current space.
 
 glVertex data is specified in modelspace coordinates,
 but since we loaded the projection matrix and the modelview
-matrix into OpenGL, glVertex3f will apply those transformations for us!
+matrix into OpenGL, glVertex3f will apply those transformations for us [1]_!
 
 .. literalinclude:: ../src/demo19/demo.py
    :language: python
    :start-after: doc-region-begin 62fb018739e5043758a40caf704d4c79cd39f17d
    :end-before: doc-region-end 62fb018739e5043758a40caf704d4c79cd39f17d
-
 
 
 
@@ -246,14 +293,34 @@ the square's 3 model_space transformations
    :end-before: doc-region-end c2745ed5d713d331622335395a5c08d6d15f7de9
 
 
+
+draw paddle 2
+~~~~~~~~~~~~~
+
 No need to push matrix here, as this is the last object that
 we are drawing, and upon the next iteration of the event loop,
 all 3 matricies will be reset to the identity
 
-draw paddle 2
-~~~~~~~~~~~~~
 
 .. literalinclude:: ../src/demo19/demo.py
    :language: python
    :start-after: doc-region-begin 1390df52e4311c23a50fc61a3e197f7c6e8ed593
    :end-before: doc-region-end 1390df52e4311c23a50fc61a3e197f7c6e8ed593
+
+
+
+.. [1] To note.  The computer has no notion of these relative coordinate systems.
+       From the computer's point of view, there is one coordinate system, (x,y,z,w).
+       So now let's look at what the OpenGL drawing calls are in more detail, and think
+       about what they must do.  "glBegin(GL_QUADS)", 4 calls to "glVertex", and "glEnd".
+       "glVertex", given modelspace data, must pull 2 matricies from OpenGL's matrix stacks,
+       the modelview and the projection.  It then does two transformations to turn
+       the modelspace data in NDC (clip-space, where the x y and z are each divided by the w to get
+       NDC).  From this point of view, there are no relative coordinate systems, just numbers
+       in and numbers out.  So then what do glBegin and glEnd do?  This will
+       be a subject for after the midterm, but the 4 vertices will be converted to screen space,
+       given the matricies, and when "glEnd" is called, the graphics driver will need to determine
+       what pixels are within the quadriteral or not.  For the fragments within the quadralateral,
+       the driver will also need to know the color of the vertex.  So glVertex is doing a lot behind
+       the scenes, grabbing the modelview and the projection matricies from the top of the stack,
+       grabbing the current color, set by "glColor3f".
