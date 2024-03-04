@@ -1255,13 +1255,20 @@ while not glfw.window_should_close(window):
         farZ=10000.0,
     )
 
-    # note - opengl matricies use degrees
-    if view_ndc:
-        ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
-        ms.rotate_x(ms.MatrixStack.view, camera.rot_x)
-        ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
+    # camera management
+    # make 3rd person camera centered on something
 
+    # draw around center of world space, like being centered
+    # on a player running around a world in a 3D, 3rd person
+    # camera
+    ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
+    ms.rotate_x(ms.MatrixStack.view, camera.rot_x)
+    ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
+
+    # but if the user selected view paddle 1 or view square, add
+    # center on them
     if view_paddle1 or view_square:
+        # center on square
         if view_square:
             ms.rotate_z(
                 ms.MatrixStack.model,
@@ -1284,6 +1291,7 @@ while not glfw.window_should_close(window):
                 5.0,
             )
 
+        # center on paddle 1
         ms.rotate_z(
             ms.MatrixStack.model,
             -paddle1.rotation,
@@ -1295,13 +1303,7 @@ while not glfw.window_should_close(window):
             0.0,
         )
 
-        ms.translate(
-            ms.MatrixStack.model,
-            0.0,
-            0.0,
-            -100.0,
-        )
-
+    # center on paddle
     if view_paddle2:
         ms.rotate_z(
             ms.MatrixStack.model,
@@ -1312,13 +1314,6 @@ while not glfw.window_should_close(window):
             -paddle2.position[0],
             -paddle2.position[1],
             0.0,
-        )
-
-        ms.translate(
-            ms.MatrixStack.model,
-            0.0,
-            0.0,
-            -100.0,
         )
 
     # draw NDC in global space, so that we can see the camera space
