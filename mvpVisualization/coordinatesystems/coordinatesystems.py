@@ -1078,7 +1078,7 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera = Camera(r=250.0, rot_y=math.radians(45.0), rot_x=math.radians(35.264))
+camera = Camera(r=250.0, rot_y=math.radians(45.0), rot_x=math.radians(-35.264))
 
 
 square_rotation = math.radians(0.0)
@@ -1098,9 +1098,9 @@ def handle_inputs(previous_mouse_position) -> None:
 
     move_multiple = 15.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.rot_y -= math.radians(1.0) % 360.0
-    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
         camera.rot_y += math.radians(1.0) % 360.0
+    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
+        camera.rot_y -= math.radians(1.0) % 360.0
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera.rot_x -= math.radians(1.0) % 360.0
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -1133,7 +1133,7 @@ def handle_inputs(previous_mouse_position) -> None:
     if glfw.PRESS == glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT):
         if not imguiio.want_capture_mouse:
             if previous_mouse_position:
-                camera.rot_y -= 0.2 * math.radians(
+                camera.rot_y += 0.2 * math.radians(
                     new_mouse_position[0] - previous_mouse_position[0]
                 )
                 camera.rot_x += 0.2 * math.radians(
@@ -1262,7 +1262,7 @@ while not glfw.window_should_close(window):
     # on a player running around a world in a 3D, 3rd person
     # camera
     ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
-    ms.rotate_x(ms.MatrixStack.view, camera.rot_x)
+    ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
 
     # but if the user selected view paddle 1 or view square, add
