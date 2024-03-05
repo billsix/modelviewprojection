@@ -1165,10 +1165,10 @@ animation_time_multiplier = 1.0
 animation_paused = False
 enlarged_axis = True
 
-view_ndc = True
-view_paddle1 = False
-view_square = False
-view_paddle2 = False
+center_view_on_ndc = True
+center_view_on_paddle1 = False
+center_view_on_square = False
+center_view_on_paddle2 = False
 
 
 # local variable for event loop
@@ -1205,7 +1205,7 @@ while not glfw.window_should_close(window):
 
     imgui.begin("Camera Control", True)
 
-    if view_ndc:
+    if center_view_on_ndc:
         clicked_camera, camera.r = imgui.slider_float(
             "Camera Radius", camera.r, 10, 1000.0
         )
@@ -1214,25 +1214,25 @@ while not glfw.window_should_close(window):
     )
 
     if imgui.button("NDC"):
-        view_ndc = True
-        view_paddle1 = False
-        view_square = False
-        view_paddle2 = False
+        center_view_on_ndc = True
+        center_view_on_paddle1 = False
+        center_view_on_square = False
+        center_view_on_paddle2 = False
     if imgui.button("Paddle 1"):
-        view_ndc = False
-        view_paddle1 = True
-        view_square = False
-        view_paddle2 = False
+        center_view_on_ndc = False
+        center_view_on_paddle1 = True
+        center_view_on_square = False
+        center_view_on_paddle2 = False
     if imgui.button("Square"):
-        view_ndc = False
-        view_paddle1 = False
-        view_square = True
-        view_paddle2 = False
+        center_view_on_ndc = False
+        center_view_on_paddle1 = False
+        center_view_on_square = True
+        center_view_on_paddle2 = False
     if imgui.button("Paddle 2"):
-        view_ndc = False
-        view_paddle1 = False
-        view_square = False
-        view_paddle2 = True
+        center_view_on_ndc = False
+        center_view_on_paddle1 = False
+        center_view_on_square = False
+        center_view_on_paddle2 = True
 
     imgui.end()
 
@@ -1267,9 +1267,9 @@ while not glfw.window_should_close(window):
 
     # but if the user selected view paddle 1 or view square, add
     # center on them
-    if view_paddle1 or view_square:
+    if center_view_on_paddle1 or center_view_on_square:
         # center on square
-        if view_square:
+        if center_view_on_square:
             ms.rotate_z(
                 ms.MatrixStack.model,
                 -square_rotation,
@@ -1304,7 +1304,7 @@ while not glfw.window_should_close(window):
         )
 
     # center on paddle
-    if view_paddle2:
+    if center_view_on_paddle2:
         ms.rotate_z(
             ms.MatrixStack.model,
             -paddle2.rotation,
