@@ -1,5 +1,9 @@
-import sys
 import math
+import sys
+from collections.abc import Callable
+
+import glfw
+import numpy as np
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -22,10 +26,6 @@ from OpenGL.GL import (
     glVertex2f,
     glViewport,
 )
-import glfw
-import numpy as np
-from collections.abc import Callable
-
 
 if not glfw.init():
     sys.exit()

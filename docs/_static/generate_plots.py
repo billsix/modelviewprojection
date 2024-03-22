@@ -18,17 +18,17 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
+import itertools
 import math
 import sys
-import itertools
-import imageio
+from collections import namedtuple
 
+import imageio
+import matplotlib
+import matplotlib.pyplot as plt
+import numpy as np
 import plotutils.generategridlines as generategridlines
 import plotutils.mpltransformations as mplt
-from collections import namedtuple
 
 if __name__ != "__main__":
     sys.exit(0)
@@ -104,16 +104,20 @@ def accumulate_transformation(procedures, backwards=False):
         for number_of_fns_to_apply_this_round in [
             x + 1 for x in range(len(procedures))
         ]:
-            yield python_scoping_is_dumb(
-                range(number_of_fns_to_apply_this_round), procedures
-            ), len(procedures) - number_of_fns_to_apply_this_round
+            yield (
+                python_scoping_is_dumb(
+                    range(number_of_fns_to_apply_this_round), procedures
+                ),
+                len(procedures) - number_of_fns_to_apply_this_round,
+            )
     else:
         reversed_procs = list(range(len(procedures)))
         reversed_procs.reverse()
         for proc_index in reversed_procs:
-            yield python_scoping_is_dumb(
-                range(proc_index, len(procedures)), procedures
-            ), proc_index
+            yield (
+                python_scoping_is_dumb(range(proc_index, len(procedures)), procedures),
+                proc_index,
+            )
 
 
 import doctest

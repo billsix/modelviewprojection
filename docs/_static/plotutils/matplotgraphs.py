@@ -18,15 +18,14 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import numpy as np
-import matplotlib
-import matplotlib.pyplot as plt
 import math
 import sys
 
 import generategridlines
+import matplotlib
+import matplotlib.pyplot as plt
 import mpltransformations as mplt
-
+import numpy as np
 
 matplotlib.use("TkAgg")
 

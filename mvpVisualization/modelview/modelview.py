@@ -50,7 +50,6 @@ from OpenGL.GL import (
     glViewport,
 )
 
-
 if not glfw.init():
     sys.exit()
 

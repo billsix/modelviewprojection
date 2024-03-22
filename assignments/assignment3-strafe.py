@@ -20,8 +20,12 @@
 
 
 from __future__ import annotations  # to appease Python 3.7-3.9
-import sys
+
 import math
+import sys
+from dataclasses import dataclass, field
+
+import glfw
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -46,10 +50,6 @@ from OpenGL.GL import (
     glVertex3f,
     glViewport,
 )
-import glfw
-
-from dataclasses import dataclass, field
-
 
 if not glfw.init():
     sys.exit()

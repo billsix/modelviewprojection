@@ -20,36 +20,37 @@
 
 
 from __future__ import annotations  # to appease Python 3.7-3.9
-import sys
+
 import math
+import sys
+from dataclasses import dataclass, field
+from typing import Callable, List
+
+import glfw
 from OpenGL.GL import (
-    glMatrixMode,
-    glLoadIdentity,
-    GL_PROJECTION,
-    GL_MODELVIEW,
-    glClear,
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
-    glViewport,
-    glClearColor,
-    glColor3f,
-    glBegin,
-    GL_QUADS,
-    glEnd,
-    glEnable,
-    GL_SCISSOR_TEST,
-    glScissor,
-    glDisable,
-    glVertex3f,
-    glClearDepth,
-    glDepthFunc,
-    GL_GREATER,
     GL_DEPTH_TEST,
+    GL_GREATER,
+    GL_MODELVIEW,
+    GL_PROJECTION,
+    GL_QUADS,
+    GL_SCISSOR_TEST,
+    glBegin,
+    glClear,
+    glClearColor,
+    glClearDepth,
+    glColor3f,
+    glDepthFunc,
+    glDisable,
+    glEnable,
+    glEnd,
+    glLoadIdentity,
+    glMatrixMode,
+    glScissor,
+    glVertex3f,
+    glViewport,
 )
-import glfw
-
-from dataclasses import dataclass, field
-from typing import List, Callable
 
 if not glfw.init():
     sys.exit()

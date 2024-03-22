@@ -20,31 +20,29 @@
 
 
 from __future__ import annotations  # to appease Python 3.7-3.9
-import sys
+
 import math
-from OpenGL.GL import (
-    glMatrixMode,
-    glLoadIdentity,
-    GL_PROJECTION,
-    GL_MODELVIEW,
-    glClear,
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    glViewport,
-    glClearColor,
-    glColor3f,
-    glBegin,
-    GL_QUADS,
-    glVertex2f,
-    glEnd,
-)
-
-from OpenGL.GLU import gluOrtho2D
-
-import glfw
-
+import sys
 from dataclasses import dataclass, field
 
+import glfw
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_MODELVIEW,
+    GL_PROJECTION,
+    GL_QUADS,
+    glBegin,
+    glClear,
+    glClearColor,
+    glColor3f,
+    glEnd,
+    glLoadIdentity,
+    glMatrixMode,
+    glVertex2f,
+    glViewport,
+)
+from OpenGL.GLU import gluOrtho2D
 
 KEEP_ASPECT_RATIO = False
 

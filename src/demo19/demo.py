@@ -20,42 +20,42 @@
 
 
 from __future__ import annotations  # to appease Python 3.7-3.9
-import sys
-import numpy as np
+
 import math
+import sys
+from dataclasses import dataclass, field
+
+import glfw
+import numpy as np
 from OpenGL.GL import (
-    glMatrixMode,
-    glLoadIdentity,
-    GL_PROJECTION,
-    GL_MODELVIEW,
-    glClear,
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
-    glViewport,
-    glClearColor,
-    glColor3f,
-    glBegin,
-    GL_QUADS,
-    glEnd,
-    glEnable,
-    GL_SCISSOR_TEST,
-    glScissor,
-    glDisable,
-    glVertex3f,
-    glClearDepth,
-    glDepthFunc,
     GL_DEPTH_TEST,
     GL_LEQUAL,
-    glRotatef,
-    glTranslate,
-    glPushMatrix,
+    GL_MODELVIEW,
+    GL_PROJECTION,
+    GL_QUADS,
+    GL_SCISSOR_TEST,
+    glBegin,
+    glClear,
+    glClearColor,
+    glClearDepth,
+    glColor3f,
+    glDepthFunc,
+    glDisable,
+    glEnable,
+    glEnd,
+    glLoadIdentity,
+    glMatrixMode,
     glPopMatrix,
+    glPushMatrix,
+    glRotatef,
+    glScissor,
+    glTranslate,
+    glVertex3f,
+    glViewport,
 )
 from OpenGL.GLU import gluPerspective
-import glfw
-
-
-from dataclasses import dataclass, field
 
 if not glfw.init():
     sys.exit()

@@ -19,63 +19,62 @@
 # SOFTWARE.
 
 from __future__ import annotations  # to appease Python 3.7-3.9
-import sys
-import os
-import numpy as np
-import math
-from OpenGL.GL import (
-    glClear,
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    glViewport,
-    glClearColor,
-    glEnable,
-    glDisable,
-    glClearDepth,
-    glDepthFunc,
-    GL_DEPTH_TEST,
-    GL_LEQUAL,
-    GL_TRUE,
-    GL_BLEND,
-    glBlendFunc,
-    GL_SRC_ALPHA,
-    GL_ONE_MINUS_SRC_ALPHA,
-    glGenVertexArrays,
-    glBindVertexArray,
-    GL_VERTEX_SHADER,
-    GL_FRAGMENT_SHADER,
-    glGenBuffers,
-    glBindBuffer,
-    GL_ARRAY_BUFFER,
-    glGetAttribLocation,
-    glEnableVertexAttribArray,
-    glVertexAttribPointer,
-    GL_FLOAT,
-    glBufferData,
-    GL_STATIC_DRAW,
-    glUseProgram,
-    glGetUniformLocation,
-    glUniformMatrix4fv,
-    glDrawArrays,
-    GL_LINES,
-    GL_TRIANGLES,
-    glDeleteVertexArrays,
-    glDeleteBuffers,
-    glDeleteProgram,
-)
-
-from dataclasses import dataclass, field
 
 import ctypes
+import math
+import os
+import sys
+from dataclasses import dataclass, field
+
+import glfw
+import imgui
+import numpy as np
 
 # new - SHADERS
 import OpenGL.GL.shaders as shaders
-import glfw
 import pyMatrixStack as ms
-
-import imgui
-from imgui.integrations.glfw import GlfwRenderer
 import staticlocal
+from imgui.integrations.glfw import GlfwRenderer
+from OpenGL.GL import (
+    GL_ARRAY_BUFFER,
+    GL_BLEND,
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_DEPTH_TEST,
+    GL_FLOAT,
+    GL_FRAGMENT_SHADER,
+    GL_LEQUAL,
+    GL_LINES,
+    GL_ONE_MINUS_SRC_ALPHA,
+    GL_SRC_ALPHA,
+    GL_STATIC_DRAW,
+    GL_TRIANGLES,
+    GL_TRUE,
+    GL_VERTEX_SHADER,
+    glBindBuffer,
+    glBindVertexArray,
+    glBlendFunc,
+    glBufferData,
+    glClear,
+    glClearColor,
+    glClearDepth,
+    glDeleteBuffers,
+    glDeleteProgram,
+    glDeleteVertexArrays,
+    glDepthFunc,
+    glDisable,
+    glDrawArrays,
+    glEnable,
+    glEnableVertexAttribArray,
+    glGenBuffers,
+    glGenVertexArrays,
+    glGetAttribLocation,
+    glGetUniformLocation,
+    glUniformMatrix4fv,
+    glUseProgram,
+    glVertexAttribPointer,
+    glViewport,
+)
 
 if not glfw.init():
     sys.exit()
