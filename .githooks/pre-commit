@@ -47,8 +47,7 @@ fi
 
 for FILE in $(git diff --cached --name-only | grep '\.py')
 do
-    black $FILE
-    autoflake8 --in-place $FILE
+    ruff format $FILE
     git add $FILE
 done
 
