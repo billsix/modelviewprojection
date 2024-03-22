@@ -543,7 +543,6 @@ class Axis:
         glDeleteProgram(self.shader)
 
     def render(self, time: float, grayed_out: bool = False) -> None:
-
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 

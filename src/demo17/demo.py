@@ -429,9 +429,9 @@ while not glfw.window_should_close(window):
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
     # doc-region-end 23cd906b0bec259766279f1a9277922719cf1e2b
-    #fmt: on
+    # fmt: on
 
-    #fmt: off
+    # fmt: off
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
