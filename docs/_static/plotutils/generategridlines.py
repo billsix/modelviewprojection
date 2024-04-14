@@ -31,10 +31,14 @@ def generategridlines(graphBounds, interval=1):
         interval,
     ):
         thickness = 4 if np.isclose(x, 0.0) else 1
-        yield [x, x], [
-            -graphBounds[1] * extraLinesMultiplier,
-            graphBounds[1] * extraLinesMultiplier,
-        ], thickness
+        yield (
+            [x, x],
+            [
+                -graphBounds[1] * extraLinesMultiplier,
+                graphBounds[1] * extraLinesMultiplier,
+            ],
+            thickness,
+        )
 
     for y in range(
         -graphBounds[1] * extraLinesMultiplier,
@@ -42,7 +46,11 @@ def generategridlines(graphBounds, interval=1):
         interval,
     ):
         thickness = 4 if np.isclose(y, 0.0) else 1
-        yield [
-            -graphBounds[0] * extraLinesMultiplier,
-            graphBounds[0] * extraLinesMultiplier,
-        ], [y, y], thickness
+        yield (
+            [
+                -graphBounds[0] * extraLinesMultiplier,
+                graphBounds[0] * extraLinesMultiplier,
+            ],
+            [y, y],
+            thickness,
+        )
