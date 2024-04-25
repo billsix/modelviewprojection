@@ -34,34 +34,62 @@ in VS_OUT {
 
 out vec4 fColor;
 
+mat4 ndc_to_screen(){
+     mat4 translate = transpose(mat4(
+                                  1.0, 0.0,  0.0, u_viewport_size.x / 2.0,
+                                  0.0, 1.0 , 0.0, u_viewport_size.y / 2.0,
+                                  0.0, 0.0,  1.0, 0.0,
+                                  0.0, 0.0,  0.0, 1.0));
+     mat4 scale = transpose(mat4(
+                                  u_viewport_size.x / 2.0, 0.0,                     0.0, 0.0,
+                                  0.0,                     u_viewport_size.y / 2.0, 0.0, 0.0,
+                                  0.0,                     0.0,                     1.0, 0.0,
+                                  0.0,                     0.0,                     0.0, 1.0));
+     return translate * scale;
+}
+
 void main(){
      vec4 p1_clip = gl_in[0].gl_Position;
      vec4 p2_clip = gl_in[1].gl_Position;
 
      fColor = gs_in[0].color;
 
-     vec3 p1_ndc = p1_clip.xyz / p1_clip.w;
-     vec3 p2_ndc = p2_clip.xyz / p2_clip.w;
+     vec4 p1_ndc = vec4(p1_clip.xyz / p1_clip.w, 1.0);
+     vec4 p2_ndc = vec4(p2_clip.xyz / p2_clip.w, 1.0);
 
-     vec2 p1_screen = (p1_ndc.xy * u_viewport_size / 2.0);
-     vec2 p2_screen = (p2_ndc.xy * u_viewport_size / 2.0);
+     mat4 matrix_ndc_to_screen = ndc_to_screen();
 
-     vec2 unit_direction_of_line_screen = normalize(p2_screen - p1_screen);
-     vec2 unit_orthogonal_direction_of_line_screen = vec2(-unit_direction_of_line_screen.y,  unit_direction_of_line_screen.x) * u_thickness;
+     vec4 p1_screen = matrix_ndc_to_screen * p1_ndc;
+     vec4 p2_screen = matrix_ndc_to_screen * p2_ndc;
 
-     vec2 unit_orthogonal_direction_of_line_ndc = (unit_orthogonal_direction_of_line_screen / (u_viewport_size / 2.0));
+     vec4 unit_direction_of_line_screen = normalize(p2_screen - p1_screen);
+     vec4 thickness_orthogonal_direction_of_line_screen = vec4(u_thickness * vec2(-unit_direction_of_line_screen.y,
+                                                                                  unit_direction_of_line_screen.x),
+                                                               unit_direction_of_line_screen.z,
+                                                               0.0);
 
-     vec2 p1_unit_orthogonal_direction_of_line_clip = unit_orthogonal_direction_of_line_ndc * p1_clip.w;
-     vec2 p2_unit_orthogonal_direction_of_line_clip = unit_orthogonal_direction_of_line_ndc * p2_clip.w;
+     vec4 unit_orthogonal_direction_of_line_ndc = transpose(inverse(matrix_ndc_to_screen)) *
+       thickness_orthogonal_direction_of_line_screen;
+
+     vec2 p1_unit_orthogonal_direction_of_line_clip = (unit_orthogonal_direction_of_line_ndc * p1_clip.w).xy;
+     vec2 p2_unit_orthogonal_direction_of_line_clip = (unit_orthogonal_direction_of_line_ndc * p2_clip.w).xy;
 
 
-     gl_Position = p1_clip + vec4(p1_unit_orthogonal_direction_of_line_clip, 0.0, 0.0);
+     gl_Position = p1_clip + vec4(p1_unit_orthogonal_direction_of_line_clip,
+                                  0.0,
+                                  0.0);
      EmitVertex();
-     gl_Position = p1_clip - vec4(p1_unit_orthogonal_direction_of_line_clip, 0.0, 0.0);
+     gl_Position = p1_clip - vec4(p1_unit_orthogonal_direction_of_line_clip,
+                                  0.0,
+                                  0.0);
      EmitVertex();
-     gl_Position = p2_clip + vec4(p2_unit_orthogonal_direction_of_line_clip, 0.0, 0.0);
+     gl_Position = p2_clip + vec4(p2_unit_orthogonal_direction_of_line_clip,
+                                  0.0,
+                                  0.0);
      EmitVertex();
-     gl_Position = p2_clip - vec4(p2_unit_orthogonal_direction_of_line_clip, 0.0, 0.0);
+     gl_Position = p2_clip - vec4(p2_unit_orthogonal_direction_of_line_clip,
+                                  0.0,
+                                  0.0);
      EmitVertex();
      EndPrimitive();
 
