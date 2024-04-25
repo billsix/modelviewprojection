@@ -35,20 +35,33 @@ in VS_OUT {
 out vec4 fColor;
 
 void main(){
-     vec4 p1 = gl_in[0].gl_Position;
-     vec4 p2 = gl_in[1].gl_Position;
+     vec4 p1_clip = gl_in[0].gl_Position;
+     vec4 p2_clip = gl_in[1].gl_Position;
 
      fColor = gs_in[0].color;
-     vec2 dir = normalize((p2.xy / p2.w - p1.xy/p1.w) * u_viewport_size);
-     vec2 offset = vec2(-dir.y, dir.x) * u_thickness / u_viewport_size;
 
-     gl_Position = p1 + vec4(offset.xy * p1.w, 0.0, 0.0);
+     vec3 p1_ndc = p1_clip.xyz / p1_clip.w;
+     vec3 p2_ndc = p2_clip.xyz / p2_clip.w;
+
+     vec2 p1_screen = (p1_ndc.xy * u_viewport_size / 2.0);
+     vec2 p2_screen = (p2_ndc.xy * u_viewport_size / 2.0);
+
+     vec2 unit_direction_of_line_screen = normalize(p2_screen - p1_screen);
+     vec2 unit_orthogonal_direction_of_line_screen = vec2(-unit_direction_of_line_screen.y,  unit_direction_of_line_screen.x) * u_thickness;
+
+     vec2 unit_orthogonal_direction_of_line_ndc = (unit_orthogonal_direction_of_line_screen / (u_viewport_size / 2.0));
+
+     vec2 p1_unit_orthogonal_direction_of_line_clip = unit_orthogonal_direction_of_line_ndc * p1_clip.w;
+     vec2 p2_unit_orthogonal_direction_of_line_clip = unit_orthogonal_direction_of_line_ndc * p2_clip.w;
+
+
+     gl_Position = p1_clip + vec4(p1_unit_orthogonal_direction_of_line_clip, 0.0, 0.0);
      EmitVertex();
-     gl_Position = p1 - vec4(offset.xy * p1.w, 0.0, 0.0);
+     gl_Position = p1_clip - vec4(p1_unit_orthogonal_direction_of_line_clip, 0.0, 0.0);
      EmitVertex();
-     gl_Position = p2 + vec4(offset.xy * p2.w, 0.0, 0.0);
+     gl_Position = p2_clip + vec4(p2_unit_orthogonal_direction_of_line_clip, 0.0, 0.0);
      EmitVertex();
-     gl_Position = p2 - vec4(offset.xy * p2.w, 0.0, 0.0);
+     gl_Position = p2_clip - vec4(p2_unit_orthogonal_direction_of_line_clip, 0.0, 0.0);
      EmitVertex();
      EndPrimitive();
 

@@ -81,7 +81,7 @@ glfloat_size = 4
 floatsPerVertex = 3
 floatsPerColor = 3
 
-line_thickness = 2.0
+line_thickness = 5.0
 
 if not glfw.init():
     sys.exit()
