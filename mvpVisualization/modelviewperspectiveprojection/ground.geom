@@ -48,6 +48,20 @@ mat4 ndc_to_screen(){
      return translate * scale;
 }
 
+mat4 inverseTranspose(mat4 mat) {
+    mat3 upper3x3 = mat3(mat);
+    mat3 inverseTransposeUpper3x3 = transpose(inverse(upper3x3));
+    vec3 negatedFourthColumn = -mat[3].xyz;
+
+    return mat4(
+        vec4(inverseTransposeUpper3x3[0], 0.0),
+        vec4(inverseTransposeUpper3x3[1], 0.0),
+        vec4(inverseTransposeUpper3x3[2], 0.0),
+        vec4(negatedFourthColumn, 1.0)
+    );
+}
+
+
 void main(){
      vec4 p1_clip = gl_in[0].gl_Position;
      vec4 p2_clip = gl_in[1].gl_Position;
@@ -68,7 +82,9 @@ void main(){
                                                                unit_direction_of_line_screen.z,
                                                                0.0);
 
-     vec4 unit_orthogonal_direction_of_line_ndc = transpose(inverse(matrix_ndc_to_screen)) *
+
+
+     vec4 unit_orthogonal_direction_of_line_ndc = inverseTranspose(matrix_ndc_to_screen) *
        thickness_orthogonal_direction_of_line_screen;
 
      vec2 p1_unit_orthogonal_direction_of_line_clip = (unit_orthogonal_direction_of_line_ndc * p1_clip.w).xy;

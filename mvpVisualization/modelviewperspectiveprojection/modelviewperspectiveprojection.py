@@ -57,6 +57,7 @@ from OpenGL.GL import (
     glDeleteProgram,
     glDeleteVertexArrays,
     glDepthFunc,
+    glDisable,
     glDrawArrays,
     glEnable,
     glEnableVertexAttribArray,
@@ -81,7 +82,7 @@ glfloat_size = 4
 floatsPerVertex = 3
 floatsPerColor = 3
 
-line_thickness = 3.0
+line_thickness = 6.0
 
 if not glfw.init():
     sys.exit()
@@ -471,10 +472,12 @@ class Ground:
         glBindVertexArray(0)
 
         if show_ground_axis:
+            glDisable(GL_DEPTH_TEST)
             with ms.PushMatrix(ms.MatrixStack.model):
                 ms.translate(ms.MatrixStack.model, 0.0, -50.0, 0.0)
                 ms.scale(ms.MatrixStack.model, 2.0, 2.0, 2.0)
                 axis.render(animation_time)
+            glEnable(GL_DEPTH_TEST)
 
 
 ground = Ground()
@@ -1426,6 +1429,11 @@ while not glfw.window_should_close(window):
     clicked_show_ground_axises, show_ground_axis = imgui.checkbox(
         "Show Ground Axises", show_ground_axis
     )
+
+    (
+        clicked_line_thickness,
+        line_thickness,
+    ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)
 
     imgui.end()
 
