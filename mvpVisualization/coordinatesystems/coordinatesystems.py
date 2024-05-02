@@ -1095,7 +1095,6 @@ def handle_inputs(previous_mouse_position) -> None:
 
     global camera
 
-    move_multiple = 15.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.rot_y += math.radians(1.0) % 360.0
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:

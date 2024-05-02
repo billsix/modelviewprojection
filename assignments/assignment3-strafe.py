@@ -305,7 +305,7 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        forwards_camera_space = Vertex(x=0.0, y=0.0, z=-3.0)
+        forwards_camera_space = Vertex(x=0.0, y=0.0, z=-1.0) * move_multiple
         forward_world_space = forwards_camera_space.rotate_y(camera.rot_y).translate(
             tx=camera.position_worldspace.x,
             ty=camera.position_worldspace.y,
@@ -315,7 +315,7 @@ def handle_inputs() -> None:
         camera.position_worldspace.y = forward_world_space.y
         camera.position_worldspace.z = forward_world_space.z
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        forwards_camera_space = Vertex(x=0.0, y=0.0, z=3.0)
+        forwards_camera_space = Vertex(x=0.0, y=0.0, z=1.0) * move_multiple
         forward_world_space = forwards_camera_space.rotate_y(camera.rot_y).translate(
             tx=camera.position_worldspace.x,
             ty=camera.position_worldspace.y,

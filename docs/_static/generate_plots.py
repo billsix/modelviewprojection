@@ -18,6 +18,7 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+import doctest
 import itertools
 import math
 import sys
@@ -120,8 +121,6 @@ def accumulate_transformation(procedures, backwards=False):
             )
 
 
-import doctest
-
 modules = [mplt, sys.modules[__name__]]
 for m in modules:
     try:
@@ -196,7 +195,10 @@ def create_graphs(
     procs = procedures.copy()
     # when plotting the transformations is backwards order, show the axis
     # at the last step first before plotting the data
-    idProc = lambda x, y: (x, y)
+
+    def idProc(x, y):
+        return (x, y)
+
     if backwards:
         procs.insert(0, idProc)
         procs.insert(0, idProc)

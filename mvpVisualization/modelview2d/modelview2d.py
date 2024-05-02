@@ -896,8 +896,6 @@ def handle_inputs() -> None:
 
     global camera
 
-    move_multiple = 15.0
-
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
@@ -1102,20 +1100,20 @@ while not glfw.window_should_close(window):
         "Camera Z_Worldspace", virtual_camera_position[2], -250, 250.0
     )
 
-    imgui.push_button_repeat(True)
-    if imgui.button("Translate -Z_Cameraspace"):
-        virtual_camera_position[0] -= math.sin(virtual_camera_rot_y)
-        virtual_camera_position[2] -= math.cos(virtual_camera_rot_y)
-    if imgui.button("Translate Z_Cameraspace"):
-        virtual_camera_position[0] += math.sin(virtual_camera_rot_y)
-        virtual_camera_position[2] += math.cos(virtual_camera_rot_y)
-    if imgui.button("Translate X_Cameraspace"):
-        virtual_camera_position[0] += math.cos(virtual_camera_rot_y)
-        virtual_camera_position[2] -= math.sin(virtual_camera_rot_y)
-    if imgui.button("Translate -X_Cameraspace"):
-        virtual_camera_position[0] -= math.cos(virtual_camera_rot_y)
-        virtual_camera_position[2] += math.sin(virtual_camera_rot_y)
-    imgui.pop_button_repeat()
+    # imgui.push_button_repeat(True)
+    # if imgui.button("Translate -Z_Cameraspace"):
+    #     virtual_camera_position[0] -= math.sin(virtual_camera_rot_y)
+    #     virtual_camera_position[2] -= math.cos(virtual_camera_rot_y)
+    # if imgui.button("Translate Z_Cameraspace"):
+    #     virtual_camera_position[0] += math.sin(virtual_camera_rot_y)
+    #     virtual_camera_position[2] += math.cos(virtual_camera_rot_y)
+    # if imgui.button("Translate X_Cameraspace"):
+    #     virtual_camera_position[0] += math.cos(virtual_camera_rot_y)
+    #     virtual_camera_position[2] -= math.sin(virtual_camera_rot_y)
+    # if imgui.button("Translate -X_Cameraspace"):
+    #     virtual_camera_position[0] -= math.cos(virtual_camera_rot_y)
+    #     virtual_camera_position[2] += math.sin(virtual_camera_rot_y)
+    # imgui.pop_button_repeat()
 
     imgui.end()
 
