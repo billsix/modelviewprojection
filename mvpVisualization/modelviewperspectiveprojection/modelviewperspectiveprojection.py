@@ -1383,7 +1383,7 @@ while not glfw.window_should_close(window):
     (
         clicked_virtual_camera_fov,
         frustum.fov,
-    ) = imgui.slider_float("Camera FOV", frustum.fov, 5.0, 60.0)
+    ) = imgui.slider_float("Camera FOV", frustum.fov, 5.0, 120.0)
 
     if clicked_virtual_camera_fov:
         frustum.prepare_to_render()
