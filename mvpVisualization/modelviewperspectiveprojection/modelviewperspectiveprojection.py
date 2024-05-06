@@ -1204,264 +1204,258 @@ while not glfw.window_should_close(window):
     imgui.set_next_window_size(453, 564, imgui.FIRST_USE_EVER)
     imgui.set_next_window_position(15, 30, imgui.FIRST_USE_EVER)
     imgui.set_next_window_bg_alpha(0.05)
-    imgui.begin("Time", True)
 
-    clicked_animation_paused, animation_paused = imgui.checkbox(
-        "Pause", animation_paused
-    )
-    clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
-    (
-        clicked_animation_time_multiplier,
-        animation_time_multiplier,
-    ) = imgui.slider_float("Sim Speed", animation_time_multiplier, -10.0, 10.0)
-    if imgui.button("Restart"):
-        animation_time = 0.0
+    imgui.begin("Options", True)
+    show, _ = imgui.collapsing_header("Time")
+    if show:
 
-    if imgui.tree_node(
-        "From World Space, Against Arrows, Read Bottom Up",
-        imgui.TREE_NODE_DEFAULT_OPEN,
-    ):
-        if imgui.tree_node("Paddle 1->World", imgui.TREE_NODE_DEFAULT_OPEN):
-            imgui.text("f_paddle1_to_world(x) = ")
-            imgui.text(" = (")
-            imgui.same_line()
-            if highlighted_button("T", 5, animation_time):
-                animation_time = 5.0
-            imgui.same_line()
-            imgui.text(" o ")
-            imgui.same_line()
-            if highlighted_button("R_z", 10, animation_time):
-                animation_time = 10.0
-            imgui.same_line()
-            imgui.text(" ) (x) ")
-            if imgui.tree_node("Square->World", imgui.TREE_NODE_DEFAULT_OPEN):
-                imgui.text("f_square_to_world(x) = ")
-                imgui.text(" f_paddle1_to_world o (")
-                imgui.text("      ")
+        clicked_animation_paused, animation_paused = imgui.checkbox(
+            "Pause", animation_paused
+        )
+        clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
+        (
+            clicked_animation_time_multiplier,
+            animation_time_multiplier,
+        ) = imgui.slider_float("Sim Speed", animation_time_multiplier, -10.0, 10.0)
+        if imgui.button("Restart"):
+            animation_time = 0.0
+
+        if imgui.tree_node(
+            "From World Space, Against Arrows, Read Bottom Up",
+            imgui.TREE_NODE_DEFAULT_OPEN,
+        ):
+            if imgui.tree_node("Paddle 1->World", imgui.TREE_NODE_DEFAULT_OPEN):
+                imgui.text("f_paddle1_to_world(x) = ")
+                imgui.text(" = (")
                 imgui.same_line()
-                if highlighted_button("T_-Z", 15, animation_time):
-                    animation_time = 15.0
+                if highlighted_button("T", 5, animation_time):
+                    animation_time = 5.0
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
-                if highlighted_button("R_Z", 20, animation_time):
-                    animation_time = 20.0
+                if highlighted_button("R_z", 10, animation_time):
+                    animation_time = 10.0
+                imgui.same_line()
+                imgui.text(" ) (x) ")
+                if imgui.tree_node("Square->World", imgui.TREE_NODE_DEFAULT_OPEN):
+                    imgui.text("f_square_to_world(x) = ")
+                    imgui.text(" f_paddle1_to_world o (")
+                    imgui.text("      ")
+                    imgui.same_line()
+                    if highlighted_button("T_-Z", 15, animation_time):
+                        animation_time = 15.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("R_Z", 20, animation_time):
+                        animation_time = 20.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("T_X", 25, animation_time):
+                        animation_time = 25.0
+                    imgui.same_line()
+                    imgui.text(" o ")
+                    imgui.same_line()
+                    if highlighted_button("R2_Z", 30, animation_time):
+                        animation_time = 30.0
+                    imgui.same_line()
+                    imgui.text(" ) (x) ")
+                    imgui.tree_pop()
+                imgui.tree_pop()
+            if imgui.tree_node("Paddle 2->World", imgui.TREE_NODE_DEFAULT_OPEN):
+                imgui.text("f_paddle2_to_world(x) = (")
+                imgui.same_line()
+                if highlighted_button("T", 35, animation_time):
+                    animation_time = 35.0
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
-                if highlighted_button("T_X", 25, animation_time):
-                    animation_time = 25.0
+                if highlighted_button("R", 40, animation_time):
+                    animation_time = 40.0
+                imgui.same_line()
+                imgui.text(" ) (x) ")
+                imgui.tree_pop()
+            if imgui.tree_node("Camera->World", imgui.TREE_NODE_DEFAULT_OPEN):
+                imgui.text("f_camera_to_world(x) = (")
+                imgui.same_line()
+                if highlighted_button("T", 50, animation_time):
+                    animation_time = 50.0
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
-                if highlighted_button("R2_Z", 30, animation_time):
-                    animation_time = 30.0
+                if highlighted_button("R_Y", 55, animation_time):
+                    animation_time = 55.0
+                imgui.same_line()
+                imgui.text(" o ")
+                imgui.same_line()
+                if highlighted_button("R_X", 60, animation_time):
+                    animation_time = 60.0
                 imgui.same_line()
                 imgui.text(" ) (x) ")
                 imgui.tree_pop()
             imgui.tree_pop()
-        if imgui.tree_node("Paddle 2->World", imgui.TREE_NODE_DEFAULT_OPEN):
-            imgui.text("f_paddle2_to_world(x) = (")
-            imgui.same_line()
-            if highlighted_button("T", 35, animation_time):
-                animation_time = 35.0
-            imgui.same_line()
-            imgui.text(" o ")
-            imgui.same_line()
-            if highlighted_button("R", 40, animation_time):
-                animation_time = 40.0
-            imgui.same_line()
-            imgui.text(" ) (x) ")
-            imgui.tree_pop()
-        if imgui.tree_node("Camera->World", imgui.TREE_NODE_DEFAULT_OPEN):
-            imgui.text("f_camera_to_world(x) = (")
-            imgui.same_line()
-            if highlighted_button("T", 50, animation_time):
-                animation_time = 50.0
-            imgui.same_line()
-            imgui.text(" o ")
-            imgui.same_line()
-            if highlighted_button("R_Y", 55, animation_time):
-                animation_time = 55.0
-            imgui.same_line()
-            imgui.text(" o ")
-            imgui.same_line()
-            if highlighted_button("R_X", 60, animation_time):
-                animation_time = 60.0
-            imgui.same_line()
-            imgui.text(" ) (x) ")
-            imgui.tree_pop()
-        imgui.tree_pop()
-    if imgui.tree_node(
-        "Towards NDC, With Arrows, Top Down Reading",
-        imgui.TREE_NODE_DEFAULT_OPEN,
-    ):
-        if imgui.tree_node("World->Camera", imgui.TREE_NODE_DEFAULT_OPEN):
-            imgui.text("f_camera_to_world^-1(x) = f_world_to_camera(x) = ")
-            imgui.text("   ")
-            imgui.same_line()
-            if highlighted_button("R^-1_X", 75, animation_time):
-                animation_time = 75.0
-            imgui.same_line()
-            imgui.text(" (")
-            imgui.same_line()
-            if highlighted_button("R^-1_Y", 70, animation_time):
-                animation_time = 70.0
-            imgui.same_line()
-            imgui.text(" (")
-            imgui.same_line()
-            if highlighted_button("T^-1", 65, animation_time):
-                animation_time = 65.0
-            imgui.same_line()
-            imgui.text("* x))")
-            imgui.tree_pop()
-        if imgui.tree_node("Frustum->Rectangular Prism", imgui.TREE_NODE_DEFAULT_OPEN):
-            imgui.text("f_frustum_to_prism(x) = ")
-            imgui.same_line()
-            if highlighted_button("Squash Y", 95, animation_time):
-                animation_time = 95.0
-            imgui.same_line()
-            imgui.text(" (")
-            imgui.same_line()
-            if highlighted_button("Squash X", 90, animation_time):
-                animation_time = 90.0
-            imgui.same_line()
-            imgui.text(" * x)")
-            imgui.tree_pop()
         if imgui.tree_node(
-            "Ortho, Rectangular Prism->NDC", imgui.TREE_NODE_DEFAULT_OPEN
+            "Towards NDC, With Arrows, Top Down Reading",
+            imgui.TREE_NODE_DEFAULT_OPEN,
         ):
-            imgui.text("f_ortho(x) = ")
-            imgui.same_line()
-            if highlighted_button("Scale", 105, animation_time):
-                animation_time = 105.0
-            imgui.same_line()
-            imgui.text(" (")
-            imgui.same_line()
-            if highlighted_button("T - Center", 100, animation_time):
-                animation_time = 100.0
-            imgui.same_line()
-            imgui.text(" * x)")
+            if imgui.tree_node("World->Camera", imgui.TREE_NODE_DEFAULT_OPEN):
+                imgui.text("f_camera_to_world^-1(x) = f_world_to_camera(x) = ")
+                imgui.text("   ")
+                imgui.same_line()
+                if highlighted_button("R^-1_X", 75, animation_time):
+                    animation_time = 75.0
+                imgui.same_line()
+                imgui.text(" (")
+                imgui.same_line()
+                if highlighted_button("R^-1_Y", 70, animation_time):
+                    animation_time = 70.0
+                imgui.same_line()
+                imgui.text(" (")
+                imgui.same_line()
+                if highlighted_button("T^-1", 65, animation_time):
+                    animation_time = 65.0
+                imgui.same_line()
+                imgui.text("* x))")
+                imgui.tree_pop()
+            if imgui.tree_node("Frustum->Rectangular Prism", imgui.TREE_NODE_DEFAULT_OPEN):
+                imgui.text("f_frustum_to_prism(x) = ")
+                imgui.same_line()
+                if highlighted_button("Squash Y", 95, animation_time):
+                    animation_time = 95.0
+                imgui.same_line()
+                imgui.text(" (")
+                imgui.same_line()
+                if highlighted_button("Squash X", 90, animation_time):
+                    animation_time = 90.0
+                imgui.same_line()
+                imgui.text(" * x)")
+                imgui.tree_pop()
+            if imgui.tree_node(
+                "Ortho, Rectangular Prism->NDC", imgui.TREE_NODE_DEFAULT_OPEN
+            ):
+                imgui.text("f_ortho(x) = ")
+                imgui.same_line()
+                if highlighted_button("Scale", 105, animation_time):
+                    animation_time = 105.0
+                imgui.same_line()
+                imgui.text(" (")
+                imgui.same_line()
+                if highlighted_button("T - Center", 100, animation_time):
+                    animation_time = 100.0
+                imgui.same_line()
+                imgui.text(" * x)")
+                imgui.tree_pop()
             imgui.tree_pop()
-        imgui.tree_pop()
 
-    imgui.end()
+    show, _ = imgui.collapsing_header("Camera Options")
+    if show:
+        (
+            clicked_virtual_camera_positionx_clicked,
+            virtual_camera_position[0],
+        ) = imgui.slider_float(
+            "Camera X_Worldspace", virtual_camera_position[0], -200, 200.0
+        )
+        (
+            clicked_virtual_camera_positiony_clicked,
+            virtual_camera_position[1],
+        ) = imgui.slider_float(
+            "Camera Y_Worldspace", virtual_camera_position[1], -200, 200.0
+        )
+        (
+            clicked_virtual_camera_positionz_clicked,
+            virtual_camera_position[2],
+        ) = imgui.slider_float(
+            "Camera Z_Worldspace", virtual_camera_position[2], -200, 200.0
+        )
+        (
+            clicked_virtual_camera_positionrotx_clicked,
+            virtual_camera_rot_x,
+        ) = imgui.slider_float("Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi)
+        (
+            clicked_virtual_camera_positionroty_clicked,
+            virtual_camera_rot_y,
+        ) = imgui.slider_float("Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi)
 
-    imgui.set_next_window_size(460, 347, imgui.FIRST_USE_EVER)
-    imgui.set_next_window_position(1042, 26, imgui.FIRST_USE_EVER)
-    imgui.set_next_window_bg_alpha(0.05)
-    imgui.begin("Camera Options", True)
+        imgui.push_button_repeat(True)
+        if imgui.button("Translate -Z_Cameraspace"):
+            virtual_camera_position[0] -= math.sin(virtual_camera_rot_y)
+            virtual_camera_position[2] -= math.cos(virtual_camera_rot_y)
+        if imgui.button("Translate Z_Cameraspace"):
+            virtual_camera_position[0] += math.sin(virtual_camera_rot_y)
+            virtual_camera_position[2] += math.cos(virtual_camera_rot_y)
+        if imgui.button("Translate X_Cameraspace"):
+            virtual_camera_position[0] += math.cos(virtual_camera_rot_y)
+            virtual_camera_position[2] -= math.sin(virtual_camera_rot_y)
+        if imgui.button("Translate -X_Cameraspace"):
+            virtual_camera_position[0] -= math.cos(virtual_camera_rot_y)
+            virtual_camera_position[2] += math.sin(virtual_camera_rot_y)
+        imgui.pop_button_repeat()
 
-    (
-        clicked_virtual_camera_positionx_clicked,
-        virtual_camera_position[0],
-    ) = imgui.slider_float(
-        "Camera X_Worldspace", virtual_camera_position[0], -200, 200.0
-    )
-    (
-        clicked_virtual_camera_positiony_clicked,
-        virtual_camera_position[1],
-    ) = imgui.slider_float(
-        "Camera Y_Worldspace", virtual_camera_position[1], -200, 200.0
-    )
-    (
-        clicked_virtual_camera_positionz_clicked,
-        virtual_camera_position[2],
-    ) = imgui.slider_float(
-        "Camera Z_Worldspace", virtual_camera_position[2], -200, 200.0
-    )
-    (
-        clicked_virtual_camera_positionrotx_clicked,
-        virtual_camera_rot_x,
-    ) = imgui.slider_float("Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi)
-    (
-        clicked_virtual_camera_positionroty_clicked,
-        virtual_camera_rot_y,
-    ) = imgui.slider_float("Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi)
+        (
+            clicked_virtual_camera_fov,
+            frustum.fov,
+        ) = imgui.slider_float("Camera FOV", frustum.fov, 5.0, 120.0)
 
-    imgui.push_button_repeat(True)
-    if imgui.button("Translate -Z_Cameraspace"):
-        virtual_camera_position[0] -= math.sin(virtual_camera_rot_y)
-        virtual_camera_position[2] -= math.cos(virtual_camera_rot_y)
-    if imgui.button("Translate Z_Cameraspace"):
-        virtual_camera_position[0] += math.sin(virtual_camera_rot_y)
-        virtual_camera_position[2] += math.cos(virtual_camera_rot_y)
-    if imgui.button("Translate X_Cameraspace"):
-        virtual_camera_position[0] += math.cos(virtual_camera_rot_y)
-        virtual_camera_position[2] -= math.sin(virtual_camera_rot_y)
-    if imgui.button("Translate -X_Cameraspace"):
-        virtual_camera_position[0] -= math.cos(virtual_camera_rot_y)
-        virtual_camera_position[2] += math.sin(virtual_camera_rot_y)
-    imgui.pop_button_repeat()
+        if clicked_virtual_camera_fov:
+            frustum.prepare_to_render()
 
-    (
-        clicked_virtual_camera_fov,
-        frustum.fov,
-    ) = imgui.slider_float("Camera FOV", frustum.fov, 5.0, 120.0)
+        (
+            clicked_virtual_camera_aspect_ratio,
+            frustum.aspect_ratio,
+        ) = imgui.slider_float("Camera AspectRatio", frustum.aspect_ratio, 0.1, 3.0)
 
-    if clicked_virtual_camera_fov:
-        frustum.prepare_to_render()
+        if clicked_virtual_camera_aspect_ratio:
+            frustum.prepare_to_render()
 
-    (
-        clicked_virtual_camera_aspect_ratio,
-        frustum.aspect_ratio,
-    ) = imgui.slider_float("Camera AspectRatio", frustum.aspect_ratio, 0.1, 3.0)
+        (
+            clicked_virtual_camera_near_z,
+            frustum.near_z,
+        ) = imgui.slider_float("Camera near_z", frustum.near_z, -200.0, -1.0)
 
-    if clicked_virtual_camera_aspect_ratio:
-        frustum.prepare_to_render()
+        if clicked_virtual_camera_near_z:
+            frustum.prepare_to_render()
 
-    (
-        clicked_virtual_camera_near_z,
-        frustum.near_z,
-    ) = imgui.slider_float("Camera near_z", frustum.near_z, -200.0, -1.0)
+        (
+            clicked_virtual_camera_far_z,
+            frustum.far_z,
+        ) = imgui.slider_float(
+            "Camera far_z", frustum.far_z, frustum.near_z, frustum.near_z - 500.0
+        )
 
-    if clicked_virtual_camera_near_z:
-        frustum.prepare_to_render()
+        if clicked_virtual_camera_far_z:
+            frustum.prepare_to_render()
 
-    (
-        clicked_virtual_camera_far_z,
-        frustum.far_z,
-    ) = imgui.slider_float(
-        "Camera far_z", frustum.far_z, frustum.near_z, frustum.near_z - 500.0
-    )
+    show, _ = imgui.collapsing_header("Display Options")
+    if show:
 
-    if clicked_virtual_camera_far_z:
-        frustum.prepare_to_render()
+        clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
+            "Enlarged Axises", enlarged_axis
+        )
 
-    imgui.end()
+        clicked_show_ground_axises, show_ground_axis = imgui.checkbox(
+            "Show Ground Axises", show_ground_axis
+        )
 
-    imgui.set_next_window_size(300, 175, imgui.FIRST_USE_EVER)
-    imgui.set_next_window_position(8, 603, imgui.FIRST_USE_EVER)
-    imgui.set_next_window_bg_alpha(0.05)
-    imgui.begin("Display Options", True)
+        (
+            clicked_line_thickness,
+            line_thickness,
+        ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)
 
-    clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
-        "Enlarged Axises", enlarged_axis
-    )
-
-    clicked_show_ground_axises, show_ground_axis = imgui.checkbox(
-        "Show Ground Axises", show_ground_axis
-    )
-
-    (
-        clicked_line_thickness,
-        line_thickness,
-    ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)
-
-    if imgui.button("NDC"):
-        center_view_on = CenterViewOn.ndc
-    imgui.same_line()
-    if imgui.button("Paddle 1"):
-        center_view_on = CenterViewOn.paddle1
-    imgui.same_line()
-    if imgui.button("Square"):
-        center_view_on = CenterViewOn.square
-    imgui.same_line()
-    if imgui.button("Paddle 2"):
-        center_view_on = CenterViewOn.paddle2
-    imgui.same_line()
-    if imgui.button("Camera"):
-        center_view_on = CenterViewOn.camera
+        if imgui.button("NDC"):
+            center_view_on = CenterViewOn.ndc
+        imgui.same_line()
+        if imgui.button("Paddle 1"):
+            center_view_on = CenterViewOn.paddle1
+        imgui.same_line()
+        if imgui.button("Square"):
+            center_view_on = CenterViewOn.square
+        imgui.same_line()
+        if imgui.button("Paddle 2"):
+            center_view_on = CenterViewOn.paddle2
+        imgui.same_line()
+        if imgui.button("Camera"):
+            center_view_on = CenterViewOn.camera
 
     imgui.end()
 
