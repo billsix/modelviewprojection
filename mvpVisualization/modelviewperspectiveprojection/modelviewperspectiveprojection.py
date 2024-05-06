@@ -25,6 +25,7 @@ import math
 import os
 import sys
 from dataclasses import dataclass, field
+from enum import Enum, auto
 
 import glfw
 import imgui
@@ -82,7 +83,20 @@ glfloat_size = 4
 floatsPerVertex = 3
 floatsPerColor = 3
 
-line_thickness = 6.0
+line_thickness = 2.0
+
+
+# possible things that the viewer may want to center the camera on
+class CenterViewOn(Enum):
+    ndc = auto()
+    paddle1 = auto()
+    square = auto()
+    paddle2 = auto()
+    camera = auto()
+
+
+# the current object to focus on
+center_view_on = CenterViewOn.ndc
 
 if not glfw.init():
     sys.exit()
@@ -1434,6 +1448,21 @@ while not glfw.window_should_close(window):
         line_thickness,
     ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)
 
+    if imgui.button("NDC"):
+        center_view_on = CenterViewOn.ndc
+    imgui.same_line()
+    if imgui.button("Paddle 1"):
+        center_view_on = CenterViewOn.paddle1
+    imgui.same_line()
+    if imgui.button("Square"):
+        center_view_on = CenterViewOn.square
+    imgui.same_line()
+    if imgui.button("Paddle 2"):
+        center_view_on = CenterViewOn.paddle2
+    imgui.same_line()
+    if imgui.button("Camera"):
+        center_view_on = CenterViewOn.camera
+
     imgui.end()
 
     width, height = glfw.get_framebuffer_size(window)
@@ -1455,10 +1484,90 @@ while not glfw.window_should_close(window):
         farZ=10000.0,
     )
 
-    # note - opengl matricies use degrees
+    # draw around center of world space, like being centered
+    # on a player running around a world in a 3D, 3rd person
+    # camera
     ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
     ms.rotate_x(ms.MatrixStack.view, camera.rot_x)
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
+
+    # but if the user selected view paddle 1 or view square, add
+    # center on them
+    if (
+        center_view_on == CenterViewOn.paddle1
+        or center_view_on == center_view_on.square
+    ):
+        # center on square
+        if center_view_on == CenterViewOn.square:
+            # if i do this rotation, the camera rotates in a weird looking way
+            # ms.rotate_z(
+            #     ms.MatrixStack.model,
+            #     -square_rotation,
+            # )
+            ms.translate(
+                ms.MatrixStack.model,
+                -15.0,
+                0.0,
+                0.0,
+            )
+            # if i do this rotation, the camera rotates in a weird looking way
+            # ms.rotate_z(
+            #     ms.MatrixStack.model,
+            #     -rotation_around_paddle1,
+            # )
+            ms.translate(
+                ms.MatrixStack.model,
+                0.0,
+                0.0,
+                5.0,
+            )
+
+        # center on paddle 1
+        # if i do this rotation, the camera rotates in a weird looking way
+        # ms.rotate_z(
+        #     ms.MatrixStack.model,
+        #     -paddle1.rotation,
+        # )
+        ms.translate(
+            ms.MatrixStack.model,
+            -paddle1.position[0],
+            -paddle1.position[1],
+            0.0,
+        )
+
+    # center on paddle
+    if center_view_on == CenterViewOn.paddle2:
+        # if i do this rotation, the camera rotates in a weird looking way
+        # ms.rotate_z(
+        #     ms.MatrixStack.model,
+        #     -paddle2.rotation,
+        # )
+        ms.translate(
+            ms.MatrixStack.model,
+            -paddle2.position[0],
+            -paddle2.position[1],
+            0.0,
+        )
+    if center_view_on == CenterViewOn.camera:
+        if animation_time > 65.0:
+            ms.translate(
+                ms.MatrixStack.model,
+                virtual_camera_position[0] * min(1.0, (animation_time - 65.0) / 5.0),
+                virtual_camera_position[1] * min(1.0, (animation_time - 65.0) / 5.0),
+                virtual_camera_position[2] * min(1.0, (animation_time - 65.0) / 5.0),
+            )
+
+        if animation_time > 50.0:
+            if animation_time > 50.0:
+                ms.translate(
+                    ms.MatrixStack.model,
+                    -virtual_camera_position[0]
+                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    -virtual_camera_position[1]
+                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    -virtual_camera_position[2]
+                    * min(1.0, (animation_time - 50.0) / 5.0),
+                )
 
     # draw NDC in global space, so that we can see the camera space
     # go to NDC
