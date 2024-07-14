@@ -3,7 +3,7 @@ FROM fedora
 
 COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
 COPY ./book /book/
-RUN dnf install -C -y gnuplot \
+RUN dnf install    -y gnuplot \
                       texlive \
                       texlive-anyfontsize \
                       texlive-dvisvgm \
