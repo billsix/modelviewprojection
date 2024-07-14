@@ -93,4 +93,4 @@ pythonplots: rotate0.gif
 
 
 rotate0.gif: generate_plots.py
-	python generate_plots.py
+	python3 generate_plots.py
