@@ -148,28 +148,28 @@ class Paddle:
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex(x=-10.0, y=-30.0),
-        Vertex(x=10.0, y=-30.0),
-        Vertex(x=10.0, y=30.0),
-        Vertex(x=-10.0, y=30.0),
+        Vertex(x=-1.0, y=-3.0),
+        Vertex(x=1.0, y=-3.0),
+        Vertex(x=1.0, y=3.0),
+        Vertex(x=-1.0, y=3.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex(-90.0, 0.0),
+    position=Vertex(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex(x=-10.0, y=-30.0),
-        Vertex(x=10.0, y=-30.0),
-        Vertex(x=10.0, y=30.0),
-        Vertex(x=-10.0, y=30.0),
+        Vertex(x=-1.0, y=-3.0),
+        Vertex(x=1.0, y=-3.0),
+        Vertex(x=1.0, y=3.0),
+        Vertex(x=-1.0, y=3.0),
     ],
     r=1.0,
     g=0.0,
     b=0.0,
-    position=Vertex(90.0, 0.0),
+    position=Vertex(9.0, 0.0),
 )
 
 
@@ -177,13 +177,13 @@ def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position.y -= 10.0
+        paddle1.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position.y += 10.0
+        paddle1.position.y += 1.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position.y -= 10.0
+        paddle2.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position.y += 10.0
+        paddle2.position.y += 1.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -232,8 +232,8 @@ while not glfw.window_should_close(window):
                                                     ty=paddle1.position.y)
         world_space: Vertex = world_space.rotate_around(paddle1.rotation,
                                                         rotatePoint)
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
-                                              scale_y=1.0 / 100.0)
+        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
+                                              scale_y=1.0 / 10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
         # doc-region-end b641b94ccea0c4270f96da2c06387477a7874816
     glEnd()
@@ -251,8 +251,8 @@ while not glfw.window_should_close(window):
                                                     ty=paddle2.position.y)
         world_space: Vertex = world_space.rotate_around(paddle2.rotation,
                                                         rotatePoint)
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
-                                              scale_y=1.0 / 100.0)
+        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
+                                              scale_y=1.0 / 10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # doc-region-end ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7

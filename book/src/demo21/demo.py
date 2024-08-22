@@ -144,12 +144,12 @@ class Paddle:
     vertices: np.array = field(
         default_factory=lambda: np.array(
             [
-                [-10.0, -30.0, 0.0],
-                [10.0, -30.0, 0.0],
-                [10.0, 30.0, 0.0],
-                [10.0, 30.0, 0.0],
-                [-10.0, 30.0, 0.0],
-                [-10.0, -30.0, 0.0],
+                [-1.0, -3.0, 0.0],
+                [1.0, -3.0, 0.0],
+                [1.0, 3.0, 0.0],
+                [1.0, 3.0, 0.0],
+                [-1.0, 3.0, 0.0],
+                [-1.0, -3.0, 0.0],
             ],
             dtype=np.float32,
         )
@@ -167,12 +167,12 @@ class Paddle:
         # fmt: off
         color = np.array(
             [
-                self.r, self.g, self.b, 0.75,
-                self.r, self.g, self.b, 0.75,
-                self.r, self.g, self.b, 0.75,
-                self.r, self.g, self.b, 0.75,
-                self.r, self.g, self.b, 0.75,
-                self.r, self.g, self.b, 0.75,
+                self.r, self.g, self.b, .75,
+                self.r, self.g, self.b, .75,
+                self.r, self.g, self.b, .75,
+                self.r, self.g, self.b, .75,
+                self.r, self.g, self.b, .75,
+                self.r, self.g, self.b, .75,
             ],
             dtype=np.float32,
         )
@@ -251,9 +251,9 @@ class Paddle:
         glBindVertexArray(0)
 
 
-paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
+paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-9.0, 0.0, 0.0]))
 paddle1.prepare_to_render()
-paddle2 = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
+paddle2 = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([9.0, 0.0, 0.0]))
 paddle2.prepare_to_render()
 
 
@@ -263,12 +263,12 @@ class Square(Paddle):
     vertices: np.array = field(
         default_factory=lambda: np.array(
             [
-                [-5.0, -5.0, 0.0],
-                [5.0, -5.0, 0.0],
-                [5.0, 5.0, 0.0],
-                [5.0, 5.0, 0.0],
-                [-5.0, 5.0, 0.0],
-                [-5.0, -5.0, 0.0],
+                [-0.5, -0.5, 0.0],
+                [0.5, -0.5, 0.0],
+                [0.5, 0.5, 0.0],
+                [0.5, 0.5, 0.0],
+                [-0.5, 0.5, 0.0],
+                [-0.5, -0.5, 0.0],
             ],
             dtype=np.float32,
         )
@@ -291,7 +291,7 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
+camera = Camera(x=0.0, y=0.0, z=40.0, rot_y=0.0, rot_x=0.0)
 
 
 class Ground:
@@ -299,21 +299,21 @@ class Ground:
         pass
 
     def vertices(self):
-        # glColor3f(0.1,0.1,0.1)
+        # glColor3f(.1,.1,.1)
         verts = []
         for x in range(-600, 601, 20):
             for z in range(-600, 601, 20):
                 verts.append(float(-x))
-                verts.append(float(-50.0))
+                verts.append(float(-5.0))
                 verts.append(float(z))
                 verts.append(float(x))
-                verts.append(float(-50.0))
+                verts.append(float(-5.0))
                 verts.append(float(z))
                 verts.append(float(x))
-                verts.append(float(-50.0))
+                verts.append(float(-5.0))
                 verts.append(float(-z))
                 verts.append(float(x))
-                verts.append(float(-50.0))
+                verts.append(float(-5.0))
                 verts.append(float(z))
 
         return np.array(verts, dtype=np.float32)
@@ -419,13 +419,13 @@ def handle_inputs():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position[1] -= 10.0
+        paddle1.position[1] -= 1.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position[1] += 10.0
+        paddle1.position[1] += 1.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position[1] -= 10.0
+        paddle2.position[1] -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position[1] += 10.0
+        paddle2.position[1] += 1.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -440,13 +440,13 @@ def handle_inputs():
 
 
 # fmt: off
-square_vertices = np.array(
-    [[-5.0, -5.0, 0.0],
-     [5.0, -5.0, 0.0],
-     [5.0, 5.0, 0.0],
-     [-5.0, 5.0, 0.0]],
-    dtype=np.float32,
-)
+# square_vertices = np.array(
+#     [[-5.0, -5.0, .0],
+#      [5.0, -5.0, .0],
+#      [5.0, 5.0, .0],
+#      [-5.0, 5.0, .0]],
+#     dtype=np.float32,
+# )
 # fmt: on
 
 
@@ -513,7 +513,7 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be perspective
     ms.perspective(
-        fov=45.0, aspectRatio=float(width) / float(height), nearZ=0.1, farZ=10000.0
+        fov=45.0, aspectRatio=float(width) / float(height), nearZ=0.1, farZ=1000.0
     )
 
     # render scene
@@ -527,11 +527,11 @@ while not glfw.window_should_close(window):
     axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
-            camera.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
-            camera.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
+            camera.x += 1.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            camera.z -= 1.0 * axes_list[0][0] * math.sin(camera.rot_y)
         if math.fabs(float(axes_list[0][1])) > 0.1:
-            camera.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
-            camera.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
+            camera.x += 1.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            camera.z += 1.0 * axes_list[0][1] * math.cos(camera.rot_y)
 
         # print(axes_list[0][4])
         if math.fabs(axes_list[0][3]) > 0.10:
@@ -569,10 +569,10 @@ while not glfw.window_should_close(window):
             # before paddle 2 is drawn, we need to remove
             # the square's 3 model_space transformations
 
-            ms.translate(ms.MatrixStack.model, 0.0, 0.0, -10.0)
+            ms.translate(ms.MatrixStack.model, 0.0, 0.0, -1.0)
             ms.rotate_z(ms.MatrixStack.model, square.rotation_around_paddle1)
 
-            ms.translate(ms.MatrixStack.model, 20.0, 0.0, 0.0)
+            ms.translate(ms.MatrixStack.model, 2.0, 0.0, 0.0)
             ms.rotate_z(ms.MatrixStack.model, square.rotation)
 
             square.render()

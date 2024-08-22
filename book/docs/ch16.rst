@@ -232,7 +232,7 @@ The inverted form is
    so in world space.  We need to get the -1 to 1 space in x,y,z relative
    to camera space to match the -1 to 1 space in world space.
 
-   eog ../images/demo10.png
+   eog ../images/demo1.png
 
    Why do we do this?  Because it doesn't matter how we think about
    the coordinate transformations, the computer will always execute

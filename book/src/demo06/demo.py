@@ -132,28 +132,28 @@ class Paddle:
 # doc-region-begin be85f68c2e4e7e58096273ff1ab6a4abc162dc32
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex(x=-10.0, y=-30.0),
-        Vertex(x=10.0, y=-30.0),
-        Vertex(x=10.0, y=30.0),
-        Vertex(x=-10.0, y=30.0),
+        Vertex(x=-1.0, y=-3.0),
+        Vertex(x=1.0, y=-3.0),
+        Vertex(x=1.0, y=3.0),
+        Vertex(x=-1.0, y=3.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex(-90.0, 0.0),
+    position=Vertex(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex(x=-10.0, y=-30.0),
-        Vertex(x=10.0, y=-30.0),
-        Vertex(x=10.0, y=30.0),
-        Vertex(x=-10.0, y=30.0),
+        Vertex(x=-1.0, y=-3.0),
+        Vertex(x=1.0, y=-3.0),
+        Vertex(x=1.0, y=3.0),
+        Vertex(x=-1.0, y=3.0),
     ],
     r=1.0,
     g=0.0,
     b=0.0,
-    position=Vertex(90.0, 0.0),
+    position=Vertex(9.0, 0.0),
 )
 # doc-region-end be85f68c2e4e7e58096273ff1ab6a4abc162dc32
 
@@ -163,13 +163,13 @@ def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position.y -= 10.0
+        paddle1.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position.y += 10.0
+        paddle1.position.y += 1.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position.y -= 10.0
+        paddle2.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position.y += 10.0
+        paddle2.position.y += 1.0
 
 
 # doc-region-end 1a17a9d680387b5c37d842115b617cdeb910be61
@@ -208,8 +208,8 @@ while not glfw.window_should_close(window):
                                                     ty=paddle1.position.y)
         # doc-region-end 5b1156f32f2d788cec10cedf43b7847fe92f5350
         # doc-region-begin 2091aa68e2d6d5bccdcb968391bf5d657fe9ad1a
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
-                                              scale_y=1.0 / 100.0)
+        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
+                                              scale_y=1.0 / 10.0)
         # doc-region-end 2091aa68e2d6d5bccdcb968391bf5d657fe9ad1a
         # fmt: off
         # doc-region-begin 4788d1809c34fff4b8a6e63bd28c0ca90184457a
@@ -230,8 +230,8 @@ while not glfw.window_should_close(window):
                                                     ty=paddle2.position.y)
         # doc-region-end 8654606ea6b0f530930d8d43f6c0d110e867e0d8
         # doc-region-begin a9da863c1edd7395ad98084f43056476991a5c5c
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 100.0,
-                                              scale_y=1.0 / 100.0)
+        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
+                                              scale_y=1.0 / 10.0)
         # doc-region-end a9da863c1edd7395ad98084f43056476991a5c5c
         # fmt: on
 

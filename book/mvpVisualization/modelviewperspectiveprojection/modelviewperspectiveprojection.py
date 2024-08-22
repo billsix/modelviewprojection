@@ -1208,11 +1208,12 @@ while not glfw.window_should_close(window):
     imgui.begin("Options", True)
     show, _ = imgui.collapsing_header("Time")
     if show:
-
         clicked_animation_paused, animation_paused = imgui.checkbox(
             "Pause", animation_paused
         )
-        clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
+        clicked_camera, camera.r = imgui.slider_float(
+            "Camera Radius", camera.r, 10, 1000.0
+        )
         (
             clicked_animation_time_multiplier,
             animation_time_multiplier,
@@ -1318,7 +1319,9 @@ while not glfw.window_should_close(window):
                 imgui.same_line()
                 imgui.text("* x))")
                 imgui.tree_pop()
-            if imgui.tree_node("Frustum->Rectangular Prism", imgui.TREE_NODE_DEFAULT_OPEN):
+            if imgui.tree_node(
+                "Frustum->Rectangular Prism", imgui.TREE_NODE_DEFAULT_OPEN
+            ):
                 imgui.text("f_frustum_to_prism(x) = ")
                 imgui.same_line()
                 if highlighted_button("Squash Y", 95, animation_time):
@@ -1428,7 +1431,6 @@ while not glfw.window_should_close(window):
 
     show, _ = imgui.collapsing_header("Display Options")
     if show:
-
         clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
             "Enlarged Axises", enlarged_axis
         )

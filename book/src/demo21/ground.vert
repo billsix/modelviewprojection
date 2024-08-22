@@ -31,5 +31,5 @@ out VS_OUT {
 void main()
 {
    gl_Position = mvpMatrix * vec4(position,1.0);
-   vs_out.color = vec4(0.5,0.5,0.5,1.0);
+   vs_out.color = vec4(.5,.5,.5,1.0);
 }

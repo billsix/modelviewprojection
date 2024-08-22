@@ -134,19 +134,19 @@ class Paddle:
     vertices: np.array = field(
         default_factory=lambda: np.array(
             [
-                [-10.0, -30.0, 0.0],
-                [10.0, -30.0, 0.0],
-                [10.0, 30.0, 0.0],
-                [-10.0, 30.0, 0.0],
+                [-1.0, -3.0, 0.0],
+                [1.0, -3.0, 0.0],
+                [1.0, 3.0, 0.0],
+                [-1.0, 3.0, 0.0],
             ],
             dtype=np.float32,
         )
     )
 
 
-paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-90.0, 0.0, 0.0]))
+paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-9.0, 0.0, 0.0]))
 
-paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([90.0, 0.0, 0.0]))
+paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([9.0, 0.0, 0.0]))
 
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
@@ -161,7 +161,7 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera: Camera = Camera(x=0.0, y=0.0, z=400.0, rot_y=0.0, rot_x=0.0)
+camera: Camera = Camera(x=0.0, y=0.0, z=40.0, rot_y=0.0, rot_x=0.0)
 
 
 square_rotation: float = 0.0
@@ -198,13 +198,13 @@ def handle_inputs():
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position[1] -= 10.0
+        paddle1.position[1] -= 1.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position[1] += 10.0
+        paddle1.position[1] += 1.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position[1] -= 10.0
+        paddle2.position[1] -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position[1] += 10.0
+        paddle2.position[1] += 1.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -219,7 +219,7 @@ def handle_inputs():
 
 
 square_vertices: np.array = np.array(
-    [[-5.0, -5.0, 0.0], [5.0, -5.0, 0.0], [5.0, 5.0, 0.0], [-5.0, 5.0, 0.0]],
+    [[-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0], [-0.5, 0.5, 0.0]],
     dtype=np.float32,
 )
 
@@ -264,11 +264,11 @@ while not glfw.window_should_close(window):
     axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
-            camera.x += 10.0 * axes_list[0][0] * math.cos(camera.rot_y)
-            camera.z -= 10.0 * axes_list[0][0] * math.sin(camera.rot_y)
+            camera.x += 1.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            camera.z -= 1.0 * axes_list[0][0] * math.sin(camera.rot_y)
         if math.fabs(float(axes_list[0][1])) > 0.1:
-            camera.x += 10.0 * axes_list[0][1] * math.sin(camera.rot_y)
-            camera.z += 10.0 * axes_list[0][1] * math.cos(camera.rot_y)
+            camera.x += 1.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            camera.z += 1.0 * axes_list[0][1] * math.cos(camera.rot_y)
 
         # print(axes_list[0][4])
         if math.fabs(axes_list[0][3]) > 0.10:
@@ -288,7 +288,7 @@ while not glfw.window_should_close(window):
         45.0,  # fov
         1.0,  # aspectRation
         0.1,  # nearZ
-        10000.0,  # farZ
+        1000.0,  # farZ
     )
 
     # view
@@ -334,9 +334,9 @@ while not glfw.window_should_close(window):
     glColor3f(0.0, 0.0, 1.0)
 
     # these functions change the current model matrix
-    glTranslate(0.0, 0.0, -10.0)
+    glTranslate(0.0, 0.0, -1.0)
     glRotatef(math.degrees(rotation_around_paddle1), 0.0, 0.0, 1.0)
-    glTranslate(20.0, 0.0, 0.0)
+    glTranslate(2.0, 0.0, 0.0)
     glRotatef(math.degrees(square_rotation), 0.0, 0.0, 1.0)
 
     glBegin(GL_QUADS)

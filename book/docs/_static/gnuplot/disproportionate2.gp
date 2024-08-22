@@ -1,4 +1,4 @@
-set size ratio 0.5
+set size ratio .5
 set term png
 set output 'disproportionate2.png'
 set linetype 11 lc rgb 'black'

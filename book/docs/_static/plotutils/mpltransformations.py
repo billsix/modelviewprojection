@@ -29,7 +29,7 @@ def mapMatplotlibData(f, *pointsOnAxis):
     allows the programmer to transform each x,y pair by function f
 
     >>> xs = np.array([-5.0,5.0])
-    >>> ys = np.array([0.0,0.0])
+    >>> ys = np.array([.0,.0])
     >>> txs, tys = mapMatplotlibData(lambda point: (point[0]+1.0, point[1]+1.0),
     ...                              xs,
     ...                              ys)
@@ -39,7 +39,7 @@ def mapMatplotlibData(f, *pointsOnAxis):
     (1.0, 1.0)
     >>> # regardless of the number of arguments, mapMatplotlibData works!
     >>> xs = np.array([-5.0,5.0])
-    >>> ys = np.array([0.0,0.0])
+    >>> ys = np.array([.0,.0])
     >>> zs = np.array([2.0,3.0])
     >>> txs, tys, tzs =mapMatplotlibData(lambda point: (point[0]+1.0, point[1]+1.0, point[2]-1.0),
     ...                                  xs,
@@ -81,7 +81,7 @@ def _rotatePoint(angle, x, y):
 
     >>> x = 5.0
     >>> y = 0.0
-    >>> _rotatePoint(math.radians(0.1),x,y)
+    >>> _rotatePoint(math.radians(.1),x,y)
     (4.999992384566438, 0.008726641829491543)
     """
     return (
@@ -93,8 +93,8 @@ def _rotatePoint(angle, x, y):
 def rotate(angle):
     """Rotate the xs and ys by angle
     >>> xs = np.array([-5.0,5.0])
-    >>> ys = np.array([0.0,0.0])
-    >>> for transformedAxis in rotate(math.radians(0.1))(xs,ys):
+    >>> ys = np.array([.0,.0])
+    >>> for transformedAxis in rotate(math.radians(.1))(xs,ys):
     ...      print(transformedAxis)
     (-4.999992384566438, 4.999992384566438)
     (-0.008726641829491543, 0.008726641829491543)

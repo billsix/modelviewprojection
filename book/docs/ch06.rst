@@ -260,12 +260,12 @@ Scaling
 
 Our paddles are now well outside of NDC, and as such, they would not
 be displayed, as they would be *clipped* out.  Their values are outside
-of -1.0 to 1.0.  All we will need to do to convert them from
-world space to NDC is divide each component, x and y, by 100.
+of -1.0 to 1..  All we will need to do to convert them from
+world space to NDC is divide each component, x and y, by 10.
 
 As a demonstration of how scaling works, let's make an
 object's width twice as large, and height three times as large. (The author
-tried doing the actual scaling of 1/100 in an animated gif, and it looked awful,
+tried doing the actual scaling of 1/10 in an animated gif, and it looked awful,
 therefore a different scaling gif is showed here, but the concept
 is the same).
 
@@ -307,8 +307,8 @@ by "scale"ing each component of the vertices by some coefficient.
 
 
 
-Our global space is -100 to 100 in both dimesnions,
-and to get it into NDC, we need to scale by dividing by 100
+Our global space is -10 to 10 in both dimesnions,
+and to get it into NDC, we need to scale by dividing by 10
 
 
 .. figure:: _static/demo06.png
@@ -403,7 +403,7 @@ and convert them to NDC.
     \begin{bmatrix}
     x_{w} \\
     y_{w}
-    \end{bmatrix})  = 1/100 *
+    \end{bmatrix})  = 1/10 *
     \begin{bmatrix}
     x_{w} \\
     y_{w}
@@ -503,7 +503,7 @@ Rendering Paddle 1
 
 The coordinate system now resets back to the coordinate system specified
 on the left and below.
-Now, we must scale everything by 1/100.  I have
+Now, we must scale everything by 1/10.  I have
 not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.
@@ -579,7 +579,7 @@ Rendering Paddle 2
    :end-before: doc-region-end 260c1301effa6c7ec13f1b36454be3ff448ee641
 
 
-The coordinate system is reset.  Now scale everything by 1/100.  I have
+The coordinate system is reset.  Now scale everything by 1/10.  I have
 not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.

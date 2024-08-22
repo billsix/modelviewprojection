@@ -253,7 +253,7 @@ Event Loop
 
 
 The square should not be visible when hidden behind the paddle1,
-as we do a translate by -10.  But in running the demo, you see
+as we do a translate by -1.  But in running the demo, you see
 that the square is always drawn over the paddle.
 
 

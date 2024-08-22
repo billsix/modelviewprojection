@@ -178,8 +178,8 @@ def plot(
     # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     # >>> list(range(0,10,2))
     # [0, 2, 4, 6, 8]
-    # >>> np.arange(0.0,1.0,0.2)
-    # array([0. , 0.2, 0.4, 0.6, 0.8])
+    # >>> np.arange(.0,1.0,.2)
+    # array([. , .2, .4, .6, .8])
     for x in np.arange(domain[0], domain[1], interval):
         # glVertex is here twice because line segments are assumed to be in pairs
         glVertex2f(x, fn(x))

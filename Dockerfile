@@ -1,8 +1,6 @@
 # Use the Red Hat Universal Base Image 8
 FROM fedora
 
-COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
-COPY ./book /book/
 RUN dnf install    -y gnuplot \
                       texlive \
                       texlive-anyfontsize \
@@ -13,5 +11,8 @@ RUN dnf install    -y gnuplot \
                       make \
                       python3-imageio \
                       python3-matplotlib
+
+COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
+COPY ./book /book/
 
 ENTRYPOINT ["/entrypoint.sh"]

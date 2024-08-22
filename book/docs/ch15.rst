@@ -124,7 +124,7 @@ if nearer objects are drawn in front
 
 
 the square should not be visible when hidden behind the paddle1,
-as we did a translate by -10.
+as we did a translate by -1.
 this is because without depth buffering, the object drawn last
 clobbers the color of any previously drawn object at the pixel.
 Try moving the square drawing code to the beginning, and you will

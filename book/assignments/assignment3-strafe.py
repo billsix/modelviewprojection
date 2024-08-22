@@ -189,7 +189,7 @@ class Vertex:
             fov=45.0,
             aspectRatio=1.0,
             nearZ=-0.1,
-            farZ=-10000.0,
+            farZ=-1000.0,
         )
 
 
@@ -202,17 +202,17 @@ class Paddle:
     rotation: float = 0.0
     vertices: list[Vertex] = field(
         default_factory=lambda: [
-            -10.0,
-            -30.0,
+            -1.0,
+            -3.0,
             0.0,
-            10.0,
-            -30.0,
+            1.0,
+            -3.0,
             0.0,
-            10.0,
-            30.0,
+            1.0,
+            3.0,
             0.0,
-            -10.0,
-            30.0,
+            -1.0,
+            3.0,
             0.0,
         ]
     )
@@ -220,28 +220,28 @@ class Paddle:
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex(x=-10.0, y=-30.0, z=0.0),
-        Vertex(x=10.0, y=-30.0, z=0.0),
-        Vertex(x=10.0, y=30.0, z=0.0),
-        Vertex(x=-10.0, y=30.0, z=0.0),
+        Vertex(x=-1.0, y=-3.0, z=0.0),
+        Vertex(x=1.0, y=-3.0, z=0.0),
+        Vertex(x=1.0, y=3.0, z=0.0),
+        Vertex(x=-1.0, y=3.0, z=0.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex(x=-90.0, y=0.0, z=0.0),
+    position=Vertex(x=-9.0, y=0.0, z=0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex(x=-10.0, y=-30.0, z=0.0),
-        Vertex(x=10.0, y=-30.0, z=0.0),
-        Vertex(x=10.0, y=30.0, z=0.0),
-        Vertex(x=-10.0, y=30.0, z=0.0),
+        Vertex(x=-1.0, y=-3.0, z=0.0),
+        Vertex(x=1.0, y=-3.0, z=0.0),
+        Vertex(x=1.0, y=3.0, z=0.0),
+        Vertex(x=-1.0, y=3.0, z=0.0),
     ],
     r=1.0,
     g=0.0,
     b=0.0,
-    position=Vertex(x=90.0, y=0.0, z=0.0),
+    position=Vertex(x=9.0, y=0.0, z=0.0),
 )
 
 
@@ -251,7 +251,7 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 @dataclass
 class Camera:
     position_worldspace: Vertex = field(
-        default_factory=lambda: Vertex(x=0.0, y=0.0, z=400.0)
+        default_factory=lambda: Vertex(x=0.0, y=0.0, z=40.0)
     )
     rot_y: float = 0.0
     rot_x: float = 0.0
@@ -328,13 +328,13 @@ def handle_inputs() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position.y -= 10.0
+        paddle1.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position.y += 10.0
+        paddle1.position.y += 1.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position.y -= 10.0
+        paddle2.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position.y += 10.0
+        paddle2.position.y += 1.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -372,17 +372,17 @@ while not glfw.window_should_close(window):
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.19:
             camera.position_worldspace.x += (
-                10.0 * axes_list[0][0] * math.cos(camera.rot_y)
+                1.0 * axes_list[0][0] * math.cos(camera.rot_y)
             )
             camera.position_worldspace.z -= (
-                10.0 * axes_list[0][0] * math.sin(camera.rot_y)
+                1.0 * axes_list[0][0] * math.sin(camera.rot_y)
             )
         if math.fabs(float(axes_list[0][1])) > 0.19:
             camera.position_worldspace.x += (
-                10.0 * axes_list[0][1] * math.sin(camera.rot_y)
+                1.0 * axes_list[0][1] * math.sin(camera.rot_y)
             )
             camera.position_worldspace.z += (
-                10.0 * axes_list[0][1] * math.cos(camera.rot_y)
+                1.0 * axes_list[0][1] * math.cos(camera.rot_y)
             )
 
         if math.fabs(axes_list[0][3]) > 0.19:
@@ -424,9 +424,9 @@ while not glfw.window_should_close(window):
     for model_space in square:
         paddle_1_space: Vertex = (
             model_space.rotate_z(square_rotation)
-            .translate(tx=20.0, ty=0.0, tz=0.0)
+            .translate(tx=2.0, ty=0.0, tz=0.0)
             .rotate_z(rotation_around_paddle1)
-            .translate(tx=0.0, ty=0.0, tz=-10.0)
+            .translate(tx=0.0, ty=0.0, tz=-1.0)
         )
         world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation).translate(
             tx=paddle1.position.x, ty=paddle1.position.y, tz=0.0

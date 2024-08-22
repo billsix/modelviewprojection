@@ -156,7 +156,7 @@ The frame sent to the monitor is a set of values like this ::
 
 
 
-What do we have to do to convert from normalized-device-coordinates (i.e. (1.0, 0.8))
+What do we have to do to convert from normalized-device-coordinates (i.e. (1.0, .8))
 into pixel coordinates (i.e. pixel (10,15))?  Nothing, OpenGL does that for us automatically; therefore
 we never have to think in terms of pixels coordinates, only in terms of vertices of shapes,
 specified by normalized-device-coordinates. OpenGL also automatically colors all of the pixels
@@ -206,8 +206,8 @@ In this case, it abstracts over screen-space, thus freeing the
 programmer from caring about screen size.  If a programmer does not want to program
 in discrete (discrete means integer values, not continuous) screen-space,
 what type of numbers should he use?  Firstly, it should be a continuous space, meaning
-that it should be in decimal numbers.  Because if a real-world object is 10.3 meters long, a programmer
-should be able to enter "float foo = 10.3".  Secondly, it should be a fixed range vertically
+that it should be in decimal numbers.  Because if a real-world object is 1.3 meters long, a programmer
+should be able to enter "float foo = 1.3".  Secondly, it should be a fixed range vertically
 and an fixed range horizontally.  OpenGL will have to convert points from some space to screen-space,
 and since this is done in hardware (i.e. you can't programmatically change how the conversion
 happens), it should be a fixed size.

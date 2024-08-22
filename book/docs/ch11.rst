@@ -156,7 +156,7 @@ to worldspace from the bottom up, and from worldspace to NDC from top down.
 
 New part!  Draw the square relative to the first paddle!
 Translate the square to the right by 20 units.
-We are dealing with a -100 to 100 world space, which
+We are dealing with a -10 to 10 world space, which
 later gets scaled down to NDC.
 
 .. literalinclude:: ../src/demo11/demo.py

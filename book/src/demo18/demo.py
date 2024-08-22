@@ -188,7 +188,7 @@ class Vertex:
             fov=45.0,
             aspectRatio=1.0,
             nearZ=-0.1,
-            farZ=-10000.0,
+            farZ=-1000.0,
         )
 
 
@@ -204,28 +204,28 @@ class Paddle:
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex(x=-10.0, y=-30.0, z=0.0),
-        Vertex(x=10.0, y=-30.0, z=0.0),
-        Vertex(x=10.0, y=30.0, z=0.0),
-        Vertex(x=-10.0, y=30.0, z=0.0),
+        Vertex(x=-1.0, y=-3.0, z=0.0),
+        Vertex(x=1.0, y=-3.0, z=0.0),
+        Vertex(x=1.0, y=3.0, z=0.0),
+        Vertex(x=-1.0, y=3.0, z=0.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex(x=-90.0, y=0.0, z=0.0),
+    position=Vertex(x=-9.0, y=0.0, z=0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex(x=-10.0, y=-30.0, z=0.0),
-        Vertex(x=10.0, y=-30.0, z=0.0),
-        Vertex(x=10.0, y=30.0, z=0.0),
-        Vertex(x=-10.0, y=30.0, z=0.0),
+        Vertex(x=-1.0, y=-3.0, z=0.0),
+        Vertex(x=1.0, y=-3.0, z=0.0),
+        Vertex(x=1.0, y=3.0, z=0.0),
+        Vertex(x=-1.0, y=3.0, z=0.0),
     ],
     r=1.0,
     g=0.0,
     b=0.0,
-    position=Vertex(x=90.0, y=0.0, z=0.0),
+    position=Vertex(x=9.0, y=0.0, z=0.0),
 )
 
 
@@ -235,7 +235,7 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 @dataclass
 class Camera:
     position_worldspace: Vertex = field(
-        default_factory=lambda: Vertex(x=0.0, y=0.0, z=400.0)
+        default_factory=lambda: Vertex(x=0.0, y=0.0, z=40.0)
     )
     rot_y: float = 0.0
     rot_x: float = 0.0
@@ -245,10 +245,10 @@ camera: Camera = Camera()
 
 
 square: Paddle = [
-    Vertex(x=-5.0, y=-5.0, z=0.0),
-    Vertex(x=5.0, y=-5.0, z=0.0),
-    Vertex(x=5.0, y=5.0, z=0.0),
-    Vertex(x=-5.0, y=5.0, z=0.0),
+    Vertex(x=-0.5, y=-0.5, z=0.0),
+    Vertex(x=0.5, y=-0.5, z=0.0),
+    Vertex(x=0.5, y=0.5, z=0.0),
+    Vertex(x=-0.5, y=0.5, z=0.0),
 ]
 square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
@@ -284,13 +284,13 @@ def handle_inputs() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position.y -= 10.0
+        paddle1.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position.y += 10.0
+        paddle1.position.y += 1.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position.y -= 10.0
+        paddle2.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position.y += 10.0
+        paddle2.position.y += 1.0
 
     global paddle_1_rotation, paddle_2_rotation
 
@@ -356,17 +356,17 @@ while not glfw.window_should_close(window):
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
             camera.position_worldspace.x += (
-                10.0 * axes_list[0][0] * math.cos(camera.rot_y)
+                1.0 * axes_list[0][0] * math.cos(camera.rot_y)
             )
             camera.position_worldspace.z -= (
-                10.0 * axes_list[0][0] * math.sin(camera.rot_y)
+                1.0 * axes_list[0][0] * math.sin(camera.rot_y)
             )
         if math.fabs(float(axes_list[0][1])) > 0.1:
             camera.position_worldspace.x += (
-                10.0 * axes_list[0][1] * math.sin(camera.rot_y)
+                1.0 * axes_list[0][1] * math.sin(camera.rot_y)
             )
             camera.position_worldspace.z += (
-                10.0 * axes_list[0][1] * math.cos(camera.rot_y)
+                1.0 * axes_list[0][1] * math.cos(camera.rot_y)
             )
 
         # print(axes_list[0][4])
@@ -403,7 +403,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin 7de7248650b2809520898faed65be4050d2b441a
     fn_stack.push(lambda v: v.translate(tx=paddle1.position.x,
                                           ty=paddle1.position.y,
-                                          tz=0.0)) # (5) translate the local origin
+                                          tz=.0)) # (5) translate the local origin
     fn_stack.push(lambda v: v.rotate_z(paddle1.rotation)) # (6) (rotate around the local z axis
     # doc-region-end 7de7248650b2809520898faed65be4050d2b441a
     # fmt: on
@@ -421,9 +421,9 @@ while not glfw.window_should_close(window):
     # doc-region-begin 87d309a76468a5dd49f5805f739932d7a1b4dac1
     glColor3f(0.0, 0.0, 1.0)
 
-    fn_stack.push(lambda v: v.translate(tx=0.0, ty=0.0, tz=-10.0))  # (7)
+    fn_stack.push(lambda v: v.translate(tx=0.0, ty=0.0, tz=-1.0))  # (7)
     fn_stack.push(lambda v: v.rotate_z(rotation_around_paddle1))  # (8)
-    fn_stack.push(lambda v: v.translate(tx=20.0, ty=0.0, tz=0.0))  # (9)
+    fn_stack.push(lambda v: v.translate(tx=2.0, ty=0.0, tz=0.0))  # (9)
     fn_stack.push(lambda v: v.rotate_z(square_rotation))  # (10)
 
     glBegin(GL_QUADS)
@@ -446,7 +446,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin 9206a08662c91ad536b41641910f7e8e951f7c9e
     fn_stack.push(lambda v: v.translate(tx=paddle2.position.x,
                                           ty=paddle2.position.y,
-                                          tz=0.0))  # (5)
+                                          tz=.0))  # (5)
     fn_stack.push(lambda v: v.rotate_z(paddle2.rotation))  # (6)
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)

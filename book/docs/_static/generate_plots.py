@@ -145,11 +145,11 @@ paddle1 = Geometry(
         zip(
             *np.array(
                 [
-                    [-10.0, -30.0],
-                    [10.0, -30.0],
-                    [10.0, 30.0],
-                    [-10.0, 30.0],
-                    [-10.0, -30.0],
+                    [-1.0, -3.0],
+                    [1.0, -3.0],
+                    [1.0, 3.0],
+                    [-1.0, 3.0],
+                    [-1.0, -3.0],
                 ]
             )
         )
@@ -162,11 +162,11 @@ paddle2 = Geometry(
         zip(
             *np.array(
                 [
-                    [-10.0, -30.0],
-                    [10.0, -30.0],
-                    [10.0, 30.0],
-                    [-10.0, 30.0],
-                    [-10.0, -30.0],
+                    [-1.0, -3.0],
+                    [1.0, -3.0],
+                    [1.0, 3.0],
+                    [-1.0, 3.0],
+                    [-1.0, -3.0],
                 ]
             )
         )
@@ -181,10 +181,10 @@ def create_graphs(
     geometry,
     procedures,
     backwards=False,
-    graph_bounds=(100, 100),
-    gridline_interval=5,
-    unit_x=10.0,
-    unit_y=10.0,
+    graph_bounds=(10, 10),
+    gridline_interval=1,
+    unit_x=1.0,
+    unit_y=1.0,
 ):
     """Creates an animated dif of the geometry, through a sequence of transformations"""
 
@@ -295,7 +295,7 @@ create_graphs(
     title="Translation",
     filename="translation-forwards",
     geometry=paddle1,
-    procedures=[mplt.translate(-90.0, 20.0)],
+    procedures=[mplt.translate(-9.0, 2.0)],
 )
 
 
@@ -303,14 +303,14 @@ create_graphs(
     title="Translation",
     filename="translation2-forwards",
     geometry=paddle2,
-    procedures=[mplt.translate(90.0, -40.0)],
+    procedures=[mplt.translate(9.0, -4.0)],
 )
 
 create_graphs(
     title="Translation",
     filename="translation-backwards",
     geometry=paddle1,
-    procedures=[mplt.translate(-90.0, 20.0)],
+    procedures=[mplt.translate(-9.0, 2.0)],
     backwards=True,
 )
 
@@ -319,7 +319,7 @@ create_graphs(
     title="Translation",
     filename="translation2-backwards",
     geometry=paddle2,
-    procedures=[mplt.translate(90.0, -40.0)],
+    procedures=[mplt.translate(9.0, -4.0)],
     backwards=True,
 )
 
@@ -349,7 +349,7 @@ create_graphs(
     geometry=paddle1,
     procedures=[
         mplt.rotate(math.radians(45.0)),
-        mplt.translate(-90.0, 20.0),
+        mplt.translate(-9.0, 2.0),
     ],
 )
 
@@ -358,7 +358,7 @@ create_graphs(
     filename="incorrectrotate-forwards",
     geometry=paddle1,
     procedures=[
-        mplt.translate(-90.0, 20.0),
+        mplt.translate(-9.0, 2.0),
         mplt.rotate(math.radians(65.0)),
     ],
 )
@@ -368,7 +368,7 @@ create_graphs(
     filename="incorrectrotate-backwards",
     geometry=paddle1,
     procedures=[
-        mplt.translate(-90.0, 20.0),
+        mplt.translate(-9.0, 2.0),
         mplt.rotate(math.radians(65.0)),
     ],
     backwards=True,
@@ -380,10 +380,10 @@ create_graphs(
     filename="rotate-sloppy-backwards",
     geometry=paddle1,
     procedures=[
-        mplt.translate(-90.0, 20.0),
-        mplt.translate(90.0, -20.0),
+        mplt.translate(-9.0, 2.0),
+        mplt.translate(9.0, -2.0),
         mplt.rotate(math.radians(45.0)),
-        mplt.translate(-90.0, 20.0),
+        mplt.translate(-9.0, 2.0),
     ],
     backwards=True,
 )
@@ -393,10 +393,10 @@ create_graphs(
     filename="rotate-sloppy-forwards",
     geometry=paddle1,
     procedures=[
-        mplt.translate(-90.0, 20.0),
-        mplt.translate(90.0, -20.0),
+        mplt.translate(-9.0, 2.0),
+        mplt.translate(9.0, -2.0),
         mplt.rotate(math.radians(45.0)),
-        mplt.translate(-90.0, 20.0),
+        mplt.translate(-9.0, 2.0),
     ],
 )
 
@@ -407,7 +407,7 @@ create_graphs(
     geometry=paddle1,
     procedures=[
         mplt.rotate(math.radians(45.0)),
-        mplt.translate(-90.0, 20.0),
+        mplt.translate(-9.0, 2.0),
     ],
     backwards=True,
 )
@@ -417,7 +417,7 @@ create_graphs(
     title="Rotation, Relative to World Space",
     filename="rotate2-forwards",
     geometry=paddle2,
-    procedures=[mplt.rotate(math.radians(-10.0)), mplt.translate(90.0, -40.0)],
+    procedures=[mplt.rotate(math.radians(-1.0)), mplt.translate(9.0, -4.0)],
 )
 
 create_graphs(
@@ -425,8 +425,8 @@ create_graphs(
     filename="rotate2-backwards",
     geometry=paddle2,
     procedures=[
-        mplt.rotate(math.radians(-10.0)),
-        mplt.translate(90.0, -40.0),
+        mplt.rotate(math.radians(-1.0)),
+        mplt.translate(9.0, -4.0),
     ],
     backwards=True,
 )
@@ -436,11 +436,11 @@ square = Geometry(
         zip(
             *np.array(
                 [
-                    [-10.0, -10.0],
-                    [10.0, -10.0],
-                    [10.0, 10.0],
-                    [-10.0, 10.0],
-                    [-10.0, -10.0],
+                    [-1.0, -1.0],
+                    [1.0, -1.0],
+                    [1.0, 1.0],
+                    [-1.0, 1.0],
+                    [-1.0, -1.0],
                 ]
             )
         )
@@ -526,8 +526,8 @@ create_graphs(
     filename="inverse-ortho2d-backwards",
     geometry=square_ndc,
     procedures=[
-        mplt.scale(scaleX=10.0 / 2.0, scaleY=7.0 / 2.0),
-        mplt.translate(10.0 / 2, 7.0 / 2),
+        mplt.scale(scaleX=1.0 / 2.0, scaleY=7.0 / 2.0),
+        mplt.translate(1.0 / 2, 7.0 / 2),
     ],
     backwards=True,
     graph_bounds=(10, 10),
@@ -541,8 +541,8 @@ create_graphs(
     filename="inverse-ortho2d",
     geometry=square_ndc,
     procedures=[
-        mplt.scale(scaleX=10.0 / 2.0, scaleY=7.0 / 2.0),
-        mplt.translate(10.0 / 2, 7.0 / 2),
+        mplt.scale(scaleX=1.0 / 2.0, scaleY=7.0 / 2.0),
+        mplt.translate(1.0 / 2, 7.0 / 2),
     ],
     backwards=False,
     graph_bounds=(10, 10),
@@ -558,8 +558,8 @@ square_ndc = Geometry(
             *np.array(
                 [
                     [0.0, 0.0],
-                    [10.0, 0.0],
-                    [10.0, 7.0],
+                    [1.0, 0.0],
+                    [1.0, 7.0],
                     [0.0, 7.0],
                     [0.0, 0.0],
                 ]
@@ -575,8 +575,8 @@ create_graphs(
     filename="ortho2d-backwards",
     geometry=square_ndc,
     procedures=[
-        mplt.translate(-10.0 / 2, -7.0 / 2),
-        mplt.scale(scaleX=1.0 / (10.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
+        mplt.translate(-1.0 / 2, -7.0 / 2),
+        mplt.scale(scaleX=1.0 / (1.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
     ],
     backwards=True,
     graph_bounds=(10, 10),
@@ -590,8 +590,8 @@ create_graphs(
     filename="ortho2d",
     geometry=square_ndc,
     procedures=[
-        mplt.translate(-10.0 / 2, -7.0 / 2),
-        mplt.scale(scaleX=1.0 / (10.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
+        mplt.translate(-1.0 / 2, -7.0 / 2),
+        mplt.scale(scaleX=1.0 / (1.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
     ],
     backwards=False,
     graph_bounds=(10, 10),
