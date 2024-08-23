@@ -260,7 +260,7 @@ Scaling
 
 Our paddles are now well outside of NDC, and as such, they would not
 be displayed, as they would be *clipped* out.  Their values are outside
-of -1.0 to 1..  All we will need to do to convert them from
+of -1.0 to 1.0.  All we will need to do to convert them from
 world space to NDC is divide each component, x and y, by 10.
 
 As a demonstration of how scaling works, let's make an

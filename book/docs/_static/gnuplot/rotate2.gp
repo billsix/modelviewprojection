@@ -16,11 +16,11 @@ set trange [pi/2:3*pi/4]
 
 set trange [0:pi/4]
 
-set label "(1,0)" at .9,.05
-set label "(Y, -X) = (cos(angle),sin(angle))" at .4,.8
+set label "(1,0)" at 0.9,0.05
+set label "(Y, -X) = (cos(angle),sin(angle))" at 0.4,0.8
 
-set label "(.4,0)" at .32,.05
-set label "(Y, -X) = (.4*cos(angle),.4*sin(angle))" at .0,.4
+set label "(0.4,0)" at 0.32,0.05
+set label "(Y, -X) = (0.4*cos(angle),0.4*sin(angle))" at 0.0,0.4
 
 set rmargin 10
 set bmargin 5
@@ -33,4 +33,4 @@ show ylabel
 
 
 
-plot      1  notitle, .4  notitle, 'rotate2.dat' using 1:2 with points ls 1  notitle
+plot      1  notitle, 0.4  notitle, 'rotate2.dat' using 1:2 with points ls 1  notitle

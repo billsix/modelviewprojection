@@ -277,10 +277,10 @@ while not glfw.window_should_close(window):
         world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
                                          .translate(tx=paddle1.position.x,
                                                     ty=paddle1.position.y,
-                                                    tz=.0)
+                                                    tz=0.0)
         camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
                                                      ty=-camera.position_worldspace.y,
-                                                     tz=.0)
+                                                     tz=0.0)
         ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 10.0,
                                                scale_y=1.0 / 10.0,
                                                scale_z=1.0 / 10.0)
@@ -290,23 +290,24 @@ while not glfw.window_should_close(window):
 
     # fmt: off
     # draw square
-    glColor3f(.0, .0, 1.0)
+    glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
         paddle_1_space: Vertex = model_space.rotate_z(square_rotation) \
                                             .translate(tx=2.0,
-                                                       ty=.0,
-                                                       tz=.0) \
+                                                       ty=0.0,
+                                                       tz=0.0) \
                                             .rotate_z(rotation_around_paddle1) \
-                                            .translate(tx=.0,
-                                                       ty=.0,
+                                            .translate(tx=0.0,
+                                                       ty=0.0,
                                                        tz=-1.0)
         world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation) \
                                             .translate(tx=paddle1.position.x,
                                                        ty=paddle1.position.y,
-                                                       tz=.0)
+                                                       tz=0.0)
         camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
-                                                     ty=-camera.position_worldspace.y, tz=.0)
+                                                     ty=-camera.position_worldspace.y,
+                                                     tz=0.0)
         ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 10.0,
                                                scale_y=1.0 / 10.0,
                                                scale_z=1.0 / 10.0)
@@ -322,10 +323,10 @@ while not glfw.window_should_close(window):
         world_space: Vertex = model_space.rotate_z(paddle2.rotation) \
                                          .translate(tx=paddle2.position.x,
                                                     ty=paddle2.position.y,
-                                                    tz=.0)
+                                                    tz=0.0)
         camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
                                                      ty=-camera.position_worldspace.y,
-                                                     tz=.0)
+                                                     tz=0.0)
         ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 10.0,
                                                scale_y=1.0 / 10.0,
                                                scale_z=1.0 / 10.0)

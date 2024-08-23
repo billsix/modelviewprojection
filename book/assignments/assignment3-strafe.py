@@ -281,7 +281,7 @@ def handle_inputs() -> None:
 
     global camera
 
-    move_multiple = 15.0
+    move_multiple = 1.0
     if (
         glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS
         and glfw.get_key(window, glfw.KEY_LEFT_SHIFT) == glfw.PRESS

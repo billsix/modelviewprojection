@@ -180,7 +180,7 @@ class Vertex:
                           right=10.0,
                           bottom=-10.0,
                           top=10.0,
-                          near=-1.0,
+                          near=-0.1,
                           far=-10.0)
     # doc-region-end b23c753f650185c5b1e4a0e6c8008852afae73d9
     # fmt: on
@@ -275,7 +275,7 @@ def handle_inputs() -> None:
     # fmt: off
     # doc-region-begin 809cd77769244adb1e3866899e53ba3c203a535a
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        forwards_camera_space = Vertex(x=.0, y=.0, z=-1.0)
+        forwards_camera_space = Vertex(x=0.0, y=0.0, z=-1.0)
         forward_world_space = forwards_camera_space.rotate_y(camera.rot_y) \
                                                    .translate(tx=camera.position_worldspace.x,
                                                               ty=camera.position_worldspace.y,
@@ -284,7 +284,7 @@ def handle_inputs() -> None:
         camera.position_worldspace.y = forward_world_space.y
         camera.position_worldspace.z = forward_world_space.z
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        forwards_camera_space = Vertex(x=.0, y=.0, z=1.0)
+        forwards_camera_space = Vertex(x=0.0, y=0.0, z=1.0)
         forward_world_space = forwards_camera_space.rotate_y(camera.rot_y) \
                                                    .translate(tx=camera.position_worldspace.x,
                                                               ty=camera.position_worldspace.y,
@@ -348,7 +348,7 @@ while not glfw.window_should_close(window):
         world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
                                          .translate(tx=paddle1.position.x,
                                                     ty=paddle1.position.y,
-                                                    tz=.0)
+                                                    tz=0.0)
         # doc-region-begin d194601529be6fa90270809dd56628cb47360ff2
         # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
         #                                   .rotate_y(camera.rot_y) \
@@ -371,20 +371,20 @@ while not glfw.window_should_close(window):
 
     # fmt: off
     # doc-region-begin 554eda2bd3b5edf8eee0c1441a1e8c8f366c575b
-    glColor3f(.0, .0, 1.0)
+    glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
         paddle_1_space: Vertex = model_space.rotate_z(square_rotation) \
                                             .translate(tx=2.0,
-                                                       ty=.0,
-                                                       tz=.0) \
+                                                       ty=0.0,
+                                                       tz=0.0) \
                                             .rotate_z(rotation_around_paddle1) \
-                                            .translate(tx=.0, ty=.0, tz=-1.0)
+                                            .translate(tx=0.0, ty=0.0, tz=-1.0)
 
         world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
                                          .translate(tx=paddle1.position.x,
                                                     ty=paddle1.position.y,
-                                                    tz=.0)
+                                                    tz=0.0)
         # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
         #                                   .rotate_y(camera.rot_y) \
         #                                   .translate(tx=camera.position_worldspace.x,
@@ -411,7 +411,7 @@ while not glfw.window_should_close(window):
         world_space: Vertex = model_space.rotate_z(paddle2.rotation) \
                                          .translate(tx=paddle2.position.x,
                                                     ty=paddle2.position.y,
-                                                    tz=.0)
+                                                    tz=0.0)
         # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
         #                                   .rotate_y(camera.rot_y) \
         #                                   .translate(tx=camera.position_worldspace.x,

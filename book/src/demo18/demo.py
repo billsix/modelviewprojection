@@ -265,7 +265,7 @@ def handle_inputs() -> None:
 
     global camera
 
-    move_multiple = 15.0
+    move_multiple = 1.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
@@ -403,7 +403,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin 7de7248650b2809520898faed65be4050d2b441a
     fn_stack.push(lambda v: v.translate(tx=paddle1.position.x,
                                           ty=paddle1.position.y,
-                                          tz=.0)) # (5) translate the local origin
+                                          tz=0.0)) # (5) translate the local origin
     fn_stack.push(lambda v: v.rotate_z(paddle1.rotation)) # (6) (rotate around the local z axis
     # doc-region-end 7de7248650b2809520898faed65be4050d2b441a
     # fmt: on
@@ -446,7 +446,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin 9206a08662c91ad536b41641910f7e8e951f7c9e
     fn_stack.push(lambda v: v.translate(tx=paddle2.position.x,
                                           ty=paddle2.position.y,
-                                          tz=.0))  # (5)
+                                          tz=0.0))  # (5)
     fn_stack.push(lambda v: v.rotate_z(paddle2.rotation))  # (6)
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
@@ -467,7 +467,7 @@ while not glfw.window_should_close(window):
     glfw.swap_buffers(window)
     # doc-region-end 64809e2fccc9daa3f97239991d905b7fc3f03d62
 
-fn_stack = []
+fn_stack = FunctionStack()
 
 
 # doc-region-begin 1b3386db3fb40d61e80828a90a820b3a235ca940

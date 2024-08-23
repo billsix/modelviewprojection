@@ -114,20 +114,20 @@ construction of paddle1 like this:
 .. code-block:: python
 
        x = -1.0
-       y = -.3
+       y = -0.3
        vertex_one = Vertex(x, y)
-       x = -.8
-       y = -.3
+       x = -0.8
+       y = -0.3
        vertex_two = Vertex(x, y)
-       x = -.8
-       y = .3
+       x = -0.8
+       y = 0.3
        vertex_three = Vertex(x, y)
        x = -1.0
-       y = .3
+       y = 0.3
        vertex_four = Vertex(x, y)
        vertex_list = list(vertex_one, vertex_two, vertex_three, vertex_four)
-       r = .57
-       g = .0
+       r = 0.57
+       g = 0.0
        b = 1.0
        paddle1 = Paddle(vertex_list, r, g, b)
 
@@ -148,10 +148,10 @@ Query User Input and Use It To Animate
 
 
 
-- If the user presses 's' this frame, subtract .1 from the y component of each of
+- If the user presses 's' this frame, subtract 0.1 from the y component of each of
   the vertices in the paddle. If the
   key continues to be held down over time, this value will continue to decrease.
-- If the user presses  'w' this frame, add .1 more to the y component of each of
+- If the user presses  'w' this frame, add 0.1 more to the y component of each of
   the vertices in the paddle
 - If the user presses  'k' this frame, subtract .1.
 - If the user presses 'i' this frame, add .1 more.

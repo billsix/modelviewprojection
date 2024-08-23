@@ -255,11 +255,11 @@ while not glfw.window_should_close(window):
 
     # fmt: off
     # doc-region-begin 9a0ba48a086f35a4515bf32b4a856888c178b0e8
-    glColor3f(.0, .0, 1.0)
+    glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
         paddle1space: Vertex = model_space.translate(tx=2.0,
-                                                     ty=.0)
+                                                     ty=0.0)
         world_space: Vertex = paddle1space.rotate(paddle1.rotation) \
                                           .translate(tx=paddle1.position.x,
                                                      ty=paddle1.position.y)

@@ -160,7 +160,7 @@ In univariate terms, f(x) = x
 change the projection matrix to convert the frustum
 to clip space
 set the projection matrix to be perspective.  Since
-the viewport is always square, set the aspect ratio to be 1..
+the viewport is always square, set the aspect ratio to be 1.0.
 We are now going to clip space instead of to NDC, which we be discussed
 in the next chapter.
 
@@ -189,9 +189,9 @@ the following sequence of transformations.
 
 ::
 
-    #glTranslate(camera.x, camera.y, camera.z)
-    #glRotatef(math.degrees(camera.rot_y), .0, 1.0, .0)
-    #glRotatef(math.degrees(camera.rot_x), 1.0, .0, .0)
+    # glTranslate(camera.x, camera.y, camera.z)
+    # glRotatef(math.degrees(camera.rot_y), 0.0, 1.0, 0.0)
+    # glRotatef(math.degrees(camera.rot_x), 1.0, 0.0, 0.0)
 
 
 Therefore, to take the object's world space coordinates

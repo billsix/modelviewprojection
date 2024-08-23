@@ -1,4 +1,4 @@
-set size ratio .625
+set size ratio 0.625
 set term png
 set output 'viewport.png'
 set linetype 11 lc rgb 'black'

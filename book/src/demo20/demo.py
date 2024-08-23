@@ -179,7 +179,7 @@ def handle_inputs():
 
     global camera
 
-    move_multiple = 15.0
+    move_multiple = 1.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:

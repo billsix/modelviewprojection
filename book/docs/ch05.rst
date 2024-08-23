@@ -71,7 +71,7 @@ placement in NDC.
 
 Rather than using values for each vertex relative to NDC, in the
 Paddle data structure, each vertex will be an offset from
-the center of the Paddle.  The center of the paddle will be considered x=0, y=.
+the center of the Paddle.  The center of the paddle will be considered x=0, y=0.
 Before rendering, each Paddle's
 vertices will need to be translated to its center relative to NDC.
 

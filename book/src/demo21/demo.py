@@ -299,7 +299,7 @@ class Ground:
         pass
 
     def vertices(self):
-        # glColor3f(.1,.1,.1)
+        # glColor3f(0.1,.1,.1)
         verts = []
         for x in range(-600, 601, 20):
             for z in range(-600, 601, 20):
@@ -398,7 +398,7 @@ def handle_inputs():
 
     global camera
 
-    move_multiple = 15.0
+    move_multiple = 1.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
@@ -441,10 +441,10 @@ def handle_inputs():
 
 # fmt: off
 # square_vertices = np.array(
-#     [[-5.0, -5.0, .0],
-#      [5.0, -5.0, .0],
-#      [5.0, 5.0, .0],
-#      [-5.0, 5.0, .0]],
+#     [[-5.0, -5.0, 0.0],
+#      [5.0, -5.0, 0.0],
+#      [5.0, 5.0, 0.0],
+#      [-5.0, 5.0, 0.0]],
 #     dtype=np.float32,
 # )
 # fmt: on
