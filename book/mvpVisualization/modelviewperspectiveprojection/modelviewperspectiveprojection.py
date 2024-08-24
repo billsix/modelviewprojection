@@ -161,12 +161,12 @@ class Paddle:
     # fmt: off
     vertices: np.array = field(default_factory=lambda: np.array(
         [
-            -10.0, -30.0, 0.0,
-            10.0, -30.0, 0.0,
-            10.0, 30.0, 0.0,
-            10.0, 30.0, 0.0,
-            -10.0, 30.0, 0.0,
-            -10.0, -30.0, 0.0,
+            -1.0, -3.0, 0.0,
+            1.0, -3.0, 0.0,
+            1.0, 3.0, 0.0,
+            1.0, 3.0, 0.0,
+            -1.0, 3.0, 0.0,
+            -1.0, -3.0, 0.0,
         ],
         dtype=np.float32,
     ))
@@ -282,9 +282,9 @@ class Paddle:
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
         glUniform1f(aspect_loc, 1.0)
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
+        glUniform1f(nearZ_loc, frustum.near_z)
         farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
+        glUniform1f(farZ_loc, frustum.far_z)
 
         time_loc = glGetUniformLocation(self.shader, "time")
         glUniform1f(time_loc, animation_time)
@@ -323,7 +323,7 @@ paddle1 = Paddle(
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=np.array([-90.0, 10.0, 0.0]),
+    position=np.array([-9.0, 1.0, 0.0]),
     rotation=math.radians(45.0),
 )
 paddle1.prepare_to_render()
@@ -332,7 +332,7 @@ paddle2 = Paddle(
     r=1.0,
     g=0.0,
     b=0.0,
-    position=np.array([90.0, 5.0, 0.0]),
+    position=np.array([9.0, 0.5, 0.0]),
     rotation=math.radians(-20.0),
 )
 
@@ -345,12 +345,12 @@ class Square(Paddle):
     vertices: np.array = field(
         default_factory=lambda: np.array(
             [
-                [-5.0, -5.0, 0.0],
-                [5.0, -5.0, 0.0],
-                [5.0, 5.0, 0.0],
-                [5.0, 5.0, 0.0],
-                [-5.0, 5.0, 0.0],
-                [-5.0, -5.0, 0.0],
+                [-0.5, -0.5, 0.0],
+                [0.5, -0.5, 0.0],
+                [0.5, 0.5, 0.0],
+                [0.5, 0.5, 0.0],
+                [-0.5, 0.5, 0.0],
+                [-0.5, -0.5, 0.0],
             ],
             dtype=np.float32,
         )
@@ -369,12 +369,12 @@ class Ground:
     def vertices(self) -> ndarray:
         # glColor3f(0.1,0.1,0.1)
         verts = []
-        for x in range(-200, 201, 20):
-            for z in range(-200, 201, 20):
-                verts.extend([float(-x), -50.0, float(z)])
-                verts.extend([float(x), -50.0, float(z)])
-                verts.extend([float(x), -50.0, float(-z)])
-                verts.extend([float(x), -50.0, float(z)])
+        for x in range(-20, 21, 2):
+            for z in range(-20, 21, 2):
+                verts.extend([float(-x), -5.0, float(z)])
+                verts.extend([float(x), -5.0, float(z)])
+                verts.extend([float(x), -5.0, float(-z)])
+                verts.extend([float(x), -5.0, float(z)])
 
         return np.array(verts, dtype=np.float32)
 
@@ -600,8 +600,6 @@ class Axis:
             with ms.push_matrix(ms.MatrixStack.model):
                 ms.rotate_z(ms.MatrixStack.model, math.radians(-90.0))
 
-                if enlarged_axis:
-                    ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
                 glUniform3f(self.colorLoc, 1.0, 0.0, 0.0)
                 if grayed_out:
                     glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
@@ -645,8 +643,6 @@ class Axis:
                 ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
                 ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
 
-                if enlarged_axis:
-                    ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
                 glUniform3f(self.colorLoc, 0.0, 0.0, 1.0)
                 if grayed_out:
                     glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
@@ -684,8 +680,6 @@ class Axis:
                 glDrawArrays(GL_LINES, 0, self.numberOfVertices)
 
             # y
-            if enlarged_axis:
-                ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
             glUniform3f(self.colorLoc, 0.0, 1.0, 0.0)
             # glColor3f(0.0,1.0,0.0) # green y
             if grayed_out:
@@ -1053,7 +1047,7 @@ class Frustum:
         glBindVertexArray(0)
 
 
-frustum = Frustum(fov=45.0, aspect_ratio=16.0 / 9.0, near_z=-10.0, far_z=-500.0)
+frustum = Frustum(fov=45.0, aspect_ratio=16.0 / 9.0, near_z=-2.0, far_z=-50.0)
 frustum.prepare_to_render()
 
 
@@ -1064,7 +1058,7 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera = Camera(r=250.0, rot_y=math.radians(45.0), rot_x=math.radians(35.264))
+camera = Camera(r=25.0, rot_y=math.radians(45.0), rot_x=math.radians(35.264))
 
 
 square_rotation = math.radians(90.0)
@@ -1135,7 +1129,7 @@ def handle_inputs(previous_mouse_position) -> None:
     return None if return_none else new_mouse_position
 
 
-virtual_camera_position = np.array([-15.0, 0.0, 85.0], dtype=np.float32)
+virtual_camera_position = np.array([-1.5, 0.0, 8.5], dtype=np.float32)
 virtual_camera_rot_y = math.radians(25.0)
 virtual_camera_rot_x = math.radians(15.0)
 virtual_camera_relative_offset = np.array([-0.0, 0.0, 0.0], dtype=np.float32)
@@ -1148,7 +1142,6 @@ time_at_beginning_of_previous_frame = glfw.get_time()
 animation_time = 0.0
 animation_time_multiplier = 1.0
 animation_paused = False
-enlarged_axis = True
 show_ground_axis = False
 
 
@@ -1431,10 +1424,6 @@ while not glfw.window_should_close(window):
 
     show, _ = imgui.collapsing_header("Display Options")
     if show:
-        clicked_enlarged_axises, enlarged_axis = imgui.checkbox(
-            "Enlarged Axises", enlarged_axis
-        )
-
         clicked_show_ground_axises, show_ground_axis = imgui.checkbox(
             "Show Ground Axises", show_ground_axis
         )
@@ -1662,7 +1651,7 @@ while not glfw.window_should_close(window):
         if animation_time > 25.0:
             ms.translate(
                 ms.MatrixStack.model,
-                15.0 * min(1.0, (animation_time - 25.0) / 5.0),
+                1.5 * min(1.0, (animation_time - 25.0) / 5.0),
                 0.0,
                 0.0,
             )
