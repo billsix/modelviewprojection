@@ -180,29 +180,18 @@ class Paddle:
         # need 6 vertices instead of 4
         vertices = self.vertices
         self.numberOfVertices = np.size(vertices) // floatsPerVertex
+        # fmt: off
         color = np.array(
-            [
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
-                self.r,
-                self.g,
-                self.b,
+            [self.r, self.g, self.b,
+             self.r, self.g, self.b,
+             self.r, self.g, self.b,
+             self.r, self.g, self.b,
+             self.r, self.g, self.b,
+             self.r, self.g, self.b,
             ],
             dtype=np.float32,
         )
+        # fmt: on
         self.numberOfColors = np.size(color) // floatsPerColor
 
         self.vao = glGenVertexArrays(1)
@@ -448,9 +437,9 @@ class Ground:
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
         glUniform1f(aspect_loc, 1.0)
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
+        glUniform1f(nearZ_loc, frustum.near_z)
         farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
+        glUniform1f(farZ_loc, frustum.far_z)
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
@@ -590,9 +579,9 @@ class Axis:
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
         glUniform1f(aspect_loc, 1.0)
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
+        glUniform1f(nearZ_loc, frustum.near_z)
         farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
+        glUniform1f(farZ_loc, frustum.far_z)
         # TODO, set the color
 
         with ms.push_matrix(ms.MatrixStack.model):
@@ -827,9 +816,9 @@ class NDCCube:
         aspect_loc = glGetUniformLocation(self.shader, "aspectRatio")
         glUniform1f(aspect_loc, 1.0)
         nearZ_loc = glGetUniformLocation(self.shader, "nearZ")
-        glUniform1f(nearZ_loc, -5.0)
+        glUniform1f(nearZ_loc, frustum.near_z)
         farZ_loc = glGetUniformLocation(self.shader, "farZ")
-        glUniform1f(farZ_loc, -150.00)
+        glUniform1f(farZ_loc, frustum.far_z)
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(

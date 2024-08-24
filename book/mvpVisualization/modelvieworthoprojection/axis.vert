@@ -42,12 +42,12 @@ vec4 project(vec4 cameraSpace){
     mat4 translate_to_origin = transpose(mat4(
          1.0, 0.0, 0.0, 0.0,
          0.0, 1.0, 0.0, 0.0,
-         0.0, 0.0, 1.0, 145.0/2 * translateRatio,
+         0.0, 0.0, 1.0, 16.0/2 * translateRatio,
          0.0, 0.0, 0.0, 1.0));
     float scaleRatio = min((time - 95.0)/5.0, 1.0);
-    float xVal = 1.0 + (1.0/50.0 - 1.0) * scaleRatio;
-    float yVal = 1.0 + (1.0/50.0 - 1.0) * scaleRatio;
-    float zVal = 1.0 + (2.0/145.0 - 1) * scaleRatio;
+    float xVal = 1.0 + (1.0/5.0 - 1.0) * scaleRatio;
+    float yVal = 1.0 + (1.0/5.0 - 1.0) * scaleRatio;
+    float zVal = 1.0 + (2.0/15.0 - 1) * scaleRatio;
     mat4 scale_to_ndc = transpose(mat4(
          xVal,     0.0,     0.0,    0.0,
          0.0,      yVal,    0.0,    0.0,
