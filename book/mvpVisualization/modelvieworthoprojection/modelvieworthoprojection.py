@@ -65,6 +65,7 @@ from OpenGL.GL import (
     glGetAttribLocation,
     glGetUniformLocation,
     glUniform1f,
+    glUniform2f,
     glUniform3f,
     glUniformMatrix4fv,
     glUseProgram,
@@ -385,18 +386,18 @@ class Ground:
         with open(os.path.join(pwd, "ground.frag"), "r") as f:
             fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
 
-        # with open(os.path.join(pwd, "ground.geom"), "r") as f:
-        #    gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
+        with open(os.path.join(pwd, "ground.geom"), "r") as f:
+            gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
 
-        # self.shader = shaders.compileProgram(vs, gs, fs)
-        self.shader = shaders.compileProgram(vs, fs)
+        self.shader = shaders.compileProgram(vs, gs, fs)
+        # self.shader = shaders.compileProgram(vs, fs)
 
         self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
         self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
         self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
 
-        # self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness")
-        # self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size")
+        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness")
+        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size")
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -468,8 +469,8 @@ class Ground:
                 ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
             ),
         )
-        # glUniform1f(self.thicknessLoc, line_thickness)
-        # glUniform2f(self.viewportLoc, width, height)
+        glUniform1f(self.thicknessLoc, line_thickness)
+        glUniform2f(self.viewportLoc, width, height)
         glDrawArrays(GL_LINES, 0, self.numberOfVertices)
         glBindVertexArray(0)
 
