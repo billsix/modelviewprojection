@@ -23,9 +23,11 @@
 
 out vec4 color;
 
-in vec4 fColor;
+in VS_OUT {
+  vec4 color;
+} fs_in;
 
 void main()
 {
-   color = fColor;
+   color = fs_in.color;
 }
