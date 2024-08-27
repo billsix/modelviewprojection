@@ -27,6 +27,7 @@ from collections import namedtuple
 import imageio
 import matplotlib
 import matplotlib.pyplot as plt
+import matplotlib.ticker
 import numpy as np
 import plotutils.generategridlines as generategridlines
 import plotutils.mpltransformations as mplt
@@ -266,6 +267,8 @@ def create_graphs(
 
             # make sure the x and y axis are equally proportional in screen space
             plt.gca().set_aspect("equal", adjustable="box")
+            axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
+            axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
             fig.canvas.draw()
             image = np.array(fig.canvas.renderer.buffer_rgba())
             plt.close(fig)
