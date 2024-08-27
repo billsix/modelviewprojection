@@ -39,8 +39,8 @@ out VS_OUT {
 vec4 project(vec4 cameraSpace){
 
     float scaleRatio = min((time - 65.0)/5.0, 1.0);
-    float xVal = 1.0 + (1.0/100.0 - 1.0) * scaleRatio;
-    float yVal = 1.0 + (1.0/100.0 - 1.0) * scaleRatio;
+    float xVal = 1.0 + (1.0/10.0 - 1.0) * scaleRatio;
+    float yVal = 1.0 + (1.0/10.0 - 1.0) * scaleRatio;
     mat4 scale_to_ndc = transpose(mat4(
          xVal,     0.0,     0.0,    0.0,
          0.0,      yVal,    0.0,    0.0,

@@ -105,10 +105,10 @@ class Paddle:
     vertices: np.array = field(
         default_factory=lambda: np.array(
             [
-                [-10.0, -30.0, 0.0],
-                [10.0, -30.0, 0.0],
-                [10.0, 30.0, 0.0],
-                [-10.0, 30.0, 0.0],
+                [-1.0, -3.0, 0.0],
+                [1.0, -3.0, 0.0],
+                [1.0, 3.0, 0.0],
+                [-1.0, 3.0, 0.0],
             ],
             dtype=np.float32,
         )
@@ -119,7 +119,7 @@ paddle1 = Paddle(
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=np.array([-90.0, 10.0, 0.0]),
+    position=np.array([-9.0, 1.0, 0.0]),
     rotation=math.radians(45.0),
 )
 
@@ -127,7 +127,7 @@ paddle2 = Paddle(
     r=1.0,
     g=0.0,
     b=0.0,
-    position=np.array([90.0, 5.0, 0.0]),
+    position=np.array([9.0, 0.5, 0.0]),
     rotation=math.radians(-45.0),
 )
 
@@ -139,7 +139,7 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera = Camera(r=300.0, rot_y=math.radians(45.0), rot_x=math.radians(35.264))
+camera = Camera(r=30.0, rot_y=math.radians(45.0), rot_x=math.radians(35.264))
 
 
 square_rotation = math.radians(90.0)
@@ -224,7 +224,7 @@ def handle_inputs(previous_mouse_position) -> None:
 
 
 square_vertices = np.array(
-    [[-5.0, -5.0, 0.0], [5.0, -5.0, 0.0], [5.0, 5.0, 0.0], [-5.0, 5.0, 0.0]],
+    [[-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0], [-0.5, 0.5, 0.0]],
     dtype=np.float32,
 )
 virtual_camera_position = np.array([-40.0, 0.0, 80.0], dtype=np.float32)
@@ -239,12 +239,12 @@ def draw_ground() -> None:
     )
     glColor3f(0.1, 0.1, 0.1)
     glBegin(GL_LINES)
-    for x in range(-200, 201, 20):
-        for z in range(-200, 201, 20):
-            glVertex3f(float(-x), float(-50.0), float(z))
-            glVertex3f(float(x), float(-50.0), float(z))
-            glVertex3f(float(x), float(-50.0), float(-z))
-            glVertex3f(float(x), float(-50.0), float(z))
+    for x in range(-20, 21, 2):
+        for z in range(-20, 21, 2):
+            glVertex3f(float(-x), float(-5.0), float(z))
+            glVertex3f(float(x), float(-5.0), float(z))
+            glVertex3f(float(x), float(-5.0), float(-z))
+            glVertex3f(float(x), float(-5.0), float(z))
 
     glEnd()
 
@@ -271,8 +271,6 @@ def draw_y_axis() -> None:
 
 def draw_axises(grayed_out: bool = False) -> None:
     with ms.push_matrix(ms.MatrixStack.model):
-        ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
-
         # x axis
         with ms.push_matrix(ms.MatrixStack.model):
             ms.rotate_z(ms.MatrixStack.model, math.radians(-90.0))
@@ -416,8 +414,6 @@ while not glfw.window_should_close(window):
     # draw NDC in global space, so that we can see the camera space
     # go to NDC
     with ms.PushMatrix(ms.MatrixStack.model):
-        ms.scale(ms.MatrixStack.model, 5.0, 5.0, 5.0)
-
         draw_ndc()
     draw_ground()
 
@@ -464,7 +460,6 @@ while not glfw.window_should_close(window):
                 )
 
             draw_axises()
-            ms.scale(ms.MatrixStack.model, 5.0, 5.0, 5.0)
 
             draw_ndc()
 
@@ -511,7 +506,7 @@ while not glfw.window_should_close(window):
                 ms.MatrixStack.model,
                 0.0,
                 0.0,
-                -10.0 * min(1.0, (animation_time - 15.0) / 5.0),
+                -1.0 * min(1.0, (animation_time - 15.0) / 5.0),
             )
         if animation_time > 20.0:
             ms.rotate_z(
@@ -521,7 +516,7 @@ while not glfw.window_should_close(window):
         if animation_time > 25.0:
             ms.translate(
                 ms.MatrixStack.model,
-                20.0 * min(1.0, (animation_time - 25.0) / 5.0),
+                2.0 * min(1.0, (animation_time - 25.0) / 5.0),
                 0.0,
                 0.0,
             )
