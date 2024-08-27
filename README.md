@@ -32,6 +32,7 @@ Use Visual Studio 2019 (Tested on community, but I'm sure it will work on others
 
 Using Developer Command Prompt
 
+        cd book
         python -m venv venv
         cd venv\Scripts
         activate.bat
@@ -49,6 +50,7 @@ Install Python3, glfw via a package manager.  Use pip and virtualenv to install 
 #### Linux
 
 
+        cd book
         python -m venv venv
         source venv/bin/activate
         python -m pip install --upgrade pip setuptools
@@ -62,6 +64,7 @@ Python Python3 (via anaconda, homebrew, macports, whatever), and use pip and vir
 
 #### Mac OS X
 
+        cd book
         python -m venv venv
         source venv/bin/activate
         python -m pip install --upgrade pip setuptools
@@ -71,35 +74,9 @@ Python Python3 (via anaconda, homebrew, macports, whatever), and use pip and vir
 
 ### Build the book
 
-Install Python, either through Cygwin, Visual Studio, brew, or apt.
-
-#### Windows, using Developer Command Prompt
-
-        python -m venv venv
-        cd venv\Scripts
-        activate.bat
-        cd ..\..\
-        python -m pip install --upgrade pip setuptools
-        python -m pip install -r requirements.txt
-        cd doc
-        make html
-
-#### Mac OS X
-
-        python -m venv venv
-        source venv/bin/activate
-        python -m pip install --upgrade pip setuptools
-        python -m pip install -r requirements.txt
-        cd doc
-        make html
-
-#### Linux
+Install podman
 
 
-        python -m venv venv
-        source venv/bin/activate
-        python -m pip install --upgrade pip setuptools
-        python -m pip install -r requirements.txt
-        cd doc
-        make html
-        make latexpdf
+        make
+
+The book is then in the "output" directory
