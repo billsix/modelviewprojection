@@ -37,7 +37,7 @@ Problem With Previous Demo
 
 When running Demo02, if the user resizes the windows,
 then the paddles lose their proportionality, as NDC
-no longer is mapped to a square screenspace.
+no longer is mapped to a square screen-space.
 
 
 
@@ -85,7 +85,7 @@ a black background within a square region in the center of the window, regardles
 of the window.
 
 OpenGL has a solution for us.  The *viewport* is a rectangular region contained
-within the window into which OpenGL will render.  By specifing a viewport, OpenGL
+within the window into which OpenGL will render.  By specifying a viewport, OpenGL
 will convert the normalized-device-coordinates
 to the sub-window space of the viewport, instead of the whole
 window.
@@ -144,7 +144,7 @@ Set to Draw in Square Subsection Of Window
 
 * set the clear color to be gray.
 * glClear clear the color of every pixel in the whole frame buffer, independent of viewport.
-  So now the entire framebuffer is gray.
+  So now the entire frame-buffer is gray.
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
@@ -153,9 +153,9 @@ Set to Draw in Square Subsection Of Window
 
 
 * figure out the minimum dimension of the window.  In the image above, the "square_size" is 1200,
-  as the monitor's vertical screenspace is only 1200 pixels tall.
-* To make a square subregion, we need a number for the distance between vertices of the square.
-  By using the minimium of the width and height, we can at least fill up the screen in one dimension.
+  as the monitor's vertical screen-space is only 1200 pixels tall.
+* To make a square sub-region, we need a number for the distance between vertices of the square.
+  By using the minimum of the width and height, we can at least fill up the screen in one dimension.
 
 .. literalinclude:: ../src/demo03/demo.py
    :language: python
@@ -170,11 +170,11 @@ Set to Draw in Square Subsection Of Window
   the features that we need so that the OpenGL driver doesn't waste time doing
   unnecessary computations.
 * the scissor test allows us to specify a region
-  of the framebuffer into which the opengl operations
-  will apply.  In this case, the color in every pixel in the framebuffer is currently gray
-  because of the exisiting class to glClearColor.
+  of the frame-buffer into which the OpenGL operations
+  will apply.  In this case, the color in every pixel in the frame-buffer is currently gray
+  because of the existing class to glClearColor.
   By calling glScissor, we are setting a value in each fragment (i.e., pixel) on a square
-  region of pixels to be true (and false everywhere else) which means "only do the opengl call on these fragments,
+  region of pixels to be true (and false everywhere else) which means "only do the OpenGL call on these fragments,
   ignore the others".
   As we will learn later, OpenGL stores much more information
   per fragment (i.e. pixel) than just it's current color.
@@ -203,14 +203,14 @@ Set to Draw in Square Subsection Of Window
    :end-before: doc-region-end 9524935cab9f5725f921d11969872ebd9a54e508
 
 
-* disable the scissor test, so now any opengl calls will
+* disable the scissor test, so now any OpenGL calls will
   happen as usual.
 
 So we've drawn black into a square, and disabled the scissor test,
-so any subsequent OpenGL calls will still be drawn into the full framebuffer.
+so any subsequent OpenGL calls will still be drawn into the full frame-buffer.
 But, we only want to draw within the black square, and the scissor
-test does not modify the NDC to screenspace transformations.
-To modify the NDC to screenspace transformations, we set the viewport again,
+test does not modify the NDC to screen-space transformations.
+To modify the NDC to screen-space transformations, we set the viewport again,
 so that the NDC coordinates
 will be mapped the the region of screen coordinates
 that we care about, which is the black square.

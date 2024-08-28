@@ -143,7 +143,7 @@ Description
 If we draw a straight line between (x,z) and (0,0), we will have a right triangle
 with vertices (0,0), (0,z), and (x,z).
 
-There also will be a similar right triangle with verticies (0,0), (0,nearZ), and
+There also will be a similar right triangle with vertices (0,0), (0,nearZ), and
 whatever point the line above intersects the line at z=nearZ.  Let's call that point
 (projX, nearZ)
 

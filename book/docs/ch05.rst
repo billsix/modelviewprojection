@@ -84,7 +84,7 @@ vertices will need to be translated to its center relative to NDC.
 
 
 
-All methods on verticies will be returning new verticies,
+All methods on vertices will be returning new vertices,
 rather than mutating the instance variables.  The author
 does this on purpose to enable method-chaining the Python
 methods, which will be useful later on.
@@ -153,7 +153,7 @@ Instantiation of the Paddles
    :end-before: doc-region-end 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
 
 
-* The verticies are now defined as relative distances from the center of the paddle.  The centers
+* The vertices are now defined as relative distances from the center of the paddle.  The centers
   of each paddle are placed in positions relative to NDC that preserve the positions of the
   paddles, as they were in the previous demo.
 

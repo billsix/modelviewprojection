@@ -83,19 +83,19 @@ scaling and rotating the object are trivial, as shown in later chapters).
 
 
 Modelspace - the coordinate system (origin plus axes), in which some object's
-verticies are defined.
+vertices are defined.
 
 
 WorldSpace
 ^^^^^^^^^^
 
-WorldSpace is a toplevel space, independent of NDC, that we choose to use.  It's arbitrary.
+WorldSpace is a top-level space, independent of NDC, that we choose to use.  It's arbitrary.
 If you were to model a racetrack for a racing game, the origin of WorldSpace may be the center of that racetrack.
-If you were modelling our solar system, the center of the sun could be the origin of "WorldSpace".
+If you were modeling our solar system, the center of the sun could be the origin of "WorldSpace".
 I personally would put the center of our flat earth at the origin, but reasonable people
 can disagree.
 
-For our demo with paddles, the author arbitralily defines the WorldSpace to be 200 units wide, 200 units tall, with the origin at the center.
+For our demo with paddles, the author arbitrarily defines the WorldSpace to be 200 units wide, 200 units tall, with the origin at the center.
 
 .. figure:: _static/demo06.png
     :align: center
@@ -110,7 +110,7 @@ Modelspace to WorldSpace
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
 The author prefers to view transformations as changes to the graph paper,
-as compared to view tranformations as changes to points.
+as compared to view transformations as changes to points.
 
 As such, for placing paddle1, we can view the translation as a change
 to the graph paper relative to world space coordinates (only incidentally
@@ -175,15 +175,15 @@ Paddle 1's vertices in WorldSpace Coordinates
 
 .. figure:: _static/translation-forwards-3.png
     :align: center
-    :alt: Paddle 1's Verticies in World Space
+    :alt: Paddle 1's Vertices in World Space
     :figclass: align-center
 
-    Paddle 1's Verticies in World Space.   Don't concern yourself with what the numbers are.
+    Paddle 1's Vertices in World Space.   Don't concern yourself with what the numbers are.
 
 Now that the transformation has happened, the vertices are all in world space.
 You could calculate their values in world space, but that will not give you any insight.  The only numbers
 that matter for insight as that the entire graph paper of modelspace, which originally
-was the same as world space, has changed, bringing the verticies along with it.
+was the same as world space, has changed, bringing the vertices along with it.
 
 Same goes for Paddle 2's modelspace, relative to it's translation, which
 are different values.
@@ -226,10 +226,10 @@ Paddle 2's vertices in WorldSpace Coordinates
 
 .. figure:: _static/translation2-forwards-3.png
     :align: center
-    :alt: Paddle 1's Verticies in World Space
+    :alt: Paddle 1's Vertices in World Space
     :figclass: align-center
 
-    Paddle 2's Verticies in World Space.  Don't concern yourself with what the numbers are.
+    Paddle 2's Vertices in World Space.  Don't concern yourself with what the numbers are.
 
 
 
@@ -239,7 +239,7 @@ Paddle 2's vertices in WorldSpace Coordinates
    aren't relative to the global origin, instead it's from the local frame of reference.
 
    When reading the transformations backwards, I think it's best to think of it
-   as moving the axes, and the plotting the data once the axies are in
+   as moving the axes, and the plotting the data once the axes are in
    their final place.
 
 
@@ -249,7 +249,7 @@ Paddle 2's vertices in WorldSpace Coordinates
    where new objects are relative to that which you are already drawing.
 
    With that said, that doesn't mean that reading the transformations front to back
-   has no value.  Front to back can useful when dealing with cameraspace transformations,
+   has no value.  Front to back can useful when dealing with camera-space transformations,
    introduced later.
 
    This will make more sense once rotation is involved.
@@ -307,7 +307,7 @@ by "scale"ing each component of the vertices by some coefficient.
 
 
 
-Our global space is -10 to 10 in both dimesnions,
+Our global space is -10 to 10 in both dimensions,
 and to get it into NDC, we need to scale by dividing by 10
 
 

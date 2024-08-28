@@ -152,7 +152,7 @@ to worldspace from the bottom up, and from worldspace to NDC from top down.
 * Read from world space to camera space, knowing that camera transformations
   are implemented as the inverse of placing the camera space in world space.
 * Reset the coordinate system
-* Read cameraspace to NDC
+* Read camera-space to NDC
 
 New part!  Draw the square relative to the first paddle!
 Translate the square to the right by 20 units.
@@ -181,11 +181,11 @@ that, we want in to be moved in the X direction some units.  Therefore
 
 Now the square's geometry will be in it's own space!
 
-* Read from worldspace to cameraspace, knowing that camera transformations
+* Read from worldspace to camera-space, knowing that camera transformations
   are implemented as the inverse of placing the camera space in world space.
 
 * Reset the coordinate system
-* Read cameraspace to NDC
+* Read camera-space to NDC
 
 
 Draw paddle 2 just like before.

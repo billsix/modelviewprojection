@@ -77,7 +77,7 @@ around the paddle's center by code that worked as follows
 where t and r are the translate and rotate functions for a paddle, and
 we read the functions from right to left.  (In code, we were reading
 the method chaining from top-down, as that is the order in which the
-function calls are evaluted.)
+function calls are evaluated.)
 
 
 But that caused erratic behavior of the paddle over time, as it was
@@ -146,7 +146,7 @@ All subsequent functions move that relative basis to a new relative basis.
 
 .. figure:: _static/rotate1-backwards.gif
     :align: center
-    :alt: Rotation Bacwards
+    :alt: Rotation Backwards
     :figclass: align-center
 
     Rotation Backwards
@@ -156,7 +156,7 @@ Suggested Order
 
 The author has a strong opinion on the matter for computer graphics.
 
-Start at world space node.  As a reminder, this is the toplevel coordinate
+Start at world space node.  As a reminder, this is the top-level coordinate
 system that we choose to use.  It's whatever you want it to be.
 
 .. figure:: _static/demo06.png
@@ -167,7 +167,7 @@ system that we choose to use.  It's whatever you want it to be.
     Demo 06
 
 Think of world space's origin, x and y axes.  On the Cayley graph, move towards each modelspace node,
-which is against the direction of the edge,  Look at that edge's correponding
+which is against the direction of the edge,  Look at that edge's corresponding
 sequence of function calls in the graphics code.  Read the transformations
 from the bottom up, imagining a transformed local coordinate system against which
 each function in the sequence operates.

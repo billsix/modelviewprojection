@@ -39,30 +39,30 @@ A given matrix in OpenGL2.1 is the equivalent of a function stack;
 given one matrix, it can perform a sequence of transformations
 from one space to another, with one matrix multiplication.
 
-OpenGL 2.1 deals with two different types of matricies: 1) the projection
+OpenGL 2.1 deals with two different types of matrices: 1) the projection
 matrix, which effectively is the function from camera space
-to NDC (clip space) and 2) The modelview matrix, which deals
+to NDC (clip space) and 2) The model-view matrix, which deals
 with the transformations from model space to camera space.
 
 Given that a matrix can perform a sequence of transformations
 across multiple spaces in the Cayley graph, it may appear
 that we no longer need any notion of a stack, as we had in the function
-stacks.  But that is not true.  For the ModelView matrix, we still
-need a stack of matricies, so that we can return to a previous
+stacks.  But that is not true.  For the Model-View matrix, we still
+need a stack of matrices, so that we can return to a previous
 transformation sequence.  For instance, if we are at world space,
-the ModelView matrix at the top of the matrix stack will convert
+the Model-View matrix at the top of the matrix stack will convert
 from world space to camera space.  But we need to draw two relative
 child spaces to world space, paddle 1 space and paddle 2 space.
 So before we do the transformations to paddle 1 space, we "push"
-a copy of the current modelview matrix to the top of the modelview
+a copy of the current model-view matrix to the top of the model-view
 matrix stack, so that after we draw paddle 1 and the square, we can
 "pop" that matrix off, leaving us the matrix at the top of the
-modelview matrix stack that represents world space, so that
+model-view matrix stack that represents world space, so that
 we can then begin to transform to paddle 2 space.
 
 The concepts behind the function stack, in which the first function
 added to the stack is the last function applied, hold true for
-matricies as well.  But matricies are a much more efficient
+matrices as well.  But matrices are a much more efficient
 representation computationally than the function stack,
 and instead of adding fns and later having to remove them,
 we can save onto the current frame of reference with a "glPushStack",
@@ -73,7 +73,7 @@ system, that way a tree of objects can be drawn without one child
 destroying the relative coordinate system of the parent node.
 
 In mvpVisualization/pushmatrix/pushmatrix.py, the grayed out
-coordinate system is one thas has been pushed onto the stack,
+coordinate system is one that has been pushed onto the stack,
 and it regains it's color when it is reactivated by "glPopMatrix"
 
 
@@ -205,8 +205,8 @@ do the inverse operations to the view stack.
    :start-after: doc-region-begin bfe75259546e2177c77becae6c668c2dfc785410
    :end-before: doc-region-end bfe75259546e2177c77becae6c668c2dfc785410
 
-First thing we did was set the current matrix to be the modelview matrix, instead
-of the projection matrix.  Most of our work will be with the modelview matrix,
+First thing we did was set the current matrix to be the model-view matrix, instead
+of the projection matrix.  Most of our work will be with the model-view matrix,
 as looking at the Cayley graph, there's only one function from camera space
 to NDC.  N.B., OpenGL 2.1 transformations use degrees, not radians, so
 we need to convert to degrees.
@@ -216,8 +216,8 @@ we need to convert to degrees.
 
 Unlike in the lambda stack demo, in which a new function was added to the
 top of the stack, without modifying any functions below it on the stack,
-with OpenGL matricies, each transformation, such as translate, rotate, and scale,
-actually destructively modifies the matrix at the top of the stack, as matricies
+with OpenGL matrices, each transformation, such as translate, rotate, and scale,
+actually destructively modifies the matrix at the top of the stack, as matrices
 can be premultiplied together for efficiency.
 
 In linear algebra terms, the matrix multiplication takes place, but then the resulting
@@ -231,13 +231,13 @@ values of the matrix replace the values of the matrix at the top of the stack.
 This means that rotate_x, rotate_y, translate, etc
 are destructive operations to the matrix on the top of the stack.  Instead of creating new
 matrix to the top of the stack
-of matricies, these operations aggregate the transformations,
-but add no new matricies to the stack, and as such are destructive operations
+of matrices, these operations aggregate the transformations,
+but add no new matrices to the stack, and as such are destructive operations
 to the current matrix.
 
 But many times we need to hold onto a transformation stack (matrix),
 so that we can do something else now, and return to this context later,
-so we have a stack composed of matricies.
+so we have a stack composed of matrices.
 
 This is what glPushMatrix, and glPopMatrix do.
 
@@ -245,9 +245,9 @@ This is what glPushMatrix, and glPopMatrix do.
 save onto the current coordinate system for later drawing modelspace
 data.
 
-The modelview matrix stack is currently the transformation from world space into camera space.
+The model-view matrix stack is currently the transformation from world space into camera space.
 Since we now have to draw paddle 1, the square, and paddle 2,
-save onto the current modelview stack, to hold onto world space, so that after
+save onto the current model-view stack, to hold onto world space, so that after
 we draw paddle 1 and the square, we can restore the world space, so that paddle 2 can be drawn relative
 to it.
 
@@ -299,7 +299,7 @@ draw paddle 2
 
 No need to push matrix here, as this is the last object that
 we are drawing, and upon the next iteration of the event loop,
-all 3 matricies will be reset to the identity
+all 3 matrices will be reset to the identity
 
 
 .. literalinclude:: ../src/demo19/demo.py
@@ -313,14 +313,14 @@ all 3 matricies will be reset to the identity
        From the computer's point of view, there is one coordinate system, (x,y,z,w).
        So now let's look at what the OpenGL drawing calls are in more detail, and think
        about what they must do.  "glBegin(GL_QUADS)", 4 calls to "glVertex", and "glEnd".
-       "glVertex", given modelspace data, must pull 2 matricies from OpenGL's matrix stacks,
+       "glVertex", given modelspace data, must pull 2 matrices from OpenGL's matrix stacks,
        the modelview and the projection.  It then does two transformations to turn
        the modelspace data in NDC (clip-space, where the x y and z are each divided by the w to get
        NDC).  From this point of view, there are no relative coordinate systems, just numbers
        in and numbers out.  So then what do glBegin and glEnd do?  This will
        be a subject for after the midterm, but the 4 vertices will be converted to screen space,
-       given the matricies, and when "glEnd" is called, the graphics driver will need to determine
-       what pixels are within the quadriteral or not.  For the fragments within the quadralateral,
+       given the matrices, and when "glEnd" is called, the graphics driver will need to determine
+       what pixels are within the quadriteral or not.  For the fragments within the quadrilateral,
        the driver will also need to know the color of the vertex.  So glVertex is doing a lot behind
-       the scenes, grabbing the modelview and the projection matricies from the top of the stack,
+       the scenes, grabbing the modelview and the projection matrices from the top of the stack,
        grabbing the current color, set by "glColor3f".

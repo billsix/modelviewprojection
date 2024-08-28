@@ -72,7 +72,7 @@ Description
 ^^^^^^^^^^^
 
 Early in this book we used the stencil buffer, but didn't go into
-much detail about it.  Each pixel in the framebuffer is a fragment,
+much detail about it.  Each pixel in the frame-buffer is a fragment,
 which is more information than just the color to be drawn.
 
 .. figure:: _static/ccbysa3.0/williamsix/fragment.png
@@ -82,7 +82,7 @@ which is more information than just the color to be drawn.
 
 Besides the color, there is also
 
-* Stecil buffer, being true or false, to specify whether subsequent OpenGL calls
+* Stencil buffer, being true or false, to specify whether subsequent OpenGL calls
   should affect this fragment or leave it alone
 * Depth - When an object in NDC is drawn, the color is updated to the new
   value, but the z-component of the NDC is placed into the depth buffer.

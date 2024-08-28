@@ -94,7 +94,7 @@ The top right is pixel coordinate (window_width,window_height).
 
 
 Frames are created within the computer and sent to the monitor
-at a rate over time, called the *framerate*,
+at a rate over time, called the *frame-rate*,
 measured in *Hertz*.  By updating frames quickly and at a constant rate, the computer
 provides the end-user with the illusion of motion.
 
@@ -163,7 +163,7 @@ Import Python modules, which are Python programmer's main form of libraries.
    :end-before: doc-region-end 20134134fb054ac6764edfb4764935b86f20a795
 
 
-*  The "sys" module is imported.  To call functions from this module, the systax is sys.function
+*  The "sys" module is imported.  To call functions from this module, the syntax is sys.function
 
 
 .. literalinclude:: ../src/demo01/demo.py
@@ -214,7 +214,7 @@ the monitor called a window.
 
 
 To create and to open a window in a cross-platform manner, this
-book will call procedures provided by the widely-ported GLFW library (supporting Windows, macOS, Linux).
+book will call procedures provided by the widely-ported GLFW library (supporting Windows, MacOS, Linux).
 GLFW also provides procedures for receiving
 input both from a keyboard input and from game controllers.
 
@@ -233,7 +233,7 @@ Initialize GLFW.
 
 
 
-Initialize glfw.  If initialization fails, the program should terminate.
+Initialize GLFW.  If initialization fails, the program should terminate.
 What does the initialization do?  Doesn't matter.  Think of it like
 a constructor for a class; it initializes some state that it needs
 for later function calls.
@@ -413,7 +413,7 @@ only when frame is completely drawn, and each pixel has a color.
 The act of sending the frame to the monitor is called *flushing*
 the frame.
 
-OpenGL has two *framebuffers* (regions of memory which will eventually
+OpenGL has two *frame-buffers* (regions of memory which will eventually
 contain the full data for a frame),
 only one of which is "active", or writable, at a given time.
 "glfwSwapBuffers" initiates the flushing

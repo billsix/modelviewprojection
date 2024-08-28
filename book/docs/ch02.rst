@@ -19,7 +19,7 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-Draw A Rectange - Demo 02
+Draw A Rectangle - Demo 02
 =========================
 
 
@@ -172,7 +172,7 @@ Normalized-Device-Coordinates
 The author owns two monitors, one which has 1024x768 pixels, and one which has
 1920x1200 pixels.  When he purchases a game from Steam, he expects that his game
 will run correctly on either monitor, in full-screen mode.  If a graphics programmer
-had to explictly set the color of individual pixels using the pixel's coordinates, the the programmer would have to
+had to explicitly set the color of individual pixels using the pixel's coordinates, the the programmer would have to
 program using "screen-space" (Any space_ means a system of numbers which you're using.
 Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be red).
 
@@ -213,7 +213,7 @@ and since this is done in hardware (i.e. you can't programmatically change how t
 happens), it should be a fixed size.
 
 OpenGL uses what's called *normalized-device-coordinates*,
-which is a continous space from -1.0 to 1.0 horizontally,
+which is a continuous space from -1.0 to 1.0 horizontally,
 -1.0 to 1.0 vertically, and from -1.0 to 1.0 depthally.  (Is there an
 actual word for that???)
 
@@ -261,7 +261,7 @@ above at the 3 pictures of the 2 quadrilaterals.  They look the same, but
 if you label each vertex on all three graphs, and look at the axes to find
 their plotted values, you will find that they differ.  Changing between
 coordinate systems means to take vertices from one coordinate system and
-changing them to another, like converting from Celcius to Farenheit,
+changing them to another, like converting from Celsius to Fahrenheit,
 meters to feet, etc.
 
 
@@ -277,7 +277,7 @@ meters to feet, etc.
     Demo 02
 
 The function that converts from NDC to Screen space is
-arbitrarily named f, subscripted by "NDC", superscripted
+arbitrarily named f, sub-scripted by "NDC", super-scripted
 by "S".  This is a common notation when creating
 functions that change basis, i.e. coordinate conversion.
 A definition of this function is not provided right now, because we can't change it in software.
@@ -287,12 +287,12 @@ But we must recognize that it exists.
 Introduction to Cayley Graphs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The wikipedia article for Cayley graphs (https://en.wikipedia.org/wiki/Cayley_graph) is intimidating,
+The Wikipedia article for Cayley graphs (https://en.wikipedia.org/wiki/Cayley_graph) is intimidating,
 but for our purposes, it's use is very simple.
 
 
 
-An univariate example use of Cayley graphs is exchanging coins with
+An uni-variate example use of Cayley graphs is exchanging coins with
 a bank.
 
 .. figure:: _static/currency.png
@@ -300,7 +300,7 @@ a bank.
     :alt: Demo 02
     :figclass: align-center
 
-    Cayley graph of univariate coordinate conversion for money.
+    Cayley graph of uni variate coordinate conversion for money.
 
 .. math::
     f_{nickel}^{penny}(x) = 5 * x
@@ -339,7 +339,7 @@ To convert those 100 penny into quarters, move from
 penny to quarter, but since we are moving in the opposite
 direction of the edge, we must apply the multiplicative inverse
 of that function.  These functions are invertible by
-taking the reciprical of the coefficient
+taking the reciprocal of the coefficient
 
 
 
@@ -418,7 +418,7 @@ matters
     Generic Cayley Graph
 
 
-Well to convert data fram space D to space B,
+Well to convert data frame space D to space B,
 we know that D is defined relative to C, C is defined relative to A, and B is defined
 relative to A.  Because of the arrows, we know that we are given a function from
 D to C, a function from C to A, and a function from B to A.  We are not directly

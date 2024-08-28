@@ -246,7 +246,7 @@ box relative to the camera to match the -1.0 to 1.0 box in world space.
 
 Run "python mvpVisualization/4/demo4.py", and follow along with the Cayley
 graph.  The camera will be placed like any other modelspace data, but then
-the inverse of the transformations will be applied to all of the verticies.
+the inverse of the transformations will be applied to all of the vertices.
 
 For the attentive reader
 ~~~~~~~~~~~~~~~~~~~~~~~~

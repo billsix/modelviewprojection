@@ -29,7 +29,7 @@ Purpose
 Attempt to rotate the paddles around their center.
 Learn about rotations.  This demo does not
 work correctly, because of a misunderstanding
-of how to interprete a sequence of transformations.
+of how to interpret a sequence of transformations.
 
 .. figure:: _static/screenshots/demo07.png
     :align: center
@@ -108,7 +108,7 @@ starts from the positive x axis.
 
 We can expand on this knowledge, allowing
 us to rotate a given vertex, wherever it is, around the origin (0,0).  This is done
-by separating the x and y value, rotating each component seperately,
+by separating the x and y value, rotating each component separately,
 and then adding the results together.
 
 That might not have been fully clear.  Let me try again.
@@ -351,7 +351,7 @@ Turns out, our program doesn't work as predicted, even though
 translate, scale, and rotate are all defined correctly.  The paddles
 are not rotating around their center.
 
-Let's take a look in detail about what our paddlespace to
+Let's take a look in detail about what our paddle-space to
 world space transformations are doing.
 
 .. literalinclude:: ../src/demo07/demo.py

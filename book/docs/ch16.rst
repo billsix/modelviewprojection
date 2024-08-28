@@ -124,7 +124,7 @@ To visualize this, run "python mvpVisualization/modelvieworthoprojection/modelvi
 
 The ordering of 1) before 2) and 3) should be clear, as
 we are imagining a coordinate system that moves, just
-like we do for the modelspace to world space transformations.
+like we do for the model-space to world space transformations.
 The ordering of 2) before 3) is very important, as two rotations
 around different axes are not commutative, meaning that you can't
 change the order and still expect the same results
@@ -150,7 +150,7 @@ for the same reason.
 
 
 (Remember, read bottom up, just like the previous demos
-for modelspace to worldspace data)
+for model-space to world-space data)
 
 
 Back to the point, we are envisioning the camera relative to the world
@@ -174,10 +174,10 @@ orientation of NDC.  Looking at the following graph,
 
     Demo 10
 
-We want to take the modelspace geometry from,
+We want to take the model-space geometry from,
 say Paddle1 space, to world space,
 and then to camera space (which is going in the opposite direction of the arrow, therefore requires
-an inverse operation, because to plot data we go from modelspace to screen space on the graph.
+an inverse operation, because to plot data we go from model-space to screen space on the graph.
 
 Given that the inverse of a sequence of transformations is the sequence backwards,
 with each transformations inverted, we must do that to get from world space
@@ -200,32 +200,32 @@ The inverted form is
    in the comments (listed first), and then the inverted form after, but will not do so in subsequent demos.
 
 ..
-   To count in the modelspace, look at a given axis (which I've drawn in units
+   To count in the model-space, look at a given axis (which I've drawn in units
    of 10 for ease of viewing, although it should normally be in units of 1)
    On the red axis, it's 2*10 units wide, and 6*10 units tall, which matches
-   the modelspace data in the constructor for the Paddles.
+   the model-space data in the constructor for the Paddles.
 
    Take a look at ../mvpVisualization/demoAnimation.py to see an animated
    version of the axis being moved from into their world space positions,
-   relative to which the modelspace data is drawn.
+   relative to which the model-space data is drawn.
 
    The gray axis in the middle happens when we hold onto the original
    axes, as we first draw paddle 1 relative to it, the square relative
    to paddle1, but we need to later get back to world space so that we
    can draw paddle2.  In later code, we will use glPushMatrix to
    save onto a copy of the current axes, and glPopMatrix to discard
-   our "current at the time" axis, returning back to the saved axis.  Like a quicksave
+   our "current at the time" axis, returning back to the saved axis.  Like a quick-save
    in a video game.
 
-   To follow along with the code, read the transformations from modelspace
-   to worldspace backwards, and you will see how the axes are moving and
+   To follow along with the code, read the transformations from model-space
+   to world-space backwards, and you will see how the axes are moving and
    why.
 
    Take a look at ../mvpVisualization/demoViewWorldTopLevel.py to see an
    animated version that shows the objects being placed in world space,
    the camera being put into it's space using the normal way of thinking
    of a coordinate system being moved, but then the transformations
-   are inverted, brining the objects in world space with it,
+   are inverted, bringing the objects in world space with it,
    in backwards order, to put the NDC cube defined in camera
    space to the NDC defined in world space.  One way to think of it,
    is that NDC is defined at the top level of the tree of transformations,
@@ -329,8 +329,8 @@ The amount of repetition in the code below in starting to get brutal,
 as there's too much detail to think about and retype out for every object
 being drawn, and we're only dealing with 3 objects.  The author
 put this repetition into the book on purpose, so that when we
-start using matricies later, the reader will fully appreciate what
-matricies solve for us.
+start using matrices later, the reader will fully appreciate what
+matrices solve for us.
 
 .. literalinclude:: ../src/demo16/demo.py
    :language: python
