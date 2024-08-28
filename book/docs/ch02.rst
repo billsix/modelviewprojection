@@ -20,7 +20,7 @@
    SOFTWARE.
 
 Draw A Rectangle - Demo 02
-=========================
+==========================
 
 
 Purpose

@@ -2,6 +2,6 @@
 
 cd /book/docs
 make html
+make latexpdf
 mkdir /output/modelviewprojection
-cp -r _build/html /output/modelviewprojection/
-
+cp -r _build/* /output/modelviewprojection/
