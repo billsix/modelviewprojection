@@ -928,8 +928,6 @@ class Frustum:
 
     def vertices(self) -> ndarray:
         vertices = []
-        left = -5.0
-        right = 5.0
 
         # front face
         front_top: float = 5.0

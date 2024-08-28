@@ -68,7 +68,6 @@ from OpenGL.GL import (
     glGetUniformLocation,
     glScissor,
     glUniform1f,
-    glUniform1i,
     glUniform2f,
     glUniform3f,
     glUniformMatrix4fv,
