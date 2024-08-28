@@ -68,6 +68,7 @@ from OpenGL.GL import (
     glGetUniformLocation,
     glScissor,
     glUniform1f,
+    glUniform1i,
     glUniform2f,
     glUniform3f,
     glUniformMatrix4fv,
@@ -599,6 +600,9 @@ class Axis:
         glUniform1f(farZ_loc, -150.00)
         # TODO, set the color
 
+        time_loc = glGetUniformLocation(self.shader, "time")
+        glUniform1f(time_loc, time)
+
         with ms.push_matrix(ms.MatrixStack.model):
             # x axis
             with ms.push_matrix(ms.MatrixStack.model):
@@ -690,100 +694,35 @@ class NDCCube:
         verts = []
         verts.append(-1.0)
         verts.append(-1.0)
-        verts.append(-1.0)
+        verts.append(0.0)
 
         verts.append(1.0)
         verts.append(-1.0)
-        verts.append(-1.0)
+        verts.append(0.0)
 
         verts.append(1.0)
         verts.append(-1.0)
-        verts.append(-1.0)
+        verts.append(0.0)
 
         verts.append(1.0)
         verts.append(1.0)
-        verts.append(-1.0)
+        verts.append(0.0)
 
         verts.append(1.0)
         verts.append(1.0)
-        verts.append(-1.0)
+        verts.append(0.0)
 
         verts.append(-1.0)
         verts.append(1.0)
-        verts.append(-1.0)
+        verts.append(0.0)
 
         verts.append(-1.0)
         verts.append(1.0)
-        verts.append(-1.0)
+        verts.append(0.0)
 
         verts.append(-1.0)
         verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        # connect the squares
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
+        verts.append(0.0)
 
         return np.array(verts, dtype=np.float32)
 
@@ -860,6 +799,9 @@ class NDCCube:
         glUniform1f(nearZ_loc, -5.0)
         farZ_loc = glGetUniformLocation(self.shader, "farZ")
         glUniform1f(farZ_loc, -150.00)
+
+        time_loc = glGetUniformLocation(self.shader, "time")
+        glUniform1f(time_loc, time)
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
@@ -1156,10 +1098,10 @@ while not glfw.window_should_close(window):
         ms.ortho(left=-1.0, right=1.0, bottom=-1.0, top=1.0, near=0.0, far=550.0)
     else:
         ms.ortho(
-            left=-10.0,
-            right=10.0,
-            bottom=-10.0,
-            top=10.0,
+            left=-15.0,
+            right=15.0,
+            bottom=-15.0,
+            top=15.0,
             near=0.0,
             far=550.0,
         )
@@ -1172,7 +1114,7 @@ while not glfw.window_should_close(window):
     # draw NDC in global space, so that we can see the camera space
     # go to NDC
     with ms.PushMatrix(ms.MatrixStack.model):
-        cube.render(animation_time)
+        cube.render(time=0.0)  # time stay still to stop animation
     with ms.PushMatrix(ms.MatrixStack.model):
         ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
         ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
@@ -1200,15 +1142,15 @@ while not glfw.window_should_close(window):
                     * min(1.0, (animation_time - 55.0) / 5.0),
                 )
             with ms.PushMatrix(ms.MatrixStack.model):
-                ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
-                ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
-                ground.render(animation_time)
-
-                ms.scale(ms.MatrixStack.model, 10.0, 1.0, 10.0)
+                with ms.PushMatrix(ms.MatrixStack.model):
+                    ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
+                    ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
+                    ground.render(animation_time)
 
                 glDisable(GL_DEPTH_TEST)
-                axis.render(animation_time)
+                axis.render(0.0)  # 0 time so it doesn't shrink
                 glEnable(GL_DEPTH_TEST)
+                ms.scale(ms.MatrixStack.model, 10.0, 10.0, 10.0)
                 cube.render(animation_time)
 
     glClear(GL_DEPTH_BUFFER_BIT)
