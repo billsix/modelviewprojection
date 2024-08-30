@@ -1,4 +1,4 @@
-all: graphs pythonplots
+all: cayleyImages graphs pythonplots
 	cd gnuplot && make
 
 
@@ -23,6 +23,17 @@ graphs: currency.png \
 	demo18-8.png \
 	cayleygraph.png \
 	assignment2.png
+
+
+cayleyImages:
+	./texExpToPng.sh "\vec{f}_{ndc}^{ss}" 450 ndcToScreenspace.png
+	./texExpToPng.sh "{f}_{nickel}^{penny}" 450 nickleToPenny.png
+	./texExpToPng.sh "{f}_{dime}^{penny}" 450 dimeToPenny.png
+	./texExpToPng.sh "{f}_{quarter}^{penny}" 450 quarterToPenny.png
+	./texExpToPng.sh "{f}_{dollar}^{penny}" 450 dollarToPenny.png
+	./texExpToPng.sh "{f}_{d}^{c}" 300 dToC.png
+	./texExpToPng.sh "{f}_{c}^{a}" 300 cToA.png
+	./texExpToPng.sh "{f}_{b}^{a}" 300 bToA.png
 
 
 currency.png: currency.dot

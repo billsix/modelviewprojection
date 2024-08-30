@@ -6,7 +6,7 @@ digraph {
     b [label = "B"];
     c [label = "C"];
     d [label = "D"];
-    b -> a [label=<f<SUB>b</SUB><SUP>a</SUP>>,weight="0.2"];
-    c -> a [label=<f<SUB>c</SUB><SUP>a</SUP>>,weight="0.2"];
-    d -> c [label=<f<SUB>d</SUB><SUP>c</SUP>>,weight="0.2"];
+    b -> a [label = <<TABLE border="0"><TR><TD><IMG SRC="bToA.png"/></TD></TR></TABLE>>];
+    c -> a [label = <<TABLE border="0"><TR><TD><IMG SRC="cToA.png"/></TD></TR></TABLE>>];
+    d -> c [label = <<TABLE border="0"><TR><TD><IMG SRC="dToC.png"/></TD></TR></TABLE>>];
 }

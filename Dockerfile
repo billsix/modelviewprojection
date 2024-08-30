@@ -10,7 +10,8 @@ RUN dnf install    -y gnuplot \
                       mathjax \
                       make \
                       python3-imageio \
-                      python3-matplotlib
+                      python3-matplotlib \
+                      texlive-standalone
 
 COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
 COPY ./book /book/

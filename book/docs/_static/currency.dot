@@ -7,8 +7,8 @@ digraph {
     dime [label = "1 Dime"];
     quarter [label = "1 Quarter"];
     dollar [label = "1 Dollar"];
-    nickel -> penny [label=<f<SUB>nickel</SUB><SUP>penny</SUP>>,weight="0.2"];
-    dime -> penny  [label=<f<SUB>dime</SUB><SUP>penny</SUP>>,weight="0.2"];
-    quarter -> penny [label=<f<SUB>quarter</SUB><SUP>penny</SUP>>,weight="0.2"];
-    dollar -> penny [label=<f<SUB>dollar</SUB><SUP>penny</SUP>>,weight="0.2"];
+    nickel -> penny [label = <<TABLE border="0"><TR><TD><IMG SRC="nickleToPenny.png"/></TD></TR></TABLE>>];
+    dime -> penny  [label = <<TABLE border="0"><TR><TD><IMG SRC="dimeToPenny.png"/></TD></TR></TABLE>>];
+    quarter -> penny [label = <<TABLE border="0"><TR><TD><IMG SRC="quarterToPenny.png"/></TD></TR></TABLE>>];
+    dollar -> penny [label = <<TABLE border="0"><TR><TD><IMG SRC="dollarToPenny.png"/></TD></TR></TABLE>>];
 }
