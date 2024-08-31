@@ -1,11 +1,11 @@
 digraph {
     rankdir="BT"
-    "Paddle 1 Space" -> "World Space" [label=<g<SUB>p1</SUB><SUP>w</SUP>>];
-    "Paddle 1 Space" -> "Paddle 1 Space" [label=<r<SUB>p1</SUB><SUP>p1  </SUP>>];
-    "Paddle 2 Space" -> "World Space" [label=<g<SUB>p2</SUB><SUP>w</SUP>>];
-    "Paddle 2 Space" -> "Paddle 2 Space" [label=<r<SUB>p2</SUB><SUP>p2  </SUP>>];
-    "World Space" -> "Paddle 1 Space" [label=<g<SUP>-1</SUP><SUB>p1</SUB><SUP>w</SUP>>];
-    "World Space" -> "Paddle 2 Space" [label=<g<SUP>-1</SUP><SUB>p2</SUB><SUP>w</SUP>>];
-    "World Space" -> "NDC" [label=<f<SUB>w</SUB><SUP>ndc</SUP>>];
-    "NDC" -> "Screen Space" [label=<f<SUB>ndc</SUB><SUP>S</SUP>>];
+    "Paddle 1 Space" -> "World Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="p1ToW.png"/></TD></TR></TABLE>>];
+    "Paddle 1 Space" -> "Paddle 1 Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="p1ToP1.png"/></TD></TR></TABLE>> color="red"];
+    "Paddle 2 Space" -> "World Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="p2ToW.png"/></TD></TR></TABLE>>];
+    "Paddle 2 Space" -> "Paddle 2 Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="p2ToP2.png"/></TD></TR></TABLE>> color="red"];
+    "World Space" -> "Paddle 1 Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="wToP1.png"/></TD></TR></TABLE>> color="red"];
+    "World Space" -> "Paddle 2 Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="wToP2.png"/></TD></TR></TABLE>> color="red"];
+    "World Space" -> "NDC" [label=<<TABLE border="0"><TR><TD><IMG SRC="wToNDC.png"/></TD></TR></TABLE>>];
+    "NDC" -> "Screen Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="ndcToScreenspace.png"/></TD></TR></TABLE>>];
 }

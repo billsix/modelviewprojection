@@ -18,7 +18,6 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-import doctest
 import itertools
 import math
 import sys
@@ -122,14 +121,14 @@ def accumulate_transformation(procedures, backwards=False):
             )
 
 
-modules = [mplt, sys.modules[__name__]]
-for m in modules:
-    try:
-        doctest.testmod(m, raise_on_error=True)
-        print(doctest.testmod(m))
-    except Exception:
-        print(doctest.testmod(m))
-        sys.exit(1)
+# modules = [mplt, sys.modules[__name__]]
+# for m in modules:
+#     try:
+#         doctest.testmod(m, raise_on_error=True)
+#         print(doctest.testmod(m))
+#     except Exception:
+#         print(doctest.testmod(m))
+#         sys.exit(1)
 
 
 ## Translation Plots

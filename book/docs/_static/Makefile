@@ -34,6 +34,18 @@ cayleyImages:
 	./texExpToPng.sh "{f}_{d}^{c}" 300 dToC.png
 	./texExpToPng.sh "{f}_{c}^{a}" 300 cToA.png
 	./texExpToPng.sh "{f}_{b}^{a}" 300 bToA.png
+	./texExpToPng.sh "{f}_{p_1}^{ndc}" 300 p1ToNDC.png
+	./texExpToPng.sh "{f}_{p_2}^{ndc}" 300 p2ToNDC.png
+	./texExpToPng.sh "{f}_{p_1}^{w}" 300 p1ToW.png
+	./texExpToPng.sh "{f}_{p_2}^{w}" 300 p2ToW.png
+	./texExpToPng.sh "{f}_{w}^{ndc}" 300 wToNDC.png
+	./texExpToPng.sh "{f}_{w}^{p_1}" 300 wToP1.png
+	./texExpToPng.sh "{f}_{w}^{p_2}" 300 wToP2.png
+	./texExpToPng.sh "{f}_{p_1}^{p_1}" 300 p1ToP1.png
+	./texExpToPng.sh "{f}_{p_2}^{p_2}" 300 p2ToP2.png
+	./texExpToPng.sh "{f}_{c}^{w}" 300 cToW.png
+	./texExpToPng.sh "{f}_{w}^{c}" 300 wToC.png
+	./texExpToPng.sh "{f}_{c}^{ndc}" 300 cToNDC.png
 
 
 currency.png: currency.dot
