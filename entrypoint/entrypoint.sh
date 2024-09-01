@@ -10,3 +10,6 @@ cd _build/html/
 # copy the files over
 mkdir /output/modelviewprojection
 cp -r * /output/modelviewprojection/
+# see if this fixes github issue with unscores in
+# filenames created by sphinx
+touch /output/modelviewprojection/.nojekyll
