@@ -1,17 +1,17 @@
-# Use the Red Hat Universal Base Image 8
-FROM fedora
+FROM docker.io/debian:bookworm
 
-RUN dnf install    -y gnuplot \
+RUN apt update && apt upgrade -y && \
+    apt install    -y gnuplot \
                       texlive \
-                      texlive-anyfontsize \
-                      texlive-dvisvgm \
+                      texlive-latex-extra \
                       graphviz \
-                      python3-sphinx_rtd_theme \
-                      mathjax \
+                      python3-sphinx-rtd-theme \
+                      fonts-mathjax \
+                      libjs-mathjax \
                       make \
                       python3-imageio \
                       python3-matplotlib \
-                      texlive-standalone
+                      dvipng
 
 COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
 COPY ./book /book/
