@@ -167,12 +167,12 @@ to actually do.  We don't need to place the camera.
 We need to move every already-plotted object in world space towards the origin and
 orientation of NDC.  Looking at the following graph,
 
-.. figure:: _static/demo10-2.png
+.. figure:: _static/demo16.png
     :align: center
-    :alt: Demo 10
+    :alt: Demo 16
     :figclass: align-center
 
-    Demo 10
+    Demo 16
 
 We want to take the model-space geometry from,
 say Paddle1 space, to world space,

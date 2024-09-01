@@ -22,15 +22,16 @@ graphs: currency.png \
 	demo18-7.png \
 	demo18-8.png \
 	cayleygraph.png \
-	assignment2.png
+	assignment2.png \
+	demo16.png
 
 
 cayleyImages:
-	./texExpToPng.sh "\vec{f}_{ndc}^{ss}" 450 ndcToScreenspace.png
-	./texExpToPng.sh "{f}_{nickel}^{penny}" 450 nickleToPenny.png
-	./texExpToPng.sh "{f}_{dime}^{penny}" 450 dimeToPenny.png
-	./texExpToPng.sh "{f}_{quarter}^{penny}" 450 quarterToPenny.png
-	./texExpToPng.sh "{f}_{dollar}^{penny}" 450 dollarToPenny.png
+	./texExpToPng.sh "\vec{f}_{ndc}^{ss}" 300 ndcToScreenspace.png
+	./texExpToPng.sh "{f}_{nickel}^{penny}" 300 nickleToPenny.png
+	./texExpToPng.sh "{f}_{dime}^{penny}" 300 dimeToPenny.png
+	./texExpToPng.sh "{f}_{quarter}^{penny}" 300 quarterToPenny.png
+	./texExpToPng.sh "{f}_{dollar}^{penny}" 300 dollarToPenny.png
 	./texExpToPng.sh "{f}_{d}^{c}" 300 dToC.png
 	./texExpToPng.sh "{f}_{c}^{a}" 300 cToA.png
 	./texExpToPng.sh "{f}_{b}^{a}" 300 bToA.png
@@ -46,10 +47,16 @@ cayleyImages:
 	./texExpToPng.sh "{f}_{c}^{w}" 300 cToW.png
 	./texExpToPng.sh "{f}_{w}^{c}" 300 wToC.png
 	./texExpToPng.sh "{f}_{c}^{ndc}" 300 cToNDC.png
+	./texExpToPng.sh "{f}_{s}^{p_1}" 300 s1ToP1.png
+	./texExpToPng.sh "{f}_{c}^{clip}" 300 cToClip.png
+	./texExpToPng.sh "{f}_{clip}^{ndc}" 300 clipToNDC.png
 
 
 currency.png: currency.dot
 	dot -Tpng -Gsize=6,9\! -Gdpi=200 $< -o $@
+
+demo16.png: demo16.dot
+	dot -Tpng $< -o $@
 
 demo11.png: demo11.dot
 	dot -Tpng $< -o $@

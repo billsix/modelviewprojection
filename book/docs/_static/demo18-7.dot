@@ -8,10 +8,10 @@ digraph {
     cs [label = "Camera Space"];
     ws [label = "World Space"];
     ndc [label = "NDC"];
-    p1 -> ws  [label=<f<SUB>p1</SUB><SUP>w</SUP>>,weight="0.2"];
-    s1 -> p1  [label=<f<SUB>s1</SUB><SUP>p1</SUP>>,weight="0.2"];
-    p2 -> ws [label=<f<SUB>p2</SUB><SUP>w</SUP>>,weight="0.2"];
-    cs -> ws [label=<f<SUB>c</SUB><SUP>w</SUP>>,weight="0.2" color="red"];
-    cs -> ndc [label=<f<SUB>c</SUB><SUP>ndc</SUP>>,weight="0.2"];
-    ndc -> "Screen Space" [label=<f<SUB>ndc</SUB><SUP>S</SUP>>];
+    p1 -> ws  [label=<<TABLE border="0"><TR><TD><IMG SRC="p1ToW.png"/></TD></TR></TABLE>>,weight="0.2"];
+    p2 -> ws [label=<<TABLE border="0"><TR><TD><IMG SRC="p2ToW.png"/></TD></TR></TABLE>>,weight="0.2"];
+    ws -> cs [label=<<TABLE border="0"><TR><TD><IMG SRC="wToC.png"/></TD></TR></TABLE>>,weight="0.2" color="red"];
+    cs -> ndc [label=<<TABLE border="0"><TR><TD><IMG SRC="cToNDC.png"/></TD></TR></TABLE>>,weight="0.2"];
+    ndc -> "Screen Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="ndcToScreenspace.png"/></TD></TR></TABLE>>];
+    s1 -> p1  [label=<<TABLE border="0"><TR><TD><IMG SRC="s1ToP1.png"/></TD></TR></TABLE>>,weight="0.2"];
 }
