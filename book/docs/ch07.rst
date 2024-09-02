@@ -436,3 +436,50 @@ world space transformations are doing.
 So then what the heck are we supposed to do in order to
 rotate around an object's center?  The next section
 provides a solution.
+
+
+
+Updated explanation
+^^^^^^^^^^^^^^^^^^^
+
+This is a work in progress
+
+.. figure:: _static/cc0/williamesix/rotate1.svg
+    :align: center
+    :alt: rotate1
+    :figclass: align-center
+
+.. figure:: _static/cc0/williamesix/rotate2.svg
+    :align: center
+    :alt: rotate2
+    :figclass: align-center
+
+.. figure:: _static/cc0/williamesix/rotate3.svg
+    :align: center
+    :alt: rotate3
+    :figclass: align-center
+
+.. figure:: _static/cc0/williamesix/rotate4.svg
+    :align: center
+    :alt: rotate4
+    :figclass: align-center
+
+.. figure:: _static/cc0/williamesix/rotate5.svg
+    :align: center
+    :alt: rotate5
+    :figclass: align-center
+
+.. figure:: _static/cc0/williamesix/rotate6.svg
+    :align: center
+    :alt: rotate6
+    :figclass: align-center
+
+.. figure:: _static/cc0/williamesix/rotate7.svg
+    :align: center
+    :alt: rotate7
+    :figclass: align-center
+
+.. figure:: _static/cc0/williamesix/rotate8.svg
+    :align: center
+    :alt: rotate8
+    :figclass: align-center
