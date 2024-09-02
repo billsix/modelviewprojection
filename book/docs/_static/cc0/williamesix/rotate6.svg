@@ -1,212 +1,48 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<svg
-   width="410"
-   height="410"
-   version="1.1"
-   id="svg12"
-   sodipodi:docname="rotate6.svg"
-   inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)"
-   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
-   xmlns="http://www.w3.org/2000/svg"
-   xmlns:svg="http://www.w3.org/2000/svg">
-  <sodipodi:namedview
-     id="namedview12"
-     pagecolor="#ffffff"
-     bordercolor="#000000"
-     borderopacity="0.25"
-     inkscape:showpageshadow="2"
-     inkscape:pageopacity="0.0"
-     inkscape:pagecheckerboard="0"
-     inkscape:deskcolor="#d1d1d1"
-     inkscape:zoom="1.9609756"
-     inkscape:cx="205"
-     inkscape:cy="205"
-     inkscape:window-width="1920"
-     inkscape:window-height="1008"
-     inkscape:window-x="1080"
-     inkscape:window-y="747"
-     inkscape:window-maximized="1"
-     inkscape:current-layer="svg12" />
-  <defs
-     id="defs1">
-    <marker
-       id="a"
-       orient="auto"
-       overflow="visible">
-      <path
-         stroke="#000"
-         stroke-width=".5"
-         d="M-4,0l-2,2 7,-2 -7,-2 2,2z"
-         id="path1" />
+<svg xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="410" height="410" version="1.1" id="svg12" sodipodi:docname="rotate6.svg" inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)">
+  <sodipodi:namedview id="namedview12" pagecolor="#ffffff" bordercolor="#000000" borderopacity="0.25" inkscape:showpageshadow="2" inkscape:pageopacity="0.0" inkscape:pagecheckerboard="0" inkscape:deskcolor="#d1d1d1" inkscape:zoom="1.9609756" inkscape:cx="205" inkscape:cy="205" inkscape:window-width="1920" inkscape:window-height="1008" inkscape:window-x="1080" inkscape:window-y="747" inkscape:window-maximized="1" inkscape:current-layer="svg12"/>
+  <defs id="defs1">
+    <marker id="a" orient="auto" overflow="visible">
+      <path stroke="#000" stroke-width=".5" d="M-4,0l-2,2 7,-2 -7,-2 2,2z" id="path1"/>
     </marker>
   </defs>
-  <g
-     stroke="#000"
-     stroke-width="3"
-     id="g5">
-    <circle
-       cx="195"
-       cy="215"
-       r="169"
-       fill="#f2f2f2"
-       stroke="gray"
-       id="circle1" />
-    <path
-       marker-end="url(#a)"
-       d="M195,400V15"
-       id="path3" />
-    <path
-       marker-end="url(#a)"
-       d="M10,215h385"
-       id="path4" />
-    <path
-       d="M 194.57655,214.45449 260.73433,61.441756"
-       id="path5"
-       style="stroke-width:3.64206"
-       inkscape:transform-center-x="-32.792254"
-       inkscape:transform-center-y="-76.309338" />
-    <path
-       d="M 195.06022,214.54409 42.047482,148.38633"
-       id="path2"
-       style="stroke-width:3.64206"
-       inkscape:transform-center-x="76.309335"
-       inkscape:transform-center-y="-32.792251" />
-    <path
-       d="M 194.92658,214.59947 82.051302,91.925436"
-       id="path9"
-       style="stroke-width:3.64206"
-       inkscape:transform-center-x="56.374246"
-       inkscape:transform-center-y="-60.995008" />
+  <g stroke="#000" stroke-width="3" id="g5">
+    <circle cx="195" cy="215" r="169" fill="#f2f2f2" stroke="gray" id="circle1"/>
+    <path marker-end="url(#a)" d="M195,400V15" id="path3"/>
+    <path marker-end="url(#a)" d="M10,215h385" id="path4"/>
+    <path d="M 194.57655,214.45449 260.73433,61.441756" id="path5" style="stroke-width:3.64206" inkscape:transform-center-x="-32.792254" inkscape:transform-center-y="-76.309338"/>
+    <path d="M 195.06022,214.54409 42.047482,148.38633" id="path2" style="stroke-width:3.64206" inkscape:transform-center-x="76.309335" inkscape:transform-center-y="-32.792251"/>
+    <path d="M 194.92658,214.59947 82.051302,91.925436" id="path9" style="stroke-width:3.64206" inkscape:transform-center-x="56.374246" inkscape:transform-center-y="-60.995008"/>
   </g>
-  <text
-     x="104.70534"
-     y="152.14143"
-     id="text2"
-     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal">1</text>
-  <path
-     fill="#ddcad4"
-     stroke="#800080"
-     d="m 158.34832,174.42452 a 52,52 0 0 1 56.98015,-9.01465 l -21.7291,47.2424 z"
-     id="path2-1" />
-  <g
-     stroke-linecap="round"
-     stroke-width="5"
-     id="g7"
-     transform="matrix(0.98754204,0,0,0.97449447,4.8739869,4.0042088)" />
-  <ellipse
-     cx="261.27487"
-     cy="59.509949"
-     id="circle7"
-     rx="6.3146768"
-     ry="5.0398011"
-     style="stroke-width:1.88045" />
-  <ellipse
-     cx="80.75248"
-     cy="89.047264"
-     id="circle7-7"
-     rx="6.3146768"
-     ry="5.0398011"
-     style="stroke-width:1.88045" />
-  <g
-     font-size="26"
-     id="g12">
-    <text
-       x="396.11942"
-       y="221.52985"
-       id="text7">x</text>
-    <text
-       x="200"
-       y="25"
-       id="text8">y</text>
-    <text
-       x="263.94708"
-       y="47.491333"
-       fill="#3c8031"
-       id="text4"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1"><tspan
-         sodipodi:role="line"
-         id="tspan9"
-         x="263.94708"
-         y="47.491333">x'</tspan></text>
+  <text x="104.70534" y="152.14143" id="text2" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal">1</text>
+  <path fill="#ddcad4" stroke="#800080" d="m 158.34832,174.42452 a 52,52 0 0 1 56.98015,-9.01465 l -21.7291,47.2424 z" id="path2-1"/>
+  <g stroke-linecap="round" stroke-width="5" id="g7" transform="matrix(0.98754204,0,0,0.97449447,4.8739869,4.0042088)"/>
+  <ellipse cx="261.27487" cy="59.509949" id="circle7" rx="6.3146768" ry="5.0398011" style="stroke-width:1.88045"/>
+  <ellipse cx="80.75248" cy="89.047264" id="circle7-7" rx="6.3146768" ry="5.0398011" style="stroke-width:1.88045"/>
+  <g font-size="26" id="g12">
+    <text x="396.11942" y="221.52985" id="text7">x</text>
+    <text x="200" y="25" id="text8">y</text>
+    <text x="263.94708" y="47.491333" fill="#3c8031" id="text4" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1">
+      <tspan sodipodi:role="line" id="tspan9" x="263.94708" y="47.491333">x'</tspan>
+    </text>
   </g>
-  <text
-     x="26.894857"
-     y="131.459"
-     fill="#3c8031"
-     id="text11-6"
-     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1"><tspan
-       sodipodi:role="line"
-       id="tspan8"
-       x="26.894857"
-       y="131.459">y'</tspan></text>
-  <ellipse
-     cx="38.936562"
-     cy="146.20149"
-     id="ellipse2"
-     rx="6.3146768"
-     ry="5.0398011"
-     style="stroke-width:1.88045" />
-  <rect
-     style="fill:#000000"
-     id="rect6"
-     width="26.007469"
-     height="5.0995073"
-     x="239.63554"
-     y="86.141716"
-     transform="rotate(25)" />
-  <text
-     x="172.19664"
-     y="198.25798"
-     fill="#800080"
-     font-style="italic"
-     id="text10"
-     transform="scale(1.0731916,0.93180006)"
-     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:33.7446px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#800080;stroke-width:2.81206"><tspan
-       sodipodi:role="line"
-       id="tspan1"
-       x="172.19664"
-       y="198.25798">β</tspan></text>
-  <rect
-     style="fill:#000000"
-     id="rect7"
-     width="26.007469"
-     height="5.0995073"
-     x="-111.42698"
-     y="238.87283"
-     transform="rotate(-65)" />
-  <g
-     inkscape:groupmode="layer"
-     id="layer2"
-     inkscape:label="sinandcos"
-     transform="rotate(-64,194.00124,214.27241)">
-    <path
-       stroke="#2d2f92"
-       d="m 195,215 h 65"
-       id="path7"
-       transform="matrix(0.98754204,0,0,0.97449447,4.8739869,4.0042088)"
-       style="stroke-width:3.86239885;stroke-dasharray:none" />
-    <path
-       stroke="#3c803f"
-       d="M 260,59 V 215"
-       id="path6"
-       transform="matrix(0.98754204,0,0,0.97449447,4.8739869,4.0042088)"
-       style="stroke-width:3.86239885;stroke-dasharray:none" />
-    <text
-       x="200"
-       y="241"
-       fill="#2d2f92"
-       id="text12"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#2d2f92"><tspan
-         sodipodi:role="line"
-         id="tspan11">cos(β)</tspan></text>
-    <text
-       x="267"
-       y="190"
-       fill="#3c8031"
-       id="text11"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#3c8031"><tspan
-         sodipodi:role="line"
-         id="tspan12">sin(β)</tspan></text>
+  <text x="26.894857" y="131.459" fill="#3c8031" id="text11-6" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1">
+    <tspan sodipodi:role="line" id="tspan8" x="26.894857" y="131.459">y'</tspan>
+  </text>
+  <ellipse cx="38.936562" cy="146.20149" id="ellipse2" rx="6.3146768" ry="5.0398011" style="stroke-width:1.88045"/>
+  <rect style="fill:#000000" id="rect6" width="26.007469" height="5.0995073" x="239.63554" y="86.141716" transform="rotate(25)"/>
+  <text x="172.19664" y="198.25798" fill="#800080" font-style="italic" id="text10" transform="scale(1.0731916,0.93180006)" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:33.7446px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#800080;stroke-width:2.81206">
+    <tspan sodipodi:role="line" id="tspan1" x="172.19664" y="198.25798">β</tspan>
+  </text>
+  <rect style="fill:#000000" id="rect7" width="26.007469" height="5.0995073" x="-111.42698" y="238.87283" transform="rotate(-65)"/>
+  <g inkscape:groupmode="layer" id="layer2" inkscape:label="sinandcos" transform="rotate(-64,194.00124,214.27241)">
+    <path stroke="#2d2f92" d="m 195,215 h 65" id="path7" transform="matrix(0.98754204,0,0,0.97449447,4.8739869,4.0042088)" style="stroke-width:3.86239885;stroke-dasharray:none"/>
+    <path stroke="#3c803f" d="M 260,59 V 215" id="path6" transform="matrix(0.98754204,0,0,0.97449447,4.8739869,4.0042088)" style="stroke-width:3.86239885;stroke-dasharray:none"/>
+    <text x="200" y="241" fill="#2d2f92" id="text12" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#2d2f92">
+      <tspan sodipodi:role="line" id="tspan11">cos(β)</tspan>
+    </text>
+    <text x="267" y="190" fill="#3c8031" id="text11" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#3c8031">
+      <tspan sodipodi:role="line" id="tspan12">sin(β)</tspan>
+    </text>
   </g>
 </svg>
