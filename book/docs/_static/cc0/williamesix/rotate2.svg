@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns="http://www.w3.org/2000/svg" xmlns:svg="http://www.w3.org/2000/svg" width="410" height="410" version="1.1" id="svg12" sodipodi:docname="rotate2.svg" inkscape:version="1.3.2 (091e20ef0f, 2023-11-25)">
-  <sodipodi:namedview id="namedview12" pagecolor="#ffffff" bordercolor="#000000" borderopacity="0.25" inkscape:showpageshadow="2" inkscape:pageopacity="0.0" inkscape:pagecheckerboard="0" inkscape:deskcolor="#d1d1d1" inkscape:zoom="1.9609756" inkscape:cx="204.74503" inkscape:cy="205" inkscape:window-width="1351" inkscape:window-height="1008" inkscape:window-x="1216" inkscape:window-y="747" inkscape:window-maximized="0" inkscape:current-layer="svg12"/>
+  <sodipodi:namedview id="namedview12" pagecolor="#ffffff" bordercolor="#000000" borderopacity="0.25" inkscape:showpageshadow="2" inkscape:pageopacity="0.0" inkscape:pagecheckerboard="0" inkscape:deskcolor="#d1d1d1" inkscape:zoom="1.9609756" inkscape:cx="205" inkscape:cy="205" inkscape:window-width="1920" inkscape:window-height="1008" inkscape:window-x="1080" inkscape:window-y="747" inkscape:window-maximized="1" inkscape:current-layer="layer1"/>
   <defs id="defs1">
     <marker id="a" orient="auto" overflow="visible">
       <path stroke="#000" stroke-width=".5" d="M-4,0l-2,2 7,-2 -7,-2 2,2z" id="path1"/>
@@ -25,9 +25,23 @@
     <text x="212" y="207" fill="purple" font-style="italic" id="text10">θ</text>
     <text x="267" y="190" fill="#3c8031" id="text11">sin(<tspan font-style="italic" id="tspan10">θ</tspan>)</text>
     <text x="200" y="241" fill="#2d2f92" id="text12">cos(<tspan font-style="italic" id="tspan11">θ</tspan>)</text>
-    <text x="269.55655" y="31.682875" fill="#3c8031" id="text11-6" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1">
-      <tspan sodipodi:role="line" id="tspan1">[cos(θ),</tspan>
-      <tspan sodipodi:role="line" id="tspan2">sin(θ)]</tspan>
+  </g>
+  <g inkscape:groupmode="layer" id="layer1" inkscape:label="cartesian" transform="translate(-11.028647,2.9529878)">
+    <text x="291.99435" y="29.133123" fill="#3c8031" id="text11-6" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000">
+      <tspan sodipodi:role="line" id="tspan5">cos(θ)</tspan>
+      <tspan sodipodi:role="line" id="tspan12"/>
+    </text>
+    <text x="298.50479" y="53.25029" fill="#3c8031" id="text11-6-2" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000">
+      <tspan sodipodi:role="line" id="tspan1" x="298.50479" y="53.25029">sin(θ)</tspan>
+      <tspan sodipodi:role="line" id="tspan4" x="298.50479" y="85.75029"/>
+    </text>
+    <text x="279.58438" y="45.929394" fill="#3c8031" id="text11-6-3" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:48px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000">
+      <tspan sodipodi:role="line" id="tspan6" x="279.58438" y="45.929394">[</tspan>
+      <tspan sodipodi:role="line" id="tspan7" x="279.58438" y="105.9294"/>
+    </text>
+    <text x="365.5806" y="45.355877" fill="#3c8031" id="text11-6-3-9" style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:48px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000">
+      <tspan sodipodi:role="line" id="tspan8" x="365.5806" y="45.355877">]</tspan>
+      <tspan sodipodi:role="line" id="tspan9" x="365.5806" y="105.35588"/>
     </text>
   </g>
 </svg>
