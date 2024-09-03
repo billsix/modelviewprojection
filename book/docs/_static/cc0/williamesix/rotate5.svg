@@ -20,8 +20,8 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.9609756"
-     inkscape:cx="204.74503"
-     inkscape:cy="204.74503"
+     inkscape:cx="129.52736"
+     inkscape:cy="194.54602"
      inkscape:window-width="1392"
      inkscape:window-height="982"
      inkscape:window-x="0"
@@ -115,26 +115,28 @@
        y="25"
        id="text8">y</text>
     <text
-       x="263.94708"
-       y="47.491333"
+       x="110.62056"
+       y="254.9249"
        fill="#3c8031"
        id="text4"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1"
+       transform="rotate(-56)"><tspan
          sodipodi:role="line"
          id="tspan9"
-         x="263.94708"
-         y="47.491333">x'</tspan></text>
+         x="110.62056"
+         y="254.9249">x'</tspan></text>
   </g>
   <text
-     x="26.894857"
-     y="131.459"
+     x="-103.05891"
+     y="98.678688"
      fill="#3c8031"
      id="text11-6"
-     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1"
+     transform="rotate(-54)"><tspan
        sodipodi:role="line"
        id="tspan8"
-       x="26.894857"
-       y="131.459">y'</tspan></text>
+       x="-103.05891"
+       y="98.678688">y'</tspan></text>
   <ellipse
      cx="38.936562"
      cy="146.20149"
@@ -151,17 +153,17 @@
      y="86.141716"
      transform="rotate(25)" />
   <text
-     x="172.19664"
-     y="198.25798"
+     x="-14.139908"
+     y="290.75305"
      fill="#800080"
      font-style="italic"
      id="text10"
-     transform="scale(1.0731916,0.93180006)"
+     transform="matrix(0.70407699,-0.80994795,0.70323848,0.61131587,0,0)"
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:33.7446px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#800080;stroke-width:2.81206"><tspan
        sodipodi:role="line"
        id="tspan1"
-       x="172.19664"
-       y="198.25798">β</tspan></text>
+       x="-14.139908"
+       y="290.75305">β</tspan></text>
   <rect
      style="fill:#000000"
      id="rect7"

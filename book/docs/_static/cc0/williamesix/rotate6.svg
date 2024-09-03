@@ -20,8 +20,8 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.9609756"
-     inkscape:cx="204.74503"
-     inkscape:cy="204.74503"
+     inkscape:cx="203.9801"
+     inkscape:cy="201.68532"
      inkscape:window-width="1392"
      inkscape:window-height="982"
      inkscape:window-x="0"
@@ -115,26 +115,28 @@
        y="25"
        id="text8">y</text>
     <text
-       x="263.94708"
-       y="47.491333"
+       x="86.855774"
+       y="263.2984"
        fill="#3c8031"
        id="text4"
-       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1"><tspan
+       style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1"
+       transform="rotate(-61)"><tspan
          sodipodi:role="line"
          id="tspan9"
-         x="263.94708"
-         y="47.491333">x'</tspan></text>
+         x="86.855774"
+         y="263.2984">x'</tspan></text>
   </g>
   <text
-     x="26.894857"
-     y="131.459"
+     x="-102.52362"
+     y="97.224815"
      fill="#3c8031"
      id="text11-6"
-     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1"><tspan
+     style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000;fill-opacity:1"
+     transform="rotate(-56)"><tspan
        sodipodi:role="line"
        id="tspan8"
-       x="26.894857"
-       y="131.459">y'</tspan></text>
+       x="-102.52362"
+       y="97.224815">y'</tspan></text>
   <ellipse
      cx="38.936562"
      cy="146.20149"
@@ -151,17 +153,17 @@
      y="86.141716"
      transform="rotate(25)" />
   <text
-     x="172.19664"
-     y="198.25798"
+     x="-53.019314"
+     y="288.54395"
      fill="#800080"
      font-style="italic"
      id="text10"
-     transform="scale(1.0731916,0.93180006)"
+     transform="matrix(0.56870485,-0.91011805,0.79021133,0.49377881,0,0)"
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:33.7446px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#800080;stroke-width:2.81206"><tspan
        sodipodi:role="line"
        id="tspan1"
-       x="172.19664"
-       y="198.25798">β</tspan></text>
+       x="-53.019314"
+       y="288.54395">β</tspan></text>
   <rect
      style="fill:#000000"
      id="rect7"
@@ -177,10 +179,9 @@
      transform="rotate(-64,194.00124,214.27241)">
     <path
        stroke="#2d2f92"
-       d="m 195,215 h 65"
+       d="m 197.05029,214.30147 64.10228,-3.35948"
        id="path7"
-       transform="matrix(0.98754204,0,0,0.97449447,4.8739869,4.0042088)"
-       style="stroke-width:3.86239885;stroke-dasharray:none" />
+       style="stroke-width:3.789;stroke-dasharray:none" />
     <path
        stroke="#3c803f"
        d="M 260,59 V 215"
@@ -196,12 +197,14 @@
          sodipodi:role="line"
          id="tspan11">cos(β)</tspan></text>
     <text
-       x="267"
-       y="190"
+       x="270.85654"
+       y="192.09064"
        fill="#3c8031"
        id="text11"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#3c8031"><tspan
          sodipodi:role="line"
-         id="tspan12">sin(β)</tspan></text>
+         id="tspan12"
+         x="270.85654"
+         y="192.09064">sin(β)</tspan></text>
   </g>
 </svg>

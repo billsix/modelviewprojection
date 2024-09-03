@@ -20,14 +20,14 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.9609756"
-     inkscape:cx="291.18159"
-     inkscape:cy="119.07338"
-     inkscape:window-width="1392"
+     inkscape:cx="149.92537"
+     inkscape:cy="405.66542"
+     inkscape:window-width="1920"
      inkscape:window-height="982"
      inkscape:window-x="0"
      inkscape:window-y="25"
-     inkscape:window-maximized="0"
-     inkscape:current-layer="svg12" />
+     inkscape:window-maximized="1"
+     inkscape:current-layer="layer2" />
   <defs
      id="defs1">
     <marker
@@ -162,17 +162,17 @@
      y="193.87881"
      transform="rotate(25)" />
   <text
-     x="230.16759"
-     y="356.96753"
+     x="-93.780807"
+     y="444.11145"
      fill="#800080"
      font-style="italic"
      id="text10"
-     transform="scale(1.0731916,0.93180006)"
+     transform="matrix(0.6753813,-0.83402648,0.7241447,0.5864008,0,0)"
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:33.7446px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#800080;stroke-width:2.81206"><tspan
        sodipodi:role="line"
        id="tspan1"
-       x="230.16759"
-       y="356.96753">β</tspan></text>
+       x="-93.780807"
+       y="444.11145">β</tspan></text>
   <rect
      style="fill:#000000"
      id="rect7"
@@ -188,10 +188,9 @@
      transform="rotate(-64,343.4414,238.43365)">
     <path
        stroke="#2d2f92"
-       d="m 195,215 h 65"
+       d="M 197.02586,213.74184 261.177,211.50162"
        id="path7"
-       transform="matrix(0.98754204,0,0,0.97449447,4.8739869,4.0042088)"
-       style="stroke-width:3.8624;stroke-dasharray:none" />
+       style="stroke-width:3.789;stroke-dasharray:none" />
     <path
        stroke="#3c803f"
        d="M 260,59 V 215"
@@ -209,15 +208,15 @@
          x="200"
          y="241">cos(β)</tspan></text>
     <text
-       x="267"
-       y="190"
+       x="273.58408"
+       y="193.02982"
        fill="#3c8031"
        id="text11"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#3c8031"><tspan
          sodipodi:role="line"
          id="tspan12"
-         x="267"
-         y="190">sin(β)</tspan></text>
+         x="273.58408"
+         y="193.02982">sin(β)</tspan></text>
   </g>
   <text
      x="-129.8172"
