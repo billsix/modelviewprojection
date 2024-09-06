@@ -540,7 +540,7 @@ So the rotated point can be constructed by the following
 .. math::
 
 
-    \vec{r}_{xy}(\vec{a}; theta) =  cos(\theta)*\vec{x}' + sin(\theta)*\vec{y}'
+    \vec{r}_{xy}(\vec{a}; theta) =  cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'}
 
 
 .. figure:: _static/cc0/williamesix/rotate7.svg
