@@ -20,7 +20,7 @@
      inkscape:pagecheckerboard="0"
      inkscape:deskcolor="#d1d1d1"
      inkscape:zoom="1.9609756"
-     inkscape:cx="204.74503"
+     inkscape:cx="205"
      inkscape:cy="204.74503"
      inkscape:window-width="1392"
      inkscape:window-height="982"
@@ -132,13 +132,9 @@
        id="text11-6-0"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000"><tspan
          sodipodi:role="line"
-         id="tspan5"
-         x="291.99435"
-         y="29.133123">cos(θ)</tspan><tspan
+         id="tspan5">cos(β)</tspan><tspan
          sodipodi:role="line"
-         id="tspan12"
-         x="291.99435"
-         y="61.633125" /></text>
+         id="tspan11"></tspan></text>
     <text
        x="298.50479"
        y="53.25029"
@@ -146,13 +142,9 @@
        id="text11-6-2"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000"><tspan
          sodipodi:role="line"
-         id="tspan1"
-         x="298.50479"
-         y="53.25029">sin(θ)</tspan><tspan
+         id="tspan12">sin(β)</tspan><tspan
          sodipodi:role="line"
-         id="tspan4-3"
-         x="298.50479"
-         y="85.75029" /></text>
+         id="tspan13"></tspan></text>
     <text
        x="279.58438"
        y="45.929394"
@@ -194,9 +186,9 @@
        id="text11-6"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000"><tspan
          sodipodi:role="line"
-         id="tspan2">cos(θ+π/2)</tspan><tspan
+         id="tspan14">cos(β+π/2)</tspan><tspan
          sodipodi:role="line"
-         id="tspan3" /></text>
+         id="tspan15"></tspan></text>
     <text
        x="298.50479"
        y="53.25029"
@@ -204,9 +196,9 @@
        id="text11-6-2-3"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000"><tspan
          sodipodi:role="line"
-         id="tspan4">sin(θ+π/2)</tspan><tspan
+         id="tspan16">sin(β+π/2)</tspan><tspan
          sodipodi:role="line"
-         id="tspan10" /></text>
+         id="tspan17"></tspan></text>
     <text
        x="279.58438"
        y="45.929394"

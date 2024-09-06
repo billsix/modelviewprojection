@@ -197,9 +197,7 @@
        id="text12"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#2d2f92"><tspan
          sodipodi:role="line"
-         id="tspan11"
-         x="200"
-         y="241">cos(β)</tspan></text>
+         id="tspan4">cos(θ)</tspan></text>
     <text
        x="270.15216"
        y="194.13631"
@@ -207,9 +205,7 @@
        id="text11"
        style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#3c8031"><tspan
          sodipodi:role="line"
-         id="tspan12"
-         x="270.15216"
-         y="194.13631">sin(β)</tspan></text>
+         id="tspan3">sin(θ)</tspan></text>
   </g>
   <text
      x="-105.90742"
@@ -219,7 +215,5 @@
      style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:26px;font-family:sans-serif;-inkscape-font-specification:'sans-serif, Normal';font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#000000"
      transform="rotate(-39)"><tspan
        sodipodi:role="line"
-       id="tspan2"
-       x="-105.90742"
-       y="238.073">cos(β)*x' + sin(β)*y'</tspan></text>
+       id="tspan5">cos(θ)*x' + sin(θ)*y'</tspan></text>
 </svg>
