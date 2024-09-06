@@ -595,6 +595,7 @@ Therefore
 .. math::
 
       cos(\theta) = \vec{a}_{x} / r
+
       sin(\theta) = \vec{a}_{y} / r
 
 .. math::
