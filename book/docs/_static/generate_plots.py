@@ -290,7 +290,7 @@ def create_graphs(
         "./" + filename + ".gif", flattened_animated_images_list, duration=1, loop=0
     )
     for number, image in enumerate(flattened_animated_images_list):
-        imageio.imsave("./" + filename + "-" + str(number) + ".svg", image)
+        imageio.imsave("./" + filename + "-" + str(number) + ".png", image)
 
 
 create_graphs(

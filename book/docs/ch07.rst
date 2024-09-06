@@ -444,9 +444,9 @@ Updated explanation
 
 This is a work in progress
 
-.. figure:: _static/cc0/williamesix/rotate0.svg
+.. figure:: _static/cc0/williamesix/rotate-goal.svg
     :align: center
-    :alt: rotate0
+    :alt: rotate-goal
     :figclass: align-center
 
 .. figure:: _static/cc0/williamesix/rotate1.svg

@@ -109,7 +109,10 @@
        y="207"
        fill="purple"
        font-style="italic"
-       id="text10">θ</text>
+       id="text10"
+       style="-inkscape-font-specification:'sans-serif, Italic';font-family:sans-serif;font-weight:normal;font-style:italic;font-stretch:normal;font-variant:normal;font-size:26px;font-variant-ligatures:normal;font-variant-caps:normal;font-variant-numeric:normal;font-variant-east-asian:normal;fill:#800080"><tspan
+         sodipodi:role="line"
+         id="tspan1">β</tspan></text>
     <text
        x="267"
        y="190"
@@ -141,7 +144,7 @@
          sodipodi:role="line"
          id="tspan2">cos(β)</tspan><tspan
          sodipodi:role="line"
-         id="tspan3"></tspan></text>
+         id="tspan3" /></text>
     <text
        x="298.50479"
        y="53.25029"
@@ -151,7 +154,7 @@
          sodipodi:role="line"
          id="tspan4">sin(β)</tspan><tspan
          sodipodi:role="line"
-         id="tspan5"></tspan></text>
+         id="tspan5" /></text>
     <text
        x="279.58438"
        y="45.929394"
