@@ -442,49 +442,182 @@ provides a solution.
 Updated explanation
 ^^^^^^^^^^^^^^^^^^^
 
-This is a work in progress
+We can expand on this knowledge, allowing
+us to rotate all verticies, wherever they are, around the origin (0,0), by some
+angle theta.
+
+Let's take any arbitrary point
+
+.. math::
+
+
+    \vec{a}
+
+.. math::
+
+
+    \vec{r}_{xy}(\vec{a}; theta)
+
 
 .. figure:: _static/cc0/williamesix/rotate-goal.svg
     :align: center
     :alt: rotate-goal
     :figclass: align-center
 
+From high school geometry, remember that we can describe a
+Cartesian (x,y) point by it's length r, and it's cosine and sine
+of it's angle theta.
+
 .. figure:: _static/cc0/williamesix/rotate1.svg
     :align: center
     :alt: rotate1
     :figclass: align-center
+
+
+
+
+Also remember that when calculating sine and cosine, because right
+triangles are proportional, that sine and cosine are preserved
+for a right triangle, even if the length sides are scaled up or down.
+
+So we'll make a right triangle on the unit circle, but we will remember
+the length of (x,y), which we'll call "r", and we'll call the angle
+of (x,y) to be "beta".  As a reminder, we want to rotate by a different
+angle, called "theta".
+
 
 .. figure:: _static/cc0/williamesix/rotate2.svg
     :align: center
     :alt: rotate2
     :figclass: align-center
 
+
+Before we can rotate by "theta", first we need to be able to rotate by
+90 degrees, or pi/2.  So to rotate (cos(beta), sin(beta)) by pi/2,
+we get (cos(beta+pi/2), sin(beta+pi/2)).
+
+
+
 .. figure:: _static/cc0/williamesix/rotate3.svg
     :align: center
     :alt: rotate3
     :figclass: align-center
+
+Now let's give each of those verticies new names, x' and y', for the
+purpose of ignoring details for now that we'll return to later,
+just let we did for length "r" above.
 
 .. figure:: _static/cc0/williamesix/rotate4.svg
     :align: center
     :alt: rotate4
     :figclass: align-center
 
+
+
+Now forget about "beta", and remember that our goal is to rotate by angle
+"theta".  Look at the picture below, while turning your head slightly to the
+left.  x' and y' look just like our normal cartesian plane and unit circle,
+combined with the "theta"; it looks like what we already know from high
+school geometry.
+
 .. figure:: _static/cc0/williamesix/rotate5.svg
     :align: center
     :alt: rotate5
     :figclass: align-center
+
+So with this new frame of reference, we can rotate x' by "theta",
+and draw a right triangle on the unit circle using this new
+frame of reference.
+
 
 .. figure:: _static/cc0/williamesix/rotate6.svg
     :align: center
     :alt: rotate6
     :figclass: align-center
 
+So the rotated point can be constructed by the following
+
+.. math::
+
+
+    \vec{r}_{xy}(\vec{a}; theta) =  cos(\theta)*\vec{x}' + sin(\theta)*\vec{y}'
+
+
 .. figure:: _static/cc0/williamesix/rotate7.svg
     :align: center
     :alt: rotate7
     :figclass: align-center
 
+Now that we've found the direction on the unit circle, we remember to make
+it length "r".
+
 .. figure:: _static/cc0/williamesix/rotate8.svg
     :align: center
     :alt: rotate8
     :figclass: align-center
+
+Ok, now it's time to remember what the values that x' and y' are defined as.
+
+.. math::
+
+
+    \vec{r}_{xy}(\vec{a}; \theta) & = r*(cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'}) \\
+                                 & = r*(cos(\theta)*\begin{bmatrix}
+                                                       cos(\beta) \\
+                                                       sin(\beta) \\
+                                                    \end{bmatrix} + sin(\theta)*\begin{bmatrix}
+                                                       cos(\beta + \pi/2) \\
+                                                       sin(\beta + \pi/2) \\
+                                                    \end{bmatrix})
+
+A problem we have now is how to calculate cosine and sine of beta + pi/2,
+because we haven't actually calculated beta; we've calcultade sine
+and cosine of beta by dividing the x value by the magnitude of the a, and the sine of beta
+by dividing the y value by the magnitude of a.
+
+.. math::
+
+      cos(\theta) = \vec{a}_{x} / r
+
+      sine(\theta) = \vec{a}_{y} / r
+
+We could try to take the inverse sine or inverse cosine of theta, but there is no need
+given properties of trigonometry.
+
+.. math::
+
+      cos(\theta + \pi/2) = -sin(\theta)
+
+      sin(\theta + \pi/2) = cos(\theta)
+
+Therefore
+
+.. math::
+
+      cos(\theta) = \vec{a}_{x} / r
+      sin(\theta) = \vec{a}_{y} / r
+
+.. math::
+
+   \vec{r}_{xy}(\vec{a}; \theta) & = r*(cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'}) \\
+                                 & = r*(cos(\theta)*\begin{bmatrix}
+                                                       cos(\beta) \\
+                                                       sin(\beta) \\
+                                                    \end{bmatrix} + sin(\theta)*\begin{bmatrix}
+                                                       cos(\beta + \pi/2) \\
+                                                       sin(\beta + \pi/2) \\
+                                                    \end{bmatrix}) \\
+                                 & = r*(cos(\theta)*\begin{bmatrix}
+                                                       \vec{a}_{x} / r \\
+                                                       \vec{a}_{y} / r \\
+                                                    \end{bmatrix} + sin(\theta)*\begin{bmatrix}
+                                                       -\vec{a}_{y} / r \\
+                                                       \vec{a}_{x} / r\\
+                                                    \end{bmatrix}) \\
+                                 & =   (cos(\theta)*\begin{bmatrix}
+                                                       \vec{a}_{x}  \\
+                                                       \vec{a}_{y}  \\
+                                                    \end{bmatrix} + sin(\theta)*\begin{bmatrix}
+                                                       -\vec{a}_{y} \\
+                                                       \vec{a}_{x} \\
+                                                    \end{bmatrix})
