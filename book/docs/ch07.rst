@@ -444,6 +444,11 @@ Updated explanation
 
 This is a work in progress
 
+.. figure:: _static/cc0/williamesix/rotate0.svg
+    :align: center
+    :alt: rotate0
+    :figclass: align-center
+
 .. figure:: _static/cc0/williamesix/rotate1.svg
     :align: center
     :alt: rotate1
