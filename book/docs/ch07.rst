@@ -556,6 +556,10 @@ it length "r".
     :alt: rotate8
     :figclass: align-center
 
+Ok, we are now going to stop thinking about geometry, and we will only be thinking
+about algebra.  Please don't try to look at the formula and try to draw any diagrams.
+
+
 Ok, now it's time to remember what the values that x' and y' are defined as.
 
 .. math::
