@@ -80,6 +80,12 @@ which is more information than just the color to be drawn.
     :alt: Fragment
     :figclass: align-center
 
+.. figure:: _static/depthbuffer.jpg
+    :align: center
+    :alt: depthbuffer
+    :figclass: align-center
+
+
 Besides the color, there is also
 
 * Stencil buffer, being true or false, to specify whether subsequent OpenGL calls
