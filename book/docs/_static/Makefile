@@ -26,30 +26,78 @@ graphs: currency.png \
 	demo16.png
 
 
-cayleyImages:
-	./texExpToPng.sh "\vec{f}_{ndc}^{ss}" 300 ndcToScreenspace.png
-	./texExpToPng.sh "{f}_{nickel}^{penny}" 300 nickleToPenny.png
-	./texExpToPng.sh "{f}_{dime}^{penny}" 300 dimeToPenny.png
-	./texExpToPng.sh "{f}_{quarter}^{penny}" 300 quarterToPenny.png
-	./texExpToPng.sh "{f}_{dollar}^{penny}" 300 dollarToPenny.png
-	./texExpToPng.sh "{f}_{d}^{c}" 300 dToC.png
-	./texExpToPng.sh "{f}_{c}^{a}" 300 cToA.png
-	./texExpToPng.sh "{f}_{b}^{a}" 300 bToA.png
-	./texExpToPng.sh "{f}_{p_1}^{ndc}" 300 p1ToNDC.png
-	./texExpToPng.sh "{f}_{p_2}^{ndc}" 300 p2ToNDC.png
-	./texExpToPng.sh "{f}_{p_1}^{w}" 300 p1ToW.png
-	./texExpToPng.sh "{f}_{p_2}^{w}" 300 p2ToW.png
-	./texExpToPng.sh "{f}_{w}^{ndc}" 300 wToNDC.png
-	./texExpToPng.sh "{f}_{w}^{p_1}" 300 wToP1.png
-	./texExpToPng.sh "{f}_{w}^{p_2}" 300 wToP2.png
-	./texExpToPng.sh "{f}_{p_1}^{p_1}" 300 p1ToP1.png
-	./texExpToPng.sh "{f}_{p_2}^{p_2}" 300 p2ToP2.png
-	./texExpToPng.sh "{f}_{c}^{w}" 300 cToW.png
-	./texExpToPng.sh "{f}_{w}^{c}" 300 wToC.png
-	./texExpToPng.sh "{f}_{c}^{ndc}" 300 cToNDC.png
-	./texExpToPng.sh "{f}_{s}^{p_1}" 300 s1ToP1.png
-	./texExpToPng.sh "{f}_{c}^{clip}" 300 cToClip.png
-	./texExpToPng.sh "{f}_{clip}^{ndc}" 300 clipToNDC.png
+cayleyImages: ndcToScreenspace.png \
+		nickleToPenny.png \
+		dimeToPenny.png \
+		quarterToPenny.png \
+		dollarToPenny.png \
+		dToC.png \
+		cToA.png \
+		bToA.png \
+		p1ToNDC.png \
+		p2ToNDC.png \
+		p1ToW.png \
+		p2ToW.png \
+		wToNDC.png \
+		wToP1.png \
+		wToP2.png \
+		p1ToP1.png \
+		p2ToP2.png \
+		cToW.png \
+		wToC.png \
+		cToNDC.png \
+		s1ToP1.png \
+		cToClip.png \
+		clipToNDC.png
+
+ndcToScreenspace.png: ndcToScreenspace.tex
+	python3 texExpToPng.py --file ndcToScreenspace.tex --size 300 --output ndcToScreenspace.png
+nickleToPenny.png: nickleToPenny.tex
+	python3 texExpToPng.py --file nickleToPenny.tex --size 300 --output nickleToPenny.png
+dimeToPenny.png: dimeToPenny.tex
+	python3 texExpToPng.py --file dimeToPenny.tex --size 300 --output dimeToPenny.png
+quarterToPenny.png: quarterToPenny.tex
+	python3 texExpToPng.py --file quarterToPenny.tex --size 300 --output quarterToPenny.png
+dollarToPenny.png: dollarToPenny.tex
+	python3 texExpToPng.py --file dollarToPenny.tex --size 300 --output dollarToPenny.png
+dToC.png: dToC.tex
+	python3 texExpToPng.py --file dToC.tex --size 300 --output dToC.png
+cToA.png: cToA.tex
+	python3 texExpToPng.py --file cToA.tex --size 300 --output cToA.png
+bToA.png: bToA.tex
+	python3 texExpToPng.py --file bToA.tex --size 300 --output bToA.png
+p1ToNDC.png: p1ToNDC.tex
+	python3 texExpToPng.py --file p1ToNDC.tex --size 300 --output p1ToNDC.png
+p2ToNDC.png: p2ToNDC.tex
+	python3 texExpToPng.py --file p2ToNDC.tex --size 300 --output p2ToNDC.png
+p1ToW.png: p1ToW.tex
+	python3 texExpToPng.py --file p1ToW.tex --size 300 --output p1ToW.png
+p2ToW.png: p2ToW.tex
+	python3 texExpToPng.py --file p2ToW.tex --size 300 --output p2ToW.png
+wToNDC.png: wToNDC.tex
+	python3 texExpToPng.py --file wToNDC.tex --size 300 --output wToNDC.png
+wToP1.png: wToP1.tex
+	python3 texExpToPng.py --file wToP1.tex --size 300 --output wToP1.png
+wToP2.png: wToP2.tex
+	python3 texExpToPng.py --file wToP2.tex --size 300 --output wToP2.png
+p1ToP1.png: p1ToP1.tex
+	python3 texExpToPng.py --file p1ToP1.tex --size 300 --output p1ToP1.png
+p2ToP2.png: p2ToP2.tex
+	python3 texExpToPng.py --file p2ToP2.tex --size 300 --output p2ToP2.png
+cToW.png: cToW.tex
+	python3 texExpToPng.py --file cToW.tex --size 300 --output cToW.png
+wToC.png: wToC.tex
+	python3 texExpToPng.py --file wToC.tex --size 300 --output wToC.png
+cToNDC.png: cToNDC.tex
+	python3 texExpToPng.py --file cToNDC.tex --size 300 --output cToNDC.png
+s1ToP1.png: s1ToP1.tex
+	python3 texExpToPng.py --file s1ToP1.tex --size 300 --output s1ToP1.png
+cToClip.png: cToClip.tex
+	python3 texExpToPng.py --file cToClip.tex --size 300 --output cToClip.png
+clipToNDC.png: clipToNDC.tex
+	python3 texExpToPng.py --file clipToNDC.tex --size 300 --output clipToNDC.png
+
+
 
 
 currency.png: currency.dot
