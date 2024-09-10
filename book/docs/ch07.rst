@@ -456,7 +456,7 @@ Let's take any arbitrary point
 .. math::
 
 
-    \vec{r}_{xy}(\vec{a}; theta)
+    \vec{r}(\vec{a}; \theta)
 
 
 .. figure:: _static/cc0/williamesix/rotate-goal.svg
@@ -540,7 +540,7 @@ So the rotated point can be constructed by the following
 .. math::
 
 
-    \vec{r}_{xy}(\vec{a}; theta) =  cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'}
+    \vec{r}(\vec{a}; theta) =  cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'}
 
 
 .. figure:: _static/cc0/williamesix/rotate7.svg
@@ -565,7 +565,7 @@ Ok, now it's time to remember what the values that x' and y' are defined as.
 .. math::
 
 
-    \vec{r}_{xy}(\vec{a}; \theta) & = r*(cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'}) \\
+    \vec{r}(\vec{a}; \theta) & = r*(cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'}) \\
                                  & = r*(cos(\theta)*\begin{bmatrix}
                                                        cos(\beta) \\
                                                        sin(\beta) \\
@@ -604,7 +604,7 @@ Therefore
 
 .. math::
 
-   \vec{r}_{xy}(\vec{a}; \theta) & = r*(cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'}) \\
+   \vec{r}(\vec{a}; \theta) & = r*(cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'}) \\
                                  & = r*(cos(\theta)*\begin{bmatrix}
                                                        cos(\beta) \\
                                                        sin(\beta) \\
@@ -625,4 +625,18 @@ Therefore
                                                     \end{bmatrix} + sin(\theta)*\begin{bmatrix}
                                                        -\vec{a}_{y} \\
                                                        \vec{a}_{x} \\
+                                                    \end{bmatrix}) \\
+                                 & =   (cos(\theta)*\vec{a}_{x} +
+                                                    sin(\theta)*\begin{bmatrix}
+                                                       -\vec{a}_{y} \\
+                                                       \vec{a}_{x} \\
                                                     \end{bmatrix})
+
+
+
+   \vec{r}(\vec{a}; \theta) & = \begin{bmatrix}
+                                                       -\vec{a}_{y} \\
+                                                       \vec{a}_{x} \\
+                                                    \end{bmatrix} \text{ if } (\theta = \pi/2) \\
+                                 & =   (cos(\theta)*\vec{a}_{x} +
+                                                    sin(\theta)*\vec{r}(\vec{a}; \pi/2 )

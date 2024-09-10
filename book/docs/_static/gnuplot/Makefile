@@ -25,4 +25,4 @@ OBJECTS_TO_BUILD = plot1.png \
 
 
 all: $(OBJECTS_TO_BUILD)
-	mv *.png ../
+	cp *.png ../
