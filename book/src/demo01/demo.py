@@ -20,11 +20,12 @@
 
 # doc-region-begin 20134134fb054ac6764edfb4764935b86f20a795
 import sys
+# doc-region-end 20134134fb054ac6764edfb4764935b86f20a795
 
 # doc-region-begin 4b5a486083da608751701fa7e42e37bbc4cfd06e
 import glfw
+# doc-region-end 4b5a486083da608751701fa7e42e37bbc4cfd06e
 
-# doc-region-end 20134134fb054ac6764edfb4764935b86f20a795
 # doc-region-begin 6901922753dbf8df496fd46ae4a0eeb4e6243ef4
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
@@ -39,9 +40,6 @@ from OpenGL.GL import (
 )
 
 # doc-region-end 6901922753dbf8df496fd46ae4a0eeb4e6243ef4
-
-
-# doc-region-end 4b5a486083da608751701fa7e42e37bbc4cfd06e
 
 # doc-region-begin 0c30d0c1c7c793e097bcfb46208f14998d77dd0a
 if not glfw.init():
