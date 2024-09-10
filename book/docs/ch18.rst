@@ -307,7 +307,7 @@ to world space like so, read top to bottom:
 
     \vec{f}_{c}^{w}
 
-.. figure:: _static/demo18-7.png
+.. figure:: _static/demo18-3.png
     :align: center
     :alt: Demo 12
     :figclass: align-center
@@ -331,7 +331,7 @@ camera space are.
 
     \vec{f}_{w}^{c}
 
-.. figure:: _static/demo18-3.png
+.. figure:: _static/demo18-7.png
     :align: center
     :alt: Demo 12
     :figclass: align-center
