@@ -638,5 +638,5 @@ Therefore
                                                        -\vec{a}_{y} \\
                                                        \vec{a}_{x} \\
                                                     \end{bmatrix} \text{ if } (\theta = \pi/2) \\
-                                 & =   (cos(\theta)*\vec{a}_{x} +
-                                                    sin(\theta)*\vec{r}(\vec{a}; \pi/2 )
+                                 & =   (cos(\theta)*\vec{a} +
+                                                    sin(\theta)*\vec{r}(\vec{a}; \pi/2 ) \text{ if } (\theta \ne \pi/2)
