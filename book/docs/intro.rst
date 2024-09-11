@@ -62,7 +62,7 @@ For advanced graphics topics, you'll need to consult other references,
 such as the OpenGL "red book" and "blue book", or the following tutorials
 
 #. logl_
-#. oglt
+#. oglt_
 
 .. _logl:  https://learnopengl.com/
 .. _oglt:  http://www.opengl-tutorial.org/
