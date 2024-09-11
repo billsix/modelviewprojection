@@ -169,13 +169,13 @@ def handle_inputs(previous_mouse_position) -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position[1] -= 10.0
+        paddle1.position[1] -= 1.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position[1] += 10.0
+        paddle1.position[1] += 1.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position[1] -= 10.0
+        paddle2.position[1] -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position[1] += 10.0
+        paddle2.position[1] += 1.0
 
     global paddle_1_rotation, paddle_2_rotation
 
