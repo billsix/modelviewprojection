@@ -266,7 +266,7 @@ class Paddle:
         glDeleteBuffers(1, [self.vbo])
         glDeleteProgram(self.shader)
 
-    def render(self, time):
+    def render(self, time: float):
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 

@@ -31,6 +31,8 @@ out VS_OUT {
   vec4 color;
 } vs_out;
 
+
+
 void main()
 {
   gl_Position = pMatrix * vMatrix * mMatrix * vec4(position,1.0);

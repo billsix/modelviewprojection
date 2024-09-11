@@ -74,6 +74,7 @@ from OpenGL.GL import (
     glVertexAttribPointer,
     glViewport,
 )
+from typing import Optional, Tuple
 
 # NEW - for shader location
 pwd = os.path.dirname(os.path.abspath(__file__))
@@ -1054,7 +1055,7 @@ square_rotation = math.radians(90.0)
 rotation_around_paddle1 = math.radians(30.0)
 
 
-def handle_inputs(previous_mouse_position) -> None:
+def handle_inputs(previous_mouse_position: Optional[Tuple[float, float]]) -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1

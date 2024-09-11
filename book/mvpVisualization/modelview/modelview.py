@@ -49,6 +49,7 @@ from OpenGL.GL import (
     glVertex3f,
     glViewport,
 )
+from typing import Optional, Tuple
 
 if not glfw.init():
     sys.exit()
@@ -146,7 +147,7 @@ square_rotation = math.radians(90.0)
 rotation_around_paddle1 = math.radians(30.0)
 
 
-def handle_inputs(previous_mouse_position) -> None:
+def handle_inputs(previous_mouse_position: Optional[Tuple[float, float]]) -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
