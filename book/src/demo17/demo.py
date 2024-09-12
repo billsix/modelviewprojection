@@ -135,6 +135,9 @@ class Vertex2D:
     def scale(self: Vertex2D, scale_x: float, scale_y: float) -> Vertex2D:
         return Vertex2D(x=self.x * scale_x, y=self.y * scale_y)
 
+    def __neg__(self):
+        return -1.0 * self
+
     def rotate_90_degrees(self: Vertex2D):
         return Vertex2D(x=-self.y, y=self.x)
 
@@ -183,6 +186,9 @@ class Vertex:
     def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
 
+    def __neg__(self):
+        return -1.0 * self
+
     # fmt: off
     def ortho(self: Vertex,
               left: float,
@@ -201,7 +207,7 @@ class Vertex:
         length_y: float
         length_z: float
         length_x, length_y, length_z = right - left, top - bottom, far - near
-        return self.translate(-1.0 * midpoint) \
+        return self.translate(-midpoint) \
                    .scale(2.0 / length_x,
                           2.0 / length_y,
                           2.0 / (-length_z))
@@ -420,7 +426,7 @@ while not glfw.window_should_close(window):
         # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
         #                                   .rotate_y(camera.rot_y) \
         #                                   .translate(camera.position_worldspace)
-        camera_space: Vertex = world_space.translate(-1.0 * camera.position_worldspace) \
+        camera_space: Vertex = world_space.translate(-camera.position_worldspace) \
                                           .rotate_y(-camera.rot_y) \
                                           .rotate_x(-camera.rot_x)
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
@@ -446,7 +452,7 @@ while not glfw.window_should_close(window):
                                                               z=-1.0))
         world_space: Vertex =paddle_1_space.rotate_z(paddle1.rotation) \
                                            .translate(paddle1.position)
-        camera_space: Vertex = world_space.translate(-1.0 * camera.position_worldspace) \
+        camera_space: Vertex = world_space.translate(-camera.position_worldspace) \
                                           .rotate_y(-camera.rot_y) \
                                           .rotate_x(-camera.rot_x)
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
@@ -463,7 +469,7 @@ while not glfw.window_should_close(window):
     for model_space in paddle2.vertices:
         world_space: Vertex = model_space.rotate_z(paddle2.rotation) \
                                          .translate(paddle2.position)
-        camera_space: Vertex = world_space.translate(-1.0 * camera.position_worldspace) \
+        camera_space: Vertex = world_space.translate(-camera.position_worldspace) \
                                           .rotate_y(-camera.rot_y) \
                                           .rotate_x(-camera.rot_x)
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()

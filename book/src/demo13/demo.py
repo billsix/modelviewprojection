@@ -127,6 +127,9 @@ class Vertex:
     def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
+    def __neg__(self):
+        return -1.0 * self
+
     def rotate_90_degrees(self: Vertex):
         return Vertex(x=-self.y, y=self.x)
 
@@ -267,7 +270,7 @@ while not glfw.window_should_close(window):
         world_space: Vertex = model_space.rotate(paddle1.rotation).translate(
             paddle1.position
         )
-        camera_space: Vertex = world_space.translate(-1.0 * camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(-camera.position_worldspace)
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0 / 10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
@@ -282,7 +285,7 @@ while not glfw.window_should_close(window):
                                             .rotate(rotation_around_paddle1)
         world_space: Vertex = paddle_1_space.rotate(paddle1.rotation) \
                                             .translate(paddle1.position)
-        camera_space: Vertex = world_space.translate(-1.0 * camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(-camera.position_worldspace)
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
@@ -296,7 +299,7 @@ while not glfw.window_should_close(window):
     for model_space in paddle2.vertices:
         world_space: Vertex = model_space.rotate(paddle2.rotation) \
                                          .translate(paddle2.position)
-        camera_space: Vertex = world_space.translate(-1.0 * camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(-camera.position_worldspace)
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()

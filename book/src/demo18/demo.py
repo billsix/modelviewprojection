@@ -148,6 +148,9 @@ class Vertex:
     def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
 
+    def __neg__(self):
+        return -1.0 * self
+
     def ortho(
         self: Vertex,
         left: float,

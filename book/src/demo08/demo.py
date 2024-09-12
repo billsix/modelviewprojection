@@ -129,6 +129,9 @@ class Vertex:
     def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
+    def __neg__(self):
+        return -1.0 * self
+
     def rotate_90_degrees(self: Vertex):
         return Vertex(x=-self.y, y=self.x)
 
@@ -141,7 +144,7 @@ class Vertex:
     # fmt: off
     # doc-region-begin 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
     def rotate_around(self: Vertex, angle_in_radians: float, center: Vertex) -> Vertex:
-        translate_to_center: Vertex = self.translate(-1.0 * center)
+        translate_to_center: Vertex = self.translate(-center)
         rotated_around_origin: Vertex = translate_to_center.rotate(angle_in_radians)
         back_to_position: Vertex = rotated_around_origin.translate(center)
         return back_to_position

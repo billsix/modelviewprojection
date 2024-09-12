@@ -137,6 +137,9 @@ class Vertex2D:
     def scale(self: Vertex2D, scale_x: float, scale_y: float) -> Vertex2D:
         return Vertex2D(x=self.x * scale_x, y=self.y * scale_y)
 
+    def __neg__(self):
+        return -1.0 * self
+
     def rotate_90_degrees(self: Vertex2D):
         return Vertex2D(x=-self.y, y=self.x)
 
@@ -182,6 +185,9 @@ class Vertex:
 
     def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
+
+    def __neg__(self):
+        return -1.0 * self
 
 
 @dataclass
@@ -312,7 +318,7 @@ while not glfw.window_should_close(window):
     for model_space in paddle1.vertices:
         world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
                                          .translate(paddle1.position)
-        camera_space: Vertex = world_space.translate(-1.0 * camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(-camera.position_worldspace)
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0 / 10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
@@ -335,7 +341,7 @@ while not glfw.window_should_close(window):
                                             .translate(Vertex(x=paddle1.position.x,
                                                               y=paddle1.position.y,
                                                               z=0.0))
-        camera_space: Vertex = world_space.translate(-1.0 * camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(-camera.position_worldspace)
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0 / 10.0)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
@@ -348,7 +354,7 @@ while not glfw.window_should_close(window):
     for model_space in paddle2.vertices:
         world_space: Vertex = model_space.rotate_z(paddle2.rotation) \
                                          .translate(paddle2.position)
-        camera_space: Vertex = world_space.translate(-1.0 * camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(-camera.position_worldspace)
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0 / 10.0)
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()

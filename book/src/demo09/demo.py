@@ -127,6 +127,9 @@ class Vertex:
     def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
+    def __neg__(self):
+        return -1.0 * self
+
     def rotate_90_degrees(self: Vertex):
         return Vertex(x=-self.y, y=self.x)
 

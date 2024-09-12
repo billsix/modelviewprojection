@@ -125,6 +125,9 @@ class Vertex:
     def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
+    def __neg__(self):
+        return -1.0 * self
+
     def rotate_90_degrees(self: Vertex):
         return Vertex(x=-self.y, y=self.x)
 
@@ -258,7 +261,7 @@ while not glfw.window_should_close(window):
     for model_space in paddle1.vertices:
         world_space: Vertex = model_space.rotate(paddle1.rotation) \
                                          .translate(translate_amount=paddle1.position)
-        camera_space: Vertex = world_space.translate(translate_amount=-1.0 * camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(translate_amount=-camera.position_worldspace)
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
@@ -273,7 +276,7 @@ while not glfw.window_should_close(window):
         paddle1space: Vertex = model_space.translate(Vertex(x=2.0, y=0.0))
         world_space: Vertex = paddle1space.rotate(paddle1.rotation) \
                                           .translate(paddle1.position)
-        camera_space: Vertex = world_space.translate(translate_amount=-1.0 * camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(translate_amount=-camera.position_worldspace)
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
@@ -288,7 +291,7 @@ while not glfw.window_should_close(window):
     for model_space in paddle2.vertices:
         world_space: Vertex = model_space.rotate(paddle2.rotation) \
                                          .translate(paddle2.position)
-        camera_space: Vertex = world_space.translate(translate_amount=-1.0 * camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(translate_amount=-camera.position_worldspace)
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
