@@ -94,14 +94,14 @@ which a driver could implement in parallel.
 
 We have some new imports, "glUseProgram", "GL_VERTEX_SHADER", "GL_FRAGMENT_SHADER"
 
-.. literalinclude:: ../src/demo20/demo.py
+.. literalinclude:: ../../src/demo20/demo.py
    :language: python
    :start-after: doc-region-begin c731ca97ef15896c876effbafec9d52a1354375f
    :end-before: doc-region-end c731ca97ef15896c876effbafec9d52a1354375f
 
 We now ask the OpenGL driver to accept OpenGL 2.1 function calls.
 
-.. literalinclude:: ../src/demo20/demo.py
+.. literalinclude:: ../../src/demo20/demo.py
    :language: python
    :start-after: doc-region-begin b05eee9a50507de99ecad16ffa3af2da709b361a
    :end-before: doc-region-end b05eee9a50507de99ecad16ffa3af2da709b361a
@@ -114,7 +114,7 @@ by the w; i.e. (x/w,y/w,z/w,1)
 I like to think of a matrix multiplication to a vector as a "function-application",
 in the same way we did in the lambda stack.
 
-.. literalinclude:: ../src/demo20/demo.py
+.. literalinclude:: ../../src/demo20/demo.py
    :language: python
    :start-after: doc-region-begin e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
    :end-before: doc-region-end e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
@@ -131,7 +131,7 @@ which we haven't covered.  (Actually there are a bunch of other predefined varia
 outputs, including "glBackColor", for the case that we are looking at the back face
 of the geometry.
 
-.. literalinclude:: ../src/demo20/triangle.vert
+.. literalinclude:: ../../src/demo20/triangle.vert
    :language: glsl
 
 This is the fragment shader.  Unlike the vertex shader, which took an vertex in (x,y,z)
@@ -143,7 +143,7 @@ and such questions are a moot point once we get to OpenGL 3.3 Core profile
 in the next section.
 
 
-.. literalinclude:: ../src/demo20/triangle.frag
+.. literalinclude:: ../../src/demo20/triangle.frag
    :language: glsl
 
 The explict mapping of variable names to values in OpenGL 3.3 Core Profile

@@ -128,7 +128,7 @@ Consult the python source for the full, working code.
 Set to Draw in Square Subsection Of Window
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-.. literalinclude:: ../src/demo03/demo.py
+.. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
    :end-before: doc-region-end 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
@@ -136,7 +136,7 @@ Set to Draw in Square Subsection Of Window
 
 * declare a function to configure OpenGL to draw only in a square subset of the monitor, i.e. the viewport
 
-.. literalinclude:: ../src/demo03/demo.py
+.. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin 263830783a8fbe25283deaa80688f95592917298
    :end-before: doc-region-end 263830783a8fbe25283deaa80688f95592917298
@@ -146,7 +146,7 @@ Set to Draw in Square Subsection Of Window
 * glClear clear the color of every pixel in the whole frame buffer, independent of viewport.
   So now the entire frame-buffer is gray.
 
-.. literalinclude:: ../src/demo03/demo.py
+.. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin 3db7c4975ad4354e344c0a2f0d4d94125195ce32
    :end-before: doc-region-end 3db7c4975ad4354e344c0a2f0d4d94125195ce32
@@ -157,7 +157,7 @@ Set to Draw in Square Subsection Of Window
 * To make a square sub-region, we need a number for the distance between vertices of the square.
   By using the minimum of the width and height, we can at least fill up the screen in one dimension.
 
-.. literalinclude:: ../src/demo03/demo.py
+.. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin a2d0bcb5b525e8a68e0bc1ef213359f165981839enablescissortest
    :end-before: doc-region-end a2d0bcb5b525e8a68e0bc1ef213359f165981839enablescissortest
@@ -188,7 +188,7 @@ Set to Draw in Square Subsection Of Window
 * Look at the image above of NDC superimposed on Screen Space.  From this,
   the arguments sent to glScissor should be clear.
 
-.. literalinclude:: ../src/demo03/demo.py
+.. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin db4245dba3c0c229416c97fe84da3cb87b1f439d
    :end-before: doc-region-end db4245dba3c0c229416c97fe84da3cb87b1f439d
@@ -197,7 +197,7 @@ Set to Draw in Square Subsection Of Window
 *  glClear will only update the square to black values.
 
 
-.. literalinclude:: ../src/demo03/demo.py
+.. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin 9524935cab9f5725f921d11969872ebd9a54e508
    :end-before: doc-region-end 9524935cab9f5725f921d11969872ebd9a54e508
@@ -216,7 +216,7 @@ will be mapped the the region of screen coordinates
 that we care about, which is the black square.
 
 
-.. literalinclude:: ../src/demo03/demo.py
+.. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin defaeb0e6b9ada0b6c349a4dec907300e4c14acbviewportcall
    :end-before: doc-region-end defaeb0e6b9ada0b6c349a4dec907300e4c14acbviewportcall
@@ -231,13 +231,13 @@ but this time we call the procedure to
 ensure that we only draw in a square subset of
 the window.
 
-.. literalinclude:: ../src/demo03/demo.py
+.. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin 33fecc926105eda74989fb02da7daca03e3bfea8
    :end-before: doc-region-end 33fecc926105eda74989fb02da7daca03e3bfea8
 
 
-.. literalinclude:: ../src/demo03/demo.py
+.. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin 415cedbd77f6cc02a34de30d2da1b24cab344c5c
    :end-before: doc-region-end 415cedbd77f6cc02a34de30d2da1b24cab344c5c
@@ -246,7 +246,7 @@ the window.
 * The event loop is the same as the previous demo, except
   that we call draw_in_square_viewport every frame at the beginning.
 
-.. literalinclude:: ../src/demo03/demo.py
+.. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin bf9a23e3296c75d786d75f7b0e406448b773b23b
    :end-before: doc-region-end bf9a23e3296c75d786d75f7b0e406448b773b23b
