@@ -15,5 +15,6 @@ RUN apt update && apt upgrade -y && \
 
 COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
 COPY ./book /book/
+COPY ./src /src/
 
 ENTRYPOINT ["/entrypoint.sh"]
