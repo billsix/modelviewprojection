@@ -278,7 +278,7 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for model_space in square:
         paddle_1_space: Vertex = model_space.rotate(square_rotation) \
-                                            .translate(Vertex(x=2.0,y=0.0)) \
+                                            .translate(Vertex(x=2.0, y=0.0)) \
                                             .rotate(rotation_around_paddle1)
         world_space: Vertex = paddle_1_space.rotate(paddle1.rotation) \
                                             .translate(paddle1.position)
