@@ -111,26 +111,39 @@ class Vertex:
     x: float
     y: float
 
-    def translate(self: Vertex, tx: float, ty: float) -> Vertex:
-        return Vertex(x=self.x + tx, y=self.y + ty)
+    def __add__(self, rhs: Vertex) -> Vertex:
+        return Vertex(x=self.x + rhs.x, y=self.y + rhs.y)
+
+    def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
+        return self + translate_amount
+
+    def __mul__(self, scalar: float) -> Vertex:
+        return Vertex(x=self.x * scalar, y=self.y * scalar)
+
+    def __rmul__(self, scalar: float) -> Vertex:
+        return self * scalar
+
+    def uniform_scale(self: Vertex, scalar: float) -> Vertex:
+        return self * scalar
 
     def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
+    def rotate_90_degrees(self: Vertex):
+        return Vertex(x=-self.y, y=self.x)
+
     def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
-        return Vertex(
-            x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-            y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
+        return (
+            math.cos(angle_in_radians) * self
+            + math.sin(angle_in_radians) * self.rotate_90_degrees()
         )
 
     # fmt: off
     # doc-region-begin 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
     def rotate_around(self: Vertex, angle_in_radians: float, center: Vertex) -> Vertex:
-        translate_to_center: Vertex = self.translate(tx=-center.x,
-                                                     ty=-center.y)
+        translate_to_center: Vertex = self.translate(-1.0 * center)
         rotated_around_origin: Vertex = translate_to_center.rotate(angle_in_radians)
-        back_to_position: Vertex = rotated_around_origin.translate(tx=center.x,
-                                                                   ty=center.y)
+        back_to_position: Vertex = rotated_around_origin.translate(center)
         return back_to_position
     # doc-region-end 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
     # fmt: on
@@ -228,12 +241,10 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     rotatePoint: Vertex = paddle1.position
     for model_space in paddle1.vertices:
-        world_space: Vertex = model_space.translate(tx=paddle1.position.x,
-                                                    ty=paddle1.position.y)
+        world_space: Vertex = model_space.translate(paddle1.position)
         world_space: Vertex = world_space.rotate_around(paddle1.rotation,
                                                         rotatePoint)
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
-                                              scale_y=1.0 / 10.0)
+        ndc_space: Vertex = world_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
         # doc-region-end b641b94ccea0c4270f96da2c06387477a7874816
     glEnd()
@@ -247,12 +258,10 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     rotatePoint: Vertex = paddle2.position
     for model_space in paddle2.vertices:
-        world_space: Vertex = model_space.translate(tx=paddle2.position.x,
-                                                    ty=paddle2.position.y)
+        world_space: Vertex = model_space.translate(paddle2.position)
         world_space: Vertex = world_space.rotate_around(paddle2.rotation,
                                                         rotatePoint)
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
-                                              scale_y=1.0 / 10.0)
+        ndc_space: Vertex = world_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # doc-region-end ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7

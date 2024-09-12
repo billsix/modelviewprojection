@@ -109,16 +109,31 @@ class Vertex:
     x: float
     y: float
 
-    def translate(self: Vertex, tx: float, ty: float) -> Vertex:
-        return Vertex(x=self.x + tx, y=self.y + ty)
+    def __add__(self, rhs: Vertex) -> Vertex:
+        return Vertex(x=self.x + rhs.x, y=self.y + rhs.y)
+
+    def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
+        return self + translate_amount
+
+    def __mul__(self, scalar: float) -> Vertex:
+        return Vertex(x=self.x * scalar, y=self.y * scalar)
+
+    def __rmul__(self, scalar: float) -> Vertex:
+        return self * scalar
+
+    def uniform_scale(self: Vertex, scalar: float) -> Vertex:
+        return self * scalar
 
     def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
+    def rotate_90_degrees(self: Vertex):
+        return Vertex(x=-self.y, y=self.x)
+
     def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
-        return Vertex(
-            x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-            y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
+        return (
+            math.cos(angle_in_radians) * self
+            + math.sin(angle_in_radians) * self.rotate_90_degrees()
         )
 
     # doc-region-end 0650dc123c5604096222ab7f34523251869be0e3
@@ -219,8 +234,7 @@ while not glfw.window_should_close(window):
         # doc-region-end 4ae8b0ebe66cd4de6b0150ac5cd4fa92abdd9985
         # fmt: off
         # doc-region-begin 1699ece7b62ace3842c391a972f2d27c5e022993
-        world_space: Vertex = model_space.translate(tx=paddle1.position.x,
-                                                    ty=paddle1.position.y) \
+        world_space: Vertex = model_space.translate(translate_amount=paddle1.position) \
                                          .rotate(paddle1.rotation)
         # doc-region-end 1699ece7b62ace3842c391a972f2d27c5e022993
         # fmt: on
@@ -243,8 +257,7 @@ while not glfw.window_should_close(window):
         # doc-region-end dd17b8cf2992da4f0752dd3f54dba416a5f04d64
         # fmt: off
         # doc-region-begin 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
-        world_space: Vertex = model_space.translate(tx=paddle2.position.x,
-                                                    ty=paddle2.position.y) \
+        world_space: Vertex = model_space.translate(paddle2.position) \
                                          .rotate(paddle2.rotation)
         # doc-region-end 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
         # fmt: on

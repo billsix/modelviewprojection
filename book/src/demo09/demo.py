@@ -109,16 +109,31 @@ class Vertex:
     x: float
     y: float
 
-    def translate(self: Vertex, tx: float, ty: float) -> Vertex:
-        return Vertex(x=self.x + tx, y=self.y + ty)
+    def __add__(self, rhs: Vertex) -> Vertex:
+        return Vertex(x=self.x + rhs.x, y=self.y + rhs.y)
+
+    def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
+        return self + translate_amount
+
+    def __mul__(self, scalar: float) -> Vertex:
+        return Vertex(x=self.x * scalar, y=self.y * scalar)
+
+    def __rmul__(self, scalar: float) -> Vertex:
+        return self * scalar
+
+    def uniform_scale(self: Vertex, scalar: float) -> Vertex:
+        return self * scalar
 
     def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y)
 
+    def rotate_90_degrees(self: Vertex):
+        return Vertex(x=-self.y, y=self.x)
+
     def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
-        return Vertex(
-            x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-            y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
+        return (
+            math.cos(angle_in_radians) * self
+            + math.sin(angle_in_radians) * self.rotate_90_degrees()
         )
 
 
@@ -215,12 +230,10 @@ while not glfw.window_should_close(window):
     for model_space in paddle1.vertices:
         # doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
         world_space: Vertex = model_space.rotate(paddle1.rotation) \
-                                         .translate(tx=paddle1.position.x,
-                                                    ty=paddle1.position.y)
+                                         .translate(paddle1.position)
         # doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
         # doc-region-begin bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
-                                              scale_y=1.0 / 10.0)
+        ndc_space: Vertex = world_space.uniform_scale(scalar=1.0/10.0)
         # doc-region-end bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
@@ -235,10 +248,8 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         world_space: Vertex = model_space.rotate(paddle2.rotation) \
-                                         .translate(tx=paddle2.position.x,
-                                                    ty=paddle2.position.y)
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
-                                              scale_y=1.0 / 10.0)
+                                         .translate(paddle2.position)
+        ndc_space: Vertex = world_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # doc-region-end c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
