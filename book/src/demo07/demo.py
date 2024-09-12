@@ -130,11 +130,10 @@ class Vertex:
     def rotate_90_degrees(self: Vertex):
         return Vertex(x=-self.y, y=self.x)
 
+    # fmt: off
     def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
-        return (
-            math.cos(angle_in_radians) * self
-            + math.sin(angle_in_radians) * self.rotate_90_degrees()
-        )
+        return math.cos(angle_in_radians) * self + math.sin(angle_in_radians) * self.rotate_90_degrees()
+    # fmt: on
 
     # doc-region-end 0650dc123c5604096222ab7f34523251869be0e3
 
