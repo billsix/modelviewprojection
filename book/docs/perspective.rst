@@ -197,7 +197,7 @@ Scale by inverse of the dimensions of the Rectangular Prism
     :figclass: align-center
 
 
-Premultiply the matricies
+Pre-multiply the matricies
 #########################
 
 
@@ -352,7 +352,7 @@ and do the inverse of the equation above
 
 
 Since we want to get the :math:`z_c` relative to camera space out of
-the premultiplie matrix above, we choose
+the premultiplied matrix above, we choose
 the following
 
 .. math::
@@ -530,7 +530,7 @@ We successfully moved :math:`z_c` out of the upper left quadrant, but in doing s
 to the lower right. Can we get rid of it there too?  Turn out, we can.
 
 Since the vector multiplied by this matrix will provide :math:`z_c` as it's third element,
-we can put :math:`-z_c` into the :math:`w` by taking the explicit vesion of it out of the fourth column,
+we can put :math:`-z_c` into the :math:`w` by taking the explicit version of it out of the fourth column,
 and put :math:`-1` into the third column's :math:`w`.
 
 .. math::
@@ -599,7 +599,7 @@ We need the
 
 If we can make a function, that like the third row of the matrix, has those properties, we can replace the
 third row and remove camera space's z, :math:`z_c`, from the matrix.  This is desirable because, if it were to exist,
-would would not need per vertex to create a custom pespective matrix.
+would would not need per vertex to create a custom perspective matrix.
 
 Towards that, let's look at these jibronies.
 

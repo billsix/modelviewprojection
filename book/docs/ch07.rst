@@ -443,7 +443,7 @@ Updated explanation
 ^^^^^^^^^^^^^^^^^^^
 
 We can expand on this knowledge, allowing
-us to rotate all verticies, wherever they are, around the origin (0,0), by some
+us to rotate all vertices, wherever they are, around the origin (0,0), by some
 angle theta.
 
 Let's take any arbitrary point
@@ -503,7 +503,7 @@ we get (cos(beta+pi/2), sin(beta+pi/2)).
     :alt: rotate3
     :figclass: align-center
 
-Now let's give each of those verticies new names, x' and y', for the
+Now let's give each of those vertices new names, x' and y', for the
 purpose of ignoring details for now that we'll return to later,
 just let we did for length "r" above.
 
@@ -516,7 +516,7 @@ just let we did for length "r" above.
 
 Now forget about "beta", and remember that our goal is to rotate by angle
 "theta".  Look at the picture below, while turning your head slightly to the
-left.  x' and y' look just like our normal cartesian plane and unit circle,
+left.  x' and y' look just like our normal Cartesian plane and unit circle,
 combined with the "theta"; it looks like what we already know from high
 school geometry.
 
@@ -575,7 +575,7 @@ Ok, now it's time to remember what the values that x' and y' are defined as.
                                                     \end{bmatrix})
 
 A problem we have now is how to calculate cosine and sine of beta + pi/2,
-because we haven't actually calculated beta; we've calcultade sine
+because we haven't actually calculated beta; we've calculated sine
 and cosine of beta by dividing the x value by the magnitude of the a, and the sine of beta
 by dividing the y value by the magnitude of a.
 

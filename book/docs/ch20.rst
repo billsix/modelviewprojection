@@ -72,10 +72,10 @@ stacks and the current color (and lots of other things we haven't covered in
 this book, like texturing and lighting).
 
 What did the graphics driver do with the data?  This older style of graphics
-programming is called "fixed-function" graphings programming, in that we can
+programming is called "fixed-function" graphics programming, in that we can
 tweak some values, but the graphics card and it's driver are going to do
 whatever they were programmed to, and we can't control it.  Kind of like having
-a graphicing calculator, but not having the ability to program it - OpenGL is
+a graphing calculator, but not having the ability to program it - OpenGL is
 in control at this point, and we can just parameterize it.
 
 Programmers wanted more control, first over how lighting works (which we don't
@@ -135,7 +135,7 @@ of the geometry.
    :language: glsl
 
 This is the fragment shader.  Unlike the vertex shader, which took an vertex in (x,y,z)
-and outputed clipspace (NDC), the fragment shader for a given pixel is determining
+and outputted clip-space (NDC), the fragment shader for a given pixel is determining
 the color [2]_.  Is "glColor" in the fragment shader the same "glColor" from the vertex
 shader, or is it the value of the vertex shader's output "glFrontColor"?  Honestly,
 the author doesn't know, but it's set to the output of the fragment shader,
@@ -146,7 +146,7 @@ in the next section.
 .. literalinclude:: ../../src/demo20/triangle.frag
    :language: glsl
 
-The explict mapping of variable names to values in OpenGL 3.3 Core Profile
+The explicit mapping of variable names to values in OpenGL 3.3 Core Profile
 will make the flow of data from the CPU program, to the GPU vertex shader,
 to the fragment shader much more clear, albeit at the expense of verbosity.
 

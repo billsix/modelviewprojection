@@ -46,7 +46,7 @@ code, how to build complex graphics applications, making mistakes along
 the way, and then fixing the mistakes.
 
 
-Thoughout the book, you will learn how to place objects in space,
+Throughout the book, you will learn how to place objects in space,
 how to draw objects relative to other objects, how to add a
 camera which moves over time based on user input, and how to transform all
 the objects into the 2D pixel coordinates of the computer screen.
@@ -54,10 +54,10 @@ By the end of this book, you will understand the basics of
 how to create first-person and third-person applications/games.
 I made this book to show programmers how to make the kind
 of graphics programs which they want to make, using
-math they mostly aleady know.
+math they mostly already know.
 
 This book is purposely limited in scope, and
-the applications produced are not particurly pretty nor realistic-looking.
+the applications produced are not particularly pretty nor realistic-looking.
 For advanced graphics topics, you'll need to consult other references,
 such as the OpenGL "red book" and "blue book", or the following tutorials
 

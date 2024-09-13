@@ -209,12 +209,12 @@ what type of numbers should he use?  Firstly, it should be a continuous space, m
 that it should be in decimal numbers.  Because if a real-world object is 10.3 meters long, a programmer
 should be able to enter "float foo = 10.3".  Secondly, it should be a fixed range vertically
 and an fixed range horizontally.  OpenGL will have to convert points from some space to screen-space,
-and since this is done in hardware (i.e. you can't programmatically change how the conversion
+and since this is done in hardware (i.e. you can't pragmatically change how the conversion
 happens), it should be a fixed size.
 
 OpenGL uses what's called *normalized-device-coordinates*,
 which is a continuous space from -1.0 to 1.0 horizontally,
--1.0 to 1.0 vertically, and from -1.0 to 1.0 depthally.  (Is there an
+-1.0 to 1.0 vertically, and from -1.0 to 1.0 depth-ally.  (Is there an
 actual word for that???)
 
 

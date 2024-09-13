@@ -148,7 +148,7 @@ The Event Loop
 Set the model, view, and projection matrix to the identity
 matrix.  This just means that the functions (currently)
 will not transform data.
-In univariate terms, f(x) = x
+In uni-variate terms, f(x) = x
 
 .. literalinclude:: ../../src/demo19/demo.py
    :language: python
@@ -320,7 +320,7 @@ all 3 matrices will be reset to the identity
        in and numbers out.  So then what do glBegin and glEnd do?  This will
        be a subject for after the midterm, but the 4 vertices will be converted to screen space,
        given the matrices, and when "glEnd" is called, the graphics driver will need to determine
-       what pixels are within the quadriteral or not.  For the fragments within the quadrilateral,
+       what pixels are within the quadrilateral or not.  For the fragments within the quadrilateral,
        the driver will also need to know the color of the vertex.  So glVertex is doing a lot behind
        the scenes, grabbing the modelview and the projection matrices from the top of the stack,
        grabbing the current color, set by "glColor3f".

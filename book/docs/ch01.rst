@@ -324,7 +324,7 @@ and applied later zero, 1, or more times.
 
 * Before a frame is drawn, it is first turned into a blank slate,
   where the color of each pixel is set to some value representing a
-  color.  We are not clearing the framebuffer right now, but setting what
+  color.  We are not clearing the frame-buffer right now, but setting what
   color will be used for a later clear.  Calling "glClearColor" "0,0,0,1", means black "0,0,0", without
   transparency (the "1").
 
@@ -349,7 +349,7 @@ rendered in quick succession, provide the illusion of motion.
 Interactive computer graphics are rendered the same way,
 one "frame" at a time.
 
-Render a frame, flush the complete framebuffer to the monitor.
+Render a frame, flush the complete frame-buffer to the monitor.
 Repeat indefinitely
 until the user closes the window, or the program needs
 to terminate.
@@ -365,7 +365,7 @@ to terminate.
   keyboard input, etc.  This does not handle them, just registers
   them as having happened.
 
-* Get the size of the framebuffer.  The *framebuffer*
+* Get the size of the frame-buffer.  The *frame-buffer*
   contains data representing all the pixels in a complete video frame.
   Python
   allows the returning of multiple values
@@ -373,13 +373,13 @@ to terminate.
   to the variables this way is a form of "destructuring"
 
 * Tell OpenGL that we wish to draw in the entire
-  framebuffer, from the bottom left corner to the upper
+  frame-buffer, from the bottom left corner to the upper
   right corner.
 
-* Make the framebuffer a blank slate by setting all of the pixels
+* Make the frame-buffer a blank slate by setting all of the pixels
   to have the same color.
   The color of each pixel will be the clear color.
-  If we hadn't cleared the framebuffer, then frame number n+1 would be drawing
+  If we hadn't cleared the frame-buffer, then frame number n+1 would be drawing
   on top of whatever was drawn on frame number n.
   Programming in OpenGL is a bit different than normal programming in
   a normal language,
@@ -389,7 +389,7 @@ to terminate.
   in which they are evaluated, and the sequence of OpenGL calls
   to complete a task.
 
-* We have colored every pixel to be black, so flush the framebuffer to
+* We have colored every pixel to be black, so flush the frame-buffer to
   the monitor, and swap the back and front buffers.
 
 Exercise
@@ -417,7 +417,7 @@ OpenGL has two *frame-buffers* (regions of memory which will eventually
 contain the full data for a frame),
 only one of which is "active", or writable, at a given time.
 "glfwSwapBuffers" initiates the flushing
-the current buffer, and which switches the current writable framebuffer to the
+the current buffer, and which switches the current writable frame-buffer to the
 other one.
 
 
@@ -464,9 +464,9 @@ closes the window, and says to himself, "why did I buy Doom 3"?
 Questions
 ^^^^^^^^^
 
-* In the following ASCII-art diagram of the framebuffer,
+* In the following ASCII-art diagram of the frame-buffer,
   where 'b' represents black, 'R' represents red, and "G"
-  represents green, what is width and height of the framebuffer?
+  represents green, what is width and height of the frame-buffer?
 
 ::
 
@@ -484,10 +484,10 @@ Questions
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
 
-* In the above ASCII-art diagram of the framebuffer, where 'b' represents black, 'R' represents red, and "G" represents green,
+* In the above ASCII-art diagram of the frame-buffer, where 'b' represents black, 'R' represents red, and "G" represents green,
   what is the color at pixel (1,1)?
 
-* In the below ASCII-art diagram of the framebuffer, where 'b' represents black, 'R' represents red, and "G" represents green, what is the color at pixel (2,3)? At (36,2)?
+* In the below ASCII-art diagram of the frame-buffer, where 'b' represents black, 'R' represents red, and "G" represents green, what is the color at pixel (2,3)? At (36,2)?
 
 ::
 
