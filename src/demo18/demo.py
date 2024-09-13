@@ -116,34 +116,72 @@ def draw_in_square_viewport() -> None:
 
 
 @dataclass
+class Vertex2D:
+    x: float
+    y: float
+
+    def __add__(self, rhs: Vertex2D) -> Vertex2D:
+        return Vertex2D(x=self.x + rhs.x, y=self.y + rhs.y)
+
+    def translate(self: Vertex2D, translate_amount: Vertex2D) -> Vertex2D:
+        return self + translate_amount
+
+    def __mul__(self, scalar: float) -> Vertex2D:
+        return Vertex2D(x=self.x * scalar, y=self.y * scalar)
+
+    def __rmul__(self, scalar: float) -> Vertex2D:
+        return self * scalar
+
+    def uniform_scale(self: Vertex2D, scalar: float) -> Vertex2D:
+        return self * scalar
+
+    def scale(self: Vertex2D, scale_x: float, scale_y: float) -> Vertex2D:
+        return Vertex2D(x=self.x * scale_x, y=self.y * scale_y)
+
+    def __neg__(self):
+        return -1.0 * self
+
+    def rotate_90_degrees(self: Vertex2D):
+        return Vertex2D(x=-self.y, y=self.x)
+
+    def rotate(self: Vertex2D, angle_in_radians: float) -> Vertex2D:
+        return (
+            math.cos(angle_in_radians) * self
+            + math.sin(angle_in_radians) * self.rotate_90_degrees()
+        )
+
+@dataclass
 class Vertex:
     x: float
     y: float
     z: float
 
-    def translate(self: Vertex, tx: float, ty: float, tz: float) -> Vertex:
-        return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
+    def __add__(self, rhs: Vertex) -> Vertex:
+        return Vertex(x=self.x + rhs.x, y=self.y + rhs.y, z=self.z + rhs.z)
+
+    def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
+        return self + translate_amount
 
     def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
-        return Vertex(
-            x=self.x,
-            y=self.y * math.cos(angle_in_radians) - self.z * math.sin(angle_in_radians),
-            z=self.y * math.sin(angle_in_radians) + self.z * math.cos(angle_in_radians),
-        )
+        yz_on_xy: Vertex2D = Vertex2D(x=self.y, y=self.z).rotate(angle_in_radians)
+        return Vertex(x=self.x, y=yz_on_xy.x, z=yz_on_xy.y)
 
     def rotate_y(self: Vertex, angle_in_radians: float) -> Vertex:
-        return Vertex(
-            x=self.z * math.sin(angle_in_radians) + self.x * math.cos(angle_in_radians),
-            y=self.y,
-            z=self.z * math.cos(angle_in_radians) - self.x * math.sin(angle_in_radians),
-        )
+        zx_on_xy: Vertex2D = Vertex2D(x=self.z, y=self.x).rotate(angle_in_radians)
+        return Vertex(x=zx_on_xy.y, y=self.y, z=zx_on_xy.x)
 
     def rotate_z(self: Vertex, angle_in_radians: float) -> Vertex:
-        return Vertex(
-            x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-            y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
-            z=self.z,
-        )
+        xy_on_xy: Vertex2D = Vertex2D(x=self.x, y=self.y).rotate(angle_in_radians)
+        return Vertex(x=xy_on_xy.x, y=xy_on_xy.y, z=self.z)
+
+    def __mul__(self, scalar: float) -> Vertex:
+        return Vertex(x=self.x * scalar, y=self.y * scalar, z=self.z * scalar)
+
+    def __rmul__(self, scalar: float) -> Vertex:
+        return self * scalar
+
+    def uniform_scale(self: Vertex, scalar: float) -> Vertex:
+        return self * scalar
 
     def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
@@ -151,50 +189,61 @@ class Vertex:
     def __neg__(self):
         return -1.0 * self
 
-    def ortho(
-        self: Vertex,
-        left: float,
-        right: float,
-        bottom: float,
-        top: float,
-        near: float,
-        far: float,
-    ) -> Vertex:
-        midpoint_x, midpoint_y, midpoint_z = (
-            (left + right) / 2.0,
-            (bottom + top) / 2.0,
-            (near + far) / 2.0,
+    # fmt: off
+    def ortho(self: Vertex,
+              left: float,
+              right: float,
+              bottom: float,
+              top: float,
+              near: float,
+              far: float,
+              ) -> Vertex:
+        midpoint = Vertex(
+            x=(left + right) / 2.0,
+            y=(bottom + top) / 2.0,
+            z=(near + far) / 2.0
         )
         length_x: float
         length_y: float
         length_z: float
         length_x, length_y, length_z = right - left, top - bottom, far - near
-        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z) \
-                   .scale(
-                       2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
-                   )
+        return self.translate(-midpoint) \
+                   .scale(2.0 / length_x,
+                          2.0 / length_y,
+                          2.0 / (-length_z))
+    # fmt: on
 
-    def perspective(
-        self: Vertex, fov: float, aspectRatio: float, nearZ: float, farZ: float
-    ) -> Vertex:
+    # fmt: off
+    def perspective(self: Vertex,
+                    fov: float,
+                    aspectRatio: float,
+                    nearZ: float,
+                    farZ: float) -> Vertex:
+        # fov, field of view, is angle of y
+        # aspectRatio is xwidth / ywidth
+
         top: float = -nearZ * math.tan(math.radians(fov) / 2.0)
         right: float = top * aspectRatio
 
-        scaled_x: float = self.x * nearZ / self.z
-        scaled_y: float = self.y * nearZ / self.z
-        projected: Vertex = Vertex(scaled_x, scaled_y, self.z)
-        return projected.ortho(
-            left=-right, right=right, bottom=-top, top=top, near=nearZ, far=farZ
-        )
+        scaled_x: float = self.x / self.z * nearZ
+        scaled_y: float = self.y / self.z * nearZ
+        retangular_prism: Vertex = Vertex(scaled_x,
+                                          scaled_y,
+                                          self.z)
+
+        return retangular_prism.ortho(left=-right,
+                                      right=right,
+                                      bottom=-top,
+                                      top=top,
+                                      near=nearZ,
+                                      far=farZ)
 
     def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
-        return self.perspective(
-            fov=45.0,
-            aspectRatio=1.0,
-            nearZ=-0.1,
-            farZ=-1000.0,
-        )
-
+        return self.perspective(fov=45.0,
+                                aspectRatio=1.0,
+                                nearZ=-.1,
+                                farZ=-1000.0)
+    # fmt: on
 
 @dataclass
 class Paddle:
@@ -385,10 +434,7 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin f217e71c7f5a228622d5db86e6fe0dec1e072dca
     # fn_stack.push(
-    #     lambda v: v.translate(tx=camera.position_worldspace.x,
-    #                           ty=camera.position_worldspace.y,
-    #                           tz=camera.position_worldspace.z)
-    # )
+    #     lambda v: v.translate(camera.position_worldspace)
     # fn_stack.push(lambda v: v.rotate_y(camera.rot_y))
     # fn_stack.push(lambda v: v.rotate_x(camera.rot_x))
     # doc-region-end f217e71c7f5a228622d5db86e6fe0dec1e072dca
@@ -397,17 +443,13 @@ while not glfw.window_should_close(window):
     # doc-region-begin c0dcf40149c0b85d84f13b4421a114409a274432
     fn_stack.push(lambda v: v.rotate_x(-camera.rot_x))  # (2)
     fn_stack.push(lambda v: v.rotate_y(-camera.rot_y))  # (3)
-    fn_stack.push(lambda v: v.translate(tx=-camera.position_worldspace.x,
-                                          ty=-camera.position_worldspace.y,
-                                          tz=-camera.position_worldspace.z))  # (4)
+    fn_stack.push(lambda v: v.translate(-camera.position_worldspace) # (4)
     # doc-region-end c0dcf40149c0b85d84f13b4421a114409a274432
     # fmt: on
 
     # fmt: off
     # doc-region-begin 7de7248650b2809520898faed65be4050d2b441a
-    fn_stack.push(lambda v: v.translate(tx=paddle1.position.x,
-                                          ty=paddle1.position.y,
-                                          tz=0.0)) # (5) translate the local origin
+    fn_stack.push(lambda v: v.translate(paddle1.position) # (5) translate the local origin
     fn_stack.push(lambda v: v.rotate_z(paddle1.rotation)) # (6) (rotate around the local z axis
     # doc-region-end 7de7248650b2809520898faed65be4050d2b441a
     # fmt: on
@@ -425,9 +467,9 @@ while not glfw.window_should_close(window):
     # doc-region-begin 87d309a76468a5dd49f5805f739932d7a1b4dac1
     glColor3f(0.0, 0.0, 1.0)
 
-    fn_stack.push(lambda v: v.translate(tx=0.0, ty=0.0, tz=-1.0))  # (7)
+    fn_stack.push(lambda v: v.translate(Vertex(x=0.0, y=0.0, z=-1.0)))  # (7)
     fn_stack.push(lambda v: v.rotate_z(rotation_around_paddle1))  # (8)
-    fn_stack.push(lambda v: v.translate(tx=2.0, ty=0.0, tz=0.0))  # (9)
+    fn_stack.push(lambda v: v.translate(Vertex(x=2.0, y=0.0, z=0.0)))  # (9)
     fn_stack.push(lambda v: v.rotate_z(square_rotation))  # (10)
 
     glBegin(GL_QUADS)
@@ -448,9 +490,7 @@ while not glfw.window_should_close(window):
 
     # fmt: off
     # doc-region-begin 9206a08662c91ad536b41641910f7e8e951f7c9e
-    fn_stack.push(lambda v: v.translate(tx=paddle2.position.x,
-                                          ty=paddle2.position.y,
-                                          tz=0.0))  # (5)
+    fn_stack.push(lambda v: v.translate(paddle2.position) # (5)
     fn_stack.push(lambda v: v.rotate_z(paddle2.rotation))  # (6)
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)

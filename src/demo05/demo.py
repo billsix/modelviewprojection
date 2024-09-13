@@ -108,8 +108,8 @@ class Vertex:
     x: float
     y: float
 
-    def translate(self: Vertex, tx: float, ty: float) -> Vertex:
-        return Vertex(x=self.x + tx, y=self.y + ty)
+    def translate(self: Vertex, rhs: Vertex) -> Vertex:
+        return Vertex(x=self.x + rhs.x, y=self.y + rhs.y)
 
 
 # doc-region-end 45f8b976d5ca561e6551fced4b91491a0608e07c
@@ -200,9 +200,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        ndc_space: Vertex = model_space.translate(
-            tx=paddle1.position.x, ty=paddle1.position.y
-        )
+        ndc_space: Vertex = model_space.translate(paddle1.position)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # doc-region-end 9de7437ce84e5390a8907af83bb84e955ca80286
@@ -212,9 +210,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        ndc_space: Vertex = model_space.translate(
-            tx=paddle2.position.x, ty=paddle2.position.y
-        )
+        ndc_space: Vertex = model_space.translate(paddle2.position)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
     # doc-region-end 6b46719ca5e13f1c1c90c8ea495549599c6d0008

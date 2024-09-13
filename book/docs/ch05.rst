@@ -116,7 +116,7 @@ import them and try the methods
 
        >>> import src.demo05.demo as demo
        >>> a = demo.Vertex(x=1,y=2)
-       >>> a.translate(tx=3,ty=4)
+       >>> a.translate(demo.Vertex(x=3,y=4))
        Vertex(x=4, y=6)
 
 Note the use of "keyword arguments".  Without using keyword
@@ -126,7 +126,7 @@ arguments, the code might look like this:
 
        >>> import src.demo05.demo as demo
        >>> a = demo.Vertex(1,2)
-       >>> a.translate(3,4)
+       >>> a.translate(demo.Vertex(x=3,y=4))
        Vertex(x=4, y=6)
 
 Keyword arguments allow the reader to understand the purpose of the

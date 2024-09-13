@@ -209,13 +209,13 @@ The inverse of
 
 .. code:: Python
 
-      >>> v.scale(x,y).translate(tx,tx)
+      >>> v.scale(x,y).translate(Vertex(x,y))
 
 is
 
 .. code:: Python
 
-      >>> v.translate(-tx,-tx).scale(1.0/x,1.0/y)
+      >>> v.translate(-Vertex(x,y).scale(1.0/x,1.0/y)
 
 
 

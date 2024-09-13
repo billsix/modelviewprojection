@@ -108,8 +108,8 @@ class Vertex:
     x: float
     y: float
 
-    def translate(self: Vertex, tx: float, ty: float) -> Vertex:
-        return Vertex(x=(self.x + tx), y=(self.y + ty))
+    def translate(self: Vertex, rhs: Vertex) -> Vertex:
+        return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y))
 
     # doc-region-end 8d06005b531874a91efb0a652db8527497f3a345
 
@@ -204,8 +204,7 @@ while not glfw.window_should_close(window):
         # doc-region-end 57631feba3dbad52833765b9bfc51c42d90141af
         # fmt: off
         # doc-region-begin 5b1156f32f2d788cec10cedf43b7847fe92f5350
-        world_space: Vertex = model_space.translate(tx=paddle1.position.x,
-                                                    ty=paddle1.position.y)
+        world_space: Vertex = model_space.translate(paddle1.position)
         # doc-region-end 5b1156f32f2d788cec10cedf43b7847fe92f5350
         # doc-region-begin 2091aa68e2d6d5bccdcb968391bf5d657fe9ad1a
         ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
@@ -226,8 +225,7 @@ while not glfw.window_should_close(window):
         # doc-region-end db2e4352f654c9b0309ed0470515ff61113aec8d
         # fmt: off
         # doc-region-begin 8654606ea6b0f530930d8d43f6c0d110e867e0d8
-        world_space: Vertex = model_space.translate(tx=paddle2.position.x,
-                                                    ty=paddle2.position.y)
+        world_space: Vertex = model_space.translate(paddle2.position)
         # doc-region-end 8654606ea6b0f530930d8d43f6c0d110e867e0d8
         # doc-region-begin a9da863c1edd7395ad98084f43056476991a5c5c
         ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
