@@ -257,7 +257,7 @@ while not glfw.window_should_close(window):
                                          .translate(translate_amount=paddle1.position)
         # doc-region-end c1994fe03bc9e4428893f63706e07eb1d3bb14b5
         # doc-region-begin 9624d3a2dd009e3850cd5dce4470272fb9d9b4e0
-        camera_space: Vertex = world_space.translate(translate_amount=-1.0*camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(translate_amount=-camera.position_worldspace)
         # doc-region-end 9624d3a2dd009e3850cd5dce4470272fb9d9b4e0
         # doc-region-begin 4db386e7523575f5ab67841165a5297c8c0e1500
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
@@ -276,7 +276,7 @@ while not glfw.window_should_close(window):
                                          .translate(translate_amount=paddle2.position)
         # doc-region-end 63cbaad0dbecc69f52bc428648308a48337e43c6
         # doc-region-begin ad53fd8251cc2c93fffec19223c3e70270e31410
-        camera_space: Vertex = world_space.translate(translate_amount=-1.0*camera.position_worldspace)
+        camera_space: Vertex = world_space.translate(translate_amount=-camera.position_worldspace)
         # doc-region-end ad53fd8251cc2c93fffec19223c3e70270e31410
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         # fmt: on

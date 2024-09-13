@@ -169,9 +169,10 @@ class Vertex:
         length_y: float
         length_z: float
         length_x, length_y, length_z = right - left, top - bottom, far - near
-        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z).scale(
-            2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
-        )
+        return self.translate(tx=-midpoint_x, ty=-midpoint_y, tz=-midpoint_z) \
+                   .scale(
+                       2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
+                   )
 
     def perspective(
         self: Vertex, fov: float, aspectRatio: float, nearZ: float, farZ: float
