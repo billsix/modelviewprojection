@@ -11,7 +11,8 @@ RUN apt update && apt upgrade -y && \
                       make \
                       python3-imageio \
                       python3-matplotlib \
-                      dvipng
+                      dvipng \
+                      aspell-en
 
 COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
 COPY ./book /book/
