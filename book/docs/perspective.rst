@@ -198,7 +198,7 @@ Scale by inverse of the dimensions of the Rectangular Prism
 
 
 Pre-multiply the matricies
-#########################
+##########################
 
 
 .. math::
