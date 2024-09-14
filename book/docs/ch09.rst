@@ -118,6 +118,8 @@ is set back to the origin basis.
    :language: python
    :start-after: doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
    :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
+   :linenos:
+   :lineno-match:
 
 
 
@@ -142,6 +144,8 @@ All subsequent functions move that relative basis to a new relative basis.
    :language: python
    :start-after: doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
    :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
+   :linenos:
+   :lineno-match:
 
 
 .. figure:: _static/rotate1-backwards.gif
@@ -190,6 +194,8 @@ L by a right-multiplication of M.
    :language: python
    :start-after: doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
    :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
+   :linenos:
+   :lineno-match:
 
 
 
@@ -204,6 +210,8 @@ from top down, and resetting the coordinate system after every transformation.
    :language: python
    :start-after: doc-region-begin bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
    :end-before: doc-region-end bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
+   :linenos:
+   :lineno-match:
 
 
 
@@ -225,6 +233,8 @@ The Event Loop
    :language: python
    :start-after: doc-region-begin 5748cc21902ad56527c65e167b4ef44bd62f392e
    :end-before: doc-region-end 5748cc21902ad56527c65e167b4ef44bd62f392e
+   :linenos:
+   :lineno-match:
 
 
 
@@ -232,6 +242,8 @@ The Event Loop
    :language: python
    :start-after: doc-region-begin 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
    :end-before: doc-region-end 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
+   :linenos:
+   :lineno-match:
 
 
 * Read the modelspace to world space, starting from the bottom, up.  Translate, then rotate
@@ -243,6 +255,8 @@ The Event Loop
    :language: python
    :start-after: doc-region-begin c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
    :end-before: doc-region-end c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
+   :linenos:
+   :lineno-match:
 
 
 

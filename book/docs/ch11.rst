@@ -119,6 +119,8 @@ Define the geometry of the square in it's own modelspace.
    :language: python
    :start-after: doc-region-begin 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
    :end-before: doc-region-end 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
+   :linenos:
+   :lineno-match:
 
 
 
@@ -129,6 +131,8 @@ Event Loop
    :language: python
    :start-after: doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
    :end-before: doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+   :linenos:
+   :lineno-match:
 
 
 ::
@@ -142,6 +146,8 @@ Draw paddle 1, just as before.
    :language: python
    :start-after: doc-region-begin 7dab1135450b265814f775c59807f77b44273a4e
    :end-before: doc-region-end 7dab1135450b265814f775c59807f77b44273a4e
+   :linenos:
+   :lineno-match:
 
 
 As a refresher, the author recommends reading the code from modelspace
@@ -163,6 +169,8 @@ later gets scaled down to NDC.
    :language: python
    :start-after: doc-region-begin 9a0ba48a086f35a4515bf32b4a856888c178b0e8
    :end-before: doc-region-end 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+   :linenos:
+   :lineno-match:
 
 
 Towards that, we need to do all of the transformations to the square
@@ -194,3 +202,5 @@ Draw paddle 2 just like before.
    :language: python
    :start-after: doc-region-begin 12cd2bedfe522c8c192106296c12e8344f1594d4
    :end-before: doc-region-end 12cd2bedfe522c8c192106296c12e8344f1594d4
+   :linenos:
+   :lineno-match:

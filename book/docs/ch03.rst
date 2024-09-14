@@ -132,6 +132,8 @@ Set to Draw in Square Subsection Of Window
    :language: python
    :start-after: doc-region-begin 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
    :end-before: doc-region-end 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
+   :linenos:
+   :lineno-match:
 
 
 * declare a function to configure OpenGL to draw only in a square subset of the monitor, i.e. the viewport
@@ -140,6 +142,8 @@ Set to Draw in Square Subsection Of Window
    :language: python
    :start-after: doc-region-begin 263830783a8fbe25283deaa80688f95592917298
    :end-before: doc-region-end 263830783a8fbe25283deaa80688f95592917298
+   :linenos:
+   :lineno-match:
 
 
 * set the clear color to be gray.
@@ -150,6 +154,8 @@ Set to Draw in Square Subsection Of Window
    :language: python
    :start-after: doc-region-begin 3db7c4975ad4354e344c0a2f0d4d94125195ce32
    :end-before: doc-region-end 3db7c4975ad4354e344c0a2f0d4d94125195ce32
+   :linenos:
+   :lineno-match:
 
 
 * figure out the minimum dimension of the window.  In the image above, the "square_size" is 1200,
@@ -161,6 +167,8 @@ Set to Draw in Square Subsection Of Window
    :language: python
    :start-after: doc-region-begin a2d0bcb5b525e8a68e0bc1ef213359f165981839enablescissortest
    :end-before: doc-region-end a2d0bcb5b525e8a68e0bc1ef213359f165981839enablescissortest
+   :linenos:
+   :lineno-match:
 
 
 * Enable the scissor test.  Internally, OpenGL drivers likely have global variables
@@ -192,6 +200,8 @@ Set to Draw in Square Subsection Of Window
    :language: python
    :start-after: doc-region-begin db4245dba3c0c229416c97fe84da3cb87b1f439d
    :end-before: doc-region-end db4245dba3c0c229416c97fe84da3cb87b1f439d
+   :linenos:
+   :lineno-match:
 
 
 *  glClear will only update the square to black values.
@@ -201,6 +211,8 @@ Set to Draw in Square Subsection Of Window
    :language: python
    :start-after: doc-region-begin 9524935cab9f5725f921d11969872ebd9a54e508
    :end-before: doc-region-end 9524935cab9f5725f921d11969872ebd9a54e508
+   :linenos:
+   :lineno-match:
 
 
 * disable the scissor test, so now any OpenGL calls will
@@ -220,6 +232,8 @@ that we care about, which is the black square.
    :language: python
    :start-after: doc-region-begin defaeb0e6b9ada0b6c349a4dec907300e4c14acbviewportcall
    :end-before: doc-region-end defaeb0e6b9ada0b6c349a4dec907300e4c14acbviewportcall
+   :linenos:
+   :lineno-match:
 
 
 
@@ -235,12 +249,16 @@ the window.
    :language: python
    :start-after: doc-region-begin 33fecc926105eda74989fb02da7daca03e3bfea8
    :end-before: doc-region-end 33fecc926105eda74989fb02da7daca03e3bfea8
+   :linenos:
+   :lineno-match:
 
 
 .. literalinclude:: ../../src/demo03/demo.py
    :language: python
    :start-after: doc-region-begin 415cedbd77f6cc02a34de30d2da1b24cab344c5c
    :end-before: doc-region-end 415cedbd77f6cc02a34de30d2da1b24cab344c5c
+   :linenos:
+   :lineno-match:
 
 
 * The event loop is the same as the previous demo, except
@@ -250,3 +268,5 @@ the window.
    :language: python
    :start-after: doc-region-begin bf9a23e3296c75d786d75f7b0e406448b773b23b
    :end-before: doc-region-end bf9a23e3296c75d786d75f7b0e406448b773b23b
+   :linenos:
+   :lineno-match:

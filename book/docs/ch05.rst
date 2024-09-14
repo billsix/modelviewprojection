@@ -102,6 +102,8 @@ Data Structures
    :language: python
    :start-after: doc-region-begin 45f8b976d5ca561e6551fced4b91491a0608e07c
    :end-before: doc-region-end 45f8b976d5ca561e6551fced4b91491a0608e07c
+   :linenos:
+   :lineno-match:
 
 
 We added a translate method to the Vertex class.  Given a translation amount, the vertex
@@ -137,6 +139,8 @@ parameters are, at the call-site of the function.
    :language: python
    :start-after: doc-region-begin c04057e28feefe7d49c375940e142dccd15bb006
    :end-before: doc-region-end c04057e28feefe7d49c375940e142dccd15bb006
+   :linenos:
+   :lineno-match:
 
 
 Add a position instance variable to the Paddle class.  This position is the center of
@@ -151,6 +155,8 @@ Instantiation of the Paddles
    :language: python
    :start-after: doc-region-begin 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
    :end-before: doc-region-end 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
+   :linenos:
+   :lineno-match:
 
 
 * The vertices are now defined as relative distances from the center of the paddle.  The centers
@@ -164,6 +170,8 @@ Handling User Input
    :language: python
    :start-after: doc-region-begin b0d86b4d150b3ca92951137634b12d7881ee6350
    :end-before: doc-region-end b0d86b4d150b3ca92951137634b12d7881ee6350
+   :linenos:
+   :lineno-match:
 
 
 * We put the transformation on the center of the paddle, instead
@@ -177,12 +185,16 @@ The Event Loop
    :language: python
    :start-after: doc-region-begin 1cacf5f226065bc4b85826f7642bf817a36b6540
    :end-before: doc-region-end 1cacf5f226065bc4b85826f7642bf817a36b6540
+   :linenos:
+   :lineno-match:
 
 
 .. literalinclude:: ../../src/demo05/demo.py
    :language: python
    :start-after: doc-region-begin 9de7437ce84e5390a8907af83bb84e955ca80286
    :end-before: doc-region-end 9de7437ce84e5390a8907af83bb84e955ca80286
+   :linenos:
+   :lineno-match:
 
 
 
@@ -195,6 +207,8 @@ from Paddle 1 space to NDC.
    :language: python
    :start-after: doc-region-begin 6b46719ca5e13f1c1c90c8ea495549599c6d0008
    :end-before: doc-region-end 6b46719ca5e13f1c1c90c8ea495549599c6d0008
+   :linenos:
+   :lineno-match:
 
 
 
