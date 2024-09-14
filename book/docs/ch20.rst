@@ -100,6 +100,7 @@ We have some new imports, "glUseProgram", "GL_VERTEX_SHADER", "GL_FRAGMENT_SHADE
    :end-before: doc-region-end c731ca97ef15896c876effbafec9d52a1354375f
    :linenos:
    :lineno-match:
+   :caption: src/demo20/demo.py
 
 We now ask the OpenGL driver to accept OpenGL 2.1 function calls.
 
@@ -109,6 +110,7 @@ We now ask the OpenGL driver to accept OpenGL 2.1 function calls.
    :end-before: doc-region-end b05eee9a50507de99ecad16ffa3af2da709b361a
    :linenos:
    :lineno-match:
+   :caption: src/demo20/demo.py
 
 Before the event loop starts, we send two mini programs to the GPU, the vertex
 shader and the fragment shader.  The purpose of the vertex shader is to transform
@@ -124,6 +126,7 @@ in the same way we did in the lambda stack.
    :end-before: doc-region-end e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
    :linenos:
    :lineno-match:
+   :caption: src/demo20/demo.py
 
 In the vertex shader, there are a lot of predefined variable names with values
 provided to us. "gl_Modelview_matrix" is the matrix at the top of the modelview

@@ -136,6 +136,7 @@ Description
    :end-before: doc-region-end d38e00f1c19bce775ae4216e4ed95a31a814eee0
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 Rotate Z
@@ -157,6 +158,7 @@ the z component at all.
    :end-before: doc-region-end 1b96b48e7e572197721cad2a7d082f167159f2d8
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 Rotate X
@@ -176,6 +178,7 @@ Rotate X
    :end-before: doc-region-end 3e09ecd4a77c68066fe97bfa4f06e89afb583f9d
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 
@@ -194,6 +197,7 @@ Rotate Y
    :end-before: doc-region-end 256be1d4ab5b90068be656bb99ff1115268d8925
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 Scale
@@ -205,6 +209,7 @@ Scale
    :end-before: doc-region-end dd45247963bb4a02bf2430d98a7f52e707c9e15a
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 Code
@@ -219,6 +224,7 @@ a z-coordinate of 0 in their modelspace.
    :end-before: doc-region-end d5bd9d04649181c42a65f8a7d52125a0ef86a928
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 The only new aspect of the square below is that the paddles have
@@ -234,6 +240,7 @@ are subject to be different.
    :end-before: doc-region-end 89d28adbbb797e4128facc7ee1497e4f2d469eff
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 The camera now has a z-coordinate of 0 also.
 
@@ -244,6 +251,7 @@ The camera now has a z-coordinate of 0 also.
    :end-before: doc-region-end 603eda05b403ac6bd756d050f26d9e6497bf748a
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 
@@ -256,6 +264,7 @@ Event Loop
    :end-before: doc-region-end ee882a76ee2962c327841e2a952998acce07cc2a
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 ::
@@ -270,6 +279,7 @@ Event Loop
    :end-before: doc-region-end 2f5cb93361c42475b16dec8246c81c711b1a2db3
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 The square should not be visible when hidden behind the paddle1,
@@ -285,6 +295,7 @@ that the square is always drawn over the paddle.
    :end-before: doc-region-end 485064c9e30f4471b74d11b8cca3c8f0d142b552
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 
@@ -304,6 +315,7 @@ see that the square can be hidden behind the paddle.
    :end-before: doc-region-end 79bca06683ced2f641ea47f14d22bc330f75979f
    :linenos:
    :lineno-match:
+   :caption: src/demo14/demo.py
 
 
 

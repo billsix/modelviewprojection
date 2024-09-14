@@ -92,6 +92,7 @@ Make a variable to determine the angle that the square will be rotated.
    :end-before: doc-region-end 3ae4d745b5afbd285e833b94972715efe8178822
    :linenos:
    :lineno-match:
+   :caption: src/demo12/demo.py
 
 
 When 'q' is pressed, increase the angle.
@@ -102,6 +103,7 @@ When 'q' is pressed, increase the angle.
    :end-before: doc-region-end 430452dadde6cdec13eedba9906dc9aad1a25f2e
    :linenos:
    :lineno-match:
+   :caption: src/demo12/demo.py
 
 
 ::
@@ -121,6 +123,7 @@ the square.
    :end-before: doc-region-end 9a0ba48a086f35a4515bf32b4a856888c178b0e8
    :linenos:
    :lineno-match:
+   :caption: src/demo11/demo.py
 
 
 
@@ -136,6 +139,7 @@ a rotate call at the top.
    :end-before: doc-region-end 7d764f79efa781036fc6d58825da898fca08d45c
    :linenos:
    :lineno-match:
+   :caption: src/demo12/demo.py
 
 
 The author is getting really tired of having to look at all the different

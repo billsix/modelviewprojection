@@ -83,6 +83,7 @@ around a given point in world space, in this case, the paddle's center.
    :end-before: doc-region-end 246327053a816d12360c1ce2d0496b8f157dcc92
    :linenos:
    :lineno-match:
+   :caption: src/demo08/demo.py
 
 
 .. literalinclude:: ../../src/demo08/demo.py
@@ -91,6 +92,7 @@ around a given point in world space, in this case, the paddle's center.
    :end-before: doc-region-end 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
    :linenos:
    :lineno-match:
+   :caption: src/demo08/demo.py
 
 
 
@@ -106,6 +108,7 @@ Within the event loop, this seems quite reasonable
    :end-before: doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
    :linenos:
    :lineno-match:
+   :caption: src/demo08/demo.py
 
 
 
@@ -116,6 +119,7 @@ Within the event loop, this seems quite reasonable
    :end-before: doc-region-end b641b94ccea0c4270f96da2c06387477a7874816
    :linenos:
    :lineno-match:
+   :caption: src/demo08/demo.py
 
 
 
@@ -126,6 +130,7 @@ Within the event loop, this seems quite reasonable
    :end-before: doc-region-end ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
    :linenos:
    :lineno-match:
+   :caption: src/demo08/demo.py
 
 
 

@@ -148,6 +148,7 @@ for the same reason.
    :end-before: doc-region-end d194601529be6fa90270809dd56628cb47360ff2
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 
@@ -194,6 +195,7 @@ The inverted form is
    :end-before: doc-region-end 21b5929d16e434165544480ad25b7ff015e239f7
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 
@@ -263,6 +265,7 @@ The camera now has two angles as instance variables.
    :end-before: doc-region-end ec5a4d2515c361a5f311d93c93b2c89b60eb2dfc
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 
@@ -275,6 +278,7 @@ to read the input.
    :end-before: doc-region-end af7c283e5f33d95279c0b6223af95e9b16826acc
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 ::
@@ -290,6 +294,7 @@ angle, page up and page down the vertical angle.
    :end-before: doc-region-end 33b92ff8834a0e251991d9373983c374449eab36
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 
@@ -308,6 +313,7 @@ movement relative to camera space.
    :end-before: doc-region-end 809cd77769244adb1e3866899e53ba3c203a535a
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 
@@ -322,6 +328,7 @@ of the viewable region.
    :end-before: doc-region-end f772cea61c9d02b6a9d8565f5427658c0e40cef3
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 
@@ -334,6 +341,7 @@ calls ortho, setting the size of the rectangular prism.
    :end-before: doc-region-end b23c753f650185c5b1e4a0e6c8008852afae73d9
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 
@@ -354,6 +362,7 @@ matrices solve for us.
    :end-before: doc-region-end ee882a76ee2962c327841e2a952998acce07cc2a
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 
@@ -369,6 +378,7 @@ Paddle 1
    :end-before: doc-region-end 751192ea5ea95537db3cc34c4c3b1549d1fd91e4
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 
@@ -383,6 +393,7 @@ as we did a translate by -10 in the z direction.
    :end-before: doc-region-end 554eda2bd3b5edf8eee0c1441a1e8c8f366c575b
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py
 
 
 
@@ -395,3 +406,4 @@ Paddle 2
    :end-before: doc-region-end ed9eeae978339791ef50c475f26ec4fe8bf018c7
    :linenos:
    :lineno-match:
+   :caption: src/demo16/demo.py

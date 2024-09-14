@@ -120,6 +120,7 @@ is set back to the origin basis.
    :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
    :linenos:
    :lineno-match:
+   :caption: src/demo09/demo.py
 
 
 
@@ -146,6 +147,7 @@ All subsequent functions move that relative basis to a new relative basis.
    :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
    :linenos:
    :lineno-match:
+   :caption: src/demo09/demo.py
 
 
 .. figure:: _static/rotate1-backwards.gif
@@ -196,6 +198,7 @@ L by a right-multiplication of M.
    :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
    :linenos:
    :lineno-match:
+   :caption: src/demo09/demo.py
 
 
 
@@ -212,6 +215,7 @@ from top down, and resetting the coordinate system after every transformation.
    :end-before: doc-region-end bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
    :linenos:
    :lineno-match:
+   :caption: src/demo09/demo.py
 
 
 
@@ -235,6 +239,7 @@ The Event Loop
    :end-before: doc-region-end 5748cc21902ad56527c65e167b4ef44bd62f392e
    :linenos:
    :lineno-match:
+   :caption: src/demo09/demo.py
 
 
 
@@ -244,6 +249,7 @@ The Event Loop
    :end-before: doc-region-end 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
    :linenos:
    :lineno-match:
+   :caption: src/demo09/demo.py
 
 
 * Read the modelspace to world space, starting from the bottom, up.  Translate, then rotate
@@ -257,6 +263,7 @@ The Event Loop
    :end-before: doc-region-end c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
    :linenos:
    :lineno-match:
+   :caption: src/demo09/demo.py
 
 
 

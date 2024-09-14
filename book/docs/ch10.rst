@@ -303,6 +303,7 @@ Code
    :end-before: doc-region-end 808b49966faf68394a1e4def233df33c08e37b27
    :linenos:
    :lineno-match:
+   :caption: src/demo10/demo.py
 
 
 .. literalinclude:: ../../src/demo10/demo.py
@@ -311,6 +312,7 @@ Code
    :end-before: doc-region-end e705ab925d5c7f3219b065cdf16eb13268f17ef9
    :linenos:
    :lineno-match:
+   :caption: src/demo10/demo.py
 
 
 ::
@@ -333,6 +335,7 @@ The Event Loop
    :end-before: doc-region-end 6d86d07154c99ed6e1c3feab73545d184153f9ae
    :linenos:
    :lineno-match:
+   :caption: src/demo10/demo.py
 
 
 
@@ -343,6 +346,7 @@ The Event Loop
    :end-before: doc-region-end c1994fe03bc9e4428893f63706e07eb1d3bb14b5
    :linenos:
    :lineno-match:
+   :caption: src/demo10/demo.py
 
 
 The camera's position is at camera.x, camera.y.  So
@@ -356,6 +360,7 @@ values.
    :end-before: doc-region-end 9624d3a2dd009e3850cd5dce4470272fb9d9b4e0
    :linenos:
    :lineno-match:
+   :caption: src/demo10/demo.py
 
 
 .. literalinclude:: ../../src/demo10/demo.py
@@ -364,6 +369,7 @@ values.
    :end-before: doc-region-end 4db386e7523575f5ab67841165a5297c8c0e1500
    :linenos:
    :lineno-match:
+   :caption: src/demo10/demo.py
 
 
 
@@ -375,6 +381,7 @@ values.
    :end-before: doc-region-end 63cbaad0dbecc69f52bc428648308a48337e43c6
    :linenos:
    :lineno-match:
+   :caption: src/demo10/demo.py
 
 
 The camera's position is at camera.x, camera.y.  So
@@ -388,6 +395,7 @@ values.
    :end-before: doc-region-end ad53fd8251cc2c93fffec19223c3e70270e31410
    :linenos:
    :lineno-match:
+   :caption: src/demo10/demo.py
 
 
 .. literalinclude:: ../../src/demo10/demo.py
@@ -396,3 +404,4 @@ values.
    :end-before: doc-region-end 46159451e06ea71fbb3fc270b01f3b755a06040c
    :linenos:
    :lineno-match:
+   :caption: src/demo10/demo.py

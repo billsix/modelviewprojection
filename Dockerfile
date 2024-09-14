@@ -15,8 +15,8 @@ RUN apt update && apt upgrade -y && \
                       aspell-en && \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()"
 
-COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
 COPY ./book /book/
 COPY ./src /src/
+COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]

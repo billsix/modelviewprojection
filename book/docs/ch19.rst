@@ -139,6 +139,7 @@ Code
    :end-before: doc-region-end d901e3a3a161af321d120efcf3945187580c48c9
    :linenos:
    :lineno-match:
+   :caption: src/demo19/demo.py
 
 
 
@@ -158,6 +159,7 @@ In uni-variate terms, f(x) = x
    :end-before: doc-region-end c0820e6fdb329fb2e98863f0866b23d4e8329dde
    :linenos:
    :lineno-match:
+   :caption: src/demo19/demo.py
 
 
 
@@ -181,6 +183,7 @@ in the next chapter.
    :end-before: doc-region-end 9ea567ab2aefadcd20e817f9bff4d13cb9dd56dc
    :linenos:
    :lineno-match:
+   :caption: src/demo19/demo.py
 
 "glMatrixMode" tells the computer which matrix stack should be the active one,
 against which subsequent matrix operations which affect.  In this case, we set
@@ -212,6 +215,7 @@ do the inverse operations to the view stack.
    :end-before: doc-region-end bfe75259546e2177c77becae6c668c2dfc785410
    :linenos:
    :lineno-match:
+   :caption: src/demo19/demo.py
 
 First thing we did was set the current matrix to be the model-view matrix, instead
 of the projection matrix.  Most of our work will be with the model-view matrix,
@@ -265,6 +269,7 @@ to it.
    :end-before: doc-region-end 1342d0be4337963db469658a7d434fc94965c32a
    :linenos:
    :lineno-match:
+   :caption: src/demo19/demo.py
 
 
 
@@ -286,6 +291,7 @@ matrix into OpenGL, glVertex3f will apply those transformations for us [1]_!
    :end-before: doc-region-end 62fb018739e5043758a40caf704d4c79cd39f17d
    :linenos:
    :lineno-match:
+   :caption: src/demo19/demo.py
 
 
 
@@ -305,6 +311,7 @@ the square's 3 model_space transformations
    :end-before: doc-region-end c2745ed5d713d331622335395a5c08d6d15f7de9
    :linenos:
    :lineno-match:
+   :caption: src/demo19/demo.py
 
 
 
@@ -322,6 +329,7 @@ all 3 matrices will be reset to the identity
    :end-before: doc-region-end 1390df52e4311c23a50fc61a3e197f7c6e8ed593
    :linenos:
    :lineno-match:
+   :caption: src/demo19/demo.py
 
 
 

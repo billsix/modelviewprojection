@@ -62,6 +62,7 @@ Here is paddle 1 code
    :end-before: doc-region-end 2ced82a1c3de464adbfe5d303faffdd2314c17c2
    :linenos:
    :lineno-match:
+   :caption: src/demo17/demo.py
 
 
 
@@ -74,6 +75,7 @@ Here is the square's code:
    :end-before: doc-region-end 23cd906b0bec259766279f1a9277922719cf1e2b
    :linenos:
    :lineno-match:
+   :caption: src/demo17/demo.py
 
 
 
@@ -199,6 +201,7 @@ a vertex to another vertex, through the "modelspace_to_ndc" method.
    :end-before: doc-region-end 17f3fd5d2ee2d55faeeff6e71eeb4dbe288c7842
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 There is an example at the bottom of src/demo18/demo.py
@@ -209,6 +212,7 @@ There is an example at the bottom of src/demo18/demo.py
    :end-before: doc-region-end 1b3386db3fb40d61e80828a90a820b3a235ca940
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 Define four functions, which we will compose on the stack.
@@ -221,6 +225,7 @@ Push identity onto the stack, which will will never pop off of the stack.
    :end-before: doc-region-end 6e7a7ee4a8493ddc6478bcaf2dbb6fb4a2a9753a
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 .. literalinclude:: ../../src/demo18/demo.py
@@ -229,6 +234,7 @@ Push identity onto the stack, which will will never pop off of the stack.
    :end-before: doc-region-end ccac3b1b9bc8c759e45929c467274c763f7671c7
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 .. literalinclude:: ../../src/demo18/demo.py
@@ -237,6 +243,7 @@ Push identity onto the stack, which will will never pop off of the stack.
    :end-before: doc-region-end 24f3367f7ffaefa3d882a20f772ce7f089049391
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 .. literalinclude:: ../../src/demo18/demo.py
@@ -245,6 +252,7 @@ Push identity onto the stack, which will will never pop off of the stack.
    :end-before: doc-region-end b2d4aee29938ffba8e023e2d523e5a8b7b400bee
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 .. literalinclude:: ../../src/demo18/demo.py
@@ -253,6 +261,7 @@ Push identity onto the stack, which will will never pop off of the stack.
    :end-before: doc-region-end 95d6bcea04206261224089df1734055b9b4196d3
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 .. literalinclude:: ../../src/demo18/demo.py
@@ -261,6 +270,7 @@ Push identity onto the stack, which will will never pop off of the stack.
    :end-before: doc-region-end 55dd21f698dbbde5bd5d1b332279d099a315f771
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 .. literalinclude:: ../../src/demo18/demo.py
@@ -269,6 +279,7 @@ Push identity onto the stack, which will will never pop off of the stack.
    :end-before: doc-region-end e09b968f9c8a2f9db13475d1c9ac310d94e54a2a
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 
@@ -283,6 +294,7 @@ Event Loop
    :end-before: doc-region-end 6d86d07154c99ed6e1c3feab73545d184153f9ae
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 ::
@@ -316,6 +328,7 @@ a new function to the top of the stack.
    :end-before: doc-region-end 48bd13153ce54db3f6b9ea5833e91820b7d8b020
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 
@@ -345,6 +358,7 @@ to world space like so, read top to bottom:
    :end-before: doc-region-end f217e71c7f5a228622d5db86e6fe0dec1e072dca
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 But, since we need to transform world-space to camera space,
@@ -372,6 +386,7 @@ camera space are.
    :end-before: doc-region-end c0dcf40149c0b85d84f13b4421a114409a274432
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 draw paddle 1
@@ -401,6 +416,7 @@ the current space
    :end-before: doc-region-end 7de7248650b2809520898faed65be4050d2b441a
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 for each of the modelspace coordinates, apply all
@@ -415,6 +431,7 @@ which we can pass to glVertex3f
    :end-before: doc-region-end 6b57a4425b47582cdfb194a1c2fbb3ac9a17a163
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 draw the square
@@ -443,6 +460,7 @@ remove these 4 transformations from the stack (done below)
    :end-before: doc-region-end 87d309a76468a5dd49f5805f739932d7a1b4dac1
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 Now we need to remove fns from the stack so that the
@@ -456,6 +474,7 @@ world space to paddle2 space on the stack.
    :end-before: doc-region-end 6e83cdfe078bb103bf04c3d53a4c4ec7cb22ef60
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 since paddle2's model_space is independent of paddle 1's space, only
@@ -483,6 +502,7 @@ draw paddle 2
    :end-before: doc-region-end 9206a08662c91ad536b41641910f7e8e951f7c9e
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 
@@ -496,6 +516,7 @@ the next iteration of the event loop.
    :end-before: doc-region-end 4d0f02db53413ede074a8693bb19e68292db3bd4
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 
 
@@ -507,6 +528,7 @@ Swap buffers and execute another iteration of the event loop
    :end-before: doc-region-end 64809e2fccc9daa3f97239991d905b7fc3f03d62
    :linenos:
    :lineno-match:
+   :caption: src/demo18/demo.py
 
 Notice in the above code, adding functions to the stack is creating a shared
 context for transformations, and before we call "glVertex3f", we always call
