@@ -150,6 +150,7 @@ class Vertex2D:
             + math.sin(angle_in_radians) * self.rotate_90_degrees()
         )
 
+
 @dataclass
 class Vertex:
     x: float
@@ -244,6 +245,7 @@ class Vertex:
                                 nearZ=-.1,
                                 farZ=-1000.0)
     # fmt: on
+
 
 @dataclass
 class Paddle:
@@ -443,13 +445,13 @@ while not glfw.window_should_close(window):
     # doc-region-begin c0dcf40149c0b85d84f13b4421a114409a274432
     fn_stack.push(lambda v: v.rotate_x(-camera.rot_x))  # (2)
     fn_stack.push(lambda v: v.rotate_y(-camera.rot_y))  # (3)
-    fn_stack.push(lambda v: v.translate(-camera.position_worldspace) # (4)
+    fn_stack.push(lambda v: v.translate(-camera.position_worldspace)) # (4)
     # doc-region-end c0dcf40149c0b85d84f13b4421a114409a274432
     # fmt: on
 
     # fmt: off
     # doc-region-begin 7de7248650b2809520898faed65be4050d2b441a
-    fn_stack.push(lambda v: v.translate(paddle1.position) # (5) translate the local origin
+    fn_stack.push(lambda v: v.translate(paddle1.position)) # (5) translate the local origin
     fn_stack.push(lambda v: v.rotate_z(paddle1.rotation)) # (6) (rotate around the local z axis
     # doc-region-end 7de7248650b2809520898faed65be4050d2b441a
     # fmt: on
@@ -490,7 +492,7 @@ while not glfw.window_should_close(window):
 
     # fmt: off
     # doc-region-begin 9206a08662c91ad536b41641910f7e8e951f7c9e
-    fn_stack.push(lambda v: v.translate(paddle2.position) # (5)
+    fn_stack.push(lambda v: v.translate(paddle2.position)) # (5)
     fn_stack.push(lambda v: v.rotate_z(paddle2.rotation))  # (6)
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
