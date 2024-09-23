@@ -62,7 +62,7 @@ Modelspace
 
 Normalized-device-coordinates are not a natural system of
 numbers for use by humans.  Imagine that the paddles in the previous
-chapters exist in real life, and are 20 meters wide and 60 meters tall.
+chapters exist in real life, and are 2 meters wide and 6 meters tall.
 The graphics programmer should be able to use those numbers directly;
 they shouldn't have to manually transform the distances into normalized-device-coordinates.
 

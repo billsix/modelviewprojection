@@ -164,8 +164,8 @@ to worldspace from the bottom up, and from worldspace to NDC from top down.
 * Read camera-space to NDC
 
 New part!  Draw the square relative to the first paddle!
-Translate the square to the right by 20 units.
-We are dealing with a -10 to 10 world space, which
+Translate the square to the right by 2 units.
+We are dealing with a -1 to 1 world space, which
 later gets scaled down to NDC.
 
 .. literalinclude:: ../../src/demo11/demo.py
