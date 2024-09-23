@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/env bash
 
 cd /book/docs
 make html
