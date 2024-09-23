@@ -242,8 +242,7 @@ while not glfw.window_should_close(window):
         # fmt: on
         # fmt: off
         # doc-region-begin ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
-                                              scale_y=1.0 / 10.0)
+        ndc_space: Vertex = world_space.uniform_scale(1.0 / 10.0)
         # doc-region-end ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
         # fmt: on
         # doc-region-begin 46159451e06ea71fbb3fc270b01f3b755a06040c
@@ -265,8 +264,7 @@ while not glfw.window_should_close(window):
         # fmt: on
         # fmt: off
         # doc-region-begin 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
-        ndc_space: Vertex = world_space.scale(scale_x=1.0 / 10.0,
-                                              scale_y=1.0 / 10.0)
+        ndc_space: Vertex = world_space.uniform_scale(1.0 / 10.0)
         # doc-region-end 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
         # fmt: on
         # doc-region-begin 696e8248badabab740bf65566030cf31d8bae2f2
