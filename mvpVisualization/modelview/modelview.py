@@ -59,7 +59,7 @@ glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 0)
 
 window = glfw.create_window(
-    1920, 1080, "ModelViewProjection Demo of Coordinates", None, None
+    1920, 1080, "Model View", None, None
 )
 if not window:
     glfw.terminate()

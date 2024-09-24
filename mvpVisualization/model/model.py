@@ -97,7 +97,7 @@ line_thickness = 2.0
 
 
 window = glfw.create_window(
-    1920, 1080, "ModelViewProjection Demo of Coordinates", None, None
+    1920, 1080, "Model", None, None
 )
 if not window:
     glfw.terminate()

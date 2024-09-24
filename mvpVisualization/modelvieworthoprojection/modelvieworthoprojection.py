@@ -96,7 +96,7 @@ glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 
 window = glfw.create_window(
-    1920, 1080, "ModelViewProjection Demo of Coordinates", None, None
+    1920, 1080, "Model View Ortho Projection", None, None
 )
 if not window:
     glfw.terminate()
