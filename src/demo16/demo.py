@@ -221,7 +221,7 @@ class Vertex:
                           bottom=-10.0,
                           top=10.0,
                           near=-0.1,
-                          far=-10.0)
+                          far=-30.0)
     # doc-region-end b23c753f650185c5b1e4a0e6c8008852afae73d9
     # fmt: on
 
@@ -269,7 +269,7 @@ paddle2: Paddle = Paddle(
 @dataclass
 class Camera:
     position_worldspace: Vertex = field(
-        default_factory=lambda: Vertex(x=0.0, y=0.0, z=5.0)
+        default_factory=lambda: Vertex(x=0.0, y=0.0, z=15.0)
     )
     rot_y: float = 0.0
     rot_x: float = 0.0
