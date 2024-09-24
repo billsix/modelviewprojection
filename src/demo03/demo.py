@@ -134,7 +134,7 @@ while not glfw.window_should_close(window):
     glVertex2f(-1.0, 0.3)
     glEnd()
 
-    glColor3f(1.0, 0.0, 0.0)
+    glColor3f(1.0, 1.0, 0.0)
     glBegin(GL_QUADS)
 
     glVertex2f(0.8, -0.3)

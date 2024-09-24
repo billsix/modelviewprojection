@@ -84,7 +84,7 @@ while not glfw.window_should_close(window):
     # doc-region-end 1f8e965ae06faf5ab530a2df89117ac04c0cc8e4
 
     # doc-region-begin 8c6c98d43b93df8ab7baffa3fc7aa3e073c15456
-    glColor3f(1.0, 0.0, 0.0)
+    glColor3f(1.0, 1.0, 0.0)
     glBegin(GL_QUADS)
     glVertex2f(0.8, -0.3)
     glVertex2f(1.0, -0.3)
