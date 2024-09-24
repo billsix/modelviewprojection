@@ -137,7 +137,7 @@ paddle1 = Paddle(
 paddle2 = Paddle(
     vertices=[Vertex(0.8, -0.3), Vertex(1.0, -0.3), Vertex(1.0, 0.3), Vertex(0.8, 0.3)],
     r=1.0,
-    g=0.0,
+    g=1.0,
     b=0.0,
 )
 # doc-region-end 6ab0efd624f5d076b983e875700a2b2307788cc2

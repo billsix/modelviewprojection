@@ -1,3 +1,4 @@
+
 # Copyright (c) 2018-2024 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -146,7 +147,7 @@ class Paddle:
 
 paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-9.0, 0.0, 0.0]))
 
-paddle2: Paddle = Paddle(r=1.0, g=0.0, b=0.0, position=np.array([9.0, 0.0, 0.0]))
+paddle2: Paddle = Paddle(r=1.0, g=1.0, b=0.0, position=np.array([9.0, 0.0, 0.0]))
 
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)

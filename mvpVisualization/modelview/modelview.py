@@ -1,3 +1,4 @@
+
 # Copyright (c) 2018-2024 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -126,7 +127,7 @@ paddle1 = Paddle(
 
 paddle2 = Paddle(
     r=1.0,
-    g=0.0,
+    g=1.0,
     b=0.0,
     position=np.array([9.0, 0.5, 0.0]),
     rotation=math.radians(-45.0),

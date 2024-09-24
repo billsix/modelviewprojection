@@ -320,7 +320,7 @@ paddle1.prepare_to_render()
 
 paddle2 = Paddle(
     r=1.0,
-    g=0.0,
+    g=1.0,
     b=0.0,
     position=np.array([9.0, 0.5, 0.0]),
     rotation=math.radians(-20.0),

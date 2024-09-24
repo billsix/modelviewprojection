@@ -489,7 +489,7 @@ Questions
 ^^^^^^^^^
 
 * In the following ASCII-art diagram of the frame-buffer,
-  where 'b' represents black, 'R' represents red, and "G"
+  where 'b' represents black, 'Y' represents yellow, and "G"
   represents green, what is width and height of the frame-buffer?
 
 ::
@@ -508,23 +508,23 @@ Questions
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
 
-* In the above ASCII-art diagram of the frame-buffer, where 'b' represents black, 'R' represents red, and "G" represents green,
+* In the above ASCII-art diagram of the frame-buffer, where 'b' represents black, 'Y' represents yellow, and "G" represents green,
   what is the color at pixel (1,1)?
 
-* In the below ASCII-art diagram of the frame-buffer, where 'b' represents black, 'R' represents red, and "G" represents green, what is the color at pixel (2,3)? At (36,2)?
+* In the below ASCII-art diagram of the frame-buffer, where 'b' represents black, 'Y' represents yellow, and "G" represents green, what is the color at pixel (2,3)? At (36,2)?
 
 ::
 
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
+    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
+    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
@@ -537,4 +537,4 @@ Answers
 
 * width - 37, column 0-36.  Height - 12, rows 0 - 11
 * 'b', for the color black
-* 'G' for Green, 'R' for red
+* 'G' for Green, 'Y' for Yellow

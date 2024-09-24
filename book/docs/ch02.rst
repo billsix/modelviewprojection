@@ -75,7 +75,7 @@ below.
 To set the color, we will use "glColor3f".
 "glColor3f" sets a global variable, which makes it the color to be used
 for the subsequently-drawn graphical shape(s).  Given that the background will be black,
-lets make the first paddle purple, and a second paddle red.
+lets make the first paddle purple, and a second paddle yellow.
 
 To specify the corners of the rectangle,
 "glBegin(GL_QUADS)" tells OpenGL that we will soon specify 4 *vertices*,
@@ -183,7 +183,7 @@ The author owns two monitors, one which has 1024x768 pixels, and one which has
 will run correctly on either monitor, in full-screen mode.  If a graphics programmer
 had to explicitly set the color of individual pixels using the pixel's coordinates, the the programmer would have to
 program using "screen-space" (Any space_ means a system of numbers which you're using.
-Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be red).
+Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be yellow).
 
 .. _space: https://en.wikipedia.org/wiki/Space_(mathematics)
 

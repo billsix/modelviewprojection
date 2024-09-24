@@ -1,3 +1,4 @@
+
 # Copyright (c) 2018-2024 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -183,7 +184,7 @@ paddle2: Paddle = Paddle(
         Vertex(x=-1.0, y=3.0),
     ],
     r=1.0,
-    g=0.0,
+    g=1.0,
     b=0.0,
     position=Vertex(9.0, 0.0),
 )
