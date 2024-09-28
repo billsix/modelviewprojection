@@ -232,21 +232,21 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for model_space in paddle1.vertices:
+    for paddle1_vertex_in_model_space in paddle1.vertices:
         # doc-region-end draw paddle 1
         # fmt: off
         # doc-region-begin compose transformations on paddle 12
-        world_space: Vertex = model_space.translate(translate_amount=paddle1.position) \
+        paddle1_vertex_in_world_space: Vertex = paddle1_vertex_in_model_space.translate(translate_amount=paddle1.position) \
                                          .rotate(paddle1.rotation)
         # doc-region-end compose transformations on paddle 12
         # fmt: on
         # fmt: off
         # doc-region-begin scale paddle 1
-        ndc_space: Vertex = world_space.uniform_scale(1.0 / 10.0)
+        paddle1_vertex_in_ndc_space: Vertex = paddle1_vertex_in_world_space.uniform_scale(1.0 / 10.0)
         # doc-region-end scale paddle 1
         # fmt: on
         # doc-region-begin glvertex on paddle 1
-        glVertex2f(ndc_space.x, ndc_space.y)
+        glVertex2f(paddle1_vertex_in_ndc_space.x, paddle1_vertex_in_ndc_space.y)
     glEnd()
     # doc-region-end glvertex on paddle 1
 

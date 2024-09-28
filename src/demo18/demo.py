@@ -461,9 +461,9 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for model_space in paddle1.vertices:
-        ndc_space = fn_stack.modelspace_to_ndc(model_space)
-        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
+    for paddle1_vertex_in_model_space in paddle1.vertices:
+        paddle1_vertex_in_ndc_space = fn_stack.modelspace_to_ndc(paddle1_vertex_in_model_space)
+        glVertex3f(paddle1_vertex_in_ndc_space.x, paddle1_vertex_in_ndc_space.y, paddle1_vertex_in_ndc_space.z)
     glEnd()
     # doc-region-end draw paddle 1
 

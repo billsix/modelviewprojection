@@ -422,17 +422,17 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for model_space in paddle1.vertices:
-        world_space: Vertex = model_space.rotate_z(paddle1.rotation) \
+    for paddle1_vertex_in_model_space in paddle1.vertices:
+        paddle1_vertex_in_world_space: Vertex = paddle1_vertex_in_model_space.rotate_z(paddle1.rotation) \
                                          .translate(paddle1.position)
-        # world_space: Vertex = camera_space.rotate_x(camera.rot_x) \
+        # paddle1_vertex_in_world_space: Vertex = paddle1_vertex_in_camera_space.rotate_x(camera.rot_x) \
         #                                   .rotate_y(camera.rot_y) \
         #                                   .translate(camera.position_worldspace)
-        camera_space: Vertex = world_space.translate(-camera.position_worldspace) \
-                                          .rotate_y(-camera.rot_y) \
-                                          .rotate_x(-camera.rot_x)
-        ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
-        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
+        paddle1_vertex_in_camera_space: Vertex = paddle1_vertex_in_world_space.translate(-camera.position_worldspace) \
+                                                                              .rotate_y(-camera.rot_y) \
+                                                                              .rotate_x(-camera.rot_x)
+        paddle1_vertex_in_ndc_space: Vertex = paddle1_vertex_in_camera_space.camera_space_to_ndc_space_fn()
+        glVertex3f(paddle1_vertex_in_ndc_space.x, paddle1_vertex_in_ndc_space.y, paddle1_vertex_in_ndc_space.z)
     glEnd()
     # doc-region-end draw paddle 1
     # fmt: off
