@@ -28,7 +28,7 @@ Purpose
 Restructure the code towards the model view projection
 pipeline.
 
-Transforming vertices, such as translating, is the core concept
+Transforming vertices, such as translating, is one of the core concept
 of computer graphics.
 
 
