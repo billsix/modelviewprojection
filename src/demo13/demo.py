@@ -193,9 +193,9 @@ square: Paddle = [
     Vertex(x=-0.5, y=0.5),
 ]
 square_rotation: float = 0.0
-# doc-region-begin 2a8e38cc39d597fceddccb30edce196ea046a770
+# doc-region-begin define variable for square rotation around paddle's center
 rotation_around_paddle1: float = 0.0
-# doc-region-end 2a8e38cc39d597fceddccb30edce196ea046a770
+# doc-region-end define variable for square rotation around paddle's center
 
 
 def handle_inputs():
@@ -245,9 +245,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+# doc-region-begin begin event loop
 while not glfw.window_should_close(window):
-    # doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+    # doc-region-end begin event loop
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -278,7 +278,7 @@ while not glfw.window_should_close(window):
     glEnd()
 
     # fmt: off
-    # doc-region-begin f4ab63a2bc7b673fa5f9d281d73aed0af2ab6e53
+    # doc-region-begin draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
@@ -291,7 +291,7 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end f4ab63a2bc7b673fa5f9d281d73aed0af2ab6e53
+    # doc-region-end draw square
     # fmt: on
 
     # fmt: off

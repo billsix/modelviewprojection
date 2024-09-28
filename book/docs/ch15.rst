@@ -125,8 +125,8 @@ if nearer objects are drawn in front
 
 .. literalinclude:: ../../src/demo15/demo.py
    :language: python
-   :start-after: doc-region-begin 133ee72ec8b92f7564d6c44a56a74067f9505bbf
-   :end-before: doc-region-end 133ee72ec8b92f7564d6c44a56a74067f9505bbf
+   :start-after: doc-region-begin enable depth buffer
+   :end-before: doc-region-end enable depth buffer
    :linenos:
    :lineno-match:
    :caption: src/demo15/demo.py

@@ -103,7 +103,7 @@ def draw_in_square_viewport() -> None:
     )
 
 
-# doc-region-begin 0650dc123c5604096222ab7f34523251869be0e3
+# doc-region-begin define vertex class
 @dataclass
 class Vertex:
     x: float
@@ -138,10 +138,10 @@ class Vertex:
         return math.cos(angle_in_radians) * self + math.sin(angle_in_radians) * self.rotate_90_degrees()
     # fmt: on
 
-    # doc-region-end 0650dc123c5604096222ab7f34523251869be0e3
+    # doc-region-end define vertex class
 
 
-# doc-region-begin cf32927e5bb15098767fad214706f03ddfe49a1c
+# doc-region-begin define paddle class
 @dataclass
 class Paddle:
     vertices: list[Vertex]
@@ -150,7 +150,7 @@ class Paddle:
     b: float
     position: Vertex
     rotation: float = 0.0
-    # doc-region-end cf32927e5bb15098767fad214706f03ddfe49a1c
+    # doc-region-end define paddle class
 
 
 paddle1: Paddle = Paddle(
@@ -180,7 +180,7 @@ paddle2: Paddle = Paddle(
 )
 
 
-# doc-region-begin 1cf68248b869564df5f3133b98adb2e06601ed3b
+# doc-region-begin define handle movement of paddles
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
@@ -203,16 +203,16 @@ def handle_movement_of_paddles() -> None:
         paddle2.rotation += 0.1
     if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
         paddle2.rotation -= 0.1
-    # doc-region-end 1cf68248b869564df5f3133b98adb2e06601ed3b
+    # doc-region-end define handle movement of paddles
 
 
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+# doc-region-begin begin  event loop
 while not glfw.window_should_close(window):
-    # doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+    # doc-region-end begin  event loop
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -228,49 +228,49 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
-    # doc-region-begin 4ae8b0ebe66cd4de6b0150ac5cd4fa92abdd9985
+    # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        # doc-region-end 4ae8b0ebe66cd4de6b0150ac5cd4fa92abdd9985
+        # doc-region-end draw paddle 1
         # fmt: off
-        # doc-region-begin 1699ece7b62ace3842c391a972f2d27c5e022993
+        # doc-region-begin compose transformations on paddle 12
         world_space: Vertex = model_space.translate(translate_amount=paddle1.position) \
                                          .rotate(paddle1.rotation)
-        # doc-region-end 1699ece7b62ace3842c391a972f2d27c5e022993
+        # doc-region-end compose transformations on paddle 12
         # fmt: on
         # fmt: off
-        # doc-region-begin ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
+        # doc-region-begin scale paddle 1
         ndc_space: Vertex = world_space.uniform_scale(1.0 / 10.0)
-        # doc-region-end ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
+        # doc-region-end scale paddle 1
         # fmt: on
-        # doc-region-begin 46159451e06ea71fbb3fc270b01f3b755a06040c
+        # doc-region-begin glvertex on paddle 1
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end 46159451e06ea71fbb3fc270b01f3b755a06040c
+    # doc-region-end glvertex on paddle 1
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
-    # doc-region-begin dd17b8cf2992da4f0752dd3f54dba416a5f04d64
+    # doc-region-begin draw paddle 2
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        # doc-region-end dd17b8cf2992da4f0752dd3f54dba416a5f04d64
+        # doc-region-end draw paddle 2
         # fmt: off
-        # doc-region-begin 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
+        # doc-region-begin compose transformations on paddle 2
         world_space: Vertex = model_space.translate(paddle2.position) \
                                          .rotate(paddle2.rotation)
-        # doc-region-end 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
+        # doc-region-end compose transformations on paddle 2
         # fmt: on
         # fmt: off
-        # doc-region-begin 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
+        # doc-region-begin scale paddle 2
         ndc_space: Vertex = world_space.uniform_scale(1.0 / 10.0)
-        # doc-region-end 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
+        # doc-region-end scale paddle 2
         # fmt: on
-        # doc-region-begin 696e8248badabab740bf65566030cf31d8bae2f2
+        # doc-region-begin glvertex on paddle 2
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end 696e8248badabab740bf65566030cf31d8bae2f2
+    # doc-region-end glvertex on paddle 2
     glfw.swap_buffers(window)
 
 glfw.terminate()

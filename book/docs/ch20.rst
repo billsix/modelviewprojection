@@ -96,8 +96,8 @@ We have some new imports, "glUseProgram", "GL_VERTEX_SHADER", "GL_FRAGMENT_SHADE
 
 .. literalinclude:: ../../src/demo20/demo.py
    :language: python
-   :start-after: doc-region-begin c731ca97ef15896c876effbafec9d52a1354375f
-   :end-before: doc-region-end c731ca97ef15896c876effbafec9d52a1354375f
+   :start-after: doc-region-begin new imports
+   :end-before: doc-region-end new imports
    :linenos:
    :lineno-match:
    :caption: src/demo20/demo.py
@@ -106,8 +106,8 @@ We now ask the OpenGL driver to accept OpenGL 2.1 function calls.
 
 .. literalinclude:: ../../src/demo20/demo.py
    :language: python
-   :start-after: doc-region-begin b05eee9a50507de99ecad16ffa3af2da709b361a
-   :end-before: doc-region-end b05eee9a50507de99ecad16ffa3af2da709b361a
+   :start-after: doc-region-begin open gl version 2.1
+   :end-before: doc-region-end open gl version 2.1
    :linenos:
    :lineno-match:
    :caption: src/demo20/demo.py
@@ -122,8 +122,8 @@ in the same way we did in the lambda stack.
 
 .. literalinclude:: ../../src/demo20/demo.py
    :language: python
-   :start-after: doc-region-begin e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
-   :end-before: doc-region-end e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
+   :start-after: doc-region-begin compile shaders
+   :end-before: doc-region-end compile shaders
    :linenos:
    :lineno-match:
    :caption: src/demo20/demo.py

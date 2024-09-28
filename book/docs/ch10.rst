@@ -299,8 +299,8 @@ Code
 
 .. literalinclude:: ../../src/demo10/demo.py
    :language: python
-   :start-after: doc-region-begin 808b49966faf68394a1e4def233df33c08e37b27
-   :end-before: doc-region-end 808b49966faf68394a1e4def233df33c08e37b27
+   :start-after: doc-region-begin define camera class
+   :end-before: doc-region-end define camera class
    :linenos:
    :lineno-match:
    :caption: src/demo10/demo.py
@@ -308,8 +308,8 @@ Code
 
 .. literalinclude:: ../../src/demo10/demo.py
    :language: python
-   :start-after: doc-region-begin e705ab925d5c7f3219b065cdf16eb13268f17ef9
-   :end-before: doc-region-end e705ab925d5c7f3219b065cdf16eb13268f17ef9
+   :start-after: doc-region-begin handle inputs
+   :end-before: doc-region-end handle inputs
    :linenos:
    :lineno-match:
    :caption: src/demo10/demo.py
@@ -331,8 +331,8 @@ The Event Loop
 
 .. literalinclude:: ../../src/demo10/demo.py
    :language: python
-   :start-after: doc-region-begin 6d86d07154c99ed6e1c3feab73545d184153f9ae
-   :end-before: doc-region-end 6d86d07154c99ed6e1c3feab73545d184153f9ae
+   :start-after: doc-region-begin begin event loop
+   :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
    :caption: src/demo10/demo.py
@@ -342,8 +342,8 @@ The Event Loop
 
 .. literalinclude:: ../../src/demo10/demo.py
    :language: python
-   :start-after: doc-region-begin c1994fe03bc9e4428893f63706e07eb1d3bb14b5
-   :end-before: doc-region-end c1994fe03bc9e4428893f63706e07eb1d3bb14b5
+   :start-after: doc-region-begin draw paddle 1
+   :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
    :caption: src/demo10/demo.py
@@ -356,8 +356,8 @@ values.
 
 .. literalinclude:: ../../src/demo10/demo.py
    :language: python
-   :start-after: doc-region-begin 9624d3a2dd009e3850cd5dce4470272fb9d9b4e0
-   :end-before: doc-region-end 9624d3a2dd009e3850cd5dce4470272fb9d9b4e0
+   :start-after: doc-region-begin paddle 1 camera translate
+   :end-before: doc-region-end paddle 1 camera translate
    :linenos:
    :lineno-match:
    :caption: src/demo10/demo.py
@@ -365,8 +365,8 @@ values.
 
 .. literalinclude:: ../../src/demo10/demo.py
    :language: python
-   :start-after: doc-region-begin 4db386e7523575f5ab67841165a5297c8c0e1500
-   :end-before: doc-region-end 4db386e7523575f5ab67841165a5297c8c0e1500
+   :start-after: doc-region-begin paddle 1 scale
+   :end-before: doc-region-end paddle 1 scale
    :linenos:
    :lineno-match:
    :caption: src/demo10/demo.py
@@ -377,8 +377,8 @@ values.
 
 .. literalinclude:: ../../src/demo10/demo.py
    :language: python
-   :start-after: doc-region-begin 63cbaad0dbecc69f52bc428648308a48337e43c6
-   :end-before: doc-region-end 63cbaad0dbecc69f52bc428648308a48337e43c6
+   :start-after: doc-region-begin draw paddle 2
+   :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
    :caption: src/demo10/demo.py
@@ -391,8 +391,8 @@ values.
 
 .. literalinclude:: ../../src/demo10/demo.py
    :language: python
-   :start-after: doc-region-begin ad53fd8251cc2c93fffec19223c3e70270e31410
-   :end-before: doc-region-end ad53fd8251cc2c93fffec19223c3e70270e31410
+   :start-after: doc-region-begin paddle 2 camera transformations
+   :end-before: doc-region-end paddle 2 camera transformations
    :linenos:
    :lineno-match:
    :caption: src/demo10/demo.py
@@ -400,8 +400,8 @@ values.
 
 .. literalinclude:: ../../src/demo10/demo.py
    :language: python
-   :start-after: doc-region-begin 46159451e06ea71fbb3fc270b01f3b755a06040c
-   :end-before: doc-region-end 46159451e06ea71fbb3fc270b01f3b755a06040c
+   :start-after: doc-region-begin paddle 2 glvertex2f
+   :end-before: doc-region-end paddle 2 glvertex2f
    :linenos:
    :lineno-match:
    :caption: src/demo10/demo.py

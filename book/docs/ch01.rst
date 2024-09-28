@@ -159,8 +159,8 @@ Import Python modules, which are Python programmer's main form of libraries.
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin 20134134fb054ac6764edfb4764935b86f20a795
-   :end-before: doc-region-end 20134134fb054ac6764edfb4764935b86f20a795
+   :start-after: doc-region-begin import first module
+   :end-before: doc-region-end import first module
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -170,8 +170,8 @@ Import Python modules, which are Python programmer's main form of libraries.
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin 6901922753dbf8df496fd46ae4a0eeb4e6243ef4
-   :end-before: doc-region-end 6901922753dbf8df496fd46ae4a0eeb4e6243ef4
+   :start-after: doc-region-begin import individual functions without needing module name
+   :end-before: doc-region-end import individual functions without needing module name
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -185,8 +185,8 @@ Import Python modules, which are Python programmer's main form of libraries.
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin 4b5a486083da608751701fa7e42e37bbc4cfd06e
-   :end-before: doc-region-end 4b5a486083da608751701fa7e42e37bbc4cfd06e
+   :start-after: doc-region-begin import glfw
+   :end-before: doc-region-end import glfw
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -234,8 +234,8 @@ Initialize GLFW.
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin 0c30d0c1c7c793e097bcfb46208f14998d77dd0a
-   :end-before: doc-region-end 0c30d0c1c7c793e097bcfb46208f14998d77dd0a
+   :start-after: doc-region-begin initialize glfw
+   :end-before: doc-region-end initialize glfw
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -255,8 +255,8 @@ For this demo, we use OpenGL 1.4.  By the end of this book, we will be using Ope
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin cbb5da55f24c88b41c195f36bbbf99969e95765c
-   :end-before: doc-region-end cbb5da55f24c88b41c195f36bbbf99969e95765c
+   :start-after: doc-region-begin use opengl 1.4
+   :end-before: doc-region-end use opengl 1.4
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -267,8 +267,8 @@ Create a Window
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin d1e099847a03149e01d2ec4dc42bb261524b2a95
-   :end-before: doc-region-end d1e099847a03149e01d2ec4dc42bb261524b2a95
+   :start-after: doc-region-begin create window
+   :end-before: doc-region-end create window
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -276,8 +276,8 @@ Create a Window
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin a9948cba6a31fd1774c1a0e1ae634bbad8c6c7f3
-   :end-before: doc-region-end a9948cba6a31fd1774c1a0e1ae634bbad8c6c7f3
+   :start-after: doc-region-begin if the window is not created correctly, quit
+   :end-before: doc-region-end if the window is not created correctly, quit
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -289,8 +289,8 @@ Create a Window
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin 7ddbe862d3ff7b6ee489ac7ac565b8a5e72f7f9f
-   :end-before: doc-region-end 7ddbe862d3ff7b6ee489ac7ac565b8a5e72f7f9f
+   :start-after: doc-region-begin make context current
+   :end-before: doc-region-end make context current
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -304,8 +304,8 @@ Create a Window
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin 63277c9f3b6e8071722b93baf8e77bb8ee6c677d
-   :end-before: doc-region-end 63277c9f3b6e8071722b93baf8e77bb8ee6c677d
+   :start-after: doc-region-begin on user hitting escape, end event loop and quit
+   :end-before: doc-region-end on user hitting escape, end event loop and quit
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -336,8 +336,8 @@ and applied later zero, 1, or more times.
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin 788fae9aeb2ebe9e911e2c3f6399f1b51a0bd956
-   :end-before: doc-region-end 788fae9aeb2ebe9e911e2c3f6399f1b51a0bd956
+   :start-after: doc-region-begin set background color
+   :end-before: doc-region-end set background color
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -351,8 +351,8 @@ and applied later zero, 1, or more times.
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin a3fdb44a76cc8a6b843c780a68e00366176eadab
-   :end-before: doc-region-end a3fdb44a76cc8a6b843c780a68e00366176eadab
+   :start-after: doc-region-begin don't use the built in mvp pipeline
+   :end-before: doc-region-end don't use the built in mvp pipeline
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py
@@ -379,8 +379,8 @@ to terminate.
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
-   :start-after: doc-region-begin b203706b4d71815e8490a9a65ff9fe1fe1db38cd
-   :end-before: doc-region-end b203706b4d71815e8490a9a65ff9fe1fe1db38cd
+   :start-after: doc-region-begin event loop
+   :end-before: doc-region-end event loop
    :linenos:
    :lineno-match:
    :caption: src/demo01/demo.py

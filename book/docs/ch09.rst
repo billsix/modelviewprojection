@@ -116,8 +116,8 @@ is set back to the origin basis.
 
 .. literalinclude:: ../../src/demo09/demo.py
    :language: python
-   :start-after: doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
-   :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
+   :start-after: doc-region-begin paddle 1 transformations
+   :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
    :caption: src/demo09/demo.py
@@ -143,8 +143,8 @@ All subsequent functions move that relative basis to a new relative basis.
 
 .. literalinclude:: ../../src/demo09/demo.py
    :language: python
-   :start-after: doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
-   :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
+   :start-after: doc-region-begin paddle 1 transformations
+   :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
    :caption: src/demo09/demo.py
@@ -194,8 +194,8 @@ L by a right-multiplication of M.
 
 .. literalinclude:: ../../src/demo09/demo.py
    :language: python
-   :start-after: doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
-   :end-before: doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
+   :start-after: doc-region-begin paddle 1 transformations
+   :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
    :caption: src/demo09/demo.py
@@ -211,8 +211,8 @@ from top down, and resetting the coordinate system after every transformation.
 
 .. literalinclude:: ../../src/demo09/demo.py
    :language: python
-   :start-after: doc-region-begin bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
-   :end-before: doc-region-end bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
+   :start-after: doc-region-begin paddle 1 scale
+   :end-before: doc-region-end paddle 1 scale
    :linenos:
    :lineno-match:
    :caption: src/demo09/demo.py
@@ -235,8 +235,8 @@ The Event Loop
 
 .. literalinclude:: ../../src/demo09/demo.py
    :language: python
-   :start-after: doc-region-begin 5748cc21902ad56527c65e167b4ef44bd62f392e
-   :end-before: doc-region-end 5748cc21902ad56527c65e167b4ef44bd62f392e
+   :start-after: doc-region-begin begin event loop
+   :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
    :caption: src/demo09/demo.py
@@ -245,8 +245,8 @@ The Event Loop
 
 .. literalinclude:: ../../src/demo09/demo.py
    :language: python
-   :start-after: doc-region-begin 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
-   :end-before: doc-region-end 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
+   :start-after: doc-region-begin draw paddle 1
+   :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
    :caption: src/demo09/demo.py
@@ -259,8 +259,8 @@ The Event Loop
 
 .. literalinclude:: ../../src/demo09/demo.py
    :language: python
-   :start-after: doc-region-begin c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
-   :end-before: doc-region-end c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
+   :start-after: doc-region-begin draw paddle 2
+   :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
    :caption: src/demo09/demo.py

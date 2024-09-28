@@ -71,22 +71,22 @@ glMatrixMode(GL_MODELVIEW)
 glLoadIdentity()
 
 
-# doc-region-begin 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
+# doc-region-begin square viewport
 def draw_in_square_viewport() -> None:
-    # doc-region-end 1a8e13a46337c0e9ac0f9436953d66dec069eb1f
+    # doc-region-end square viewport
 
-    # doc-region-begin 263830783a8fbe25283deaa80688f95592917298
+    # doc-region-begin set to gray
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
-    # doc-region-end 263830783a8fbe25283deaa80688f95592917298
+    # doc-region-end set to gray
 
-    # doc-region-begin 3db7c4975ad4354e344c0a2f0d4d94125195ce32
+    # doc-region-begin get framebuffer size
     width, height = glfw.get_framebuffer_size(window)
 
     square_size = width if width < height else height
-    # doc-region-end 3db7c4975ad4354e344c0a2f0d4d94125195ce32
+    # doc-region-end get framebuffer size
 
-    # doc-region-begin a2d0bcb5b525e8a68e0bc1ef213359f165981839enablescissortest
+    # doc-region-begin enable scissor test
     glEnable(GL_SCISSOR_TEST)
     glScissor(
         int((width - square_size) / 2.0),  # bottom left x_screenspace
@@ -94,38 +94,38 @@ def draw_in_square_viewport() -> None:
         square_size,  # x width, screenspace
         square_size,  # y height, screenspace
     )
-    # doc-region-end a2d0bcb5b525e8a68e0bc1ef213359f165981839enablescissortest
+    # doc-region-end enable scissor test
 
-    # doc-region-begin db4245dba3c0c229416c97fe84da3cb87b1f439d
+    # doc-region-begin set background to be close to black
     glClearColor(0.0289, 0.071875, 0.0972, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
-    # doc-region-end db4245dba3c0c229416c97fe84da3cb87b1f439d
-    # doc-region-begin 9524935cab9f5725f921d11969872ebd9a54e508
+    # doc-region-end set background to be close to black
+    # doc-region-begin disable scissor test
     glDisable(GL_SCISSOR_TEST)
-    # doc-region-end 9524935cab9f5725f921d11969872ebd9a54e508
-    # doc-region-begin defaeb0e6b9ada0b6c349a4dec907300e4c14acbviewportcall
+    # doc-region-end disable scissor test
+    # doc-region-begin set square viewport
     glViewport(
         int(0.0 + (width - square_size) / 2.0),
         int(0.0 + (height - square_size) / 2.0),
         square_size,
         square_size,
     )
-    # doc-region-end defaeb0e6b9ada0b6c349a4dec907300e4c14acbviewportcall
+    # doc-region-end set square viewport
 
 
-# doc-region-begin 33fecc926105eda74989fb02da7daca03e3bfea8
+# doc-region-begin event loop begin
 while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
-    # doc-region-end 33fecc926105eda74989fb02da7daca03e3bfea8
+    # doc-region-end event loop begin
 
-    # doc-region-begin 415cedbd77f6cc02a34de30d2da1b24cab344c5c
+    # doc-region-begin call draw in square viewport
     draw_in_square_viewport()
-    # doc-region-end 415cedbd77f6cc02a34de30d2da1b24cab344c5c
-    # doc-region-begin bf9a23e3296c75d786d75f7b0e406448b773b23b
+    # doc-region-end call draw in square viewport
+    # doc-region-begin draw both paddles
     glColor3f(0.578123, 0.0, 1.0)
     glBegin(GL_QUADS)
     glVertex2f(-1.0, -0.3)
@@ -144,5 +144,5 @@ while not glfw.window_should_close(window):
     glEnd()
 
     glfw.swap_buffers(window)
-    # doc-region-end bf9a23e3296c75d786d75f7b0e406448b773b23b
+    # doc-region-end draw both paddles
 glfw.terminate()

@@ -117,8 +117,8 @@ Define the geometry of the square in it's own modelspace.
 
 .. literalinclude:: ../../src/demo11/demo.py
    :language: python
-   :start-after: doc-region-begin 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
-   :end-before: doc-region-end 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
+   :start-after: doc-region-begin define square
+   :end-before: doc-region-end define square
    :linenos:
    :lineno-match:
    :caption: src/demo11/demo.py
@@ -130,8 +130,8 @@ Event Loop
 
 .. literalinclude:: ../../src/demo11/demo.py
    :language: python
-   :start-after: doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
-   :end-before: doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+   :start-after: doc-region-begin begin event loop
+   :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
    :caption: src/demo11/demo.py
@@ -146,8 +146,8 @@ Draw paddle 1, just as before.
 
 .. literalinclude:: ../../src/demo11/demo.py
    :language: python
-   :start-after: doc-region-begin 7dab1135450b265814f775c59807f77b44273a4e
-   :end-before: doc-region-end 7dab1135450b265814f775c59807f77b44273a4e
+   :start-after: doc-region-begin draw paddle 1
+   :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
    :caption: src/demo11/demo.py
@@ -170,8 +170,8 @@ later gets scaled down to NDC.
 
 .. literalinclude:: ../../src/demo11/demo.py
    :language: python
-   :start-after: doc-region-begin 9a0ba48a086f35a4515bf32b4a856888c178b0e8
-   :end-before: doc-region-end 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+   :start-after: doc-region-begin draw square
+   :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
    :caption: src/demo11/demo.py
@@ -204,8 +204,8 @@ Draw paddle 2 just like before.
 
 .. literalinclude:: ../../src/demo11/demo.py
    :language: python
-   :start-after: doc-region-begin 12cd2bedfe522c8c192106296c12e8344f1594d4
-   :end-before: doc-region-end 12cd2bedfe522c8c192106296c12e8344f1594d4
+   :start-after: doc-region-begin draw paddle 2
+   :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
    :caption: src/demo11/demo.py

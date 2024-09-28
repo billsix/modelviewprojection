@@ -18,15 +18,15 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# doc-region-begin 20134134fb054ac6764edfb4764935b86f20a795
+# doc-region-begin import first module
 import sys
-# doc-region-end 20134134fb054ac6764edfb4764935b86f20a795
+# doc-region-end import first module
 
-# doc-region-begin 4b5a486083da608751701fa7e42e37bbc4cfd06e
+# doc-region-begin import glfw
 import glfw
-# doc-region-end 4b5a486083da608751701fa7e42e37bbc4cfd06e
+# doc-region-end import glfw
 
-# doc-region-begin 6901922753dbf8df496fd46ae4a0eeb4e6243ef4
+# doc-region-begin import individual functions without needing module name
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -39,56 +39,54 @@ from OpenGL.GL import (
     glViewport,
 )
 
-# doc-region-end 6901922753dbf8df496fd46ae4a0eeb4e6243ef4
+# doc-region-end import individual functions without needing module name
 
-# doc-region-begin 0c30d0c1c7c793e097bcfb46208f14998d77dd0a
+# doc-region-begin initialize glfw
 if not glfw.init():
     sys.exit()
-# doc-region-end 0c30d0c1c7c793e097bcfb46208f14998d77dd0a
+# doc-region-end initialize glfw
 
-# doc-region-begin cbb5da55f24c88b41c195f36bbbf99969e95765c
+# doc-region-begin use opengl 1.4
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-# doc-region-end cbb5da55f24c88b41c195f36bbbf99969e95765c
+# doc-region-end use opengl 1.4
 
-# doc-region-begin d1e099847a03149e01d2ec4dc42bb261524b2a95
+# doc-region-begin create window
 window = glfw.create_window(500, 500, "ModelViewProjection Demo 1", None, None)
-# doc-region-end d1e099847a03149e01d2ec4dc42bb261524b2a95
+# doc-region-end create window
 
-# doc-region-begin a9948cba6a31fd1774c1a0e1ae634bbad8c6c7f3
+# doc-region-begin if the window is not created correctly, quit
 if not window:
     glfw.terminate()
     sys.exit()
-# doc-region-end a9948cba6a31fd1774c1a0e1ae634bbad8c6c7f3
+# doc-region-end if the window is not created correctly, quit
 
-# doc-region-begin 7ddbe862d3ff7b6ee489ac7ac565b8a5e72f7f9f
+# doc-region-begin make context current
 glfw.make_context_current(window)
-# doc-region-end 7ddbe862d3ff7b6ee489ac7ac565b8a5e72f7f9f
+# doc-region-end make context current
 
 
-# doc-region-begin 63277c9f3b6e8071722b93baf8e77bb8ee6c677d
+# doc-region-begin on user hitting escape, end event loop and quit
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
-
-
-# doc-region-end 63277c9f3b6e8071722b93baf8e77bb8ee6c677d
+# doc-region-end on user hitting escape, end event loop and quit
 
 glfw.set_key_callback(window, on_key)
 
-# doc-region-begin 788fae9aeb2ebe9e911e2c3f6399f1b51a0bd956
+# doc-region-begin set background color
 glClearColor(0.0289, 0.071875, 0.0972, 1.0)
-# doc-region-end 788fae9aeb2ebe9e911e2c3f6399f1b51a0bd956
+# doc-region-end set background color
 
-# doc-region-begin a3fdb44a76cc8a6b843c780a68e00366176eadab
+# doc-region-begin don't use the built in mvp pipeline
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
 glMatrixMode(GL_MODELVIEW)
 glLoadIdentity()
-# doc-region-end a3fdb44a76cc8a6b843c780a68e00366176eadab
+# doc-region-end don't use the built in mvp pipeline
 
 
-# doc-region-begin b203706b4d71815e8490a9a65ff9fe1fe1db38cd
+# doc-region-begin event loop
 while not glfw.window_should_close(window):
     glfw.poll_events()
 
@@ -96,6 +94,6 @@ while not glfw.window_should_close(window):
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glfw.swap_buffers(window)
-# doc-region-end b203706b4d71815e8490a9a65ff9fe1fe1db38cd
+# doc-region-end event loop
 
 glfw.terminate()

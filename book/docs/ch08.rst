@@ -79,8 +79,8 @@ around a given point in world space, in this case, the paddle's center.
 
 .. literalinclude:: ../../src/demo08/demo.py
    :language: python
-   :start-after: doc-region-begin 246327053a816d12360c1ce2d0496b8f157dcc92
-   :end-before: doc-region-end 246327053a816d12360c1ce2d0496b8f157dcc92
+   :start-after: doc-region-begin define vertex class
+   :end-before: doc-region-end define vertex class
    :linenos:
    :lineno-match:
    :caption: src/demo08/demo.py
@@ -88,8 +88,8 @@ around a given point in world space, in this case, the paddle's center.
 
 .. literalinclude:: ../../src/demo08/demo.py
    :language: python
-   :start-after: doc-region-begin 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
-   :end-before: doc-region-end 05f63ffd44373fab8d1d8bed3c4142660ae7d5c5
+   :start-after: doc-region-begin define rotate around
+   :end-before: doc-region-end define rotate around
    :linenos:
    :lineno-match:
    :caption: src/demo08/demo.py
@@ -104,8 +104,8 @@ Within the event loop, this seems quite reasonable
 
 .. literalinclude:: ../../src/demo08/demo.py
    :language: python
-   :start-after: doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
-   :end-before: doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+   :start-after: doc-region-begin begin event loop
+   :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
    :caption: src/demo08/demo.py
@@ -115,8 +115,8 @@ Within the event loop, this seems quite reasonable
 
 .. literalinclude:: ../../src/demo08/demo.py
    :language: python
-   :start-after: doc-region-begin b641b94ccea0c4270f96da2c06387477a7874816
-   :end-before: doc-region-end b641b94ccea0c4270f96da2c06387477a7874816
+   :start-after: doc-region-begin draw paddle 1
+   :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
    :caption: src/demo08/demo.py
@@ -126,8 +126,8 @@ Within the event loop, this seems quite reasonable
 
 .. literalinclude:: ../../src/demo08/demo.py
    :language: python
-   :start-after: doc-region-begin ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
-   :end-before: doc-region-end ab2869a1b31bb2af60dadacfe48ea9b6f01f87f7
+   :start-after: doc-region-begin draw paddle 2
+   :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
    :caption: src/demo08/demo.py

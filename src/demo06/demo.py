@@ -103,7 +103,7 @@ def draw_in_square_viewport() -> None:
     )
 
 
-# doc-region-begin 8d06005b531874a91efb0a652db8527497f3a345
+# doc-region-begin define vertex class
 @dataclass
 class Vertex:
     x: float
@@ -112,13 +112,13 @@ class Vertex:
     def translate(self: Vertex, rhs: Vertex) -> Vertex:
         return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y))
 
-    # doc-region-end 8d06005b531874a91efb0a652db8527497f3a345
+    # doc-region-end define vertex class
 
-    # doc-region-begin f8b77ac4a2656475404a658f038034e9ac9efb2e
+    # doc-region-begin define uniform scale
     def uniform_scale(self: Vertex, scale: float) -> Vertex:
         return Vertex(x=(self.x * scale), y=(self.y * scale))
 
-    # doc-region-end f8b77ac4a2656475404a658f038034e9ac9efb2e
+    # doc-region-end define uniform scale
 
 
 @dataclass
@@ -130,7 +130,7 @@ class Paddle:
     position: Vertex
 
 
-# doc-region-begin be85f68c2e4e7e58096273ff1ab6a4abc162dc32
+# doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-1.0, y=-3.0),
@@ -156,10 +156,10 @@ paddle2: Paddle = Paddle(
     b=0.0,
     position=Vertex(9.0, 0.0),
 )
-# doc-region-end be85f68c2e4e7e58096273ff1ab6a4abc162dc32
+# doc-region-end instantiate paddles
 
 
-# doc-region-begin 1a17a9d680387b5c37d842115b617cdeb910be61
+# doc-region-begin define handle movement of paddles
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
@@ -173,13 +173,13 @@ def handle_movement_of_paddles() -> None:
         paddle2.position.y += 1.0
 
 
-# doc-region-end 1a17a9d680387b5c37d842115b617cdeb910be61
+# doc-region-end define handle movement of paddles
 
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# doc-region-begin 3863f9f78b61a7b1c0c2faa12f9ea255c663edee
+# doc-region-begin begin event loop
 while not glfw.window_should_close(window):
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
@@ -195,49 +195,49 @@ while not glfw.window_should_close(window):
 
     draw_in_square_viewport()
     handle_movement_of_paddles()
-    # doc-region-end 3863f9f78b61a7b1c0c2faa12f9ea255c663edee
+    # doc-region-end begin event loop
 
-    # doc-region-begin 57631feba3dbad52833765b9bfc51c42d90141af
+    # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        # doc-region-end 57631feba3dbad52833765b9bfc51c42d90141af
+        # doc-region-end draw paddle 1
         # fmt: off
-        # doc-region-begin 5b1156f32f2d788cec10cedf43b7847fe92f5350
+        # doc-region-begin call translate method
         world_space: Vertex = model_space.translate(paddle1.position)
-        # doc-region-end 5b1156f32f2d788cec10cedf43b7847fe92f5350
-        # doc-region-begin 2091aa68e2d6d5bccdcb968391bf5d657fe9ad1a
+        # doc-region-end call translate method
+        # doc-region-begin call uniform scale method
         ndc_space: Vertex = world_space.uniform_scale(1.0 / 10.0)
-        # doc-region-end 2091aa68e2d6d5bccdcb968391bf5d657fe9ad1a
+        # doc-region-end call uniform scale method
         # fmt: off
-        # doc-region-begin 4788d1809c34fff4b8a6e63bd28c0ca90184457a
+        # doc-region-begin call glvertex2f for paddle 1
         glVertex2f(ndc_space.x, ndc_space.y)
 
     glEnd()
-    # doc-region-end 4788d1809c34fff4b8a6e63bd28c0ca90184457a
+    # doc-region-end call glvertex2f for paddle 1
 
-    # doc-region-begin db2e4352f654c9b0309ed0470515ff61113aec8d
+    # doc-region-begin draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
-        # doc-region-end db2e4352f654c9b0309ed0470515ff61113aec8d
+        # doc-region-end draw paddle 2
         # fmt: off
-        # doc-region-begin 8654606ea6b0f530930d8d43f6c0d110e867e0d8
+        # doc-region-begin paddle 2 call translate method
         world_space: Vertex = model_space.translate(paddle2.position)
-        # doc-region-end 8654606ea6b0f530930d8d43f6c0d110e867e0d8
-        # doc-region-begin a9da863c1edd7395ad98084f43056476991a5c5c
+        # doc-region-end paddle 2 call translate method
+        # doc-region-begin paddle 2 call uniform scale method
         ndc_space: Vertex = world_space.uniform_scale(1.0 / 10.0)
-        # doc-region-end a9da863c1edd7395ad98084f43056476991a5c5c
+        # doc-region-end paddle 2 call uniform scale method
         # fmt: on
 
-        # doc-region-begin 260c1301effa6c7ec13f1b36454be3ff448ee641
+        # doc-region-begin paddle 2 call glvertex2f
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end 260c1301effa6c7ec13f1b36454be3ff448ee641
+    # doc-region-end paddle 2 call glvertex2f
 
-    # doc-region-begin 6d057656d804fe007498bc5d5314cb5a68788c67
+    # doc-region-begin flush framebuffer
     glfw.swap_buffers(window)
-    # doc-region-end 6d057656d804fe007498bc5d5314cb5a68788c67
+    # doc-region-end flush framebuffer
 glfw.terminate()

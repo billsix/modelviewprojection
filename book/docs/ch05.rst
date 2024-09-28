@@ -100,8 +100,8 @@ Data Structures
 
 .. literalinclude:: ../../src/demo05/demo.py
    :language: python
-   :start-after: doc-region-begin 45f8b976d5ca561e6551fced4b91491a0608e07c
-   :end-before: doc-region-end 45f8b976d5ca561e6551fced4b91491a0608e07c
+   :start-after: doc-region-begin define vertex class
+   :end-before: doc-region-end define vertex class
    :linenos:
    :lineno-match:
    :caption: src/demo05/demo.py
@@ -138,8 +138,8 @@ parameters are, at the call-site of the function.
 
 .. literalinclude:: ../../src/demo05/demo.py
    :language: python
-   :start-after: doc-region-begin c04057e28feefe7d49c375940e142dccd15bb006
-   :end-before: doc-region-end c04057e28feefe7d49c375940e142dccd15bb006
+   :start-after: doc-region-begin define paddle class
+   :end-before: doc-region-end define paddle class
    :linenos:
    :lineno-match:
    :caption: src/demo05/demo.py
@@ -155,8 +155,8 @@ Instantiation of the Paddles
 
 .. literalinclude:: ../../src/demo05/demo.py
    :language: python
-   :start-after: doc-region-begin 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
-   :end-before: doc-region-end 9e8aed62ab60a749bf800a0d2d975e9d5807aa91
+   :start-after: doc-region-begin instantiate paddles
+   :end-before: doc-region-end instantiate paddles
    :linenos:
    :lineno-match:
    :caption: src/demo05/demo.py
@@ -171,8 +171,8 @@ Handling User Input
 
 .. literalinclude:: ../../src/demo05/demo.py
    :language: python
-   :start-after: doc-region-begin b0d86b4d150b3ca92951137634b12d7881ee6350
-   :end-before: doc-region-end b0d86b4d150b3ca92951137634b12d7881ee6350
+   :start-after: doc-region-begin define handle movement of paddles
+   :end-before: doc-region-end define handle movement of paddles
    :linenos:
    :lineno-match:
    :caption: src/demo05/demo.py
@@ -187,8 +187,8 @@ The Event Loop
 
 .. literalinclude:: ../../src/demo05/demo.py
    :language: python
-   :start-after: doc-region-begin 1cacf5f226065bc4b85826f7642bf817a36b6540
-   :end-before: doc-region-end 1cacf5f226065bc4b85826f7642bf817a36b6540
+   :start-after: doc-region-begin begin event loop
+   :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
    :caption: src/demo05/demo.py
@@ -196,8 +196,8 @@ The Event Loop
 
 .. literalinclude:: ../../src/demo05/demo.py
    :language: python
-   :start-after: doc-region-begin 9de7437ce84e5390a8907af83bb84e955ca80286
-   :end-before: doc-region-end 9de7437ce84e5390a8907af83bb84e955ca80286
+   :start-after: doc-region-begin draw paddle 1
+   :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
    :caption: src/demo05/demo.py
@@ -211,8 +211,8 @@ from Paddle 1 space to NDC.
 
 .. literalinclude:: ../../src/demo05/demo.py
    :language: python
-   :start-after: doc-region-begin 6b46719ca5e13f1c1c90c8ea495549599c6d0008
-   :end-before: doc-region-end 6b46719ca5e13f1c1c90c8ea495549599c6d0008
+   :start-after: doc-region-begin draw paddle 2
+   :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
    :caption: src/demo05/demo.py

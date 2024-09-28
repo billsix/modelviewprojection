@@ -184,14 +184,14 @@ class Camera:
 camera: Camera = Camera()
 
 
-# doc-region-begin 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
+# doc-region-begin define square
 square: Paddle = [
     Vertex(x=-0.5, y=-0.5),
     Vertex(x=0.5, y=-0.5),
     Vertex(x=0.5, y=0.5),
     Vertex(x=-0.5, y=0.5),
 ]
-# doc-region-end 3bb2c05b4cd66636ad8b8fc18c26f7a64af06b7c
+# doc-region-end define square
 
 
 def handle_inputs() -> None:
@@ -234,9 +234,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+# doc-region-begin begin event loop
 while not glfw.window_should_close(window):
-    # doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+    # doc-region-end begin event loop
 
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
@@ -255,7 +255,7 @@ while not glfw.window_should_close(window):
     handle_inputs()
 
     # fmt: off
-    # doc-region-begin 7dab1135450b265814f775c59807f77b44273a4e
+    # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
@@ -266,11 +266,11 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end 7dab1135450b265814f775c59807f77b44273a4e
+    # doc-region-end draw paddle 1
     # fmt: on
 
     # fmt: off
-    # doc-region-begin 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+    # doc-region-begin draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
@@ -281,11 +281,11 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end 9a0ba48a086f35a4515bf32b4a856888c178b0e8
+    # doc-region-end draw square
     # fmt: on
 
     # fmt: off
-    # doc-region-begin 12cd2bedfe522c8c192106296c12e8344f1594d4
+    # doc-region-begin draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -296,7 +296,7 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end 12cd2bedfe522c8c192106296c12e8344f1594d4
+    # doc-region-end draw paddle 2
     # fmt: on
 
     glfw.swap_buffers(window)

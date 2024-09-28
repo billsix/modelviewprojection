@@ -148,10 +148,10 @@ class Vertex2D:
         )
 
 
-# doc-region-begin 24b2f9fc341605b61f191425ea7a8e7a2ac42873
+# doc-region-begin define vertex class
 @dataclass
 class Vertex:
-    # doc-region-end 24b2f9fc341605b61f191425ea7a8e7a2ac42873
+    # doc-region-end define vertex class
     x: float
     y: float
     z: float
@@ -214,7 +214,7 @@ class Vertex:
     # fmt: on
 
     # fmt: off
-    # doc-region-begin 7f3ac095c4dfe0c0162e607a871f4e12e6fd633c
+    # doc-region-begin define perspective
     def perspective(self: Vertex,
                     fov: float,
                     aspectRatio: float,
@@ -244,7 +244,7 @@ class Vertex:
                                 aspectRatio=1.0,
                                 nearZ=-.1,
                                 farZ=-1000.0)
-    # doc-region-end 7f3ac095c4dfe0c0162e607a871f4e12e6fd633c
+    # doc-region-end define perspective
     # fmt: on
 
 
@@ -375,9 +375,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+# doc-region-begin begin event loop
 while not glfw.window_should_close(window):
-    # doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+    # doc-region-end begin event loop
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -417,7 +417,7 @@ while not glfw.window_should_close(window):
             camera.rot_y -= axes_list[0][2] * 0.01
 
     # fmt: off
-    # doc-region-begin 2ced82a1c3de464adbfe5d303faffdd2314c17c2
+    # doc-region-begin draw paddle 1
     # draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
@@ -434,13 +434,13 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-    # doc-region-end 2ced82a1c3de464adbfe5d303faffdd2314c17c2
+    # doc-region-end draw paddle 1
     # fmt: off
 
 
     # fmt: off
     # draw square
-    # doc-region-begin 23cd906b0bec259766279f1a9277922719cf1e2b
+    # doc-region-begin draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
@@ -460,7 +460,7 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = camera_space.camera_space_to_ndc_space_fn()
         glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
     glEnd()
-    # doc-region-end 23cd906b0bec259766279f1a9277922719cf1e2b
+    # doc-region-end draw square
     # fmt: on
 
     # fmt: off

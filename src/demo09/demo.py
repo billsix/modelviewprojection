@@ -206,9 +206,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# doc-region-begin 5748cc21902ad56527c65e167b4ef44bd62f392e
+# doc-region-begin begin event loop
 while not glfw.window_should_close(window):
-    # doc-region-end 5748cc21902ad56527c65e167b4ef44bd62f392e
+    # doc-region-end begin event loop
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -227,26 +227,26 @@ while not glfw.window_should_close(window):
 
     # draw paddle 1
     # fmt: off
-    # doc-region-begin 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
+    # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
-        # doc-region-begin 3b78276e1dad210e845c0455857c6ccad704f7c7
+        # doc-region-begin paddle 1 transformations
         world_space: Vertex = model_space.rotate(paddle1.rotation) \
                                          .translate(paddle1.position)
-        # doc-region-end 3b78276e1dad210e845c0455857c6ccad704f7c7
-        # doc-region-begin bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
+        # doc-region-end paddle 1 transformations
+        # doc-region-begin paddle 1 scale
         ndc_space: Vertex = world_space.uniform_scale(scalar=1.0/10.0)
-        # doc-region-end bcc181dd2b611eaf23f0bffbb6dfbd5c9fc061d4
+        # doc-region-end paddle 1 scale
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end 4b0942ba3ffc80751d54b9a578c2c1da5cf438bd
+    # doc-region-end draw paddle 1
     # fmt: on
 
     # draw paddle 2
     # fmt: off
-    # doc-region-begin c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
+    # doc-region-begin draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -256,7 +256,7 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = world_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end c12bd0c9543cbc91aedc5ec4fc21a612d2129f61
+    # doc-region-end draw paddle 2
     # fmt: on
     glfw.swap_buffers(window)
 

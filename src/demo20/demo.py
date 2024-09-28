@@ -31,7 +31,7 @@ import glfw
 import numpy as np
 import OpenGL.GL.shaders as shaders
 
-# doc-region-begin c731ca97ef15896c876effbafec9d52a1354375f
+# doc-region-begin new imports
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -65,16 +65,16 @@ from OpenGL.GL import (
 )
 from OpenGL.GLU import gluPerspective
 
-# doc-region-end c731ca97ef15896c876effbafec9d52a1354375f
+# doc-region-end new imports
 
 
 if not glfw.init():
     sys.exit()
 
-# doc-region-begin b05eee9a50507de99ecad16ffa3af2da709b361a
+# doc-region-begin open gl version 2.1
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-# doc-region-end b05eee9a50507de99ecad16ffa3af2da709b361a
+# doc-region-end open gl version 2.1
 
 window = glfw.create_window(500, 500, "ModelViewProjection Demo 20", None, None)
 if not window:
@@ -230,7 +230,7 @@ TARGET_FRAMERATE: int = 60
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 
-# doc-region-begin e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
+# doc-region-begin compile shaders
 # compile shaders
 
 # initialize shaders
@@ -244,7 +244,7 @@ with open(os.path.join(pwd, "triangle.frag"), "r") as f:
 
 shader = shaders.compileProgram(vs, fs)
 glUseProgram(shader)
-# doc-region-end e6ff3c0ccea639bd5fb57a55ec548170b34c4bdf
+# doc-region-end compile shaders
 
 while not glfw.window_should_close(window):
     while (

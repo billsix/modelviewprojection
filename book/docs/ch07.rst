@@ -192,8 +192,8 @@ get your vertex rotated around the origin!
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin 0650dc123c5604096222ab7f34523251869be0e3
-   :end-before: doc-region-end 0650dc123c5604096222ab7f34523251869be0e3
+   :start-after: doc-region-begin define vertex class
+   :end-before: doc-region-end define vertex class
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -206,8 +206,8 @@ get your vertex rotated around the origin!
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin cf32927e5bb15098767fad214706f03ddfe49a1c
-   :end-before: doc-region-end cf32927e5bb15098767fad214706f03ddfe49a1c
+   :start-after: doc-region-begin define paddle class
+   :end-before: doc-region-end define paddle class
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -217,8 +217,8 @@ get your vertex rotated around the origin!
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin 1cf68248b869564df5f3133b98adb2e06601ed3b
-   :end-before: doc-region-end 1cf68248b869564df5f3133b98adb2e06601ed3b
+   :start-after: doc-region-begin define handle movement of paddles
+   :end-before: doc-region-end define handle movement of paddles
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -248,8 +248,8 @@ The Event Loop
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
-   :end-before: doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+   :start-after: doc-region-begin begin  event loop
+   :end-before: doc-region-end begin  event loop
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -263,8 +263,8 @@ around the paddle's center.
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin 4ae8b0ebe66cd4de6b0150ac5cd4fa92abdd9985
-   :end-before: doc-region-end 4ae8b0ebe66cd4de6b0150ac5cd4fa92abdd9985
+   :start-after: doc-region-begin draw paddle 1
+   :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -279,8 +279,8 @@ around the paddle's center.
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin 1699ece7b62ace3842c391a972f2d27c5e022993
-   :end-before: doc-region-end 1699ece7b62ace3842c391a972f2d27c5e022993
+   :start-after: doc-region-begin compose transformations on paddle 12
+   :end-before: doc-region-end compose transformations on paddle 12
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -296,8 +296,8 @@ around the paddle's center.
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
-   :end-before: doc-region-end ff2784cf4a98bfbaa9a63073ec0b915197f34c5d
+   :start-after: doc-region-begin scale paddle 1
+   :end-before: doc-region-end scale paddle 1
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -305,8 +305,8 @@ around the paddle's center.
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin 46159451e06ea71fbb3fc270b01f3b755a06040c
-   :end-before: doc-region-end 46159451e06ea71fbb3fc270b01f3b755a06040c
+   :start-after: doc-region-begin glvertex on paddle 1
+   :end-before: doc-region-end glvertex on paddle 1
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -328,8 +328,8 @@ around the paddle's center.
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin dd17b8cf2992da4f0752dd3f54dba416a5f04d64
-   :end-before: doc-region-end dd17b8cf2992da4f0752dd3f54dba416a5f04d64
+   :start-after: doc-region-begin draw paddle 2
+   :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -343,8 +343,8 @@ around the paddle's center.
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
-   :end-before: doc-region-end 2bfcc6ef8f40e5cd45e7f921e9978db7184b860c
+   :start-after: doc-region-begin compose transformations on paddle 2
+   :end-before: doc-region-end compose transformations on paddle 2
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -361,8 +361,8 @@ around the paddle's center.
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
-   :end-before: doc-region-end 0ae0fb2528f9b972bdb4901b83e93f63266e2ed7
+   :start-after: doc-region-begin scale paddle 2
+   :end-before: doc-region-end scale paddle 2
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -370,8 +370,8 @@ around the paddle's center.
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin 696e8248badabab740bf65566030cf31d8bae2f2
-   :end-before: doc-region-end 696e8248badabab740bf65566030cf31d8bae2f2
+   :start-after: doc-region-begin glvertex on paddle 2
+   :end-before: doc-region-end glvertex on paddle 2
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py
@@ -392,8 +392,8 @@ world space transformations are doing.
 
 .. literalinclude:: ../../src/demo07/demo.py
    :language: python
-   :start-after: doc-region-begin 1699ece7b62ace3842c391a972f2d27c5e022993
-   :end-before: doc-region-end 1699ece7b62ace3842c391a972f2d27c5e022993
+   :start-after: doc-region-begin compose transformations on paddle 12
+   :end-before: doc-region-end compose transformations on paddle 12
    :linenos:
    :lineno-match:
    :caption: src/demo07/demo.py

@@ -232,8 +232,8 @@ Right calculation based off of Top and aspect ration
 
 .. literalinclude:: ../../src/demo17/demo.py
    :language: python
-   :start-after: doc-region-begin 24b2f9fc341605b61f191425ea7a8e7a2ac42873
-   :end-before: doc-region-end 24b2f9fc341605b61f191425ea7a8e7a2ac42873
+   :start-after: doc-region-begin define vertex class
+   :end-before: doc-region-end define vertex class
    :linenos:
    :lineno-match:
    :caption: src/demo17/demo.py
@@ -246,8 +246,8 @@ Right calculation based off of Top and aspect ration
 
 .. literalinclude:: ../../src/demo17/demo.py
    :language: python
-   :start-after: doc-region-begin 7f3ac095c4dfe0c0162e607a871f4e12e6fd633c
-   :end-before: doc-region-end 7f3ac095c4dfe0c0162e607a871f4e12e6fd633c
+   :start-after: doc-region-begin define perspective
+   :end-before: doc-region-end define perspective
    :linenos:
    :lineno-match:
    :caption: src/demo17/demo.py
@@ -256,8 +256,8 @@ Right calculation based off of Top and aspect ration
 
 .. literalinclude:: ../../src/demo17/demo.py
    :language: python
-   :start-after: doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
-   :end-before: doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+   :start-after: doc-region-begin begin event loop
+   :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
    :caption: src/demo17/demo.py
@@ -270,8 +270,8 @@ Right calculation based off of Top and aspect ration
 
 .. literalinclude:: ../../src/demo17/demo.py
    :language: python
-   :start-after: doc-region-begin 2ced82a1c3de464adbfe5d303faffdd2314c17c2
-   :end-before: doc-region-end 2ced82a1c3de464adbfe5d303faffdd2314c17c2
+   :start-after: doc-region-begin draw paddle 1
+   :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
    :caption: src/demo17/demo.py

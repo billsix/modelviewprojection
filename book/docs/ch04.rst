@@ -79,8 +79,8 @@ a lot of boiler plate code.
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin ca6358d2d0e38e03d5c0642954e9a34ed62ab406
-   :end-before: doc-region-end ca6358d2d0e38e03d5c0642954e9a34ed62ab406
+   :start-after: doc-region-begin define vertex class
+   :end-before: doc-region-end define vertex class
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -88,8 +88,8 @@ a lot of boiler plate code.
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin ecf8e1a61285c18b321fef38792c6e6a5c1ca79c
-   :end-before: doc-region-end ecf8e1a61285c18b321fef38792c6e6a5c1ca79c
+   :start-after: doc-region-begin define paddle class
+   :end-before: doc-region-end define paddle class
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -103,8 +103,8 @@ and for use with static type-checking tools for Python, such as `mypy`_.
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin 6ab0efd624f5d076b983e875700a2b2307788cc2
-   :end-before: doc-region-end 6ab0efd624f5d076b983e875700a2b2307788cc2
+   :start-after: doc-region-begin instantiate paddles
+   :end-before: doc-region-end instantiate paddles
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -152,8 +152,8 @@ Query User Input and Use It To Animate
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin 4b68726b67eef939645c430941518f4fb374f0c8
-   :end-before: doc-region-end 4b68726b67eef939645c430941518f4fb374f0c8
+   :start-after: doc-region-begin handle user input for paddle movement
+   :end-before: doc-region-end handle user input for paddle movement
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -188,8 +188,8 @@ to only flush the screen at 60 hertz (frames per second).
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin 2ef80e67f318610c9d846513e604bdff5d037285
-   :end-before: doc-region-end 2ef80e67f318610c9d846513e604bdff5d037285
+   :start-after: doc-region-begin limit framerate to 60 fps
+   :end-before: doc-region-end limit framerate to 60 fps
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -197,8 +197,8 @@ to only flush the screen at 60 hertz (frames per second).
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin 89e003b98e8ebecccb7ad30f6cd29e35a1a6e0f2
-   :end-before: doc-region-end 89e003b98e8ebecccb7ad30f6cd29e35a1a6e0f2
+   :start-after: doc-region-begin begin event loop
+   :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -206,8 +206,8 @@ to only flush the screen at 60 hertz (frames per second).
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin c414af3df41f977118e25fb4e96de3194469a04a
-   :end-before: doc-region-end c414af3df41f977118e25fb4e96de3194469a04a
+   :start-after: doc-region-begin poll events and get framebuffer size
+   :end-before: doc-region-end poll events and get framebuffer size
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -215,8 +215,8 @@ to only flush the screen at 60 hertz (frames per second).
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin daaa146fafc0d1c453ca4dcc38b7b9df1f92b0fd
-   :end-before: doc-region-end daaa146fafc0d1c453ca4dcc38b7b9df1f92b0fd
+   :start-after: doc-region-begin call draw in square viewport
+   :end-before: doc-region-end call draw in square viewport
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -224,8 +224,8 @@ to only flush the screen at 60 hertz (frames per second).
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin 96ff95610f3df28ee581dcad279dce732a45920c
-   :end-before: doc-region-end 96ff95610f3df28ee581dcad279dce732a45920c
+   :start-after: doc-region-begin call handle movement of paddles
+   :end-before: doc-region-end call handle movement of paddles
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -238,8 +238,8 @@ to only flush the screen at 60 hertz (frames per second).
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin 43814a73075f8265e8b55941fded5bd024914743
-   :end-before: doc-region-end 43814a73075f8265e8b55941fded5bd024914743
+   :start-after: doc-region-begin draw paddle 1
+   :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -267,8 +267,8 @@ to only flush the screen at 60 hertz (frames per second).
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin 2126570070cea12469df9ade20858acf7ac414c7
-   :end-before: doc-region-end 2126570070cea12469df9ade20858acf7ac414c7
+   :start-after: doc-region-begin draw paddle 2
+   :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py
@@ -284,8 +284,8 @@ to only flush the screen at 60 hertz (frames per second).
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
-   :start-after: doc-region-begin cda9e45b9bd0c4a866156e72290667c32015ea59
-   :end-before: doc-region-end cda9e45b9bd0c4a866156e72290667c32015ea59
+   :start-after: doc-region-begin flush framebuffer
+   :end-before: doc-region-end flush framebuffer
    :linenos:
    :lineno-match:
    :caption: src/demo04/demo.py

@@ -193,17 +193,17 @@ square: Paddle = [
     Vertex(x=-0.5, y=0.5),
 ]
 
-# doc-region-begin 3ae4d745b5afbd285e833b94972715efe8178822
+# doc-region-begin define square rotation
 square_rotation: float = 0.0
-# doc-region-end 3ae4d745b5afbd285e833b94972715efe8178822
+# doc-region-end define square rotation
 
 
-# doc-region-begin 430452dadde6cdec13eedba9906dc9aad1a25f2e
+# doc-region-begin define handle input
 def handle_inputs() -> None:
     global square_rotation
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
-    # doc-region-end 430452dadde6cdec13eedba9906dc9aad1a25f2e
+    # doc-region-end define handle input
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
@@ -273,7 +273,7 @@ while not glfw.window_should_close(window):
     glEnd()
 
     # fmt: off
-    # doc-region-begin 7d764f79efa781036fc6d58825da898fca08d45c
+    # doc-region-begin draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for model_space in square:
@@ -285,7 +285,7 @@ while not glfw.window_should_close(window):
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end 7d764f79efa781036fc6d58825da898fca08d45c
+    # doc-region-end draw square
     # fmt: on
 
     # fmt: off

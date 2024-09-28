@@ -176,19 +176,19 @@ paddle2: Paddle = Paddle(
 )
 
 
-# doc-region-begin 808b49966faf68394a1e4def233df33c08e37b27
+# doc-region-begin define camera class
 
 
 @dataclass
 class Camera:
     position_worldspace: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0))
-    # doc-region-end 808b49966faf68394a1e4def233df33c08e37b27
+    # doc-region-end define camera class
 
 
 camera: Camera = Camera()
 
 
-# doc-region-begin e705ab925d5c7f3219b065cdf16eb13268f17ef9
+# doc-region-begin handle inputs
 def handle_inputs() -> None:
     global camera
 
@@ -200,7 +200,7 @@ def handle_inputs() -> None:
         camera.position_worldspace.x -= 1.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.position_worldspace.x += 1.0
-    # doc-region-end e705ab925d5c7f3219b065cdf16eb13268f17ef9
+    # doc-region-end handle inputs
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
@@ -228,9 +228,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# doc-region-begin 6d86d07154c99ed6e1c3feab73545d184153f9ae
+# doc-region-begin begin event loop
 while not glfw.window_should_close(window):
-    # doc-region-end 6d86d07154c99ed6e1c3feab73545d184153f9ae
+    # doc-region-end begin event loop
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -248,42 +248,42 @@ while not glfw.window_should_close(window):
     handle_inputs()
 
     # fmt: off
-    # doc-region-begin c1994fe03bc9e4428893f63706e07eb1d3bb14b5
+    # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
         world_space: Vertex = model_space.rotate(paddle1.rotation) \
                                          .translate(translate_amount=paddle1.position)
-        # doc-region-end c1994fe03bc9e4428893f63706e07eb1d3bb14b5
-        # doc-region-begin 9624d3a2dd009e3850cd5dce4470272fb9d9b4e0
+        # doc-region-end draw paddle 1
+        # doc-region-begin paddle 1 camera translate
         camera_space: Vertex = world_space.translate(translate_amount=-camera.position_worldspace)
-        # doc-region-end 9624d3a2dd009e3850cd5dce4470272fb9d9b4e0
-        # doc-region-begin 4db386e7523575f5ab67841165a5297c8c0e1500
+        # doc-region-end paddle 1 camera translate
+        # doc-region-begin paddle 1 scale
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end 4db386e7523575f5ab67841165a5297c8c0e1500
+    # doc-region-end paddle 1 scale
     # fmt: on
 
     # fmt: off
-    # doc-region-begin 63cbaad0dbecc69f52bc428648308a48337e43c6
+    # doc-region-begin draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle2.vertices:
         world_space: Vertex = model_space.rotate(paddle2.rotation) \
                                          .translate(translate_amount=paddle2.position)
-        # doc-region-end 63cbaad0dbecc69f52bc428648308a48337e43c6
-        # doc-region-begin ad53fd8251cc2c93fffec19223c3e70270e31410
+        # doc-region-end draw paddle 2
+        # doc-region-begin paddle 2 camera transformations
         camera_space: Vertex = world_space.translate(translate_amount=-camera.position_worldspace)
-        # doc-region-end ad53fd8251cc2c93fffec19223c3e70270e31410
+        # doc-region-end paddle 2 camera transformations
         ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
         # fmt: on
-        # doc-region-begin 46159451e06ea71fbb3fc270b01f3b755a06040c
+        # doc-region-begin paddle 2 glvertex2f
         glVertex2f(ndc_space.x, ndc_space.y)
     glEnd()
-    # doc-region-end 46159451e06ea71fbb3fc270b01f3b755a06040c
+    # doc-region-end paddle 2 glvertex2f
 
     glfw.swap_buffers(window)
 

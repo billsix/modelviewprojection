@@ -77,8 +77,8 @@ Cayley Graph
 
 .. literalinclude:: ../../src/demo13/demo.py
    :language: python
-   :start-after: doc-region-begin 2a8e38cc39d597fceddccb30edce196ea046a770
-   :end-before: doc-region-end 2a8e38cc39d597fceddccb30edce196ea046a770
+   :start-after: doc-region-begin define variable for square rotation around paddle's center
+   :end-before: doc-region-end define variable for square rotation around paddle's center
    :linenos:
    :lineno-match:
    :caption: src/demo13/demo.py
@@ -90,8 +90,8 @@ Event Loop
 
 .. literalinclude:: ../../src/demo13/demo.py
    :language: python
-   :start-after: doc-region-begin 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
-   :end-before: doc-region-end 67ffd7b7adc42d01ca93bacdef858c0d4b678e38
+   :start-after: doc-region-begin begin event loop
+   :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
    :caption: src/demo13/demo.py
@@ -103,8 +103,8 @@ Event Loop
 
 .. literalinclude:: ../../src/demo13/demo.py
    :language: python
-   :start-after: doc-region-begin f4ab63a2bc7b673fa5f9d281d73aed0af2ab6e53
-   :end-before: doc-region-end f4ab63a2bc7b673fa5f9d281d73aed0af2ab6e53
+   :start-after: doc-region-begin draw square
+   :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
    :caption: src/demo13/demo.py
