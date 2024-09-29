@@ -95,7 +95,7 @@ If you were modeling our solar system, the center of the sun could be the origin
 I personally would put the center of our flat earth at the origin, but reasonable people
 can disagree.
 
-For our demo with paddles, the author arbitrarily defines the WorldSpace to be 200 units wide, 200 units tall, with the origin at the center.
+For our demo with paddles, the author arbitrarily defines the WorldSpace to be 20 units wide, 20 units tall, with the origin at the center.
 
 .. figure:: _static/demo06.png
     :align: center
@@ -118,7 +118,7 @@ bringing the vertices
 along with it) and then resetting the graph paper (i.e. both origin and axes)
 back to it's original position and orientation.
 Although we will think of the paddle's vertices as relative to its own space
-(i.e. -10 to 10 horizontally, -30 to 30 vertically),
+(i.e. -1 to 1 horizontally, -3 to 3 vertically),
 we will not look at the numbers of what they are in world space coordinates,
 as doing so
 
@@ -157,7 +157,7 @@ Modelspace of Paddle 1 Superimposed on Worldspace after the translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Paddle 1's graph paper gets translated -90 units in the x direction, and some
+Paddle 1's graph paper gets translated -9 units in the x direction, and some
 number of units in the y direction, 0 during the first frame, based off of user input.  The origin
 is translated, and the graph paper comes with it, onto which you can
 plot the vertices.  Notice that the coordinate system labels below the plot and to the left of the plot
