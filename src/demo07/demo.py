@@ -213,9 +213,7 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # doc-region-begin begin  event loop
 while not glfw.window_should_close(window):
     # doc-region-end begin  event loop
-    while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
+    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
     time_at_beginning_of_previous_frame = glfw.get_time()
 
@@ -254,21 +252,21 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin draw paddle 2
     glBegin(GL_QUADS)
-    for model_space in paddle2.vertices:
+    for paddle2_vertex_model_space in paddle2.vertices:
         # doc-region-end draw paddle 2
         # fmt: off
         # doc-region-begin compose transformations on paddle 2
-        world_space: Vertex = model_space.translate(paddle2.position) \
-                                         .rotate(paddle2.rotation)
+        paddle2_vertex_world_space: Vertex = paddle2_vertex_model_space.translate(paddle2.position) \
+                                                                       .rotate(paddle2.rotation)
         # doc-region-end compose transformations on paddle 2
         # fmt: on
         # fmt: off
         # doc-region-begin scale paddle 2
-        ndc_space: Vertex = world_space.uniform_scale(1.0 / 10.0)
+        paddle2_vertex_ndc_space: Vertex = paddle2_vertex_world_space.uniform_scale(1.0 / 10.0)
         # doc-region-end scale paddle 2
         # fmt: on
         # doc-region-begin glvertex on paddle 2
-        glVertex2f(ndc_space.x, ndc_space.y)
+        glVertex2f(paddle2_vertex_ndc_space.x, paddle2_vertex_ndc_space.y)
     glEnd()
     # doc-region-end glvertex on paddle 2
     glfw.swap_buffers(window)

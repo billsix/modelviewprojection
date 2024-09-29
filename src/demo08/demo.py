@@ -1,4 +1,3 @@
-
 # Copyright (c) 2018-2024 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -137,10 +136,7 @@ class Vertex:
         return Vertex(x=-self.y, y=self.x)
 
     def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
-        return (
-            math.cos(angle_in_radians) * self
-            + math.sin(angle_in_radians) * self.rotate_90_degrees()
-        )
+        return math.cos(angle_in_radians) * self + math.sin(angle_in_radians) * self.rotate_90_degrees()
 
     # fmt: off
     # doc-region-begin define rotate around
@@ -221,9 +217,7 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
     # doc-region-end begin event loop
-    while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
+    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
 
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -261,12 +255,12 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     rotatePoint: Vertex = paddle2.position
-    for model_space in paddle2.vertices:
-        world_space: Vertex = model_space.translate(paddle2.position)
-        world_space: Vertex = world_space.rotate_around(paddle2.rotation,
+    for paddle2_vertex_model_space in paddle2.vertices:
+        paddle2_vertex_world_space: Vertex = paddle2_vertex_model_space.translate(paddle2.position)
+        paddle2_vertex_world_space: Vertex = paddle2_vertex_world_space.rotate_around(paddle2.rotation,
                                                         rotatePoint)
-        ndc_space: Vertex = world_space.uniform_scale(scalar=1.0/10.0)
-        glVertex2f(ndc_space.x, ndc_space.y)
+        paddle2_vertex_ndc_space: Vertex = paddle2_vertex_world_space.uniform_scale(scalar=1.0/10.0)
+        glVertex2f(paddle2_vertex_ndc_space.x, paddle2_vertex_ndc_space.y)
     glEnd()
     # doc-region-end draw paddle 2
     # fmt: on

@@ -18,28 +18,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
+# fmt: off
 # doc-region-begin import first module
 import sys
-# doc-region-end import first module
 
 # doc-region-begin import glfw
 import glfw
+# doc-region-begin import individual functions without needing module name
+from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_MODELVIEW,
+                       GL_PROJECTION, glClear, glClearColor, glLoadIdentity,
+                       glMatrixMode, glViewport)
+
+# doc-region-end import first module
+
 # doc-region-end import glfw
 
-# doc-region-begin import individual functions without needing module name
-from OpenGL.GL import (
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_MODELVIEW,
-    GL_PROJECTION,
-    glClear,
-    glClearColor,
-    glLoadIdentity,
-    glMatrixMode,
-    glViewport,
-)
 
 # doc-region-end import individual functions without needing module name
+# fmt: on
 
 # doc-region-begin initialize glfw
 if not glfw.init():
@@ -70,6 +66,8 @@ glfw.make_context_current(window)
 def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, 1)
+
+
 # doc-region-end on user hitting escape, end event loop and quit
 
 glfw.set_key_callback(window, on_key)

@@ -1,4 +1,3 @@
-
 # Copyright (c) 2018-2024 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -145,10 +144,7 @@ class Vertex2D:
         return Vertex2D(x=-self.y, y=self.x)
 
     def rotate(self: Vertex2D, angle_in_radians: float) -> Vertex2D:
-        return (
-            math.cos(angle_in_radians) * self
-            + math.sin(angle_in_radians) * self.rotate_90_degrees()
-        )
+        return math.cos(angle_in_radians) * self + math.sin(angle_in_radians) * self.rotate_90_degrees()
 
 
 @dataclass
@@ -230,9 +226,7 @@ paddle2: Paddle = Paddle(
 
 @dataclass
 class Camera:
-    position_worldspace: Vertex = field(
-        default_factory=lambda: Vertex(x=0.0, y=0.0, z=0.0)
-    )
+    position_worldspace: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0, z=0.0))
 
 
 camera: Camera = Camera()
@@ -297,9 +291,7 @@ TARGET_FRAMERATE: int = 60
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 while not glfw.window_should_close(window):
-    while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
+    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
 
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -352,12 +344,12 @@ while not glfw.window_should_close(window):
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
-    for model_space in paddle2.vertices:
-        world_space: Vertex = model_space.rotate_z(paddle2.rotation) \
-                                         .translate(paddle2.position)
-        camera_space: Vertex = world_space.translate(-camera.position_worldspace)
-        ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0 / 10.0)
-        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
+    for paddle2_vertex_model_space in paddle2.vertices:
+        paddle2_vertex_world_space: Vertex = paddle2_vertex_model_space.rotate_z(paddle2.rotation) \
+                                                                       .translate(paddle2.position)
+        paddle2_vertex_camera_space: Vertex = paddle2_vertex_world_space.translate(-camera.position_worldspace)
+        paddle2_vertex_ndc_space: Vertex = paddle2_vertex_camera_space.uniform_scale(scalar=1.0 / 10.0)
+        glVertex3f(paddle2_vertex_ndc_space.x, paddle2_vertex_ndc_space.y, paddle2_vertex_ndc_space.z)
     glEnd()
     # fmt: on
     glfw.swap_buffers(window)

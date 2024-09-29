@@ -49,7 +49,7 @@ for FILE in $(git diff --cached --name-only | grep '\.py')
 do
     isort $FILE
     autoflake --remove-all-unused-imports --expand-star-imports --remove-unused-variables -i $FILE
-    ruff format $FILE
+    ruff format --line-length 140 $FILE
     git add $FILE
 done
 

@@ -1,4 +1,3 @@
-
 # Copyright (c) 2018-2024 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -220,9 +219,7 @@ TARGET_FRAMERATE: int = 60
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 while not glfw.window_should_close(window):
-    while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
+    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
     time_at_beginning_of_previous_frame = glfw.get_time()
 
@@ -303,7 +300,11 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for paddle1_vertex_in_model_space in paddle1.vertices:
-        glVertex3f(paddle1_vertex_in_model_space[0], paddle1_vertex_in_model_space[1], paddle1_vertex_in_model_space[2])
+        glVertex3f(
+            paddle1_vertex_in_model_space[0],
+            paddle1_vertex_in_model_space[1],
+            paddle1_vertex_in_model_space[2],
+        )
     glEnd()
     # doc-region-end draw paddle 1
 
@@ -350,8 +351,12 @@ while not glfw.window_should_close(window):
     glRotatef(math.degrees(paddle2.rotation), 0.0, 0.0, 1.0)
 
     glBegin(GL_QUADS)
-    for model_space in paddle2.vertices:
-        glVertex3f(model_space[0], model_space[1], model_space[2])
+    for paddle2_vertex_model_space in paddle2.vertices:
+        glVertex3f(
+            paddle2_vertex_model_space[0],
+            paddle2_vertex_model_space[1],
+            paddle2_vertex_model_space[2],
+        )
     glEnd()
     # doc-region-end draw paddle 2
     glfw.swap_buffers(window)

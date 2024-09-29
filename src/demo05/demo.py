@@ -1,4 +1,3 @@
-
 # Copyright (c) 2018-2024 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -179,9 +178,7 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
-    while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
+    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
 
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -210,9 +207,9 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    for model_space in paddle2.vertices:
-        ndc_space: Vertex = model_space.translate(paddle2.position)
-        glVertex2f(ndc_space.x, ndc_space.y)
+    for paddle2_vertex_model_space in paddle2.vertices:
+        paddle2_vertex_ndc_space: Vertex = paddle2_vertex_model_space.translate(paddle2.position)
+        glVertex2f(paddle2_vertex_ndc_space.x, paddle2_vertex_ndc_space.y)
     glEnd()
     # doc-region-end draw paddle 2
 
