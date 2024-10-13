@@ -94,7 +94,7 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 
-window = glfw.create_window(1920, 1080, "Coordiante Systems", None, None)
+window = glfw.create_window(1920, 1080, "Coordinate Systems", None, None)
 if not window:
     glfw.terminate()
     sys.exit()

@@ -85,7 +85,7 @@ Keyboard Input  Action
 *LEFT*          Move the camera left, moving the objects right
 *RIGHT*         Move the camera right, moving the objects left
 
-*q*             Rotate the square around it's center
+*q*             Rotate the square around its center
 *e*             Rotate the square around paddle 1's center
 ==============  ==============================================
 
@@ -136,8 +136,8 @@ Try this.  Rotate your head to the right a little more that
 45 degrees.  Now rotate your head back a little more than 45 degrees.
 
 Now, reset your head (glPopMatrix, which we have not yet covered).
-Try rotating your head back 45 degrees.  Once it's there,
-rotate your head (not your neck), 45 degrees.  It's different, and quite uncomfortable!
+Try rotating your head back 45 degrees.  Once it is there,
+rotate your head (not your neck), 45 degrees.  It is different, and quite uncomfortable!
 
 We rotate the camera by the y axis first, then by the relative x axis,
 for the same reason.
@@ -165,7 +165,7 @@ system at a time, and allows us to forget how we got there, (similar to a Markov
 https://en.wikipedia.org/wiki/Markov_chain))
 
 But this system of thinking works only when we are placing the camera into
-it's position/orientation relative to world space, which is not what we need
+its position/orientation relative to world space, which is not what we need
 to actually do.  We don't need to place the camera.
 We need to move every already-plotted object in world space towards the origin and
 orientation of NDC.  Looking at the following graph,
@@ -208,7 +208,7 @@ The inverted form is
 ..
    To count in the model-space, look at a given axis (which I've drawn in units
    of 10 for ease of viewing, although it should normally be in units of 1)
-   On the red axis, it's 2*10 units wide, and 6*10 units tall, which matches
+   On the red axis, its 2*10 units wide, and 6*10 units tall, which matches
    the model-space data in the constructor for the Paddles.
 
    Take a look at ../mvpVisualization/demoAnimation.py to see an animated
@@ -229,7 +229,7 @@ The inverted form is
 
    Take a look at ../mvpVisualization/demoViewWorldTopLevel.py to see an
    animated version that shows the objects being placed in world space,
-   the camera being put into it's space using the normal way of thinking
+   the camera being put into its space using the normal way of thinking
    of a coordinate system being moved, but then the transformations
    are inverted, bringing the objects in world space with it,
    in backwards order, to put the NDC cube defined in camera
@@ -244,7 +244,7 @@ The inverted form is
    the coordinate transformations, the computer will always execute
    the code from top down, take the resulting coordinates, and clip
    out anything outside of -1 to 1. So, world space. The computer has no notion
-   of camera space, it's our own invention, so we need to get the coordinates
+   of camera space, it is our own invention, so we need to get the coordinates
    that we care about into that space.
 
    After looking at the demos and explaining the code, now cover the camera movement code.

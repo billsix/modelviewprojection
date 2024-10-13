@@ -309,7 +309,7 @@ Introduction to Cayley Graphs
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The Wikipedia article for Cayley graphs (https://en.wikipedia.org/wiki/Cayley_graph) is intimidating,
-but for our purposes, it's use is very simple.
+but for our purposes, its use is very simple.
 
 
 

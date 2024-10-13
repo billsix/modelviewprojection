@@ -62,7 +62,7 @@ Keyboard Input  Action
 *LEFT*          Move the camera left, moving the objects right
 *RIGHT*         Move the camera right, moving the objects left
 
-*q*             Rotate the square around it's center
+*q*             Rotate the square around its center
 ==============  ==============================================
 
 Description

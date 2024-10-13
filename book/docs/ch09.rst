@@ -81,7 +81,7 @@ function calls are evaluated.)
 
 
 But that caused erratic behavior of the paddle over time, as it was
-not rotating around it's own origin.  It was not working.
+not rotating around its own origin.  It was not working.
 
 So in Demo 08 we fixed it by writing a "rotate_around" method, in
 which we translated the paddle to its position, then in order to
@@ -163,7 +163,7 @@ Suggested Order
 The author has a strong opinion on the matter for computer graphics.
 
 Start at world space node.  As a reminder, this is the top-level coordinate
-system that we choose to use.  It's whatever you want it to be.
+system that we choose to use.  It is whatever you want it to be.
 
 .. figure:: _static/demo06.png
     :align: center

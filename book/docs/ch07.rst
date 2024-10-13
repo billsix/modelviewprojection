@@ -152,7 +152,7 @@ geometry, and won't be explained here in detail.
 
 
 But what may not be obvious, is what happens to the y component?
-Turns out, it's easy.  Just rotate your point of view, and it's
+Turns out, it is easy.  Just rotate your point of view, and it is
 the same thing, with one minor difference, in that the x value
 is negated.
 
@@ -178,7 +178,7 @@ in vertex (0.4*-sin(angle), 0.4*cos(angle)).
 
 
 Wait.  Why is negative sin applied to the angle to make the x value,
-and cos applied to angle to make the y value?  It's because positive
+and cos applied to angle to make the y value?  It is because positive
 1 unit on the x axis goes downwards.  The top of the plot is in
 units of -1.
 
@@ -380,8 +380,8 @@ around the paddle's center.
 
 
 
-Why it's Wrong
-^^^^^^^^^^^^^^
+Why it is Wrong
+^^^^^^^^^^^^^^^
 
 Turns out, our program doesn't work as predicted, even though
 translate, scale, and rotate are all defined correctly.  The paddles
@@ -504,8 +504,8 @@ Let's take any arbitrary point
     :figclass: align-center
 
 From high school geometry, remember that we can describe a
-Cartesian (x,y) point by it's length r, and it's cosine and sine
-of it's angle theta.
+Cartesian (x,y) point by its length r, and its cosine and sine
+of its angle theta.
 
 .. figure:: _static/cc0/williamesix/rotate1.svg
     :align: center
@@ -599,7 +599,7 @@ Ok, we are now going to stop thinking about geometry, and we will only be thinki
 about algebra.  Please don't try to look at the formula and try to draw any diagrams.
 
 
-Ok, now it's time to remember what the values that x' and y' are defined as.
+Ok, now it is time to remember what the values that x' and y' are defined as.
 
 .. math::
 

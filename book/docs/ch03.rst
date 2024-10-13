@@ -189,7 +189,7 @@ Set to Draw in Square Subsection Of Window
   region of pixels to be true (and false everywhere else) which means "only do the OpenGL call on these fragments,
   ignore the others".
   As we will learn later, OpenGL stores much more information
-  per fragment (i.e. pixel) than just it's current color.
+  per fragment (i.e. pixel) than just its current color.
 
 .. figure:: _static/ccbysa3.0/williamsix/fragment.png
     :align: center

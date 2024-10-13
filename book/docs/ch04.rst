@@ -172,7 +172,7 @@ Query User Input and Use It To Animate
 
 * when writing to global variables within a nested scope,
   you need to declare their scope as global at the top of the nested scope.
-  (technically it's not a global variable, it's local to the current python
+  (technically it is not a global variable, it is local to the current python
   module, but the point remains)
 
 

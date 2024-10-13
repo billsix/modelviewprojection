@@ -83,7 +83,7 @@ Here is the square's code:
 
 The only difference is the square's model-space to paddle1 space.  Everything else is exactly the same.
 In a graphics program, because the scene is a hierarchy of relative
-objects, it's unwise to put this much repetition in the transformation
+objects, it is unwise to put this much repetition in the transformation
 sequence.  Especially if we might change how the camera operates,
 or from perspective to ortho.  It would required a lot of code changes.
 And I don't like reading from the bottom of the code up.  Code doesn't
@@ -181,7 +181,7 @@ Keyboard Input  Action
 *LEFT*          Move the camera left, moving the objects right
 *RIGHT*         Move the camera right, moving the objects left
 
-*q*             Rotate the square around it's center
+*q*             Rotate the square around its center
 *e*             Rotate the square around paddle 1's center
 ==============  ==============================================
 

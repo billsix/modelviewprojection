@@ -64,7 +64,7 @@ Keyboard Input  Action
 *LEFT*          Move the camera left, moving the objects right
 *RIGHT*         Move the camera right, moving the objects left
 
-*q*             Rotate the square around it's center
+*q*             Rotate the square around its center
 *e*             Rotate the square around paddle 1's center
 ==============  ==============================================
 
@@ -111,7 +111,7 @@ if nearer objects are drawn in front
 
 
 
-#. Set the clear depth to -1 (just like clearcolor, it's the default depth on a given fragment (pixel).
+#. Set the clear depth to -1 (just like clearcolor, it is the default depth on a given fragment (pixel).
 
 #. Set the depth func, i.e. the test to see if the newly drawn object should overwrite the color in the current fragment or not.
 

@@ -74,7 +74,7 @@ destroying the relative coordinate system of the parent node.
 
 In mvpVisualization/pushmatrix/pushmatrix.py, the grayed out
 coordinate system is one that has been pushed onto the stack,
-and it regains it's color when it is reactivated by "glPopMatrix"
+and it regains its color when it is reactivated by "glPopMatrix"
 
 
 
@@ -107,7 +107,7 @@ Keyboard Input  Action
 *LEFT*          Move the camera left, moving the objects right
 *RIGHT*         Move the camera right, moving the objects left
 
-*q*             Rotate the square around it's center
+*q*             Rotate the square around its center
 *e*             Rotate the square around paddle 1's center
 ==============  ==============================================
 
@@ -119,7 +119,7 @@ Description
 First thing to note is that we are now using OpenGL 2.1's official transformation
 procedures, and in the projection transformation, they flip the z axis, making
 it a left hand coordinate system.  The reason for this is long, and I
-have begun discusses in the "Standard Perspective Matrix" section, but it's an
+have begun discusses in the "Standard Perspective Matrix" section, but it is an
 incomplete section for now.
 But for now, all it means that we have to change how the depth test
 will be configured, as after the projection transformation, the far z
@@ -189,7 +189,7 @@ in the next chapter.
 against which subsequent matrix operations which affect.  In this case, we set
 the current matrix stack to be the projection one.  We then call "gluPerspective"
 to set the projection transformation, which we covered in previous sections,
-and we will ignore the implementation of it; it's now a black box.
+and we will ignore the implementation of it; it is now a black box.
 
 Now onto camera space!
 

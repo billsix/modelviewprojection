@@ -113,7 +113,7 @@ Code
    we would need to change the code in multiple places.
    Later demos will show how to handle this problem more gracefully.
 
-Define the geometry of the square in it's own modelspace.
+Define the geometry of the square in its own modelspace.
 
 .. literalinclude:: ../../src/demo11/demo.py
    :language: python
@@ -191,7 +191,7 @@ that, we want in to be moved in the X direction some units.  Therefore
 * Read modelspace to paddle1space, from bottom up
 * Reset the coordinate system.
 
-Now the square's geometry will be in it's own space!
+Now the square's geometry will be in its own space!
 
 * Read from worldspace to camera-space, knowing that camera transformations
   are implemented as the inverse of placing the camera space in world space.

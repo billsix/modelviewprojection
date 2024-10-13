@@ -89,7 +89,7 @@ vertices are defined.
 WorldSpace
 ^^^^^^^^^^
 
-WorldSpace is a top-level space, independent of NDC, that we choose to use.  It's arbitrary.
+WorldSpace is a top-level space, independent of NDC, that we choose to use.  It is arbitrary.
 If you were to model a racetrack for a racing game, the origin of WorldSpace may be the center of that racetrack.
 If you were modeling our solar system, the center of the sun could be the origin of "WorldSpace".
 I personally would put the center of our flat earth at the origin, but reasonable people
@@ -116,7 +116,7 @@ As such, for placing paddle1, we can view the translation as a change
 to the graph paper relative to world space coordinates (only incidentally
 bringing the vertices
 along with it) and then resetting the graph paper (i.e. both origin and axes)
-back to it's original position and orientation.
+back to its original position and orientation.
 Although we will think of the paddle's vertices as relative to its own space
 (i.e. -1 to 1 horizontally, -3 to 3 vertically),
 we will not look at the numbers of what they are in world space coordinates,
@@ -135,7 +135,7 @@ as doing so
     Translating Paddle 1
 
 * As an example, figure out the world space coordinate of the upper rights
-  corner of the paddle after it's been translated, and ask yourself what
+  corner of the paddle after it has been translated, and ask yourself what
   that means and what insight did you gain?
 
 
@@ -185,7 +185,7 @@ You could calculate their values in world space, but that will not give you any 
 that matter for insight as that the entire graph paper of modelspace, which originally
 was the same as world space, has changed, bringing the vertices along with it.
 
-Same goes for Paddle 2's modelspace, relative to it's translation, which
+Same goes for Paddle 2's modelspace, relative to its translation, which
 are different values.
 
 
@@ -235,10 +235,10 @@ Paddle 2's vertices in WorldSpace Coordinates
 
 ..
    Instead, for model-space to world-space transformations,
-   it's easier to read the transformations backwards, where the transformations
-   aren't relative to the global origin, instead it's from the local frame of reference.
+   it is easier to read the transformations backwards, where the transformations
+   aren't relative to the global origin, instead its from the local frame of reference.
 
-   When reading the transformations backwards, I think it's best to think of it
+   When reading the transformations backwards, I think it is best to think of it
    as moving the axes, and the plotting the data once the axes are in
    their final place.
 
