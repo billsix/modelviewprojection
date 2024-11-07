@@ -62,6 +62,12 @@ imgmath_latex_preamble = "\\usepackage{amsmath}\n" + "\\usepackage{xcolor}\n"
 
 extensions = ["sphinx.ext.imgmath"]
 
+mathjax_config = {
+    "tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "displayMath": [["$$", "$$"], ["\\[", "\\]"]]},
+    "svg": {"fontCache": "global"},
+}
+
+
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ["_templates"]
 
