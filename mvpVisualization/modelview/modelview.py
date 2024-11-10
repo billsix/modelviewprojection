@@ -232,8 +232,8 @@ def draw_ground() -> None:
     glLoadMatrixf(np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T))
     glColor3f(0.1, 0.1, 0.1)
     glBegin(GL_LINES)
-    for x in range(-20, 21, 2):
-        for z in range(-20, 21, 2):
+    for x in range(-20, 21, 1):
+        for z in range(-20, 21, 1):
             glVertex3f(float(-x), float(-5.0), float(z))
             glVertex3f(float(x), float(-5.0), float(z))
             glVertex3f(float(x), float(-5.0), float(-z))

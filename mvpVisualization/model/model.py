@@ -326,8 +326,8 @@ class Ground:
     def vertices(self) -> ndarray:
         # glColor3f(0.1,0.1,0.1)
         verts = []
-        for x in range(-20, 21, 2):
-            for z in range(-20, 21, 2):
+        for x in range(-20, 21, 1):
+            for z in range(-20, 21, 1):
                 verts.append(float(-x))
                 verts.append(float(-5.0))
                 verts.append(float(z))
