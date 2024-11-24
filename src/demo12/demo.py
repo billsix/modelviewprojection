@@ -182,7 +182,7 @@ class Camera:
 camera: Camera = Camera()
 
 
-square: Paddle = [
+square: list[Vertex] = [
     Vertex(x=-0.5, y=-0.5),
     Vertex(x=0.5, y=-0.5),
     Vertex(x=0.5, y=0.5),
@@ -221,8 +221,6 @@ def handle_inputs() -> None:
         paddle2.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 1.0
-
-    global paddle_1_rotation, paddle_2_rotation
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -267,9 +265,9 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
-    for model_space in square:
-        paddle_1_space: Vertex = model_space.rotate(square_rotation) \
-                                            .translate(Vertex(x=2.0, y = 0.0))
+    for square_vertex_in_model_space in square:
+        paddle_1_space: Vertex = square_vertex_in_model_space.rotate(square_rotation) \
+                                                             .translate(Vertex(x=2.0, y = 0.0))
         world_space: Vertex = paddle_1_space.rotate(paddle1.rotation) \
                                             .translate(paddle1.position)
         camera_space: Vertex = world_space.translate(-camera.position_worldspace)

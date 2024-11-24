@@ -114,9 +114,9 @@ impl = GlfwRenderer(window)
 # Install a key handler
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window, 1)
+        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)
@@ -163,7 +163,7 @@ class Paddle:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices
-        self.numberOfVertices = np.size(vertices) // floatsPerVertex
+        self.number_of_vertices = np.size(vertices) // floatsPerVertex
         # fmt: off
         color = np.array(
             [
@@ -178,7 +178,7 @@ class Paddle:
         )
         # fmt: on
 
-        self.numberOfColors = np.size(color) // floatsPerColor
+        self.number_of_colors = np.size(color) // floatsPerColor
 
         self.vao = glGenVertexArrays(1)
         glBindVertexArray(self.vao)
@@ -205,12 +205,12 @@ class Paddle:
         glBufferData(GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW)
 
         # send the modelspace data to the GPU
-        vboColor = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, vboColor)
+        vbo_color = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_color)
 
-        colorAttribLoc = glGetAttribLocation(self.shader, "color_in")
-        glEnableVertexAttribArray(colorAttribLoc)
-        glVertexAttribPointer(colorAttribLoc, floatsPerColor, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        color_attrib_loc = glGetAttribLocation(self.shader, "color_in")
+        glEnableVertexAttribArray(color_attrib_loc)
+        glVertexAttribPointer(color_attrib_loc, floatsPerColor, GL_FLOAT, False, 0, ctypes.c_void_p(0))
 
         glBufferData(GL_ARRAY_BUFFER, glfloat_size * np.size(color), color, GL_STATIC_DRAW)
 
@@ -228,10 +228,10 @@ class Paddle:
         glUseProgram(self.shader)
         glBindVertexArray(self.vao)
 
-        mvpMatrixLoc = glGetUniformLocation(self.shader, "mvpMatrix")
+        mvp_matrix_loc = glGetUniformLocation(self.shader, "mvpMatrix")
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
-            mvpMatrixLoc,
+            mvp_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(
@@ -239,7 +239,7 @@ class Paddle:
                 dtype=np.float32,
             ),
         )
-        glDrawArrays(GL_TRIANGLES, 0, self.numberOfVertices)
+        glDrawArrays(GL_TRIANGLES, 0, self.number_of_vertices)
         glBindVertexArray(0)
 
 
@@ -272,6 +272,10 @@ square = Square(r=0.0, g=0.0, b=1.0, position=[0.0, 0.0, 0.0])
 square.prepare_to_render()
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
+
+
+test_bool = False
+test_float = 0.0
 
 
 @dataclass
@@ -314,7 +318,7 @@ class Ground:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
-        self.numberOfVertices = np.size(vertices) // floatsPerVertex
+        self.number_of_vertices = np.size(vertices) // floatsPerVertex
 
         self.vao = glGenVertexArrays(1)
         glBindVertexArray(self.vao)
@@ -358,10 +362,10 @@ class Ground:
         glBindVertexArray(self.vao)
 
         # pass projection parameters to the shader
-        mvpMatrixLoc = glGetUniformLocation(self.shader, "mvpMatrix")
+        mvp_matrix_loc = glGetUniformLocation(self.shader, "mvpMatrix")
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
-            mvpMatrixLoc,
+            mvp_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(
@@ -369,7 +373,7 @@ class Ground:
                 dtype=np.float32,
             ),
         )
-        glDrawArrays(GL_LINES, 0, self.numberOfVertices)
+        glDrawArrays(GL_LINES, 0, self.number_of_vertices)
         glBindVertexArray(0)
 
 
@@ -395,7 +399,7 @@ def handle_inputs():
         camera.rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
-    # //TODO -  explaing movement on XZ-plane
+    # //TODO -  explain movement on XZ-plane
     # //TODO -  show camera movement in graphviz
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera.x -= move_multiple * math.sin(camera.rot_y)
@@ -414,8 +418,6 @@ def handle_inputs():
         paddle2.position[1] -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position[1] += 1.0
-
-    global paddle_1_rotation, paddle_2_rotation
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -480,10 +482,11 @@ while not glfw.window_should_close(window):
     imgui.text("Bar")
     imgui.text_colored("Eggs", 0.2, 1.0, 0.0)
 
-    # use static local istead of try: except
+    # use static local instead of try: except
     # normally you would pass the present function name to staticlocal.var
     # , but since we are not in a function, pass the current module
     staticlocal.var(sys.modules[__name__], test_bool=True, test_float=1.0)
+    global test_bool, test_float
     clicked_test_bool, test_bool = imgui.checkbox("test_bool", test_bool)
     clicked_test_float, test_float = imgui.slider_float("float", test_float, 0.0, 1.0)
 
@@ -498,7 +501,7 @@ while not glfw.window_should_close(window):
     ms.set_to_identity_matrix(ms.MatrixStack.projection)
 
     # set the projection matrix to be perspective
-    ms.perspective(fov=45.0, aspectRatio=float(width) / float(height), nearZ=0.1, farZ=1000.0)
+    ms.perspective(field_of_view=45.0, aspect_ratio=float(width) / float(height), near_z=0.1, far_z=1000.0)
 
     # render scene
     width, height = glfw.get_framebuffer_size(window)
@@ -523,7 +526,7 @@ while not glfw.window_should_close(window):
         if math.fabs(axes_list[0][2]) > 0.10:
             camera.rot_y -= 3.0 * axes_list[0][2] * 0.01
 
-    # note - opengl matricies use degrees
+    # note - opengl matrices use degrees
     ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
     ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)

@@ -63,9 +63,9 @@ glfw.make_context_current(window)
 
 
 # doc-region-begin on user hitting escape, end event loop and quit
-def on_key(window, key, scancode, action, mods):
+def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window, 1)
+        glfw.set_window_should_close(win, 1)
 
 
 # doc-region-end on user hitting escape, end event loop and quit

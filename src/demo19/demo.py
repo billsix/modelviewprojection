@@ -71,9 +71,9 @@ if not window:
 glfw.make_context_current(window)
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window, 1)
+        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)
@@ -91,15 +91,15 @@ def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
-    width, height = glfw.get_framebuffer_size(window)
-    min = width if width < height else height
+    w, h = glfw.get_framebuffer_size(window)
+    minimal_dimension = w if w < h else h
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),
-        int((height - min) / 2.0),
-        min,
-        min,
+        int((w - minimal_dimension) / 2.0),
+        int((h - minimal_dimension) / 2.0),
+        minimal_dimension,
+        minimal_dimension,
     )
 
     glClearColor(0.0289, 0.071875, 0.0972, 1.0)
@@ -107,10 +107,10 @@ def draw_in_square_viewport() -> None:
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),
-        int(0.0 + (height - min) / 2.0),
-        min,
-        min,
+        int(0.0 + (w - minimal_dimension) / 2.0),
+        int(0.0 + (h - minimal_dimension) / 2.0),
+        minimal_dimension,
+        minimal_dimension,
     )
 
 
@@ -196,8 +196,6 @@ def handle_inputs():
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position[1] += 1.0
 
-    global paddle_1_rotation, paddle_2_rotation
-
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
     if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
@@ -259,10 +257,10 @@ while not glfw.window_should_close(window):
     # doc-region-begin perspective projection
     glMatrixMode(GL_PROJECTION)
     gluPerspective(
-        45.0,  # fov
-        1.0,  # aspectRation
-        0.1,  # nearZ
-        1000.0,  # farZ
+        45.0,  # field_of_view
+        1.0,  # aspect_ration
+        0.1,  # near_z
+        1000.0,  # far_z
     )
     # doc-region-end perspective projection
 
@@ -313,7 +311,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw the square
     # draw the square
     # given that no nodes are defined relative to the square, we do not need
-    # to push a marix.  Here we will do so anyways, just to clarify what is
+    # to push a matrix.  Here we will do so anyway, just to clarify what is
     # happening
     glPushMatrix()
     # the current model matrix will be copied and then the copy will be
@@ -339,7 +337,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     # draw paddle 2.  Nothing is defined relative to paddle to, so we don't
     # need to push matrix, and on the next iteration of the event loop,
-    # all matricies will be cleared to identity, so who cares if we
+    # all matrices will be cleared to identity, so who cares if we
     # mutate the values for now.
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 

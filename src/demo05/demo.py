@@ -60,9 +60,9 @@ if not window:
 glfw.make_context_current(window)
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window, 1)
+        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)
@@ -79,15 +79,15 @@ def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
-    width, height = glfw.get_framebuffer_size(window)
-    min = width if width < height else height
+    w, h = glfw.get_framebuffer_size(window)
+    minimal_dimension = w if w < h else h
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),
-        int((height - min) / 2.0),
-        min,
-        min,
+        int((w - minimal_dimension) / 2.0),
+        int((h - minimal_dimension) / 2.0),
+        minimal_dimension,
+        minimal_dimension,
     )
 
     glClearColor(0.0289, 0.071875, 0.0972, 1.0)
@@ -95,10 +95,10 @@ def draw_in_square_viewport() -> None:
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),
-        int(0.0 + (height - min) / 2.0),
-        min,
-        min,
+        int(0.0 + (w - minimal_dimension) / 2.0),
+        int(0.0 + (h - minimal_dimension) / 2.0),
+        minimal_dimension,
+        minimal_dimension,
     )
 
 

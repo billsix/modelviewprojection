@@ -61,9 +61,9 @@ if not window:
 glfw.make_context_current(window)
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window, 1)
+        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)
@@ -81,15 +81,15 @@ def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
-    width, height = glfw.get_framebuffer_size(window)
-    min = width if width < height else height
+    w, h = glfw.get_framebuffer_size(window)
+    minimal_dimension = w if w < h else h
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),
-        int((height - min) / 2.0),
-        min,
-        min,
+        int((w - minimal_dimension) / 2.0),
+        int((h - minimal_dimension) / 2.0),
+        minimal_dimension,
+        minimal_dimension,
     )
 
     glClearColor(0.0289, 0.071875, 0.0972, 1.0)
@@ -97,10 +97,10 @@ def draw_in_square_viewport() -> None:
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),
-        int(0.0 + (height - min) / 2.0),
-        min,
-        min,
+        int(0.0 + (w - minimal_dimension) / 2.0),
+        int(0.0 + (h - minimal_dimension) / 2.0),
+        minimal_dimension,
+        minimal_dimension,
     )
 
 
@@ -182,7 +182,7 @@ class Camera:
 camera: Camera = Camera()
 
 
-square: Paddle = [
+square: list[Vertex] = [
     Vertex(x=-0.5, y=-0.5),
     Vertex(x=0.5, y=-0.5),
     Vertex(x=0.5, y=0.5),
@@ -224,8 +224,6 @@ def handle_inputs():
         paddle2.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 1.0
-
-    global paddle_1_rotation, paddle_2_rotation
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -272,10 +270,10 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
-    for model_space in square:
-        paddle_1_space: Vertex = model_space.rotate(square_rotation) \
-                                            .translate(Vertex(x=2.0, y=0.0)) \
-                                            .rotate(rotation_around_paddle1)
+    for square_vertex_in_model_space in square:
+        paddle_1_space: Vertex = square_vertex_in_model_space.rotate(square_rotation) \
+                                                             .translate(Vertex(x=2.0, y=0.0)) \
+                                                             .rotate(rotation_around_paddle1)
         world_space: Vertex = paddle_1_space.rotate(paddle1.rotation) \
                                             .translate(paddle1.position)
         camera_space: Vertex = world_space.translate(-camera.position_worldspace)
@@ -293,7 +291,7 @@ while not glfw.window_should_close(window):
         paddle2_vertex_world_space: Vertex = paddle2_vertex_model_space.rotate(paddle2.rotation) \
                                                                        .translate(paddle2.position)
         paddle2_vertex_camera_space: Vertex = paddle2_vertex_world_space.translate(-camera.position_worldspace)
-        paddle2_vertex_ndc_space: Vertex = camera_space.uniform_scale(scalar=1.0/10.0)
+        paddle2_vertex_ndc_space: Vertex = paddle2_vertex_camera_space.uniform_scale(scalar=1.0/10.0)
         glVertex2f(paddle2_vertex_ndc_space.x, paddle2_vertex_ndc_space.y)
     glEnd()
     # fmt: on

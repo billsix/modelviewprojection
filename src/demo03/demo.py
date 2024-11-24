@@ -56,9 +56,9 @@ if not window:
 glfw.make_context_current(window)
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window, 1)
+        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)
@@ -81,16 +81,16 @@ def draw_in_square_viewport() -> None:
     # doc-region-end set to gray
 
     # doc-region-begin get framebuffer size
-    width, height = glfw.get_framebuffer_size(window)
+    w, h = glfw.get_framebuffer_size(window)
 
-    square_size = width if width < height else height
+    square_size = w if w < h else h
     # doc-region-end get framebuffer size
 
     # doc-region-begin enable scissor test
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - square_size) / 2.0),  # bottom left x_screenspace
-        int((height - square_size) / 2.0),  # bottom left y_screenspace
+        int((w - square_size) / 2.0),  # bottom left x_screenspace
+        int((h - square_size) / 2.0),  # bottom left y_screenspace
         square_size,  # x width, screenspace
         square_size,  # y height, screenspace
     )
@@ -105,8 +105,8 @@ def draw_in_square_viewport() -> None:
     # doc-region-end disable scissor test
     # doc-region-begin set square viewport
     glViewport(
-        int(0.0 + (width - square_size) / 2.0),
-        int(0.0 + (height - square_size) / 2.0),
+        int(0.0 + (w - square_size) / 2.0),
+        int(0.0 + (h - square_size) / 2.0),
         square_size,
         square_size,
     )

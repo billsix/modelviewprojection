@@ -69,16 +69,16 @@ glfw.make_context_current(window)
 # Install a key handler
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window, 1)
+        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)
 
 
-def scroll_callback(window, xoffset, yoffset):
-    camera.r = camera.r + -1 * (yoffset * math.log(camera.r))
+def scroll_callback(window, x_offset, y_offset):
+    camera.r = camera.r + -1 * (y_offset * math.log(camera.r))
     if camera.r < 3.0:
         camera.r = 3.0
 
@@ -373,10 +373,10 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be perspective
     ms.perspective(
-        fov=45.0,
-        aspectRatio=float(width) / float(height),
-        nearZ=0.1,
-        farZ=10000.0,
+        field_of_view=45.0,
+        aspect_ratio=float(width) / float(height),
+        near_z=0.1,
+        far_z=10000.0,
     )
     # ms.ortho(left=-150.0,
     #          right=150.0,

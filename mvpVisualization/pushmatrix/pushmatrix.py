@@ -109,16 +109,16 @@ imguiio = imgui.get_io()
 # Install a key handler
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window, 1)
+        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)
 
 
-def scroll_callback(window, xoffset, yoffset):
-    camera.r = camera.r + -1 * (yoffset * math.log(camera.r))
+def scroll_callback(win, x_offset, y_offset):
+    camera.r = camera.r + -1 * (y_offset * math.log(camera.r))
     if camera.r < 3.0:
         camera.r = 3.0
 
@@ -164,7 +164,7 @@ class Paddle:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices
-        self.numberOfVertices = np.size(vertices) // floatsPerVertex
+        self.number_of_vertices = np.size(vertices) // floatsPerVertex
         # fmt: off
         color = np.array(
             [
@@ -178,7 +178,7 @@ class Paddle:
             dtype=np.float32,
         )
         # fmt: on
-        self.numberOfColors = np.size(color) // floatsPerColor
+        self.number_of_colors = np.size(color) // floatsPerColor
 
         self.vao = glGenVertexArrays(1)
         glBindVertexArray(self.vao)
@@ -193,9 +193,9 @@ class Paddle:
 
         self.shader = shaders.compileProgram(vs, fs)
 
-        self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
-        self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
-        self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
+        self.m_matrix_loc = glGetUniformLocation(self.shader, "mMatrix")
+        self.v_matrix_loc = glGetUniformLocation(self.shader, "vMatrix")
+        self.p_matrix_loc = glGetUniformLocation(self.shader, "pMatrix")
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -214,13 +214,13 @@ class Paddle:
         )
 
         # send the modelspace data to the GPU
-        vboColor = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, vboColor)
+        vbo_color = glGenBuffers(1)
+        glBindBuffer(GL_ARRAY_BUFFER, vbo_color)
 
-        colorAttribLoc = glGetAttribLocation(self.shader, "color_in")
-        glEnableVertexAttribArray(colorAttribLoc)
+        color_attrib_loc = glGetAttribLocation(self.shader, "color_in")
+        glEnableVertexAttribArray(color_attrib_loc)
         glVertexAttribPointer(
-            colorAttribLoc,
+            color_attrib_loc,
             floatsPerColor,
             GL_FLOAT,
             False,
@@ -251,24 +251,24 @@ class Paddle:
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
-            self.mMatrixLoc,
+            self.m_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
         )
         glUniformMatrix4fv(
-            self.vMatrixLoc,
+            self.v_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
         )
         glUniformMatrix4fv(
-            self.pMatrixLoc,
+            self.p_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32),
         )
-        glDrawArrays(GL_TRIANGLES, 0, self.numberOfVertices)
+        glDrawArrays(GL_TRIANGLES, 0, self.number_of_vertices)
         glBindVertexArray(0)
 
 
@@ -344,7 +344,7 @@ class Ground:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
-        self.numberOfVertices = np.size(vertices) // floatsPerVertex
+        self.number_of_vertices = np.size(vertices) // floatsPerVertex
 
         self.vao = glGenVertexArrays(1)
         glBindVertexArray(self.vao)
@@ -362,12 +362,12 @@ class Ground:
 
         self.shader = shaders.compileProgram(vs, gs, fs)
 
-        self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
-        self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
-        self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
+        self.m_matrix_loc = glGetUniformLocation(self.shader, "mMatrix")
+        self.v_matrix_loc = glGetUniformLocation(self.shader, "vMatrix")
+        self.p_matrix_loc = glGetUniformLocation(self.shader, "pMatrix")
 
-        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness")
-        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size")
+        self.thickness_loc = glGetUniformLocation(self.shader, "u_thickness")
+        self.viewport_loc = glGetUniformLocation(self.shader, "u_viewport_size")
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -404,26 +404,26 @@ class Ground:
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
-            self.mMatrixLoc,
+            self.m_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
         )
         glUniformMatrix4fv(
-            self.vMatrixLoc,
+            self.v_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
         )
         glUniformMatrix4fv(
-            self.pMatrixLoc,
+            self.p_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32),
         )
-        glUniform1f(self.thicknessLoc, line_thickness)
-        glUniform2f(self.viewportLoc, width, height)
-        glDrawArrays(GL_LINES, 0, self.numberOfVertices)
+        glUniform1f(self.thickness_loc, line_thickness)
+        glUniform2f(self.viewport_loc, width, height)
+        glDrawArrays(GL_LINES, 0, self.number_of_vertices)
         glBindVertexArray(0)
 
 
@@ -469,7 +469,7 @@ class Axis:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
-        self.numberOfVertices = np.size(vertices) // floatsPerVertex
+        self.number_of_vertices = np.size(vertices) // floatsPerVertex
 
         self.vao = glGenVertexArrays(1)
         glBindVertexArray(self.vao)
@@ -487,13 +487,13 @@ class Axis:
 
         self.shader = shaders.compileProgram(vs, gs, fs)
 
-        self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
-        self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
-        self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
+        self.m_matrix_loc = glGetUniformLocation(self.shader, "mMatrix")
+        self.v_matrix_loc = glGetUniformLocation(self.shader, "vMatrix")
+        self.p_matrix_loc = glGetUniformLocation(self.shader, "pMatrix")
         self.colorLoc = glGetUniformLocation(self.shader, "color")
 
-        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness")
-        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size")
+        self.thickness_loc = glGetUniformLocation(self.shader, "u_thickness")
+        self.viewport_loc = glGetUniformLocation(self.shader, "u_viewport_size")
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -539,7 +539,7 @@ class Axis:
 
                 # ascontiguousarray puts the array in column major order
                 glUniformMatrix4fv(
-                    self.mMatrixLoc,
+                    self.m_matrix_loc,
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
@@ -548,7 +548,7 @@ class Axis:
                     ),
                 )
                 glUniformMatrix4fv(
-                    self.vMatrixLoc,
+                    self.v_matrix_loc,
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
@@ -557,7 +557,7 @@ class Axis:
                     ),
                 )
                 glUniformMatrix4fv(
-                    self.pMatrixLoc,
+                    self.p_matrix_loc,
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
@@ -565,9 +565,9 @@ class Axis:
                         dtype=np.float32,
                     ),
                 )
-                glUniform1f(self.thicknessLoc, line_thickness)
-                glUniform2f(self.viewportLoc, width, height)
-                glDrawArrays(GL_LINES, 0, self.numberOfVertices)
+                glUniform1f(self.thickness_loc, line_thickness)
+                glUniform2f(self.viewport_loc, width, height)
+                glDrawArrays(GL_LINES, 0, self.number_of_vertices)
 
             # z
             # glColor3f(0.0,0.0,1.0) # blue z
@@ -580,7 +580,7 @@ class Axis:
                     glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
                 # ascontiguousarray puts the array in column major order
                 glUniformMatrix4fv(
-                    self.mMatrixLoc,
+                    self.m_matrix_loc,
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
@@ -589,7 +589,7 @@ class Axis:
                     ),
                 )
                 glUniformMatrix4fv(
-                    self.vMatrixLoc,
+                    self.v_matrix_loc,
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
@@ -598,7 +598,7 @@ class Axis:
                     ),
                 )
                 glUniformMatrix4fv(
-                    self.pMatrixLoc,
+                    self.p_matrix_loc,
                     1,
                     GL_TRUE,
                     np.ascontiguousarray(
@@ -606,9 +606,9 @@ class Axis:
                         dtype=np.float32,
                     ),
                 )
-                glUniform1f(self.thicknessLoc, line_thickness)
-                glUniform2f(self.viewportLoc, width, height)
-                glDrawArrays(GL_LINES, 0, self.numberOfVertices)
+                glUniform1f(self.thickness_loc, line_thickness)
+                glUniform2f(self.viewport_loc, width, height)
+                glDrawArrays(GL_LINES, 0, self.number_of_vertices)
 
             # y
             glUniform3f(self.colorLoc, 0.0, 1.0, 0.0)
@@ -617,19 +617,19 @@ class Axis:
                 glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
             # ascontiguousarray puts the array in column major order
             glUniformMatrix4fv(
-                self.mMatrixLoc,
+                self.m_matrix_loc,
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
             )
             glUniformMatrix4fv(
-                self.vMatrixLoc,
+                self.v_matrix_loc,
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
             )
             glUniformMatrix4fv(
-                self.pMatrixLoc,
+                self.p_matrix_loc,
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
@@ -637,9 +637,9 @@ class Axis:
                     dtype=np.float32,
                 ),
             )
-            glUniform1f(self.thicknessLoc, line_thickness)
-            glUniform2f(self.viewportLoc, width, height)
-            glDrawArrays(GL_LINES, 0, self.numberOfVertices)
+            glUniform1f(self.thickness_loc, line_thickness)
+            glUniform2f(self.viewport_loc, width, height)
+            glDrawArrays(GL_LINES, 0, self.number_of_vertices)
             glBindVertexArray(0)
 
 
@@ -757,7 +757,7 @@ class NDCCube:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
-        self.numberOfVertices = np.size(vertices) // floatsPerVertex
+        self.number_of_vertices = np.size(vertices) // floatsPerVertex
 
         self.vao = glGenVertexArrays(1)
         glBindVertexArray(self.vao)
@@ -775,12 +775,12 @@ class NDCCube:
 
         self.shader = shaders.compileProgram(vs, gs, fs)
 
-        self.mMatrixLoc = glGetUniformLocation(self.shader, "mMatrix")
-        self.vMatrixLoc = glGetUniformLocation(self.shader, "vMatrix")
-        self.pMatrixLoc = glGetUniformLocation(self.shader, "pMatrix")
+        self.m_matrix_loc = glGetUniformLocation(self.shader, "mMatrix")
+        self.v_matrix_loc = glGetUniformLocation(self.shader, "vMatrix")
+        self.p_matrix_loc = glGetUniformLocation(self.shader, "pMatrix")
 
-        self.thicknessLoc = glGetUniformLocation(self.shader, "u_thickness")
-        self.viewportLoc = glGetUniformLocation(self.shader, "u_viewport_size")
+        self.thickness_loc = glGetUniformLocation(self.shader, "u_thickness")
+        self.viewport_loc = glGetUniformLocation(self.shader, "u_viewport_size")
 
         # send the modelspace data to the GPU
         self.vbo = glGenBuffers(1)
@@ -817,26 +817,26 @@ class NDCCube:
 
         # ascontiguousarray puts the array in column major order
         glUniformMatrix4fv(
-            self.mMatrixLoc,
+            self.m_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
         )
         glUniformMatrix4fv(
-            self.vMatrixLoc,
+            self.v_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
         )
         glUniformMatrix4fv(
-            self.pMatrixLoc,
+            self.p_matrix_loc,
             1,
             GL_TRUE,
             np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32),
         )
-        glUniform1f(self.thicknessLoc, line_thickness)
-        glUniform2f(self.viewportLoc, width, height)
-        glDrawArrays(GL_LINES, 0, self.numberOfVertices)
+        glUniform1f(self.thickness_loc, line_thickness)
+        glUniform2f(self.viewport_loc, width, height)
+        glDrawArrays(GL_LINES, 0, self.number_of_vertices)
         glBindVertexArray(0)
 
 
@@ -1117,10 +1117,10 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be perspective
     ms.perspective(
-        fov=45.0,
-        aspectRatio=float(width) / float(height),
-        nearZ=0.1,
-        farZ=10000.0,
+        field_of_view=45.0,
+        aspect_ratio=float(width) / float(height),
+        near_z=0.1,
+        far_z=10000.0,
     )
 
     # note - opengl matricies use degrees
