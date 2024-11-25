@@ -170,7 +170,7 @@ to actually do.  We don't need to place the camera.
 We need to move every already-plotted object in world space towards the origin and
 orientation of NDC.  Looking at the following graph,
 
-.. figure:: _static/demo16.png
+.. figure:: _static/demo16.svg
     :align: center
     :alt: Demo 16
     :figclass: align-center
@@ -238,7 +238,7 @@ The inverted form is
    so in world space.  We need to get the -1 to 1 space in x,y,z relative
    to camera space to match the -1 to 1 space in world space.
 
-   eog ../images/demo10.png
+   eog ../images/demo10.svg
 
    Why do we do this?  Because it doesn't matter how we think about
    the coordinate transformations, the computer will always execute

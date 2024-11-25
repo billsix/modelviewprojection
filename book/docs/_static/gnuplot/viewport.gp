@@ -1,6 +1,7 @@
 set size ratio 0.625
-set term png
-set output 'viewport.png'
+set terminal svg size 800,600 fname 'Helvetica' 
+
+set output 'viewport.svg'
 set linetype 11 lc rgb 'black'
 set label "(-1,-1)" at 360,50
 set label "(1,-1)" at 1400,50

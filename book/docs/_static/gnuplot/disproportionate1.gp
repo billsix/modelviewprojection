@@ -1,6 +1,7 @@
+set terminal svg size 800,600 fname 'Helvetica' 
 set size ratio 2
-set term png
-set output 'disproportionate1.png'
+
+set output 'disproportionate1.svg'
 set linetype 11 lc rgb 'black'
 set border lc 11
 set xrange [-1:1]

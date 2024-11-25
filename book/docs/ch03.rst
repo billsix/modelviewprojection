@@ -63,14 +63,14 @@ Keeping the Paddles Proportional
 In the previous demo, if the user resized the window, the paddles appear distorted,
 as they were shrunk in one direction if the window became too thin or too fat.
 
-.. figure:: _static/disproportionate1.png
+.. figure:: _static/disproportionate1.svg
     :align: center
     :alt: Yuck
     :figclass: align-center
 
     Yuck
 
-.. figure:: _static/disproportionate2.png
+.. figure:: _static/disproportionate2.svg
     :align: center
     :alt: Yuck
     :figclass: align-center
@@ -92,7 +92,7 @@ window.
 
 
 
-.. figure:: _static/viewport.png
+.. figure:: _static/viewport.svg
     :align: center
     :alt: Nice
     :figclass: align-center
@@ -100,7 +100,7 @@ window.
     Nice
 
 
-.. figure:: _static/demo03.png
+.. figure:: _static/demo03.svg
     :align: center
     :alt: Demo 03
     :figclass: align-center

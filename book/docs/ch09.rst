@@ -165,7 +165,7 @@ The author has a strong opinion on the matter for computer graphics.
 Start at world space node.  As a reminder, this is the top-level coordinate
 system that we choose to use.  It is whatever you want it to be.
 
-.. figure:: _static/demo06.png
+.. figure:: _static/demo06.svg
     :align: center
     :alt: Demo 06
     :figclass: align-center

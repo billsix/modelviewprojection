@@ -100,7 +100,7 @@ It could be
 
 * From world space to camera space.
 
-.. figure:: _static/demo10.png
+.. figure:: _static/demo10.svg
     :align: center
     :alt: Demo 10
     :figclass: align-center
@@ -109,7 +109,7 @@ It could be
 
 * From camera space to world space.
 
-.. figure:: _static/demo10-2.png
+.. figure:: _static/demo10-2.svg
     :align: center
     :alt: Demo 10
     :figclass: align-center

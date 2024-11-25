@@ -23,7 +23,6 @@ import math
 import sys
 from collections import namedtuple
 
-import imageio
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker
@@ -102,13 +101,9 @@ def accumulate_transformation(procedures, backwards=False):
     yield id, len(procedures)
 
     if not backwards:
-        for number_of_fns_to_apply_this_round in [
-            x + 1 for x in range(len(procedures))
-        ]:
+        for number_of_fns_to_apply_this_round in [x + 1 for x in range(len(procedures))]:
             yield (
-                python_scoping_is_dumb(
-                    range(number_of_fns_to_apply_this_round), procedures
-                ),
+                python_scoping_is_dumb(range(number_of_fns_to_apply_this_round), procedures),
                 len(procedures) - number_of_fns_to_apply_this_round,
             )
     else:
@@ -213,9 +208,7 @@ def create_graphs(
             axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
             # plot transformed basis
-            for xs, ys, thickness in generategridlines.generategridlines(
-                graph_bounds, interval=gridline_interval
-            ):
+            for xs, ys, thickness in generategridlines.generategridlines(graph_bounds, interval=gridline_interval):
                 if backwards and stepsRemaining > 1:
                     transformed_xs, transformed_ys = accumfn(xs, ys)
                 elif not backwards and round_number == 1 and frame_number != 1:
@@ -269,10 +262,8 @@ def create_graphs(
             axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
             axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
             fig.canvas.draw()
-            image = np.array(fig.canvas.renderer.buffer_rgba())
-            plt.close(fig)
-
-            yield image
+            np.array(fig.canvas.renderer.buffer_rgba())
+            yield fig
 
     # create a single frame
     animated_images_list = [
@@ -286,11 +277,9 @@ def create_graphs(
 
     flattened_animated_images_list = list(itertools.chain(*animated_images_list))
 
-    imageio.mimsave(
-        "./" + filename + ".gif", flattened_animated_images_list, duration=1, loop=0
-    )
-    for number, image in enumerate(flattened_animated_images_list):
-        imageio.imsave("./" + filename + "-" + str(number) + ".png", image)
+    for number, fig in enumerate(flattened_animated_images_list):
+        fig.savefig("./" + filename + "-" + str(number) + ".svg", format="svg")
+        plt.close(fig)
 
 
 create_graphs(

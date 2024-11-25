@@ -1,6 +1,7 @@
+set terminal svg size 800,600 fname 'Helvetica' 
 set size ratio 1.0
-set term png
-set output 'modelspace.png'
+
+set output 'modelspace.svg'
 set linetype 11 lc rgb 'black'
 set border lc 11
 set xrange [-4.0:4.0]

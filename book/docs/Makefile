@@ -24,3 +24,4 @@ spellcheck:
 %: Makefile
 	cd _static/ && make
 	@$(SPHINXBUILD) -M $@ "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
+	cd _static/ && cp *png ../_build/html/_static/

@@ -1,5 +1,6 @@
-set term png
-set output 'ndcSpace2.png'
+set terminal svg size 800,600 fname 'Helvetica' 
+
+set output 'ndcSpace2.svg'
 set linetype 11 lc rgb 'black'
 set border lc 11
 unset xtics

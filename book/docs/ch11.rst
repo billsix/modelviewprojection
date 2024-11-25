@@ -80,7 +80,7 @@ Cayley Graph
 In the graph below, all we have added is "Square space", relative
 to paddle 1 space.
 
-.. figure:: _static/demo11.png
+.. figure:: _static/demo11.svg
     :align: center
     :alt: Demo 11
     :figclass: align-center

@@ -75,7 +75,7 @@ In OpenGL, the bottom left pixel of a window is pixel coordinate (0,0).
 The top right is pixel coordinate (window_width,window_height).
 
 
-.. figure:: _static/monitor.png
+.. figure:: _static/monitor.svg
     :align: center
     :alt: 1024x768 monitor
     :figclass: align-center
@@ -83,7 +83,7 @@ The top right is pixel coordinate (window_width,window_height).
     1024x768 monitor
 
 
-.. figure:: _static/monitor2.png
+.. figure:: _static/monitor2.svg
     :align: center
     :alt: 1920x1200 monitor
     :figclass: align-center

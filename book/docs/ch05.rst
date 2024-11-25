@@ -75,7 +75,7 @@ the center of the Paddle.  The center of the paddle will be considered x=0, y=0.
 Before rendering, each Paddle's
 vertices will need to be translated to its center relative to NDC.
 
-.. figure:: _static/demo05.png
+.. figure:: _static/demo05.svg
     :align: center
     :alt:
     :figclass: align-center
@@ -220,7 +220,7 @@ from Paddle 1 space to NDC.
 
 
 
-.. figure:: _static/demo05.png
+.. figure:: _static/demo05.svg
     :align: center
     :alt:
     :figclass: align-center

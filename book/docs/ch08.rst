@@ -167,21 +167,21 @@ But from this we will learn something important.
 
 
 
-.. figure:: _static/rotate-sloppy-forwards-3.png
+.. figure:: _static/rotate-sloppy-forwards-3.svg
     :align: center
     :alt: Demo 08
     :figclass: align-center
 
 translating back to the origin
 
-.. figure:: _static/rotate-sloppy-forwards-4.png
+.. figure:: _static/rotate-sloppy-forwards-4.svg
     :align: center
     :alt: Demo 08
     :figclass: align-center
 
 resetting the coordinate system
 
-.. figure:: _static/rotate-sloppy-forwards-5.png
+.. figure:: _static/rotate-sloppy-forwards-5.svg
     :align: center
     :alt: Demo 08
     :figclass: align-center
@@ -189,14 +189,14 @@ resetting the coordinate system
 
 rotating
 
-.. figure:: _static/rotate-sloppy-forwards-6.png
+.. figure:: _static/rotate-sloppy-forwards-6.svg
     :align: center
     :alt: Demo 08
     :figclass: align-center
 
 resetting the coordinate system
 
-.. figure:: _static/rotate-sloppy-forwards-7.png
+.. figure:: _static/rotate-sloppy-forwards-7.svg
     :align: center
     :alt: Demo 08
     :figclass: align-center
@@ -205,7 +205,7 @@ resetting the coordinate system
 
 and them translating them back to the paddle space origin
 
-.. figure:: _static/rotate-sloppy-forwards-8.png
+.. figure:: _static/rotate-sloppy-forwards-8.svg
     :align: center
     :alt: Demo 08
     :figclass: align-center
@@ -220,7 +220,7 @@ Note, this is gross, and the edge from the paddlespace to itself doesn't even
 make any sense, but the author did not know how else to represent
 this code.
 
-.. figure:: _static/demo08.png
+.. figure:: _static/demo08.svg
     :align: center
     :alt: Demo 08
     :figclass: align-center

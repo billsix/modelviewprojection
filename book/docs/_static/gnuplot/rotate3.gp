@@ -1,5 +1,6 @@
-set term png
-set output 'rotate3.png'
+set terminal svg size 800,600 fname 'Helvetica' 
+
+set output 'rotate3.svg'
 
 set style line 1 lc rgb 'black' pt 5   # square
 set linetype 11 lc rgb 'black'

@@ -114,7 +114,7 @@ Draw Paddle 1
 
 The paddle looks like this relative to normalized device coordinates (NDC):
 
-.. figure:: _static/plot1.png
+.. figure:: _static/plot1.svg
     :align: center
     :alt: Rectangle
     :figclass: align-center
@@ -137,7 +137,7 @@ Draw Paddle 2
 
 The 2 paddles looks like this relative to normalized device coordinates (NDC):
 
-.. figure:: _static/plot2.png
+.. figure:: _static/plot2.svg
     :align: center
     :alt: Rectangle
     :figclass: align-center
@@ -203,7 +203,7 @@ Screen-space means you're specifically using pixel coordinates, i.e, set pixel (
 
 What looks alright in screen-space on a large monitor...
 
-.. figure:: _static/screenspace2.png
+.. figure:: _static/screenspace2.svg
     :align: center
     :alt: Screenspace
     :figclass: align-center
@@ -213,7 +213,7 @@ What looks alright in screen-space on a large monitor...
 
 Isn't the same picture on a smaller monitor.
 
-.. figure:: _static/screenspace.png
+.. figure:: _static/screenspace.svg
     :align: center
     :alt: Screenspace
     :figclass: align-center
@@ -243,7 +243,7 @@ The programmer specifies geometry using normalized-device-coordinates, and
 OpenGL will convert from a continuous, -1.0 to 1.0 space,
 to discrete pixel-space, and the programmer cannot change this.
 
-.. figure:: _static/ndcSpace.png
+.. figure:: _static/ndcSpace.svg
     :align: center
     :alt: NDC space
     :figclass: align-center
@@ -253,7 +253,7 @@ to discrete pixel-space, and the programmer cannot change this.
 
 Whether we own a small monitor
 
-.. figure:: _static/ndcSpace1.png
+.. figure:: _static/ndcSpace1.svg
     :align: center
     :alt: NDC space
     :figclass: align-center
@@ -262,7 +262,7 @@ Whether we own a small monitor
 
 Or a large monitor.
 
-.. figure:: _static/screenspace2.png
+.. figure:: _static/screenspace2.svg
     :align: center
     :alt: NDC space
     :figclass: align-center
@@ -290,7 +290,7 @@ meters to feet, etc.
 .. _Cayley:  https://en.wikipedia.org/wiki/Cayley_graph
 
 
-.. figure:: _static/demo02.png
+.. figure:: _static/demo02.svg
     :align: center
     :alt: Demo 02
     :figclass: align-center
@@ -316,7 +316,7 @@ but for our purposes, its use is very simple.
 An uni-variate example use of Cayley graphs is exchanging coins with
 a bank.
 
-.. figure:: _static/currency.png
+.. figure:: _static/currency.svg
     :align: center
     :alt: Demo 02
     :figclass: align-center
@@ -431,7 +431,7 @@ matters
 * and that we can call a procedure to invert a function.
 
 
-.. figure:: _static/cayleygraph.png
+.. figure:: _static/cayleygraph.svg
     :align: center
     :alt: Generic Cayley Graph
     :figclass: align-center

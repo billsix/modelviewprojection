@@ -114,14 +114,14 @@ and then adding the results together.
 That might not have been fully clear.  Let me try again.
 The vertex (0.5,0.4) can be separated into two vertices, (0.5,0) and (0,0.4).
 
-.. figure:: _static/rotate3.png
+.. figure:: _static/rotate3.svg
     :align: center
     :alt: Rotate
     :figclass: align-center
 
     Rotate
 
-.. figure:: _static/rotate4.png
+.. figure:: _static/rotate4.svg
     :align: center
     :alt: Rotate
     :figclass: align-center
@@ -136,7 +136,7 @@ But, before we do that, let's rotate each of the vertices.
 in vertex (0.5*cos(angle), 0.5*sin(angle)).  This is high school
 geometry, and won't be explained here in detail.
 
-.. figure:: _static/rotate.png
+.. figure:: _static/rotate.svg
     :align: center
     :alt: Rotate
     :figclass: align-center
@@ -160,7 +160,7 @@ is negated.
 
 
 
-.. figure:: _static/rotate2.png
+.. figure:: _static/rotate2.svg
     :align: center
     :alt: Rotate
     :figclass: align-center
@@ -229,7 +229,7 @@ get your vertex rotated around the origin!
 Cayley Graph
 ^^^^^^^^^^^^
 
-.. figure:: _static/demo06.png
+.. figure:: _static/demo06.svg
     :align: center
     :alt: Demo 06
     :figclass: align-center
@@ -416,7 +416,7 @@ world space transformations are doing.
 * Modelspace vertices
 
 
-.. figure:: _static/incorrectrotate-forwards-1.png
+.. figure:: _static/incorrectrotate-forwards-1.svg
     :align: center
     :alt:
     :figclass: align-center
@@ -425,7 +425,7 @@ world space transformations are doing.
 * Translate
 
 
-.. figure:: _static/incorrectrotate-forwards-2.png
+.. figure:: _static/incorrectrotate-forwards-2.svg
     :align: center
     :alt:
     :figclass: align-center
@@ -433,7 +433,7 @@ world space transformations are doing.
 
 * Reset the coordinate system
 
-.. figure:: _static/incorrectrotate-forwards-3.png
+.. figure:: _static/incorrectrotate-forwards-3.svg
     :align: center
     :alt:
     :figclass: align-center
@@ -442,7 +442,7 @@ world space transformations are doing.
 
 * Rotate around World Spaces's origin
 
-.. figure:: _static/incorrectrotate-forwards-4.png
+.. figure:: _static/incorrectrotate-forwards-4.svg
     :align: center
     :alt:
     :figclass: align-center
@@ -452,7 +452,7 @@ world space transformations are doing.
 * Reset the coordinate system
 
 
-.. figure:: _static/incorrectrotate-forwards-5.png
+.. figure:: _static/incorrectrotate-forwards-5.svg
     :align: center
     :alt:
     :figclass: align-center
@@ -462,7 +462,7 @@ world space transformations are doing.
 * Final world space coordinates
 
 
-.. figure:: _static/incorrectrotate-forwards-6.png
+.. figure:: _static/incorrectrotate-forwards-6.svg
     :align: center
     :alt:
     :figclass: align-center
