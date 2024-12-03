@@ -353,10 +353,10 @@ class Ground:
         verts = []
         for x in range(-20, 21, 1):
             for z in range(-20, 21, 1):
-                verts.extend([float(-x), -5.0, float(z)])
-                verts.extend([float(x), -5.0, float(z)])
-                verts.extend([float(x), -5.0, float(-z)])
-                verts.extend([float(x), -5.0, float(z)])
+                verts.extend([float(-x), -0.0, float(z)])
+                verts.extend([float(x), -0.0, float(z)])
+                verts.extend([float(x), -0.0, float(-z)])
+                verts.extend([float(x), -0.0, float(z)])
 
         return np.array(verts, dtype=np.float32)
 
@@ -1484,9 +1484,12 @@ while not glfw.window_should_close(window):
 
     # draw NDC in global space, so that we can see the camera space
     # go to NDC
+    ground.render(animation_time)
+    glClear(GL_DEPTH_BUFFER_BIT)
     with ms.PushMatrix(ms.MatrixStack.model):
         cube.render(animation_time)
-    ground.render(animation_time)
+    glClear(GL_DEPTH_BUFFER_BIT)
+
 
     if animation_time > 75.0:
         ms.rotate_x(
