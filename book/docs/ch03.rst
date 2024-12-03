@@ -100,7 +100,7 @@ window.
     Nice
 
 
-.. figure:: _static/demo03.svg
+.. figure:: _static/demo03.png
     :align: center
     :alt: Demo 03
     :figclass: align-center

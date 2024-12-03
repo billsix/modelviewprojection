@@ -97,7 +97,7 @@ can disagree.
 
 For our demo with paddles, the author arbitrarily defines the WorldSpace to be 20 units wide, 20 units tall, with the origin at the center.
 
-.. figure:: _static/demo06.svg
+.. figure:: _static/demo06.png
     :align: center
     :alt: Demo 06
     :figclass: align-center
@@ -311,7 +311,7 @@ Our global space is -10 to 10 in both dimensions,
 and to get it into NDC, we need to scale by dividing by 10
 
 
-.. figure:: _static/demo06.svg
+.. figure:: _static/demo06.png
     :align: center
     :alt: Demo 06
     :figclass: align-center

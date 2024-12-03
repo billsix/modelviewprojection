@@ -290,7 +290,7 @@ meters to feet, etc.
 .. _Cayley:  https://en.wikipedia.org/wiki/Cayley_graph
 
 
-.. figure:: _static/demo02.svg
+.. figure:: _static/demo02.png
     :align: center
     :alt: Demo 02
     :figclass: align-center
@@ -316,7 +316,7 @@ but for our purposes, its use is very simple.
 An uni-variate example use of Cayley graphs is exchanging coins with
 a bank.
 
-.. figure:: _static/currency.svg
+.. figure:: _static/currency.png
     :align: center
     :alt: Demo 02
     :figclass: align-center
@@ -431,7 +431,7 @@ matters
 * and that we can call a procedure to invert a function.
 
 
-.. figure:: _static/cayleygraph.svg
+.. figure:: _static/cayleygraph.png
     :align: center
     :alt: Generic Cayley Graph
     :figclass: align-center

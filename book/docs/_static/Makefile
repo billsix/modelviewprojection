@@ -3,27 +3,27 @@ all: cayleyImages graphs pythonplots
 
 
 
-graphs: currency.svg \
-	demo11.svg \
-	demo10.svg \
-	demo10-2.svg \
-	demo06.svg \
-	demo08.svg \
-	demo02.svg \
-	demo03.svg \
-	demo05.svg \
-	perspective.svg \
-	demo18-1.svg \
-	demo18-2.svg \
-	demo18-3.svg \
-	demo18-4.svg \
-	demo18-5.svg \
-	demo18-6.svg \
-	demo18-7.svg \
-	demo18-8.svg \
-	cayleygraph.svg \
-	assignment2.svg \
-	demo16.svg
+graphs: currency.png \
+	demo11.png \
+	demo10.png \
+	demo10-2.png \
+	demo06.png \
+	demo08.png \
+	demo02.png \
+	demo03.png \
+	demo05.png \
+	perspective.png \
+	demo18-1.png \
+	demo18-2.png \
+	demo18-3.png \
+	demo18-4.png \
+	demo18-5.png \
+	demo18-6.png \
+	demo18-7.png \
+	demo18-8.png \
+	cayleygraph.png \
+	assignment2.png \
+	demo16.png
 
 
 cayleyImages: ndcToScreenspace.png \
@@ -100,70 +100,70 @@ clipToNDC.png: clipToNDC.tex
 
 
 
-currency.svg: currency.dot
-	dot -Tsvg -Gsize=6,9\! -Gdpi=200 $< -o $@
+currency.png: currency.dot
+	dot -Tpng -Gsize=6,9\! -Gdpi=200 $< -o $@
 
-demo16.svg: demo16.dot
-	dot -Tsvg $< -o $@
+demo16.png: demo16.dot
+	dot -Tpng $< -o $@
 
-demo11.svg: demo11.dot
-	dot -Tsvg $< -o $@
+demo11.png: demo11.dot
+	dot -Tpng $< -o $@
 
-demo10.svg: demo10.dot
-	dot -Tsvg $< -o $@
+demo10.png: demo10.dot
+	dot -Tpng $< -o $@
 
-demo10-2.svg: demo10-2.dot
-	dot -Tsvg $< -o $@
+demo10-2.png: demo10-2.dot
+	dot -Tpng $< -o $@
 
-assignment2.svg: assignment2.dot
-	dot -Tsvg $< -o $@
-
-
-demo06.svg: demo06.dot
-	dot -Tsvg $< -o $@
-
-demo08.svg: demo08.dot
-	dot -Tsvg $< -o $@
-
-demo02.svg: demo02.dot
-	dot -Tsvg $< -o $@
-
-demo03.svg: demo03.dot
-	dot -Tsvg $< -o $@
-
-demo05.svg: demo05.dot
-	dot -Tsvg $< -o $@
-
-cayleygraph.svg: cayleygraph.dot
-	dot -Tsvg $< -o $@
-
-perspective.svg: perspective.dot
-	dot -Tsvg $< -o $@
+assignment2.png: assignment2.dot
+	dot -Tpng $< -o $@
 
 
-demo18-1.svg: demo18-1.dot
-	dot -Tsvg $< -o $@
+demo06.png: demo06.dot
+	dot -Tpng $< -o $@
 
-demo18-2.svg: demo18-2.dot
-	dot -Tsvg $< -o $@
+demo08.png: demo08.dot
+	dot -Tpng $< -o $@
 
-demo18-3.svg: demo18-3.dot
-	dot -Tsvg $< -o $@
+demo02.png: demo02.dot
+	dot -Tpng $< -o $@
 
-demo18-4.svg: demo18-4.dot
-	dot -Tsvg $< -o $@
+demo03.png: demo03.dot
+	dot -Tpng $< -o $@
 
-demo18-5.svg: demo18-5.dot
-	dot -Tsvg $< -o $@
+demo05.png: demo05.dot
+	dot -Tpng $< -o $@
 
-demo18-6.svg: demo18-6.dot
-	dot -Tsvg $< -o $@
+cayleygraph.png: cayleygraph.dot
+	dot -Tpng $< -o $@
 
-demo18-7.svg: demo18-7.dot
-	dot -Tsvg $< -o $@
+perspective.png: perspective.dot
+	dot -Tpng $< -o $@
 
-demo18-8.svg: demo18-8.dot
-	dot -Tsvg $< -o $@
+
+demo18-1.png: demo18-1.dot
+	dot -Tpng $< -o $@
+
+demo18-2.png: demo18-2.dot
+	dot -Tpng $< -o $@
+
+demo18-3.png: demo18-3.dot
+	dot -Tpng $< -o $@
+
+demo18-4.png: demo18-4.dot
+	dot -Tpng $< -o $@
+
+demo18-5.png: demo18-5.dot
+	dot -Tpng $< -o $@
+
+demo18-6.png: demo18-6.dot
+	dot -Tpng $< -o $@
+
+demo18-7.png: demo18-7.dot
+	dot -Tpng $< -o $@
+
+demo18-8.png: demo18-8.dot
+	dot -Tpng $< -o $@
 
 
 pythonplots: rotate0.gif

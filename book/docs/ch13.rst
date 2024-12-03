@@ -68,7 +68,7 @@ Cayley Graph
 ^^^^^^^^^^^^
 
 
-.. figure:: _static/demo11.svg
+.. figure:: _static/demo11.png
     :align: center
     :alt: Demo 13
     :figclass: align-center

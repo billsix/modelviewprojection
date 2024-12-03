@@ -220,7 +220,7 @@ Note, this is gross, and the edge from the paddlespace to itself doesn't even
 make any sense, but the author did not know how else to represent
 this code.
 
-.. figure:: _static/demo08.svg
+.. figure:: _static/demo08.png
     :align: center
     :alt: Demo 08
     :figclass: align-center

@@ -170,7 +170,7 @@ the viewport is always square, set the aspect ratio to be 1.0.
 We are now going to clip space instead of to NDC, which we be discussed
 in the next chapter.
 
-.. figure:: _static/perspective.svg
+.. figure:: _static/perspective.png
     :align: center
     :alt: Demo 11
     :figclass: align-center

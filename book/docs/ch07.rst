@@ -229,7 +229,7 @@ get your vertex rotated around the origin!
 Cayley Graph
 ^^^^^^^^^^^^
 
-.. figure:: _static/demo06.svg
+.. figure:: _static/demo06.png
     :align: center
     :alt: Demo 06
     :figclass: align-center

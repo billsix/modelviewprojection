@@ -33,7 +33,7 @@ Description
 ^^^^^^^^^^^
 
 
-.. figure:: _static/perspective.svg
+.. figure:: _static/perspective.png
     :align: center
     :alt: Demo 11
     :figclass: align-center
