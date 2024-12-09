@@ -180,7 +180,9 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
-    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
+    while (
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+    ):
         pass
     time_at_beginning_of_previous_frame = glfw.get_time()
 

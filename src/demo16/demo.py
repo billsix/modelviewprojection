@@ -142,7 +142,10 @@ class Vertex2D:
         return Vertex2D(x=-self.y, y=self.x)
 
     def rotate(self: Vertex2D, angle_in_radians: float) -> Vertex2D:
-        return math.cos(angle_in_radians) * self + math.sin(angle_in_radians) * self.rotate_90_degrees()
+        return (
+            math.cos(angle_in_radians) * self
+            + math.sin(angle_in_radians) * self.rotate_90_degrees()
+        )
 
 
 @dataclass
@@ -265,7 +268,9 @@ paddle2: Paddle = Paddle(
 
 @dataclass
 class Camera:
-    position_worldspace: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0, z=15.0))
+    position_worldspace: Vertex = field(
+        default_factory=lambda: Vertex(x=0.0, y=0.0, z=15.0)
+    )
     rot_y: float = 0.0
     rot_x: float = 0.0
     # doc-region-end define camera class
@@ -354,7 +359,9 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
     # doc-region-end begin event loop
-    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
+    while (
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+    ):
         pass
     time_at_beginning_of_previous_frame = glfw.get_time()
 

@@ -221,7 +221,9 @@ class Paddle:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
         glBufferData(
             GL_ARRAY_BUFFER,
@@ -284,19 +286,25 @@ class Paddle:
             self.m_matrix_loc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.v_matrix_loc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.p_matrix_loc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+            ),
         )
         glDrawArrays(GL_TRIANGLES, 0, self.number_of_vertices)
         glBindVertexArray(0)
@@ -406,7 +414,9 @@ class Ground:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
         glBufferData(
             GL_ARRAY_BUFFER,
@@ -447,19 +457,25 @@ class Ground:
             self.m_matrix_loc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.v_matrix_loc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.p_matrix_loc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+            ),
         )
         glUniform1f(self.thickness_loc, line_thickness)
         glUniform2f(self.viewport_loc, width, height)
@@ -542,7 +558,9 @@ class Axis:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
         glBufferData(
             GL_ARRAY_BUFFER,
@@ -633,13 +651,17 @@ class Axis:
                 self.m_matrix_loc,
                 1,
                 GL_TRUE,
-                np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
+                np.ascontiguousarray(
+                    ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+                ),
             )
             glUniformMatrix4fv(
                 self.v_matrix_loc,
                 1,
                 GL_TRUE,
-                np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
+                np.ascontiguousarray(
+                    ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
+                ),
             )
             glUniformMatrix4fv(
                 self.p_matrix_loc,
@@ -737,7 +759,9 @@ class NDCCube:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
         glBufferData(
             GL_ARRAY_BUFFER,
@@ -781,19 +805,25 @@ class NDCCube:
             self.m_matrix_loc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.v_matrix_loc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
+            ),
         )
         glUniformMatrix4fv(
             self.p_matrix_loc,
             1,
             GL_TRUE,
-            np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32),
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+            ),
         )
         glUniform1f(self.thickness_loc, line_thickness)
         glUniform2f(self.viewport_loc, width, height)
@@ -887,7 +917,9 @@ def highlighted_button(text: str, start_time: int, time: float) -> bool:
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
-    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
+    while (
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+    ):
         pass
     # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -904,7 +936,9 @@ while not glfw.window_should_close(window):
     imgui.set_next_window_bg_alpha(0.05)
     imgui.begin("Time", True)
 
-    clicked_animation_paused, animation_paused = imgui.checkbox("Pause", animation_paused)
+    clicked_animation_paused, animation_paused = imgui.checkbox(
+        "Pause", animation_paused
+    )
 
     (
         clicked_line_thickness,
@@ -1097,9 +1131,12 @@ while not glfw.window_should_close(window):
             if animation_time > 55.0:
                 ms.translate(
                     ms.MatrixStack.model,
-                    virtual_camera_position[0] * min(1.0, (animation_time - 55.0) / 5.0),
-                    virtual_camera_position[1] * min(1.0, (animation_time - 55.0) / 5.0),
-                    virtual_camera_position[2] * min(1.0, (animation_time - 55.0) / 5.0),
+                    virtual_camera_position[0]
+                    * min(1.0, (animation_time - 55.0) / 5.0),
+                    virtual_camera_position[1]
+                    * min(1.0, (animation_time - 55.0) / 5.0),
+                    virtual_camera_position[2]
+                    * min(1.0, (animation_time - 55.0) / 5.0),
                 )
             with ms.PushMatrix(ms.MatrixStack.model):
                 with ms.PushMatrix(ms.MatrixStack.model):

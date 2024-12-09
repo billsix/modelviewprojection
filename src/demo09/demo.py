@@ -134,7 +134,10 @@ class Vertex:
         return Vertex(x=-self.y, y=self.x)
 
     def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
-        return math.cos(angle_in_radians) * self + math.sin(angle_in_radians) * self.rotate_90_degrees()
+        return (
+            math.cos(angle_in_radians) * self
+            + math.sin(angle_in_radians) * self.rotate_90_degrees()
+        )
 
 
 @dataclass
@@ -203,7 +206,9 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
     # doc-region-end begin event loop
-    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
+    while (
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+    ):
         pass
 
     time_at_beginning_of_previous_frame = glfw.get_time()

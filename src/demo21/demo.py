@@ -200,9 +200,13 @@ class Paddle:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
-        glBufferData(GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW)
+        glBufferData(
+            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+        )
 
         # send the modelspace data to the GPU
         vbo_color = glGenBuffers(1)
@@ -210,9 +214,13 @@ class Paddle:
 
         color_attrib_loc = glGetAttribLocation(self.shader, "color_in")
         glEnableVertexAttribArray(color_attrib_loc)
-        glVertexAttribPointer(color_attrib_loc, floatsPerColor, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            color_attrib_loc, floatsPerColor, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
-        glBufferData(GL_ARRAY_BUFFER, glfloat_size * np.size(color), color, GL_STATIC_DRAW)
+        glBufferData(
+            GL_ARRAY_BUFFER, glfloat_size * np.size(color), color, GL_STATIC_DRAW
+        )
 
         # reset VAO/VBO to default
         glBindVertexArray(0)
@@ -340,9 +348,13 @@ class Ground:
         position = glGetAttribLocation(self.shader, "position")
         glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0))
+        glVertexAttribPointer(
+            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
 
-        glBufferData(GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW)
+        glBufferData(
+            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+        )
 
         # send the modelspace data to the GPU
         # TODO, send color to the shader
@@ -448,7 +460,9 @@ time_at_beginning_of_previous_frame = glfw.get_time()
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
-    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
+    while (
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+    ):
         pass
     # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -501,7 +515,12 @@ while not glfw.window_should_close(window):
     ms.set_to_identity_matrix(ms.MatrixStack.projection)
 
     # set the projection matrix to be perspective
-    ms.perspective(field_of_view=45.0, aspect_ratio=float(width) / float(height), near_z=0.1, far_z=1000.0)
+    ms.perspective(
+        field_of_view=45.0,
+        aspect_ratio=float(width) / float(height),
+        near_z=0.1,
+        far_z=1000.0,
+    )
 
     # render scene
     width, height = glfw.get_framebuffer_size(window)

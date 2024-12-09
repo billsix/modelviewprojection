@@ -142,7 +142,10 @@ class Vertex2D:
         return Vertex2D(x=-self.y, y=self.x)
 
     def rotate(self: Vertex2D, angle_in_radians: float) -> Vertex2D:
-        return math.cos(angle_in_radians) * self + math.sin(angle_in_radians) * self.rotate_90_degrees()
+        return (
+            math.cos(angle_in_radians) * self
+            + math.sin(angle_in_radians) * self.rotate_90_degrees()
+        )
 
 
 # doc-region-begin define vertex class
@@ -287,7 +290,9 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 @dataclass
 class Camera:
-    position_worldspace: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0, z=40.0))
+    position_worldspace: Vertex = field(
+        default_factory=lambda: Vertex(x=0.0, y=0.0, z=40.0)
+    )
     rot_y: float = 0.0
     rot_x: float = 0.0
 
@@ -326,13 +331,17 @@ def handle_inputs() -> None:
         camera.rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         forwards_camera_space = Vertex(x=0.0, y=0.0, z=-1.0)
-        forward_world_space = forwards_camera_space.rotate_y(camera.rot_y).translate(camera.position_worldspace)
+        forward_world_space = forwards_camera_space.rotate_y(camera.rot_y).translate(
+            camera.position_worldspace
+        )
         camera.position_worldspace.x = forward_world_space.x
         camera.position_worldspace.y = forward_world_space.y
         camera.position_worldspace.z = forward_world_space.z
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         forwards_camera_space = Vertex(x=0.0, y=0.0, z=1.0)
-        forward_world_space = forwards_camera_space.rotate_y(camera.rot_y).translate(camera.position_worldspace)
+        forward_world_space = forwards_camera_space.rotate_y(camera.rot_y).translate(
+            camera.position_worldspace
+        )
         camera.position_worldspace.x = forward_world_space.x
         camera.position_worldspace.y = forward_world_space.y
         camera.position_worldspace.z = forward_world_space.z
@@ -365,7 +374,9 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
     # doc-region-end begin event loop
-    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
+    while (
+        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+    ):
         pass
     time_at_beginning_of_previous_frame = glfw.get_time()
 
@@ -381,11 +392,19 @@ while not glfw.window_should_close(window):
     axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
-            camera.position_worldspace.x += 1.0 * axes_list[0][0] * math.cos(camera.rot_y)
-            camera.position_worldspace.z -= 1.0 * axes_list[0][0] * math.sin(camera.rot_y)
+            camera.position_worldspace.x += (
+                1.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            )
+            camera.position_worldspace.z -= (
+                1.0 * axes_list[0][0] * math.sin(camera.rot_y)
+            )
         if math.fabs(float(axes_list[0][1])) > 0.1:
-            camera.position_worldspace.x += 1.0 * axes_list[0][1] * math.sin(camera.rot_y)
-            camera.position_worldspace.z += 1.0 * axes_list[0][1] * math.cos(camera.rot_y)
+            camera.position_worldspace.x += (
+                1.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            )
+            camera.position_worldspace.z += (
+                1.0 * axes_list[0][1] * math.cos(camera.rot_y)
+            )
 
         # print(axes_list[0][4])
         if math.fabs(axes_list[0][3]) > 0.10:
