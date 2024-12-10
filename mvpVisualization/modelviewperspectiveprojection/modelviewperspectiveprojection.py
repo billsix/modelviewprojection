@@ -1649,24 +1649,69 @@ while not glfw.window_should_close(window):
             0.0,
         )
     if center_view_on == CenterViewOn.camera:
-        if animation_time > 65.0:
+        if animation_time > (StepNumber.camera_inverse_translate.value * time_per_step):
             ms.translate(
                 ms.MatrixStack.model,
-                virtual_camera_position[0] * min(1.0, (animation_time - 65.0) / 5.0),
-                virtual_camera_position[1] * min(1.0, (animation_time - 65.0) / 5.0),
-                virtual_camera_position[2] * min(1.0, (animation_time - 65.0) / 5.0),
+                virtual_camera_position[0]
+                * min(
+                    1.0,
+                    (
+                        animation_time
+                        - (StepNumber.camera_inverse_translate.value * time_per_step)
+                    )
+                    / time_per_step,
+                ),
+                virtual_camera_position[1]
+                * min(
+                    1.0,
+                    (
+                        animation_time
+                        - (StepNumber.camera_inverse_translate.value * time_per_step)
+                    )
+                    / time_per_step,
+                ),
+                virtual_camera_position[2]
+                * min(
+                    1.0,
+                    (
+                        animation_time
+                        - (StepNumber.camera_inverse_translate.value * time_per_step)
+                    )
+                    / time_per_step,
+                ),
             )
 
-        if animation_time > 50.0:
-            if animation_time > 50.0:
+        if animation_time > (StepNumber.camera_translate.value * time_per_step):
+            if animation_time > (StepNumber.camera_translate.value * time_per_step):
                 ms.translate(
                     ms.MatrixStack.model,
                     -virtual_camera_position[0]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    * min(
+                        1.0,
+                        (
+                            animation_time
+                            - (StepNumber.camera_translate.value * time_per_step)
+                        )
+                        / time_per_step,
+                    ),
                     -virtual_camera_position[1]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    * min(
+                        1.0,
+                        (
+                            animation_time
+                            - (StepNumber.camera_translate.value * time_per_step)
+                        )
+                        / time_per_step,
+                    ),
                     -virtual_camera_position[2]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    * min(
+                        1.0,
+                        (
+                            animation_time
+                            - (StepNumber.camera_translate.value * time_per_step)
+                        )
+                        / time_per_step,
+                    ),
                 )
 
     # draw NDC in global space, so that we can see the camera space
@@ -1677,51 +1722,128 @@ while not glfw.window_should_close(window):
         cube.render(animation_time)
     glClear(GL_DEPTH_BUFFER_BIT)
 
-    if animation_time > 75.0:
+    if animation_time > (StepNumber.camera_inverse_rotate_x.value * time_per_step):
         ms.rotate_x(
             ms.MatrixStack.model,
-            -virtual_camera_rot_x * min(1.0, (animation_time - 75.0) / 5.0),
+            -virtual_camera_rot_x
+            * min(
+                1.0,
+                (
+                    animation_time
+                    - (StepNumber.camera_inverse_rotate_x.value * time_per_step)
+                )
+                / time_per_step,
+            ),
         )
-    if animation_time > 70.0:
+    if animation_time > (StepNumber.camera_inverse_rotate_y.value * time_per_step):
         ms.rotate_y(
             ms.MatrixStack.model,
-            -virtual_camera_rot_y * min(1.0, (animation_time - 70.0) / 5.0),
+            -virtual_camera_rot_y
+            * min(
+                1.0,
+                (
+                    animation_time
+                    - (StepNumber.camera_inverse_rotate_y.value * time_per_step)
+                )
+                / time_per_step,
+            ),
         )
-    if animation_time > 65.0:
+    if animation_time > (StepNumber.camera_inverse_translate.value * time_per_step):
         ms.translate(
             ms.MatrixStack.model,
-            -virtual_camera_position[0] * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[1] * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[2] * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[0]
+            * min(
+                1.0,
+                (
+                    animation_time
+                    - (StepNumber.camera_inverse_translate.value * time_per_step)
+                )
+                / time_per_step,
+            ),
+            -virtual_camera_position[1]
+            * min(
+                1.0,
+                (
+                    animation_time
+                    - (StepNumber.camera_inverse_translate.value * time_per_step)
+                )
+                / time_per_step,
+            ),
+            -virtual_camera_position[2]
+            * min(
+                1.0,
+                (
+                    animation_time
+                    - (StepNumber.camera_inverse_translate.value * time_per_step)
+                )
+                / time_per_step,
+            ),
         )
 
     # draw virtual camera
-    if animation_time > 50.0:
+    if animation_time > (StepNumber.camera_translate.value * time_per_step):
         with ms.push_matrix(ms.MatrixStack.model):
-            if animation_time > 50.0:
+            if animation_time > (StepNumber.camera_translate.value * time_per_step):
                 ms.translate(
                     ms.MatrixStack.model,
                     virtual_camera_position[0]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    * min(
+                        1.0,
+                        (
+                            animation_time
+                            - (StepNumber.camera_translate.value * time_per_step)
+                        )
+                        / time_per_step,
+                    ),
                     virtual_camera_position[1]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    * min(
+                        1.0,
+                        (
+                            animation_time
+                            - (StepNumber.camera_translate.value * time_per_step)
+                        )
+                        / time_per_step,
+                    ),
                     virtual_camera_position[2]
-                    * min(1.0, (animation_time - 50.0) / 5.0),
+                    * min(
+                        1.0,
+                        (
+                            animation_time
+                            - (StepNumber.camera_translate.value * time_per_step)
+                        )
+                        / time_per_step,
+                    ),
                 )
-            if animation_time > 55.0:
+            if animation_time > (StepNumber.camera_rotate_y.value * time_per_step):
                 ms.rotate_y(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_y * min(1.0, (animation_time - 55.0) / 5.0),
+                    virtual_camera_rot_y
+                    * min(
+                        1.0,
+                        (
+                            animation_time
+                            - (StepNumber.camera_rotate_y.value * time_per_step)
+                        )
+                        / time_per_step,
+                    ),
                 )
-            if animation_time > 60.0:
+            if animation_time > (StepNumber.camera_rotate_x.value * time_per_step):
                 ms.rotate_x(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_x * min(1.0, (animation_time - 60.0) / 5.0),
+                    virtual_camera_rot_x
+                    * min(
+                        1.0,
+                        (
+                            animation_time
+                            - (StepNumber.camera_rotate_x.value * time_per_step)
+                        )
+                        / time_per_step,
+                    ),
                 )
 
             ground.render(animation_time)
 
-            if animation_time > 55.0:
+            if animation_time > (StepNumber.camera_rotate_y.value * time_per_step):
                 frustum.render(animation_time)
             axis.render(animation_time)
             cube.render(animation_time)
