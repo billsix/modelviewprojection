@@ -26,10 +26,10 @@ layout (location = 1) in vec3 color_in;
 uniform mat4 mMatrix;
 uniform mat4 vMatrix;
 uniform mat4 pMatrix;
-uniform float fov;
-uniform float aspectRatio;
-uniform float nearZ;
-uniform float farZ;
+uniform float field_of_view;
+uniform float aspect_ratio;
+uniform float near_z;
+uniform float far_z;
 uniform float time;
 
 out VS_OUT {
