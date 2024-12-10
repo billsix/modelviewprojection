@@ -25,10 +25,10 @@ layout (location = 0) in vec3 position;
 uniform mat4 mMatrix;
 uniform mat4 vMatrix;
 uniform mat4 pMatrix;
-uniform float fov;
-uniform float aspectRatio;
-uniform float nearZ;
-uniform float farZ;
+uniform float field_of_view;
+uniform float aspect_ratio;
+uniform float near_z;
+uniform float far_z;
 uniform float time;
 
 out VS_OUT {
@@ -71,7 +71,7 @@ vec4 project(vec4 cameraSpace){
 void main()
 {
    // if you change the depth to be 1.0, and LEQUAL, instead of -1.0, and GREATER, and if
-   // you change the nearZ farZ by negating them, then you could use the standard
+   // you change the near_z far_z by negating them, then you could use the standard
    // projection matrix here:
      gl_Position = pMatrix * vMatrix * project(mMatrix * vec4(position,1.0));
    vs_out.color = vec4(1.0,1.0,1.0,1.0);

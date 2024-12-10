@@ -25,10 +25,10 @@ layout (location = 0) in vec3 position;
 uniform mat4 mMatrix;
 uniform mat4 vMatrix;
 uniform mat4 pMatrix;
-uniform float fov;
-uniform float aspectRatio;
-uniform float nearZ;
-uniform float farZ;
+uniform float field_of_view;
+uniform float aspect_ratio;
+uniform float near_z;
+uniform float far_z;
 uniform vec3 color;
 uniform float time;
 
@@ -38,8 +38,8 @@ out VS_OUT {
 
 vec4 project(vec4 cameraSpace){
 
-    float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
-    float right = top * aspectRatio;
+    float top = (-near_z) * tan(field_of_view * 3.14159265358979323846 / 360.0);
+    float right = top * aspect_ratio;
 
     float scaleXRatio = max(1.0, (time - 90.0)/5.0);
     float scaleYRatio = max(1.0, (time - 95.0)/5.0);
@@ -47,24 +47,24 @@ vec4 project(vec4 cameraSpace){
     float scaleToNDCRatio = max(1.0, (time - 105.0)/5.0);
 
     mat4 scale_x = transpose(mat4(
-                                  nearZ/cameraSpace.z, 0.0, 0.0, 0.0,
+                                  near_z/cameraSpace.z, 0.0, 0.0, 0.0,
                                   0.0,                 1.0, 0.0, 0.0,
                                   0.0,                 0.0, 1.0, 0.0,
                                   0.0,                 0.0, 0.0, 1.0));
     mat4 scale_y = transpose(mat4(
                                   1.0, 0.0,                 0.0, 0.0,
-                                  0.0, nearZ/cameraSpace.z, 0.0, 0.0,
+                                  0.0, near_z/cameraSpace.z, 0.0, 0.0,
                                   0.0, 0.0,                 1.0, 0.0,
                                   0.0, 0.0,                 0.0, 1.0));
     mat4 translate_to_origin = transpose(mat4(
          1.0, 0.0, 0.0, 0.0,
          0.0, 1.0, 0.0, 0.0,
-         0.0, 0.0, 1.0, -((farZ + nearZ) / 2.0),
+         0.0, 0.0, 1.0, -((far_z + near_z) / 2.0),
          0.0, 0.0, 0.0, 1.0));
     mat4 scale_to_ndc = transpose(mat4(
          1.0/right,     0.0,           0.0,                  0.0,
          0.0,           1.0/top,       0.0,                  0.0,
-         0.0,           0.0,           2.0/(nearZ - farZ),   0.0,
+         0.0,           0.0,           2.0/(near_z - far_z),   0.0,
          0.0,           0.0,           0.0,                  1.0));
 
     //use transpose to put the matrix in column major order

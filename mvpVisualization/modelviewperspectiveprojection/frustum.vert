@@ -25,10 +25,10 @@ layout (location = 0) in vec3 position;
 uniform mat4 mMatrix;
 uniform mat4 vMatrix;
 uniform mat4 pMatrix;
-uniform float fov;
-uniform float aspectRatio;
-uniform float nearZ;
-uniform float farZ;
+uniform float field_of_view;
+uniform float aspect_ratio;
+uniform float near_z;
+uniform float far_z;
 uniform float time;
 
 out VS_OUT {
@@ -37,11 +37,11 @@ out VS_OUT {
 
 vec4 project(vec4 cameraSpace){
 
-    float top = (-nearZ) * tan(fov * 3.14159265358979323846 / 360.0);
-    float right = top * aspectRatio;
+    float top = (-near_z) * tan(field_of_view * 3.14159265358979323846 / 360.0);
+    float right = top * aspect_ratio;
 
     float scaleXRatio = min((time - 90.0)/5.0, 1.0);
-    float xVal = 1 + (nearZ/cameraSpace.z - 1) * scaleXRatio;
+    float xVal = 1 + (near_z/cameraSpace.z - 1) * scaleXRatio;
 
     mat4 scale_x = transpose(mat4(
                                   xVal, 0.0, 0.0, 0.0,
@@ -49,14 +49,14 @@ vec4 project(vec4 cameraSpace){
                                   0.0,                 0.0, 1.0, 0.0,
                                   0.0,                 0.0, 0.0, 1.0));
     float scaleYRatio = min((time - 95.0)/5.0, 1.0);
-    float yVal = 1 + (nearZ/cameraSpace.z - 1) * scaleYRatio;
+    float yVal = 1 + (near_z/cameraSpace.z - 1) * scaleYRatio;
     mat4 scale_y = transpose(mat4(
                                   1.0, 0.0,                 0.0, 0.0,
                                   0.0, yVal, 0.0, 0.0,
                                   0.0, 0.0,                 1.0, 0.0,
                                   0.0, 0.0,                 0.0, 1.0));
     float translateRatio = min((time - 100.0)/5.0, 1.0);
-    float zVal = (-((farZ + nearZ) / 2.0)) * translateRatio;
+    float zVal = (-((far_z + near_z) / 2.0)) * translateRatio;
     mat4 translate_to_origin = transpose(mat4(
          1.0, 0.0, 0.0, 0.0,
          0.0, 1.0, 0.0, 0.0,
@@ -65,7 +65,7 @@ vec4 project(vec4 cameraSpace){
     float scaleRatio = min((time - 105.0)/5.0, 1.0);
     xVal = 1.0 + (1.0/right - 1.0) * scaleRatio;
     yVal = 1.0 + (1.0/top - 1.0) * scaleRatio;
-    zVal = 1.0 + (2.0/(nearZ - farZ) - 1) * scaleRatio;
+    zVal = 1.0 + (2.0/(near_z - far_z) - 1) * scaleRatio;
     mat4 scale_to_ndc = transpose(mat4(
          xVal,     0.0,     0.0,    0.0,
          0.0,      yVal,    0.0,    0.0,
@@ -96,7 +96,7 @@ vec4 project(vec4 cameraSpace){
 void main()
 {
    // if you change the depth to be 1.0, and LEQUAL, instead of -1.0, and GREATER, and if
-   // you change the nearZ farZ by negating them, then you could use the standard
+   // you change the near_z far_z by negating them, then you could use the standard
    // projection matrix here:
      gl_Position = pMatrix * vMatrix * project(mMatrix * vec4(position,1.0));
    vs_out.color = vec4(1.0,1.0,1.0,1.0);
