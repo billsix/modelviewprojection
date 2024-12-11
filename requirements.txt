@@ -3,7 +3,6 @@ glfw
 imgui
 isort
 numpy
-pyMatrixStack
 PyOpenGL
 ruff
 staticlocal
