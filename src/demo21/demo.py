@@ -100,7 +100,7 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 imgui.create_context()
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 26 ", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 21 ", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -500,7 +500,6 @@ while not glfw.window_should_close(window):
     # normally you would pass the present function name to staticlocal.var
     # , but since we are not in a function, pass the current module
     staticlocal.var(sys.modules[__name__], test_bool=True, test_float=1.0)
-    global test_bool, test_float
     clicked_test_bool, test_bool = imgui.checkbox("test_bool", test_bool)
     clicked_test_float, test_float = imgui.slider_float("float", test_float, 0.0, 1.0)
 
