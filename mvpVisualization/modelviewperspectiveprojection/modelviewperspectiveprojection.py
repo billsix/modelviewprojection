@@ -101,7 +101,7 @@ class State:
 
 
 class StepNumber(Enum):
-    beginning = State("Beginning", 5.0)
+    beginning = State("Beginning", 2.0)
     paddle_1_translate = State("Paddle 1 Translate", 5.0)
     paddle_1_rotate = State("Paddle 1 Rotate", 5.0)
     square_translate_z = State("Square Translate z", 5.0)
@@ -117,8 +117,7 @@ class StepNumber(Enum):
     camera_inverse_translate = State("Camera Inverse Translate", 5.0)
     camera_inverse_rotate_y = State("Camera Inverse Rotate Y", 5.0)
     camera_inverse_rotate_x = State("Camera Inverse Rotate X", 5.0)
-    camera_frustum_pause = State("Camera Frustum Pause", 5.0)
-    camera_frustum_pause2 = State("Camera Frustum Pause 2", 5.0)
+    camera_frustum_pause = State("Camera Frustum Pause", 10.0)
     camera_frustum_squash_x = State("Camera Frustum Squash X", 5.0)
     camera_frustum_squash_y = State("Camera Frustum Squash Y", 5.0)
     camera_frustum_translate = State("Camera Frustum Translate", 5.0)
