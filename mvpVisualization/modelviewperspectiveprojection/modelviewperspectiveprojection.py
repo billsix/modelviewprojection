@@ -93,6 +93,12 @@ class State:
     duration: float
     start_time: float = 0.0
 
+    def interpolate(self, time):
+        return min(
+            1.0,
+            (time - self.start_time) / self.duration,
+        )
+
 
 class StepNumber(Enum):
     beginning = State("Beginning", 5.0)
@@ -1655,67 +1661,35 @@ while not glfw.window_should_close(window):
         )
     if center_view_on == CenterViewOn.camera:
         if animation_time > (StepNumber.camera_inverse_translate.value.start_time):
-            ms.translate(
-                ms.MatrixStack.model,
-                virtual_camera_position[0]
-                * min(
-                    1.0,
-                    (
+            (
+                ms.translate(
+                    ms.MatrixStack.model,
+                    virtual_camera_position[0]
+                    * StepNumber.camera_inverse_translate.value.interpolate(
                         animation_time
-                        - (StepNumber.camera_inverse_translate.value.start_time)
-                    )
-                    / StepNumber.camera_inverse_translate.value.duration,
-                ),
-                virtual_camera_position[1]
-                * min(
-                    1.0,
-                    (
+                    ),
+                    virtual_camera_position[1]
+                    * StepNumber.camera_inverse_translate.value.interpolate(
                         animation_time
-                        - (StepNumber.camera_inverse_translate.value.start_time)
-                    )
-                    / StepNumber.camera_inverse_translate.value.duration,
-                ),
-                virtual_camera_position[2]
-                * min(
-                    1.0,
-                    (
+                    ),
+                    virtual_camera_position[2]
+                    * StepNumber.camera_inverse_translate.value.interpolate(
                         animation_time
-                        - (StepNumber.camera_inverse_translate.value.start_time)
-                    )
-                    / StepNumber.camera_inverse_translate.value.duration,
-                ),
+                    ),
+                )
             )
 
         if animation_time > (StepNumber.camera_translate.value.start_time):
             if animation_time > (StepNumber.camera_translate.value.start_time):
-                ms.translate(
-                    ms.MatrixStack.model,
-                    -virtual_camera_position[0]
-                    * min(
-                        1.0,
-                        (
-                            animation_time
-                            - (StepNumber.camera_translate.value.start_time)
-                        )
-                        / StepNumber.camera_translate.value.duration,
-                    ),
-                    -virtual_camera_position[1]
-                    * min(
-                        1.0,
-                        (
-                            animation_time
-                            - (StepNumber.camera_translate.value.start_time)
-                        )
-                        / StepNumber.camera_translate.value.duration,
-                    ),
-                    -virtual_camera_position[2]
-                    * min(
-                        1.0,
-                        (
-                            animation_time
-                            - (StepNumber.camera_translate.value.start_time)
-                        )
-                        / StepNumber.camera_translate.value.duration,
+                (
+                    ms.translate(
+                        ms.MatrixStack.model,
+                        -virtual_camera_position[0]
+                        * StepNumber.camera_translate.value.interpolate(animation_time),
+                        -virtual_camera_position[1]
+                        * StepNumber.camera_translate.value.interpolate(animation_time),
+                        -virtual_camera_position[2]
+                        * StepNumber.camera_translate.value.interpolate(animation_time),
                     ),
                 )
 
@@ -1731,52 +1705,23 @@ while not glfw.window_should_close(window):
         ms.rotate_x(
             ms.MatrixStack.model,
             -virtual_camera_rot_x
-            * min(
-                1.0,
-                (animation_time - (StepNumber.camera_inverse_rotate_x.value.start_time))
-                / StepNumber.camera_inverse_rotate_x.value.duration,
-            ),
+            * StepNumber.camera_inverse_rotate_x.value.interpolate(animation_time),
         )
     if animation_time > (StepNumber.camera_inverse_rotate_y.value.start_time):
         ms.rotate_y(
             ms.MatrixStack.model,
             -virtual_camera_rot_y
-            * min(
-                1.0,
-                (animation_time - (StepNumber.camera_inverse_rotate_y.value.start_time))
-                / StepNumber.camera_inverse_rotate_y.value.duration,
-            ),
+            * StepNumber.camera_inverse_rotate_y.value.interpolate(animation_time),
         )
     if animation_time > (StepNumber.camera_inverse_translate.value.start_time):
         ms.translate(
             ms.MatrixStack.model,
             -virtual_camera_position[0]
-            * min(
-                1.0,
-                (
-                    animation_time
-                    - (StepNumber.camera_inverse_translate.value.start_time)
-                )
-                / StepNumber.camera_inverse_translate.value.duration,
-            ),
+            * StepNumber.camera_inverse_translate.value.interpolate(animation_time),
             -virtual_camera_position[1]
-            * min(
-                1.0,
-                (
-                    animation_time
-                    - (StepNumber.camera_inverse_translate.value.start_time)
-                )
-                / StepNumber.camera_inverse_translate.value.duration,
-            ),
+            * StepNumber.camera_inverse_translate.value.interpolate(animation_time),
             -virtual_camera_position[2]
-            * min(
-                1.0,
-                (
-                    animation_time
-                    - (StepNumber.camera_inverse_translate.value.start_time)
-                )
-                / StepNumber.camera_inverse_translate.value.duration,
-            ),
+            * StepNumber.camera_inverse_translate.value.interpolate(animation_time),
         )
 
     # draw virtual camera
@@ -1786,52 +1731,23 @@ while not glfw.window_should_close(window):
                 ms.translate(
                     ms.MatrixStack.model,
                     virtual_camera_position[0]
-                    * min(
-                        1.0,
-                        (
-                            animation_time
-                            - (StepNumber.camera_translate.value.start_time)
-                        )
-                        / StepNumber.camera_translate.value.duration,
-                    ),
+                    * StepNumber.camera_translate.value.interpolate(animation_time),
                     virtual_camera_position[1]
-                    * min(
-                        1.0,
-                        (
-                            animation_time
-                            - (StepNumber.camera_translate.value.start_time)
-                        )
-                        / StepNumber.camera_translate.value.duration,
-                    ),
+                    * StepNumber.camera_translate.value.interpolate(animation_time),
                     virtual_camera_position[2]
-                    * min(
-                        1.0,
-                        (
-                            animation_time
-                            - (StepNumber.camera_translate.value.start_time)
-                        )
-                        / StepNumber.camera_translate.value.duration,
-                    ),
+                    * StepNumber.camera_translate.value.interpolate(animation_time),
                 )
             if animation_time > (StepNumber.camera_rotate_y.value.start_time):
                 ms.rotate_y(
                     ms.MatrixStack.model,
                     virtual_camera_rot_y
-                    * min(
-                        1.0,
-                        (animation_time - (StepNumber.camera_rotate_y.value.start_time))
-                        / StepNumber.camera_rotate_y.value.duration,
-                    ),
+                    * StepNumber.camera_rotate_y.value.interpolate(animation_time),
                 )
             if animation_time > (StepNumber.camera_rotate_x.value.start_time):
                 ms.rotate_x(
                     ms.MatrixStack.model,
                     virtual_camera_rot_x
-                    * min(
-                        1.0,
-                        (animation_time - (StepNumber.camera_rotate_x.value.start_time))
-                        / StepNumber.camera_rotate_x.value.duration,
-                    ),
+                    * StepNumber.camera_rotate_x.value.interpolate(animation_time),
                 )
 
             ground.render(animation_time)
@@ -1851,28 +1767,16 @@ while not glfw.window_should_close(window):
             ms.translate(
                 ms.MatrixStack.model,
                 paddle1.position[0]
-                * min(
-                    1.0,
-                    (animation_time - (StepNumber.paddle_1_translate.value.start_time))
-                    / StepNumber.paddle_1_translate.value.duration,
-                ),
+                * StepNumber.paddle_1_translate.value.interpolate(animation_time),
                 paddle1.position[1]
-                * min(
-                    1.0,
-                    (animation_time - (StepNumber.paddle_1_translate.value.start_time))
-                    / StepNumber.paddle_1_translate.value.duration,
-                ),
+                * StepNumber.paddle_1_translate.value.interpolate(animation_time),
                 0.0,
             )
         if animation_time > (StepNumber.paddle_1_rotate.value.start_time):
             ms.rotate_z(
                 ms.MatrixStack.model,
                 paddle1.rotation
-                * min(
-                    1.0,
-                    (animation_time - (StepNumber.paddle_1_rotate.value.start_time))
-                    / StepNumber.paddle_1_rotate.value.duration,
-                ),
+                * StepNumber.paddle_1_rotate.value.interpolate(animation_time),
             )
 
         if animation_time > (StepNumber.beginning.value.start_time) and (
@@ -1890,35 +1794,18 @@ while not glfw.window_should_close(window):
                 ms.MatrixStack.model,
                 0.0,
                 0.0,
-                -5.0
-                * min(
-                    1.0,
-                    (animation_time - (StepNumber.square_translate_z.value.start_time))
-                    / StepNumber.square_translate_z.value.duration,
-                ),
+                -5.0 * StepNumber.square_translate_z.value.interpolate(animation_time),
             )
         if animation_time > (StepNumber.square_rotate_z_first.value.start_time):
             ms.rotate_z(
                 ms.MatrixStack.model,
                 rotation_around_paddle1
-                * min(
-                    1.0,
-                    (
-                        animation_time
-                        - (StepNumber.square_rotate_z_first.value.start_time)
-                    )
-                    / StepNumber.square_rotate_z_first.value.duration,
-                ),
+                * StepNumber.square_rotate_z_first.value.interpolate(animation_time),
             )
         if animation_time > (StepNumber.square_translate_x.value.start_time):
             ms.translate(
                 ms.MatrixStack.model,
-                1.5
-                * min(
-                    1.0,
-                    (animation_time - (StepNumber.square_translate_x.value.start_time))
-                    / StepNumber.square_translate_x.value.duration,
-                ),
+                1.5 * StepNumber.square_translate_x.value.interpolate(animation_time),
                 0.0,
                 0.0,
             )
@@ -1926,14 +1813,7 @@ while not glfw.window_should_close(window):
             ms.rotate_z(
                 ms.MatrixStack.model,
                 square_rotation
-                * min(
-                    1.0,
-                    (
-                        animation_time
-                        - (StepNumber.square_rotate_z_second.value.start_time)
-                    )
-                    / StepNumber.square_rotate_z_second.value.duration,
-                ),
+                * StepNumber.square_rotate_z_second.value.interpolate(animation_time),
             )
 
         if animation_time > (StepNumber.paddle_1_rotate.value.start_time) and (
@@ -1952,28 +1832,16 @@ while not glfw.window_should_close(window):
             ms.translate(
                 ms.MatrixStack.model,
                 paddle2.position[0]
-                * min(
-                    1.0,
-                    (animation_time - (StepNumber.paddle_2_translate.value.start_time))
-                    / StepNumber.paddle_2_translate.value.duration,
-                ),
+                * StepNumber.paddle_2_translate.value.interpolate(animation_time),
                 paddle2.position[1]
-                * min(
-                    1.0,
-                    (animation_time - (StepNumber.paddle_2_translate.value.start_time))
-                    / StepNumber.paddle_2_translate.value.duration,
-                ),
+                * StepNumber.paddle_2_translate.value.interpolate(animation_time),
                 0.0,
             )
         if animation_time > (StepNumber.paddle_2_rotate.value.start_time):
             ms.rotate_z(
                 ms.MatrixStack.model,
                 paddle2.rotation
-                * min(
-                    1.0,
-                    (animation_time - (StepNumber.paddle_2_rotate.value.start_time))
-                    / StepNumber.paddle_2_rotate.value.duration,
-                ),
+                * StepNumber.paddle_2_rotate.value.interpolate(animation_time),
             )
 
         if animation_time > (StepNumber.paddle_2_translate.value.start_time) and (
