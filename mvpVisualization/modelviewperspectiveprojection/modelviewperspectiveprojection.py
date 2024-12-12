@@ -26,7 +26,7 @@ import os
 import sys
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import Optional, Tuple
+from typing import List, Optional, Tuple
 
 import glfw
 import imgui
@@ -90,30 +90,52 @@ line_thickness = 2.0
 time_per_step = 5.0
 
 
+@dataclass
+class State:
+    name: str
+    duration: float
+    start_time: float = 0.0
+
+
 class StepNumber(Enum):
-    beginning = auto()
-    paddle_1_translate = auto()  # 5
-    paddle_1_rotate = auto()  # 10
-    square_translate_z = auto()  # 15
-    square_rotate_z_first = auto()  # 20
-    square_translate_x = auto()  # 25
-    square_rotate_z_second = auto()  # 30
-    paddle_2_translate = auto()  # 35
-    paddle_2_rotate = auto()  # 40
-    camera_pre_placement_pause = auto()  # 45
-    camera_translate = auto()  # 50
-    camera_rotate_y = auto()  # 55
-    camera_rotate_x = auto()  # 60
-    camera_inverse_translate = auto()  # 65
-    camera_inverse_rotate_y = auto()  # 70
-    camera_inverse_rotate_x = auto()  # 75
-    camera_frustum_pause = auto()  # 80
-    camera_frustum_pause2 = auto()  # 85
-    camera_frustum_squash_x = auto()  # 90
-    camera_frustum_squash_y = auto()  # 95
-    camera_frustum_translate = auto()  # 100
-    camera_frustum_scale = auto()  # 105
-    end = auto()
+    beginning = State("Beginning", 5.0)
+    paddle_1_translate = State("Paddle 1 Translate", 5.0)
+    paddle_1_rotate = State("Paddle 1 Rotate", 5.0)
+    square_translate_z = State("Square Translate z", 5.0)
+    square_rotate_z_first = State("Square Rotate Z First", 5.0)
+    square_translate_x = State("Square Translate X", 5.0)
+    square_rotate_z_second = State("Square Rotate Z Second", 5.0)
+    paddle_2_translate = State("Paddle 2 Translate", 5.0)
+    paddle_2_rotate = State("Paddle 2 Rotate", 5.0)
+    camera_pre_placement_pause = State("Camera Pre Placement Pause", 5.0)
+    camera_translate = State("Camera Translate", 5.0)
+    camera_rotate_y = State("Camera Rotate Y", 5.0)
+    camera_rotate_x = State("Camera Rotate X", 5.0)
+    camera_inverse_translate = State("Camera Inverse Translate", 5.0)
+    camera_inverse_rotate_y = State("Camera Inverse Rotate Y", 5.0)
+    camera_inverse_rotate_x = State("Camera Inverse Rotate X", 5.0)
+    camera_frustum_pause = State("Camera Frustum Pause", 5.0)
+    camera_frustum_pause2 = State("Camera Frustum Pause 2", 5.0)
+    camera_frustum_squash_x = State("Camera Frustum Squash X", 5.0)
+    camera_frustum_squash_y = State("Camera Frustum Squash Y", 5.0)
+    camera_frustum_translate = State("Camera Frustum Translate", 5.0)
+    camera_frustum_scale = State("Camera Frustum Scale", 5.0)
+    end = State("End", 5.0)
+
+
+def calculate_start_times(states_enum: Enum) -> List[State]:
+    """Calculate start times for all states."""
+    start_time = 0.0
+    updated_states = []
+    for state in states_enum:
+        current_state = state.value
+        current_state.start_time = start_time
+        updated_states.append(current_state)
+        start_time += current_state.duration
+    return updated_states
+
+
+updated_states = calculate_start_times(StepNumber)
 
 
 # possible things that the viewer may want to center the camera on
