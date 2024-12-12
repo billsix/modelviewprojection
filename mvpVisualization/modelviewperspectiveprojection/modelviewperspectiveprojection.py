@@ -87,9 +87,6 @@ floatsPerColor = 3
 line_thickness = 2.0
 
 
-time_per_step = 5.0
-
-
 @dataclass
 class State:
     name: str
@@ -1267,19 +1264,19 @@ while not glfw.window_should_close(window):
                 imgui.same_line()
                 if highlighted_button(
                     "T",
-                    StepNumber.paddle_1_translate.value * time_per_step,
+                    StepNumber.paddle_1_translate.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.paddle_1_translate.value * time_per_step
+                    animation_time = StepNumber.paddle_1_translate.value.start_time
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
                 if highlighted_button(
                     "R_z",
-                    StepNumber.paddle_1_rotate.value * time_per_step,
+                    StepNumber.paddle_1_rotate.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.paddle_1_rotate.value * time_per_step
+                    animation_time = StepNumber.paddle_1_rotate.value.start_time
                 imgui.same_line()
                 imgui.text(" ) (x) ")
                 if imgui.tree_node("Square->World", imgui.TREE_NODE_DEFAULT_OPEN):
@@ -1289,44 +1286,40 @@ while not glfw.window_should_close(window):
                     imgui.same_line()
                     if highlighted_button(
                         "T_-Z",
-                        StepNumber.square_translate_z.value * time_per_step,
+                        StepNumber.square_translate_z.value.start_time,
                         animation_time,
                     ):
-                        animation_time = (
-                            StepNumber.square_translate_z.value * time_per_step
-                        )
+                        animation_time = StepNumber.square_translate_z.value.start_time
                     imgui.same_line()
                     imgui.text(" o ")
                     imgui.same_line()
                     if highlighted_button(
                         "R_Z",
-                        StepNumber.square_rotate_z_first.value * time_per_step,
+                        StepNumber.square_rotate_z_first.value.start_time,
                         animation_time,
                     ):
                         animation_time = (
-                            StepNumber.square_rotate_z_first.value * time_per_step
+                            StepNumber.square_rotate_z_first.value.start_time
                         )
                     imgui.same_line()
                     imgui.text(" o ")
                     imgui.same_line()
                     if highlighted_button(
                         "T_X",
-                        StepNumber.square_translate_x.value * time_per_step,
+                        StepNumber.square_translate_x.value.start_time,
                         animation_time,
                     ):
-                        animation_time = (
-                            StepNumber.square_translate_x.value * time_per_step
-                        )
+                        animation_time = StepNumber.square_translate_x.value.start_time
                     imgui.same_line()
                     imgui.text(" o ")
                     imgui.same_line()
                     if highlighted_button(
                         "R2_Z",
-                        StepNumber.square_rotate_z_second.value * time_per_step,
+                        StepNumber.square_rotate_z_second.value.start_time,
                         animation_time,
                     ):
                         animation_time = (
-                            StepNumber.square_rotate_z_second.value * time_per_step
+                            StepNumber.square_rotate_z_second.value.start_time
                         )
                     imgui.same_line()
                     imgui.text(" ) (x) ")
@@ -1337,19 +1330,19 @@ while not glfw.window_should_close(window):
                 imgui.same_line()
                 if highlighted_button(
                     "T",
-                    StepNumber.paddle_2_translate.value * time_per_step,
+                    StepNumber.paddle_2_translate.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.paddle_2_translate.value * time_per_step
+                    animation_time = StepNumber.paddle_2_translate.value.start_time
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
                 if highlighted_button(
                     "R",
-                    StepNumber.paddle_2_rotate.value * time_per_step,
+                    StepNumber.paddle_2_rotate.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.paddle_2_rotate.value * time_per_step
+                    animation_time = StepNumber.paddle_2_rotate.value.start_time
                 imgui.same_line()
                 imgui.text(" ) (x) ")
                 imgui.tree_pop()
@@ -1358,28 +1351,28 @@ while not glfw.window_should_close(window):
                 imgui.same_line()
                 if highlighted_button(
                     "T",
-                    StepNumber.camera_translate.value * time_per_step,
+                    StepNumber.camera_translate.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.camera_translate.value * time_per_step
+                    animation_time = StepNumber.camera_translate.value.start_time
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
                 if highlighted_button(
                     "R_Y",
-                    StepNumber.camera_rotate_y.value * time_per_step,
+                    StepNumber.camera_rotate_y.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.camera_rotate_y.value * time_per_step
+                    animation_time = StepNumber.camera_rotate_y.value.start_time
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
                 if highlighted_button(
                     "R_X",
-                    StepNumber.camera_rotate_x.value * time_per_step,
+                    StepNumber.camera_rotate_x.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.camera_rotate_x.value * time_per_step
+                    animation_time = StepNumber.camera_rotate_x.value.start_time
                 imgui.same_line()
                 imgui.text(" ) (x) ")
                 imgui.tree_pop()
@@ -1394,33 +1387,29 @@ while not glfw.window_should_close(window):
                 imgui.same_line()
                 if highlighted_button(
                     "R^-1_X",
-                    StepNumber.camera_inverse_rotate_x.value * time_per_step,
+                    StepNumber.camera_inverse_rotate_x.value.start_time,
                     animation_time,
                 ):
-                    animation_time = (
-                        StepNumber.camera_inverse_rotate_x.value * time_per_step
-                    )
+                    animation_time = StepNumber.camera_inverse_rotate_x.value.start_time
                 imgui.same_line()
                 imgui.text(" (")
                 imgui.same_line()
                 if highlighted_button(
                     "R^-1_Y",
-                    StepNumber.camera_inverse_rotate_y.value * time_per_step,
+                    StepNumber.camera_inverse_rotate_y.value.start_time,
                     animation_time,
                 ):
-                    animation_time = (
-                        StepNumber.camera_inverse_rotate_y.value * time_per_step
-                    )
+                    animation_time = StepNumber.camera_inverse_rotate_y.value.start_time
                 imgui.same_line()
                 imgui.text(" (")
                 imgui.same_line()
                 if highlighted_button(
                     "T^-1",
-                    StepNumber.camera_inverse_translate.value * time_per_step,
+                    StepNumber.camera_inverse_translate.value.start_time,
                     animation_time,
                 ):
                     animation_time = (
-                        StepNumber.camera_inverse_translate.value * time_per_step
+                        StepNumber.camera_inverse_translate.value.start_time
                     )
                 imgui.same_line()
                 imgui.text("* x))")
@@ -1432,23 +1421,19 @@ while not glfw.window_should_close(window):
                 imgui.same_line()
                 if highlighted_button(
                     "Squash Y",
-                    StepNumber.camera_frustum_squash_y.value * time_per_step,
+                    StepNumber.camera_frustum_squash_y.value.start_time,
                     animation_time,
                 ):
-                    animation_time = (
-                        StepNumber.camera_frustum_squash_y.value * time_per_step
-                    )
+                    animation_time = StepNumber.camera_frustum_squash_y.value.start_time
                 imgui.same_line()
                 imgui.text(" (")
                 imgui.same_line()
                 if highlighted_button(
                     "Squash X",
-                    StepNumber.camera_frustum_squash_x.value * time_per_step,
+                    StepNumber.camera_frustum_squash_x.value.start_time,
                     animation_time,
                 ):
-                    animation_time = (
-                        StepNumber.camera_frustum_squash_x.value * time_per_step
-                    )
+                    animation_time = StepNumber.camera_frustum_squash_x.value.start_time
                 imgui.same_line()
                 imgui.text(" * x)")
                 imgui.tree_pop()
@@ -1459,22 +1444,20 @@ while not glfw.window_should_close(window):
                 imgui.same_line()
                 if highlighted_button(
                     "Scale",
-                    StepNumber.camera_frustum_scale.value * time_per_step,
+                    StepNumber.camera_frustum_scale.value.start_time,
                     animation_time,
                 ):
-                    animation_time = (
-                        StepNumber.camera_frustum_scale.value * time_per_step
-                    )
+                    animation_time = StepNumber.camera_frustum_scale.value.start_time
                 imgui.same_line()
                 imgui.text(" (")
                 imgui.same_line()
                 if highlighted_button(
                     "T - Center",
-                    StepNumber.camera_frustum_translate.value * time_per_step,
+                    StepNumber.camera_frustum_translate.value.start_time,
                     animation_time,
                 ):
                     animation_time = (
-                        StepNumber.camera_frustum_translate.value * time_per_step
+                        StepNumber.camera_frustum_translate.value.start_time
                     )
                 imgui.same_line()
                 imgui.text(" * x)")
@@ -1671,7 +1654,7 @@ while not glfw.window_should_close(window):
             0.0,
         )
     if center_view_on == CenterViewOn.camera:
-        if animation_time > (StepNumber.camera_inverse_translate.value * time_per_step):
+        if animation_time > (StepNumber.camera_inverse_translate.value.start_time):
             ms.translate(
                 ms.MatrixStack.model,
                 virtual_camera_position[0]
@@ -1679,32 +1662,32 @@ while not glfw.window_should_close(window):
                     1.0,
                     (
                         animation_time
-                        - (StepNumber.camera_inverse_translate.value * time_per_step)
+                        - (StepNumber.camera_inverse_translate.value.start_time)
                     )
-                    / time_per_step,
+                    / StepNumber.camera_inverse_translate.value.duration,
                 ),
                 virtual_camera_position[1]
                 * min(
                     1.0,
                     (
                         animation_time
-                        - (StepNumber.camera_inverse_translate.value * time_per_step)
+                        - (StepNumber.camera_inverse_translate.value.start_time)
                     )
-                    / time_per_step,
+                    / StepNumber.camera_inverse_translate.value.duration,
                 ),
                 virtual_camera_position[2]
                 * min(
                     1.0,
                     (
                         animation_time
-                        - (StepNumber.camera_inverse_translate.value * time_per_step)
+                        - (StepNumber.camera_inverse_translate.value.start_time)
                     )
-                    / time_per_step,
+                    / StepNumber.camera_inverse_translate.value.duration,
                 ),
             )
 
-        if animation_time > (StepNumber.camera_translate.value * time_per_step):
-            if animation_time > (StepNumber.camera_translate.value * time_per_step):
+        if animation_time > (StepNumber.camera_translate.value.start_time):
+            if animation_time > (StepNumber.camera_translate.value.start_time):
                 ms.translate(
                     ms.MatrixStack.model,
                     -virtual_camera_position[0]
@@ -1712,27 +1695,27 @@ while not glfw.window_should_close(window):
                         1.0,
                         (
                             animation_time
-                            - (StepNumber.camera_translate.value * time_per_step)
+                            - (StepNumber.camera_translate.value.start_time)
                         )
-                        / time_per_step,
+                        / StepNumber.camera_translate.value.duration,
                     ),
                     -virtual_camera_position[1]
                     * min(
                         1.0,
                         (
                             animation_time
-                            - (StepNumber.camera_translate.value * time_per_step)
+                            - (StepNumber.camera_translate.value.start_time)
                         )
-                        / time_per_step,
+                        / StepNumber.camera_translate.value.duration,
                     ),
                     -virtual_camera_position[2]
                     * min(
                         1.0,
                         (
                             animation_time
-                            - (StepNumber.camera_translate.value * time_per_step)
+                            - (StepNumber.camera_translate.value.start_time)
                         )
-                        / time_per_step,
+                        / StepNumber.camera_translate.value.duration,
                     ),
                 )
 
@@ -1744,33 +1727,27 @@ while not glfw.window_should_close(window):
         cube.render(animation_time)
     glClear(GL_DEPTH_BUFFER_BIT)
 
-    if animation_time > (StepNumber.camera_inverse_rotate_x.value * time_per_step):
+    if animation_time > (StepNumber.camera_inverse_rotate_x.value.start_time):
         ms.rotate_x(
             ms.MatrixStack.model,
             -virtual_camera_rot_x
             * min(
                 1.0,
-                (
-                    animation_time
-                    - (StepNumber.camera_inverse_rotate_x.value * time_per_step)
-                )
-                / time_per_step,
+                (animation_time - (StepNumber.camera_inverse_rotate_x.value.start_time))
+                / StepNumber.camera_inverse_rotate_x.value.duration,
             ),
         )
-    if animation_time > (StepNumber.camera_inverse_rotate_y.value * time_per_step):
+    if animation_time > (StepNumber.camera_inverse_rotate_y.value.start_time):
         ms.rotate_y(
             ms.MatrixStack.model,
             -virtual_camera_rot_y
             * min(
                 1.0,
-                (
-                    animation_time
-                    - (StepNumber.camera_inverse_rotate_y.value * time_per_step)
-                )
-                / time_per_step,
+                (animation_time - (StepNumber.camera_inverse_rotate_y.value.start_time))
+                / StepNumber.camera_inverse_rotate_y.value.duration,
             ),
         )
-    if animation_time > (StepNumber.camera_inverse_translate.value * time_per_step):
+    if animation_time > (StepNumber.camera_inverse_translate.value.start_time):
         ms.translate(
             ms.MatrixStack.model,
             -virtual_camera_position[0]
@@ -1778,34 +1755,34 @@ while not glfw.window_should_close(window):
                 1.0,
                 (
                     animation_time
-                    - (StepNumber.camera_inverse_translate.value * time_per_step)
+                    - (StepNumber.camera_inverse_translate.value.start_time)
                 )
-                / time_per_step,
+                / StepNumber.camera_inverse_translate.value.duration,
             ),
             -virtual_camera_position[1]
             * min(
                 1.0,
                 (
                     animation_time
-                    - (StepNumber.camera_inverse_translate.value * time_per_step)
+                    - (StepNumber.camera_inverse_translate.value.start_time)
                 )
-                / time_per_step,
+                / StepNumber.camera_inverse_translate.value.duration,
             ),
             -virtual_camera_position[2]
             * min(
                 1.0,
                 (
                     animation_time
-                    - (StepNumber.camera_inverse_translate.value * time_per_step)
+                    - (StepNumber.camera_inverse_translate.value.start_time)
                 )
-                / time_per_step,
+                / StepNumber.camera_inverse_translate.value.duration,
             ),
         )
 
     # draw virtual camera
-    if animation_time > (StepNumber.camera_translate.value * time_per_step):
+    if animation_time > (StepNumber.camera_translate.value.start_time):
         with ms.push_matrix(ms.MatrixStack.model):
-            if animation_time > (StepNumber.camera_translate.value * time_per_step):
+            if animation_time > (StepNumber.camera_translate.value.start_time):
                 ms.translate(
                     ms.MatrixStack.model,
                     virtual_camera_position[0]
@@ -1813,117 +1790,102 @@ while not glfw.window_should_close(window):
                         1.0,
                         (
                             animation_time
-                            - (StepNumber.camera_translate.value * time_per_step)
+                            - (StepNumber.camera_translate.value.start_time)
                         )
-                        / time_per_step,
+                        / StepNumber.camera_translate.value.duration,
                     ),
                     virtual_camera_position[1]
                     * min(
                         1.0,
                         (
                             animation_time
-                            - (StepNumber.camera_translate.value * time_per_step)
+                            - (StepNumber.camera_translate.value.start_time)
                         )
-                        / time_per_step,
+                        / StepNumber.camera_translate.value.duration,
                     ),
                     virtual_camera_position[2]
                     * min(
                         1.0,
                         (
                             animation_time
-                            - (StepNumber.camera_translate.value * time_per_step)
+                            - (StepNumber.camera_translate.value.start_time)
                         )
-                        / time_per_step,
+                        / StepNumber.camera_translate.value.duration,
                     ),
                 )
-            if animation_time > (StepNumber.camera_rotate_y.value * time_per_step):
+            if animation_time > (StepNumber.camera_rotate_y.value.start_time):
                 ms.rotate_y(
                     ms.MatrixStack.model,
                     virtual_camera_rot_y
                     * min(
                         1.0,
-                        (
-                            animation_time
-                            - (StepNumber.camera_rotate_y.value * time_per_step)
-                        )
-                        / time_per_step,
+                        (animation_time - (StepNumber.camera_rotate_y.value.start_time))
+                        / StepNumber.camera_rotate_y.value.duration,
                     ),
                 )
-            if animation_time > (StepNumber.camera_rotate_x.value * time_per_step):
+            if animation_time > (StepNumber.camera_rotate_x.value.start_time):
                 ms.rotate_x(
                     ms.MatrixStack.model,
                     virtual_camera_rot_x
                     * min(
                         1.0,
-                        (
-                            animation_time
-                            - (StepNumber.camera_rotate_x.value * time_per_step)
-                        )
-                        / time_per_step,
+                        (animation_time - (StepNumber.camera_rotate_x.value.start_time))
+                        / StepNumber.camera_rotate_x.value.duration,
                     ),
                 )
 
             ground.render(animation_time)
 
-            if animation_time > (StepNumber.camera_rotate_y.value * time_per_step):
+            if animation_time > (StepNumber.camera_rotate_y.value.start_time):
                 frustum.render(animation_time)
             axis.render(animation_time)
             cube.render(animation_time)
 
-    if animation_time < StepNumber.paddle_1_translate.value * time_per_step:
+    if animation_time < StepNumber.paddle_1_translate.value.start_time:
         axis.render(animation_time)
     else:
         axis.render(animation_time, grayed_out=True)
 
     with ms.PushMatrix(ms.MatrixStack.model):
-        if animation_time > (StepNumber.paddle_1_translate.value * time_per_step):
+        if animation_time > (StepNumber.paddle_1_translate.value.start_time):
             ms.translate(
                 ms.MatrixStack.model,
                 paddle1.position[0]
                 * min(
                     1.0,
-                    (
-                        animation_time
-                        - (StepNumber.paddle_1_translate.value * time_per_step)
-                    )
-                    / time_per_step,
+                    (animation_time - (StepNumber.paddle_1_translate.value.start_time))
+                    / StepNumber.paddle_1_translate.value.duration,
                 ),
                 paddle1.position[1]
                 * min(
                     1.0,
-                    (
-                        animation_time
-                        - (StepNumber.paddle_1_translate.value * time_per_step)
-                    )
-                    / time_per_step,
+                    (animation_time - (StepNumber.paddle_1_translate.value.start_time))
+                    / StepNumber.paddle_1_translate.value.duration,
                 ),
                 0.0,
             )
-        if animation_time > (StepNumber.paddle_1_rotate.value * time_per_step):
+        if animation_time > (StepNumber.paddle_1_rotate.value.start_time):
             ms.rotate_z(
                 ms.MatrixStack.model,
                 paddle1.rotation
                 * min(
                     1.0,
-                    (
-                        animation_time
-                        - (StepNumber.paddle_1_rotate.value * time_per_step)
-                    )
-                    / time_per_step,
+                    (animation_time - (StepNumber.paddle_1_rotate.value.start_time))
+                    / StepNumber.paddle_1_rotate.value.duration,
                 ),
             )
 
-        if animation_time > (StepNumber.beginning.value * time_per_step) and (
-            animation_time < StepNumber.square_translate_z.value * time_per_step
+        if animation_time > (StepNumber.beginning.value.start_time) and (
+            animation_time < StepNumber.square_translate_z.value.start_time
         ):
             axis.render(animation_time)
-        if animation_time > (StepNumber.square_translate_z.value * time_per_step):
+        if animation_time > (StepNumber.square_translate_z.value.start_time):
             # ascontiguousarray puts the array in column major order
             paddle1.render(animation_time)
 
         # # draw the square
 
-        if animation_time > (StepNumber.square_translate_z.value * time_per_step):
+        if animation_time > (StepNumber.square_translate_z.value.start_time):
             ms.translate(
                 ms.MatrixStack.model,
                 0.0,
@@ -1931,14 +1893,11 @@ while not glfw.window_should_close(window):
                 -5.0
                 * min(
                     1.0,
-                    (
-                        animation_time
-                        - (StepNumber.square_translate_z.value * time_per_step)
-                    )
-                    / time_per_step,
+                    (animation_time - (StepNumber.square_translate_z.value.start_time))
+                    / StepNumber.square_translate_z.value.duration,
                 ),
             )
-        if animation_time > (StepNumber.square_rotate_z_first.value * time_per_step):
+        if animation_time > (StepNumber.square_rotate_z_first.value.start_time):
             ms.rotate_z(
                 ms.MatrixStack.model,
                 rotation_around_paddle1
@@ -1946,27 +1905,24 @@ while not glfw.window_should_close(window):
                     1.0,
                     (
                         animation_time
-                        - (StepNumber.square_rotate_z_first.value * time_per_step)
+                        - (StepNumber.square_rotate_z_first.value.start_time)
                     )
-                    / time_per_step,
+                    / StepNumber.square_rotate_z_first.value.duration,
                 ),
             )
-        if animation_time > (StepNumber.square_translate_x.value * time_per_step):
+        if animation_time > (StepNumber.square_translate_x.value.start_time):
             ms.translate(
                 ms.MatrixStack.model,
                 1.5
                 * min(
                     1.0,
-                    (
-                        animation_time
-                        - (StepNumber.square_translate_x.value * time_per_step)
-                    )
-                    / time_per_step,
+                    (animation_time - (StepNumber.square_translate_x.value.start_time))
+                    / StepNumber.square_translate_x.value.duration,
                 ),
                 0.0,
                 0.0,
             )
-        if animation_time > (StepNumber.square_rotate_z_second.value * time_per_step):
+        if animation_time > (StepNumber.square_rotate_z_second.value.start_time):
             ms.rotate_z(
                 ms.MatrixStack.model,
                 square_rotation
@@ -1974,70 +1930,58 @@ while not glfw.window_should_close(window):
                     1.0,
                     (
                         animation_time
-                        - (StepNumber.square_rotate_z_second.value * time_per_step)
+                        - (StepNumber.square_rotate_z_second.value.start_time)
                     )
-                    / time_per_step,
+                    / StepNumber.square_rotate_z_second.value.duration,
                 ),
             )
 
-        if animation_time > (StepNumber.paddle_1_rotate.value * time_per_step) and (
-            animation_time < StepNumber.paddle_2_translate.value * time_per_step
+        if animation_time > (StepNumber.paddle_1_rotate.value.start_time) and (
+            animation_time < StepNumber.paddle_2_translate.value.start_time
         ):
             axis.render(animation_time)
 
-        if animation_time > (StepNumber.paddle_2_translate.value * time_per_step):
+        if animation_time > (StepNumber.paddle_2_translate.value.start_time):
             square.render(animation_time)
 
     # get back to center of global space
 
     with ms.PushMatrix(ms.MatrixStack.model):
         # draw paddle 2
-        if animation_time > (StepNumber.paddle_2_translate.value * time_per_step):
+        if animation_time > (StepNumber.paddle_2_translate.value.start_time):
             ms.translate(
                 ms.MatrixStack.model,
                 paddle2.position[0]
                 * min(
                     1.0,
-                    (
-                        animation_time
-                        - (StepNumber.paddle_2_translate.value * time_per_step)
-                    )
-                    / time_per_step,
+                    (animation_time - (StepNumber.paddle_2_translate.value.start_time))
+                    / StepNumber.paddle_2_translate.value.duration,
                 ),
                 paddle2.position[1]
                 * min(
                     1.0,
-                    (
-                        animation_time
-                        - (StepNumber.paddle_2_translate.value * time_per_step)
-                    )
-                    / time_per_step,
+                    (animation_time - (StepNumber.paddle_2_translate.value.start_time))
+                    / StepNumber.paddle_2_translate.value.duration,
                 ),
                 0.0,
             )
-        if animation_time > (StepNumber.paddle_2_rotate.value * time_per_step):
+        if animation_time > (StepNumber.paddle_2_rotate.value.start_time):
             ms.rotate_z(
                 ms.MatrixStack.model,
                 paddle2.rotation
                 * min(
                     1.0,
-                    (
-                        animation_time
-                        - (StepNumber.paddle_2_rotate.value * time_per_step)
-                    )
-                    / time_per_step,
+                    (animation_time - (StepNumber.paddle_2_rotate.value.start_time))
+                    / StepNumber.paddle_2_rotate.value.duration,
                 ),
             )
 
-        if animation_time > (StepNumber.paddle_2_translate.value * time_per_step) and (
-            animation_time
-            < (StepNumber.camera_pre_placement_pause.value * time_per_step)
+        if animation_time > (StepNumber.paddle_2_translate.value.start_time) and (
+            animation_time < (StepNumber.camera_pre_placement_pause.value.start_time)
         ):
             axis.render(animation_time)
 
-        if animation_time > (
-            StepNumber.camera_pre_placement_pause.value * time_per_step
-        ):
+        if animation_time > (StepNumber.camera_pre_placement_pause.value.start_time):
             paddle2.render(animation_time)
 
     imgui.render()
