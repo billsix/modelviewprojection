@@ -1848,7 +1848,7 @@ while not glfw.window_should_close(window):
             axis.render(animation_time)
             cube.render(animation_time)
 
-    if animation_time < 5.0:
+    if animation_time < StepNumber.paddle_1_translate.value * time_per_step:
         axis.render(animation_time)
     else:
         axis.render(animation_time, grayed_out=True)
@@ -1892,7 +1892,7 @@ while not glfw.window_should_close(window):
             )
 
         if animation_time > (StepNumber.beginning.value * time_per_step) and (
-            animation_time < StepNumber.square_translate_x.value * time_per_step
+            animation_time < StepNumber.square_translate_z.value * time_per_step
         ):
             axis.render(animation_time)
         if animation_time > (StepNumber.square_translate_z.value * time_per_step):
