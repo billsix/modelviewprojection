@@ -117,27 +117,10 @@ Description
 ^^^^^^^^^^^
 
 
-::
-
-
-                     ------------------------------- far z
-                     \              |              /
-                      \             |             /
-                       \ (x,z) *----|(0,z)       /
-                        \      |    |           /
-                         \     |    |          /
-                          \    |    |         /
-                           \   |    |        /
-                            \  |    |       /
-                             \ |    |      /
-                              \---*-------- near z
-                               |    |    /
-                               |\   |   /
-                               | \  |  /
-                               |  \ | /
-                               |   \|/
-              -----------------*----*-(0,0)-------------------
-                              (x,0)
+.. figure:: _static/Maththing.svg
+    :align: center
+    :alt: Right hand rule
+    :figclass: align-center
 
 
 If we draw a straight line between (x,z) and (0,0), we will have a right triangle
