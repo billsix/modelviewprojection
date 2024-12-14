@@ -119,7 +119,7 @@ Description
 
 .. figure:: _static/Maththing.svg
     :align: center
-    :alt: Right hand rule
+    :alt: Frustum
     :figclass: align-center
 
 
@@ -129,6 +129,12 @@ with vertices (0,0), (0,z), and (x,z).
 There also will be a similar right triangle with vertices (0,0), (0,nearZ), and
 whatever point the line above intersects the line at z=nearZ.  Let's call that point
 (projX, nearZ)
+
+.. figure:: _static/math.svg
+    :align: center
+    :alt: fov
+    :figclass: align-center
+
 
 ::
 
