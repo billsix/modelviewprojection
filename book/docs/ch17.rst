@@ -122,6 +122,28 @@ Description
     :alt: Frustum
     :figclass: align-center
 
+::
+
+
+                     ------------------------------- far z
+                     \              |              /
+                      \             |             /
+                       \ (x,z) *----|(0,z)       /
+                        \      |    |           /
+                         \     |    |          /
+                          \    |    |         /
+                           \   |    |        /
+                            \  |    |       /
+                             \ |    |      /
+                              \---*-------- near z
+                               |    |    /
+                               |\   |   /
+                               | \  |  /
+                               |  \ | /
+                               |   \|/
+              -----------------*----*-(0,0)-------------------
+                              (x,0)
+
 
 If we draw a straight line between (x,z) and (0,0), we will have a right triangle
 with vertices (0,0), (0,z), and (x,z).
