@@ -101,9 +101,13 @@ def accumulate_transformation(procedures, backwards=False):
     yield id, len(procedures)
 
     if not backwards:
-        for number_of_fns_to_apply_this_round in [x + 1 for x in range(len(procedures))]:
+        for number_of_fns_to_apply_this_round in [
+            x + 1 for x in range(len(procedures))
+        ]:
             yield (
-                python_scoping_is_dumb(range(number_of_fns_to_apply_this_round), procedures),
+                python_scoping_is_dumb(
+                    range(number_of_fns_to_apply_this_round), procedures
+                ),
                 len(procedures) - number_of_fns_to_apply_this_round,
             )
     else:
@@ -208,7 +212,9 @@ def create_graphs(
             axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
             # plot transformed basis
-            for xs, ys, thickness in generategridlines.generategridlines(graph_bounds, interval=gridline_interval):
+            for xs, ys, thickness in generategridlines.generategridlines(
+                graph_bounds, interval=gridline_interval
+            ):
                 if backwards and stepsRemaining > 1:
                     transformed_xs, transformed_ys = accumfn(xs, ys)
                 elif not backwards and round_number == 1 and frame_number != 1:
@@ -231,7 +237,7 @@ def create_graphs(
                 transformed_xs, transformed_ys = fn([0.0, unit_x], [0.0, 0.0])
             else:
                 transformed_xs, transformed_ys = [0.0, unit_x], [0.0, 0.0]
-            plt.plot(transformed_xs, transformed_ys, "-", lw=4.0, color=(0.0, 0.0, 1.0))
+            plt.plot(transformed_xs, transformed_ys, "-", lw=1.0, color=(0.0, 0.0, 1.0))
 
             # y axis
             if backwards and stepsRemaining > 1:
@@ -240,7 +246,7 @@ def create_graphs(
                 transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, unit_y])
             else:
                 transformed_xs, transformed_ys = [0.0, 0.0], [0.0, unit_y]
-            plt.plot(transformed_xs, transformed_ys, "-", lw=4.0, color=(1.0, 0.0, 1.0))
+            plt.plot(transformed_xs, transformed_ys, "-", lw=1.0, color=(1.0, 0.0, 1.0))
 
             if stepsRemaining <= 0:
                 plotCharacter = "-"
