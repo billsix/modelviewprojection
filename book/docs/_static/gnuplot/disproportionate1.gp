@@ -1,4 +1,4 @@
-set terminal svg size 800,600 fname 'Helvetica' 
+set terminal svg size 600,600 fname 'Helvetica'
 set size ratio 2
 
 set output 'disproportionate1.svg'
