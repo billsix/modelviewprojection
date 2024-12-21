@@ -1,27 +1,30 @@
-%.svg : %.gp
+%.png: %.gp
 	gnuplot $<
+	inkscape --without-gui --export-area-drawing --file=$< --export-png=$@
 
-OBJECTS_TO_BUILD = plot1.svg \
-	monitor.svg \
-	monitor2.svg \
-	screenspace.svg \
-	screenspace2.svg \
-	ndcSpace.svg \
-	ndcSpace1.svg \
-	ndcSpace2.svg \
-	plot2.svg \
-	plot3.svg \
-	plot4.svg \
-	translate.svg \
-	scale.svg \
-	rotate.svg \
-	rotate2.svg \
-	rotate3.svg \
-	rotate4.svg \
-	modelspace.svg \
-        disproportionate1.svg \
-        disproportionate2.svg \
-        viewport.svg
+
+
+OBJECTS_TO_BUILD = plot1.png \
+	monitor.png \
+	monitor2.png \
+	screenspace.png \
+	screenspace2.png \
+	ndcSpace.png \
+	ndcSpace1.png \
+	ndcSpace2.png \
+	plot2.png \
+	plot3.png \
+	plot4.png \
+	translate.png \
+	scale.png \
+	rotate.png \
+	rotate2.png \
+	rotate3.png \
+	rotate4.png \
+	modelspace.png \
+        disproportionate1.png \
+        disproportionate2.png \
+        viewport.png
 
 
 all: $(OBJECTS_TO_BUILD)

@@ -147,14 +147,6 @@ paddle's center as the rotate point.
 
 
 
-.. figure:: _static/rotate-sloppy-forwards.gif
-    :align: center
-    :alt:
-    :figclass: align-center
-
-    Works but sloppy
-
-
 Although this works for now and looks like decent code, this is extremely sloppy, and
 not thought out well at all.  We apply a transformation
 from paddle space to world space, then do the inverse, then rotate,

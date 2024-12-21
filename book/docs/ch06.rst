@@ -127,12 +127,6 @@ as doing so
 * Will distract us from thinking clearly about what's happening
 
 
-.. figure:: _static/translation-forwards.gif
-    :align: center
-    :alt: Translating Paddle 1
-    :figclass: align-center
-
-    Translating Paddle 1
 
 * As an example, figure out the world space coordinate of the upper rights
   corner of the paddle after it has been translated, and ask yourself what
@@ -188,16 +182,6 @@ was the same as world space, has changed, bringing the vertices along with it.
 Same goes for Paddle 2's modelspace, relative to its translation, which
 are different values.
 
-
-
-.. figure:: _static/translation2-forwards.gif
-    :align: center
-    :alt: Translating Paddle 2
-    :figclass: align-center
-
-    Translating Paddle 2
-
-The animation above shows multiple steps, shown now without animation.
 
 
 Modelspace of Paddle 2
@@ -271,16 +255,6 @@ is the same).
 
 We can expand or shrink the size of an object
 by "scale"ing each component of the vertices by some coefficient.
-
-
-.. figure:: _static/scale.gif
-    :align: center
-    :alt: Scaling
-    :figclass: align-center
-
-    Scaling
-
-
 
 
 

@@ -10,10 +10,12 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-import os
 
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+
+sys.path.insert(0, os.path.abspath("."))
+
 
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"
@@ -60,10 +62,18 @@ imgmath_image_format = "svg"
 imgmath_font_size = 20  # for font size 14
 imgmath_latex_preamble = "\\usepackage{amsmath}\n" + "\\usepackage{xcolor}\n"
 
-extensions = ["sphinx.ext.imgmath"]
+extensions = ["sphinx.ext.imgmath", "sphinx.ext.imgconverter"]
+
+imgconverter_converters = {
+    "svg": "inkscape --without-gui --export-type=pdf --export-filename={out} {in}"
+}
+
 
 mathjax_config = {
-    "tex": {"inlineMath": [["$", "$"], ["\\(", "\\)"]], "displayMath": [["$$", "$$"], ["\\[", "\\]"]]},
+    "tex": {
+        "inlineMath": [["$", "$"], ["\\(", "\\)"]],
+        "displayMath": [["$$", "$$"], ["\\[", "\\]"]],
+    },
     "svg": {"fontCache": "global"},
 }
 

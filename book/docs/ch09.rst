@@ -124,14 +124,6 @@ is set back to the origin basis.
 
 
 
-.. figure:: _static/rotate1-forwards.gif
-    :align: center
-    :alt: Rotation Forwards
-    :figclass: align-center
-
-    Rotation Forwards
-
-
 Reading transformations bottom-up
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -149,13 +141,6 @@ All subsequent functions move that relative basis to a new relative basis.
    :lineno-match:
    :caption: src/demo09/demo.py
 
-
-.. figure:: _static/rotate1-backwards.gif
-    :align: center
-    :alt: Rotation Backwards
-    :figclass: align-center
-
-    Rotation Backwards
 
 Suggested Order
 ~~~~~~~~~~~~~~~
