@@ -62,6 +62,19 @@ imgmath_image_format = "svg"
 imgmath_font_size = 20  # for font size 14
 imgmath_latex_preamble = "\\usepackage{amsmath}\n" + "\\usepackage{xcolor}\n"
 
+
+latex_elements = {
+    "preamble": r"""
+\usepackage{graphicx}
+\usepackage{float}
+\makeatletter
+\def\fps@figure{H}  % Force images to stay in their position
+\setkeys{Gin}{width=0.5\textwidth}  % Set default image width
+\makeatother
+"""
+}
+
+
 extensions = ["sphinx.ext.imgmath", "sphinx.ext.imgconverter"]
 
 imgconverter_converters = {
