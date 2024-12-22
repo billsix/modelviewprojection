@@ -330,7 +330,7 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for paddle1_vertex_in_model_space in paddle1.vertices:
         paddle1_vertex_in_world_space: Vertex = paddle1_vertex_in_model_space.rotate_z(paddle1.rotation) \
-                                         .translate(paddle1.position)
+                                                                             .translate(paddle1.position)
         paddle1_vertex_in_camera_space: Vertex = paddle1_vertex_in_world_space.translate(-camera.position_worldspace)
         paddle1_vertex_in_ndc_space: Vertex = paddle1_vertex_in_camera_space.uniform_scale(scalar=1.0 / 10.0)
         glVertex2f(paddle1_vertex_in_ndc_space.x, paddle1_vertex_in_ndc_space.y)

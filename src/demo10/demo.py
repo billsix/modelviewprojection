@@ -252,7 +252,7 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for paddle1_vertex_in_model_space in paddle1.vertices:
         paddle1_vertex_in_world_space: Vertex = paddle1_vertex_in_model_space.rotate(paddle1.rotation) \
-                                         .translate(translate_amount=paddle1.position)
+                                                                             .translate(translate_amount=paddle1.position)
         # doc-region-end draw paddle 1
         # doc-region-begin paddle 1 camera translate
         paddle1_vertex_in_camera_space: Vertex = paddle1_vertex_in_world_space.translate(translate_amount=-camera.position_worldspace)

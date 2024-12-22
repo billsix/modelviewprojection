@@ -235,7 +235,7 @@ while not glfw.window_should_close(window):
         # fmt: off
         # doc-region-begin compose transformations on paddle 12
         paddle1_vertex_in_world_space: Vertex = paddle1_vertex_in_model_space.translate(translate_amount=paddle1.position) \
-                                         .rotate(paddle1.rotation)
+                                                                             .rotate(paddle1.rotation)
         # doc-region-end compose transformations on paddle 12
         # fmt: on
         # fmt: off
