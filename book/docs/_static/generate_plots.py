@@ -154,7 +154,7 @@ paddle1 = Geometry(
         )
     ),
     color=(0.578123, 0.0, 1.0),
-    names=["C","D","A","B"]
+    names=["C", "D", "A", "B"],
 )
 
 paddle2 = Geometry(
@@ -172,7 +172,7 @@ paddle2 = Geometry(
         )
     ),
     color=(1.0, 0.0, 0.0),
-    names=["C","D","A","B"]
+    names=["C", "D", "A", "B"],
 )
 
 
@@ -266,7 +266,13 @@ def create_graphs(
             )
 
             for x, y, label in zip(transformed_xs, transformed_ys, geometry.names):
-                plt.annotate(f'{label}', (x, y), textcoords="offset points", xytext=(10,10), ha='center')
+                plt.annotate(
+                    f"{label}",
+                    (x, y),
+                    textcoords="offset points",
+                    xytext=(0, 10),
+                    ha="center",
+                )
 
             # make sure the x and y axis are equally proportional in screen space
             plt.gca().set_aspect("equal", adjustable="box")
@@ -457,8 +463,7 @@ square = Geometry(
         )
     ),
     color=(1.0, 0.0, 0.0),
-    names=["C","D","A","B"]
-
+    names=["C", "D", "A", "B"],
 )
 
 
@@ -531,8 +536,7 @@ square_ndc = Geometry(
         )
     ),
     color=(1.0, 0.0, 0.0),
-    names=[]
-
+    names=[],
 )
 
 
@@ -582,7 +586,7 @@ square_ndc = Geometry(
         )
     ),
     color=(1.0, 0.0, 0.0),
-    names=[]
+    names=[],
 )
 
 

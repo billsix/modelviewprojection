@@ -231,7 +231,7 @@ while not glfw.window_should_close(window):
     for paddle1_vertex_in_model_space in paddle1.vertices:
         # doc-region-begin paddle 1 transformations
         paddle1_vertex_in_world_space: Vertex = paddle1_vertex_in_model_space.rotate(paddle1.rotation) \
-                                         .translate(paddle1.position)
+                                                                             .translate(paddle1.position)
         # doc-region-end paddle 1 transformations
         # doc-region-begin paddle 1 scale
         paddle1_vertex_in_ndc_space: Vertex = paddle1_vertex_in_world_space.uniform_scale(scalar=1.0/10.0)
