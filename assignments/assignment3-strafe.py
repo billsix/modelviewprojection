@@ -113,84 +113,135 @@ def draw_in_square_viewport() -> None:
 
 
 @dataclass
+class Vertex2D:
+    x: float
+    y: float
+
+    def __add__(self, rhs: Vertex2D) -> Vertex2D:
+        return Vertex2D(x=self.x + rhs.x, y=self.y + rhs.y)
+
+    def translate(self: Vertex2D, translate_amount: Vertex2D) -> Vertex2D:
+        return self + translate_amount
+
+    def __mul__(self, scalar: float) -> Vertex2D:
+        return Vertex2D(x=self.x * scalar, y=self.y * scalar)
+
+    def __rmul__(self, scalar: float) -> Vertex2D:
+        return self * scalar
+
+    def uniform_scale(self: Vertex2D, scalar: float) -> Vertex2D:
+        return self * scalar
+
+    def scale(self: Vertex2D, scale_x: float, scale_y: float) -> Vertex2D:
+        return Vertex2D(x=self.x * scale_x, y=self.y * scale_y)
+
+    def __neg__(self):
+        return -1.0 * self
+
+    def rotate_90_degrees(self: Vertex2D):
+        return Vertex2D(x=-self.y, y=self.x)
+
+    def rotate(self: Vertex2D, angle_in_radians: float) -> Vertex2D:
+        return (
+            math.cos(angle_in_radians) * self
+            + math.sin(angle_in_radians) * self.rotate_90_degrees()
+        )
+
+
+@dataclass
 class Vertex:
     x: float
     y: float
     z: float
 
-    def translate(self: Vertex, tx: float, ty: float, tz: float) -> Vertex:
-        return Vertex(x=self.x + tx, y=self.y + ty, z=self.z + tz)
+    def __add__(self, rhs: Vertex) -> Vertex:
+        return Vertex(x=self.x + rhs.x, y=self.y + rhs.y, z=self.z + rhs.z)
+
+    def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
+        return self + translate_amount
 
     def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
-        return Vertex(
-            x=self.x,
-            y=self.y * math.cos(angle_in_radians) - self.z * math.sin(angle_in_radians),
-            z=self.y * math.sin(angle_in_radians) + self.z * math.cos(angle_in_radians),
-        )
+        yz_on_xy: Vertex2D = Vertex2D(x=self.y, y=self.z).rotate(angle_in_radians)
+        return Vertex(x=self.x, y=yz_on_xy.x, z=yz_on_xy.y)
 
     def rotate_y(self: Vertex, angle_in_radians: float) -> Vertex:
-        return Vertex(
-            x=self.z * math.sin(angle_in_radians) + self.x * math.cos(angle_in_radians),
-            y=self.y,
-            z=self.z * math.cos(angle_in_radians) - self.x * math.sin(angle_in_radians),
-        )
+        zx_on_xy: Vertex2D = Vertex2D(x=self.z, y=self.x).rotate(angle_in_radians)
+        return Vertex(x=zx_on_xy.y, y=self.y, z=zx_on_xy.x)
 
     def rotate_z(self: Vertex, angle_in_radians: float) -> Vertex:
-        return Vertex(
-            x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-            y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
-            z=self.z,
-        )
+        xy_on_xy: Vertex2D = Vertex2D(x=self.x, y=self.y).rotate(angle_in_radians)
+        return Vertex(x=xy_on_xy.x, y=xy_on_xy.y, z=self.z)
+
+    def __mul__(self, scalar: float) -> Vertex:
+        return Vertex(x=self.x * scalar, y=self.y * scalar, z=self.z * scalar)
+
+    def __rmul__(self, scalar: float) -> Vertex:
+        return self * scalar
+
+    def uniform_scale(self: Vertex, scalar: float) -> Vertex:
+        return self * scalar
 
     def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
         return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
 
-    def ortho(
-        self: Vertex,
-        left: float,
-        right: float,
-        bottom: float,
-        top: float,
-        near: float,
-        far: float,
-    ) -> Vertex:
-        midpoint_x, midpoint_y, midpoint_z = (
-            (left + right) / 2.0,
-            (bottom + top) / 2.0,
-            (near + far) / 2.0,
+    def __neg__(self):
+        return -1.0 * self
+
+    # fmt: off
+    def ortho(self: Vertex,
+              left: float,
+              right: float,
+              bottom: float,
+              top: float,
+              near: float,
+              far: float,
+              ) -> Vertex:
+        midpoint = Vertex(
+            x=(left + right) / 2.0,
+            y=(bottom + top) / 2.0,
+            z=(near + far) / 2.0
         )
         length_x: float
         length_y: float
         length_z: float
         length_x, length_y, length_z = right - left, top - bottom, far - near
-        return self.translate(Vertex(-midpoint_x, -midpoint_y, -midpoint_z)).scale(
-            2.0 / length_x, 2.0 / length_y, 2.0 / (-length_z)
-        )
+        return self.translate(-midpoint) \
+                   .scale(2.0 / length_x,
+                          2.0 / length_y,
+                          2.0 / (-length_z))
+    # fmt: on
 
-    def perspective(
-        self: Vertex, fov: float, aspectRatio: float, nearZ: float, farZ: float
-    ) -> Vertex:
-        # fov, field of view, is angle of y
-        # aspectRatio is xwidth / ywidth
+    # fmt: off
+    def perspective(self: Vertex,
+                    field_of_view: float,
+                    aspect_ratio: float,
+                    near_z: float,
+                    far_z: float) -> Vertex:
+        # field_of_view, field of view, is angle of y
+        # aspect_ratio is x_width / y_width
 
-        top: float = -nearZ * math.tan(math.radians(fov) / 2.0)
-        right: float = top * aspectRatio
+        top: float = -near_z * math.tan(math.radians(field_of_view) / 2.0)
+        right: float = top * aspect_ratio
 
-        scaled_x: float = self.x / self.z * nearZ
-        scaled_y: float = self.y / self.z * nearZ
-        retangular_prism: Vertex = Vertex(scaled_x, scaled_y, self.z)
+        scaled_x: float = self.x / self.z * near_z
+        scaled_y: float = self.y / self.z * near_z
+        rectangular_prism: Vertex = Vertex(scaled_x,
+                                           scaled_y,
+                                           self.z)
 
-        return retangular_prism.ortho(
-            left=-right, right=right, bottom=-top, top=top, near=nearZ, far=farZ
-        )
+        return rectangular_prism.ortho(left=-right,
+                                       right=right,
+                                       bottom=-top,
+                                       top=top,
+                                       near=near_z,
+                                       far=far_z)
 
     def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
-        return self.perspective(
-            fov=45.0,
-            aspectRatio=1.0,
-            nearZ=-0.1,
-            farZ=-1000.0,
-        )
+        return self.perspective(field_of_view=45.0,
+                                aspect_ratio=1.0,
+                                near_z=-.1,
+                                far_z=-1000.0)
+    # fmt: on
 
 
 @dataclass

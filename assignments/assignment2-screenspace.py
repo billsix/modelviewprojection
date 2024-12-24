@@ -133,7 +133,6 @@ paddle2: Paddle = Paddle(
 )
 
 
-# doc-region-begin 808b49966faf68394a1e4def233df33c08e37b27
 def _default_camera_position() -> Vertex:
     return Vertex(x=0.0, y=0.0)
 
@@ -141,13 +140,11 @@ def _default_camera_position() -> Vertex:
 @dataclass
 class Camera:
     position_worldspace: Vertex = field(default_factory=_default_camera_position)
-    # doc-region-end 808b49966faf68394a1e4def233df33c08e37b27
 
 
 camera: Camera = Camera()
 
 
-# doc-region-begin e705ab925d5c7f3219b065cdf16eb13268f17ef9
 def handle_inputs() -> None:
     global camera
 
@@ -159,7 +156,7 @@ def handle_inputs() -> None:
         camera.position_worldspace.x -= 1.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.position_worldspace.x += 1.0
-    # doc-region-end e705ab925d5c7f3219b065cdf16eb13268f17ef9
+
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
@@ -187,9 +184,8 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# doc-region-begin 6d86d07154c99ed6e1c3feab73545d184153f9ae
+
 while not glfw.window_should_close(window):
-    # doc-region-end 6d86d07154c99ed6e1c3feab73545d184153f9ae
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -214,19 +210,14 @@ while not glfw.window_should_close(window):
     handle_inputs()
 
     # fmt: off
-    # doc-region-begin c1994fe03bc9e4428893f63706e07eb1d3bb14b5
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for model_space in paddle1.vertices:
         world_space: Vertex = model_space.rotate(paddle1.rotation) \
                                          .translate(tx=paddle1.position.x,ty=paddle1.position.y)
-        # doc-region-end c1994fe03bc9e4428893f63706e07eb1d3bb14b5
-        # doc-region-begin 9624d3a2dd009e3850cd5dce4470272fb9d9b4e0
         camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
                                                      ty=-camera.position_worldspace.y)
-        # doc-region-end 9624d3a2dd009e3850cd5dce4470272fb9d9b4e0
-        # doc-region-begin 4db386e7523575f5ab67841165a5297c8c0e1500
         ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 10.0,
                                                scale_y=1.0 / 10.0)
         if not KEEP_ASPECT_RATIO:
@@ -235,11 +226,7 @@ while not glfw.window_should_close(window):
             screen_space: Vertex = ndc_space.ndc_to_screenspace_aspect_not_distorted(width, height)
         glVertex2f(screen_space.x, screen_space.y)
     glEnd()
-    # doc-region-end 4db386e7523575f5ab67841165a5297c8c0e1500
-    # fmt: on
 
-    # fmt: off
-    # doc-region-begin 63cbaad0dbecc69f52bc428648308a48337e43c6
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -247,22 +234,16 @@ while not glfw.window_should_close(window):
         world_space: Vertex = model_space.rotate(paddle2.rotation) \
                                          .translate(tx=paddle2.position.x,
                                                     ty=paddle2.position.y)
-        # doc-region-end 63cbaad0dbecc69f52bc428648308a48337e43c6
-        # doc-region-begin ad53fd8251cc2c93fffec19223c3e70270e31410
         camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
                                                      ty=-camera.position_worldspace.y)
-        # doc-region-end ad53fd8251cc2c93fffec19223c3e70270e31410
         ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 10.0,
                                                scale_y=1.0 / 10.0)
-        # fmt: on
-        # doc-region-begin 46159451e06ea71fbb3fc270b01f3b755a06040c
         if not KEEP_ASPECT_RATIO:
             screen_space: Vertex = ndc_space.ndc_to_screenspace_full_screen(width, height)
         else:
             screen_space: Vertex = ndc_space.ndc_to_screenspace_aspect_not_distorted(width, height)
         glVertex2f(screen_space.x, screen_space.y)
     glEnd()
-    # doc-region-end 46159451e06ea71fbb3fc270b01f3b755a06040c
 
     glfw.swap_buffers(window)
 
