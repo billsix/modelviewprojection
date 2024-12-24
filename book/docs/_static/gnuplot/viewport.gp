@@ -1,4 +1,3 @@
-set size ratio 0.625
 set terminal svg size 600,600 fname 'Helvetica'
 
 set output 'viewport.svg'

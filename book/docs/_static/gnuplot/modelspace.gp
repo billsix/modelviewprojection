@@ -7,4 +7,11 @@ set border lc 11
 set xrange [-4.0:4.0]
 set yrange [-4.0:4.0]
 set object 1 rect from -1.0,-3.0 to 1.0,3.0 fc rgb "white"
+
+ # Add labels to the corners
+set label 1 "B" at -1.25, 3.25
+set label 2 "A" at 1.25, 3.25
+set label 3 "D" at 1.25, -3.25
+set label 4 "C" at -1.25, -3.25
+
 plot -100000 notitle
