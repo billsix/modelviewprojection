@@ -154,7 +154,7 @@ paddle1 = Geometry(
         )
     ),
     color=(0.578123, 0.0, 1.0),
-    names=["C", "D", "A", "B"],
+    names=["c", "d", "a", "b"],
 )
 
 paddle2 = Geometry(
@@ -172,7 +172,7 @@ paddle2 = Geometry(
         )
     ),
     color=(1.0, 0.0, 0.0),
-    names=["C", "D", "A", "B"],
+    names=["c", "d", "a", "b"],
 )
 
 
@@ -463,7 +463,7 @@ square = Geometry(
         )
     ),
     color=(1.0, 0.0, 0.0),
-    names=["C", "D", "A", "B"],
+    names=["c", "d", "a", "b"],
 )
 
 
