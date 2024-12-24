@@ -332,6 +332,7 @@ create_graphs(
     procedures=[
         mplt.rotate(math.radians(45.0)),
     ],
+    graph_bounds=(12, 12),
 )
 
 
@@ -353,6 +354,7 @@ create_graphs(
         mplt.rotate(math.radians(45.0)),
         mplt.translate(-9.0, 2.0),
     ],
+    graph_bounds=(12, 12),
 )
 
 create_graphs(
@@ -363,6 +365,7 @@ create_graphs(
         mplt.translate(-9.0, 2.0),
         mplt.rotate(math.radians(65.0)),
     ],
+    graph_bounds=(12, 12),
 )
 
 create_graphs(
@@ -374,6 +377,7 @@ create_graphs(
         mplt.rotate(math.radians(65.0)),
     ],
     backwards=True,
+    graph_bounds=(12, 12),
 )
 
 
@@ -388,6 +392,7 @@ create_graphs(
         mplt.translate(-9.0, 2.0),
     ],
     backwards=True,
+    graph_bounds=(12, 12),
 )
 
 create_graphs(
@@ -400,6 +405,7 @@ create_graphs(
         mplt.rotate(math.radians(45.0)),
         mplt.translate(-9.0, 2.0),
     ],
+    graph_bounds=(12, 12),
 )
 
 
@@ -412,6 +418,7 @@ create_graphs(
         mplt.translate(-9.0, 2.0),
     ],
     backwards=True,
+    graph_bounds=(12, 12),
 )
 
 
@@ -420,6 +427,7 @@ create_graphs(
     filename="rotate2-forwards",
     geometry=paddle2,
     procedures=[mplt.rotate(math.radians(-1.0)), mplt.translate(9.0, -4.0)],
+    graph_bounds=(12, 12),
 )
 
 create_graphs(
@@ -431,6 +439,7 @@ create_graphs(
         mplt.translate(9.0, -4.0),
     ],
     backwards=True,
+    graph_bounds=(12, 12),
 )
 
 square = Geometry(
