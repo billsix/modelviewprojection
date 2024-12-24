@@ -61,11 +61,11 @@ the applications produced are not particularly pretty nor realistic-looking.
 For advanced graphics topics, you'll need to consult other references,
 such as the OpenGL "red book" and "blue book", or the following tutorials
 
-#. logl_
-#. oglt_
+#. LearnOpenGL_
+#. OpenGLTutorial_
 
-.. _logl:  https://learnopengl.com/
-.. _oglt:  http://www.opengl-tutorial.org/
+.. _LearnOpenGL:  https://learnopengl.com/
+.. _OpenGLTutorial:  http://www.opengl-tutorial.org/
 
 Although this book fills a huge gap that other books do not address,
 those other books are excellent reference books for advanced topics.
