@@ -83,7 +83,6 @@ Pre-requisities
 
    #. Books
 
-      #. https://en.wikibooks.org/wiki/A_Beginner%27s_Python_Tutorial
       #. https://learnbyexample.github.io/100_page_python_intro/preface.html
       #. https://diveintopython3.problemsolving.io/
 
@@ -102,7 +101,7 @@ Pre-requisities
 Required Software
 ^^^^^^^^^^^^^^^^^
 
-You will need to install Python.  https://en.wikibooks.org/wiki/A_Beginner%27s_Python_Tutorial/Installing_Python
+You will need to install Python. https://realpython.com/installing-python/
 
 Before running this code, you need a virtual environment,
 with dependencies installed. https://docs.python.org/3/tutorial/venv.html
