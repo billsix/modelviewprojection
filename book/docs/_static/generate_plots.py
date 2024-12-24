@@ -137,7 +137,7 @@ def accumulate_transformation(procedures, backwards=False):
 
 ### Step 1
 
-Geometry = namedtuple("Geometry", "points color")
+Geometry = namedtuple("Geometry", "points color names")
 
 paddle1 = Geometry(
     points=list(
@@ -154,6 +154,7 @@ paddle1 = Geometry(
         )
     ),
     color=(0.578123, 0.0, 1.0),
+    names=["C","D","A","B"]
 )
 
 paddle2 = Geometry(
@@ -171,6 +172,7 @@ paddle2 = Geometry(
         )
     ),
     color=(1.0, 0.0, 0.0),
+    names=["C","D","A","B"]
 )
 
 
@@ -262,6 +264,9 @@ def create_graphs(
                 lw=2,
                 color=geometry.color,
             )
+
+            for x, y, label in zip(transformed_xs, transformed_ys, geometry.names):
+                plt.annotate(f'{label}', (x, y), textcoords="offset points", xytext=(10,10), ha='center')
 
             # make sure the x and y axis are equally proportional in screen space
             plt.gca().set_aspect("equal", adjustable="box")
@@ -443,6 +448,8 @@ square = Geometry(
         )
     ),
     color=(1.0, 0.0, 0.0),
+    names=["C","D","A","B"]
+
 )
 
 
@@ -473,7 +480,7 @@ create_graphs(
 
 t = np.linspace(0, np.pi * 2, 100)
 circ = [list(np.cos(t) * 10), list(np.sin(t) * 10)]
-circle = Geometry(points=circ, color=(0.0, 1.0, 0.0))
+circle = Geometry(points=circ, color=(0.0, 1.0, 0.0), names=[])
 
 create_graphs(
     title="Circle, Relative to Local Space",
@@ -515,6 +522,8 @@ square_ndc = Geometry(
         )
     ),
     color=(1.0, 0.0, 0.0),
+    names=[]
+
 )
 
 
@@ -564,6 +573,7 @@ square_ndc = Geometry(
         )
     ),
     color=(1.0, 0.0, 0.0),
+    names=[]
 )
 
 
