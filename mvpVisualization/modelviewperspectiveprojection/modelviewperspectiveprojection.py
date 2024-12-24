@@ -26,7 +26,7 @@ import os
 import sys
 from dataclasses import dataclass, field
 from enum import Enum, auto
-from typing import List, Optional, Tuple
+from typing import List, Optional, Tuple, Type
 
 import glfw
 import imgui
@@ -125,16 +125,16 @@ class StepNumber(Enum):
     end = State("End", 5.0)
 
 
-def calculate_start_times(states_enum: Enum) -> List[State]:
+def calculate_start_times(states_enum: Type[StepNumber]) -> List[State]:
     """Calculate start times for all states."""
     start_time = 0.0
-    updated_states = []
+    _updated_states = []
     for state in states_enum:
         current_state = state.value
         current_state.start_time = start_time
-        updated_states.append(current_state)
+        _updated_states.append(current_state)
         start_time += current_state.duration
-    return updated_states
+    return _updated_states
 
 
 updated_states = calculate_start_times(StepNumber)
@@ -1190,7 +1190,7 @@ animation_paused = False
 show_ground_axis = False
 
 
-def highlighted_button(text: str, start_time: int, time: float) -> bool:
+def highlighted_button(text: str, start_time: float, time: float) -> bool:
     highlight = time > start_time and (time - start_time) < 5
     if highlight:
         imgui.push_id(str(3))
@@ -1750,6 +1750,7 @@ while not glfw.window_should_close(window):
                 )
 
             ground.render(animation_time)
+            glClear(GL_DEPTH_BUFFER_BIT)
 
             if animation_time > (StepNumber.camera_rotate_y.value.start_time):
                 frustum.render(animation_time)
