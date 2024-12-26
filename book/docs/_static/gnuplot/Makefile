@@ -1,54 +1,54 @@
-%.dvi: %.gp
+%.svg: %.gp
 	gnuplot $<
 
-%.png: %.gp
-	inkscape --without-gui --export-area-drawing --file=$< --export-png=$@
+%.png: %.svg
+	inkscape $< --export-filename=$@
 
 
 
 OBJECTS_TO_BUILD =  \
 	plot1.png \
-	plot1.dvi \
+	plot1.svg \
 	monitor.png \
-	monitor.dvi \
+	monitor.svg \
 	monitor2.png \
-	monitor2.dvi \
+	monitor2.svg \
 	screenspace.png \
-	screenspace.dvi \
+	screenspace.svg \
 	screenspace2.png \
-	screenspace2.dvi \
+	screenspace2.svg \
 	ndcSpace.png \
-	ndcSpace.dvi \
+	ndcSpace.svg \
 	ndcSpace1.png \
-	ndcSpace1.dvi \
+	ndcSpace1.svg \
 	ndcSpace2.png \
-	ndcSpace2.dvi \
+	ndcSpace2.svg \
 	plot2.png \
-	plot2.dvi \
+	plot2.svg \
 	plot3.png \
-	plot3.dvi \
+	plot3.svg \
 	plot4.png \
-	plot4.dvi \
+	plot4.svg \
 	translate.png \
-	translate.dvi \
+	translate.svg \
 	scale.png \
-	scale.dvi \
+	scale.svg \
 	rotate.png \
-	rotate.dvi \
+	rotate.svg \
 	rotate2.png \
-	rotate2.dvi \
+	rotate2.svg \
 	rotate3.png \
-	rotate3.dvi \
+	rotate3.svg \
 	rotate4.png \
-	rotate4.dvi \
+	rotate4.svg \
 	modelspace.png \
-	modelspace.dvi \
+	modelspace.svg \
 	disproportionate1.png \
-	disproportionate1.dvi \
+	disproportionate1.svg \
 	disproportionate2.png \
-	disproportionate2.dvi \
+	disproportionate2.svg \
 	viewport.png \
-	viewport.dvi
+	viewport.svg
 
 
 all: $(OBJECTS_TO_BUILD)
