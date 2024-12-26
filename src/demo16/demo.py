@@ -188,6 +188,7 @@ class Vertex:
         return -1.0 * self
 
     # fmt: off
+    # doc-region-begin define ortho
     def ortho(self: Vertex,
               left: float,
               right: float,
@@ -209,38 +210,19 @@ class Vertex:
                    .scale(2.0 / length_x,
                           2.0 / length_y,
                           2.0 / (-length_z))
+    # doc-region-end define ortho
     # fmt: on
 
     # fmt: off
-    def perspective(self: Vertex,
-                    field_of_view: float,
-                    aspect_ratio: float,
-                    near_z: float,
-                    far_z: float) -> Vertex:
-        # field_of_view, field of view, is angle of y
-        # aspect_ratio is x_width / y_width
-
-        top: float = -near_z * math.tan(math.radians(field_of_view) / 2.0)
-        right: float = top * aspect_ratio
-
-        scaled_x: float = self.x / self.z * near_z
-        scaled_y: float = self.y / self.z * near_z
-        rectangular_prism: Vertex = Vertex(scaled_x,
-                                          scaled_y,
-                                          self.z)
-
-        return rectangular_prism.ortho(left=-right,
-                                      right=right,
-                                      bottom=-top,
-                                      top=top,
-                                      near=near_z,
-                                      far=far_z)
-
+    # doc-region-begin define camera space to ndc
     def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
-        return self.perspective(field_of_view=45.0,
-                                aspect_ratio=1.0,
-                                near_z=-.1,
-                                far_z=-1000.0)
+        return self.ortho(left=-10.0,
+                          right=10.0,
+                          bottom=-10.0,
+                          top=10.0,
+                          near=-0.1,
+                          far=-30.0)
+    # doc-region-end define camera space to ndc
     # fmt: on
 
 
