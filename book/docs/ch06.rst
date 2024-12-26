@@ -147,6 +147,17 @@ Modelspace of Paddle 1
 
     Paddle 1's Modelspace
 
+
+==============  ======================
+Vertex          Coordinates
+==============  ======================
+a               (1,3)
+b               (-1,3)
+c               (-1,-3)
+d               (1,-3)
+==============  ======================
+
+
 Modelspace of Paddle 1 Superimposed on Worldspace after the translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -164,6 +175,17 @@ is unchanged.  That is world space, which has not changed.
 
     Paddle 1's Modelspace Superimposed on World Space
 
+==============  ========================  ===========================
+Vertex          Coordinates (modelspace)  Coordinates (worldspace)
+==============  ========================  ===========================
+a               (1,3)                     (1,3) + (9,3)  = (-8,5)
+b               (-1,3)                    (-1,3) + (9,3)  = (-10,5)
+c               (-1,-3)                   (-1,-3) + (9,3)  = (-10,-1)
+d               (1,-3)                    (1,-3) + (9,3) = (-8,-1)
+==============  ========================  ===========================
+
+
+
 Paddle 1's vertices in WorldSpace Coordinates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -172,7 +194,19 @@ Paddle 1's vertices in WorldSpace Coordinates
     :alt: Paddle 1's Vertices in World Space
     :figclass: align-center
 
-    Paddle 1's Vertices in World Space.   Don't concern yourself with what the numbers are.
+    Paddle 1's Vertices in World Space.
+
+
+==============  ========================
+Vertex          Coordinates (worldspace)
+==============  ========================
+a               (-8,5)
+b               (-10,5)
+c               (-10,-1)
+d               (-8,-1)
+==============  ========================
+
+
 
 Now that the transformation has happened, the vertices are all in world space.
 You could calculate their values in world space, but that will not give you any insight.  The only numbers
@@ -181,6 +215,7 @@ was the same as world space, has changed, bringing the vertices along with it.
 
 Same goes for Paddle 2's modelspace, relative to its translation, which
 are different values.
+
 
 
 
@@ -194,6 +229,16 @@ Modelspace of Paddle 2
 
     Paddle 2's Modelspace
 
+==============  ======================
+Vertex          Coordinates
+==============  ======================
+a               (1,3)
+b               (-1,3)
+c               (-1,-3)
+d               (1,-3)
+==============  ======================
+
+
 Modelspace of Paddle 2 Superimposed on Worldspace after the translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -204,6 +249,16 @@ Modelspace of Paddle 2 Superimposed on Worldspace after the translation
 
     Paddle 2's Modelspace Superimposed on World Space
 
+==============  ========================  =========================
+Vertex          Coordinates (modelspace)  Coordinates (worldspace)
+==============  ========================  =========================
+a               (1,3)                     (1,3) + (9,-4) = (10,-1)
+b               (-1,3)                    (-1,3) + (9,-4) = (8,-1)
+c               (-1,-3)                   (-1,-3) + (9,-4) = (8,-7)
+d               (1,-3)                    (1,-3) + (9,-4) = (10,-7)
+==============  ========================  =========================
+
+
 Paddle 2's vertices in WorldSpace Coordinates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -213,8 +268,16 @@ Paddle 2's vertices in WorldSpace Coordinates
     :alt: Paddle 1's Vertices in World Space
     :figclass: align-center
 
-    Paddle 2's Vertices in World Space.  Don't concern yourself with what the numbers are.
+    Paddle 2's Vertices in World Space.
 
+==============  ========================
+Vertex          Coordinates (worldspace)
+==============  ========================
+a               (10,-1)
+b               (8,-1)
+c               (8,-7)
+d               (10,-7)
+==============  ========================
 
 
 ..
