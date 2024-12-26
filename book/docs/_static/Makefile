@@ -1,4 +1,4 @@
-all: cayleyImages graphs pythonplots
+all: cayleyImages graphs rotate0-0.svg
 	cd gnuplot && make
 
 
@@ -166,9 +166,6 @@ demo18-8.png: demo18-8.dot
 	dot -Tpng $< -o $@
 
 
-pythonplots: rotate0.gif
-
-
-
-rotate0.gif: generate_plots.py
+# dummy task to generate all the plots from generate_plots.py
+rotate0-0.svg: generate_plots.py
 	python3 generate_plots.py
