@@ -148,15 +148,19 @@ def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
         for v in paddle1.vertices:
+            v.x += 0.0
             v.y -= 0.1
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
         for v in paddle1.vertices:
+            v.x += 0.0
             v.y += 0.1
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
         for v in paddle2.vertices:
+            v.x += 0.0
             v.y -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         for v in paddle2.vertices:
+            v.x += 0.0
             v.y += 0.1
 
 

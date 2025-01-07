@@ -1,4 +1,4 @@
-%.svg: %.gp
+%.svg: %.gp %.dat
 	gnuplot $<
 
 %.png: %.svg

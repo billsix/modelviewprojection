@@ -122,19 +122,19 @@ construction of paddle1 like this:
 
 .. code-block:: python
 
-       x = -1.0
-       y = -0.3
-       vertex_one = Vertex(x, y)
-       x = -0.8
-       y = -0.3
-       vertex_two = Vertex(x, y)
        x = -0.8
        y = 0.3
-       vertex_three = Vertex(x, y)
+       vertex_a = Vertex(x, y)
        x = -1.0
        y = 0.3
-       vertex_four = Vertex(x, y)
-       vertex_list = list(vertex_one, vertex_two, vertex_three, vertex_four)
+       vertex_b = Vertex(x, y)
+       x = -1.0
+       y = -0.3
+       vertex_c = Vertex(x, y)
+       x = -0.8
+       y = -0.3
+       vertex_d = Vertex(x, y)
+       vertex_list = list(vertex_a, vertex_b, vertex_c, vertex_d)
        r = 0.57
        g = 0.0
        b = 1.0
@@ -149,6 +149,33 @@ reading of the code, which gets easy with practice.
 
 Query User Input and Use It To Animate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+
+.. math::
+   \vec{x'} = \vec{t}(\vec{x}; \vec{c}) = \vec{x} + \vec{c}
+
+.. math::
+    \begin{bmatrix}
+    x_{1} \\
+    x_{2}
+    \end{bmatrix}  =
+    \vec{t}(
+    \begin{bmatrix}
+    x_{1} \\
+    x_{2}
+    \end{bmatrix}; \begin{bmatrix}
+    c_{1} \\
+    c_{2}
+    \end{bmatrix} )  =
+    \begin{bmatrix}
+    x_{1} \\
+    x_{2}
+    \end{bmatrix} +
+    \begin{bmatrix}
+    {c}_{1} \\
+    {c}_{2}
+    \end{bmatrix}
+
 
 .. literalinclude:: ../../src/demo04/demo.py
    :language: python
