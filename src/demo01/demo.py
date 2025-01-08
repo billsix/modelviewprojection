@@ -33,8 +33,8 @@ from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_MODELVIEW,
 
 # doc-region-end import glfw
 
-
 # doc-region-end import individual functions without needing module name
+
 # fmt: on
 
 # doc-region-begin initialize glfw

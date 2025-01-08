@@ -294,8 +294,11 @@ Create a Window
    :caption: src/demo01/demo.py
 
 
-*  If GLFW cannot open the window, quit.  Unlike MC Hammer, we are quite legit, yet still
+*  If GLFW cannot open the window, quit.  Unlike `MC Hammer <https://youtu.be/HFCv86Olk8E?si=eE25mzpsrrw6aoyR&t=503>`_ , we are quite legit, yet still
    able to quit.
+
+
+
 
 
 .. literalinclude:: ../../src/demo01/demo.py
