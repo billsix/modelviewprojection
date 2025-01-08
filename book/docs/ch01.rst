@@ -45,7 +45,9 @@ On Windows, in a command prompt, type "python src\\demo01\\demo.py".
 Terminology
 ^^^^^^^^^^^
 
-The device attached to a computer which displays information to the user is called a *monitor*.
+The device connected to a computer that displays information to the
+user is called a *monitor*.
+
 
 
 .. figure:: _static/ccbysa3.0/wikipedia-Yaohua2000/1280px-20020811203148_-_NOI_2002.jpg
@@ -56,8 +58,10 @@ The device attached to a computer which displays information to the user is call
     Computer Monitor
 
 
-The monitor is composed of a two-dimensional array of light-emitting elements, each called a *pixel*, typically
-composed of 3 components, red, green, and blue.
+A monitor consists of a two-dimensional grid of tiny light-emitting
+elements, called *pixel*s. Each pixel typically has three components: red, green, and blue.
+
+
 
 
 .. figure:: _static/ccbysa3.0/wikipedia-Kprateek88/Closeup_of_pixels.JPG
@@ -67,8 +71,10 @@ composed of 3 components, red, green, and blue.
 
     Pixels
 
-At a given time, each individual pixel is instructed by the computer to display
-one specific color, represented within the computer as a number.
+At any given moment, the computer instructs
+each pixel to display a specific color, which is represented as a number.
+
+
 The aggregate of the colors at each pixel at one moment in time, called a *frame*,
 provides a picture that has some meaning to the human user.
 In OpenGL, the bottom left pixel of a window is pixel coordinate (0,0).

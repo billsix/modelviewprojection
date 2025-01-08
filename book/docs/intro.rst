@@ -41,26 +41,24 @@ This book references source code, which is at `https://github.com/billsix/modelv
 Approach
 ^^^^^^^^
 
-This book uses "mistake-driven-development"; instead of listing math formulae
-in their final form, this book incrementally shows, via working
-code, how to build complex graphics applications, making mistakes along
-the way, and then fixing the mistakes.
+This book takes a "mistake-driven development" approach: instead of
+handing you polished math formulae, it walks you through building
+complex graphics applications step by step. Along the way, we’ll make
+mistakes—and then fix them—so you can see how solutions emerge in
+real-world programming.
 
+You’ll learn how to place objects in space, draw them relative to
+others, add a camera that moves over time based on user input, and
+transform all those objects into the 2D pixel coordinates of your
+screen. By the end, you’ll understand the foundations of creating
+first-person and third-person applications or games. The goal? To
+empower you to build the graphics programs you want, using math you
+mostly already know.
 
-Throughout the book, you will learn how to place objects in space,
-how to draw objects relative to other objects, how to add a
-camera which moves over time based on user input, and how to transform all
-the objects into the 2D pixel coordinates of the computer screen.
-By the end of this book, you will understand the basics of
-how to create first-person and third-person applications/games.
-I made this book to show programmers how to make the kind
-of graphics programs which they want to make, using
-math they mostly already know.
-
-This book is purposely limited in scope, and
-the applications produced are not particularly pretty nor realistic-looking.
-For advanced graphics topics, you'll need to consult other references,
-such as the OpenGL "red book" and "blue book", or the following tutorials
+This book keeps things intentionally simple. The applications we create
+won’t be particularly pretty or realistic-looking. For more advanced
+topics, you’ll want to dive into references like the OpenGL “Red Book
+” and “Blue Book,” or explore some of the tutorials listed at the end.
 
 #. LearnOpenGL_
 #. OpenGLTutorial_
@@ -68,8 +66,9 @@ such as the OpenGL "red book" and "blue book", or the following tutorials
 .. _LearnOpenGL:  https://learnopengl.com/
 .. _OpenGLTutorial:  http://www.opengl-tutorial.org/
 
-Although this book fills a huge gap that other books do not address,
-those other books are excellent reference books for advanced topics.
+While this book fills a huge gap by focusing on the basics in a hands
+-on way, those other books are fantastic references for diving into
+advanced topics.
 
 
 Pre-requisities
