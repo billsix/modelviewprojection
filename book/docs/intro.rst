@@ -34,8 +34,9 @@ Learn how to program in 3D computer graphics in Python!
 Source code
 ^^^^^^^^^^^
 
-This book references source code, which is at `here <https://github.com/billsix/modelviewprojection>`_
+This book references source code, which is at `https://github.com/billsix/modelviewprojection <https://github.com/billsix/modelviewprojection>`_
 
+.. include:: ./version.txt
 
 Approach
 ^^^^^^^^
