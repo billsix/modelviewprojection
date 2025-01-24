@@ -1,6 +1,7 @@
-set terminal svg size 600,600 fname 'Helvetica'
+set terminal svg  fname 'Helvetica'
 
 set output 'viewport.svg'
+set size ratio -1
 set linetype 11 lc rgb 'black'
 set label "(-1,-1)" at 360,50
 set label "(1,-1)" at 1400,50

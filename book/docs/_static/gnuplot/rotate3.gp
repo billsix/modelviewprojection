@@ -1,4 +1,4 @@
-set terminal svg size 600,600 fname 'Helvetica'
+set terminal svg  fname 'Helvetica'
 
 set output 'rotate3.svg'
 

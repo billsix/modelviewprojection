@@ -1,6 +1,7 @@
-set terminal svg size 600,600 fname 'Helvetica'
+set terminal svg  fname 'Helvetica'
 
 set output 'monitor2.svg'
+set size ratio -1
 set linetype 11 lc rgb 'black'
 set border lc 11
 set xrange [0:1920]

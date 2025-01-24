@@ -1,6 +1,7 @@
-set terminal svg size 600,600 fname 'Helvetica'
+set terminal svg  fname 'Helvetica'
 
 set output 'scale.svg'
+set size ratio -1
 
 set style line 1 lc rgb 'black' pt 5   # square
 set linetype 11 lc rgb 'black'
