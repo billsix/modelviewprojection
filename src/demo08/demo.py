@@ -141,15 +141,14 @@ class Vertex:
             + math.sin(angle_in_radians) * self.rotate_90_degrees()
         )
 
-    # fmt: off
     # doc-region-begin define rotate around
     def rotate_around(self: Vertex, angle_in_radians: float, center: Vertex) -> Vertex:
         translate_to_center: Vertex = self.translate(-center)
         rotated_around_origin: Vertex = translate_to_center.rotate(angle_in_radians)
         back_to_position: Vertex = rotated_around_origin.translate(center)
         return back_to_position
+
     # doc-region-end define rotate around
-    # fmt: on
 
 
 @dataclass
@@ -235,37 +234,36 @@ while not glfw.window_should_close(window):
     handle_movement_of_paddles()
 
     # draw paddle 1
-    # fmt: off
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     rotatePoint: Vertex = paddle1.position
-    for paddle1_vertex_in_model_space in paddle1.vertices:
-        paddle1_vertex_in_world_space: Vertex = paddle1_vertex_in_model_space.translate(paddle1.position)
-        paddle1_vertex_in_world_space: Vertex = paddle1_vertex_in_world_space.rotate_around(paddle1.rotation,
-                                                                                            rotatePoint)
-        paddle1_vertex_in_ndc_space: Vertex = paddle1_vertex_in_world_space.uniform_scale(scalar=1.0/10.0)
-        glVertex2f(paddle1_vertex_in_ndc_space.x, paddle1_vertex_in_ndc_space.y)
+    for paddle1_vertex_ms in paddle1.vertices:
+        paddle1_vertex_ws: Vertex = paddle1_vertex_ms.translate(paddle1.position)
+        paddle1_vertex_ws: Vertex = paddle1_vertex_ws.rotate_around(
+            paddle1.rotation, rotatePoint
+        )
+        paddle1_vertex_ndc: Vertex = paddle1_vertex_ws.uniform_scale(scalar=1.0 / 10.0)
+        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
         # doc-region-end draw paddle 1
     glEnd()
-    # fmt: on
 
-    # fmt: off
     # doc-region-begin draw paddle 2
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
     rotatePoint: Vertex = paddle2.position
-    for paddle2_vertex_model_space in paddle2.vertices:
-        paddle2_vertex_world_space: Vertex = paddle2_vertex_model_space.translate(paddle2.position)
-        paddle2_vertex_world_space: Vertex = paddle2_vertex_world_space.rotate_around(paddle2.rotation, rotatePoint)
-        paddle2_vertex_ndc_space: Vertex = paddle2_vertex_world_space.uniform_scale(scalar=1.0/10.0)
-        glVertex2f(paddle2_vertex_ndc_space.x, paddle2_vertex_ndc_space.y)
+    for paddle2_vertex_ms in paddle2.vertices:
+        paddle2_vertex_ws: Vertex = paddle2_vertex_ms.translate(paddle2.position)
+        paddle2_vertex_ws: Vertex = paddle2_vertex_ws.rotate_around(
+            paddle2.rotation, rotatePoint
+        )
+        paddle2_vertex_ndc: Vertex = paddle2_vertex_ws.uniform_scale(scalar=1.0 / 10.0)
+        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
-    # fmt: on
 
     glfw.swap_buffers(window)
 

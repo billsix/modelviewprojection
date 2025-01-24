@@ -223,38 +223,36 @@ while not glfw.window_should_close(window):
     handle_movement_of_paddles()
 
     # draw paddle 1
-    # fmt: off
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for paddle1_vertex_in_model_space in paddle1.vertices:
+    for paddle1_vertex_ms in paddle1.vertices:
         # doc-region-begin paddle 1 transformations
-        paddle1_vertex_in_world_space: Vertex = paddle1_vertex_in_model_space.rotate(paddle1.rotation) \
-                                                                             .translate(paddle1.position)
+        paddle1_vertex_ws: Vertex = paddle1_vertex_ms.rotate(
+            paddle1.rotation
+        ).translate(paddle1.position)
         # doc-region-end paddle 1 transformations
         # doc-region-begin paddle 1 scale
-        paddle1_vertex_in_ndc_space: Vertex = paddle1_vertex_in_world_space.uniform_scale(scalar=1.0/10.0)
+        paddle1_vertex_ndc: Vertex = paddle1_vertex_ws.uniform_scale(scalar=1.0 / 10.0)
         # doc-region-end paddle 1 scale
-        glVertex2f(paddle1_vertex_in_ndc_space.x, paddle1_vertex_in_ndc_space.y)
+        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
     glEnd()
     # doc-region-end draw paddle 1
-    # fmt: on
 
     # draw paddle 2
-    # fmt: off
     # doc-region-begin draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    for paddle2_vertex_model_space in paddle2.vertices:
-        paddle2_vertex_world_space: Vertex = paddle2_vertex_model_space.rotate(paddle2.rotation) \
-                                                                       .translate(paddle2.position)
-        paddle2_vertex_ndc_space: Vertex = paddle2_vertex_world_space.uniform_scale(scalar=1.0/10.0)
-        glVertex2f(paddle2_vertex_ndc_space.x, paddle2_vertex_ndc_space.y)
+    for paddle2_vertex_ms in paddle2.vertices:
+        paddle2_vertex_ws: Vertex = paddle2_vertex_ms.rotate(
+            paddle2.rotation
+        ).translate(paddle2.position)
+        paddle2_vertex_ndc: Vertex = paddle2_vertex_ws.uniform_scale(scalar=1.0 / 10.0)
+        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
-    # fmt: on
     glfw.swap_buffers(window)
 
 glfw.terminate()

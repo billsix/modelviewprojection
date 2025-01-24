@@ -289,9 +289,7 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 @dataclass
 class Camera:
-    position_worldspace: Vertex = field(
-        default_factory=lambda: Vertex(x=0.0, y=0.0, z=40.0)
-    )
+    position_ws: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0, z=40.0))
     rot_y: float = 0.0
     rot_x: float = 0.0
 
@@ -330,11 +328,11 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.position_worldspace.x -= move_multiple * math.sin(camera.rot_y)
-        camera.position_worldspace.z -= move_multiple * math.cos(camera.rot_y)
+        camera.position_ws.x -= move_multiple * math.sin(camera.rot_y)
+        camera.position_ws.z -= move_multiple * math.cos(camera.rot_y)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.position_worldspace.x += move_multiple * math.sin(camera.rot_y)
-        camera.position_worldspace.z += move_multiple * math.cos(camera.rot_y)
+        camera.position_ws.x += move_multiple * math.sin(camera.rot_y)
+        camera.position_ws.z += move_multiple * math.cos(camera.rot_y)
 
     global paddle1, paddle2
 
@@ -408,19 +406,11 @@ while not glfw.window_should_close(window):
     axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
-            camera.position_worldspace.x += (
-                1.0 * axes_list[0][0] * math.cos(camera.rot_y)
-            )
-            camera.position_worldspace.z -= (
-                1.0 * axes_list[0][0] * math.sin(camera.rot_y)
-            )
+            camera.position_ws.x += 1.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            camera.position_ws.z -= 1.0 * axes_list[0][0] * math.sin(camera.rot_y)
         if math.fabs(float(axes_list[0][1])) > 0.1:
-            camera.position_worldspace.x += (
-                1.0 * axes_list[0][1] * math.sin(camera.rot_y)
-            )
-            camera.position_worldspace.z += (
-                1.0 * axes_list[0][1] * math.cos(camera.rot_y)
-            )
+            camera.position_ws.x += 1.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            camera.position_ws.z += 1.0 * axes_list[0][1] * math.cos(camera.rot_y)
 
         # print(axes_list[0][4])
         if math.fabs(axes_list[0][3]) > 0.10:
@@ -434,38 +424,36 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin camera space to world space, commented out
     # fn_stack.push(
-    #     lambda v: v.translate(camera.position_worldspace)
+    #     lambda v: v.translate(camera.position_ws)
     # fn_stack.push(lambda v: v.rotate_y(camera.rot_y))
     # fn_stack.push(lambda v: v.rotate_x(camera.rot_x))
     # doc-region-end camera space to world space, commented out
 
-    # fmt: off
     # doc-region-begin world space to camera space
     fn_stack.push(lambda v: v.rotate_x(-camera.rot_x))  # (2)
     fn_stack.push(lambda v: v.rotate_y(-camera.rot_y))  # (3)
-    fn_stack.push(lambda v: v.translate(-camera.position_worldspace)) # (4)
+    fn_stack.push(lambda v: v.translate(-camera.position_ws))  # (4)
     # doc-region-end world space to camera space
-    # fmt: on
 
-    # fmt: off
     # doc-region-begin paddle 1 transformations
-    fn_stack.push(lambda v: v.translate(paddle1.position)) # (5) translate the local origin
-    fn_stack.push(lambda v: v.rotate_z(paddle1.rotation)) # (6) (rotate around the local z axis
+    fn_stack.push(
+        lambda v: v.translate(paddle1.position)
+    )  # (5) translate the local origin
+    fn_stack.push(
+        lambda v: v.rotate_z(paddle1.rotation)
+    )  # (6) (rotate around the local z axis
     # doc-region-end paddle 1 transformations
-    # fmt: on
 
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for paddle1_vertex_in_model_space in paddle1.vertices:
-        paddle1_vertex_in_ndc_space = fn_stack.modelspace_to_ndc(
-            paddle1_vertex_in_model_space
-        )
+    for paddle1_vertex_ms in paddle1.vertices:
+        paddle1_vertex_ndc = fn_stack.modelspace_to_ndc(paddle1_vertex_ms)
         glVertex3f(
-            paddle1_vertex_in_ndc_space.x,
-            paddle1_vertex_in_ndc_space.y,
-            paddle1_vertex_in_ndc_space.z,
+            paddle1_vertex_ndc.x,
+            paddle1_vertex_ndc.y,
+            paddle1_vertex_ndc.z,
         )
     glEnd()
     # doc-region-end draw paddle 1
@@ -480,8 +468,8 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for model_space in square:
-        ndc_space = fn_stack.modelspace_to_ndc(model_space)
-        glVertex3f(ndc_space.x, ndc_space.y, ndc_space.z)
+        ndc = fn_stack.modelspace_to_ndc(model_space)
+        glVertex3f(ndc.x, ndc.y, ndc.z)
     glEnd()
     # doc-region-end draw paddle 2
 
@@ -494,20 +482,18 @@ while not glfw.window_should_close(window):
     fn_stack.pop()  # pop off (5)
     # doc-region-end pop to get back to world space
 
-    # fmt: off
     # doc-region-begin draw paddle 2
-    fn_stack.push(lambda v: v.translate(paddle2.position)) # (5)
+    fn_stack.push(lambda v: v.translate(paddle2.position))  # (5)
     fn_stack.push(lambda v: v.rotate_z(paddle2.rotation))  # (6)
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    for paddle2_vertex_model_space in paddle2.vertices:
-        paddle2_vertex_ndc_space: Vertex = fn_stack.modelspace_to_ndc(paddle2_vertex_model_space)
-        glVertex3f(paddle2_vertex_ndc_space.x, paddle2_vertex_ndc_space.y, paddle2_vertex_ndc_space.z)
+    for paddle2_vertex_ms in paddle2.vertices:
+        paddle2_vertex_ndc: Vertex = fn_stack.modelspace_to_ndc(paddle2_vertex_ms)
+        glVertex3f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y, paddle2_vertex_ndc.z)
     glEnd()
     # doc-region-end draw paddle 2
-    # fmt: on
 
     # doc-region-begin clear function stack for next iteration of the event loop
     fn_stack.clear()  # done rendering everything, just go ahead and clean 1-6 off of the stack

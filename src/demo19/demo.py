@@ -299,11 +299,11 @@ while not glfw.window_should_close(window):
     glRotatef(math.degrees(paddle1.rotation), 0.0, 0.0, 1.0)
 
     glBegin(GL_QUADS)
-    for paddle1_vertex_in_model_space in paddle1.vertices:
+    for paddle1_vertex_ms in paddle1.vertices:
         glVertex3f(
-            paddle1_vertex_in_model_space[0],
-            paddle1_vertex_in_model_space[1],
-            paddle1_vertex_in_model_space[2],
+            paddle1_vertex_ms[0],
+            paddle1_vertex_ms[1],
+            paddle1_vertex_ms[2],
         )
     glEnd()
     # doc-region-end draw paddle 1
@@ -351,11 +351,11 @@ while not glfw.window_should_close(window):
     glRotatef(math.degrees(paddle2.rotation), 0.0, 0.0, 1.0)
 
     glBegin(GL_QUADS)
-    for paddle2_vertex_model_space in paddle2.vertices:
+    for paddle2_vertex_ms in paddle2.vertices:
         glVertex3f(
-            paddle2_vertex_model_space[0],
-            paddle2_vertex_model_space[1],
-            paddle2_vertex_model_space[2],
+            paddle2_vertex_ms[0],
+            paddle2_vertex_ms[1],
+            paddle2_vertex_ms[2],
         )
     glEnd()
     # doc-region-end draw paddle 2

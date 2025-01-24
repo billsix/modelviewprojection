@@ -18,16 +18,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-# fmt: off
 # doc-region-begin import first module
 import sys
 
 # doc-region-begin import glfw
 import glfw
+
 # doc-region-begin import individual functions without needing module name
-from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_MODELVIEW,
-                       GL_PROJECTION, glClear, glClearColor, glLoadIdentity,
-                       glMatrixMode, glViewport)
+from OpenGL.GL import (
+    GL_COLOR_BUFFER_BIT,
+    GL_DEPTH_BUFFER_BIT,
+    GL_MODELVIEW,
+    GL_PROJECTION,
+    glClear,
+    glClearColor,
+    glLoadIdentity,
+    glMatrixMode,
+    glViewport,
+)
 
 # doc-region-end import first module
 
@@ -35,7 +43,6 @@ from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_MODELVIEW,
 
 # doc-region-end import individual functions without needing module name
 
-# fmt: on
 
 # doc-region-begin initialize glfw
 if not glfw.init():
