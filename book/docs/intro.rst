@@ -147,6 +147,7 @@ To run the Spyder IDE to execute the code in the book, open Spyder on the develo
 prompt
 
 .. code-block::
+
    source venv/bin/activate
    spyder
 
