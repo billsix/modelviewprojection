@@ -5,4 +5,5 @@ isort
 numpy
 PyOpenGL
 ruff
+spyder
 staticlocal

@@ -33,8 +33,7 @@ they are mandatory.
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a shell, type "python src/demo21/demo.py".
-On Windows, in a command prompt, type "python src\\demo21\\demo.py".
+Load src/demo21/demo.py in Spyder and hit the play button
 
 
 Move the Paddles using the Keyboard

@@ -106,7 +106,10 @@ You will need to install Python. https://realpython.com/installing-python/
 Before running this code, you need a virtual environment,
 with dependencies installed. https://docs.python.org/3/tutorial/venv.html
 
-On Windows, if you use the Developer command prompt, run
+Windows
+~~~~~~~
+
+On Windows, if you use the Developer command prompt, to set up the environment run
 
 .. code-block::
 
@@ -117,10 +120,21 @@ On Windows, if you use the Developer command prompt, run
    python -m pip install --upgrade pip setuptools
    python -m pip install -r requirements.txt
 
+To run the Spyder IDE to execute the code in the book, open Spyder on the developer command
+prompt
 
-If you use Visual Studio on Windows, it takes care of this for you.
+.. code-block::
 
-On a Mac or on Linux, run
+   cd venv\Scripts
+   activate.bat
+   cd ..\..\
+   spyder
+
+
+MacOS or Linux
+~~~~~~~~~~~~~~
+
+On MacOS or Linux, on a terminal, to set up the environment, run
 
 .. code-block:: bash
 
@@ -129,11 +143,14 @@ On a Mac or on Linux, run
    python3 -m pip install --upgrade pip setuptools
    python3 -m pip install -r requirements.txt
 
+To run the Spyder IDE to execute the code in the book, open Spyder on the developer command
+prompt
 
-Windows
-~~~~~~~
+.. code-block::
+   source venv/bin/activate
+   spyder
 
-Use Visual Studio 2019 (Tested on community, but I'm sure it will work on others).
+
 
 Linux
 ~~~~~

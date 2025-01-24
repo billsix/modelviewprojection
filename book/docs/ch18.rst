@@ -155,9 +155,7 @@ the paddle's model space data.
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a shell, type "python src/demo18/demo.py".
-On Windows, in a command prompt, type "python src\\demo18\\demo.py".
-
+Load src/demo18/demo.py in Spyder and hit the play button
 
 
 Move the Paddles using the Keyboard

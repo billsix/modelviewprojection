@@ -63,9 +63,7 @@ Things that this demo doesn't end up doing correctly:
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a shell, type "python src/demo14/demo.py".
-On Windows, in a command prompt, type "python src\\demo14\\demo.py".
-
+Load src/demo14/demo.py in Spyder and hit the play button
 
 
 Move the Paddles using the Keyboard

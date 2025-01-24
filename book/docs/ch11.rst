@@ -42,9 +42,7 @@ moves with it, because it is defined relative to it.
 How to Execute
 ^^^^^^^^^^^^^^
 
-On Linux or on MacOS, in a shell, type "python src/demo11/demo.py".
-On Windows, in a command prompt, type "python src\\demo11\\demo.py".
-
+Load src/demo11/demo.py in Spyder and hit the play button
 
 
 Move the Paddles using the Keyboard
