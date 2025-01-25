@@ -58,7 +58,7 @@ user is called a *monitor*.
 
 
 A monitor consists of a two-dimensional grid of tiny light-emitting
-elements, called *pixel*s. Each pixel typically has three components: red, green, and blue.
+elements, called pixels. Each pixel typically has three components: red, green, and blue.
 
 
 
@@ -275,6 +275,7 @@ Create a Window
 &&&&&&&&&&&&&&&
 
 
+
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
    :start-after: doc-region-begin create window
@@ -283,6 +284,14 @@ Create a Window
    :lineno-match:
    :caption: src/demo01/demo.py
 
+By calling glfw.create_window, we are creating a window.  What
+are the arguments passed?  It's likely that the first two arguments
+are the width and height of the window, and the third likely
+the title of the window.  What do the fourth and fifth arguments,
+both of which are "None", mean?  The author does not know.  We could
+look it up the APIs online.  But, Python has something called keyword
+arguments, which we will talk about later, where the intent of each paramater
+is clear at the site of calling the function.
 
 .. literalinclude:: ../../src/demo01/demo.py
    :language: python
@@ -339,9 +348,13 @@ and applied later zero, 1, or more times.
       >>> def doubler(x):
       ...     return x * 2
       ...
+      >>> doubler
+      <function doubler at 0x10165c0e0>
       >>> def add_five_to_result_of(f, x):
       ...     return 5 + f(x)
       ...
+      >>> add_five_to_result_of
+      <function add_five_to_result_of at 0x10165c040>
       >>> add_five_to_result_of(doubler, 3)
       11
 
