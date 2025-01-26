@@ -5,12 +5,12 @@ all: clean image html ## Build the HTML and PDF from scratch in Debian Bulleye
 
 .PHONY: image
 image: ## Build a Podman image in which to build the book
+	printf "This documentation was generated from from commit " > book/docs/version.txt
+	git rev-parse HEAD >> book/docs/version.txt
 	podman build -t modelviewprojection-html .
 
 .PHONY: html
 html: image ## Build the html from the sphinx source
-	printf "This documentation was generated from from commit " > book/docs/version.txt
-	git rev-parse HEAD >> book/docs/version.txt
 	podman run -it --rm -v ./output/:/output/:Z modelviewprojection-html
 
 
