@@ -383,7 +383,7 @@ taking the reciprocal of the coefficient
     f_{quarter}^{penny}(x) = 25 * x
 
 .. math::
-    f_{penny}^{quarter}(x) & = {f_{quarter}^{penny}}^{-1}(x) \\
+    f_{penny}^{quarter}(x) & = {(f_{quarter}^{penny})}^{-1}(x) \\
     & =  1/25 * x
 
 
@@ -407,11 +407,11 @@ of any directed edge that you against.
 
 .. math::
     f_{dime}^{dollar}(x)  & = f_{penny}^{dollar}(f_{dime}^{penny}(x)) \\
-                              & = {f_{dollar}^{penny}}^{-1}(f_{dime}^{penny}(x)) \\
+                              & = {(f_{dollar}^{penny})}^{-1}(f_{dime}^{penny}(x)) \\
 
 
 .. math::
-    f_{dime}^{dollar}   = {f_{dollar}^{penny}}^{-1} \circ f_{dime}^{penny}
+    f_{dime}^{dollar}   = {(f_{dollar}^{penny})}^{-1} \circ f_{dime}^{penny}
 
 
 
@@ -434,6 +434,39 @@ Temperature Conversion
 
     Cayley graph of uni variate coordinate conversion for temperature.
 
+.. math::
+    f_{c}^{k}(x) = x * 273.15
+
+.. math::
+    f_{f}^{c}(x) = (x-32) * \frac{5}{9}
+
+Given that those functions are invertible, we have completed the information needed
+take a temperature in kelvin, celsius, or fahrenheit, and convert it to
+any other unit of temperature, and for graphics, this is the extent of our thought
+processes.  When creating the graph, we don't think about how to do every pair of
+conversions, because they can be created later by using function composition,
+and/or taking the inverse of given functions.
+
+
+To convert from fahrenheit to kelvin, we would think
+
+.. math::
+    f_{f}^{k} = f_{c}^{k} \circ f_{f}^{c}
+
+To convert from kelvin to celsius, we would think
+
+.. math::
+    f_{k}^{c} = {(f_{c}^{k})}^{-1}
+
+To convert from celsius to fahrenheit, we would think
+
+.. math::
+    f_{c}^{f} = {(f_{f}^{c})}^{-1}
+
+To convert from kelvin to fahrenheit, we would think
+
+.. math::
+    f_{k}^{f} = {(f_{f}^{c})^{-1}} \circ {(f_{c}^{k})^{-1}}
 
 
 
@@ -478,7 +511,7 @@ the appropriate inverse(s).
 
 .. math::
     \vec{f}_{d}^{b}(\vec{x})  & = \vec{f}_{a}^{b}(\vec{f}_{c}^{a}(\vec{f}_{d}^{c}(\vec{x}))) \\
-                              & = {\vec{{f}_{b}^{a}}}^{-1}(\vec{f}_{c}^{a}(\vec{f}_{d}^{c}(\vec{x})))
+                              & = {(\vec{{f}_{b}^{a}})}^{-1}(\vec{f}_{c}^{a}(\vec{f}_{d}^{c}(\vec{x})))
 
 A function from A to B is not provided to us, but we wrote it in the equation as an idea of a function
 that we wish to have, even though we don't currently have it.
@@ -488,7 +521,7 @@ However, we can create this function by invoking inverse on the provide function
 Since we're dealing with function composition mainly, we don't even need to specify the argument
 
 .. math::
-    \vec{f}_{d}^{b}  = {\vec{{f}_{b}^{a}}}^{-1} \circ {\vec{f}_{c}^{a}} \circ \vec{f}_{d}^{c}
+    \vec{f}_{d}^{b}  = {(\vec{{f}_{b}^{a}})}^{-1} \circ {\vec{f}_{c}^{a}} \circ \vec{f}_{d}^{c}
 
 If this seems to abstract for now, don't worry.  By the end of the course, it should be clear.
 The goal of this book is to make it clear, and then, obvious.
