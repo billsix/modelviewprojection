@@ -34,6 +34,7 @@ horizontally.
 
 
 .. figure:: _static/screenshots/demo10.png
+    :class: no-scale
     :align: center
     :alt: Demo 10
     :figclass: align-center
@@ -75,6 +76,7 @@ Description
 to a camera, not relative to world space.
 
 .. figure:: _static/screenshots/2dcameraspace.png
+    :class: no-scale
     :align: center
     :alt: Demo 10
     :figclass: align-center
@@ -100,6 +102,7 @@ It could be
 * From world space to camera space.
 
 .. figure:: _static/demo10.png
+    :class: no-scale
     :align: center
     :alt: Demo 10
     :figclass: align-center
@@ -109,6 +112,7 @@ It could be
 * From camera space to world space.
 
 .. figure:: _static/demo10-2.png
+    :class: no-scale
     :align: center
     :alt: Demo 10
     :figclass: align-center
@@ -232,6 +236,7 @@ Towards the left.
 
 
 .. figure:: _static/screenshots/2dcameraspace.png
+    :class: no-scale
     :align: center
     :alt: Demo 10
     :figclass: align-center

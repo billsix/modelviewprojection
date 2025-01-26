@@ -39,6 +39,7 @@ Things that this demo doesn't end up doing correctly:
 
 
 .. figure:: _static/screenshots/demo14.png
+    :class: no-scale
     :align: center
     :alt: Demo 14
     :figclass: align-center
@@ -47,6 +48,7 @@ Things that this demo doesn't end up doing correctly:
 
 
 .. figure:: _static/screenshots/camera1.png
+    :class: no-scale
     :align: center
     :alt: Camera Space
     :figclass: align-center
@@ -54,6 +56,7 @@ Things that this demo doesn't end up doing correctly:
     Camera Space
 
 .. figure:: _static/screenshots/camera2.png
+    :class: no-scale
     :align: center
     :alt: Camera Space
     :figclass: align-center
@@ -116,6 +119,7 @@ Description
 .. _matrix: https://en.wikipedia.org/wiki/Rotation_matrix
 
 .. figure:: _static/ccbysa3.0/wikipedia-Acdx/220px-Right_hand_rule_cross_product.svg.png
+    :class: no-scale
     :align: center
     :alt: Right hand rule
     :figclass: align-center
@@ -145,6 +149,7 @@ Rotate Z is the same rotate that we've used so far, but doesn't affect
 the z component at all.
 
 .. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_2.svg
+    :class: no-scale
     :align: center
     :alt: Rotate Z
     :figclass: align-center
@@ -165,6 +170,7 @@ Rotate X
 
 
 .. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_4.svg
+    :class: no-scale
     :align: center
     :alt: Rotate X
     :figclass: align-center
@@ -184,6 +190,7 @@ Rotate Y
 ~~~~~~~~
 
 .. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_5.svg
+    :class: no-scale
     :align: center
     :alt: Rotate Y
     :figclass: align-center

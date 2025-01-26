@@ -32,6 +32,7 @@ work correctly, because of a misunderstanding
 of how to interpret a sequence of transformations.
 
 .. figure:: _static/screenshots/demo07.png
+    :class: no-scale
     :align: center
     :alt: Demo 07
     :figclass: align-center
@@ -92,6 +93,7 @@ Typically the angles are described on the unit circle, where a rotation
 starts from the positive x axis.
 
 .. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_1.svg
+    :class: no-scale
     :align: center
     :alt: Demo 07
     :figclass: align-center
@@ -106,6 +108,7 @@ That might not have been fully clear.  Let me try again.
 The vertex (0.5,0.4) can be separated into two vertices, (0.5,0) and (0,0.4).
 
 .. figure:: _static/rotate3.svg
+    :class: no-scale
     :align: center
     :alt: Rotate
     :figclass: align-center
@@ -113,6 +116,7 @@ The vertex (0.5,0.4) can be separated into two vertices, (0.5,0) and (0,0.4).
     Rotate
 
 .. figure:: _static/rotate4.svg
+    :class: no-scale
     :align: center
     :alt: Rotate
     :figclass: align-center
@@ -128,6 +132,7 @@ in vertex (0.5*cos(angle), 0.5*sin(angle)).  This is high school
 geometry, and won't be explained here in detail.
 
 .. figure:: _static/rotate.svg
+    :class: no-scale
     :align: center
     :alt: Rotate
     :figclass: align-center
@@ -135,6 +140,7 @@ geometry, and won't be explained here in detail.
     Rotate the x component.
 
 .. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_2.svg
+    :class: no-scale
     :align: center
     :alt: Demo 07
     :figclass: align-center
@@ -152,6 +158,7 @@ is negated.
 
 
 .. figure:: _static/rotate2.svg
+    :class: no-scale
     :align: center
     :alt: Rotate
     :figclass: align-center
@@ -159,6 +166,7 @@ is negated.
     Rotate the y component
 
 .. figure:: _static/cc0/Stephan_Kulla/Sinus_und_Kosinus_am_Einheitskreis_3.svg
+    :class: no-scale
     :align: center
     :alt: Demo 07
     :figclass: align-center
@@ -221,6 +229,7 @@ Cayley Graph
 ^^^^^^^^^^^^
 
 .. figure:: _static/demo06.png
+    :class: no-scale
     :align: center
     :alt: Demo 06
     :figclass: align-center
@@ -397,6 +406,7 @@ world space transformations are doing.
 
 
 .. figure:: _static/incorrectrotate-forwards-1.svg
+    :class: no-scale
     :align: center
     :alt:
     :figclass: align-center
@@ -406,6 +416,7 @@ world space transformations are doing.
 
 
 .. figure:: _static/incorrectrotate-forwards-2.svg
+    :class: no-scale
     :align: center
     :alt:
     :figclass: align-center
@@ -414,6 +425,7 @@ world space transformations are doing.
 * Reset the coordinate system
 
 .. figure:: _static/incorrectrotate-forwards-3.svg
+    :class: no-scale
     :align: center
     :alt:
     :figclass: align-center
@@ -423,6 +435,7 @@ world space transformations are doing.
 * Rotate around World Spaces's origin
 
 .. figure:: _static/incorrectrotate-forwards-4.svg
+    :class: no-scale
     :align: center
     :alt:
     :figclass: align-center
@@ -433,6 +446,7 @@ world space transformations are doing.
 
 
 .. figure:: _static/incorrectrotate-forwards-5.svg
+    :class: no-scale
     :align: center
     :alt:
     :figclass: align-center
@@ -443,6 +457,7 @@ world space transformations are doing.
 
 
 .. figure:: _static/incorrectrotate-forwards-6.svg
+    :class: no-scale
     :align: center
     :alt:
     :figclass: align-center
@@ -479,6 +494,7 @@ Let's take any arbitrary point
 
 
 .. figure:: _static/cc0/williamesix/rotate-goal.svg
+    :class: no-scale
     :align: center
     :alt: rotate-goal
     :figclass: align-center
@@ -488,6 +504,7 @@ Cartesian (x,y) point by its length r, and its cosine and sine
 of its angle theta.
 
 .. figure:: _static/cc0/williamesix/rotate1.svg
+    :class: no-scale
     :align: center
     :alt: rotate1
     :figclass: align-center
@@ -506,6 +523,7 @@ angle, called "theta".
 
 
 .. figure:: _static/cc0/williamesix/rotate2.svg
+    :class: no-scale
     :align: center
     :alt: rotate2
     :figclass: align-center
@@ -518,6 +536,7 @@ we get (cos(beta+pi/2), sin(beta+pi/2)).
 
 
 .. figure:: _static/cc0/williamesix/rotate3.svg
+    :class: no-scale
     :align: center
     :alt: rotate3
     :figclass: align-center
@@ -527,6 +546,7 @@ purpose of ignoring details for now that we'll return to later,
 just let we did for length "r" above.
 
 .. figure:: _static/cc0/williamesix/rotate4.svg
+    :class: no-scale
     :align: center
     :alt: rotate4
     :figclass: align-center
@@ -540,6 +560,7 @@ combined with the "theta"; it looks like what we already know from high
 school geometry.
 
 .. figure:: _static/cc0/williamesix/rotate5.svg
+    :class: no-scale
     :align: center
     :alt: rotate5
     :figclass: align-center
@@ -550,6 +571,7 @@ frame of reference.
 
 
 .. figure:: _static/cc0/williamesix/rotate6.svg
+    :class: no-scale
     :align: center
     :alt: rotate6
     :figclass: align-center
@@ -563,6 +585,7 @@ So the rotated point can be constructed by the following
 
 
 .. figure:: _static/cc0/williamesix/rotate7.svg
+    :class: no-scale
     :align: center
     :alt: rotate7
     :figclass: align-center
@@ -571,6 +594,7 @@ Now that we've found the direction on the unit circle, we remember to make
 it length "r".
 
 .. figure:: _static/cc0/williamesix/rotate8.svg
+    :class: no-scale
     :align: center
     :alt: rotate8
     :figclass: align-center

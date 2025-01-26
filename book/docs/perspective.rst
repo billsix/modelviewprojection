@@ -34,6 +34,7 @@ Description
 
 
 .. figure:: _static/perspective.png
+    :class: no-scale
     :align: center
     :alt: Demo 11
     :figclass: align-center
@@ -46,6 +47,7 @@ Matrix form of perspective projection
 
 
 .. figure:: _static/screenshots/frustum2.png
+    :class: no-scale
     :align: center
     :alt: Frustum 2
     :figclass: align-center
@@ -79,6 +81,7 @@ Scale Camera-space x by Camera-space z
 resulting in
 
 .. figure:: _static/screenshots/frustum3.png
+    :class: no-scale
     :align: center
     :alt: Frustum 3
     :figclass: align-center
@@ -114,6 +117,7 @@ resulting in
 
 
 .. figure:: _static/screenshots/frustum4.png
+    :class: no-scale
     :align: center
     :alt: Frustum 4
     :figclass: align-center
@@ -155,6 +159,7 @@ Translate Rectangular Prism's Center to Center
 
 
 .. figure:: _static/screenshots/frustum5.png
+    :class: no-scale
     :align: center
     :alt: Frustum 5
     :figclass: align-center
@@ -192,6 +197,7 @@ Scale by inverse of the dimensions of the Rectangular Prism
                    \end{bmatrix}
 
 .. figure:: _static/screenshots/frustum6.png
+    :class: no-scale
     :align: center
     :alt: Frustum 6
     :figclass: align-center

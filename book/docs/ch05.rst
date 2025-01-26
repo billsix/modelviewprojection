@@ -33,6 +33,7 @@ of computer graphics.
 
 
 .. figure:: _static/screenshots/demo05.png
+    :class: no-scale
     :align: center
     :alt: Demo 05
     :figclass: align-center
@@ -75,6 +76,7 @@ Before rendering, each Paddle's
 vertices will need to be translated to its center relative to NDC.
 
 .. figure:: _static/demo05.png
+    :class: no-scale
     :align: center
     :alt:
     :figclass: align-center
@@ -220,6 +222,7 @@ from Paddle 1 space to NDC.
 
 
 .. figure:: _static/demo05.png
+    :class: no-scale
     :align: center
     :alt:
     :figclass: align-center

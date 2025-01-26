@@ -1,7 +1,5 @@
 digraph {
     rankdir="BT"
-    nodesep=1
-    ranksep=1
     fahrenheit [label = "Fahrenheit"];
     celcius [label = "Celsius"];
     kelvin [label = "Kelvin"];

@@ -25,6 +25,7 @@ Window Resizing and Proportionality - Demo 03
 
 
 .. figure:: _static/screenshots/demo03.png
+    :class: no-scale
     :align: center
     :alt: Demo 03
     :figclass: align-center
@@ -62,6 +63,7 @@ In the previous demo, if the user resized the window, the paddles appear distort
 as they were shrunk in one direction if the window became too thin or too fat.
 
 .. figure:: _static/disproportionate1.svg
+    :class: no-scale
     :align: center
     :alt: Yuck
     :figclass: align-center
@@ -69,6 +71,7 @@ as they were shrunk in one direction if the window became too thin or too fat.
     Yuck
 
 .. figure:: _static/disproportionate2.svg
+    :class: no-scale
     :align: center
     :alt: Yuck
     :figclass: align-center
@@ -91,6 +94,7 @@ window.
 
 
 .. figure:: _static/viewport.svg
+    :class: no-scale
     :align: center
     :alt: Nice
     :figclass: align-center
@@ -99,6 +103,7 @@ window.
 
 
 .. figure:: _static/demo03.png
+    :class: no-scale
     :align: center
     :alt: Demo 03
     :figclass: align-center
@@ -190,6 +195,7 @@ Set to Draw in Square Subsection Of Window
   per fragment (i.e. pixel) than just its current color.
 
 .. figure:: _static/ccbysa3.0/williamsix/fragment.png
+    :class: no-scale
     :align: center
     :alt: Fragment
     :figclass: align-center

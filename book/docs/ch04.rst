@@ -29,6 +29,7 @@ Purpose
 Add movement to the paddles using keyboard input.
 
 .. figure:: _static/screenshots/demo04.png
+    :class: no-scale
     :align: center
     :alt: Demo 01
     :figclass: align-center
@@ -282,6 +283,7 @@ to only flush the screen at 60 hertz (frames per second).
   associated vertices.
 
 .. figure:: _static/plot3.svg
+    :class: no-scale
     :align: center
     :alt: Adding input offset
     :figclass: align-center
@@ -300,6 +302,7 @@ to only flush the screen at 60 hertz (frames per second).
 
 
 .. figure:: _static/plot4.svg
+    :class: no-scale
     :align: center
     :alt: Adding input offset to Paddle 1
     :figclass: align-center

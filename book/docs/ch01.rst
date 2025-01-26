@@ -29,6 +29,7 @@ Learn how to open a window, make a black screen, and close
 the window.
 
 .. figure:: _static/screenshots/demo01.png
+    :class: no-scale
     :align: center
     :alt: Demo 01
     :figclass: align-center
@@ -50,6 +51,7 @@ user is called a *monitor*.
 
 
 .. figure:: _static/ccbysa3.0/wikipedia-Yaohua2000/1280px-20020811203148_-_NOI_2002.jpg
+    :class: no-scale
     :align: center
     :alt: Picture of Monitor
     :figclass: align-center
@@ -64,6 +66,7 @@ elements, called pixels. Each pixel typically has three components: red, green, 
 
 
 .. figure:: _static/ccbysa3.0/wikipedia-Kprateek88/Closeup_of_pixels.JPG
+    :class: no-scale
     :align: center
     :alt: Picture of Pixel
     :figclass: align-center
@@ -85,6 +88,7 @@ to the user. In OpenGL, pixel coordinates start at (0, 0) in the bottom
 
 
 .. figure:: _static/monitor.svg
+    :class: no-scale
     :align: center
     :alt: 1024x768 monitor
     :figclass: align-center
@@ -93,6 +97,7 @@ to the user. In OpenGL, pixel coordinates start at (0, 0) in the bottom
 
 
 .. figure:: _static/monitor2.svg
+    :class: no-scale
     :align: center
     :alt: 1920x1200 monitor
     :figclass: align-center
@@ -110,6 +115,7 @@ of motion for the user.
 
 
 .. figure:: _static/ccbysa2.5/wikipedia-Janke/Animhorse.gif
+    :class: no-scale
     :align: center
     :alt: Motion
     :figclass: align-center
@@ -118,37 +124,44 @@ of motion for the user.
 
 
 .. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-0.png
+    :class: no-scale
     :align: center
     :alt: Motion
     :figclass: align-center
 
 
 .. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-1.png
+    :class: no-scale
     :align: center
     :alt: Motion
     :figclass: align-center
 
 .. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-2.png
+    :class: no-scale
     :align: center
     :alt: Motion
     :figclass: align-center
 
 .. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-3.png
+    :class: no-scale
     :align: center
     :alt: Motion
     :figclass: align-center
 
 .. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-4.png
+    :class: no-scale
     :align: center
     :alt: Motion
     :figclass: align-center
 
 .. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-5.png
+    :class: no-scale
     :align: center
     :alt: Motion
     :figclass: align-center
 
 .. figure:: _static/ccbysa2.5/wikipedia-Janke/GIF_Frame-6.png
+    :class: no-scale
     :align: center
     :alt: Motion
     :figclass: align-center
@@ -223,6 +236,7 @@ monitor, called a window.
 
 
 .. figure:: _static/ccbysa3.0/wikipedia-Shmuel\ Csaba\ Otto\ Traian/1920px-Window_(windowing_system).svg.png
+    :class: no-scale
     :align: center
     :alt: Window
     :figclass: align-center

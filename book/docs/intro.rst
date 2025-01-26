@@ -25,6 +25,7 @@ Introduction
 Learn how to program in 3D computer graphics in Python!
 
 .. figure:: _static/screenshots/frustum1.png
+    :class: no-scale
     :align: center
     :alt: frustum1
     :figclass: align-center

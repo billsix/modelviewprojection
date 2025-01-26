@@ -34,6 +34,7 @@ We do this by the following:
 * Each subsequent transformation is relative to the current local coordinate system.
 
 .. figure:: _static/screenshots/demo09.png
+    :class: no-scale
     :align: center
     :alt: Demo 09
     :figclass: align-center
@@ -149,6 +150,7 @@ Start at world space node.  As a reminder, this is the top-level coordinate
 system that we choose to use.  It is whatever you want it to be.
 
 .. figure:: _static/demo06.png
+    :class: no-scale
     :align: center
     :alt: Demo 06
     :figclass: align-center

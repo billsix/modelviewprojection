@@ -31,6 +31,7 @@ which are from -1.0 to 1.0, in the X, Y, and Z directions.  Anything drawn entir
 of this region will not be displayed on the screen.
 
 .. figure:: _static/screenshots/demo02.png
+    :class: no-scale
     :align: center
     :alt: Demo 02
     :figclass: align-center
@@ -114,6 +115,7 @@ Draw Paddle 1
 The paddle looks like this relative to normalized device coordinates (NDC):
 
 .. figure:: _static/plot1.svg
+    :class: no-scale
     :align: center
     :alt: Rectangle
     :figclass: align-center
@@ -137,6 +139,7 @@ Draw Paddle 2
 The 2 paddles looks like this relative to normalized device coordinates (NDC):
 
 .. figure:: _static/plot2.svg
+    :class: no-scale
     :align: center
     :alt: Rectangle
     :figclass: align-center
@@ -203,6 +206,7 @@ Screen-space means you're specifically using pixel coordinates, i.e, set pixel (
 What looks alright in screen-space on a large monitor...
 
 .. figure:: _static/screenspace2.svg
+    :class: no-scale
     :align: center
     :alt: Screenspace
     :figclass: align-center
@@ -213,6 +217,7 @@ What looks alright in screen-space on a large monitor...
 Isn't the same picture on a smaller monitor.
 
 .. figure:: _static/screenspace.svg
+    :class: no-scale
     :align: center
     :alt: Screenspace
     :figclass: align-center
@@ -243,6 +248,7 @@ OpenGL will convert from a continuous, -1.0 to 1.0 space,
 to discrete pixel-space, and the programmer cannot change this.
 
 .. figure:: _static/ndcSpace.svg
+    :class: no-scale
     :align: center
     :alt: NDC space
     :figclass: align-center
@@ -253,6 +259,7 @@ to discrete pixel-space, and the programmer cannot change this.
 Whether we own a small monitor
 
 .. figure:: _static/ndcSpace1.svg
+    :class: no-scale
     :align: center
     :alt: NDC space
     :figclass: align-center
@@ -262,6 +269,7 @@ Whether we own a small monitor
 Or a large monitor.
 
 .. figure:: _static/screenspace2.svg
+    :class: no-scale
     :align: center
     :alt: NDC space
     :figclass: align-center
@@ -292,6 +300,7 @@ NDC/Screenspace Conversion
 
 
 .. figure:: _static/demo02.png
+    :class: no-scale
     :align: center
     :alt: Demo 02
     :figclass: align-center
@@ -320,6 +329,7 @@ An uni-variate example use of Cayley graphs is exchanging coins with
 a bank.
 
 .. figure:: _static/currency.png
+    :class: no-scale
     :align: center
     :alt: Demo 02
     :figclass: align-center
@@ -417,6 +427,7 @@ Temperature Conversion
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: _static/temp.png
+    :class: no-scale
     :align: center
     :alt: Demo 02
     :figclass: align-center
@@ -445,6 +456,7 @@ matters
 
 
 .. figure:: _static/cayleygraph.png
+    :class: no-scale
     :align: center
     :alt: Generic Cayley Graph
     :figclass: align-center

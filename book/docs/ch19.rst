@@ -170,6 +170,7 @@ We are now going to clip space instead of to NDC, which we be discussed
 in the next chapter.
 
 .. figure:: _static/perspective.png
+    :class: no-scale
     :align: center
     :alt: Demo 11
     :figclass: align-center

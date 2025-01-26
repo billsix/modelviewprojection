@@ -29,6 +29,7 @@ was drawn over Paddle 1, even though the square
 is further away from the camera.
 
 .. figure:: _static/screenshots/demo15.png
+    :class: no-scale
     :align: center
     :alt: Demo 15
     :figclass: align-center
@@ -75,11 +76,13 @@ much detail about it.  Each pixel in the frame-buffer is a fragment,
 which is more information than just the color to be drawn.
 
 .. figure:: _static/ccbysa3.0/williamsix/fragment.png
+    :class: no-scale
     :align: center
     :alt: Fragment
     :figclass: align-center
 
 .. figure:: _static/depthbuffer.jpg
+    :class: no-scale
     :align: center
     :alt: depthbuffer
     :figclass: align-center

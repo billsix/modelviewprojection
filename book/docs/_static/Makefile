@@ -110,10 +110,10 @@ clipToNDC.png: clipToNDC.tex
 
 
 currency.png: currency.dot
-	dot -Tpng -Gsize=6,9\! -Gdpi=200 $< -o $@
+	dot -Tpng  $< -o $@
 
 temp.png: temp.dot
-	dot -Tpng -Gsize=6,9\! -Gdpi=200 $< -o $@
+	dot -Tpng $< -o $@
 
 demo16.png: demo16.dot
 	dot -Tpng $< -o $@

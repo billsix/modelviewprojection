@@ -29,6 +29,7 @@ Make a moving camera in 3D space.  Use Ortho to transform a rectangular prism, d
 into NDC.
 
 .. figure:: _static/screenshots/ortho.png
+    :class: no-scale
     :align: center
     :alt: Camera
     :figclass: align-center
@@ -50,6 +51,7 @@ from the viewer would appear smaller.  This will be fixed in demo17.
 
 
 .. figure:: _static/screenshots/demo16.png
+    :class: no-scale
     :align: center
     :alt: Demo 16
     :figclass: align-center
@@ -169,6 +171,7 @@ We need to move every already-plotted object in world space towards the origin a
 orientation of NDC.  Looking at the following graph,
 
 .. figure:: _static/demo16.png
+    :class: no-scale
     :align: center
     :alt: Demo 16
     :figclass: align-center

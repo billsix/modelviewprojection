@@ -27,6 +27,7 @@ Purpose
 Rotate the square around paddle1's center.
 
 .. figure:: _static/screenshots/demo13.png
+    :class: no-scale
     :align: center
     :alt: Demo 13
     :figclass: align-center
@@ -69,6 +70,7 @@ Cayley Graph
 
 
 .. figure:: _static/demo11.png
+    :class: no-scale
     :align: center
     :alt: Demo 13
     :figclass: align-center

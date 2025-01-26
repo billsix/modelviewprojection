@@ -31,6 +31,7 @@ if they were close by
 
 
 .. figure:: _static/screenshots/demo17.png
+    :class: no-scale
     :align: center
     :alt: Demo 17
     :figclass: align-center
@@ -38,6 +39,7 @@ if they were close by
     Demo 17
 
 .. figure:: _static/screenshots/frustum1.png
+    :class: no-scale
     :align: center
     :alt: Frustum 1
     :figclass: align-center
@@ -45,6 +47,7 @@ if they were close by
     Frustum 1
 
 .. figure:: _static/screenshots/frustum2.png
+    :class: no-scale
     :align: center
     :alt: Frustum 2
     :figclass: align-center
@@ -52,6 +55,7 @@ if they were close by
     Frustum 2
 
 .. figure:: _static/screenshots/frustum3.png
+    :class: no-scale
     :align: center
     :alt: Frustum 3
     :figclass: align-center
@@ -59,6 +63,7 @@ if they were close by
     Frustum 3
 
 .. figure:: _static/screenshots/frustum4.png
+    :class: no-scale
     :align: center
     :alt: Frustum 4
     :figclass: align-center
@@ -66,6 +71,7 @@ if they were close by
     Frustum 4
 
 .. figure:: _static/screenshots/frustum5.png
+    :class: no-scale
     :align: center
     :alt: Frustum 5
     :figclass: align-center
@@ -73,6 +79,7 @@ if they were close by
     Frustum 5
 
 .. figure:: _static/screenshots/frustum6.png
+    :class: no-scale
     :align: center
     :alt: Frustum 6
     :figclass: align-center
@@ -116,6 +123,7 @@ Description
 
 
 .. figure:: _static/Maththing.svg
+    :class: no-scale
     :align: center
     :alt: Frustum
     :figclass: align-center
@@ -151,6 +159,7 @@ whatever point the line above intersects the line at z=nearZ.  Let's call that p
 (projX, nearZ)
 
 .. figure:: _static/math.svg
+    :class: no-scale
     :align: center
     :alt: fov
     :figclass: align-center

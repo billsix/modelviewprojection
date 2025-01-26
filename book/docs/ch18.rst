@@ -34,6 +34,7 @@ should only be specified once per frame.
 
 
 .. figure:: _static/demo18-1.png
+    :class: no-scale
     :align: center
     :alt: Demo 12
     :figclass: align-center
@@ -314,6 +315,7 @@ a new function to the top of the stack.
     \vec{f}_{c}^{ndc}
 
 .. figure:: _static/demo18-2.png
+    :class: no-scale
     :align: center
     :alt: Demo 12
     :figclass: align-center
@@ -345,6 +347,7 @@ to world space like so, read top to bottom:
     \vec{f}_{c}^{w}
 
 .. figure:: _static/demo18-3.png
+    :class: no-scale
     :align: center
     :alt: Demo 12
     :figclass: align-center
@@ -372,6 +375,7 @@ camera space are.
     \vec{f}_{w}^{c}
 
 .. figure:: _static/demo18-7.png
+    :class: no-scale
     :align: center
     :alt: Demo 12
     :figclass: align-center
@@ -403,6 +407,7 @@ the current space
 
 
 .. figure:: _static/demo18-4.png
+    :class: no-scale
     :align: center
     :alt: Demo 12
     :figclass: align-center
@@ -447,6 +452,7 @@ remove these 4 transformations from the stack (done below)
     \vec{f}_{s}^{p1}
 
 .. figure:: _static/demo18-5.png
+    :class: no-scale
     :align: center
     :alt: Demo 12
     :figclass: align-center
@@ -489,6 +495,7 @@ draw paddle 2
     \vec{f}_{p2}^{w}
 
 .. figure:: _static/demo18-6.png
+    :class: no-scale
     :align: center
     :alt: Demo 12
     :figclass: align-center

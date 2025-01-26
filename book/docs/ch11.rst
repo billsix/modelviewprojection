@@ -33,6 +33,7 @@ moves with it, because it is defined relative to it.
 
 
 .. figure:: _static/screenshots/demo11.png
+    :class: no-scale
     :align: center
     :alt: Demo 11
     :figclass: align-center
@@ -79,6 +80,7 @@ In the graph below, all we have added is "Square space", relative
 to paddle 1 space.
 
 .. figure:: _static/demo11.png
+    :class: no-scale
     :align: center
     :alt: Demo 11
     :figclass: align-center
@@ -90,6 +92,7 @@ own modelspace (as evidenced by the 3 arrows), and we are going
 to define its position and orientation relative to paddle 1.
 
 .. figure:: _static/screenshots/coordinateframes.png
+    :class: no-scale
     :align: center
     :alt: Coordinate Frames
     :figclass: align-center

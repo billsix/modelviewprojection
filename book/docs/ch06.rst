@@ -29,6 +29,7 @@ Purpose
 Learn about modelspace.
 
 .. figure:: _static/screenshots/demo06.png
+    :class: no-scale
     :align: center
     :alt: Demo 06
     :figclass: align-center
@@ -73,6 +74,7 @@ scaling and rotating the object are trivial, as shown in later chapters).
 
 
 .. figure:: _static/modelspace.svg
+    :class: no-scale
     :align: center
     :alt: Representing a Paddle using Modelspace
     :figclass: align-center
@@ -96,6 +98,7 @@ can disagree.
 For our demo with paddles, the author arbitrarily defines the WorldSpace to be 20 units wide, 20 units tall, with the origin at the center.
 
 .. figure:: _static/demo06.png
+    :class: no-scale
     :align: center
     :alt: Demo 06
     :figclass: align-center
@@ -139,6 +142,7 @@ Modelspace of Paddle 1
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: _static/translation-forwards-0.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace
     :figclass: align-center
@@ -167,6 +171,7 @@ plot the vertices.  Notice that the coordinate system labels below the plot and 
 is unchanged.  That is world space, which has not changed.
 
 .. figure:: _static/translation-forwards-2.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace Superimposed on World Space
     :figclass: align-center
@@ -188,6 +193,7 @@ Paddle 1's vertices in WorldSpace Coordinates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: _static/translation-forwards-3.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 1's Vertices in World Space
     :figclass: align-center
@@ -221,6 +227,7 @@ Modelspace of Paddle 2
 ~~~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: _static/translation2-forwards-0.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace
     :figclass: align-center
@@ -241,6 +248,7 @@ Modelspace of Paddle 2 Superimposed on Worldspace after the translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 .. figure:: _static/translation2-forwards-2.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace Superimposed on World Space
     :figclass: align-center
@@ -262,6 +270,7 @@ Paddle 2's vertices in WorldSpace Coordinates
 
 
 .. figure:: _static/translation2-forwards-3.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 1's Vertices in World Space
     :figclass: align-center
@@ -320,6 +329,7 @@ by "scale"ing each component of the vertices by some coefficient.
 
 
 .. figure:: _static/scale-0.svg
+    :class: no-scale
     :align: center
     :alt: Modelspace
     :figclass: align-center
@@ -327,6 +337,7 @@ by "scale"ing each component of the vertices by some coefficient.
     Modelspace
 
 .. figure:: _static/scale-2.svg
+    :class: no-scale
     :align: center
     :alt: Modelspace Superimposed on World Space
     :figclass: align-center
@@ -334,6 +345,7 @@ by "scale"ing each component of the vertices by some coefficient.
     Modelspace Superimposed on World Space
 
 .. figure:: _static/scale-4.svg
+    :class: no-scale
     :align: center
     :alt: Worldspace
     :figclass: align-center
@@ -347,6 +359,7 @@ and to get it into NDC, we need to scale by dividing by 10
 
 
 .. figure:: _static/demo06.png
+    :class: no-scale
     :align: center
     :alt: Demo 06
     :figclass: align-center
@@ -525,6 +538,7 @@ Rendering Paddle 1
 
 
 .. figure:: _static/translation-forwards-0.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace
     :figclass: align-center
@@ -543,6 +557,7 @@ Rendering Paddle 1
 
 
 .. figure:: _static/translation-forwards-2.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace Superimposed on World Space
     :figclass: align-center
@@ -550,6 +565,7 @@ Rendering Paddle 1
     Paddle 1's Modelspace Superimposed on World Space
 
 .. figure:: _static/translation-forwards-3.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace Superimposed on World Space
     :figclass: align-center
@@ -602,6 +618,7 @@ Rendering Paddle 2
 
 
 .. figure:: _static/translation2-forwards-0.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 2's Modelspace
     :figclass: align-center
@@ -619,6 +636,7 @@ Rendering Paddle 2
 
 
 .. figure:: _static/translation2-forwards-2.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 2's Modelspace Superimposed on World Space
     :figclass: align-center
@@ -628,6 +646,7 @@ Rendering Paddle 2
 
 
 .. figure:: _static/translation2-forwards-3.svg
+    :class: no-scale
     :align: center
     :alt: Paddle 2's Modelspace Superimposed on World Space
     :figclass: align-center

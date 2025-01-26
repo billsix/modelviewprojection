@@ -28,6 +28,7 @@ Rotate the square around its origin.
 
 
 .. figure:: _static/screenshots/demo12.png
+    :class: no-scale
     :align: center
     :alt: Demo 12
     :figclass: align-center
@@ -72,6 +73,7 @@ Cayley Graph
 
 
 .. figure:: _static/demo11.png
+    :class: no-scale
     :align: center
     :alt: Demo 12
     :figclass: align-center
