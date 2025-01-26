@@ -1,0 +1,10 @@
+digraph {
+    rankdir="BT"
+    nodesep=1
+    ranksep=1
+    fahrenheit [label = "Fahrenheit"];
+    celcius [label = "Celsius"];
+    kelvin [label = "Kelvin"];
+    celcius -> kelvin [label = <<TABLE border="0"><TR><TD><IMG SRC="celciusToKelvin.png"/></TD></TR></TABLE>>];
+    fahrenheit -> celcius [label = <<TABLE border="0"><TR><TD><IMG SRC="fahrenheitToCelsuis.png"/></TD></TR></TABLE>>];
+}

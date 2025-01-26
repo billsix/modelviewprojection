@@ -4,6 +4,7 @@ all: cayleyImages graphs rotate0-0.svg
 
 
 graphs: currency.png \
+	temp.png \
 	demo11.png \
 	demo10.png \
 	demo10-2.png \
@@ -31,6 +32,8 @@ cayleyImages: ndcToScreenspace.png \
 		dimeToPenny.png \
 		quarterToPenny.png \
 		dollarToPenny.png \
+		celciusToKelvin.png \
+		fahrenheitToCelsuis.png \
 		dToC.png \
 		cToA.png \
 		bToA.png \
@@ -60,6 +63,12 @@ quarterToPenny.png: quarterToPenny.tex
 	python3 texExpToPng.py --file quarterToPenny.tex --size 300 --output quarterToPenny.png
 dollarToPenny.png: dollarToPenny.tex
 	python3 texExpToPng.py --file dollarToPenny.tex --size 300 --output dollarToPenny.png
+celciusToKelvin.png: celciusToKelvin.tex
+	python3 texExpToPng.py --file celciusToKelvin.tex --size 300 --output celciusToKelvin.png
+fahrenheitToCelsuis.png: fahrenheitToCelsuis.tex
+	python3 texExpToPng.py --file fahrenheitToCelsuis.tex --size 300 --output fahrenheitToCelsuis.png
+
+
 dToC.png: dToC.tex
 	python3 texExpToPng.py --file dToC.tex --size 300 --output dToC.png
 cToA.png: cToA.tex
@@ -101,6 +110,9 @@ clipToNDC.png: clipToNDC.tex
 
 
 currency.png: currency.dot
+	dot -Tpng -Gsize=6,9\! -Gdpi=200 $< -o $@
+
+temp.png: temp.dot
 	dot -Tpng -Gsize=6,9\! -Gdpi=200 $< -o $@
 
 demo16.png: demo16.dot

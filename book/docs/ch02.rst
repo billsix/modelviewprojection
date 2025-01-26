@@ -416,7 +416,13 @@ out, but the details of those functions are not relevant when traversing the Cay
 Temperature Conversion
 ~~~~~~~~~~~~~~~~~~~~~~
 
-foobar
+.. figure:: _static/temp.png
+    :align: center
+    :alt: Demo 02
+    :figclass: align-center
+
+    Cayley graph of uni variate coordinate conversion for temperature.
+
 
 
 
