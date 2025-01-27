@@ -129,7 +129,7 @@ prompt
    cd venv\Scripts
    activate.bat
    cd ..\..\
-   spyder
+   spyder -p .
 
 
 MacOS or Linux
@@ -150,7 +150,7 @@ prompt
 .. code-block::
 
    source venv/bin/activate
-   spyder
+   spyder -p .
 
 
 
