@@ -317,11 +317,11 @@ while not glfw.window_should_close(window):
     glRotatef(math.degrees(paddle1.rotation), 0.0, 0.0, 1.0)
 
     glBegin(GL_QUADS)
-    for paddle1_vertex_ms in paddle1.vertices:
+    for p1_v_ms in paddle1.vertices:
         glVertex3f(
-            paddle1_vertex_ms[0],
-            paddle1_vertex_ms[1],
-            paddle1_vertex_ms[2],
+            p1_v_ms[0],
+            p1_v_ms[1],
+            p1_v_ms[2],
         )
     glEnd()
     # doc-region-end of paddle 1
@@ -342,8 +342,8 @@ while not glfw.window_should_close(window):
     glRotatef(math.degrees(square_rotation), 0.0, 0.0, 1.0)
 
     glBegin(GL_QUADS)
-    for model_space in square_vertices:
-        glVertex3f(model_space[0], model_space[1], model_space[2])
+    for ms in square_vertices:
+        glVertex3f(ms[0], ms[1], ms[2])
     glEnd()
     glPopMatrix()
     # the mode matrix that was on the model stack before the square
@@ -364,11 +364,11 @@ while not glfw.window_should_close(window):
     glRotatef(math.degrees(paddle2.rotation), 0.0, 0.0, 1.0)
 
     glBegin(GL_QUADS)
-    for paddle2_vertex_ms in paddle2.vertices:
+    for p2_v_ms in paddle2.vertices:
         glVertex3f(
-            paddle2_vertex_ms[0],
-            paddle2_vertex_ms[1],
-            paddle2_vertex_ms[2],
+            p2_v_ms[0],
+            p2_v_ms[1],
+            p2_v_ms[2],
         )
     glEnd()
 

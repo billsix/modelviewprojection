@@ -239,13 +239,11 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     rotatePoint: Vertex = paddle1.position
-    for paddle1_vertex_ms in paddle1.vertices:
-        paddle1_vertex_ws: Vertex = paddle1_vertex_ms.translate(paddle1.position)
-        paddle1_vertex_ws: Vertex = paddle1_vertex_ws.rotate_around(
-            paddle1.rotation, rotatePoint
-        )
-        paddle1_vertex_ndc: Vertex = paddle1_vertex_ws.uniform_scale(scalar=1.0 / 10.0)
-        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
+    for p1_v_ms in paddle1.vertices:
+        p1_v_ws: Vertex = p1_v_ms.translate(paddle1.position)
+        p1_v_ws: Vertex = p1_v_ws.rotate_around(paddle1.rotation, rotatePoint)
+        p1_v_ndc: Vertex = p1_v_ws.uniform_scale(1.0 / 10.0)
+        glVertex2f(p1_v_ndc.x, p1_v_ndc.y)
         # doc-region-end draw paddle 1
     glEnd()
 
@@ -255,13 +253,11 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     rotatePoint: Vertex = paddle2.position
-    for paddle2_vertex_ms in paddle2.vertices:
-        paddle2_vertex_ws: Vertex = paddle2_vertex_ms.translate(paddle2.position)
-        paddle2_vertex_ws: Vertex = paddle2_vertex_ws.rotate_around(
-            paddle2.rotation, rotatePoint
-        )
-        paddle2_vertex_ndc: Vertex = paddle2_vertex_ws.uniform_scale(scalar=1.0 / 10.0)
-        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
+    for p2_v_ms in paddle2.vertices:
+        p2_v_ws: Vertex = p2_v_ms.translate(paddle2.position)
+        p2_v_ws: Vertex = p2_v_ws.rotate_around(paddle2.rotation, rotatePoint)
+        p2_v_ndc: Vertex = p2_v_ws.uniform_scale(1.0 / 10.0)
+        glVertex2f(p2_v_ndc.x, p2_v_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
 

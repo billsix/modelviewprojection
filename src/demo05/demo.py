@@ -199,9 +199,9 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for paddle1_vertex_ms in paddle1.vertices:
-        paddle1_vertex_ndc: Vertex = paddle1_vertex_ms.translate(paddle1.position)
-        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
+    for p1_v_ms in paddle1.vertices:
+        p1_v_ndc: Vertex = p1_v_ms.translate(paddle1.position)
+        glVertex2f(p1_v_ndc.x, p1_v_ndc.y)
     glEnd()
     # doc-region-end draw paddle 1
 
@@ -209,9 +209,9 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    for paddle2_vertex_ms in paddle2.vertices:
-        paddle2_vertex_ndc: Vertex = paddle2_vertex_ms.translate(paddle2.position)
-        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
+    for p2_v_ms in paddle2.vertices:
+        p2_v_ndc: Vertex = p2_v_ms.translate(paddle2.position)
+        glVertex2f(p2_v_ndc.x, p2_v_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
 

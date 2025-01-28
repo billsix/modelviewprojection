@@ -572,7 +572,7 @@ while not glfw.window_should_close(window):
             # since the modelstack is already in paddle1's space
             # just add the transformations relative to it
             # before paddle 2 is drawn, we need to remove
-            # the square's 3 model_space transformations
+            # the square's 3 ms transformations
 
             ms.translate(ms.MatrixStack.model, 0.0, 0.0, -1.0)
             ms.rotate_z(ms.MatrixStack.model, square.rotation_around_paddle1)

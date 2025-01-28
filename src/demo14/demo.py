@@ -322,16 +322,17 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
+    # fmt: off
+
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
-    for paddle1_vertex_ms in paddle1.vertices:
-        paddle1_vertex_ws: Vertex = paddle1_vertex_ms.rotate_z(
-            paddle1.rotation
-        ).translate(paddle1.position)
-        paddle1_vertex_cs: Vertex = paddle1_vertex_ws.translate(-camera.position_ws)
-        paddle1_vertex_ndc: Vertex = paddle1_vertex_cs.uniform_scale(scalar=1.0 / 10.0)
-        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
+    for p1_v_ms in paddle1.vertices:
+        p1_v_ws: Vertex = p1_v_ms.rotate_z(paddle1.rotation) \
+                                 .translate(paddle1.position)
+        p1_v_cs: Vertex = p1_v_ws.translate(-camera.position_ws)
+        p1_v_ndc: Vertex = p1_v_cs.uniform_scale(1.0 / 10.0)
+        glVertex2f(p1_v_ndc.x, p1_v_ndc.y)
     glEnd()
     # doc-region-end draw paddle 1
 
@@ -339,18 +340,15 @@ while not glfw.window_should_close(window):
     # draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
-    for model_space in square:
-        paddle_1_space: Vertex = (
-            model_space.rotate_z(square_rotation)
-            .translate(Vertex(x=2.0, y=0.0, z=0.0))
-            .rotate_z(rotation_around_paddle1)
-            .translate(Vertex(x=0.0, y=0.0, z=-1.0))
-        )
-        world_space: Vertex = paddle_1_space.rotate_z(paddle1.rotation).translate(
-            paddle1.position
-        )
-        camera_space: Vertex = world_space.translate(-camera.position_ws)
-        ndc: Vertex = camera_space.uniform_scale(scalar=1.0 / 10.0)
+    for ms in square:
+        p1_v: Vertex = ms.rotate_z(square_rotation) \
+                         .translate(Vertex(x=2.0, y=0.0, z=0.0)) \
+                         .rotate_z(rotation_around_paddle1) \
+                         .translate(Vertex(x=0.0, y=0.0, z=-1.0))
+        ws: Vertex = p1_v.rotate_z(paddle1.rotation) \
+                         .translate(paddle1.position)
+        cs: Vertex = ws.translate(-camera.position_ws)
+        ndc: Vertex = cs.uniform_scale(1.0 / 10.0)
         glVertex3f(ndc.x, ndc.y, ndc.z)
     glEnd()
     # doc-region-end draw square
@@ -359,15 +357,15 @@ while not glfw.window_should_close(window):
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
-    for paddle2_vertex_ms in paddle2.vertices:
-        paddle2_vertex_ws: Vertex = paddle2_vertex_ms.rotate_z(
-            paddle2.rotation
-        ).translate(paddle2.position)
-        paddle2_vertex_cs: Vertex = paddle2_vertex_ws.translate(-camera.position_ws)
-        paddle2_vertex_ndc: Vertex = paddle2_vertex_cs.uniform_scale(scalar=1.0 / 10.0)
-        glVertex3f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y, paddle2_vertex_ndc.z)
+    for p2_v_ms in paddle2.vertices:
+        p2_v_ws: Vertex = p2_v_ms.rotate_z(paddle2.rotation) \
+                                 .translate(paddle2.position)
+        p2_v_cs: Vertex = p2_v_ws.translate(-camera.position_ws)
+        p2_v_ndc: Vertex = p2_v_cs.uniform_scale(1.0 / 10.0)
+        glVertex3f(p2_v_ndc.x, p2_v_ndc.y, p2_v_ndc.z)
     glEnd()
     # doc-region-end draw paddle 2
+    # fmt: on
 
     glfw.swap_buffers(window)
 

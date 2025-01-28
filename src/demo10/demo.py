@@ -245,23 +245,21 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
+    # fmt: off
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for paddle1_vertex_ms in paddle1.vertices:
-        paddle1_vertex_ws: Vertex = paddle1_vertex_ms.rotate(
-            paddle1.rotation
-        ).translate(translate_amount=paddle1.position)
+    for p1_v_ms in paddle1.vertices:
+        p1_v_ws: Vertex = p1_v_ms.rotate(paddle1.rotation) \
+                                 .translate(paddle1.position)
         # doc-region-end draw paddle 1
         # doc-region-begin paddle 1 camera translate
-        paddle1_vertex_cs: Vertex = paddle1_vertex_ws.translate(
-            translate_amount=-camera.position_ws
-        )
+        p1_v_cs: Vertex = p1_v_ws.translate(-camera.position_ws)
         # doc-region-end paddle 1 camera translate
         # doc-region-begin paddle 1 scale
-        paddle1_vertex_ndc: Vertex = paddle1_vertex_cs.uniform_scale(scalar=1.0 / 10.0)
-        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
+        p1_v_ndc: Vertex = p1_v_cs.uniform_scale(1.0 / 10.0)
+        glVertex2f(p1_v_ndc.x, p1_v_ndc.y)
     glEnd()
     # doc-region-end paddle 1 scale
 
@@ -269,20 +267,19 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    for paddle2_vertex_ms in paddle2.vertices:
-        paddle2_vertex_ws: Vertex = paddle2_vertex_ms.rotate(
-            paddle2.rotation
-        ).translate(paddle2.position)
+    for p2_v_ms in paddle2.vertices:
+        p2_v_ws: Vertex = p2_v_ms.rotate(paddle2.rotation) \
+                                 .translate(paddle2.position)
         # doc-region-end draw paddle 2
         # doc-region-begin paddle 2 camera transformations
-        paddle2_vertex_cs: Vertex = paddle2_vertex_ws.translate(-camera.position_ws)
+        p2_v_cs: Vertex = p2_v_ws.translate(-camera.position_ws)
         # doc-region-end paddle 2 camera transformations
-        paddle2_vertex_ndc: Vertex = paddle2_vertex_cs.uniform_scale(scalar=1.0 / 10.0)
+        p2_v_ndc: Vertex = p2_v_cs.uniform_scale(1.0 / 10.0)
         # doc-region-begin paddle 2 glvertex2f
-        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
+        glVertex2f(p2_v_ndc.x, p2_v_ndc.y)
     glEnd()
     # doc-region-end paddle 2 glvertex2f
-
+    # fmt: on
     glfw.swap_buffers(window)
 
 glfw.terminate()

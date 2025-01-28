@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2024 William Emerison Six
+# Copyright (c) 2018-2025 William Emerison Six
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -139,7 +139,7 @@ def _default_camera_position() -> Vertex:
 
 @dataclass
 class Camera:
-    position_worldspace: Vertex = field(default_factory=_default_camera_position)
+    position_ws: Vertex = field(default_factory=_default_camera_position)
 
 
 camera: Camera = Camera()
@@ -149,13 +149,13 @@ def handle_inputs() -> None:
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.position_worldspace.y += 1.0
+        camera.position_ws.y += 1.0
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.position_worldspace.y -= 1.0
+        camera.position_ws.y -= 1.0
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.position_worldspace.x -= 1.0
+        camera.position_ws.x -= 1.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.position_worldspace.x += 1.0
+        camera.position_ws.x += 1.0
 
     global paddle1, paddle2
 
@@ -209,39 +209,43 @@ while not glfw.window_should_close(window):
 
     handle_inputs()
 
-    # fmt: off
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for model_space in paddle1.vertices:
-        world_space: Vertex = model_space.rotate(paddle1.rotation) \
-                                         .translate(tx=paddle1.position.x,ty=paddle1.position.y)
-        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
-                                                     ty=-camera.position_worldspace.y)
-        ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 10.0,
-                                               scale_y=1.0 / 10.0)
+    for ms in paddle1.vertices:
+        ws: Vertex = ms.rotate(paddle1.rotation).translate(
+            tx=paddle1.position.x, ty=paddle1.position.y
+        )
+        cs: Vertex = ws.translate(tx=-camera.position_ws.x, ty=-camera.position_ws.y)
+        ndc_space: Vertex = cs.scale(scale_x=1.0 / 10.0, scale_y=1.0 / 10.0)
         if not KEEP_ASPECT_RATIO:
-            screen_space: Vertex = ndc_space.ndc_to_screenspace_full_screen(width, height)
+            screen_space: Vertex = ndc_space.ndc_to_screenspace_full_screen(
+                width, height
+            )
         else:
-            screen_space: Vertex = ndc_space.ndc_to_screenspace_aspect_not_distorted(width, height)
+            screen_space: Vertex = ndc_space.ndc_to_screenspace_aspect_not_distorted(
+                width, height
+            )
         glVertex2f(screen_space.x, screen_space.y)
     glEnd()
 
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    for model_space in paddle2.vertices:
-        world_space: Vertex = model_space.rotate(paddle2.rotation) \
-                                         .translate(tx=paddle2.position.x,
-                                                    ty=paddle2.position.y)
-        camera_space: Vertex = world_space.translate(tx=-camera.position_worldspace.x,
-                                                     ty=-camera.position_worldspace.y)
-        ndc_space: Vertex = camera_space.scale(scale_x=1.0 / 10.0,
-                                               scale_y=1.0 / 10.0)
+    for ms in paddle2.vertices:
+        ws: Vertex = ms.rotate(paddle2.rotation).translate(
+            tx=paddle2.position.x, ty=paddle2.position.y
+        )
+        cs: Vertex = ws.translate(tx=-camera.position_ws.x, ty=-camera.position_ws.y)
+        ndc_space: Vertex = cs.scale(scale_x=1.0 / 10.0, scale_y=1.0 / 10.0)
         if not KEEP_ASPECT_RATIO:
-            screen_space: Vertex = ndc_space.ndc_to_screenspace_full_screen(width, height)
+            screen_space: Vertex = ndc_space.ndc_to_screenspace_full_screen(
+                width, height
+            )
         else:
-            screen_space: Vertex = ndc_space.ndc_to_screenspace_aspect_not_distorted(width, height)
+            screen_space: Vertex = ndc_space.ndc_to_screenspace_aspect_not_distorted(
+                width, height
+            )
         glVertex2f(screen_space.x, screen_space.y)
     glEnd()
 

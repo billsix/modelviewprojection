@@ -226,22 +226,23 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
+    # fmt: off
+
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for paddle1_vertex_ms in paddle1.vertices:
+    for p1_v_ms in paddle1.vertices:
         # doc-region-end draw paddle 1
         # doc-region-begin compose transformations on paddle 12
-        paddle1_vertex_ws: Vertex = paddle1_vertex_ms.translate(
-            paddle1.position
-        ).rotate(paddle1.rotation)
+        p1_v_ws: Vertex = p1_v_ms.translate(paddle1.position) \
+                                 .rotate(paddle1.rotation)
         # doc-region-end compose transformations on paddle 12
         # doc-region-begin scale paddle 1
-        paddle1_vertex_ndc: Vertex = paddle1_vertex_ws.uniform_scale(1.0 / 10.0)
+        p1_v_ndc: Vertex = p1_v_ws.uniform_scale(1.0 / 10.0)
         # doc-region-end scale paddle 1
         # doc-region-begin glvertex on paddle 1
-        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
+        glVertex2f(p1_v_ndc.x, p1_v_ndc.y)
     glEnd()
     # doc-region-end glvertex on paddle 1
 
@@ -249,20 +250,20 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin draw paddle 2
     glBegin(GL_QUADS)
-    for paddle2_vertex_ms in paddle2.vertices:
+    for p2_v_ms in paddle2.vertices:
         # doc-region-end draw paddle 2
         # doc-region-begin compose transformations on paddle 2
-        paddle2_vertex_ws: Vertex = paddle2_vertex_ms.translate(
-            paddle2.position
-        ).rotate(paddle2.rotation)
+        p2_v_ws: Vertex = p2_v_ms.translate(paddle2.position) \
+                                 .rotate(paddle2.rotation)
         # doc-region-end compose transformations on paddle 2
         # doc-region-begin scale paddle 2
-        paddle2_vertex_ndc: Vertex = paddle2_vertex_ws.uniform_scale(1.0 / 10.0)
+        p2_v_ndc: Vertex = p2_v_ws.uniform_scale(1.0 / 10.0)
         # doc-region-end scale paddle 2
         # doc-region-begin glvertex on paddle 2
-        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
+        glVertex2f(p2_v_ndc.x, p2_v_ndc.y)
     glEnd()
     # doc-region-end glvertex on paddle 2
+    # fmt: off
     glfw.swap_buffers(window)
 
 glfw.terminate()

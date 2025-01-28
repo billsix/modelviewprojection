@@ -239,7 +239,7 @@ class Vertex:
                                       near=near_z,
                                       far=far_z)
 
-    def camera_space_to_ndc_space_fn(self: Vertex) -> Vertex:
+    def cs_to_ndc_space_fn(self: Vertex) -> Vertex:
         return self.perspective(field_of_view=45.0,
                                 aspect_ratio=1.0,
                                 near_z=-.1,
@@ -419,7 +419,7 @@ while not glfw.window_should_close(window):
             camera.rot_y -= axes_list[0][2] * 0.01
 
     # doc-region-begin stack push camera space to ndc
-    fn_stack.push(lambda v: v.camera_space_to_ndc_space_fn())  # (1)
+    fn_stack.push(lambda v: v.cs_to_ndc_space_fn())  # (1)
     # doc-region-end stack push camera space to ndc
 
     # doc-region-begin camera space to world space, commented out
@@ -448,12 +448,12 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for paddle1_vertex_ms in paddle1.vertices:
-        paddle1_vertex_ndc = fn_stack.modelspace_to_ndc(paddle1_vertex_ms)
+    for p1_v_ms in paddle1.vertices:
+        p1_v_ndc = fn_stack.modelspace_to_ndc(p1_v_ms)
         glVertex3f(
-            paddle1_vertex_ndc.x,
-            paddle1_vertex_ndc.y,
-            paddle1_vertex_ndc.z,
+            p1_v_ndc.x,
+            p1_v_ndc.y,
+            p1_v_ndc.z,
         )
     glEnd()
     # doc-region-end draw paddle 1
@@ -467,8 +467,8 @@ while not glfw.window_should_close(window):
     fn_stack.push(lambda v: v.rotate_z(square_rotation))  # (10)
 
     glBegin(GL_QUADS)
-    for model_space in square:
-        ndc = fn_stack.modelspace_to_ndc(model_space)
+    for ms in square:
+        ndc = fn_stack.modelspace_to_ndc(ms)
         glVertex3f(ndc.x, ndc.y, ndc.z)
     glEnd()
     # doc-region-end draw paddle 2
@@ -489,9 +489,9 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    for paddle2_vertex_ms in paddle2.vertices:
-        paddle2_vertex_ndc: Vertex = fn_stack.modelspace_to_ndc(paddle2_vertex_ms)
-        glVertex3f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y, paddle2_vertex_ndc.z)
+    for p2_v_ms in paddle2.vertices:
+        p2_v_ndc: Vertex = fn_stack.modelspace_to_ndc(p2_v_ms)
+        glVertex3f(p2_v_ndc.x, p2_v_ndc.y, p2_v_ndc.z)
     glEnd()
     # doc-region-end draw paddle 2
 
