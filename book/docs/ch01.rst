@@ -304,7 +304,7 @@ are the width and height of the window, and the third likely
 the title of the window.  What do the fourth and fifth arguments,
 both of which are "None", mean?  The author does not know.  We could
 look it up the APIs online.  But, Python has something called keyword
-arguments, which we will talk about later, where the intent of each paramater
+arguments, which we will talk about later, where the intent of each parameter
 is clear at the site of calling the function.
 
 .. literalinclude:: ../../src/demo01/demo.py

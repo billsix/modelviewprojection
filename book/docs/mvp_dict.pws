@@ -1,4 +1,5 @@
-personal_ws-1.1 en 179 
+personal_ws-1.1 en 188
+APIs
 Cayley
 Clipw
 Clipx
@@ -18,6 +19,7 @@ LIFA
 LearnOpenGL
 MERCHANTABILITY
 MacOS
+Maththing
 ModelView
 ModelViewProjection
 Modelspace's
@@ -29,6 +31,7 @@ NONINFRINGEMENT
 Ok
 OpenGL
 OpenGL's
+OpenGLTutorial
 Ortho
 PPPPPbbbbbbbbbbbbbbbbbbbbbbbbbbbRRRRR
 PPPPPbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
@@ -39,6 +42,7 @@ SHADER
 Shaders
 Socratica
 Spaces's
+Spyder
 TODO
 WorldSpace
 Worldspace
@@ -63,6 +67,7 @@ cayleygraph
 cd
 cdot
 ce
+celsius
 circ
 clearcolor
 clipSpace
@@ -76,11 +81,13 @@ dh
 doubler
 enablescissortest
 eog
+fahrenheit
 farZ
 figclass
 fn
 fns
 fov
+frac
 framebuffer
 framerate
 func
@@ -119,6 +126,7 @@ lineno
 linenos
 literalinclude
 logl
+macOS
 macports
 matricies
 maxdepth
@@ -162,6 +170,7 @@ setuptools
 shader
 shader's
 shaders
+spyder
 src
 sublicense
 submodule
