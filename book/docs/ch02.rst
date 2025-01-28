@@ -451,22 +451,22 @@ and/or taking the inverse of given functions.
 To convert from fahrenheit to kelvin, we would think
 
 .. math::
-    f_{f}^{k} = f_{c}^{k} \circ f_{f}^{c}
+    f_{f}^{k} = f_{celsius}^{kelvin} \circ f_{fahrenheit}^{celsius}
 
 To convert from kelvin to celsius, we would think
 
 .. math::
-    f_{k}^{c} = {(f_{c}^{k})}^{-1}
+    f_{kelvin}^{celsius} = {(f_{celsius}^{kelvin})}^{-1}
 
 To convert from celsius to fahrenheit, we would think
 
 .. math::
-    f_{c}^{f} = {(f_{f}^{c})}^{-1}
+    f_{celsius}^{fahrenheit} = {(f_{fahrenheit}^{celsius})}^{-1}
 
 To convert from kelvin to fahrenheit, we would think
 
 .. math::
-    f_{k}^{f} = {(f_{f}^{c})^{-1}} \circ {(f_{c}^{k})^{-1}}
+    f_{kelvin}^{fahrenheit} = {(f_{fahrenheit}^{celsius})^{-1}} \circ {(f_{celsius}^{kelvin})^{-1}}
 
 
 
