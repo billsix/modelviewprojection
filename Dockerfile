@@ -20,7 +20,6 @@ RUN apt update && apt upgrade -y && \
 
 COPY ./book /book/
 COPY ./src /src/
-RUN echo FOO
 COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
 
 ENTRYPOINT ["/entrypoint.sh"]
