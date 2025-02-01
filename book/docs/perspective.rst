@@ -253,21 +253,6 @@ we couldn't do without having the premultiplied matrix.
                    \end{bmatrix}
 
 
-As a quick smoke test to ensure that the aggregate matrix works correctly, let's
-test the bounds of the frustum and make sure that they map to the NDC cube.
-
-Given that :math:`nearZ_c` is negative, assuming :math:`z_c` is equal to
-:math:`nearZ_c`, :math:`right` goes to :math:`1`, :math:`left` which is :math:`-right`
-goes to :math:`-1`.
-
-Given that :math:`nearZ_c` is negative, assuming :math:`z_c` is equal to
-:math:`nearZ_c`, :math:`top` goes to :math:`1`, :math:`bottom` which is :math:`-top`
-goes to :math:`-1`.
-
-Given that :math:`w_c` is :math:`1`, if :math:`z_c = nearZ_c`, :math:`z_{ndc} = 1`.
-Given that :math:`w_c` is :math:`1`, if :math:`z_c = farZ_c`, :math:`z_{ndc} = -1`.
-
-
 
 
 Clip Space
@@ -383,6 +368,9 @@ the following
 because multiplying by this matrix will remove the :math:`z_c` out of
 the upper left quadrant.
 
+But wait.  In camera space, the viewing frustum is defined
+to be in negative :math:`z`.  So that will
+
 Remove Z of Camera Space from Part of the Matrix
 ################################################
 
@@ -473,56 +461,6 @@ Turning clip space back into NDC
                                 {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
                                 {\textcolor{red}{z_c}} \\
                    \end{bmatrix}
-
-
-To test a corner of the frustum as a smoke test, say
-
-.. math::
-
-    \begin{bmatrix}
-      {x_{ndc}} \\
-      {y_{ndc}} \\
-      {z_{ndc}} \\
-      {w_{ndc}=1} \\
-    \end{bmatrix} & =               \vec{f}_{c}^{ndc}(\begin{bmatrix}
-                             {x_{c} = right} \\
-                             {y_{c} = top} \\
-                             {z_{c} = nearZ_c} \\
-                             {w_{c}=1} \\
-                   \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
-                   & = \begin{bmatrix}
-                      \textcolor{red}{{1 \over {z_c}}} &  0 & 0 & 0 \\
-                      0 &  \textcolor{red}{{1 \over {z_c}}} & 0 & 0 \\
-                      0 &  0 & \textcolor{red}{{1 \over {z_c}}} & 0 \\
-                      0 &  0 & 0 & \textcolor{red}{{1 \over {z_c}}}
-                   \end{bmatrix} * \begin{bmatrix}
-                                {{nearZ_c \over right} * x_{c}}   \\
-                                {{nearZ_c \over top} * y_{c}}    \\
-                                {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
-                                {\textcolor{red}{z_c}} \\
-                   \end{bmatrix} \\
-                   & = \begin{bmatrix}
-                                {{nearZ_c \over right} * x_{c}}   \\
-                                {{nearZ_c \over top} * y_{c}}    \\
-                                {\textcolor{red}{z_c} * {2 \over {nearZ_c - farZ_c}} + {-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}\\
-                                {1} \\
-                   \end{bmatrix} \\
-                   & = \begin{bmatrix}
-                                {1}  \\
-                                {1}  \\
-                                {1} \\
-                                {1} \\
-                   \end{bmatrix}
-
-
-And that's what we'd expect and the top right corner of the near plane of the frustum
-should go to the upper right corner with a z value of 1, as -1 is where the back plane must go.
-
-If we had used :math:`x_c = farZ_c`, then :math:`z_{ndc} = -1`, which is what we want, as negative :math:`z` axis
-goes into the monitor.
-
-..
-   TODO PICK UP FROM HERE
 
 
 
