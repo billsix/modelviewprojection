@@ -108,7 +108,7 @@ class Vertex:
     y: float
 
     def __add__(self, rhs: Vertex) -> Vertex:
-        return Vertex(x=self.x + rhs.x, y=self.y + rhs.y)
+        return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y))
 
     def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
         return self + translate_amount

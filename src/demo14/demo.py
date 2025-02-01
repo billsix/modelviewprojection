@@ -112,7 +112,7 @@ class Vertex2D:
     y: float
 
     def __add__(self, rhs: Vertex2D) -> Vertex2D:
-        return Vertex2D(x=self.x + rhs.x, y=self.y + rhs.y)
+        return Vertex2D(x=(self.x + rhs.x), y=(self.y + rhs.y))
 
     def translate(self: Vertex2D, translate_amount: Vertex2D) -> Vertex2D:
         return self + translate_amount
@@ -127,7 +127,7 @@ class Vertex2D:
         return self * scalar
 
     def scale(self: Vertex2D, scale_x: float, scale_y: float) -> Vertex2D:
-        return Vertex2D(x=self.x * scale_x, y=self.y * scale_y)
+        return Vertex2D(x=(self.x * scale_x), y=(self.y * scale_y))
 
     def __neg__(self):
         return -1.0 * self
@@ -149,7 +149,7 @@ class Vertex:
     z: float
 
     def __add__(self, rhs: Vertex) -> Vertex:
-        return Vertex(x=self.x + rhs.x, y=self.y + rhs.y, z=self.z + rhs.z)
+        return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y), z=(self.z + rhs.z))
 
     def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
         return self + translate_amount
@@ -180,7 +180,7 @@ class Vertex:
     # doc-region-begin define uniform scale
 
     def __mul__(self, scalar: float) -> Vertex:
-        return Vertex(x=self.x * scalar, y=self.y * scalar, z=self.z * scalar)
+        return Vertex(x=(self.x * scalar), y=(self.y * scalar), z=(self.z * scalar))
 
     def __rmul__(self, scalar: float) -> Vertex:
         return self * scalar
@@ -189,7 +189,7 @@ class Vertex:
         return self * scalar
 
     def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
-        return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
+        return Vertex(x=(self.x * scale_x), y=(self.y * scale_y), z=(self.z * scale_z))
 
     def __neg__(self):
         return -1.0 * self
