@@ -184,6 +184,9 @@ Set to Draw in Square Subsection Of Window
   texturing.  We are using the scissor test, so we must enable it.  We only enable
   the features that we need so that the OpenGL driver doesn't waste time doing
   unnecessary computations.
+* Note that it's not clear what the arguments mean, so the author added comments
+  after each argument.  Another way to make this more clear is to use Python's keyword
+  arguments, discussed later.
 * the scissor test allows us to specify a region
   of the frame-buffer into which the OpenGL operations
   will apply.  In this case, the color in every pixel in the frame-buffer is currently gray

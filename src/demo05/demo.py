@@ -109,7 +109,7 @@ class Vertex:
     y: float
 
     def translate(self: Vertex, rhs: Vertex) -> Vertex:
-        return Vertex(x=self.x + rhs.x, y=self.y + rhs.y)
+        return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y))
 
 
 # doc-region-end define vertex class
