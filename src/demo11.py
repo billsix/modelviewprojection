@@ -259,8 +259,8 @@ while not glfw.window_should_close(window):
         p1_v_ws: Vertex = p1_v_ms.rotate(paddle1.rotation) \
                                  .translate(paddle1.position)
         p1_v_cs: Vertex = p1_v_ws.translate(-camera.position_ws)
-        p1_v_ndc: Vertex = p1_v_cs.uniform_scale(1.0 / 10.0)
-        glVertex2f(p1_v_ndc.x, p1_v_ndc.y)
+        paddle1_vertex_ndc: Vertex = p1_v_cs.uniform_scale(1.0 / 10.0)
+        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
     glEnd()
     # doc-region-end draw paddle 1
 
@@ -285,8 +285,8 @@ while not glfw.window_should_close(window):
         p2_v_ws: Vertex = p2_v_ms.rotate(paddle2.rotation) \
                                  .translate(paddle2.position)
         p2_v_cs: Vertex = p2_v_ws.translate(-camera.position_ws)
-        p2_v_ndc: Vertex = p2_v_cs.uniform_scale(1.0 / 10.0)
-        glVertex2f(p2_v_ndc.x, p2_v_ndc.y)
+        paddle2_vertex_ndc: Vertex = p2_v_cs.uniform_scale(1.0 / 10.0)
+        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
     # fmt: on

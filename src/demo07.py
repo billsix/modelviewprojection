@@ -23,6 +23,7 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 
 import sys
 from dataclasses import dataclass
+from typing import Callable
 
 import glfw
 from OpenGL.GL import (
@@ -46,13 +47,15 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from mathutils import Vertex2D, compose, rotate, translate, uniform_scale
+
 if not glfw.init():
     sys.exit()
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 6", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 7", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -102,60 +105,43 @@ def draw_in_square_viewport() -> None:
     )
 
 
-# doc-region-begin define vertex class
-@dataclass
-class Vertex:
-    x: float
-    y: float
-
-    def translate(self: Vertex, rhs: Vertex) -> Vertex:
-        return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y))
-
-    # doc-region-end define vertex class
-
-    # doc-region-begin define uniform scale
-    def uniform_scale(self: Vertex, scale: float) -> Vertex:
-        return Vertex(x=(self.x * scale), y=(self.y * scale))
-
-    # doc-region-end define uniform scale
-
-
+# doc-region-begin define paddle class
 @dataclass
 class Paddle:
-    vertices: list[Vertex]
+    vertices: list[Vertex2D]
     r: float
     g: float
     b: float
-    position: Vertex
+    position: Vertex2D
+    rotation: float = 0.0
+    # doc-region-end define paddle class
 
 
-# doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-3.0),
-        Vertex(x=1.0, y=-3.0),
-        Vertex(x=1.0, y=3.0),
-        Vertex(x=-1.0, y=3.0),
+        Vertex2D(x=-1.0, y=-3.0),
+        Vertex2D(x=1.0, y=-3.0),
+        Vertex2D(x=1.0, y=3.0),
+        Vertex2D(x=-1.0, y=3.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex(-9.0, 0.0),
+    position=Vertex2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-3.0),
-        Vertex(x=1.0, y=-3.0),
-        Vertex(x=1.0, y=3.0),
-        Vertex(x=-1.0, y=3.0),
+        Vertex2D(x=-1.0, y=-3.0),
+        Vertex2D(x=1.0, y=-3.0),
+        Vertex2D(x=1.0, y=3.0),
+        Vertex2D(x=-1.0, y=3.0),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex(9.0, 0.0),
+    position=Vertex2D(9.0, 0.0),
 )
-# doc-region-end instantiate paddles
 
 
 # doc-region-begin define handle movement of paddles
@@ -171,15 +157,24 @@ def handle_movement_of_paddles() -> None:
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 1.0
 
+    if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
+        paddle1.rotation += 0.1
+    if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
+        paddle1.rotation -= 0.1
+    if glfw.get_key(window, glfw.KEY_J) == glfw.PRESS:
+        paddle2.rotation += 0.1
+    if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
+        paddle2.rotation -= 0.1
+    # doc-region-end define handle movement of paddles
 
-# doc-region-end define handle movement of paddles
 
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# doc-region-begin begin event loop
+# doc-region-begin begin  event loop
 while not glfw.window_should_close(window):
+    # doc-region-end begin  event loop
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -194,45 +189,40 @@ while not glfw.window_should_close(window):
 
     draw_in_square_viewport()
     handle_movement_of_paddles()
-    # doc-region-end begin event loop
+
+    worldspace_to_ndc: Callable[Vertex2D, Vertex2D] = uniform_scale(1.0 / 10.0)
+    paddle1_modelspace_to_worldspace: Callable[Vertex2D, Vertex2D] = compose(
+        rotate(paddle1.rotation), translate(paddle1.position)
+    )
+    paddle1_modelspace_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
+        worldspace_to_ndc, paddle1_modelspace_to_worldspace
+    )
 
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        # doc-region-end draw paddle 1
-        # doc-region-begin call translate method
-        p1_v_ws: Vertex = p1_v_ms.translate(paddle1.position)
-        # doc-region-end call translate method
-        # doc-region-begin call uniform scale method
-        p1_v_ndc: Vertex = p1_v_ws.uniform_scale(1.0 / 10.0)
-        # doc-region-end call uniform scale method
-        # doc-region-begin call glvertex2f for paddle 1
-        glVertex2f(p1_v_ndc.x, p1_v_ndc.y)
-
+        paddle1_vertex_ndc: Vertex2D = paddle1_modelspace_to_ndc(p1_v_ms)
+        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
     glEnd()
-    # doc-region-end call glvertex2f for paddle 1
 
     # doc-region-begin draw paddle 2
+    paddle2_modelspace_to_worldspace: Callable[Vertex2D, Vertex2D] = compose(
+        rotate(paddle2.rotation), translate(paddle2.position)
+    )
+    paddle2_modelspace_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
+        worldspace_to_ndc, paddle2_modelspace_to_worldspace
+    )
+
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        # doc-region-end draw paddle 2
-        # doc-region-begin paddle 2 call translate method
-        p2_v_ws: Vertex = p2_v_ms.translate(paddle2.position)
-        # doc-region-end paddle 2 call translate method
-        # doc-region-begin paddle 2 call uniform scale method
-        p2_v_ndc: Vertex = p2_v_ws.uniform_scale(1.0 / 10.0)
-        # doc-region-end paddle 2 call uniform scale method
-
-        # doc-region-begin paddle 2 call glvertex2f
-        glVertex2f(p2_v_ndc.x, p2_v_ndc.y)
+        paddle2_vertex_ndc: Vertex2D = paddle2_modelspace_to_ndc(p2_v_ms)
+        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
     glEnd()
-    # doc-region-end paddle 2 call glvertex2f
-
-    # doc-region-begin flush framebuffer
+    # doc-region-end glvertex on paddle 2
     glfw.swap_buffers(window)
-    # doc-region-end flush framebuffer
+
 glfw.terminate()

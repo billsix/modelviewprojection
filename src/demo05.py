@@ -46,6 +46,8 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from mathutils import Vertex2D, compose, translate
+
 if not glfw.init():
     sys.exit()
 
@@ -58,6 +60,9 @@ if not window:
     sys.exit()
 
 glfw.make_context_current(window)
+
+
+aoeu = compose
 
 
 def on_key(win, key, scancode, action, mods):
@@ -103,26 +108,17 @@ def draw_in_square_viewport() -> None:
 
 
 # doc-region-begin define vertex class
-@dataclass
-class Vertex:
-    x: float
-    y: float
-
-    def translate(self: Vertex, rhs: Vertex) -> Vertex:
-        return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y))
-
-
 # doc-region-end define vertex class
 
 
 # doc-region-begin define paddle class
 @dataclass
 class Paddle:
-    vertices: list[Vertex]
+    vertices: list[Vertex2D]
     r: float
     g: float
     b: float
-    position: Vertex
+    position: Vertex2D
 
 
 # doc-region-end define paddle class
@@ -130,28 +126,28 @@ class Paddle:
 # doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex(x=-0.1, y=-0.3),
-        Vertex(x=0.1, y=-0.3),
-        Vertex(x=0.1, y=0.3),
-        Vertex(x=-0.1, y=0.3),
+        Vertex2D(x=-0.1, y=-0.3),
+        Vertex2D(x=0.1, y=-0.3),
+        Vertex2D(x=0.1, y=0.3),
+        Vertex2D(x=-0.1, y=0.3),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex(-0.9, 0.0),
+    position=Vertex2D(-0.9, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex(-0.1, -0.3),
-        Vertex(0.1, -0.3),
-        Vertex(0.1, 0.3),
-        Vertex(-0.1, 0.3),
+        Vertex2D(-0.1, -0.3),
+        Vertex2D(0.1, -0.3),
+        Vertex2D(0.1, 0.3),
+        Vertex2D(-0.1, 0.3),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex(0.9, 0.0),
+    position=Vertex2D(0.9, 0.0),
 )
 # doc-region-end instantiate paddles
 
@@ -198,10 +194,11 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
+    translate_paddle_1 = translate(paddle1.position)
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        p1_v_ndc: Vertex = p1_v_ms.translate(paddle1.position)
-        glVertex2f(p1_v_ndc.x, p1_v_ndc.y)
+        paddle1_vertex_ndc: Vertex2D = translate_paddle_1(p1_v_ms)
+        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
     glEnd()
     # doc-region-end draw paddle 1
 
@@ -210,8 +207,8 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        p2_v_ndc: Vertex = p2_v_ms.translate(paddle2.position)
-        glVertex2f(p2_v_ndc.x, p2_v_ndc.y)
+        paddle2_vertex_ndc: Vertex2D = translate(paddle2.position)(p2_v_ms)
+        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
 

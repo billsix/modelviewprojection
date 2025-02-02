@@ -57,7 +57,7 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 16", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 17", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -74,10 +74,10 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 
+
 glClearDepth(-1.0)
 glDepthFunc(GL_GREATER)
 glEnable(GL_DEPTH_TEST)
-
 
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
@@ -148,8 +148,10 @@ class Vertex2D:
         )
 
 
+# doc-region-begin define vertex class
 @dataclass
 class Vertex:
+    # doc-region-end define vertex class
     x: float
     y: float
     z: float
@@ -188,7 +190,6 @@ class Vertex:
         return -1.0 * self
 
     # fmt: off
-    # doc-region-begin define ortho
     def ortho(self: Vertex,
               left: float,
               right: float,
@@ -210,19 +211,40 @@ class Vertex:
                    .scale(2.0 / length_x,
                           2.0 / length_y,
                           2.0 / (-length_z))
-    # doc-region-end define ortho
     # fmt: on
 
     # fmt: off
-    # doc-region-begin define camera space to ndc
+    # doc-region-begin define perspective
+    def perspective(self: Vertex,
+                    field_of_view: float,
+                    aspect_ratio: float,
+                    near_z: float,
+                    far_z: float) -> Vertex:
+        # field_of_view, field of view, is angle of y
+        # aspect_ratio is x_width / y_width
+
+        top: float = -near_z * math.tan(math.radians(field_of_view) / 2.0)
+        right: float = top * aspect_ratio
+
+        scaled_x: float = self.x / self.z * near_z
+        scaled_y: float = self.y / self.z * near_z
+        rectangular_prism: Vertex = Vertex(scaled_x,
+                                           scaled_y,
+                                           self.z)
+
+        return rectangular_prism.ortho(left=-right,
+                                       right=right,
+                                       bottom=-top,
+                                       top=top,
+                                       near=near_z,
+                                       far=far_z)
+
     def cs_to_ndc_fn(self: Vertex) -> Vertex:
-        return self.ortho(left=-10.0,
-                          right=10.0,
-                          bottom=-10.0,
-                          top=10.0,
-                          near=-0.1,
-                          far=-30.0)
-    # doc-region-end define camera space to ndc
+        return self.perspective(field_of_view=45.0,
+                                aspect_ratio=1.0,
+                                near_z=-.1,
+                                far_z=-1000.0)
+    # doc-region-end define perspective
     # fmt: on
 
 
@@ -263,15 +285,14 @@ paddle2: Paddle = Paddle(
 )
 
 
-# doc-region-begin define camera class
+number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
 @dataclass
 class Camera:
-    position_ws: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0, z=15.0))
+    position_ws: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0, z=40.0))
     rot_y: float = 0.0
     rot_x: float = 0.0
-    # doc-region-end define camera class
 
 
 camera: Camera = Camera()
@@ -287,9 +308,7 @@ square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
 
 
-# doc-region-begin define handle inputs
 def handle_inputs() -> None:
-    # doc-region-end define handle inputs
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -299,8 +318,7 @@ def handle_inputs() -> None:
         square_rotation += 0.1
 
     global camera
-
-    # doc-region-begin handle key inputs
+    # fmt: off
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
@@ -309,9 +327,6 @@ def handle_inputs() -> None:
         camera.rot_x += 0.03
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
-    # doc-region-end handle key inputs
-    # fmt: off
-    # doc-region-begin handle key input keys
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         forwards_cs = Vertex(x=0.0, y=0.0, z=-1.0)
         forward_ws = forwards_cs.rotate_y(camera.rot_y) \
@@ -322,8 +337,7 @@ def handle_inputs() -> None:
         forward_ws = forwards_cs.rotate_y(camera.rot_y) \
                                 .translate(camera.position_ws)
         camera.position_ws = forward_ws
-    # doc-region-end handle key input keys
-    # fmt: off
+    # fmt: on
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
@@ -367,71 +381,74 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
+    axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
+    if len(axes_list) >= 1 and axes_list[0]:
+        if math.fabs(float(axes_list[0][0])) > 0.1:
+            camera.position_ws.x += 1.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            camera.position_ws.z -= 1.0 * axes_list[0][0] * math.sin(camera.rot_y)
+        if math.fabs(float(axes_list[0][1])) > 0.1:
+            camera.position_ws.x += 1.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            camera.position_ws.z += 1.0 * axes_list[0][1] * math.cos(camera.rot_y)
+
+        # print(axes_list[0][4])
+        if math.fabs(axes_list[0][3]) > 0.10:
+            camera.rot_x -= 3.0 * axes_list[0][3] * 0.01
+        if math.fabs(axes_list[0][2]) > 0.10:
+            camera.rot_y -= axes_list[0][2] * 0.01
+
+    # fmt: off
     # doc-region-begin draw paddle 1
+    # draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
+
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        p1_v_ws: Vertex = p1_v_ms.rotate_z(paddle1.rotation).translate(paddle1.position)
-        # doc-region-begin commented out camera placement
+        p1_v_ws: Vertex = p1_v_ms.rotate_z(paddle1.rotation) \
+                                 .translate(paddle1.position)
         # p1_v_ws: Vertex = p1_v_cs.rotate_x(camera.rot_x) \
-        #                                              .rotate_y(camera.rot_y) \
-        #                                              .translate(camera.position_ws)
-        # doc-region-end commented out camera placement
-        # doc-region-begin inverted transformation to go from world space to camera space
-        p1_v_cs: Vertex = (
-            p1_v_ws.translate(-camera.position_ws)
-            .rotate_y(-camera.rot_y)
-            .rotate_x(-camera.rot_x)
-        )
-        # doc-region-end inverted transformation to go from world space to camera space
-        p1_v_ndc: Vertex = p1_v_cs.cs_to_ndc_fn()
-        glVertex3f(p1_v_ndc.x, p1_v_ndc.y, p1_v_ndc.z)
+        #                          .rotate_y(camera.rot_y) \
+        #                          .translate(camera.position_ws)
+        p1_v_cs: Vertex = p1_v_ws.translate(-camera.position_ws) \
+                                 .rotate_y(-camera.rot_y) \
+                                 .rotate_x(-camera.rot_x)
+        paddle1_vertex_ndc: Vertex = p1_v_cs.cs_to_ndc_fn()
+        glVertex3f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y, paddle1_vertex_ndc.z)
     glEnd()
     # doc-region-end draw paddle 1
 
+    # draw square
     # doc-region-begin draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for ms in square:
-        p1_v: Vertex = (
-            ms.rotate_z(square_rotation)
-            .translate(Vertex(x=2.0, y=0.0, z=0.0))
-            .rotate_z(rotation_around_paddle1)
-            .translate(Vertex(x=0.0, y=0.0, z=-1.0))
-        )
-        ws: Vertex = p1_v.rotate_z(paddle1.rotation).translate(paddle1.position)
-        # ws: Vertex = cs.rotate_x(camera.rot_x) \
-        #                                   .rotate_y(camera.rot_y) \
-        #                                   .translate(camera.position_ws)
-        cs: Vertex = (
-            ws.translate(-camera.position_ws)
-            .rotate_y(-camera.rot_y)
-            .rotate_x(-camera.rot_x)
-        )
+        p1_v: Vertex = ms.rotate_z(square_rotation) \
+                         .translate(Vertex(x=2.0, y=0.0, z=0.0)) \
+                         .rotate_z(rotation_around_paddle1) \
+                         .translate(Vertex(x=0.0, y=0.0, z=-1.0))
+        ws: Vertex = p1_v.rotate_z(paddle1.rotation) \
+                         .translate(paddle1.position)
+        cs: Vertex = ws.translate(-camera.position_ws) \
+                       .rotate_y(-camera.rot_y) \
+                       .rotate_x(-camera.rot_x)
         ndc: Vertex = cs.cs_to_ndc_fn()
         glVertex3f(ndc.x, ndc.y, ndc.z)
     glEnd()
     # doc-region-end draw square
 
-    # doc-region-begin draw paddle 2
+    # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
+
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        p2_v_ws: Vertex = p2_v_ms.rotate_z(paddle2.rotation).translate(paddle2.position)
-        # p2_v_ws: Vertex = p2_v_cs.rotate_x(camera.rot_x) \
-        #                                                        .rotate_y(camera.rot_y) \
-        #                                                        .translate(camera.position_ws)
-
-        p2_v_cs: Vertex = (
-            p2_v_ws.translate(-camera.position_ws)
-            .rotate_y(-camera.rot_y)
-            .rotate_x(-camera.rot_x)
-        )
-
-        p2_v_ndc: Vertex = p2_v_cs.cs_to_ndc_fn()
-        glVertex3f(p2_v_ndc.x, p2_v_ndc.y, p2_v_ndc.z)
+        p2_v_ws: Vertex = p2_v_ms.rotate_z(paddle2.rotation) \
+                                 .translate(paddle2.position)
+        p2_v_cs: Vertex = p2_v_ws.translate(-camera.position_ws) \
+                                 .rotate_y(-camera.rot_y) \
+                                 .rotate_x(-camera.rot_x)
+        paddle2_vertex_ndc: Vertex = p2_v_cs.cs_to_ndc_fn()
+        glVertex3f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y, paddle2_vertex_ndc.z)
     glEnd()
-    # doc-region-end draw paddle 2
+    # fmt: off
     glfw.swap_buffers(window)
 
 glfw.terminate()

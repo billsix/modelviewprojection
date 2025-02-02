@@ -21,9 +21,9 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-import math
 import sys
 from dataclasses import dataclass
+from typing import Callable
 
 import glfw
 from OpenGL.GL import (
@@ -47,13 +47,15 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from mathutils import Vertex2D, compose, translate, uniform_scale
+
 if not glfw.init():
     sys.exit()
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 9", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 6", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -69,7 +71,6 @@ def on_key(win, key, scancode, action, mods):
 glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0289, 0.071875, 0.0972, 1.0)
-
 
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
@@ -105,78 +106,44 @@ def draw_in_square_viewport() -> None:
 
 
 @dataclass
-class Vertex:
-    x: float
-    y: float
-
-    def __add__(self, rhs: Vertex) -> Vertex:
-        return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y))
-
-    def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
-        return self + translate_amount
-
-    def __mul__(self, scalar: float) -> Vertex:
-        return Vertex(x=self.x * scalar, y=self.y * scalar)
-
-    def __rmul__(self, scalar: float) -> Vertex:
-        return self * scalar
-
-    def uniform_scale(self: Vertex, scalar: float) -> Vertex:
-        return self * scalar
-
-    def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
-        return Vertex(x=self.x * scale_x, y=self.y * scale_y)
-
-    def __neg__(self):
-        return -1.0 * self
-
-    def rotate_90_degrees(self: Vertex):
-        return Vertex(x=-self.y, y=self.x)
-
-    def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
-        return (
-            math.cos(angle_in_radians) * self
-            + math.sin(angle_in_radians) * self.rotate_90_degrees()
-        )
-
-
-@dataclass
 class Paddle:
     vertices: list[Vertex]
     r: float
     g: float
     b: float
     position: Vertex
-    rotation: float = 0.0
 
 
+# doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-3.0),
-        Vertex(x=1.0, y=-3.0),
-        Vertex(x=1.0, y=3.0),
-        Vertex(x=-1.0, y=3.0),
+        Vertex2D(x=-1.0, y=-3.0),
+        Vertex2D(x=1.0, y=-3.0),
+        Vertex2D(x=1.0, y=3.0),
+        Vertex2D(x=-1.0, y=3.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex(-9.0, 0.0),
+    position=Vertex2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-3.0),
-        Vertex(x=1.0, y=-3.0),
-        Vertex(x=1.0, y=3.0),
-        Vertex(x=-1.0, y=3.0),
+        Vertex2D(x=-1.0, y=-3.0),
+        Vertex2D(x=1.0, y=-3.0),
+        Vertex2D(x=1.0, y=3.0),
+        Vertex2D(x=-1.0, y=3.0),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex(9.0, 0.0),
+    position=Vertex2D(9.0, 0.0),
 )
+# doc-region-end instantiate paddles
 
 
+# doc-region-begin define handle movement of paddles
 def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
@@ -189,15 +156,8 @@ def handle_movement_of_paddles() -> None:
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 1.0
 
-    if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
-        paddle1.rotation += 0.1
-    if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
-        paddle1.rotation -= 0.1
-    if glfw.get_key(window, glfw.KEY_J) == glfw.PRESS:
-        paddle2.rotation += 0.1
-    if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
-        paddle2.rotation -= 0.1
 
+# doc-region-end define handle movement of paddles
 
 TARGET_FRAMERATE: int = 60
 
@@ -205,12 +165,10 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
-    # doc-region-end begin event loop
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-
     time_at_beginning_of_previous_frame = glfw.get_time()
 
     glfw.poll_events()
@@ -221,38 +179,37 @@ while not glfw.window_should_close(window):
 
     draw_in_square_viewport()
     handle_movement_of_paddles()
+    # doc-region-end begin event loop
 
-    # fmt: off
-    # draw paddle 1
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
+    worldspace_to_ndc: Callable[Vertex2D, Vertex2D] = uniform_scale(1.0 / 10.0)
+    paddle1_modelspace_to_worldspace: Callable[Vertex2D, Vertex2D] = translate(
+        paddle1.position
+    )
+    paddle1_modelspace_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
+        worldspace_to_ndc, paddle1_modelspace_to_worldspace
+    )
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        # doc-region-begin paddle 1 transformations
-        p1_v_ws: Vertex = p1_v_ms.rotate(paddle1.rotation) \
-                                 .translate(paddle1.position)
-        # doc-region-end paddle 1 transformations
-        # doc-region-begin paddle 1 scale
-        p1_v_ndc: Vertex = p1_v_ws.uniform_scale(1.0 / 10.0)
-        # doc-region-end paddle 1 scale
-        glVertex2f(p1_v_ndc.x, p1_v_ndc.y)
-    glEnd()
-    # doc-region-end draw paddle 1
+        paddle1_vertex_ndc: Vertex2D = paddle1_modelspace_to_ndc(p1_v_ms)
+        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
 
-    # draw paddle 2
-    # doc-region-begin draw paddle 2
+    glEnd()
+
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
+    paddle2_modelspace_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
+        worldspace_to_ndc, translate(paddle2.position)
+    )
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        p2_v_ws: Vertex = p2_v_ms.rotate(paddle2.rotation) \
-                                 .translate(paddle2.position)
-        p2_v_ndc: Vertex = p2_v_ws.uniform_scale(1.0 / 10.0)
-        glVertex2f(p2_v_ndc.x, p2_v_ndc.y)
+        paddle2_vertex_ndc: Vertex2D = paddle2_modelspace_to_ndc(p2_v_ms)
+        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
     glEnd()
-    # doc-region-end draw paddle 2
-    # fmt: on
-    glfw.swap_buffers(window)
 
+    # doc-region-begin flush framebuffer
+    glfw.swap_buffers(window)
+    # doc-region-end flush framebuffer
 glfw.terminate()

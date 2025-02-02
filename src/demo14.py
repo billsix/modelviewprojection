@@ -29,8 +29,6 @@ import glfw
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
-    GL_DEPTH_TEST,
-    GL_GREATER,
     GL_MODELVIEW,
     GL_PROJECTION,
     GL_QUADS,
@@ -38,9 +36,7 @@ from OpenGL.GL import (
     glBegin,
     glClear,
     glClearColor,
-    glClearDepth,
     glColor3f,
-    glDepthFunc,
     glDisable,
     glEnable,
     glEnd,
@@ -58,7 +54,7 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 15", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 14", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -75,11 +71,6 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 
-# doc-region-begin enable depth buffer
-glClearDepth(-1.0)
-glDepthFunc(GL_GREATER)
-glEnable(GL_DEPTH_TEST)
-# doc-region-end enable depth buffer
 
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
@@ -114,6 +105,7 @@ def draw_in_square_viewport() -> None:
     )
 
 
+# doc-region-begin define vertex2d
 @dataclass
 class Vertex2D:
     x: float
@@ -162,17 +154,30 @@ class Vertex:
     def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
         return self + translate_amount
 
+    # doc-region-end define vertex2d
+
+    # doc-region-begin define rotate x
     def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
         yz_on_xy: Vertex2D = Vertex2D(x=self.y, y=self.z).rotate(angle_in_radians)
         return Vertex(x=self.x, y=yz_on_xy.x, z=yz_on_xy.y)
 
+    # doc-region-end define rotate x
+
+    # doc-region-begin define rotate y
     def rotate_y(self: Vertex, angle_in_radians: float) -> Vertex:
         zx_on_xy: Vertex2D = Vertex2D(x=self.z, y=self.x).rotate(angle_in_radians)
         return Vertex(x=zx_on_xy.y, y=self.y, z=zx_on_xy.y)
 
+    # doc-region-end define rotate y
+
+    # doc-region-begin define rotate z
     def rotate_z(self: Vertex, angle_in_radians: float) -> Vertex:
         xy_on_xy: Vertex2D = Vertex2D(x=self.x, y=self.y).rotate(angle_in_radians)
         return Vertex(x=xy_on_xy.x, y=xy_on_xy.y, z=self.z)
+
+    # doc-region-end define rotate z
+
+    # doc-region-begin define uniform scale
 
     def __mul__(self, scalar: float) -> Vertex:
         return Vertex(x=(self.x * scalar), y=(self.y * scalar), z=(self.z * scalar))
@@ -189,6 +194,8 @@ class Vertex:
     def __neg__(self):
         return -1.0 * self
 
+    # doc-region-end define uniform scale
+
 
 @dataclass
 class Paddle:
@@ -200,6 +207,7 @@ class Paddle:
     rotation: float = 0.0
 
 
+# doc-region-begin instantiate paddle 1
 paddle1: Paddle = Paddle(
     vertices=[
         Vertex(x=-1.0, y=-3.0, z=0.0),
@@ -225,22 +233,26 @@ paddle2: Paddle = Paddle(
     b=0.0,
     position=Vertex(x=9.0, y=0.0, z=0.0),
 )
+# doc-region-end instantiate paddle 1
 
 
+# doc-region-begin define camera class
 @dataclass
 class Camera:
     position_ws: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0, z=0.0))
 
 
 camera: Camera = Camera()
+# doc-region-end define camera class
 
-
+# doc-region-begin instantiate square
 square: list[Vertex] = [
     Vertex(x=-0.5, y=-0.5, z=0.0),
     Vertex(x=0.5, y=-0.5, z=0.0),
     Vertex(x=0.5, y=0.5, z=0.0),
     Vertex(x=-0.5, y=0.5, z=0.0),
 ]
+# doc-region-end instantiate square
 
 square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
@@ -291,7 +303,9 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
+# doc-region-begin begin event loop
 while not glfw.window_should_close(window):
+    # doc-region-end begin event loop
     while (
         glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
@@ -307,17 +321,22 @@ while not glfw.window_should_close(window):
 
     draw_in_square_viewport()
     handle_inputs()
+
     # fmt: off
+
+    # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         p1_v_ws: Vertex = p1_v_ms.rotate_z(paddle1.rotation) \
                                  .translate(paddle1.position)
         p1_v_cs: Vertex = p1_v_ws.translate(-camera.position_ws)
-        p1_v_ndc: Vertex = p1_v_cs.uniform_scale(1.0 / 10.0)
-        glVertex2f(p1_v_ndc.x, p1_v_ndc.y)
+        paddle1_vertex_ndc: Vertex = p1_v_cs.uniform_scale(1.0 / 10.0)
+        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
     glEnd()
+    # doc-region-end draw paddle 1
 
+    # doc-region-begin draw square
     # draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
@@ -327,14 +346,14 @@ while not glfw.window_should_close(window):
                          .rotate_z(rotation_around_paddle1) \
                          .translate(Vertex(x=0.0, y=0.0, z=-1.0))
         ws: Vertex = p1_v.rotate_z(paddle1.rotation) \
-                         .translate(Vertex(x=paddle1.position.x,
-                                           y=paddle1.position.y,
-                                           z=0.0))
+                         .translate(paddle1.position)
         cs: Vertex = ws.translate(-camera.position_ws)
         ndc: Vertex = cs.uniform_scale(1.0 / 10.0)
         glVertex3f(ndc.x, ndc.y, ndc.z)
     glEnd()
+    # doc-region-end draw square
 
+    # doc-region-begin draw paddle 2
     # draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
@@ -342,10 +361,12 @@ while not glfw.window_should_close(window):
         p2_v_ws: Vertex = p2_v_ms.rotate_z(paddle2.rotation) \
                                  .translate(paddle2.position)
         p2_v_cs: Vertex = p2_v_ws.translate(-camera.position_ws)
-        p2_v_ndc: Vertex = p2_v_cs.uniform_scale(1.0 / 10.0)
-        glVertex3f(p2_v_ndc.x, p2_v_ndc.y, p2_v_ndc.z)
+        paddle2_vertex_ndc: Vertex = p2_v_cs.uniform_scale(1.0 / 10.0)
+        glVertex3f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y, paddle2_vertex_ndc.z)
     glEnd()
+    # doc-region-end draw paddle 2
     # fmt: on
+
     glfw.swap_buffers(window)
 
 glfw.terminate()
