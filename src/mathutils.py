@@ -54,21 +54,21 @@ class Vertex2D:
 
 
 def translate(translate_amount: Vertex2D) -> Callable[Vertex2D, Vertex2D]:
-    def inner(vertex: Vertex2D):
+    def inner(vertex: Vertex2D) -> Vertex2D:
         return vertex + translate_amount
 
     return inner
 
 
 def uniform_scale(scalar: float) -> Callable[Vertex2D, Vertex2D]:
-    def inner(vertex: Vertex2D):
+    def inner(vertex: Vertex2D) -> Vertex2D:
         return vertex * scalar
 
     return inner
 
 
 def scale(scale_x: float, scale_y: float) -> Callable[Vertex2D, Vertex2D]:
-    def inner(vertex: Vertex2D):
+    def inner(vertex: Vertex2D) -> Vertex2D:
         return Vertex2D(x=(vertex.x * scale_x), y=(vertex.y * scale_y))
 
     return inner
@@ -81,17 +81,18 @@ def rotate_90_degrees(vertex: Vertex2D) -> Vertex2D:
 def rotate(angle_in_radians: float) -> Callable[Vertex2D, Vertex2D]:
     a = angle_in_radians
 
-    # fmt: off
-    def inner(vertex: Vertex2D):
+    def inner(vertex: Vertex2D) -> Vertex2D:
         return math.cos(a) * vertex + math.sin(a) * rotate_90_degrees(vertex)
-    # fmt: on
+
     return inner
 
 
 def rotate_around(
     angle_in_radians: float, center: Vertex2D
 ) -> Callable[Vertex2D, Vertex2D]:
-    def inner(vertex: Vertex2D):
-        return compose(translate(center), rotate(angle_in_radians), translate(-center))
+    def inner(vertex: Vertex2D) -> Vertex2D:
+        return compose(
+            translate(center), rotate(angle_in_radians), translate(-center)
+        )
 
     return inner

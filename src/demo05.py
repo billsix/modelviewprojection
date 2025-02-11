@@ -175,7 +175,8 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
 
@@ -194,10 +195,9 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
-    translate_paddle_1 = translate(paddle1.position)
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vertex_ndc: Vertex2D = translate_paddle_1(p1_v_ms)
+        paddle1_vertex_ndc: Vertex2D = translate(paddle1.position)(p1_v_ms)
         glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
     glEnd()
     # doc-region-end draw paddle 1
