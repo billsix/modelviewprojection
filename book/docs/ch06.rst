@@ -40,7 +40,7 @@ Learn about modelspace.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo06/demo.py in Spyder and hit the play button
+Load src/demo06.py in Spyder and hit the play button
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -460,46 +460,46 @@ and convert them to NDC.
 
 
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin define vertex class
    :end-before: doc-region-end define vertex class
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin define uniform scale
    :end-before: doc-region-end define uniform scale
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 * NEW -- Add the ability to scale a vertex, to stretch or to shrink
 
 
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin instantiate paddles
    :end-before: doc-region-end instantiate paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 * paddles are using modelspace coordinates instead of NDC
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin define handle movement of paddles
    :end-before: doc-region-end define handle movement of paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 
@@ -512,13 +512,13 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 
@@ -527,13 +527,13 @@ The Event Loop
 Rendering Paddle 1
 &&&&&&&&&&&&&&&&&&
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 
@@ -545,13 +545,13 @@ Rendering Paddle 1
 
     Paddle 1's Modelspace
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin call translate method
    :end-before: doc-region-end call translate method
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 
@@ -580,23 +580,23 @@ not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin call uniform scale method
    :end-before: doc-region-end call uniform scale method
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin call glvertex2f for paddle 1
    :end-before: doc-region-end call glvertex2f for paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 
@@ -605,13 +605,13 @@ Rendering Paddle 2
 &&&&&&&&&&&&&&&&&&
 
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 
@@ -626,13 +626,13 @@ Rendering Paddle 2
     Paddle 2's Modelspace
 
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin paddle 2 call translate method
    :end-before: doc-region-end paddle 2 call translate method
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 .. figure:: _static/translation2-forwards-2.svg
@@ -653,23 +653,23 @@ Rendering Paddle 2
 
     Reset coordinate system.
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin paddle 2 call uniform scale method
    :end-before: doc-region-end paddle 2 call uniform scale method
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin paddle 2 call glvertex2f
    :end-before: doc-region-end paddle 2 call glvertex2f
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py
 
 
 The coordinate system is reset.  Now scale everything by 1/10.  I have
@@ -677,10 +677,10 @@ not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.
 
-.. literalinclude:: ../../src/demo06/demo.py
+.. literalinclude:: ../../src/demo06.py
    :language: python
    :start-after: doc-region-begin flush framebuffer
    :end-before: doc-region-end flush framebuffer
    :linenos:
    :lineno-match:
-   :caption: src/demo06/demo.py
+   :caption: src/demo06.py

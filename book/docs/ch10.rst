@@ -44,7 +44,7 @@ horizontally.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo10/demo.py in Spyder and hit the play button
+Load src/demo10.py in Spyder and hit the play button
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -301,22 +301,22 @@ Code
 
 
 
-.. literalinclude:: ../../src/demo10/demo.py
+.. literalinclude:: ../../src/demo10.py
    :language: python
    :start-after: doc-region-begin define camera class
    :end-before: doc-region-end define camera class
    :linenos:
    :lineno-match:
-   :caption: src/demo10/demo.py
+   :caption: src/demo10.py
 
 
-.. literalinclude:: ../../src/demo10/demo.py
+.. literalinclude:: ../../src/demo10.py
    :language: python
    :start-after: doc-region-begin handle inputs
    :end-before: doc-region-end handle inputs
    :linenos:
    :lineno-match:
-   :caption: src/demo10/demo.py
+   :caption: src/demo10.py
 
 
 ::
@@ -333,24 +333,24 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo10/demo.py
+.. literalinclude:: ../../src/demo10.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo10/demo.py
+   :caption: src/demo10.py
 
 
 
 
-.. literalinclude:: ../../src/demo10/demo.py
+.. literalinclude:: ../../src/demo10.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo10/demo.py
+   :caption: src/demo10.py
 
 
 The camera's position is at camera.x, camera.y.  So
@@ -358,34 +358,34 @@ apply the inverse of the camera's transformations
 to paddle 1's vertices, i.e. translate with the negative
 values.
 
-.. literalinclude:: ../../src/demo10/demo.py
+.. literalinclude:: ../../src/demo10.py
    :language: python
    :start-after: doc-region-begin paddle 1 camera translate
    :end-before: doc-region-end paddle 1 camera translate
    :linenos:
    :lineno-match:
-   :caption: src/demo10/demo.py
+   :caption: src/demo10.py
 
 
-.. literalinclude:: ../../src/demo10/demo.py
+.. literalinclude:: ../../src/demo10.py
    :language: python
    :start-after: doc-region-begin paddle 1 scale
    :end-before: doc-region-end paddle 1 scale
    :linenos:
    :lineno-match:
-   :caption: src/demo10/demo.py
+   :caption: src/demo10.py
 
 
 
 
 
-.. literalinclude:: ../../src/demo10/demo.py
+.. literalinclude:: ../../src/demo10.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo10/demo.py
+   :caption: src/demo10.py
 
 
 The camera's position is at camera.x, camera.y.  So
@@ -393,19 +393,19 @@ apply the inverse of the camera's  transformations
 to paddle 2's vertices, i.e. translate with the negative
 values.
 
-.. literalinclude:: ../../src/demo10/demo.py
+.. literalinclude:: ../../src/demo10.py
    :language: python
    :start-after: doc-region-begin paddle 2 camera transformations
    :end-before: doc-region-end paddle 2 camera transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo10/demo.py
+   :caption: src/demo10.py
 
 
-.. literalinclude:: ../../src/demo10/demo.py
+.. literalinclude:: ../../src/demo10.py
    :language: python
    :start-after: doc-region-begin paddle 2 glvertex2f
    :end-before: doc-region-end paddle 2 glvertex2f
    :linenos:
    :lineno-match:
-   :caption: src/demo10/demo.py
+   :caption: src/demo10.py

@@ -66,7 +66,7 @@ Things that this demo doesn't end up doing correctly:
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo14/demo.py in Spyder and hit the play button
+Load src/demo14.py in Spyder and hit the play button
 
 
 Move the Paddles using the Keyboard
@@ -132,13 +132,13 @@ Description
 * starting on the z axis, rotating to x axis, thumb is on the positive y axis.
 
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin define vertex2d
    :end-before: doc-region-end define vertex2d
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 Rotate Z
@@ -155,13 +155,13 @@ the z component at all.
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin define rotate z
    :end-before: doc-region-end define rotate z
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 Rotate X
@@ -176,13 +176,13 @@ Rotate X
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin define rotate x
    :end-before: doc-region-end define rotate x
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 
@@ -196,25 +196,25 @@ Rotate Y
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin define rotate y
    :end-before: doc-region-end define rotate y
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 Scale
 ~~~~~
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin define uniform scale
    :end-before: doc-region-end define uniform scale
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 Code
@@ -223,13 +223,13 @@ Code
 The only new aspect of the code below is that the paddles have
 a z-coordinate of 0 in their modelspace.
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin instantiate paddle 1
    :end-before: doc-region-end instantiate paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 The only new aspect of the square below is that the paddles have
@@ -239,37 +239,37 @@ to world-space coordinates, the X, Y, and Z coordinates
 are subject to be different.
 
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin define camera class
    :end-before: doc-region-end define camera class
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 The camera now has a z-coordinate of 0 also.
 
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin instantiate square
    :end-before: doc-region-end instantiate square
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 
 Event Loop
 ~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 ::
@@ -278,13 +278,13 @@ Event Loop
 
 * Draw Paddle 1
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 The square should not be visible when hidden behind the paddle1,
@@ -294,13 +294,13 @@ that the square is always drawn over the paddle.
 
 * Draw the Square
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 
@@ -314,13 +314,13 @@ see that the square can be hidden behind the paddle.
 
 * Draw Paddle 2
 
-.. literalinclude:: ../../src/demo14/demo.py
+.. literalinclude:: ../../src/demo14.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo14/demo.py
+   :caption: src/demo14.py
 
 
 

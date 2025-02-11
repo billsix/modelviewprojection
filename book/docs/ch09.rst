@@ -44,7 +44,7 @@ We do this by the following:
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo09/demo.py in Spyder and hit the play button
+Load src/demo09.py in Spyder and hit the play button
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -113,13 +113,13 @@ all the transformations happen relative to the global
 origin and axes, i.e. the natural *basis*.  After each function call, the basis
 is set back to the origin basis.
 
-.. literalinclude:: ../../src/demo09/demo.py
+.. literalinclude:: ../../src/demo09.py
    :language: python
    :start-after: doc-region-begin paddle 1 transformations
    :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo09/demo.py
+   :caption: src/demo09.py
 
 
 
@@ -132,13 +132,13 @@ where the operations
 all cumulatively modify the current axes and origin, i.e. basis, to a new basis.
 All subsequent functions move that relative basis to a new relative basis.
 
-.. literalinclude:: ../../src/demo09/demo.py
+.. literalinclude:: ../../src/demo09.py
    :language: python
    :start-after: doc-region-begin paddle 1 transformations
    :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo09/demo.py
+   :caption: src/demo09.py
 
 
 Suggested Order
@@ -177,13 +177,13 @@ L by a right-multiplication of M.
 
 
 
-.. literalinclude:: ../../src/demo09/demo.py
+.. literalinclude:: ../../src/demo09.py
    :language: python
    :start-after: doc-region-begin paddle 1 transformations
    :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo09/demo.py
+   :caption: src/demo09.py
 
 
 
@@ -194,13 +194,13 @@ reading the transformations
 from top down, and resetting the coordinate system after every transformation.
 
 
-.. literalinclude:: ../../src/demo09/demo.py
+.. literalinclude:: ../../src/demo09.py
    :language: python
    :start-after: doc-region-begin paddle 1 scale
    :end-before: doc-region-end paddle 1 scale
    :linenos:
    :lineno-match:
-   :caption: src/demo09/demo.py
+   :caption: src/demo09.py
 
 
 
@@ -218,23 +218,23 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo09/demo.py
+.. literalinclude:: ../../src/demo09.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo09/demo.py
+   :caption: src/demo09.py
 
 
 
-.. literalinclude:: ../../src/demo09/demo.py
+.. literalinclude:: ../../src/demo09.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo09/demo.py
+   :caption: src/demo09.py
 
 
 * Read the modelspace to world space, starting from the bottom, up.  Translate, then rotate
@@ -242,13 +242,13 @@ The Event Loop
 * Read the worldspace to NDC
 
 
-.. literalinclude:: ../../src/demo09/demo.py
+.. literalinclude:: ../../src/demo09.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo09/demo.py
+   :caption: src/demo09.py
 
 
 

@@ -41,7 +41,7 @@ of this region will not be displayed on the screen.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo02/demo.py in Spyder and hit the play button
+Load src/demo02.py in Spyder and hit the play button
 
 
 Code
@@ -59,16 +59,16 @@ Execute the event/drawing loop.
 The Event Loop
 ^^^^^^^^^^^^^^
 
-Within the event loop, demo02/demo.py draws 2 rectangles, as one might see in
+Within the event loop, demo02.py draws 2 rectangles, as one might see in
 a game of Pong.
 
-.. literalinclude:: ../../src/demo02/demo.py
+.. literalinclude:: ../../src/demo02.py
    :language: python
    :start-after: doc-region-begin event loop
    :end-before: doc-region-end event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo02/demo.py
+   :caption: src/demo02.py
 
 ::
 
@@ -102,13 +102,13 @@ Draw Paddle 1
 &&&&&&&&&&&&&
 
 
-.. literalinclude:: ../../src/demo02/demo.py
+.. literalinclude:: ../../src/demo02.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo02/demo.py
+   :caption: src/demo02.py
 
 
 
@@ -126,13 +126,13 @@ The paddle looks like this relative to normalized device coordinates (NDC):
 Draw Paddle 2
 &&&&&&&&&&&&&
 
-.. literalinclude:: ../../src/demo02/demo.py
+.. literalinclude:: ../../src/demo02.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo02/demo.py
+   :caption: src/demo02.py
 
 
 
@@ -146,13 +146,13 @@ The 2 paddles looks like this relative to normalized device coordinates (NDC):
 
     Rectangle
 
-.. literalinclude:: ../../src/demo02/demo.py
+.. literalinclude:: ../../src/demo02.py
    :language: python
    :start-after: doc-region-begin flush framebuffer to monitor
    :end-before: doc-region-end flush framebuffer to monitor
    :linenos:
    :lineno-match:
-   :caption: src/demo02/demo.py
+   :caption: src/demo02.py
 
 
 

@@ -82,7 +82,7 @@ and it regains its color when it is reactivated by "glPopMatrix"
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo19/demo.py in Spyder and hit the play button
+Load src/demo19.py in Spyder and hit the play button
 
 
 Move the Paddles using the Keyboard
@@ -132,13 +132,13 @@ buffer is changed to be less than or equal to.
 Code
 ^^^^
 
-.. literalinclude:: ../../src/demo19/demo.py
+.. literalinclude:: ../../src/demo19.py
    :language: python
    :start-after: doc-region-begin enable depth test for left hand system
    :end-before: doc-region-end enable depth test for left hand system
    :linenos:
    :lineno-match:
-   :caption: src/demo19/demo.py
+   :caption: src/demo19.py
 
 
 
@@ -152,13 +152,13 @@ matrix.  This just means that the functions (currently)
 will not transform data.
 In uni-variate terms, f(x) = x
 
-.. literalinclude:: ../../src/demo19/demo.py
+.. literalinclude:: ../../src/demo19.py
    :language: python
    :start-after: doc-region-begin load identity
    :end-before: doc-region-end load identity
    :linenos:
    :lineno-match:
-   :caption: src/demo19/demo.py
+   :caption: src/demo19.py
 
 
 
@@ -177,13 +177,13 @@ in the next chapter.
 
     Turn our NDC into Clip Space
 
-.. literalinclude:: ../../src/demo19/demo.py
+.. literalinclude:: ../../src/demo19.py
    :language: python
    :start-after: doc-region-begin perspective projection
    :end-before: doc-region-end perspective projection
    :linenos:
    :lineno-match:
-   :caption: src/demo19/demo.py
+   :caption: src/demo19.py
 
 "glMatrixMode" tells the computer which matrix stack should be the active one,
 against which subsequent matrix operations which affect.  In this case, we set
@@ -209,13 +209,13 @@ do the inverse operations to the view stack.
 
 .. TODO - mention 2 stacks
 
-.. literalinclude:: ../../src/demo19/demo.py
+.. literalinclude:: ../../src/demo19.py
    :language: python
    :start-after: doc-region-begin begin modelview transformations
    :end-before: doc-region-end begin modelview transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo19/demo.py
+   :caption: src/demo19.py
 
 First thing we did was set the current matrix to be the model-view matrix, instead
 of the projection matrix.  Most of our work will be with the model-view matrix,
@@ -263,13 +263,13 @@ save onto the current model-view stack, to hold onto world space, so that after
 we draw paddle 1 and the square, we can restore the world space, so that paddle 2 can be drawn relative
 to it.
 
-.. literalinclude:: ../../src/demo19/demo.py
+.. literalinclude:: ../../src/demo19.py
    :language: python
    :start-after: doc-region-begin first push matrix
    :end-before: doc-region-end first push matrix
    :linenos:
    :lineno-match:
-   :caption: src/demo19/demo.py
+   :caption: src/demo19.py
 
 
 
@@ -285,13 +285,13 @@ glVertex data is specified in modelspace coordinates,
 but since we loaded the projection matrix and the modelview
 matrix into OpenGL, glVertex3f will apply those transformations for us [1]_!
 
-.. literalinclude:: ../../src/demo19/demo.py
+.. literalinclude:: ../../src/demo19.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo19/demo.py
+   :caption: src/demo19.py
 
 
 
@@ -305,13 +305,13 @@ just add the transformations relative to it
 before paddle 2 is drawn, we need to remove
 the square's 3 model_space transformations
 
-.. literalinclude:: ../../src/demo19/demo.py
+.. literalinclude:: ../../src/demo19.py
    :language: python
    :start-after: doc-region-begin draw the square
    :end-before: doc-region-end draw the square
    :linenos:
    :lineno-match:
-   :caption: src/demo19/demo.py
+   :caption: src/demo19.py
 
 
 
@@ -323,13 +323,13 @@ we are drawing, and upon the next iteration of the event loop,
 all 3 matrices will be reset to the identity
 
 
-.. literalinclude:: ../../src/demo19/demo.py
+.. literalinclude:: ../../src/demo19.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo19/demo.py
+   :caption: src/demo19.py
 
 
 

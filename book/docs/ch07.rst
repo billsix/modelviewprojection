@@ -43,7 +43,7 @@ of how to interpret a sequence of transformations.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo07/demo.py in Spyder and hit the play button
+Load src/demo07.py in Spyder and hit the play button
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -189,13 +189,13 @@ get your vertex rotated around the origin!
 (0.5*cos(angle) + 0.4*-sin(angle), 0.5*sin(angle) + 0.4*cos(angle))
 
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin define vertex class
    :end-before: doc-region-end define vertex class
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 
@@ -203,24 +203,24 @@ get your vertex rotated around the origin!
   cos and sin are defined in the math module.
 
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin define paddle class
    :end-before: doc-region-end define paddle class
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 * a rotation instance variable is defined, with a default value of 0
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin define handle movement of paddles
    :end-before: doc-region-end define handle movement of paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 
@@ -246,13 +246,13 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin begin  event loop
    :end-before: doc-region-end begin  event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 
@@ -261,13 +261,13 @@ we should translate to its position, and then rotate
 around the paddle's center.
 
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 
@@ -277,13 +277,13 @@ around the paddle's center.
     \vec{f}_{p1}^{w}
 
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin compose transformations on paddle 12
    :end-before: doc-region-end compose transformations on paddle 12
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 
@@ -294,22 +294,22 @@ around the paddle's center.
 
 
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin scale paddle 1
    :end-before: doc-region-end scale paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin glvertex on paddle 1
    :end-before: doc-region-end glvertex on paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 
@@ -326,13 +326,13 @@ around the paddle's center.
 
 
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 .. math::
@@ -341,13 +341,13 @@ around the paddle's center.
     \vec{f}_{p2}^{w}
 
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin compose transformations on paddle 2
    :end-before: doc-region-end compose transformations on paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 
@@ -359,22 +359,22 @@ around the paddle's center.
 
 
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin scale paddle 2
    :end-before: doc-region-end scale paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin glvertex on paddle 2
    :end-before: doc-region-end glvertex on paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 
@@ -390,13 +390,13 @@ are not rotating around their center.
 Let's take a look in detail about what our paddle-space to
 world space transformations are doing.
 
-.. literalinclude:: ../../src/demo07/demo.py
+.. literalinclude:: ../../src/demo07.py
    :language: python
    :start-after: doc-region-begin compose transformations on paddle 12
    :end-before: doc-region-end compose transformations on paddle 12
    :linenos:
    :lineno-match:
-   :caption: src/demo07/demo.py
+   :caption: src/demo07.py
 
 
 
