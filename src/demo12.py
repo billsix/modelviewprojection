@@ -21,9 +21,9 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-import math
 import sys
 from dataclasses import dataclass, field
+from typing import Callable
 
 import glfw
 from OpenGL.GL import (
@@ -46,6 +46,8 @@ from OpenGL.GL import (
     glVertex2f,
     glViewport,
 )
+
+from mathutils import Vertex2D, compose, inverse, rotate, translate, uniform_scale
 
 if not glfw.init():
     sys.exit()
@@ -105,91 +107,55 @@ def draw_in_square_viewport() -> None:
 
 
 @dataclass
-class Vertex:
-    x: float
-    y: float
-
-    def __add__(self, rhs: Vertex) -> Vertex:
-        return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y))
-
-    def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
-        return self + translate_amount
-
-    def __mul__(self, scalar: float) -> Vertex:
-        return Vertex(x=self.x * scalar, y=self.y * scalar)
-
-    def __rmul__(self, scalar: float) -> Vertex:
-        return self * scalar
-
-    def uniform_scale(self: Vertex, scalar: float) -> Vertex:
-        return self * scalar
-
-    def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
-        return Vertex(x=self.x * scale_x, y=self.y * scale_y)
-
-    def __neg__(self):
-        return -1.0 * self
-
-    def rotate_90_degrees(self: Vertex):
-        return Vertex(x=-self.y, y=self.x)
-
-    def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
-        return (
-            math.cos(angle_in_radians) * self
-            + math.sin(angle_in_radians) * self.rotate_90_degrees()
-        )
-
-
-@dataclass
 class Paddle:
-    vertices: list[Vertex]
+    vertices: list[Vertex2D]
     r: float
     g: float
     b: float
-    position: Vertex
+    position: Vertex2D
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-3.0),
-        Vertex(x=1.0, y=-3.0),
-        Vertex(x=1.0, y=3.0),
-        Vertex(x=-1.0, y=3.0),
+        Vertex2D(x=-1.0, y=-3.0),
+        Vertex2D(x=1.0, y=-3.0),
+        Vertex2D(x=1.0, y=3.0),
+        Vertex2D(x=-1.0, y=3.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex(-9.0, 0.0),
+    position=Vertex2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-3.0),
-        Vertex(x=1.0, y=-3.0),
-        Vertex(x=1.0, y=3.0),
-        Vertex(x=-1.0, y=3.0),
+        Vertex2D(x=-1.0, y=-3.0),
+        Vertex2D(x=1.0, y=-3.0),
+        Vertex2D(x=1.0, y=3.0),
+        Vertex2D(x=-1.0, y=3.0),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex(9.0, 0.0),
+    position=Vertex2D(9.0, 0.0),
 )
 
 
 @dataclass
 class Camera:
-    position_ws: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0))
+    position_ws: Vertex2D = field(default_factory=lambda: Vertex2D(x=0.0, y=0.0))
 
 
 camera: Camera = Camera()
 
 
-square: list[Vertex] = [
-    Vertex(x=-0.5, y=-0.5),
-    Vertex(x=0.5, y=-0.5),
-    Vertex(x=0.5, y=0.5),
-    Vertex(x=-0.5, y=0.5),
+square: list[Vertex2D] = [
+    Vertex2D(x=-0.5, y=-0.5),
+    Vertex2D(x=0.5, y=-0.5),
+    Vertex2D(x=0.5, y=0.5),
+    Vertex2D(x=-0.5, y=0.5),
 ]
 
 # doc-region-begin define square rotation
@@ -240,9 +206,7 @@ TARGET_FRAMERATE: int = 60
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 while not glfw.window_should_close(window):
-    while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
+    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
 
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -258,41 +222,60 @@ while not glfw.window_should_close(window):
 
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
-    # fmt: off
-
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        p1_v_ws: Vertex = p1_v_ms.rotate(paddle1.rotation) \
-                                 .translate(paddle1.position)
-        p1_v_cs: Vertex = p1_v_ws.translate(-camera.position_ws)
-        paddle1_vertex_ndc: Vertex = p1_v_cs.uniform_scale(1.0 / 10.0)
+        ms_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
+            # camera space to NDC
+            uniform_scale(1.0 / 10.0),
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle1.position), rotate(paddle1.rotation)),
+        )
+
+        paddle1_vertex_ndc: Vertex2D = ms_to_ndc(p1_v_ms)
+
         glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
     glEnd()
 
     # doc-region-begin draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
-    for square_vertex_ms in square:
-        p1_v: Vertex = square_vertex_ms.rotate(square_rotation) \
-                                       .translate(Vertex(x=2.0, y=0.0))
-        ws: Vertex = p1_v.rotate(paddle1.rotation).translate(paddle1.position)
-        cs: Vertex = ws.translate(-camera.position_ws)
-        ndc: Vertex = cs.uniform_scale(1.0 / 10.0)
-        glVertex2f(ndc.x, ndc.y)
+    for ms in square:
+        ms_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
+            # camera space to NDC
+            uniform_scale(1.0 / 10.0),
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle1.position), rotate(paddle1.rotation)),
+            # square space to paddle 1 space
+            compose(translate(Vertex2D(x=2.0, y=0.0)), rotate(square_rotation)),
+        )
+        square_vertex_ndc: Vertex2D = ms_to_ndc(ms)
+        glVertex2f(square_vertex_ndc.x, square_vertex_ndc.y)
     glEnd()
     # doc-region-end draw square
 
+    # doc-region-begin draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        p2_v_ws: Vertex = p2_v_ms.rotate(paddle2.rotation) \
-                                 .translate(paddle2.position)
-        p2_v_cs: Vertex = p2_v_ws.translate(-camera.position_ws)
-        paddle2_vertex_ndc: Vertex = p2_v_cs.uniform_scale(1.0 / 10.0)
+        ms_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
+            # camera space to NDC
+            uniform_scale(1.0 / 10.0),
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle2.position), rotate(paddle2.rotation)),
+        )
+
+        paddle2_vertex_ndc: Vertex2D = ms_to_ndc(p2_v_ms)
+
         glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
     glEnd()
-    # fmt: on
+
     glfw.swap_buffers(window)
 
 glfw.terminate()

@@ -21,9 +21,9 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-import math
 import sys
 from dataclasses import dataclass
+from typing import Callable
 
 import glfw
 from OpenGL.GL import (
@@ -46,6 +46,8 @@ from OpenGL.GL import (
     glVertex2f,
     glViewport,
 )
+
+from mathutils import Vertex2D, compose, rotate_around, translate, uniform_scale
 
 if not glfw.init():
     sys.exit()
@@ -105,86 +107,39 @@ def draw_in_square_viewport() -> None:
 
 
 @dataclass
-# doc-region-begin define vertex class
-class Vertex:
-    # doc-region-end define vertex class
-    x: float
-    y: float
-
-    def __add__(self, rhs: Vertex) -> Vertex:
-        return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y))
-
-    def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
-        return self + translate_amount
-
-    def __mul__(self, scalar: float) -> Vertex:
-        return Vertex(x=self.x * scalar, y=self.y * scalar)
-
-    def __rmul__(self, scalar: float) -> Vertex:
-        return self * scalar
-
-    def uniform_scale(self: Vertex, scalar: float) -> Vertex:
-        return self * scalar
-
-    def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
-        return Vertex(x=self.x * scale_x, y=self.y * scale_y)
-
-    def __neg__(self):
-        return -1.0 * self
-
-    def rotate_90_degrees(self: Vertex):
-        return Vertex(x=-self.y, y=self.x)
-
-    def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
-        return (
-            math.cos(angle_in_radians) * self
-            + math.sin(angle_in_radians) * self.rotate_90_degrees()
-        )
-
-    # doc-region-begin define rotate around
-    def rotate_around(self: Vertex, angle_in_radians: float, center: Vertex) -> Vertex:
-        translate_to_center: Vertex = self.translate(-center)
-        rotated_around_origin: Vertex = translate_to_center.rotate(angle_in_radians)
-        back_to_position: Vertex = rotated_around_origin.translate(center)
-        return back_to_position
-
-    # doc-region-end define rotate around
-
-
-@dataclass
 class Paddle:
-    vertices: list[Vertex]
+    vertices: list[Vertex2D]
     r: float
     g: float
     b: float
-    position: Vertex
+    position: Vertex2D
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-3.0),
-        Vertex(x=1.0, y=-3.0),
-        Vertex(x=1.0, y=3.0),
-        Vertex(x=-1.0, y=3.0),
+        Vertex2D(x=-1.0, y=-3.0),
+        Vertex2D(x=1.0, y=-3.0),
+        Vertex2D(x=1.0, y=3.0),
+        Vertex2D(x=-1.0, y=3.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex(-9.0, 0.0),
+    position=Vertex2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-3.0),
-        Vertex(x=1.0, y=-3.0),
-        Vertex(x=1.0, y=3.0),
-        Vertex(x=-1.0, y=3.0),
+        Vertex2D(x=-1.0, y=-3.0),
+        Vertex2D(x=1.0, y=-3.0),
+        Vertex2D(x=1.0, y=3.0),
+        Vertex2D(x=-1.0, y=3.0),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex(9.0, 0.0),
+    position=Vertex2D(9.0, 0.0),
 )
 
 
@@ -217,9 +172,7 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
     # doc-region-end begin event loop
-    while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
+    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
 
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -238,11 +191,14 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    rotatePoint: Vertex = paddle1.position
+    rotatePoint: Vertex2D = paddle1.position
     for p1_v_ms in paddle1.vertices:
-        p1_v_ws: Vertex = p1_v_ms.translate(paddle1.position)
-        p1_v_ws: Vertex = p1_v_ws.rotate_around(paddle1.rotation, rotatePoint)
-        paddle1_vertex_ndc: Vertex = p1_v_ws.uniform_scale(1.0 / 10.0)
+        fn: Callable[Vertex2D, Vertex2D] = compose(
+            uniform_scale(1.0 / 10.0),
+            rotate_around(paddle1.rotation, rotatePoint),
+            translate(paddle1.position),
+        )
+        paddle1_vertex_ndc: Vertex2D = fn(p1_v_ms)
         glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
         # doc-region-end draw paddle 1
     glEnd()
@@ -252,11 +208,14 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    rotatePoint: Vertex = paddle2.position
+    rotatePoint: Vertex2D = paddle2.position
     for p2_v_ms in paddle2.vertices:
-        p2_v_ws: Vertex = p2_v_ms.translate(paddle2.position)
-        p2_v_ws: Vertex = p2_v_ws.rotate_around(paddle2.rotation, rotatePoint)
-        paddle2_vertex_ndc: Vertex = p2_v_ws.uniform_scale(1.0 / 10.0)
+        fn: Callable[Vertex2D, Vertex2D] = compose(
+            uniform_scale(1.0 / 10.0),
+            rotate_around(paddle2.rotation, rotatePoint),
+            translate(paddle2.position),
+        )
+        paddle2_vertex_ndc: Vertex2D = fn(p2_v_ms)
         glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
