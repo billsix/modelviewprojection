@@ -34,12 +34,9 @@ class InvertibleFunction:
     def __call__(self, x):
         return self.func(x)
 
-    def invert(self):
-        return InvertibleFunction(self.inverse, self.func)
-
 
 def inverse(f: InvertibleFunction) -> InvertibleFunction:
-    return f.invert()
+    return InvertibleFunction(f.inverse, f.func)
 
 
 def compose(*functions: InvertibleFunction) -> InvertibleFunction:
@@ -81,10 +78,10 @@ def translate(translate_amount: Vertex2D) -> InvertibleFunction:
     def forward(vertex: Vertex2D) -> Vertex2D:
         return vertex + translate_amount
 
-    def inverse(vertex: Vertex2D) -> Vertex2D:
+    def inverse_inner(vertex: Vertex2D) -> Vertex2D:
         return vertex - translate_amount
 
-    return InvertibleFunction(forward, inverse)
+    return InvertibleFunction(forward, inverse_inner)
 
 
 def uniform_scale(scalar: float) -> InvertibleFunction:
@@ -94,10 +91,10 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
     def forward(vertex: Vertex2D) -> Vertex2D:
         return vertex * scalar
 
-    def inverse(vertex: Vertex2D) -> Vertex2D:
+    def inverse_inner(vertex: Vertex2D) -> Vertex2D:
         return vertex / scalar
 
-    return InvertibleFunction(forward, inverse)
+    return InvertibleFunction(forward, inverse_inner)
 
 
 def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
@@ -108,10 +105,10 @@ def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
     def forward(vertex: Vertex2D) -> Vertex2D:
         return Vertex2D(vertex.x * scale_x, vertex.y * scale_y)
 
-    def inverse(vertex: Vertex2D) -> Vertex2D:
+    def inverse_inner(vertex: Vertex2D) -> Vertex2D:
         return Vertex2D(vertex.x / scale_x, vertex.y / scale_y)
 
-    return InvertibleFunction(forward, inverse)
+    return InvertibleFunction(forward, inverse_inner)
 
 
 def rotate_90_degrees(vertex: Vertex2D) -> Vertex2D:
@@ -130,13 +127,13 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
             sin_a * vertex.x + cos_a * vertex.y,
         )
 
-    def inverse(vertex: Vertex2D) -> Vertex2D:
+    def inverse_inner(vertex: Vertex2D) -> Vertex2D:
         return Vertex2D(
             cos_a * vertex.x + sin_a * vertex.y,
             -sin_a * vertex.x + cos_a * vertex.y,
         )
 
-    return InvertibleFunction(forward, inverse)
+    return InvertibleFunction(forward, inverse_inner)
 
 
 def rotate_around(angle_in_radians: float, center: Vertex2D) -> InvertibleFunction:

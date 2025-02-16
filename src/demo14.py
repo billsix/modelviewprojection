@@ -21,9 +21,9 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-import math
 import sys
 from dataclasses import dataclass, field
+from typing import Callable
 
 import glfw
 from OpenGL.GL import (
@@ -43,10 +43,11 @@ from OpenGL.GL import (
     glLoadIdentity,
     glMatrixMode,
     glScissor,
-    glVertex2f,
     glVertex3f,
     glViewport,
 )
+
+from mathutils3d import Vertex3D, compose, inverse, rotate_z, translate, uniform_scale
 
 if not glfw.init():
     sys.exit()
@@ -105,133 +106,41 @@ def draw_in_square_viewport() -> None:
     )
 
 
-# doc-region-begin define vertex2d
-@dataclass
-class Vertex2D:
-    x: float
-    y: float
-
-    def __add__(self, rhs: Vertex2D) -> Vertex2D:
-        return Vertex2D(x=(self.x + rhs.x), y=(self.y + rhs.y))
-
-    def translate(self: Vertex2D, translate_amount: Vertex2D) -> Vertex2D:
-        return self + translate_amount
-
-    def __mul__(self, scalar: float) -> Vertex2D:
-        return Vertex2D(x=self.x * scalar, y=self.y * scalar)
-
-    def __rmul__(self, scalar: float) -> Vertex2D:
-        return self * scalar
-
-    def uniform_scale(self: Vertex2D, scalar: float) -> Vertex2D:
-        return self * scalar
-
-    def scale(self: Vertex2D, scale_x: float, scale_y: float) -> Vertex2D:
-        return Vertex2D(x=(self.x * scale_x), y=(self.y * scale_y))
-
-    def __neg__(self):
-        return -1.0 * self
-
-    def rotate_90_degrees(self: Vertex2D):
-        return Vertex2D(x=-self.y, y=self.x)
-
-    def rotate(self: Vertex2D, angle_in_radians: float) -> Vertex2D:
-        return (
-            math.cos(angle_in_radians) * self
-            + math.sin(angle_in_radians) * self.rotate_90_degrees()
-        )
-
-
-@dataclass
-class Vertex:
-    x: float
-    y: float
-    z: float
-
-    def __add__(self, rhs: Vertex) -> Vertex:
-        return Vertex(x=(self.x + rhs.x), y=(self.y + rhs.y), z=(self.z + rhs.z))
-
-    def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
-        return self + translate_amount
-
-    # doc-region-end define vertex2d
-
-    # doc-region-begin define rotate x
-    def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
-        yz_on_xy: Vertex2D = Vertex2D(x=self.y, y=self.z).rotate(angle_in_radians)
-        return Vertex(x=self.x, y=yz_on_xy.x, z=yz_on_xy.y)
-
-    # doc-region-end define rotate x
-
-    # doc-region-begin define rotate y
-    def rotate_y(self: Vertex, angle_in_radians: float) -> Vertex:
-        zx_on_xy: Vertex2D = Vertex2D(x=self.z, y=self.x).rotate(angle_in_radians)
-        return Vertex(x=zx_on_xy.y, y=self.y, z=zx_on_xy.y)
-
-    # doc-region-end define rotate y
-
-    # doc-region-begin define rotate z
-    def rotate_z(self: Vertex, angle_in_radians: float) -> Vertex:
-        xy_on_xy: Vertex2D = Vertex2D(x=self.x, y=self.y).rotate(angle_in_radians)
-        return Vertex(x=xy_on_xy.x, y=xy_on_xy.y, z=self.z)
-
-    # doc-region-end define rotate z
-
-    # doc-region-begin define uniform scale
-
-    def __mul__(self, scalar: float) -> Vertex:
-        return Vertex(x=(self.x * scalar), y=(self.y * scalar), z=(self.z * scalar))
-
-    def __rmul__(self, scalar: float) -> Vertex:
-        return self * scalar
-
-    def uniform_scale(self: Vertex, scalar: float) -> Vertex:
-        return self * scalar
-
-    def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
-        return Vertex(x=(self.x * scale_x), y=(self.y * scale_y), z=(self.z * scale_z))
-
-    def __neg__(self):
-        return -1.0 * self
-
-    # doc-region-end define uniform scale
-
-
 @dataclass
 class Paddle:
-    vertices: list[Vertex]
+    vertices: list[Vertex3D]
     r: float
     g: float
     b: float
-    position: Vertex
+    position: Vertex3D
     rotation: float = 0.0
 
 
 # doc-region-begin instantiate paddle 1
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-3.0, z=0.0),
-        Vertex(x=1.0, y=-3.0, z=0.0),
-        Vertex(x=1.0, y=3.0, z=0.0),
-        Vertex(x=-1.0, y=3.0, z=0.0),
+        Vertex3D(x=-1.0, y=-3.0, z=0.0),
+        Vertex3D(x=1.0, y=-3.0, z=0.0),
+        Vertex3D(x=1.0, y=3.0, z=0.0),
+        Vertex3D(x=-1.0, y=3.0, z=0.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex(x=-9.0, y=0.0, z=0.0),
+    position=Vertex3D(x=-9.0, y=0.0, z=0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-3.0, z=0.0),
-        Vertex(x=1.0, y=-3.0, z=0.0),
-        Vertex(x=1.0, y=3.0, z=0.0),
-        Vertex(x=-1.0, y=3.0, z=0.0),
+        Vertex3D(x=-1.0, y=-3.0, z=0.0),
+        Vertex3D(x=1.0, y=-3.0, z=0.0),
+        Vertex3D(x=1.0, y=3.0, z=0.0),
+        Vertex3D(x=-1.0, y=3.0, z=0.0),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex(x=9.0, y=0.0, z=0.0),
+    position=Vertex3D(x=9.0, y=0.0, z=0.0),
 )
 # doc-region-end instantiate paddle 1
 
@@ -239,18 +148,18 @@ paddle2: Paddle = Paddle(
 # doc-region-begin define camera class
 @dataclass
 class Camera:
-    position_ws: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0, z=0.0))
+    position_ws: Vertex3D = field(default_factory=lambda: Vertex3D(x=0.0, y=0.0, z=0.0))
 
 
 camera: Camera = Camera()
 # doc-region-end define camera class
 
 # doc-region-begin instantiate square
-square: list[Vertex] = [
-    Vertex(x=-0.5, y=-0.5, z=0.0),
-    Vertex(x=0.5, y=-0.5, z=0.0),
-    Vertex(x=0.5, y=0.5, z=0.0),
-    Vertex(x=-0.5, y=0.5, z=0.0),
+square: list[Vertex3D] = [
+    Vertex3D(x=-0.5, y=-0.5, z=0.0),
+    Vertex3D(x=0.5, y=-0.5, z=0.0),
+    Vertex3D(x=0.5, y=0.5, z=0.0),
+    Vertex3D(x=-0.5, y=0.5, z=0.0),
 ]
 # doc-region-end instantiate square
 
@@ -306,9 +215,7 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
     # doc-region-end begin event loop
-    while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
+    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
 
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -328,11 +235,17 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        p1_v_ws: Vertex = p1_v_ms.rotate_z(paddle1.rotation) \
-                                 .translate(paddle1.position)
-        p1_v_cs: Vertex = p1_v_ws.translate(-camera.position_ws)
-        paddle1_vertex_ndc: Vertex = p1_v_cs.uniform_scale(1.0 / 10.0)
-        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
+        ms_to_ndc: Callable[Vertex3D, Vertex3D] = compose(
+            # camera space to NDC
+            uniform_scale(1.0 / 10.0),
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle1.position), rotate_z(paddle1.rotation)),
+        )
+
+        paddle1_vertex_ndc: Vertex3D = ms_to_ndc(p1_v_ms)
+        glVertex3f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y, paddle1_vertex_ndc.z)
     glEnd()
     # doc-region-end draw paddle 1
 
@@ -341,15 +254,20 @@ while not glfw.window_should_close(window):
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for ms in square:
-        p1_v: Vertex = ms.rotate_z(square_rotation) \
-                         .translate(Vertex(x=2.0, y=0.0, z=0.0)) \
-                         .rotate_z(rotation_around_paddle1) \
-                         .translate(Vertex(x=0.0, y=0.0, z=-1.0))
-        ws: Vertex = p1_v.rotate_z(paddle1.rotation) \
-                         .translate(paddle1.position)
-        cs: Vertex = ws.translate(-camera.position_ws)
-        ndc: Vertex = cs.uniform_scale(1.0 / 10.0)
-        glVertex3f(ndc.x, ndc.y, ndc.z)
+        ms_to_ndc: Callable[Vertex3D, Vertex3D] = compose(
+            # camera space to NDC
+            uniform_scale(1.0 / 10.0),
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle1.position), rotate_z(paddle1.rotation)),
+            # square space to paddle 1 space
+            compose(translate(Vertex3D(x=0.0, y=0.0, z=-1.0)),
+                    rotate_z(rotation_around_paddle1),
+                    translate(Vertex3D(x=2.0, y=0.0, z=0.0)),
+                    rotate_z(square_rotation)))
+        square_vertex_ndc: Vertex3D = ms_to_ndc(ms)
+        glVertex3f(square_vertex_ndc.x, square_vertex_ndc.y, square_vertex_ndc.z)
     glEnd()
     # doc-region-end draw square
 
@@ -358,10 +276,16 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        p2_v_ws: Vertex = p2_v_ms.rotate_z(paddle2.rotation) \
-                                 .translate(paddle2.position)
-        p2_v_cs: Vertex = p2_v_ws.translate(-camera.position_ws)
-        paddle2_vertex_ndc: Vertex = p2_v_cs.uniform_scale(1.0 / 10.0)
+        ms_to_ndc: Callable[Vertex3D, Vertex3D] = compose(
+            # camera space to NDC
+            uniform_scale(1.0 / 10.0),
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle2.position), rotate_z(paddle2.rotation)),
+        )
+
+        paddle2_vertex_ndc: Vertex3D = ms_to_ndc(p2_v_ms)
         glVertex3f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y, paddle2_vertex_ndc.z)
     glEnd()
     # doc-region-end draw paddle 2
