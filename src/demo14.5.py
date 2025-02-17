@@ -23,7 +23,7 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 
 import sys
 from dataclasses import dataclass, field
-from typing import Callable
+from typing import Callable, List
 
 import glfw
 from OpenGL.GL import (
@@ -43,11 +43,11 @@ from OpenGL.GL import (
     glLoadIdentity,
     glMatrixMode,
     glScissor,
-    glVertex2f,
+    glVertex3f,
     glViewport,
 )
 
-from mathutils import Vertex2D, compose, inverse, rotate, translate, uniform_scale
+from mathutils3d import Vertex3D, compose, inverse, rotate_z, translate, uniform_scale
 
 if not glfw.init():
     sys.exit()
@@ -55,7 +55,7 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 12", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 14.5", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -63,9 +63,9 @@ if not window:
 glfw.make_context_current(window)
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window, 1)
+        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)
@@ -83,15 +83,15 @@ def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
-    width, height = glfw.get_framebuffer_size(window)
-    min = width if width < height else height
+    w, h = glfw.get_framebuffer_size(window)
+    minimal_dimension = w if w < h else h
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((width - min) / 2.0),
-        int((height - min) / 2.0),
-        min,
-        min,
+        int((w - minimal_dimension) / 2.0),
+        int((h - minimal_dimension) / 2.0),
+        minimal_dimension,
+        minimal_dimension,
     )
 
     glClearColor(0.0289, 0.071875, 0.0972, 1.0)
@@ -99,76 +99,83 @@ def draw_in_square_viewport() -> None:
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (width - min) / 2.0),
-        int(0.0 + (height - min) / 2.0),
-        min,
-        min,
+        int(0.0 + (w - minimal_dimension) / 2.0),
+        int(0.0 + (h - minimal_dimension) / 2.0),
+        minimal_dimension,
+        minimal_dimension,
     )
 
 
 @dataclass
 class Paddle:
-    vertices: list[Vertex2D]
+    vertices: list[Vertex3D]
     r: float
     g: float
     b: float
-    position: Vertex2D
+    position: Vertex3D
     rotation: float = 0.0
 
 
+# doc-region-begin instantiate paddle 1
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex2D(x=-1.0, y=-3.0),
-        Vertex2D(x=1.0, y=-3.0),
-        Vertex2D(x=1.0, y=3.0),
-        Vertex2D(x=-1.0, y=3.0),
+        Vertex3D(x=-1.0, y=-3.0, z=0.0),
+        Vertex3D(x=1.0, y=-3.0, z=0.0),
+        Vertex3D(x=1.0, y=3.0, z=0.0),
+        Vertex3D(x=-1.0, y=3.0, z=0.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex2D(-9.0, 0.0),
+    position=Vertex3D(x=-9.0, y=0.0, z=0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex2D(x=-1.0, y=-3.0),
-        Vertex2D(x=1.0, y=-3.0),
-        Vertex2D(x=1.0, y=3.0),
-        Vertex2D(x=-1.0, y=3.0),
+        Vertex3D(x=-1.0, y=-3.0, z=0.0),
+        Vertex3D(x=1.0, y=-3.0, z=0.0),
+        Vertex3D(x=1.0, y=3.0, z=0.0),
+        Vertex3D(x=-1.0, y=3.0, z=0.0),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex2D(9.0, 0.0),
+    position=Vertex3D(x=9.0, y=0.0, z=0.0),
 )
+# doc-region-end instantiate paddle 1
 
 
+# doc-region-begin define camera class
 @dataclass
 class Camera:
-    position_ws: Vertex2D = field(default_factory=lambda: Vertex2D(x=0.0, y=0.0))
+    position_ws: Vertex3D = field(default_factory=lambda: Vertex3D(x=0.0, y=0.0, z=0.0))
 
 
 camera: Camera = Camera()
+# doc-region-end define camera class
 
-
-square: list[Vertex2D] = [
-    Vertex2D(x=-0.5, y=-0.5),
-    Vertex2D(x=0.5, y=-0.5),
-    Vertex2D(x=0.5, y=0.5),
-    Vertex2D(x=-0.5, y=0.5),
+# doc-region-begin instantiate square
+square: list[Vertex3D] = [
+    Vertex3D(x=-0.5, y=-0.5, z=0.0),
+    Vertex3D(x=0.5, y=-0.5, z=0.0),
+    Vertex3D(x=0.5, y=0.5, z=0.0),
+    Vertex3D(x=-0.5, y=0.5, z=0.0),
 ]
+# doc-region-end instantiate square
 
-# doc-region-begin define square rotation
 square_rotation: float = 0.0
-# doc-region-end define square rotation
+rotation_around_paddle1: float = 0.0
 
 
-# doc-region-begin define handle input
 def handle_inputs() -> None:
+    global rotation_around_paddle1
+    if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
+        rotation_around_paddle1 += 0.1
+
     global square_rotation
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
-    # doc-region-end define handle input
+
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
@@ -201,11 +208,35 @@ def handle_inputs() -> None:
         paddle2.rotation -= 0.1
 
 
+# doc-region-begin define function stack class
+@dataclass
+class FunctionStack:
+    stack: List[Callable[Vertex3D, Vertex3D]] = field(default_factory=lambda: [])
+
+    def push(self, o: object):
+        self.stack.append(o)
+
+    def pop(self):
+        return self.stack.pop()
+
+    def clear(self):
+        self.stack.clear()
+
+    def modelspace_to_ndc_fn(self) -> Callable[Vertex3D, Vertex3D]:
+        return compose(*self.stack)
+
+
+fn_stack = FunctionStack()
+# doc-region-end define function stack class
+
+
 TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
+# doc-region-begin begin event loop
 while not glfw.window_should_close(window):
+    # doc-region-end begin event loop
     while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
 
@@ -222,67 +253,86 @@ while not glfw.window_should_close(window):
 
     # fmt: off
 
-    glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    # doc-region-begin stack push camera space to ndc
+    # camera space to NDC
+    fn_stack.push(uniform_scale(1.0 / 10.0))
+    # doc-region-end stack push camera space to ndc
 
+    # doc-region-begin world space to camera space
+    # world space to camera space
+    fn_stack.push(inverse(translate(camera.position_ws)))
+    # doc-region-end world space to camera space
+
+    # doc-region-begin paddle 1 transformations
+    # paddle 1 model space to world space
+    fn_stack.push(compose(translate(paddle1.position),
+                          rotate_z(paddle1.rotation)))
+    # doc-region-end paddle 1 transformations
+
+    # doc-region-begin draw paddle 1
+    glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
-            # camera space to NDC
-            uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            inverse(translate(camera.position_ws)),
-            # model space to world space
-            compose(translate(paddle1.position),
-                    rotate(paddle1.rotation)),
+        paddle1_vertex_ndc = fn_stack.modelspace_to_ndc_fn()(p1_v_ms)
+        glVertex3f(
+            paddle1_vertex_ndc.x,
+            paddle1_vertex_ndc.y,
+            paddle1_vertex_ndc.z,
         )
-
-        paddle1_vertex_ndc: Vertex2D = ms_to_ndc(p1_v_ms)
-
-        glVertex2f(paddle1_vertex_ndc.x,
-                   paddle1_vertex_ndc.y)
     glEnd()
+    # doc-region-end draw paddle 1
 
     # doc-region-begin draw square
+
+    # square space to paddle 1 space
+    fn_stack.push(compose(translate(Vertex3D(x=0.0, y=0.0, z=-1.0)),
+                          rotate_z(rotation_around_paddle1),
+                          translate(Vertex3D(x=2.0, y=0.0, z=0.0)),
+                          rotate_z(square_rotation)))
+    # draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for ms in square:
-        ms_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
-            # camera space to NDC
-            uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            inverse(translate(camera.position_ws)),
-            # model space to world space
-            compose(translate(paddle1.position),
-                    rotate(paddle1.rotation)),
-            # square space to paddle 1 space
-            compose(translate(Vertex2D(x=2.0,
-                                       y=0.0)),
-                    rotate(square_rotation)))
-        square_vertex_ndc: Vertex2D = ms_to_ndc(ms)
-        glVertex2f(square_vertex_ndc.x, square_vertex_ndc.y)
+        square_vertex_ndc = fn_stack.modelspace_to_ndc_fn()(ms)
+        glVertex3f(
+            square_vertex_ndc.x,
+            square_vertex_ndc.y,
+            square_vertex_ndc.z,
+        )
     glEnd()
     # doc-region-end draw square
 
-    # doc-region-begin draw paddle 2
-    glColor3f(paddle2.r, paddle2.g, paddle2.b)
+    fn_stack.pop()  # pop off square space to paddle 1 space
+    # current space is paddle 1 space
+    fn_stack.pop()  # # pop off paddle 1 model space to world space
+    # current space is world space
 
+    # paddle 1 model space to world space
+    fn_stack.push(compose(translate(paddle2.position),
+                          rotate_z(paddle2.rotation)))
+
+    # doc-region-begin draw paddle 2
+    # draw paddle 2
+    glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
-            # camera space to NDC
-            uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            inverse(translate(camera.position_ws)),
-            # model space to world space
-            compose(translate(paddle2.position),
-                    rotate(paddle2.rotation)))
-
-        paddle2_vertex_ndc: Vertex2D = ms_to_ndc(p2_v_ms)
-
-        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
+        paddle2_vertex_ndc = fn_stack.modelspace_to_ndc_fn()(p2_v_ms)
+        glVertex3f(
+            paddle2_vertex_ndc.x,
+            paddle2_vertex_ndc.y,
+            paddle2_vertex_ndc.z,
+        )
     glEnd()
+    # doc-region-end draw paddle 2
+    # fmt: on
+
+    # doc-region-begin clear function stack for next iteration of the event loop
+    # done rendering everything for this frame, just go ahead and clear all functions
+    # off of the stack, back to NDC as current space
+    fn_stack.clear()
+
+    # doc-region-end clear function stack for next iteration of the event loop
 
     glfw.swap_buffers(window)
-    # fmt: on
 
 glfw.terminate()

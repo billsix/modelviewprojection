@@ -165,10 +165,7 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
-    while (
-        glfw.get_time()
-        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
+    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
         pass
     time_at_beginning_of_previous_frame = glfw.get_time()
 
@@ -182,16 +179,19 @@ while not glfw.window_should_close(window):
     handle_movement_of_paddles()
     # doc-region-end begin event loop
 
+    # fmt: off
     # doc-region-begin draw paddle 1
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         fn: Callable[Vertex2D, Vertex2D] = compose(
-            uniform_scale(1.0 / 10.0), translate(paddle1.position)
+            uniform_scale(1.0 / 10.0),
+            translate(paddle1.position)
         )
         paddle1_vertex_ndc: Vertex2D = fn(p1_v_ms)
-        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
+        glVertex2f(paddle1_vertex_ndc.x,
+                   paddle1_vertex_ndc.y)
 
     glEnd()
 
@@ -200,14 +200,17 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         fn: Callable[Vertex2D, Vertex2D] = compose(
-            uniform_scale(1.0 / 10.0), translate(paddle2.position)
+            uniform_scale(1.0 / 10.0),
+            translate(paddle2.position)
         )
         paddle2_vertex_ndc: Vertex2D = fn(p2_v_ms)
-        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
+        glVertex2f(paddle2_vertex_ndc.x,
+                   paddle2_vertex_ndc.y)
     glEnd()
 
     # aoeu
     # doc-region-begin flush framebuffer
     glfw.swap_buffers(window)
     # doc-region-end flush framebuffer
+    # fmt: on
 glfw.terminate()

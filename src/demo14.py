@@ -241,11 +241,14 @@ while not glfw.window_should_close(window):
             # world space to camera space
             inverse(translate(camera.position_ws)),
             # model space to world space
-            compose(translate(paddle1.position), rotate_z(paddle1.rotation)),
+            compose(translate(paddle1.position),
+                    rotate_z(paddle1.rotation)),
         )
 
         paddle1_vertex_ndc: Vertex3D = ms_to_ndc(p1_v_ms)
-        glVertex3f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y, paddle1_vertex_ndc.z)
+        glVertex3f(paddle1_vertex_ndc.x,
+                   paddle1_vertex_ndc.y,
+                   paddle1_vertex_ndc.z)
     glEnd()
     # doc-region-end draw paddle 1
 
@@ -260,14 +263,17 @@ while not glfw.window_should_close(window):
             # world space to camera space
             inverse(translate(camera.position_ws)),
             # model space to world space
-            compose(translate(paddle1.position), rotate_z(paddle1.rotation)),
+            compose(translate(paddle1.position),
+                    rotate_z(paddle1.rotation)),
             # square space to paddle 1 space
             compose(translate(Vertex3D(x=0.0, y=0.0, z=-1.0)),
                     rotate_z(rotation_around_paddle1),
                     translate(Vertex3D(x=2.0, y=0.0, z=0.0)),
                     rotate_z(square_rotation)))
         square_vertex_ndc: Vertex3D = ms_to_ndc(ms)
-        glVertex3f(square_vertex_ndc.x, square_vertex_ndc.y, square_vertex_ndc.z)
+        glVertex3f(square_vertex_ndc.x,
+                   square_vertex_ndc.y,
+                   square_vertex_ndc.z)
     glEnd()
     # doc-region-end draw square
 
@@ -282,11 +288,14 @@ while not glfw.window_should_close(window):
             # world space to camera space
             inverse(translate(camera.position_ws)),
             # model space to world space
-            compose(translate(paddle2.position), rotate_z(paddle2.rotation)),
+            compose(translate(paddle2.position),
+                    rotate_z(paddle2.rotation)),
         )
 
         paddle2_vertex_ndc: Vertex3D = ms_to_ndc(p2_v_ms)
-        glVertex3f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y, paddle2_vertex_ndc.z)
+        glVertex3f(paddle2_vertex_ndc.x,
+                   paddle2_vertex_ndc.y,
+                   paddle2_vertex_ndc.z)
     glEnd()
     # doc-region-end draw paddle 2
     # fmt: on
