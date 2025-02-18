@@ -18,3 +18,6 @@ touch /output/modelviewprojection/.nojekyll
 cd /book/docs
 make latexpdf
 cp  _build/latex/*pdf /output/modelviewprojection/
+
+make epub
+cp _build/epub/* /output/modelviewprojection/

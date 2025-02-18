@@ -22,7 +22,9 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import math
-from dataclasses import dataclass
+from contextlib import contextmanager
+from dataclasses import dataclass, field
+from typing import Callable, List
 
 from mathutils import InvertibleFunction, Vertex2D, compose, inverse
 from mathutils import rotate as rotate2D
@@ -196,3 +198,34 @@ def cs_to_ndc_space_fn(vertex: Vertex3D) -> Vertex3D:
         raise ValueError("Inverse_Inner cs_to_ndc_spcae_fn not yet implement")
 
     return InvertibleFunction(f, f_inv)
+
+
+# doc-region-begin define function stack class
+@dataclass
+class FunctionStack:
+    stack: List[Callable[Vertex3D, Vertex3D]] = field(default_factory=lambda: [])
+
+    def push(self, o: object):
+        self.stack.append(o)
+
+    def pop(self):
+        return self.stack.pop()
+
+    def clear(self):
+        self.stack.clear()
+
+    def modelspace_to_ndc_fn(self) -> Callable[Vertex3D, Vertex3D]:
+        return compose(*self.stack)
+
+
+fn_stack = FunctionStack()
+# doc-region-end define function stack class
+
+
+@contextmanager
+def push_transformation(f):
+    try:
+        fn_stack.push(f)
+        yield fn_stack
+    finally:
+        fn_stack.pop()
