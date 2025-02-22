@@ -51,68 +51,68 @@ class Vertex3D:
 
 
 def translate(translate_amount: Vertex3D) -> InvertibleFunction:
-    def forward(vertex: Vertex3D) -> Vertex3D:
+    def f(vertex: Vertex3D) -> Vertex3D:
         return vertex + translate_amount
 
-    def inverse_inner(vertex: Vertex3D) -> Vertex3D:
+    def f_inv(vertex: Vertex3D) -> Vertex3D:
         return vertex - translate_amount
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 def rotate_x(angle_in_radians: float) -> Vertex3D:
     fn = rotate2D(angle_in_radians)
 
-    def forward(vertex: Vertex3D) -> Vertex3D:
+    def f(vertex: Vertex3D) -> Vertex3D:
         yz_on_xy: Vertex2D = fn(Vertex2D(x=vertex.y, y=vertex.z))
         return Vertex3D(x=vertex.x, y=yz_on_xy.x, z=yz_on_xy.y)
 
-    def inverse_inner(vertex: Vertex3D) -> Vertex3D:
+    def f_inv(vertex: Vertex3D) -> Vertex3D:
         yz_on_xy: Vertex2D = inverse(fn)(Vertex2D(x=vertex.y, y=vertex.z))
         return Vertex3D(x=vertex.x, y=yz_on_xy.x, z=yz_on_xy.y)
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 def rotate_y(angle_in_radians: float) -> Vertex3D:
     fn = rotate2D(angle_in_radians)
 
-    def forward(vertex: Vertex3D) -> Vertex3D:
+    def f(vertex: Vertex3D) -> Vertex3D:
         zx_on_xy: Vertex2D = fn(Vertex2D(x=vertex.z, y=vertex.x))
         return Vertex3D(x=zx_on_xy.y, y=vertex.y, z=zx_on_xy.x)
 
-    def inverse_inner(vertex: Vertex3D) -> Vertex3D:
+    def f_inv(vertex: Vertex3D) -> Vertex3D:
         zx_on_xy: Vertex2D = inverse(fn)(Vertex2D(x=vertex.z, y=vertex.x))
         return Vertex3D(x=zx_on_xy.y, y=vertex.y, z=zx_on_xy.x)
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 def rotate_z(angle_in_radians: float) -> Vertex3D:
     fn = rotate2D(angle_in_radians)
 
-    def forward(vertex: Vertex3D) -> Vertex3D:
+    def f(vertex: Vertex3D) -> Vertex3D:
         xy_on_xy: Vertex2D = fn(Vertex2D(x=vertex.x, y=vertex.y))
         return Vertex3D(x=xy_on_xy.x, y=xy_on_xy.y, z=vertex.z)
 
-    def inverse_inner(vertex: Vertex3D) -> Vertex3D:
+    def f_inv(vertex: Vertex3D) -> Vertex3D:
         xy_on_xy: Vertex2D = inverse(fn)(Vertex2D(x=vertex.x, y=vertex.y))
         return Vertex3D(x=xy_on_xy.x, y=xy_on_xy.y, z=vertex.z)
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 def uniform_scale(scalar: float) -> InvertibleFunction:
     if scalar == 0:
         raise ValueError("Scaling factor cannot be zero.")
 
-    def forward(vertex: Vertex3D) -> Vertex3D:
+    def f(vertex: Vertex3D) -> Vertex3D:
         return vertex * scalar
 
-    def inverse_inner(vertex: Vertex3D) -> Vertex3D:
+    def f_inv(vertex: Vertex3D) -> Vertex3D:
         return vertex / scalar
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 def scale(scale_x: float, scale_y: float, scale_z: float) -> Vertex3D:
@@ -123,13 +123,13 @@ def scale(scale_x: float, scale_y: float, scale_z: float) -> Vertex3D:
     if scale_z == 0:
         raise ValueError("Scale_z cannot be zero.")
 
-    def forward(vertex: Vertex3D) -> Vertex3D:
+    def f(vertex: Vertex3D) -> Vertex3D:
         return Vertex3D(x=(vertex.x * scale_x), y=(vertex.y * scale_y), z=(vertex.z * scale_z))
 
-    def inverse_inner(vertex: Vertex3D) -> Vertex3D:
+    def f_inv(vertex: Vertex3D) -> Vertex3D:
         return Vertex3D(x=(vertex.x / scale_x), y=(vertex.y / scale_y), z=(vertex.z / scale_z))
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 def ortho(
@@ -157,13 +157,13 @@ def ortho(
                  translate(-midpoint))
     # fmt: on
 
-    def forward(vertex: Vertex3D) -> Vertex3D:
+    def f(vertex: Vertex3D) -> Vertex3D:
         return fn(vertex)
 
-    def inverse_inner(vertex: Vertex3D) -> Vertex3D:
-        return inverse_inner(fn)(vertex)
+    def f_inv(vertex: Vertex3D) -> Vertex3D:
+        return f_inv(fn)(vertex)
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 def perspective(field_of_view: float, aspect_ratio: float, near_z: float, far_z: float) -> Vertex3D:
@@ -173,7 +173,7 @@ def perspective(field_of_view: float, aspect_ratio: float, near_z: float, far_z:
     top: float = -near_z * math.tan(math.radians(field_of_view) / 2.0)
     right: float = top * aspect_ratio
 
-    def forward(vertex: Vertex3D) -> Vertex3D:
+    def f(vertex: Vertex3D) -> Vertex3D:
         scaled_x: float = vertex.x / vertex.z * near_z
         scaled_y: float = vertex.y / vertex.z * near_z
         rectangular_prism: Vertex3D = Vertex3D(scaled_x, scaled_y, vertex.z)
@@ -181,18 +181,18 @@ def perspective(field_of_view: float, aspect_ratio: float, near_z: float, far_z:
         fn = ortho(left=-right, right=right, bottom=-top, top=top, near=near_z, far=far_z)
         return fn(rectangular_prism)
 
-    def inverse_inner(vertex: Vertex3D) -> Vertex3D:
+    def f_inv(vertex: Vertex3D) -> Vertex3D:
         raise ValueError("Inverse_Inner Perspective not yet implement")
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 def cs_to_ndc_space_fn(vertex: Vertex3D) -> Vertex3D:
-    def forward(vertex: Vertex3D) -> Vertex3D:
+    def f(vertex: Vertex3D) -> Vertex3D:
         fn = perspective(field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0)
         return fn(vertex)
 
-    def inverse_inner(vertex: Vertex3D) -> Vertex3D:
+    def f_inv(vertex: Vertex3D) -> Vertex3D:
         raise ValueError("Inverse_Inner cs_to_ndc_spcae_fn not yet implement")
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)

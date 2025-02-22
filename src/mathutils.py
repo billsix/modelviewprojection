@@ -49,12 +49,12 @@ def compose(*functions: InvertibleFunction) -> InvertibleFunction:
             x = f(x)
         return x
 
-    def inverse_inner(x):
+    def f_inv(x):
         for f in functions:
             x = inverse(f)(x)
         return x
 
-    return InvertibleFunction(inner, inverse_inner)
+    return InvertibleFunction(inner, f_inv)
 
 
 # doc-region-begin define vertex class
@@ -88,13 +88,13 @@ class Vertex2D:
 
 # doc-region-begin define translate
 def translate(translate_amount: Vertex2D) -> InvertibleFunction:
-    def forward(vertex: Vertex2D) -> Vertex2D:
+    def f(vertex: Vertex2D) -> Vertex2D:
         return vertex + translate_amount
 
-    def inverse_inner(vertex: Vertex2D) -> Vertex2D:
+    def f_inv(vertex: Vertex2D) -> Vertex2D:
         return vertex - translate_amount
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 # doc-region-end define translate
@@ -105,13 +105,13 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
     if scalar == 0:
         raise ValueError("Scaling factor cannot be zero.")
 
-    def forward(vertex: Vertex2D) -> Vertex2D:
+    def f(vertex: Vertex2D) -> Vertex2D:
         return vertex * scalar
 
-    def inverse_inner(vertex: Vertex2D) -> Vertex2D:
+    def f_inv(vertex: Vertex2D) -> Vertex2D:
         return vertex / scalar
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 # doc-region-end define uniform scale
@@ -122,13 +122,13 @@ def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
     if scale_x == 0 or scale_y == 0:
         raise ValueError("Scaling factors cannot be zero.")
 
-    def forward(vertex: Vertex2D) -> Vertex2D:
+    def f(vertex: Vertex2D) -> Vertex2D:
         return Vertex2D(vertex.x * scale_x, vertex.y * scale_y)
 
-    def inverse_inner(vertex: Vertex2D) -> Vertex2D:
+    def f_inv(vertex: Vertex2D) -> Vertex2D:
         return Vertex2D(vertex.x / scale_x, vertex.y / scale_y)
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 def rotate_90_degrees(vertex: Vertex2D) -> Vertex2D:
@@ -141,19 +141,19 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
     cos_a = math.cos(angle_in_radians)
     sin_a = math.sin(angle_in_radians)
 
-    def forward(vertex: Vertex2D) -> Vertex2D:
+    def f(vertex: Vertex2D) -> Vertex2D:
         return Vertex2D(
             cos_a * vertex.x - sin_a * vertex.y,
             sin_a * vertex.x + cos_a * vertex.y,
         )
 
-    def inverse_inner(vertex: Vertex2D) -> Vertex2D:
+    def f_inv(vertex: Vertex2D) -> Vertex2D:
         return Vertex2D(
             cos_a * vertex.x + sin_a * vertex.y,
             -sin_a * vertex.x + cos_a * vertex.y,
         )
 
-    return InvertibleFunction(forward, inverse_inner)
+    return InvertibleFunction(f, f_inv)
 
 
 def rotate_around(angle_in_radians: float, center: Vertex2D) -> InvertibleFunction:
