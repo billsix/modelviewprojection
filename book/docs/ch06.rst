@@ -578,15 +578,6 @@ Rendering Paddle 1
 
     Paddle 1's Modelspace
 
-.. literalinclude:: ../../src/demo06.py
-   :language: python
-   :start-after: doc-region-begin call translate method
-   :end-before: doc-region-end call translate method
-   :linenos:
-   :lineno-match:
-   :caption: src/demo06.py
-
-
 
 
 .. figure:: _static/translation-forwards-2.svg
@@ -612,24 +603,6 @@ Now, we must scale everything by 1/10.  I have
 not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.
-
-.. literalinclude:: ../../src/demo06.py
-   :language: python
-   :start-after: doc-region-begin call uniform scale method
-   :end-before: doc-region-end call uniform scale method
-   :linenos:
-   :lineno-match:
-   :caption: src/demo06.py
-
-
-
-.. literalinclude:: ../../src/demo06.py
-   :language: python
-   :start-after: doc-region-begin call glvertex2f for paddle 1
-   :end-before: doc-region-end call glvertex2f for paddle 1
-   :linenos:
-   :lineno-match:
-   :caption: src/demo06.py
 
 
 
@@ -659,15 +632,6 @@ Rendering Paddle 2
     Paddle 2's Modelspace
 
 
-.. literalinclude:: ../../src/demo06.py
-   :language: python
-   :start-after: doc-region-begin paddle 2 call translate method
-   :end-before: doc-region-end paddle 2 call translate method
-   :linenos:
-   :lineno-match:
-   :caption: src/demo06.py
-
-
 .. figure:: _static/translation2-forwards-2.svg
     :class: no-scale
     :align: center
@@ -685,24 +649,6 @@ Rendering Paddle 2
     :figclass: align-center
 
     Reset coordinate system.
-
-.. literalinclude:: ../../src/demo06.py
-   :language: python
-   :start-after: doc-region-begin paddle 2 call uniform scale method
-   :end-before: doc-region-end paddle 2 call uniform scale method
-   :linenos:
-   :lineno-match:
-   :caption: src/demo06.py
-
-
-
-.. literalinclude:: ../../src/demo06.py
-   :language: python
-   :start-after: doc-region-begin paddle 2 call glvertex2f
-   :end-before: doc-region-end paddle 2 call glvertex2f
-   :linenos:
-   :lineno-match:
-   :caption: src/demo06.py
 
 
 The coordinate system is reset.  Now scale everything by 1/10.  I have

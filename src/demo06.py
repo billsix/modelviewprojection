@@ -194,7 +194,9 @@ while not glfw.window_should_close(window):
                    paddle1_vertex_ndc.y)
 
     glEnd()
+    # doc-region-end draw paddle 1
 
+    # doc-region-begin draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
@@ -207,6 +209,7 @@ while not glfw.window_should_close(window):
         glVertex2f(paddle2_vertex_ndc.x,
                    paddle2_vertex_ndc.y)
     glEnd()
+    # doc-region-end draw paddle 2
 
     # aoeu
     # doc-region-begin flush framebuffer

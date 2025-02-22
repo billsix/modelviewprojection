@@ -189,13 +189,21 @@ get your vertex rotated around the origin!
 (0.5*cos(angle) + 0.4*-sin(angle), 0.5*sin(angle) + 0.4*cos(angle))
 
 
-.. literalinclude:: ../../src/demo07.py
+.. literalinclude:: ../../src/mathutils.py
    :language: python
    :start-after: doc-region-begin define vertex class
    :end-before: doc-region-end define vertex class
    :linenos:
    :lineno-match:
-   :caption: src/demo07.py
+   :caption: src/mathutils.py
+
+.. literalinclude:: ../../src/mathutils.py
+   :language: python
+   :start-after: doc-region-begin define rotate
+   :end-before: doc-region-end define rotate
+   :linenos:
+   :lineno-match:
+   :caption: src/mathutils.py
 
 
 
@@ -277,39 +285,11 @@ around the paddle's center.
     \vec{f}_{p1}^{w}
 
 
-.. literalinclude:: ../../src/demo07.py
-   :language: python
-   :start-after: doc-region-begin compose transformations on paddle 12
-   :end-before: doc-region-end compose transformations on paddle 12
-   :linenos:
-   :lineno-match:
-   :caption: src/demo07.py
-
-
 
 .. math::
 
 
     \vec{f}_{w}^{ndc}
-
-
-
-.. literalinclude:: ../../src/demo07.py
-   :language: python
-   :start-after: doc-region-begin scale paddle 1
-   :end-before: doc-region-end scale paddle 1
-   :linenos:
-   :lineno-match:
-   :caption: src/demo07.py
-
-
-.. literalinclude:: ../../src/demo07.py
-   :language: python
-   :start-after: doc-region-begin glvertex on paddle 1
-   :end-before: doc-region-end glvertex on paddle 1
-   :linenos:
-   :lineno-match:
-   :caption: src/demo07.py
 
 
 
@@ -341,40 +321,11 @@ around the paddle's center.
     \vec{f}_{p2}^{w}
 
 
-.. literalinclude:: ../../src/demo07.py
-   :language: python
-   :start-after: doc-region-begin compose transformations on paddle 2
-   :end-before: doc-region-end compose transformations on paddle 2
-   :linenos:
-   :lineno-match:
-   :caption: src/demo07.py
-
-
-
 .. math::
 
 
     \vec{f}_{w}^{ndc}
 
-
-
-
-.. literalinclude:: ../../src/demo07.py
-   :language: python
-   :start-after: doc-region-begin scale paddle 2
-   :end-before: doc-region-end scale paddle 2
-   :linenos:
-   :lineno-match:
-   :caption: src/demo07.py
-
-
-.. literalinclude:: ../../src/demo07.py
-   :language: python
-   :start-after: doc-region-begin glvertex on paddle 2
-   :end-before: doc-region-end glvertex on paddle 2
-   :linenos:
-   :lineno-match:
-   :caption: src/demo07.py
 
 
 

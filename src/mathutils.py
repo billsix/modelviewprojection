@@ -131,29 +131,38 @@ def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
     return InvertibleFunction(f, f_inv)
 
 
-def rotate_90_degrees(vertex: Vertex2D) -> Vertex2D:
+# doc-region-begin define rotate
+def rotate_90_degrees() -> Callable[Vertex2D, Vertex2D]:
     """90-degree counterclockwise rotation (not a full invertible function)."""
-    return Vertex2D(-vertex.y, vertex.x)
+
+    # fmt: off
+    def f(vertex: Vertex2D) -> Vertex2D:
+        return Vertex2D(-vertex.y, vertex.x)
+
+    def f_inv(vertex: Vertex2D) -> Vertex2D:
+        return Vertex2D(vertex.y, -vertex.x)
+    # fmt: on
+
+    return InvertibleFunction(f, f_inv)
 
 
 def rotate(angle_in_radians: float) -> InvertibleFunction:
     """Returns an invertible rotation function."""
-    cos_a = math.cos(angle_in_radians)
-    sin_a = math.sin(angle_in_radians)
 
+    r90: Callable[Vertex2D, Vertex2D] = rotate_90_degrees()
+
+    # fmt: off
     def f(vertex: Vertex2D) -> Vertex2D:
-        return Vertex2D(
-            cos_a * vertex.x - sin_a * vertex.y,
-            sin_a * vertex.x + cos_a * vertex.y,
-        )
+        return math.cos(angle_in_radians) * vertex + math.sin(angle_in_radians) * r90(vertex)
 
     def f_inv(vertex: Vertex2D) -> Vertex2D:
-        return Vertex2D(
-            cos_a * vertex.x + sin_a * vertex.y,
-            -sin_a * vertex.x + cos_a * vertex.y,
-        )
+        return math.cos(angle_in_radians) * vertex + math.sin(angle_in_radians) * inverse(r90)(vertex)
+    # fmt: on
 
     return InvertibleFunction(f, f_inv)
+
+
+# doc-region-end define rotate
 
 
 def rotate_around(angle_in_radians: float, center: Vertex2D) -> InvertibleFunction:
