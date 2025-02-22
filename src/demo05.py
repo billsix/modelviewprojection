@@ -104,10 +104,6 @@ def draw_in_square_viewport() -> None:
     )
 
 
-# doc-region-begin define vertex class
-# doc-region-end define vertex class
-
-
 # doc-region-begin define paddle class
 @dataclass
 class Paddle:

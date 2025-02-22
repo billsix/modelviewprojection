@@ -460,22 +460,55 @@ and convert them to NDC.
 
 
 
-.. literalinclude:: ../../src/demo06.py
+.. literalinclude:: ../../src/mathutils.py
+   :language: python
+   :start-after: doc-region-begin define invertible function
+   :end-before: doc-region-end define invertible function
+   :linenos:
+   :lineno-match:
+   :caption: src/mathutils.py
+
+.. literalinclude:: ../../src/mathutils.py
    :language: python
    :start-after: doc-region-begin define vertex class
    :end-before: doc-region-end define vertex class
    :linenos:
    :lineno-match:
-   :caption: src/demo06.py
+   :caption: src/mathutils.py
 
+.. literalinclude:: ../../src/mathutils.py
+   :language: python
+   :start-after: doc-region-begin define add
+   :end-before: doc-region-end define add
+   :linenos:
+   :lineno-match:
+   :caption: src/mathutils.py
 
-.. literalinclude:: ../../src/demo06.py
+.. literalinclude:: ../../src/mathutils.py
+   :language: python
+   :start-after: doc-region-begin define translate
+   :end-before: doc-region-end define translate
+   :linenos:
+   :lineno-match:
+   :caption: src/mathutils.py
+
+.. literalinclude:: ../../src/mathutils.py
+   :language: python
+   :start-after: doc-region-begin define mul
+   :end-before: doc-region-end define mul
+   :linenos:
+   :lineno-match:
+   :caption: src/mathutils.py
+
+.. literalinclude:: ../../src/mathutils.py
    :language: python
    :start-after: doc-region-begin define uniform scale
    :end-before: doc-region-end define uniform scale
    :linenos:
    :lineno-match:
-   :caption: src/demo06.py
+   :caption: src/mathutils.py
+
+
 
 
 * NEW -- Add the ability to scale a vertex, to stretch or to shrink

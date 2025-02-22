@@ -26,6 +26,7 @@ from dataclasses import dataclass
 from typing import Callable
 
 
+# doc-region-begin define invertible function
 class InvertibleFunction:
     def __init__(self, func: Callable, inverse: Callable):
         self.func = func
@@ -37,6 +38,9 @@ class InvertibleFunction:
 
 def inverse(f: InvertibleFunction) -> InvertibleFunction:
     return InvertibleFunction(f.inverse, f.func)
+
+
+# doc-region-end define invertible function
 
 
 def compose(*functions: InvertibleFunction) -> InvertibleFunction:
@@ -53,27 +57,36 @@ def compose(*functions: InvertibleFunction) -> InvertibleFunction:
     return InvertibleFunction(inner, inverse_inner)
 
 
+# doc-region-begin define vertex class
 @dataclass
 class Vertex2D:
     x: float
     y: float
+    # doc-region-end define vertex class
 
+    # doc-region-begin define add
     def __add__(self, rhs: Vertex2D) -> Vertex2D:
         return Vertex2D(x=(self.x + rhs.x), y=(self.y + rhs.y))
+
+    # doc-region-end define add
 
     def __sub__(self, rhs: Vertex2D) -> Vertex2D:
         return Vertex2D(x=(self.x - rhs.x), y=(self.y - rhs.y))
 
+    # doc-region-begin define mul
     def __mul__(self, scalar: float) -> Vertex2D:
         return Vertex2D(x=(self.x * scalar), y=(self.y * scalar))
 
     def __rmul__(self, scalar: float) -> Vertex2D:
         return self * scalar
 
+    # doc-region-end define mul
+
     def __neg__(self) -> Vertex2D:
         return -1.0 * self
 
 
+# doc-region-begin define translate
 def translate(translate_amount: Vertex2D) -> InvertibleFunction:
     def forward(vertex: Vertex2D) -> Vertex2D:
         return vertex + translate_amount
@@ -84,6 +97,10 @@ def translate(translate_amount: Vertex2D) -> InvertibleFunction:
     return InvertibleFunction(forward, inverse_inner)
 
 
+# doc-region-end define translate
+
+
+# doc-region-begin define uniform scale
 def uniform_scale(scalar: float) -> InvertibleFunction:
     if scalar == 0:
         raise ValueError("Scaling factor cannot be zero.")
@@ -95,6 +112,9 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
         return vertex / scalar
 
     return InvertibleFunction(forward, inverse_inner)
+
+
+# doc-region-end define uniform scale
 
 
 def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
