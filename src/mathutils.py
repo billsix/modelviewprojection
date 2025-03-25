@@ -70,8 +70,11 @@ class Vertex2D:
 
     # doc-region-end define add
 
+    # doc-region-begin define subtract
     def __sub__(self, rhs: Vertex2D) -> Vertex2D:
         return Vertex2D(x=(self.x - rhs.x), y=(self.y - rhs.y))
+
+    # doc-region-end define subtract
 
     # doc-region-begin define mul
     def __mul__(self, scalar: float) -> Vertex2D:
@@ -165,7 +168,9 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 # doc-region-end define rotate
 
 
-def rotate_around(angle_in_radians: float, center: Vertex2D) -> InvertibleFunction:
+def rotate_around(
+    angle_in_radians: float, center: Vertex2D
+) -> InvertibleFunction:
     """Returns an invertible rotation function around a given center."""
     translation_to_origin = translate(-center)
     rotation = rotate(angle_in_radians)

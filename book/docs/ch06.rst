@@ -457,16 +457,13 @@ and convert them to NDC.
     y_{w}
     \end{bmatrix}
 
+Modelviewprojection comes with a math library, the 2D version is
+named "mathutils.py".  The main class in this module is "Vertex2D",
+which has two components: and x value, and a y value.  To add a vertex2d
+to another one on the right hand side of the '+' symbol, we just add
+the respective components together, and create a new Vertex2D.
 
 
-
-.. literalinclude:: ../../src/mathutils.py
-   :language: python
-   :start-after: doc-region-begin define invertible function
-   :end-before: doc-region-end define invertible function
-   :linenos:
-   :lineno-match:
-   :caption: src/mathutils.py
 
 .. literalinclude:: ../../src/mathutils.py
    :language: python
@@ -476,6 +473,9 @@ and convert them to NDC.
    :lineno-match:
    :caption: src/mathutils.py
 
+In a Python class, we can overload the '+' symbol, to make
+objects addable, by implementing the '__add__' method.
+
 .. literalinclude:: ../../src/mathutils.py
    :language: python
    :start-after: doc-region-begin define add
@@ -483,6 +483,27 @@ and convert them to NDC.
    :linenos:
    :lineno-match:
    :caption: src/mathutils.py
+
+We can also model the opposite procedure, subtraction,
+by implementing the "__sub__" method.
+
+.. literalinclude:: ../../src/mathutils.py
+   :language: python
+   :start-after: doc-region-begin define subtract
+   :end-before: doc-region-end define subtract
+   :linenos:
+   :lineno-match:
+   :caption: src/mathutils.py
+
+
+In our graphics code, instead of using "a+b", we'll use a more descriptive
+name: "translate", which is implemented using the addition symbol.  But a few
+things to note, "translate" is a function on the mathutils module, not a method
+on Vertex2D class, and it's wrapped in a class named "InvertibleFunction"
+
+
+
+
 
 .. literalinclude:: ../../src/mathutils.py
    :language: python
@@ -492,6 +513,40 @@ and convert them to NDC.
    :lineno-match:
    :caption: src/mathutils.py
 
+Notice in particular that the "translate_amount" parameter
+is passed as an argument to "translate",
+but the function for translating, named "f", and the inverse of "f" named "f_inv", take a Vertex2D.
+This is because we will be translating many Vertex2Ds using the same amount.
+
+
+Invertible functions are stored in pairs, with the "active" function
+being the first one passed to the constructor.  So for translate above,
+the adding of the Vertex2Ds will be the function, but InvertibleFunction
+holds onto the second function, for later use to be able to undo the function's
+application.
+
+Here's how InvertibleFunction is implemented:
+
+.. literalinclude:: ../../src/mathutils.py
+   :language: python
+   :start-after: doc-region-begin define invertible function
+   :end-before: doc-region-end define invertible function
+   :linenos:
+   :lineno-match:
+   :caption: src/mathutils.py
+
+Just as Python allows an object to override the '+' and '-' syntax,
+in Python, any object can be treated as a function, by implementing the
+"__call__" method
+
+
+
+Back to method's on the Vertex2D class.  We can also define scaling of a Vertex2D,
+by implementing multiplication of Vertex2D's by a scalar, meaning a real number
+that scaled the Vertex2D by the same amount in all directions.  We do this
+by implementing the '__mul__' and '__rmul__' methods, where __rmul__ just means
+that this object is on the right hand side of the multiplication.
+
 .. literalinclude:: ../../src/mathutils.py
    :language: python
    :start-after: doc-region-begin define mul
@@ -499,6 +554,12 @@ and convert them to NDC.
    :linenos:
    :lineno-match:
    :caption: src/mathutils.py
+
+Just like we made a top level invertible function called "translate" for addition,
+we are going to do the same for multiplication, and call it "uniform_scale".
+Notice in particular that the scalar is passed as an argument to "uniform_scale",
+but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vertex2D.
+This is because we will be scaling many Vertex2Ds using the same scaling factor.
 
 .. literalinclude:: ../../src/mathutils.py
    :language: python
