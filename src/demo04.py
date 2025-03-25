@@ -135,7 +135,12 @@ paddle1 = Paddle(
 )
 
 paddle2 = Paddle(
-    vertices=[Vertex(0.8, -0.3), Vertex(1.0, -0.3), Vertex(1.0, 0.3), Vertex(0.8, 0.3)],
+    vertices=[
+        Vertex(0.8, -0.3),
+        Vertex(1.0, -0.3),
+        Vertex(1.0, 0.3),
+        Vertex(0.8, 0.3),
+    ],
     r=1.0,
     g=1.0,
     b=0.0,
@@ -175,7 +180,8 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
 

@@ -47,7 +47,14 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from mathutils import Vertex2D, compose, inverse, rotate, translate, uniform_scale
+from mathutils import (
+    Vertex2D,
+    compose,
+    inverse,
+    rotate,
+    translate,
+    uniform_scale,
+)
 
 if not glfw.init():
     sys.exit()
@@ -147,7 +154,9 @@ paddle2: Paddle = Paddle(
 
 @dataclass
 class Camera:
-    position_ws: Vertex2D = field(default_factory=lambda: Vertex2D(x=0.0, y=0.0))
+    position_ws: Vertex2D = field(
+        default_factory=lambda: Vertex2D(x=0.0, y=0.0)
+    )
     # doc-region-end define camera class
 
 
@@ -195,7 +204,10 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
     # doc-region-end begin event loop
-    while glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE:
+    while (
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+    ):
         pass
 
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -220,7 +232,9 @@ while not glfw.window_should_close(window):
         )
         paddle1_vertex_ws: Vertex2D = ms_to_ws(p1_v_ms)
 
-        ws_to_cs: Callable[Vertex2D, Vertex2D] = inverse(translate(camera.position_ws))
+        ws_to_cs: Callable[Vertex2D, Vertex2D] = inverse(
+            translate(camera.position_ws)
+        )
         paddle1_vertex_cs: Vertex2D = ws_to_cs(paddle1_vertex_ws)
 
         cs_to_ndc: Callable[Vertex2D, Vertex2D] = uniform_scale(1.0 / 10.0)
