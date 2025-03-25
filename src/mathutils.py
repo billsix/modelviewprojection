@@ -112,7 +112,7 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
         return vertex * scalar
 
     def f_inv(vertex: Vertex2D) -> Vertex2D:
-        return vertex / scalar
+        return vertex * (1.0 / scalar)
 
     return InvertibleFunction(f, f_inv)
 
@@ -168,12 +168,10 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 # doc-region-end define rotate
 
 
-def rotate_around(
-    angle_in_radians: float, center: Vertex2D
-) -> InvertibleFunction:
+def rotate_around(angle_in_radians: float, center: Vertex2D) -> InvertibleFunction:
     """Returns an invertible rotation function around a given center."""
-    translation_to_origin = translate(-center)
-    rotation = rotate(angle_in_radians)
-    translation_back = translate(center)
+    translation_to_origin: Callable[Vertex2D, Vertex2D] = translate(-center)
+    rotation: Callable[Vertex2D, Vertex2D] = rotate(angle_in_radians)
+    translation_back: Callable[Vertex2D, Vertex2D] = translate(center)
 
     return compose(translation_back, rotation, translation_to_origin)
