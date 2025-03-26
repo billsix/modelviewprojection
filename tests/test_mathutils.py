@@ -40,73 +40,81 @@ from mathutils import (
 
 def test___add__():
     result = Vertex2D(x=1.0, y=2.0) + Vertex2D(x=3.0, y=4.0)
-    assert result == Vertex2D(x=4.0, y=6.0)
+    assert result == Vertex2D(x=approx(4.0), y=approx(6.0))
 
 
 def test___sub__():
     result = Vertex2D(x=5.0, y=8.0) - Vertex2D(x=1.0, y=2.0)
-    assert result == Vertex2D(x=4.0, y=6.0)
+    assert result == Vertex2D(x=approx(4.0), y=approx(6.0))
 
 
 def test___mul__():
     result = Vertex2D(x=2.0, y=3.0) * 4.0
-    assert result == Vertex2D(x=8.0, y=12.0)
+    assert result == Vertex2D(x=approx(8.0), y=approx(12.0))
 
 
 def test___rmul__():
     result = 4.0 * Vertex2D(x=2.0, y=3.0)
-    assert result == Vertex2D(x=8.0, y=12.0)
+    assert result == Vertex2D(x=approx(8.0), y=approx(12.0))
 
 
 def test___neg__():
     result = -Vertex2D(x=2.0, y=3.0)
-    assert result == Vertex2D(x=-2.0, y=-3.0)
+    assert result == Vertex2D(x=approx(-2.0), y=approx(-3.0))
 
 
 def test_translate():
     t: Callable[Vertex2D, Vertex2D] = translate(Vertex2D(x=2.0, y=3.0))
-    assert t(Vertex2D(x=0.0, y=0.0)) == Vertex2D(x=2.0, y=3.0)
-    assert t(Vertex2D(x=1.0, y=0.0)) == Vertex2D(x=3.0, y=3.0)
-    assert t(Vertex2D(x=0.0, y=1.0)) == Vertex2D(x=2.0, y=4.0)
+    assert t(Vertex2D(x=0.0, y=0.0)) == Vertex2D(x=approx(2.0), y=approx(3.0))
+    assert t(Vertex2D(x=1.0, y=0.0)) == Vertex2D(x=approx(3.0), y=approx(3.0))
+    assert t(Vertex2D(x=0.0, y=1.0)) == Vertex2D(x=approx(2.0), y=approx(4.0))
 
     t_inv: Callable[Vertex2D, Vertex2D] = inverse(t)
-    assert t_inv(t(Vertex2D(x=0.0, y=0.0))) == Vertex2D(x=0.0, y=0.0)
-    assert t_inv(t(Vertex2D(x=1.0, y=0.0))) == Vertex2D(x=1.0, y=0.0)
-    assert t_inv(t(Vertex2D(x=0.0, y=1.0))) == Vertex2D(x=0.0, y=1.0)
+    assert t_inv(t(Vertex2D(x=0.0, y=0.0))) == Vertex2D(
+        x=approx(0.0), y=approx(0.0)
+    )
+    assert t_inv(t(Vertex2D(x=1.0, y=0.0))) == Vertex2D(
+        x=approx(1.0), y=approx(0.0)
+    )
+    assert t_inv(t(Vertex2D(x=0.0, y=1.0))) == Vertex2D(
+        x=approx(0.0), y=approx(1.0)
+    )
 
 
 def test_compose():
     t: Callable[Vertex2D, Vertex2D] = translate(Vertex2D(x=2.0, y=3.0))
     t_inv: Callable[Vertex2D, Vertex2D] = inverse(t)
 
-    assert compose(t_inv, t)(Vertex2D(x=0.0, y=0.0)) == Vertex2D(x=0.0, y=0.0)
+    assert compose(t_inv, t)(Vertex2D(x=0.0, y=0.0)) == Vertex2D(
+        x=approx(0.0), y=approx(0.0)
+    )
     id: Callable[Vertex2D, Vertex2D] = compose(t_inv, t)
-    assert id(Vertex2D(x=1.0, y=0.0)) == Vertex2D(x=1.0, y=0.0)
-    assert id(Vertex2D(x=0.0, y=1.0)) == Vertex2D(x=0.0, y=1.0)
+    assert id(Vertex2D(x=1.0, y=0.0)) == Vertex2D(x=approx(1.0), y=approx(0.0))
+    assert id(Vertex2D(x=0.0, y=1.0)) == Vertex2D(x=approx(0.0), y=approx(1.0))
 
 
 def test_uniform_scale():
     s: Callable[Vertex2D, Vertex2D] = uniform_scale(4.0)
 
     result = s(Vertex2D(x=2.0, y=3.0))
-    assert result == Vertex2D(x=8.0, y=12.0)
-    assert inverse(s)(result) == Vertex2D(x=2.0, y=3.0)
+    assert result == Vertex2D(x=approx(8.0), y=approx(12.0))
+    assert inverse(s)(result) == Vertex2D(x=approx(2.0), y=approx(3.0))
 
 
 def test_scale():
     s: Callable[Vertex2D, Vertex2D] = scale(scale_x=2.0, scale_y=3.0)
 
     result = s(Vertex2D(x=5.0, y=6.0))
-    assert result == Vertex2D(x=10.0, y=18.0)
-    assert inverse(s)(result) == Vertex2D(x=5.0, y=6.0)
+    assert result == Vertex2D(x=approx(10.0), y=approx(18.0))
+    assert inverse(s)(result) == Vertex2D(x=approx(5.0), y=approx(6.0))
 
 
 def test_rotate_90():
     r: Callable[Vertex2D, Vertex2D] = rotate_90_degrees()
 
     result = r(Vertex2D(x=5.0, y=6.0))
-    assert result == Vertex2D(x=-6.0, y=5.0)
-    assert inverse(r)(result) == Vertex2D(x=5.0, y=6.0)
+    assert result == Vertex2D(x=approx(-6.0), y=approx(5.0))
+    assert inverse(r)(result) == Vertex2D(x=approx(5.0), y=approx(6.0))
 
 
 def test_rotate():
