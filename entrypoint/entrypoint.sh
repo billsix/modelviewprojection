@@ -1,6 +1,6 @@
 #!/bin/env bash
 
-cd /book/docs
+cd /mvp/book/docs
 make html
 
 
@@ -15,9 +15,9 @@ cp -r * /output/modelviewprojection/
 touch /output/modelviewprojection/.nojekyll
 
 
-cd /book/docs
+cd /mvp/book/docs
 make latexpdf
 cp  _build/latex/*pdf /output/modelviewprojection/
 
 make epub
-cp _build/epub/* /output/modelviewprojection/
+cp _build/epub/*epub /output/modelviewprojection/

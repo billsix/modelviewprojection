@@ -15,11 +15,18 @@ RUN apt update && apt upgrade -y && \
                       inkscape \
                       latexmk \
                       cargo \
+                      python3-pytest \
                       aspell-en && \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()"
 
-COPY ./book /book/
-COPY ./src /src/
+COPY ./book /mvp/book/
+COPY ./src /mvp/src/
 COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
+COPY pytest.ini /mvp/
+COPY ./tests /mvp/
+
+# Run unit tests
+# If any unit tests fail, exit and don't build the book
+RUN cd /mvp/ && pytest --exitfirst --disable-warnings
 
 ENTRYPOINT ["/entrypoint.sh"]
