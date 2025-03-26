@@ -63,6 +63,7 @@ def test___neg__():
     assert result == Vertex2D(x=approx(-2.0), y=approx(-3.0))
 
 
+# doc-region-begin translate test
 def test_translate():
     t: Callable[Vertex2D, Vertex2D] = translate(Vertex2D(x=2.0, y=3.0))
     assert t(Vertex2D(x=0.0, y=0.0)) == Vertex2D(x=approx(2.0), y=approx(3.0))
@@ -79,6 +80,9 @@ def test_translate():
     assert t_inv(t(Vertex2D(x=0.0, y=1.0))) == Vertex2D(
         x=approx(0.0), y=approx(1.0)
     )
+
+
+# doc-region-end translate test
 
 
 def test_compose():

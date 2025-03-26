@@ -525,6 +525,31 @@ the adding of the Vertex2Ds will be the function, but InvertibleFunction
 holds onto the second function, for later use to be able to undo the function's
 application.
 
+
+.. literalinclude:: ../../tests/test_mathutils.py
+   :language: python
+   :start-after: doc-region-begin translate test
+   :end-before: doc-region-end translate test
+   :linenos:
+   :lineno-match:
+   :caption: tests/test_mathutils.py
+
+The above is a unit test that shows how the translate function can be used.
+We call "translate", a function which takes a translate amount, both in the x
+direction and the y direction, but we have not yet specified what needs to be translated
+by that amount.  "translate" returns an InvertibleFunction, which is
+Callable[Vertex2D, Vertex2D].  Callable[Vertex2D, Vertex2D] is a type which
+is a function that takes a Vertex2D as input, and returns a Vertex2D (in this case,
+the output is the input, translated by Vertex2D(x=2.0, y=3.0).
+
+On the next 3 lines, we call the function t, passing in a Vertex2D to be translated, and
+we test if the result is equal to the specified amount.  ("approx", is a function from the
+pytest module, which when tested for equality, returns true if the two floating point
+numbers under comparison are "close enough").
+
+We then define a function t_inv, by calling "inverse" on function "t".  We then see that
+composing t_inv and t results in no transformation.
+
 Here's how InvertibleFunction is implemented:
 
 .. literalinclude:: ../../src/mathutils.py
