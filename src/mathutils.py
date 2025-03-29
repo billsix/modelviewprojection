@@ -23,38 +23,41 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 
 import math
 from dataclasses import dataclass
-from typing import Callable
-
+from typing import Callable, Generic, TypeVar
 
 # doc-region-begin define invertible function
-class InvertibleFunction:
-    def __init__(self, func: Callable, inverse: Callable):
-        self.func = func
-        self.inverse = inverse
+# Define a generic type variable
+T = TypeVar("T")
 
-    def __call__(self, x):
+
+class InvertibleFunction(Generic[T]):
+    def __init__(self, func: Callable[[T], T], inverse: Callable[[T], T]):
+        self.func: Callable[[T], T] = func
+        self.inverse: Callable[[T], T] = inverse
+
+    def __call__(self, x: T) -> T:
         return self.func(x)
 
 
-def inverse(f: InvertibleFunction) -> InvertibleFunction:
+def inverse(f: InvertibleFunction[T]) -> InvertibleFunction[T]:
     return InvertibleFunction(f.inverse, f.func)
 
 
 # doc-region-end define invertible function
 
 
-def compose(*functions: InvertibleFunction) -> InvertibleFunction:
+def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
     def inner(x):
         for f in reversed(functions):
-            x = f(x)
+            x: T = f(x)
         return x
 
     def f_inv(x):
         for f in functions:
-            x = inverse(f)(x)
+            x: T = inverse(f)(x)
         return x
 
-    return InvertibleFunction(inner, f_inv)
+    return InvertibleFunction[T](inner, f_inv)
 
 
 # doc-region-begin define vertex class
@@ -168,7 +171,9 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 # doc-region-end define rotate
 
 
-def rotate_around(angle_in_radians: float, center: Vertex2D) -> InvertibleFunction:
+def rotate_around(
+    angle_in_radians: float, center: Vertex2D
+) -> InvertibleFunction:
     """Returns an invertible rotation function around a given center."""
     translation_to_origin: Callable[Vertex2D, Vertex2D] = translate(-center)
     rotation: Callable[Vertex2D, Vertex2D] = rotate(angle_in_radians)
