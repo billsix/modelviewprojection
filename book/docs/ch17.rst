@@ -19,7 +19,7 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-Moving Camera in 3D Space - Demo 16
+Moving Camera in 3D Space - Demo 17
 ===================================
 
 Purpose
@@ -62,7 +62,7 @@ from the viewer would appear smaller.  This will be fixed in demo17.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo16.py in Spyder and hit the play button
+Load src/demo17.py in Spyder and hit the play button
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -142,13 +142,13 @@ rotate your head (not your neck), 45 degrees.  It is different, and quite uncomf
 We rotate the camera by the y axis first, then by the relative x axis,
 for the same reason.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin commented out camera placement
    :end-before: doc-region-end commented out camera placement
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 
@@ -190,13 +190,13 @@ to camera space.
 
 The inverted form is
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin inverted transformation to go from world space to camera space
    :end-before: doc-region-end inverted transformation to go from world space to camera space
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 
@@ -260,26 +260,26 @@ Code
 
 The camera now has two angles as instance variables.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin define camera class
    :end-before: doc-region-end define camera class
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 
 Since we want the user to be able to control the camera, we need
 to read the input.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin define handle inputs
    :end-before: doc-region-end define handle inputs
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 ::
@@ -289,13 +289,13 @@ to read the input.
 Left and right rotate the viewer's horizontal
 angle, page up and page down the vertical angle.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin handle key inputs
    :end-before: doc-region-end handle key inputs
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 
@@ -308,13 +308,13 @@ through the sky.  I.e, we want forward/backwards movement to happen relative
 to the XZ plane at the camera's position, not forward/backwards
 movement relative to camera space.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin handle key input keys
    :end-before: doc-region-end handle key input keys
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 
@@ -323,26 +323,26 @@ relative to camera space down to NDC, by moving the center of the rectangular
 prism to the origin, and scaling by the inverse of the width, height, and depth
 of the viewable region.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin define ortho
    :end-before: doc-region-end define ortho
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 
 We will make a wrapper function camera_space_to_ndc_space_fn which
 calls ortho, setting the size of the rectangular prism.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin define camera space to ndc
    :end-before: doc-region-end define camera space to ndc
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 
@@ -357,13 +357,13 @@ put this repetition into the book on purpose, so that when we
 start using matrices later, the reader will fully appreciate what
 matrices solve for us.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 
@@ -373,13 +373,13 @@ matrices solve for us.
 
 Paddle 1
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 
@@ -388,23 +388,23 @@ Square
 the square should not be visible when hidden behind the paddle1,
 as we did a translate by -10 in the z direction.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py
 
 
 
 
 Paddle 2
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo17.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo17.py

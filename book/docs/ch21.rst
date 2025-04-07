@@ -33,7 +33,7 @@ they are mandatory.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo21.py in Spyder and hit the play button
+Load src/demo21/demo21.py in Spyder and hit the play button
 
 
 Move the Paddles using the Keyboard
@@ -65,7 +65,7 @@ Description
 ^^^^^^^^^^^
 
 
-.. literalinclude:: ../../src/demo21.py
+.. literalinclude:: ../../src/demo21/demo.py
    :language: python
 
 .. literalinclude:: ../../src/demo21/triangle.vert

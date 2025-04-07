@@ -34,7 +34,7 @@ to use them in OpenGL 2.1.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo20.py in Spyder and hit the play button
+Load src/demo20/demo20.py in Spyder and hit the play button
 
 
 Move the Paddles using the Keyboard
@@ -93,23 +93,23 @@ which a driver could implement in parallel.
 
 We have some new imports, "glUseProgram", "GL_VERTEX_SHADER", "GL_FRAGMENT_SHADER"
 
-.. literalinclude:: ../../src/demo20.py
+.. literalinclude:: ../../src/demo20/demo.py
    :language: python
    :start-after: doc-region-begin new imports
    :end-before: doc-region-end new imports
    :linenos:
    :lineno-match:
-   :caption: src/demo20.py
+   :caption: src/demo20/demo.py
 
 We now ask the OpenGL driver to accept OpenGL 2.1 function calls.
 
-.. literalinclude:: ../../src/demo20.py
+.. literalinclude:: ../../src/demo20/demo.py
    :language: python
    :start-after: doc-region-begin open gl version 2.1
    :end-before: doc-region-end open gl version 2.1
    :linenos:
    :lineno-match:
-   :caption: src/demo20.py
+   :caption: src/demo20/demo.py
 
 Before the event loop starts, we send two mini programs to the GPU, the vertex
 shader and the fragment shader.  The purpose of the vertex shader is to transform
@@ -119,13 +119,13 @@ by the w; i.e. (x/w,y/w,z/w,1)
 I like to think of a matrix multiplication to a vector as a "function-application",
 in the same way we did in the lambda stack.
 
-.. literalinclude:: ../../src/demo20.py
+.. literalinclude:: ../../src/demo20/demo.py
    :language: python
    :start-after: doc-region-begin compile shaders
    :end-before: doc-region-end compile shaders
    :linenos:
    :lineno-match:
-   :caption: src/demo20.py
+   :caption: src/demo20/demo.py
 
 In the vertex shader, there are a lot of predefined variable names with values
 provided to us. "gl_Modelview_matrix" is the matrix at the top of the modelview
