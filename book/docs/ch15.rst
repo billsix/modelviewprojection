@@ -19,7 +19,7 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-Adding Depth - Enable Depth Buffer - Demo 16
+Adding Depth - Enable Depth Buffer - Demo 15
 ============================================
 
 Purpose
@@ -40,7 +40,7 @@ is further away from the camera.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo16.py in Spyder and hit the play button
+Load src/demo15.py in Spyder and hit the play button
 
 
 Move the Paddles using the Keyboard
@@ -125,13 +125,13 @@ if nearer objects are drawn in front
    Show what the color buffer and depth buffer would look like
 
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/demo15.py
    :language: python
    :start-after: doc-region-begin enable depth buffer
    :end-before: doc-region-end enable depth buffer
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/demo15.py
 
 
 the square should not be visible when hidden behind the paddle1,

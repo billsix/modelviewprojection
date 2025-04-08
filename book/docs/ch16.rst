@@ -19,7 +19,7 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-Lambda Stack - Demo 15
+Lambda Stack - Demo 16
 ======================
 
 Purpose
@@ -156,7 +156,7 @@ the paddle's model space data.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo15.py in Spyder and hit the play button
+Load src/demo16.py in Spyder and hit the play button
 
 
 Move the Paddles using the Keyboard
@@ -222,13 +222,13 @@ Push identity onto the stack, which will will never pop off of the stack.
 
 Event Loop
 ^^^^^^^^^^
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 
 ::
@@ -257,13 +257,13 @@ a new function to the top of the stack.
 
 
 
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin stack push camera space to ndc
    :end-before: doc-region-end stack push camera space to ndc
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 
 
@@ -288,13 +288,13 @@ to world space like so, read top to bottom:
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin camera space to world space, commented out
    :end-before: doc-region-end camera space to world space, commented out
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 
 But, since we need to transform world-space to camera space,
@@ -317,13 +317,13 @@ camera space are.
 
 
 
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin world space to camera space
    :end-before: doc-region-end world space to camera space
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 
 draw paddle 1
@@ -348,13 +348,13 @@ the current space
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin paddle 1 transformations
    :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 
 for each of the modelspace coordinates, apply all
@@ -363,13 +363,13 @@ this results in coordinate data in NDC space,
 which we can pass to glVertex3f
 
 
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 
 draw the square
@@ -393,13 +393,13 @@ remove these 4 transformations from the stack (done below)
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 
 Now we need to remove fns from the stack so that the
@@ -407,13 +407,13 @@ lambda stack will convert from world space to NDC.
 This will allow us to just add the transformations from
 world space to paddle2 space on the stack.
 
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin pop to get back to world space
    :end-before: doc-region-end pop to get back to world space
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 
 since paddle2's model_space is independent of paddle 1's space, only
@@ -436,13 +436,13 @@ draw paddle 2
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 
 
@@ -450,25 +450,25 @@ remove all fns from the function stack, as the next frame will set them
 clear makes the list empty, as the list (stack) will be repopulated
 the next iteration of the event loop.
 
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin clear function stack for next iteration of the event loop
    :end-before: doc-region-end clear function stack for next iteration of the event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 
 
 Swap buffers and execute another iteration of the event loop
 
-.. literalinclude:: ../../src/demo15.py
+.. literalinclude:: ../../src/demo16.py
    :language: python
    :start-after: doc-region-begin flush framebuffer
    :end-before: doc-region-end flush framebuffer
    :linenos:
    :lineno-match:
-   :caption: src/demo15.py
+   :caption: src/demo16.py
 
 Notice in the above code, adding functions to the stack is creating a shared
 context for transformations, and before we call "glVertex3f", we always call

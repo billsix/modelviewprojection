@@ -323,13 +323,13 @@ relative to camera space down to NDC, by moving the center of the rectangular
 prism to the origin, and scaling by the inverse of the width, height, and depth
 of the viewable region.
 
-.. literalinclude:: ../../src/demo17.py
+.. literalinclude:: ../../src/mathutils3d.py
    :language: python
    :start-after: doc-region-begin define ortho
    :end-before: doc-region-end define ortho
    :linenos:
    :lineno-match:
-   :caption: src/demo17.py
+   :caption: src/mathutils3d.py
 
 
 
@@ -371,40 +371,14 @@ matrices solve for us.
 
     ...
 
-Paddle 1
-
-.. literalinclude:: ../../src/demo17.py
-   :language: python
-   :start-after: doc-region-begin draw paddle 1
-   :end-before: doc-region-end draw paddle 1
-   :linenos:
-   :lineno-match:
-   :caption: src/demo17.py
-
-
-
-Square
 
 the square should not be visible when hidden behind the paddle1,
 as we did a translate by -10 in the z direction.
 
 .. literalinclude:: ../../src/demo17.py
    :language: python
-   :start-after: doc-region-begin draw square
-   :end-before: doc-region-end draw square
-   :linenos:
-   :lineno-match:
-   :caption: src/demo17.py
-
-
-
-
-Paddle 2
-
-.. literalinclude:: ../../src/demo17.py
-   :language: python
-   :start-after: doc-region-begin draw paddle 2
-   :end-before: doc-region-end draw paddle 2
+   :start-after: doc-region-begin draw scene
+   :end-before: doc-region-end draw scene
    :linenos:
    :lineno-match:
    :caption: src/demo17.py

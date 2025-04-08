@@ -43,7 +43,9 @@ class Vertex3D:
         return Vertex3D(x=(self.x - rhs.x), y=(self.y - rhs.y), z=(self.z - rhs.z))
 
     def __mul__(vertex, scalar: float) -> Vertex3D:
-        return Vertex3D(x=(vertex.x * scalar), y=(vertex.y * scalar), z=(vertex.z * scalar))
+        return Vertex3D(
+            x=(vertex.x * scalar), y=(vertex.y * scalar), z=(vertex.z * scalar)
+        )
 
     def __rmul__(vertex, scalar: float) -> Vertex3D:
         return vertex * scalar
@@ -126,14 +128,19 @@ def scale(scale_x: float, scale_y: float, scale_z: float) -> Vertex3D:
         raise ValueError("Scale_z cannot be zero.")
 
     def f(vertex: Vertex3D) -> Vertex3D:
-        return Vertex3D(x=(vertex.x * scale_x), y=(vertex.y * scale_y), z=(vertex.z * scale_z))
+        return Vertex3D(
+            x=(vertex.x * scale_x), y=(vertex.y * scale_y), z=(vertex.z * scale_z)
+        )
 
     def f_inv(vertex: Vertex3D) -> Vertex3D:
-        return Vertex3D(x=(vertex.x / scale_x), y=(vertex.y / scale_y), z=(vertex.z / scale_z))
+        return Vertex3D(
+            x=(vertex.x / scale_x), y=(vertex.y / scale_y), z=(vertex.z / scale_z)
+        )
 
     return InvertibleFunction(f, f_inv)
 
 
+# doc-region-begin define ortho
 def ortho(
     left: float,
     right: float,
@@ -168,7 +175,12 @@ def ortho(
     return InvertibleFunction(f, f_inv)
 
 
-def perspective(field_of_view: float, aspect_ratio: float, near_z: float, far_z: float) -> Vertex3D:
+# doc-region-end define ortho
+
+
+def perspective(
+    field_of_view: float, aspect_ratio: float, near_z: float, far_z: float
+) -> Vertex3D:
     # field_of_view, field of view, is angle of y
     # aspect_ratio is x_width / y_width
 
@@ -180,7 +192,9 @@ def perspective(field_of_view: float, aspect_ratio: float, near_z: float, far_z:
         scaled_y: float = vertex.y / vertex.z * near_z
         rectangular_prism: Vertex3D = Vertex3D(scaled_x, scaled_y, vertex.z)
 
-        fn = ortho(left=-right, right=right, bottom=-top, top=top, near=near_z, far=far_z)
+        fn = ortho(
+            left=-right, right=right, bottom=-top, top=top, near=near_z, far=far_z
+        )
         return fn(rectangular_prism)
 
     def f_inv(vertex: Vertex3D) -> Vertex3D:
@@ -191,7 +205,9 @@ def perspective(field_of_view: float, aspect_ratio: float, near_z: float, far_z:
 
 def cs_to_ndc_space_fn(vertex: Vertex3D) -> Vertex3D:
     def f(vertex: Vertex3D) -> Vertex3D:
-        fn = perspective(field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0)
+        fn = perspective(
+            field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
+        )
         return fn(vertex)
 
     def f_inv(vertex: Vertex3D) -> Vertex3D:
