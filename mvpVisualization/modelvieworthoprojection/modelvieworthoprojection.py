@@ -94,7 +94,9 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 
-window = glfw.create_window(1920, 1080, "Model View Ortho Projection", None, None)
+window = glfw.create_window(
+    1920, 1080, "Model View Ortho Projection", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -288,7 +290,8 @@ class Paddle:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                dtype=np.float32,
             ),
         )
         glDrawArrays(GL_TRIANGLES, 0, self.number_of_vertices)
@@ -459,7 +462,8 @@ class Ground:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                dtype=np.float32,
             ),
         )
         glUniform1f(self.thickness_loc, line_thickness)
@@ -675,7 +679,8 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+                    ms.get_current_matrix(ms.MatrixStack.model),
+                    dtype=np.float32,
                 ),
             )
             glUniformMatrix4fv(
@@ -907,7 +912,8 @@ class NDCCube:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                dtype=np.float32,
             ),
         )
         glUniform1f(self.thickness_loc, line_thickness)
@@ -1080,7 +1086,8 @@ class Frustum:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                dtype=np.float32,
             ),
         )
         glUniform1f(self.thickness_loc, line_thickness)
@@ -1107,7 +1114,9 @@ square_rotation = math.radians(90.0)
 rotation_around_paddle1 = math.radians(30.0)
 
 
-def handle_inputs(previous_mouse_position: Optional[Tuple[float, float]]) -> None:
+def handle_inputs(
+    previous_mouse_position: Optional[Tuple[float, float]],
+) -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -1211,7 +1220,8 @@ previous_mouse_position = None
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -1228,7 +1238,9 @@ while not glfw.window_should_close(window):
 
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item("Quit", "Cmd+Q", False, True)
+            clicked_quit, selected_quit = imgui.menu_item(
+                "Quit", "Cmd+Q", False, True
+            )
 
             if clicked_quit:
                 exit(0)
@@ -1242,7 +1254,9 @@ while not glfw.window_should_close(window):
     clicked_animation_paused, animation_paused = imgui.checkbox(
         "Pause", animation_paused
     )
-    clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
+    clicked_camera, camera.r = imgui.slider_float(
+        "Camera Radius", camera.r, 10, 1000.0
+    )
     (
         clicked_animation_time_multiplier,
         animation_time_multiplier,
@@ -1401,11 +1415,15 @@ while not glfw.window_should_close(window):
     (
         clicked_virtual_camera_positionrotx_clicked,
         virtual_camera_rot_x,
-    ) = imgui.slider_float("Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi)
+    ) = imgui.slider_float(
+        "Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi
+    )
     (
         clicked_virtual_camera_positionroty_clicked,
         virtual_camera_rot_y,
-    ) = imgui.slider_float("Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi)
+    ) = imgui.slider_float(
+        "Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi
+    )
 
     imgui.push_button_repeat(True)
     if imgui.button("Translate -Z_Cameraspace"):
@@ -1469,9 +1487,12 @@ while not glfw.window_should_close(window):
     if animation_time > 65.0:
         ms.translate(
             ms.MatrixStack.model,
-            -virtual_camera_position[0] * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[1] * min(1.0, (animation_time - 65.0) / 5.0),
-            -virtual_camera_position[2] * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[0]
+            * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[1]
+            * min(1.0, (animation_time - 65.0) / 5.0),
+            -virtual_camera_position[2]
+            * min(1.0, (animation_time - 65.0) / 5.0),
         )
 
     # draw virtual camera
@@ -1490,12 +1511,14 @@ while not glfw.window_should_close(window):
             if animation_time > 55.0:
                 ms.rotate_y(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_y * min(1.0, (animation_time - 55.0) / 5.0),
+                    virtual_camera_rot_y
+                    * min(1.0, (animation_time - 55.0) / 5.0),
                 )
             if animation_time > 60.0:
                 ms.rotate_x(
                     ms.MatrixStack.model,
-                    virtual_camera_rot_x * min(1.0, (animation_time - 60.0) / 5.0),
+                    virtual_camera_rot_x
+                    * min(1.0, (animation_time - 60.0) / 5.0),
                 )
 
             if animation_time > 55.0:
@@ -1540,7 +1563,8 @@ while not glfw.window_should_close(window):
         if animation_time > 20.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                rotation_around_paddle1 * min(1.0, (animation_time - 20.0) / 5.0),
+                rotation_around_paddle1
+                * min(1.0, (animation_time - 20.0) / 5.0),
             )
         if animation_time > 25.0:
             ms.translate(

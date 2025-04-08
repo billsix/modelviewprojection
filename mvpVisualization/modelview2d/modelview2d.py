@@ -303,7 +303,8 @@ class Paddle:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                dtype=np.float32,
             ),
         )
         glDrawArrays(GL_TRIANGLES, 0, self.number_of_vertices)
@@ -474,7 +475,8 @@ class Ground:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                dtype=np.float32,
             ),
         )
         glUniform1f(self.thickness_loc, line_thickness)
@@ -652,7 +654,8 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+                    ms.get_current_matrix(ms.MatrixStack.model),
+                    dtype=np.float32,
                 ),
             )
             glUniformMatrix4fv(
@@ -822,7 +825,8 @@ class NDCCube:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                dtype=np.float32,
             ),
         )
         glUniform1f(self.thickness_loc, line_thickness)
@@ -918,7 +922,8 @@ def highlighted_button(text: str, start_time: int, time: float) -> bool:
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -945,7 +950,9 @@ while not glfw.window_should_close(window):
         line_thickness,
     ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)
 
-    clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
+    clicked_camera, camera.r = imgui.slider_float(
+        "Camera Radius", camera.r, 10, 1000.0
+    )
     (
         clicked_animation_time_multiplier,
         animation_time_multiplier,
@@ -1050,15 +1057,21 @@ while not glfw.window_should_close(window):
     (
         clicked_virtual_camera_positionx_clicked,
         virtual_camera_position[0],
-    ) = imgui.slider_float("Camera X_Worldspace", virtual_camera_position[0], -25, 25.0)
+    ) = imgui.slider_float(
+        "Camera X_Worldspace", virtual_camera_position[0], -25, 25.0
+    )
     (
         clicked_virtual_camera_positiony_clicked,
         virtual_camera_position[1],
-    ) = imgui.slider_float("Camera Y_Worldspace", virtual_camera_position[1], -25, 25.0)
+    ) = imgui.slider_float(
+        "Camera Y_Worldspace", virtual_camera_position[1], -25, 25.0
+    )
     (
         clicked_virtual_camera_positionz_clicked,
         virtual_camera_position[2],
-    ) = imgui.slider_float("Camera Z_Worldspace", virtual_camera_position[2], -25, 25.0)
+    ) = imgui.slider_float(
+        "Camera Z_Worldspace", virtual_camera_position[2], -25, 25.0
+    )
 
     # imgui.push_button_repeat(True)
     # if imgui.button("Translate -Z_Cameraspace"):
@@ -1092,7 +1105,9 @@ while not glfw.window_should_close(window):
 
     # set the projection matrix to be ortho
     if NDC:
-        ms.ortho(left=-1.0, right=1.0, bottom=-1.0, top=1.0, near=0.0, far=550.0)
+        ms.ortho(
+            left=-1.0, right=1.0, bottom=-1.0, top=1.0, near=0.0, far=550.0
+        )
     else:
         ms.ortho(
             left=-15.0,
@@ -1120,9 +1135,12 @@ while not glfw.window_should_close(window):
     if animation_time > 60.0:
         ms.translate(
             ms.MatrixStack.model,
-            -virtual_camera_position[0] * min(1.0, (animation_time - 60.0) / 5.0),
-            -virtual_camera_position[1] * min(1.0, (animation_time - 60.0) / 5.0),
-            -virtual_camera_position[2] * min(1.0, (animation_time - 60.0) / 5.0),
+            -virtual_camera_position[0]
+            * min(1.0, (animation_time - 60.0) / 5.0),
+            -virtual_camera_position[1]
+            * min(1.0, (animation_time - 60.0) / 5.0),
+            -virtual_camera_position[2]
+            * min(1.0, (animation_time - 60.0) / 5.0),
         )
 
     # draw virtual camera
@@ -1197,7 +1215,8 @@ while not glfw.window_should_close(window):
         if animation_time > 20.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                rotation_around_paddle1 * min(1.0, (animation_time - 20.0) / 5.0),
+                rotation_around_paddle1
+                * min(1.0, (animation_time - 20.0) / 5.0),
             )
         if animation_time > 25.0:
             ms.translate(

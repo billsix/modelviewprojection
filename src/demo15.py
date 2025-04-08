@@ -51,7 +51,14 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from mathutils3d import Vertex3D, compose, inverse, rotate_z, translate, uniform_scale
+from mathutils3d import (
+    Vertex3D,
+    compose,
+    inverse,
+    rotate_z,
+    translate,
+    uniform_scale,
+)
 
 if not glfw.init():
     sys.exit()
@@ -158,7 +165,9 @@ paddle2: Paddle = Paddle(
 # doc-region-begin define camera class
 @dataclass
 class Camera:
-    position_ws: Vertex3D = field(default_factory=lambda: Vertex3D(x=0.0, y=0.0, z=0.0))
+    position_ws: Vertex3D = field(
+        default_factory=lambda: Vertex3D(x=0.0, y=0.0, z=0.0)
+    )
 
 
 camera: Camera = Camera()
@@ -226,7 +235,8 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 while not glfw.window_should_close(window):
     # doc-region-end begin event loop
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
 

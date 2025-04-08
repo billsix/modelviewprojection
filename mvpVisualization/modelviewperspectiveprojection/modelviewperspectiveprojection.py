@@ -162,7 +162,9 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 
-window = glfw.create_window(1920, 1080, "Model View Perspective Projection", None, None)
+window = glfw.create_window(
+    1920, 1080, "Model View Perspective Projection", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -910,7 +912,11 @@ cube.prepare_to_render()
 
 class Frustum:
     def __init__(
-        self, field_of_view: float, aspect_ratio: float, near_z: float, far_z: float
+        self,
+        field_of_view: float,
+        aspect_ratio: float,
+        near_z: float,
+        far_z: float,
     ) -> None:
         self.field_of_view = field_of_view
         self.aspect_ratio = aspect_ratio
@@ -1092,7 +1098,9 @@ class Frustum:
         glBindVertexArray(0)
 
 
-frustum = Frustum(field_of_view=45.0, aspect_ratio=16.0 / 9.0, near_z=-2.0, far_z=-50.0)
+frustum = Frustum(
+    field_of_view=45.0, aspect_ratio=16.0 / 9.0, near_z=-2.0, far_z=-50.0
+)
 frustum.prepare_to_render()
 
 
@@ -1110,7 +1118,9 @@ square_rotation = math.radians(90.0)
 rotation_around_paddle1 = math.radians(30.0)
 
 
-def handle_inputs(previous_mouse_position: Optional[Tuple[float, float]]) -> None:
+def handle_inputs(
+    previous_mouse_position: Optional[Tuple[float, float]],
+) -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -1214,7 +1224,8 @@ previous_mouse_position = None
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -1231,7 +1242,9 @@ while not glfw.window_should_close(window):
 
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item("Quit", "Cmd+Q", False, True)
+            clicked_quit, selected_quit = imgui.menu_item(
+                "Quit", "Cmd+Q", False, True
+            )
 
             if clicked_quit:
                 exit(0)
@@ -1255,7 +1268,9 @@ while not glfw.window_should_close(window):
         (
             clicked_animation_time_multiplier,
             animation_time_multiplier,
-        ) = imgui.slider_float("Sim Speed", animation_time_multiplier, -10.0, 10.0)
+        ) = imgui.slider_float(
+            "Sim Speed", animation_time_multiplier, -10.0, 10.0
+        )
         if imgui.button("Restart"):
             animation_time = 0.0
 
@@ -1272,7 +1287,9 @@ while not glfw.window_should_close(window):
                     StepNumber.paddle_1_translate.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.paddle_1_translate.value.start_time
+                    animation_time = (
+                        StepNumber.paddle_1_translate.value.start_time
+                    )
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
@@ -1284,7 +1301,9 @@ while not glfw.window_should_close(window):
                     animation_time = StepNumber.paddle_1_rotate.value.start_time
                 imgui.same_line()
                 imgui.text(" ) (x) ")
-                if imgui.tree_node("Square->World", imgui.TREE_NODE_DEFAULT_OPEN):
+                if imgui.tree_node(
+                    "Square->World", imgui.TREE_NODE_DEFAULT_OPEN
+                ):
                     imgui.text("f_square_to_world(x) = ")
                     imgui.text(" f_paddle1_to_world o (")
                     imgui.text("      ")
@@ -1294,7 +1313,9 @@ while not glfw.window_should_close(window):
                         StepNumber.square_translate_z.value.start_time,
                         animation_time,
                     ):
-                        animation_time = StepNumber.square_translate_z.value.start_time
+                        animation_time = (
+                            StepNumber.square_translate_z.value.start_time
+                        )
                     imgui.same_line()
                     imgui.text(" o ")
                     imgui.same_line()
@@ -1314,7 +1335,9 @@ while not glfw.window_should_close(window):
                         StepNumber.square_translate_x.value.start_time,
                         animation_time,
                     ):
-                        animation_time = StepNumber.square_translate_x.value.start_time
+                        animation_time = (
+                            StepNumber.square_translate_x.value.start_time
+                        )
                     imgui.same_line()
                     imgui.text(" o ")
                     imgui.same_line()
@@ -1338,7 +1361,9 @@ while not glfw.window_should_close(window):
                     StepNumber.paddle_2_translate.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.paddle_2_translate.value.start_time
+                    animation_time = (
+                        StepNumber.paddle_2_translate.value.start_time
+                    )
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
@@ -1359,7 +1384,9 @@ while not glfw.window_should_close(window):
                     StepNumber.camera_translate.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.camera_translate.value.start_time
+                    animation_time = (
+                        StepNumber.camera_translate.value.start_time
+                    )
                 imgui.same_line()
                 imgui.text(" o ")
                 imgui.same_line()
@@ -1395,7 +1422,9 @@ while not glfw.window_should_close(window):
                     StepNumber.camera_inverse_rotate_x.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.camera_inverse_rotate_x.value.start_time
+                    animation_time = (
+                        StepNumber.camera_inverse_rotate_x.value.start_time
+                    )
                 imgui.same_line()
                 imgui.text(" (")
                 imgui.same_line()
@@ -1404,7 +1433,9 @@ while not glfw.window_should_close(window):
                     StepNumber.camera_inverse_rotate_y.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.camera_inverse_rotate_y.value.start_time
+                    animation_time = (
+                        StepNumber.camera_inverse_rotate_y.value.start_time
+                    )
                 imgui.same_line()
                 imgui.text(" (")
                 imgui.same_line()
@@ -1429,7 +1460,9 @@ while not glfw.window_should_close(window):
                     StepNumber.camera_frustum_squash_y.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.camera_frustum_squash_y.value.start_time
+                    animation_time = (
+                        StepNumber.camera_frustum_squash_y.value.start_time
+                    )
                 imgui.same_line()
                 imgui.text(" (")
                 imgui.same_line()
@@ -1438,7 +1471,9 @@ while not glfw.window_should_close(window):
                     StepNumber.camera_frustum_squash_x.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.camera_frustum_squash_x.value.start_time
+                    animation_time = (
+                        StepNumber.camera_frustum_squash_x.value.start_time
+                    )
                 imgui.same_line()
                 imgui.text(" * x)")
                 imgui.tree_pop()
@@ -1452,7 +1487,9 @@ while not glfw.window_should_close(window):
                     StepNumber.camera_frustum_scale.value.start_time,
                     animation_time,
                 ):
-                    animation_time = StepNumber.camera_frustum_scale.value.start_time
+                    animation_time = (
+                        StepNumber.camera_frustum_scale.value.start_time
+                    )
                 imgui.same_line()
                 imgui.text(" (")
                 imgui.same_line()
@@ -1492,11 +1529,15 @@ while not glfw.window_should_close(window):
         (
             clicked_virtual_camera_positionrotx_clicked,
             virtual_camera_rot_x,
-        ) = imgui.slider_float("Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi)
+        ) = imgui.slider_float(
+            "Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi
+        )
         (
             clicked_virtual_camera_positionroty_clicked,
             virtual_camera_rot_y,
-        ) = imgui.slider_float("Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi)
+        ) = imgui.slider_float(
+            "Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi
+        )
 
         imgui.push_button_repeat(True)
         if imgui.button("Translate -Z_Cameraspace"):
@@ -1524,7 +1565,9 @@ while not glfw.window_should_close(window):
         (
             clicked_virtual_camera_aspect_ratio,
             frustum.aspect_ratio,
-        ) = imgui.slider_float("Camera AspectRatio", frustum.aspect_ratio, 0.1, 3.0)
+        ) = imgui.slider_float(
+            "Camera AspectRatio", frustum.aspect_ratio, 0.1, 3.0
+        )
 
         if clicked_virtual_camera_aspect_ratio:
             frustum.prepare_to_render()
@@ -1541,7 +1584,10 @@ while not glfw.window_should_close(window):
             clicked_virtual_camera_far_z,
             frustum.far_z,
         ) = imgui.slider_float(
-            "Camera far_z", frustum.far_z, frustum.near_z, frustum.near_z - 500.0
+            "Camera far_z",
+            frustum.far_z,
+            frustum.near_z,
+            frustum.near_z - 500.0,
         )
 
         if clicked_virtual_camera_far_z:
@@ -1659,7 +1705,9 @@ while not glfw.window_should_close(window):
             0.0,
         )
     if center_view_on == CenterViewOn.camera:
-        if animation_time > (StepNumber.camera_inverse_translate.value.start_time):
+        if animation_time > (
+            StepNumber.camera_inverse_translate.value.start_time
+        ):
             (
                 ms.translate(
                     ms.MatrixStack.model,
@@ -1684,11 +1732,17 @@ while not glfw.window_should_close(window):
                     ms.translate(
                         ms.MatrixStack.model,
                         -virtual_camera_position[0]
-                        * StepNumber.camera_translate.value.interpolate(animation_time),
+                        * StepNumber.camera_translate.value.interpolate(
+                            animation_time
+                        ),
                         -virtual_camera_position[1]
-                        * StepNumber.camera_translate.value.interpolate(animation_time),
+                        * StepNumber.camera_translate.value.interpolate(
+                            animation_time
+                        ),
                         -virtual_camera_position[2]
-                        * StepNumber.camera_translate.value.interpolate(animation_time),
+                        * StepNumber.camera_translate.value.interpolate(
+                            animation_time
+                        ),
                     ),
                 )
 
@@ -1704,23 +1758,33 @@ while not glfw.window_should_close(window):
         ms.rotate_x(
             ms.MatrixStack.model,
             -virtual_camera_rot_x
-            * StepNumber.camera_inverse_rotate_x.value.interpolate(animation_time),
+            * StepNumber.camera_inverse_rotate_x.value.interpolate(
+                animation_time
+            ),
         )
     if animation_time > (StepNumber.camera_inverse_rotate_y.value.start_time):
         ms.rotate_y(
             ms.MatrixStack.model,
             -virtual_camera_rot_y
-            * StepNumber.camera_inverse_rotate_y.value.interpolate(animation_time),
+            * StepNumber.camera_inverse_rotate_y.value.interpolate(
+                animation_time
+            ),
         )
     if animation_time > (StepNumber.camera_inverse_translate.value.start_time):
         ms.translate(
             ms.MatrixStack.model,
             -virtual_camera_position[0]
-            * StepNumber.camera_inverse_translate.value.interpolate(animation_time),
+            * StepNumber.camera_inverse_translate.value.interpolate(
+                animation_time
+            ),
             -virtual_camera_position[1]
-            * StepNumber.camera_inverse_translate.value.interpolate(animation_time),
+            * StepNumber.camera_inverse_translate.value.interpolate(
+                animation_time
+            ),
             -virtual_camera_position[2]
-            * StepNumber.camera_inverse_translate.value.interpolate(animation_time),
+            * StepNumber.camera_inverse_translate.value.interpolate(
+                animation_time
+            ),
         )
 
     # draw virtual camera
@@ -1730,23 +1794,33 @@ while not glfw.window_should_close(window):
                 ms.translate(
                     ms.MatrixStack.model,
                     virtual_camera_position[0]
-                    * StepNumber.camera_translate.value.interpolate(animation_time),
+                    * StepNumber.camera_translate.value.interpolate(
+                        animation_time
+                    ),
                     virtual_camera_position[1]
-                    * StepNumber.camera_translate.value.interpolate(animation_time),
+                    * StepNumber.camera_translate.value.interpolate(
+                        animation_time
+                    ),
                     virtual_camera_position[2]
-                    * StepNumber.camera_translate.value.interpolate(animation_time),
+                    * StepNumber.camera_translate.value.interpolate(
+                        animation_time
+                    ),
                 )
             if animation_time > (StepNumber.camera_rotate_y.value.start_time):
                 ms.rotate_y(
                     ms.MatrixStack.model,
                     virtual_camera_rot_y
-                    * StepNumber.camera_rotate_y.value.interpolate(animation_time),
+                    * StepNumber.camera_rotate_y.value.interpolate(
+                        animation_time
+                    ),
                 )
             if animation_time > (StepNumber.camera_rotate_x.value.start_time):
                 ms.rotate_x(
                     ms.MatrixStack.model,
                     virtual_camera_rot_x
-                    * StepNumber.camera_rotate_x.value.interpolate(animation_time),
+                    * StepNumber.camera_rotate_x.value.interpolate(
+                        animation_time
+                    ),
                 )
 
             ground.render(animation_time)
@@ -1767,9 +1841,13 @@ while not glfw.window_should_close(window):
             ms.translate(
                 ms.MatrixStack.model,
                 paddle1.position[0]
-                * StepNumber.paddle_1_translate.value.interpolate(animation_time),
+                * StepNumber.paddle_1_translate.value.interpolate(
+                    animation_time
+                ),
                 paddle1.position[1]
-                * StepNumber.paddle_1_translate.value.interpolate(animation_time),
+                * StepNumber.paddle_1_translate.value.interpolate(
+                    animation_time
+                ),
                 0.0,
             )
         if animation_time > (StepNumber.paddle_1_rotate.value.start_time):
@@ -1794,26 +1872,38 @@ while not glfw.window_should_close(window):
                 ms.MatrixStack.model,
                 0.0,
                 0.0,
-                -5.0 * StepNumber.square_translate_z.value.interpolate(animation_time),
+                -5.0
+                * StepNumber.square_translate_z.value.interpolate(
+                    animation_time
+                ),
             )
         if animation_time > (StepNumber.square_rotate_z_first.value.start_time):
             ms.rotate_z(
                 ms.MatrixStack.model,
                 rotation_around_paddle1
-                * StepNumber.square_rotate_z_first.value.interpolate(animation_time),
+                * StepNumber.square_rotate_z_first.value.interpolate(
+                    animation_time
+                ),
             )
         if animation_time > (StepNumber.square_translate_x.value.start_time):
             ms.translate(
                 ms.MatrixStack.model,
-                1.5 * StepNumber.square_translate_x.value.interpolate(animation_time),
+                1.5
+                * StepNumber.square_translate_x.value.interpolate(
+                    animation_time
+                ),
                 0.0,
                 0.0,
             )
-        if animation_time > (StepNumber.square_rotate_z_second.value.start_time):
+        if animation_time > (
+            StepNumber.square_rotate_z_second.value.start_time
+        ):
             ms.rotate_z(
                 ms.MatrixStack.model,
                 square_rotation
-                * StepNumber.square_rotate_z_second.value.interpolate(animation_time),
+                * StepNumber.square_rotate_z_second.value.interpolate(
+                    animation_time
+                ),
             )
 
         if animation_time > (StepNumber.paddle_1_rotate.value.start_time) and (
@@ -1832,9 +1922,13 @@ while not glfw.window_should_close(window):
             ms.translate(
                 ms.MatrixStack.model,
                 paddle2.position[0]
-                * StepNumber.paddle_2_translate.value.interpolate(animation_time),
+                * StepNumber.paddle_2_translate.value.interpolate(
+                    animation_time
+                ),
                 paddle2.position[1]
-                * StepNumber.paddle_2_translate.value.interpolate(animation_time),
+                * StepNumber.paddle_2_translate.value.interpolate(
+                    animation_time
+                ),
                 0.0,
             )
         if animation_time > (StepNumber.paddle_2_rotate.value.start_time):
@@ -1844,12 +1938,17 @@ while not glfw.window_should_close(window):
                 * StepNumber.paddle_2_rotate.value.interpolate(animation_time),
             )
 
-        if animation_time > (StepNumber.paddle_2_translate.value.start_time) and (
-            animation_time < (StepNumber.camera_pre_placement_pause.value.start_time)
+        if animation_time > (
+            StepNumber.paddle_2_translate.value.start_time
+        ) and (
+            animation_time
+            < (StepNumber.camera_pre_placement_pause.value.start_time)
         ):
             axis.render(animation_time)
 
-        if animation_time > (StepNumber.camera_pre_placement_pause.value.start_time):
+        if animation_time > (
+            StepNumber.camera_pre_placement_pause.value.start_time
+        ):
             paddle2.render(animation_time)
 
     imgui.render()

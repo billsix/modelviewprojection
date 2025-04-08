@@ -100,7 +100,9 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
 
 imgui.create_context()
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 21 ", None, None)
+window = glfw.create_window(
+    500, 500, "ModelViewProjection Demo 21 ", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -205,7 +207,10 @@ class Paddle:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -215,11 +220,19 @@ class Paddle:
         color_attrib_loc = glGetAttribLocation(self.shader, "color_in")
         glEnableVertexAttribArray(color_attrib_loc)
         glVertexAttribPointer(
-            color_attrib_loc, floatsPerColor, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+            color_attrib_loc,
+            floatsPerColor,
+            GL_FLOAT,
+            False,
+            0,
+            ctypes.c_void_p(0),
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(color), color, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(color),
+            color,
+            GL_STATIC_DRAW,
         )
 
         # reset VAO/VBO to default
@@ -353,7 +366,10 @@ class Ground:
         )
 
         glBufferData(
-            GL_ARRAY_BUFFER, glfloat_size * np.size(vertices), vertices, GL_STATIC_DRAW
+            GL_ARRAY_BUFFER,
+            glfloat_size * np.size(vertices),
+            vertices,
+            GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
@@ -461,7 +477,8 @@ time_at_beginning_of_previous_frame = glfw.get_time()
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -475,7 +492,9 @@ while not glfw.window_should_close(window):
 
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item("Quit", "Cmd+Q", False, True)
+            clicked_quit, selected_quit = imgui.menu_item(
+                "Quit", "Cmd+Q", False, True
+            )
 
             if clicked_quit:
                 exit(1)
@@ -485,7 +504,9 @@ while not glfw.window_should_close(window):
 
     imgui.begin("Custom window", True)
 
-    changed, __enable_blend__ = imgui.checkbox(label="Blend", state=__enable_blend__)
+    changed, __enable_blend__ = imgui.checkbox(
+        label="Blend", state=__enable_blend__
+    )
 
     if changed:
         if __enable_blend__:
@@ -501,7 +522,9 @@ while not glfw.window_should_close(window):
     # , but since we are not in a function, pass the current module
     staticlocal.var(sys.modules[__name__], test_bool=True, test_float=1.0)
     clicked_test_bool, test_bool = imgui.checkbox("test_bool", test_bool)
-    clicked_test_float, test_float = imgui.slider_float("float", test_float, 0.0, 1.0)
+    clicked_test_float, test_float = imgui.slider_float(
+        "float", test_float, 0.0, 1.0
+    )
 
     imgui.end()
 

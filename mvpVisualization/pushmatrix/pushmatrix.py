@@ -273,7 +273,8 @@ class Paddle:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                dtype=np.float32,
             ),
         )
         glDrawArrays(GL_TRIANGLES, 0, self.number_of_vertices)
@@ -434,7 +435,8 @@ class Ground:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                dtype=np.float32,
             ),
         )
         glUniform1f(self.thickness_loc, line_thickness)
@@ -639,7 +641,8 @@ class Axis:
                 1,
                 GL_TRUE,
                 np.ascontiguousarray(
-                    ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
+                    ms.get_current_matrix(ms.MatrixStack.model),
+                    dtype=np.float32,
                 ),
             )
             glUniformMatrix4fv(
@@ -861,7 +864,8 @@ class NDCCube:
             1,
             GL_TRUE,
             np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection), dtype=np.float32
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                dtype=np.float32,
             ),
         )
         glUniform1f(self.thickness_loc, line_thickness)
@@ -991,7 +995,8 @@ previous_mouse_position = None
 while not glfw.window_should_close(window):
     # poll the time to try to get a constant framerate
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     # set for comparison on the next frame
@@ -1008,7 +1013,9 @@ while not glfw.window_should_close(window):
 
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item("Quit", "Cmd+Q", False, True)
+            clicked_quit, selected_quit = imgui.menu_item(
+                "Quit", "Cmd+Q", False, True
+            )
 
             if clicked_quit:
                 exit(0)
@@ -1026,7 +1033,9 @@ while not glfw.window_should_close(window):
         line_thickness,
     ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)
 
-    clicked_camera, camera.r = imgui.slider_float("Camera Radius", camera.r, 10, 1000.0)
+    clicked_camera, camera.r = imgui.slider_float(
+        "Camera Radius", camera.r, 10, 1000.0
+    )
     (
         clicked_animation_time_multiplier,
         animation_time_multiplier,
@@ -1214,7 +1223,8 @@ while not glfw.window_should_close(window):
             if animation_time > 20.0:
                 ms.rotate_z(
                     ms.MatrixStack.model,
-                    rotation_around_paddle1 * min(1.0, (animation_time - 20.0) / 5.0),
+                    rotation_around_paddle1
+                    * min(1.0, (animation_time - 20.0) / 5.0),
                 )
             if animation_time > 25.0:
                 ms.translate(

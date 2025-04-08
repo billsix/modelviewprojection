@@ -251,7 +251,8 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 while not glfw.window_should_close(window):
     # doc-region-end begin event loop
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -268,7 +269,9 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw scene
     # cameraspace to NDC
     with push_transformation(
-        ortho(left=-10.0, right=10.0, bottom=-10.0, top=10.0, near=-0.1, far=-30.0)
+        ortho(
+            left=-10.0, right=10.0, bottom=-10.0, top=10.0, near=-0.1, far=-30.0
+        )
     ):
         # world space to camera space, which is inverse of camera space to world space
         with push_transformation(
@@ -287,7 +290,9 @@ while not glfw.window_should_close(window):
                 glColor3f(paddle1.r, paddle1.g, paddle1.b)
                 glBegin(GL_QUADS)
                 for p1_v_ms in paddle1.vertices:
-                    paddle1_vertex_ndc = fn_stack.modelspace_to_ndc_fn()(p1_v_ms)
+                    paddle1_vertex_ndc = fn_stack.modelspace_to_ndc_fn()(
+                        p1_v_ms
+                    )
                     glVertex3f(
                         paddle1_vertex_ndc.x,
                         paddle1_vertex_ndc.y,
@@ -324,7 +329,9 @@ while not glfw.window_should_close(window):
                 glColor3f(paddle2.r, paddle2.g, paddle2.b)
                 glBegin(GL_QUADS)
                 for p2_v_ms in paddle2.vertices:
-                    paddle2_vertex_ndc = fn_stack.modelspace_to_ndc_fn()(p2_v_ms)
+                    paddle2_vertex_ndc = fn_stack.modelspace_to_ndc_fn()(
+                        p2_v_ms
+                    )
                     glVertex3f(
                         paddle2_vertex_ndc.x,
                         paddle2_vertex_ndc.y,

@@ -37,10 +37,14 @@ class Vertex3D:
     z: float
 
     def __add__(self, rhs: Vertex3D) -> Vertex3D:
-        return Vertex3D(x=(self.x + rhs.x), y=(self.y + rhs.y), z=(self.z + rhs.z))
+        return Vertex3D(
+            x=(self.x + rhs.x), y=(self.y + rhs.y), z=(self.z + rhs.z)
+        )
 
     def __sub__(self, rhs: Vertex3D) -> Vertex3D:
-        return Vertex3D(x=(self.x - rhs.x), y=(self.y - rhs.y), z=(self.z - rhs.z))
+        return Vertex3D(
+            x=(self.x - rhs.x), y=(self.y - rhs.y), z=(self.z - rhs.z)
+        )
 
     def __mul__(vertex, scalar: float) -> Vertex3D:
         return Vertex3D(
@@ -129,12 +133,16 @@ def scale(scale_x: float, scale_y: float, scale_z: float) -> Vertex3D:
 
     def f(vertex: Vertex3D) -> Vertex3D:
         return Vertex3D(
-            x=(vertex.x * scale_x), y=(vertex.y * scale_y), z=(vertex.z * scale_z)
+            x=(vertex.x * scale_x),
+            y=(vertex.y * scale_y),
+            z=(vertex.z * scale_z),
         )
 
     def f_inv(vertex: Vertex3D) -> Vertex3D:
         return Vertex3D(
-            x=(vertex.x / scale_x), y=(vertex.y / scale_y), z=(vertex.z / scale_z)
+            x=(vertex.x / scale_x),
+            y=(vertex.y / scale_y),
+            z=(vertex.z / scale_z),
         )
 
     return InvertibleFunction(f, f_inv)
@@ -193,7 +201,12 @@ def perspective(
         rectangular_prism: Vertex3D = Vertex3D(scaled_x, scaled_y, vertex.z)
 
         fn = ortho(
-            left=-right, right=right, bottom=-top, top=top, near=near_z, far=far_z
+            left=-right,
+            right=right,
+            bottom=-top,
+            top=top,
+            near=near_z,
+            far=far_z,
         )
         return fn(rectangular_prism)
 
@@ -219,7 +232,9 @@ def cs_to_ndc_space_fn(vertex: Vertex3D) -> Vertex3D:
 # doc-region-begin define function stack class
 @dataclass
 class FunctionStack:
-    stack: List[Callable[Vertex3D, Vertex3D]] = field(default_factory=lambda: [])
+    stack: List[Callable[Vertex3D, Vertex3D]] = field(
+        default_factory=lambda: []
+    )
 
     def push(self, o: object):
         self.stack.append(o)

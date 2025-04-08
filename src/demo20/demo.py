@@ -144,9 +144,13 @@ class Paddle:
     )
 
 
-paddle1: Paddle = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-9.0, 0.0, 0.0]))
+paddle1: Paddle = Paddle(
+    r=0.578123, g=0.0, b=1.0, position=np.array([-9.0, 0.0, 0.0])
+)
 
-paddle2: Paddle = Paddle(r=1.0, g=1.0, b=0.0, position=np.array([9.0, 0.0, 0.0]))
+paddle2: Paddle = Paddle(
+    r=1.0, g=1.0, b=0.0, position=np.array([9.0, 0.0, 0.0])
+)
 
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
@@ -245,7 +249,8 @@ glUseProgram(shader)
 
 while not glfw.window_should_close(window):
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     time_at_beginning_of_previous_frame = glfw.get_time()
