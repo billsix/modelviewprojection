@@ -107,11 +107,11 @@ def draw_in_square_viewport() -> None:
 
 @dataclass
 class Paddle:
-    vertices: list[Vertex]
+    vertices: list[Vertex2D]
     r: float
     g: float
     b: float
-    position: Vertex
+    position: Vertex2D
 
 
 # doc-region-begin instantiate paddles

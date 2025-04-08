@@ -197,14 +197,17 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
 
     for p1_v_ms in paddle1.vertices:
+        # doc-region-begin paddle 1 transformations
         fn: Callable[Vertex2D, Vertex2D] = compose(
             uniform_scale(1.0 / 10.0),
             translate(paddle1.position),
             rotate(paddle1.rotation),
         )
+        # doc-region-end paddle 1 transformations
         paddle1_vertex_ndc: Vertex2D = fn(p1_v_ms)
         glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
     glEnd()
+    # doc-region-end draw paddle 1
 
     # draw paddle 2
     # doc-region-begin draw paddle 2

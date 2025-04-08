@@ -132,13 +132,13 @@ Description
 * starting on the z axis, rotating to x axis, thumb is on the positive y axis.
 
 
-.. literalinclude:: ../../src/demo14.py
+.. literalinclude:: ../../src/mathutils3d.py
    :language: python
-   :start-after: doc-region-begin define vertex2d
-   :end-before: doc-region-end define vertex2d
+   :start-after: doc-region-begin define vertex class
+   :end-before: doc-region-end define vertex class
    :linenos:
    :lineno-match:
-   :caption: src/demo14.py
+   :caption: src/mathutils3d
 
 
 Rotate Z
@@ -155,13 +155,13 @@ the z component at all.
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo14.py
+.. literalinclude:: ../../src/mathutils3d.py
    :language: python
    :start-after: doc-region-begin define rotate z
    :end-before: doc-region-end define rotate z
    :linenos:
    :lineno-match:
-   :caption: src/demo14.py
+   :caption: src/mathutils3d.py
 
 
 Rotate X
@@ -176,13 +176,13 @@ Rotate X
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo14.py
+.. literalinclude:: ../../src/mathutils3d.py
    :language: python
    :start-after: doc-region-begin define rotate x
    :end-before: doc-region-end define rotate x
    :linenos:
    :lineno-match:
-   :caption: src/demo14.py
+   :caption: src/mathutils3d.py
 
 
 
@@ -196,25 +196,25 @@ Rotate Y
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo14.py
+.. literalinclude:: ../../src/mathutils3d.py
    :language: python
    :start-after: doc-region-begin define rotate y
    :end-before: doc-region-end define rotate y
    :linenos:
    :lineno-match:
-   :caption: src/demo14.py
+   :caption: src/mathutils3d.py
 
 
 Scale
 ~~~~~
 
-.. literalinclude:: ../../src/demo14.py
+.. literalinclude:: ../../src/mathutils3d.py
    :language: python
    :start-after: doc-region-begin define uniform scale
    :end-before: doc-region-end define uniform scale
    :linenos:
    :lineno-match:
-   :caption: src/demo14.py
+   :caption: src/mathutils3d.py
 
 
 Code

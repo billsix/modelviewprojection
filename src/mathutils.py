@@ -171,6 +171,7 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 # doc-region-end define rotate
 
 
+# doc-region-begin define rotate around
 def rotate_around(
     angle_in_radians: float, center: Vertex2D
 ) -> InvertibleFunction:
@@ -180,3 +181,6 @@ def rotate_around(
     translation_back: Callable[Vertex2D, Vertex2D] = translate(center)
 
     return compose(translation_back, rotation, translation_to_origin)
+
+
+# doc-region-end define rotate around

@@ -395,8 +395,16 @@ remove these 4 transformations from the stack (done below)
 
 .. literalinclude:: ../../src/demo16.py
    :language: python
-   :start-after: doc-region-begin draw paddle 2
-   :end-before: doc-region-end draw paddle 2
+   :start-after: doc-region-begin square space to paddle 1 space
+   :end-before: doc-region-end square space to paddle 1 space
+   :linenos:
+   :lineno-match:
+   :caption: src/demo16.py
+
+.. literalinclude:: ../../src/demo16.py
+   :language: python
+   :start-after: doc-region-begin draw square
+   :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
    :caption: src/demo16.py
@@ -409,8 +417,8 @@ world space to paddle2 space on the stack.
 
 .. literalinclude:: ../../src/demo16.py
    :language: python
-   :start-after: doc-region-begin pop to get back to world space
-   :end-before: doc-region-end pop to get back to world space
+   :start-after: doc-region-begin back to world space
+   :end-before: doc-region-end back to world space
    :linenos:
    :lineno-match:
    :caption: src/demo16.py
@@ -434,6 +442,15 @@ draw paddle 2
     :align: center
     :alt: Demo 12
     :figclass: align-center
+
+.. literalinclude:: ../../src/demo16.py
+   :language: python
+   :start-after: doc-region-begin paddle 2 model space to world space
+   :end-before: doc-region-end paddle 2 model space to world space
+   :linenos:
+   :lineno-match:
+   :caption: src/demo16.py
+
 
 
 .. literalinclude:: ../../src/demo16.py

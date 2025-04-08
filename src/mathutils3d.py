@@ -30,6 +30,7 @@ from mathutils import InvertibleFunction, Vertex2D, compose, inverse
 from mathutils import rotate as rotate2D
 
 
+# doc-region-begin define vertex class
 @dataclass
 class Vertex3D:
     x: float
@@ -68,6 +69,10 @@ def translate(translate_amount: Vertex3D) -> InvertibleFunction:
     return InvertibleFunction(f, f_inv)
 
 
+# doc-region-end define vertex class
+
+
+# doc-region-begin define rotate x
 def rotate_x(angle_in_radians: float) -> Vertex3D:
     fn = rotate2D(angle_in_radians)
 
@@ -82,6 +87,10 @@ def rotate_x(angle_in_radians: float) -> Vertex3D:
     return InvertibleFunction(f, f_inv)
 
 
+# doc-region-end define rotate x
+
+
+# doc-region-begin define rotate y
 def rotate_y(angle_in_radians: float) -> Vertex3D:
     fn = rotate2D(angle_in_radians)
 
@@ -96,6 +105,10 @@ def rotate_y(angle_in_radians: float) -> Vertex3D:
     return InvertibleFunction(f, f_inv)
 
 
+# doc-region-end define rotate y
+
+
+# doc-region-begin define rotate z
 def rotate_z(angle_in_radians: float) -> Vertex3D:
     fn = rotate2D(angle_in_radians)
 
@@ -110,6 +123,10 @@ def rotate_z(angle_in_radians: float) -> Vertex3D:
     return InvertibleFunction(f, f_inv)
 
 
+# doc-region-end define rotate z
+
+
+# doc-region-begin define uniform scale
 def uniform_scale(scalar: float) -> InvertibleFunction:
     if scalar == 0:
         raise ValueError("Scaling factor cannot be zero.")
@@ -121,6 +138,9 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
         return vertex / scalar
 
     return InvertibleFunction(f, f_inv)
+
+
+# doc-region-end define uniform scale
 
 
 def scale(scale_x: float, scale_y: float, scale_z: float) -> Vertex3D:

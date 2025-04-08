@@ -272,14 +272,13 @@ while not glfw.window_should_close(window):
     glEnd()
     # doc-region-end draw paddle 1
 
-    # doc-region-begin draw square
-
-    # square space to paddle 1 space
+    # doc-region-begin square space to paddle 1 space
     fn_stack.push(compose(translate(Vertex3D(x=0.0, y=0.0, z=-1.0)),
                           rotate_z(rotation_around_paddle1),
                           translate(Vertex3D(x=2.0, y=0.0, z=0.0)),
                           rotate_z(square_rotation)))
-    # draw square
+    # doc-region-end square space to paddle 1 space
+    # doc-region-begin draw square
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for ms in square:
@@ -292,14 +291,17 @@ while not glfw.window_should_close(window):
     glEnd()
     # doc-region-end draw square
 
+    # doc-region-begin back to world space
     fn_stack.pop()  # pop off square space to paddle 1 space
     # current space is paddle 1 space
     fn_stack.pop()  # # pop off paddle 1 model space to world space
     # current space is world space
+    # doc-region-end back to world space
 
-    # paddle 2 model space to world space
+    # doc-region-begin paddle 2 model space to world space
     fn_stack.push(compose(translate(paddle2.position),
                           rotate_z(paddle2.rotation)))
+    # doc-region-end paddle 2 model space to world space
 
     # doc-region-begin draw paddle 2
     # draw paddle 2

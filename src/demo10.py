@@ -242,7 +242,7 @@ while not glfw.window_should_close(window):
 
         glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
     glEnd()
-    # doc-region-end paddle 1 scale
+    # doc-region-end draw paddle 1
 
     # doc-region-begin draw paddle 2
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
@@ -262,8 +262,8 @@ while not glfw.window_should_close(window):
 
         glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
     glEnd()
+    # doc-region-end draw paddle 2
 
-    # doc-region-end paddle 2 glvertex2f
     glfw.swap_buffers(window)
 
 glfw.terminate()
