@@ -23,7 +23,6 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 
 import sys
 from dataclasses import dataclass, field
-from typing import Callable
 
 import glfw
 from OpenGL.GL import (
@@ -247,7 +246,7 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ndc: Callable[Vector3D, Vector3D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector3D] = compose(
             # camera space to NDC
             uniform_scale(1.0 / 10.0),
             # world space to camera space
@@ -269,7 +268,7 @@ while not glfw.window_should_close(window):
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for ms in square:
-        ms_to_ndc: Callable[Vector3D, Vector3D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector3D] = compose(
             # camera space to NDC
             uniform_scale(1.0 / 10.0),
             # world space to camera space
@@ -294,7 +293,7 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: Callable[Vector3D, Vector3D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector3D] = compose(
             # camera space to NDC
             uniform_scale(1.0 / 10.0),
             # world space to camera space

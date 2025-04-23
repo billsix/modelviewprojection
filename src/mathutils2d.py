@@ -23,7 +23,6 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 
 import math
 from dataclasses import dataclass
-from typing import Callable
 
 from mathutils import InvertibleFunction, compose, inverse
 
@@ -106,7 +105,7 @@ def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
 
 
 # doc-region-begin define rotate
-def rotate_90_degrees() -> Callable[Vector2D, Vector2D]:
+def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
     """90-degree counterclockwise rotation (not a full invertible function)."""
 
     # fmt: off
@@ -123,7 +122,7 @@ def rotate_90_degrees() -> Callable[Vector2D, Vector2D]:
 def rotate(angle_in_radians: float) -> InvertibleFunction:
     """Returns an invertible rotation function."""
 
-    r90: Callable[Vector2D, Vector2D] = rotate_90_degrees()
+    r90: InvertibleFunction[Vector2D] = rotate_90_degrees()
 
     # fmt: off
     def f(vector: Vector2D) -> Vector2D:
@@ -144,9 +143,9 @@ def rotate_around(
     angle_in_radians: float, center: Vector2D
 ) -> InvertibleFunction:
     """Returns an invertible rotation function around a given center."""
-    translation_to_origin: Callable[Vector2D, Vector2D] = translate(-center)
-    rotation: Callable[Vector2D, Vector2D] = rotate(angle_in_radians)
-    translation_back: Callable[Vector2D, Vector2D] = translate(center)
+    translation_to_origin: InvertibleFunction[Vector2D] = translate(-center)
+    rotation: InvertibleFunction[Vector2D] = rotate(angle_in_radians)
+    translation_back: InvertibleFunction[Vector2D] = translate(center)
 
     return compose(translation_back, rotation, translation_to_origin)
 

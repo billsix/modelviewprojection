@@ -22,10 +22,10 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import math
-from typing import Callable
 
 from pytest import approx
 
+from mathutils import InvertibleFunction
 from mathutils2d import (
     Vector2D,
     compose,
@@ -65,12 +65,12 @@ def test___neg__():
 
 # doc-region-begin translate test
 def test_translate():
-    t: Callable[Vector2D, Vector2D] = translate(Vector2D(x=2.0, y=3.0))
+    t: InvertibleFunction[Vector2D] = translate(Vector2D(x=2.0, y=3.0))
     assert t(Vector2D(x=0.0, y=0.0)) == Vector2D(x=approx(2.0), y=approx(3.0))
     assert t(Vector2D(x=1.0, y=0.0)) == Vector2D(x=approx(3.0), y=approx(3.0))
     assert t(Vector2D(x=0.0, y=1.0)) == Vector2D(x=approx(2.0), y=approx(4.0))
 
-    t_inv: Callable[Vector2D, Vector2D] = inverse(t)
+    t_inv: InvertibleFunction[Vector2D] = inverse(t)
     assert t_inv(t(Vector2D(x=0.0, y=0.0))) == Vector2D(
         x=approx(0.0), y=approx(0.0)
     )
@@ -86,19 +86,19 @@ def test_translate():
 
 
 def test_compose():
-    t: Callable[Vector2D, Vector2D] = translate(Vector2D(x=2.0, y=3.0))
-    t_inv: Callable[Vector2D, Vector2D] = inverse(t)
+    t: InvertibleFunction[Vector2D] = translate(Vector2D(x=2.0, y=3.0))
+    t_inv: InvertibleFunction[Vector2D] = inverse(t)
 
     assert compose(t_inv, t)(Vector2D(x=0.0, y=0.0)) == Vector2D(
         x=approx(0.0), y=approx(0.0)
     )
-    id: Callable[Vector2D, Vector2D] = compose(t_inv, t)
+    id: InvertibleFunction[Vector2D] = compose(t_inv, t)
     assert id(Vector2D(x=1.0, y=0.0)) == Vector2D(x=approx(1.0), y=approx(0.0))
     assert id(Vector2D(x=0.0, y=1.0)) == Vector2D(x=approx(0.0), y=approx(1.0))
 
 
 def test_uniform_scale():
-    s: Callable[Vector2D, Vector2D] = uniform_scale(4.0)
+    s: InvertibleFunction[Vector2D] = uniform_scale(4.0)
 
     result = s(Vector2D(x=2.0, y=3.0))
     assert result == Vector2D(x=approx(8.0), y=approx(12.0))
@@ -106,7 +106,7 @@ def test_uniform_scale():
 
 
 def test_scale():
-    s: Callable[Vector2D, Vector2D] = scale(scale_x=2.0, scale_y=3.0)
+    s: InvertibleFunction[Vector2D] = scale(scale_x=2.0, scale_y=3.0)
 
     result = s(Vector2D(x=5.0, y=6.0))
     assert result == Vector2D(x=approx(10.0), y=approx(18.0))
@@ -114,7 +114,7 @@ def test_scale():
 
 
 def test_rotate_90():
-    r: Callable[Vector2D, Vector2D] = rotate_90_degrees()
+    r: InvertibleFunction[Vector2D] = rotate_90_degrees()
 
     result = r(Vector2D(x=5.0, y=6.0))
     assert result == Vector2D(x=approx(-6.0), y=approx(5.0))
@@ -122,7 +122,7 @@ def test_rotate_90():
 
 
 def test_rotate():
-    r: Callable[Vector2D, Vector2D] = rotate(math.radians(53.130102))
+    r: InvertibleFunction[Vector2D] = rotate(math.radians(53.130102))
 
     result = r(Vector2D(x=5.0, y=0.0))
     assert result == Vector2D(approx(3.0), approx(4.0))

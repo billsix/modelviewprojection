@@ -23,7 +23,6 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 
 import sys
 from dataclasses import dataclass
-from typing import Callable
 
 import glfw
 from OpenGL.GL import (
@@ -47,6 +46,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from mathutils import InvertibleFunction
 from mathutils2d import Vector2D, compose, rotate, translate, uniform_scale
 
 if not glfw.init():
@@ -197,7 +197,7 @@ while not glfw.window_should_close(window):
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         # doc-region-begin compose transformations on paddle 1
-        fn: Callable[Vector2D, Vector2D] = compose(
+        fn: InvertibleFunction[Vector2D] = compose(
             uniform_scale(1.0 / 10.0),
             rotate(paddle1.rotation),
             translate(paddle1.position),
@@ -213,7 +213,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: Callable[Vector2D, Vector2D] = compose(
+        fn: InvertibleFunction[Vector2D] = compose(
             uniform_scale(1.0 / 10.0),
             rotate(paddle2.rotation),
             translate(paddle2.position),

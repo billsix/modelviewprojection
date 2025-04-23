@@ -24,7 +24,7 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 import math
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import Callable, List
+from typing import List
 
 from mathutils import InvertibleFunction, compose, inverse
 from mathutils2d import Vector2D
@@ -253,7 +253,7 @@ def cs_to_ndc_space_fn(vector: Vector3D) -> Vector3D:
 # doc-region-begin define function stack class
 @dataclass
 class FunctionStack:
-    stack: List[Callable[Vector3D, Vector3D]] = field(
+    stack: List[InvertibleFunction[Vector3D]] = field(
         default_factory=lambda: []
     )
 
@@ -266,7 +266,7 @@ class FunctionStack:
     def clear(self):
         self.stack.clear()
 
-    def modelspace_to_ndc_fn(self) -> Callable[Vector3D, Vector3D]:
+    def modelspace_to_ndc_fn(self) -> InvertibleFunction[Vector3D]:
         return compose(*self.stack)
 
 

@@ -23,7 +23,6 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 
 import sys
 from dataclasses import dataclass, field
-from typing import Callable
 
 import glfw
 from OpenGL.GL import (
@@ -47,6 +46,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from mathutils import InvertibleFunction
 from mathutils2d import (
     Vector2D,
     compose,
@@ -226,18 +226,18 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ws: Callable[Vector2D, Vector2D] = compose(
+        ms_to_ws: InvertibleFunction[Vector2D] = compose(
             translate(paddle1.position),
             rotate(paddle1.rotation),
         )
         paddle1_vector_ws: Vector2D = ms_to_ws(p1_v_ms)
 
-        ws_to_cs: Callable[Vector2D, Vector2D] = inverse(
+        ws_to_cs: InvertibleFunction[Vector2D] = inverse(
             translate(camera.position_ws)
         )
         paddle1_vector_cs: Vector2D = ws_to_cs(paddle1_vector_ws)
 
-        cs_to_ndc: Callable[Vector2D, Vector2D] = uniform_scale(1.0 / 10.0)
+        cs_to_ndc: InvertibleFunction[Vector2D] = uniform_scale(1.0 / 10.0)
         paddle1_vector_ndc: Vector2D = cs_to_ndc(paddle1_vector_cs)
 
         glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
@@ -249,7 +249,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: Callable[Vector2D, Vector2D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector2D] = compose(
             # camera space to NDC
             uniform_scale(1.0 / 10.0),
             # world space to camera space
