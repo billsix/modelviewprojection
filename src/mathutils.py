@@ -46,14 +46,14 @@ def inverse(f: InvertibleFunction[T]) -> InvertibleFunction[T]:
 
 
 def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
-    def inner(x):
+    def composed_fn(x):
         for f in reversed(functions):
             x: T = f(x)
         return x
 
-    def f_inv(x):
+    def inv_composed_fn(x):
         for f in functions:
             x: T = inverse(f)(x)
         return x
 
-    return InvertibleFunction[T](inner, f_inv)
+    return InvertibleFunction[T](composed_fn, inv_composed_fn)

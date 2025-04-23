@@ -129,13 +129,13 @@ def rotate_z(angle_in_radians: float) -> Vector3D:
 
 # doc-region-begin define uniform scale
 def uniform_scale(scalar: float) -> InvertibleFunction:
-    if scalar == 0:
-        raise ValueError("Scaling factor cannot be zero.")
-
     def f(vector: Vector3D) -> Vector3D:
         return vector * scalar
 
     def f_inv(vector: Vector3D) -> Vector3D:
+        if scalar == 0:
+            raise ValueError("Not invertible.  Scaling factor cannot be zero.")
+
         return vector / scalar
 
     return InvertibleFunction(f, f_inv)
@@ -145,13 +145,6 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
 
 
 def scale(scale_x: float, scale_y: float, scale_z: float) -> Vector3D:
-    if scale_x == 0:
-        raise ValueError("Scale_x cannot be zero.")
-    if scale_y == 0:
-        raise ValueError("Scale_y cannot be zero.")
-    if scale_z == 0:
-        raise ValueError("Scale_z cannot be zero.")
-
     def f(vector: Vector3D) -> Vector3D:
         return Vector3D(
             x=(vector.x * scale_x),
@@ -160,6 +153,13 @@ def scale(scale_x: float, scale_y: float, scale_z: float) -> Vector3D:
         )
 
     def f_inv(vector: Vector3D) -> Vector3D:
+        if scale_x == 0:
+            raise ValueError("Note invertible.  Scale_x cannot be zero.")
+        if scale_y == 0:
+            raise ValueError("Note invertible.  Scale_y cannot be zero.")
+        if scale_z == 0:
+            raise ValueError("Note invertible.  Scale_z cannot be zero.")
+
         return Vector3D(
             x=(vector.x / scale_x),
             y=(vector.y / scale_y),

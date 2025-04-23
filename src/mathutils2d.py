@@ -75,13 +75,13 @@ def translate(translate_amount: Vector2D) -> InvertibleFunction:
 
 # doc-region-begin define uniform scale
 def uniform_scale(scalar: float) -> InvertibleFunction:
-    if scalar == 0:
-        raise ValueError("Scaling factor cannot be zero.")
-
     def f(vector: Vector2D) -> Vector2D:
         return vector * scalar
 
     def f_inv(vector: Vector2D) -> Vector2D:
+        if scalar == 0:
+            raise ValueError("Note invertible.  Scaling factor cannot be zero.")
+
         return vector * (1.0 / scalar)
 
     return InvertibleFunction(f, f_inv)
@@ -91,14 +91,15 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
 
 
 def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
-    """Returns an invertible scaling function."""
-    if scale_x == 0 or scale_y == 0:
-        raise ValueError("Scaling factors cannot be zero.")
-
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(vector.x * scale_x, vector.y * scale_y)
 
     def f_inv(vector: Vector2D) -> Vector2D:
+        if scale_x == 0 or scale_y == 0:
+            raise ValueError(
+                "Note invertible.  Scaling factors cannot be zero."
+            )
+
         return Vector2D(vector.x / scale_x, vector.y / scale_y)
 
     return InvertibleFunction(f, f_inv)
@@ -106,8 +107,6 @@ def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate
 def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
-    """90-degree counterclockwise rotation (not a full invertible function)."""
-
     # fmt: off
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(-vector.y, vector.x)
@@ -120,8 +119,6 @@ def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
 
 
 def rotate(angle_in_radians: float) -> InvertibleFunction:
-    """Returns an invertible rotation function."""
-
     r90: InvertibleFunction[Vector2D] = rotate_90_degrees()
 
     # fmt: off
@@ -142,7 +139,6 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 def rotate_around(
     angle_in_radians: float, center: Vector2D
 ) -> InvertibleFunction:
-    """Returns an invertible rotation function around a given center."""
     translation_to_origin: InvertibleFunction[Vector2D] = translate(-center)
     rotation: InvertibleFunction[Vector2D] = rotate(angle_in_radians)
     translation_back: InvertibleFunction[Vector2D] = translate(center)

@@ -73,13 +73,12 @@ def translate(translate_amount: Vector1D) -> InvertibleFunction:
 
 # doc-region-begin define uniform scale
 def uniform_scale(scalar: float) -> InvertibleFunction:
-    if scalar == 0:
-        raise ValueError("Scaling factor cannot be zero.")
-
     def f(vector: Vector1D) -> Vector1D:
         return vector * scalar
 
     def f_inv(vector: Vector1D) -> Vector1D:
+        if scalar == 0:
+            raise ValueError("Scaling factor cannot be zero.")
         return vector * (1.0 / scalar)
 
     return InvertibleFunction(f, f_inv)
