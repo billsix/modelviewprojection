@@ -311,8 +311,8 @@ Therefore
 
 .. literalinclude:: ../../src/mathutils.py
    :language: python
-   :start-after: doc-region-begin define vertex class
-   :end-before: doc-region-end define vertex class
+   :start-after: doc-region-begin define vector class
+   :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
    :caption: src/mathutils.py

@@ -212,13 +212,13 @@ The inverse of
 
 .. code:: Python
 
-      >>> v.scale(x,y).translate(Vertex(x,y))
+      >>> v.scale(x,y).translate(Vector(x,y))
 
 is
 
 .. code:: Python
 
-      >>> v.translate(-Vertex(x,y).scale(1.0/x,1.0/y)
+      >>> v.translate(-Vector(x,y).scale(1.0/x,1.0/y)
 
 
 
@@ -404,8 +404,8 @@ values.
 
 .. literalinclude:: ../../src/demo10.py
    :language: python
-   :start-after: doc-region-begin paddle 2 glvertex2f
-   :end-before: doc-region-end paddle 2 glvertex2f
+   :start-after: doc-region-begin paddle 2 glvector2f
+   :end-before: doc-region-end paddle 2 glvector2f
    :linenos:
    :lineno-match:
    :caption: src/demo10.py

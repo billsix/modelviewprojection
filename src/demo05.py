@@ -46,7 +46,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from mathutils import Vertex2D, translate
+from mathutils import Vector2D, translate
 
 if not glfw.init():
     sys.exit()
@@ -107,11 +107,11 @@ def draw_in_square_viewport() -> None:
 # doc-region-begin define paddle class
 @dataclass
 class Paddle:
-    vertices: list[Vertex2D]
+    vertices: list[Vector2D]
     r: float
     g: float
     b: float
-    position: Vertex2D
+    position: Vector2D
 
 
 # doc-region-end define paddle class
@@ -119,28 +119,28 @@ class Paddle:
 # doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex2D(x=-0.1, y=-0.3),
-        Vertex2D(x=0.1, y=-0.3),
-        Vertex2D(x=0.1, y=0.3),
-        Vertex2D(x=-0.1, y=0.3),
+        Vector2D(x=-0.1, y=-0.3),
+        Vector2D(x=0.1, y=-0.3),
+        Vector2D(x=0.1, y=0.3),
+        Vector2D(x=-0.1, y=0.3),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex2D(-0.9, 0.0),
+    position=Vector2D(-0.9, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex2D(-0.1, -0.3),
-        Vertex2D(0.1, -0.3),
-        Vertex2D(0.1, 0.3),
-        Vertex2D(-0.1, 0.3),
+        Vector2D(-0.1, -0.3),
+        Vector2D(0.1, -0.3),
+        Vector2D(0.1, 0.3),
+        Vector2D(-0.1, 0.3),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex2D(0.9, 0.0),
+    position=Vector2D(0.9, 0.0),
 )
 # doc-region-end instantiate paddles
 
@@ -190,8 +190,8 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vertex_ndc: Vertex2D = translate(paddle1.position)(p1_v_ms)
-        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
+        paddle1_vector_ndc: Vector2D = translate(paddle1.position)(p1_v_ms)
+        glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 1
 
@@ -200,8 +200,8 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        paddle2_vertex_ndc: Vertex2D = translate(paddle2.position)(p2_v_ms)
-        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
+        paddle2_vector_ndc: Vector2D = translate(paddle2.position)(p2_v_ms)
+        glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
 

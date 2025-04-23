@@ -47,7 +47,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from mathutils import Vertex2D, compose, rotate_around, translate, uniform_scale
+from mathutils import Vector2D, compose, rotate_around, translate, uniform_scale
 
 if not glfw.init():
     sys.exit()
@@ -108,38 +108,38 @@ def draw_in_square_viewport() -> None:
 
 @dataclass
 class Paddle:
-    vertices: list[Vertex2D]
+    vertices: list[Vector2D]
     r: float
     g: float
     b: float
-    position: Vertex2D
+    position: Vector2D
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex2D(x=-1.0, y=-3.0),
-        Vertex2D(x=1.0, y=-3.0),
-        Vertex2D(x=1.0, y=3.0),
-        Vertex2D(x=-1.0, y=3.0),
+        Vector2D(x=-1.0, y=-3.0),
+        Vector2D(x=1.0, y=-3.0),
+        Vector2D(x=1.0, y=3.0),
+        Vector2D(x=-1.0, y=3.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex2D(-9.0, 0.0),
+    position=Vector2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex2D(x=-1.0, y=-3.0),
-        Vertex2D(x=1.0, y=-3.0),
-        Vertex2D(x=1.0, y=3.0),
-        Vertex2D(x=-1.0, y=3.0),
+        Vector2D(x=-1.0, y=-3.0),
+        Vector2D(x=1.0, y=-3.0),
+        Vector2D(x=1.0, y=3.0),
+        Vector2D(x=-1.0, y=3.0),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex2D(9.0, 0.0),
+    position=Vector2D(9.0, 0.0),
 )
 
 
@@ -194,15 +194,15 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    rotatePoint: Vertex2D = paddle1.position
+    rotatePoint: Vector2D = paddle1.position
     for p1_v_ms in paddle1.vertices:
-        fn: Callable[Vertex2D, Vertex2D] = compose(
+        fn: Callable[Vector2D, Vector2D] = compose(
             uniform_scale(1.0 / 10.0),
             rotate_around(paddle1.rotation, rotatePoint),
             translate(paddle1.position),
         )
-        paddle1_vertex_ndc: Vertex2D = fn(p1_v_ms)
-        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
+        paddle1_vector_ndc: Vector2D = fn(p1_v_ms)
+        glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
         # doc-region-end draw paddle 1
     glEnd()
 
@@ -211,15 +211,15 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    rotatePoint: Vertex2D = paddle2.position
+    rotatePoint: Vector2D = paddle2.position
     for p2_v_ms in paddle2.vertices:
-        fn: Callable[Vertex2D, Vertex2D] = compose(
+        fn: Callable[Vector2D, Vector2D] = compose(
             uniform_scale(1.0 / 10.0),
             rotate_around(paddle2.rotation, rotatePoint),
             translate(paddle2.position),
         )
-        paddle2_vertex_ndc: Vertex2D = fn(p2_v_ms)
-        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
+        paddle2_vector_ndc: Vector2D = fn(p2_v_ms)
+        glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
 

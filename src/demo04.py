@@ -100,20 +100,20 @@ def draw_in_square_viewport() -> None:
     )
 
 
-# doc-region-begin define vertex class
+# doc-region-begin define vector class
 @dataclass
-class Vertex:
+class Vector:
     x: float
     y: float
 
 
-# doc-region-end define vertex class
+# doc-region-end define vector class
 
 
 # doc-region-begin define paddle class
 @dataclass
 class Paddle:
-    vertices: list[Vertex]
+    vertices: list[Vector]
     r: float
     g: float
     b: float
@@ -124,10 +124,10 @@ class Paddle:
 # doc-region-begin instantiate paddles
 paddle1 = Paddle(
     vertices=[
-        Vertex(x=-1.0, y=-0.3),
-        Vertex(x=-0.8, y=-0.3),
-        Vertex(x=-0.8, y=0.3),
-        Vertex(x=-1.0, y=0.3),
+        Vector(x=-1.0, y=-0.3),
+        Vector(x=-0.8, y=-0.3),
+        Vector(x=-0.8, y=0.3),
+        Vector(x=-1.0, y=0.3),
     ],
     r=0.578123,
     g=0.0,
@@ -136,10 +136,10 @@ paddle1 = Paddle(
 
 paddle2 = Paddle(
     vertices=[
-        Vertex(0.8, -0.3),
-        Vertex(1.0, -0.3),
-        Vertex(1.0, 0.3),
-        Vertex(0.8, 0.3),
+        Vector(0.8, -0.3),
+        Vector(1.0, -0.3),
+        Vector(1.0, 0.3),
+        Vector(0.8, 0.3),
     ],
     r=1.0,
     g=1.0,
@@ -208,8 +208,8 @@ while not glfw.window_should_close(window):
     glColor3f(paddle1.r, paddle1.g, paddle1.b)
 
     glBegin(GL_QUADS)
-    for vertex in paddle1.vertices:
-        glVertex2f(vertex.x, vertex.y)
+    for vector in paddle1.vertices:
+        glVertex2f(vector.x, vector.y)
     glEnd()
     # doc-region-end draw paddle 1
 
@@ -217,8 +217,8 @@ while not glfw.window_should_close(window):
     glColor3f(paddle2.r, paddle2.g, paddle2.b)
 
     glBegin(GL_QUADS)
-    for vertex in paddle2.vertices:
-        glVertex2f(vertex.x, vertex.y)
+    for vector in paddle2.vertices:
+        glVertex2f(vector.x, vector.y)
     glEnd()
     # doc-region-end draw paddle 2
 

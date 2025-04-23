@@ -60,45 +60,45 @@ def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
     return InvertibleFunction[T](inner, f_inv)
 
 
-# doc-region-begin define vertex class
+# doc-region-begin define vector class
 @dataclass
-class Vertex2D:
+class Vector2D:
     x: float
     y: float
-    # doc-region-end define vertex class
+    # doc-region-end define vector class
 
     # doc-region-begin define add
-    def __add__(self, rhs: Vertex2D) -> Vertex2D:
-        return Vertex2D(x=(self.x + rhs.x), y=(self.y + rhs.y))
+    def __add__(self, rhs: Vector2D) -> Vector2D:
+        return Vector2D(x=(self.x + rhs.x), y=(self.y + rhs.y))
 
     # doc-region-end define add
 
     # doc-region-begin define subtract
-    def __sub__(self, rhs: Vertex2D) -> Vertex2D:
-        return Vertex2D(x=(self.x - rhs.x), y=(self.y - rhs.y))
+    def __sub__(self, rhs: Vector2D) -> Vector2D:
+        return Vector2D(x=(self.x - rhs.x), y=(self.y - rhs.y))
 
     # doc-region-end define subtract
 
     # doc-region-begin define mul
-    def __mul__(self, scalar: float) -> Vertex2D:
-        return Vertex2D(x=(self.x * scalar), y=(self.y * scalar))
+    def __mul__(self, scalar: float) -> Vector2D:
+        return Vector2D(x=(self.x * scalar), y=(self.y * scalar))
 
-    def __rmul__(self, scalar: float) -> Vertex2D:
+    def __rmul__(self, scalar: float) -> Vector2D:
         return self * scalar
 
     # doc-region-end define mul
 
-    def __neg__(self) -> Vertex2D:
+    def __neg__(self) -> Vector2D:
         return -1.0 * self
 
 
 # doc-region-begin define translate
-def translate(translate_amount: Vertex2D) -> InvertibleFunction:
-    def f(vertex: Vertex2D) -> Vertex2D:
-        return vertex + translate_amount
+def translate(translate_amount: Vector2D) -> InvertibleFunction:
+    def f(vector: Vector2D) -> Vector2D:
+        return vector + translate_amount
 
-    def f_inv(vertex: Vertex2D) -> Vertex2D:
-        return vertex - translate_amount
+    def f_inv(vector: Vector2D) -> Vector2D:
+        return vector - translate_amount
 
     return InvertibleFunction(f, f_inv)
 
@@ -111,11 +111,11 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
     if scalar == 0:
         raise ValueError("Scaling factor cannot be zero.")
 
-    def f(vertex: Vertex2D) -> Vertex2D:
-        return vertex * scalar
+    def f(vector: Vector2D) -> Vector2D:
+        return vector * scalar
 
-    def f_inv(vertex: Vertex2D) -> Vertex2D:
-        return vertex * (1.0 / scalar)
+    def f_inv(vector: Vector2D) -> Vector2D:
+        return vector * (1.0 / scalar)
 
     return InvertibleFunction(f, f_inv)
 
@@ -128,25 +128,25 @@ def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
     if scale_x == 0 or scale_y == 0:
         raise ValueError("Scaling factors cannot be zero.")
 
-    def f(vertex: Vertex2D) -> Vertex2D:
-        return Vertex2D(vertex.x * scale_x, vertex.y * scale_y)
+    def f(vector: Vector2D) -> Vector2D:
+        return Vector2D(vector.x * scale_x, vector.y * scale_y)
 
-    def f_inv(vertex: Vertex2D) -> Vertex2D:
-        return Vertex2D(vertex.x / scale_x, vertex.y / scale_y)
+    def f_inv(vector: Vector2D) -> Vector2D:
+        return Vector2D(vector.x / scale_x, vector.y / scale_y)
 
     return InvertibleFunction(f, f_inv)
 
 
 # doc-region-begin define rotate
-def rotate_90_degrees() -> Callable[Vertex2D, Vertex2D]:
+def rotate_90_degrees() -> Callable[Vector2D, Vector2D]:
     """90-degree counterclockwise rotation (not a full invertible function)."""
 
     # fmt: off
-    def f(vertex: Vertex2D) -> Vertex2D:
-        return Vertex2D(-vertex.y, vertex.x)
+    def f(vector: Vector2D) -> Vector2D:
+        return Vector2D(-vector.y, vector.x)
 
-    def f_inv(vertex: Vertex2D) -> Vertex2D:
-        return Vertex2D(vertex.y, -vertex.x)
+    def f_inv(vector: Vector2D) -> Vector2D:
+        return Vector2D(vector.y, -vector.x)
     # fmt: on
 
     return InvertibleFunction(f, f_inv)
@@ -155,14 +155,14 @@ def rotate_90_degrees() -> Callable[Vertex2D, Vertex2D]:
 def rotate(angle_in_radians: float) -> InvertibleFunction:
     """Returns an invertible rotation function."""
 
-    r90: Callable[Vertex2D, Vertex2D] = rotate_90_degrees()
+    r90: Callable[Vector2D, Vector2D] = rotate_90_degrees()
 
     # fmt: off
-    def f(vertex: Vertex2D) -> Vertex2D:
-        return math.cos(angle_in_radians) * vertex + math.sin(angle_in_radians) * r90(vertex)
+    def f(vector: Vector2D) -> Vector2D:
+        return math.cos(angle_in_radians) * vector + math.sin(angle_in_radians) * r90(vector)
 
-    def f_inv(vertex: Vertex2D) -> Vertex2D:
-        return math.cos(angle_in_radians) * vertex + math.sin(angle_in_radians) * inverse(r90)(vertex)
+    def f_inv(vector: Vector2D) -> Vector2D:
+        return math.cos(angle_in_radians) * vector + math.sin(angle_in_radians) * inverse(r90)(vector)
     # fmt: on
 
     return InvertibleFunction(f, f_inv)
@@ -173,12 +173,12 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate around
 def rotate_around(
-    angle_in_radians: float, center: Vertex2D
+    angle_in_radians: float, center: Vector2D
 ) -> InvertibleFunction:
     """Returns an invertible rotation function around a given center."""
-    translation_to_origin: Callable[Vertex2D, Vertex2D] = translate(-center)
-    rotation: Callable[Vertex2D, Vertex2D] = rotate(angle_in_radians)
-    translation_back: Callable[Vertex2D, Vertex2D] = translate(center)
+    translation_to_origin: Callable[Vector2D, Vector2D] = translate(-center)
+    rotation: Callable[Vector2D, Vector2D] = rotate(angle_in_radians)
+    translation_back: Callable[Vector2D, Vector2D] = translate(center)
 
     return compose(translation_back, rotation, translation_to_origin)
 

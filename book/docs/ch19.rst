@@ -345,6 +345,6 @@ all 3 matrices will be reset to the identity
        be a subject for after the midterm, but the 4 vertices will be converted to screen space,
        given the matrices, and when "glEnd" is called, the graphics driver will need to determine
        what pixels are within the quadrilateral or not.  For the fragments within the quadrilateral,
-       the driver will also need to know the color of the vertex.  So glVertex is doing a lot behind
+       the driver will also need to know the color of the vector.  So glVertex is doing a lot behind
        the scenes, grabbing the modelview and the projection matrices from the top of the stack,
        grabbing the current color, set by "glColor3f".

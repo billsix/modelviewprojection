@@ -115,7 +115,7 @@ glfw
 glfwSwapBuffers
 glsl
 gluPerspective
-glvertex
+glvector
 homebrew
 incorrectrotate
 ing

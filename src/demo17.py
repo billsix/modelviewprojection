@@ -51,7 +51,7 @@ from OpenGL.GL import (
 )
 
 from mathutils3d import (
-    Vertex3D,
+    Vector3D,
     compose,
     fn_stack,
     inverse,
@@ -126,38 +126,38 @@ def draw_in_square_viewport() -> None:
 
 @dataclass
 class Paddle:
-    vertices: list[Vertex3D]
+    vertices: list[Vector3D]
     r: float
     g: float
     b: float
-    position: Vertex3D
+    position: Vector3D
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex3D(x=-1.0, y=-3.0, z=0.0),
-        Vertex3D(x=1.0, y=-3.0, z=0.0),
-        Vertex3D(x=1.0, y=3.0, z=0.0),
-        Vertex3D(x=-1.0, y=3.0, z=0.0),
+        Vector3D(x=-1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=3.0, z=0.0),
+        Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex3D(x=-9.0, y=0.0, z=0.0),
+    position=Vector3D(x=-9.0, y=0.0, z=0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex3D(x=-1.0, y=-3.0, z=0.0),
-        Vertex3D(x=1.0, y=-3.0, z=0.0),
-        Vertex3D(x=1.0, y=3.0, z=0.0),
-        Vertex3D(x=-1.0, y=3.0, z=0.0),
+        Vector3D(x=-1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=3.0, z=0.0),
+        Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex3D(x=9.0, y=0.0, z=0.0),
+    position=Vector3D(x=9.0, y=0.0, z=0.0),
 )
 
 
@@ -166,8 +166,8 @@ paddle2: Paddle = Paddle(
 
 @dataclass
 class Camera:
-    position_ws: Vertex3D = field(
-        default_factory=lambda: Vertex3D(x=0.0, y=0.0, z=15.0)
+    position_ws: Vector3D = field(
+        default_factory=lambda: Vector3D(x=0.0, y=0.0, z=15.0)
     )
     rot_y: float = 0.0
     rot_x: float = 0.0
@@ -177,11 +177,11 @@ class Camera:
 camera: Camera = Camera()
 
 
-square: list[Vertex3D] = [
-    Vertex3D(x=-0.5, y=-0.5, z=0.0),
-    Vertex3D(x=0.5, y=-0.5, z=0.0),
-    Vertex3D(x=0.5, y=0.5, z=0.0),
-    Vertex3D(x=-0.5, y=0.5, z=0.0),
+square: list[Vector3D] = [
+    Vector3D(x=-0.5, y=-0.5, z=0.0),
+    Vector3D(x=0.5, y=-0.5, z=0.0),
+    Vector3D(x=0.5, y=0.5, z=0.0),
+    Vector3D(x=-0.5, y=0.5, z=0.0),
 ]
 square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
@@ -213,11 +213,11 @@ def handle_inputs() -> None:
     # fmt: off
     # doc-region-begin handle key input keys
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        forwards_cs = Vertex3D(x=0.0, y=0.0, z=-1.0)
+        forwards_cs = Vector3D(x=0.0, y=0.0, z=-1.0)
         forward_ws = compose(translate(camera.position_ws), rotate_y(camera.rot_y))(forwards_cs)
         camera.position_ws = forward_ws
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        forwards_cs = Vertex3D(x=0.0, y=0.0, z=1.0)
+        forwards_cs = Vector3D(x=0.0, y=0.0, z=1.0)
         forward_ws = compose(translate(camera.position_ws), rotate_y(camera.rot_y))(forwards_cs)
         camera.position_ws = forward_ws
     # doc-region-end handle key input keys
@@ -290,22 +290,22 @@ while not glfw.window_should_close(window):
                 glColor3f(paddle1.r, paddle1.g, paddle1.b)
                 glBegin(GL_QUADS)
                 for p1_v_ms in paddle1.vertices:
-                    paddle1_vertex_ndc = fn_stack.modelspace_to_ndc_fn()(
+                    paddle1_vector_ndc = fn_stack.modelspace_to_ndc_fn()(
                         p1_v_ms
                     )
                     glVertex3f(
-                        paddle1_vertex_ndc.x,
-                        paddle1_vertex_ndc.y,
-                        paddle1_vertex_ndc.z,
+                        paddle1_vector_ndc.x,
+                        paddle1_vector_ndc.y,
+                        paddle1_vector_ndc.z,
                     )
                 glEnd()
 
                 # square space to paddle 1 space
                 with push_transformation(
                     compose(
-                        translate(Vertex3D(x=0.0, y=0.0, z=-1.0)),
+                        translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
                         rotate_z(rotation_around_paddle1),
-                        translate(Vertex3D(x=2.0, y=0.0, z=0.0)),
+                        translate(Vector3D(x=2.0, y=0.0, z=0.0)),
                         rotate_z(square_rotation),
                     )
                 ):
@@ -313,11 +313,11 @@ while not glfw.window_should_close(window):
                     glColor3f(0.0, 0.0, 1.0)
                     glBegin(GL_QUADS)
                     for ms in square:
-                        square_vertex_ndc = fn_stack.modelspace_to_ndc_fn()(ms)
+                        square_vector_ndc = fn_stack.modelspace_to_ndc_fn()(ms)
                         glVertex3f(
-                            square_vertex_ndc.x,
-                            square_vertex_ndc.y,
-                            square_vertex_ndc.z,
+                            square_vector_ndc.x,
+                            square_vector_ndc.y,
+                            square_vector_ndc.z,
                         )
                     glEnd()
 
@@ -329,13 +329,13 @@ while not glfw.window_should_close(window):
                 glColor3f(paddle2.r, paddle2.g, paddle2.b)
                 glBegin(GL_QUADS)
                 for p2_v_ms in paddle2.vertices:
-                    paddle2_vertex_ndc = fn_stack.modelspace_to_ndc_fn()(
+                    paddle2_vector_ndc = fn_stack.modelspace_to_ndc_fn()(
                         p2_v_ms
                     )
                     glVertex3f(
-                        paddle2_vertex_ndc.x,
-                        paddle2_vertex_ndc.y,
-                        paddle2_vertex_ndc.z,
+                        paddle2_vector_ndc.x,
+                        paddle2_vector_ndc.y,
+                        paddle2_vector_ndc.z,
                     )
                 glEnd()
 

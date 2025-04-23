@@ -52,7 +52,7 @@ from OpenGL.GL import (
     GL_TRUE,
     GL_VERTEX_SHADER,
     glBindBuffer,
-    glBindVertexArray,
+    glBindVectorArray,
     glBlendFunc,
     glBufferData,
     glClear,
@@ -60,14 +60,14 @@ from OpenGL.GL import (
     glClearDepth,
     glDeleteBuffers,
     glDeleteProgram,
-    glDeleteVertexArrays,
+    glDeleteVectorArrays,
     glDepthFunc,
     glDisable,
     glDrawArrays,
     glEnable,
-    glEnableVertexAttribArray,
+    glEnableVectorAttribArray,
     glGenBuffers,
-    glGenVertexArrays,
+    glGenVectorArrays,
     glGetAttribLocation,
     glGetUniformLocation,
     glUniformMatrix4fv,
@@ -84,7 +84,7 @@ pwd = os.path.dirname(os.path.abspath(__file__))
 
 # NEW - for shaders
 glfloat_size = 4
-floatsPerVertex = 3
+floatsPerVector = 3
 floatsPerColor = 4
 
 
@@ -165,7 +165,7 @@ class Paddle:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices
-        self.number_of_vertices = np.size(vertices) // floatsPerVertex
+        self.number_of_vertices = np.size(vertices) // floatsPerVector
         # fmt: off
         color = np.array(
             [
@@ -182,8 +182,8 @@ class Paddle:
 
         self.number_of_colors = np.size(color) // floatsPerColor
 
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
+        self.vao = glGenVectorArrays(1)
+        glBindVectorArray(self.vao)
 
         # initialize shaders
 
@@ -200,10 +200,10 @@ class Paddle:
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
 
         position = glGetAttribLocation(self.shader, "position")
-        glEnableVertexAttribArray(position)
+        glEnableVectorAttribArray(position)
 
         glVertexAttribPointer(
-            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+            position, floatsPerVector, GL_FLOAT, False, 0, ctypes.c_void_p(0)
         )
 
         glBufferData(
@@ -218,7 +218,7 @@ class Paddle:
         glBindBuffer(GL_ARRAY_BUFFER, vbo_color)
 
         color_attrib_loc = glGetAttribLocation(self.shader, "color_in")
-        glEnableVertexAttribArray(color_attrib_loc)
+        glEnableVectorAttribArray(color_attrib_loc)
         glVertexAttribPointer(
             color_attrib_loc,
             floatsPerColor,
@@ -236,18 +236,18 @@ class Paddle:
         )
 
         # reset VAO/VBO to default
-        glBindVertexArray(0)
+        glBindVectorArray(0)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
     # destructor
     def __del__(self):
-        glDeleteVertexArrays(1, [self.vao])
+        glDeleteVectorArrays(1, [self.vao])
         glDeleteBuffers(1, [self.vbo])
         glDeleteProgram(self.shader)
 
     def render(self):
         glUseProgram(self.shader)
-        glBindVertexArray(self.vao)
+        glBindVectorArray(self.vao)
 
         mvp_matrix_loc = glGetUniformLocation(self.shader, "mvpMatrix")
         # ascontiguousarray puts the array in column major order
@@ -261,7 +261,7 @@ class Paddle:
             ),
         )
         glDrawArrays(GL_TRIANGLES, 0, self.number_of_vertices)
-        glBindVertexArray(0)
+        glBindVectorArray(0)
 
 
 paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-9.0, 0.0, 0.0]))
@@ -339,10 +339,10 @@ class Ground:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
-        self.number_of_vertices = np.size(vertices) // floatsPerVertex
+        self.number_of_vertices = np.size(vertices) // floatsPerVector
 
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
+        self.vao = glGenVectorArrays(1)
+        glBindVectorArray(self.vao)
 
         # initialize shaders
 
@@ -359,10 +359,10 @@ class Ground:
         glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
 
         position = glGetAttribLocation(self.shader, "position")
-        glEnableVertexAttribArray(position)
+        glEnableVectorAttribArray(position)
 
         glVertexAttribPointer(
-            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+            position, floatsPerVector, GL_FLOAT, False, 0, ctypes.c_void_p(0)
         )
 
         glBufferData(
@@ -376,18 +376,18 @@ class Ground:
         # TODO, send color to the shader
 
         # reset VAO/VBO to default
-        glBindVertexArray(0)
+        glBindVectorArray(0)
         glBindBuffer(GL_ARRAY_BUFFER, 0)
 
     # destructor
     def __del__(self):
-        glDeleteVertexArrays(1, [self.vao])
+        glDeleteVectorArrays(1, [self.vao])
         glDeleteBuffers(1, [self.vbo])
         glDeleteProgram(self.shader)
 
     def render(self):
         glUseProgram(self.shader)
-        glBindVertexArray(self.vao)
+        glBindVectorArray(self.vao)
 
         # pass projection parameters to the shader
         mvp_matrix_loc = glGetUniformLocation(self.shader, "mvpMatrix")
@@ -402,7 +402,7 @@ class Ground:
             ),
         )
         glDrawArrays(GL_LINES, 0, self.number_of_vertices)
-        glBindVertexArray(0)
+        glBindVectorArray(0)
 
 
 ground = Ground()

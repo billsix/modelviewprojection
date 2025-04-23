@@ -58,7 +58,7 @@ Keyboard Input  Action
 Paddles which don't move are quite boring.  Let's make them move up or down
 by getting keyboard input.
 
-And while we are at it, let's go ahead and create data structures for a Vertex,
+And while we are at it, let's go ahead and create data structures for a Vector,
 and for the collection of vertices that make up a Paddle.
 
 Code
@@ -78,8 +78,8 @@ a lot of boiler plate code.
 
 .. literalinclude:: ../../src/demo04.py
    :language: python
-   :start-after: doc-region-begin define vertex class
-   :end-before: doc-region-end define vertex class
+   :start-after: doc-region-begin define vector class
+   :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
    :caption: src/demo04.py
@@ -123,21 +123,21 @@ construction of paddle1 like this:
 
        x = -0.8
        y = 0.3
-       vertex_a = Vertex(x, y)
+       vector_a = Vector(x, y)
        x = -1.0
        y = 0.3
-       vertex_b = Vertex(x, y)
+       vector_b = Vector(x, y)
        x = -1.0
        y = -0.3
-       vertex_c = Vertex(x, y)
+       vector_c = Vector(x, y)
        x = -0.8
        y = -0.3
-       vertex_d = Vertex(x, y)
-       vertex_list = list(vertex_a, vertex_b, vertex_c, vertex_d)
+       vector_d = Vector(x, y)
+       vector_list = list(vector_a, vector_b, vector_c, vector_d)
        r = 0.57
        g = 0.0
        b = 1.0
-       paddle1 = Paddle(vertex_list, r, g, b)
+       paddle1 = Paddle(vector_list, r, g, b)
 
 But then I would have many local variables, some of whose values
 change frequently over time, and most of which are single use variables.

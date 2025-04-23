@@ -19,7 +19,7 @@
    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
    SOFTWARE.
 
-Add Translate Method to Vertex - Demo 05
+Add Translate Method to Vector - Demo 05
 ========================================
 
 
@@ -69,8 +69,8 @@ a set of vertices for the Paddle, relative to the paddle's center,
 that is independent of its
 placement in NDC.
 
-Rather than using values for each vertex relative to NDC, in the
-Paddle data structure, each vertex will be an offset from
+Rather than using values for each vector relative to NDC, in the
+Paddle data structure, each vector will be an offset from
 the center of the Paddle.  The center of the paddle will be considered x=0, y=0.
 Before rendering, each Paddle's
 vertices will need to be translated to its center relative to NDC.
@@ -101,14 +101,14 @@ Data Structures
 
 .. literalinclude:: ../../src/mathutils.py
    :language: python
-   :start-after: doc-region-begin define vertex class
-   :end-before: doc-region-end define vertex class
+   :start-after: doc-region-begin define vector class
+   :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
    :caption: src/demo05.py
 
 
-We added a translate method to the Vertex class.  Given a translation amount, the vertex
+We added a translate method to the Vector class.  Given a translation amount, the vector
 will be shifted by that amount.  This is a primitive that we will be using to transform
 from one space to another.
 
@@ -119,9 +119,9 @@ import them and try the methods
 .. code:: Python
 
        >>> import src.demo05.demo as demo
-       >>> a = demo.Vertex(x=1,y=2)
-       >>> a.translate(demo.Vertex(x=3,y=4))
-       Vertex(x=4, y=6)
+       >>> a = demo.Vector(x=1,y=2)
+       >>> a.translate(demo.Vector(x=3,y=4))
+       Vector(x=4, y=6)
 
 Note the use of "keyword arguments".  Without using keyword
 arguments, the code might look like this:
@@ -129,9 +129,9 @@ arguments, the code might look like this:
 .. code:: Python
 
        >>> import src.demo05.demo as demo
-       >>> a = demo.Vertex(1,2)
-       >>> a.translate(demo.Vertex(x=3,y=4))
-       Vertex(x=4, y=6)
+       >>> a = demo.Vector(1,2)
+       >>> a.translate(demo.Vector(x=3,y=4))
+       Vector(x=4, y=6)
 
 Keyword arguments allow the reader to understand the purpose of the
 parameters are, at the call-site of the function.
@@ -180,7 +180,7 @@ Handling User Input
 
 
 * We put the transformation on the center of the paddle, instead
-  of directly on each vertex.  This is because the vertices are
+  of directly on each vector.  This is because the vertices are
   defined relative to the center of the paddle.
 
 The Event Loop
@@ -206,7 +206,7 @@ The Event Loop
 
 
 Here each of paddle 1's vertices, which are in their "model-space",
-are converted to NDC by calling the translate method on the vertex.
+are converted to NDC by calling the translate method on the vector.
 This function corresponds to the Cayley graph below, the function
 from Paddle 1 space to NDC.
 
@@ -233,8 +233,8 @@ The only part of the diagram that we need to think about right now is the functi
 that converts from paddle1's space to NDC, and from paddle2's space to NDC.
 
 These functions in the Python code are the translation of the paddle's center (i.e. paddle1.position)
-by the vertex's offset from the center.
+by the vector's offset from the center.
 
-N.B.  In the code, I name the vertices by their space.  I.e. "modelSpace" instead of "vertex_relative_to_modelspace".
+N.B.  In the code, I name the vertices by their space.  I.e. "modelSpace" instead of "vector_relative_to_modelspace".
 I do this to emphasize that you should view the transformation as happening to the "graph paper", instead of to each
 of the points.  This will be explained more clearly later.

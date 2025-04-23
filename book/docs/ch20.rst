@@ -88,7 +88,7 @@ In this demo, we keep most of the code from the previous demo the same,
 we just add in programmable shaders.  So the calls to "glVertex"
 are no longer a black box, in which something happens of the graphics card;
 instead, before sending modelspace data to the graphics card, we program
-a sequence of transformations that happen on the graphics card per vertex,
+a sequence of transformations that happen on the graphics card per vector,
 which a driver could implement in parallel.
 
 We have some new imports, "glUseProgram", "GL_VERTEX_SHADER", "GL_FRAGMENT_SHADER"
@@ -131,7 +131,7 @@ In the vertex shader, there are a lot of predefined variable names with values
 provided to us. "gl_Modelview_matrix" is the matrix at the top of the modelview
 matrix stack at the time "glVertex" is called, "glProjectionMatrix" is the top of
 the projection matrix stack (although there is typically only one).  "glColor"
-is the color that was defined for this vertex by calling "glColor3f".
+is the color that was defined for this vector by calling "glColor3f".
 
 In OpenGL 2.1, the output of the vertex shader that we use here is "glFrontColor",
 which is a variable name that we must use to get the data to the fragment shader,
@@ -142,7 +142,7 @@ of the geometry.
 .. literalinclude:: ../../src/demo20/triangle.vert
    :language: glsl
 
-This is the fragment shader.  Unlike the vertex shader, which took an vertex in (x,y,z)
+This is the fragment shader.  Unlike the vertex shader, which took an vector in (x,y,z)
 and outputted clip-space (NDC), the fragment shader for a given pixel is determining
 the color [2]_.  Is "glColor" in the fragment shader the same "glColor" from the vertex
 shader, or is it the value of the vertex shader's output "glFrontColor"?  Honestly,

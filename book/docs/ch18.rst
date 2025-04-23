@@ -250,8 +250,8 @@ Right calculation based off of Top and aspect ration
 
 .. literalinclude:: ../../src/demo18.py
    :language: python
-   :start-after: doc-region-begin define vertex class
-   :end-before: doc-region-end define vertex class
+   :start-after: doc-region-begin define vector class
+   :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
    :caption: src/demo18.py

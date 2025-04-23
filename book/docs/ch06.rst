@@ -151,7 +151,7 @@ Modelspace of Paddle 1
 
 
 ==============  ======================
-Vertex          Coordinates
+Vector          Coordinates
 ==============  ======================
 a               (1,3)
 b               (-1,3)
@@ -179,7 +179,7 @@ is unchanged.  That is world space, which has not changed.
     Paddle 1's Modelspace Superimposed on World Space
 
 ==============  ========================  ===========================
-Vertex          Coordinates (modelspace)  Coordinates (worldspace)
+Vector          Coordinates (modelspace)  Coordinates (worldspace)
 ==============  ========================  ===========================
 a               (1,3)                     (1,3) + (9,3)  = (-8,5)
 b               (-1,3)                    (-1,3) + (9,3)  = (-10,5)
@@ -202,7 +202,7 @@ Paddle 1's vertices in WorldSpace Coordinates
 
 
 ==============  ========================
-Vertex          Coordinates (worldspace)
+Vector          Coordinates (worldspace)
 ==============  ========================
 a               (-8,5)
 b               (-10,5)
@@ -235,7 +235,7 @@ Modelspace of Paddle 2
     Paddle 2's Modelspace
 
 ==============  ======================
-Vertex          Coordinates
+Vector          Coordinates
 ==============  ======================
 a               (1,3)
 b               (-1,3)
@@ -256,7 +256,7 @@ Modelspace of Paddle 2 Superimposed on Worldspace after the translation
     Paddle 2's Modelspace Superimposed on World Space
 
 ==============  ========================  =========================
-Vertex          Coordinates (modelspace)  Coordinates (worldspace)
+Vector          Coordinates (modelspace)  Coordinates (worldspace)
 ==============  ========================  =========================
 a               (1,3)                     (1,3) + (9,-4) = (10,-1)
 b               (-1,3)                    (-1,3) + (9,-4) = (8,-1)
@@ -278,7 +278,7 @@ Paddle 2's vertices in WorldSpace Coordinates
     Paddle 2's Vertices in World Space.
 
 ==============  ========================
-Vertex          Coordinates (worldspace)
+Vector          Coordinates (worldspace)
 ==============  ========================
 a               (10,-1)
 b               (8,-1)
@@ -458,17 +458,17 @@ and convert them to NDC.
     \end{bmatrix}
 
 Modelviewprojection comes with a math library, the 2D version is
-named "mathutils.py".  The main class in this module is "Vertex2D",
-which has two components: and x value, and a y value.  To add a vertex2d
+named "mathutils.py".  The main class in this module is "Vector2D",
+which has two components: and x value, and a y value.  To add a vector2d
 to another one on the right hand side of the '+' symbol, we just add
-the respective components together, and create a new Vertex2D.
+the respective components together, and create a new Vector2D.
 
 
 
 .. literalinclude:: ../../src/mathutils.py
    :language: python
-   :start-after: doc-region-begin define vertex class
-   :end-before: doc-region-end define vertex class
+   :start-after: doc-region-begin define vector class
+   :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
    :caption: src/mathutils.py
@@ -499,7 +499,7 @@ by implementing the "__sub__" method.
 In our graphics code, instead of using "a+b", we'll use a more descriptive
 name: "translate", which is implemented using the addition symbol.  But a few
 things to note, "translate" is a function on the mathutils module, not a method
-on Vertex2D class, and it's wrapped in a class named "InvertibleFunction"
+on Vector2D class, and it's wrapped in a class named "InvertibleFunction"
 
 
 
@@ -515,13 +515,13 @@ on Vertex2D class, and it's wrapped in a class named "InvertibleFunction"
 
 Notice in particular that the "translate_amount" parameter
 is passed as an argument to "translate",
-but the function for translating, named "f", and the inverse of "f" named "f_inv", take a Vertex2D.
-This is because we will be translating many Vertex2Ds using the same amount.
+but the function for translating, named "f", and the inverse of "f" named "f_inv", take a Vector2D.
+This is because we will be translating many Vector2Ds using the same amount.
 
 
 Invertible functions are stored in pairs, with the "active" function
 being the first one passed to the constructor.  So for translate above,
-the adding of the Vertex2Ds will be the function, but InvertibleFunction
+the adding of the Vector2Ds will be the function, but InvertibleFunction
 holds onto the second function, for later use to be able to undo the function's
 application.
 
@@ -538,11 +538,11 @@ The above is a unit test that shows how the translate function can be used.
 We call "translate", a function which takes a translate amount, both in the x
 direction and the y direction, but we have not yet specified what needs to be translated
 by that amount.  "translate" returns an InvertibleFunction, which is
-Callable[Vertex2D, Vertex2D].  Callable[Vertex2D, Vertex2D] is a type which
-is a function that takes a Vertex2D as input, and returns a Vertex2D (in this case,
-the output is the input, translated by Vertex2D(x=2.0, y=3.0).
+Callable[Vector2D, Vector2D].  Callable[Vector2D, Vector2D] is a type which
+is a function that takes a Vector2D as input, and returns a Vector2D (in this case,
+the output is the input, translated by Vector2D(x=2.0, y=3.0).
 
-On the next 3 lines, we call the function t, passing in a Vertex2D to be translated, and
+On the next 3 lines, we call the function t, passing in a Vector2D to be translated, and
 we test if the result is equal to the specified amount.  ("approx", is a function from the
 pytest module, which when tested for equality, returns true if the two floating point
 numbers under comparison are "close enough").
@@ -566,9 +566,9 @@ in Python, any object can be treated as a function, by implementing the
 
 
 
-Back to method's on the Vertex2D class.  We can also define scaling of a Vertex2D,
-by implementing multiplication of Vertex2D's by a scalar, meaning a real number
-that scaled the Vertex2D by the same amount in all directions.  We do this
+Back to method's on the Vector2D class.  We can also define scaling of a Vector2D,
+by implementing multiplication of Vector2D's by a scalar, meaning a real number
+that scaled the Vector2D by the same amount in all directions.  We do this
 by implementing the '__mul__' and '__rmul__' methods, where __rmul__ just means
 that this object is on the right hand side of the multiplication.
 
@@ -583,8 +583,8 @@ that this object is on the right hand side of the multiplication.
 Just like we made a top level invertible function called "translate" for addition,
 we are going to do the same for multiplication, and call it "uniform_scale".
 Notice in particular that the scalar is passed as an argument to "uniform_scale",
-but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vertex2D.
-This is because we will be scaling many Vertex2Ds using the same scaling factor.
+but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vector2D.
+This is because we will be scaling many Vector2Ds using the same scaling factor.
 
 .. literalinclude:: ../../src/mathutils.py
    :language: python
@@ -597,7 +597,7 @@ This is because we will be scaling many Vertex2Ds using the same scaling factor.
 
 
 
-* NEW -- Add the ability to scale a vertex, to stretch or to shrink
+* NEW -- Add the ability to scale a vector, to stretch or to shrink
 
 
 

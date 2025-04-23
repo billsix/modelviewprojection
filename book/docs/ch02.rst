@@ -286,7 +286,7 @@ shown so far.  The nodes represent a coordinate system (i.e. origin and axes),
 and the directed edge represents a function that converts coordinates from one
 coordinate system to another.  If this isn't clear to the reader, look
 above at the 3 pictures of the 2 quadrilaterals.  They look the same, but
-if you label each vertex on all three graphs, and look at the axes to find
+if you label each vector on all three graphs, and look at the axes to find
 their plotted values, you will find that they differ.  Changing between
 coordinate systems means to take vertices from one coordinate system and
 changing them to another, like converting from Celsius to Fahrenheit,

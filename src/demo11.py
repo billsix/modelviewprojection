@@ -47,7 +47,7 @@ from OpenGL.GL import (
 )
 
 from mathutils import (
-    Vertex2D,
+    Vector2D,
     compose,
     inverse,
     rotate,
@@ -113,45 +113,45 @@ def draw_in_square_viewport() -> None:
 
 @dataclass
 class Paddle:
-    vertices: list[Vertex2D]
+    vertices: list[Vector2D]
     r: float
     g: float
     b: float
-    position: Vertex2D
+    position: Vector2D
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex2D(x=-1.0, y=-3.0),
-        Vertex2D(x=1.0, y=-3.0),
-        Vertex2D(x=1.0, y=3.0),
-        Vertex2D(x=-1.0, y=3.0),
+        Vector2D(x=-1.0, y=-3.0),
+        Vector2D(x=1.0, y=-3.0),
+        Vector2D(x=1.0, y=3.0),
+        Vector2D(x=-1.0, y=3.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex2D(-9.0, 0.0),
+    position=Vector2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex2D(x=-1.0, y=-3.0),
-        Vertex2D(x=1.0, y=-3.0),
-        Vertex2D(x=1.0, y=3.0),
-        Vertex2D(x=-1.0, y=3.0),
+        Vector2D(x=-1.0, y=-3.0),
+        Vector2D(x=1.0, y=-3.0),
+        Vector2D(x=1.0, y=3.0),
+        Vector2D(x=-1.0, y=3.0),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex2D(9.0, 0.0),
+    position=Vector2D(9.0, 0.0),
 )
 
 
 @dataclass
 class Camera:
-    position_ws: Vertex2D = field(
-        default_factory=lambda: Vertex2D(x=0.0, y=0.0)
+    position_ws: Vector2D = field(
+        default_factory=lambda: Vector2D(x=0.0, y=0.0)
     )
 
 
@@ -159,11 +159,11 @@ camera: Camera = Camera()
 
 
 # doc-region-begin define square
-square: list[Vertex2D] = [
-    Vertex2D(x=-0.5, y=-0.5),
-    Vertex2D(x=0.5, y=-0.5),
-    Vertex2D(x=0.5, y=0.5),
-    Vertex2D(x=-0.5, y=0.5),
+square: list[Vector2D] = [
+    Vector2D(x=-0.5, y=-0.5),
+    Vector2D(x=0.5, y=-0.5),
+    Vector2D(x=0.5, y=0.5),
+    Vector2D(x=-0.5, y=0.5),
 ]
 # doc-region-end define square
 
@@ -233,7 +233,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
+        ms_to_ndc: Callable[Vector2D, Vector2D] = compose(
             # camera space to NDC
             uniform_scale(1.0 / 10.0),
             # world space to camera space
@@ -242,9 +242,9 @@ while not glfw.window_should_close(window):
             compose(translate(paddle1.position),
                     rotate(paddle1.rotation)))
 
-        paddle1_vertex_ndc: Vertex2D = ms_to_ndc(p1_v_ms)
+        paddle1_vector_ndc: Vector2D = ms_to_ndc(p1_v_ms)
 
-        glVertex2f(paddle1_vertex_ndc.x, paddle1_vertex_ndc.y)
+        glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 1
 
@@ -252,7 +252,7 @@ while not glfw.window_should_close(window):
     glColor3f(0.0, 0.0, 1.0)
     glBegin(GL_QUADS)
     for ms in square:
-        ms_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
+        ms_to_ndc: Callable[Vector2D, Vector2D] = compose(
             # camera space to NDC
             uniform_scale(1.0 / 10.0),
             # world space to camera space
@@ -261,10 +261,10 @@ while not glfw.window_should_close(window):
             compose(translate(paddle1.position),
                     rotate(paddle1.rotation)),
             # square space to paddle 1 space
-            translate(Vertex2D(x=2.0,
+            translate(Vector2D(x=2.0,
                                y=0.0)))
-        square_vertex_ndc: Vertex2D = ms_to_ndc(ms)
-        glVertex2f(square_vertex_ndc.x, square_vertex_ndc.y)
+        square_vector_ndc: Vector2D = ms_to_ndc(ms)
+        glVertex2f(square_vector_ndc.x, square_vector_ndc.y)
     glEnd()
     # doc-region-end draw square
 
@@ -273,7 +273,7 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: Callable[Vertex2D, Vertex2D] = compose(
+        ms_to_ndc: Callable[Vector2D, Vector2D] = compose(
             # camera space to NDC
             uniform_scale(1.0 / 10.0),
             # world space to camera space
@@ -282,9 +282,9 @@ while not glfw.window_should_close(window):
             compose(translate(paddle2.position),
                     rotate(paddle2.rotation)))
 
-        paddle2_vertex_ndc: Vertex2D = ms_to_ndc(p2_v_ms)
+        paddle2_vector_ndc: Vector2D = ms_to_ndc(p2_v_ms)
 
-        glVertex2f(paddle2_vertex_ndc.x, paddle2_vertex_ndc.y)
+        glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
     glfw.swap_buffers(window)

@@ -111,7 +111,7 @@ Description
 
 
 
-* Vertex data will now have an X, Y, and Z component.
+* Vector data will now have an X, Y, and Z component.
 * Rotations around an angle in 3D space follow the right hand rule_.  Here's a link to them
   in matrix_ form, which we have not yet covered.
 
@@ -134,8 +134,8 @@ Description
 
 .. literalinclude:: ../../src/mathutils3d.py
    :language: python
-   :start-after: doc-region-begin define vertex class
-   :end-before: doc-region-end define vertex class
+   :start-after: doc-region-begin define vector class
+   :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
    :caption: src/mathutils3d

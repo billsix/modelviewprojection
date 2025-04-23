@@ -267,7 +267,7 @@ the fact that (NDCx NDCy NDCz) = (Clipx/Clipw, Clipy/Clipy, Clipz/Clipz)
 The purpose of going to clip space is that eventually we will be
 able to remove the camera space's z coordinate from the matrix.
 This will allow us to use one perspective projection matrix for
-all vertices, independent of the z coordinate of each input vertex.
+all vertices, independent of the z coordinate of each input vector.
 
 I assume, without any evidence to support me, that this
 was done for efficiency reasons when using OpenGL's fixed function pipeline.
@@ -543,7 +543,7 @@ We need the
 
 If we can make a function, that like the third row of the matrix, has those properties, we can replace the
 third row and remove camera space's z, :math:`z_c`, from the matrix.  This is desirable because, if it were to exist,
-would would not need per vertex to create a custom perspective matrix.
+would would not need per vector to create a custom perspective matrix.
 
 Towards that, let's look at these jibronies.
 

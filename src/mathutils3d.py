@@ -26,63 +26,63 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Callable, List
 
-from mathutils import InvertibleFunction, Vertex2D, compose, inverse
+from mathutils import InvertibleFunction, Vector2D, compose, inverse
 from mathutils import rotate as rotate2D
 
 
-# doc-region-begin define vertex class
+# doc-region-begin define vector class
 @dataclass
-class Vertex3D:
+class Vector3D:
     x: float
     y: float
     z: float
 
-    def __add__(self, rhs: Vertex3D) -> Vertex3D:
-        return Vertex3D(
+    def __add__(self, rhs: Vector3D) -> Vector3D:
+        return Vector3D(
             x=(self.x + rhs.x), y=(self.y + rhs.y), z=(self.z + rhs.z)
         )
 
-    def __sub__(self, rhs: Vertex3D) -> Vertex3D:
-        return Vertex3D(
+    def __sub__(self, rhs: Vector3D) -> Vector3D:
+        return Vector3D(
             x=(self.x - rhs.x), y=(self.y - rhs.y), z=(self.z - rhs.z)
         )
 
-    def __mul__(vertex, scalar: float) -> Vertex3D:
-        return Vertex3D(
-            x=(vertex.x * scalar), y=(vertex.y * scalar), z=(vertex.z * scalar)
+    def __mul__(vector, scalar: float) -> Vector3D:
+        return Vector3D(
+            x=(vector.x * scalar), y=(vector.y * scalar), z=(vector.z * scalar)
         )
 
-    def __rmul__(vertex, scalar: float) -> Vertex3D:
-        return vertex * scalar
+    def __rmul__(vector, scalar: float) -> Vector3D:
+        return vector * scalar
 
-    def __neg__(vertex):
-        return -1.0 * vertex
+    def __neg__(vector):
+        return -1.0 * vector
 
 
-def translate(translate_amount: Vertex3D) -> InvertibleFunction:
-    def f(vertex: Vertex3D) -> Vertex3D:
-        return vertex + translate_amount
+def translate(translate_amount: Vector3D) -> InvertibleFunction:
+    def f(vector: Vector3D) -> Vector3D:
+        return vector + translate_amount
 
-    def f_inv(vertex: Vertex3D) -> Vertex3D:
-        return vertex - translate_amount
+    def f_inv(vector: Vector3D) -> Vector3D:
+        return vector - translate_amount
 
     return InvertibleFunction(f, f_inv)
 
 
-# doc-region-end define vertex class
+# doc-region-end define vector class
 
 
 # doc-region-begin define rotate x
-def rotate_x(angle_in_radians: float) -> Vertex3D:
+def rotate_x(angle_in_radians: float) -> Vector3D:
     fn = rotate2D(angle_in_radians)
 
-    def f(vertex: Vertex3D) -> Vertex3D:
-        yz_on_xy: Vertex2D = fn(Vertex2D(x=vertex.y, y=vertex.z))
-        return Vertex3D(x=vertex.x, y=yz_on_xy.x, z=yz_on_xy.y)
+    def f(vector: Vector3D) -> Vector3D:
+        yz_on_xy: Vector2D = fn(Vector2D(x=vector.y, y=vector.z))
+        return Vector3D(x=vector.x, y=yz_on_xy.x, z=yz_on_xy.y)
 
-    def f_inv(vertex: Vertex3D) -> Vertex3D:
-        yz_on_xy: Vertex2D = inverse(fn)(Vertex2D(x=vertex.y, y=vertex.z))
-        return Vertex3D(x=vertex.x, y=yz_on_xy.x, z=yz_on_xy.y)
+    def f_inv(vector: Vector3D) -> Vector3D:
+        yz_on_xy: Vector2D = inverse(fn)(Vector2D(x=vector.y, y=vector.z))
+        return Vector3D(x=vector.x, y=yz_on_xy.x, z=yz_on_xy.y)
 
     return InvertibleFunction(f, f_inv)
 
@@ -91,16 +91,16 @@ def rotate_x(angle_in_radians: float) -> Vertex3D:
 
 
 # doc-region-begin define rotate y
-def rotate_y(angle_in_radians: float) -> Vertex3D:
+def rotate_y(angle_in_radians: float) -> Vector3D:
     fn = rotate2D(angle_in_radians)
 
-    def f(vertex: Vertex3D) -> Vertex3D:
-        zx_on_xy: Vertex2D = fn(Vertex2D(x=vertex.z, y=vertex.x))
-        return Vertex3D(x=zx_on_xy.y, y=vertex.y, z=zx_on_xy.x)
+    def f(vector: Vector3D) -> Vector3D:
+        zx_on_xy: Vector2D = fn(Vector2D(x=vector.z, y=vector.x))
+        return Vector3D(x=zx_on_xy.y, y=vector.y, z=zx_on_xy.x)
 
-    def f_inv(vertex: Vertex3D) -> Vertex3D:
-        zx_on_xy: Vertex2D = inverse(fn)(Vertex2D(x=vertex.z, y=vertex.x))
-        return Vertex3D(x=zx_on_xy.y, y=vertex.y, z=zx_on_xy.x)
+    def f_inv(vector: Vector3D) -> Vector3D:
+        zx_on_xy: Vector2D = inverse(fn)(Vector2D(x=vector.z, y=vector.x))
+        return Vector3D(x=zx_on_xy.y, y=vector.y, z=zx_on_xy.x)
 
     return InvertibleFunction(f, f_inv)
 
@@ -109,16 +109,16 @@ def rotate_y(angle_in_radians: float) -> Vertex3D:
 
 
 # doc-region-begin define rotate z
-def rotate_z(angle_in_radians: float) -> Vertex3D:
+def rotate_z(angle_in_radians: float) -> Vector3D:
     fn = rotate2D(angle_in_radians)
 
-    def f(vertex: Vertex3D) -> Vertex3D:
-        xy_on_xy: Vertex2D = fn(Vertex2D(x=vertex.x, y=vertex.y))
-        return Vertex3D(x=xy_on_xy.x, y=xy_on_xy.y, z=vertex.z)
+    def f(vector: Vector3D) -> Vector3D:
+        xy_on_xy: Vector2D = fn(Vector2D(x=vector.x, y=vector.y))
+        return Vector3D(x=xy_on_xy.x, y=xy_on_xy.y, z=vector.z)
 
-    def f_inv(vertex: Vertex3D) -> Vertex3D:
-        xy_on_xy: Vertex2D = inverse(fn)(Vertex2D(x=vertex.x, y=vertex.y))
-        return Vertex3D(x=xy_on_xy.x, y=xy_on_xy.y, z=vertex.z)
+    def f_inv(vector: Vector3D) -> Vector3D:
+        xy_on_xy: Vector2D = inverse(fn)(Vector2D(x=vector.x, y=vector.y))
+        return Vector3D(x=xy_on_xy.x, y=xy_on_xy.y, z=vector.z)
 
     return InvertibleFunction(f, f_inv)
 
@@ -131,11 +131,11 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
     if scalar == 0:
         raise ValueError("Scaling factor cannot be zero.")
 
-    def f(vertex: Vertex3D) -> Vertex3D:
-        return vertex * scalar
+    def f(vector: Vector3D) -> Vector3D:
+        return vector * scalar
 
-    def f_inv(vertex: Vertex3D) -> Vertex3D:
-        return vertex / scalar
+    def f_inv(vector: Vector3D) -> Vector3D:
+        return vector / scalar
 
     return InvertibleFunction(f, f_inv)
 
@@ -143,7 +143,7 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
 # doc-region-end define uniform scale
 
 
-def scale(scale_x: float, scale_y: float, scale_z: float) -> Vertex3D:
+def scale(scale_x: float, scale_y: float, scale_z: float) -> Vector3D:
     if scale_x == 0:
         raise ValueError("Scale_x cannot be zero.")
     if scale_y == 0:
@@ -151,18 +151,18 @@ def scale(scale_x: float, scale_y: float, scale_z: float) -> Vertex3D:
     if scale_z == 0:
         raise ValueError("Scale_z cannot be zero.")
 
-    def f(vertex: Vertex3D) -> Vertex3D:
-        return Vertex3D(
-            x=(vertex.x * scale_x),
-            y=(vertex.y * scale_y),
-            z=(vertex.z * scale_z),
+    def f(vector: Vector3D) -> Vector3D:
+        return Vector3D(
+            x=(vector.x * scale_x),
+            y=(vector.y * scale_y),
+            z=(vector.z * scale_z),
         )
 
-    def f_inv(vertex: Vertex3D) -> Vertex3D:
-        return Vertex3D(
-            x=(vertex.x / scale_x),
-            y=(vertex.y / scale_y),
-            z=(vertex.z / scale_z),
+    def f_inv(vector: Vector3D) -> Vector3D:
+        return Vector3D(
+            x=(vector.x / scale_x),
+            y=(vector.y / scale_y),
+            z=(vector.z / scale_z),
         )
 
     return InvertibleFunction(f, f_inv)
@@ -176,9 +176,9 @@ def ortho(
     top: float,
     near: float,
     far: float,
-) -> Vertex3D:
+) -> Vector3D:
     # fmt: off
-    midpoint = Vertex3D(x=(left + right) / 2.0,
+    midpoint = Vector3D(x=(left + right) / 2.0,
                         y=(bottom + top) / 2.0,
                         z=(near + far) / 2.0)
     # fmt: on
@@ -194,11 +194,11 @@ def ortho(
                  translate(-midpoint))
     # fmt: on
 
-    def f(vertex: Vertex3D) -> Vertex3D:
-        return fn(vertex)
+    def f(vector: Vector3D) -> Vector3D:
+        return fn(vector)
 
-    def f_inv(vertex: Vertex3D) -> Vertex3D:
-        return f_inv(fn)(vertex)
+    def f_inv(vector: Vector3D) -> Vector3D:
+        return f_inv(fn)(vector)
 
     return InvertibleFunction(f, f_inv)
 
@@ -208,17 +208,17 @@ def ortho(
 
 def perspective(
     field_of_view: float, aspect_ratio: float, near_z: float, far_z: float
-) -> Vertex3D:
+) -> Vector3D:
     # field_of_view, field of view, is angle of y
     # aspect_ratio is x_width / y_width
 
     top: float = -near_z * math.tan(math.radians(field_of_view) / 2.0)
     right: float = top * aspect_ratio
 
-    def f(vertex: Vertex3D) -> Vertex3D:
-        scaled_x: float = vertex.x / vertex.z * near_z
-        scaled_y: float = vertex.y / vertex.z * near_z
-        rectangular_prism: Vertex3D = Vertex3D(scaled_x, scaled_y, vertex.z)
+    def f(vector: Vector3D) -> Vector3D:
+        scaled_x: float = vector.x / vector.z * near_z
+        scaled_y: float = vector.y / vector.z * near_z
+        rectangular_prism: Vector3D = Vector3D(scaled_x, scaled_y, vector.z)
 
         fn = ortho(
             left=-right,
@@ -230,20 +230,20 @@ def perspective(
         )
         return fn(rectangular_prism)
 
-    def f_inv(vertex: Vertex3D) -> Vertex3D:
+    def f_inv(vector: Vector3D) -> Vector3D:
         raise ValueError("Inverse_Inner Perspective not yet implement")
 
     return InvertibleFunction(f, f_inv)
 
 
-def cs_to_ndc_space_fn(vertex: Vertex3D) -> Vertex3D:
-    def f(vertex: Vertex3D) -> Vertex3D:
+def cs_to_ndc_space_fn(vector: Vector3D) -> Vector3D:
+    def f(vector: Vector3D) -> Vector3D:
         fn = perspective(
             field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
         )
-        return fn(vertex)
+        return fn(vector)
 
-    def f_inv(vertex: Vertex3D) -> Vertex3D:
+    def f_inv(vector: Vector3D) -> Vector3D:
         raise ValueError("Inverse_Inner cs_to_ndc_spcae_fn not yet implement")
 
     return InvertibleFunction(f, f_inv)
@@ -252,7 +252,7 @@ def cs_to_ndc_space_fn(vertex: Vertex3D) -> Vertex3D:
 # doc-region-begin define function stack class
 @dataclass
 class FunctionStack:
-    stack: List[Callable[Vertex3D, Vertex3D]] = field(
+    stack: List[Callable[Vector3D, Vector3D]] = field(
         default_factory=lambda: []
     )
 
@@ -265,7 +265,7 @@ class FunctionStack:
     def clear(self):
         self.stack.clear()
 
-    def modelspace_to_ndc_fn(self) -> Callable[Vertex3D, Vertex3D]:
+    def modelspace_to_ndc_fn(self) -> Callable[Vector3D, Vector3D]:
         return compose(*self.stack)
 
 

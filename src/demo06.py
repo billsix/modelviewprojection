@@ -47,7 +47,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from mathutils import Vertex2D, compose, translate, uniform_scale
+from mathutils import Vector2D, compose, translate, uniform_scale
 
 if not glfw.init():
     sys.exit()
@@ -107,38 +107,38 @@ def draw_in_square_viewport() -> None:
 
 @dataclass
 class Paddle:
-    vertices: list[Vertex2D]
+    vertices: list[Vector2D]
     r: float
     g: float
     b: float
-    position: Vertex2D
+    position: Vector2D
 
 
 # doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        Vertex2D(x=-1.0, y=-3.0),
-        Vertex2D(x=1.0, y=-3.0),
-        Vertex2D(x=1.0, y=3.0),
-        Vertex2D(x=-1.0, y=3.0),
+        Vector2D(x=-1.0, y=-3.0),
+        Vector2D(x=1.0, y=-3.0),
+        Vector2D(x=1.0, y=3.0),
+        Vector2D(x=-1.0, y=3.0),
     ],
     r=0.578123,
     g=0.0,
     b=1.0,
-    position=Vertex2D(-9.0, 0.0),
+    position=Vector2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vertex2D(x=-1.0, y=-3.0),
-        Vertex2D(x=1.0, y=-3.0),
-        Vertex2D(x=1.0, y=3.0),
-        Vertex2D(x=-1.0, y=3.0),
+        Vector2D(x=-1.0, y=-3.0),
+        Vector2D(x=1.0, y=-3.0),
+        Vector2D(x=1.0, y=3.0),
+        Vector2D(x=-1.0, y=3.0),
     ],
     r=1.0,
     g=1.0,
     b=0.0,
-    position=Vertex2D(9.0, 0.0),
+    position=Vector2D(9.0, 0.0),
 )
 # doc-region-end instantiate paddles
 
@@ -188,13 +188,13 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        fn: Callable[Vertex2D, Vertex2D] = compose(
+        fn: Callable[Vector2D, Vector2D] = compose(
             uniform_scale(1.0 / 10.0),
             translate(paddle1.position)
         )
-        paddle1_vertex_ndc: Vertex2D = fn(p1_v_ms)
-        glVertex2f(paddle1_vertex_ndc.x,
-                   paddle1_vertex_ndc.y)
+        paddle1_vector_ndc: Vector2D = fn(p1_v_ms)
+        glVertex2f(paddle1_vector_ndc.x,
+                   paddle1_vector_ndc.y)
 
     glEnd()
     # doc-region-end draw paddle 1
@@ -204,13 +204,13 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: Callable[Vertex2D, Vertex2D] = compose(
+        fn: Callable[Vector2D, Vector2D] = compose(
             uniform_scale(1.0 / 10.0),
             translate(paddle2.position)
         )
-        paddle2_vertex_ndc: Vertex2D = fn(p2_v_ms)
-        glVertex2f(paddle2_vertex_ndc.x,
-                   paddle2_vertex_ndc.y)
+        paddle2_vector_ndc: Vector2D = fn(p2_v_ms)
+        glVertex2f(paddle2_vector_ndc.x,
+                   paddle2_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
 
