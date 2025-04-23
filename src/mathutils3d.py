@@ -26,8 +26,9 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import Callable, List
 
-from mathutils import InvertibleFunction, Vector2D, compose, inverse
-from mathutils import rotate as rotate2D
+from mathutils import InvertibleFunction, compose, inverse
+from mathutils2d import Vector2D
+from mathutils2d import rotate as rotate2D
 
 
 # doc-region-begin define vector class

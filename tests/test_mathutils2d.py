@@ -26,7 +26,7 @@ from typing import Callable
 
 from pytest import approx
 
-from mathutils import (
+from mathutils2d import (
     Vector2D,
     compose,
     inverse,

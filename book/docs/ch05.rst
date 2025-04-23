@@ -99,7 +99,7 @@ Code
 Data Structures
 ~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class

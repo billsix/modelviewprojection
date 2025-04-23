@@ -309,21 +309,21 @@ Therefore
 
 
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define rotate
    :end-before: doc-region-end define rotate
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
 
 

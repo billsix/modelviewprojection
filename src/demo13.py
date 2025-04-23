@@ -47,7 +47,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from mathutils import (
+from mathutils2d import (
     Vector2D,
     compose,
     inverse,

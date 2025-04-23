@@ -76,22 +76,22 @@ around a given point in world space, in this case, the paddle's center.
 
 
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define rotate around
    :end-before: doc-region-end define rotate around
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
 
 

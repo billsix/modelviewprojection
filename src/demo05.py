@@ -46,7 +46,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from mathutils import Vector2D, translate
+from mathutils2d import Vector2D, translate
 
 if not glfw.init():
     sys.exit()

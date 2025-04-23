@@ -458,42 +458,42 @@ and convert them to NDC.
     \end{bmatrix}
 
 Modelviewprojection comes with a math library, the 2D version is
-named "mathutils.py".  The main class in this module is "Vector2D",
+named "mathutils2d.py".  The main class in this module is "Vector2D",
 which has two components: and x value, and a y value.  To add a vector2d
 to another one on the right hand side of the '+' symbol, we just add
 the respective components together, and create a new Vector2D.
 
 
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
 In a Python class, we can overload the '+' symbol, to make
 objects addable, by implementing the '__add__' method.
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define add
    :end-before: doc-region-end define add
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
 We can also model the opposite procedure, subtraction,
 by implementing the "__sub__" method.
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define subtract
    :end-before: doc-region-end define subtract
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
 
 In our graphics code, instead of using "a+b", we'll use a more descriptive
@@ -505,13 +505,13 @@ on Vector2D class, and it's wrapped in a class named "InvertibleFunction"
 
 
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define translate
    :end-before: doc-region-end define translate
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
 Notice in particular that the "translate_amount" parameter
 is passed as an argument to "translate",
@@ -526,13 +526,13 @@ holds onto the second function, for later use to be able to undo the function's
 application.
 
 
-.. literalinclude:: ../../tests/test_mathutils.py
+.. literalinclude:: ../../tests/test_mathutils2d.py
    :language: python
    :start-after: doc-region-begin translate test
    :end-before: doc-region-end translate test
    :linenos:
    :lineno-match:
-   :caption: tests/test_mathutils.py
+   :caption: tests/test_mathutils2d.py
 
 The above is a unit test that shows how the translate function can be used.
 We call "translate", a function which takes a translate amount, both in the x
@@ -552,13 +552,13 @@ composing t_inv and t results in no transformation.
 
 Here's how InvertibleFunction is implemented:
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define invertible function
    :end-before: doc-region-end define invertible function
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
 Just as Python allows an object to override the '+' and '-' syntax,
 in Python, any object can be treated as a function, by implementing the
@@ -572,13 +572,13 @@ that scaled the Vector2D by the same amount in all directions.  We do this
 by implementing the '__mul__' and '__rmul__' methods, where __rmul__ just means
 that this object is on the right hand side of the multiplication.
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define mul
    :end-before: doc-region-end define mul
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
 Just like we made a top level invertible function called "translate" for addition,
 we are going to do the same for multiplication, and call it "uniform_scale".
@@ -586,13 +586,13 @@ Notice in particular that the scalar is passed as an argument to "uniform_scale"
 but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vector2D.
 This is because we will be scaling many Vector2Ds using the same scaling factor.
 
-.. literalinclude:: ../../src/mathutils.py
+.. literalinclude:: ../../src/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define uniform scale
    :end-before: doc-region-end define uniform scale
    :linenos:
    :lineno-match:
-   :caption: src/mathutils.py
+   :caption: src/mathutils2d.py
 
 
 

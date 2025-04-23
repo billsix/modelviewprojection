@@ -47,7 +47,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from mathutils import Vector2D, compose, rotate, translate, uniform_scale
+from mathutils2d import Vector2D, compose, rotate, translate, uniform_scale
 
 if not glfw.init():
     sys.exit()
