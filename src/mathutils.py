@@ -21,6 +21,7 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
+from dataclasses import dataclass
 from typing import Callable, Generic, TypeVar
 
 # doc-region-begin define invertible function
@@ -28,10 +29,10 @@ from typing import Callable, Generic, TypeVar
 T = TypeVar("T")
 
 
+@dataclass
 class InvertibleFunction(Generic[T]):
-    def __init__(self, func: Callable[[T], T], inverse: Callable[[T], T]):
-        self.func: Callable[[T], T] = func
-        self.inverse: Callable[[T], T] = inverse
+    func: Callable[[T], T]
+    inverse: Callable[[T], T]
 
     def __call__(self, x: T) -> T:
         return self.func(x)
