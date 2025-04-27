@@ -1,22 +1,19 @@
-# Copyright (c) 2018-2024 William Emerison Six
+# Copyright (c) 2018-2025 William Emerison Six
 #
-# Permission is hereby granted, free of charge, to any person obtaining a copy
-# of this software and associated documentation files (the "Software"), to deal
-# in the Software without restriction, including without limitation the rights
-# to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-# copies of the Software, and to permit persons to whom the Software is
-# furnished to do so, subject to the following conditions:
+# This program is free software; you can redistribute it and/or
+# modify it under the terms of the GNU General Public License
+# as published by the Free Software Foundation; either version 2
+# of the License, or (at your option) any later version.
 #
-# The above copyright notice and this permission notice shall be included in all
-# copies or substantial portions of the Software.
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
 #
-# THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-# IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-# FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-# AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-# LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-# OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-# SOFTWARE.
+# You should have received a copy of the GNU General Public License
+# along with this program; if not, write to the Free Software
+# Foundation, Inc., 59 Temple Place - Suite 330,
+# Boston, MA 02111-1307, USA.
 
 import itertools
 import math
@@ -90,7 +87,9 @@ def accumulate_transformation(procedures, backwards=False):
         def foo(x, y):
             result_x, result_y = x, y
             for current_fn_index in r:
-                result_x, result_y = procedures[current_fn_index](result_x, result_y)
+                result_x, result_y = procedures[current_fn_index](
+                    result_x, result_y
+                )
             return result_x, result_y
 
         return foo
@@ -115,7 +114,9 @@ def accumulate_transformation(procedures, backwards=False):
         reversed_procs.reverse()
         for proc_index in reversed_procs:
             yield (
-                python_scoping_is_dumb(range(proc_index, len(procedures)), procedures),
+                python_scoping_is_dumb(
+                    range(proc_index, len(procedures)), procedures
+                ),
                 proc_index,
             )
 
@@ -234,21 +235,37 @@ def create_graphs(
 
             # x axis
             if backwards and stepsRemaining > 1:
-                transformed_xs, transformed_ys = accumfn([0.0, unit_x], [0.0, 0.0])
+                transformed_xs, transformed_ys = accumfn(
+                    [0.0, unit_x], [0.0, 0.0]
+                )
             elif not backwards and round_number == 1 and frame_number != 1:
                 transformed_xs, transformed_ys = fn([0.0, unit_x], [0.0, 0.0])
             else:
                 transformed_xs, transformed_ys = [0.0, unit_x], [0.0, 0.0]
-            plt.plot(transformed_xs, transformed_ys, "-", lw=1.0, color=(0.0, 0.0, 1.0))
+            plt.plot(
+                transformed_xs,
+                transformed_ys,
+                "-",
+                lw=1.0,
+                color=(0.0, 0.0, 1.0),
+            )
 
             # y axis
             if backwards and stepsRemaining > 1:
-                transformed_xs, transformed_ys = accumfn([0.0, 0.0], [0.0, unit_y])
+                transformed_xs, transformed_ys = accumfn(
+                    [0.0, 0.0], [0.0, unit_y]
+                )
             elif not backwards and round_number == 1 and frame_number != 1:
                 transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, unit_y])
             else:
                 transformed_xs, transformed_ys = [0.0, 0.0], [0.0, unit_y]
-            plt.plot(transformed_xs, transformed_ys, "-", lw=1.0, color=(1.0, 0.0, 1.0))
+            plt.plot(
+                transformed_xs,
+                transformed_ys,
+                "-",
+                lw=1.0,
+                color=(1.0, 0.0, 1.0),
+            )
 
             if stepsRemaining <= 0:
                 plotCharacter = "-"
@@ -265,7 +282,9 @@ def create_graphs(
                 color=geometry.color,
             )
 
-            for x, y, label in zip(transformed_xs, transformed_ys, geometry.names):
+            for x, y, label in zip(
+                transformed_xs, transformed_ys, geometry.names
+            ):
                 plt.annotate(
                     f"{label}",
                     (x, y),
@@ -292,7 +311,9 @@ def create_graphs(
         )
     ]
 
-    flattened_animated_images_list = list(itertools.chain(*animated_images_list))
+    flattened_animated_images_list = list(
+        itertools.chain(*animated_images_list)
+    )
 
     for number, fig in enumerate(flattened_animated_images_list):
         fig.savefig("./" + filename + "-" + str(number) + ".svg", format="svg")
