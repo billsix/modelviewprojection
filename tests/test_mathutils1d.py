@@ -54,14 +54,22 @@ def test___neg__():
 
 # doc-region-begin translate test
 def test_translate():
-    t: InvertibleFunction[Vector1D] = translate(Vector1D(x=2.0))
-    assert t(Vector1D(x=0.0)) == Vector1D(x=approx(2.0))
-    assert t(Vector1D(x=1.0)) == Vector1D(x=approx(3.0))
-    assert t(Vector1D(x=0.0)) == Vector1D(x=approx(2.0))
+    fn: InvertibleFunction[Vector1D] = translate(2.0)
+    fn_inv: InvertibleFunction[Vector1D] = inverse(fn)
 
-    t_inv: InvertibleFunction[Vector1D] = inverse(t)
-    assert t_inv(t(Vector1D(x=0.0))) == Vector1D(x=approx(0.0))
-    assert t_inv(t(Vector1D(x=1.0))) == Vector1D(x=approx(1.0))
+    input_output_pairs = [
+        [-3.0, -1.0],
+        [-2.0, 0.0],
+        [-1.0, 1.0],
+        [0.0, 2.0],
+        [1.0, 3.0],
+        [2.0, 4.0],
+        [3.0, 5.0],
+        [4.0, 6.0],
+    ]
+    for input_val, output_val in input_output_pairs:
+        assert fn(Vector1D(input_val)) == Vector1D(approx(output_val))
+        assert fn_inv(Vector1D(output_val)) == Vector1D(approx(input_val))
 
 
 # doc-region-end translate test
@@ -70,25 +78,39 @@ def test_translate():
 def test_mx_plus_b():
     m = 5.0
     b = 2.0
-    t: InvertibleFunction[Vector1D] = translate(Vector1D(b))
-    scale: InvertibleFunction[Vector1D] = uniform_scale(m)
 
-    fn: InvertibleFunction[Vector1D] = compose(t, scale)
+    fn: InvertibleFunction[Vector1D] = compose(translate(b), uniform_scale(m))
     fn_inv: InvertibleFunction[Vector1D] = inverse(fn)
 
-    assert fn(Vector1D(x=0.0)) == Vector1D(x=approx(2.0))
-    assert fn_inv(Vector1D(x=2.0)) == Vector1D(x=approx(0.0))
-
-    assert fn(Vector1D(x=1.0)) == Vector1D(x=approx(7.0))
-    assert fn_inv(Vector1D(x=7.0)) == Vector1D(x=approx(1.0))
-
-    assert fn(Vector1D(x=2.0)) == Vector1D(x=approx(12.0))
-    assert fn_inv(Vector1D(x=12.0)) == Vector1D(x=approx(2.0))
+    input_output_pairs = [
+        [-3.0, -13.0],
+        [-2.0, -8.0],
+        [-1.0, -3.0],
+        [0.0, 2.0],
+        [1.0, 7.0],
+        [2.0, 12.0],
+        [3.0, 17.0],
+        [4.0, 22.0],
+    ]
+    for input_val, output_val in input_output_pairs:
+        assert fn(Vector1D(input_val)) == Vector1D(approx(output_val))
+        assert fn_inv(Vector1D(output_val)) == Vector1D(approx(input_val))
 
 
 def test_uniform_scale():
-    s: InvertibleFunction[Vector1D] = uniform_scale(4.0)
+    fn: InvertibleFunction[Vector1D] = uniform_scale(4.0)
+    fn_inv: InvertibleFunction[Vector1D] = inverse(fn)
 
-    result = s(Vector1D(x=2.0))
-    assert result == Vector1D(x=approx(8.0))
-    assert inverse(s)(result) == Vector1D(x=approx(2.0))
+    input_output_pairs = [
+        [-3.0, -12.0],
+        [-2.0, -8.0],
+        [-1.0, -4.0],
+        [0.0, 0.0],
+        [1.0, 4.0],
+        [2.0, 8.0],
+        [3.0, 12.0],
+        [4.0, 16.0],
+    ]
+    for input_val, output_val in input_output_pairs:
+        assert fn(Vector1D(input_val)) == Vector1D(approx(output_val))
+        assert fn_inv(Vector1D(output_val)) == Vector1D(approx(input_val))

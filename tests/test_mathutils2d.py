@@ -63,67 +63,101 @@ def test___neg__():
     assert result == Vector2D(x=approx(-2.0), y=approx(-3.0))
 
 
+def wrap_vec2_test(fn, input_val, output_val):
+    return fn(Vector2D(*input_val)) == Vector2D(*(map(approx, output_val)))
+
+
 # doc-region-begin translate test
 def test_translate():
-    t: InvertibleFunction[Vector2D] = translate(Vector2D(x=2.0, y=3.0))
-    assert t(Vector2D(x=0.0, y=0.0)) == Vector2D(x=approx(2.0), y=approx(3.0))
-    assert t(Vector2D(x=1.0, y=0.0)) == Vector2D(x=approx(3.0), y=approx(3.0))
-    assert t(Vector2D(x=0.0, y=1.0)) == Vector2D(x=approx(2.0), y=approx(4.0))
+    fn: InvertibleFunction[Vector2D] = translate(Vector2D(x=2.0, y=3.0))
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
-    t_inv: InvertibleFunction[Vector2D] = inverse(t)
-    assert t_inv(t(Vector2D(x=0.0, y=0.0))) == Vector2D(
-        x=approx(0.0), y=approx(0.0)
-    )
-    assert t_inv(t(Vector2D(x=1.0, y=0.0))) == Vector2D(
-        x=approx(1.0), y=approx(0.0)
-    )
-    assert t_inv(t(Vector2D(x=0.0, y=1.0))) == Vector2D(
-        x=approx(0.0), y=approx(1.0)
-    )
+    input_output_pairs = [
+        [[0.0, 0.0], [2.0, 3.0]],
+        [[1.0, 0.0], [3.0, 3.0]],
+        [[0.0, 1.0], [2.0, 4.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec2_test(fn, input_val, output_val)
+        wrap_vec2_test(fn_inv, input_val, output_val)
 
 
 # doc-region-end translate test
 
 
 def test_compose():
-    t: InvertibleFunction[Vector2D] = translate(Vector2D(x=2.0, y=3.0))
-    t_inv: InvertibleFunction[Vector2D] = inverse(t)
+    fn: InvertibleFunction[Vector2D] = translate(Vector2D(x=2.0, y=3.0))
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
-    assert compose(t_inv, t)(Vector2D(x=0.0, y=0.0)) == Vector2D(
-        x=approx(0.0), y=approx(0.0)
-    )
-    id: InvertibleFunction[Vector2D] = compose(t_inv, t)
-    assert id(Vector2D(x=1.0, y=0.0)) == Vector2D(x=approx(1.0), y=approx(0.0))
-    assert id(Vector2D(x=0.0, y=1.0)) == Vector2D(x=approx(0.0), y=approx(1.0))
+    identity_fn: InvertibleFunction[Vector2D] = compose(fn_inv, fn)
+
+    input_output_pairs = [
+        [[0.0, 0.0], [0.0, 0.0]],
+        [[1.0, 0.0], [1.0, 0.0]],
+        [[0.0, 1.0], [0.0, 1.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec2_test(identity_fn, input_val, output_val)
 
 
 def test_uniform_scale():
-    s: InvertibleFunction[Vector2D] = uniform_scale(4.0)
+    fn: InvertibleFunction[Vector2D] = uniform_scale(4.0)
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
-    result = s(Vector2D(x=2.0, y=3.0))
-    assert result == Vector2D(x=approx(8.0), y=approx(12.0))
-    assert inverse(s)(result) == Vector2D(x=approx(2.0), y=approx(3.0))
+    input_output_pairs = [
+        [[0.0, 0.0], [0.0, 0.0]],
+        [[1.0, 0.0], [4.0, 0.0]],
+        [[0.0, 1.0], [0.0, 4.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec2_test(fn, input_val, output_val)
+        wrap_vec2_test(fn_inv, input_val, output_val)
 
 
 def test_scale():
-    s: InvertibleFunction[Vector2D] = scale(scale_x=2.0, scale_y=3.0)
+    fn: InvertibleFunction[Vector2D] = scale(scale_x=2.0, scale_y=3.0)
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
-    result = s(Vector2D(x=5.0, y=6.0))
-    assert result == Vector2D(x=approx(10.0), y=approx(18.0))
-    assert inverse(s)(result) == Vector2D(x=approx(5.0), y=approx(6.0))
+    input_output_pairs = [
+        [[0.0, 0.0], [0.0, 0.0]],
+        [[1.0, 0.0], [2.0, 0.0]],
+        [[0.0, 1.0], [0.0, 3.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec2_test(fn, input_val, output_val)
+        wrap_vec2_test(fn_inv, input_val, output_val)
 
 
 def test_rotate_90():
-    r: InvertibleFunction[Vector2D] = rotate_90_degrees()
+    fn: InvertibleFunction[Vector2D] = rotate_90_degrees()
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
-    result = r(Vector2D(x=5.0, y=6.0))
-    assert result == Vector2D(x=approx(-6.0), y=approx(5.0))
-    assert inverse(r)(result) == Vector2D(x=approx(5.0), y=approx(6.0))
+    input_output_pairs = [
+        [[0.0, 0.0], [0.0, 0.0]],
+        [[1.0, 0.0], [0.0, 1.0]],
+        [[0.0, 1.0], [-1.0, 0.0]],
+        [[-1.0, 0.0], [0.0, -1.0]],
+        [[0.0, -1.0], [1.0, 0.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec2_test(fn, input_val, output_val)
+        wrap_vec2_test(fn_inv, input_val, output_val)
 
 
 def test_rotate():
-    r: InvertibleFunction[Vector2D] = rotate(math.radians(53.130102))
+    fn: InvertibleFunction[Vector2D] = rotate(math.radians(53.130102))
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
-    result = r(Vector2D(x=5.0, y=0.0))
-    assert result == Vector2D(approx(3.0), approx(4.0))
-    assert inverse(r)(result) == Vector2D(x=approx(5.0), y=approx(0.0))
+    input_output_pairs = [
+        [[0.0, 0.0], [0.0, 0.0]],
+        [[5.0, 0.0], [3.0, 4.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec2_test(fn, input_val, output_val)
+        wrap_vec2_test(fn_inv, input_val, output_val)
