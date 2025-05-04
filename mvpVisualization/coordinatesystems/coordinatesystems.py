@@ -125,7 +125,7 @@ def scroll_callback(window, x_offset, y_offset):
 glfw.set_scroll_callback(window, scroll_callback)
 
 
-glClearColor(0.0, 18.4 / 255.0, 2.0 / 255.0, 1.0)
+glClearColor(13.0 / 255.0, 64.0 / 255.0, 5.0 / 255.0, 1.0)
 
 # NEW - TODO - talk about opengl matricies and z pos/neg
 glClearDepth(1.0)
