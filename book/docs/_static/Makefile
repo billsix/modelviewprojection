@@ -3,14 +3,11 @@ all: cayleyImages graphs rotate0-0.svg
 
 
 
-%.png: %.tex tetp
-	./tetp --file $< --size 300 --output $@
+%.png: %.tex
+	texExpToPng --file $< --size 300 --output $@
 
 %.png: %.dot
 	dot -Tpng  $< -o $@
-
-tetp: ./tex_exp_to_png/src/main.rs
-	cd ./tex_exp_to_png && cargo build --release && cp target/release/./tex_exp_to_png ../tetp
 
 
 
