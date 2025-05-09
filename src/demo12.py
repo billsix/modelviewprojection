@@ -19,7 +19,7 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import sys
-from dataclasses import dataclass, field
+from dataclasses import astuple, dataclass, field
 
 import glfw
 from OpenGL.GL import (
@@ -43,6 +43,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from colorutils import Color3
 from mathutils import InvertibleFunction
 from mathutils2d import (
     Vector2D,
@@ -113,9 +114,7 @@ def draw_in_square_viewport() -> None:
 @dataclass
 class Paddle:
     vertices: list[Vector2D]
-    r: float
-    g: float
-    b: float
+    color: Color3
     position: Vector2D
     rotation: float = 0.0
 
@@ -127,9 +126,7 @@ paddle1: Paddle = Paddle(
         Vector2D(x=1.0, y=3.0),
         Vector2D(x=-1.0, y=3.0),
     ],
-    r=0.578123,
-    g=0.0,
-    b=1.0,
+    color=Color3(r=0.578123, g=0.0, b=1.0),
     position=Vector2D(-9.0, 0.0),
 )
 
@@ -140,9 +137,7 @@ paddle2: Paddle = Paddle(
         Vector2D(x=1.0, y=3.0),
         Vector2D(x=-1.0, y=3.0),
     ],
-    r=1.0,
-    g=1.0,
-    b=0.0,
+    color=Color3(r=1.0, g=1.0, b=0.0),
     position=Vector2D(9.0, 0.0),
 )
 
@@ -231,7 +226,7 @@ while not glfw.window_should_close(window):
 
     # fmt: off
 
-    glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    glColor3f(*astuple(paddle1.color))
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
@@ -273,7 +268,8 @@ while not glfw.window_should_close(window):
     # doc-region-end draw square
 
     # doc-region-begin draw paddle 2
-    glColor3f(paddle2.r, paddle2.g, paddle2.b)
+    glColor3f(*astuple(paddle2.color))
+
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:

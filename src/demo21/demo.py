@@ -73,6 +73,8 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from colorutils import Color4
+
 if not glfw.init():
     sys.exit()
 
@@ -135,10 +137,8 @@ if __enable_blend__:
 
 @dataclass
 class Paddle:
-    r: float
-    g: float
-    b: float
     position: any
+    color: Color4
     rotation: float = 0.0
     vertices: np.array = field(
         default_factory=lambda: np.array(
@@ -166,12 +166,12 @@ class Paddle:
         # fmt: off
         color = np.array(
             [
-                self.r, self.g, self.b, .75,
-                self.r, self.g, self.b, .75,
-                self.r, self.g, self.b, .75,
-                self.r, self.g, self.b, .75,
-                self.r, self.g, self.b, .75,
-                self.r, self.g, self.b, .75,
+                self.color.r, self.color.g, self.color.b, self.color.a,
+                self.color.r, self.color.g, self.color.b, self.color.a,
+                self.color.r, self.color.g, self.color.b, self.color.a,
+                self.color.r, self.color.g, self.color.b, self.color.a,
+                self.color.r, self.color.g, self.color.b, self.color.a,
+                self.color.r, self.color.g, self.color.b, self.color.a,
             ],
             dtype=np.float32,
         )
@@ -261,9 +261,15 @@ class Paddle:
         glBindVertexArray(0)
 
 
-paddle1 = Paddle(r=0.578123, g=0.0, b=1.0, position=np.array([-9.0, 0.0, 0.0]))
+paddle1 = Paddle(
+    color=Color4(r=0.578123, g=0.0, b=1.0, a=0.75),
+    position=np.array([-9.0, 0.0, 0.0]),
+)
 paddle1.prepare_to_render()
-paddle2 = Paddle(r=1.0, g=1.0, b=0.0, position=np.array([9.0, 0.0, 0.0]))
+paddle2 = Paddle(
+    color=Color4(r=1.0, g=1.0, b=0.0, a=0.75),
+    position=np.array([9.0, 0.0, 0.0]),
+)
 paddle2.prepare_to_render()
 
 
@@ -285,7 +291,9 @@ class Square(Paddle):
     )
 
 
-square = Square(r=0.0, g=0.0, b=1.0, position=[0.0, 0.0, 0.0])
+square = Square(
+    color=Color4(r=0.0, g=0.0, b=1.0, a=0.75), position=[0.0, 0.0, 0.0]
+)
 
 square.prepare_to_render()
 

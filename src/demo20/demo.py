@@ -21,7 +21,7 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 import math
 import os
 import sys
-from dataclasses import dataclass, field
+from dataclasses import astuple, dataclass, field
 
 import glfw
 import numpy as np
@@ -60,6 +60,8 @@ from OpenGL.GL import (
     glViewport,
 )
 from OpenGL.GLU import gluPerspective
+
+from colorutils import Color3
 
 # doc-region-end new imports
 
@@ -123,10 +125,8 @@ def draw_in_square_viewport() -> None:
 
 @dataclass
 class Paddle:
-    r: float
-    g: float
-    b: float
     position: any
+    color: Color3
     rotation: float = 0.0
     vertices: np.array = field(
         default_factory=lambda: np.array(
@@ -142,11 +142,11 @@ class Paddle:
 
 
 paddle1: Paddle = Paddle(
-    r=0.578123, g=0.0, b=1.0, position=np.array([-9.0, 0.0, 0.0])
+    color=Color3(r=0.578123, g=0.0, b=1.0), position=np.array([-9.0, 0.0, 0.0])
 )
 
 paddle2: Paddle = Paddle(
-    r=1.0, g=1.0, b=0.0, position=np.array([9.0, 0.0, 0.0])
+    color=Color3(r=1.0, g=1.0, b=0.0), position=np.array([9.0, 0.0, 0.0])
 )
 
 
@@ -309,7 +309,7 @@ while not glfw.window_should_close(window):
     # it will be automatically popped off of the stack
     glPushMatrix()
 
-    glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    glColor3f(*astuple(paddle1.color))
 
     glTranslate(
         paddle1.position[0],
@@ -356,7 +356,7 @@ while not glfw.window_should_close(window):
     # need to push matrix, and on the next iteration of the event loop,
     # all matrices will be cleared to identity, so who cares if we
     # mutate the values for now.
-    glColor3f(paddle2.r, paddle2.g, paddle2.b)
+    glColor3f(*astuple(paddle2.color))
 
     glTranslate(
         paddle2.position[0],

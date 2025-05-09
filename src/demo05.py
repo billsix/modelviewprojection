@@ -19,7 +19,7 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import sys
-from dataclasses import dataclass
+from dataclasses import astuple, dataclass
 
 import glfw
 from OpenGL.GL import (
@@ -43,6 +43,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from colorutils import Color3
 from mathutils2d import Vector2D, translate
 
 if not glfw.init():
@@ -105,9 +106,7 @@ def draw_in_square_viewport() -> None:
 @dataclass
 class Paddle:
     vertices: list[Vector2D]
-    r: float
-    g: float
-    b: float
+    color: Color3
     position: Vector2D
 
 
@@ -121,9 +120,7 @@ paddle1: Paddle = Paddle(
         Vector2D(x=0.1, y=0.3),
         Vector2D(x=-0.1, y=0.3),
     ],
-    r=0.578123,
-    g=0.0,
-    b=1.0,
+    color=Color3(r=0.578123, g=0.0, b=1.0),
     position=Vector2D(-0.9, 0.0),
 )
 
@@ -134,9 +131,7 @@ paddle2: Paddle = Paddle(
         Vector2D(0.1, 0.3),
         Vector2D(-0.1, 0.3),
     ],
-    r=1.0,
-    g=1.0,
-    b=0.0,
+    color=Color3(r=1.0, g=1.0, b=0.0),
     position=Vector2D(0.9, 0.0),
 )
 # doc-region-end instantiate paddles
@@ -183,7 +178,7 @@ while not glfw.window_should_close(window):
     # doc-region-end begin event loop
 
     # doc-region-begin draw paddle 1
-    glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    glColor3f(*astuple(paddle1.color))
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
@@ -193,7 +188,7 @@ while not glfw.window_should_close(window):
     # doc-region-end draw paddle 1
 
     # doc-region-begin draw paddle 2
-    glColor3f(paddle2.r, paddle2.g, paddle2.b)
+    glColor3f(*astuple(paddle2.color))
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:

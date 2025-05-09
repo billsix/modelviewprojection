@@ -19,7 +19,7 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import sys
-from dataclasses import dataclass, field
+from dataclasses import astuple, dataclass, field
 
 import glfw
 from OpenGL.GL import (
@@ -47,6 +47,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from colorutils import Color3
 from mathutils3d import (
     Vector3D,
     compose,
@@ -124,9 +125,7 @@ def draw_in_square_viewport() -> None:
 @dataclass
 class Paddle:
     vertices: list[Vector3D]
-    r: float
-    g: float
-    b: float
+    color: Color3
     position: Vector3D
     rotation: float = 0.0
 
@@ -138,9 +137,7 @@ paddle1: Paddle = Paddle(
         Vector3D(x=1.0, y=3.0, z=0.0),
         Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
-    r=0.578123,
-    g=0.0,
-    b=1.0,
+    color=Color3(r=0.578123, g=0.0, b=1.0),
     position=Vector3D(x=-9.0, y=0.0, z=0.0),
 )
 
@@ -151,9 +148,7 @@ paddle2: Paddle = Paddle(
         Vector3D(x=1.0, y=3.0, z=0.0),
         Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
-    r=1.0,
-    g=1.0,
-    b=0.0,
+    color=Color3(r=1.0, g=1.0, b=0.0),
     position=Vector3D(x=9.0, y=0.0, z=0.0),
 )
 
@@ -284,7 +279,7 @@ while not glfw.window_should_close(window):
             with push_transformation(
                 compose(translate(paddle1.position), rotate_z(paddle1.rotation))
             ):
-                glColor3f(paddle1.r, paddle1.g, paddle1.b)
+                glColor3f(*astuple(paddle1.color))
                 glBegin(GL_QUADS)
                 for p1_v_ms in paddle1.vertices:
                     paddle1_vector_ndc = fn_stack.modelspace_to_ndc_fn()(
@@ -323,7 +318,7 @@ while not glfw.window_should_close(window):
                 compose(translate(paddle2.position), rotate_z(paddle2.rotation))
             ):
                 # draw paddle 2
-                glColor3f(paddle2.r, paddle2.g, paddle2.b)
+                glColor3f(*astuple(paddle2.color))
                 glBegin(GL_QUADS)
                 for p2_v_ms in paddle2.vertices:
                     paddle2_vector_ndc = fn_stack.modelspace_to_ndc_fn()(

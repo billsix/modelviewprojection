@@ -17,7 +17,7 @@
 
 
 import sys
-from dataclasses import dataclass
+from dataclasses import astuple, dataclass
 
 import glfw
 from OpenGL.GL import (
@@ -40,6 +40,8 @@ from OpenGL.GL import (
     glVertex2f,
     glViewport,
 )
+
+from colorutils import Color3
 
 if not glfw.init():
     sys.exit()
@@ -111,9 +113,7 @@ class Vector:
 @dataclass
 class Paddle:
     vertices: list[Vector]
-    r: float
-    g: float
-    b: float
+    color: Color3
 
 
 # doc-region-end define paddle class
@@ -126,9 +126,7 @@ paddle1 = Paddle(
         Vector(x=-0.8, y=0.3),
         Vector(x=-1.0, y=0.3),
     ],
-    r=0.578123,
-    g=0.0,
-    b=1.0,
+    color=Color3(r=0.578123, g=0.0, b=1.0),
 )
 
 paddle2 = Paddle(
@@ -138,9 +136,7 @@ paddle2 = Paddle(
         Vector(1.0, 0.3),
         Vector(0.8, 0.3),
     ],
-    r=1.0,
-    g=1.0,
-    b=0.0,
+    color=Color3(r=1.0, g=1.0, b=0.0),
 )
 # doc-region-end instantiate paddles
 
@@ -202,7 +198,7 @@ while not glfw.window_should_close(window):
     # doc-region-end call handle movement of paddles
 
     # doc-region-begin draw paddle 1
-    glColor3f(paddle1.r, paddle1.g, paddle1.b)
+    glColor3f(*astuple(paddle1.color))
 
     glBegin(GL_QUADS)
     for vector in paddle1.vertices:
@@ -211,7 +207,7 @@ while not glfw.window_should_close(window):
     # doc-region-end draw paddle 1
 
     # doc-region-begin draw paddle 2
-    glColor3f(paddle2.r, paddle2.g, paddle2.b)
+    glColor3f(*astuple(paddle2.color))
 
     glBegin(GL_QUADS)
     for vector in paddle2.vertices:
