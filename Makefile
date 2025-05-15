@@ -11,7 +11,7 @@ image: ## Build a Podman image in which to build the book
 
 .PHONY: html
 html: image ## Build the html from the sphinx source
-	podman run -it --rm -v /Users/williamsix/output/:/output/:Z modelviewprojection-html
+	podman run -it --rm -v ./output/:/output/:Z modelviewprojection-html
 
 
 .PHONY: clean
