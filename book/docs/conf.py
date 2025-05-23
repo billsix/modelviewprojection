@@ -45,11 +45,11 @@ else:
 # -- Project information -----------------------------------------------------
 
 project = "Model View Projection"
-copyright = "2020-2024, William Emerison Six"
+copyright = "2020-2025, William Emerison Six"
 author = "William Emerison Six"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.1"
+release = "0.0.02"
 
 
 # -- General configuration ---------------------------------------------------
