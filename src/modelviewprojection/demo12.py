@@ -22,6 +22,16 @@ import sys
 from dataclasses import astuple, dataclass, field
 
 import glfw
+from colorutils import Color3
+from mathutils import InvertibleFunction
+from mathutils2d import (
+    Vector2D,
+    compose,
+    inverse,
+    rotate,
+    translate,
+    uniform_scale,
+)
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -43,24 +53,13 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from colorutils import Color3
-from mathutils import InvertibleFunction
-from mathutils2d import (
-    Vector2D,
-    compose,
-    inverse,
-    rotate,
-    translate,
-    uniform_scale,
-)
-
 if not glfw.init():
     sys.exit()
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 13", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 12", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -68,9 +67,9 @@ if not window:
 glfw.make_context_current(window)
 
 
-def on_key(win, key, scancode, action, mods):
+def on_key(window, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(win, 1)
+        glfw.set_window_should_close(window, 1)
 
 
 glfw.set_key_callback(window, on_key)
@@ -88,15 +87,15 @@ def draw_in_square_viewport() -> None:
     glClearColor(0.2, 0.2, 0.2, 1.0)
     glClear(GL_COLOR_BUFFER_BIT)
 
-    w, h = glfw.get_framebuffer_size(window)
-    minimal_dimension = w if w < h else h
+    width, height = glfw.get_framebuffer_size(window)
+    min = width if width < height else height
 
     glEnable(GL_SCISSOR_TEST)
     glScissor(
-        int((w - minimal_dimension) / 2.0),
-        int((h - minimal_dimension) / 2.0),
-        minimal_dimension,
-        minimal_dimension,
+        int((width - min) / 2.0),
+        int((height - min) / 2.0),
+        min,
+        min,
     )
 
     glClearColor(0.0289, 0.071875, 0.0972, 1.0)
@@ -104,10 +103,10 @@ def draw_in_square_viewport() -> None:
     glDisable(GL_SCISSOR_TEST)
 
     glViewport(
-        int(0.0 + (w - minimal_dimension) / 2.0),
-        int(0.0 + (h - minimal_dimension) / 2.0),
-        minimal_dimension,
-        minimal_dimension,
+        int(0.0 + (width - min) / 2.0),
+        int(0.0 + (height - min) / 2.0),
+        min,
+        min,
     )
 
 
@@ -158,21 +157,18 @@ square: list[Vector2D] = [
     Vector2D(x=0.5, y=0.5),
     Vector2D(x=-0.5, y=0.5),
 ]
+
+# doc-region-begin define square rotation
 square_rotation: float = 0.0
-# doc-region-begin define variable for square rotation around paddle's center
-rotation_around_paddle1: float = 0.0
-# doc-region-end define variable for square rotation around paddle's center
+# doc-region-end define square rotation
 
 
-def handle_inputs():
-    global rotation_around_paddle1
-    if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
-        rotation_around_paddle1 += 0.1
-
+# doc-region-begin define handle input
+def handle_inputs() -> None:
     global square_rotation
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
-
+    # doc-region-end define handle input
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
@@ -209,9 +205,7 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-# doc-region-begin begin event loop
 while not glfw.window_should_close(window):
-    # doc-region-end begin event loop
     while (
         glfw.get_time()
         < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
@@ -230,6 +224,7 @@ while not glfw.window_should_close(window):
     handle_inputs()
 
     # fmt: off
+
     glColor3f(*astuple(paddle1.color))
 
     glBegin(GL_QUADS)
@@ -263,16 +258,17 @@ while not glfw.window_should_close(window):
             compose(translate(paddle1.position),
                     rotate(paddle1.rotation)),
             # square space to paddle 1 space
-            compose(rotate(rotation_around_paddle1),
-                    translate(Vector2D(x=2.0, y=0.0)),
+            compose(translate(Vector2D(x=2.0,
+                                       y=0.0)),
                     rotate(square_rotation)))
         square_vector_ndc: Vector2D = ms_to_ndc(ms)
-        glVertex2f(square_vector_ndc.x,
-                   square_vector_ndc.y)
+        glVertex2f(square_vector_ndc.x, square_vector_ndc.y)
     glEnd()
     # doc-region-end draw square
 
+    # doc-region-begin draw paddle 2
     glColor3f(*astuple(paddle2.color))
+
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
@@ -292,4 +288,5 @@ while not glfw.window_should_close(window):
 
     glfw.swap_buffers(window)
     # fmt: on
+
 glfw.terminate()

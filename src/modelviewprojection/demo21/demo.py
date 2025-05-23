@@ -31,6 +31,7 @@ import numpy as np
 import OpenGL.GL.shaders as shaders
 import pyMatrixStack as ms
 import staticlocal
+from colorutils import Color4
 from imgui.integrations.glfw import GlfwRenderer
 from OpenGL.GL import (
     GL_ARRAY_BUFFER,
@@ -72,8 +73,6 @@ from OpenGL.GL import (
     glVertexAttribPointer,
     glViewport,
 )
-
-from colorutils import Color4
 
 if not glfw.init():
     sys.exit()

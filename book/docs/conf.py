@@ -75,7 +75,23 @@ latex_elements = {
 }
 
 
-extensions = ["sphinx.ext.imgmath", "sphinx.ext.imgconverter"]
+extensions = [
+    "sphinx.ext.imgmath",
+    "sphinx.ext.imgconverter",
+    "sphinx.ext.autodoc",
+    "sphinx.ext.napoleon",  # Required for parsing field descriptions
+]
+
+# conf.py
+autodoc_default_options = {
+    "members": True,
+    "member-order": "bysource",
+    "special-members": "__init__, __call__, __add__, __sub__, __mul__, __rmul__",
+    "undoc-members": True,
+    "exclude-members": "__weakref__",
+}
+
+glossary_sort = True
 
 imgconverter_converters = {
     "svg": "inkscape --without-gui --export-type=pdf --export-filename={out} {in}"

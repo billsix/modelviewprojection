@@ -16,7 +16,7 @@ Draw A Rectangle - Demo 02
 Purpose
 ^^^^^^^
 
-Learn how to plot a rectangle.  Learn about OpenGL's coordinate system, normalized-device coordinates,
+Learn how to plot a rectangle.  Learn about OpenGL's coordinate system, :term:`Normalized Device Coordinates`,
 which are from -1.0 to 1.0, in the X, Y, and Z directions.  Anything drawn entirely outside
 of this region will not be displayed on the screen.
 
@@ -31,7 +31,7 @@ of this region will not be displayed on the screen.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo02.py in Spyder and hit the play button
+Load src/modelviewprojection/demo02.py in Spyder and hit the play button.
 
 
 Code
@@ -52,13 +52,13 @@ The Event Loop
 Within the event loop, demo02.py draws 2 rectangles, as one might see in
 a game of Pong.
 
-.. literalinclude:: ../../src/demo02.py
+.. literalinclude:: ../../src/modelviewprojection/demo02.py
    :language: python
    :start-after: doc-region-begin event loop
    :end-before: doc-region-end event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo02.py
+   :caption: src/modelviewprojection/demo02.py
 
 ::
 
@@ -92,17 +92,17 @@ Draw Paddle 1
 &&&&&&&&&&&&&
 
 
-.. literalinclude:: ../../src/demo02.py
+.. literalinclude:: ../../src/modelviewprojection/demo02.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo02.py
+   :caption: src/modelviewprojection/demo02.py
 
 
 
-The paddle looks like this relative to normalized device coordinates (NDC):
+The paddle looks like this relative to :term:`NDC<Normalized Device Coordinates>`:
 
 .. figure:: _static/plot1.svg
     :class: no-scale
@@ -116,17 +116,17 @@ The paddle looks like this relative to normalized device coordinates (NDC):
 Draw Paddle 2
 &&&&&&&&&&&&&
 
-.. literalinclude:: ../../src/demo02.py
+.. literalinclude:: ../../src/modelviewprojection/demo02.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo02.py
+   :caption: src/modelviewprojection/demo02.py
 
 
 
-The 2 paddles looks like this relative to normalized device coordinates (NDC):
+The 2 paddles looks like this relative to :term:`NDC<Normalized Device Coordinates>`:
 
 .. figure:: _static/plot2.svg
     :class: no-scale
@@ -136,13 +136,13 @@ The 2 paddles looks like this relative to normalized device coordinates (NDC):
 
     Rectangle
 
-.. literalinclude:: ../../src/demo02.py
+.. literalinclude:: ../../src/modelviewprojection/demo02.py
    :language: python
    :start-after: doc-region-begin flush framebuffer to monitor
    :end-before: doc-region-end flush framebuffer to monitor
    :linenos:
    :lineno-match:
-   :caption: src/demo02.py
+   :caption: src/modelviewprojection/demo02.py
 
 
 
@@ -169,15 +169,15 @@ The frame sent to the monitor is a set of values like this ::
 
 
 
-What do we have to do to convert from normalized-device-coordinates (i.e. (1.0, 0.8))
+What do we have to do to convert from :term:`NDC<Normalized Device Coordinates>` (i.e. (1.0, 0.8))
 into pixel coordinates (i.e. pixel (10,15))?  Nothing, OpenGL does that for us automatically; therefore
 we never have to think in terms of pixels coordinates, only in terms of vertices of shapes,
-specified by normalized-device-coordinates. OpenGL also automatically colors all of the pixels
+specified by :term:`NDC<Normalized Device Coordinates>`. OpenGL also automatically colors all of the pixels
 which are inside of the quadrilateral.
 
 
 
-Why do we use normalized-device coordinates instead of pixel coordinates?
+Why do we use :term:`NDC<Normalized Device Coordinates>` instead of pixel coordinates?
 
 Normalized-Device-Coordinates
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -227,13 +227,13 @@ and an fixed range horizontally.  OpenGL will have to convert points from some s
 and since this is done in hardware (i.e. you can't pragmatically change how the conversion
 happens), it should be a fixed size.
 
-OpenGL uses what's called *normalized-device-coordinates*,
+OpenGL uses what's called *:term:`NDC<Normalized Device Coordinates>`*,
 which is a continuous space from -1.0 to 1.0 horizontally,
 -1.0 to 1.0 vertically, and from -1.0 to 1.0 depth-ally.  (Is there an
 actual word for that???)
 
 
-The programmer specifies geometry using normalized-device-coordinates, and
+The programmer specifies geometry using :term:`NDC<Normalized Device Coordinates>`, and
 OpenGL will convert from a continuous, -1.0 to 1.0 space,
 to discrete pixel-space, and the programmer cannot change this.
 

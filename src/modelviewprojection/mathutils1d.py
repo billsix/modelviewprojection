@@ -18,15 +18,15 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from mathutils import InvertibleFunction
+from modelviewprojection.mathutils import InvertibleFunction
 
 
 # doc-region-begin define vector class
 @dataclass
 class Vector1D:
-    x: float
+    x: float = field(metadata={"doc": "The value of the 1D Vector"})
     # doc-region-end define vector class
 
     # doc-region-begin define add

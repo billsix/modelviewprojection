@@ -22,6 +22,9 @@ import sys
 from dataclasses import astuple, dataclass
 
 import glfw
+from colorutils import Color3
+from mathutils import InvertibleFunction
+from mathutils2d import Vector2D, compose, translate, uniform_scale
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -43,16 +46,13 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from colorutils import Color3
-from mathutils2d import Vector2D, translate
-
 if not glfw.init():
     sys.exit()
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 5", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 6", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -102,7 +102,6 @@ def draw_in_square_viewport() -> None:
     )
 
 
-# doc-region-begin define paddle class
 @dataclass
 class Paddle:
     vertices: list[Vector2D]
@@ -110,29 +109,27 @@ class Paddle:
     position: Vector2D
 
 
-# doc-region-end define paddle class
-
 # doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-0.1, y=-0.3),
-        Vector2D(x=0.1, y=-0.3),
-        Vector2D(x=0.1, y=0.3),
-        Vector2D(x=-0.1, y=0.3),
+        Vector2D(x=-1.0, y=-3.0),
+        Vector2D(x=1.0, y=-3.0),
+        Vector2D(x=1.0, y=3.0),
+        Vector2D(x=-1.0, y=3.0),
     ],
     color=Color3(r=0.578123, g=0.0, b=1.0),
-    position=Vector2D(-0.9, 0.0),
+    position=Vector2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vector2D(-0.1, -0.3),
-        Vector2D(0.1, -0.3),
-        Vector2D(0.1, 0.3),
-        Vector2D(-0.1, 0.3),
+        Vector2D(x=-1.0, y=-3.0),
+        Vector2D(x=1.0, y=-3.0),
+        Vector2D(x=1.0, y=3.0),
+        Vector2D(x=-1.0, y=3.0),
     ],
     color=Color3(r=1.0, g=1.0, b=0.0),
-    position=Vector2D(0.9, 0.0),
+    position=Vector2D(9.0, 0.0),
 )
 # doc-region-end instantiate paddles
 
@@ -142,13 +139,13 @@ def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position.y -= 0.1
+        paddle1.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position.y += 0.1
+        paddle1.position.y += 1.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position.y -= 0.1
+        paddle2.position.y -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position.y += 0.1
+        paddle2.position.y += 1.0
 
 
 # doc-region-end define handle movement of paddles
@@ -164,7 +161,6 @@ while not glfw.window_should_close(window):
         < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
-
     time_at_beginning_of_previous_frame = glfw.get_time()
 
     glfw.poll_events()
@@ -177,26 +173,42 @@ while not glfw.window_should_close(window):
     handle_movement_of_paddles()
     # doc-region-end begin event loop
 
+    # fmt: off
     # doc-region-begin draw paddle 1
     glColor3f(*astuple(paddle1.color))
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc: Vector2D = translate(paddle1.position)(p1_v_ms)
-        glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
+        fn: InvertibleFunction[Vector2D] = compose(
+            uniform_scale(1.0 / 10.0),
+            translate(paddle1.position)
+        )
+        paddle1_vector_ndc: Vector2D = fn(p1_v_ms)
+        glVertex2f(paddle1_vector_ndc.x,
+                   paddle1_vector_ndc.y)
+
     glEnd()
     # doc-region-end draw paddle 1
 
     # doc-region-begin draw paddle 2
     glColor3f(*astuple(paddle2.color))
 
+
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        paddle2_vector_ndc: Vector2D = translate(paddle2.position)(p2_v_ms)
-        glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
+        fn: InvertibleFunction[Vector2D] = compose(
+            uniform_scale(1.0 / 10.0),
+            translate(paddle2.position)
+        )
+        paddle2_vector_ndc: Vector2D = fn(p2_v_ms)
+        glVertex2f(paddle2_vector_ndc.x,
+                   paddle2_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
 
+    # aoeu
+    # doc-region-begin flush framebuffer
     glfw.swap_buffers(window)
-
+    # doc-region-end flush framebuffer
+    # fmt: on
 glfw.terminate()

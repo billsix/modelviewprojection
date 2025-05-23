@@ -28,12 +28,6 @@ COPY ./entrypoint/entrypoint.sh  /entrypoint.sh
 COPY pytest.ini /mvp/
 COPY ./tests /mvp/
 
-
-COPY ./book/docs/_static/tex_exp_to_png   /tex_exp_to_png
-RUN cd /tex_exp_to_png   && ./autogen.sh && ./configure --prefix=/usr && make && make install
-
-
-
 # Run unit tests
 # If any unit tests fail, exit and don't build the book
 RUN cd /mvp/ && pytest --exitfirst --disable-warnings

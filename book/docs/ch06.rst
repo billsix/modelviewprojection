@@ -16,7 +16,7 @@ Modelspace - Demo 06
 Purpose
 ^^^^^^^
 
-Learn about modelspace.
+Learn about :term:`modelspace<Modelspace>` :index:`Modelspace`.
 
 .. figure:: _static/screenshots/demo06.png
     :class: no-scale
@@ -30,7 +30,7 @@ Learn about modelspace.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo06.py in Spyder and hit the play button
+Load src/modelviewprojection/demo06.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -49,14 +49,14 @@ Modelspace
 ^^^^^^^^^^
 
 
-Normalized-device-coordinates are not a natural system of
+:term:`NDC<Normalized Device Coordinates>` are not a natural system of
 numbers for use by humans.  Imagine that the paddles in the previous
 chapters exist in real life, and are 2 meters wide and 6 meters tall.
 The graphics programmer should be able to use those numbers directly;
-they shouldn't have to manually transform the distances into normalized-device-coordinates.
+they shouldn't have to manually transform the distances into :term:`NDC<Normalized Device Coordinates>`.
 
 Whatever a convenient numbering system is (i.e. coordinate system) for modeling objects
-is called "model-space".  Since a paddle has four corners, which corner should be at
+is called :term:`modelspace<Modelspace>`.  Since a paddle has four corners, which corner should be at
 the origin (0,0)?  If you don't already know what you want at the origin, then
 none of the corners should be; instead put the center of the object
 at the origin (Because by putting the center of the object at the origin,
@@ -72,7 +72,7 @@ scaling and rotating the object are trivial, as shown in later chapters).
     Representing a Paddle using Modelspace
 
 
-Modelspace - the coordinate system (origin plus axes), in which some object's
+:term:`modelspace<Modelspace>` - the coordinate system (origin plus axes), in which some object's
 vertices are defined.
 
 
@@ -204,10 +204,10 @@ d               (-8,-1)
 
 Now that the transformation has happened, the vertices are all in world space.
 You could calculate their values in world space, but that will not give you any insight.  The only numbers
-that matter for insight as that the entire graph paper of modelspace, which originally
+that matter for insight as that the entire graph paper of :term:`modelspace<Modelspace>`, which originally
 was the same as world space, has changed, bringing the vertices along with it.
 
-Same goes for Paddle 2's modelspace, relative to its translation, which
+Same goes for Paddle 2's :term:`modelspace<Modelspace>`, relative to its translation, which
 are different values.
 
 
@@ -401,7 +401,7 @@ and to get it into NDC, we need to scale by dividing by 10
     \end{bmatrix}
 
 
-where x_p1, y_p1  are the modelspace coordinates of the paddle's vertices,
+where x_p1, y_p1  are the :term:`modelspace<Modelspace>` coordinates of the paddle's vertices,
 and where p1_center_x_worldspace, p1_center_y_worldspace,
 are the offset from the world space's origin to the center of the paddle, i.e. the translation.
 
@@ -455,35 +455,35 @@ the respective components together, and create a new Vector2D.
 
 
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
 In a Python class, we can overload the '+' symbol, to make
 objects addable, by implementing the '__add__' method.
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define add
    :end-before: doc-region-end define add
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
 We can also model the opposite procedure, subtraction,
 by implementing the "__sub__" method.
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define subtract
    :end-before: doc-region-end define subtract
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
 
 In our graphics code, instead of using "a+b", we'll use a more descriptive
@@ -495,13 +495,13 @@ on Vector2D class, and it's wrapped in a class named "InvertibleFunction"
 
 
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define translate
    :end-before: doc-region-end define translate
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
 Notice in particular that the "translate_amount" parameter
 is passed as an argument to "translate",
@@ -542,13 +542,13 @@ composing t_inv and t results in no transformation.
 
 Here's how InvertibleFunction is implemented:
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define invertible function
    :end-before: doc-region-end define invertible function
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
 Just as Python allows an object to override the '+' and '-' syntax,
 in Python, any object can be treated as a function, by implementing the
@@ -562,13 +562,13 @@ that scaled the Vector2D by the same amount in all directions.  We do this
 by implementing the '__mul__' and '__rmul__' methods, where __rmul__ just means
 that this object is on the right hand side of the multiplication.
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define mul
    :end-before: doc-region-end define mul
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
 Just like we made a top level invertible function called "translate" for addition,
 we are going to do the same for multiplication, and call it "uniform_scale".
@@ -576,13 +576,13 @@ Notice in particular that the scalar is passed as an argument to "uniform_scale"
 but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vector2D.
 This is because we will be scaling many Vector2Ds using the same scaling factor.
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define uniform scale
    :end-before: doc-region-end define uniform scale
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
 
 
@@ -591,28 +591,28 @@ This is because we will be scaling many Vector2Ds using the same scaling factor.
 
 
 
-.. literalinclude:: ../../src/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demo06.py
    :language: python
    :start-after: doc-region-begin instantiate paddles
    :end-before: doc-region-end instantiate paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo06.py
+   :caption: src/modelviewprojection/demo06.py
 
 
-* paddles are using modelspace coordinates instead of NDC
+* paddles are using :term:`modelspace<Modelspace>` coordinates instead of NDC
 
-.. literalinclude:: ../../src/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demo06.py
    :language: python
    :start-after: doc-region-begin define handle movement of paddles
    :end-before: doc-region-end define handle movement of paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo06.py
+   :caption: src/modelviewprojection/demo06.py
 
 
 
-* Movement code needs to happen in Modelspace's units.
+* Movement code needs to happen in :term:`modelspace<Modelspace>`'s units.
 
 Code
 ^^^^
@@ -621,13 +621,13 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demo06.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo06.py
+   :caption: src/modelviewprojection/demo06.py
 
 
 
@@ -636,13 +636,13 @@ The Event Loop
 Rendering Paddle 1
 &&&&&&&&&&&&&&&&&&
 
-.. literalinclude:: ../../src/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demo06.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo06.py
+   :caption: src/modelviewprojection/demo06.py
 
 
 
@@ -687,13 +687,13 @@ Rendering Paddle 2
 &&&&&&&&&&&&&&&&&&
 
 
-.. literalinclude:: ../../src/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demo06.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo06.py
+   :caption: src/modelviewprojection/demo06.py
 
 
 
@@ -732,10 +732,10 @@ not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.
 
-.. literalinclude:: ../../src/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demo06.py
    :language: python
    :start-after: doc-region-begin flush framebuffer
    :end-before: doc-region-end flush framebuffer
    :linenos:
    :lineno-match:
-   :caption: src/demo06.py
+   :caption: src/modelviewprojection/demo06.py

@@ -43,6 +43,8 @@ Model View Projection
    ch20
    ch21
    perspective
+   glossary
+   api
 
 
 

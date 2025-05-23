@@ -34,7 +34,7 @@ horizontally.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo10.py in Spyder and hit the play button
+Load src/modelviewprojection/demo10.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -125,7 +125,7 @@ descriptions of everything else that's not you breaks down.
 The math is easier in the aggregate if you describe your position as moving relative
 to earth.
 
-But this introduces a new problem.  Follow from the paddle's modelspace
+But this introduces a new problem.  Follow from the paddle's :term:`modelspace<Modelspace>`
 to screen space.  Up until this demo, we've always been
 following the the direction of each edges.  In our new Cayley graph, when going from world
 space to camera space, we're moving in the opposite direction
@@ -234,20 +234,20 @@ Towards the left.
     Camera is 3D space
 
 Looking at the graph paper on the ground there, that's world space.
-The camera gets placed in world space just like any other modelspace data.
+The camera gets placed in world space just like any other :term:`modelspace<Modelspace>` data.
 In order to render from the camera's point of view, we need to move and orient the -1.0 to 1.0
 box relative to the camera to match the -1.0 to 1.0 box in world space.
 
 Run "python mvpVisualization/modelviewperspectiveprojection/modelviewperspectiveprojection.py", and follow along with the Cayley
-graph.  The camera will be placed like any other modelspace data, but then
+graph.  The camera will be placed like any other :term:`modelspace<Modelspace>` data, but then
 the inverse of the transformations will be applied to all of the vertices.
 
 For the attentive reader
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 The purpose of watching that animation was to see how the camera was placed just like
-the modelspace data was placed, while not modifying the modelspace data,
-but then the inverse was applied, moving the modelspace data.
+the :term:`modelspace<Modelspace>` data was placed, while not modifying the modelspace data,
+but then the inverse was applied, moving the :term:`modelspace<Modelspace>` data.
 
 The attentive reader may notice: "Bill, you said the the inverse causes the operations
 to be run in opposite order, yet I saw them run in the same order.  For camera
@@ -291,22 +291,22 @@ Code
 
 
 
-.. literalinclude:: ../../src/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demo10.py
    :language: python
    :start-after: doc-region-begin define camera class
    :end-before: doc-region-end define camera class
    :linenos:
    :lineno-match:
-   :caption: src/demo10.py
+   :caption: src/modelviewprojection/demo10.py
 
 
-.. literalinclude:: ../../src/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demo10.py
    :language: python
    :start-after: doc-region-begin handle inputs
    :end-before: doc-region-end handle inputs
    :linenos:
    :lineno-match:
-   :caption: src/demo10.py
+   :caption: src/modelviewprojection/demo10.py
 
 
 ::
@@ -323,24 +323,24 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demo10.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo10.py
+   :caption: src/modelviewprojection/demo10.py
 
 
 
 
-.. literalinclude:: ../../src/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demo10.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo10.py
+   :caption: src/modelviewprojection/demo10.py
 
 
 The camera's position is at camera.x, camera.y.  So
@@ -348,34 +348,34 @@ apply the inverse of the camera's transformations
 to paddle 1's vertices, i.e. translate with the negative
 values.
 
-.. literalinclude:: ../../src/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demo10.py
    :language: python
    :start-after: doc-region-begin paddle 1 camera translate
    :end-before: doc-region-end paddle 1 camera translate
    :linenos:
    :lineno-match:
-   :caption: src/demo10.py
+   :caption: src/modelviewprojection/demo10.py
 
 
-.. literalinclude:: ../../src/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demo10.py
    :language: python
    :start-after: doc-region-begin paddle 1 scale
    :end-before: doc-region-end paddle 1 scale
    :linenos:
    :lineno-match:
-   :caption: src/demo10.py
+   :caption: src/modelviewprojection/demo10.py
 
 
 
 
 
-.. literalinclude:: ../../src/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demo10.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo10.py
+   :caption: src/modelviewprojection/demo10.py
 
 
 The camera's position is at camera.x, camera.y.  So
@@ -383,19 +383,19 @@ apply the inverse of the camera's  transformations
 to paddle 2's vertices, i.e. translate with the negative
 values.
 
-.. literalinclude:: ../../src/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demo10.py
    :language: python
    :start-after: doc-region-begin paddle 2 camera transformations
    :end-before: doc-region-end paddle 2 camera transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo10.py
+   :caption: src/modelviewprojection/demo10.py
 
 
-.. literalinclude:: ../../src/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demo10.py
    :language: python
    :start-after: doc-region-begin paddle 2 glvector2f
    :end-before: doc-region-end paddle 2 glvector2f
    :linenos:
    :lineno-match:
-   :caption: src/demo10.py
+   :caption: src/modelviewprojection/demo10.py

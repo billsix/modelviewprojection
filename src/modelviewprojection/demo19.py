@@ -19,26 +19,21 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import math
-import os
 import sys
 from dataclasses import astuple, dataclass, field
 
 import glfw
 import numpy as np
-import OpenGL.GL.shaders as shaders
-
-# doc-region-begin new imports
+from colorutils import Color3
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
     GL_DEPTH_TEST,
-    GL_FRAGMENT_SHADER,
     GL_LEQUAL,
     GL_MODELVIEW,
     GL_PROJECTION,
     GL_QUADS,
     GL_SCISSOR_TEST,
-    GL_VERTEX_SHADER,
     glBegin,
     glClear,
     glClearColor,
@@ -55,26 +50,18 @@ from OpenGL.GL import (
     glRotatef,
     glScissor,
     glTranslate,
-    glUseProgram,
     glVertex3f,
     glViewport,
 )
 from OpenGL.GLU import gluPerspective
 
-from colorutils import Color3
-
-# doc-region-end new imports
-
-
 if not glfw.init():
     sys.exit()
 
-# doc-region-begin open gl version 2.1
-glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
-glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-# doc-region-end open gl version 2.1
+glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
+glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 20", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 19", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -91,9 +78,11 @@ glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 
+# doc-region-begin enable depth test for left hand system
 glEnable(GL_DEPTH_TEST)
 glClearDepth(1.0)
 glDepthFunc(GL_LEQUAL)
+# doc-region-end enable depth test for left hand system
 
 
 def draw_in_square_viewport() -> None:
@@ -125,8 +114,8 @@ def draw_in_square_viewport() -> None:
 
 @dataclass
 class Paddle:
-    position: any
     color: Color3
+    position: any
     rotation: float = 0.0
     vertices: np.array = field(
         default_factory=lambda: np.array(
@@ -227,23 +216,6 @@ TARGET_FRAMERATE: int = 60
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
-
-# doc-region-begin compile shaders
-# compile shaders
-
-# initialize shaders
-pwd = os.path.dirname(os.path.abspath(__file__))
-
-with open(os.path.join(pwd, "triangle.vert"), "r") as f:
-    vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
-
-with open(os.path.join(pwd, "triangle.frag"), "r") as f:
-    fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
-
-shader = shaders.compileProgram(vs, fs)
-glUseProgram(shader)
-# doc-region-end compile shaders
-
 while not glfw.window_should_close(window):
     while (
         glfw.get_time()
@@ -277,12 +249,15 @@ while not glfw.window_should_close(window):
             camera.rot_y -= axes_list[0][2] * 0.01
 
     # just like putting the identity function on the lambda stack
+    # doc-region-begin load identity
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     glMatrixMode(GL_MODELVIEW)
     glLoadIdentity()
+    # doc-region-end load identity
 
     # projection
+    # doc-region-begin perspective projection
     glMatrixMode(GL_PROJECTION)
     gluPerspective(
         45.0,  # field_of_view
@@ -290,13 +265,16 @@ while not glfw.window_should_close(window):
         0.1,  # near_z
         1000.0,  # far_z
     )
+    # doc-region-end perspective projection
 
     # view
+    # doc-region-begin begin modelview transformations
     glMatrixMode(GL_MODELVIEW)
 
     glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
     glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
     glTranslate(-camera.x, -camera.y, -camera.z)
+    # doc-region-end begin modelview transformations
 
     # model
 
@@ -307,8 +285,11 @@ while not glfw.window_should_close(window):
     # the width statement ensures that the matrix is
     # pushed onto a stack, and when the with block doc-region-ends,
     # it will be automatically popped off of the stack
+    # doc-region-begin first push matrix
     glPushMatrix()
+    # doc-region-end first push matrix
 
+    # doc-region-begin draw paddle 1
     glColor3f(*astuple(paddle1.color))
 
     glTranslate(
@@ -326,8 +307,11 @@ while not glfw.window_should_close(window):
             p1_v_ms[2],
         )
     glEnd()
+    # doc-region-end draw paddle 1
+
     # doc-region-end of paddle 1
 
+    # doc-region-begin draw the square
     # draw the square
     # given that no nodes are defined relative to the square, we do not need
     # to push a matrix.  Here we will do so anyway, just to clarify what is
@@ -351,7 +335,9 @@ while not glfw.window_should_close(window):
     # the mode matrix that was on the model stack before the square
     # was drawn will be restored
     glPopMatrix()
+    # doc-region-end draw the square
 
+    # doc-region-begin draw paddle 2
     # draw paddle 2.  Nothing is defined relative to paddle to, so we don't
     # need to push matrix, and on the next iteration of the event loop,
     # all matrices will be cleared to identity, so who cares if we
@@ -373,7 +359,7 @@ while not glfw.window_should_close(window):
             p2_v_ms[2],
         )
     glEnd()
-
+    # doc-region-end draw paddle 2
     glfw.swap_buffers(window)
 
 

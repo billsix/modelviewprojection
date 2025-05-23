@@ -52,7 +52,7 @@ from the viewer would appear smaller.  This will be fixed in demo17.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo17.py in Spyder and hit the play button
+Load src/modelviewprojection/demo17.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -114,7 +114,7 @@ To visualize this, run "python mvpVisualization/modelvieworthoprojection/modelvi
 
 The ordering of 1) before 2) and 3) should be clear, as
 we are imagining a coordinate system that moves, just
-like we do for the model-space to world space transformations.
+like we do for the :term:`modelspace<Modelspace>` to world space transformations.
 The ordering of 2) before 3) is very important, as two rotations
 around different axes are not commutative, meaning that you can't
 change the order and still expect the same results
@@ -132,18 +132,18 @@ rotate your head (not your neck), 45 degrees.  It is different, and quite uncomf
 We rotate the camera by the y axis first, then by the relative x axis,
 for the same reason.
 
-.. literalinclude:: ../../src/demo17.py
+.. literalinclude:: ../../src/modelviewprojection/demo17.py
    :language: python
    :start-after: doc-region-begin commented out camera placement
    :end-before: doc-region-end commented out camera placement
    :linenos:
    :lineno-match:
-   :caption: src/demo17.py
+   :caption: src/modelviewprojection/demo17.py
 
 
 
 (Remember, read bottom up, just like the previous demos
-for model-space to world-space data)
+for :term:`modelspace<Modelspace>` to world-space data)
 
 
 Back to the point, we are envisioning the camera relative to the world
@@ -168,10 +168,10 @@ orientation of NDC.  Looking at the following graph,
 
     Demo 16
 
-We want to take the model-space geometry from,
+We want to take the :term:`modelspace<Modelspace>` geometry from,
 say Paddle1 space, to world space,
 and then to camera space (which is going in the opposite direction of the arrow, therefore requires
-an inverse operation, because to plot data we go from model-space to screen space on the graph.
+an inverse operation, because to plot data we go from :term:`modelspace<Modelspace>` to screen space on the graph.
 
 Given that the inverse of a sequence of transformations is the sequence backwards,
 with each transformations inverted, we must do that to get from world space
@@ -180,13 +180,13 @@ to camera space.
 
 The inverted form is
 
-.. literalinclude:: ../../src/demo17.py
+.. literalinclude:: ../../src/modelviewprojection/demo17.py
    :language: python
    :start-after: doc-region-begin inverted transformation to go from world space to camera space
    :end-before: doc-region-end inverted transformation to go from world space to camera space
    :linenos:
    :lineno-match:
-   :caption: src/demo17.py
+   :caption: src/modelviewprojection/demo17.py
 
 
 
@@ -250,26 +250,26 @@ Code
 
 The camera now has two angles as instance variables.
 
-.. literalinclude:: ../../src/demo17.py
+.. literalinclude:: ../../src/modelviewprojection/demo17.py
    :language: python
    :start-after: doc-region-begin define camera class
    :end-before: doc-region-end define camera class
    :linenos:
    :lineno-match:
-   :caption: src/demo17.py
+   :caption: src/modelviewprojection/demo17.py
 
 
 
 Since we want the user to be able to control the camera, we need
 to read the input.
 
-.. literalinclude:: ../../src/demo17.py
+.. literalinclude:: ../../src/modelviewprojection/demo17.py
    :language: python
    :start-after: doc-region-begin define handle inputs
    :end-before: doc-region-end define handle inputs
    :linenos:
    :lineno-match:
-   :caption: src/demo17.py
+   :caption: src/modelviewprojection/demo17.py
 
 
 ::
@@ -279,13 +279,13 @@ to read the input.
 Left and right rotate the viewer's horizontal
 angle, page up and page down the vertical angle.
 
-.. literalinclude:: ../../src/demo17.py
+.. literalinclude:: ../../src/modelviewprojection/demo17.py
    :language: python
    :start-after: doc-region-begin handle key inputs
    :end-before: doc-region-end handle key inputs
    :linenos:
    :lineno-match:
-   :caption: src/demo17.py
+   :caption: src/modelviewprojection/demo17.py
 
 
 
@@ -298,13 +298,13 @@ through the sky.  I.e, we want forward/backwards movement to happen relative
 to the XZ plane at the camera's position, not forward/backwards
 movement relative to camera space.
 
-.. literalinclude:: ../../src/demo17.py
+.. literalinclude:: ../../src/modelviewprojection/demo17.py
    :language: python
    :start-after: doc-region-begin handle key input keys
    :end-before: doc-region-end handle key input keys
    :linenos:
    :lineno-match:
-   :caption: src/demo17.py
+   :caption: src/modelviewprojection/demo17.py
 
 
 
@@ -313,26 +313,26 @@ relative to camera space down to NDC, by moving the center of the rectangular
 prism to the origin, and scaling by the inverse of the width, height, and depth
 of the viewable region.
 
-.. literalinclude:: ../../src/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
    :language: python
    :start-after: doc-region-begin define ortho
    :end-before: doc-region-end define ortho
    :linenos:
    :lineno-match:
-   :caption: src/mathutils3d.py
+   :caption: src/modelviewprojection/mathutils3d.py
 
 
 
 We will make a wrapper function camera_space_to_ndc_space_fn which
 calls ortho, setting the size of the rectangular prism.
 
-.. literalinclude:: ../../src/demo17.py
+.. literalinclude:: ../../src/modelviewprojection/demo17.py
    :language: python
    :start-after: doc-region-begin define camera space to ndc
    :end-before: doc-region-end define camera space to ndc
    :linenos:
    :lineno-match:
-   :caption: src/demo17.py
+   :caption: src/modelviewprojection/demo17.py
 
 
 
@@ -347,13 +347,13 @@ put this repetition into the book on purpose, so that when we
 start using matrices later, the reader will fully appreciate what
 matrices solve for us.
 
-.. literalinclude:: ../../src/demo17.py
+.. literalinclude:: ../../src/modelviewprojection/demo17.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo17.py
+   :caption: src/modelviewprojection/demo17.py
 
 
 
@@ -365,10 +365,10 @@ matrices solve for us.
 the square should not be visible when hidden behind the paddle1,
 as we did a translate by -10 in the z direction.
 
-.. literalinclude:: ../../src/demo17.py
+.. literalinclude:: ../../src/modelviewprojection/demo17.py
    :language: python
    :start-after: doc-region-begin draw scene
    :end-before: doc-region-end draw scene
    :linenos:
    :lineno-match:
-   :caption: src/demo17.py
+   :caption: src/modelviewprojection/demo17.py

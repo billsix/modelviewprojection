@@ -23,17 +23,17 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import List
 
-from mathutils import InvertibleFunction, compose, inverse
-from mathutils2d import Vector2D
-from mathutils2d import rotate as rotate2D
+from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
+from modelviewprojection.mathutils2d import Vector2D
+from modelviewprojection.mathutils2d import rotate as rotate2D
 
 
 # doc-region-begin define vector class
 @dataclass
 class Vector3D:
-    x: float
-    y: float
-    z: float
+    x: float = field(metadata={"doc": "The x-component of the 3D Vector"})
+    y: float = field(metadata={"doc": "The y-component of the 3D Vector"})
+    z: float = field(metadata={"doc": "The z-component of the 3D Vector"})
 
     def __add__(self, rhs: Vector3D) -> Vector3D:
         return Vector3D(

@@ -19,26 +19,71 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import math
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
-from mathutils import InvertibleFunction, compose, inverse
+from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
 
 
 # doc-region-begin define vector class
 @dataclass
 class Vector2D:
-    x: float
-    y: float
+    x: float = field(metadata={"doc": "The x-component of the 2D Vector"})
+    y: float = field(metadata={"doc": "The y-component of the 2D Vector"})
     # doc-region-end define vector class
 
     # doc-region-begin define add
     def __add__(self, rhs: Vector2D) -> Vector2D:
+        """
+        Add together two Vector2Ds.
+
+        Let :math:`\\vec{a} = (a_x, a_y)` and :math:`\\vec{b} = (b_x, b_y)`:
+
+        .. math::
+
+             \\vec{a} + \\vec{b} = (a_x + b_x, a_y + b_y)
+
+        Args:
+            rhs (Vector2D): The vector on the right hand side of the addition symobl
+        Returns:
+            Vector2D: The Vector2D that represents the additon of the two input Vector2Ds
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils2d import Vector2D
+            >>> a = Vector2D(x=2.0, y=3.0)
+            >>> b = Vector2D(x=5.0, y=6.0)
+            >>> a + b
+            Vector2D(x=7.0, y=9.0)
+        """
+
         return Vector2D(x=(self.x + rhs.x), y=(self.y + rhs.y))
 
     # doc-region-end define add
 
     # doc-region-begin define subtract
     def __sub__(self, rhs: Vector2D) -> Vector2D:
+        """
+        Subtract the right hand side Vector2D from the left hand side Vector2D.
+
+        Let :math:`\\vec{a} = (a_x, a_y)` and :math:`\\vec{b} = (b_x, b_y)`:
+
+        .. math::
+
+             \\vec{a} - \\vec{b} = (a_x - b_x, a_y - b_y)
+
+        Args:
+            rhs (Vector2D): The vector on the right hand side of the subtraction symobl
+        Returns:
+            Vector2D: The Vector2D that represents the subtraction of the right hand side Vector2D from the left hand side Vector2D
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils2d import Vector2D
+            >>> a = Vector2D(x=2.0, y=3.0)
+            >>> b = Vector2D(x=5.0, y=2.0)
+            >>> a - b
+            Vector2D(x=-3.0, y=1.0)
+        """
         return Vector2D(x=(self.x - rhs.x), y=(self.y - rhs.y))
 
     # doc-region-end define subtract

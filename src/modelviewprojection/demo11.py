@@ -15,13 +15,22 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import sys
-from dataclasses import astuple, dataclass
+from dataclasses import astuple, dataclass, field
 
 import glfw
+from colorutils import Color3
+from mathutils import InvertibleFunction
+from mathutils2d import (
+    Vector2D,
+    compose,
+    inverse,
+    rotate,
+    translate,
+    uniform_scale,
+)
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -43,17 +52,13 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from colorutils import Color3
-from mathutils import InvertibleFunction
-from mathutils2d import Vector2D, compose, translate, uniform_scale
-
 if not glfw.init():
     sys.exit()
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 6", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 11", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -108,9 +113,9 @@ class Paddle:
     vertices: list[Vector2D]
     color: Color3
     position: Vector2D
+    rotation: float = 0.0
 
 
-# doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
         Vector2D(x=-1.0, y=-3.0),
@@ -132,11 +137,40 @@ paddle2: Paddle = Paddle(
     color=Color3(r=1.0, g=1.0, b=0.0),
     position=Vector2D(9.0, 0.0),
 )
-# doc-region-end instantiate paddles
 
 
-# doc-region-begin define handle movement of paddles
-def handle_movement_of_paddles() -> None:
+@dataclass
+class Camera:
+    position_ws: Vector2D = field(
+        default_factory=lambda: Vector2D(x=0.0, y=0.0)
+    )
+
+
+camera: Camera = Camera()
+
+
+# doc-region-begin define square
+square: list[Vector2D] = [
+    Vector2D(x=-0.5, y=-0.5),
+    Vector2D(x=0.5, y=-0.5),
+    Vector2D(x=0.5, y=0.5),
+    Vector2D(x=-0.5, y=0.5),
+]
+# doc-region-end define square
+
+
+def handle_inputs() -> None:
+    global camera
+
+    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
+        camera.position_ws.y += 1.0
+    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
+        camera.position_ws.y -= 1.0
+    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
+        camera.position_ws.x -= 1.0
+    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
+        camera.position_ws.x += 1.0
+
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
@@ -148,20 +182,31 @@ def handle_movement_of_paddles() -> None:
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 1.0
 
+    if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
+        paddle1.rotation += 0.1
+    if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
+        paddle1.rotation -= 0.1
+    if glfw.get_key(window, glfw.KEY_J) == glfw.PRESS:
+        paddle2.rotation += 0.1
+    if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
+        paddle2.rotation -= 0.1
 
-# doc-region-end define handle movement of paddles
 
 TARGET_FRAMERATE: int = 60
+
 
 time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # doc-region-begin begin event loop
 while not glfw.window_should_close(window):
+    # doc-region-end begin event loop
+
     while (
         glfw.get_time()
         < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
+
     time_at_beginning_of_previous_frame = glfw.get_time()
 
     glfw.poll_events()
@@ -171,8 +216,7 @@ while not glfw.window_should_close(window):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     draw_in_square_viewport()
-    handle_movement_of_paddles()
-    # doc-region-end begin event loop
+    handle_inputs()
 
     # fmt: off
     # doc-region-begin draw paddle 1
@@ -180,36 +224,60 @@ while not glfw.window_should_close(window):
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        fn: InvertibleFunction[Vector2D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector2D] = compose(
+            # camera space to NDC
             uniform_scale(1.0 / 10.0),
-            translate(paddle1.position)
-        )
-        paddle1_vector_ndc: Vector2D = fn(p1_v_ms)
-        glVertex2f(paddle1_vector_ndc.x,
-                   paddle1_vector_ndc.y)
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle1.position),
+                    rotate(paddle1.rotation)))
 
+        paddle1_vector_ndc: Vector2D = ms_to_ndc(p1_v_ms)
+
+        glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 1
+
+    # doc-region-begin draw square
+    glColor3f(0.0, 0.0, 1.0)
+    glBegin(GL_QUADS)
+    for ms in square:
+        ms_to_ndc: InvertibleFunction[Vector2D] = compose(
+            # camera space to NDC
+            uniform_scale(1.0 / 10.0),
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle1.position),
+                    rotate(paddle1.rotation)),
+            # square space to paddle 1 space
+            translate(Vector2D(x=2.0,
+                               y=0.0)))
+        square_vector_ndc: Vector2D = ms_to_ndc(ms)
+        glVertex2f(square_vector_ndc.x, square_vector_ndc.y)
+    glEnd()
+    # doc-region-end draw square
 
     # doc-region-begin draw paddle 2
     glColor3f(*astuple(paddle2.color))
 
-
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: InvertibleFunction[Vector2D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector2D] = compose(
+            # camera space to NDC
             uniform_scale(1.0 / 10.0),
-            translate(paddle2.position)
-        )
-        paddle2_vector_ndc: Vector2D = fn(p2_v_ms)
-        glVertex2f(paddle2_vector_ndc.x,
-                   paddle2_vector_ndc.y)
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle2.position),
+                    rotate(paddle2.rotation)))
+
+        paddle2_vector_ndc: Vector2D = ms_to_ndc(p2_v_ms)
+
+        glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
-
-    # aoeu
-    # doc-region-begin flush framebuffer
     glfw.swap_buffers(window)
-    # doc-region-end flush framebuffer
     # fmt: on
 glfw.terminate()

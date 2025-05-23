@@ -28,7 +28,7 @@ Rotate the square around its origin.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo12.py in Spyder and hit the play button
+Load src/modelviewprojection/demo12.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -77,24 +77,24 @@ Code
 
 Make a variable to determine the angle that the square will be rotated.
 
-.. literalinclude:: ../../src/demo12.py
+.. literalinclude:: ../../src/modelviewprojection/demo12.py
    :language: python
    :start-after: doc-region-begin define square rotation
    :end-before: doc-region-end define square rotation
    :linenos:
    :lineno-match:
-   :caption: src/demo12.py
+   :caption: src/modelviewprojection/demo12.py
 
 
 When 'q' is pressed, increase the angle.
 
-.. literalinclude:: ../../src/demo12.py
+.. literalinclude:: ../../src/modelviewprojection/demo12.py
    :language: python
    :start-after: doc-region-begin define handle input
    :end-before: doc-region-end define handle input
    :linenos:
    :lineno-match:
-   :caption: src/demo12.py
+   :caption: src/modelviewprojection/demo12.py
 
 
 ::
@@ -108,13 +108,13 @@ Event Loop
 In the previous chapter, this was the rendering code for
 the square.
 
-.. literalinclude:: ../../src/demo11.py
+.. literalinclude:: ../../src/modelviewprojection/demo11.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/demo11.py
+   :caption: src/modelviewprojection/demo11.py
 
 
 
@@ -124,13 +124,13 @@ a rotate call at the top.
 
 
 
-.. literalinclude:: ../../src/demo12.py
+.. literalinclude:: ../../src/modelviewprojection/demo12.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/demo12.py
+   :caption: src/modelviewprojection/demo12.py
 
 
 The author is getting really tired of having to look at all the different

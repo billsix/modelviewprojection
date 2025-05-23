@@ -67,36 +67,36 @@ Cayley Graph
 
     Demo 13
 
-.. literalinclude:: ../../src/demo13.py
+.. literalinclude:: ../../src/modelviewprojection/demo13.py
    :language: python
    :start-after: doc-region-begin define variable for square rotation around paddle's center
    :end-before: doc-region-end define variable for square rotation around paddle's center
    :linenos:
    :lineno-match:
-   :caption: src/demo13.py
+   :caption: src/modelviewprojection/demo13.py
 
 
 
 Event Loop
 ^^^^^^^^^^
 
-.. literalinclude:: ../../src/demo13.py
+.. literalinclude:: ../../src/modelviewprojection/demo13.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo13.py
+   :caption: src/modelviewprojection/demo13.py
 
 
 ::
 
     ...
 
-.. literalinclude:: ../../src/demo13.py
+.. literalinclude:: ../../src/modelviewprojection/demo13.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/demo13.py
+   :caption: src/modelviewprojection/demo13.py

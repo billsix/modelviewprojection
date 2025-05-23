@@ -24,7 +24,7 @@ they are mandatory.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo21/demo21.py in Spyder and hit the play button
+Load src/modelviewprojection/demo21/demo21.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -56,19 +56,19 @@ Description
 ^^^^^^^^^^^
 
 
-.. literalinclude:: ../../src/demo21/demo.py
+.. literalinclude:: ../../src/modelviewprojection/demo21/demo.py
    :language: python
 
-.. literalinclude:: ../../src/demo21/triangle.vert
+.. literalinclude:: ../../src/modelviewprojection/demo21/triangle.vert
    :language: glsl
 
-.. literalinclude:: ../../src/demo21/triangle.frag
+.. literalinclude:: ../../src/modelviewprojection/demo21/triangle.frag
    :language: glsl
 
-.. literalinclude:: ../../src/demo21/ground.vert
+.. literalinclude:: ../../src/modelviewprojection/demo21/ground.vert
    :language: glsl
 
-.. literalinclude:: ../../src/demo21/ground.frag
+.. literalinclude:: ../../src/modelviewprojection/demo21/ground.frag
    :language: glsl
 
 

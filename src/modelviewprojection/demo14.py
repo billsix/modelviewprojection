@@ -19,9 +19,18 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import sys
-from dataclasses import astuple, dataclass
+from dataclasses import astuple, dataclass, field
 
 import glfw
+from colorutils import Color3
+from mathutils3d import (
+    Vector3D,
+    compose,
+    inverse,
+    rotate_z,
+    translate,
+    uniform_scale,
+)
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -39,13 +48,9 @@ from OpenGL.GL import (
     glLoadIdentity,
     glMatrixMode,
     glScissor,
-    glVertex2f,
+    glVertex3f,
     glViewport,
 )
-
-from colorutils import Color3
-from mathutils import InvertibleFunction
-from mathutils2d import Vector2D, compose, rotate, translate, uniform_scale
 
 if not glfw.init():
     sys.exit()
@@ -53,7 +58,7 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 9", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 14", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -106,36 +111,81 @@ def draw_in_square_viewport() -> None:
 
 @dataclass
 class Paddle:
-    vertices: list[Vector2D]
+    vertices: list[Vector3D]
     color: Color3
-    position: Vector2D
+    position: Vector3D
     rotation: float = 0.0
 
 
+# doc-region-begin instantiate paddle 1
 paddle1: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-1.0, y=-3.0),
-        Vector2D(x=1.0, y=-3.0),
-        Vector2D(x=1.0, y=3.0),
-        Vector2D(x=-1.0, y=3.0),
+        Vector3D(x=-1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=3.0, z=0.0),
+        Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
     color=Color3(r=0.578123, g=0.0, b=1.0),
-    position=Vector2D(-9.0, 0.0),
+    position=Vector3D(x=-9.0, y=0.0, z=0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-1.0, y=-3.0),
-        Vector2D(x=1.0, y=-3.0),
-        Vector2D(x=1.0, y=3.0),
-        Vector2D(x=-1.0, y=3.0),
+        Vector3D(x=-1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=3.0, z=0.0),
+        Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
     color=Color3(r=1.0, g=1.0, b=0.0),
-    position=Vector2D(9.0, 0.0),
+    position=Vector3D(x=9.0, y=0.0, z=0.0),
 )
+# doc-region-end instantiate paddle 1
 
 
-def handle_movement_of_paddles() -> None:
+# doc-region-begin define camera class
+@dataclass
+class Camera:
+    position_ws: Vector3D = field(
+        default_factory=lambda: Vector3D(x=0.0, y=0.0, z=0.0)
+    )
+
+
+camera: Camera = Camera()
+# doc-region-end define camera class
+
+# doc-region-begin instantiate square
+square: list[Vector3D] = [
+    Vector3D(x=-0.5, y=-0.5, z=0.0),
+    Vector3D(x=0.5, y=-0.5, z=0.0),
+    Vector3D(x=0.5, y=0.5, z=0.0),
+    Vector3D(x=-0.5, y=0.5, z=0.0),
+]
+# doc-region-end instantiate square
+
+square_rotation: float = 0.0
+rotation_around_paddle1: float = 0.0
+
+
+def handle_inputs() -> None:
+    global rotation_around_paddle1
+    if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
+        rotation_around_paddle1 += 0.1
+
+    global square_rotation
+    if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
+        square_rotation += 0.1
+
+    global camera
+
+    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
+        camera.position_ws.y += 1.0
+    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
+        camera.position_ws.y -= 1.0
+    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
+        camera.position_ws.x -= 1.0
+    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
+        camera.position_ws.x += 1.0
+
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
@@ -179,44 +229,79 @@ while not glfw.window_should_close(window):
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
 
     draw_in_square_viewport()
-    handle_movement_of_paddles()
+    handle_inputs()
 
     # fmt: off
-    # draw paddle 1
+
     # doc-region-begin draw paddle 1
     glColor3f(*astuple(paddle1.color))
-
     glBegin(GL_QUADS)
-
     for p1_v_ms in paddle1.vertices:
-        # doc-region-begin paddle 1 transformations
-        fn: InvertibleFunction[Vector2D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector3D] = compose(
+            # camera space to NDC
             uniform_scale(1.0 / 10.0),
-            translate(paddle1.position),
-            rotate(paddle1.rotation),
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle1.position),
+                    rotate_z(paddle1.rotation)),
         )
-        # doc-region-end paddle 1 transformations
-        paddle1_vector_ndc: Vector2D = fn(p1_v_ms)
-        glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
+
+        paddle1_vector_ndc: Vector3D = ms_to_ndc(p1_v_ms)
+        glVertex3f(paddle1_vector_ndc.x,
+                   paddle1_vector_ndc.y,
+                   paddle1_vector_ndc.z)
     glEnd()
     # doc-region-end draw paddle 1
 
-    # draw paddle 2
-    # doc-region-begin draw paddle 2
-    glColor3f(*astuple(paddle2.color))
+    # doc-region-begin draw square
+    # draw square
+    glColor3f(0.0, 0.0, 1.0)
+    glBegin(GL_QUADS)
+    for ms in square:
+        ms_to_ndc: InvertibleFunction[Vector3D] = compose(
+            # camera space to NDC
+            uniform_scale(1.0 / 10.0),
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle1.position),
+                    rotate_z(paddle1.rotation)),
+            # square space to paddle 1 space
+            compose(translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
+                    rotate_z(rotation_around_paddle1),
+                    translate(Vector3D(x=2.0, y=0.0, z=0.0)),
+                    rotate_z(square_rotation)))
+        square_vector_ndc: Vector3D = ms_to_ndc(ms)
+        glVertex3f(square_vector_ndc.x,
+                   square_vector_ndc.y,
+                   square_vector_ndc.z)
+    glEnd()
+    # doc-region-end draw square
 
+    # doc-region-begin draw paddle 2
+    # draw paddle 2
+    glColor3f(*astuple(paddle2.color))
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: InvertibleFunction[Vector2D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector3D] = compose(
+            # camera space to NDC
             uniform_scale(1.0 / 10.0),
-            translate(paddle2.position),
-            rotate(paddle2.rotation),
+            # world space to camera space
+            inverse(translate(camera.position_ws)),
+            # model space to world space
+            compose(translate(paddle2.position),
+                    rotate_z(paddle2.rotation)),
         )
-        paddle2_vector_ndc: Vector2D = fn(p2_v_ms)
-        glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
+
+        paddle2_vector_ndc: Vector3D = ms_to_ndc(p2_v_ms)
+        glVertex3f(paddle2_vector_ndc.x,
+                   paddle2_vector_ndc.y,
+                   paddle2_vector_ndc.z)
     glEnd()
     # doc-region-end draw paddle 2
     # fmt: on
+
     glfw.swap_buffers(window)
 
 glfw.terminate()

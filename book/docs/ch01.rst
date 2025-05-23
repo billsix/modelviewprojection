@@ -29,7 +29,7 @@ the window.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo01.py in Spyder and hit the play button
+Load src/modelviewprojection/demo01.py in Spyder and hit the play button.
 
 
 Terminology
@@ -169,24 +169,24 @@ Importing Libraries
 Import Python modules, which are Python programmer's main form of libraries.
 
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin import first module
    :end-before: doc-region-end import first module
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 *  The "sys" module is imported.  To call functions from this module, the syntax is sys.function
 
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin import individual functions without needing module name
    :end-before: doc-region-end import individual functions without needing module name
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 
 * GL is a submodule of the OpenGL module. By directly importing specific
@@ -195,13 +195,13 @@ Import Python modules, which are Python programmer's main form of libraries.
   to read, especially since we’ll be using these functions frequently.
 
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin import glfw
    :end-before: doc-region-end import glfw
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 
 * GLFW is a library that lets us create windows and handle input from
@@ -246,13 +246,13 @@ GLFW/OpenGL Initialization
 Initialize GLFW.
 &&&&&&&&&&&&&&&&
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin initialize glfw
    :end-before: doc-region-end initialize glfw
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 
 Initialize GLFW.  If initialization fails, the program should terminate.
@@ -267,26 +267,26 @@ Set the version of OpenGL
 OpenGL has been around a long time, and has multiple, possibly incompatible versions.
 For this demo, we use OpenGL 1.4.  By the end of this book, we will be using OpenGL 3.3.
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin use opengl 1.4
    :end-before: doc-region-end use opengl 1.4
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 Create a Window
 &&&&&&&&&&&&&&&
 
 
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin create window
    :end-before: doc-region-end create window
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 By calling glfw.create_window, we are creating a window.  What
 are the arguments passed?  It's likely that the first two arguments
@@ -297,13 +297,13 @@ look it up the APIs online.  But, Python has something called keyword
 arguments, which we will talk about later, where the intent of each parameter
 is clear at the site of calling the function.
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin if the window is not created correctly, quit
    :end-before: doc-region-end if the window is not created correctly, quit
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 
 *  If GLFW cannot open the window, quit.  Unlike `MC Hammer <https://youtu.be/HFCv86Olk8E?si=eE25mzpsrrw6aoyR&t=503>`_ , we are quite legit, yet still
@@ -313,13 +313,13 @@ is clear at the site of calling the function.
 
 
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin make context current
    :end-before: doc-region-end make context current
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 
 
@@ -328,13 +328,13 @@ is clear at the site of calling the function.
 
 
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin on user hitting escape, end event loop and quit
    :end-before: doc-region-end on user hitting escape, end event loop and quit
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 * Define an register a key handler.
 
@@ -364,13 +364,13 @@ and applied later zero, 1, or more times.
 
 
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin set background color
    :end-before: doc-region-end set background color
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 * Before a frame is drawn, it is first turned into a blank slate,
   where the color of each pixel is set to some value representing a
@@ -379,13 +379,13 @@ and applied later zero, 1, or more times.
   transparency (the "1").
 
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin don't use the built in mvp pipeline
    :end-before: doc-region-end don't use the built in mvp pipeline
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 * Don't worry about the 4 lines here.  Although they are necessary,
   we will cover them in depth later.  After all, this
@@ -407,13 +407,13 @@ until the user closes the window, or the program needs
 to terminate.
 
 
-.. literalinclude:: ../../src/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
    :start-after: doc-region-begin event loop
    :end-before: doc-region-end event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo01.py
+   :caption: src/modelviewprojection/demo01.py
 
 * Poll the operating system for any events, such as mouse movements,
   keyboard input, etc.  This does not handle them, just registers
@@ -480,7 +480,7 @@ other one.
 Black Screen
 ^^^^^^^^^^^^
 
-Type "python src/demo01.py", or "python3 src/demo01.py" to run.
+Type "python src/modelviewprojection/demo01.py", or "python3 src/modelviewprojection/demo01.py" to run.
 
 The first demo is the least interesting graphical program possible.
 

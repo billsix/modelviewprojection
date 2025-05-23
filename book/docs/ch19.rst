@@ -20,7 +20,7 @@ by the driver for your graphics card.  This is how preshader
 opengl worked.
 
 The function stack allowed us to aggregate the entirety of
-the transformations from modelspace to NDC, by creating a context
+the transformations from :term:`modelspace<Modelspace>` to NDC, by creating a context
 of transformations, and a function to do the conversion.  We then
 needed to push or pop functions from the stack, depending on what
 space transition we were currently dealing with.
@@ -32,7 +32,7 @@ from one space to another, with one matrix multiplication.
 OpenGL 2.1 deals with two different types of matrices: 1) the projection
 matrix, which effectively is the function from camera space
 to NDC (clip space) and 2) The model-view matrix, which deals
-with the transformations from model space to camera space.
+with the transformations from :term:`modelspace<Modelspace>` to camera space.
 
 Given that a matrix can perform a sequence of transformations
 across multiple spaces in the Cayley graph, it may appear
@@ -72,7 +72,7 @@ and it regains its color when it is reactivated by "glPopMatrix"
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo19.py in Spyder and hit the play button
+Load src/modelviewprojection/demo19.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -122,13 +122,13 @@ buffer is changed to be less than or equal to.
 Code
 ^^^^
 
-.. literalinclude:: ../../src/demo19.py
+.. literalinclude:: ../../src/modelviewprojection/demo19.py
    :language: python
    :start-after: doc-region-begin enable depth test for left hand system
    :end-before: doc-region-end enable depth test for left hand system
    :linenos:
    :lineno-match:
-   :caption: src/demo19.py
+   :caption: src/modelviewprojection/demo19.py
 
 
 
@@ -142,13 +142,13 @@ matrix.  This just means that the functions (currently)
 will not transform data.
 In uni-variate terms, f(x) = x
 
-.. literalinclude:: ../../src/demo19.py
+.. literalinclude:: ../../src/modelviewprojection/demo19.py
    :language: python
    :start-after: doc-region-begin load identity
    :end-before: doc-region-end load identity
    :linenos:
    :lineno-match:
-   :caption: src/demo19.py
+   :caption: src/modelviewprojection/demo19.py
 
 
 
@@ -167,13 +167,13 @@ in the next chapter.
 
     Turn our NDC into Clip Space
 
-.. literalinclude:: ../../src/demo19.py
+.. literalinclude:: ../../src/modelviewprojection/demo19.py
    :language: python
    :start-after: doc-region-begin perspective projection
    :end-before: doc-region-end perspective projection
    :linenos:
    :lineno-match:
-   :caption: src/demo19.py
+   :caption: src/modelviewprojection/demo19.py
 
 "glMatrixMode" tells the computer which matrix stack should be the active one,
 against which subsequent matrix operations which affect.  In this case, we set
@@ -199,13 +199,13 @@ do the inverse operations to the view stack.
 
 .. TODO - mention 2 stacks
 
-.. literalinclude:: ../../src/demo19.py
+.. literalinclude:: ../../src/modelviewprojection/demo19.py
    :language: python
    :start-after: doc-region-begin begin modelview transformations
    :end-before: doc-region-end begin modelview transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo19.py
+   :caption: src/modelviewprojection/demo19.py
 
 First thing we did was set the current matrix to be the model-view matrix, instead
 of the projection matrix.  Most of our work will be with the model-view matrix,
@@ -244,7 +244,7 @@ so we have a stack composed of matrices.
 This is what glPushMatrix, and glPopMatrix do.
 
 "PushMatrix" describes what the function does, but its purpose is to
-save onto the current coordinate system for later drawing modelspace
+save onto the current coordinate system for later drawing :term:`modelspace<Modelspace>`
 data.
 
 The model-view matrix stack is currently the transformation from world space into camera space.
@@ -253,13 +253,13 @@ save onto the current model-view stack, to hold onto world space, so that after
 we draw paddle 1 and the square, we can restore the world space, so that paddle 2 can be drawn relative
 to it.
 
-.. literalinclude:: ../../src/demo19.py
+.. literalinclude:: ../../src/modelviewprojection/demo19.py
    :language: python
    :start-after: doc-region-begin first push matrix
    :end-before: doc-region-end first push matrix
    :linenos:
    :lineno-match:
-   :caption: src/demo19.py
+   :caption: src/modelviewprojection/demo19.py
 
 
 
@@ -271,17 +271,17 @@ are now on a stack, the functions on the model stack can
 be read forwards, where each operation translates/rotates/scales
 the current space.
 
-glVertex data is specified in modelspace coordinates,
+glVertex data is specified in :term:`modelspace<Modelspace>` coordinates,
 but since we loaded the projection matrix and the modelview
 matrix into OpenGL, glVertex3f will apply those transformations for us [1]_!
 
-.. literalinclude:: ../../src/demo19.py
+.. literalinclude:: ../../src/modelviewprojection/demo19.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo19.py
+   :caption: src/modelviewprojection/demo19.py
 
 
 
@@ -293,15 +293,15 @@ draw the square relative to paddle 1
 Since the modelstack is already in paddle1's space
 just add the transformations relative to it
 before paddle 2 is drawn, we need to remove
-the square's 3 model_space transformations
+the square's 3 :term:`modelspace<Modelspace>` transformations
 
-.. literalinclude:: ../../src/demo19.py
+.. literalinclude:: ../../src/modelviewprojection/demo19.py
    :language: python
    :start-after: doc-region-begin draw the square
    :end-before: doc-region-end draw the square
    :linenos:
    :lineno-match:
-   :caption: src/demo19.py
+   :caption: src/modelviewprojection/demo19.py
 
 
 
@@ -313,13 +313,13 @@ we are drawing, and upon the next iteration of the event loop,
 all 3 matrices will be reset to the identity
 
 
-.. literalinclude:: ../../src/demo19.py
+.. literalinclude:: ../../src/modelviewprojection/demo19.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo19.py
+   :caption: src/modelviewprojection/demo19.py
 
 
 
@@ -327,9 +327,9 @@ all 3 matrices will be reset to the identity
        From the computer's point of view, there is one coordinate system, (x,y,z,w).
        So now let's look at what the OpenGL drawing calls are in more detail, and think
        about what they must do.  "glBegin(GL_QUADS)", 4 calls to "glVertex", and "glEnd".
-       "glVertex", given modelspace data, must pull 2 matrices from OpenGL's matrix stacks,
+       "glVertex", given :term:`modelspace<Modelspace>` data, must pull 2 matrices from OpenGL's matrix stacks,
        the modelview and the projection.  It then does two transformations to turn
-       the modelspace data in NDC (clip-space, where the x y and z are each divided by the w to get
+       the :term:`modelspace<Modelspace>` data in NDC (clip-space, where the x y and z are each divided by the w to get
        NDC).  From this point of view, there are no relative coordinate systems, just numbers
        in and numbers out.  So then what do glBegin and glEnd do?  This will
        be a subject for after the midterm, but the 4 vertices will be converted to screen space,

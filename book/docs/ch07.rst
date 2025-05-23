@@ -33,7 +33,7 @@ of how to interpret a sequence of transformations.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo07.py in Spyder and hit the play button
+Load src/modelviewprojection/demo07.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -299,21 +299,21 @@ Therefore
 
 
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define rotate
    :end-before: doc-region-end define rotate
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
 
 
@@ -321,24 +321,24 @@ Therefore
   cos and sin are defined in the math module.
 
 
-.. literalinclude:: ../../src/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demo07.py
    :language: python
    :start-after: doc-region-begin define paddle class
    :end-before: doc-region-end define paddle class
    :linenos:
    :lineno-match:
-   :caption: src/demo07.py
+   :caption: src/modelviewprojection/demo07.py
 
 
 * a rotation instance variable is defined, with a default value of 0
 
-.. literalinclude:: ../../src/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demo07.py
    :language: python
    :start-after: doc-region-begin define handle movement of paddles
    :end-before: doc-region-end define handle movement of paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo07.py
+   :caption: src/modelviewprojection/demo07.py
 
 
 
@@ -364,13 +364,13 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demo07.py
    :language: python
    :start-after: doc-region-begin begin  event loop
    :end-before: doc-region-end begin  event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo07.py
+   :caption: src/modelviewprojection/demo07.py
 
 
 
@@ -379,13 +379,13 @@ we should translate to its position, and then rotate
 around the paddle's center.
 
 
-.. literalinclude:: ../../src/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demo07.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo07.py
+   :caption: src/modelviewprojection/demo07.py
 
 
 
@@ -416,13 +416,13 @@ around the paddle's center.
 
 
 
-.. literalinclude:: ../../src/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demo07.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo07.py
+   :caption: src/modelviewprojection/demo07.py
 
 
 .. math::
@@ -451,19 +451,19 @@ are not rotating around their center.
 Let's take a look in detail about what our paddle-space to
 world space transformations are doing.
 
-.. literalinclude:: ../../src/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demo07.py
    :language: python
    :start-after: doc-region-begin compose transformations on paddle 1
    :end-before: doc-region-end compose transformations on paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo07.py
+   :caption: src/modelviewprojection/demo07.py
+
+See :mod:`modelviewprojection.mathutils.compose`
 
 
 
-
-
-* Modelspace vertices
+* :term:`modelspace<Modelspace>` vertices
 
 
 .. figure:: _static/incorrectrotate-forwards-1.svg

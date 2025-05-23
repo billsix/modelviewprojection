@@ -22,6 +22,16 @@ import sys
 from dataclasses import astuple, dataclass, field
 
 import glfw
+from colorutils import Color3
+from mathutils3d import (
+    Vector3D,
+    compose,
+    fn_stack,
+    inverse,
+    rotate_z,
+    translate,
+    uniform_scale,
+)
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -39,19 +49,8 @@ from OpenGL.GL import (
     glLoadIdentity,
     glMatrixMode,
     glScissor,
-    glVertex2f,
+    glVertex3f,
     glViewport,
-)
-
-from colorutils import Color3
-from mathutils import InvertibleFunction
-from mathutils2d import (
-    Vector2D,
-    compose,
-    inverse,
-    rotate,
-    translate,
-    uniform_scale,
 )
 
 if not glfw.init():
@@ -60,7 +59,7 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 10", None, None)
+window = glfw.create_window(500, 500, "ModelViewProjection Demo 16", None, None)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -76,6 +75,7 @@ def on_key(win, key, scancode, action, mods):
 glfw.set_key_callback(window, on_key)
 
 glClearColor(0.0289, 0.071875, 0.0972, 1.0)
+
 
 glMatrixMode(GL_PROJECTION)
 glLoadIdentity()
@@ -112,51 +112,70 @@ def draw_in_square_viewport() -> None:
 
 @dataclass
 class Paddle:
-    vertices: list[Vector2D]
+    vertices: list[Vector3D]
     color: Color3
-    position: Vector2D
+    position: Vector3D
     rotation: float = 0.0
 
 
+# doc-region-begin instantiate paddle 1
 paddle1: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-1.0, y=-3.0),
-        Vector2D(x=1.0, y=-3.0),
-        Vector2D(x=1.0, y=3.0),
-        Vector2D(x=-1.0, y=3.0),
+        Vector3D(x=-1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=3.0, z=0.0),
+        Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
     color=Color3(r=0.578123, g=0.0, b=1.0),
-    position=Vector2D(-9.0, 0.0),
+    position=Vector3D(x=-9.0, y=0.0, z=0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-1.0, y=-3.0),
-        Vector2D(x=1.0, y=-3.0),
-        Vector2D(x=1.0, y=3.0),
-        Vector2D(x=-1.0, y=3.0),
+        Vector3D(x=-1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=-3.0, z=0.0),
+        Vector3D(x=1.0, y=3.0, z=0.0),
+        Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
     color=Color3(r=1.0, g=1.0, b=0.0),
-    position=Vector2D(9.0, 0.0),
+    position=Vector3D(x=9.0, y=0.0, z=0.0),
 )
+# doc-region-end instantiate paddle 1
 
 
 # doc-region-begin define camera class
-
-
 @dataclass
 class Camera:
-    position_ws: Vector2D = field(
-        default_factory=lambda: Vector2D(x=0.0, y=0.0)
+    position_ws: Vector3D = field(
+        default_factory=lambda: Vector3D(x=0.0, y=0.0, z=0.0)
     )
-    # doc-region-end define camera class
 
 
 camera: Camera = Camera()
+# doc-region-end define camera class
+
+# doc-region-begin instantiate square
+square: list[Vector3D] = [
+    Vector3D(x=-0.5, y=-0.5, z=0.0),
+    Vector3D(x=0.5, y=-0.5, z=0.0),
+    Vector3D(x=0.5, y=0.5, z=0.0),
+    Vector3D(x=-0.5, y=0.5, z=0.0),
+]
+# doc-region-end instantiate square
+
+square_rotation: float = 0.0
+rotation_around_paddle1: float = 0.0
 
 
-# doc-region-begin handle inputs
 def handle_inputs() -> None:
+    global rotation_around_paddle1
+    if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
+        rotation_around_paddle1 += 0.1
+
+    global square_rotation
+    if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
+        square_rotation += 0.1
+
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
@@ -167,7 +186,7 @@ def handle_inputs() -> None:
         camera.position_ws.x -= 1.0
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.position_ws.x += 1.0
-    # doc-region-end handle inputs
+
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
@@ -213,48 +232,89 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
+    # fmt: off
+
+    # doc-region-begin stack push camera space to ndc
+    # camera space to NDC
+    fn_stack.push(uniform_scale(1.0 / 10.0))
+    # doc-region-end stack push camera space to ndc
+
+    # doc-region-begin world space to camera space
+    # world space to camera space
+    fn_stack.push(inverse(translate(camera.position_ws)))
+    # doc-region-end world space to camera space
+
+    # doc-region-begin paddle 1 transformations
+    # paddle 1 model space to world space
+    fn_stack.push(compose(translate(paddle1.position),
+                          rotate_z(paddle1.rotation)))
+    # doc-region-end paddle 1 transformations
+
     # doc-region-begin draw paddle 1
     glColor3f(*astuple(paddle1.color))
-
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ws: InvertibleFunction[Vector2D] = compose(
-            translate(paddle1.position),
-            rotate(paddle1.rotation),
+        paddle1_vector_ndc = fn_stack.modelspace_to_ndc_fn()(p1_v_ms)
+        glVertex3f(
+            paddle1_vector_ndc.x,
+            paddle1_vector_ndc.y,
+            paddle1_vector_ndc.z,
         )
-        paddle1_vector_ws: Vector2D = ms_to_ws(p1_v_ms)
-
-        ws_to_cs: InvertibleFunction[Vector2D] = inverse(
-            translate(camera.position_ws)
-        )
-        paddle1_vector_cs: Vector2D = ws_to_cs(paddle1_vector_ws)
-
-        cs_to_ndc: InvertibleFunction[Vector2D] = uniform_scale(1.0 / 10.0)
-        paddle1_vector_ndc: Vector2D = cs_to_ndc(paddle1_vector_cs)
-
-        glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 1
 
-    # doc-region-begin draw paddle 2
-    glColor3f(*astuple(paddle2.color))
+    # doc-region-begin square space to paddle 1 space
+    fn_stack.push(compose(translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
+                          rotate_z(rotation_around_paddle1),
+                          translate(Vector3D(x=2.0, y=0.0, z=0.0)),
+                          rotate_z(square_rotation)))
+    # doc-region-end square space to paddle 1 space
+    # doc-region-begin draw square
+    glColor3f(0.0, 0.0, 1.0)
+    glBegin(GL_QUADS)
+    for ms in square:
+        square_vector_ndc = fn_stack.modelspace_to_ndc_fn()(ms)
+        glVertex3f(
+            square_vector_ndc.x,
+            square_vector_ndc.y,
+            square_vector_ndc.z,
+        )
+    glEnd()
+    # doc-region-end draw square
 
+    # doc-region-begin back to world space
+    fn_stack.pop()  # pop off square space to paddle 1 space
+    # current space is paddle 1 space
+    fn_stack.pop()  # # pop off paddle 1 model space to world space
+    # current space is world space
+    # doc-region-end back to world space
+
+    # doc-region-begin paddle 2 model space to world space
+    fn_stack.push(compose(translate(paddle2.position),
+                          rotate_z(paddle2.rotation)))
+    # doc-region-end paddle 2 model space to world space
+
+    # doc-region-begin draw paddle 2
+    # draw paddle 2
+    glColor3f(*astuple(paddle2.color))
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: InvertibleFunction[Vector2D] = compose(
-            # camera space to NDC
-            uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            inverse(translate(camera.position_ws)),
-            # model space to world space
-            compose(translate(paddle2.position), rotate(paddle2.rotation)),
+        paddle2_vector_ndc = fn_stack.modelspace_to_ndc_fn()(p2_v_ms)
+        glVertex3f(
+            paddle2_vector_ndc.x,
+            paddle2_vector_ndc.y,
+            paddle2_vector_ndc.z,
         )
-
-        paddle2_vector_ndc: Vector2D = ms_to_ndc(p2_v_ms)
-
-        glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
+    # fmt: on
+
+    # doc-region-begin clear function stack for next iteration of the event loop
+    # done rendering everything for this frame, just go ahead and clear all functions
+    # off of the stack, back to NDC as current space
+    fn_stack.clear()
+
+    # doc-region-end clear function stack for next iteration of the event loop
 
     glfw.swap_buffers(window)
 

@@ -21,41 +21,12 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-from modelviewprojection.mathutils3d import fn_stack
+import doctest
 
 
-# doc-region-begin function stack examples definitions
-def test_fn_stack():
-    def identity(x):
-        return x
+import modelviewprojection.mathutils
 
-    fn_stack.push(identity)
-    assert 1 == fn_stack.modelspace_to_ndc_fn()(1)
 
-    def add_one(x):
-        return x + 1
-
-    fn_stack.push(add_one)
-    assert 2 == fn_stack.modelspace_to_ndc_fn()(1)  # x + 1 = 2
-
-    def multiply_by_2(x):
-        return x * 2
-
-    fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
-    assert 3 == fn_stack.modelspace_to_ndc_fn()(1)
-
-    def add_5(x):
-        return x + 5
-
-    fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
-    assert 13 == fn_stack.modelspace_to_ndc_fn()(1)
-
-    fn_stack.pop()
-    assert 3 == fn_stack.modelspace_to_ndc_fn()(1)  # (x * 2) + 1 = 3
-
-    fn_stack.pop()
-    assert 2 == fn_stack.modelspace_to_ndc_fn()(1)  # x + 1 = 2
-
-    fn_stack.pop()
-    assert 1 == fn_stack.modelspace_to_ndc_fn()(1)  # x = 1
-    # doc-region-end function stack examples definitions
+def test_doctest():
+    failureCount, testCount = doctest.testmod(modelviewprojection.mathutils)
+    assert 0 == failureCount

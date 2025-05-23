@@ -33,7 +33,7 @@ moves with it, because it is defined relative to it.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo11.py in Spyder and hit the play button
+Load src/modelviewprojection/demo11.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -78,7 +78,7 @@ to paddle 1 space.
     Demo 11
 
 In the picture below, in 3D space, we see that the square has its
-own modelspace (as evidenced by the 3 arrows), and we are going
+own :term:`modelspace<Modelspace>` (as evidenced by the 3 arrows), and we are going
 to define its position and orientation relative to paddle 1.
 
 .. figure:: _static/screenshots/coordinateframes.png
@@ -106,26 +106,26 @@ Code
 
 Define the geometry of the square in its own modelspace.
 
-.. literalinclude:: ../../src/demo11.py
+.. literalinclude:: ../../src/modelviewprojection/demo11.py
    :language: python
    :start-after: doc-region-begin define square
    :end-before: doc-region-end define square
    :linenos:
    :lineno-match:
-   :caption: src/demo11.py
+   :caption: src/modelviewprojection/demo11.py
 
 
 
 Event Loop
 ~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo11.py
+.. literalinclude:: ../../src/modelviewprojection/demo11.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo11.py
+   :caption: src/modelviewprojection/demo11.py
 
 
 ::
@@ -135,13 +135,13 @@ Event Loop
 
 Draw paddle 1, just as before.
 
-.. literalinclude:: ../../src/demo11.py
+.. literalinclude:: ../../src/modelviewprojection/demo11.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo11.py
+   :caption: src/modelviewprojection/demo11.py
 
 
 As a refresher, the author recommends reading the code from modelspace
@@ -159,13 +159,13 @@ Translate the square to the right by 2 units.
 We are dealing with a -1 to 1 world space, which
 later gets scaled down to NDC.
 
-.. literalinclude:: ../../src/demo11.py
+.. literalinclude:: ../../src/modelviewprojection/demo11.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/demo11.py
+   :caption: src/modelviewprojection/demo11.py
 
 
 Towards that, we need to do all of the transformations to the square
@@ -193,10 +193,10 @@ Now the square's geometry will be in its own space!
 
 Draw paddle 2 just like before.
 
-.. literalinclude:: ../../src/demo11.py
+.. literalinclude:: ../../src/modelviewprojection/demo11.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo11.py
+   :caption: src/modelviewprojection/demo11.py

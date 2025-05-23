@@ -33,7 +33,7 @@ of computer graphics.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo05.py in Spyder and hit the play button
+Load src/modelviewprojection/demo05.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -89,13 +89,13 @@ Code
 Data Structures
 ~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/demo05.py
+   :caption: src/modelviewprojection/demo05.py
 
 
 We added a translate method to the Vector class.  Given a translation amount, the vector
@@ -127,13 +127,13 @@ Keyword arguments allow the reader to understand the purpose of the
 parameters are, at the call-site of the function.
 
 
-.. literalinclude:: ../../src/demo05.py
+.. literalinclude:: ../../src/modelviewprojection/demo05.py
    :language: python
    :start-after: doc-region-begin define paddle class
    :end-before: doc-region-end define paddle class
    :linenos:
    :lineno-match:
-   :caption: src/demo05.py
+   :caption: src/modelviewprojection/demo05.py
 
 
 Add a position instance variable to the Paddle class.  This position is the center of
@@ -144,13 +144,13 @@ Instantiation of the Paddles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-.. literalinclude:: ../../src/demo05.py
+.. literalinclude:: ../../src/modelviewprojection/demo05.py
    :language: python
    :start-after: doc-region-begin instantiate paddles
    :end-before: doc-region-end instantiate paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo05.py
+   :caption: src/modelviewprojection/demo05.py
 
 
 * The vertices are now defined as relative distances from the center of the paddle.  The centers
@@ -160,13 +160,13 @@ Instantiation of the Paddles
 Handling User Input
 ~~~~~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo05.py
+.. literalinclude:: ../../src/modelviewprojection/demo05.py
    :language: python
    :start-after: doc-region-begin define handle movement of paddles
    :end-before: doc-region-end define handle movement of paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo05.py
+   :caption: src/modelviewprojection/demo05.py
 
 
 * We put the transformation on the center of the paddle, instead
@@ -176,37 +176,37 @@ Handling User Input
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo05.py
+.. literalinclude:: ../../src/modelviewprojection/demo05.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo05.py
+   :caption: src/modelviewprojection/demo05.py
 
 
-.. literalinclude:: ../../src/demo05.py
+.. literalinclude:: ../../src/modelviewprojection/demo05.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo05.py
+   :caption: src/modelviewprojection/demo05.py
 
 
 
-Here each of paddle 1's vertices, which are in their "model-space",
+Here each of paddle 1's vertices, which are in their :term:`Modelspace`,
 are converted to NDC by calling the translate method on the vector.
 This function corresponds to the Cayley graph below, the function
 from Paddle 1 space to NDC.
 
-.. literalinclude:: ../../src/demo05.py
+.. literalinclude:: ../../src/modelviewprojection/demo05.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo05.py
+   :caption: src/modelviewprojection/demo05.py
 
 
 

@@ -34,7 +34,7 @@ should only be specified once per frame.
 Noticing in the previous demos that the lower parts of the transformations
 have a common pattern, we can create a stack of functions for later application.
 Before drawing geometry, we add any functions to the top of the stack,
-apply all of our functions in the stack to our model-space data to
+apply all of our functions in the stack to our :term:`modelspace<Modelspace>` data to
 get NDC data,
 and before we return to the parent
 node, we pop the functions we added off of the stack, to ensure that
@@ -47,32 +47,32 @@ What's the difference between drawing paddle 1 and the square?
 
 Here is paddle 1 code
 
-.. literalinclude:: ../../src/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demo14.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo14.py
+   :caption: src/modelviewprojection/demo14.py
 
 
 
 Here is the square's code:
 
 
-.. literalinclude:: ../../src/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demo14.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/demo14.py
+   :caption: src/modelviewprojection/demo14.py
 
 
 
 
 
-The only difference is the square's model-space to paddle1 space.  Everything else is exactly the same.
+The only difference is the square's :term:`modelspace<Modelspace>` to paddle1 space.  Everything else is exactly the same.
 In a graphics program, because the scene is a hierarchy of relative
 objects, it is unwise to put this much repetition in the transformation
 sequence.  Especially if we might change how the camera operates,
@@ -134,19 +134,19 @@ in the same order as all of the previous demos, they need to be
 pushed onto the stack in reverse order.
 
 
-This means that from model space to world space, we can now
+This means that from :term:`modelspace<Modelspace>` to world space, we can now
 read the transformations FROM TOP TO BOTTOM!!!!  SUCCESS!
 
 Then, to draw the square relative to paddle one, those six
 transformations will already be on the stack, therefore
 only push the differences, and then apply the stack to
-the paddle's model space data.
+the paddle's :term:`modelspace<Modelspace>` data.
 
 
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo16.py in Spyder and hit the play button
+Load src/modelviewprojection/demo16.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -184,13 +184,13 @@ a vector to another vector, through the "modelspace_to_ndc" method.
 
 
 
-.. literalinclude:: ../../src/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
    :language: python
    :start-after: doc-region-begin define function stack class
    :end-before: doc-region-end define function stack class
    :linenos:
    :lineno-match:
-   :caption: src/mathutils3d
+   :caption: src/modelviewprojection/mathutils3d
 
 
 Define four functions, which we will compose on the stack.
@@ -212,13 +212,13 @@ Push identity onto the stack, which will will never pop off of the stack.
 
 Event Loop
 ^^^^^^^^^^
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
 ::
@@ -247,18 +247,18 @@ a new function to the top of the stack.
 
 
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin stack push camera space to ndc
    :end-before: doc-region-end stack push camera space to ndc
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
 
 Unlike in previous demos in which we read the transformations
-from model space to world space backwards; this time because the transformations
+from :term:`modelspace<Modelspace>` to world space backwards; this time because the transformations
 are on a stack, the fns on the model stack can
 be read forwards, where each operation translates/rotates/scales
 the current space
@@ -278,13 +278,13 @@ to world space like so, read top to bottom:
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin camera space to world space, commented out
    :end-before: doc-region-end camera space to world space, commented out
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
 But, since we need to transform world-space to camera space,
@@ -307,20 +307,20 @@ camera space are.
 
 
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin world space to camera space
    :end-before: doc-region-end world space to camera space
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
 draw paddle 1
 ~~~~~~~~~~~~~
 
 Unlike in previous demos in which we read the transformations
-from model space to world space backwards; because the transformations
+from :term:`modelspace<Modelspace>` to world space backwards; because the transformations
 are on a stack, the fns on the model stack can
 be read forwards, where each operation translates/rotates/scales
 the current space
@@ -338,28 +338,28 @@ the current space
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin paddle 1 transformations
    :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
-for each of the modelspace coordinates, apply all
+for each of the :term:`modelspace<Modelspace>` coordinates, apply all
 of the procedures on the stack from top to bottom
 this results in coordinate data in NDC space,
 which we can pass to glVertex3f
 
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
 draw the square
@@ -383,21 +383,21 @@ remove these 4 transformations from the stack (done below)
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin square space to paddle 1 space
    :end-before: doc-region-end square space to paddle 1 space
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
 Now we need to remove fns from the stack so that the
@@ -405,16 +405,16 @@ lambda stack will convert from world space to NDC.
 This will allow us to just add the transformations from
 world space to paddle2 space on the stack.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin back to world space
    :end-before: doc-region-end back to world space
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
-since paddle2's model_space is independent of paddle 1's space, only
+since paddle2's :term:`modelspace<Modelspace>` is independent of paddle 1's space, only
 leave the view and projection fns (1) - (4)
 
 
@@ -433,23 +433,23 @@ draw paddle 2
     :alt: Demo 12
     :figclass: align-center
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin paddle 2 model space to world space
    :end-before: doc-region-end paddle 2 model space to world space
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
 
@@ -457,30 +457,30 @@ remove all fns from the function stack, as the next frame will set them
 clear makes the list empty, as the list (stack) will be repopulated
 the next iteration of the event loop.
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin clear function stack for next iteration of the event loop
    :end-before: doc-region-end clear function stack for next iteration of the event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 
 
 Swap buffers and execute another iteration of the event loop
 
-.. literalinclude:: ../../src/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demo16.py
    :language: python
    :start-after: doc-region-begin flush framebuffer
    :end-before: doc-region-end flush framebuffer
    :linenos:
    :lineno-match:
-   :caption: src/demo16.py
+   :caption: src/modelviewprojection/demo16.py
 
 Notice in the above code, adding functions to the stack is creating a shared
 context for transformations, and before we call "glVertex3f", we always call
-"modelspace_to_ndc" on the modelspace vector.  In Demo 19, we will be using
+"modelspace_to_ndc" on the :term:`modelspace<Modelspace>` vector.  In Demo 19, we will be using
 OpenGL 2.1 matrix stacks.  Although we don't have the code for the OpenGL
-driver, given that you'll see that we pass modelspace data directly to "glVertex3f",
-it should be clear that the OpenGL implementation must fetch the modelspace
+driver, given that you'll see that we pass :term:`modelspace<Modelspace>` data directly to "glVertex3f",
+it should be clear that the OpenGL implementation must fetch the :term:`modelspace<Modelspace>`
 to NDC transformations from the ModelView and Projection matrix stacks.

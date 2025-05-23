@@ -33,7 +33,7 @@ way, but do it inelegantly.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo08.py in Spyder and hit the play button
+Load src/modelviewprojection/demo08.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -58,7 +58,7 @@ Description
 The problem in the last demo is that all rotations happen relative
 to World Space's (0,0) and axes.  By translating our paddles to their position
 before rotating, they are rotated around World Space's origin, instead
-of being rotated around their modelspace's center.
+of being rotated around their :term:`modelspace<Modelspace>`'s center.
 
 
 In this demo, we try to solve the problem by making a method to rotate
@@ -66,22 +66,22 @@ around a given point in world space, in this case, the paddle's center.
 
 
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
 
-.. literalinclude:: ../../src/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
    :language: python
    :start-after: doc-region-begin define rotate around
    :end-before: doc-region-end define rotate around
    :linenos:
    :lineno-match:
-   :caption: src/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils2d.py
 
 
 
@@ -91,35 +91,35 @@ Within the event loop, this seems quite reasonable
 
 
 
-.. literalinclude:: ../../src/demo08.py
+.. literalinclude:: ../../src/modelviewprojection/demo08.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo08.py
+   :caption: src/modelviewprojection/demo08.py
 
 
 
 
-.. literalinclude:: ../../src/demo08.py
+.. literalinclude:: ../../src/modelviewprojection/demo08.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo08.py
+   :caption: src/modelviewprojection/demo08.py
 
 
 
 
-.. literalinclude:: ../../src/demo08.py
+.. literalinclude:: ../../src/modelviewprojection/demo08.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo08.py
+   :caption: src/modelviewprojection/demo08.py
 
 
 

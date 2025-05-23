@@ -20,7 +20,7 @@ more clearly.
 
 We do this by the following:
 
-* Read sequence of transformations from modelspace to worldspace in the reverse order, from bottom to top.
+* Read sequence of transformations from :term:`modelspace<Modelspace>` to worldspace in the reverse order, from bottom to top.
 * Each subsequent transformation is relative to the current local coordinate system.
 
 .. figure:: _static/screenshots/demo09.png
@@ -34,7 +34,7 @@ We do this by the following:
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo09.py in Spyder and hit the play button
+Load src/modelviewprojection/demo09.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -103,13 +103,13 @@ all the transformations happen relative to the global
 origin and axes, i.e. the natural *basis*.  After each function call, the basis
 is set back to the origin basis.
 
-.. literalinclude:: ../../src/demo09.py
+.. literalinclude:: ../../src/modelviewprojection/demo09.py
    :language: python
    :start-after: doc-region-begin paddle 1 transformations
    :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo09.py
+   :caption: src/modelviewprojection/demo09.py
 
 
 
@@ -122,13 +122,13 @@ where the operations
 all cumulatively modify the current axes and origin, i.e. basis, to a new basis.
 All subsequent functions move that relative basis to a new relative basis.
 
-.. literalinclude:: ../../src/demo09.py
+.. literalinclude:: ../../src/modelviewprojection/demo09.py
    :language: python
    :start-after: doc-region-begin paddle 1 transformations
    :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo09.py
+   :caption: src/modelviewprojection/demo09.py
 
 
 Suggested Order
@@ -147,13 +147,13 @@ system that we choose to use.  It is whatever you want it to be.
 
     Demo 06
 
-Think of world space's origin, x and y axes.  On the Cayley graph, move towards each modelspace node,
+Think of world space's origin, x and y axes.  On the Cayley graph, move towards each :term:`modelspace<Modelspace>` node,
 which is against the direction of the edge,  Look at that edge's corresponding
 sequence of function calls in the graphics code.  Read the transformations
 from the bottom up, imagining a transformed local coordinate system against which
 each function in the sequence operates.
 
-The data you plot that is in its own modelspace will actually be plotted relative to that transformed coordinate
+The data you plot that is in its own :term:`modelspace<Modelspace>` will actually be plotted relative to that transformed coordinate
 system.
 
 
@@ -167,30 +167,30 @@ L by a right-multiplication of M.
 
 
 
-.. literalinclude:: ../../src/demo09.py
+.. literalinclude:: ../../src/modelviewprojection/demo09.py
    :language: python
    :start-after: doc-region-begin paddle 1 transformations
    :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
-   :caption: src/demo09.py
+   :caption: src/modelviewprojection/demo09.py
 
 
 
 Now go back to world space.  Think
-of all modelspace data as having already been "plotted".  So now follow
+of all :term:`modelspace<Modelspace>` data as having already been "plotted".  So now follow
 the edges to screen space,
 reading the transformations
 from top down, and resetting the coordinate system after every transformation.
 
 
-.. literalinclude:: ../../src/demo09.py
+.. literalinclude:: ../../src/modelviewprojection/demo09.py
    :language: python
    :start-after: doc-region-begin paddle 1 scale
    :end-before: doc-region-end paddle 1 scale
    :linenos:
    :lineno-match:
-   :caption: src/demo09.py
+   :caption: src/modelviewprojection/demo09.py
 
 
 
@@ -208,40 +208,40 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/demo09.py
+.. literalinclude:: ../../src/modelviewprojection/demo09.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo09.py
+   :caption: src/modelviewprojection/demo09.py
 
 
 
-.. literalinclude:: ../../src/demo09.py
+.. literalinclude:: ../../src/modelviewprojection/demo09.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo09.py
+   :caption: src/modelviewprojection/demo09.py
 
 
-* Read the modelspace to world space, starting from the bottom, up.  Translate, then rotate
+* Read the :term:`modelspace<Modelspace>` to world space, starting from the bottom, up.  Translate, then rotate
 * Reset the coordinate system
 * Read the worldspace to NDC
 
 
-.. literalinclude:: ../../src/demo09.py
+.. literalinclude:: ../../src/modelviewprojection/demo09.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo09.py
+   :caption: src/modelviewprojection/demo09.py
 
 
 
-* Read the modelspace to world space, starting from the bottom, up.  Translate, then rotate
+* Read the :term:`modelspace<Modelspace>` to world space, starting from the bottom, up.  Translate, then rotate
 * Reset the coordinate system
 * Read the worldspace to NDC

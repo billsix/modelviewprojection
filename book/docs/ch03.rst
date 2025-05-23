@@ -35,7 +35,7 @@ no longer is mapped to a square screen-space.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo03.py in Spyder and hit the play button
+Load src/modelviewprojection/demo03.py in Spyder and hit the play button.
 
 Purpose
 ^^^^^^^
@@ -77,7 +77,7 @@ of the window.
 
 OpenGL has a solution for us.  The *viewport* is a rectangular region contained
 within the window into which OpenGL will render.  By specifying a viewport, OpenGL
-will convert the normalized-device-coordinates
+will convert the :term:`NDC<Normalized Device Coordinates>`
 to the sub-window space of the viewport, instead of the whole
 window.
 
@@ -121,37 +121,37 @@ Consult the python source for the full, working code.
 Set to Draw in Square Subsection Of Window
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-.. literalinclude:: ../../src/demo03.py
+.. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
    :start-after: doc-region-begin square viewport
    :end-before: doc-region-end square viewport
    :linenos:
    :lineno-match:
-   :caption: src/demo03.py
+   :caption: src/modelviewprojection/demo03.py
 
 
 * declare a function to configure OpenGL to draw only in a square subset of the monitor, i.e. the viewport
 
-.. literalinclude:: ../../src/demo03.py
+.. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
    :start-after: doc-region-begin set to gray
    :end-before: doc-region-end set to gray
    :linenos:
    :lineno-match:
-   :caption: src/demo03.py
+   :caption: src/modelviewprojection/demo03.py
 
 
 * set the clear color to be gray.
 * glClear clear the color of every pixel in the whole frame buffer, independent of viewport.
   So now the entire frame-buffer is gray.
 
-.. literalinclude:: ../../src/demo03.py
+.. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
    :start-after: doc-region-begin get framebuffer size
    :end-before: doc-region-end get framebuffer size
    :linenos:
    :lineno-match:
-   :caption: src/demo03.py
+   :caption: src/modelviewprojection/demo03.py
 
 
 * figure out the minimum dimension of the window.  In the image above, the "square_size" is 1200,
@@ -159,13 +159,13 @@ Set to Draw in Square Subsection Of Window
 * To make a square sub-region, we need a number for the distance between vertices of the square.
   By using the minimum of the width and height, we can at least fill up the screen in one dimension.
 
-.. literalinclude:: ../../src/demo03.py
+.. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
    :start-after: doc-region-begin enable scissor test
    :end-before: doc-region-end enable scissor test
    :linenos:
    :lineno-match:
-   :caption: src/demo03.py
+   :caption: src/modelviewprojection/demo03.py
 
 
 * Enable the scissor test.  Internally, OpenGL drivers likely have global variables
@@ -197,25 +197,25 @@ Set to Draw in Square Subsection Of Window
 * Look at the image above of NDC superimposed on Screen Space.  From this,
   the arguments sent to glScissor should be clear.
 
-.. literalinclude:: ../../src/demo03.py
+.. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
    :start-after: doc-region-begin set background to be close to black
    :end-before: doc-region-end set background to be close to black
    :linenos:
    :lineno-match:
-   :caption: src/demo03.py
+   :caption: src/modelviewprojection/demo03.py
 
 
 *  glClear will only update the square to black values.
 
 
-.. literalinclude:: ../../src/demo03.py
+.. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
    :start-after: doc-region-begin disable scissor test
    :end-before: doc-region-end disable scissor test
    :linenos:
    :lineno-match:
-   :caption: src/demo03.py
+   :caption: src/modelviewprojection/demo03.py
 
 
 * disable the scissor test, so now any OpenGL calls will
@@ -231,13 +231,13 @@ will be mapped the the region of screen coordinates
 that we care about, which is the black square.
 
 
-.. literalinclude:: ../../src/demo03.py
+.. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
    :start-after: doc-region-begin set square viewport
    :end-before: doc-region-end set square viewport
    :linenos:
    :lineno-match:
-   :caption: src/demo03.py
+   :caption: src/modelviewprojection/demo03.py
 
 
 
@@ -249,31 +249,31 @@ but this time we call the procedure to
 ensure that we only draw in a square subset of
 the window.
 
-.. literalinclude:: ../../src/demo03.py
+.. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
    :start-after: doc-region-begin event loop begin
    :end-before: doc-region-end event loop begin
    :linenos:
    :lineno-match:
-   :caption: src/demo03.py
+   :caption: src/modelviewprojection/demo03.py
 
 
-.. literalinclude:: ../../src/demo03.py
+.. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
    :start-after: doc-region-begin call draw in square viewport
    :end-before: doc-region-end call draw in square viewport
    :linenos:
    :lineno-match:
-   :caption: src/demo03.py
+   :caption: src/modelviewprojection/demo03.py
 
 
 * The event loop is the same as the previous demo, except
   that we call draw_in_square_viewport every frame at the beginning.
 
-.. literalinclude:: ../../src/demo03.py
+.. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
    :start-after: doc-region-begin draw both paddles
    :end-before: doc-region-end draw both paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo03.py
+   :caption: src/modelviewprojection/demo03.py

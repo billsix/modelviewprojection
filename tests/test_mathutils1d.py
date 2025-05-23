@@ -21,10 +21,13 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
+import doctest
+
 from pytest import approx
 
-from mathutils import InvertibleFunction, compose, inverse
-from mathutils1d import Vector1D, translate, uniform_scale
+import modelviewprojection.mathutils1d
+from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
+from modelviewprojection.mathutils1d import Vector1D, translate, uniform_scale
 
 
 def test___add__():
@@ -114,3 +117,8 @@ def test_uniform_scale():
     for input_val, output_val in input_output_pairs:
         assert fn(Vector1D(input_val)) == Vector1D(approx(output_val))
         assert fn_inv(Vector1D(output_val)) == Vector1D(approx(input_val))
+
+
+def test_doctest():
+    failureCount, testCount = doctest.testmod(modelviewprojection.mathutils1d)
+    assert 0 == failureCount

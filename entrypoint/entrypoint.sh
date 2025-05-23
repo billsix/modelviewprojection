@@ -13,11 +13,3 @@ cp -r * /output/modelviewprojection/
 # see if this fixes github issue with unscores in
 # filenames created by sphinx
 touch /output/modelviewprojection/.nojekyll
-
-
-cd /mvp/book/docs
-make latexpdf
-cp  _build/latex/*pdf /output/modelviewprojection/
-
-make epub
-cp _build/epub/*epub /output/modelviewprojection/

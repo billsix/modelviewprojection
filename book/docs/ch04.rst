@@ -30,7 +30,7 @@ Add movement to the paddles using keyboard input.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/demo04.py in Spyder and hit the play button
+Load src/modelviewprojection/demo04.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -66,22 +66,22 @@ a lot of boiler plate code.
 .. _dataclasses: https://www.youtube.com/watch?v=vRVVyl9uaZc
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin define paddle class
    :end-before: doc-region-end define paddle class
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
 Although Python is a dynamically-typed language, we can add type information as helpful hints to the reader,
@@ -90,13 +90,13 @@ and for use with static type-checking tools for Python, such as `mypy`_.
 .. _mypy: http://mypy-lang.org/
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin instantiate paddles
    :end-before: doc-region-end instantiate paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
 * Create two instances of a Paddle.
@@ -166,13 +166,13 @@ Query User Input and Use It To Animate
     \end{bmatrix}
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin handle user input for paddle movement
    :end-before: doc-region-end handle user input for paddle movement
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
 
@@ -202,49 +202,49 @@ that movement is consistent across different monitors, we choose
 to only flush the screen at 60 hertz (frames per second).
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin limit framerate to 60 fps
    :end-before: doc-region-end limit framerate to 60 fps
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin poll events and get framebuffer size
    :end-before: doc-region-end poll events and get framebuffer size
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin call draw in square viewport
    :end-before: doc-region-end call draw in square viewport
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin call handle movement of paddles
    :end-before: doc-region-end call handle movement of paddles
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
 * We're still near the beginning of the event loop, and we
@@ -252,13 +252,13 @@ to only flush the screen at 60 hertz (frames per second).
   to query the user input, which will also modify the vertices'
   values if there was input.
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
 
@@ -282,13 +282,13 @@ to only flush the screen at 60 hertz (frames per second).
 
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py
 
 
 .. figure:: _static/plot4.svg
@@ -300,10 +300,10 @@ to only flush the screen at 60 hertz (frames per second).
     Adding input offset to Paddle 2
 
 
-.. literalinclude:: ../../src/demo04.py
+.. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python
    :start-after: doc-region-begin flush framebuffer
    :end-before: doc-region-end flush framebuffer
    :linenos:
    :lineno-match:
-   :caption: src/demo04.py
+   :caption: src/modelviewprojection/demo04.py

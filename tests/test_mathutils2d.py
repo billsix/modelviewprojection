@@ -21,12 +21,14 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
+import doctest
 import math
 
 from pytest import approx
 
-from mathutils import InvertibleFunction
-from mathutils2d import (
+import modelviewprojection.mathutils2d
+from modelviewprojection.mathutils import InvertibleFunction
+from modelviewprojection.mathutils2d import (
     Vector2D,
     compose,
     inverse,
@@ -161,3 +163,8 @@ def test_rotate():
     for input_val, output_val in input_output_pairs:
         wrap_vec2_test(fn, input_val, output_val)
         wrap_vec2_test(fn_inv, input_val, output_val)
+
+
+def test_doctest():
+    failureCount, testCount = doctest.testmod(modelviewprojection.mathutils2d)
+    assert 0 == failureCount
