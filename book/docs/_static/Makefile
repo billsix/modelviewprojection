@@ -1,11 +1,8 @@
 all: cayleyImages graphs rotate0-0.svg
 	cd gnuplot && make
 
+
 bldInstall/bin/texExpToPng: tex_exp_to_png/autogen.sh
-	cd tex_exp_to_png && ./autogen.sh
-
-
-bldInstall/bin/texExpToPng: tex_exp_to_png/configure
 	cd tex_exp_to_png && ./autogen.sh
 	mkdir -p bld && \
 	   mkdir -p bldInstall && \
