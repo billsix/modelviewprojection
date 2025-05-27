@@ -38,7 +38,7 @@ Using Developer Command Prompt
         activate.bat
         cd ..\..\
         python -m pip install --upgrade pip setuptools
-        python -m pip install -r requirements.txt
+        python -m pip install -e .[dev]
         python src\demo05\demo.py
 
 
@@ -54,7 +54,7 @@ Install Python3, glfw via a package manager.  Use pip and virtualenv to install 
         python -m venv venv
         source venv/bin/activate
         python -m pip install --upgrade pip setuptools
-        python -m pip install -r requirements.txt
+        python -m pip install -e .[dev]
         python src/demo05/demo.py
 
 

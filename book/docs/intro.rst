@@ -110,6 +110,7 @@ On Windows, if you use the Developer command prompt, to set up the environment r
    cd ..\..\
    python -m pip install --upgrade pip setuptools
    python -m pip install -r requirements.txt
+   python -m pip install -e .[dev]
 
 To run the Spyder IDE to execute the code in the book, open Spyder on the developer command
 prompt
@@ -133,6 +134,7 @@ On MacOS or Linux, on a terminal, to set up the environment, run
    source venv/bin/activate
    python3 -m pip install --upgrade pip setuptools
    python3 -m pip install -r requirements.txt
+   python3 -m pip install -e .[dev]
 
 To run the Spyder IDE to execute the code in the book, open Spyder on the developer command
 prompt

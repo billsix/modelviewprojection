@@ -19,9 +19,13 @@ RUN apt update && apt upgrade -y && \
                       make \
                       gcc \
                       python3-pytest \
+                      python3-pip \
                       aspell-en && \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()"
 
+COPY ./pyproject.toml /mvp/
+COPY ./pytest.ini /mvp/
+COPY ./setup.py /mvp/
 COPY ./book /mvp/book/
 COPY ./src /mvp/src/
 COPY ./entrypoint/entrypoint.sh  /entrypoint.sh

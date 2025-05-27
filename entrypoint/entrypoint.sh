@@ -1,5 +1,9 @@
 #!/bin/env bash
 
+
+cd /mvp/
+python3 -m pip install -e . --break-system-packages
+
 cd /mvp/book/docs
 make html
 
