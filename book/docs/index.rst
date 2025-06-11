@@ -18,6 +18,8 @@ Model View Projection
 =====================
 
 .. toctree::
+   :maxdepth: 5
+   :caption: Contents
 
    intro
    ch01

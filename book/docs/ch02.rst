@@ -9,12 +9,13 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+==========================
 Draw A Rectangle - Demo 02
 ==========================
 
 
 Purpose
-^^^^^^^
+=======
 
 Learn how to plot a rectangle.  Learn about OpenGL's coordinate system, :term:`Normalized Device Coordinates`,
 which are from -1.0 to 1.0, in the X, Y, and Z directions.  Anything drawn entirely outside
@@ -29,16 +30,16 @@ of this region will not be displayed on the screen.
     Demo 02
 
 How to Execute
-^^^^^^^^^^^^^^
+==============
 
 Load src/modelviewprojection/demo02.py in Spyder and hit the play button.
 
 
 Code
-^^^^
+====
 
 GLFW/OpenGL Initialization
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
 The setup code is the same.  Initialize GLFW.  Set the OpenGL version.
 Create the window.  Set a key handler for closing.  Set the background to be black.
@@ -47,7 +48,7 @@ Execute the event/drawing loop.
 
 
 The Event Loop
-^^^^^^^^^^^^^^
+--------------
 
 Within the event loop, demo02.py draws 2 rectangles, as one might see in
 a game of Pong.
@@ -66,7 +67,8 @@ a game of Pong.
 
 
 Draw Paddles
-~~~~~~~~~~~~
+------------
+
 
 A black screen is not particularly interesting, so
 let's draw something, say, two rectangles.
@@ -180,7 +182,7 @@ which are inside of the quadrilateral.
 Why do we use :term:`NDC<Normalized Device Coordinates>` instead of pixel coordinates?
 
 Normalized-Device-Coordinates
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=============================
 
 The author owns two monitors, one which has 1024x768 pixels, and one which has
 1920x1200 pixels.  When he purchases a game from Steam, he expects that his game
@@ -268,7 +270,7 @@ Or a large monitor.
 
 
 Introduction to Cayley Graphs
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+=============================
 
 The following is a graph_, specifically
 a Cayley_ Graph, of the two spaces
@@ -283,7 +285,7 @@ changing them to another, like converting from Celsius to Fahrenheit,
 meters to feet, etc.
 
 NDC/Screenspace Conversion
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. _graph: https://en.wikipedia.org/wiki/Graph_theory
 .. _Cayley:  https://en.wikipedia.org/wiki/Cayley_graph
@@ -313,7 +315,7 @@ but for our purposes, its use is very simple.
 
 
 Currency Conversion
-~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^
 
 An uni-variate example use of Cayley graphs is exchanging coins with
 a bank.
@@ -414,7 +416,7 @@ out, but the details of those functions are not relevant when traversing the Cay
 
 
 Temperature Conversion
-~~~~~~~~~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^^^^^^^^^
 
 .. figure:: _static/temp.png
     :class: no-scale
@@ -461,7 +463,7 @@ To convert from kelvin to fahrenheit, we would think
 
 
 Learning what to ignore
-^^^^^^^^^^^^^^^^^^^^^^^
+=======================
 
 A big part of being able to understand graphics well is being able
 to figure out what to ignore.  So how would we convert coordinates from space
@@ -518,7 +520,7 @@ The goal of this book is to make it clear, and then, obvious.
 
 
 Exercise
-^^^^^^^^
+========
 
 * Run Demo 2.  Resize the window using the GUI controls provided
   by the Operating system. first make it skinny, and then wide.

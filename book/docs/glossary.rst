@@ -1,3 +1,7 @@
+
+Glossary
+========
+
 .. glossary::
 
    Normalized Device Coordinates
