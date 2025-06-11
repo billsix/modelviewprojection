@@ -17,9 +17,11 @@
 
 # doc-region-begin import first module
 import sys
+# doc-region-end import first module
 
 # doc-region-begin import glfw
 import glfw
+# doc-region-end import glfw
 
 # doc-region-begin import individual functions without needing module name
 from OpenGL.GL import (
@@ -33,11 +35,6 @@ from OpenGL.GL import (
     glMatrixMode,
     glViewport,
 )
-
-# doc-region-end import first module
-
-# doc-region-end import glfw
-
 # doc-region-end import individual functions without needing module name
 
 

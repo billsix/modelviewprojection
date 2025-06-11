@@ -12,7 +12,7 @@
 Introduction
 ============
 
-Learn how to program in 3D computer graphics in Python!
+Learn how to program in 3D computer graphics in the Python programming language!
 
 .. figure:: _static/screenshots/frustum1.png
     :class: no-scale
@@ -21,24 +21,10 @@ Learn how to program in 3D computer graphics in Python!
     :figclass: align-center
 
 
-
-Source code
-^^^^^^^^^^^
-
-This book references source code, which is at `https://github.com/billsix/modelviewprojection <https://github.com/billsix/modelviewprojection>`_
-
-.. include:: ./version.txt
-
 Approach
 ^^^^^^^^
 
-This book takes a "mistake-driven development" approach: instead of
-handing you polished math formulae, it walks you through building
-complex graphics applications step by step. Along the way, we’ll make
-mistakes—and then fix them—so you can see how solutions emerge in
-real-world programming.
-
-You’ll learn how to place objects in space, draw them relative to
+You’ll learn how to place geometric objects in space, draw them relative to
 others, add a camera that moves over time based on user input, and
 transform all those objects into the 2D pixel coordinates of your
 screen. By the end, you’ll understand the foundations of creating
@@ -46,10 +32,11 @@ first-person and third-person applications or games. The goal? To
 empower you to build the graphics programs you want, using math you
 mostly already know.
 
-This book keeps things intentionally simple. The applications we create
-won’t be particularly pretty or realistic-looking. For more advanced
-topics, you’ll want to dive into references like the OpenGL “Red Book
-” and “Blue Book,” or explore some of the tutorials listed at the end.
+This book intentionally keeps things simple intended for beginners.
+In this book, the applications created
+won’t be particularly pretty or realistic-looking. After reading this
+book, for more advanced
+topics, you’ll want to dive into references LearnOpenGL or the OpenGLTutorial.
 
 #. LearnOpenGL_
 #. OpenGLTutorial_
@@ -57,13 +44,10 @@ topics, you’ll want to dive into references like the OpenGL “Red Book
 .. _LearnOpenGL:  https://learnopengl.com/
 .. _OpenGLTutorial:  http://www.opengl-tutorial.org/
 
-While this book fills a huge gap by focusing on the basics in a hands
--on way, those other books are fantastic references for diving into
-advanced topics.
 
 
-Pre-requisities
-^^^^^^^^^^^^^^^
+Things You Should Know
+^^^^^^^^^^^^^^^^^^^^^^
 
 #. Basic programming concepts in Python.
 
@@ -74,33 +58,27 @@ Pre-requisities
 
    #. Books
 
-      #. https://learnbyexample.github.io/100_page_python_intro/preface.html
       #. https://diveintopython3.problemsolving.io/
 
-#. High school trigonometry
+#. High school Geometry
 
-#. Linear Algebra (optional)
-
-   #. 3Blue1Brown - Linear Transformations_
-   #. 3Blue1Brown - Matrix Multiplication as Composition_
 
 .. _Socratica: https://www.youtube.com/watch?v=bY6m6_IIN94&list=PLi01XoE8jYohWFPpC17Z-wWhPOSuh8Er-&index=2
 .. _Microsoft: https://www.youtube.com/watch?v=jFCNu1-Xdsw&list=PLlrxD0HtieHhS8VzuMCfQD4uJ9yne1mE6
-.. _Transformations: https://www.youtube.com/watch?v=kYB8IZa5AuE
-.. _Composition: https://www.youtube.com/watch?v=XkY2DOUCWMU
 
 Required Software
 ^^^^^^^^^^^^^^^^^
 
-You will need to install Python. https://realpython.com/installing-python/
+You will need to install Python, and make a virtual environment.  You can
+search how to do this using a search engine, or AI Chatbot, or follow
+the instructions below.
 
-Before running this code, you need a virtual environment,
-with dependencies installed. https://docs.python.org/3/tutorial/venv.html
 
 Windows
 ~~~~~~~
 
-On Windows, if you use the Developer command prompt, to set up the environment run
+On Windows, install Visual Studio and the Python extension.  Afterwards, to set up
+the virtual environment, open the Developer Command Prompt,
 
 .. code-block::
 
@@ -112,8 +90,9 @@ On Windows, if you use the Developer command prompt, to set up the environment r
    python -m pip install -r requirements.txt
    python -m pip install -e .[dev]
 
-To run the Spyder IDE to execute the code in the book, open Spyder on the developer command
-prompt
+To run the Spyder Integrated Development Environment (IDE) to execute
+the code in the book, open Spyder on the Developer Command
+Prompt
 
 .. code-block::
 
@@ -123,10 +102,22 @@ prompt
    spyder -p .
 
 
+Linux
+~~~~~
+
+Install Python3, glfw via a package manager.  Use pip and virtualenv to install dependencies
+
+Mac
+~~~
+
+Install Python3 (via anaconda, homebrew, macports, whatever), and use pip and virtualenv to install dependencies.
+
+
+
 MacOS or Linux
 ~~~~~~~~~~~~~~
 
-On MacOS or Linux, on a terminal, to set up the environment, run
+On MacOS or Linux, to set up the environment in a terminal, execute
 
 .. code-block:: bash
 
@@ -146,12 +137,10 @@ prompt
 
 
 
-Linux
-~~~~~
 
-Install Python3, glfw via a package manager.  Use pip and virtualenv to install dependencies
+Source code
+^^^^^^^^^^^
 
-Mac
-~~~
+This book references source code, which is at `https://github.com/billsix/modelviewprojection <https://github.com/billsix/modelviewprojection>`_
 
-Python Python3 (via anaconda, homebrew, macports, whatever), and use pip and virtualenv to install dependencies.
+.. include:: ./version.txt
