@@ -11,7 +11,16 @@ image: ## Build a Podman image in which to build the book
 
 .PHONY: html
 html: image ## Build the html from the sphinx source
-	podman run -it --rm -v ./output/:/output/:Z modelviewprojection-html
+	podman run -it --rm  \
+		-v ./output/:/output/:Z \
+		-v ./book:/mvp/book/:Z \
+		-v ./src:/mvp/src/:Z \
+		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
+		-v ./tests/:/mvp/tests/:Z \
+		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
+		-v ./pytest.ini:/mvp/pytest.ini:Z \
+		-v ./setup.py:/mvp/setup.py:Z \
+		modelviewprojection-html
 
 
 .PHONY: clean
@@ -23,6 +32,13 @@ shell: image ## Get Shell into a ephermeral container made from the image
 	podman run -it --rm \
 		--entrypoint /bin/bash \
 		-v ./output/:/output/:Z \
+		-v ./book:/mvp/book/:Z \
+		-v ./src:/mvp/src/:Z \
+		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
+		-v ./tests/:/mvp/tests/:Z \
+		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
+		-v ./pytest.ini:/mvp/pytest.ini:Z \
+		-v ./setup.py:/mvp/setup.py:Z \
 		modelviewprojection-html
 
 .PHONY: help

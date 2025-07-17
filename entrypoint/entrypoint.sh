@@ -1,5 +1,6 @@
 #!/bin/env bash
 
+cd /mvp/ && pytest --exitfirst --disable-warnings || exit
 
 cd /mvp/
 python3 -m pip install -e . --break-system-packages
@@ -12,7 +13,7 @@ make html
 cd _build/html/
 
 # copy the files over
-mkdir /output/modelviewprojection
+mkdir -p /output/modelviewprojection
 cp -r * /output/modelviewprojection/
 # see if this fixes github issue with unscores in
 # filenames created by sphinx
