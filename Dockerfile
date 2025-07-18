@@ -23,5 +23,7 @@ RUN apt update  && apt upgrade -y && \
                       aspell-en && \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()"
 
+RUN apt install    -y emacs-nox \
+                      tmux
 
 ENTRYPOINT ["/entrypoint.sh"]
