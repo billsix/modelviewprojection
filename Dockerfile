@@ -1,5 +1,9 @@
 FROM docker.io/debian:trixie
 
+COPY .emacs.d /root/.emacs.d
+COPY .tmux.conf /root/.tmux.conf
+
+
 RUN apt update  && apt upgrade -y && \
     apt install    -y gnuplot \
                       texlive \
@@ -20,10 +24,13 @@ RUN apt update  && apt upgrade -y && \
                       gcc \
                       python3-pytest \
                       python3-pip \
-                      aspell-en && \
+                      aspell-en \
+                      emacs-nox \
+                      tmux  && \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()"
 
-RUN apt install    -y emacs-nox \
-                      tmux
+
+RUN emacs --batch --load ~/.emacs.d/install-melpa-packages.el
+
 
 ENTRYPOINT ["/entrypoint.sh"]
