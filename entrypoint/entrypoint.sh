@@ -3,7 +3,7 @@
 cd /mvp/ && pytest --exitfirst --disable-warnings || exit
 
 cd /mvp/
-python3 -m pip install -e . --break-system-packages
+python3 -m pip install --no-deps -e . --break-system-packages --root-user-action=ignore
 
 cd /mvp/book/docs
 make html
