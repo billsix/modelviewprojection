@@ -23,18 +23,6 @@ from dataclasses import astuple, dataclass, field
 
 import glfw
 from colorutils import Color3
-from mathutils3d import (
-    Vector3D,
-    compose,
-    fn_stack,
-    inverse,
-    ortho,
-    push_transformation,
-    rotate_x,
-    rotate_y,
-    rotate_z,
-    translate,
-)
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -58,6 +46,19 @@ from OpenGL.GL import (
     glScissor,
     glVertex3f,
     glViewport,
+)
+
+from modelviewprojection.mathutils3d import (
+    Vector3D,
+    compose,
+    fn_stack,
+    inverse,
+    ortho,
+    push_transformation,
+    rotate_x,
+    rotate_y,
+    rotate_z,
+    translate,
 )
 
 if not glfw.init():

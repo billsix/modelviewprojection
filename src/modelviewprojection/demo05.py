@@ -23,7 +23,6 @@ from dataclasses import astuple, dataclass
 
 import glfw
 from colorutils import Color3
-from mathutils2d import Vector2D, translate
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -44,6 +43,8 @@ from OpenGL.GL import (
     glVertex2f,
     glViewport,
 )
+
+from modelviewprojection.mathutils2d import Vector2D, translate
 
 if not glfw.init():
     sys.exit()
