@@ -29,8 +29,9 @@ RUN apt update  && apt upgrade -y && \
                       tmux  && \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()"
 
-
 RUN emacs --batch --load ~/.emacs.d/install-melpa-packages.el
+RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
+
 
 
 ENTRYPOINT ["/entrypoint.sh"]
