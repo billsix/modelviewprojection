@@ -39,7 +39,9 @@ shell: image ## Get Shell into a ephermeral container made from the image
 		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
 		-v ./pytest.ini:/mvp/pytest.ini:Z \
 		-v ./setup.py:/mvp/setup.py:Z \
-		modelviewprojection-html
+		modelviewprojection-html \
+		-c "cd /mvp/; python3 -m pip install --no-deps -e . --break-system-packages --root-user-action=ignore; exec bash"
+
 
 .PHONY: help
 help:
