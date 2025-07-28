@@ -14,8 +14,9 @@
    You can adapt this file completely to your liking, but it should at least
    contain the root `toctree` directive.
 
+#####################
 Model View Projection
-=====================
+#####################
 
 .. toctree::
    :maxdepth: 5

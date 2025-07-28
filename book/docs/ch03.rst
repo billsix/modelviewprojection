@@ -9,8 +9,10 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+*********************************************
 Window Resizing and Proportionality - Demo 03
-=============================================
+*********************************************
+
 
 
 
@@ -37,8 +39,8 @@ How to Execute
 
 Load src/modelviewprojection/demo03.py in Spyder and hit the play button.
 
-Purpose
-^^^^^^^
+Objective
+^^^^^^^^^
 
 Modify the previous demo, so that if the user resizes the window
 of the OpenGL program, that the picture does not become distorted.

@@ -9,11 +9,12 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+********************************************
 Adding Depth - Enable Depth Buffer - Demo 15
-============================================
+********************************************
 
-Purpose
-^^^^^^^
+Objective
+^^^^^^^^^
 Fix the issue from the last demo, in which the square
 was drawn over Paddle 1, even though the square
 is further away from the camera.

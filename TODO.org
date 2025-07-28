@@ -1,29 +1,24 @@
 * TODO [#1] Model View Projection
     - [ ] Add terms to index
+    - [ ] Use headings correctly
+      - [ ] # with overline, for parts
+      - [ ] * with overline, for chapters
+      - [ ] = for sections
+      - [ ] - for subsections
+      - [ ] ^ for subsubsections
+      - [ ] " for paragraphs
     - [ ] remove all del() code, make destruction explicit at end
-    - [X] Switch all instructions to use spyder as ide
-    - [X] Ch 01
-      - [X] Fix proportions of monitors
-      - [X] Fix doc regions line 23, line 27, line 32
-      - [X] Line 51, mention no idea what None, Noe means, mention looking up API vs keyword arguments
-      - [X] doubler, print out it's values
-    - [X] Ch 02
-      - [X] Cayley graph example of temperature, kelvin centegrade farenheight
+    - [ ] Ch 01
+      - [ ] Replace the ascii art framebuffers with svgs
+    - [ ] Ch 02
+      - [ ] explain doubler function better
     - [-] Ch 03
-      - [X] Add univariate example/problem for temperature
-        - [X] Discuss Top Level space, why kelvin, why celcius
       - [ ] Add univariate example/problem for measurement
       - [ ] Add 2D example/problem for rotating 45 degrees
-      - [X] lines 90-96 mention keyword arguments again
     - [-] Ch 4
       * [-] Introduct vector additon, use math notation
-        - [X] Coordinate Free
-        - [X] With coordinates
         - [ ] explain thinking about the two forms, coordinate free is easier to visualize and simpler, coordinates for when the work has to get done
         - [ ] explain notation, and how x means two different things, and sub 1 and sub 2 mean something different
-      * [X] rename p1oy p2oy
-        - [X] update plot3.gp
-        - [X] update plot4.gp
       * [ ] put in example values for when the user pressed a/e
         - [ ] say number of times that e has been pressed
     - [ ] Ch 5
@@ -55,25 +50,9 @@
     - [ ] Ch 21 Finish the chapter on the perspective projection
     - [ ] Make the content for VAO, VBO, shaders, etc, from my class git repo
     - [X] make function names on Cayley graphs look better using images
-    - [100%] Change modelspace to be size 1 by 3, instead of 10 by 30
-      - [X] TODO For animated gifs
-      - [X] For code
-      - [X] For mvpVizualations
     - [71%] Rewrite rotate, and update explanations.
-      - [X] Use inkscape to modify the SVGs
-        - [X] Make the placement of 'x' 'y' and 'z' off of the arrow
       - [ ] Do it by making relative number lines
-      - [X] Add in _add_ method to add vertices
-      - [X] define translate by add
-      - [X] rotate should be implemented using add, to scaled vectors
-      - [X] update the images.  I'd rather have hand drawn images, then what is currently there
       - [ ] Update for chapter 18+
-    - [X] fix warning of matplotlib
-    <2024-01-27 Sat> Got that done a few days ago
-    - [X] Change suffix (and emacs mode) of preprocess files so that warnings go away when building docs
-    <2024-01-27 Sat> this is a moot point after https://github.com/billsix/modelviewprojection/commit/93daf37105890952ad3d2bc983f1f011927506ce
-    - [X] develop better name other that "begin" "end"
-    - [X] Make the sections line independent
     - [ ] Ch 16
       - [ ] Fix spacing on linu 267 section
     - [ ] Ch 17

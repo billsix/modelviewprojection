@@ -9,11 +9,12 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+******************************************************
 Rotation Fixed - Sequence of Transformations - Demo 09
-======================================================
+******************************************************
 
-Purpose
-^^^^^^^
+Objective
+^^^^^^^^^
 
 Make the rotations work correctly by thinking about the problem
 more clearly.

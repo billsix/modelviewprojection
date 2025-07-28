@@ -9,12 +9,14 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+********************
 Modelspace - Demo 06
-====================
+********************
 
 
-Purpose
-^^^^^^^
+
+Objective
+^^^^^^^^^
 
 Learn about :term:`modelspace<Modelspace>` :index:`Modelspace`.
 

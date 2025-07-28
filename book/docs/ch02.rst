@@ -9,17 +9,17 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
-==========================
+**************************
 Draw A Rectangle - Demo 02
-==========================
+**************************
 
 
-Purpose
-=======
+Objective
+=========
 
-Learn how to plot a rectangle.  Learn about OpenGL's coordinate system, :term:`Normalized Device Coordinates`,
-which are from -1.0 to 1.0, in the X, Y, and Z directions.  Anything drawn entirely outside
-of this region will not be displayed on the screen.
+Learn how to draw rectangles in an OpenGL window.  Learn about OpenGL's coordinate system, :term:`Normalized Device Coordinates` (NDC),
+which are from -1.0 to 1.0, in the X, Y, and Z directions.  Geometry drawn outside
+of this region will not be displayed in the window.
 
 .. figure:: _static/screenshots/demo02.png
     :class: no-scale

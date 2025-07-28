@@ -9,12 +9,14 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+****************************************
 Add Translate Method to Vector - Demo 05
-========================================
+****************************************
 
 
-Purpose
-^^^^^^^
+
+Objective
+^^^^^^^^^
 Restructure the code towards the model view projection
 pipeline.
 

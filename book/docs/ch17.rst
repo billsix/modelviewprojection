@@ -9,11 +9,12 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+***********************************
 Moving Camera in 3D Space - Demo 17
-===================================
+***********************************
 
-Purpose
-^^^^^^^
+Objective
+^^^^^^^^^
 
 Make a moving camera in 3D space.  Use Ortho to transform a rectangular prism, defined relative to camera space,
 into NDC.

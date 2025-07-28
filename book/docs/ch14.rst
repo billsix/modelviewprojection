@@ -9,11 +9,13 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+*****************************
 Adding Depth - Z axis Demo 14
-=============================
+*****************************
 
-Purpose
-^^^^^^^
+
+Objective
+^^^^^^^^^
 Do the same stuff as the previous demo, but use 3D coordinates,
 where the negative z axis goes into the screen (because
 of the right hand rule).  Positive z comes out of the monitor

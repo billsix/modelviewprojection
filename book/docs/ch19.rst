@@ -9,11 +9,12 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+***********************
 Matrix Stacks - Demo 19
-=======================
+***********************
 
-Purpose
-^^^^^^^
+Objective
+^^^^^^^^^
 
 Replace lambda stacks with OpenGL 2.1 matrix stacks, provided
 by the driver for your graphics card.  This is how preshader

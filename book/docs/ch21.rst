@@ -10,11 +10,12 @@
    https://www.gnu.org/licenses/fdl-1.3.html.
 
 
+********************************
 OpenGL3.3 Core Profile - Demo 21
-================================
+********************************
 
-Purpose
-^^^^^^^
+Objective
+^^^^^^^^^
 
 In OpenGL 3.3 Core Profile, shaders are no longer optional,
 they are mandatory.

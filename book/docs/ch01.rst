@@ -9,11 +9,12 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+**************************
 Opening a Window - Demo 01
-==========================
+**************************
 
-Purpose
-^^^^^^^
+Objective
+=========
 
 Learn how to :
 
@@ -30,13 +31,13 @@ Learn how to :
     Demo 01
 
 How to Execute
-^^^^^^^^^^^^^^
+==============
 
 Load src/modelviewprojection/demo01.py in Spyder and hit the play button.
 
 
 Terminology
-^^^^^^^^^^^
+===========
 
 The device connected to a computer that displays information to the
 user is called a *monitor*.  A monitor consists of a two-dimensional grid of tiny light-emitting
@@ -146,7 +147,7 @@ of motion for the user.
 
 
 Code
-^^^^
+####
 
 That's enough terms for now, let's get on to a working program!
 
@@ -361,7 +362,7 @@ and applied later zero, 1, or more times.
    :caption: src/modelviewprojection/demo01.py
 
 * Don't worry about the 4 lines here.  Although they are necessary,
-  we will cover them in depth later.  After all, this
+  we will cover them in depth later in this book.  After all, this
   book is called ModelViewProjection. :-)
 
 
@@ -374,11 +375,12 @@ rendered in quick succession, provide the illusion of motion.
 Interactive computer graphics are rendered the same way,
 one "frame" at a time.
 
-Render a frame, flush the complete frame-buffer to the monitor.
+For our program, we need to render a frame, flush the complete frame-buffer to the monitor.
 Repeat indefinitely
 until the user closes the window, or the program needs
 to terminate.
 
+* Define the event loop
 
 .. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
@@ -389,15 +391,15 @@ to terminate.
    :caption: src/modelviewprojection/demo01.py
 
 * Poll the operating system for any events, such as mouse movements,
-  keyboard input, etc.  This does not handle them, just registers
-  them as having happened.
+  keyboard input, etc.  This call does not handle them, just registers
+  them as having happened for handling later.
 
 * Get the size of the frame-buffer.  The *frame-buffer*
-  contains data representing all the pixels in a complete video frame.
+  contains 2D data representing all the pixels in a complete video frame.
   Python
   allows the returning of multiple values
   in the form of a tuple.  Assigning
-  to the variables this way is a form of "destructuring"
+  to the variables width and height this way is a form of "destructuring"
 
 * Tell OpenGL that we wish to draw in the entire
   frame-buffer, from the bottom left corner to the upper
@@ -420,7 +422,7 @@ to terminate.
   the monitor, and swap the back and front buffers.
 
 Exercise
-^^^^^^^^
+########
 
 * Run the program, close it by hitting Escape.
 
@@ -434,7 +436,7 @@ Exercise
 
 
 
-One frame is created incrementally at a time on the CPU, but the frame
+One frame is created incrementally at a time, but the frame
 is sent to the monitor
 only when frame is completely drawn, and each pixel has a color.
 The act of sending the frame to the monitor is called *flushing*
@@ -451,9 +453,9 @@ other one.
 
 
 Black Screen
-^^^^^^^^^^^^
+############
 
-Type "python src/modelviewprojection/demo01.py", or "python3 src/modelviewprojection/demo01.py" to run.
+Load src/modelviewprojection/demo01.py in Spyder and hit the play button.
 
 The first demo is the least interesting graphical program possible.
 
@@ -463,7 +465,7 @@ The first demo is the least interesting graphical program possible.
 #. If the user resized the window, reset OpenGL's mappings from *normalized-device-coordinates*
    to *screen-coordinates*.
 
-#. Cleared the color buffer and the depth buffer (don't worry about this for now).
+#. Cleared the color buffer and the depth buffer (don't worry about the latter for now).
 
 When this code returns, the event loop flushes (i.e) sends the frame to the monitor.  Since
 no geometry was drawn, the color value for each pixel is still black.
@@ -486,58 +488,3 @@ Each color is represented by a number, so the frame is something like this, wher
 The event loop then calls this code over and over again, and since we retain no state and
 we draw nothing, a black screen will be displayed every frame until the user
 closes the window, and says to himself, "why did I buy Doom 3"?
-
-
-Questions
-^^^^^^^^^
-
-* In the following ASCII-art diagram of the frame-buffer,
-  where 'b' represents black, 'Y' represents yellow, and "G"
-  represents green, what is width and height of the frame-buffer?
-
-::
-
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-
-
-* In the above ASCII-art diagram of the frame-buffer, where 'b' represents black, 'Y' represents yellow, and "G" represents green,
-  what is the color at pixel (1,1)?
-
-* In the below ASCII-art diagram of the frame-buffer, where 'b' represents black, 'Y' represents yellow, and "G" represents green, what is the color at pixel (2,3)? At (36,2)?
-
-::
-
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
-    GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-    bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
-
-
-*
-
-
-Answers
-^^^^^^^
-
-* width - 37, column 0-36.  Height - 12, rows 0 - 11
-* 'b', for the color black
-* 'G' for Green, 'Y' for Yellow

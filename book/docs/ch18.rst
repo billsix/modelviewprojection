@@ -9,11 +9,12 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+************************
 3D Perspective - Demo 18
-========================
+************************
 
-Purpose
-^^^^^^^
+Objective
+^^^^^^^^^
 
 Implement a perspective projection so that objects
 further away are smaller than the would be

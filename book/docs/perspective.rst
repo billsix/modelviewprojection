@@ -9,11 +9,12 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+***************************
 Standard Perspective Matrix
-===========================
+***************************
 
-Purpose
-^^^^^^^
+Objective
+^^^^^^^^^
 
 Derive the standard perspective matrix that OpenGL expects.
 

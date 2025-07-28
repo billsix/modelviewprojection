@@ -9,12 +9,13 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+*******************
 Rotations - Demo 07
-===================
+*******************
 
 
-Purpose
-^^^^^^^
+Objective
+^^^^^^^^^
 
 Attempt to rotate the paddles around their center.
 Learn about rotations.  This demo does not

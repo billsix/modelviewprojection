@@ -9,11 +9,12 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+**************************
 Relative Objects - Demo 11
-==========================
+**************************
 
-Purpose
-^^^^^^^
+Objective
+^^^^^^^^^
 
 Introduce relative objects, by making a small blue square
 that is defined relative to the left paddle, but offset
