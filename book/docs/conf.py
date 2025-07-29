@@ -56,12 +56,12 @@ latex_elements = {
 """
 }
 
-
 extensions = [
     "sphinx.ext.imgmath",
     "sphinx.ext.imgconverter",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",  # Required for parsing field descriptions
+    'sphinx.ext.viewcode',
 ]
 
 # conf.py
