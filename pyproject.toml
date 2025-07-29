@@ -27,6 +27,7 @@ doc = [
     "mathjax==0.1.2",
     "matplotlib==3.10.3",
     "sphinx-rtd-theme==3.0.2",
+    "furo==2025.7.19",
 ]
 
 [build-system]

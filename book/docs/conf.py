@@ -20,31 +20,9 @@ sys.path.insert(0, os.path.abspath("."))
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed from docs.readthedocs.org
 on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
-if not on_rtd:  # only import and set the theme if we're building docs locally
-    import sphinx_rtd_theme
+import sphinx_rtd_theme
 
-    html_theme = "sphinx_rtd_theme"
-    html_theme_options = {
-        "collapse_navigation": False,
-        "navigation_depth": 5,
-        "includehidden": True,
-        }
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
-
-    # Override default css to get a larger width for local build
-    def setup(app):
-        # app.add_javascript("custom.js")
-        app.add_css_file("css/my_theme.css")
-
-else:
-    # Override default css to get a larger width for ReadTheDoc build
-    html_context = {
-        "css_files": [
-            "https://media.readthedocs.org/css/sphinx_rtd_theme.css",
-            "https://media.readthedocs.org/css/readthedocs-doc-embed.css",
-            "_static/css/my_theme.css",
-        ],
-    }
+html_theme = "furo"
 
 
 # -- Project information -----------------------------------------------------
@@ -129,9 +107,9 @@ exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]
 
 html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 html_theme_options = {
-        "collapse_navigation": False,
-        "navigation_depth": 5,
-        "includehidden": True,
+    "collapse_navigation": False,
+    "navigation_depth": 5,
+    "includehidden": True,
 }
 
 # Add any paths that contain custom static files (such as style sheets) here,

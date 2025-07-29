@@ -10,6 +10,7 @@ RUN apt update  && apt upgrade -y && \
                       texlive-latex-extra \
                       graphviz \
                       python3-sphinx-rtd-theme \
+                      furo \
                       fonts-mathjax \
                       libjs-mathjax \
                       make \
