@@ -43,9 +43,11 @@ class Vector2D:
              \\vec{a} + \\vec{b} = (a_x + b_x, a_y + b_y)
 
         Args:
-            rhs (Vector2D): The vector on the right hand side of the addition symobl
+            rhs (Vector2D): The vector on the right hand side of the addition
+                            symbol
         Returns:
-            Vector2D: The Vector2D that represents the additon of the two input Vector2Ds
+            Vector2D: The Vector2D that represents the additon of the two
+                      input Vector2Ds
         Raises:
             Nothing
         Example:
@@ -72,9 +74,12 @@ class Vector2D:
              \\vec{a} - \\vec{b} = (a_x - b_x, a_y - b_y)
 
         Args:
-            rhs (Vector2D): The vector on the right hand side of the subtraction symobl
+            rhs (Vector2D): The vector on the right hand side of the
+                            subtraction symbol
         Returns:
-            Vector2D: The Vector2D that represents the subtraction of the right hand side Vector2D from the left hand side Vector2D
+            Vector2D: The Vector2D that represents the subtraction of the
+                      right hand side Vector2D from the left hand side
+                      Vector2D
         Raises:
             Nothing
         Example:
@@ -149,13 +154,11 @@ def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate
 def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
-    # fmt: off
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(-vector.y, vector.x)
 
     def f_inv(vector: Vector2D) -> Vector2D:
         return Vector2D(vector.y, -vector.x)
-    # fmt: on
 
     return InvertibleFunction(f, f_inv)
 
@@ -163,13 +166,15 @@ def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
 def rotate(angle_in_radians: float) -> InvertibleFunction:
     r90: InvertibleFunction[Vector2D] = rotate_90_degrees()
 
-    # fmt: off
     def f(vector: Vector2D) -> Vector2D:
-        return math.cos(angle_in_radians) * vector + math.sin(angle_in_radians) * r90(vector)
+        parallel: Vector2D = math.cos(angle_in_radians) * vector
+        perpendicular: Vector2D = math.sin(angle_in_radians) * r90(vector)
+        return parallel + perpendicular
 
     def f_inv(vector: Vector2D) -> Vector2D:
-        return math.cos(angle_in_radians) * vector + math.sin(angle_in_radians) * inverse(r90)(vector)
-    # fmt: on
+        parallel: Vector2D = math.cos(angle_in_radians) * vector
+        perpendicular: Vector2D = math.sin(angle_in_radians) * inverse(r90)(vector)
+        return parallel + perpendicular
 
     return InvertibleFunction(f, f_inv)
 

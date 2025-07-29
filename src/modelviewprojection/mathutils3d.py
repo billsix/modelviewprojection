@@ -175,22 +175,18 @@ def ortho(
     near: float,
     far: float,
 ) -> Vector3D:
-    # fmt: off
     midpoint = Vector3D(x=(left + right) / 2.0,
                         y=(bottom + top) / 2.0,
                         z=(near + far) / 2.0)
-    # fmt: on
     length_x: float
     length_y: float
     length_z: float
     length_x, length_y, length_z = right - left, top - bottom, far - near
 
-    # fmt: off
     fn = compose(scale(scale_x=(2.0 / length_x),
                        scale_y=(2.0 / length_y),
                        scale_z=(2.0 / (-length_z))),
                  translate(-midpoint))
-    # fmt: on
 
     def f(vector: Vector3D) -> Vector3D:
         return fn(vector)

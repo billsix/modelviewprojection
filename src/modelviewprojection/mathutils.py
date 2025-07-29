@@ -29,8 +29,9 @@ T = TypeVar("T")
 @dataclass
 class InvertibleFunction(Generic[T]):
     """
-    Class that wraps a function and its inverse function.
-    The function takes type T as it's argument and it's evaluation
+    Class that wraps a function and its
+    inverse function.  The function takes
+    type T as it's argument and it's evaluation
     results in a value of type T.
     """
 
@@ -47,7 +48,8 @@ class InvertibleFunction(Generic[T]):
         Execute a function with the given value.
 
         Args:
-            func (Callable[[T], T]): A function that takes a value of type T and returns a value of the same type T.
+            func (Callable[[T], T]): A function that takes a value of type T
+                                     and returns a value of the same type T.
             value (T): The input value to pass to the function
         Returns:
             T: The result of calling func(value). Will be the same type as the
@@ -55,7 +57,8 @@ class InvertibleFunction(Generic[T]):
         Raises:
             Nothing
         Example:
-            >>> from modelviewprojection.mathutils import InvertibleFunction, inverse
+            >>> from modelviewprojection.mathutils import InvertibleFunction
+            >>> from modelviewprojection.mathutils import inverse
             >>> def f(x):
             ...     return 2 + x
             ...
@@ -96,11 +99,12 @@ def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
 
 
     Args:
-        *functions (InvertibleFunction[T]): Variable number of InvertibleFunctions
-        to compose.  At least on value must be provided.
+        *functions (InvertibleFunction[T]): Variable number of
+                                            InvertibleFunctions to compose.
+                                            At least on value must be provided.
     Returns:
-        T: One function that is the aggregate function of the argument functions
-        composed.
+        T: One function that is the aggregate function of the argument
+           functions composed.
     Raises:
         Nothing
     Example:
