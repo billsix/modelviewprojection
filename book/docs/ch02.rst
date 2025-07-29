@@ -91,7 +91,7 @@ the begun quadrilateral.
 
 
 Draw Paddle 1
-&&&&&&&&&&&&&
+^^^^^^^^^^^^^
 
 
 .. literalinclude:: ../../src/modelviewprojection/demo02.py
@@ -116,7 +116,7 @@ The paddle looks like this relative to :term:`NDC<Normalized Device Coordinates>
 
 
 Draw Paddle 2
-&&&&&&&&&&&&&
+^^^^^^^^^^^^^
 
 .. literalinclude:: ../../src/modelviewprojection/demo02.py
    :language: python
@@ -285,7 +285,7 @@ changing them to another, like converting from Celsius to Fahrenheit,
 meters to feet, etc.
 
 NDC/Screenspace Conversion
-^^^^^^^^^^^^^^^^^^^^^^^^^^
+--------------------------
 
 .. _graph: https://en.wikipedia.org/wiki/Graph_theory
 .. _Cayley:  https://en.wikipedia.org/wiki/Cayley_graph
@@ -315,7 +315,7 @@ but for our purposes, its use is very simple.
 
 
 Currency Conversion
-^^^^^^^^^^^^^^^^^^^
+-------------------
 
 An uni-variate example use of Cayley graphs is exchanging coins with
 a bank.
@@ -416,7 +416,7 @@ out, but the details of those functions are not relevant when traversing the Cay
 
 
 Temperature Conversion
-^^^^^^^^^^^^^^^^^^^^^^
+----------------------
 
 .. figure:: _static/temp.png
     :class: no-scale

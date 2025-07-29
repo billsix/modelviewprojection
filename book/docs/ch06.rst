@@ -544,13 +544,13 @@ composing t_inv and t results in no transformation.
 
 Here's how InvertibleFunction is implemented:
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define invertible function
    :end-before: doc-region-end define invertible function
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils.py
 
 Just as Python allows an object to override the '+' and '-' syntax,
 in Python, any object can be treated as a function, by implementing the

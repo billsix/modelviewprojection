@@ -15,7 +15,7 @@ Moving the Paddles - Keyboard Input - Demo 04
 
 
 Objective
-^^^^^^^
+^^^^^^^^^
 
 Add movement to the paddles using keyboard input.
 

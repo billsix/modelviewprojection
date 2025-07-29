@@ -40,9 +40,6 @@ class InvertibleFunction(Generic[T]):
         metadata={"doc": "The inverse of the wrapped function"}
     )
 
-    def foo(self):
-        """autodoc"""
-
     def __call__(self, x: T) -> T:
         """
         Execute a function with the given value.
@@ -79,6 +76,37 @@ class InvertibleFunction(Generic[T]):
 
 
 def inverse(f: InvertibleFunction[T]) -> InvertibleFunction[T]:
+    """
+    Get the inverse of the InvertibleFunction
+
+    Args:
+        f: InvertibleFunction[T]: A function with it's associated inverse
+           function.
+    Returns:
+        InvertibleFunction[T]: The Inverse of the function
+           function.
+    Raises:
+        Nothing
+    Example:
+        >>> from modelviewprojection.mathutils import InvertibleFunction
+        >>> from modelviewprojection.mathutils import inverse
+        >>> def f(x):
+        ...     return 2 + x
+        ...
+        >>> def f_inv(x):
+        ...     return x - 2
+        ...
+        >>> foo = InvertibleFunction(func=f, inverse=f_inv)
+        >>> foo # doctest: +ELLIPSIS
+        InvertibleFunction(func=<function f at 0x...>, inverse=<function f_inv at 0x...>)
+        >>> foo(5)
+        7
+        >>> inverse(foo) # doctest: +ELLIPSIS
+        InvertibleFunction(func=<function f_inv at 0x...>, inverse=<function f at 0x...>)
+        >>> inverse(foo)(foo(5))
+        5
+    """
+
     return InvertibleFunction(f.inverse, f.func)
 
 
