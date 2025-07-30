@@ -204,6 +204,7 @@ def ortho(
 # doc-region-end define ortho
 
 
+# doc-region-begin define perspective
 def perspective(
     field_of_view: float, aspect_ratio: float, near_z: float, far_z: float
 ) -> Vector3D:
@@ -232,6 +233,9 @@ def perspective(
         raise ValueError("Inverse_Inner Perspective not yet implement")
 
     return InvertibleFunction(f, f_inv)
+
+
+# doc-region-end define perspective
 
 
 def cs_to_ndc_space_fn(vector: Vector3D) -> Vector3D:

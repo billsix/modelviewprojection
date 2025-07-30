@@ -274,13 +274,15 @@ while not glfw.window_should_close(window):
         if math.fabs(axes_list[0][2]) > 0.10:
             camera.rot_y -= axes_list[0][2] * 0.01
 
+    # doc-region-begin draw paddle 1
     # cameraspace to NDC
     with push_transformation(
         perspective(
             field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
         )
     ):
-        # world space to camera space, which is inverse of camera space to world space
+        # world space to camera space, which is inverse of camera space to
+        # world space
         with push_transformation(
             inverse(
                 compose(
@@ -306,7 +308,7 @@ while not glfw.window_should_close(window):
                         paddle1_vector_ndc.z,
                     )
                 glEnd()
-
+                # doc-region-end draw paddle 1
                 # square space to paddle 1 space
                 with push_transformation(
                     compose(
