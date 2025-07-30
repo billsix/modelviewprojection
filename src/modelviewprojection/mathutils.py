@@ -18,7 +18,7 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 from typing import Callable, Generic, TypeVar
 
 # doc-region-begin define invertible function
@@ -35,10 +35,8 @@ class InvertibleFunction(Generic[T]):
     results in a value of type T.
     """
 
-    func: Callable[[T], T] = field(metadata={"doc": "The wrapped function"})
-    inverse: Callable[[T], T] = field(
-        metadata={"doc": "The inverse of the wrapped function"}
-    )
+    func: Callable[[T], T]  #: The wrapped function
+    inverse: Callable[[T], T]  #: The inverse of the wrapped function
 
     def __call__(self, x: T) -> T:
         """

@@ -19,7 +19,7 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import math
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
 
@@ -27,8 +27,8 @@ from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
 # doc-region-begin define vector class
 @dataclass
 class Vector2D:
-    x: float = field(metadata={"doc": "The x-component of the 2D Vector"})
-    y: float = field(metadata={"doc": "The y-component of the 2D Vector"})
+    x: float  #: The x-component of the 2D Vector
+    y: float  #: The y-component of the 2D Vector
     # doc-region-end define vector class
 
     # doc-region-begin define add
@@ -173,7 +173,9 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 
     def f_inv(vector: Vector2D) -> Vector2D:
         parallel: Vector2D = math.cos(angle_in_radians) * vector
-        perpendicular: Vector2D = math.sin(angle_in_radians) * inverse(r90)(vector)
+        perpendicular: Vector2D = math.sin(angle_in_radians) * inverse(r90)(
+            vector
+        )
         return parallel + perpendicular
 
     return InvertibleFunction(f, f_inv)

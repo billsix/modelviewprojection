@@ -31,9 +31,9 @@ from modelviewprojection.mathutils2d import rotate as rotate2D
 # doc-region-begin define vector class
 @dataclass
 class Vector3D:
-    x: float = field(metadata={"doc": "The x-component of the 3D Vector"})
-    y: float = field(metadata={"doc": "The y-component of the 3D Vector"})
-    z: float = field(metadata={"doc": "The z-component of the 3D Vector"})
+    x: float  #: The x-component of the 3D Vector
+    y: float  #: The y-component of the 3D Vector
+    z: float  #: The z-component of the 3D Vector
 
     def __add__(self, rhs: Vector3D) -> Vector3D:
         return Vector3D(
@@ -175,18 +175,22 @@ def ortho(
     near: float,
     far: float,
 ) -> Vector3D:
-    midpoint = Vector3D(x=(left + right) / 2.0,
-                        y=(bottom + top) / 2.0,
-                        z=(near + far) / 2.0)
+    midpoint = Vector3D(
+        x=(left + right) / 2.0, y=(bottom + top) / 2.0, z=(near + far) / 2.0
+    )
     length_x: float
     length_y: float
     length_z: float
     length_x, length_y, length_z = right - left, top - bottom, far - near
 
-    fn = compose(scale(scale_x=(2.0 / length_x),
-                       scale_y=(2.0 / length_y),
-                       scale_z=(2.0 / (-length_z))),
-                 translate(-midpoint))
+    fn = compose(
+        scale(
+            scale_x=(2.0 / length_x),
+            scale_y=(2.0 / length_y),
+            scale_z=(2.0 / (-length_z)),
+        ),
+        translate(-midpoint),
+    )
 
     def f(vector: Vector3D) -> Vector3D:
         return fn(vector)
