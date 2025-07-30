@@ -37,4 +37,26 @@ RUN emacs --batch --load ~/.emacs.d/install-melpa-packages.el
 RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
 
+# packages to run spyder and graphics demos from within the container
+RUN dnf install -y spyder \
+    mesa-dri-drivers  \
+    libXtst \
+    libXcomposite \
+    libXcursor \
+    libXdamage \
+    libXfixes \
+    libXft \
+    libXi \
+    libXinerama \
+    libXmu \
+    libXrandr \
+    libXrender \
+    libXres \
+    libXv \
+    libXxf86vm \
+    libglvnd-gles \
+    mesa-libGLU-devel \
+    python3-glfw \
+    python3-pyopengl
+
 ENTRYPOINT ["/entrypoint.sh"]

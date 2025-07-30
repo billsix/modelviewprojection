@@ -43,6 +43,25 @@ shell: image ## Get Shell into a ephermeral container made from the image
 		-c "cd /mvp/; python3 -m pip install --no-deps -e . --break-system-packages --root-user-action=ignore; exec bash"
 
 
+spyder: image ## Get Shell into a ephermeral container made from the image
+	podman run -it --rm \
+		--entrypoint /bin/bash \
+		-v ./output/:/output/:Z \
+		-v ./book:/mvp/book/:Z \
+		-v ./src:/mvp/src/:Z \
+		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
+		-v ./tests/:/mvp/tests/:Z \
+		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
+		-v ./pytest.ini:/mvp/pytest.ini:Z \
+		-v ./setup.py:/mvp/setup.py:Z \
+		-e DISPLAY=$(DISPLAY) \
+		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(CONTAINER_NAME) \
+		modelviewprojection-html \
+		-c "cd /mvp/; python3 -m pip install --no-deps -e . --break-system-packages --root-user-action=ignore; exec spyder -p ."
+
+
+
 .PHONY: help
 help:
 	@grep --extended-regexp '^[a-zA-Z0-9_-]+:.*?## .*$$' $(MAKEFILE_LIST) | sort | awk 'BEGIN {FS = ":.*?## "}; {printf "\033[36m%-30s\033[0m %s\n", $$1, $$2}'
