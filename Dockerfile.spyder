@@ -1,0 +1,24 @@
+FROM modelviewprojection-html
+
+# packages to run spyder and graphics demos from within the container
+RUN dnf install -y spyder \
+    mesa-dri-drivers  \
+    libXtst \
+    libXcomposite \
+    libXcursor \
+    libXdamage \
+    libXfixes \
+    libXft \
+    libXi \
+    libXinerama \
+    libXmu \
+    libXrandr \
+    libXrender \
+    libXres \
+    libXv \
+    libXxf86vm \
+    libglvnd-gles \
+    mesa-libGLU-devel \
+    python3-glfw \
+    python3-pyopengl  && \
+    dnf clean all

@@ -21,6 +21,7 @@ RUN dnf install -y gnuplot \
                    texlive-dvipng \
                    texlive-anyfontsize \
                    texlive-dvisvgm \
+                   texlive-standalone \
                    inkscape \
                    latexmk \
                    automake \
@@ -29,34 +30,11 @@ RUN dnf install -y gnuplot \
                    aspell \
                    aspell-en \
                    tmux  && \
-     python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()"
+     python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()" && \
+     dnf clean all
 
-RUN dnf install -y texlive-standalone
 
 RUN emacs --batch --load ~/.emacs.d/install-melpa-packages.el
 RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
-
-
-# packages to run spyder and graphics demos from within the container
-RUN dnf install -y spyder \
-    mesa-dri-drivers  \
-    libXtst \
-    libXcomposite \
-    libXcursor \
-    libXdamage \
-    libXfixes \
-    libXft \
-    libXi \
-    libXinerama \
-    libXmu \
-    libXrandr \
-    libXrender \
-    libXres \
-    libXv \
-    libXxf86vm \
-    libglvnd-gles \
-    mesa-libGLU-devel \
-    python3-glfw \
-    python3-pyopengl
 
 ENTRYPOINT ["/entrypoint.sh"]
