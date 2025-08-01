@@ -74,4 +74,4 @@ cayleyImages: ndcToScreenspace.png \
 
 # dummy task to generate all the plots from generate_plots.py
 rotate0-0.svg: generate_plots.py
-	python3 generate_plots.py
+	python generate_plots.py
