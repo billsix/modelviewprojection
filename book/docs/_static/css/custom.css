@@ -1,5 +1,4 @@
-.no-scale {
-    max-width: none;
-    width: auto;
-    height: auto;
+/* Optional: hide the color mode toggle completely */
+button[data-theme-toggle] {
+    display: none !important;
 }

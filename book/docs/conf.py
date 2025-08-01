@@ -23,6 +23,17 @@ on_rtd = os.environ.get("READTHEDOCS", None) == "True"
 
 html_theme = "furo"
 
+html_static_path = ["_static"]
+
+html_css_files = [
+    "custom.css",  # Your override
+]
+
+html_theme_options = {
+    "default_color_mode": "light",
+    "dark_mode": False,
+}
+
 
 # -- Project information -----------------------------------------------------
 
@@ -61,7 +72,7 @@ extensions = [
     "sphinx.ext.imgconverter",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",  # Required for parsing field descriptions
-    'sphinx.ext.viewcode',
+    "sphinx.ext.viewcode",
 ]
 
 # conf.py
