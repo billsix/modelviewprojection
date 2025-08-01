@@ -3,6 +3,17 @@
 PODMAN_CMD = podman
 CONTAINER_NAME = modelviewprojection-html
 SPYDER_CONTAINER_NAME = modelviewprojection-spyder
+FILES_TO_MOUNT = -v ./book:/mvp/book/:Z \
+		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
+		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
+		-v ./pytest.ini:/mvp/pytest.ini:Z \
+		-v ./setup.py:/mvp/setup.py:Z \
+		-v ./src:/mvp/src/:Z \
+		-v ./tests/:/mvp/tests/:Z \
+		-v ./output/:/output/:Z
+USE_X = -e DISPLAY=$(DISPLAY) \
+	-v /tmp/.X11-unix:/tmp/.X11-unix
+
 
 .PHONY: all
 all: clean image html ## Build the HTML and PDF from scratch in Debian Bulleye
@@ -21,14 +32,7 @@ spyderimage: image  ## Build a podman image in which to run the demos
 .PHONY: html
 html: image ## Build the html from the sphinx source
 	$(PODMAN_CMD) run -it --rm  \
-		-v ./output/:/output/:Z \
-		-v ./book:/mvp/book/:Z \
-		-v ./src:/mvp/src/:Z \
-		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
-		-v ./tests/:/mvp/tests/:Z \
-		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
-		-v ./pytest.ini:/mvp/pytest.ini:Z \
-		-v ./setup.py:/mvp/setup.py:Z \
+		$(FILES_TO_MOUNT) \
 		$(CONTAINER_NAME)
 
 
@@ -40,15 +44,8 @@ clean: ## Delete the output directory, cleaning out the HTML and the PDF
 shell: image ## Get Shell into a ephermeral container made from the image
 	$(PODMAN_CMD) run -it --rm \
 		--entrypoint /bin/bash \
-		-v ./output/:/output/:Z \
-		-v ./book:/mvp/book/:Z \
-		-v ./src:/mvp/src/:Z \
-		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
+		$(FILES_TO_MOUNT) \
 		-v ./entrypoint/shell.sh:/shell.sh:Z \
-		-v ./tests/:/mvp/tests/:Z \
-		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
-		-v ./pytest.ini:/mvp/pytest.ini:Z \
-		-v ./setup.py:/mvp/setup.py:Z \
 		$(CONTAINER_NAME) \
 		/shell.sh
 
@@ -56,17 +53,9 @@ shell: image ## Get Shell into a ephermeral container made from the image
 spyder: spyderimage ## Run Spyder
 	$(PODMAN_CMD) run -it --rm \
 		--entrypoint /bin/bash \
-		-v ./output/:/output/:Z \
-		-v ./book:/mvp/book/:Z \
-		-v ./src:/mvp/src/:Z \
-		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
+		$(FILES_TO_MOUNT) \
 		-v ./entrypoint/spyder.sh:/spyder.sh:Z \
-		-v ./tests/:/mvp/tests/:Z \
-		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
-		-v ./pytest.ini:/mvp/pytest.ini:Z \
-		-v ./setup.py:/mvp/setup.py:Z \
-		-e DISPLAY=$(DISPLAY) \
-		-v /tmp/.X11-unix:/tmp/.X11-unix \
+		$(USE_X) \
 		$(SPYDER_CONTAINER_NAME) \
 		/spyder.sh
 
