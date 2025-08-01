@@ -8,13 +8,13 @@ SPYDER_CONTAINER_NAME = modelviewprojection-spyder
 all: clean image html ## Build the HTML and PDF from scratch in Debian Bulleye
 
 .PHONY: image
-image: ## Build a $(PODMAN_CMD) image in which to build the book
+image: ## Build a podman image in which to build the book
 	printf "This documentation was generated from from commit " > book/docs/version.txt
 	git rev-parse HEAD >> book/docs/version.txt
 	$(PODMAN_CMD) build -t $(CONTAINER_NAME) .
 
 .PHONY: spyderimage
-spyderimage: image  ## Build a $(PODMAN_CMD) image in which to run the demos
+spyderimage: image  ## Build a podman image in which to run the demos
 	$(PODMAN_CMD) build -t $(SPYDER_CONTAINER_NAME) -f Dockerfile.spyder
 
 
