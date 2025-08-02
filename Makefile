@@ -5,6 +5,7 @@ CONTAINER_NAME = modelviewprojection-html
 SPYDER_CONTAINER_NAME = modelviewprojection-spyder
 FILES_TO_MOUNT = -v ./book:/mvp/book/:Z \
 		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
+		-v ./entrypoint/format.sh:/format.sh:Z \
 		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
 		-v ./pytest.ini:/mvp/pytest.ini:Z \
 		-v ./setup.py:/mvp/setup.py:Z \

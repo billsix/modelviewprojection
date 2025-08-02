@@ -29,6 +29,8 @@ RUN dnf install -y gnuplot \
                    gcc \
                    aspell \
                    aspell-en \
+                   ruff \
+                   python3-isort \
                    tmux  && \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()" && \
      dnf clean all
