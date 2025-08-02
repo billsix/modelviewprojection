@@ -30,8 +30,7 @@ html_css_files = [
 ]
 
 html_theme_options = {
-    "default_color_mode": "light",
-    "dark_mode": False,
+    "light_css_variables": {},
 }
 
 
@@ -68,11 +67,11 @@ latex_elements = {
 }
 
 extensions = [
-    "sphinx.ext.imgmath",
     "sphinx.ext.imgconverter",
     "sphinx.ext.autodoc",
     "sphinx.ext.napoleon",  # Required for parsing field descriptions
     "sphinx.ext.viewcode",
+    "sphinx.ext.mathjax",
 ]
 
 # conf.py
@@ -91,12 +90,11 @@ imgconverter_converters = {
 }
 
 
-mathjax_config = {
+mathjax3_config = {
     "tex": {
         "inlineMath": [["$", "$"], ["\\(", "\\)"]],
         "displayMath": [["$$", "$$"], ["\\[", "\\]"]],
     },
-    "svg": {"fontCache": "global"},
 }
 
 
