@@ -141,7 +141,9 @@ def uniform_scale(scalar: float) -> InvertibleFunction[Vector3D]:
 # doc-region-end define uniform scale
 
 
-def scale(scale_x: float, scale_y: float, scale_z: float) -> InvertibleFunction[Vector3D]:
+def scale(
+    scale_x: float, scale_y: float, scale_z: float
+) -> InvertibleFunction[Vector3D]:
     def f(vector: Vector3D) -> Vector3D:
         return Vector3D(
             x=(vector.x * scale_x),

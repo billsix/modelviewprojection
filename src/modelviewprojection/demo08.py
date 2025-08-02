@@ -23,7 +23,6 @@ from dataclasses import astuple, dataclass
 
 import glfw
 from colorutils import Color3
-from modelviewprojection.mathutils import InvertibleFunction
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -45,6 +44,7 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from modelviewprojection.mathutils import InvertibleFunction
 from modelviewprojection.mathutils2d import (
     Vector2D,
     compose,
