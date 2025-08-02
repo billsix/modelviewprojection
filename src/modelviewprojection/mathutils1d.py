@@ -55,21 +55,21 @@ class Vector1D:
 
 
 # doc-region-begin define translate
-def translate(translate_amount: float) -> InvertibleFunction:
+def translate(translate_amount: float) -> InvertibleFunction[Vector1D]:
     def f(vector: Vector1D) -> Vector1D:
         return vector + Vector1D(translate_amount)
 
     def f_inv(vector: Vector1D) -> Vector1D:
         return vector - Vector1D(translate_amount)
 
-    return InvertibleFunction(f, f_inv)
+    return InvertibleFunction[Vector1D](f, f_inv)
 
 
 # doc-region-end define translate
 
 
 # doc-region-begin define uniform scale
-def uniform_scale(scalar: float) -> InvertibleFunction:
+def uniform_scale(scalar: float) -> InvertibleFunction[Vector1D]:
     def f(vector: Vector1D) -> Vector1D:
         return vector * scalar
 
@@ -78,7 +78,7 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
             raise ValueError("Scaling factor cannot be zero.")
         return vector * (1.0 / scalar)
 
-    return InvertibleFunction(f, f_inv)
+    return InvertibleFunction[Vector1D](f, f_inv)
 
 
 # doc-region-end define uniform scale

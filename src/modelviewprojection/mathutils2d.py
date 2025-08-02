@@ -107,21 +107,21 @@ class Vector2D:
 
 
 # doc-region-begin define translate
-def translate(translate_amount: Vector2D) -> InvertibleFunction:
+def translate(translate_amount: Vector2D) -> InvertibleFunction[Vector2D]:
     def f(vector: Vector2D) -> Vector2D:
         return vector + translate_amount
 
     def f_inv(vector: Vector2D) -> Vector2D:
         return vector - translate_amount
 
-    return InvertibleFunction(f, f_inv)
+    return InvertibleFunction[Vector2D](f, f_inv)
 
 
 # doc-region-end define translate
 
 
 # doc-region-begin define uniform scale
-def uniform_scale(scalar: float) -> InvertibleFunction:
+def uniform_scale(scalar: float) -> InvertibleFunction[Vector2D]:
     def f(vector: Vector2D) -> Vector2D:
         return vector * scalar
 
@@ -131,13 +131,13 @@ def uniform_scale(scalar: float) -> InvertibleFunction:
 
         return vector * (1.0 / scalar)
 
-    return InvertibleFunction(f, f_inv)
+    return InvertibleFunction[Vector2D](f, f_inv)
 
 
 # doc-region-end define uniform scale
 
 
-def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
+def scale(scale_x: float, scale_y: float) -> InvertibleFunction[Vector2D]:
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(vector.x * scale_x, vector.y * scale_y)
 
@@ -149,7 +149,7 @@ def scale(scale_x: float, scale_y: float) -> InvertibleFunction:
 
         return Vector2D(vector.x / scale_x, vector.y / scale_y)
 
-    return InvertibleFunction(f, f_inv)
+    return InvertibleFunction[Vector2D](f, f_inv)
 
 
 # doc-region-begin define rotate
@@ -160,10 +160,10 @@ def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
     def f_inv(vector: Vector2D) -> Vector2D:
         return Vector2D(vector.y, -vector.x)
 
-    return InvertibleFunction(f, f_inv)
+    return InvertibleFunction[Vector2D](f, f_inv)
 
 
-def rotate(angle_in_radians: float) -> InvertibleFunction:
+def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2D]:
     r90: InvertibleFunction[Vector2D] = rotate_90_degrees()
 
     def f(vector: Vector2D) -> Vector2D:
@@ -178,7 +178,7 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
         )
         return parallel + perpendicular
 
-    return InvertibleFunction(f, f_inv)
+    return InvertibleFunction[Vector2D](f, f_inv)
 
 
 # doc-region-end define rotate
@@ -187,7 +187,7 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 # doc-region-begin define rotate around
 def rotate_around(
     angle_in_radians: float, center: Vector2D
-) -> InvertibleFunction:
+) -> InvertibleFunction[Vector2D]:
     translation_to_origin: InvertibleFunction[Vector2D] = translate(-center)
     rotation: InvertibleFunction[Vector2D] = rotate(angle_in_radians)
     translation_back: InvertibleFunction[Vector2D] = translate(center)
