@@ -232,7 +232,9 @@ def draw_an_oscillating_triangle(elapsed_time_in_seconds: float) -> None:
     glEnd()
 
 
-def use_plot_function_with_unnamed_function(elapsed_time_in_seconds: float) -> None:
+def use_plot_function_with_unnamed_function(
+    elapsed_time_in_seconds: float,
+) -> None:
     glColor3f(1.0, 0.0, 1.0)
     plot(
         fn=lambda x: math.cos(x + elapsed_time_in_seconds * 3.0),
@@ -252,7 +254,9 @@ def draw_circle() -> None:
 
     for theta in np.arange(0.0, 2 * math.pi, theta_increment):
         glVertex2f(0.0, 0.0)
-        glVertex2f(scale_radius * math.cos(theta), scale_radius * math.sin(theta))
+        glVertex2f(
+            scale_radius * math.cos(theta), scale_radius * math.sin(theta)
+        )
         glVertex2f(
             scale_radius * math.cos(theta + theta_increment),
             scale_radius * math.sin(theta + theta_increment),

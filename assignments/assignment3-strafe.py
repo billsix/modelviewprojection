@@ -161,15 +161,21 @@ class Vertex:
         return self + translate_amount
 
     def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
-        yz_on_xy: Vertex2D = Vertex2D(x=self.y, y=self.z).rotate(angle_in_radians)
+        yz_on_xy: Vertex2D = Vertex2D(x=self.y, y=self.z).rotate(
+            angle_in_radians
+        )
         return Vertex(x=self.x, y=yz_on_xy.x, z=yz_on_xy.y)
 
     def rotate_y(self: Vertex, angle_in_radians: float) -> Vertex:
-        zx_on_xy: Vertex2D = Vertex2D(x=self.z, y=self.x).rotate(angle_in_radians)
+        zx_on_xy: Vertex2D = Vertex2D(x=self.z, y=self.x).rotate(
+            angle_in_radians
+        )
         return Vertex(x=zx_on_xy.y, y=self.y, z=zx_on_xy.x)
 
     def rotate_z(self: Vertex, angle_in_radians: float) -> Vertex:
-        xy_on_xy: Vertex2D = Vertex2D(x=self.x, y=self.y).rotate(angle_in_radians)
+        xy_on_xy: Vertex2D = Vertex2D(x=self.x, y=self.y).rotate(
+            angle_in_radians
+        )
         return Vertex(x=xy_on_xy.x, y=xy_on_xy.y, z=self.z)
 
     def __mul__(self, scalar: float) -> Vertex:
@@ -181,8 +187,12 @@ class Vertex:
     def uniform_scale(self: Vertex, scalar: float) -> Vertex:
         return self * scalar
 
-    def scale(self: Vertex, scale_x: float, scale_y: float, scale_z: float) -> Vertex:
-        return Vertex(x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z)
+    def scale(
+        self: Vertex, scale_x: float, scale_y: float, scale_z: float
+    ) -> Vertex:
+        return Vertex(
+            x=self.x * scale_x, y=self.y * scale_y, z=self.z * scale_z
+        )
 
     def __neg__(self):
         return -1.0 * self
@@ -301,7 +311,9 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 @dataclass
 class Camera:
-    position_ws: Vertex = field(default_factory=lambda: Vertex(x=0.0, y=0.0, z=40.0))
+    position_ws: Vertex = field(
+        default_factory=lambda: Vertex(x=0.0, y=0.0, z=40.0)
+    )
     rot_y: float = 0.0
     rot_x: float = 0.0
 
@@ -394,7 +406,8 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 while not glfw.window_should_close(window):
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
     time_at_beginning_of_previous_frame = glfw.get_time()
@@ -411,11 +424,19 @@ while not glfw.window_should_close(window):
     axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.19:
-            camera.position_ws.x += 1.0 * axes_list[0][0] * math.cos(camera.rot_y)
-            camera.position_ws.z -= 1.0 * axes_list[0][0] * math.sin(camera.rot_y)
+            camera.position_ws.x += (
+                1.0 * axes_list[0][0] * math.cos(camera.rot_y)
+            )
+            camera.position_ws.z -= (
+                1.0 * axes_list[0][0] * math.sin(camera.rot_y)
+            )
         if math.fabs(float(axes_list[0][1])) > 0.19:
-            camera.position_ws.x += 1.0 * axes_list[0][1] * math.sin(camera.rot_y)
-            camera.position_ws.z += 1.0 * axes_list[0][1] * math.cos(camera.rot_y)
+            camera.position_ws.x += (
+                1.0 * axes_list[0][1] * math.sin(camera.rot_y)
+            )
+            camera.position_ws.z += (
+                1.0 * axes_list[0][1] * math.cos(camera.rot_y)
+            )
 
         if math.fabs(axes_list[0][3]) > 0.19:
             camera.rot_y -= 3.0 * axes_list[0][3] * 0.01

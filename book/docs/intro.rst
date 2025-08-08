@@ -87,8 +87,7 @@ the virtual environment, open the Developer Command Prompt,
    activate.bat
    cd ..\..\
    python -m pip install --upgrade pip setuptools
-   python -m pip install -r requirements.txt
-   python -m pip install -e .[dev]
+   python -m pip install -e .
 
 To run the Spyder Integrated Development Environment (IDE) to execute
 the code in the book, open Spyder on the Developer Command
@@ -124,8 +123,7 @@ On MacOS or Linux, to set up the environment in a terminal, execute
    python3 -m venv venv
    source venv/bin/activate
    python3 -m pip install --upgrade pip setuptools
-   python3 -m pip install -r requirements.txt
-   python3 -m pip install -e .[dev]
+   python3 -m pip install -e .
 
 To run the Spyder IDE to execute the code in the book, open Spyder on the developer command
 prompt

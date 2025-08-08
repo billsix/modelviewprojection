@@ -3,7 +3,8 @@
 PODMAN_CMD = podman
 CONTAINER_NAME = modelviewprojection-html
 SPYDER_CONTAINER_NAME = modelviewprojection-spyder
-FILES_TO_MOUNT = -v ./book:/mvp/book/:Z \
+FILES_TO_MOUNT = -v ./assignments:/mvp/assignments/:Z \
+		-v ./book:/mvp/book/:Z \
 		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
 		-v ./entrypoint/format.sh:/format.sh:Z \
 		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
@@ -49,6 +50,17 @@ shell: image ## Get Shell into a ephermeral container made from the image
 		-v ./entrypoint/shell.sh:/shell.sh:Z \
 		$(CONTAINER_NAME) \
 		/shell.sh
+
+.PHONY: jupyter
+jupyter: image ## Get Shell into a ephermeral container made from the image
+	$(PODMAN_CMD) run -it --rm \
+		--entrypoint /bin/bash \
+		$(FILES_TO_MOUNT) \
+		-v ./entrypoint/jupyter.sh:/jupyter.sh:Z \
+		$(USE_X) \
+		$(CONTAINER_NAME) \
+		/jupyter.sh
+
 
 
 spyder: spyderimage ## Run Spyder

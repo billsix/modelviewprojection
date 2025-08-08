@@ -12,6 +12,11 @@
       - [ ] Replace the ascii art framebuffers with svgs
     - [ ] Ch 02
       - [ ] explain doubler function better
+      - [ ] Explain assigment
+      - [ ] Reference assignment at end of chapter
+         - [ ] Put in instructions for how to
+             - [ ] Run jupyter lab
+             - [ ] Open the python file as a notebook
     - [-] Ch 03
       - [ ] Add univariate example/problem for measurement
       - [ ] Add 2D example/problem for rotating 45 degrees

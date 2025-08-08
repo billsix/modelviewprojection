@@ -5,29 +5,23 @@ authors = [{name="William Emerison Six", email="billsix@gmail.com"}]
 description = "ModelViewProjection - Tutorial for learning 3D Programming"
 
 dependencies = [
-]
-
-[project.optional-dependencies]
-dev = [
     "autoflake==2.3.1",
+    "furo==2025.7.19",
     "glfw==2.9.0",
+    "imageio==2.37.0",
     "imgui==2.0.0",
     "isort==6.0.1",
+    "jupyter==1.1.1",
+    "mathjax==0.1.2",
+    "matplotlib==3.10.3",
     "numpy==2.2.6",
     "PyOpenGL==3.1.9",
     "ruff==0.11.11",
     "pytest==8.3.5",
+    "Sphinx==8.2.3",
+    "sphinx-rtd-theme==3.0.2",
     "spyder==6.0.7",
     "staticlocal==0.0.1",
-]
-
-doc = [
-    "Sphinx==8.2.3",
-    "imageio==2.37.0",
-    "mathjax==0.1.2",
-    "matplotlib==3.10.3",
-    "sphinx-rtd-theme==3.0.2",
-    "furo==2025.7.19",
 ]
 
 [build-system]

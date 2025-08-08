@@ -52,7 +52,9 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Assignment 2", None, None)
+window = glfw.create_window(
+    500, 500, "ModelViewProjection Assignment 2", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -83,11 +85,15 @@ class Vertex:
 
     def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
-            x=self.x * math.cos(angle_in_radians) - self.y * math.sin(angle_in_radians),
-            y=self.x * math.sin(angle_in_radians) + self.y * math.cos(angle_in_radians),
+            x=self.x * math.cos(angle_in_radians)
+            - self.y * math.sin(angle_in_radians),
+            y=self.x * math.sin(angle_in_radians)
+            + self.y * math.cos(angle_in_radians),
         )
 
-    def ndc_to_screenspace_full_screen(self: Vertex, width: float, height: float):
+    def ndc_to_screenspace_full_screen(
+        self: Vertex, width: float, height: float
+    ):
         return self
 
     def ndc_to_screenspace_aspect_not_distorted(
@@ -187,7 +193,8 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 while not glfw.window_should_close(window):
     while (
-        glfw.get_time() < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
+        glfw.get_time()
+        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
 
@@ -216,15 +223,17 @@ while not glfw.window_should_close(window):
         ws: Vertex = ms.rotate(paddle1.rotation).translate(
             tx=paddle1.position.x, ty=paddle1.position.y
         )
-        cs: Vertex = ws.translate(tx=-camera.position_ws.x, ty=-camera.position_ws.y)
+        cs: Vertex = ws.translate(
+            tx=-camera.position_ws.x, ty=-camera.position_ws.y
+        )
         ndc_space: Vertex = cs.scale(scale_x=1.0 / 10.0, scale_y=1.0 / 10.0)
         if not KEEP_ASPECT_RATIO:
             screen_space: Vertex = ndc_space.ndc_to_screenspace_full_screen(
                 width, height
             )
         else:
-            screen_space: Vertex = ndc_space.ndc_to_screenspace_aspect_not_distorted(
-                width, height
+            screen_space: Vertex = (
+                ndc_space.ndc_to_screenspace_aspect_not_distorted(width, height)
             )
         glVertex2f(screen_space.x, screen_space.y)
     glEnd()
@@ -236,15 +245,17 @@ while not glfw.window_should_close(window):
         ws: Vertex = ms.rotate(paddle2.rotation).translate(
             tx=paddle2.position.x, ty=paddle2.position.y
         )
-        cs: Vertex = ws.translate(tx=-camera.position_ws.x, ty=-camera.position_ws.y)
+        cs: Vertex = ws.translate(
+            tx=-camera.position_ws.x, ty=-camera.position_ws.y
+        )
         ndc_space: Vertex = cs.scale(scale_x=1.0 / 10.0, scale_y=1.0 / 10.0)
         if not KEEP_ASPECT_RATIO:
             screen_space: Vertex = ndc_space.ndc_to_screenspace_full_screen(
                 width, height
             )
         else:
-            screen_space: Vertex = ndc_space.ndc_to_screenspace_aspect_not_distorted(
-                width, height
+            screen_space: Vertex = (
+                ndc_space.ndc_to_screenspace_aspect_not_distorted(width, height)
             )
         glVertex2f(screen_space.x, screen_space.y)
     glEnd()
