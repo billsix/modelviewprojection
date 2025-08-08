@@ -22,6 +22,7 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import doctest
+from typing import List
 
 from pytest import approx
 
@@ -117,6 +118,78 @@ def test_uniform_scale():
     for input_val, output_val in input_output_pairs:
         assert fn(Vector1D(input_val)) == Vector1D(approx(output_val))
         assert fn_inv(Vector1D(output_val)) == Vector1D(approx(input_val))
+
+
+def test_tempature_conversion():
+    def test_vector1d_function(
+        fn: InvertibleFunction[Vector1D], input_output_pairs: List[List[float]]
+    ):
+        for input_val, output_val in input_output_pairs:
+            assert fn(Vector1D(input_val)) == Vector1D(approx(output_val))
+            assert inverse(fn)(Vector1D(output_val)) == Vector1D(
+                approx(input_val)
+            )
+
+    # doc-region-begin temperature functions
+    celsius_to_kelvin: InvertibleFunction[Vector1D] = translate(273.15)
+    fahrenheit_to_celsius: InvertibleFunction[Vector1D] = compose(
+        uniform_scale(5.0 / 9.0), translate(-32.0)
+    )
+    fahrenheit_to_kelvin: InvertibleFunction[Vector1D] = compose(
+        celsius_to_kelvin, fahrenheit_to_celsius
+    )
+    kelvin_to_celsius: InvertibleFunction[Vector1D] = inverse(celsius_to_kelvin)
+    celsius_to_fahrenheit: InvertibleFunction[Vector1D] = inverse(
+        fahrenheit_to_celsius
+    )
+    kelvin_to_fahrenheit: InvertibleFunction[Vector1D] = compose(
+        celsius_to_fahrenheit, kelvin_to_celsius
+    )
+
+    # doc-region-end temperature functions
+
+    test_vector1d_function(
+        celsius_to_kelvin,
+        [
+            [0.0, 273.15],
+            [100.0, 373.15],
+        ],
+    )
+    test_vector1d_function(
+        fahrenheit_to_celsius,
+        [
+            [32.0, 0.0],
+            [212.0, 100.0],
+        ],
+    )
+    test_vector1d_function(
+        fahrenheit_to_kelvin,
+        [
+            [32.0, 273.15],
+            [212.0, 373.15],
+        ],
+    )
+    test_vector1d_function(
+        kelvin_to_celsius,
+        [
+            [273.15, 0.0],
+            [373.15, 100.0],
+        ],
+    )
+    test_vector1d_function(
+        celsius_to_fahrenheit,
+        [
+            [0.0, 32.0],
+            [100.0, 212.0],
+        ],
+    )
+    test_vector1d_function(
+        kelvin_to_fahrenheit,
+        [
+            [273.15, 32.0],
+            [373.15, 212.0],
+        ],
+    )
 
 
 def test_doctest():

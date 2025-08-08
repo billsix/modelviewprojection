@@ -75,20 +75,20 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 1
     glColor3f(0.578123, 0.0, 1.0)
     glBegin(GL_QUADS)
-    glVertex2f(-1.0, -0.3)
-    glVertex2f(-0.8, -0.3)
-    glVertex2f(-0.8, 0.3)
-    glVertex2f(-1.0, 0.3)
+    glVertex2f(-1.0, -0.3)  # vertex C
+    glVertex2f(-0.8, -0.3)  # vertex D
+    glVertex2f(-0.8, 0.3)  # vertex A
+    glVertex2f(-1.0, 0.3)  # vertex B
     glEnd()
     # doc-region-end draw paddle 1
 
     # doc-region-begin draw paddle 2
     glColor3f(1.0, 1.0, 0.0)
     glBegin(GL_QUADS)
-    glVertex2f(0.8, -0.3)
-    glVertex2f(1.0, -0.3)
-    glVertex2f(1.0, 0.3)
-    glVertex2f(0.8, 0.3)
+    glVertex2f(0.8, -0.3)  # vertex G
+    glVertex2f(1.0, -0.3)  # vertex H
+    glVertex2f(1.0, 0.3)  # vertex E
+    glVertex2f(0.8, 0.3)  # vertex F
     glEnd()
     # doc-region-end draw paddle 2
 
