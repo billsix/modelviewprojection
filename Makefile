@@ -14,7 +14,8 @@ FILES_TO_MOUNT = -v ./assignments:/mvp/assignments/:Z \
 		-v ./tests/:/mvp/tests/:Z \
 		-v ./output/:/output/:Z
 USE_X = -e DISPLAY=$(DISPLAY) \
-	-v /tmp/.X11-unix:/tmp/.X11-unix
+	-v /tmp/.X11-unix:/tmp/.X11-unix \
+	--security-opt label=type:container_runtime_t
 
 
 .PHONY: all
