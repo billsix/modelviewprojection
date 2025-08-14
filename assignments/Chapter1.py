@@ -101,7 +101,3 @@ def draw_filled_triangle(p1, p2, p3, color=(255, 255, 255)):
 clear_framebuffer()
 draw_filled_triangle((350, 350), (420, 350), (420, 420), color=(255, 255, 255))
 show_framebuffer()
-
-# %%
-
-# %%

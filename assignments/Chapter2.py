@@ -13,12 +13,10 @@
 # ---
 
 # %% [markdown]
-# Test
+# Problem 1
+# ---------
 #
-#
-#
-#
-#
+# Below, Implement fahrenheit_to_kelvin, celsius_to_fahrenheit, and kelvin_to_fahrenheit.  replace "translate(0.0) with your implementation
 
 # %%
 from pytest import approx
@@ -200,6 +198,12 @@ def draw_filled_triangle(v1, v2, v3, color=(255, 255, 255)):
                 framebuffer[y, x] = color
 
 
+# %% [markdown]
+# Problem 2
+# ---------
+#
+# Make a new picture below where the triangle is translated 0.3 units in NDC to the left
+
 # %%
 from modelviewprojection.mathutils2d import Vector2D, scale, translate
 
@@ -215,18 +219,23 @@ ndc_to_screen: InvertibleFunction[Vector2D] = compose(
 triangle_in_NDC = Vector2D(0.0, 0.0), Vector2D(0.2, 0.0), Vector2D(0.2, 0.2)
 
 # %%
-triangle_in_screen = list(map(ndc_to_screen, triangle_in_NDC))
+triangle_in_screen = [ndc_to_screen(x) for x in triangle_in_NDC]
 print(triangle_in_screen)
 
 
 clear_framebuffer()
-draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
+draw_filled_triangle(
+    triangle_in_screen[0],
+    triangle_in_screen[1],
+    triangle_in_screen[2],
+    color=(255, 255, 255),
+)
 show_framebuffer()
 
 # %%
 move: InvertibleFunction[Vector2D] = translate(Vector2D(0, 0.5))
 
-triangle_in_screen = list(map(compose(ndc_to_screen, move), triangle_in_NDC))
+triangle_in_screen = [compose(ndc_to_screen, move)(x) for x in triangle_in_NDC]
 print(triangle_in_screen)
 
 
