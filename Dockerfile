@@ -53,4 +53,7 @@ RUN dnf install -y python3-jupyterlab-jupytext && \
 RUN emacs --batch --load ~/.emacs.d/install-melpa-packages.el
 RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
+RUN dnf install -y python3-sympy
+RUN dnf install python3-pillow python3-numpy
+
 ENTRYPOINT ["/entrypoint.sh"]

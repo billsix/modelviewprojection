@@ -168,28 +168,11 @@ Import Python modules, which are Python programmer's main form of libraries.
 *  The "sys" module is imported.  To call functions from this module, the syntax is "sys.function".
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
-   :language: python
-   :start-after: doc-region-begin import individual functions without needing module name
-   :end-before: doc-region-end import individual functions without needing module name
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
-
 
 * GL is a submodule of the OpenGL module. By directly importing specific
   functions from GL into our current module, we avoid having to write
   OpenGL.GL.function every time. This keeps our code cleaner and easier
   to read, especially since we’ll be using these functions frequently.
-
-
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
-   :language: python
-   :start-after: doc-region-begin import glfw
-   :end-before: doc-region-end import glfw
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
 
 
 Opening A Window

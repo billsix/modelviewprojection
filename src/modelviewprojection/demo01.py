@@ -15,28 +15,20 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
+# fmt: off
+
 # doc-region-begin import first module
 import sys
+
+import glfw
+from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_MODELVIEW,
+                       GL_PROJECTION, glClear, glClearColor, glLoadIdentity,
+                       glMatrixMode, glViewport)
+
 # doc-region-end import first module
 
-# doc-region-begin import glfw
-import glfw
-# doc-region-end import glfw
 
-# doc-region-begin import individual functions without needing module name
-from OpenGL.GL import (
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_MODELVIEW,
-    GL_PROJECTION,
-    glClear,
-    glClearColor,
-    glLoadIdentity,
-    glMatrixMode,
-    glViewport,
-)
-# doc-region-end import individual functions without needing module name
-
+# fmt: on
 
 # doc-region-begin initialize glfw
 if not glfw.init():
