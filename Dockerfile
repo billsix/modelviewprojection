@@ -4,56 +4,50 @@ COPY .emacs.d /root/.emacs.d
 COPY .tmux.conf /root/.tmux.conf
 
 RUN dnf upgrade -y
-RUN dnf install -y gnuplot \
+RUN dnf install -y aspell \
+                   aspell-en \
+                   autoconf \
+                   automake \
                    emacs \
+		   firefox \
+                   gcc \
+		   gnuplot \
                    graphviz \
-                   mathjax \
+                   inkscape \
+		   jupyter \
+		   jupyterlab  \
+		   jupytext \
+                   latexmk \
                    make \
-                   python3-furo \
-                   python3-openimageio \
-                   python3-matplotlib \
-                   python3-pytest \
-                   python3-pip \
-                   python3-sphinx_rtd_theme \
+                   mathjax \
                    mathjax-main-fonts \
                    mathjax-math-fonts \
+                   python3-furo \
+                   python3-isort \
+		   python3-jupyterlab-jupytext \
+		   python3-jupyter-lsp \
+		   python3-lsp-server \
+                   python3-matplotlib \
+                   python3-openimageio \
+                   python3-pip \
+                   python3-pytest \
+                   python3-sphinx_rtd_theme \
+		   python3-sympy \
+		   python3-pillow \
+		   python3-pytest-lsp \
+		   python3-numpy \
+                   ruff \
                    texlive \
-                   texlive-dvipng \
                    texlive-anyfontsize \
+                   texlive-dvipng \
                    texlive-dvisvgm \
                    texlive-standalone \
-                   inkscape \
-                   latexmk \
-                   automake \
-                   autoconf \
-                   gcc \
-                   aspell \
-                   aspell-en \
-                   ruff \
-                   python3-isort \
-                   tmux  && \
+                   tmux && \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()" && \
      dnf clean all
-
-RUN dnf install -y jupyterlab  \
-                   firefox && \
-     dnf clean all
-
-RUN dnf install -y jupytext && \
-     dnf clean all
-
-RUN dnf install -y jupyter && \
-     dnf clean all
-
-RUN dnf install -y python3-jupyterlab-jupytext && \
-     dnf clean all
-
 
 
 RUN emacs --batch --load ~/.emacs.d/install-melpa-packages.el
 RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
-
-RUN dnf install -y python3-sympy
-RUN dnf install python3-pillow python3-numpy
 
 ENTRYPOINT ["/entrypoint.sh"]
