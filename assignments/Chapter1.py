@@ -13,6 +13,7 @@
 # ---
 
 # %%
+from typing import List, Tuple
 import IPython.display as display
 
 # %%
@@ -20,18 +21,20 @@ import numpy as np
 from PIL import Image
 
 # Framebuffer dimensions
+WIDTH: int
+HEIGHT: int
 WIDTH, HEIGHT = 700, 700
 
 # Global framebuffer (3 channels: RGB)
-framebuffer = np.random.randint(0, 256, (HEIGHT, WIDTH, 3), dtype=np.uint8)
+framebuffer: np.ndarray = np.random.randint(0, 256, (HEIGHT, WIDTH, 3), dtype=np.uint8)
 
 # Global default color (black)
-BLACK = (0, 0, 0)
+BLACK: Tuple[int, int, int] = (0, 0, 0)
 
 
-def show_framebuffer():
+def show_framebuffer() -> None:
     """Display the framebuffer in the Jupyter notebook."""
-    img = Image.fromarray(framebuffer, "RGB")
+    img: PIL.Image.Image = Image.fromarray(framebuffer, "RGB")
     display.display(img)
 
 
@@ -40,7 +43,7 @@ show_framebuffer()
 
 
 # %%
-def clear_framebuffer(color=BLACK):
+def clear_framebuffer(color=BLACK) -> None:
     """Fill the framebuffer with the given color."""
     global framebuffer
     framebuffer[:, :] = color
@@ -52,7 +55,7 @@ show_framebuffer()
 
 
 # %%
-def draw_filled_triangle(p1, p2, p3, color=(255, 255, 255)):
+def draw_filled_triangle(p1: Tuple[int,int], p2: Tuple[int,int], p3: Tuple[int,int], color=(255, 255, 255)):
     """
     Draw a filled triangle using the edge function (cross product) method.
     p1, p2, p3 are (x, y) tuples in framebuffer coordinates.
@@ -63,18 +66,26 @@ def draw_filled_triangle(p1, p2, p3, color=(255, 255, 255)):
         """Convert from OpenGL-style coords to framebuffer array coords."""
         return x, HEIGHT - 1 - y
 
+    x1: int
+    y1: int
+    x2: int
+    y2: int
+    z1: int
+    z3: int
+
+
     x1, y1 = to_fb_coords(*p1)
     x2, y2 = to_fb_coords(*p2)
     x3, y3 = to_fb_coords(*p3)
 
     # Triangle bounding box
-    min_x = max(int(min(x1, x2, x3)), 0)
-    max_x = min(int(max(x1, x2, x3)), WIDTH - 1)
-    min_y = max(int(min(y1, y2, y3)), 0)
-    max_y = min(int(max(y1, y2, y3)), HEIGHT - 1)
+    min_x: int = max(int(min(x1, x2, x3)), 0)
+    max_x: int = min(int(max(x1, x2, x3)), WIDTH - 1)
+    min_y: int = max(int(min(y1, y2, y3)), 0)
+    max_y: int = min(int(max(y1, y2, y3)), HEIGHT - 1)
 
     # Edge function (cross product)
-    def edge(ax, ay, bx, by, px, py):
+    def edge(ax: int, ay: int, bx: int, by: int, px: int, py: int) -> int:
         return (px - ax) * (by - ay) - (py - ay) * (bx - ax)
 
     # Precompute edge function signs for top-left rule
