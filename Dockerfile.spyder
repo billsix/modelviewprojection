@@ -22,3 +22,16 @@ RUN dnf install -y spyder \
     python3-glfw \
     python3-pyopengl  && \
     dnf clean all
+
+RUN mkdir -p ~/.config/spyder-py3/config && cat <<EOF > ~/.config/spyder-py3/config/spyder.ini
+[editor]
+font/family = Source Code Pro
+font/size = 24
+[file_explorer]
+visible = False
+[tours]
+show_tour_message = False
+[appearance]
+font/family = 'Adwaita Mono'
+font/size = 18
+EOF
