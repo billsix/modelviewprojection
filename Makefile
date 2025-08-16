@@ -44,7 +44,7 @@ clean: ## Delete the output directory, cleaning out the HTML and the PDF
 	rm -rf output/*
 
 .PHONY: shell
-shell: image ## Get Shell into a ephermeral container made from the image
+shell:  ## Get Shell into a ephermeral container made from the image
 	$(PODMAN_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
@@ -53,7 +53,7 @@ shell: image ## Get Shell into a ephermeral container made from the image
 		/shell.sh
 
 .PHONY: jupyter
-jupyter: image ## Get Shell into a ephermeral container made from the image
+jupyter:  ## Get Shell into a ephermeral container made from the image
 	$(PODMAN_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
@@ -64,7 +64,7 @@ jupyter: image ## Get Shell into a ephermeral container made from the image
 
 
 
-spyder: spyderimage ## Run Spyder
+spyder: ## Run Spyder
 	$(PODMAN_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \

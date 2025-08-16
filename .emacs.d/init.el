@@ -11,6 +11,10 @@
 ;; Disable eglot hooks for python-mode
 (remove-hook 'python-mode-hook 'eglot-ensure)
 
+(required 'dap-mode)
+(required 'dap-python)
+(dap-mode)
+
 (use-package lsp-mode
   :init
   ;; set prefix for lsp-command-keymap (expected by lsp-ui)
