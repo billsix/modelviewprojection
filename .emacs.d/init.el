@@ -11,8 +11,9 @@
 ;; Disable eglot hooks for python-mode
 (remove-hook 'python-mode-hook 'eglot-ensure)
 
-(required 'dap-mode)
-(required 'dap-python)
+(require 'dap-mode)
+(require 'dap-utils)
+(require 'dap-python)
 (dap-mode)
 
 (use-package lsp-mode
