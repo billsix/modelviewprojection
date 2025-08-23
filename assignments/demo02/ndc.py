@@ -35,9 +35,6 @@
 # %%
 from typing import List, Tuple
 
-from IPython.display import Image as IPyImage
-from IPython.display import display
-
 from modelviewprojection.mathutils import InvertibleFunction, compose
 from modelviewprojection.mathutils1d import translate
 from modelviewprojection.mathutils2d import Vector2D, scale, translate
@@ -116,11 +113,14 @@ frames = []
 
 import numpy as np
 
+
+sixty_fps_times_2_sec = 120
+
 # Create 10 frames with simple animation
-for i in range(30):
+for i in range(sixty_fps_times_2_sec):
     clear_framebuffer()
     move: InvertibleFunction[Vector2D] = translate(
-        Vector2D(0, 0.5 * (np.sin(float(i) / np.pi)))
+        Vector2D(0, 0.5 * (np.sin(np.pi/60.0 * float(i))))
     )
 
     triangle_in_screen = [
@@ -130,17 +130,17 @@ for i in range(30):
 
     frames.append(get_framebuffer())
 
-# Save frames as an animated GIF
-gif_path = "animated.gif"
-frames[0].save(
-    gif_path,
-    save_all=True,
-    append_images=frames[1:],
-    duration=100,  # milliseconds per frame
-    loop=0,  # loop forever
-)
 
-# Display GIF in notebook
-display(IPyImage(filename=gif_path))
+np_frames = [np.array(img) for img in frames]
+from moviepy import ImageSequenceClip
+from IPython.display import Video
+
+frames_np = [np.array(img) for img in frames]
+clip = ImageSequenceClip(frames_np, fps=60)
+clip.write_videofile("animation.mp4", codec="libx264")
+
+Video("animation.mp4", embed=True)
+
+# %%
 
 # %%

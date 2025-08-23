@@ -50,4 +50,8 @@ RUN dnf install -y aspell \
 RUN emacs --batch --load ~/.emacs.d/install-melpa-packages.el
 RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
+RUN dnf install -y ffmpeg \
+                   ImageMagick
+
+
 ENTRYPOINT ["/entrypoint.sh"]
