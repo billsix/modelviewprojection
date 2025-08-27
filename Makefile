@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 
-PODMAN_CMD = podman
+CONTAINER_CMD = podman
 CONTAINER_NAME = modelviewprojection-html
 SPYDER_CONTAINER_NAME = modelviewprojection-spyder
 FILES_TO_MOUNT = -v ./assignments:/mvp/assignments/:Z \
@@ -25,16 +25,16 @@ all: clean image html ## Build the HTML and PDF from scratch in Debian Bulleye
 image: ## Build a podman image in which to build the book
 	printf "This documentation was generated from from commit " > book/docs/version.txt
 	git rev-parse HEAD >> book/docs/version.txt
-	$(PODMAN_CMD) build -t $(CONTAINER_NAME) .
+	$(CONTAINER_CMD) build -t $(CONTAINER_NAME) .
 
 .PHONY: spyderimage
 spyderimage: image  ## Build a podman image in which to run the demos
-	$(PODMAN_CMD) build -t $(SPYDER_CONTAINER_NAME) -f Dockerfile.spyder
+	$(CONTAINER_CMD) build -t $(SPYDER_CONTAINER_NAME) -f Dockerfile.spyder
 
 
 .PHONY: html
 html: image ## Build the html from the sphinx source
-	$(PODMAN_CMD) run -it --rm  \
+	$(CONTAINER_CMD) run -it --rm  \
 		$(FILES_TO_MOUNT) \
 		$(CONTAINER_NAME)
 
@@ -45,7 +45,7 @@ clean: ## Delete the output directory, cleaning out the HTML and the PDF
 
 .PHONY: shell
 shell:  ## Get Shell into a ephermeral container made from the image
-	$(PODMAN_CMD) run -it --rm \
+	$(CONTAINER_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		-v ./entrypoint/shell.sh:/shell.sh:Z \
@@ -54,7 +54,7 @@ shell:  ## Get Shell into a ephermeral container made from the image
 
 .PHONY: jupyter
 jupyter:  ## Get Shell into a ephermeral container made from the image
-	$(PODMAN_CMD) run -it --rm \
+	$(CONTAINER_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		-v ./entrypoint/jupyter.sh:/jupyter.sh:Z \
@@ -65,7 +65,7 @@ jupyter:  ## Get Shell into a ephermeral container made from the image
 
 
 spyder: ## Run Spyder
-	$(PODMAN_CMD) run -it --rm \
+	$(CONTAINER_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		-v ./entrypoint/spyder.sh:/spyder.sh:Z \
