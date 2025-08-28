@@ -14,7 +14,8 @@
 (require 'dap-mode)
 (require 'dap-utils)
 (require 'dap-python)
-(dap-mode)
+;; turn off dap mode
+(dap-mode 0)
 
 (use-package lsp-mode
   :init
