@@ -113,14 +113,13 @@ frames = []
 
 import numpy as np
 
-
 sixty_fps_times_2_sec = 120
 
 # Create 10 frames with simple animation
 for i in range(sixty_fps_times_2_sec):
     clear_framebuffer()
     move: InvertibleFunction[Vector2D] = translate(
-        Vector2D(0, 0.5 * (np.sin(np.pi/60.0 * float(i))))
+        Vector2D(0, 0.5 * (np.sin(np.pi / 60.0 * float(i))))
     )
 
     triangle_in_screen = [
@@ -132,8 +131,8 @@ for i in range(sixty_fps_times_2_sec):
 
 
 np_frames = [np.array(img) for img in frames]
-from moviepy import ImageSequenceClip
 from IPython.display import Video
+from moviepy import ImageSequenceClip
 
 frames_np = [np.array(img) for img in frames]
 clip = ImageSequenceClip(frames_np, fps=60)
