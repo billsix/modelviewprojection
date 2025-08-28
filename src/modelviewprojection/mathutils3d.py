@@ -56,6 +56,27 @@ class Vector3D:
     def __neg__(vector) -> Vector3D:
         return -1.0 * vector
 
+    def __abs__(self) -> float:
+        return np.sqrt(self.dot(self))
+
+    def dot(self, rhs: Vector3D) -> float:
+        return self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
+
+    def cross(self, rhs: Vector3D) -> Vector3D:
+        return Vector3D(
+            x=self.y * rhs.z - self.z * rhs.y,
+            y=self.z * rhs.x - self.x * rhs.z,
+            z=self.x * rhs.y - self.y * rhs.x,
+        )
+
+
+def cos(v1: Vector3D, v2: Vector3D) -> float:
+    return v1.dot(v2) / (abs(v1) * abs(v2))
+
+
+def abs_sin(v1: Vector3D, v2: Vector3D) -> float:
+    return abs(v1.cross(v2)) / (abs(v1) * abs(v2))
+
 
 def translate(translate_amount: Vector3D) -> InvertibleFunction[Vector3D]:
     def f(vector: Vector3D) -> Vector3D:

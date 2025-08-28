@@ -38,11 +38,9 @@ from typing import List, Tuple
 from modelviewprojection.mathutils import InvertibleFunction, compose
 from modelviewprojection.mathutils1d import translate
 from modelviewprojection.mathutils2d import Vector2D, scale, translate
-from modelviewprojection.softwarerendering import clear_framebuffer
 from modelviewprojection.softwarerendering import (
-    draw_filled_triangle_vec as draw_filled_triangle,
-)
-from modelviewprojection.softwarerendering import (
+    clear_framebuffer,
+    draw_filled_triangle,
     get_framebuffer,
     height,
     make_framebuffer,

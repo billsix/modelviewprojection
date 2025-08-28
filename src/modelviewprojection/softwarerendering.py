@@ -21,10 +21,12 @@ from typing import Tuple
 import IPython.display as display
 import numpy as np
 import PIL
+import pytest
 from IPython.display import display
 from PIL import Image
 
 from modelviewprojection.mathutils2d import Vector2D
+from modelviewprojection.mathutils3d import Vector3D
 
 WIDTH: int
 HEIGHT: int
@@ -77,9 +79,9 @@ def clear_framebuffer(color=BLACK) -> None:
 
 
 def draw_filled_triangle(
-    p1: Tuple[int, int],
-    p2: Tuple[int, int],
-    p3: Tuple[int, int],
+    p1: Vector2D,
+    p2: Vector2D,
+    p3: Vector2D,
     color=(255, 255, 255),
 ):
     """
@@ -88,9 +90,9 @@ def draw_filled_triangle(
     """
     global framebuffer
 
-    def to_fb_coords(x, y):
+    def to_fb_coords(v: Vector2D):
         """Convert from OpenGL-style coords to framebuffer array coords."""
-        return x, HEIGHT - 1 - y
+        return v.x, HEIGHT - 1 - v.y
 
     x1: int
     y1: int
@@ -99,9 +101,9 @@ def draw_filled_triangle(
     z1: int
     z3: int
 
-    x1, y1 = to_fb_coords(*p1)
-    x2, y2 = to_fb_coords(*p2)
-    x3, y3 = to_fb_coords(*p3)
+    x1, y1 = to_fb_coords(p1)
+    x2, y2 = to_fb_coords(p2)
+    x3, y3 = to_fb_coords(p3)
 
     # Triangle bounding box
     min_x: int = max(int(min(x1, x2, x3)), 0)
@@ -109,74 +111,21 @@ def draw_filled_triangle(
     min_y: int = max(int(min(y1, y2, y3)), 0)
     max_y: int = min(int(max(y1, y2, y3)), HEIGHT - 1)
 
-    # Edge function (cross product)
-    def edge(ax: int, ay: int, bx: int, by: int, px: int, py: int) -> int:
-        return (px - ax) * (by - ay) - (py - ay) * (bx - ax)
+    v1 = Vector3D(x1, y1, 0.0)
+    v2 = Vector3D(x2, y2, 0.0)
+    v3 = Vector3D(x3, y3, 0.0)
 
-    # Precompute edge function signs for top-left rule
-    area = edge(x1, y1, x2, y2, x3, y3)
-    if area == 0:
+    if (v2 - v1).cross(v3 - v2) == pytest.approx(0.0):
         return  # Degenerate triangle
 
     # Loop over bounding box
     for y in range(min_y, max_y + 1):
         for x in range(min_x, max_x + 1):
-            w0 = edge(x2, y2, x3, y3, x, y)
-            w1 = edge(x3, y3, x1, y1, x, y)
-            w2 = edge(x1, y1, x2, y2, x, y)
-
-            # If the signs match the triangle area, pixel is inside
-            if (w0 >= 0 and w1 >= 0 and w2 >= 0) or (
-                w0 <= 0 and w1 <= 0 and w2 <= 0
-            ):
-                framebuffer[y, x] = color
-
-
-def draw_filled_triangle_vec(
-    v1: Vector2D, v2: Vector2D, v3: Vector2D, color=(255, 255, 255)
-) -> None:
-    """
-    Draw a filled triangle using the edge function (cross product) method.
-    p1, p2, p3 are (x, y) tuples in framebuffer coordinates.
-    """
-    global framebuffer
-
-    def to_fb_coords(x, y):
-        """Convert from OpenGL-style coords to framebuffer array coords."""
-        return x, HEIGHT - 1 - y
-
-    x1: int
-    y1: int
-    x2: int
-    y2: int
-    z1: int
-    z3: int
-
-    x1, y1 = to_fb_coords(int(v1.x), int(v1.y))
-    x2, y2 = to_fb_coords(int(v2.x), int(v2.y))
-    x3, y3 = to_fb_coords(int(v3.x), int(v3.y))
-
-    # Triangle bounding box
-    min_x: int = max(int(min(x1, x2, x3)), 0)
-    max_x: int = min(int(max(x1, x2, x3)), WIDTH - 1)
-    min_y: int = max(int(min(y1, y2, y3)), 0)
-    max_y: int = min(int(max(y1, y2, y3)), HEIGHT - 1)
-
-    # Edge function (cross product)
-    def edge(ax: int, ay: int, bx: int, by: int, px: int, py: int) -> int:
-        return (px - ax) * (by - ay) - (py - ay) * (bx - ax)
-
-    # Precompute edge function signs for top-left rule
-    area: int = edge(x1, y1, x2, y2, x3, y3)
-    if area == 0:
-        return  # Degenerate triangle
-
-    # Loop over bounding box
-    for y in range(min_y, max_y + 1):
-        for x in range(min_x, max_x + 1):
-            w0 = edge(x2, y2, x3, y3, x, y)
-            w1 = edge(x3, y3, x1, y1, x, y)
-            w2 = edge(x1, y1, x2, y2, x, y)
+            pixel_position: Vector3D = Vector3D(x, y, 0.0)
+            up = Vector3D(0.0, 0.0, 1.0)
+            w0 = (v2 - v1).cross(pixel_position - v1).dot(up)
+            w1 = (v3 - v2).cross(pixel_position - v2).dot(up)
+            w2 = (v1 - v3).cross(pixel_position - v1).dot(up)
 
             # If the signs match the triangle area, pixel is inside
             if (w0 >= 0 and w1 >= 0 and w2 >= 0) or (
