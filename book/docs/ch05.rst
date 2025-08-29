@@ -110,7 +110,7 @@ import them and try the methods
 
 .. code:: Python
 
-       >>> import src.demo05.demo as demo
+       >>> from modelviewprojection.mathutils2d import Vector
        >>> a = demo.Vector(x=1,y=2)
        >>> a.translate(demo.Vector(x=3,y=4))
        Vector(x=4, y=6)
@@ -120,7 +120,7 @@ arguments, the code might look like this:
 
 .. code:: Python
 
-       >>> import src.demo05.demo as demo
+       >>> from modelviewprojection.mathutils2d import Vector
        >>> a = demo.Vector(1,2)
        >>> a.translate(demo.Vector(x=3,y=4))
        Vector(x=4, y=6)
