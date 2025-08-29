@@ -10,9 +10,11 @@ RUN dnf install -y aspell \
                    automake \
                    emacs \
 		   firefox \
-                   gcc \
+		   ffmpeg \
+		   gcc \
 		   gnuplot \
                    graphviz \
+                   ImageMagick \
                    inkscape \
 		   jupyter \
 		   jupyterlab  \
@@ -50,8 +52,7 @@ RUN dnf install -y aspell \
 RUN emacs --batch --load ~/.emacs.d/install-melpa-packages.el
 RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
-RUN dnf install -y ffmpeg \
-                   ImageMagick
+RUN python3 -m pip install --break-system-packages --root-user-action=ignore moviepy
 
 
 ENTRYPOINT ["/entrypoint.sh"]
