@@ -1,7 +1,7 @@
 digraph {
     rankdir="BT"
-    "Paddle 1 Space" -> "World Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="p1ToW.png"/></TD></TR></TABLE>> color="red"];
-    "Paddle 2 Space" -> "World Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="p2ToW.png"/></TD></TR></TABLE>> color="red"];
+    "Paddle 1 Space" -> "World Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="p1ToWDemo06.png"/></TD></TR></TABLE>> color="red"];
+    "Paddle 2 Space" -> "World Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="p2ToWDemo06.png"/></TD></TR></TABLE>> color="red"];
     "World Space" -> "NDC" [label=<<TABLE border="0"><TR><TD><IMG SRC="wToNDC.png"/></TD></TR></TABLE>> color="red"];
-    "NDC" -> "Screen Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="ndcToScreenspace.png"/></TD></TR></TABLE>>];
+    "NDC" -> "Screen Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="ndcToScreenspaceName.png"/></TD></TR></TABLE>>];
 }

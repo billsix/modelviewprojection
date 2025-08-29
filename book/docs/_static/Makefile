@@ -44,6 +44,7 @@ graphs: currency.png \
 
 
 cayleyImages: ndcToScreenspace.png \
+	      ndcToScreenspaceName.png \
 		nickleToPenny.png \
 		dimeToPenny.png \
 		quarterToPenny.png \
@@ -56,7 +57,9 @@ cayleyImages: ndcToScreenspace.png \
 		p1ToNDC.png \
 		p2ToNDC.png \
 		p1ToW.png \
+		p1ToWDemo06.png \
 		p2ToW.png \
+		p2ToWDemo06.png \
 		wToNDC.png \
 		wToP1.png \
 		wToP2.png \

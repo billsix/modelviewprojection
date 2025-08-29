@@ -12,6 +12,6 @@ digraph {
     p2 -> ws [label=<<TABLE border="0"><TR><TD><IMG SRC="p2ToW.png"/></TD></TR></TABLE>>,weight="0.2"];
     cs -> ws [label=<<TABLE border="0"><TR><TD><IMG SRC="wToC.png"/></TD></TR></TABLE>>,weight="0.2" color="red"];
     cs -> ndc [label=<<TABLE border="0"><TR><TD><IMG SRC="cToNDC.png"/></TD></TR></TABLE>>,weight="0.2"];
-    ndc -> "Screen Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="ndcToScreenspace.png"/></TD></TR></TABLE>>];
+    ndc -> "Screen Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="ndcToScreenspaceName.png"/></TD></TR></TABLE>>];
     s1 -> p1  [label=<<TABLE border="0"><TR><TD><IMG SRC="s1ToP1.png"/></TD></TR></TABLE>>,weight="0.2"];
 }

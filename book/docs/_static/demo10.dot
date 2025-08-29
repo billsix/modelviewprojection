@@ -6,5 +6,5 @@ digraph {
     "Paddle 2 Space" -> "World Space"[label=<<TABLE border="0"><TR><TD><IMG SRC="p2ToW.png"/></TD></TR></TABLE>>,weight="0.2"];
     "World Space" -> "Camera Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="wToC.png"/></TD></TR></TABLE>>,weight="0.2" color="red"];
     "Camera Space" -> "NDC" [label=<<TABLE border="0"><TR><TD><IMG SRC="cToNDC.png"/></TD></TR></TABLE>>,weight="0.2" color="red"];
-    "NDC" -> "Screen Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="ndcToScreenspace.png"/></TD></TR></TABLE>>];
+    "NDC" -> "Screen Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="ndcToScreenspaceName.png"/></TD></TR></TABLE>>];
 }
