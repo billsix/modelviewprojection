@@ -36,14 +36,16 @@ This book intentionally keeps things simple intended for beginners.
 In this book, the applications created
 won’t be particularly pretty or realistic-looking. After reading this
 book, for more advanced
-topics, you’ll want to dive into references LearnOpenGL or the OpenGLTutorial.
+topics, you’ll want to dive into references LearnOpenGL,the OpenGLTutorial,
+or Computer Graphics From Scratch.
 
 #. LearnOpenGL_
 #. OpenGLTutorial_
+#. CGFS_
 
 .. _LearnOpenGL:  https://learnopengl.com/
 .. _OpenGLTutorial:  http://www.opengl-tutorial.org/
-
+.. _CGFS: https://gabrielgambetta.com/computer-graphics-from-scratch/
 
 
 Things You Should Know
@@ -58,7 +60,7 @@ Things You Should Know
 
    #. Books
 
-      #. https://diveintopython3.problemsolving.io/
+      #. https://diveintopython3.net/
 
 #. High school Geometry
 
