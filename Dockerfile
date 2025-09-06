@@ -12,6 +12,7 @@ RUN dnf install -y aspell \
 		   firefox \
 		   ffmpeg \
 		   gcc \
+                   glfw \
 		   gnuplot \
                    graphviz \
                    ImageMagick \
@@ -44,7 +45,26 @@ RUN dnf install -y aspell \
                    texlive-dvipng \
                    texlive-dvisvgm \
                    texlive-standalone \
-                   tmux && \
+                   tmux \
+                   mesa-dri-drivers  \
+                   libXtst \
+                   libXcomposite \
+                   libXcursor \
+                   libXdamage \
+                   libXfixes \
+                   libXft \
+                   libXi \
+                   libXinerama \
+                   libXmu \
+                   libXrandr \
+                   libXrender \
+                   libXres \
+                   libXv \
+                   libXxf86vm \
+                   libglvnd-gles \
+                   mesa-libGLU-devel \
+                   python3-glfw \
+                   python3-pyopengl  && \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()" && \
      dnf clean all
 

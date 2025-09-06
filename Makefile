@@ -51,6 +51,7 @@ shell:  ## Get Shell into a ephermeral container made from the image
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		-v ./entrypoint/shell.sh:/shell.sh:Z \
+		$(USE_X) \
 		$(CONTAINER_NAME) \
 		/shell.sh
 
