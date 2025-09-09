@@ -25,7 +25,7 @@ from typing import List
 
 from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
 from modelviewprojection.mathutils1d import Vector1D
-from modelviewprojection.mathutils1d import scale as scale1d
+from modelviewprojection.mathutils1d import uniform_scale as scale1d
 from modelviewprojection.mathutils2d import Vector2D
 from modelviewprojection.mathutils2d import rotate as rotate2D
 
@@ -153,10 +153,10 @@ def uniform_scale(scalar: float) -> InvertibleFunction[Vector3D]:
         return vector * scalar
 
     def f_inv(vector: Vector3D) -> Vector3D:
-        if scalar == 0:
+        if scalar == 0.0:
             raise ValueError("Not invertible.  Scaling factor cannot be zero.")
 
-        return vector / scalar
+        return vector * (1.0 / scalar)
 
     return InvertibleFunction[Vector3D](f, f_inv)
 

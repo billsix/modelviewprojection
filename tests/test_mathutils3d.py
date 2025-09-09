@@ -21,7 +21,149 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-from modelviewprojection.mathutils3d import fn_stack
+import math
+
+from pytest import approx
+
+from modelviewprojection.mathutils import InvertibleFunction
+from modelviewprojection.mathutils3d import (
+    Vector3D,
+    fn_stack,
+    inverse,
+    rotate_x,
+    rotate_y,
+    rotate_z,
+    scale,
+    translate,
+    uniform_scale,
+)
+
+
+def test___add__():
+    result = Vector3D(x=1.0, y=2.0, z=6.0) + Vector3D(x=3.0, y=4.0, z=5.0)
+    assert result == Vector3D(x=approx(4.0), y=approx(6.0), z=approx(11.0))
+
+
+def test___sub__():
+    result = Vector3D(x=5.0, y=8.0, z=1.0) - Vector3D(x=1.0, y=2.0, z=3.0)
+    assert result == Vector3D(x=approx(4.0), y=approx(6.0), z=approx(-2.0))
+
+
+def test___mul__():
+    result = Vector3D(x=2.0, y=3.0, z=4.0) * 4.0
+    assert result == Vector3D(x=approx(8.0), y=approx(12.0), z=approx(16.0))
+
+
+def test___rmul__():
+    result = 4.0 * Vector3D(x=2.0, y=3.0, z=4.0)
+    assert result == Vector3D(x=approx(8.0), y=approx(12.0), z=approx(16.0))
+
+
+def test___neg__():
+    result = -Vector3D(x=2.0, y=3.0, z=4.0)
+    assert result == Vector3D(x=approx(-2.0), y=approx(-3.0), z=approx(-4.0))
+
+
+def wrap_vec3_test(fn, input_val, output_val):
+    return fn(Vector3D(*input_val)) == Vector3D(*(map(approx, output_val)))
+
+
+# doc-region-begin translate test
+def test_translate():
+    fn: InvertibleFunction[Vector3D] = translate(Vector3D(x=2.0, y=3.0, z=4.0))
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs = [
+        [[0.0, 0.0, 0.0], [2.0, 3.0, 4.0]],
+        [[1.0, 0.0, 0.0], [3.0, 3.0, 4.0]],
+        [[0.0, 1.0, 0.0], [2.0, 4.0, 4.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec3_test(fn, input_val, output_val)
+        wrap_vec3_test(fn_inv, input_val, output_val)
+
+
+# doc-region-end translate test
+
+
+def test_uniform_scale():
+    fn: InvertibleFunction[Vector3D] = uniform_scale(4.0)
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs = [
+        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+        [[1.0, 0.0, 0.0], [4.0, 0.0, 0.0]],
+        [[0.0, 1.0, 0.0], [0.0, 4.0, 0.0]],
+        [[0.0, 0.0, 1.0], [0.0, 0.0, 4.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec3_test(fn, input_val, output_val)
+        wrap_vec3_test(fn_inv, input_val, output_val)
+
+
+def test_scale():
+    fn: InvertibleFunction[Vector3D] = scale(
+        scale_x=2.0, scale_y=3.0, scale_z=4.0
+    )
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs = [
+        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+        [[1.0, 0.0, 0.0], [2.0, 0.0, 0.0]],
+        [[0.0, 1.0, 0.0], [0.0, 3.0, 0.0]],
+        [[0.0, 0.0, 1.0], [0.0, 0.0, 4.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec3_test(fn, input_val, output_val)
+        wrap_vec3_test(fn_inv, input_val, output_val)
+
+
+def test_rotate_x():
+    fn: InvertibleFunction[Vector3D] = rotate_x(math.radians(53.130102))
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs = [
+        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+        [[0.0, 5.0, 0.0], [0.0, 3.0, 4.0]],
+        [[0.0, 0.0, 5.0], [0.0, -4.0, 3.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec3_test(fn, input_val, output_val)
+        wrap_vec3_test(fn_inv, input_val, output_val)
+
+
+def test_rotate_y():
+    fn: InvertibleFunction[Vector3D] = rotate_y(math.radians(53.130102))
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs = [
+        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+        [[0.0, 0.0, 5.0], [4.0, 0.0, 3.0]],
+        [[5.0, 0.0, 0.0], [3.0, 0.0, -4.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec3_test(fn, input_val, output_val)
+        wrap_vec3_test(fn_inv, input_val, output_val)
+
+
+def test_rotate_z():
+    fn: InvertibleFunction[Vector3D] = rotate_z(math.radians(53.130102))
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs = [
+        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+        [[5.0, 0.0, 0.0], [3.0, 4.0, 0.0]],
+        [[0.0, 5.0, 0.0], [-4.0, 3.0, 0.0]],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        wrap_vec3_test(fn, input_val, output_val)
+        wrap_vec3_test(fn_inv, input_val, output_val)
 
 
 # doc-region-begin function stack examples definitions
