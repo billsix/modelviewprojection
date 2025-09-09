@@ -24,9 +24,11 @@ from dataclasses import dataclass, field
 from typing import List
 
 from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
+from modelviewprojection.mathutils1d import Vector1D
+from modelviewprojection.mathutils1d import scale as scale1d
 from modelviewprojection.mathutils2d import Vector2D
 from modelviewprojection.mathutils2d import rotate as rotate2D
-from modelviewprojection.mathutils1d import scale as scale1d, Vector1D
+
 
 # doc-region-begin define vector class
 @dataclass
@@ -247,15 +249,23 @@ def perspective(
     )
 
     def f(vector: Vector3D) -> Vector3D:
-        s1d : InvertibleFunction[Vector1D] = scale1d(near_z / vector.z)
-        rectangular_prism: Vector3D = Vector3D(s1d(vector.x), s1d(vector.y), vector.z)
+        s1d: InvertibleFunction[Vector1D] = scale1d(near_z / vector.z)
+        rectangular_prism: Vector3D = Vector3D(
+            s1d(vector.x), s1d(vector.y), vector.z
+        )
         return fn(rectangular_prism)
 
     def f_inv(vector: Vector3D) -> Vector3D:
         rectangular_prism: Vector3D = inverse(fn)(vector)
 
-        inverse_s1d : InvertibleFunction[Vector1D] = inverse(scale1d(near_z / vector.z))
-        return Vector3D(inverse_s1d(rectangular_prism.x),inverse_s1d(rectangular_prism.y), rectangular_prism.z)
+        inverse_s1d: InvertibleFunction[Vector1D] = inverse(
+            scale1d(near_z / vector.z)
+        )
+        return Vector3D(
+            inverse_s1d(rectangular_prism.x),
+            inverse_s1d(rectangular_prism.y),
+            rectangular_prism.z,
+        )
 
     return InvertibleFunction[Vector3D](f, f_inv)
 
