@@ -9,7 +9,6 @@ dependencies = [
     "furo==2025.7.19",
     "glfw==2.9.0",
     "imageio==2.37.0",
-    "imgui==2.0.0",
     "isort==6.0.1",
     "jupyter==1.1.1",
     "mathjax==0.1.2",
