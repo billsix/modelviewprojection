@@ -66,7 +66,9 @@ def test___neg__():
 
 
 def wrap_vec2_test(fn, input_val, output_val):
-    return fn(Vector2D(*input_val)) == Vector2D(*(map(approx, output_val)))
+    out = fn(Vector2D(*input_val))
+    assert out.x == approx(output_val[0], abs=0.001)
+    assert out.y == approx(output_val[1], abs=0.001)
 
 
 # doc-region-begin translate test
@@ -82,7 +84,7 @@ def test_translate():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec2_test(fn, input_val, output_val)
-        wrap_vec2_test(fn_inv, input_val, output_val)
+        wrap_vec2_test(fn_inv, output_val, input_val)
 
 
 # doc-region-end translate test
@@ -116,7 +118,7 @@ def test_uniform_scale():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec2_test(fn, input_val, output_val)
-        wrap_vec2_test(fn_inv, input_val, output_val)
+        wrap_vec2_test(fn_inv, output_val, input_val)
 
 
 def test_scale():
@@ -131,7 +133,7 @@ def test_scale():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec2_test(fn, input_val, output_val)
-        wrap_vec2_test(fn_inv, input_val, output_val)
+        wrap_vec2_test(fn_inv, output_val, input_val)
 
 
 def test_rotate_90():
@@ -148,7 +150,7 @@ def test_rotate_90():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec2_test(fn, input_val, output_val)
-        wrap_vec2_test(fn_inv, input_val, output_val)
+        wrap_vec2_test(fn_inv, output_val, input_val)
 
 
 def test_rotate():
@@ -162,7 +164,7 @@ def test_rotate():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec2_test(fn, input_val, output_val)
-        wrap_vec2_test(fn_inv, input_val, output_val)
+        wrap_vec2_test(fn_inv, output_val, input_val)
 
 
 def test_doctest():

@@ -65,7 +65,12 @@ def test___neg__():
 
 
 def wrap_vec3_test(fn, input_val, output_val):
-    return fn(Vector3D(*input_val)) == Vector3D(*(map(approx, output_val)))
+    print(Vector3D(*input_val))
+    out = fn(Vector3D(*input_val))
+    print(out)
+    assert out.x == approx(output_val[0], abs=0.001)
+    assert out.y == approx(output_val[1], abs=0.001)
+    assert out.z == approx(output_val[2], abs=0.001)
 
 
 # doc-region-begin translate test
@@ -81,7 +86,7 @@ def test_translate():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, input_val, output_val)
+        wrap_vec3_test(fn_inv, output_val, input_val)
 
 
 # doc-region-end translate test
@@ -100,7 +105,7 @@ def test_uniform_scale():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, input_val, output_val)
+        wrap_vec3_test(fn_inv, output_val, input_val)
 
 
 def test_scale():
@@ -118,7 +123,7 @@ def test_scale():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, input_val, output_val)
+        wrap_vec3_test(fn_inv, output_val, input_val)
 
 
 def test_rotate_x():
@@ -133,7 +138,7 @@ def test_rotate_x():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, input_val, output_val)
+        wrap_vec3_test(fn_inv, output_val, input_val)
 
 
 def test_rotate_y():
@@ -148,7 +153,7 @@ def test_rotate_y():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, input_val, output_val)
+        wrap_vec3_test(fn_inv, output_val, input_val)
 
 
 def test_rotate_z():
@@ -163,7 +168,7 @@ def test_rotate_z():
 
     for input_val, output_val in input_output_pairs:
         wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, input_val, output_val)
+        wrap_vec3_test(fn_inv, output_val, input_val)
 
 
 # doc-region-begin function stack examples definitions
