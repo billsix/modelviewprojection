@@ -64,7 +64,8 @@ RUN dnf install -y aspell \
                    libglvnd-gles \
                    mesa-libGLU-devel \
                    python3-glfw \
-                   python3-pyopengl  && \
+                   python3-pyopengl \
+                   python3-wxpython4 && \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()" && \
      dnf clean all
 
