@@ -170,7 +170,9 @@ class GLPanel(wxgl.GLCanvas):
 
 class MainFrame(wx.Frame):
     def __init__(self):
-        super().__init__(None, title="wxPython OpenGL 3.3 Example", size=(600, 500))
+        super().__init__(
+            None, title="wxPython OpenGL 3.3 Example", size=(600, 500)
+        )
         panel = wx.Panel(self)
 
         # --- Menu Bar ---
@@ -184,7 +186,9 @@ class MainFrame(wx.Frame):
 
         # Edit menu
         edit_menu = wx.Menu()
-        prefs_item = edit_menu.Append(wx.ID_PREFERENCES, "Preferences...\tCtrl+,")
+        prefs_item = edit_menu.Append(
+            wx.ID_PREFERENCES, "Preferences...\tCtrl+,"
+        )
         self.Bind(wx.EVT_MENU, self.on_preferences, prefs_item)
         menubar.Append(edit_menu, "Edit")
 
