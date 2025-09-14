@@ -141,7 +141,7 @@ The Event Loop
 Set the model, view, and projection matrix to the identity
 matrix.  This just means that the functions (currently)
 will not transform data.
-In uni-variate terms, f(x) = x
+In univariate terms, f(x) = x
 
 .. literalinclude:: ../../src/modelviewprojection/demo19.py
    :language: python

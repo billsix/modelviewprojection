@@ -301,10 +301,11 @@ NDC/Screenspace Conversion
     Demo 02
 
 The function that converts from NDC to Screen space is
-arbitrarily named f, sub-scripted by "ndc", super-scripted
+arbitrarily named "f", sub-scripted by "ndc", super-scripted
 by "ss".  This is a notation for naming
 functions that change basis, i.e. coordinate conversion.
-A definition of this function is not provided right now, because we can't change it in software, but we must recognize that it exists.
+A definition of this function is not provided right now,
+because we can't change it in software, but we must recognize that it exists.
 
 
 
@@ -317,7 +318,7 @@ but for our purposes, the use of Cayley graphs is very simple.
 Currency Conversion
 -------------------
 
-An uni-variate example use of Cayley graphs is exchanging coins with
+An univariate example use of Cayley graphs is exchanging coins with
 a bank.
 
 .. figure:: _static/currency.png
@@ -326,7 +327,7 @@ a bank.
     :alt: Demo 02
     :figclass: align-center
 
-    Cayley graph of uni-variate coordinate conversion for money.
+    Cayley graph of univariate coordinate conversion for money.
 
 .. math::
     f_{nickel}^{penny}(x) = 5 * x
@@ -361,7 +362,7 @@ along the way.
 
 
 
-To convert those 100 penny into quarters, on the Cayley graph, move from
+To convert those 100 pennies into quarters, on the Cayley graph, move from
 penny to quarter, but since we are moving in the opposite
 direction of the edge, we must apply the multiplicative inverse_
 of that function.  These functions are invertible_ by
@@ -416,11 +417,23 @@ out, but the details of those functions are not relevant when traversing the Cay
 
 .. _composition: https://en.wikipedia.org/wiki/Function_composition
 
+Function composition is used extensively throughout this book.  As a reminder
+
+.. math::
+    {f \circ g}(x)   = {f(g(x))}
+
+Or, with omitting the argument :math:`x`
+
+.. math::
+    {f \circ g}   = {f(g(x))}
+
+
+
 
 Temperature Conversion
 ----------------------
 
-Another uni-variate example use of Cayley graphs is converting a temperture
+Another univariate example use of Cayley graphs is converting a temperture
 between different units of measure.
 
 
@@ -430,7 +443,7 @@ between different units of measure.
     :alt: Demo 02
     :figclass: align-center
 
-    Cayley graph of uni-variate coordinate conversion for temperature.
+    Cayley graph of univariate coordinate conversion for temperature.
 
 .. math::
     f_{c}^{k}(x) = x + 273.15
