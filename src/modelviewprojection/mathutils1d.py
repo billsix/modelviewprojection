@@ -31,18 +31,93 @@ class Vector1D:
 
     # doc-region-begin define add
     def __add__(self, rhs: Vector1D) -> Vector1D:
+        """
+        Add together two Vector1Ds.
+
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\end{pmatrix}`
+        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\end{pmatrix}`:
+
+        .. math::
+
+             \\vec{a} + \\vec{b} = \\begin{pmatrix} a_x + b_x \\end{pmatrix}
+
+        Args:
+            rhs (Vector1D): The vector on the right hand side of the addition
+                            symbol
+        Returns:
+            Vector1D: The Vector1D that represents the additon of the two
+                      input Vector1Ds
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils1d import Vector1D
+            >>> a = Vector1D(x=2.0)
+            >>> b = Vector1D(x=5.0)
+            >>> a + b
+            Vector1D(x=7.0)
+        """
+
         return Vector1D(x=(self.x + rhs.x))
 
     # doc-region-end define add
 
     # doc-region-begin define subtract
     def __sub__(self, rhs: Vector1D) -> Vector1D:
+        """
+        Subtract the right hand side Vector1D from the left hand side Vector1D.
+
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\end{pmatrix}`
+        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\end{pmatrix}`:
+
+        .. math::
+
+             \\vec{a} - \\vec{b} = \\begin{pmatrix} a_x - b_x \\end{pmatrix}
+
+        Args:
+            rhs (Vector1D): The vector on the right hand side of the
+                            subtraction symbol
+        Returns:
+            Vector1D: The Vector1D that represents the subtraction of the
+                      right hand side Vector1D from the left hand side
+                      Vector1D
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils1d import Vector1D
+            >>> a = Vector1D(x=2.0)
+            >>> b = Vector1D(x=5.0)
+            >>> a - b
+            Vector1D(x=-3.0)
+        """
         return Vector1D(x=(self.x - rhs.x))
 
     # doc-region-end define subtract
 
     # doc-region-begin define mul
     def __mul__(self, scalar: float) -> Vector1D:
+        """
+        Multiply the Vector1D by a scalar number
+
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\end{pmatrix}` and constant scalar :math:`s`:
+
+        .. math::
+
+             s*\\vec{a} = \\begin{pmatrix} s*a_x \\end{pmatrix}
+
+        Args:
+            rhs (Vector1D): The scalar to be multiplied to the Vector's component
+                            subtraction symbol
+        Returns:
+            Vector1D: The Vector1D that represents scalar times the amount of the input Vector1d
+
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils1d import Vector1D
+            >>> a = Vector1D(x=2.0)
+            >>> a * 4
+            Vector1D(x=8.0)
+        """
         return Vector1D(x=(self.x * scalar))
 
     def __rmul__(self, scalar: float) -> Vector1D:
@@ -51,7 +126,28 @@ class Vector1D:
     # doc-region-end define mul
 
     def __neg__(self) -> Vector1D:
+        """
+        Multiply the Vector1D by -1
+
+        Let :math:`\\vec{a} = (a_x)` and constant :math:`-1`:
+
+        .. math::
+
+             -1 * \\vec{a}
+
+        Returns:
+            Vector1D: The Vector1D with the opposite orientation
+
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils1d import Vector1D
+            >>> a = Vector1D(x=2.0)
+            >>> -a
+            Vector1D(x=-2.0)
+        """
         return -1.0 * self
+
 
 
 # doc-region-begin define translate

@@ -36,11 +36,12 @@ class Vector2D:
         """
         Add together two Vector2Ds.
 
-        Let :math:`\\vec{a} = (a_x, a_y)` and :math:`\\vec{b} = (b_x, b_y)`:
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\end{pmatrix}`
+        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\\\ b_y \\end{pmatrix}`:
 
         .. math::
 
-             \\vec{a} + \\vec{b} = (a_x + b_x, a_y + b_y)
+             \\vec{a} + \\vec{b} = \\begin{pmatrix} a_x + b_x \\\\ a_y + b_y \\end{pmatrix}
 
         Args:
             rhs (Vector2D): The vector on the right hand side of the addition
@@ -67,11 +68,12 @@ class Vector2D:
         """
         Subtract the right hand side Vector2D from the left hand side Vector2D.
 
-        Let :math:`\\vec{a} = (a_x, a_y)` and :math:`\\vec{b} = (b_x, b_y)`:
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\end{pmatrix}`
+        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\\\ b_y \\end{pmatrix}`:
 
         .. math::
 
-             \\vec{a} - \\vec{b} = (a_x - b_x, a_y - b_y)
+             \\vec{a} - \\vec{b} = \\vec{a} + \\vec{b} = \\begin{pmatrix} a_x - b_x \\\\ a_y - b_y \\end{pmatrix}
 
         Args:
             rhs (Vector2D): The vector on the right hand side of the
@@ -95,6 +97,29 @@ class Vector2D:
 
     # doc-region-begin define mul
     def __mul__(self, scalar: float) -> Vector2D:
+        """
+        Multiply the Vector2D by a scalar number
+
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\end{pmatrix}` and constant scalar :math:`s`:
+
+        .. math::
+
+             s*\\vec{a} = \\begin{pmatrix} s*a_x \\\\ s*a_y \\end{pmatrix}
+
+        Args:
+            rhs (Vector2D): The scalar to be multiplied to the Vector's component
+                            subtraction symbol
+        Returns:
+            Vector2D: The Vector2D that represents scalar times the amount of the input Vector2D
+
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils2d import Vector2D
+            >>> a = Vector2D(x=2.0, y=3.0)
+            >>> a * 4
+            Vector2D(x=8.0, y=12.0)
+        """
         return Vector2D(x=(self.x * scalar), y=(self.y * scalar))
 
     def __rmul__(self, scalar: float) -> Vector2D:
@@ -103,6 +128,26 @@ class Vector2D:
     # doc-region-end define mul
 
     def __neg__(self) -> Vector2D:
+        """
+        Multiply the Vector2D by -1
+
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\end{pmatrix}` and constant :math:`-1`:
+
+        .. math::
+
+             -1 * \\vec{a}
+
+        Returns:
+            Vector2D: The Vector2D with the opposite orientation
+
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils2d import Vector2D
+            >>> a = Vector2D(x=2.0, y=3.0)
+            >>> -a
+            Vector2D(x=-2.0, y=-3.0)
+        """
         return -1.0 * self
 
 

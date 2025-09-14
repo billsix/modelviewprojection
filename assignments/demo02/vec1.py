@@ -38,27 +38,37 @@
 #
 # Below, Implement fahrenheit_to_kelvin, celsius_to_fahrenheit, and kelvin_to_fahrenheit.  replace "translate(0.0) with your implementation
 
+
 # %%
 
-
+# doc-region-begin imports
 from pytest import approx
 
 from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
 from modelviewprojection.mathutils1d import Vector1D, translate, uniform_scale
+# doc-region-end imports
 
 # %%
 
 # %%
+# doc-region-begin adding vectors
 Vector1D(x=1.0) + Vector1D(x=3.0)
+# doc-region-end adding vectors
 
 # %%
+# doc-region-begin subtracting vectors
 Vector1D(x=5.0) - Vector1D(x=1.0)
+# doc-region-end subtracting vectors
 
 # %%
+# doc-region-begin muliplying scalar by a vector
 4.0 * Vector1D(x=2.0)
+# doc-region-end muliplying scalar by a vector
 
 # %%
+# doc-region-begin negating a vector
 -Vector1D(x=2.0)
+# doc-region-end negating a vector
 
 # %% [markdown]
 # Define the translate function
@@ -67,14 +77,18 @@ Vector1D(x=5.0) - Vector1D(x=1.0)
 
 
 # %%
+# doc-region-begin invertible function
 fn: InvertibleFunction[Vector1D] = translate(2.0)
+# doc-region-end invertible function
 
 
 # %% [markdown]
 # $T_{b=2}(5) $
 
 # %%
+# doc-region-begin applying invertible function
 fn(Vector1D(5))
+# doc-region-end applying invertible function
 
 # %% [markdown]
 # Define the affine function
@@ -83,11 +97,13 @@ fn(Vector1D(5))
 #
 
 # %%
+# doc-region-begin y = m*x + b
 m: float = 5.0
 b: float = 2.0
 fn: InvertibleFunction[Vector1D] = compose(translate(b), uniform_scale(m))
 print(fn(Vector1D(0.0)))
 print(fn(Vector1D(1.0)))
+# doc-region-end y = m*x + b
 
 
 # %%
@@ -97,6 +113,7 @@ print(fn(Vector1D(2.0)))
 print(fn(Vector1D(3.0)))
 
 # %%
+# doc-region-begin defined functions
 celsius_to_kelvin: InvertibleFunction[Vector1D] = translate(273.15)
 assert celsius_to_kelvin(Vector1D(0.0)) == Vector1D(approx(273.15))
 assert celsius_to_kelvin(Vector1D(100.0)) == Vector1D(approx(373.15))
@@ -112,6 +129,7 @@ assert fahrenheit_to_celsius(Vector1D(212.0)) == Vector1D(approx(100.0))
 kelvin_to_celsius: InvertibleFunction[Vector1D] = inverse(celsius_to_kelvin)
 assert kelvin_to_celsius(Vector1D(273.15)) == Vector1D(approx(0.0))
 assert kelvin_to_celsius(Vector1D(373.15)) == Vector1D(approx(100.0))
+# doc-region-end defined functions
 
 
 # %%
@@ -122,6 +140,7 @@ assert kelvin_to_celsius(Vector1D(373.15)) == Vector1D(approx(100.0))
 
 # %%
 
+# doc-region-begin work to do
 fahrenheit_to_kelvin: InvertibleFunction[Vector1D] = translate(0.0)
 assert fahrenheit_to_kelvin(Vector1D(32.0)) == Vector1D(approx(273.15))
 assert fahrenheit_to_kelvin(Vector1D(212.0)) == Vector1D(approx(373.15))
@@ -134,3 +153,4 @@ assert celsius_to_fahrenheit(Vector1D(100.0)) == Vector1D(approx(212.0))
 kelvin_to_fahrenheit: InvertibleFunction[Vector1D] = translate(0.0)
 assert kelvin_to_fahrenheit(Vector1D(273.15)) == Vector1D(approx(32.0))
 assert kelvin_to_fahrenheit(Vector1D(373.15)) == Vector1D(approx(212.0))
+# doc-region-end work to do

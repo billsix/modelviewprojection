@@ -38,16 +38,90 @@ class Vector3D:
     z: float  #: The z-component of the 3D Vector
 
     def __add__(self, rhs: Vector3D) -> Vector3D:
+        """
+        Add together two Vector3Ds.
+
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\\\ a_z \\end{pmatrix}`
+        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\\\ b_y \\\\ b_z \\end{pmatrix}`:
+
+        .. math::
+
+             \\vec{a} + \\vec{b} = \\begin{pmatrix} a_x + b_x \\\\ a_y + b_y \\\\ a_z + b_z \\end{pmatrix}
+
+        Args:
+            rhs (Vector3D): The vector on the right hand side of the addition
+                            symbol
+        Returns:
+            Vector3D: The Vector3D that represents the additon of the two
+                      input Vector3Ds
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils3d import Vector3D
+            >>> a = Vector3D(x=2.0, y=3.0, z=1.0)
+            >>> b = Vector3D(x=5.0, y=6.0, z=9.0)
+            >>> a + b
+            Vector3D(x=7.0, y=9.0, z=10.0)
+        """
         return Vector3D(
             x=(self.x + rhs.x), y=(self.y + rhs.y), z=(self.z + rhs.z)
         )
 
     def __sub__(self, rhs: Vector3D) -> Vector3D:
+        """
+        Subtract the right hand side Vector3D from the left hand side Vector3D.
+
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\\\ a_z \\end{pmatrix}`
+        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\\\ b_y \\\\ b_z \\end{pmatrix}`:
+
+        .. math::
+
+             \\vec{a} - \\vec{b} = \\vec{a} + \\vec{b} = \\begin{pmatrix} a_x - b_x  \\\\ a_y - b_y \\\\ a_z - b_z \\end{pmatrix}
+
+        Args:
+            rhs (Vector3D): The vector on the right hand side of the
+                            subtraction symbol
+        Returns:
+            Vector3D: The Vector3D that represents the subtraction of the
+                      right hand side Vector3D from the left hand side
+                      Vector3D
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils3d import Vector3D
+            >>> a = Vector3D(x=2.0, y=3.0, z=10.0)
+            >>> b = Vector3D(x=5.0, y=2.0, z=1.0)
+            >>> a - b
+            Vector3D(x=-3.0, y=1.0, z=9.0)
+        """
         return Vector3D(
             x=(self.x - rhs.x), y=(self.y - rhs.y), z=(self.z - rhs.z)
         )
 
     def __mul__(vector, scalar: float) -> Vector3D:
+        """
+        Multiply the Vector3D by a scalar number
+
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\\\ a_z \\end{pmatrix}` and constant scalar :math:`s`:
+
+        .. math::
+
+             s*\\vec{a} = \\begin{pmatrix} s*a_x \\\\ s*a_y \\\\ s*a_z \\end{pmatrix}
+
+        Args:
+            rhs (Vector3D): The scalar to be multiplied to the Vector's component
+                            subtraction symbol
+        Returns:
+            Vector3D: The Vector3D that represents scalar times the amount of the input Vector3D
+
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils3d import Vector3D
+            >>> a = Vector3D(x=2.0, y=3.0, z=4.0)
+            >>> a * 4
+            Vector3D(x=8.0, y=12.0, z=16.0)
+        """
         return Vector3D(
             x=(vector.x * scalar), y=(vector.y * scalar), z=(vector.z * scalar)
         )
@@ -56,6 +130,26 @@ class Vector3D:
         return vector * scalar
 
     def __neg__(vector) -> Vector3D:
+        """
+        Multiply the Vector3D by -1
+
+        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\\\ a_z  \\end{pmatrix}` and constant :math:`-1`:
+
+        .. math::
+
+             -1 * \\vec{a}
+
+        Returns:
+            Vector3D: The Vector3D with the opposite orientation
+
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils3d import Vector3D
+            >>> a = Vector3D(x=2.0, y=3.0, z=4.0)
+            >>> -a
+            Vector3D(x=-2.0, y=-3.0, z=-4.0)
+        """
         return -1.0 * vector
 
     def __abs__(self) -> float:

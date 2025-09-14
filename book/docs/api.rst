@@ -8,6 +8,17 @@ Math Utils
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __add__, __sub__,  __mul__,  __rmul__, __neg__
+
+Math Utils 1D
+-------------
+
+
+.. automodule:: modelviewprojection.mathutils1d
+   :members:
+   :undoc-members:
+   :show-inheritance:
+   :special-members:  __add__, __sub__,  __mul__,  __rmul__, __neg__
 
 Math Utils 2D
 -------------
@@ -17,6 +28,7 @@ Math Utils 2D
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __add__, __sub__,  __mul__,  __rmul__, __neg__
 
 Math Utils 3D
 -------------
@@ -26,3 +38,4 @@ Math Utils 3D
    :members:
    :undoc-members:
    :show-inheritance:
+   :special-members: __add__, __sub__,  __mul__,  __rmul__, __neg__

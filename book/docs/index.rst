@@ -25,6 +25,8 @@ Model View Projection
    intro
    ch01
    ch02
+   mathhomework1
+   programmingproj1
    ch03
    ch04
    ch05

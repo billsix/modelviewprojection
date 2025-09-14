@@ -263,7 +263,7 @@ def draw_circle() -> None:
         )
     glEnd()
 
-
+# doc-region-begin event loop
 while not glfw.window_should_close(window):
     glfw.poll_events()
 
@@ -282,5 +282,6 @@ while not glfw.window_should_close(window):
     draw_circle()
 
     glfw.swap_buffers(window)
+# doc-region-end event loop
 
 glfw.terminate()
