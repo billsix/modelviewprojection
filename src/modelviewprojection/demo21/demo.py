@@ -30,7 +30,6 @@ import numpy as np
 # new - SHADERS
 import OpenGL.GL.shaders as shaders
 import pyMatrixStack as ms
-import staticlocal
 from colorutils import Color4
 from imgui.integrations.glfw import GlfwRenderer
 from OpenGL.GL import (
@@ -299,10 +298,6 @@ square.prepare_to_render()
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
-test_bool = False
-test_float = 0.0
-
-
 @dataclass
 class Camera:
     x: float = 0.0
@@ -517,18 +512,6 @@ while not glfw.window_should_close(window):
             glEnable(GL_BLEND)
         else:
             glDisable(GL_BLEND)
-
-    imgui.text("Bar")
-    imgui.text_colored("Eggs", 0.2, 1.0, 0.0)
-
-    # use static local instead of try: except
-    # normally you would pass the present function name to staticlocal.var
-    # , but since we are not in a function, pass the current module
-    staticlocal.var(sys.modules[__name__], test_bool=True, test_float=1.0)
-    clicked_test_bool, test_bool = imgui.checkbox("test_bool", test_bool)
-    clicked_test_float, test_float = imgui.slider_float(
-        "float", test_float, 0.0, 1.0
-    )
 
     imgui.end()
 

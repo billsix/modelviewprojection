@@ -75,5 +75,14 @@ RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
 RUN python3 -m pip install --break-system-packages --root-user-action=ignore moviepy
 
+RUN dnf install -y g++ \
+                   python3-devel
+
+RUN cd ~/ && \
+    git clone https://github.com/billsix/pyimgui.git && \
+    cd pyimgui && \
+    git submodule init && git submodule update && \
+    python3 -m pip install --break-system-packages --root-user-action=ignore .
+
 
 ENTRYPOINT ["/entrypoint.sh"]
