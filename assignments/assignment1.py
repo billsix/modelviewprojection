@@ -108,6 +108,7 @@ def draw_in_square_viewport() -> None:
 program_start_time = glfw.get_time()
 
 
+# doc-region-begin draw a triangle
 def draw_a_triangle() -> None:
     glColor3f(0.578123, 0.0, 1.0)
     glBegin(GL_QUADS)
@@ -116,8 +117,10 @@ def draw_a_triangle() -> None:
     glVertex2f(-0.8, 0.3)
     glVertex2f(-1.0, 0.3)
     glEnd()
+# doc-region-end draw a triangle
 
 
+# doc-region-begin draw x squared precomputed
 def draw_x_squared_with_precomputed_values() -> None:
     # f(x) = x^2
 
@@ -184,9 +187,10 @@ def draw_x_squared_with_precomputed_values() -> None:
     glVertex2f(1.0, 1.0)
 
     glEnd()
+# doc-region-end draw x squared precomputed
 
 
-# generic plot function
+# doc-region-begin generic plot function
 def plot(
     fn: Callable[[float], float], domain: tuple[float, float], interval: float
 ) -> None:
@@ -206,16 +210,19 @@ def plot(
         glVertex2f(x, fn(x))
         glVertex2f(x, fn(x))
     glEnd()
+# doc-region-end generic plot function
 
 
+# doc-region-begin draw (x minus 1/2)^2
 def use_plot_function_for_x_minus_onehalf_squared() -> None:
     def x_minus_onehalf_squared(x) -> float:
         return (x - 0.5) ** 2
 
     glColor3f(1.0, 0.0, 0.0)
     plot(fn=x_minus_onehalf_squared, domain=(-1, 1), interval=0.001)
+# doc-region-end draw (x minus 1/2)^2
 
-
+# doc-region-begin draw an oscillating triangle
 def draw_an_oscillating_triangle(elapsed_time_in_seconds: float) -> None:
     # math.sin uses radians
     offset_x = math.sin(elapsed_time_in_seconds)
@@ -230,8 +237,10 @@ def draw_an_oscillating_triangle(elapsed_time_in_seconds: float) -> None:
     glVertex2f(0.5 + offset_x, 0.0)
     glVertex2f(0.0 + offset_x, 0.5)
     glEnd()
+# doc-region-end draw an oscillating triangle
 
 
+# doc-region-begin unnamed_function
 def use_plot_function_with_unnamed_function(
     elapsed_time_in_seconds: float,
 ) -> None:
@@ -241,8 +250,10 @@ def use_plot_function_with_unnamed_function(
         domain=(-1, 1),
         interval=0.01,
     )
+# doc-region-end unnamed_function
 
 
+# doc-region-begin circle
 def draw_circle() -> None:
     glBegin(GL_TRIANGLES)
 
@@ -262,6 +273,8 @@ def draw_circle() -> None:
             scale_radius * math.sin(theta + theta_increment),
         )
     glEnd()
+# doc-region-end circle
+
 
 # doc-region-begin event loop
 while not glfw.window_should_close(window):

@@ -149,19 +149,30 @@ class Vector1D:
         return -1.0 * self
 
 
-
 # doc-region-begin define translate
-def translate(translate_amount: float) -> InvertibleFunction[Vector1D]:
+def translate(translate_amount: Vector1D) -> InvertibleFunction[Vector1D]:
+    # doc-region-end define translate
+    """
+    TODO
+
+    Args:
+        translate_amount (float): The amount to translate a not-yet-bound vector
+    Returns:
+        Vector1D: The Vector1D that represents the additon of the two
+                  input Vector1Ds
+    Raises:
+        Nothing
+    """
+
+    # doc-region-begin define translatebody
     def f(vector: Vector1D) -> Vector1D:
-        return vector + Vector1D(translate_amount)
+        return vector + translate_amount
 
     def f_inv(vector: Vector1D) -> Vector1D:
-        return vector - Vector1D(translate_amount)
+        return vector - translate_amount
 
     return InvertibleFunction[Vector1D](f, f_inv)
-
-
-# doc-region-end define translate
+    # doc-region-end define translatebody
 
 
 # doc-region-begin define uniform scale

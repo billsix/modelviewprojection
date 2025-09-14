@@ -58,7 +58,7 @@ def test___neg__():
 
 # doc-region-begin translate test
 def test_translate():
-    fn: InvertibleFunction[Vector1D] = translate(2.0)
+    fn: InvertibleFunction[Vector1D] = translate(Vector1D(2.0))
     fn_inv: InvertibleFunction[Vector1D] = inverse(fn)
 
     input_output_pairs = [
@@ -83,7 +83,9 @@ def test_mx_plus_b():
     m = 5.0
     b = 2.0
 
-    fn: InvertibleFunction[Vector1D] = compose(translate(b), uniform_scale(m))
+    fn: InvertibleFunction[Vector1D] = compose(
+        translate(Vector1D(b)), uniform_scale(m)
+    )
     fn_inv: InvertibleFunction[Vector1D] = inverse(fn)
 
     input_output_pairs = [
@@ -131,9 +133,11 @@ def test_tempature_conversion():
             )
 
     # doc-region-begin temperature functions
-    celsius_to_kelvin: InvertibleFunction[Vector1D] = translate(273.15)
+    celsius_to_kelvin: InvertibleFunction[Vector1D] = translate(
+        Vector1D(273.15)
+    )
     fahrenheit_to_celsius: InvertibleFunction[Vector1D] = compose(
-        uniform_scale(5.0 / 9.0), translate(-32.0)
+        uniform_scale(5.0 / 9.0), translate(Vector1D(-32.0))
     )
     fahrenheit_to_kelvin: InvertibleFunction[Vector1D] = compose(
         celsius_to_kelvin, fahrenheit_to_celsius

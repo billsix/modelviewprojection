@@ -21,14 +21,12 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
+import doctest
 import math
 
 from pytest import approx
 
 import modelviewprojection
-import doctest
-
-
 from modelviewprojection.mathutils import InvertibleFunction
 from modelviewprojection.mathutils3d import (
     Vector3D,
@@ -210,6 +208,7 @@ def test_fn_stack():
     fn_stack.pop()
     assert 1 == fn_stack.modelspace_to_ndc_fn()(1)  # x = 1
     # doc-region-end function stack examples definitions
+
 
 def test_doctest():
     failureCount, testCount = doctest.testmod(modelviewprojection.mathutils3d)
