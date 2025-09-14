@@ -11,6 +11,7 @@ FILES_TO_MOUNT = -v ./assignments:/mvp/assignments/:Z \
 		-v ./pytest.ini:/mvp/pytest.ini:Z \
 		-v ./setup.py:/mvp/setup.py:Z \
 		-v ./src:/mvp/src/:Z \
+		-v ./mvpVisualization:/mvp/mvpVisualization:Z \
 		-v ./tests/:/mvp/tests/:Z \
 		-v ./output/:/output/:Z \
 		-v ./entrypoint/.bashrc:/root/.bashrc:Z

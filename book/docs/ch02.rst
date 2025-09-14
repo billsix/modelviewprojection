@@ -420,12 +420,14 @@ out, but the details of those functions are not relevant when traversing the Cay
 Function composition is used extensively throughout this book.  As a reminder
 
 .. math::
-    {f \circ g}(x)   = {f(g(x))}
+    ({f \circ g})(x)   = {f(g(x))}
 
-Or, with omitting the argument :math:`x`
+
+Given that the compose operation is on the functions, another way of writing it
+omits the argument :math:`x`
 
 .. math::
-    {f \circ g}   = {f(g(x))}
+    {f \circ g}
 
 
 
@@ -446,10 +448,10 @@ between different units of measure.
     Cayley graph of univariate coordinate conversion for temperature.
 
 .. math::
-    f_{c}^{k}(x) = x + 273.15
+    f_{celsius}^{kelvin}(x) = x + 273.15
 
 .. math::
-    f_{f}^{c}(x) = (x-32) * \frac{5}{9}
+    f_{fahrenheit}^{celcius}(x) = (x-32) * \frac{5}{9}
 
 Given that those functions are invertible_, with the Cayley graph
 and the function definitions, we have the information needed
@@ -463,22 +465,22 @@ and/or taking the inverse_ of given functions.
 To convert from fahrenheit to kelvin
 
 .. math::
-    f_{f}^{k} = f_{c}^{k} \circ f_{f}^{c}
+    f_{fahrenheit}^{kelvin} = f_{celcius}^{kelvin} \circ f_{fahrenheit}^{celcius}
 
 To convert from kelvin to celsius
 
 .. math::
-    f_{k}^{c} = {(f_{c}^{k})}^{-1}
+    f_{kelvin}^{celsius} = {(f_{celsius}^{kelvin})}^{-1}
 
 To convert from celsius to fahrenheit
 
 .. math::
-    f_{c}^{f} = {(f_{f}^{c})}^{-1}
+    f_{celsius}^{fahrenheit} = {(f_{fahrenheit}^{celsius})}^{-1}
 
 To convert from kelvin to fahrenheit
 
 .. math::
-    f_{k}^{f} = {(f_{f}^{c})^{-1}} \circ {(f_{c}^{k})^{-1}}
+    f_{kelvin}^{fahrenheit} = {(f_{fahrenheit}^{celsius})^{-1}} \circ {(f_{celsius}^{kelvin})^{-1}}
 
 
 
@@ -486,16 +488,22 @@ Learning what to ignore
 =======================
 
 A big part of being able to understand graphics well is being able
-to figure out what to ignore.  Below is a Cayley graph that shows
-coordinate systems A, B, C, and D, and functions are provided
-to us to convert between some of the spaces.  What do those names A, B,
-C, and D mean?  It doesn't matter.
+to figure out what to ignore. To quote Gerald Sussan in the SICP video lectures
+""One of the things that we have to learn how to do, is to ignore details.  The key
+to understanding complicated things is to know what not to look, and what not to compute, and what not to think."
+
+
+Below is a Cayley graph that shows
+coordinate systems "a", "b", "c", and "d", and functions are provided
+to us to convert between some of the spaces.  What do those names "a", "b",
+"c", and "d" mean?  It doesn't matter.
 What is the definition of all of the functions?  It doesn't matter. All that
 matters
 
 * is that the function exists
 
 * the function is invertible_
+
 
 
 .. figure:: _static/cayleygraph.png
@@ -534,16 +542,6 @@ Since we're dealing with function composition_, we don't even need to specify th
 .. math::
     \vec{f}_{d}^{b}  = {(\vec{{f}_{b}^{a}})}^{-1} \circ {\vec{f}_{c}^{a}} \circ \vec{f}_{d}^{c}
 
-To make it more concrete, using the temperature example, the following
-is python code to create functions to convert between fahrenheit, celcius, and kelvin
-
-.. literalinclude:: ../../tests/test_mathutils1d.py
-   :language: python
-   :start-after: doc-region-begin temperature functions
-   :end-before: doc-region-end temperature functions
-   :linenos:
-   :lineno-match:
-   :caption: tests/test_mathutils1d.py
 
 
 If this seems to abstract for now, don't worry.  By the end of the course, it should be clear.

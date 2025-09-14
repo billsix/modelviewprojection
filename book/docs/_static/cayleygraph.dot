@@ -2,10 +2,10 @@ digraph {
     rankdir="BT"
     nodesep=1
     ranksep=1
-    a [label = "A"];
-    b [label = "B"];
-    c [label = "C"];
-    d [label = "D"];
+    a [label = "a"];
+    b [label = "b"];
+    c [label = "c"];
+    d [label = "d"];
     b -> a [label = <<TABLE border="0"><TR><TD><IMG SRC="bToA.png"/></TD></TR></TABLE>>];
     c -> a [label = <<TABLE border="0"><TR><TD><IMG SRC="cToA.png"/></TD></TR></TABLE>>];
     d -> c [label = <<TABLE border="0"><TR><TD><IMG SRC="dToC.png"/></TD></TR></TABLE>>];
