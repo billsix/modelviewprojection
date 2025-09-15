@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.17.2
+#       jupytext_version: 1.17.3
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -43,11 +43,29 @@ from modelviewprojection.softwarerendering import (
     show_framebuffer,
 )
 
+# %% [markdown]
+# Make a framebuffer, which is just a rectangular region of values
+
 # %%
 # Show initial random framebuffer
 make_framebuffer(width=100, height=100)
 show_framebuffer()
 
+
+# %% [raw]
+# Draw a triangle in the framebuffer
+
+# %%
+# Example: draw a white triangle
+draw_filled_triangle(
+    Vector2D(50, 50), Vector2D(50, 70), Vector2D(70, 70), color=WHITE
+)
+show_framebuffer()
+
+
+
+# %% [raw]
+# Whoops!  That looks like trash.  We should change the background to have all one color.  That's what clear_framebuffer does
 
 # %%
 # Clear to black and show
@@ -63,12 +81,14 @@ draw_filled_triangle(
 )
 show_framebuffer()
 
+# draw a red triangle
 draw_filled_triangle(
     Vector2D(50, 50), Vector2D(30, 50), Vector2D(30, 30), color=RED
 )
 show_framebuffer()
 
-# %%
+# %% [markdown]
+# Make a larger framebuffer
 # %%
 # Show initial random framebuffer
 make_framebuffer(width=400, height=400)
