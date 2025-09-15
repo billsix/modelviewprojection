@@ -63,7 +63,6 @@ draw_filled_triangle(
 show_framebuffer()
 
 
-
 # %% [raw]
 # Whoops!  That looks like trash.  We should change the background to have all one color.  That's what clear_framebuffer does
 

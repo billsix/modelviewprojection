@@ -32,6 +32,8 @@ from modelviewprojection.mathutils2d import (
     Vector2D,
     compose,
     inverse,
+    is_clockwise,
+    is_parallel,
     rotate,
     rotate_90_degrees,
     scale,
@@ -41,28 +43,66 @@ from modelviewprojection.mathutils2d import (
 
 
 def test___add__():
-    result = Vector2D(x=1.0, y=2.0) + Vector2D(x=3.0, y=4.0)
+    result: Vector2D = Vector2D(x=1.0, y=2.0) + Vector2D(x=3.0, y=4.0)
     assert result == Vector2D(x=approx(4.0), y=approx(6.0))
 
 
 def test___sub__():
-    result = Vector2D(x=5.0, y=8.0) - Vector2D(x=1.0, y=2.0)
+    result: Vector2D = Vector2D(x=5.0, y=8.0) - Vector2D(x=1.0, y=2.0)
     assert result == Vector2D(x=approx(4.0), y=approx(6.0))
 
 
 def test___mul__():
-    result = Vector2D(x=2.0, y=3.0) * 4.0
+    result: Vector2D = Vector2D(x=2.0, y=3.0) * 4.0
     assert result == Vector2D(x=approx(8.0), y=approx(12.0))
 
 
 def test___rmul__():
-    result = 4.0 * Vector2D(x=2.0, y=3.0)
+    result: Vector2D = 4.0 * Vector2D(x=2.0, y=3.0)
     assert result == Vector2D(x=approx(8.0), y=approx(12.0))
 
 
 def test___neg__():
-    result = -Vector2D(x=2.0, y=3.0)
+    result: Vector2D = -Vector2D(x=2.0, y=3.0)
     assert result == Vector2D(x=approx(-2.0), y=approx(-3.0))
+
+
+def test___abs__():
+    result: float = abs(Vector2D(x=3.0, y=-4.0))
+    assert result == approx(5.0)
+
+
+def test___dot__():
+    assert Vector2D(x=1.0, y=0.0).dot(Vector2D(x=0.0, y=1.0)) == approx(0.0)
+    assert Vector2D(x=1.0, y=0.0).dot(Vector2D(x=1.0, y=0.0)) == approx(1.0)
+    assert Vector2D(x=0.0, y=1.0).dot(Vector2D(x=0.0, y=1.0)) == approx(1.0)
+    assert Vector2D(x=3.0, y=0.0).dot(Vector2D(x=1.0, y=0.0)) == approx(3.0)
+    assert Vector2D(x=0.0, y=4.0).dot(Vector2D(x=0.0, y=1.0)) == approx(4.0)
+
+
+def test_is_parallel():
+    assert is_parallel(Vector2D(x=1.0, y=0.0), Vector2D(x=2.0, y=0.0))
+    assert is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=0.0, y=1.0))
+    assert is_parallel(Vector2D(x=1.0, y=5.0), Vector2D(x=0.0, y=1.0)) == False
+    assert is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=0.2, y=1.0)) == False
+    assert is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=1.0, y=0.0)) == False
+
+
+def test_is_clockwise():
+    assert is_clockwise(Vector2D(x=1.0, y=0.0), Vector2D(x=0.0, y=0.1))
+    assert (
+        is_clockwise(Vector2D(x=1.0, y=0.0), Vector2D(x=0.0, y=-0.1)) == False
+    )
+    assert is_clockwise(Vector2D(x=0.0, y=1.0), Vector2D(x=-0.1, y=1.0))
+    assert is_clockwise(Vector2D(x=0.0, y=1.0), Vector2D(x=0.1, y=1.0)) == False
+    assert (
+        is_clockwise(Vector2D(x=-1.0, y=0.0), Vector2D(x=-1.0, y=0.1)) == False
+    )
+    assert is_clockwise(Vector2D(x=-1.0, y=0.0), Vector2D(x=-1.0, y=-0.1))
+    assert (
+        is_clockwise(Vector2D(x=0.0, y=-1.0), Vector2D(x=-0.1, y=-1.0)) == False
+    )
+    assert is_clockwise(Vector2D(x=0.0, y=-1.0), Vector2D(x=0.1, y=-1.0))
 
 
 def wrap_vec2_test(fn, input_val, output_val):
