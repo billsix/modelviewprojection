@@ -21,6 +21,9 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 import math
 from dataclasses import dataclass
 
+import numpy as np
+from pytest import approx
+
 from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
 
 
@@ -150,6 +153,12 @@ class Vector2D:
         """
         return -1.0 * self
 
+    def __abs__(self) -> float:
+        return np.sqrt(self.dot(self))
+
+    def dot(self, rhs: Vector2D) -> float:
+        return self.x * rhs.x + self.y * rhs.y
+
 
 # doc-region-begin define translate
 def translate(translate_amount: Vector2D) -> InvertibleFunction[Vector2D]:
@@ -241,3 +250,19 @@ def rotate_around(
 
 
 # doc-region-end define rotate around
+
+
+# doc-region-begin clockwise
+def is_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
+    return rotate_90_degrees()(v1).dot(v2) > 0.0
+
+
+# doc-region-end clockwise
+
+
+# doc-region-begin parallel
+def is_parallel(v1: Vector2D, v2: Vector2D) -> bool:
+    return v1.dot(v2) == approx(abs(v1) * abs(v2), abs=0.01)
+
+
+# doc-region-end parallel

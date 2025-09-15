@@ -21,12 +21,10 @@ from typing import Tuple
 import IPython.display as display
 import numpy as np
 import PIL
-import pytest
 from IPython.display import display
 from PIL import Image
 
-from modelviewprojection.mathutils2d import Vector2D
-from modelviewprojection.mathutils3d import Vector3D
+from modelviewprojection.mathutils2d import Vector2D, is_clockwise, is_parallel
 
 WIDTH: int
 HEIGHT: int
@@ -111,25 +109,21 @@ def draw_filled_triangle(
     min_y: int = max(int(min(y1, y2, y3)), 0)
     max_y: int = min(int(max(y1, y2, y3)), HEIGHT - 1)
 
-    v1: Vector3D = Vector3D(x1, y1, 0.0)
-    v2: Vector3D = Vector3D(x2, y2, 0.0)
-    v3: Vector3D = Vector3D(x3, y3, 0.0)
+    v1: Vector2D = Vector2D(x1, y1)
+    v2: Vector2D = Vector2D(x2, y2)
+    v3: Vector2D = Vector2D(x3, y3)
 
-    up: Vector3D = Vector3D(0.0, 0.0, 1.0)
-
-    if (v2 - v1).cross(v3 - v2).dot(up) == pytest.approx(0.0):
+    if is_parallel(v2 - v1, v3 - v2):
         return  # Degenerate triangle
 
     # Loop over bounding box
     for y in range(min_y, max_y + 1):
         for x in range(min_x, max_x + 1):
-            pixel_position: Vector3D = Vector3D(x, y, 0.0)
-            w0: float = (v2 - v1).cross(pixel_position - v1).dot(up)
-            w1: float = (v3 - v2).cross(pixel_position - v2).dot(up)
-            w2: float = (v1 - v3).cross(pixel_position - v3).dot(up)
+            pixel_position: Vector2D = Vector2D(x, y)
+            w0: bool = is_clockwise(v2 - v1, pixel_position - v1)
+            w1: bool = is_clockwise(v3 - v2, pixel_position - v2)
+            w2: bool = is_clockwise(v1 - v3, pixel_position - v3)
 
             # If the signs match the triangle area, pixel is inside
-            if (w0 >= 0 and w1 >= 0 and w2 >= 0) or (
-                w0 <= 0 and w1 <= 0 and w2 <= 0
-            ):
+            if all([w0, w1, w2]) or not any([w0, w1, w2]):
                 framebuffer[y, x] = color

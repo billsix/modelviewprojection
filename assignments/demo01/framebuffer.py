@@ -31,6 +31,8 @@
 # Boston, MA 02111-1307, USA.
 
 
+from modelviewprojection.mathutils2d import Vector2D
+
 # %%
 from modelviewprojection.softwarerendering import (
     RED,
@@ -56,10 +58,14 @@ show_framebuffer()
 # %%
 # Example: draw a white triangle
 clear_framebuffer()
-draw_filled_triangle((50, 50), (50, 70), (70, 70), color=WHITE)
+draw_filled_triangle(
+    Vector2D(50, 50), Vector2D(50, 70), Vector2D(70, 70), color=WHITE
+)
 show_framebuffer()
 
-draw_filled_triangle((50, 50), (30, 50), (30, 30), color=RED)
+draw_filled_triangle(
+    Vector2D(50, 50), Vector2D(30, 50), Vector2D(30, 30), color=RED
+)
 show_framebuffer()
 
 # %%
@@ -78,10 +84,14 @@ show_framebuffer()
 # %%
 # Example: draw a white triangle
 clear_framebuffer()
-draw_filled_triangle((50, 50), (50, 70), (70, 70), color=WHITE)
+draw_filled_triangle(
+    Vector2D(50, 50), Vector2D(50, 70), Vector2D(70, 70), color=WHITE
+)
 show_framebuffer()
 
-draw_filled_triangle((50, 50), (30, 50), (30, 30), color=RED)
+draw_filled_triangle(
+    Vector2D(50, 50), Vector2D(30, 50), Vector2D(30, 30), color=RED
+)
 show_framebuffer()
 
 # %%

@@ -117,6 +117,8 @@ def draw_a_triangle() -> None:
     glVertex2f(-0.8, 0.3)
     glVertex2f(-1.0, 0.3)
     glEnd()
+
+
 # doc-region-end draw a triangle
 
 
@@ -187,6 +189,8 @@ def draw_x_squared_with_precomputed_values() -> None:
     glVertex2f(1.0, 1.0)
 
     glEnd()
+
+
 # doc-region-end draw x squared precomputed
 
 
@@ -210,6 +214,8 @@ def plot(
         glVertex2f(x, fn(x))
         glVertex2f(x, fn(x))
     glEnd()
+
+
 # doc-region-end generic plot function
 
 
@@ -220,7 +226,10 @@ def use_plot_function_for_x_minus_onehalf_squared() -> None:
 
     glColor3f(1.0, 0.0, 0.0)
     plot(fn=x_minus_onehalf_squared, domain=(-1, 1), interval=0.001)
+
+
 # doc-region-end draw (x minus 1/2)^2
+
 
 # doc-region-begin draw an oscillating triangle
 def draw_an_oscillating_triangle(elapsed_time_in_seconds: float) -> None:
@@ -237,6 +246,8 @@ def draw_an_oscillating_triangle(elapsed_time_in_seconds: float) -> None:
     glVertex2f(0.5 + offset_x, 0.0)
     glVertex2f(0.0 + offset_x, 0.5)
     glEnd()
+
+
 # doc-region-end draw an oscillating triangle
 
 
@@ -250,6 +261,8 @@ def use_plot_function_with_unnamed_function(
         domain=(-1, 1),
         interval=0.01,
     )
+
+
 # doc-region-end unnamed_function
 
 
@@ -273,6 +286,8 @@ def draw_circle() -> None:
             scale_radius * math.sin(theta + theta_increment),
         )
     glEnd()
+
+
 # doc-region-end circle
 
 
