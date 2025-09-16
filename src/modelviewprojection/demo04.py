@@ -103,9 +103,7 @@ def draw_in_square_viewport() -> None:
 class Vector:
     x: float
     y: float
-
-
-# doc-region-end define vector class
+    # doc-region-end define vector class
 
 
 # doc-region-begin define paddle class
@@ -113,9 +111,8 @@ class Vector:
 class Paddle:
     vertices: list[Vector]
     color: Color3
+    # doc-region-end define paddle class
 
-
-# doc-region-end define paddle class
 
 # doc-region-begin instantiate paddles
 paddle1 = Paddle(

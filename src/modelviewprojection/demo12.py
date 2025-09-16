@@ -224,8 +224,6 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    # fmt: off
-
     glColor3f(*astuple(paddle1.color))
 
     glBegin(GL_QUADS)
@@ -236,14 +234,12 @@ while not glfw.window_should_close(window):
             # world space to camera space
             inverse(translate(camera.position_ws)),
             # model space to world space
-            compose(translate(paddle1.position),
-                    rotate(paddle1.rotation)),
+            compose(translate(paddle1.position), rotate(paddle1.rotation)),
         )
 
         paddle1_vector_ndc: Vector2D = ms_to_ndc(p1_v_ms)
 
-        glVertex2f(paddle1_vector_ndc.x,
-                   paddle1_vector_ndc.y)
+        glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
     glEnd()
 
     # doc-region-begin draw square
@@ -256,12 +252,10 @@ while not glfw.window_should_close(window):
             # world space to camera space
             inverse(translate(camera.position_ws)),
             # model space to world space
-            compose(translate(paddle1.position),
-                    rotate(paddle1.rotation)),
+            compose(translate(paddle1.position), rotate(paddle1.rotation)),
             # square space to paddle 1 space
-            compose(translate(Vector2D(x=2.0,
-                                       y=0.0)),
-                    rotate(square_rotation)))
+            compose(translate(Vector2D(x=2.0, y=0.0)), rotate(square_rotation)),
+        )
         square_vector_ndc: Vector2D = ms_to_ndc(ms)
         glVertex2f(square_vector_ndc.x, square_vector_ndc.y)
     glEnd()
@@ -269,7 +263,6 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin draw paddle 2
     glColor3f(*astuple(paddle2.color))
-
 
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
@@ -279,8 +272,8 @@ while not glfw.window_should_close(window):
             # world space to camera space
             inverse(translate(camera.position_ws)),
             # model space to world space
-            compose(translate(paddle2.position),
-                    rotate(paddle2.rotation)))
+            compose(translate(paddle2.position), rotate(paddle2.rotation)),
+        )
 
         paddle2_vector_ndc: Vector2D = ms_to_ndc(p2_v_ms)
 
@@ -288,6 +281,5 @@ while not glfw.window_should_close(window):
     glEnd()
 
     glfw.swap_buffers(window)
-    # fmt: on
 
 glfw.terminate()

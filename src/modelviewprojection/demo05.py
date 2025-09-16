@@ -108,9 +108,8 @@ class Paddle:
     vertices: list[Vector2D]
     color: Color3
     position: Vector2D
+    # doc-region-end define paddle class
 
-
-# doc-region-end define paddle class
 
 # doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
@@ -149,9 +148,8 @@ def handle_movement_of_paddles() -> None:
         paddle2.position.y -= 0.1
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 0.1
+    # doc-region-end define handle movement of paddles
 
-
-# doc-region-end define handle movement of paddles
 
 TARGET_FRAMERATE: int = 60
 

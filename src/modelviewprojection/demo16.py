@@ -233,8 +233,6 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    # fmt: off
-
     # doc-region-begin stack push camera space to ndc
     # camera space to NDC
     fn_stack.push(uniform_scale(1.0 / 10.0))
@@ -247,8 +245,9 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin paddle 1 transformations
     # paddle 1 model space to world space
-    fn_stack.push(compose(translate(paddle1.position),
-                          rotate_z(paddle1.rotation)))
+    fn_stack.push(
+        compose(translate(paddle1.position), rotate_z(paddle1.rotation))
+    )
     # doc-region-end paddle 1 transformations
 
     # doc-region-begin draw paddle 1
@@ -265,10 +264,14 @@ while not glfw.window_should_close(window):
     # doc-region-end draw paddle 1
 
     # doc-region-begin square space to paddle 1 space
-    fn_stack.push(compose(translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
-                          rotate_z(rotation_around_paddle1),
-                          translate(Vector3D(x=2.0, y=0.0, z=0.0)),
-                          rotate_z(square_rotation)))
+    fn_stack.push(
+        compose(
+            translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
+            rotate_z(rotation_around_paddle1),
+            translate(Vector3D(x=2.0, y=0.0, z=0.0)),
+            rotate_z(square_rotation),
+        )
+    )
     # doc-region-end square space to paddle 1 space
     # doc-region-begin draw square
     glColor3f(0.0, 0.0, 1.0)
@@ -291,8 +294,9 @@ while not glfw.window_should_close(window):
     # doc-region-end back to world space
 
     # doc-region-begin paddle 2 model space to world space
-    fn_stack.push(compose(translate(paddle2.position),
-                          rotate_z(paddle2.rotation)))
+    fn_stack.push(
+        compose(translate(paddle2.position), rotate_z(paddle2.rotation))
+    )
     # doc-region-end paddle 2 model space to world space
 
     # doc-region-begin draw paddle 2
@@ -308,7 +312,6 @@ while not glfw.window_should_close(window):
         )
     glEnd()
     # doc-region-end draw paddle 2
-    # fmt: on
 
     # doc-region-begin clear function stack for next iteration of the event loop
     # done rendering everything for this frame, just go ahead and clear all functions

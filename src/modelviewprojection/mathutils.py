@@ -106,9 +106,7 @@ def inverse(f: InvertibleFunction[T]) -> InvertibleFunction[T]:
     """
 
     return InvertibleFunction(f.inverse, f.func)
-
-
-# doc-region-end define invertible function
+    # doc-region-end define invertible function
 
 
 def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:

@@ -26,8 +26,6 @@ from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_MODELVIEW,
                        glMatrixMode, glViewport)
 
 # doc-region-end import first module
-
-
 # fmt: on
 
 # doc-region-begin initialize glfw
@@ -59,9 +57,8 @@ glfw.make_context_current(window)
 def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(win, 1)
+    # doc-region-end on user hitting escape, end event loop and quit
 
-
-# doc-region-end on user hitting escape, end event loop and quit
 
 glfw.set_key_callback(window, on_key)
 
@@ -85,6 +82,6 @@ while not glfw.window_should_close(window):
     glViewport(0, 0, width, height)
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
     glfw.swap_buffers(window)
-# doc-region-end event loop
+    # doc-region-end event loop
 
 glfw.terminate()

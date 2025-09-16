@@ -187,7 +187,6 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_movement_of_paddles()
 
-    # fmt: off
     # draw paddle 1
     # doc-region-begin draw paddle 1
     glColor3f(*astuple(paddle1.color))
@@ -222,7 +221,6 @@ while not glfw.window_should_close(window):
         glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
-    # fmt: on
     glfw.swap_buffers(window)
 
 glfw.terminate()

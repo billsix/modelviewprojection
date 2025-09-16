@@ -169,9 +169,7 @@ def translate(translate_amount: Vector2D) -> InvertibleFunction[Vector2D]:
         return vector - translate_amount
 
     return InvertibleFunction[Vector2D](f, f_inv)
-
-
-# doc-region-end define translate
+    # doc-region-end define translate
 
 
 # doc-region-begin define uniform scale
@@ -186,9 +184,7 @@ def uniform_scale(scalar: float) -> InvertibleFunction[Vector2D]:
         return vector * (1.0 / scalar)
 
     return InvertibleFunction[Vector2D](f, f_inv)
-
-
-# doc-region-end define uniform scale
+    # doc-region-end define uniform scale
 
 
 def scale(scale_x: float, scale_y: float) -> InvertibleFunction[Vector2D]:
@@ -233,9 +229,7 @@ def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2D]:
         return parallel + perpendicular
 
     return InvertibleFunction[Vector2D](f, f_inv)
-
-
-# doc-region-end define rotate
+    # doc-region-end define rotate
 
 
 # doc-region-begin define rotate around
@@ -247,22 +241,16 @@ def rotate_around(
     translation_back: InvertibleFunction[Vector2D] = translate(center)
 
     return compose(translation_back, rotation, translation_to_origin)
-
-
-# doc-region-end define rotate around
+    # doc-region-end define rotate around
 
 
 # doc-region-begin clockwise
 def is_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
     return rotate_90_degrees()(v1).dot(v2) > 0.0
-
-
-# doc-region-end clockwise
+    # doc-region-end clockwise
 
 
 # doc-region-begin parallel
 def is_parallel(v1: Vector2D, v2: Vector2D) -> bool:
     return v1.dot(v2) == approx(abs(v1) * abs(v2), abs=0.01)
-
-
-# doc-region-end parallel
+    # doc-region-end parallel

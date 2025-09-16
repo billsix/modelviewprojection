@@ -36,6 +36,7 @@ class Vector3D:
     x: float  #: The x-component of the 3D Vector
     y: float  #: The y-component of the 3D Vector
     z: float  #: The z-component of the 3D Vector
+    # doc-region-end define vector class
 
     def __add__(self, rhs: Vector3D) -> Vector3D:
         """
@@ -184,9 +185,6 @@ def translate(translate_amount: Vector3D) -> InvertibleFunction[Vector3D]:
     return InvertibleFunction[Vector3D](f, f_inv)
 
 
-# doc-region-end define vector class
-
-
 # doc-region-begin define rotate x
 def rotate_x(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
     fn = rotate2D(angle_in_radians)
@@ -200,9 +198,7 @@ def rotate_x(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
         return Vector3D(x=vector.x, y=yz_on_xy.x, z=yz_on_xy.y)
 
     return InvertibleFunction[Vector3D](f, f_inv)
-
-
-# doc-region-end define rotate x
+    # doc-region-end define rotate x
 
 
 # doc-region-begin define rotate y
@@ -218,9 +214,7 @@ def rotate_y(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
         return Vector3D(x=zx_on_xy.y, y=vector.y, z=zx_on_xy.x)
 
     return InvertibleFunction[Vector3D](f, f_inv)
-
-
-# doc-region-end define rotate y
+    # doc-region-end define rotate y
 
 
 # doc-region-begin define rotate z
@@ -236,9 +230,7 @@ def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
         return Vector3D(x=xy_on_xy.x, y=xy_on_xy.y, z=vector.z)
 
     return InvertibleFunction[Vector3D](f, f_inv)
-
-
-# doc-region-end define rotate z
+    # doc-region-end define rotate z
 
 
 # doc-region-begin define uniform scale
@@ -253,9 +245,7 @@ def uniform_scale(scalar: float) -> InvertibleFunction[Vector3D]:
         return vector * (1.0 / scalar)
 
     return InvertibleFunction[Vector3D](f, f_inv)
-
-
-# doc-region-end define uniform scale
+    # doc-region-end define uniform scale
 
 
 def scale(
@@ -318,9 +308,7 @@ def ortho(
         return f_inv(fn)(vector)
 
     return InvertibleFunction[Vector3D](f, f_inv)
-
-
-# doc-region-end define ortho
+    # doc-region-end define ortho
 
 
 # doc-region-begin define perspective
@@ -362,9 +350,7 @@ def perspective(
         )
 
     return InvertibleFunction[Vector3D](f, f_inv)
-
-
-# doc-region-end define perspective
+    # doc-region-end define perspective
 
 
 def cs_to_ndc_space_fn(vector: Vector3D) -> InvertibleFunction[Vector3D]:

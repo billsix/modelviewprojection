@@ -189,7 +189,6 @@ def handle_inputs() -> None:
         square_rotation += 0.1
 
     global camera
-    # fmt: off
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.rot_y -= 0.03
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
@@ -200,13 +199,16 @@ def handle_inputs() -> None:
         camera.rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         forwards_cs = Vector3D(x=0.0, y=0.0, z=-1.0)
-        forward_ws = compose(translate(camera.position_ws), rotate_y(camera.rot_y))(forwards_cs)
+        forward_ws = compose(
+            translate(camera.position_ws), rotate_y(camera.rot_y)
+        )(forwards_cs)
         camera.position_ws = forward_ws
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         forwards_cs = Vector3D(x=0.0, y=0.0, z=1.0)
-        forward_ws = compose(translate(camera.position_ws), rotate_y(camera.rot_y))(forwards_cs)
+        forward_ws = compose(
+            translate(camera.position_ws), rotate_y(camera.rot_y)
+        )(forwards_cs)
         camera.position_ws = forward_ws
-    # fmt: on
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:

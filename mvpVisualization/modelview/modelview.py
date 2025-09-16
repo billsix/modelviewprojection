@@ -23,7 +23,6 @@ from typing import Optional, Tuple
 
 import glfw
 import numpy as np
-import pyMatrixStack as ms
 from OpenGL.GL import (
     GL_COLOR_BUFFER_BIT,
     GL_DEPTH_BUFFER_BIT,
@@ -47,6 +46,8 @@ from OpenGL.GL import (
     glVertex3f,
     glViewport,
 )
+
+import modelviewprojection.pyMatrixStack as ms
 
 if not glfw.init():
     sys.exit()

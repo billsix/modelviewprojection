@@ -29,7 +29,6 @@ import numpy as np
 
 # new - SHADERS
 import OpenGL.GL.shaders as shaders
-import pyMatrixStack as ms
 from colorutils import Color4
 from imgui.integrations.glfw import GlfwRenderer
 from OpenGL.GL import (
@@ -72,6 +71,8 @@ from OpenGL.GL import (
     glVertexAttribPointer,
     glViewport,
 )
+
+import modelviewprojection.pyMatrixStack as ms
 
 if not glfw.init():
     sys.exit()

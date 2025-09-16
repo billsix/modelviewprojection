@@ -186,6 +186,4 @@ def uniform_scale(scalar: float) -> InvertibleFunction[Vector1D]:
         return vector * (1.0 / scalar)
 
     return InvertibleFunction[Vector1D](f, f_inv)
-
-
-# doc-region-end define uniform scale
+    # doc-region-end define uniform scale

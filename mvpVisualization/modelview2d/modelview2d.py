@@ -24,7 +24,6 @@ import glfw
 import imgui
 import numpy as np
 import OpenGL.GL.shaders as shaders
-import pyMatrixStack as ms
 from imgui.integrations.glfw import GlfwRenderer
 from numpy import ndarray
 from OpenGL.GL import (
@@ -69,6 +68,8 @@ from OpenGL.GL import (
     glVertexAttribPointer,
     glViewport,
 )
+
+import modelviewprojection.pyMatrixStack as ms
 
 # NEW - for shader location
 pwd = os.path.dirname(os.path.abspath(__file__))

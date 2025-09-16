@@ -375,15 +375,17 @@ def ortho(left, right, bottom, top, near, far):
     ry = -(top + bottom) / (top - bottom)
     rz = -(far + near) / (far - near)
 
+    # fmt: off
     __projectionStack__[-1] = np.matrix(
         [
-            [2.0 / dx, 0.0, 0.0, rx],
-            [0.0, 2.0 / dy, 0.0, ry],
-            [0.0, 0.0, -2.0 / dz, rz],
-            [0.0, 0.0, 0.0, 1.0],
+            [2.0 / dx, 0.0,      0.0,       rx],
+            [0.0,      2.0 / dy, 0.0,       ry],
+            [0.0,      0.0,      -2.0 / dz, rz],
+            [0.0,      0.0,      0.0,       1.0],
         ],
         dtype=np.float32,
     )
+    # fmt: on
 
 
 def perspective(field_of_view, aspect_ratio, near_z, far_z):
@@ -401,17 +403,14 @@ def perspective(field_of_view, aspect_ratio, near_z, far_z):
     top = near_z * math.tan(field_of_view * 3.14159265358979323846 / 360.0)
     right = top * aspect_ratio
 
+    # fmt: off
     __projectionStack__[-1] = np.matrix(
         [
-            [near_z / right, 0.0, 0.0, 0.0],
-            [0.0, near_z / top, 0.0, 0.0],
-            [
-                0.0,
-                0.0,
-                -(far_z + near_z) / (far_z - near_z),
-                -2 * (far_z * near_z) / (far_z - near_z),
-            ],
-            [0.0, 0.0, -1.0, 0.0],
+            [near_z / right, 0.0,          0.0,                                  0.0],
+            [0.0,            near_z / top, 0.0,                                  0.0],
+            [0.0,            0.0,          -(far_z + near_z) / (far_z - near_z), -2 * (far_z * near_z) / (far_z - near_z)],
+            [0.0,            0.0,          -1.0,                                 0.0],
         ],
         dtype=np.float32,
     )
+    # fmt: on

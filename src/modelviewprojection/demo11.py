@@ -219,7 +219,6 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport()
     handle_inputs()
 
-    # fmt: off
     # doc-region-begin draw paddle 1
     glColor3f(*astuple(paddle1.color))
 
@@ -231,8 +230,8 @@ while not glfw.window_should_close(window):
             # world space to camera space
             inverse(translate(camera.position_ws)),
             # model space to world space
-            compose(translate(paddle1.position),
-                    rotate(paddle1.rotation)))
+            compose(translate(paddle1.position), rotate(paddle1.rotation)),
+        )
 
         paddle1_vector_ndc: Vector2D = ms_to_ndc(p1_v_ms)
 
@@ -250,11 +249,10 @@ while not glfw.window_should_close(window):
             # world space to camera space
             inverse(translate(camera.position_ws)),
             # model space to world space
-            compose(translate(paddle1.position),
-                    rotate(paddle1.rotation)),
+            compose(translate(paddle1.position), rotate(paddle1.rotation)),
             # square space to paddle 1 space
-            translate(Vector2D(x=2.0,
-                               y=0.0)))
+            translate(Vector2D(x=2.0, y=0.0)),
+        )
         square_vector_ndc: Vector2D = ms_to_ndc(ms)
         glVertex2f(square_vector_ndc.x, square_vector_ndc.y)
     glEnd()
@@ -271,8 +269,8 @@ while not glfw.window_should_close(window):
             # world space to camera space
             inverse(translate(camera.position_ws)),
             # model space to world space
-            compose(translate(paddle2.position),
-                    rotate(paddle2.rotation)))
+            compose(translate(paddle2.position), rotate(paddle2.rotation)),
+        )
 
         paddle2_vector_ndc: Vector2D = ms_to_ndc(p2_v_ms)
 
@@ -280,5 +278,4 @@ while not glfw.window_should_close(window):
     glEnd()
     # doc-region-end draw paddle 2
     glfw.swap_buffers(window)
-    # fmt: on
 glfw.terminate()

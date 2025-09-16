@@ -179,19 +179,16 @@ while not glfw.window_should_close(window):
     handle_movement_of_paddles()
     # doc-region-end begin event loop
 
-    # fmt: off
     # doc-region-begin draw paddle 1
     glColor3f(*astuple(paddle1.color))
 
     glBegin(GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         fn: InvertibleFunction[Vector2D] = compose(
-            uniform_scale(1.0 / 10.0),
-            translate(paddle1.position)
+            uniform_scale(1.0 / 10.0), translate(paddle1.position)
         )
         paddle1_vector_ndc: Vector2D = fn(p1_v_ms)
-        glVertex2f(paddle1_vector_ndc.x,
-                   paddle1_vector_ndc.y)
+        glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
 
     glEnd()
     # doc-region-end draw paddle 1
@@ -199,16 +196,13 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     glColor3f(*astuple(paddle2.color))
 
-
     glBegin(GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         fn: InvertibleFunction[Vector2D] = compose(
-            uniform_scale(1.0 / 10.0),
-            translate(paddle2.position)
+            uniform_scale(1.0 / 10.0), translate(paddle2.position)
         )
         paddle2_vector_ndc: Vector2D = fn(p2_v_ms)
-        glVertex2f(paddle2_vector_ndc.x,
-                   paddle2_vector_ndc.y)
+        glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     glEnd()
     # doc-region-end draw paddle 2
 
@@ -216,5 +210,4 @@ while not glfw.window_should_close(window):
     # doc-region-begin flush framebuffer
     glfw.swap_buffers(window)
     # doc-region-end flush framebuffer
-    # fmt: on
 glfw.terminate()

@@ -21,7 +21,6 @@ from typing import Tuple
 import IPython.display as display
 import numpy as np
 import PIL
-from IPython.display import display
 from PIL import Image
 
 from modelviewprojection.mathutils2d import Vector2D, is_clockwise, is_parallel
