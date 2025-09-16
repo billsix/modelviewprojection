@@ -187,12 +187,8 @@ class Vertex:
     def uniform_scale(self: Vertex, scalar: float) -> Vertex:
         return self * scalar
 
-    def scale(
-        self: Vertex, m_x: float, m_y: float, m_z: float
-    ) -> Vertex:
-        return Vertex(
-            x=self.x * m_x, y=self.y * m_y, z=self.z * m_z
-        )
+    def scale(self: Vertex, m_x: float, m_y: float, m_z: float) -> Vertex:
+        return Vertex(x=self.x * m_x, y=self.y * m_y, z=self.z * m_z)
 
     def __neg__(self):
         return -1.0 * self
