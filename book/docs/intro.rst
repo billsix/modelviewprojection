@@ -25,27 +25,37 @@ Approach
 ^^^^^^^^
 
 You’ll learn how to place geometric objects in space, draw them relative to
-others, add a camera that moves over time based on user input, and
+other geometric objects, position a camera in space which moves over time
+based on user input, and
 transform all those objects into the 2D pixel coordinates of your
 screen. By the end, you’ll understand the foundations of creating
 first-person and third-person applications or games. The goal? To
 empower you to build the graphics programs you want, using math you
 mostly already know.
 
+
+
 This book intentionally keeps things simple intended for beginners.
 In this book, the applications created
 won’t be particularly pretty or realistic-looking. After reading this
 book, for more advanced
-topics, you’ll want to dive into references LearnOpenGL,the OpenGLTutorial,
-or Computer Graphics From Scratch.
+topics, you’ll want to dive into othere references, such as
 
+#. Fundamentals of Computer Graphics, by Shirley and Marschner :cite:`FCG`
+#. Computer Graphics With OpenGL, by Hearn Baker and Carithers :cite:`CGWOGL`
 #. LearnOpenGL_
 #. OpenGLTutorial_
-#. CGFS_
+#. `Computer Graphics From Scratch`_
+#. `Learning Modern 3D Graphics Programming (2012)`_
+#. `OGLdev`_
 
 .. _LearnOpenGL:  https://learnopengl.com/
 .. _OpenGLTutorial:  http://www.opengl-tutorial.org/
-.. _CGFS: https://gabrielgambetta.com/computer-graphics-from-scratch/
+.. _Computer Graphics From Scratch: https://gabrielgambetta.com/computer-graphics-from-scratch/
+.. _Learning Modern 3D Graphics Programming (2012): https://nicolbolas.github.io/oldtut/index.html
+.. _OGLdev: https://ogldev.org/
+
+
 
 
 Things You Should Know
@@ -74,6 +84,7 @@ Required Software
 You will need to install Python, and make a virtual environment.  You can
 search how to do this using a search engine, or AI Chatbot, or follow
 the instructions below.
+
 
 
 Windows
@@ -108,15 +119,28 @@ Linux
 
 Install Python3, glfw via a package manager.  Use pip and virtualenv to install dependencies
 
+On MacOS or Linux, to set up the environment in a terminal, execute
+
+.. code-block:: bash
+
+   python3 -m venv venv
+   source venv/bin/activate
+   python3 -m pip install --upgrade pip setuptools
+   python3 -m pip install -e .
+
+To run the Spyder IDE to execute the code in the book, open Spyder on the developer command
+prompt
+
+.. code-block::
+
+   source venv/bin/activate
+   spyder -p .
+
+
 Mac
 ~~~
 
 Install Python3 (via anaconda, homebrew, macports, whatever), and use pip and virtualenv to install dependencies.
-
-
-
-MacOS or Linux
-~~~~~~~~~~~~~~
 
 On MacOS or Linux, to set up the environment in a terminal, execute
 
@@ -134,6 +158,20 @@ prompt
 
    source venv/bin/activate
    spyder -p .
+
+
+Podman Container
+~~~~~~~~~~~~~~~~
+
+The code is mainly tested against a container in Podman, specified in the Dockerfile.
+
+.. code-block::
+
+   make image # make the base OCI image
+   make shell # get a shell into the environment
+   make spyderimage # make the OCI image that has the base image and Spyder IDE preinstalled
+   make spyder # run spyder in the OCI container
+   make jupyter # run jupyter notebook in a container
 
 
 

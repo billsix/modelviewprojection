@@ -85,6 +85,7 @@ RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
 
 
+RUN dnf install -y python3-sphinxcontrib-bibtex
 
 
 ENTRYPOINT ["/entrypoint.sh"]

@@ -49,6 +49,7 @@ Model View Projection
    perspective
    glossary
    api
+   bibliography
 
 
 

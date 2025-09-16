@@ -144,6 +144,10 @@ of motion for the user.
     :alt: Motion
     :figclass: align-center
 
+For more information on Computer Graphics Hardware,
+see :cite:`FCGmonitor`, or :cite:`CGWOGLMonitor`.
+
+
 
 
 Code

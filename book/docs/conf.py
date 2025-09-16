@@ -72,7 +72,9 @@ extensions = [
     "sphinx.ext.napoleon",  # Required for parsing field descriptions
     "sphinx.ext.viewcode",
     "sphinx.ext.mathjax",
+    "sphinxcontrib.bibtex",
 ]
+bibtex_bibfiles = ['references.bib']
 
 # conf.py
 autodoc_default_options = {
