@@ -234,15 +234,15 @@ def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
 
 
 # doc-region-begin define uniform scale
-def uniform_scale(scalar: float) -> InvertibleFunction[Vector3D]:
+def uniform_scale(m: float) -> InvertibleFunction[Vector3D]:
     def f(vector: Vector3D) -> Vector3D:
-        return vector * scalar
+        return vector * m
 
     def f_inv(vector: Vector3D) -> Vector3D:
-        if scalar == 0.0:
+        if m == 0.0:
             raise ValueError("Not invertible.  Scaling factor cannot be zero.")
 
-        return vector * (1.0 / scalar)
+        return vector * (1.0 / m)
 
     return InvertibleFunction[Vector3D](f, f_inv)
     # doc-region-end define uniform scale

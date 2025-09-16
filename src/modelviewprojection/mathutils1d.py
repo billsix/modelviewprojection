@@ -176,14 +176,14 @@ def translate(b: Vector1D) -> InvertibleFunction[Vector1D]:
 
 
 # doc-region-begin define uniform scale
-def uniform_scale(scalar: float) -> InvertibleFunction[Vector1D]:
+def uniform_scale(m: float) -> InvertibleFunction[Vector1D]:
     def f(vector: Vector1D) -> Vector1D:
-        return vector * scalar
+        return vector * m
 
     def f_inv(vector: Vector1D) -> Vector1D:
-        if scalar == 0:
+        if m == 0:
             raise ValueError("Scaling factor cannot be zero.")
-        return vector * (1.0 / scalar)
+        return vector * (1.0 / m)
 
     return InvertibleFunction[Vector1D](f, f_inv)
     # doc-region-end define uniform scale
