@@ -175,12 +175,12 @@ def abs_sin(v1: Vector3D, v2: Vector3D) -> float:
     return abs(v1.cross(v2)) / (abs(v1) * abs(v2))
 
 
-def translate(translate_amount: Vector3D) -> InvertibleFunction[Vector3D]:
+def translate(b: Vector3D) -> InvertibleFunction[Vector3D]:
     def f(vector: Vector3D) -> Vector3D:
-        return vector + translate_amount
+        return vector + b
 
     def f_inv(vector: Vector3D) -> Vector3D:
-        return vector - translate_amount
+        return vector - b
 
     return InvertibleFunction[Vector3D](f, f_inv)
 

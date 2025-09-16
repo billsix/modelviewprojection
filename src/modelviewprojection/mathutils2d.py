@@ -161,12 +161,12 @@ class Vector2D:
 
 
 # doc-region-begin define translate
-def translate(translate_amount: Vector2D) -> InvertibleFunction[Vector2D]:
+def translate(b: Vector2D) -> InvertibleFunction[Vector2D]:
     def f(vector: Vector2D) -> Vector2D:
-        return vector + translate_amount
+        return vector + b
 
     def f_inv(vector: Vector2D) -> Vector2D:
-        return vector - translate_amount
+        return vector - b
 
     return InvertibleFunction[Vector2D](f, f_inv)
     # doc-region-end define translate

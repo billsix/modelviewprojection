@@ -120,8 +120,8 @@ class Vertex2D:
     def __add__(self, rhs: Vertex2D) -> Vertex2D:
         return Vertex2D(x=self.x + rhs.x, y=self.y + rhs.y)
 
-    def translate(self: Vertex2D, translate_amount: Vertex2D) -> Vertex2D:
-        return self + translate_amount
+    def translate(self: Vertex2D, b: Vertex2D) -> Vertex2D:
+        return self + b
 
     def __mul__(self, scalar: float) -> Vertex2D:
         return Vertex2D(x=self.x * scalar, y=self.y * scalar)
@@ -157,8 +157,8 @@ class Vertex:
     def __add__(self, rhs: Vertex) -> Vertex:
         return Vertex(x=self.x + rhs.x, y=self.y + rhs.y, z=self.z + rhs.z)
 
-    def translate(self: Vertex, translate_amount: Vertex) -> Vertex:
-        return self + translate_amount
+    def translate(self: Vertex, b: Vertex) -> Vertex:
+        return self + b
 
     def rotate_x(self: Vertex, angle_in_radians: float) -> Vertex:
         yz_on_xy: Vertex2D = Vertex2D(x=self.y, y=self.z).rotate(
