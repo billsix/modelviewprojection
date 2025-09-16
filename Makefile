@@ -37,6 +37,8 @@ spyderimage: image  ## Build a podman image in which to run the demos
 
 .PHONY: html
 html: image ## Build the html from the sphinx source
+	printf "This documentation was generated from from commit " > book/docs/version.txt
+	git rev-parse HEAD >> book/docs/version.txt
 	$(CONTAINER_CMD) run -it --rm  \
 		$(FILES_TO_MOUNT) \
 		$(CONTAINER_NAME)
