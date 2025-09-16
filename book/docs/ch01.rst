@@ -268,9 +268,11 @@ are the arguments passed?  It's likely that the first two arguments
 are the width and height of the window, and the third likely
 the title of the window.  What do the fourth and fifth arguments,
 both of which are "None", mean?  The author does not know.  We could
-look it up the APIs online.  But, Python has something called keyword
-arguments, which we will talk about later, where the intent of each parameter
+look it up the APIs online.  But, Python has something called `keyword arguments`_,
+where the intent of each parameter
 is clear at the site of calling the function.
+
+.. _keyword arguments: https://www.pythontutorial.net/python-basics/python-keyword-arguments/
 
 .. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
@@ -281,7 +283,7 @@ is clear at the site of calling the function.
    :caption: src/modelviewprojection/demo01.py
 
 
-*  If GLFW cannot open the window, quit.
+*  If GLFW cannot open the window, the Python process terminates by calling sys.exit.
 
 
 .. literalinclude:: ../../src/modelviewprojection/demo01.py
@@ -295,7 +297,7 @@ is clear at the site of calling the function.
 
 
 * Make the window's context current.  The details of this do not matter
-  for this book.
+  for this book, but we need to call it anyways.
 
 
 
@@ -334,6 +336,12 @@ and applied later zero, 1, or more times.
       <function add_five_to_result_of at 0x10165c040>
       >>> add_five_to_result_of(doubler, 3)
       11
+
+If you are unfamiliar with looking at the lines above, it's
+a session in the Python Read-Evaluate-Print loop, `read more here`_.
+
+.. _read more here : https://realpython.com/interacting-with-python/
+
 
 
 
