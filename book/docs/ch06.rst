@@ -505,7 +505,7 @@ on Vector2D class, and it's wrapped in a class named "InvertibleFunction"
    :lineno-match:
    :caption: src/modelviewprojection/mathutils2d.py
 
-Notice in particular that the "translate_amount" parameter
+Notice in particular that the "b" parameter
 is passed as an argument to "translate",
 but the function for translating, named "f", and the inverse of "f" named "f_inv", take a Vector2D.
 This is because we will be translating many Vector2Ds using the same amount.
