@@ -144,6 +144,10 @@ of motion for the user.
     :alt: Motion
     :figclass: align-center
 
+Reference to Learn More
+-----------------------
+
+
 For more information on Computer Graphics Hardware,
 see :cite:`FCGmonitor`, or :cite:`CGWOGLMonitor`.
 
@@ -151,12 +155,13 @@ see :cite:`FCGmonitor`, or :cite:`CGWOGLMonitor`.
 
 
 Code
-####
+====
+
 
 That's enough terms for now, let's get on to a working program!
 
 Importing Libraries
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 Import Python modules, which are Python programmer's main form of libraries.
 
@@ -180,7 +185,7 @@ Import Python modules, which are Python programmer's main form of libraries.
 
 
 Opening A Window
-~~~~~~~~~~~~~~~~
+----------------
 
 
 Desktop operating systems allow users to run multiple programs simultaneously.
@@ -203,11 +208,11 @@ also provides functions for handling input from keyboards and game controllers.
 
 
 GLFW/OpenGL Initialization
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+--------------------------
 
 
 Initialize GLFW.
-&&&&&&&&&&&&&&&&
+^^^^^^^^^^^^^^^^
 
 .. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
@@ -225,10 +230,17 @@ for later function calls.
 
 
 Set the version of OpenGL
-&&&&&&&&&&&&&&&&&&&&&&&&&
+^^^^^^^^^^^^^^^^^^^^^^^^^
 
-OpenGL has been around a long time, and has multiple, possibly incompatible versions.
-For this demo, we use OpenGL 1.4.  By the end of this book, we will be using OpenGL 3.3.
+
+OpenGL has been around a `long time`_, and has multiple, occassionally incompatible versions.
+For this demo, we use `OpenGL 1.4`_.  By the end of this book, we will be using `OpenGL 3.3 Core Profile`_.
+
+
+
+.. _long time: https://en.wikipedia.org/wiki/OpenGL#History
+.. _OpenGL 1.4: https://khronos.org/registry/OpenGL/specs/gl/glspec14.pdf
+.. _OpenGL 3.3 Core Profile: http://www.opengl.org/registry/doc/glspec33.core.20100311.pdf
 
 .. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
@@ -239,7 +251,7 @@ For this demo, we use OpenGL 1.4.  By the end of this book, we will be using Ope
    :caption: src/modelviewprojection/demo01.py
 
 Create a Window
-&&&&&&&&&&&&&&&
+^^^^^^^^^^^^^^^
 
 
 
@@ -301,7 +313,7 @@ GLFW that the user wants to quit, which we will handle this later in the event
 loop.
 
 To Note
-#######
+-------
 
 
 Functions are first class values in Python, and are objects just
@@ -354,7 +366,7 @@ and applied later zero, 1, or more times.
 
 
 The Event Loop
-~~~~~~~~~~~~~~
+^^^^^^^^^^^^^^
 
 When you pause a movie, motion stops and you see one picture.
 Movies are composed of sequence of pictures, when
@@ -409,7 +421,7 @@ to terminate.
   the monitor, and swap the back and front buffers.
 
 Exercise
-########
+========
 
 * Run the program, close it by hitting Escape.
 
@@ -440,7 +452,8 @@ other one.
 
 
 Black Screen
-############
+============
+
 
 Load src/modelviewprojection/demo01.py in Spyder and hit the play button.
 
