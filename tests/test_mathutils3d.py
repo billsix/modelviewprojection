@@ -112,7 +112,7 @@ def test_uniform_scale():
 
 def test_scale():
     fn: InvertibleFunction[Vector3D] = scale(
-        scale_x=2.0, scale_y=3.0, scale_z=4.0
+        m_x=2.0, m_y=3.0, m_z=4.0
     )
     fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
 

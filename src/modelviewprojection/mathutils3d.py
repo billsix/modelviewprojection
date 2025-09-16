@@ -249,27 +249,27 @@ def uniform_scale(m: float) -> InvertibleFunction[Vector3D]:
 
 
 def scale(
-    scale_x: float, scale_y: float, scale_z: float
+    m_x: float, m_y: float, m_z: float
 ) -> InvertibleFunction[Vector3D]:
     def f(vector: Vector3D) -> Vector3D:
         return Vector3D(
-            x=(vector.x * scale_x),
-            y=(vector.y * scale_y),
-            z=(vector.z * scale_z),
+            x=(vector.x * m_x),
+            y=(vector.y * m_y),
+            z=(vector.z * m_z),
         )
 
     def f_inv(vector: Vector3D) -> Vector3D:
-        if scale_x == 0:
+        if m_x == 0:
             raise ValueError("Note invertible.  Scale_x cannot be zero.")
-        if scale_y == 0:
+        if m_y == 0:
             raise ValueError("Note invertible.  Scale_y cannot be zero.")
-        if scale_z == 0:
+        if m_z == 0:
             raise ValueError("Note invertible.  Scale_z cannot be zero.")
 
         return Vector3D(
-            x=(vector.x / scale_x),
-            y=(vector.y / scale_y),
-            z=(vector.z / scale_z),
+            x=(vector.x / m_x),
+            y=(vector.y / m_y),
+            z=(vector.z / m_z),
         )
 
     return InvertibleFunction[Vector3D](f, f_inv)
@@ -294,9 +294,9 @@ def ortho(
 
     fn = compose(
         scale(
-            scale_x=(2.0 / length_x),
-            scale_y=(2.0 / length_y),
-            scale_z=(2.0 / (-length_z)),
+            m_x=(2.0 / length_x),
+            m_y=(2.0 / length_y),
+            m_z=(2.0 / (-length_z)),
         ),
         translate(-midpoint),
     )

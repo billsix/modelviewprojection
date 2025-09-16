@@ -80,8 +80,8 @@ class Vertex:
     def translate(self: Vertex, tx: float, ty: float) -> Vertex:
         return Vertex(x=self.x + tx, y=self.y + ty)
 
-    def scale(self: Vertex, scale_x: float, scale_y: float) -> Vertex:
-        return Vertex(x=self.x * scale_x, y=self.y * scale_y)
+    def scale(self: Vertex, m_x: float, m_y: float) -> Vertex:
+        return Vertex(x=self.x * m_x, y=self.y * m_y)
 
     def rotate(self: Vertex, angle_in_radians: float) -> Vertex:
         return Vertex(
@@ -226,7 +226,7 @@ while not glfw.window_should_close(window):
         cs: Vertex = ws.translate(
             tx=-camera.position_ws.x, ty=-camera.position_ws.y
         )
-        ndc_space: Vertex = cs.scale(scale_x=1.0 / 10.0, scale_y=1.0 / 10.0)
+        ndc_space: Vertex = cs.scale(m_x=1.0 / 10.0, m_y=1.0 / 10.0)
         if not KEEP_ASPECT_RATIO:
             screen_space: Vertex = ndc_space.ndc_to_screenspace_full_screen(
                 width, height
@@ -248,7 +248,7 @@ while not glfw.window_should_close(window):
         cs: Vertex = ws.translate(
             tx=-camera.position_ws.x, ty=-camera.position_ws.y
         )
-        ndc_space: Vertex = cs.scale(scale_x=1.0 / 10.0, scale_y=1.0 / 10.0)
+        ndc_space: Vertex = cs.scale(m_x=1.0 / 10.0, m_y=1.0 / 10.0)
         if not KEEP_ASPECT_RATIO:
             screen_space: Vertex = ndc_space.ndc_to_screenspace_full_screen(
                 width, height
