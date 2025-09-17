@@ -6,6 +6,6 @@ digraph {
     "Paddle 2 Space" -> "Paddle 2 Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="p2ToP2.png"/></TD></TR></TABLE>> color="red"];
     "World Space" -> "Paddle 1 Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="wToP1.png"/></TD></TR></TABLE>> color="red"];
     "World Space" -> "Paddle 2 Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="wToP2.png"/></TD></TR></TABLE>> color="red"];
-    "World Space" -> "NDC" [label=<<TABLE border="0"><TR><TD><IMG SRC="wToNDC.png"/></TD></TR></TABLE>>];
+    "World Space" -> "NDC" [label=<<TABLE border="0"><TR><TD><IMG SRC="wToNDCname.png"/></TD></TR></TABLE>>];
     "NDC" -> "Screen Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="ndcToScreenspaceName.png"/></TD></TR></TABLE>>];
 }

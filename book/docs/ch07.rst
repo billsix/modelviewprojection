@@ -347,7 +347,7 @@ Therefore
 Cayley Graph
 ^^^^^^^^^^^^
 
-.. figure:: _static/demo06.png
+.. figure:: _static/demo07.png
     :class: no-scale
     :align: center
     :alt: Demo 06

@@ -8,8 +8,8 @@ digraph {
     cs [label = "Camera Space"];
     ws [label = "World Space"];
     ndc [label = "NDC"];
-    p1 -> ws  [label=<<TABLE border="0"><TR><TD><IMG SRC="p1ToW.png"/></TD></TR></TABLE>>,weight="0.2"];
-    p2 -> ws [label=<<TABLE border="0"><TR><TD><IMG SRC="p2ToW.png"/></TD></TR></TABLE>>,weight="0.2"];
+    p1 -> ws  [label=<<TABLE border="0"><TR><TD><IMG SRC="p1ToWname.png"/></TD></TR></TABLE>>,weight="0.2"];
+    p2 -> ws [label=<<TABLE border="0"><TR><TD><IMG SRC="p2ToWname.png"/></TD></TR></TABLE>>,weight="0.2"];
     cs -> ws [label=<<TABLE border="0"><TR><TD><IMG SRC="cToW.png"/></TD></TR></TABLE>>,weight="0.2"];
     cs -> ndc  [label=<<TABLE border="0"><TR><TD><IMG SRC="cToNDC.png"/></TD></TR></TABLE>>,weight="0.2"];
     ndc -> "Screen Space" [label=<<TABLE border="0"><TR><TD><IMG SRC="ndcToScreenspaceName.png"/></TD></TR></TABLE>>];
