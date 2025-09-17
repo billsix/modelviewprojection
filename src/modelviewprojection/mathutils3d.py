@@ -257,11 +257,11 @@ def scale(m_x: float, m_y: float, m_z: float) -> InvertibleFunction[Vector3D]:
         )
 
     def f_inv(vector: Vector3D) -> Vector3D:
-        if m_x == 0:
+        if m_x == 0.0:
             raise ValueError("Note invertible.  Scale_x cannot be zero.")
-        if m_y == 0:
+        if m_y == 0.0:
             raise ValueError("Note invertible.  Scale_y cannot be zero.")
-        if m_z == 0:
+        if m_z == 0.0:
             raise ValueError("Note invertible.  Scale_z cannot be zero.")
 
         return Vector3D(

@@ -181,7 +181,7 @@ def uniform_scale(m: float) -> InvertibleFunction[Vector1D]:
         return vector * m
 
     def f_inv(vector: Vector1D) -> Vector1D:
-        if m == 0:
+        if m == 0.0:
             raise ValueError("Scaling factor cannot be zero.")
         return vector * (1.0 / m)
 

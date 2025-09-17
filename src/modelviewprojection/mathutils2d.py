@@ -20,6 +20,7 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 
 import math
 from dataclasses import dataclass
+from typing import Callable
 
 import numpy as np
 from pytest import approx
@@ -178,7 +179,7 @@ def uniform_scale(m: float) -> InvertibleFunction[Vector2D]:
         return vector * m
 
     def f_inv(vector: Vector2D) -> Vector2D:
-        if m == 0:
+        if m == 0.0:
             raise ValueError("Note invertible.  Scaling factor cannot be zero.")
 
         return vector * (1.0 / m)
@@ -192,7 +193,7 @@ def scale(m_x: float, m_y: float) -> InvertibleFunction[Vector2D]:
         return Vector2D(vector.x * m_x, vector.y * m_y)
 
     def f_inv(vector: Vector2D) -> Vector2D:
-        if m_x == 0 or m_y == 0:
+        if m_x == 0.0 or m_y == 0.0:
             raise ValueError(
                 "Note invertible.  Scaling factors cannot be zero."
             )
@@ -208,27 +209,27 @@ def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
         return Vector2D(-vector.y, vector.x)
 
     def f_inv(vector: Vector2D) -> Vector2D:
-        return Vector2D(vector.y, -vector.x)
+        return -f(vector)
 
     return InvertibleFunction[Vector2D](f, f_inv)
 
 
-def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2D]:
+def rotate(angle_in_radians: float) -> Callable[[Vector2D], Vector2D]:
     r90: InvertibleFunction[Vector2D] = rotate_90_degrees()
 
-    def f(vector: Vector2D) -> Vector2D:
-        parallel: Vector2D = math.cos(angle_in_radians) * vector
-        perpendicular: Vector2D = math.sin(angle_in_radians) * r90(vector)
-        return parallel + perpendicular
+    def create_rotate_function(
+        perp: InvertibleFunction[Vector2D],
+    ) -> Callable[[Vector2D], Vector2D]:
+        def f(vector: Vector2D) -> Vector2D:
+            parallel: Vector2D = math.cos(angle_in_radians) * vector
+            perpendicular: Vector2D = math.sin(angle_in_radians) * perp(vector)
+            return parallel + perpendicular
 
-    def f_inv(vector: Vector2D) -> Vector2D:
-        parallel: Vector2D = math.cos(angle_in_radians) * vector
-        perpendicular: Vector2D = math.sin(angle_in_radians) * inverse(r90)(
-            vector
-        )
-        return parallel + perpendicular
+        return f
 
-    return InvertibleFunction[Vector2D](f, f_inv)
+    return InvertibleFunction[Vector2D](
+        create_rotate_function(r90), create_rotate_function(inverse(r90))
+    )
     # doc-region-end define rotate
 
 
@@ -236,21 +237,27 @@ def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2D]:
 def rotate_around(
     angle_in_radians: float, center: Vector2D
 ) -> InvertibleFunction[Vector2D]:
-    translation_to_origin: InvertibleFunction[Vector2D] = translate(-center)
-    rotation: InvertibleFunction[Vector2D] = rotate(angle_in_radians)
-    translation_back: InvertibleFunction[Vector2D] = translate(center)
-
-    return compose(translation_back, rotation, translation_to_origin)
+    return compose(
+        translate(center), rotate(angle_in_radians), translate(-center)
+    )
     # doc-region-end define rotate around
+
+
+def cosine(v1: Vector2D, v2: Vector2D) -> bool:
+    return v1.dot(v2) / (abs(v1) * (abs(v2)))
+
+
+def sine(v1: Vector2D, v2: Vector2D) -> bool:
+    return rotate_90_degrees()(v1).dot(v2) / (abs(v1) * (abs(v2)))
 
 
 # doc-region-begin clockwise
 def is_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
-    return rotate_90_degrees()(v1).dot(v2) > 0.0
+    return sine(v1, v2) > 0.0
     # doc-region-end clockwise
 
 
 # doc-region-begin parallel
 def is_parallel(v1: Vector2D, v2: Vector2D) -> bool:
-    return v1.dot(v2) == approx(abs(v1) * abs(v2), abs=0.01)
+    return cosine(v1, v2) == approx(1.0, abs=0.01)
     # doc-region-end parallel
