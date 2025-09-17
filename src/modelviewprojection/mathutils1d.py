@@ -18,9 +18,9 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 
-from modelviewprojection.mathutils import InvertibleFunction
+import numpy as np
 
 
 # doc-region-begin define vector class
@@ -28,6 +28,9 @@ from modelviewprojection.mathutils import InvertibleFunction
 class Vector1D:
     x: float  #: The value of the 1D Vector
     # doc-region-end define vector class
+
+    def __iter__(self):
+        return iter(asdict(self).values())
 
     # doc-region-begin define add
     def __add__(self, rhs: Vector1D) -> Vector1D:
@@ -64,14 +67,15 @@ class Vector1D:
     # doc-region-begin define subtract
     def __sub__(self, rhs: Vector1D) -> Vector1D:
         """
-        Subtract the right hand side Vector1D from the left hand side Vector1D.
 
         Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\end{pmatrix}`
         and :math:`\\vec{b} = \\begin{pmatrix} b_x \\end{pmatrix}`:
 
+
         .. math::
 
-             \\vec{a} - \\vec{b} = \\begin{pmatrix} a_x - b_x \\end{pmatrix}
+             \\vec{a} + -\\vec{b}
+
 
         Args:
             rhs (Vector1D): The vector on the right hand side of the
@@ -89,7 +93,7 @@ class Vector1D:
             >>> a - b
             Vector1D(x=-3.0)
         """
-        return Vector1D(x=(self.x - rhs.x))
+        return self + -rhs
 
     # doc-region-end define subtract
 
@@ -148,42 +152,9 @@ class Vector1D:
         """
         return -1.0 * self
 
+    # The dot method uses the generic iterators provided by self and other
+    def dot(self, other: Vector1D) -> float:
+        return sum(v1 * v2 for v1, v2 in zip(self, other))
 
-# doc-region-begin define translate
-def translate(b: Vector1D) -> InvertibleFunction[Vector1D]:
-    # doc-region-end define translate
-    """
-    TODO
-
-    Args:
-        b (float): The amount to translate a not-yet-bound vector
-    Returns:
-        Vector1D: The Vector1D that represents the additon of the two
-                  input Vector1Ds
-    Raises:
-        Nothing
-    """
-
-    # doc-region-begin define translatebody
-    def f(vector: Vector1D) -> Vector1D:
-        return vector + b
-
-    def f_inv(vector: Vector1D) -> Vector1D:
-        return vector - b
-
-    return InvertibleFunction[Vector1D](f, f_inv)
-    # doc-region-end define translatebody
-
-
-# doc-region-begin define uniform scale
-def uniform_scale(m: float) -> InvertibleFunction[Vector1D]:
-    def f(vector: Vector1D) -> Vector1D:
-        return vector * m
-
-    def f_inv(vector: Vector1D) -> Vector1D:
-        if m == 0.0:
-            raise ValueError("Scaling factor cannot be zero.")
-        return vector * (1.0 / m)
-
-    return InvertibleFunction[Vector1D](f, f_inv)
-    # doc-region-end define uniform scale
+    def __abs__(self) -> float:
+        return np.sqrt(self.dot(self))

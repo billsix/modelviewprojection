@@ -22,16 +22,20 @@ import math
 from dataclasses import dataclass
 from typing import Callable
 
-import numpy as np
 from pytest import approx
 
-from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    compose,
+    inverse,
+    translate,
+)
+from modelviewprojection.mathutils1d import Vector1D
 
 
 # doc-region-begin define vector class
 @dataclass
-class Vector2D:
-    x: float  #: The x-component of the 2D Vector
+class Vector2D(Vector1D):
     y: float  #: The y-component of the 2D Vector
     # doc-region-end define vector class
 
@@ -67,38 +71,6 @@ class Vector2D:
 
     # doc-region-end define add
 
-    # doc-region-begin define subtract
-    def __sub__(self, rhs: Vector2D) -> Vector2D:
-        """
-        Subtract the right hand side Vector2D from the left hand side Vector2D.
-
-        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\end{pmatrix}`
-        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\\\ b_y \\end{pmatrix}`:
-
-        .. math::
-
-             \\vec{a} - \\vec{b} = \\vec{a} + \\vec{b} = \\begin{pmatrix} a_x - b_x \\\\ a_y - b_y \\end{pmatrix}
-
-        Args:
-            rhs (Vector2D): The vector on the right hand side of the
-                            subtraction symbol
-        Returns:
-            Vector2D: The Vector2D that represents the subtraction of the
-                      right hand side Vector2D from the left hand side
-                      Vector2D
-        Raises:
-            Nothing
-        Example:
-            >>> from modelviewprojection.mathutils2d import Vector2D
-            >>> a = Vector2D(x=2.0, y=3.0)
-            >>> b = Vector2D(x=5.0, y=2.0)
-            >>> a - b
-            Vector2D(x=-3.0, y=1.0)
-        """
-        return Vector2D(x=(self.x - rhs.x), y=(self.y - rhs.y))
-
-    # doc-region-end define subtract
-
     # doc-region-begin define mul
     def __mul__(self, scalar: float) -> Vector2D:
         """
@@ -126,66 +98,7 @@ class Vector2D:
         """
         return Vector2D(x=(self.x * scalar), y=(self.y * scalar))
 
-    def __rmul__(self, scalar: float) -> Vector2D:
-        return self * scalar
-
     # doc-region-end define mul
-
-    def __neg__(self) -> Vector2D:
-        """
-        Multiply the Vector2D by -1
-
-        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\end{pmatrix}` and constant :math:`-1`:
-
-        .. math::
-
-             -1 * \\vec{a}
-
-        Returns:
-            Vector2D: The Vector2D with the opposite orientation
-
-        Raises:
-            Nothing
-        Example:
-            >>> from modelviewprojection.mathutils2d import Vector2D
-            >>> a = Vector2D(x=2.0, y=3.0)
-            >>> -a
-            Vector2D(x=-2.0, y=-3.0)
-        """
-        return -1.0 * self
-
-    def __abs__(self) -> float:
-        return np.sqrt(self.dot(self))
-
-    def dot(self, rhs: Vector2D) -> float:
-        return self.x * rhs.x + self.y * rhs.y
-
-
-# doc-region-begin define translate
-def translate(b: Vector2D) -> InvertibleFunction[Vector2D]:
-    def f(vector: Vector2D) -> Vector2D:
-        return vector + b
-
-    def f_inv(vector: Vector2D) -> Vector2D:
-        return vector - b
-
-    return InvertibleFunction[Vector2D](f, f_inv)
-    # doc-region-end define translate
-
-
-# doc-region-begin define uniform scale
-def uniform_scale(m: float) -> InvertibleFunction[Vector2D]:
-    def f(vector: Vector2D) -> Vector2D:
-        return vector * m
-
-    def f_inv(vector: Vector2D) -> Vector2D:
-        if m == 0.0:
-            raise ValueError("Note invertible.  Scaling factor cannot be zero.")
-
-        return vector * (1.0 / m)
-
-    return InvertibleFunction[Vector2D](f, f_inv)
-    # doc-region-end define uniform scale
 
 
 def scale(m_x: float, m_y: float) -> InvertibleFunction[Vector2D]:

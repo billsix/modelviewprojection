@@ -27,7 +27,11 @@ import math
 from pytest import approx
 
 import modelviewprojection
-from modelviewprojection.mathutils import InvertibleFunction
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    translate,
+    uniform_scale,
+)
 from modelviewprojection.mathutils3d import (
     Vector3D,
     fn_stack,
@@ -36,8 +40,6 @@ from modelviewprojection.mathutils3d import (
     rotate_y,
     rotate_z,
     scale,
-    translate,
-    uniform_scale,
 )
 
 

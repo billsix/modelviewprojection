@@ -27,8 +27,14 @@ from typing import List
 from pytest import approx
 
 import modelviewprojection.mathutils1d
-from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
-from modelviewprojection.mathutils1d import Vector1D, translate, uniform_scale
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    compose,
+    inverse,
+    translate,
+    uniform_scale,
+)
+from modelviewprojection.mathutils1d import Vector1D
 
 
 def test___add__():

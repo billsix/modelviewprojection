@@ -154,3 +154,28 @@ def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
         return x
 
     return InvertibleFunction[T](composed_fn, inv_composed_fn)
+
+
+def translate(b: T) -> InvertibleFunction[T]:
+    def f(vector: T) -> T:
+        return vector + b
+
+    def f_inv(vector: T) -> T:
+        return vector - b
+
+    return InvertibleFunction[T](f, f_inv)
+
+
+# doc-region-begin define uniform scale
+def uniform_scale(m: float) -> InvertibleFunction[T]:
+    def f(vector: T) -> T:
+        return vector * m
+
+    def f_inv(vector: T) -> T:
+        if m == 0.0:
+            raise ValueError("Not invertible.  Scaling factor cannot be zero.")
+
+        return vector * (1.0 / m)
+
+    return InvertibleFunction[T](f, f_inv)
+    # doc-region-end define uniform scale

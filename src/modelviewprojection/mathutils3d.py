@@ -23,18 +23,21 @@ from contextlib import contextmanager
 from dataclasses import dataclass, field
 from typing import List
 
-from modelviewprojection.mathutils import InvertibleFunction, compose, inverse
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    compose,
+    inverse,
+    translate,
+    uniform_scale,
+)
 from modelviewprojection.mathutils1d import Vector1D
-from modelviewprojection.mathutils1d import uniform_scale as scale1d
 from modelviewprojection.mathutils2d import Vector2D
 from modelviewprojection.mathutils2d import rotate as rotate2D
 
 
 # doc-region-begin define vector class
 @dataclass
-class Vector3D:
-    x: float  #: The x-component of the 3D Vector
-    y: float  #: The y-component of the 3D Vector
+class Vector3D(Vector2D):
     z: float  #: The z-component of the 3D Vector
     # doc-region-end define vector class
 
@@ -68,37 +71,6 @@ class Vector3D:
             x=(self.x + rhs.x), y=(self.y + rhs.y), z=(self.z + rhs.z)
         )
 
-    def __sub__(self, rhs: Vector3D) -> Vector3D:
-        """
-        Subtract the right hand side Vector3D from the left hand side Vector3D.
-
-        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\\\ a_z \\end{pmatrix}`
-        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\\\ b_y \\\\ b_z \\end{pmatrix}`:
-
-        .. math::
-
-             \\vec{a} - \\vec{b} = \\vec{a} + \\vec{b} = \\begin{pmatrix} a_x - b_x  \\\\ a_y - b_y \\\\ a_z - b_z \\end{pmatrix}
-
-        Args:
-            rhs (Vector3D): The vector on the right hand side of the
-                            subtraction symbol
-        Returns:
-            Vector3D: The Vector3D that represents the subtraction of the
-                      right hand side Vector3D from the left hand side
-                      Vector3D
-        Raises:
-            Nothing
-        Example:
-            >>> from modelviewprojection.mathutils3d import Vector3D
-            >>> a = Vector3D(x=2.0, y=3.0, z=10.0)
-            >>> b = Vector3D(x=5.0, y=2.0, z=1.0)
-            >>> a - b
-            Vector3D(x=-3.0, y=1.0, z=9.0)
-        """
-        return Vector3D(
-            x=(self.x - rhs.x), y=(self.y - rhs.y), z=(self.z - rhs.z)
-        )
-
     def __mul__(vector, scalar: float) -> Vector3D:
         """
         Multiply the Vector3D by a scalar number
@@ -127,38 +99,6 @@ class Vector3D:
             x=(vector.x * scalar), y=(vector.y * scalar), z=(vector.z * scalar)
         )
 
-    def __rmul__(vector, scalar: float) -> Vector3D:
-        return vector * scalar
-
-    def __neg__(vector) -> Vector3D:
-        """
-        Multiply the Vector3D by -1
-
-        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\\\ a_z  \\end{pmatrix}` and constant :math:`-1`:
-
-        .. math::
-
-             -1 * \\vec{a}
-
-        Returns:
-            Vector3D: The Vector3D with the opposite orientation
-
-        Raises:
-            Nothing
-        Example:
-            >>> from modelviewprojection.mathutils3d import Vector3D
-            >>> a = Vector3D(x=2.0, y=3.0, z=4.0)
-            >>> -a
-            Vector3D(x=-2.0, y=-3.0, z=-4.0)
-        """
-        return -1.0 * vector
-
-    def __abs__(self) -> float:
-        return np.sqrt(self.dot(self))
-
-    def dot(self, rhs: Vector3D) -> float:
-        return self.x * rhs.x + self.y * rhs.y + self.z * rhs.z
-
     def cross(self, rhs: Vector3D) -> Vector3D:
         return Vector3D(
             x=self.y * rhs.z - self.z * rhs.y,
@@ -175,12 +115,17 @@ def abs_sin(v1: Vector3D, v2: Vector3D) -> float:
     return abs(v1.cross(v2)) / (abs(v1) * abs(v2))
 
 
-def translate(b: Vector3D) -> InvertibleFunction[Vector3D]:
+def scale(m_x: float, m_y: float, m_z: float) -> InvertibleFunction[Vector3D]:
     def f(vector: Vector3D) -> Vector3D:
-        return vector + b
+        return Vector3D(vector.x * m_x, vector.y * m_y, vector.z * m_z)
 
     def f_inv(vector: Vector3D) -> Vector3D:
-        return vector - b
+        if m_x == 0.0 or m_y == 0.0 or m_z == 0.0:
+            raise ValueError(
+                "Note invertible.  Scaling factors cannot be zero."
+            )
+
+        return Vector3D(vector.x / m_x, vector.y / m_y, vector.z / m_z)
 
     return InvertibleFunction[Vector3D](f, f_inv)
 
@@ -231,46 +176,6 @@ def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
 
     return InvertibleFunction[Vector3D](f, f_inv)
     # doc-region-end define rotate z
-
-
-# doc-region-begin define uniform scale
-def uniform_scale(m: float) -> InvertibleFunction[Vector3D]:
-    def f(vector: Vector3D) -> Vector3D:
-        return vector * m
-
-    def f_inv(vector: Vector3D) -> Vector3D:
-        if m == 0.0:
-            raise ValueError("Not invertible.  Scaling factor cannot be zero.")
-
-        return vector * (1.0 / m)
-
-    return InvertibleFunction[Vector3D](f, f_inv)
-    # doc-region-end define uniform scale
-
-
-def scale(m_x: float, m_y: float, m_z: float) -> InvertibleFunction[Vector3D]:
-    def f(vector: Vector3D) -> Vector3D:
-        return Vector3D(
-            x=(vector.x * m_x),
-            y=(vector.y * m_y),
-            z=(vector.z * m_z),
-        )
-
-    def f_inv(vector: Vector3D) -> Vector3D:
-        if m_x == 0.0:
-            raise ValueError("Note invertible.  Scale_x cannot be zero.")
-        if m_y == 0.0:
-            raise ValueError("Note invertible.  Scale_y cannot be zero.")
-        if m_z == 0.0:
-            raise ValueError("Note invertible.  Scale_z cannot be zero.")
-
-        return Vector3D(
-            x=(vector.x / m_x),
-            y=(vector.y / m_y),
-            z=(vector.z / m_z),
-        )
-
-    return InvertibleFunction[Vector3D](f, f_inv)
 
 
 # doc-region-begin define ortho
@@ -329,7 +234,7 @@ def perspective(
     )
 
     def f(vector: Vector3D) -> Vector3D:
-        s1d: InvertibleFunction[Vector1D] = scale1d(near_z / vector.z)
+        s1d: InvertibleFunction[Vector1D] = uniform_scale(near_z / vector.z)
         rectangular_prism: Vector3D = Vector3D(
             s1d(vector.x), s1d(vector.y), vector.z
         )
@@ -339,7 +244,7 @@ def perspective(
         rectangular_prism: Vector3D = inverse(fn)(vector)
 
         inverse_s1d: InvertibleFunction[Vector1D] = inverse(
-            scale1d(near_z / vector.z)
+            uniform_scale(near_z / vector.z)
         )
         return Vector3D(
             inverse_s1d(rectangular_prism.x),
