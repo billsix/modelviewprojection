@@ -44,14 +44,13 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from modelviewprojection.mathutils3d import (
-    Vector3D,
+from modelviewprojection.mathutils import (
     compose,
     inverse,
-    rotate_z,
     translate,
     uniform_scale,
 )
+from modelviewprojection.mathutils3d import Vector3D, rotate_z
 
 if not glfw.init():
     sys.exit()

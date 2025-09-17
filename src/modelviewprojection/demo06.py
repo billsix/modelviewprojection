@@ -44,13 +44,12 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from modelviewprojection.mathutils import InvertibleFunction
-from modelviewprojection.mathutils2d import (
-    Vector2D,
-    compose,
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
     translate,
     uniform_scale,
 )
+from modelviewprojection.mathutils2d import Vector2D, compose
 
 if not glfw.init():
     sys.exit()

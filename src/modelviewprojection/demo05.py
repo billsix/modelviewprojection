@@ -44,7 +44,8 @@ from OpenGL.GL import (
     glViewport,
 )
 
-from modelviewprojection.mathutils2d import Vector2D, translate
+from modelviewprojection.mathutils import translate
+from modelviewprojection.mathutils2d import Vector2D
 
 if not glfw.init():
     sys.exit()

@@ -49,17 +49,15 @@ from OpenGL.GL import (
     glViewport,
 )
 
+from modelviewprojection.mathutils import compose, inverse, translate
 from modelviewprojection.mathutils3d import (
     Vector3D,
-    compose,
     fn_stack,
-    inverse,
     perspective,
     push_transformation,
     rotate_x,
     rotate_y,
     rotate_z,
-    translate,
 )
 
 if not glfw.init():
