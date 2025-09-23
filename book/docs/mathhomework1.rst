@@ -179,21 +179,15 @@ it as an invertable BlackBox_.
 Definition (White Box)
 ^^^^^^^^^^^^^^^^^^^^^^
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils1d.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define translate
    :end-before: doc-region-end define translate
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils1d.py
+   :caption: src/modelviewprojection/mathutils.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils1d.py
-   :language: python
-   :start-after: doc-region-begin define translatebody
-   :end-before: doc-region-end define translatebody
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/mathutils1d.py
 
 
 Function Composition
