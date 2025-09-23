@@ -20,6 +20,10 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 
 from dataclasses import dataclass
 from typing import Callable, Generic, TypeVar
+from abc import ABC, abstractmethod
+
+from dataclasses import asdict, dataclass
+
 
 # doc-region-begin define invertible function
 # Define a generic type variable
@@ -155,7 +159,7 @@ def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
 
     return InvertibleFunction[T](composed_fn, inv_composed_fn)
 
-
+# doc-region-begin define translate
 def translate(b: T) -> InvertibleFunction[T]:
     def f(vector: T) -> T:
         return vector + b
@@ -164,6 +168,7 @@ def translate(b: T) -> InvertibleFunction[T]:
         return vector - b
 
     return InvertibleFunction[T](f, f_inv)
+    # doc-region-end define translate
 
 
 # doc-region-begin define uniform scale
@@ -179,3 +184,56 @@ def uniform_scale(m: float) -> InvertibleFunction[T]:
 
     return InvertibleFunction[T](f, f_inv)
     # doc-region-end define uniform scale
+
+
+class Vector(ABC):
+
+    def __iter__(self):
+        return iter(asdict(self).values())
+
+    @abstractmethod
+    def __add__(self, rhs):
+        pass
+
+    # doc-region-begin begin define subtract
+    def __sub__(self, rhs):
+        # doc-region-end begin define subtract
+        """
+        .. math::
+
+             \\vec{a} + -\\vec{b}
+
+        Example:
+            >>> from modelviewprojection.mathutils1d import Vector1D
+            >>> a = Vector1D(x=2.0)
+            >>> b = Vector1D(x=5.0)
+            >>> a - b
+            Vector1D(x=-3.0)
+        """
+        # doc-region-begin define subtract
+        return self + -rhs
+        # doc-region-end define subtract
+
+
+    @abstractmethod
+    def __mul__(self, scalar: float):
+        pass
+
+    def __rmul__(self, scalar: float):
+        return self * scalar
+
+    def __neg__(self):
+        """
+        Let :math:`\\vec{a}` and constant :math:`-1`:
+
+        .. math::
+
+             -1 * \\vec{a}
+
+        Example:
+            >>> from modelviewprojection.mathutils1d import Vector1D
+            >>> a = Vector1D(x=2.0)
+            >>> -a
+            Vector1D(x=-2.0)
+        """
+        return -1.0 * self

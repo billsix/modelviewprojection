@@ -372,6 +372,8 @@ direction of the edge, we must apply the multiplicative inverse_
 of that function.  These functions are invertible_ by
 taking the reciprocal of the coefficient
 
+.. _inverse: https://en.wikipedia.org/wiki/Inverse_function
+.. _invertible: https://en.wikipedia.org/wiki/Inverse_function
 
 
 

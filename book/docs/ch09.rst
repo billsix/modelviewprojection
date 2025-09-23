@@ -62,7 +62,7 @@ In Demo 07 we tried to represent the translation and then rotation
 around the paddle's center by code that worked as follows
 
 .. math::
-    \vec{f}_{p}^{w}   = \vec{r} \circ \vec{t}
+    \vec{f}_{p}^{w}   = \vec{R}_{<\theta_{1}>} \circ \vec{T}_{<x_{1}, y_{1}>}
 
 where t and r are the translate and rotate functions for a paddle, and
 we read the functions from right to left.  (In code, we were reading
@@ -80,10 +80,10 @@ and then re-translated to the paddle's position.
 
 .. math::
     \begin{split}
-    \vec{f}_{p}^{w}  & = (\vec{t} \circ \vec{r} \circ {\vec{t}}^{-1}) \circ \vec{t} \\
-                     & = \vec{t} \circ \vec{r} \circ {\vec{t}}^{-1} \circ \vec{t} \\
-                     & = \vec{t} \circ \vec{r} \circ ({\vec{t}}^{-1} \circ \vec{t}) \\
-                     & = \vec{t} \circ \vec{r}
+    \vec{f}_{p}^{w}  & = (\vec{T}_{<x_{1}, y_{1}>} \circ \vec{R}_{<\theta_{1}>} \circ {\vec{T}_{<x_{1}, y_{1}>}}^{-1}) \circ \vec{T}_{<x_{1}, y_{1}>} \\
+                     & = \vec{T}_{<x_{1}, y_{1}>} \circ \vec{R}_{<\theta_{1}>} \circ {\vec{T}_{<x_{1}, y_{1}>}}^{-1} \circ \vec{T}_{<x_{1}, y_{1}>} \\
+                     & = \vec{T}_{<x_{1}, y_{1}>} \circ \vec{R}_{<\theta_{1}>} \circ ({\vec{T}_{<x_{1}, y_{1}>}}^{-1} \circ \vec{T}_{<x_{1}, y_{1}>}) \\
+                     & = \vec{T}_{<x_{1}, y_{1}>} \circ \vec{R}_{<\theta_{1}>}
     \end{split}
 
 
@@ -140,13 +140,13 @@ The author has a strong opinion on the matter for computer graphics.
 Start at world space node.  As a reminder, this is the top-level coordinate
 system that we choose to use.  It is whatever you want it to be.
 
-.. figure:: _static/demo07.png
+.. figure:: _static/demo09.png
     :class: no-scale
     :align: center
-    :alt: Demo 06
+    :alt: Demo 09
     :figclass: align-center
 
-    Demo 06
+    Demo 09
 
 Think of world space's origin, x and y axes.  On the Cayley graph, move towards each :term:`modelspace<Modelspace>` node,
 which is against the direction of the edge,  Look at that edge's corresponding

@@ -27,6 +27,7 @@ graphs: currency.png \
 	demo06.png \
 	demo07.png \
 	demo08.png \
+	demo09.png \
 	demo02.png \
 	demo03.png \
 	demo05.png \
@@ -61,10 +62,12 @@ cayleyImages: ndcToScreenspace.png \
 		p1ToWname.png \
 		p1ToWDemo06.png \
 		p1ToWDemo07.png \
+		p1ToWDemo09.png \
 		p2ToW.png \
 		p2ToWname.png \
 		p2ToWDemo06.png \
 		p2ToWDemo07.png \
+		p2ToWDemo09.png \
 		wToNDC.png \
 		wToNDCname.png \
 		wToP1.png \
