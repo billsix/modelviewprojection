@@ -21,7 +21,7 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 import math
 from contextlib import contextmanager
 from dataclasses import dataclass, field
-from typing import List
+from typing import Callable, List
 
 from modelviewprojection.mathutils import (
     InvertibleFunction,
@@ -132,49 +132,58 @@ def scale(m_x: float, m_y: float, m_z: float) -> InvertibleFunction[Vector3D]:
 
 # doc-region-begin define rotate x
 def rotate_x(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
-    fn = rotate2D(angle_in_radians)
+    def create_rotate_function(r) -> Callable[[Vector3D], Vector3D]:
+        def f(vector: Vector2D) -> Vector2D:
+            yz_on_xy: Vector2D = Vector2D(x=vector.y, y=vector.z)
+            rotated_yz_on_xy: Vector2D = r(yz_on_xy)
+            return Vector3D(
+                x=vector.x, y=rotated_yz_on_xy.x, z=rotated_yz_on_xy.y
+            )
 
-    def f(vector: Vector3D) -> Vector3D:
-        yz_on_xy: Vector2D = fn(Vector2D(x=vector.y, y=vector.z))
-        return Vector3D(x=vector.x, y=yz_on_xy.x, z=yz_on_xy.y)
+        return f
 
-    def f_inv(vector: Vector3D) -> Vector3D:
-        yz_on_xy: Vector2D = inverse(fn)(Vector2D(x=vector.y, y=vector.z))
-        return Vector3D(x=vector.x, y=yz_on_xy.x, z=yz_on_xy.y)
-
-    return InvertibleFunction[Vector3D](f, f_inv)
+    r = rotate2D(angle_in_radians)
+    return InvertibleFunction[Vector3D](
+        create_rotate_function(r), create_rotate_function(inverse(r))
+    )
     # doc-region-end define rotate x
 
 
 # doc-region-begin define rotate y
 def rotate_y(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
-    fn = rotate2D(angle_in_radians)
+    def create_rotate_function(r) -> Callable[[Vector3D], Vector3D]:
+        def f(vector: Vector2D) -> Vector2D:
+            zx_on_xy: Vector2D = Vector2D(x=vector.z, y=vector.x)
+            rotated_zx_on_xy: Vector2D = r(zx_on_xy)
+            return Vector3D(
+                x=rotated_zx_on_xy.y, y=vector.y, z=rotated_zx_on_xy.x
+            )
 
-    def f(vector: Vector3D) -> Vector3D:
-        zx_on_xy: Vector2D = fn(Vector2D(x=vector.z, y=vector.x))
-        return Vector3D(x=zx_on_xy.y, y=vector.y, z=zx_on_xy.x)
+        return f
 
-    def f_inv(vector: Vector3D) -> Vector3D:
-        zx_on_xy: Vector2D = inverse(fn)(Vector2D(x=vector.z, y=vector.x))
-        return Vector3D(x=zx_on_xy.y, y=vector.y, z=zx_on_xy.x)
-
-    return InvertibleFunction[Vector3D](f, f_inv)
+    r = rotate2D(angle_in_radians)
+    return InvertibleFunction[Vector3D](
+        create_rotate_function(r), create_rotate_function(inverse(r))
+    )
     # doc-region-end define rotate y
 
 
 # doc-region-begin define rotate z
 def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
-    fn = rotate2D(angle_in_radians)
+    def create_rotate_function(r) -> Callable[[Vector3D], Vector3D]:
+        def f(vector: Vector2D) -> Vector2D:
+            xy_on_xy: Vector2D = Vector2D(x=vector.x, y=vector.y)
+            rotated_xy_on_xy: Vector2D = r(xy_on_xy)
+            return Vector3D(
+                x=rotated_xy_on_xy.x, y=rotated_xy_on_xy.y, z=vector.z
+            )
 
-    def f(vector: Vector3D) -> Vector3D:
-        xy_on_xy: Vector2D = fn(Vector2D(x=vector.x, y=vector.y))
-        return Vector3D(x=xy_on_xy.x, y=xy_on_xy.y, z=vector.z)
+        return f
 
-    def f_inv(vector: Vector3D) -> Vector3D:
-        xy_on_xy: Vector2D = inverse(fn)(Vector2D(x=vector.x, y=vector.y))
-        return Vector3D(x=xy_on_xy.x, y=xy_on_xy.y, z=vector.z)
-
-    return InvertibleFunction[Vector3D](f, f_inv)
+    r = rotate2D(angle_in_radians)
+    return InvertibleFunction[Vector3D](
+        create_rotate_function(r), create_rotate_function(inverse(r))
+    )
     # doc-region-end define rotate z
 
 
@@ -257,16 +266,9 @@ def perspective(
 
 
 def cs_to_ndc_space_fn(vector: Vector3D) -> InvertibleFunction[Vector3D]:
-    def f(vector: Vector3D) -> Vector3D:
-        fn = perspective(
-            field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
-        )
-        return fn(vector)
-
-    def f_inv(vector: Vector3D) -> Vector3D:
-        raise ValueError("Inverse_Inner cs_to_ndc_spcae_fn not yet implement")
-
-    return InvertibleFunction[Vector3D](f, f_inv)
+    return perspective(
+        field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
+    )
 
 
 # doc-region-begin define function stack class
