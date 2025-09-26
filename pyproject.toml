@@ -33,3 +33,7 @@ where = ["src"]
 
 [tool.pytest]
 testpaths = ["tests"]
+
+[tools.ruff]
+select = ['F401', 'F811', 'E402', 'I001', 'TID252']
+ignore = []
