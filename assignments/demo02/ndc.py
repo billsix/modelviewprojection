@@ -36,7 +36,6 @@
 from typing import List, Tuple
 
 from modelviewprojection.mathutils import InvertibleFunction, compose
-from modelviewprojection.mathutils1d import translate
 from modelviewprojection.mathutils2d import Vector2D, scale, translate
 from modelviewprojection.softwarerendering import (
     clear_framebuffer,
@@ -47,6 +46,11 @@ from modelviewprojection.softwarerendering import (
     show_framebuffer,
     width,
 )
+
+from IPython.display import Video
+from moviepy import ImageSequenceClip
+import numpy as np
+
 
 # %%
 # Show initial random framebuffer
@@ -109,7 +113,6 @@ show_framebuffer()
 # %%
 frames = []
 
-import numpy as np
 
 sixty_fps_times_2_sec = 120
 
@@ -129,8 +132,6 @@ for i in range(sixty_fps_times_2_sec):
 
 
 np_frames = [np.array(img) for img in frames]
-from IPython.display import Video
-from moviepy import ImageSequenceClip
 
 frames_np = [np.array(img) for img in frames]
 clip = ImageSequenceClip(frames_np, fps=60)

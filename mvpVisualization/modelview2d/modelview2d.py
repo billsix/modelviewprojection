@@ -69,6 +69,8 @@ from OpenGL.GL import (
     glViewport,
 )
 
+import colorsys
+
 import modelviewprojection.pyMatrixStack as ms
 
 # NEW - for shader location

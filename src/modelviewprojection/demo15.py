@@ -53,6 +53,7 @@ from modelviewprojection.mathutils import (
     inverse,
     translate,
     uniform_scale,
+    InvertibleFunction,
 )
 from modelviewprojection.mathutils3d import Vector3D, rotate_z
 

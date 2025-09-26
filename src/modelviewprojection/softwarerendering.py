@@ -95,8 +95,6 @@ def draw_filled_triangle(
     y1: int
     x2: int
     y2: int
-    z1: int
-    z3: int
 
     x1, y1 = to_fb_coords(p1)
     x2, y2 = to_fb_coords(p2)

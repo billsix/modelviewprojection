@@ -85,25 +85,19 @@ def test___dot__():
 def test_is_parallel():
     assert is_parallel(Vector2D(x=1.0, y=0.0), Vector2D(x=2.0, y=0.0))
     assert is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=0.0, y=1.0))
-    assert is_parallel(Vector2D(x=1.0, y=5.0), Vector2D(x=0.0, y=1.0)) == False
-    assert is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=0.2, y=1.0)) == False
-    assert is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=1.0, y=0.0)) == False
+    assert not is_parallel(Vector2D(x=1.0, y=5.0), Vector2D(x=0.0, y=1.0))
+    assert not is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=0.2, y=1.0))
+    assert not is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=1.0, y=0.0))
 
 
 def test_is_clockwise():
     assert is_clockwise(Vector2D(x=1.0, y=0.0), Vector2D(x=0.0, y=0.1))
-    assert (
-        is_clockwise(Vector2D(x=1.0, y=0.0), Vector2D(x=0.0, y=-0.1)) == False
-    )
+    assert not is_clockwise(Vector2D(x=1.0, y=0.0), Vector2D(x=0.0, y=-0.1))
     assert is_clockwise(Vector2D(x=0.0, y=1.0), Vector2D(x=-0.1, y=1.0))
-    assert is_clockwise(Vector2D(x=0.0, y=1.0), Vector2D(x=0.1, y=1.0)) == False
-    assert (
-        is_clockwise(Vector2D(x=-1.0, y=0.0), Vector2D(x=-1.0, y=0.1)) == False
-    )
+    assert not is_clockwise(Vector2D(x=0.0, y=1.0), Vector2D(x=0.1, y=1.0))
+    assert not is_clockwise(Vector2D(x=-1.0, y=0.0), Vector2D(x=-1.0, y=0.1))
     assert is_clockwise(Vector2D(x=-1.0, y=0.0), Vector2D(x=-1.0, y=-0.1))
-    assert (
-        is_clockwise(Vector2D(x=0.0, y=-1.0), Vector2D(x=-0.1, y=-1.0)) == False
-    )
+    assert not is_clockwise(Vector2D(x=0.0, y=-1.0), Vector2D(x=-0.1, y=-1.0))
     assert is_clockwise(Vector2D(x=0.0, y=-1.0), Vector2D(x=0.1, y=-1.0))
 
 
