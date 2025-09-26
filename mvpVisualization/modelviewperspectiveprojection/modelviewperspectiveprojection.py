@@ -31,46 +31,7 @@ import numpy as np
 import OpenGL.GL.shaders as shaders
 from imgui.integrations.glfw import GlfwRenderer
 from numpy import ndarray
-from OpenGL.GL import (
-    GL_ARRAY_BUFFER,
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_DEPTH_TEST,
-    GL_FLOAT,
-    GL_FRAGMENT_SHADER,
-    GL_GEOMETRY_SHADER,
-    GL_LESS,
-    GL_LINES,
-    GL_STATIC_DRAW,
-    GL_TRIANGLES,
-    GL_TRUE,
-    GL_VERTEX_SHADER,
-    glBindBuffer,
-    glBindVertexArray,
-    glBufferData,
-    glClear,
-    glClearColor,
-    glClearDepth,
-    glDeleteBuffers,
-    glDeleteProgram,
-    glDeleteVertexArrays,
-    glDepthFunc,
-    glDisable,
-    glDrawArrays,
-    glEnable,
-    glEnableVertexAttribArray,
-    glGenBuffers,
-    glGenVertexArrays,
-    glGetAttribLocation,
-    glGetUniformLocation,
-    glUniform1f,
-    glUniform2f,
-    glUniform3f,
-    glUniformMatrix4fv,
-    glUseProgram,
-    glVertexAttribPointer,
-    glViewport,
-)
+import OpenGL.GL as GL
 
 import modelviewprojection.pyMatrixStack as ms
 
@@ -157,7 +118,7 @@ glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
 glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 # for osx
-glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL_TRUE)
+glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
 
 
 window = glfw.create_window(
@@ -195,12 +156,12 @@ def scroll_callback(win, x_offset, y_offset):
 glfw.set_scroll_callback(window, scroll_callback)
 
 
-glClearColor(13.0 / 255.0, 64.0 / 255.0, 5.0 / 255.0, 1.0)
+GL.glClearColor(13.0 / 255.0, 64.0 / 255.0, 5.0 / 255.0, 1.0)
 
 # NEW - TODO - talk about opengl matricies and z pos/neg
-glClearDepth(1.0)
-glDepthFunc(GL_LESS)
-glEnable(GL_DEPTH_TEST)
+GL.glClearDepth(1.0)
+GL.glDepthFunc(GL.GL_LESS)
+GL.glEnable(GL.GL_DEPTH_TEST)
 
 
 @dataclass
@@ -246,118 +207,120 @@ class Paddle:
         # fmt: on
         self.number_of_colors = np.size(color) // floatsPerColor
 
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
+        self.vao = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(self.vao)
 
         # initialize shaders
 
         with open(os.path.join(pwd, "triangle.vert"), "r") as f:
-            vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
+            vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
 
         with open(os.path.join(pwd, "triangle.frag"), "r") as f:
-            fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
+            fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
 
         self.shader = shaders.compileProgram(vs, fs)
 
-        self.m_matrix_loc = glGetUniformLocation(self.shader, "mMatrix")
-        self.v_matrix_loc = glGetUniformLocation(self.shader, "vMatrix")
-        self.p_matrix_loc = glGetUniformLocation(self.shader, "pMatrix")
+        self.m_matrix_loc = GL.glGetUniformLocation(self.shader, "mMatrix")
+        self.v_matrix_loc = GL.glGetUniformLocation(self.shader, "vMatrix")
+        self.p_matrix_loc = GL.glGetUniformLocation(self.shader, "pMatrix")
 
         # send the modelspace data to the GPU
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
+        self.vbo = GL.glGenBuffers(1)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
 
-        position = glGetAttribLocation(self.shader, "position")
-        glEnableVertexAttribArray(position)
+        position = GL.glGetAttribLocation(self.shader, "position")
+        GL.glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(
-            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        GL.glVertexAttribPointer(
+            position, floatsPerVertex, GL.GL_FLOAT, False, 0, ctypes.c_void_p(0)
         )
 
-        glBufferData(
-            GL_ARRAY_BUFFER,
+        GL.glBufferData(
+            GL.GL_ARRAY_BUFFER,
             glfloat_size * np.size(vertices),
             vertices,
-            GL_STATIC_DRAW,
+            GL.GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
-        vbo_color = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, vbo_color)
+        vbo_color = GL.glGenBuffers(1)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo_color)
 
-        color_attrib_loc = glGetAttribLocation(self.shader, "color_in")
-        glEnableVertexAttribArray(color_attrib_loc)
-        glVertexAttribPointer(
+        color_attrib_loc = GL.glGetAttribLocation(self.shader, "color_in")
+        GL.glEnableVertexAttribArray(color_attrib_loc)
+        GL.glVertexAttribPointer(
             color_attrib_loc,
             floatsPerColor,
-            GL_FLOAT,
+            GL.GL_FLOAT,
             False,
             0,
             ctypes.c_void_p(0),
         )
 
-        glBufferData(
-            GL_ARRAY_BUFFER,
+        GL.glBufferData(
+            GL.GL_ARRAY_BUFFER,
             glfloat_size * np.size(color),
             color,
-            GL_STATIC_DRAW,
+            GL.GL_STATIC_DRAW,
         )
 
         # reset VAO/VBO to default
-        glBindVertexArray(0)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        GL.glBindVertexArray(0)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     # destructor
     def __del__(self):
-        glDeleteVertexArrays(1, [self.vao])
-        glDeleteBuffers(1, [self.vbo])
-        glDeleteProgram(self.shader)
+        GL.glDeleteVertexArrays(1, [self.vao])
+        GL.glDeleteBuffers(1, [self.vbo])
+        GL.glDeleteProgram(self.shader)
 
     def render(self, time: float) -> None:
-        glUseProgram(self.shader)
-        glBindVertexArray(self.vao)
+        GL.glUseProgram(self.shader)
+        GL.glBindVertexArray(self.vao)
 
         # pass projection parameters to the shader
-        field_of_view_loc = glGetUniformLocation(self.shader, "field_of_view")
-        glUniform1f(field_of_view_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspect_ratio")
-        glUniform1f(aspect_loc, 1.0)
-        near_z_loc = glGetUniformLocation(self.shader, "near_z")
-        glUniform1f(near_z_loc, frustum.near_z)
-        far_z_loc = glGetUniformLocation(self.shader, "far_z")
-        glUniform1f(far_z_loc, frustum.far_z)
+        field_of_view_loc = GL.glGetUniformLocation(
+            self.shader, "field_of_view"
+        )
+        GL.glUniform1f(field_of_view_loc, 45.0)
+        aspect_loc = GL.glGetUniformLocation(self.shader, "aspect_ratio")
+        GL.glUniform1f(aspect_loc, 1.0)
+        near_z_loc = GL.glGetUniformLocation(self.shader, "near_z")
+        GL.glUniform1f(near_z_loc, frustum.near_z)
+        far_z_loc = GL.glGetUniformLocation(self.shader, "far_z")
+        GL.glUniform1f(far_z_loc, frustum.far_z)
 
-        time_loc = glGetUniformLocation(self.shader, "time")
-        glUniform1f(time_loc, animation_time)
+        time_loc = GL.glGetUniformLocation(self.shader, "time")
+        GL.glUniform1f(time_loc, animation_time)
 
         # ascontiguousarray puts the array in column major order
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.m_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
             ),
         )
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.v_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
             ),
         )
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.p_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.projection),
                 dtype=np.float32,
             ),
         )
-        glDrawArrays(GL_TRIANGLES, 0, self.number_of_vertices)
-        glBindVertexArray(0)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.number_of_vertices)
+        GL.glBindVertexArray(0)
 
 
 paddle1 = Paddle(
@@ -425,114 +388,118 @@ class Ground:
         vertices = self.vertices()
         self.number_of_vertices = np.size(vertices) // floatsPerVertex
 
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
+        self.vao = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(self.vao)
 
         # initialize shaders
 
         with open(os.path.join(pwd, "ground.vert"), "r") as f:
-            vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
+            vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
 
         with open(os.path.join(pwd, "ground.frag"), "r") as f:
-            fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
+            fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
 
         with open(os.path.join(pwd, "ground.geom"), "r") as f:
-            gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
+            gs = shaders.compileShader(f.read(), GL.GL_GEOMETRY_SHADER)
 
         self.shader = shaders.compileProgram(vs, gs, fs)
 
-        self.m_matrix_loc = glGetUniformLocation(self.shader, "mMatrix")
-        self.v_matrix_loc = glGetUniformLocation(self.shader, "vMatrix")
-        self.p_matrix_loc = glGetUniformLocation(self.shader, "pMatrix")
+        self.m_matrix_loc = GL.glGetUniformLocation(self.shader, "mMatrix")
+        self.v_matrix_loc = GL.glGetUniformLocation(self.shader, "vMatrix")
+        self.p_matrix_loc = GL.glGetUniformLocation(self.shader, "pMatrix")
 
-        self.thickness_loc = glGetUniformLocation(self.shader, "u_thickness")
-        self.viewport_loc = glGetUniformLocation(self.shader, "u_viewport_size")
-
-        # send the modelspace data to the GPU
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-
-        position = glGetAttribLocation(self.shader, "position")
-        glEnableVertexAttribArray(position)
-
-        glVertexAttribPointer(
-            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        self.thickness_loc = GL.glGetUniformLocation(self.shader, "u_thickness")
+        self.viewport_loc = GL.glGetUniformLocation(
+            self.shader, "u_viewport_size"
         )
 
-        glBufferData(
-            GL_ARRAY_BUFFER,
+        # send the modelspace data to the GPU
+        self.vbo = GL.glGenBuffers(1)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
+
+        position = GL.glGetAttribLocation(self.shader, "position")
+        GL.glEnableVertexAttribArray(position)
+
+        GL.glVertexAttribPointer(
+            position, floatsPerVertex, GL.GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
+
+        GL.glBufferData(
+            GL.GL_ARRAY_BUFFER,
             glfloat_size * np.size(vertices),
             vertices,
-            GL_STATIC_DRAW,
+            GL.GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
         # TODO, send color to the shader
 
         # reset VAO/VBO to default
-        glBindVertexArray(0)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        GL.glBindVertexArray(0)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     # destructor
     def __del__(self):
-        glDeleteVertexArrays(1, [self.vao])
-        glDeleteBuffers(1, [self.vbo])
-        glDeleteProgram(self.shader)
+        GL.glDeleteVertexArrays(1, [self.vao])
+        GL.glDeleteBuffers(1, [self.vbo])
+        GL.glDeleteProgram(self.shader)
 
     def render(self, time: float) -> None:
-        glUseProgram(self.shader)
-        glBindVertexArray(self.vao)
+        GL.glUseProgram(self.shader)
+        GL.glBindVertexArray(self.vao)
 
         # pass projection parameters to the shader
-        field_of_view_loc = glGetUniformLocation(self.shader, "field_of_view")
-        glUniform1f(field_of_view_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspect_ratio")
-        glUniform1f(aspect_loc, 1.0)
-        near_z_loc = glGetUniformLocation(self.shader, "near_z")
-        glUniform1f(near_z_loc, frustum.near_z)
-        far_z_loc = glGetUniformLocation(self.shader, "far_z")
-        glUniform1f(far_z_loc, frustum.far_z)
+        field_of_view_loc = GL.glGetUniformLocation(
+            self.shader, "field_of_view"
+        )
+        GL.glUniform1f(field_of_view_loc, 45.0)
+        aspect_loc = GL.glGetUniformLocation(self.shader, "aspect_ratio")
+        GL.glUniform1f(aspect_loc, 1.0)
+        near_z_loc = GL.glGetUniformLocation(self.shader, "near_z")
+        GL.glUniform1f(near_z_loc, frustum.near_z)
+        far_z_loc = GL.glGetUniformLocation(self.shader, "far_z")
+        GL.glUniform1f(far_z_loc, frustum.far_z)
 
         # ascontiguousarray puts the array in column major order
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.m_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
             ),
         )
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.v_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
             ),
         )
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.p_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.projection),
                 dtype=np.float32,
             ),
         )
 
-        glUniform1f(self.thickness_loc, line_thickness)
-        glUniform2f(self.viewport_loc, width, height)
+        GL.glUniform1f(self.thickness_loc, line_thickness)
+        GL.glUniform2f(self.viewport_loc, width, height)
 
-        glDrawArrays(GL_LINES, 0, self.number_of_vertices)
-        glBindVertexArray(0)
+        GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
+        GL.glBindVertexArray(0)
 
         if show_ground_axis:
-            glDisable(GL_DEPTH_TEST)
+            GL.glDisable(GL.GL_DEPTH_TEST)
             with ms.PushMatrix(ms.MatrixStack.model):
                 ms.translate(ms.MatrixStack.model, 0.0, -50.0, 0.0)
                 ms.scale(ms.MatrixStack.model, 2.0, 2.0, 2.0)
                 axis.render(animation_time)
-            glEnable(GL_DEPTH_TEST)
+            GL.glEnable(GL.GL_DEPTH_TEST)
 
 
 ground = Ground()
@@ -566,74 +533,78 @@ class Axis:
         vertices = self.vertices()
         self.number_of_vertices = np.size(vertices) // floatsPerVertex
 
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
+        self.vao = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(self.vao)
 
         # initialize shaders
 
         with open(os.path.join(pwd, "axis.vert"), "r") as f:
-            vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
+            vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
 
         with open(os.path.join(pwd, "axis.frag"), "r") as f:
-            fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
+            fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
 
         with open(os.path.join(pwd, "axis.geom"), "r") as f:
-            gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
+            gs = shaders.compileShader(f.read(), GL.GL_GEOMETRY_SHADER)
 
         self.shader = shaders.compileProgram(vs, gs, fs)
 
-        self.m_matrix_loc = glGetUniformLocation(self.shader, "mMatrix")
-        self.v_matrix_loc = glGetUniformLocation(self.shader, "vMatrix")
-        self.p_matrix_loc = glGetUniformLocation(self.shader, "pMatrix")
-        self.colorLoc = glGetUniformLocation(self.shader, "color")
+        self.m_matrix_loc = GL.glGetUniformLocation(self.shader, "mMatrix")
+        self.v_matrix_loc = GL.glGetUniformLocation(self.shader, "vMatrix")
+        self.p_matrix_loc = GL.glGetUniformLocation(self.shader, "pMatrix")
+        self.colorLoc = GL.glGetUniformLocation(self.shader, "color")
 
-        self.thickness_loc = glGetUniformLocation(self.shader, "u_thickness")
-        self.viewport_loc = glGetUniformLocation(self.shader, "u_viewport_size")
-
-        # send the modelspace data to the GPU
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-
-        position = glGetAttribLocation(self.shader, "position")
-        glEnableVertexAttribArray(position)
-
-        glVertexAttribPointer(
-            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        self.thickness_loc = GL.glGetUniformLocation(self.shader, "u_thickness")
+        self.viewport_loc = GL.glGetUniformLocation(
+            self.shader, "u_viewport_size"
         )
 
-        glBufferData(
-            GL_ARRAY_BUFFER,
+        # send the modelspace data to the GPU
+        self.vbo = GL.glGenBuffers(1)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
+
+        position = GL.glGetAttribLocation(self.shader, "position")
+        GL.glEnableVertexAttribArray(position)
+
+        GL.glVertexAttribPointer(
+            position, floatsPerVertex, GL.GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
+
+        GL.glBufferData(
+            GL.GL_ARRAY_BUFFER,
             glfloat_size * np.size(vertices),
             vertices,
-            GL_STATIC_DRAW,
+            GL.GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
         # TODO, send color to the shader
 
         # reset VAO/VBO to default
-        glBindVertexArray(0)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        GL.glBindVertexArray(0)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     # destructor
     def __del__(self):
-        glDeleteVertexArrays(1, [self.vao])
-        glDeleteBuffers(1, [self.vbo])
-        glDeleteProgram(self.shader)
+        GL.glDeleteVertexArrays(1, [self.vao])
+        GL.glDeleteBuffers(1, [self.vbo])
+        GL.glDeleteProgram(self.shader)
 
     def render(self, time: float, grayed_out: bool = False) -> None:
-        glUseProgram(self.shader)
-        glBindVertexArray(self.vao)
+        GL.glUseProgram(self.shader)
+        GL.glBindVertexArray(self.vao)
 
         # pass projection parameters to the shader
-        field_of_view_loc = glGetUniformLocation(self.shader, "field_of_view")
-        glUniform1f(field_of_view_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspect_ratio")
-        glUniform1f(aspect_loc, 1.0)
-        near_z_loc = glGetUniformLocation(self.shader, "near_z")
-        glUniform1f(near_z_loc, frustum.near_z)
-        far_z_loc = glGetUniformLocation(self.shader, "far_z")
-        glUniform1f(far_z_loc, frustum.far_z)
+        field_of_view_loc = GL.glGetUniformLocation(
+            self.shader, "field_of_view"
+        )
+        GL.glUniform1f(field_of_view_loc, 45.0)
+        aspect_loc = GL.glGetUniformLocation(self.shader, "aspect_ratio")
+        GL.glUniform1f(aspect_loc, 1.0)
+        near_z_loc = GL.glGetUniformLocation(self.shader, "near_z")
+        GL.glUniform1f(near_z_loc, frustum.near_z)
+        far_z_loc = GL.glGetUniformLocation(self.shader, "far_z")
+        GL.glUniform1f(far_z_loc, frustum.far_z)
         # TODO, set the color
 
         with ms.push_matrix(ms.MatrixStack.model):
@@ -641,42 +612,42 @@ class Axis:
             with ms.push_matrix(ms.MatrixStack.model):
                 ms.rotate_z(ms.MatrixStack.model, math.radians(-90.0))
 
-                glUniform3f(self.colorLoc, 1.0, 0.0, 0.0)
+                GL.glUniform3f(self.colorLoc, 1.0, 0.0, 0.0)
                 if grayed_out:
-                    glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
+                    GL.glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
 
                 # ascontiguousarray puts the array in column major order
-                glUniformMatrix4fv(
+                GL.glUniformMatrix4fv(
                     self.m_matrix_loc,
                     1,
-                    GL_TRUE,
+                    GL.GL_TRUE,
                     np.ascontiguousarray(
                         ms.get_current_matrix(ms.MatrixStack.model),
                         dtype=np.float32,
                     ),
                 )
-                glUniformMatrix4fv(
+                GL.glUniformMatrix4fv(
                     self.v_matrix_loc,
                     1,
-                    GL_TRUE,
+                    GL.GL_TRUE,
                     np.ascontiguousarray(
                         ms.get_current_matrix(ms.MatrixStack.view),
                         dtype=np.float32,
                     ),
                 )
-                glUniformMatrix4fv(
+                GL.glUniformMatrix4fv(
                     self.p_matrix_loc,
                     1,
-                    GL_TRUE,
+                    GL.GL_TRUE,
                     np.ascontiguousarray(
                         ms.get_current_matrix(ms.MatrixStack.projection),
                         dtype=np.float32,
                     ),
                 )
-                glUniform1f(self.thickness_loc, line_thickness)
-                glUniform2f(self.viewport_loc, width, height)
+                GL.glUniform1f(self.thickness_loc, line_thickness)
+                GL.glUniform2f(self.viewport_loc, width, height)
 
-                glDrawArrays(GL_LINES, 0, self.number_of_vertices)
+                GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
 
             # z
             # glColor3f(0.0,0.0,1.0) # blue z
@@ -684,78 +655,78 @@ class Axis:
                 ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
                 ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
 
-                glUniform3f(self.colorLoc, 0.0, 0.0, 1.0)
+                GL.glUniform3f(self.colorLoc, 0.0, 0.0, 1.0)
                 if grayed_out:
-                    glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
+                    GL.glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
                 # ascontiguousarray puts the array in column major order
-                glUniformMatrix4fv(
+                GL.glUniformMatrix4fv(
                     self.m_matrix_loc,
                     1,
-                    GL_TRUE,
+                    GL.GL_TRUE,
                     np.ascontiguousarray(
                         ms.get_current_matrix(ms.MatrixStack.model),
                         dtype=np.float32,
                     ),
                 )
-                glUniformMatrix4fv(
+                GL.glUniformMatrix4fv(
                     self.v_matrix_loc,
                     1,
-                    GL_TRUE,
+                    GL.GL_TRUE,
                     np.ascontiguousarray(
                         ms.get_current_matrix(ms.MatrixStack.view),
                         dtype=np.float32,
                     ),
                 )
-                glUniformMatrix4fv(
+                GL.glUniformMatrix4fv(
                     self.p_matrix_loc,
                     1,
-                    GL_TRUE,
+                    GL.GL_TRUE,
                     np.ascontiguousarray(
                         ms.get_current_matrix(ms.MatrixStack.projection),
                         dtype=np.float32,
                     ),
                 )
 
-                glUniform1f(self.thickness_loc, line_thickness)
-                glUniform2f(self.viewport_loc, width, height)
-                glDrawArrays(GL_LINES, 0, self.number_of_vertices)
+                GL.glUniform1f(self.thickness_loc, line_thickness)
+                GL.glUniform2f(self.viewport_loc, width, height)
+                GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
 
             # y
-            glUniform3f(self.colorLoc, 0.0, 1.0, 0.0)
+            GL.glUniform3f(self.colorLoc, 0.0, 1.0, 0.0)
             # glColor3f(0.0,1.0,0.0) # green y
             if grayed_out:
-                glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
+                GL.glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
             # ascontiguousarray puts the array in column major order
-            glUniformMatrix4fv(
+            GL.glUniformMatrix4fv(
                 self.m_matrix_loc,
                 1,
-                GL_TRUE,
+                GL.GL_TRUE,
                 np.ascontiguousarray(
                     ms.get_current_matrix(ms.MatrixStack.model),
                     dtype=np.float32,
                 ),
             )
-            glUniformMatrix4fv(
+            GL.glUniformMatrix4fv(
                 self.v_matrix_loc,
                 1,
-                GL_TRUE,
+                GL.GL_TRUE,
                 np.ascontiguousarray(
                     ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
                 ),
             )
-            glUniformMatrix4fv(
+            GL.glUniformMatrix4fv(
                 self.p_matrix_loc,
                 1,
-                GL_TRUE,
+                GL.GL_TRUE,
                 np.ascontiguousarray(
                     ms.get_current_matrix(ms.MatrixStack.projection),
                     dtype=np.float32,
                 ),
             )
-            glUniform1f(self.thickness_loc, line_thickness)
-            glUniform2f(self.viewport_loc, width, height)
-            glDrawArrays(GL_LINES, 0, self.number_of_vertices)
-            glBindVertexArray(0)
+            GL.glUniform1f(self.thickness_loc, line_thickness)
+            GL.glUniform2f(self.viewport_loc, width, height)
+            GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
+            GL.glBindVertexArray(0)
 
 
 axis = Axis()
@@ -804,104 +775,108 @@ class NDCCube:
         vertices = self.vertices()
         self.number_of_vertices = np.size(vertices) // floatsPerVertex
 
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
+        self.vao = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(self.vao)
 
         # initialize shaders
 
         with open(os.path.join(pwd, "cube.vert"), "r") as f:
-            vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
+            vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
 
         with open(os.path.join(pwd, "cube.frag"), "r") as f:
-            fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
+            fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
 
         with open(os.path.join(pwd, "cube.geom"), "r") as f:
-            gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
+            gs = shaders.compileShader(f.read(), GL.GL_GEOMETRY_SHADER)
 
         self.shader = shaders.compileProgram(vs, gs, fs)
 
-        self.m_matrix_loc = glGetUniformLocation(self.shader, "mMatrix")
-        self.v_matrix_loc = glGetUniformLocation(self.shader, "vMatrix")
-        self.p_matrix_loc = glGetUniformLocation(self.shader, "pMatrix")
+        self.m_matrix_loc = GL.glGetUniformLocation(self.shader, "mMatrix")
+        self.v_matrix_loc = GL.glGetUniformLocation(self.shader, "vMatrix")
+        self.p_matrix_loc = GL.glGetUniformLocation(self.shader, "pMatrix")
 
-        self.thickness_loc = glGetUniformLocation(self.shader, "u_thickness")
-        self.viewport_loc = glGetUniformLocation(self.shader, "u_viewport_size")
-
-        # send the modelspace data to the GPU
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
-
-        position = glGetAttribLocation(self.shader, "position")
-        glEnableVertexAttribArray(position)
-
-        glVertexAttribPointer(
-            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        self.thickness_loc = GL.glGetUniformLocation(self.shader, "u_thickness")
+        self.viewport_loc = GL.glGetUniformLocation(
+            self.shader, "u_viewport_size"
         )
 
-        glBufferData(
-            GL_ARRAY_BUFFER,
+        # send the modelspace data to the GPU
+        self.vbo = GL.glGenBuffers(1)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
+
+        position = GL.glGetAttribLocation(self.shader, "position")
+        GL.glEnableVertexAttribArray(position)
+
+        GL.glVertexAttribPointer(
+            position, floatsPerVertex, GL.GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        )
+
+        GL.glBufferData(
+            GL.GL_ARRAY_BUFFER,
             glfloat_size * np.size(vertices),
             vertices,
-            GL_STATIC_DRAW,
+            GL.GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
         # TODO, send color to the shader
 
         # reset VAO/VBO to default
-        glBindVertexArray(0)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        GL.glBindVertexArray(0)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     # destructor
     def __del__(self):
-        glDeleteVertexArrays(1, [self.vao])
-        glDeleteBuffers(1, [self.vbo])
-        glDeleteProgram(self.shader)
+        GL.glDeleteVertexArrays(1, [self.vao])
+        GL.glDeleteBuffers(1, [self.vbo])
+        GL.glDeleteProgram(self.shader)
 
     def render(self, time: float) -> None:
-        glUseProgram(self.shader)
-        glBindVertexArray(self.vao)
+        GL.glUseProgram(self.shader)
+        GL.glBindVertexArray(self.vao)
 
         # pass projection parameters to the shader
-        field_of_view_loc = glGetUniformLocation(self.shader, "field_of_view")
-        glUniform1f(field_of_view_loc, 45.0)
-        aspect_loc = glGetUniformLocation(self.shader, "aspect_ratio")
-        glUniform1f(aspect_loc, 1.0)
-        near_z_loc = glGetUniformLocation(self.shader, "near_z")
-        glUniform1f(near_z_loc, frustum.near_z)
-        far_z_loc = glGetUniformLocation(self.shader, "far_z")
-        glUniform1f(far_z_loc, frustum.far_z)
+        field_of_view_loc = GL.glGetUniformLocation(
+            self.shader, "field_of_view"
+        )
+        GL.glUniform1f(field_of_view_loc, 45.0)
+        aspect_loc = GL.glGetUniformLocation(self.shader, "aspect_ratio")
+        GL.glUniform1f(aspect_loc, 1.0)
+        near_z_loc = GL.glGetUniformLocation(self.shader, "near_z")
+        GL.glUniform1f(near_z_loc, frustum.near_z)
+        far_z_loc = GL.glGetUniformLocation(self.shader, "far_z")
+        GL.glUniform1f(far_z_loc, frustum.far_z)
 
         # ascontiguousarray puts the array in column major order
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.m_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
             ),
         )
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.v_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
             ),
         )
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.p_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.projection),
                 dtype=np.float32,
             ),
         )
-        glUniform1f(self.thickness_loc, line_thickness)
-        glUniform2f(self.viewport_loc, width, height)
-        glDrawArrays(GL_LINES, 0, self.number_of_vertices)
-        glBindVertexArray(0)
+        GL.glUniform1f(self.thickness_loc, line_thickness)
+        GL.glUniform2f(self.viewport_loc, width, height)
+        GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
+        GL.glBindVertexArray(0)
 
 
 cube = NDCCube()
@@ -922,26 +897,28 @@ class Frustum:
         self.far_z = far_z
 
         # initialize shaders
-        self.vao = glGenVertexArrays(1)
-        glBindVertexArray(self.vao)
+        self.vao = GL.glGenVertexArrays(1)
+        GL.glBindVertexArray(self.vao)
 
         with open(os.path.join(pwd, "frustum.vert"), "r") as f:
-            vs = shaders.compileShader(f.read(), GL_VERTEX_SHADER)
+            vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
 
         with open(os.path.join(pwd, "frustum.frag"), "r") as f:
-            fs = shaders.compileShader(f.read(), GL_FRAGMENT_SHADER)
+            fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
 
         with open(os.path.join(pwd, "frustum.geom"), "r") as f:
-            gs = shaders.compileShader(f.read(), GL_GEOMETRY_SHADER)
+            gs = shaders.compileShader(f.read(), GL.GL_GEOMETRY_SHADER)
 
         self.shader = shaders.compileProgram(vs, gs, fs)
 
-        self.m_matrix_loc = glGetUniformLocation(self.shader, "mMatrix")
-        self.v_matrix_loc = glGetUniformLocation(self.shader, "vMatrix")
-        self.p_matrix_loc = glGetUniformLocation(self.shader, "pMatrix")
+        self.m_matrix_loc = GL.glGetUniformLocation(self.shader, "mMatrix")
+        self.v_matrix_loc = GL.glGetUniformLocation(self.shader, "vMatrix")
+        self.p_matrix_loc = GL.glGetUniformLocation(self.shader, "pMatrix")
 
-        self.thickness_loc = glGetUniformLocation(self.shader, "u_thickness")
-        self.viewport_loc = glGetUniformLocation(self.shader, "u_viewport_size")
+        self.thickness_loc = GL.glGetUniformLocation(self.shader, "u_thickness")
+        self.viewport_loc = GL.glGetUniformLocation(
+            self.shader, "u_viewport_size"
+        )
 
     def prepare_to_render(self) -> None:
         def create_vertices_of_frustum() -> np.array:
@@ -1012,88 +989,90 @@ class Frustum:
         self.number_of_vertices = np.size(vertices) // floatsPerVertex
 
         if hasattr(self, "vbo"):
-            glDeleteBuffers(1, [self.vbo])
-        glBindVertexArray(self.vao)
+            GL.glDeleteBuffers(1, [self.vbo])
+        GL.glBindVertexArray(self.vao)
 
         # send the modelspace data to the GPU
-        self.vbo = glGenBuffers(1)
-        glBindBuffer(GL_ARRAY_BUFFER, self.vbo)
+        self.vbo = GL.glGenBuffers(1)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
 
-        position = glGetAttribLocation(self.shader, "position")
-        glEnableVertexAttribArray(position)
+        position = GL.glGetAttribLocation(self.shader, "position")
+        GL.glEnableVertexAttribArray(position)
 
-        glVertexAttribPointer(
-            position, floatsPerVertex, GL_FLOAT, False, 0, ctypes.c_void_p(0)
+        GL.glVertexAttribPointer(
+            position, floatsPerVertex, GL.GL_FLOAT, False, 0, ctypes.c_void_p(0)
         )
 
-        glBufferData(
-            GL_ARRAY_BUFFER,
+        GL.glBufferData(
+            GL.GL_ARRAY_BUFFER,
             glfloat_size * np.size(vertices),
             vertices,
-            GL_STATIC_DRAW,
+            GL.GL_STATIC_DRAW,
         )
 
         # send the modelspace data to the GPU
         # TODO, send color to the shader
 
         # reset VAO/VBO to default
-        glBindVertexArray(0)
-        glBindBuffer(GL_ARRAY_BUFFER, 0)
+        GL.glBindVertexArray(0)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 
     # destructor
     def __del__(self):
-        glDeleteVertexArrays(1, [self.vao])
-        glDeleteBuffers(1, [self.vbo])
-        glDeleteProgram(self.shader)
+        GL.glDeleteVertexArrays(1, [self.vao])
+        GL.glDeleteBuffers(1, [self.vbo])
+        GL.glDeleteProgram(self.shader)
 
     def render(self, time: float) -> None:
-        glUseProgram(self.shader)
-        glBindVertexArray(self.vao)
+        GL.glUseProgram(self.shader)
+        GL.glBindVertexArray(self.vao)
 
         # pass projection parameters to the shader
-        field_of_view_loc = glGetUniformLocation(self.shader, "field_of_view")
-        glUniform1f(field_of_view_loc, self.field_of_view)
-        aspect_loc = glGetUniformLocation(self.shader, "aspect_ratio")
-        glUniform1f(aspect_loc, self.aspect_ratio)
-        near_z_loc = glGetUniformLocation(self.shader, "near_z")
-        glUniform1f(near_z_loc, self.near_z)
-        far_z_loc = glGetUniformLocation(self.shader, "far_z")
-        glUniform1f(far_z_loc, self.far_z)
-        time_loc = glGetUniformLocation(self.shader, "time")
-        glUniform1f(time_loc, animation_time)
+        field_of_view_loc = GL.glGetUniformLocation(
+            self.shader, "field_of_view"
+        )
+        GL.glUniform1f(field_of_view_loc, self.field_of_view)
+        aspect_loc = GL.glGetUniformLocation(self.shader, "aspect_ratio")
+        GL.glUniform1f(aspect_loc, self.aspect_ratio)
+        near_z_loc = GL.glGetUniformLocation(self.shader, "near_z")
+        GL.glUniform1f(near_z_loc, self.near_z)
+        far_z_loc = GL.glGetUniformLocation(self.shader, "far_z")
+        GL.glUniform1f(far_z_loc, self.far_z)
+        time_loc = GL.glGetUniformLocation(self.shader, "time")
+        GL.glUniform1f(time_loc, animation_time)
 
         # ascontiguousarray puts the array in column major order
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.m_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
             ),
         )
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.v_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
             ),
         )
-        glUniformMatrix4fv(
+        GL.glUniformMatrix4fv(
             self.p_matrix_loc,
             1,
-            GL_TRUE,
+            GL.GL_TRUE,
             np.ascontiguousarray(
                 ms.get_current_matrix(ms.MatrixStack.projection),
                 dtype=np.float32,
             ),
         )
 
-        glUniform1f(self.thickness_loc, line_thickness)
-        glUniform2f(self.viewport_loc, width, height)
+        GL.glUniform1f(self.thickness_loc, line_thickness)
+        GL.glUniform2f(self.viewport_loc, width, height)
 
-        glDrawArrays(GL_LINES, 0, self.number_of_vertices)
-        glBindVertexArray(0)
+        GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
+        GL.glBindVertexArray(0)
 
 
 frustum = Frustum(
@@ -1620,8 +1599,8 @@ while not glfw.window_should_close(window):
     imgui.end()
 
     width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    GL.glViewport(0, 0, width, height)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     # render scene
     previous_mouse_position = handle_inputs(previous_mouse_position)
@@ -1747,10 +1726,10 @@ while not glfw.window_should_close(window):
     # draw NDC in global space, so that we can see the camera space
     # go to NDC
     ground.render(animation_time)
-    glClear(GL_DEPTH_BUFFER_BIT)
+    GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
     with ms.PushMatrix(ms.MatrixStack.model):
         cube.render(animation_time)
-    glClear(GL_DEPTH_BUFFER_BIT)
+    GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
 
     if animation_time > (StepNumber.camera_inverse_rotate_x.value.start_time):
         ms.rotate_x(
@@ -1822,7 +1801,7 @@ while not glfw.window_should_close(window):
                 )
 
             ground.render(animation_time)
-            glClear(GL_DEPTH_BUFFER_BIT)
+            GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
 
             if animation_time > (StepNumber.camera_rotate_y.value.start_time):
                 frustum.render(animation_time)

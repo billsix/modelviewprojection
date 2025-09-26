@@ -21,10 +21,7 @@
 import sys
 
 import glfw
-from OpenGL.GL import (GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT, GL_MODELVIEW,
-                       GL_PROJECTION, glClear, glClearColor, glLoadIdentity,
-                       glMatrixMode, glViewport)
-
+import OpenGL.GL as GL
 # doc-region-end import first module
 # fmt: on
 
@@ -63,14 +60,14 @@ def on_key(win, key, scancode, action, mods):
 glfw.set_key_callback(window, on_key)
 
 # doc-region-begin set background color
-glClearColor(0.0289, 0.071875, 0.0972, 1.0)
+GL.glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 # doc-region-end set background color
 
 # doc-region-begin don't use the built in mvp pipeline
-glMatrixMode(GL_PROJECTION)
-glLoadIdentity()
-glMatrixMode(GL_MODELVIEW)
-glLoadIdentity()
+GL.glMatrixMode(GL.GL_PROJECTION)
+GL.glLoadIdentity()
+GL.glMatrixMode(GL.GL_MODELVIEW)
+GL.glLoadIdentity()
 # doc-region-end don't use the built in mvp pipeline
 
 
@@ -79,8 +76,8 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    GL.glViewport(0, 0, width, height)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     glfw.swap_buffers(window)
     # doc-region-end event loop
 

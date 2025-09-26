@@ -18,22 +18,7 @@
 import sys
 
 import glfw
-from OpenGL.GL import (
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_MODELVIEW,
-    GL_PROJECTION,
-    GL_QUADS,
-    glBegin,
-    glClear,
-    glClearColor,
-    glColor3f,
-    glEnd,
-    glLoadIdentity,
-    glMatrixMode,
-    glVertex2f,
-    glViewport,
-)
+import OpenGL.GL as GL
 
 if not glfw.init():
     sys.exit()
@@ -56,12 +41,12 @@ def on_key(win, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0289, 0.071875, 0.0972, 1.0)
+GL.glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 
-glMatrixMode(GL_PROJECTION)
-glLoadIdentity()
-glMatrixMode(GL_MODELVIEW)
-glLoadIdentity()
+GL.glMatrixMode(GL.GL_PROJECTION)
+GL.glLoadIdentity()
+GL.glMatrixMode(GL.GL_MODELVIEW)
+GL.glLoadIdentity()
 
 # doc-region-begin event loop
 while not glfw.window_should_close(window):
@@ -69,27 +54,27 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    GL.glViewport(0, 0, width, height)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     # doc-region-begin draw paddle 1
-    glColor3f(0.578123, 0.0, 1.0)
-    glBegin(GL_QUADS)
-    glVertex2f(-1.0, -0.3)  # vertex C
-    glVertex2f(-0.8, -0.3)  # vertex D
-    glVertex2f(-0.8, 0.3)  # vertex A
-    glVertex2f(-1.0, 0.3)  # vertex B
-    glEnd()
+    GL.glColor3f(0.578123, 0.0, 1.0)
+    GL.glBegin(GL.GL_QUADS)
+    GL.glVertex2f(-1.0, -0.3)  # vertex C
+    GL.glVertex2f(-0.8, -0.3)  # vertex D
+    GL.glVertex2f(-0.8, 0.3)  # vertex A
+    GL.glVertex2f(-1.0, 0.3)  # vertex B
+    GL.glEnd()
     # doc-region-end draw paddle 1
 
     # doc-region-begin draw paddle 2
-    glColor3f(1.0, 1.0, 0.0)
-    glBegin(GL_QUADS)
-    glVertex2f(0.8, -0.3)  # vertex G
-    glVertex2f(1.0, -0.3)  # vertex H
-    glVertex2f(1.0, 0.3)  # vertex E
-    glVertex2f(0.8, 0.3)  # vertex F
-    glEnd()
+    GL.glColor3f(1.0, 1.0, 0.0)
+    GL.glBegin(GL.GL_QUADS)
+    GL.glVertex2f(0.8, -0.3)  # vertex G
+    GL.glVertex2f(1.0, -0.3)  # vertex H
+    GL.glVertex2f(1.0, 0.3)  # vertex E
+    GL.glVertex2f(0.8, 0.3)  # vertex F
+    GL.glEnd()
     # doc-region-end draw paddle 2
 
     # doc-region-begin flush framebuffer to monitor

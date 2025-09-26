@@ -23,29 +23,7 @@ from typing import Optional, Tuple
 
 import glfw
 import numpy as np
-from OpenGL.GL import (
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_DEPTH_TEST,
-    GL_LEQUAL,
-    GL_LINES,
-    GL_MODELVIEW,
-    GL_PROJECTION,
-    GL_QUADS,
-    glBegin,
-    glClear,
-    glClearColor,
-    glClearDepth,
-    glColor3f,
-    glDepthFunc,
-    glEnable,
-    glEnd,
-    glLineWidth,
-    glLoadMatrixf,
-    glMatrixMode,
-    glVertex3f,
-    glViewport,
-)
+import OpenGL.GL as GL
 
 import modelviewprojection.pyMatrixStack as ms
 
@@ -84,12 +62,12 @@ def scroll_callback(window, x_offset, y_offset):
 glfw.set_scroll_callback(window, scroll_callback)
 
 
-glClearColor(13.0 / 255.0, 64.0 / 255.0, 5.0 / 255.0, 1.0)
+GL.glClearColor(13.0 / 255.0, 64.0 / 255.0, 5.0 / 255.0, 1.0)
 
 # NEW - TODO - talk about opengl matricies and z pos/neg
-glEnable(GL_DEPTH_TEST)
-glClearDepth(1.0)
-glDepthFunc(GL_LEQUAL)
+GL.glEnable(GL.GL_DEPTH_TEST)
+GL.glClearDepth(1.0)
+GL.glDepthFunc(GL.GL_LEQUAL)
 
 
 @dataclass
@@ -233,39 +211,39 @@ virtual_camera_rot_x = math.radians(15.0)
 
 def draw_ground() -> None:
     # ascontiguousarray puts the array in column major order
-    glLoadMatrixf(
+    GL.glLoadMatrixf(
         np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
     )
-    glColor3f(0.1, 0.1, 0.1)
-    glBegin(GL_LINES)
+    GL.glColor3f(0.1, 0.1, 0.1)
+    GL.glBegin(GL.GL_LINES)
     for x in range(-20, 21, 1):
         for z in range(-20, 21, 1):
-            glVertex3f(float(-x), float(-5.0), float(z))
-            glVertex3f(float(x), float(-5.0), float(z))
-            glVertex3f(float(x), float(-5.0), float(-z))
-            glVertex3f(float(x), float(-5.0), float(z))
+            GL.glVertex3f(float(-x), float(-5.0), float(z))
+            GL.glVertex3f(float(x), float(-5.0), float(z))
+            GL.glVertex3f(float(x), float(-5.0), float(-z))
+            GL.glVertex3f(float(x), float(-5.0), float(z))
 
-    glEnd()
+    GL.glEnd()
 
 
 def draw_y_axis() -> None:
     # ascontiguousarray puts the array in column major order
-    glLoadMatrixf(
+    GL.glLoadMatrixf(
         np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
     )
 
-    glLineWidth(3.0)
-    glBegin(GL_LINES)
-    glVertex3f(0.0, 0.0, 0.0)
-    glVertex3f(0.0, 1.0, 0.0)
+    GL.glLineWidth(3.0)
+    GL.glBegin(GL.GL_LINES)
+    GL.glVertex3f(0.0, 0.0, 0.0)
+    GL.glVertex3f(0.0, 1.0, 0.0)
 
     # arrow
-    glVertex3f(0.0, 1.0, 0.0)
-    glVertex3f(0.25, 0.75, 0.0)
+    GL.glVertex3f(0.0, 1.0, 0.0)
+    GL.glVertex3f(0.25, 0.75, 0.0)
 
-    glVertex3f(0.0, 1.0, 0.0)
-    glVertex3f(-0.25, 0.75, 0.0)
-    glEnd()
+    GL.glVertex3f(0.0, 1.0, 0.0)
+    GL.glVertex3f(-0.25, 0.75, 0.0)
+    GL.glEnd()
 
 
 def draw_axises(grayed_out: bool = False) -> None:
@@ -274,73 +252,73 @@ def draw_axises(grayed_out: bool = False) -> None:
         with ms.push_matrix(ms.MatrixStack.model):
             ms.rotate_z(ms.MatrixStack.model, math.radians(-90.0))
 
-            glColor3f(1.0, 0.0, 0.0)
+            GL.glColor3f(1.0, 0.0, 0.0)
             if grayed_out:
-                glColor3f(0.5, 0.5, 0.5)
+                GL.glColor3f(0.5, 0.5, 0.5)
             draw_y_axis()
 
         # z
-        glColor3f(0.0, 0.0, 1.0)  # blue z
+        GL.glColor3f(0.0, 0.0, 1.0)  # blue z
         with ms.push_matrix(ms.MatrixStack.model):
             ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
             ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
 
-            glColor3f(0.0, 0.0, 1.0)
+            GL.glColor3f(0.0, 0.0, 1.0)
             if grayed_out:
-                glColor3f(0.5, 0.5, 0.5)
+                GL.glColor3f(0.5, 0.5, 0.5)
             draw_y_axis()
 
         # y
-        glColor3f(0.0, 1.0, 0.0)  # green y
+        GL.glColor3f(0.0, 1.0, 0.0)  # green y
         if grayed_out:
-            glColor3f(0.5, 0.5, 0.5)
+            GL.glColor3f(0.5, 0.5, 0.5)
         draw_y_axis()
 
 
 # this isn't really NDC, I scaled it so that it looks good, not be correct
 def draw_ndc() -> None:
-    glLoadMatrixf(
+    GL.glLoadMatrixf(
         np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
     )
 
-    glColor3f(1.0, 1.0, 1.0)
-    glLineWidth(3.0)
-    glBegin(GL_LINES)
-    glVertex3f(-1.0, -1.0, -1.0)
-    glVertex3f(1.0, -1.0, -1.0)
+    GL.glColor3f(1.0, 1.0, 1.0)
+    GL.glLineWidth(3.0)
+    GL.glBegin(GL.GL_LINES)
+    GL.glVertex3f(-1.0, -1.0, -1.0)
+    GL.glVertex3f(1.0, -1.0, -1.0)
 
-    glVertex3f(1.0, -1.0, -1.0)
-    glVertex3f(1.0, 1.0, -1.0)
+    GL.glVertex3f(1.0, -1.0, -1.0)
+    GL.glVertex3f(1.0, 1.0, -1.0)
 
-    glVertex3f(1.0, 1.0, -1.0)
-    glVertex3f(-1.0, 1.0, -1.0)
+    GL.glVertex3f(1.0, 1.0, -1.0)
+    GL.glVertex3f(-1.0, 1.0, -1.0)
 
-    glVertex3f(-1.0, 1.0, -1.0)
-    glVertex3f(-1.0, -1.0, -1.0)
+    GL.glVertex3f(-1.0, 1.0, -1.0)
+    GL.glVertex3f(-1.0, -1.0, -1.0)
 
-    glVertex3f(-1.0, -1.0, 1.0)
-    glVertex3f(1.0, -1.0, 1.0)
+    GL.glVertex3f(-1.0, -1.0, 1.0)
+    GL.glVertex3f(1.0, -1.0, 1.0)
 
-    glVertex3f(1.0, -1.0, 1.0)
-    glVertex3f(1.0, 1.0, 1.0)
+    GL.glVertex3f(1.0, -1.0, 1.0)
+    GL.glVertex3f(1.0, 1.0, 1.0)
 
-    glVertex3f(1.0, 1.0, 1.0)
-    glVertex3f(-1.0, 1.0, 1.0)
+    GL.glVertex3f(1.0, 1.0, 1.0)
+    GL.glVertex3f(-1.0, 1.0, 1.0)
 
-    glVertex3f(-1.0, 1.0, 1.0)
-    glVertex3f(-1.0, -1.0, 1.0)
+    GL.glVertex3f(-1.0, 1.0, 1.0)
+    GL.glVertex3f(-1.0, -1.0, 1.0)
 
     # connect the squares
-    glVertex3f(1.0, 1.0, -1.0)
-    glVertex3f(1.0, 1.0, 1.0)
-    glVertex3f(1.0, -1.0, -1.0)
-    glVertex3f(1.0, -1.0, 1.0)
-    glVertex3f(-1.0, 1.0, -1.0)
-    glVertex3f(-1.0, 1.0, 1.0)
-    glVertex3f(-1.0, -1.0, -1.0)
-    glVertex3f(-1.0, -1.0, 1.0)
+    GL.glVertex3f(1.0, 1.0, -1.0)
+    GL.glVertex3f(1.0, 1.0, 1.0)
+    GL.glVertex3f(1.0, -1.0, -1.0)
+    GL.glVertex3f(1.0, -1.0, 1.0)
+    GL.glVertex3f(-1.0, 1.0, -1.0)
+    GL.glVertex3f(-1.0, 1.0, 1.0)
+    GL.glVertex3f(-1.0, -1.0, -1.0)
+    GL.glVertex3f(-1.0, -1.0, 1.0)
 
-    glEnd()
+    GL.glEnd()
 
 
 TARGET_FRAMERATE = 60  # fps
@@ -374,8 +352,8 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    GL.glViewport(0, 0, width, height)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     # render scene
     previous_mouse_position = handle_inputs(previous_mouse_position)
@@ -398,9 +376,9 @@ while not glfw.window_should_close(window):
     #          near=1.0,
     #          far=10000.0)
 
-    glMatrixMode(GL_PROJECTION)
+    GL.glMatrixMode(GL.GL_PROJECTION)
     # ascontiguousarray puts the array in column major order
-    glLoadMatrixf(
+    GL.glLoadMatrixf(
         np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.projection).T)
     )
 
@@ -409,7 +387,7 @@ while not glfw.window_should_close(window):
     ms.rotate_x(ms.MatrixStack.view, camera.rot_x)
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
 
-    glMatrixMode(GL_MODELVIEW)
+    GL.glMatrixMode(GL.GL_MODELVIEW)
 
     # draw NDC in global space, so that we can see the camera space
     # go to NDC
@@ -493,18 +471,18 @@ while not glfw.window_should_close(window):
 
         if animation_time > 5.0 and animation_time < 15.0:
             draw_axises()
-        glColor3f(paddle1.r, paddle1.g, paddle1.b)
+        GL.glColor3f(paddle1.r, paddle1.g, paddle1.b)
         if animation_time > 15.0:
             # ascontiguousarray puts the array in column major order
-            glLoadMatrixf(
+            GL.glLoadMatrixf(
                 np.ascontiguousarray(
                     ms.get_current_matrix(ms.MatrixStack.modelview).T
                 )
             )
-            glBegin(GL_QUADS)
+            GL.glBegin(GL.GL_QUADS)
             for model_space in paddle1.vertices:
-                glVertex3f(model_space[0], model_space[1], model_space[2])
-            glEnd()
+                GL.glVertex3f(model_space[0], model_space[1], model_space[2])
+            GL.glEnd()
 
         # # draw the square
 
@@ -537,18 +515,18 @@ while not glfw.window_should_close(window):
         if animation_time > 10.0 and animation_time < 35.0:
             draw_axises()
 
-        glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
+        GL.glColor3f(0.0, 0.0, 1.0)  # r  # g  # b
         if animation_time > 35.0:
             # ascontiguousarray puts the array in column major order
-            glLoadMatrixf(
+            GL.glLoadMatrixf(
                 np.ascontiguousarray(
                     ms.get_current_matrix(ms.MatrixStack.modelview).T
                 )
             )
-            glBegin(GL_QUADS)
+            GL.glBegin(GL.GL_QUADS)
             for model_space in square_vertices:
-                glVertex3f(model_space[0], model_space[1], model_space[2])
-            glEnd()
+                GL.glVertex3f(model_space[0], model_space[1], model_space[2])
+            GL.glEnd()
 
     # get back to center of global space
 
@@ -571,18 +549,18 @@ while not glfw.window_should_close(window):
         if animation_time > 40.0 and animation_time < 50.0:
             draw_axises()
 
-        glColor3f(paddle2.r, paddle2.g, paddle2.b)
+        GL.glColor3f(paddle2.r, paddle2.g, paddle2.b)
         if animation_time > 50.0:
             # ascontiguousarray puts the array in column major order
-            glLoadMatrixf(
+            GL.glLoadMatrixf(
                 np.ascontiguousarray(
                     ms.get_current_matrix(ms.MatrixStack.modelview).T
                 )
             )
-            glBegin(GL_QUADS)
+            GL.glBegin(GL.GL_QUADS)
             for model_space in paddle2.vertices:
-                glVertex3f(model_space[0], model_space[1], model_space[2])
-            glEnd()
+                GL.glVertex3f(model_space[0], model_space[1], model_space[2])
+            GL.glEnd()
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers

@@ -25,35 +25,8 @@ from dataclasses import astuple, dataclass, field
 import glfw
 import numpy as np
 from colorutils import Color3
-from OpenGL.GL import (
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_DEPTH_TEST,
-    GL_LEQUAL,
-    GL_MODELVIEW,
-    GL_PROJECTION,
-    GL_QUADS,
-    GL_SCISSOR_TEST,
-    glBegin,
-    glClear,
-    glClearColor,
-    glClearDepth,
-    glColor3f,
-    glDepthFunc,
-    glDisable,
-    glEnable,
-    glEnd,
-    glLoadIdentity,
-    glMatrixMode,
-    glPopMatrix,
-    glPushMatrix,
-    glRotatef,
-    glScissor,
-    glTranslate,
-    glVertex3f,
-    glViewport,
-)
-from OpenGL.GLU import gluPerspective
+import OpenGL.GL as GL
+import OpenGL.GLU as GLU
 
 if not glfw.init():
     sys.exit()
@@ -76,35 +49,35 @@ def on_key(win, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0289, 0.071875, 0.0972, 1.0)
+GL.glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 
 # doc-region-begin enable depth test for left hand system
-glEnable(GL_DEPTH_TEST)
-glClearDepth(1.0)
-glDepthFunc(GL_LEQUAL)
+GL.glEnable(GL.GL_DEPTH_TEST)
+GL.glClearDepth(1.0)
+GL.glDepthFunc(GL.GL_LEQUAL)
 # doc-region-end enable depth test for left hand system
 
 
 def draw_in_square_viewport() -> None:
-    glClearColor(0.2, 0.2, 0.2, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT)
+    GL.glClearColor(0.2, 0.2, 0.2, 1.0)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
     w, h = glfw.get_framebuffer_size(window)
     minimal_dimension = w if w < h else h
 
-    glEnable(GL_SCISSOR_TEST)
-    glScissor(
+    GL.glEnable(GL.GL_SCISSOR_TEST)
+    GL.glScissor(
         int((w - minimal_dimension) / 2.0),
         int((h - minimal_dimension) / 2.0),
         minimal_dimension,
         minimal_dimension,
     )
 
-    glClearColor(0.0289, 0.071875, 0.0972, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT)
-    glDisable(GL_SCISSOR_TEST)
+    GL.glClearColor(0.0289, 0.071875, 0.0972, 1.0)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+    GL.glDisable(GL.GL_SCISSOR_TEST)
 
-    glViewport(
+    GL.glViewport(
         int(0.0 + (w - minimal_dimension) / 2.0),
         int(0.0 + (h - minimal_dimension) / 2.0),
         minimal_dimension,
@@ -227,8 +200,8 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    GL.glViewport(0, 0, width, height)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     draw_in_square_viewport()
     handle_inputs()
@@ -250,16 +223,16 @@ while not glfw.window_should_close(window):
 
     # just like putting the identity function on the lambda stack
     # doc-region-begin load identity
-    glMatrixMode(GL_PROJECTION)
-    glLoadIdentity()
-    glMatrixMode(GL_MODELVIEW)
-    glLoadIdentity()
+    GL.glMatrixMode(GL.GL_PROJECTION)
+    GL.glLoadIdentity()
+    GL.glMatrixMode(GL.GL_MODELVIEW)
+    GL.glLoadIdentity()
     # doc-region-end load identity
 
     # projection
     # doc-region-begin perspective projection
-    glMatrixMode(GL_PROJECTION)
-    gluPerspective(
+    GL.glMatrixMode(GL.GL_PROJECTION)
+    GLU.gluPerspective(
         45.0,  # field_of_view
         1.0,  # aspect_ration
         0.1,  # near_z
@@ -269,11 +242,11 @@ while not glfw.window_should_close(window):
 
     # view
     # doc-region-begin begin modelview transformations
-    glMatrixMode(GL_MODELVIEW)
+    GL.glMatrixMode(GL.GL_MODELVIEW)
 
-    glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
-    glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
-    glTranslate(-camera.x, -camera.y, -camera.z)
+    GL.glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
+    GL.glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
+    GL.glTranslate(-camera.x, -camera.y, -camera.z)
     # doc-region-end begin modelview transformations
 
     # model
@@ -286,27 +259,27 @@ while not glfw.window_should_close(window):
     # pushed onto a stack, and when the with block doc-region-ends,
     # it will be automatically popped off of the stack
     # doc-region-begin first push matrix
-    glPushMatrix()
+    GL.glPushMatrix()
     # doc-region-end first push matrix
 
     # doc-region-begin draw paddle 1
-    glColor3f(*astuple(paddle1.color))
+    GL.glColor3f(*astuple(paddle1.color))
 
-    glTranslate(
+    GL.glTranslate(
         paddle1.position[0],
         paddle1.position[1],
         0.0,
     )
-    glRotatef(math.degrees(paddle1.rotation), 0.0, 0.0, 1.0)
+    GL.glRotatef(math.degrees(paddle1.rotation), 0.0, 0.0, 1.0)
 
-    glBegin(GL_QUADS)
+    GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        glVertex3f(
+        GL.glVertex3f(
             p1_v_ms[0],
             p1_v_ms[1],
             p1_v_ms[2],
         )
-    glEnd()
+    GL.glEnd()
     # doc-region-end draw paddle 1
 
     # doc-region-end of paddle 1
@@ -316,25 +289,25 @@ while not glfw.window_should_close(window):
     # given that no nodes are defined relative to the square, we do not need
     # to push a matrix.  Here we will do so anyway, just to clarify what is
     # happening
-    glPushMatrix()
+    GL.glPushMatrix()
     # the current model matrix will be copied and then the copy will be
     # pushed onto the model stack
-    glColor3f(0.0, 0.0, 1.0)
+    GL.glColor3f(0.0, 0.0, 1.0)
 
     # these functions change the current model matrix
-    glTranslate(0.0, 0.0, -1.0)
-    glRotatef(math.degrees(rotation_around_paddle1), 0.0, 0.0, 1.0)
-    glTranslate(2.0, 0.0, 0.0)
-    glRotatef(math.degrees(square_rotation), 0.0, 0.0, 1.0)
+    GL.glTranslate(0.0, 0.0, -1.0)
+    GL.glRotatef(math.degrees(rotation_around_paddle1), 0.0, 0.0, 1.0)
+    GL.glTranslate(2.0, 0.0, 0.0)
+    GL.glRotatef(math.degrees(square_rotation), 0.0, 0.0, 1.0)
 
-    glBegin(GL_QUADS)
+    GL.glBegin(GL.GL_QUADS)
     for ms in square_vertices:
-        glVertex3f(ms[0], ms[1], ms[2])
-    glEnd()
-    glPopMatrix()
+        GL.glVertex3f(ms[0], ms[1], ms[2])
+    GL.glEnd()
+    GL.glPopMatrix()
     # the mode matrix that was on the model stack before the square
     # was drawn will be restored
-    glPopMatrix()
+    GL.glPopMatrix()
     # doc-region-end draw the square
 
     # doc-region-begin draw paddle 2
@@ -342,23 +315,23 @@ while not glfw.window_should_close(window):
     # need to push matrix, and on the next iteration of the event loop,
     # all matrices will be cleared to identity, so who cares if we
     # mutate the values for now.
-    glColor3f(*astuple(paddle2.color))
+    GL.glColor3f(*astuple(paddle2.color))
 
-    glTranslate(
+    GL.glTranslate(
         paddle2.position[0],
         paddle2.position[1],
         0.0,
     )
-    glRotatef(math.degrees(paddle2.rotation), 0.0, 0.0, 1.0)
+    GL.glRotatef(math.degrees(paddle2.rotation), 0.0, 0.0, 1.0)
 
-    glBegin(GL_QUADS)
+    GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        glVertex3f(
+        GL.glVertex3f(
             p2_v_ms[0],
             p2_v_ms[1],
             p2_v_ms[2],
         )
-    glEnd()
+    GL.glEnd()
     # doc-region-end draw paddle 2
     glfw.swap_buffers(window)
 

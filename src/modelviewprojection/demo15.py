@@ -23,30 +23,7 @@ from dataclasses import astuple, dataclass, field
 
 import glfw
 from colorutils import Color3
-from OpenGL.GL import (
-    GL_COLOR_BUFFER_BIT,
-    GL_DEPTH_BUFFER_BIT,
-    GL_DEPTH_TEST,
-    GL_GREATER,
-    GL_MODELVIEW,
-    GL_PROJECTION,
-    GL_QUADS,
-    GL_SCISSOR_TEST,
-    glBegin,
-    glClear,
-    glClearColor,
-    glClearDepth,
-    glColor3f,
-    glDepthFunc,
-    glDisable,
-    glEnable,
-    glEnd,
-    glLoadIdentity,
-    glMatrixMode,
-    glScissor,
-    glVertex3f,
-    glViewport,
-)
+import OpenGL.GL as GL
 
 from modelviewprojection.mathutils import (
     compose,
@@ -78,41 +55,41 @@ def on_key(win, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-glClearColor(0.0289, 0.071875, 0.0972, 1.0)
+GL.glClearColor(0.0289, 0.071875, 0.0972, 1.0)
 
 # doc-region-begin enable depth buffer
-glClearDepth(-1.0)
-glDepthFunc(GL_GREATER)
-glEnable(GL_DEPTH_TEST)
+GL.glClearDepth(-1.0)
+GL.glDepthFunc(GL.GL_GREATER)
+GL.glEnable(GL.GL_DEPTH_TEST)
 # doc-region-end enable depth buffer
 
 
-glMatrixMode(GL_PROJECTION)
-glLoadIdentity()
-glMatrixMode(GL_MODELVIEW)
-glLoadIdentity()
+GL.glMatrixMode(GL.GL_PROJECTION)
+GL.glLoadIdentity()
+GL.glMatrixMode(GL.GL_MODELVIEW)
+GL.glLoadIdentity()
 
 
 def draw_in_square_viewport() -> None:
-    glClearColor(0.2, 0.2, 0.2, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT)
+    GL.glClearColor(0.2, 0.2, 0.2, 1.0)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
     w, h = glfw.get_framebuffer_size(window)
     minimal_dimension = w if w < h else h
 
-    glEnable(GL_SCISSOR_TEST)
-    glScissor(
+    GL.glEnable(GL.GL_SCISSOR_TEST)
+    GL.glScissor(
         int((w - minimal_dimension) / 2.0),
         int((h - minimal_dimension) / 2.0),
         minimal_dimension,
         minimal_dimension,
     )
 
-    glClearColor(0.0289, 0.071875, 0.0972, 1.0)
-    glClear(GL_COLOR_BUFFER_BIT)
-    glDisable(GL_SCISSOR_TEST)
+    GL.glClearColor(0.0289, 0.071875, 0.0972, 1.0)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+    GL.glDisable(GL.GL_SCISSOR_TEST)
 
-    glViewport(
+    GL.glViewport(
         int(0.0 + (w - minimal_dimension) / 2.0),
         int(0.0 + (h - minimal_dimension) / 2.0),
         minimal_dimension,
@@ -236,15 +213,15 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
 
     width, height = glfw.get_framebuffer_size(window)
-    glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    GL.glViewport(0, 0, width, height)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     draw_in_square_viewport()
     handle_inputs()
 
     # doc-region-begin draw paddle 1
-    glColor3f(*astuple(paddle1.color))
-    glBegin(GL_QUADS)
+    GL.glColor3f(*astuple(paddle1.color))
+    GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         ms_to_ndc: InvertibleFunction[Vector3D] = compose(
             # camera space to NDC
@@ -256,16 +233,16 @@ while not glfw.window_should_close(window):
         )
 
         paddle1_vector_ndc: Vector3D = ms_to_ndc(p1_v_ms)
-        glVertex3f(
+        GL.glVertex3f(
             paddle1_vector_ndc.x, paddle1_vector_ndc.y, paddle1_vector_ndc.z
         )
-    glEnd()
+    GL.glEnd()
     # doc-region-end draw paddle 1
 
     # doc-region-begin draw square
     # draw square
-    glColor3f(0.0, 0.0, 1.0)
-    glBegin(GL_QUADS)
+    GL.glColor3f(0.0, 0.0, 1.0)
+    GL.glBegin(GL.GL_QUADS)
     for ms in square:
         ms_to_ndc: InvertibleFunction[Vector3D] = compose(
             # camera space to NDC
@@ -283,16 +260,16 @@ while not glfw.window_should_close(window):
             ),
         )
         square_vector_ndc: Vector3D = ms_to_ndc(ms)
-        glVertex3f(
+        GL.glVertex3f(
             square_vector_ndc.x, square_vector_ndc.y, square_vector_ndc.z
         )
-    glEnd()
+    GL.glEnd()
     # doc-region-end draw square
 
     # doc-region-begin draw paddle 2
     # draw paddle 2
-    glColor3f(*astuple(paddle2.color))
-    glBegin(GL_QUADS)
+    GL.glColor3f(*astuple(paddle2.color))
+    GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         ms_to_ndc: InvertibleFunction[Vector3D] = compose(
             # camera space to NDC
@@ -304,10 +281,10 @@ while not glfw.window_should_close(window):
         )
 
         paddle2_vector_ndc: Vector3D = ms_to_ndc(p2_v_ms)
-        glVertex3f(
+        GL.glVertex3f(
             paddle2_vector_ndc.x, paddle2_vector_ndc.y, paddle2_vector_ndc.z
         )
-    glEnd()
+    GL.glEnd()
     # doc-region-end draw paddle 2
 
     glfw.swap_buffers(window)
