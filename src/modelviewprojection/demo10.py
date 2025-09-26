@@ -23,13 +23,7 @@ import glfw
 import colorutils
 import OpenGL.GL as GL
 
-from modelviewprojection.mathutils import (
-    InvertibleFunction,
-    compose,
-    inverse,
-    translate,
-    uniform_scale,
-)
+import modelviewprojection.mathutils as mathutils
 from modelviewprojection.mathutils2d import Vector2D, rotate
 
 if not glfw.init():
@@ -196,18 +190,20 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ws: InvertibleFunction[Vector2D] = compose(
-            translate(paddle1.position),
+        ms_to_ws: mathutils.InvertibleFunction[Vector2D] = mathutils.compose(
+            mathutils.translate(paddle1.position),
             rotate(paddle1.rotation),
         )
         paddle1_vector_ws: Vector2D = ms_to_ws(p1_v_ms)
 
-        ws_to_cs: InvertibleFunction[Vector2D] = inverse(
-            translate(camera.position_ws)
+        ws_to_cs: mathutils.InvertibleFunction[Vector2D] = mathutils.inverse(
+            mathutils.translate(camera.position_ws)
         )
         paddle1_vector_cs: Vector2D = ws_to_cs(paddle1_vector_ws)
 
-        cs_to_ndc: InvertibleFunction[Vector2D] = uniform_scale(1.0 / 10.0)
+        cs_to_ndc: mathutils.InvertibleFunction[Vector2D] = (
+            mathutils.uniform_scale(1.0 / 10.0)
+        )
         paddle1_vector_ndc: Vector2D = cs_to_ndc(paddle1_vector_cs)
 
         GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
@@ -219,13 +215,15 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: InvertibleFunction[Vector2D] = compose(
+        ms_to_ndc: mathutils.InvertibleFunction[Vector2D] = mathutils.compose(
             # camera space to NDC
-            uniform_scale(1.0 / 10.0),
+            mathutils.uniform_scale(1.0 / 10.0),
             # world space to camera space
-            inverse(translate(camera.position_ws)),
+            mathutils.inverse(mathutils.translate(camera.position_ws)),
             # model space to world space
-            compose(translate(paddle2.position), rotate(paddle2.rotation)),
+            mathutils.compose(
+                mathutils.translate(paddle2.position), rotate(paddle2.rotation)
+            ),
         )
 
         paddle2_vector_ndc: Vector2D = ms_to_ndc(p2_v_ms)

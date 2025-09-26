@@ -23,7 +23,7 @@ import glfw
 import colorutils
 import OpenGL.GL as GL
 
-from modelviewprojection.mathutils import translate
+import modelviewprojection.mathutils as mathutils
 from modelviewprojection.mathutils2d import Vector2D
 
 if not glfw.init():
@@ -160,7 +160,9 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc: Vector2D = translate(paddle1.position)(p1_v_ms)
+        paddle1_vector_ndc: Vector2D = mathutils.translate(paddle1.position)(
+            p1_v_ms
+        )
         GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
     GL.glEnd()
     # doc-region-end draw paddle 1
@@ -170,7 +172,9 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        paddle2_vector_ndc: Vector2D = translate(paddle2.position)(p2_v_ms)
+        paddle2_vector_ndc: Vector2D = mathutils.translate(paddle2.position)(
+            p2_v_ms
+        )
         GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     GL.glEnd()
     # doc-region-end draw paddle 2

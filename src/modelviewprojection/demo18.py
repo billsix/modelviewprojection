@@ -24,7 +24,7 @@ import glfw
 import colorutils
 import OpenGL.GL as GL
 
-from modelviewprojection.mathutils import compose, inverse, translate
+import modelviewprojection.mathutils as mathutils
 from modelviewprojection.mathutils3d import (
     Vector3D,
     fn_stack,
@@ -172,14 +172,14 @@ def handle_inputs() -> None:
         camera.rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         forwards_cs = Vector3D(x=0.0, y=0.0, z=-1.0)
-        forward_ws = compose(
-            translate(camera.position_ws), rotate_y(camera.rot_y)
+        forward_ws = mathutils.compose(
+            mathutils.translate(camera.position_ws), rotate_y(camera.rot_y)
         )(forwards_cs)
         camera.position_ws = forward_ws
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         forwards_cs = Vector3D(x=0.0, y=0.0, z=1.0)
-        forward_ws = compose(
-            translate(camera.position_ws), rotate_y(camera.rot_y)
+        forward_ws = mathutils.compose(
+            mathutils.translate(camera.position_ws), rotate_y(camera.rot_y)
         )(forwards_cs)
         camera.position_ws = forward_ws
     global paddle1, paddle2
@@ -256,12 +256,12 @@ while not glfw.window_should_close(window):
             field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
         )
     ):
-        # world space to camera space, which is inverse of camera space to
+        # world space to camera space, which is mathutils.inverse of camera space to
         # world space
         with push_transformation(
-            inverse(
-                compose(
-                    translate(camera.position_ws),
+            mathutils.inverse(
+                mathutils.compose(
+                    mathutils.translate(camera.position_ws),
                     rotate_y(camera.rot_y),
                     rotate_x(camera.rot_x),
                 )
@@ -269,7 +269,10 @@ while not glfw.window_should_close(window):
         ):
             # paddle 1 space to world space
             with push_transformation(
-                compose(translate(paddle1.position), rotate_z(paddle1.rotation))
+                mathutils.compose(
+                    mathutils.translate(paddle1.position),
+                    rotate_z(paddle1.rotation),
+                )
             ):
                 GL.glColor3f(*dataclasses.astuple(paddle1.color))
                 GL.glBegin(GL.GL_QUADS)
@@ -286,10 +289,10 @@ while not glfw.window_should_close(window):
                 # doc-region-end draw paddle 1
                 # square space to paddle 1 space
                 with push_transformation(
-                    compose(
-                        translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
+                    mathutils.compose(
+                        mathutils.translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
                         rotate_z(rotation_around_paddle1),
-                        translate(Vector3D(x=2.0, y=0.0, z=0.0)),
+                        mathutils.translate(Vector3D(x=2.0, y=0.0, z=0.0)),
                         rotate_z(square_rotation),
                     )
                 ):
@@ -307,7 +310,10 @@ while not glfw.window_should_close(window):
 
             # paddle 2 space to world space
             with push_transformation(
-                compose(translate(paddle2.position), rotate_z(paddle2.rotation))
+                mathutils.compose(
+                    mathutils.translate(paddle2.position),
+                    rotate_z(paddle2.rotation),
+                )
             ):
                 # draw paddle 2
                 GL.glColor3f(*dataclasses.astuple(paddle2.color))

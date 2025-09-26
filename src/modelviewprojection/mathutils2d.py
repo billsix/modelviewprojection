@@ -21,12 +21,8 @@ import dataclasses
 
 from pytest import approx
 
-from modelviewprojection.mathutils import (
-    InvertibleFunction,
-    compose,
-    inverse,
-    translate,
-)
+import modelviewprojection.mathutils as mathutils
+
 from modelviewprojection.mathutils1d import Vector1D
 
 import typing
@@ -100,7 +96,7 @@ class Vector2D(Vector1D):
     # doc-region-end define mul
 
 
-def scale(m_x: float, m_y: float) -> InvertibleFunction[Vector2D]:
+def scale(m_x: float, m_y: float) -> mathutils.InvertibleFunction[Vector2D]:
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(vector.x * m_x, vector.y * m_y)
 
@@ -112,25 +108,25 @@ def scale(m_x: float, m_y: float) -> InvertibleFunction[Vector2D]:
 
         return Vector2D(vector.x / m_x, vector.y / m_y)
 
-    return InvertibleFunction[Vector2D](f, f_inv)
+    return mathutils.InvertibleFunction[Vector2D](f, f_inv)
 
 
 # doc-region-begin define rotate
-def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
+def rotate_90_degrees() -> mathutils.InvertibleFunction[Vector2D]:
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(-vector.y, vector.x)
 
     def f_inv(vector: Vector2D) -> Vector2D:
         return -f(vector)
 
-    return InvertibleFunction[Vector2D](f, f_inv)
+    return mathutils.InvertibleFunction[Vector2D](f, f_inv)
 
 
 def rotate(angle_in_radians: float) -> typing.Callable[[Vector2D], Vector2D]:
-    r90: InvertibleFunction[Vector2D] = rotate_90_degrees()
+    r90: mathutils.InvertibleFunction[Vector2D] = rotate_90_degrees()
 
     def create_rotate_function(
-        perp: InvertibleFunction[Vector2D],
+        perp: mathutils.InvertibleFunction[Vector2D],
     ) -> typing.Callable[[Vector2D], Vector2D]:
         def f(vector: Vector2D) -> Vector2D:
             parallel: Vector2D = math.cos(angle_in_radians) * vector
@@ -139,8 +135,9 @@ def rotate(angle_in_radians: float) -> typing.Callable[[Vector2D], Vector2D]:
 
         return f
 
-    return InvertibleFunction[Vector2D](
-        create_rotate_function(r90), create_rotate_function(inverse(r90))
+    return mathutils.InvertibleFunction[Vector2D](
+        create_rotate_function(r90),
+        create_rotate_function(mathutils.inverse(r90)),
     )
     # doc-region-end define rotate
 
@@ -148,9 +145,11 @@ def rotate(angle_in_radians: float) -> typing.Callable[[Vector2D], Vector2D]:
 # doc-region-begin define rotate around
 def rotate_around(
     angle_in_radians: float, center: Vector2D
-) -> InvertibleFunction[Vector2D]:
-    return compose(
-        translate(center), rotate(angle_in_radians), translate(-center)
+) -> mathutils.InvertibleFunction[Vector2D]:
+    return mathutils.compose(
+        mathutils.translate(center),
+        rotate(angle_in_radians),
+        mathutils.translate(-center),
     )
     # doc-region-end define rotate around
 

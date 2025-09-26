@@ -23,12 +23,7 @@ import glfw
 import colorutils
 import OpenGL.GL as GL
 
-from modelviewprojection.mathutils import (
-    compose,
-    inverse,
-    translate,
-    uniform_scale,
-)
+import modelviewprojection.mathutils as mathutils
 from modelviewprojection.mathutils3d import Vector3D, fn_stack, rotate_z
 
 if not glfw.init():
@@ -212,18 +207,20 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin stack push camera space to ndc
     # camera space to NDC
-    fn_stack.push(uniform_scale(1.0 / 10.0))
+    fn_stack.push(mathutils.uniform_scale(1.0 / 10.0))
     # doc-region-end stack push camera space to ndc
 
     # doc-region-begin world space to camera space
     # world space to camera space
-    fn_stack.push(inverse(translate(camera.position_ws)))
+    fn_stack.push(mathutils.inverse(mathutils.translate(camera.position_ws)))
     # doc-region-end world space to camera space
 
     # doc-region-begin paddle 1 transformations
     # paddle 1 model space to world space
     fn_stack.push(
-        compose(translate(paddle1.position), rotate_z(paddle1.rotation))
+        mathutils.compose(
+            mathutils.translate(paddle1.position), rotate_z(paddle1.rotation)
+        )
     )
     # doc-region-end paddle 1 transformations
 
@@ -242,10 +239,10 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin square space to paddle 1 space
     fn_stack.push(
-        compose(
-            translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
+        mathutils.compose(
+            mathutils.translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
             rotate_z(rotation_around_paddle1),
-            translate(Vector3D(x=2.0, y=0.0, z=0.0)),
+            mathutils.translate(Vector3D(x=2.0, y=0.0, z=0.0)),
             rotate_z(square_rotation),
         )
     )
@@ -272,7 +269,9 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin paddle 2 model space to world space
     fn_stack.push(
-        compose(translate(paddle2.position), rotate_z(paddle2.rotation))
+        mathutils.compose(
+            mathutils.translate(paddle2.position), rotate_z(paddle2.rotation)
+        )
     )
     # doc-region-end paddle 2 model space to world space
 
