@@ -16,13 +16,11 @@
 # Boston, MA 02111-1307, USA.
 
 
-from __future__ import annotations  # to appease Python 3.7-3.9
-
 import sys
-from dataclasses import astuple, dataclass
+import dataclasses
 
 import glfw
-from colorutils import Color3
+import colorutils
 import OpenGL.GL as GL
 
 
@@ -91,10 +89,10 @@ def draw_in_square_viewport() -> None:
     )
 
 
-@dataclass
+@dataclasses.dataclass
 class Paddle:
     vertices: list[Vector2D]
-    color: Color3
+    color: colorutils.Color3
     position: Vector2D
     rotation: float = 0.0
 
@@ -106,7 +104,7 @@ paddle1: Paddle = Paddle(
         Vector2D(x=1.0, y=3.0),
         Vector2D(x=-1.0, y=3.0),
     ],
-    color=Color3(r=0.578123, g=0.0, b=1.0),
+    color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
     position=Vector2D(-9.0, 0.0),
 )
 
@@ -117,7 +115,7 @@ paddle2: Paddle = Paddle(
         Vector2D(x=1.0, y=3.0),
         Vector2D(x=-1.0, y=3.0),
     ],
-    color=Color3(r=1.0, g=1.0, b=0.0),
+    color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
     position=Vector2D(9.0, 0.0),
 )
 
@@ -170,7 +168,7 @@ while not glfw.window_should_close(window):
 
     # draw paddle 1
     # doc-region-begin draw paddle 1
-    GL.glColor3f(*astuple(paddle1.color))
+    GL.glColor3f(*dataclasses.astuple(paddle1.color))
 
     GL.glBegin(GL.GL_QUADS)
     rotatePoint: Vector2D = paddle1.position
@@ -187,7 +185,7 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin draw paddle 2
     # draw paddle 2
-    GL.glColor3f(*astuple(paddle2.color))
+    GL.glColor3f(*dataclasses.astuple(paddle2.color))
 
     GL.glBegin(GL.GL_QUADS)
     rotatePoint: Vector2D = paddle2.position

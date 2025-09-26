@@ -16,22 +16,17 @@
 # Boston, MA 02111-1307, USA.
 
 
-from __future__ import annotations  # to appease Python 3.7-3.9
-
-from dataclasses import dataclass
-from typing import Callable, Generic, TypeVar
+import dataclasses
 from abc import ABC, abstractmethod
-
-from dataclasses import asdict
-
+import typing
 
 # doc-region-begin define invertible function
 # Define a generic type variable
-T = TypeVar("T")
+T = typing.TypeVar("T")
 
 
-@dataclass
-class InvertibleFunction(Generic[T]):
+@dataclasses.dataclass
+class InvertibleFunction(typing.Generic[T]):
     """
     Class that wraps a function and its
     inverse function.  The function takes
@@ -39,15 +34,15 @@ class InvertibleFunction(Generic[T]):
     results in a value of type T.
     """
 
-    func: Callable[[T], T]  #: The wrapped function
-    inverse: Callable[[T], T]  #: The inverse of the wrapped function
+    func: typing.Callable[[T], T]  #: The wrapped function
+    inverse: typing.Callable[[T], T]  #: The inverse of the wrapped function
 
     def __call__(self, x: T) -> T:
         """
         Execute a function with the given value.
 
         Args:
-            func (Callable[[T], T]): A function that takes a value of type T
+            func (typing.Callable[[T], T]): A function that takes a value of type T
                                      and returns a value of the same type T.
             value (T): The input value to pass to the function
         Returns:
@@ -189,7 +184,7 @@ def uniform_scale(m: float) -> InvertibleFunction[T]:
 
 class Vector(ABC):
     def __iter__(self):
-        return iter(asdict(self).values())
+        return iter(dataclasses.asdict(self).values())
 
     @abstractmethod
     def __add__(self, rhs):

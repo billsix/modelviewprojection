@@ -16,24 +16,22 @@
 # Boston, MA 02111-1307, USA.
 
 
-from __future__ import annotations  # to appease Python 3.7-3.9
-
-from dataclasses import dataclass
-from typing import TypeVar
+import dataclasses
+import typing
 
 # doc-region-begin define invertible function
 # Define a generic type variable
-T = TypeVar("T")
+T = typing.TypeVar("T")
 
 
-@dataclass
+@dataclasses.dataclass
 class Color3:
     r: float
     g: float
     b: float
 
 
-@dataclass
+@dataclasses.dataclass
 class Color4:
     r: float
     g: float

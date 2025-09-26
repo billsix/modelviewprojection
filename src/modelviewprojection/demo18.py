@@ -16,14 +16,12 @@
 # Boston, MA 02111-1307, USA.
 
 
-from __future__ import annotations  # to appease Python 3.7-3.9
-
 import math
 import sys
-from dataclasses import astuple, dataclass, field
+import dataclasses
 
 import glfw
-from colorutils import Color3
+import colorutils
 import OpenGL.GL as GL
 
 from modelviewprojection.mathutils import compose, inverse, translate
@@ -98,10 +96,10 @@ def draw_in_square_viewport() -> None:
     )
 
 
-@dataclass
+@dataclasses.dataclass
 class Paddle:
     vertices: list[Vector3D]
-    color: Color3
+    color: colorutils.Color3
     position: Vector3D
     rotation: float = 0.0
 
@@ -113,7 +111,7 @@ paddle1: Paddle = Paddle(
         Vector3D(x=1.0, y=3.0, z=0.0),
         Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
-    color=Color3(r=0.578123, g=0.0, b=1.0),
+    color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
     position=Vector3D(x=-9.0, y=0.0, z=0.0),
 )
 
@@ -124,7 +122,7 @@ paddle2: Paddle = Paddle(
         Vector3D(x=1.0, y=3.0, z=0.0),
         Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
-    color=Color3(r=1.0, g=1.0, b=0.0),
+    color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
     position=Vector3D(x=9.0, y=0.0, z=0.0),
 )
 
@@ -132,9 +130,9 @@ paddle2: Paddle = Paddle(
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
-@dataclass
+@dataclasses.dataclass
 class Camera:
-    position_ws: Vector3D = field(
+    position_ws: Vector3D = dataclasses.field(
         default_factory=lambda: Vector3D(x=0.0, y=0.0, z=40.0)
     )
     rot_y: float = 0.0
@@ -273,7 +271,7 @@ while not glfw.window_should_close(window):
             with push_transformation(
                 compose(translate(paddle1.position), rotate_z(paddle1.rotation))
             ):
-                GL.glColor3f(*astuple(paddle1.color))
+                GL.glColor3f(*dataclasses.astuple(paddle1.color))
                 GL.glBegin(GL.GL_QUADS)
                 for p1_v_ms in paddle1.vertices:
                     paddle1_vector_ndc = fn_stack.modelspace_to_ndc_fn()(
@@ -312,7 +310,7 @@ while not glfw.window_should_close(window):
                 compose(translate(paddle2.position), rotate_z(paddle2.rotation))
             ):
                 # draw paddle 2
-                GL.glColor3f(*astuple(paddle2.color))
+                GL.glColor3f(*dataclasses.astuple(paddle2.color))
                 GL.glBegin(GL.GL_QUADS)
                 for p2_v_ms in paddle2.vertices:
                     paddle2_vector_ndc = fn_stack.modelspace_to_ndc_fn()(

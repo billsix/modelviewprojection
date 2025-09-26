@@ -15,7 +15,6 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-from __future__ import annotations  # to appease Python 3.7-3.9
 
 import ctypes
 import math

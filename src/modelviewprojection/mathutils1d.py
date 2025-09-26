@@ -16,23 +16,22 @@
 # Boston, MA 02111-1307, USA.
 
 
-from __future__ import annotations  # to appease Python 3.7-3.9
-
-from dataclasses import dataclass
+import dataclasses
 
 from modelviewprojection.mathutils import Vector
 
 import numpy as np
+import typing
 
 
 # doc-region-begin define vector class
-@dataclass
+@dataclasses.dataclass
 class Vector1D(Vector):
     x: float  #: The value of the 1D Vector
     # doc-region-end define vector class
 
     # doc-region-begin begin define add
-    def __add__(self, rhs: Vector1D) -> Vector1D:
+    def __add__(self, rhs: typing.Self) -> typing.Self:
         # doc-region-end begin define add
         """
         Add together two Vector1Ds.
@@ -65,7 +64,7 @@ class Vector1D(Vector):
         # doc-region-end define add
 
     # doc-region-begin define mul
-    def __mul__(self, scalar: float) -> Vector1D:
+    def __mul__(self, scalar: float) -> typing.Self:
         """
         Multiply the Vector1D by a scalar number
 
@@ -93,7 +92,7 @@ class Vector1D(Vector):
         # doc-region-end define mul
 
     # The dot method uses the generic iterators provided by self and other
-    def dot(self, other: Vector1D) -> float:
+    def dot(self, other: typing.Self) -> float:
         return sum(v1 * v2 for v1, v2 in zip(self, other))
 
     def __abs__(self) -> float:

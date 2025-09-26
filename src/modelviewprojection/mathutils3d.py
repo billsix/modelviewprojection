@@ -16,12 +16,9 @@
 # Boston, MA 02111-1307, USA.
 
 
-from __future__ import annotations  # to appease Python 3.7-3.9
-
 import math
 from contextlib import contextmanager
-from dataclasses import dataclass, field
-from typing import Callable, List
+import dataclasses
 
 from modelviewprojection.mathutils import (
     InvertibleFunction,
@@ -33,15 +30,16 @@ from modelviewprojection.mathutils import (
 from modelviewprojection.mathutils1d import Vector1D
 from modelviewprojection.mathutils2d import Vector2D
 from modelviewprojection.mathutils2d import rotate as rotate2D
+import typing
 
 
 # doc-region-begin define vector class
-@dataclass
+@dataclasses.dataclass
 class Vector3D(Vector2D):
     z: float  #: The z-component of the 3D Vector
     # doc-region-end define vector class
 
-    def __add__(self, rhs: Vector3D) -> Vector3D:
+    def __add__(self, rhs: typing.Self) -> typing.Self:
         """
         Add together two Vector3Ds.
 
@@ -71,7 +69,7 @@ class Vector3D(Vector2D):
             x=(self.x + rhs.x), y=(self.y + rhs.y), z=(self.z + rhs.z)
         )
 
-    def __mul__(vector, scalar: float) -> Vector3D:
+    def __mul__(vector, scalar: float) -> typing.Self:
         """
         Multiply the Vector3D by a scalar number
 
@@ -99,7 +97,7 @@ class Vector3D(Vector2D):
             x=(vector.x * scalar), y=(vector.y * scalar), z=(vector.z * scalar)
         )
 
-    def cross(self, rhs: Vector3D) -> Vector3D:
+    def cross(self, rhs: typing.Self) -> typing.Self:
         return Vector3D(
             x=self.y * rhs.z - self.z * rhs.y,
             y=self.z * rhs.x - self.x * rhs.z,
@@ -132,7 +130,7 @@ def scale(m_x: float, m_y: float, m_z: float) -> InvertibleFunction[Vector3D]:
 
 # doc-region-begin define rotate x
 def rotate_x(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
-    def create_rotate_function(r) -> Callable[[Vector3D], Vector3D]:
+    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
         def f(vector: Vector2D) -> Vector2D:
             yz_on_xy: Vector2D = Vector2D(x=vector.y, y=vector.z)
             rotated_yz_on_xy: Vector2D = r(yz_on_xy)
@@ -151,7 +149,7 @@ def rotate_x(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
 
 # doc-region-begin define rotate y
 def rotate_y(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
-    def create_rotate_function(r) -> Callable[[Vector3D], Vector3D]:
+    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
         def f(vector: Vector2D) -> Vector2D:
             zx_on_xy: Vector2D = Vector2D(x=vector.z, y=vector.x)
             rotated_zx_on_xy: Vector2D = r(zx_on_xy)
@@ -170,7 +168,7 @@ def rotate_y(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
 
 # doc-region-begin define rotate z
 def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
-    def create_rotate_function(r) -> Callable[[Vector3D], Vector3D]:
+    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
         def f(vector: Vector2D) -> Vector2D:
             xy_on_xy: Vector2D = Vector2D(x=vector.x, y=vector.y)
             rotated_xy_on_xy: Vector2D = r(xy_on_xy)
@@ -227,7 +225,7 @@ def ortho(
 def perspective(
     field_of_view: float, aspect_ratio: float, near_z: float, far_z: float
 ) -> InvertibleFunction[Vector3D]:
-    # field_of_view, field of view, is angle of y
+    # field_of_view, dataclasses.field of view, is angle of y
     # aspect_ratio is x_width / y_width
 
     top: float = -near_z * math.tan(math.radians(field_of_view) / 2.0)
@@ -272,9 +270,9 @@ def cs_to_ndc_space_fn(vector: Vector3D) -> InvertibleFunction[Vector3D]:
 
 
 # doc-region-begin define function stack class
-@dataclass
+@dataclasses.dataclass
 class FunctionStack:
-    stack: List[InvertibleFunction[Vector3D]] = field(
+    stack: typing.List[InvertibleFunction[Vector3D]] = dataclasses.field(
         default_factory=lambda: []
     )
 

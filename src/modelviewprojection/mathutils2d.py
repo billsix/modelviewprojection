@@ -16,11 +16,8 @@
 # Boston, MA 02111-1307, USA.
 
 
-from __future__ import annotations  # to appease Python 3.7-3.9
-
 import math
-from dataclasses import dataclass
-from typing import Callable
+import dataclasses
 
 from pytest import approx
 
@@ -32,15 +29,17 @@ from modelviewprojection.mathutils import (
 )
 from modelviewprojection.mathutils1d import Vector1D
 
+import typing
+
 
 # doc-region-begin define vector class
-@dataclass
+@dataclasses.dataclass
 class Vector2D(Vector1D):
     y: float  #: The y-component of the 2D Vector
     # doc-region-end define vector class
 
     # doc-region-begin define add
-    def __add__(self, rhs: Vector2D) -> Vector2D:
+    def __add__(self, rhs: typing.Self) -> typing.Self:
         """
         Add together two Vector2Ds.
 
@@ -72,7 +71,7 @@ class Vector2D(Vector1D):
     # doc-region-end define add
 
     # doc-region-begin define mul
-    def __mul__(self, scalar: float) -> Vector2D:
+    def __mul__(self, scalar: float) -> typing.Self:
         """
         Multiply the Vector2D by a scalar number
 
@@ -127,12 +126,12 @@ def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
     return InvertibleFunction[Vector2D](f, f_inv)
 
 
-def rotate(angle_in_radians: float) -> Callable[[Vector2D], Vector2D]:
+def rotate(angle_in_radians: float) -> typing.Callable[[Vector2D], Vector2D]:
     r90: InvertibleFunction[Vector2D] = rotate_90_degrees()
 
     def create_rotate_function(
         perp: InvertibleFunction[Vector2D],
-    ) -> Callable[[Vector2D], Vector2D]:
+    ) -> typing.Callable[[Vector2D], Vector2D]:
         def f(vector: Vector2D) -> Vector2D:
             parallel: Vector2D = math.cos(angle_in_radians) * vector
             perpendicular: Vector2D = math.sin(angle_in_radians) * perp(vector)

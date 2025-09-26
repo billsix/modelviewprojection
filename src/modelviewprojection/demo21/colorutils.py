@@ -16,8 +16,6 @@
 # Boston, MA 02111-1307, USA.
 
 
-from __future__ import annotations  # to appease Python 3.7-3.9
-
 from dataclasses import dataclass
 from typing import TypeVar
 
