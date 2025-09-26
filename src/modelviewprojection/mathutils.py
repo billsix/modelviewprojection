@@ -22,7 +22,7 @@ from dataclasses import dataclass
 from typing import Callable, Generic, TypeVar
 from abc import ABC, abstractmethod
 
-from dataclasses import asdict, dataclass
+from dataclasses import asdict
 
 
 # doc-region-begin define invertible function
@@ -159,6 +159,7 @@ def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
 
     return InvertibleFunction[T](composed_fn, inv_composed_fn)
 
+
 # doc-region-begin define translate
 def translate(b: T) -> InvertibleFunction[T]:
     def f(vector: T) -> T:
@@ -187,7 +188,6 @@ def uniform_scale(m: float) -> InvertibleFunction[T]:
 
 
 class Vector(ABC):
-
     def __iter__(self):
         return iter(asdict(self).values())
 
@@ -213,7 +213,6 @@ class Vector(ABC):
         # doc-region-begin define subtract
         return self + -rhs
         # doc-region-end define subtract
-
 
     @abstractmethod
     def __mul__(self, scalar: float):

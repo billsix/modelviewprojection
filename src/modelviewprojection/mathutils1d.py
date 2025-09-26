@@ -18,7 +18,7 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-from dataclasses import asdict, dataclass
+from dataclasses import dataclass
 
 from modelviewprojection.mathutils import Vector
 
@@ -30,7 +30,6 @@ import numpy as np
 class Vector1D(Vector):
     x: float  #: The value of the 1D Vector
     # doc-region-end define vector class
-
 
     # doc-region-begin begin define add
     def __add__(self, rhs: Vector1D) -> Vector1D:
@@ -65,7 +64,6 @@ class Vector1D(Vector):
         return Vector1D(x=(self.x + rhs.x))
         # doc-region-end define add
 
-
     # doc-region-begin define mul
     def __mul__(self, scalar: float) -> Vector1D:
         """
@@ -93,7 +91,6 @@ class Vector1D(Vector):
         """
         return Vector1D(x=(self.x * scalar))
         # doc-region-end define mul
-
 
     # The dot method uses the generic iterators provided by self and other
     def dot(self, other: Vector1D) -> float:
