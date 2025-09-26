@@ -3,16 +3,9 @@
 CONTAINER_CMD = podman
 CONTAINER_NAME = modelviewprojection-html
 SPYDER_CONTAINER_NAME = modelviewprojection-spyder
-FILES_TO_MOUNT = -v ./assignments:/mvp/assignments/:Z \
-		-v ./book:/mvp/book/:Z \
+FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
 		-v ./entrypoint/format.sh:/format.sh:Z \
-		-v ./pyproject.toml:/mvp/pyproject.toml:Z \
-		-v ./pytest.ini:/mvp/pytest.ini:Z \
-		-v ./setup.py:/mvp/setup.py:Z \
-		-v ./src:/mvp/src/:Z \
-		-v ./mvpVisualization:/mvp/mvpVisualization:Z \
-		-v ./tests/:/mvp/tests/:Z \
 		-v ./output/:/output/:Z \
 		-v ./entrypoint/.bashrc:/root/.bashrc:Z
 
