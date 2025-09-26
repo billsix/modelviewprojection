@@ -31,11 +31,11 @@ from modelviewprojection.mathutils import (
     InvertibleFunction,
     translate,
     uniform_scale,
+    compose,
+    inverse,
 )
 from modelviewprojection.mathutils2d import (
     Vector2D,
-    compose,
-    inverse,
     is_clockwise,
     is_parallel,
     rotate,

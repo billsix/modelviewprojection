@@ -31,11 +31,11 @@ from modelviewprojection.mathutils import (
     InvertibleFunction,
     translate,
     uniform_scale,
+    inverse,
 )
 from modelviewprojection.mathutils3d import (
     Vector3D,
     fn_stack,
-    inverse,
     rotate_x,
     rotate_y,
     rotate_z,
