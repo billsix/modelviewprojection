@@ -174,14 +174,39 @@ Import Python modules, which are Python programmer's main form of libraries.
    :lineno-match:
    :caption: src/modelviewprojection/demo01.py
 
-*  The "sys" module is imported.  To call functions from this module, the syntax is "sys.function".
+*  The "sys" module is imported.  Python has modules to let developers organize
+   code into reusable, manageable pieces instead of keeping everything in one
+   large file. Modules help separate functionality, avoid name conflicts,
+   and make it easier to share and maintain code.
+   By importing modules, you can use prewritten libraries or your own
+   organized code across different projects.
+
+*  To call functions from this module, the syntax is "sys.function".  In code
+   below, "sys.exit()" means "call the exit function from the "sys" module
+   to exit the current process.  There is also a function "terminate" from
+   the "glfw" module, which is a different module.  Even if glfw defined
+   a "exit" function, there would be no name collision, as the functions
+   are prefaced by their module names.
+
+
+.. literalinclude:: ../../src/modelviewprojection/demo01.py
+   :language: python
+   :start-after: doc-region-begin if the window is not created correctly, quit
+   :end-before: doc-region-end if the window is not created correctly, quit
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/demo01.py
 
 
 
-* GL is a submodule of the OpenGL module. By directly importing specific
-  functions from GL into our current module, we avoid having to write
-  OpenGL.GL.function every time. This keeps our code cleaner and easier
-  to read, especially since we’ll be using these functions frequently.
+
+
+
+* Modules can have submodules, for further organization. GL is a submodule of the
+  OpenGL module. Sometimes submodule names can get quite longer, so we would like
+  to create a shorter name for use within our Python file.
+  "import OpenGL.GL as GL" allows use to write "GL.function" instead of
+  "OpenGL.GL.function"
 
 
 Opening A Window
@@ -202,9 +227,11 @@ monitor, called a window.
     Window
 
 To create and open a window in a cross-platform way, this book uses
-functions provided by the widely supported GLFW library, which works
+functions provided by the widely supported GLFW_ library, which works
 on Windows, macOS, and Linux. In addition to window management, GLFW
 also provides functions for handling input from keyboards and game controllers.
+
+
 
 
 GLFW/OpenGL Initialization
@@ -237,10 +264,7 @@ OpenGL has been around a `long time`_, and has multiple, occassionally incompati
 For this demo, we use `OpenGL 1.4`_.  By the end of this book, we will be using `OpenGL 3.3 Core Profile`_.
 
 
-
-.. _long time: https://en.wikipedia.org/wiki/OpenGL#History
-.. _OpenGL 1.4: https://khronos.org/registry/OpenGL/specs/gl/glspec14.pdf
-.. _OpenGL 3.3 Core Profile: http://www.opengl.org/registry/doc/glspec33.core.20100311.pdf
+Inform GLFW that we wish to used OpenGL 1.4:
 
 .. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
@@ -269,10 +293,10 @@ are the width and height of the window, and the third likely
 the title of the window.  What do the fourth and fifth arguments,
 both of which are "None", mean?  The author does not know.  We could
 look it up the APIs online.  But, Python has something called `keyword arguments`_,
+which are used extensively throughout the rest of the book,
 where the intent of each parameter
 is clear at the site of calling the function.
 
-.. _keyword arguments: https://www.pythontutorial.net/python-basics/python-keyword-arguments/
 
 .. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
@@ -311,36 +335,13 @@ is clear at the site of calling the function.
 
 
 If the user presses the "Escape" key while the program is running, inform
-GLFW that the user wants to quit, which we will handle this later in the event
-loop.
-
-To Note
--------
+GLFW that the user wants to quit, which we will handle this later in the
+:term:`Event Loop`.
 
 
-Functions are first class values in Python, and are objects just
-like anything else.  The can be passed as arguments, stored in variables,
-and applied later zero, 1, or more times.
+See :ref:`firstclassfunctions` for more information on functions as parameters
+to other functions.
 
-.. code:: Python
-
-      >>> def doubler(x):
-      ...     return x * 2
-      ...
-      >>> doubler
-      <function doubler at 0x10165c0e0>
-      >>> def add_five_to_result_of(f, x):
-      ...     return 5 + f(x)
-      ...
-      >>> add_five_to_result_of
-      <function add_five_to_result_of at 0x10165c040>
-      >>> add_five_to_result_of(doubler, 3)
-      11
-
-If you are unfamiliar with looking at the lines above, it's
-a session in the Python Read-Evaluate-Print loop, `read more here`_.
-
-.. _read more here : https://realpython.com/interacting-with-python/
 
 
 
@@ -355,9 +356,10 @@ a session in the Python Read-Evaluate-Print loop, `read more here`_.
 
 * Before a frame is drawn, it is first turned into a blank slate,
   where the color of each pixel is set to some value representing a
-  color.  We are not clearing the frame-buffer right now, but setting what
-  color will be used for a later clear.  Calling "glClearColor" "0,0,0,1", means black "0,0,0", without
-  transparency (the "1").
+  color (we will see the importance of this in the first project).
+  We are not clearing the framebuffer right now, but setting what
+  color will be used for a later clear.  Calling "glClearColor"
+  "0,0,0,1", means black "0,0,0", without transparency (the "1").
 
 
 .. literalinclude:: ../../src/modelviewprojection/demo01.py
@@ -382,12 +384,12 @@ rendered in quick succession, provide the illusion of motion.
 Interactive computer graphics are rendered the same way,
 one "frame" at a time.
 
-For our program, we need to render a frame, flush the complete frame-buffer to the monitor.
+For our program, we need to render a frame, flush the complete framebuffer to the monitor.
 Repeat indefinitely
 until the user closes the window, or the program needs
 to terminate.
 
-* Define the event loop
+* Define the :term:`Event Loop`
 
 .. literalinclude:: ../../src/modelviewprojection/demo01.py
    :language: python
@@ -397,25 +399,31 @@ to terminate.
    :lineno-match:
    :caption: src/modelviewprojection/demo01.py
 
-* Poll the operating system for any events, such as mouse movements,
-  keyboard input, etc.  This call does not handle them, just registers
-  them as having happened for handling later.
+* Run a loop that will run infinitely, until some event causes
+  it to decide to exit.
 
-* Get the size of the frame-buffer.  The *frame-buffer*
+* Poll the operating system via the "poll_events" function (defined
+  in the glfw module)
+  for any events, such as mouse movements,
+  keyboard input, etc.  This call does not handle them, just queries
+  to see if any of them have happened recently.
+
+* Get the size of the :term:`Frame Buffer` from glfw.  A *framebuffer*
   contains 2D data representing all the pixels in a complete video frame.
   Python
   allows the returning of multiple values
   in the form of a tuple.  Assigning
   to the variables width and height this way is a form of "destructuring"
 
-* Tell OpenGL that we wish to draw in the entire
-  frame-buffer, from the bottom left corner to the upper
+* Using "glViewport" from the GL module, tell OpenGL that we wish to draw in the entire
+  framebuffer, from the bottom left corner to the upper
   right corner.
 
-* Make the frame-buffer a blank slate by setting all of the pixels
+* Make the framebuffer a blank slate by setting all of the pixels
   to have the same color.
-  The color of each pixel will be the clear color.
-  If we hadn't cleared the frame-buffer, then frame number n+1 would be drawing
+  The color of each pixel will be value set to the clear color, which we
+  set using glClearColor..
+  If we hadn't cleared the framebuffer, then frame number n+1 would be drawing
   on top of whatever was drawn on frame number n.
   Programming in OpenGL is a bit different than normal programming in
   a normal language,
@@ -425,22 +433,8 @@ to terminate.
   in which they are evaluated, and the sequence of OpenGL calls
   to complete a task.
 
-* We have colored every pixel to be black, so flush the frame-buffer to
+* We have colored every pixel to be black, so flush the framebuffer to
   the monitor, and swap the back and front buffers.
-
-Exercise
-========
-
-* Run the program, close it by hitting Escape.
-
-* Before the call to glClear, enter two new lines.
-  On the first, type "import pdb".
-  On the second type "pdb.set_trace()".
-  Now run the program again and observe what is different.
-  (pdb.set_trace() sets a breakpoint, meaning that the program
-  pauses execution, although the GLFW window is still on screen
-  over time)
-
 
 
 One frame is created incrementally at a time, but the frame
@@ -449,11 +443,11 @@ only when frame is completely drawn, and each pixel has a color.
 The act of sending the frame to the monitor is called *flushing*
 the frame.
 
-OpenGL has two *frame-buffers* (regions of memory which will eventually
+OpenGL has two *framebuffers* (regions of memory which will eventually
 contain the full data for a frame),
 only one of which is "active", or writable, at a given time.
 "glfwSwapBuffers" initiates the flushing
-the current buffer, and which switches the current writable frame-buffer to the
+the current buffer, and which switches the current writable framebuffer to the
 other one.
 
 
@@ -475,7 +469,7 @@ The first demo is the least interesting graphical program possible.
 
 #. Cleared the color buffer and the depth buffer (don't worry about the latter for now).
 
-When this code returns, the event loop flushes (i.e) sends the frame to the monitor.  Since
+When this code returns, the :term:`Event Loop` flushes (i.e) sends the frame to the monitor.  Since
 no geometry was drawn, the color value for each pixel is still black.
 
 Each color is represented by a number, so the frame is something like this, where 'b' represents black ::
@@ -493,6 +487,13 @@ Each color is represented by a number, so the frame is something like this, wher
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
 
-The event loop then calls this code over and over again, and since we retain no state and
+The :term:`Event Loop` then calls this code over and over again, and since we retain no state and
 we draw nothing, a black screen will be displayed every frame until the user
 closes the window, and says to himself, "why did I buy Doom 3"?
+
+
+.. _GLFW: https://www.glfw.org
+.. _long time: https://en.wikipedia.org/wiki/OpenGL#History
+.. _OpenGL 1.4: https://khronos.org/registry/OpenGL/specs/gl/glspec14.pdf
+.. _OpenGL 3.3 Core Profile: http://www.opengl.org/registry/doc/glspec33.core.20100311.pdf
+.. _keyword arguments: https://www.pythontutorial.net/python-basics/python-keyword-arguments/

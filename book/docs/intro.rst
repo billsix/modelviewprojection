@@ -9,8 +9,9 @@
    A copy of the license is available at
    https://www.gnu.org/licenses/fdl-1.3.html.
 
+************
 Introduction
-============
+************
 
 Learn how to program in 3D computer graphics in the Python programming language!
 
@@ -22,7 +23,7 @@ Learn how to program in 3D computer graphics in the Python programming language!
 
 
 Approach
-^^^^^^^^
+========
 
 You’ll learn how to place geometric objects in space, draw them relative to
 other geometric objects, position a camera in space which moves over time
@@ -59,7 +60,7 @@ topics, you’ll want to dive into othere references, such as
 
 
 Things You Should Know
-^^^^^^^^^^^^^^^^^^^^^^
+======================
 
 #. Basic programming concepts in Python.
 
@@ -80,7 +81,7 @@ Things You Should Know
 .. _Microsoft: https://www.youtube.com/watch?v=jFCNu1-Xdsw&list=PLlrxD0HtieHhS8VzuMCfQD4uJ9yne1mE6
 
 Required Software
-^^^^^^^^^^^^^^^^^
+=================
 
 You will need to install Python, and make a virtual environment.  You can
 search how to do this using a search engine, or AI Chatbot, or follow
@@ -89,7 +90,7 @@ the instructions below.
 
 
 Windows
-~~~~~~~
+-------
 
 On Windows, install Visual Studio and the Python extension.  Afterwards, to set up
 the virtual environment, open the Developer Command Prompt,
@@ -102,6 +103,14 @@ the virtual environment, open the Developer Command Prompt,
    cd ..\..\
    python -m pip install --upgrade pip setuptools
    python -m pip install -e .
+
+The book assumes that you'll use the Spyder Integrated Development Environment (IDE),
+to install Spyder
+
+.. code-block::
+
+   python -m pip install spyder
+
 
 To run the Spyder Integrated Development Environment (IDE) to execute
 the code in the book, open Spyder on the Developer Command
@@ -116,7 +125,7 @@ Prompt
 
 
 Linux
-~~~~~
+-----
 
 Install Python3, glfw via a package manager.  Use pip and virtualenv to install dependencies
 
@@ -129,6 +138,14 @@ To set up the environment in a terminal, execute
    python3 -m pip install --upgrade pip setuptools
    python3 -m pip install -e .
 
+The book assumes that you'll use the Spyder Integrated Development Environment (IDE),
+to install Spyder
+
+.. code-block::
+
+   python -m pip install spyder
+
+
 To run the Spyder IDE to execute the code in the book, open Spyder on the developer command
 prompt
 
@@ -139,11 +156,11 @@ prompt
 
 
 Mac
-~~~
+---
 
 Install Python3 (via anaconda, homebrew, macports, whatever), and use pip and virtualenv to install dependencies.
 
-On MacOS or Linux, to set up the environment in a terminal, execute
+On MacOS, to set up the environment in a terminal, execute
 
 .. code-block:: bash
 
@@ -151,6 +168,14 @@ On MacOS or Linux, to set up the environment in a terminal, execute
    source venv/bin/activate
    python3 -m pip install --upgrade pip setuptools
    python3 -m pip install -e .
+
+The book assumes that you'll use the Spyder Integrated Development Environment (IDE),
+to install Spyder
+
+.. code-block::
+
+   python -m pip install spyder
+
 
 To run the Spyder IDE to execute the code in the book, open Spyder on the developer command
 prompt
@@ -162,23 +187,64 @@ prompt
 
 
 Podman Container
-~~~~~~~~~~~~~~~~
+----------------
 
 The code is mainly tested against a container in Podman, specified in the Dockerfile.
 
+Command Line
+^^^^^^^^^^^^
+
+To run the code from the command line, run the following to create the podman image
+
 .. code-block::
 
-   make image # make the base OCI image
+   make image
+
+Once that is made, you can run the image in a container by running
+
+.. code-block::
+
    make shell # get a shell into the environment
+
+Spyder
+^^^^^^
+
+To create the podman image for running the code in Spyder:
+
+.. code-block::
+
+
    make spyderimage # make the OCI image that has the base image and Spyder IDE preinstalled
+
+To run Spyder within the container
+
+.. code-block::
+
    make spyder # run spyder in the OCI container
+
+Jupyter Notebook
+^^^^^^^^^^^^^^^^
+
+To run Python code as jupyter notebooks, the following command will launch
+jupyter and a firefox webbrowser from within the container.
+
+Make the image
+
+.. code-block::
+
+   make image
+
+Run Jupyter notebook
+
+.. code-block::
+
    make jupyter # run jupyter notebook in a container
 
 
 
+Getting the Source code
+=======================
 
-Source code
-^^^^^^^^^^^
 
 This book references source code, which is at `https://github.com/billsix/modelviewprojection <https://github.com/billsix/modelviewprojection>`_
 

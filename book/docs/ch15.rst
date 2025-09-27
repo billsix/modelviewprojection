@@ -63,7 +63,7 @@ Description
 ^^^^^^^^^^^
 
 Early in this book we used the stencil buffer, but didn't go into
-much detail about it.  Each pixel in the frame-buffer is a fragment,
+much detail about it.  Each pixel in the framebuffer is a fragment,
 which is more information than just the color to be drawn.
 
 .. figure:: _static/ccbysa3.0/williamsix/fragment.png

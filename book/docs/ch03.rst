@@ -145,7 +145,7 @@ Set to Draw in Square Subsection Of Window
 
 * set the clear color to be gray.
 * glClear clear the color of every pixel in the whole frame buffer, independent of viewport.
-  So now the entire frame-buffer is gray.
+  So now the entire framebuffer is gray.
 
 .. literalinclude:: ../../src/modelviewprojection/demo03.py
    :language: python
@@ -180,8 +180,8 @@ Set to Draw in Square Subsection Of Window
   after each argument.  Another way to make this more clear is to use Python's keyword
   arguments, discussed later.
 * the scissor test allows us to specify a region
-  of the frame-buffer into which the OpenGL operations
-  will apply.  In this case, the color in every pixel in the frame-buffer is currently gray
+  of the framebuffer into which the OpenGL operations
+  will apply.  In this case, the color in every pixel in the framebuffer is currently gray
   because of the existing class to glClearColor.
   By calling glScissor, we are setting a value in each fragment (i.e., pixel) on a square
   region of pixels to be true (and false everywhere else) which means "only do the OpenGL call on these fragments,
@@ -224,7 +224,7 @@ Set to Draw in Square Subsection Of Window
   happen as usual.
 
 So we've drawn black into a square, and disabled the scissor test,
-so any subsequent OpenGL calls will still be drawn into the full frame-buffer.
+so any subsequent OpenGL calls will still be drawn into the full framebuffer.
 But, we only want to draw within the black square, and the scissor
 test does not modify the NDC to screen-space transformations.
 To modify the NDC to screen-space transformations, we set the viewport again,

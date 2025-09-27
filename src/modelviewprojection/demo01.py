@@ -15,15 +15,11 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-# fmt: off
-
 # doc-region-begin import first module
 import sys
-
 import glfw
 import OpenGL.GL as GL
 # doc-region-end import first module
-# fmt: on
 
 # doc-region-begin initialize glfw
 if not glfw.init():
@@ -54,10 +50,10 @@ glfw.make_context_current(window)
 def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(win, 1)
-    # doc-region-end on user hitting escape, end event loop and quit
 
 
 glfw.set_key_callback(window, on_key)
+# doc-region-end on user hitting escape, end event loop and quit
 
 # doc-region-begin set background color
 GL.glClearColor(0.0289, 0.071875, 0.0972, 1.0)

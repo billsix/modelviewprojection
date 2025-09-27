@@ -218,7 +218,7 @@ Isn't the same picture on a smaller monitor.
 
 
 Like any good program or library, OpenGL creates an abstraction.
-In this case, it abstracts over screen-space, thus freeing the
+In this case, it abstracts over :term:`Screen Space`, thus freeing the
 programmer from caring about screen size.  Since a programmer does not want to program
 in discrete (discrete means integer values, not continuous) screen-space,
 what type of numbers should he use?  Firstly, it should be a continuous space, because if a real-world object is 10.3 meters long, a programmer
@@ -304,7 +304,7 @@ NDC/Screenspace Conversion
 
     Demo 02
 
-The function that converts from NDC to Screen space is
+The function that converts from :term:`Normalized Device Coordinates` to :term:`Screen Space` is
 arbitrarily named "f", sub-scripted by "ndc", super-scripted
 by "ss".  This is a notation for naming
 functions that change basis, i.e. coordinate conversion.

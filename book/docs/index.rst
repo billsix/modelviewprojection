@@ -50,7 +50,7 @@ Model View Projection
    glossary
    api
    bibliography
-
+   miscellany
 
 
 
