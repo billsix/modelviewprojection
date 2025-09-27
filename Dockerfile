@@ -1,8 +1,5 @@
 FROM registry.fedoraproject.org/fedora:42
 
-COPY .emacs.d /root/.emacs.d
-COPY .tmux.conf /root/.tmux.conf
-
 RUN dnf upgrade -y
 RUN dnf install -y \
                    aspell \
@@ -60,7 +57,8 @@ RUN dnf install -y \
                    python3-pytest \
 		   python3-pytest-lsp \
                    python3-sphinx_rtd_theme \
-		   python3-sympy \
+                   python3-sphinxcontrib-bibtex \
+                   python3-sympy \
                    python3-wxpython4  \
                    ruff \
                    texlive \
@@ -80,12 +78,11 @@ RUN cd ~/ && \
     python3 -m pip install --break-system-packages --root-user-action=ignore .
 
 
+COPY .emacs.d /root/.emacs.d
 RUN emacs --batch --load ~/.emacs.d/install-melpa-packages.el
 RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
-
-
-RUN dnf install -y python3-sphinxcontrib-bibtex
+COPY .tmux.conf /root/.tmux.conf
 
 
 ENTRYPOINT ["/entrypoint.sh"]
