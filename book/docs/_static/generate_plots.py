@@ -355,8 +355,8 @@ create_graphs(
     filename="rotate1-forwards",
     geometry=paddle1,
     procedures=[
-        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
         mu2d.rotate(math.radians(45.0)),
+        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
     ],
     graph_bounds=(12, 12),
 )
@@ -366,8 +366,8 @@ create_graphs(
     filename="incorrectrotate-forwards",
     geometry=paddle1,
     procedures=[
-        mu2d.rotate(math.radians(65.0)),
         mu.translate(mu2d.Vector2D(-9.0, 2.0)),
+        mu2d.rotate(math.radians(65.0)),
     ],
     graph_bounds=(12, 12),
 )
@@ -377,8 +377,8 @@ create_graphs(
     filename="incorrectrotate-backwards",
     geometry=paddle1,
     procedures=[
-        mu2d.rotate(math.radians(65.0)),
         mu.translate(mu2d.Vector2D(-9.0, 2.0)),
+        mu2d.rotate(math.radians(65.0)),
     ],
     backwards=True,
     graph_bounds=(12, 12),
@@ -391,8 +391,8 @@ create_graphs(
     geometry=paddle1,
     procedures=[
         mu.translate(mu2d.Vector2D(-9.0, 2.0)),
-        mu2d.rotate(math.radians(45.0)),
         mu.translate(mu2d.Vector2D(9.0, -2.0)),
+        mu2d.rotate(math.radians(45.0)),
         mu.translate(mu2d.Vector2D(-9.0, 2.0)),
     ],
     backwards=True,
@@ -405,8 +405,8 @@ create_graphs(
     geometry=paddle1,
     procedures=[
         mu.translate(mu2d.Vector2D(-9.0, 2.0)),
-        mu2d.rotate(math.radians(45.0)),
         mu.translate(mu2d.Vector2D(9.0, -2.0)),
+        mu2d.rotate(math.radians(45.0)),
         mu.translate(mu2d.Vector2D(-9.0, 2.0)),
     ],
     graph_bounds=(12, 12),
@@ -418,8 +418,8 @@ create_graphs(
     filename="rotate1-backwards",
     geometry=paddle1,
     procedures=[
-        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
         mu2d.rotate(math.radians(45.0)),
+        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
     ],
     backwards=True,
     graph_bounds=(12, 12),
@@ -430,10 +430,7 @@ create_graphs(
     title="Rotation, Relative to World Space",
     filename="rotate2-forwards",
     geometry=paddle2,
-    procedures=[
-        mu.translate(mu2d.Vector2D(9.0, -4.0)),
-        mu2d.rotate(math.radians(-1.0)),
-    ],
+    procedures=[mu2d.rotate(math.radians(-1.0)), mu.translate(mu2d.Vector2D(9.0, -4.0))],
     graph_bounds=(12, 12),
 )
 
@@ -442,8 +439,8 @@ create_graphs(
     filename="rotate2-backwards",
     geometry=paddle2,
     procedures=[
-        mu.translate(mu2d.Vector2D(9.0, -4.0)),
         mu2d.rotate(math.radians(-1.0)),
+        mu.translate(mu2d.Vector2D(9.0, -4.0)),
     ],
     backwards=True,
     graph_bounds=(12, 12),
@@ -473,9 +470,9 @@ create_graphs(
     filename="covariance-backwards",
     geometry=square,
     procedures=[
-        mu2d.rotate(math.radians(45.0)),
-        mu2d.scale(2.0, 4.5),
         mu2d.rotate(math.radians(-45.0)),
+        mu2d.scale(2.0, 4.5),
+        mu2d.rotate(math.radians(45.0)),
     ],
     backwards=True,
 )
@@ -485,9 +482,9 @@ create_graphs(
     filename="covariance-forwards",
     geometry=square,
     procedures=[
-        mu2d.rotate(math.radians(45.0)),
-        mu2d.scale(2.0, 4.5),
         mu2d.rotate(math.radians(-45.0)),
+        mu2d.scale(2.0, 4.5),
+        mu2d.rotate(math.radians(45.0)),
     ],
     backwards=False,
 )
@@ -502,9 +499,9 @@ create_graphs(
     filename="circle-backwards",
     geometry=circle,
     procedures=[
-        mu2d.rotate(math.radians(45.0)),
-        mu2d.scale(2.0, 4.5),
         mu2d.rotate(math.radians(-45.0)),
+        mu2d.scale(2.0, 4.5),
+        mu2d.rotate(math.radians(45.0)),
     ],
     backwards=True,
 )
@@ -514,9 +511,9 @@ create_graphs(
     filename="circle-forwards",
     geometry=circle,
     procedures=[
-        mu2d.rotate(math.radians(45.0)),
-        mu2d.scale(2.0, 4.5),
         mu2d.rotate(math.radians(-45.0)),
+        mu2d.scale(2.0, 4.5),
+        mu2d.rotate(math.radians(45.0)),
     ],
     backwards=False,
 )
@@ -596,8 +593,8 @@ create_graphs(
     filename="ortho2d-backwards",
     geometry=square_ndc,
     procedures=[
-        mu2d.scale(1.0 / (1.0 / 2.0), 1.0 / (7.0 / 2.0)),
         mu.translate(mu2d.Vector2D(-1.0 / 2, -7.0 / 2)),
+        mu2d.scale(1.0 / (1.0 / 2.0), 1.0 / (7.0 / 2.0)),
     ],
     backwards=True,
     graph_bounds=(10, 10),
@@ -611,8 +608,8 @@ create_graphs(
     filename="ortho2d",
     geometry=square_ndc,
     procedures=[
-        mu2d.scale(1.0 / (1.0 / 2.0), 1.0 / (7.0 / 2.0)),
         mu.translate(mu2d.Vector2D(-1.0 / 2, -7.0 / 2)),
+        mu2d.scale(1.0 / (1.0 / 2.0), 1.0 / (7.0 / 2.0)),
     ],
     backwards=False,
     graph_bounds=(10, 10),
