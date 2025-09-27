@@ -21,50 +21,48 @@ import doctest
 import math
 from pytest import approx
 import modelviewprojection
-from modelviewprojection.mathutils import (
-    InvertibleFunction,
-    translate,
-    uniform_scale,
-    inverse,
-)
-from modelviewprojection.mathutils3d import (
-    Vector3D,
-    fn_stack,
-    rotate_x,
-    rotate_y,
-    rotate_z,
-    scale,
-)
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils3d as mu3d
 
 
 def test___add__():
-    result = Vector3D(x=1.0, y=2.0, z=6.0) + Vector3D(x=3.0, y=4.0, z=5.0)
-    assert result == Vector3D(x=approx(4.0), y=approx(6.0), z=approx(11.0))
+    result = mu3d.Vector3D(x=1.0, y=2.0, z=6.0) + mu3d.Vector3D(
+        x=3.0, y=4.0, z=5.0
+    )
+    assert result == mu3d.Vector3D(x=approx(4.0), y=approx(6.0), z=approx(11.0))
 
 
 def test___sub__():
-    result = Vector3D(x=5.0, y=8.0, z=1.0) - Vector3D(x=1.0, y=2.0, z=3.0)
-    assert result == Vector3D(x=approx(4.0), y=approx(6.0), z=approx(-2.0))
+    result = mu3d.Vector3D(x=5.0, y=8.0, z=1.0) - mu3d.Vector3D(
+        x=1.0, y=2.0, z=3.0
+    )
+    assert result == mu3d.Vector3D(x=approx(4.0), y=approx(6.0), z=approx(-2.0))
 
 
 def test___mul__():
-    result = Vector3D(x=2.0, y=3.0, z=4.0) * 4.0
-    assert result == Vector3D(x=approx(8.0), y=approx(12.0), z=approx(16.0))
+    result = mu3d.Vector3D(x=2.0, y=3.0, z=4.0) * 4.0
+    assert result == mu3d.Vector3D(
+        x=approx(8.0), y=approx(12.0), z=approx(16.0)
+    )
 
 
 def test___rmul__():
-    result = 4.0 * Vector3D(x=2.0, y=3.0, z=4.0)
-    assert result == Vector3D(x=approx(8.0), y=approx(12.0), z=approx(16.0))
+    result = 4.0 * mu3d.Vector3D(x=2.0, y=3.0, z=4.0)
+    assert result == mu3d.Vector3D(
+        x=approx(8.0), y=approx(12.0), z=approx(16.0)
+    )
 
 
 def test___neg__():
-    result = -Vector3D(x=2.0, y=3.0, z=4.0)
-    assert result == Vector3D(x=approx(-2.0), y=approx(-3.0), z=approx(-4.0))
+    result = -mu3d.Vector3D(x=2.0, y=3.0, z=4.0)
+    assert result == mu3d.Vector3D(
+        x=approx(-2.0), y=approx(-3.0), z=approx(-4.0)
+    )
 
 
 def wrap_vec3_test(fn, input_val, output_val):
-    print(Vector3D(*input_val))
-    out = fn(Vector3D(*input_val))
+    print(mu3d.Vector3D(*input_val))
+    out = fn(mu3d.Vector3D(*input_val))
     print(out)
     assert out.x == approx(output_val[0], abs=0.001)
     assert out.y == approx(output_val[1], abs=0.001)
@@ -73,8 +71,10 @@ def wrap_vec3_test(fn, input_val, output_val):
 
 # doc-region-begin translate test
 def test_translate():
-    fn: InvertibleFunction[Vector3D] = translate(Vector3D(x=2.0, y=3.0, z=4.0))
-    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu3d.Vector3D] = mu.translate(
+        mu3d.Vector3D(x=2.0, y=3.0, z=4.0)
+    )
+    fn_inv: mu.InvertibleFunction[mu3d.Vector3D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [2.0, 3.0, 4.0]],
@@ -91,8 +91,8 @@ def test_translate():
 
 
 def test_uniform_scale():
-    fn: InvertibleFunction[Vector3D] = uniform_scale(4.0)
-    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu3d.Vector3D] = mu.uniform_scale(4.0)
+    fn_inv: mu.InvertibleFunction[mu3d.Vector3D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
@@ -107,8 +107,10 @@ def test_uniform_scale():
 
 
 def test_scale():
-    fn: InvertibleFunction[Vector3D] = scale(m_x=2.0, m_y=3.0, m_z=4.0)
-    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu3d.Vector3D] = mu3d.scale(
+        m_x=2.0, m_y=3.0, m_z=4.0
+    )
+    fn_inv: mu.InvertibleFunction[mu3d.Vector3D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
@@ -123,8 +125,10 @@ def test_scale():
 
 
 def test_rotate_x():
-    fn: InvertibleFunction[Vector3D] = rotate_x(math.radians(53.130102))
-    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu3d.Vector3D] = mu3d.rotate_x(
+        math.radians(53.130102)
+    )
+    fn_inv: mu.InvertibleFunction[mu3d.Vector3D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
@@ -138,8 +142,10 @@ def test_rotate_x():
 
 
 def test_rotate_y():
-    fn: InvertibleFunction[Vector3D] = rotate_y(math.radians(53.130102))
-    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu3d.Vector3D] = mu3d.rotate_y(
+        math.radians(53.130102)
+    )
+    fn_inv: mu.InvertibleFunction[mu3d.Vector3D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
@@ -153,8 +159,10 @@ def test_rotate_y():
 
 
 def test_rotate_z():
-    fn: InvertibleFunction[Vector3D] = rotate_z(math.radians(53.130102))
-    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu3d.Vector3D] = mu3d.rotate_z(
+        math.radians(53.130102)
+    )
+    fn_inv: mu.InvertibleFunction[mu3d.Vector3D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
@@ -172,35 +180,35 @@ def test_fn_stack():
     def identity(x):
         return x
 
-    fn_stack.push(identity)
-    assert 1 == fn_stack.modelspace_to_ndc_fn()(1)
+    mu3d.fn_stack.push(identity)
+    assert 1 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)
 
     def add_one(x):
         return x + 1
 
-    fn_stack.push(add_one)
-    assert 2 == fn_stack.modelspace_to_ndc_fn()(1)  # x + 1 = 2
+    mu3d.fn_stack.push(add_one)
+    assert 2 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)  # x + 1 = 2
 
     def multiply_by_2(x):
         return x * 2
 
-    fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
-    assert 3 == fn_stack.modelspace_to_ndc_fn()(1)
+    mu3d.fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
+    assert 3 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)
 
     def add_5(x):
         return x + 5
 
-    fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
-    assert 13 == fn_stack.modelspace_to_ndc_fn()(1)
+    mu3d.fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
+    assert 13 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)
 
-    fn_stack.pop()
-    assert 3 == fn_stack.modelspace_to_ndc_fn()(1)  # (x * 2) + 1 = 3
+    mu3d.fn_stack.pop()
+    assert 3 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)  # (x * 2) + 1 = 3
 
-    fn_stack.pop()
-    assert 2 == fn_stack.modelspace_to_ndc_fn()(1)  # x + 1 = 2
+    mu3d.fn_stack.pop()
+    assert 2 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)  # x + 1 = 2
 
-    fn_stack.pop()
-    assert 1 == fn_stack.modelspace_to_ndc_fn()(1)  # x = 1
+    mu3d.fn_stack.pop()
+    assert 1 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)  # x = 1
     # doc-region-end function stack examples definitions
 
 

@@ -33,82 +33,79 @@
 
 
 # %%
-from typing import List, Tuple
+import typing
+import modelviewprojection.softwarerendering as sr
 
-from modelviewprojection.mathutils import InvertibleFunction, compose
-from modelviewprojection.mathutils2d import Vector2D, scale, translate
-from modelviewprojection.softwarerendering import (
-    clear_framebuffer,
-    draw_filled_triangle,
-    get_framebuffer,
-    height,
-    make_framebuffer,
-    show_framebuffer,
-    width,
-)
-
-from IPython.display import Video
-from moviepy import ImageSequenceClip
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils2d as mu2d
+import IPython.display
+import moviepy
 import numpy as np
 
 
 # %%
 # Show initial random framebuffer
-make_framebuffer(width=700, height=500)
-show_framebuffer()
+fake_fb: sr.FrameBuffer = sr.FrameBuffer(width=700, height=500)
+fake_fb.show_framebuffer()
 
 
 # %%
 # Clear to black and show
-clear_framebuffer()
-show_framebuffer()
+fake_fb.clear_framebuffer()
+fake_fb.show_framebuffer()
 
 
 # %% [markdown]
 # Problem 2
 # ---------
 #
-# Make a new picture below where the triangle is translated 0.3 units in NDC to the left
+# Make a new picture below where the triangle is mu.translated 0.3 units in NDC to the left
 
 # %%
-ndc_to_screen: InvertibleFunction[Vector2D] = compose(
-    translate(Vector2D((width() + 0.5) // 2, (height() + 0.5) // 2)),
-    scale((width() + 0.5) // 2, (height() + 0.5) // 2),
+ndc_to_screen: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
+    mu.translate(
+        mu2d.Vector2D((fake_fb.width + 0.5) // 2, (fake_fb.height + 0.5) // 2)
+    ),
+    mu2d.scale((fake_fb.width + 0.5) // 2, (fake_fb.height + 0.5) // 2),
 )
 
 # %%
 # Example: draw a white triangle
 
-triangle_in_NDC: Tuple[Vector2D] = (
-    Vector2D(0.0, 0.0),
-    Vector2D(0.2, 0.0),
-    Vector2D(0.2, 0.2),
+triangle_in_NDC: typing.Tuple[mu2d.Vector2D] = (
+    mu2d.Vector2D(0.0, 0.0),
+    mu2d.Vector2D(0.2, 0.0),
+    mu2d.Vector2D(0.2, 0.2),
 )
 
 # %%
-triangle_in_screen: List[Vector2D] = [ndc_to_screen(x) for x in triangle_in_NDC]
+triangle_in_screen: typing.List[mu2d.Vector2D] = [
+    ndc_to_screen(x) for x in triangle_in_NDC
+]
 print(triangle_in_screen)
 
 
-clear_framebuffer()
-draw_filled_triangle(
+fake_fb.clear_framebuffer()
+fake_fb.draw_filled_triangle(
     triangle_in_screen[0],
     triangle_in_screen[1],
     triangle_in_screen[2],
     color=(255, 255, 255),
 )
-show_framebuffer()
+fake_fb.show_framebuffer()
 
 # %%
-move: InvertibleFunction[Vector2D] = translate(Vector2D(0, 0.5))
+move: mu.InvertibleFunction[mu2d.Vector2D] = mu.translate(mu2d.Vector2D(0, 0.5))
 
-triangle_in_screen = [compose(ndc_to_screen, move)(x) for x in triangle_in_NDC]
+triangle_in_screen = [
+    mu.compose(ndc_to_screen, move)(x) for x in triangle_in_NDC
+]
 print(triangle_in_screen)
 
 
-clear_framebuffer()
-draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
-show_framebuffer()
+fake_fb.clear_framebuffer()
+fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
+fake_fb.show_framebuffer()
 
 # %%
 frames = []
@@ -118,26 +115,26 @@ sixty_fps_times_2_sec = 120
 
 # Create 10 frames with simple animation
 for i in range(sixty_fps_times_2_sec):
-    clear_framebuffer()
-    move: InvertibleFunction[Vector2D] = translate(
-        Vector2D(0, 0.5 * (np.sin(np.pi / 60.0 * float(i))))
+    fake_fb.clear_framebuffer()
+    move: mu.InvertibleFunction[mu2d.Vector2D] = mu.translate(
+        mu2d.Vector2D(0, 0.5 * (np.sin(np.pi / 60.0 * float(i))))
     )
 
     triangle_in_screen = [
-        compose(ndc_to_screen, move)(x) for x in triangle_in_NDC
+        mu.compose(ndc_to_screen, move)(x) for x in triangle_in_NDC
     ]
-    draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
+    fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
 
-    frames.append(get_framebuffer())
+    frames.append(fake_fb.framebuffer)
 
 
 np_frames = [np.array(img) for img in frames]
 
 frames_np = [np.array(img) for img in frames]
-clip = ImageSequenceClip(frames_np, fps=60)
+clip = moviepy.ImageSequenceClip(frames_np, fps=60)
 clip.write_videofile("animation.mp4", codec="libx264")
 
-Video("animation.mp4", embed=True)
+IPython.display.Video("animation.mp4", embed=True)
 
 # %%
 

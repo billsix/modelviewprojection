@@ -31,25 +31,18 @@
 # Boston, MA 02111-1307, USA.
 
 
-from modelviewprojection.mathutils2d import Vector2D
+import modelviewprojection.mathutils2d as mu2d
 
 # %%
-from modelviewprojection.softwarerendering import (
-    RED,
-    WHITE,
-    clear_framebuffer,
-    draw_filled_triangle,
-    make_framebuffer,
-    show_framebuffer,
-)
+import modelviewprojection.softwarerendering as sr
 
 # %% [markdown]
 # Make a framebuffer, which is just a rectangular region of values
 
 # %%
 # Show initial random framebuffer
-make_framebuffer(width=100, height=100)
-show_framebuffer()
+fake_fb: sr.FrameBuffer = sr.FrameBuffer(width=100, height=100)
+fake_fb.show_framebuffer()
 
 
 # %% [raw]
@@ -57,61 +50,83 @@ show_framebuffer()
 
 # %%
 # Example: draw a white triangle
-draw_filled_triangle(
-    Vector2D(50, 50), Vector2D(50, 70), Vector2D(70, 70), color=WHITE
+fake_fb.draw_filled_triangle(
+    mu2d.Vector2D(50, 50),
+    mu2d.Vector2D(50, 70),
+    mu2d.Vector2D(70, 70),
+    color=sr.WHITE,
 )
-show_framebuffer()
+fake_fb.show_framebuffer()
 
 
 # %% [raw]
 # Whoops!  That looks like trash.  We should change the background to have all one color.  That's what clear_framebuffer does
 
 # %%
+# Clear to red and show
+fake_fb.clear_color = sr.RED
+fake_fb.clear_framebuffer()
+fake_fb.show_framebuffer()
+
+# %%
 # Clear to black and show
-clear_framebuffer()
-show_framebuffer()
+fake_fb.clear_color = sr.BLACK
+fake_fb.clear_framebuffer()
+fake_fb.show_framebuffer()
 
 
 # %%
 # Example: draw a white triangle
-clear_framebuffer()
-draw_filled_triangle(
-    Vector2D(50, 50), Vector2D(50, 70), Vector2D(70, 70), color=WHITE
+fake_fb.clear_framebuffer()
+fake_fb.draw_filled_triangle(
+    mu2d.Vector2D(50, 50),
+    mu2d.Vector2D(50, 70),
+    mu2d.Vector2D(70, 70),
+    color=sr.WHITE,
 )
-show_framebuffer()
+fake_fb.show_framebuffer()
 
 # draw a red triangle
-draw_filled_triangle(
-    Vector2D(50, 50), Vector2D(30, 50), Vector2D(30, 30), color=RED
+fake_fb.draw_filled_triangle(
+    mu2d.Vector2D(50, 50),
+    mu2d.Vector2D(30, 50),
+    mu2d.Vector2D(30, 30),
+    color=sr.RED,
 )
-show_framebuffer()
+fake_fb.show_framebuffer()
 
 # %% [markdown]
 # Make a larger framebuffer
 # %%
 # Show initial random framebuffer
-make_framebuffer(width=400, height=400)
-show_framebuffer()
+fake_fb400: sr.FrameBuffer = sr.FrameBuffer(width=400, height=400)
+fake_fb400.show_framebuffer()
 
 
 # %%
 # Clear to black and show
-clear_framebuffer()
-show_framebuffer()
+fake_fb400.clear_framebuffer()
+fake_fb400.show_framebuffer()
 
 
 # %%
 # Example: draw a white triangle
-clear_framebuffer()
-draw_filled_triangle(
-    Vector2D(50, 50), Vector2D(50, 70), Vector2D(70, 70), color=WHITE
+fake_fb400.clear_framebuffer()
+fake_fb400.draw_filled_triangle(
+    mu2d.Vector2D(50, 50),
+    mu2d.Vector2D(50, 70),
+    mu2d.Vector2D(70, 70),
+    color=sr.WHITE,
 )
-show_framebuffer()
+fake_fb400.show_framebuffer()
 
-draw_filled_triangle(
-    Vector2D(50, 50), Vector2D(30, 50), Vector2D(30, 30), color=RED
+fake_fb400.draw_filled_triangle(
+    mu2d.Vector2D(50, 50),
+    mu2d.Vector2D(30, 50),
+    mu2d.Vector2D(30, 30),
+    color=sr.RED,
 )
-show_framebuffer()
+fake_fb400.show_framebuffer()
 
 # %%
 

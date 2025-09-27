@@ -20,91 +20,120 @@
 import doctest
 import math
 from pytest import approx
-import modelviewprojection.mathutils2d
-from modelviewprojection.mathutils import (
-    InvertibleFunction,
-    translate,
-    uniform_scale,
-    compose,
-    inverse,
-)
-from modelviewprojection.mathutils2d import (
-    Vector2D,
-    is_clockwise,
-    is_parallel,
-    rotate,
-    rotate_90_degrees,
-    scale,
-)
+import modelviewprojection.mathutils2d as mu2d
+import modelviewprojection.mathutils as mu
+import modelviewprojection
 
 
 def test___add__():
-    result: Vector2D = Vector2D(x=1.0, y=2.0) + Vector2D(x=3.0, y=4.0)
-    assert result == Vector2D(x=approx(4.0), y=approx(6.0))
+    result: mu2d.Vector2D = mu2d.Vector2D(x=1.0, y=2.0) + mu2d.Vector2D(
+        x=3.0, y=4.0
+    )
+    assert result == mu2d.Vector2D(x=approx(4.0), y=approx(6.0))
 
 
 def test___sub__():
-    result: Vector2D = Vector2D(x=5.0, y=8.0) - Vector2D(x=1.0, y=2.0)
-    assert result == Vector2D(x=approx(4.0), y=approx(6.0))
+    result: mu2d.Vector2D = mu2d.Vector2D(x=5.0, y=8.0) - mu2d.Vector2D(
+        x=1.0, y=2.0
+    )
+    assert result == mu2d.Vector2D(x=approx(4.0), y=approx(6.0))
 
 
 def test___mul__():
-    result: Vector2D = Vector2D(x=2.0, y=3.0) * 4.0
-    assert result == Vector2D(x=approx(8.0), y=approx(12.0))
+    result: mu2d.Vector2D = mu2d.Vector2D(x=2.0, y=3.0) * 4.0
+    assert result == mu2d.Vector2D(x=approx(8.0), y=approx(12.0))
 
 
 def test___rmul__():
-    result: Vector2D = 4.0 * Vector2D(x=2.0, y=3.0)
-    assert result == Vector2D(x=approx(8.0), y=approx(12.0))
+    result: mu2d.Vector2D = 4.0 * mu2d.Vector2D(x=2.0, y=3.0)
+    assert result == mu2d.Vector2D(x=approx(8.0), y=approx(12.0))
 
 
 def test___neg__():
-    result: Vector2D = -Vector2D(x=2.0, y=3.0)
-    assert result == Vector2D(x=approx(-2.0), y=approx(-3.0))
+    result: mu2d.Vector2D = -mu2d.Vector2D(x=2.0, y=3.0)
+    assert result == mu2d.Vector2D(x=approx(-2.0), y=approx(-3.0))
 
 
 def test___abs__():
-    result: float = abs(Vector2D(x=3.0, y=-4.0))
+    result: float = abs(mu2d.Vector2D(x=3.0, y=-4.0))
     assert result == approx(5.0)
 
 
 def test___dot__():
-    assert Vector2D(x=1.0, y=0.0).dot(Vector2D(x=0.0, y=1.0)) == approx(0.0)
-    assert Vector2D(x=1.0, y=0.0).dot(Vector2D(x=1.0, y=0.0)) == approx(1.0)
-    assert Vector2D(x=0.0, y=1.0).dot(Vector2D(x=0.0, y=1.0)) == approx(1.0)
-    assert Vector2D(x=3.0, y=0.0).dot(Vector2D(x=1.0, y=0.0)) == approx(3.0)
-    assert Vector2D(x=0.0, y=4.0).dot(Vector2D(x=0.0, y=1.0)) == approx(4.0)
+    assert mu2d.Vector2D(x=1.0, y=0.0).dot(
+        mu2d.Vector2D(x=0.0, y=1.0)
+    ) == approx(0.0)
+    assert mu2d.Vector2D(x=1.0, y=0.0).dot(
+        mu2d.Vector2D(x=1.0, y=0.0)
+    ) == approx(1.0)
+    assert mu2d.Vector2D(x=0.0, y=1.0).dot(
+        mu2d.Vector2D(x=0.0, y=1.0)
+    ) == approx(1.0)
+    assert mu2d.Vector2D(x=3.0, y=0.0).dot(
+        mu2d.Vector2D(x=1.0, y=0.0)
+    ) == approx(3.0)
+    assert mu2d.Vector2D(x=0.0, y=4.0).dot(
+        mu2d.Vector2D(x=0.0, y=1.0)
+    ) == approx(4.0)
 
 
 def test_is_parallel():
-    assert is_parallel(Vector2D(x=1.0, y=0.0), Vector2D(x=2.0, y=0.0))
-    assert is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=0.0, y=1.0))
-    assert not is_parallel(Vector2D(x=1.0, y=5.0), Vector2D(x=0.0, y=1.0))
-    assert not is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=0.2, y=1.0))
-    assert not is_parallel(Vector2D(x=0.0, y=5.0), Vector2D(x=1.0, y=0.0))
+    assert mu2d.is_parallel(
+        mu2d.Vector2D(x=1.0, y=0.0), mu2d.Vector2D(x=2.0, y=0.0)
+    )
+    assert mu2d.is_parallel(
+        mu2d.Vector2D(x=0.0, y=5.0), mu2d.Vector2D(x=0.0, y=1.0)
+    )
+    assert not mu2d.is_parallel(
+        mu2d.Vector2D(x=1.0, y=5.0), mu2d.Vector2D(x=0.0, y=1.0)
+    )
+    assert not mu2d.is_parallel(
+        mu2d.Vector2D(x=0.0, y=5.0), mu2d.Vector2D(x=0.2, y=1.0)
+    )
+    assert not mu2d.is_parallel(
+        mu2d.Vector2D(x=0.0, y=5.0), mu2d.Vector2D(x=1.0, y=0.0)
+    )
 
 
 def test_is_clockwise():
-    assert is_clockwise(Vector2D(x=1.0, y=0.0), Vector2D(x=0.0, y=0.1))
-    assert not is_clockwise(Vector2D(x=1.0, y=0.0), Vector2D(x=0.0, y=-0.1))
-    assert is_clockwise(Vector2D(x=0.0, y=1.0), Vector2D(x=-0.1, y=1.0))
-    assert not is_clockwise(Vector2D(x=0.0, y=1.0), Vector2D(x=0.1, y=1.0))
-    assert not is_clockwise(Vector2D(x=-1.0, y=0.0), Vector2D(x=-1.0, y=0.1))
-    assert is_clockwise(Vector2D(x=-1.0, y=0.0), Vector2D(x=-1.0, y=-0.1))
-    assert not is_clockwise(Vector2D(x=0.0, y=-1.0), Vector2D(x=-0.1, y=-1.0))
-    assert is_clockwise(Vector2D(x=0.0, y=-1.0), Vector2D(x=0.1, y=-1.0))
+    assert mu2d.is_clockwise(
+        mu2d.Vector2D(x=1.0, y=0.0), mu2d.Vector2D(x=0.0, y=0.1)
+    )
+    assert not mu2d.is_clockwise(
+        mu2d.Vector2D(x=1.0, y=0.0), mu2d.Vector2D(x=0.0, y=-0.1)
+    )
+    assert mu2d.is_clockwise(
+        mu2d.Vector2D(x=0.0, y=1.0), mu2d.Vector2D(x=-0.1, y=1.0)
+    )
+    assert not mu2d.is_clockwise(
+        mu2d.Vector2D(x=0.0, y=1.0), mu2d.Vector2D(x=0.1, y=1.0)
+    )
+    assert not mu2d.is_clockwise(
+        mu2d.Vector2D(x=-1.0, y=0.0), mu2d.Vector2D(x=-1.0, y=0.1)
+    )
+    assert mu2d.is_clockwise(
+        mu2d.Vector2D(x=-1.0, y=0.0), mu2d.Vector2D(x=-1.0, y=-0.1)
+    )
+    assert not mu2d.is_clockwise(
+        mu2d.Vector2D(x=0.0, y=-1.0), mu2d.Vector2D(x=-0.1, y=-1.0)
+    )
+    assert mu2d.is_clockwise(
+        mu2d.Vector2D(x=0.0, y=-1.0), mu2d.Vector2D(x=0.1, y=-1.0)
+    )
 
 
 def wrap_vec2_test(fn, input_val, output_val):
-    out = fn(Vector2D(*input_val))
+    out = fn(mu2d.Vector2D(*input_val))
     assert out.x == approx(output_val[0], abs=0.001)
     assert out.y == approx(output_val[1], abs=0.001)
 
 
 # doc-region-begin translate test
 def test_translate():
-    fn: InvertibleFunction[Vector2D] = translate(Vector2D(x=2.0, y=3.0))
-    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.translate(
+        mu2d.Vector2D(x=2.0, y=3.0)
+    )
+    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [2.0, 3.0]],
@@ -121,10 +150,12 @@ def test_translate():
 
 
 def test_compose():
-    fn: InvertibleFunction[Vector2D] = translate(Vector2D(x=2.0, y=3.0))
-    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.translate(
+        mu2d.Vector2D(x=2.0, y=3.0)
+    )
+    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
 
-    identity_fn: InvertibleFunction[Vector2D] = compose(fn_inv, fn)
+    identity_fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(fn_inv, fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],
@@ -137,8 +168,8 @@ def test_compose():
 
 
 def test_uniform_scale():
-    fn: InvertibleFunction[Vector2D] = uniform_scale(4.0)
-    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.uniform_scale(4.0)
+    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],
@@ -152,8 +183,8 @@ def test_uniform_scale():
 
 
 def test_scale():
-    fn: InvertibleFunction[Vector2D] = scale(m_x=2.0, m_y=3.0)
-    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu2d.scale(m_x=2.0, m_y=3.0)
+    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],
@@ -167,8 +198,8 @@ def test_scale():
 
 
 def test_rotate_90():
-    fn: InvertibleFunction[Vector2D] = rotate_90_degrees()
-    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu2d.rotate_90_degrees()
+    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],
@@ -184,8 +215,10 @@ def test_rotate_90():
 
 
 def test_rotate():
-    fn: InvertibleFunction[Vector2D] = rotate(math.radians(53.130102))
-    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
+    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu2d.rotate(
+        math.radians(53.130102)
+    )
+    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],

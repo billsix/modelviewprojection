@@ -32,13 +32,14 @@ def test_first_class_functions():
     assert 13 == add_five_to_result_of(doubler, 4)
     # doc-region-end test first class functions
 
+
 # doc-region-begin test factorial no recursion
 def test_factorial_no_recursion():
     def factorial(n: int, f: typing.Callable[[int], int]) -> int:
         if n == 1:
             return 1
         else:
-            return n * f(n-1, f)
+            return n * f(n - 1, f)
 
     assert 1 == factorial(1, factorial)
     assert 2 == factorial(2, factorial)
