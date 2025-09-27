@@ -19,12 +19,11 @@
 import math
 import os
 import sys
-from dataclasses import astuple, dataclass, field
-
+import dataclasses
 import glfw
 import numpy as np
 import OpenGL.GL.shaders as shaders
-from colorutils import Color3
+import colorutils
 
 # doc-region-begin new imports
 import OpenGL.GL as GL
@@ -90,12 +89,12 @@ def draw_in_square_viewport() -> None:
     )
 
 
-@dataclass
+@dataclasses.dataclass
 class Paddle:
     position: any
-    color: Color3
+    color: colorutils.Color3
     rotation: float = 0.0
-    vertices: np.array = field(
+    vertices: np.array = dataclasses.field(
         default_factory=lambda: np.array(
             [
                 [-1.0, -3.0, 0.0],
@@ -109,18 +108,20 @@ class Paddle:
 
 
 paddle1: Paddle = Paddle(
-    color=Color3(r=0.578123, g=0.0, b=1.0), position=np.array([-9.0, 0.0, 0.0])
+    color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
+    position=np.array([-9.0, 0.0, 0.0]),
 )
 
 paddle2: Paddle = Paddle(
-    color=Color3(r=1.0, g=1.0, b=0.0), position=np.array([9.0, 0.0, 0.0])
+    color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
+    position=np.array([9.0, 0.0, 0.0]),
 )
 
 
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
-@dataclass
+@dataclasses.dataclass
 class Camera:
     x: float = 0.0
     y: float = 0.0
@@ -276,7 +277,7 @@ while not glfw.window_should_close(window):
     # it will be automatically popped off of the stack
     GL.glPushMatrix()
 
-    GL.glColor3f(*astuple(paddle1.color))
+    GL.glColor3f(*dataclasses.astuple(paddle1.color))
 
     GL.glTranslate(
         paddle1.position[0],
@@ -323,7 +324,7 @@ while not glfw.window_should_close(window):
     # need to push matrix, and on the next iteration of the event loop,
     # all matrices will be cleared to identity, so who cares if we
     # mutate the values for now.
-    GL.glColor3f(*astuple(paddle2.color))
+    GL.glColor3f(*dataclasses.astuple(paddle2.color))
 
     GL.glTranslate(
         paddle2.position[0],

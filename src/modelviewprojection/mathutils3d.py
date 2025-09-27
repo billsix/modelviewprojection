@@ -17,20 +17,17 @@
 
 
 import math
-from contextlib import contextmanager
+import contextlib
 import dataclasses
-
 import modelviewprojection.mathutils as mathutils
-
-from modelviewprojection.mathutils1d import Vector1D
-from modelviewprojection.mathutils2d import Vector2D
-from modelviewprojection.mathutils2d import rotate as rotate2D
+import modelviewprojection.mathutils1d as mu1d
+import modelviewprojection.mathutils2d as mu2d
 import typing
 
 
 # doc-region-begin define vector class
 @dataclasses.dataclass
-class Vector3D(Vector2D):
+class Vector3D(mu2d.Vector2D):
     z: float  #: The z-component of the 3D Vector
     # doc-region-end define vector class
 
@@ -128,16 +125,16 @@ def scale(
 # doc-region-begin define rotate x
 def rotate_x(angle_in_radians: float) -> mathutils.InvertibleFunction[Vector3D]:
     def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
-        def f(vector: Vector2D) -> Vector2D:
-            yz_on_xy: Vector2D = Vector2D(x=vector.y, y=vector.z)
-            rotated_yz_on_xy: Vector2D = r(yz_on_xy)
+        def f(vector: mu2d.Vector2D) -> mu2d.Vector2D:
+            yz_on_xy: mu2d.Vector2D = mu2d.Vector2D(x=vector.y, y=vector.z)
+            rotated_yz_on_xy: mu2d.Vector2D = r(yz_on_xy)
             return Vector3D(
                 x=vector.x, y=rotated_yz_on_xy.x, z=rotated_yz_on_xy.y
             )
 
         return f
 
-    r = rotate2D(angle_in_radians)
+    r = mu2d.rotate(angle_in_radians)
     return mathutils.InvertibleFunction[Vector3D](
         create_rotate_function(r), create_rotate_function(mathutils.inverse(r))
     )
@@ -147,16 +144,16 @@ def rotate_x(angle_in_radians: float) -> mathutils.InvertibleFunction[Vector3D]:
 # doc-region-begin define rotate y
 def rotate_y(angle_in_radians: float) -> mathutils.InvertibleFunction[Vector3D]:
     def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
-        def f(vector: Vector2D) -> Vector2D:
-            zx_on_xy: Vector2D = Vector2D(x=vector.z, y=vector.x)
-            rotated_zx_on_xy: Vector2D = r(zx_on_xy)
+        def f(vector: mu2d.Vector2D) -> mu2d.Vector2D:
+            zx_on_xy: mu2d.Vector2D = mu2d.Vector2D(x=vector.z, y=vector.x)
+            rotated_zx_on_xy: mu2d.Vector2D = r(zx_on_xy)
             return Vector3D(
                 x=rotated_zx_on_xy.y, y=vector.y, z=rotated_zx_on_xy.x
             )
 
         return f
 
-    r = rotate2D(angle_in_radians)
+    r = mu2d.rotate(angle_in_radians)
     return mathutils.InvertibleFunction[Vector3D](
         create_rotate_function(r), create_rotate_function(mathutils.inverse(r))
     )
@@ -166,16 +163,16 @@ def rotate_y(angle_in_radians: float) -> mathutils.InvertibleFunction[Vector3D]:
 # doc-region-begin define rotate z
 def rotate_z(angle_in_radians: float) -> mathutils.InvertibleFunction[Vector3D]:
     def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
-        def f(vector: Vector2D) -> Vector2D:
-            xy_on_xy: Vector2D = Vector2D(x=vector.x, y=vector.y)
-            rotated_xy_on_xy: Vector2D = r(xy_on_xy)
+        def f(vector: mu2d.Vector2D) -> mu2d.Vector2D:
+            xy_on_xy: mu2d.Vector2D = mu2d.Vector2D(x=vector.x, y=vector.y)
+            rotated_xy_on_xy: mu2d.Vector2D = r(xy_on_xy)
             return Vector3D(
                 x=rotated_xy_on_xy.x, y=rotated_xy_on_xy.y, z=vector.z
             )
 
         return f
 
-    r = rotate2D(angle_in_radians)
+    r = mu2d.rotate(angle_in_radians)
     return mathutils.InvertibleFunction[Vector3D](
         create_rotate_function(r), create_rotate_function(mathutils.inverse(r))
     )
@@ -238,8 +235,8 @@ def perspective(
     )
 
     def f(vector: Vector3D) -> Vector3D:
-        s1d: mathutils.InvertibleFunction[Vector1D] = mathutils.uniform_scale(
-            near_z / vector.z
+        s1d: mathutils.InvertibleFunction[mu1d.Vector1D] = (
+            mathutils.uniform_scale(near_z / vector.z)
         )
         rectangular_prism: Vector3D = Vector3D(
             s1d(vector.x), s1d(vector.y), vector.z
@@ -249,7 +246,7 @@ def perspective(
     def f_inv(vector: Vector3D) -> Vector3D:
         rectangular_prism: Vector3D = mathutils.inverse(fn)(vector)
 
-        mathutils.inverse_s1d: mathutils.InvertibleFunction[Vector1D] = (
+        mathutils.inverse_s1d: mathutils.InvertibleFunction[mu1d.Vector1D] = (
             mathutils.inverse(mathutils.uniform_scale(near_z / vector.z))
         )
         return Vector3D(
@@ -294,7 +291,7 @@ fn_stack = FunctionStack()
 # doc-region-end define function stack class
 
 
-@contextmanager
+@contextlib.contextmanager
 def push_transformation(f):
     try:
         fn_stack.push(f)

@@ -23,16 +23,8 @@ import glfw
 import colorutils
 import OpenGL.GL as GL
 
-import modelviewprojection.mathutils as mathutils
-from modelviewprojection.mathutils3d import (
-    Vector3D,
-    fn_stack,
-    ortho,
-    push_transformation,
-    rotate_x,
-    rotate_y,
-    rotate_z,
-)
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils3d as mu3d
 
 if not glfw.init():
     sys.exit()
@@ -97,32 +89,32 @@ def draw_in_square_viewport() -> None:
 
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector3D]
+    vertices: list[mu3d.Vector3D]
     color: colorutils.Color3
-    position: Vector3D
+    position: mu3d.Vector3D
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vector3D(x=-1.0, y=-3.0, z=0.0),
-        Vector3D(x=1.0, y=-3.0, z=0.0),
-        Vector3D(x=1.0, y=3.0, z=0.0),
-        Vector3D(x=-1.0, y=3.0, z=0.0),
+        mu3d.Vector3D(x=-1.0, y=-3.0, z=0.0),
+        mu3d.Vector3D(x=1.0, y=-3.0, z=0.0),
+        mu3d.Vector3D(x=1.0, y=3.0, z=0.0),
+        mu3d.Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=Vector3D(x=-9.0, y=0.0, z=0.0),
+    position=mu3d.Vector3D(x=-9.0, y=0.0, z=0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vector3D(x=-1.0, y=-3.0, z=0.0),
-        Vector3D(x=1.0, y=-3.0, z=0.0),
-        Vector3D(x=1.0, y=3.0, z=0.0),
-        Vector3D(x=-1.0, y=3.0, z=0.0),
+        mu3d.Vector3D(x=-1.0, y=-3.0, z=0.0),
+        mu3d.Vector3D(x=1.0, y=-3.0, z=0.0),
+        mu3d.Vector3D(x=1.0, y=3.0, z=0.0),
+        mu3d.Vector3D(x=-1.0, y=3.0, z=0.0),
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=Vector3D(x=9.0, y=0.0, z=0.0),
+    position=mu3d.Vector3D(x=9.0, y=0.0, z=0.0),
 )
 
 
@@ -131,8 +123,8 @@ paddle2: Paddle = Paddle(
 
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector3D = dataclasses.field(
-        default_factory=lambda: Vector3D(x=0.0, y=0.0, z=15.0)
+    position_ws: mu3d.Vector3D = dataclasses.field(
+        default_factory=lambda: mu3d.Vector3D(x=0.0, y=0.0, z=15.0)
     )
     rot_y: float = 0.0
     rot_x: float = 0.0
@@ -142,11 +134,11 @@ class Camera:
 camera: Camera = Camera()
 
 
-square: list[Vector3D] = [
-    Vector3D(x=-0.5, y=-0.5, z=0.0),
-    Vector3D(x=0.5, y=-0.5, z=0.0),
-    Vector3D(x=0.5, y=0.5, z=0.0),
-    Vector3D(x=-0.5, y=0.5, z=0.0),
+square: list[mu3d.Vector3D] = [
+    mu3d.Vector3D(x=-0.5, y=-0.5, z=0.0),
+    mu3d.Vector3D(x=0.5, y=-0.5, z=0.0),
+    mu3d.Vector3D(x=0.5, y=0.5, z=0.0),
+    mu3d.Vector3D(x=-0.5, y=0.5, z=0.0),
 ]
 square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
@@ -178,15 +170,15 @@ def handle_inputs() -> None:
 
     # doc-region-begin handle key input keys
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        forwards_cs = Vector3D(x=0.0, y=0.0, z=-1.0)
-        forward_ws = mathutils.compose(
-            mathutils.translate(camera.position_ws), rotate_y(camera.rot_y)
+        forwards_cs = mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)
+        forward_ws = mu.compose(
+            mu.translate(camera.position_ws), mu3d.rotate_y(camera.rot_y)
         )(forwards_cs)
         camera.position_ws = forward_ws
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        forwards_cs = Vector3D(x=0.0, y=0.0, z=1.0)
-        forward_ws = mathutils.compose(
-            mathutils.translate(camera.position_ws), rotate_y(camera.rot_y)
+        forwards_cs = mu3d.Vector3D(x=0.0, y=0.0, z=1.0)
+        forward_ws = mu.compose(
+            mu.translate(camera.position_ws), mu3d.rotate_y(camera.rot_y)
         )(forwards_cs)
         camera.position_ws = forward_ws
     # doc-region-end handle key input keys
@@ -237,32 +229,32 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin draw scene
     # cameraspace to NDC
-    with push_transformation(
-        ortho(
+    with mu3d.push_transformation(
+        mu3d.ortho(
             left=-10.0, right=10.0, bottom=-10.0, top=10.0, near=-0.1, far=-30.0
         )
     ):
-        # world space to camera space, which is mathutils.inverse of camera space to world space
-        with push_transformation(
-            mathutils.inverse(
-                mathutils.compose(
-                    mathutils.translate(camera.position_ws),
-                    rotate_y(camera.rot_y),
-                    rotate_x(camera.rot_x),
+        # world space to camera space, which is mu.inverse of camera space to world space
+        with mu3d.push_transformation(
+            mu.inverse(
+                mu.compose(
+                    mu.translate(camera.position_ws),
+                    mu3d.rotate_y(camera.rot_y),
+                    mu3d.rotate_x(camera.rot_x),
                 )
             )
         ):
             # paddle 1 space to world space
-            with push_transformation(
-                mathutils.compose(
-                    mathutils.translate(paddle1.position),
-                    rotate_z(paddle1.rotation),
+            with mu3d.push_transformation(
+                mu.compose(
+                    mu.translate(paddle1.position),
+                    mu3d.rotate_z(paddle1.rotation),
                 )
             ):
                 GL.glColor3f(*dataclasses.astuple(paddle1.color))
                 GL.glBegin(GL.GL_QUADS)
                 for p1_v_ms in paddle1.vertices:
-                    paddle1_vector_ndc = fn_stack.modelspace_to_ndc_fn()(
+                    paddle1_vector_ndc = mu3d.fn_stack.modelspace_to_ndc_fn()(
                         p1_v_ms
                     )
                     GL.glVertex3f(
@@ -273,19 +265,21 @@ while not glfw.window_should_close(window):
                 GL.glEnd()
 
                 # square space to paddle 1 space
-                with push_transformation(
-                    mathutils.compose(
-                        mathutils.translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
-                        rotate_z(rotation_around_paddle1),
-                        mathutils.translate(Vector3D(x=2.0, y=0.0, z=0.0)),
-                        rotate_z(square_rotation),
+                with mu3d.push_transformation(
+                    mu.compose(
+                        mu.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
+                        mu3d.rotate_z(rotation_around_paddle1),
+                        mu.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
+                        mu3d.rotate_z(square_rotation),
                     )
                 ):
                     # draw square
                     GL.glColor3f(0.0, 0.0, 1.0)
                     GL.glBegin(GL.GL_QUADS)
                     for ms in square:
-                        square_vector_ndc = fn_stack.modelspace_to_ndc_fn()(ms)
+                        square_vector_ndc = (
+                            mu3d.fn_stack.modelspace_to_ndc_fn()(ms)
+                        )
                         GL.glVertex3f(
                             square_vector_ndc.x,
                             square_vector_ndc.y,
@@ -294,17 +288,17 @@ while not glfw.window_should_close(window):
                     GL.glEnd()
 
             # paddle 2 space to world space
-            with push_transformation(
-                mathutils.compose(
-                    mathutils.translate(paddle2.position),
-                    rotate_z(paddle2.rotation),
+            with mu3d.push_transformation(
+                mu.compose(
+                    mu.translate(paddle2.position),
+                    mu3d.rotate_z(paddle2.rotation),
                 )
             ):
                 # draw paddle 2
                 GL.glColor3f(*dataclasses.astuple(paddle2.color))
                 GL.glBegin(GL.GL_QUADS)
                 for p2_v_ms in paddle2.vertices:
-                    paddle2_vector_ndc = fn_stack.modelspace_to_ndc_fn()(
+                    paddle2_vector_ndc = mu3d.fn_stack.modelspace_to_ndc_fn()(
                         p2_v_ms
                     )
                     GL.glVertex3f(

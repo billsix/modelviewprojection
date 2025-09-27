@@ -18,19 +18,15 @@
 
 import math
 import dataclasses
-
-from pytest import approx
-
-import modelviewprojection.mathutils as mathutils
-
-from modelviewprojection.mathutils1d import Vector1D
-
+import pytest
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils1d as mu1d
 import typing
 
 
 # doc-region-begin define vector class
 @dataclasses.dataclass
-class Vector2D(Vector1D):
+class Vector2D(mu1d.Vector1D):
     y: float  #: The y-component of the 2D Vector
     # doc-region-end define vector class
 
@@ -96,7 +92,7 @@ class Vector2D(Vector1D):
     # doc-region-end define mul
 
 
-def scale(m_x: float, m_y: float) -> mathutils.InvertibleFunction[Vector2D]:
+def scale(m_x: float, m_y: float) -> mu.InvertibleFunction[Vector2D]:
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(vector.x * m_x, vector.y * m_y)
 
@@ -108,25 +104,25 @@ def scale(m_x: float, m_y: float) -> mathutils.InvertibleFunction[Vector2D]:
 
         return Vector2D(vector.x / m_x, vector.y / m_y)
 
-    return mathutils.InvertibleFunction[Vector2D](f, f_inv)
+    return mu.InvertibleFunction[Vector2D](f, f_inv)
 
 
 # doc-region-begin define rotate
-def rotate_90_degrees() -> mathutils.InvertibleFunction[Vector2D]:
+def rotate_90_degrees() -> mu.InvertibleFunction[Vector2D]:
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(-vector.y, vector.x)
 
     def f_inv(vector: Vector2D) -> Vector2D:
         return -f(vector)
 
-    return mathutils.InvertibleFunction[Vector2D](f, f_inv)
+    return mu.InvertibleFunction[Vector2D](f, f_inv)
 
 
 def rotate(angle_in_radians: float) -> typing.Callable[[Vector2D], Vector2D]:
-    r90: mathutils.InvertibleFunction[Vector2D] = rotate_90_degrees()
+    r90: mu.InvertibleFunction[Vector2D] = rotate_90_degrees()
 
     def create_rotate_function(
-        perp: mathutils.InvertibleFunction[Vector2D],
+        perp: mu.InvertibleFunction[Vector2D],
     ) -> typing.Callable[[Vector2D], Vector2D]:
         def f(vector: Vector2D) -> Vector2D:
             parallel: Vector2D = math.cos(angle_in_radians) * vector
@@ -135,9 +131,9 @@ def rotate(angle_in_radians: float) -> typing.Callable[[Vector2D], Vector2D]:
 
         return f
 
-    return mathutils.InvertibleFunction[Vector2D](
+    return mu.InvertibleFunction[Vector2D](
         create_rotate_function(r90),
-        create_rotate_function(mathutils.inverse(r90)),
+        create_rotate_function(mu.inverse(r90)),
     )
     # doc-region-end define rotate
 
@@ -145,11 +141,11 @@ def rotate(angle_in_radians: float) -> typing.Callable[[Vector2D], Vector2D]:
 # doc-region-begin define rotate around
 def rotate_around(
     angle_in_radians: float, center: Vector2D
-) -> mathutils.InvertibleFunction[Vector2D]:
-    return mathutils.compose(
-        mathutils.translate(center),
+) -> mu.InvertibleFunction[Vector2D]:
+    return mu.compose(
+        mu.translate(center),
         rotate(angle_in_radians),
-        mathutils.translate(-center),
+        mu.translate(-center),
     )
     # doc-region-end define rotate around
 
@@ -170,5 +166,5 @@ def is_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
 
 # doc-region-begin parallel
 def is_parallel(v1: Vector2D, v2: Vector2D) -> bool:
-    return cosine(v1, v2) == approx(1.0, abs=0.01)
+    return cosine(v1, v2) == pytest.approx(1.0, abs=0.01)
     # doc-region-end parallel

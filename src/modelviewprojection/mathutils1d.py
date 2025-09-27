@@ -17,17 +17,15 @@
 
 
 import dataclasses
-
-from modelviewprojection.mathutils import Vector
-
+import modelviewprojection.mathutils as mu
 import numpy as np
 import typing
 
 
 # doc-region-begin define vector class
 @dataclasses.dataclass
-class Vector1D(Vector):
-    x: float  #: The value of the 1D Vector
+class Vector1D(mu.Vector):
+    x: float  #: The value of the 1D mu.Vector
     # doc-region-end define vector class
 
     # doc-region-begin begin define add
@@ -75,10 +73,10 @@ class Vector1D(Vector):
              s*\\vec{a} = \\begin{pmatrix} s*a_x \\end{pmatrix}
 
         Args:
-            rhs (Vector1D): The scalar to be multiplied to the Vector's component
+            rhs (Vector1D): The scalar to be multiplied to the mu.Vector's component
                             subtraction symbol
         Returns:
-            Vector1D: The Vector1D that represents scalar times the amount of the input Vector1d
+            Vector1D: The Vector1D that represents scalar times the amount of the input mu.Vector1d
 
         Raises:
             Nothing

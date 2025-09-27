@@ -23,8 +23,8 @@ import glfw
 import colorutils
 import OpenGL.GL as GL
 
-import modelviewprojection.mathutils as mathutils
-from modelviewprojection.mathutils2d import Vector2D, rotate
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils2d as mu2d
 
 if not glfw.init():
     sys.exit()
@@ -85,33 +85,33 @@ def draw_in_square_viewport() -> None:
 # doc-region-begin define paddle class
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector2D]
+    vertices: list[mu2d.Vector2D]
     color: colorutils.Color3
-    position: Vector2D
+    position: mu2d.Vector2D
     rotation: float = 0.0
     # doc-region-end define paddle class
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-1.0, y=-3.0),
-        Vector2D(x=1.0, y=-3.0),
-        Vector2D(x=1.0, y=3.0),
-        Vector2D(x=-1.0, y=3.0),
+        mu2d.Vector2D(x=-1.0, y=-3.0),
+        mu2d.Vector2D(x=1.0, y=-3.0),
+        mu2d.Vector2D(x=1.0, y=3.0),
+        mu2d.Vector2D(x=-1.0, y=3.0),
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=Vector2D(-9.0, 0.0),
+    position=mu2d.Vector2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-1.0, y=-3.0),
-        Vector2D(x=1.0, y=-3.0),
-        Vector2D(x=1.0, y=3.0),
-        Vector2D(x=-1.0, y=3.0),
+        mu2d.Vector2D(x=-1.0, y=-3.0),
+        mu2d.Vector2D(x=1.0, y=-3.0),
+        mu2d.Vector2D(x=1.0, y=3.0),
+        mu2d.Vector2D(x=-1.0, y=3.0),
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=Vector2D(9.0, 0.0),
+    position=mu2d.Vector2D(9.0, 0.0),
 )
 
 
@@ -167,14 +167,14 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        # doc-region-begin mathutils.compose transformations on paddle 1
-        fn: mathutils.InvertibleFunction[Vector2D] = mathutils.compose(
-            mathutils.uniform_scale(1.0 / 10.0),
-            rotate(paddle1.rotation),
-            mathutils.translate(paddle1.position),
+        # doc-region-begin mu.compose transformations on paddle 1
+        fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
+            mu.uniform_scale(1.0 / 10.0),
+            mu2d.rotate(paddle1.rotation),
+            mu.translate(paddle1.position),
         )
-        paddle1_vector_ndc: Vector2D = fn(p1_v_ms)
-        # doc-region-end mathutils.compose transformations on paddle 1
+        paddle1_vector_ndc: mu2d.Vector2D = fn(p1_v_ms)
+        # doc-region-end mu.compose transformations on paddle 1
         GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
     GL.glEnd()
     # doc-region-end draw paddle 1
@@ -184,12 +184,12 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: mathutils.InvertibleFunction[Vector2D] = mathutils.compose(
-            mathutils.uniform_scale(1.0 / 10.0),
-            rotate(paddle2.rotation),
-            mathutils.translate(paddle2.position),
+        fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
+            mu.uniform_scale(1.0 / 10.0),
+            mu2d.rotate(paddle2.rotation),
+            mu.translate(paddle2.position),
         )
-        paddle2_vector_ndc: Vector2D = fn(p2_v_ms)
+        paddle2_vector_ndc: mu2d.Vector2D = fn(p2_v_ms)
         GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     GL.glEnd()
     # doc-region-end draw paddle 2

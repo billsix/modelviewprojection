@@ -18,15 +18,13 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 # SOFTWARE.
 
-
 import math
-from contextlib import contextmanager
-from enum import Enum
-
+import contextlib
+import enum
 import numpy as np
 
 
-class MatrixStack(Enum):
+class MatrixStack(enum.Enum):
     model = 1
     view = 2
     projection = 3
@@ -144,7 +142,7 @@ class PushMatrix:
         __popMatrix__(self.m)
 
 
-@contextmanager
+@contextlib.contextmanager
 def push_matrix(m):
     """Instead of manually pushing and poping the matrix stack,
     this allows using the "with" keyword."""

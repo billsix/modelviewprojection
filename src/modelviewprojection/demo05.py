@@ -23,8 +23,8 @@ import glfw
 import colorutils
 import OpenGL.GL as GL
 
-import modelviewprojection.mathutils as mathutils
-from modelviewprojection.mathutils2d import Vector2D
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils2d as mu2d
 
 if not glfw.init():
     sys.exit()
@@ -85,33 +85,33 @@ def draw_in_square_viewport() -> None:
 # doc-region-begin define paddle class
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector2D]
+    vertices: list[mu2d.Vector2D]
     color: colorutils.Color3
-    position: Vector2D
+    position: mu2d.Vector2D
     # doc-region-end define paddle class
 
 
 # doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-0.1, y=-0.3),
-        Vector2D(x=0.1, y=-0.3),
-        Vector2D(x=0.1, y=0.3),
-        Vector2D(x=-0.1, y=0.3),
+        mu2d.Vector2D(x=-0.1, y=-0.3),
+        mu2d.Vector2D(x=0.1, y=-0.3),
+        mu2d.Vector2D(x=0.1, y=0.3),
+        mu2d.Vector2D(x=-0.1, y=0.3),
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=Vector2D(-0.9, 0.0),
+    position=mu2d.Vector2D(-0.9, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vector2D(-0.1, -0.3),
-        Vector2D(0.1, -0.3),
-        Vector2D(0.1, 0.3),
-        Vector2D(-0.1, 0.3),
+        mu2d.Vector2D(-0.1, -0.3),
+        mu2d.Vector2D(0.1, -0.3),
+        mu2d.Vector2D(0.1, 0.3),
+        mu2d.Vector2D(-0.1, 0.3),
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=Vector2D(0.9, 0.0),
+    position=mu2d.Vector2D(0.9, 0.0),
 )
 # doc-region-end instantiate paddles
 
@@ -160,7 +160,7 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc: Vector2D = mathutils.translate(paddle1.position)(
+        paddle1_vector_ndc: mu2d.Vector2D = mu.translate(paddle1.position)(
             p1_v_ms
         )
         GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
@@ -172,7 +172,7 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        paddle2_vector_ndc: Vector2D = mathutils.translate(paddle2.position)(
+        paddle2_vector_ndc: mu2d.Vector2D = mu.translate(paddle2.position)(
             p2_v_ms
         )
         GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)

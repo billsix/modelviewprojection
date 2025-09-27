@@ -16,14 +16,11 @@
 # Boston, MA 02111-1307, USA.
 
 
-from typing import Tuple
-
 import IPython.display as display
 import numpy as np
 import PIL
-from PIL import Image
-
-from modelviewprojection.mathutils2d import Vector2D, is_clockwise, is_parallel
+import typing
+import modelviewprojection.mathutils2d as mu2d
 
 WIDTH: int
 HEIGHT: int
@@ -42,11 +39,11 @@ framebuffer: np.ndarray = np.random.randint(
     0, 256, (HEIGHT, WIDTH, 3), dtype=np.uint8
 )
 
-BLACK: Tuple[int, int, int] = (0, 0, 0)
-WHITE: Tuple[int, int, int] = (255, 255, 255)
-RED: Tuple[int, int, int] = (255, 0, 0)
-GREEN: Tuple[int, int, int] = (0, 255, 0)
-BLUE: Tuple[int, int, int] = (0, 0, 255)
+BLACK: typing.Tuple[int, int, int] = (0, 0, 0)
+WHITE: typing.Tuple[int, int, int] = (255, 255, 255)
+RED: typing.Tuple[int, int, int] = (255, 0, 0)
+GREEN: typing.Tuple[int, int, int] = (0, 255, 0)
+BLUE: typing.Tuple[int, int, int] = (0, 0, 255)
 
 
 def make_framebuffer(width: int, height: int) -> None:
@@ -61,12 +58,12 @@ def make_framebuffer(width: int, height: int) -> None:
 
 def show_framebuffer() -> None:
     """Display the framebuffer in the Jupyter notebook."""
-    img = Image.fromarray(framebuffer, "RGB")
+    img = PIL.Image.fromarray(framebuffer, "RGB")
     display(img)
 
 
-def get_framebuffer() -> PIL.Image.Image:
-    return Image.fromarray(framebuffer, "RGB")
+def get_framebuffer() -> PIL.PIL.Image.PIL.Image:
+    return PIL.Image.fromarray(framebuffer, "RGB")
 
 
 def clear_framebuffer(color=BLACK) -> None:
@@ -76,9 +73,9 @@ def clear_framebuffer(color=BLACK) -> None:
 
 
 def draw_filled_triangle(
-    p1: Vector2D,
-    p2: Vector2D,
-    p3: Vector2D,
+    p1: mu2d.Vector2D,
+    p2: mu2d.Vector2D,
+    p3: mu2d.Vector2D,
     color=(255, 255, 255),
 ):
     """
@@ -87,7 +84,7 @@ def draw_filled_triangle(
     """
     global framebuffer
 
-    def to_fb_coords(v: Vector2D):
+    def to_fb_coords(v: mu2d.Vector2D):
         """Convert from OpenGL-style coords to framebuffer array coords."""
         return v.x, HEIGHT - 1 - v.y
 
@@ -106,20 +103,20 @@ def draw_filled_triangle(
     min_y: int = max(int(min(y1, y2, y3)), 0)
     max_y: int = min(int(max(y1, y2, y3)), HEIGHT - 1)
 
-    v1: Vector2D = Vector2D(x1, y1)
-    v2: Vector2D = Vector2D(x2, y2)
-    v3: Vector2D = Vector2D(x3, y3)
+    v1: mu2d.Vector2D = mu2d.Vector2D(x1, y1)
+    v2: mu2d.Vector2D = mu2d.Vector2D(x2, y2)
+    v3: mu2d.Vector2D = mu2d.Vector2D(x3, y3)
 
-    if is_parallel(v2 - v1, v3 - v2):
+    if mu2d.is_parallel(v2 - v1, v3 - v2):
         return  # Degenerate triangle
 
     # Loop over bounding box
     for y in range(min_y, max_y + 1):
         for x in range(min_x, max_x + 1):
-            pixel_position: Vector2D = Vector2D(x, y)
-            w0: bool = is_clockwise(v2 - v1, pixel_position - v1)
-            w1: bool = is_clockwise(v3 - v2, pixel_position - v2)
-            w2: bool = is_clockwise(v1 - v3, pixel_position - v3)
+            pixel_position: mu2d.Vector2D = mu2d.Vector2D(x, y)
+            w0: bool = mu2d.is_clockwise(v2 - v1, pixel_position - v1)
+            w1: bool = mu2d.is_clockwise(v3 - v2, pixel_position - v2)
+            w2: bool = mu2d.is_clockwise(v1 - v3, pixel_position - v3)
 
             # If the signs match the triangle area, pixel is inside
             if all([w0, w1, w2]) or not any([w0, w1, w2]):

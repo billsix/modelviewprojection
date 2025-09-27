@@ -17,7 +17,7 @@
 
 
 import dataclasses
-from abc import ABC, abstractmethod
+import abc
 import typing
 
 # doc-region-begin define invertible function
@@ -182,11 +182,11 @@ def uniform_scale(m: float) -> InvertibleFunction[T]:
     # doc-region-end define uniform scale
 
 
-class Vector(ABC):
+class Vector(abc.ABC):
     def __iter__(self):
         return iter(dataclasses.asdict(self).values())
 
-    @abstractmethod
+    @abc.abstractmethod
     def __add__(self, rhs):
         pass
 
@@ -209,7 +209,7 @@ class Vector(ABC):
         return self + -rhs
         # doc-region-end define subtract
 
-    @abstractmethod
+    @abc.abstractmethod
     def __mul__(self, scalar: float):
         pass
 

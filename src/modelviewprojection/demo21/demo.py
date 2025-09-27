@@ -14,24 +14,20 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
-
-
 import ctypes
 import math
 import os
 import sys
-from dataclasses import dataclass, field
-
+import dataclasses
 import glfw
 import imgui
 import numpy as np
 
 # new - SHADERS
 import OpenGL.GL.shaders as shaders
-from colorutils import Color4
-from imgui.integrations.glfw import GlfwRenderer
+import colorutils
+import imgui.integrations.glfw as imguiglfw
 import OpenGL.GL as GL
-
 import modelviewprojection.pyMatrixStack as ms
 
 if not glfw.init():
@@ -69,7 +65,7 @@ if not window:
 glfw.make_context_current(window)
 
 
-impl = GlfwRenderer(window)
+impl = imguiglfw.GlfwRenderer(window)
 
 # Install a key handler
 
@@ -94,12 +90,12 @@ if __enable_blend__:
     GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
 
-@dataclass
+@dataclasses.dataclass
 class Paddle:
     position: any
-    color: Color4
+    color: colorutils.Color4
     rotation: float = 0.0
-    vertices: np.array = field(
+    vertices: np.array = dataclasses.field(
         default_factory=lambda: np.array(
             [
                 [-1.0, -3.0, 0.0],
@@ -221,21 +217,21 @@ class Paddle:
 
 
 paddle1 = Paddle(
-    color=Color4(r=0.578123, g=0.0, b=1.0, a=0.75),
+    color=colorutils.Color4(r=0.578123, g=0.0, b=1.0, a=0.75),
     position=np.array([-9.0, 0.0, 0.0]),
 )
 paddle1.prepare_to_render()
 paddle2 = Paddle(
-    color=Color4(r=1.0, g=1.0, b=0.0, a=0.75),
+    color=colorutils.Color4(r=1.0, g=1.0, b=0.0, a=0.75),
     position=np.array([9.0, 0.0, 0.0]),
 )
 paddle2.prepare_to_render()
 
 
-@dataclass
+@dataclasses.dataclass
 class Square(Paddle):
     rotation_around_paddle1: float = 0.0
-    vertices: np.array = field(
+    vertices: np.array = dataclasses.field(
         default_factory=lambda: np.array(
             [
                 [-0.5, -0.5, 0.0],
@@ -251,7 +247,8 @@ class Square(Paddle):
 
 
 square = Square(
-    color=Color4(r=0.0, g=0.0, b=1.0, a=0.75), position=[0.0, 0.0, 0.0]
+    color=colorutils.Color4(r=0.0, g=0.0, b=1.0, a=0.75),
+    position=[0.0, 0.0, 0.0],
 )
 
 square.prepare_to_render()
@@ -259,7 +256,7 @@ square.prepare_to_render()
 number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
-@dataclass
+@dataclasses.dataclass
 class Camera:
     x: float = 0.0
     y: float = 0.0
