@@ -26,6 +26,9 @@ import matplotlib.ticker
 import numpy as np
 import plotutils.generategridlines as generategridlines
 import plotutils.mpltransformations as mplt
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils2d as mu2d
+import doctest
 
 if __name__ != "__main__":
     sys.exit(0)
@@ -33,12 +36,18 @@ if __name__ != "__main__":
 matplotlib.use("agg")
 
 
+def wrap_proc(f):
+    def aoeu(xs, ys):
+        results = [f(mu2d.Vector2D(x,y)) for x, y in zip(xs, ys)]
+        return tuple([r.x for r in results]), tuple([r.y for r in results])
+    return aoeu
+
 # TODO, generalize to any number of dimensions
 def accumulate_transformation(procedures, backwards=False):
     """Given a pipeline of functions, provide all intermediate results via a function.
 
-    >>> fs = [mplt.translate(5,0),
-    ...       mplt.translate(0,10)]
+    >>> fs = [mu.translate(mu2d.Vector2D(5,0)),
+    ...       mu.translate(mu2d.Vector2D(0,10))]
     >>> f = accumulate_transformation(fs)
     >>> f1, stepsRemaining = next(f)
     >>> f1((1, 2, 3), (4, 5, 6))
@@ -78,59 +87,28 @@ def accumulate_transformation(procedures, backwards=False):
 
 
     """
-
-    # without this function, accumulate_transformation
-    # would have an error in it, because of scope in a nested
-    # function being retained.  I should figure out what is actually
-    # happening there.
-    def python_scoping_is_dumb(r, procedures):
-        def foo(x, y):
-            result_x, result_y = x, y
-            for current_fn_index in r:
-                result_x, result_y = procedures[current_fn_index](
-                    result_x, result_y
-                )
-            return result_x, result_y
-
-        return foo
+    fns = mu.compose_(*procedures, relative_basis=(not backwards))
+    fn_count = len(fns)
 
     def id(x, y):
         return x, y
 
     yield id, len(procedures)
-
-    if not backwards:
-        for number_of_fns_to_apply_this_round in [
-            x + 1 for x in range(len(procedures))
-        ]:
-            yield (
-                python_scoping_is_dumb(
-                    range(number_of_fns_to_apply_this_round), procedures
-                ),
-                len(procedures) - number_of_fns_to_apply_this_round,
-            )
-    else:
-        reversed_procs = list(range(len(procedures)))
-        reversed_procs.reverse()
-        for proc_index in reversed_procs:
-            yield (
-                python_scoping_is_dumb(
-                    range(proc_index, len(procedures)), procedures
-                ),
-                proc_index,
-            )
+    for f, remaining in zip(fns, reversed(range(fn_count))):
+        yield wrap_proc(f), remaining
 
 
-# modules = [mplt, sys.modules[__name__]]
-# for m in modules:
-#     try:
-#         doctest.testmod(m, raise_on_error=True)
-#         print(doctest.testmod(m))
-#     except Exception:
-#         print(doctest.testmod(m))
-#         sys.exit(1)
 
 
+modules = [sys.modules[__name__]]
+#modules = [mplt, sys.modules[__name__]]
+for m in modules:
+    try:
+        doctest.testmod(m, raise_on_error=True)
+        print(doctest.testmod(m))
+    except Exception:
+        print(doctest.testmod(m))
+        sys.exit(1)
 ## Translation Plots
 
 
@@ -198,8 +176,7 @@ def create_graphs(
     # when plotting the transformations is backwards order, show the axis
     # at the last step first before plotting the data
 
-    def idProc(x, y):
-        return (x, y)
+    def idProc(x): return x
 
     if backwards:
         procs.insert(0, idProc)
@@ -306,7 +283,7 @@ def create_graphs(
         create_single_frame(accumfn, stepsRemaining, fn, frame_number)
         for (accumfn, stepsRemaining), fn, frame_number in zip(
             accumulate_transformation(procs, backwards),
-            [procs[0], *procs],
+            [procs[0], *list(map(wrap_proc, procs))],
             itertools.count(start=1),
         )
     ]
@@ -324,7 +301,7 @@ create_graphs(
     title="Translation",
     filename="translation-forwards",
     geometry=paddle1,
-    procedures=[mplt.translate(-9.0, 2.0)],
+    procedures=[mu.translate(mu2d.Vector2D(-9.0, 2.0))],
 )
 
 
@@ -332,14 +309,14 @@ create_graphs(
     title="Translation",
     filename="translation2-forwards",
     geometry=paddle2,
-    procedures=[mplt.translate(9.0, -4.0)],
+    procedures=[mu.translate(mu2d.Vector2D(9.0, -4.0))],
 )
 
 create_graphs(
     title="Translation",
     filename="translation-backwards",
     geometry=paddle1,
-    procedures=[mplt.translate(-9.0, 2.0)],
+    procedures=[mu.translate(mu2d.Vector2D(-9.0, 2.0))],
     backwards=True,
 )
 
@@ -348,7 +325,7 @@ create_graphs(
     title="Translation",
     filename="translation2-backwards",
     geometry=paddle2,
-    procedures=[mplt.translate(9.0, -4.0)],
+    procedures=[mu.translate(mu2d.Vector2D(9.0, -4.0))],
     backwards=True,
 )
 
@@ -357,7 +334,7 @@ create_graphs(
     filename="rotate0",
     geometry=paddle1,
     procedures=[
-        mplt.rotate(math.radians(45.0)),
+        mu2d.rotate(math.radians(45.0)),
     ],
     graph_bounds=(12, 12),
 )
@@ -368,7 +345,7 @@ create_graphs(
     filename="scale",
     geometry=paddle1,
     procedures=[
-        mplt.scale(2.0, 3.0),
+        mu2d.scale(2.0, 3.0),
     ],
 )
 
@@ -378,8 +355,8 @@ create_graphs(
     filename="rotate1-forwards",
     geometry=paddle1,
     procedures=[
-        mplt.rotate(math.radians(45.0)),
-        mplt.translate(-9.0, 2.0),
+        mu2d.rotate(math.radians(45.0)),
+        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
     ],
     graph_bounds=(12, 12),
 )
@@ -389,8 +366,8 @@ create_graphs(
     filename="incorrectrotate-forwards",
     geometry=paddle1,
     procedures=[
-        mplt.translate(-9.0, 2.0),
-        mplt.rotate(math.radians(65.0)),
+        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
+        mu2d.rotate(math.radians(65.0)),
     ],
     graph_bounds=(12, 12),
 )
@@ -400,8 +377,8 @@ create_graphs(
     filename="incorrectrotate-backwards",
     geometry=paddle1,
     procedures=[
-        mplt.translate(-9.0, 2.0),
-        mplt.rotate(math.radians(65.0)),
+        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
+        mu2d.rotate(math.radians(65.0)),
     ],
     backwards=True,
     graph_bounds=(12, 12),
@@ -413,10 +390,10 @@ create_graphs(
     filename="rotate-sloppy-backwards",
     geometry=paddle1,
     procedures=[
-        mplt.translate(-9.0, 2.0),
-        mplt.translate(9.0, -2.0),
-        mplt.rotate(math.radians(45.0)),
-        mplt.translate(-9.0, 2.0),
+        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
+        mu.translate(mu2d.Vector2D(9.0, -2.0)),
+        mu2d.rotate(math.radians(45.0)),
+        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
     ],
     backwards=True,
     graph_bounds=(12, 12),
@@ -427,10 +404,10 @@ create_graphs(
     filename="rotate-sloppy-forwards",
     geometry=paddle1,
     procedures=[
-        mplt.translate(-9.0, 2.0),
-        mplt.translate(9.0, -2.0),
-        mplt.rotate(math.radians(45.0)),
-        mplt.translate(-9.0, 2.0),
+        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
+        mu.translate(mu2d.Vector2D(9.0, -2.0)),
+        mu2d.rotate(math.radians(45.0)),
+        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
     ],
     graph_bounds=(12, 12),
 )
@@ -441,8 +418,8 @@ create_graphs(
     filename="rotate1-backwards",
     geometry=paddle1,
     procedures=[
-        mplt.rotate(math.radians(45.0)),
-        mplt.translate(-9.0, 2.0),
+        mu2d.rotate(math.radians(45.0)),
+        mu.translate(mu2d.Vector2D(-9.0, 2.0)),
     ],
     backwards=True,
     graph_bounds=(12, 12),
@@ -453,7 +430,7 @@ create_graphs(
     title="Rotation, Relative to World Space",
     filename="rotate2-forwards",
     geometry=paddle2,
-    procedures=[mplt.rotate(math.radians(-1.0)), mplt.translate(9.0, -4.0)],
+    procedures=[mu2d.rotate(math.radians(-1.0)), mu.translate(mu2d.Vector2D(9.0, -4.0))],
     graph_bounds=(12, 12),
 )
 
@@ -462,8 +439,8 @@ create_graphs(
     filename="rotate2-backwards",
     geometry=paddle2,
     procedures=[
-        mplt.rotate(math.radians(-1.0)),
-        mplt.translate(9.0, -4.0),
+        mu2d.rotate(math.radians(-1.0)),
+        mu.translate(mu2d.Vector2D(9.0, -4.0)),
     ],
     backwards=True,
     graph_bounds=(12, 12),
@@ -493,9 +470,9 @@ create_graphs(
     filename="covariance-backwards",
     geometry=square,
     procedures=[
-        mplt.rotate(math.radians(-45.0)),
-        mplt.scale(scaleX=2.0, scaleY=4.5),
-        mplt.rotate(math.radians(45.0)),
+        mu2d.rotate(math.radians(-45.0)),
+        mu2d.scale(2.0, 4.5),
+        mu2d.rotate(math.radians(45.0)),
     ],
     backwards=True,
 )
@@ -505,9 +482,9 @@ create_graphs(
     filename="covariance-forwards",
     geometry=square,
     procedures=[
-        mplt.rotate(math.radians(-45.0)),
-        mplt.scale(scaleX=2.0, scaleY=4.5),
-        mplt.rotate(math.radians(45.0)),
+        mu2d.rotate(math.radians(-45.0)),
+        mu2d.scale(2.0, 4.5),
+        mu2d.rotate(math.radians(45.0)),
     ],
     backwards=False,
 )
@@ -522,9 +499,9 @@ create_graphs(
     filename="circle-backwards",
     geometry=circle,
     procedures=[
-        mplt.rotate(math.radians(-45.0)),
-        mplt.scale(scaleX=2.0, scaleY=4.5),
-        mplt.rotate(math.radians(45.0)),
+        mu2d.rotate(math.radians(-45.0)),
+        mu2d.scale(2.0, 4.5),
+        mu2d.rotate(math.radians(45.0)),
     ],
     backwards=True,
 )
@@ -534,9 +511,9 @@ create_graphs(
     filename="circle-forwards",
     geometry=circle,
     procedures=[
-        mplt.rotate(math.radians(-45.0)),
-        mplt.scale(scaleX=2.0, scaleY=4.5),
-        mplt.rotate(math.radians(45.0)),
+        mu2d.rotate(math.radians(-45.0)),
+        mu2d.scale(2.0, 4.5),
+        mu2d.rotate(math.radians(45.0)),
     ],
     backwards=False,
 )
@@ -566,8 +543,8 @@ create_graphs(
     filename="inverse-ortho2d-backwards",
     geometry=square_ndc,
     procedures=[
-        mplt.scale(scaleX=1.0 / 2.0, scaleY=7.0 / 2.0),
-        mplt.translate(1.0 / 2, 7.0 / 2),
+        mu2d.scale(1.0 / 2.0, 7.0 / 2.0),
+        mu.translate(mu2d.Vector2D(1.0 / 2, 7.0 / 2)),
     ],
     backwards=True,
     graph_bounds=(10, 10),
@@ -581,7 +558,7 @@ create_graphs(
     filename="inverse-ortho2d",
     geometry=square_ndc,
     procedures=[
-        mplt.scale(scaleX=1.0 / 2.0, scaleY=7.0 / 2.0),
+        mu2d.scale(1.0 / 2.0, 7.0 / 2.0),
         mplt.translate(1.0 / 2, 7.0 / 2),
     ],
     backwards=False,
@@ -616,8 +593,8 @@ create_graphs(
     filename="ortho2d-backwards",
     geometry=square_ndc,
     procedures=[
-        mplt.translate(-1.0 / 2, -7.0 / 2),
-        mplt.scale(scaleX=1.0 / (1.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
+        mu.translate(mu2d.Vector2D(-1.0 / 2, -7.0 / 2)),
+        mu2d.scale(1.0 / (1.0 / 2.0), 1.0 / (7.0 / 2.0)),
     ],
     backwards=True,
     graph_bounds=(10, 10),
@@ -631,8 +608,8 @@ create_graphs(
     filename="ortho2d",
     geometry=square_ndc,
     procedures=[
-        mplt.translate(-1.0 / 2, -7.0 / 2),
-        mplt.scale(scaleX=1.0 / (1.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
+        mu.translate(mu2d.Vector2D(-1.0 / 2, -7.0 / 2)),
+        mu2d.scale(1.0 / (1.0 / 2.0), 1.0 / (7.0 / 2.0)),
     ],
     backwards=False,
     graph_bounds=(10, 10),
