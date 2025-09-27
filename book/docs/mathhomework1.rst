@@ -17,7 +17,7 @@ Math Homework #1
 Objective
 =========
 
-Using 1 Dimensional Vector math, given a function definiton in Python for
+Using 1 Dimensional Vector math, given a function definition in Python for
 celsius to kelvin and for fahrenheit to celsius, implement in Python
 
 - fahrenheit to kelvin
@@ -33,7 +33,7 @@ value.  We import a type :class:`modelviewprojection.mathutils.InvertibleFunctio
 :py:meth:`modelviewprojection.mathutils.compose`, :py:meth:`modelviewprojection.mathutils.inverse`
 
 Important note.  The links in the previous paragraphs are links to API documentation.
-API documentatios is like a guidebook that explains how to use a library.  It tells
+API documentation is like a guidebook that explains how to use a library.  It tells
 you what functions, classes, and modules are available, what inputs they require,
 what they return, and examples of how to use them correctly.  Instead of guessing
 or relying on scattered internet posts, the API gives you the most accurate
@@ -79,8 +79,8 @@ We can do multiply a scalar by  :class:`modelviewprojection.mathutils1d.Vector1D
 
 .. literalinclude:: ../../assignments/demo02/vec1.py
    :language: python
-   :start-after: doc-region-begin muliplying scalar by a vector
-   :end-before: doc-region-end muliplying scalar by a vector
+   :start-after: doc-region-begin multiplying scalar by a vector
+   :end-before: doc-region-end multiplying scalar by a vector
    :linenos:
    :lineno-match:
    :caption: assignments/demo02/vec1.py
@@ -124,7 +124,7 @@ Perhaps you could use notation such as :math:`f_{m=2,b=3}(x)` to be a function :
 or :math:`f(x; m=2,b=3)` to be a function :math:`2 \times x + 3`.
 
 We will use the folliwng notation for translate, :math:`T_{b}(x) = x + b`, where if
-we specify a contant :math:`b`, it will be notated as :math:`T_{b=3}` equals an expression
+we specify a constant :math:`b`, it will be notated as :math:`T_{b=3}` equals an expression
 :math:`x + 3`.
 
 Here, we call the translate function to create a new function, named "fn",
@@ -172,7 +172,7 @@ on our function, without having to worry about how it's implemented.
 
 What's nice about that is we can look at the implementation of :py:meth:`modelviewprojection.mathutils1d.translate`
 once, understand how it works internally, and then forget those details and treat
-it as an invertable BlackBox_.
+it as an invertible BlackBox_.
 
 .. _BlackBox:  https://en.wikipedia.org/wiki/Black_box
 

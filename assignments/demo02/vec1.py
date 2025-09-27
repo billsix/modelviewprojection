@@ -62,9 +62,9 @@ Vector1D(x=5.0) - Vector1D(x=1.0)
 # doc-region-end subtracting vectors
 
 # %%
-# doc-region-begin muliplying scalar by a vector
+# doc-region-begin multiplying scalar by a vector
 4.0 * Vector1D(x=2.0)
-# doc-region-end muliplying scalar by a vector
+# doc-region-end multiplying scalar by a vector
 
 # %%
 # doc-region-begin negating a vector

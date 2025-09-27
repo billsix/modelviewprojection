@@ -48,8 +48,8 @@ in NDC.
 
 
 
-Draw an Oscillating Triagle
----------------------------
+Draw an Oscillating Triangle
+----------------------------
 
 In the event loop, it defines elapsed time in seconds.  We can use
 this value to change the position of a triangle over time, and change

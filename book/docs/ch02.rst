@@ -442,7 +442,7 @@ omits the argument :math:`x`
 Temperature Conversion
 ----------------------
 
-Another univariate example use of Cayley graphs is converting a temperture
+Another univariate example use of Cayley graphs is converting a temperature
 between different units of measure.
 
 
@@ -458,7 +458,7 @@ between different units of measure.
     f_{celsius}^{kelvin}(x) = x + 273.15
 
 .. math::
-    f_{fahrenheit}^{celcius}(x) = (x-32) * \frac{5}{9}
+    f_{fahrenheit}^{celsius}(x) = (x-32) * \frac{5}{9}
 
 Given that those functions are invertible_, with the Cayley graph
 and the function definitions, we have the information needed
@@ -472,7 +472,7 @@ and/or taking the inverse_ of given functions.
 To convert from fahrenheit to kelvin
 
 .. math::
-    f_{fahrenheit}^{kelvin} = f_{celcius}^{kelvin} \circ f_{fahrenheit}^{celcius}
+    f_{fahrenheit}^{kelvin} = f_{Celsius}^{kelvin} \circ f_{fahrenheit}^{Celsius}
 
 To convert from kelvin to celsius
 

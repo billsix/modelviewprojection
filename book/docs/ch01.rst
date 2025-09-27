@@ -260,7 +260,7 @@ Set the version of OpenGL
 ^^^^^^^^^^^^^^^^^^^^^^^^^
 
 
-OpenGL has been around a `long time`_, and has multiple, occassionally incompatible versions.
+OpenGL has been around a `long time`_, and has multiple, occasionally incompatible versions.
 For this demo, we use `OpenGL 1.4`_.  By the end of this book, we will be using `OpenGL 3.3 Core Profile`_.
 
 

@@ -13,7 +13,7 @@ Glossary
    Normalized Device Coordinates
      Normalized Device Coordinates are the range of values from -1.0 to 1.0
      in the X, Y, and Z directions, the last space before drawing geometry
-     in screen space.  Anything vertice outside of the NDC range will not
+     in screen space.  Anything vertex outside of the NDC range will not
      be mapped to a pixel.
 
    World Space

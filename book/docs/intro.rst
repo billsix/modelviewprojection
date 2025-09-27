@@ -40,7 +40,7 @@ This book intentionally keeps things simple intended for beginners.
 In this book, the applications created
 won’t be particularly pretty or realistic-looking. After reading this
 book, for more advanced
-topics, you’ll want to dive into othere references, such as
+topics, you’ll want to dive into other references, such as
 
 #. Fundamentals of Computer Graphics, Third Edition by Shirley and Marschner :cite:`FCG`
 #. Computer Graphics With OpenGL, by Hearn Baker and Carithers :cite:`CGWOGL`
@@ -226,7 +226,7 @@ Jupyter Notebook
 ^^^^^^^^^^^^^^^^
 
 To run Python code as jupyter notebooks, the following command will launch
-jupyter and a firefox webbrowser from within the container.
+jupyter and a firefox web browser from within the container.
 
 Make the image
 
