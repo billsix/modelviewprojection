@@ -538,35 +538,35 @@ square_ndc = Geometry(
 )
 
 
-# create_graphs(
-#     title="Inverse Ortho2d",
-#     filename="inverse-ortho2d-backwards",
-#     geometry=square_ndc,
-#     procedures=[
-#         mu2d.scale(1.0 / 2.0, 7.0 / 2.0),
-#         mu.translate(mu2d.Vector2D(1.0 / 2, 7.0 / 2)),
-#     ],
-#     backwards=True,
-#     graph_bounds=(10, 10),
-#     gridline_interval=1,
-#     unit_x=1.0,
-#     unit_y=1.0,
-# )
+create_graphs(
+    title="Inverse Ortho2d",
+    filename="inverse-ortho2d-backwards",
+    geometry=square_ndc,
+    procedures=[
+        mu2d.scale(1.0 / 2.0, 7.0 / 2.0),
+        mu.translate(mu2d.Vector2D(1.0 / 2, 7.0 / 2)),
+    ],
+    backwards=True,
+    graph_bounds=(10, 10),
+    gridline_interval=1,
+    unit_x=1.0,
+    unit_y=1.0,
+)
 
-# create_graphs(
-#     title="Inverse Ortho2d",
-#     filename="inverse-ortho2d",
-#     geometry=square_ndc,
-#     procedures=[
-#         mu2d.scale(1.0 / 2.0, 7.0 / 2.0),
-#         mplt.translate(1.0 / 2, 7.0 / 2),
-#     ],
-#     backwards=False,
-#     graph_bounds=(10, 10),
-#     gridline_interval=1,
-#     unit_x=1.0,
-#     unit_y=1.0,
-# )
+create_graphs(
+    title="Inverse Ortho2d",
+    filename="inverse-ortho2d",
+    geometry=square_ndc,
+    procedures=[
+        mu2d.scale(1.0 / 2.0, 7.0 / 2.0),
+        mplt.translate(1.0 / 2, 7.0 / 2),
+    ],
+    backwards=False,
+    graph_bounds=(10, 10),
+    gridline_interval=1,
+    unit_x=1.0,
+    unit_y=1.0,
+)
 
 
 square_ndc = Geometry(
