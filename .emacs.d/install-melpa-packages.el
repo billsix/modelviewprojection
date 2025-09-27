@@ -21,7 +21,9 @@
         elpy
 
         material-theme
-        the-matrix-theme
+        dracula-theme
+        monokai-theme
+        zenburn-theme
 
         fold-this
         yafolding

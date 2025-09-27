@@ -4,7 +4,12 @@
 (load-file "~/.emacs.d/preferences.el")
 
 ;; theme
-(load-theme 'modus-vivendi t)
+;(load-theme 'modus-vivendi t)
+;(load-theme 'material t)
+(load-theme 'dracula t)
+;(load-theme 'monokai t)
+;(load-theme 'zenburn t)
+
 (global-auto-revert-mode)
 (setq auto-revert-avoid-polling t)
 
