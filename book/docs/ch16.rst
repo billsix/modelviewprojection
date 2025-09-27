@@ -279,14 +279,6 @@ to world space like so, read top to bottom:
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
-   :language: python
-   :start-after: doc-region-begin camera space to world space, commented out
-   :end-before: doc-region-end camera space to world space, commented out
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
-
 
 But, since we need to transform world-space to camera space,
 they must be inverted by reversing the order, and negating

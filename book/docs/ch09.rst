@@ -185,15 +185,6 @@ reading the transformations
 from top down, and resetting the coordinate system after every transformation.
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo09.py
-   :language: python
-   :start-after: doc-region-begin paddle 1 scale
-   :end-before: doc-region-end paddle 1 scale
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/demo09.py
-
-
 
 
 

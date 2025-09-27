@@ -200,13 +200,13 @@ Rotate Y
 Scale
 ~~~~~
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define uniform scale
    :end-before: doc-region-end define uniform scale
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils3d.py
+   :caption: src/modelviewprojection/mathutils.py
 
 
 Code

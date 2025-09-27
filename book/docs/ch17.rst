@@ -133,14 +133,6 @@ rotate your head (not your neck), 45 degrees.  It is different, and quite uncomf
 We rotate the camera by the y axis first, then by the relative x axis,
 for the same reason.
 
-.. literalinclude:: ../../src/modelviewprojection/demo17.py
-   :language: python
-   :start-after: doc-region-begin commented out camera placement
-   :end-before: doc-region-end commented out camera placement
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/demo17.py
-
 
 
 (Remember, read bottom up, just like the previous demos
@@ -179,15 +171,6 @@ with each transformations inverted, we must do that to get from world space
 to camera space.
 
 
-The inverted form is
-
-.. literalinclude:: ../../src/modelviewprojection/demo17.py
-   :language: python
-   :start-after: doc-region-begin inverted transformation to go from world space to camera space
-   :end-before: doc-region-end inverted transformation to go from world space to camera space
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/demo17.py
 
 
 
@@ -327,13 +310,13 @@ of the viewable region.
 We will make a wrapper function camera_space_to_ndc_space_fn which
 calls ortho, setting the size of the rectangular prism.
 
-.. literalinclude:: ../../src/modelviewprojection/demo17.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
    :language: python
    :start-after: doc-region-begin define camera space to ndc
    :end-before: doc-region-end define camera space to ndc
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo17.py
+   :caption: src/modelviewprojection/mathutils3d.py
 
 
 

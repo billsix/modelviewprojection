@@ -298,6 +298,8 @@ while not glfw.window_should_close(window):
 
     # doc-region-end clear function stack for next iteration of the event loop
 
+    # doc-region-begin flush framebuffer
     glfw.swap_buffers(window)
+    # doc-region-end flush framebuffer
 
 glfw.terminate()

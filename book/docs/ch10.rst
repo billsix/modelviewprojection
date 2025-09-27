@@ -349,23 +349,6 @@ apply the inverse of the camera's transformations
 to paddle 1's vertices, i.e. translate with the negative
 values.
 
-.. literalinclude:: ../../src/modelviewprojection/demo10.py
-   :language: python
-   :start-after: doc-region-begin paddle 1 camera translate
-   :end-before: doc-region-end paddle 1 camera translate
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/demo10.py
-
-
-.. literalinclude:: ../../src/modelviewprojection/demo10.py
-   :language: python
-   :start-after: doc-region-begin paddle 1 scale
-   :end-before: doc-region-end paddle 1 scale
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/demo10.py
-
 
 
 
@@ -383,20 +366,3 @@ The camera's position is at camera.x, camera.y.  So
 apply the inverse of the camera's  transformations
 to paddle 2's vertices, i.e. translate with the negative
 values.
-
-.. literalinclude:: ../../src/modelviewprojection/demo10.py
-   :language: python
-   :start-after: doc-region-begin paddle 2 camera transformations
-   :end-before: doc-region-end paddle 2 camera transformations
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/demo10.py
-
-
-.. literalinclude:: ../../src/modelviewprojection/demo10.py
-   :language: python
-   :start-after: doc-region-begin paddle 2 glvector2f
-   :end-before: doc-region-end paddle 2 glvector2f
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/demo10.py

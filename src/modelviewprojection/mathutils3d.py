@@ -259,12 +259,14 @@ def perspective(
     # doc-region-end define perspective
 
 
+# doc-region-begin define camera space to ndc
 def cs_to_ndc_space_fn(
     vector: Vector3D,
 ) -> mathutils.InvertibleFunction[Vector3D]:
     return perspective(
         field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
     )
+# doc-region-end define camera space to ndc
 
 
 # doc-region-begin define function stack class
