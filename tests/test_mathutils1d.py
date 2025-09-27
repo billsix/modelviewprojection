@@ -22,7 +22,7 @@
 from __future__ import annotations  # to appease Python 3.7-3.9
 
 import doctest
-from typing import List
+import typing
 
 from pytest import approx
 
@@ -130,7 +130,8 @@ def test_uniform_scale():
 
 def test_tempature_conversion():
     def test_vector1d_function(
-        fn: InvertibleFunction[Vector1D], input_output_pairs: List[List[float]]
+        fn: InvertibleFunction[Vector1D],
+        input_output_pairs: typing.List[typing.List[float]],
     ):
         for input_val, output_val in input_output_pairs:
             assert fn(Vector1D(input_val)) == Vector1D(approx(output_val))

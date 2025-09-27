@@ -155,6 +155,50 @@ def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
     return InvertibleFunction[T](composed_fn, inv_composed_fn)
 
 
+def compose_(
+    *functions: InvertibleFunction[T], relative_basis: bool = False
+) -> typing.Iterable[InvertibleFunction[T]]:
+    """
+    Like compose, but returns a list of all of the partial compositions
+
+    Example:
+        >>> from modelviewprojection.mathutils import compose_, InvertibleFunction, uniform_scale, translate
+        >>> from modelviewprojection.mathutils1d import Vector1D
+        >>> from pytest import approx
+        >>> m = 5.0
+        >>> b = 2.0
+        >>> # natural basis
+        >>> fns: typing.List[InvertibleFunction[Vector1D]] = compose_(
+        ...      translate(Vector1D(b)), uniform_scale(m)
+        ... )
+        >>> fns[0](Vector1D(1))
+        Vector1D(x=5.0)
+        >>> fns[1](Vector1D(1))
+        Vector1D(x=7.0)
+        >>> # relative basis
+        >>> fns: typing.List[InvertibleFunction[Vector1D]] = compose_(
+        ...     translate(Vector1D(b)), uniform_scale(m), relative_basis=True
+        ... )
+        >>> fns[0](Vector1D(1))
+        Vector1D(x=3.0)
+        >>> fns[1](Vector1D(1))
+        Vector1D(x=7.0)
+    """
+
+    def suffixes(iterable: typing.Iterable[InvertibleFunction[T]]):
+        lst: typing.List = list(iterable)
+        return [lst[i:] for i in reversed(range(len(lst)))]
+
+    def prefixes(iterable):
+        lst: typing.List = list(iterable)
+        return [lst[:i] for i in range(1, len(lst) + 1)]
+
+    return [
+        compose(*fs)
+        for fs in (suffixes if not relative_basis else prefixes)(functions)
+    ]
+
+
 # doc-region-begin define translate
 def translate(b: T) -> InvertibleFunction[T]:
     def f(vector: T) -> T:
