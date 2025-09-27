@@ -41,7 +41,7 @@ won’t be particularly pretty or realistic-looking. After reading this
 book, for more advanced
 topics, you’ll want to dive into othere references, such as
 
-#. Fundamentals of Computer Graphics, by Shirley and Marschner :cite:`FCG`
+#. Fundamentals of Computer Graphics, Third Edition by Shirley and Marschner :cite:`FCG`
 #. Computer Graphics With OpenGL, by Hearn Baker and Carithers :cite:`CGWOGL`
 #. LearnOpenGL_
 #. OpenGLTutorial_
@@ -74,6 +74,7 @@ Things You Should Know
 
 #. High school Geometry
 
+   #. :cite:`HighSchoolGeometry`
 
 .. _Socratica: https://www.youtube.com/watch?v=bY6m6_IIN94&list=PLi01XoE8jYohWFPpC17Z-wWhPOSuh8Er-&index=2
 .. _Microsoft: https://www.youtube.com/watch?v=jFCNu1-Xdsw&list=PLlrxD0HtieHhS8VzuMCfQD4uJ9yne1mE6
