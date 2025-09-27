@@ -180,8 +180,8 @@ def create_graphs(
 
     if backwards:
         procs.insert(0, idProc)
+        procs.insert(0, idProc)
     else:
-        procs.append(idProc)
         procs.append(idProc)
 
     # create a single frame of the animated gif
