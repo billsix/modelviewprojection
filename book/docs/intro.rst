@@ -120,7 +120,7 @@ Linux
 
 Install Python3, glfw via a package manager.  Use pip and virtualenv to install dependencies
 
-On MacOS or Linux, to set up the environment in a terminal, execute
+To set up the environment in a terminal, execute
 
 .. code-block:: bash
 
