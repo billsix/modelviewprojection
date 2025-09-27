@@ -266,6 +266,8 @@ def cs_to_ndc_space_fn(
     return perspective(
         field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
     )
+
+
 # doc-region-end define camera space to ndc
 
 
