@@ -46,6 +46,10 @@ import pytest
 
 import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils1d as mu1d
+import warnings
+
+# turn warnings into exceptions
+warnings.filterwarnings("error", category=RuntimeWarning)
 
 # doc-region-end imports
 

@@ -97,17 +97,25 @@ class FrameBuffer:
         v2: mu2d.Vector2D = mu2d.Vector2D(x2, y2)
         v3: mu2d.Vector2D = mu2d.Vector2D(x3, y3)
 
-        if mu2d.is_parallel(v2 - v1, v3 - v2):
-            return  # Degenerate triangle
+        try:
+            if mu2d.is_parallel(v2 - v1, v3 - v2):
+                return  # Degenerate triangle
+        except RuntimeWarning:
+            # if any of the Vectors are 0, nothing to do with that pixel
+            pass
 
         # Loop over bounding box
         for y in range(min_y, max_y + 1):
             for x in range(min_x, max_x + 1):
                 pixel_position: mu2d.Vector2D = mu2d.Vector2D(x, y)
-                w0: bool = mu2d.is_clockwise(v2 - v1, pixel_position - v1)
-                w1: bool = mu2d.is_clockwise(v3 - v2, pixel_position - v2)
-                w2: bool = mu2d.is_clockwise(v1 - v3, pixel_position - v3)
+                try:
+                    w0: bool = mu2d.is_clockwise(v2 - v1, pixel_position - v1)
+                    w1: bool = mu2d.is_clockwise(v3 - v2, pixel_position - v2)
+                    w2: bool = mu2d.is_clockwise(v1 - v3, pixel_position - v3)
 
-                # If the signs match the triangle area, pixel is inside
-                if all([w0, w1, w2]) or not any([w0, w1, w2]):
-                    self._framebuffer[y, x] = color
+                    # If the signs match the triangle area, pixel is inside
+                    if all([w0, w1, w2]) or not any([w0, w1, w2]):
+                        self._framebuffer[y, x] = color
+                except RuntimeException as e:
+                    # if any of the Vectors are 0, nothing to do with that pixel
+                    pass

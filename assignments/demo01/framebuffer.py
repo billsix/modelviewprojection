@@ -35,7 +35,10 @@ import modelviewprojection.mathutils2d as mu2d
 
 # %%
 import modelviewprojection.softwarerendering as sr
+import warnings
 
+# turn warnings into exceptions
+warnings.filterwarnings("error", category=RuntimeWarning)
 # %% [markdown]
 # Make a framebuffer, which is just a rectangular region of values
 

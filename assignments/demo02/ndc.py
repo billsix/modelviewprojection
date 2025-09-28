@@ -41,6 +41,10 @@ import modelviewprojection.mathutils2d as mu2d
 import IPython.display
 import moviepy
 import numpy as np
+import warnings
+
+# turn warnings into exceptions
+warnings.filterwarnings("error", category=RuntimeWarning)
 
 
 # %%
