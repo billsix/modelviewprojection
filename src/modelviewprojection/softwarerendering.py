@@ -15,10 +15,10 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-
 import IPython.display as display
 import numpy as np
 import PIL
+import PIL.Image
 import typing
 import modelviewprojection.mathutils2d as mu2d
 import dataclasses
@@ -37,26 +37,30 @@ class FrameBuffer:
     clear_color: typing.Tuple[int, int, int] = dataclasses.field(
         default_factory=lambda: BLACK
     )  # the color that should be used for clear_color
-    framebuffer: np.ndarray = dataclasses.field(
+    _framebuffer: np.ndarray = dataclasses.field(
         init=False
     )  # the array that holds the color values
 
     def __post_init__(self):
-        self.framebuffer = np.random.randint(
+        self._framebuffer = np.random.randint(
             0, 256, (self.height, self.width, 3), dtype=np.uint8
         )
 
+    @property
+    def framebuffer(self) -> PIL.Image:
+        return PIL.Image.fromarray(self._framebuffer, "RGB")
+
+    @framebuffer.setter
+    def framebuffer(self, value: PIL.Image) -> None:
+        self._framebuffer = value
+
     def show_framebuffer(self) -> None:
         """Display the framebuffer in the Jupyter notebook."""
-        img = PIL.Image.fromarray(self.framebuffer, "RGB")
-        display.display(img)
-
-    def get_framebuffer(self) -> PIL.Image:
-        return PIL.Image.fromarray(self.framebuffer, "RGB").copy()
+        display.display(self.framebuffer)
 
     def clear_framebuffer(self) -> None:
         """Fill the framebuffer with the given color."""
-        self.framebuffer[:, :] = self.clear_color
+        self._framebuffer[:, :] = self.clear_color
 
     def draw_filled_triangle(
         self,
@@ -106,4 +110,4 @@ class FrameBuffer:
 
                 # If the signs match the triangle area, pixel is inside
                 if all([w0, w1, w2]) or not any([w0, w1, w2]):
-                    self.framebuffer[y, x] = color
+                    self._framebuffer[y, x] = color
