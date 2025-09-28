@@ -4,11 +4,11 @@
 (load-file "~/.emacs.d/preferences.el")
 
 ;; theme
-;(load-theme 'modus-vivendi t)
+(load-theme 'modus-vivendi t)
 ;(load-theme 'material t)
 ;(load-theme 'dracula t)
 ;(load-theme 'monokai t)
-(load-theme 'zenburn t)
+;(load-theme 'zenburn t)
 
 (global-auto-revert-mode)
 (setq auto-revert-avoid-polling t)
@@ -16,11 +16,6 @@
 ;; Disable eglot hooks for python-mode
 (remove-hook 'python-mode-hook 'eglot-ensure)
 
-(require 'dap-mode)
-(require 'dap-utils)
-(require 'dap-python)
-;; turn off dap mode
-(dap-mode 0)
 
 (use-package lsp-mode
   :init
@@ -33,3 +28,21 @@
   :config
   (setq lsp-pylsp-server-command "pylsp")
   )
+
+;; set the LSP root for this project
+(require 'lsp-mode)
+
+(setq lsp-auto-guess-root nil)
+
+(defun my-lsp-root (&rest _)
+  "/mvp/") 
+
+(advice-add 'lsp--calculate-root :override #'my-lsp-root)
+
+(add-hook 'prog-mode-hook #'lsp-deferred)
+
+;; Make sure dap-mode never loads
+(setq lsp-enable-dap-auto-configure nil)
+
+(with-eval-after-load 'lsp-mode
+    (setq lsp-enable-dap-auto-configure nil))

@@ -116,6 +116,6 @@ class FrameBuffer:
                     # If the signs match the triangle area, pixel is inside
                     if all([w0, w1, w2]) or not any([w0, w1, w2]):
                         self._framebuffer[y, x] = color
-                except RuntimeException as e:
+                except RuntimeWarning:
                     # if any of the Vectors are 0, nothing to do with that pixel
                     pass
