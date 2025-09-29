@@ -20,6 +20,7 @@ import numpy as np
 import PIL
 import PIL.Image
 import typing
+import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils2d as mu2d
 import dataclasses
 
@@ -62,6 +63,17 @@ class FrameBuffer:
         """Fill the framebuffer with the given color."""
         self._framebuffer[:, :] = self.clear_color
 
+    def screenspace_to_framebuffer(self, v: mu2d.Vector2D) -> mu2d.Vector2D:
+        """Convert from OpenGL-style coords to framebuffer array coords."""
+        ss_to_fb = mu.compose(
+            mu.translate(mu2d.Vector2D(0, self.height - 1)),
+            mu2d.scale(m_x=1, m_y=-1),
+        )
+        return ss_to_fb(v)
+
+    def set_color(self, v: mu2d.Vector2D, color: typing.Tuple[int, int, int]):
+        self._framebuffer[int(round(v.y)), int(round(v.x))] = color
+
     def draw_filled_triangle(
         self,
         p1: mu2d.Vector2D,
@@ -73,19 +85,16 @@ class FrameBuffer:
         Draw a filled triangle using the edge function (cross product) method.
         p1, p2, p3 are (x, y) tuples in framebuffer coordinates.
         """
-
-        def to_fb_coords(v: mu2d.Vector2D):
-            """Convert from OpenGL-style coords to framebuffer array coords."""
-            return v.x, self.height - 1 - v.y
-
         x1: int
         y1: int
         x2: int
         y2: int
+        x3: int
+        y3: int
 
-        x1, y1 = to_fb_coords(p1)
-        x2, y2 = to_fb_coords(p2)
-        x3, y3 = to_fb_coords(p3)
+        x1, y1 = dataclasses.astuple(self.screenspace_to_framebuffer(p1))
+        x2, y2 = dataclasses.astuple(self.screenspace_to_framebuffer(p2))
+        x3, y3 = dataclasses.astuple(self.screenspace_to_framebuffer(p3))
 
         # Triangle bounding box
         min_x: int = max(int(min(x1, x2, x3)), 0)
@@ -115,7 +124,7 @@ class FrameBuffer:
 
                     # If the signs match the triangle area, pixel is inside
                     if all([w0, w1, w2]) or not any([w0, w1, w2]):
-                        self._framebuffer[y, x] = color
+                        self.set_color(mu2d.Vector2D(x, y), color)
                 except RuntimeWarning:
                     # if any of the Vectors are 0, nothing to do with that pixel
                     pass

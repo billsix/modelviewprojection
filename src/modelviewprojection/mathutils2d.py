@@ -160,7 +160,7 @@ def sine(v1: Vector2D, v2: Vector2D) -> bool:
 
 # doc-region-begin clockwise
 def is_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
-    return sine(v1, v2) > 0.0
+    return sine(v1, v2) >= 0.000000
     # doc-region-end clockwise
 
 
