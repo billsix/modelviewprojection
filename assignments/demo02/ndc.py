@@ -67,10 +67,10 @@ fake_fb.show_framebuffer()
 
 # %%
 ndc_to_screen: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
-    mu.translate(
-        mu2d.Vector2D((fake_fb.width + 0.5) // 2, (fake_fb.height + 0.5) // 2)
-    ),
-    mu2d.scale((fake_fb.width + 0.5) // 2, (fake_fb.height + 0.5) // 2),
+    mu.translate(mu2d.Vector2D(-0.5, 0.5)),
+    mu2d.scale(fake_fb.width, fake_fb.height),
+    mu2d.scale(0.5, 0.5),
+    mu.translate(mu2d.Vector2D(x=1.0, y=1.0)),
 )
 
 # %%
