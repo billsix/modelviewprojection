@@ -92,9 +92,9 @@ class FrameBuffer:
         x3: int
         y3: int
 
-        x1, y1 = dataclasses.astuple(self.screenspace_to_framebuffer(p1))
-        x2, y2 = dataclasses.astuple(self.screenspace_to_framebuffer(p2))
-        x3, y3 = dataclasses.astuple(self.screenspace_to_framebuffer(p3))
+        x1, y1 = iter(self.screenspace_to_framebuffer(p1))
+        x2, y2 = iter(self.screenspace_to_framebuffer(p2))
+        x3, y3 = iter(self.screenspace_to_framebuffer(p3))
 
         # Triangle bounding box
         min_x: int = max(int(min(x1, x2, x3)), 0)
@@ -118,18 +118,16 @@ class FrameBuffer:
             for x in range(min_x, max_x + 1):
                 pixel_position: mu2d.Vector2D = mu2d.Vector2D(x, y)
                 try:
-                    w0: bool = mu2d.is_counter_clockwise(
-                        v2 - v1, pixel_position - v1
-                    )
-                    w1: bool = mu2d.is_counter_clockwise(
-                        v3 - v2, pixel_position - v2
-                    )
-                    w2: bool = mu2d.is_counter_clockwise(
-                        v1 - v3, pixel_position - v3
-                    )
+                    counter_clockwise_values: typing.List[bool] = [
+                        mu2d.is_counter_clockwise(v2 - v1, pixel_position - v1),
+                        mu2d.is_counter_clockwise(v3 - v2, pixel_position - v2),
+                        mu2d.is_counter_clockwise(v1 - v3, pixel_position - v3),
+                    ]
 
                     # If the signs match the triangle area, pixel is inside
-                    if all([w0, w1, w2]) or not any([w0, w1, w2]):
+                    if all(counter_clockwise_values) or not any(
+                        counter_clockwise_values
+                    ):
                         self.set_color(mu2d.Vector2D(x, y), color)
                 except RuntimeWarning:
                     # if any of the Vectors are 0, nothing to do with that pixel

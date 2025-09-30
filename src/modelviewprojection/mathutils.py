@@ -228,7 +228,7 @@ def uniform_scale(m: float) -> InvertibleFunction[T]:
 
 class Vector(abc.ABC):
     def __iter__(self):
-        return iter(dataclasses.asdict(self).values())
+        return iter(dataclasses.astuple(self))
 
     @abc.abstractmethod
     def __add__(self, rhs):
