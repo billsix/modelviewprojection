@@ -141,31 +141,22 @@ def test_is_parallel():
         )
 
 
-def test_is_clockwise():
-    assert mu2d.is_clockwise(
-        mu2d.Vector2D(x=1.0, y=0.0), mu2d.Vector2D(x=0.0, y=0.1)
-    )
-    assert not mu2d.is_clockwise(
-        mu2d.Vector2D(x=1.0, y=0.0), mu2d.Vector2D(x=0.0, y=-0.1)
-    )
-    assert mu2d.is_clockwise(
-        mu2d.Vector2D(x=0.0, y=1.0), mu2d.Vector2D(x=-0.1, y=1.0)
-    )
-    assert not mu2d.is_clockwise(
-        mu2d.Vector2D(x=0.0, y=1.0), mu2d.Vector2D(x=0.1, y=1.0)
-    )
-    assert not mu2d.is_clockwise(
-        mu2d.Vector2D(x=-1.0, y=0.0), mu2d.Vector2D(x=-1.0, y=0.1)
-    )
-    assert mu2d.is_clockwise(
-        mu2d.Vector2D(x=-1.0, y=0.0), mu2d.Vector2D(x=-1.0, y=-0.1)
-    )
-    assert not mu2d.is_clockwise(
-        mu2d.Vector2D(x=0.0, y=-1.0), mu2d.Vector2D(x=-0.1, y=-1.0)
-    )
-    assert mu2d.is_clockwise(
-        mu2d.Vector2D(x=0.0, y=-1.0), mu2d.Vector2D(x=0.1, y=-1.0)
-    )
+def test_is_counter_clockwise():
+    input_output_pairs = [
+        [[(1.0, 0.0), (0.0, 1.0)], True],
+        [[(1.0, 0.0), (0.0, -0.1)], False],
+        [[(0.0, 1.0), (-0.1, 1.0)], True],
+        [[(0.0, 1.0), (10.1, 1.0)], False],
+        [[(-1.0, 0.0), (-1.0, 0.1)], False],
+        [[(-1.0, 0.0), (-1.0, -0.1)], True],
+        [[(0.0, -1.0), (-0.1, -1.0)], False],
+        [[(0.0, -1.0), (0.1, -1.0)], True],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        assert output_val == mu2d.is_counter_clockwise(
+            mu2d.Vector2D(*input_val[0]), mu2d.Vector2D(*input_val[1])
+        )
 
 
 # doc-region-begin translate test

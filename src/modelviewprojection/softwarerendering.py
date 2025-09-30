@@ -118,9 +118,15 @@ class FrameBuffer:
             for x in range(min_x, max_x + 1):
                 pixel_position: mu2d.Vector2D = mu2d.Vector2D(x, y)
                 try:
-                    w0: bool = mu2d.is_clockwise(v2 - v1, pixel_position - v1)
-                    w1: bool = mu2d.is_clockwise(v3 - v2, pixel_position - v2)
-                    w2: bool = mu2d.is_clockwise(v1 - v3, pixel_position - v3)
+                    w0: bool = mu2d.is_counter_clockwise(
+                        v2 - v1, pixel_position - v1
+                    )
+                    w1: bool = mu2d.is_counter_clockwise(
+                        v3 - v2, pixel_position - v2
+                    )
+                    w2: bool = mu2d.is_counter_clockwise(
+                        v1 - v3, pixel_position - v3
+                    )
 
                     # If the signs match the triangle area, pixel is inside
                     if all([w0, w1, w2]) or not any([w0, w1, w2]):
