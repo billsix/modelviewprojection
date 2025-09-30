@@ -277,7 +277,7 @@ while not glfw.window_should_close(window):
     # it will be automatically popped off of the stack
     GL.glPushMatrix()
 
-    GL.glColor3f(*dataclasses.astuple(paddle1.color))
+    GL.glColor3f(*iter(paddle1.color))
 
     GL.glTranslate(
         paddle1.position[0],
@@ -324,7 +324,7 @@ while not glfw.window_should_close(window):
     # need to push matrix, and on the next iteration of the event loop,
     # all matrices will be cleared to identity, so who cares if we
     # mutate the values for now.
-    GL.glColor3f(*dataclasses.astuple(paddle2.color))
+    GL.glColor3f(*iter(paddle2.color))
 
     GL.glTranslate(
         paddle2.position[0],

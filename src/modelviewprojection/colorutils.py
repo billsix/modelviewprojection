@@ -30,6 +30,9 @@ class Color3:
     g: float
     b: float
 
+    def __iter__(self):
+        return iter(dataclasses.astuple(self))
+
 
 @dataclasses.dataclass
 class Color4:
@@ -37,3 +40,6 @@ class Color4:
     g: float
     b: float
     a: float
+
+    def __iter__(self):
+        return iter(dataclasses.astuple(self))

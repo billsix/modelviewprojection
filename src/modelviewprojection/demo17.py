@@ -251,7 +251,7 @@ while not glfw.window_should_close(window):
                     mu3d.rotate_z(paddle1.rotation),
                 )
             ):
-                GL.glColor3f(*dataclasses.astuple(paddle1.color))
+                GL.glColor3f(*iter(paddle1.color))
                 GL.glBegin(GL.GL_QUADS)
                 for p1_v_ms in paddle1.vertices:
                     paddle1_vector_ndc = mu3d.fn_stack.modelspace_to_ndc_fn()(
@@ -295,7 +295,7 @@ while not glfw.window_should_close(window):
                 )
             ):
                 # draw paddle 2
-                GL.glColor3f(*dataclasses.astuple(paddle2.color))
+                GL.glColor3f(*iter(paddle2.color))
                 GL.glBegin(GL.GL_QUADS)
                 for p2_v_ms in paddle2.vertices:
                     paddle2_vector_ndc = mu3d.fn_stack.modelspace_to_ndc_fn()(

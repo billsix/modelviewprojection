@@ -163,7 +163,7 @@ while not glfw.window_should_close(window):
 
     # draw paddle 1
     # doc-region-begin draw paddle 1
-    GL.glColor3f(*dataclasses.astuple(paddle1.color))
+    GL.glColor3f(*iter(paddle1.color))
 
     GL.glBegin(GL.GL_QUADS)
     rotatePoint: mu2d.Vector2D = paddle1.position
@@ -180,7 +180,7 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin draw paddle 2
     # draw paddle 2
-    GL.glColor3f(*dataclasses.astuple(paddle2.color))
+    GL.glColor3f(*iter(paddle2.color))
 
     GL.glBegin(GL.GL_QUADS)
     rotatePoint: mu2d.Vector2D = paddle2.position
