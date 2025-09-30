@@ -25,74 +25,120 @@ import modelviewprojection.mathutils as mu
 import modelviewprojection
 
 
+def wrap_vec2_test(fn, input_val, output_val):
+    out = fn(mu2d.Vector2D(*input_val))
+    assert out.x == approx(output_val[0], abs=0.001)
+    assert out.y == approx(output_val[1], abs=0.001)
+
+
 def test___add__():
-    result: mu2d.Vector2D = mu2d.Vector2D(x=1.0, y=2.0) + mu2d.Vector2D(
-        x=3.0, y=4.0
-    )
-    assert result == mu2d.Vector2D(x=approx(4.0), y=approx(6.0))
+    input_output_pairs = [
+        [[(0.0, 0.0), (0.0, 0.0)], (approx(0.0), approx(0.0))],
+        [[(1.0, 0.0), (0.0, 1.0)], (approx(1.0), approx(1.0))],
+        [[(1.0, 2.0), (3.0, 4.0)], (approx(4.0), approx(6.0))],
+        [[(0.0, 2.0), (3.0, 0.0)], (approx(3.0), approx(2.0))],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        assert mu2d.Vector2D(*output_val) == mu2d.Vector2D(
+            *input_val[0]
+        ) + mu2d.Vector2D(*input_val[1])
 
 
 def test___sub__():
-    result: mu2d.Vector2D = mu2d.Vector2D(x=5.0, y=8.0) - mu2d.Vector2D(
-        x=1.0, y=2.0
-    )
-    assert result == mu2d.Vector2D(x=approx(4.0), y=approx(6.0))
+    input_output_pairs = [
+        [[(0.0, 0.0), (0.0, 0.0)], (approx(0.0), approx(0.0))],
+        [[(1.0, 0.0), (0.0, 1.0)], (approx(1.0), approx(-1.0))],
+        [[(5.0, 8.0), (1.0, 2.0)], (approx(4.0), approx(6.0))],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        assert mu2d.Vector2D(*output_val) == mu2d.Vector2D(
+            *input_val[0]
+        ) - mu2d.Vector2D(*input_val[1])
 
 
 def test___mul__():
-    result: mu2d.Vector2D = mu2d.Vector2D(x=2.0, y=3.0) * 4.0
-    assert result == mu2d.Vector2D(x=approx(8.0), y=approx(12.0))
+    input_output_pairs = [
+        [[(0.0, 0.0), 2], (approx(0.0), approx(0.0))],
+        [[(1.0, 0.0), 2], (approx(2.0), approx(0.0))],
+        [[(0.0, 1.0), 2], (approx(0.0), approx(2.0))],
+        [[(1.0, 1.0), 2], (approx(2.0), approx(2.0))],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        assert mu2d.Vector2D(*output_val) == input_val[1] * mu2d.Vector2D(
+            *input_val[0]
+        )
 
 
 def test___rmul__():
-    result: mu2d.Vector2D = 4.0 * mu2d.Vector2D(x=2.0, y=3.0)
-    assert result == mu2d.Vector2D(x=approx(8.0), y=approx(12.0))
+    input_output_pairs = [
+        [[(0.0, 0.0), 2], (approx(0.0), approx(0.0))],
+        [[(1.0, 0.0), 2], (approx(2.0), approx(0.0))],
+        [[(0.0, 1.0), 2], (approx(0.0), approx(2.0))],
+        [[(1.0, 1.0), 2], (approx(2.0), approx(2.0))],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        assert (
+            mu2d.Vector2D(*output_val)
+            == mu2d.Vector2D(*input_val[0]) * input_val[1]
+        )
 
 
 def test___neg__():
-    result: mu2d.Vector2D = -mu2d.Vector2D(x=2.0, y=3.0)
-    assert result == mu2d.Vector2D(x=approx(-2.0), y=approx(-3.0))
+    input_output_pairs = [
+        [(0.0, 0.0), (0.0, 0.0)],
+        [(1.0, 0.0), (-1.0, 0.0)],
+        [(0.0, 1.0), (0.0, -1.0)],
+        [(1.0, 1.0), (-1.0, -1.0)],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        assert mu2d.Vector2D(*output_val) == -mu2d.Vector2D(*input_val)
 
 
 def test___abs__():
-    result: float = abs(mu2d.Vector2D(x=3.0, y=-4.0))
-    assert result == approx(5.0)
+    input_output_pairs = [
+        [(3.0, 4.0), 5.0],
+        [(-3.0, 4.0), 5.0],
+        [(3.0, -4.0), 5.0],
+        [(-3.0, -4.0), 5.0],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        assert output_val == abs(mu2d.Vector2D(*input_val))
 
 
 def test___dot__():
-    assert mu2d.Vector2D(x=1.0, y=0.0).dot(
-        mu2d.Vector2D(x=0.0, y=1.0)
-    ) == approx(0.0)
-    assert mu2d.Vector2D(x=1.0, y=0.0).dot(
-        mu2d.Vector2D(x=1.0, y=0.0)
-    ) == approx(1.0)
-    assert mu2d.Vector2D(x=0.0, y=1.0).dot(
-        mu2d.Vector2D(x=0.0, y=1.0)
-    ) == approx(1.0)
-    assert mu2d.Vector2D(x=3.0, y=0.0).dot(
-        mu2d.Vector2D(x=1.0, y=0.0)
-    ) == approx(3.0)
-    assert mu2d.Vector2D(x=0.0, y=4.0).dot(
-        mu2d.Vector2D(x=0.0, y=1.0)
-    ) == approx(4.0)
+    input_output_pairs = [
+        [[(1.0, 0.0), (0.0, 1.0)], 0.0],
+        [[(1.0, 0.0), (1.0, 0.0)], 1.0],
+        [[(0.0, 1.0), (0.0, 1.0)], 1.0],
+        [[(3.0, 0.0), (1.0, 0.0)], 3.0],
+        [[(0.0, 1.0), (0.0, 4.0)], 4.0],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        assert approx(output_val) == mu2d.Vector2D(*input_val[0]).dot(
+            mu2d.Vector2D(*input_val[1])
+        )
 
 
 def test_is_parallel():
-    assert mu2d.is_parallel(
-        mu2d.Vector2D(x=1.0, y=0.0), mu2d.Vector2D(x=2.0, y=0.0)
-    )
-    assert mu2d.is_parallel(
-        mu2d.Vector2D(x=0.0, y=5.0), mu2d.Vector2D(x=0.0, y=1.0)
-    )
-    assert not mu2d.is_parallel(
-        mu2d.Vector2D(x=1.0, y=5.0), mu2d.Vector2D(x=0.0, y=1.0)
-    )
-    assert not mu2d.is_parallel(
-        mu2d.Vector2D(x=0.0, y=5.0), mu2d.Vector2D(x=0.2, y=1.0)
-    )
-    assert not mu2d.is_parallel(
-        mu2d.Vector2D(x=0.0, y=5.0), mu2d.Vector2D(x=1.0, y=0.0)
-    )
+    input_output_pairs = [
+        [[(1.0, 0.0), (2.0, 0.0)], True],
+        [[(0.0, 5.0), (0.0, 1.0)], True],
+        [[(1.0, 5.0), (0.0, 1.0)], False],
+        [[(0.0, 5.0), (0.2, 1.0)], False],
+        [[(0.0, 5.0), (1.2, 0.0)], False],
+    ]
+
+    for input_val, output_val in input_output_pairs:
+        assert output_val == mu2d.is_parallel(
+            mu2d.Vector2D(*input_val[0]), mu2d.Vector2D(*input_val[1])
+        )
 
 
 def test_is_clockwise():
@@ -120,12 +166,6 @@ def test_is_clockwise():
     assert mu2d.is_clockwise(
         mu2d.Vector2D(x=0.0, y=-1.0), mu2d.Vector2D(x=0.1, y=-1.0)
     )
-
-
-def wrap_vec2_test(fn, input_val, output_val):
-    out = fn(mu2d.Vector2D(*input_val))
-    assert out.x == approx(output_val[0], abs=0.001)
-    assert out.y == approx(output_val[1], abs=0.001)
 
 
 # doc-region-begin translate test
