@@ -155,20 +155,20 @@ def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
     return InvertibleFunction[T](composed_fn, inv_composed_fn)
 
 
-def compose_(
+def compose_intermediate_fns(
     functions: typing.List[InvertibleFunction[T]], relative_basis: bool = False
 ) -> typing.Iterable[InvertibleFunction[T]]:
     """
     Like compose, but returns a list of all of the partial compositions
 
     Example:
-        >>> from modelviewprojection.mathutils import compose_, InvertibleFunction, uniform_scale, translate
+        >>> from modelviewprojection.mathutils import compose_intermediate_fns, InvertibleFunction, uniform_scale, translate
         >>> from modelviewprojection.mathutils1d import Vector1D
         >>> from pytest import approx
         >>> m = 5.0
         >>> b = 2.0
         >>> # natural basis
-        >>> fns: typing.List[InvertibleFunction[Vector1D]] = compose_(
+        >>> fns: typing.List[InvertibleFunction[Vector1D]] = compose_intermediate_fns(
         ...      [translate(Vector1D(b)), uniform_scale(m)]
         ... )
         >>> len(fns)
@@ -178,7 +178,7 @@ def compose_(
         >>> fns[1](Vector1D(1))
         Vector1D(x=7.0)
         >>> # relative basis
-        >>> fns: typing.List[InvertibleFunction[Vector1D]] = compose_(
+        >>> fns: typing.List[InvertibleFunction[Vector1D]] = compose_intermediate_fns(
         ...     [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True
         ... )
         >>> len(fns)
@@ -203,49 +203,48 @@ def compose_(
     ]
 
 
-def compose_test_(
+def compose_intermediate_fns_and_fn(
     functions: typing.List[InvertibleFunction[T]], relative_basis: bool = False
 ) -> typing.Iterable[InvertibleFunction[T]]:
     """
     Like compose, but returns a list of all of the partial compositions
 
     Example:
-        >>> from modelviewprojection.mathutils import compose_test_, InvertibleFunction, uniform_scale, translate
+        >>> from modelviewprojection.mathutils import compose_intermediate_fns_and_fn, InvertibleFunction, uniform_scale, translate
         >>> from modelviewprojection.mathutils1d import Vector1D
         >>> from pytest import approx
         >>> m = 5.0
         >>> b = 2.0
         >>> # natural basis
-        >>> fns = compose_test_(
+        >>> aggregate_fns, current_fns = compose_intermediate_fns_and_fn(
         ...      [translate(Vector1D(b)), uniform_scale(m)]
         ... )
-        >>> len(fns)
-        2
-        >>> (fns[0][0])(Vector1D(1.0))
+        >>> aggregate_fns[0](Vector1D(1.0))
         Vector1D(x=5.0)
-        >>> (fns[0][1])(Vector1D(1.0))
-        Vector1D(x=3.0)
-        >>> fns[1][0](Vector1D(1))
+        >>> current_fns[0](Vector1D(1))
         Vector1D(x=7.0)
-        >>> fns[1][1](Vector1D(1))
+        >>> aggregate_fns[1](Vector1D(1.0))
+        Vector1D(x=3.0)
+        >>> current_fns[1](Vector1D(1))
         Vector1D(x=5.0)
         >>> # relative basis
-        >>> fns: typing.List[InvertibleFunction[Vector1D]] = compose_test_(
+        >>> aggregate_fns, current_fns = compose_intermediate_fns_and_fn(
         ...     [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True
         ... )
-        >>> len(fns)
-        2
-        >>> fns[0][0](Vector1D(1))
+        >>> aggregate_fns[0](Vector1D(1))
         Vector1D(x=3.0)
-        >>> fns[0][1](Vector1D(1))
-        Vector1D(x=3.0)
-        >>> fns[1][0](Vector1D(1))
+        >>> current_fns[0](Vector1D(1))
         Vector1D(x=7.0)
-        >>> fns[1][1](Vector1D(1))
+        >>> aggregate_fns[1](Vector1D(1))
+        Vector1D(x=3.0)
+        >>> current_fns[1](Vector1D(1))
         Vector1D(x=5.0)
     """
     return list(
-        zip(compose_(functions, relative_basis=relative_basis), functions)
+        zip(
+            compose_intermediate_fns(functions, relative_basis=relative_basis),
+            functions,
+        )
     )
 
 
