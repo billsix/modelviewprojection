@@ -67,10 +67,12 @@ fake_fb.show_framebuffer()
 
 # %%
 ndc_to_screen: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
-    mu.translate(mu2d.Vector2D(-0.5, 0.5)),
-    mu2d.scale(fake_fb.width, fake_fb.height),
-    mu2d.scale(0.5, 0.5),
-    mu.translate(mu2d.Vector2D(x=1.0, y=1.0)),
+    [
+        mu.translate(mu2d.Vector2D(-0.5, 0.5)),
+        mu2d.scale(fake_fb.width, fake_fb.height),
+        mu2d.scale(0.5, 0.5),
+        mu.translate(mu2d.Vector2D(x=1.0, y=1.0)),
+    ]
 )
 
 # %%
@@ -102,7 +104,7 @@ fake_fb.show_framebuffer()
 move: mu.InvertibleFunction[mu2d.Vector2D] = mu.translate(mu2d.Vector2D(0, 0.5))
 
 triangle_in_screen = [
-    mu.compose(ndc_to_screen, move)(x) for x in triangle_in_NDC
+    mu.compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
 ]
 print(triangle_in_screen)
 
@@ -125,7 +127,7 @@ for i in range(sixty_fps_times_2_sec):
     )
 
     triangle_in_screen = [
-        mu.compose(ndc_to_screen, move)(x) for x in triangle_in_NDC
+        mu.compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
     ]
     fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
 

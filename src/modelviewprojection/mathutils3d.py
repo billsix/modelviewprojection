@@ -197,12 +197,14 @@ def ortho(
     length_x, length_y, length_z = right - left, top - bottom, far - near
 
     fn = mathutils.compose(
-        scale(
-            m_x=(2.0 / length_x),
-            m_y=(2.0 / length_y),
-            m_z=(2.0 / (-length_z)),
-        ),
-        mathutils.translate(-midpoint),
+        [
+            scale(
+                m_x=(2.0 / length_x),
+                m_y=(2.0 / length_y),
+                m_z=(2.0 / (-length_z)),
+            ),
+            mathutils.translate(-midpoint),
+        ]
     )
 
     def f(vector: Vector3D) -> Vector3D:
@@ -288,7 +290,7 @@ class FunctionStack:
         self.stack.clear()
 
     def modelspace_to_ndc_fn(self) -> mathutils.InvertibleFunction[Vector3D]:
-        return mathutils.compose(*self.stack)
+        return mathutils.compose(self.stack)
 
 
 fn_stack = FunctionStack()

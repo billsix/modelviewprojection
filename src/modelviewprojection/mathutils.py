@@ -108,7 +108,9 @@ def inverse(f: InvertibleFunction[T]) -> InvertibleFunction[T]:
     # doc-region-end define invertible function
 
 
-def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
+def compose(
+    functions: typing.List[InvertibleFunction[T]],
+) -> InvertibleFunction[T]:
     """
     Compose a sequence of functions.
 
@@ -132,13 +134,13 @@ def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
         Nothing
     Example:
         >>> from modelviewprojection.mathutils import compose
-        >>> compose(lambda x: 5)(1)
+        >>> compose([lambda x: 5])(1)
         5
-        >>> compose(lambda x: 2*x)(1)
+        >>> compose([lambda x: 2*x])(1)
         2
-        >>> compose(lambda x: x+4, lambda x: 2*x)(1)
+        >>> compose([lambda x: x+4, lambda x: 2*x])(1)
         6
-        >>> compose(lambda x: x+ 10, lambda x: x+4, lambda x: 2*x)(1)
+        >>> compose([lambda x: x+ 10, lambda x: x+4, lambda x: 2*x])(1)
         16
     """
 
@@ -198,7 +200,7 @@ def compose_intermediate_fns(
         return [lst[:i] for i in range(1, len(lst) + 1)]
 
     return [
-        compose(*fs)
+        compose(fs)
         for fs in (suffixes if not relative_basis else prefixes)(functions)
     ]
 

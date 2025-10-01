@@ -207,14 +207,19 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         ms_to_ndc: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
-            # camera space to NDC
-            mu.uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            mu.inverse(mu.translate(camera.position_ws)),
-            # model space to world space
-            mu.compose(
-                mu.translate(paddle1.position), mu2d.rotate(paddle1.rotation)
-            ),
+            [
+                # camera space to NDC
+                mu.uniform_scale(1.0 / 10.0),
+                # world space to camera space
+                mu.inverse(mu.translate(camera.position_ws)),
+                # model space to world space
+                mu.compose(
+                    [
+                        mu.translate(paddle1.position),
+                        mu2d.rotate(paddle1.rotation),
+                    ]
+                ),
+            ]
         )
 
         paddle1_vector_ndc: mu2d.Vector2D = ms_to_ndc(p1_v_ms)
@@ -227,20 +232,27 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
         ms_to_ndc: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
-            # camera space to NDC
-            mu.uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            mu.inverse(mu.translate(camera.position_ws)),
-            # model space to world space
-            mu.compose(
-                mu.translate(paddle1.position), mu2d.rotate(paddle1.rotation)
-            ),
-            # square space to paddle 1 space
-            mu.compose(
-                mu2d.rotate(rotation_around_paddle1),
-                mu.translate(mu2d.Vector2D(x=2.0, y=0.0)),
-                mu2d.rotate(square_rotation),
-            ),
+            [
+                # camera space to NDC
+                mu.uniform_scale(1.0 / 10.0),
+                # world space to camera space
+                mu.inverse(mu.translate(camera.position_ws)),
+                # model space to world space
+                mu.compose(
+                    [
+                        mu.translate(paddle1.position),
+                        mu2d.rotate(paddle1.rotation),
+                    ]
+                ),
+                # square space to paddle 1 space
+                mu.compose(
+                    [
+                        mu2d.rotate(rotation_around_paddle1),
+                        mu.translate(mu2d.Vector2D(x=2.0, y=0.0)),
+                        mu2d.rotate(square_rotation),
+                    ]
+                ),
+            ]
         )
         square_vector_ndc: mu2d.Vector2D = ms_to_ndc(ms)
         GL.glVertex2f(square_vector_ndc.x, square_vector_ndc.y)
@@ -252,14 +264,19 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         ms_to_ndc: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
-            # camera space to NDC
-            mu.uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            mu.inverse(mu.translate(camera.position_ws)),
-            # model space to world space
-            mu.compose(
-                mu.translate(paddle2.position), mu2d.rotate(paddle2.rotation)
-            ),
+            [
+                # camera space to NDC
+                mu.uniform_scale(1.0 / 10.0),
+                # world space to camera space
+                mu.inverse(mu.translate(camera.position_ws)),
+                # model space to world space
+                mu.compose(
+                    [
+                        mu.translate(paddle2.position),
+                        mu2d.rotate(paddle2.rotation),
+                    ]
+                ),
+            ]
         )
 
         paddle2_vector_ndc: mu2d.Vector2D = ms_to_ndc(p2_v_ms)

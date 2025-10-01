@@ -172,13 +172,13 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         forwards_cs = mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)
         forward_ws = mu.compose(
-            mu.translate(camera.position_ws), mu3d.rotate_y(camera.rot_y)
+            [mu.translate(camera.position_ws), mu3d.rotate_y(camera.rot_y)]
         )(forwards_cs)
         camera.position_ws = forward_ws
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         forwards_cs = mu3d.Vector3D(x=0.0, y=0.0, z=1.0)
         forward_ws = mu.compose(
-            mu.translate(camera.position_ws), mu3d.rotate_y(camera.rot_y)
+            [mu.translate(camera.position_ws), mu3d.rotate_y(camera.rot_y)]
         )(forwards_cs)
         camera.position_ws = forward_ws
     # doc-region-end handle key input keys
@@ -238,17 +238,21 @@ while not glfw.window_should_close(window):
         with mu3d.push_transformation(
             mu.inverse(
                 mu.compose(
-                    mu.translate(camera.position_ws),
-                    mu3d.rotate_y(camera.rot_y),
-                    mu3d.rotate_x(camera.rot_x),
+                    [
+                        mu.translate(camera.position_ws),
+                        mu3d.rotate_y(camera.rot_y),
+                        mu3d.rotate_x(camera.rot_x),
+                    ]
                 )
             )
         ):
             # paddle 1 space to world space
             with mu3d.push_transformation(
                 mu.compose(
-                    mu.translate(paddle1.position),
-                    mu3d.rotate_z(paddle1.rotation),
+                    [
+                        mu.translate(paddle1.position),
+                        mu3d.rotate_z(paddle1.rotation),
+                    ]
                 )
             ):
                 GL.glColor3f(*iter(paddle1.color))
@@ -267,10 +271,12 @@ while not glfw.window_should_close(window):
                 # square space to paddle 1 space
                 with mu3d.push_transformation(
                     mu.compose(
-                        mu.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
-                        mu3d.rotate_z(rotation_around_paddle1),
-                        mu.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
-                        mu3d.rotate_z(square_rotation),
+                        [
+                            mu.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
+                            mu3d.rotate_z(rotation_around_paddle1),
+                            mu.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
+                            mu3d.rotate_z(square_rotation),
+                        ]
                     )
                 ):
                     # draw square
@@ -290,8 +296,10 @@ while not glfw.window_should_close(window):
             # paddle 2 space to world space
             with mu3d.push_transformation(
                 mu.compose(
-                    mu.translate(paddle2.position),
-                    mu3d.rotate_z(paddle2.rotation),
+                    [
+                        mu.translate(paddle2.position),
+                        mu3d.rotate_z(paddle2.rotation),
+                    ]
                 )
             ):
                 # draw paddle 2

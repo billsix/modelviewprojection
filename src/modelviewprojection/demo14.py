@@ -210,15 +210,19 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         ms_to_ndc: mu.InvertibleFunction[mu3d.Vector3D] = mu.compose(
-            # camera space to NDC
-            mu.uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            mu.inverse(mu.translate(camera.position_ws)),
-            # model space to world space
-            mu.compose(
-                mu.translate(paddle1.position),
-                mu3d.rotate_z(paddle1.rotation),
-            ),
+            [
+                # camera space to NDC
+                mu.uniform_scale(1.0 / 10.0),
+                # world space to camera space
+                mu.inverse(mu.translate(camera.position_ws)),
+                # model space to world space
+                mu.compose(
+                    [
+                        mu.translate(paddle1.position),
+                        mu3d.rotate_z(paddle1.rotation),
+                    ]
+                ),
+            ]
         )
 
         paddle1_vector_ndc: mu3d.Vector3D = ms_to_ndc(p1_v_ms)
@@ -234,22 +238,28 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
         ms_to_ndc: mu.InvertibleFunction[mu3d.Vector3D] = mu.compose(
-            # camera space to NDC
-            mu.uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            mu.inverse(mu.translate(camera.position_ws)),
-            # model space to world space
-            mu.compose(
-                mu.translate(paddle1.position),
-                mu3d.rotate_z(paddle1.rotation),
-            ),
-            # square space to paddle 1 space
-            mu.compose(
-                mu.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
-                mu3d.rotate_z(rotation_around_paddle1),
-                mu.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
-                mu3d.rotate_z(square_rotation),
-            ),
+            [
+                # camera space to NDC
+                mu.uniform_scale(1.0 / 10.0),
+                # world space to camera space
+                mu.inverse(mu.translate(camera.position_ws)),
+                # model space to world space
+                mu.compose(
+                    [
+                        mu.translate(paddle1.position),
+                        mu3d.rotate_z(paddle1.rotation),
+                    ]
+                ),
+                # square space to paddle 1 space
+                mu.compose(
+                    [
+                        mu.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
+                        mu3d.rotate_z(rotation_around_paddle1),
+                        mu.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
+                        mu3d.rotate_z(square_rotation),
+                    ]
+                ),
+            ]
         )
         square_vector_ndc: mu3d.Vector3D = ms_to_ndc(ms)
         GL.glVertex3f(
@@ -264,15 +274,19 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         ms_to_ndc: mu.InvertibleFunction[mu3d.Vector3D] = mu.compose(
-            # camera space to NDC
-            mu.uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            mu.inverse(mu.translate(camera.position_ws)),
-            # model space to world space
-            mu.compose(
-                mu.translate(paddle2.position),
-                mu3d.rotate_z(paddle2.rotation),
-            ),
+            [
+                # camera space to NDC
+                mu.uniform_scale(1.0 / 10.0),
+                # world space to camera space
+                mu.inverse(mu.translate(camera.position_ws)),
+                # model space to world space
+                mu.compose(
+                    [
+                        mu.translate(paddle2.position),
+                        mu3d.rotate_z(paddle2.rotation),
+                    ]
+                ),
+            ]
         )
 
         paddle2_vector_ndc: mu3d.Vector3D = ms_to_ndc(p2_v_ms)

@@ -192,8 +192,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         ms_to_ws: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
-            mu.translate(paddle1.position),
-            mu2d.rotate(paddle1.rotation),
+            [mu.translate(paddle1.position), mu2d.rotate(paddle1.rotation)]
         )
         paddle1_vector_ws: mu2d.Vector2D = ms_to_ws(p1_v_ms)
 
@@ -217,15 +216,19 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         ms_to_ndc: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
-            # camera space to NDC
-            mu.uniform_scale(1.0 / 10.0),
-            # world space to camera space
-            mu.inverse(mu.translate(camera.position_ws)),
-            # model space to world space
-            mu.compose(
-                mu.translate(paddle2.position),
-                mu2d.rotate(paddle2.rotation),
-            ),
+            [
+                # camera space to NDC
+                mu.uniform_scale(1.0 / 10.0),
+                # world space to camera space
+                mu.inverse(mu.translate(camera.position_ws)),
+                # model space to world space
+                mu.compose(
+                    [
+                        mu.translate(paddle2.position),
+                        mu2d.rotate(paddle2.rotation),
+                    ]
+                ),
+            ]
         )
 
         paddle2_vector_ndc: mu2d.Vector2D = ms_to_ndc(p2_v_ms)

@@ -186,7 +186,7 @@ def test_compose():
     )
     fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
 
-    identity_fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(fn_inv, fn)
+    identity_fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose([fn_inv, fn])
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],

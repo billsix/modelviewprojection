@@ -82,7 +82,7 @@ def test_mx_plus_b():
     b = 2.0
 
     fn: mu.InvertibleFunction[Vector1D] = mu.compose(
-        mu.translate(Vector1D(b)), mu.uniform_scale(m)
+        [mu.translate(Vector1D(b)), mu.uniform_scale(m)]
     )
     fn_inv: mu.InvertibleFunction[Vector1D] = mu.inverse(fn)
 
@@ -142,10 +142,10 @@ def test_tempature_conversion():
         Vector1D(273.15)
     )
     fahrenheit_to_celsius: mu.InvertibleFunction[Vector1D] = mu.compose(
-        mu.uniform_scale(5.0 / 9.0), mu.translate(Vector1D(-32.0))
+        [mu.uniform_scale(5.0 / 9.0), mu.translate(Vector1D(-32.0))]
     )
     fahrenheit_to_kelvin: mu.InvertibleFunction[Vector1D] = mu.compose(
-        celsius_to_kelvin, fahrenheit_to_celsius
+        [celsius_to_kelvin, fahrenheit_to_celsius]
     )
     kelvin_to_celsius: mu.InvertibleFunction[Vector1D] = mu.inverse(
         celsius_to_kelvin
@@ -154,7 +154,7 @@ def test_tempature_conversion():
         fahrenheit_to_celsius
     )
     kelvin_to_fahrenheit: mu.InvertibleFunction[Vector1D] = mu.compose(
-        celsius_to_fahrenheit, kelvin_to_celsius
+        [celsius_to_fahrenheit, kelvin_to_celsius]
     )
 
     # doc-region-end temperature functions

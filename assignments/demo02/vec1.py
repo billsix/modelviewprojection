@@ -111,7 +111,7 @@ assert mu.inverse(fn)(mu1d.Vector1D(7)) == mu1d.Vector1D(5.0)
 m: float = 5.0
 b: float = 2.0
 fn: mu.InvertibleFunction[mu1d.Vector1D] = mu.compose(
-    mu.translate(mu1d.Vector1D(b)), mu.uniform_scale(m)
+    [mu.translate(mu1d.Vector1D(b)), mu.uniform_scale(m)]
 )
 print(fn(mu1d.Vector1D(0.0)))
 print(fn(mu1d.Vector1D(1.0)))
@@ -144,7 +144,7 @@ assert celsius_to_kelvin(mu1d.Vector1D(100.0)) == mu1d.Vector1D(
 
 
 fahrenheit_to_celsius: mu.InvertibleFunction[mu1d.Vector1D] = mu.compose(
-    mu.uniform_scale(5.0 / 9.0), mu.translate(mu1d.Vector1D(-32.0))
+    [mu.uniform_scale(5.0 / 9.0), mu.translate(mu1d.Vector1D(-32.0))]
 )
 assert fahrenheit_to_celsius(mu1d.Vector1D(32.0)) == mu1d.Vector1D(
     pytest.approx(0.0)

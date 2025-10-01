@@ -143,9 +143,7 @@ def rotate_around(
     angle_in_radians: float, center: Vector2D
 ) -> mu.InvertibleFunction[Vector2D]:
     return mu.compose(
-        mu.translate(center),
-        rotate(angle_in_radians),
-        mu.translate(-center),
+        [mu.translate(center), rotate(angle_in_radians), mu.translate(-center)]
     )
     # doc-region-end define rotate around
 

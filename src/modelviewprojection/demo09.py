@@ -169,9 +169,11 @@ while not glfw.window_should_close(window):
     for p1_v_ms in paddle1.vertices:
         # doc-region-begin paddle 1 transformations
         fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
-            mu.uniform_scale(1.0 / 10.0),
-            mu.translate(paddle1.position),
-            mu2d.rotate(paddle1.rotation),
+            [
+                mu.uniform_scale(1.0 / 10.0),
+                mu.translate(paddle1.position),
+                mu2d.rotate(paddle1.rotation),
+            ]
         )
         # doc-region-end paddle 1 transformations
         paddle1_vector_ndc: mu2d.Vector2D = fn(p1_v_ms)
@@ -186,9 +188,11 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose(
-            mu.uniform_scale(1.0 / 10.0),
-            mu.translate(paddle2.position),
-            mu2d.rotate(paddle2.rotation),
+            [
+                mu.uniform_scale(1.0 / 10.0),
+                mu.translate(paddle2.position),
+                mu2d.rotate(paddle2.rotation),
+            ]
         )
         paddle2_vector_ndc: mu2d.Vector2D = fn(p2_v_ms)
         GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)

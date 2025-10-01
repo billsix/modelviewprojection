@@ -219,8 +219,7 @@ while not glfw.window_should_close(window):
     # paddle 1 model space to world space
     mu3d.fn_stack.push(
         mu.compose(
-            mu.translate(paddle1.position),
-            mu3d.rotate_z(paddle1.rotation),
+            [mu.translate(paddle1.position), mu3d.rotate_z(paddle1.rotation)]
         )
     )
     # doc-region-end paddle 1 transformations
@@ -241,10 +240,12 @@ while not glfw.window_should_close(window):
     # doc-region-begin square space to paddle 1 space
     mu3d.fn_stack.push(
         mu.compose(
-            mu.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
-            mu3d.rotate_z(rotation_around_paddle1),
-            mu.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
-            mu3d.rotate_z(square_rotation),
+            [
+                mu.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
+                mu3d.rotate_z(rotation_around_paddle1),
+                mu.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
+                mu3d.rotate_z(square_rotation),
+            ]
         )
     )
     # doc-region-end square space to paddle 1 space
@@ -271,8 +272,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin paddle 2 model space to world space
     mu3d.fn_stack.push(
         mu.compose(
-            mu.translate(paddle2.position),
-            mu3d.rotate_z(paddle2.rotation),
+            [mu.translate(paddle2.position), mu3d.rotate_z(paddle2.rotation)]
         )
     )
     # doc-region-end paddle 2 model space to world space
