@@ -156,7 +156,7 @@ def compose(*functions: InvertibleFunction[T]) -> InvertibleFunction[T]:
 
 
 def compose_(
-    *functions: InvertibleFunction[T], relative_basis: bool = False
+    functions: typing.List[InvertibleFunction[T]], relative_basis: bool = False
 ) -> typing.Iterable[InvertibleFunction[T]]:
     """
     Like compose, but returns a list of all of the partial compositions
@@ -169,16 +169,20 @@ def compose_(
         >>> b = 2.0
         >>> # natural basis
         >>> fns: typing.List[InvertibleFunction[Vector1D]] = compose_(
-        ...      translate(Vector1D(b)), uniform_scale(m)
+        ...      [translate(Vector1D(b)), uniform_scale(m)]
         ... )
+        >>> len(fns)
+        2
         >>> fns[0](Vector1D(1))
         Vector1D(x=5.0)
         >>> fns[1](Vector1D(1))
         Vector1D(x=7.0)
         >>> # relative basis
         >>> fns: typing.List[InvertibleFunction[Vector1D]] = compose_(
-        ...     translate(Vector1D(b)), uniform_scale(m), relative_basis=True
+        ...     [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True
         ... )
+        >>> len(fns)
+        2
         >>> fns[0](Vector1D(1))
         Vector1D(x=3.0)
         >>> fns[1](Vector1D(1))
@@ -197,6 +201,52 @@ def compose_(
         compose(*fs)
         for fs in (suffixes if not relative_basis else prefixes)(functions)
     ]
+
+
+def compose_test_(
+    functions: typing.List[InvertibleFunction[T]], relative_basis: bool = False
+) -> typing.Iterable[InvertibleFunction[T]]:
+    """
+    Like compose, but returns a list of all of the partial compositions
+
+    Example:
+        >>> from modelviewprojection.mathutils import compose_test_, InvertibleFunction, uniform_scale, translate
+        >>> from modelviewprojection.mathutils1d import Vector1D
+        >>> from pytest import approx
+        >>> m = 5.0
+        >>> b = 2.0
+        >>> # natural basis
+        >>> fns = compose_test_(
+        ...      [translate(Vector1D(b)), uniform_scale(m)]
+        ... )
+        >>> len(fns)
+        2
+        >>> (fns[0][0])(Vector1D(1.0))
+        Vector1D(x=5.0)
+        >>> (fns[0][1])(Vector1D(1.0))
+        Vector1D(x=3.0)
+        >>> fns[1][0](Vector1D(1))
+        Vector1D(x=7.0)
+        >>> fns[1][1](Vector1D(1))
+        Vector1D(x=5.0)
+        >>> # relative basis
+        >>> fns: typing.List[InvertibleFunction[Vector1D]] = compose_test_(
+        ...     [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True
+        ... )
+        >>> len(fns)
+        2
+        >>> fns[0][0](Vector1D(1))
+        Vector1D(x=3.0)
+        >>> fns[0][1](Vector1D(1))
+        Vector1D(x=3.0)
+        >>> fns[1][0](Vector1D(1))
+        Vector1D(x=7.0)
+        >>> fns[1][1](Vector1D(1))
+        Vector1D(x=5.0)
+    """
+    return list(
+        zip(compose_(functions, relative_basis=relative_basis), functions)
+    )
 
 
 # doc-region-begin define translate
