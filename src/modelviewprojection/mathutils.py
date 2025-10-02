@@ -191,17 +191,13 @@ def compose_intermediate_fns(
         Vector1D(x=7.0)
     """
 
-    def suffixes(iterable: typing.Iterable[InvertibleFunction[T]]):
-        lst: typing.List = list(iterable)
-        return [lst[i:] for i in reversed(range(len(lst)))]
-
-    def prefixes(iterable):
-        lst: typing.List = list(iterable)
-        return [lst[:i] for i in range(1, len(lst) + 1)]
-
     return [
         compose(fs)
-        for fs in (suffixes if not relative_basis else prefixes)(functions)
+        for fs in (
+            [functions[i:] for i in reversed(range(len(functions)))]
+            if not relative_basis
+            else [functions[:i] for i in range(1, len(functions) + 1)]
+        )
     ]
 
 
@@ -218,34 +214,30 @@ def compose_intermediate_fns_and_fn(
         >>> m = 5.0
         >>> b = 2.0
         >>> # natural basis
-        >>> aggregate_fns, current_fns = compose_intermediate_fns_and_fn(
-        ...      [translate(Vector1D(b)), uniform_scale(m)]
-        ... )
-        >>> aggregate_fns[0](Vector1D(1.0))
-        Vector1D(x=5.0)
-        >>> current_fns[0](Vector1D(1))
-        Vector1D(x=7.0)
-        >>> aggregate_fns[1](Vector1D(1.0))
-        Vector1D(x=3.0)
-        >>> current_fns[1](Vector1D(1))
-        Vector1D(x=5.0)
+        >>> for aggregate_fn, current_fn in compose_intermediate_fns_and_fn(
+        ...      [translate(Vector1D(b)), uniform_scale(m)]):
+        ...      print("agg " + str(aggregate_fn(Vector1D(1.0))))
+        ...      print("current " + str(current_fn(Vector1D(1.0))))
+        ...
+        agg Vector1D(x=5.0)
+        current Vector1D(x=5.0)
+        agg Vector1D(x=7.0)
+        current Vector1D(x=3.0)
         >>> # relative basis
-        >>> aggregate_fns, current_fns = compose_intermediate_fns_and_fn(
-        ...     [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True
-        ... )
-        >>> aggregate_fns[0](Vector1D(1))
-        Vector1D(x=3.0)
-        >>> current_fns[0](Vector1D(1))
-        Vector1D(x=7.0)
-        >>> aggregate_fns[1](Vector1D(1))
-        Vector1D(x=3.0)
-        >>> current_fns[1](Vector1D(1))
-        Vector1D(x=5.0)
+        >>> for aggregate_fn, current_fn in compose_intermediate_fns_and_fn(
+        ...      [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True):
+        ...      print("agg " + str(aggregate_fn(Vector1D(1.0))))
+        ...      print("current " + str(current_fn(Vector1D(1.0))))
+        ...
+        agg Vector1D(x=3.0)
+        current Vector1D(x=3.0)
+        agg Vector1D(x=7.0)
+        current Vector1D(x=5.0)
     """
     return list(
         zip(
             compose_intermediate_fns(functions, relative_basis=relative_basis),
-            functions,
+            functions if relative_basis else reversed(functions)
         )
     )
 
