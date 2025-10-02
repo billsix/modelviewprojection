@@ -34,6 +34,7 @@ matplotlib.use("agg")
 
 import doctest
 
+
 # TODO, generalize to any number of dimensions
 def accumulate_transformation(procedures, forwards=True):
     """Given a pipeline of functions, provide all intermediate results via a function.
@@ -425,7 +426,6 @@ create_graphs(
         mplt.rotate(math.radians(45.0)),
         mplt.translate(9.0, -2.0),
         mplt.translate(-9.0, 2.0),
-
     ],
     forwards=True,
     graph_bounds=(12, 12),

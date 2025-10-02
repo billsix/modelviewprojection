@@ -237,7 +237,7 @@ def compose_intermediate_fns_and_fn(
     return list(
         zip(
             compose_intermediate_fns(functions, relative_basis=relative_basis),
-            functions if relative_basis else reversed(functions)
+            functions if relative_basis else reversed(functions),
         )
     )
 
