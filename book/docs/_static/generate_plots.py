@@ -32,14 +32,15 @@ if __name__ != "__main__":
 
 matplotlib.use("agg")
 
+import doctest
 
 # TODO, generalize to any number of dimensions
-def accumulate_transformation(procedures, backwards=False):
+def accumulate_transformation(procedures, forwards=True):
     """Given a pipeline of functions, provide all intermediate results via a function.
 
-    >>> fs = [mplt.translate(5,0),
-    ...       mplt.translate(0,10)]
-    >>> f = accumulate_transformation(fs)
+    >>> fs = [mplt.translate(0,10),
+    ...       mplt.translate(5,0)]
+    >>> f = accumulate_transformation(fs, forwards=False)
     >>> f1, stepsRemaining = next(f)
     >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
@@ -57,7 +58,7 @@ def accumulate_transformation(procedures, backwards=False):
     0
     >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
-    >>> f = accumulate_transformation(fs, backwards=True)
+    >>> f = accumulate_transformation(fs, forwards=True)
     >>> f1, stepsRemaining = next(f)
     >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
@@ -99,7 +100,7 @@ def accumulate_transformation(procedures, backwards=False):
 
     yield id, len(procedures)
 
-    if not backwards:
+    if forwards:
         for number_of_fns_to_apply_this_round in [
             x + 1 for x in range(len(procedures))
         ]:
@@ -121,14 +122,14 @@ def accumulate_transformation(procedures, backwards=False):
             )
 
 
-# modules = [mplt, sys.modules[__name__]]
-# for m in modules:
-#     try:
-#         doctest.testmod(m, raise_on_error=True)
-#         print(doctest.testmod(m))
-#     except Exception:
-#         print(doctest.testmod(m))
-#         sys.exit(1)
+modules = [sys.modules[__name__]]
+for m in modules:
+    try:
+        doctest.testmod(m, raise_on_error=True)
+        print(doctest.testmod(m))
+    except Exception:
+        print(doctest.testmod(m))
+        sys.exit(1)
 
 
 ## Translation Plots
@@ -182,7 +183,7 @@ def create_graphs(
     filename,
     geometry,
     procedures,
-    backwards=False,
+    forwards=True,
     graph_bounds=(10, 10),
     gridline_interval=1,
     unit_x=1.0,
@@ -195,21 +196,22 @@ def create_graphs(
     axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
     procs = procedures.copy()
-    # when plotting the transformations is backwards order, show the axis
+    procs = list(reversed(procs))
+    # when plotting the transformations is forwards order, show the axis
     # at the last step first before plotting the data
 
     def idProc(x, y):
         return (x, y)
 
-    if backwards:
-        procs.insert(0, idProc)
-        procs.insert(0, idProc)
-    else:
+    if forwards:
         procs.append(idProc)
+        procs.append(idProc)
+    else:
+        procs.insert(0, idProc)
 
     # create a single frame of the animated gif
     def create_single_frame(accumfn, stepsRemaining, fn, frame_number):
-        for round_number in [1] if backwards else [1, 2]:
+        for round_number in [1] if not forwards else [1, 2]:
             fig, axes = plt.subplots()
             axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
             axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
@@ -218,9 +220,9 @@ def create_graphs(
             for xs, ys, thickness in generategridlines.generategridlines(
                 graph_bounds, interval=gridline_interval
             ):
-                if backwards and stepsRemaining > 1:
+                if (not forwards) and stepsRemaining > 1:
                     transformed_xs, transformed_ys = accumfn(xs, ys)
-                elif not backwards and round_number == 1 and frame_number != 1:
+                elif (forwards) and round_number == 1 and frame_number != 1:
                     transformed_xs, transformed_ys = fn(xs, ys)
                 else:
                     transformed_xs, transformed_ys = xs, ys
@@ -234,11 +236,11 @@ def create_graphs(
                 )
 
             # x axis
-            if backwards and stepsRemaining > 1:
+            if (not forwards) and stepsRemaining > 1:
                 transformed_xs, transformed_ys = accumfn(
                     [0.0, unit_x], [0.0, 0.0]
                 )
-            elif not backwards and round_number == 1 and frame_number != 1:
+            elif (forwards) and round_number == 1 and frame_number != 1:
                 transformed_xs, transformed_ys = fn([0.0, unit_x], [0.0, 0.0])
             else:
                 transformed_xs, transformed_ys = [0.0, unit_x], [0.0, 0.0]
@@ -251,11 +253,11 @@ def create_graphs(
             )
 
             # y axis
-            if backwards and stepsRemaining > 1:
+            if (not forwards) and stepsRemaining > 1:
                 transformed_xs, transformed_ys = accumfn(
                     [0.0, 0.0], [0.0, unit_y]
                 )
-            elif not backwards and round_number == 1 and frame_number != 1:
+            elif (forwards) and round_number == 1 and frame_number != 1:
                 transformed_xs, transformed_ys = fn([0.0, 0.0], [0.0, unit_y])
             else:
                 transformed_xs, transformed_ys = [0.0, 0.0], [0.0, unit_y]
@@ -305,7 +307,7 @@ def create_graphs(
     animated_images_list = [
         create_single_frame(accumfn, stepsRemaining, fn, frame_number)
         for (accumfn, stepsRemaining), fn, frame_number in zip(
-            accumulate_transformation(procs, backwards),
+            accumulate_transformation(procs, forwards),
             [procs[0], *procs],
             itertools.count(start=1),
         )
@@ -325,6 +327,7 @@ create_graphs(
     filename="translation-forwards",
     geometry=paddle1,
     procedures=[mplt.translate(-9.0, 2.0)],
+    forwards=True,
 )
 
 
@@ -333,6 +336,7 @@ create_graphs(
     filename="translation2-forwards",
     geometry=paddle2,
     procedures=[mplt.translate(9.0, -4.0)],
+    forwards=True,
 )
 
 create_graphs(
@@ -340,7 +344,7 @@ create_graphs(
     filename="translation-backwards",
     geometry=paddle1,
     procedures=[mplt.translate(-9.0, 2.0)],
-    backwards=True,
+    forwards=False,
 )
 
 
@@ -349,7 +353,7 @@ create_graphs(
     filename="translation2-backwards",
     geometry=paddle2,
     procedures=[mplt.translate(9.0, -4.0)],
-    backwards=True,
+    forwards=False,
 )
 
 create_graphs(
@@ -360,6 +364,7 @@ create_graphs(
         mplt.rotate(math.radians(45.0)),
     ],
     graph_bounds=(12, 12),
+    forwards=True,
 )
 
 
@@ -370,6 +375,7 @@ create_graphs(
     procedures=[
         mplt.scale(2.0, 3.0),
     ],
+    forwards=True,
 )
 
 
@@ -378,10 +384,11 @@ create_graphs(
     filename="rotate1-forwards",
     geometry=paddle1,
     procedures=[
-        mplt.rotate(math.radians(45.0)),
         mplt.translate(-9.0, 2.0),
+        mplt.rotate(math.radians(45.0)),
     ],
     graph_bounds=(12, 12),
+    forwards=True,
 )
 
 create_graphs(
@@ -389,10 +396,11 @@ create_graphs(
     filename="incorrectrotate-forwards",
     geometry=paddle1,
     procedures=[
-        mplt.translate(-9.0, 2.0),
         mplt.rotate(math.radians(65.0)),
+        mplt.translate(-9.0, 2.0),
     ],
     graph_bounds=(12, 12),
+    forwards=True,
 )
 
 create_graphs(
@@ -400,10 +408,10 @@ create_graphs(
     filename="incorrectrotate-backwards",
     geometry=paddle1,
     procedures=[
-        mplt.translate(-9.0, 2.0),
         mplt.rotate(math.radians(65.0)),
+        mplt.translate(-9.0, 2.0),
     ],
-    backwards=True,
+    forwards=False,
     graph_bounds=(12, 12),
 )
 
@@ -414,11 +422,12 @@ create_graphs(
     geometry=paddle1,
     procedures=[
         mplt.translate(-9.0, 2.0),
-        mplt.translate(9.0, -2.0),
         mplt.rotate(math.radians(45.0)),
+        mplt.translate(9.0, -2.0),
         mplt.translate(-9.0, 2.0),
+
     ],
-    backwards=True,
+    forwards=True,
     graph_bounds=(12, 12),
 )
 
@@ -428,11 +437,12 @@ create_graphs(
     geometry=paddle1,
     procedures=[
         mplt.translate(-9.0, 2.0),
-        mplt.translate(9.0, -2.0),
         mplt.rotate(math.radians(45.0)),
+        mplt.translate(9.0, -2.0),
         mplt.translate(-9.0, 2.0),
     ],
     graph_bounds=(12, 12),
+    forwards=True,
 )
 
 
@@ -441,11 +451,11 @@ create_graphs(
     filename="rotate1-backwards",
     geometry=paddle1,
     procedures=[
-        mplt.rotate(math.radians(45.0)),
         mplt.translate(-9.0, 2.0),
+        mplt.rotate(math.radians(45.0)),
     ],
-    backwards=True,
     graph_bounds=(12, 12),
+    forwards=False,
 )
 
 
@@ -453,8 +463,9 @@ create_graphs(
     title="Rotation, Relative to World Space",
     filename="rotate2-forwards",
     geometry=paddle2,
-    procedures=[mplt.rotate(math.radians(-1.0)), mplt.translate(9.0, -4.0)],
+    procedures=[mplt.translate(9.0, -4.0), mplt.rotate(math.radians(-1.0))],
     graph_bounds=(12, 12),
+    forwards=True,
 )
 
 create_graphs(
@@ -462,11 +473,11 @@ create_graphs(
     filename="rotate2-backwards",
     geometry=paddle2,
     procedures=[
-        mplt.rotate(math.radians(-1.0)),
         mplt.translate(9.0, -4.0),
+        mplt.rotate(math.radians(-1.0)),
     ],
-    backwards=True,
     graph_bounds=(12, 12),
+    forwards=False,
 )
 
 square = Geometry(
@@ -497,7 +508,7 @@ create_graphs(
         mplt.scale(scaleX=2.0, scaleY=4.5),
         mplt.rotate(math.radians(45.0)),
     ],
-    backwards=True,
+    forwards=False,
 )
 
 create_graphs(
@@ -509,7 +520,7 @@ create_graphs(
         mplt.scale(scaleX=2.0, scaleY=4.5),
         mplt.rotate(math.radians(45.0)),
     ],
-    backwards=False,
+    forwards=True,
 )
 
 
@@ -526,7 +537,7 @@ create_graphs(
         mplt.scale(scaleX=2.0, scaleY=4.5),
         mplt.rotate(math.radians(45.0)),
     ],
-    backwards=True,
+    forwards=False,
 )
 
 create_graphs(
@@ -538,7 +549,7 @@ create_graphs(
         mplt.scale(scaleX=2.0, scaleY=4.5),
         mplt.rotate(math.radians(45.0)),
     ],
-    backwards=False,
+    forwards=True,
 )
 
 
@@ -569,7 +580,7 @@ create_graphs(
         mplt.scale(scaleX=1.0 / 2.0, scaleY=7.0 / 2.0),
         mplt.translate(1.0 / 2, 7.0 / 2),
     ],
-    backwards=True,
+    forwards=False,
     graph_bounds=(10, 10),
     gridline_interval=1,
     unit_x=1.0,
@@ -584,7 +595,7 @@ create_graphs(
         mplt.scale(scaleX=1.0 / 2.0, scaleY=7.0 / 2.0),
         mplt.translate(1.0 / 2, 7.0 / 2),
     ],
-    backwards=False,
+    forwards=True,
     graph_bounds=(10, 10),
     gridline_interval=1,
     unit_x=1.0,
@@ -619,7 +630,7 @@ create_graphs(
         mplt.translate(-1.0 / 2, -7.0 / 2),
         mplt.scale(scaleX=1.0 / (1.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
     ],
-    backwards=True,
+    forwards=False,
     graph_bounds=(10, 10),
     gridline_interval=1,
     unit_x=1.0,
@@ -634,7 +645,7 @@ create_graphs(
         mplt.translate(-1.0 / 2, -7.0 / 2),
         mplt.scale(scaleX=1.0 / (1.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
     ],
-    backwards=False,
+    forwards=True,
     graph_bounds=(10, 10),
     gridline_interval=1,
     unit_x=1.0,
