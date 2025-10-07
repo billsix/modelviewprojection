@@ -12,6 +12,7 @@ dependencies = [
     "imageio==2.37.0",
     "isort==6.0.1",
     "jupyter==1.1.1",
+    "jupytext==1.17.3",
     "mathjax==0.1.2",
     "matplotlib==3.10.3",
     "moviepy==2.2.1",
