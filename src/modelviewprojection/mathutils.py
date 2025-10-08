@@ -270,12 +270,32 @@ def uniform_scale(m: float) -> InvertibleFunction[T]:
 
 
 class Vector(abc.ABC):
-    def __iter__(self):
-        return iter(dataclasses.astuple(self))
-
     @abc.abstractmethod
     def __add__(self, rhs: typing.Self) -> typing.Self:
         pass
+
+    @abc.abstractmethod
+    def __mul__(self, scalar: float) -> typing.Self:
+        pass
+
+    def __neg__(self) -> typing.Self:
+        """
+        Let :math:`\\vec{a}` and constant :math:`-1`:
+
+        .. math::
+
+             -1 * \\vec{a}
+
+        Example:
+            >>> from modelviewprojection.mathutils1d import Vector1D
+            >>> a = Vector1D(x=2.0)
+            >>> -a
+            Vector1D(x=-2.0)
+        """
+        return -1 * self
+
+    def __iter__(self):
+        return iter(dataclasses.astuple(self))
 
     # doc-region-begin begin define subtract
     def __sub__(self, rhs: typing.Self) -> typing.Self:
@@ -296,25 +316,5 @@ class Vector(abc.ABC):
         return self + -rhs
         # doc-region-end define subtract
 
-    @abc.abstractmethod
-    def __mul__(self, scalar: float) -> typing.Self:
-        pass
-
     def __rmul__(self, scalar: float) -> typing.Self:
         return self * scalar
-
-    def __neg__(self) -> typing.Self:
-        """
-        Let :math:`\\vec{a}` and constant :math:`-1`:
-
-        .. math::
-
-             -1 * \\vec{a}
-
-        Example:
-            >>> from modelviewprojection.mathutils1d import Vector1D
-            >>> a = Vector1D(x=2.0)
-            >>> -a
-            Vector1D(x=-2.0)
-        """
-        return -1.0 * self
