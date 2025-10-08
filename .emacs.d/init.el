@@ -18,16 +18,20 @@
 
 
 (use-package lsp-mode
+  :hook ((python-mode . lsp-deferred))
+  :commands (lsp lsp-deferred)
   :init
-  ;; set prefix for lsp-command-keymap (expected by lsp-ui)
-  (setq lsp-keymap-prefix "C-c l")
-  :hook ((python-mode . (lambda ()
-                          (require 'lsp-mode)
-                          (lsp-deferred)))
-         (lsp-mode . yas-minor-mode))
+  (setq lsp-keymap-prefix "C-c l"))
+
+(use-package lsp-pyright
+  :after lsp-mode
+  :hook (python-mode . (lambda ()
+                         (require 'lsp-pyright)
+                         (lsp-deferred)))  ; or just (lsp)
   :config
-  (setq lsp-pylsp-server-command "pylsp")
-  )
+  ;; Optional: configure Pyright
+  (setq lsp-pyright-typechecking-mode "basic"
+        lsp-pyright-auto-import-completions t))
 
 ;; set the LSP root for this project
 (require 'lsp-mode)
@@ -35,7 +39,7 @@
 (setq lsp-auto-guess-root nil)
 
 (defun my-lsp-root (&rest _)
-  "/mvp/") 
+  "/mvp/")
 
 (advice-add 'lsp--calculate-root :override #'my-lsp-root)
 
