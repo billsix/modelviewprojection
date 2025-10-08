@@ -22,6 +22,7 @@ import dataclasses
 import glfw
 import colorutils
 import OpenGL.GL as GL
+from modelviewprojection.glhelper import clear_mask
 
 import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils2d as mu2d
@@ -147,7 +148,7 @@ while not glfw.window_should_close(window):
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+    GL.glClear(clear_mask(GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT))
 
     draw_in_square_viewport()
     handle_movement_of_paddles()
