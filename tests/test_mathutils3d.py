@@ -19,7 +19,9 @@
 # SOFTWARE.
 import doctest
 import math
+
 from pytest import approx
+
 import modelviewprojection
 import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils3d as mu3d

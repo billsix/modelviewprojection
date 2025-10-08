@@ -16,15 +16,17 @@
 # Boston, MA 02111-1307, USA.
 
 
+import dataclasses
 import math
 import sys
-import dataclasses
-from modelviewprojection.glhelper import clear_mask
+
 import glfw
 import numpy as np
-import modelviewprojection.colorutils as colorutils
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+
+import modelviewprojection.colorutils as colorutils
+from modelviewprojection.glhelper import clear_mask
 
 if not glfw.init():
     sys.exit()

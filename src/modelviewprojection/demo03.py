@@ -19,6 +19,7 @@ import sys
 
 import glfw
 import OpenGL.GL as GL
+
 from modelviewprojection.glhelper import clear_mask
 
 if not glfw.init():

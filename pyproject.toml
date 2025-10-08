@@ -37,3 +37,6 @@ testpaths = ["tests"]
 [tools.ruff]
 select = ['F401', 'F811', 'E402', 'I001', 'TID252', "F841", "E302", "E231", "B006", "B007", "B008", "UP007", "UP035", "S311", "S602", "T201"]
 ignore = []
+
+[tool.ruff.lint]
+select = ["E", "F", "I"]

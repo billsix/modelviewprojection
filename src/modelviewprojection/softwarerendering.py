@@ -15,14 +15,16 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
+import dataclasses
+import typing
+
 import IPython.display as display
 import numpy as np
 import PIL
 import PIL.Image
-import typing
+
 import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils2d as mu2d
-import dataclasses
 
 BLACK: typing.Tuple[int, int, int] = (0, 0, 0)
 WHITE: typing.Tuple[int, int, int] = (255, 255, 255)

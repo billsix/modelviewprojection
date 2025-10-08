@@ -16,8 +16,8 @@
 # Boston, MA 02111-1307, USA.
 
 
-import dataclasses
 import abc
+import dataclasses
 import typing
 
 # doc-region-begin define invertible function

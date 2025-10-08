@@ -14,6 +14,7 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
+import colorsys
 import ctypes
 import math
 import os
@@ -23,12 +24,10 @@ from dataclasses import dataclass, field
 import glfw
 import imgui
 import numpy as np
+import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders
 from imgui.integrations.glfw import GlfwRenderer
 from numpy import ndarray
-import OpenGL.GL as GL
-
-import colorsys
 
 import modelviewprojection.pyMatrixStack as ms
 

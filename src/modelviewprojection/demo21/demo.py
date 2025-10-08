@@ -15,21 +15,23 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 import ctypes
+import dataclasses
 import math
 import os
 import sys
-import dataclasses
+
 import glfw
 import imgui
+import imgui.integrations.glfw as imguiglfw
 import numpy as np
-from modelviewprojection.glhelper import clear_mask
+import OpenGL.GL as GL
 
 # new - SHADERS
 import OpenGL.GL.shaders as shaders
+
 import modelviewprojection.colorutils as colorutils
-import imgui.integrations.glfw as imguiglfw
-import OpenGL.GL as GL
 import modelviewprojection.pyMatrixStack as ms
+from modelviewprojection.glhelper import clear_mask
 
 if not glfw.init():
     sys.exit()

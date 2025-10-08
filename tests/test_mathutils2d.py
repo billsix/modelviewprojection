@@ -19,10 +19,12 @@
 # SOFTWARE.
 import doctest
 import math
+
 from pytest import approx
-import modelviewprojection.mathutils2d as mu2d
-import modelviewprojection.mathutils as mu
+
 import modelviewprojection
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils2d as mu2d
 
 
 def wrap_vec2_test(fn, input_val, output_val):

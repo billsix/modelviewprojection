@@ -31,11 +31,12 @@
 # Boston, MA 02111-1307, USA.
 
 
+import warnings
+
 import modelviewprojection.mathutils2d as mu2d
 
 # %%
 import modelviewprojection.softwarerendering as sr
-import warnings
 
 # turn warnings into exceptions
 warnings.filterwarnings("error", category=RuntimeWarning)

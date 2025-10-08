@@ -20,10 +20,11 @@
 
 import doctest
 import typing
-import pytest
-import modelviewprojection.mathutils1d
-import modelviewprojection.mathutils as mu
 
+import pytest
+
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils1d
 from modelviewprojection.mathutils1d import Vector1D
 
 

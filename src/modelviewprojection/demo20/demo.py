@@ -16,19 +16,21 @@
 # Boston, MA 02111-1307, USA.
 
 
+import dataclasses
 import math
 import os
 import sys
-import dataclasses
+
 import glfw
 import numpy as np
-import OpenGL.GL.shaders as shaders
-import modelviewprojection.colorutils as colorutils
-from modelviewprojection.glhelper import clear_mask
 
 # doc-region-begin new imports
 import OpenGL.GL as GL
+import OpenGL.GL.shaders as shaders
 import OpenGL.GLU as GLU
+
+import modelviewprojection.colorutils as colorutils
+from modelviewprojection.glhelper import clear_mask
 
 # doc-region-end new imports
 

@@ -16,12 +16,14 @@
 # Boston, MA 02111-1307, USA.
 
 
-import math
 import dataclasses
+import math
+import typing
+
 import pytest
+
 import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils1d as mu1d
-import typing
 
 
 # doc-region-begin define vector class

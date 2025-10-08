@@ -17,9 +17,11 @@
 
 
 import dataclasses
-import modelviewprojection.mathutils as mu
-import numpy as np
 import typing
+
+import numpy as np
+
+import modelviewprojection.mathutils as mu
 
 
 # doc-region-begin define vector class

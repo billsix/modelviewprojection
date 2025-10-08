@@ -17,9 +17,12 @@
 
 # doc-region-begin import first module
 import sys
+
 import glfw
 import OpenGL.GL as GL
+
 from modelviewprojection.glhelper import clear_mask
+
 # doc-region-end import first module
 
 # doc-region-begin initialize glfw

@@ -39,16 +39,16 @@
 
 # %%
 
-import numpy as np
-import modelviewprojection.mathutils as mu
-
-import modelviewprojection.mathutils2d as mu2d
-import math
 import contextlib
+import math
 
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker
+import numpy as np
+
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils2d as mu2d
 
 extraLinesMultiplier = 3
 

@@ -34,14 +34,15 @@
 
 # %%
 import typing
-import modelviewprojection.softwarerendering as sr
+import warnings
 
-import modelviewprojection.mathutils as mu
-import modelviewprojection.mathutils2d as mu2d
 import IPython.display
 import moviepy
 import numpy as np
-import warnings
+
+import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils2d as mu2d
+import modelviewprojection.softwarerendering as sr
 
 # turn warnings into exceptions
 warnings.filterwarnings("error", category=RuntimeWarning)

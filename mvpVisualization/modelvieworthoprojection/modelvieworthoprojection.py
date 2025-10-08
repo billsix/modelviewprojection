@@ -27,10 +27,10 @@ from typing import Optional, Tuple
 import glfw
 import imgui
 import numpy as np
+import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders
 from imgui.integrations.glfw import GlfwRenderer
 from numpy import ndarray
-import OpenGL.GL as GL
 
 import modelviewprojection.pyMatrixStack as ms
 
