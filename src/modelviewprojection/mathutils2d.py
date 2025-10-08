@@ -31,7 +31,7 @@ class Vector2D(mu1d.Vector1D):
     # doc-region-end define vector class
 
     # doc-region-begin define add
-    def __add__(self, rhs: typing.Self) -> typing.Self:
+    def __add__(self, rhs: "mu.Vector") -> "Vector2D":
         """
         Add together two Vector2Ds.
 
@@ -58,12 +58,13 @@ class Vector2D(mu1d.Vector1D):
             Vector2D(x=7.0, y=9.0)
         """
 
+        assert isinstance(rhs, Vector2D)
         return Vector2D(x=(self.x + rhs.x), y=(self.y + rhs.y))
 
     # doc-region-end define add
 
     # doc-region-begin define mul
-    def __mul__(self, scalar: float) -> typing.Self:
+    def __mul__(self, scalar: float) -> "Vector2D":
         """
         Multiply the Vector2D by a scalar number
 
@@ -118,7 +119,7 @@ def rotate_90_degrees() -> mu.InvertibleFunction[Vector2D]:
     return mu.InvertibleFunction[Vector2D](f, f_inv)
 
 
-def rotate(angle_in_radians: float) -> typing.Callable[[Vector2D], Vector2D]:
+def rotate(angle_in_radians: float) -> mu.InvertibleFunction[Vector2D]:
     r90: mu.InvertibleFunction[Vector2D] = rotate_90_degrees()
 
     def create_rotate_function(

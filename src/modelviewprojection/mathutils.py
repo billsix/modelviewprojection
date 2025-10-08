@@ -274,11 +274,11 @@ class Vector(abc.ABC):
         return iter(dataclasses.astuple(self))
 
     @abc.abstractmethod
-    def __add__(self, rhs):
+    def __add__(self, rhs: typing.Self) -> typing.Self:
         pass
 
     # doc-region-begin begin define subtract
-    def __sub__(self, rhs):
+    def __sub__(self, rhs: typing.Self) -> typing.Self:
         # doc-region-end begin define subtract
         """
         .. math::
@@ -297,13 +297,13 @@ class Vector(abc.ABC):
         # doc-region-end define subtract
 
     @abc.abstractmethod
-    def __mul__(self, scalar: float):
+    def __mul__(self, scalar: float) -> typing.Self:
         pass
 
-    def __rmul__(self, scalar: float):
+    def __rmul__(self, scalar: float) -> typing.Self:
         return self * scalar
 
-    def __neg__(self):
+    def __neg__(self) -> typing.Self:
         """
         Let :math:`\\vec{a}` and constant :math:`-1`:
 

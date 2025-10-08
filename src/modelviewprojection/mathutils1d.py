@@ -29,7 +29,7 @@ class Vector1D(mu.Vector):
     # doc-region-end define vector class
 
     # doc-region-begin begin define add
-    def __add__(self, rhs: typing.Self) -> typing.Self:
+    def __add__(self, rhs: "mu.Vector") -> "Vector1D":
         # doc-region-end begin define add
         """
         Add together two Vector1Ds.
@@ -56,13 +56,13 @@ class Vector1D(mu.Vector):
             >>> a + b
             Vector1D(x=7.0)
         """
-
+        assert isinstance(rhs, Vector1D)
         # doc-region-begin define add
         return Vector1D(x=(self.x + rhs.x))
         # doc-region-end define add
 
     # doc-region-begin define mul
-    def __mul__(self, scalar: float) -> typing.Self:
+    def __mul__(self, scalar: float) -> "Vector1D":
         """
         Multiply the Vector1D by a scalar number
 
