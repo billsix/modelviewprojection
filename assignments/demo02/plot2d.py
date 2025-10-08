@@ -40,8 +40,11 @@
 # %%
 
 import numpy as np
+import modelviewprojection.mathutils as mu
+
 import modelviewprojection.mathutils2d as mu2d
 import math
+import contextlib
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -85,88 +88,93 @@ def generategridlines(graphBounds, interval=1):
 # %%
 
 
-def create_graphs(title, filename, fn, graph_bounds):
-    fig, axes = plt.subplots(figsize=(6, 6))
-    axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
-    axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
+@contextlib.contextmanager
+def create_graphs(title, filename, graph_bounds):
+    try:
+        fig, axes = plt.subplots(figsize=(6, 6))
+        axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
+        axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
-    plt.tight_layout()
-
-    fn()
-
-    # make sure the x and y axis are equally proportional in screen space
-    plt.gca().set_aspect("equal", adjustable="box")
-    axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
-    axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
-    fig.canvas.draw()
-    np.array(fig.canvas.renderer.buffer_rgba())
-    fig
+        plt.tight_layout()
+        yield
+    finally:
+        # make sure the x and y axis are equally proportional in screen space
+        plt.gca().set_aspect("equal", adjustable="box")
+        axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
+        axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
+        fig.canvas.draw()
+        np.array(fig.canvas.renderer.buffer_rgba())
+        return fig
 
 
 # %%
 
 
 def create_basis(graph_bounds, gridline_interval, fn=lambda x: x):
-    def to_return():
-        # plot transformed basis
-        for vecs, thickness in generategridlines(
-            graph_bounds, interval=gridline_interval
-        ):
-            plt.plot(
-                list(map(lambda v2d: v2d.x, map(fn, vecs))),
-                list(map(lambda v2d: v2d.y, map(fn, vecs))),
-                "-",
-                lw=thickness,
-                color=(0.1, 0.2, 0.5),
-                alpha=0.3,
-            )
+    # plot transformed basis
+    for vecs, thickness in generategridlines(
+        graph_bounds, interval=gridline_interval
+    ):
+        plt.plot(
+            [fn(vec).x for vec in vecs],
+            [fn(vec).y for vec in vecs],
+            "-",
+            lw=thickness,
+            color=(0.1, 0.2, 0.5),
+            alpha=0.3,
+        )
 
-            # x axis
-            x_axis = [mu2d.Vector2D(0, 0), mu2d.Vector2D(1, 0)]
-            plt.plot(
-                list(map(lambda v2d: v2d.x, map(fn, x_axis))),
-                list(map(lambda v2d: v2d.y, map(fn, x_axis))),
-                "-",
-                lw=1.0,
-                color=(0.0, 0.0, 1.0),
-            )
+        # x axis
+        x_axis = [mu2d.Vector2D(0, 0), mu2d.Vector2D(1, 0)]
+        plt.plot(
+            [fn(vec).x for vec in x_axis],
+            [fn(vec).y for vec in x_axis],
+            "-",
+            lw=1.0,
+            color=(0.0, 0.0, 1.0),
+        )
 
-            # y axis
-            y_axis = [mu2d.Vector2D(0, 0), mu2d.Vector2D(0, 1)]
-            plt.plot(
-                list(map(lambda v2d: v2d.x, map(fn, y_axis))),
-                list(map(lambda v2d: v2d.y, map(fn, y_axis))),
-                "-",
-                lw=1.0,
-                color=(1.0, 0.0, 1.0),
-            )
-
-    return to_return
+        # y axis
+        y_axis = [mu2d.Vector2D(0, 0), mu2d.Vector2D(0, 1)]
+        plt.plot(
+            [fn(vec).x for vec in y_axis],
+            [fn(vec).y for vec in y_axis],
+            "-",
+            lw=1.0,
+            color=(1.0, 0.0, 1.0),
+        )
 
 
 # %%
 
-create_graphs("foo", "bar.txt", create_basis((10, 10), 1), (10, 10))
+with create_graphs("foo", "bar.txt", (10, 10)):
+    create_basis((10, 10), 1)
 
 # %%
 
-create_graphs(
+with create_graphs(
     "foo",
     "bar.txt",
-    create_basis((10, 10), 1, mu2d.rotate(math.radians(53.130102))),
     (10, 10),
-)
+):
+    create_basis((10, 10), 1, mu2d.rotate(math.radians(53.130102)))
 
 # %%
 
 
-def draw_embedded_graph_paper():
-    def do():
-        create_basis((10, 10), 1, mu2d.rotate(0.0))()
-        create_basis((10, 10), 1, mu2d.rotate(math.radians(53.130102)))()
-
-    return do
+with create_graphs("foo", "bar.txt", (10, 10)):
+    create_basis((10, 10), 1, mu2d.rotate(0.0))
+    create_basis((10, 10), 1, mu2d.rotate(math.radians(53.130102)))
 
 # %%
-
-create_graphs("foo", "bar.txt", draw_embedded_graph_paper(), (10, 10))
+with create_graphs("foo", "bar.txt", (10, 10)):
+    create_basis(
+        (10, 10),
+        1,
+        mu.compose(
+            [
+                mu2d.rotate(math.radians(53.130102)),
+                mu.translate(mu2d.Vector2D(x=4.0, y=0.0)),
+            ]
+        ),
+    )
