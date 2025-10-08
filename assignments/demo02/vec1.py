@@ -101,11 +101,11 @@ assert fn(mu1d.Vector1D(5)) == mu1d.Vector1D(7.0)
 
 
 # %%
-# doc-region-begin applying mu.inverse function
+# doc-region-begin applying inverse function
 assert mu.inverse(fn)(mu1d.Vector1D(2)) == mu1d.Vector1D(0.0)
 assert mu.inverse(fn)(mu1d.Vector1D(3)) == mu1d.Vector1D(1.0)
 assert mu.inverse(fn)(mu1d.Vector1D(7)) == mu1d.Vector1D(5.0)
-# doc-region-end applying mu.inverse function
+# doc-region-end applying inverse function
 
 # %%
 # doc-region-begin y = m*x + b
