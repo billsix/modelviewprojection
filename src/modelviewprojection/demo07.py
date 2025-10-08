@@ -20,7 +20,7 @@ import sys
 import dataclasses
 
 import glfw
-import colorutils
+import modelviewprojection.colorutils as colorutils
 import OpenGL.GL as GL
 
 import modelviewprojection.mathutils as mu

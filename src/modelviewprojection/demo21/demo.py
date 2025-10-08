@@ -26,7 +26,7 @@ from modelviewprojection.glhelper import clear_mask
 
 # new - SHADERS
 import OpenGL.GL.shaders as shaders
-import colorutils
+import modelviewprojection.colorutils as colorutils
 import imgui.integrations.glfw as imguiglfw
 import OpenGL.GL as GL
 import modelviewprojection.pyMatrixStack as ms
