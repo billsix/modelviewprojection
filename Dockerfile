@@ -1,7 +1,7 @@
 FROM registry.fedoraproject.org/fedora:42
 
-RUN dnf upgrade -y
-RUN dnf install -y \
+RUN dnf upgrade -y && \
+    dnf install -y \
                    aspell \
                    aspell-en \
                    autoconf \
@@ -41,6 +41,7 @@ RUN dnf install -y \
                    mathjax-math-fonts \
                    mesa-dri-drivers  \
                    mesa-libGLU-devel \
+                   npm \
                    python3-devel \
                    python3-furo \
                    python3-glfw \
@@ -67,25 +68,27 @@ RUN dnf install -y \
                    texlive-dvisvgm \
                    texlive-standalone \
                    tmux && \
+     # cache matplotlib stuff \
      python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()" && \
-     dnf clean all
+     # clean out dnf \
+     dnf clean all && \
+     # install pyright for lsp \
+     npm install -g pyright && \
+     # install moviepy until fedora takes it \
+     python3 -m pip install --break-system-packages --root-user-action=ignore moviepy && \
+     # install imgui, until I replace imgui code with wxpython4 \
+     cd ~/ && \
+     git clone https://github.com/billsix/pyimgui.git && \
+     cd pyimgui && \
+     git submodule init && git submodule update && \
+     python3 -m pip install --break-system-packages --root-user-action=ignore .
 
-RUN python3 -m pip install --break-system-packages --root-user-action=ignore moviepy
-RUN cd ~/ && \
-    git clone https://github.com/billsix/pyimgui.git && \
-    cd pyimgui && \
-    git submodule init && git submodule update && \
-    python3 -m pip install --break-system-packages --root-user-action=ignore .
 
+COPY entrypoint/dotfiles/ /root/
 
-COPY .emacs.d /root/.emacs.d
-RUN emacs --batch --load ~/.emacs.d/install-melpa-packages.el
-RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
+RUN emacs --batch --load /root/.emacs.d/install-melpa-packages.el && \
+    echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
-COPY .tmux.conf /root/.tmux.conf
-
-RUN dnf install -y npm
-RUN npm install -g pyright
 
 
 ENTRYPOINT ["/entrypoint.sh"]
