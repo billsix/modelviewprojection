@@ -84,5 +84,8 @@ RUN echo "alias ls='ls --color=auto'" >> ~/.bashrc
 
 COPY .tmux.conf /root/.tmux.conf
 
+RUN dnf install -y npm
+RUN npm install -g pyright
+
 
 ENTRYPOINT ["/entrypoint.sh"]
