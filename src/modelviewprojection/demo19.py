@@ -26,7 +26,6 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 
 import modelviewprojection.colorutils as colorutils
-from modelviewprojection.glhelper import clear_mask
 
 if not glfw.init():
     sys.exit()
@@ -203,7 +202,7 @@ while not glfw.window_should_close(window):
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
-    GL.glClear(clear_mask(GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT))
+    GL.glClear(sum([GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT]))
 
     draw_in_square_viewport()
     handle_inputs()

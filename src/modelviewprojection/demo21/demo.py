@@ -31,7 +31,6 @@ import OpenGL.GL.shaders as shaders
 
 import modelviewprojection.colorutils as colorutils
 import modelviewprojection.pyMatrixStack as ms
-from modelviewprojection.glhelper import clear_mask
 
 if not glfw.init():
     sys.exit()
@@ -478,7 +477,7 @@ while not glfw.window_should_close(window):
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
-    GL.glClear(clear_mask(GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT))
+    GL.glClear(sum([GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT]))
 
     ms.set_to_identity_matrix(ms.MatrixStack.model)
     ms.set_to_identity_matrix(ms.MatrixStack.view)
@@ -496,7 +495,7 @@ while not glfw.window_should_close(window):
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
     GL.glClearColor(0.0289, 0.071875, 0.0972, 1.0)  # r  # g  # b  # a
-    GL.glClear(clear_mask(GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT))
+    GL.glClear(sum([GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT]))
 
     handle_inputs()
 
