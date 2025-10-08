@@ -18,7 +18,7 @@
         dape
         dap-mode
         blacken
-
+        bookmark
         elpy
 
         material-theme
