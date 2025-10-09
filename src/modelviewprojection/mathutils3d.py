@@ -22,6 +22,7 @@ import math
 import typing
 
 import modelviewprojection.mathutils as mu
+import modelviewprojection.mathutils1d as mu1d
 import modelviewprojection.mathutils2d as mu2d
 
 
@@ -106,29 +107,29 @@ def abs_sin(v1: Vector3D, v2: Vector3D) -> float:
     return abs(v1.cross(v2)) / (abs(v1) * abs(v2))
 
 
-def scale(
-    m_x: float, m_y: float, m_z: float
-) -> mu.InvertibleFunction[Vector3D]:
-    def f(vector: Vector3D) -> Vector3D:
+def scale(m_x: float, m_y: float, m_z: float) -> mu.InvertibleFunction:
+    def f(vector: mu.Vector) -> mu.Vector:
+        assert isinstance(vector, Vector3D)
         return Vector3D(vector.x * m_x, vector.y * m_y, vector.z * m_z)
 
-    def f_inv(vector: Vector3D) -> Vector3D:
+    def f_inv(vector: mu.Vector) -> mu.Vector:
         if m_x == 0.0 or m_y == 0.0 or m_z == 0.0:
             raise ValueError(
                 "Note invertible.  Scaling factors cannot be zero."
             )
-
+        assert isinstance(vector, Vector3D)
         return Vector3D(vector.x / m_x, vector.y / m_y, vector.z / m_z)
 
-    return mu.InvertibleFunction[Vector3D](f, f_inv)
+    return mu.InvertibleFunction(f, f_inv)
 
 
 # doc-region-begin define rotate x
-def rotate_x(angle_in_radians: float) -> mu.InvertibleFunction[Vector3D]:
-    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
-        def f(vector: mu2d.Vector2D) -> mu2d.Vector2D:
-            yz_on_xy: mu2d.Vector2D = mu2d.Vector2D(x=vector.y, y=vector.z)
-            rotated_yz_on_xy: mu2d.Vector2D = r(yz_on_xy)
+def rotate_x(angle_in_radians: float) -> mu.InvertibleFunction:
+    def create_rotate_function(r) -> typing.Callable[[mu.Vector], mu.Vector]:
+        def f(vector: mu.Vector) -> mu.Vector:
+            assert isinstance(vector, Vector3D)
+            yz_on_xy: mu.Vector = mu2d.Vector2D(x=vector.y, y=vector.z)
+            rotated_yz_on_xy: mu.Vector = r(yz_on_xy)
             return Vector3D(
                 x=vector.x, y=rotated_yz_on_xy.x, z=rotated_yz_on_xy.y
             )
@@ -136,18 +137,20 @@ def rotate_x(angle_in_radians: float) -> mu.InvertibleFunction[Vector3D]:
         return f
 
     r = mu2d.rotate(angle_in_radians)
-    return mu.InvertibleFunction[Vector3D](
+    return mu.InvertibleFunction(
         create_rotate_function(r), create_rotate_function(mu.inverse(r))
     )
     # doc-region-end define rotate x
 
 
 # doc-region-begin define rotate y
-def rotate_y(angle_in_radians: float) -> mu.InvertibleFunction[Vector3D]:
-    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
-        def f(vector: Vector3D) -> Vector3D:
-            zx_on_xy: mu2d.Vector2D = mu2d.Vector2D(x=vector.z, y=vector.x)
-            rotated_zx_on_xy: mu2d.Vector2D = r(zx_on_xy)
+def rotate_y(angle_in_radians: float) -> mu.InvertibleFunction:
+    def create_rotate_function(r) -> typing.Callable[[mu.Vector], mu.Vector]:
+        def f(vector: mu.Vector) -> mu.Vector:
+            assert isinstance(vector, Vector3D)
+            zx_on_xy: mu.Vector = mu2d.Vector2D(x=vector.z, y=vector.x)
+            rotated_zx_on_xy: mu.Vector = r(zx_on_xy)
+            assert isinstance(rotated_zx_on_xy, mu2d.Vector2D)
             return Vector3D(
                 x=rotated_zx_on_xy.y, y=vector.y, z=rotated_zx_on_xy.x
             )
@@ -155,18 +158,20 @@ def rotate_y(angle_in_radians: float) -> mu.InvertibleFunction[Vector3D]:
         return f
 
     r = mu2d.rotate(angle_in_radians)
-    return mu.InvertibleFunction[Vector3D](
+    return mu.InvertibleFunction(
         create_rotate_function(r), create_rotate_function(mu.inverse(r))
     )
     # doc-region-end define rotate y
 
 
 # doc-region-begin define rotate z
-def rotate_z(angle_in_radians: float) -> mu.InvertibleFunction[Vector3D]:
-    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
-        def f(vector: Vector3D) -> Vector3D:
-            xy_on_xy: mu2d.Vector2D = mu2d.Vector2D(x=vector.x, y=vector.y)
-            rotated_xy_on_xy: mu2d.Vector2D = r(xy_on_xy)
+def rotate_z(angle_in_radians: float) -> mu.InvertibleFunction:
+    def create_rotate_function(r) -> typing.Callable[[mu.Vector], mu.Vector]:
+        def f(vector: mu.Vector) -> mu.Vector:
+            assert isinstance(vector, Vector3D)
+            xy_on_xy: mu.Vector = mu2d.Vector2D(x=vector.x, y=vector.y)
+            rotated_xy_on_xy: mu.Vector = r(xy_on_xy)
+            assert isinstance(rotated_xy_on_xy, mu2d.Vector2D)
             return Vector3D(
                 x=rotated_xy_on_xy.x, y=rotated_xy_on_xy.y, z=vector.z
             )
@@ -174,7 +179,7 @@ def rotate_z(angle_in_radians: float) -> mu.InvertibleFunction[Vector3D]:
         return f
 
     r: mu.InvertibleFunction[mu2d.Vector2D] = mu2d.rotate(angle_in_radians)
-    return mu.InvertibleFunction[Vector3D](
+    return mu.InvertibleFunction(
         create_rotate_function(r), create_rotate_function(mu.inverse(r))
     )
     # doc-region-end define rotate z
@@ -188,7 +193,7 @@ def ortho(
     top: float,
     near: float,
     far: float,
-) -> mu.InvertibleFunction[Vector3D]:
+) -> mu.InvertibleFunction:
     midpoint = Vector3D(
         x=(left + right) / 2.0, y=(bottom + top) / 2.0, z=(near + far) / 2.0
     )
@@ -208,20 +213,20 @@ def ortho(
         ]
     )
 
-    def f(vector: Vector3D) -> Vector3D:
+    def f(vector: mu.Vector) -> mu.Vector:
         return fn(vector)
 
-    def f_inv(vector: Vector3D) -> Vector3D:
+    def f_inv(vector: mu.Vector) -> mu.Vector:
         return mu.inverse(fn)(vector)
 
-    return mu.InvertibleFunction[Vector3D](f, f_inv)
+    return mu.InvertibleFunction(f, f_inv)
     # doc-region-end define ortho
 
 
 # doc-region-begin define perspective
 def perspective(
     field_of_view: float, aspect_ratio: float, near_z: float, far_z: float
-) -> mu.InvertibleFunction[Vector3D]:
+) -> mu.InvertibleFunction:
     # field_of_view, dataclasses.field of view, is angle of y
     # aspect_ratio is x_width / y_width
 
@@ -237,33 +242,50 @@ def perspective(
         far=far_z,
     )
 
-    def f(vector: Vector3D) -> Vector3D:
-        s1d: mu.InvertibleFunction[float] = mu.uniform_scale(near_z / vector.z)
+    def f(vector: mu.Vector) -> mu.Vector:
+        assert isinstance(vector, Vector3D)
+        s1d: mu.InvertibleFunction = mu.uniform_scale(near_z / vector.z)
+        x_component: mu.Vector = s1d(mu1d.Vector1D(x=vector.x))
+        y_component: mu.Vector = s1d(mu1d.Vector1D(x=vector.y))
+        assert isinstance(x_component, mu1d.Vector1D)
+        assert isinstance(y_component, mu1d.Vector1D)
+
         rectangular_prism: Vector3D = Vector3D(
-            s1d(vector.x), s1d(vector.y), vector.z
+            x=x_component.x, y=y_component.x, z=vector.z
         )
         return fn(rectangular_prism)
 
-    def f_inv(vector: Vector3D) -> Vector3D:
-        rectangular_prism: Vector3D = mu.inverse(fn)(vector)
+    def f_inv(vector: mu.Vector) -> mu.Vector:
+        assert isinstance(vector, Vector3D)
+        rectangular_prism: mu.Vector = mu.inverse(fn)(vector)
+        assert isinstance(rectangular_prism, Vector3D)
 
-        inverse_s1d: mu.InvertibleFunction[float] = mu.inverse(
+        inverse_s1d: mu.InvertibleFunction = mu.inverse(
             mu.uniform_scale(near_z / vector.z)
         )
+        x_component: mu.Vector = inverse_s1d(
+            mu1d.Vector1D(x=rectangular_prism.x)
+        )
+        y_component: mu.Vector = inverse_s1d(
+            mu1d.Vector1D(x=rectangular_prism.y)
+        )
+        assert isinstance(x_component, mu1d.Vector1D)
+        assert isinstance(y_component, mu1d.Vector1D)
+
         return Vector3D(
-            inverse_s1d(rectangular_prism.x),
-            inverse_s1d(rectangular_prism.y),
+            x_component.x,
+            y_component.x,
             rectangular_prism.z,
         )
 
-    return mu.InvertibleFunction[Vector3D](f, f_inv)
+    return mu.InvertibleFunction(f, f_inv)
     # doc-region-end define perspective
 
 
 # doc-region-begin define camera space to ndc
 def cs_to_ndc_space_fn(
     vector: Vector3D,
-) -> mu.InvertibleFunction[Vector3D]:
+) -> mu.InvertibleFunction:
     return perspective(
         field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
     )
@@ -275,20 +297,20 @@ def cs_to_ndc_space_fn(
 # doc-region-begin define function stack class
 @dataclasses.dataclass
 class FunctionStack:
-    stack: typing.List[mu.InvertibleFunction[Vector3D]] = dataclasses.field(
+    stack: typing.List[mu.InvertibleFunction] = dataclasses.field(
         default_factory=lambda: []
     )
 
-    def push(self, o: mu.InvertibleFunction[Vector3D]):
+    def push(self, o: mu.InvertibleFunction):
         self.stack.append(o)
 
-    def pop(self):
+    def pop(self) -> mu.InvertibleFunction:
         return self.stack.pop()
 
     def clear(self):
         self.stack.clear()
 
-    def modelspace_to_ndc_fn(self) -> mu.InvertibleFunction[Vector3D]:
+    def modelspace_to_ndc_fn(self) -> mu.InvertibleFunction:
         return mu.compose(self.stack)
 
 

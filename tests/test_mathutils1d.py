@@ -55,8 +55,8 @@ def test___neg__():
 
 # doc-region-begin translate test
 def test_translate():
-    fn: mu.InvertibleFunction[Vector1D] = mu.translate(Vector1D(2.0))
-    fn_inv: mu.InvertibleFunction[Vector1D] = mu.inverse(fn)
+    fn: mu.InvertibleFunction = mu.translate(Vector1D(2.0))
+    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
 
     input_output_pairs = [
         [-3.0, -1.0],
@@ -82,10 +82,10 @@ def test_mx_plus_b():
     m = 5.0
     b = 2.0
 
-    fn: mu.InvertibleFunction[Vector1D] = mu.compose(
+    fn: mu.InvertibleFunction = mu.compose(
         [mu.translate(Vector1D(b)), mu.uniform_scale(m)]
     )
-    fn_inv: mu.InvertibleFunction[Vector1D] = mu.inverse(fn)
+    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
 
     input_output_pairs = [
         [-3.0, -13.0],
@@ -105,8 +105,8 @@ def test_mx_plus_b():
 
 
 def test_uniform_scale():
-    fn: mu.InvertibleFunction[Vector1D] = mu.uniform_scale(4.0)
-    fn_inv: mu.InvertibleFunction[Vector1D] = mu.inverse(fn)
+    fn: mu.InvertibleFunction = mu.uniform_scale(4.0)
+    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
 
     input_output_pairs = [
         [-3.0, -12.0],
@@ -127,7 +127,7 @@ def test_uniform_scale():
 
 def test_tempature_conversion():
     def test_vector1d_function(
-        fn: mu.InvertibleFunction[Vector1D],
+        fn: mu.InvertibleFunction,
         input_output_pairs: typing.List[typing.List[float]],
     ):
         for input_val, output_val in input_output_pairs:
@@ -139,22 +139,18 @@ def test_tempature_conversion():
             )
 
     # doc-region-begin temperature functions
-    celsius_to_kelvin: mu.InvertibleFunction[Vector1D] = mu.translate(
-        Vector1D(273.15)
-    )
-    fahrenheit_to_celsius: mu.InvertibleFunction[Vector1D] = mu.compose(
+    celsius_to_kelvin: mu.InvertibleFunction = mu.translate(Vector1D(273.15))
+    fahrenheit_to_celsius: mu.InvertibleFunction = mu.compose(
         [mu.uniform_scale(5.0 / 9.0), mu.translate(Vector1D(-32.0))]
     )
-    fahrenheit_to_kelvin: mu.InvertibleFunction[Vector1D] = mu.compose(
+    fahrenheit_to_kelvin: mu.InvertibleFunction = mu.compose(
         [celsius_to_kelvin, fahrenheit_to_celsius]
     )
-    kelvin_to_celsius: mu.InvertibleFunction[Vector1D] = mu.inverse(
-        celsius_to_kelvin
-    )
-    celsius_to_fahrenheit: mu.InvertibleFunction[Vector1D] = mu.inverse(
+    kelvin_to_celsius: mu.InvertibleFunction = mu.inverse(celsius_to_kelvin)
+    celsius_to_fahrenheit: mu.InvertibleFunction = mu.inverse(
         fahrenheit_to_celsius
     )
-    kelvin_to_fahrenheit: mu.InvertibleFunction[Vector1D] = mu.compose(
+    kelvin_to_fahrenheit: mu.InvertibleFunction = mu.compose(
         [celsius_to_fahrenheit, kelvin_to_celsius]
     )
 

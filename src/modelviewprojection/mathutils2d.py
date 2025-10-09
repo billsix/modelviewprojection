@@ -95,7 +95,7 @@ class Vector2D(mu1d.Vector1D):
     # doc-region-end define mul
 
 
-def scale(m_x: float, m_y: float) -> mu.InvertibleFunction[Vector2D]:
+def scale(m_x: float, m_y: float) -> mu.InvertibleFunction:
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(vector.x * m_x, vector.y * m_y)
 
@@ -107,34 +107,35 @@ def scale(m_x: float, m_y: float) -> mu.InvertibleFunction[Vector2D]:
 
         return Vector2D(vector.x / m_x, vector.y / m_y)
 
-    return mu.InvertibleFunction[Vector2D](f, f_inv)
+    return mu.InvertibleFunction(f, f_inv)
 
 
 # doc-region-begin define rotate
-def rotate_90_degrees() -> mu.InvertibleFunction[Vector2D]:
-    def f(vector: Vector2D) -> Vector2D:
+def rotate_90_degrees() -> mu.InvertibleFunction:
+    def f(vector: mu.Vector) -> mu.Vector:
+        assert isinstance(vector, Vector2D)
         return Vector2D(-vector.y, vector.x)
 
-    def f_inv(vector: Vector2D) -> Vector2D:
+    def f_inv(vector: mu.Vector) -> mu.Vector:
         return -f(vector)
 
-    return mu.InvertibleFunction[Vector2D](f, f_inv)
+    return mu.InvertibleFunction(f, f_inv)
 
 
-def rotate(angle_in_radians: float) -> mu.InvertibleFunction[Vector2D]:
-    r90: mu.InvertibleFunction[Vector2D] = rotate_90_degrees()
+def rotate(angle_in_radians: float) -> mu.InvertibleFunction:
+    r90: mu.InvertibleFunction = rotate_90_degrees()
 
     def create_rotate_function(
-        perp: mu.InvertibleFunction[Vector2D],
-    ) -> typing.Callable[[Vector2D], Vector2D]:
-        def f(vector: Vector2D) -> Vector2D:
-            parallel: Vector2D = math.cos(angle_in_radians) * vector
-            perpendicular: Vector2D = math.sin(angle_in_radians) * perp(vector)
+        perp: mu.InvertibleFunction,
+    ) -> typing.Callable[[mu.Vector], mu.Vector]:
+        def f(vector: mu.Vector) -> mu.Vector:
+            parallel: mu.Vector = math.cos(angle_in_radians) * vector
+            perpendicular: mu.Vector = math.sin(angle_in_radians) * perp(vector)
             return parallel + perpendicular
 
         return f
 
-    return mu.InvertibleFunction[Vector2D](
+    return mu.InvertibleFunction(
         create_rotate_function(r90),
         create_rotate_function(mu.inverse(r90)),
     )
@@ -144,18 +145,22 @@ def rotate(angle_in_radians: float) -> mu.InvertibleFunction[Vector2D]:
 # doc-region-begin define rotate around
 def rotate_around(
     angle_in_radians: float, center: Vector2D
-) -> mu.InvertibleFunction[Vector2D]:
+) -> mu.InvertibleFunction:
     return mu.compose(
         [mu.translate(center), rotate(angle_in_radians), mu.translate(-center)]
     )
     # doc-region-end define rotate around
 
 
-def cosine(v1: Vector2D, v2: Vector2D) -> bool:
+def cosine(v1: mu.Vector, v2: mu.Vector) -> float:
+    assert isinstance(v1, Vector2D)
+    assert isinstance(v2, Vector2D)
     return v1.dot(v2) / (abs(v1) * (abs(v2)))
 
 
-def sine(v1: Vector2D, v2: Vector2D) -> bool:
+def sine(v1: mu.Vector, v2: mu.Vector) -> float:
+    assert isinstance(v1, Vector2D)
+    assert isinstance(v2, Vector2D)
     return rotate_90_degrees()(v1).dot(v2) / (abs(v1) * (abs(v2)))
 
 

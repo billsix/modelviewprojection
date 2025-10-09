@@ -163,10 +163,8 @@ def test_is_counter_clockwise():
 
 # doc-region-begin translate test
 def test_translate():
-    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.translate(
-        mu2d.Vector2D(x=2.0, y=3.0)
-    )
-    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
+    fn: mu.InvertibleFunction = mu.translate(mu2d.Vector2D(x=2.0, y=3.0))
+    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [2.0, 3.0]],
@@ -183,12 +181,10 @@ def test_translate():
 
 
 def test_compose():
-    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.translate(
-        mu2d.Vector2D(x=2.0, y=3.0)
-    )
-    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
+    fn: mu.InvertibleFunction = mu.translate(mu2d.Vector2D(x=2.0, y=3.0))
+    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
 
-    identity_fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.compose([fn_inv, fn])
+    identity_fn: mu.InvertibleFunction = mu.compose([fn_inv, fn])
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],
@@ -201,8 +197,8 @@ def test_compose():
 
 
 def test_uniform_scale():
-    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu.uniform_scale(4.0)
-    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
+    fn: mu.InvertibleFunction = mu.uniform_scale(4.0)
+    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],
@@ -216,8 +212,8 @@ def test_uniform_scale():
 
 
 def test_scale():
-    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu2d.scale(m_x=2.0, m_y=3.0)
-    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
+    fn: mu.InvertibleFunction = mu2d.scale(m_x=2.0, m_y=3.0)
+    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],
@@ -231,8 +227,8 @@ def test_scale():
 
 
 def test_rotate_90():
-    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu2d.rotate_90_degrees()
-    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
+    fn: mu.InvertibleFunction = mu2d.rotate_90_degrees()
+    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],
@@ -248,10 +244,8 @@ def test_rotate_90():
 
 
 def test_rotate():
-    fn: mu.InvertibleFunction[mu2d.Vector2D] = mu2d.rotate(
-        math.radians(53.130102)
-    )
-    fn_inv: mu.InvertibleFunction[mu2d.Vector2D] = mu.inverse(fn)
+    fn: mu.InvertibleFunction = mu2d.rotate(math.radians(53.130102))
+    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0], [0.0, 0.0]],
