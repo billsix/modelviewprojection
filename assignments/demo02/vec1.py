@@ -84,7 +84,7 @@ mu1d.Vector1D(x=5.0) - mu1d.Vector1D(x=1.0)
 
 # %%
 # doc-region-begin invertible function
-fn: mu1d.InvertibleFunction[mu1d.Vector1D] = mu1d.translate(mu1d.Vector1D(2.0))
+fn: mu1d.InvertibleFunction = mu1d.translate(mu1d.Vector1D(2.0))
 # doc-region-end invertible function
 
 
@@ -110,7 +110,7 @@ assert mu1d.inverse(fn)(mu1d.Vector1D(7)) == mu1d.Vector1D(5.0)
 # doc-region-begin y = m*x + b
 m: float = 5.0
 b: float = 2.0
-fn: mu1d.InvertibleFunction[mu1d.Vector1D] = mu1d.compose(
+fn: mu1d.InvertibleFunction = mu1d.compose(
     [mu1d.translate(mu1d.Vector1D(b)), mu1d.uniform_scale(m)]
 )
 print(fn(mu1d.Vector1D(0.0)))
@@ -122,7 +122,7 @@ assert fn(mu1d.Vector1D(1.0)) == mu1d.Vector1D(7.0)
 
 
 # %%
-fn: mu1d.InvertibleFunction[mu1d.Vector1D] = mu1d.uniform_scale(4.0)
+fn: mu1d.InvertibleFunction = mu1d.uniform_scale(4.0)
 print(fn(mu1d.Vector1D(1.0)))
 assert fn(mu1d.Vector1D(1.0)) == mu1d.Vector1D(4.0)
 print(fn(mu1d.Vector1D(2.0)))
@@ -132,7 +132,7 @@ assert fn(mu1d.Vector1D(3.0)) == mu1d.Vector1D(12.0)
 
 # %%
 # doc-region-begin defined functions
-celsius_to_kelvin: mu1d.InvertibleFunction[mu1d.Vector1D] = mu1d.translate(
+celsius_to_kelvin: mu1d.InvertibleFunction = mu1d.translate(
     mu1d.Vector1D(273.15)
 )
 assert celsius_to_kelvin(mu1d.Vector1D(0.0)) == mu1d.Vector1D(
@@ -143,7 +143,7 @@ assert celsius_to_kelvin(mu1d.Vector1D(100.0)) == mu1d.Vector1D(
 )
 
 
-fahrenheit_to_celsius: mu1d.InvertibleFunction[mu1d.Vector1D] = mu1d.compose(
+fahrenheit_to_celsius: mu1d.InvertibleFunction = mu1d.compose(
     [mu1d.uniform_scale(5.0 / 9.0), mu1d.translate(mu1d.Vector1D(-32.0))]
 )
 assert fahrenheit_to_celsius(mu1d.Vector1D(32.0)) == mu1d.Vector1D(
@@ -154,9 +154,7 @@ assert fahrenheit_to_celsius(mu1d.Vector1D(212.0)) == mu1d.Vector1D(
 )
 
 
-kelvin_to_celsius: mu1d.InvertibleFunction[mu1d.Vector1D] = mu1d.inverse(
-    celsius_to_kelvin
-)
+kelvin_to_celsius: mu1d.InvertibleFunction = mu1d.inverse(celsius_to_kelvin)
 assert kelvin_to_celsius(mu1d.Vector1D(273.15)) == mu1d.Vector1D(
     pytest.approx(0.0)
 )
@@ -175,7 +173,7 @@ assert kelvin_to_celsius(mu1d.Vector1D(373.15)) == mu1d.Vector1D(
 # %%
 
 # doc-region-begin work to do
-fahrenheit_to_kelvin: mu1d.InvertibleFunction[mu1d.Vector1D] = mu1d.translate(
+fahrenheit_to_kelvin: mu1d.InvertibleFunction = mu1d.translate(
     mu1d.Vector1D(0.0)
 )
 assert fahrenheit_to_kelvin(mu1d.Vector1D(32.0)) == mu1d.Vector1D(
@@ -185,7 +183,7 @@ assert fahrenheit_to_kelvin(mu1d.Vector1D(212.0)) == mu1d.Vector1D(
     pytest.approx(373.15)
 )
 
-celsius_to_fahrenheit: mu1d.InvertibleFunction[mu1d.Vector1D] = mu1d.translate(
+celsius_to_fahrenheit: mu1d.InvertibleFunction = mu1d.translate(
     mu1d.Vector1D(0.0)
 )
 assert celsius_to_fahrenheit(mu1d.Vector1D(0.0)) == mu1d.Vector1D(
@@ -196,7 +194,7 @@ assert celsius_to_fahrenheit(mu1d.Vector1D(100.0)) == mu1d.Vector1D(
 )
 
 
-kelvin_to_fahrenheit: mu1d.InvertibleFunction[mu1d.Vector1D] = mu1d.translate(
+kelvin_to_fahrenheit: mu1d.InvertibleFunction = mu1d.translate(
     mu1d.Vector1D(0.0)
 )
 assert kelvin_to_fahrenheit(mu1d.Vector1D(273.15)) == mu1d.Vector1D(

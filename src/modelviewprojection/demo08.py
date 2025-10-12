@@ -166,7 +166,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     rotatePoint: mu2d.Vector2D = paddle1.position
     for p1_v_ms in paddle1.vertices:
-        fn: mu2d.InvertibleFunction[mu2d.Vector2D] = mu2d.compose(
+        fn: mu2d.InvertibleFunction = mu2d.compose(
             [
                 mu2d.uniform_scale(1.0 / 10.0),
                 mu2d.rotate_around(paddle1.rotation, rotatePoint),
@@ -185,7 +185,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     rotatePoint: mu2d.Vector2D = paddle2.position
     for p2_v_ms in paddle2.vertices:
-        fn: mu2d.InvertibleFunction[mu2d.Vector2D] = mu2d.compose(
+        fn: mu2d.InvertibleFunction = mu2d.compose(
             [
                 mu2d.uniform_scale(1.0 / 10.0),
                 mu2d.rotate_around(paddle2.rotation, rotatePoint),

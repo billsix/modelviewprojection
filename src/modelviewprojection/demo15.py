@@ -214,7 +214,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle1.color))
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ndc: mu3d.InvertibleFunction[mu3d.Vector3D] = mu3d.compose(
+        ms_to_ndc: mu3d.InvertibleFunction = mu3d.compose(
             [
                 # camera space to NDC
                 mu3d.uniform_scale(1.0 / 10.0),
@@ -242,7 +242,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(0.0, 0.0, 1.0)
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
-        ms_to_ndc: mu3d.InvertibleFunction[mu3d.Vector3D] = mu3d.compose(
+        ms_to_ndc: mu3d.InvertibleFunction = mu3d.compose(
             [
                 # camera space to NDC
                 mu3d.uniform_scale(1.0 / 10.0),
@@ -278,7 +278,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle2.color))
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: mu3d.InvertibleFunction[mu3d.Vector3D] = mu3d.compose(
+        ms_to_ndc: mu3d.InvertibleFunction = mu3d.compose(
             [
                 # camera space to NDC
                 mu3d.uniform_scale(1.0 / 10.0),

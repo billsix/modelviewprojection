@@ -167,7 +167,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         # doc-region-begin compose transformations on paddle 1
-        fn: mu2d.InvertibleFunction[mu2d.Vector2D] = mu2d.compose(
+        fn: mu2d.InvertibleFunction = mu2d.compose(
             [
                 mu2d.uniform_scale(1.0 / 10.0),
                 mu2d.rotate(paddle1.rotation),
@@ -185,7 +185,7 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: mu2d.InvertibleFunction[mu2d.Vector2D] = mu2d.compose(
+        fn: mu2d.InvertibleFunction = mu2d.compose(
             [
                 mu2d.uniform_scale(1.0 / 10.0),
                 mu2d.rotate(paddle2.rotation),

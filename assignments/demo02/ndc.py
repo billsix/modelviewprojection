@@ -66,7 +66,7 @@ fake_fb.show_framebuffer()
 # Make a new picture below where the triangle is translated 0.3 units in NDC to the left
 
 # %%
-ndc_to_screen: mu2d.InvertibleFunction[mu2d.Vector2D] = mu2d.compose(
+ndc_to_screen: mu2d.InvertibleFunction = mu2d.compose(
     [
         mu2d.translate(mu2d.Vector2D(-0.5, 0.5)),
         mu2d.scale(fake_fb.width, fake_fb.height),
@@ -101,9 +101,7 @@ fake_fb.draw_filled_triangle(
 fake_fb.show_framebuffer()
 
 # %%
-move: mu2d.InvertibleFunction[mu2d.Vector2D] = mu2d.translate(
-    mu2d.Vector2D(0, 0.5)
-)
+move: mu2d.InvertibleFunction = mu2d.translate(mu2d.Vector2D(0, 0.5))
 
 triangle_in_screen = [
     mu2d.compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
@@ -124,7 +122,7 @@ sixty_fps_times_2_sec = 120
 # Create 10 frames with simple animation
 for i in range(sixty_fps_times_2_sec):
     fake_fb.clear_framebuffer()
-    move: mu2d.InvertibleFunction[mu2d.Vector2D] = mu2d.translate(
+    move: mu2d.InvertibleFunction = mu2d.translate(
         mu2d.Vector2D(0, 0.5 * (np.sin(np.pi / 60.0 * float(i))))
     )
 

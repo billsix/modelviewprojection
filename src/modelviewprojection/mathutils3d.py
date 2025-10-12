@@ -207,7 +207,7 @@ def rotate_z(angle_in_radians: float) -> mu.InvertibleFunction:
 
         return f
 
-    r: mu.InvertibleFunction[mu2d.Vector2D] = mu2d.rotate(angle_in_radians)
+    r: mu.InvertibleFunction = mu2d.rotate(angle_in_radians)
     return mu.InvertibleFunction(
         create_rotate_function(r), create_rotate_function(mu.inverse(r))
     )
