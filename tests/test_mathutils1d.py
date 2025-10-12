@@ -23,38 +23,37 @@ import typing
 
 import pytest
 
-import modelviewprojection.mathutils1d
-from modelviewprojection.mathutils1d import Vector1D
+import modelviewprojection.mathutils1d as mu1d
 
 
 def test___add__():
-    result = Vector1D(x=1.0) + Vector1D(x=3.0)
-    assert result == Vector1D(x=pytest.approx(4.0))
+    result = mu1d.Vector1D(x=1.0) + mu1d.Vector1D(x=3.0)
+    assert result == mu1d.Vector1D(x=pytest.approx(4.0))
 
 
 def test___sub__():
-    result = Vector1D(x=5.0) - Vector1D(x=1.0)
-    assert result == Vector1D(x=pytest.approx(4.0))
+    result = mu1d.Vector1D(x=5.0) - mu1d.Vector1D(x=1.0)
+    assert result == mu1d.Vector1D(x=pytest.approx(4.0))
 
 
 def test___mul__():
-    result = Vector1D(x=2.0) * 4.0
-    assert result == Vector1D(x=pytest.approx(8.0))
+    result = mu1d.Vector1D(x=2.0) * 4.0
+    assert result == mu1d.Vector1D(x=pytest.approx(8.0))
 
 
 def test___rmul__():
-    result = 4.0 * Vector1D(x=2.0)
-    assert result == Vector1D(x=pytest.approx(8.0))
+    result = 4.0 * mu1d.Vector1D(x=2.0)
+    assert result == mu1d.Vector1D(x=pytest.approx(8.0))
 
 
 def test___neg__():
-    result = -Vector1D(x=2.0)
-    assert result == Vector1D(x=pytest.approx(-2.0))
+    result = -mu1d.Vector1D(x=2.0)
+    assert result == mu1d.Vector1D(x=pytest.approx(-2.0))
 
 
 # doc-region-begin translate test
 def test_translate():
-    fn: mu1d.InvertibleFunction = mu1d.translate(Vector1D(2.0))
+    fn: mu1d.InvertibleFunction = mu1d.translate(mu1d.Vector1D(2.0))
     fn_inv: mu1d.InvertibleFunction = mu1d.inverse(fn)
 
     input_output_pairs = [
@@ -68,8 +67,10 @@ def test_translate():
         [4.0, 6.0],
     ]
     for input_val, output_val in input_output_pairs:
-        assert fn(Vector1D(input_val)) == Vector1D(pytest.approx(output_val))
-        assert fn_inv(Vector1D(output_val)) == Vector1D(
+        assert fn(mu1d.Vector1D(input_val)) == mu1d.Vector1D(
+            pytest.approx(output_val)
+        )
+        assert fn_inv(mu1d.Vector1D(output_val)) == mu1d.Vector1D(
             pytest.approx(input_val)
         )
 
@@ -82,7 +83,7 @@ def test_mx_plus_b():
     b = 2.0
 
     fn: mu1d.InvertibleFunction = mu1d.compose(
-        [mu1d.translate(Vector1D(b)), mu1d.uniform_scale(m)]
+        [mu1d.translate(mu1d.Vector1D(b)), mu1d.uniform_scale(m)]
     )
     fn_inv: mu1d.InvertibleFunction = mu1d.inverse(fn)
 
@@ -97,8 +98,10 @@ def test_mx_plus_b():
         [4.0, 22.0],
     ]
     for input_val, output_val in input_output_pairs:
-        assert fn(Vector1D(input_val)) == Vector1D(pytest.approx(output_val))
-        assert fn_inv(Vector1D(output_val)) == Vector1D(
+        assert fn(mu1d.Vector1D(input_val)) == mu1d.Vector1D(
+            pytest.approx(output_val)
+        )
+        assert fn_inv(mu1d.Vector1D(output_val)) == mu1d.Vector1D(
             pytest.approx(input_val)
         )
 
@@ -118,8 +121,10 @@ def test_uniform_scale():
         [4.0, 16.0],
     ]
     for input_val, output_val in input_output_pairs:
-        assert fn(Vector1D(input_val)) == Vector1D(pytest.approx(output_val))
-        assert fn_inv(Vector1D(output_val)) == Vector1D(
+        assert fn(mu1d.Vector1D(input_val)) == mu1d.Vector1D(
+            pytest.approx(output_val)
+        )
+        assert fn_inv(mu1d.Vector1D(output_val)) == mu1d.Vector1D(
             pytest.approx(input_val)
         )
 
@@ -130,19 +135,19 @@ def test_tempature_conversion():
         input_output_pairs: typing.List[typing.List[float]],
     ):
         for input_val, output_val in input_output_pairs:
-            assert fn(Vector1D(input_val)) == Vector1D(
+            assert fn(mu1d.Vector1D(input_val)) == mu1d.Vector1D(
                 pytest.approx(output_val)
             )
-            assert mu1d.inverse(fn)(Vector1D(output_val)) == Vector1D(
+            assert mu1d.inverse(fn)(mu1d.Vector1D(output_val)) == mu1d.Vector1D(
                 pytest.approx(input_val)
             )
 
     # doc-region-begin temperature functions
     celsius_to_kelvin: mu1d.InvertibleFunction = mu1d.translate(
-        Vector1D(273.15)
+        mu1d.Vector1D(273.15)
     )
     fahrenheit_to_celsius: mu1d.InvertibleFunction = mu1d.compose(
-        [mu1d.uniform_scale(5.0 / 9.0), mu1d.translate(Vector1D(-32.0))]
+        [mu1d.uniform_scale(5.0 / 9.0), mu1d.translate(mu1d.Vector1D(-32.0))]
     )
     fahrenheit_to_kelvin: mu1d.InvertibleFunction = mu1d.compose(
         [celsius_to_kelvin, fahrenheit_to_celsius]
@@ -202,5 +207,5 @@ def test_tempature_conversion():
 
 
 def test_doctest():
-    failureCount, testCount = doctest.testmod(modelviewprojection.mathutils1d)
+    failureCount, testCount = doctest.testmod(mu1d)
     assert 0 == failureCount
