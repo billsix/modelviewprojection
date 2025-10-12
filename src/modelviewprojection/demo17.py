@@ -23,7 +23,6 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils3d as mu3d
 
 if not glfw.init():
@@ -171,14 +170,14 @@ def handle_inputs() -> None:
     # doc-region-begin handle key input keys
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         forwards_cs = mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)
-        forward_ws = mu.compose(
-            [mu.translate(camera.position_ws), mu3d.rotate_y(camera.rot_y)]
+        forward_ws = mu3d.compose(
+            [mu3d.translate(camera.position_ws), mu3d.rotate_y(camera.rot_y)]
         )(forwards_cs)
         camera.position_ws = forward_ws
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         forwards_cs = mu3d.Vector3D(x=0.0, y=0.0, z=1.0)
-        forward_ws = mu.compose(
-            [mu.translate(camera.position_ws), mu3d.rotate_y(camera.rot_y)]
+        forward_ws = mu3d.compose(
+            [mu3d.translate(camera.position_ws), mu3d.rotate_y(camera.rot_y)]
         )(forwards_cs)
         camera.position_ws = forward_ws
     # doc-region-end handle key input keys
@@ -234,12 +233,12 @@ while not glfw.window_should_close(window):
             left=-10.0, right=10.0, bottom=-10.0, top=10.0, near=-0.1, far=-30.0
         )
     ):
-        # world space to camera space, which is mu.inverse of camera space to world space
+        # world space to camera space, which is mu3d.inverse of camera space to world space
         with mu3d.push_transformation(
-            mu.inverse(
-                mu.compose(
+            mu3d.inverse(
+                mu3d.compose(
                     [
-                        mu.translate(camera.position_ws),
+                        mu3d.translate(camera.position_ws),
                         mu3d.rotate_y(camera.rot_y),
                         mu3d.rotate_x(camera.rot_x),
                     ]
@@ -248,9 +247,9 @@ while not glfw.window_should_close(window):
         ):
             # paddle 1 space to world space
             with mu3d.push_transformation(
-                mu.compose(
+                mu3d.compose(
                     [
-                        mu.translate(paddle1.position),
+                        mu3d.translate(paddle1.position),
                         mu3d.rotate_z(paddle1.rotation),
                     ]
                 )
@@ -270,11 +269,11 @@ while not glfw.window_should_close(window):
 
                 # square space to paddle 1 space
                 with mu3d.push_transformation(
-                    mu.compose(
+                    mu3d.compose(
                         [
-                            mu.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
+                            mu3d.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
                             mu3d.rotate_z(rotation_around_paddle1),
-                            mu.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
+                            mu3d.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
                             mu3d.rotate_z(square_rotation),
                         ]
                     )
@@ -295,9 +294,9 @@ while not glfw.window_should_close(window):
 
             # paddle 2 space to world space
             with mu3d.push_transformation(
-                mu.compose(
+                mu3d.compose(
                     [
-                        mu.translate(paddle2.position),
+                        mu3d.translate(paddle2.position),
                         mu3d.rotate_z(paddle2.rotation),
                     ]
                 )

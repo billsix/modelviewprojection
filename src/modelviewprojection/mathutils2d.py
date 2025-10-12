@@ -25,6 +25,32 @@ import pytest
 import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils1d as mu1d
 
+# for ease of use in importing and using
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    compose,
+    inverse,
+    translate,
+    uniform_scale,
+)
+
+__all__ = [
+    "Vector2D",
+    "scale",
+    "rotate_90_degrees",
+    "rotate",
+    "rotate_around",
+    "sine",
+    "is_counter_clockwise",
+    "is_clockwise",
+    "is_parallel",
+    "translate",
+    "uniform_scale",
+    "InvertibleFunction",
+    "inverse",
+    "compose",
+]
+
 
 # doc-region-begin define vector class
 @dataclasses.dataclass

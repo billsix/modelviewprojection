@@ -23,7 +23,6 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils3d as mu3d
 
 if not glfw.init():
@@ -209,16 +208,16 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle1.color))
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ndc: mu.InvertibleFunction[mu3d.Vector3D] = mu.compose(
+        ms_to_ndc: mu3d.InvertibleFunction[mu3d.Vector3D] = mu3d.compose(
             [
                 # camera space to NDC
-                mu.uniform_scale(1.0 / 10.0),
+                mu3d.uniform_scale(1.0 / 10.0),
                 # world space to camera space
-                mu.inverse(mu.translate(camera.position_ws)),
+                mu3d.inverse(mu3d.translate(camera.position_ws)),
                 # model space to world space
-                mu.compose(
+                mu3d.compose(
                     [
-                        mu.translate(paddle1.position),
+                        mu3d.translate(paddle1.position),
                         mu3d.rotate_z(paddle1.rotation),
                     ]
                 ),
@@ -237,25 +236,25 @@ while not glfw.window_should_close(window):
     GL.glColor3f(0.0, 0.0, 1.0)
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
-        ms_to_ndc: mu.InvertibleFunction[mu3d.Vector3D] = mu.compose(
+        ms_to_ndc: mu3d.InvertibleFunction[mu3d.Vector3D] = mu3d.compose(
             [
                 # camera space to NDC
-                mu.uniform_scale(1.0 / 10.0),
+                mu3d.uniform_scale(1.0 / 10.0),
                 # world space to camera space
-                mu.inverse(mu.translate(camera.position_ws)),
+                mu3d.inverse(mu3d.translate(camera.position_ws)),
                 # model space to world space
-                mu.compose(
+                mu3d.compose(
                     [
-                        mu.translate(paddle1.position),
+                        mu3d.translate(paddle1.position),
                         mu3d.rotate_z(paddle1.rotation),
                     ]
                 ),
                 # square space to paddle 1 space
-                mu.compose(
+                mu3d.compose(
                     [
-                        mu.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
+                        mu3d.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
                         mu3d.rotate_z(rotation_around_paddle1),
-                        mu.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
+                        mu3d.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
                         mu3d.rotate_z(square_rotation),
                     ]
                 ),
@@ -273,16 +272,16 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle2.color))
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: mu.InvertibleFunction[mu3d.Vector3D] = mu.compose(
+        ms_to_ndc: mu3d.InvertibleFunction[mu3d.Vector3D] = mu3d.compose(
             [
                 # camera space to NDC
-                mu.uniform_scale(1.0 / 10.0),
+                mu3d.uniform_scale(1.0 / 10.0),
                 # world space to camera space
-                mu.inverse(mu.translate(camera.position_ws)),
+                mu3d.inverse(mu3d.translate(camera.position_ws)),
                 # model space to world space
-                mu.compose(
+                mu3d.compose(
                     [
-                        mu.translate(paddle2.position),
+                        mu3d.translate(paddle2.position),
                         mu3d.rotate_z(paddle2.rotation),
                     ]
                 ),

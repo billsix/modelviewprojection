@@ -23,7 +23,6 @@ import numpy as np
 import PIL
 import PIL.Image
 
-import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils2d as mu2d
 
 BLACK: typing.Tuple[int, int, int] = (0, 0, 0)
@@ -67,9 +66,9 @@ class FrameBuffer:
 
     def screenspace_to_framebuffer(self, v: mu2d.Vector2D) -> mu2d.Vector2D:
         """Convert from OpenGL-style coords to framebuffer array coords."""
-        ss_to_fb = mu.compose(
+        ss_to_fb = mu2d.compose(
             [
-                mu.translate(mu2d.Vector2D(0, self.height - 1)),
+                mu2d.translate(mu2d.Vector2D(0, self.height - 1)),
                 mu2d.scale(m_x=1, m_y=-1),
             ]
         )

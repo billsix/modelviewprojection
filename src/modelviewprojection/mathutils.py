@@ -174,12 +174,12 @@ def compose(
 
 
     Args:
-        *functions (InvertibleFunction): Variable number of
-                                            InvertibleFunctions to compose.
-                                            At least on value must be provided.
+        functions (typing.List[InvertibleFunction]): Variable number of
+                                                     InvertibleFunctions to compose.
+                                                     At least on value must be provided.
     Returns:
         Vector: One function that is the aggregate function of the argument
-           functions composed.
+                functions composed.
     Raises:
         Nothing
     Example:

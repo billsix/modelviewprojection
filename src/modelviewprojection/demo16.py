@@ -23,7 +23,6 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils3d as mu3d
 
 if not glfw.init():
@@ -207,19 +206,19 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin stack push camera space to ndc
     # camera space to NDC
-    mu3d.fn_stack.push(mu.uniform_scale(1.0 / 10.0))
+    mu3d.fn_stack.push(mu3d.uniform_scale(1.0 / 10.0))
     # doc-region-end stack push camera space to ndc
 
     # doc-region-begin world space to camera space
     # world space to camera space
-    mu3d.fn_stack.push(mu.inverse(mu.translate(camera.position_ws)))
+    mu3d.fn_stack.push(mu3d.inverse(mu3d.translate(camera.position_ws)))
     # doc-region-end world space to camera space
 
     # doc-region-begin paddle 1 transformations
     # paddle 1 model space to world space
     mu3d.fn_stack.push(
-        mu.compose(
-            [mu.translate(paddle1.position), mu3d.rotate_z(paddle1.rotation)]
+        mu3d.compose(
+            [mu3d.translate(paddle1.position), mu3d.rotate_z(paddle1.rotation)]
         )
     )
     # doc-region-end paddle 1 transformations
@@ -239,11 +238,11 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin square space to paddle 1 space
     mu3d.fn_stack.push(
-        mu.compose(
+        mu3d.compose(
             [
-                mu.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
+                mu3d.translate(mu3d.Vector3D(x=0.0, y=0.0, z=-1.0)),
                 mu3d.rotate_z(rotation_around_paddle1),
-                mu.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
+                mu3d.translate(mu3d.Vector3D(x=2.0, y=0.0, z=0.0)),
                 mu3d.rotate_z(square_rotation),
             ]
         )
@@ -271,8 +270,8 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin paddle 2 model space to world space
     mu3d.fn_stack.push(
-        mu.compose(
-            [mu.translate(paddle2.position), mu3d.rotate_z(paddle2.rotation)]
+        mu3d.compose(
+            [mu3d.translate(paddle2.position), mu3d.rotate_z(paddle2.rotation)]
         )
     )
     # doc-region-end paddle 2 model space to world space

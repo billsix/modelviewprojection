@@ -23,7 +23,6 @@ import typing
 
 import pytest
 
-import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils1d
 from modelviewprojection.mathutils1d import Vector1D
 
@@ -55,8 +54,8 @@ def test___neg__():
 
 # doc-region-begin translate test
 def test_translate():
-    fn: mu.InvertibleFunction = mu.translate(Vector1D(2.0))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+    fn: mu1d.InvertibleFunction = mu1d.translate(Vector1D(2.0))
+    fn_inv: mu1d.InvertibleFunction = mu1d.inverse(fn)
 
     input_output_pairs = [
         [-3.0, -1.0],
@@ -82,10 +81,10 @@ def test_mx_plus_b():
     m = 5.0
     b = 2.0
 
-    fn: mu.InvertibleFunction = mu.compose(
-        [mu.translate(Vector1D(b)), mu.uniform_scale(m)]
+    fn: mu1d.InvertibleFunction = mu1d.compose(
+        [mu1d.translate(Vector1D(b)), mu1d.uniform_scale(m)]
     )
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+    fn_inv: mu1d.InvertibleFunction = mu1d.inverse(fn)
 
     input_output_pairs = [
         [-3.0, -13.0],
@@ -105,8 +104,8 @@ def test_mx_plus_b():
 
 
 def test_uniform_scale():
-    fn: mu.InvertibleFunction = mu.uniform_scale(4.0)
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+    fn: mu1d.InvertibleFunction = mu1d.uniform_scale(4.0)
+    fn_inv: mu1d.InvertibleFunction = mu1d.inverse(fn)
 
     input_output_pairs = [
         [-3.0, -12.0],
@@ -127,30 +126,32 @@ def test_uniform_scale():
 
 def test_tempature_conversion():
     def test_vector1d_function(
-        fn: mu.InvertibleFunction,
+        fn: mu1d.InvertibleFunction,
         input_output_pairs: typing.List[typing.List[float]],
     ):
         for input_val, output_val in input_output_pairs:
             assert fn(Vector1D(input_val)) == Vector1D(
                 pytest.approx(output_val)
             )
-            assert mu.inverse(fn)(Vector1D(output_val)) == Vector1D(
+            assert mu1d.inverse(fn)(Vector1D(output_val)) == Vector1D(
                 pytest.approx(input_val)
             )
 
     # doc-region-begin temperature functions
-    celsius_to_kelvin: mu.InvertibleFunction = mu.translate(Vector1D(273.15))
-    fahrenheit_to_celsius: mu.InvertibleFunction = mu.compose(
-        [mu.uniform_scale(5.0 / 9.0), mu.translate(Vector1D(-32.0))]
+    celsius_to_kelvin: mu1d.InvertibleFunction = mu1d.translate(
+        Vector1D(273.15)
     )
-    fahrenheit_to_kelvin: mu.InvertibleFunction = mu.compose(
+    fahrenheit_to_celsius: mu1d.InvertibleFunction = mu1d.compose(
+        [mu1d.uniform_scale(5.0 / 9.0), mu1d.translate(Vector1D(-32.0))]
+    )
+    fahrenheit_to_kelvin: mu1d.InvertibleFunction = mu1d.compose(
         [celsius_to_kelvin, fahrenheit_to_celsius]
     )
-    kelvin_to_celsius: mu.InvertibleFunction = mu.inverse(celsius_to_kelvin)
-    celsius_to_fahrenheit: mu.InvertibleFunction = mu.inverse(
+    kelvin_to_celsius: mu1d.InvertibleFunction = mu1d.inverse(celsius_to_kelvin)
+    celsius_to_fahrenheit: mu1d.InvertibleFunction = mu1d.inverse(
         fahrenheit_to_celsius
     )
-    kelvin_to_fahrenheit: mu.InvertibleFunction = mu.compose(
+    kelvin_to_fahrenheit: mu1d.InvertibleFunction = mu1d.compose(
         [celsius_to_fahrenheit, kelvin_to_celsius]
     )
 

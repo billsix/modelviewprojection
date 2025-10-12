@@ -23,6 +23,24 @@ import numpy as np
 
 import modelviewprojection.mathutils as mu
 
+# for ease of use in importing and using
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    compose,
+    inverse,
+    translate,
+    uniform_scale,
+)
+
+__all__ = [
+    "Vector1D",
+    "translate",
+    "uniform_scale",
+    "InvertibleFunction",
+    "inverse",
+    "compose",
+]
+
 
 # doc-region-begin define vector class
 @dataclasses.dataclass

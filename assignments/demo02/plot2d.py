@@ -47,7 +47,6 @@ import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
 
-import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils2d as mu2d
 
 extraLinesMultiplier = 3
@@ -171,10 +170,10 @@ with create_graphs("foo", "bar.txt", (3, 3)):
     create_basis(
         (3, 3),
         1,
-        mu.compose(
+        mu2d.compose(
             [
                 mu2d.rotate(math.radians(53.130102)),
-                mu.translate(mu2d.Vector2D(x=4.0, y=0.0)),
+                mu2d.translate(mu2d.Vector2D(x=4.0, y=0.0)),
             ]
         ),
     )

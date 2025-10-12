@@ -25,6 +25,35 @@ import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils1d as mu1d
 import modelviewprojection.mathutils2d as mu2d
 
+# for ease of use in importing and using
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    compose,
+    inverse,
+    translate,
+    uniform_scale,
+)
+
+__all__ = [
+    "Vector3D",
+    "cos",
+    "abs_sin",
+    "scale",
+    "rotate_x",
+    "rotate_y",
+    "rotate_z",
+    "ortho",
+    "perspective",
+    "cs_to_ndc_space_fn",
+    "FunctionStack",
+    "push_transformation",
+    "translate",
+    "uniform_scale",
+    "InvertibleFunction",
+    "inverse",
+    "compose",
+]
+
 
 # doc-region-begin define vector class
 @dataclasses.dataclass

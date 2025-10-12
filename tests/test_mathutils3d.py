@@ -23,7 +23,6 @@ import math
 from pytest import approx
 
 import modelviewprojection
-import modelviewprojection.mathutils as mu
 import modelviewprojection.mathutils3d as mu3d
 
 
@@ -73,8 +72,10 @@ def wrap_vec3_test(fn, input_val, output_val):
 
 # doc-region-begin translate test
 def test_translate():
-    fn: mu.InvertibleFunction = mu.translate(mu3d.Vector3D(x=2.0, y=3.0, z=4.0))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+    fn: mu3d.InvertibleFunction = mu3d.translate(
+        mu3d.Vector3D(x=2.0, y=3.0, z=4.0)
+    )
+    fn_inv: mu3d.InvertibleFunction = mu3d.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [2.0, 3.0, 4.0]],
@@ -91,8 +92,8 @@ def test_translate():
 
 
 def test_uniform_scale():
-    fn: mu.InvertibleFunction = mu.uniform_scale(4.0)
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+    fn: mu3d.InvertibleFunction = mu3d.uniform_scale(4.0)
+    fn_inv: mu3d.InvertibleFunction = mu3d.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
@@ -107,8 +108,8 @@ def test_uniform_scale():
 
 
 def test_scale():
-    fn: mu.InvertibleFunction = mu3d.scale(m_x=2.0, m_y=3.0, m_z=4.0)
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+    fn: mu3d.InvertibleFunction = mu3d.scale(m_x=2.0, m_y=3.0, m_z=4.0)
+    fn_inv: mu3d.InvertibleFunction = mu3d.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
@@ -123,8 +124,8 @@ def test_scale():
 
 
 def test_rotate_x():
-    fn: mu.InvertibleFunction = mu3d.rotate_x(math.radians(53.130102))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+    fn: mu3d.InvertibleFunction = mu3d.rotate_x(math.radians(53.130102))
+    fn_inv: mu3d.InvertibleFunction = mu3d.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
@@ -138,8 +139,8 @@ def test_rotate_x():
 
 
 def test_rotate_y():
-    fn: mu.InvertibleFunction = mu3d.rotate_y(math.radians(53.130102))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+    fn: mu3d.InvertibleFunction = mu3d.rotate_y(math.radians(53.130102))
+    fn_inv: mu3d.InvertibleFunction = mu3d.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
@@ -153,8 +154,8 @@ def test_rotate_y():
 
 
 def test_rotate_z():
-    fn: mu.InvertibleFunction = mu3d.rotate_z(math.radians(53.130102))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+    fn: mu3d.InvertibleFunction = mu3d.rotate_z(math.radians(53.130102))
+    fn_inv: mu3d.InvertibleFunction = mu3d.inverse(fn)
 
     input_output_pairs = [
         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
