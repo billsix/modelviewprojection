@@ -148,28 +148,28 @@ def create_basis(graph_bounds, gridline_interval, fn=lambda x: x):
 # %%
 
 with create_graphs("foo", "bar.txt", (10, 10)):
-    create_basis((10, 10), 1)
+    create_basis((3, 3), 1)
 
 # %%
 
 with create_graphs(
     "foo",
     "bar.txt",
-    (10, 10),
+    (3, 3),
 ):
-    create_basis((10, 10), 1, mu2d.rotate(math.radians(53.130102)))
+    create_basis((3, 3), 1, mu2d.rotate(math.radians(53.130102)))
 
 # %%
 
 
-with create_graphs("foo", "bar.txt", (10, 10)):
-    create_basis((10, 10), 1, mu2d.rotate(0.0))
-    create_basis((10, 10), 1, mu2d.rotate(math.radians(53.130102)))
+with create_graphs("foo", "bar.txt", (3, 3)):
+    create_basis((3, 3), 1, mu2d.rotate(0.0))
+    create_basis((3, 3), 1, mu2d.rotate(math.radians(53.130102)))
 
 # %%
-with create_graphs("foo", "bar.txt", (10, 10)):
+with create_graphs("foo", "bar.txt", (3, 3)):
     create_basis(
-        (10, 10),
+        (3, 3),
         1,
         mu.compose(
             [
@@ -178,3 +178,5 @@ with create_graphs("foo", "bar.txt", (10, 10)):
             ]
         ),
     )
+
+# %%
