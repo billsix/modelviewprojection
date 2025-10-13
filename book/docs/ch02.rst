@@ -472,7 +472,7 @@ and/or taking the inverse_ of given functions.
 To convert from fahrenheit to kelvin
 
 .. math::
-    f_{fahrenheit}^{kelvin} = f_{Celsius}^{kelvin} \circ f_{fahrenheit}^{Celsius}
+    f_{fahrenheit}^{kelvin} = f_{celsius}^{kelvin} \circ f_{fahrenheit}^{celsius}
 
 To convert from kelvin to celsius
 
