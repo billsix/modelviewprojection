@@ -173,7 +173,7 @@ with create_graphs("foo", "bar.txt", (3, 3)):
         mu2d.compose(
             [
                 mu2d.rotate(math.radians(53.130102)),
-                mu2d.translate(mu2d.Vector2D(x=4.0, y=0.0)),
+                mu2d.translate(mu2d.Vector2D(x=1.0, y=0.0)),
             ]
         ),
     )
