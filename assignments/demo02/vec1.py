@@ -45,7 +45,7 @@
 import warnings
 
 import pytest
-
+import numpy as np
 import modelviewprojection.mathutils1d as mu1d
 
 # turn warnings into exceptions
@@ -135,9 +135,8 @@ assert fn(mu1d.Vector1D(3.0)) == mu1d.Vector1D(12.0)
 celsius_to_kelvin: mu1d.InvertibleFunction = mu1d.translate(
     mu1d.Vector1D(273.15)
 )
-assert celsius_to_kelvin(mu1d.Vector1D(0.0)) == mu1d.Vector1D(
-    pytest.approx(273.15)
-)
+assert np.isclose(celsius_to_kelvin(mu1d.Vector1D(0.0)).x, mu1d.Vector1D(273.15).x)
+
 assert celsius_to_kelvin(mu1d.Vector1D(100.0)) == mu1d.Vector1D(
     pytest.approx(373.15)
 )

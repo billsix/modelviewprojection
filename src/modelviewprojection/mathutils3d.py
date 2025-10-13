@@ -32,6 +32,7 @@ from modelviewprojection.mathutils import (
     inverse,
     translate,
     uniform_scale,
+    Vector
 )
 
 __all__ = [
@@ -52,6 +53,7 @@ __all__ = [
     "InvertibleFunction",
     "inverse",
     "compose",
+    "Vector"
 ]
 
 

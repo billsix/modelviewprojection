@@ -19,7 +19,7 @@
 import abc
 import dataclasses
 import typing
-
+import numpy as np
 
 class Vector(abc.ABC):
     @abc.abstractmethod
@@ -70,6 +70,13 @@ class Vector(abc.ABC):
 
     def __rmul__(self, scalar: float) -> typing.Self:
         return self * scalar
+
+
+    def isclose(self, other: typing.Self) -> float:
+        return all(bool(np.isclose(v1,v2)) for v1, v2 in zip(self, other))
+
+
+
 
 
 # doc-region-begin define invertible function
