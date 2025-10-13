@@ -299,7 +299,7 @@ while not glfw.window_should_close(window):
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
-    glClear(sum(GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT))
+    glClear(sum([GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT]))
 
     draw_in_square_viewport()
     draw_a_triangle()

@@ -159,7 +159,7 @@ def inverse(f: InvertibleFunction) -> InvertibleFunction:
 
 
 def compose(
-    functions: typing.List[InvertibleFunction],
+    functions: list[InvertibleFunction],
 ) -> InvertibleFunction:
     """
     Compose a sequence of functions.
@@ -174,7 +174,7 @@ def compose(
 
 
     Args:
-        functions (typing.List[InvertibleFunction]): Variable number of
+        functions (list[InvertibleFunction]): Variable number of
                                                      InvertibleFunctions to compose.
                                                      At least on value must be provided.
     Returns:
@@ -208,7 +208,7 @@ def compose(
 
 
 def compose_intermediate_fns(
-    functions: typing.List[InvertibleFunction], relative_basis: bool = False
+    functions: list[InvertibleFunction], relative_basis: bool = False
 ) -> typing.Iterable[InvertibleFunction]:
     """
     Like compose, but returns a list of all of the partial compositions
@@ -220,7 +220,7 @@ def compose_intermediate_fns(
         >>> m = 5.0
         >>> b = 2.0
         >>> # natural basis
-        >>> fns: typing.List[InvertibleFunction] = compose_intermediate_fns(
+        >>> fns: list[InvertibleFunction] = compose_intermediate_fns(
         ...      [translate(Vector1D(b)), uniform_scale(m)]
         ... )
         >>> len(fns)
@@ -230,7 +230,7 @@ def compose_intermediate_fns(
         >>> fns[1](Vector1D(1))
         Vector1D(x=7.0)
         >>> # relative basis
-        >>> fns: typing.List[InvertibleFunction] = compose_intermediate_fns(
+        >>> fns: list[InvertibleFunction] = compose_intermediate_fns(
         ...     [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True
         ... )
         >>> len(fns)
@@ -252,7 +252,7 @@ def compose_intermediate_fns(
 
 
 def compose_intermediate_fns_and_fn(
-    functions: typing.List[InvertibleFunction], relative_basis: bool = False
+    functions: list[InvertibleFunction], relative_basis: bool = False
 ) -> typing.Iterable[InvertibleFunction]:
     """
     Like compose, but returns a list of all of the partial compositions

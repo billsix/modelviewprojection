@@ -19,7 +19,6 @@
 # SOFTWARE.
 
 import doctest
-import typing
 
 import pytest
 
@@ -132,7 +131,7 @@ def test_uniform_scale():
 def test_tempature_conversion():
     def test_vector1d_function(
         fn: mu1d.InvertibleFunction,
-        input_output_pairs: typing.List[typing.List[float]],
+        input_output_pairs: list[list[float]],
     ):
         for input_val, output_val in input_output_pairs:
             assert fn(mu1d.Vector1D(input_val)) == mu1d.Vector1D(

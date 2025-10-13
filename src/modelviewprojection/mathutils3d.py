@@ -326,7 +326,7 @@ def cs_to_ndc_space_fn(
 # doc-region-begin define function stack class
 @dataclasses.dataclass
 class FunctionStack:
-    stack: typing.List[mu.InvertibleFunction] = dataclasses.field(
+    stack: list[mu.InvertibleFunction] = dataclasses.field(
         default_factory=lambda: []
     )
 

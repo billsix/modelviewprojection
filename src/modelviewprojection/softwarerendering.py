@@ -121,7 +121,7 @@ class FrameBuffer:
             for x in range(min_x, max_x + 1):
                 pixel_position: mu2d.Vector2D = mu2d.Vector2D(x, y)
                 try:
-                    counter_clockwise_values: typing.List[bool] = [
+                    counter_clockwise_values: list[bool] = [
                         mu2d.is_counter_clockwise(v2 - v1, pixel_position - v1),
                         mu2d.is_counter_clockwise(v3 - v2, pixel_position - v2),
                         mu2d.is_counter_clockwise(v1 - v3, pixel_position - v3),
