@@ -99,7 +99,7 @@ We can do negate a  :class:`modelviewprojection.mathutils1d.Vector1D` using "-",
 Translate Implementation
 ------------------------
 
-Next we have a very import function, :py:meth:`modelviewprojection.mathutils1d.translate`.  Read
+Next we have a very import function, :py:meth:`modelviewprojection.mathutils.translate`.  Read
 the API documentation in the link, it's a very important function.
 
 Translate is a function which partially binds a constant :class:`Vector1D` to
@@ -170,7 +170,7 @@ on our function, without having to worry about how it's implemented.
    :caption: assignments/demo02/vec1.py
 
 
-What's nice about that is we can look at the implementation of :py:meth:`modelviewprojection.mathutils1d.translate`
+What's nice about that is we can look at the implementation of :py:meth:`modelviewprojection.mathutils.translate`
 once, understand how it works internally, and then forget those details and treat
 it as an invertible BlackBox_.
 
