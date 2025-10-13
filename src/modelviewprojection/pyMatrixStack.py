@@ -33,7 +33,7 @@ class MatrixStack(enum.Enum):
     modelviewprojection = 5
 
 
-__modelStack__ = [
+__modelStack__: np.matrix = [
     np.matrix(
         [
             [1.0, 0.0, 0.0, 0.0],
@@ -45,7 +45,7 @@ __modelStack__ = [
     )
 ]
 
-__viewStack__ = [
+__viewStack__: np.matrix = [
     np.matrix(
         [
             [1.0, 0.0, 0.0, 0.0],
@@ -57,7 +57,7 @@ __viewStack__ = [
     )
 ]
 
-__projectionStack__ = [
+__projectionStack__: np.matrix = [
     np.matrix(
         [
             [1.0, 0.0, 0.0, 0.0],
@@ -70,7 +70,7 @@ __projectionStack__ = [
 ]
 
 
-def get_current_matrix(matrixStack):
+def get_current_matrix(matrixStack: MatrixStack) -> np.matrix:
     if matrixStack == MatrixStack.model:
         return __modelStack__[-1]
     if matrixStack == MatrixStack.view:
@@ -92,7 +92,7 @@ def get_current_matrix(matrixStack):
         )
 
 
-def set_current_matrix(matrixStack, m):
+def set_current_matrix(matrixStack: MatrixStack, m: np.matrix) -> None:
     if matrixStack == MatrixStack.model:
         __modelStack__[-1] = m
     if matrixStack == MatrixStack.view:
@@ -106,7 +106,7 @@ def set_current_matrix(matrixStack, m):
         pass
 
 
-def __pushMatrix__(matrixStack):
+def __pushMatrix__(matrixStack: MatrixStack) -> None:
     if matrixStack == MatrixStack.model:
         __modelStack__.append(np.copy(get_current_matrix(matrixStack)))
     if matrixStack == MatrixStack.view:
@@ -119,7 +119,7 @@ def __pushMatrix__(matrixStack):
         pass
 
 
-def __popMatrix__(matrixStack):
+def __popMatrix__(matrixStack: MatrixStack) -> np.matrix:
     if matrixStack == MatrixStack.model:
         __modelStack__.pop()
     if matrixStack == MatrixStack.view:
@@ -133,18 +133,18 @@ def __popMatrix__(matrixStack):
 
 
 class PushMatrix:
-    def __init__(self, m):
+    def __init__(self, m: np.matrix) -> None:
         self.m = m
 
-    def __enter__(self):
+    def __enter__(self) -> None:
         __pushMatrix__(self.m)
 
-    def __exit__(self, type, val, tp):
+    def __exit__(self, type, val, tp) -> None:
         __popMatrix__(self.m)
 
 
 @contextlib.contextmanager
-def push_matrix(m):
+def push_matrix(m: np.matrix):
     """Instead of manually pushing and poping the matrix stack,
     this allows using the "with" keyword."""
     matrixStack = m
@@ -155,7 +155,7 @@ def push_matrix(m):
         __popMatrix__(matrixStack)
 
 
-def set_to_identity_matrix(m):
+def set_to_identity_matrix(m: MatrixStack) -> None:
     set_current_matrix(
         m,
         np.matrix(
@@ -170,7 +170,7 @@ def set_to_identity_matrix(m):
     )
 
 
-def rotate_x(matrixStack, rads):
+def rotate_x(matrixStack: MatrixStack, rads: float) -> None:
     """Using a normal linear algebra notation, which
     is row-major, 1-based indexes, the following
     matrix multiplication shows how to add a rotation
@@ -209,7 +209,7 @@ def rotate_x(matrixStack, rads):
     m[3, 2] = copyOfM[3, 1] * -s + copyOfM[3, 2] * c
 
 
-def rotate_y(matrixStack, rads):
+def rotate_y(matrixStack: MatrixStack, rads: float) -> None:
     """Using a normal linear algebra notation, which
     is row-major, 1-based indexes, the following
     matrix multiplication shows how to add a rotation
@@ -247,7 +247,7 @@ def rotate_y(matrixStack, rads):
     m[3, 2] = copyOfM[3, 0] * s + copyOfM[3, 2] * c
 
 
-def rotate_z(matrixStack, rads):
+def rotate_z(matrixStack: MatrixStack, rads: float) -> None:
     """Using a normal linear algebra notation, which
     is row-major, 1-based indexes, the following
     matrix multiplication shows how to add a rotation
@@ -285,7 +285,7 @@ def rotate_z(matrixStack, rads):
     m[3, 1] = copyOfM[3, 0] * -s + copyOfM[3, 1] * c
 
 
-def translate(matrixStack, x, y, z):
+def translate(matrixStack: MatrixStack, x: float, y: float, z: float):
     """Using a normal linear algebra notation, which
     is row-major, 1-based indexes, the following
     matrix multiplication shows how to add a translation
@@ -314,7 +314,7 @@ def translate(matrixStack, x, y, z):
     m[3, 3] = m[3, 0] * x + m[3, 1] * y + m[3, 2] * z + m[3, 3]
 
 
-def scale(matrixStack, x, y, z):
+def scale(matrixStack: MatrixStack, x: float, y: float, z: float):
     """Using a normal linear algebra notation, which
     is row-major, 1-based indexes, the following
     matrix multiplication shows how to add a translation
@@ -353,13 +353,20 @@ def scale(matrixStack, x, y, z):
     m[3, 2] = m[3, 2] * z
 
 
-def multiply(matrixStack, rhs):
+def multiply(matrixStack: MatrixStack, rhs: np.matrix):
     """Matrix multiply"""
     m = get_current_matrix(matrixStack)
     m[0:4, 0:4] = np.matmul(m.copy(), rhs)
 
 
-def ortho(left, right, bottom, top, near, far):
+def ortho(
+    left: float,
+    right: float,
+    bottom: float,
+    top: float,
+    near: float,
+    far: float,
+):
     """ortho projection, like a blueprint diagram for a house.
     depth down the z axis does not affect x and y position
     in screen space.
@@ -387,7 +394,9 @@ def ortho(left, right, bottom, top, near, far):
     # fmt: on
 
 
-def perspective(field_of_view, aspect_ratio, near_z, far_z):
+def perspective(
+    field_of_view: float, aspect_ratio: float, near_z: float, far_z: float
+):
     """perspective projection, where things further away look smaller
     by shrinking their x and y coordinates.
 

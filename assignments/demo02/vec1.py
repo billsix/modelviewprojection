@@ -44,8 +44,6 @@
 # doc-region-begin imports
 import warnings
 
-import pytest
-import numpy as np
 import modelviewprojection.mathutils1d as mu1d
 
 # turn warnings into exceptions
@@ -135,31 +133,22 @@ assert fn(mu1d.Vector1D(3.0)) == mu1d.Vector1D(12.0)
 celsius_to_kelvin: mu1d.InvertibleFunction = mu1d.translate(
     mu1d.Vector1D(273.15)
 )
-assert np.isclose(celsius_to_kelvin(mu1d.Vector1D(0.0)).x, mu1d.Vector1D(273.15).x)
+assert celsius_to_kelvin(mu1d.Vector1D(0.0)).isclose(mu1d.Vector1D(273.15))
 
-assert celsius_to_kelvin(mu1d.Vector1D(100.0)) == mu1d.Vector1D(
-    pytest.approx(373.15)
-)
+assert celsius_to_kelvin(mu1d.Vector1D(100.0)).isclose(mu1d.Vector1D(373.15))
 
 
 fahrenheit_to_celsius: mu1d.InvertibleFunction = mu1d.compose(
     [mu1d.uniform_scale(5.0 / 9.0), mu1d.translate(mu1d.Vector1D(-32.0))]
 )
-assert fahrenheit_to_celsius(mu1d.Vector1D(32.0)) == mu1d.Vector1D(
-    pytest.approx(0.0)
-)
-assert fahrenheit_to_celsius(mu1d.Vector1D(212.0)) == mu1d.Vector1D(
-    pytest.approx(100.0)
-)
+assert fahrenheit_to_celsius(mu1d.Vector1D(32.0)).isclose(mu1d.Vector1D(0.0))
+
+assert fahrenheit_to_celsius(mu1d.Vector1D(212.0)).isclose(mu1d.Vector1D(100.0))
 
 
 kelvin_to_celsius: mu1d.InvertibleFunction = mu1d.inverse(celsius_to_kelvin)
-assert kelvin_to_celsius(mu1d.Vector1D(273.15)) == mu1d.Vector1D(
-    pytest.approx(0.0)
-)
-assert kelvin_to_celsius(mu1d.Vector1D(373.15)) == mu1d.Vector1D(
-    pytest.approx(100.0)
-)
+assert kelvin_to_celsius(mu1d.Vector1D(273.15)).isclose(mu1d.Vector1D(0.0))
+assert kelvin_to_celsius(mu1d.Vector1D(373.15)).isclose(mu1d.Vector1D(100.0))
 # doc-region-end defined functions
 
 
@@ -175,33 +164,22 @@ assert kelvin_to_celsius(mu1d.Vector1D(373.15)) == mu1d.Vector1D(
 fahrenheit_to_kelvin: mu1d.InvertibleFunction = mu1d.translate(
     mu1d.Vector1D(0.0)
 )
-assert fahrenheit_to_kelvin(mu1d.Vector1D(32.0)) == mu1d.Vector1D(
-    pytest.approx(273.15)
-)
-assert fahrenheit_to_kelvin(mu1d.Vector1D(212.0)) == mu1d.Vector1D(
-    pytest.approx(373.15)
-)
+assert fahrenheit_to_kelvin(mu1d.Vector1D(32.0)).isclose(mu1d.Vector1D(273.15))
+assert fahrenheit_to_kelvin(mu1d.Vector1D(212.0)).isclose(mu1d.Vector1D(373.15))
 
 celsius_to_fahrenheit: mu1d.InvertibleFunction = mu1d.translate(
     mu1d.Vector1D(0.0)
 )
-assert celsius_to_fahrenheit(mu1d.Vector1D(0.0)) == mu1d.Vector1D(
-    pytest.approx(32.0)
-)
-assert celsius_to_fahrenheit(mu1d.Vector1D(100.0)) == mu1d.Vector1D(
-    pytest.approx(212.0)
-)
+assert celsius_to_fahrenheit(mu1d.Vector1D(0.0)).isclose(mu1d.Vector1D(32.0))
+
+assert celsius_to_fahrenheit(mu1d.Vector1D(100.0)).isclose(mu1d.Vector1D(212.0))
 
 
 kelvin_to_fahrenheit: mu1d.InvertibleFunction = mu1d.translate(
     mu1d.Vector1D(0.0)
 )
-assert kelvin_to_fahrenheit(mu1d.Vector1D(273.15)) == mu1d.Vector1D(
-    pytest.approx(32.0)
-)
-assert kelvin_to_fahrenheit(mu1d.Vector1D(373.15)) == mu1d.Vector1D(
-    pytest.approx(212.0)
-)
+assert kelvin_to_fahrenheit(mu1d.Vector1D(273.15)).isclose(mu1d.Vector1D(32.0))
+assert kelvin_to_fahrenheit(mu1d.Vector1D(373.15)).isclose(mu1d.Vector1D(212.0))
 # doc-region-end work to do
 
 # %%

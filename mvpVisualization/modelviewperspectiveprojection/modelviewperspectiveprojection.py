@@ -169,7 +169,7 @@ class Paddle:
     r: float
     g: float
     b: float
-    position: any
+    position: np.typing.NDArray
     rotation: float = 0.0
     # fmt: off
     vertices: np.array = field(default_factory=lambda: np.array(
@@ -921,7 +921,7 @@ class Frustum:
         )
 
     def prepare_to_render(self) -> None:
-        def create_vertices_of_frustum() -> np.array:
+        def create_vertices_of_frustum() -> np.typing.NDArray:
             vertices = []
 
             # front face
@@ -1097,7 +1097,7 @@ rotation_around_paddle1 = math.radians(30.0)
 
 def handle_inputs(
     previous_mouse_position: Optional[Tuple[float, float]],
-) -> None:
+) -> Optional[Tuple[float, float]]:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1

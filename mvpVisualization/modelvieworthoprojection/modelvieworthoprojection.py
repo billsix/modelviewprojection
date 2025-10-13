@@ -103,7 +103,7 @@ class Paddle:
     r: float
     g: float
     b: float
-    position: any
+    position: np.typing.NDArray
     rotation: float = 0.0
     # fmt: off
     vertices: np.array = field(
@@ -1094,7 +1094,7 @@ rotation_around_paddle1 = math.radians(30.0)
 
 def handle_inputs(
     previous_mouse_position: Optional[Tuple[float, float]],
-) -> None:
+) -> Optional[Tuple[float, float]]:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1

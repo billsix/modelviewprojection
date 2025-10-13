@@ -28,11 +28,11 @@ import modelviewprojection.mathutils2d as mu2d
 # for ease of use in importing and using
 from modelviewprojection.mathutils import (
     InvertibleFunction,
+    Vector,
     compose,
     inverse,
     translate,
     uniform_scale,
-    Vector
 )
 
 __all__ = [
@@ -53,7 +53,7 @@ __all__ = [
     "InvertibleFunction",
     "inverse",
     "compose",
-    "Vector"
+    "Vector",
 ]
 
 

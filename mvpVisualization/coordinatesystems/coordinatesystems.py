@@ -26,6 +26,7 @@ from typing import Optional, Tuple
 import glfw
 import imgui
 import numpy as np
+import numpy.typing
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders
 from imgui.integrations.glfw import GlfwRenderer
@@ -100,7 +101,7 @@ class Paddle:
     r: float
     g: float
     b: float
-    position: any
+    position: numpy.typing.NDArray
     rotation: float = 0.0
     # fmt: off
     vertices: np.array = field(

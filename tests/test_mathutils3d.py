@@ -20,8 +20,6 @@
 import doctest
 import math
 
-from pytest import approx
-
 import modelviewprojection
 import modelviewprojection.mathutils3d as mu3d
 
@@ -30,44 +28,34 @@ def test___add__():
     result = mu3d.Vector3D(x=1.0, y=2.0, z=6.0) + mu3d.Vector3D(
         x=3.0, y=4.0, z=5.0
     )
-    assert result == mu3d.Vector3D(x=approx(4.0), y=approx(6.0), z=approx(11.0))
+    assert result.isclose(mu3d.Vector3D(x=4.0, y=6.0, z=11.0))
 
 
 def test___sub__():
     result = mu3d.Vector3D(x=5.0, y=8.0, z=1.0) - mu3d.Vector3D(
         x=1.0, y=2.0, z=3.0
     )
-    assert result == mu3d.Vector3D(x=approx(4.0), y=approx(6.0), z=approx(-2.0))
+    assert result.isclose(mu3d.Vector3D(x=4.0, y=6.0, z=-2.0))
 
 
 def test___mul__():
     result = mu3d.Vector3D(x=2.0, y=3.0, z=4.0) * 4.0
-    assert result == mu3d.Vector3D(
-        x=approx(8.0), y=approx(12.0), z=approx(16.0)
-    )
+    assert result.isclose(mu3d.Vector3D(x=8.0, y=12.0, z=16.0))
 
 
 def test___rmul__():
     result = 4.0 * mu3d.Vector3D(x=2.0, y=3.0, z=4.0)
-    assert result == mu3d.Vector3D(
-        x=approx(8.0), y=approx(12.0), z=approx(16.0)
-    )
+    assert result.isclose(mu3d.Vector3D(x=8.0, y=12.0, z=16.0))
 
 
 def test___neg__():
     result = -mu3d.Vector3D(x=2.0, y=3.0, z=4.0)
-    assert result == mu3d.Vector3D(
-        x=approx(-2.0), y=approx(-3.0), z=approx(-4.0)
-    )
+    assert result.isclose(mu3d.Vector3D(x=-2.0, y=-3.0, z=-4.0))
 
 
-def wrap_vec3_test(fn, input_val, output_val):
-    print(mu3d.Vector3D(*input_val))
+def wrap_vec3_test(fn, input_val, output_val: mu3d.Vector):
     out = fn(mu3d.Vector3D(*input_val))
-    print(out)
-    assert out.x == approx(output_val[0], abs=0.001)
-    assert out.y == approx(output_val[1], abs=0.001)
-    assert out.z == approx(output_val[2], abs=0.001)
+    assert out.isclose(output_val)
 
 
 # doc-region-begin translate test

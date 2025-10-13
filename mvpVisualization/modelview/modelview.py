@@ -23,6 +23,7 @@ from typing import Optional, Tuple
 
 import glfw
 import numpy as np
+import numpy.typing
 import OpenGL.GL as GL
 
 import modelviewprojection.pyMatrixStack as ms
@@ -75,7 +76,7 @@ class Paddle:
     r: float
     g: float
     b: float
-    position: any
+    position: numpy.typing.NDArray
     rotation: float = 0.0
     vertices: np.array = field(
         default_factory=lambda: np.array(
