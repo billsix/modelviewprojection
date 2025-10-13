@@ -257,7 +257,7 @@ class Paddle:
     b: float
     position: Vertex
     rotation: float = 0.0
-    vertices: list[Vertex] = field(
+    vertices: list[float] = field(
         default_factory=lambda: [
             -1.0,
             -3.0,
@@ -412,7 +412,7 @@ while not glfw.window_should_close(window):
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glClear(sum(GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT))
 
     draw_in_square_viewport()
     handle_inputs()

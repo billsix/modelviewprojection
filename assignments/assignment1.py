@@ -209,7 +209,7 @@ def plot(
     # [0, 2, 4, 6, 8]
     # >>> np.arange(.0,1.0,.2)
     # array([. , .2, .4, .6, .8])
-    for x in np.arange(domain[0], domain[1], interval):
+    for x in np.arange(domain[0], domain[1], interval, dtype=float):
         # glVertex is here twice because line segments are assumed to be in pairs
         glVertex2f(x, fn(x))
         glVertex2f(x, fn(x))
@@ -299,7 +299,7 @@ while not glfw.window_should_close(window):
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glClear(sum(GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT))
 
     draw_in_square_viewport()
     draw_a_triangle()

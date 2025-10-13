@@ -131,11 +131,11 @@ if not window:
 
 # Make the window's context current
 glfw.make_context_current(window)
-imgui.create_context()
+imgui.create_context()  # type: ignore
 impl = GlfwRenderer(window)
 
 
-imguiio = imgui.get_io()
+imguiio = imgui.get_io()  # type: ignore
 # Install a key handler
 
 
@@ -1180,17 +1180,17 @@ show_ground_axis = False
 def highlighted_button(text: str, start_time: float, time: float) -> bool:
     highlight = time > start_time and (time - start_time) < 5
     if highlight:
-        imgui.push_id(str(3))
+        imgui.push_id(str(3))  # type: ignore
         r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.6, 0.6)
-        imgui.push_style_color(imgui.COLOR_BUTTON, r, g, b)
+        imgui.push_style_color(imgui.COLOR_BUTTON, r, g, b)  # type: ignore
         r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.7, 0.7)
-        imgui.push_style_color(imgui.COLOR_BUTTON_HOVERED, r, g, b)
+        imgui.push_style_color(imgui.COLOR_BUTTON_HOVERED, r, g, b)  # type: ignore
         r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.8, 0.8)
-        imgui.push_style_color(imgui.COLOR_BUTTON_ACTIVE, r, g, b)
-    return_value = imgui.button(label=text)
+        imgui.push_style_color(imgui.COLOR_BUTTON_ACTIVE, r, g, b)  # type: ignore
+    return_value = imgui.button(label=text)  # type: ignore
     if highlight:
-        imgui.pop_style_color(3)
-        imgui.pop_id()
+        imgui.pop_style_color(3)  # type: ignore
+        imgui.pop_id()  # type: ignore
     return return_value
 
 
@@ -1215,50 +1215,50 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
     impl.process_inputs()
 
-    imgui.new_frame()
+    imgui.new_frame()  # type: ignore
 
-    if imgui.begin_main_menu_bar():
-        if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item(
+    if imgui.begin_main_menu_bar():  # type: ignore
+        if imgui.begin_menu("File", True):  # type: ignore
+            clicked_quit, selected_quit = imgui.menu_item(  # type: ignore
                 "Quit", "Cmd+Q", False, True
             )
 
             if clicked_quit:
                 exit(0)
 
-            imgui.end_menu()
-        imgui.end_main_menu_bar()
+            imgui.end_menu()  # type: ignore
+        imgui.end_main_menu_bar()  # type: ignore
 
-    imgui.set_next_window_size(453, 564, imgui.FIRST_USE_EVER)
-    imgui.set_next_window_position(15, 30, imgui.FIRST_USE_EVER)
-    imgui.set_next_window_bg_alpha(0.05)
+    imgui.set_next_window_size(453, 564, imgui.FIRST_USE_EVER)  # type: ignore
+    imgui.set_next_window_position(15, 30, imgui.FIRST_USE_EVER)  # type: ignore
+    imgui.set_next_window_bg_alpha(0.05)  # type: ignore
 
-    imgui.begin("Options", True)
-    show, _ = imgui.collapsing_header("Time")
+    imgui.begin("Options", True)  # type: ignore
+    show, _ = imgui.collapsing_header("Time")  # type: ignore
     if show:
-        clicked_animation_paused, animation_paused = imgui.checkbox(
+        clicked_animation_paused, animation_paused = imgui.checkbox(  # type: ignore
             "Pause", animation_paused
         )
-        clicked_camera, camera.r = imgui.slider_float(
+        clicked_camera, camera.r = imgui.slider_float(  # type: ignore
             "Camera Radius", camera.r, 10, 1000.0
         )
         (
             clicked_animation_time_multiplier,
             animation_time_multiplier,
-        ) = imgui.slider_float(
+        ) = imgui.slider_float(  # type: ignore
             "Sim Speed", animation_time_multiplier, -10.0, 10.0
         )
-        if imgui.button("Restart"):
+        if imgui.button("Restart"):  # type: ignore
             animation_time = 0.0
 
-        if imgui.tree_node(
+        if imgui.tree_node(  # type: ignore
             "From World Space, Against Arrows, Read Bottom Up",
-            imgui.TREE_NODE_DEFAULT_OPEN,
+            imgui.TREE_NODE_DEFAULT_OPEN,  # type: ignore
         ):
-            if imgui.tree_node("Paddle 1->World", imgui.TREE_NODE_DEFAULT_OPEN):
-                imgui.text("f_paddle1_to_world(x) = ")
-                imgui.text(" = (")
-                imgui.same_line()
+            if imgui.tree_node("Paddle 1->World", imgui.TREE_NODE_DEFAULT_OPEN):  # type: ignore
+                imgui.text("f_paddle1_to_world(x) = ")  # type: ignore
+                imgui.text(" = (")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "T",
                     StepNumber.paddle_1_translate.value.start_time,
@@ -1267,24 +1267,25 @@ while not glfw.window_should_close(window):
                     animation_time = (
                         StepNumber.paddle_1_translate.value.start_time
                     )
-                imgui.same_line()
-                imgui.text(" o ")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" o ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "R_z",
                     StepNumber.paddle_1_rotate.value.start_time,
                     animation_time,
                 ):
                     animation_time = StepNumber.paddle_1_rotate.value.start_time
-                imgui.same_line()
-                imgui.text(" ) (x) ")
-                if imgui.tree_node(
-                    "Square->World", imgui.TREE_NODE_DEFAULT_OPEN
+                imgui.same_line()  # type: ignore
+                imgui.text(" ) (x) ")  # type: ignore
+                if imgui.tree_node(  # type: ignore
+                    "Square->World",
+                    imgui.TREE_NODE_DEFAULT_OPEN,  # type: ignore
                 ):
-                    imgui.text("f_square_to_world(x) = ")
-                    imgui.text(" f_paddle1_to_world o (")
-                    imgui.text("      ")
-                    imgui.same_line()
+                    imgui.text("f_square_to_world(x) = ")  # type: ignore
+                    imgui.text(" f_paddle1_to_world o (")  # type: ignore
+                    imgui.text("      ")  # type: ignore
+                    imgui.same_line()  # type: ignore
                     if highlighted_button(
                         "T_-Z",
                         StepNumber.square_translate_z.value.start_time,
@@ -1293,9 +1294,9 @@ while not glfw.window_should_close(window):
                         animation_time = (
                             StepNumber.square_translate_z.value.start_time
                         )
-                    imgui.same_line()
-                    imgui.text(" o ")
-                    imgui.same_line()
+                    imgui.same_line()  # type: ignore
+                    imgui.text(" o ")  # type: ignore
+                    imgui.same_line()  # type: ignore
                     if highlighted_button(
                         "R_Z",
                         StepNumber.square_rotate_z_first.value.start_time,
@@ -1304,9 +1305,9 @@ while not glfw.window_should_close(window):
                         animation_time = (
                             StepNumber.square_rotate_z_first.value.start_time
                         )
-                    imgui.same_line()
-                    imgui.text(" o ")
-                    imgui.same_line()
+                    imgui.same_line()  # type: ignore
+                    imgui.text(" o ")  # type: ignore
+                    imgui.same_line()  # type: ignore
                     if highlighted_button(
                         "T_X",
                         StepNumber.square_translate_x.value.start_time,
@@ -1315,9 +1316,9 @@ while not glfw.window_should_close(window):
                         animation_time = (
                             StepNumber.square_translate_x.value.start_time
                         )
-                    imgui.same_line()
-                    imgui.text(" o ")
-                    imgui.same_line()
+                    imgui.same_line()  # type: ignore
+                    imgui.text(" o ")  # type: ignore
+                    imgui.same_line()  # type: ignore
                     if highlighted_button(
                         "R2_Z",
                         StepNumber.square_rotate_z_second.value.start_time,
@@ -1326,13 +1327,13 @@ while not glfw.window_should_close(window):
                         animation_time = (
                             StepNumber.square_rotate_z_second.value.start_time
                         )
-                    imgui.same_line()
-                    imgui.text(" ) (x) ")
-                    imgui.tree_pop()
-                imgui.tree_pop()
-            if imgui.tree_node("Paddle 2->World", imgui.TREE_NODE_DEFAULT_OPEN):
-                imgui.text("f_paddle2_to_world(x) = (")
-                imgui.same_line()
+                    imgui.same_line()  # type: ignore
+                    imgui.text(" ) (x) ")  # type: ignore
+                    imgui.tree_pop()  # type: ignore
+                imgui.tree_pop()  # type: ignore
+            if imgui.tree_node("Paddle 2->World", imgui.TREE_NODE_DEFAULT_OPEN):  # type: ignore
+                imgui.text("f_paddle2_to_world(x) = (")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "T",
                     StepNumber.paddle_2_translate.value.start_time,
@@ -1341,21 +1342,21 @@ while not glfw.window_should_close(window):
                     animation_time = (
                         StepNumber.paddle_2_translate.value.start_time
                     )
-                imgui.same_line()
-                imgui.text(" o ")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" o ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "R",
                     StepNumber.paddle_2_rotate.value.start_time,
                     animation_time,
                 ):
                     animation_time = StepNumber.paddle_2_rotate.value.start_time
-                imgui.same_line()
-                imgui.text(" ) (x) ")
-                imgui.tree_pop()
-            if imgui.tree_node("Camera->World", imgui.TREE_NODE_DEFAULT_OPEN):
-                imgui.text("f_camera_to_world(x) = (")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" ) (x) ")  # type: ignore
+                imgui.tree_pop()  # type: ignore
+            if imgui.tree_node("Camera->World", imgui.TREE_NODE_DEFAULT_OPEN):  # type: ignore
+                imgui.text("f_camera_to_world(x) = (")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "T",
                     StepNumber.camera_translate.value.start_time,
@@ -1364,36 +1365,36 @@ while not glfw.window_should_close(window):
                     animation_time = (
                         StepNumber.camera_translate.value.start_time
                     )
-                imgui.same_line()
-                imgui.text(" o ")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" o ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "R_Y",
                     StepNumber.camera_rotate_y.value.start_time,
                     animation_time,
                 ):
                     animation_time = StepNumber.camera_rotate_y.value.start_time
-                imgui.same_line()
-                imgui.text(" o ")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" o ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "R_X",
                     StepNumber.camera_rotate_x.value.start_time,
                     animation_time,
                 ):
                     animation_time = StepNumber.camera_rotate_x.value.start_time
-                imgui.same_line()
-                imgui.text(" ) (x) ")
-                imgui.tree_pop()
-            imgui.tree_pop()
-        if imgui.tree_node(
+                imgui.same_line()  # type: ignore
+                imgui.text(" ) (x) ")  # type: ignore
+                imgui.tree_pop()  # type: ignore
+            imgui.tree_pop()  # type: ignore
+        if imgui.tree_node(  # type: ignore
             "Towards NDC, With Arrows, Top Down Reading",
-            imgui.TREE_NODE_DEFAULT_OPEN,
+            imgui.TREE_NODE_DEFAULT_OPEN,  # type: ignore
         ):
-            if imgui.tree_node("World->Camera", imgui.TREE_NODE_DEFAULT_OPEN):
-                imgui.text("f_camera_to_world^-1(x) = f_world_to_camera(x) = ")
-                imgui.text("   ")
-                imgui.same_line()
+            if imgui.tree_node("World->Camera", imgui.TREE_NODE_DEFAULT_OPEN):  # type: ignore
+                imgui.text("f_camera_to_world^-1(x) = f_world_to_camera(x) = ")  # type: ignore
+                imgui.text("   ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "R^-1_X",
                     StepNumber.camera_inverse_rotate_x.value.start_time,
@@ -1402,9 +1403,9 @@ while not glfw.window_should_close(window):
                     animation_time = (
                         StepNumber.camera_inverse_rotate_x.value.start_time
                     )
-                imgui.same_line()
-                imgui.text(" (")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" (")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "R^-1_Y",
                     StepNumber.camera_inverse_rotate_y.value.start_time,
@@ -1413,9 +1414,9 @@ while not glfw.window_should_close(window):
                     animation_time = (
                         StepNumber.camera_inverse_rotate_y.value.start_time
                     )
-                imgui.same_line()
-                imgui.text(" (")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" (")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "T^-1",
                     StepNumber.camera_inverse_translate.value.start_time,
@@ -1424,14 +1425,15 @@ while not glfw.window_should_close(window):
                     animation_time = (
                         StepNumber.camera_inverse_translate.value.start_time
                     )
-                imgui.same_line()
-                imgui.text("* x))")
-                imgui.tree_pop()
-            if imgui.tree_node(
-                "Frustum->Rectangular Prism", imgui.TREE_NODE_DEFAULT_OPEN
+                imgui.same_line()  # type: ignore
+                imgui.text("* x))")  # type: ignore
+                imgui.tree_pop()  # type: ignore
+            if imgui.tree_node(  # type: ignore
+                "Frustum->Rectangular Prism",
+                imgui.TREE_NODE_DEFAULT_OPEN,  # type: ignore
             ):
-                imgui.text("f_frustum_to_prism(x) = ")
-                imgui.same_line()
+                imgui.text("f_frustum_to_prism(x) = ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "Squash Y",
                     StepNumber.camera_frustum_squash_y.value.start_time,
@@ -1440,9 +1442,9 @@ while not glfw.window_should_close(window):
                     animation_time = (
                         StepNumber.camera_frustum_squash_y.value.start_time
                     )
-                imgui.same_line()
-                imgui.text(" (")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" (")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "Squash X",
                     StepNumber.camera_frustum_squash_x.value.start_time,
@@ -1451,14 +1453,15 @@ while not glfw.window_should_close(window):
                     animation_time = (
                         StepNumber.camera_frustum_squash_x.value.start_time
                     )
-                imgui.same_line()
-                imgui.text(" * x)")
-                imgui.tree_pop()
-            if imgui.tree_node(
-                "Ortho, Rectangular Prism->NDC", imgui.TREE_NODE_DEFAULT_OPEN
+                imgui.same_line()  # type: ignore
+                imgui.text(" * x)")  # type: ignore
+                imgui.tree_pop()  # type: ignore
+            if imgui.tree_node(  # type: ignore
+                "Ortho, Rectangular Prism->NDC",
+                imgui.TREE_NODE_DEFAULT_OPEN,  # type: ignore
             ):
-                imgui.text("f_ortho(x) = ")
-                imgui.same_line()
+                imgui.text("f_ortho(x) = ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "Scale",
                     StepNumber.camera_frustum_scale.value.start_time,
@@ -1467,9 +1470,9 @@ while not glfw.window_should_close(window):
                     animation_time = (
                         StepNumber.camera_frustum_scale.value.start_time
                     )
-                imgui.same_line()
-                imgui.text(" (")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" (")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button(
                     "T - Center",
                     StepNumber.camera_frustum_translate.value.start_time,
@@ -1478,63 +1481,63 @@ while not glfw.window_should_close(window):
                     animation_time = (
                         StepNumber.camera_frustum_translate.value.start_time
                     )
-                imgui.same_line()
-                imgui.text(" * x)")
-                imgui.tree_pop()
-            imgui.tree_pop()
+                imgui.same_line()  # type: ignore
+                imgui.text(" * x)")  # type: ignore
+                imgui.tree_pop()  # type: ignore
+            imgui.tree_pop()  # type: ignore
 
-    show, _ = imgui.collapsing_header("Camera Options")
+    show, _ = imgui.collapsing_header("Camera Options")  # type: ignore
     if show:
         (
             clicked_virtual_camera_positionx_clicked,
             virtual_camera_position[0],
-        ) = imgui.slider_float(
+        ) = imgui.slider_float(  # type: ignore
             "Camera X_Worldspace", virtual_camera_position[0], -200, 200.0
         )
         (
             clicked_virtual_camera_positiony_clicked,
             virtual_camera_position[1],
-        ) = imgui.slider_float(
+        ) = imgui.slider_float(  # type: ignore
             "Camera Y_Worldspace", virtual_camera_position[1], -200, 200.0
         )
         (
             clicked_virtual_camera_positionz_clicked,
             virtual_camera_position[2],
-        ) = imgui.slider_float(
+        ) = imgui.slider_float(  # type: ignore
             "Camera Z_Worldspace", virtual_camera_position[2], -200, 200.0
         )
         (
             clicked_virtual_camera_positionrotx_clicked,
             virtual_camera_rot_x,
-        ) = imgui.slider_float(
+        ) = imgui.slider_float(  # type: ignore
             "Camera Rot X", virtual_camera_rot_x, -math.pi, math.pi
         )
         (
             clicked_virtual_camera_positionroty_clicked,
             virtual_camera_rot_y,
-        ) = imgui.slider_float(
+        ) = imgui.slider_float(  # type: ignore
             "Camera Rot Y", virtual_camera_rot_y, -math.pi, math.pi
         )
 
-        imgui.push_button_repeat(True)
-        if imgui.button("Translate -Z_Cameraspace"):
+        imgui.push_button_repeat(True)  # type: ignore
+        if imgui.button("Translate -Z_Cameraspace"):  # type: ignore
             virtual_camera_position[0] -= math.sin(virtual_camera_rot_y)
             virtual_camera_position[2] -= math.cos(virtual_camera_rot_y)
-        if imgui.button("Translate Z_Cameraspace"):
+        if imgui.button("Translate Z_Cameraspace"):  # type: ignore
             virtual_camera_position[0] += math.sin(virtual_camera_rot_y)
             virtual_camera_position[2] += math.cos(virtual_camera_rot_y)
-        if imgui.button("Translate X_Cameraspace"):
+        if imgui.button("Translate X_Cameraspace"):  # type: ignore
             virtual_camera_position[0] += math.cos(virtual_camera_rot_y)
             virtual_camera_position[2] -= math.sin(virtual_camera_rot_y)
-        if imgui.button("Translate -X_Cameraspace"):
+        if imgui.button("Translate -X_Cameraspace"):  # type: ignore
             virtual_camera_position[0] -= math.cos(virtual_camera_rot_y)
             virtual_camera_position[2] += math.sin(virtual_camera_rot_y)
-        imgui.pop_button_repeat()
+        imgui.pop_button_repeat()  # type: ignore
 
         (
             clicked_virtual_camera_field_of_view,
             frustum.field_of_view,
-        ) = imgui.slider_float("Camera FOV", frustum.field_of_view, 5.0, 120.0)
+        ) = imgui.slider_float("Camera FOV", frustum.field_of_view, 5.0, 120.0)  # type: ignore
 
         if clicked_virtual_camera_field_of_view:
             frustum.prepare_to_render()
@@ -1542,7 +1545,7 @@ while not glfw.window_should_close(window):
         (
             clicked_virtual_camera_aspect_ratio,
             frustum.aspect_ratio,
-        ) = imgui.slider_float(
+        ) = imgui.slider_float(  # type: ignore
             "Camera AspectRatio", frustum.aspect_ratio, 0.1, 3.0
         )
 
@@ -1552,7 +1555,7 @@ while not glfw.window_should_close(window):
         (
             clicked_virtual_camera_near_z,
             frustum.near_z,
-        ) = imgui.slider_float("Camera near_z", frustum.near_z, -200.0, -1.0)
+        ) = imgui.slider_float("Camera near_z", frustum.near_z, -200.0, -1.0)  # type: ignore
 
         if clicked_virtual_camera_near_z:
             frustum.prepare_to_render()
@@ -1560,7 +1563,7 @@ while not glfw.window_should_close(window):
         (
             clicked_virtual_camera_far_z,
             frustum.far_z,
-        ) = imgui.slider_float(
+        ) = imgui.slider_float(  # type: ignore
             "Camera far_z",
             frustum.far_z,
             frustum.near_z,
@@ -1570,33 +1573,33 @@ while not glfw.window_should_close(window):
         if clicked_virtual_camera_far_z:
             frustum.prepare_to_render()
 
-    show, _ = imgui.collapsing_header("Display Options")
+    show, _ = imgui.collapsing_header("Display Options")  # type: ignore
     if show:
-        clicked_show_ground_axises, show_ground_axis = imgui.checkbox(
+        clicked_show_ground_axises, show_ground_axis = imgui.checkbox(  # type: ignore
             "Show Ground Axises", show_ground_axis
         )
 
         (
             clicked_line_thickness,
             line_thickness,
-        ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)
+        ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)  # type: ignore
 
-        if imgui.button("NDC"):
+        if imgui.button("NDC"):  # type: ignore
             center_view_on = CenterViewOn.ndc
-        imgui.same_line()
-        if imgui.button("Paddle 1"):
+        imgui.same_line()  # type: ignore
+        if imgui.button("Paddle 1"):  # type: ignore
             center_view_on = CenterViewOn.paddle1
-        imgui.same_line()
-        if imgui.button("Square"):
+        imgui.same_line()  # type: ignore
+        if imgui.button("Square"):  # type: ignore
             center_view_on = CenterViewOn.square
-        imgui.same_line()
-        if imgui.button("Paddle 2"):
+        imgui.same_line()  # type: ignore
+        if imgui.button("Paddle 2"):  # type: ignore
             center_view_on = CenterViewOn.paddle2
-        imgui.same_line()
-        if imgui.button("Camera"):
+        imgui.same_line()  # type: ignore
+        if imgui.button("Camera"):  # type: ignore
             center_view_on = CenterViewOn.camera
 
-    imgui.end()
+    imgui.end()  # type: ignore
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
@@ -1928,8 +1931,8 @@ while not glfw.window_should_close(window):
         ):
             paddle2.render(animation_time)
 
-    imgui.render()
-    impl.render(imgui.get_draw_data())
+    imgui.render()  # type: ignore
+    impl.render(imgui.get_draw_data())  # type: ignore
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers

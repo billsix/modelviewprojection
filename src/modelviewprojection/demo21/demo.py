@@ -55,7 +55,7 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 # for osx
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
 
-imgui.create_context()
+imgui.create_context()  # type: ignore
 window = glfw.create_window(
     500, 500, "ModelViewProjection Demo 21 ", None, None
 )
@@ -447,23 +447,23 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
     impl.process_inputs()
 
-    imgui.new_frame()
+    imgui.new_frame()  # type: ignore
 
-    if imgui.begin_main_menu_bar():
-        if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item(
+    if imgui.begin_main_menu_bar():  # type: ignore
+        if imgui.begin_menu("File", True):  # type: ignore
+            clicked_quit, selected_quit = imgui.menu_item(  # type: ignore
                 "Quit", "Cmd+Q", False, True
             )
 
             if clicked_quit:
                 exit(1)
 
-            imgui.end_menu()
-        imgui.end_main_menu_bar()
+            imgui.end_menu()  # type: ignore
+        imgui.end_main_menu_bar()  # type: ignore
 
-    imgui.begin("Custom window", True)
+    imgui.begin("Custom window", True)  # type: ignore
 
-    changed, __enable_blend__ = imgui.checkbox(
+    changed, __enable_blend__ = imgui.checkbox(  # type: ignore
         label="Blend", state=__enable_blend__
     )
 
@@ -473,7 +473,7 @@ while not glfw.window_should_close(window):
         else:
             GL.glDisable(GL.GL_BLEND)
 
-    imgui.end()
+    imgui.end()  # type: ignore
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
@@ -566,8 +566,8 @@ while not glfw.window_should_close(window):
         ms.rotate_z(ms.MatrixStack.model, paddle2.rotation)
         paddle2.render()
 
-    imgui.render()
-    impl.render(imgui.get_draw_data())
+    imgui.render()  # type: ignore
+    impl.render(imgui.get_draw_data())  # type: ignore
     # done with frame, flush and swap buffers
     # Swap front and back buffers
     glfw.swap_buffers(window)

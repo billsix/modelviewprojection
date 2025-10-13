@@ -78,11 +78,11 @@ ndc_to_screen: mu2d.InvertibleFunction = mu2d.compose(
 # %%
 # Example: draw a white triangle
 
-triangle_in_NDC: typing.Tuple[mu2d.Vector2D] = (
+triangle_in_NDC: typing.List[mu2d.Vector2D] = [
     mu2d.Vector2D(0.0, 0.0),
     mu2d.Vector2D(0.2, 0.0),
     mu2d.Vector2D(0.2, 0.2),
-)
+]
 
 # %%
 triangle_in_screen: typing.List[mu2d.Vector2D] = [

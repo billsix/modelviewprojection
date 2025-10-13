@@ -63,11 +63,11 @@ if not window:
 
 # Make the window's context current
 glfw.make_context_current(window)
-imgui.create_context()
+imgui.create_context()  # type: ignore
 impl = GlfwRenderer(window)
 
 
-imguiio = imgui.get_io()
+imguiio = imgui.get_io()  # type: ignore
 
 # Install a key handler
 
@@ -945,17 +945,17 @@ animation_paused = False
 def highlighted_button(text: str, start_time: int, time: float) -> bool:
     highlight = time > start_time and (time - start_time) < 5
     if highlight:
-        imgui.push_id(str(3))
+        imgui.push_id(str(3))  # type: ignore
         r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.6, 0.6)
-        imgui.push_style_color(imgui.COLOR_BUTTON, r, g, b)
+        imgui.push_style_color(imgui.COLOR_BUTTON, r, g, b)  # type: ignore
         r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.7, 0.7)
-        imgui.push_style_color(imgui.COLOR_BUTTON_HOVERED, r, g, b)
+        imgui.push_style_color(imgui.COLOR_BUTTON_HOVERED, r, g, b)  # type: ignore
         r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.8, 0.8)
-        imgui.push_style_color(imgui.COLOR_BUTTON_ACTIVE, r, g, b)
-    return_value = imgui.button(label=text)
+        imgui.push_style_color(imgui.COLOR_BUTTON_ACTIVE, r, g, b)  # type: ignore
+    return_value = imgui.button(label=text)  # type: ignore
     if highlight:
-        imgui.pop_style_color(3)
-        imgui.pop_id()
+        imgui.pop_style_color(3)  # type: ignore
+        imgui.pop_id()  # type: ignore
     return return_value
 
 
@@ -981,98 +981,98 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
     impl.process_inputs()
 
-    imgui.new_frame()
+    imgui.new_frame()  # type: ignore
 
-    if imgui.begin_main_menu_bar():
-        if imgui.begin_menu("File", True):
-            clicked_quit, selected_quit = imgui.menu_item(
+    if imgui.begin_main_menu_bar():  # type: ignore
+        if imgui.begin_menu("File", True):  # type: ignore
+            clicked_quit, selected_quit = imgui.menu_item(  # type: ignore
                 "Quit", "Cmd+Q", False, True
             )
 
             if clicked_quit:
                 exit(0)
 
-            imgui.end_menu()
-        imgui.end_main_menu_bar()
+            imgui.end_menu()  # type: ignore
+        imgui.end_main_menu_bar()  # type: ignore
 
-    imgui.begin("Time", True)
+    imgui.begin("Time", True)  # type: ignore
 
-    clicked_animation_paused, animation_paused = imgui.checkbox(
+    clicked_animation_paused, animation_paused = imgui.checkbox(  # type: ignore
         "Pause", animation_paused
     )
-    clicked_camera, camera.r = imgui.slider_float(
+    clicked_camera, camera.r = imgui.slider_float(  # type: ignore
         "Camera Radius", camera.r, 10, 1000.0
     )
     (
         clicked_animation_time_multiplier,
         animation_time_multiplier,
-    ) = imgui.slider_float("Sim Speed", animation_time_multiplier, 0.1, 10.0)
-    if imgui.button("Restart"):
+    ) = imgui.slider_float("Sim Speed", animation_time_multiplier, 0.1, 10.0)  # type: ignore
+    if imgui.button("Restart"):  # type: ignore
         animation_time = 0.0
 
     (
         clicked_line_thickness,
         line_thickness,
-    ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)
+    ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)  # type: ignore
 
-    if imgui.tree_node(
+    if imgui.tree_node(  # type: ignore
         "From World Space, Against Arrows, Read Bottom Up",
-        imgui.TREE_NODE_DEFAULT_OPEN,
+        imgui.TREE_NODE_DEFAULT_OPEN,  # type: ignore
     ):
-        if imgui.tree_node("Paddle 1->World", imgui.TREE_NODE_DEFAULT_OPEN):
-            imgui.text("f_paddle1_to_world(x) = ")
-            imgui.text(" = (")
-            imgui.same_line()
+        if imgui.tree_node("Paddle 1->World", imgui.TREE_NODE_DEFAULT_OPEN):  # type: ignore
+            imgui.text("f_paddle1_to_world(x) = ")  # type: ignore
+            imgui.text(" = (")  # type: ignore
+            imgui.same_line()  # type: ignore
             if highlighted_button("T", 5, animation_time):
                 animation_time = 5.0
-            imgui.same_line()
-            imgui.text(" o ")
-            imgui.same_line()
+            imgui.same_line()  # type: ignore
+            imgui.text(" o ")  # type: ignore
+            imgui.same_line()  # type: ignore
             if highlighted_button("R_z", 10, animation_time):
                 animation_time = 10.0
-            imgui.same_line()
-            imgui.text(" ) (x) ")
-            if imgui.tree_node("Square->World", imgui.TREE_NODE_DEFAULT_OPEN):
-                imgui.text("f_square_to_world(x) = ")
-                imgui.text(" f_paddle1_to_world o (")
-                imgui.text("      ")
-                imgui.same_line()
+            imgui.same_line()  # type: ignore
+            imgui.text(" ) (x) ")  # type: ignore
+            if imgui.tree_node("Square->World", imgui.TREE_NODE_DEFAULT_OPEN):  # type: ignore
+                imgui.text("f_square_to_world(x) = ")  # type: ignore
+                imgui.text(" f_paddle1_to_world o (")  # type: ignore
+                imgui.text("      ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button("T_-Z", 15, animation_time):
                     animation_time = 15.0
-                imgui.same_line()
-                imgui.text(" o ")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" o ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button("R_Z", 20, animation_time):
                     animation_time = 20.0
-                imgui.same_line()
-                imgui.text(" o ")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" o ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button("T_X", 25, animation_time):
                     animation_time = 25.0
-                imgui.same_line()
-                imgui.text(" o ")
-                imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" o ")  # type: ignore
+                imgui.same_line()  # type: ignore
                 if highlighted_button("R2_Z", 30, animation_time):
                     animation_time = 30.0
-                imgui.same_line()
-                imgui.text(" ) (x) ")
-                imgui.tree_pop()
-            imgui.tree_pop()
-        if imgui.tree_node("Paddle 2->World", imgui.TREE_NODE_DEFAULT_OPEN):
-            imgui.text("f_paddle2_to_world(x) = (")
-            imgui.same_line()
+                imgui.same_line()  # type: ignore
+                imgui.text(" ) (x) ")  # type: ignore
+                imgui.tree_pop()  # type: ignore
+            imgui.tree_pop()  # type: ignore
+        if imgui.tree_node("Paddle 2->World", imgui.TREE_NODE_DEFAULT_OPEN):  # type: ignore
+            imgui.text("f_paddle2_to_world(x) = (")  # type: ignore
+            imgui.same_line()  # type: ignore
             if highlighted_button("T", 35, animation_time):
                 animation_time = 35.0
-            imgui.same_line()
-            imgui.text(" o ")
-            imgui.same_line()
+            imgui.same_line()  # type: ignore
+            imgui.text(" o ")  # type: ignore
+            imgui.same_line()  # type: ignore
             if highlighted_button("R", 40, animation_time):
                 animation_time = 40.0
-            imgui.same_line()
-            imgui.text(" ) (x) ")
-            imgui.tree_pop()
-        imgui.tree_pop()
-    imgui.end()
+            imgui.same_line()  # type: ignore
+            imgui.text(" ) (x) ")  # type: ignore
+            imgui.tree_pop()  # type: ignore
+        imgui.tree_pop()  # type: ignore
+    imgui.end()  # type: ignore
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
@@ -1186,8 +1186,8 @@ while not glfw.window_should_close(window):
         if animation_time > 35.0 and animation_time < 45.0:
             axis.render(animation_time)
 
-    imgui.render()
-    impl.render(imgui.get_draw_data())
+    imgui.render()  # type: ignore
+    impl.render(imgui.get_draw_data())  # type: ignore
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers

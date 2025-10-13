@@ -204,7 +204,7 @@ while not glfw.window_should_close(window):
 
     width, height = glfw.get_framebuffer_size(window)
     glViewport(0, 0, width, height)
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT)
+    glClear(sum(GL_COLOR_BUFFER_BIT, GL_DEPTH_BUFFER_BIT))
 
     minimum_framebuffer_dimension = width if width < height else height
 
