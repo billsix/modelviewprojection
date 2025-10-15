@@ -17,9 +17,6 @@
 
 
 import dataclasses
-import typing
-
-import numpy as np
 
 import modelviewprojection.mathutils as mu
 
@@ -110,10 +107,3 @@ class Vector1D(mu.Vector):
         """
         return Vector1D(x=(self.x * scalar))
         # doc-region-end define mul
-
-    # The dot method uses the generic iterators provided by self and other
-    def dot(self, other: typing.Self) -> float:
-        return sum(v1 * v2 for v1, v2 in zip(self, other))
-
-    def __abs__(self) -> float:
-        return np.sqrt(self.dot(self))

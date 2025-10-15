@@ -18,6 +18,7 @@
 
 import abc
 import dataclasses
+import itertools
 import typing
 
 import numpy as np
@@ -78,6 +79,27 @@ class Vector(abc.ABC):
             bool(np.isclose(v1, v2, rtol=1e-5, atol=1e-5))
             for v1, v2 in zip(self, other)
         )
+
+    def component_wise_with_index(self, other: typing.Self):
+        return itertools.product(
+            enumerate(self, start=1), enumerate(other, start=1)
+        )
+
+    # The dot method uses the generic iterators provided by self and other
+    def dot(self, other: typing.Self) -> float:
+        if type(self) is not type(other):
+            return NotImplemented
+        return sum(
+            self_component * other_component
+            for (self_index, self_component), (
+                other_index,
+                other_component,
+            ) in self.component_wise_with_index(other)
+            if self_index == other_index
+        )
+
+    def __abs__(self) -> float:
+        return np.sqrt(self.dot(self))
 
 
 # doc-region-begin define invertible function
