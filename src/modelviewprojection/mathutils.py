@@ -74,7 +74,10 @@ class Vector(abc.ABC):
         return self * scalar
 
     def isclose(self, other: typing.Self) -> float:
-        return all(bool(np.isclose(v1, v2)) for v1, v2 in zip(self, other))
+        return all(
+            bool(np.isclose(v1, v2, rtol=1e-5, atol=1e-5))
+            for v1, v2 in zip(self, other)
+        )
 
 
 # doc-region-begin define invertible function

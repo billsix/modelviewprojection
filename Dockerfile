@@ -1,7 +1,6 @@
 FROM registry.fedoraproject.org/fedora:42
 
-RUN dnf upgrade -y && \
-    dnf install -y \
+RUN dnf install -y \
                    aspell \
                    aspell-en \
                    autoconf \
