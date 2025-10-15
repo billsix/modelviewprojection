@@ -57,7 +57,7 @@ Description
 ^^^^^^^^^^^
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo21/demo.py
+.. literalinclude:: ../../src/modelviewprojection/demo21/demo21.py
    :language: python
 
 .. literalinclude:: ../../src/modelviewprojection/demo21/triangle.vert
