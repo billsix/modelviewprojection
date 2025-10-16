@@ -19,8 +19,6 @@ all: clean image html ## Build the HTML and PDF from scratch in Debian Bulleye
 
 .PHONY: image
 image: ## Build a podman image in which to build the book
-	printf "This documentation was generated from from commit " > book/docs/version.txt
-	git rev-parse HEAD >> book/docs/version.txt
 	$(CONTAINER_CMD) build -t $(CONTAINER_NAME) .
 
 .PHONY: spyderimage
