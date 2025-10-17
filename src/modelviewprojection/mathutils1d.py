@@ -53,12 +53,12 @@ class Vector1D(mu.Vector):
         """
         Add together two Vector1Ds.
 
-        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\end{pmatrix}`
-        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\end{pmatrix}`:
+        Let :math:`\\vec{a} = \\begin{bmatrix} a_x \\end{bmatrix}`
+        and :math:`\\vec{b} = \\begin{bmatrix} b_x \\end{bmatrix}`:
 
         .. math::
 
-             \\vec{a} + \\vec{b} = \\begin{pmatrix} a_x + b_x \\end{pmatrix}
+             \\vec{a} + \\vec{b} = \\begin{bmatrix} a_x + b_x \\end{bmatrix}
 
         Args:
             rhs (Vector1D): The vector on the right hand side of the addition
@@ -85,11 +85,11 @@ class Vector1D(mu.Vector):
         """
         Multiply the Vector1D by a scalar number
 
-        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\end{pmatrix}` and constant scalar :math:`s`:
+        Let :math:`\\vec{a} = \\begin{bmatrix} a_x \\end{bmatrix}` and constant scalar :math:`s`:
 
         .. math::
 
-             s*\\vec{a} = \\begin{pmatrix} s*a_x \\end{pmatrix}
+             s*\\vec{a} = \\begin{bmatrix} s*a_x \\end{bmatrix}
 
         Args:
             rhs (Vector1D): The scalar to be multiplied to the mu.Vector's component

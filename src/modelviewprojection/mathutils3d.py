@@ -67,12 +67,12 @@ class Vector3D(mu2d.Vector2D):
         """
         Add together two Vector3Ds.
 
-        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\\\ a_z \\end{pmatrix}`
-        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\\\ b_y \\\\ b_z \\end{pmatrix}`:
+        Let :math:`\\vec{a} = \\begin{bmatrix} a_x \\\\ a_y \\\\ a_z \\end{bmatrix}`
+        and :math:`\\vec{b} = \\begin{bmatrix} b_x \\\\ b_y \\\\ b_z \\end{bmatrix}`:
 
         .. math::
 
-             \\vec{a} + \\vec{b} = \\begin{pmatrix} a_x + b_x \\\\ a_y + b_y \\\\ a_z + b_z \\end{pmatrix}
+             \\vec{a} + \\vec{b} = \\begin{bmatrix} a_x + b_x \\\\ a_y + b_y \\\\ a_z + b_z \\end{bmatrix}
 
         Args:
             rhs (Vector3D): The vector on the right hand side of the addition
@@ -98,11 +98,11 @@ class Vector3D(mu2d.Vector2D):
         """
         Multiply the Vector3D by a scalar number
 
-        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\\\ a_z \\end{pmatrix}` and constant scalar :math:`s`:
+        Let :math:`\\vec{a} = \\begin{bmatrix} a_x \\\\ a_y \\\\ a_z \\end{bmatrix}` and constant scalar :math:`s`:
 
         .. math::
 
-             s*\\vec{a} = \\begin{pmatrix} s*a_x \\\\ s*a_y \\\\ s*a_z \\end{pmatrix}
+             s*\\vec{a} = \\begin{bmatrix} s*a_x \\\\ s*a_y \\\\ s*a_z \\end{bmatrix}
 
         Args:
             rhs (Vector3D): The scalar to be multiplied to the Vector's component

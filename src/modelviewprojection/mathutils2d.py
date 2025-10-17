@@ -65,12 +65,12 @@ class Vector2D(mu1d.Vector1D):
         """
         Add together two Vector2Ds.
 
-        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\end{pmatrix}`
-        and :math:`\\vec{b} = \\begin{pmatrix} b_x \\\\ b_y \\end{pmatrix}`:
+        Let :math:`\\vec{a} = \\begin{bmatrix} a_x \\\\ a_y \\end{bmatrix}`
+        and :math:`\\vec{b} = \\begin{bmatrix} b_x \\\\ b_y \\end{bmatrix}`:
 
         .. math::
 
-             \\vec{a} + \\vec{b} = \\begin{pmatrix} a_x + b_x \\\\ a_y + b_y \\end{pmatrix}
+             \\vec{a} + \\vec{b} = \\begin{bmatrix} a_x + b_x \\\\ a_y + b_y \\end{bmatrix}
 
         Args:
             rhs (Vector2D): The vector on the right hand side of the addition
@@ -98,11 +98,11 @@ class Vector2D(mu1d.Vector1D):
         """
         Multiply the Vector2D by a scalar number
 
-        Let :math:`\\vec{a} = \\begin{pmatrix} a_x \\\\ a_y \\end{pmatrix}` and constant scalar :math:`s`:
+        Let :math:`\\vec{a} = \\begin{bmatrix} a_x \\\\ a_y \\end{bmatrix}` and constant scalar :math:`s`:
 
         .. math::
 
-             s*\\vec{a} = \\begin{pmatrix} s*a_x \\\\ s*a_y \\end{pmatrix}
+             s*\\vec{a} = \\begin{bmatrix} s*a_x \\\\ s*a_y \\end{bmatrix}
 
         Args:
             rhs (Vector2D): The scalar to be multiplied to the Vector's component
