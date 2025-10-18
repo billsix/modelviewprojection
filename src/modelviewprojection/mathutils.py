@@ -364,7 +364,7 @@ def compose_intermediate_fns(
 
 def compose_intermediate_fns_and_fn(
     functions: list[InvertibleFunction], relative_basis: bool = False
-) -> typing.Iterable[InvertibleFunction]:
+) -> list[tuple[InvertibleFunction, InvertibleFunction]]:
     """
     Like compose, but returns a list of all of the partial compositions
 
