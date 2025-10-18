@@ -63,65 +63,6 @@ class Vector3D(mu2d.Vector2D):
     z: float  #: The z-component of the 3D Vector
     # doc-region-end define vector class
 
-    def __add__(self, rhs: "mu.Vector") -> "Vector3D":
-        """
-        Add together two Vector3Ds.
-
-        Let :math:`\\vec{a} = \\begin{bmatrix} a_x \\\\ a_y \\\\ a_z \\end{bmatrix}`
-        and :math:`\\vec{b} = \\begin{bmatrix} b_x \\\\ b_y \\\\ b_z \\end{bmatrix}`:
-
-        .. math::
-
-             \\vec{a} + \\vec{b} = \\begin{bmatrix} a_x + b_x \\\\ a_y + b_y \\\\ a_z + b_z \\end{bmatrix}
-
-        Args:
-            rhs (Vector3D): The vector on the right hand side of the addition
-                            symbol
-        Returns:
-            Vector3D: The Vector3D that represents the additon of the two
-                      input Vector3Ds
-        Raises:
-            Nothing
-        Example:
-            >>> from modelviewprojection.mathutils3d import Vector3D
-            >>> a = Vector3D(x=2.0, y=3.0, z=1.0)
-            >>> b = Vector3D(x=5.0, y=6.0, z=9.0)
-            >>> a + b
-            Vector3D(x=7.0, y=9.0, z=10.0)
-        """
-        assert isinstance(rhs, Vector3D)
-        return Vector3D(
-            x=(self.x + rhs.x), y=(self.y + rhs.y), z=(self.z + rhs.z)
-        )
-
-    def __mul__(self, scalar: float) -> "Vector3D":
-        """
-        Multiply the Vector3D by a scalar number
-
-        Let :math:`\\vec{a} = \\begin{bmatrix} a_x \\\\ a_y \\\\ a_z \\end{bmatrix}` and constant scalar :math:`s`:
-
-        .. math::
-
-             s*\\vec{a} = \\begin{bmatrix} s*a_x \\\\ s*a_y \\\\ s*a_z \\end{bmatrix}
-
-        Args:
-            rhs (Vector3D): The scalar to be multiplied to the Vector's component
-                            subtraction symbol
-        Returns:
-            Vector3D: The Vector3D that represents scalar times the amount of the input Vector3D
-
-        Raises:
-            Nothing
-        Example:
-            >>> from modelviewprojection.mathutils3d import Vector3D
-            >>> a = Vector3D(x=2.0, y=3.0, z=4.0)
-            >>> a * 4
-            Vector3D(x=8.0, y=12.0, z=16.0)
-        """
-        return Vector3D(
-            x=(self.x * scalar), y=(self.y * scalar), z=(self.z * scalar)
-        )
-
     def cross(self, rhs: typing.Self) -> typing.Self:
         return Vector3D(
             x=self.y * rhs.z - self.z * rhs.y,

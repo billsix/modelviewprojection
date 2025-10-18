@@ -16,22 +16,101 @@
 # Boston, MA 02111-1307, USA.
 
 
-import abc
 import dataclasses
 import itertools
 import typing
 
 import numpy as np
 
+__all__ = [
+    "Vector",
+    "InvertibleFunction",
+    "inverse",
+    "compose",
+    "compose_intermediate_fns",
+    "compose_intermediate_fns_and_fn",
+    "translate",
+    "uniform_scale",
+]
 
-class Vector(abc.ABC):
-    @abc.abstractmethod
+
+@dataclasses.dataclass
+class Vector:
+    # doc-region-begin begin define add
     def __add__(self, rhs: typing.Self) -> typing.Self:
-        pass
+        """
+        Add together two Vectors, component-wise.
 
-    @abc.abstractmethod
+        Args:
+            rhs (Vector): The vector on the right hand side of the addition
+                            symbol
+        Returns:
+            Vector: The Vector that represents the additon of the two
+                    input Vectors
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils1d import Vector1D
+            >>> a = Vector1D(x=2)
+            >>> b = Vector1D(x=5)
+            >>> a + b
+            Vector1D(x=7)
+            >>> from modelviewprojection.mathutils2d import Vector2D
+            >>> a = Vector2D(x=2, y=3)
+            >>> b = Vector2D(x=5, y=6)
+            >>> a + b
+            Vector2D(x=7, y=9)
+            >>> from modelviewprojection.mathutils3d import Vector3D
+            >>> a = Vector3D(x=2, y=3, z=1)
+            >>> b = Vector3D(x=5, y=6, z=10)
+            >>> a + b
+            Vector3D(x=7, y=9, z=11)
+        """
+
+        if type(self) is not type(rhs):
+            return NotImplemented
+        return type(self)(
+            *[
+                a + b
+                for a, b in zip(
+                    dataclasses.astuple(self), dataclasses.astuple(rhs)
+                )
+            ]
+        )
+
+    # doc-region-end begin define add
+
+    # doc-region-begin define mul
     def __mul__(self, scalar: float) -> typing.Self:
-        pass
+        """
+        Multiply the Vector by a scalar number, component-wise
+
+        Args:
+            rhs (Vector): The scalar to be multiplied to the Vector's component
+                          subtraction symbol
+        Returns:
+            Vector: The Vector that represents scalar times the amount of the input
+                    Vector
+
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils1d import Vector1D
+            >>> a = Vector1D(x=2)
+            >>> a * 4
+            Vector1D(x=8)
+            >>> from modelviewprojection.mathutils2d import Vector2D
+            >>> a = Vector2D(x=2, y=3)
+            >>> a * 4
+            Vector2D(x=8, y=12)
+            >>> from modelviewprojection.mathutils3d import Vector3D
+            >>> a = Vector3D(x=2, y=3, z=5)
+            >>> a * 4
+            Vector3D(x=8, y=12, z=20)
+        """
+        return type(self)(*[scalar * a for a in dataclasses.astuple(self)])
+
+    # doc-region-end define mul
 
     def __neg__(self) -> typing.Self:
         """
