@@ -183,9 +183,9 @@ with create_graphs():
 with create_graphs():
     create_basis(fn=mu2d.rotate(0.0))
     create_basis(
-        fn=mu2d.rotate(math.radians(53.130102)),
+        fn=mu2d.rotate(math.radians(45.0)),
         xcolor=(0, 1, 0),
-        ycolor=(0, 1, 1),
+        ycolor=(1, 1, 0),
     )
 
 # %% [markdown]
@@ -201,7 +201,7 @@ with create_graphs():
     create_basis(
         fn=mu2d.compose(
             [
-                mu2d.rotate(math.radians(53.130102)),
+                mu2d.rotate(math.radians(45.0)),
                 mu2d.translate(mu2d.Vector2D(x=1.0, y=0.0)),
             ]
         ),
@@ -218,7 +218,7 @@ with create_graphs():
 # %%
 for f in mu.compose_intermediate_fns(
     [
-        mu2d.rotate(math.radians(53.130102)),
+        mu2d.rotate(math.radians(45.0)),
         mu2d.translate(mu2d.Vector2D(x=1.0, y=0.0)),
     ]
 ):
@@ -237,7 +237,7 @@ for f in mu.compose_intermediate_fns(
 # %%
 for f in mu.compose_intermediate_fns(
     [
-        mu2d.rotate(math.radians(53.130102)),
+        mu2d.rotate(math.radians(45.0)),
         mu2d.translate(mu2d.Vector2D(x=1.0, y=0.0)),
     ],
     relative_basis=True,
