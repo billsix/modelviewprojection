@@ -67,6 +67,7 @@ class Vector:
             Vector3D(x=7, y=9, z=11)
         """
 
+        # doc-region-begin define add
         if type(self) is not type(rhs):
             return NotImplemented
         return type(self)(
@@ -77,6 +78,7 @@ class Vector:
                 )
             ]
         )
+        # doc-region-end define add
 
     # doc-region-end begin define add
 
