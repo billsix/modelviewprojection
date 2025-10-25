@@ -43,7 +43,16 @@ AC_ARG_ENABLE([jupyter],
     [enable_extra_jupyter=no]
 )
 
+AC_ARG_ENABLE([spyder],
+  [AS_HELP_STRING([--enable-spyder],
+    [Enable extra spyder install])],
+    [enable_extra_spyder=yes],
+    [enable_extra_spyder=no]
+)
+
+
 BUILD_DOCS_FLAG=0
+DEFAULT_MAKE_GOAL=shell
 
 # Write substitution variable for Makefile
 if test "x$enable_extra_html" = "xyes"; then
@@ -95,12 +104,22 @@ AC_SUBST(USE_IMGUI)
 
 if test "x$enable_extra_jupyter" = "xyes"; then
   USE_JUPYTER=1
+  DEFAULT_MAKE_GOAL=jupyter
 else
   USE_JUPYTER=0
 fi
 AC_SUBST(USE_JUPYTER)
 
 
+if test "x$enable_extra_spyder" = "xyes"; then
+  USE_SPYDER=1
+  DEFAULT_MAKE_GOAL=spyder
+else
+  USE_SPYDER=0
+fi
+AC_SUBST(USE_SPYDER)
+
+AC_SUBST(DEFAULT_MAKE_GOAL)
 AC_CONFIG_FILES([
    Makefile
    Dockerfile

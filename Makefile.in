@@ -1,8 +1,16 @@
-.DEFAULT_GOAL := help
+.DEFAULT_GOAL := @DEFAULT_MAKE_GOAL@
+
+BUILD_DOCS=@BUILD_DOCS_FLAG@
+BUILD_PDF=@BUILD_PDF_FLAG@
+BUILD_HTML=@BUILD_HTML_FLAG@
+USE_X_WINDOWS=@USE_X_WINDOWS@
+USE_EMACS=@USE_EMACS@
+USE_IMGUI=@USE_IMGUI@
+USE_JUPYTER=@USE_JUPYTER@
+USE_SPYDER=@USE_SPYDER@
 
 CONTAINER_CMD = podman
 CONTAINER_NAME = modelviewprojection-html
-SPYDER_CONTAINER_NAME = modelviewprojection-spyder
 FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
 		-v ./entrypoint/format.sh:/format.sh:Z \
@@ -21,11 +29,9 @@ all: clean image html ## Build the HTML and PDF from scratch in Debian Bulleye
 image: ## Build a podman image in which to build the book
 	$(CONTAINER_CMD) build -t $(CONTAINER_NAME) .
 
-.PHONY: spyderimage
-spyderimage: image  ## Build a podman image in which to run the demos
-	$(CONTAINER_CMD) build -t $(SPYDER_CONTAINER_NAME) -f Dockerfile.spyder
 
 
+ifeq ($(BUILD_HTML_FLAG),1)
 .PHONY: html
 html: image ## Build the html from the sphinx source
 	printf "This documentation was generated from from commit " > book/docs/version.txt
@@ -33,6 +39,7 @@ html: image ## Build the html from the sphinx source
 	$(CONTAINER_CMD) run -it --rm  \
 		$(FILES_TO_MOUNT) \
 		$(CONTAINER_NAME)
+endif
 
 
 .PHONY: clean
@@ -40,7 +47,7 @@ clean: ## Delete the output directory, cleaning out the HTML and the PDF
 	rm -rf output/*
 
 .PHONY: shell
-shell:  ## Get Shell into a ephermeral container made from the image
+shell: image ## Get Shell into a ephermeral container made from the image
 	$(CONTAINER_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
@@ -49,8 +56,9 @@ shell:  ## Get Shell into a ephermeral container made from the image
 		$(CONTAINER_NAME) \
 		/shell.sh
 
+ifeq ($(USE_JUPYTER),1)
 .PHONY: jupyter
-jupyter:  ## Get Shell into a ephermeral container made from the image
+jupyter: image ## Get Shell into a ephermeral container made from the image
 	$(CONTAINER_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
@@ -58,17 +66,19 @@ jupyter:  ## Get Shell into a ephermeral container made from the image
 		$(USE_X) \
 		$(CONTAINER_NAME) \
 		/jupyter.sh
+endif
 
 
-
-spyder: ## Run Spyder
+ifeq ($(USE_SPYDER),1)
+spyder: image ## Run Spyder
 	$(CONTAINER_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		-v ./entrypoint/spyder.sh:/spyder.sh:Z \
 		$(USE_X) \
-		$(SPYDER_CONTAINER_NAME) \
+		$(CONTAINER_NAME) \
 		/spyder.sh
+endif
 
 
 

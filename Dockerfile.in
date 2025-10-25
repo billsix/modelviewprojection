@@ -6,6 +6,8 @@ ARG BUILD_HTML=@BUILD_HTML_FLAG@
 ARG USE_X_WINDOWS=@USE_X_WINDOWS@
 ARG USE_EMACS=@USE_EMACS@
 ARG USE_IMGUI=@USE_IMGUI@
+ARG USE_JUPYTER=@USE_JUPYTER@
+ARG USE_SPYDER=@USE_SPYDER@
 
 COPY entrypoint/dotfiles/ /root/
 
@@ -13,12 +15,13 @@ RUN dnf install -y \
                    glfw \
                    python3-glfw \
 		   python3-numpy \
-                   # python3-openimageio \
+                   python3-openimageio \
 		   python3-pillow \
                    python3-pip \
                    python3-pyopengl \
                    python3-pytest \
-		   # python3-pytest-lsp \
+		   python3-pytest-lsp \
+                   python3-sympy \
                    python3-wxpython4  \
                    ruff \
                    tmux ; \
@@ -67,16 +70,19 @@ RUN dnf install -y \
                    libXxf86vm \
                    mesa-dri-drivers  \
                    mesa-libGLU-devel; \
-    fi ;
+    fi ;  \
+    dnf clean all
 
 RUN if [ "$USE_EMACS" = "1" ]; then \
        dnf install -y \
                    emacs \
+        	   python3-lsp-server \
                    npm && \
        npm install -g pyright && \
        emacs --batch --load /root/.emacs.d/install-melpa-packages.el && \
        echo "alias ls='ls --color=auto'" >> ~/.bashrc ;\
-     fi ;
+     fi ;  \
+    dnf clean all
 
 RUN if [ "$USE_JUPYTER" = "1" ]; then \
        dnf install -y \
@@ -90,13 +96,10 @@ RUN if [ "$USE_JUPYTER" = "1" ]; then \
                    mathjax-main-fonts \
                    mathjax-math-fonts \
         	   python3-jupyterlab-jupytext \
-        	   python3-jupyter-lsp \
-        	   python3-lsp-server \
-                   python3-sympy  && \
-       npm install -g pyright && \
-       dnf clean all && \
+        	   python3-jupyter-lsp  && \
        python3 -m pip install --break-system-packages --root-user-action=ignore moviepy; \
-    fi;
+    fi;  \
+    dnf clean all
 
 RUN if [ "$USE_IMGUI" = "1" ]; then \
        dnf install -y \
@@ -110,9 +113,24 @@ RUN if [ "$USE_IMGUI" = "1" ]; then \
         cd pyimgui && \
         git submodule init && git submodule update && \
         python3 -m pip install --break-system-packages --root-user-action=ignore . ;\
-     fi ;
+     fi ;  \
+    dnf clean all
 
-
+RUN if [ "$USE_SPYDER" = "1" ]; then \
+      dnf install -y spyder && \
+      mkdir -p ~/.config/spyder-py3/config && \
+      echo "[editor]" >> ~/.config/spyder-py3/config/spyder.ini && \
+      echo "font/family = Source Code Pro" >> ~/.config/spyder-py3/config/spyder.ini && \
+      echo "font/size = 24" >> ~/.config/spyder-py3/config/spyder.ini && \
+      echo "[file_explorer]" >> ~/.config/spyder-py3/config/spyder.ini && \
+      echo "visible = False" >> ~/.config/spyder-py3/config/spyder.ini && \
+      echo "[tours]" >> ~/.config/spyder-py3/config/spyder.ini && \
+      echo "show_tour_message = False" >> ~/.config/spyder-py3/config/spyder.ini && \
+      echo "[appearance]" >> ~/.config/spyder-py3/config/spyder.ini && \
+      echo "font/family = Adwaita Mono" >> ~/.config/spyder-py3/config/spyder.ini && \
+      echo "font/size = 18" >> ~/.config/spyder-py3/config/spyder.ini; \
+    fi ;  \
+    dnf clean all
 
 
 
