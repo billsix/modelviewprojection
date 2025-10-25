@@ -63,7 +63,7 @@ USE_EMACS=0
 USE_IMGUI=0
 USE_JUPYTER=0
 USE_SPYDER=0
-DEFAULT_MAKE_GOAL=all
+DEFAULT_MAKE_GOAL=shell
 
 # HTML / PDF
 if test "x$enable_extra_html" = "xyes"; then
@@ -128,4 +128,3 @@ AC_CONFIG_FILES([
   Dockerfile
 ])
 AC_OUTPUT
-
