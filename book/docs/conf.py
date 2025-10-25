@@ -41,7 +41,7 @@ copyright = "2020-2025, William Emerison Six"
 author = "William Emerison Six"
 
 # The full version, including alpha/beta/rc tags
-release = "0.0.02"
+release = "0.0.2"
 
 
 # -- General configuration ---------------------------------------------------
