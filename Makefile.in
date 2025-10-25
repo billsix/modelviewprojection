@@ -23,7 +23,7 @@ USE_X = -e DISPLAY=$(DISPLAY) \
 
 
 .PHONY: all
-all: clean image html ## Build the HTML and PDF from scratch in Debian Bulleye
+all: image ## Build the HTML and PDF from scratch in Debian Bulleye
 
 .PHONY: image
 image: ## Build a podman image in which to build the book
