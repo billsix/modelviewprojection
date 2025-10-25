@@ -46,9 +46,8 @@ RUN dnf install -y \
                    texlive-dvipng \
                    texlive-dvisvgm \
                    texlive-standalone; \
-       # cache matplotlib stuff \
        python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()" ; \
-    fi ;
+    fi ; \
     if [ "$USE_X_WINDOWS" = "1" ]; then \
        dnf install -y \
                    libglvnd-gles \
@@ -68,17 +67,18 @@ RUN dnf install -y \
                    libXxf86vm \
                    mesa-dri-drivers  \
                    mesa-libGLU-devel; \
-    fi ; \
-    if [ "$USE_EMACS" = "1" ]; then \
+    fi ;
+
+RUN if [ "$USE_EMACS" = "1" ]; then \
        dnf install -y \
                    emacs \
-                   npm; \
-       # install pyright for lsp \
-       npm install -g pyright ;\
-       emacs --batch --load /root/.emacs.d/install-melpa-packages.el ; \
-       echo "alias ls='ls --color=auto'" >> ~/.bashrc \
-     fi ; \
-    if [ "$USE_JUPYTER" = "1" ]; then \
+                   npm && \
+       npm install -g pyright && \
+       emacs --batch --load /root/.emacs.d/install-melpa-packages.el && \
+       echo "alias ls='ls --color=auto'" >> ~/.bashrc ;\
+     fi ;
+
+RUN if [ "$USE_JUPYTER" = "1" ]; then \
        dnf install -y \
         	   ffmpeg \
         	   firefox \
@@ -91,30 +91,26 @@ RUN dnf install -y \
                    mathjax-math-fonts \
         	   python3-jupyterlab-jupytext \
         	   python3-jupyter-lsp \
-        	   python3-lsp-server; \
-                 python3-sympy \
-       # install pyright for lsp \
-       npm install -g pyright  \
-     fi ;
-     # clean out dnf \
-     dnf clean all && \
-     # install moviepy until fedora takes it \
-     python3 -m pip install --break-system-packages --root-user-action=ignore moviepy;
-     if [ "$USE_IMGUI" = "1" ]; then \
+        	   python3-lsp-server \
+                   python3-sympy  && \
+       npm install -g pyright && \
+       dnf clean all && \
+       python3 -m pip install --break-system-packages --root-user-action=ignore moviepy; \
+    fi;
+
+RUN if [ "$USE_IMGUI" = "1" ]; then \
        dnf install -y \
                    autoconf \
                    automake \
                    g++ \
         	   gcc \
-                   python3-devel; \
-        # install imgui, until I replace imgui code with wxpython4 \
+                   python3-devel && \
         cd ~/ && \
         git clone https://github.com/billsix/pyimgui.git && \
         cd pyimgui && \
         git submodule init && git submodule update && \
-        python3 -m pip install --break-system-packages --root-user-action=ignore .
+        python3 -m pip install --break-system-packages --root-user-action=ignore . ;\
      fi ;
-
 
 
 

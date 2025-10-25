@@ -85,12 +85,6 @@ fi
 AC_SUBST(USE_EMACS)
 
 
-AC_CONFIG_FILES([
-   Makefile
-   Dockerfile
-])
-AC_OUTPUT
-
 if test "x$enable_extra_imgui" = "xyes"; then
   USE_IMGUI=1
 else
@@ -105,3 +99,10 @@ else
   USE_JUPYTER=0
 fi
 AC_SUBST(USE_JUPYTER)
+
+
+AC_CONFIG_FILES([
+   Makefile
+   Dockerfile
+])
+AC_OUTPUT
