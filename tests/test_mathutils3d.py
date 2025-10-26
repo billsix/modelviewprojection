@@ -20,8 +20,8 @@
 import doctest
 import math
 
-import modelviewprojection
 import modelviewprojection.mathutils3d as mu3d
+from modelviewprojection.mathutils import InvertibleFunction
 
 
 def test___add__():
@@ -53,9 +53,11 @@ def test___neg__():
     assert result.isclose(mu3d.Vector3D(x=-2.0, y=-3.0, z=-4.0))
 
 
-def wrap_vec3_test(fn, input_val, output_val: mu3d.Vector):
-    out = fn(mu3d.Vector3D(*input_val))
-    assert out.isclose(output_val)
+def wrap_vec3_test(
+    fn: mu3d.InvertibleFunction, input_val: list[float], output_val: list[float]
+):
+    out: mu3d.Vector = fn(mu3d.Vector3D(*input_val))
+    assert out.isclose(mu3d.Vector3D(*output_val))
 
 
 # doc-region-begin translate test
@@ -158,26 +160,22 @@ def test_rotate_z():
 
 # doc-region-begin function stack examples definitions
 def test_fn_stack():
-    def identity(x):
-        return x
+    identity: InvertibleFunction = mu3d.uniform_scale(1)
 
     mu3d.fn_stack.push(identity)
     assert 1 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)
 
-    def add_one(x):
-        return x + 1
+    add_one: InvertibleFunction = mu3d.translate(1)
 
     mu3d.fn_stack.push(add_one)
     assert 2 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)  # x + 1 = 2
 
-    def multiply_by_2(x):
-        return x * 2
+    multiply_by_2: InvertibleFunction = mu3d.uniform_scale(2)
 
     mu3d.fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
     assert 3 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)
 
-    def add_5(x):
-        return x + 5
+    add_5: InvertibleFunction = mu3d.translate(5)
 
     mu3d.fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
     assert 13 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)
@@ -194,5 +192,5 @@ def test_fn_stack():
 
 
 def test_doctest():
-    failureCount, testCount = doctest.testmod(modelviewprojection.mathutils3d)
+    failureCount, testCount = doctest.testmod(mu3d)
     assert 0 == failureCount

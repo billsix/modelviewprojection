@@ -26,10 +26,11 @@ import modelviewprojection
 import modelviewprojection.mathutils2d as mu2d
 
 
-def wrap_vec2_test(fn, input_val, output_val):
-    out = fn(mu2d.Vector2D(*input_val))
-    assert out.x == approx(output_val[0], abs=0.001)
-    assert out.y == approx(output_val[1], abs=0.001)
+def wrap_vec2_test(
+    fn: mu2d.InvertibleFunction, input_val: list[float], output_val: list[float]
+):
+    out: mu2d.Vector = fn(mu2d.Vector2D(*input_val))
+    assert out.isclose(mu2d.Vector2D(*output_val))
 
 
 def test___add__():
