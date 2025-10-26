@@ -11,7 +11,8 @@ ARG USE_SPYDER=@USE_SPYDER@
 
 COPY entrypoint/dotfiles/ /root/
 
-RUN dnf install -y \
+RUN  echo "keepcache=True" >> /etc/dnf/dnf.conf && \
+     dnf install -y \
                    glfw \
                    python3-glfw \
 		   python3-numpy \
@@ -70,8 +71,7 @@ RUN dnf install -y \
                    libXxf86vm \
                    mesa-dri-drivers  \
                    mesa-libGLU-devel; \
-    fi ;  \
-    dnf clean all
+    fi ;
 
 RUN if [ "$USE_EMACS" = "1" ]; then \
        dnf install -y \
@@ -81,8 +81,7 @@ RUN if [ "$USE_EMACS" = "1" ]; then \
        npm install -g pyright && \
        emacs --batch --load /root/.emacs.d/install-melpa-packages.el && \
        echo "alias ls='ls --color=auto'" >> ~/.bashrc ;\
-     fi ;  \
-    dnf clean all
+     fi ;
 
 RUN if [ "$USE_JUPYTER" = "1" ]; then \
        dnf install -y \
@@ -98,8 +97,7 @@ RUN if [ "$USE_JUPYTER" = "1" ]; then \
         	   python3-jupyterlab-jupytext \
         	   python3-jupyter-lsp  && \
        python3 -m pip install --break-system-packages --root-user-action=ignore moviepy; \
-    fi;  \
-    dnf clean all
+    fi;
 
 RUN if [ "$USE_IMGUI" = "1" ]; then \
        dnf install -y \
@@ -113,8 +111,7 @@ RUN if [ "$USE_IMGUI" = "1" ]; then \
         cd pyimgui && \
         git submodule init && git submodule update && \
         python3 -m pip install --break-system-packages --root-user-action=ignore . ;\
-     fi ;  \
-    dnf clean all
+     fi ;
 
 RUN if [ "$USE_SPYDER" = "1" ]; then \
       dnf install -y spyder && \
@@ -129,8 +126,7 @@ RUN if [ "$USE_SPYDER" = "1" ]; then \
       echo "[appearance]" >> ~/.config/spyder-py3/config/spyder.ini && \
       echo "font/family = Adwaita Mono" >> ~/.config/spyder-py3/config/spyder.ini && \
       echo "font/size = 18" >> ~/.config/spyder-py3/config/spyder.ini; \
-    fi ;  \
-    dnf clean all
+    fi ;
 
 
 
