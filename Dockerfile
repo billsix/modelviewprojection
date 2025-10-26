@@ -30,7 +30,9 @@ RUN  echo "keepcache=True" >> /etc/dnf/dnf.conf && \
                    automake \
                    aspell \
                    aspell-en \
-        	   gnuplot \
+                   g++ \
+                   gcc \
+                   gnuplot \
                    graphviz \
                    ImageMagick \
                    inkscape \
