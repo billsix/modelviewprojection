@@ -20,66 +20,67 @@
 
 import doctest
 
-import pytest
-
 import modelviewprojection.mathutils1d as mu1d
 
 
 def test___add__():
-    result = mu1d.Vector1D(x=1.0) + mu1d.Vector1D(x=3.0)
-    assert result == mu1d.Vector1D(x=pytest.approx(4.0))
+    result = mu1d.Vector1D(x=1) + mu1d.Vector1D(x=3)
+    assert result.isclose(mu1d.Vector1D(x=4))
 
 
 def test___sub__():
-    result = mu1d.Vector1D(x=5.0) - mu1d.Vector1D(x=1.0)
-    assert result == mu1d.Vector1D(x=pytest.approx(4.0))
+    result = mu1d.Vector1D(x=5) - mu1d.Vector1D(x=1)
+    assert result.isclose(mu1d.Vector1D(x=4))
 
 
 def test___mul__():
-    result = mu1d.Vector1D(x=2.0) * 4.0
-    assert result == mu1d.Vector1D(x=pytest.approx(8.0))
+    result = mu1d.Vector1D(x=2) * 4
+    assert result.isclose(mu1d.Vector1D(x=8))
 
 
 def test___rmul__():
-    result = 4.0 * mu1d.Vector1D(x=2.0)
-    assert result == mu1d.Vector1D(x=pytest.approx(8.0))
+    result = 4 * mu1d.Vector1D(x=2)
+    assert result.isclose(mu1d.Vector1D(x=8))
 
 
 def test___neg__():
-    result = -mu1d.Vector1D(x=2.0)
-    assert result == mu1d.Vector1D(x=pytest.approx(-2.0))
+    result = -mu1d.Vector1D(x=2)
+    assert result.isclose(mu1d.Vector1D(x=-2))
+
+
+def wrap_vec1_test(
+    fn: mu1d.InvertibleFunction, input_val: float, output_val: float
+):
+    out: mu1d.Vector = fn(mu1d.Vector1D(input_val))
+    assert out.isclose(mu1d.Vector1D(output_val))
 
 
 # doc-region-begin translate test
 def test_translate():
-    fn: mu1d.InvertibleFunction = mu1d.translate(mu1d.Vector1D(2.0))
+    fn: mu1d.InvertibleFunction = mu1d.translate(mu1d.Vector1D(2))
     fn_inv: mu1d.InvertibleFunction = mu1d.inverse(fn)
 
     input_output_pairs = [
-        [-3.0, -1.0],
-        [-2.0, 0.0],
-        [-1.0, 1.0],
-        [0.0, 2.0],
-        [1.0, 3.0],
-        [2.0, 4.0],
-        [3.0, 5.0],
-        [4.0, 6.0],
+        [-3, -1],
+        [-2, 0],
+        [-1, 1],
+        [0, 2],
+        [1, 3],
+        [2, 4],
+        [3, 5],
+        [4, 6],
     ]
     for input_val, output_val in input_output_pairs:
-        assert fn(mu1d.Vector1D(input_val)) == mu1d.Vector1D(
-            pytest.approx(output_val)
-        )
-        assert fn_inv(mu1d.Vector1D(output_val)) == mu1d.Vector1D(
-            pytest.approx(input_val)
-        )
+        wrap_vec1_test(fn, input_val, output_val)
+        wrap_vec1_test(fn_inv, output_val, input_val)
 
 
 # doc-region-end translate test
 
 
 def test_mx_plus_b():
-    m = 5.0
-    b = 2.0
+    m = 5
+    b = 2
 
     fn: mu1d.InvertibleFunction = mu1d.compose(
         [mu1d.translate(mu1d.Vector1D(b)), mu1d.uniform_scale(m)]
@@ -87,45 +88,39 @@ def test_mx_plus_b():
     fn_inv: mu1d.InvertibleFunction = mu1d.inverse(fn)
 
     input_output_pairs = [
-        [-3.0, -13.0],
-        [-2.0, -8.0],
-        [-1.0, -3.0],
-        [0.0, 2.0],
-        [1.0, 7.0],
-        [2.0, 12.0],
-        [3.0, 17.0],
-        [4.0, 22.0],
+        [-3, -13],
+        [-2, -8],
+        [-1, -3],
+        [0, 2],
+        [1, 7],
+        [2, 12],
+        [3, 17],
+        [4, 22],
     ]
+
     for input_val, output_val in input_output_pairs:
-        assert fn(mu1d.Vector1D(input_val)) == mu1d.Vector1D(
-            pytest.approx(output_val)
-        )
-        assert fn_inv(mu1d.Vector1D(output_val)) == mu1d.Vector1D(
-            pytest.approx(input_val)
-        )
+        wrap_vec1_test(fn, input_val, output_val)
+        wrap_vec1_test(fn_inv, output_val, input_val)
 
 
 def test_uniform_scale():
-    fn: mu1d.InvertibleFunction = mu1d.uniform_scale(4.0)
+    fn: mu1d.InvertibleFunction = mu1d.uniform_scale(4)
     fn_inv: mu1d.InvertibleFunction = mu1d.inverse(fn)
 
     input_output_pairs = [
-        [-3.0, -12.0],
-        [-2.0, -8.0],
-        [-1.0, -4.0],
-        [0.0, 0.0],
-        [1.0, 4.0],
-        [2.0, 8.0],
-        [3.0, 12.0],
-        [4.0, 16.0],
+        [-3, -12],
+        [-2, -8],
+        [-1, -4],
+        [0, 0],
+        [1, 4],
+        [2, 8],
+        [3, 12],
+        [4, 16],
     ]
+
     for input_val, output_val in input_output_pairs:
-        assert fn(mu1d.Vector1D(input_val)) == mu1d.Vector1D(
-            pytest.approx(output_val)
-        )
-        assert fn_inv(mu1d.Vector1D(output_val)) == mu1d.Vector1D(
-            pytest.approx(input_val)
-        )
+        wrap_vec1_test(fn, input_val, output_val)
+        wrap_vec1_test(fn_inv, output_val, input_val)
 
 
 def test_tempature_conversion():
@@ -134,11 +129,11 @@ def test_tempature_conversion():
         input_output_pairs: list[list[float]],
     ):
         for input_val, output_val in input_output_pairs:
-            assert fn(mu1d.Vector1D(input_val)) == mu1d.Vector1D(
-                pytest.approx(output_val)
+            assert fn(mu1d.Vector1D(input_val)).isclose(
+                mu1d.Vector1D(output_val)
             )
-            assert mu1d.inverse(fn)(mu1d.Vector1D(output_val)) == mu1d.Vector1D(
-                pytest.approx(input_val)
+            assert mu1d.inverse(fn)(mu1d.Vector1D(output_val)).isclose(
+                mu1d.Vector1D(input_val)
             )
 
     # doc-region-begin temperature functions

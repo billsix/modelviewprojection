@@ -25,32 +25,28 @@ from modelviewprojection.mathutils import InvertibleFunction
 
 
 def test___add__():
-    result = mu3d.Vector3D(x=1.0, y=2.0, z=6.0) + mu3d.Vector3D(
-        x=3.0, y=4.0, z=5.0
-    )
-    assert result.isclose(mu3d.Vector3D(x=4.0, y=6.0, z=11.0))
+    result = mu3d.Vector3D(x=1, y=2, z=6) + mu3d.Vector3D(x=3, y=4, z=5)
+    assert result.isclose(mu3d.Vector3D(x=4, y=6, z=11))
 
 
 def test___sub__():
-    result = mu3d.Vector3D(x=5.0, y=8.0, z=1.0) - mu3d.Vector3D(
-        x=1.0, y=2.0, z=3.0
-    )
-    assert result.isclose(mu3d.Vector3D(x=4.0, y=6.0, z=-2.0))
+    result = mu3d.Vector3D(x=5, y=8, z=1) - mu3d.Vector3D(x=1, y=2, z=3)
+    assert result.isclose(mu3d.Vector3D(x=4, y=6, z=-2))
 
 
 def test___mul__():
-    result = mu3d.Vector3D(x=2.0, y=3.0, z=4.0) * 4.0
-    assert result.isclose(mu3d.Vector3D(x=8.0, y=12.0, z=16.0))
+    result = mu3d.Vector3D(x=2, y=3, z=4) * 4
+    assert result.isclose(mu3d.Vector3D(x=8, y=12, z=16))
 
 
 def test___rmul__():
-    result = 4.0 * mu3d.Vector3D(x=2.0, y=3.0, z=4.0)
-    assert result.isclose(mu3d.Vector3D(x=8.0, y=12.0, z=16.0))
+    result = 4 * mu3d.Vector3D(x=2, y=3, z=4)
+    assert result.isclose(mu3d.Vector3D(x=8, y=12, z=16))
 
 
 def test___neg__():
-    result = -mu3d.Vector3D(x=2.0, y=3.0, z=4.0)
-    assert result.isclose(mu3d.Vector3D(x=-2.0, y=-3.0, z=-4.0))
+    result = -mu3d.Vector3D(x=2, y=3, z=4)
+    assert result.isclose(mu3d.Vector3D(x=-2, y=-3, z=-4))
 
 
 def wrap_vec3_test(
@@ -62,15 +58,13 @@ def wrap_vec3_test(
 
 # doc-region-begin translate test
 def test_translate():
-    fn: mu3d.InvertibleFunction = mu3d.translate(
-        mu3d.Vector3D(x=2.0, y=3.0, z=4.0)
-    )
+    fn: mu3d.InvertibleFunction = mu3d.translate(mu3d.Vector3D(x=2, y=3, z=4))
     fn_inv: mu3d.InvertibleFunction = mu3d.inverse(fn)
 
     input_output_pairs = [
-        [[0.0, 0.0, 0.0], [2.0, 3.0, 4.0]],
-        [[1.0, 0.0, 0.0], [3.0, 3.0, 4.0]],
-        [[0.0, 1.0, 0.0], [2.0, 4.0, 4.0]],
+        [[0, 0, 0], [2, 3, 4]],
+        [[1, 0, 0], [3, 3, 4]],
+        [[0, 1, 0], [2, 4, 4]],
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -82,14 +76,14 @@ def test_translate():
 
 
 def test_uniform_scale():
-    fn: mu3d.InvertibleFunction = mu3d.uniform_scale(4.0)
+    fn: mu3d.InvertibleFunction = mu3d.uniform_scale(4)
     fn_inv: mu3d.InvertibleFunction = mu3d.inverse(fn)
 
     input_output_pairs = [
-        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-        [[1.0, 0.0, 0.0], [4.0, 0.0, 0.0]],
-        [[0.0, 1.0, 0.0], [0.0, 4.0, 0.0]],
-        [[0.0, 0.0, 1.0], [0.0, 0.0, 4.0]],
+        [[0, 0, 0], [0, 0, 0]],
+        [[1, 0, 0], [4, 0, 0]],
+        [[0, 1, 0], [0, 4, 0]],
+        [[0, 0, 1], [0, 0, 4]],
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -98,14 +92,14 @@ def test_uniform_scale():
 
 
 def test_scale():
-    fn: mu3d.InvertibleFunction = mu3d.scale(m_x=2.0, m_y=3.0, m_z=4.0)
+    fn: mu3d.InvertibleFunction = mu3d.scale(m_x=2, m_y=3, m_z=4)
     fn_inv: mu3d.InvertibleFunction = mu3d.inverse(fn)
 
     input_output_pairs = [
-        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-        [[1.0, 0.0, 0.0], [2.0, 0.0, 0.0]],
-        [[0.0, 1.0, 0.0], [0.0, 3.0, 0.0]],
-        [[0.0, 0.0, 1.0], [0.0, 0.0, 4.0]],
+        [[0, 0, 0], [0, 0, 0]],
+        [[1, 0, 0], [2, 0, 0]],
+        [[0, 1, 0], [0, 3, 0]],
+        [[0, 0, 1], [0, 0, 4]],
     ]
 
     for input_val, output_val in input_output_pairs:

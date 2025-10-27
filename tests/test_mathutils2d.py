@@ -20,8 +20,6 @@
 import doctest
 import math
 
-from pytest import approx
-
 import modelviewprojection
 import modelviewprojection.mathutils2d as mu2d
 
@@ -35,57 +33,56 @@ def wrap_vec2_test(
 
 def test___add__():
     input_output_pairs = [
-        [[(0.0, 0.0), (0.0, 0.0)], (approx(0.0), approx(0.0))],
-        [[(1.0, 0.0), (0.0, 1.0)], (approx(1.0), approx(1.0))],
-        [[(1.0, 2.0), (3.0, 4.0)], (approx(4.0), approx(6.0))],
-        [[(0.0, 2.0), (3.0, 0.0)], (approx(3.0), approx(2.0))],
+        [[(0.0, 0.0), (0.0, 0.0)], [0.0, 0.0]],
+        [[(1.0, 0.0), (0.0, 1.0)], [1.0, 1.0]],
+        [[(1.0, 2.0), (3.0, 4.0)], [4.0, 6.0]],
+        [[(0.0, 2.0), (3.0, 0.0)], [3.0, 2.0]],
     ]
 
     for input_val, output_val in input_output_pairs:
-        assert mu2d.Vector2D(*output_val) == mu2d.Vector2D(
-            *input_val[0]
-        ) + mu2d.Vector2D(*input_val[1])
+        assert mu2d.Vector2D(*output_val).isclose(
+            mu2d.Vector2D(*input_val[0]) + mu2d.Vector2D(*input_val[1])
+        )
 
 
 def test___sub__():
     input_output_pairs = [
-        [[(0.0, 0.0), (0.0, 0.0)], (approx(0.0), approx(0.0))],
-        [[(1.0, 0.0), (0.0, 1.0)], (approx(1.0), approx(-1.0))],
-        [[(5.0, 8.0), (1.0, 2.0)], (approx(4.0), approx(6.0))],
+        [[(0.0, 0.0), (0.0, 0.0)], [0.0, 0.0]],
+        [[(1.0, 0.0), (0.0, 1.0)], [1.0, -1.0]],
+        [[(5.0, 8.0), (1.0, 2.0)], [4.0, 6.0]],
     ]
 
     for input_val, output_val in input_output_pairs:
-        assert mu2d.Vector2D(*output_val) == mu2d.Vector2D(
-            *input_val[0]
-        ) - mu2d.Vector2D(*input_val[1])
+        assert mu2d.Vector2D(*output_val).isclose(
+            mu2d.Vector2D(*input_val[0]) - mu2d.Vector2D(*input_val[1])
+        )
 
 
 def test___mul__():
     input_output_pairs = [
-        [[(0.0, 0.0), 2], (approx(0.0), approx(0.0))],
-        [[(1.0, 0.0), 2], (approx(2.0), approx(0.0))],
-        [[(0.0, 1.0), 2], (approx(0.0), approx(2.0))],
-        [[(1.0, 1.0), 2], (approx(2.0), approx(2.0))],
+        [[(0.0, 0.0), 2], [0.0, 0.0]],
+        [[(1.0, 0.0), 2], [2.0, 0.0]],
+        [[(0.0, 1.0), 2], [0.0, 2.0]],
+        [[(1.0, 1.0), 2], [2.0, 2.0]],
     ]
 
     for input_val, output_val in input_output_pairs:
-        assert mu2d.Vector2D(*output_val) == input_val[1] * mu2d.Vector2D(
-            *input_val[0]
+        assert mu2d.Vector2D(*output_val).isclose(
+            input_val[1] * mu2d.Vector2D(*input_val[0])
         )
 
 
 def test___rmul__():
     input_output_pairs = [
-        [[(0.0, 0.0), 2], (approx(0.0), approx(0.0))],
-        [[(1.0, 0.0), 2], (approx(2.0), approx(0.0))],
-        [[(0.0, 1.0), 2], (approx(0.0), approx(2.0))],
-        [[(1.0, 1.0), 2], (approx(2.0), approx(2.0))],
+        [[(0.0, 0.0), 2], [0.0, 0.0]],
+        [[(1.0, 0.0), 2], [2.0, 0.0]],
+        [[(0.0, 1.0), 2], [0.0, 2.0]],
+        [[(1.0, 1.0), 2], [2.0, 2.0]],
     ]
 
     for input_val, output_val in input_output_pairs:
-        assert (
-            mu2d.Vector2D(*output_val)
-            == mu2d.Vector2D(*input_val[0]) * input_val[1]
+        assert mu2d.Vector2D(*output_val).isclose(
+            mu2d.Vector2D(*input_val[0]) * input_val[1]
         )
 
 
@@ -98,7 +95,7 @@ def test___neg__():
     ]
 
     for input_val, output_val in input_output_pairs:
-        assert mu2d.Vector2D(*output_val) == -mu2d.Vector2D(*input_val)
+        assert mu2d.Vector2D(*output_val).isclose(-mu2d.Vector2D(*input_val))
 
 
 def test___abs__():
@@ -123,7 +120,7 @@ def test___dot__():
     ]
 
     for input_val, output_val in input_output_pairs:
-        assert approx(output_val) == mu2d.Vector2D(*input_val[0]).dot(
+        assert output_val == mu2d.Vector2D(*input_val[0]).dot(
             mu2d.Vector2D(*input_val[1])
         )
 
@@ -167,9 +164,9 @@ def test_translate():
     fn_inv: mu2d.InvertibleFunction = mu2d.inverse(fn)
 
     input_output_pairs = [
-        [[0.0, 0.0], [2.0, 3.0]],
-        [[1.0, 0.0], [3.0, 3.0]],
-        [[0.0, 1.0], [2.0, 4.0]],
+        [[0, 0], [2, 3]],
+        [[1, 0], [3, 3]],
+        [[0, 1], [2, 4]],
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -181,15 +178,15 @@ def test_translate():
 
 
 def test_compose():
-    fn: mu2d.InvertibleFunction = mu2d.translate(mu2d.Vector2D(x=2.0, y=3.0))
+    fn: mu2d.InvertibleFunction = mu2d.translate(mu2d.Vector2D(x=2, y=3))
     fn_inv: mu2d.InvertibleFunction = mu2d.inverse(fn)
 
     identity_fn: mu2d.InvertibleFunction = mu2d.compose([fn_inv, fn])
 
     input_output_pairs = [
-        [[0.0, 0.0], [0.0, 0.0]],
-        [[1.0, 0.0], [1.0, 0.0]],
-        [[0.0, 1.0], [0.0, 1.0]],
+        [[0, 0], [0, 0]],
+        [[1, 0], [1, 0]],
+        [[0, 1], [0, 1]],
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -197,13 +194,13 @@ def test_compose():
 
 
 def test_uniform_scale():
-    fn: mu2d.InvertibleFunction = mu2d.uniform_scale(4.0)
+    fn: mu2d.InvertibleFunction = mu2d.uniform_scale(4)
     fn_inv: mu2d.InvertibleFunction = mu2d.inverse(fn)
 
     input_output_pairs = [
-        [[0.0, 0.0], [0.0, 0.0]],
-        [[1.0, 0.0], [4.0, 0.0]],
-        [[0.0, 1.0], [0.0, 4.0]],
+        [[0, 0], [0, 0]],
+        [[1, 0], [4, 0]],
+        [[0, 1], [0, 4]],
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -212,13 +209,13 @@ def test_uniform_scale():
 
 
 def test_scale():
-    fn: mu2d.InvertibleFunction = mu2d.scale(m_x=2.0, m_y=3.0)
+    fn: mu2d.InvertibleFunction = mu2d.scale(m_x=2, m_y=3)
     fn_inv: mu2d.InvertibleFunction = mu2d.inverse(fn)
 
     input_output_pairs = [
-        [[0.0, 0.0], [0.0, 0.0]],
-        [[1.0, 0.0], [2.0, 0.0]],
-        [[0.0, 1.0], [0.0, 3.0]],
+        [[0, 0], [0, 0]],
+        [[1, 0], [2, 0]],
+        [[0, 1], [0, 3]],
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -231,11 +228,11 @@ def test_rotate_90():
     fn_inv: mu2d.InvertibleFunction = mu2d.inverse(fn)
 
     input_output_pairs = [
-        [[0.0, 0.0], [0.0, 0.0]],
-        [[1.0, 0.0], [0.0, 1.0]],
-        [[0.0, 1.0], [-1.0, 0.0]],
-        [[-1.0, 0.0], [0.0, -1.0]],
-        [[0.0, -1.0], [1.0, 0.0]],
+        [[0, 0], [0, 0]],
+        [[1, 0], [0, 1]],
+        [[0, 1], [-1, 0]],
+        [[-1, 0], [0, -1]],
+        [[0, -1], [1, 0]],
     ]
 
     for input_val, output_val in input_output_pairs:
