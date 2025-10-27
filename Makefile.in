@@ -27,6 +27,9 @@ FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 USE_X = -e DISPLAY=$(DISPLAY) \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	--security-opt label=type:container_runtime_t
+WAYLAND_FLAGS_FOR_CONTAINER = -e "WAYLAND_DISPLAY=${WAYLAND_DISPLAY}" \
+                              -e "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" \
+                              -v "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
 
 
 .PHONY: all
@@ -67,6 +70,7 @@ shell: image ## Get Shell into a ephermeral container made from the image
 		$(FILES_TO_MOUNT) \
 		-v ./entrypoint/shell.sh:/shell.sh:Z \
 		$(USE_X) \
+		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(CONTAINER_NAME) \
 		/shell.sh
 
@@ -78,6 +82,7 @@ jupyter: image ## Get Shell into a ephermeral container made from the image
 		$(FILES_TO_MOUNT) \
 		-v ./entrypoint/jupyter.sh:/jupyter.sh:Z \
 		$(USE_X) \
+		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(CONTAINER_NAME) \
 		/jupyter.sh
 endif
@@ -90,6 +95,7 @@ spyder: image ## Run Spyder
 		$(FILES_TO_MOUNT) \
 		-v ./entrypoint/spyder.sh:/spyder.sh:Z \
 		$(USE_X) \
+		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(CONTAINER_NAME) \
 		/spyder.sh
 endif

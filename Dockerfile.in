@@ -12,6 +12,7 @@ ARG USE_SPYDER=@USE_SPYDER@
 COPY entrypoint/dotfiles/ /root/
 
 RUN  echo "keepcache=True" >> /etc/dnf/dnf.conf && \
+     dnf upgrade -y && \
      dnf install -y \
                    glfw \
                    python3-glfw \
