@@ -1,6 +1,5 @@
 exit() {
     echo "Formatting on shell exit"
-    /format.sh
+    format.sh
     builtin exit "$@"
 }
-
