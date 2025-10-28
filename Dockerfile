@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/fedora:42
+FROM registry.fedoraproject.org/fedora:43
 
 ARG BUILD_DOCS=0
 ARG USE_EMACS=0
