@@ -1,13 +1,12 @@
-.DEFAULT_GOAL := @DEFAULT_MAKE_GOAL@
+.DEFAULT_GOAL := shell
 
-BUILD_DOCS=@BUILD_DOCS_FLAG@
-BUILD_PDF=@BUILD_PDF_FLAG@
-BUILD_HTML=@BUILD_HTML_FLAG@
-USE_X_WINDOWS=@USE_X_WINDOWS@
-USE_EMACS=@USE_EMACS@
-USE_IMGUI=@USE_IMGUI@
-USE_JUPYTER=@USE_JUPYTER@
-USE_SPYDER=@USE_SPYDER@
+# Modify these to 0 if you want a quicker build and don't
+# need the features
+BUILD_DOCS=1
+USE_EMACS=1
+USE_IMGUI=1
+USE_JUPYTER=1
+USE_SPYDER=1
 
 CONTAINER_CMD = podman
 CONTAINER_NAME = modelviewprojection-html
@@ -19,7 +18,10 @@ DNF_CACHE_TO_MOUNT = -v $(PACKAGE_CACHE_ROOT)/var/cache/libdnf5:/var/cache/libdn
 
 FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
-		-v ./entrypoint/format.sh:/format.sh:Z \
+		-v ./entrypoint/format.sh:/usr/local/bin/format.sh:Z \
+		-v ./entrypoint/jupyter.sh:/usr/local/bin/jupyter.sh:Z \
+		-v ./entrypoint/spyder.sh:/usr/local/bin/spyder.sh:Z \
+		-v ./entrypoint/shell.sh:/usr/local/bin/shell.sh:Z \
 		-v ./output/:/output/:Z \
 		-v ./entrypoint/.bashrc:/root/.bashrc:Z \
 		$(DNF_CACHE_TO_MOUNT)
@@ -42,21 +44,14 @@ image: ## Build a podman image in which to build the book
 	mkdir -p $(PACKAGE_CACHE_ROOT)/var/lib/dnf
 	# build the container
 	$(CONTAINER_CMD) build  \
+                         --build-arg BUILD_DOCS=$(BUILD_DOCS) \
+                         --build-arg USE_EMACS=$(USE_EMACS) \
+                         --build-arg USE_IMGUI=$(USE_IMGUI) \
+                         --build-arg USE_JUPYTER=$(USE_JUPYTER) \
+                         --build-arg USE_SPYDER=$(USE_SPYDER) \
                          -t $(CONTAINER_NAME) \
                          $(DNF_CACHE_TO_MOUNT) \
                          .
-
-
-
-ifeq ($(BUILD_HTML),1)
-.PHONY: html
-html: image ## Build the html from the sphinx source
-	printf "This documentation was generated from from commit " > book/docs/version.txt
-	git rev-parse HEAD >> book/docs/version.txt
-	$(CONTAINER_CMD) run -it --rm  \
-		$(FILES_TO_MOUNT) \
-		$(CONTAINER_NAME)
-endif
 
 
 .PHONY: clean
@@ -68,38 +63,18 @@ shell: image ## Get Shell into a ephermeral container made from the image
 	$(CONTAINER_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
-		-v ./entrypoint/shell.sh:/shell.sh:Z \
 		$(USE_X) \
 		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(CONTAINER_NAME) \
-		/shell.sh
-
-ifeq ($(USE_JUPYTER),1)
-.PHONY: jupyter
-jupyter: image ## Get Shell into a ephermeral container made from the image
-	$(CONTAINER_CMD) run -it --rm \
-		--entrypoint /bin/bash \
-		$(FILES_TO_MOUNT) \
-		-v ./entrypoint/jupyter.sh:/jupyter.sh:Z \
-		$(USE_X) \
-		$(WAYLAND_FLAGS_FOR_CONTAINER) \
-		$(CONTAINER_NAME) \
-		/jupyter.sh
-endif
+		/usr/local/bin/shell.sh
 
 
-ifeq ($(USE_SPYDER),1)
-spyder: image ## Run Spyder
-	$(CONTAINER_CMD) run -it --rm \
-		--entrypoint /bin/bash \
-		$(FILES_TO_MOUNT) \
-		-v ./entrypoint/spyder.sh:/spyder.sh:Z \
-		$(USE_X) \
-		$(WAYLAND_FLAGS_FOR_CONTAINER) \
-		$(CONTAINER_NAME) \
-		/spyder.sh
-endif
-
+html: image ## Build the html from the sphinx source
+	printf "This documentation was generated from from commit " > book/docs/version.txt
+	git rev-parse HEAD >> book/docs/version.txt
+	$(CONTAINER_CMD) run -it --rm  \
+                $(FILES_TO_MOUNT) \
+                $(CONTAINER_NAME)
 
 
 .PHONY: help
