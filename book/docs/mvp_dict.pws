@@ -1,4 +1,4 @@
-personal_ws-1.1 en 240 
+personal_ws-1.1 en 242 
 APIs
 AbstractAlegbra
 BlackBox
@@ -62,10 +62,12 @@ Pre
 Precomputed
 PushMatrix
 SHADER
+SICP
 Shaders
 Socratica
 Spaces's
 Spyder
+Sussman
 TODO
 Utils
 WorldSpace

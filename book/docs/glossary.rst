@@ -32,12 +32,12 @@ Glossary
      #. The program has a queue of tasks, events, or messages that need to
         be processed (like user input, network responses, timers, etc.).
 
-     #. The event loop repeatedly checks this queue.  If there’s an event
+     #. The event loop repeatedly checks this queue.  If there's an event
         waiting, it pulls it from the queue and runs the associated
         code (often a callback or handler).
 
      #. If the queue is empty, it waits until something new arrives.
 
-     This pattern is common in systems where tasks happen asynchronously—such
+     This pattern is common in systems where tasks happen asynchronously - such
      as GUIs or command lines because it lets programs handle many things
      (like clicks, network requests, or timers) without blocking on just one operation.

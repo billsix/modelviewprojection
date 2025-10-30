@@ -495,7 +495,7 @@ Learning what to ignore
 =======================
 
 A big part of being able to understand graphics well is being able
-to figure out what to ignore. To quote Gerald Sussan in the SICP video lectures
+to figure out what to ignore. To quote Gerald Sussman in the SICP video lectures
 ""One of the things that we have to learn how to do, is to ignore details.  The key
 to understanding complicated things is to know what not to look, and what not to compute, and what not to think."
 

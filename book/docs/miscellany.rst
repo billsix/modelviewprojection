@@ -76,7 +76,7 @@ recursion by passing a function to itself as a parameter.
                work as intended. Instead of running the program by hand and guessing if the
                results are correct, you can write tests once and rerun them anytime you change
                the code. This makes it much easier to catch bugs early, gives you confidence
-               that new changes don’t break old features, and supports building larger, more
+               that new changes don't break old features, and supports building larger, more
                reliable programs over time.
 
 .. _read more here : https://realpython.com/interacting-with-python/

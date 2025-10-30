@@ -123,7 +123,7 @@ But could you generate a new function for a given :math:`m` and given
 Perhaps you could use notation such as :math:`f_{m=2,b=3}(x)` to be a function :math:`2 \times x + 3`,
 or :math:`f(x; m=2,b=3)` to be a function :math:`2 \times x + 3`.
 
-We will use the folliwng notation for translate, :math:`T_{b}(x) = x + b`, where if
+We will use the following notation for translate, :math:`T_{b}(x) = x + b`, where if
 we specify a constant :math:`b`, it will be notated as :math:`T_{b=3}` equals an expression
 :math:`x + 3`.
 

@@ -25,11 +25,11 @@ Learn how to program in 3D computer graphics in the Python programming language!
 Approach
 ========
 
-You’ll learn how to place geometric objects in space, draw them relative to
+You'll learn how to place geometric objects in space, draw them relative to
 other geometric objects, position a camera in space which moves over time
 based on user input, and
 transform all those objects into the 2D pixel coordinates of your
-screen. By the end, you’ll understand the foundations of creating
+screen. By the end, you'll understand the foundations of creating
 first-person and third-person applications or games. The goal? To
 empower you to build the graphics programs you want, using math you
 mostly already know.
@@ -38,9 +38,9 @@ mostly already know.
 
 This book intentionally keeps things simple intended for beginners.
 In this book, the applications created
-won’t be particularly pretty or realistic-looking. After reading this
+won't be particularly pretty or realistic-looking. After reading this
 book, for more advanced
-topics, you’ll want to dive into other references, such as
+topics, you'll want to dive into other references, such as
 
 #. Fundamentals of Computer Graphics, Third Edition by Shirley and Marschner :cite:`FCG`
 #. Computer Graphics With OpenGL, by Hearn Baker and Carithers :cite:`CGWOGL`
