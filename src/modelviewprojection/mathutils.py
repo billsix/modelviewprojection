@@ -232,6 +232,43 @@ class InvertibleFunction:
         """
         return self.func(x)
 
+    def __matmul__(self, f2: "InvertibleFunction") -> "InvertibleFunction":
+        """
+        Override @ for function composition.  This is abusing the @ symbol,
+        which is normally for matrix multiplication.
+
+        Args:
+            f2 (mathutils.InvertibleFunction): A function that self is composed with
+                                               and returns a value of the same type Vector.
+        Returns:
+            InvertibleFunction: The composed function.
+
+        Raises:
+            Nothing
+        Example:
+            >>> from modelviewprojection.mathutils import InvertibleFunction
+            >>> from modelviewprojection.mathutils import inverse
+            >>> def f(x):
+            ...     return 2 + x
+            ...
+            >>> def f_inv(x):
+            ...     return x - 2
+            ...
+            >>> foo = InvertibleFunction(func=f, inverse=f_inv)
+            >>> foo(5)
+            7
+            >>> (foo @ foo)(5)
+            9
+            >>> inverse(foo @ foo)(5)
+            1
+            >>> (foo @ f_inv)(5)
+            5
+        """
+        return compose([self, f2])
+
+    def __rmatmul__(self, f2: "InvertibleFunction") -> "InvertibleFunction":
+        return f2 @ self
+
 
 def inverse(f: InvertibleFunction) -> InvertibleFunction:
     """

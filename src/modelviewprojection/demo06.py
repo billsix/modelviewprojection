@@ -24,6 +24,8 @@ import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
 import modelviewprojection.mathutils2d as mu2d
+from modelviewprojection.mathutils2d import translate as T
+from modelviewprojection.mathutils2d import uniform_scale as S
 
 if not glfw.init():
     sys.exit()
@@ -157,10 +159,8 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        fn: mu2d.InvertibleFunction = mu2d.compose(
-            [mu2d.uniform_scale(1.0 / 10.0), mu2d.translate(paddle1.position)]
-        )
-        paddle1_vector_ndc: mu2d.Vector2D = fn(p1_v_ms)
+        fn: mu2d.InvertibleFunction = S(1.0 / 10.0) @ T(paddle1.position)
+        paddle1_vector_ndc: mu2d.Vector = fn(p1_v_ms)
         GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
 
     GL.glEnd()
@@ -171,10 +171,8 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: mu2d.InvertibleFunction = mu2d.compose(
-            [mu2d.uniform_scale(1.0 / 10.0), mu2d.translate(paddle2.position)]
-        )
-        paddle2_vector_ndc: mu2d.Vector2D = fn(p2_v_ms)
+        fn: mu2d.InvertibleFunction = S(1.0 / 10.0) @ T(paddle2.position)
+        paddle2_vector_ndc: mu2d.Vector = fn(p2_v_ms)
         GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     GL.glEnd()
     # doc-region-end draw paddle 2
