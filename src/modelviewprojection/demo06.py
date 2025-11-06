@@ -157,10 +157,14 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 1
     GL.glColor3f(*iter(paddle1.color))
 
+    world_space_to_ndc: mu2d.InvertibleFunction = S(1.0 / 10.0)
+    p1_space_to_world_space: mu2d.InvertibleFunction = T(paddle1.position)
+    p1_to_ndc: mu2d.InvertibleFunction = (
+        world_space_to_ndc @ p1_space_to_world_space
+    )
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        fn: mu2d.InvertibleFunction = S(1.0 / 10.0) @ T(paddle1.position)
-        paddle1_vector_ndc: mu2d.Vector = fn(p1_v_ms)
+        paddle1_vector_ndc: mu2d.Vector = p1_space_to_world_space(p1_v_ms)
         GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
 
     GL.glEnd()
@@ -169,10 +173,14 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     GL.glColor3f(*iter(paddle2.color))
 
+    world_space_to_ndc: mu2d.InvertibleFunction = S(1.0 / 10.0)
+    p2_space_to_world_space: mu2d.InvertibleFunction = T(paddle2.position)
+    p2_to_ndc: mu2d.InvertibleFunction = (
+        world_space_to_ndc @ p2_space_to_world_space
+    )
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: mu2d.InvertibleFunction = S(1.0 / 10.0) @ T(paddle2.position)
-        paddle2_vector_ndc: mu2d.Vector = fn(p2_v_ms)
+        paddle2_vector_ndc: mu2d.Vector = p2_space_to_world_space(p2_v_ms)
         GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     GL.glEnd()
     # doc-region-end draw paddle 2
