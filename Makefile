@@ -23,7 +23,6 @@ FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 		-v ./entrypoint/spyder.sh:/usr/local/bin/spyder.sh:Z \
 		-v ./entrypoint/shell.sh:/usr/local/bin/shell.sh:Z \
 		-v ./output/:/output/:Z \
-		-v ./entrypoint/.bashrc:/root/.bashrc:Z \
 		$(DNF_CACHE_TO_MOUNT)
 
 USE_X = -e DISPLAY=$(DISPLAY) \

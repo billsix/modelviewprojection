@@ -128,6 +128,15 @@ RUN if [ "$USE_SPYDER" = "1" ]; then \
       echo "font/size = 18" >> ~/.config/spyder-py3/config/spyder.ini; \
     fi ;
 
+RUN echo "exit() {" >> ~/.bashrc && \
+    echo "    echo "Formatting on shell exit"" >> ~/.bashrc && \
+    echo "    format.sh" >> ~/.bashrc && \
+    echo "    builtin exit "$@"" >> ~/.bashrc && \
+    echo "}" >> ~/.bashrc && \
+    echo "PS1='\[\e[36m\]┌─(\t) \[\e[32m\]\u@\h:\w\n\[\e[36m\]└─λ \[\e[0m\]'" >> ~/.bashrc
+
+
+
 
 
 ENTRYPOINT ["/entrypoint.sh"]
