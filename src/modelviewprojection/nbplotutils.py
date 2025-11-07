@@ -17,6 +17,7 @@
 
 
 import contextlib
+import math
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -114,4 +115,32 @@ def create_basis(
             "-",
             lw=1.0,
             color=ycolor,
+        )
+
+    def generate_circle():
+        theta_increment: float = 0.01
+        scale_radius: float = 1.0
+
+        for theta in np.arange(0.0, 2 * math.pi, theta_increment):
+            yield (
+                [
+                    scale_radius
+                    * mu2d.Vector2D(math.cos(theta), math.sin(theta)),
+                    scale_radius
+                    * mu2d.Vector2D(
+                        math.cos(theta + theta_increment),
+                        math.sin(theta + theta_increment),
+                    ),
+                ]
+            )
+
+    # plot transformed basis
+    for vecs in generate_circle():
+        plt.plot(
+            [fn(vec).x for vec in vecs],
+            [fn(vec).y for vec in vecs],
+            "-",
+            lw=1,
+            color=(0.0, 0.0, 0.0),
+            alpha=0.5,
         )

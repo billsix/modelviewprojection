@@ -32,7 +32,6 @@ from modelviewprojection.mathutils import (
     uniform_scale,
 )
 
-
 __all__ = [
     "Vector1D",
     "translate",

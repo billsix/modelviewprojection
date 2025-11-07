@@ -250,10 +250,9 @@ def draw_circle() -> None:
     GL.glBegin(GL.GL_TRIANGLES)
 
     theta_increment: float = 0.01
+    scale_radius: float = 0.1
 
     GL.glColor3f(1.0, 1.0, 1.0)
-
-    scale_radius: float = 0.1
 
     for theta in np.arange(0.0, 2 * math.pi, theta_increment):
         GL.glVertex2f(0.0, 0.0)
