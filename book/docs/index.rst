@@ -51,7 +51,7 @@ Model View Projection
    api
    bibliography
    miscellany
-
+   plot2d
 
 
 

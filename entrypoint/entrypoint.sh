@@ -3,6 +3,7 @@
 cd /mvp/ && pytest --exitfirst --disable-warnings || exit
 
 cd /mvp/
+cp assignments/demo02/plot2d.py book/docs/
 python3 -m pip install --no-deps -e . --break-system-packages --root-user-action=ignore
 
 cd /mvp/book/docs

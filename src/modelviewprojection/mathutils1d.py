@@ -25,10 +25,13 @@ from modelviewprojection.mathutils import (
     InvertibleFunction,
     Vector,
     compose,
+    compose_intermediate_fns,
+    compose_intermediate_fns_and_fn,
     inverse,
     translate,
     uniform_scale,
 )
+
 
 __all__ = [
     "Vector1D",
@@ -37,6 +40,8 @@ __all__ = [
     "InvertibleFunction",
     "inverse",
     "compose",
+    "compose_intermediate_fns",
+    "compose_intermediate_fns_and_fn",
     "Vector",
 ]
 
