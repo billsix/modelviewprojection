@@ -43,6 +43,7 @@ RUN  echo "keepcache=True" >> /etc/dnf/dnf.conf && \
                    mathjax-math-fonts \
                    python3-furo \
                    python3-matplotlib \
+                   python3-nbsphinx \
                    python3-sphinx_rtd_theme \
                    python3-sphinxcontrib-bibtex \
                    texlive \
