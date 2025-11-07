@@ -21,8 +21,9 @@ import numpy as np
 
 
 def mapMatplotlibData(f, *pointsOnAxis):
-    """In plotting with numpy, the points on a given axis are supposed to be their own arrays,
-    which is not helpful when wanting to transform points.  mapMatplotlibData
+    """In plotting with numpy, the points on a given axis are supposed
+    to be their own arrays, which is not helpful when wanting to transform
+    points.  mapMatplotlibData
     allows the programmer to transform each x,y pair by function f
 
     >>> xs = np.array([-5.0,5.0])
@@ -38,7 +39,9 @@ def mapMatplotlibData(f, *pointsOnAxis):
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([.0,.0])
     >>> zs = np.array([2.0,3.0])
-    >>> txs, tys, tzs =mapMatplotlibData(lambda point: (point[0]+1.0, point[1]+1.0, point[2]-1.0),
+    >>> txs, tys, tzs =mapMatplotlibData(lambda point: (point[0]+1.0,
+    ...                                                 point[1]+1.0,
+    ...                                                 point[2]-1.0),
     ...                                  xs,
     ...                                  ys,
     ...                                  zs)

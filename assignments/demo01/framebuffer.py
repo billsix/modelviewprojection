@@ -64,7 +64,8 @@ fake_fb.show_framebuffer()
 
 
 # %% [raw]
-# Whoops!  That looks like trash.  We should change the background to have all one color.  That's what clear_framebuffer does
+# Whoops!  That looks like trash.  We should change the background to
+# have all one color.  That's what clear_framebuffer does
 
 # %%
 # Clear to red and show

@@ -203,8 +203,9 @@ class InvertibleFunction:
         Execute a function with the given value.
 
         Args:
-            func (typing.Callable[[Vector], Vector]): A function that takes a value of type Vector
-                                     and returns a value of the same type Vector.
+            func (typing.Callable[[Vector], Vector]): A function that takes a value of
+                                                      type Vector and returns a value
+                                                      of the same type Vector.
             value (Vector): The input value to pass to the function
         Returns:
             Vector: The result of calling func(value). Will be the same type as the
@@ -222,11 +223,11 @@ class InvertibleFunction:
             ...
             >>> foo = InvertibleFunction(func=f, inverse=f_inv)
             >>> foo # doctest: +ELLIPSIS
-            InvertibleFunction(func=<function f at 0x...>, inverse=<function f_inv at 0x...>)
+            InvertibleFunction(func=<...>, inverse=<...>)
             >>> foo(5)
             7
             >>> inverse(foo) # doctest: +ELLIPSIS
-            InvertibleFunction(func=<function f_inv at 0x...>, inverse=<function f at 0x...>)
+            InvertibleFunction(func=<...>, inverse=<...>)
             >>> inverse(foo)(foo(5))
             5
         """
@@ -239,7 +240,8 @@ class InvertibleFunction:
 
         Args:
             f2 (mathutils.InvertibleFunction): A function that self is composed with
-                                               and returns a value of the same type Vector.
+                                               and returns a value of the same type
+                                               Vector.
         Returns:
             InvertibleFunction: The composed function.
 
@@ -293,11 +295,11 @@ def inverse(f: InvertibleFunction) -> InvertibleFunction:
         ...
         >>> foo = InvertibleFunction(func=f, inverse=f_inv)
         >>> foo # doctest: +ELLIPSIS
-        InvertibleFunction(func=<function f at 0x...>, inverse=<function f_inv at 0x...>)
+        InvertibleFunction(func=<...>, inverse=<...>)
         >>> foo(5)
         7
         >>> inverse(foo) # doctest: +ELLIPSIS
-        InvertibleFunction(func=<function f_inv at 0x...>, inverse=<function f at 0x...>)
+        InvertibleFunction(func=<...>, inverse=<...>)
         >>> inverse(foo)(foo(5))
         5
     """
@@ -362,7 +364,10 @@ def compose_intermediate_fns(
     Like compose, but returns a list of all of the partial compositions
 
     Example:
-        >>> from modelviewprojection.mathutils import compose_intermediate_fns, InvertibleFunction, uniform_scale, translate
+        >>> from modelviewprojection.mathutils import compose_intermediate_fns
+        >>> from modelviewprojection.mathutils import InvertibleFunction
+        >>> from modelviewprojection.mathutils import uniform_scale
+        >>> from modelviewprojection.mathutils import translate
         >>> from modelviewprojection.mathutils1d import Vector1D
         >>> from pytest import approx
         >>> m = 5.0
@@ -406,7 +411,10 @@ def compose_intermediate_fns_and_fn(
     Like compose, but returns a list of all of the partial compositions
 
     Example:
-        >>> from modelviewprojection.mathutils import compose_intermediate_fns_and_fn, InvertibleFunction, uniform_scale, translate
+        >>> from modelviewprojection.mathutils import compose_intermediate_fns_and_fn
+        >>> from modelviewprojection.mathutils import InvertibleFunction
+        >>> from modelviewprojection.mathutils import uniform_scale
+        >>> from modelviewprojection.mathutils import translate
         >>> from modelviewprojection.mathutils1d import Vector1D
         >>> from pytest import approx
         >>> m = 5.0

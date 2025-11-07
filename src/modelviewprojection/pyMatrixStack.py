@@ -411,12 +411,14 @@ def perspective(
     top = near_z * math.tan(field_of_view * 3.14159265358979323846 / 360.0)
     right = top * aspect_ratio
 
+    # m34 is a constant, inlining it would make the line > 80 chars
+    m34 = -2 * (far_z * near_z) / (far_z - near_z)
     # fmt: off
     __projectionStack__[-1] = np.matrix(
         [
             [near_z / right, 0.0,          0.0,                                  0.0],
             [0.0,            near_z / top, 0.0,                                  0.0],
-            [0.0,            0.0,          -(far_z + near_z) / (far_z - near_z), -2 * (far_z * near_z) / (far_z - near_z)],
+            [0.0,            0.0,          -(far_z + near_z) / (far_z - near_z), m34],
             [0.0,            0.0,          -1.0,                                 0.0],
         ],
         dtype=np.float32,

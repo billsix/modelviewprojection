@@ -233,7 +233,8 @@ while not glfw.window_should_close(window):
             left=-10.0, right=10.0, bottom=-10.0, top=10.0, near=-0.1, far=-30.0
         )
     ):
-        # world space to camera space, which is mu3d.inverse of camera space to world space
+        # world space to camera space, which is mu3d.inverse of camera space
+        # to world space
         with mu3d.push_transformation(
             mu3d.inverse(
                 mu3d.compose(

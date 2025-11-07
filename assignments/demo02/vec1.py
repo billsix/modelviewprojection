@@ -36,7 +36,9 @@
 # Problem 1
 # ---------
 #
-# Below, Implement fahrenheit_to_kelvin, celsius_to_fahrenheit, and kelvin_to_fahrenheit.  replace "translate(0.0) with your implementation
+# Below, Implement fahrenheit_to_kelvin, celsius_to_fahrenheit, and
+# kelvin_to_fahrenheit.  replace "translate(0.0) with your
+# implementation
 
 
 # %%
@@ -156,7 +158,8 @@ assert kelvin_to_celsius(mu1d.Vector1D(373.15)).isclose(mu1d.Vector1D(100.0))
 
 
 # %% [markdown]
-# Implement fahrenheit_to_kelvin, celsius_to_fahrenheit, and kelvin_to_fahrenheit.  replace "mu1d.translate(mu1d.Vector1D(0.0)) with your implementation
+# Implement fahrenheit_to_kelvin, celsius_to_fahrenheit, and kelvin_to_fahrenheit.
+# replace "mu1d.translate(mu1d.Vector1D(0.0)) with your implementation
 
 # %%
 
