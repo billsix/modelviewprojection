@@ -23,8 +23,12 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
+from matplotlib.patches import Polygon
+from matplotlib_inline.backend_inline import set_matplotlib_formats
 
 import modelviewprojection.mathutils2d as mu2d
+
+set_matplotlib_formats("svg")
 
 extraLinesMultiplier = 3
 
@@ -59,8 +63,12 @@ def generategridlines(graphBounds, interval=1):
         )
 
 
+axes = None
+
+
 @contextlib.contextmanager
 def create_graphs(graph_bounds=(3, 3), title=None, filename=None):
+    global axes
     fig, axes = plt.subplots(figsize=(3, 3))
     axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
     axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
@@ -143,4 +151,45 @@ def create_basis(
             lw=1,
             color=(0.0, 0.0, 0.0),
             alpha=0.5,
+        )
+
+
+def draw_triangle(
+    fn=lambda x: x,
+    color=(0.0, 0.0, 1.0),
+):
+    vertices = [
+        fn(v)
+        for v in [
+            mu2d.Vector2D(0.0, 0.0),
+            mu2d.Vector2D(1.0, 0.0),
+            mu2d.Vector2D(0.5, 1.0),
+        ]
+    ]
+
+    triangle = Polygon(
+        list(map(list, vertices)),
+        closed=True,
+        facecolor="lightblue",
+        edgecolor="black",
+    )
+    axes.add_patch(triangle)
+
+    vertices_as_np = np.array(list(map(list, vertices)))
+    # Plot dots at the vertices
+    axes.scatter(
+        vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=50, zorder=5
+    )  # zorder ensures dots are on top
+
+    # Label each vertex
+    labels = ["A", "B", "C"]
+    for i, label in enumerate(labels):
+        # Use plt.annotate to place the label near the point
+        plt.annotate(
+            label,
+            (vertices_as_np[i, 0], vertices_as_np[i, 1]),
+            xytext=(5, 5),
+            textcoords="offset points",
+            ha="left",
+            va="bottom",
         )

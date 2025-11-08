@@ -5,13 +5,18 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.17.3
+#       jupytext_version: 1.18.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
 #     name: python3
 # ---
 
+# %% [markdown]
+# # Plot 2D
+
+
+# %%
 
 # Copyright (c) 2018-2025 William Emerison Six
 #
@@ -31,14 +36,9 @@
 # Boston, MA 02111-1307, USA.
 
 # %% [markdown]
-# # Plot 2D
-
-
-# %% [markdown]
 # Problem 1
 # ---------
 #
-# Foobar
 
 # %%
 import math
@@ -50,7 +50,11 @@ from modelviewprojection.mathutils2d import (
 )
 from modelviewprojection.mathutils2d import rotate as R
 from modelviewprojection.mathutils2d import translate as T
-from modelviewprojection.nbplotutils import create_basis, create_graphs
+from modelviewprojection.nbplotutils import (
+    create_basis,
+    create_graphs,
+    draw_triangle,
+)
 
 # %% [markdown]
 # Draw graph paper
@@ -140,9 +144,10 @@ for f in compose_intermediate_fns(
 for f in compose_intermediate_fns(
     [
         R(math.radians(45.0)),
-        T(Vector2D(x=1.0, y=0.0)),
+        T(Vector2D(x=2.5, y=0.0)),
     ],
     relative_basis=True,
 ):
     with create_graphs():
         create_basis(fn=f)
+        draw_triangle(fn=f)
