@@ -167,6 +167,31 @@ def draw_triangle(
         ]
     ]
 
+    x_prime_direction_world_space = fn(mu2d.Vector2D(1.0, 0.0)) - fn(
+        mu2d.Vector2D(0.0, 0.0)
+    )
+    x_world_space = mu2d.Vector2D(1.0, 0.0)
+    y_prime_direction_world_space = fn(mu2d.Vector2D(0.0, 1.0)) - fn(
+        mu2d.Vector2D(0.0, 0.0)
+    )
+    angle_radians = math.atan2(
+        mu2d.sine(x_world_space, x_prime_direction_world_space),
+        mu2d.cosine(x_world_space, x_prime_direction_world_space),
+    )
+    label_offset = (
+        0.0 * x_prime_direction_world_space
+        + 0.20 * y_prime_direction_world_space
+    )
+
+    vertices = [
+        fn(v)
+        for v in [
+            mu2d.Vector2D(0.0, 0.0),
+            mu2d.Vector2D(1.0, 0.0),
+            mu2d.Vector2D(0.5, 1.0),
+        ]
+    ]
+
     triangle = Polygon(
         list(map(list, vertices)),
         closed=True,
@@ -178,7 +203,7 @@ def draw_triangle(
     vertices_as_np = np.array(list(map(list, vertices)))
     # Plot dots at the vertices
     axes.scatter(
-        vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=50, zorder=5
+        vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
     )  # zorder ensures dots are on top
 
     # Label each vertex
@@ -187,9 +212,18 @@ def draw_triangle(
         # Use plt.annotate to place the label near the point
         plt.annotate(
             label,
-            (vertices_as_np[i, 0], vertices_as_np[i, 1]),
-            xytext=(5, 5),
-            textcoords="offset points",
-            ha="left",
-            va="bottom",
+            xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
+            xytext=(
+                vertices_as_np[i, 0] + label_offset.x,
+                vertices_as_np[i, 1] + label_offset.y,
+            ),
+            rotation=math.degrees(angle_radians),
+            rotation_mode="anchor",
+            zorder=6,
         )
+
+
+#         # Annotate with a 45-degree rotation
+# ax.annotate('Rotated Annotation', xy=(0.5, 0.5), xytext=(0.7, 0.3),
+#             arrowprops=dict(facecolor='black', shrink=0.05),
+#             rotation=45)

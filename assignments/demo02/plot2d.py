@@ -107,8 +107,8 @@ with create_graphs():
     create_basis(
         fn=compose(
             [
-                R(math.radians(45.0)),
-                T(Vector2D(x=1.0, y=0.0)),
+                R(math.radians(90.0)),
+                T(Vector2D(x=2.0, y=0.0)),
             ]
         ),
     )
@@ -124,8 +124,8 @@ with create_graphs():
 # %%
 for f in compose_intermediate_fns(
     [
-        R(math.radians(45.0)),
-        T(Vector2D(x=1.0, y=0.0)),
+        R(math.radians(90.0)),
+        T(Vector2D(x=2.0, y=0.0)),
     ]
 ):
     with create_graphs():
@@ -143,8 +143,9 @@ for f in compose_intermediate_fns(
 # %%
 for f in compose_intermediate_fns(
     [
-        R(math.radians(45.0)),
-        T(Vector2D(x=2.5, y=0.0)),
+        R(math.radians(0)),
+        R(math.radians(90.0)),
+        T(Vector2D(x=2.0, y=0.0)),
     ],
     relative_basis=True,
 ):
