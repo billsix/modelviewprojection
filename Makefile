@@ -11,13 +11,6 @@ USE_SPYDER=1
 CONTAINER_CMD = podman
 CONTAINER_NAME = modelviewprojection-html
 
-
-
-PACKAGE_CACHE_ROOT = ~/.cache/packagecache/fedora/43
-
-DNF_CACHE_TO_MOUNT = -v $(PACKAGE_CACHE_ROOT)/var/cache/libdnf5:/var/cache/libdnf5:Z \
-	             -v $(PACKAGE_CACHE_ROOT)/var/lib/dnf:/var/lib/dnf:Z
-
 FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
 		-v ./entrypoint/format.sh:/usr/local/bin/format.sh:Z \
@@ -40,9 +33,6 @@ all: image ## Build the HTML and PDF from scratch in Debian Bulleye
 
 .PHONY: image
 image: ## Build a podman image in which to build the book
-	# cache rpm packages
-	mkdir -p $(PACKAGE_CACHE_ROOT)/var/cache/libdnf5
-	mkdir -p $(PACKAGE_CACHE_ROOT)/var/lib/dnf
 	# build the container
 	$(CONTAINER_CMD) build  \
                          --build-arg BUILD_DOCS=$(BUILD_DOCS) \
@@ -51,7 +41,7 @@ image: ## Build a podman image in which to build the book
                          --build-arg USE_JUPYTER=$(USE_JUPYTER) \
                          --build-arg USE_SPYDER=$(USE_SPYDER) \
                          -t $(CONTAINER_NAME) \
-                         $(DNF_CACHE_TO_MOUNT) \
+                         $(PACKAGE_CACHE) \
                          .
 
 

@@ -2,13 +2,15 @@ FROM registry.fedoraproject.org/fedora:43
 
 ARG BUILD_DOCS=0
 ARG USE_EMACS=0
-ARG USE_IMGUI0
+ARG USE_IMGUI=0
 ARG USE_JUPYTER=0
 ARG USE_SPYDER=0
 
 COPY entrypoint/dotfiles/ /root/
 
-RUN  echo "keepcache=True" >> /etc/dnf/dnf.conf && \
+RUN  --mount=type=cache,target=/var/cache/libdnf5 \
+     --mount=type=cache,target=/var/lib/dnf \
+     echo "keepcache=True" >> /etc/dnf/dnf.conf && \
      dnf upgrade -y && \
      dnf install -y \
                    glfw \
@@ -74,7 +76,9 @@ RUN  echo "keepcache=True" >> /etc/dnf/dnf.conf && \
                    mesa-libGLU-devel; \
     fi ;
 
-RUN if [ "$USE_EMACS" = "1" ]; then \
+RUN  --mount=type=cache,target=/var/cache/libdnf5 \
+     --mount=type=cache,target=/var/lib/dnf \
+     if [ "$USE_EMACS" = "1" ]; then \
        dnf install -y \
                    emacs \
         	   python3-lsp-server \
@@ -84,7 +88,9 @@ RUN if [ "$USE_EMACS" = "1" ]; then \
        echo "alias ls='ls --color=auto'" >> ~/.bashrc ;\
      fi ;
 
-RUN if [ "$USE_JUPYTER" = "1" ]; then \
+RUN --mount=type=cache,target=/var/cache/libdnf5 \
+    --mount=type=cache,target=/var/lib/dnf \
+    if [ "$USE_JUPYTER" = "1" ]; then \
        dnf install -y \
         	   ffmpeg \
         	   firefox \
@@ -100,7 +106,9 @@ RUN if [ "$USE_JUPYTER" = "1" ]; then \
        python3 -m pip install --break-system-packages --root-user-action=ignore moviepy; \
     fi;
 
-RUN if [ "$USE_IMGUI" = "1" ]; then \
+RUN --mount=type=cache,target=/var/cache/libdnf5 \
+    --mount=type=cache,target=/var/lib/dnf \
+    if [ "$USE_IMGUI" = "1" ]; then \
        dnf install -y \
                    autoconf \
                    automake \
@@ -114,7 +122,9 @@ RUN if [ "$USE_IMGUI" = "1" ]; then \
         python3 -m pip install --break-system-packages --root-user-action=ignore . ;\
      fi ;
 
-RUN if [ "$USE_SPYDER" = "1" ]; then \
+RUN --mount=type=cache,target=/var/cache/libdnf5 \
+    --mount=type=cache,target=/var/lib/dnf \
+    if [ "$USE_SPYDER" = "1" ]; then \
       dnf install -y spyder && \
       mkdir -p ~/.config/spyder-py3/config && \
       echo "[editor]" >> ~/.config/spyder-py3/config/spyder.ini && \
