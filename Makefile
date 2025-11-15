@@ -2,11 +2,11 @@
 
 # Modify these to 0 if you want a quicker build and don't
 # need the features
-BUILD_DOCS=1
-USE_EMACS=1
-USE_IMGUI=1
-USE_JUPYTER=1
-USE_SPYDER=1
+BUILD_DOCS ?= 1
+USE_EMACS ?= 1
+USE_IMGUI ?= 1
+USE_JUPYTER ?= 1
+USE_SPYDER ?= 1
 
 CONTAINER_CMD = podman
 CONTAINER_NAME = modelviewprojection-html
