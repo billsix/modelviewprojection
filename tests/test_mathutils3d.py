@@ -24,14 +24,22 @@ import modelviewprojection.mathutils3d as mu3d
 from modelviewprojection.mathutils import InvertibleFunction
 
 
+# doc-region-begin test add
 def test___add__():
-    result = mu3d.Vector3D(x=1, y=2, z=6) + mu3d.Vector3D(x=3, y=4, z=5)
-    assert result.isclose(mu3d.Vector3D(x=4, y=6, z=11))
+    result: mu3d.Vector = mu3d.Vector3D(x=1, y=3, z=5) + mu3d.Vector3D(
+        x=2, y=4, z=6
+    )
+    assert result.isclose(mu3d.Vector3D(x=3, y=7, z=11))
+    # doc-region-end test add
 
 
+# doc-region-begin test substract
 def test___sub__():
-    result = mu3d.Vector3D(x=5, y=8, z=1) - mu3d.Vector3D(x=1, y=2, z=3)
-    assert result.isclose(mu3d.Vector3D(x=4, y=6, z=-2))
+    result: mu3d.Vector = mu3d.Vector3D(x=3, y=7, z=11) - mu3d.Vector3D(
+        x=2, y=4, z=6
+    )
+    assert result.isclose(mu3d.Vector3D(x=1, y=3, z=5))
+    # doc-region-end test substract
 
 
 def test___mul__():

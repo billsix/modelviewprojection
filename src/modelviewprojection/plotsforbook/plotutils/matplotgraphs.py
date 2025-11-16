@@ -18,11 +18,12 @@
 import math
 import sys
 
-import generategridlines
 import matplotlib
 import matplotlib.pyplot as plt
-import mpltransformations as mplt
 import numpy as np
+
+import modelviewprojection.plotsforbook.plotutils.generategridlines as generategridlines
+import modelviewprojection.plotsforbook.plotutils.mpltransformations as mplt
 
 matplotlib.use("TkAgg")
 

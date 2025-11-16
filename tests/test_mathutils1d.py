@@ -23,14 +23,18 @@ import doctest
 import modelviewprojection.mathutils1d as mu1d
 
 
+# doc-region-begin test add
 def test___add__():
-    result = mu1d.Vector1D(x=1) + mu1d.Vector1D(x=3)
+    result: mu1d.Vector = mu1d.Vector1D(x=1) + mu1d.Vector1D(x=3)
     assert result.isclose(mu1d.Vector1D(x=4))
+    # doc-region-end test add
 
 
+# doc-region-begin test substract
 def test___sub__():
-    result = mu1d.Vector1D(x=5) - mu1d.Vector1D(x=1)
+    result: mu1d.Vector = mu1d.Vector1D(x=5) - mu1d.Vector1D(x=1)
     assert result.isclose(mu1d.Vector1D(x=4))
+    # doc-region-end test substract
 
 
 def test___mul__():

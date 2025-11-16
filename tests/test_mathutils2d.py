@@ -31,7 +31,12 @@ def wrap_vec2_test(
     assert out.isclose(mu2d.Vector2D(*output_val))
 
 
+# doc-region-begin test add
 def test___add__():
+    result: mu2d.Vector = mu2d.Vector2D(x=1, y=2) + mu2d.Vector2D(x=3, y=4)
+    assert result.isclose(mu2d.Vector2D(x=4, y=6))
+    # doc-region-end test add
+
     input_output_pairs = [
         [[(0.0, 0.0), (0.0, 0.0)], [0.0, 0.0]],
         [[(1.0, 0.0), (0.0, 1.0)], [1.0, 1.0]],
@@ -45,7 +50,12 @@ def test___add__():
         )
 
 
+# doc-region-begin test substract
 def test___sub__():
+    result: mu2d.Vector = mu2d.Vector2D(x=4, y=6) - mu2d.Vector2D(x=3, y=4)
+    assert result.isclose(mu2d.Vector2D(x=1, y=2))
+    # doc-region-end test substract
+
     input_output_pairs = [
         [[(0.0, 0.0), (0.0, 0.0)], [0.0, 0.0]],
         [[(1.0, 0.0), (0.0, 1.0)], [1.0, -1.0]],

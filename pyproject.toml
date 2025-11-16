@@ -41,3 +41,6 @@ ignore = []
 
 [tool.ruff.lint]
 select = ["E", "F", "I"]
+
+[project.scripts]
+generate_plots_for_book = "modelviewprojection.plotsforbook.generate_plots:main"

@@ -38,6 +38,7 @@ __all__ = [
 class Vector:
     # doc-region-begin begin define add
     def __add__(self, rhs: typing.Self) -> typing.Self:
+        # doc-region-end begin define add
         """
         Add together two Vectors, component-wise.
 
@@ -79,8 +80,6 @@ class Vector:
             ]
         )
         # doc-region-end define add
-
-    # doc-region-end begin define add
 
     # doc-region-begin define mul
     def __mul__(self, scalar: float) -> typing.Self:
@@ -183,9 +182,10 @@ class Vector:
         return np.sqrt(self.dot(self))
 
 
-# doc-region-begin define invertible function
+# doc-region-begin begin define invertible function
 @dataclasses.dataclass
 class InvertibleFunction:
+    # doc-region-end begin define invertible function
     """
     Class that wraps a function and its
     inverse function.  The function takes
@@ -193,12 +193,16 @@ class InvertibleFunction:
     results in a value of type T.
     """
 
+    # doc-region-begin invertible function members
     func: typing.Callable[[Vector], Vector]  #: The wrapped function
     inverse: typing.Callable[
         [Vector], Vector
     ]  #: The inverse of the wrapped function
+    # doc-region-end invertible function members
 
+    # doc-region-begin begin call
     def __call__(self, x: Vector) -> Vector:
+        # doc-region-end begin call
         """
         Execute a function with the given value.
 
@@ -231,7 +235,9 @@ class InvertibleFunction:
             >>> inverse(foo)(foo(5))
             5
         """
+        # doc-region-begin call definition
         return self.func(x)
+        # doc-region-end call definition
 
     def __matmul__(self, f2: "InvertibleFunction") -> "InvertibleFunction":
         """
@@ -272,7 +278,9 @@ class InvertibleFunction:
         return f2 @ self
 
 
+# doc-region-begin begin define inverse
 def inverse(f: InvertibleFunction) -> InvertibleFunction:
+    # doc-region-end begin define inverse
     """
     Get the inverse of the InvertibleFunction
 
@@ -304,8 +312,9 @@ def inverse(f: InvertibleFunction) -> InvertibleFunction:
         5
     """
 
+    # doc-region-begin inverse body
     return InvertibleFunction(f.inverse, f.func)
-    # doc-region-end define invertible function
+    # doc-region-end inverse body
 
 
 def compose(
