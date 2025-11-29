@@ -41,3 +41,5 @@
 (if (eq (framep (selected-frame)) 't)
     (custom-set-faces
      '(default ((t (:background "unspecified-bg"))))))
+
+(global-set-key (kbd "C-c C-SPC") 'company-complete)
