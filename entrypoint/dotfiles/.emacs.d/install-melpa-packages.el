@@ -32,7 +32,6 @@
         org-modern
 
         discover
-        yafolding
         fold-this
         better-defaults
         magit

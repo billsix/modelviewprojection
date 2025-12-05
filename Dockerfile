@@ -81,6 +81,8 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      if [ "$USE_EMACS" = "1" ]; then \
        dnf install -y \
                    emacs \
+                   emacs-gtk+x11 \
+                   emacs-pgtk \
         	   python3-lsp-server \
                    npm && \
        npm install -g pyright && \
@@ -145,6 +147,12 @@ RUN echo "exit() {" >> ~/.bashrc && \
     echo "    builtin exit "$@"" >> ~/.bashrc && \
     echo "}" >> ~/.bashrc && \
     echo "PS1='\[\e[36m\]┌─(\t) \[\e[32m\]\u@\h:\w\n\[\e[36m\]└─λ \[\e[0m\]'" >> ~/.bashrc
+
+RUN echo "emacs src/modelviewprojection/mathutils3d.py" >> ~/.bash_history && \
+    echo "emacs src/modelviewprojection/mathutils2d.py" >> ~/.bash_history && \
+    echo "emacs src/modelviewprojection/mathutils1d.py" >> ~/.bash_history && \
+    echo "emacs src/modelviewprojection/mathutils.py" >> ~/.bash_history
+
 
 
 

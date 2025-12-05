@@ -4,9 +4,9 @@
 (load-file "~/.emacs.d/preferences.el")
 
 ;; theme
-(load-theme 'modus-vivendi t)
+;(load-theme 'modus-vivendi t)
 ;(load-theme 'material t)
-;(load-theme 'dracula t)
+(load-theme 'dracula t)
 ;(load-theme 'monokai t)
 ;(load-theme 'zenburn t)
 
@@ -15,6 +15,10 @@
 
 ;; Disable eglot hooks for python-mode
 (remove-hook 'python-mode-hook 'eglot-ensure)
+
+(use-package yafolding
+  :ensure t
+  :hook (prog-mode . yafolding-mode))
 
 
 (use-package lsp-mode
