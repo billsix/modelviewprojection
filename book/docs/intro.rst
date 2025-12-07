@@ -206,40 +206,17 @@ Once that is made, you can run the image in a container by running
 
    make shell # get a shell into the environment
 
-Spyder
-^^^^^^
-
-To create the podman image for running the code in Spyder:
+Once in the shell, to run jupyter
 
 .. code-block::
 
+   /usr/local/bin/jupyter.sh
 
-   make spyderimage # make the OCI image that has the base image and Spyder IDE preinstalled
-
-To run Spyder within the container
-
-.. code-block::
-
-   make spyder # run spyder in the OCI container
-
-Jupyter Notebook
-^^^^^^^^^^^^^^^^
-
-To run Python code as jupyter notebooks, the following command will launch
-jupyter and a firefox web browser from within the container.
-
-Make the image
+Once in the shell, to run Spyder
 
 .. code-block::
 
-   make image
-
-Run Jupyter notebook
-
-.. code-block::
-
-   make jupyter # run jupyter notebook in a container
-
+   /usr/local/bin/spyder.sh
 
 
 Getting the Source code
