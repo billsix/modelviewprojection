@@ -1,4 +1,10 @@
 * TODO [#1] Model View Projection
+    - [ ] Add image to dockerhub
+      - [ ] copy code, build it, put in all relavent files
+      - [ ] Make sure mounting the source overrides it
+      - [ ] Make sure notebooks are copied over from percent files
+      - [ ] make sure demos run, both notebooks, and code
+      - [ ] update instruction on first page
     - [ ] Add terms to index
     - [ ] Use headings correctly
       - [ ] # with overline, for parts
