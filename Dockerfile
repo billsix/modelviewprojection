@@ -154,6 +154,14 @@ RUN echo "emacs src/modelviewprojection/mathutils3d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils.py" >> ~/.bash_history
 
 
+RUN  --mount=type=cache,target=/var/cache/libdnf5 \
+     --mount=type=cache,target=/var/lib/dnf \
+     dnf install -y  \
+                   glib \
+                   glib2-devel \
+                   meson \
+                   ninja
+
 
 
 
