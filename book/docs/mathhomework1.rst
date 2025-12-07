@@ -29,8 +29,9 @@ This book provides a math library in Python.  We import them here.
 
 We'll use pytest's approx
 method to test if two floating point values are close enough to the same
-value.  We import a type :class:`modelviewprojection.mathutils.InvertibleFunction`,
-:py:meth:`modelviewprojection.mathutils.compose`, :py:meth:`modelviewprojection.mathutils.inverse`
+value.  We import a type :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`,
+:py:meth:`compose <modelviewprojection.mathutils.compose>`,
+:py:meth:`inverse <modelviewprojection.mathutils.inverse>`
 
 Important note.  The links in the previous paragraphs are links to API documentation.
 API documentation is like a guidebook that explains how to use a library.  It tells
@@ -51,7 +52,7 @@ and show you features that you might not realize exists.
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do addition on :class:`modelviewprojection.mathutils1d.Vector1D` using "+", :py:meth:`modelviewprojection.mathutils1d.Vector1D.__add__`
+We can do addition on :class:`Vector1D <modelviewprojection.mathutils1d.Vector1D>` using "+", :py:meth:`__add__ <modelviewprojection.mathutils1d.Vector.__add__>`
 
 
 
@@ -63,7 +64,7 @@ We can do addition on :class:`modelviewprojection.mathutils1d.Vector1D` using "+
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do subtraction on :class:`modelviewprojection.mathutils1d.Vector1D` using "-", :py:meth:`modelviewprojection.mathutils1d.Vector1D.__sub__`
+We can do subtraction on :class:`Vector1D <modelviewprojection.mathutils1d.Vector1D>` using "-", :py:meth:`__sub__ <modelviewprojection.mathutils1d.Vector.__sub__>`
 
 
 .. literalinclude:: ../../assignments/demo02/vec1.py
@@ -74,7 +75,7 @@ We can do subtraction on :class:`modelviewprojection.mathutils1d.Vector1D` using
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do multiply a scalar by  :class:`modelviewprojection.mathutils1d.Vector1D` using "*", :py:meth:`modelviewprojection.mathutils1d.Vector1D.__mul__`
+We can do multiply a scalar by  :class:`Vector1D <modelviewprojection.mathutils1d.Vector1D>` using "*", :py:meth:`__mul__ <modelviewprojection.mathutils1d.Vector.__mul__>`
 
 
 .. literalinclude:: ../../assignments/demo02/vec1.py
@@ -85,7 +86,7 @@ We can do multiply a scalar by  :class:`modelviewprojection.mathutils1d.Vector1D
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do negate a  :class:`modelviewprojection.mathutils1d.Vector1D` using "-", :py:meth:`modelviewprojection.mathutils1d.Vector1D.__neg__`
+We can do negate a  :class:`Vector1D <modelviewprojection.mathutils1d.Vector1D>` using "-", :py:meth:`__neg__ <modelviewprojection.mathutils1d.Vector.__neg__>`
 
 
 .. literalinclude:: ../../assignments/demo02/vec1.py
@@ -99,11 +100,11 @@ We can do negate a  :class:`modelviewprojection.mathutils1d.Vector1D` using "-",
 Translate Implementation
 ------------------------
 
-Next we have a very import function, :py:meth:`modelviewprojection.mathutils.translate`.  Read
+Next we have a very import function, :py:meth:`translate <modelviewprojection.mathutils.translate>`.  Read
 the API documentation in the link, it's a very important function.
 
 Translate is a function which partially binds a constant :class:`Vector1D` to
-one of the arguments of :py:meth:`Vector1D.__add__`, thus creating
+one of the arguments of :py:meth:`__add__ <modelviewprojection.mathutils1d.Vector.__add__>`, thus creating
 a new function of one argument.
 
 In high school math, you'd learn about classes of functions,  such as
@@ -156,7 +157,7 @@ or many times.
 
 Inverting such a function is done by negating :math:`b`, so (:math:`{T_{b=2}}^{-1} \circ {T_{b=2}}) (x) = ({T_{b=-2}} \circ {T_{b=2}}) (x) = x`
 
-To get the inverse in Python, we can call the :py:meth:`modelviewprojection.mathutils.inverse` function
+To get the inverse in Python, we can call the :py:meth:`inverse <modelviewprojection.mathutils.inverse>` function
 on our function, without having to worry about how it's implemented.
 
 
@@ -170,7 +171,8 @@ on our function, without having to worry about how it's implemented.
    :caption: assignments/demo02/vec1.py
 
 
-What's nice about that is we can look at the implementation of :py:meth:`modelviewprojection.mathutils.translate`
+What's nice about that is we can look at the implementation of
+:py:meth:`translate <modelviewprojection.mathutils.translate>`
 once, understand how it works internally, and then forget those details and treat
 it as an invertible BlackBox_.
 

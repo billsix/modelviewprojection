@@ -202,7 +202,7 @@ class InvertibleFunction:
     # doc-region-end invertible function members
 
     # doc-region-begin begin call
-    def __call__(self, x: 'Vector') -> 'Vector':
+    def __call__(self, x: Vector) -> Vector:
         # doc-region-end begin call
         """
         Execute a function with the given value.
