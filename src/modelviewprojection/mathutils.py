@@ -83,6 +83,7 @@ class Vector:
 
     # doc-region-begin define mul
     def __mul__(self, scalar: float) -> typing.Self:
+        # doc-region-end define mul
         """
         Multiply the Vector by a scalar number, component-wise
 
@@ -109,9 +110,9 @@ class Vector:
             >>> a * 4
             Vector3D(x=8, y=12, z=20)
         """
+        # doc-region-begin define mul body
         return type(self)(*[scalar * a for a in dataclasses.astuple(self)])
-
-    # doc-region-end define mul
+        # doc-region-end define mul body
 
     def __neg__(self) -> typing.Self:
         """
@@ -201,7 +202,7 @@ class InvertibleFunction:
     # doc-region-end invertible function members
 
     # doc-region-begin begin call
-    def __call__(self, x: Vector) -> Vector:
+    def __call__(self, x: 'Vector') -> 'Vector':
         # doc-region-end begin call
         """
         Execute a function with the given value.

@@ -85,6 +85,5 @@ cayleyImages: ndcToScreenspace.png \
 
 
 # dummy task to generate all the plots from generate_plots
-.PHONY: rotate0-0.svg
-rotate0-0.svg:
+rotate0-0.svg: ../../../src/modelviewprojection/plotsforbook/generate_plots.py
 	generate_plots_for_book

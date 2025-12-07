@@ -14,8 +14,6 @@
 import os
 import sys
 
-import jupytext
-
 sys.path.insert(0, os.path.abspath("."))
 
 
@@ -80,9 +78,6 @@ extensions = [
 ]
 bibtex_bibfiles = ["references.bib"]
 
-nbsphinx_custom_formats = {
-    ".py": lambda s: jupytext.reads(s, fmt="py:percent"),
-}
 
 # conf.py
 autodoc_default_options = {

@@ -517,7 +517,8 @@ In our graphics code, instead of using "a+b", we'll use a more descriptive
 name: "translate", which is implemented using the addition symbol.  But a few
 things to note, :py:meth:`modelviewprojection.mathutils.translate`
 is a function on the mathutils module, not a method
-on Vector2D class, and it's wrapped in a class named "InvertibleFunction"
+on Vector2D class, and it's wrapped in a class named
+:class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`.
 
 
 
@@ -539,7 +540,8 @@ This is because we will be translating many Vector2Ds using the same amount.
 
 Invertible functions are stored in pairs, with the "active" function
 being the first one passed to the constructor.  So for translate above,
-the adding of the Vector2Ds will be the function, but InvertibleFunction
+the adding of the Vector2Ds will be the function, but
+:class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`
 holds onto the second function, for later use to be able to undo the function's
 application.
 
@@ -555,7 +557,8 @@ application.
 The above is a unit test that shows how the translate function can be used.
 We call "translate", a function which takes a translate amount, both in the x
 direction and the y direction, but we have not yet specified what needs to be translated
-by that amount.  "translate" returns an InvertibleFunction, which is
+by that amount.  "translate" returns an
+:class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`, which is
 Callable[Vector2D, Vector2D].  Callable[Vector2D, Vector2D] is a type which
 is a function that takes a Vector2D as input, and returns a Vector2D (in this case,
 the output is the input, translated by Vector2D(x=2.0, y=3.0).
@@ -571,7 +574,9 @@ composing t_inv and t results in no transformation.
 
 
 
-Here's how :class:`modelviewprojection.mathutils.InvertibleFunction` is implemented:
+
+
+Here's how :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>` is implemented:
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
@@ -596,7 +601,8 @@ Here's how :class:`modelviewprojection.mathutils.InvertibleFunction` is implemen
 
 Just as Python allows an object to override the '+' and '-' syntax,
 in Python, any object can be treated as a function, by implementing the
-"__call__" method
+:py:meth:`__call__ <modelviewprojection.mathutils.InvertibleFunction.__call__>`
+method.
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
@@ -615,7 +621,7 @@ in Python, any object can be treated as a function, by implementing the
    :caption: src/modelviewprojection/mathutils.py
 
 We can get the inverse of the procedure by the following
-inverse procedure
+:py:meth:`modelviewprojection.mathutils.inverse`, procedure
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
@@ -641,7 +647,8 @@ inverse procedure
 Back to method's on the Vector2D class.  We can also define scaling of a Vector2D,
 by implementing multiplication of Vector2D's by a scalar, meaning a real number
 that scaled the Vector2D by the same amount in all directions.  We do this
-by implementing the '__mul__' and '__rmul__' methods, where __rmul__ just means
+by implementing the :py:meth:`__mul__ <modelviewprojection.mathutils.Vector.__mul__>`
+and :py:meth:`__rmul__ <modelviewprojection.mathutils.Vector.__rmul__>` methods, where __rmul__ just means
 that this object is on the right hand side of the multiplication.
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
@@ -651,6 +658,18 @@ that this object is on the right hand side of the multiplication.
    :linenos:
    :lineno-match:
    :caption: src/modelviewprojection/mathutils.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :language: python
+   :start-after: doc-region-begin define mul body
+   :end-before: doc-region-end define mul body
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+
+
+
 
 Just like we made a top level invertible function called "translate" for addition,
 we are going to do the same for multiplication, and call it "uniform_scale".

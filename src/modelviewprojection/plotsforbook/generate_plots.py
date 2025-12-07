@@ -185,7 +185,10 @@ def main():
         unit_x=1.0,
         unit_y=1.0,
     ):
-        """Creates an animated dif of the geometry, through a sequence of transformations"""
+        """
+        Creates an animated dif of the geometry, through a sequence of
+        transformations
+        """
 
         fig, axes = plt.subplots()
         axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
