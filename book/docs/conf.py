@@ -75,7 +75,15 @@ extensions = [
     "sphinx.ext.mathjax",
     "sphinxcontrib.bibtex",
     "nbsphinx",
+    "myst_nb",
 ]
+
+nb_execution_timeout = 600 # timeout of ten minutes
+myst_enable_extensions = [
+    "colon_fence",
+    "dollarmath",
+]
+
 bibtex_bibfiles = ["references.bib"]
 
 

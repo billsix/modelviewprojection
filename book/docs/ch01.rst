@@ -338,8 +338,9 @@ If the user presses the "Escape" key while the program is running, inform
 GLFW that the user wants to quit, which we will handle this later in the
 :term:`Event Loop`.
 
-
-See :ref:`firstclassfunctions` for more information on functions as parameters
+We do this by defining a function "on_key", which is a passed as a parameter to
+glfw.set_key_callback.  This is an example of treating a function as a value
+in Python.  See :ref:`firstclassfunctions` for more information on functions as parameters
 to other functions.
 
 
@@ -354,9 +355,9 @@ to other functions.
    :lineno-match:
    :caption: src/modelviewprojection/demo01.py
 
-* Before a frame is drawn, it is first turned into a blank slate,
+* Before a frame is drawn, the framebuffer is first turned into a blank slate,
   where the color of each pixel is set to some value representing a
-  color (we will see the importance of this in the first project).
+  color (we will see the importance of this in :ref:`Framebuffer <framebufferlabel>`).
   We are not clearing the framebuffer right now, but setting what
   color will be used for a later clear.  Calling "glClearColor"
   "0,0,0,1", means black "0,0,0", without transparency (the "1").

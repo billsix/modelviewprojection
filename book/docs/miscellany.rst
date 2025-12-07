@@ -53,8 +53,6 @@ test in the code to demonstrate.
   * The parameter x is an int
 
 
-If you are unfamiliar with looking at the lines above, it's
-a session in the Python Read-Evaluate-Print loop, `read more here`_.
 
 As a harder example, if Python didn't have recursion, but it does
 have first class functions as values, the programmer could simulate

@@ -13,6 +13,7 @@
 # ---
 
 # %% [markdown]
+# (framebufferlabel)=
 # # Framebuffer
 
 # %%

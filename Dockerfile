@@ -95,7 +95,6 @@ RUN --mount=type=cache,target=/var/cache/libdnf5 \
     if [ "$USE_JUPYTER" = "1" ]; then \
        dnf install -y \
         	   ffmpeg \
-        	   firefox \
         	   jupyter \
         	   jupyterlab  \
         	   jupytext \
@@ -103,6 +102,7 @@ RUN --mount=type=cache,target=/var/cache/libdnf5 \
                    mathjax \
                    mathjax-main-fonts \
                    mathjax-math-fonts \
+                   myst-nb \
         	   python3-jupyterlab-jupytext \
         	   python3-jupyter-lsp  && \
        python3 -m pip install --break-system-packages --root-user-action=ignore moviepy; \
