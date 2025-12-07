@@ -12,6 +12,10 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# # NDC
+
+
 # %%
 
 # Copyright (c) 2025 William Emerison Six

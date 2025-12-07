@@ -25,6 +25,8 @@ Model View Projection
    intro
    ch01
    ch02
+   framebuffer
+   ndc
    programmingproj1
    ch03
    ch04

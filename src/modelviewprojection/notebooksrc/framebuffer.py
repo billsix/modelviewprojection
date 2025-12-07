@@ -12,6 +12,9 @@
 #     name: python3
 # ---
 
+# %% [markdown]
+# # Framebuffer
+
 # %%
 # Copyright (c) 2025 William Emerison Six
 #
