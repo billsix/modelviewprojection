@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.17.3
+#       jupytext_version: 1.18.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -36,6 +36,14 @@
 # Boston, MA 02111-1307, USA.
 
 
+# %% [markdown]
+# Drawing in NDC
+# --------------
+#
+# Similar to the Framebuffer code, this is a notebook in which we will only use software to
+# draw pictures of a framebuffer.  We use Normalized Device Coordinates instead of screenspace,
+# and by the end, we will make an animation.
+
 # %%
 import warnings
 
@@ -50,11 +58,23 @@ import modelviewprojection.softwarerendering as sr
 warnings.filterwarnings("error", category=RuntimeWarning)
 
 
+# %% [markdown]
+# Make Framebuffer
+# ----------------
+#
+# Like in the Framebuffer notebook, we initialize a framebuffer in software.
+
 # %%
 # Show initial random framebuffer
-fake_fb: sr.FrameBuffer = sr.FrameBuffer(width=700, height=500)
+fake_fb: sr.FrameBuffer = sr.FrameBuffer(width=400, height=300)
 fake_fb.show_framebuffer()
 
+
+# %% [markdown]
+# Clear Framebuffer
+# -----------------
+#
+# We clear it so that we have a blank slate.
 
 # %%
 # Clear to black and show
@@ -68,15 +88,37 @@ fake_fb.show_framebuffer()
 #
 # Make a new picture below where the triangle is translated 0.3 units in NDC to the left
 
+# %% [markdown]
+# Create function from NDC to screenspace
+# ---------------------------------------
+#
+# Create a function to convert from NDC to screen space.  We compose 4 functions to achieve this
+#
+# First, translate x to the right one unit, y up on unit, to make the bottom left of the NDC region be at (0,0)
+#
+# Second, since the NDC square is two units wide, scale by 1/2, to make it have a width of 1, and a height of 1.
+#
+# Third, scale by the width and height of the framebuffer.
+#
+# Fourth, translate -1/2 and -1/2, to make (0,0) of NDC map to the center of the pixel at (0,0)
+#
+# Inspired by "Fundamentals of Computer Graphics, Third Edition", by Shirley and Marshner, page 60
+
 # %%
 ndc_to_screen: mu2d.InvertibleFunction = mu2d.compose(
     [
-        mu2d.translate(mu2d.Vector2D(-0.5, 0.5)),
+        mu2d.translate(mu2d.Vector2D(-0.5, -0.5)),
         mu2d.scale(fake_fb.width, fake_fb.height),
         mu2d.scale(0.5, 0.5),
         mu2d.translate(mu2d.Vector2D(x=1.0, y=1.0)),
     ]
 )
+
+# %% [markdown]
+# Create NDC data for triangle
+# ----------------------------
+#
+# Create a list of Vectors to represent the three vertices of the triangle.
 
 # %%
 # Example: draw a white triangle
@@ -87,13 +129,19 @@ triangle_in_NDC: list[mu2d.Vector] = [
     mu2d.Vector2D(0.2, 0.2),
 ]
 
+# %% [markdown]
+# Convert the NDC Vectors to Screenspace
+# --------------------------------------
+#
+# For each vector, apply the function
+
 # %%
 triangle_in_screen: list[mu2d.Vector] = [
     ndc_to_screen(x) for x in triangle_in_NDC
 ]
 print(triangle_in_screen)
 
-
+# %%
 fake_fb.clear_framebuffer()
 fake_fb.draw_filled_triangle(
     triangle_in_screen[0],
@@ -103,6 +151,12 @@ fake_fb.draw_filled_triangle(
 )
 fake_fb.show_framebuffer()
 
+# %% [markdown]
+# Move the Triangle in NDC
+# ------------------------
+#
+# Now, we want to make the triangle move to a different position.  We will use compose to first translate the triangle by 0.5 units of NDC up, and then take the result and convert it from NDC to screenspace
+
 # %%
 move: mu2d.InvertibleFunction = mu2d.translate(mu2d.Vector2D(0, 0.5))
 
@@ -111,14 +165,13 @@ triangle_in_screen = [
 ]
 print(triangle_in_screen)
 
-
+# %%
 fake_fb.clear_framebuffer()
 fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
 fake_fb.show_framebuffer()
 
 # %%
 frames = []
-
 
 sixty_fps_times_2_sec = 120
 
@@ -136,7 +189,10 @@ for i in range(sixty_fps_times_2_sec):
 
     frames.append(fake_fb.framebuffer)
 
+# %% [markdown]
+# Now that we have the frames, we just need to save them to a video.  The details of how this works is a black box to use, it doesn't really matter for our understanding.
 
+# %%
 np_frames = [np.array(img) for img in frames]
 
 frames_np = [np.array(img) for img in frames]
