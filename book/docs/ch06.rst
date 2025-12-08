@@ -466,7 +466,7 @@ the respective components together, and create a new Vector2D.
    :caption: src/modelviewprojection/mathutils2d.py
 
 In a Python class, we can overload the '+' symbol, to make
-objects addable, by implementing the :py:meth:`__add__ <modelviewprojection.mathutils1d.Vector.__add__>`
+objects addable, by implementing the :py:meth:`__add__ <modelviewprojection.mathutils.Vector.__add__>`
 method.  The definition is just saying pairwise add each component.
 Don't stress about understanding the implementation, look at the
 tests listed after.
@@ -489,7 +489,7 @@ tests listed after.
 
 
 We can also model the opposite procedure, subtraction,
-by implementing the :py:meth:`modelviewprojection.mathutils.Vector.__sub__`
+by implementing the :py:meth:`__sub__ <modelviewprojection.mathutils.Vector.__sub__>`
 method.
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
@@ -515,7 +515,7 @@ method.
 
 In our graphics code, instead of using "a+b", we'll use a more descriptive
 name: "translate", which is implemented using the addition symbol.  But a few
-things to note, :py:meth:`modelviewprojection.mathutils.translate`
+things to note, :py:meth:`translate <modelviewprojection.mathutils.translate>`
 is a function on the mathutils module, not a method
 on Vector2D class, and it's wrapped in a class named
 :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`.
@@ -621,7 +621,7 @@ method.
    :caption: src/modelviewprojection/mathutils.py
 
 We can get the inverse of the procedure by the following
-:py:meth:`modelviewprojection.mathutils.inverse`, procedure
+:py:meth:`inverse <modelviewprojection.mathutils.inverse>`, procedure
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
@@ -674,7 +674,7 @@ that this object is on the right hand side of the multiplication.
 Just like we made a top level invertible function called "translate" for addition,
 we are going to do the same for multiplication, and call it "uniform_scale".
 Notice in particular that the scalar is passed as an argument to
-:py:meth:`modelviewprojection.mathutils.uniform_scale`,
+:py:meth:`uniform_scale <modelviewprojection.mathutils.uniform_scale>`,
 but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vector2D.
 This is because we will be scaling many Vector2Ds using the same scaling factor.
 
