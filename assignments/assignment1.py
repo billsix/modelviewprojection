@@ -111,57 +111,57 @@ def draw_x_squared_with_precomputed_values() -> None:
     GL.glVertex2f(-0.9, 0.81)
 
     GL.glVertex2f(-0.9, 0.81)
-    GL.glVertex2f(-0.8, 0.6400000000000001)
+    GL.glVertex2f(-0.8, 0.64)
 
-    GL.glVertex2f(-0.8, 0.6400000000000001)
-    GL.glVertex2f(-0.7, 0.48999999999999994)
+    GL.glVertex2f(-0.8, 0.64)
+    GL.glVertex2f(-0.7, 0.49)
 
-    GL.glVertex2f(-0.7, 0.48999999999999994)
+    GL.glVertex2f(-0.7, 0.49)
     GL.glVertex2f(-0.6, 0.36)
 
     GL.glVertex2f(-0.6, 0.36)
     GL.glVertex2f(-0.5, 0.25)
 
     GL.glVertex2f(-0.5, 0.25)
-    GL.glVertex2f(-0.4, 0.16000000000000003)
+    GL.glVertex2f(-0.4, 0.16)
 
-    GL.glVertex2f(-0.4, 0.16000000000000003)
+    GL.glVertex2f(-0.4, 0.16)
     GL.glVertex2f(-0.3, 0.09)
 
     GL.glVertex2f(-0.3, 0.09)
-    GL.glVertex2f(-0.2, 0.04000000000000001)
+    GL.glVertex2f(-0.2, 0.04)
 
-    GL.glVertex2f(-0.2, 0.04000000000000001)
-    GL.glVertex2f(-0.1, 0.010000000000000002)
+    GL.glVertex2f(-0.2, 0.04)
+    GL.glVertex2f(-0.1, 0.01)
 
-    GL.glVertex2f(-0.1, 0.010000000000000002)
+    GL.glVertex2f(-0.1, 0.01)
     GL.glVertex2f(0.0, 0.0)
 
     GL.glVertex2f(0.0, 0.0)
-    GL.glVertex2f(0.1, 0.010000000000000002)
+    GL.glVertex2f(0.1, 0.01)
 
-    GL.glVertex2f(0.1, 0.010000000000000002)
-    GL.glVertex2f(0.2, 0.04000000000000001)
+    GL.glVertex2f(0.1, 0.01)
+    GL.glVertex2f(0.2, 0.04)
 
-    GL.glVertex2f(0.2, 0.04000000000000001)
+    GL.glVertex2f(0.2, 0.04)
     GL.glVertex2f(0.3, 0.09)
 
     GL.glVertex2f(0.3, 0.09)
-    GL.glVertex2f(0.4, 0.16000000000000003)
+    GL.glVertex2f(0.4, 0.16)
 
-    GL.glVertex2f(0.4, 0.16000000000000003)
+    GL.glVertex2f(0.4, 0.16)
     GL.glVertex2f(0.5, 0.25)
 
     GL.glVertex2f(0.5, 0.25)
     GL.glVertex2f(0.6, 0.36)
 
     GL.glVertex2f(0.6, 0.36)
-    GL.glVertex2f(0.7, 0.48999999999999994)
+    GL.glVertex2f(0.7, 0.49)
 
-    GL.glVertex2f(0.7, 0.48999999999999994)
-    GL.glVertex2f(0.8, 0.6400000000000001)
+    GL.glVertex2f(0.7, 0.49)
+    GL.glVertex2f(0.8, 0.64)
 
-    GL.glVertex2f(0.8, 0.6400000000000001)
+    GL.glVertex2f(0.8, 0.64)
     GL.glVertex2f(0.9, 0.81)
 
     GL.glVertex2f(0.9, 0.81)
