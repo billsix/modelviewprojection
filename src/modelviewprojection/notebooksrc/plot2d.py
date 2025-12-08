@@ -53,6 +53,7 @@ from modelviewprojection.mathutils2d import translate as T
 from modelviewprojection.nbplotutils import (
     create_basis,
     create_graphs,
+    draw_ndc,
     draw_triangle,
 )
 
@@ -152,3 +153,20 @@ for f in compose_intermediate_fns(
     with create_graphs():
         create_basis(fn=f)
         draw_triangle(fn=f)
+
+# %%
+for f in compose_intermediate_fns(
+    [
+        R(math.radians(0)),
+        R(math.radians(90.0)),
+        T(Vector2D(x=2.0, y=0.0)),
+    ],
+    relative_basis=True,
+):
+    with create_graphs():
+        create_basis(fn=f)
+        draw_ndc(fn=f)
+
+# %%
+
+# %%

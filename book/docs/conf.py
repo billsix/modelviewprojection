@@ -78,7 +78,7 @@ extensions = [
     "myst_nb",
 ]
 
-nb_execution_timeout = 600 # timeout of ten minutes
+nb_execution_timeout = 600  # timeout of ten minutes
 myst_enable_extensions = [
     "colon_fence",
     "dollarmath",
