@@ -54,6 +54,7 @@ from modelviewprojection.mathutils2d import translate as T
 from modelviewprojection.nbplotutils import (
     create_basis,
     create_graphs,
+    create_x_and_y,
     draw_ndc,
     draw_triangle,
 )
@@ -71,10 +72,13 @@ from modelviewprojection.nbplotutils import (
 # %%
 with create_graphs():
     create_basis()
+    create_x_and_y()
 
 # %%
 with create_graphs():
-    create_basis(fn=R(math.radians(53.130102)))
+    fn = R(math.radians(53.130102))
+    create_basis(fn=fn)
+    create_x_and_y(fn=fn)
 
 # %% [markdown]
 # Draw relative graph paper
@@ -90,7 +94,13 @@ with create_graphs():
 # %%
 with create_graphs():
     create_basis(fn=R(0.0))
+    create_x_and_y(fn=R(0.0))
     create_basis(
+        fn=R(math.radians(45.0)),
+        xcolor=(0, 1, 0),
+        ycolor=(1, 1, 0),
+    )
+    create_x_and_y(
         fn=R(math.radians(45.0)),
         xcolor=(0, 1, 0),
         ycolor=(1, 1, 0),
@@ -106,14 +116,16 @@ with create_graphs():
 
 # %%
 with create_graphs():
-    create_basis(
-        fn=compose(
-            [
-                R(math.radians(90.0)),
-                T(Vector2D(x=2.0, y=0.0)),
-            ]
-        ),
+    fn = compose(
+        [
+            R(math.radians(90.0)),
+            T(Vector2D(x=2.0, y=0.0)),
+        ]
     )
+    create_basis(
+        fn=fn,
+    )
+    create_x_and_y(fn=fn)
 
 # %% [markdown]
 # Composed functions, read bottom up
@@ -128,10 +140,14 @@ for f in compose_intermediate_fns(
     [
         R(math.radians(90.0)),
         T(Vector2D(x=2.0, y=0.0)),
+        lambda x: x,
     ]
 ):
     with create_graphs():
         create_basis(fn=f)
+        create_x_and_y(fn=f)
+        draw_triangle(fn=f)
+
 
 # %% [markdown]
 # Composed functions, read top down
@@ -145,7 +161,7 @@ for f in compose_intermediate_fns(
 # %%
 for f in compose_intermediate_fns(
     [
-        R(math.radians(0)),
+        lambda x: x,
         R(math.radians(90.0)),
         T(Vector2D(x=2.0, y=0.0)),
     ],
@@ -153,11 +169,12 @@ for f in compose_intermediate_fns(
 ):
     with create_graphs():
         create_basis(fn=f)
+        create_x_and_y(fn=f)
         draw_triangle(fn=f)
 
 # %%
-screen_width = 6
-screen_height = 8
+screen_width = 4
+screen_height = 3
 
 for f in compose_intermediate_fns(
     [
@@ -165,17 +182,20 @@ for f in compose_intermediate_fns(
         S(screen_width, screen_height),
         S(0.5, 0.5),
         T(Vector2D(x=1.0, y=1.0)),
+        lambda x: x,
     ],
     relative_basis=False,
 ):
-    with create_graphs(graph_bounds=(10, 10)):
-        create_basis(fn=f)
+    with create_graphs(graph_bounds=(6, 6)):
+        # create_basis(fn=f)
+        create_x_and_y(fn=f)
         create_basis(fn=lambda x: x)
+        create_x_and_y(fn=lambda x: x)
         draw_ndc(fn=f)
 
 # %%
-screen_width = 6
-screen_height = 8
+screen_width = 4
+screen_height = 3
 
 for f in compose_intermediate_fns(
     [
@@ -186,9 +206,11 @@ for f in compose_intermediate_fns(
     ],
     relative_basis=True,
 ):
-    with create_graphs(graph_bounds=(10, 10)):
-        create_basis(fn=f)
+    with create_graphs(graph_bounds=(6, 6)):
+        # create_basis(fn=f)
+        create_x_and_y(fn=f)
         create_basis(fn=lambda x: x)
+        create_x_and_y(fn=lambda x: x)
         draw_ndc(fn=f)
 
 # %%

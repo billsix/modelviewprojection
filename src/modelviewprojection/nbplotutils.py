@@ -105,26 +105,6 @@ def create_basis(
             alpha=0.3,
         )
 
-        # x axis
-        x_axis = [mu2d.Vector2D(0, 0), mu2d.Vector2D(1, 0)]
-        plt.plot(
-            [fn(vec).x for vec in x_axis],
-            [fn(vec).y for vec in x_axis],
-            "-",
-            lw=1.0,
-            color=xcolor,
-        )
-
-        # y axis
-        y_axis = [mu2d.Vector2D(0, 0), mu2d.Vector2D(0, 1)]
-        plt.plot(
-            [fn(vec).x for vec in y_axis],
-            [fn(vec).y for vec in y_axis],
-            "-",
-            lw=1.0,
-            color=ycolor,
-        )
-
     def generate_circle():
         theta_increment: float = 0.01
         scale_radius: float = 1.0
@@ -152,6 +132,32 @@ def create_basis(
             color=(0.0, 0.0, 0.0),
             alpha=0.5,
         )
+
+
+def create_x_and_y(
+    fn=lambda x: x,
+    xcolor=(0.0, 0.0, 1.0),
+    ycolor=(1.0, 0.0, 1.0),
+):
+    # x axis
+    x_axis = [mu2d.Vector2D(0, 0), mu2d.Vector2D(1, 0)]
+    plt.plot(
+        [fn(vec).x for vec in x_axis],
+        [fn(vec).y for vec in x_axis],
+        "-",
+        lw=1.0,
+        color=xcolor,
+    )
+
+    # y axis
+    y_axis = [mu2d.Vector2D(0, 0), mu2d.Vector2D(0, 1)]
+    plt.plot(
+        [fn(vec).x for vec in y_axis],
+        [fn(vec).y for vec in y_axis],
+        "-",
+        lw=1.0,
+        color=ycolor,
+    )
 
 
 def draw_triangle(
