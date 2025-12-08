@@ -54,8 +54,9 @@ from modelviewprojection.mathutils2d import translate as T
 from modelviewprojection.nbplotutils import (
     create_basis,
     create_graphs,
+    create_unit_circle,
     create_x_and_y,
-    draw_ndc,
+    draw_screen,
     draw_triangle,
 )
 
@@ -73,12 +74,14 @@ from modelviewprojection.nbplotutils import (
 with create_graphs():
     create_basis()
     create_x_and_y()
+    create_unit_circle()
 
 # %%
 with create_graphs():
     fn = R(math.radians(53.130102))
     create_basis(fn=fn)
     create_x_and_y(fn=fn)
+    create_unit_circle(fn=fn)
 
 # %% [markdown]
 # Draw relative graph paper
@@ -105,6 +108,7 @@ with create_graphs():
         xcolor=(0, 1, 0),
         ycolor=(1, 1, 0),
     )
+    create_unit_circle(fn=fn)
 
 # %% [markdown]
 # Draw relative graph paper, defined by composed functions
@@ -126,6 +130,7 @@ with create_graphs():
         fn=fn,
     )
     create_x_and_y(fn=fn)
+    create_unit_circle(fn=fn)
 
 # %% [markdown]
 # Composed functions, read bottom up
@@ -147,6 +152,7 @@ for f in compose_intermediate_fns(
         create_basis(fn=f)
         create_x_and_y(fn=f)
         draw_triangle(fn=f)
+        create_unit_circle(fn=f)
 
 
 # %% [markdown]
@@ -171,6 +177,7 @@ for f in compose_intermediate_fns(
         create_basis(fn=f)
         create_x_and_y(fn=f)
         draw_triangle(fn=f)
+        create_unit_circle(fn=f)
 
 # %%
 screen_width = 4
@@ -188,10 +195,11 @@ for f in compose_intermediate_fns(
 ):
     with create_graphs(graph_bounds=(6, 6)):
         # create_basis(fn=f)
-        create_x_and_y(fn=f)
+        # create_x_and_y(fn=f)
         create_basis(fn=lambda x: x)
-        create_x_and_y(fn=lambda x: x)
-        draw_ndc(fn=f)
+        # create_x_and_y(fn=lambda x: x)
+        # draw_ndc(fn=f)
+        draw_screen(width=screen_width, height=screen_height, fn=f)
 
 # %%
 screen_width = 4
@@ -208,10 +216,11 @@ for f in compose_intermediate_fns(
 ):
     with create_graphs(graph_bounds=(6, 6)):
         # create_basis(fn=f)
-        create_x_and_y(fn=f)
+        # create_x_and_y(fn=f)
         create_basis(fn=lambda x: x)
-        create_x_and_y(fn=lambda x: x)
-        draw_ndc(fn=f)
+        # create_x_and_y(fn=lambda x: x)
+        # draw_ndc(fn=f)
+        draw_screen(width=screen_width, height=screen_height, fn=f)
 
 # %%
 

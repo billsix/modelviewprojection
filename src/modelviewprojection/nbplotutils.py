@@ -105,6 +105,10 @@ def create_basis(
             alpha=0.3,
         )
 
+
+def create_unit_circle(
+    fn=lambda x: x,
+):
     def generate_circle():
         theta_increment: float = 0.01
         scale_radius: float = 1.0
@@ -285,3 +289,38 @@ def draw_ndc(
             rotation_mode="anchor",
             zorder=6,
         )
+
+
+def draw_screen(
+    width,
+    height,
+    fn=lambda x: x,
+    color=(0.0, 0.0, 1.0),
+):
+    d_width = 2.0 / width
+    d_height = 2.0 / height
+    for x in range(width):
+        for y in range(height):
+            vertices = [
+                fn(v)
+                for v in [
+                    mu2d.Vector2D(-1.0 + d_width * x, -1.0 + d_height * y),
+                    mu2d.Vector2D(
+                        -1.0 + d_width * (x + 1), -1.0 + d_height * y
+                    ),
+                    mu2d.Vector2D(
+                        -1.0 + d_width * (x + 1), -1.0 + d_height * (y + 1)
+                    ),
+                    mu2d.Vector2D(
+                        -1.0 + d_width * (x), -1.0 + d_height * (y + 1)
+                    ),
+                ]
+            ]
+
+            square = Polygon(
+                list(map(list, vertices)),
+                closed=True,
+                fc="none",
+                edgecolor="black",
+            )
+            axes.add_patch(square)
