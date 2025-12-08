@@ -17,12 +17,17 @@
 # # Framebuffer
 
 # %% [markdown]
-# We are taking a detour, to learn more about framebuffers.  This section is written as a jupyter notebook,
-# which is an interactive document with executable code, which can output values and images.
+# We are taking a detour, to learn more about framebuffers.  This section
+# is written as a jupyter notebook,
+# which is an interactive document with executable code, which can
+# output values and images.
 #
-# You can run this either in spyder or in jupyter.  If using spyder, open "src/modelviewprojection/notebooksrc/framebuffer.py", if using jupyter notebook, using jupyter, open "notebook/framebuffer.ipynb"
+# You can run this either in spyder or in jupyter.  If using spyder,
+# open "src/modelviewprojection/notebooksrc/framebuffer.py", if
+# using jupyter notebook, using jupyter, open "notebook/framebuffer.ipynb"
 #
-# We will be using a fake "framebuffer", just a python class to represent a framebuffer, and see how it works.
+# We will be using a fake "framebuffer", just a python class to
+# represent a framebuffer, and see how it works.
 
 # %%
 # Copyright (c) 2025 William Emerison Six
@@ -48,15 +53,19 @@ import warnings
 import modelviewprojection.mathutils2d as mu2d
 
 # %% [markdown]
-# The module below is our software implementation of a framebuffer, we will use the name "sr" for "software rendering":
+# The module below is our software implementation of a
+# framebuffer, we will use the name "sr" for
+# "software rendering":
 # %%
 import modelviewprojection.softwarerendering as sr
 
 # turn warnings into exceptions
 warnings.filterwarnings("error", category=RuntimeWarning)
 # %% [markdown]
-# Make a framebuffer, which is just a rectangular region of values.  We use keyword arguments to
-# specify that the framebuffer should have a width of 100, and a height of 100
+# Make a framebuffer, which is just a rectangular region of
+# values.  We use keyword arguments to
+# specify that the framebuffer should have a width
+# of 100, and a height of 100
 
 # %%
 # Show initial random framebuffer
@@ -65,7 +74,8 @@ fake_fb.show_framebuffer()
 
 
 # %% [markdown]
-# Well, that looks bad, as there is a bunch of random values for colors in the framebuffer.
+# Well, that looks bad, as there is a bunch of random values
+# for colors in the framebuffer.
 #
 # Draw a triangle in this framebuffer, using screenspace coordinates
 
@@ -116,7 +126,8 @@ fake_fb.show_framebuffer()
 
 
 # %% [markdown]
-# Without clearing (as we want to keep the white triangle, let's draw a red triangle at a different location in screenspace
+# Without clearing (as we want to keep the white triangle, let's
+# draw a red triangle at a different location in screenspace
 
 # %%
 
@@ -163,6 +174,8 @@ fake_fb400.draw_filled_triangle(
 fake_fb400.show_framebuffer()
 
 # %% [markdown]
-# It makes sense that the triangles are in the lower left, OpenGL screenspace starts with 0,0 in the bottom left; the upper right is (width, height)
+# It makes sense that the triangles are in the lower left, OpenGL
+# screenspace starts with 0,0 in the bottom left; the upper
+# right is (width, height)
 
 # %%

@@ -40,8 +40,10 @@
 # Drawing in NDC
 # --------------
 #
-# Similar to the Framebuffer code, this is a notebook in which we will only use software to
-# draw pictures of a framebuffer.  We use Normalized Device Coordinates instead of screenspace,
+# Similar to the Framebuffer code, this is a notebook in which we will
+# only use software to
+# draw pictures of a framebuffer.  We use Normalized Device
+# Coordinates instead of screenspace,
 # and by the end, we will make an animation.
 
 # %%
@@ -86,23 +88,29 @@ fake_fb.show_framebuffer()
 # Problem 2
 # ---------
 #
-# Make a new picture below where the triangle is translated 0.3 units in NDC to the left
+# Make a new picture below where the triangle is translated 0.3 units
+# in NDC to the left
 
 # %% [markdown]
 # Create function from NDC to screenspace
 # ---------------------------------------
 #
-# Create a function to convert from NDC to screen space.  We compose 4 functions to achieve this
+# Create a function to convert from NDC to screen space.  We compose
+# 4 functions to achieve this
 #
-# First, translate x to the right one unit, y up on unit, to make the bottom left of the NDC region be at (0,0)
+# First, translate x to the right one unit, y up on unit, to make
+# the bottom left of the NDC region be at (0,0)
 #
-# Second, since the NDC square is two units wide, scale by 1/2, to make it have a width of 1, and a height of 1.
+# Second, since the NDC square is two units wide, scale by 1/2, to
+# make it have a width of 1, and a height of 1.
 #
 # Third, scale by the width and height of the framebuffer.
 #
-# Fourth, translate -1/2 and -1/2, to make (0,0) of NDC map to the center of the pixel at (0,0)
+# Fourth, translate -1/2 and -1/2, to make (0,0) of NDC map to
+# the center of the pixel at (0,0)
 #
-# Inspired by "Fundamentals of Computer Graphics, Third Edition", by Shirley and Marshner, page 60
+# Inspired by "Fundamentals of Computer Graphics, Third Edition",
+# by Shirley and Marshner, page 60
 
 # %%
 ndc_to_screen: mu2d.InvertibleFunction = mu2d.compose(
@@ -155,7 +163,10 @@ fake_fb.show_framebuffer()
 # Move the Triangle in NDC
 # ------------------------
 #
-# Now, we want to make the triangle move to a different position.  We will use compose to first translate the triangle by 0.5 units of NDC up, and then take the result and convert it from NDC to screenspace
+# Now, we want to make the triangle move to a different
+# position.  We will use compose to first translate the
+# triangle by 0.5 units of NDC up, and then take the
+# result and convert it from NDC to screenspace
 
 # %%
 move: mu2d.InvertibleFunction = mu2d.translate(mu2d.Vector2D(0, 0.5))
@@ -190,7 +201,9 @@ for i in range(sixty_fps_times_2_sec):
     frames.append(fake_fb.framebuffer)
 
 # %% [markdown]
-# Now that we have the frames, we just need to save them to a video.  The details of how this works is a black box to use, it doesn't really matter for our understanding.
+# Now that we have the frames, we just need to save them to a
+# video.  The details of how this works is a black box to
+# use, it doesn't really matter for our understanding.
 
 # %%
 np_frames = [np.array(img) for img in frames]

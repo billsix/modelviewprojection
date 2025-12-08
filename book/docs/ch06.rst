@@ -466,7 +466,7 @@ the respective components together, and create a new Vector2D.
    :caption: src/modelviewprojection/mathutils2d.py
 
 In a Python class, we can overload the '+' symbol, to make
-objects addable, by implementing the :py:meth:`modelviewprojection.mathutils1d.Vector.__add__`
+objects addable, by implementing the :py:meth:`__add__ <modelviewprojection.mathutils1d.Vector.__add__>`
 method.  The definition is just saying pairwise add each component.
 Don't stress about understanding the implementation, look at the
 tests listed after.
