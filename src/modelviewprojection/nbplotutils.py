@@ -69,7 +69,7 @@ axes = None
 @contextlib.contextmanager
 def create_graphs(graph_bounds=(3, 3), title=None, filename=None):
     global axes
-    fig, axes = plt.subplots(figsize=(3, 3))
+    fig, axes = plt.subplots(figsize=graph_bounds)
     axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
     axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
@@ -253,6 +253,7 @@ def draw_ndc(
     square = Polygon(
         list(map(list, vertices)),
         closed=True,
+        fc="none",
         edgecolor="black",
     )
     axes.add_patch(square)

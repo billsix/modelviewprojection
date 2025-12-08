@@ -49,6 +49,7 @@ from modelviewprojection.mathutils2d import (
     compose_intermediate_fns,
 )
 from modelviewprojection.mathutils2d import rotate as R
+from modelviewprojection.mathutils2d import scale as S
 from modelviewprojection.mathutils2d import translate as T
 from modelviewprojection.nbplotutils import (
     create_basis,
@@ -155,16 +156,39 @@ for f in compose_intermediate_fns(
         draw_triangle(fn=f)
 
 # %%
+screen_width = 6
+screen_height = 8
+
 for f in compose_intermediate_fns(
     [
-        R(math.radians(0)),
-        R(math.radians(90.0)),
-        T(Vector2D(x=2.0, y=0.0)),
+        T(Vector2D(-0.5, -0.5)),
+        S(screen_width, screen_height),
+        S(0.5, 0.5),
+        T(Vector2D(x=1.0, y=1.0)),
+    ],
+    relative_basis=False,
+):
+    with create_graphs(graph_bounds=(10, 10)):
+        create_basis(fn=f)
+        create_basis(fn=lambda x: x)
+        draw_ndc(fn=f)
+
+# %%
+screen_width = 6
+screen_height = 8
+
+for f in compose_intermediate_fns(
+    [
+        T(Vector2D(-0.5, -0.5)),
+        S(screen_width, screen_height),
+        S(0.5, 0.5),
+        T(Vector2D(x=1.0, y=1.0)),
     ],
     relative_basis=True,
 ):
-    with create_graphs():
+    with create_graphs(graph_bounds=(10, 10)):
         create_basis(fn=f)
+        create_basis(fn=lambda x: x)
         draw_ndc(fn=f)
 
 # %%
