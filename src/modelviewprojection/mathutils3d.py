@@ -96,7 +96,7 @@ def scale(m_x: float, m_y: float, m_z: float) -> mu.InvertibleFunction:
         assert isinstance(vector, Vector3D)
         return Vector3D(vector.x / m_x, vector.y / m_y, vector.z / m_z)
 
-    return mu.InvertibleFunction(f, f_inv)
+    return mu.InvertibleFunction(f, f_inv, f"S_{{{m_x},{m_y},{m_z}}}")
 
 
 # doc-region-begin define rotate x
@@ -114,7 +114,9 @@ def rotate_x(angle_in_radians: float) -> mu.InvertibleFunction:
 
     r = mu2d.rotate(angle_in_radians)
     return mu.InvertibleFunction(
-        create_rotate_function(r), create_rotate_function(mu.inverse(r))
+        create_rotate_function(r),
+        create_rotate_function(mu.inverse(r)),
+        "R3DX_{{{angle_in_radians}}}",
     )
     # doc-region-end define rotate x
 
@@ -135,7 +137,9 @@ def rotate_y(angle_in_radians: float) -> mu.InvertibleFunction:
 
     r = mu2d.rotate(angle_in_radians)
     return mu.InvertibleFunction(
-        create_rotate_function(r), create_rotate_function(mu.inverse(r))
+        create_rotate_function(r),
+        create_rotate_function(mu.inverse(r)),
+        "R3DY_{{{angle_in_radians}}}",
     )
     # doc-region-end define rotate y
 
@@ -156,7 +160,9 @@ def rotate_z(angle_in_radians: float) -> mu.InvertibleFunction:
 
     r: mu.InvertibleFunction = mu2d.rotate(angle_in_radians)
     return mu.InvertibleFunction(
-        create_rotate_function(r), create_rotate_function(mu.inverse(r))
+        create_rotate_function(r),
+        create_rotate_function(mu.inverse(r)),
+        "R3DZ_{{{angle_in_radians}}}",
     )
     # doc-region-end define rotate z
 
@@ -195,7 +201,7 @@ def ortho(
     def f_inv(vector: mu.Vector) -> mu.Vector:
         return mu.inverse(fn)(vector)
 
-    return mu.InvertibleFunction(f, f_inv)
+    return mu.InvertibleFunction(f, f_inv, "Ortho")
     # doc-region-end define ortho
 
 
@@ -254,7 +260,7 @@ def perspective(
             rectangular_prism.z,
         )
 
-    return mu.InvertibleFunction(f, f_inv)
+    return mu.InvertibleFunction(f, f_inv, "Perspective")
     # doc-region-end define perspective
 
 

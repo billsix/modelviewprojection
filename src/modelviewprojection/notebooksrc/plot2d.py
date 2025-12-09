@@ -43,14 +43,21 @@
 # %%
 import math
 
+from modelviewprojection.mathutils1d import (
+    Vector1D,
+)
 from modelviewprojection.mathutils2d import (
     Vector2D,
     compose,
     compose_intermediate_fns,
+    inverse,
 )
 from modelviewprojection.mathutils2d import rotate as R
 from modelviewprojection.mathutils2d import scale as S
 from modelviewprojection.mathutils2d import translate as T
+from modelviewprojection.mathutils3d import (
+    Vector3D,
+)
 from modelviewprojection.nbplotutils import (
     create_basis,
     create_graphs,
@@ -59,6 +66,30 @@ from modelviewprojection.nbplotutils import (
     draw_screen,
     draw_triangle,
 )
+
+# %%
+T(Vector1D(5))
+
+# %%
+S(5, 6)
+
+# %%
+inverse(T(Vector1D(5)))
+
+# %%
+T(Vector2D(5, 6))
+
+# %%
+T(Vector3D(5, 6, 7))
+
+# %%
+R(5)
+
+# %%
+compose([R(5), T(Vector2D(5, 6))])
+
+# %%
+inverse(compose([R(5), T(Vector2D(5, 6))]))
 
 # %% [markdown]
 # Draw graph paper
@@ -69,12 +100,6 @@ from modelviewprojection.nbplotutils import (
 # to the numbers on the left and on the bottom.
 #
 #
-
-# %%
-with create_graphs():
-    create_basis()
-    create_x_and_y()
-    create_unit_circle()
 
 # %%
 with create_graphs():
