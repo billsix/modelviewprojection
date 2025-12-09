@@ -1,4 +1,5 @@
 * TODO [#1] Model View Projection
+    - [ ] Add explanation of I for identity function, and T, R, etc
     - [ ] Add image to dockerhub
       - [ ] copy code, build it, put in all relavent files
       - [ ] Make sure mounting the source overrides it
