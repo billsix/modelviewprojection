@@ -76,7 +76,10 @@ def create_graphs(graph_bounds=(3, 3), title=None, filename=None):
 
     plt.tight_layout()
 
-    yield
+    yield axes
+
+    fig.patch.set_edgecolor("black")
+    fig.patch.set_linewidth(2)
 
     # make sure the x and y axis are equally proportional in screen space
     plt.gca().set_aspect("equal", adjustable="box")

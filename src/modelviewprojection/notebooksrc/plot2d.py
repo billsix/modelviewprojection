@@ -43,8 +43,6 @@
 # %%
 import math
 
-from IPython.display import Markdown, Math, display
-
 from modelviewprojection.mathutils import (
     identity,
 )
@@ -111,11 +109,11 @@ inverse(compose([R(math.pi / 2), T(Vector2D(5, 6))]))
 
 # %%
 fn = R(math.radians(53.130102))
-with create_graphs():
+with create_graphs() as axes:
     create_basis(fn=fn)
     create_x_and_y(fn=fn)
     create_unit_circle(fn=fn)
-    display(Math(fn._repr_latex_()))
+    axes.set_title(fn._repr_latex_())
 
 
 # %% [markdown]
@@ -129,7 +127,7 @@ with create_graphs():
 
 # %%
 fn = R(math.radians(45.0))
-with create_graphs():
+with create_graphs() as axes:
     create_basis(fn=R(0.0))
     create_x_and_y(fn=R(0.0))
     create_basis(
@@ -143,7 +141,7 @@ with create_graphs():
         ycolor=(1, 1, 0),
     )
     create_unit_circle(fn=fn)
-    display(Math(fn._repr_latex_()))
+    axes.set_title(fn._repr_latex_())
 
 # %% [markdown]
 # Draw relative graph paper, defined by composed functions
@@ -160,13 +158,13 @@ fn = compose(
         T(Vector2D(x=2.0, y=0.0)),
     ]
 )
-with create_graphs():
+with create_graphs() as axes:
     create_basis(
         fn=fn,
     )
     create_x_and_y(fn=fn)
     create_unit_circle(fn=fn)
-    display(Math(fn._repr_latex_()))
+    axes.set_title(fn._repr_latex_())
 
 # %% [markdown]
 # Composed functions, read bottom up
@@ -178,20 +176,18 @@ with create_graphs():
 
 # %%
 for f in compose_intermediate_fns(
-    [R(math.radians(90.0)), T(Vector2D(x=2.0, y=0.0)), identity()]
+    [R(math.radians(90.0)), T(Vector2D(x=1.0, y=0.0)), identity()]
 ):
     # TODO - figure out if I can render the latex as part of one markdown command,
     # if I were to uncomment out this line and other markdown lines,
     # the build of HTML would fail
 
-    # display(Markdown("---"))
-    display(Math(f._repr_latex_()))
-    with create_graphs():
+    with create_graphs() as axes:
         create_basis(fn=f)
         create_x_and_y(fn=f)
         draw_triangle(fn=f)
         create_unit_circle(fn=f)
-
+        axes.set_title(f._repr_latex_())
 
 # %% [markdown]
 # Composed functions, read top down
@@ -207,18 +203,16 @@ for f in compose_intermediate_fns(
     [
         identity(),
         R(math.radians(90.0)),
-        T(Vector2D(x=2.0, y=0.0)),
+        T(Vector2D(x=1.0, y=0.0)),
     ],
     relative_basis=True,
 ):
-    # display(Markdown("---"))
-    display(Math(f._repr_latex_()))
-    with create_graphs():
+    with create_graphs() as axes:
         create_basis(fn=f)
         create_x_and_y(fn=f)
         draw_triangle(fn=f)
         create_unit_circle(fn=f)
-
+        axes.set_title(f._repr_latex_())
 # %%
 screen_width = 4
 screen_height = 3
@@ -233,16 +227,14 @@ for f in compose_intermediate_fns(
     ],
     relative_basis=False,
 ):
-    # display(Markdown("---"))
-    display(Math(f._repr_latex_()))
-    with create_graphs(graph_bounds=(6, 6)):
+    with create_graphs(graph_bounds=(6, 6)) as axes:
         # create_basis(fn=f)
         # create_x_and_y(fn=f)
         create_basis(fn=identity())
         # create_x_and_y(fn=identity())
         # draw_ndc(fn=f)
         draw_screen(width=screen_width, height=screen_height, fn=f)
-
+        axes.set_title(f._repr_latex_())
 # %%
 screen_width = 4
 screen_height = 3
@@ -257,16 +249,14 @@ for f in compose_intermediate_fns(
     ],
     relative_basis=True,
 ):
-    # display(Markdown("---"))
-    display(Math(f._repr_latex_()))
-    with create_graphs(graph_bounds=(6, 6)):
+    with create_graphs(graph_bounds=(6, 6)) as axes:
         # create_basis(fn=f)
         # create_x_and_y(fn=f)
         create_basis(fn=identity())
         # create_x_and_y(fn=identity())
         # draw_ndc(fn=f)
         draw_screen(width=screen_width, height=screen_height, fn=f)
-
+        axes.set_title(f._repr_latex_())
 # %%
 
 # %%
