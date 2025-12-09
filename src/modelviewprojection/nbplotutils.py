@@ -27,6 +27,7 @@ from matplotlib.patches import Polygon
 from matplotlib_inline.backend_inline import set_matplotlib_formats
 
 import modelviewprojection.mathutils2d as mu2d
+from modelviewprojection.mathutils import identity
 
 set_matplotlib_formats("svg")
 
@@ -74,6 +75,7 @@ def create_graphs(graph_bounds=(3, 3), title=None, filename=None):
     axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
 
     plt.tight_layout()
+
     yield
 
     # make sure the x and y axis are equally proportional in screen space
@@ -82,11 +84,14 @@ def create_graphs(graph_bounds=(3, 3), title=None, filename=None):
     axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
     fig.canvas.draw()
     np.array(fig.canvas.renderer.buffer_rgba())
+    plt.show()
+    plt.close()
+
     return fig
 
 
 def create_basis(
-    fn=lambda x: x,
+    fn=identity(),
     graph_bounds=(10, 10),
     gridline_interval=1,
     xcolor=(0.0, 0.0, 1.0),
@@ -107,7 +112,7 @@ def create_basis(
 
 
 def create_unit_circle(
-    fn=lambda x: x,
+    fn=identity(),
 ):
     def generate_circle():
         theta_increment: float = 0.01
@@ -139,7 +144,7 @@ def create_unit_circle(
 
 
 def create_x_and_y(
-    fn=lambda x: x,
+    fn=identity(),
     xcolor=(0.0, 0.0, 1.0),
     ycolor=(1.0, 0.0, 1.0),
 ):
@@ -165,7 +170,7 @@ def create_x_and_y(
 
 
 def draw_triangle(
-    fn=lambda x: x,
+    fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
     x_prime_direction_world_space = fn(mu2d.Vector2D(1.0, 0.0)) - fn(
@@ -231,7 +236,7 @@ def draw_triangle(
 
 
 def draw_ndc(
-    fn=lambda x: x,
+    fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
     x_prime_direction_world_space = fn(mu2d.Vector2D(1.0, 0.0)) - fn(
@@ -294,7 +299,7 @@ def draw_ndc(
 def draw_screen(
     width,
     height,
-    fn=lambda x: x,
+    fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
     d_width = 2.0 / width

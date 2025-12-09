@@ -25,6 +25,7 @@ import numpy as np
 __all__ = [
     "Vector",
     "InvertibleFunction",
+    "identity",
     "inverse",
     "compose",
     "compose_intermediate_fns",
@@ -199,7 +200,8 @@ class InvertibleFunction:
     inverse: typing.Callable[
         [Vector], Vector
     ]  #: The inverse of the wrapped function
-    latex_repr: str  #: The inverse of the wrapped function
+    latex_repr: str  #: The LaTeX representation of the function
+    latex_repr_inv: str  #: The LaTeX representation of the inverse function
     # doc-region-end invertible function members
 
     # doc-region-begin begin call
@@ -227,13 +229,13 @@ class InvertibleFunction:
             >>> def f_inv(x):
             ...     return x - 2
             ...
-            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="")
+            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="", latex_repr_inv="")
             >>> foo # doctest: +ELLIPSIS
-            InvertibleFunction(func=<...>, inverse=<...>, latex_repr=...)
+            InvertibleFunction(func=<...>, inverse=<...>, latex_repr=..., latex_repr_inv=...)
             >>> foo(5)
             7
             >>> inverse(foo) # doctest: +ELLIPSIS
-            InvertibleFunction(func=<...>, inverse=<...>, latex_repr=...)
+            InvertibleFunction(func=<...>, inverse=<...>, latex_repr=..., latex_repr_inv=...)
             >>> inverse(foo)(foo(5))
             5
         """
@@ -264,7 +266,7 @@ class InvertibleFunction:
             >>> def f_inv(x):
             ...     return x - 2
             ...
-            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr=" garbage ")
+            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="", latex_repr_inv="")
             >>> foo(5)
             7
             >>> (foo @ foo)(5)
@@ -306,19 +308,19 @@ def inverse(f: InvertibleFunction) -> InvertibleFunction:
         >>> def f_inv(x):
         ...     return x - 2
         ...
-        >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="")
+        >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="", latex_repr_inv="")
         >>> foo # doctest: +ELLIPSIS
-        InvertibleFunction(func=<...>, inverse=<...>, latex_repr=...)
+        InvertibleFunction(func=<...>, inverse=<...>, latex_repr=..., latex_repr_inv=...)
         >>> foo(5)
         7
         >>> inverse(foo) # doctest: +ELLIPSIS
-        InvertibleFunction(func=<...>, inverse=<...>, latex_repr=...)
+        InvertibleFunction(func=<...>, inverse=<...>, latex_repr=..., latex_repr_inv=...)
         >>> inverse(foo)(foo(5))
         5
     """
 
     # doc-region-begin inverse body
-    return InvertibleFunction(f.inverse, f.func, f"({{{f.latex_repr}}})^{{-1}}")
+    return InvertibleFunction(f.inverse, f.func, f.latex_repr_inv, f.latex_repr)
     # doc-region-end inverse body
 
 
@@ -366,14 +368,21 @@ def compose(
             x: Vector = inverse(f)(x)
         return x
 
-    composed_string: str = ""
+    tex_str: str = ""
     for f in reversed(functions):
-        if composed_string == "":
-            composed_string = f.latex_repr
+        if tex_str == "":
+            tex_str = f.latex_repr
         else:
-            composed_string = f.latex_repr + r" \circ " + composed_string
+            tex_str = f.latex_repr + r" \circ " + tex_str
 
-    return InvertibleFunction(composed_fn, inv_composed_fn, composed_string)
+    inv_str: str = ""
+    for f in functions:
+        if inv_str == "":
+            inv_str = f"{{{f.latex_repr}}}^{{-1}}"
+        else:
+            inv_str = f"{{{f.latex_repr}}}^{{-1}}" + r" \circ " + inv_str
+
+    return InvertibleFunction(composed_fn, inv_composed_fn, tex_str, inv_str)
 
 
 def compose_intermediate_fns(
@@ -467,6 +476,20 @@ def compose_intermediate_fns_and_fn(
     )
 
 
+# doc-region-begin define identity
+def identity() -> InvertibleFunction:
+    def f(vector: Vector) -> Vector:
+        return vector
+
+    def f_inv(vector: Vector) -> Vector:
+        return vector
+
+    tex_str: str = "I"
+    inv_str: str = "I"
+    return InvertibleFunction(f, f_inv, tex_str, inv_str)
+    # doc-region-end define identity
+
+
 # doc-region-begin define translate
 def translate(b: Vector) -> InvertibleFunction:
     def f(vector: Vector) -> Vector:
@@ -476,11 +499,11 @@ def translate(b: Vector) -> InvertibleFunction:
         return vector - b
 
     values = dataclasses.astuple(b)
-    return InvertibleFunction(
-        f,
-        f_inv,
-        f"T_{{<{str(values[0]) if len(values) == 1 else str(values)[1:-1]}>}}",
+    tex_str: str = (
+        f"T_{{<{str(values[0]) if len(values) == 1 else str(values)[1:-1]}>}}"
     )
+    inv_str: str = f"{{{tex_str}}}^{{-1}}"
+    return InvertibleFunction(f, f_inv, tex_str, inv_str)
     # doc-region-end define translate
 
 
@@ -495,5 +518,7 @@ def uniform_scale(m: float) -> InvertibleFunction:
 
         return vector * (1.0 / m)
 
-    return InvertibleFunction(f, f_inv, f"S_{{{m}}}")
+    tex_str: str = f"S_{{{m}}}"
+    inv_str: str = f"({{{tex_str}}})^{{-1}}"
+    return InvertibleFunction(f, f_inv, tex_str, inv_str)
     # doc-region-end define uniform scale

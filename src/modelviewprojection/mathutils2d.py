@@ -79,7 +79,12 @@ def scale(m_x: float, m_y: float) -> mu.InvertibleFunction:
 
         return Vector2D(vector.x / m_x, vector.y / m_y)
 
-    return mu.InvertibleFunction(f, f_inv, f"S_{{<{m_x},{m_y}>}}")
+    return mu.InvertibleFunction(
+        f,
+        f_inv,
+        f"S_{{<{m_x},{m_y}>}}",
+        f"S_{{<\\\frac{{1}}{{{m_x}}},\\\frac{{1}}{{{m_y}>}}",
+    )
 
 
 # doc-region-begin define rotate
@@ -91,7 +96,7 @@ def rotate_90_degrees() -> mu.InvertibleFunction:
     def f_inv(vector: mu.Vector) -> mu.Vector:
         return -f(vector)
 
-    return mu.InvertibleFunction(f, f_inv, "R_90")
+    return mu.InvertibleFunction(f, f_inv, "R_{<xy90>}", "R_{<xy90>}^{-1}")
 
 
 def rotate(angle_in_radians: float) -> mu.InvertibleFunction:
@@ -110,7 +115,8 @@ def rotate(angle_in_radians: float) -> mu.InvertibleFunction:
     return mu.InvertibleFunction(
         create_rotate_function(r90),
         create_rotate_function(mu.inverse(r90)),
-        f"R2D_{{{angle_in_radians}}}",
+        f"R_{{<{angle_in_radians}>}}",
+        f"R_{{<{-angle_in_radians}>}}",
     )
     # doc-region-end define rotate
 

@@ -43,6 +43,11 @@
 # %%
 import math
 
+from IPython.display import Markdown, Math, display
+
+from modelviewprojection.mathutils import (
+    identity,
+)
 from modelviewprojection.mathutils1d import (
     Vector1D,
 )
@@ -83,13 +88,16 @@ T(Vector2D(5, 6))
 T(Vector3D(5, 6, 7))
 
 # %%
-R(5)
+inverse(T(Vector3D(5, 6, 7)))
 
 # %%
-compose([R(5), T(Vector2D(5, 6))])
+R(math.pi / 2)
 
 # %%
-inverse(compose([R(5), T(Vector2D(5, 6))]))
+compose([R(math.pi / 2), T(Vector2D(5, 6))])
+
+# %%
+inverse(compose([R(math.pi / 2), T(Vector2D(5, 6))]))
 
 # %% [markdown]
 # Draw graph paper
@@ -102,11 +110,13 @@ inverse(compose([R(5), T(Vector2D(5, 6))]))
 #
 
 # %%
+fn = R(math.radians(53.130102))
 with create_graphs():
-    fn = R(math.radians(53.130102))
     create_basis(fn=fn)
     create_x_and_y(fn=fn)
     create_unit_circle(fn=fn)
+    display(Math(fn._repr_latex_()))
+
 
 # %% [markdown]
 # Draw relative graph paper
@@ -116,15 +126,14 @@ with create_graphs():
 # but keep the original coordinate system on the left and bottom.
 # Any point in the plane can be described using two different
 # graph papers.
-#
-#
 
 # %%
+fn = R(math.radians(45.0))
 with create_graphs():
     create_basis(fn=R(0.0))
     create_x_and_y(fn=R(0.0))
     create_basis(
-        fn=R(math.radians(45.0)),
+        fn=fn,
         xcolor=(0, 1, 0),
         ycolor=(1, 1, 0),
     )
@@ -134,6 +143,7 @@ with create_graphs():
         ycolor=(1, 1, 0),
     )
     create_unit_circle(fn=fn)
+    display(Math(fn._repr_latex_()))
 
 # %% [markdown]
 # Draw relative graph paper, defined by composed functions
@@ -144,18 +154,19 @@ with create_graphs():
 # in the order that they are applied, or in reverse order
 
 # %%
+fn = compose(
+    [
+        R(math.radians(90.0)),
+        T(Vector2D(x=2.0, y=0.0)),
+    ]
+)
 with create_graphs():
-    fn = compose(
-        [
-            R(math.radians(90.0)),
-            T(Vector2D(x=2.0, y=0.0)),
-        ]
-    )
     create_basis(
         fn=fn,
     )
     create_x_and_y(fn=fn)
     create_unit_circle(fn=fn)
+    display(Math(fn._repr_latex_()))
 
 # %% [markdown]
 # Composed functions, read bottom up
@@ -167,12 +178,10 @@ with create_graphs():
 
 # %%
 for f in compose_intermediate_fns(
-    [
-        R(math.radians(90.0)),
-        T(Vector2D(x=2.0, y=0.0)),
-        lambda x: x,
-    ]
+    [R(math.radians(90.0)), T(Vector2D(x=2.0, y=0.0)), identity()]
 ):
+    display(Markdown("---"))
+    display(Math(f._repr_latex_()))
     with create_graphs():
         create_basis(fn=f)
         create_x_and_y(fn=f)
@@ -192,12 +201,14 @@ for f in compose_intermediate_fns(
 # %%
 for f in compose_intermediate_fns(
     [
-        lambda x: x,
+        identity(),
         R(math.radians(90.0)),
         T(Vector2D(x=2.0, y=0.0)),
     ],
     relative_basis=True,
 ):
+    display(Markdown("---"))
+    display(Math(f._repr_latex_()))
     with create_graphs():
         create_basis(fn=f)
         create_x_and_y(fn=f)
@@ -214,15 +225,17 @@ for f in compose_intermediate_fns(
         S(screen_width, screen_height),
         S(0.5, 0.5),
         T(Vector2D(x=1.0, y=1.0)),
-        lambda x: x,
+        identity(),
     ],
     relative_basis=False,
 ):
+    display(Markdown("---"))
+    display(Math(f._repr_latex_()))
     with create_graphs(graph_bounds=(6, 6)):
         # create_basis(fn=f)
         # create_x_and_y(fn=f)
-        create_basis(fn=lambda x: x)
-        # create_x_and_y(fn=lambda x: x)
+        create_basis(fn=identity())
+        # create_x_and_y(fn=identity())
         # draw_ndc(fn=f)
         draw_screen(width=screen_width, height=screen_height, fn=f)
 
@@ -232,6 +245,7 @@ screen_height = 3
 
 for f in compose_intermediate_fns(
     [
+        identity(),
         T(Vector2D(-0.5, -0.5)),
         S(screen_width, screen_height),
         S(0.5, 0.5),
@@ -239,11 +253,13 @@ for f in compose_intermediate_fns(
     ],
     relative_basis=True,
 ):
+    display(Markdown("---"))
+    display(Math(f._repr_latex_()))
     with create_graphs(graph_bounds=(6, 6)):
         # create_basis(fn=f)
         # create_x_and_y(fn=f)
-        create_basis(fn=lambda x: x)
-        # create_x_and_y(fn=lambda x: x)
+        create_basis(fn=identity())
+        # create_x_and_y(fn=identity())
         # draw_ndc(fn=f)
         draw_screen(width=screen_width, height=screen_height, fn=f)
 
