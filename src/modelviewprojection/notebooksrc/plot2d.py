@@ -180,7 +180,11 @@ with create_graphs():
 for f in compose_intermediate_fns(
     [R(math.radians(90.0)), T(Vector2D(x=2.0, y=0.0)), identity()]
 ):
-    display(Markdown("---"))
+    # TODO - figure out if I can render the latex as part of one markdown command,
+    # if I were to uncomment out this line and other markdown lines,
+    # the build of HTML would fail
+
+    # display(Markdown("---"))
     display(Math(f._repr_latex_()))
     with create_graphs():
         create_basis(fn=f)
@@ -207,7 +211,7 @@ for f in compose_intermediate_fns(
     ],
     relative_basis=True,
 ):
-    display(Markdown("---"))
+    # display(Markdown("---"))
     display(Math(f._repr_latex_()))
     with create_graphs():
         create_basis(fn=f)
@@ -229,7 +233,7 @@ for f in compose_intermediate_fns(
     ],
     relative_basis=False,
 ):
-    display(Markdown("---"))
+    # display(Markdown("---"))
     display(Math(f._repr_latex_()))
     with create_graphs(graph_bounds=(6, 6)):
         # create_basis(fn=f)
@@ -253,7 +257,7 @@ for f in compose_intermediate_fns(
     ],
     relative_basis=True,
 ):
-    display(Markdown("---"))
+    # display(Markdown("---"))
     display(Math(f._repr_latex_()))
     with create_graphs(graph_bounds=(6, 6)):
         # create_basis(fn=f)
