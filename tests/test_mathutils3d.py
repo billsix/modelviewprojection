@@ -20,6 +20,7 @@
 import doctest
 import math
 
+import modelviewprojection.mathutils1d as mu1d
 import modelviewprojection.mathutils3d as mu3d
 from modelviewprojection.mathutils import InvertibleFunction
 
@@ -165,31 +166,45 @@ def test_fn_stack():
     identity: InvertibleFunction = mu3d.uniform_scale(1)
 
     mu3d.fn_stack.push(identity)
-    assert 1 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)
+    assert mu1d.Vector1D(1) == mu3d.fn_stack.modelspace_to_ndc_fn()(
+        mu1d.Vector1D(1)
+    )
 
-    add_one: InvertibleFunction = mu3d.translate(1)
+    add_one: InvertibleFunction = mu3d.translate(mu1d.Vector1D(1))
 
     mu3d.fn_stack.push(add_one)
-    assert 2 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)  # x + 1 = 2
+    assert mu1d.Vector1D(2) == mu3d.fn_stack.modelspace_to_ndc_fn()(
+        mu1d.Vector1D(1)
+    )  # x + 1 = 2
 
     multiply_by_2: InvertibleFunction = mu3d.uniform_scale(2)
 
     mu3d.fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
-    assert 3 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)
+    assert mu1d.Vector1D(3) == mu3d.fn_stack.modelspace_to_ndc_fn()(
+        mu1d.Vector1D(1)
+    )
 
-    add_5: InvertibleFunction = mu3d.translate(5)
+    add_5: InvertibleFunction = mu3d.translate(mu1d.Vector1D(5))
 
     mu3d.fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
-    assert 13 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)
+    assert mu1d.Vector1D(13) == mu3d.fn_stack.modelspace_to_ndc_fn()(
+        mu1d.Vector1D(1)
+    )
 
     mu3d.fn_stack.pop()
-    assert 3 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)  # (x * 2) + 1 = 3
+    assert mu1d.Vector1D(3) == mu3d.fn_stack.modelspace_to_ndc_fn()(
+        mu1d.Vector1D(1)
+    )  # (x * 2) + 1 = 3
 
     mu3d.fn_stack.pop()
-    assert 2 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)  # x + 1 = 2
+    assert mu1d.Vector1D(2) == mu3d.fn_stack.modelspace_to_ndc_fn()(
+        mu1d.Vector1D(1)
+    )  # x + 1 = 2
 
     mu3d.fn_stack.pop()
-    assert 1 == mu3d.fn_stack.modelspace_to_ndc_fn()(1)  # x = 1
+    assert mu1d.Vector1D(1) == mu3d.fn_stack.modelspace_to_ndc_fn()(
+        mu1d.Vector1D(1)
+    )  # x = 1
     # doc-region-end function stack examples definitions
 
 

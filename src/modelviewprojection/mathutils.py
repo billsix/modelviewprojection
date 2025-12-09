@@ -264,14 +264,14 @@ class InvertibleFunction:
             >>> def f_inv(x):
             ...     return x - 2
             ...
-            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="")
+            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr=" garbage ")
             >>> foo(5)
             7
             >>> (foo @ foo)(5)
             9
             >>> inverse(foo @ foo)(5)
             1
-            >>> (foo @ f_inv)(5)
+            >>> (foo @ inverse(foo))(5)
             5
         """
         return compose([self, f2])
@@ -348,14 +348,12 @@ def compose(
         Nothing
     Example:
         >>> from modelviewprojection.mathutils import compose
-        >>> compose([lambda x: 5])(1)
-        5
-        >>> compose([lambda x: 2*x])(1)
-        2
-        >>> compose([lambda x: x+4, lambda x: 2*x])(1)
-        6
-        >>> compose([lambda x: x+ 10, lambda x: x+4, lambda x: 2*x])(1)
-        16
+        >>> from modelviewprojection.mathutils import translate as T
+        >>> from modelviewprojection.mathutils import uniform_scale as S
+        >>> from modelviewprojection.mathutils2d import Vector2D
+        >>> fn = compose([S(2), T(Vector2D(3, 4))])
+        >>> fn(Vector2D(1,1))
+        Vector2D(x=8, y=10)
     """
 
     def composed_fn(x):
