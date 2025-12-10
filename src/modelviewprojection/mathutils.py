@@ -378,9 +378,9 @@ def compose(
     inv_str: str = ""
     for f in functions:
         if inv_str == "":
-            inv_str = f"{{{f.latex_repr}}}^{{-1}}"
+            inv_str = inverse(f).latex_repr
         else:
-            inv_str = f"{{{f.latex_repr}}}^{{-1}}" + r" \circ " + inv_str
+            inv_str = inverse(f).latex_repr + r" \circ " + inv_str
 
     return InvertibleFunction(composed_fn, inv_composed_fn, tex_str, inv_str)
 
@@ -421,13 +421,22 @@ def compose_intermediate_fns(
         >>> fns[1](Vector1D(1))
         Vector1D(x=7.0)
     """
+    functions_with_identity_fn: list[InvertibleFunction] = (
+        [identity()] + functions if relative_basis else functions + [identity()]
+    )
 
     return [
         compose(fs)
         for fs in (
-            [functions[i:] for i in reversed(range(len(functions)))]
+            [
+                functions_with_identity_fn[i:]
+                for i in reversed(range(len(functions_with_identity_fn)))
+            ]
             if not relative_basis
-            else [functions[:i] for i in range(1, len(functions) + 1)]
+            else [
+                functions_with_identity_fn[:i]
+                for i in range(1, len(functions_with_identity_fn) + 1)
+            ]
         )
     ]
 
@@ -500,9 +509,10 @@ def translate(b: Vector) -> InvertibleFunction:
 
     values = dataclasses.astuple(b)
     tex_str: str = (
-        f"T_{{<{str(values[0]) if len(values) == 1 else str(values)[1:-1]}>}}"
+        f"T_{{<[{str(values[0]) if len(values) == 1 else str(values)[1:-1]}]>}}"
     )
-    inv_str: str = f"{{{tex_str}}}^{{-1}}"
+    negative_values = dataclasses.astuple(-b)
+    inv_str: str = f"T_{{<[{str(negative_values[0]) if len(negative_values) == 1 else str(negative_values)[1:-1]}]>}}"
     return InvertibleFunction(f, f_inv, tex_str, inv_str)
     # doc-region-end define translate
 
@@ -519,6 +529,6 @@ def uniform_scale(m: float) -> InvertibleFunction:
         return vector * (1.0 / m)
 
     tex_str: str = f"S_{{{m}}}"
-    inv_str: str = f"({{{tex_str}}})^{{-1}}"
+    inv_str: str = f"S_{{{-m}}}"
     return InvertibleFunction(f, f_inv, tex_str, inv_str)
     # doc-region-end define uniform scale

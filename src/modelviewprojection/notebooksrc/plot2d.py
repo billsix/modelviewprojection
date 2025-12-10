@@ -176,7 +176,7 @@ with create_graphs() as axes:
 
 # %%
 for f in compose_intermediate_fns(
-    [R(math.radians(90.0)), T(Vector2D(x=1.0, y=0.0)), identity()]
+    [R(math.radians(90.0)), T(Vector2D(x=1.0, y=0.0))]
 ):
     # TODO - figure out if I can render the latex as part of one markdown command,
     # if I were to uncomment out this line and other markdown lines,
@@ -201,7 +201,6 @@ for f in compose_intermediate_fns(
 # %%
 for f in compose_intermediate_fns(
     [
-        identity(),
         R(math.radians(90.0)),
         T(Vector2D(x=1.0, y=0.0)),
     ],
@@ -214,8 +213,8 @@ for f in compose_intermediate_fns(
         create_unit_circle(fn=f)
         axes.set_title(f._repr_latex_())
 # %%
-screen_width = 4
-screen_height = 3
+screen_width: int = 4
+screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
@@ -223,7 +222,6 @@ for f in compose_intermediate_fns(
         S(screen_width, screen_height),
         S(0.5, 0.5),
         T(Vector2D(x=1.0, y=1.0)),
-        identity(),
     ],
     relative_basis=False,
 ):
@@ -231,17 +229,16 @@ for f in compose_intermediate_fns(
         # create_basis(fn=f)
         # create_x_and_y(fn=f)
         create_basis(fn=identity())
-        # create_x_and_y(fn=identity())
+        create_x_and_y(fn=identity())
         # draw_ndc(fn=f)
         draw_screen(width=screen_width, height=screen_height, fn=f)
         axes.set_title(f._repr_latex_())
 # %%
-screen_width = 4
-screen_height = 3
+screen_width: int = 4
+screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
-        identity(),
         T(Vector2D(-0.5, -0.5)),
         S(screen_width, screen_height),
         S(0.5, 0.5),
@@ -253,7 +250,7 @@ for f in compose_intermediate_fns(
         # create_basis(fn=f)
         # create_x_and_y(fn=f)
         create_basis(fn=identity())
-        # create_x_and_y(fn=identity())
+        create_x_and_y(fn=f)
         # draw_ndc(fn=f)
         draw_screen(width=screen_width, height=screen_height, fn=f)
         axes.set_title(f._repr_latex_())

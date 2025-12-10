@@ -23,6 +23,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
+from IPython.display import display
 from matplotlib.patches import Polygon
 from matplotlib_inline.backend_inline import set_matplotlib_formats
 
@@ -87,7 +88,7 @@ def create_graphs(graph_bounds=(3, 3), title=None, filename=None):
     axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
     fig.canvas.draw()
     np.array(fig.canvas.renderer.buffer_rgba())
-    plt.show()
+    display(fig)
     plt.close()
 
     return fig
