@@ -125,9 +125,9 @@ class Vector:
 
         Example:
             >>> from modelviewprojection.mathutils1d import Vector1D
-            >>> a = Vector1D(x=2.0)
+            >>> a = Vector1D(x=2)
             >>> -a
-            Vector1D(x=-2.0)
+            Vector1D(x=-2)
         """
         return -1 * self
 
@@ -144,10 +144,10 @@ class Vector:
 
         Example:
             >>> from modelviewprojection.mathutils1d import Vector1D
-            >>> a = Vector1D(x=2.0)
-            >>> b = Vector1D(x=5.0)
+            >>> a = Vector1D(x=2)
+            >>> b = Vector1D(x=5)
             >>> a - b
-            Vector1D(x=-3.0)
+            Vector1D(x=-3)
         """
         # doc-region-begin define subtract
         return self + -rhs
@@ -398,28 +398,32 @@ def compose_intermediate_fns(
         >>> from modelviewprojection.mathutils import translate
         >>> from modelviewprojection.mathutils1d import Vector1D
         >>> from pytest import approx
-        >>> m = 5.0
-        >>> b = 2.0
+        >>> m = 5
+        >>> b = 2
         >>> # natural basis
         >>> fns: list[InvertibleFunction] = compose_intermediate_fns(
         ...      [translate(Vector1D(b)), uniform_scale(m)]
         ... )
         >>> len(fns)
-        2
+        3
         >>> fns[0](Vector1D(1))
-        Vector1D(x=5.0)
+        Vector1D(x=1)
         >>> fns[1](Vector1D(1))
-        Vector1D(x=7.0)
+        Vector1D(x=5)
+        >>> fns[2](Vector1D(1))
+        Vector1D(x=7)
         >>> # relative basis
         >>> fns: list[InvertibleFunction] = compose_intermediate_fns(
         ...     [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True
         ... )
         >>> len(fns)
-        2
+        3
         >>> fns[0](Vector1D(1))
-        Vector1D(x=3.0)
+        Vector1D(x=1)
         >>> fns[1](Vector1D(1))
-        Vector1D(x=7.0)
+        Vector1D(x=3)
+        >>> fns[2](Vector1D(1))
+        Vector1D(x=7)
     """
     functions_with_identity_fn: list[InvertibleFunction] = (
         [identity()] + functions if relative_basis else functions + [identity()]
@@ -454,33 +458,37 @@ def compose_intermediate_fns_and_fn(
         >>> from modelviewprojection.mathutils import translate
         >>> from modelviewprojection.mathutils1d import Vector1D
         >>> from pytest import approx
-        >>> m = 5.0
-        >>> b = 2.0
+        >>> m = 5
+        >>> b = 2
         >>> # natural basis
         >>> for aggregate_fn, current_fn in compose_intermediate_fns_and_fn(
         ...      [translate(Vector1D(b)), uniform_scale(m)]):
-        ...      print("agg " + str(aggregate_fn(Vector1D(1.0))))
-        ...      print("current " + str(current_fn(Vector1D(1.0))))
+        ...      print("agg " + str(aggregate_fn(Vector1D(1))))
+        ...      print("current " + str(current_fn(Vector1D(1))))
         ...
-        agg Vector1D(x=5.0)
-        current Vector1D(x=5.0)
-        agg Vector1D(x=7.0)
-        current Vector1D(x=3.0)
+        agg Vector1D(x=1)
+        current Vector1D(x=5)
+        agg Vector1D(x=5)
+        current Vector1D(x=3)
+        agg Vector1D(x=7)
+        current Vector1D(x=1)
         >>> # relative basis
         >>> for aggregate_fn, current_fn in compose_intermediate_fns_and_fn(
         ...      [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True):
-        ...      print("agg " + str(aggregate_fn(Vector1D(1.0))))
-        ...      print("current " + str(current_fn(Vector1D(1.0))))
+        ...      print("agg " + str(aggregate_fn(Vector1D(1))))
+        ...      print("current " + str(current_fn(Vector1D(1))))
         ...
-        agg Vector1D(x=3.0)
-        current Vector1D(x=3.0)
-        agg Vector1D(x=7.0)
-        current Vector1D(x=5.0)
+        agg Vector1D(x=1)
+        current Vector1D(x=1)
+        agg Vector1D(x=3)
+        current Vector1D(x=3)
+        agg Vector1D(x=7)
+        current Vector1D(x=5)
     """
     return list(
         zip(
             compose_intermediate_fns(functions, relative_basis=relative_basis),
-            functions if relative_basis else reversed(functions),
+            [identity()] + functions if relative_basis else reversed([identity()] + functions),
         )
     )
 
