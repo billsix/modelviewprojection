@@ -66,8 +66,10 @@ from modelviewprojection.nbplotutils import (
     create_graphs,
     create_unit_circle,
     create_x_and_y,
+    draw_isoceles_triangle,
+    draw_right_triangle,
     draw_screen,
-    draw_triangle,
+    draw_second_right_triangle,
 )
 
 # %%
@@ -143,6 +145,37 @@ with create_graphs(graph_bounds=(5, 5)) as axes:
     create_unit_circle(fn=fn)
     axes.set_title(fn._repr_latex_())
 
+
+# %% [markdown]
+# Draw relative graph paper
+# -------------------------
+#
+# Draw two relative number lines, making a relative graph paper,
+# but keep the original coordinate system on the left and bottom.
+# Any point in the plane can be described using two different
+# graph papers.
+
+# %%
+fn = R(math.radians(53.130102))
+with create_graphs(graph_bounds=(5, 5)) as axes:
+    create_basis(fn=R(0.0))
+    create_x_and_y(fn=R(0.0))
+    create_basis(
+        fn=fn,
+        xcolor=(0, 1, 0),
+        ycolor=(1, 1, 0),
+    )
+    create_x_and_y(
+        fn=fn,
+        xcolor=(0, 1, 0),
+        ycolor=(1, 1, 0),
+    )
+    create_unit_circle(fn=fn)
+    draw_right_triangle()
+    draw_second_right_triangle()
+    axes.set_title(fn._repr_latex_())
+
+
 # %% [markdown]
 # Draw relative graph paper, defined by composed functions
 # --------------------------------------------------------
@@ -185,7 +218,7 @@ for f in compose_intermediate_fns(
     with create_graphs() as axes:
         create_basis(fn=f)
         create_x_and_y(fn=f)
-        draw_triangle(fn=f)
+        draw_isoceles_triangle(fn=f)
         create_unit_circle(fn=f)
         axes.set_title(f._repr_latex_())
 
@@ -209,7 +242,7 @@ for f in compose_intermediate_fns(
     with create_graphs() as axes:
         create_basis(fn=f)
         create_x_and_y(fn=f)
-        draw_triangle(fn=f)
+        draw_isoceles_triangle(fn=f)
         create_unit_circle(fn=f)
         axes.set_title(f._repr_latex_())
 # %%
@@ -254,6 +287,3 @@ for f in compose_intermediate_fns(
         # draw_ndc(fn=f)
         draw_screen(width=screen_width, height=screen_height, fn=f)
         axes.set_title(f._repr_latex_())
-# %%
-
-# %%

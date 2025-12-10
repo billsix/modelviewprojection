@@ -173,7 +173,7 @@ def create_x_and_y(
     )
 
 
-def draw_triangle(
+def draw_isoceles_triangle(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
@@ -237,6 +237,126 @@ def draw_triangle(
 # ax.annotate('Rotated Annotation', xy=(0.5, 0.5), xytext=(0.7, 0.3),
 #             arrowprops=dict(facecolor='black', shrink=0.05),
 #             rotation=45)
+
+
+def draw_second_right_triangle(
+    fn=identity(),
+    color=(0.0, 0.0, 1.0),
+):
+    x_prime_direction_world_space = fn(mu2d.Vector2D(1.0, 0.0)) - fn(
+        mu2d.Vector2D(0.0, 0.0)
+    )
+    x_world_space = mu2d.Vector2D(1.0, 0.0)
+    y_prime_direction_world_space = fn(mu2d.Vector2D(0.0, 1.0)) - fn(
+        mu2d.Vector2D(0.0, 0.0)
+    )
+    angle_radians = math.atan2(
+        mu2d.sine(x_world_space, x_prime_direction_world_space),
+        mu2d.cosine(x_world_space, x_prime_direction_world_space),
+    )
+    label_offset = (
+        0.0 * x_prime_direction_world_space
+        + 0.20 * y_prime_direction_world_space
+    )
+
+    vertices = [
+        fn(v)
+        for v in [
+            mu2d.Vector2D(0.0, 0.0),
+            mu2d.Vector2D(-4.0, 0.0),
+            mu2d.Vector2D(-4.0, 3.0),
+        ]
+    ]
+
+    triangle = Polygon(
+        list(map(list, vertices)),
+        closed=True,
+        facecolor="lightblue",
+        edgecolor="black",
+    )
+    axes.add_patch(triangle)
+
+    vertices_as_np = np.array(list(map(list, vertices)))
+    # Plot dots at the vertices
+    axes.scatter(
+        vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
+    )  # zorder ensures dots are on top
+
+    # Label each vertex
+    labels = ["(0,0)", "(-4,0)", "(-4,3)"]
+    for i, label in enumerate(labels):
+        # Use plt.annotate to place the label near the point
+        plt.annotate(
+            label,
+            xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
+            xytext=(
+                vertices_as_np[i, 0] - label_offset.x,
+                vertices_as_np[i, 1] + label_offset.y,
+            ),
+            rotation=math.degrees(angle_radians),
+            rotation_mode="anchor",
+            zorder=6,
+        )
+
+
+def draw_right_triangle(
+    fn=identity(),
+    color=(0.0, 0.0, 1.0),
+):
+    x_prime_direction_world_space = fn(mu2d.Vector2D(1.0, 0.0)) - fn(
+        mu2d.Vector2D(0.0, 0.0)
+    )
+    x_world_space = mu2d.Vector2D(1.0, 0.0)
+    y_prime_direction_world_space = fn(mu2d.Vector2D(0.0, 1.0)) - fn(
+        mu2d.Vector2D(0.0, 0.0)
+    )
+    angle_radians = math.atan2(
+        mu2d.sine(x_world_space, x_prime_direction_world_space),
+        mu2d.cosine(x_world_space, x_prime_direction_world_space),
+    )
+    label_offset = (
+        0.0 * x_prime_direction_world_space
+        + 0.20 * y_prime_direction_world_space
+    )
+
+    vertices = [
+        fn(v)
+        for v in [
+            mu2d.Vector2D(0.0, 0.0),
+            mu2d.Vector2D(3.0, 0.0),
+            mu2d.Vector2D(3.0, 4.0),
+        ]
+    ]
+
+    triangle = Polygon(
+        list(map(list, vertices)),
+        closed=True,
+        facecolor="lightblue",
+        edgecolor="black",
+    )
+    axes.add_patch(triangle)
+
+    vertices_as_np = np.array(list(map(list, vertices)))
+    # Plot dots at the vertices
+    axes.scatter(
+        vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
+    )  # zorder ensures dots are on top
+
+    # Label each vertex
+    labels = ["(0,0)", "(3,0)", "(3,4)"]
+    for i, label in enumerate(labels):
+        # Use plt.annotate to place the label near the point
+        plt.annotate(
+            label,
+            xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
+            xytext=(
+                vertices_as_np[i, 0] + label_offset.x,
+                vertices_as_np[i, 1] + label_offset.y,
+            ),
+            rotation=math.degrees(angle_radians),
+            rotation_mode="anchor",
+            zorder=6,
+        )
 
 
 def draw_ndc(
