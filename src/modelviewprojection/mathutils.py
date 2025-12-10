@@ -488,7 +488,9 @@ def compose_intermediate_fns_and_fn(
     return list(
         zip(
             compose_intermediate_fns(functions, relative_basis=relative_basis),
-            [identity()] + functions if relative_basis else reversed([identity()] + functions),
+            [identity()] + functions
+            if relative_basis
+            else reversed([identity()] + functions),
         )
     )
 
