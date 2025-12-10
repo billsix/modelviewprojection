@@ -109,7 +109,7 @@ inverse(compose([R(math.pi / 2), T(Vector2D(5, 6))]))
 
 # %%
 fn = R(math.radians(53.130102))
-with create_graphs() as axes:
+with create_graphs(graph_bounds=(5, 5)) as axes:
     create_basis(fn=fn)
     create_x_and_y(fn=fn)
     create_unit_circle(fn=fn)
@@ -126,8 +126,8 @@ with create_graphs() as axes:
 # graph papers.
 
 # %%
-fn = R(math.radians(45.0))
-with create_graphs() as axes:
+fn = R(math.radians(53.130102))
+with create_graphs(graph_bounds=(5, 5)) as axes:
     create_basis(fn=R(0.0))
     create_x_and_y(fn=R(0.0))
     create_basis(
@@ -136,7 +136,7 @@ with create_graphs() as axes:
         ycolor=(1, 1, 0),
     )
     create_x_and_y(
-        fn=R(math.radians(45.0)),
+        fn=fn,
         xcolor=(0, 1, 0),
         ycolor=(1, 1, 0),
     )
