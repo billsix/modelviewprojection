@@ -70,12 +70,9 @@ class Vector:
 
         Args:
             rhs (Vector): The vector on the right hand side of the addition
-                            symbol
+                symbol
         Returns:
-            Vector: The Vector that represents the additon of the two
-                    input Vectors
-        Raises:
-            Nothing
+            Vector: The Vector that represents the additon of the two input Vectors
         Example:
             >>> from modelviewprojection.mathutils import Vector1D
             >>> a = Vector1D(x=2)
@@ -115,13 +112,10 @@ class Vector:
 
         Args:
             rhs (Vector): The scalar to be multiplied to the Vector's component
-                          subtraction symbol
+                subtraction symbol
         Returns:
-            Vector: The Vector that represents scalar times the amount of the input
-                    Vector
+            Vector: The Vector that represents scalar times the amount of the input Vector
 
-        Raises:
-            Nothing
         Example:
             >>> from modelviewprojection.mathutils import Vector1D
             >>> a = Vector1D(x=2)
@@ -273,13 +267,10 @@ class InvertibleFunction:
 
         Args:
             f2 (mathutils.InvertibleFunction): A function that self is composed with
-                                               and returns a value of the same type
-                                               Vector.
+                and returns a value of the same type Vector.
         Returns:
             InvertibleFunction: The composed function.
 
-        Raises:
-            Nothing
         Example:
             >>> from modelviewprojection.mathutils import InvertibleFunction
             >>> from modelviewprojection.mathutils import inverse
@@ -316,12 +307,9 @@ def inverse(f: InvertibleFunction) -> InvertibleFunction:
 
     Args:
         f: InvertibleFunction: A function with it's associated inverse
-           function.
+            function.
     Returns:
-        InvertibleFunction: The Inverse of the function
-           function.
-    Raises:
-        Nothing
+        InvertibleFunction: The Inverse of the function.
     Example:
         >>> from modelviewprojection.mathutils import InvertibleFunction
         >>> from modelviewprojection.mathutils import inverse
@@ -361,16 +349,13 @@ def compose(
 
         :math:`(f_1 \\circ (f_2 \\circ (... f_n )(x) = f_1(f_2...(f_n(x))`.
 
-
     Args:
         functions (list[InvertibleFunction]): Variable number of
-                                                     InvertibleFunctions to compose.
-                                                     At least on value must be provided.
+            InvertibleFunctions to compose.  At least on value must be provided.
+
     Returns:
-        Vector: One function that is the aggregate function of the argument
-                functions composed.
-    Raises:
-        Nothing
+        Vector: One function that is the aggregate function.
+
     Example:
         >>> from modelviewprojection.mathutils import compose
         >>> from modelviewprojection.mathutils import translate as T
