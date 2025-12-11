@@ -236,15 +236,13 @@ class InvertibleFunction:
         Execute a function with the given value.
 
         Args:
-            func (typing.Callable[[Vector], Vector]): A function that takes a value of
-                                                      type Vector and returns a value
-                                                      of the same type Vector.
+            func (typing.Callable[[Vector], Vector]): A function that takes a
+                value of type Vector and returns a value of the same type Vector.
             value (Vector): The input value to pass to the function
         Returns:
-            Vector: The result of calling func(value). Will be the same type as the
-                input value.
-        Raises:
-            Nothing
+            Vector: The result of calling func(value).
+
+            Will be the same type as the input value.
         Example:
             >>> from modelviewprojection.mathutils import InvertibleFunction
             >>> from modelviewprojection.mathutils import inverse
