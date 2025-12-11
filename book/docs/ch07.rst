@@ -300,21 +300,21 @@ Therefore
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define rotate
    :end-before: doc-region-end define rotate
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils.py
 
 
 

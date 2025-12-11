@@ -239,7 +239,7 @@ Right calculation based off of Top and aspect ration
            |                                                     |    width/height, not necessarily the
            -------------------------------------------------------    window's
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
@@ -253,7 +253,7 @@ Right calculation based off of Top and aspect ration
 
    ...
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define perspective
    :end-before: doc-region-end define perspective

@@ -53,7 +53,7 @@ import IPython.display
 import moviepy
 import numpy as np
 
-import modelviewprojection.mathutils2d as mu2d
+import modelviewprojection.mathutils as mu2d
 import modelviewprojection.softwarerendering as sr
 
 # turn warnings into exceptions

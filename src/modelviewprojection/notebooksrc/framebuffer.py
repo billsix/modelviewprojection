@@ -50,7 +50,7 @@
 
 import warnings
 
-import modelviewprojection.mathutils2d as mu2d
+import modelviewprojection.mathutils as mu2d
 
 # %% [markdown]
 # The module below is our software implementation of a

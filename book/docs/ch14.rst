@@ -124,13 +124,13 @@ Description
 * starting on the z axis, rotating to x axis, thumb is on the positive y axis.
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils3d
+   :caption: src/modelviewprojection/mathutils
 
 
 Rotate Z
@@ -147,13 +147,13 @@ the z component at all.
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define rotate z
    :end-before: doc-region-end define rotate z
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils3d.py
+   :caption: src/modelviewprojection/mathutils.py
 
 
 Rotate X
@@ -168,13 +168,13 @@ Rotate X
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define rotate x
    :end-before: doc-region-end define rotate x
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils3d.py
+   :caption: src/modelviewprojection/mathutils.py
 
 
 
@@ -188,13 +188,13 @@ Rotate Y
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define rotate y
    :end-before: doc-region-end define rotate y
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils3d.py
+   :caption: src/modelviewprojection/mathutils.py
 
 
 Scale

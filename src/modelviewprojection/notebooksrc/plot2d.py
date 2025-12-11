@@ -44,23 +44,17 @@
 import math
 
 from modelviewprojection.mathutils import (
-    identity,
-)
-from modelviewprojection.mathutils1d import (
     Vector1D,
-)
-from modelviewprojection.mathutils2d import (
     Vector2D,
+    Vector3D,
     compose,
     compose_intermediate_fns,
+    identity,
     inverse,
 )
-from modelviewprojection.mathutils2d import rotate as R
-from modelviewprojection.mathutils2d import scale as S
-from modelviewprojection.mathutils2d import translate as T
-from modelviewprojection.mathutils3d import (
-    Vector3D,
-)
+from modelviewprojection.mathutils import rotate as R
+from modelviewprojection.mathutils import scale as S
+from modelviewprojection.mathutils import translate as T
 from modelviewprojection.nbplotutils import (
     create_basis,
     create_graphs,

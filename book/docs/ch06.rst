@@ -450,20 +450,20 @@ and convert them to NDC.
     \end{bmatrix}
 
 Modelviewprojection comes with a math library, the 2D version is
-named "mathutils2d.py".  The main class in this module is "Vector2D",
+named "mathutils.py".  The main class in this module is "Vector2D",
 which has two components: and x value, and a y value.  To add a vector2d
 to another one on the right hand side of the '+' symbol, we just add
 the respective components together, and create a new Vector2D.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils2d.py
+   :caption: src/modelviewprojection/mathutils.py
 
 In a Python class, we can overload the '+' symbol, to make
 objects addable, by implementing the :py:meth:`__add__ <modelviewprojection.mathutils.Vector.__add__>`
@@ -546,13 +546,13 @@ holds onto the second function, for later use to be able to undo the function's
 application.
 
 
-.. literalinclude:: ../../tests/test_mathutils2d.py
+.. literalinclude:: ../../tests/test_mathutils.py
    :language: python
    :start-after: doc-region-begin translate test
    :end-before: doc-region-end translate test
    :linenos:
    :lineno-match:
-   :caption: tests/test_mathutils2d.py
+   :caption: tests/test_mathutils.py
 
 The above is a unit test that shows how the translate function can be used.
 We call "translate", a function which takes a translate amount, both in the x

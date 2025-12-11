@@ -23,9 +23,9 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils2d as mu2d
-from modelviewprojection.mathutils2d import translate as T
-from modelviewprojection.mathutils2d import uniform_scale as S
+import modelviewprojection.mathutils as mu2d
+from modelviewprojection.mathutils import translate as T
+from modelviewprojection.mathutils import uniform_scale as S
 
 if not glfw.init():
     sys.exit()

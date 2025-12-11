@@ -23,7 +23,7 @@ import numpy as np
 import PIL
 import PIL.Image
 
-import modelviewprojection.mathutils2d as mu2d
+import modelviewprojection.mathutils as mu2d
 
 BLACK: typing.Tuple[int, int, int] = (0, 0, 0)
 WHITE: typing.Tuple[int, int, int] = (255, 255, 255)

@@ -185,13 +185,13 @@ a vector to another vector, through the "modelspace_to_ndc" method.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define function stack class
    :end-before: doc-region-end define function stack class
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils3d
+   :caption: src/modelviewprojection/mathutils
 
 
 Define four functions, which we will compose on the stack.
@@ -199,13 +199,13 @@ Define four functions, which we will compose on the stack.
 Push identity onto the stack, which will will never pop off of the stack.
 
 
-.. literalinclude:: ../../tests/test_mathutils3d.py
+.. literalinclude:: ../../tests/test_mathutils.py
    :language: python
    :start-after: doc-region-begin function stack examples definitions
    :end-before: doc-region-end function stack examples definitions
    :linenos:
    :lineno-match:
-   :caption: tests/test_mathutils3d.py
+   :caption: tests/test_mathutils.py
 
 
 

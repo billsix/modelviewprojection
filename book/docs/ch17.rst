@@ -297,26 +297,26 @@ relative to camera space down to NDC, by moving the center of the rectangular
 prism to the origin, and scaling by the inverse of the width, height, and depth
 of the viewable region.
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define ortho
    :end-before: doc-region-end define ortho
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils3d.py
+   :caption: src/modelviewprojection/mathutils.py
 
 
 
 We will make a wrapper function camera_space_to_ndc_space_fn which
 calls ortho, setting the size of the rectangular prism.
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils3d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define camera space to ndc
    :end-before: doc-region-end define camera space to ndc
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils3d.py
+   :caption: src/modelviewprojection/mathutils.py
 
 
 

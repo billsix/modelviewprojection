@@ -91,7 +91,7 @@ Code
 Data Structures
 ~~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils2d.py
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define vector class
    :end-before: doc-region-end define vector class
@@ -110,7 +110,7 @@ import them and try the methods
 
 .. code:: Python
 
-       >>> from modelviewprojection.mathutils2d import Vector
+       >>> from modelviewprojection.mathutils import Vector
        >>> a = demo.Vector(x=1,y=2)
        >>> a.translate(demo.Vector(x=3,y=4))
        Vector(x=4, y=6)
@@ -120,7 +120,7 @@ arguments, the code might look like this:
 
 .. code:: Python
 
-       >>> from modelviewprojection.mathutils2d import Vector
+       >>> from modelviewprojection.mathutils import Vector
        >>> a = demo.Vector(1,2)
        >>> a.translate(demo.Vector(x=3,y=4))
        Vector(x=4, y=6)

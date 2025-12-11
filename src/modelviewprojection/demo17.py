@@ -23,7 +23,7 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils3d as mu3d
+import modelviewprojection.mathutils as mu3d
 
 if not glfw.init():
     sys.exit()

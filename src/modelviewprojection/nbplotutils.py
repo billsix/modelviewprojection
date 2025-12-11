@@ -27,7 +27,7 @@ from IPython.display import display
 from matplotlib.patches import Polygon
 from matplotlib_inline.backend_inline import set_matplotlib_formats
 
-import modelviewprojection.mathutils2d as mu2d
+import modelviewprojection.mathutils as mu2d
 from modelviewprojection.mathutils import identity
 
 set_matplotlib_formats("svg")
