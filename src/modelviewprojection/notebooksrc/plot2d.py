@@ -43,6 +43,8 @@
 # %%
 import math
 
+import sympy
+
 from modelviewprojection.mathutils import (
     Vector1D,
     Vector2D,
@@ -53,7 +55,7 @@ from modelviewprojection.mathutils import (
     inverse,
 )
 from modelviewprojection.mathutils import rotate as R
-from modelviewprojection.mathutils import scale as S
+from modelviewprojection.mathutils import scale_non_uniform_2d as S
 from modelviewprojection.mathutils import translate as T
 from modelviewprojection.nbplotutils import (
     create_basis,
@@ -85,13 +87,13 @@ T(Vector3D(5, 6, 7))
 inverse(T(Vector3D(5, 6, 7)))
 
 # %%
-R(math.pi / 2)
+R(sympy.pi / 2)
 
 # %%
-compose([R(math.pi / 2), T(Vector2D(5, 6))])
+compose([R(sympy.pi / 2), T(Vector2D(5, 6))])
 
 # %%
-inverse(compose([R(math.pi / 2), T(Vector2D(5, 6))]))
+inverse(compose([R(sympy.pi / 2), T(Vector2D(5, 6))]))
 
 # %% [markdown]
 # Draw graph paper
@@ -181,7 +183,7 @@ with create_graphs(graph_bounds=(5, 5)) as axes:
 # %%
 fn = compose(
     [
-        R(math.radians(90.0)),
+        R(sympy.pi / 4),
         T(Vector2D(x=2.0, y=0.0)),
     ]
 )
@@ -202,9 +204,7 @@ with create_graphs() as axes:
 # units on the left and bottom.
 
 # %%
-for f in compose_intermediate_fns(
-    [R(math.radians(90.0)), T(Vector2D(x=1.0, y=0.0))]
-):
+for f in compose_intermediate_fns([R(sympy.pi / 4), T(Vector2D(x=2.0, y=0.0))]):
     # TODO - figure out if I can render the latex as part of one markdown command,
     # if I were to uncomment out this line and other markdown lines,
     # the build of HTML would fail
@@ -212,8 +212,10 @@ for f in compose_intermediate_fns(
     with create_graphs() as axes:
         create_basis(fn=f)
         create_x_and_y(fn=f)
+        create_x_and_y()
         draw_isoceles_triangle(fn=f)
         create_unit_circle(fn=f)
+        create_unit_circle()
         axes.set_title(f._repr_latex_())
 
 # %% [markdown]
@@ -228,7 +230,7 @@ for f in compose_intermediate_fns(
 # %%
 for f in compose_intermediate_fns(
     [
-        R(math.radians(90.0)),
+        R(sympy.pi / 4),
         T(Vector2D(x=1.0, y=0.0)),
     ],
     relative_basis=True,
@@ -281,3 +283,7 @@ for f in compose_intermediate_fns(
         # draw_ndc(fn=f)
         draw_screen(width=screen_width, height=screen_height, fn=f)
         axes.set_title(f._repr_latex_())
+
+# %%
+
+# %%

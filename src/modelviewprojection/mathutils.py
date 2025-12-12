@@ -24,6 +24,7 @@ import typing
 
 import numpy as np
 import pytest
+import sympy
 
 __all__ = [
     "Vector",
@@ -48,7 +49,7 @@ __all__ = [
     "Vector3D",
     "cos",
     "abs_sin",
-    "scale",
+    "scale_non_uniform_3d",
     "rotate_x",
     "rotate_y",
     "rotate_z",
@@ -621,8 +622,10 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
         perp: InvertibleFunction,
     ) -> typing.Callable[[Vector], Vector]:
         def f(vector: Vector) -> Vector:
-            parallel: Vector = math.cos(angle_in_radians) * vector
-            perpendicular: Vector = math.sin(angle_in_radians) * perp(vector)
+            parallel: Vector = math.cos(float(angle_in_radians)) * vector
+            perpendicular: Vector = math.sin(float(angle_in_radians)) * perp(
+                vector
+            )
             return parallel + perpendicular
 
         return f
@@ -630,8 +633,8 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
     return InvertibleFunction(
         create_rotate_function(r90),
         create_rotate_function(inverse(r90)),
-        f"R_{{<{angle_in_radians}>}}",
-        f"R_{{<{-angle_in_radians}>}}",
+        f"R_{{<{sympy.latex(angle_in_radians)}>}}",
+        f"R_{{<{sympy.latex(-angle_in_radians)}>}}",
     )
     # doc-region-end define rotate
 
