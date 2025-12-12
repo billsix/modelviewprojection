@@ -50,7 +50,7 @@
 
 import warnings
 
-import modelviewprojection.mathutils as mu2d
+import modelviewprojection.mathutils as mu
 
 # %% [markdown]
 # The module below is our software implementation of a
@@ -82,9 +82,9 @@ fake_fb.show_framebuffer()
 # %%
 # Example: draw a white triangle
 fake_fb.draw_filled_triangle(
-    mu2d.Vector2D(50, 50),
-    mu2d.Vector2D(50, 70),
-    mu2d.Vector2D(70, 70),
+    mu.Vector2D(50, 50),
+    mu.Vector2D(50, 70),
+    mu.Vector2D(70, 70),
     color=sr.WHITE,
 )
 fake_fb.show_framebuffer()
@@ -117,9 +117,9 @@ fake_fb.show_framebuffer()
 # Example: draw a white triangle
 fake_fb.clear_framebuffer()
 fake_fb.draw_filled_triangle(
-    mu2d.Vector2D(50, 50),
-    mu2d.Vector2D(50, 70),
-    mu2d.Vector2D(70, 70),
+    mu.Vector2D(50, 50),
+    mu.Vector2D(50, 70),
+    mu.Vector2D(70, 70),
     color=sr.WHITE,
 )
 fake_fb.show_framebuffer()
@@ -133,9 +133,9 @@ fake_fb.show_framebuffer()
 
 # draw a red triangle
 fake_fb.draw_filled_triangle(
-    mu2d.Vector2D(50, 50),
-    mu2d.Vector2D(30, 50),
-    mu2d.Vector2D(30, 30),
+    mu.Vector2D(50, 50),
+    mu.Vector2D(30, 50),
+    mu.Vector2D(30, 30),
     color=sr.RED,
 )
 fake_fb.show_framebuffer()
@@ -158,17 +158,17 @@ fake_fb400.show_framebuffer()
 # Example: draw a white triangle
 fake_fb400.clear_framebuffer()
 fake_fb400.draw_filled_triangle(
-    mu2d.Vector2D(50, 50),
-    mu2d.Vector2D(50, 70),
-    mu2d.Vector2D(70, 70),
+    mu.Vector2D(50, 50),
+    mu.Vector2D(50, 70),
+    mu.Vector2D(70, 70),
     color=sr.WHITE,
 )
 fake_fb400.show_framebuffer()
 
 fake_fb400.draw_filled_triangle(
-    mu2d.Vector2D(50, 50),
-    mu2d.Vector2D(30, 50),
-    mu2d.Vector2D(30, 30),
+    mu.Vector2D(50, 50),
+    mu.Vector2D(30, 50),
+    mu.Vector2D(30, 30),
     color=sr.RED,
 )
 fake_fb400.show_framebuffer()

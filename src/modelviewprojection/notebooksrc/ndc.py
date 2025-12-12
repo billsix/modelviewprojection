@@ -53,7 +53,7 @@ import IPython.display
 import moviepy
 import numpy as np
 
-import modelviewprojection.mathutils as mu2d
+import modelviewprojection.mathutils as mu
 import modelviewprojection.softwarerendering as sr
 
 # turn warnings into exceptions
@@ -113,12 +113,12 @@ fake_fb.show_framebuffer()
 # by Shirley and Marshner, page 60
 
 # %%
-ndc_to_screen: mu2d.InvertibleFunction = mu2d.compose(
+ndc_to_screen: mu.InvertibleFunction = mu.compose(
     [
-        mu2d.translate(mu2d.Vector2D(-0.5, -0.5)),
-        mu2d.scale(fake_fb.width, fake_fb.height),
-        mu2d.scale(0.5, 0.5),
-        mu2d.translate(mu2d.Vector2D(x=1.0, y=1.0)),
+        mu.translate(mu.Vector2D(-0.5, -0.5)),
+        mu.scale_non_uniform_2d(fake_fb.width, fake_fb.height),
+        mu.scale_non_uniform_2d(0.5, 0.5),
+        mu.translate(mu.Vector2D(x=1.0, y=1.0)),
     ]
 )
 
@@ -131,10 +131,10 @@ ndc_to_screen: mu2d.InvertibleFunction = mu2d.compose(
 # %%
 # Example: draw a white triangle
 
-triangle_in_NDC: list[mu2d.Vector] = [
-    mu2d.Vector2D(0.0, 0.0),
-    mu2d.Vector2D(0.2, 0.0),
-    mu2d.Vector2D(0.2, 0.2),
+triangle_in_NDC: list[mu.Vector] = [
+    mu.Vector2D(0.0, 0.0),
+    mu.Vector2D(0.2, 0.0),
+    mu.Vector2D(0.2, 0.2),
 ]
 
 # %% [markdown]
@@ -144,7 +144,7 @@ triangle_in_NDC: list[mu2d.Vector] = [
 # For each vector, apply the function
 
 # %%
-triangle_in_screen: list[mu2d.Vector] = [
+triangle_in_screen: list[mu.Vector] = [
     ndc_to_screen(x) for x in triangle_in_NDC
 ]
 print(triangle_in_screen)
@@ -169,10 +169,10 @@ fake_fb.show_framebuffer()
 # result and convert it from NDC to screenspace
 
 # %%
-move: mu2d.InvertibleFunction = mu2d.translate(mu2d.Vector2D(0, 0.5))
+move: mu.InvertibleFunction = mu.translate(mu.Vector2D(0, 0.5))
 
 triangle_in_screen = [
-    mu2d.compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
+    mu.compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
 ]
 print(triangle_in_screen)
 
@@ -189,12 +189,12 @@ sixty_fps_times_2_sec = 120
 # Create 10 frames with simple animation
 for i in range(sixty_fps_times_2_sec):
     fake_fb.clear_framebuffer()
-    move: mu2d.InvertibleFunction = mu2d.translate(
-        mu2d.Vector2D(0, 0.5 * (np.sin(np.pi / 60.0 * float(i))))
+    move: mu.InvertibleFunction = mu.translate(
+        mu.Vector2D(0, 0.5 * (np.sin(np.pi / 60.0 * float(i))))
     )
 
     triangle_in_screen = [
-        mu2d.compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
+        mu.compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
     ]
     fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
 
