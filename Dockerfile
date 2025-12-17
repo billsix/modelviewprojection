@@ -6,14 +6,32 @@ ARG USE_IMGUI=0
 ARG USE_JUPYTER=0
 ARG USE_SPYDER=0
 
+
 COPY entrypoint/dotfiles/ /root/
+COPY entrypoint/*.sh /usr/local/bin
+COPY entrypoint/entrypoint.sh /
+COPY assignments/ /mvp/assignments/
+COPY book  /mvp/book/
+COPY LICENSE  /mvp/LICENSE
+COPY mvpVisualization  /mvp/mvpVisualization/
+COPY notebooks  /mvp/notebooks/
+COPY pyproject.toml  /mvp/pyproject.toml
+COPY pytest.ini  /mvp/pytest.ini
+COPY setup.py  /mvp/setup.py
+COPY src  /mvp/src/
+COPY tests  /mvp/tests/
+COPY tox.ini  /mvp/tox.ini
 
 RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      --mount=type=cache,target=/var/lib/dnf \
      echo "keepcache=True" >> /etc/dnf/dnf.conf && \
      dnf upgrade -y && \
      dnf install -y \
+                   glib \
+                   glib2-devel \
                    glfw \
+                   meson \
+                   ninja \
                    python3-glfw \
 		   python3-numpy \
                    python3-openimageio \
@@ -74,24 +92,18 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    libXxf86vm \
                    mesa-dri-drivers  \
                    mesa-libGLU-devel; \
-    fi ;
-
-RUN  --mount=type=cache,target=/var/cache/libdnf5 \
-     --mount=type=cache,target=/var/lib/dnf \
-     if [ "$USE_EMACS" = "1" ]; then \
-       dnf install -y \
-                   emacs \
-                   emacs-gtk+x11 \
-                   emacs-pgtk \
-        	   python3-lsp-server \
-                   npm && \
-       npm install -g pyright && \
-       emacs --batch --load /root/.emacs.d/install-melpa-packages.el && \
-       echo "alias ls='ls --color=auto'" >> ~/.bashrc ;\
-     fi ;
-
-RUN --mount=type=cache,target=/var/cache/libdnf5 \
-    --mount=type=cache,target=/var/lib/dnf \
+    fi ; \
+    if [ "$USE_EMACS" = "1" ]; then \
+      dnf install -y \
+                  emacs \
+                  emacs-gtk+x11 \
+                  emacs-pgtk \
+       	   python3-lsp-server \
+                  npm && \
+      npm install -g pyright && \
+      emacs --batch --load /root/.emacs.d/install-melpa-packages.el && \
+      echo "alias ls='ls --color=auto'" >> ~/.bashrc ;\
+    fi ; \
     if [ "$USE_JUPYTER" = "1" ]; then \
        dnf install -y \
         	   ffmpeg \
@@ -106,10 +118,7 @@ RUN --mount=type=cache,target=/var/cache/libdnf5 \
         	   python3-jupyterlab-jupytext \
         	   python3-jupyter-lsp  && \
        python3 -m pip install --break-system-packages --root-user-action=ignore moviepy; \
-    fi;
-
-RUN --mount=type=cache,target=/var/cache/libdnf5 \
-    --mount=type=cache,target=/var/lib/dnf \
+    fi; \
     if [ "$USE_IMGUI" = "1" ]; then \
        dnf install -y \
                    autoconf \
@@ -122,10 +131,7 @@ RUN --mount=type=cache,target=/var/cache/libdnf5 \
         cd pyimgui && \
         git submodule init && git submodule update && \
         python3 -m pip install --break-system-packages --root-user-action=ignore . ;\
-     fi ;
-
-RUN --mount=type=cache,target=/var/cache/libdnf5 \
-    --mount=type=cache,target=/var/lib/dnf \
+     fi ; \
     if [ "$USE_SPYDER" = "1" ]; then \
       dnf install -y spyder && \
       mkdir -p ~/.config/spyder-py3/config && \
@@ -139,31 +145,19 @@ RUN --mount=type=cache,target=/var/cache/libdnf5 \
       echo "[appearance]" >> ~/.config/spyder-py3/config/spyder.ini && \
       echo "font/family = Adwaita Mono" >> ~/.config/spyder-py3/config/spyder.ini && \
       echo "font/size = 18" >> ~/.config/spyder-py3/config/spyder.ini; \
-    fi ;
-
-RUN echo "exit() {" >> ~/.bashrc && \
+    fi ; \
+    echo "loadpackages.sh" >> ~/.bashrc && \
+    echo "exit() {" >> ~/.bashrc && \
     echo "    echo "Formatting on shell exit"" >> ~/.bashrc && \
     echo "    format.sh" >> ~/.bashrc && \
     echo "    builtin exit "$@"" >> ~/.bashrc && \
     echo "}" >> ~/.bashrc && \
-    echo "PS1='\[\e[36m\]┌─(\t) \[\e[32m\]\u@\h:\w\n\[\e[36m\]└─λ \[\e[0m\]'" >> ~/.bashrc
-
-RUN echo "emacs src/modelviewprojection/mathutils3d.py" >> ~/.bash_history && \
+    echo "cd /mvp/" >> ~/.bashrc && \
+    echo "PS1='\[\e[36m\]┌─(\t) \[\e[32m\]\u@\h:\w\n\[\e[36m\]└─λ \[\e[0m\]'" >> ~/.bashrc && \
+    echo "emacs src/modelviewprojection/mathutils3d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils2d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils1d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils.py" >> ~/.bash_history
-
-
-RUN  --mount=type=cache,target=/var/cache/libdnf5 \
-     --mount=type=cache,target=/var/lib/dnf \
-     dnf install -y  \
-                   glib \
-                   glib2-devel \
-                   meson \
-                   ninja
-
-
-
 
 
 ENTRYPOINT ["/entrypoint.sh"]
