@@ -6,5 +6,5 @@ podman run -it --rm \
        -e WAYLAND_DISPLAY="$WAYLAND_DISPLAY" \
        -e XDG_RUNTIME_DIR="$XDG_RUNTIME_DIR" \
        -v "$XDG_RUNTIME_DIR:$XDG_RUNTIME_DIR" \
-       localhost/modelviewprojection-html:latest
+       docker.io/billsix/modelviewprojection:0.0.3
 
