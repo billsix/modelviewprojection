@@ -24,6 +24,7 @@ import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
 import modelviewprojection.mathutils as mu2d
+from modelviewprojection.mathutils import MultiVector, e_1, e_2
 
 if not glfw.init():
     sys.exit()
@@ -84,32 +85,32 @@ def draw_in_square_viewport() -> None:
 
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[mu2d.Vector2D]
+    vertices: list[MultiVector]
     color: colorutils.Color3
-    position: mu2d.Vector2D
+    position: MultiVector
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        mu2d.Vector2D(x=-1.0, y=-3.0),
-        mu2d.Vector2D(x=1.0, y=-3.0),
-        mu2d.Vector2D(x=1.0, y=3.0),
-        mu2d.Vector2D(x=-1.0, y=3.0),
+        -1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + 3.0 * e_2,
+        -1.0 * e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=mu2d.Vector2D(-9.0, 0.0),
+    position=(-9.0 * e_1),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        mu2d.Vector2D(x=-1.0, y=-3.0),
-        mu2d.Vector2D(x=1.0, y=-3.0),
-        mu2d.Vector2D(x=1.0, y=3.0),
-        mu2d.Vector2D(x=-1.0, y=3.0),
+        -1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + 3.0 * e_2,
+        -1.0 * e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=mu2d.Vector2D(9.0, 0.0),
+    position=(9.0 * e_1),
 )
 
 
@@ -117,13 +118,13 @@ def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position.y -= 1.0
+        paddle1.position -= 1.0 * e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position.y += 1.0
+        paddle1.position += 1.0 * e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position.y -= 1.0
+        paddle2.position -= 1.0 * e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position.y += 1.0
+        paddle2.position += 1.0 * e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -164,7 +165,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle1.color))
 
     GL.glBegin(GL.GL_QUADS)
-    rotatePoint: mu2d.Vector2D = paddle1.position
+    rotatePoint: MultiVector = paddle1.position
     for p1_v_ms in paddle1.vertices:
         fn: mu2d.InvertibleFunction = mu2d.compose(
             [
@@ -173,8 +174,11 @@ while not glfw.window_should_close(window):
                 mu2d.translate(paddle1.position),
             ]
         )
-        paddle1_vector_ndc: mu2d.Vector2D = fn(p1_v_ms)
-        GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
+        paddle1_vector_ndc: MultiVector = fn(p1_v_ms)
+        GL.glVertex2f(
+            paddle1_vector_ndc.component(e_1),
+            paddle1_vector_ndc.component(e_2),
+        )
         # doc-region-end draw paddle 1
     GL.glEnd()
 
@@ -183,7 +187,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle2.color))
 
     GL.glBegin(GL.GL_QUADS)
-    rotatePoint: mu2d.Vector2D = paddle2.position
+    rotatePoint = paddle2.position
     for p2_v_ms in paddle2.vertices:
         fn: mu2d.InvertibleFunction = mu2d.compose(
             [
@@ -192,8 +196,11 @@ while not glfw.window_should_close(window):
                 mu2d.translate(paddle2.position),
             ]
         )
-        paddle2_vector_ndc: mu2d.Vector2D = fn(p2_v_ms)
-        GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
+        paddle2_vector_ndc: MultiVector = fn(p2_v_ms)
+        GL.glVertex2f(
+            paddle2_vector_ndc.component(e_1),
+            paddle2_vector_ndc.component(e_2),
+        )
     GL.glEnd()
     # doc-region-end draw paddle 2
 

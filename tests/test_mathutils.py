@@ -21,602 +21,620 @@
 
 from __future__ import annotations  # to appease Python 3.7-3.9
 
-import doctest
-import math
+import itertools
 
-import modelviewprojection.mathutils as mu
+from modelviewprojection.mathutils import (
+    MultiVector,
+    a_1,
+    a_2,
+    a_3,
+    b_1,
+    b_2,
+    b_3,
+    e_1,
+    e_2,
+    e_3,
+    one,
+    project,
+    reject,
+    sym_vec2_1,
+    sym_vec2_2,
+    sym_vec3_1,
+    sym_vec3_2,
+    sym_vec_plane_simplified,
+    zero,
+)
 
 
 # doc-region-begin test add
-def test__vec1__add__():
-    result: mu.Vector = mu.Vector1D(x=1) + mu.Vector1D(x=3)
-    assert result.isclose(mu.Vector1D(x=4))
+def test_multivector_add() -> None:
+    a: MultiVector = 5 * e_1 + 6 * e_2
+    b: MultiVector = 7 * e_1 + 8 * e_2
+    assert (a + b) == (12 * e_1 + 14 * e_2)
+    c: MultiVector = 7 * e_1 + 2 * e_2
+    d: MultiVector = 1 * e_1 + 3 * e_3
+    assert (c + d) == (8 * e_1 + 2 * e_2 + 3 * e_3)
     # doc-region-end test add
 
 
 # doc-region-begin test substract
-def test__vec1__sub__():
-    result: mu.Vector = mu.Vector1D(x=5) - mu.Vector1D(x=1)
-    assert result.isclose(mu.Vector1D(x=4))
+def test_multivector_subtract() -> None:
+    a: MultiVector = 5 * e_1 + 6 * e_2
+    b: MultiVector = 7 * e_1 + 9 * e_2
+    # doc-region-end test add
+    assert (b - a) == (2 * e_1 + 3 * e_2)
     # doc-region-end test substract
 
 
-def test__vec1__mul__():
-    result = mu.Vector1D(x=2) * 4
-    assert result.isclose(mu.Vector1D(x=8))
+def test_multivector_absolute_units() -> None:
+    # test addition
+    assert (e_1 + e_2) == (e_2 + e_1)
+
+    # test scalar multiplication
+    assert (e_1 * 2) == (e_1 + e_1)
+    assert (2 * e_1) == (e_1 + e_1)
+    assert (e_2 * 2) == (e_2 + e_2)
+    assert (2 * e_2) == (e_2 + e_2)
+
+    # test addition on relative units
+    assert ((e_1 + e_2) * 2) == ((e_1 + e_2) + (e_1 + e_2))
+
+    # test permutations
+    assert (e_1 * e_2 * e_3).abs_squared() == 1
+    assert (e_1 * e_3 * e_2) == -1 * (e_1 * e_2 * e_3)
+    assert (e_3 * e_1 * e_2) == (e_1 * e_2 * e_3)
+    assert (e_3 * e_2 * e_1) == -1 * (e_1 * e_2 * e_3)
+    assert (e_2 * e_1 * e_3) == -1 * (e_1 * e_2 * e_3)
+    assert (e_2 * e_3 * e_1) == (e_1 * e_2 * e_3)
 
 
-def test__vec1__rmul__():
-    result = 4 * mu.Vector1D(x=2)
-    assert result.isclose(mu.Vector1D(x=8))
+def test_multivector_mult() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    assert a.abs_squared() == 25
 
+    assert (a * a) == MultiVector.from_scalar(25)
 
-def test__vec1__neg__():
-    result = -mu.Vector1D(x=2)
-    assert result.isclose(mu.Vector1D(x=-2))
+    i: MultiVector = MultiVector.unit_pseudoscalar(2)
+    assert (a * i) == (-4 * e_1 + 3 * e_2)
+    assert ((a * i) * i) == -3 * e_1 + -4 * e_2
 
-
-def wrap_vec1_test(
-    fn: mu.InvertibleFunction, input_val: float, output_val: float
-):
-    out: mu.Vector = fn(mu.Vector1D(input_val))
-    assert out.isclose(mu.Vector1D(output_val))
-
-
-# doc-region-begin translate test
-def test__vec1_translate():
-    fn: mu.InvertibleFunction = mu.translate(mu.Vector1D(2))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [-3, -1],
-        [-2, 0],
-        [-1, 1],
-        [0, 2],
-        [1, 3],
-        [2, 4],
-        [3, 5],
-        [4, 6],
-    ]
-    for input_val, output_val in input_output_pairs:
-        wrap_vec1_test(fn, input_val, output_val)
-        wrap_vec1_test(fn_inv, output_val, input_val)
-
-
-# doc-region-end translate test
-
-
-def test__vec1_mx_plus_b():
-    m = 5
-    b = 2
-
-    fn: mu.InvertibleFunction = mu.compose(
-        [mu.translate(mu.Vector1D(b)), mu.uniform_scale(m)]
+    assert (sym_vec2_1 * sym_vec2_2) == (
+        MultiVector.from_scalar(a_1 * b_1 + a_2 * b_2)
+        + (a_1 * b_2 - a_2 * b_1) * e_1 * e_2
     )
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
 
-    input_output_pairs = [
-        [-3, -13],
-        [-2, -8],
-        [-1, -3],
-        [0, 2],
-        [1, 7],
-        [2, 12],
-        [3, 17],
-        [4, 22],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec1_test(fn, input_val, output_val)
-        wrap_vec1_test(fn_inv, output_val, input_val)
+    assert (sym_vec2_1 * sym_vec2_2) == (
+        sym_vec2_1.dot(sym_vec2_2) + (sym_vec2_1 * i).dot(sym_vec2_2) * i
+    )
 
 
-def test_vec1_uniform_scale():
-    fn: mu.InvertibleFunction = mu.uniform_scale(4)
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [-3, -12],
-        [-2, -8],
-        [-1, -4],
-        [0, 0],
-        [1, 4],
-        [2, 8],
-        [3, 12],
-        [4, 16],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec1_test(fn, input_val, output_val)
-        wrap_vec1_test(fn_inv, output_val, input_val)
+def planewise_wedge(plane, vec1, vec2):
+    proj = project(plane)
+    return proj(vec1).wedge(proj(vec2))
 
 
-def test_vec1_tempature_conversion():
-    def test_vec1_vector1d_function(
-        fn: mu.InvertibleFunction,
-        input_output_pairs: list[list[float]],
-    ):
-        for input_val, output_val in input_output_pairs:
-            assert fn(mu.Vector1D(input_val)).isclose(mu.Vector1D(output_val))
-            assert mu.inverse(fn)(mu.Vector1D(output_val)).isclose(
-                mu.Vector1D(input_val)
+def test_multivector_mult3d() -> None:
+    assert (sym_vec3_1 * sym_vec3_2) == (
+        MultiVector.from_scalar(a_1 * b_1 + a_2 * b_2 + a_3 * b_3)
+        + (a_1 * b_2 - a_2 * b_1) * e_1 * e_2
+        + (a_2 * b_3 - a_3 * b_2) * e_2 * e_3
+        + (a_3 * b_1 - a_1 * b_3) * e_3 * e_1
+    )
+
+    assert (sym_vec3_1 * sym_vec3_2) == sum(
+        [
+            sym_vec3_1.dot(sym_vec3_2),
+            *[
+                planewise_wedge(
+                    plane=axis_1 * axis_2, vec1=sym_vec3_1, vec2=sym_vec3_2
+                )
+                for axis_1, axis_2 in itertools.combinations([e_1, e_2, e_3], 2)
+            ],
+        ],
+        start=zero,
+    )
+
+    assert sym_vec3_1.dot(sym_vec3_2) == sym_vec3_1.dot(sym_vec3_2)
+
+    assert (sym_vec3_1.wedge(sym_vec3_2)) == sum(
+        [
+            planewise_wedge(
+                plane=axis_1 * axis_2, vec1=sym_vec3_1, vec2=sym_vec3_2
             )
-
-    # doc-region-begin temperature functions
-    celsius_to_kelvin: mu.InvertibleFunction = mu.translate(mu.Vector1D(273.15))
-    fahrenheit_to_celsius: mu.InvertibleFunction = mu.compose(
-        [mu.uniform_scale(5.0 / 9.0), mu.translate(mu.Vector1D(-32.0))]
-    )
-    fahrenheit_to_kelvin: mu.InvertibleFunction = mu.compose(
-        [celsius_to_kelvin, fahrenheit_to_celsius]
-    )
-    kelvin_to_celsius: mu.InvertibleFunction = mu.inverse(celsius_to_kelvin)
-    celsius_to_fahrenheit: mu.InvertibleFunction = mu.inverse(
-        fahrenheit_to_celsius
-    )
-    kelvin_to_fahrenheit: mu.InvertibleFunction = mu.compose(
-        [celsius_to_fahrenheit, kelvin_to_celsius]
-    )
-
-    # doc-region-end temperature functions
-
-    test_vec1_vector1d_function(
-        celsius_to_kelvin,
-        [
-            [0.0, 273.15],
-            [100.0, 373.15],
+            for axis_1, axis_2 in itertools.combinations([e_1, e_2, e_3], 2)
         ],
-    )
-    test_vec1_vector1d_function(
-        fahrenheit_to_celsius,
-        [
-            [32.0, 0.0],
-            [212.0, 100.0],
-        ],
-    )
-    test_vec1_vector1d_function(
-        fahrenheit_to_kelvin,
-        [
-            [32.0, 273.15],
-            [212.0, 373.15],
-        ],
-    )
-    test_vec1_vector1d_function(
-        kelvin_to_celsius,
-        [
-            [273.15, 0.0],
-            [373.15, 100.0],
-        ],
-    )
-    test_vec1_vector1d_function(
-        celsius_to_fahrenheit,
-        [
-            [0.0, 32.0],
-            [100.0, 212.0],
-        ],
-    )
-    test_vec1_vector1d_function(
-        kelvin_to_fahrenheit,
-        [
-            [273.15, 32.0],
-            [373.15, 212.0],
-        ],
+        start=zero,
     )
 
 
-def wrap_vec2_test(
-    fn: mu.InvertibleFunction, input_val: list[float], output_val: list[float]
-):
-    out: mu.Vector = fn(mu.Vector2D(*input_val))
-    assert out.isclose(mu.Vector2D(*output_val))
-
-
-# doc-region-begin test add
-def test_vec2___add__():
-    result: mu.Vector = mu.Vector2D(x=1, y=2) + mu.Vector2D(x=3, y=4)
-    assert result.isclose(mu.Vector2D(x=4, y=6))
-    # doc-region-end test add
-
-    input_output_pairs = [
-        [[(0.0, 0.0), (0.0, 0.0)], [0.0, 0.0]],
-        [[(1.0, 0.0), (0.0, 1.0)], [1.0, 1.0]],
-        [[(1.0, 2.0), (3.0, 4.0)], [4.0, 6.0]],
-        [[(0.0, 2.0), (3.0, 0.0)], [3.0, 2.0]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        assert mu.Vector2D(*output_val).isclose(
-            mu.Vector2D(*input_val[0]) + mu.Vector2D(*input_val[1])
-        )
-
-
-# doc-region-begin test substract
-def test_vec2___sub__():
-    result: mu.Vector = mu.Vector2D(x=4, y=6) - mu.Vector2D(x=3, y=4)
-    assert result.isclose(mu.Vector2D(x=1, y=2))
-    # doc-region-end test substract
-
-    input_output_pairs = [
-        [[(0.0, 0.0), (0.0, 0.0)], [0.0, 0.0]],
-        [[(1.0, 0.0), (0.0, 1.0)], [1.0, -1.0]],
-        [[(5.0, 8.0), (1.0, 2.0)], [4.0, 6.0]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        assert mu.Vector2D(*output_val).isclose(
-            mu.Vector2D(*input_val[0]) - mu.Vector2D(*input_val[1])
-        )
-
-
-def test_vec2___mul__():
-    input_output_pairs = [
-        [[(0.0, 0.0), 2], [0.0, 0.0]],
-        [[(1.0, 0.0), 2], [2.0, 0.0]],
-        [[(0.0, 1.0), 2], [0.0, 2.0]],
-        [[(1.0, 1.0), 2], [2.0, 2.0]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        assert mu.Vector2D(*output_val).isclose(
-            input_val[1] * mu.Vector2D(*input_val[0])
-        )
-
-
-def test_vec2___rmul__():
-    input_output_pairs = [
-        [[(0.0, 0.0), 2], [0.0, 0.0]],
-        [[(1.0, 0.0), 2], [2.0, 0.0]],
-        [[(0.0, 1.0), 2], [0.0, 2.0]],
-        [[(1.0, 1.0), 2], [2.0, 2.0]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        assert mu.Vector2D(*output_val).isclose(
-            mu.Vector2D(*input_val[0]) * input_val[1]
-        )
-
-
-def test_vec2___neg__():
-    input_output_pairs = [
-        [(0.0, 0.0), (0.0, 0.0)],
-        [(1.0, 0.0), (-1.0, 0.0)],
-        [(0.0, 1.0), (0.0, -1.0)],
-        [(1.0, 1.0), (-1.0, -1.0)],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        assert mu.Vector2D(*output_val).isclose(-mu.Vector2D(*input_val))
-
-
-def test_vec2___abs__():
-    input_output_pairs = [
-        [(3.0, 4.0), 5.0],
-        [(-3.0, 4.0), 5.0],
-        [(3.0, -4.0), 5.0],
-        [(-3.0, -4.0), 5.0],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        assert output_val == abs(mu.Vector2D(*input_val))
-
-
-def test_vec2___dot__():
-    input_output_pairs = [
-        [[(1.0, 0.0), (0.0, 1.0)], 0.0],
-        [[(1.0, 0.0), (1.0, 0.0)], 1.0],
-        [[(0.0, 1.0), (0.0, 1.0)], 1.0],
-        [[(3.0, 0.0), (1.0, 0.0)], 3.0],
-        [[(0.0, 1.0), (0.0, 4.0)], 4.0],
-    ]
+def test_multivector_dual() -> None:
+    assert sym_vec2_1.dual(g=2) == sum(
+        [a_2 * e_1, -a_1 * e_2],
+        start=zero,
+    )
+
+    assert sym_vec3_1.dual(g=3) == sum(
+        [-a_3 * e_1 * e_2, -a_2 * e_3 * e_1, -a_1 * e_2 * e_3],
+        start=zero,
+    )
+
+
+def test_multivector_grade() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    assert a.r_vector_part(0) == zero
+    assert a.scalar_part() == 0
+    assert a.max_grade() == 1
+
+    b: MultiVector = 3 * e_1 + 4 * e_2
+
+    assert (b * b).scalar_part() == 25
+    assert (b * b).r_vector_part(1) == zero
+    assert (b * b).r_vector_part(2) == zero
+    assert (b * b).max_grade() == 0
+
+    c: MultiVector = -4 * e_1 + 3 * e_2
+    assert (b * c).scalar_part() == 0
+    assert (b * c).r_vector_part(1) == zero
+    assert (b * c).r_vector_part(2) == 25 * e_1 * e_2
+    assert (b * c).max_grade() == 2
+
+    i3: MultiVector = e_1 * e_2 * e_3
+    assert i3.scalar_part() == 0
+    assert i3.r_vector_part(1) == zero
+    assert i3.r_vector_part(2) == zero
+    assert i3.r_vector_part(3) == i3
+    assert i3.max_grade() == 3
+
+
+def test_is_homogeneous_of_grade_r() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    assert a.is_homogeneous_of_grade_r(1)
+    assert (a * a).is_homogeneous_of_grade_r(0)
+    assert not (a * a).is_homogeneous_of_grade_r(1)
+    assert not (a * a).is_homogeneous_of_grade_r(2)
+
+    b: MultiVector = -4 * e_1 + 3 * e_2
+
+    assert (a * b).is_homogeneous_of_grade_r(2)
+    assert (a.wedge(b)).is_homogeneous_of_grade_r(2)
+
+    c: MultiVector = 0 * e_1 + 5 * e_2
+    assert not (a * c).is_homogeneous_of_grade_r(2)
+    assert (a.wedge(c)).is_homogeneous_of_grade_r(2)
+
+
+def test_even_part_odd_part() -> None:
+    assert (sym_vec3_1).odd_part() == sym_vec3_1
+    assert (sym_vec3_1).even_part() == zero
+    assert (sym_vec3_1 * sym_vec3_2).odd_part() == zero
+    assert (sym_vec3_1 * sym_vec3_2).even_part() == sym_vec3_1 * sym_vec3_2
+
+    assert (sym_vec3_1 * sym_vec3_2) == (sym_vec3_1 * sym_vec3_2).odd_part() + (
+        sym_vec3_1 * sym_vec3_2
+    ).even_part()
+
+
+def test_multivector_dot() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    assert a.dot(a) == MultiVector.from_scalar(25)
+    c: MultiVector = -4 * e_1 + 3 * e_2
+    assert a.dot(c) == zero
+
+    assert sym_vec2_1.dot(sym_vec2_2) == MultiVector.from_scalar(
+        a_1 * b_1 + a_2 * b_2
+    )
+
+
+def test_multivector_cosine() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    assert a.cosine(a) == 1
+    b: MultiVector = -4 * e_1 + 3 * e_2
+    assert a.cosine(b) == 0
+
+    # print(sym_vec2_1.cosine(sym_vec2_2) * abs(sym_vec2_1) * abs(sym_vec2_2))
+    assert MultiVector.from_scalar(
+        sym_vec2_1.cosine(sym_vec2_2) * abs(sym_vec2_1) * abs(sym_vec2_2)
+    ) == sym_vec2_1.dot(sym_vec2_2)
+
+
+def test_multivector_wedge() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    assert a.wedge(a) == zero
+    c: MultiVector = -4 * e_1 + 3 * e_2
+    assert a.wedge(c) == 25 * e_1 * e_2
+
+    assert (
+        sym_vec2_1.wedge(sym_vec2_2)
+        == MultiVector.from_scalar(a_1 * b_2 - a_2 * b_1) * e_1 * e_2
+    )
+
 
-    for input_val, output_val in input_output_pairs:
-        assert output_val == mu.Vector2D(*input_val[0]).dot(
-            mu.Vector2D(*input_val[1])
-        )
-
-
-def test_vec2_is_parallel():
-    input_output_pairs = [
-        [[(1.0, 0.0), (2.0, 0.0)], True],
-        [[(0.0, 5.0), (0.0, 1.0)], True],
-        [[(1.0, 5.0), (0.0, 1.0)], False],
-        [[(0.0, 5.0), (0.2, 1.0)], False],
-        [[(0.0, 5.0), (1.2, 0.0)], False],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        assert output_val == mu.is_parallel(
-            mu.Vector2D(*input_val[0]), mu.Vector2D(*input_val[1])
-        )
-
-
-def test_vec2_is_counter_clockwise():
-    input_output_pairs = [
-        [[(1.0, 0.0), (0.0, 1.0)], True],
-        [[(1.0, 0.0), (0.0, -0.1)], False],
-        [[(0.0, 1.0), (-0.1, 1.0)], True],
-        [[(0.0, 1.0), (10.1, 1.0)], False],
-        [[(-1.0, 0.0), (-1.0, 0.1)], False],
-        [[(-1.0, 0.0), (-1.0, -0.1)], True],
-        [[(0.0, -1.0), (-0.1, -1.0)], False],
-        [[(0.0, -1.0), (0.1, -1.0)], True],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        assert output_val == mu.is_counter_clockwise(
-            mu.Vector2D(*input_val[0]), mu.Vector2D(*input_val[1])
-        )
-
-
-# doc-region-begin translate test
-def test_vec2_translate():
-    fn: mu.InvertibleFunction = mu.translate(mu.Vector2D(x=2.0, y=3.0))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0, 0], [2, 3]],
-        [[1, 0], [3, 3]],
-        [[0, 1], [2, 4]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec2_test(fn, input_val, output_val)
-        wrap_vec2_test(fn_inv, output_val, input_val)
-
-
-# doc-region-end translate test
-
-
-def test_vec2_compose():
-    fn: mu.InvertibleFunction = mu.translate(mu.Vector2D(x=2, y=3))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    identity_fn: mu.InvertibleFunction = mu.compose([fn_inv, fn])
-
-    input_output_pairs = [
-        [[0, 0], [0, 0]],
-        [[1, 0], [1, 0]],
-        [[0, 1], [0, 1]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec2_test(identity_fn, input_val, output_val)
-
-
-def test_vec2_uniform_scale():
-    fn: mu.InvertibleFunction = mu.uniform_scale(4)
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0, 0], [0, 0]],
-        [[1, 0], [4, 0]],
-        [[0, 1], [0, 4]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec2_test(fn, input_val, output_val)
-        wrap_vec2_test(fn_inv, output_val, input_val)
-
-
-def test_vec2_scale():
-    fn: mu.InvertibleFunction = mu.scale_non_uniform_2d(m_x=2, m_y=3)
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0, 0], [0, 0]],
-        [[1, 0], [2, 0]],
-        [[0, 1], [0, 3]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec2_test(fn, input_val, output_val)
-        wrap_vec2_test(fn_inv, output_val, input_val)
-
-
-def test_vec2_rotate_90():
-    fn: mu.InvertibleFunction = mu.rotate_90_degrees()
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0, 0], [0, 0]],
-        [[1, 0], [0, 1]],
-        [[0, 1], [-1, 0]],
-        [[-1, 0], [0, -1]],
-        [[0, -1], [1, 0]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec2_test(fn, input_val, output_val)
-        wrap_vec2_test(fn_inv, output_val, input_val)
-
-
-def test_vec2_rotate():
-    fn: mu.InvertibleFunction = mu.rotate(math.radians(53.130102))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0.0, 0.0], [0.0, 0.0]],
-        [[5.0, 0.0], [3.0, 4.0]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec2_test(fn, input_val, output_val)
-        wrap_vec2_test(fn_inv, output_val, input_val)
-
-
-# doc-region-begin test add
-def test_vec3___add__():
-    result: mu.Vector = mu.Vector3D(x=1, y=3, z=5) + mu.Vector3D(x=2, y=4, z=6)
-    assert result.isclose(mu.Vector3D(x=3, y=7, z=11))
-    # doc-region-end test add
-
-
-# doc-region-begin test substract
-def test_vec3___sub__():
-    result: mu.Vector = mu.Vector3D(x=3, y=7, z=11) - mu.Vector3D(x=2, y=4, z=6)
-    assert result.isclose(mu.Vector3D(x=1, y=3, z=5))
-    # doc-region-end test substract
-
-
-def test_vec3___mul__():
-    result = mu.Vector3D(x=2, y=3, z=4) * 4
-    assert result.isclose(mu.Vector3D(x=8, y=12, z=16))
-
-
-def test_vec3___rmul__():
-    result = 4 * mu.Vector3D(x=2, y=3, z=4)
-    assert result.isclose(mu.Vector3D(x=8, y=12, z=16))
-
-
-def test_vec3___neg__():
-    result = -mu.Vector3D(x=2, y=3, z=4)
-    assert result.isclose(mu.Vector3D(x=-2, y=-3, z=-4))
-
-
-def wrap_vec3_test(
-    fn: mu.InvertibleFunction, input_val: list[float], output_val: list[float]
-):
-    out: mu.Vector = fn(mu.Vector3D(*input_val))
-    assert out.isclose(mu.Vector3D(*output_val))
-
-
-# doc-region-begin translate test
-def test_vec3_translate():
-    fn: mu.InvertibleFunction = mu.translate(mu.Vector3D(x=2, y=3, z=4))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0, 0, 0], [2, 3, 4]],
-        [[1, 0, 0], [3, 3, 4]],
-        [[0, 1, 0], [2, 4, 4]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, output_val, input_val)
-
-
-# doc-region-end translate test
-
-
-def test_vec3_uniform_scale():
-    fn: mu.InvertibleFunction = mu.uniform_scale(4)
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0, 0, 0], [0, 0, 0]],
-        [[1, 0, 0], [4, 0, 0]],
-        [[0, 1, 0], [0, 4, 0]],
-        [[0, 0, 1], [0, 0, 4]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, output_val, input_val)
-
-
-def test_vec3_scale():
-    fn: mu.InvertibleFunction = mu.scale_non_uniform_3d(m_x=2, m_y=3, m_z=4)
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0, 0, 0], [0, 0, 0]],
-        [[1, 0, 0], [2, 0, 0]],
-        [[0, 1, 0], [0, 3, 0]],
-        [[0, 0, 1], [0, 0, 4]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, output_val, input_val)
-
-
-def test_vec3_rotate_x():
-    fn: mu.InvertibleFunction = mu.rotate_x(math.radians(53.130102))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-        [[0.0, 5.0, 0.0], [0.0, 3.0, 4.0]],
-        [[0.0, 0.0, 5.0], [0.0, -4.0, 3.0]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, output_val, input_val)
-
-
-def test_vec3_rotate_y():
-    fn: mu.InvertibleFunction = mu.rotate_y(math.radians(53.130102))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-        [[0.0, 0.0, 5.0], [4.0, 0.0, 3.0]],
-        [[5.0, 0.0, 0.0], [3.0, 0.0, -4.0]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, output_val, input_val)
-
-
-def test_vec3_rotate_z():
-    fn: mu.InvertibleFunction = mu.rotate_z(math.radians(53.130102))
-    fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-    input_output_pairs = [
-        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-        [[5.0, 0.0, 0.0], [3.0, 4.0, 0.0]],
-        [[0.0, 5.0, 0.0], [-4.0, 3.0, 0.0]],
-    ]
-
-    for input_val, output_val in input_output_pairs:
-        wrap_vec3_test(fn, input_val, output_val)
-        wrap_vec3_test(fn_inv, output_val, input_val)
-
-
-# doc-region-begin function stack examples definitions
-def test_vec3_fn_stack():
-    identity: InvertibleFunction = mu.uniform_scale(1)
-
-    mu.fn_stack.push(identity)
-    assert mu.Vector1D(1) == mu.fn_stack.modelspace_to_ndc_fn()(mu.Vector1D(1))
-
-    add_one: InvertibleFunction = mu.translate(mu.Vector1D(1))
-
-    mu.fn_stack.push(add_one)
-    assert mu.Vector1D(2) == mu.fn_stack.modelspace_to_ndc_fn()(
-        mu.Vector1D(1)
-    )  # x + 1 = 2
-
-    multiply_by_2: InvertibleFunction = mu.uniform_scale(2)
-
-    mu.fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
-    assert mu.Vector1D(3) == mu.fn_stack.modelspace_to_ndc_fn()(mu.Vector1D(1))
-
-    add_5: InvertibleFunction = mu.translate(mu.Vector1D(5))
-
-    mu.fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
-    assert mu.Vector1D(13) == mu.fn_stack.modelspace_to_ndc_fn()(mu.Vector1D(1))
-
-    mu.fn_stack.pop()
-    assert mu.Vector1D(3) == mu.fn_stack.modelspace_to_ndc_fn()(
-        mu.Vector1D(1)
-    )  # (x * 2) + 1 = 3
-
-    mu.fn_stack.pop()
-    assert mu.Vector1D(2) == mu.fn_stack.modelspace_to_ndc_fn()(
-        mu.Vector1D(1)
-    )  # x + 1 = 2
-
-    mu.fn_stack.pop()
-    assert mu.Vector1D(1) == mu.fn_stack.modelspace_to_ndc_fn()(
-        mu.Vector1D(1)
-    )  # x = 1
-    # doc-region-end function stack examples definitions
-
-
-def test__doctest():
-    failureCount, testCount = doctest.testmod(mu)
-    assert 0 == failureCount
+def test_multivector_unit_pseudoscalar() -> None:
+    assert MultiVector.unit_pseudoscalar(1) == e_1
+    assert MultiVector.unit_pseudoscalar(2) == e_1 * e_2
+    assert MultiVector.unit_pseudoscalar(3) == e_1 * e_2 * e_3
+
+    i1: MultiVector = MultiVector.unit_pseudoscalar(1)
+    assert i1 * i1 == MultiVector.from_scalar(1)
+    assert MultiVector.unit_pseudoscalar_squared(1) == MultiVector.from_scalar(
+        1
+    )
+    i2: MultiVector = MultiVector.unit_pseudoscalar(2)
+    assert i2 * i2 == MultiVector.from_scalar(-1)
+    assert MultiVector.unit_pseudoscalar_squared(2) == MultiVector.from_scalar(
+        -1
+    )
+    i3: MultiVector = MultiVector.unit_pseudoscalar(3)
+    assert i3 * i3 == MultiVector.from_scalar(-1)
+    i4: MultiVector = MultiVector.unit_pseudoscalar(4)
+    assert i4 * i4 == MultiVector.from_scalar(1)
+    i5: MultiVector = MultiVector.unit_pseudoscalar(5)
+    assert i5 * i5 == MultiVector.from_scalar(1)
+    i6: MultiVector = MultiVector.unit_pseudoscalar(6)
+    assert i6 * i6 == MultiVector.from_scalar(-1)
+    i7: MultiVector = MultiVector.unit_pseudoscalar(7)
+    assert i7 * i7 == MultiVector.from_scalar(-1)
+    i8: MultiVector = MultiVector.unit_pseudoscalar(8)
+    assert i8 * i8 == MultiVector.from_scalar(1)
+    i9: MultiVector = MultiVector.unit_pseudoscalar(9)
+    assert i9 * i9 == MultiVector.from_scalar(1)
+    i10: MultiVector = MultiVector.unit_pseudoscalar(10)
+    assert i10 * i10 == MultiVector.from_scalar(-1)
+    i11: MultiVector = MultiVector.unit_pseudoscalar(11)
+    assert i11 * i11 == MultiVector.from_scalar(-1)
+    i12: MultiVector = MultiVector.unit_pseudoscalar(12)
+    assert i12 * i12 == MultiVector.from_scalar(1)
+    i13: MultiVector = MultiVector.unit_pseudoscalar(13)
+    assert i13 * i13 == MultiVector.from_scalar(1)
+    i14: MultiVector = MultiVector.unit_pseudoscalar(14)
+    assert i14 * i14 == MultiVector.from_scalar(-1)
+    i15: MultiVector = MultiVector.unit_pseudoscalar(14)
+    assert i15 * i15 == MultiVector.from_scalar(-1)
+
+
+def test_multivector_reverse() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    assert (a * a).reverse() == a * a
+
+    b: MultiVector = 5 * e_1 + 10 * e_2
+    assert (b * a).reverse() == a * b
+
+    assert (sym_vec2_2 * sym_vec2_1).reverse() == sym_vec2_1 * sym_vec2_2
+
+
+def test_multivector_reverse_3d() -> None:
+    assert (sym_vec3_2 * sym_vec3_1).reverse() == sym_vec3_1 * sym_vec3_2
+
+
+def test_multivector_inverse() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    assert a.abs_squared() == 25
+    assert a.abs_squared() * a.inverse() == a
+
+    assert sym_vec2_1.abs_squared() * sym_vec2_1.inverse() == sym_vec2_1
+    assert (sym_vec2_1.inverse() * sym_vec2_1).simplify().scalar_part() == 1
+
+    assert sym_vec3_1.abs_squared() * sym_vec3_1.inverse() == sym_vec3_1
+    assert (
+        sym_vec3_1.inverse() * sym_vec3_1
+    ).simplify() == MultiVector.from_scalar(1)
+
+    plane: MultiVector = sym_vec_plane_simplified
+    assert (plane * plane.inverse()).simplify() == one
+    assert (plane.inverse() * plane).simplify() == one
+
+
+def test_project_and_reject() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    assert project(onto_mv=e_1)(a) == 3 * e_1
+    assert reject(from_mv=e_1)(a) == 4 * e_2
+
+    assert project(onto_mv=e_1)(2 * a) == 6 * e_1
+    assert reject(from_mv=e_1)(2 * a) == 8 * e_2
+
+    assert project(onto_mv=2 * e_1)(a) == 3 * e_1
+    assert reject(from_mv=2 * e_1)(a) == 4 * e_2
+
+    parallel_to_vec1: MultiVector = project(onto_mv=sym_vec2_1)(sym_vec2_2)
+    perp_to_vec1: MultiVector = reject(from_mv=sym_vec2_1)(sym_vec2_2)
+    assert sym_vec2_2 == (parallel_to_vec1 + perp_to_vec1).simplify()
+
+
+# def wrap_vec1_test(
+#     fn: mu.InvertibleFunction, input_val: float, output_val: float
+# ):
+#     out: mu.Vector = fn(mu.Vector1D(input_val))
+#     assert out.isclose(mu.Vector1D(output_val))
+
+
+# # doc-region-begin translate test
+# def test__vec1_translate():
+#     fn: mu.InvertibleFunction = mu.translate(mu.Vector1D(2))
+#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+
+#     input_output_pairs = [
+#         [-3, -1],
+#         [-2, 0],
+#         [-1, 1],
+#         [0, 2],
+#         [1, 3],
+#         [2, 4],
+#         [3, 5],
+#         [4, 6],
+#     ]
+#     for input_val, output_val in input_output_pairs:
+#         wrap_vec1_test(fn, input_val, output_val)
+#         wrap_vec1_test(fn_inv, output_val, input_val)
+
+
+# # doc-region-end translate test
+
+
+# def test__vec1_mx_plus_b():
+#     m = 5
+#     b = 2
+
+#     fn: mu.InvertibleFunction = mu.compose(
+#         [mu.translate(mu.Vector1D(b)), mu.uniform_scale(m)]
+#     )
+#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+
+#     input_output_pairs = [
+#         [-3, -13],
+#         [-2, -8],
+#         [-1, -3],
+#         [0, 2],
+#         [1, 7],
+#         [2, 12],
+#         [3, 17],
+#         [4, 22],
+#     ]
+
+#     for input_val, output_val in input_output_pairs:
+#         wrap_vec1_test(fn, input_val, output_val)
+#         wrap_vec1_test(fn_inv, output_val, input_val)
+
+
+# def test_vec1_uniform_scale():
+#     fn: mu.InvertibleFunction = mu.uniform_scale(4)
+#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+
+#     input_output_pairs = [
+#         [-3, -12],
+#         [-2, -8],
+#         [-1, -4],
+#         [0, 0],
+#         [1, 4],
+#         [2, 8],
+#         [3, 12],
+#         [4, 16],
+#     ]
+
+#     for input_val, output_val in input_output_pairs:
+#         wrap_vec1_test(fn, input_val, output_val)
+#         wrap_vec1_test(fn_inv, output_val, input_val)
+
+
+# def test_vec1_tempature_conversion():
+#     def test_vec1_vector1d_function(
+#         fn: mu.InvertibleFunction,
+#         input_output_pairs: list[list[float]],
+#     ):
+#         for input_val, output_val in input_output_pairs:
+#             assert fn(mu.Vector1D(input_val)).isclose(mu.Vector1D(output_val))
+#             assert mu.inverse(fn)(mu.Vector1D(output_val)).isclose(
+#                 mu.Vector1D(input_val)
+#             )
+
+#     # doc-region-begin temperature functions
+#     celsius_to_kelvin: mu.InvertibleFunction = mu.translate(mu.Vector1D(273.15))
+#     fahrenheit_to_celsius: mu.InvertibleFunction = mu.compose(
+#         [mu.uniform_scale(5.0 / 9.0), mu.translate(mu.Vector1D(-32.0))]
+#     )
+#     fahrenheit_to_kelvin: mu.InvertibleFunction = mu.compose(
+#         [celsius_to_kelvin, fahrenheit_to_celsius]
+#     )
+#     kelvin_to_celsius: mu.InvertibleFunction = mu.inverse(celsius_to_kelvin)
+#     celsius_to_fahrenheit: mu.InvertibleFunction = mu.inverse(
+#         fahrenheit_to_celsius
+#     )
+#     kelvin_to_fahrenheit: mu.InvertibleFunction = mu.compose(
+#         [celsius_to_fahrenheit, kelvin_to_celsius]
+#     )
+
+#     # doc-region-end temperature functions
+
+#     test_vec1_vector1d_function(
+#         celsius_to_kelvin,
+#         [
+#             [0.0, 273.15],
+#             [100.0, 373.15],
+#         ],
+#     )
+#     test_vec1_vector1d_function(
+#         fahrenheit_to_celsius,
+#         [
+#             [32.0, 0.0],
+#             [212.0, 100.0],
+#         ],
+#     )
+#     test_vec1_vector1d_function(
+#         fahrenheit_to_kelvin,
+#         [
+#             [32.0, 273.15],
+#             [212.0, 373.15],
+#         ],
+#     )
+#     test_vec1_vector1d_function(
+#         kelvin_to_celsius,
+#         [
+#             [273.15, 0.0],
+#             [373.15, 100.0],
+#         ],
+#     )
+#     test_vec1_vector1d_function(
+#         celsius_to_fahrenheit,
+#         [
+#             [0.0, 32.0],
+#             [100.0, 212.0],
+#         ],
+#     )
+#     test_vec1_vector1d_function(
+#         kelvin_to_fahrenheit,
+#         [
+#             [273.15, 32.0],
+#             [373.15, 212.0],
+#         ],
+#     )
+
+
+# def wrap_vec2_test(
+#     fn: mu.InvertibleFunction, input_val: list[float], output_val: list[float]
+# ):
+#     out: mu.Vector = fn(mu.Vector2D(*input_val))
+#     assert out.isclose(mu.Vector2D(*output_val))
+
+#     for input_val, output_val in input_output_pairs:
+#         assert mu.Vector2D(*output_val).isclose(
+#             mu.Vector2D(*input_val[0]) + mu.Vector2D(*input_val[1])
+#         )
+
+
+# def test_vec2_is_parallel():
+#     input_output_pairs = [
+#         [[(1.0, 0.0), (2.0, 0.0)], True],
+#         [[(0.0, 5.0), (0.0, 1.0)], True],
+#         [[(1.0, 5.0), (0.0, 1.0)], False],
+#         [[(0.0, 5.0), (0.2, 1.0)], False],
+#         [[(0.0, 5.0), (1.2, 0.0)], False],
+#     ]
+
+#     for input_val, output_val in input_output_pairs:
+#         assert output_val == mu.is_parallel(
+#             mu.Vector2D(*input_val[0]), mu.Vector2D(*input_val[1])
+#         )
+
+
+# def test_vec2_is_counter_clockwise():
+#     input_output_pairs = [
+#         [[(1.0, 0.0), (0.0, 1.0)], True],
+#         [[(1.0, 0.0), (0.0, -0.1)], False],
+#         [[(0.0, 1.0), (-0.1, 1.0)], True],
+#         [[(0.0, 1.0), (10.1, 1.0)], False],
+#         [[(-1.0, 0.0), (-1.0, 0.1)], False],
+#         [[(-1.0, 0.0), (-1.0, -0.1)], True],
+#         [[(0.0, -1.0), (-0.1, -1.0)], False],
+#         [[(0.0, -1.0), (0.1, -1.0)], True],
+#     ]
+
+#     for input_val, output_val in input_output_pairs:
+#         assert output_val == mu.is_counter_clockwise(
+#             mu.Vector2D(*input_val[0]), mu.Vector2D(*input_val[1])
+#         )
+
+
+# def test_vec2_compose():
+#     fn: mu.InvertibleFunction = mu.translate(mu.Vector2D(x=2, y=3))
+#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+
+#     identity_fn: mu.InvertibleFunction = mu.compose([fn_inv, fn])
+
+#     input_output_pairs = [
+#         [[0, 0], [0, 0]],
+#         [[1, 0], [1, 0]],
+#         [[0, 1], [0, 1]],
+#     ]
+
+#     for input_val, output_val in input_output_pairs:
+#         wrap_vec2_test(identity_fn, input_val, output_val)
+
+
+# def test_vec3_rotate_x():
+#     fn: mu.InvertibleFunction = mu.rotate_x(math.radians(53.130102))
+#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+
+#     input_output_pairs = [
+#         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+#         [[0.0, 5.0, 0.0], [0.0, 3.0, 4.0]],
+#         [[0.0, 0.0, 5.0], [0.0, -4.0, 3.0]],
+#     ]
+
+#     for input_val, output_val in input_output_pairs:
+#         wrap_vec3_test(fn, input_val, output_val)
+#         wrap_vec3_test(fn_inv, output_val, input_val)
+
+
+# def test_vec3_rotate_y():
+#     fn: mu.InvertibleFunction = mu.rotate_y(math.radians(53.130102))
+#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+
+#     input_output_pairs = [
+#         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+#         [[0.0, 0.0, 5.0], [4.0, 0.0, 3.0]],
+#         [[5.0, 0.0, 0.0], [3.0, 0.0, -4.0]],
+#     ]
+
+#     for input_val, output_val in input_output_pairs:
+#         wrap_vec3_test(fn, input_val, output_val)
+#         wrap_vec3_test(fn_inv, output_val, input_val)
+
+
+# def test_vec3_rotate_z():
+#     fn: mu.InvertibleFunction = mu.rotate_z(math.radians(53.130102))
+#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+
+#     input_output_pairs = [
+#         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
+#         [[5.0, 0.0, 0.0], [3.0, 4.0, 0.0]],
+#         [[0.0, 5.0, 0.0], [-4.0, 3.0, 0.0]],
+#     ]
+
+#     for input_val, output_val in input_output_pairs:
+#         wrap_vec3_test(fn, input_val, output_val)
+#         wrap_vec3_test(fn_inv, output_val, input_val)
+
+
+# # doc-region-begin function stack examples definitions
+# def test_vec3_fn_stack():
+#     identity: InvertibleFunction = mu.uniform_scale(1)
+
+#     mu.fn_stack.push(identity)
+#     assert mu.Vector1D(1) == mu.fn_stack.modelspace_to_ndc_fn()(mu.Vector1D(1))
+
+#     add_one: InvertibleFunction = mu.translate(mu.Vector1D(1))
+
+#     mu.fn_stack.push(add_one)
+#     assert mu.Vector1D(2) == mu.fn_stack.modelspace_to_ndc_fn()(
+#         mu.Vector1D(1)
+#     )  # x + 1 = 2
+
+#     multiply_by_2: InvertibleFunction = mu.uniform_scale(2)
+
+#     mu.fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
+#     assert mu.Vector1D(3) == mu.fn_stack.modelspace_to_ndc_fn()(mu.Vector1D(1))
+
+#     add_5: InvertibleFunction = mu.translate(mu.Vector1D(5))
+
+#     mu.fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
+#     assert mu.Vector1D(13) == mu.fn_stack.modelspace_to_ndc_fn()(mu.Vector1D(1))
+
+#     mu.fn_stack.pop()
+#     assert mu.Vector1D(3) == mu.fn_stack.modelspace_to_ndc_fn()(
+#         mu.Vector1D(1)
+#     )  # (x * 2) + 1 = 3
+
+#     mu.fn_stack.pop()
+#     assert mu.Vector1D(2) == mu.fn_stack.modelspace_to_ndc_fn()(
+#         mu.Vector1D(1)
+#     )  # x + 1 = 2
+
+#     mu.fn_stack.pop()
+#     assert mu.Vector1D(1) == mu.fn_stack.modelspace_to_ndc_fn()(
+#         mu.Vector1D(1)
+#     )  # x = 1
+#     # doc-region-end function stack examples definitions
+
+
+# def test__doctest():
+#     failureCount, testCount = doctest.testmod(mu)
+#     assert 0 == failureCount

@@ -1,5 +1,14 @@
 * TODO [#1] Model View Projection
+    - [ ] Figure out how to handle notebook.  Don't generate ipynb files as part of docker build, people shouldn't need containers
+    - [ ] Put tests in math utils back in, for mxplusb, temp, translate, scale, etc
+    - [ ] Write a general rotate function (change inefficient_rotate_x)
+      - [ ] Given two vectors in the plane
+      - [ ] Given a normal to the plane
+    - [ ] Rewrite the rotate function to be more performant for rotate x, y, and z
+    - [ ] Change all of the rotate, translate, scale functions to use R, T, S
     - [ ] Add explanation of I for identity function, and T, R, etc
+    - [ ] Add ability to take rotate, translate, scale, and convert them to matrix
+    - [ ] Add ability mark function as linear, affine, or other
     - [ ] Add image to dockerhub
       - [ ] copy code, build it, put in all relavent files
       - [ ] Make sure mounting the source overrides it
@@ -21,14 +30,14 @@
       - [ ] explain doubler function better
       - [ ] Explain assigment
       - [ ] Reference assignment at end of chapter
-         - [ ] Put in instructions for how to
-             - [ ] Run jupyter lab
-             - [ ] Open the python file as a notebook
-    - [-] Ch 03
+        - [ ] Put in instructions for how to
+          - [ ] Run jupyter lab
+          - [ ] Open the python file as a notebook
+    - [ ] Ch 03
       - [ ] Add univariate example/problem for measurement
       - [ ] Add 2D example/problem for rotating 45 degrees
-    - [-] Ch 4
-      * [-] Introduct vector additon, use math notation
+    - [ ] Ch 4
+      * [ ] Introduct vector additon, use math notation
         - [ ] explain thinking about the two forms, coordinate free is easier to visualize and simpler, coordinates for when the work has to get done
         - [ ] explain notation, and how x means two different things, and sub 1 and sub 2 mean something different
       * [ ] put in example values for when the user pressed a/e
@@ -62,7 +71,7 @@
     - [ ] Ch 21 Finish the chapter on the perspective projection
     - [ ] Make the content for VAO, VBO, shaders, etc, from my class git repo
     - [X] make function names on Cayley graphs look better using images
-    - [71%] Rewrite rotate, and update explanations.
+    - [0%] Rewrite rotate, and update explanations.
       - [ ] Do it by making relative number lines
       - [ ] Update for chapter 18+
     - [ ] Ch 16

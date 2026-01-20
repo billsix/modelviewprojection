@@ -63,6 +63,18 @@ __all__ = [
     "cs_to_ndc_space_fn",
     "FunctionStack",
     "push_transformation",
+    "a_1",
+    "a_2",
+    "a_3",
+    "b_1",
+    "b_2",
+    "b_3",
+    "sym_vec2_1",
+    "sym_vec2_2",
+    "sym_vec3_1",
+    "sym_vec3_2",
+    "sym_vec_plane",
+    "sym_vec_plane_simplified",
 ]
 
 
@@ -862,6 +874,24 @@ def uniform_scale(m: float) -> InvertibleFunction:
     # doc-region-end define uniform scale
 
 
+e_1: MultiVector = MultiVector({(1,): 1})  # type: ignore
+e_2: MultiVector = MultiVector({(2,): 1})  # type: ignore
+e_3: MultiVector = MultiVector({(3,): 1})  # type: ignore
+zero: MultiVector = MultiVector.from_scalar(0)
+one: MultiVector = MultiVector.from_scalar(1)
+
+a_1, a_2, a_3, b_1, b_2, b_3 = sympy.symbols("a_1 a_2 a_3 b_1 b_2 b_3")
+
+sym_vec2_1: MultiVector = a_1 * e_1 + a_2 * e_2
+sym_vec2_2: MultiVector = b_1 * e_1 + b_2 * e_2
+
+sym_vec3_1: MultiVector = a_1 * e_1 + a_2 * e_2 + a_3 * e_3
+sym_vec3_2: MultiVector = b_1 * e_1 + b_2 * e_2 + b_3 * e_3
+
+sym_vec_plane: MultiVector = sym_vec3_1 * sym_vec3_2
+sym_vec_plane_simplified: MultiVector = sym_vec_plane.simplify()
+
+
 # doc-region-begin define vector class
 @dataclasses.dataclass
 class Vector1D(Vector):
@@ -891,18 +921,22 @@ class Vector3D(Vector2D):
 
 
 def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
-    def f(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector2D)
-        return Vector2D(vector.x * m_x, vector.y * m_y)
+    def f(vector: MultiVector) -> MultiVector:
+        # TODO - assert isinstance(vector, Vector2D)
+        return m_x * project(onto_mv=e_1)(vector) + m_y * project(onto_mv=e_2)(
+            vector
+        )
 
-    def f_inv(vector: Vector) -> Vector:
+    def f_inv(vector: MultiVector) -> MultiVector:
         assert isinstance(vector, Vector2D)
         if m_x == 0.0 or m_y == 0.0:
             raise ValueError(
                 "Note invertible.  Scaling factors cannot be zero."
             )
 
-        return Vector2D(vector.x / m_x, vector.y / m_y)
+        return (m_x) ** (-1) * project(onto_mv=e_1)(vector) + (m_y) ** (
+            -1
+        ) * project(onto_mv=e_2)(vector)
 
     return InvertibleFunction(
         f,
@@ -914,12 +948,13 @@ def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate
 def rotate_90_degrees() -> InvertibleFunction:
-    def f(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector2D)
-        return Vector2D(-vector.y, vector.x)
+    rot_90: MultiVector = e_1 * e_2
 
-    def f_inv(vector: Vector) -> Vector:
-        return -f(vector)
+    def f(vector: MultiVector) -> MultiVector:
+        return vector * rot_90
+
+    def f_inv(vector: MultiVector) -> MultiVector:
+        return vector * rot_90.inverse()
 
     return InvertibleFunction(f, f_inv, "R_{<xy90>}", "R_{<xy90>}^{-1}")
 
@@ -929,12 +964,12 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 
     def create_rotate_function(
         perp: InvertibleFunction,
-    ) -> typing.Callable[[Vector], Vector]:
-        def f(vector: Vector) -> Vector:
-            parallel: Vector = math.cos(float(angle_in_radians)) * vector
-            perpendicular: Vector = math.sin(float(angle_in_radians)) * perp(
-                vector
-            )
+    ) -> typing.Callable[[MultiVector], MultiVector]:
+        def f(vector: MultiVector) -> MultiVector:
+            parallel: MultiVector = math.cos(float(angle_in_radians)) * vector
+            perpendicular: MultiVector = math.sin(
+                float(angle_in_radians)
+            ) * perp(vector)
             return parallel + perpendicular
 
         return f
@@ -950,7 +985,7 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate around
 def rotate_around(
-    angle_in_radians: float, center: Vector2D
+    angle_in_radians: float, center: MultiVector
 ) -> InvertibleFunction:
     return compose(
         [translate(center), rotate(angle_in_radians), translate(-center)]
@@ -999,17 +1034,25 @@ def abs_sin(v1: Vector3D, v2: Vector3D) -> float:
 def scale_non_uniform_3d(
     m_x: float, m_y: float, m_z: float
 ) -> InvertibleFunction:
-    def f(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector3D)
-        return Vector3D(vector.x * m_x, vector.y * m_y, vector.z * m_z)
+    def f(vector: MultiVector) -> MultiVector:
+        # TODO assert isinstance(vector, Vector3D)
+        return (
+            m_x * project(onto_mv=e_1)(vector)
+            + m_y * project(onto_mv=e_2)(vector)
+            + m_z * project(onto_mv=e_3)(vector)
+        )
 
-    def f_inv(vector: Vector) -> Vector:
+    def f_inv(vector: MultiVector) -> MultiVector:
         if m_x == 0.0 or m_y == 0.0 or m_z == 0.0:
             raise ValueError(
                 "Note invertible.  Scaling factors cannot be zero."
             )
-        assert isinstance(vector, Vector3D)
-        return Vector3D(vector.x / m_x, vector.y / m_y, vector.z / m_z)
+        # assert isinstance(vector, Vector3D)
+        return (
+            (m_x) ** (-1) * project(onto_mv=e_1)(vector)
+            + (m_y) ** (-1) * project(onto_mv=e_2)(vector)
+            + (m_z) ** (-1) * project(onto_mv=e_3)(vector)
+        )
 
     return InvertibleFunction(
         f,
@@ -1019,23 +1062,62 @@ def scale_non_uniform_3d(
     )
 
 
-# doc-region-begin define rotate x
-def rotate_x(angle_in_radians: float) -> InvertibleFunction:
-    def create_rotate_function(r) -> typing.Callable[[Vector], Vector]:
-        def f(vector: Vector) -> Vector:
-            assert isinstance(vector, Vector3D)
-            yz_on_xy: Vector = Vector2D(x=vector.y, y=vector.z)
-            rotated_yz_on_xy: Vector = r(yz_on_xy)
-            return Vector3D(
-                x=vector.x, y=rotated_yz_on_xy.x, z=rotated_yz_on_xy.y
+def inefficient_rotate_x(angle_in_radians: float) -> InvertibleFunction:
+    project_onto_e2_e3 = project(e_2 * e_3)
+    project_onto_e1 = reject(e_2 * e_3)
+
+    def create_rotate_function(
+        perp: InvertibleFunction,
+    ) -> typing.Callable[[MultiVector], MultiVector]:
+        def rotate_plane(vector: MultiVector) -> MultiVector:
+            parallel: MultiVector = math.cos(float(angle_in_radians)) * vector
+            perpendicular: MultiVector = math.sin(
+                float(angle_in_radians)
+            ) * perp(vector)
+            return parallel + perpendicular
+
+        def f(vector: MultiVector):
+            return rotate_plane(project_onto_e2_e3(vector)) + project_onto_e1(
+                vector
             )
 
         return f
 
-    r = rotate(angle_in_radians)
+    def rotate_90_degrees_e2_e3() -> InvertibleFunction:
+        rot_90: MultiVector = e_2 * e_3
+
+        def f(vector: MultiVector) -> MultiVector:
+            return vector * rot_90
+
+        def f_inv(vector: MultiVector) -> MultiVector:
+            return vector * rot_90.inverse()
+
+        return InvertibleFunction(f, f_inv, "R_{<yz90>}", "R_{<yz90>}^{-1}")
+
+    r90: InvertibleFunction = rotate_90_degrees_e2_e3()
     return InvertibleFunction(
-        create_rotate_function(r),
-        create_rotate_function(inverse(r)),
+        create_rotate_function(r90),
+        create_rotate_function(inverse(r90)),
+        f"RX_{{<{angle_in_radians}>}}",
+        f"RX_{{<{-angle_in_radians}>}}",
+    )
+
+
+# doc-region-begin define rotate x
+def rotate_x(angle_in_radians: float) -> InvertibleFunction:
+    half_angle: float = angle_in_radians / 2.0
+    a: MultiVector = e_2
+    b: MultiVector = math.cos(half_angle) * e_2 + math.sin(half_angle) * e_3  # type: ignore
+
+    def f(vector: MultiVector) -> MultiVector:
+        return b * a * vector * a * b
+
+    def f_inv(vector: MultiVector) -> MultiVector:
+        return a * b * vector * b * a
+
+    return InvertibleFunction(
+        f,
+        f_inv,
         f"RX_{{<{angle_in_radians}>}}",
         f"RX_{{<{-angle_in_radians}>}}",
     )
@@ -1044,46 +1126,41 @@ def rotate_x(angle_in_radians: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate y
 def rotate_y(angle_in_radians: float) -> InvertibleFunction:
-    def create_rotate_function(r) -> typing.Callable[[Vector], Vector]:
-        def f(vector: Vector) -> Vector:
-            assert isinstance(vector, Vector3D)
-            zx_on_xy: Vector = Vector2D(x=vector.z, y=vector.x)
-            rotated_zx_on_xy: Vector = r(zx_on_xy)
-            assert isinstance(rotated_zx_on_xy, Vector2D)
-            return Vector3D(
-                x=rotated_zx_on_xy.y, y=vector.y, z=rotated_zx_on_xy.x
-            )
+    half_angle: float = angle_in_radians / 2.0
 
-        return f
+    a: MultiVector = e_3
+    b: MultiVector = math.cos(half_angle) * e_3 + math.sin(half_angle) * e_1  # type: ignore
 
-    r = rotate(angle_in_radians)
+    def f(vector: MultiVector) -> MultiVector:
+        return b * a * vector * a * b
+
+    def f_inv(vector: MultiVector) -> MultiVector:
+        return a * b * vector * b * a
+
     return InvertibleFunction(
-        create_rotate_function(r),
-        create_rotate_function(inverse(r)),
-        f"RY_{{<{angle_in_radians}>}}",
-        f"RY_{{<{-angle_in_radians}>}}",
+        f,
+        f_inv,
+        f"YZ_{{<{angle_in_radians}>}}",
+        f"YZ_{{<{-angle_in_radians}>}}",
     )
     # doc-region-end define rotate y
 
 
 # doc-region-begin define rotate z
 def rotate_z(angle_in_radians: float) -> InvertibleFunction:
-    def create_rotate_function(r) -> typing.Callable[[Vector], Vector]:
-        def f(vector: Vector) -> Vector:
-            assert isinstance(vector, Vector3D)
-            xy_on_xy: Vector = Vector2D(x=vector.x, y=vector.y)
-            rotated_xy_on_xy: Vector = r(xy_on_xy)
-            assert isinstance(rotated_xy_on_xy, Vector2D)
-            return Vector3D(
-                x=rotated_xy_on_xy.x, y=rotated_xy_on_xy.y, z=vector.z
-            )
+    half_angle: float = angle_in_radians / 2.0
+    a: MultiVector = e_1
+    b: MultiVector = math.cos(half_angle) * e_1 + math.sin(half_angle) * e_2  # type: ignore
 
-        return f
+    def f(vector: MultiVector) -> MultiVector:
+        return b * a * vector * a * b
 
-    r: InvertibleFunction = rotate(angle_in_radians)
+    def f_inv(vector: MultiVector) -> MultiVector:
+        return a * b * vector * b * a
+
     return InvertibleFunction(
-        create_rotate_function(r),
-        create_rotate_function(inverse(r)),
+        f,
+        f_inv,
         f"RZ_{{<{angle_in_radians}>}}",
         f"RZ_{{<{-angle_in_radians}>}}",
     )
@@ -1099,9 +1176,12 @@ def ortho(
     near: float,
     far: float,
 ) -> InvertibleFunction:
-    midpoint = Vector3D(
-        x=(left + right) / 2.0, y=(bottom + top) / 2.0, z=(near + far) / 2.0
+    midpoint: MultiVector = (
+        ((left + right) / 2.0) * e_1
+        + ((bottom + top) / 2.0) * e_2
+        + ((near + far) / 2.0) * e_3
     )
+
     length_x: float
     length_y: float
     length_z: float
@@ -1118,10 +1198,10 @@ def ortho(
         ]
     )
 
-    def f(vector: Vector) -> Vector:
+    def f(vector: MultiVector) -> MultiVector:
         return fn(vector)
 
-    def f_inv(vector: Vector) -> Vector:
+    def f_inv(vector: MultiVector) -> MultiVector:
         return inverse(fn)(vector)
 
     return InvertibleFunction(f, f_inv, "Ortho", "Ortho Inv")
@@ -1147,36 +1227,15 @@ def perspective(
         far=far_z,
     )
 
-    def f(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector3D)
-        s1d: InvertibleFunction = uniform_scale(near_z / vector.z)
-        x_component: Vector = s1d(Vector1D(x=vector.x))
-        y_component: Vector = s1d(Vector1D(x=vector.y))
-        assert isinstance(x_component, Vector1D)
-        assert isinstance(y_component, Vector1D)
+    def f(vector: MultiVector) -> MultiVector:
+        # assert isinstance(vector, Vector3D)
+        s1d: InvertibleFunction = uniform_scale(near_z / vector.component(e_3))  # type: ignore
+        return fn(s1d(project(e_1 * e_2)(vector)) + project(e_3)(vector))
 
-        rectangular_prism: Vector3D = Vector3D(
-            x=x_component.x, y=y_component.x, z=vector.z
-        )
-        return fn(rectangular_prism)
-
-    def f_inv(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector3D)
-        rectangular_prism: Vector = inverse(fn)(vector)
-        assert isinstance(rectangular_prism, Vector3D)
-
-        inverse_s1d: InvertibleFunction = inverse(
-            uniform_scale(near_z / vector.z)
-        )
-        x_component: Vector = inverse_s1d(Vector1D(x=rectangular_prism.x))
-        y_component: Vector = inverse_s1d(Vector1D(x=rectangular_prism.y))
-        assert isinstance(x_component, Vector1D)
-        assert isinstance(y_component, Vector1D)
-
-        return Vector3D(
-            x_component.x,
-            y_component.x,
-            rectangular_prism.z,
+    def f_inv(vector: MultiVector) -> MultiVector:
+        s1d: InvertibleFunction = uniform_scale(near_z / vector.component(e_3))  # type: ignore
+        return inverse(fn)(
+            inverse(s1d)(project(e_1 * e_2)(vector)) + project(e_3)(vector)
         )
 
     return InvertibleFunction(f, f_inv, "Perspective", "Perspective Inv")

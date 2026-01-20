@@ -53,7 +53,7 @@ clean: ## Delete the output directory, cleaning out the HTML and the PDF
 	rm -rf output/*
 
 .PHONY: shell
-shell: image ## Get Shell into a ephermeral container made from the image
+shell: ## Get Shell into a ephermeral container made from the image
 	$(CONTAINER_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
