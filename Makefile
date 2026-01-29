@@ -64,7 +64,7 @@ shell: ## Get Shell into a ephermeral container made from the image
 		/usr/local/bin/shell.sh
 
 
-html: image ## Build the html from the sphinx source
+html: ## Build the html from the sphinx source
 	printf "This documentation was generated from from commit " > book/docs/version.txt
 	git rev-parse HEAD >> book/docs/version.txt
 	$(CONTAINER_CMD) run -it --rm  \
