@@ -23,6 +23,8 @@ import itertools
 import math
 import numbers
 import typing
+from collections.abc import Sequence
+from typing import Callable
 
 import numpy as np
 import pytest
@@ -31,8 +33,6 @@ import sympy
 __all__ = [
     "Vector",
     "MultiVector",
-    "project",
-    "reject",
     "Vector1D",
     "InvertibleFunction",
     "identity",
@@ -74,9 +74,7 @@ __all__ = [
     "sym_vec3_1",
     "sym_vec3_2",
     "sym_vec_plane",
-    "sym_vec_plane_simplified",
 ]
-
 
 
 BladeCoef = dict[tuple[int, ...], numbers.Number]
@@ -110,7 +108,9 @@ class MultiVector:
 
     @staticmethod
     def unit_pseudoscalar(g: int) -> "MultiVector":
-        return math.prod([MultiVector({(x,): 1}) for x in range(1, g + 1)], start=one)  # type: ignore
+        return math.prod(
+            [MultiVector({(x,): 1}) for x in range(1, g + 1)], start=one
+        )  # type: ignore
 
     @staticmethod
     def unit_pseudoscalar_squared(g: int) -> "MultiVector":
@@ -135,7 +135,8 @@ class MultiVector:
                     + rhs.coefficient_of_blade.get(blade, 0)
                 )
                 for blade in (
-                    self.coefficient_of_blade.keys() | rhs.coefficient_of_blade.keys()
+                    self.coefficient_of_blade.keys()
+                    | rhs.coefficient_of_blade.keys()
                 )
             }
         )
@@ -164,7 +165,9 @@ class MultiVector:
                         case _:
                             return decrease_grade((a, *sorted_rest), new_mag)
                 case _:
-                    raise ValueError("This code should never be able to be excuted")
+                    raise ValueError(
+                        "This code should never be able to be excuted"
+                    )
 
         match rhs:
             case int() as n:
@@ -180,7 +183,10 @@ class MultiVector:
                             dict(
                                 [
                                     decrease_grade(
-                                        basis_blades=(*blade_left, *blade_right),
+                                        basis_blades=(
+                                            *blade_left,
+                                            *blade_right,
+                                        ),
                                         magnitude=scalar_left * scalar_right,  # type: ignore
                                     )
                                 ]
@@ -215,6 +221,10 @@ class MultiVector:
 
     def normalize(self) -> "MultiVector":
         return self * (abs(self) ** (-1))  # type: ignore
+
+    def component(self, x: typing.Self) -> numbers.Number:
+        # TODO - is this really how I should define it?
+        return self.dot(x).scalar_part()
 
     def dot(self, rhs) -> "MultiVector":
         return sum(
@@ -270,7 +280,9 @@ class MultiVector:
         return self.r(0).coefficient_of_blade.get(tuple(), 0)  # type: ignore
 
     def grades(self) -> list[int]:
-        return list(set(len(blade) for blade in self.coefficient_of_blade.keys()))
+        return list(
+            set(len(blade) for blade in self.coefficient_of_blade.keys())
+        )
 
     def max_grade(self) -> int:
         return max(self.grades())
@@ -356,7 +368,9 @@ class MultiVector:
 
         match onto:
             case _ as sequence if isinstance(onto, Sequence):
-                assert isinstance(sequence, Sequence)  # to satisfy type checking
+                assert isinstance(
+                    sequence, Sequence
+                )  # to satisfy type checking
                 return MultiVector.project(MultiVector.outer_product(*sequence))
             case MultiVector() as onto_vector if onto_vector.is_vector():
                 return p
@@ -375,21 +389,29 @@ class MultiVector:
 
         def r(value: MultiVector) -> MultiVector:
             assert value.is_vector()  # TODO - can this be generalized?
-            assert isinstance(away_from, MultiVector)  # to satisfy type checking
+            assert isinstance(
+                away_from, MultiVector
+            )  # to satisfy type checking
             return (value.wedge(away_from)) * away_from.inverse()
 
         match away_from:
             case _ as sequence if isinstance(away_from, Sequence):
-                assert isinstance(sequence, Sequence)  # to satisfy type checking
+                assert isinstance(
+                    sequence, Sequence
+                )  # to satisfy type checking
                 return MultiVector.reject(MultiVector.outer_product(*sequence))
-            case MultiVector() as away_from_vector if away_from_vector.is_vector():
+            case MultiVector() as away_from_vector if (
+                away_from_vector.is_vector()
+            ):
                 return r
             case MultiVector() as away_from_bivector if (
                 away_from_bivector.is_bivector()
             ):
                 return r
             case _:
-                raise Exception("TODO - implement project for " + str(away_from))
+                raise Exception(
+                    "TODO - implement project for " + str(away_from)
+                )
 
     @staticmethod
     def reflect(
@@ -402,13 +424,19 @@ class MultiVector:
             assert value.is_vector()  # TODO - can this be generalized?
             assert isinstance(across, MultiVector)  # to satisfy type checking
 
-            return components_in_plane(value) - components_exterior_to_plane(value)
+            return components_in_plane(value) - components_exterior_to_plane(
+                value
+            )
 
         match across:
             case _ as sequence if isinstance(across, Sequence):
-                assert isinstance(sequence, Sequence)  # to satisfy type checking
+                assert isinstance(
+                    sequence, Sequence
+                )  # to satisfy type checking
                 return MultiVector.reflect(MultiVector.outer_product(*sequence))
-            case MultiVector() as away_from_vector if away_from_vector.is_vector():
+            case MultiVector() as away_from_vector if (
+                away_from_vector.is_vector()
+            ):
                 return r
             case MultiVector() as away_from_bivector if (
                 away_from_bivector.is_bivector()
@@ -993,7 +1021,6 @@ sym_vec3_1: MultiVector = a_1 * e_1 + a_2 * e_2 + a_3 * e_3
 sym_vec3_2: MultiVector = b_1 * e_1 + b_2 * e_2 + b_3 * e_3
 
 sym_vec_plane: MultiVector = sym_vec3_1 * sym_vec3_2
-sym_vec_plane_simplified: MultiVector = sym_vec_plane.simplify()
 
 
 # doc-region-begin define vector class
@@ -1027,9 +1054,9 @@ class Vector3D(Vector2D):
 def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
     def f(vector: MultiVector) -> MultiVector:
         # TODO - assert isinstance(vector, Vector2D)
-        return m_x * project(onto_mv=e_1)(vector) + m_y * project(onto_mv=e_2)(
+        return m_x * MultiVector.project(onto=e_1)(
             vector
-        )
+        ) + m_y * MultiVector.project(onto=e_2)(vector)
 
     def f_inv(vector: MultiVector) -> MultiVector:
         assert isinstance(vector, Vector2D)
@@ -1038,9 +1065,9 @@ def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
                 "Note invertible.  Scaling factors cannot be zero."
             )
 
-        return (m_x) ** (-1) * project(onto_mv=e_1)(vector) + (m_y) ** (
-            -1
-        ) * project(onto_mv=e_2)(vector)
+        return (m_x) ** (-1) * MultiVector.project(onto=e_1)(vector) + (
+            m_y
+        ) ** (-1) * MultiVector.project(onto=e_2)(vector)
 
     return InvertibleFunction(
         f,
@@ -1141,9 +1168,9 @@ def scale_non_uniform_3d(
     def f(vector: MultiVector) -> MultiVector:
         # TODO assert isinstance(vector, Vector3D)
         return (
-            m_x * project(onto_mv=e_1)(vector)
-            + m_y * project(onto_mv=e_2)(vector)
-            + m_z * project(onto_mv=e_3)(vector)
+            m_x * MultiVector.project(onto=e_1)(vector)
+            + m_y * MultiVector.project(onto=e_2)(vector)
+            + m_z * MultiVector.project(onto=e_3)(vector)
         )
 
     def f_inv(vector: MultiVector) -> MultiVector:
@@ -1153,9 +1180,9 @@ def scale_non_uniform_3d(
             )
         # assert isinstance(vector, Vector3D)
         return (
-            (m_x) ** (-1) * project(onto_mv=e_1)(vector)
-            + (m_y) ** (-1) * project(onto_mv=e_2)(vector)
-            + (m_z) ** (-1) * project(onto_mv=e_3)(vector)
+            (m_x) ** (-1) * MultiVector.project(onto=e_1)(vector)
+            + (m_y) ** (-1) * MultiVector.project(onto=e_2)(vector)
+            + (m_z) ** (-1) * MultiVector.project(onto=e_3)(vector)
         )
 
     return InvertibleFunction(
@@ -1166,58 +1193,25 @@ def scale_non_uniform_3d(
     )
 
 
-def inefficient_rotate_x(angle_in_radians: float) -> InvertibleFunction:
-    project_onto_e2_e3 = project(e_2 * e_3)
-    project_onto_e1 = reject(e_2 * e_3)
-
-    def create_rotate_function(
-        perp: InvertibleFunction,
-    ) -> typing.Callable[[MultiVector], MultiVector]:
-        def rotate_plane(vector: MultiVector) -> MultiVector:
-            parallel: MultiVector = math.cos(float(angle_in_radians)) * vector
-            perpendicular: MultiVector = math.sin(
-                float(angle_in_radians)
-            ) * perp(vector)
-            return parallel + perpendicular
-
-        def f(vector: MultiVector):
-            return rotate_plane(project_onto_e2_e3(vector)) + project_onto_e1(
-                vector
-            )
-
-        return f
-
-    def rotate_90_degrees_e2_e3() -> InvertibleFunction:
-        rot_90: MultiVector = e_2 * e_3
-
-        def f(vector: MultiVector) -> MultiVector:
-            return vector * rot_90
-
-        def f_inv(vector: MultiVector) -> MultiVector:
-            return vector * rot_90.inverse()
-
-        return InvertibleFunction(f, f_inv, "R_{<yz90>}", "R_{<yz90>}^{-1}")
-
-    r90: InvertibleFunction = rotate_90_degrees_e2_e3()
-    return InvertibleFunction(
-        create_rotate_function(r90),
-        create_rotate_function(inverse(r90)),
-        f"RX_{{<{angle_in_radians}>}}",
-        f"RX_{{<{-angle_in_radians}>}}",
-    )
-
-
 # doc-region-begin define rotate x
 def rotate_x(angle_in_radians: float) -> InvertibleFunction:
-    half_angle: float = angle_in_radians / 2.0
-    a: MultiVector = e_2
-    b: MultiVector = math.cos(half_angle) * e_2 + math.sin(half_angle) * e_3  # type: ignore
+    # The commented out code works, but I'm trying to explain it differently
+    # half_angle: float = angle_in_radians / 2.0
+    # a: MultiVector = e_2
+    # b: MultiVector = math.cos(half_angle) * e_2 + math.sin(half_angle) * e_3
 
-    def f(vector: MultiVector) -> MultiVector:
-        return b * a * vector * a * b
+    # def f(vector: MultiVector) -> MultiVector:
+    #     return b * a * vector * a * b
 
-    def f_inv(vector: MultiVector) -> MultiVector:
-        return a * b * vector * b * a
+    # def f_inv(vector: MultiVector) -> MultiVector:
+    #     return a * b * vector * b * a
+
+    f: MultiVectorFn = MultiVector.rotate(
+        from_vector=e_2, to_vector=e_3, angle_in_radians=angle_in_radians
+    )
+    f_inv: MultiVectorFn = MultiVector.rotate(
+        from_vector=e_2, to_vector=e_3, angle_in_radians=-angle_in_radians
+    )
 
     return InvertibleFunction(
         f,
@@ -1230,16 +1224,24 @@ def rotate_x(angle_in_radians: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate y
 def rotate_y(angle_in_radians: float) -> InvertibleFunction:
-    half_angle: float = angle_in_radians / 2.0
+    # The commented out code works, but I'm trying to explain it differently
+    # half_angle: float = angle_in_radians / 2.0
 
-    a: MultiVector = e_3
-    b: MultiVector = math.cos(half_angle) * e_3 + math.sin(half_angle) * e_1  # type: ignore
+    # a: MultiVector = e_3
+    # b: MultiVector = math.cos(half_angle) * e_3 + math.sin(half_angle) * e_1
 
-    def f(vector: MultiVector) -> MultiVector:
-        return b * a * vector * a * b
+    # def f(vector: MultiVector) -> MultiVector:
+    #     return b * a * vector * a * b
 
-    def f_inv(vector: MultiVector) -> MultiVector:
-        return a * b * vector * b * a
+    # def f_inv(vector: MultiVector) -> MultiVector:
+    #     return a * b * vector * b * a
+
+    f: MultiVectorFn = MultiVector.rotate(
+        from_vector=e_3, to_vector=e_1, angle_in_radians=angle_in_radians
+    )
+    f_inv: MultiVectorFn = MultiVector.rotate(
+        from_vector=e_3, to_vector=e_1, angle_in_radians=-angle_in_radians
+    )
 
     return InvertibleFunction(
         f,
@@ -1252,15 +1254,23 @@ def rotate_y(angle_in_radians: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate z
 def rotate_z(angle_in_radians: float) -> InvertibleFunction:
-    half_angle: float = angle_in_radians / 2.0
-    a: MultiVector = e_1
-    b: MultiVector = math.cos(half_angle) * e_1 + math.sin(half_angle) * e_2  # type: ignore
+    # The commented out code works, but I'm trying to explain it differently
+    # half_angle: float = angle_in_radians / 2.0
+    # a: MultiVector = e_1
+    # b: MultiVector = math.cos(half_angle) * e_1 + math.sin(half_angle) * e_2
 
-    def f(vector: MultiVector) -> MultiVector:
-        return b * a * vector * a * b
+    # def f(vector: MultiVector) -> MultiVector:
+    #     return b * a * vector * a * b
 
-    def f_inv(vector: MultiVector) -> MultiVector:
-        return a * b * vector * b * a
+    # def f_inv(vector: MultiVector) -> MultiVector:
+    #     return a * b * vector * b * a
+
+    f: MultiVectorFn = MultiVector.rotate(
+        from_vector=e_1, to_vector=e_2, angle_in_radians=angle_in_radians
+    )
+    f_inv: MultiVectorFn = MultiVector.rotate(
+        from_vector=e_1, to_vector=e_2, angle_in_radians=-angle_in_radians
+    )
 
     return InvertibleFunction(
         f,
@@ -1334,12 +1344,16 @@ def perspective(
     def f(vector: MultiVector) -> MultiVector:
         # assert isinstance(vector, Vector3D)
         s1d: InvertibleFunction = uniform_scale(near_z / vector.component(e_3))  # type: ignore
-        return fn(s1d(project(e_1 * e_2)(vector)) + project(e_3)(vector))
+        return fn(
+            s1d(MultiVector.project(e_1 * e_2)(vector))
+            + MultiVector.project(e_3)(vector)
+        )
 
     def f_inv(vector: MultiVector) -> MultiVector:
         s1d: InvertibleFunction = uniform_scale(near_z / vector.component(e_3))  # type: ignore
         return inverse(fn)(
-            inverse(s1d)(project(e_1 * e_2)(vector)) + project(e_3)(vector)
+            inverse(s1d)(MultiVector.project(e_1 * e_2)(vector))
+            + MultiVector.project(e_3)(vector)
         )
 
     return InvertibleFunction(f, f_inv, "Perspective", "Perspective Inv")
