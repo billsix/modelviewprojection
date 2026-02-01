@@ -78,7 +78,9 @@ __all__ = [
 ]
 
 
+
 BladeCoef = dict[tuple[int, ...], numbers.Number]
+MultiVectorFn = Callable[["MultiVector"], "MultiVector"]
 
 
 @dataclasses.dataclass
@@ -86,9 +88,14 @@ class MultiVector:
     coefficient_of_blade: BladeCoef
 
     def __post_init__(self):
+        # simplify all coefficients
+        self.coefficient_of_blade = {
+            blade: sympy.simplify(self.coefficient_of_blade[blade])  # type: ignore
+            for blade in self.coefficient_of_blade.keys()
+        }
         # prune zero coefficient_of_blade
         self.coefficient_of_blade = {
-            blade: self.coefficient_of_blade[blade]
+            blade: self.coefficient_of_blade[blade]  # type: ignore
             for blade in self.coefficient_of_blade.keys()
             if self.coefficient_of_blade[blade] != 0
         }
@@ -103,9 +110,7 @@ class MultiVector:
 
     @staticmethod
     def unit_pseudoscalar(g: int) -> "MultiVector":
-        return math.prod(
-            [MultiVector({(x,): 1}) for x in range(1, g + 1)], start=one
-        )  # type: ignore
+        return math.prod([MultiVector({(x,): 1}) for x in range(1, g + 1)], start=one)  # type: ignore
 
     @staticmethod
     def unit_pseudoscalar_squared(g: int) -> "MultiVector":
@@ -130,13 +135,12 @@ class MultiVector:
                     + rhs.coefficient_of_blade.get(blade, 0)
                 )
                 for blade in (
-                    self.coefficient_of_blade.keys()
-                    | rhs.coefficient_of_blade.keys()
+                    self.coefficient_of_blade.keys() | rhs.coefficient_of_blade.keys()
                 )
             }
         )
 
-    def __sub__(self, rhs: typing.Self) -> "MultiVector":
+    def __sub__(self, rhs) -> "MultiVector":
         return self + -rhs
 
     def __mul__(self, rhs) -> "MultiVector":
@@ -160,9 +164,7 @@ class MultiVector:
                         case _:
                             return decrease_grade((a, *sorted_rest), new_mag)
                 case _:
-                    raise ValueError(
-                        "This code should never be able to be excuted"
-                    )
+                    raise ValueError("This code should never be able to be excuted")
 
         match rhs:
             case int() as n:
@@ -178,10 +180,7 @@ class MultiVector:
                             dict(
                                 [
                                     decrease_grade(
-                                        basis_blades=(
-                                            *blade_left,
-                                            *blade_right,
-                                        ),
+                                        basis_blades=(*blade_left, *blade_right),
                                         magnitude=scalar_left * scalar_right,  # type: ignore
                                     )
                                 ]
@@ -214,8 +213,8 @@ class MultiVector:
     def __abs__(self) -> numbers.Number | sympy.Expr:
         return sympy.sqrt(self.abs_squared())
 
-    def component(self, x: typing.Self) -> numbers.Number:
-        return self.dot(x).scalar_part()
+    def normalize(self) -> "MultiVector":
+        return self * (abs(self) ** (-1))  # type: ignore
 
     def dot(self, rhs) -> "MultiVector":
         return sum(
@@ -236,6 +235,13 @@ class MultiVector:
             start=zero,
         )
 
+    def __xor__(self, other: typing.Self) -> "MultiVector":
+        return self.wedge(other)
+
+    @staticmethod
+    def outer_product(*vectors: "MultiVector") -> "MultiVector":
+        return functools.reduce(lambda a, b: a ^ b, vectors)
+
     def r(self, part: int) -> "MultiVector":
         return self.r_vector_part(part)
 
@@ -251,13 +257,20 @@ class MultiVector:
     def is_homogeneous_of_grade_r(self, r: int) -> bool:
         return self == self.r_vector_part(r)
 
+    def is_vector(self) -> bool:
+        return self.is_homogeneous_of_grade_r(r=1)
+
+    def is_bivector(self) -> bool:
+        return self.is_homogeneous_of_grade_r(r=2)
+
+    def is_trivector(self) -> bool:
+        return self.is_homogeneous_of_grade_r(r=3)
+
     def scalar_part(self) -> numbers.Number:
         return self.r(0).coefficient_of_blade.get(tuple(), 0)  # type: ignore
 
     def grades(self) -> list[int]:
-        return list(
-            set(len(blade) for blade in self.coefficient_of_blade.keys())
-        )
+        return list(set(len(blade) for blade in self.coefficient_of_blade.keys()))
 
     def max_grade(self) -> int:
         return max(self.grades())
@@ -277,16 +290,8 @@ class MultiVector:
             start=zero,
         )
 
-    def simplify(self) -> "MultiVector":
-        return MultiVector(
-            coefficient_of_blade={
-                blade: sympy.simplify(self.coefficient_of_blade[blade])  # type: ignore
-                for blade in self.coefficient_of_blade.keys()
-            }
-        )
-
     def abs_squared(self) -> numbers.Number:
-        return (self.reverse() * self).simplify().scalar_part()
+        return (self.reverse() * self).scalar_part()
 
     def inverse(self) -> "MultiVector":
         """
@@ -294,7 +299,7 @@ class MultiVector:
 
         Note sure if I'm doing it correctly
         """
-        return self.reverse().simplify() * (self.abs_squared() ** (-1))  # type: ignore
+        return self.reverse() * (self.abs_squared() ** (-1))  # type: ignore
 
     def dual(self, g: int) -> "MultiVector":
         return self * MultiVector.unit_pseudoscalar(g).inverse()
@@ -330,6 +335,129 @@ class MultiVector:
             * (abs(other) ** (-1))
         )  # type: ignore
 
+    @staticmethod
+    def project(
+        onto: "MultiVector" | Sequence["MultiVector"],
+    ) -> MultiVectorFn:
+        """
+        page 18
+        """
+
+        def p(value: MultiVector) -> MultiVector:
+            assert value.is_vector()  # TODO - can this be generalized?
+            assert isinstance(onto, MultiVector)  # to satisfy type checking
+            return (value.dot(onto)) * onto.inverse()
+
+        # TODO - for project and reject, I need to look at Hestenes' definitions
+        # I'm not sure the special cases he defines, or how to test for them.
+        # I'm still trying to fully understand what makes something a kblade
+        # vs kvector, and how his project and reject definition of pseudoscalars
+        # applies to bivectors, for instance.
+
+        match onto:
+            case _ as sequence if isinstance(onto, Sequence):
+                assert isinstance(sequence, Sequence)  # to satisfy type checking
+                return MultiVector.project(MultiVector.outer_product(*sequence))
+            case MultiVector() as onto_vector if onto_vector.is_vector():
+                return p
+            case MultiVector() as onto_bivector if onto_bivector.is_bivector():
+                return p
+            case _:
+                raise Exception("TODO - implement project for " + str(onto))
+
+    @staticmethod
+    def reject(
+        away_from: "MultiVector" | Sequence["MultiVector"],
+    ) -> MultiVectorFn:
+        """
+        page 18
+        """
+
+        def r(value: MultiVector) -> MultiVector:
+            assert value.is_vector()  # TODO - can this be generalized?
+            assert isinstance(away_from, MultiVector)  # to satisfy type checking
+            return (value.wedge(away_from)) * away_from.inverse()
+
+        match away_from:
+            case _ as sequence if isinstance(away_from, Sequence):
+                assert isinstance(sequence, Sequence)  # to satisfy type checking
+                return MultiVector.reject(MultiVector.outer_product(*sequence))
+            case MultiVector() as away_from_vector if away_from_vector.is_vector():
+                return r
+            case MultiVector() as away_from_bivector if (
+                away_from_bivector.is_bivector()
+            ):
+                return r
+            case _:
+                raise Exception("TODO - implement project for " + str(away_from))
+
+    @staticmethod
+    def reflect(
+        across: "MultiVector" | Sequence["MultiVector"],
+    ) -> MultiVectorFn:
+        components_in_plane: MultiVectorFn = MultiVector.project(across)
+        components_exterior_to_plane: MultiVectorFn = MultiVector.reject(across)
+
+        def r(value: MultiVector) -> MultiVector:
+            assert value.is_vector()  # TODO - can this be generalized?
+            assert isinstance(across, MultiVector)  # to satisfy type checking
+
+            return components_in_plane(value) - components_exterior_to_plane(value)
+
+        match across:
+            case _ as sequence if isinstance(across, Sequence):
+                assert isinstance(sequence, Sequence)  # to satisfy type checking
+                return MultiVector.reflect(MultiVector.outer_product(*sequence))
+            case MultiVector() as away_from_vector if away_from_vector.is_vector():
+                return r
+            case MultiVector() as away_from_bivector if (
+                away_from_bivector.is_bivector()
+            ):
+                return r
+            case _:
+                raise Exception("TODO - implement project for " + str(across))
+
+    @staticmethod
+    def rotate(
+        from_vector: "MultiVector",
+        to_vector: "MultiVector",
+        angle_in_radians: None | float = None,
+    ) -> MultiVectorFn:
+        assert from_vector.is_vector()
+        assert to_vector.is_vector()
+        plane: MultiVector = from_vector ^ to_vector
+
+        components_in_plane: MultiVectorFn = MultiVector.project(plane)
+        components_exterior_to_plane: MultiVectorFn = MultiVector.reject(plane)
+
+        if angle_in_radians is None:
+
+            def r(value: MultiVector) -> MultiVector:
+                assert value.is_vector()  # TODO - can this be generalized?
+                return (
+                    components_in_plane(value) * from_vector * to_vector
+                ) + components_exterior_to_plane(value)
+
+            return r
+        else:
+            c = sympy.cos(angle_in_radians)
+            s = sympy.sin(angle_in_radians)
+
+            parallel_in_plane = from_vector.normalize()
+            perp_in_plane = MultiVector.reject(away_from=from_vector)(
+                to_vector
+            ).normalize()
+
+            def r(value: MultiVector) -> MultiVector:
+                assert value.is_vector()  # TODO - can this be generalized?
+                return (
+                    components_in_plane(value)
+                    * parallel_in_plane
+                    * (c * parallel_in_plane + s * perp_in_plane)
+                ) + components_exterior_to_plane(value)
+
+            return r
+
     def _repr_latex_(self):
         def add_parens_or_dont(x):
             if isinstance(x, sympy.Expr):
@@ -349,30 +477,6 @@ class MultiVector:
         ]
         # latex_string = r"$\frac{1}{2}$"
         return "$" + " +  ".join(blades) + "$"
-
-
-def project(
-    onto_mv: MultiVector,
-) -> typing.Callable[[MultiVector], MultiVector]:
-    """
-    page 18
-    """
-
-    def value(value: MultiVector) -> MultiVector:
-        return (value.dot(onto_mv)) * onto_mv.inverse()
-
-    return value
-
-
-def reject(from_mv: MultiVector) -> typing.Callable[[MultiVector], MultiVector]:
-    """
-    page 18
-    """
-
-    def value(value: MultiVector) -> MultiVector:
-        return (value.wedge(from_mv)) * from_mv.inverse()
-
-    return value
 
 
 e_1: MultiVector = MultiVector({(1,): 1})  # type: ignore
