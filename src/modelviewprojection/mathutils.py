@@ -27,7 +27,6 @@ from collections.abc import Sequence
 from typing import Callable
 
 import numpy as np
-import pytest
 import sympy
 
 __all__ = [
@@ -352,7 +351,9 @@ class MultiVector:
     def is_trivector(self) -> bool:
         return self.is_homogeneous_of_grade_r(r=3)
 
-    def is_orthogonal_to(self, other: typing.Self) -> bool:
+    def is_orthogonal_to(
+        self, other: typing.Self, float_close_to_zero: bool = False
+    ) -> bool:
         """
         from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 9,
         between equations 1.32 and 1.33
@@ -363,7 +364,36 @@ class MultiVector:
         assert self.is_vector()
         assert other.is_vector()
 
-        return self.inner_product(other) == zero
+        return bool(
+            np.isclose(
+                float(self.inner_product(other)),
+                float(0.0),
+                rtol=1e-5,
+                atol=1e-5,
+            )
+            if float_close_to_zero
+            else (self.inner_product(other) == zero)
+        )
+
+    def is_parallel_to(
+        self, other: typing.Self, float_close_to_zero: bool = False
+    ) -> bool:
+        """
+        not sure if I'm doing this correctly
+        """
+
+        # TODO - defined for vectors only right now, it's probably defined more
+        # generally later in the book
+        assert self.is_vector()
+        assert other.is_vector()
+
+        return bool(
+            np.isclose(
+                float(self.cosine(other)), float(1.0), rtol=1e-5, atol=1e-5
+            )
+            if float_close_to_zero
+            else (self.cosine(other) == 1)
+        )
 
     def scalar_part(self) -> numbers.Number:
         return self.r_vector_part(0).coefficient_of_blade.get(tuple(), 0)  # type: ignore
@@ -568,6 +598,22 @@ class MultiVector:
                 ) + components_exterior_to_plane(value)
 
             return r
+
+    def is_close(self, other: typing.Self) -> bool:
+        return all(
+            [
+                np.isclose(
+                    float(self.coefficient_of_blade.get(blade, 0)),
+                    float(other.coefficient_of_blade.get(blade, 0)),
+                    rtol=1e-5,
+                    atol=1e-5,
+                )
+                for blade in (
+                    self.coefficient_of_blade.keys()
+                    | other.coefficient_of_blade.keys()
+                )
+            ]
+        )
 
     def _repr_latex_(self):
         def add_parens_or_dont(x):
@@ -1217,42 +1263,20 @@ def rotate_around(
     # doc-region-end define rotate around
 
 
-def cosine(v1: Vector, v2: Vector) -> float:
-    assert isinstance(v1, Vector2D)
-    assert isinstance(v2, Vector2D)
-    return v1.dot(v2) / (abs(v1) * (abs(v2)))
-
-
-def sine(v1: Vector, v2: Vector) -> float:
-    assert isinstance(v1, Vector2D)
-    assert isinstance(v2, Vector2D)
-    return rotate_90_degrees()(v1).dot(v2) / (abs(v1) * (abs(v2)))
-
-
 # doc-region-begin counter clockwise
-def is_counter_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
-    return sine(v1, v2) >= 0.000000
+def is_counter_clockwise(v1: MultiVector, v2: MultiVector) -> bool:
+    return not is_clockwise(v1, v2)
     # doc-region-end counter clockwise
 
 
 # doc-region-begin clockwise
-def is_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
-    return not is_clockwise(v1, v2)
+def is_clockwise(v1: MultiVector, v2: MultiVector) -> bool:
+    assert v1.is_vector()
+    assert v2.is_vector()
+    assert MultiVector.project(onto=e_1 * e_2)(v1) == v1
+    assert MultiVector.project(onto=e_1 * e_2)(v2) == v2
+    return float(rotate_90_degrees()(v1).cosine(v2)) > 0.000001  # type: ignore
     # doc-region-end clockwise
-
-
-# doc-region-begin parallel
-def is_parallel(v1: Vector2D, v2: Vector2D) -> bool:
-    return cosine(v1, v2) == pytest.approx(1.0, abs=0.01)
-    # doc-region-end parallel
-
-
-def cos(v1: Vector3D, v2: Vector3D) -> float:
-    return v1.dot(v2) / (abs(v1) * abs(v2))
-
-
-def abs_sin(v1: Vector3D, v2: Vector3D) -> float:
-    return abs(v1.cross(v2)) / (abs(v1) * abs(v2))
 
 
 def scale_non_uniform_3d(

@@ -1,4 +1,6 @@
 * TODO [#1] Model View Projection
+    - [ ] Add in tests for 3d rotations
+    - [ ] Add doctests back in and fix them
     - [ ] Figure out how to handle notebook.  Don't generate ipynb files as part of docker build, people shouldn't need containers
     - [ ] Put tests in math utils back in, for mxplusb, temp, translate, scale, etc
     - [ ] Write a general rotate function (change inefficient_rotate_x)

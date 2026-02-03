@@ -24,8 +24,10 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 import itertools
 
 import sympy
+from sympy.printing.latex import translate
 
 from modelviewprojection.mathutils import (
+    InvertibleFunction,
     MultiVector,
     MultiVectorFn,
     a_1,
@@ -34,15 +36,21 @@ from modelviewprojection.mathutils import (
     b_1,
     b_2,
     b_3,
+    compose,
     e_1,
     e_2,
     e_3,
+    fn_stack,
+    inverse,
+    is_clockwise,
     one,
     sym_vec2_1,
     sym_vec2_2,
     sym_vec3_1,
     sym_vec3_2,
     sym_vec_plane,
+    translate,
+    uniform_scale,
     zero,
 )
 
@@ -501,301 +509,211 @@ def test_rotate_angle() -> None:
     )
 
 
-# def wrap_vec1_test(
-#     fn: mu.InvertibleFunction, input_val: float, output_val: float
-# ):
-#     out: mu.Vector = fn(mu.Vector1D(input_val))
-#     assert out.isclose(mu.Vector1D(output_val))
+def wrap_vec1_test(
+    fn: InvertibleFunction, input_val: MultiVector, output_val: MultiVector
+):
+    assert fn(input_val).is_close(output_val)
 
 
-# # doc-region-begin translate test
-# def test__vec1_translate():
-#     fn: mu.InvertibleFunction = mu.translate(mu.Vector1D(2))
-#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+# doc-region-begin translate test
+def test__vec1_translate():
+    fn: InvertibleFunction = translate(2 * e_1)
+    fn_inv: InvertibleFunction = inverse(fn)
 
-#     input_output_pairs = [
-#         [-3, -1],
-#         [-2, 0],
-#         [-1, 1],
-#         [0, 2],
-#         [1, 3],
-#         [2, 4],
-#         [3, 5],
-#         [4, 6],
-#     ]
-#     for input_val, output_val in input_output_pairs:
-#         wrap_vec1_test(fn, input_val, output_val)
-#         wrap_vec1_test(fn_inv, output_val, input_val)
-
-
-# # doc-region-end translate test
+    input_output_pairs = [
+        [-3 * e_1, -1 * e_1],
+        [-2 * e_1, 0 * e_1],
+        [-1 * e_1, 1 * e_1],
+        [0 * e_1, 2 * e_1],
+        [1 * e_1, 3 * e_1],
+        [2 * e_1, 4 * e_1],
+        [3 * e_1, 5 * e_1],
+        [4 * e_1, 6 * e_1],
+    ]
+    for input_val, output_val in input_output_pairs:
+        wrap_vec1_test(fn, input_val, output_val)
+        wrap_vec1_test(fn_inv, output_val, input_val)
 
 
-# def test__vec1_mx_plus_b():
-#     m = 5
-#     b = 2
-
-#     fn: mu.InvertibleFunction = mu.compose(
-#         [mu.translate(mu.Vector1D(b)), mu.uniform_scale(m)]
-#     )
-#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-#     input_output_pairs = [
-#         [-3, -13],
-#         [-2, -8],
-#         [-1, -3],
-#         [0, 2],
-#         [1, 7],
-#         [2, 12],
-#         [3, 17],
-#         [4, 22],
-#     ]
-
-#     for input_val, output_val in input_output_pairs:
-#         wrap_vec1_test(fn, input_val, output_val)
-#         wrap_vec1_test(fn_inv, output_val, input_val)
+# doc-region-end translate test
 
 
-# def test_vec1_uniform_scale():
-#     fn: mu.InvertibleFunction = mu.uniform_scale(4)
-#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
+def test__vec1_mx_plus_b():
+    m = 5
+    b = 2
 
-#     input_output_pairs = [
-#         [-3, -12],
-#         [-2, -8],
-#         [-1, -4],
-#         [0, 0],
-#         [1, 4],
-#         [2, 8],
-#         [3, 12],
-#         [4, 16],
-#     ]
+    fn: InvertibleFunction = compose([translate(b * e_1), uniform_scale(m)])
+    fn_inv: InvertibleFunction = inverse(fn)
 
-#     for input_val, output_val in input_output_pairs:
-#         wrap_vec1_test(fn, input_val, output_val)
-#         wrap_vec1_test(fn_inv, output_val, input_val)
+    input_output_pairs = [
+        [-3 * e_1, -13 * e_1],
+        [-2 * e_1, -8 * e_1],
+        [-1 * e_1, -3 * e_1],
+        [0 * e_1, 2 * e_1],
+        [1 * e_1, 7 * e_1],
+        [2 * e_1, 12 * e_1],
+        [3 * e_1, 17 * e_1],
+        [4 * e_1, 22 * e_1],
+    ]
 
-
-# def test_vec1_tempature_conversion():
-#     def test_vec1_vector1d_function(
-#         fn: mu.InvertibleFunction,
-#         input_output_pairs: list[list[float]],
-#     ):
-#         for input_val, output_val in input_output_pairs:
-#             assert fn(mu.Vector1D(input_val)).isclose(mu.Vector1D(output_val))
-#             assert mu.inverse(fn)(mu.Vector1D(output_val)).isclose(
-#                 mu.Vector1D(input_val)
-#             )
-
-#     # doc-region-begin temperature functions
-#     celsius_to_kelvin: mu.InvertibleFunction = mu.translate(mu.Vector1D(273.15))
-#     fahrenheit_to_celsius: mu.InvertibleFunction = mu.compose(
-#         [mu.uniform_scale(5.0 / 9.0), mu.translate(mu.Vector1D(-32.0))]
-#     )
-#     fahrenheit_to_kelvin: mu.InvertibleFunction = mu.compose(
-#         [celsius_to_kelvin, fahrenheit_to_celsius]
-#     )
-#     kelvin_to_celsius: mu.InvertibleFunction = mu.inverse(celsius_to_kelvin)
-#     celsius_to_fahrenheit: mu.InvertibleFunction = mu.inverse(
-#         fahrenheit_to_celsius
-#     )
-#     kelvin_to_fahrenheit: mu.InvertibleFunction = mu.compose(
-#         [celsius_to_fahrenheit, kelvin_to_celsius]
-#     )
-
-#     # doc-region-end temperature functions
-
-#     test_vec1_vector1d_function(
-#         celsius_to_kelvin,
-#         [
-#             [0.0, 273.15],
-#             [100.0, 373.15],
-#         ],
-#     )
-#     test_vec1_vector1d_function(
-#         fahrenheit_to_celsius,
-#         [
-#             [32.0, 0.0],
-#             [212.0, 100.0],
-#         ],
-#     )
-#     test_vec1_vector1d_function(
-#         fahrenheit_to_kelvin,
-#         [
-#             [32.0, 273.15],
-#             [212.0, 373.15],
-#         ],
-#     )
-#     test_vec1_vector1d_function(
-#         kelvin_to_celsius,
-#         [
-#             [273.15, 0.0],
-#             [373.15, 100.0],
-#         ],
-#     )
-#     test_vec1_vector1d_function(
-#         celsius_to_fahrenheit,
-#         [
-#             [0.0, 32.0],
-#             [100.0, 212.0],
-#         ],
-#     )
-#     test_vec1_vector1d_function(
-#         kelvin_to_fahrenheit,
-#         [
-#             [273.15, 32.0],
-#             [373.15, 212.0],
-#         ],
-#     )
+    for input_val, output_val in input_output_pairs:
+        wrap_vec1_test(fn, input_val, output_val)
+        wrap_vec1_test(fn_inv, output_val, input_val)
 
 
-# def wrap_vec2_test(
-#     fn: mu.InvertibleFunction, input_val: list[float], output_val: list[float]
-# ):
-#     out: mu.Vector = fn(mu.Vector2D(*input_val))
-#     assert out.isclose(mu.Vector2D(*output_val))
+def test_vec1_uniform_scale():
+    fn: InvertibleFunction = uniform_scale(4)
+    fn_inv: InvertibleFunction = inverse(fn)
 
-#     for input_val, output_val in input_output_pairs:
-#         assert mu.Vector2D(*output_val).isclose(
-#             mu.Vector2D(*input_val[0]) + mu.Vector2D(*input_val[1])
-#         )
+    input_output_pairs = [
+        [-3 * e_1, -12 * e_1],
+        [-2 * e_1, -8 * e_1],
+        [-1 * e_1, -4 * e_1],
+        [0 * e_1, 0 * e_1],
+        [1 * e_1, 4 * e_1],
+        [2 * e_1, 8 * e_1],
+        [3 * e_1, 12 * e_1],
+        [4 * e_1, 16 * e_1],
+    ]
 
-
-# def test_vec2_is_parallel():
-#     input_output_pairs = [
-#         [[(1.0, 0.0), (2.0, 0.0)], True],
-#         [[(0.0, 5.0), (0.0, 1.0)], True],
-#         [[(1.0, 5.0), (0.0, 1.0)], False],
-#         [[(0.0, 5.0), (0.2, 1.0)], False],
-#         [[(0.0, 5.0), (1.2, 0.0)], False],
-#     ]
-
-#     for input_val, output_val in input_output_pairs:
-#         assert output_val == mu.is_parallel(
-#             mu.Vector2D(*input_val[0]), mu.Vector2D(*input_val[1])
-#         )
+    for input_val, output_val in input_output_pairs:
+        wrap_vec1_test(fn, input_val, output_val)
+        wrap_vec1_test(fn_inv, output_val, input_val)
 
 
-# def test_vec2_is_counter_clockwise():
-#     input_output_pairs = [
-#         [[(1.0, 0.0), (0.0, 1.0)], True],
-#         [[(1.0, 0.0), (0.0, -0.1)], False],
-#         [[(0.0, 1.0), (-0.1, 1.0)], True],
-#         [[(0.0, 1.0), (10.1, 1.0)], False],
-#         [[(-1.0, 0.0), (-1.0, 0.1)], False],
-#         [[(-1.0, 0.0), (-1.0, -0.1)], True],
-#         [[(0.0, -1.0), (-0.1, -1.0)], False],
-#         [[(0.0, -1.0), (0.1, -1.0)], True],
-#     ]
+def test_vec1_tempature_conversion():
+    def test_vec1_vector1d_function(
+        fn: InvertibleFunction,
+        input_output_pairs: list[list[MultiVector]],
+    ):
+        for input_val, output_val in input_output_pairs:
+            assert fn(input_val).is_close(output_val)
+            assert inverse(fn)(output_val).is_close(input_val)
 
-#     for input_val, output_val in input_output_pairs:
-#         assert output_val == mu.is_counter_clockwise(
-#             mu.Vector2D(*input_val[0]), mu.Vector2D(*input_val[1])
-#         )
+    # doc-region-begin temperature functions
+    celsius_to_kelvin: InvertibleFunction = translate(273.15 * e_1)
+    fahrenheit_to_celsius: InvertibleFunction = compose(
+        [uniform_scale(5.0 / 9.0), translate(-32.0 * e_1)]
+    )
+    fahrenheit_to_kelvin: InvertibleFunction = compose(
+        [celsius_to_kelvin, fahrenheit_to_celsius]
+    )
+    kelvin_to_celsius: InvertibleFunction = inverse(celsius_to_kelvin)
+    celsius_to_fahrenheit: InvertibleFunction = inverse(fahrenheit_to_celsius)
+    kelvin_to_fahrenheit: InvertibleFunction = compose(
+        [celsius_to_fahrenheit, kelvin_to_celsius]
+    )
 
+    # doc-region-end temperature functions
 
-# def test_vec2_compose():
-#     fn: mu.InvertibleFunction = mu.translate(mu.Vector2D(x=2, y=3))
-#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-#     identity_fn: mu.InvertibleFunction = mu.compose([fn_inv, fn])
-
-#     input_output_pairs = [
-#         [[0, 0], [0, 0]],
-#         [[1, 0], [1, 0]],
-#         [[0, 1], [0, 1]],
-#     ]
-
-#     for input_val, output_val in input_output_pairs:
-#         wrap_vec2_test(identity_fn, input_val, output_val)
-
-
-# def test_vec3_rotate_x():
-#     fn: mu.InvertibleFunction = mu.rotate_x(math.radians(53.130102))
-#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-#     input_output_pairs = [
-#         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-#         [[0.0, 5.0, 0.0], [0.0, 3.0, 4.0]],
-#         [[0.0, 0.0, 5.0], [0.0, -4.0, 3.0]],
-#     ]
-
-#     for input_val, output_val in input_output_pairs:
-#         wrap_vec3_test(fn, input_val, output_val)
-#         wrap_vec3_test(fn_inv, output_val, input_val)
-
-
-# def test_vec3_rotate_y():
-#     fn: mu.InvertibleFunction = mu.rotate_y(math.radians(53.130102))
-#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-#     input_output_pairs = [
-#         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-#         [[0.0, 0.0, 5.0], [4.0, 0.0, 3.0]],
-#         [[5.0, 0.0, 0.0], [3.0, 0.0, -4.0]],
-#     ]
-
-#     for input_val, output_val in input_output_pairs:
-#         wrap_vec3_test(fn, input_val, output_val)
-#         wrap_vec3_test(fn_inv, output_val, input_val)
-
-
-# def test_vec3_rotate_z():
-#     fn: mu.InvertibleFunction = mu.rotate_z(math.radians(53.130102))
-#     fn_inv: mu.InvertibleFunction = mu.inverse(fn)
-
-#     input_output_pairs = [
-#         [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-#         [[5.0, 0.0, 0.0], [3.0, 4.0, 0.0]],
-#         [[0.0, 5.0, 0.0], [-4.0, 3.0, 0.0]],
-#     ]
-
-#     for input_val, output_val in input_output_pairs:
-#         wrap_vec3_test(fn, input_val, output_val)
-#         wrap_vec3_test(fn_inv, output_val, input_val)
+    test_vec1_vector1d_function(
+        celsius_to_kelvin,
+        [
+            [0.0 * e_1, 273.15 * e_1],
+            [100.0 * e_1, 373.15 * e_1],
+        ],
+    )
+    test_vec1_vector1d_function(
+        fahrenheit_to_celsius,
+        [
+            [32.0 * e_1, 0.0 * e_1],
+            [212.0 * e_1, 100.0 * e_1],
+        ],
+    )
+    test_vec1_vector1d_function(
+        fahrenheit_to_kelvin,
+        [
+            [32.0 * e_1, 273.15 * e_1],
+            [212.0 * e_1, 373.15 * e_1],
+        ],
+    )
+    test_vec1_vector1d_function(
+        kelvin_to_celsius,
+        [
+            [273.15 * e_1, 0.0 * e_1],
+            [373.15 * e_1, 100.0 * e_1],
+        ],
+    )
+    test_vec1_vector1d_function(
+        celsius_to_fahrenheit,
+        [
+            [0.0 * e_1, 32.0 * e_1],
+            [100.0 * e_1, 212.0 * e_1],
+        ],
+    )
+    test_vec1_vector1d_function(
+        kelvin_to_fahrenheit,
+        [
+            [273.15 * e_1, 32.0 * e_1],
+            [373.15 * e_1, 212.0 * e_1],
+        ],
+    )
 
 
-# # doc-region-begin function stack examples definitions
-# def test_vec3_fn_stack():
-#     identity: InvertibleFunction = mu.uniform_scale(1)
+def test_vec2_is_parallel():
+    input_output_pairs: list[tuple[list[MultiVector], bool]] = [
+        ([1 * e_1 + 0 * e_2, 2 * e_1 + 0 * e_2], True),
+        ([0 * e_1 + 5 * e_2, 0 * e_1 + 1 * e_2], True),
+        ([1 * e_1 + 5 * e_2, 0 * e_1 + 1 * e_2], False),
+        ([0 * e_1 + 5 * e_2, 0.2 * e_1 + 1 * e_2], False),
+        ([0 * e_1 + 5 * e_2, 1.2 * e_1 + 0 * e_2], False),
+    ]
 
-#     mu.fn_stack.push(identity)
-#     assert mu.Vector1D(1) == mu.fn_stack.modelspace_to_ndc_fn()(mu.Vector1D(1))
+    for input_val, output_val in input_output_pairs:
+        assert output_val == input_val[0].is_parallel_to(input_val[1])
 
-#     add_one: InvertibleFunction = mu.translate(mu.Vector1D(1))
 
-#     mu.fn_stack.push(add_one)
-#     assert mu.Vector1D(2) == mu.fn_stack.modelspace_to_ndc_fn()(
-#         mu.Vector1D(1)
-#     )  # x + 1 = 2
+def test_vec2_is_clockwise():
+    input_output_pairs = [
+        [(1 * e_1 + 0 * e_2, 0 * e_1 + 1 * e_2), True],
+        [(1 * e_1 + 0 * e_2, 0 * e_1 + -0.1 * e_2), False],
+        [(0 * e_1 + 1 * e_2, -0.1 * e_1 + 1 * e_2), True],
+        [(0 * e_1 + 1 * e_2, 10.1 * e_1 + 1 * e_2), False],
+        [(-1 * e_1 + 0 * e_2, -1 * e_1 + 0.1 * e_2), False],
+        [(-1 * e_1 + 0 * e_2, -1 * e_1 + -0.1 * e_2), True],
+        [(0 * e_1 + -1 * e_2, -0.1 * e_1 + -1 * e_2), False],
+        [(0 * e_1 + -1 * e_2, 0.1 * e_1 + -1 * e_2), True],
+    ]
+    for input_val, output_val in input_output_pairs:
+        print("AOEU" + str(input_val))
+        assert output_val == is_clockwise(input_val[0], input_val[1])
 
-#     multiply_by_2: InvertibleFunction = mu.uniform_scale(2)
 
-#     mu.fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
-#     assert mu.Vector1D(3) == mu.fn_stack.modelspace_to_ndc_fn()(mu.Vector1D(1))
+# doc-region-begin function stack examples definitions
+def test_vec3_fn_stack():
+    identity: MultiVectorFn = uniform_scale(1)
 
-#     add_5: InvertibleFunction = mu.translate(mu.Vector1D(5))
+    fn_stack.push(identity)
+    assert (1 * e_1) == fn_stack.modelspace_to_ndc_fn()(1 * e_1)
 
-#     mu.fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
-#     assert mu.Vector1D(13) == mu.fn_stack.modelspace_to_ndc_fn()(mu.Vector1D(1))
+    add_one: MultiVectorFn = translate(1 * e_1)
 
-#     mu.fn_stack.pop()
-#     assert mu.Vector1D(3) == mu.fn_stack.modelspace_to_ndc_fn()(
-#         mu.Vector1D(1)
-#     )  # (x * 2) + 1 = 3
+    fn_stack.push(add_one)
+    assert (2 * e_1) == fn_stack.modelspace_to_ndc_fn()(1 * e_1)  # x + 1 = 2
 
-#     mu.fn_stack.pop()
-#     assert mu.Vector1D(2) == mu.fn_stack.modelspace_to_ndc_fn()(
-#         mu.Vector1D(1)
-#     )  # x + 1 = 2
+    multiply_by_2: MultiVectorFn = uniform_scale(2)
 
-#     mu.fn_stack.pop()
-#     assert mu.Vector1D(1) == mu.fn_stack.modelspace_to_ndc_fn()(
-#         mu.Vector1D(1)
-#     )  # x = 1
-#     # doc-region-end function stack examples definitions
+    fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
+    assert (3 * e_1) == fn_stack.modelspace_to_ndc_fn()(1 * e_1)
+
+    add_5: InvertibleFunction = translate(5 * e_1)
+
+    fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
+    assert (13 * e_1) == fn_stack.modelspace_to_ndc_fn()(1 * e_1)
+
+    fn_stack.pop()
+    assert (3 * e_1) == fn_stack.modelspace_to_ndc_fn()(
+        1 * e_1
+    )  # (x * 2) + 1 = 3
+
+    fn_stack.pop()
+    assert (2 * e_1) == fn_stack.modelspace_to_ndc_fn()(1 * e_1)  # x + 1 = 2
+
+    fn_stack.pop()
+    assert (1 * e_1) == fn_stack.modelspace_to_ndc_fn()(1 * e_1)  # x = 1
+    # doc-region-end function stack examples definitions
 
 
 # def test__doctest():
-#     failureCount, testCount = doctest.testmod(mu)
-#     assert 0 == failureCount
+#    failureCount, testCount = doctest.testmod(mu)
+#    assert 0 == failureCount
