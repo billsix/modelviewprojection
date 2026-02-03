@@ -24,7 +24,6 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 import itertools
 
 import sympy
-from sympy.printing.latex import translate
 
 from modelviewprojection.mathutils import (
     InvertibleFunction,

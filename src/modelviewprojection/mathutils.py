@@ -30,9 +30,7 @@ import numpy as np
 import sympy
 
 __all__ = [
-    "Vector",
     "MultiVector",
-    "Vector1D",
     "InvertibleFunction",
     "identity",
     "inverse",
@@ -41,18 +39,12 @@ __all__ = [
     "compose_intermediate_fns_and_fn",
     "translate",
     "uniform_scale",
-    "Vector2D",
     "scale_non_uniform_2d",
     "rotate_90_degrees",
     "rotate",
     "rotate_around",
-    "sine",
     "is_counter_clockwise",
     "is_clockwise",
-    "is_parallel",
-    "Vector3D",
-    "cos",
-    "abs_sin",
     "scale_non_uniform_3d",
     "rotate_x",
     "rotate_y",
@@ -653,149 +645,6 @@ sym_vec3_2: MultiVector = b_1 * e_1 + b_2 * e_2 + b_3 * e_3
 sym_vec_plane: MultiVector = sym_vec3_1.wedge(sym_vec3_2)
 
 
-@dataclasses.dataclass
-class Vector:
-    # doc-region-begin begin define add
-    def __add__(self, rhs: typing.Self) -> typing.Self:
-        # doc-region-end begin define add
-        """
-        Add together two Vectors, component-wise.
-
-        Args:
-            rhs (Vector): The vector on the right hand side of the addition
-                symbol
-        Returns:
-            Vector: The Vector that represents the additon of the two input Vectors
-        Example:
-            >>> from modelviewprojection.mathutils import Vector1D
-            >>> a = Vector1D(x=2)
-            >>> b = Vector1D(x=5)
-            >>> a + b
-            Vector1D(x=7)
-            >>> from modelviewprojection.mathutils import Vector2D
-            >>> a = Vector2D(x=2, y=3)
-            >>> b = Vector2D(x=5, y=6)
-            >>> a + b
-            Vector2D(x=7, y=9)
-            >>> from modelviewprojection.mathutils import Vector3D
-            >>> a = Vector3D(x=2, y=3, z=1)
-            >>> b = Vector3D(x=5, y=6, z=10)
-            >>> a + b
-            Vector3D(x=7, y=9, z=11)
-        """
-
-        # doc-region-begin define add
-        if type(self) is not type(rhs):
-            return NotImplemented
-        return type(self)(
-            *[
-                a + b
-                for a, b in zip(
-                    dataclasses.astuple(self), dataclasses.astuple(rhs)
-                )
-            ]
-        )
-        # doc-region-end define add
-
-    # doc-region-begin define mul
-    def __mul__(self, scalar: float) -> typing.Self:
-        # doc-region-end define mul
-        """
-        Multiply the Vector by a scalar number, component-wise
-
-        Args:
-            rhs (Vector): The scalar to be multiplied to the Vector's component
-                subtraction symbol
-        Returns:
-            Vector: The Vector that represents scalar times the amount of the input Vector
-
-        Example:
-            >>> from modelviewprojection.mathutils import Vector1D
-            >>> a = Vector1D(x=2)
-            >>> a * 4
-            Vector1D(x=8)
-            >>> from modelviewprojection.mathutils import Vector2D
-            >>> a = Vector2D(x=2, y=3)
-            >>> a * 4
-            Vector2D(x=8, y=12)
-            >>> from modelviewprojection.mathutils import Vector3D
-            >>> a = Vector3D(x=2, y=3, z=5)
-            >>> a * 4
-            Vector3D(x=8, y=12, z=20)
-        """
-        # doc-region-begin define mul body
-        return type(self)(*[scalar * a for a in dataclasses.astuple(self)])
-        # doc-region-end define mul body
-
-    def __neg__(self) -> typing.Self:
-        """
-        Let :math:`\\vec{a}` and constant :math:`-1`:
-
-        .. math::
-
-             -1 * \\vec{a}
-
-        Example:
-            >>> from modelviewprojection.mathutils import Vector1D
-            >>> a = Vector1D(x=2)
-            >>> -a
-            Vector1D(x=-2)
-        """
-        return -1 * self
-
-    def __iter__(self):
-        return iter(dataclasses.astuple(self))
-
-    # doc-region-begin begin define subtract
-    def __sub__(self, rhs: typing.Self) -> typing.Self:
-        # doc-region-end begin define subtract
-        """
-        .. math::
-
-             \\vec{a} + -\\vec{b}
-
-        Example:
-            >>> from modelviewprojection.mathutils import Vector1D
-            >>> a = Vector1D(x=2)
-            >>> b = Vector1D(x=5)
-            >>> a - b
-            Vector1D(x=-3)
-        """
-        # doc-region-begin define subtract
-        return self + -rhs
-        # doc-region-end define subtract
-
-    def __rmul__(self, scalar: float) -> typing.Self:
-        return self * scalar
-
-    def isclose(self, other: typing.Self) -> float:
-        return all(
-            bool(np.isclose(v1, v2, rtol=1e-5, atol=1e-5))
-            for v1, v2 in zip(self, other)
-        )
-
-    def component_wise_with_index(self, other: typing.Self):
-        return itertools.product(
-            enumerate(self, start=1), enumerate(other, start=1)
-        )
-
-    # The dot method uses the generic iterators provided by self and other
-    def dot(self, other: typing.Self) -> typing.Self:
-        if type(self) is not type(other):
-            return NotImplemented
-        return sum(
-            self_component * other_component
-            for (self_index, self_component), (
-                other_index,
-                other_component,
-            ) in self.component_wise_with_index(other)
-            if self_index == other_index
-        )
-
-    def __abs__(self) -> float:
-        return np.sqrt(self.dot(self))
-
-
 # doc-region-begin begin define invertible function
 @dataclasses.dataclass
 class InvertibleFunction:
@@ -1162,43 +1011,13 @@ sym_vec3_2: MultiVector = b_1 * e_1 + b_2 * e_2 + b_3 * e_3
 sym_vec_plane: MultiVector = sym_vec3_1 * sym_vec3_2
 
 
-# doc-region-begin define vector class
-@dataclasses.dataclass
-class Vector1D(Vector):
-    x: float  #: The value of the 1D Vector
-    # doc-region-end define vector class
-
-
-# doc-region-begin define vector class
-@dataclasses.dataclass
-class Vector2D(Vector1D):
-    y: float  #: The y-component of the 2D Vector
-    # doc-region-end define vector class
-
-
-# doc-region-begin define vector class
-@dataclasses.dataclass
-class Vector3D(Vector2D):
-    z: float  #: The z-component of the 3D Vector
-    # doc-region-end define vector class
-
-    def cross(self, rhs: typing.Self) -> typing.Self:
-        return Vector3D(
-            x=self.y * rhs.z - self.z * rhs.y,
-            y=self.z * rhs.x - self.x * rhs.z,
-            z=self.x * rhs.y - self.y * rhs.x,
-        )
-
-
 def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
     def f(vector: MultiVector) -> MultiVector:
-        # TODO - assert isinstance(vector, Vector2D)
         return m_x * MultiVector.project(onto=e_1)(
             vector
         ) + m_y * MultiVector.project(onto=e_2)(vector)
 
     def f_inv(vector: MultiVector) -> MultiVector:
-        assert isinstance(vector, Vector2D)
         if m_x == 0.0 or m_y == 0.0:
             raise ValueError(
                 "Note invertible.  Scaling factors cannot be zero."
@@ -1283,7 +1102,6 @@ def scale_non_uniform_3d(
     m_x: float, m_y: float, m_z: float
 ) -> InvertibleFunction:
     def f(vector: MultiVector) -> MultiVector:
-        # TODO assert isinstance(vector, Vector3D)
         return (
             m_x * MultiVector.project(onto=e_1)(vector)
             + m_y * MultiVector.project(onto=e_2)(vector)
@@ -1295,7 +1113,6 @@ def scale_non_uniform_3d(
             raise ValueError(
                 "Note invertible.  Scaling factors cannot be zero."
             )
-        # assert isinstance(vector, Vector3D)
         return (
             (m_x) ** (-1) * MultiVector.project(onto=e_1)(vector)
             + (m_y) ** (-1) * MultiVector.project(onto=e_2)(vector)
@@ -1459,7 +1276,6 @@ def perspective(
     )
 
     def f(vector: MultiVector) -> MultiVector:
-        # assert isinstance(vector, Vector3D)
         s1d: InvertibleFunction = uniform_scale(near_z / vector.component(e_3))  # type: ignore
         return fn(
             s1d(MultiVector.project(e_1 * e_2)(vector))
@@ -1479,7 +1295,7 @@ def perspective(
 
 # doc-region-begin define camera space to ndc
 def cs_to_ndc_space_fn(
-    vector: Vector3D,
+    vector: MultiVector,
 ) -> InvertibleFunction:
     return perspective(
         field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
