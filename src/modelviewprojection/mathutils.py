@@ -1094,7 +1094,7 @@ def is_clockwise(v1: MultiVector, v2: MultiVector) -> bool:
     assert v2.is_vector()
     assert MultiVector.project(onto=e_1 * e_2)(v1) == v1
     assert MultiVector.project(onto=e_1 * e_2)(v2) == v2
-    return float(rotate_90_degrees()(v1).cosine(v2)) > 0.000001  # type: ignore
+    return float(inverse(rotate_90_degrees())(v1).cosine(v2)) > 0.000001  # type: ignore
     # doc-region-end clockwise
 
 

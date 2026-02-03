@@ -41,7 +41,7 @@ from modelviewprojection.mathutils import (
     e_3,
     fn_stack,
     inverse,
-    is_clockwise,
+    is_counter_clockwise,
     one,
     sym_vec2_1,
     sym_vec2_2,
@@ -662,7 +662,7 @@ def test_vec2_is_parallel():
         assert output_val == input_val[0].is_parallel_to(input_val[1])
 
 
-def test_vec2_is_clockwise():
+def test_vec2_is_counter_clockwise():
     input_output_pairs = [
         [(1 * e_1 + 0 * e_2, 0 * e_1 + 1 * e_2), True],
         [(1 * e_1 + 0 * e_2, 0 * e_1 + -0.1 * e_2), False],
@@ -675,7 +675,7 @@ def test_vec2_is_clockwise():
     ]
     for input_val, output_val in input_output_pairs:
         print("AOEU" + str(input_val))
-        assert output_val == is_clockwise(input_val[0], input_val[1])
+        assert output_val == is_counter_clockwise(input_val[0], input_val[1])
 
 
 # doc-region-begin function stack examples definitions
