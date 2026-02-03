@@ -217,7 +217,17 @@ class MultiVector:
         return -1 * self
 
     def __abs__(self) -> numbers.Number | sympy.Expr:
-        return sympy.sqrt(self.abs_squared())
+        return self.magnitude()
+
+    def magnitude(self) -> numbers.Number | sympy.Expr:
+        """
+        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 13,
+        equation 1.49
+        """
+        return sympy.sqrt(self.magnitude_squared())
+
+    def magnitude_squared(self) -> numbers.Number:
+        return self.reverse().scalar_product(self)
 
     def normalize(self) -> "MultiVector":
         return self * (abs(self) ** (-1))  # type: ignore
@@ -226,34 +236,87 @@ class MultiVector:
         # TODO - is this really how I should define it?
         return self.dot(x).scalar_part()
 
-    def dot(self, rhs) -> "MultiVector":
+    def inner_product(self, rhs: typing.Self) -> "MultiVector":
+        """
+        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 6,
+        equation 1.21a, 1.21b, 1.21c
+        """
+
+        def inner_product_of_homogenous_multivectors(
+            lhs: "MultiVector", rhs: "MultiVector"
+        ) -> "MultiVector":
+            # # 1.21b
+            left_grade: int = lhs.max_grade()
+            right_grade: int = rhs.max_grade()
+            assert lhs.is_homogeneous_of_grade_r(left_grade)
+            assert rhs.is_homogeneous_of_grade_r(right_grade)
+            return (lhs * rhs).r_vector_part(abs(left_grade - right_grade))
+
         return sum(
             [
-                (self.r(lg) * rhs.r(rg)).r(abs(lg - rg))
+                inner_product_of_homogenous_multivectors(
+                    self.r_vector_part(lg), rhs.r_vector_part(rg)
+                )
                 for lg, rg in itertools.product(self.grades(), rhs.grades())
                 if lg > 0 and rg > 0
             ],
-            start=zero,
+            start=zero,  # 1.21b
         )
 
-    def wedge(self, rhs) -> "MultiVector":
+    def dot(self, rhs: typing.Self) -> "MultiVector":
+        return self.inner_product(rhs)
+
+    def outer_product(self, rhs: typing.Self) -> "MultiVector":
+        """
+        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 6,
+        equation 1.22a, 1.22b, 1.22c
+        """
+
+        def outer_product_of_homogenous_multivectors(
+            lhs: "MultiVector", rhs: "MultiVector"
+        ) -> "MultiVector":
+            # 1.22a
+            left_grade: int = lhs.max_grade()
+            right_grade: int = rhs.max_grade()
+            assert lhs.is_homogeneous_of_grade_r(left_grade)
+            assert rhs.is_homogeneous_of_grade_r(right_grade)
+            return (lhs * rhs).r_vector_part(left_grade + right_grade)
+
+        # 1.22b
+        # 1.22c, because unlike the inner_product, we keep grade 0s
         return sum(
             [
-                (self.r(lg) * rhs.r(rg)).r(lg + rg)
+                outer_product_of_homogenous_multivectors(
+                    self.r_vector_part(lg), rhs.r_vector_part(rg)
+                )
                 for lg, rg in itertools.product(self.grades(), rhs.grades())
             ],
             start=zero,
         )
 
+    def scalar_product(self, other: typing.Self) -> numbers.Number:
+        """
+        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 13,
+        equation 1.44
+        """
+        return (
+            (self * other).r_vector_part(0).coefficient_of_blade.get(tuple(), 0)
+        )  # type: ignore
+
+    def wedge(self, rhs: typing.Self) -> "MultiVector":
+        return self.outer_product(rhs)
+
     def __xor__(self, other: typing.Self) -> "MultiVector":
+        """
+        Python Syntax for the wedge function
+
+        a.wedge(b) = a^b
+        """
         return self.wedge(other)
 
     @staticmethod
-    def outer_product(*vectors: "MultiVector") -> "MultiVector":
+    def outer_product_of_vectors(*vectors: "MultiVector") -> "MultiVector":
         return functools.reduce(lambda a, b: a ^ b, vectors)
-
-    def r(self, part: int) -> "MultiVector":
-        return self.r_vector_part(part)
 
     def r_vector_part(self, r: int) -> "MultiVector":
         return MultiVector(
@@ -265,7 +328,20 @@ class MultiVector:
         )
 
     def is_homogeneous_of_grade_r(self, r: int) -> bool:
-        return self == self.r_vector_part(r)
+        """
+        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 4
+        """
+        return self.max_grade() == r and self.is_r_vector()
+
+    def is_scalar(self) -> bool:
+        """ """
+        return self == self.r_vector_part(0)
+
+    def is_r_vector(self) -> bool:
+        """
+        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 4
+        """
+        return self == self.r_vector_part(self.max_grade())
 
     def is_vector(self) -> bool:
         return self.is_homogeneous_of_grade_r(r=1)
@@ -276,8 +352,21 @@ class MultiVector:
     def is_trivector(self) -> bool:
         return self.is_homogeneous_of_grade_r(r=3)
 
+    def is_orthogonal_to(self, other: typing.Self) -> bool:
+        """
+        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 9,
+        between equations 1.32 and 1.33
+        """
+
+        # TODO - defined for vectors only right now, it's probably defined more
+        # generally later in the book
+        assert self.is_vector()
+        assert other.is_vector()
+
+        return self.inner_product(other) == zero
+
     def scalar_part(self) -> numbers.Number:
-        return self.r(0).coefficient_of_blade.get(tuple(), 0)  # type: ignore
+        return self.r_vector_part(0).coefficient_of_blade.get(tuple(), 0)  # type: ignore
 
     def grades(self) -> list[int]:
         return list(
@@ -289,21 +378,22 @@ class MultiVector:
 
     def reverse(self) -> "MultiVector":
         """
-        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 5
+        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 5,
+        equation 1.19
 
         to avoid using floats, I subtituted (-1)**(r*(r-1)/2) with an equivalent
         expression
         """
+
+        # supposedly, 1.19 works for simple r-vectors, but because of linearity
+        # of the grade operator, it works for all multivectors
         return sum(
             [
-                MultiVector.unit_pseudoscalar_squared(g) * self.r(g)
+                MultiVector.unit_pseudoscalar_squared(g) * self.r_vector_part(g)
                 for g in self.grades()
             ],
             start=zero,
         )
-
-    def abs_squared(self) -> numbers.Number:
-        return (self.reverse() * self).scalar_part()
 
     def inverse(self) -> "MultiVector":
         """
@@ -311,7 +401,7 @@ class MultiVector:
 
         Note sure if I'm doing it correctly
         """
-        return self.reverse() * (self.abs_squared() ** (-1))  # type: ignore
+        return self.reverse() * (self.magnitude_squared() ** (-1))  # type: ignore
 
     def dual(self, g: int) -> "MultiVector":
         return self * MultiVector.unit_pseudoscalar(g).inverse()
@@ -338,13 +428,14 @@ class MultiVector:
 
     def cosine(self, other: "MultiVector") -> numbers.Number:
         """
-        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 14
+        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 14,
+        equation 1.53b
 
         """
         return (
-            (self.reverse() * other).scalar_part()
-            * (abs(self) ** (-1))
-            * (abs(other) ** (-1))
+            self.reverse().scalar_product(other)
+            * (abs(self) ** (-1))  # type: ignore
+            * (abs(other) ** (-1))  # type: ignore
         )  # type: ignore
 
     @staticmethod
@@ -352,32 +443,22 @@ class MultiVector:
         onto: "MultiVector" | Sequence["MultiVector"],
     ) -> MultiVectorFn:
         """
-        page 18
+        from Hestenes and Sobczyk, Clifford Algebra to Geometric Calculus, page 18,
+        equations 2.9a, 2.9b, 2.9c
         """
+        if isinstance(onto, Sequence):
+            assert isinstance(onto, Sequence)  # to satisfy type checking
+            return MultiVector.project(MultiVector.outer_product(*onto))
 
-        def p(value: MultiVector) -> MultiVector:
-            assert value.is_vector()  # TODO - can this be generalized?
-            assert isinstance(onto, MultiVector)  # to satisfy type checking
-            return (value.dot(onto)) * onto.inverse()
+        def fn(value: MultiVector) -> MultiVector:
+            if value.is_scalar():  # 2.9b
+                return value
+            elif value.is_r_vector():  # 2.9c
+                return (value.dot(onto)) * onto.inverse()
+            else:
+                return (value.dot(onto)).dot(onto.inverse())  # 2.9a
 
-        # TODO - for project and reject, I need to look at Hestenes' definitions
-        # I'm not sure the special cases he defines, or how to test for them.
-        # I'm still trying to fully understand what makes something a kblade
-        # vs kvector, and how his project and reject definition of pseudoscalars
-        # applies to bivectors, for instance.
-
-        match onto:
-            case _ as sequence if isinstance(onto, Sequence):
-                assert isinstance(
-                    sequence, Sequence
-                )  # to satisfy type checking
-                return MultiVector.project(MultiVector.outer_product(*sequence))
-            case MultiVector() as onto_vector if onto_vector.is_vector():
-                return p
-            case MultiVector() as onto_bivector if onto_bivector.is_bivector():
-                return p
-            case _:
-                raise Exception("TODO - implement project for " + str(onto))
+        return fn
 
     @staticmethod
     def reject(
@@ -471,17 +552,19 @@ class MultiVector:
             c = sympy.cos(angle_in_radians)
             s = sympy.sin(angle_in_radians)
 
-            parallel_in_plane = from_vector.normalize()
-            perp_in_plane = MultiVector.reject(away_from=from_vector)(
-                to_vector
-            ).normalize()
+            parallel_in_plane: MultiVector = from_vector.normalize()
+            assert parallel_in_plane.is_vector()
+            perpendicular_in_plane: MultiVector = MultiVector.reject(
+                away_from=from_vector
+            )(to_vector).normalize()
+            assert perpendicular_in_plane.is_vector()
 
             def r(value: MultiVector) -> MultiVector:
                 assert value.is_vector()  # TODO - can this be generalized?
                 return (
                     components_in_plane(value)
                     * parallel_in_plane
-                    * (c * parallel_in_plane + s * perp_in_plane)
+                    * (c * parallel_in_plane + s * perpendicular_in_plane)
                 ) + components_exterior_to_plane(value)
 
             return r
@@ -512,6 +595,16 @@ e_2: MultiVector = MultiVector({(2,): 1})  # type: ignore
 e_3: MultiVector = MultiVector({(3,): 1})  # type: ignore
 zero: MultiVector = MultiVector.from_scalar(0)
 one: MultiVector = MultiVector.from_scalar(1)
+
+a_1, a_2, a_3, b_1, b_2, b_3 = sympy.symbols("a_1 a_2 a_3 b_1 b_2 b_3")
+
+sym_vec2_1: MultiVector = a_1 * e_1 + a_2 * e_2
+sym_vec2_2: MultiVector = b_1 * e_1 + b_2 * e_2
+
+sym_vec3_1: MultiVector = a_1 * e_1 + a_2 * e_2 + a_3 * e_3
+sym_vec3_2: MultiVector = b_1 * e_1 + b_2 * e_2 + b_3 * e_3
+
+sym_vec_plane: MultiVector = sym_vec3_1.wedge(sym_vec3_2)
 
 
 @dataclasses.dataclass

@@ -23,8 +23,11 @@ from __future__ import annotations  # to appease Python 3.7-3.9
 
 import itertools
 
+import sympy
+
 from modelviewprojection.mathutils import (
     MultiVector,
+    MultiVectorFn,
     a_1,
     a_2,
     a_3,
@@ -35,13 +38,11 @@ from modelviewprojection.mathutils import (
     e_2,
     e_3,
     one,
-    project,
-    reject,
     sym_vec2_1,
     sym_vec2_2,
     sym_vec3_1,
     sym_vec3_2,
-    sym_vec_plane_simplified,
+    sym_vec_plane,
     zero,
 )
 
@@ -51,6 +52,7 @@ def test_multivector_add() -> None:
     a: MultiVector = 5 * e_1 + 6 * e_2
     b: MultiVector = 7 * e_1 + 8 * e_2
     assert (a + b) == (12 * e_1 + 14 * e_2)
+
     c: MultiVector = 7 * e_1 + 2 * e_2
     d: MultiVector = 1 * e_1 + 3 * e_3
     assert (c + d) == (8 * e_1 + 2 * e_2 + 3 * e_3)
@@ -61,7 +63,6 @@ def test_multivector_add() -> None:
 def test_multivector_subtract() -> None:
     a: MultiVector = 5 * e_1 + 6 * e_2
     b: MultiVector = 7 * e_1 + 9 * e_2
-    # doc-region-end test add
     assert (b - a) == (2 * e_1 + 3 * e_2)
     # doc-region-end test substract
 
@@ -80,7 +81,7 @@ def test_multivector_absolute_units() -> None:
     assert ((e_1 + e_2) * 2) == ((e_1 + e_2) + (e_1 + e_2))
 
     # test permutations
-    assert (e_1 * e_2 * e_3).abs_squared() == 1
+    assert (e_1 * e_2 * e_3).magnitude_squared() == 1
     assert (e_1 * e_3 * e_2) == -1 * (e_1 * e_2 * e_3)
     assert (e_3 * e_1 * e_2) == (e_1 * e_2 * e_3)
     assert (e_3 * e_2 * e_1) == -1 * (e_1 * e_2 * e_3)
@@ -90,9 +91,10 @@ def test_multivector_absolute_units() -> None:
 
 def test_multivector_mult() -> None:
     a: MultiVector = 3 * e_1 + 4 * e_2
-    assert a.abs_squared() == 25
+    assert a.magnitude_squared() == 25
 
     assert (a * a) == MultiVector.from_scalar(25)
+    assert (a * a).is_scalar()
 
     i: MultiVector = MultiVector.unit_pseudoscalar(2)
     assert (a * i) == (-4 * e_1 + 3 * e_2)
@@ -108,12 +110,11 @@ def test_multivector_mult() -> None:
     )
 
 
-def planewise_wedge(plane, vec1, vec2):
-    proj = project(plane)
-    return proj(vec1).wedge(proj(vec2))
-
-
 def test_multivector_mult3d() -> None:
+    def planewise_wedge(plane, vec1, vec2):
+        proj: MultiVectorFn = MultiVector.project(plane)
+        return proj(vec1).wedge(proj(vec2))
+
     assert (sym_vec3_1 * sym_vec3_2) == (
         MultiVector.from_scalar(a_1 * b_1 + a_2 * b_2 + a_3 * b_3)
         + (a_1 * b_2 - a_2 * b_1) * e_1 * e_2
@@ -126,7 +127,7 @@ def test_multivector_mult3d() -> None:
             sym_vec3_1.dot(sym_vec3_2),
             *[
                 planewise_wedge(
-                    plane=axis_1 * axis_2, vec1=sym_vec3_1, vec2=sym_vec3_2
+                    plane=axis_1.wedge(axis_2), vec1=sym_vec3_1, vec2=sym_vec3_2
                 )
                 for axis_1, axis_2 in itertools.combinations([e_1, e_2, e_3], 2)
             ],
@@ -203,6 +204,19 @@ def test_is_homogeneous_of_grade_r() -> None:
     assert (a.wedge(c)).is_homogeneous_of_grade_r(2)
 
 
+def test_is_vector() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    assert a.is_vector()
+    assert not (a * a).is_vector()
+
+
+def test_is_bivector() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    b: MultiVector = 0 * e_1 + 1 * e_2
+    assert not (a * b).is_bivector()
+    assert (a.wedge(b)).is_bivector()
+
+
 def test_even_part_odd_part() -> None:
     assert (sym_vec3_1).odd_part() == sym_vec3_1
     assert (sym_vec3_1).even_part() == zero
@@ -217,12 +231,20 @@ def test_even_part_odd_part() -> None:
 def test_multivector_dot() -> None:
     a: MultiVector = 3 * e_1 + 4 * e_2
     assert a.dot(a) == MultiVector.from_scalar(25)
+    assert a.dot(a).is_scalar()
     c: MultiVector = -4 * e_1 + 3 * e_2
     assert a.dot(c) == zero
 
     assert sym_vec2_1.dot(sym_vec2_2) == MultiVector.from_scalar(
         a_1 * b_1 + a_2 * b_2
     )
+    assert sym_vec2_1.dot(sym_vec2_2).is_scalar()
+
+
+def test_is_orthogonal() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2
+    c: MultiVector = -4 * e_1 + 3 * e_2
+    assert a.is_orthogonal_to(c)
 
 
 def test_multivector_cosine() -> None:
@@ -233,7 +255,7 @@ def test_multivector_cosine() -> None:
 
     # print(sym_vec2_1.cosine(sym_vec2_2) * abs(sym_vec2_1) * abs(sym_vec2_2))
     assert MultiVector.from_scalar(
-        sym_vec2_1.cosine(sym_vec2_2) * abs(sym_vec2_1) * abs(sym_vec2_2)
+        sym_vec2_1.cosine(sym_vec2_2) * abs(sym_vec2_1) * abs(sym_vec2_2)  # type: ignore
     ) == sym_vec2_1.dot(sym_vec2_2)
 
 
@@ -243,8 +265,21 @@ def test_multivector_wedge() -> None:
     c: MultiVector = -4 * e_1 + 3 * e_2
     assert a.wedge(c) == 25 * e_1 * e_2
 
+    # test method itself
     assert (
         sym_vec2_1.wedge(sym_vec2_2)
+        == MultiVector.from_scalar(a_1 * b_2 - a_2 * b_1) * e_1 * e_2
+    )
+
+    # test the override
+    assert (
+        sym_vec2_1 ^ sym_vec2_2
+        == MultiVector.from_scalar(a_1 * b_2 - a_2 * b_1) * e_1 * e_2
+    )
+
+    # test the outer_product_of_vectors
+    assert (
+        MultiVector.outer_product_of_vectors(sym_vec2_1, sym_vec2_2)
         == MultiVector.from_scalar(a_1 * b_2 - a_2 * b_1) * e_1 * e_2
     )
 
@@ -255,41 +290,37 @@ def test_multivector_unit_pseudoscalar() -> None:
     assert MultiVector.unit_pseudoscalar(3) == e_1 * e_2 * e_3
 
     i1: MultiVector = MultiVector.unit_pseudoscalar(1)
-    assert i1 * i1 == MultiVector.from_scalar(1)
-    assert MultiVector.unit_pseudoscalar_squared(1) == MultiVector.from_scalar(
-        1
-    )
+    assert i1 * i1 == one
+    assert MultiVector.unit_pseudoscalar_squared(1) == one
     i2: MultiVector = MultiVector.unit_pseudoscalar(2)
-    assert i2 * i2 == MultiVector.from_scalar(-1)
-    assert MultiVector.unit_pseudoscalar_squared(2) == MultiVector.from_scalar(
-        -1
-    )
+    assert i2 * i2 == -one
+    assert MultiVector.unit_pseudoscalar_squared(2) == -one
     i3: MultiVector = MultiVector.unit_pseudoscalar(3)
-    assert i3 * i3 == MultiVector.from_scalar(-1)
+    assert i3 * i3 == -one
     i4: MultiVector = MultiVector.unit_pseudoscalar(4)
-    assert i4 * i4 == MultiVector.from_scalar(1)
+    assert i4 * i4 == one
     i5: MultiVector = MultiVector.unit_pseudoscalar(5)
-    assert i5 * i5 == MultiVector.from_scalar(1)
+    assert i5 * i5 == one
     i6: MultiVector = MultiVector.unit_pseudoscalar(6)
-    assert i6 * i6 == MultiVector.from_scalar(-1)
+    assert i6 * i6 == -one
     i7: MultiVector = MultiVector.unit_pseudoscalar(7)
-    assert i7 * i7 == MultiVector.from_scalar(-1)
+    assert i7 * i7 == -one
     i8: MultiVector = MultiVector.unit_pseudoscalar(8)
-    assert i8 * i8 == MultiVector.from_scalar(1)
+    assert i8 * i8 == one
     i9: MultiVector = MultiVector.unit_pseudoscalar(9)
-    assert i9 * i9 == MultiVector.from_scalar(1)
+    assert i9 * i9 == one
     i10: MultiVector = MultiVector.unit_pseudoscalar(10)
-    assert i10 * i10 == MultiVector.from_scalar(-1)
+    assert i10 * i10 == -one
     i11: MultiVector = MultiVector.unit_pseudoscalar(11)
-    assert i11 * i11 == MultiVector.from_scalar(-1)
+    assert i11 * i11 == -one
     i12: MultiVector = MultiVector.unit_pseudoscalar(12)
-    assert i12 * i12 == MultiVector.from_scalar(1)
+    assert i12 * i12 == one
     i13: MultiVector = MultiVector.unit_pseudoscalar(13)
-    assert i13 * i13 == MultiVector.from_scalar(1)
+    assert i13 * i13 == one
     i14: MultiVector = MultiVector.unit_pseudoscalar(14)
-    assert i14 * i14 == MultiVector.from_scalar(-1)
+    assert i14 * i14 == -one
     i15: MultiVector = MultiVector.unit_pseudoscalar(14)
-    assert i15 * i15 == MultiVector.from_scalar(-1)
+    assert i15 * i15 == -one
 
 
 def test_multivector_reverse() -> None:
@@ -308,36 +339,166 @@ def test_multivector_reverse_3d() -> None:
 
 def test_multivector_inverse() -> None:
     a: MultiVector = 3 * e_1 + 4 * e_2
-    assert a.abs_squared() == 25
-    assert a.abs_squared() * a.inverse() == a
+    assert a.magnitude_squared() == 25
+    assert a.magnitude_squared() * a.inverse() == a
 
-    assert sym_vec2_1.abs_squared() * sym_vec2_1.inverse() == sym_vec2_1
-    assert (sym_vec2_1.inverse() * sym_vec2_1).simplify().scalar_part() == 1
+    assert sym_vec2_1.magnitude_squared() * sym_vec2_1.inverse() == sym_vec2_1
+    assert (sym_vec2_1.inverse() * sym_vec2_1).scalar_part() == 1
 
-    assert sym_vec3_1.abs_squared() * sym_vec3_1.inverse() == sym_vec3_1
-    assert (
-        sym_vec3_1.inverse() * sym_vec3_1
-    ).simplify() == MultiVector.from_scalar(1)
+    assert sym_vec3_1.magnitude_squared() * sym_vec3_1.inverse() == sym_vec3_1
+    assert (sym_vec3_1.inverse() * sym_vec3_1) == one
 
-    plane: MultiVector = sym_vec_plane_simplified
-    assert (plane * plane.inverse()).simplify() == one
-    assert (plane.inverse() * plane).simplify() == one
+    plane: MultiVector = sym_vec_plane
+    assert (plane * plane.inverse()) == one
+    assert (plane.inverse() * plane) == one
 
 
 def test_project_and_reject() -> None:
     a: MultiVector = 3 * e_1 + 4 * e_2
-    assert project(onto_mv=e_1)(a) == 3 * e_1
-    assert reject(from_mv=e_1)(a) == 4 * e_2
+    assert MultiVector.project(onto=e_1)(a) == 3 * e_1
+    assert MultiVector.reject(away_from=e_1)(a) == 4 * e_2
 
-    assert project(onto_mv=e_1)(2 * a) == 6 * e_1
-    assert reject(from_mv=e_1)(2 * a) == 8 * e_2
+    assert MultiVector.project(onto=[e_1, e_2])(a) == a
+    assert MultiVector.reject(away_from=[e_1, e_2])(a) == zero
 
-    assert project(onto_mv=2 * e_1)(a) == 3 * e_1
-    assert reject(from_mv=2 * e_1)(a) == 4 * e_2
+    assert MultiVector.project(onto=e_1)(2 * a) == 6 * e_1
+    assert MultiVector.reject(away_from=e_1)(2 * a) == 8 * e_2
 
-    parallel_to_vec1: MultiVector = project(onto_mv=sym_vec2_1)(sym_vec2_2)
-    perp_to_vec1: MultiVector = reject(from_mv=sym_vec2_1)(sym_vec2_2)
-    assert sym_vec2_2 == (parallel_to_vec1 + perp_to_vec1).simplify()
+    assert MultiVector.project(onto=2 * e_1)(a) == 3 * e_1
+    assert MultiVector.reject(away_from=2 * e_1)(a) == 4 * e_2
+
+    parallel_to_vec1: MultiVector = MultiVector.project(onto=sym_vec2_1)(
+        sym_vec2_2
+    )
+    perp_to_vec1: MultiVector = MultiVector.reject(away_from=sym_vec2_1)(
+        sym_vec2_2
+    )
+    assert sym_vec2_2 == (parallel_to_vec1 + perp_to_vec1)
+
+
+def test_reflect() -> None:
+    a: MultiVector = 3 * e_1 + 4 * e_2 + 5 * e_3
+
+    # reflect across vectors
+    assert MultiVector.reflect(across=e_1)(a) == 3 * e_1 + -4 * e_2 + -5 * e_3
+    assert MultiVector.reflect(across=e_2)(a) == -3 * e_1 + 4 * e_2 + -5 * e_3
+    assert MultiVector.reflect(across=e_3)(a) == -3 * e_1 + -4 * e_2 + 5 * e_3
+
+    # reflect across planes
+    assert (
+        MultiVector.reflect(across=[e_1, e_2])(a)
+        == 3 * e_1 + 4 * e_2 + -5 * e_3
+    )
+    assert (
+        MultiVector.reflect(across=e_1 * e_2)(a) == 3 * e_1 + 4 * e_2 + -5 * e_3
+    )
+    assert (
+        MultiVector.reflect(across=e_1 ^ e_2)(a) == 3 * e_1 + 4 * e_2 + -5 * e_3
+    )
+
+    assert (
+        MultiVector.reflect(across=[e_2, e_3])(a)
+        == -3 * e_1 + 4 * e_2 + 5 * e_3
+    )
+    assert (
+        MultiVector.reflect(across=[e_3, e_1])(a)
+        == 3 * e_1 + -4 * e_2 + 5 * e_3
+    )
+    assert (
+        MultiVector.reflect(across=[e_1, e_3])(a)
+        == 3 * e_1 + -4 * e_2 + 5 * e_3
+    )
+
+
+def test_normalize() -> None:
+    assert sym_vec2_1.normalize() == sym_vec2_1 * (abs(sym_vec2_1) ** (-1))  # type: ignore
+    assert sym_vec3_1.normalize() == sym_vec3_1 * (abs(sym_vec3_1) ** (-1))  # type: ignore
+
+
+def test_rotate() -> None:
+    # rotate across planes
+    a: MultiVector = 3 * e_1 + 4 * e_2 + 5 * e_3
+    # rotate across e_1 e_2 plane
+    assert (
+        MultiVector.rotate(from_vector=e_1, to_vector=e_2)(a)
+        == -4 * e_1 + 3 * e_2 + 5 * e_3
+    )
+    assert (
+        MultiVector.rotate(from_vector=e_2, to_vector=e_1)(a)
+        == 4 * e_1 - 3 * e_2 + 5 * e_3
+    )
+    # rotate across e_2 e_3 plane
+    b: MultiVector = 5 * e_1 + 3 * e_2 + 4 * e_3
+    assert (
+        MultiVector.rotate(from_vector=e_2, to_vector=e_3)(b)
+        == 5 * e_1 + -4 * e_2 + 3 * e_3
+    )
+    assert (
+        MultiVector.rotate(from_vector=e_3, to_vector=e_2)(b)
+        == 5 * e_1 + 4 * e_2 - 3 * e_3
+    )
+    # rotate across e_3 e_1 plane
+    c: MultiVector = 4 * e_1 + 5 * e_2 + 3 * e_3
+    assert (
+        MultiVector.rotate(from_vector=e_3, to_vector=e_1)(c)
+        == 3 * e_1 + 5 * e_2 + -4 * e_3
+    )
+    assert (
+        MultiVector.rotate(from_vector=e_1, to_vector=e_3)(c)
+        == -3 * e_1 + 5 * e_2 + 4 * e_3
+    )
+
+
+def test_rotate_angle() -> None:
+    # rotate across planes
+    a: MultiVector = 3 * e_1 + 4 * e_2 + 5 * e_3
+    # rotate across e_1 e_2 plane
+    #   pi /2
+    assert (
+        MultiVector.rotate(
+            from_vector=e_1, to_vector=e_2, angle_in_radians=sympy.pi / 2
+        )(a)
+        == -4 * e_1 + 3 * e_2 + 5 * e_3
+    )
+    #   pi
+    assert (
+        MultiVector.rotate(
+            from_vector=e_1, to_vector=e_2, angle_in_radians=sympy.pi
+        )(a)
+        == -3 * e_1 + -4 * e_2 + 5 * e_3
+    )
+    #   3pi /2
+    assert (
+        MultiVector.rotate(
+            from_vector=e_1, to_vector=e_2, angle_in_radians=3 * sympy.pi / 2
+        )(a)
+        == 4 * e_1 + -3 * e_2 + 5 * e_3
+    )
+    #   2pi
+    assert (
+        MultiVector.rotate(
+            from_vector=e_1, to_vector=e_2, angle_in_radians=2 * sympy.pi
+        )(a)
+        == 3 * e_1 + 4 * e_2 + 5 * e_3
+    )
+    #   pi /4
+    assert (
+        MultiVector.rotate(
+            from_vector=e_1, to_vector=e_2, angle_in_radians=sympy.pi / 4
+        )(1 * e_1 + 0 * e_2 + 5 * e_3)
+        == (sympy.sqrt(2) / 2) * e_1 + (sympy.sqrt(2) / 2) * e_2 + 5 * e_3
+    )
+
+    # show size of vectors in plane does not matter
+    #   pi /2
+    assert (
+        MultiVector.rotate(
+            from_vector=10 * e_1,
+            to_vector=50 * e_2,
+            angle_in_radians=sympy.pi / 2,
+        )(a)
+        == -4 * e_1 + 3 * e_2 + 5 * e_3
+    )
 
 
 # def wrap_vec1_test(
