@@ -396,7 +396,7 @@ class MultiVector:
         )
 
     def max_grade(self) -> int:
-        return max(self.grades())
+        return 0 if self == zero else max(self.grades())
 
     def reverse(self) -> "MultiVector":
         """
@@ -1090,8 +1090,6 @@ def is_counter_clockwise(v1: MultiVector, v2: MultiVector) -> bool:
 
 # doc-region-begin clockwise
 def is_clockwise(v1: MultiVector, v2: MultiVector) -> bool:
-    assert v1.is_vector()
-    assert v2.is_vector()
     assert MultiVector.project(onto=e_1 * e_2)(v1) == v1
     assert MultiVector.project(onto=e_1 * e_2)(v2) == v2
     return float(inverse(rotate_90_degrees())(v1).cosine(v2)) > 0.000001  # type: ignore

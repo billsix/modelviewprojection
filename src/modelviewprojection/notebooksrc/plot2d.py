@@ -46,11 +46,11 @@ import math
 import sympy
 
 from modelviewprojection.mathutils import (
-    Vector1D,
-    Vector2D,
-    Vector3D,
     compose,
     compose_intermediate_fns,
+    e_1,
+    e_2,
+    e_3,
     identity,
     inverse,
 )
@@ -69,31 +69,31 @@ from modelviewprojection.nbplotutils import (
 )
 
 # %%
-T(Vector1D(5))
+T(5 * e_1)
 
 # %%
 S(5, 6)
 
 # %%
-inverse(T(Vector1D(5)))
+inverse(T(5 * e_1))
 
 # %%
-T(Vector2D(5, 6))
+T(5 * e_1 + 6 * e_2)
 
 # %%
-T(Vector3D(5, 6, 7))
+T(5 * e_1 + 6 * e_2 + 7 * e_3)
 
 # %%
-inverse(T(Vector3D(5, 6, 7)))
+inverse(T(5 * e_1 + 6 * e_2 + 7 * e_3))
 
 # %%
 R(sympy.pi / 2)
 
 # %%
-compose([R(sympy.pi / 2), T(Vector2D(5, 6))])
+compose([R(sympy.pi / 2), T(5 * e_1 + 6 * e_2)])
 
 # %%
-inverse(compose([R(sympy.pi / 2), T(Vector2D(5, 6))]))
+inverse(compose([R(sympy.pi / 2), T(5 * e_1 + 6 * e_2)]))
 
 # %% [markdown]
 # Draw graph paper
@@ -184,7 +184,7 @@ with create_graphs(graph_bounds=(5, 5)) as axes:
 fn = compose(
     [
         R(sympy.pi / 4),
-        T(Vector2D(x=2.0, y=0.0)),
+        T(2.0 * e_1 + 0.0 * e_2),
     ]
 )
 with create_graphs() as axes:
@@ -204,7 +204,7 @@ with create_graphs() as axes:
 # units on the left and bottom.
 
 # %%
-for f in compose_intermediate_fns([R(sympy.pi / 4), T(Vector2D(x=2.0, y=0.0))]):
+for f in compose_intermediate_fns([R(sympy.pi / 4), T(2.0 * e_1 + 0.0 * e_2)]):
     # TODO - figure out if I can render the latex as part of one markdown command,
     # if I were to uncomment out this line and other markdown lines,
     # the build of HTML would fail
@@ -231,7 +231,7 @@ for f in compose_intermediate_fns([R(sympy.pi / 4), T(Vector2D(x=2.0, y=0.0))]):
 for f in compose_intermediate_fns(
     [
         R(sympy.pi / 4),
-        T(Vector2D(x=1.0, y=0.0)),
+        T(1.0 * e_1),
     ],
     relative_basis=True,
 ):
@@ -247,10 +247,10 @@ screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
-        T(Vector2D(-0.5, -0.5)),
+        T(-0.5 * e_1 + -0.5 * e_2),
         S(screen_width, screen_height),
         S(0.5, 0.5),
-        T(Vector2D(x=1.0, y=1.0)),
+        T(1.0 * e_1 + 1.0 * e_2),
     ],
     relative_basis=False,
 ):
@@ -268,10 +268,10 @@ screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
-        T(Vector2D(-0.5, -0.5)),
+        T(-0.5 * e_1 + -0.5 * e_2),
         S(screen_width, screen_height),
         S(0.5, 0.5),
-        T(Vector2D(x=1.0, y=1.0)),
+        T(1.0 * e_1 + 1.0 * e_2),
     ],
     relative_basis=True,
 ):

@@ -23,8 +23,19 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu3d
-from modelviewprojection.mathutils import MultiVector, e_1, e_2, e_3, zero
+from modelviewprojection.mathutils import (
+    MultiVector,
+    compose,
+    e_1,
+    e_2,
+    e_3,
+    fn_stack,
+    inverse,
+    rotate_z,
+    translate,
+    uniform_scale,
+    zero,
+)
 
 if not glfw.init():
     sys.exit()
@@ -130,7 +141,7 @@ camera: Camera = Camera()
 # doc-region-end define camera class
 
 # doc-region-begin instantiate square
-square: list[mu3d.Vector3D] = [
+square: list[MultiVector] = [
     -0.5 * e_1 + -0.5 * e_2,
     0.5 * e_1 + -0.5 * e_2,
     0.5 * e_1 + 0.5 * e_2,
@@ -209,20 +220,18 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin stack push camera space to ndc
     # camera space to NDC
-    mu3d.fn_stack.push(mu3d.uniform_scale(1.0 / 10.0))
+    fn_stack.push(uniform_scale(1.0 / 10.0))
     # doc-region-end stack push camera space to ndc
 
     # doc-region-begin world space to camera space
     # world space to camera space
-    mu3d.fn_stack.push(mu3d.inverse(mu3d.translate(camera.position_ws)))
+    fn_stack.push(inverse(translate(camera.position_ws)))
     # doc-region-end world space to camera space
 
     # doc-region-begin paddle 1 transformations
     # paddle 1 model space to world space
-    mu3d.fn_stack.push(
-        mu3d.compose(
-            [mu3d.translate(paddle1.position), mu3d.rotate_z(paddle1.rotation)]
-        )
+    fn_stack.push(
+        compose([translate(paddle1.position), rotate_z(paddle1.rotation)])
     )
     # doc-region-end paddle 1 transformations
 
@@ -230,7 +239,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle1.color))
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc: MultiVector = mu3d.fn_stack.modelspace_to_ndc_fn()(
+        paddle1_vector_ndc: MultiVector = fn_stack.modelspace_to_ndc_fn()(
             p1_v_ms
         )
         GL.glVertex3f(
@@ -242,13 +251,13 @@ while not glfw.window_should_close(window):
     # doc-region-end draw paddle 1
 
     # doc-region-begin square space to paddle 1 space
-    mu3d.fn_stack.push(
-        mu3d.compose(
+    fn_stack.push(
+        compose(
             [
-                mu3d.translate(-1.0 * e_3),
-                mu3d.rotate_z(rotation_around_paddle1),
-                mu3d.translate(2.0 * e_1),
-                mu3d.rotate_z(square_rotation),
+                translate(-1.0 * e_3),
+                rotate_z(rotation_around_paddle1),
+                translate(2.0 * e_1),
+                rotate_z(square_rotation),
             ]
         )
     )
@@ -257,9 +266,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(0.0, 0.0, 1.0)
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
-        square_vector_ndc: MultiVector = mu3d.fn_stack.modelspace_to_ndc_fn()(
-            ms
-        )
+        square_vector_ndc: MultiVector = fn_stack.modelspace_to_ndc_fn()(ms)
         GL.glVertex3f(
             square_vector_ndc.component(e_1),
             square_vector_ndc.component(e_2),
@@ -269,17 +276,15 @@ while not glfw.window_should_close(window):
     # doc-region-end draw square
 
     # doc-region-begin back to world space
-    mu3d.fn_stack.pop()  # pop off square space to paddle 1 space
+    fn_stack.pop()  # pop off square space to paddle 1 space
     # current space is paddle 1 space
-    mu3d.fn_stack.pop()  # # pop off paddle 1 model space to world space
+    fn_stack.pop()  # # pop off paddle 1 model space to world space
     # current space is world space
     # doc-region-end back to world space
 
     # doc-region-begin paddle 2 model space to world space
-    mu3d.fn_stack.push(
-        mu3d.compose(
-            [mu3d.translate(paddle2.position), mu3d.rotate_z(paddle2.rotation)]
-        )
+    fn_stack.push(
+        compose([translate(paddle2.position), rotate_z(paddle2.rotation)])
     )
     # doc-region-end paddle 2 model space to world space
 
@@ -288,7 +293,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle2.color))
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        paddle2_vector_ndc: MultiVector = mu3d.fn_stack.modelspace_to_ndc_fn()(
+        paddle2_vector_ndc: MultiVector = fn_stack.modelspace_to_ndc_fn()(
             p2_v_ms
         )
         GL.glVertex3f(
@@ -302,7 +307,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin clear function stack for next iteration of the event loop
     # done rendering everything for this frame, just go ahead and clear all functions
     # off of the stack, back to NDC as current space
-    mu3d.fn_stack.clear()
+    fn_stack.clear()
 
     # doc-region-end clear function stack for next iteration of the event loop
 

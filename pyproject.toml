@@ -22,6 +22,7 @@ dependencies = [
     "pytest",
     "Sphinx",
     "sphinx-rtd-theme",
+    "sympy",
     "nbsphinx",
 ]
 
