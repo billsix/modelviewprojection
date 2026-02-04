@@ -145,7 +145,7 @@ def create_unit_circle(
     for vecs in generate_circle():
         plt.plot(
             [fn(vec).component(e_1) for vec in vecs],
-            [fn(vec).component(e_1) for vec in vecs],
+            [fn(vec).component(e_2) for vec in vecs],
             "-",
             lw=1,
             color=(0.0, 0.0, 0.0),
@@ -180,11 +180,13 @@ def create_x_and_y(
 
 
 def cosine(v1: MultiVector, v2: MultiVector) -> float:
-    return v1.dot(v2) / (abs(v1) * (abs(v2)))
+    return (v1.dot(v2) * (abs(v1 * v2) ** (-1))).scalar_part()
 
 
 def sine(v1: MultiVector, v2: MultiVector) -> float:
-    return rotate_90_degrees()(v1).dot(v2) / (abs(v1) * (abs(v2)))
+    return (
+        rotate_90_degrees()(v1).dot(v2) * (abs(v1 * v2) ** (-1))
+    ).scalar_part()
 
 
 def draw_isoceles_triangle(
@@ -213,14 +215,16 @@ def draw_isoceles_triangle(
     ]
 
     triangle = Polygon(
-        list(map(list, vertices)),
+        list(map(lambda mv: [mv.component(e_1), mv.component(e_2)], vertices)),
         closed=True,
         facecolor="lightblue",
         edgecolor="black",
     )
     axes.add_patch(triangle)
 
-    vertices_as_np = np.array(list(map(list, vertices)))
+    vertices_as_np = np.array(
+        list(map(lambda mv: [mv.component(e_1), mv.component(e_2)], vertices))
+    )
     # Plot dots at the vertices
     axes.scatter(
         vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
@@ -234,8 +238,8 @@ def draw_isoceles_triangle(
             label,
             xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
             xytext=(
-                vertices_as_np[i, 0] + label_offset.x,
-                vertices_as_np[i, 1] + label_offset.y,
+                vertices_as_np[i, 0] + label_offset.component(e_1),
+                vertices_as_np[i, 1] + label_offset.component(e_2),
             ),
             rotation=math.degrees(angle_radians),
             rotation_mode="anchor",
@@ -275,14 +279,16 @@ def draw_second_right_triangle(
     ]
 
     triangle = Polygon(
-        list(map(list, vertices)),
+        list(map(lambda mv: [mv.component(e_1), mv.component(e_2)], vertices)),
         closed=True,
         facecolor="lightblue",
         edgecolor="black",
     )
     axes.add_patch(triangle)
 
-    vertices_as_np = np.array(list(map(list, vertices)))
+    vertices_as_np = np.array(
+        list(map(lambda mv: [mv.component(e_1), mv.component(e_2)], vertices))
+    )
     # Plot dots at the vertices
     axes.scatter(
         vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
@@ -296,8 +302,8 @@ def draw_second_right_triangle(
             label,
             xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
             xytext=(
-                vertices_as_np[i, 0] - label_offset.x,
-                vertices_as_np[i, 1] + label_offset.y,
+                vertices_as_np[i, 0] - label_offset.component(e_1),
+                vertices_as_np[i, 1] + label_offset.component(e_2),
             ),
             rotation=math.degrees(angle_radians),
             rotation_mode="anchor",
@@ -331,14 +337,16 @@ def draw_right_triangle(
     ]
 
     triangle = Polygon(
-        list(map(list, vertices)),
+        list(map(lambda mv: [mv.component(e_1), mv.component(e_2)], vertices)),
         closed=True,
         facecolor="lightblue",
         edgecolor="black",
     )
     axes.add_patch(triangle)
 
-    vertices_as_np = np.array(list(map(list, vertices)))
+    vertices_as_np = np.array(
+        list(map(lambda mv: [mv.component(e_1), mv.component(e_2)], vertices))
+    )
     # Plot dots at the vertices
     axes.scatter(
         vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
@@ -352,8 +360,8 @@ def draw_right_triangle(
             label,
             xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
             xytext=(
-                vertices_as_np[i, 0] + label_offset.x,
-                vertices_as_np[i, 1] + label_offset.y,
+                vertices_as_np[i, 0] + label_offset.component(e_1),
+                vertices_as_np[i, 1] + label_offset.component(e_2),
             ),
             rotation=math.degrees(angle_radians),
             rotation_mode="anchor",
@@ -389,14 +397,16 @@ def draw_ndc(
     ]
 
     square = Polygon(
-        list(map(list, vertices)),
+        list(map(lambda mv: [mv.component(e_1), mv.component(e_2)], vertices)),
         closed=True,
         fc="none",
         edgecolor="black",
     )
     axes.add_patch(square)
 
-    vertices_as_np = np.array(list(map(list, vertices)))
+    vertices_as_np = np.array(
+        list(map(lambda mv: [mv.component(e_1), mv.component(e_2)], vertices))
+    )
     # Plot dots at the vertices
     axes.scatter(
         vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
@@ -410,8 +420,8 @@ def draw_ndc(
             label,
             xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
             xytext=(
-                vertices_as_np[i, 0] + label_offset.x,
-                vertices_as_np[i, 1] + label_offset.y,
+                vertices_as_np[i, 0] + label_offset.component(e_1),
+                vertices_as_np[i, 1] + label_offset.component(e_2),
             ),
             rotation=math.degrees(angle_radians),
             rotation_mode="anchor",
@@ -436,14 +446,19 @@ def draw_screen(
                     (-1.0 + d_width * (x + 1)) * e_1
                     + (-1.0 + d_height * y) * e_2,
                     (-1.0 + d_width * (x + 1)) * e_1
-                    + (-1.0 + d_height * (y + 1) * e_2),
+                    + (-1.0 + d_height * (y + 1)) * e_2,
                     (-1.0 + d_width * (x)) * e_1
-                    + (-1.0 + d_height * (y + 1) * e_2),
+                    + (-1.0 + d_height * (y + 1)) * e_2,
                 ]
             ]
 
             square = Polygon(
-                list(map(list, vertices)),
+                list(
+                    map(
+                        lambda mv: [mv.component(e_1), mv.component(e_2)],
+                        vertices,
+                    )
+                ),
                 closed=True,
                 fc="none",
                 edgecolor="black",

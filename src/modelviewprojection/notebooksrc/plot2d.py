@@ -247,10 +247,10 @@ screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
-        T(-0.5 * e_1 + -0.5 * e_2),
+        T(-1 / 2 * e_1 + -1 / 2 * e_2),
         S(screen_width, screen_height),
-        S(0.5, 0.5),
-        T(1.0 * e_1 + 1.0 * e_2),
+        S(1 / 2, 1 / 2),
+        T(1 * e_1 + 1 * e_2),
     ],
     relative_basis=False,
 ):

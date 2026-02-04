@@ -967,12 +967,8 @@ def translate(b: MultiVector) -> InvertibleFunction:
     def f_inv(vector: MultiVector) -> MultiVector:
         return vector - b
 
-    values = dataclasses.astuple(b)
-    tex_str: str = (
-        f"T_{{<[{str(values[0]) if len(values) == 1 else str(values)[1:-1]}]>}}"
-    )
-    negative_values = dataclasses.astuple(-b)
-    inv_str: str = f"T_{{<[{str(negative_values[0]) if len(negative_values) == 1 else str(negative_values)[1:-1]}]>}}"
+    tex_str: str = f"T_{{<{b._repr_latex_()[1:-1]}>}}"
+    inv_str: str = f"T_{{<{(-b)._repr_latex_()[1:-1]}>}}"
     return InvertibleFunction(f, f_inv, tex_str, inv_str)
     # doc-region-end define translate
 

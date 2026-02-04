@@ -12,7 +12,7 @@ jupytext --to notebook src/modelviewprojection/notebooksrc/framebuffer.py --outp
 jupytext --to notebook src/modelviewprojection/notebooksrc/ndc.py --output notebooks/ndc.ipynb
 jupytext --to notebook src/modelviewprojection/notebooksrc/ndc.py --output book/docs/ndc.ipynb
 
-python3 -m pip install --no-deps -e . --break-system-packages --root-user-action=ignore
+python3 -m pip install -e . --break-system-packages --root-user-action=ignore
 
 cd /mvp/book/docs
 make html

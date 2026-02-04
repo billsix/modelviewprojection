@@ -12,6 +12,7 @@ dependencies = [
     "imageio",
     "isort",
     "jupyter",
+    "jupyterlab",
     "jupytext",
     "mathjax",
     "matplotlib",
