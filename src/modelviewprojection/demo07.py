@@ -23,8 +23,12 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu2d
-from modelviewprojection.mathutils import MultiVector, e_1, e_2
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    MultiVector,
+    e_1,
+    e_2,
+)
 from modelviewprojection.mathutils import rotate as R
 from modelviewprojection.mathutils import translate as T
 from modelviewprojection.mathutils import uniform_scale as S
@@ -171,9 +175,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin compose transformations on paddle 1
     world_space_to_ndc = S(1.0 / 10.0)
     p1_space_to_world_space = R(paddle1.rotation) @ T(paddle1.position)
-    p1_to_ndc: mu2d.InvertibleFunction = (
-        world_space_to_ndc @ p1_space_to_world_space
-    )
+    p1_to_ndc: InvertibleFunction = world_space_to_ndc @ p1_space_to_world_space
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         paddle1_vector_ndc: MultiVector = p1_to_ndc(p1_v_ms)
@@ -190,9 +192,7 @@ while not glfw.window_should_close(window):
 
     world_space_to_ndc = S(1.0 / 10.0)
     p2_space_to_world_space = R(paddle2.rotation) @ T(paddle2.position)
-    p2_to_ndc: mu2d.InvertibleFunction = (
-        world_space_to_ndc @ p2_space_to_world_space
-    )
+    p2_to_ndc: InvertibleFunction = world_space_to_ndc @ p2_space_to_world_space
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         paddle2_vector_ndc: MultiVector = p2_to_ndc(p2_v_ms)

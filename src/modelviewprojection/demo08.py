@@ -23,8 +23,16 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu2d
-from modelviewprojection.mathutils import MultiVector, e_1, e_2
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    MultiVector,
+    compose,
+    e_1,
+    e_2,
+    rotate_around,
+    translate,
+    uniform_scale,
+)
 
 if not glfw.init():
     sys.exit()
@@ -167,11 +175,11 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     rotatePoint: MultiVector = paddle1.position
     for p1_v_ms in paddle1.vertices:
-        fn: mu2d.InvertibleFunction = mu2d.compose(
+        fn: InvertibleFunction = compose(
             [
-                mu2d.uniform_scale(1.0 / 10.0),
-                mu2d.rotate_around(paddle1.rotation, rotatePoint),
-                mu2d.translate(paddle1.position),
+                uniform_scale(1.0 / 10.0),
+                rotate_around(paddle1.rotation, rotatePoint),
+                translate(paddle1.position),
             ]
         )
         paddle1_vector_ndc: MultiVector = fn(p1_v_ms)
@@ -189,11 +197,11 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     rotatePoint = paddle2.position
     for p2_v_ms in paddle2.vertices:
-        fn: mu2d.InvertibleFunction = mu2d.compose(
+        fn: InvertibleFunction = compose(
             [
-                mu2d.uniform_scale(1.0 / 10.0),
-                mu2d.rotate_around(paddle2.rotation, rotatePoint),
-                mu2d.translate(paddle2.position),
+                uniform_scale(1.0 / 10.0),
+                rotate_around(paddle2.rotation, rotatePoint),
+                translate(paddle2.position),
             ]
         )
         paddle2_vector_ndc: MultiVector = fn(p2_v_ms)

@@ -23,8 +23,18 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu2d
-from modelviewprojection.mathutils import MultiVector, e_1, e_2, zero
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    MultiVector,
+    compose,
+    e_1,
+    e_2,
+    inverse,
+    rotate,
+    translate,
+    uniform_scale,
+    zero,
+)
 
 if not glfw.init():
     sys.exit()
@@ -188,17 +198,15 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ws: mu2d.InvertibleFunction = mu2d.compose(
-            [mu2d.translate(paddle1.position), mu2d.rotate(paddle1.rotation)]
+        ms_to_ws: InvertibleFunction = compose(
+            [translate(paddle1.position), rotate(paddle1.rotation)]
         )
         paddle1_vector_ws: MultiVector = ms_to_ws(p1_v_ms)
 
-        ws_to_cs: mu2d.InvertibleFunction = mu2d.inverse(
-            mu2d.translate(camera.position_ws)
-        )
+        ws_to_cs: InvertibleFunction = inverse(translate(camera.position_ws))
         paddle1_vector_cs: MultiVector = ws_to_cs(paddle1_vector_ws)
 
-        cs_to_ndc: mu2d.InvertibleFunction = mu2d.uniform_scale(1.0 / 10.0)
+        cs_to_ndc: InvertibleFunction = uniform_scale(1.0 / 10.0)
         paddle1_vector_ndc: MultiVector = cs_to_ndc(paddle1_vector_cs)
 
         GL.glVertex2f(
@@ -213,17 +221,17 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: mu2d.InvertibleFunction = mu2d.compose(
+        ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                mu2d.uniform_scale(1.0 / 10.0),
+                uniform_scale(1.0 / 10.0),
                 # world space to camera space
-                mu2d.inverse(mu2d.translate(camera.position_ws)),
+                inverse(translate(camera.position_ws)),
                 # model space to world space
-                mu2d.compose(
+                compose(
                     [
-                        mu2d.translate(paddle2.position),
-                        mu2d.rotate(paddle2.rotation),
+                        translate(paddle2.position),
+                        rotate(paddle2.rotation),
                     ]
                 ),
             ]

@@ -23,8 +23,16 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu2d
-from modelviewprojection.mathutils import MultiVector, e_1, e_2
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    MultiVector,
+    compose,
+    e_1,
+    e_2,
+    rotate,
+    translate,
+    uniform_scale,
+)
 
 if not glfw.init():
     sys.exit()
@@ -168,11 +176,11 @@ while not glfw.window_should_close(window):
 
     for p1_v_ms in paddle1.vertices:
         # doc-region-begin paddle 1 transformations
-        fn: mu2d.InvertibleFunction = mu2d.compose(
+        fn: InvertibleFunction = compose(
             [
-                mu2d.uniform_scale(1.0 / 10.0),
-                mu2d.translate(paddle1.position),
-                mu2d.rotate(paddle1.rotation),
+                uniform_scale(1.0 / 10.0),
+                translate(paddle1.position),
+                rotate(paddle1.rotation),
             ]
         )
         # doc-region-end paddle 1 transformations
@@ -190,11 +198,11 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: mu2d.InvertibleFunction = mu2d.compose(
+        fn: InvertibleFunction = compose(
             [
-                mu2d.uniform_scale(1.0 / 10.0),
-                mu2d.translate(paddle2.position),
-                mu2d.rotate(paddle2.rotation),
+                uniform_scale(1.0 / 10.0),
+                translate(paddle2.position),
+                rotate(paddle2.rotation),
             ]
         )
         paddle2_vector_ndc: MultiVector = fn(p2_v_ms)

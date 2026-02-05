@@ -23,8 +23,12 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu2d
-from modelviewprojection.mathutils import MultiVector, e_1, e_2
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    MultiVector,
+    e_1,
+    e_2,
+)
 from modelviewprojection.mathutils import translate as T
 
 if not glfw.init():
@@ -174,7 +178,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     GL.glColor3f(*iter(paddle2.color))
 
-    p2_fn: mu2d.InvertibleFunction = T(paddle2.position)
+    p2_fn: InvertibleFunction = T(paddle2.position)
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         paddle2_vector_ndc: MultiVector = p2_fn(p2_v_ms)

@@ -23,10 +23,18 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu2d
-from modelviewprojection.mathutils import MultiVector, e_1, e_2
-from modelviewprojection.mathutils import translate as T
-from modelviewprojection.mathutils import uniform_scale as S
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    MultiVector,
+    e_1,
+    e_2,
+)
+from modelviewprojection.mathutils import (
+    translate as T,
+)
+from modelviewprojection.mathutils import (
+    uniform_scale as S,
+)
 
 if not glfw.init():
     sys.exit()
@@ -158,11 +166,9 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 1
     GL.glColor3f(*iter(paddle1.color))
 
-    world_space_to_ndc: mu2d.InvertibleFunction = S(1.0 / 10.0)
-    p1_space_to_world_space: mu2d.InvertibleFunction = T(paddle1.position)
-    p1_to_ndc: mu2d.InvertibleFunction = (
-        world_space_to_ndc @ p1_space_to_world_space
-    )
+    world_space_to_ndc: InvertibleFunction = S(1.0 / 10.0)
+    p1_space_to_world_space: InvertibleFunction = T(paddle1.position)
+    p1_to_ndc: InvertibleFunction = world_space_to_ndc @ p1_space_to_world_space
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         paddle1_vector_ndc: MultiVector = p1_to_ndc(p1_v_ms)
@@ -177,11 +183,9 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     GL.glColor3f(*iter(paddle2.color))
 
-    world_space_to_ndc: mu2d.InvertibleFunction = S(1.0 / 10.0)
-    p2_space_to_world_space: mu2d.InvertibleFunction = T(paddle2.position)
-    p2_to_ndc: mu2d.InvertibleFunction = (
-        world_space_to_ndc @ p2_space_to_world_space
-    )
+    world_space_to_ndc: InvertibleFunction = S(1.0 / 10.0)
+    p2_space_to_world_space: InvertibleFunction = T(paddle2.position)
+    p2_to_ndc: InvertibleFunction = world_space_to_ndc @ p2_space_to_world_space
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         paddle2_vector_ndc: MultiVector = p2_to_ndc(p2_v_ms)

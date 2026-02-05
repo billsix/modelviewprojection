@@ -23,8 +23,18 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu2d
-from modelviewprojection.mathutils import MultiVector, e_1, e_2, zero
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    MultiVector,
+    compose,
+    e_1,
+    e_2,
+    inverse,
+    rotate,
+    translate,
+    uniform_scale,
+    zero,
+)
 
 if not glfw.init():
     sys.exit()
@@ -195,17 +205,17 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ndc: mu2d.InvertibleFunction = mu2d.compose(
+        ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                mu2d.uniform_scale(1.0 / 10.0),
+                uniform_scale(1.0 / 10.0),
                 # world space to camera space
-                mu2d.inverse(mu2d.translate(camera.position_ws)),
+                inverse(translate(camera.position_ws)),
                 # model space to world space
-                mu2d.compose(
+                compose(
                     [
-                        mu2d.translate(paddle1.position),
-                        mu2d.rotate(paddle1.rotation),
+                        translate(paddle1.position),
+                        rotate(paddle1.rotation),
                     ]
                 ),
             ]
@@ -224,21 +234,21 @@ while not glfw.window_should_close(window):
     GL.glColor3f(0.0, 0.0, 1.0)
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
-        ms_to_ndc: mu2d.InvertibleFunction = mu2d.compose(
+        ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                mu2d.uniform_scale(1.0 / 10.0),
+                uniform_scale(1.0 / 10.0),
                 # world space to camera space
-                mu2d.inverse(mu2d.translate(camera.position_ws)),
+                inverse(translate(camera.position_ws)),
                 # model space to world space
-                mu2d.compose(
+                compose(
                     [
-                        mu2d.translate(paddle1.position),
-                        mu2d.rotate(paddle1.rotation),
+                        translate(paddle1.position),
+                        rotate(paddle1.rotation),
                     ]
                 ),
                 # square space to paddle 1 space
-                mu2d.translate(2.0 * e_1),
+                translate(2.0 * e_1),
             ]
         )
         square_vector_ndc: MultiVector = ms_to_ndc(ms)
@@ -254,17 +264,17 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: mu2d.InvertibleFunction = mu2d.compose(
+        ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                mu2d.uniform_scale(1.0 / 10.0),
+                uniform_scale(1.0 / 10.0),
                 # world space to camera space
-                mu2d.inverse(mu2d.translate(camera.position_ws)),
+                inverse(translate(camera.position_ws)),
                 # model space to world space
-                mu2d.compose(
+                compose(
                     [
-                        mu2d.translate(paddle2.position),
-                        mu2d.rotate(paddle2.rotation),
+                        translate(paddle2.position),
+                        rotate(paddle2.rotation),
                     ]
                 ),
             ]
