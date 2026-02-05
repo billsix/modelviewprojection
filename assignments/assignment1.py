@@ -213,11 +213,11 @@ def use_plot_function_for_x_minus_onehalf_squared() -> None:
 # doc-region-begin draw an oscillating triangle
 def draw_an_oscillating_triangle(elapsed_time_in_seconds: float) -> None:
     # math.sin uses radians
-    offset_x = math.sin(elapsed_time_in_seconds)
+    offset_x: float = math.sin(elapsed_time_in_seconds)
     # to use degrees, you would do
     # offset_x = math.sin(math.radians(elapsed_time_in_seconds))
 
-    float_between_0_and_1 = abs(math.sin(elapsed_time_in_seconds))
+    float_between_0_and_1: float = abs(math.sin(elapsed_time_in_seconds))
     # a float between 0 and 1 so that the color of the triagle changes over time
     GL.glColor3f(float_between_0_and_1, float_between_0_and_1, 1.0)
     GL.glBegin(GL.GL_TRIANGLES)
@@ -275,6 +275,8 @@ while not glfw.window_should_close(window):
 
     elapsed_time_in_seconds: float = glfw.get_time() - program_start_time
 
+    width: int
+    height: int
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
     GL.glClear(sum([GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT]))
