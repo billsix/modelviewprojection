@@ -31,11 +31,11 @@ from modelviewprojection.mathutils import (
     e_3,
     fn_stack,
     inverse,
-    rotate_z,
-    translate,
-    uniform_scale,
     zero,
 )
+from modelviewprojection.mathutils import rotate_z as RZ
+from modelviewprojection.mathutils import translate as T
+from modelviewprojection.mathutils import uniform_scale as S
 
 if not glfw.init():
     sys.exit()
@@ -220,19 +220,17 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin stack push camera space to ndc
     # camera space to NDC
-    fn_stack.push(uniform_scale(1.0 / 10.0))
+    fn_stack.push(S(1.0 / 10.0))
     # doc-region-end stack push camera space to ndc
 
     # doc-region-begin world space to camera space
     # world space to camera space
-    fn_stack.push(inverse(translate(camera.position_ws)))
+    fn_stack.push(inverse(T(camera.position_ws)))
     # doc-region-end world space to camera space
 
     # doc-region-begin paddle 1 transformations
     # paddle 1 model space to world space
-    fn_stack.push(
-        compose([translate(paddle1.position), rotate_z(paddle1.rotation)])
-    )
+    fn_stack.push(compose([T(paddle1.position), RZ(paddle1.rotation)]))
     # doc-region-end paddle 1 transformations
 
     # doc-region-begin draw paddle 1
@@ -254,10 +252,10 @@ while not glfw.window_should_close(window):
     fn_stack.push(
         compose(
             [
-                translate(-1.0 * e_3),
-                rotate_z(rotation_around_paddle1),
-                translate(2.0 * e_1),
-                rotate_z(square_rotation),
+                T(-1.0 * e_3),
+                RZ(rotation_around_paddle1),
+                T(2.0 * e_1),
+                RZ(square_rotation),
             ]
         )
     )
@@ -283,9 +281,7 @@ while not glfw.window_should_close(window):
     # doc-region-end back to world space
 
     # doc-region-begin paddle 2 model space to world space
-    fn_stack.push(
-        compose([translate(paddle2.position), rotate_z(paddle2.rotation)])
-    )
+    fn_stack.push(compose([T(paddle2.position), RZ(paddle2.rotation)]))
     # doc-region-end paddle 2 model space to world space
 
     # doc-region-begin draw paddle 2

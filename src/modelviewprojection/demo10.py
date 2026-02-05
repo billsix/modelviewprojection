@@ -31,10 +31,10 @@ from modelviewprojection.mathutils import (
     e_2,
     inverse,
     rotate,
-    translate,
-    uniform_scale,
     zero,
 )
+from modelviewprojection.mathutils import translate as T
+from modelviewprojection.mathutils import uniform_scale as S
 
 if not glfw.init():
     sys.exit()
@@ -199,14 +199,14 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         ms_to_ws: InvertibleFunction = compose(
-            [translate(paddle1.position), rotate(paddle1.rotation)]
+            [T(paddle1.position), rotate(paddle1.rotation)]
         )
         paddle1_vector_ws: MultiVector = ms_to_ws(p1_v_ms)
 
-        ws_to_cs: InvertibleFunction = inverse(translate(camera.position_ws))
+        ws_to_cs: InvertibleFunction = inverse(T(camera.position_ws))
         paddle1_vector_cs: MultiVector = ws_to_cs(paddle1_vector_ws)
 
-        cs_to_ndc: InvertibleFunction = uniform_scale(1.0 / 10.0)
+        cs_to_ndc: InvertibleFunction = S(1.0 / 10.0)
         paddle1_vector_ndc: MultiVector = cs_to_ndc(paddle1_vector_cs)
 
         GL.glVertex2f(
@@ -224,13 +224,13 @@ while not glfw.window_should_close(window):
         ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                uniform_scale(1.0 / 10.0),
+                S(1.0 / 10.0),
                 # world space to camera space
-                inverse(translate(camera.position_ws)),
+                inverse(T(camera.position_ws)),
                 # model space to world space
                 compose(
                     [
-                        translate(paddle2.position),
+                        T(paddle2.position),
                         rotate(paddle2.rotation),
                     ]
                 ),

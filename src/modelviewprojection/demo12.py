@@ -31,10 +31,10 @@ from modelviewprojection.mathutils import (
     e_2,
     inverse,
     rotate,
-    translate,
-    uniform_scale,
     zero,
 )
+from modelviewprojection.mathutils import translate as T
+from modelviewprojection.mathutils import uniform_scale as S
 
 if not glfw.init():
     sys.exit()
@@ -211,13 +211,13 @@ while not glfw.window_should_close(window):
         ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                uniform_scale(1.0 / 10.0),
+                S(1.0 / 10.0),
                 # world space to camera space
-                inverse(translate(camera.position_ws)),
+                inverse(T(camera.position_ws)),
                 # model space to world space
                 compose(
                     [
-                        translate(paddle1.position),
+                        T(paddle1.position),
                         rotate(paddle1.rotation),
                     ]
                 ),
@@ -239,20 +239,20 @@ while not glfw.window_should_close(window):
         ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                uniform_scale(1.0 / 10.0),
+                S(1.0 / 10.0),
                 # world space to camera space
-                inverse(translate(camera.position_ws)),
+                inverse(T(camera.position_ws)),
                 # model space to world space
                 compose(
                     [
-                        translate(paddle1.position),
+                        T(paddle1.position),
                         rotate(paddle1.rotation),
                     ]
                 ),
                 # square space to paddle 1 space
                 compose(
                     [
-                        translate(2.0 * e_1),
+                        T(2.0 * e_1),
                         rotate(square_rotation),
                     ]
                 ),
@@ -274,13 +274,13 @@ while not glfw.window_should_close(window):
         ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                uniform_scale(1.0 / 10.0),
+                S(1.0 / 10.0),
                 # world space to camera space
-                inverse(translate(camera.position_ws)),
+                inverse(T(camera.position_ws)),
                 # model space to world space
                 compose(
                     [
-                        translate(paddle2.position),
+                        T(paddle2.position),
                         rotate(paddle2.rotation),
                     ]
                 ),

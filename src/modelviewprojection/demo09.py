@@ -30,9 +30,9 @@ from modelviewprojection.mathutils import (
     e_1,
     e_2,
     rotate,
-    translate,
-    uniform_scale,
 )
+from modelviewprojection.mathutils import translate as T
+from modelviewprojection.mathutils import uniform_scale as S
 
 if not glfw.init():
     sys.exit()
@@ -178,8 +178,8 @@ while not glfw.window_should_close(window):
         # doc-region-begin paddle 1 transformations
         fn: InvertibleFunction = compose(
             [
-                uniform_scale(1.0 / 10.0),
-                translate(paddle1.position),
+                S(1.0 / 10.0),
+                T(paddle1.position),
                 rotate(paddle1.rotation),
             ]
         )
@@ -200,8 +200,8 @@ while not glfw.window_should_close(window):
     for p2_v_ms in paddle2.vertices:
         fn: InvertibleFunction = compose(
             [
-                uniform_scale(1.0 / 10.0),
-                translate(paddle2.position),
+                S(1.0 / 10.0),
+                T(paddle2.position),
                 rotate(paddle2.rotation),
             ]
         )
