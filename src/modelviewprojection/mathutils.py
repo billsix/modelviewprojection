@@ -58,6 +58,7 @@ __all__ = [
     "cs_to_ndc_space_fn",
     "FunctionStack",
     "push_transformation",
+    "fn_stack",
 ]
 
 

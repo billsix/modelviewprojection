@@ -23,6 +23,15 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    Vector2D,
+    compose,
+    inverse,
+    rotate,
+    translate,
+    uniform_scale,
+)
 
 if not glfw.init():
     sys.exit()
@@ -83,50 +92,50 @@ def draw_in_square_viewport() -> None:
 
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[mu.Vector2D]
+    vertices: list[Vector2D]
     color: colorutils.Color3
-    position: mu.Vector2D
+    position: Vector2D
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        mu.Vector2D(x=-1.0, y=-3.0),
-        mu.Vector2D(x=1.0, y=-3.0),
-        mu.Vector2D(x=1.0, y=3.0),
-        mu.Vector2D(x=-1.0, y=3.0),
+        Vector2D(x=-1.0, y=-3.0),
+        Vector2D(x=1.0, y=-3.0),
+        Vector2D(x=1.0, y=3.0),
+        Vector2D(x=-1.0, y=3.0),
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=mu.Vector2D(-9.0, 0.0),
+    position=Vector2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        mu.Vector2D(x=-1.0, y=-3.0),
-        mu.Vector2D(x=1.0, y=-3.0),
-        mu.Vector2D(x=1.0, y=3.0),
-        mu.Vector2D(x=-1.0, y=3.0),
+        Vector2D(x=-1.0, y=-3.0),
+        Vector2D(x=1.0, y=-3.0),
+        Vector2D(x=1.0, y=3.0),
+        Vector2D(x=-1.0, y=3.0),
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=mu.Vector2D(9.0, 0.0),
+    position=Vector2D(9.0, 0.0),
 )
 
 
 @dataclasses.dataclass
 class Camera:
-    position_ws: mu.Vector2D = dataclasses.field(
-        default_factory=lambda: mu.Vector2D(x=0.0, y=0.0)
+    position_ws: Vector2D = dataclasses.field(
+        default_factory=lambda: Vector2D(x=0.0, y=0.0)
     )
 
 
 camera: Camera = Camera()
 
 
-square: list[mu.Vector2D] = [
-    mu.Vector2D(x=-0.5, y=-0.5),
-    mu.Vector2D(x=0.5, y=-0.5),
-    mu.Vector2D(x=0.5, y=0.5),
-    mu.Vector2D(x=-0.5, y=0.5),
+square: list[Vector2D] = [
+    Vector2D(x=-0.5, y=-0.5),
+    Vector2D(x=0.5, y=-0.5),
+    Vector2D(x=0.5, y=0.5),
+    Vector2D(x=-0.5, y=0.5),
 ]
 square_rotation: float = 0.0
 # doc-region-begin define variable for square rotation around paddle's center
@@ -203,23 +212,23 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ndc: mu.InvertibleFunction = mu.compose(
+        ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                mu.uniform_scale(1.0 / 10.0),
+                uniform_scale(1.0 / 10.0),
                 # world space to camera space
-                mu.inverse(mu.translate(camera.position_ws)),
+                inverse(translate(camera.position_ws)),
                 # model space to world space
-                mu.compose(
+                compose(
                     [
-                        mu.translate(paddle1.position),
-                        mu.rotate(paddle1.rotation),
+                        translate(paddle1.position),
+                        rotate(paddle1.rotation),
                     ]
                 ),
             ]
         )
 
-        paddle1_vector_ndc: mu.Vector2D = ms_to_ndc(p1_v_ms)
+        paddle1_vector_ndc: Vector2D = ms_to_ndc(p1_v_ms)
 
         GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
     GL.glEnd()
@@ -228,30 +237,30 @@ while not glfw.window_should_close(window):
     GL.glColor3f(0.0, 0.0, 1.0)
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
-        ms_to_ndc: mu.InvertibleFunction = mu.compose(
+        ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                mu.uniform_scale(1.0 / 10.0),
+                uniform_scale(1.0 / 10.0),
                 # world space to camera space
-                mu.inverse(mu.translate(camera.position_ws)),
+                inverse(translate(camera.position_ws)),
                 # model space to world space
-                mu.compose(
+                compose(
                     [
-                        mu.translate(paddle1.position),
-                        mu.rotate(paddle1.rotation),
+                        translate(paddle1.position),
+                        rotate(paddle1.rotation),
                     ]
                 ),
                 # square space to paddle 1 space
-                mu.compose(
+                compose(
                     [
-                        mu.rotate(rotation_around_paddle1),
-                        mu.translate(mu.Vector2D(x=2.0, y=0.0)),
-                        mu.rotate(square_rotation),
+                        rotate(rotation_around_paddle1),
+                        translate(Vector2D(x=2.0, y=0.0)),
+                        rotate(square_rotation),
                     ]
                 ),
             ]
         )
-        square_vector_ndc: mu.Vector2D = ms_to_ndc(ms)
+        square_vector_ndc: Vector2D = ms_to_ndc(ms)
         GL.glVertex2f(square_vector_ndc.x, square_vector_ndc.y)
     GL.glEnd()
     # doc-region-end draw square
@@ -260,23 +269,23 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: mu.InvertibleFunction = mu.compose(
+        ms_to_ndc: InvertibleFunction = compose(
             [
                 # camera space to NDC
-                mu.uniform_scale(1.0 / 10.0),
+                uniform_scale(1.0 / 10.0),
                 # world space to camera space
-                mu.inverse(mu.translate(camera.position_ws)),
+                inverse(translate(camera.position_ws)),
                 # model space to world space
-                mu.compose(
+                compose(
                     [
-                        mu.translate(paddle2.position),
-                        mu.rotate(paddle2.rotation),
+                        translate(paddle2.position),
+                        rotate(paddle2.rotation),
                     ]
                 ),
             ]
         )
 
-        paddle2_vector_ndc: mu.Vector2D = ms_to_ndc(p2_v_ms)
+        paddle2_vector_ndc: Vector2D = ms_to_ndc(p2_v_ms)
 
         GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     GL.glEnd()

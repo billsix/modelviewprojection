@@ -23,7 +23,11 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    Vector,
+    Vector2D,
+)
 from modelviewprojection.mathutils import translate as T
 
 if not glfw.init():
@@ -85,33 +89,33 @@ def draw_in_square_viewport() -> None:
 # doc-region-begin define paddle class
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[mu.Vector2D]
+    vertices: list[Vector2D]
     color: colorutils.Color3
-    position: mu.Vector2D
+    position: Vector2D
     # doc-region-end define paddle class
 
 
 # doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        mu.Vector2D(x=-0.1, y=-0.3),
-        mu.Vector2D(x=0.1, y=-0.3),
-        mu.Vector2D(x=0.1, y=0.3),
-        mu.Vector2D(x=-0.1, y=0.3),
+        Vector2D(x=-0.1, y=-0.3),
+        Vector2D(x=0.1, y=-0.3),
+        Vector2D(x=0.1, y=0.3),
+        Vector2D(x=-0.1, y=0.3),
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=mu.Vector2D(-0.9, 0.0),
+    position=Vector2D(-0.9, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        mu.Vector2D(-0.1, -0.3),
-        mu.Vector2D(0.1, -0.3),
-        mu.Vector2D(0.1, 0.3),
-        mu.Vector2D(-0.1, 0.3),
+        Vector2D(-0.1, -0.3),
+        Vector2D(0.1, -0.3),
+        Vector2D(0.1, 0.3),
+        Vector2D(-0.1, 0.3),
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=mu.Vector2D(0.9, 0.0),
+    position=Vector2D(0.9, 0.0),
 )
 # doc-region-end instantiate paddles
 
@@ -160,9 +164,9 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc: mu.Vector = T(paddle1.position)(p1_v_ms)
+        paddle1_vector_ndc: Vector = T(paddle1.position)(p1_v_ms)
         # we could have written
-        # paddle1_vector_ndc: mu.Vector = paddle1.position + p1_v_ms
+        # paddle1_vector_ndc: Vector = paddle1.position + p1_v_ms
         GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
     GL.glEnd()
     # doc-region-end draw paddle 1
@@ -170,10 +174,10 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     GL.glColor3f(*iter(paddle2.color))
 
-    p2_fn: mu.InvertibleFunction = T(paddle2.position)
+    p2_fn: InvertibleFunction = T(paddle2.position)
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        paddle2_vector_ndc: mu.Vector = p2_fn(p2_v_ms)
+        paddle2_vector_ndc: Vector = p2_fn(p2_v_ms)
         GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     GL.glEnd()
     # doc-region-end draw paddle 2
