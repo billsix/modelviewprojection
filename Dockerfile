@@ -6,22 +6,6 @@ ARG USE_IMGUI=0
 ARG USE_JUPYTER=0
 ARG USE_SPYDER=0
 
-
-COPY entrypoint/dotfiles/ /root/
-COPY entrypoint/*.sh /usr/local/bin
-COPY entrypoint/entrypoint.sh /
-COPY assignments/ /mvp/assignments/
-COPY book  /mvp/book/
-COPY LICENSE  /mvp/LICENSE
-COPY mvpVisualization  /mvp/mvpVisualization/
-COPY notebooks  /mvp/notebooks/
-COPY pyproject.toml  /mvp/pyproject.toml
-COPY pytest.ini  /mvp/pytest.ini
-COPY setup.py  /mvp/setup.py
-COPY src  /mvp/src/
-COPY tests  /mvp/tests/
-COPY tox.ini  /mvp/tox.ini
-
 RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      --mount=type=cache,target=/var/lib/dnf \
      echo "keepcache=True" >> /etc/dnf/dnf.conf && \
@@ -158,6 +142,22 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
     echo "emacs src/modelviewprojection/mathutils2d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils1d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils.py" >> ~/.bash_history
+
+
+COPY entrypoint/dotfiles/ /root/
+COPY entrypoint/*.sh /usr/local/bin
+COPY entrypoint/entrypoint.sh /
+COPY assignments/ /mvp/assignments/
+COPY book  /mvp/book/
+COPY LICENSE  /mvp/LICENSE
+COPY mvpVisualization  /mvp/mvpVisualization/
+COPY notebooks  /mvp/notebooks/
+COPY pyproject.toml  /mvp/pyproject.toml
+COPY pytest.ini  /mvp/pytest.ini
+COPY setup.py  /mvp/setup.py
+COPY src  /mvp/src/
+COPY tests  /mvp/tests/
+COPY tox.ini  /mvp/tox.ini
 
 
 ENTRYPOINT ["/entrypoint.sh"]
