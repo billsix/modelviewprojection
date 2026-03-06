@@ -16,14 +16,16 @@ python3 -m pip install --no-deps -e . --break-system-packages --root-user-action
 
 cd /mvp/book/docs
 make html
-
-
-# fix issues that github has for displaying the pages for me
-cd _build/html/
+make latexpdf
+make epub
 
 # copy the files over
 mkdir -p /output/modelviewprojection
-cp -r * /output/modelviewprojection/
+
+# fix issues that github has for displaying the pages for me
+cp -r _build/html/ /output/modelviewprojection/
+cp -r _build/latexpdf/*pdf /output/modelviewprojection/
+cp -r _build/epub/*epub /output/modelviewprojection/
 # see if this fixes github issue with unscores in
 # filenames created by sphinx
 touch /output/modelviewprojection/.nojekyll
