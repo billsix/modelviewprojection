@@ -24,7 +24,6 @@ import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
 import modelviewprojection.mathutils as mu
-import modelviewprojection.mathutils as mu2d
 from modelviewprojection.mathutils import translate as T
 
 if not glfw.init():
@@ -86,33 +85,33 @@ def draw_in_square_viewport() -> None:
 # doc-region-begin define paddle class
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[mu2d.Vector2D]
+    vertices: list[mu.Vector2D]
     color: colorutils.Color3
-    position: mu2d.Vector2D
+    position: mu.Vector2D
     # doc-region-end define paddle class
 
 
 # doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        mu2d.Vector2D(x=-0.1, y=-0.3),
-        mu2d.Vector2D(x=0.1, y=-0.3),
-        mu2d.Vector2D(x=0.1, y=0.3),
-        mu2d.Vector2D(x=-0.1, y=0.3),
+        mu.Vector2D(x=-0.1, y=-0.3),
+        mu.Vector2D(x=0.1, y=-0.3),
+        mu.Vector2D(x=0.1, y=0.3),
+        mu.Vector2D(x=-0.1, y=0.3),
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=mu2d.Vector2D(-0.9, 0.0),
+    position=mu.Vector2D(-0.9, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        mu2d.Vector2D(-0.1, -0.3),
-        mu2d.Vector2D(0.1, -0.3),
-        mu2d.Vector2D(0.1, 0.3),
-        mu2d.Vector2D(-0.1, 0.3),
+        mu.Vector2D(-0.1, -0.3),
+        mu.Vector2D(0.1, -0.3),
+        mu.Vector2D(0.1, 0.3),
+        mu.Vector2D(-0.1, 0.3),
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=mu2d.Vector2D(0.9, 0.0),
+    position=mu.Vector2D(0.9, 0.0),
 )
 # doc-region-end instantiate paddles
 
@@ -171,7 +170,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     GL.glColor3f(*iter(paddle2.color))
 
-    p2_fn: mu2d.InvertibleFunction = T(paddle2.position)
+    p2_fn: mu.InvertibleFunction = T(paddle2.position)
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         paddle2_vector_ndc: mu.Vector = p2_fn(p2_v_ms)

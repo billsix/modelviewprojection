@@ -23,7 +23,6 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-import modelviewprojection.mathutils as mu2d
 from modelviewprojection.mathutils import rotate as R
 from modelviewprojection.mathutils import translate as T
 from modelviewprojection.mathutils import uniform_scale as S
@@ -87,33 +86,33 @@ def draw_in_square_viewport() -> None:
 # doc-region-begin define paddle class
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[mu2d.Vector2D]
+    vertices: list[mu.Vector2D]
     color: colorutils.Color3
-    position: mu2d.Vector2D
+    position: mu.Vector2D
     rotation: float = 0.0
     # doc-region-end define paddle class
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        mu2d.Vector2D(x=-1.0, y=-3.0),
-        mu2d.Vector2D(x=1.0, y=-3.0),
-        mu2d.Vector2D(x=1.0, y=3.0),
-        mu2d.Vector2D(x=-1.0, y=3.0),
+        mu.Vector2D(x=-1.0, y=-3.0),
+        mu.Vector2D(x=1.0, y=-3.0),
+        mu.Vector2D(x=1.0, y=3.0),
+        mu.Vector2D(x=-1.0, y=3.0),
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=mu2d.Vector2D(-9.0, 0.0),
+    position=mu.Vector2D(-9.0, 0.0),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        mu2d.Vector2D(x=-1.0, y=-3.0),
-        mu2d.Vector2D(x=1.0, y=-3.0),
-        mu2d.Vector2D(x=1.0, y=3.0),
-        mu2d.Vector2D(x=-1.0, y=3.0),
+        mu.Vector2D(x=-1.0, y=-3.0),
+        mu.Vector2D(x=1.0, y=-3.0),
+        mu.Vector2D(x=1.0, y=3.0),
+        mu.Vector2D(x=-1.0, y=3.0),
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=mu2d.Vector2D(9.0, 0.0),
+    position=mu.Vector2D(9.0, 0.0),
 )
 
 
@@ -170,12 +169,12 @@ while not glfw.window_should_close(window):
     # doc-region-begin compose transformations on paddle 1
     world_space_to_ndc = S(1.0 / 10.0)
     p1_space_to_world_space = R(paddle1.rotation) @ T(paddle1.position)
-    p1_to_ndc: mu2d.InvertibleFunction = (
+    p1_to_ndc: mu.InvertibleFunction = (
         world_space_to_ndc @ p1_space_to_world_space
     )
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc: mu2d.Vector = p1_to_ndc(p1_v_ms)
+        paddle1_vector_ndc: mu.Vector = p1_to_ndc(p1_v_ms)
         GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
     GL.glEnd()
     # doc-region-end compose transformations on paddle 1
@@ -186,7 +185,7 @@ while not glfw.window_should_close(window):
 
     world_space_to_ndc = S(1.0 / 10.0)
     p2_space_to_world_space = R(paddle2.rotation) @ T(paddle2.position)
-    p2_to_ndc: mu2d.InvertibleFunction = (
+    p2_to_ndc: mu.InvertibleFunction = (
         world_space_to_ndc @ p2_space_to_world_space
     )
     GL.glBegin(GL.GL_QUADS)
