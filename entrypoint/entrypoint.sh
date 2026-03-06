@@ -24,7 +24,7 @@ mkdir -p /output/modelviewprojection
 
 # fix issues that github has for displaying the pages for me
 cp -r _build/html/ /output/modelviewprojection/
-cp -r _build/latexpdf/*pdf /output/modelviewprojection/
+cp -r _build/latex/*pdf /output/modelviewprojection/
 cp -r _build/epub/*epub /output/modelviewprojection/
 # see if this fixes github issue with unscores in
 # filenames created by sphinx

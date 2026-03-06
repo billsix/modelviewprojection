@@ -77,7 +77,8 @@ cayleyImages: ndcToScreenspace.png \
 		cToNDC.png \
 		s1ToP1.png \
 		cToClip.png \
-		clipToNDC.png
+		clipToNDC.png \
+		ch02_math_01.png
 
 
 

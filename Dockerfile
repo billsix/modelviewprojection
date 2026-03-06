@@ -50,6 +50,13 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    python3-nbsphinx \
                    python3-sphinx_rtd_theme \
                    python3-sphinxcontrib-bibtex \
+                   sphinx \
+                   python-sphinxcontrib-bibtex-doc \
+                   python3-sphinx-epytext \
+                   python3-sphinx-latex \
+                   python3-sphinx-math-dollar \
+                   python3-sphinxcontrib-bibtex \
+                   python3-texext \
                    texlive \
                    texlive-anyfontsize \
                    texlive-dvipng \

@@ -1,4 +1,6 @@
 * TODO [#1] Model View Projection
+    - [ ] Fix all inline math in the rst to be built with latex
+    - [ ] Change all of the rotate, translate, scale functions to use R, T, S
     - [ ] Add explanation of I for identity function, and T, R, etc
     - [ ] Add image to dockerhub
       - [ ] copy code, build it, put in all relavent files

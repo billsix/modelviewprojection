@@ -333,8 +333,11 @@ a bank.
 
     Cayley graph of univariate coordinate conversion for money.
 
-.. math::
-    f_{nickel}^{penny}(x) = 5 * x
+.. figure:: _static/ch02_math_01.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
 
 .. math::
     f_{dime}^{penny}(x) = 10 * x
