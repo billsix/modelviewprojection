@@ -338,17 +338,23 @@ a bank.
     :align: center
     :figclass: align-center
 
+.. figure:: _static/ch02_math_02.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-.. math::
-    f_{dime}^{penny}(x) = 10 * x
+.. figure:: _static/ch02_math_03.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+.. figure:: _static/ch02_math_04.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
 
-.. math::
-    f_{quarter}^{penny}(x) = 25 * x
 
-
-.. math::
-    f_{dollar}^{penny}(x) = 100 * x
 
 
 The directed edges in the Cayley graph show the direction that
@@ -360,12 +366,19 @@ move to penny, while applying the appropriate function
 along the way.
 
 
-.. math::
-    f_{nickel}^{penny}(x) = 5 * x
 
-.. math::
-    f_{nickel}^{penny}(20)  & = 5 * 20 \\
-                     & = 100
+.. figure:: _static/ch02_math_05.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+
+.. figure:: _static/ch02_math_06.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+
 
 
 
@@ -380,25 +393,34 @@ taking the reciprocal of the coefficient
 
 
 
+.. figure:: _static/ch02_math_07.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-.. math::
-    f_{quarter}^{penny}(x) = 25 * x
+.. figure:: _static/ch02_math_08.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-.. math::
-    f_{penny}^{quarter}(x) & = {(f_{quarter}^{penny})}^{-1}(x) \\
-    & =  1/25 * x
+.. figure:: _static/ch02_math_09.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
 
-.. math::
-    {f_{penny}^{quarter}}(100)  & = 1/25 * x\\
-                     & = 4
+
+
 
 
 By taking the inverse_ of the coefficient, we satisfy a definition
 of an inverse_
 
-.. math::
-   (f \circ f^{-1})(x)  = x
+.. figure:: _static/ch02_math_10.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
 
 
 
@@ -409,13 +431,15 @@ of any directed edge that you against.
 .. _compose: https://en.wikipedia.org/wiki/Function_composition
 
 
-.. math::
-    f_{dime}^{dollar}(x)  & = f_{penny}^{dollar}(f_{dime}^{penny}(x)) \\
-                              & = {(f_{dollar}^{penny})}^{-1}(f_{dime}^{penny}(x)) \\
+.. figure:: _static/ch02_math_11.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-
-.. math::
-    f_{dime}^{dollar}   = {(f_{dollar}^{penny})}^{-1} \circ f_{dime}^{penny}
+.. figure:: _static/ch02_math_12.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
 
 
@@ -428,15 +452,23 @@ out, but the details of those functions are not relevant when traversing the Cay
 
 Function composition is used extensively throughout this book.  As a reminder
 
-.. math::
-    ({f \circ g})(x)   = {f(g(x))}
+
+.. figure:: _static/ch02_math_13.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
 
 
 Given that the compose operation is on the functions, another way of writing it
 omits the argument :math:`x`
 
-.. math::
-    {f \circ g}
+
+.. figure:: _static/ch02_math_14.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
 
 
 
@@ -457,11 +489,18 @@ between different units of measure.
 
     Cayley graph of univariate coordinate conversion for temperature.
 
-.. math::
-    f_{celsius}^{kelvin}(x) = x + 273.15
 
-.. math::
-    f_{fahrenheit}^{celsius}(x) = (x-32) * \frac{5}{9}
+.. figure:: _static/ch02_math_15.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+.. figure:: _static/ch02_math_16.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+
 
 Given that those functions are invertible_, with the Cayley graph
 and the function definitions, we have the information needed
@@ -474,23 +513,41 @@ and/or taking the inverse_ of given functions.
 
 To convert from fahrenheit to kelvin
 
-.. math::
-    f_{fahrenheit}^{kelvin} = f_{celsius}^{kelvin} \circ f_{fahrenheit}^{celsius}
+
+.. figure:: _static/ch02_math_17.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+
 
 To convert from kelvin to celsius
 
-.. math::
-    f_{kelvin}^{celsius} = {(f_{celsius}^{kelvin})}^{-1}
+
+
+.. figure:: _static/ch02_math_18.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
 
 To convert from celsius to fahrenheit
 
-.. math::
-    f_{celsius}^{fahrenheit} = {(f_{fahrenheit}^{celsius})}^{-1}
+.. figure:: _static/ch02_math_19.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+
 
 To convert from kelvin to fahrenheit
 
-.. math::
-    f_{kelvin}^{fahrenheit} = {(f_{fahrenheit}^{celsius})^{-1}} \circ {(f_{celsius}^{kelvin})^{-1}}
+
+.. figure:: _static/ch02_math_20.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
 
 
 
@@ -537,10 +594,12 @@ In tracing out the graph, we are going with the first two directed edges,
 and against the last one.  So we compose_ the functions and take
 the appropriate inverse(s).
 
+.. figure:: _static/ch02_math_21.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-.. math::
-    \vec{f}_{d}^{b}(\vec{x})  & = \vec{f}_{a}^{b}(\vec{f}_{c}^{a}(\vec{f}_{d}^{c}(\vec{x}))) \\
-                              & = {(\vec{{f}_{b}^{a}})}^{-1}(\vec{f}_{c}^{a}(\vec{f}_{d}^{c}(\vec{x})))
+
 
 A function from A to B is not provided to us, but we wrote it in the equation as an idea of a function
 that we wish to have, even though we don't currently have it.
@@ -549,8 +608,10 @@ However, we can create this function by invoking inverse_ on the provided functi
 
 Since we're dealing with function composition_, we don't even need to specify the argument
 
-.. math::
-    \vec{f}_{d}^{b}  = {(\vec{{f}_{b}^{a}})}^{-1} \circ {\vec{f}_{c}^{a}} \circ \vec{f}_{d}^{c}
+.. figure:: _static/ch02_math_22.png
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
 
 

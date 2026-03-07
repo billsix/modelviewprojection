@@ -52,12 +52,12 @@ import warnings
 import IPython.display
 import moviepy
 import numpy as np
-
 import modelviewprojection.mathutils as mu
 import modelviewprojection.softwarerendering as sr
 
 # turn warnings into exceptions
 warnings.filterwarnings("error", category=RuntimeWarning)
+matplotlib.rcParams['axes.formatter.use_mathtext'] = True
 
 
 # %% [markdown]

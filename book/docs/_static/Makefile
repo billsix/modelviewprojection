@@ -78,7 +78,28 @@ cayleyImages: ndcToScreenspace.png \
 		s1ToP1.png \
 		cToClip.png \
 		clipToNDC.png \
-		ch02_math_01.png
+		ch02_math_01.png \
+		ch02_math_02.png \
+		ch02_math_03.png \
+		ch02_math_04.png \
+		ch02_math_05.png \
+		ch02_math_06.png \
+		ch02_math_07.png \
+		ch02_math_08.png \
+		ch02_math_09.png \
+		ch02_math_10.png \
+		ch02_math_11.png \
+		ch02_math_12.png \
+		ch02_math_13.png \
+		ch02_math_14.png \
+		ch02_math_15.png \
+		ch02_math_16.png \
+		ch02_math_17.png \
+		ch02_math_18.png \
+		ch02_math_19.png \
+		ch02_math_20.png \
+		ch02_math_21.png \
+		ch02_math_22.png
 
 
 

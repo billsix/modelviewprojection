@@ -73,7 +73,7 @@ int main(int argc, char** argv) {
             "\\documentclass{standalone}\n"
             "\\usepackage{amsmath}\n"
             "\\begin{document}\n"
-            "$ %s $\n"
+            "%s\n"
             "\\end{document}\n",
             expression);
   fclose(tex_file);
