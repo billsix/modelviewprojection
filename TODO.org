@@ -1,92 +1,98 @@
-* TODO [#1] Model View Projection
-    - [ ] Fix all inline math in the rst to be built with latex
-    - [ ] Change all of the rotate, translate, scale functions to use R, T, S
-    - [ ] Add explanation of I for identity function, and T, R, etc
-    - [ ] Add image to dockerhub
-      - [ ] copy code, build it, put in all relavent files
-      - [ ] Make sure mounting the source overrides it
-      - [ ] Make sure notebooks are copied over from percent files
-      - [ ] make sure demos run, both notebooks, and code
-      - [ ] update instruction on first page
-    - [ ] Add terms to index
-    - [ ] Use headings correctly
-      - [ ] # with overline, for parts
-      - [ ] * with overline, for chapters
-      - [ ] = for sections
-      - [ ] - for subsections
-      - [ ] ^ for subsubsections
-      - [ ] " for paragraphs
-    - [ ] remove all del() code, make destruction explicit at end
-    - [ ] Ch 01
-      - [ ] Replace the ascii art framebuffers with svgs
-    - [ ] Ch 02
-      - [ ] explain doubler function better
-      - [ ] Explain assigment
-      - [ ] Reference assignment at end of chapter
-         - [ ] Put in instructions for how to
-             - [ ] Run jupyter lab
-             - [ ] Open the python file as a notebook
-    - [-] Ch 03
-      - [ ] Add univariate example/problem for measurement
-      - [ ] Add 2D example/problem for rotating 45 degrees
-    - [-] Ch 4
-      * [-] Introduct vector additon, use math notation
-        - [ ] explain thinking about the two forms, coordinate free is easier to visualize and simpler, coordinates for when the work has to get done
-        - [ ] explain notation, and how x means two different things, and sub 1 and sub 2 mean something different
-      * [ ] put in example values for when the user pressed a/e
-        - [ ] say number of times that e has been pressed
-    - [ ] Ch 5
-      - [ ] Add unit test for translate
-      - [ ] Replace inlined example codes with unit test
-      - [ ] make translate call ?.
-        - [ ] implement add
-        - [ ] explain add
-      - [ ] line 202 and 211, nofmt and make single line
-    - [ ] Ch 6
-      - [ ] explain a, b, c, d, with names like from geometry
-      - [ ] make tables for whole chapter
-      - [ ] add color to tables of numbers
-      - [ ] add circle for origin
-      - [ ] add colored components mult by (1,0) and (0, 1)
-      - [ ] scaling - add tables
-      - [ ] remove inline Tex that uses coordinates
-      - [ ]define scale with coordinates, define scale * vector, using cheerios as example
-      - [ ] define _mul_, _rmul_, and define uniform scale by it
-      - [ ] make plot to show -1, -1 for p1 and p2
-    - [ ] Ch 7
-      - [ ]tables
-      - [ ]underscores
-    - [ ] Ch 8
-      - [ ] tables
-      - [ ] "reset the coordinate system", explain natural basis
-    - [ ] Ch 10
-      - [ ] give shout out to mvpdemo#, and how to run it
-    - [ ] Ch 21 Finish the chapter on the perspective projection
-    - [ ] Make the content for VAO, VBO, shaders, etc, from my class git repo
-    - [X] make function names on Cayley graphs look better using images
-    - [71%] Rewrite rotate, and update explanations.
-      - [ ] Do it by making relative number lines
-      - [ ] Update for chapter 18+
-    - [ ] Ch 16
-      - [ ] Fix spacing on linu 267 section
-    - [ ] Ch 17
-      - [ ] Fix two diagrams
-      - [ ] Add third diagram
-    - [ ] Ch 18
-      - [ ] More detail instead of f1, f2, f3
-      - [ ] Event loop, put Cayley graph above
-      - [ ] Spacing line 436
-      - [ ] Put pics of stacks inline with push pop
-      - [ ] Explain Callable, make example
-    - [ ] Ch 19
-      - [ ] Take comments and put them in rst instead of inlined code
-    - [ ] Ch 20
-      - [ ] Do much better.  Drap diagrams.  Explain better
-      - [ ] Don't put commented code in inline code
-    - [ ] Ch 21
-      - [ ] Do much better
-      - [ ] Connect with 20 - Draw VBO, draw VAO.  Give shader variables names similar to 20
-    - [ ] Ch 22
-      - [ ] Make 22.  Same as 21, but pass color as uniform
-      - [ ] Draw diagram of VBO, programs in parallel, and uniforms, same way matrix is.  Perhaps draw nested blocks to show scope hierarchy
-      - [ ] Talk about binding.  Draw diagrams of them as global variables.  Perhaps make sample Python class, implemented as map for binding
+* TODO [50%] Fix all inline math in the rst to be built with latex
+  - [X] Get the equations ported, including multiline ones
+  - [ ] Get the size reasonable
+    - [ ] perhaps modify the makefile, to make each one sizable independently
+* TODO [%] Change all of the rotate, translate, scale functions to use R, T, S
+  - [ ] Change imports
+  - [ ] Change code
+* TODO [%] Add explanation of I for identity function, and T, R, etc
+  - [ ]  Figure out where to put it
+  - [ ] Add explanation of I for identity function, and T, R, etc
+* TODO [%] Add image to dockerhub
+  - [ ] copy code, build it, put in all relavent files
+  - [ ] Make sure mounting the source overrides it
+  - [ ] Make sure notebooks are copied over from percent files
+  - [ ] make sure demos run, both notebooks, and code
+  - [ ] update instruction on first page
+* TODO [%] Add terms to index
+* TODO [%] Use headings correctly
+  - [ ] # with overline, for parts
+  - [ ] * with overline, for chapters
+  - [ ] = for sections
+  - [ ] - for subsections
+  - [ ] ^ for subsubsections
+  - [ ] " for paragraphs
+* TODO [%] remove all del() code, make destruction explicit at end
+* TODO [%] Ch 01
+  - [ ] Replace the ascii art framebuffers with svgs
+* TODO [%] Ch 02
+  - [ ] explain doubler function better
+  - [ ] Explain assigment
+  - [ ] Reference assignment at end of chapter
+    - [ ] Put in instructions for how to
+      - [ ] Run jupyter lab
+      - [ ] Open the python file as a notebook
+* TODO [%] Ch 03
+  - [ ] Add univariate example/problem for measurement
+  - [ ] Add 2D example/problem for rotating 45 degrees
+* TODO [%] Ch 4
+  * [ ] Introduct vector additon, use math notation
+    - [ ] explain thinking about the two forms, coordinate free is easier to visualize and simpler, coordinates for when the work has to get done
+    - [ ] explain notation, and how x means two different things, and sub 1 and sub 2 mean something different
+  * [ ] put in example values for when the user pressed a/e
+    - [ ] say number of times that e has been pressed
+* TODO [%] Ch 5
+  - [ ] Add unit test for translate
+  - [ ] Replace inlined example codes with unit test
+  - [ ] make translate call ?.
+    - [ ] implement add
+    - [ ] explain add
+  - [ ] line 202 and 211, nofmt and make single line
+* TODO [%] Ch 6
+  - [ ] explain a, b, c, d, with names like from geometry
+  - [ ] make tables for whole chapter
+  - [ ] add color to tables of numbers
+  - [ ] add circle for origin
+  - [ ] add colored components mult by (1,0) and (0, 1)
+  - [ ] scaling - add tables
+  - [ ] remove inline Tex that uses coordinates
+  - [ ]define scale with coordinates, define scale * vector, using cheerios as example
+  - [ ] define _mul_, _rmul_, and define uniform scale by it
+  - [ ] make plot to show -1, -1 for p1 and p2
+* TODO [%] Ch 7
+  - [ ]tables
+  - [ ]underscores
+* TODO [%] Ch 8
+  - [ ] tables
+  - [ ] "reset the coordinate system", explain natural basis
+* TODO [%] Ch 10
+  - [ ] give shout out to mvpdemo#, and how to run it
+* TODO [%] Ch 21 Finish the chapter on the perspective projection
+* TODO [%] Make the content for VAO, VBO, shaders, etc, from my class git repo
+* TODO [] make function names on Cayley graphs look better using images
+* TODO [0%] [#2] Rewrite rotate, and update explanations.
+  - [ ] Do it by making relative number lines
+  - [ ] Update for chapter 18+
+* TODO [%] Ch 16
+  - [ ] Fix spacing on linu 267 section
+* TODO [%] Ch 17
+  - [ ] Fix two diagrams
+  - [ ] Add third diagram
+* TODO [%] Ch 18
+  - [ ] More detail instead of f1, f2, f3
+  - [ ] Event loop, put Cayley graph above
+  - [ ] Spacing line 436
+  - [ ] Put pics of stacks inline with push pop
+  - [ ] Explain Callable, make example
+* TODO [%] Ch 19
+  - [ ] Take comments and put them in rst instead of inlined code
+* TODO [%] Ch 20
+  - [ ] Do much better.  Drap diagrams.  Explain better
+  - [ ] Don't put commented code in inline code
+* TODO [%] Ch 21
+  - [ ] Do much better
+  - [ ] Connect with 20 - Draw VBO, draw VAO.  Give shader variables names similar to 20
+* TODO [%] Ch 22
+  - [ ] Make 22.  Same as 21, but pass color as uniform
+  - [ ] Draw diagram of VBO, programs in parallel, and uniforms, same way matrix is.  Perhaps draw nested blocks to show scope hierarchy
+  - [ ] Talk about binding.  Draw diagrams of them as global variables.  Perhaps make sample Python class, implemented as map for binding
