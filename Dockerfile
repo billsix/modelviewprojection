@@ -140,7 +140,6 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
       echo "font/family = Adwaita Mono" >> ~/.config/spyder-py3/config/spyder.ini && \
       echo "font/size = 18" >> ~/.config/spyder-py3/config/spyder.ini; \
     fi ; \
-    echo "loadpackages.sh" >> ~/.bashrc && \
     echo "exit() {" >> ~/.bashrc && \
     echo "    echo "Formatting on shell exit"" >> ~/.bashrc && \
     echo "    format.sh" >> ~/.bashrc && \

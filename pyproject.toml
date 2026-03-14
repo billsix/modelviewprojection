@@ -4,26 +4,12 @@ version = "0.0.2"
 authors = [{name="William Emerison Six", email="billsix@gmail.com"}]
 description = "ModelViewProjection - Tutorial for learning 3D Programming"
 
-dependencies = [
-    "autoflake",
-    "sphinxcontrib-bibtex",
-    "furo",
-    "glfw",
-    "imageio",
-    "isort",
-    "jupyter",
-    "jupytext",
-    "mathjax",
-    "matplotlib",
-    "moviepy",
-    "myst-nb",
-    "numpy",
-    "PyOpenGL",
-    "pytest",
-    "Sphinx",
-    "sphinx-rtd-theme",
-    "nbsphinx",
-]
+dynamic = ['dependencies']
+
+
+[tool.setuptools.dynamic]
+dependencies = {file = ["requirements.txt"]}
+
 
 [build-system]
 requires = ["setuptools", "wheel"]
