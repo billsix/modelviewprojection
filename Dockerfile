@@ -161,5 +161,9 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      dnf install -y \
          texlive-scheme-full
 
+COPY requirements.txt /requirements.txt
+RUN  python3 -m pip install -r /requirements.txt && \
+     rm /requirements.txt
+
 
 ENTRYPOINT ["/entrypoint.sh"]
