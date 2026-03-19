@@ -13,6 +13,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      echo "keepcache=True" >> /etc/dnf/dnf.conf && \
      dnf upgrade -y && \
      dnf install -y \
+                   gcc-g++ \
                    glib \
                    glib2-devel \
                    glfw \
@@ -22,14 +23,17 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
 		   python3-numpy \
                    python3-openimageio \
 		   python3-pillow \
-                   python3-pip \
                    python3-pyopengl \
                    python3-pytest \
 		   python3-pytest-lsp \
                    python3-sympy \
                    python3-wxpython4  \
                    ruff \
-                   tmux ; \
+                   uv \
+                   tmux  \
+                   ty \
+                   wxGTK \
+                   wxGTK-devel; \
     if [ "$BUILD_DOCS" = "1" ]; then \
        dnf install -y \
                    autoconf \
@@ -111,7 +115,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    myst-nb \
         	   python3-jupyterlab-jupytext \
         	   python3-jupyter-lsp  && \
-       python3 -m pip install --break-system-packages --root-user-action=ignore moviepy; \
+       uv pip install --system moviepy; \
     fi; \
     if [ "$USE_IMGUI" = "1" ]; then \
        dnf install -y \
@@ -124,7 +128,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
         git clone https://github.com/billsix/pyimgui.git && \
         cd pyimgui && \
         git submodule init && git submodule update && \
-        python3 -m pip install --break-system-packages --root-user-action=ignore . ;\
+        uv pip install --system . ;\
      fi ; \
     if [ "$USE_SPYDER" = "1" ]; then \
       dnf install -y spyder && \
@@ -156,14 +160,16 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
 COPY entrypoint/*.sh /usr/local/bin
 COPY entrypoint/entrypoint.sh /
 
+COPY requirements.txt /requirements.txt
+RUN  uv pip install --system -r /requirements.txt && \
+     rm /requirements.txt
+
+
 RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      --mount=type=cache,target=/var/lib/dnf \
-     dnf install -y \
-         texlive-scheme-full
-
-COPY requirements.txt /requirements.txt
-RUN  python3 -m pip install -r /requirements.txt && \
-     rm /requirements.txt
+     dnf install -y wxGTK \
+                    wxGTK-devel \
+                    gcc-g++
 
 
 ENTRYPOINT ["/entrypoint.sh"]
