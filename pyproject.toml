@@ -6,10 +6,8 @@ description = "ModelViewProjection - Tutorial for learning 3D Programming"
 
 dynamic = ['dependencies']
 
-
 [tool.setuptools.dynamic]
 dependencies = {file = ["requirements.txt"]}
-
 
 [build-system]
 requires = ["setuptools", "wheel"]

@@ -12,7 +12,7 @@ jupytext --to notebook src/modelviewprojection/notebooksrc/framebuffer.py --outp
 jupytext --to notebook src/modelviewprojection/notebooksrc/ndc.py --output notebooks/ndc.ipynb
 jupytext --to notebook src/modelviewprojection/notebooksrc/ndc.py --output book/docs/ndc.ipynb
 
-uv pip install --no-deps -e . --system
+uv pip install --no-deps --no-index --no-build-isolation -e . --system
 
 cd /mvp/book/docs
 make html
