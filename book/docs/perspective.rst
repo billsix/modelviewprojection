@@ -1,5 +1,5 @@
 ..
-   Copyright (c) 2018-2025 William Emerison Six
+   Copyright (c) 2018-2026 William Emerison Six
 
    Permission is granted to copy, distribute and/or modify this document
    under the terms of the GNU Free Documentation License, Version 1.3
