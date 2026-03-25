@@ -205,6 +205,34 @@ class Vector:
         return np.sqrt(self.dot(self))
 
 
+# doc-region-begin define vector class
+@dataclasses.dataclass
+class Vector1D(Vector):
+    x: float  #: The value of the 1D Vector
+    # doc-region-end define vector class
+
+
+# doc-region-begin define vector class
+@dataclasses.dataclass
+class Vector2D(Vector1D):
+    y: float  #: The y-component of the 2D Vector
+    # doc-region-end define vector class
+
+
+# doc-region-begin define vector class
+@dataclasses.dataclass
+class Vector3D(Vector2D):
+    z: float  #: The z-component of the 3D Vector
+    # doc-region-end define vector class
+
+    def cross(self, rhs: typing.Self) -> typing.Self:
+        return Vector3D(
+            x=self.y * rhs.z - self.z * rhs.y,
+            y=self.z * rhs.x - self.x * rhs.z,
+            z=self.x * rhs.y - self.y * rhs.x,
+        )
+
+
 # doc-region-begin begin define invertible function
 @dataclasses.dataclass
 class InvertibleFunction:
@@ -554,32 +582,6 @@ def uniform_scale(m: float) -> InvertibleFunction:
     # doc-region-end define uniform scale
 
 
-# doc-region-begin define vector class
-@dataclasses.dataclass
-class Vector1D(Vector):
-    x: float  #: The value of the 1D Vector
-    # doc-region-end define vector class
-
-
-# doc-region-begin define vector class
-@dataclasses.dataclass
-class Vector2D(Vector1D):
-    y: float  #: The y-component of the 2D Vector
-    # doc-region-end define vector class
-
-
-# doc-region-begin define vector class
-@dataclasses.dataclass
-class Vector3D(Vector2D):
-    z: float  #: The z-component of the 3D Vector
-    # doc-region-end define vector class
-
-    def cross(self, rhs: typing.Self) -> typing.Self:
-        return Vector3D(
-            x=self.y * rhs.z - self.z * rhs.y,
-            y=self.z * rhs.x - self.x * rhs.z,
-            z=self.x * rhs.y - self.y * rhs.x,
-        )
 
 
 def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
