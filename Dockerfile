@@ -91,14 +91,13 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    mesa-dri-drivers  \
                    mesa-libGLU-devel; \
     fi ; \
+    dnf install -y libatomic && uv pip install --system pyright; \
     if [ "$USE_EMACS" = "1" ]; then \
       dnf install -y \
                   emacs \
                   emacs-gtk+x11 \
                   emacs-pgtk \
-       	   python3-lsp-server \
-                  npm && \
-      npm install -g pyright && \
+                  python3-lsp-server && \
       emacs --batch --load /root/.emacs.d/install-melpa-packages.el && \
       echo "alias ls='ls --color=auto'" >> ~/.bashrc ;\
     fi ; \
