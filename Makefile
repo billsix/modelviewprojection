@@ -28,6 +28,13 @@ WAYLAND_FLAGS_FOR_CONTAINER = -e "WAYLAND_DISPLAY=${WAYLAND_DISPLAY}" \
                               -v "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
 
 
+ifeq ($(USE_EMACS), 1)
+  ELPA_MOUNT= -v $(CURDIR)/entrypoint/dotfiles/.emacs.d/elpa:/root/.emacs.d/elpa:U,z
+else
+  ELPA_MOUNT=
+endif
+
+
 EXPOSE_PORT = -p 8888:8888
 
 
@@ -43,6 +50,7 @@ image: ## Build a podman image in which to build the book
                          --build-arg USE_IMGUI=$(USE_IMGUI) \
                          --build-arg USE_JUPYTER=$(USE_JUPYTER) \
                          --build-arg USE_SPYDER=$(USE_SPYDER) \
+                         $(ELPA_MOUNT) \
                          -t $(CONTAINER_NAME) \
                          $(PACKAGE_CACHE) \
                          .
@@ -53,13 +61,14 @@ clean: ## Delete the output directory, cleaning out the HTML and the PDF
 	rm -rf output/*
 
 .PHONY: shell
-shell: image ## Get Shell into a ephermeral container made from the image
+shell: ## Get Shell into a ephermeral container made from the image
 	$(CONTAINER_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
 		$(USE_X) \
 		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(EXPOSE_PORT) \
+                $(ELPA_MOUNT) \
 		$(CONTAINER_NAME) \
 		/usr/local/bin/shell.sh
 

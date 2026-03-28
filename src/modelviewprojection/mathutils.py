@@ -575,8 +575,6 @@ def uniform_scale(m: float) -> InvertibleFunction:
     # doc-region-end define uniform scale
 
 
-
-
 def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
     def f(vector: Vector) -> Vector:
         assert isinstance(vector, Vector2D)

@@ -120,3 +120,14 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+# emacs
+
+*.elc
+*.eln
+*~
+#*#
+
+auto-save-list
+history
+recentf
+session.*

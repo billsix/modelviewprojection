@@ -145,7 +145,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
     fi ; \
     echo "exit() {" >> ~/.bashrc && \
     echo "    echo "Formatting on shell exit"" >> ~/.bashrc && \
-    echo "    format.sh" >> ~/.bashrc && \
+    echo "    cd /mvp/src/ && format.sh" >> ~/.bashrc && \
     echo "    builtin exit "$@"" >> ~/.bashrc && \
     echo "}" >> ~/.bashrc && \
     echo "cd /mvp/" >> ~/.bashrc && \
