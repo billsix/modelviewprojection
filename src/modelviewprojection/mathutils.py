@@ -96,14 +96,7 @@ class Vector:
         # doc-region-begin define add
         if type(self) is not type(rhs):
             return NotImplemented
-        return type(self)(
-            *[
-                a + b
-                for a, b in zip(
-                    dataclasses.astuple(self), dataclasses.astuple(rhs)
-                )
-            ]
-        )
+        return type(self)(*[a + b for a, b in zip(self, rhs)])
         # doc-region-end define add
 
     # doc-region-begin define mul
@@ -133,7 +126,7 @@ class Vector:
             Vector3D(x=8, y=12, z=20)
         """
         # doc-region-begin define mul body
-        return type(self)(*[scalar * a for a in dataclasses.astuple(self)])
+        return type(self)(*[scalar * a for a in self])
         # doc-region-end define mul body
 
     def __neg__(self) -> typing.Self:
@@ -555,11 +548,11 @@ def translate(b: Vector) -> InvertibleFunction:
     def f_inv(vector: Vector) -> Vector:
         return vector - b
 
-    values = dataclasses.astuple(b)
+    values = list(b)
     tex_str: str = (
         f"T_{{<[{str(values[0]) if len(values) == 1 else str(values)[1:-1]}]>}}"
     )
-    negative_values = dataclasses.astuple(-b)
+    negative_values = list(-b)
     inv_str: str = f"T_{{<[{str(negative_values[0]) if len(negative_values) == 1 else str(negative_values)[1:-1]}]>}}"
     return InvertibleFunction(f, f_inv, tex_str, inv_str)
     # doc-region-end define translate
