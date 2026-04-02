@@ -1,3 +1,5 @@
+* TODO
+  - [ ] make code explannations for e_1, e_2, e_3
 * TODO [50%] Fix all inline math in the rst to be built with latex
   - [X] Get the equations ported, including multiline ones
   - [ ] Get the size reasonable

@@ -32,6 +32,10 @@ from modelviewprojection.mathutils import rotate as R
 from modelviewprojection.mathutils import translate as T
 from modelviewprojection.mathutils import uniform_scale as S
 
+e_1 = Vector2D.e_1()
+e_2 = Vector2D.e_2()
+
+
 if not glfw.init():
     sys.exit()
 
@@ -100,24 +104,24 @@ class Paddle:
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-1.0, y=-3.0),
-        Vector2D(x=1.0, y=-3.0),
-        Vector2D(x=1.0, y=3.0),
-        Vector2D(x=-1.0, y=3.0),
+        -1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + 3.0 * e_2,
+        -1.0 * e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=Vector2D(-9.0, 0.0),
+    position=-9.0 * e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-1.0, y=-3.0),
-        Vector2D(x=1.0, y=-3.0),
-        Vector2D(x=1.0, y=3.0),
-        Vector2D(x=-1.0, y=3.0),
+        -1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + 3.0 * e_2,
+        -1.0 * e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=Vector2D(9.0, 0.0),
+    position=9.0 * e_1,
 )
 
 

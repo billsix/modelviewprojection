@@ -33,6 +33,10 @@ from modelviewprojection.mathutils import (
     uniform_scale,
 )
 
+e_1 = Vector2D.e_1()
+e_2 = Vector2D.e_2()
+
+
 if not glfw.init():
     sys.exit()
 
@@ -100,42 +104,40 @@ class Paddle:
 
 paddle1: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-1.0, y=-3.0),
-        Vector2D(x=1.0, y=-3.0),
-        Vector2D(x=1.0, y=3.0),
-        Vector2D(x=-1.0, y=3.0),
+        -1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + 3.0 * e_2,
+        -1.0 * e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=Vector2D(-9.0, 0.0),
+    position=-9.0 * e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vector2D(x=-1.0, y=-3.0),
-        Vector2D(x=1.0, y=-3.0),
-        Vector2D(x=1.0, y=3.0),
-        Vector2D(x=-1.0, y=3.0),
+        -1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + -3.0 * e_2,
+        1.0 * e_1 + 3.0 * e_2,
+        -1.0 * e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=Vector2D(9.0, 0.0),
+    position=9.0 * e_1,
 )
 
 
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector2D = dataclasses.field(
-        default_factory=lambda: Vector2D(x=0.0, y=0.0)
-    )
+    position_ws: Vector2D = dataclasses.field(default_factory=lambda: 0.0 * e_1)
 
 
 camera: Camera = Camera()
 
 
 square: list[Vector2D] = [
-    Vector2D(x=-0.5, y=-0.5),
-    Vector2D(x=0.5, y=-0.5),
-    Vector2D(x=0.5, y=0.5),
-    Vector2D(x=-0.5, y=0.5),
+    -0.5 * e_1 + -0.5 * e_2,
+    0.5 * e_1 + -0.5 * e_2,
+    0.5 * e_1 + 0.5 * e_2,
+    -0.5 * e_1 + 0.5 * e_2,
 ]
 
 # doc-region-begin define square rotation
@@ -248,7 +250,7 @@ while not glfw.window_should_close(window):
                 # square space to paddle 1 space
                 compose(
                     [
-                        translate(Vector2D(x=2.0, y=0.0)),
+                        translate(2.0 * e_1),
                         rotate(square_rotation),
                     ]
                 ),
