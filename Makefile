@@ -11,6 +11,11 @@ USE_SPYDER ?= 1
 CONTAINER_CMD = podman
 CONTAINER_NAME = modelviewprojection-html
 
+TMUX_FILE := $(HOME)/.tmux.conf
+TMUX_REAL_PATH := $(shell readlink -f $(TMUX_FILE))
+TMUX_MOUNT := $(shell if [ -f $(TMUX_REAL_PATH) ]; then echo "-v $(TMUX_REAL_PATH):/root/.tmux.conf:Z" ; fi)
+
+
 FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
 		-v ./entrypoint/format.sh:/usr/local/bin/format.sh:Z \
@@ -18,6 +23,7 @@ FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 		-v ./entrypoint/spyder.sh:/usr/local/bin/spyder.sh:Z \
 		-v ./entrypoint/shell.sh:/usr/local/bin/shell.sh:Z \
 		-v ./output/:/output/:Z \
+                $(TMUX_MOUNT) \
 		$(DNF_CACHE_TO_MOUNT)
 
 USE_X = -e DISPLAY=$(DISPLAY) \
