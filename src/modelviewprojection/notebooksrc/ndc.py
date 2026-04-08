@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.18.1
+#       jupytext_version: 1.19.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -50,15 +50,27 @@
 import warnings
 
 import IPython.display
+import matplotlib
 import moviepy
 import numpy as np
 
-import modelviewprojection.mathutils as mu
 import modelviewprojection.softwarerendering as sr
+from modelviewprojection.mathutils import (
+    InvertibleFunction,
+    Vector,
+    Vector2D,
+    compose,
+    scale_non_uniform_2d,
+    translate,
+)
 
 # turn warnings into exceptions
 warnings.filterwarnings("error", category=RuntimeWarning)
 matplotlib.rcParams["axes.formatter.use_mathtext"] = True
+
+
+e_1 = Vector2D.e_1()
+e_2 = Vector2D.e_2()
 
 
 # %% [markdown]
@@ -114,12 +126,12 @@ fake_fb.show_framebuffer()
 # by Shirley and Marshner, page 60
 
 # %%
-ndc_to_screen: mu.InvertibleFunction = mu.compose(
+ndc_to_screen: InvertibleFunction = compose(
     [
-        mu.translate(mu.Vector2D(-0.5, -0.5)),
-        mu.scale_non_uniform_2d(fake_fb.width, fake_fb.height),
-        mu.scale_non_uniform_2d(0.5, 0.5),
-        mu.translate(mu.Vector2D(x=1.0, y=1.0)),
+        translate(-0.5 * e_1 + -0.5 * e_2),
+        scale_non_uniform_2d(fake_fb.width, fake_fb.height),
+        scale_non_uniform_2d(0.5, 0.5),
+        translate(1.0 * e_1 + 1.0 * e_2),
     ]
 )
 
@@ -132,10 +144,10 @@ ndc_to_screen: mu.InvertibleFunction = mu.compose(
 # %%
 # Example: draw a white triangle
 
-triangle_in_NDC: list[mu.Vector] = [
-    mu.Vector2D(0.0, 0.0),
-    mu.Vector2D(0.2, 0.0),
-    mu.Vector2D(0.2, 0.2),
+triangle_in_NDC: list[Vector] = [
+    0.0 * e_1 + 0.0 * e_2,
+    0.2 * e_1 + 0.0 * e_2,
+    0.2 * e_1 + 0.2 * e_2,
 ]
 
 # %% [markdown]
@@ -145,9 +157,7 @@ triangle_in_NDC: list[mu.Vector] = [
 # For each vector, apply the function
 
 # %%
-triangle_in_screen: list[mu.Vector] = [
-    ndc_to_screen(x) for x in triangle_in_NDC
-]
+triangle_in_screen: list[Vector] = [ndc_to_screen(x) for x in triangle_in_NDC]
 print(triangle_in_screen)
 
 # %%
@@ -170,10 +180,10 @@ fake_fb.show_framebuffer()
 # result and convert it from NDC to screenspace
 
 # %%
-move: mu.InvertibleFunction = mu.translate(mu.Vector2D(0, 0.5))
+move: InvertibleFunction = translate(0 * e_1 + 0.5 * e_2)
 
 triangle_in_screen = [
-    mu.compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
+    compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
 ]
 print(triangle_in_screen)
 
@@ -190,12 +200,12 @@ sixty_fps_times_2_sec = 120
 # Create 10 frames with simple animation
 for i in range(sixty_fps_times_2_sec):
     fake_fb.clear_framebuffer()
-    move: mu.InvertibleFunction = mu.translate(
-        mu.Vector2D(0, 0.5 * (np.sin(np.pi / 60.0 * float(i))))
+    move: InvertibleFunction = translate(
+        0.5 * (np.sin(np.pi / 60.0 * float(i))) * e_2
     )
 
     triangle_in_screen = [
-        mu.compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
+        compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
     ]
     fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
 

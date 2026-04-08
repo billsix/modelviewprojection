@@ -23,7 +23,18 @@ import numpy as np
 import PIL
 import PIL.Image
 
-import modelviewprojection.mathutils as mu
+from modelviewprojection.mathutils import (
+    Vector2D,
+    compose,
+    is_counter_clockwise,
+    is_parallel,
+    scale_non_uniform_2d,
+    translate,
+)
+
+e_1 = Vector2D.e_1()
+e_2 = Vector2D.e_2()
+
 
 BLACK: typing.Tuple[int, int, int] = (0, 0, 0)
 WHITE: typing.Tuple[int, int, int] = (255, 255, 255)
@@ -64,24 +75,24 @@ class FrameBuffer:
         """Fill the framebuffer with the given color."""
         self._framebuffer[:, :] = self.clear_color
 
-    def screenspace_to_framebuffer(self, v: mu.Vector2D) -> mu.Vector2D:
+    def screenspace_to_framebuffer(self, v: Vector2D) -> Vector2D:
         """Convert from OpenGL-style coords to framebuffer array coords."""
-        ss_to_fb = mu.compose(
+        ss_to_fb = compose(
             [
-                mu.translate(mu.Vector2D(0, self.height - 1)),
-                mu.scale_non_uniform_2d(m_x=1, m_y=-1),
+                translate(0 * e_1 + (self.height - 1) * e_2),
+                scale_non_uniform_2d(m_x=1, m_y=-1),
             ]
         )
         return ss_to_fb(v)
 
-    def set_color(self, v: mu.Vector2D, color: typing.Tuple[int, int, int]):
+    def set_color(self, v: Vector2D, color: typing.Tuple[int, int, int]):
         self._framebuffer[int(round(v.y)), int(round(v.x))] = color
 
     def draw_filled_triangle(
         self,
-        p1: mu.Vector2D,
-        p2: mu.Vector2D,
-        p3: mu.Vector2D,
+        p1: Vector2D,
+        p2: Vector2D,
+        p3: Vector2D,
         color=(255, 255, 255),
     ):
         """
@@ -105,12 +116,12 @@ class FrameBuffer:
         min_y: int = max(int(min(y1, y2, y3)), 0)
         max_y: int = min(int(max(y1, y2, y3)), self.height - 1)
 
-        v1: mu.Vector2D = mu.Vector2D(x1, y1)
-        v2: mu.Vector2D = mu.Vector2D(x2, y2)
-        v3: mu.Vector2D = mu.Vector2D(x3, y3)
+        v1: Vector2D = x1 * e_1 + y1 * e_2
+        v2: Vector2D = x2 * e_1 + y2 * e_2
+        v3: Vector2D = x3 * e_1 + y3 * e_2
 
         try:
-            if mu.is_parallel(v2 - v1, v3 - v2):
+            if is_parallel(v2 - v1, v3 - v2):
                 return  # Degenerate triangle
         except RuntimeWarning:
             # if any of the Vectors are 0, nothing to do with that pixel
@@ -119,19 +130,19 @@ class FrameBuffer:
         # Loop over bounding box
         for y in range(min_y, max_y + 1):
             for x in range(min_x, max_x + 1):
-                pixel_position: mu.Vector2D = mu.Vector2D(x, y)
+                pixel_position: Vector2D = x * e_1 + y * e_2
                 try:
                     counter_clockwise_values: list[bool] = [
-                        mu.is_counter_clockwise(v2 - v1, pixel_position - v1),
-                        mu.is_counter_clockwise(v3 - v2, pixel_position - v2),
-                        mu.is_counter_clockwise(v1 - v3, pixel_position - v3),
+                        is_counter_clockwise(v2 - v1, pixel_position - v1),
+                        is_counter_clockwise(v3 - v2, pixel_position - v2),
+                        is_counter_clockwise(v1 - v3, pixel_position - v3),
                     ]
 
                     # If the signs match the triangle area, pixel is inside
                     if all(counter_clockwise_values) or not any(
                         counter_clockwise_values
                     ):
-                        self.set_color(mu.Vector2D(x, y), color)
+                        self.set_color(x * e_1 + y * e_2, color)
                 except RuntimeWarning:
                     # if any of the Vectors are 0, nothing to do with that pixel
                     pass

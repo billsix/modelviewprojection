@@ -33,6 +33,11 @@ from modelviewprojection.mathutils import (
     uniform_scale,
 )
 
+e_1 = Vector3D.e_1()
+e_2 = Vector3D.e_2()
+e_3 = Vector3D.e_3()
+
+
 if not glfw.init():
     sys.exit()
 
@@ -101,24 +106,24 @@ class Paddle:
 # doc-region-begin instantiate paddle 1
 paddle1: Paddle = Paddle(
     vertices=[
-        Vector3D(x=-1.0, y=-3.0, z=0.0),
-        Vector3D(x=1.0, y=-3.0, z=0.0),
-        Vector3D(x=1.0, y=3.0, z=0.0),
-        Vector3D(x=-1.0, y=3.0, z=0.0),
+        -1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
+        1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
+        1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
+        -1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=Vector3D(x=-9.0, y=0.0, z=0.0),
+    position=-9.0 * e_1 + 0.0 * e_2 + 0.0 * e_3,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        Vector3D(x=-1.0, y=-3.0, z=0.0),
-        Vector3D(x=1.0, y=-3.0, z=0.0),
-        Vector3D(x=1.0, y=3.0, z=0.0),
-        Vector3D(x=-1.0, y=3.0, z=0.0),
+        -1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
+        1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
+        1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
+        -1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=Vector3D(x=9.0, y=0.0, z=0.0),
+    position=9.0 * e_1 + 0.0 * e_2 + 0.0 * e_3,
 )
 # doc-region-end instantiate paddle 1
 
@@ -127,7 +132,7 @@ paddle2: Paddle = Paddle(
 @dataclasses.dataclass
 class Camera:
     position_ws: Vector3D = dataclasses.field(
-        default_factory=lambda: Vector3D(x=0.0, y=0.0, z=0.0)
+        default_factory=lambda: 0.0 * e_1 + 0.0 * e_2 + 0.0 * e_3
     )
 
 
@@ -136,10 +141,10 @@ camera: Camera = Camera()
 
 # doc-region-begin instantiate square
 square: list[Vector3D] = [
-    Vector3D(x=-0.5, y=-0.5, z=0.0),
-    Vector3D(x=0.5, y=-0.5, z=0.0),
-    Vector3D(x=0.5, y=0.5, z=0.0),
-    Vector3D(x=-0.5, y=0.5, z=0.0),
+    -0.5 * e_1 + -0.5 * e_2 + 0.0 * e_3,
+    0.5 * e_1 + -0.5 * e_2 + 0.0 * e_3,
+    0.5 * e_1 + 0.5 * e_2 + 0.0 * e_3,
+    -0.5 * e_1 + 0.5 * e_2 + 0.0 * e_3,
 ]
 # doc-region-end instantiate square
 
@@ -159,24 +164,24 @@ def handle_inputs() -> None:
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.position_ws.y += 1.0
+        camera.position_ws += 1.0 * e_2
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.position_ws.y -= 1.0
+        camera.position_ws -= 1.0 * e_2
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.position_ws.x -= 1.0
+        camera.position_ws -= 1.0 * e_1
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.position_ws.x += 1.0
+        camera.position_ws += 1.0 * e_1
 
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position.y -= 1.0
+        paddle1.position -= 1.0 * e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position.y += 1.0
+        paddle1.position += 1.0 * e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position.y -= 1.0
+        paddle2.position -= 1.0 * e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position.y += 1.0
+        paddle2.position += 1.0 * e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -246,9 +251,9 @@ while not glfw.window_should_close(window):
     fn_stack.push(
         compose(
             [
-                translate(Vector3D(x=0.0, y=0.0, z=-1.0)),
+                translate(0.0 * e_1 + 0.0 * e_2 + -1.0 * e_3),
                 rotate_z(rotation_around_paddle1),
-                translate(Vector3D(x=2.0, y=0.0, z=0.0)),
+                translate(2.0 * e_1 + 0.0 * e_2 + 0.0 * e_3),
                 rotate_z(square_rotation),
             ]
         )

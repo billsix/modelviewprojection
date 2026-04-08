@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.18.1
+#       jupytext_version: 1.19.1
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -50,7 +50,13 @@
 
 import warnings
 
-import modelviewprojection.mathutils as mu
+from modelviewprojection.mathutils import (
+    Vector2D,
+)
+
+e_1 = Vector2D.e_1()
+e_2 = Vector2D.e_2()
+
 
 # %% [markdown]
 # The module below is our software implementation of a
@@ -82,9 +88,9 @@ fake_fb.show_framebuffer()
 # %%
 # Example: draw a white triangle
 fake_fb.draw_filled_triangle(
-    mu.Vector2D(50, 50),
-    mu.Vector2D(50, 70),
-    mu.Vector2D(70, 70),
+    50 * e_1 + 50 * e_2,
+    50 * e_1 + 70 * e_2,
+    70 * e_1 + 70 * e_2,
     color=sr.WHITE,
 )
 fake_fb.show_framebuffer()
@@ -117,9 +123,9 @@ fake_fb.show_framebuffer()
 # Example: draw a white triangle
 fake_fb.clear_framebuffer()
 fake_fb.draw_filled_triangle(
-    mu.Vector2D(50, 50),
-    mu.Vector2D(50, 70),
-    mu.Vector2D(70, 70),
+    50 * e_1 + 50 * e_2,
+    50 * e_1 + 70 * e_2,
+    70 * e_1 + 70 * e_2,
     color=sr.WHITE,
 )
 fake_fb.show_framebuffer()
@@ -133,9 +139,9 @@ fake_fb.show_framebuffer()
 
 # draw a red triangle
 fake_fb.draw_filled_triangle(
-    mu.Vector2D(50, 50),
-    mu.Vector2D(30, 50),
-    mu.Vector2D(30, 30),
+    50 * e_1 + 50 * e_2,
+    30 * e_1 + 50 * e_2,
+    30 * e_1 + 30 * e_2,
     color=sr.RED,
 )
 fake_fb.show_framebuffer()
@@ -158,17 +164,17 @@ fake_fb400.show_framebuffer()
 # Example: draw a white triangle
 fake_fb400.clear_framebuffer()
 fake_fb400.draw_filled_triangle(
-    mu.Vector2D(50, 50),
-    mu.Vector2D(50, 70),
-    mu.Vector2D(70, 70),
+    50 * e_1 + 50 * e_2,
+    50 * e_1 + 70 * e_2,
+    70 * e_1 + 70 * e_2,
     color=sr.WHITE,
 )
 fake_fb400.show_framebuffer()
 
 fake_fb400.draw_filled_triangle(
-    mu.Vector2D(50, 50),
-    mu.Vector2D(30, 50),
-    mu.Vector2D(30, 30),
+    50 * e_1 + 50 * e_2,
+    30 * e_1 + 50 * e_2,
+    30 * e_1 + 30 * e_2,
     color=sr.RED,
 )
 fake_fb400.show_framebuffer()

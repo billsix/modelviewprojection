@@ -128,13 +128,13 @@ def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position.y -= 0.1
+        paddle1.position -= 0.1 * e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position.y += 0.1
+        paddle1.position += 0.1 * e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position.y -= 0.1
+        paddle2.position -= 0.1 * e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position.y += 0.1
+        paddle2.position += 0.1 * e_2
     # doc-region-end define handle movement of paddles
 
 

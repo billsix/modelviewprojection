@@ -27,11 +27,19 @@ from IPython.display import display
 from matplotlib.patches import Polygon
 from matplotlib_inline.backend_inline import set_matplotlib_formats
 
-from modelviewprojection.mathutils import identity
+from modelviewprojection.mathutils import (
+    Vector2D,
+    cosine,
+    identity,
+    sine,
+)
 
 set_matplotlib_formats("svg")
 
 extraLinesMultiplier = 3
+
+e_1 = Vector2D.e_1()
+e_2 = Vector2D.e_2()
 
 
 def generategridlines(graphBounds, interval=1):
@@ -43,8 +51,8 @@ def generategridlines(graphBounds, interval=1):
         thickness = 4 if np.isclose(x, 0.0) else 1
         yield (
             [
-                mu.Vector2D(x, -graphBounds[1] * extraLinesMultiplier),
-                mu.Vector2D(x, graphBounds[1] * extraLinesMultiplier),
+                x * e_1 + (-graphBounds[1] * extraLinesMultiplier) * e_2,
+                x * e_1 + (graphBounds[1] * extraLinesMultiplier) * e_2,
             ],
             thickness,
         )
@@ -57,8 +65,8 @@ def generategridlines(graphBounds, interval=1):
         thickness = 4 if np.isclose(y, 0.0) else 1
         yield (
             [
-                mu.Vector2D(-graphBounds[0] * extraLinesMultiplier, y),
-                mu.Vector2D(graphBounds[0] * extraLinesMultiplier, y),
+                (-graphBounds[0] * extraLinesMultiplier) * e_1 + y * e_2,
+                (graphBounds[0] * extraLinesMultiplier) * e_1 + y * e_2,
             ],
             thickness,
         )
@@ -124,12 +132,12 @@ def create_unit_circle(
         for theta in np.arange(0.0, 2 * math.pi, theta_increment):
             yield (
                 [
+                    scale_radius * math.cos(theta) * e_1
+                    + math.sin(theta) * e_2,
                     scale_radius
-                    * mu.Vector2D(math.cos(theta), math.sin(theta)),
-                    scale_radius
-                    * mu.Vector2D(
-                        math.cos(theta + theta_increment),
-                        math.sin(theta + theta_increment),
+                    * (
+                        math.cos(theta + theta_increment) * e_1
+                        + math.sin(theta + theta_increment) * e_2
                     ),
                 ]
             )
@@ -152,7 +160,7 @@ def create_x_and_y(
     ycolor=(1.0, 0.0, 1.0),
 ):
     # x axis
-    x_axis = [mu.Vector2D(0, 0), mu.Vector2D(1, 0)]
+    x_axis = [0 * e_1, e_1]
     plt.plot(
         [fn(vec).x for vec in x_axis],
         [fn(vec).y for vec in x_axis],
@@ -162,7 +170,7 @@ def create_x_and_y(
     )
 
     # y axis
-    y_axis = [mu.Vector2D(0, 0), mu.Vector2D(0, 1)]
+    y_axis = [0 * e_1, e_2]
     plt.plot(
         [fn(vec).x for vec in y_axis],
         [fn(vec).y for vec in y_axis],
@@ -176,16 +184,12 @@ def draw_isoceles_triangle(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(mu.Vector2D(1.0, 0.0)) - fn(
-        mu.Vector2D(0.0, 0.0)
-    )
-    x_world_space = mu.Vector2D(1.0, 0.0)
-    y_prime_direction_world_space = fn(mu.Vector2D(0.0, 1.0)) - fn(
-        mu.Vector2D(0.0, 0.0)
-    )
+    x_prime_direction_world_space = fn(e_1) - fn(0 * e_1)
+    x_world_space = e_1
+    y_prime_direction_world_space = fn(e_2) - fn(0 * e_1)
     angle_radians = math.atan2(
-        mu.sine(x_world_space, x_prime_direction_world_space),
-        mu.cosine(x_world_space, x_prime_direction_world_space),
+        sine(x_world_space, x_prime_direction_world_space),
+        cosine(x_world_space, x_prime_direction_world_space),
     )
     label_offset = (
         0.0 * x_prime_direction_world_space
@@ -195,9 +199,9 @@ def draw_isoceles_triangle(
     vertices = [
         fn(v)
         for v in [
-            mu.Vector2D(0.0, 0.0),
-            mu.Vector2D(1.0, 0.0),
-            mu.Vector2D(0.5, 1.0),
+            0 * e_1,
+            e_1,
+            0.5 * e_1 + e_2,
         ]
     ]
 
@@ -242,16 +246,12 @@ def draw_second_right_triangle(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(mu.Vector2D(1.0, 0.0)) - fn(
-        mu.Vector2D(0.0, 0.0)
-    )
-    x_world_space = mu.Vector2D(1.0, 0.0)
-    y_prime_direction_world_space = fn(mu.Vector2D(0.0, 1.0)) - fn(
-        mu.Vector2D(0.0, 0.0)
-    )
+    x_prime_direction_world_space = fn(e_1) - fn(0 * e_1)
+    x_world_space = e_1
+    y_prime_direction_world_space = fn(e_2) - fn(0 * e_1)
     angle_radians = math.atan2(
-        mu.sine(x_world_space, x_prime_direction_world_space),
-        mu.cosine(x_world_space, x_prime_direction_world_space),
+        sine(x_world_space, x_prime_direction_world_space),
+        cosine(x_world_space, x_prime_direction_world_space),
     )
     label_offset = (
         0.0 * x_prime_direction_world_space
@@ -261,9 +261,9 @@ def draw_second_right_triangle(
     vertices = [
         fn(v)
         for v in [
-            mu.Vector2D(0.0, 0.0),
-            mu.Vector2D(-4.0, 0.0),
-            mu.Vector2D(-4.0, 3.0),
+            0 * e_1,
+            -4.0 * e_1,
+            -4.0 * e_1 + 3.0 * e_2,
         ]
     ]
 
@@ -302,16 +302,12 @@ def draw_right_triangle(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(mu.Vector2D(1.0, 0.0)) - fn(
-        mu.Vector2D(0.0, 0.0)
-    )
-    x_world_space = mu.Vector2D(1.0, 0.0)
-    y_prime_direction_world_space = fn(mu.Vector2D(0.0, 1.0)) - fn(
-        mu.Vector2D(0.0, 0.0)
-    )
+    x_prime_direction_world_space = fn(e_1) - fn(0 * e_1)
+    x_world_space = e_1
+    y_prime_direction_world_space = fn(e_2) - fn(0 * e_1)
     angle_radians = math.atan2(
-        mu.sine(x_world_space, x_prime_direction_world_space),
-        mu.cosine(x_world_space, x_prime_direction_world_space),
+        sine(x_world_space, x_prime_direction_world_space),
+        cosine(x_world_space, x_prime_direction_world_space),
     )
     label_offset = (
         0.0 * x_prime_direction_world_space
@@ -321,9 +317,9 @@ def draw_right_triangle(
     vertices = [
         fn(v)
         for v in [
-            mu.Vector2D(0.0, 0.0),
-            mu.Vector2D(3.0, 0.0),
-            mu.Vector2D(3.0, 4.0),
+            0 * e_1,
+            3.0 * e_1,
+            3.0 * e_1 + 4.0 * e_2,
         ]
     ]
 
@@ -362,16 +358,12 @@ def draw_ndc(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(mu.Vector2D(1.0, 0.0)) - fn(
-        mu.Vector2D(0.0, 0.0)
-    )
-    x_world_space = mu.Vector2D(1.0, 0.0)
-    y_prime_direction_world_space = fn(mu.Vector2D(0.0, 1.0)) - fn(
-        mu.Vector2D(0.0, 0.0)
-    )
+    x_prime_direction_world_space = fn(e_1) - fn(0 * e_1)
+    x_world_space = e_1
+    y_prime_direction_world_space = fn(e_2) - fn(0 * e_1)
     angle_radians = math.atan2(
-        mu.sine(x_world_space, x_prime_direction_world_space),
-        mu.cosine(x_world_space, x_prime_direction_world_space),
+        sine(x_world_space, x_prime_direction_world_space),
+        cosine(x_world_space, x_prime_direction_world_space),
     )
     label_offset = (
         0.0 * x_prime_direction_world_space
@@ -381,10 +373,10 @@ def draw_ndc(
     vertices = [
         fn(v)
         for v in [
-            mu.Vector2D(-1.0, -1.0),
-            mu.Vector2D(1.0, -1.0),
-            mu.Vector2D(1.0, 1.0),
-            mu.Vector2D(-1.0, 1.0),
+            -1 * e_1 + -1 * e_2,
+            1 * e_1 + -1 * e_2,
+            1 * e_1 + 1 * e_2,
+            -1 * e_1 + 1 * e_2,
         ]
     ]
 
@@ -432,14 +424,13 @@ def draw_screen(
             vertices = [
                 fn(v)
                 for v in [
-                    mu.Vector2D(-1.0 + d_width * x, -1.0 + d_height * y),
-                    mu.Vector2D(-1.0 + d_width * (x + 1), -1.0 + d_height * y),
-                    mu.Vector2D(
-                        -1.0 + d_width * (x + 1), -1.0 + d_height * (y + 1)
-                    ),
-                    mu.Vector2D(
-                        -1.0 + d_width * (x), -1.0 + d_height * (y + 1)
-                    ),
+                    (-1.0 + d_width * x) * e_1 + (-1.0 + d_height * y) * e_2,
+                    (-1.0 + d_width * (x + 1)) * e_1
+                    + (-1.0 + d_height * y) * e_2,
+                    (-1.0 + d_width * (x + 1)) * e_1
+                    + (-1.0 + d_height * (y + 1)) * e_2,
+                    (-1.0 + d_width * (x)) * e_1
+                    + (-1.0 + d_height * (y + 1)) * e_2,
                 ]
             ]
 
