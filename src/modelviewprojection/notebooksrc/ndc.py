@@ -71,6 +71,7 @@ matplotlib.rcParams["axes.formatter.use_mathtext"] = True
 
 e_1 = Vector2D.e_1()
 e_2 = Vector2D.e_2()
+zero = Vector2D.zero()
 
 
 # %% [markdown]
@@ -131,7 +132,7 @@ ndc_to_screen: InvertibleFunction = compose(
         translate(-0.5 * e_1 + -0.5 * e_2),
         scale_non_uniform_2d(fake_fb.width, fake_fb.height),
         scale_non_uniform_2d(0.5, 0.5),
-        translate(1.0 * e_1 + 1.0 * e_2),
+        translate(e_1 + e_2),
     ]
 )
 
@@ -145,8 +146,8 @@ ndc_to_screen: InvertibleFunction = compose(
 # Example: draw a white triangle
 
 triangle_in_NDC: list[Vector] = [
-    0.0 * e_1 + 0.0 * e_2,
-    0.2 * e_1 + 0.0 * e_2,
+    zero,
+    0.2 * e_1,
     0.2 * e_1 + 0.2 * e_2,
 ]
 
@@ -180,7 +181,7 @@ fake_fb.show_framebuffer()
 # result and convert it from NDC to screenspace
 
 # %%
-move: InvertibleFunction = translate(0 * e_1 + 0.5 * e_2)
+move: InvertibleFunction = translate(0.5 * e_2)
 
 triangle_in_screen = [
     compose([ndc_to_screen, move])(x) for x in triangle_in_NDC

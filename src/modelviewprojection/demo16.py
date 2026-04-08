@@ -36,6 +36,7 @@ from modelviewprojection.mathutils import (
 e_1 = Vector3D.e_1()
 e_2 = Vector3D.e_2()
 e_3 = Vector3D.e_3()
+zero = Vector3D.zero()
 
 
 if not glfw.init():
@@ -106,24 +107,24 @@ class Paddle:
 # doc-region-begin instantiate paddle 1
 paddle1: Paddle = Paddle(
     vertices=[
-        -1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
-        1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
-        1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
-        -1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
+        -e_1 + -3.0 * e_2,
+        e_1 + -3.0 * e_2,
+        e_1 + 3.0 * e_2,
+        -e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9.0 * e_1 + 0.0 * e_2 + 0.0 * e_3,
+    position=-9.0 * e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
-        1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
-        1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
-        -1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
+        -e_1 + -3.0 * e_2,
+        e_1 + -3.0 * e_2,
+        e_1 + 3.0 * e_2,
+        -e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9.0 * e_1 + 0.0 * e_2 + 0.0 * e_3,
+    position=9.0 * e_1,
 )
 # doc-region-end instantiate paddle 1
 
@@ -131,9 +132,7 @@ paddle2: Paddle = Paddle(
 # doc-region-begin define camera class
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector3D = dataclasses.field(
-        default_factory=lambda: 0.0 * e_1 + 0.0 * e_2 + 0.0 * e_3
-    )
+    position_ws: Vector3D = dataclasses.field(default_factory=lambda: zero)
 
 
 camera: Camera = Camera()
@@ -141,10 +140,10 @@ camera: Camera = Camera()
 
 # doc-region-begin instantiate square
 square: list[Vector3D] = [
-    -0.5 * e_1 + -0.5 * e_2 + 0.0 * e_3,
-    0.5 * e_1 + -0.5 * e_2 + 0.0 * e_3,
-    0.5 * e_1 + 0.5 * e_2 + 0.0 * e_3,
-    -0.5 * e_1 + 0.5 * e_2 + 0.0 * e_3,
+    -0.5 * e_1 + -0.5 * e_2,
+    0.5 * e_1 + -0.5 * e_2,
+    0.5 * e_1 + 0.5 * e_2,
+    -0.5 * e_1 + 0.5 * e_2,
 ]
 # doc-region-end instantiate square
 
@@ -164,24 +163,24 @@ def handle_inputs() -> None:
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.position_ws += 1.0 * e_2
+        camera.position_ws += e_2
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.position_ws -= 1.0 * e_2
+        camera.position_ws -= e_2
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.position_ws -= 1.0 * e_1
+        camera.position_ws -= e_1
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.position_ws += 1.0 * e_1
+        camera.position_ws += e_1
 
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position -= 1.0 * e_2
+        paddle1.position -= e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position += 1.0 * e_2
+        paddle1.position += e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position -= 1.0 * e_2
+        paddle2.position -= e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position += 1.0 * e_2
+        paddle2.position += e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -251,9 +250,9 @@ while not glfw.window_should_close(window):
     fn_stack.push(
         compose(
             [
-                translate(0.0 * e_1 + 0.0 * e_2 + -1.0 * e_3),
+                translate(-e_3),
                 rotate_z(rotation_around_paddle1),
-                translate(2.0 * e_1 + 0.0 * e_2 + 0.0 * e_3),
+                translate(2.0 * e_1),
                 rotate_z(square_rotation),
             ]
         )

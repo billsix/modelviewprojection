@@ -102,10 +102,10 @@ class Paddle:
 
 paddle1: Paddle = Paddle(
     vertices=[
-        -1.0 * e_1 + -3.0 * e_2,
-        1.0 * e_1 + -3.0 * e_2,
-        1.0 * e_1 + 3.0 * e_2,
-        -1.0 * e_1 + 3.0 * e_2,
+        -e_1 + -3.0 * e_2,
+        e_1 + -3.0 * e_2,
+        e_1 + 3.0 * e_2,
+        -e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
     position=-9.0 * e_1,
@@ -113,10 +113,10 @@ paddle1: Paddle = Paddle(
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -1.0 * e_1 + -3.0 * e_2,
-        1.0 * e_1 + -3.0 * e_2,
-        1.0 * e_1 + 3.0 * e_2,
-        -1.0 * e_1 + 3.0 * e_2,
+        -e_1 + -3.0 * e_2,
+        e_1 + -3.0 * e_2,
+        e_1 + 3.0 * e_2,
+        -e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
     position=9.0 * e_1,
@@ -127,13 +127,13 @@ def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position -= 1.0 * e_2
+        paddle1.position -= e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position += 1.0 * e_2
+        paddle1.position += e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position -= 1.0 * e_2
+        paddle2.position -= e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position += 1.0 * e_2
+        paddle2.position += e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1

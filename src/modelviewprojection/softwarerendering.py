@@ -79,7 +79,7 @@ class FrameBuffer:
         """Convert from OpenGL-style coords to framebuffer array coords."""
         ss_to_fb = compose(
             [
-                translate(0 * e_1 + (self.height - 1) * e_2),
+                translate((self.height - 1) * e_2),
                 scale_non_uniform_2d(m_x=1, m_y=-1),
             ]
         )

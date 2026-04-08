@@ -208,6 +208,10 @@ class Vector1D(Vector):
     def e_1() -> "Vector1D":
         return Vector1D(1.0)
 
+    @staticmethod
+    def zero() -> "Vector1D":
+        return Vector1D(0.0)
+
 
 # doc-region-begin define vector class
 @dataclasses.dataclass
@@ -222,6 +226,10 @@ class Vector2D(Vector1D):
     @staticmethod
     def e_2() -> "Vector2D":
         return Vector2D(0.0, 1.0)
+
+    @staticmethod
+    def zero() -> "Vector2D":
+        return Vector2D(0.0, 0.0)
 
 
 # doc-region-begin define vector class
@@ -241,6 +249,10 @@ class Vector3D(Vector2D):
     @staticmethod
     def e_3() -> "Vector3D":
         return Vector3D(0.0, 0.0, 1.0)
+
+    @staticmethod
+    def zero() -> "Vector3D":
+        return Vector3D(0.0, 0.0, 0.0)
 
     def cross(self, rhs: typing.Self) -> typing.Self:
         return Vector3D(

@@ -113,24 +113,24 @@ class Paddle:
 
 paddle1: Paddle = Paddle(
     vertices=[
-        -1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
-        1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
-        1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
-        -1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
+        -e_1 + -3.0 * e_2,
+        e_1 + -3.0 * e_2,
+        e_1 + 3.0 * e_2,
+        -e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9.0 * e_1 + 0.0 * e_2 + 0.0 * e_3,
+    position=-9.0 * e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
-        1.0 * e_1 + -3.0 * e_2 + 0.0 * e_3,
-        1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
-        -1.0 * e_1 + 3.0 * e_2 + 0.0 * e_3,
+        -e_1 + -3.0 * e_2,
+        e_1 + -3.0 * e_2,
+        e_1 + 3.0 * e_2,
+        -e_1 + 3.0 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9.0 * e_1 + 0.0 * e_2 + 0.0 * e_3,
+    position=9.0 * e_1,
 )
 
 
@@ -140,7 +140,7 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 @dataclasses.dataclass
 class Camera:
     position_ws: Vector3D = dataclasses.field(
-        default_factory=lambda: 0.0 * e_1 + 0.0 * e_2 + 40.0 * e_3
+        default_factory=lambda: 40.0 * e_3
     )
     rot_y: float = 0.0
     rot_x: float = 0.0
@@ -150,10 +150,10 @@ camera: Camera = Camera()
 
 
 square: list[Vector3D] = [
-    -0.5 * e_1 + -0.5 * e_2 + 0.0 * e_3,
-    0.5 * e_1 + -0.5 * e_2 + 0.0 * e_3,
-    0.5 * e_1 + 0.5 * e_2 + 0.0 * e_3,
-    -0.5 * e_1 + 0.5 * e_2 + 0.0 * e_3,
+    -0.5 * e_1 + -0.5 * e_2,
+    0.5 * e_1 + -0.5 * e_2,
+    0.5 * e_1 + 0.5 * e_2,
+    -0.5 * e_1 + 0.5 * e_2,
 ]
 square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
@@ -178,13 +178,13 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        forwards_cs = 0.0 * e_1 + 0.0 * e_2 + -1.0 * e_3
+        forwards_cs = -e_3
         forward_ws = compose(
             [translate(camera.position_ws), rotate_y(camera.rot_y)]
         )(forwards_cs)
         camera.position_ws = forward_ws
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        forwards_cs = 0.0 * e_1 + 0.0 * e_2 + 1.0 * e_3
+        forwards_cs = e_3
         forward_ws = compose(
             [translate(camera.position_ws), rotate_y(camera.rot_y)]
         )(forwards_cs)
@@ -192,13 +192,13 @@ def handle_inputs() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position -= 1.0 * e_2
+        paddle1.position -= e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position += 1.0 * e_2
+        paddle1.position += e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position -= 1.0 * e_2
+        paddle2.position -= e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position += 1.0 * e_2
+        paddle2.position += e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -302,9 +302,9 @@ while not glfw.window_should_close(window):
                 with push_transformation(
                     compose(
                         [
-                            translate(0.0 * e_1 + 0.0 * e_2 + -1.0 * e_3),
+                            translate(-e_3),
                             rotate_z(rotation_around_paddle1),
-                            translate(2.0 * e_1 + 0.0 * e_2 + 0.0 * e_3),
+                            translate(2.0 * e_1),
                             rotate_z(square_rotation),
                         ]
                     )

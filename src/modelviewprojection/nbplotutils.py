@@ -40,6 +40,7 @@ extraLinesMultiplier = 3
 
 e_1 = Vector2D.e_1()
 e_2 = Vector2D.e_2()
+zero = Vector2D.zero()
 
 
 def generategridlines(graphBounds, interval=1):
@@ -160,7 +161,7 @@ def create_x_and_y(
     ycolor=(1.0, 0.0, 1.0),
 ):
     # x axis
-    x_axis = [0 * e_1, e_1]
+    x_axis = [zero, e_1]
     plt.plot(
         [fn(vec).x for vec in x_axis],
         [fn(vec).y for vec in x_axis],
@@ -170,7 +171,7 @@ def create_x_and_y(
     )
 
     # y axis
-    y_axis = [0 * e_1, e_2]
+    y_axis = [zero, e_2]
     plt.plot(
         [fn(vec).x for vec in y_axis],
         [fn(vec).y for vec in y_axis],
@@ -184,9 +185,9 @@ def draw_isoceles_triangle(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(e_1) - fn(0 * e_1)
+    x_prime_direction_world_space = fn(e_1) - fn(zero)
     x_world_space = e_1
-    y_prime_direction_world_space = fn(e_2) - fn(0 * e_1)
+    y_prime_direction_world_space = fn(e_2) - fn(zero)
     angle_radians = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
@@ -199,7 +200,7 @@ def draw_isoceles_triangle(
     vertices = [
         fn(v)
         for v in [
-            0 * e_1,
+            zero,
             e_1,
             0.5 * e_1 + e_2,
         ]
@@ -246,9 +247,9 @@ def draw_second_right_triangle(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(e_1) - fn(0 * e_1)
+    x_prime_direction_world_space = fn(e_1) - fn(zero)
     x_world_space = e_1
-    y_prime_direction_world_space = fn(e_2) - fn(0 * e_1)
+    y_prime_direction_world_space = fn(e_2) - fn(zero)
     angle_radians = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
@@ -261,7 +262,7 @@ def draw_second_right_triangle(
     vertices = [
         fn(v)
         for v in [
-            0 * e_1,
+            zero,
             -4.0 * e_1,
             -4.0 * e_1 + 3.0 * e_2,
         ]
@@ -302,9 +303,9 @@ def draw_right_triangle(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(e_1) - fn(0 * e_1)
+    x_prime_direction_world_space = fn(e_1) - fn(zero)
     x_world_space = e_1
-    y_prime_direction_world_space = fn(e_2) - fn(0 * e_1)
+    y_prime_direction_world_space = fn(e_2) - fn(zero)
     angle_radians = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
@@ -317,7 +318,7 @@ def draw_right_triangle(
     vertices = [
         fn(v)
         for v in [
-            0 * e_1,
+            zero,
             3.0 * e_1,
             3.0 * e_1 + 4.0 * e_2,
         ]
@@ -358,9 +359,9 @@ def draw_ndc(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(e_1) - fn(0 * e_1)
+    x_prime_direction_world_space = fn(e_1) - fn(zero)
     x_world_space = e_1
-    y_prime_direction_world_space = fn(e_2) - fn(0 * e_1)
+    y_prime_direction_world_space = fn(e_2) - fn(zero)
     angle_radians = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
