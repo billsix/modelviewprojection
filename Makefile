@@ -9,7 +9,7 @@ USE_JUPYTER ?= 1
 USE_SPYDER ?= 1
 
 CONTAINER_CMD = podman
-CONTAINER_NAME = modelviewprojection-html
+CONTAINER_NAME = modelviewprojection
 
 TMUX_FILE := $(HOME)/.tmux.conf
 TMUX_REAL_PATH := $(shell readlink -f $(TMUX_FILE))
@@ -85,6 +85,13 @@ html: image ## Build the html from the sphinx source
 	$(CONTAINER_CMD) run -it --rm  \
                 $(FILES_TO_MOUNT) \
                 $(CONTAINER_NAME)
+
+
+image-export: ## export the OCI image
+	podman save $(CONTAINER_NAME) -o $(CONTAINER_NAME)-$(shell date +%m-%d-%Y_%H-%M-%S).tar
+
+image-import: ## import the OCI image, "make image-import FILE=foo.tar"
+	podman load -i $(FILE)
 
 
 .PHONY: help
