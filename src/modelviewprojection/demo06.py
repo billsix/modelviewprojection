@@ -25,7 +25,6 @@ import OpenGL.GL as GL
 import modelviewprojection.colorutils as colorutils
 from modelviewprojection.mathutils import (
     InvertibleFunction,
-    Vector,
     Vector2D,
 )
 from modelviewprojection.mathutils import translate as T
@@ -170,7 +169,7 @@ while not glfw.window_should_close(window):
     p1_to_ndc: InvertibleFunction = world_space_to_ndc @ p1_space_to_world_space
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc: Vector = p1_to_ndc(p1_v_ms)
+        paddle1_vector_ndc: Vector2D = p1_to_ndc(p1_v_ms)
         GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
 
     GL.glEnd()
@@ -184,7 +183,7 @@ while not glfw.window_should_close(window):
     p2_to_ndc: InvertibleFunction = world_space_to_ndc @ p2_space_to_world_space
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        paddle2_vector_ndc: Vector = p2_to_ndc(p2_v_ms)
+        paddle2_vector_ndc: Vector2D = p2_to_ndc(p2_v_ms)
         GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
     GL.glEnd()
     # doc-region-end draw paddle 2

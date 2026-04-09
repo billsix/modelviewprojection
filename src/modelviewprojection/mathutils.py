@@ -47,7 +47,6 @@ __all__ = [
     "is_clockwise",
     "is_parallel",
     "Vector3D",
-    "cos",
     "abs_sin",
     "scale_non_uniform_3d",
     "rotate_x",
@@ -109,7 +108,8 @@ class Vector:
             rhs (Vector): The scalar to be multiplied to the Vector's component
                 subtraction symbol
         Returns:
-            Vector: The Vector that represents scalar times the amount of the input Vector
+            Vector: The Vector that represents scalar times the amount of the input
+                    Vector
 
         Example:
             >>> from modelviewprojection.mathutils import Vector1D
@@ -164,7 +164,7 @@ class Vector:
             Vector1D(x=-3)
         """
         # doc-region-begin define subtract
-        return self + -rhs
+        return self + typing.cast(typing.Self, -rhs)
         # doc-region-end define subtract
 
     def __rmul__(self, scalar: float) -> typing.Self:
@@ -254,7 +254,7 @@ class Vector3D(Vector2D):
     def zero() -> "Vector3D":
         return Vector3D(0.0, 0.0, 0.0)
 
-    def cross(self, rhs: typing.Self) -> typing.Self:
+    def cross(self, rhs: typing.Self) -> "Vector3D":
         return Vector3D(
             x=self.y * rhs.z - self.z * rhs.y,
             y=self.z * rhs.x - self.x * rhs.z,
@@ -262,9 +262,12 @@ class Vector3D(Vector2D):
         )
 
 
+V = typing.TypeVar("V", bound="Vector")
+
+
 # doc-region-begin begin define invertible function
 @dataclasses.dataclass
-class InvertibleFunction:
+class InvertibleFunction(typing.Generic[V]):
     # doc-region-end begin define invertible function
     """
     Class that wraps a function and its
@@ -274,26 +277,24 @@ class InvertibleFunction:
     """
 
     # doc-region-begin invertible function members
-    func: typing.Callable[[Vector], Vector]  #: The wrapped function
-    inverse: typing.Callable[
-        [Vector], Vector
-    ]  #: The inverse of the wrapped function
+    func: typing.Callable[[V], V]  #: The wrapped function
+    inverse: typing.Callable[[V], V]  #: The inverse of the wrapped function
     latex_repr: str  #: The LaTeX representation of the function
     latex_repr_inv: str  #: The LaTeX representation of the inverse function
     # doc-region-end invertible function members
 
     # doc-region-begin begin call
-    def __call__(self, x: Vector) -> Vector:
+    def __call__(self, x: V) -> V:
         # doc-region-end begin call
         """
         Execute a function with the given value.
 
         Args:
-            func (typing.Callable[[Vector], Vector]): A function that takes a
-                value of type Vector and returns a value of the same type Vector.
-            value (Vector): The input value to pass to the function
+            func (typing.Callable[[V], V]): A function that takes a
+                value of type V and returns a value of the same type V.
+            value (V): The input value to pass to the function
         Returns:
-            Vector: The result of calling func(value).
+            V: The result of calling func(value).
 
             Will be the same type as the input value.
         Example:
@@ -326,7 +327,7 @@ class InvertibleFunction:
 
         Args:
             f2 (mathutils.InvertibleFunction): A function that self is composed with
-                and returns a value of the same type Vector.
+                and returns a value of the same type V.
         Returns:
             InvertibleFunction: The composed function.
 
@@ -413,7 +414,7 @@ def compose(
             InvertibleFunctions to compose.  At least on value must be provided.
 
     Returns:
-        Vector: One function that is the aggregate function.
+        V: One function that is the aggregate function.
 
     Example:
         >>> from modelviewprojection.mathutils import compose
@@ -425,14 +426,14 @@ def compose(
         Vector2D(x=8, y=10)
     """
 
-    def composed_fn(x):
+    def composed_fn(x: Vector):
         for f in reversed(functions):
-            x: Vector = f(x)
+            x = f(x)
         return x
 
-    def inv_composed_fn(x):
+    def inv_composed_fn(x: Vector):
         for f in functions:
-            x: Vector = inverse(f)(x)
+            x = inverse(f)(x)
         return x
 
     tex_str: str = ""
@@ -564,10 +565,10 @@ def compose_intermediate_fns_and_fn(
 
 # doc-region-begin define identity
 def identity() -> InvertibleFunction:
-    def f(vector: Vector) -> Vector:
+    def f(vector: V) -> V:
         return vector
 
-    def f_inv(vector: Vector) -> Vector:
+    def f_inv(vector: V) -> V:
         return vector
 
     tex_str: str = "I"
@@ -577,11 +578,11 @@ def identity() -> InvertibleFunction:
 
 
 # doc-region-begin define translate
-def translate(b: Vector) -> InvertibleFunction:
-    def f(vector: Vector) -> Vector:
+def translate(b: V) -> InvertibleFunction:
+    def f(vector: V) -> V:
         return vector + b
 
-    def f_inv(vector: Vector) -> Vector:
+    def f_inv(vector: V) -> V:
         return vector - b
 
     values = list(b)
@@ -596,10 +597,10 @@ def translate(b: Vector) -> InvertibleFunction:
 
 # doc-region-begin define uniform scale
 def uniform_scale(m: float) -> InvertibleFunction:
-    def f(vector: Vector) -> Vector:
+    def f(vector: V) -> V:
         return vector * m
 
-    def f_inv(vector: Vector) -> Vector:
+    def f_inv(vector: V) -> V:
         if m == 0.0:
             raise ValueError("Not invertible.  Scaling factor cannot be zero.")
 
@@ -612,12 +613,10 @@ def uniform_scale(m: float) -> InvertibleFunction:
 
 
 def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
-    def f(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector2D)
+    def f(vector: Vector2D) -> Vector2D:
         return Vector2D(vector.x * m_x, vector.y * m_y)
 
-    def f_inv(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector2D)
+    def f_inv(vector: Vector2D) -> Vector2D:
         if m_x == 0.0 or m_y == 0.0:
             raise ValueError(
                 "Note invertible.  Scaling factors cannot be zero."
@@ -635,11 +634,10 @@ def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate
 def rotate_90_degrees() -> InvertibleFunction:
-    def f(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector2D)
+    def f(vector: Vector2D) -> Vector2D:
         return Vector2D(-vector.y, vector.x)
 
-    def f_inv(vector: Vector) -> Vector:
+    def f_inv(vector: Vector2D) -> Vector2D:
         return -f(vector)
 
     return InvertibleFunction(f, f_inv, "R_{<xy90>}", "R_{<xy90>}^{-1}")
@@ -650,10 +648,10 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 
     def create_rotate_function(
         perp: InvertibleFunction,
-    ) -> typing.Callable[[Vector], Vector]:
-        def f(vector: Vector) -> Vector:
-            parallel: Vector = math.cos(float(angle_in_radians)) * vector
-            perpendicular: Vector = math.sin(float(angle_in_radians)) * perp(
+    ) -> typing.Callable[[Vector2D], Vector2D]:
+        def f(vector: Vector2D) -> Vector2D:
+            parallel: Vector2D = math.cos(float(angle_in_radians)) * vector
+            perpendicular: Vector2D = math.sin(float(angle_in_radians)) * perp(
                 vector
             )
             return parallel + perpendicular
@@ -679,15 +677,11 @@ def rotate_around(
     # doc-region-end define rotate around
 
 
-def cosine(v1: Vector, v2: Vector) -> float:
-    assert isinstance(v1, Vector2D)
-    assert isinstance(v2, Vector2D)
+def cosine(v1: V, v2: V) -> float:
     return v1.dot(v2) / (abs(v1) * (abs(v2)))
 
 
-def sine(v1: Vector, v2: Vector) -> float:
-    assert isinstance(v1, Vector2D)
-    assert isinstance(v2, Vector2D)
+def sine(v1: Vector2D, v2: Vector2D) -> float:
     return rotate_90_degrees()(v1).dot(v2) / (abs(v1) * (abs(v2)))
 
 
@@ -709,10 +703,6 @@ def is_parallel(v1: Vector2D, v2: Vector2D) -> bool:
     # doc-region-end parallel
 
 
-def cos(v1: Vector3D, v2: Vector3D) -> float:
-    return v1.dot(v2) / (abs(v1) * abs(v2))
-
-
 def abs_sin(v1: Vector3D, v2: Vector3D) -> float:
     return abs(v1.cross(v2)) / (abs(v1) * abs(v2))
 
@@ -720,16 +710,14 @@ def abs_sin(v1: Vector3D, v2: Vector3D) -> float:
 def scale_non_uniform_3d(
     m_x: float, m_y: float, m_z: float
 ) -> InvertibleFunction:
-    def f(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector3D)
+    def f(vector: Vector3D) -> Vector3D:
         return Vector3D(vector.x * m_x, vector.y * m_y, vector.z * m_z)
 
-    def f_inv(vector: Vector) -> Vector:
+    def f_inv(vector: Vector3D) -> Vector3D:
         if m_x == 0.0 or m_y == 0.0 or m_z == 0.0:
             raise ValueError(
                 "Note invertible.  Scaling factors cannot be zero."
             )
-        assert isinstance(vector, Vector3D)
         return Vector3D(vector.x / m_x, vector.y / m_y, vector.z / m_z)
 
     return InvertibleFunction(
@@ -742,11 +730,10 @@ def scale_non_uniform_3d(
 
 # doc-region-begin define rotate x
 def rotate_x(angle_in_radians: float) -> InvertibleFunction:
-    def create_rotate_function(r) -> typing.Callable[[Vector], Vector]:
-        def f(vector: Vector) -> Vector:
-            assert isinstance(vector, Vector3D)
-            yz_on_xy: Vector = Vector2D(x=vector.y, y=vector.z)
-            rotated_yz_on_xy: Vector = r(yz_on_xy)
+    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
+        def f(vector: Vector3D) -> Vector3D:
+            yz_on_xy: Vector2D = Vector2D(x=vector.y, y=vector.z)
+            rotated_yz_on_xy: Vector2D = r(yz_on_xy)
             return Vector3D(
                 x=vector.x, y=rotated_yz_on_xy.x, z=rotated_yz_on_xy.y
             )
@@ -765,12 +752,10 @@ def rotate_x(angle_in_radians: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate y
 def rotate_y(angle_in_radians: float) -> InvertibleFunction:
-    def create_rotate_function(r) -> typing.Callable[[Vector], Vector]:
-        def f(vector: Vector) -> Vector:
-            assert isinstance(vector, Vector3D)
-            zx_on_xy: Vector = Vector2D(x=vector.z, y=vector.x)
-            rotated_zx_on_xy: Vector = r(zx_on_xy)
-            assert isinstance(rotated_zx_on_xy, Vector2D)
+    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
+        def f(vector: Vector3D) -> Vector3D:
+            zx_on_xy: Vector2D = Vector2D(x=vector.z, y=vector.x)
+            rotated_zx_on_xy: Vector2D = r(zx_on_xy)
             return Vector3D(
                 x=rotated_zx_on_xy.y, y=vector.y, z=rotated_zx_on_xy.x
             )
@@ -789,12 +774,10 @@ def rotate_y(angle_in_radians: float) -> InvertibleFunction:
 
 # doc-region-begin define rotate z
 def rotate_z(angle_in_radians: float) -> InvertibleFunction:
-    def create_rotate_function(r) -> typing.Callable[[Vector], Vector]:
-        def f(vector: Vector) -> Vector:
-            assert isinstance(vector, Vector3D)
-            xy_on_xy: Vector = Vector2D(x=vector.x, y=vector.y)
-            rotated_xy_on_xy: Vector = r(xy_on_xy)
-            assert isinstance(rotated_xy_on_xy, Vector2D)
+    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
+        def f(vector: Vector3D) -> Vector3D:
+            xy_on_xy: Vector2D = Vector2D(x=vector.x, y=vector.y)
+            rotated_xy_on_xy: Vector2D = r(xy_on_xy)
             return Vector3D(
                 x=rotated_xy_on_xy.x, y=rotated_xy_on_xy.y, z=vector.z
             )
@@ -868,31 +851,24 @@ def perspective(
         far=far_z,
     )
 
-    def f(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector3D)
+    def f(vector: Vector3D) -> Vector3D:
         s1d: InvertibleFunction = uniform_scale(near_z / vector.z)
-        x_component: Vector = s1d(Vector1D(x=vector.x))
-        y_component: Vector = s1d(Vector1D(x=vector.y))
-        assert isinstance(x_component, Vector1D)
-        assert isinstance(y_component, Vector1D)
+        x_component: Vector1D = s1d(Vector1D(x=vector.x))
+        y_component: Vector1D = s1d(Vector1D(x=vector.y))
 
         rectangular_prism: Vector3D = Vector3D(
             x=x_component.x, y=y_component.x, z=vector.z
         )
         return fn(rectangular_prism)
 
-    def f_inv(vector: Vector) -> Vector:
-        assert isinstance(vector, Vector3D)
-        rectangular_prism: Vector = inverse(fn)(vector)
-        assert isinstance(rectangular_prism, Vector3D)
+    def f_inv(vector: Vector3D) -> Vector3D:
+        rectangular_prism: Vector3D = inverse(fn)(vector)
 
         inverse_s1d: InvertibleFunction = inverse(
             uniform_scale(near_z / vector.z)
         )
-        x_component: Vector = inverse_s1d(Vector1D(x=rectangular_prism.x))
-        y_component: Vector = inverse_s1d(Vector1D(x=rectangular_prism.y))
-        assert isinstance(x_component, Vector1D)
-        assert isinstance(y_component, Vector1D)
+        x_component: Vector1D = inverse_s1d(Vector1D(x=rectangular_prism.x))
+        y_component: Vector1D = inverse_s1d(Vector1D(x=rectangular_prism.y))
 
         return Vector3D(
             x_component.x,
