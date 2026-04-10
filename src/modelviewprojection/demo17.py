@@ -138,9 +138,7 @@ paddle2: Paddle = Paddle(
 
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector3D = dataclasses.field(
-        default_factory=lambda: 15 * e_3
-    )
+    position_ws: Vector3D = dataclasses.field(default_factory=lambda: 15 * e_3)
     rot_y: float = 0.0
     rot_x: float = 0.0
     # doc-region-end define camera class

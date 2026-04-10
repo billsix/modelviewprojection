@@ -139,9 +139,7 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector3D = dataclasses.field(
-        default_factory=lambda: 40 * e_3
-    )
+    position_ws: Vector3D = dataclasses.field(default_factory=lambda: 40 * e_3)
     rot_y: float = 0.0
     rot_x: float = 0.0
 

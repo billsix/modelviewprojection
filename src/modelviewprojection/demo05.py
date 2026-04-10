@@ -176,7 +176,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     GL.glColor3f(*iter(paddle2.color))
 
-    p2_fn: InvertibleFunction = T(paddle2.position)
+    p2_fn: InvertibleFunction[Vector2D] = T(paddle2.position)
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         paddle2_vector_ndc: Vector2D = p2_fn(p2_v_ms)

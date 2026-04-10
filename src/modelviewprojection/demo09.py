@@ -178,7 +178,7 @@ while not glfw.window_should_close(window):
 
     for p1_v_ms in paddle1.vertices:
         # doc-region-begin paddle 1 transformations
-        fn: InvertibleFunction = compose(
+        fn: InvertibleFunction[Vector2D] = compose(
             [
                 uniform_scale(1.0 / 10.0),
                 translate(paddle1.position),
@@ -197,7 +197,7 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: InvertibleFunction = compose(
+        fn: InvertibleFunction[Vector2D] = compose(
             [
                 uniform_scale(1.0 / 10.0),
                 translate(paddle2.position),

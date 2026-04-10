@@ -360,7 +360,7 @@ class InvertibleFunction(typing.Generic[V]):
 
 
 # doc-region-begin begin define inverse
-def inverse(f: InvertibleFunction) -> InvertibleFunction:
+def inverse(f: InvertibleFunction[V]) -> InvertibleFunction[V]:
     # doc-region-end begin define inverse
     """
     Get the inverse of the InvertibleFunction
@@ -391,13 +391,15 @@ def inverse(f: InvertibleFunction) -> InvertibleFunction:
     """
 
     # doc-region-begin inverse body
-    return InvertibleFunction(f.inverse, f.func, f.latex_repr_inv, f.latex_repr)
+    return InvertibleFunction[V](
+        f.inverse, f.func, f.latex_repr_inv, f.latex_repr
+    )
     # doc-region-end inverse body
 
 
 def compose(
-    functions: list[InvertibleFunction],
-) -> InvertibleFunction:
+    functions: list[InvertibleFunction[V]],
+) -> InvertibleFunction[V]:
     """
     Compose a sequence of functions.
 
@@ -426,12 +428,12 @@ def compose(
         Vector2D(x=8, y=10)
     """
 
-    def composed_fn(x: Vector):
+    def composed_fn(x: V) -> V:
         for f in reversed(functions):
             x = f(x)
         return x
 
-    def inv_composed_fn(x: Vector):
+    def inv_composed_fn(x: V) -> V:
         for f in functions:
             x = inverse(f)(x)
         return x
@@ -450,12 +452,12 @@ def compose(
         else:
             inv_str = inverse(f).latex_repr + r" \circ " + inv_str
 
-    return InvertibleFunction(composed_fn, inv_composed_fn, tex_str, inv_str)
+    return InvertibleFunction[V](composed_fn, inv_composed_fn, tex_str, inv_str)
 
 
 def compose_intermediate_fns(
-    functions: list[InvertibleFunction], relative_basis: bool = False
-) -> typing.Iterable[InvertibleFunction]:
+    functions: list[InvertibleFunction[V]], relative_basis: bool = False
+) -> typing.Iterable[InvertibleFunction[V]]:
     """
     Like compose, but returns a list of all of the partial compositions
 
@@ -493,7 +495,7 @@ def compose_intermediate_fns(
         >>> fns[2](Vector1D(1))
         Vector1D(x=7)
     """
-    functions_with_identity_fn: list[InvertibleFunction] = (
+    functions_with_identity_fn: list[InvertibleFunction[V]] = (
         [identity()] + functions if relative_basis else functions + [identity()]
     )
 
@@ -514,8 +516,8 @@ def compose_intermediate_fns(
 
 
 def compose_intermediate_fns_and_fn(
-    functions: list[InvertibleFunction], relative_basis: bool = False
-) -> list[tuple[InvertibleFunction, InvertibleFunction]]:
+    functions: list[InvertibleFunction[V]], relative_basis: bool = False
+) -> list[tuple[InvertibleFunction[V], InvertibleFunction[V]]]:
     """
     Like compose, but returns a list of all of the partial compositions
 
@@ -564,7 +566,7 @@ def compose_intermediate_fns_and_fn(
 
 
 # doc-region-begin define identity
-def identity() -> InvertibleFunction:
+def identity() -> InvertibleFunction[V]:
     def f(vector: V) -> V:
         return vector
 
@@ -573,12 +575,12 @@ def identity() -> InvertibleFunction:
 
     tex_str: str = "I"
     inv_str: str = "I"
-    return InvertibleFunction(f, f_inv, tex_str, inv_str)
+    return InvertibleFunction[V](f, f_inv, tex_str, inv_str)
     # doc-region-end define identity
 
 
 # doc-region-begin define translate
-def translate(b: V) -> InvertibleFunction:
+def translate(b: V) -> InvertibleFunction[V]:
     def f(vector: V) -> V:
         return vector + b
 
@@ -591,12 +593,12 @@ def translate(b: V) -> InvertibleFunction:
     )
     negative_values = list(-b)
     inv_str: str = f"T_{{<[{str(negative_values[0]) if len(negative_values) == 1 else str(negative_values)[1:-1]}]>}}"
-    return InvertibleFunction(f, f_inv, tex_str, inv_str)
+    return InvertibleFunction[V](f, f_inv, tex_str, inv_str)
     # doc-region-end define translate
 
 
 # doc-region-begin define uniform scale
-def uniform_scale(m: float) -> InvertibleFunction:
+def uniform_scale(m: float) -> InvertibleFunction[V]:
     def f(vector: V) -> V:
         return vector * m
 
@@ -608,11 +610,13 @@ def uniform_scale(m: float) -> InvertibleFunction:
 
     tex_str: str = f"S_{{{m}}}"
     inv_str: str = f"S_{{{-m}}}"
-    return InvertibleFunction(f, f_inv, tex_str, inv_str)
+    return InvertibleFunction[V](f, f_inv, tex_str, inv_str)
     # doc-region-end define uniform scale
 
 
-def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
+def scale_non_uniform_2d(
+    m_x: float, m_y: float
+) -> InvertibleFunction[Vector2D]:
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(vector.x * m_x, vector.y * m_y)
 
@@ -624,7 +628,7 @@ def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
 
         return Vector2D(vector.x / m_x, vector.y / m_y)
 
-    return InvertibleFunction(
+    return InvertibleFunction[Vector2D](
         f,
         f_inv,
         f"S_{{<{m_x},{m_y}>}}",
@@ -633,18 +637,20 @@ def scale_non_uniform_2d(m_x: float, m_y: float) -> InvertibleFunction:
 
 
 # doc-region-begin define rotate
-def rotate_90_degrees() -> InvertibleFunction:
+def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
     def f(vector: Vector2D) -> Vector2D:
         return Vector2D(-vector.y, vector.x)
 
     def f_inv(vector: Vector2D) -> Vector2D:
         return -f(vector)
 
-    return InvertibleFunction(f, f_inv, "R_{<xy90>}", "R_{<xy90>}^{-1}")
+    return InvertibleFunction[Vector2D](
+        f, f_inv, "R_{<xy90>}", "R_{<xy90>}^{-1}"
+    )
 
 
-def rotate(angle_in_radians: float) -> InvertibleFunction:
-    r90: InvertibleFunction = rotate_90_degrees()
+def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2D]:
+    r90: InvertibleFunction[Vector2D] = rotate_90_degrees()
 
     def create_rotate_function(
         perp: InvertibleFunction,
@@ -658,7 +664,7 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 
         return f
 
-    return InvertibleFunction(
+    return InvertibleFunction[Vector2D](
         create_rotate_function(r90),
         create_rotate_function(inverse(r90)),
         f"R_{{<{sympy.latex(angle_in_radians)}>}}",
@@ -670,7 +676,7 @@ def rotate(angle_in_radians: float) -> InvertibleFunction:
 # doc-region-begin define rotate around
 def rotate_around(
     angle_in_radians: float, center: Vector2D
-) -> InvertibleFunction:
+) -> InvertibleFunction[Vector2D]:
     return compose(
         [translate(center), rotate(angle_in_radians), translate(-center)]
     )
@@ -709,7 +715,7 @@ def abs_sin(v1: Vector3D, v2: Vector3D) -> float:
 
 def scale_non_uniform_3d(
     m_x: float, m_y: float, m_z: float
-) -> InvertibleFunction:
+) -> InvertibleFunction[Vector3D]:
     def f(vector: Vector3D) -> Vector3D:
         return Vector3D(vector.x * m_x, vector.y * m_y, vector.z * m_z)
 
@@ -720,7 +726,7 @@ def scale_non_uniform_3d(
             )
         return Vector3D(vector.x / m_x, vector.y / m_y, vector.z / m_z)
 
-    return InvertibleFunction(
+    return InvertibleFunction[Vector3D](
         f,
         f_inv,
         f"S_{{{m_x},{m_y},{m_z}}}",
@@ -729,8 +735,10 @@ def scale_non_uniform_3d(
 
 
 # doc-region-begin define rotate x
-def rotate_x(angle_in_radians: float) -> InvertibleFunction:
-    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
+def rotate_x(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
+    def create_rotate_function(
+        r: InvertibleFunction[Vector2D],
+    ) -> typing.Callable[[Vector3D], Vector3D]:
         def f(vector: Vector3D) -> Vector3D:
             yz_on_xy: Vector2D = Vector2D(x=vector.y, y=vector.z)
             rotated_yz_on_xy: Vector2D = r(yz_on_xy)
@@ -740,8 +748,8 @@ def rotate_x(angle_in_radians: float) -> InvertibleFunction:
 
         return f
 
-    r = rotate(angle_in_radians)
-    return InvertibleFunction(
+    r: InvertibleFunction[Vector2D] = rotate(angle_in_radians)
+    return InvertibleFunction[Vector3D](
         create_rotate_function(r),
         create_rotate_function(inverse(r)),
         f"RX_{{<{angle_in_radians}>}}",
@@ -751,8 +759,10 @@ def rotate_x(angle_in_radians: float) -> InvertibleFunction:
 
 
 # doc-region-begin define rotate y
-def rotate_y(angle_in_radians: float) -> InvertibleFunction:
-    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
+def rotate_y(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
+    def create_rotate_function(
+        r: InvertibleFunction[Vector2D],
+    ) -> typing.Callable[[Vector3D], Vector3D]:
         def f(vector: Vector3D) -> Vector3D:
             zx_on_xy: Vector2D = Vector2D(x=vector.z, y=vector.x)
             rotated_zx_on_xy: Vector2D = r(zx_on_xy)
@@ -762,8 +772,8 @@ def rotate_y(angle_in_radians: float) -> InvertibleFunction:
 
         return f
 
-    r = rotate(angle_in_radians)
-    return InvertibleFunction(
+    r: InvertibleFunction[Vector2D] = rotate(angle_in_radians)
+    return InvertibleFunction[Vector3D](
         create_rotate_function(r),
         create_rotate_function(inverse(r)),
         f"RY_{{<{angle_in_radians}>}}",
@@ -773,8 +783,10 @@ def rotate_y(angle_in_radians: float) -> InvertibleFunction:
 
 
 # doc-region-begin define rotate z
-def rotate_z(angle_in_radians: float) -> InvertibleFunction:
-    def create_rotate_function(r) -> typing.Callable[[Vector3D], Vector3D]:
+def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
+    def create_rotate_function(
+        r: InvertibleFunction[Vector2D],
+    ) -> typing.Callable[[Vector3D], Vector3D]:
         def f(vector: Vector3D) -> Vector3D:
             xy_on_xy: Vector2D = Vector2D(x=vector.x, y=vector.y)
             rotated_xy_on_xy: Vector2D = r(xy_on_xy)
@@ -784,8 +796,8 @@ def rotate_z(angle_in_radians: float) -> InvertibleFunction:
 
         return f
 
-    r: InvertibleFunction = rotate(angle_in_radians)
-    return InvertibleFunction(
+    r: InvertibleFunction[Vector2D] = rotate(angle_in_radians)
+    return InvertibleFunction[Vector3D](
         create_rotate_function(r),
         create_rotate_function(inverse(r)),
         f"RZ_{{<{angle_in_radians}>}}",
@@ -802,7 +814,7 @@ def ortho(
     top: float,
     near: float,
     far: float,
-) -> InvertibleFunction:
+) -> InvertibleFunction[Vector3D]:
     midpoint = Vector3D(
         x=(left + right) / 2.0, y=(bottom + top) / 2.0, z=(near + far) / 2.0
     )
@@ -811,7 +823,7 @@ def ortho(
     length_z: float
     length_x, length_y, length_z = right - left, top - bottom, far - near
 
-    fn = compose(
+    fn: InvertibleFunction[Vector3D] = compose(
         [
             scale_non_uniform_3d(
                 m_x=(2.0 / length_x),
@@ -822,27 +834,27 @@ def ortho(
         ]
     )
 
-    def f(vector: Vector) -> Vector:
+    def f(vector: Vector3D) -> Vector3D:
         return fn(vector)
 
-    def f_inv(vector: Vector) -> Vector:
+    def f_inv(vector: Vector3D) -> Vector3D:
         return inverse(fn)(vector)
 
-    return InvertibleFunction(f, f_inv, "Ortho", "Ortho Inv")
+    return InvertibleFunction[Vector3D](f, f_inv, "Ortho", "Ortho Inv")
     # doc-region-end define ortho
 
 
 # doc-region-begin define perspective
 def perspective(
     field_of_view: float, aspect_ratio: float, near_z: float, far_z: float
-) -> InvertibleFunction:
+) -> InvertibleFunction[Vector3D]:
     # field_of_view, dataclasses.field of view, is angle of y
     # aspect_ratio is x_width / y_width
 
     top: float = -near_z * math.tan(math.radians(field_of_view) / 2.0)
     right: float = top * aspect_ratio
 
-    fn = ortho(
+    fn: InvertibleFunction[Vector3D] = ortho(
         left=-right,
         right=right,
         bottom=-top,
@@ -852,7 +864,7 @@ def perspective(
     )
 
     def f(vector: Vector3D) -> Vector3D:
-        s1d: InvertibleFunction = uniform_scale(near_z / vector.z)
+        s1d: InvertibleFunction[Vector1D] = uniform_scale(near_z / vector.z)
         x_component: Vector1D = s1d(Vector1D(x=vector.x))
         y_component: Vector1D = s1d(Vector1D(x=vector.y))
 
@@ -864,7 +876,7 @@ def perspective(
     def f_inv(vector: Vector3D) -> Vector3D:
         rectangular_prism: Vector3D = inverse(fn)(vector)
 
-        inverse_s1d: InvertibleFunction = inverse(
+        inverse_s1d: InvertibleFunction[Vector1D] = inverse(
             uniform_scale(near_z / vector.z)
         )
         x_component: Vector1D = inverse_s1d(Vector1D(x=rectangular_prism.x))
@@ -876,14 +888,16 @@ def perspective(
             rectangular_prism.z,
         )
 
-    return InvertibleFunction(f, f_inv, "Perspective", "Perspective Inv")
+    return InvertibleFunction[Vector3D](
+        f, f_inv, "Perspective", "Perspective Inv"
+    )
     # doc-region-end define perspective
 
 
 # doc-region-begin define camera space to ndc
 def cs_to_ndc_space_fn(
     vector: Vector3D,
-) -> InvertibleFunction:
+) -> InvertibleFunction[Vector3D]:
     return perspective(
         field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
     )
@@ -894,21 +908,21 @@ def cs_to_ndc_space_fn(
 
 # doc-region-begin define function stack class
 @dataclasses.dataclass
-class FunctionStack:
-    stack: list[InvertibleFunction] = dataclasses.field(
+class FunctionStack(typing.Generic[V]):
+    stack: list[InvertibleFunction[V]] = dataclasses.field(
         default_factory=lambda: []
     )
 
-    def push(self, o: InvertibleFunction):
+    def push(self, o: InvertibleFunction[V]):
         self.stack.append(o)
 
-    def pop(self) -> InvertibleFunction:
+    def pop(self) -> InvertibleFunction[V]:
         return self.stack.pop()
 
     def clear(self):
         self.stack.clear()
 
-    def modelspace_to_ndc_fn(self) -> InvertibleFunction:
+    def modelspace_to_ndc_fn(self) -> InvertibleFunction[V]:
         return compose(self.stack)
 
 
@@ -917,7 +931,7 @@ fn_stack = FunctionStack()
 
 
 @contextlib.contextmanager
-def push_transformation(f):
+def push_transformation(f: InvertibleFunction[V]):
     try:
         fn_stack.push(f)
         yield fn_stack

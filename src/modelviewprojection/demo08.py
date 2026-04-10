@@ -176,7 +176,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     rotatePoint: Vector2D = paddle1.position
     for p1_v_ms in paddle1.vertices:
-        fn: InvertibleFunction = compose(
+        fn: InvertibleFunction[Vector2D] = compose(
             [
                 uniform_scale(1.0 / 10.0),
                 rotate_around(paddle1.rotation, rotatePoint),
@@ -195,7 +195,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     rotatePoint: Vector2D = paddle2.position
     for p2_v_ms in paddle2.vertices:
-        fn: InvertibleFunction = compose(
+        fn: InvertibleFunction[Vector2D] = compose(
             [
                 uniform_scale(1.0 / 10.0),
                 rotate_around(paddle2.rotation, rotatePoint),
