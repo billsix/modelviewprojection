@@ -100,24 +100,24 @@ class Paddle:
 # doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        -e_1 + -3.0 * e_2,
-        e_1 + -3.0 * e_2,
-        e_1 + 3.0 * e_2,
-        -e_1 + 3.0 * e_2,
+        -1 * e_1 + -3 * e_2,
+        e_1 + -3 * e_2,
+        e_1 + 3 * e_2,
+        -1 * e_1 + 3 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9.0 * e_1,
+    position=-9 * e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -e_1 + -3.0 * e_2,
-        e_1 + -3.0 * e_2,
-        e_1 + 3.0 * e_2,
-        -e_1 + 3.0 * e_2,
+        -1 * e_1 + -3 * e_2,
+        e_1 + -3 * e_2,
+        e_1 + 3 * e_2,
+        -1 * e_1 + 3 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9.0 * e_1,
+    position=9 * e_1,
 )
 # doc-region-end instantiate paddles
 

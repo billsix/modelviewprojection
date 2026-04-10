@@ -113,24 +113,24 @@ class Paddle:
 
 paddle1: Paddle = Paddle(
     vertices=[
-        -e_1 + -3.0 * e_2,
-        e_1 + -3.0 * e_2,
-        e_1 + 3.0 * e_2,
-        -e_1 + 3.0 * e_2,
+        -1 * e_1 + -3 * e_2,
+        e_1 + -3 * e_2,
+        e_1 + 3 * e_2,
+        -1 * e_1 + 3 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9.0 * e_1,
+    position=-9 * e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -e_1 + -3.0 * e_2,
-        e_1 + -3.0 * e_2,
-        e_1 + 3.0 * e_2,
-        -e_1 + 3.0 * e_2,
+        -1 * e_1 + -3 * e_2,
+        e_1 + -3 * e_2,
+        e_1 + 3 * e_2,
+        -1 * e_1 + 3 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9.0 * e_1,
+    position=9 * e_1,
 )
 
 
@@ -140,7 +140,7 @@ number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
 @dataclasses.dataclass
 class Camera:
     position_ws: Vector3D = dataclasses.field(
-        default_factory=lambda: 40.0 * e_3
+        default_factory=lambda: 40 * e_3
     )
     rot_y: float = 0.0
     rot_x: float = 0.0
@@ -178,7 +178,7 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        forwards_cs = -e_3
+        forwards_cs = -1 * e_3
         forward_ws = compose(
             [translate(camera.position_ws), rotate_y(camera.rot_y)]
         )(forwards_cs)
@@ -237,22 +237,22 @@ while not glfw.window_should_close(window):
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
             camera.position_ws += (
-                1.0 * axes_list[0][0] * math.cos(camera.rot_y)
+                1 * axes_list[0][0] * math.cos(camera.rot_y)
             ) * e_1
             camera.position_ws -= (
-                1.0 * axes_list[0][0] * math.sin(camera.rot_y)
+                1 * axes_list[0][0] * math.sin(camera.rot_y)
             ) * e_3
         if math.fabs(float(axes_list[0][1])) > 0.1:
             camera.position_ws += (
-                1.0 * axes_list[0][1] * math.sin(camera.rot_y)
+                1 * axes_list[0][1] * math.sin(camera.rot_y)
             ) * e_1
             camera.position_ws += (
-                1.0 * axes_list[0][1] * math.cos(camera.rot_y)
+                1 * axes_list[0][1] * math.cos(camera.rot_y)
             ) * e_3
 
         # print(axes_list[0][4])
         if math.fabs(axes_list[0][3]) > 0.10:
-            camera.rot_x -= 3.0 * axes_list[0][3] * 0.01
+            camera.rot_x -= 3 * axes_list[0][3] * 0.01
         if math.fabs(axes_list[0][2]) > 0.10:
             camera.rot_y -= axes_list[0][2] * 0.01
 
@@ -302,9 +302,9 @@ while not glfw.window_should_close(window):
                 with push_transformation(
                     compose(
                         [
-                            translate(-e_3),
+                            translate(-1 * e_3),
                             rotate_z(rotation_around_paddle1),
-                            translate(2.0 * e_1),
+                            translate(2 * e_1),
                             rotate_z(square_rotation),
                         ]
                     )

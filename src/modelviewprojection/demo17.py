@@ -112,24 +112,24 @@ class Paddle:
 
 paddle1: Paddle = Paddle(
     vertices=[
-        -e_1 + -3.0 * e_2,
-        e_1 + -3.0 * e_2,
-        e_1 + 3.0 * e_2,
-        -e_1 + 3.0 * e_2,
+        -1 * e_1 + -3 * e_2,
+        e_1 + -3 * e_2,
+        e_1 + 3 * e_2,
+        -1 * e_1 + 3 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9.0 * e_1,
+    position=-9 * e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -e_1 + -3.0 * e_2,
-        e_1 + -3.0 * e_2,
-        e_1 + 3.0 * e_2,
-        -e_1 + 3.0 * e_2,
+        -1 * e_1 + -3 * e_2,
+        e_1 + -3 * e_2,
+        e_1 + 3 * e_2,
+        -1 * e_1 + 3 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9.0 * e_1,
+    position=9 * e_1,
 )
 
 
@@ -139,7 +139,7 @@ paddle2: Paddle = Paddle(
 @dataclasses.dataclass
 class Camera:
     position_ws: Vector3D = dataclasses.field(
-        default_factory=lambda: 15.0 * e_3
+        default_factory=lambda: 15 * e_3
     )
     rot_y: float = 0.0
     rot_x: float = 0.0
@@ -185,7 +185,7 @@ def handle_inputs() -> None:
 
     # doc-region-begin handle key input keys
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        forwards_cs = -e_3
+        forwards_cs = -1 * e_3
         forward_ws = compose(
             [translate(camera.position_ws), rotate_y(camera.rot_y)]
         )(forwards_cs)
@@ -288,9 +288,9 @@ while not glfw.window_should_close(window):
                 with push_transformation(
                     compose(
                         [
-                            translate(-e_3),
+                            translate(-1 * e_3),
                             rotate_z(rotation_around_paddle1),
-                            translate(2.0 * e_1),
+                            translate(2 * e_1),
                             rotate_z(square_rotation),
                         ]
                     )

@@ -193,7 +193,7 @@ def draw_isoceles_triangle(
         cosine(x_world_space, x_prime_direction_world_space),
     )
     label_offset = (
-        0.0 * x_prime_direction_world_space
+        0 * x_prime_direction_world_space
         + 0.20 * y_prime_direction_world_space
     )
 
@@ -255,7 +255,7 @@ def draw_second_right_triangle(
         cosine(x_world_space, x_prime_direction_world_space),
     )
     label_offset = (
-        0.0 * x_prime_direction_world_space
+        0 * x_prime_direction_world_space
         + 0.20 * y_prime_direction_world_space
     )
 
@@ -263,8 +263,8 @@ def draw_second_right_triangle(
         fn(v)
         for v in [
             zero,
-            -4.0 * e_1,
-            -4.0 * e_1 + 3.0 * e_2,
+            -4 * e_1,
+            -4 * e_1 + 3 * e_2,
         ]
     ]
 
@@ -311,7 +311,7 @@ def draw_right_triangle(
         cosine(x_world_space, x_prime_direction_world_space),
     )
     label_offset = (
-        0.0 * x_prime_direction_world_space
+        0 * x_prime_direction_world_space
         + 0.20 * y_prime_direction_world_space
     )
 
@@ -319,8 +319,8 @@ def draw_right_triangle(
         fn(v)
         for v in [
             zero,
-            3.0 * e_1,
-            3.0 * e_1 + 4.0 * e_2,
+            3 * e_1,
+            3 * e_1 + 4 * e_2,
         ]
     ]
 
@@ -367,7 +367,7 @@ def draw_ndc(
         cosine(x_world_space, x_prime_direction_world_space),
     )
     label_offset = (
-        0.0 * x_prime_direction_world_space
+        0 * x_prime_direction_world_space
         + 0.20 * y_prime_direction_world_space
     )
 
