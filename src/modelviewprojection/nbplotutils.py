@@ -20,6 +20,8 @@ import contextlib
 import math
 
 import matplotlib
+import matplotlib.axes
+import matplotlib.figure
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
@@ -73,15 +75,16 @@ def generategridlines(graphBounds, interval=1):
         )
 
 
-axes = None
+axes: matplotlib.axes.Axes
 
 
 @contextlib.contextmanager
 def create_graphs(graph_bounds=(3, 3), title=None, filename=None):
     global axes
+    fig: matplotlib.figure.Figure
     fig, axes = plt.subplots(figsize=graph_bounds)
-    axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
-    axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
+    axes.set_xlim((-graph_bounds[0], graph_bounds[0]))
+    axes.set_ylim((-graph_bounds[1], graph_bounds[1]))
 
     plt.tight_layout()
 
@@ -95,7 +98,6 @@ def create_graphs(graph_bounds=(3, 3), title=None, filename=None):
     axes.xaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
     axes.yaxis.set_major_locator(matplotlib.ticker.MultipleLocator(1))
     fig.canvas.draw()
-    np.array(fig.canvas.renderer.buffer_rgba())
     display(fig)
     plt.close()
 

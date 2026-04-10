@@ -60,7 +60,7 @@ class FrameBuffer:
         )
 
     @property
-    def framebuffer(self) -> PIL.Image:
+    def framebuffer(self) -> PIL.Image.Image:
         return PIL.Image.fromarray(self._framebuffer, "RGB")
 
     @framebuffer.setter

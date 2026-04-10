@@ -55,7 +55,7 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 # for osx
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
 
-imgui.create_context()  # type: ignore
+imgui.create_context()
 window = glfw.create_window(
     500, 500, "ModelViewProjection Demo 21 ", None, None
 )
@@ -449,21 +449,21 @@ while not glfw.window_should_close(window):
 
     imgui.new_frame()  # type: ignore
 
-    if imgui.begin_main_menu_bar():  # type: ignore
-        if imgui.begin_menu("File", True):  # type: ignore
-            clicked_quit, selected_quit = imgui.menu_item(  # type: ignore
+    if imgui.begin_main_menu_bar():
+        if imgui.begin_menu("File", True):
+            clicked_quit, selected_quit = imgui.menu_item(
                 "Quit", "Cmd+Q", False, True
             )
 
             if clicked_quit:
                 exit(1)
 
-            imgui.end_menu()  # type: ignore
-        imgui.end_main_menu_bar()  # type: ignore
+            imgui.end_menu()
+        imgui.end_main_menu_bar()
 
-    imgui.begin("Custom window", True)  # type: ignore
+    imgui.begin("Custom window", True)
 
-    changed, __enable_blend__ = imgui.checkbox(  # type: ignore
+    changed, __enable_blend__ = imgui.checkbox(
         label="Blend", state=__enable_blend__
     )
 
@@ -473,7 +473,7 @@ while not glfw.window_should_close(window):
         else:
             GL.glDisable(GL.GL_BLEND)
 
-    imgui.end()  # type: ignore
+    imgui.end()
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)

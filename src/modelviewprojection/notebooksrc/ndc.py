@@ -57,7 +57,6 @@ import numpy as np
 import modelviewprojection.softwarerendering as sr
 from modelviewprojection.mathutils import (
     InvertibleFunction,
-    Vector,
     Vector2D,
     compose,
     scale_non_uniform_2d,
@@ -127,7 +126,7 @@ fake_fb.show_framebuffer()
 # by Shirley and Marshner, page 60
 
 # %%
-ndc_to_screen: InvertibleFunction = compose(
+ndc_to_screen: InvertibleFunction[Vector2D] = compose(
     [
         translate(-0.5 * e_1 + -0.5 * e_2),
         scale_non_uniform_2d(fake_fb.width, fake_fb.height),
@@ -145,7 +144,7 @@ ndc_to_screen: InvertibleFunction = compose(
 # %%
 # Example: draw a white triangle
 
-triangle_in_NDC: list[Vector] = [
+triangle_in_NDC: list[Vector2D] = [
     zero,
     0.2 * e_1,
     0.2 * e_1 + 0.2 * e_2,
@@ -158,7 +157,7 @@ triangle_in_NDC: list[Vector] = [
 # For each vector, apply the function
 
 # %%
-triangle_in_screen: list[Vector] = [ndc_to_screen(x) for x in triangle_in_NDC]
+triangle_in_screen: list[Vector2D] = [ndc_to_screen(x) for x in triangle_in_NDC]
 print(triangle_in_screen)
 
 # %%
@@ -181,7 +180,7 @@ fake_fb.show_framebuffer()
 # result and convert it from NDC to screenspace
 
 # %%
-move: InvertibleFunction = translate(0.5 * e_2)
+move = translate(0.5 * e_2)
 
 triangle_in_screen = [
     compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
@@ -201,7 +200,7 @@ sixty_fps_times_2_sec = 120
 # Create 10 frames with simple animation
 for i in range(sixty_fps_times_2_sec):
     fake_fb.clear_framebuffer()
-    move: InvertibleFunction = translate(
+    move: InvertibleFunction[Vector2D] = translate(
         0.5 * (np.sin(np.pi / 60.0 * float(i))) * e_2
     )
 
