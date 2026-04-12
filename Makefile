@@ -7,6 +7,7 @@ USE_EMACS ?= 1
 USE_IMGUI ?= 1
 USE_JUPYTER ?= 1
 USE_SPYDER ?= 1
+USE_X_WINDOWS ?= 1
 
 CONTAINER_CMD = podman
 CONTAINER_NAME = modelviewprojection
@@ -56,6 +57,7 @@ image: ## Build a podman image in which to build the book
                          --build-arg USE_IMGUI=$(USE_IMGUI) \
                          --build-arg USE_JUPYTER=$(USE_JUPYTER) \
                          --build-arg USE_SPYDER=$(USE_SPYDER) \
+                         --build-arg USE_X_WINDOWS=$(USE_X_WINDOWS) \
                          $(ELPA_MOUNT) \
                          -t $(CONTAINER_NAME) \
                          $(PACKAGE_CACHE) \
