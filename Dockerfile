@@ -8,6 +8,9 @@ ARG USE_SPYDER=0
 ARG USE_X_WINDOWS=0
 
 COPY entrypoint/dotfiles/ /root/
+COPY entrypoint/*.sh /usr/local/bin
+COPY entrypoint/entrypoint.sh /
+COPY requirements.txt /requirements.txt
 
 RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      --mount=type=cache,target=/var/lib/dnf \
@@ -28,6 +31,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    python3-pytest \
 		   python3-pytest-lsp \
                    python3-sympy \
+                   python3-virtualenv \
                    python3-wxpython4  \
                    ruff \
                    uv \
@@ -92,7 +96,10 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    mesa-dri-drivers  \
                    mesa-libGLU-devel; \
     fi ; \
-    dnf install -y libatomic && uv pip install --system pyright; \
+    python3 -m venv --system-site-packages /venv/ && \
+    export VIRTUAL_ENV_DISABLE_PROMPT=1  && \
+    source /venv/bin/activate && \
+    dnf install -y libatomic && uv pip install pyright --python $(which python); \
     if [ "$USE_EMACS" = "1" ]; then \
       dnf install -y \
                   emacs \
@@ -115,7 +122,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    myst-nb \
         	   python3-jupyterlab-jupytext \
         	   python3-jupyter-lsp  && \
-       uv pip install --system moviepy; \
+       uv pip install moviepy --python $(which python); \
     fi; \
     if [ "$USE_IMGUI" = "1" ]; then \
        dnf install -y \
@@ -128,7 +135,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
         git clone https://github.com/billsix/pyimgui.git && \
         cd pyimgui && \
         git submodule init && git submodule update && \
-        uv pip install --system . ;\
+        uv pip install . --python $(which python) ;\
      fi ; \
     if [ "$USE_SPYDER" = "1" ]; then \
       dnf install -y spyder && \
@@ -154,22 +161,8 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
     echo "emacs src/modelviewprojection/mathutils3d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils2d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils1d.py" >> ~/.bash_history && \
-    echo "emacs src/modelviewprojection/mathutils.py" >> ~/.bash_history
-
-
-COPY entrypoint/*.sh /usr/local/bin
-COPY entrypoint/entrypoint.sh /
-
-COPY requirements.txt /requirements.txt
-RUN  uv pip install --system -r /requirements.txt && \
-     rm /requirements.txt
-
-
-RUN  --mount=type=cache,target=/var/cache/libdnf5 \
-     --mount=type=cache,target=/var/lib/dnf \
-     dnf install -y wxGTK \
-                    wxGTK-devel \
-                    gcc-g++
-
+    echo "emacs src/modelviewprojection/mathutils.py" >> ~/.bash_history && \
+    grep -v wxpython requirements.txt | uv pip install --python $(which python) -r - && \
+    rm /requirements.txt
 
 ENTRYPOINT ["/entrypoint.sh"]
