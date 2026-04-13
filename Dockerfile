@@ -162,7 +162,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
     echo "emacs src/modelviewprojection/mathutils2d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils1d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils.py" >> ~/.bash_history && \
-    grep -v wxpython requirements.txt | uv pip install --python $(which python) -r - && \
+    grep -v wxpython /requirements.txt | uv pip install --python $(which python) -r - && \
     rm /requirements.txt
 
 ENTRYPOINT ["/entrypoint.sh"]
