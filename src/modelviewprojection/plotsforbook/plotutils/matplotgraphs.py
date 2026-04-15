@@ -36,8 +36,8 @@ plt.scatter(x, y)
 graphBounds = (10, 10)
 
 axes = plt.gca()
-axes.set_xlim([-2.0, graphBounds[0]])
-axes.set_ylim([-2.0, graphBounds[1]])
+axes.set_xlim((-2.0, graphBounds[0]))
+axes.set_ylim((-2.0, graphBounds[1]))
 
 
 if __name__ == "__main__":

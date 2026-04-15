@@ -21,6 +21,7 @@
 import contextlib
 import enum
 import math
+import typing
 
 import numpy as np
 
@@ -33,7 +34,7 @@ class MatrixStack(enum.Enum):
     modelviewprojection = 5
 
 
-__modelStack__: np.matrix = [
+__modelStack__: list[np.matrix] = [
     np.matrix(
         [
             [1.0, 0.0, 0.0, 0.0],
@@ -45,7 +46,7 @@ __modelStack__: np.matrix = [
     )
 ]
 
-__viewStack__: np.matrix = [
+__viewStack__: list[np.matrix] = [
     np.matrix(
         [
             [1.0, 0.0, 0.0, 0.0],
@@ -57,7 +58,7 @@ __viewStack__: np.matrix = [
     )
 ]
 
-__projectionStack__: np.matrix = [
+__projectionStack__: list[np.matrix] = [
     np.matrix(
         [
             [1.0, 0.0, 0.0, 0.0],
@@ -108,18 +109,24 @@ def set_current_matrix(matrixStack: MatrixStack, m: np.matrix) -> None:
 
 def __pushMatrix__(matrixStack: MatrixStack) -> None:
     if matrixStack == MatrixStack.model:
-        __modelStack__.append(np.copy(get_current_matrix(matrixStack)))
+        __modelStack__.append(
+            typing.cast(np.matrix, np.copy(get_current_matrix(matrixStack)))
+        )
     if matrixStack == MatrixStack.view:
-        __viewStack__.append(np.copy(get_current_matrix(matrixStack)))
+        __viewStack__.append(
+            typing.cast(np.matrix, np.copy(get_current_matrix(matrixStack)))
+        )
     if matrixStack == MatrixStack.projection:
-        __projectionStack__.append(np.copy(get_current_matrix(matrixStack)))
+        __projectionStack__.append(
+            typing.cast(np.matrix, np.copy(get_current_matrix(matrixStack)))
+        )
     if matrixStack == MatrixStack.modelview:
         pass
     if matrixStack == MatrixStack.modelviewprojection:
         pass
 
 
-def __popMatrix__(matrixStack: MatrixStack) -> np.matrix:
+def __popMatrix__(matrixStack: MatrixStack) -> None:
     if matrixStack == MatrixStack.model:
         __modelStack__.pop()
     if matrixStack == MatrixStack.view:
@@ -133,7 +140,7 @@ def __popMatrix__(matrixStack: MatrixStack) -> np.matrix:
 
 
 class PushMatrix:
-    def __init__(self, m: np.matrix) -> None:
+    def __init__(self, m: MatrixStack) -> None:
         self.m = m
 
     def __enter__(self) -> None:
@@ -144,7 +151,7 @@ class PushMatrix:
 
 
 @contextlib.contextmanager
-def push_matrix(m: np.matrix):
+def push_matrix(m: MatrixStack):
     """Instead of manually pushing and poping the matrix stack,
     this allows using the "with" keyword."""
     matrixStack = m

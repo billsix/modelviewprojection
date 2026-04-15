@@ -63,10 +63,6 @@ class FrameBuffer:
     def framebuffer(self) -> PIL.Image.Image:
         return PIL.Image.fromarray(self._framebuffer, "RGB")
 
-    @framebuffer.setter
-    def framebuffer(self, value: PIL.Image.Image) -> None:
-        self._framebuffer = value
-
     def show_framebuffer(self) -> None:
         """Display the framebuffer in the Jupyter notebook."""
         display.display(self.framebuffer)

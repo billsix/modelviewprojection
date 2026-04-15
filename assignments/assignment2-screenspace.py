@@ -174,8 +174,6 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
         paddle2.position.y += 1.0
 
-    global paddle_1_rotation, paddle_2_rotation
-
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
     if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:

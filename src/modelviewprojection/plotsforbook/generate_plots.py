@@ -191,8 +191,8 @@ def main():
         """
 
         fig, axes = plt.subplots()
-        axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
-        axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
+        axes.set_xlim((-graph_bounds[0], graph_bounds[0]))
+        axes.set_ylim((-graph_bounds[1], graph_bounds[1]))
 
         procs = procedures.copy()
         procs = list(reversed(procs))
@@ -212,8 +212,8 @@ def main():
         def create_single_frame(accumfn, stepsRemaining, fn, frame_number):
             for round_number in [1] if not forwards else [1, 2]:
                 fig, axes = plt.subplots()
-                axes.set_xlim([-graph_bounds[0], graph_bounds[0]])
-                axes.set_ylim([-graph_bounds[1], graph_bounds[1]])
+                axes.set_xlim((-graph_bounds[0], graph_bounds[0]))
+                axes.set_ylim((-graph_bounds[1], graph_bounds[1]))
 
                 # plot transformed basis
                 for xs, ys, thickness in generategridlines.generategridlines(

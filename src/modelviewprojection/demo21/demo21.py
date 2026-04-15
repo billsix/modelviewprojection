@@ -28,6 +28,7 @@ import OpenGL.GL as GL
 
 # new - SHADERS
 import OpenGL.GL.shaders as shaders
+from numpy.typing import NDArray
 
 import modelviewprojection.colorutils as colorutils
 import modelviewprojection.pyMatrixStack as ms
@@ -100,10 +101,10 @@ if __enable_blend__:
 
 @dataclasses.dataclass
 class Paddle:
-    position: any
+    position: NDArray
     color: colorutils.Color4
     rotation: float = 0.0
-    vertices: np.array = dataclasses.field(
+    vertices: NDArray = dataclasses.field(
         default_factory=lambda: np.array(
             [
                 [-1.0, -3.0, 0.0],
@@ -239,7 +240,7 @@ paddle2.prepare_to_render()
 @dataclasses.dataclass
 class Square(Paddle):
     rotation_around_paddle1: float = 0.0
-    vertices: np.array = dataclasses.field(
+    vertices: NDArray = dataclasses.field(
         default_factory=lambda: np.array(
             [
                 [-0.5, -0.5, 0.0],
@@ -256,7 +257,7 @@ class Square(Paddle):
 
 square = Square(
     color=colorutils.Color4(r=0.0, g=0.0, b=1.0, a=0.75),
-    position=[0.0, 0.0, 0.0],
+    position=np.array([0.0, 0.0, 0.0], dtype=np.float32),
 )
 
 square.prepare_to_render()

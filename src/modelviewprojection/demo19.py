@@ -25,6 +25,7 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from numpy.typing import NDArray
 
 import modelviewprojection.colorutils as colorutils
 
@@ -94,9 +95,9 @@ def draw_in_square_viewport() -> None:
 @dataclasses.dataclass
 class Paddle:
     color: colorutils.Color3
-    position: any
+    position: NDArray
     rotation: float = 0.0
-    vertices: np.array = dataclasses.field(
+    vertices: NDArray = dataclasses.field(
         default_factory=lambda: np.array(
             [
                 [-1.0, -3.0, 0.0],
@@ -187,7 +188,7 @@ def handle_inputs():
         paddle2.rotation -= 0.1
 
 
-square_vertices: np.array = np.array(
+square_vertices: NDArray = np.array(
     [[-0.5, -0.5, 0.0], [0.5, -0.5, 0.0], [0.5, 0.5, 0.0], [-0.5, 0.5, 0.0]],
     dtype=np.float32,
 )

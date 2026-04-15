@@ -136,4 +136,4 @@ def translate(tx, ty):
 
 if __name__ == "__main__":
     # np is need for doctest and don't want autoflake to remove it
-    ignore = np.eye()
+    ignore = np.eye(1)
