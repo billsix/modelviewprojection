@@ -41,6 +41,13 @@ e_2 = Vector3D.e_2()
 e_3 = Vector3D.e_3()
 
 
+import os
+
+if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
+    "PYOPENGL_PLATFORM"
+):
+    os.environ["PYOPENGL_PLATFORM"] = "x11"
+
 if not glfw.init():
     sys.exit()
 

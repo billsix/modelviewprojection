@@ -15,10 +15,17 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
+import os
 import sys
 
 import glfw
 import OpenGL.GL as GL
+
+if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
+    "PYOPENGL_PLATFORM"
+):
+    os.environ["PYOPENGL_PLATFORM"] = "x11"
+
 
 if not glfw.init():
     sys.exit()

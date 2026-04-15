@@ -16,12 +16,17 @@
 # Boston, MA 02111-1307, USA.
 
 # doc-region-begin import first module
+# doc-region-end import first module
+import os
 import sys
 
 import glfw
 import OpenGL.GL as GL
 
-# doc-region-end import first module
+if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
+    "PYOPENGL_PLATFORM"
+):
+    os.environ["PYOPENGL_PLATFORM"] = "x11"
 
 # doc-region-begin initialize glfw
 if not glfw.init():

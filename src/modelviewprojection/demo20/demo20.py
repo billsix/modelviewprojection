@@ -33,6 +33,11 @@ import modelviewprojection.colorutils as colorutils
 
 # doc-region-end new imports
 
+if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
+    "PYOPENGL_PLATFORM"
+):
+    os.environ["PYOPENGL_PLATFORM"] = "x11"
+
 
 if not glfw.init():
     sys.exit()

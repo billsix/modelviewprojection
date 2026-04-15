@@ -17,6 +17,7 @@
 
 
 import dataclasses
+import os
 import sys
 
 import glfw
@@ -32,6 +33,12 @@ from modelviewprojection.mathutils import (
     translate,
     uniform_scale,
 )
+
+if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
+    "PYOPENGL_PLATFORM"
+):
+    os.environ["PYOPENGL_PLATFORM"] = "x11"
+
 
 e_1 = Vector3D.e_1()
 e_2 = Vector3D.e_2()
