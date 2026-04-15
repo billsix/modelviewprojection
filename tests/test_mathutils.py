@@ -47,49 +47,45 @@ from modelviewprojection.mathutils import (
     uniform_scale,
 )
 
-e_1_1d = Vector1D.e_1()
-
-e_1_2d = Vector2D.e_1()
-e_2_2d = Vector2D.e_2()
-zero_2d = Vector2D.zero()
-
-e_1_3d = Vector3D.e_1()
-e_2_3d = Vector3D.e_2()
-e_3_3d = Vector3D.e_3()
-zero_3d = Vector3D.zero()
-
 
 # doc-region-begin test add
 def test__vec1__add__():
-    result: Vector = 1 * e_1_1d + 3 * e_1_1d
-    assert result.isclose(4 * e_1_1d)
+    e_1: Vector1D = Vector1D.e_1()
+
+    result: Vector = 1 * e_1 + 3 * e_1
+    assert result.isclose(4 * e_1)
     # doc-region-end test add
 
 
 # doc-region-begin test substract
 def test__vec1__sub__():
-    result: Vector = 5 * e_1_1d - (1 * e_1_1d)
-    assert result.isclose(4 * e_1_1d)
+    e_1: Vector1D = Vector1D.e_1()
+
+    result: Vector = 5 * e_1 - (1 * e_1)
+    assert result.isclose(4 * e_1)
     # doc-region-end test substract
 
 
 def test__vec1__mul__():
-    result = (2 * e_1_1d) * 4
-    assert result.isclose(8 * e_1_1d)
+    e_1: Vector1D = Vector1D.e_1()
+    result = (2 * e_1) * 4
+    assert result.isclose(8 * e_1)
 
 
 def test__vec1__rmul__():
-    result = 4 * (2 * e_1_1d)
-    assert result.isclose(8 * e_1_1d)
+    e_1: Vector1D = Vector1D.e_1()
+    result = 4 * (2 * e_1)
+    assert result.isclose(8 * e_1)
 
 
 def test__vec1__neg__():
-    result = -(2 * e_1_1d)
-    assert result.isclose(-2 * e_1_1d)
+    e_1: Vector1D = Vector1D.e_1()
+    result = -(2 * e_1)
+    assert result.isclose(-2 * e_1)
 
 
 def wrap_vec1_test(
-    fn: InvertibleFunction, input_val: Vector1D, output_val: Vector1D
+    fn: InvertibleFunction[Vector1D], input_val: Vector1D, output_val: Vector1D
 ):
     out: Vector = fn(input_val)
     assert out.isclose(output_val)
@@ -97,18 +93,20 @@ def wrap_vec1_test(
 
 # doc-region-begin translate test
 def test__vec1_translate():
-    fn: InvertibleFunction = translate(2 * e_1_1d)
-    fn_inv: InvertibleFunction = inverse(fn)
+    e_1: Vector1D = Vector1D.e_1()
+
+    fn: InvertibleFunction[Vector1D] = translate(2 * e_1)
+    fn_inv: InvertibleFunction[Vector1D] = inverse(fn)
 
     input_output_pairs: list[tuple[Vector1D, Vector1D]] = [
-        [(-3 * e_1_1d), (-1 * e_1_1d)],
-        [(-2 * e_1_1d), (0 * e_1_1d)],
-        [(-1 * e_1_1d), (1 * e_1_1d)],
-        [(0 * e_1_1d), (2 * e_1_1d)],
-        [(1 * e_1_1d), (3 * e_1_1d)],
-        [(2 * e_1_1d), (4 * e_1_1d)],
-        [(3 * e_1_1d), (5 * e_1_1d)],
-        [(4 * e_1_1d), (6 * e_1_1d)],
+        [(-3 * e_1), (-1 * e_1)],
+        [(-2 * e_1), (0 * e_1)],
+        [(-1 * e_1), (1 * e_1)],
+        [(0 * e_1), (2 * e_1)],
+        [(1 * e_1), (3 * e_1)],
+        [(2 * e_1), (4 * e_1)],
+        [(3 * e_1), (5 * e_1)],
+        [(4 * e_1), (6 * e_1)],
     ]
     for input_val, output_val in input_output_pairs:
         wrap_vec1_test(fn, input_val, output_val)
@@ -119,21 +117,25 @@ def test__vec1_translate():
 
 
 def test__vec1_mx_plus_b():
-    m = 5
-    b = 2
+    e_1: Vector1D = Vector1D.e_1()
 
-    fn: InvertibleFunction = compose([translate(b * e_1_1d), uniform_scale(m)])
-    fn_inv: InvertibleFunction = inverse(fn)
+    m: int = 5
+    b: int = 2
+
+    fn: InvertibleFunction[Vector1D] = compose(
+        [translate(b * e_1), uniform_scale(m)]
+    )
+    fn_inv: InvertibleFunction[Vector1D] = inverse(fn)
 
     input_output_pairs: list[tuple[Vector1D, Vector1D]] = [
-        [(-3 * e_1_1d), (-13 * e_1_1d)],
-        [(-2 * e_1_1d), (-8 * e_1_1d)],
-        [(-1 * e_1_1d), (-3 * e_1_1d)],
-        [(-0 * e_1_1d), (2 * e_1_1d)],
-        [(1 * e_1_1d), (7 * e_1_1d)],
-        [(2 * e_1_1d), (12 * e_1_1d)],
-        [(3 * e_1_1d), (17 * e_1_1d)],
-        [(4 * e_1_1d), (22 * e_1_1d)],
+        [(-3 * e_1), (-13 * e_1)],
+        [(-2 * e_1), (-8 * e_1)],
+        [(-1 * e_1), (-3 * e_1)],
+        [(-0 * e_1), (2 * e_1)],
+        [(1 * e_1), (7 * e_1)],
+        [(2 * e_1), (12 * e_1)],
+        [(3 * e_1), (17 * e_1)],
+        [(4 * e_1), (22 * e_1)],
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -142,18 +144,20 @@ def test__vec1_mx_plus_b():
 
 
 def test_vec1_uniform_scale():
-    fn: InvertibleFunction = uniform_scale(4)
-    fn_inv: InvertibleFunction = inverse(fn)
+    e_1: Vector1D = Vector1D.e_1()
+
+    fn: InvertibleFunction[Vector1D] = uniform_scale(4)
+    fn_inv: InvertibleFunction[Vector1D] = inverse(fn)
 
     input_output_pairs: list[tuple[Vector1D, Vector1D]] = [
-        [(-3 * e_1_1d), (-12 * e_1_1d)],
-        [(-2 * e_1_1d), (-8 * e_1_1d)],
-        [(-1 * e_1_1d), (-4 * e_1_1d)],
-        [(0 * e_1_1d), (0 * e_1_1d)],
-        [(1 * e_1_1d), (4 * e_1_1d)],
-        [(2 * e_1_1d), (8 * e_1_1d)],
-        [(3 * e_1_1d), (12 * e_1_1d)],
-        [(4 * e_1_1d), (16 * e_1_1d)],
+        [(-3 * e_1), (-12 * e_1)],
+        [(-2 * e_1), (-8 * e_1)],
+        [(-1 * e_1), (-4 * e_1)],
+        [(0 * e_1), (0 * e_1)],
+        [(1 * e_1), (4 * e_1)],
+        [(2 * e_1), (8 * e_1)],
+        [(3 * e_1), (12 * e_1)],
+        [(4 * e_1), (16 * e_1)],
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -162,25 +166,29 @@ def test_vec1_uniform_scale():
 
 
 def test_vec1_tempature_conversion():
+    e_1: Vector1D = Vector1D.e_1()
+
     def test_vec1_vector1d_function(
-        fn: InvertibleFunction,
+        fn: InvertibleFunction[Vector1D],
         input_output_pairs: list[list[float]],
     ):
         for input_val, output_val in input_output_pairs:
-            assert fn(input_val * e_1_1d).isclose(output_val * e_1_1d)
-            assert inverse(fn)(output_val * e_1_1d).isclose(input_val * e_1_1d)
+            assert fn(input_val * e_1).isclose(output_val * e_1)
+            assert inverse(fn)(output_val * e_1).isclose(input_val * e_1)
 
     # doc-region-begin temperature functions
-    celsius_to_kelvin: InvertibleFunction = translate(273.15 * e_1_1d)
-    fahrenheit_to_celsius: InvertibleFunction = compose(
-        [uniform_scale(5.0 / 9.0), translate(-32.0 * e_1_1d)]
+    celsius_to_kelvin: InvertibleFunction[Vector1D] = translate(273.15 * e_1)
+    fahrenheit_to_celsius: InvertibleFunction[Vector1D] = compose(
+        [uniform_scale(5.0 / 9.0), translate(-32.0 * e_1)]
     )
-    fahrenheit_to_kelvin: InvertibleFunction = compose(
+    fahrenheit_to_kelvin: InvertibleFunction[Vector1D] = compose(
         [celsius_to_kelvin, fahrenheit_to_celsius]
     )
-    kelvin_to_celsius: InvertibleFunction = inverse(celsius_to_kelvin)
-    celsius_to_fahrenheit: InvertibleFunction = inverse(fahrenheit_to_celsius)
-    kelvin_to_fahrenheit: InvertibleFunction = compose(
+    kelvin_to_celsius: InvertibleFunction[Vector1D] = inverse(celsius_to_kelvin)
+    celsius_to_fahrenheit: InvertibleFunction[Vector1D] = inverse(
+        fahrenheit_to_celsius
+    )
+    kelvin_to_fahrenheit: InvertibleFunction[Vector1D] = compose(
         [celsius_to_fahrenheit, kelvin_to_celsius]
     )
 
@@ -231,7 +239,7 @@ def test_vec1_tempature_conversion():
 
 
 def wrap_vec2_test(
-    fn: InvertibleFunction, input_val: Vector2D, output_val: Vector2D
+    fn: InvertibleFunction[Vector2D], input_val: Vector2D, output_val: Vector2D
 ):
     out: Vector = fn(input_val)
     assert out.isclose(output_val)
@@ -239,18 +247,22 @@ def wrap_vec2_test(
 
 # doc-region-begin test add
 def test_vec2___add__():
-    result: Vector = 1 * e_1_2d + 2 * e_2_2d + 3 * e_1_2d + 4 * e_2_2d
-    assert result.isclose(4 * e_1_2d + 6 * e_2_2d)
+    e_1: Vector2D = Vector2D.e_1()
+    e_2: Vector2D = Vector2D.e_2()
+    zero: Vector2D = Vector2D.zero()
+
+    result: Vector = 1 * e_1 + 2 * e_2 + 3 * e_1 + 4 * e_2
+    assert result.isclose(4 * e_1 + 6 * e_2)
     # doc-region-end test add
 
     input_output_pairs: list[tuple[tuple[Vector2D, Vector2D], Vector2D]] = [
-        ((zero_2d, zero_2d), zero_2d),
-        ((e_1_2d, e_2_2d), e_1_2d + e_2_2d),
+        ((zero, zero), zero),
+        ((e_1, e_2), e_1 + e_2),
         (
-            (e_1_2d + 2 * e_2_2d, 3 * e_1_2d + 4 * e_2_2d),
-            4 * e_1_2d + 6 * e_2_2d,
+            (e_1 + 2 * e_2, 3 * e_1 + 4 * e_2),
+            4 * e_1 + 6 * e_2,
         ),
-        ((2 * e_2_2d, 3 * e_1_2d), 3 * e_1_2d + 2 * e_2_2d),
+        ((2 * e_2, 3 * e_1), 3 * e_1 + 2 * e_2),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -259,16 +271,20 @@ def test_vec2___add__():
 
 # doc-region-begin test substract
 def test_vec2___sub__():
-    result: Vector = (4 * e_1_2d + 6 * e_2_2d) - (3 * e_1_2d + 4 * e_2_2d)
-    assert result.isclose(1 * e_1_2d + 2 * e_2_2d)
+    e_1: Vector2D = Vector2D.e_1()
+    e_2: Vector2D = Vector2D.e_2()
+    zero: Vector2D = Vector2D.zero()
+
+    result: Vector = (4 * e_1 + 6 * e_2) - (3 * e_1 + 4 * e_2)
+    assert result.isclose(1 * e_1 + 2 * e_2)
     # doc-region-end test substract
 
     input_output_pairs: list[tuple[tuple[Vector2D, Vector2D], Vector2D]] = [
-        ((zero_2d, zero_2d), zero_2d),
-        ((e_1_2d, e_2_2d), e_1_2d - e_2_2d),
+        ((zero, zero), zero),
+        ((e_1, e_2), e_1 - e_2),
         (
-            (5 * e_1_2d + 8 * e_2_2d, e_1_2d + 2 * e_2_2d),
-            4 * e_1_2d + 6 * e_2_2d,
+            (5 * e_1 + 8 * e_2, e_1 + 2 * e_2),
+            4 * e_1 + 6 * e_2,
         ),
     ]
 
@@ -380,13 +396,17 @@ def test_vec2_is_counter_clockwise():
 
 # doc-region-begin translate test
 def test_vec2_translate():
-    fn: InvertibleFunction = translate(2 * e_1_2d + 3 * e_2_2d)
-    fn_inv: InvertibleFunction = inverse(fn)
+    e_1: Vector2D = Vector2D.e_1()
+    e_2: Vector2D = Vector2D.e_2()
+    zero: Vector2D = Vector2D.zero()
+
+    fn: InvertibleFunction[Vector2D] = translate(2 * e_1 + 3 * e_2)
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
     input_output_pairs: list[tuple[Vector2D, Vector2D]] = [
-        (zero_2d, 2 * e_1_2d + 3 * e_2_2d),
-        (e_1_2d, 3 * e_1_2d + 3 * e_2_2d),
-        (e_2_2d, 2 * e_1_2d + 4 * e_2_2d),
+        (zero, 2 * e_1 + 3 * e_2),
+        (e_1, 3 * e_1 + 3 * e_2),
+        (e_2, 2 * e_1 + 4 * e_2),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -398,15 +418,19 @@ def test_vec2_translate():
 
 
 def test_vec2_compose():
-    fn: InvertibleFunction = translate(Vector2D(x=2, y=3))
-    fn_inv: InvertibleFunction = inverse(fn)
+    e_1: Vector2D = Vector2D.e_1()
+    e_2: Vector2D = Vector2D.e_2()
+    zero: Vector2D = Vector2D.zero()
 
-    identity_fn: InvertibleFunction = compose([fn_inv, fn])
+    fn: InvertibleFunction[Vector2D] = translate(Vector2D(x=2, y=3))
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
+
+    identity_fn: InvertibleFunction[Vector2D] = compose([fn_inv, fn])
 
     input_output_pairs: list[tuple[Vector2D, Vector2D]] = [
-        (zero_2d, zero_2d),
-        (e_1_2d, e_1_2d),
-        (e_2_2d, e_2_2d),
+        (zero, zero),
+        (e_1, e_1),
+        (e_2, e_2),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -414,13 +438,17 @@ def test_vec2_compose():
 
 
 def test_vec2_uniform_scale():
-    fn: InvertibleFunction = uniform_scale(4)
-    fn_inv: InvertibleFunction = inverse(fn)
+    e_1: Vector2D = Vector2D.e_1()
+    e_2: Vector2D = Vector2D.e_2()
+    zero: Vector2D = Vector2D.zero()
+
+    fn: InvertibleFunction[Vector2D] = uniform_scale(4)
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
     input_output_pairs: list[tuple[Vector2D, Vector2D]] = [
-        (zero_2d, zero_2d),
-        (e_1_2d, 4 * e_1_2d),
-        (e_2_2d, 4 * e_2_2d),
+        (zero, zero),
+        (e_1, 4 * e_1),
+        (e_2, 4 * e_2),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -429,13 +457,18 @@ def test_vec2_uniform_scale():
 
 
 def test_vec2_scale():
-    fn: InvertibleFunction = scale_non_uniform_2d(m_x=2, m_y=3)
-    fn_inv: InvertibleFunction = inverse(fn)
+
+    e_1: Vector2D = Vector2D.e_1()
+    e_2: Vector2D = Vector2D.e_2()
+    zero: Vector2D = Vector2D.zero()
+
+    fn: InvertibleFunction[Vector2D] = scale_non_uniform_2d(m_x=2, m_y=3)
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
     input_output_pairs: list[tuple[Vector2D, Vector2D]] = [
-        (zero_2d, zero_2d),
-        (e_1_2d, 2 * e_1_2d),
-        (e_2_2d, 3 * e_2_2d),
+        (zero, zero),
+        (e_1, 2 * e_1),
+        (e_2, 3 * e_2),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -444,15 +477,20 @@ def test_vec2_scale():
 
 
 def test_vec2_rotate_90():
-    fn: InvertibleFunction = rotate_90_degrees()
-    fn_inv: InvertibleFunction = inverse(fn)
+
+    e_1: Vector2D = Vector2D.e_1()
+    e_2: Vector2D = Vector2D.e_2()
+    zero: Vector2D = Vector2D.zero()
+
+    fn: InvertibleFunction[Vector2D] = rotate_90_degrees()
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
     input_output_pairs: list[tuple[Vector2D, Vector2D]] = [
-        (zero_2d, zero_2d),
-        (e_1_2d, e_2_2d),
-        (e_2_2d, -1 * e_1_2d),
-        (-1 * e_1_2d, -1 * e_2_2d),
-        (-1 * e_2_2d, 1 * e_1_2d),
+        (zero, zero),
+        (e_1, e_2),
+        (e_2, -1 * e_1),
+        (-1 * e_1, -1 * e_2),
+        (-1 * e_2, 1 * e_1),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -461,12 +499,17 @@ def test_vec2_rotate_90():
 
 
 def test_vec2_rotate():
-    fn: InvertibleFunction = rotate(math.radians(53.130102))
-    fn_inv: InvertibleFunction = inverse(fn)
+
+    e_1: Vector2D = Vector2D.e_1()
+    e_2: Vector2D = Vector2D.e_2()
+    zero: Vector2D = Vector2D.zero()
+
+    fn: InvertibleFunction[Vector2D] = rotate(math.radians(53.130102))
+    fn_inv: InvertibleFunction[Vector2D] = inverse(fn)
 
     input_output_pairs: list[tuple[Vector2D, Vector2D]] = [
-        (zero_2d, zero_2d),
-        (5 * e_1_2d, 3 * e_1_2d + 4 * e_2_2d),
+        (zero, zero),
+        (5 * e_1, 3 * e_1 + 4 * e_2),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -476,49 +519,92 @@ def test_vec2_rotate():
 
 # doc-region-begin test add
 def test_vec3___add__():
-    result: Vector = Vector3D(x=1, y=3, z=5) + Vector3D(x=2, y=4, z=6)
-    assert result.isclose(Vector3D(x=3, y=7, z=11))
+
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    result: Vector = (1 * e_1 + 3 * e_2 + 5 * e_3) + (
+        2 * e_1 + 4 * e_2 + 6 * e_3
+    )
+    assert result.isclose((3 * e_1 + 7 * e_2 + 11 * e_3))
     # doc-region-end test add
 
 
 # doc-region-begin test substract
 def test_vec3___sub__():
-    result: Vector = Vector3D(x=3, y=7, z=11) - Vector3D(x=2, y=4, z=6)
-    assert result.isclose(Vector3D(x=1, y=3, z=5))
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    result: Vector = (3 * e_1 + 7 * e_2 + 11 * e_3) - (
+        2 * e_1 + 4 * e_2 + 6 * e_3
+    )
+    assert result.isclose(1 * e_1 + 3 * e_2 + 5 * e_3)
     # doc-region-end test substract
 
 
 def test_vec3___mul__():
-    result = Vector3D(x=2, y=3, z=4) * 4
-    assert result.isclose(Vector3D(x=8, y=12, z=16))
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    result = (2 * e_1 + 3 * e_2 + 4 * e_3) * 4
+    assert result.isclose(8 * e_1 + 12 * e_2 + 16 * e_3)
 
 
 def test_vec3___rmul__():
-    result = 4 * Vector3D(x=2, y=3, z=4)
-    assert result.isclose(Vector3D(x=8, y=12, z=16))
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    result = 4 * (2 * e_1 + 3 * e_2 + 4 * e_3)
+    assert result.isclose(8 * e_1 + 12 * e_2 + 16 * e_3)
 
 
 def test_vec3___neg__():
-    result = -Vector3D(x=2, y=3, z=4)
-    assert result.isclose(Vector3D(x=-2, y=-3, z=-4))
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    result = -((2 * e_1) + (3 * e_2) + (4 * e_3))
+    assert result.isclose((-2 * e_1) + (-3 * e_2) + (-4 * e_3))
 
 
 def wrap_vec3_test(
-    fn: InvertibleFunction, input_val: list[float], output_val: list[float]
+    fn: InvertibleFunction[Vector3D],
+    input_val: Vector3D,
+    output_val: Vector3D,
 ):
-    out: Vector = fn(Vector3D(*input_val))
-    assert out.isclose(Vector3D(*output_val))
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    out: Vector = fn(input_val)
+    assert out.isclose(output_val)
 
 
 # doc-region-begin translate test
 def test_vec3_translate():
-    fn: InvertibleFunction = translate(Vector3D(x=2, y=3, z=4))
-    fn_inv: InvertibleFunction = inverse(fn)
 
-    input_output_pairs = [
-        [[0, 0, 0], [2, 3, 4]],
-        [[1, 0, 0], [3, 3, 4]],
-        [[0, 1, 0], [2, 4, 4]],
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    fn: InvertibleFunction[Vector3D] = translate(2 * e_1 + 3 * e_2 + 4 * e_3)
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs: list[tuple[Vector3D, Vector3D]] = [
+        (zero, 2 * e_1 + 3 * e_2 + 4 * e_3),
+        (e_1, 3 * e_1 + 3 * e_2 + 4 * e_3),
+        (e_2, 2 * e_1 + 4 * e_2 + 4 * e_3),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -530,14 +616,20 @@ def test_vec3_translate():
 
 
 def test_vec3_uniform_scale():
-    fn: InvertibleFunction = uniform_scale(4)
-    fn_inv: InvertibleFunction = inverse(fn)
 
-    input_output_pairs = [
-        [[0, 0, 0], [0, 0, 0]],
-        [[1, 0, 0], [4, 0, 0]],
-        [[0, 1, 0], [0, 4, 0]],
-        [[0, 0, 1], [0, 0, 4]],
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    fn: InvertibleFunction[Vector3D] = uniform_scale(4)
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs: list[tuple[Vector3D, Vector3D]] = [
+        (zero, zero),
+        (e_1, 4 * e_1),
+        (e_2, 4 * e_2),
+        (e_3, 4 * e_3),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -546,14 +638,20 @@ def test_vec3_uniform_scale():
 
 
 def test_vec3_scale():
-    fn: InvertibleFunction = scale_non_uniform_3d(m_x=2, m_y=3, m_z=4)
-    fn_inv: InvertibleFunction = inverse(fn)
 
-    input_output_pairs = [
-        [[0, 0, 0], [0, 0, 0]],
-        [[1, 0, 0], [2, 0, 0]],
-        [[0, 1, 0], [0, 3, 0]],
-        [[0, 0, 1], [0, 0, 4]],
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    fn: InvertibleFunction[Vector3D] = scale_non_uniform_3d(m_x=2, m_y=3, m_z=4)
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs: list[tuple[Vector3D, Vector3D]] = [
+        (zero, zero),
+        (e_1, 2 * e_1),
+        (e_2, 3 * e_2),
+        (e_3, 4 * e_3),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -562,13 +660,19 @@ def test_vec3_scale():
 
 
 def test_vec3_rotate_x():
-    fn: InvertibleFunction = rotate_x(math.radians(53.130102))
-    fn_inv: InvertibleFunction = inverse(fn)
 
-    input_output_pairs = [
-        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-        [[0.0, 5.0, 0.0], [0.0, 3.0, 4.0]],
-        [[0.0, 0.0, 5.0], [0.0, -4.0, 3.0]],
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    fn: InvertibleFunction[Vector3D] = rotate_x(math.radians(53.130102))
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs: list[tuple[Vector3D, Vector3D]] = [
+        (zero, zero),
+        (5 * e_2, 3 * e_2 + 4 * e_3),
+        (5 * e_3, -4 * e_2 + 3 * e_3),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -577,13 +681,19 @@ def test_vec3_rotate_x():
 
 
 def test_vec3_rotate_y():
-    fn: InvertibleFunction = rotate_y(math.radians(53.130102))
-    fn_inv: InvertibleFunction = inverse(fn)
 
-    input_output_pairs = [
-        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-        [[0.0, 0.0, 5.0], [4.0, 0.0, 3.0]],
-        [[5.0, 0.0, 0.0], [3.0, 0.0, -4.0]],
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    fn: InvertibleFunction[Vector3D] = rotate_y(math.radians(53.130102))
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs: list[tuple[Vector3D, Vector3D]] = [
+        (zero, zero),
+        (5 * e_3, 3 * e_3 + 4 * e_1),
+        (5 * e_1, -4 * e_3 + 3 * e_1),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -592,13 +702,19 @@ def test_vec3_rotate_y():
 
 
 def test_vec3_rotate_z():
-    fn: InvertibleFunction = rotate_z(math.radians(53.130102))
-    fn_inv: InvertibleFunction = inverse(fn)
 
-    input_output_pairs = [
-        [[0.0, 0.0, 0.0], [0.0, 0.0, 0.0]],
-        [[5.0, 0.0, 0.0], [3.0, 4.0, 0.0]],
-        [[0.0, 5.0, 0.0], [-4.0, 3.0, 0.0]],
+    e_1: Vector3D = Vector3D.e_1()
+    e_2: Vector3D = Vector3D.e_2()
+    e_3: Vector3D = Vector3D.e_3()
+    zero: Vector3D = Vector3D.zero()
+
+    fn: InvertibleFunction[Vector3D] = rotate_z(math.radians(53.130102))
+    fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
+
+    input_output_pairs: list[tuple[Vector3D, Vector3D]] = [
+        (zero, zero),
+        (5 * e_1, 3 * e_1 + 4 * e_2),
+        (5 * e_2, -4 * e_1 + 3 * e_2),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -608,40 +724,38 @@ def test_vec3_rotate_z():
 
 # doc-region-begin function stack examples definitions
 def test_vec3_fn_stack():
-    identity: InvertibleFunction = uniform_scale(1)
+    e_1: Vector1D = Vector1D.e_1()
+
+    identity: InvertibleFunction[Vector1D] = uniform_scale(1)
 
     fn_stack.push(identity)
-    assert 1 * e_1_1d == fn_stack.modelspace_to_ndc_fn()(1 * e_1_1d)
+    assert 1 * e_1 == fn_stack.modelspace_to_ndc_fn()(1 * e_1)
 
-    add_one: InvertibleFunction = translate(1 * e_1_1d)
+    add_one: InvertibleFunction[Vector1D] = translate(1 * e_1)
 
     fn_stack.push(add_one)
-    assert 2 * e_1_1d == fn_stack.modelspace_to_ndc_fn()(
-        1 * e_1_1d
-    )  # x + 1 = 2
+    assert 2 * e_1 == fn_stack.modelspace_to_ndc_fn()(1 * e_1)  # x + 1 = 2
 
-    multiply_by_2: InvertibleFunction = uniform_scale(2)
+    multiply_by_2: InvertibleFunction[Vector1D] = uniform_scale(2)
 
     fn_stack.push(multiply_by_2)  # (x * 2) + 1 = 3
-    assert 3 * e_1_1d == fn_stack.modelspace_to_ndc_fn()(1 * e_1_1d)
+    assert 3 * e_1 == fn_stack.modelspace_to_ndc_fn()(1 * e_1)
 
-    add_5: InvertibleFunction = translate(5 * e_1_1d)
+    add_5: InvertibleFunction[Vector1D] = translate(5 * e_1)
 
     fn_stack.push(add_5)  # ((x + 5) * 2) + 1 = 13
-    assert 13 * e_1_1d == fn_stack.modelspace_to_ndc_fn()(1 * e_1_1d)
+    assert 13 * e_1 == fn_stack.modelspace_to_ndc_fn()(1 * e_1)
 
     fn_stack.pop()
-    assert 3 * e_1_1d == fn_stack.modelspace_to_ndc_fn()(
-        1 * e_1_1d
+    assert 3 * e_1 == fn_stack.modelspace_to_ndc_fn()(
+        1 * e_1
     )  # (x * 2) + 1 = 3
 
     fn_stack.pop()
-    assert 2 * e_1_1d == fn_stack.modelspace_to_ndc_fn()(
-        1 * e_1_1d
-    )  # x + 1 = 2
+    assert 2 * e_1 == fn_stack.modelspace_to_ndc_fn()(1 * e_1)  # x + 1 = 2
 
     fn_stack.pop()
-    assert 1 * e_1_1d == fn_stack.modelspace_to_ndc_fn()(1 * e_1_1d)  # x = 1
+    assert 1 * e_1 == fn_stack.modelspace_to_ndc_fn()(1 * e_1)  # x = 1
     # doc-region-end function stack examples definitions
 
 
