@@ -35,7 +35,7 @@ def test_first_class_functions():
 
 # doc-region-begin test factorial no recursion
 def test_factorial_no_recursion():
-    def factorial(n: int, f: typing.Callable[[int], int]) -> int:
+    def factorial(n, f):
         if n == 1:
             return 1
         else:
