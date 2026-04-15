@@ -30,7 +30,7 @@
 # represent a framebuffer, and see how it works.
 
 # %%
-# Copyright (c) 2025 William Emerison Six
+# Copyright (c) 2025-2026 William Emerison Six
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
