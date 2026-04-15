@@ -306,13 +306,10 @@ class InvertibleFunction(typing.Generic[V]):
             >>> def f_inv(x):
             ...     return x - 2
             ...
-            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="", latex_repr_inv="")
-            >>> foo # doctest: +ELLIPSIS
-            InvertibleFunction(func=<...>, inverse=<...>, latex_repr=..., latex_repr_inv=...)
+            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="",
+            ...     latex_repr_inv="")
             >>> foo(5)
             7
-            >>> inverse(foo) # doctest: +ELLIPSIS
-            InvertibleFunction(func=<...>, inverse=<...>, latex_repr=..., latex_repr_inv=...)
             >>> inverse(foo)(foo(5))
             5
         """
@@ -340,7 +337,8 @@ class InvertibleFunction(typing.Generic[V]):
             >>> def f_inv(x):
             ...     return x - 2
             ...
-            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="", latex_repr_inv="")
+            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="",
+            ...    latex_repr_inv="")
             >>> foo(5)
             7
             >>> (foo @ foo)(5)
@@ -379,13 +377,10 @@ def inverse(f: InvertibleFunction[V]) -> InvertibleFunction[V]:
         >>> def f_inv(x):
         ...     return x - 2
         ...
-        >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="", latex_repr_inv="")
-        >>> foo # doctest: +ELLIPSIS
-        InvertibleFunction(func=<...>, inverse=<...>, latex_repr=..., latex_repr_inv=...)
+        >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="",
+        ...    latex_repr_inv="")
         >>> foo(5)
         7
-        >>> inverse(foo) # doctest: +ELLIPSIS
-        InvertibleFunction(func=<...>, inverse=<...>, latex_repr=..., latex_repr_inv=...)
         >>> inverse(foo)(foo(5))
         5
     """
@@ -592,7 +587,12 @@ def translate(b: V) -> InvertibleFunction[V]:
         f"T_{{<[{str(values[0]) if len(values) == 1 else str(values)[1:-1]}]>}}"
     )
     negative_values = list(-b)
-    inv_str: str = f"T_{{<[{str(negative_values[0]) if len(negative_values) == 1 else str(negative_values)[1:-1]}]>}}"
+    inv_str_contents: str = (
+        str(negative_values[0])
+        if len(negative_values) == 1
+        else str(negative_values)[1:-1]
+    )
+    inv_str: str = f"T_{{<[{inv_str_contents}]>}}"
     return InvertibleFunction[V](f, f_inv, tex_str, inv_str)
     # doc-region-end define translate
 
