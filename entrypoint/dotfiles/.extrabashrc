@@ -1,0 +1,9 @@
+alias ls='ls --color=auto'
+export GPG_TTY=$(tty)
+exit() {
+    echo "Formatting on shell exit"
+    cd /mvp/src/ && format.sh
+    builtin exit "$@"
+}
+cd /mvp/
+PS1='\[\e[36m\]┌─(\t) \[\e[32m\]\u@\h:\w\n\[\e[36m\]└─λ \[\e[0m\]'

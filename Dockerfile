@@ -108,8 +108,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                   emacs-gtk+x11 \
                   emacs-pgtk \
                   python3-lsp-server && \
-      emacs --batch --load /root/.emacs.d/install-melpa-packages.el && \
-      echo "alias ls='ls --color=auto'" >> ~/.bashrc ;\
+      emacs --batch --load /root/.emacs.d/install-melpa-packages.el; \
     fi ; \
     if [ "$USE_JUPYTER" = "1" ]; then \
        dnf install -y \
@@ -153,14 +152,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
       echo "font/family = Adwaita Mono" >> ~/.config/spyder-py3/config/spyder.ini && \
       echo "font/size = 18" >> ~/.config/spyder-py3/config/spyder.ini; \
     fi ; \
-    echo 'export GPG_TTY=$(tty)' >> ~/.bashrc && \
-    echo "exit() {" >> ~/.bashrc && \
-    echo "    echo "Formatting on shell exit"" >> ~/.bashrc && \
-    echo "    cd /mvp/src/ && format.sh" >> ~/.bashrc && \
-    echo "    builtin exit "$@"" >> ~/.bashrc && \
-    echo "}" >> ~/.bashrc && \
-    echo "cd /mvp/" >> ~/.bashrc && \
-    echo "PS1='\[\e[36m\]┌─(\t) \[\e[32m\]\u@\h:\w\n\[\e[36m\]└─λ \[\e[0m\]'" >> ~/.bashrc && \
+    echo "source ~/.extrabashrc" >> ~/.bashrc && \
     echo "emacs src/modelviewprojection/mathutils3d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils2d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils1d.py" >> ~/.bash_history && \
