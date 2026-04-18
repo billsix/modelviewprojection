@@ -3,6 +3,7 @@ export GPG_TTY=$(tty)
 exit() {
     echo "Formatting on shell exit"
     cd /mvp/src/ && format.sh
+    cd /mvp/tests/ && format.sh
     builtin exit "$@"
 }
 cd /mvp/
