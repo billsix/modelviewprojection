@@ -16,6 +16,15 @@ TMUX_FILE := $(HOME)/.tmux.conf
 TMUX_REAL_PATH := $(shell readlink -f $(TMUX_FILE))
 TMUX_MOUNT := $(shell if [ -f $(TMUX_REAL_PATH) ]; then echo "-v $(TMUX_REAL_PATH):/root/.tmux.conf:Z" ; fi)
 
+GITCONFIG_FILE := $(HOME)/.gitconfig
+GITCONFIG_REAL_PATH := $(shell readlink -f $(GITCONFIG_FILE))
+GITCONFIG_MOUNT := $(shell if [ -f $(GITCONFIG_REAL_PATH) ]; then echo "-v $(GITCONFIG_REAL_PATH):/root/.gitconfig:Z" ; fi)
+
+GNUPG_FILE := $(HOME)/.gnupg
+GNUPG_REAL_PATH := $(shell readlink -f $(GNUPG_FILE))
+GNUPG_MOUNT := $(shell if [ -d $(GNUPG_REAL_PATH) ]; then echo "-v $(GNUPG_REAL_PATH):/root/.gnupg:Z" ; fi)
+
+
 
 FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 		-v ./entrypoint/entrypoint.sh:/entrypoint.sh:Z \
@@ -25,6 +34,8 @@ FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 		-v ./entrypoint/shell.sh:/usr/local/bin/shell.sh:Z \
 		-v ./output/:/output/:Z \
                 $(TMUX_MOUNT) \
+                $(GITCONFIG_MOUNT) \
+                $(GNUPG_MOUNT) \
 		$(DNF_CACHE_TO_MOUNT)
 
 USE_X = -e DISPLAY=$(DISPLAY) \
