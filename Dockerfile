@@ -39,6 +39,8 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    ty \
                    wxGTK \
                    wxGTK-devel; \
+     dnf install -y \
+                   pinentry; \
     if [ "$BUILD_DOCS" = "1" ]; then \
        dnf install -y \
                    autoconf \
@@ -151,6 +153,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
       echo "font/family = Adwaita Mono" >> ~/.config/spyder-py3/config/spyder.ini && \
       echo "font/size = 18" >> ~/.config/spyder-py3/config/spyder.ini; \
     fi ; \
+    echo 'export GPG_TTY=$(tty)' >> ~/.bashrc && \
     echo "exit() {" >> ~/.bashrc && \
     echo "    echo "Formatting on shell exit"" >> ~/.bashrc && \
     echo "    cd /mvp/src/ && format.sh" >> ~/.bashrc && \
