@@ -523,7 +523,6 @@ def test_vec3___add__():
     e_1: Vector3D = Vector3D.e_1()
     e_2: Vector3D = Vector3D.e_2()
     e_3: Vector3D = Vector3D.e_3()
-    zero: Vector3D = Vector3D.zero()
 
     result: Vector = (1 * e_1 + 3 * e_2 + 5 * e_3) + (
         2 * e_1 + 4 * e_2 + 6 * e_3
@@ -537,7 +536,6 @@ def test_vec3___sub__():
     e_1: Vector3D = Vector3D.e_1()
     e_2: Vector3D = Vector3D.e_2()
     e_3: Vector3D = Vector3D.e_3()
-    zero: Vector3D = Vector3D.zero()
 
     result: Vector = (3 * e_1 + 7 * e_2 + 11 * e_3) - (
         2 * e_1 + 4 * e_2 + 6 * e_3
@@ -550,7 +548,6 @@ def test_vec3___mul__():
     e_1: Vector3D = Vector3D.e_1()
     e_2: Vector3D = Vector3D.e_2()
     e_3: Vector3D = Vector3D.e_3()
-    zero: Vector3D = Vector3D.zero()
 
     result = (2 * e_1 + 3 * e_2 + 4 * e_3) * 4
     assert result.isclose(8 * e_1 + 12 * e_2 + 16 * e_3)
@@ -560,7 +557,6 @@ def test_vec3___rmul__():
     e_1: Vector3D = Vector3D.e_1()
     e_2: Vector3D = Vector3D.e_2()
     e_3: Vector3D = Vector3D.e_3()
-    zero: Vector3D = Vector3D.zero()
 
     result = 4 * (2 * e_1 + 3 * e_2 + 4 * e_3)
     assert result.isclose(8 * e_1 + 12 * e_2 + 16 * e_3)
@@ -570,7 +566,6 @@ def test_vec3___neg__():
     e_1: Vector3D = Vector3D.e_1()
     e_2: Vector3D = Vector3D.e_2()
     e_3: Vector3D = Vector3D.e_3()
-    zero: Vector3D = Vector3D.zero()
 
     result = -((2 * e_1) + (3 * e_2) + (4 * e_3))
     assert result.isclose((-2 * e_1) + (-3 * e_2) + (-4 * e_3))
@@ -581,11 +576,6 @@ def wrap_vec3_test(
     input_val: Vector3D,
     output_val: Vector3D,
 ):
-    e_1: Vector3D = Vector3D.e_1()
-    e_2: Vector3D = Vector3D.e_2()
-    e_3: Vector3D = Vector3D.e_3()
-    zero: Vector3D = Vector3D.zero()
-
     out: Vector = fn(input_val)
     assert out.isclose(output_val)
 
@@ -669,10 +659,19 @@ def test_vec3_rotate_x():
     fn: InvertibleFunction[Vector3D] = rotate_x(math.radians(53.130102))
     fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
 
+    orthogonal_component: Vector3D = 1 * e_1
+
     input_output_pairs: list[tuple[Vector3D, Vector3D]] = [
         (zero, zero),
-        (5 * e_2, 3 * e_2 + 4 * e_3),
-        (5 * e_3, -4 * e_2 + 3 * e_3),
+        (orthogonal_component, orthogonal_component),
+        (
+            orthogonal_component + 5 * e_2,
+            orthogonal_component + 3 * e_2 + 4 * e_3,
+        ),
+        (
+            orthogonal_component + 5 * e_3,
+            orthogonal_component + -4 * e_2 + 3 * e_3,
+        ),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -687,13 +686,22 @@ def test_vec3_rotate_y():
     e_3: Vector3D = Vector3D.e_3()
     zero: Vector3D = Vector3D.zero()
 
+    orthogonal_component: Vector3D = 1 * e_2
+
     fn: InvertibleFunction[Vector3D] = rotate_y(math.radians(53.130102))
     fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
 
     input_output_pairs: list[tuple[Vector3D, Vector3D]] = [
         (zero, zero),
-        (5 * e_3, 3 * e_3 + 4 * e_1),
-        (5 * e_1, -4 * e_3 + 3 * e_1),
+        (orthogonal_component, orthogonal_component),
+        (
+            orthogonal_component + 5 * e_3,
+            orthogonal_component + 3 * e_3 + 4 * e_1,
+        ),
+        (
+            orthogonal_component + 5 * e_1,
+            orthogonal_component + -4 * e_3 + 3 * e_1,
+        ),
     ]
 
     for input_val, output_val in input_output_pairs:
@@ -711,10 +719,19 @@ def test_vec3_rotate_z():
     fn: InvertibleFunction[Vector3D] = rotate_z(math.radians(53.130102))
     fn_inv: InvertibleFunction[Vector3D] = inverse(fn)
 
+    orthogonal_component: Vector3D = 1 * e_3
+
     input_output_pairs: list[tuple[Vector3D, Vector3D]] = [
         (zero, zero),
-        (5 * e_1, 3 * e_1 + 4 * e_2),
-        (5 * e_2, -4 * e_1 + 3 * e_2),
+        (orthogonal_component, orthogonal_component),
+        (
+            orthogonal_component + 5 * e_1,
+            orthogonal_component + 3 * e_1 + 4 * e_2,
+        ),
+        (
+            orthogonal_component + 5 * e_2,
+            orthogonal_component + -4 * e_1 + 3 * e_2,
+        ),
     ]
 
     for input_val, output_val in input_output_pairs:
