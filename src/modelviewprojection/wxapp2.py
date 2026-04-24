@@ -18,16 +18,20 @@
 import wx
 import wx.glcanvas
 import wx.xrc as xrc
+import os
 from OpenGL import GL
 
 # ---------------------------------------------------------------------------
 # Helpers
 # ---------------------------------------------------------------------------
 
+
+pwd = os.path.dirname(os.path.abspath(__file__))
+
 def _load_xrc():
     """Load and return the XmlResource object (cached on first call)."""
     if not hasattr(_load_xrc, "_res"):
-        _load_xrc._res = xrc.XmlResource("wxapp2.xrc")
+        _load_xrc._res = xrc.XmlResource(os.path.join(pwd, "wxapp2.xrc"))
     return _load_xrc._res
 
 
