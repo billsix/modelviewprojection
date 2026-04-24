@@ -17,67 +17,58 @@
 
 import wx
 import wx.glcanvas
+import wx.xrc as xrc
 from OpenGL import GL
 
-# --- Tab Panels for the Notebook ---
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _load_xrc():
+    """Load and return the XmlResource object (cached on first call)."""
+    if not hasattr(_load_xrc, "_res"):
+        _load_xrc._res = xrc.XmlResource("wxapp2.xrc")
+    return _load_xrc._res
 
 
 class AnimationControlTab(wx.Panel):
-    """The first tab, controlling movement."""
+    """First tab: animation controls. Layout comes from XRC."""
 
     def __init__(self, parent, opengl_panel):
-        super().__init__(parent)
+        # Two-phase XRC construction: pre-init C++ base with no args,
+        # then let LoadPanel complete initialisation.
+        wx.Panel.__init__(self)
+        _load_xrc().LoadPanel(self, parent, "AnimationControlTab")
+
         self.opengl_panel = opengl_panel
 
-        sizer = wx.BoxSizer(wx.VERTICAL)
+        self.chk_enable = xrc.XRCCTRL(self, "chk_enable_rotation")
+        self.sld_speed   = xrc.XRCCTRL(self, "sld_speed")
 
-        # Checkbox to toggle animation
-        toggle_checkbox = wx.CheckBox(self, label="Enable Rotation")
-        toggle_checkbox.SetValue(True)
-        self.Bind(wx.EVT_CHECKBOX, self.on_toggle_animation, toggle_checkbox)
-        sizer.Add(toggle_checkbox, 0, wx.ALL, 10)
-
-        # Slider for speed
-        speed_label = wx.StaticText(self, label="Rotation Speed:")
-        speed_slider = wx.Slider(self, value=5, minValue=1, maxValue=20)
-        self.Bind(wx.EVT_SLIDER, self.on_speed_change, speed_slider)
-        sizer.Add(speed_label, 0, wx.LEFT | wx.RIGHT | wx.TOP, 10)
-        sizer.Add(speed_slider, 0, wx.EXPAND | wx.ALL, 10)
-
-        self.SetSizer(sizer)
+        self.Bind(wx.EVT_CHECKBOX, self.on_toggle_animation, self.chk_enable)
+        self.Bind(wx.EVT_SLIDER,   self.on_speed_change,     self.sld_speed)
 
     def on_toggle_animation(self, event):
         self.opengl_panel.set_animation_enabled(event.IsChecked())
 
     def on_speed_change(self, event):
-        self.opengl_panel.set_rotation_speed(event.GetEventObject().GetValue())
+        self.opengl_panel.set_rotation_speed(self.sld_speed.GetValue())
 
 
 class ColorControlTab(wx.Panel):
-    """The second tab, controlling color."""
+    """Second tab: color controls. Layout comes from XRC."""
 
     def __init__(self, parent, opengl_panel):
-        super().__init__(parent)
+        wx.Panel.__init__(self)
+        _load_xrc().LoadPanel(self, parent, "ColorControlTab")
+
         self.opengl_panel = opengl_panel
 
-        sizer = wx.BoxSizer(wx.VERTICAL)
-
-        color_label = wx.StaticText(self, label="Rectangle Color:")
-        sizer.Add(color_label, 0, wx.ALL, 10)
-
-        # Radio buttons for color choice
-        self.rb_cyan = wx.RadioButton(self, label="Cyan", style=wx.RB_GROUP)
-        self.rb_red = wx.RadioButton(self, label="Red")
-        self.rb_green = wx.RadioButton(self, label="Green")
-        self.rb_cyan.SetValue(True)  # Default selection
+        self.rb_cyan  = xrc.XRCCTRL(self, "rb_cyan")
+        self.rb_red   = xrc.XRCCTRL(self, "rb_red")
+        self.rb_green = xrc.XRCCTRL(self, "rb_green")
 
         self.Bind(wx.EVT_RADIOBUTTON, self.on_color_change)
-
-        sizer.Add(self.rb_cyan, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
-        sizer.Add(self.rb_red, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
-        sizer.Add(self.rb_green, 0, wx.LEFT | wx.RIGHT | wx.BOTTOM, 5)
-
-        self.SetSizer(sizer)
 
     def on_color_change(self, event):
         if self.rb_cyan.GetValue():
@@ -88,39 +79,30 @@ class ColorControlTab(wx.Panel):
             self.opengl_panel.set_color(0.0, 1.0, 0.0)
 
 
-# --- Main Control Panel with Notebook ---
-
 
 class TabbedControlPanel(wx.Panel):
-    """A panel that holds the wx.Notebook widget."""
+    """Holds the wx.Notebook. Tabs are XRC-loaded panels."""
 
     def __init__(self, parent, opengl_panel):
         super().__init__(parent)
 
-        # Create the notebook
         notebook = wx.Notebook(self)
 
-        # Create the individual tab panels
         tab1 = AnimationControlTab(notebook, opengl_panel)
         tab2 = ColorControlTab(notebook, opengl_panel)
-        tab3 = wx.Panel(notebook)  # A simple placeholder panel
+        tab3 = wx.Panel(notebook)
 
-        # Add the tabs to the notebook
         notebook.AddPage(tab1, "Animation")
         notebook.AddPage(tab2, "Color")
         notebook.AddPage(tab3, "Misc")
 
-        # Use a sizer to make the notebook fill the TabbedControlPanel
         sizer = wx.BoxSizer()
         sizer.Add(notebook, 1, wx.EXPAND)
         self.SetSizer(sizer)
 
 
-# --- OpenGL Panel (with one new method) ---
-
-
 class OpenGLPanel(wx.glcanvas.GLCanvas):
-    """The OpenGL rendering panel, now with color control."""
+    """OpenGL rendering panel."""
 
     def __init__(self, parent):
         attribList = [
@@ -129,20 +111,18 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
             wx.glcanvas.WX_GL_DEPTH_SIZE,
             24,
         ]
-        super().__init__(
-            parent, attribList=attribList, style=wx.FULL_REPAINT_ON_RESIZE
-        )
+        super().__init__(parent, attribList=attribList,
+                         style=wx.FULL_REPAINT_ON_RESIZE)
         self.context = wx.glcanvas.GLContext(self)
         self.init_gl = False
 
-        # Animation state
         self.rotation_angle = 0
         self.rotation_speed = 5
         self.is_enabled = True
-        self.color = (0.0, 1.0, 1.0)  # Initial color (cyan)
+        self.color = (0.0, 1.0, 1.0)
 
         self.Bind(wx.EVT_PAINT, self.on_paint)
-        self.Bind(wx.EVT_SIZE, self.on_size)
+        self.Bind(wx.EVT_SIZE,  self.on_size)
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
         self.timer.Start(16)
@@ -181,12 +161,11 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         GL.glLoadIdentity()
         GL.glRotatef(self.rotation_angle, 0.0, 0.0, 1.0)
         GL.glBegin(GL.GL_QUADS)
-        # Use the current color
-        GL.glColor3f(self.color[0], self.color[1], self.color[2])
+        GL.glColor3f(*self.color)
         GL.glVertex2f(-0.5, -0.5)
-        GL.glVertex2f(0.5, -0.5)
-        GL.glVertex2f(0.5, 0.5)
-        GL.glVertex2f(-0.5, 0.5)
+        GL.glVertex2f( 0.5, -0.5)
+        GL.glVertex2f( 0.5,  0.5)
+        GL.glVertex2f(-0.5,  0.5)
         GL.glEnd()
         self.SwapBuffers()
 
@@ -197,42 +176,32 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         self.is_enabled = is_enabled
 
     def set_color(self, r, g, b):
-        """A new method to control the rectangle's color."""
         self.color = (r, g, b)
-
-
-# --- Main Frame using wx.SplitterWindow ---
 
 
 class MainFrame(wx.Frame):
     def __init__(self):
-        super().__init__(
-            None, title="Resizable & Tabbed Control Demo", size=(1000, 600)
-        )
+        # Two-phase XRC construction: pre-init C++ base with no args,
+        # then let LoadFrame complete initialisation.
+        wx.Frame.__init__(self)
+        _load_xrc().LoadFrame(self, None, "MainFrame")
 
-        # Create the SplitterWindow
+        # wxSplitterWindow cannot be declared in XRC without at least one
+        # child window present in the XML. Since both panes (OpenGLPanel and
+        # TabbedControlPanel) must be constructed in Python, the splitter is
+        # also created here in Python.
         self.splitter = wx.SplitterWindow(self)
 
-        # Create the panels that will go in the splitter
-        self.opengl_panel = OpenGLPanel(self.splitter)
-        self.control_panel = TabbedControlPanel(
-            self.splitter, self.opengl_panel
-        )
+        self.opengl_panel  = OpenGLPanel(self.splitter)
+        self.control_panel = TabbedControlPanel(self.splitter, self.opengl_panel)
 
-        # Split the window vertically and set initial sash position
-        self.splitter.SplitVertically(
-            self.opengl_panel, self.control_panel, 700
-        )
-
-        # Set a minimum pane size to prevent one side from disappearing
+        self.splitter.SplitVertically(self.opengl_panel, self.control_panel, 700)
         self.splitter.SetMinimumPaneSize(200)
 
-        # A sizer to make the splitter fill the entire frame
         sizer = wx.BoxSizer()
         sizer.Add(self.splitter, 1, wx.EXPAND)
         self.SetSizer(sizer)
 
-        self.Centre()
         self.Show()
 
 

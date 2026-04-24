@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<resource>
+
+  <object class="wxPanel" name="AnimationControlTab">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+
+      <object class="sizeritem">
+        <flag>wxALL</flag>
+        <border>10</border>
+        <object class="wxCheckBox" name="chk_enable_rotation">
+          <label>Enable Rotation</label>
+          <checked>1</checked>
+        </object>
+      </object>
+
+      <object class="sizeritem">
+        <flag>wxLEFT|wxRIGHT|wxTOP</flag>
+        <border>10</border>
+        <object class="wxStaticText" name="lbl_speed">
+          <label>Rotation Speed:</label>
+        </object>
+      </object>
+
+      <object class="sizeritem">
+        <flag>wxEXPAND|wxALL</flag>
+        <border>10</border>
+        <object class="wxSlider" name="sld_speed">
+          <value>5</value>
+          <min>1</min>
+          <max>20</max>
+        </object>
+      </object>
+
+    </object>
+  </object>
+
+
+  <object class="wxPanel" name="ColorControlTab">
+    <object class="wxBoxSizer">
+      <orient>wxVERTICAL</orient>
+
+      <object class="sizeritem">
+        <flag>wxALL</flag>
+        <border>10</border>
+        <object class="wxStaticText" name="lbl_color">
+          <label>Rectangle Color:</label>
+        </object>
+      </object>
+
+      <object class="sizeritem">
+        <flag>wxLEFT|wxRIGHT|wxBOTTOM</flag>
+        <border>5</border>
+        <object class="wxRadioButton" name="rb_cyan">
+          <label>Cyan</label>
+          <style>wxRB_GROUP</style>
+          <value>1</value>
+        </object>
+      </object>
+
+      <object class="sizeritem">
+        <flag>wxLEFT|wxRIGHT|wxBOTTOM</flag>
+        <border>5</border>
+        <object class="wxRadioButton" name="rb_red">
+          <label>Red</label>
+        </object>
+      </object>
+
+      <object class="sizeritem">
+        <flag>wxLEFT|wxRIGHT|wxBOTTOM</flag>
+        <border>5</border>
+        <object class="wxRadioButton" name="rb_green">
+          <label>Green</label>
+        </object>
+      </object>
+
+    </object>
+  </object>
+
+
+  <object class="wxFrame" name="MainFrame">
+    <title>Resizable &amp; Tabbed Control Demo</title>
+    <size>1000,600</size>
+    <centered>1</centered>
+  </object>
+
+</resource>
