@@ -15,11 +15,12 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
+import os
+
 import wx
 import wx.aui
 import wx.glcanvas
 import wx.xrc as xrc
-import os
 from OpenGL import GL
 
 # ---------------------------------------------------------------------------
@@ -28,6 +29,7 @@ from OpenGL import GL
 
 
 pwd = os.path.dirname(os.path.abspath(__file__))
+
 
 def _load_xrc():
     """Return the cached XmlResource."""
@@ -40,6 +42,7 @@ def _load_xrc():
 # Tab panels — layout from XRC, behaviour wired in Python
 # ---------------------------------------------------------------------------
 
+
 class AnimationControlTab(wx.Panel):
     """Animation controls tab. Layout from XRC."""
 
@@ -50,10 +53,10 @@ class AnimationControlTab(wx.Panel):
         self.opengl_panel = opengl_panel
 
         self.chk_enable = xrc.XRCCTRL(self, "chk_enable_rotation")
-        self.sld_speed   = xrc.XRCCTRL(self, "sld_speed")
+        self.sld_speed = xrc.XRCCTRL(self, "sld_speed")
 
         self.Bind(wx.EVT_CHECKBOX, self.on_toggle_animation, self.chk_enable)
-        self.Bind(wx.EVT_SLIDER,   self.on_speed_change,     self.sld_speed)
+        self.Bind(wx.EVT_SLIDER, self.on_speed_change, self.sld_speed)
 
     def on_toggle_animation(self, event):
         self.opengl_panel.set_animation_enabled(event.IsChecked())
@@ -71,8 +74,8 @@ class ColorControlTab(wx.Panel):
 
         self.opengl_panel = opengl_panel
 
-        self.rb_cyan  = xrc.XRCCTRL(self, "rb_cyan")
-        self.rb_red   = xrc.XRCCTRL(self, "rb_red")
+        self.rb_cyan = xrc.XRCCTRL(self, "rb_cyan")
+        self.rb_red = xrc.XRCCTRL(self, "rb_red")
         self.rb_green = xrc.XRCCTRL(self, "rb_green")
 
         self.Bind(wx.EVT_RADIOBUTTON, self.on_color_change)
@@ -86,7 +89,6 @@ class ColorControlTab(wx.Panel):
             self.opengl_panel.set_color(0.0, 1.0, 0.0)
 
 
-
 class ControlPanel(wx.Panel):
     """Plain panel + plain notebook, safe to use as an AUI dockable pane."""
 
@@ -97,7 +99,7 @@ class ControlPanel(wx.Panel):
 
         tab1 = AnimationControlTab(notebook, opengl_panel)
         tab2 = ColorControlTab(notebook, opengl_panel)
-        tab3 = wx.Panel(notebook)   # placeholder
+        tab3 = wx.Panel(notebook)  # placeholder
 
         notebook.AddPage(tab1, "Animation")
         notebook.AddPage(tab2, "Color")
@@ -106,7 +108,6 @@ class ControlPanel(wx.Panel):
         sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(notebook, 1, wx.EXPAND)
         self.SetSizer(sizer)
-
 
 
 class OpenGLPanel(wx.glcanvas.GLCanvas):
@@ -119,8 +120,9 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
             wx.glcanvas.WX_GL_DEPTH_SIZE,
             24,
         ]
-        super().__init__(parent, attribList=attribList,
-                         style=wx.FULL_REPAINT_ON_RESIZE)
+        super().__init__(
+            parent, attribList=attribList, style=wx.FULL_REPAINT_ON_RESIZE
+        )
         self.context = wx.glcanvas.GLContext(self)
         self.init_gl = False
 
@@ -130,7 +132,7 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         self.color = (0.0, 1.0, 1.0)
 
         self.Bind(wx.EVT_PAINT, self.on_paint)
-        self.Bind(wx.EVT_SIZE,  self.on_size)
+        self.Bind(wx.EVT_SIZE, self.on_size)
         self.timer = wx.Timer(self)
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
         self.timer.Start(16)
@@ -171,9 +173,9 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         GL.glBegin(GL.GL_QUADS)
         GL.glColor3f(*self.color)
         GL.glVertex2f(-0.5, -0.5)
-        GL.glVertex2f( 0.5, -0.5)
-        GL.glVertex2f( 0.5,  0.5)
-        GL.glVertex2f(-0.5,  0.5)
+        GL.glVertex2f(0.5, -0.5)
+        GL.glVertex2f(0.5, 0.5)
+        GL.glVertex2f(-0.5, 0.5)
         GL.glEnd()
         self.SwapBuffers()
 
@@ -185,7 +187,6 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
 
     def set_color(self, r, g, b):
         self.color = (r, g, b)
-
 
 
 class MainFrame(wx.Frame):
@@ -200,24 +201,21 @@ class MainFrame(wx.Frame):
         # Central pane: OpenGL canvas
         self.opengl_panel = OpenGLPanel(self)
         self._mgr.AddPane(
-            self.opengl_panel,
-            wx.aui.AuiPaneInfo()
-                .CenterPane()
-                .Name("opengl")
+            self.opengl_panel, wx.aui.AuiPaneInfo().CenterPane().Name("opengl")
         )
 
         self.control_panel = ControlPanel(self, self.opengl_panel)
         self._mgr.AddPane(
             self.control_panel,
             wx.aui.AuiPaneInfo()
-                .Right()
-                .Name("controls")
-                .Caption("Controls")
-                .BestSize(wx.Size(300, -1))
-                .MinSize(wx.Size(200, 200))
-                .Floatable(True)
-                .Dockable(True)
-                .CloseButton(False)
+            .Right()
+            .Name("controls")
+            .Caption("Controls")
+            .BestSize(wx.Size(300, -1))
+            .MinSize(wx.Size(200, 200))
+            .Floatable(True)
+            .Dockable(True)
+            .CloseButton(False),
         )
 
         self._mgr.Update()
