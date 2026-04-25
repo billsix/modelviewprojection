@@ -13,6 +13,25 @@
 Introduction
 ************
 
+                      dMMMMMMMMb  .aMMMb  dMMMMb  dMMMMMP dMP
+                     dMP"dMP"dMP dMP"dMP dMP VMP dMP     dMP
+                    dMP dMP dMP dMP dMP dMP dMP dMMMP   dMP
+                   dMP dMP dMP dMP.aMP dMP.aMP dMP     dMP
+                  dMP dMP dMP  VMMMP" dMMMMP" dMMMMMP dMMMMMP
+
+                         dMP dMP dMP dMMMMMP dMP dMP dMP
+                        dMP dMP amr dMP     dMP dMP dMP
+                       dMP dMP dMP dMMMP   dMP dMP dMP
+                       YMvAP" dMP dMP     dMP.dMP.dMP
+                        VP"  dMP dMMMMMP  VMMMPVMMP"
+
+     dMMMMb  dMMMMb  .aMMMb dMMMMMP dMMMMMP .aMMMb dMMMMMMP dMP .aMMMb  dMMMMb
+    dMP.dMP dMP.dMP dMP"dMP    dMP dMP     dMP"VMP   dMP   amr dMP"dMP dMP dMP
+   dMMMMP" dMMMMK" dMP dMP    dMP dMMMP   dMP       dMP   dMP dMP dMP dMP dMP
+  dMP     dMP"AMF dMP.aMPdK .dMP dMP     dMP.aMP   dMP   dMP dMP.aMP dMP dMP
+ dMP     dMP dMP  VMMMP" VMMMP" dMMMMMP  VMMMP"   dMP   dMP  VMMMP" dMP dMP
+
+
 Learn how to program in 3D computer graphics in the Python programming language!
 
 .. figure:: _static/screenshots/frustum1.png
