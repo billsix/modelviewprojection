@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <resource>
 
+  <!-- =====================================================================
+       AnimationControlTab  (wx.Panel)
+       ===================================================================== -->
   <object class="wxPanel" name="AnimationControlTab">
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
@@ -36,6 +39,9 @@
   </object>
 
 
+  <!-- =====================================================================
+       ColorControlTab  (wx.Panel)
+       ===================================================================== -->
   <object class="wxPanel" name="ColorControlTab">
     <object class="wxBoxSizer">
       <orient>wxVERTICAL</orient>
@@ -78,8 +84,13 @@
   </object>
 
 
+  <!-- =====================================================================
+       MainFrame shell only.
+       AuiManager, panes, notebook, and OpenGLPanel are all wired in Python —
+       wx.aui has no XRC handler.
+       ===================================================================== -->
   <object class="wxFrame" name="MainFrame">
-    <title>Resizable &amp; Tabbed Control Demo</title>
+    <title>AUI Dockable Controls Demo</title>
     <size>1000,600</size>
     <centered>1</centered>
   </object>

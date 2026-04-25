@@ -16,6 +16,7 @@
 # Boston, MA 02111-1307, USA.
 
 import wx
+import wx.aui
 import wx.glcanvas
 import wx.xrc as xrc
 import os
@@ -29,18 +30,20 @@ from OpenGL import GL
 pwd = os.path.dirname(os.path.abspath(__file__))
 
 def _load_xrc():
-    """Load and return the XmlResource object (cached on first call)."""
+    """Return the cached XmlResource."""
     if not hasattr(_load_xrc, "_res"):
         _load_xrc._res = xrc.XmlResource(os.path.join(pwd, "wxapp2.xrc"))
     return _load_xrc._res
 
 
+# ---------------------------------------------------------------------------
+# Tab panels — layout from XRC, behaviour wired in Python
+# ---------------------------------------------------------------------------
+
 class AnimationControlTab(wx.Panel):
-    """First tab: animation controls. Layout comes from XRC."""
+    """Animation controls tab. Layout from XRC."""
 
     def __init__(self, parent, opengl_panel):
-        # Two-phase XRC construction: pre-init C++ base with no args,
-        # then let LoadPanel complete initialisation.
         wx.Panel.__init__(self)
         _load_xrc().LoadPanel(self, parent, "AnimationControlTab")
 
@@ -60,7 +63,7 @@ class AnimationControlTab(wx.Panel):
 
 
 class ColorControlTab(wx.Panel):
-    """Second tab: color controls. Layout comes from XRC."""
+    """Color controls tab. Layout from XRC."""
 
     def __init__(self, parent, opengl_panel):
         wx.Panel.__init__(self)
@@ -84,8 +87,8 @@ class ColorControlTab(wx.Panel):
 
 
 
-class TabbedControlPanel(wx.Panel):
-    """Holds the wx.Notebook. Tabs are XRC-loaded panels."""
+class ControlPanel(wx.Panel):
+    """Plain panel + plain notebook, safe to use as an AUI dockable pane."""
 
     def __init__(self, parent, opengl_panel):
         super().__init__(parent)
@@ -94,19 +97,20 @@ class TabbedControlPanel(wx.Panel):
 
         tab1 = AnimationControlTab(notebook, opengl_panel)
         tab2 = ColorControlTab(notebook, opengl_panel)
-        tab3 = wx.Panel(notebook)
+        tab3 = wx.Panel(notebook)   # placeholder
 
         notebook.AddPage(tab1, "Animation")
         notebook.AddPage(tab2, "Color")
         notebook.AddPage(tab3, "Misc")
 
-        sizer = wx.BoxSizer()
+        sizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(notebook, 1, wx.EXPAND)
         self.SetSizer(sizer)
 
 
+
 class OpenGLPanel(wx.glcanvas.GLCanvas):
-    """OpenGL rendering panel."""
+    """OpenGL rendering panel. Cannot live in XRC (needs custom attribList)."""
 
     def __init__(self, parent):
         attribList = [
@@ -141,7 +145,7 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
 
     def on_size(self, event):
         width, height = self.GetSize()
-        if self.context and self.GetSizer() and self.IsShownOnScreen():
+        if self.context and self.IsShownOnScreen():
             wx.glcanvas.GLContext.SetCurrent(self.context, self)
             GL.glViewport(0, 0, width, height)
         event.Skip()
@@ -183,31 +187,52 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         self.color = (r, g, b)
 
 
+
 class MainFrame(wx.Frame):
     def __init__(self):
-        # Two-phase XRC construction: pre-init C++ base with no args,
-        # then let LoadFrame complete initialisation.
+        # Two-phase XRC construction
         wx.Frame.__init__(self)
         _load_xrc().LoadFrame(self, None, "MainFrame")
 
-        # wxSplitterWindow cannot be declared in XRC without at least one
-        # child window present in the XML. Since both panes (OpenGLPanel and
-        # TabbedControlPanel) must be constructed in Python, the splitter is
-        # also created here in Python.
-        self.splitter = wx.SplitterWindow(self)
+        # AuiManager manages the frame's client area
+        self._mgr = wx.aui.AuiManager(self)
 
-        self.opengl_panel  = OpenGLPanel(self.splitter)
-        self.control_panel = TabbedControlPanel(self.splitter, self.opengl_panel)
+        # Central pane: OpenGL canvas
+        self.opengl_panel = OpenGLPanel(self)
+        self._mgr.AddPane(
+            self.opengl_panel,
+            wx.aui.AuiPaneInfo()
+                .CenterPane()
+                .Name("opengl")
+        )
 
-        self.splitter.SplitVertically(self.opengl_panel, self.control_panel, 700)
-        self.splitter.SetMinimumPaneSize(200)
+        self.control_panel = ControlPanel(self, self.opengl_panel)
+        self._mgr.AddPane(
+            self.control_panel,
+            wx.aui.AuiPaneInfo()
+                .Right()
+                .Name("controls")
+                .Caption("Controls")
+                .BestSize(wx.Size(300, -1))
+                .MinSize(wx.Size(200, 200))
+                .Floatable(True)
+                .Dockable(True)
+                .CloseButton(False)
+        )
 
-        sizer = wx.BoxSizer()
-        sizer.Add(self.splitter, 1, wx.EXPAND)
-        self.SetSizer(sizer)
+        self._mgr.Update()
 
+        self.Bind(wx.EVT_CLOSE, self.on_close)
         self.Show()
 
+    def on_close(self, event):
+        self._mgr.UnInit()
+        event.Skip()
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
     app = wx.App(False)
