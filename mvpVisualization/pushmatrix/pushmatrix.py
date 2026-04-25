@@ -131,14 +131,15 @@ def on_key(win, key, scancode, action, mods):
 
 glfw.set_key_callback(window, on_key)
 
-
+_prev_scroll_cb = None
 def scroll_callback(win, x_offset, y_offset):
-    camera.r = camera.r + -1 * (y_offset * math.log(camera.r))
-    if camera.r < 3.0:
-        camera.r = 3.0
-
-
-glfw.set_scroll_callback(window, scroll_callback)
+    if _prev_scroll_cb:
+        _prev_scroll_cb(win, x_offset, y_offset)
+    if not imguiio.want_capture_mouse:
+        camera.r = camera.r + -1 * (y_offset * math.log(camera.r))
+        if camera.r < 3.0:
+            camera.r = 3.0
+_prev_scroll_cb = glfw.set_scroll_callback(window, scroll_callback)
 
 
 GL.glClearColor(13.0 / 255.0, 64.0 / 255.0, 5.0 / 255.0, 1.0)
