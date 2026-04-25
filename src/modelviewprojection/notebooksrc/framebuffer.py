@@ -54,19 +54,26 @@ from modelviewprojection.mathutils import (
     Vector2D,
 )
 
-e_1 = Vector2D.e_1()
-e_2 = Vector2D.e_2()
-
-
 # %% [markdown]
 # The module below is our software implementation of a
 # framebuffer, we will use the name "sr" for
 # "software rendering":
 # %%
-import modelviewprojection.softwarerendering as sr
+from modelviewprojection.softwarerendering import (
+    BLACK,
+    RED,
+    WHITE,
+    FrameBuffer,
+)
 
 # turn warnings into exceptions
 warnings.filterwarnings("error", category=RuntimeWarning)
+
+
+# import unit vectors in the x and y direction
+e_1 = Vector2D.e_1()
+e_2 = Vector2D.e_2()
+
 # %% [markdown]
 # Make a framebuffer, which is just a rectangular region of
 # values.  We use keyword arguments to
@@ -75,7 +82,7 @@ warnings.filterwarnings("error", category=RuntimeWarning)
 
 # %%
 # Show initial random framebuffer
-fake_fb: sr.FrameBuffer = sr.FrameBuffer(width=100, height=100)
+fake_fb: FrameBuffer = FrameBuffer(width=100, height=100)
 fake_fb.show_framebuffer()
 
 
@@ -91,7 +98,7 @@ fake_fb.draw_filled_triangle(
     50 * e_1 + 50 * e_2,
     50 * e_1 + 70 * e_2,
     70 * e_1 + 70 * e_2,
-    color=sr.WHITE,
+    color=WHITE,
 )
 fake_fb.show_framebuffer()
 
@@ -102,7 +109,7 @@ fake_fb.show_framebuffer()
 
 # %%
 # Clear to red and show
-fake_fb.clear_color = sr.RED
+fake_fb.clear_color = RED
 fake_fb.clear_framebuffer()
 fake_fb.show_framebuffer()
 
@@ -111,7 +118,7 @@ fake_fb.show_framebuffer()
 
 # %%
 # Clear to black and show
-fake_fb.clear_color = sr.BLACK
+fake_fb.clear_color = BLACK
 fake_fb.clear_framebuffer()
 fake_fb.show_framebuffer()
 
@@ -126,7 +133,7 @@ fake_fb.draw_filled_triangle(
     50 * e_1 + 50 * e_2,
     50 * e_1 + 70 * e_2,
     70 * e_1 + 70 * e_2,
-    color=sr.WHITE,
+    color=WHITE,
 )
 fake_fb.show_framebuffer()
 
@@ -142,7 +149,7 @@ fake_fb.draw_filled_triangle(
     50 * e_1 + 50 * e_2,
     30 * e_1 + 50 * e_2,
     30 * e_1 + 30 * e_2,
-    color=sr.RED,
+    color=RED,
 )
 fake_fb.show_framebuffer()
 
@@ -150,7 +157,7 @@ fake_fb.show_framebuffer()
 # Make a larger framebuffer
 # %%
 # Show initial random framebuffer
-fake_fb400: sr.FrameBuffer = sr.FrameBuffer(width=400, height=400)
+fake_fb400: FrameBuffer = FrameBuffer(width=400, height=400)
 fake_fb400.show_framebuffer()
 
 
@@ -167,7 +174,7 @@ fake_fb400.draw_filled_triangle(
     50 * e_1 + 50 * e_2,
     50 * e_1 + 70 * e_2,
     70 * e_1 + 70 * e_2,
-    color=sr.WHITE,
+    color=WHITE,
 )
 fake_fb400.show_framebuffer()
 
@@ -175,7 +182,7 @@ fake_fb400.draw_filled_triangle(
     50 * e_1 + 50 * e_2,
     30 * e_1 + 50 * e_2,
     30 * e_1 + 30 * e_2,
-    color=sr.RED,
+    color=RED,
 )
 fake_fb400.show_framebuffer()
 
