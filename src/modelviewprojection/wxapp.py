@@ -175,7 +175,7 @@ class GLPanel(wxgl.GLCanvas):
 
         dw = self.GetContentScaleFactor()
         GL.glViewport(0, 0, int(w * dw), int(h * dw))
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        GL.glClear(sum([GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT]))
 
         GL.glUseProgram(self.program)
         angle_loc = GL.glGetUniformLocation(self.program, "angle")

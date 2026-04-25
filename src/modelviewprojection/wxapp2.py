@@ -167,7 +167,7 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
     def on_draw(self):
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        GL.glClear(sum([GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT]))
         GL.glLoadIdentity()
         GL.glRotatef(self.rotation_angle, 0.0, 0.0, 1.0)
         GL.glBegin(GL.GL_QUADS)
