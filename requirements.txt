@@ -2,6 +2,7 @@ autoflake
 furo
 glfw
 ImageIO
+imgui-bundle[full]
 isort
 jupyter
 jupytext

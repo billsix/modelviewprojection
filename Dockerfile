@@ -2,7 +2,6 @@ FROM registry.fedoraproject.org/fedora:44
 
 ARG BUILD_DOCS=0
 ARG USE_EMACS=0
-ARG USE_IMGUI=0
 ARG USE_JUPYTER=0
 ARG USE_SPYDER=0
 ARG USE_X_WINDOWS=0
@@ -125,19 +124,6 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
         	   python3-jupyter-lsp  && \
        uv pip install moviepy --python $(which python); \
     fi; \
-    if [ "$USE_IMGUI" = "1" ]; then \
-       dnf install -y \
-                   autoconf \
-                   automake \
-                   g++ \
-        	   gcc \
-                   python3-devel && \
-        cd ~/ && \
-        git clone https://github.com/billsix/pyimgui.git && \
-        cd pyimgui && \
-        git submodule init && git submodule update && \
-        uv pip install . --python $(which python) ;\
-     fi ; \
     if [ "$USE_SPYDER" = "1" ]; then \
       dnf install -y spyder && \
       mkdir -p ~/.config/spyder-py3/config && \
