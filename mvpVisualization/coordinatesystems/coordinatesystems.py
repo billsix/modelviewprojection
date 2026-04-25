@@ -23,14 +23,26 @@ import sys
 from dataclasses import dataclass, field
 from typing import Optional, Tuple
 
+# Workaround issue when using wayland ("Attempt to retrieve context when no valid context", in PyOpenGL)
+# (see https://github.com/pthom/imgui_bundle/issues/321)
+from numpy import ndarray
+
+if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
+    "PYOPENGL_PLATFORM"
+):
+    os.environ["PYOPENGL_PLATFORM"] = "x11"
+
+
+# When using a pure python backend, prefer to import glfw before
+# imgui_bundle (so that you end up using the standard glfw, not the
+# one provided by imgui_bundle)
 import glfw
-import imgui
 import numpy as np
 import numpy.typing
-import OpenGL.GL as GL
+import OpenGL.GL as GL  # pip install PyOpenGL
 import OpenGL.GL.shaders as shaders
-from imgui.integrations.glfw import GlfwRenderer
-from numpy import ndarray
+from imgui_bundle import imgui, imgui_md
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.pyMatrixStack as ms
 
@@ -54,19 +66,56 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
 
 
-window = glfw.create_window(1920, 1080, "Coordinate Systems", None, None)
-if not window:
+def init_fonts_and_markdown() -> None:
+    # uncomment to keep using the default hardcoded font, or load your default font here
+    # imgui.get_io().fonts.add_font_default()
+
+    # Load markdown fonts
+    imgui_md.initialize_markdown()
+    font_loader: imgui_md.VoidFunction = imgui_md.get_font_loader_function()
+    font_loader()
+
+
+def impl_glfw_init():
+    width, height = 1920, 1080
+    window_name = "Coordinate Systems"
+
+    if not glfw.init():
+        print("Could not initialize OpenGL context")
+        sys.exit(1)
+
+    # OS X supports only forward-compatible core profiles from 3.2
+    glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
+    glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
+    glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+
+    glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
+
+    # Create a windowed mode window and its OpenGL context
+    window = glfw.create_window(
+        int(width), int(height), window_name, None, None
+    )
+    glfw.make_context_current(window)
+
+    if not window:
+        glfw.terminate()
+        print("Could not initialize Window")
+        sys.exit(1)
+
+    return window
+
+
+imgui.create_context()
+window = impl_glfw_init()
+impl = GlfwRenderer(window)
+init_fonts_and_markdown()
+imguiio = imgui.get_io()
+
+
+if not impl:
     glfw.terminate()
     sys.exit()
 
-
-# Make the window's context current
-glfw.make_context_current(window)
-imgui.create_context()  # type: ignore
-impl = GlfwRenderer(window)
-
-
-imguiio = imgui.get_io()  # type: ignore
 
 # Install a key handler
 
@@ -966,54 +1015,54 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
     impl.process_inputs()
 
-    imgui.new_frame()  # type: ignore
+    imgui.new_frame()
 
-    if imgui.begin_main_menu_bar():  # type: ignore
-        if imgui.begin_menu("File", True):  # type: ignore
-            clicked_quit, selected_quit = imgui.menu_item(  # type: ignore
+    if imgui.begin_main_menu_bar():
+        if imgui.begin_menu("File", True):
+            clicked_quit, selected_quit = imgui.menu_item(
                 "Quit", "Cmd+Q", False, True
             )
 
             if clicked_quit:
                 exit(0)
 
-            imgui.end_menu()  # type: ignore
-        imgui.end_main_menu_bar()  # type: ignore
+            imgui.end_menu()
+        imgui.end_main_menu_bar()
 
-    imgui.begin("Camera Control", True)  # type: ignore
+    imgui.begin("Camera Control", True)
 
     if center_view_on_ndc:
-        clicked_camera, camera.r = imgui.slider_float(  # type: ignore
+        clicked_camera, camera.r = imgui.slider_float(
             "Camera Radius", camera.r, 10, 1000.0
         )
 
     (
         clicked_line_thickness,
         line_thickness,
-    ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)  # type: ignore
+    ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)
 
-    if imgui.button("NDC"):  # type: ignore
+    if imgui.button("NDC"):
         center_view_on_ndc = True
         center_view_on_paddle1 = False
         center_view_on_square = False
         center_view_on_paddle2 = False
-    if imgui.button("Paddle 1"):  # type: ignore
+    if imgui.button("Paddle 1"):
         center_view_on_ndc = False
         center_view_on_paddle1 = True
         center_view_on_square = False
         center_view_on_paddle2 = False
-    if imgui.button("Square"):  # type: ignore
+    if imgui.button("Square"):
         center_view_on_ndc = False
         center_view_on_paddle1 = False
         center_view_on_square = True
         center_view_on_paddle2 = False
-    if imgui.button("Paddle 2"):  # type: ignore
+    if imgui.button("Paddle 2"):
         center_view_on_ndc = False
         center_view_on_paddle1 = False
         center_view_on_square = False
         center_view_on_paddle2 = True
 
-    imgui.end()  # type: ignore
+    imgui.end()
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
@@ -1169,8 +1218,8 @@ while not glfw.window_should_close(window):
         axis.render(animation_time)
         GL.glEnable(GL.GL_DEPTH_TEST)
 
-    imgui.render()  # type: ignore
-    impl.render(imgui.get_draw_data())  # type: ignore
+    imgui.render()
+    impl.render(imgui.get_draw_data())
 
     # done with frame, flush and swap buffers
     # Swap front and back buffers

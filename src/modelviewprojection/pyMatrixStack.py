@@ -151,7 +151,7 @@ class PushMatrix:
 
 
 @contextlib.contextmanager
-def push_matrix(m: MatrixStack):
+def push_matrix(m: MatrixStack) -> typing.Iterator[MatrixStack]:
     """Instead of manually pushing and poping the matrix stack,
     this allows using the "with" keyword."""
     matrixStack = m
@@ -292,7 +292,7 @@ def rotate_z(matrixStack: MatrixStack, rads: float) -> None:
     m[3, 1] = copyOfM[3, 0] * -s + copyOfM[3, 1] * c
 
 
-def translate(matrixStack: MatrixStack, x: float, y: float, z: float):
+def translate(matrixStack: MatrixStack, x: float, y: float, z: float) -> None:
     """Using a normal linear algebra notation, which
     is row-major, 1-based indexes, the following
     matrix multiplication shows how to add a translation
@@ -403,7 +403,7 @@ def ortho(
 
 def perspective(
     field_of_view: float, aspect_ratio: float, near_z: float, far_z: float
-):
+) -> None:
     """perspective projection, where things further away look smaller
     by shrinking their x and y coordinates.
 

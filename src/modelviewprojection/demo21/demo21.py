@@ -17,27 +17,35 @@
 import ctypes
 import dataclasses
 import math
+
+# Workaround issue when using wayland ("Attempt to retrieve context when no valid context", in PyOpenGL)
+# (see https://github.com/pthom/imgui_bundle/issues/321)
 import os
 import sys
 
-import glfw
-import imgui
-import imgui.integrations.glfw as imguiglfw
-import numpy as np
-import OpenGL.GL as GL
-
-# new - SHADERS
-import OpenGL.GL.shaders as shaders
-from numpy.typing import NDArray
-
-import modelviewprojection.colorutils as colorutils
-import modelviewprojection.pyMatrixStack as ms
+from numpy import ndarray
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
     "PYOPENGL_PLATFORM"
 ):
     os.environ["PYOPENGL_PLATFORM"] = "x11"
 
+
+# When using a pure python backend, prefer to import glfw before
+# imgui_bundle (so that you end up using the standard glfw, not the
+# one provided by imgui_bundle)
+import glfw
+import numpy as np
+import OpenGL.GL as GL  # pip install PyOpenGL
+
+# new - SHADERS
+import OpenGL.GL.shaders as shaders
+from imgui_bundle import imgui, imgui_md
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from numpy.typing import NDArray
+
+import modelviewprojection.colorutils as colorutils
+import modelviewprojection.pyMatrixStack as ms
 
 if not glfw.init():
     sys.exit()
@@ -62,11 +70,53 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 # for osx
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
 
+
+def init_fonts_and_markdown() -> None:
+    # uncomment to keep using the default hardcoded font, or load your default font here
+    # imgui.get_io().fonts.add_font_default()
+
+    # Load markdown fonts
+    imgui_md.initialize_markdown()
+    font_loader: imgui_md.VoidFunction = imgui_md.get_font_loader_function()
+    font_loader()
+
+
+def impl_glfw_init():
+
+    width, height = 500, 500
+    window_name = "ModelViewProjection Demo 21 "
+
+    if not glfw.init():
+        print("Could not initialize OpenGL context")
+        sys.exit(1)
+
+    # OS X supports only forward-compatible core profiles from 3.2
+    glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
+    glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
+    glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
+
+    glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
+
+    # Create a windowed mode window and its OpenGL context
+    window = glfw.create_window(
+        int(width), int(height), window_name, None, None
+    )
+    glfw.make_context_current(window)
+
+    if not window:
+        glfw.terminate()
+        print("Could not initialize Window")
+        sys.exit(1)
+
+    return window
+
+
 imgui.create_context()
-window = glfw.create_window(
-    500, 500, "ModelViewProjection Demo 21 ", None, None
-)
-if not window:
+window = impl_glfw_init()
+impl = GlfwRenderer(window)
+init_fonts_and_markdown()
+
+if not impl:
     glfw.terminate()
     sys.exit()
 
@@ -74,11 +124,7 @@ if not window:
 glfw.make_context_current(window)
 
 
-impl = imguiglfw.GlfwRenderer(window)
-
 # Install a key handler
-
-
 def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(win, 1)
@@ -93,7 +139,7 @@ GL.glClearDepth(1.0)
 GL.glDepthFunc(GL.GL_LEQUAL)
 GL.glEnable(GL.GL_DEPTH_TEST)
 
-__enable_blend__ = True
+__enable_blend__: bool = True
 if __enable_blend__:
     GL.glEnable(GL.GL_BLEND)
     GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
@@ -122,7 +168,7 @@ class Paddle:
     vbo: int = 0
     shader: int = 0
 
-    def prepare_to_render(self):
+    def prepare_to_render(self) -> None:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices
@@ -206,7 +252,7 @@ class Paddle:
         GL.glDeleteBuffers(1, [self.vbo])
         GL.glDeleteProgram(self.shader)
 
-    def render(self):
+    def render(self) -> None:
         GL.glUseProgram(self.shader)
         GL.glBindVertexArray(self.vao)
 
@@ -278,10 +324,10 @@ camera = Camera(x=0.0, y=0.0, z=40.0, rot_y=0.0, rot_x=0.0)
 
 
 class Ground:
-    def __init__(self):
+    def __init__(self) -> None:
         pass
 
-    def vertices(self):
+    def vertices(self) -> ndarray:
         # glColor3f(0.1,.1,.1)
         verts = []
         for x in range(-600, 601, 20):
@@ -301,7 +347,7 @@ class Ground:
 
         return np.array(verts, dtype=np.float32)
 
-    def prepare_to_render(self):
+    def prepare_to_render(self) -> None:
         # GL_QUADS aren't available anymore, only triangles
         # need 6 vertices instead of 4
         vertices = self.vertices()
@@ -351,7 +397,7 @@ class Ground:
         GL.glDeleteBuffers(1, [self.vbo])
         GL.glDeleteProgram(self.shader)
 
-    def render(self):
+    def render(self) -> None:
         GL.glUseProgram(self.shader)
         GL.glBindVertexArray(self.vao)
 
@@ -375,7 +421,7 @@ ground = Ground()
 ground.prepare_to_render()
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         square.rotation_around_paddle1 += 0.1
 
@@ -447,6 +493,7 @@ while not glfw.window_should_close(window):
         < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
     ):
         pass
+
     # set for comparison on the next frame
     time_at_beginning_of_previous_frame = glfw.get_time()
 
@@ -454,7 +501,7 @@ while not glfw.window_should_close(window):
     glfw.poll_events()
     impl.process_inputs()
 
-    imgui.new_frame()  # type: ignore
+    imgui.new_frame()
 
     if imgui.begin_main_menu_bar():
         if imgui.begin_menu("File", True):
@@ -471,7 +518,7 @@ while not glfw.window_should_close(window):
     imgui.begin("Custom window", True)
 
     changed, __enable_blend__ = imgui.checkbox(
-        label="Blend", state=__enable_blend__
+        label="Blend", v=__enable_blend__
     )
 
     if changed:
@@ -573,8 +620,8 @@ while not glfw.window_should_close(window):
         ms.rotate_z(ms.MatrixStack.model, paddle2.rotation)
         paddle2.render()
 
-    imgui.render()  # type: ignore
-    impl.render(imgui.get_draw_data())  # type: ignore
+    imgui.render()
+    impl.render(imgui.get_draw_data())
     # done with frame, flush and swap buffers
     # Swap front and back buffers
     glfw.swap_buffers(window)
