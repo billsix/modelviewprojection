@@ -199,7 +199,6 @@ _prev_scroll_cb = None
 def scroll_callback(win, x_offset, y_offset):
     if _prev_scroll_cb:
         _prev_scroll_cb(win, x_offset, y_offset)
-∑
     if not imguiio.want_capture_mouse:
         camera.r = camera.r + -1 * (y_offset * math.log(camera.r))
         if camera.r < 3.0:
