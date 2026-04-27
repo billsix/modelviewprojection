@@ -31,15 +31,15 @@ out vec2 v_uv;
 void main() {
     gl_Position = mvpMatrix * vec4(position, 1.0);
 
+    // World-space position is needed twice in the fragment shader:
+    // once for the per-fragment light direction (positional light)
+    // and once to project this point into the *light's* clip space
+    // for the shadow-map lookup.
     vec4 ws = modelMatrix * vec4(position, 1.0);
     v_position_ws = ws.xyz;
 
-    // mat3(modelMatrix) is fine here because the actor model matrices
-    // are pure translation+rotation+uniform scale.  When the host
-    // injects the planar shadow matrix to flatten a draw onto the
-    // ground, normals come out garbage -- but that draw uses
-    // renderMode=0 (flat shadow color) and the fragment shader ignores
-    // the normal anyway.
+    // mat3(modelMatrix) is correct here because the actor model
+    // matrices are pure translation+rotation+uniform scale.
     v_normal_ws = mat3(modelMatrix) * normal_in;
 
     v_uv = uv_in;

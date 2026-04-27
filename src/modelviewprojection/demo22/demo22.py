@@ -17,23 +17,26 @@
 
 # Demo 22 -- "3D Effects" / Block.
 # Ported from OpenGL SuperBible 4e, chapter 1 example "Block".  Pick
-# one of six progressively-more-realistic renderings of the same scene
-# from the imgui control panel:
+# one of four progressively-more-realistic renderings of the same
+# scene from the imgui control panel:
 #
 #   step 0:  wireframe cube (every edge drawn)
 #   step 1:  solid uniform-colour cube (looks 2-D and goofy)
 #   step 2:  same cube, with a directional light + Lambert shading
-#   step 3:  lit cube + planar shadow on the floor
-#   step 4:  textured cube + textured floor + shadow
+#   step 3:  textured cube + textured floor + shadow-mapped shadows
 #
 # Implementation notes:
 #
 # * OpenGL 3.3 core profile.  No fixed-function lighting/texturing --
 #   every stage goes through the same shader pair (block.vert /
 #   block.frag) with different uniforms.
-# * The "planar shadow" is a real linear transformation:  a 4x4 matrix
-#   that flattens any point onto the floor plane along the light
-#   direction.  See `planar_shadow_matrix` below.
+# * Shadows are computed via a real two-pass shadow map:  first the
+#   scene is rendered from the *light's* point of view into an
+#   off-screen depth FBO (depth.vert / depth.frag), then the color
+#   pass samples that depth map per-fragment to test occlusion.
+# * `planar_shadow_matrix` (the original cheap-projection trick) is
+#   still defined and book-referenced for the chapter, but is no
+#   longer used at runtime.
 # * The view rotation starts at +30 degrees about X and -30 degrees
 #   about Y, matching the SuperBible original on the first frame.
 #
@@ -100,9 +103,12 @@ STAGE_LABELS: list[str] = [
     "0  --  wireframe",
     "1  --  solid (no lighting)",
     "2  --  solid + Lambert lighting",
-    "3  --  lit + planar shadow",
-    "4  --  textured + lit + shadow",
+    "3  --  textured + lit + shadow-mapped",
 ]
+# Only stage 3 turns shadows on -- stages 0-2 don't need the depth
+# pre-pass and skip it (saves work, and keeps the visual output
+# consistent with the labels).
+SHADOW_STAGE: int = 3
 
 # Light direction (toward the light, normalized) is parameterized by
 # spherical coords so it can be slid live; both the Lambert shading on
@@ -189,25 +195,38 @@ GL.glDepthFunc(GL.GL_LEQUAL)
 # ---------------------------------------------------------------------------
 
 
-def compile_shader_program() -> int:
-    with open(os.path.join(pwd, "block.vert")) as f:
+def _compile(vert_name: str, frag_name: str) -> int:
+    with open(os.path.join(pwd, vert_name)) as f:
         vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
-    with open(os.path.join(pwd, "block.frag")) as f:
+    with open(os.path.join(pwd, frag_name)) as f:
         fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
     return shaders.compileProgram(vs, fs)
 
 
-program: int = compile_shader_program()
+# Two programs:  the main one for the color pass, and a depth-only
+# program for the shadow-map pre-pass (it just rasterizes positions
+# into the depth buffer of an off-screen FBO).
+program: int = _compile("block.vert", "block.frag")
+depth_program: int = _compile("depth.vert", "depth.frag")
 
 u_mvp = GL.glGetUniformLocation(program, "mvpMatrix")
 u_model = GL.glGetUniformLocation(program, "modelMatrix")
 u_flat = GL.glGetUniformLocation(program, "flatColor")
 u_use_lighting = GL.glGetUniformLocation(program, "useLighting")
 u_use_texture = GL.glGetUniformLocation(program, "useTexture")
+u_use_shadows = GL.glGetUniformLocation(program, "useShadows")
 u_light_dir = GL.glGetUniformLocation(program, "lightDirWS")
 u_ambient = GL.glGetUniformLocation(program, "ambientColor")
 u_diffuse = GL.glGetUniformLocation(program, "diffuseColor")
 u_tex = GL.glGetUniformLocation(program, "tex")
+u_shadow_map = GL.glGetUniformLocation(program, "shadowMap")
+u_light_space = GL.glGetUniformLocation(program, "lightSpaceMatrix")
+
+# Depth program has its own (much smaller) uniform set.
+u_depth_model = GL.glGetUniformLocation(depth_program, "modelMatrix")
+u_depth_light_space = GL.glGetUniformLocation(
+    depth_program, "lightSpaceMatrix"
+)
 
 
 def set_mvp_uniforms() -> None:
@@ -563,8 +582,116 @@ def planar_shadow_matrix(plane, light) -> np.matrix:
 # doc-region-end planar shadow
 
 
-# Recomputed in the per-frame draw loop from the slider-driven
-# light_dir; see `shadow_matrix` in the main loop below.
+# planar_shadow_matrix() above is kept for the book chapter; the
+# in-app shadow now goes through a real depth-buffer pre-pass instead.
+
+
+# ---------------------------------------------------------------------------
+# Shadow map -- off-screen depth-only framebuffer
+# ---------------------------------------------------------------------------
+# Standard recipe:
+#   * texture with internal format GL_DEPTH_COMPONENT24, filter LINEAR
+#     (so PCF would just work if we wanted it), wrap CLAMP_TO_BORDER
+#     with a white border so anything outside the light's frustum
+#     reads "max depth" (no shadow);
+#   * FBO with that texture attached as GL_DEPTH_ATTACHMENT and no
+#     color attachment -- glDrawBuffer/glReadBuffer set to GL_NONE.
+#
+# 1024 x 1024 is fine for this scene's size (~100x100 ground); large
+# enough that shadow edges aren't visibly chunky.
+
+SHADOW_MAP_SIZE: int = 1024
+
+shadow_depth_tex = GL.glGenTextures(1)
+GL.glBindTexture(GL.GL_TEXTURE_2D, shadow_depth_tex)
+GL.glTexImage2D(
+    GL.GL_TEXTURE_2D, 0, GL.GL_DEPTH_COMPONENT24,
+    SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 0,
+    GL.GL_DEPTH_COMPONENT, GL.GL_FLOAT, None,
+)
+GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
+GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
+GL.glTexParameteri(
+    GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_BORDER
+)
+GL.glTexParameteri(
+    GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_BORDER
+)
+GL.glTexParameterfv(
+    GL.GL_TEXTURE_2D, GL.GL_TEXTURE_BORDER_COLOR,
+    np.array([1.0, 1.0, 1.0, 1.0], dtype=np.float32),
+)
+GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
+
+shadow_fbo = GL.glGenFramebuffers(1)
+GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, shadow_fbo)
+GL.glFramebufferTexture2D(
+    GL.GL_FRAMEBUFFER, GL.GL_DEPTH_ATTACHMENT,
+    GL.GL_TEXTURE_2D, shadow_depth_tex, 0,
+)
+GL.glDrawBuffer(GL.GL_NONE)
+GL.glReadBuffer(GL.GL_NONE)
+if (GL.glCheckFramebufferStatus(GL.GL_FRAMEBUFFER)
+        != GL.GL_FRAMEBUFFER_COMPLETE):
+    raise RuntimeError("shadow FBO is not complete")
+GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
+
+
+def look_at(eye: np.ndarray, target: np.ndarray,
+            up: np.ndarray) -> np.matrix:
+    """Standard right-handed look-at:  build the world-to-view matrix
+    that places `eye` at the origin looking toward `target`, with
+    `up` defining the world's vertical."""
+    f = target - eye
+    f = f / np.linalg.norm(f)
+    s = np.cross(f, up)
+    s = s / np.linalg.norm(s)
+    u = np.cross(s, f)
+    m = np.identity(4, dtype=np.float32)
+    m[0, 0:3] = s
+    m[1, 0:3] = u
+    m[2, 0:3] = -f
+    m[0, 3] = -np.dot(s, eye)
+    m[1, 3] = -np.dot(u, eye)
+    m[2, 3] =  np.dot(f, eye)
+    return np.matrix(m)
+
+
+def ortho(l, r, b, t, n, f) -> np.matrix:
+    """Right-handed orthographic projection.  Maps [l,r] x [b,t] x
+    [-n,-f] (camera-space) to the [-1,1] cube of clip space."""
+    m = np.identity(4, dtype=np.float32)
+    m[0, 0] =  2.0 / (r - l)
+    m[1, 1] =  2.0 / (t - b)
+    m[2, 2] = -2.0 / (f - n)
+    m[0, 3] = -(r + l) / (r - l)
+    m[1, 3] = -(t + b) / (t - b)
+    m[2, 3] = -(f + n) / (f - n)
+    return np.matrix(m)
+
+
+def light_space_matrix(light_dir_vec) -> np.matrix:
+    """Light view + projection.  For this directional light we put a
+    pretend "eye" 200 units back along -light_dir from the scene
+    center, frame the cube + visible floor in an orthographic frustum,
+    and return projection * view as a single 4x4 ready to feed both
+    the depth pass and the color pass.
+
+    The frustum bounds (-80..+80 in xy, 1..400 in z) are sized to
+    contain the cube (50 units, centered at (-10, 0, 10)) and a
+    chunk of the floor wide enough for its shadow."""
+    scene_center = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+    ld = np.array(light_dir_vec, dtype=np.float32)
+    eye = scene_center + ld * 200.0
+    # Pick "up" to avoid the degenerate case when light is straight
+    # up.  Z works because our light never has z exactly +/-1 within
+    # the slider's elevation range.
+    up = np.array([0.0, 1.0, 0.0], dtype=np.float32)
+    if abs(ld[1]) > 0.999:
+        up = np.array([0.0, 0.0, 1.0], dtype=np.float32)
+    view = look_at(eye, scene_center, up)
+    proj = ortho(-80.0, 80.0, -80.0, 80.0, 1.0, 400.0)
+    return proj @ view
 
 
 # ---------------------------------------------------------------------------
@@ -576,23 +703,30 @@ def setup_uniforms(
     *,
     use_lighting: bool,
     use_texture: bool,
+    use_shadows: bool = False,
     flat_color: tuple[float, float, float] = (1.0, 1.0, 1.0),
 ) -> None:
     GL.glUniform1i(u_use_lighting, 1 if use_lighting else 0)
     GL.glUniform1i(u_use_texture, 1 if use_texture else 0)
+    GL.glUniform1i(u_use_shadows, 1 if use_shadows else 0)
     GL.glUniform3f(u_flat, *flat_color)
     GL.glUniform3f(u_light_dir, *light_dir)   # set in main loop each frame
     GL.glUniform3f(u_ambient, 0.2, 0.2, 0.2)
     GL.glUniform3f(u_diffuse, 0.7, 0.7, 0.7)
     GL.glUniform1i(u_tex, 0)
+    GL.glUniform1i(u_shadow_map, 1)   # texture unit 1 for the depth map
 
 
 def draw_floor(stage: int) -> None:
     with ms.push_matrix(ms.MatrixStack.model):
-        if stage == 4:
+        if stage == 3:
             GL.glActiveTexture(GL.GL_TEXTURE0)
             GL.glBindTexture(GL.GL_TEXTURE_2D, tex_floor)
-            setup_uniforms(use_lighting=False, use_texture=True)
+            # Floor is the main shadow receiver -- it gets the lit
+            # path with shadows on, which is the whole reason this
+            # demo went to a real shadow map.
+            setup_uniforms(use_lighting=True, use_texture=True,
+                           use_shadows=True)
         else:
             setup_uniforms(
                 use_lighting=False,
@@ -606,10 +740,10 @@ def draw_floor(stage: int) -> None:
 
 
 def draw_cube(stage: int) -> None:
-    """Draw the cube (and, for stages 3/4, its planar shadow)."""
+    """Draw the cube.  Stage 3 also receives shadows (the cube can
+    self-shadow on its own underside, and from this angle the floor
+    can shadow it back when the light is low)."""
 
-    # All cube drawing happens inside this push so the cube's translation
-    # is independent of the floor.
     with ms.push_matrix(ms.MatrixStack.model):
         ms.translate(ms.MatrixStack.model, -10.0, 0.0, 10.0)
 
@@ -638,7 +772,7 @@ def draw_cube(stage: int) -> None:
             GL.glBindVertexArray(0)
 
         elif stage == 2:
-            # lit cube
+            # lit cube, no shadows yet
             setup_uniforms(
                 use_lighting=True,
                 use_texture=False,
@@ -650,22 +784,10 @@ def draw_cube(stage: int) -> None:
             GL.glBindVertexArray(0)
 
         elif stage == 3:
-            # lit cube + planar shadow
-            setup_uniforms(
-                use_lighting=True,
-                use_texture=False,
-                flat_color=(0.8, 0.0, 0.0),
-            )
-            set_mvp_uniforms()
-            GL.glBindVertexArray(cube_solid_vao)
-            GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_solid_count)
-            GL.glBindVertexArray(0)
-
-        elif stage == 4:
-            # textured cube on all six faces + shadow.  Opposite faces
-            # share a texture, so the cube looks like a wooden block from
-            # any angle.  Face vertex offsets in the solid VAO are 6
-            # apart in the order:  +Z, -Z, +Y, -Y, +X, -X.
+            # textured cube on all six faces + lit + shadow-mapped.
+            # Opposite faces share a texture; vertex offsets in the
+            # solid VAO are 6 apart in the order:
+            # +Z, -Z, +Y, -Y, +X, -X.
             faces_to_draw = [
                 (tex_block_front, 0),   # +Z front
                 (tex_block_front, 6),   # -Z back
@@ -674,7 +796,8 @@ def draw_cube(stage: int) -> None:
                 (tex_block_right, 24),  # +X right
                 (tex_block_right, 30),  # -X left
             ]
-            setup_uniforms(use_lighting=True, use_texture=True)
+            setup_uniforms(use_lighting=True, use_texture=True,
+                           use_shadows=True)
             set_mvp_uniforms()
             GL.glBindVertexArray(cube_solid_vao)
             for tex, off in faces_to_draw:
@@ -683,41 +806,42 @@ def draw_cube(stage: int) -> None:
                 GL.glDrawArrays(GL.GL_TRIANGLES, off, 6)
             GL.glBindVertexArray(0)
 
-    # Shadow pass -- happens *outside* the cube's own translation push so
-    # we can re-apply translation after multiplying by the shadow matrix.
-    if stage in (3, 4):
-        # The shadow polygons end up exactly coplanar with the floor
-        # (both at y = -25.3), which makes the depth test flip-flop pixel
-        # by pixel -- the classic "z-fighting" flicker.  glPolygonOffset
-        # nudges the shadow's depth slightly toward the camera so it
-        # reliably wins the depth test against the floor.  Disabling
-        # depth writes also stops the shadow's own overlapping faces
-        # from fighting each other.
-        GL.glEnable(GL.GL_POLYGON_OFFSET_FILL)
-        GL.glPolygonOffset(-1.0, -1.0)
-        GL.glDepthMask(GL.GL_FALSE)
 
-        with ms.push_matrix(ms.MatrixStack.model):
-            # shadow operates on world-space points; we need to flatten
-            # AFTER the cube is in the world, so pre-multiply: model =
-            # SHADOW * translate(-10,0,10).  pyMatrixStack.multiply does
-            # current = current * rhs, so doing multiply(SHADOW) then
-            # translate(...) yields exactly that.
-            ms.multiply(ms.MatrixStack.model, shadow_matrix)
-            ms.translate(ms.MatrixStack.model, -10.0, 0.0, 10.0)
+def draw_shadow_casters(stage: int) -> None:
+    """Single pass that draws ONLY the shadow-casting geometry into
+    the depth FBO -- ground+cube here, no light marker (the bulb
+    shouldn't shadow itself).  Caller has already bound the depth
+    program and set lightSpaceMatrix; we just need to set modelMatrix
+    and issue draw calls for each piece.
 
-            setup_uniforms(
-                use_lighting=False,
-                use_texture=False,
-                flat_color=(0.0, 0.0, 0.0),
-            )
-            set_mvp_uniforms()
-            GL.glBindVertexArray(cube_solid_vao)
-            GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_solid_count)
-            GL.glBindVertexArray(0)
+    For correctness we draw both the floor (so it can self-shadow at
+    grazing angles) and the cube (the main caster).  At stages 0-2
+    this function is never called -- the depth pass is gated."""
+    # Floor
+    with ms.push_matrix(ms.MatrixStack.model):
+        GL.glUniformMatrix4fv(
+            u_depth_model, 1, GL.GL_TRUE,
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.model),
+                dtype=np.float32,
+            ),
+        )
+        GL.glBindVertexArray(floor_vao)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, floor_count)
 
-        GL.glDepthMask(GL.GL_TRUE)
-        GL.glDisable(GL.GL_POLYGON_OFFSET_FILL)
+    # Cube
+    with ms.push_matrix(ms.MatrixStack.model):
+        ms.translate(ms.MatrixStack.model, -10.0, 0.0, 10.0)
+        GL.glUniformMatrix4fv(
+            u_depth_model, 1, GL.GL_TRUE,
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.model),
+                dtype=np.float32,
+            ),
+        )
+        GL.glBindVertexArray(cube_solid_vao)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_solid_count)
+    GL.glBindVertexArray(0)
 
 
 # ---------------------------------------------------------------------------
@@ -760,15 +884,41 @@ while not glfw.window_should_close(window):
         "Elevation (deg)", light_el_deg, 5.0, 89.0)
     imgui.end()
 
-    # Recompute light + shadow each frame so the slider drives both
-    # the Lambert shading on the cube AND the planar shadow on the
-    # floor.  light_dir is read by setup_uniforms via closure scope.
+    # Recompute light each frame so sliding it reshapes both the
+    # Lambert shading AND the shadow map.
     light_dir = light_dir_ws(light_az_deg, light_el_deg)
-    shadow_matrix = planar_shadow_matrix(
-        FLOOR_PLANE, (light_dir[0], light_dir[1], light_dir[2], 0.0)
-    )
+    light_space = light_space_matrix(light_dir)
+    light_space_arr = np.ascontiguousarray(light_space, dtype=np.float32)
 
     width, height = glfw.get_framebuffer_size(window)
+
+    # ============================================================
+    # Pass 1 -- depth pre-pass into the shadow FBO.  Only run for
+    # the stage that actually uses shadows; otherwise the depth map
+    # is junk-but-unused so we can skip the GPU work.
+    # ============================================================
+    if n_step == SHADOW_STAGE:
+        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, shadow_fbo)
+        GL.glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
+        GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
+        # Front-face culling during the depth pass shifts shadow acne
+        # to the *outside* of objects, where it's hidden by the
+        # geometry itself.  Common trick.  Back to back-face culling
+        # for the color pass.
+        GL.glCullFace(GL.GL_FRONT)
+        GL.glUseProgram(depth_program)
+        GL.glUniformMatrix4fv(
+            u_depth_light_space, 1, GL.GL_TRUE, light_space_arr
+        )
+        ms.set_to_identity_matrix(ms.MatrixStack.model)
+        draw_shadow_casters(n_step)
+        GL.glUseProgram(0)
+        GL.glCullFace(GL.GL_BACK)
+        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
+
+    # ============================================================
+    # Pass 2 -- regular color pass into the default framebuffer.
+    # ============================================================
     GL.glViewport(0, 0, width, height)
     GL.glClear(sum([GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT]))
 
@@ -784,13 +934,18 @@ while not glfw.window_should_close(window):
         far_z=1000.0,
     )
 
-    # FPS-style camera transform:  inverse of (translate by camera.pos
-    # then yaw, then pitch).  Same form as demos 19 and 21.
     ms.rotate_x(ms.MatrixStack.view, -camera.rot_x)
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
     ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)
 
     GL.glUseProgram(program)
+    # Bind the depth map on texture unit 1 -- u_shadow_map=1 was set
+    # by setup_uniforms.  Stays bound across all the lit draws below.
+    GL.glActiveTexture(GL.GL_TEXTURE1)
+    GL.glBindTexture(GL.GL_TEXTURE_2D, shadow_depth_tex)
+    GL.glActiveTexture(GL.GL_TEXTURE0)
+    GL.glUniformMatrix4fv(u_light_space, 1, GL.GL_TRUE, light_space_arr)
+
     draw_floor(n_step)
     draw_cube(n_step)
 
