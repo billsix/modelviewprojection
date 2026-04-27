@@ -24,7 +24,7 @@
 #     demo16  -- 3D and depth
 #     demo19e -- FPS-style camera over a flat ground plane
 #     demo20+ -- shaders
-#     demo22  -- Lambert lighting, textures, shadow-mapped shadows
+#     demo22  -- Lambert lighting, textures, planar shadows
 #     demo23  -- Blinn-Phong + complex hand-built mesh + per-face normals
 #
 # What's new here:
@@ -35,13 +35,11 @@
 # * Many lit instances -- 30 randomly placed spheres, a rotating torus,
 #   and a small orbiting sphere, all sharing one shader and lighting
 #   setup.  Each gets its own model matrix via pyMatrixStack.
-# * Shadow mapping -- the scene is rendered twice per frame.  First a
-#   *depth-only* pre-pass into an off-screen FBO from the light's
-#   point of view (perspective projection from the actual point-light
-#   position); then the color pass samples that depth map to decide
-#   per-fragment whether a given world-space point is occluded from
-#   the light or not.  Replaces the stencil-buffered planar-shadow
-#   trick used by the SuperBible original.
+# * Stencil-buffered planar shadows -- the shadow projection happens
+#   on the CPU as a 4x4 matrix multiplied into the model stack
+#   *before* each actor's local transform, so the same VBOs draw a
+#   second time as their flattened silhouettes.  The stencil buffer
+#   prevents overlapping shadows from double-darkening.
 # * Ground texture wrap mode -- grass.tga uses GL_REPEAT so the floor
 #   can tile a small texture across a 40x40 unit plane, while the orb
 #   and wood textures use CLAMP_TO_EDGE like demo22a's stone.
@@ -91,10 +89,8 @@ glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
 glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
-# Stencil buffer is no longer needed (shadow mapping replaced the
-# planar-shadow stencil dance), but leaving the hint in place is
-# harmless and keeps context creation symmetric with the SuperBible
-# original which requested GLUT_STENCIL.
+# Stencil bits are the unusual ask:  the planar shadow pass uses the
+# stencil buffer so overlapping shadows don't double-darken.
 glfw.window_hint(glfw.STENCIL_BITS, 8)
 
 window = glfw.create_window(
@@ -192,19 +188,15 @@ def handle_inputs() -> None:
 # ---------------------------------------------------------------------------
 
 
-def _compile(vert_name: str, frag_name: str) -> int:
-    with open(os.path.join(pwd, vert_name)) as f:
+def compile_shader_program() -> int:
+    with open(os.path.join(pwd, "sphereworld.vert")) as f:
         vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
-    with open(os.path.join(pwd, frag_name)) as f:
+    with open(os.path.join(pwd, "sphereworld.frag")) as f:
         fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
     return shaders.compileProgram(vs, fs)
 
 
-# Two programs:  the main one, and a depth-only one used for the
-# shadow-map pre-pass (it just rasterizes positions into the off-
-# screen FBO's depth attachment).
-program: int = _compile("sphereworld.vert", "sphereworld.frag")
-depth_program: int = _compile("depth.vert", "depth.frag")
+program: int = compile_shader_program()
 
 u_mvp = GL.glGetUniformLocation(program, "mvpMatrix")
 u_model = GL.glGetUniformLocation(program, "modelMatrix")
@@ -217,14 +209,6 @@ u_specular = GL.glGetUniformLocation(program, "specularColor")
 u_shininess = GL.glGetUniformLocation(program, "shininess")
 u_render_mode = GL.glGetUniformLocation(program, "renderMode")
 u_tex = GL.glGetUniformLocation(program, "tex")
-u_use_shadows = GL.glGetUniformLocation(program, "useShadows")
-u_shadow_map = GL.glGetUniformLocation(program, "shadowMap")
-u_light_space = GL.glGetUniformLocation(program, "lightSpaceMatrix")
-
-u_depth_model = GL.glGetUniformLocation(depth_program, "modelMatrix")
-u_depth_light_space = GL.glGetUniformLocation(
-    depth_program, "lightSpaceMatrix"
-)
 
 
 def set_mvp_uniforms() -> None:
@@ -492,111 +476,36 @@ def light_position_ws(az_deg: float, el_deg: float,
     )
 
 
+def planar_shadow_matrix(plane: tuple[float, float, float, float],
+                         light: tuple[float, float, float, float]
+                         ) -> np.ndarray:
+    """Return the 4x4 matrix that projects world-space points onto the
+    given plane (a*x + b*y + c*z + d = 0) along rays from the light
+    position.
+
+    Standard form:  M = (n . L) * I - L * n^T,  where n=(a,b,c,d)
+    and L=(Lx,Ly,Lz,Lw).  Stored row-major like np.matrix expects."""
+    a, b, c, d = plane
+    Lx, Ly, Lz, Lw = light
+    dot = a * Lx + b * Ly + c * Lz + d * Lw
+    return np.array([
+        [dot - a * Lx,    -b * Lx,         -c * Lx,         -d * Lx],
+        [-a * Ly,         dot - b * Ly,    -c * Ly,         -d * Ly],
+        [-a * Lz,         -b * Lz,         dot - c * Lz,    -d * Lz],
+        [-a * Lw,         -b * Lw,         -c * Lw,         dot - d * Lw],
+    ], dtype=np.float64)
+
+
+# Ground plane y = GROUND_Y, normal +Y, so 0*x + 1*y + 0*z + (-GROUND_Y) = 0
+# i.e. plane = (0, 1, 0, 0.4).  Light position is recomputed each
+# frame from the imgui sliders, so the shadow matrix is too.
+GROUND_PLANE = (0.0, 1.0, 0.0, -GROUND_Y)
+
 # Yellow ball drawn at the light's location (chapt05/shadow.cpp:272).
 # Origin's small sphere mesh is radius 0.1; we scale it 20x in the
 # model matrix so it's visible from across the world (radius 2.0).
 LIGHT_MARKER_SCALE: float = 20.0
 LIGHT_MARKER_COLOR: tuple[float, float, float] = (1.0, 1.0, 0.0)
-
-
-# ---------------------------------------------------------------------------
-# Shadow map -- off-screen depth-only framebuffer
-# ---------------------------------------------------------------------------
-# Same recipe as demo22:  GL_DEPTH_COMPONENT24 texture, FBO with no
-# color attachment, GL_NONE for the draw/read buffers.  See demo22
-# for the longer commentary; here we just wire it up.
-
-SHADOW_MAP_SIZE: int = 1024
-
-shadow_depth_tex = GL.glGenTextures(1)
-GL.glBindTexture(GL.GL_TEXTURE_2D, shadow_depth_tex)
-GL.glTexImage2D(
-    GL.GL_TEXTURE_2D, 0, GL.GL_DEPTH_COMPONENT24,
-    SHADOW_MAP_SIZE, SHADOW_MAP_SIZE, 0,
-    GL.GL_DEPTH_COMPONENT, GL.GL_FLOAT, None,
-)
-GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
-GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
-GL.glTexParameteri(
-    GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_BORDER
-)
-GL.glTexParameteri(
-    GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_BORDER
-)
-GL.glTexParameterfv(
-    GL.GL_TEXTURE_2D, GL.GL_TEXTURE_BORDER_COLOR,
-    np.array([1.0, 1.0, 1.0, 1.0], dtype=np.float32),
-)
-GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
-
-shadow_fbo = GL.glGenFramebuffers(1)
-GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, shadow_fbo)
-GL.glFramebufferTexture2D(
-    GL.GL_FRAMEBUFFER, GL.GL_DEPTH_ATTACHMENT,
-    GL.GL_TEXTURE_2D, shadow_depth_tex, 0,
-)
-GL.glDrawBuffer(GL.GL_NONE)
-GL.glReadBuffer(GL.GL_NONE)
-if (GL.glCheckFramebufferStatus(GL.GL_FRAMEBUFFER)
-        != GL.GL_FRAMEBUFFER_COMPLETE):
-    raise RuntimeError("shadow FBO is not complete")
-GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
-
-
-def look_at(eye: np.ndarray, target: np.ndarray,
-            up: np.ndarray) -> np.matrix:
-    """Right-handed look-at:  world-to-view matrix that puts `eye` at
-    the origin, looking down -Z toward `target`."""
-    f = target - eye
-    f = f / np.linalg.norm(f)
-    s = np.cross(f, up)
-    s = s / np.linalg.norm(s)
-    u = np.cross(s, f)
-    m = np.identity(4, dtype=np.float32)
-    m[0, 0:3] = s
-    m[1, 0:3] = u
-    m[2, 0:3] = -f
-    m[0, 3] = -np.dot(s, eye)
-    m[1, 3] = -np.dot(u, eye)
-    m[2, 3] =  np.dot(f, eye)
-    return np.matrix(m)
-
-
-def perspective_proj(fov_deg: float, aspect: float,
-                     near: float, far: float) -> np.matrix:
-    """Right-handed perspective projection (looks down -Z).  Same
-    convention as gluPerspective and pyMatrixStack.perspective."""
-    f = 1.0 / math.tan(math.radians(fov_deg) / 2.0)
-    m = np.zeros((4, 4), dtype=np.float32)
-    m[0, 0] = f / aspect
-    m[1, 1] = f
-    m[2, 2] = (far + near) / (near - far)
-    m[2, 3] = (2.0 * far * near) / (near - far)
-    m[3, 2] = -1.0
-    return np.matrix(m)
-
-
-def light_space_matrix(light_pos_vec) -> np.matrix:
-    """Light view + projection for the positional light.  Eye sits at
-    the actual light position; we look at the scene's center
-    (origin), which works because all the spheres are scattered
-    within ~20 units of origin and the ground is centered there too.
-
-    A 90 degree FOV is wide enough to see the whole 40x40 ground from
-    light positions as close as ~20 units (the slider's minimum)."""
-    target = np.array([0.0, 0.0, 0.0], dtype=np.float32)
-    eye = np.array(light_pos_vec, dtype=np.float32)
-    up = np.array([0.0, 1.0, 0.0], dtype=np.float32)
-    if abs(eye[1]) > 0.999 * float(np.linalg.norm(eye)):
-        # Light is straight up (or down); pick a different up to
-        # avoid the degenerate cross product.
-        up = np.array([0.0, 0.0, 1.0], dtype=np.float32)
-    view = look_at(eye, target, up)
-    # Near = 1 keeps depth precision usable across distances 20..200.
-    # Far = 250 = same as the camera's far plane, so light at the
-    # outer slider edge still has depth headroom.
-    proj = perspective_proj(90.0, 1.0, 1.0, 250.0)
-    return proj @ view
 
 
 # ---------------------------------------------------------------------------
@@ -612,8 +521,8 @@ def _bind_and_draw(vao: int, count: int, mode=GL.GL_TRIANGLES) -> None:
 
 def draw_inhabitants(yrot: float) -> None:
     """Draw the 30 spheres + the rotating torus/orbiter pair.  Caller
-    has already set renderMode + texture binding state for the lit
-    color pass."""
+    has already set renderMode + texture binding state appropriate to
+    either the lit or shadow pass."""
     # Scattered spheres -- orb texture.
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex_orb)
@@ -640,61 +549,6 @@ def draw_inhabitants(yrot: float) -> None:
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex_wood)
         set_mvp_uniforms()
         _bind_and_draw(torus_vao, torus_count)
-
-
-def _set_depth_model_matrix() -> None:
-    """Push the current model matrix to the depth program's uniform.
-    set_mvp_uniforms() uses the *color* program's locations; for the
-    depth pass we have a separate uniform that takes only the model
-    matrix (since lightSpaceMatrix replaces the camera's view+proj)."""
-    GL.glUniformMatrix4fv(
-        u_depth_model, 1, GL.GL_TRUE,
-        np.ascontiguousarray(
-            ms.get_current_matrix(ms.MatrixStack.model),
-            dtype=np.float32,
-        ),
-    )
-
-
-def draw_shadow_casters_depth(yrot: float) -> None:
-    """Re-walk the same scene tree as draw_inhabitants() + the ground,
-    but writing only depth (the depth program is already bound).
-    Light marker is intentionally excluded -- the bulb shouldn't
-    cast a shadow on itself.
-
-    The ground gets included so it can self-shadow at grazing
-    angles (rare here, but cheap to add)."""
-    # Ground.
-    with ms.push_matrix(ms.MatrixStack.model):
-        _set_depth_model_matrix()
-        GL.glBindVertexArray(ground_vao)
-        GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_count)
-
-    # Scattered inhabitant spheres.
-    for ox, oy, oz in sphere_origins:
-        with ms.push_matrix(ms.MatrixStack.model):
-            ms.translate(ms.MatrixStack.model, ox, oy, oz)
-            _set_depth_model_matrix()
-            GL.glBindVertexArray(sphere_big_vao)
-            GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_big_count)
-
-    # Torus + orbiter cluster.
-    with ms.push_matrix(ms.MatrixStack.model):
-        ms.translate(ms.MatrixStack.model, 0.0, 0.1, -2.5)
-
-        with ms.push_matrix(ms.MatrixStack.model):
-            ms.rotate_y(ms.MatrixStack.model, -2.0 * yrot)
-            ms.translate(ms.MatrixStack.model, 1.0, 0.0, 0.0)
-            _set_depth_model_matrix()
-            GL.glBindVertexArray(sphere_small_vao)
-            GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_small_count)
-
-        ms.rotate_y(ms.MatrixStack.model, yrot)
-        _set_depth_model_matrix()
-        GL.glBindVertexArray(torus_vao)
-        GL.glDrawArrays(GL.GL_TRIANGLES, 0, torus_count)
-
-    GL.glBindVertexArray(0)
 
 
 # ---------------------------------------------------------------------------
@@ -749,37 +603,18 @@ while not glfw.window_should_close(window):
     imgui.end()
 
     light_pos = light_position_ws(light_az_deg, light_el_deg, light_distance)
-    light_space = light_space_matrix(light_pos)
-    light_space_arr = np.ascontiguousarray(light_space, dtype=np.float32)
+    shadow_matrix = planar_shadow_matrix(
+        GROUND_PLANE, (light_pos[0], light_pos[1], light_pos[2], 1.0)
+    )
 
     width, height = glfw.get_framebuffer_size(window)
-
-    # ============================================================
-    # Pass 1 -- depth pre-pass into the shadow FBO.  Skipped when
-    # the user has turned shadows off or is in wireframe mode.
-    # ============================================================
-    if shadows_on and not wireframe:
-        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, shadow_fbo)
-        GL.glViewport(0, 0, SHADOW_MAP_SIZE, SHADOW_MAP_SIZE)
-        GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
-        # Front-face culling during the depth pass shifts shadow acne
-        # to the *outside* of objects, where the geometry hides it.
-        GL.glCullFace(GL.GL_FRONT)
-        GL.glUseProgram(depth_program)
-        GL.glUniformMatrix4fv(
-            u_depth_light_space, 1, GL.GL_TRUE, light_space_arr
-        )
-        ms.set_to_identity_matrix(ms.MatrixStack.model)
-        draw_shadow_casters_depth(yrot)
-        GL.glUseProgram(0)
-        GL.glCullFace(GL.GL_BACK)
-        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
-
-    # ============================================================
-    # Pass 2 -- color pass into the default framebuffer.
-    # ============================================================
     GL.glViewport(0, 0, width, height)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+    GL.glClearStencil(0)
+    GL.glClear(
+        GL.GL_COLOR_BUFFER_BIT
+        | GL.GL_DEPTH_BUFFER_BIT
+        | GL.GL_STENCIL_BUFFER_BIT
+    )
 
     GL.glPolygonMode(
         GL.GL_FRONT_AND_BACK, GL.GL_LINE if wireframe else GL.GL_FILL
@@ -794,6 +629,9 @@ while not glfw.window_should_close(window):
         field_of_view=35.0,    # SuperBible used 35 degrees
         aspect_ratio=aspect,
         near_z=0.1,
+        # Far plane has to contain the light marker even when the
+        # imgui slider pushes it out to distance 200 and the camera
+        # has walked the opposite direction; 250 leaves headroom.
         far_z=250.0,
     )
 
@@ -815,44 +653,66 @@ while not glfw.window_should_close(window):
         GL.glUniform3f(u_specular, 0.0, 0.0, 0.0)
     GL.glUniform1f(u_shininess, shininess)
     GL.glUniform1i(u_tex, 0)
-    GL.glUniform1i(u_shadow_map, 1)             # texture unit 1
-    GL.glUniformMatrix4fv(u_light_space, 1, GL.GL_TRUE, light_space_arr)
-    GL.glUniform1i(u_use_shadows, 1 if (shadows_on and not wireframe) else 0)
     GL.glUniform3f(u_base, 1.0, 1.0, 1.0)
 
-    # Bind the shadow depth texture on unit 1 for the rest of this
-    # color pass.  The main texture (grass/wood/orb) lives on unit 0.
-    GL.glActiveTexture(GL.GL_TEXTURE1)
-    GL.glBindTexture(GL.GL_TEXTURE_2D, shadow_depth_tex)
-    GL.glActiveTexture(GL.GL_TEXTURE0)
-
     if wireframe:
-        # Single yellow wireframe pass over everything.
+        # Single yellow wireframe pass over everything; skip shadows
+        # because the projection is invisible without fills.
         GL.glUniform1i(u_render_mode, 2)
         GL.glUniform3f(u_base, 1.0, 1.0, 0.0)
+        GL.glActiveTexture(GL.GL_TEXTURE0)
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex_grass)
         set_mvp_uniforms()
         _bind_and_draw(ground_vao, ground_count)
         draw_inhabitants(yrot)
     else:
-        # ---- Lit pass for the ground (the main shadow receiver) ----
+        # ---- Lit pass for the ground ----
         GL.glUniform1i(u_render_mode, 1)
+        GL.glActiveTexture(GL.GL_TEXTURE0)
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex_grass)
         set_mvp_uniforms()
         _bind_and_draw(ground_vao, ground_count)
 
+        # ---- Shadow pass ----
+        # Inject the planar shadow matrix into the model stack BEFORE
+        # any actor transforms, so each actor's vertices get squashed
+        # to the ground plane.  Stencil + blend let the shadow show
+        # through the ground (depth test off) without doubling where
+        # silhouettes overlap.
+        if shadows_on:
+            GL.glDisable(GL.GL_DEPTH_TEST)
+            GL.glEnable(GL.GL_BLEND)
+            GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
+            GL.glEnable(GL.GL_STENCIL_TEST)
+            GL.glStencilFunc(GL.GL_EQUAL, 0, 0xFF)
+            GL.glStencilOp(GL.GL_KEEP, GL.GL_KEEP, GL.GL_INCR)
+            # Backface culling on the squashed (degenerate) geometry
+            # produces gaps; drop it for the shadow pass.
+            GL.glDisable(GL.GL_CULL_FACE)
+            GL.glUniform1i(u_render_mode, 0)
+
+            with ms.push_matrix(ms.MatrixStack.model):
+                ms.multiply(ms.MatrixStack.model,
+                            np.matrix(shadow_matrix))
+                draw_inhabitants(yrot)
+
+            GL.glEnable(GL.GL_CULL_FACE)
+            GL.glDisable(GL.GL_STENCIL_TEST)
+            GL.glDisable(GL.GL_BLEND)
+            GL.glEnable(GL.GL_DEPTH_TEST)
+
         # ---- Lit pass for the inhabitants ----
-        # The fragment shader samples the shadow map and darkens the
-        # diffuse+specular terms wherever this fragment is occluded
-        # from the light's POV.  No second draw call needed -- the
-        # shadow comes "for free" out of the lit pass.
+        GL.glUniform1i(u_render_mode, 1)
         draw_inhabitants(yrot)
 
-        # ---- Light position marker (yellow ball) ----
-        # Drawn unlit and *with shadows off*, so the bulb glows
-        # uniformly and isn't darkened by its own occluder samples.
+        # ---- Light position marker ----
+        # Lifted from chapt05/shadow.cpp:272-277:  translate to the
+        # light, draw a small unlit yellow sphere as the "bulb" so
+        # students can see *where* the light is when they slide it
+        # around.  We reuse the orbiter sphere (radius 0.1) and scale
+        # it up via the model matrix; renderMode=2 short-circuits both
+        # texture sampling and lighting.
         GL.glUniform1i(u_render_mode, 2)
-        GL.glUniform1i(u_use_shadows, 0)
         GL.glUniform3f(u_base, *LIGHT_MARKER_COLOR)
         with ms.push_matrix(ms.MatrixStack.model):
             ms.translate(ms.MatrixStack.model, *light_pos)
