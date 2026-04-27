@@ -142,6 +142,14 @@ diffuse: float = 0.7       # SuperBible used 0.7
 specular: float = 0.9
 shininess: float = 64.0
 
+# Light direction (unit vector toward the light) is parameterized by
+# spherical coordinates so it can be slid live; see demo22a for the
+# rationale.  Defaults put the light low and in front of the camera so
+# the cone+bulb marker is visible from the starting view, and so the
+# specular highlight on the jet body is obvious.
+light_az_deg: float = 250.0
+light_el_deg: float = 25.0
+
 
 def handle_inputs() -> None:
     global jet_yaw, jet_pitch
@@ -311,6 +319,56 @@ def _build_jet_wire() -> np.ndarray:
     return np.array(out, dtype=np.float32)
 
 
+def _build_marker_cone(radius: float, height: float,
+                       slices: int) -> np.ndarray:
+    """Cone with the base at z=0 and apex at z=+height, matching
+    chapt05/spot.cpp's bulb-at-base / cone-body-behind layout.  Same
+    6-float layout (pos + zero normal) as the jet.  Drawn unlit."""
+    out: list[float] = []
+    base_pts = []
+    for i in range(slices + 1):
+        t = i / slices * 2.0 * math.pi
+        base_pts.append((radius * math.cos(t), radius * math.sin(t), 0.0))
+
+    apex = (0.0, 0.0, height)
+    base_center = (0.0, 0.0, 0.0)
+    # Slant sides:  (apex, p[i], p[i+1]) is CCW from outside.
+    for i in range(slices):
+        for v in (apex, base_pts[i], base_pts[i + 1]):
+            out.extend(v)
+            out.extend((0.0, 0.0, 0.0))
+    # Base cap:  outward normal is -z, so winding (center, p[i+1], p[i]).
+    for i in range(slices):
+        for v in (base_center, base_pts[i + 1], base_pts[i]):
+            out.extend(v)
+            out.extend((0.0, 0.0, 0.0))
+    return np.array(out, dtype=np.float32)
+
+
+def _build_marker_sphere(radius: float, slices: int,
+                         stacks: int) -> np.ndarray:
+    """Tiny UV sphere for the bulb (6-float layout, unlit)."""
+    out: list[float] = []
+    for i in range(stacks):
+        phi0 = math.pi * (i / stacks) - math.pi / 2.0
+        phi1 = math.pi * ((i + 1) / stacks) - math.pi / 2.0
+        cphi0, sphi0 = math.cos(phi0), math.sin(phi0)
+        cphi1, sphi1 = math.cos(phi1), math.sin(phi1)
+        for j in range(slices):
+            t0 = 2.0 * math.pi * (j / slices)
+            t1 = 2.0 * math.pi * ((j + 1) / slices)
+            ct0, st0 = math.cos(t0), math.sin(t0)
+            ct1, st1 = math.cos(t1), math.sin(t1)
+            p00 = (cphi0 * st0, sphi0, cphi0 * ct0)
+            p10 = (cphi0 * st1, sphi0, cphi0 * ct1)
+            p01 = (cphi1 * st0, sphi1, cphi1 * ct0)
+            p11 = (cphi1 * st1, sphi1, cphi1 * ct1)
+            for v in (p00, p10, p01, p10, p11, p01):
+                out.extend(p * radius for p in v)
+                out.extend((0.0, 0.0, 0.0))
+    return np.array(out, dtype=np.float32)
+
+
 def make_vao(vertex_data: np.ndarray) -> tuple[int, int, int]:
     vertex_data = np.ascontiguousarray(vertex_data, dtype=np.float32)
     vao = GL.glGenVertexArrays(1)
@@ -336,16 +394,36 @@ def make_vao(vertex_data: np.ndarray) -> tuple[int, int, int]:
 jet_vao, jet_vbo, jet_count = make_vao(_build_jet())
 wire_vao, wire_vbo, wire_count = make_vao(_build_jet_wire())
 
+# Light marker geometry -- jet is ~2.5 units wide so the marker is a
+# touch larger than demo22a's:  cone radius 0.15, height 0.45, bulb
+# 0.10.  Sits 2.0 units along the light direction.
+marker_cone_vao, marker_cone_vbo, marker_cone_count = make_vao(
+    _build_marker_cone(radius=0.15, height=0.45, slices=18)
+)
+marker_bulb_vao, marker_bulb_vbo, marker_bulb_count = make_vao(
+    _build_marker_sphere(radius=0.10, slices=14, stacks=8)
+)
+LIGHT_MARKER_DISTANCE: float = 2.0
+LIGHT_MARKER_CONE_COLOR: tuple = (0.85, 0.15, 0.15)
+LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)
+
 
 # ---------------------------------------------------------------------------
 # Lighting
 # ---------------------------------------------------------------------------
 
 # SuperBible original used a positional light at (-50, 50, 100); we
-# reuse that *direction* as a directional light, normalized.  The
-# shader treats lightDirWS as "direction toward the light".
-LIGHT_DIR_WS = np.array([-50.0, 50.0, 100.0], dtype=np.float32)
-LIGHT_DIR_WS = LIGHT_DIR_WS / np.linalg.norm(LIGHT_DIR_WS)
+# treat it as a directional light, normalized -- only the angle
+# matters.  Re-derived from imgui sliders each frame.  The shader
+# treats lightDirWS as "direction toward the light".
+def light_dir_ws(az_deg: float, el_deg: float) -> tuple[float, float, float]:
+    az = math.radians(az_deg)
+    el = math.radians(el_deg)
+    return (
+        math.cos(el) * math.cos(az),
+        math.sin(el),
+        math.cos(el) * math.sin(az),
+    )
 
 # Mid-gray jet body, matching SuperBible glColor3ub(128,128,128).
 JET_COLOR = (0.5, 0.5, 0.5)
@@ -372,7 +450,7 @@ while not glfw.window_should_close(window):
 
     imgui.new_frame()
     imgui.set_next_window_size(
-        imgui.ImVec2(300, 280), imgui.Cond_.first_use_ever
+        imgui.ImVec2(320, 360), imgui.Cond_.first_use_ever
     )
     imgui.begin("Lit Jet", True)
     imgui.text("Lighting model:")
@@ -389,7 +467,15 @@ while not glfw.window_should_close(window):
     _, diffuse = imgui.slider_float("Diffuse", diffuse, 0.0, 1.0)
     _, specular = imgui.slider_float("Specular", specular, 0.0, 1.0)
     _, shininess = imgui.slider_float("Shininess", shininess, 1.0, 256.0)
+    imgui.separator()
+    imgui.text("Light direction (red cone + yellow bulb):")
+    _, light_az_deg = imgui.slider_float(
+        "Azimuth (deg)", light_az_deg, 0.0, 360.0)
+    _, light_el_deg = imgui.slider_float(
+        "Elevation (deg)", light_el_deg, 5.0, 89.0)
     imgui.end()
+
+    light_dir = light_dir_ws(light_az_deg, light_el_deg)
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
@@ -412,7 +498,7 @@ while not glfw.window_should_close(window):
     ms.translate(ms.MatrixStack.view, -camera.x, -camera.y, -camera.z)
 
     GL.glUseProgram(program)
-    GL.glUniform3f(u_light_dir, *LIGHT_DIR_WS.tolist())
+    GL.glUniform3f(u_light_dir, *light_dir)
     GL.glUniform3f(u_camera_pos, camera.x, camera.y, camera.z)
     GL.glUniform3f(u_ambient, ambient, ambient, ambient)
     GL.glUniform3f(u_diffuse, diffuse, diffuse, diffuse)
@@ -438,6 +524,35 @@ while not glfw.window_should_close(window):
             GL.glDrawArrays(GL.GL_TRIANGLES, 0, jet_count)
             GL.glBindVertexArray(0)
 
+    # ---- Light marker (red cone + yellow bulb) ----
+    # Drawn outside the jet's model push so the marker isn't yawed/
+    # pitched by the jet controls.  Unlit (lightingMode=0) so it
+    # doesn't shade against itself.
+    GL.glUniform1i(u_lighting_mode, 0)
+    with ms.push_matrix(ms.MatrixStack.model):
+        ms.translate(ms.MatrixStack.model,
+                     light_dir[0] * LIGHT_MARKER_DISTANCE,
+                     light_dir[1] * LIGHT_MARKER_DISTANCE,
+                     light_dir[2] * LIGHT_MARKER_DISTANCE)
+        # See demo22a for the rotation derivation:  +z -> +light_dir.
+        ms.rotate_y(ms.MatrixStack.model,
+                    math.radians(90.0 - light_az_deg))
+        ms.rotate_x(ms.MatrixStack.model,
+                    math.radians(-light_el_deg))
+
+        GL.glUniform3f(u_base, *LIGHT_MARKER_CONE_COLOR)
+        set_mvp_uniforms()
+        GL.glBindVertexArray(marker_cone_vao)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, marker_cone_count)
+        GL.glBindVertexArray(0)
+
+        # Bulb at the base of the cone (= local origin).
+        GL.glUniform3f(u_base, *LIGHT_MARKER_BULB_COLOR)
+        set_mvp_uniforms()
+        GL.glBindVertexArray(marker_bulb_vao)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, marker_bulb_count)
+        GL.glBindVertexArray(0)
+
     GL.glUseProgram(0)
 
     imgui.render()
@@ -451,8 +566,12 @@ GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 GL.glUseProgram(0)
 GL.glDeleteVertexArrays(1, [jet_vao])
 GL.glDeleteVertexArrays(1, [wire_vao])
+GL.glDeleteVertexArrays(1, [marker_cone_vao])
+GL.glDeleteVertexArrays(1, [marker_bulb_vao])
 GL.glDeleteBuffers(1, [jet_vbo])
 GL.glDeleteBuffers(1, [wire_vbo])
+GL.glDeleteBuffers(1, [marker_cone_vbo])
+GL.glDeleteBuffers(1, [marker_bulb_vbo])
 GL.glDeleteProgram(program)
 
 glfw.terminate()

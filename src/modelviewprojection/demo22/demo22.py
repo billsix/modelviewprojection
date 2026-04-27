@@ -104,6 +104,20 @@ STAGE_LABELS: list[str] = [
     "4  --  textured + lit + shadow",
 ]
 
+# Light direction (toward the light, normalized) is parameterized by
+# spherical coords so it can be slid live; both the Lambert shading on
+# the cube AND the planar shadow on the floor reshape together when
+# the user moves the slider, which is the whole pedagogical point.
+# Defaults are tuned to put the cone+bulb marker centered in the
+# starting camera view (camera at +x, +y, +z looking back toward
+# origin):  az 60°, el 30° puts light_dir antiparallel to camera-
+# forward, so the bulb sits in front of the cube from the camera's
+# POV.  The SuperBible original was light direction (-80, 120, 100) ≈
+# (az 129°, el 43°), which is more "physical" (sun above and to the
+# left) but hides the marker behind the camera.  Slide and explore.
+light_az_deg: float = 60.0
+light_el_deg: float = 30.0
+
 
 def on_key(win, key, scancode, action, mods):
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
@@ -428,7 +442,76 @@ def _build_floor() -> np.ndarray:
     return np.array(out, dtype=np.float32)
 
 
-floor_vao, _, floor_count = make_vao(_build_floor())
+floor_vao, floor_vbo, floor_count = make_vao(_build_floor())
+
+
+# Light marker geometry ------------------------------------------------------
+# A red cone + yellow bulb sized for this demo's units (cube is 50
+# units across, floor at y=-25).  Cone radius 5, height 12; bulb
+# radius 4.  Sits at LIGHT_MARKER_DISTANCE units along +light_dir.
+
+def _build_marker_cone(radius: float, height: float,
+                       slices: int) -> np.ndarray:
+    """Cone with the base at z=0 and apex at z=+height, matching
+    chapt05/spot.cpp's bulb-at-base / cone-body-behind layout.  In
+    the demo's 8-float layout (pos + zero normal + zero uv).  Drawn
+    unlit."""
+    out: list[float] = []
+    base_pts = []
+    for i in range(slices + 1):
+        t = i / slices * 2.0 * math.pi
+        base_pts.append((radius * math.cos(t), radius * math.sin(t), 0.0))
+    apex = (0.0, 0.0, height)
+    base_center = (0.0, 0.0, 0.0)
+    # Slant sides:  (apex, p[i], p[i+1]) is CCW from outside.
+    for i in range(slices):
+        for v in (apex, base_pts[i], base_pts[i + 1]):
+            out.extend(v)
+            out.extend((0.0, 0.0, 0.0))
+            out.extend((0.0, 0.0))
+    # Base cap:  outward normal is -z, winding (center, p[i+1], p[i]).
+    for i in range(slices):
+        for v in (base_center, base_pts[i + 1], base_pts[i]):
+            out.extend(v)
+            out.extend((0.0, 0.0, 0.0))
+            out.extend((0.0, 0.0))
+    return np.array(out, dtype=np.float32)
+
+
+def _build_marker_sphere(radius: float, slices: int,
+                         stacks: int) -> np.ndarray:
+    """UV sphere for the bulb (8-float layout, unlit)."""
+    out: list[float] = []
+    for i in range(stacks):
+        phi0 = math.pi * (i / stacks) - math.pi / 2.0
+        phi1 = math.pi * ((i + 1) / stacks) - math.pi / 2.0
+        cphi0, sphi0 = math.cos(phi0), math.sin(phi0)
+        cphi1, sphi1 = math.cos(phi1), math.sin(phi1)
+        for j in range(slices):
+            t0 = 2.0 * math.pi * (j / slices)
+            t1 = 2.0 * math.pi * ((j + 1) / slices)
+            ct0, st0 = math.cos(t0), math.sin(t0)
+            ct1, st1 = math.cos(t1), math.sin(t1)
+            p00 = (cphi0 * st0, sphi0, cphi0 * ct0)
+            p10 = (cphi0 * st1, sphi0, cphi0 * ct1)
+            p01 = (cphi1 * st0, sphi1, cphi1 * ct0)
+            p11 = (cphi1 * st1, sphi1, cphi1 * ct1)
+            for v in (p00, p10, p01, p10, p11, p01):
+                out.extend(p * radius for p in v)
+                out.extend((0.0, 0.0, 0.0))
+                out.extend((0.0, 0.0))
+    return np.array(out, dtype=np.float32)
+
+
+marker_cone_vao, marker_cone_vbo, marker_cone_count = make_vao(
+    _build_marker_cone(radius=5.0, height=12.0, slices=20)
+)
+marker_bulb_vao, marker_bulb_vbo, marker_bulb_count = make_vao(
+    _build_marker_sphere(radius=4.0, slices=16, stacks=10)
+)
+LIGHT_MARKER_DISTANCE: float = 55.0
+LIGHT_MARKER_CONE_COLOR: tuple = (0.85, 0.15, 0.15)
+LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)
 
 
 # ---------------------------------------------------------------------------
@@ -436,9 +519,18 @@ floor_vao, _, floor_count = make_vao(_build_floor())
 # ---------------------------------------------------------------------------
 
 
-# matches the SuperBible original (-80, 120, 100, 0):  a directional light.
-LIGHT_DIR_WS = np.array([-80.0, 120.0, 100.0], dtype=np.float32)
-LIGHT_DIR_WS = LIGHT_DIR_WS / np.linalg.norm(LIGHT_DIR_WS)
+# SuperBible used a constant directional light at (-80, 120, 100, 0).
+# We compute the same vector each frame from the imgui azimuth/
+# elevation sliders so the shadow on the floor reshapes when the
+# user slides the light around.
+def light_dir_ws(az_deg: float, el_deg: float) -> tuple[float, float, float]:
+    az = math.radians(az_deg)
+    el = math.radians(el_deg)
+    return (
+        math.cos(el) * math.cos(az),
+        math.sin(el),
+        math.cos(el) * math.sin(az),
+    )
 
 # floor plane equation:  ax + by + cz + d = 0.  Floor is y = FLOOR_Y, so:
 FLOOR_PLANE = (0.0, 1.0, 0.0, -FLOOR_Y)
@@ -471,9 +563,8 @@ def planar_shadow_matrix(plane, light) -> np.matrix:
 # doc-region-end planar shadow
 
 
-SHADOW_MATRIX = planar_shadow_matrix(
-    FLOOR_PLANE, (*LIGHT_DIR_WS.tolist(), 0.0)
-)
+# Recomputed in the per-frame draw loop from the slider-driven
+# light_dir; see `shadow_matrix` in the main loop below.
 
 
 # ---------------------------------------------------------------------------
@@ -490,7 +581,7 @@ def setup_uniforms(
     GL.glUniform1i(u_use_lighting, 1 if use_lighting else 0)
     GL.glUniform1i(u_use_texture, 1 if use_texture else 0)
     GL.glUniform3f(u_flat, *flat_color)
-    GL.glUniform3f(u_light_dir, *LIGHT_DIR_WS.tolist())
+    GL.glUniform3f(u_light_dir, *light_dir)   # set in main loop each frame
     GL.glUniform3f(u_ambient, 0.2, 0.2, 0.2)
     GL.glUniform3f(u_diffuse, 0.7, 0.7, 0.7)
     GL.glUniform1i(u_tex, 0)
@@ -612,7 +703,7 @@ def draw_cube(stage: int) -> None:
             # SHADOW * translate(-10,0,10).  pyMatrixStack.multiply does
             # current = current * rhs, so doing multiply(SHADOW) then
             # translate(...) yields exactly that.
-            ms.multiply(ms.MatrixStack.model, SHADOW_MATRIX)
+            ms.multiply(ms.MatrixStack.model, shadow_matrix)
             ms.translate(ms.MatrixStack.model, -10.0, 0.0, 10.0)
 
             setup_uniforms(
@@ -652,14 +743,30 @@ while not glfw.window_should_close(window):
     # imgui call this frame, and pair it with imgui.render() / impl.render
     # before swapping buffers.
     imgui.new_frame()
-    imgui.set_next_window_size(imgui.ImVec2(280, 220), imgui.Cond_.first_use_ever)
+    imgui.set_next_window_size(
+        imgui.ImVec2(320, 320), imgui.Cond_.first_use_ever
+    )
     imgui.begin("Rendering stage", True)
     imgui.text("Pick the level of realism:")
     imgui.separator()
     for i, label in enumerate(STAGE_LABELS):
         if imgui.radio_button(label, n_step == i):
             n_step = i
+    imgui.separator()
+    imgui.text("Light direction (red cone + yellow bulb):")
+    _, light_az_deg = imgui.slider_float(
+        "Azimuth (deg)", light_az_deg, 0.0, 360.0)
+    _, light_el_deg = imgui.slider_float(
+        "Elevation (deg)", light_el_deg, 5.0, 89.0)
     imgui.end()
+
+    # Recompute light + shadow each frame so the slider drives both
+    # the Lambert shading on the cube AND the planar shadow on the
+    # floor.  light_dir is read by setup_uniforms via closure scope.
+    light_dir = light_dir_ws(light_az_deg, light_el_deg)
+    shadow_matrix = planar_shadow_matrix(
+        FLOOR_PLANE, (light_dir[0], light_dir[1], light_dir[2], 0.0)
+    )
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
@@ -686,6 +793,37 @@ while not glfw.window_should_close(window):
     GL.glUseProgram(program)
     draw_floor(n_step)
     draw_cube(n_step)
+
+    # ---- Light marker (red cone + yellow bulb) ----
+    # Adapted from chapt05/spot.cpp:79-94.  Cone's local +z aligns with
+    # +light_dir, base sits at the bulb, apex points back toward the
+    # scene.  Drawn unlit so it doesn't shade against itself.
+    with ms.push_matrix(ms.MatrixStack.model):
+        ms.translate(ms.MatrixStack.model,
+                     light_dir[0] * LIGHT_MARKER_DISTANCE,
+                     light_dir[1] * LIGHT_MARKER_DISTANCE,
+                     light_dir[2] * LIGHT_MARKER_DISTANCE)
+        # Rotation chain:  T @ R_y(90 - az) @ R_x(-el).  See demo22a.
+        ms.rotate_y(ms.MatrixStack.model,
+                    math.radians(90.0 - light_az_deg))
+        ms.rotate_x(ms.MatrixStack.model,
+                    math.radians(-light_el_deg))
+
+        setup_uniforms(use_lighting=False, use_texture=False,
+                       flat_color=LIGHT_MARKER_CONE_COLOR)
+        set_mvp_uniforms()
+        GL.glBindVertexArray(marker_cone_vao)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, marker_cone_count)
+        GL.glBindVertexArray(0)
+
+        # Bulb at the base of the cone (= local origin).
+        setup_uniforms(use_lighting=False, use_texture=False,
+                       flat_color=LIGHT_MARKER_BULB_COLOR)
+        set_mvp_uniforms()
+        GL.glBindVertexArray(marker_bulb_vao)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, marker_bulb_count)
+        GL.glBindVertexArray(0)
+
     GL.glUseProgram(0)
 
     imgui.render()
