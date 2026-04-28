@@ -776,6 +776,95 @@ def test_vec3_fn_stack():
     # doc-region-end function stack examples definitions
 
 
+def test__find_normal__xy_plane():
+    p1 = Vector3D(0.0, 0.0, 0.0)
+    p2 = Vector3D(1.0, 0.0, 0.0)
+    p3 = Vector3D(0.0, 1.0, 0.0)
+    # CCW winding looking down -Z gives a normal along +Z
+    assert mu.find_normal(p1, p2, p3).isclose(Vector3D(0.0, 0.0, 1.0))
+
+
+def test__find_normal__cw_flips_sign():
+    p1 = Vector3D(0.0, 0.0, 0.0)
+    p2 = Vector3D(1.0, 0.0, 0.0)
+    p3 = Vector3D(0.0, 1.0, 0.0)
+    n_ccw = mu.find_normal(p1, p2, p3)
+    n_cw = mu.find_normal(p1, p3, p2)
+    assert n_ccw.isclose(-n_cw)
+
+
+def test__find_normal__unnormalized_magnitude():
+    # |cross| = 2 * triangle area; for a 1x1 right triangle area = 0.5
+    # so |normal| = 1.0
+    p1 = Vector3D(0.0, 0.0, 0.0)
+    p2 = Vector3D(1.0, 0.0, 0.0)
+    p3 = Vector3D(0.0, 1.0, 0.0)
+    assert math.isclose(abs(mu.find_normal(p1, p2, p3)), 1.0)
+    # Scale up: 2x2 right triangle area = 2.0, |normal| = 4.0
+    p2 = Vector3D(2.0, 0.0, 0.0)
+    p3 = Vector3D(0.0, 2.0, 0.0)
+    assert math.isclose(abs(mu.find_normal(p1, p2, p3)), 4.0)
+
+
+def test__plane_equation__xy_plane_through_origin():
+    p1 = Vector3D(0.0, 0.0, 0.0)
+    p2 = Vector3D(1.0, 0.0, 0.0)
+    p3 = Vector3D(0.0, 1.0, 0.0)
+    normal, d = mu.plane_equation(p1, p2, p3)
+    assert normal.isclose(Vector3D(0.0, 0.0, 1.0))
+    assert math.isclose(d, 0.0, abs_tol=1e-7)
+
+
+def test__plane_equation__xy_plane_offset():
+    # Plane y = 5
+    p1 = Vector3D(0.0, 5.0, 0.0)
+    p2 = Vector3D(1.0, 5.0, 0.0)
+    p3 = Vector3D(0.0, 5.0, 1.0)
+    normal, d = mu.plane_equation(p1, p2, p3)
+    # Normal should be along ±Y; back-substitution: y_normal * 5 + d == 0
+    assert math.isclose(normal.dot(p1) + d, 0.0, abs_tol=1e-7)
+    assert math.isclose(normal.dot(p2) + d, 0.0, abs_tol=1e-7)
+    assert math.isclose(normal.dot(p3) + d, 0.0, abs_tol=1e-7)
+
+
+def test__plane_equation__diagonal():
+    # Plane x + y + z = 1, so points (1,0,0), (0,1,0), (0,0,1) lie on it
+    p1 = Vector3D(1.0, 0.0, 0.0)
+    p2 = Vector3D(0.0, 1.0, 0.0)
+    p3 = Vector3D(0.0, 0.0, 1.0)
+    normal, d = mu.plane_equation(p1, p2, p3)
+    expected_n = 1.0 / math.sqrt(3.0)
+    # Normal must be parallel to (1,1,1)/sqrt(3) (up to sign)
+    assert math.isclose(abs(normal.x), expected_n, abs_tol=1e-6)
+    assert math.isclose(abs(normal.y), expected_n, abs_tol=1e-6)
+    assert math.isclose(abs(normal.z), expected_n, abs_tol=1e-6)
+    # And all three points satisfy the equation
+    for p in (p1, p2, p3):
+        assert math.isclose(normal.dot(p) + d, 0.0, abs_tol=1e-6)
+
+
+def test__distance_to_plane__signed():
+    p1 = Vector3D(0.0, 0.0, 0.0)
+    p2 = Vector3D(1.0, 0.0, 0.0)
+    p3 = Vector3D(0.0, 1.0, 0.0)
+    plane = mu.plane_equation(p1, p2, p3)  # XY plane, normal = +Z
+
+    assert math.isclose(
+        mu.distance_to_plane(Vector3D(0.0, 0.0, 0.0), plane), 0.0,
+        abs_tol=1e-7,
+    )
+    assert math.isclose(
+        mu.distance_to_plane(Vector3D(0.0, 0.0, 5.0), plane), 5.0
+    )
+    assert math.isclose(
+        mu.distance_to_plane(Vector3D(0.0, 0.0, -3.0), plane), -3.0
+    )
+    # Tangential motion shouldn't change the distance
+    assert math.isclose(
+        mu.distance_to_plane(Vector3D(7.0, -2.0, 4.0), plane), 4.0
+    )
+
+
 def test__doctest():
     failureCount, testCount = doctest.testmod(mu)
     assert 0 == failureCount

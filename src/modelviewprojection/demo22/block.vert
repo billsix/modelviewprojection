@@ -24,17 +24,13 @@ layout (location = 2) in vec2 texcoord_in;
 uniform mat4 mvpMatrix;
 uniform mat4 modelMatrix;
 
-out vec3 v_position_ws;
 out vec3 v_normal_ws;
 out vec2 v_texcoord;
 
 void main() {
     gl_Position = mvpMatrix * vec4(position, 1.0);
-    // World-space position is needed by the fragment shader to do the
-    // shadow-map lookup (project the WS point into the light's clip
-    // space and compare its depth against the stored depth).
-    vec4 ws = modelMatrix * vec4(position, 1.0);
-    v_position_ws = ws.xyz;
+    // model matrix here is translate-only (and rare shadow flatten);
+    // for our purposes we just rotate normals by its 3x3 part.
     v_normal_ws = mat3(modelMatrix) * normal_in;
     v_texcoord = texcoord_in;
 }

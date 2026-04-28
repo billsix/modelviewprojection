@@ -52,6 +52,9 @@ __all__ = [
     "rotate_x",
     "rotate_y",
     "rotate_z",
+    "find_normal",
+    "plane_equation",
+    "distance_to_plane",
     "ortho",
     "perspective",
     "cs_to_ndc_space_fn",
@@ -804,6 +807,108 @@ def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
         f"RZ_{{<{-angle_in_radians}>}}",
     )
     # doc-region-end define rotate z
+
+
+# doc-region-begin define find normal
+def find_normal(p1: Vector3D, p2: Vector3D, p3: Vector3D) -> Vector3D:
+    """Surface normal of the triangle :math:`(p_1, p_2, p_3)`, computed
+    as the cross product of two edges. CCW winding (matching OpenGL's
+    default ``GL_CCW`` front-face convention) gives an outward-facing
+    normal in a right-handed coordinate system.
+
+    The result is **not** normalized -- its length equals twice the
+    area of the triangle, which is sometimes useful directly. Pass it
+    to :func:`uniform_scale` with ``1/abs(n)`` if you want a unit
+    normal.
+
+    Counterpart to ``m3dFindNormal`` in the OpenGL SuperBible 4e
+    ``math3d`` library; the formula here standardizes on CCW winding
+    rather than mirroring SuperBible's mixed conventions.
+
+    Example:
+        >>> from modelviewprojection.mathutils import (
+        ...     Vector3D, find_normal,
+        ... )
+        >>> p1 = Vector3D(0.0, 0.0, 0.0)
+        >>> p2 = Vector3D(1.0, 0.0, 0.0)
+        >>> p3 = Vector3D(0.0, 1.0, 0.0)
+        >>> n = find_normal(p1, p2, p3)
+        >>> n
+        Vector3D(x=0.0, y=0.0, z=1.0)
+    """
+    return (p2 - p1).cross(p3 - p1)
+    # doc-region-end define find normal
+
+
+# doc-region-begin define plane equation
+def plane_equation(
+    p1: Vector3D, p2: Vector3D, p3: Vector3D
+) -> typing.Tuple[Vector3D, float]:
+    """The plane through three points, expressed as ``(normal, d)``
+    such that :math:`\\vec{n} \\cdot P + d = 0` for all points
+    :math:`P` on the plane.
+
+    The returned ``normal`` is a unit ``Vector3D``; ``d`` is the
+    signed offset from the origin along the normal. Winding follows
+    :func:`find_normal` (CCW), so the normal points outward from a
+    CCW-wound triangle.
+
+    Counterpart to ``m3dGetPlaneEquation`` in the OpenGL SuperBible 4e
+    ``math3d`` library, but using CCW winding instead of CW.
+
+    Example:
+        >>> from modelviewprojection.mathutils import (
+        ...     Vector3D, plane_equation,
+        ... )
+        >>> p1 = Vector3D(0.0, 0.0, 0.0)
+        >>> p2 = Vector3D(1.0, 0.0, 0.0)
+        >>> p3 = Vector3D(0.0, 1.0, 0.0)
+        >>> normal, d = plane_equation(p1, p2, p3)
+        >>> normal
+        Vector3D(x=0.0, y=0.0, z=1.0)
+        >>> d
+        -0.0
+    """
+    n = find_normal(p1, p2, p3)
+    inv_len = 1.0 / float(abs(n))
+    n_unit = Vector3D(
+        float(n.x * inv_len), float(n.y * inv_len), float(n.z * inv_len)
+    )
+    d = float(-n_unit.dot(p1))
+    return (n_unit, d)
+    # doc-region-end define plane equation
+
+
+# doc-region-begin define distance to plane
+def distance_to_plane(
+    point: Vector3D, plane: typing.Tuple[Vector3D, float]
+) -> float:
+    """Signed distance from ``point`` to ``plane``. Positive when
+    ``point`` is on the side that the plane's normal points toward,
+    negative on the other side, zero on the plane.
+
+    ``plane`` is the ``(normal, d)`` tuple returned by
+    :func:`plane_equation`.
+
+    Counterpart to ``m3dGetDistanceToPlane`` in the OpenGL SuperBible
+    4e ``math3d`` library.
+
+    Example:
+        >>> from modelviewprojection.mathutils import (
+        ...     Vector3D, plane_equation, distance_to_plane,
+        ... )
+        >>> p1 = Vector3D(0.0, 0.0, 0.0)
+        >>> p2 = Vector3D(1.0, 0.0, 0.0)
+        >>> p3 = Vector3D(0.0, 1.0, 0.0)
+        >>> plane = plane_equation(p1, p2, p3)
+        >>> distance_to_plane(Vector3D(0.0, 0.0, 5.0), plane)
+        5.0
+        >>> distance_to_plane(Vector3D(0.0, 0.0, -3.0), plane)
+        -3.0
+    """
+    normal, d = plane
+    return normal.dot(point) + d
+    # doc-region-end define distance to plane
 
 
 # doc-region-begin define ortho

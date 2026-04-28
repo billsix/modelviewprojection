@@ -77,3 +77,21 @@ When porting, follow demo22's structure (subfolder with `.vert`/`.frag`/asset fi
 ## Dev environment
 
 Bill's host is Fedora 43 (glibc 2.42). System SDL2 is the SDL2-compat shim on SDL3 — breaks SDL2-audio apps. I can build/package locally, but Bill verifies anything requiring a display, FUSE, or audio.
+
+---
+
+## Active plans
+
+Plans live in `plans/`. At the start of a session, check `TaskList` against the plan files for status — the plan files are durable, the task IDs are not.
+
+**Top-level goal:**
+- [`plans/superbible-full-port.md`](plans/superbible-full-port.md) — **port the entire OpenGL SuperBible 4e example codebase to Python under `/mvp/ports/openglsuperbiblev4/`**, mirroring the SuperBible folder structure, so Bill's students can read the textbook in the second half of class while reading along in Python (no C++ required). Faithful 1:1 translation: GLFW (not GLUT), ImGui (not GLUT menus), fixed-function-stays-fixed-function, math in Bill's style only where it's not matrix-stack ops. **Status: COMPLETE** (2026-04-28). 101 .py files across chapt01–chapt22; chapt01–18 are real ports (~95 functional demos), chapt19 is mostly real ports plus stubs for the Win32 MFC demos that have no portable equivalent (Text2D/Text3D port the visual intent via imgui; RThread, GLView are stubbed), chapt20 (Apple Carbon/Cocoa), chapt22 (OpenGL ES) are all stubs since these target platform-specific APIs we can't reach from Python. All ports syntax-checked, none hardware-verified.
+
+**Subsidiary plans:**
+- [`plans/planar-shadow-matrix.md`](plans/planar-shadow-matrix.md) — add planar-shadow-projection 4×4 to `pyMatrixStack` (curriculum side). Deliberately *not* an `InvertibleFunction` (rank-deficient).
+- [`plans/rotate-around-axis.md`](plans/rotate-around-axis.md) — add `rotate_around_axis` to `pyMatrixStack`, *decomposed as a sequence of axis-aligned rotations* (Bill's pedagogy choice — derive arbitrary-axis rotation from rotations the student already knows; don't drop Rodrigues on them).
+- [`plans/plane-and-normal-helpers.md`](plans/plane-and-normal-helpers.md) — ✅ **done 2026-04-28**. `find_normal`, `plane_equation`, `distance_to_plane` now live in `mathutils.py` as free functions on `Vector3D`, with CCW winding convention (sign opposite to SuperBible's `m3dGetPlaneEquation` for plane normals, but planar-shadow matrices are sign-invariant). chapt01/block imports from mathutils. Used by chapt05/litjet, chapt05/shadow when those ports happen.
+
+**Reference:**
+- [`plans/superbible-study.md`](plans/superbible-study.md) — umbrella for the /superbible study (both completed). Notes in [`notes-superbible-structure.md`](plans/notes-superbible-structure.md) and [`notes-superbible-math-diff.md`](plans/notes-superbible-math-diff.md).
+- [`plans/HANDOFF-2026-04-28.md`](plans/HANDOFF-2026-04-28.md) — most recent session's stopping point. Lists exactly which demos got ported (57 across chapt01–09 + 4 of chapt10) and what to do first next session. Read this at session start if resuming SuperBible port work.
