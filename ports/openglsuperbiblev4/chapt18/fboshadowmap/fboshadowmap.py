@@ -20,6 +20,7 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
     "PYOPENGL_PLATFORM"
@@ -28,6 +29,8 @@ if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
 window_width: int = 512
 window_height: int = 512
 shadow_width: int = 512
@@ -407,6 +410,8 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
+    
+    window_width, window_height = _common.resolve_default_window_size()
     window = glfw.create_window(window_width, window_height,
                                 "FBO Shadow Mapping Demo", None, None)
     if not window:
@@ -414,6 +419,9 @@ def main() -> None:
     glfw.make_context_current(window)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
+
+    impl = _common.init_imgui(window)
+    win_state = _common.WindowState()
 
     print("FBO Shadow Mapping Demo")
     print("  S/M: shadows / show shadowmap   F: toggle FBO")
@@ -425,8 +433,15 @@ def main() -> None:
     change_size(w, h)
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        
+        imgui.new_frame()
+        _common.draw_menubar(window, win_state)
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
+    impl.shutdown()
     glfw.terminate()
 
 

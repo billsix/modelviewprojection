@@ -14,6 +14,7 @@ import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
 
 from modelviewprojection.mathutils import Vector3D, plane_equation
 
@@ -24,13 +25,19 @@ if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
 
 NUM_SPHERES = 30
 sphere_positions = []
-camera_x: float = 0.0
-camera_y: float = 0.0
-camera_z: float = 0.0
-camera_yaw: float = 0.0
+camera = _common.Camera(
+    position=[0.0, 0.5, 6.0],
+    rot_y=0.0,
+    rot_x=math.radians(-5.0),
+    move_speed=0.2,
+    scroll_speed=0.5,
+    focus_radius=4.0,
+)
 
 f_light_pos = (-100.0, 100.0, 50.0, 1.0)
 f_no_light = (0.0, 0.0, 0.0, 0.0)
@@ -106,9 +113,19 @@ def draw_torus(major: float, minor: float, n_major: int, n_minor: int) -> None:
         GL.glEnd()
 
 
-def apply_camera_transform() -> None:
-    GL.glRotatef(-math.degrees(camera_yaw), 0.0, 1.0, 0.0)
-    GL.glTranslatef(-camera_x, -camera_y, -camera_z)
+def torus_orbiter_position() -> tuple:
+    """The small sphere orbits the torus at radius 1, twice the speed
+    of the torus rotation (see draw_inhabitants). Computed in world
+    space so the focus camera tracks it as it moves."""
+    angle = math.radians(-y_rot * 2.0)
+    return (math.cos(angle), 0.1, -2.5 - math.sin(angle))
+
+
+scene_objects = [
+    _common.SceneObject("Torus (center)", lambda: (0.0, 0.1, -2.5)),
+    _common.SceneObject("Torus orbiter", torus_orbiter_position),
+    _common.SceneObject("Ground center", lambda: (0.0, -0.4, 0.0)),
+]
 
 
 def load_textures() -> None:
@@ -206,7 +223,7 @@ def render_scene() -> None:
                | GL.GL_STENCIL_BUFFER_BIT)
 
     GL.glPushMatrix()
-    apply_camera_transform()
+    _common.apply_camera(camera, scene_objects)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, f_light_pos)
 
     GL.glColor3f(1.0, 1.0, 1.0)
@@ -286,20 +303,6 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_camera_keys(window) -> None:
-    global camera_x, camera_z, camera_yaw
-    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera_x += 0.1 * math.sin(camera_yaw)
-        camera_z -= 0.1 * math.cos(camera_yaw)
-    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera_x -= 0.1 * math.sin(camera_yaw)
-        camera_z += 0.1 * math.cos(camera_yaw)
-    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera_yaw += 0.1
-    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera_yaw -= 0.1
-
-
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
@@ -312,8 +315,11 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
     glfw.window_hint(glfw.STENCIL_BITS, 8)
 
+    
+    window_width, window_height = _common.resolve_default_window_size()
+
     window = glfw.create_window(
-        800, 600, "OpenGL SphereWorld Demo + Texture Maps", None, None
+        window_width, window_height, "OpenGL SphereWorld Demo + Texture Maps", None, None
     )
     if not window:
         glfw.terminate()
@@ -323,17 +329,29 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
+    impl = _common.init_imgui(window)
+    win_state = _common.WindowState()
+    _common.bind_camera_inputs(window, camera)
+
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
-        handle_camera_keys(window)
+        impl.process_inputs()
+        _common.update_camera(window, camera, scene_objects)
         render_scene()
+
+        imgui.new_frame()
+        _common.draw_menubar(window, win_state, has_camera_controls=True)
+        _common.draw_camera_controls(camera, scene_objects, win_state)
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
 
     GL.glDeleteTextures(texture_objects)
+    impl.shutdown()
     glfw.terminate()
 
 

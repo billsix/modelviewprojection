@@ -18,6 +18,7 @@ import glfw
 import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
+from imgui_bundle import imgui
 
 from modelviewprojection.mathutils import Vector3D, plane_equation
 
@@ -50,6 +51,8 @@ window_width: int = 800
 window_height: int = 600
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
 
 
 # ---------------------------------------------------------------------------
@@ -376,6 +379,28 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
             n_step = 0
 
 
+STEP_LABELS = [
+    "0  wireframe cube",
+    "1  wireframe + hidden-line removal (manual)",
+    "2  solid uniform-colored cube (looks 2D)",
+    "3  solid cube + lighting",
+    "4  lit cube + planar shadow on floor",
+    "5  textured cube + textured floor + planar shadow",
+]
+
+
+def imgui_panel() -> None:
+    global n_step
+    imgui.set_next_window_pos((10, 30), imgui.Cond_.first_use_ever.value)
+    imgui.set_next_window_size((420, 220), imgui.Cond_.first_use_ever.value)
+    imgui.begin("Block — realism stage")
+    imgui.text("Press Space to advance, or click a stage:")
+    for i, label in enumerate(STEP_LABELS):
+        if imgui.radio_button(label, n_step == i):
+            n_step = i
+    imgui.end()
+
+
 def main() -> None:
     if not glfw.init():
         sys.exit(1)
@@ -383,7 +408,10 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "3D Effects Demo", None, None)
+    
+    window_width, window_height = _common.resolve_default_window_size()
+
+    window = glfw.create_window(window_width, window_height, "3D Effects Demo", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -392,16 +420,27 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
+    impl = _common.init_imgui(window)
+    win_state = _common.WindowState()
+
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        
+        imgui.new_frame()
+        _common.draw_menubar(window, win_state)
+        imgui_panel()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
 
     GL.glDeleteTextures(textures)
+    impl.shutdown()
     glfw.terminate()
 
 

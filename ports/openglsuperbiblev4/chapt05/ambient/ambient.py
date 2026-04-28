@@ -11,7 +11,10 @@ import sys
 import glfw
 import OpenGL.GL as GL
 from imgui_bundle import imgui
-from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
     "PYOPENGL_PLATFORM"
@@ -182,7 +185,10 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
     glfw.window_hint(glfw.SAMPLES, 4)
 
-    window = glfw.create_window(800, 600, "Ambient Light Jet", None, None)
+    
+    window_width, window_height = _common.resolve_default_window_size()
+
+    window = glfw.create_window(window_width, window_height, "Ambient Light Jet", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -191,8 +197,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
-    imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl = _common.init_imgui(window)
+    win_state = _common.WindowState()
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -206,6 +212,8 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
+
+        _common.draw_menubar(window, win_state)
         imgui_panel()
         imgui.render()
         impl.render(imgui.get_draw_data())

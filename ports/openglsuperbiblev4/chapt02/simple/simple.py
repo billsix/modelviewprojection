@@ -8,6 +8,11 @@ import sys
 
 import glfw
 import OpenGL.GL as GL
+from imgui_bundle import imgui
+
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
     "PYOPENGL_PLATFORM"
@@ -39,19 +44,32 @@ def main() -> None:
     # The original used GLUT_SINGLE | GLUT_RGBA -- single-buffered.
     # GLFW windows are double-buffered by default; the result is the
     # same blue rectangle once swap_buffers runs.
-    window = glfw.create_window(250, 250, "Simple", None, None)
+    
+    window_width, window_height = _common.resolve_default_window_size()
+    window = glfw.create_window(window_width, window_height, "Simple", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)
 
     glfw.make_context_current(window)
     glfw.set_key_callback(window, on_key)
+
+    impl = _common.init_imgui(window)
+    win_state = _common.WindowState()
     setup_rc()
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        
+        imgui.new_frame()
+        _common.draw_menubar(window, win_state)
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
+
+    impl.shutdown()
 
     glfw.terminate()
 

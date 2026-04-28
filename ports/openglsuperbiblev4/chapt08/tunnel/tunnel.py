@@ -14,7 +14,6 @@ import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
-from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
     "PYOPENGL_PLATFORM"
@@ -23,6 +22,8 @@ if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
 TEXTURE_BRICK, TEXTURE_FLOOR, TEXTURE_CEILING = 0, 1, 2
 texture_files = ["brick.tga", "floor.tga", "ceiling.tga"]
 textures = [0, 0, 0]
@@ -169,7 +170,10 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "Tunnel", None, None)
+    
+    window_width, window_height = _common.resolve_default_window_size()
+
+    window = glfw.create_window(window_width, window_height, "Tunnel", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -178,8 +182,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
-    imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl = _common.init_imgui(window)
+    win_state = _common.WindowState()
 
     setup_rc()
     apply_filter(filter_idx)
@@ -194,6 +198,8 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
+
+        _common.draw_menubar(window, win_state)
         imgui_panel()
         imgui.render()
         impl.render(imgui.get_draw_data())
