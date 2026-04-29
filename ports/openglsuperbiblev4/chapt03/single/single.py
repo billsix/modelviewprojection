@@ -13,11 +13,6 @@ import time
 import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
-from imgui_bundle import imgui
-
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _common  # noqa: E402
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
     "PYOPENGL_PLATFORM"
@@ -85,11 +80,8 @@ def main() -> None:
     # Match GLUT_SINGLE -- single buffer, no swap between draws
     glfw.window_hint(glfw.DOUBLEBUFFER, glfw.FALSE)
 
-    
-    window_width, window_height = _common.resolve_default_window_size()
-
     window = glfw.create_window(
-        window_width, window_height, "OpenGL Single Buffered", None, None
+        800, 600, "OpenGL Single Buffered", None, None
     )
     if not window:
         glfw.terminate()
@@ -99,9 +91,6 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
-    impl = _common.init_imgui(window)
-    win_state = _common.WindowState()
-
     GL.glClearColor(0.0, 0.0, 1.0, 0.0)
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
@@ -110,15 +99,12 @@ def main() -> None:
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
-        impl.process_inputs()
 
         now = time.monotonic()
         if now - last_tick >= TICK_INTERVAL:
             render_scene()
             GL.glFlush()
             last_tick = now
-
-    impl.shutdown()
 
     glfw.terminate()
 

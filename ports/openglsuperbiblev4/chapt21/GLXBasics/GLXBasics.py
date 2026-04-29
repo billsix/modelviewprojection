@@ -13,11 +13,6 @@ import sys
 
 import glfw
 import OpenGL.GL as GL
-from imgui_bundle import imgui
-
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _common  # noqa: E402
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
     "PYOPENGL_PLATFORM"
@@ -120,8 +115,6 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    
-    window_width, window_height = _common.resolve_default_window_size()
     window = glfw.create_window(window_width, window_height,
                                 "Eyeballs (GLX/Python)", None, None)
     if not window:
@@ -130,21 +123,11 @@ def main() -> None:
     glfw.set_cursor_pos_callback(window, on_mouse_pos)
     glfw.set_framebuffer_size_callback(window, on_size)
     glfw.set_key_callback(window, on_key)
-
-    impl = _common.init_imgui(window)
-    win_state = _common.WindowState()
     setup_gl_state()
     while not glfw.window_should_close(window):
         glfw.poll_events()
-        impl.process_inputs()
         draw()
-        
-        imgui.new_frame()
-        _common.draw_menubar(window, win_state)
-        imgui.render()
-        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
-    impl.shutdown()
     glfw.terminate()
 
 

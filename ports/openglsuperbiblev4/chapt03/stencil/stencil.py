@@ -11,11 +11,6 @@ import time
 
 import glfw
 import OpenGL.GL as GL
-from imgui_bundle import imgui
-
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _common  # noqa: E402
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
     "PYOPENGL_PLATFORM"
@@ -116,11 +111,8 @@ def main() -> None:
     # Request a stencil buffer (matching GLUT_STENCIL)
     glfw.window_hint(glfw.STENCIL_BITS, 8)
 
-    
-    window_width, window_height = _common.resolve_default_window_size()
-
     window = glfw.create_window(
-        window_width, window_height, "OpenGL Stencil Test", None, None
+        800, 600, "OpenGL Stencil Test", None, None
     )
     if not window:
         glfw.terminate()
@@ -130,9 +122,6 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
-    impl = _common.init_imgui(window)
-    win_state = _common.WindowState()
-
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
@@ -140,7 +129,6 @@ def main() -> None:
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
-        impl.process_inputs()
 
         now = time.monotonic()
         if now - last_tick >= TICK_INTERVAL:
@@ -148,14 +136,7 @@ def main() -> None:
             last_tick = now
 
         render_scene()
-        
-        imgui.new_frame()
-        _common.draw_menubar(window, win_state)
-        imgui.render()
-        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
-
-    impl.shutdown()
 
     glfw.terminate()
 

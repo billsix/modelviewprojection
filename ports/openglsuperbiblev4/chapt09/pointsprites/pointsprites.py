@@ -16,6 +16,7 @@ import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
     "PYOPENGL_PLATFORM"
@@ -24,8 +25,6 @@ if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _common  # noqa: E402
 SCREEN_X, SCREEN_Y = 800, 600
 SMALL_STARS, MEDIUM_STARS, LARGE_STARS = 100, 40, 15
 small_stars, medium_stars, large_stars = [], [], []
@@ -184,9 +183,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    
-    window_width, window_height = _common.resolve_default_window_size()
-    window = glfw.create_window(window_width, window_height, "Point Sprites", None, None)
+    window = glfw.create_window(800, 600, "Point Sprites", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -194,8 +191,8 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
-    impl = _common.init_imgui(window)
-    win_state = _common.WindowState()
+    imgui.create_context()
+    impl = GlfwRenderer(window)
 
     setup_rc()
     apply_mode(draw_mode)
@@ -207,7 +204,6 @@ def main() -> None:
         impl.process_inputs()
         render_scene()
         imgui.new_frame()
-        _common.draw_menubar(window, win_state)
         imgui_panel()
         imgui.render()
         impl.render(imgui.get_draw_data())

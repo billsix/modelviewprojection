@@ -17,10 +17,7 @@ import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
-
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _common  # noqa: E402
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
     "PYOPENGL_PLATFORM"
@@ -51,14 +48,12 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    
-    window_width, window_height = _common.resolve_default_window_size()
-    window = glfw.create_window(window_width, window_height, "Text3D", None, None)
+    window = glfw.create_window(640, 480, "Text3D", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
     glfw.make_context_current(window)
-    impl = _common.init_imgui(window)
-    win_state = _common.WindowState()
+    imgui.create_context()
+    impl = GlfwRenderer(window)
     GL.glEnable(GL.GL_DEPTH_TEST)
 
     start = time.time()
@@ -80,8 +75,6 @@ def main() -> None:
         draw_cube(1.5)
 
         imgui.new_frame()
-
-        _common.draw_menubar(window, win_state)
         imgui.set_next_window_pos((10, 10))
         imgui.begin("3D Text", None,
                     imgui.WindowFlags_.no_decoration.value
