@@ -39,7 +39,7 @@ GL_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FE
 GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FF
 
 
-def draw_body(model) -> None:
+def draw_body(model: "dict[str, np.ndarray]") -> None:
     fi = model["face_indices"]
     verts = model["vertices"]
     norms = model["normals"]
@@ -53,7 +53,7 @@ def draw_body(model) -> None:
     GL.glEnd()
 
 
-def draw_glass(model) -> None:
+def draw_glass(model: "dict[str, np.ndarray]") -> None:
     fi = model["face_indices_glass"]
     verts = model["vertices_glass"]
     norms = model["normals_glass"]

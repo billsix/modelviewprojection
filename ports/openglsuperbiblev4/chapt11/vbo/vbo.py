@@ -39,7 +39,12 @@ body_vbos = {"vert": 0, "norm": 0, "tex": 0, "count": 0}
 glass_vbos = {"vert": 0, "norm": 0, "tex": 0, "count": 0}
 
 
-def expand_mesh(face_indices, vertices, normals, textures):
+def expand_mesh(
+    face_indices: np.ndarray,
+    vertices: np.ndarray,
+    normals: np.ndarray,
+    textures: np.ndarray,
+) -> "tuple[np.ndarray, np.ndarray, np.ndarray]":
     """The C++ data has separate index streams for verts/normals/texs;
     GL VBOs need one parallel stream per attribute. Expand the
     `face_indices` table (3 vertices x 9 indices each) into per-vertex
@@ -60,7 +65,7 @@ def expand_mesh(face_indices, vertices, normals, textures):
 
 
 def make_vbos(verts: np.ndarray, norms: np.ndarray,
-              texs: np.ndarray) -> dict:
+              texs: np.ndarray) -> "dict[str, int]":
     vbo_v = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo_v)
     GL.glBufferData(GL.GL_ARRAY_BUFFER, verts.nbytes, verts, GL.GL_STATIC_DRAW)
@@ -78,7 +83,7 @@ def make_vbos(verts: np.ndarray, norms: np.ndarray,
             "count": verts.shape[0]}
 
 
-def draw_vbos(vbos: dict) -> None:
+def draw_vbos(vbos: "dict[str, int]") -> None:
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbos["vert"])
     GL.glEnableClientState(GL.GL_VERTEX_ARRAY)
     GL.glVertexPointer(3, GL.GL_FLOAT, 0, None)

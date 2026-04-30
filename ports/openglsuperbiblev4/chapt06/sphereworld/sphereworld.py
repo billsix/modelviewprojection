@@ -40,7 +40,11 @@ shadow_mat = None
 y_rot: float = 0.0
 
 
-def make_planar_shadow_matrix(plane_normal, plane_d, light_pos_4):
+def make_planar_shadow_matrix(
+    plane_normal: Vector3D,
+    plane_d: float,
+    light_pos_4: "tuple[float, float, float, float]",
+) -> "np.ndarray":
     a, b, c = plane_normal.x, plane_normal.y, plane_normal.z
     d = plane_d
     dx, dy, dz = -light_pos_4[0], -light_pos_4[1], -light_pos_4[2]

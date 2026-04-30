@@ -46,7 +46,9 @@ shadow_mat = None
 y_rot: float = 0.0
 
 
-def make_planar_shadow_matrix(pn, pd: float, lp) -> "np.ndarray":
+def make_planar_shadow_matrix(
+    pn: Vector3D, pd: float, lp: "tuple[float, float, float, float]"
+) -> "np.ndarray":
     a, b, c, d = pn.x, pn.y, pn.z, pd
     dx, dy, dz = -lp[0], -lp[1], -lp[2]
     return np.array(

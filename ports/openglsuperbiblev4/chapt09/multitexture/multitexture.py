@@ -37,7 +37,7 @@ cube_targets = [
 ]
 
 
-def load_image(fname):
+def load_image(fname: str) -> "tuple[np.ndarray, int, int, int]":
     img = np.flipud(iio.imread(os.path.join(PWD, fname)))
     h, w = img.shape[:2]
     fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB)

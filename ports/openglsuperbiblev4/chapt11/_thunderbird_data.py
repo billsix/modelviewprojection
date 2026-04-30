@@ -24,7 +24,7 @@ import numpy as np
 _cache: Dict[str, Dict[str, np.ndarray]] = {}
 
 
-def _parse_array(text: str, name: str, dtype) -> np.ndarray:
+def _parse_array(text: str, name: str, dtype: "np.dtype | type") -> np.ndarray:
     """Find a C++ array declaration like
         short face_indicies[3704][9] = { {1,2,3,...}, ... };
     and return it as a numpy ndarray of the given dtype.

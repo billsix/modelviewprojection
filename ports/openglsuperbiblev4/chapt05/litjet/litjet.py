@@ -24,7 +24,7 @@ x_rot: float = 0.0
 y_rot: float = 0.0
 
 
-def _emit_face(p1, p2, p3) -> None:
+def _emit_face(p1: Vector3D, p2: Vector3D, p3: Vector3D) -> None:
     """Compute the face normal via mathutils.find_normal (CCW
     convention -- same direction as math3d.cpp's m3dFindNormal),
     issue glNormal3f, then issue the three glVertex3f calls."""

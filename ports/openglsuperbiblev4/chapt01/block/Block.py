@@ -61,7 +61,11 @@ PWD = os.path.dirname(os.path.abspath(__file__))
 # task #5) and is imported above.
 # ---------------------------------------------------------------------------
 
-def make_planar_shadow_matrix(plane_normal, plane_d: float, light_pos) -> "np.ndarray":
+def make_planar_shadow_matrix(
+    plane_normal: Vector3D,
+    plane_d: float,
+    light_pos: "tuple[float, float, float, float]",
+) -> "np.ndarray":
     """4x4 column-major shadow projection matrix that "squishes"
     geometry onto the plane along rays from light_pos. Mirrors
     m3dMakePlanarShadowMatrix in math3d.cpp. Note that this matrix

@@ -40,7 +40,11 @@ specref = (1.0, 1.0, 1.0, 1.0)
 shadow_mat = None  # built in setup_rc -- 4x4 column-major np array
 
 
-def make_planar_shadow_matrix(plane_normal, plane_d, light_pos_4):
+def make_planar_shadow_matrix(
+    plane_normal: Vector3D,
+    plane_d: float,
+    light_pos_4: "tuple[float, float, float, float]",
+) -> "np.ndarray":
     """4x4 column-major shadow projection matrix. Same formula as
     chapt01/block; will move to pyMatrixStack with Tier-1 task #3."""
     a, b, c = plane_normal.x, plane_normal.y, plane_normal.z
@@ -59,7 +63,7 @@ def make_planar_shadow_matrix(plane_normal, plane_d, light_pos_4):
     )
 
 
-def _emit_face(p1, p2, p3) -> None:
+def _emit_face(p1: Vector3D, p2: Vector3D, p3: Vector3D) -> None:
     n = find_normal(p1, p2, p3)
     GL.glNormal3f(n.x, n.y, n.z)
     GL.glVertex3f(p1.x, p1.y, p1.z)

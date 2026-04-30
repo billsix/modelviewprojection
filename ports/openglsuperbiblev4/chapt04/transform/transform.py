@@ -63,7 +63,9 @@ def rotation_matrix_about_axis(angle_rad: float, x: float, y: float, z: float) -
     return m
 
 
-def transform_vector3(v, m) -> tuple:
+def transform_vector3(
+    v: "tuple[float, float, float]", m: "np.ndarray"
+) -> "tuple[float, float, float]":
     """Replacement for m3dTransformVector3 -- multiply a 3-vector
     (treating w=1) by a 4x4 column-major matrix. Returns a 3-tuple."""
     out_x = m[0] * v[0] + m[4] * v[1] + m[8] * v[2] + m[12]
@@ -72,7 +74,7 @@ def transform_vector3(v, m) -> tuple:
     return (out_x, out_y, out_z)
 
 
-def draw_torus(m_transform):
+def draw_torus(m_transform: "np.ndarray") -> None:
     """Draw a torus by hand-transforming each vertex through m_transform
     on the CPU before sending to glVertex3fv."""
     major_radius = 0.35

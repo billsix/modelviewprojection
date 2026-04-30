@@ -24,7 +24,7 @@ x_rot: float = 0.0
 y_rot: float = 0.0
 
 
-def _emit_face(p1, p2, p3) -> None:
+def _emit_face(p1: Vector3D, p2: Vector3D, p3: Vector3D) -> None:
     n = find_normal(p1, p2, p3)
     GL.glNormal3f(n.x, n.y, n.z)
     GL.glVertex3f(p1.x, p1.y, p1.z)

@@ -23,7 +23,7 @@ v_light_dir = np.array([-1.0, 1.0, 1.0], dtype=np.float32)
 y_rot: float = 0.0
 
 
-def invert_matrix44(m) -> "np.ndarray":
+def invert_matrix44(m: "np.ndarray") -> "np.ndarray":
     """Replacement for m3dInvertMatrix44. m is a flat 16-element
     column-major numpy array. Returns the inverse, also column-major."""
     mat = m.reshape((4, 4)).T  # convert column-major flat to row-major 4x4
@@ -31,7 +31,7 @@ def invert_matrix44(m) -> "np.ndarray":
     return inv.T.flatten().astype(np.float32)
 
 
-def transform_vector3(v, m) -> tuple:
+def transform_vector3(v: "np.ndarray", m: "np.ndarray") -> "np.ndarray":
     """m is a flat 16-element column-major matrix; v is a 3-vector,
     treated as (x, y, z, 1) when applying the rotation portion (the
     translation is subtracted by the caller)."""
@@ -42,7 +42,7 @@ def transform_vector3(v, m) -> tuple:
     return out
 
 
-def normalize3(v):
+def normalize3(v: "np.ndarray") -> "np.ndarray":
     n = math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
     if n != 0.0:
         return v / n
@@ -51,7 +51,7 @@ def normalize3(v):
 
 def toon_draw_torus(major_radius: float, minor_radius: float,
                     num_major: int, num_minor: int,
-                    light_dir) -> None:
+                    light_dir: "np.ndarray") -> None:
     # Get current modelview, invert to bring the light into object space
     model = np.array(GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX),
                      dtype=np.float32).flatten()

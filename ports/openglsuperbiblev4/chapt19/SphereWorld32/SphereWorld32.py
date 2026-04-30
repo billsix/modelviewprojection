@@ -52,7 +52,9 @@ camera_yaw: float = 0.0
 y_rot: float = 0.0
 
 
-def make_planar_shadow_matrix(plane_pts) -> np.ndarray:
+def make_planar_shadow_matrix(
+    plane_pts: "tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]",
+) -> np.ndarray:
     """Cast light at light_pos onto the plane through plane_pts."""
     p1, p2, p3 = plane_pts
     e1 = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
