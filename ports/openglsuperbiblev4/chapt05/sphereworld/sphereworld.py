@@ -18,10 +18,6 @@ import OpenGL.GLU as GLU
 
 from modelviewprojection.mathutils import Vector3D, plane_equation
 
-if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
-    "PYOPENGL_PLATFORM"
-):
-    os.environ["PYOPENGL_PLATFORM"] = "x11"
 
 
 NUM_SPHERES = 30

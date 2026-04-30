@@ -1,3 +1,4 @@
+
 # Copyright (c) 2018-2026 William Emerison Six
 #
 # This program is free software; you can redistribute it and/or
@@ -18,10 +19,6 @@ import ctypes
 import dataclasses
 import math
 
-# Workaround issue when using wayland ("Attempt to retrieve context when no valid context", in PyOpenGL)
-# (see https://github.com/pthom/imgui_bundle/issues/321)
-import os
-import sys
 
 from numpy import ndarray
 

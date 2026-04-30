@@ -1,3 +1,4 @@
+
 # Copyright (c) 2018-2026 William Emerison Six
 #
 # This program is free software; you can redistribute it and/or
@@ -38,10 +39,6 @@ from modelviewprojection.mathutils import (
     translate,
 )
 
-if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
-    "PYOPENGL_PLATFORM"
-):
-    os.environ["PYOPENGL_PLATFORM"] = "x11"
 
 
 e_1 = Vector3D.e_1()

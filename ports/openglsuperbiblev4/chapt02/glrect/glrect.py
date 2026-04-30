@@ -9,10 +9,6 @@ import sys
 import glfw
 import OpenGL.GL as GL
 
-if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
-    "PYOPENGL_PLATFORM"
-):
-    os.environ["PYOPENGL_PLATFORM"] = "x11"
 
 
 def render_scene() -> None:

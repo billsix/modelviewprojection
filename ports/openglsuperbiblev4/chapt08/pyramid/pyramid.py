@@ -17,10 +17,6 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import Vector3D, find_normal
 
-if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
-    "PYOPENGL_PLATFORM"
-):
-    os.environ["PYOPENGL_PLATFORM"] = "x11"
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))

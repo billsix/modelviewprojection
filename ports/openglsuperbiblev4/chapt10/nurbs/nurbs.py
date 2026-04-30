@@ -12,10 +12,6 @@ import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 
-if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
-    "PYOPENGL_PLATFORM"
-):
-    os.environ["PYOPENGL_PLATFORM"] = "x11"
 
 
 # 4x4 grid of control points

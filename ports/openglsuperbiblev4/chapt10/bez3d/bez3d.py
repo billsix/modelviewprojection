@@ -10,10 +10,6 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 
-if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
-    "PYOPENGL_PLATFORM"
-):
-    os.environ["PYOPENGL_PLATFORM"] = "x11"
 
 
 ctrl_points = np.array(

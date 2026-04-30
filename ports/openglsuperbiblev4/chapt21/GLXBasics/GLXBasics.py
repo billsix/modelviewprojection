@@ -14,11 +14,6 @@ import sys
 import glfw
 import OpenGL.GL as GL
 
-if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
-    "PYOPENGL_PLATFORM"
-):
-    os.environ["PYOPENGL_PLATFORM"] = "x11"
-
 
 window_width: int = 400
 window_height: int = 200

@@ -18,10 +18,6 @@ import OpenGL.GLU as GLU
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 from _thunderbird_data import load_model  # noqa: E402
 
-if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
-    "PYOPENGL_PLATFORM"
-):
-    os.environ["PYOPENGL_PLATFORM"] = "x11"
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
