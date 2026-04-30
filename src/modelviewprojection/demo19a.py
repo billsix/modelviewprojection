@@ -98,29 +98,79 @@ def draw_in_square_viewport() -> None:
     )
 
 
+def draw_solid_cylinder(
+    base_radius: float, top_radius: float, height: float, slices: int
+) -> None:
+    """Cylinder side surface, oriented along +Z (replacement for gluCylinder)."""
+    GL.glBegin(GL.GL_QUAD_STRIP)
+    for i in range(slices + 1):
+        a = 2.0 * math.pi * float(i) / slices
+        c, s = math.cos(a), math.sin(a)
+        GL.glNormal3f(c, s, 0.0)
+        GL.glVertex3f(c * base_radius, s * base_radius, 0.0)
+        GL.glVertex3f(c * top_radius, s * top_radius, height)
+    GL.glEnd()
+
+
+def draw_solid_cone(base: float, height: float, slices: int) -> None:
+    """Cone with apex on +Z and base disk closing the bottom."""
+    GL.glBegin(GL.GL_TRIANGLE_FAN)
+    GL.glNormal3f(0.0, 0.0, 1.0)
+    GL.glVertex3f(0.0, 0.0, height)
+    for i in range(slices + 1):
+        a = 2.0 * math.pi * float(i) / slices
+        GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
+    GL.glEnd()
+    # Base disk
+    GL.glBegin(GL.GL_TRIANGLE_FAN)
+    GL.glNormal3f(0.0, 0.0, -1.0)
+    GL.glVertex3f(0.0, 0.0, 0.0)
+    for i in range(slices, -1, -1):
+        a = 2.0 * math.pi * float(i) / slices
+        GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
+    GL.glEnd()
+
+
 # doc-region-begin draw unit axes
 def draw_unit_axes() -> None:
     """
     Draw a unit-length basis at the current origin of the modelview matrix:
-    +X red, +Y green, +Z blue.  Call this anywhere inside a glPushMatrix /
+    +X red, +Y green, +Z blue.  Each axis is a thin cylinder shaft with a
+    cone arrowhead at the tip (port of gltDrawUnitAxes from the OpenGL
+    SuperBible's gltools).  Call this anywhere inside a glPushMatrix /
     glPopMatrix block to visualize the current coordinate frame.
     """
-    GL.glLineWidth(3.0)
-    GL.glBegin(GL.GL_LINES)
-    # X axis -- red
+    rod_radius = 0.05
+    cone_radius = 0.12
+    rod_length = 0.85
+    cone_length = 0.15
+
+    # +X axis -- red, rotate +90° about Y so the +Z-aligned cylinder
+    # points along +X
     GL.glColor3f(1.0, 0.0, 0.0)
-    GL.glVertex3f(0.0, 0.0, 0.0)
-    GL.glVertex3f(1.0, 0.0, 0.0)
-    # Y axis -- green
+    GL.glPushMatrix()
+    GL.glRotatef(90.0, 0.0, 1.0, 0.0)
+    draw_solid_cylinder(rod_radius, rod_radius, rod_length, 20)
+    GL.glTranslatef(0.0, 0.0, rod_length)
+    draw_solid_cone(cone_radius, cone_length, 20)
+    GL.glPopMatrix()
+
+    # +Y axis -- green, rotate -90° about X so the cylinder points along +Y
     GL.glColor3f(0.0, 1.0, 0.0)
-    GL.glVertex3f(0.0, 0.0, 0.0)
-    GL.glVertex3f(0.0, 1.0, 0.0)
-    # Z axis -- blue
+    GL.glPushMatrix()
+    GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
+    draw_solid_cylinder(rod_radius, rod_radius, rod_length, 20)
+    GL.glTranslatef(0.0, 0.0, rod_length)
+    draw_solid_cone(cone_radius, cone_length, 20)
+    GL.glPopMatrix()
+
+    # +Z axis -- blue, default cylinder orientation
     GL.glColor3f(0.0, 0.0, 1.0)
-    GL.glVertex3f(0.0, 0.0, 0.0)
-    GL.glVertex3f(0.0, 0.0, 1.0)
-    GL.glEnd()
-    GL.glLineWidth(1.0)
+    GL.glPushMatrix()
+    draw_solid_cylinder(rod_radius, rod_radius, rod_length, 20)
+    GL.glTranslatef(0.0, 0.0, rod_length)
+    draw_solid_cone(cone_radius, cone_length, 20)
+    GL.glPopMatrix()
 # doc-region-end draw unit axes
 
 

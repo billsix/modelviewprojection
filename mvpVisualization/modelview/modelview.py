@@ -58,10 +58,9 @@ _prev_scroll_cb = None
 def scroll_callback(win, x_offset, y_offset):
     if _prev_scroll_cb:
         _prev_scroll_cb(win, x_offset, y_offset)
-    if not imguiio.want_capture_mouse:
-        camera.r = camera.r + -1 * (y_offset * math.log(camera.r))
-        if camera.r < 3.0:
-            camera.r = 3.0
+    camera.r = camera.r + -1 * (y_offset * math.log(camera.r))
+    if camera.r < 3.0:
+        camera.r = 3.0
 _prev_scroll_cb = glfw.set_scroll_callback(window, scroll_callback)
 
 
@@ -218,35 +217,72 @@ def draw_ground() -> None:
         np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
     )
     GL.glColor3f(0.1, 0.1, 0.1)
-    GL.glBegin(GL.GL_LINES)
-    for x in range(-20, 21, 1):
-        for z in range(-20, 21, 1):
-            GL.glVertex3f(float(-x), float(-5.0), float(z))
-            GL.glVertex3f(float(x), float(-5.0), float(z))
-            GL.glVertex3f(float(x), float(-5.0), float(-z))
-            GL.glVertex3f(float(x), float(-5.0), float(z))
+    # 41 horizontal cylinders (along X, varying Z) + 41 vertical (along Z,
+    # varying X), spanning [-20, 20] at y=-5.  Same edges as the cylinder
+    # ground in the shader-based demos.
+    for i in range(-20, 21, 1):
+        coord = float(i)
+        # horizontal at z = coord
+        draw_cylinder_edge(
+            (-20.0, -5.0, coord), (20.0, -5.0, coord), 0.05, 20
+        )
+        # vertical at x = coord
+        draw_cylinder_edge(
+            (coord, -5.0, -20.0), (coord, -5.0, 20.0), 0.05, 20
+        )
 
+
+def draw_solid_cylinder(
+    base_radius: float, top_radius: float, height: float, slices: int
+) -> None:
+    """Cylinder side surface oriented along +Z."""
+    GL.glBegin(GL.GL_QUAD_STRIP)
+    for i in range(slices + 1):
+        a = 2.0 * math.pi * float(i) / slices
+        c, s = math.cos(a), math.sin(a)
+        GL.glNormal3f(c, s, 0.0)
+        GL.glVertex3f(c * base_radius, s * base_radius, 0.0)
+        GL.glVertex3f(c * top_radius, s * top_radius, height)
+    GL.glEnd()
+
+
+def draw_solid_cone(base: float, height: float, slices: int) -> None:
+    """Cone with apex on +Z and a base disk closing the bottom."""
+    GL.glBegin(GL.GL_TRIANGLE_FAN)
+    GL.glNormal3f(0.0, 0.0, 1.0)
+    GL.glVertex3f(0.0, 0.0, height)
+    for i in range(slices + 1):
+        a = 2.0 * math.pi * float(i) / slices
+        GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
+    GL.glEnd()
+    GL.glBegin(GL.GL_TRIANGLE_FAN)
+    GL.glNormal3f(0.0, 0.0, -1.0)
+    GL.glVertex3f(0.0, 0.0, 0.0)
+    for i in range(slices, -1, -1):
+        a = 2.0 * math.pi * float(i) / slices
+        GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
     GL.glEnd()
 
 
 def draw_y_axis() -> None:
+    """Draw a +Y-pointing cylinder shaft + cone arrowhead at the current
+    modelview transform.  Caller has already issued glColor3f for the
+    desired (or grayed-out) color."""
+    rod_radius = 0.05
+    cone_radius = 0.12
+    rod_length = 0.85
+    cone_length = 0.15
+
     # ascontiguousarray puts the array in column major order
     GL.glLoadMatrixf(
         np.ascontiguousarray(ms.get_current_matrix(ms.MatrixStack.modelview).T)
     )
-
-    GL.glLineWidth(3.0)
-    GL.glBegin(GL.GL_LINES)
-    GL.glVertex3f(0.0, 0.0, 0.0)
-    GL.glVertex3f(0.0, 1.0, 0.0)
-
-    # arrow
-    GL.glVertex3f(0.0, 1.0, 0.0)
-    GL.glVertex3f(0.25, 0.75, 0.0)
-
-    GL.glVertex3f(0.0, 1.0, 0.0)
-    GL.glVertex3f(-0.25, 0.75, 0.0)
-    GL.glEnd()
+    # The cylinder/cone helpers build along +Z; rotate -90 about X so they
+    # point along +Y.
+    GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
+    draw_solid_cylinder(rod_radius, rod_radius, rod_length, 20)
+    GL.glTranslatef(0.0, 0.0, rod_length)
+    draw_solid_cone(cone_radius, cone_length, 20)
 
 
 def draw_axises(grayed_out: bool = False) -> None:
@@ -278,6 +314,33 @@ def draw_axises(grayed_out: bool = False) -> None:
         draw_y_axis()
 
 
+def draw_cylinder_edge(p0, p1, radius: float, slices: int) -> None:
+    """Draw a cylinder shaft connecting p0 to p1 with the given radius.
+    The cylinder helper builds along +Z; this rotates that local +Z to
+    align with (p1 - p0) before drawing."""
+    direction = np.asarray(p1, dtype=np.float64) - np.asarray(p0, dtype=np.float64)
+    length = float(np.linalg.norm(direction))
+    if length < 1e-9:
+        return
+    GL.glPushMatrix()
+    GL.glTranslatef(float(p0[0]), float(p0[1]), float(p0[2]))
+    forward = direction / length
+    z_axis = np.array([0.0, 0.0, 1.0])
+    cos_angle = float(np.dot(z_axis, forward))
+    if cos_angle > 0.9999:
+        pass  # already aligned with +Z
+    elif cos_angle < -0.9999:
+        GL.glRotatef(180.0, 1.0, 0.0, 0.0)
+    else:
+        axis = np.cross(z_axis, forward)
+        axis_len = float(np.linalg.norm(axis))
+        axis = axis / axis_len
+        angle_deg = math.degrees(math.acos(cos_angle))
+        GL.glRotatef(angle_deg, float(axis[0]), float(axis[1]), float(axis[2]))
+    draw_solid_cylinder(radius, radius, length, slices)
+    GL.glPopMatrix()
+
+
 # this isn't really NDC, I scaled it so that it looks good, not be correct
 def draw_ndc() -> None:
     GL.glLoadMatrixf(
@@ -285,43 +348,25 @@ def draw_ndc() -> None:
     )
 
     GL.glColor3f(1.0, 1.0, 1.0)
-    GL.glLineWidth(3.0)
-    GL.glBegin(GL.GL_LINES)
-    GL.glVertex3f(-1.0, -1.0, -1.0)
-    GL.glVertex3f(1.0, -1.0, -1.0)
-
-    GL.glVertex3f(1.0, -1.0, -1.0)
-    GL.glVertex3f(1.0, 1.0, -1.0)
-
-    GL.glVertex3f(1.0, 1.0, -1.0)
-    GL.glVertex3f(-1.0, 1.0, -1.0)
-
-    GL.glVertex3f(-1.0, 1.0, -1.0)
-    GL.glVertex3f(-1.0, -1.0, -1.0)
-
-    GL.glVertex3f(-1.0, -1.0, 1.0)
-    GL.glVertex3f(1.0, -1.0, 1.0)
-
-    GL.glVertex3f(1.0, -1.0, 1.0)
-    GL.glVertex3f(1.0, 1.0, 1.0)
-
-    GL.glVertex3f(1.0, 1.0, 1.0)
-    GL.glVertex3f(-1.0, 1.0, 1.0)
-
-    GL.glVertex3f(-1.0, 1.0, 1.0)
-    GL.glVertex3f(-1.0, -1.0, 1.0)
-
-    # connect the squares
-    GL.glVertex3f(1.0, 1.0, -1.0)
-    GL.glVertex3f(1.0, 1.0, 1.0)
-    GL.glVertex3f(1.0, -1.0, -1.0)
-    GL.glVertex3f(1.0, -1.0, 1.0)
-    GL.glVertex3f(-1.0, 1.0, -1.0)
-    GL.glVertex3f(-1.0, 1.0, 1.0)
-    GL.glVertex3f(-1.0, -1.0, -1.0)
-    GL.glVertex3f(-1.0, -1.0, 1.0)
-
-    GL.glEnd()
+    edges = [
+        # back square (z = -1)
+        ((-1.0, -1.0, -1.0), ( 1.0, -1.0, -1.0)),
+        (( 1.0, -1.0, -1.0), ( 1.0,  1.0, -1.0)),
+        (( 1.0,  1.0, -1.0), (-1.0,  1.0, -1.0)),
+        ((-1.0,  1.0, -1.0), (-1.0, -1.0, -1.0)),
+        # front square (z = +1)
+        ((-1.0, -1.0,  1.0), ( 1.0, -1.0,  1.0)),
+        (( 1.0, -1.0,  1.0), ( 1.0,  1.0,  1.0)),
+        (( 1.0,  1.0,  1.0), (-1.0,  1.0,  1.0)),
+        ((-1.0,  1.0,  1.0), (-1.0, -1.0,  1.0)),
+        # connecting edges
+        (( 1.0,  1.0, -1.0), ( 1.0,  1.0,  1.0)),
+        (( 1.0, -1.0, -1.0), ( 1.0, -1.0,  1.0)),
+        ((-1.0,  1.0, -1.0), (-1.0,  1.0,  1.0)),
+        ((-1.0, -1.0, -1.0), (-1.0, -1.0,  1.0)),
+    ]
+    for p0, p1 in edges:
+        draw_cylinder_edge(p0, p1, 0.05, 20)
 
 
 TARGET_FRAMERATE = 60  # fps

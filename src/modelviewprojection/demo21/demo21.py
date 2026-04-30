@@ -25,11 +25,6 @@ import sys
 
 from numpy import ndarray
 
-if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
-    "PYOPENGL_PLATFORM"
-):
-    os.environ["PYOPENGL_PLATFORM"] = "x11"
-
 
 # When using a pure python backend, prefer to import glfw before
 # imgui_bundle (so that you end up using the standard glfw, not the

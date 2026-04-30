@@ -2,7 +2,7 @@ autoflake
 furo
 glfw
 ImageIO
-imgui-bundle[full]
+imgui-bundle[glfw]
 isort
 jupyter
 jupytext

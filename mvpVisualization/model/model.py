@@ -17,911 +17,180 @@
 
 
 import colorsys
-import ctypes
 import math
 import os
 import sys
-from dataclasses import dataclass, field
 from typing import Optional, Tuple
 
-# Workaround issue when using wayland ("Attempt to retrieve context when no valid context", in PyOpenGL)
-# (see https://github.com/pthom/imgui_bundle/issues/321)
-from numpy import ndarray
-
-if os.getenv("XDG_SESSION_TYPE") == "wayland" and not os.getenv(
-    "PYOPENGL_PLATFORM"
-):
-    os.environ["PYOPENGL_PLATFORM"] = "x11"
-
-
-# When using a pure python backend, prefer to import glfw before
-# imgui_bundle (so that you end up using the standard glfw, not the
-# one provided by imgui_bundle)
 import glfw
 import numpy as np
-import numpy.typing
 import OpenGL.GL as GL  # pip install PyOpenGL
-import OpenGL.GL.shaders as shaders
-from imgui_bundle import imgui, imgui_md
-from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from imgui_bundle import imgui
+from numpy import ndarray
 
 import modelviewprojection.pyMatrixStack as ms
 
-# NEW - for shader location
-pwd = os.path.dirname(os.path.abspath(__file__))
-
-# NEW - for shaders
-glfloat_size = 4
-floatsPerVertex = 3
-floatsPerColor = 3
-
-if not glfw.init():
-    sys.exit()
-
-glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
-glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
-glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-# for osx
-glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(PWD))
+import _pipeline as _p  # noqa: E402
 
 
 line_thickness = 2.0
 
-
-def init_fonts_and_markdown() -> None:
-    # uncomment to keep using the default hardcoded font, or load your default font here
-    # imgui.get_io().fonts.add_font_default()
-
-    # Load markdown fonts
-    imgui_md.initialize_markdown()
-    font_loader: imgui_md.VoidFunction = imgui_md.get_font_loader_function()
-    font_loader()
+window, impl, imguiio = _p.setup_window("Model")
+_p.install_esc_close(window)
 
 
-def impl_glfw_init():
-    width, height = 1920, 1080
-    window_name = "Model"
-
-    if not glfw.init():
-        print("Could not initialize OpenGL context")
-        sys.exit(1)
-
-    # OS X supports only forward-compatible core profiles from 3.2
-    glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
-    glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
-    glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-
-    glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
-
-    # Create a windowed mode window and its OpenGL context
-    window = glfw.create_window(
-        int(width), int(height), window_name, None, None
-    )
-    glfw.make_context_current(window)
-
-    if not window:
-        glfw.terminate()
-        print("Could not initialize Window")
-        sys.exit(1)
-
-    return window
+# ---------------------------------------------------------------------------
+# Pipeline -- compile each shader program once, cache uniform / attribute
+# locations.
+# ---------------------------------------------------------------------------
 
 
-imgui.create_context()
-window = impl_glfw_init()
-impl = GlfwRenderer(window)
-init_fonts_and_markdown()
-
-if not impl:
-    glfw.terminate()
-    sys.exit()
-
-
-# Make the window's context current
-glfw.make_context_current(window)
-imgui.create_context()
-impl = GlfwRenderer(window)
-
-
-imguiio = imgui.get_io()
-
-# Install a key handler
-
-
-def on_key(win, key, scancode, action, mods):
-    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(win, 1)
-
-
-glfw.set_key_callback(window, on_key)
-
-
-_prev_scroll_cb = None
-def scroll_callback(win, x_offset, y_offset):
-    if _prev_scroll_cb:
-        _prev_scroll_cb(win, x_offset, y_offset)
-    if not imguiio.want_capture_mouse:
-        camera.r = camera.r + -1 * (y_offset * math.log(camera.r))
-        if camera.r < 3.0:
-            camera.r = 3.0
-_prev_scroll_cb = glfw.set_scroll_callback(window, scroll_callback)
-
-
-GL.glClearColor(13.0 / 255.0, 64.0 / 255.0, 5.0 / 255.0, 1.0)
-
-# NEW - TODO - talk about opengl matricies and z pos/neg
-GL.glClearDepth(1.0)
-GL.glDepthFunc(GL.GL_LESS)
-GL.glEnable(GL.GL_DEPTH_TEST)
-
-
-@dataclass
-class Paddle:
-    r: float
-    g: float
-    b: float
-    position: numpy.typing.NDArray
-    rotation: float = 0.0
-    # fmt: off
-    vertices: np.array = field(
-        default_factory=lambda: np.array(
-            [
-                -1.0, -3.0, 0.0,
-                1.0, -3.0, 0.0,
-                1.0, 3.0, 0.0,
-                1.0, 3.0, 0.0,
-                -1.0, 3.0, 0.0,
-                -1.0, -3.0, 0.0,
-            ],
-            dtype=np.float32,
-        )
-    )
-    # fmt: on
-    vao: int = 0
-    vbo: int = 0
-    shader: int = 0
-
-    def prepare_to_render(self) -> None:
-        # GL_QUADS aren't available anymore, only triangles
-        # need 6 vertices instead of 4
-        vertices = self.vertices
-        self.number_of_vertices = np.size(vertices) // floatsPerVertex
-        # fmt: off
-        color = np.array(
-            [
-                self.r, self.g, self.b,
-                self.r, self.g, self.b,
-                self.r, self.g, self.b,
-                self.r, self.g, self.b,
-                self.r, self.g, self.b,
-                self.r, self.g, self.b,
-            ],
-            dtype=np.float32,
-        )
-        # fmt: on
-        self.number_of_colors = np.size(color) // floatsPerColor
-
-        self.vao = GL.glGenVertexArrays(1)
-        GL.glBindVertexArray(self.vao)
-
-        # initialize shaders
-
-        with open(os.path.join(pwd, "triangle.vert"), "r") as f:
-            vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
-
-        with open(os.path.join(pwd, "triangle.frag"), "r") as f:
-            fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
-
-        self.shader = shaders.compileProgram(vs, fs)
-
-        self.m_matrix_loc = GL.glGetUniformLocation(self.shader, "mMatrix")
-        self.v_matrix_loc = GL.glGetUniformLocation(self.shader, "vMatrix")
-        self.p_matrix_loc = GL.glGetUniformLocation(self.shader, "pMatrix")
-
-        # send the modelspace data to the GPU
-        self.vbo = GL.glGenBuffers(1)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
-
-        position = GL.glGetAttribLocation(self.shader, "position")
-        GL.glEnableVertexAttribArray(position)
-
-        GL.glVertexAttribPointer(
-            position, floatsPerVertex, GL.GL_FLOAT, False, 0, ctypes.c_void_p(0)
-        )
-
-        GL.glBufferData(
-            GL.GL_ARRAY_BUFFER,
-            glfloat_size * np.size(vertices),
-            vertices,
-            GL.GL_STATIC_DRAW,
-        )
-
-        # send the modelspace data to the GPU
-        vbo_color = GL.glGenBuffers(1)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo_color)
-
-        color_attrib_loc = GL.glGetAttribLocation(self.shader, "color_in")
-        GL.glEnableVertexAttribArray(color_attrib_loc)
-        GL.glVertexAttribPointer(
-            color_attrib_loc,
-            floatsPerColor,
-            GL.GL_FLOAT,
-            False,
-            0,
-            ctypes.c_void_p(0),
-        )
-
-        GL.glBufferData(
-            GL.GL_ARRAY_BUFFER,
-            glfloat_size * np.size(color),
-            color,
-            GL.GL_STATIC_DRAW,
-        )
-
-        # reset VAO/VBO to default
-        GL.glBindVertexArray(0)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-
-    # destructor
-    def __del__(self):
-        GL.glDeleteVertexArrays(1, [self.vao])
-        GL.glDeleteBuffers(1, [self.vbo])
-        GL.glDeleteProgram(self.shader)
-
-    def render(self, time: float):
-        GL.glUseProgram(self.shader)
-        GL.glBindVertexArray(self.vao)
-
-        # ascontiguousarray puts the array in column major order
-        GL.glUniformMatrix4fv(
-            self.m_matrix_loc,
-            1,
-            GL.GL_TRUE,
-            np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
-            ),
-        )
-        GL.glUniformMatrix4fv(
-            self.v_matrix_loc,
-            1,
-            GL.GL_TRUE,
-            np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
-            ),
-        )
-        GL.glUniformMatrix4fv(
-            self.p_matrix_loc,
-            1,
-            GL.GL_TRUE,
-            np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection),
-                dtype=np.float32,
-            ),
-        )
-        GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.number_of_vertices)
-        GL.glBindVertexArray(0)
-
-
-paddle1 = Paddle(
-    r=0.578123,
-    g=0.0,
-    b=1.0,
-    position=np.array([-9.0, 1.0, 0.0]),
-    rotation=math.radians(45.0),
+# Triangle pipeline (paddles + square)
+triangle_program: int = _p.compile_program(PWD, "triangle.vert", "triangle.frag")
+u_triangle_m: int = GL.glGetUniformLocation(triangle_program, "mMatrix")
+u_triangle_v: int = GL.glGetUniformLocation(triangle_program, "vMatrix")
+u_triangle_p: int = GL.glGetUniformLocation(triangle_program, "pMatrix")
+triangle_attr_position: int = GL.glGetAttribLocation(
+    triangle_program, "position"
 )
-paddle1.prepare_to_render()
+triangle_attr_color: int = GL.glGetAttribLocation(triangle_program, "color_in")
 
-paddle2 = Paddle(
-    r=1.0,
-    g=1.0,
-    b=0.0,
-    position=np.array([9.0, 0.5, 0.0]),
-    rotation=math.radians(-20.0),
+# Ground pipeline: solid dark-gray cylinders.  Reuses ground.vert
+# (hardcoded dark gray) + triangle.frag (no geom shader).
+ground_program: int = _p.compile_program(PWD, "ground.vert", "triangle.frag")
+u_ground_m: int = GL.glGetUniformLocation(ground_program, "mMatrix")
+u_ground_v: int = GL.glGetUniformLocation(ground_program, "vMatrix")
+u_ground_p: int = GL.glGetUniformLocation(ground_program, "pMatrix")
+ground_attr_position: int = GL.glGetAttribLocation(ground_program, "position")
+
+# Axis pipeline: solid cylinder+cone arrows (axis.vert + triangle.frag, no geom)
+axis_program: int = _p.compile_program(PWD, "axis.vert", "triangle.frag")
+u_axis_m: int = GL.glGetUniformLocation(axis_program, "mMatrix")
+u_axis_v: int = GL.glGetUniformLocation(axis_program, "vMatrix")
+u_axis_p: int = GL.glGetUniformLocation(axis_program, "pMatrix")
+u_axis_color: int = GL.glGetUniformLocation(axis_program, "color")
+axis_attr_position: int = GL.glGetAttribLocation(axis_program, "position")
+
+# NDC-cube pipeline: solid white cylinders, no end cones.  Reuses the
+# axis.vert + triangle.frag shader pair (same as the axis pipeline).
+cube_program: int = _p.compile_program(PWD, "axis.vert", "triangle.frag")
+u_cube_m: int = GL.glGetUniformLocation(cube_program, "mMatrix")
+u_cube_v: int = GL.glGetUniformLocation(cube_program, "vMatrix")
+u_cube_p: int = GL.glGetUniformLocation(cube_program, "pMatrix")
+u_cube_color: int = GL.glGetUniformLocation(cube_program, "color")
+cube_attr_position: int = GL.glGetAttribLocation(cube_program, "position")
+
+
+# ---------------------------------------------------------------------------
+# Geometry.
+# ---------------------------------------------------------------------------
+
+paddle1_vao, paddle1_vertex_count = _p.make_triangle_vao(
+    _p.paddle_vertices, r=0.578123, g=0.0, b=1.0,
+    attr_position=triangle_attr_position, attr_color=triangle_attr_color,
+)
+paddle2_vao, paddle2_vertex_count = _p.make_triangle_vao(
+    _p.paddle_vertices, r=1.0, g=1.0, b=0.0,
+    attr_position=triangle_attr_position, attr_color=triangle_attr_color,
+)
+square_vao, square_vertex_count = _p.make_triangle_vao(
+    _p.square_vertices, r=0.0, g=0.0, b=1.0,
+    attr_position=triangle_attr_position, attr_color=triangle_attr_color,
+)
+ground_vao, ground_vertex_count = _p.make_lines_vao(
+    _p.build_ground_cylinders(), ground_attr_position
+)
+axis_vao, axis_vertex_count = _p.make_lines_vao(
+    _p.build_axis_arrow_solid(), axis_attr_position
+)
+cube_vao, cube_vertex_count = _p.make_lines_vao(
+    _p.build_ndc_cube_cylinders(), cube_attr_position
 )
 
-paddle2.prepare_to_render()
+
+# ---------------------------------------------------------------------------
+# Scene state.
+# ---------------------------------------------------------------------------
 
 
-@dataclass
-class Square(Paddle):
-    rotation_around_paddle1: float = 0.0
+paddle1_position: ndarray = np.array([-9.0, 1.0, 0.0])
+paddle1_rotation: float = math.radians(45.0)
 
-    vertices: np.array = field(
-        default_factory=lambda: np.array(
-            [
-                [-0.5, -0.5, 0.0],
-                [0.5, -0.5, 0.0],
-                [0.5, 0.5, 0.0],
-                [0.5, 0.5, 0.0],
-                [-0.5, 0.5, 0.0],
-                [-0.5, -0.5, 0.0],
-            ],
-            dtype=np.float32,
-        )
-    )
+paddle2_position: ndarray = np.array([9.0, 0.5, 0.0])
+paddle2_rotation: float = math.radians(-20.0)
+
+square_rotation: float = math.radians(90.0)
+rotation_around_paddle1: float = math.radians(30.0)
 
 
-square = Square(r=0.0, g=0.0, b=1.0, position=np.array([0.0, 0.0, 0.0]))
-
-square.prepare_to_render()
-
-
-class Ground:
-    def __init__(self) -> None:
-        pass
-
-    def vertices(self) -> ndarray:
-        # glColor3f(0.1,0.1,0.1)
-        verts = []
-        for x in range(-20, 21, 1):
-            for z in range(-20, 21, 1):
-                verts.append(float(-x))
-                verts.append(float(-5.0))
-                verts.append(float(z))
-                verts.append(float(x))
-                verts.append(float(-5.0))
-                verts.append(float(z))
-                verts.append(float(x))
-                verts.append(float(-5.0))
-                verts.append(float(-z))
-                verts.append(float(x))
-                verts.append(float(-5.0))
-                verts.append(float(z))
-
-        return np.array(verts, dtype=np.float32)
-
-    def prepare_to_render(self) -> None:
-        # GL_QUADS aren't available anymore, only triangles
-        # need 6 vertices instead of 4
-        vertices = self.vertices()
-        self.number_of_vertices = np.size(vertices) // floatsPerVertex
-
-        self.vao = GL.glGenVertexArrays(1)
-        GL.glBindVertexArray(self.vao)
-
-        # initialize shaders
-
-        with open(os.path.join(pwd, "ground.vert"), "r") as f:
-            vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
-
-        with open(os.path.join(pwd, "ground.frag"), "r") as f:
-            fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
-
-        with open(os.path.join(pwd, "ground.geom"), "r") as f:
-            gs = shaders.compileShader(f.read(), GL.GL_GEOMETRY_SHADER)
-
-        self.shader = shaders.compileProgram(vs, gs, fs)
-
-        self.m_matrix_loc = GL.glGetUniformLocation(self.shader, "mMatrix")
-        self.v_matrix_loc = GL.glGetUniformLocation(self.shader, "vMatrix")
-        self.p_matrix_loc = GL.glGetUniformLocation(self.shader, "pMatrix")
-
-        self.thickness_loc = GL.glGetUniformLocation(self.shader, "u_thickness")
-        self.viewport_loc = GL.glGetUniformLocation(
-            self.shader, "u_viewport_size"
-        )
-
-        # send the modelspace data to the GPU
-        self.vbo = GL.glGenBuffers(1)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
-
-        position = GL.glGetAttribLocation(self.shader, "position")
-        GL.glEnableVertexAttribArray(position)
-
-        GL.glVertexAttribPointer(
-            position, floatsPerVertex, GL.GL_FLOAT, False, 0, ctypes.c_void_p(0)
-        )
-
-        GL.glBufferData(
-            GL.GL_ARRAY_BUFFER,
-            glfloat_size * np.size(vertices),
-            vertices,
-            GL.GL_STATIC_DRAW,
-        )
-
-        # send the modelspace data to the GPU
-        # TODO, send color to the shader
-
-        # reset VAO/VBO to default
-        GL.glBindVertexArray(0)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-
-    # destructor
-    def __del__(self):
-        GL.glDeleteVertexArrays(1, [self.vao])
-        GL.glDeleteBuffers(1, [self.vbo])
-        GL.glDeleteProgram(self.shader)
-
-    def render(self, time: float) -> None:
-        GL.glUseProgram(self.shader)
-        GL.glBindVertexArray(self.vao)
-
-        # ascontiguousarray puts the array in column major order
-        GL.glUniformMatrix4fv(
-            self.m_matrix_loc,
-            1,
-            GL.GL_TRUE,
-            np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
-            ),
-        )
-        GL.glUniformMatrix4fv(
-            self.v_matrix_loc,
-            1,
-            GL.GL_TRUE,
-            np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
-            ),
-        )
-        GL.glUniformMatrix4fv(
-            self.p_matrix_loc,
-            1,
-            GL.GL_TRUE,
-            np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection),
-                dtype=np.float32,
-            ),
-        )
-        GL.glUniform1f(self.thickness_loc, line_thickness)
-        GL.glUniform2f(self.viewport_loc, width, height)
-        GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
-        GL.glBindVertexArray(0)
+camera = _p.Camera(
+    r=25.0, rot_y=math.radians(45.0), rot_x=math.radians(35.264)
+)
+_p.install_camera_scroll(window, imguiio, camera)
 
 
-ground = Ground()
-ground.prepare_to_render()
+# ---------------------------------------------------------------------------
+# Rendering helpers.
+# ---------------------------------------------------------------------------
 
 
-class Axis:
-    def __init__(self) -> None:
-        pass
+def draw_triangles(vao: int, vertex_count: int) -> None:
+    GL.glUseProgram(triangle_program)
+    GL.glBindVertexArray(vao)
+    _p.upload_mvp(u_triangle_m, u_triangle_v, u_triangle_p)
+    GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
+    GL.glBindVertexArray(0)
 
-    def vertices(self) -> ndarray:
-        # glColor3f(0.1,0.1,0.1)
-        verts = []
-        verts.append(float(0.0))
-        verts.append(float(0.0))
-        verts.append(float(0.0))
 
-        verts.append(float(0.0))
-        verts.append(float(1.0))
-        verts.append(float(0.0))
+def draw_ground() -> None:
+    GL.glUseProgram(ground_program)
+    GL.glBindVertexArray(ground_vao)
+    _p.upload_mvp(u_ground_m, u_ground_v, u_ground_p)
+    GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
+    GL.glBindVertexArray(0)
 
-        # arrow
-        verts.append(float(0.0))
-        verts.append(float(1.0))
-        verts.append(float(0.0))
 
-        verts.append(float(0.25))
-        verts.append(float(0.75))
-        verts.append(float(0.0))
+def _emit_axis(r: float, g: float, b: float, grayed_out: bool) -> None:
+    if grayed_out:
+        GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
+    else:
+        GL.glUniform3f(u_axis_color, r, g, b)
+    _p.upload_mvp(u_axis_m, u_axis_v, u_axis_p)
+    GL.glDrawArrays(GL.GL_TRIANGLES, 0, axis_vertex_count)
 
-        verts.append(float(0.0))
-        verts.append(float(1.0))
-        verts.append(float(0.0))
 
-        verts.append(float(-0.25))
-        verts.append(float(0.75))
-        verts.append(float(0.0))
-
-        return np.array(verts, dtype=np.float32)
-
-    def prepare_to_render(self) -> None:
-        # GL_QUADS aren't available anymore, only triangles
-        # need 6 vertices instead of 4
-        vertices = self.vertices()
-        self.number_of_vertices = np.size(vertices) // floatsPerVertex
-
-        self.vao = GL.glGenVertexArrays(1)
-        GL.glBindVertexArray(self.vao)
-
-        # initialize shaders
-
-        with open(os.path.join(pwd, "axis.vert"), "r") as f:
-            vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
-
-        with open(os.path.join(pwd, "axis.frag"), "r") as f:
-            fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
-
-        with open(os.path.join(pwd, "axis.geom"), "r") as f:
-            gs = shaders.compileShader(f.read(), GL.GL_GEOMETRY_SHADER)
-
-        self.shader = shaders.compileProgram(vs, gs, fs)
-
-        self.m_matrix_loc = GL.glGetUniformLocation(self.shader, "mMatrix")
-        self.v_matrix_loc = GL.glGetUniformLocation(self.shader, "vMatrix")
-        self.p_matrix_loc = GL.glGetUniformLocation(self.shader, "pMatrix")
-        self.colorLoc = GL.glGetUniformLocation(self.shader, "color")
-
-        self.thickness_loc = GL.glGetUniformLocation(self.shader, "u_thickness")
-        self.viewport_loc = GL.glGetUniformLocation(
-            self.shader, "u_viewport_size"
-        )
-
-        # send the modelspace data to the GPU
-        self.vbo = GL.glGenBuffers(1)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
-
-        position = GL.glGetAttribLocation(self.shader, "position")
-        GL.glEnableVertexAttribArray(position)
-
-        GL.glVertexAttribPointer(
-            position, floatsPerVertex, GL.GL_FLOAT, False, 0, ctypes.c_void_p(0)
-        )
-
-        GL.glBufferData(
-            GL.GL_ARRAY_BUFFER,
-            glfloat_size * np.size(vertices),
-            vertices,
-            GL.GL_STATIC_DRAW,
-        )
-
-        # send the modelspace data to the GPU
-        # TODO, send color to the shader
-
-        # reset VAO/VBO to default
-        GL.glBindVertexArray(0)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-
-    # destructor
-    def __del__(self):
-        GL.glDeleteVertexArrays(1, [self.vao])
-        GL.glDeleteBuffers(1, [self.vbo])
-        GL.glDeleteProgram(self.shader)
-
-    def render(self, time: float, grayed_out: bool = False) -> None:
-        GL.glUseProgram(self.shader)
-        GL.glBindVertexArray(self.vao)
-
+def draw_axis(grayed_out: bool = False) -> None:
+    GL.glUseProgram(axis_program)
+    GL.glBindVertexArray(axis_vao)
+    with ms.push_matrix(ms.MatrixStack.model):
+        # x axis
         with ms.push_matrix(ms.MatrixStack.model):
-            # x axis
-            with ms.push_matrix(ms.MatrixStack.model):
-                ms.rotate_z(ms.MatrixStack.model, math.radians(-90.0))
-
-                GL.glUniform3f(self.colorLoc, 1.0, 0.0, 0.0)
-                if grayed_out:
-                    GL.glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
-
-                # ascontiguousarray puts the array in column major order
-                GL.glUniformMatrix4fv(
-                    self.m_matrix_loc,
-                    1,
-                    GL.GL_TRUE,
-                    np.ascontiguousarray(
-                        ms.get_current_matrix(ms.MatrixStack.model),
-                        dtype=np.float32,
-                    ),
-                )
-                GL.glUniformMatrix4fv(
-                    self.v_matrix_loc,
-                    1,
-                    GL.GL_TRUE,
-                    np.ascontiguousarray(
-                        ms.get_current_matrix(ms.MatrixStack.view),
-                        dtype=np.float32,
-                    ),
-                )
-                GL.glUniformMatrix4fv(
-                    self.p_matrix_loc,
-                    1,
-                    GL.GL_TRUE,
-                    np.ascontiguousarray(
-                        ms.get_current_matrix(ms.MatrixStack.projection),
-                        dtype=np.float32,
-                    ),
-                )
-                GL.glUniform1f(self.thickness_loc, line_thickness)
-                GL.glUniform2f(self.viewport_loc, width, height)
-                GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
-
-            # z
-            # glColor3f(0.0,0.0,1.0) # blue z
-            with ms.push_matrix(ms.MatrixStack.model):
-                ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
-                ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
-
-                GL.glUniform3f(self.colorLoc, 0.0, 0.0, 1.0)
-                if grayed_out:
-                    GL.glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
-                # ascontiguousarray puts the array in column major order
-                GL.glUniformMatrix4fv(
-                    self.m_matrix_loc,
-                    1,
-                    GL.GL_TRUE,
-                    np.ascontiguousarray(
-                        ms.get_current_matrix(ms.MatrixStack.model),
-                        dtype=np.float32,
-                    ),
-                )
-                GL.glUniformMatrix4fv(
-                    self.v_matrix_loc,
-                    1,
-                    GL.GL_TRUE,
-                    np.ascontiguousarray(
-                        ms.get_current_matrix(ms.MatrixStack.view),
-                        dtype=np.float32,
-                    ),
-                )
-                GL.glUniformMatrix4fv(
-                    self.p_matrix_loc,
-                    1,
-                    GL.GL_TRUE,
-                    np.ascontiguousarray(
-                        ms.get_current_matrix(ms.MatrixStack.projection),
-                        dtype=np.float32,
-                    ),
-                )
-                GL.glUniform1f(self.thickness_loc, line_thickness)
-                GL.glUniform2f(self.viewport_loc, width, height)
-                GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
-
-            # y
-            GL.glUniform3f(self.colorLoc, 0.0, 1.0, 0.0)
-            # glColor3f(0.0,1.0,0.0) # green y
-            if grayed_out:
-                GL.glUniform3f(self.colorLoc, 0.5, 0.5, 0.5)
-            # ascontiguousarray puts the array in column major order
-            GL.glUniformMatrix4fv(
-                self.m_matrix_loc,
-                1,
-                GL.GL_TRUE,
-                np.ascontiguousarray(
-                    ms.get_current_matrix(ms.MatrixStack.model),
-                    dtype=np.float32,
-                ),
-            )
-            GL.glUniformMatrix4fv(
-                self.v_matrix_loc,
-                1,
-                GL.GL_TRUE,
-                np.ascontiguousarray(
-                    ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
-                ),
-            )
-            GL.glUniformMatrix4fv(
-                self.p_matrix_loc,
-                1,
-                GL.GL_TRUE,
-                np.ascontiguousarray(
-                    ms.get_current_matrix(ms.MatrixStack.projection),
-                    dtype=np.float32,
-                ),
-            )
-            GL.glUniform1f(self.thickness_loc, line_thickness)
-            GL.glUniform2f(self.viewport_loc, width, height)
-            GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
-            GL.glBindVertexArray(0)
+            ms.rotate_z(ms.MatrixStack.model, math.radians(-90.0))
+            _emit_axis(1.0, 0.0, 0.0, grayed_out)
+        # z axis
+        with ms.push_matrix(ms.MatrixStack.model):
+            ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
+            ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
+            _emit_axis(0.0, 0.0, 1.0, grayed_out)
+        # y axis
+        _emit_axis(0.0, 1.0, 0.0, grayed_out)
+    GL.glBindVertexArray(0)
 
 
-axis = Axis()
-axis.prepare_to_render()
-
-
-class NDCCube:
-    def __init__(self) -> None:
-        pass
-
-    def vertices(self) -> ndarray:
-        # glColor3f(0.1,0.1,0.1)
-        verts = []
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        # connect the squares
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(1.0)
-        verts.append(1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(-1.0)
-
-        verts.append(-1.0)
-        verts.append(-1.0)
-        verts.append(1.0)
-
-        return np.array(verts, dtype=np.float32)
-
-    def prepare_to_render(self) -> None:
-        # GL_QUADS aren't available anymore, only triangles
-        # need 6 vertices instead of 4
-        vertices = self.vertices()
-        self.number_of_vertices = np.size(vertices) // floatsPerVertex
-
-        self.vao = GL.glGenVertexArrays(1)
-        GL.glBindVertexArray(self.vao)
-
-        # initialize shaders
-
-        with open(os.path.join(pwd, "cube.vert"), "r") as f:
-            vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
-
-        with open(os.path.join(pwd, "cube.frag"), "r") as f:
-            fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
-
-        with open(os.path.join(pwd, "cube.geom"), "r") as f:
-            gs = shaders.compileShader(f.read(), GL.GL_GEOMETRY_SHADER)
-
-        self.shader = shaders.compileProgram(vs, gs, fs)
-
-        self.m_matrix_loc = GL.glGetUniformLocation(self.shader, "mMatrix")
-        self.v_matrix_loc = GL.glGetUniformLocation(self.shader, "vMatrix")
-        self.p_matrix_loc = GL.glGetUniformLocation(self.shader, "pMatrix")
-
-        self.thickness_loc = GL.glGetUniformLocation(self.shader, "u_thickness")
-        self.viewport_loc = GL.glGetUniformLocation(
-            self.shader, "u_viewport_size"
-        )
-
-        # send the modelspace data to the GPU
-        self.vbo = GL.glGenBuffers(1)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.vbo)
-
-        position = GL.glGetAttribLocation(self.shader, "position")
-        GL.glEnableVertexAttribArray(position)
-
-        GL.glVertexAttribPointer(
-            position, floatsPerVertex, GL.GL_FLOAT, False, 0, ctypes.c_void_p(0)
-        )
-
-        GL.glBufferData(
-            GL.GL_ARRAY_BUFFER,
-            glfloat_size * np.size(vertices),
-            vertices,
-            GL.GL_STATIC_DRAW,
-        )
-
-        # send the modelspace data to the GPU
-        # TODO, send color to the shader
-
-        # reset VAO/VBO to default
-        GL.glBindVertexArray(0)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-
-    # destructor
-    def __del__(self):
-        GL.glDeleteVertexArrays(1, [self.vao])
-        GL.glDeleteBuffers(1, [self.vbo])
-        GL.glDeleteProgram(self.shader)
-
-    def render(self, time: float) -> None:
-        GL.glUseProgram(self.shader)
-        GL.glBindVertexArray(self.vao)
-
-        # ascontiguousarray puts the array in column major order
-        GL.glUniformMatrix4fv(
-            self.m_matrix_loc,
-            1,
-            GL.GL_TRUE,
-            np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.model), dtype=np.float32
-            ),
-        )
-        GL.glUniformMatrix4fv(
-            self.v_matrix_loc,
-            1,
-            GL.GL_TRUE,
-            np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.view), dtype=np.float32
-            ),
-        )
-        GL.glUniformMatrix4fv(
-            self.p_matrix_loc,
-            1,
-            GL.GL_TRUE,
-            np.ascontiguousarray(
-                ms.get_current_matrix(ms.MatrixStack.projection),
-                dtype=np.float32,
-            ),
-        )
-        GL.glUniform1f(self.thickness_loc, line_thickness)
-        GL.glUniform2f(self.viewport_loc, width, height)
-        GL.glDrawArrays(GL.GL_LINES, 0, self.number_of_vertices)
-        GL.glBindVertexArray(0)
-
-
-cube = NDCCube()
-cube.prepare_to_render()
-
-
-@dataclass
-class Camera:
-    r: float = 0.0
-    rot_y: float = 0.0
-    rot_x: float = 0.0
-
-
-camera = Camera(r=25.0, rot_y=math.radians(45.0), rot_x=math.radians(35.264))
-
-
-square_rotation = math.radians(90.0)
-rotation_around_paddle1 = math.radians(30.0)
+def draw_cube() -> None:
+    GL.glUseProgram(cube_program)
+    GL.glBindVertexArray(cube_vao)
+    _p.upload_mvp(u_cube_m, u_cube_v, u_cube_p)
+    GL.glUniform3f(u_cube_color, 1.0, 1.0, 1.0)
+    GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
+    GL.glBindVertexArray(0)
 
 
 def handle_inputs(
     previous_mouse_position: Optional[Tuple[float, float]],
-) -> None:
+) -> Optional[Tuple[float, float]]:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -929,8 +198,6 @@ def handle_inputs(
     global square_rotation
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
-
-    global camera
 
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
         camera.rot_y -= math.radians(1.0) % 360.0
@@ -941,27 +208,24 @@ def handle_inputs(
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         camera.rot_x += math.radians(1.0) % 360.0
 
-    global paddle1, paddle2
-
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position[1] -= 1.0
+        paddle1_position[1] -= 1.0
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position[1] += 1.0
+        paddle1_position[1] += 1.0
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position[1] -= 1.0
+        paddle2_position[1] -= 1.0
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position[1] += 1.0
+        paddle2_position[1] += 1.0
 
-    global paddle_1_rotation, paddle_2_rotation
-
+    global paddle1_rotation, paddle2_rotation
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
-        paddle1.rotation += 0.1
+        paddle1_rotation += 0.1
     if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
-        paddle1.rotation -= 0.1
+        paddle1_rotation -= 0.1
     if glfw.get_key(window, glfw.KEY_J) == glfw.PRESS:
-        paddle2.rotation += 0.1
+        paddle2_rotation += 0.1
     if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
-        paddle2.rotation -= 0.1
+        paddle2_rotation -= 0.1
 
     new_mouse_position = glfw.get_cursor_pos(window)
     return_none = False
@@ -1165,35 +429,35 @@ while not glfw.window_should_close(window):
     # draw NDC in global space, so that we can see the camera space
     # go to NDC
     with ms.PushMatrix(ms.MatrixStack.model):
-        cube.render(animation_time)
-    ground.render(animation_time)
+        draw_cube()
+    draw_ground()
 
     if animation_time < 5.0 or (
         animation_time > 35.0 and animation_time < 35.0
     ):
-        axis.render(animation_time)
+        draw_axis()
     else:
-        axis.render(animation_time, grayed_out=True)
+        draw_axis(grayed_out=True)
 
     with ms.PushMatrix(ms.MatrixStack.model):
         if animation_time > 5.0:
             ms.translate(
                 ms.MatrixStack.model,
-                paddle1.position[0] * min(1.0, (animation_time - 5.0) / 5.0),
-                paddle1.position[1] * min(1.0, (animation_time - 5.0) / 5.0),
+                paddle1_position[0] * min(1.0, (animation_time - 5.0) / 5.0),
+                paddle1_position[1] * min(1.0, (animation_time - 5.0) / 5.0),
                 0.0,
             )
         if animation_time > 10.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                paddle1.rotation * min(1.0, (animation_time - 10.0) / 5.0),
+                paddle1_rotation * min(1.0, (animation_time - 10.0) / 5.0),
             )
 
         if animation_time > 15.0:
             # ascontiguousarray puts the array in column major order
-            paddle1.render(animation_time)
+            draw_triangles(paddle1_vao, paddle1_vertex_count)
         if animation_time > 0.0 and animation_time < 15.0:
-            axis.render(animation_time)
+            draw_axis()
 
         # # draw the square
 
@@ -1224,9 +488,9 @@ while not glfw.window_should_close(window):
             )
 
         if animation_time > 35.0:
-            square.render(animation_time)
+            draw_triangles(square_vao, square_vertex_count)
         if animation_time > 10.0 and animation_time < 35.0:
-            axis.render(animation_time)
+            draw_axis()
 
     # get back to center of global space
 
@@ -1235,20 +499,20 @@ while not glfw.window_should_close(window):
         if animation_time > 35.0:
             ms.translate(
                 ms.MatrixStack.model,
-                paddle2.position[0] * min(1.0, (animation_time - 35.0) / 5.0),
-                paddle2.position[1] * min(1.0, (animation_time - 35.0) / 5.0),
+                paddle2_position[0] * min(1.0, (animation_time - 35.0) / 5.0),
+                paddle2_position[1] * min(1.0, (animation_time - 35.0) / 5.0),
                 0.0,
             )
         if animation_time > 40.0:
             ms.rotate_z(
                 ms.MatrixStack.model,
-                paddle2.rotation * min(1.0, (animation_time - 40.0) / 5.0),
+                paddle2_rotation * min(1.0, (animation_time - 40.0) / 5.0),
             )
 
         if animation_time > 45.0:
-            paddle2.render(animation_time)
+            draw_triangles(paddle2_vao, paddle2_vertex_count)
         if animation_time > 35.0 and animation_time < 45.0:
-            axis.render(animation_time)
+            draw_axis()
 
     imgui.render()
     impl.render(imgui.get_draw_data())
@@ -1258,4 +522,5 @@ while not glfw.window_should_close(window):
     glfw.swap_buffers(window)
 
 
+_p.cleanup()
 glfw.terminate()
