@@ -359,7 +359,12 @@ and to get it into NDC, we need to scale by dividing by 10
     Demo 06
 
 ..
-   .. math::
+   .. inlinetex::
+       :class: no-scale
+       :align: center
+       :figclass: align-center
+
+       \begin{align*}
        \vec{f}_{p1}^{w}
        \begin{bmatrix}
        x_{p1} \\
@@ -381,9 +386,14 @@ and to get it into NDC, we need to scale by dividing by 10
        y_{w} \\
        z_{w}
        \end{bmatrix}
+       \end{align*}
 
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-.. math::
+    \[
     \begin{bmatrix}
     x_{w} \\
     y_{w}
@@ -401,7 +411,7 @@ and to get it into NDC, we need to scale by dividing by 10
     {p1}_{x} \\
     {p1}_{y}
     \end{bmatrix}
-
+    \]
 
 where x_p1, y_p1  are the :term:`modelspace<Modelspace>` coordinates of the paddle's vertices,
 and where p1_center_x_worldspace, p1_center_y_worldspace,
@@ -409,7 +419,12 @@ are the offset from the world space's origin to the center of the paddle, i.e. t
 
 
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \[
     \begin{bmatrix}
     x_{w} \\
     y_{w}
@@ -427,14 +442,19 @@ are the offset from the world space's origin to the center of the paddle, i.e. t
     {p2}_{x} \\
     {p2}_{y}
     \end{bmatrix}
-
+    \]
 
 Now, the coordinates for paddle 1 and for paddle 2 are in world
 space, and we need the match to take any world space coordinates
 and convert them to NDC.
 
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \[
     \begin{bmatrix}
     x_{ndc} \\
     y_{ndc}
@@ -448,6 +468,7 @@ and convert them to NDC.
     x_{w} \\
     y_{w}
     \end{bmatrix}
+    \]
 
 Modelviewprojection comes with a math library, the 2D version is
 named "mathutils.py".  The main class in this module is "Vector2D",

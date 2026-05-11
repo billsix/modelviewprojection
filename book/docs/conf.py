@@ -15,6 +15,7 @@ import os
 import sys
 
 sys.path.insert(0, os.path.abspath("."))
+sys.path.insert(0, os.path.abspath("./_ext"))
 
 
 # on_rtd is whether we are on readthedocs.org, this line of code grabbed
@@ -76,7 +77,13 @@ extensions = [
     "sphinxcontrib.bibtex",
     "nbsphinx",
     "myst_nb",
+    "inlinetex",
 ]
+
+# texExpToPng --size DPI for inlinetex-rendered PNGs. 300 (the extension
+# default) was too large at body-text scale; 150 gives roughly half the
+# pixel dimensions. See plans/sphinx-math-to-inlinetex.md.
+inlinetex_default_size = 150
 
 nb_execution_timeout = 600  # timeout of ten minutes
 myst_enable_extensions = [

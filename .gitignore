@@ -2,8 +2,44 @@
 
 __pycache__
 *~
-docs/_static/*gif
-docs/_static/*png
+
+# --- modelviewprojection generated artifacts ---
+
+# Sphinx HTML/LaTeX/PDF build outputs
+book/docs/_build/
+
+# Auto-generated from `git rev-parse HEAD` on every Makefile run
+book/docs/version.txt
+
+# texExpToPng intermediate files (the C tool leaves these in CWD after each render)
+book/docs/formula.aux
+book/docs/formula.dvi
+book/docs/formula.tex
+book/docs/_static/formula.aux
+book/docs/_static/formula.dvi
+book/docs/_static/formula.tex
+
+# Auto-generated images at the immediate _static/ level (gnuplot, dot, texExpToPng).
+# Subdirs of _static/ (e.g. ccbysa*) hold tracked source images and are unaffected.
+book/docs/_static/*.png
+book/docs/_static/*.svg
+book/docs/_static/*.gif
+
+# gnuplot output (the .gp source files in this dir are tracked; the generated
+# .png/.svg are also copied up to _static/ by the Makefile)
+book/docs/_static/gnuplot/*.png
+book/docs/_static/gnuplot/*.svg
+
+# inlinetex extension's hash-named PNG cache
+book/docs/_static/inlinetex/
+
+# Auto-generated jupyter notebooks (jupytext'd from src/modelviewprojection/notebooksrc/)
+book/docs/*.ipynb
+notebooks/*.ipynb
+assignments/demo02/plot2d.ipynb
+
+# Notebook-execution video output
+book/docs/animation.mp4
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

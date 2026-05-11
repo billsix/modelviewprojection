@@ -141,10 +141,19 @@ Query User Input and Use It To Animate
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-.. math::
-   \vec{x'} = \vec{t}(\vec{x}; \vec{c}) = \vec{x} + \vec{c}
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-.. math::
+    $ \vec{x'} = \vec{t}(\vec{x}; \vec{c}) = \vec{x} + \vec{c} $
+
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \[
     \begin{bmatrix}
     x_{1} \\
     x_{2}
@@ -165,7 +174,7 @@ Query User Input and Use It To Animate
     {c}_{1} \\
     {c}_{2}
     \end{bmatrix}
-
+    \]
 
 .. literalinclude:: ../../src/modelviewprojection/demo04.py
    :language: python

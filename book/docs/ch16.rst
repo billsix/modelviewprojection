@@ -235,10 +235,12 @@ so that "modelspace_to_ndc" calls this function last.  Each subsequent push will
 a new function to the top of the stack.
 
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-
-    \vec{f}_{c}^{ndc}
+    $ \vec{f}_{c}^{ndc} $
 
 .. figure:: _static/demo18-2.png
     :class: no-scale
@@ -267,10 +269,12 @@ the current space
 The camera's position and orientation are defined relative
 to world space like so, read top to bottom:
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-
-    \vec{f}_{c}^{w}
+    $ \vec{f}_{c}^{w} $
 
 .. figure:: _static/demo18-3.png
     :class: no-scale
@@ -287,10 +291,12 @@ the arguments
 Therefore the transformations to put the world space into
 camera space are.
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-
-    \vec{f}_{w}^{c}
+    $ \vec{f}_{w}^{c} $
 
 .. figure:: _static/demo18-7.png
     :class: no-scale
@@ -318,11 +324,12 @@ are on a stack, the fns on the model stack can
 be read forwards, where each operation translates/rotates/scales
 the current space
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-
-    \vec{f}_{p1}^{w}
-
+    $ \vec{f}_{p1}^{w} $
 
 .. figure:: _static/demo18-4.png
     :class: no-scale
@@ -364,10 +371,12 @@ just add the transformations relative to it
 before the blue square is drawn.  Draw the square, and then
 remove these 4 transformations from the stack (done below)
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-
-    \vec{f}_{s}^{p1}
+    $ \vec{f}_{s}^{p1} $
 
 .. figure:: _static/demo18-5.png
     :class: no-scale
@@ -415,10 +424,12 @@ draw paddle 2
 ~~~~~~~~~~~~~
 
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-
-    \vec{f}_{p2}^{w}
+    $ \vec{f}_{p2}^{w} $
 
 .. figure:: _static/demo18-6.png
     :class: no-scale

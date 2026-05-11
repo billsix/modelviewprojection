@@ -50,24 +50,30 @@ Scale Camera-space x by Camera-space z
 ######################################
 
 
-.. math::
-   \vec{f}_{1}(\begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1} \\
-                   \end{bmatrix}; nearZ_c)   = \begin{bmatrix}
-              {nearZ_c \over \textcolor{red}{z_c}} & 0 & 0 & 0 \\
-              0  &               1 & 0 & 0 \\
-              0  &               0 & 1 & 0 \\
-              0, &               0 & 0 & 1
-                   \end{bmatrix}  *
-                    \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1} \\
-                   \end{bmatrix}
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \begin{align*}
+    \vec{f}_{1}(\begin{bmatrix}
+                              {x_c} \\
+                              {y_c} \\
+                              {z_c} \\
+                              {w_c=1} \\
+                    \end{bmatrix}; nearZ_c)   = \begin{bmatrix}
+               {nearZ_c \over \textcolor{red}{z_c}} & 0 & 0 & 0 \\
+               0  &               1 & 0 & 0 \\
+               0  &               0 & 1 & 0 \\
+               0, &               0 & 0 & 1
+                    \end{bmatrix}  *
+                     \begin{bmatrix}
+                              {x_c} \\
+                              {y_c} \\
+                              {z_c} \\
+                              {w_c=1} \\
+                    \end{bmatrix}
+    \end{align*}
 
 resulting in
 
@@ -84,24 +90,30 @@ Scale Camera-space y by Camera-space z
 ######################################
 
 
-.. math::
-        (\vec{f}_{2} ; nearZ_c) ( \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1}
-                   \end{bmatrix})  = \begin{bmatrix}
-          1 & 0 &                  0 & 0 \\
-          0 & {nearZ_c \over \textcolor{red}{z_c}}    &       0 & 0 \\
-          0 & 0 &                  1 & 0 \\
-          0 & 0 &                  0 & 1
-                   \end{bmatrix}  *
-                    \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1} \\
-                   \end{bmatrix}
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \begin{align*}
+    (\vec{f}_{2} ; nearZ_c) ( \begin{bmatrix}
+                         {x_c} \\
+                         {y_c} \\
+                         {z_c} \\
+                         {w_c=1}
+               \end{bmatrix})  = \begin{bmatrix}
+      1 & 0 &                  0 & 0 \\
+      0 & {nearZ_c \over \textcolor{red}{z_c}}    &       0 & 0 \\
+      0 & 0 &                  1 & 0 \\
+      0 & 0 &                  0 & 1
+               \end{bmatrix}  *
+                \begin{bmatrix}
+                         {x_c} \\
+                         {y_c} \\
+                         {z_c} \\
+                         {w_c=1} \\
+               \end{bmatrix}
+    \end{align*}
 
 resulting in
 
@@ -121,20 +133,27 @@ Translate Rectangular Prism's Center to Center
 
 
 
-:math:`x_{midpoint} = 0`  // centered on x
+:inlinetex:`x_{midpoint} = 0`  // centered on x
 
-:math:`y_{midpoint} = 0`  // centered on y
+:inlinetex:`y_{midpoint} = 0`  // centered on y
 
-:math:`z_{midpoint} = {{{farZ}_c + {nearZ}_c} \over 2}`;
+:inlinetex:`z_{midpoint} = {{{farZ}_c + {nearZ}_c} \over 2}`;
 
 
-.. math::
-        (\vec{f}_{3} ; nearZ_c) ( \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1}
-                   \end{bmatrix})
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \[
+    (\vec{f}_{3} ; nearZ_c) ( \begin{bmatrix}
+                         {x_c} \\
+                         {y_c} \\
+                         {z_c} \\
+                         {w_c=1}
+               \end{bmatrix})
+    \]
+
   = \begin{bmatrix}
           1 & 0 & 0 & 0 \\
           0 & 1 & 0 & 0 \\
@@ -162,30 +181,36 @@ Scale by inverse of the dimensions of the Rectangular Prism
 ###########################################################
 
 
-:math:`x_{length} = right * 2`;
+:inlinetex:`x_{length} = right * 2`;
 
-:math:`y_{length} = top * 2`;
+:inlinetex:`y_{length} = top * 2`;
 
-:math:`z_{length} = {nearZ}_c - {farZ}_c`;
+:inlinetex:`z_{length} = {nearZ}_c - {farZ}_c`;
 
-.. math::
-        (\vec{f}_{4} ; nearZ_c, farZ_c) ( \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1}
-                   \end{bmatrix})  = \begin{bmatrix}
-         {1 \over right} &     0 &           0 &                  0 \\
-         0 &           {1 \over top} &       0 &                  0 \\
-         0 &           0 &           {2 \over {nearZ_c - farZ_c}} &   0 \\
-         0 &           0 &           0 &                  1
-                   \end{bmatrix}  *
-                    \begin{bmatrix}
-                             {x_c} \\
-                             {y_c} \\
-                             {z_c} \\
-                             {w_c=1} \\
-                   \end{bmatrix}
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \begin{align*}
+    (\vec{f}_{4} ; nearZ_c, farZ_c) ( \begin{bmatrix}
+                         {x_c} \\
+                         {y_c} \\
+                         {z_c} \\
+                         {w_c=1}
+               \end{bmatrix})  = \begin{bmatrix}
+     {1 \over right} &     0 &           0 &                  0 \\
+     0 &           {1 \over top} &       0 &                  0 \\
+     0 &           0 &           {2 \over {nearZ_c - farZ_c}} &   0 \\
+     0 &           0 &           0 &                  1
+               \end{bmatrix}  *
+                \begin{bmatrix}
+                         {x_c} \\
+                         {y_c} \\
+                         {z_c} \\
+                         {w_c=1} \\
+               \end{bmatrix}
+    \end{align*}
 
 .. figure:: _static/screenshots/frustum6.png
     :class: no-scale
@@ -198,7 +223,12 @@ Pre-multiply the matricies
 ##########################
 
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \[
     \begin{bmatrix}
       {x_{ndc}} \\
       {y_{ndc}} \\
@@ -210,16 +240,19 @@ Pre-multiply the matricies
                              {z_c} \\
                              {w_c=1} \\
                    \end{bmatrix}
-
-
-
+    \]
 
 Multiply them all together to get the following.  The elements of this premultiplied matrix have no geometric
 meaning to the author, and that's ok.  The matricies above all of geometric meaning, and we premultiply them
 together for computational efficiency, as well as being able to do the next step in clip space, which
 we couldn't do without having the premultiplied matrix.
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \begin{align*}
     \begin{bmatrix}
       {x_{ndc}} \\
       {y_{ndc}} \\
@@ -242,9 +275,7 @@ we couldn't do without having the premultiplied matrix.
                              {z_{c}} \\
                              {w_{c}=1} \\
                    \end{bmatrix}
-
-
-
+    \end{align*}
 
 Clip Space
 &&&&&&&&&&
@@ -264,17 +295,22 @@ I assume, without any evidence to support me, that this
 was done for efficiency reasons when using OpenGL's fixed function pipeline.
 (Side note, the standard perspective projection matrix,
 which we will get to by demo 25, does not linearly
-position the :math:`nearZ_c` to :math:`farZ_c` data into NDC. Everything
+position the :inlinetex:`nearZ_c` to :inlinetex:`farZ_c` data into NDC. Everything
 we've done so far in the class does.  The standard
 perspective matrix ends up having less Z-fighting
-close to :math:`nearZ_c`, and more problems with Z-fighting
+close to :inlinetex:`nearZ_c`, and more problems with Z-fighting
 near farZ_c)
 
 
 OpenGL will automatically convert from clip space to NDC
 such as follows.
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \begin{align*}
     \vec{f}_{clip}^{ndc}(\begin{bmatrix}
                              {x_{ndc}} \\
                              {y_{ndc}} \\
@@ -292,13 +328,18 @@ such as follows.
                              {z_{clip}} \\
                              {w_{clip}}
                    \end{bmatrix}
-
+    \end{align*}
 
 So to put our NDC data into clip space, knowing what OpenGL is going to do in
-the equation above, we need to decide what we want our clip space value, :math:`w` to be,
+the equation above, we need to decide what we want our clip space value, :inlinetex:`w` to be,
 and do the inverse of the equation above
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \begin{align*}
     \vec{f}_{ndc}^{clip}(\begin{bmatrix}
                              {x_{ndc}} \\
                              {y_{ndc}} \\
@@ -316,9 +357,14 @@ and do the inverse of the equation above
                              {z_{ndc}} \\
                              {w_{ndc}}
                    \end{bmatrix}
+    \end{align*}
 
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-.. math::
+    \[
     \vec{f}_{clip}^{clip}(\begin{bmatrix}
                              {x_{clip}} \\
                              {y_{clip}} \\
@@ -331,13 +377,18 @@ and do the inverse of the equation above
                              {z_{clip}} \\
                              {w} \\
                    \end{bmatrix}
+    \]
 
-
-Since we want to get the :math:`z_c` relative to camera space out of
+Since we want to get the :inlinetex:`z_c` relative to camera space out of
 the premultiplied matrix above, we choose
 the following
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \begin{align*}
     \vec{f}_{ndc}^{clip}(\begin{bmatrix}
                              {x_{ndc}} \\
                              {y_{ndc}} \\
@@ -355,12 +406,13 @@ the following
                              {z_{ndc}} \\
                              {w_{ndc}}
                    \end{bmatrix}
+    \end{align*}
 
-because multiplying by this matrix will remove the :math:`z_c` out of
+because multiplying by this matrix will remove the :inlinetex:`z_c` out of
 the upper left quadrant.
 
 But wait.  In camera space, the viewing frustum is defined
-to be in negative :math:`z`.  So that will
+to be in negative :inlinetex:`z`.  So that will
 
 Remove Z of Camera Space from Part of the Matrix
 ################################################
@@ -368,177 +420,191 @@ Remove Z of Camera Space from Part of the Matrix
 
 To get camera z out of the matrix, where it's currently in two denominators, we
 can use knowledge of clip space, wherein we put cameraspace's z into W.     because cameraSpace's z coordinate is negative, we want to scale
-all dimensions without reflecting over the origin, hence the negative sign in  :math:`-z_c`.
+all dimensions without reflecting over the origin, hence the negative sign in  :inlinetex:`-z_c`.
 
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-   \begin{bmatrix}
-               {x_{clip}} \\
-               {y_{clip}} \\
-               {z_{clip}} \\
-               {w_{clip}} \\
-     \end{bmatrix}
-     & =  \vec{f}_{c}^{clip}(\begin{bmatrix}
-               {x_c} \\
-               {y_c} \\
-               {z_c} \\
-               {w_c=1} \\
-     \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
-     & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
-      \begin{bmatrix}
-               {x_c} \\
-               {y_c} \\
-               {z_c} \\
-               {w_c=1} \\
-     \end{bmatrix} \\
-     & = \begin{bmatrix}
-                      \textcolor{red}{z_c} &  0 & 0 & 0 \\
-                      0 &  \textcolor{red}{z_c} & 0 & 0 \\
-                      0 &  0 & \textcolor{red}{z_c} & 0 \\
-                      0 &  0 & 0 & \textcolor{red}{z_c}
-                   \end{bmatrix} * \begin{bmatrix}
-                      {nearZ_c \over {right * \textcolor{red}{z_c}}} &             0 &                      0 &                0 \\
-                      0 &                           {nearZ_c \over {top*\textcolor{red}{z_c}}} &           0 &                0 \\
-                      0 &                           0 &                       {2 \over {nearZ_c - farZ_c}} & {-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}} \\
-                      0 &                           0 &                       0 &                1
-                   \end{bmatrix} *
-      \begin{bmatrix}
-               {x_c} \\
-               {y_c} \\
-               {z_c} \\
-               {w_c=1} \\
-     \end{bmatrix} \\
-     & = \begin{bmatrix}
-               {nearZ_c \over right} &         0 &        0 &                                   0 \\
-               0 &                  {nearZ_c \over top} & 0 &                                   0 \\
-               0 &                  0 &        { \textcolor{red}{z_c}* {2 \over {nearZ_c - farZ_c}}} &   { \textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}} \\
-               0 &                  0 &        0 &                                   \textcolor{red}{z_c}
-     \end{bmatrix} *
-      \begin{bmatrix}
-               {x_c} \\
-               {y_c} \\
-               {z_c} \\
-               {w_c=1} \\
-     \end{bmatrix}
+    \begin{align*}
+    \begin{bmatrix}
+                {x_{clip}} \\
+                {y_{clip}} \\
+                {z_{clip}} \\
+                {w_{clip}} \\
+      \end{bmatrix}
+      & =  \vec{f}_{c}^{clip}(\begin{bmatrix}
+                {x_c} \\
+                {y_c} \\
+                {z_c} \\
+                {w_c=1} \\
+      \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
+      & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
+       \begin{bmatrix}
+                {x_c} \\
+                {y_c} \\
+                {z_c} \\
+                {w_c=1} \\
+      \end{bmatrix} \\
+      & = \begin{bmatrix}
+                       \textcolor{red}{z_c} &  0 & 0 & 0 \\
+                       0 &  \textcolor{red}{z_c} & 0 & 0 \\
+                       0 &  0 & \textcolor{red}{z_c} & 0 \\
+                       0 &  0 & 0 & \textcolor{red}{z_c}
+                    \end{bmatrix} * \begin{bmatrix}
+                       {nearZ_c \over {right * \textcolor{red}{z_c}}} &             0 &                      0 &                0 \\
+                       0 &                           {nearZ_c \over {top*\textcolor{red}{z_c}}} &           0 &                0 \\
+                       0 &                           0 &                       {2 \over {nearZ_c - farZ_c}} & {-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}} \\
+                       0 &                           0 &                       0 &                1
+                    \end{bmatrix} *
+       \begin{bmatrix}
+                {x_c} \\
+                {y_c} \\
+                {z_c} \\
+                {w_c=1} \\
+      \end{bmatrix} \\
+      & = \begin{bmatrix}
+                {nearZ_c \over right} &         0 &        0 &                                   0 \\
+                0 &                  {nearZ_c \over top} & 0 &                                   0 \\
+                0 &                  0 &        { \textcolor{red}{z_c}* {2 \over {nearZ_c - farZ_c}}} &   { \textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}} \\
+                0 &                  0 &        0 &                                   \textcolor{red}{z_c}
+      \end{bmatrix} *
+       \begin{bmatrix}
+                {x_c} \\
+                {y_c} \\
+                {z_c} \\
+                {w_c=1} \\
+      \end{bmatrix}
+    \end{align*}
 
-
-The result of this is in clip space, where for the first time, our w component is not 1, but :math:`z_c`.
+The result of this is in clip space, where for the first time, our w component is not 1, but :inlinetex:`z_c`.
 
 Turning clip space back into NDC
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
-   \begin{bmatrix}
-                             {x_{ndc}} \\
-                             {y_{ndc}} \\
-                             {z_{ndc}} \\
-                             {w_{ndc}} \\
-                   \end{bmatrix}
-                   & =     \begin{bmatrix}
-                             {x_{clip} / z_{clip}} \\
-                             {y_{clip} / z_{clip}} \\
-                             {z_{clip} / z_{clip}} \\
-                             {w_{clip} / z_{clip}} \\
-                   \end{bmatrix} \\
-                   & = \begin{bmatrix}
-                      \textcolor{red}{{1 \over {z_c}}} &  0 & 0 & 0 \\
-                      0 &  \textcolor{red}{{1 \over {z_c}}} & 0 & 0 \\
-                      0 &  0 & \textcolor{red}{{1 \over {z_c}}} & 0 \\
-                      0 &  0 & 0 & \textcolor{red}{{1 \over {z_c}}}
-                   \end{bmatrix} * \begin{bmatrix}
-                                {{nearZ_c \over right} * x_{c}}   \\
-                                {{nearZ_c \over top} * y_{c}}    \\
-                                {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
-                                {\textcolor{red}{z_c}} \\
-                   \end{bmatrix}
-
-
-
-
-
+    \begin{align*}
+    \begin{bmatrix}
+                              {x_{ndc}} \\
+                              {y_{ndc}} \\
+                              {z_{ndc}} \\
+                              {w_{ndc}} \\
+                    \end{bmatrix}
+                    & =     \begin{bmatrix}
+                              {x_{clip} / z_{clip}} \\
+                              {y_{clip} / z_{clip}} \\
+                              {z_{clip} / z_{clip}} \\
+                              {w_{clip} / z_{clip}} \\
+                    \end{bmatrix} \\
+                    & = \begin{bmatrix}
+                       \textcolor{red}{{1 \over {z_c}}} &  0 & 0 & 0 \\
+                       0 &  \textcolor{red}{{1 \over {z_c}}} & 0 & 0 \\
+                       0 &  0 & \textcolor{red}{{1 \over {z_c}}} & 0 \\
+                       0 &  0 & 0 & \textcolor{red}{{1 \over {z_c}}}
+                    \end{bmatrix} * \begin{bmatrix}
+                                 {{nearZ_c \over right} * x_{c}}   \\
+                                 {{nearZ_c \over top} * y_{c}}    \\
+                                 {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + {\textcolor{red}{z_c}*{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
+                                 {\textcolor{red}{z_c}} \\
+                    \end{bmatrix}
+    \end{align*}
 
 Remove Z of Camera Space from the Rest of the Matrix
 ####################################################
 
-We successfully moved :math:`z_c` out of the upper left quadrant, but in doing so, we moved it down
+We successfully moved :inlinetex:`z_c` out of the upper left quadrant, but in doing so, we moved it down
 to the lower right. Can we get rid of it there too?  Turn out, we can.
 
-Since the vector multiplied by this matrix will provide :math:`z_c` as it's third element,
-we can put :math:`-z_c` into the :math:`w` by taking the explicit version of it out of the fourth column,
-and put :math:`-1` into the third column's :math:`w`.
+Since the vector multiplied by this matrix will provide :inlinetex:`z_c` as it's third element,
+we can put :inlinetex:`-z_c` into the :inlinetex:`w` by taking the explicit version of it out of the fourth column,
+and put :inlinetex:`-1` into the third column's :inlinetex:`w`.
 
-.. math::
-   \begin{bmatrix}
-                             x_{clip} \\
-                             y_{clip} \\
-                             z_{clip} \\
-                             w_{clip} \\
-                   \end{bmatrix}
-                   & =  \vec{f}_{c}^{clip}(\begin{bmatrix}
-                             x_c \\
-                             y_c \\
-                             z_c \\
-                             w_c=1 \\
-                   \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
-                   & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
-                    \begin{bmatrix}
-                             x_c \\
-                             y_c \\
-                             z_c \\
-                             w_c=1 \\
-                   \end{bmatrix} \\
-                   & = {1 \over {z_c}} * \begin{bmatrix}
-                             nearZ_c \over right &         0 &        0 &                                   0 \\
-                             0 &                  nearZ_c \over top & 0 &                                   0 \\
-                             0 &                  0 &        z_c * {2 \over {nearZ_c - farZ_c}} &   z_c * {-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
-                             0 &                  0 &        \textcolor{red}{0} &                                   \textcolor{red}{z_c}
-                   \end{bmatrix} *
-                    \begin{bmatrix}
-                             x_c \\
-                             y_c \\
-                             z_c \\
-                             \textcolor{red}{w_c=1} \\
-                   \end{bmatrix} \\
-                   & = {1 \over {z_c}} *  \begin{bmatrix}
-                             nearZ_c \over right &         0 &        0 &                                   0 \\
-                             0 &                  nearZ_c \over top & 0 &                                   0 \\
-                             0 &                  0 &        z_c * {2 \over {nearZ_c - farZ_c}} &  z_c*{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
-                             0 &                  0 &        \textcolor{red}{1} &                                   \textcolor{red}{0}
-                   \end{bmatrix} *
-                    \begin{bmatrix}
-                             x_c \\
-                             y_c \\
-                             z_c \\
-                             w_c=1 \\
-                   \end{bmatrix} \\
-                   & = {1 \over {z_c}} * \begin{bmatrix}
-                                {{nearZ_c \over right} * x_{c}}  \\
-                                {{nearZ_c \over top} * y_{c}}    \\
-                                {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + z_c * {{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
-                                \textcolor{red}{z_c} \\
-                   \end{bmatrix}
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
 
+    \begin{align*}
+    \begin{bmatrix}
+                              x_{clip} \\
+                              y_{clip} \\
+                              z_{clip} \\
+                              w_{clip} \\
+                    \end{bmatrix}
+                    & =  \vec{f}_{c}^{clip}(\begin{bmatrix}
+                              x_c \\
+                              y_c \\
+                              z_c \\
+                              w_c=1 \\
+                    \end{bmatrix}; farZ_c, nearZ_c, top, right) \\
+                    & =  (\vec{f}_{ndc}^{clip} \circ \vec{f}_{c}^{ndc})  *
+                     \begin{bmatrix}
+                              x_c \\
+                              y_c \\
+                              z_c \\
+                              w_c=1 \\
+                    \end{bmatrix} \\
+                    & = {1 \over {z_c}} * \begin{bmatrix}
+                              nearZ_c \over right &         0 &        0 &                                   0 \\
+                              0 &                  nearZ_c \over top & 0 &                                   0 \\
+                              0 &                  0 &        z_c * {2 \over {nearZ_c - farZ_c}} &   z_c * {-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
+                              0 &                  0 &        \textcolor{red}{0} &                                   \textcolor{red}{z_c}
+                    \end{bmatrix} *
+                     \begin{bmatrix}
+                              x_c \\
+                              y_c \\
+                              z_c \\
+                              \textcolor{red}{w_c=1} \\
+                    \end{bmatrix} \\
+                    & = {1 \over {z_c}} *  \begin{bmatrix}
+                              nearZ_c \over right &         0 &        0 &                                   0 \\
+                              0 &                  nearZ_c \over top & 0 &                                   0 \\
+                              0 &                  0 &        z_c * {2 \over {nearZ_c - farZ_c}} &  z_c*{-{farZ_c + nearZ_c} \over {nearZ_c - farZ_c}} \\
+                              0 &                  0 &        \textcolor{red}{1} &                                   \textcolor{red}{0}
+                    \end{bmatrix} *
+                     \begin{bmatrix}
+                              x_c \\
+                              y_c \\
+                              z_c \\
+                              w_c=1 \\
+                    \end{bmatrix} \\
+                    & = {1 \over {z_c}} * \begin{bmatrix}
+                                 {{nearZ_c \over right} * x_{c}}  \\
+                                 {{nearZ_c \over top} * y_{c}}    \\
+                                 {\textcolor{red}{z_c}^2 * {2 \over {nearZ_c - farZ_c}} + z_c * {{-({farZ_c + nearZ_c}) \over {nearZ_c - farZ_c}}}}\\
+                                 \textcolor{red}{z_c} \\
+                    \end{bmatrix}
+    \end{align*}
 
-To remove :math:`z_c` from the matrix, all that to do is remove it from row 3, somehow.  We're about to ride dirty.
+To remove :inlinetex:`z_c` from the matrix, all that to do is remove it from row 3, somehow.  We're about to ride dirty.
 
 If we were to change row three, it would not be the same transformation.  But if we ensure the following two
 properties of our changes, everything will be alright
 
 We need the
 
-* :math:`\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot \vec{f}_{c}^{clip} (\begin{bmatrix} {x_c} \\ {y_c} \\ \textcolor{red}{nearZ_c} \\ {w_c=1} \\ \end{bmatrix}) = \textcolor{red}{-1.0}`
-* :math:`\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot \vec{f}_{c}^{clip} (\begin{bmatrix} {x_c} \\ {y_c} \\ \textcolor{red}{farZ_c} \\ {w_c=1} \\ \end{bmatrix}) = \textcolor{red}{1.0}`
-* Ordering is preserved after the function is applied, i.e. monotonicity.  if :math:`z_1 < z_2`,
-  then :math:`(\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot \vec{f}_{c}^{clip}(\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{z_1} \\ 0 \\ \end{bmatrix} )) < (\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot  \vec{f}_{c}^{clip}(\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{z_2} \\ 0 \\ \end{bmatrix} ) )`.
+* :inlinetex:`\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot \vec{f}_{c}^{clip} (\begin{bmatrix} {x_c} \\ {y_c} \\ \textcolor{red}{nearZ_c} \\ {w_c=1} \\ \end{bmatrix}) = \textcolor{red}{-1.0}`
+* :inlinetex:`\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot \vec{f}_{c}^{clip} (\begin{bmatrix} {x_c} \\ {y_c} \\ \textcolor{red}{farZ_c} \\ {w_c=1} \\ \end{bmatrix}) = \textcolor{red}{1.0}`
+* Ordering is preserved after the function is applied, i.e. monotonicity.  if :inlinetex:`z_1 < z_2`,
+  then :inlinetex:`(\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot \vec{f}_{c}^{clip}(\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{z_1} \\ 0 \\ \end{bmatrix} )) < (\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{1} \\ 0 \\ \end{bmatrix} \cdot  \vec{f}_{c}^{clip}(\begin{bmatrix} 0 \\ 0 \\ \textcolor{red}{z_2} \\ 0 \\ \end{bmatrix} ) )`.
 
 If we can make a function, that like the third row of the matrix, has those properties, we can replace the
-third row and remove camera space's z, :math:`z_c`, from the matrix.  This is desirable because, if it were to exist,
+third row and remove camera space's z, :inlinetex:`z_c`, from the matrix.  This is desirable because, if it were to exist,
 would would not need per vector to create a custom perspective matrix.
 
 Towards that, let's look at these jibronies.
 
-.. math::
+.. inlinetex::
+    :class: no-scale
+    :align: center
+    :figclass: align-center
+
+    \begin{align*}
     \vec{f}_{c}^{clip}(\begin{bmatrix}
                              {x_c} \\
                              {y_c} \\
@@ -575,8 +641,7 @@ Towards that, let's look at these jibronies.
                              {z_c} \\
                              {w_c=1} \\
                    \end{bmatrix}
-
-
+    \end{align*}
 
      ..
         //  clipSpace.z = A* c.z + B * 1.0  (the first column and the second column are zero because z is independent of x and y)

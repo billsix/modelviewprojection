@@ -109,28 +109,28 @@ a new function of one argument.
 
 In high school math, you'd learn about classes of functions,  such as
 affine functions that follow the pattern
-:math:`f(x) = m \times x + b`.  You were told that :math:`m` and :math:`b`
+:inlinetex:`f(x) = m \times x + b`.  You were told that :inlinetex:`m` and :inlinetex:`b`
 were constant.
 
-You could recognize :math:`f(x) = 2 \times x + 3` as being an affine function
-where :math:`m=2` and :math:`b=3`.  You could recognize
-:math:`f(x) = 5 \times x + 0` as being an affine function where
-:math:`m=5` and :math:`b=0`.  You could recognize :math:`f(x) = x \times x` as
+You could recognize :inlinetex:`f(x) = 2 \times x + 3` as being an affine function
+where :inlinetex:`m=2` and :inlinetex:`b=3`.  You could recognize
+:inlinetex:`f(x) = 5 \times x + 0` as being an affine function where
+:inlinetex:`m=5` and :inlinetex:`b=0`.  You could recognize :inlinetex:`f(x) = x \times x` as
 not being affine, although it's
-implicit that :math:`b=0`, there is no constant times :math:`x`
-But could you generate a new function for a given :math:`m` and given
-:math:`b`?
+implicit that :inlinetex:`b=0`, there is no constant times :inlinetex:`x`
+But could you generate a new function for a given :inlinetex:`m` and given
+:inlinetex:`b`?
 
-Perhaps you could use notation such as :math:`f_{m=2,b=3}(x)` to be a function :math:`2 \times x + 3`,
-or :math:`f(x; m=2,b=3)` to be a function :math:`2 \times x + 3`.
+Perhaps you could use notation such as :inlinetex:`f_{m=2,b=3}(x)` to be a function :inlinetex:`2 \times x + 3`,
+or :inlinetex:`f(x; m=2,b=3)` to be a function :inlinetex:`2 \times x + 3`.
 
-We will use the following notation for translate, :math:`T_{b}(x) = x + b`, where if
-we specify a constant :math:`b`, it will be notated as :math:`T_{b=3}` equals an expression
-:math:`x + 3`.
+We will use the following notation for translate, :inlinetex:`T_{b}(x) = x + b`, where if
+we specify a constant :inlinetex:`b`, it will be notated as :inlinetex:`T_{b=3}` equals an expression
+:inlinetex:`x + 3`.
 
 Here, we call the translate function to create a new function, named "fn",
-notated :math:`T_{b=2}`, which is a function of a variable :math:`x`, and a constant 2,
-:math:`T_{b=2}(x) = x + 2`.
+notated :inlinetex:`T_{b=2}`, which is a function of a variable :inlinetex:`x`, and a constant 2,
+:inlinetex:`T_{b=2}(x) = x + 2`.
 
 Usage (Black Box)
 ^^^^^^^^^^^^^^^^^
@@ -155,7 +155,7 @@ or many times.
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-Inverting such a function is done by negating :math:`b`, so (:math:`{T_{b=2}}^{-1} \circ {T_{b=2}}) (x) = ({T_{b=-2}} \circ {T_{b=2}}) (x) = x`
+Inverting such a function is done by negating :inlinetex:`b`, so (:inlinetex:`{T_{b=2}}^{-1} \circ {T_{b=2}}) (x) = ({T_{b=-2}} \circ {T_{b=2}}) (x) = x`
 
 To get the inverse in Python, we can call the :py:meth:`inverse <modelviewprojection.mathutils.inverse>` function
 on our function, without having to worry about how it's implemented.
@@ -195,12 +195,12 @@ Definition (White Box)
 Function Composition
 --------------------
 
-Similarly to how we defined :math:`T_{b}(x) = x + b` for adding a constant
-:math:`b`, we can define a "scaling" function :math:`S_{m}(x) = m \times x`.  We can use
-function composition of a partially bound :math:`S` and partially bound :math:`T`
-to generate new instances of :math:`f(x) = m \times x + b`
+Similarly to how we defined :inlinetex:`T_{b}(x) = x + b` for adding a constant
+:inlinetex:`b`, we can define a "scaling" function :inlinetex:`S_{m}(x) = m \times x`.  We can use
+function composition of a partially bound :inlinetex:`S` and partially bound :inlinetex:`T`
+to generate new instances of :inlinetex:`f(x) = m \times x + b`
 
-:math:`f(x) = {m}{x} + b = T_{b=2} \circ S_{m=5}`
+:inlinetex:`f(x) = {m}{x} + b = T_{b=2} \circ S_{m=5}`
 
 
 

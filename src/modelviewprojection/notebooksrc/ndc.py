@@ -221,7 +221,9 @@ np_frames = [np.array(img) for img in frames]
 
 frames_np = [np.array(img) for img in frames]
 clip = moviepy.ImageSequenceClip(frames_np, fps=60)
-clip.write_videofile("animation.mp4", codec="libx264")
+# logger=None silences moviepy's tqdm progress bar; its U+2588 fill chars
+# break pdflatex when notebook output is captured into LaTeX.
+clip.write_videofile("animation.mp4", codec="libx264", logger=None)
 
 IPython.display.Video("animation.mp4", embed=True)
 
