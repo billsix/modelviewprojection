@@ -117,7 +117,7 @@ it makes more sense to use the latter, in which the directed edge
 goes from camera space to world space.
 
 
-Think about it this way.  Imagine you a driving.  Are you staying
+Think about it this way.  Imagine you are driving.  Are you staying
 in a constant position, and the wheels of your car rotate the entire
 earth and solar system around yourself?  That's one way to look at
 it, and the earth revolves around me too, but the mathematical
@@ -128,7 +128,7 @@ to earth.
 
 But this introduces a new problem.  Follow from the paddle's :term:`modelspace<Modelspace>`
 to screen space.  Up until this demo, we've always been
-following the the direction of each edges.  In our new Cayley graph, when going from world
+following the direction of each edge.  In our new Cayley graph, when going from world
 space to camera space, we're moving in the opposite direction
 of the edge.
 
@@ -254,7 +254,7 @@ The purpose of watching that animation was to see how the camera was placed just
 the :term:`modelspace<Modelspace>` data was placed, while not modifying the modelspace data,
 but then the inverse was applied, moving the :term:`modelspace<Modelspace>` data.
 
-The attentive reader may notice: "Bill, you said the the inverse causes the operations
+The attentive reader may notice: "Bill, you said the inverse causes the operations
 to be run in opposite order, yet I saw them run in the same order.  For camera
 placement, I saw translate,
 then rotate sideways, then rotate up.  For the inverse, I saw inverse translate, then

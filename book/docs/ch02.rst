@@ -74,9 +74,9 @@ The black screen from demo01 is not particularly interesting, so
 let's draw something, say, two rectangles.
 To do this, we need to figure out what colors to use, and the
 positions of the rectangles in NDC.
-"glColor3f" is a function sets a global variable, which makes
+"glColor3f" is a function that sets a global variable, which makes
 it the color to be used
-for the subsequently-drawn graphical shape(s).  Lets make the first
+for the subsequently-drawn graphical shape(s).  Let's make the first
 paddle purple, and a second paddle yellow.
 
 To specify the corners of the rectangle,
@@ -186,7 +186,7 @@ Normalized-Device-Coordinates
 The author owns two monitors, one which has 1024x768 pixels, and one which has
 1920x1200 pixels.  When he purchases a video game, he expects that his game
 will run correctly on either monitor, in full-screen mode.  If a graphics programmer
-had to explicitly set the color of individual pixels using the pixel's coordinates, the the programmer would have to
+had to explicitly set the color of individual pixels using the pixel's coordinates, the programmer would have to
 program using "screen-space" (Any space_ means a system of numbers which you're using.
 Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be yellow).
 

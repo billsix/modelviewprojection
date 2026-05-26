@@ -1,0 +1,59 @@
+# Tasks — modelviewprojection
+
+Lightweight session task tracker (per the global `~/.claude/CLAUDE.md` convention:
+one `tasks/<slug>.md` per task, check this dir at session start). Detailed specs
+for many items live in `plans/` — this list points into them rather than
+duplicating. **Ports work is parked** at Bill's request (still tracked under
+`plans/ports-*.md`).
+
+Start here for orientation: [`codebase-overview.md`](codebase-overview.md) —
+structure, the InvertibleFunction/Cayley-graph abstraction, the demo arc, the
+container/build pipeline, and what I can/can't do in this container.
+
+## Book ↔ code drift audit (whole book)
+
+Three trackers, one per chapter range; doc-region wiring is intact throughout, so
+findings are prose / captions / hand-written code / a handful of real code bugs.
+
+| Range | Tracker | Per-finding plans |
+|------|---------|-------------------|
+| ch1–6 | [`book-code-drift-ch1-6.md`](book-code-drift-ch1-6.md) | natural-basis, is_clockwise, ch05-section, ch02/03-typos |
+| ch7–15 | [`book-code-drift-ch7-15.md`](book-code-drift-ch7-15.md) | ch07, ch10, ch13, ch14, ch15 + cross-cutting below |
+| ch16–21 + perspective | [`book-code-drift-ch16-21.md`](book-code-drift-ch16-21.md) | ch16, ch17, ch18, ch19, ch20, ch21 + cross-cutting below |
+
+**Cross-cutting plans (span ranges):**
+[`book-explain-natural-basis.md`](../plans/book-explain-natural-basis.md) (headline; e_1/e_2/e_3 unexplained ch05–18) ·
+[`fix-method-vs-function-wording.md`](../plans/fix-method-vs-function-wording.md) ·
+[`fix-mathutils-latex-and-error-strings.md`](../plans/fix-mathutils-latex-and-error-strings.md) (partial) ·
+✅ [`archive/fix-is-clockwise-recursion.md`](archive/fix-is-clockwise-recursion.md) (DONE) ·
+✅ [`archive/fix-demo-code-bugs.md`](archive/fix-demo-code-bugs.md) (DONE — demo14 `zero`, demo21 imports) ·
+[`ch05-translate-section-fixes.md`](../plans/ch05-translate-section-fixes.md) ·
+[`ch02-ch03-prose-typos.md`](../plans/ch02-ch03-prose-typos.md)
+
+**Verified code bugs surfaced by the audit (highest value):** `is_clockwise`
+recursion · `uniform_scale`/`scale_non_uniform` LaTeX-repr · "Note invertible"
+typos · `demo14.py:42 zero = Vector3D.e_3()` · `demo21.py` missing `sys`/`os`.
+
+## Other active (non-port)
+
+| Task | Status | Doc |
+|------|--------|-----|
+| **Extract duplicated demo helpers** into a shared module (teach-once-then-import) | inventory + design done; awaiting Bill's answers | [`../plans/extract-duplicated-demo-helpers.md`](../plans/extract-duplicated-demo-helpers.md) |
+| Confirm PDF + EPUB build green after inlinetex migration | blocked-on-Bill (needs build container) | [`finish-pdf-epub-build.md`](finish-pdf-epub-build.md) |
+| Curriculum math: planar-shadow matrix in `pyMatrixStack` | planned | [`../plans/planar-shadow-matrix.md`](../plans/planar-shadow-matrix.md) |
+| Curriculum math: `rotate_around_axis` in `pyMatrixStack` (decomposed, not Rodrigues) | planned | [`../plans/rotate-around-axis.md`](../plans/rotate-around-axis.md) |
+| demo22 light-radius imgui slider | planned | [`../plans/demo22-light-radius-imgui.md`](../plans/demo22-light-radius-imgui.md) |
+
+## Backlog (from root `TODO.org`, not yet broken out)
+
+- Rename `rotate`/`translate`/`scale` → `R`/`T`/`S` notation (imports + code + book), and add an explanation of `I` (identity) and `T`/`R`/etc.
+- Modernized demos `demo22a`/`demo23`/`demo24` (pyramid/litjet/sphereworld) exist in `src/` but have **no book chapters** (toctree stops at `ch21`).
+- Many per-chapter prose/diagram improvements (ch1–22) enumerated in `TODO.org`.
+
+## Conventions in this repo
+- `plans/` = durable detailed specs + dated `HANDOFF-*.md` session notes.
+- `tasks/` (here) = the lightweight cross-session tracker.
+- I can edit code/docs and `git add` to stage; **no commits** (Bill GPG-signs
+  outside the container), **no graphical/GL runs**, **no doc build** (no
+  `texExpToPng` locally).
+</content>
