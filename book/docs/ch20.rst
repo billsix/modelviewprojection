@@ -119,15 +119,15 @@ in the same way we did in the lambda stack.
    :caption: src/modelviewprojection/demo20/demo20.py
 
 In the vertex shader, there are a lot of predefined variable names with values
-provided to us. "gl_Modelview_matrix" is the matrix at the top of the modelview
-matrix stack at the time "glVertex" is called, "glProjectionMatrix" is the top of
-the projection matrix stack (although there is typically only one).  "glColor"
+provided to us. "gl_ModelViewMatrix" is the matrix at the top of the modelview
+matrix stack at the time "glVertex" is called, "gl_ProjectionMatrix" is the top of
+the projection matrix stack (although there is typically only one).  "gl_Color"
 is the color that was defined for this vector by calling "glColor3f".
 
-In OpenGL 2.1, the output of the vertex shader that we use here is "glFrontColor",
+In OpenGL 2.1, the output of the vertex shader that we use here is "gl_FrontColor",
 which is a variable name that we must use to get the data to the fragment shader,
 which we haven't covered.  (Actually there are a bunch of other predefined variable
-outputs, including "glBackColor", for the case that we are looking at the back face
+outputs, including "gl_BackColor", for the case that we are looking at the back face
 of the geometry.
 
 .. literalinclude:: ../../src/modelviewprojection/demo20/triangle.vert
@@ -135,8 +135,8 @@ of the geometry.
 
 This is the fragment shader.  Unlike the vertex shader, which took an vector in (x,y,z)
 and outputted clip-space (NDC), the fragment shader for a given pixel is determining
-the color [2]_.  Is "glColor" in the fragment shader the same "glColor" from the vertex
-shader, or is it the value of the vertex shader's output "glFrontColor"?  Honestly,
+the color [2]_.  Is "gl_Color" in the fragment shader the same "gl_Color" from the vertex
+shader, or is it the value of the vertex shader's output "gl_FrontColor"?  Honestly,
 the author doesn't know, but it is set to the output of the fragment shader,
 and such questions are a moot point once we get to OpenGL 3.3 Core profile
 in the next section.

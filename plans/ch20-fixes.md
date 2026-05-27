@@ -1,6 +1,6 @@
 # Plan: ch20 (first shader) fixes
 
-**Status:** planned. **Type:** book prose. **Effort:** small.
+**Status:** PARTIAL — item 1 (GLSL builtin names) fixed & staged 2026-05-27: `gl_ModelViewMatrix`, `gl_ProjectionMatrix`, `gl_Color`, `gl_FrontColor`, `gl_BackColor` now match `demo20/triangle.vert`. Left `glColor3f`/`glUseProgram` (real C API) and `glVertex` (×3 — reads as the C draw call; **confirm with Bill** if the shader builtin `gl_Vertex` was meant). Still open: item 2 — the larger "do much better / add diagrams / move commented code out of inline" prose work (TODO.org). **Type:** book prose.
 **Source:** ch19–21 drift audit.
 
 ## Findings + changes (`book/docs/ch20.rst`)

@@ -56,8 +56,8 @@ added to the stack is the last function applied, hold true for
 matrices as well.  But matrices are a much more efficient
 representation computationally than the function stack,
 and instead of adding fns and later having to remove them,
-we can save onto the current frame of reference with a "glPushStack",
-and restore the saved state by "glPopStack".
+we can save onto the current frame of reference with a "glPushMatrix",
+and restore the saved state by "glPopMatrix".
 
 Use glPushMatrix and glPopMatrix to save/restore a local coordinate
 system, that way a tree of objects can be drawn without one child
