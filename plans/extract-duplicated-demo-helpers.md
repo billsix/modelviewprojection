@@ -1,6 +1,10 @@
 # Plan: extract duplicated demo helpers into a shared module
 
-**Status:** planned (inventory + design done 2026-05-27; no code edits yet).
+**Status:** in progress (2026-05-27) — `shading.py` (`_face_normal`,
+`light_dir_ws`), `windowing.py` (`on_key`), and `clipping.py`
+(`draw_in_square_viewport`) all extracted & committed (see Progress below).
+Remaining: `shaderutils.py` / `set_mvp_uniforms` (deferred — demo22 variant) and
+per-demo `handle_inputs` (separate, [`dedup-handle-inputs.md`](dedup-handle-inputs.md)).
 **Type:** refactor of `src/modelviewprojection/demo*.py`, coordinated with the book.
 **Approach (Bill's choice):** *teach-once-then-import* — the first chapter that
 teaches a helper keeps its inline copy; from the next demo onward, import it from

@@ -1,11 +1,14 @@
 # Plan: refactor shading helpers to use Vector3D / mathutils
 
-**Status:** Finding 1 **DONE** (2026-05-27, staged) — `_face_normal` now calls
-`mathutils.find_normal` and normalizes; verified bit-equivalent to the old inline
-formula (max abs diff 2.2e-16 over 200+ triangles incl. degenerate); tuple return
-kept so callers are unchanged; `ruff`/`py_compile`/`pytest` green. Finding 2
-(`light_dir_ws` return type) = **recommend leave as a tuple (no change)** — awaiting
-Bill's confirmation. **Type:** refactor of `src/modelviewprojection/shading.py`.
+**Status:** complete
+**Completed:** 2026-05-27 (commit `ec7c642`) — Finding 1 done: `_face_normal`
+computes via `mathutils.find_normal` + normalize (bit-equivalent to the old
+formula, max diff 2.2e-16; tuple return kept, callers unchanged; ruff/compile/
+pytest green). Finding 2 (`light_dir_ws` return type): **left as a tuple** (no
+change — GL-boundary value whose callers index it); the broader "take/return
+`Vector3D`" direction is tracked separately in
+[`face-normal-vector3d-io.md`](face-normal-vector3d-io.md).
+**Type:** refactor of `src/modelviewprojection/shading.py`.
 
 ## Context
 `shading.py` currently does its vector math with bare tuples and inline
