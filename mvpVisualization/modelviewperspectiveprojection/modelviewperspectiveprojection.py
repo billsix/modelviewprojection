@@ -143,25 +143,25 @@ PIPELINE_ASPECT: float = 1.0
 
 
 # Triangle pipeline (paddles + square): position + per-vertex color, animated
-triangle = _p.build_pipeline(
+triangle_pipeline = _p.build_pipeline(
     PWD, "triangle.vert", "triangle.frag", per_vertex_color=True, anim=True
 )
 
 # Ground pipeline: solid dark-gray cylinders.  Reuses ground.vert
 # (hardcoded dark gray, no project() -- ground is static) + triangle.frag.
-ground = _p.build_pipeline(PWD, "ground.vert", "triangle.frag")
+ground_pipeline = _p.build_pipeline(PWD, "ground.vert", "triangle.frag")
 
 # Axis pipeline: solid cylinder+cone arrows + frustum near/far, no `time`
 # uniform.  Reuses axis.vert (uniform color via VS_OUT) + triangle.frag.
-# (axis.vert has no `time` uniform, so axis.u_time stays -1.)
-axis = _p.build_pipeline(
+# (axis.vert has no `time` uniform, so axis_pipeline.u_time stays -1.)
+axis_pipeline = _p.build_pipeline(
     PWD, "axis.vert", "triangle.frag", color=True, anim=True
 )
 
 # NDC-cube pipeline: solid white cylinders.  Reuses cube.vert (which
 # hardcodes white and has NO project() -- the cube is the static NDC
 # reference that the world morphs into) + triangle.frag.
-cube = _p.build_pipeline(PWD, "cube.vert", "triangle.frag")
+cube_pipeline = _p.build_pipeline(PWD, "cube.vert", "triangle.frag")
 
 # Frustum pipeline: thick lines via the geometry shader, NOT cylinders.
 # The squash animation scales back-edge X/Y by near_z/far_z (~0.04x), which
@@ -229,27 +229,27 @@ def _build_perspective_frustum_lines(f: Frustum) -> ndarray:
 
 paddle1_vao, paddle1_vertex_count = _p.make_triangle_vao(
     _p.paddle_vertices, r=0.578123, g=0.0, b=1.0,
-    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
+    attr_position=triangle_pipeline.attr_position, attr_color=triangle_pipeline.attr_color,
 )
 paddle2_vao, paddle2_vertex_count = _p.make_triangle_vao(
     _p.paddle_vertices, r=1.0, g=1.0, b=0.0,
-    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
+    attr_position=triangle_pipeline.attr_position, attr_color=triangle_pipeline.attr_color,
 )
 square_vao, square_vertex_count = _p.make_triangle_vao(
     _p.square_vertices, r=0.0, g=0.0, b=1.0,
-    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
+    attr_position=triangle_pipeline.attr_position, attr_color=triangle_pipeline.attr_color,
 )
 ground_vao, ground_vertex_count = _p.make_lines_vao(
-    _p.build_ground_cylinders(), ground.attr_position
+    _p.build_ground_cylinders(), ground_pipeline.attr_position
 )
 axis_vao, axis_vertex_count = _p.make_lines_vao(
-    _p.build_axis_arrow_solid(), axis.attr_position
+    _p.build_axis_arrow_solid(), axis_pipeline.attr_position
 )
 sphere_vao, sphere_vertex_count = _p.make_lines_vao(
-    _p.build_origin_sphere_solid(), axis.attr_position
+    _p.build_origin_sphere_solid(), axis_pipeline.attr_position
 )
 cube_vao, cube_vertex_count = _p.make_lines_vao(
-    _p.build_ndc_cube_cylinders(), cube.attr_position
+    _p.build_ndc_cube_cylinders(), cube_pipeline.attr_position
 )
 
 
@@ -316,21 +316,21 @@ _p.install_camera_scroll(window, imguiio, camera)
 
 
 def draw_triangles(vao: int, vertex_count: int, time: float) -> None:
-    GL.glUseProgram(triangle.program)
+    GL.glUseProgram(triangle_pipeline.program)
     GL.glBindVertexArray(vao)
-    _p.set_uniforms(triangle.u_m, triangle.u_v, triangle.u_p)
-    GL.glUniform1f(triangle.u_fov, PIPELINE_FOV)
-    GL.glUniform1f(triangle.u_aspect, PIPELINE_ASPECT)
-    GL.glUniform1f(triangle.u_near, frustum.near_z)
-    GL.glUniform1f(triangle.u_far, frustum.far_z)
-    GL.glUniform1f(triangle.u_time, time)
+    _p.set_uniforms(triangle_pipeline.u_m, triangle_pipeline.u_v, triangle_pipeline.u_p)
+    GL.glUniform1f(triangle_pipeline.u_fov, PIPELINE_FOV)
+    GL.glUniform1f(triangle_pipeline.u_aspect, PIPELINE_ASPECT)
+    GL.glUniform1f(triangle_pipeline.u_near, frustum.near_z)
+    GL.glUniform1f(triangle_pipeline.u_far, frustum.far_z)
+    GL.glUniform1f(triangle_pipeline.u_time, time)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
 
 
 def draw_ground(time: float) -> None:
-    GL.glUseProgram(ground.program)
+    GL.glUseProgram(ground_pipeline.program)
     GL.glBindVertexArray(ground_vao)
-    _p.set_uniforms(ground.u_m, ground.u_v, ground.u_p)
+    _p.set_uniforms(ground_pipeline.u_m, ground_pipeline.u_v, ground_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
 
     # Original Ground.render() drew an extra grayed-out axis floating below
@@ -346,19 +346,19 @@ def draw_ground(time: float) -> None:
 
 def _emit_axis(r: float, g: float, b: float, grayed_out: bool) -> None:
     if grayed_out:
-        GL.glUniform3f(axis.u_color, 0.5, 0.5, 0.5)
+        GL.glUniform3f(axis_pipeline.u_color, 0.5, 0.5, 0.5)
     else:
-        GL.glUniform3f(axis.u_color, r, g, b)
-    _p.set_uniforms(axis.u_m, axis.u_v, axis.u_p)
-    GL.glUniform1f(axis.u_fov, PIPELINE_FOV)
-    GL.glUniform1f(axis.u_aspect, PIPELINE_ASPECT)
-    GL.glUniform1f(axis.u_near, frustum.near_z)
-    GL.glUniform1f(axis.u_far, frustum.far_z)
+        GL.glUniform3f(axis_pipeline.u_color, r, g, b)
+    _p.set_uniforms(axis_pipeline.u_m, axis_pipeline.u_v, axis_pipeline.u_p)
+    GL.glUniform1f(axis_pipeline.u_fov, PIPELINE_FOV)
+    GL.glUniform1f(axis_pipeline.u_aspect, PIPELINE_ASPECT)
+    GL.glUniform1f(axis_pipeline.u_near, frustum.near_z)
+    GL.glUniform1f(axis_pipeline.u_far, frustum.far_z)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, axis_vertex_count)
 
 
 def draw_axis(grayed_out: bool = False) -> None:
-    GL.glUseProgram(axis.program)
+    GL.glUseProgram(axis_pipeline.program)
     GL.glBindVertexArray(axis_vao)
     with ms.push_matrix(ms.MatrixStack.model):
         # x axis
@@ -377,21 +377,21 @@ def draw_axis(grayed_out: bool = False) -> None:
         # so it gets clipped/projected through the same pipeline.
         GL.glBindVertexArray(sphere_vao)
         if grayed_out:
-            GL.glUniform3f(axis.u_color, 0.5, 0.5, 0.5)
+            GL.glUniform3f(axis_pipeline.u_color, 0.5, 0.5, 0.5)
         else:
-            GL.glUniform3f(axis.u_color, 1.0, 1.0, 1.0)
-        _p.set_uniforms(axis.u_m, axis.u_v, axis.u_p)
-        GL.glUniform1f(axis.u_fov, PIPELINE_FOV)
-        GL.glUniform1f(axis.u_aspect, PIPELINE_ASPECT)
-        GL.glUniform1f(axis.u_near, frustum.near_z)
-        GL.glUniform1f(axis.u_far, frustum.far_z)
+            GL.glUniform3f(axis_pipeline.u_color, 1.0, 1.0, 1.0)
+        _p.set_uniforms(axis_pipeline.u_m, axis_pipeline.u_v, axis_pipeline.u_p)
+        GL.glUniform1f(axis_pipeline.u_fov, PIPELINE_FOV)
+        GL.glUniform1f(axis_pipeline.u_aspect, PIPELINE_ASPECT)
+        GL.glUniform1f(axis_pipeline.u_near, frustum.near_z)
+        GL.glUniform1f(axis_pipeline.u_far, frustum.far_z)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_vertex_count)
 
 
 def draw_cube() -> None:
-    GL.glUseProgram(cube.program)
+    GL.glUseProgram(cube_pipeline.program)
     GL.glBindVertexArray(cube_vao)
-    _p.set_uniforms(cube.u_m, cube.u_v, cube.u_p)
+    _p.set_uniforms(cube_pipeline.u_m, cube_pipeline.u_v, cube_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
 
 

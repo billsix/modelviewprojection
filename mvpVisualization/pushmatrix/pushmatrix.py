@@ -48,20 +48,20 @@ _p.install_esc_close(window)
 
 
 # Triangle pipeline (paddles + square)
-triangle = _p.build_pipeline(
+triangle_pipeline = _p.build_pipeline(
     PWD, "triangle.vert", "triangle.frag", per_vertex_color=True
 )
 
 # Ground pipeline: solid dark-gray cylinders.  Reuses ground.vert
 # (hardcoded dark gray) + triangle.frag (no geom shader).
-ground = _p.build_pipeline(PWD, "ground.vert", "triangle.frag")
+ground_pipeline = _p.build_pipeline(PWD, "ground.vert", "triangle.frag")
 
 # Axis pipeline: solid cylinder+cone arrows (axis.vert + triangle.frag, no geom)
-axis = _p.build_pipeline(PWD, "axis.vert", "triangle.frag", color=True)
+axis_pipeline = _p.build_pipeline(PWD, "axis.vert", "triangle.frag", color=True)
 
 # NDC-cube pipeline: solid white cylinders, no end cones.  Reuses the
 # axis.vert + triangle.frag shader pair (same as the axis pipeline).
-cube = _p.build_pipeline(PWD, "axis.vert", "triangle.frag", color=True)
+cube_pipeline = _p.build_pipeline(PWD, "axis.vert", "triangle.frag", color=True)
 
 
 # ---------------------------------------------------------------------------
@@ -70,27 +70,27 @@ cube = _p.build_pipeline(PWD, "axis.vert", "triangle.frag", color=True)
 
 paddle1_vao, paddle1_vertex_count = _p.make_triangle_vao(
     _p.paddle_vertices, r=0.578123, g=0.0, b=1.0,
-    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
+    attr_position=triangle_pipeline.attr_position, attr_color=triangle_pipeline.attr_color,
 )
 paddle2_vao, paddle2_vertex_count = _p.make_triangle_vao(
     _p.paddle_vertices, r=1.0, g=1.0, b=0.0,
-    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
+    attr_position=triangle_pipeline.attr_position, attr_color=triangle_pipeline.attr_color,
 )
 square_vao, square_vertex_count = _p.make_triangle_vao(
     _p.square_vertices, r=0.0, g=0.0, b=1.0,
-    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
+    attr_position=triangle_pipeline.attr_position, attr_color=triangle_pipeline.attr_color,
 )
 ground_vao, ground_vertex_count = _p.make_lines_vao(
-    _p.build_ground_cylinders(), ground.attr_position
+    _p.build_ground_cylinders(), ground_pipeline.attr_position
 )
 axis_vao, axis_vertex_count = _p.make_lines_vao(
-    _p.build_axis_arrow_solid(), axis.attr_position
+    _p.build_axis_arrow_solid(), axis_pipeline.attr_position
 )
 sphere_vao, sphere_vertex_count = _p.make_lines_vao(
-    _p.build_origin_sphere_solid(), axis.attr_position
+    _p.build_origin_sphere_solid(), axis_pipeline.attr_position
 )
 cube_vao, cube_vertex_count = _p.make_lines_vao(
-    _p.build_ndc_cube_cylinders(), cube.attr_position
+    _p.build_ndc_cube_cylinders(), cube_pipeline.attr_position
 )
 
 
@@ -121,30 +121,30 @@ _p.install_camera_scroll(window, imguiio, camera)
 
 
 def draw_triangles(vao: int, vertex_count: int) -> None:
-    GL.glUseProgram(triangle.program)
+    GL.glUseProgram(triangle_pipeline.program)
     GL.glBindVertexArray(vao)
-    _p.set_uniforms(triangle.u_m, triangle.u_v, triangle.u_p)
+    _p.set_uniforms(triangle_pipeline.u_m, triangle_pipeline.u_v, triangle_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
 
 
 def draw_ground() -> None:
-    GL.glUseProgram(ground.program)
+    GL.glUseProgram(ground_pipeline.program)
     GL.glBindVertexArray(ground_vao)
-    _p.set_uniforms(ground.u_m, ground.u_v, ground.u_p)
+    _p.set_uniforms(ground_pipeline.u_m, ground_pipeline.u_v, ground_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
 
 
 def _emit_axis(r: float, g: float, b: float, grayed_out: bool) -> None:
     if grayed_out:
-        GL.glUniform3f(axis.u_color, 0.5, 0.5, 0.5)
+        GL.glUniform3f(axis_pipeline.u_color, 0.5, 0.5, 0.5)
     else:
-        GL.glUniform3f(axis.u_color, r, g, b)
-    _p.set_uniforms(axis.u_m, axis.u_v, axis.u_p)
+        GL.glUniform3f(axis_pipeline.u_color, r, g, b)
+    _p.set_uniforms(axis_pipeline.u_m, axis_pipeline.u_v, axis_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, axis_vertex_count)
 
 
 def draw_axis(grayed_out: bool = False) -> None:
-    GL.glUseProgram(axis.program)
+    GL.glUseProgram(axis_pipeline.program)
     GL.glBindVertexArray(axis_vao)
     with ms.push_matrix(ms.MatrixStack.model):
         # x axis
@@ -162,18 +162,18 @@ def draw_axis(grayed_out: bool = False) -> None:
         # White origin sphere -- the dot gltDrawUnitAxes finishes with.
         GL.glBindVertexArray(sphere_vao)
         if grayed_out:
-            GL.glUniform3f(axis.u_color, 0.5, 0.5, 0.5)
+            GL.glUniform3f(axis_pipeline.u_color, 0.5, 0.5, 0.5)
         else:
-            GL.glUniform3f(axis.u_color, 1.0, 1.0, 1.0)
-        _p.set_uniforms(axis.u_m, axis.u_v, axis.u_p)
+            GL.glUniform3f(axis_pipeline.u_color, 1.0, 1.0, 1.0)
+        _p.set_uniforms(axis_pipeline.u_m, axis_pipeline.u_v, axis_pipeline.u_p)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_vertex_count)
 
 
 def draw_cube() -> None:
-    GL.glUseProgram(cube.program)
+    GL.glUseProgram(cube_pipeline.program)
     GL.glBindVertexArray(cube_vao)
-    _p.set_uniforms(cube.u_m, cube.u_v, cube.u_p)
-    GL.glUniform3f(cube.u_color, 1.0, 1.0, 1.0)
+    _p.set_uniforms(cube_pipeline.u_m, cube_pipeline.u_v, cube_pipeline.u_p)
+    GL.glUniform3f(cube_pipeline.u_color, 1.0, 1.0, 1.0)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
 
 
