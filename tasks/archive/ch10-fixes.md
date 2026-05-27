@@ -1,6 +1,15 @@
 # Plan: ch10 (camera / inverse) fixes
 
-**Status:** PARTIAL — the 3 prose typos (:120,:131,:257) and `camera.x/y`→`camera.position_ws` (:363,:381) fixed & staged. Still open: the non-runnable method-API code blocks (~:149-216) — a doctest rewrite to the real composition API. **Type:** book prose + non-runnable code blocks.
+**Status:** complete — all items done 2026-05-27:
+3 prose typos (:120,:131,:257); `camera.x/y`→`camera.position_ws` (:363,:381);
+and the 4 "inverse" code blocks (~:149-216) rewritten from the bogus
+`v.translate(...)`/`v.scale(...)` method-chaining API (undefined `Vector`, free
+vars, a missing paren) into **genuine runnable doctests**: each builds its
+vectors from the natural basis (`e_1`/`e_2`) and proves the hand-written inverse
+matches the built-in `inverse()` (via `.isclose()` for float-robustness). The
+sequence case shows `compose([f1, f2])` ⇒ `compose([inverse(f2), inverse(f1)])`,
+matching the `(A*B)⁻¹ = B⁻¹*A⁻¹` note above it. Verified: `python -m doctest
+book/docs/ch10.rst` passes (ch05 too). **Type:** book prose + doctests.
 **Source:** ch10–12 drift audit (verified: `camera.x/y` prose; doctest blocks).
 
 ## Findings + changes (`book/docs/ch10.rst`)

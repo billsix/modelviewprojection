@@ -21,7 +21,7 @@ real code bugs.
 |---|---|---|
 | ch07 | ✅ `theta`→`\theta` LaTeX typo :203 — DONE (the `.. TODO` at :58-59 is a hidden RST comment, left per Bill) | [`archive/ch07-fixes.md`](archive/ch07-fixes.md) |
 | ch08/09 | only the "method"→"function" wording | (method-vs-function plan above) |
-| ch10 | `camera.x/y`→`camera.position_ws` (:363,:381); broken method-API code blocks (~:149-216, incl. missing `)`); typos (:120,:131,:257) | [`../plans/ch10-fixes.md`](../plans/ch10-fixes.md) |
+| ch10 | ✅ DONE — `camera.x/y`→`camera.position_ws` (:363,:381); the broken method-API blocks (~:149-216) rewritten to runnable `e_1`/`e_2` doctests; typos (:120,:131,:257) | [`archive/ch10-fixes.md`](archive/ch10-fixes.md) |
 | ch11/12 | no chapter-specific drift beyond the basis omission (above) | — |
 | ch13 | ✅ figure `_static/demo11.png` shown for a Demo-13 chapter (:63) — DONE (per-chapter `demo13.dot`) | [`archive/ch13-fixes.md`](archive/ch13-fixes.md) |
 | ch14 | caption missing `.py` (:133); doc-region label collision (above); grammar/pronoun (:102,:227,:229,:322) | [`../plans/ch14-fixes.md`](../plans/ch14-fixes.md) |
