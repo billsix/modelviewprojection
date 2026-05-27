@@ -213,6 +213,16 @@ class Pipeline:
     attr_position: int
     u_color: int = -1
     attr_color: int = -1
+    # Frustum-animation uniforms (``anim=True``); -1 when the program
+    # doesn't have them.
+    u_fov: int = -1
+    u_aspect: int = -1
+    u_near: int = -1
+    u_far: int = -1
+    u_time: int = -1
+    # Screen-space frustum-edge uniforms (``screenspace=True``).
+    u_thickness: int = -1
+    u_viewport: int = -1
 
 
 def build_pipeline(
@@ -222,12 +232,21 @@ def build_pipeline(
     *,
     color: bool = False,
     per_vertex_color: bool = False,
+    anim: bool = False,
+    screenspace: bool = False,
     geom: Optional[str] = None,
 ) -> "Pipeline":
     """Compile ``vert`` + ``frag`` (+ optional ``geom``) and cache its
     ``mMatrix`` / ``vMatrix`` / ``pMatrix`` uniforms and ``position``
-    attribute.  ``color=True`` also caches the ``color`` uniform;
-    ``per_vertex_color=True`` caches the ``color_in`` attribute."""
+    attribute.  Optional flags cache extra locations:
+    ``color`` -> ``color`` uniform; ``per_vertex_color`` -> ``color_in``
+    attribute; ``anim`` -> the frustum-animation uniforms
+    (``field_of_view`` / ``aspect_ratio`` / ``near_z`` / ``far_z`` / ``time``);
+    ``screenspace`` -> ``u_thickness`` / ``u_viewport_size``."""
+
+    def u(name: str, enabled: bool) -> int:
+        return GL.glGetUniformLocation(prog, name) if enabled else -1
+
     prog = compile_program(pwd, vert, frag, geom=geom)
     return Pipeline(
         program=prog,
@@ -235,12 +254,19 @@ def build_pipeline(
         u_v=GL.glGetUniformLocation(prog, "vMatrix"),
         u_p=GL.glGetUniformLocation(prog, "pMatrix"),
         attr_position=GL.glGetAttribLocation(prog, "position"),
-        u_color=GL.glGetUniformLocation(prog, "color") if color else -1,
+        u_color=u("color", color),
         attr_color=(
             GL.glGetAttribLocation(prog, "color_in")
             if per_vertex_color
             else -1
         ),
+        u_fov=u("field_of_view", anim),
+        u_aspect=u("aspect_ratio", anim),
+        u_near=u("near_z", anim),
+        u_far=u("far_z", anim),
+        u_time=u("time", anim),
+        u_thickness=u("u_thickness", screenspace),
+        u_viewport=u("u_viewport_size", screenspace),
     )
 
 

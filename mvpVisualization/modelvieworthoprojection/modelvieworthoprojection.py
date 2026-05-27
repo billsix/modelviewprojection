@@ -72,65 +72,32 @@ GROUND_FAR_Z: float = -150.0
 
 
 # Triangle pipeline (paddles + square): position + per-vertex color, animated
-triangle_program: int = _p.compile_program(PWD, "triangle.vert", "triangle.frag")
-u_triangle_m: int = GL.glGetUniformLocation(triangle_program, "mMatrix")
-u_triangle_v: int = GL.glGetUniformLocation(triangle_program, "vMatrix")
-u_triangle_p: int = GL.glGetUniformLocation(triangle_program, "pMatrix")
-u_triangle_fov: int = GL.glGetUniformLocation(triangle_program, "field_of_view")
-u_triangle_aspect: int = GL.glGetUniformLocation(
-    triangle_program, "aspect_ratio"
+triangle = _p.build_pipeline(
+    PWD, "triangle.vert", "triangle.frag", per_vertex_color=True, anim=True
 )
-u_triangle_near: int = GL.glGetUniformLocation(triangle_program, "near_z")
-u_triangle_far: int = GL.glGetUniformLocation(triangle_program, "far_z")
-u_triangle_time: int = GL.glGetUniformLocation(triangle_program, "time")
-triangle_attr_position: int = GL.glGetAttribLocation(
-    triangle_program, "position"
-)
-triangle_attr_color: int = GL.glGetAttribLocation(triangle_program, "color_in")
 
 # Ground pipeline: solid dark-gray cylinders.  Reuses ground.vert
 # (hardcoded dark gray, no project() -- ground is static) + triangle.frag.
-ground_program: int = _p.compile_program(PWD, "ground.vert", "triangle.frag")
-u_ground_m: int = GL.glGetUniformLocation(ground_program, "mMatrix")
-u_ground_v: int = GL.glGetUniformLocation(ground_program, "vMatrix")
-u_ground_p: int = GL.glGetUniformLocation(ground_program, "pMatrix")
-ground_attr_position: int = GL.glGetAttribLocation(ground_program, "position")
+ground = _p.build_pipeline(PWD, "ground.vert", "triangle.frag")
 
 # Axis pipeline: solid cylinder+cone arrows + frustum near/far, no `time`
 # uniform.  Reuses axis.vert (uniform color via VS_OUT) + triangle.frag.
-axis_program: int = _p.compile_program(PWD, "axis.vert", "triangle.frag")
-u_axis_m: int = GL.glGetUniformLocation(axis_program, "mMatrix")
-u_axis_v: int = GL.glGetUniformLocation(axis_program, "vMatrix")
-u_axis_p: int = GL.glGetUniformLocation(axis_program, "pMatrix")
-u_axis_color: int = GL.glGetUniformLocation(axis_program, "color")
-u_axis_fov: int = GL.glGetUniformLocation(axis_program, "field_of_view")
-u_axis_aspect: int = GL.glGetUniformLocation(axis_program, "aspect_ratio")
-u_axis_near: int = GL.glGetUniformLocation(axis_program, "near_z")
-u_axis_far: int = GL.glGetUniformLocation(axis_program, "far_z")
-axis_attr_position: int = GL.glGetAttribLocation(axis_program, "position")
+# (axis.vert has no `time` uniform, so axis.u_time stays -1.)
+axis = _p.build_pipeline(
+    PWD, "axis.vert", "triangle.frag", color=True, anim=True
+)
 
 # NDC-cube pipeline: solid white cylinders.  Reuses cube.vert (which
 # hardcodes white and has NO project() -- the cube is the static NDC
 # reference that the world morphs into) + triangle.frag.
-cube_program: int = _p.compile_program(PWD, "cube.vert", "triangle.frag")
-u_cube_m: int = GL.glGetUniformLocation(cube_program, "mMatrix")
-u_cube_v: int = GL.glGetUniformLocation(cube_program, "vMatrix")
-u_cube_p: int = GL.glGetUniformLocation(cube_program, "pMatrix")
-cube_attr_position: int = GL.glGetAttribLocation(cube_program, "position")
+cube = _p.build_pipeline(PWD, "cube.vert", "triangle.frag")
 
 # Frustum pipeline: solid white cylinders, animated.  Reuses frustum.vert
 # (smooth-interpolation projection animation, white hardcoded) +
 # triangle.frag.
-frustum_program: int = _p.compile_program(PWD, "frustum.vert", "triangle.frag")
-u_frustum_m: int = GL.glGetUniformLocation(frustum_program, "mMatrix")
-u_frustum_v: int = GL.glGetUniformLocation(frustum_program, "vMatrix")
-u_frustum_p: int = GL.glGetUniformLocation(frustum_program, "pMatrix")
-u_frustum_fov: int = GL.glGetUniformLocation(frustum_program, "field_of_view")
-u_frustum_aspect: int = GL.glGetUniformLocation(frustum_program, "aspect_ratio")
-u_frustum_near: int = GL.glGetUniformLocation(frustum_program, "near_z")
-u_frustum_far: int = GL.glGetUniformLocation(frustum_program, "far_z")
-u_frustum_time: int = GL.glGetUniformLocation(frustum_program, "time")
-frustum_attr_position: int = GL.glGetAttribLocation(frustum_program, "position")
+frustum_pipeline = _p.build_pipeline(
+    PWD, "frustum.vert", "triangle.frag", anim=True
+)
 
 
 # ---------------------------------------------------------------------------
@@ -165,31 +132,31 @@ def _build_box_frustum_cylinders(near_z: float, far_z: float) -> ndarray:
 
 paddle1_vao, paddle1_vertex_count = _p.make_triangle_vao(
     _p.paddle_vertices, r=0.578123, g=0.0, b=1.0,
-    attr_position=triangle_attr_position, attr_color=triangle_attr_color,
+    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
 )
 paddle2_vao, paddle2_vertex_count = _p.make_triangle_vao(
     _p.paddle_vertices, r=1.0, g=1.0, b=0.0,
-    attr_position=triangle_attr_position, attr_color=triangle_attr_color,
+    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
 )
 square_vao, square_vertex_count = _p.make_triangle_vao(
     _p.square_vertices, r=0.0, g=0.0, b=1.0,
-    attr_position=triangle_attr_position, attr_color=triangle_attr_color,
+    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
 )
 ground_vao, ground_vertex_count = _p.make_lines_vao(
-    _p.build_ground_cylinders(), ground_attr_position
+    _p.build_ground_cylinders(), ground.attr_position
 )
 axis_vao, axis_vertex_count = _p.make_lines_vao(
-    _p.build_axis_arrow_solid(), axis_attr_position
+    _p.build_axis_arrow_solid(), axis.attr_position
 )
 sphere_vao, sphere_vertex_count = _p.make_lines_vao(
-    _p.build_origin_sphere_solid(), axis_attr_position
+    _p.build_origin_sphere_solid(), axis.attr_position
 )
 cube_vao, cube_vertex_count = _p.make_lines_vao(
-    _p.build_ndc_cube_cylinders(), cube_attr_position
+    _p.build_ndc_cube_cylinders(), cube.attr_position
 )
 frustum_vao, frustum_vertex_count = _p.make_lines_vao(
     _build_box_frustum_cylinders(frustum.near_z, frustum.far_z),
-    frustum_attr_position,
+    frustum_pipeline.attr_position,
 )
 
 
@@ -220,39 +187,39 @@ _p.install_camera_scroll(window, imguiio, camera)
 
 
 def draw_triangles(vao: int, vertex_count: int, time: float) -> None:
-    GL.glUseProgram(triangle_program)
+    GL.glUseProgram(triangle.program)
     GL.glBindVertexArray(vao)
-    _p.set_uniforms(u_triangle_m, u_triangle_v, u_triangle_p)
-    GL.glUniform1f(u_triangle_fov, PROJ_FOV)
-    GL.glUniform1f(u_triangle_aspect, PROJ_ASPECT)
-    GL.glUniform1f(u_triangle_near, frustum.near_z)
-    GL.glUniform1f(u_triangle_far, frustum.far_z)
-    GL.glUniform1f(u_triangle_time, time)
+    _p.set_uniforms(triangle.u_m, triangle.u_v, triangle.u_p)
+    GL.glUniform1f(triangle.u_fov, PROJ_FOV)
+    GL.glUniform1f(triangle.u_aspect, PROJ_ASPECT)
+    GL.glUniform1f(triangle.u_near, frustum.near_z)
+    GL.glUniform1f(triangle.u_far, frustum.far_z)
+    GL.glUniform1f(triangle.u_time, time)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
 
 
 def draw_ground() -> None:
-    GL.glUseProgram(ground_program)
+    GL.glUseProgram(ground.program)
     GL.glBindVertexArray(ground_vao)
-    _p.set_uniforms(u_ground_m, u_ground_v, u_ground_p)
+    _p.set_uniforms(ground.u_m, ground.u_v, ground.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
 
 
 def _emit_axis(r: float, g: float, b: float, grayed_out: bool) -> None:
     if grayed_out:
-        GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
+        GL.glUniform3f(axis.u_color, 0.5, 0.5, 0.5)
     else:
-        GL.glUniform3f(u_axis_color, r, g, b)
-    _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
-    GL.glUniform1f(u_axis_fov, PROJ_FOV)
-    GL.glUniform1f(u_axis_aspect, PROJ_ASPECT)
-    GL.glUniform1f(u_axis_near, frustum.near_z)
-    GL.glUniform1f(u_axis_far, frustum.far_z)
+        GL.glUniform3f(axis.u_color, r, g, b)
+    _p.set_uniforms(axis.u_m, axis.u_v, axis.u_p)
+    GL.glUniform1f(axis.u_fov, PROJ_FOV)
+    GL.glUniform1f(axis.u_aspect, PROJ_ASPECT)
+    GL.glUniform1f(axis.u_near, frustum.near_z)
+    GL.glUniform1f(axis.u_far, frustum.far_z)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, axis_vertex_count)
 
 
 def draw_axis(grayed_out: bool = False) -> None:
-    GL.glUseProgram(axis_program)
+    GL.glUseProgram(axis.program)
     GL.glBindVertexArray(axis_vao)
     with ms.push_matrix(ms.MatrixStack.model):
         # x axis
@@ -270,33 +237,33 @@ def draw_axis(grayed_out: bool = False) -> None:
         # White origin sphere -- same frustum-warp uniforms as the axes.
         GL.glBindVertexArray(sphere_vao)
         if grayed_out:
-            GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
+            GL.glUniform3f(axis.u_color, 0.5, 0.5, 0.5)
         else:
-            GL.glUniform3f(u_axis_color, 1.0, 1.0, 1.0)
-        _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
-        GL.glUniform1f(u_axis_fov, PROJ_FOV)
-        GL.glUniform1f(u_axis_aspect, PROJ_ASPECT)
-        GL.glUniform1f(u_axis_near, frustum.near_z)
-        GL.glUniform1f(u_axis_far, frustum.far_z)
+            GL.glUniform3f(axis.u_color, 1.0, 1.0, 1.0)
+        _p.set_uniforms(axis.u_m, axis.u_v, axis.u_p)
+        GL.glUniform1f(axis.u_fov, PROJ_FOV)
+        GL.glUniform1f(axis.u_aspect, PROJ_ASPECT)
+        GL.glUniform1f(axis.u_near, frustum.near_z)
+        GL.glUniform1f(axis.u_far, frustum.far_z)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_vertex_count)
 
 
 def draw_cube() -> None:
-    GL.glUseProgram(cube_program)
+    GL.glUseProgram(cube.program)
     GL.glBindVertexArray(cube_vao)
-    _p.set_uniforms(u_cube_m, u_cube_v, u_cube_p)
+    _p.set_uniforms(cube.u_m, cube.u_v, cube.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
 
 
 def draw_frustum(time: float) -> None:
-    GL.glUseProgram(frustum_program)
+    GL.glUseProgram(frustum_pipeline.program)
     GL.glBindVertexArray(frustum_vao)
-    _p.set_uniforms(u_frustum_m, u_frustum_v, u_frustum_p)
-    GL.glUniform1f(u_frustum_fov, PROJ_FOV)
-    GL.glUniform1f(u_frustum_aspect, PROJ_ASPECT)
-    GL.glUniform1f(u_frustum_near, frustum.near_z)
-    GL.glUniform1f(u_frustum_far, frustum.far_z)
-    GL.glUniform1f(u_frustum_time, time)
+    _p.set_uniforms(frustum_pipeline.u_m, frustum_pipeline.u_v, frustum_pipeline.u_p)
+    GL.glUniform1f(frustum_pipeline.u_fov, PROJ_FOV)
+    GL.glUniform1f(frustum_pipeline.u_aspect, PROJ_ASPECT)
+    GL.glUniform1f(frustum_pipeline.u_near, frustum.near_z)
+    GL.glUniform1f(frustum_pipeline.u_far, frustum.far_z)
+    GL.glUniform1f(frustum_pipeline.u_time, time)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, frustum_vertex_count)
 
 
