@@ -18,7 +18,7 @@ drifted but **unfinished**.
 | ch16 | caption missing `.py` (:194); name refs (above); broken/short sentence ~:267 (TODO.org) | [`../plans/ch16-fixes.md`](../plans/ch16-fixes.md) |
 | ch17 | "fixed in demo17"→demo18 (:41); `push_transformation` context manager + `rotate_x/y/z` introduced in code but unexplained; diagrams (TODO.org) | [`../plans/ch17-fixes.md`](../plans/ch17-fixes.md) |
 | ch18 | captions say `demo18.py` on mathutils includes (:248,:262); "ration"→"ratio" (:225); f1/f2/f3 + `Callable` unexplained (TODO.org) | [`../plans/ch18-fixes.md`](../plans/ch18-fixes.md) |
-| ch19 | `glPushStack`/`glPopStack`→`glPushMatrix`/`glPopMatrix` (:59,:60); demo19 comment describes a `with` block that isn't there (:264-266); visible TODO (:201) | [`../plans/ch19-fixes.md`](../plans/ch19-fixes.md) |
+| ch19 | ✅ `glPushStack`/`glPopStack`→`glPushMatrix`/`glPopMatrix` (:59,:60) + demo19 `with`-block comment (:264-266) — DONE (the `.. TODO` at :201 is a hidden RST comment, left per Bill) | [`archive/ch19-fixes.md`](archive/ch19-fixes.md) |
 | ch20 | GLSL builtins misspelled: `gl_Modelview_matrix`/`glProjectionMatrix`→`gl_ModelViewMatrix`/`gl_ProjectionMatrix` (:122-123); thin prose (TODO.org) | [`../plans/ch20-fixes.md`](../plans/ch20-fixes.md) |
 | ch21 | **unfinished** — scaffolding only, no explanatory prose; empty "Event Loop" (~:86-88); depends on demo21 import fix | [`../plans/ch21-fixes.md`](../plans/ch21-fixes.md) |
 | perspective.rst | standalone math prose (no literalincludes); one stray `// TODO -- proof of monotonicity` (:675). No other drift found. | (fold into a future perspective pass) |

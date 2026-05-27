@@ -1,6 +1,8 @@
 # Plan: ch19 (fixed-function GL) fixes
 
-**Status:** PARTIAL — demo19.py "with-statement" comment rewritten (:264-266) and `glPushStack/PopStack`→`glPush/PopMatrix` (:59,:60) both fixed & staged 2026-05-27. Still open: the `.. TODO - mention 2 stacks` comment (:201, RST comment / not rendered — **needs Bill's call**: write or delete). **Type:** book prose + demo comment.
+**Status:** complete
+**Completed:** 2026-05-27 — demo19.py "with-statement" comment rewritten to describe the real `glPushMatrix`/`glPopMatrix` (:264-266); `glPushStack/PopStack`→`glPush/PopMatrix` (:59,:60). The `.. TODO - mention 2 stacks` RST comment (:201) is intentionally left per Bill (hidden comment, not rendered).
+**Type:** book prose + demo comment.
 **Source:** ch19–21 drift audit.
 
 ## Findings + changes

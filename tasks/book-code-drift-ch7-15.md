@@ -19,7 +19,7 @@ real code bugs.
 ## Per-chapter
 | Chapter | Findings (verified unless noted) | Plan |
 |---|---|---|
-| ch07 | visible `.. TODO` at :59; `theta`→`\theta` LaTeX typo :203 | [`../plans/ch07-fixes.md`](../plans/ch07-fixes.md) |
+| ch07 | ✅ `theta`→`\theta` LaTeX typo :203 — DONE (the `.. TODO` at :58-59 is a hidden RST comment, left per Bill) | [`archive/ch07-fixes.md`](archive/ch07-fixes.md) |
 | ch08/09 | only the "method"→"function" wording | (method-vs-function plan above) |
 | ch10 | `camera.x/y`→`camera.position_ws` (:363,:381); broken method-API code blocks (~:149-216, incl. missing `)`); typos (:120,:131,:257) | [`../plans/ch10-fixes.md`](../plans/ch10-fixes.md) |
 | ch11/12 | no chapter-specific drift beyond the basis omission (above) | — |
