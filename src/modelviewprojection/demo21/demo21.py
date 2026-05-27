@@ -94,6 +94,15 @@ def impl_glfw_init():
     )
     glfw.make_context_current(window)
 
+    # macOS Core Profile requires a non-zero VAO bound at all times
+    # for any vertex-attribute or draw call (VAO 0 is prohibited).
+    # Generate one here and leave it bound as the default; per-mesh
+    # VAOs override-bind when they need a specific layout, and we
+    # never call glBindVertexArray(0).  Mesa and NVIDIA tolerate the
+    # spec violation silently; Apple's driver does not.
+    _default_vao = GL.glGenVertexArrays(1)
+    GL.glBindVertexArray(_default_vao)
+
     if not window:
         glfw.terminate()
         print("Could not initialize Window")
@@ -113,9 +122,6 @@ if not impl:
 
 # Make the window's context current
 glfw.make_context_current(window)
-
-
-# Install a key handler
 
 
 glfw.set_key_callback(window, on_key)
@@ -143,19 +149,59 @@ def compile_program(vert_filename: str, frag_filename: str) -> int:
         vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
     with open(os.path.join(pwd, frag_filename), "r") as f:
         fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
-    return shaders.compileProgram(vs, fs)
+    # validate=False -- glValidateProgram is a debug check that the
+    # PyOpenGL helper runs at link time.  On macOS Core Profile it
+    # complains about samplers sharing texture unit 0 (their default
+    # at link time, before the application has assigned distinct
+    # units).  Mesa and NVIDIA don't run the check.  Skipping it
+    # doesn't affect correctness; samplers get their proper units
+    # via glUniform1i at draw time.
+    return shaders.compileProgram(vs, fs, validate=False)
 
 
-triangle_program: int = compile_program("triangle.vert", "triangle.frag")
-u_triangle_mvp: int = GL.glGetUniformLocation(triangle_program, "mvpMatrix")
-triangle_attr_position: int = GL.glGetAttribLocation(
-    triangle_program, "position"
-)
-triangle_attr_color: int = GL.glGetAttribLocation(triangle_program, "color_in")
+# Each shader program has its own attribute slots and uniform
+# locations.  Group the program handle with its attribute and uniform
+# locations into one dataclass per pipeline -- there's only one
+# instance of each, but the grouping makes "this u_mvp belongs to
+# the triangle program, not the ground program" obvious at the call
+# site.  The `u_` prefix on uniform fields keeps them visually
+# distinct from attribute fields.
+@dataclasses.dataclass(frozen=True)
+class TrianglePipeline:
+    program: int
+    u_mvp: int
+    attr_position: int
+    attr_color: int
 
-ground_program: int = compile_program("ground.vert", "ground.frag")
-u_ground_mvp: int = GL.glGetUniformLocation(ground_program, "mvpMatrix")
-ground_attr_position: int = GL.glGetAttribLocation(ground_program, "position")
+
+@dataclasses.dataclass(frozen=True)
+class GroundPipeline:
+    program: int
+    u_mvp: int
+    attr_position: int
+
+
+def _build_triangle_pipeline() -> TrianglePipeline:
+    prog = compile_program("triangle.vert", "triangle.frag")
+    return TrianglePipeline(
+        program=prog,
+        u_mvp=GL.glGetUniformLocation(prog, "mvpMatrix"),
+        attr_position=GL.glGetAttribLocation(prog, "position"),
+        attr_color=GL.glGetAttribLocation(prog, "color_in"),
+    )
+
+
+def _build_ground_pipeline() -> GroundPipeline:
+    prog = compile_program("ground.vert", "ground.frag")
+    return GroundPipeline(
+        program=prog,
+        u_mvp=GL.glGetUniformLocation(prog, "mvpMatrix"),
+        attr_position=GL.glGetAttribLocation(prog, "position"),
+    )
+
+
+triangle = _build_triangle_pipeline()
+ground = _build_ground_pipeline()
 
 
 # ---------------------------------------------------------------------------
@@ -167,94 +213,70 @@ all_vaos: list[int] = []
 all_vbos: list[int] = []
 
 
-def make_colored_vao(
-    vertices: NDArray, color: colorutils.Color4
-) -> tuple[int, int]:
-    """Build a VAO for the triangle pipeline:  positions + per-vertex
-    color, with the color repeated once per vertex.  Returns
-    (vao, vertex_count)."""
-    vertices = np.ascontiguousarray(vertices, dtype=np.float32)
-    n_verts = vertices.size // floatsPerVector
-    color_arr = np.tile(
+# Two-step VAO/VBO construction.  The OpenGL model is:
+#   1. A VBO holds bytes (vertex data, color data, etc.).
+#   2. A VAO records "this attribute slot reads N floats from THIS
+#      VBO at THIS offset/stride."  A VAO can mix attributes from
+#      multiple VBOs; one VBO can be referenced by multiple VAOs
+#      with different layouts.
+#
+# Splitting them lets paddle1 and paddle2 share the same paddle
+# position VBO -- previously we uploaded the same vertex bytes
+# twice (once per VAO), which was the kind of duplication that
+# motivated this refactor.
+@dataclasses.dataclass(frozen=True)
+class AttribSpec:
+    """One vertex attribute pulled from one VBO."""
+    vbo: int
+    location: int
+    size: int           # floats per vertex (2/3/4)
+    layout: tuple[int, int]  # (stride_bytes, offset_bytes)
+
+
+def make_vbo(data: NDArray, usage: int = GL.GL_STATIC_DRAW) -> int:
+    """Allocate a VBO and upload ``data``.  Touches no VAO state."""
+    data = np.ascontiguousarray(data, dtype=np.float32)
+    vbo = GL.glGenBuffers(1)
+    all_vbos.append(vbo)
+    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
+    GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, usage)
+    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+    return vbo
+
+
+def make_vao(attribs: list[AttribSpec]) -> int:
+    """Build a VAO that reads each AttribSpec from its VBO."""
+    vao = GL.glGenVertexArrays(1)
+    all_vaos.append(vao)
+    GL.glBindVertexArray(vao)
+    for a in attribs:
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, a.vbo)
+        GL.glEnableVertexAttribArray(a.location)
+        stride, offset = a.layout
+        GL.glVertexAttribPointer(
+            a.location, a.size, GL.GL_FLOAT, False,
+            stride, ctypes.c_void_p(offset),
+        )
+    return vao
+
+
+def _color_array(color: colorutils.Color4, n_verts: int) -> NDArray:
+    """Tile one RGBA color once per vertex."""
+    return np.tile(
         np.array([color.r, color.g, color.b, color.a], dtype=np.float32),
         n_verts,
     )
 
-    vao = GL.glGenVertexArrays(1)
-    all_vaos.append(vao)
-    GL.glBindVertexArray(vao)
 
-    pos_vbo = GL.glGenBuffers(1)
-    all_vbos.append(pos_vbo)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, pos_vbo)
-    GL.glBufferData(
-        GL.GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL.GL_STATIC_DRAW
-    )
-    GL.glEnableVertexAttribArray(triangle_attr_position)
-    GL.glVertexAttribPointer(
-        triangle_attr_position,
-        floatsPerVector,
-        GL.GL_FLOAT,
-        False,
-        0,
-        ctypes.c_void_p(0),
-    )
-
-    color_vbo = GL.glGenBuffers(1)
-    all_vbos.append(color_vbo)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, color_vbo)
-    GL.glBufferData(
-        GL.GL_ARRAY_BUFFER, color_arr.nbytes, color_arr, GL.GL_STATIC_DRAW
-    )
-    GL.glEnableVertexAttribArray(triangle_attr_color)
-    GL.glVertexAttribPointer(
-        triangle_attr_color,
-        floatsPerColor,
-        GL.GL_FLOAT,
-        False,
-        0,
-        ctypes.c_void_p(0),
-    )
-
-    GL.glBindVertexArray(0)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-    return vao, n_verts
-
-
-def make_ground_vao() -> tuple[int, int]:
+def _build_ground_vertices() -> NDArray:
     verts: list[float] = []
     for x in range(-600, 601, 20):
         for z in range(-600, 601, 20):
-            verts += [-float(x), -5.0, float(z)]
-            verts += [ float(x), -5.0, float(z)]
+            verts += [-float(x), -5.0,  float(z)]
+            verts += [ float(x), -5.0,  float(z)]
             verts += [ float(x), -5.0, -float(z)]
             verts += [ float(x), -5.0,  float(z)]
-    vertices = np.array(verts, dtype=np.float32)
-    n_verts = vertices.size // floatsPerVector
-
-    vao = GL.glGenVertexArrays(1)
-    all_vaos.append(vao)
-    GL.glBindVertexArray(vao)
-
-    vbo = GL.glGenBuffers(1)
-    all_vbos.append(vbo)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
-    GL.glBufferData(
-        GL.GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL.GL_STATIC_DRAW
-    )
-    GL.glEnableVertexAttribArray(ground_attr_position)
-    GL.glVertexAttribPointer(
-        ground_attr_position,
-        floatsPerVector,
-        GL.GL_FLOAT,
-        False,
-        0,
-        ctypes.c_void_p(0),
-    )
-
-    GL.glBindVertexArray(0)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
-    return vao, n_verts
+    return np.array(verts, dtype=np.float32)
 
 
 paddle_vertices: NDArray = np.array(
@@ -290,16 +312,47 @@ square_color: colorutils.Color4 = colorutils.Color4(
     r=0.0, g=0.0, b=1.0, a=0.75
 )
 
-paddle1_vao, paddle1_vertex_count = make_colored_vao(
-    paddle_vertices, paddle1_color
-)
-paddle2_vao, paddle2_vertex_count = make_colored_vao(
-    paddle_vertices, paddle2_color
-)
-square_vao, square_vertex_count = make_colored_vao(
-    square_vertices, square_color
-)
-ground_vao, ground_vertex_count = make_ground_vao()
+
+# Build VBOs first.  paddle_pos_vbo is shared by paddle1 and paddle2
+# -- the same vertex bytes feeding two VAOs.
+ground_vertices = _build_ground_vertices()
+
+paddle_pos_vbo = make_vbo(paddle_vertices)
+square_pos_vbo = make_vbo(square_vertices)
+ground_pos_vbo = make_vbo(ground_vertices)
+
+paddle1_vertex_count = paddle_vertices.size // floatsPerVector
+paddle2_vertex_count = paddle1_vertex_count
+square_vertex_count  = square_vertices.size  // floatsPerVector
+ground_vertex_count  = ground_vertices.size  // floatsPerVector
+
+paddle1_color_vbo = make_vbo(_color_array(paddle1_color, paddle1_vertex_count))
+paddle2_color_vbo = make_vbo(_color_array(paddle2_color, paddle2_vertex_count))
+square_color_vbo  = make_vbo(_color_array(square_color,  square_vertex_count))
+
+
+def _triangle_attribs(pos_vbo: int, color_vbo: int) -> list[AttribSpec]:
+    return [
+        AttribSpec(vbo=pos_vbo,
+                   location=triangle.attr_position,
+                   size=floatsPerVector, layout=(0, 0)),
+        AttribSpec(vbo=color_vbo,
+                   location=triangle.attr_color,
+                   size=floatsPerColor, layout=(0, 0)),
+    ]
+
+
+# paddle1 and paddle2 both reference paddle_pos_vbo -- one upload,
+# two VAOs.  Previously this was two uploads via make_colored_vao.
+paddle1_vao = make_vao(_triangle_attribs(paddle_pos_vbo, paddle1_color_vbo))
+paddle2_vao = make_vao(_triangle_attribs(paddle_pos_vbo, paddle2_color_vbo))
+square_vao  = make_vao(_triangle_attribs(square_pos_vbo, square_color_vbo))
+
+ground_vao = make_vao([
+    AttribSpec(vbo=ground_pos_vbo,
+               location=ground.attr_position,
+               size=floatsPerVector, layout=(0, 0)),
+])
 
 
 # ---------------------------------------------------------------------------
@@ -347,19 +400,17 @@ def _current_mvp_bytes() -> NDArray:
 
 
 def draw_triangles(vao: int, vertex_count: int) -> None:
-    GL.glUseProgram(triangle_program)
-    GL.glUniformMatrix4fv(u_triangle_mvp, 1, GL.GL_TRUE, _current_mvp_bytes())
+    GL.glUseProgram(triangle.program)
+    GL.glUniformMatrix4fv(triangle.u_mvp, 1, GL.GL_TRUE, _current_mvp_bytes())
     GL.glBindVertexArray(vao)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def draw_lines(vao: int, vertex_count: int) -> None:
-    GL.glUseProgram(ground_program)
-    GL.glUniformMatrix4fv(u_ground_mvp, 1, GL.GL_TRUE, _current_mvp_bytes())
+    GL.glUseProgram(ground.program)
+    GL.glUniformMatrix4fv(ground.u_mvp, 1, GL.GL_TRUE, _current_mvp_bytes())
     GL.glBindVertexArray(vao)
     GL.glDrawArrays(GL.GL_LINES, 0, vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def handle_inputs() -> None:
@@ -568,7 +619,6 @@ while not glfw.window_should_close(window):
 
 
 # Clean up GL resources before tearing down the context.
-GL.glBindVertexArray(0)
 GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
 GL.glUseProgram(0)
 
@@ -576,7 +626,7 @@ for vao in all_vaos:
     GL.glDeleteVertexArrays(1, [vao])
 for vbo in all_vbos:
     GL.glDeleteBuffers(1, [vbo])
-GL.glDeleteProgram(triangle_program)
-GL.glDeleteProgram(ground_program)
+GL.glDeleteProgram(triangle.program)
+GL.glDeleteProgram(ground.program)
 
 glfw.terminate()
