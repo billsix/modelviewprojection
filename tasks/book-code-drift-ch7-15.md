@@ -9,12 +9,12 @@ real code bugs.
 ## Cross-cutting (span multiple chapters)
 | Finding | Plan |
 |---|---|
-| `e_1`/`e_2`/`e_3` natural basis used in every demo, explained nowhere (ch07–15 all hit) | [`../plans/book-explain-natural-basis.md`](../plans/book-explain-natural-basis.md) |
+| ✅ `e_1`/`e_2`/`e_3` natural basis used in every demo, explained nowhere — DONE (introduced 2D in ch05, 3D in ch14) | [`archive/book-explain-natural-basis.md`](archive/book-explain-natural-basis.md) |
 | ✅ Module-level transforms called "methods" in prose (ch08:65,128; ch09:80) — DONE | [`archive/fix-method-vs-function-wording.md`](archive/fix-method-vs-function-wording.md) |
 | ✅ mathutils LaTeX-repr bugs + "Note invertible" typos (all scale inverses → `\frac`; lines 629/728) — DONE | [`archive/fix-mathutils-latex-and-error-strings.md`](archive/fix-mathutils-latex-and-error-strings.md) |
 | ✅ `is_clockwise` self-recursion (`mathutils.py:705`) — DONE | [`archive/fix-is-clockwise-recursion.md`](archive/fix-is-clockwise-recursion.md) |
 | ✅ demo code bugs: `demo14.py:42 zero = Vector3D.e_3()` — DONE | [`archive/fix-demo-code-bugs.md`](archive/fix-demo-code-bugs.md) |
-| Reused `doc-region` label "define vector class" pulls Vector1D not Vector3D (manifests in ch14; also ch05/06) | [`../plans/ch14-fixes.md`](../plans/ch14-fixes.md) |
+| ✅ Reused `doc-region` label "define vector class" pulls Vector1D not Vector3D (manifests in ch14; also ch05/06) — DONE | [`archive/ch14-fixes.md`](archive/ch14-fixes.md) |
 
 ## Per-chapter
 | Chapter | Findings (verified unless noted) | Plan |
@@ -24,7 +24,7 @@ real code bugs.
 | ch10 | ✅ DONE — `camera.x/y`→`camera.position_ws` (:363,:381); the broken method-API blocks (~:149-216) rewritten to runnable `e_1`/`e_2` doctests; typos (:120,:131,:257) | [`archive/ch10-fixes.md`](archive/ch10-fixes.md) |
 | ch11/12 | no chapter-specific drift beyond the basis omission (above) | — |
 | ch13 | ✅ figure `_static/demo11.png` shown for a Demo-13 chapter (:63) — DONE (per-chapter `demo13.dot`) | [`archive/ch13-fixes.md`](archive/ch13-fixes.md) |
-| ch14 | caption missing `.py` (:133); doc-region label collision (above); grammar/pronoun (:102,:227,:229,:322) | [`../plans/ch14-fixes.md`](../plans/ch14-fixes.md) |
+| ch14 | ✅ DONE — caption `+.py` (:133); doc-region relabel (split into vector1d/2d/3d; ch05→2D, ch14→3D, others reference); grammar/pronoun (:102,:227,:229,:322) | [`archive/ch14-fixes.md`](archive/ch14-fixes.md) |
 | ch15 | depth-buffer prose describes the "before" state in the "after" chapter (~:128-133); lowercase sentence starts | [`../plans/ch15-fixes.md`](../plans/ch15-fixes.md) |
 
 ## Notes

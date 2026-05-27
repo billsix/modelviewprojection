@@ -22,7 +22,7 @@ findings are prose / captions / hand-written code / a handful of real code bugs.
 | ch16–21 + perspective | [`book-code-drift-ch16-21.md`](book-code-drift-ch16-21.md) | ch16, ch17, ch18, ch19, ch20, ch21 + cross-cutting below |
 
 **Cross-cutting plans (span ranges):**
-[`book-explain-natural-basis.md`](../plans/book-explain-natural-basis.md) (headline; e_1/e_2/e_3 unexplained ch05–18) ·
+✅ [`archive/book-explain-natural-basis.md`](archive/book-explain-natural-basis.md) (headline — DONE; e_1/e_2/e_3 now introduced 2D in ch05, 3D in ch14) ·
 ✅ [`archive/fix-method-vs-function-wording.md`](archive/fix-method-vs-function-wording.md) (DONE) ·
 ✅ [`archive/fix-mathutils-latex-and-error-strings.md`](archive/fix-mathutils-latex-and-error-strings.md) (DONE) ·
 ✅ [`archive/fix-is-clockwise-recursion.md`](archive/fix-is-clockwise-recursion.md) (DONE) ·

@@ -83,7 +83,7 @@ look in ch07+, but that's outside the ch1–6 scope and not tracked here.)
 
 ## Per-finding plans (one each, in `plans/`)
 - A1 → [`archive/fix-is-clockwise-recursion.md`](archive/fix-is-clockwise-recursion.md) — ✅ DONE (committed 2026-05-27)
-- B2 → [`../plans/book-explain-natural-basis.md`](../plans/book-explain-natural-basis.md) (headline)
+- B2 → [`archive/book-explain-natural-basis.md`](archive/book-explain-natural-basis.md) (headline) — ✅ DONE
 - B3 + B4 → [`archive/ch05-translate-section-fixes.md`](archive/ch05-translate-section-fixes.md) — ✅ DONE (committed 2026-05-27)
 - C → [`archive/ch02-ch03-prose-typos.md`](archive/ch02-ch03-prose-typos.md) — ✅ DONE (committed 2026-05-27)
 

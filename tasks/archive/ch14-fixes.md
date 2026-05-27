@@ -1,6 +1,6 @@
 # Plan: ch14 fixes
 
-**Status:** complete (pending review/commit) — 2026-05-27. (1) caption :133
+**Status:** complete — 2026-05-27. (1) caption :133
 (`+.py`); (2) grammar/pronoun (:102,:227,:229,:322); (3) **doc-region relabel
 done** per Bill's guidance (no base/`Vector1D` shown; define once, reference
 otherwise): split the colliding `define vector class` region in `mathutils.py`
@@ -27,7 +27,7 @@ Verified: doc-region integrity clean across ch01–21, `pytest` 47/47.
    three regions unique labels (e.g. `define vector1d class` / `…vector2d…` /
    `…vector3d…`) in `mathutils.py` and point ch05/ch06/ch14 at the right one.
    *This is a shared mathutils edit — coordinate with `tasks/archive/ch05-translate-section-fixes.md`
-   and `plans/book-explain-natural-basis.md` (which also touches these classes).*
+   and `book-explain-natural-basis.md` (which also touches these classes).*
 3. **Grammar/pronoun.** Line 227 "the **paddles** have a z-coordinate" should be
    "the **square** has…" (copied from the paddle section above). Line 229 "do a
    sequence transformations" → "a sequence **of** transformations". Lines 102 and

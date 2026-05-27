@@ -14,7 +14,7 @@
    rest of the same equation uses `\theta`. Fix to `\theta`.
 
 ## Related (handled by other plans, not here)
-- e_1/e_2 used but unexplained in ch07 → `plans/book-explain-natural-basis.md`.
+- e_1/e_2 used but unexplained in ch07 → ✅ done, see `tasks/archive/book-explain-natural-basis.md`.
 - Whether ch07's rotation prose matches `rotate()`'s actual parallel/perpendicular
   decomposition (`cos θ·v + sin θ·rotate_90(v)`) — worth checking while editing;
   if the prose hand-waves it, that's a content gap to raise with Bill.

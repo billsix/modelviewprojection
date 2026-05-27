@@ -1,6 +1,6 @@
 # Plan: explain the natural basis (`e_1`/`e_2`/`e_3`) in the book
 
-**Status:** complete (pending review/commit) — 2026-05-27.
+**Status:** complete — 2026-05-27.
 **2D:** `define vector2d basis` doc-region in `mathutils.py` (`e_1`/`e_2`/`zero`)
 + a "The Natural Basis" subsection in `ch05` (before paddle instantiation)
 introducing them and the `a*e_1 + b*e_2` form (scalar·vector via `__rmul__` +

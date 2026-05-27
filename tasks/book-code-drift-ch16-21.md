@@ -8,7 +8,7 @@ drifted but **unfinished**.
 ## Cross-cutting
 | Finding | Plan |
 |---|---|
-| `e_1`/`e_2`/`e_3` natural basis unexplained (ch16–18 use it heavily) | [`../plans/book-explain-natural-basis.md`](../plans/book-explain-natural-basis.md) |
+| ✅ `e_1`/`e_2`/`e_3` natural basis unexplained — DONE (2D ch05, 3D ch14) | [`archive/book-explain-natural-basis.md`](archive/book-explain-natural-basis.md) |
 | ✅ Wrong code names in prose: `modelspace_to_ndc`→`modelspace_to_ndc_fn` (ch16:184,234,486); `camera_space_to_ndc_space_fn`→`cs_to_ndc_space_fn` (ch16:231, ch17:310) — DONE | [`archive/fix-method-vs-function-wording.md`](archive/fix-method-vs-function-wording.md) |
 | ✅ `demo21/demo21.py` missing `import sys`/`import os` (ships broken via ch21) — DONE | [`archive/fix-demo-code-bugs.md`](archive/fix-demo-code-bugs.md) |
 

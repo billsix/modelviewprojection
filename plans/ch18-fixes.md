@@ -1,6 +1,6 @@
 # Plan: ch18 (perspective / stack) fixes
 
-**Status:** PARTIAL — "ration"→"ratio" (:225) done; the `:262` perspective-include caption fixed (`demo18.py`→`mathutils.py`); the `:248` Vector-class include was **removed entirely** by the doc-region relabel (see `ch14-fixes.md`), replaced with a one-line `Vector3D` reference. Still open: the f1/f2/f3 + `Callable` content (item 3). **Type:** book prose + captions + content gaps.
+**Status:** PARTIAL — "ration"→"ratio" (:225) done; the `:262` perspective-include caption fixed (`demo18.py`→`mathutils.py`); the `:248` Vector-class include was **removed entirely** by the doc-region relabel (see `tasks/archive/ch14-fixes.md`), replaced with a one-line `Vector3D` reference. Still open: the f1/f2/f3 + `Callable` content (item 3). **Type:** book prose + captions + content gaps.
 **Source:** ch16–18 drift audit (verified captions).
 
 ## Findings + changes (`book/docs/ch18.rst`)
@@ -16,7 +16,7 @@
 
 ## Related
 - e_1/e_2/e_3 omission, and `push_transformation` (deeply nested in demo18) →
-  `plans/book-explain-natural-basis.md` and `plans/ch17-fixes.md` (introduce the
+  `tasks/archive/book-explain-natural-basis.md` and `plans/ch17-fixes.md` (introduce the
   context manager in ch17, the chapter where it first appears).
 
 ## Verification

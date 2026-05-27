@@ -19,7 +19,7 @@
    wants a diagram. Asset work — coordinate with Bill.
 
 ## Related
-- e_1/e_2/e_3 omission → `plans/book-explain-natural-basis.md`.
+- e_1/e_2/e_3 omission → ✅ done, see `tasks/archive/book-explain-natural-basis.md`.
 - `camera_space_to_ndc_space_fn` name ref (line 310) → ✅ done, see `tasks/archive/fix-method-vs-function-wording.md`.
 
 ## Verification

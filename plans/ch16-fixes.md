@@ -17,7 +17,7 @@
    the sentence / fix spacing. Confirm intended wording with Bill.
 
 ## Related (other plans)
-- e_1/e_2/e_3 used but unexplained in ch16 → `plans/book-explain-natural-basis.md`.
+- e_1/e_2/e_3 used but unexplained in ch16 → ✅ done, see `tasks/archive/book-explain-natural-basis.md`.
 
 ## Verification
 `grep -n "modelspace_to_ndc\b\|mathutils$" book/docs/ch16.rst`; read line 267 in
