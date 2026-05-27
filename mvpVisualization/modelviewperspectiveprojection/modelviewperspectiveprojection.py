@@ -112,8 +112,9 @@ _p.install_esc_close(window)
 
 
 # ---------------------------------------------------------------------------
-# Frustum -- state-only dataclass read by the uniform uploaders.  When the
-# user moves the imgui sliders, rebuild_frustum_vao() re-uploads vertex data.
+# Frustum -- state-only dataclass read by the uniform setters.  When the
+# user moves the imgui sliders, rebuild_frustum_vao() re-uploads vertex data
+# (vertex data is genuinely uploaded to GPU memory; uniforms are merely set).
 # ---------------------------------------------------------------------------
 
 
@@ -284,6 +285,9 @@ ground_vao, ground_vertex_count = _p.make_lines_vao(
 axis_vao, axis_vertex_count = _p.make_lines_vao(
     _p.build_axis_arrow_solid(), axis_attr_position
 )
+sphere_vao, sphere_vertex_count = _p.make_lines_vao(
+    _p.build_origin_sphere_solid(), axis_attr_position
+)
 cube_vao, cube_vertex_count = _p.make_lines_vao(
     _p.build_ndc_cube_cylinders(), cube_attr_position
 )
@@ -296,31 +300,11 @@ def _build_frustum_vao() -> Tuple[int, int, int]:
     vertices = _build_perspective_frustum_lines(frustum)
     vertices = np.ascontiguousarray(vertices, dtype=np.float32).flatten()
     n_verts = vertices.size // _p.floatsPerVertex
-
-    vao = GL.glGenVertexArrays(1)
-    _p.all_vaos.append(vao)
-    GL.glBindVertexArray(vao)
-
-    vbo = GL.glGenBuffers(1)
-    _p.all_vbos.append(vbo)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
-    GL.glEnableVertexAttribArray(frustum_attr_position)
-    GL.glVertexAttribPointer(
-        frustum_attr_position,
-        _p.floatsPerVertex,
-        GL.GL_FLOAT,
-        False,
-        0,
-        ctypes.c_void_p(0),
-    )
-    GL.glBufferData(
-        GL.GL_ARRAY_BUFFER,
-        _p.glfloat_size * vertices.size,
-        vertices,
-        GL.GL_STATIC_DRAW,
-    )
-    GL.glBindVertexArray(0)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+    vbo = _p.make_vbo(vertices, usage=GL.GL_DYNAMIC_DRAW)
+    vao = _p.make_vao([
+        _p.AttribSpec(vbo=vbo, location=frustum_attr_position,
+                      size=_p.floatsPerVertex, layout=(0, 0)),
+    ])
     return vao, vbo, n_verts
 
 
@@ -374,22 +358,20 @@ _p.install_camera_scroll(window, imguiio, camera)
 def draw_triangles(vao: int, vertex_count: int, time: float) -> None:
     GL.glUseProgram(triangle_program)
     GL.glBindVertexArray(vao)
-    _p.upload_mvp(u_triangle_m, u_triangle_v, u_triangle_p)
+    _p.set_uniforms(u_triangle_m, u_triangle_v, u_triangle_p)
     GL.glUniform1f(u_triangle_fov, PIPELINE_FOV)
     GL.glUniform1f(u_triangle_aspect, PIPELINE_ASPECT)
     GL.glUniform1f(u_triangle_near, frustum.near_z)
     GL.glUniform1f(u_triangle_far, frustum.far_z)
     GL.glUniform1f(u_triangle_time, time)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def draw_ground(time: float) -> None:
     GL.glUseProgram(ground_program)
     GL.glBindVertexArray(ground_vao)
-    _p.upload_mvp(u_ground_m, u_ground_v, u_ground_p)
+    _p.set_uniforms(u_ground_m, u_ground_v, u_ground_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
-    GL.glBindVertexArray(0)
 
     # Original Ground.render() drew an extra grayed-out axis floating below
     # the ground when this flag was set.  Preserved verbatim.
@@ -407,7 +389,7 @@ def _emit_axis(r: float, g: float, b: float, grayed_out: bool) -> None:
         GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
     else:
         GL.glUniform3f(u_axis_color, r, g, b)
-    _p.upload_mvp(u_axis_m, u_axis_v, u_axis_p)
+    _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
     GL.glUniform1f(u_axis_fov, PIPELINE_FOV)
     GL.glUniform1f(u_axis_aspect, PIPELINE_ASPECT)
     GL.glUniform1f(u_axis_near, frustum.near_z)
@@ -430,21 +412,33 @@ def draw_axis(grayed_out: bool = False) -> None:
             _emit_axis(0.0, 0.0, 1.0, grayed_out)
         # y axis
         _emit_axis(0.0, 1.0, 0.0, grayed_out)
-    GL.glBindVertexArray(0)
+
+        # White origin sphere -- same frustum-warp uniforms as the axes
+        # so it gets clipped/projected through the same pipeline.
+        GL.glBindVertexArray(sphere_vao)
+        if grayed_out:
+            GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
+        else:
+            GL.glUniform3f(u_axis_color, 1.0, 1.0, 1.0)
+        _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
+        GL.glUniform1f(u_axis_fov, PIPELINE_FOV)
+        GL.glUniform1f(u_axis_aspect, PIPELINE_ASPECT)
+        GL.glUniform1f(u_axis_near, frustum.near_z)
+        GL.glUniform1f(u_axis_far, frustum.far_z)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_vertex_count)
 
 
 def draw_cube() -> None:
     GL.glUseProgram(cube_program)
     GL.glBindVertexArray(cube_vao)
-    _p.upload_mvp(u_cube_m, u_cube_v, u_cube_p)
+    _p.set_uniforms(u_cube_m, u_cube_v, u_cube_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def draw_frustum(time: float) -> None:
     GL.glUseProgram(frustum_program)
     GL.glBindVertexArray(frustum_vao)
-    _p.upload_mvp(u_frustum_m, u_frustum_v, u_frustum_p)
+    _p.set_uniforms(u_frustum_m, u_frustum_v, u_frustum_p)
     GL.glUniform1f(u_frustum_fov, frustum.field_of_view)
     GL.glUniform1f(u_frustum_aspect, frustum.aspect_ratio)
     GL.glUniform1f(u_frustum_near, frustum.near_z)
@@ -453,7 +447,6 @@ def draw_frustum(time: float) -> None:
     GL.glUniform1f(u_frustum_thickness, line_thickness)
     GL.glUniform2f(u_frustum_viewport, width, height)
     GL.glDrawArrays(GL.GL_LINES, 0, frustum_vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def handle_inputs(

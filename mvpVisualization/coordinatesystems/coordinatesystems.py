@@ -107,6 +107,9 @@ ground_vao, ground_vertex_count = _p.make_lines_vao(
 axis_vao, axis_vertex_count = _p.make_lines_vao(
     _p.build_axis_arrow_solid(), axis_attr_position
 )
+sphere_vao, sphere_vertex_count = _p.make_lines_vao(
+    _p.build_origin_sphere_solid(), axis_attr_position
+)
 cube_vao, cube_vertex_count = _p.make_lines_vao(
     _p.build_ndc_cube_cylinders(), cube_attr_position
 )
@@ -143,17 +146,15 @@ def draw_triangles(vao: int, vertex_count: int) -> None:
     """Render a triangle-pipeline VAO (paddles, square)."""
     GL.glUseProgram(triangle_program)
     GL.glBindVertexArray(vao)
-    _p.upload_mvp(u_triangle_m, u_triangle_v, u_triangle_p)
+    _p.set_uniforms(u_triangle_m, u_triangle_v, u_triangle_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def draw_ground() -> None:
     GL.glUseProgram(ground_program)
     GL.glBindVertexArray(ground_vao)
-    _p.upload_mvp(u_ground_m, u_ground_v, u_ground_p)
+    _p.set_uniforms(u_ground_m, u_ground_v, u_ground_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def _emit_axis(r: float, g: float, b: float, grayed_out: bool) -> None:
@@ -164,7 +165,7 @@ def _emit_axis(r: float, g: float, b: float, grayed_out: bool) -> None:
         GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
     else:
         GL.glUniform3f(u_axis_color, r, g, b)
-    _p.upload_mvp(u_axis_m, u_axis_v, u_axis_p)
+    _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, axis_vertex_count)
 
 
@@ -185,16 +186,24 @@ def draw_axis(grayed_out: bool = False) -> None:
             _emit_axis(0.0, 0.0, 1.0, grayed_out)
         # y axis -- the arrow already points +Y, no rotation needed
         _emit_axis(0.0, 1.0, 0.0, grayed_out)
-    GL.glBindVertexArray(0)
+
+        # White sphere at the origin -- the dot gltDrawUnitAxes
+        # finishes with, ported into the procedural pipeline.
+        GL.glBindVertexArray(sphere_vao)
+        if grayed_out:
+            GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
+        else:
+            GL.glUniform3f(u_axis_color, 1.0, 1.0, 1.0)
+        _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_vertex_count)
 
 
 def draw_cube() -> None:
     GL.glUseProgram(cube_program)
     GL.glBindVertexArray(cube_vao)
-    _p.upload_mvp(u_cube_m, u_cube_v, u_cube_p)
+    _p.set_uniforms(u_cube_m, u_cube_v, u_cube_p)
     GL.glUniform3f(u_cube_color, 1.0, 1.0, 1.0)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def handle_inputs(

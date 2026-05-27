@@ -43,7 +43,7 @@ _p.install_esc_close(window)
 
 
 # ---------------------------------------------------------------------------
-# Frustum -- state-only dataclass read by the uniform uploaders.
+# Frustum -- state-only dataclass read by the uniform setters.
 # ---------------------------------------------------------------------------
 
 
@@ -181,6 +181,9 @@ ground_vao, ground_vertex_count = _p.make_lines_vao(
 axis_vao, axis_vertex_count = _p.make_lines_vao(
     _p.build_axis_arrow_solid(), axis_attr_position
 )
+sphere_vao, sphere_vertex_count = _p.make_lines_vao(
+    _p.build_origin_sphere_solid(), axis_attr_position
+)
 cube_vao, cube_vertex_count = _p.make_lines_vao(
     _p.build_ndc_cube_cylinders(), cube_attr_position
 )
@@ -219,22 +222,20 @@ _p.install_camera_scroll(window, imguiio, camera)
 def draw_triangles(vao: int, vertex_count: int, time: float) -> None:
     GL.glUseProgram(triangle_program)
     GL.glBindVertexArray(vao)
-    _p.upload_mvp(u_triangle_m, u_triangle_v, u_triangle_p)
+    _p.set_uniforms(u_triangle_m, u_triangle_v, u_triangle_p)
     GL.glUniform1f(u_triangle_fov, PROJ_FOV)
     GL.glUniform1f(u_triangle_aspect, PROJ_ASPECT)
     GL.glUniform1f(u_triangle_near, frustum.near_z)
     GL.glUniform1f(u_triangle_far, frustum.far_z)
     GL.glUniform1f(u_triangle_time, time)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def draw_ground() -> None:
     GL.glUseProgram(ground_program)
     GL.glBindVertexArray(ground_vao)
-    _p.upload_mvp(u_ground_m, u_ground_v, u_ground_p)
+    _p.set_uniforms(u_ground_m, u_ground_v, u_ground_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def _emit_axis(r: float, g: float, b: float, grayed_out: bool) -> None:
@@ -242,7 +243,7 @@ def _emit_axis(r: float, g: float, b: float, grayed_out: bool) -> None:
         GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
     else:
         GL.glUniform3f(u_axis_color, r, g, b)
-    _p.upload_mvp(u_axis_m, u_axis_v, u_axis_p)
+    _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
     GL.glUniform1f(u_axis_fov, PROJ_FOV)
     GL.glUniform1f(u_axis_aspect, PROJ_ASPECT)
     GL.glUniform1f(u_axis_near, frustum.near_z)
@@ -265,28 +266,38 @@ def draw_axis(grayed_out: bool = False) -> None:
             _emit_axis(0.0, 0.0, 1.0, grayed_out)
         # y axis
         _emit_axis(0.0, 1.0, 0.0, grayed_out)
-    GL.glBindVertexArray(0)
+
+        # White origin sphere -- same frustum-warp uniforms as the axes.
+        GL.glBindVertexArray(sphere_vao)
+        if grayed_out:
+            GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
+        else:
+            GL.glUniform3f(u_axis_color, 1.0, 1.0, 1.0)
+        _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
+        GL.glUniform1f(u_axis_fov, PROJ_FOV)
+        GL.glUniform1f(u_axis_aspect, PROJ_ASPECT)
+        GL.glUniform1f(u_axis_near, frustum.near_z)
+        GL.glUniform1f(u_axis_far, frustum.far_z)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_vertex_count)
 
 
 def draw_cube() -> None:
     GL.glUseProgram(cube_program)
     GL.glBindVertexArray(cube_vao)
-    _p.upload_mvp(u_cube_m, u_cube_v, u_cube_p)
+    _p.set_uniforms(u_cube_m, u_cube_v, u_cube_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def draw_frustum(time: float) -> None:
     GL.glUseProgram(frustum_program)
     GL.glBindVertexArray(frustum_vao)
-    _p.upload_mvp(u_frustum_m, u_frustum_v, u_frustum_p)
+    _p.set_uniforms(u_frustum_m, u_frustum_v, u_frustum_p)
     GL.glUniform1f(u_frustum_fov, PROJ_FOV)
     GL.glUniform1f(u_frustum_aspect, PROJ_ASPECT)
     GL.glUniform1f(u_frustum_near, frustum.near_z)
     GL.glUniform1f(u_frustum_far, frustum.far_z)
     GL.glUniform1f(u_frustum_time, time)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, frustum_vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def handle_inputs(

@@ -22,7 +22,7 @@ What this module owns:
     - Standard mesh data: ``paddle_vertices``, ``square_vertices``,
       ``build_ground_vertices()``, ``build_axis_vertices()``,
       ``build_ndc_cube_vertices()``.
-    - Per-frame uniform upload: ``upload_mvp(u_m, u_v, u_p)``.
+    - Per-frame uniform set: ``set_uniforms(u_m, u_v, u_p)``.
     - Common dataclass: ``Camera`` (orbit camera with r, rot_y, rot_x).
     - ``cleanup()`` releases every registered handle on shutdown.
 
@@ -113,6 +113,15 @@ def setup_window(title: str, width: int = 1920, height: int = 1080):
         sys.exit(1)
     glfw.make_context_current(window)
 
+    # macOS Core Profile requires a non-zero VAO bound at all times for
+    # any vertex-attribute or draw call (VAO 0 is prohibited).  We
+    # generate one here and leave it bound as the default; per-mesh
+    # VAOs override-bind when they need a specific layout, and we
+    # never call glBindVertexArray(0).  Mesa and NVIDIA tolerate the
+    # spec violation silently; Apple's driver does not.
+    _default_vao = GL.glGenVertexArrays(1)
+    GL.glBindVertexArray(_default_vao)
+
     impl = GlfwRenderer(window)
     if not impl:
         glfw.terminate()
@@ -186,6 +195,73 @@ def compile_program(
 # ---------------------------------------------------------------------------
 
 
+# Two-step VAO/VBO construction.  The OpenGL model is:
+#   1. A VBO holds bytes (vertex data, color data, etc.).
+#   2. A VAO records "this attribute slot reads N floats from THIS VBO
+#      at THIS offset/stride."  A VAO can mix attributes from multiple
+#      VBOs; one VBO can be referenced by multiple VAOs with
+#      different layouts.
+#
+# Splitting them lets two meshes that share geometry (e.g. paddle1
+# and paddle2 sharing paddle vertices) reference one VBO from two
+# VAOs -- the deduplication win in demo21.
+
+
+@dataclass(frozen=True)
+class AttribSpec:
+    """One vertex attribute pulled from one VBO.
+
+    Fields:
+        vbo:      the VBO this attribute reads from.
+        location: the shader attribute slot (``glGetAttribLocation``
+                  result, or pinned via ``layout(location=N)``).
+        size:     floats per vertex (2/3/4).
+        layout:   ``(stride_bytes, offset_bytes)``.  Kept as a tuple
+                  because the two are coupled -- they describe one
+                  buffer-layout decision together.
+    """
+    vbo: int
+    location: int
+    size: int
+    layout: Tuple[int, int]
+
+
+def make_vbo(data: ndarray, usage: int = GL.GL_STATIC_DRAW) -> int:
+    """Allocate a VBO and upload ``data`` (any ndarray, must be
+    contiguous float32 -- the helper coerces).  Touches no VAO state.
+    The handle is registered into ``all_vbos`` for cleanup."""
+    data = np.ascontiguousarray(data, dtype=np.float32)
+    vbo = GL.glGenBuffers(1)
+    all_vbos.append(vbo)
+    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
+    GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, usage)
+    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+    return vbo
+
+
+def make_vao(attribs: list[AttribSpec]) -> int:
+    """Build a VAO that reads each ``AttribSpec`` from its VBO.  The
+    handle is registered into ``all_vaos`` for cleanup."""
+    vao = GL.glGenVertexArrays(1)
+    all_vaos.append(vao)
+    GL.glBindVertexArray(vao)
+    for a in attribs:
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, a.vbo)
+        GL.glEnableVertexAttribArray(a.location)
+        stride, offset = a.layout
+        GL.glVertexAttribPointer(
+            a.location, a.size, GL.GL_FLOAT, False,
+            stride, ctypes.c_void_p(offset),
+        )
+    return vao
+
+
+# ---------------------------------------------------------------------------
+# Convenience wrappers used by the visualization demos.  Both build their
+# VBOs and VAOs via the two primitives above.
+# ---------------------------------------------------------------------------
+
+
 def make_triangle_vao(
     vertices: ndarray,
     r: float,
@@ -201,52 +277,16 @@ def make_triangle_vao(
     per program."""
     vertices = np.ascontiguousarray(vertices, dtype=np.float32).flatten()
     n_verts = vertices.size // floatsPerVertex
-    color = np.tile(np.array([r, g, b], dtype=np.float32), n_verts)
+    colors = np.tile(np.array([r, g, b], dtype=np.float32), n_verts)
 
-    vao = GL.glGenVertexArrays(1)
-    all_vaos.append(vao)
-    GL.glBindVertexArray(vao)
-
-    pos_vbo = GL.glGenBuffers(1)
-    all_vbos.append(pos_vbo)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, pos_vbo)
-    GL.glEnableVertexAttribArray(attr_position)
-    GL.glVertexAttribPointer(
-        attr_position,
-        floatsPerVertex,
-        GL.GL_FLOAT,
-        False,
-        0,
-        ctypes.c_void_p(0),
-    )
-    GL.glBufferData(
-        GL.GL_ARRAY_BUFFER,
-        glfloat_size * vertices.size,
-        vertices,
-        GL.GL_STATIC_DRAW,
-    )
-
-    color_vbo = GL.glGenBuffers(1)
-    all_vbos.append(color_vbo)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, color_vbo)
-    GL.glEnableVertexAttribArray(attr_color)
-    GL.glVertexAttribPointer(
-        attr_color,
-        floatsPerColor,
-        GL.GL_FLOAT,
-        False,
-        0,
-        ctypes.c_void_p(0),
-    )
-    GL.glBufferData(
-        GL.GL_ARRAY_BUFFER,
-        glfloat_size * color.size,
-        color,
-        GL.GL_STATIC_DRAW,
-    )
-
-    GL.glBindVertexArray(0)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+    pos_vbo = make_vbo(vertices)
+    color_vbo = make_vbo(colors)
+    vao = make_vao([
+        AttribSpec(vbo=pos_vbo, location=attr_position,
+                   size=floatsPerVertex, layout=(0, 0)),
+        AttribSpec(vbo=color_vbo, location=attr_color,
+                   size=floatsPerColor, layout=(0, 0)),
+    ])
     return vao, n_verts
 
 
@@ -255,32 +295,11 @@ def make_lines_vao(vertices: ndarray, attr_position: int) -> Tuple[int, int]:
     Returns (vao, vertex_count)."""
     vertices = np.ascontiguousarray(vertices, dtype=np.float32).flatten()
     n_verts = vertices.size // floatsPerVertex
-
-    vao = GL.glGenVertexArrays(1)
-    all_vaos.append(vao)
-    GL.glBindVertexArray(vao)
-
-    vbo = GL.glGenBuffers(1)
-    all_vbos.append(vbo)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
-    GL.glEnableVertexAttribArray(attr_position)
-    GL.glVertexAttribPointer(
-        attr_position,
-        floatsPerVertex,
-        GL.GL_FLOAT,
-        False,
-        0,
-        ctypes.c_void_p(0),
-    )
-    GL.glBufferData(
-        GL.GL_ARRAY_BUFFER,
-        glfloat_size * vertices.size,
-        vertices,
-        GL.GL_STATIC_DRAW,
-    )
-
-    GL.glBindVertexArray(0)
-    GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
+    vbo = make_vbo(vertices)
+    vao = make_vao([
+        AttribSpec(vbo=vbo, location=attr_position,
+                   size=floatsPerVertex, layout=(0, 0)),
+    ])
     return vao, n_verts
 
 
@@ -430,6 +449,39 @@ def build_axis_arrow_solid(
     return np.array(verts, dtype=np.float32)
 
 
+def build_origin_sphere_solid(
+    radius: float = 0.10,
+    slices: int = 15,
+    stacks: int = 15,
+) -> ndarray:
+    """Triangle mesh for a small solid sphere centered at the origin --
+    the white dot that gltDrawUnitAxes finishes with, ported into the
+    procedural pipeline.  Same vertex layout (flat float32, 3 components
+    per vertex) as ``build_axis_arrow_solid`` so it can be drawn through
+    ``make_lines_vao`` + the axis_program.
+
+    Returns 2 * slices * stacks triangles."""
+    verts: list[float] = []
+    for i in range(stacks):
+        lat0 = math.pi * (-0.5 + float(i) / stacks)
+        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
+        s0, c0 = math.sin(lat0), math.cos(lat0)
+        s1, c1 = math.sin(lat1), math.cos(lat1)
+        for j in range(slices):
+            lng0 = 2.0 * math.pi * float(j) / slices
+            lng1 = 2.0 * math.pi * float(j + 1) / slices
+            cl0, sl0 = math.cos(lng0), math.sin(lng0)
+            cl1, sl1 = math.cos(lng1), math.sin(lng1)
+            # Two CCW triangles per quad-strip cell, viewed from outside.
+            p00 = (radius * cl0 * c0, radius * sl0 * c0, radius * s0)
+            p01 = (radius * cl1 * c0, radius * sl1 * c0, radius * s0)
+            p10 = (radius * cl0 * c1, radius * sl0 * c1, radius * s1)
+            p11 = (radius * cl1 * c1, radius * sl1 * c1, radius * s1)
+            verts += [*p10, *p00, *p11]
+            verts += [*p11, *p00, *p01]
+    return np.array(verts, dtype=np.float32)
+
+
 def build_cylinders_for_edges(
     edges: list,
     radius: float = 0.05,
@@ -557,13 +609,17 @@ def build_ndc_cube_vertices() -> ndarray:
 
 
 # ---------------------------------------------------------------------------
-# Per-frame uniform upload.
+# Per-frame uniform set.
 # ---------------------------------------------------------------------------
 
 
-def upload_mvp(u_m: int, u_v: int, u_p: int) -> None:
-    """Upload current model/view/projection matrices to the bound program at
-    the given uniform locations.  Caller is responsible for ``glUseProgram``."""
+def set_uniforms(u_m: int, u_v: int, u_p: int) -> None:
+    """Set current model/view/projection matrices on the bound program at
+    the given uniform locations.  Caller is responsible for ``glUseProgram``.
+
+    Note: ``glUniform*`` updates the program object's default-uniform-block
+    state -- it does not "upload" bytes to GPU memory the way
+    ``glBufferData`` does.  See plans/notes-uniform-terminology.md."""
     GL.glUniformMatrix4fv(
         u_m,
         1,

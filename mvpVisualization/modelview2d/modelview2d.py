@@ -175,6 +175,9 @@ ground_vao, ground_vertex_count = _p.make_lines_vao(
 axis_vao, axis_vertex_count = _p.make_lines_vao(
     _p.build_axis_arrow_solid(), axis_attr_position
 )
+sphere_vao, sphere_vertex_count = _p.make_lines_vao(
+    _p.build_origin_sphere_solid(), axis_attr_position
+)
 cube_vao, cube_vertex_count = _p.make_lines_vao(
     _build_2d_ndc_outline_cylinders(half_extent=1.0), cube_attr_position
 )
@@ -211,7 +214,7 @@ camera = _p.Camera(r=25.0, rot_y=math.radians(0.0), rot_x=math.radians(0.0))
 # ---------------------------------------------------------------------------
 
 
-def _upload_frustum(
+def _set_frustum_uniforms(
     u_fov: int, u_aspect: int, u_near: int, u_far: int
 ) -> None:
     GL.glUniform1f(u_fov, PROJ_FOV)
@@ -223,21 +226,19 @@ def _upload_frustum(
 def draw_triangles(vao: int, vertex_count: int, time: float) -> None:
     GL.glUseProgram(triangle_program)
     GL.glBindVertexArray(vao)
-    _p.upload_mvp(u_triangle_m, u_triangle_v, u_triangle_p)
-    _upload_frustum(
+    _p.set_uniforms(u_triangle_m, u_triangle_v, u_triangle_p)
+    _set_frustum_uniforms(
         u_triangle_fov, u_triangle_aspect, u_triangle_near, u_triangle_far
     )
     GL.glUniform1f(u_triangle_time, time)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def draw_ground(time: float) -> None:
     GL.glUseProgram(ground_program)
     GL.glBindVertexArray(ground_vao)
-    _p.upload_mvp(u_ground_m, u_ground_v, u_ground_p)
+    _p.set_uniforms(u_ground_m, u_ground_v, u_ground_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def _emit_axis(
@@ -247,8 +248,8 @@ def _emit_axis(
         GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
     else:
         GL.glUniform3f(u_axis_color, r, g, b)
-    _p.upload_mvp(u_axis_m, u_axis_v, u_axis_p)
-    _upload_frustum(u_axis_fov, u_axis_aspect, u_axis_near, u_axis_far)
+    _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
+    _set_frustum_uniforms(u_axis_fov, u_axis_aspect, u_axis_near, u_axis_far)
     GL.glUniform1f(u_axis_time, time)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, axis_vertex_count)
 
@@ -265,18 +266,28 @@ def draw_axis(time: float, grayed_out: bool = False) -> None:
             _emit_axis(1.0, 0.0, 0.0, time, grayed_out)
         # y axis -- already points +Y, no rotation needed
         _emit_axis(0.0, 1.0, 0.0, time, grayed_out)
-    GL.glBindVertexArray(0)
+
+        # White origin sphere -- shares the axis program's frustum+time
+        # uniforms so the 2D projection animation applies to it too.
+        GL.glBindVertexArray(sphere_vao)
+        if grayed_out:
+            GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
+        else:
+            GL.glUniform3f(u_axis_color, 1.0, 1.0, 1.0)
+        _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
+        _set_frustum_uniforms(u_axis_fov, u_axis_aspect, u_axis_near, u_axis_far)
+        GL.glUniform1f(u_axis_time, time)
+        GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_vertex_count)
 
 
 def draw_cube(time: float) -> None:
     GL.glUseProgram(cube_program)
     GL.glBindVertexArray(cube_vao)
-    _p.upload_mvp(u_cube_m, u_cube_v, u_cube_p)
-    _upload_frustum(u_cube_fov, u_cube_aspect, u_cube_near, u_cube_far)
+    _p.set_uniforms(u_cube_m, u_cube_v, u_cube_p)
+    _set_frustum_uniforms(u_cube_fov, u_cube_aspect, u_cube_near, u_cube_far)
     GL.glUniform1f(u_cube_time, time)
     GL.glUniform3f(u_cube_color, 1.0, 1.0, 1.0)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
-    GL.glBindVertexArray(0)
 
 
 def handle_inputs() -> None:
@@ -587,12 +598,11 @@ while not glfw.window_should_close(window):
                 # the cylinder thickness stays consistent with the NDC cube.
                 GL.glUseProgram(cube_program)
                 GL.glBindVertexArray(cube_big_vao)
-                _p.upload_mvp(u_cube_m, u_cube_v, u_cube_p)
-                _upload_frustum(u_cube_fov, u_cube_aspect, u_cube_near, u_cube_far)
+                _p.set_uniforms(u_cube_m, u_cube_v, u_cube_p)
+                _set_frustum_uniforms(u_cube_fov, u_cube_aspect, u_cube_near, u_cube_far)
                 GL.glUniform1f(u_cube_time, animation_time)
                 GL.glUniform3f(u_cube_color, 1.0, 1.0, 1.0)
                 GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_big_vertex_count)
-                GL.glBindVertexArray(0)
 
     GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
 

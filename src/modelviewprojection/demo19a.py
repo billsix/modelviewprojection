@@ -96,6 +96,27 @@ def draw_solid_cone(base: float, height: float, slices: int) -> None:
     GL.glEnd()
 
 
+def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
+    """Solid sphere centered at the origin -- a white ball marking the origin,
+    like the gluSphere call at the end of gltDrawUnitAxes.  Emits (lat1, lat0)
+    per slice so the outward face winds CCW under the default
+    glFrontFace(GL_CCW)."""
+    for i in range(stacks):
+        lat0 = math.pi * (-0.5 + float(i) / stacks)
+        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
+        s0, c0 = math.sin(lat0), math.cos(lat0)
+        s1, c1 = math.sin(lat1), math.cos(lat1)
+        GL.glBegin(GL.GL_QUAD_STRIP)
+        for j in range(slices + 1):
+            lng = 2.0 * math.pi * float(j) / slices
+            cl, sl = math.cos(lng), math.sin(lng)
+            GL.glNormal3f(cl * c1, sl * c1, s1)
+            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
+            GL.glNormal3f(cl * c0, sl * c0, s0)
+            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
+        GL.glEnd()
+
+
 # doc-region-begin draw unit axes
 def draw_unit_axes() -> None:
     """
@@ -136,6 +157,13 @@ def draw_unit_axes() -> None:
     GL.glTranslatef(0.0, 0.0, rod_length)
     draw_solid_cone(cone_radius, cone_length, 20)
     GL.glPopMatrix()
+
+    # White ball at the origin -- gltDrawUnitAxes finished with a small
+    # gluSphere.  Our rod_radius is 0.05 (vs the SuperBible's 0.025), so use
+    # radius 0.10 to keep the same ~2x-rod proportion (otherwise the sphere
+    # disappears into the axis shafts).
+    GL.glColor3f(1.0, 1.0, 1.0)
+    draw_solid_sphere(0.10, 15, 15)
 # doc-region-end draw unit axes
 
 

@@ -264,6 +264,26 @@ def draw_solid_cone(base: float, height: float, slices: int) -> None:
     GL.glEnd()
 
 
+def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
+    """Solid sphere centered at the origin -- the white ball that
+    gltDrawUnitAxes finishes with.  (lat1, lat0)-pair winding keeps the
+    outward face CCW under glFrontFace(GL_CCW)."""
+    for i in range(stacks):
+        lat0 = math.pi * (-0.5 + float(i) / stacks)
+        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
+        s0, c0 = math.sin(lat0), math.cos(lat0)
+        s1, c1 = math.sin(lat1), math.cos(lat1)
+        GL.glBegin(GL.GL_QUAD_STRIP)
+        for j in range(slices + 1):
+            lng = 2.0 * math.pi * float(j) / slices
+            cl, sl = math.cos(lng), math.sin(lng)
+            GL.glNormal3f(cl * c1, sl * c1, s1)
+            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
+            GL.glNormal3f(cl * c0, sl * c0, s0)
+            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
+        GL.glEnd()
+
+
 def draw_y_axis() -> None:
     """Draw a +Y-pointing cylinder shaft + cone arrowhead at the current
     modelview transform.  Caller has already issued glColor3f for the
@@ -312,6 +332,21 @@ def draw_axises(grayed_out: bool = False) -> None:
         if grayed_out:
             GL.glColor3f(0.5, 0.5, 0.5)
         draw_y_axis()
+
+        # White (or grayed) sphere at the origin -- the dot that
+        # gltDrawUnitAxes draws to mark the frame's origin.
+        GL.glLoadMatrixf(
+            np.ascontiguousarray(
+                ms.get_current_matrix(ms.MatrixStack.modelview).T
+            )
+        )
+        if grayed_out:
+            GL.glColor3f(0.5, 0.5, 0.5)
+        else:
+            GL.glColor3f(1.0, 1.0, 1.0)
+        # Rod radius here is 0.05, so 0.05 sphere disappears into the
+        # axis shaft.  0.10 keeps the C++ 2x-rod visual ratio.
+        draw_solid_sphere(0.10, 15, 15)
 
 
 def draw_cylinder_edge(p0, p1, radius: float, slices: int) -> None:
