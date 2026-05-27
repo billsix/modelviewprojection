@@ -48,7 +48,7 @@ GL.glLoadIdentity()
 
 
 # doc-region-begin square viewport
-def draw_in_square_viewport() -> None:
+def draw_in_square_viewport(window) -> None:
     # doc-region-end square viewport
 
     # doc-region-begin set to gray
@@ -99,7 +99,7 @@ while not glfw.window_should_close(window):
     # doc-region-end event loop begin
 
     # doc-region-begin call draw in square viewport
-    draw_in_square_viewport()
+    draw_in_square_viewport(window)
     # doc-region-end call draw in square viewport
     # doc-region-begin draw both paddles
     GL.glColor3f(0.578123, 0.0, 1.0)

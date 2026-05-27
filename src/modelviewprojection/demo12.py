@@ -24,6 +24,7 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
+from modelviewprojection.clipping import draw_in_square_viewport
 from modelviewprojection.mathutils import (
     InvertibleFunction,
     Vector2D,
@@ -63,33 +64,6 @@ GL.glMatrixMode(GL.GL_PROJECTION)
 GL.glLoadIdentity()
 GL.glMatrixMode(GL.GL_MODELVIEW)
 GL.glLoadIdentity()
-
-
-def draw_in_square_viewport() -> None:
-    GL.glClearColor(0.2, 0.2, 0.2, 1.0)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-
-    width, height = glfw.get_framebuffer_size(window)
-    min = width if width < height else height
-
-    GL.glEnable(GL.GL_SCISSOR_TEST)
-    GL.glScissor(
-        int((width - min) / 2.0),
-        int((height - min) / 2.0),
-        min,
-        min,
-    )
-
-    GL.glClearColor(0.0289, 0.071875, 0.0972, 1.0)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-    GL.glDisable(GL.GL_SCISSOR_TEST)
-
-    GL.glViewport(
-        int(0.0 + (width - min) / 2.0),
-        int(0.0 + (height - min) / 2.0),
-        min,
-        min,
-    )
 
 
 @dataclasses.dataclass
@@ -200,7 +174,7 @@ while not glfw.window_should_close(window):
     GL.glViewport(0, 0, width, height)
     GL.glClear(sum([GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT]))
 
-    draw_in_square_viewport()
+    draw_in_square_viewport(window)
     handle_inputs()
 
     GL.glColor3f(*iter(paddle1.color))

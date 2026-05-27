@@ -30,10 +30,22 @@ import instead of a redefinition.
 - **Deferred:** `shaderutils.py` / `set_mvp_uniforms` — demo22 is a variant
   (3-of-4 identical), the variant-reconciliation question Bill asked to handle
   later. Not touched.
-- **Next:** `clipping.py` (`draw_in_square_viewport`) — this one IS book-referenced
-  (shown via `literalinclude` in ch04/06/09/11/13/17), so it needs coordinated
-  chapter edits; do with Bill's go-ahead. Per-demo `handle_inputs` dedup tracked
-  separately in [`dedup-handle-inputs.md`](dedup-handle-inputs.md).
+- **2026-05-27 — `clipping.py` DONE (staged, not committed).** Created
+  `clipping.py` with `draw_in_square_viewport(window)` — **parameterized on
+  `window`** (the function read the module global, so it couldn't move unchanged).
+  23 defs → 3: kept **demo03** inline (ch03 dissects it; updated its def+call to
+  take/pass `window` so signatures stay consistent) and **demo19e** inline
+  (intentional different background color); the other **21** (demo04–20, 19a–d,
+  demo12) now import it and call `draw_in_square_viewport(window)`. Book reality:
+  only **ch03** (teaches/dissects the def) and **ch04** (shows the call) reference
+  it — *not* ch06/09/11/13/17 as earlier guessed — and both auto-update via
+  `literalinclude` (no `.rst` edits), now showing the `(window)` signature/call.
+  Verified: def only in clipping/demo03/demo19e; 21 imports; `py_compile` all;
+  `pytest` 47/47; the 5 leftover ruff errors are pre-existing.
+- **Deferred:** `shaderutils.py` / `set_mvp_uniforms` — demo22 is a variant
+  (3-of-4 identical), the variant-reconciliation question Bill asked to handle
+  later. Not touched. Per-demo `handle_inputs` dedup tracked separately in
+  [`dedup-handle-inputs.md`](dedup-handle-inputs.md).
 
 ## Context
 This is teaching code, so *some* repetition is intentional (a student reads one

@@ -24,6 +24,7 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
+from modelviewprojection.clipping import draw_in_square_viewport
 from modelviewprojection.windowing import on_key
 
 if not glfw.init():
@@ -48,33 +49,6 @@ GL.glMatrixMode(GL.GL_PROJECTION)
 GL.glLoadIdentity()
 GL.glMatrixMode(GL.GL_MODELVIEW)
 GL.glLoadIdentity()
-
-
-def draw_in_square_viewport() -> None:
-    GL.glClearColor(0.2, 0.2, 0.2, 1.0)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-
-    w, h = glfw.get_framebuffer_size(window)
-    minimal_dimension = w if w < h else h
-
-    GL.glEnable(GL.GL_SCISSOR_TEST)
-    GL.glScissor(
-        int((w - minimal_dimension) / 2.0),
-        int((h - minimal_dimension) / 2.0),
-        minimal_dimension,
-        minimal_dimension,
-    )
-
-    GL.glClearColor(0.0289, 0.071875, 0.0972, 1.0)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-    GL.glDisable(GL.GL_SCISSOR_TEST)
-
-    GL.glViewport(
-        int(0.0 + (w - minimal_dimension) / 2.0),
-        int(0.0 + (h - minimal_dimension) / 2.0),
-        minimal_dimension,
-        minimal_dimension,
-    )
 
 
 # doc-region-begin define vector class
@@ -165,7 +139,7 @@ while not glfw.window_should_close(window):
     # doc-region-end poll events and get framebuffer size
 
     # doc-region-begin call draw in square viewport
-    draw_in_square_viewport()
+    draw_in_square_viewport(window)
     # doc-region-end call draw in square viewport
 
     # doc-region-begin call handle movement of paddles
