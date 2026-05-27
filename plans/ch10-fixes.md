@@ -1,6 +1,6 @@
 # Plan: ch10 (camera / inverse) fixes
 
-**Status:** PARTIAL — the 3 prose typos (:120, :131, :257) fixed & staged 2026-05-27. Still open: `camera.x/y`→`camera.position_ws` (:363, :381) and the non-runnable method-API code blocks (~:149-216). **Type:** book prose + non-runnable code blocks.
+**Status:** PARTIAL — the 3 prose typos (:120,:131,:257) and `camera.x/y`→`camera.position_ws` (:363,:381) fixed & staged. Still open: the non-runnable method-API code blocks (~:149-216) — a doctest rewrite to the real composition API. **Type:** book prose + non-runnable code blocks.
 **Source:** ch10–12 drift audit (verified: `camera.x/y` prose; doctest blocks).
 
 ## Findings + changes (`book/docs/ch10.rst`)
