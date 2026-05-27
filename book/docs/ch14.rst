@@ -133,6 +133,21 @@ Description
    :caption: src/modelviewprojection/mathutils.py
 
 
+The natural basis extends to 3D with a third unit vector, ``e_3``, one unit
+along the z axis:
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :language: python
+   :start-after: doc-region-begin define vector3d basis
+   :end-before: doc-region-end define vector3d basis
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+A 3D vertex is then ``a * e_1 + b * e_2 + c * e_3`` --- the same scaled-sum form
+as in 2D, with the new z term.
+
+
 Rotate Z
 ~~~~~~~~
 

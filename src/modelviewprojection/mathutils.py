@@ -222,6 +222,7 @@ class Vector2D(Vector1D):
     y: float  #: The y-component of the 2D Vector
     # doc-region-end define vector2d class
 
+    # doc-region-begin define vector2d basis
     @staticmethod
     def e_1() -> "Vector2D":
         return Vector2D(1.0, 0.0)
@@ -234,6 +235,8 @@ class Vector2D(Vector1D):
     def zero() -> "Vector2D":
         return Vector2D(0.0, 0.0)
 
+    # doc-region-end define vector2d basis
+
 
 # doc-region-begin define vector3d class
 @dataclasses.dataclass
@@ -241,6 +244,7 @@ class Vector3D(Vector2D):
     z: float  #: The z-component of the 3D Vector
     # doc-region-end define vector3d class
 
+    # doc-region-begin define vector3d basis
     @staticmethod
     def e_1() -> "Vector3D":
         return Vector3D(1.0, 0.0, 0.0)
@@ -256,6 +260,8 @@ class Vector3D(Vector2D):
     @staticmethod
     def zero() -> "Vector3D":
         return Vector3D(0.0, 0.0, 0.0)
+
+    # doc-region-end define vector3d basis
 
     def cross(self, rhs: typing.Self) -> "Vector3D":
         return Vector3D(

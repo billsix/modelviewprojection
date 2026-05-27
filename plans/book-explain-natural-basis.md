@@ -1,6 +1,14 @@
 # Plan: explain the natural basis (`e_1`/`e_2`/`e_3`) in the book
 
-**Status:** planned. **Type:** book prose + mathutils doc-region markers.
+**Status:** complete (pending review/commit) — 2026-05-27.
+**2D:** `define vector2d basis` doc-region in `mathutils.py` (`e_1`/`e_2`/`zero`)
++ a "The Natural Basis" subsection in `ch05` (before paddle instantiation)
+introducing them and the `a*e_1 + b*e_2` form (scalar·vector via `__rmul__` +
+addition via `__add__`).
+**3D:** `define vector3d basis` doc-region + a note in `ch14` (after the
+`Vector3D` class) introducing `e_3` along z and the `a*e_1 + b*e_2 + c*e_3` form.
+Verified: doc-region integrity clean across ch01–21, `pytest` 47/47.
+**Type:** book prose + mathutils doc-region markers.
 **Effort:** medium (writing, in Bill's voice). **Headline drift item.**
 **Source finding:** `tasks/book-code-drift-ch1-6.md` item B2; `TODO.org` line 1
 ("make code explannations for e_1, e_2, e_3").

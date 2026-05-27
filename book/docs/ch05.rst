@@ -143,6 +143,29 @@ Add a position instance variable to the Paddle class.  This position is the cent
 the paddle, defined relative to NDC.  The vertices of the paddle will be defined
 relative to the center of the paddle.
 
+The Natural Basis
+~~~~~~~~~~~~~~~~~
+
+We will define each vertex relative to the paddle's center using two special
+unit vectors, the *natural basis*: ``e_1`` is one unit along the x axis, and
+``e_2`` is one unit along the y axis.  ``Vector2D`` provides them (and the
+origin, ``zero``) as static methods:
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :language: python
+   :start-after: doc-region-begin define vector2d basis
+   :end-before: doc-region-end define vector2d basis
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+Any 2D vector is a *scaled sum* of these two: scale each basis vector by a
+number (``__rmul__``) and add the results (``__add__``).  So ``3 * e_1 + 2 *
+e_2`` is the vector ``(3, 2)``, and ``zero`` --- the origin --- is just
+``0 * e_1 + 0 * e_2``.  Writing the paddle's vertices in this form makes their
+geometry explicit: each is a step in x (``e_1``) plus a step in y (``e_2``)
+away from the center.
+
 Instantiation of the Paddles
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
