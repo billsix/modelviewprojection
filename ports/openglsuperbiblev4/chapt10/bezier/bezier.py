@@ -36,8 +36,9 @@ def draw_points() -> None:
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
-    GL.glMap1f(GL.GL_MAP1_VERTEX_3, 0.0, 100.0, 3, len(ctrl_points),
-               ctrl_points)
+    # PyOpenGL's glMap1f is a 4-arg wrapper -- stride/order come from
+    # the array shape, not from explicit ints like the C signature.
+    GL.glMap1f(GL.GL_MAP1_VERTEX_3, 0.0, 100.0, ctrl_points)
     GL.glEnable(GL.GL_MAP1_VERTEX_3)
 
     GL.glBegin(GL.GL_LINE_STRIP)

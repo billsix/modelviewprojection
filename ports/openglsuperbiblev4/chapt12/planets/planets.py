@@ -1,6 +1,11 @@
 # planets.py
-# OpenGL selection mode (glRenderMode(GL_SELECT) + glPushName) demo.
-# Click on a planet and the window title changes to identify it.
+# Click on a planet and the window title changes to identify it.  The
+# textbook used glRenderMode(GL_SELECT) + glPushName; that pipeline is
+# deprecated and Mesa's compatibility profile crashes on it.  This port
+# uses color picking: redraw the scene with each planet in a flat unique
+# color, glReadPixels at the click, decode the color.  See chapt12/moons
+# for the same approach with hierarchical hits.
+#
 # OpenGL SuperBible, Chapter 12
 # Python port of Planets.c by Richard S. Wright Jr.
 
@@ -11,13 +16,28 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
+# Pick ids encoded as the red byte (0 reserved for background).
 SUN, MERCURY, VENUS, EARTH, MARS = 1, 2, 3, 4, 5
 PLANET_NAMES = {SUN: "Sun", MERCURY: "Mercury", VENUS: "Venus",
                 EARTH: "Earth", MARS: "Mars"}
-BUFFER_LENGTH = 64
+
+# Bright distinct colors for the "Show selection buffer" debug view.
+# The actual pick encoding is 1..5 in the red byte, too dim to see.
+PICK_PALETTE = {
+    SUN:     (1.0, 1.0, 0.0),  # yellow
+    MERCURY: (1.0, 0.0, 0.0),  # red
+    VENUS:   (1.0, 0.0, 1.0),  # magenta
+    EARTH:   (0.0, 1.0, 1.0),  # cyan
+    MARS:    (0.0, 1.0, 0.0),  # green
+}
+
+# UI state -- toggled by imgui checkbox in the main loop.
+show_pick_buffer: bool = False
 
 
 def draw_sphere(radius: float) -> None:
@@ -27,62 +47,75 @@ def draw_sphere(radius: float) -> None:
     GLU.gluDeleteQuadric(obj)
 
 
-def render_scene() -> None:
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+_PLANETS = [
+    # (display color,           distance, radius, pick id)
+    ((1.0, 1.0, 0.0),           0.0,      15.0,   SUN),
+    ((0.5, 0.0, 0.0),           24.0,      2.0,   MERCURY),
+    ((0.5, 0.5, 1.0),           60.0,      4.0,   VENUS),
+    ((0.0, 0.0, 1.0),          100.0,      8.0,   EARTH),
+    ((1.0, 0.0, 0.0),          150.0,      4.0,   MARS),
+]
+
+
+def _draw_scene(mode: str) -> None:
+    """mode in {'normal', 'pick_encode', 'pick_debug'}.
+    normal      = physical color, lit
+    pick_encode = (pid, 0, 0) raw bytes for glReadPixels readback
+    pick_debug  = bright palette for the on-screen 'show selection
+                  buffer' view (encoded ids 1..5 in R are too dim)"""
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glPushMatrix()
     GL.glTranslatef(0.0, 0.0, -300.0)
-
-    GL.glInitNames()
-    GL.glPushName(0)
-
-    GL.glColor3f(1.0, 1.0, 0.0)
-    GL.glLoadName(SUN)
-    draw_sphere(15.0)
-
-    for color, distance, radius, name in [
-        ((0.5, 0.0, 0.0), 24.0, 2.0, MERCURY),
-        ((0.5, 0.5, 1.0), 60.0, 4.0, VENUS),
-        ((0.0, 0.0, 1.0), 100.0, 8.0, EARTH),
-        ((1.0, 0.0, 0.0), 150.0, 4.0, MARS),
-    ]:
-        GL.glColor3f(*color)
+    for color, distance, radius, pid in _PLANETS:
         GL.glPushMatrix()
         GL.glTranslatef(distance, 0.0, 0.0)
-        GL.glLoadName(name)
+        if mode == "pick_encode":
+            GL.glColor3ub(pid, 0, 0)
+        elif mode == "pick_debug":
+            GL.glColor3f(*PICK_PALETTE[pid])
+        else:
+            GL.glColor3f(*color)
         draw_sphere(radius)
         GL.glPopMatrix()
-
     GL.glPopMatrix()
+
+
+def render_scene() -> None:
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+    if show_pick_buffer:
+        GL.glDisable(GL.GL_LIGHTING)
+        _draw_scene("pick_debug")
+        GL.glEnable(GL.GL_LIGHTING)
+    else:
+        _draw_scene("normal")
 
 
 def process_selection(window, x_pos: float, y_pos: float) -> None:
-    select_buff = np.zeros(BUFFER_LENGTH, dtype=np.uint32)
-    GL.glSelectBuffer(BUFFER_LENGTH, select_buff)
-    viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
+    # GLFW cursor coords are in window pixels; framebuffer may be larger
+    # on HiDPI displays.  Scale into framebuffer pixels for glReadPixels.
+    win_w, win_h = glfw.get_window_size(window)
+    fb_w, fb_h = glfw.get_framebuffer_size(window)
+    scale_x = fb_w / float(win_w) if win_w else 1.0
+    scale_y = fb_h / float(win_h) if win_h else 1.0
+    fb_x = int(x_pos * scale_x)
+    # GLFW y is from top, GL y is from bottom.
+    fb_y = fb_h - int(y_pos * scale_y) - 1
 
-    GL.glMatrixMode(GL.GL_PROJECTION)
-    GL.glPushMatrix()
-    GL.glRenderMode(GL.GL_SELECT)
-    GL.glLoadIdentity()
-    GLU.gluPickMatrix(
-        x_pos, viewport[3] - y_pos + viewport[1], 2, 2, viewport,
-    )
-    f_aspect = float(viewport[2]) / float(viewport[3])
-    GLU.gluPerspective(45.0, f_aspect, 1.0, 425.0)
+    # Repaint the back buffer with picking colors; don't swap.
+    GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+    GL.glDisable(GL.GL_LIGHTING)
+    _draw_scene("pick_encode")
+    GL.glEnable(GL.GL_LIGHTING)
+    GL.glClearColor(0.60, 0.60, 0.60, 1.0)
 
-    render_scene()
+    GL.glReadBuffer(GL.GL_BACK)
+    pixel = GL.glReadPixels(fb_x, fb_y, 1, 1, GL.GL_RGB, GL.GL_UNSIGNED_BYTE)
+    arr = np.frombuffer(pixel, dtype=np.uint8)
+    obj_id = int(arr[0])
 
-    hits = GL.glRenderMode(GL.GL_RENDER)
-    GL.glMatrixMode(GL.GL_PROJECTION)
-    GL.glPopMatrix()
-    GL.glMatrixMode(GL.GL_MODELVIEW)
-
-    if hits == 1:
-        # In the selection buffer the format per hit is:
-        # [name_count, z_min, z_max, name0, name1, ...]
-        planet_id = int(select_buff[3])
-        name = PLANET_NAMES.get(planet_id, "?")
+    name = PLANET_NAMES.get(obj_id)
+    if name:
         glfw.set_window_title(window, f"You clicked on {name}!")
     else:
         glfw.set_window_title(window, "Nothing was clicked on!")
@@ -122,15 +155,20 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_mouse_button(window, button: int, action: int, _mods: int) -> None:
-    if button == glfw.MOUSE_BUTTON_LEFT and action == glfw.PRESS:
-        x_pos, y_pos = glfw.get_cursor_pos(window)
-        process_selection(window, x_pos, y_pos)
-
-
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
+
+
+def imgui_panel() -> None:
+    """Single checkbox that swaps the on-screen render between the
+    normal lit scene and the pick-color visualization."""
+    global show_pick_buffer
+    imgui.begin("Picking")
+    _, show_pick_buffer = imgui.checkbox("Show selection buffer",
+                                         show_pick_buffer)
+    imgui.text("Click a planet to identify it (works in either view).")
+    imgui.end()
 
 
 def main() -> None:
@@ -144,18 +182,47 @@ def main() -> None:
         sys.exit(1)
     glfw.make_context_current(window)
     glfw.set_key_callback(window, on_key)
-    glfw.set_mouse_button_callback(window, on_mouse_button)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
+
+    imgui.create_context()
+    # GlfwRenderer installs its own mouse-button callback for imgui --
+    # GLFW only stores one callback per event, so a plain
+    # glfw.set_mouse_button_callback here would get overwritten and our
+    # picking handler would never fire.  Instead we poll the left
+    # button each frame and edge-detect a press, gated on whether
+    # imgui wants the mouse (so clicks on the imgui panel don't pick).
+    impl = GlfwRenderer(window)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    prev_click = False
+
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
+
+        click = (
+            glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT)
+            == glfw.PRESS
+        )
+        if (click and not prev_click
+                and not imgui.get_io().want_capture_mouse):
+            x_pos, y_pos = glfw.get_cursor_pos(window)
+            process_selection(window, x_pos, y_pos)
+        prev_click = click
+
         render_scene()
+
+        imgui.new_frame()
+        imgui_panel()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
+
         glfw.swap_buffers(window)
 
+    impl.shutdown()
     glfw.terminate()
 
 

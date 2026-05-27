@@ -13,12 +13,15 @@ import math
 import os
 import random
 import sys
+import time
 
 import glfw
 import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+
+from modelviewprojection.mathutils import Vector3D, plane_equation
 
 
 
@@ -51,24 +54,26 @@ y_rot: float = 0.0
 def make_planar_shadow_matrix(
     plane_pts: "tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float, float]]",
 ) -> np.ndarray:
-    """Cast light at light_pos onto the plane through plane_pts."""
+    """Cast light at light_pos onto the plane through plane_pts. Same
+    column-major form as math3d.cpp's m3dMakePlanarShadowMatrix and
+    chapt05/sphereworld -- the C++ original. The CCW plane_equation
+    can flip w<0 on the transformed vertices, which OpenGL clips
+    before perspective divide and the shadow disappears; negate the
+    matrix when needed. See plans/notes-planar-shadow-w-clipping.md."""
     p1, p2, p3 = plane_pts
-    e1 = (p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2])
-    e2 = (p3[0] - p1[0], p3[1] - p1[1], p3[2] - p1[2])
-    n = (e1[1] * e2[2] - e1[2] * e2[1],
-         e1[2] * e2[0] - e1[0] * e2[2],
-         e1[0] * e2[1] - e1[1] * e2[0])
-    nl = math.sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2])
-    a, b, c = n[0] / nl, n[1] / nl, n[2] / nl
-    d = -(a * p1[0] + b * p1[1] + c * p1[2])
-    lx, ly, lz, lw = light_pos
-    dot = a * lx + b * ly + c * lz + d * lw
-    m = np.zeros((4, 4), dtype=np.float32)
-    m[0, 0] = dot - a * lx; m[0, 1] = -a * ly; m[0, 2] = -a * lz; m[0, 3] = -a * lw
-    m[1, 0] = -b * lx; m[1, 1] = dot - b * ly; m[1, 2] = -b * lz; m[1, 3] = -b * lw
-    m[2, 0] = -c * lx; m[2, 1] = -c * ly; m[2, 2] = dot - c * lz; m[2, 3] = -c * lw
-    m[3, 0] = -d * lx; m[3, 1] = -d * ly; m[3, 2] = -d * lz; m[3, 3] = dot - d * lw
-    return m.T  # column-major for glMultMatrixf
+    pn, pd = plane_equation(Vector3D(*p1), Vector3D(*p2), Vector3D(*p3))
+    a, b, c, d = pn.x, pn.y, pn.z, pd
+    dx, dy, dz = -light_pos[0], -light_pos[1], -light_pos[2]
+    s = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
+    return np.array(
+        [
+            s*(b*dy + c*dz), s*-a*dy, s*-a*dz, 0.0,
+            s*-b*dx, s*(a*dx + c*dz), s*-b*dz, 0.0,
+            s*-c*dx, s*-c*dy, s*(a*dx + b*dy), 0.0,
+            s*-d*dx, s*-d*dy, s*-d*dz, s*(a*dx + b*dy + c*dz),
+        ],
+        dtype=np.float32,
+    )
 
 
 def gl_draw_torus(major: float, minor: float, n_major: int, n_minor: int) -> None:
@@ -129,9 +134,7 @@ def draw_ground() -> None:
 
 
 def draw_inhabitants(shadow: int) -> None:
-    global y_rot
     if shadow == 0:
-        y_rot += 0.5
         GL.glColor4f(1.0, 1.0, 1.0, 1.0)
     else:
         GL.glColor4f(0.0, 0.0, 0.0, 0.75)
@@ -271,26 +274,37 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
+MOVE_UNITS_PER_SEC: float = 3.0
+YAW_DEG_PER_SEC: float = 90.0
+TORUS_DEG_PER_SEC: float = 30.0
+
+
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
-    global camera_x, camera_z, camera_yaw
-    if action != glfw.PRESS and action != glfw.REPEAT:
-        return
-    if key == glfw.KEY_ESCAPE:
+    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
+
+
+def handle_camera_keys(window, dt: float) -> None:
+    global camera_x, camera_z, camera_yaw
+    move = MOVE_UNITS_PER_SEC * dt
     yaw_rad = math.radians(camera_yaw)
-    fwd_x = math.sin(yaw_rad) * 0.1
-    fwd_z = -math.cos(yaw_rad) * 0.1
-    if key == glfw.KEY_UP:
-        camera_x += fwd_x; camera_z += fwd_z
-    elif key == glfw.KEY_DOWN:
-        camera_x -= fwd_x; camera_z -= fwd_z
-    elif key == glfw.KEY_LEFT:
-        camera_yaw -= 5.0
-    elif key == glfw.KEY_RIGHT:
-        camera_yaw += 5.0
+    fwd_x = -math.sin(yaw_rad) * move
+    fwd_z = -math.cos(yaw_rad) * move
+    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
+        camera_x += fwd_x
+        camera_z += fwd_z
+    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
+        camera_x -= fwd_x
+        camera_z -= fwd_z
+    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
+        camera_yaw += YAW_DEG_PER_SEC * dt
+    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
+        camera_yaw -= YAW_DEG_PER_SEC * dt
 
 
 def main() -> None:
+    global y_rot
+
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.SAMPLES, 4)
@@ -303,6 +317,7 @@ def main() -> None:
     if not window:
         glfw.terminate(); sys.exit(1)
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
     GL.glEnable(GL.GL_MULTISAMPLE)
@@ -310,8 +325,17 @@ def main() -> None:
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
+
+    last_frame = time.monotonic()
+
     while not glfw.window_should_close(window):
+        now = time.monotonic()
+        dt = now - last_frame
+        last_frame = now
+
         glfw.poll_events()
+        handle_camera_keys(window, dt)
+        y_rot = (y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
         render_scene()
         glfw.swap_buffers(window)
     glfw.terminate()

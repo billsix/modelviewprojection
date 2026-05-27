@@ -18,8 +18,13 @@ import OpenGL.GL as GL
 x_rot: float = 0.0
 y_rot: float = 0.0
 
-# Angle of revolution around the nucleus (animated)
+# Angle of revolution around the nucleus, in degrees. Computed each
+# frame from elapsed time; the C++ original advanced this by 10° on a
+# 100 ms timer (= 100°/sec), but stepping it once per render call
+# decouples motion smoothness from animation rate.
 f_elect1: float = 0.0
+ELECTRON_DEG_PER_SEC: float = 100.0
+start_time: float = 0.0
 
 
 def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
@@ -79,12 +84,11 @@ def render_scene() -> None:
     GL.glPopMatrix()
 
 
-def tick() -> None:
-    """100 ms timer step in the C++ original -- advance the orbital angle."""
+def update_animation() -> None:
+    """Advance the orbital angle based on elapsed time. Called every
+    frame so motion stays smooth at the render framerate."""
     global f_elect1
-    f_elect1 += 10.0
-    if f_elect1 > 360.0:
-        f_elect1 = 0.0
+    f_elect1 = ((time.monotonic() - start_time) * ELECTRON_DEG_PER_SEC) % 360.0
 
 
 def setup_rc() -> None:
@@ -115,16 +119,20 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_special_keys(window) -> None:
+ROT_DEG_PER_SEC: float = 90.0
+
+
+def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
+    step = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= 5.0
+        x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += 5.0
+        x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= 5.0
+        y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += 5.0
+        y_rot += step
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -132,10 +140,9 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-TICK_INTERVAL: float = 100.0 / 1000.0
-
-
 def main() -> None:
+    global start_time
+
     if not glfw.init():
         sys.exit(1)
 
@@ -148,6 +155,7 @@ def main() -> None:
         sys.exit(1)
 
     glfw.make_context_current(window)
+    glfw.swap_interval(1)  # vsync, ~60 Hz on standard displays
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -155,17 +163,17 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_tick = time.monotonic()
+    start_time = time.monotonic()
+    last_frame = start_time
 
     while not glfw.window_should_close(window):
-        glfw.poll_events()
-        handle_special_keys(window)
-
         now = time.monotonic()
-        if now - last_tick >= TICK_INTERVAL:
-            tick()
-            last_tick = now
+        dt = now - last_frame
+        last_frame = now
 
+        glfw.poll_events()
+        handle_special_keys(window, dt)
+        update_animation()
         render_scene()
         glfw.swap_buffers(window)
 

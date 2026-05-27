@@ -1,6 +1,14 @@
 # moons.py
-# Hierarchical selection -- a name stack with multiple levels lets us
-# distinguish "you clicked Earth" from "you clicked Earth's moon".
+# Hierarchical selection -- click on a body to identify which planet or
+# moon it is.  The textbook used glRenderMode(GL_SELECT) + a name stack;
+# that pipeline is deprecated in modern OpenGL and Mesa's compatibility
+# profile crashes on it (gluSphere inside SELECT mode is a known
+# segfault).  This port uses color picking instead: redraw the scene
+# into the back buffer with each pickable body painted in a unique flat
+# color, glReadPixels at the click position, decode the color to an
+# object id.  Same teaching point (hierarchy via parent/child ids),
+# survives Mesa.
+#
 # OpenGL SuperBible, Chapter 12
 # Python port of Moons.cpp by Richard S. Wright Jr.
 
@@ -11,11 +19,33 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
-EARTH, MARS, MOON1, MOON2 = 1, 2, 3, 4
-BUFFER_LENGTH = 64
+# Pick ids encoded as the red byte (0..255).  0 reserved for background.
+PICK_BG = 0
+PICK_EARTH = 1
+PICK_EARTH_MOON = 2
+PICK_MARS = 3
+PICK_MARS_MOON1 = 4
+PICK_MARS_MOON2 = 5
+
+# Bright distinct colors used when the user enables the "Show selection
+# buffer" checkbox -- the actual encoded pick ids (1..5 in the red byte)
+# are too dim to see by eye.  Same scene topology, just visually
+# distinguishable.
+PICK_PALETTE = {
+    PICK_EARTH:      (1.0, 0.0, 0.0),  # red
+    PICK_EARTH_MOON: (1.0, 0.6, 0.0),  # orange
+    PICK_MARS:       (1.0, 1.0, 0.0),  # yellow
+    PICK_MARS_MOON1: (0.0, 1.0, 1.0),  # cyan
+    PICK_MARS_MOON2: (1.0, 0.0, 1.0),  # magenta
+}
+
+# UI state -- toggled by imgui checkbox in the main loop.
+show_pick_buffer: bool = False
 
 
 def draw_sphere(radius: float) -> None:
@@ -25,92 +55,102 @@ def draw_sphere(radius: float) -> None:
     GLU.gluDeleteQuadric(obj)
 
 
-def render_scene() -> None:
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+def _set_color(mode: str, pid: int, normal: "tuple[float, float, float]") -> None:
+    """Bind the right color for this body based on render mode:
+    'normal'      = physical color, lit
+    'pick_encode' = (pid, 0, 0) raw bytes -- read back by glReadPixels
+    'pick_debug'  = bright distinct palette for on-screen debug view"""
+    if mode == "pick_encode":
+        GL.glColor3ub(pid, 0, 0)
+    elif mode == "pick_debug":
+        GL.glColor3f(*PICK_PALETTE[pid])
+    else:
+        GL.glColor3f(*normal)
+
+
+def _draw_scene(mode: str) -> None:
+    """Lay out Earth + its moon, Mars + its two moons."""
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glPushMatrix()
     GL.glTranslatef(0.0, 0.0, -300.0)
 
-    GL.glInitNames()
-    GL.glPushName(0)
-
     # Earth
     GL.glPushMatrix()
-    GL.glColor3f(0.0, 0.0, 1.0)
+    _set_color(mode, PICK_EARTH, (0.0, 0.0, 1.0))
     GL.glTranslatef(-100.0, 0.0, 0.0)
-    GL.glLoadName(EARTH)
     draw_sphere(30.0)
 
     GL.glTranslatef(45.0, 0.0, 0.0)
-    GL.glColor3f(0.85, 0.85, 0.85)
-    GL.glPushName(MOON1)
+    _set_color(mode, PICK_EARTH_MOON, (0.85, 0.85, 0.85))
     draw_sphere(5.0)
-    GL.glPopName()
     GL.glPopMatrix()
 
     # Mars
-    GL.glColor3f(1.0, 0.0, 0.0)
     GL.glPushMatrix()
+    _set_color(mode, PICK_MARS, (1.0, 0.0, 0.0))
     GL.glTranslatef(100.0, 0.0, 0.0)
-    GL.glLoadName(MARS)
     draw_sphere(20.0)
 
     GL.glTranslatef(-40.0, 40.0, 0.0)
-    GL.glColor3f(0.85, 0.85, 0.85)
-    GL.glPushName(MOON1)
+    _set_color(mode, PICK_MARS_MOON1, (0.85, 0.85, 0.85))
     draw_sphere(5.0)
-    GL.glPopName()
 
     GL.glTranslatef(0.0, -80.0, 0.0)
-    GL.glPushName(MOON2)
+    _set_color(mode, PICK_MARS_MOON2, (0.85, 0.85, 0.85))
     draw_sphere(5.0)
-    GL.glPopName()
     GL.glPopMatrix()
 
     GL.glPopMatrix()
 
 
-def process_planet(window, select_buff: np.ndarray) -> None:
-    count = int(select_buff[0])  # name stack depth at this hit
-    obj_id = int(select_buff[3])
-    msg = "Error, no selection detected"
-    if obj_id == EARTH:
-        msg = "You clicked Earth."
-        if count == 2:
-            msg += " - Specifically the moon."
-    elif obj_id == MARS:
-        msg = "You clicked Mars."
-        if count == 2:
-            if int(select_buff[4]) == MOON1:
-                msg += " - Specifically Moon #1."
-            else:
-                msg += " - Specifically Moon #2."
-    glfw.set_window_title(window, msg)
+def render_scene() -> None:
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+    if show_pick_buffer:
+        # Visualize what process_selection sees, with bright palette.
+        GL.glDisable(GL.GL_LIGHTING)
+        _draw_scene("pick_debug")
+        GL.glEnable(GL.GL_LIGHTING)
+    else:
+        _draw_scene("normal")
+
+
+_PICK_MSG = {
+    PICK_EARTH: "You clicked Earth.",
+    PICK_EARTH_MOON: "You clicked Earth. - Specifically the moon.",
+    PICK_MARS: "You clicked Mars.",
+    PICK_MARS_MOON1: "You clicked Mars. - Specifically Moon #1.",
+    PICK_MARS_MOON2: "You clicked Mars. - Specifically Moon #2.",
+}
 
 
 def process_selection(window, x_pos: float, y_pos: float) -> None:
-    select_buff = np.zeros(BUFFER_LENGTH, dtype=np.uint32)
-    GL.glSelectBuffer(BUFFER_LENGTH, select_buff)
-    viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
+    # GLFW cursor coords are in window pixels; framebuffer may be larger
+    # on HiDPI displays.  Scale into framebuffer pixels for glReadPixels.
+    win_w, win_h = glfw.get_window_size(window)
+    fb_w, fb_h = glfw.get_framebuffer_size(window)
+    scale_x = fb_w / float(win_w) if win_w else 1.0
+    scale_y = fb_h / float(win_h) if win_h else 1.0
+    fb_x = int(x_pos * scale_x)
+    # GLFW y is from top, GL y is from bottom.
+    fb_y = fb_h - int(y_pos * scale_y) - 1
 
-    GL.glMatrixMode(GL.GL_PROJECTION)
-    GL.glPushMatrix()
-    GL.glRenderMode(GL.GL_SELECT)
-    GL.glLoadIdentity()
-    GLU.gluPickMatrix(
-        x_pos, viewport[3] - y_pos + viewport[1], 2, 2, viewport,
+    # Repaint the back buffer with picking colors.  Background is solid
+    # black so the R byte == 0 means "missed".  We don't swap, so the
+    # user never sees this frame.
+    GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+    GL.glDisable(GL.GL_LIGHTING)
+    _draw_scene("pick_encode")
+    GL.glEnable(GL.GL_LIGHTING)
+    GL.glClearColor(0.60, 0.60, 0.60, 1.0)
+
+    GL.glReadBuffer(GL.GL_BACK)
+    pixel = GL.glReadPixels(fb_x, fb_y, 1, 1, GL.GL_RGB, GL.GL_UNSIGNED_BYTE)
+    arr = np.frombuffer(pixel, dtype=np.uint8)
+    obj_id = int(arr[0])  # R channel = pick id
+    glfw.set_window_title(
+        window, _PICK_MSG.get(obj_id, "Nothing was clicked on!")
     )
-    f_aspect = float(viewport[2]) / float(viewport[3])
-    GLU.gluPerspective(45.0, f_aspect, 1.0, 425.0)
-    render_scene()
-    hits = GL.glRenderMode(GL.GL_RENDER)
-    GL.glMatrixMode(GL.GL_PROJECTION)
-    GL.glPopMatrix()
-    GL.glMatrixMode(GL.GL_MODELVIEW)
-    if hits >= 1:
-        process_planet(window, select_buff)
-    else:
-        glfw.set_window_title(window, "Nothing was clicked on!")
 
 
 def setup_rc() -> None:
@@ -145,15 +185,20 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_mouse_button(window, button: int, action: int, _mods: int) -> None:
-    if button == glfw.MOUSE_BUTTON_LEFT and action == glfw.PRESS:
-        x_pos, y_pos = glfw.get_cursor_pos(window)
-        process_selection(window, x_pos, y_pos)
-
-
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(window, True)
+
+
+def imgui_panel() -> None:
+    """Single checkbox that swaps the on-screen render between the
+    normal lit scene and the pick-color visualization."""
+    global show_pick_buffer
+    imgui.begin("Picking")
+    _, show_pick_buffer = imgui.checkbox("Show selection buffer",
+                                         show_pick_buffer)
+    imgui.text("Click a planet/moon to identify it (works in either view).")
+    imgui.end()
 
 
 def main() -> None:
@@ -168,18 +213,47 @@ def main() -> None:
         sys.exit(1)
     glfw.make_context_current(window)
     glfw.set_key_callback(window, on_key)
-    glfw.set_mouse_button_callback(window, on_mouse_button)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
+
+    imgui.create_context()
+    # GlfwRenderer installs its own mouse-button callback for imgui --
+    # GLFW only stores one callback per event, so a plain
+    # glfw.set_mouse_button_callback here would get overwritten and our
+    # picking handler would never fire.  Instead we poll the left
+    # button each frame and edge-detect a press, gated on whether
+    # imgui wants the mouse (so clicks on the imgui panel don't pick).
+    impl = GlfwRenderer(window)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    prev_click = False
+
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
+
+        click = (
+            glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT)
+            == glfw.PRESS
+        )
+        if (click and not prev_click
+                and not imgui.get_io().want_capture_mouse):
+            x_pos, y_pos = glfw.get_cursor_pos(window)
+            process_selection(window, x_pos, y_pos)
+        prev_click = click
+
         render_scene()
+
+        imgui.new_frame()
+        imgui_panel()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
+
         glfw.swap_buffers(window)
 
+    impl.shutdown()
     glfw.terminate()
 
 

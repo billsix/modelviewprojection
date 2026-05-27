@@ -76,9 +76,6 @@ def draw_torus(major_radius: float, minor_radius: float, num_major: int, num_min
 
 
 def render_scene() -> None:
-    global y_rot
-    y_rot += 0.5
-
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     transformation_matrix = rotation_matrix_about_axis(
@@ -118,10 +115,12 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-TICK_INTERVAL: float = 33.0 / 1000.0
+TORUS_DEG_PER_SEC: float = 30.0
 
 
 def main() -> None:
+    global y_rot
+
     if not glfw.init():
         sys.exit(1)
 
@@ -136,6 +135,7 @@ def main() -> None:
         sys.exit(1)
 
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -143,16 +143,16 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_tick = time.monotonic()
+    last_frame = time.monotonic()
 
     while not glfw.window_should_close(window):
-        glfw.poll_events()
-
         now = time.monotonic()
-        if now - last_tick >= TICK_INTERVAL:
-            render_scene()
-            last_tick = now
+        dt = now - last_frame
+        last_frame = now
 
+        glfw.poll_events()
+        y_rot = (y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
+        render_scene()
         glfw.swap_buffers(window)
 
     glfw.terminate()

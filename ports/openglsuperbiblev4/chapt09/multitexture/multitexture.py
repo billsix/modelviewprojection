@@ -7,6 +7,7 @@
 import math
 import os
 import sys
+import time
 
 import glfw
 import imageio.v3 as iio
@@ -193,18 +194,24 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_camera_keys(window) -> None:
+MOVE_UNITS_PER_SEC: float = 3.0
+YAW_RAD_PER_SEC: float = 1.5
+
+
+def handle_camera_keys(window, dt: float) -> None:
     global camera_x, camera_z, camera_yaw
+    move = MOVE_UNITS_PER_SEC * dt
+    yaw = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera_x += 0.1 * math.sin(camera_yaw)
-        camera_z -= 0.1 * math.cos(camera_yaw)
+        camera_x += -move * math.sin(camera_yaw)
+        camera_z += -move * math.cos(camera_yaw)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera_x -= 0.1 * math.sin(camera_yaw)
-        camera_z += 0.1 * math.cos(camera_yaw)
+        camera_x -= -move * math.sin(camera_yaw)
+        camera_z -= -move * math.cos(camera_yaw)
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera_yaw += 0.1
+        camera_yaw += yaw
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera_yaw -= 0.1
+        camera_yaw -= yaw
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -222,14 +229,22 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
+
+    last_frame = time.monotonic()
+
     while not glfw.window_should_close(window):
+        now = time.monotonic()
+        dt = now - last_frame
+        last_frame = now
+
         glfw.poll_events()
-        handle_camera_keys(window)
+        handle_camera_keys(window, dt)
         render_scene()
         glfw.swap_buffers(window)
     glfw.terminate()

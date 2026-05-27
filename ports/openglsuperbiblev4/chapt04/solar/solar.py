@@ -22,9 +22,20 @@ light_pos = (0.0, 0.0, 0.0, 1.0)
 
 f_moon_rot: float = 0.0
 f_earth_rot: float = 0.0
+# Time-based animation rates (C++ used a 100 ms timer that advanced by
+# 15° / 5° per tick = 150°/sec and 50°/sec).
+MOON_DEG_PER_SEC: float = 150.0
+EARTH_DEG_PER_SEC: float = 50.0
+start_time: float = 0.0
 
 
 def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
+    # Emit (lat1, lat0) per j, not (lat0, lat1). The latter winds each
+    # outside-facing quad CW in screen space, which under
+    # glFrontFace(GL_CCW) makes the camera-facing side count as back --
+    # it gets culled and we end up rendering the far hemisphere (whose
+    # outward normals point away from the light, so no diffuse).
+    # Swapping flips winding to CCW.
     for i in range(stacks):
         lat0 = math.pi * (-0.5 + float(i) / stacks)
         lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
@@ -34,10 +45,10 @@ def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
         for j in range(slices + 1):
             lng = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * cos0, sl * cos0, sin0)
-            GL.glVertex3f(radius * cl * cos0, radius * sl * cos0, radius * sin0)
             GL.glNormal3f(cl * cos1, sl * cos1, sin1)
             GL.glVertex3f(radius * cl * cos1, radius * sl * cos1, radius * sin1)
+            GL.glNormal3f(cl * cos0, sl * cos0, sin0)
+            GL.glVertex3f(radius * cl * cos0, radius * sl * cos0, radius * sin0)
         GL.glEnd()
 
 
@@ -74,14 +85,11 @@ def render_scene() -> None:
     GL.glPopMatrix()
 
 
-def tick() -> None:
+def update_animation() -> None:
     global f_earth_rot, f_moon_rot
-    f_moon_rot += 15.0
-    if f_moon_rot > 360.0:
-        f_moon_rot = 0.0
-    f_earth_rot += 5.0
-    if f_earth_rot > 360.0:
-        f_earth_rot = 0.0
+    elapsed = time.monotonic() - start_time
+    f_moon_rot = (elapsed * MOON_DEG_PER_SEC) % 360.0
+    f_earth_rot = (elapsed * EARTH_DEG_PER_SEC) % 360.0
 
 
 def setup_rc() -> None:
@@ -122,10 +130,9 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-TICK_INTERVAL: float = 100.0 / 1000.0
-
-
 def main() -> None:
+    global start_time
+
     if not glfw.init():
         sys.exit(1)
 
@@ -138,6 +145,7 @@ def main() -> None:
         sys.exit(1)
 
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -145,16 +153,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_tick = time.monotonic()
+    start_time = time.monotonic()
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
-
-        now = time.monotonic()
-        if now - last_tick >= TICK_INTERVAL:
-            tick()
-            last_tick = now
-
+        update_animation()
         render_scene()
         glfw.swap_buffers(window)
 

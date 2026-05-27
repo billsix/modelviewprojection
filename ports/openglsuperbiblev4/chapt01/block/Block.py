@@ -18,8 +18,20 @@ import glfw
 import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import Vector3D, plane_equation
+
+
+STAGE_LABELS = (
+    "0  Wireframe cube",
+    "1  Wireframe cube + hidden-line removal",
+    "2  Solid uniform-colored cube",
+    "3  Solid cube + lighting",
+    "4  Lit cube + planar shadow",
+    "5  Textured cube + textured floor + shadow",
+)
 
 
 
@@ -66,20 +78,31 @@ def make_planar_shadow_matrix(
     geometry onto the plane along rays from light_pos. Mirrors
     m3dMakePlanarShadowMatrix in math3d.cpp. Note that this matrix
     is rank 3 (not invertible) -- it is the pedagogical example of a
-    transform that is NOT a Cayley graph edge."""
+    transform that is NOT a Cayley graph edge.
+
+    Negation note: the bottom-right entry below is the w of every
+    transformed vertex (rows 0-2 of column 3 are 0). Two homogeneous
+    points (p, w) and (-p, -w) represent the same 3D point after
+    perspective divide -- but OpenGL clips on w *before* the divide,
+    discarding everything with w<0. SuperBible's plane equation uses
+    CW winding so w lands positive; mvp's plane_equation uses CCW so
+    w lands negative and the shadow gets clipped away. We negate the
+    whole matrix when needed to keep w positive."""
     a, b, c = plane_normal.x, plane_normal.y, plane_normal.z
     d = plane_d
     dx, dy, dz = -light_pos[0], -light_pos[1], -light_pos[2]
+    sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
             # column 0
-            b * dy + c * dz, -a * dy, -a * dz, 0.0,
+            sign * (b * dy + c * dz), sign * -a * dy, sign * -a * dz, 0.0,
             # column 1
-            -b * dx, a * dx + c * dz, -b * dz, 0.0,
+            sign * -b * dx, sign * (a * dx + c * dz), sign * -b * dz, 0.0,
             # column 2
-            -c * dx, -c * dy, a * dx + b * dy, 0.0,
+            sign * -c * dx, sign * -c * dy, sign * (a * dx + b * dy), 0.0,
             # column 3
-            -d * dx, -d * dy, -d * dz, a * dx + b * dy + c * dz,
+            sign * -d * dx, sign * -d * dy, sign * -d * dz,
+            sign * (a * dx + b * dy + c * dz),
         ],
         dtype=np.float32,
     )
@@ -376,6 +399,20 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
             n_step = 0
 
 
+def imgui_panel() -> None:
+    """Stage selector. Radio buttons are the primary control; SPACE
+    still works as an accelerator."""
+    global n_step
+    imgui.set_next_window_pos((10.0, 10.0), imgui.Cond_.first_use_ever.value)
+    imgui.set_next_window_size((360.0, 0.0), imgui.Cond_.first_use_ever.value)
+    imgui.begin("3D Effects Demo")
+    imgui.text("Stage (SPACE cycles, or click):")
+    for i, label in enumerate(STAGE_LABELS):
+        if imgui.radio_button(label, n_step == i):
+            n_step = i
+    imgui.end()
+
+
 def main() -> None:
     if not glfw.init():
         sys.exit(1)
@@ -392,15 +429,27 @@ def main() -> None:
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
+
         render_scene()
+
+        imgui.new_frame()
+        imgui_panel()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
+
         glfw.swap_buffers(window)
 
+    impl.shutdown()
     GL.glDeleteTextures(textures)
     glfw.terminate()
 

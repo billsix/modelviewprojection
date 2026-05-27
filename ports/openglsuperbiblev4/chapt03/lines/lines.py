@@ -6,6 +6,7 @@
 import math
 import os
 import sys
+import time
 
 import glfw
 import OpenGL.GL as GL
@@ -67,16 +68,20 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_special_keys(window) -> None:
+ROT_DEG_PER_SEC: float = 90.0
+
+
+def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
+    step = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= 5.0
+        x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += 5.0
+        x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= 5.0
+        y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += 5.0
+        y_rot += step
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -104,9 +109,16 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    glfw.swap_interval(1)
+    last_frame = time.monotonic()
+
     while not glfw.window_should_close(window):
+        now = time.monotonic()
+        dt = now - last_frame
+        last_frame = now
+
         glfw.poll_events()
-        handle_special_keys(window)
+        handle_special_keys(window, dt)
         render_scene()
         glfw.swap_buffers(window)
 

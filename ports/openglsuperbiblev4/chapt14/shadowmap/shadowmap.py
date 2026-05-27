@@ -258,13 +258,17 @@ def render_scene() -> None:
         GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE)
         GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_COMPARE_MODE,
                            GL.GL_NONE)
-        sw = (float(shadow_width) / window_width) * 2.0 - 1.0
-        sh = (float(shadow_height) / window_height) * 2.0 - 1.0
+        # Stretch the depth texture to fill the entire window. The
+        # SuperBible original sized the quad to the texture's native
+        # pixel dimensions (so a 1024×512 shadow map appeared in the
+        # bottom-left of a 1920×1080 window). For an educational
+        # debug view we want it to fill the screen so the user can
+        # actually see what's in the shadow map.
         GL.glBegin(GL.GL_QUADS)
         GL.glTexCoord2f(0.0, 0.0); GL.glVertex2f(-1.0, -1.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex2f(sw, -1.0)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex2f(sw, sh)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex2f(-1.0, sh)
+        GL.glTexCoord2f(1.0, 0.0); GL.glVertex2f( 1.0, -1.0)
+        GL.glTexCoord2f(1.0, 1.0); GL.glVertex2f( 1.0,  1.0)
+        GL.glTexCoord2f(0.0, 1.0); GL.glVertex2f(-1.0,  1.0)
         GL.glEnd()
         GL.glDisable(GL.GL_TEXTURE_2D)
         GL.glEnable(GL.GL_LIGHTING)

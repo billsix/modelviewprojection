@@ -8,6 +8,7 @@
 import math
 import os
 import sys
+import time
 
 import glfw
 import OpenGL.GL as GL
@@ -37,6 +38,12 @@ i_tess: int = MODE_VERYLOW
 
 
 def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
+    # Emit (lat1, lat0) per j, not (lat0, lat1). The latter winds each
+    # outside-facing quad CW in screen space, which under the chapter's
+    # default glFrontFace(GL_CCW) makes the camera-facing side count as
+    # back -- it gets culled and we end up rendering the far hemisphere
+    # (whose outward normals point away from the light, so no diffuse
+    # contribution). Swapping the pair flips winding to CCW.
     for i in range(stacks):
         lat0 = math.pi * (-0.5 + float(i) / stacks)
         lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
@@ -46,36 +53,42 @@ def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
         for j in range(slices + 1):
             lng = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * cos0, sl * cos0, sin0)
-            GL.glVertex3f(radius * cl * cos0, radius * sl * cos0, radius * sin0)
             GL.glNormal3f(cl * cos1, sl * cos1, sin1)
             GL.glVertex3f(radius * cl * cos1, radius * sl * cos1, radius * sin1)
+            GL.glNormal3f(cl * cos0, sl * cos0, sin0)
+            GL.glVertex3f(radius * cl * cos0, radius * sl * cos0, radius * sin0)
         GL.glEnd()
 
 
 def draw_solid_cone(base: float, height: float, slices: int, stacks: int) -> None:
-    """Replacement for glutSolidCone -- cone with apex at +Z."""
-    # Body of the cone
+    """Cone with base at z=0 and apex at z=+height -- matches GLUT's
+    glutSolidCone and mvp's demo22 _build_marker_cone convention. In
+    chapt05/spot.cpp the cone is drawn at the light position with the
+    bulb (yellow sphere) sitting at the base; the cone body extends
+    *behind* the bulb along the light axis."""
+    # Outward normal on the slant at angle lng: radial component
+    # (cl, sl, 0) plus +Z component proportional to slope, normalized.
+    slope = base / height if height != 0 else 0.0
+    mag = math.sqrt(1.0 + slope * slope)
     for i in range(stacks):
         z0 = float(i) / stacks * height
         z1 = float(i + 1) / stacks * height
-        r0 = base * (1.0 - float(i) / stacks)
-        r1 = base * (1.0 - float(i + 1) / stacks)
+        r0 = base * (1.0 - float(i) / stacks)        # base ring at i=0
+        r1 = base * (1.0 - float(i + 1) / stacks)    # smaller ring at i+1
         GL.glBegin(GL.GL_QUAD_STRIP)
         for j in range(slices + 1):
             lng = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
-            # Approximate normal: side of a cone, pointing outward
-            slope = base / height if height != 0 else 0.0
-            nx = cl
-            ny = sl
-            nz = slope
-            mag = math.sqrt(nx * nx + ny * ny + nz * nz)
-            GL.glNormal3f(nx / mag, ny / mag, nz / mag)
-            GL.glVertex3f(r0 * cl, r0 * sl, z0)
+            GL.glNormal3f(cl / mag, sl / mag, slope / mag)
+            # Emit apex-direction-side (r1, z1) first, then base-side
+            # (r0, z0). Yields CCW screen winding from outside; without
+            # this swap the cone's outer faces are treated as back and
+            # culled. (Same root cause as the sphere bug above.)
             GL.glVertex3f(r1 * cl, r1 * sl, z1)
+            GL.glVertex3f(r0 * cl, r0 * sl, z0)
         GL.glEnd()
-    # Base disk (facing -Z)
+    # Base cap at z=0 facing -Z (away from the apex).
+    # Wind CCW from -Z (= CW in screen XY when viewed from +Z).
     GL.glBegin(GL.GL_TRIANGLE_FAN)
     GL.glNormal3f(0.0, 0.0, -1.0)
     GL.glVertex3f(0.0, 0.0, 0.0)
@@ -181,16 +194,22 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_special_keys(window) -> None:
+# Rotation rate while an arrow key is held. Multiplied by frame delta
+# so the rotation speed is independent of the render framerate.
+ROT_DEG_PER_SEC: float = 90.0
+
+
+def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
+    step = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= 5.0
+        x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += 5.0
+        x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= 5.0
+        y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += 5.0
+        y_rot += step
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -210,6 +229,7 @@ def main() -> None:
         sys.exit(1)
 
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -220,10 +240,16 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    last_frame = time.monotonic()
+
     while not glfw.window_should_close(window):
+        now = time.monotonic()
+        dt = now - last_frame
+        last_frame = now
+
         glfw.poll_events()
         impl.process_inputs()
-        handle_special_keys(window)
+        handle_special_keys(window, dt)
 
         render_scene()
 

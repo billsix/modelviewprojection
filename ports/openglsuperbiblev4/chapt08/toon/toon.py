@@ -48,15 +48,16 @@ def normalize3(v: "np.ndarray") -> "np.ndarray":
 def toon_draw_torus(major_radius: float, minor_radius: float,
                     num_major: int, num_minor: int,
                     light_dir: "np.ndarray") -> None:
-    # Get current modelview, invert to bring the light into object space
+    # Bring the world-space light direction into object space by
+    # multiplying by the inverse modelview's 3x3 rotation part. The
+    # original C++ called m3dTransformVector3 (which adds the
+    # translation column) and then subtracted the translation column
+    # back out to leave a pure direction; transform_vector3 here
+    # already does the rotation-only form, so no subtraction.
     model = np.array(GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX),
                      dtype=np.float32).flatten()
     inverted = invert_matrix44(model)
-    new_light = transform_vector3(light_dir, inverted)
-    new_light[0] -= inverted[12]
-    new_light[1] -= inverted[13]
-    new_light[2] -= inverted[14]
-    new_light = normalize3(new_light)
+    new_light = normalize3(transform_vector3(light_dir, inverted))
 
     major_step = 2.0 * math.pi / num_major
     minor_step = 2.0 * math.pi / num_minor
@@ -136,15 +137,12 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-TICK_INTERVAL: float = 33.0 / 1000.0
-
-
-def tick() -> None:
-    global y_rot
-    y_rot += 0.5
+Y_ROT_DEG_PER_SEC: float = 15.0
 
 
 def main() -> None:
+    global y_rot
+
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -156,6 +154,7 @@ def main() -> None:
         sys.exit(1)
 
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -163,14 +162,15 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_tick = time.monotonic()
+    last_frame = time.monotonic()
 
     while not glfw.window_should_close(window):
-        glfw.poll_events()
         now = time.monotonic()
-        if now - last_tick >= TICK_INTERVAL:
-            tick()
-            last_tick = now
+        dt = now - last_frame
+        last_frame = now
+
+        glfw.poll_events()
+        y_rot = (y_rot + Y_ROT_DEG_PER_SEC * dt) % 360.0
         render_scene()
         glfw.swap_buffers(window)
 

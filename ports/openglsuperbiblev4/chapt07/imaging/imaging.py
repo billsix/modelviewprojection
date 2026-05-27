@@ -1,12 +1,12 @@
 # imaging.py
-# Demonstrates the GL_ARB_imaging subset: convolution kernels (sharpen,
-# emboss), color tables (invert), color matrix (brighten, B&W) and
-# histograms. The C++ used a right-click GLUT menu; replaced with an
-# ImGui panel.
-#
-# Note: GL_ARB_imaging is deprecated in modern core OpenGL. If the
-# driver doesn't expose it, the relevant glConvolutionFilter2D /
-# glHistogram / glColorTable calls will fail at runtime.
+# Demonstrates image processing: convolution kernels (sharpen, emboss),
+# color tables (invert), color matrix (brighten, B&W), and histograms.
+# The C++ original used the GL_ARB_imaging subset (glConvolutionFilter2D,
+# glHistogram, glColorTable, glMatrixMode(GL_COLOR)) which is deprecated
+# and not exposed by Mesa or most modern drivers. This port does the
+# math CPU-side with numpy and ships the finished pixels to the GPU via
+# glDrawPixels, so the visual output matches the textbook regardless of
+# what extensions the driver advertises.
 #
 # OpenGL SuperBible, Chapter 7
 # Python port of Imaging.cpp by Richard S. Wright Jr.
@@ -25,28 +25,24 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
-image_data = None
+image_data: np.ndarray
 image_w: int = 0
 image_h: int = 0
 image_fmt = GL.GL_RGB
 
-i_render_mode: int = 1
+MODE_RAW, MODE_CONTRAST, MODE_INVERT, MODE_EMBOSS, MODE_SHARPEN = 1, 2, 3, 4, 5
+i_render_mode: int = MODE_RAW
 b_histogram: bool = False
 
-lum_mat = np.array(
-    [
-        0.30, 0.30, 0.30, 0.0,
-        0.59, 0.59, 0.59, 0.0,
-        0.11, 0.11, 0.11, 0.0,
-        0.0, 0.0, 0.0, 1.0,
-    ],
-    dtype=np.float32,
-)
-m_sharpen = np.array(
+# Luminance weights (Rec. 601). In the C++ this was a 4x4 GL_COLOR
+# matrix; here it's just a dot-product against (R, G, B).
+LUM_WEIGHTS = np.array([0.30, 0.59, 0.11], dtype=np.float32)
+
+KERNEL_SHARPEN = np.array(
     [[0.0, -1.0, 0.0], [-1.0, 5.0, -1.0], [0.0, -1.0, 0.0]],
     dtype=np.float32,
 )
-m_emboss = np.array(
+KERNEL_EMBOSS = np.array(
     [[2.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]],
     dtype=np.float32,
 )
@@ -66,6 +62,55 @@ def load_image() -> None:
     image_data = np.ascontiguousarray(img, dtype=np.uint8)
 
 
+def convolve3x3(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
+    """3x3 convolution per channel, edge-padded. Returns uint8 clipped
+    0..255. Same result as the deprecated glConvolutionFilter2D."""
+    h, w = image.shape[:2]
+    padded = np.pad(image, ((1, 1), (1, 1), (0, 0)), mode="edge")
+    out = np.zeros(image.shape, dtype=np.float32)
+    for i in range(3):
+        for j in range(3):
+            out += kernel[i, j] * padded[i:i + h, j:j + w].astype(np.float32)
+    return np.clip(out, 0, 255).astype(np.uint8)
+
+
+def to_luminance(image: np.ndarray) -> np.ndarray:
+    """Collapse RGB to luminance, expanded back to 3 channels so the
+    rest of the pipeline doesn't have to special-case grayscale."""
+    lum = image[:, :, :3].astype(np.float32) @ LUM_WEIGHTS
+    lum = np.clip(lum, 0, 255).astype(np.uint8)
+    return np.stack([lum, lum, lum], axis=-1)
+
+
+def process_image(mode: int) -> np.ndarray:
+    """The CPU equivalent of the GL_ARB_imaging pipeline for each
+    radio-button mode."""
+    if mode == MODE_RAW:
+        return image_data
+    if mode == MODE_CONTRAST:
+        # C++: glScalef(1.25, 1.25, 1.25) on the GL_COLOR matrix.
+        return np.clip(image_data.astype(np.float32) * 1.25, 0, 255).astype(np.uint8)
+    if mode == MODE_INVERT:
+        # C++: glColorTable inverting every entry.
+        out = image_data.copy()
+        out[:, :, :3] = 255 - out[:, :, :3]
+        return out
+    if mode == MODE_EMBOSS:
+        # C++ applied the emboss kernel AND the luminance color matrix.
+        return to_luminance(convolve3x3(image_data, KERNEL_EMBOSS))
+    if mode == MODE_SHARPEN:
+        return convolve3x3(image_data, KERNEL_SHARPEN)
+    return image_data
+
+
+def compute_histogram(image: np.ndarray) -> np.ndarray:
+    """256-bin luminance histogram. C++ used glHistogram + glGetHistogram
+    on the luminance-converted draw."""
+    lum = (image[:, :, :3].astype(np.float32) @ LUM_WEIGHTS).astype(np.uint8)
+    counts, _ = np.histogram(lum, bins=256, range=(0, 256))
+    return counts.astype(np.int32)
+
+
 def render_scene() -> None:
     global b_histogram
 
@@ -74,62 +119,27 @@ def render_scene() -> None:
     viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
     GL.glPixelZoom(viewport[2] / image_w, viewport[3] / image_h)
 
-    if b_histogram:
-        GL.glMatrixMode(GL.GL_COLOR)
-        GL.glLoadMatrixf(lum_mat)
-        GL.glMatrixMode(GL.GL_MODELVIEW)
-        GL.glHistogram(GL.GL_HISTOGRAM, 256, GL.GL_LUMINANCE, GL.GL_FALSE)
-        GL.glEnable(GL.GL_HISTOGRAM)
-
-    if i_render_mode == 5:
-        GL.glConvolutionFilter2D(
-            GL.GL_CONVOLUTION_2D, GL.GL_RGB, 3, 3,
-            GL.GL_LUMINANCE, GL.GL_FLOAT, m_sharpen,
-        )
-        GL.glEnable(GL.GL_CONVOLUTION_2D)
-    elif i_render_mode == 4:
-        GL.glConvolutionFilter2D(
-            GL.GL_CONVOLUTION_2D, GL.GL_RGB, 3, 3,
-            GL.GL_LUMINANCE, GL.GL_FLOAT, m_emboss,
-        )
-        GL.glEnable(GL.GL_CONVOLUTION_2D)
-        GL.glMatrixMode(GL.GL_COLOR)
-        GL.glLoadMatrixf(lum_mat)
-        GL.glMatrixMode(GL.GL_MODELVIEW)
-    elif i_render_mode == 3:
-        invert_table = np.zeros((256, 3), dtype=np.uint8)
-        for i in range(255):
-            invert_table[i] = (255 - i, 255 - i, 255 - i)
-        GL.glColorTable(GL.GL_COLOR_TABLE, GL.GL_RGB, 256, GL.GL_RGB,
-                        GL.GL_UNSIGNED_BYTE, invert_table)
-        GL.glEnable(GL.GL_COLOR_TABLE)
-    elif i_render_mode == 2:
-        GL.glMatrixMode(GL.GL_COLOR)
-        GL.glScalef(1.25, 1.25, 1.25)
-        GL.glMatrixMode(GL.GL_MODELVIEW)
-    # case 1 -- plain copy
-
+    processed = process_image(i_render_mode)
+    processed = np.ascontiguousarray(processed)
     GL.glDrawPixels(image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE,
-                    image_data)
+                    processed)
 
     if b_histogram:
-        histogram = np.zeros(256, dtype=np.int32)
-        GL.glGetHistogram(GL.GL_HISTOGRAM, GL.GL_TRUE, GL.GL_LUMINANCE,
-                          GL.GL_INT, histogram)
-        largest = int(histogram[:255].max()) or 1
-        GL.glColor3f(1.0, 1.0, 1.0)
+        # Scale histogram x-extent to the window so it stays readable
+        # at any window size; y-extent is fixed at 25% of window height.
+        GL.glPixelZoom(1.0, 1.0)
+        hist = compute_histogram(processed)
+        largest = int(hist[:255].max()) or 1
+        win_w, win_h = float(viewport[2]), float(viewport[3])
+        GL.glColor3f(1.0, 1.0, 0.0)
+        GL.glLineWidth(2.0)
         GL.glBegin(GL.GL_LINE_STRIP)
-        for i in range(255):
-            GL.glVertex2f(float(i), float(histogram[i]) / largest * 128.0)
+        for i in range(256):
+            x = (i / 255.0) * win_w
+            y = (float(hist[i]) / largest) * (win_h * 0.25)
+            GL.glVertex2f(x, y)
         GL.glEnd()
-        b_histogram = False
-        GL.glDisable(GL.GL_HISTOGRAM)
-
-    GL.glMatrixMode(GL.GL_COLOR)
-    GL.glLoadIdentity()
-    GL.glMatrixMode(GL.GL_MODELVIEW)
-    GL.glDisable(GL.GL_CONVOLUTION_2D)
-    GL.glDisable(GL.GL_COLOR_TABLE)
+        GL.glLineWidth(1.0)
 
 
 def setup_rc() -> None:
@@ -162,14 +172,16 @@ def imgui_panel() -> None:
     global i_render_mode, b_histogram
     imgui.begin("Imaging")
     for label, value in [
-        ("Raw Stretched Image", 1), ("Increase Contrast", 2),
-        ("Invert Color", 3), ("Emboss Image", 4), ("Sharpen Image", 5),
+        ("Raw Stretched Image", MODE_RAW),
+        ("Increase Contrast", MODE_CONTRAST),
+        ("Invert Color", MODE_INVERT),
+        ("Emboss Image", MODE_EMBOSS),
+        ("Sharpen Image", MODE_SHARPEN),
     ]:
         if imgui.radio_button(label, i_render_mode == value):
             i_render_mode = value
     imgui.separator()
-    if imgui.button("Histogram"):
-        b_histogram = True
+    _, b_histogram = imgui.checkbox("Histogram", b_histogram)
     imgui.end()
 
 

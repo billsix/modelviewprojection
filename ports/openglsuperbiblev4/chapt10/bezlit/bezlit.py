@@ -29,8 +29,9 @@ def render_scene() -> None:
     GL.glRotatef(45.0, 0.0, 1.0, 0.0)
     GL.glRotatef(60.0, 1.0, 0.0, 0.0)
 
-    GL.glMap2f(GL.GL_MAP2_VERTEX_3, 0.0, 10.0, 3, 3, 0.0, 10.0, 9, 3,
-               ctrl_points)
+    # PyOpenGL's glMap2f is a 6-arg wrapper -- strides/orders come from
+    # the array shape, not from explicit ints like the C signature.
+    GL.glMap2f(GL.GL_MAP2_VERTEX_3, 0.0, 10.0, 0.0, 10.0, ctrl_points)
     GL.glEnable(GL.GL_MAP2_VERTEX_3)
     GL.glMapGrid2f(10, 0.0, 10.0, 10, 0.0, 10.0)
     GL.glEvalMesh2(GL.GL_FILL, 0, 10, 0, 10)

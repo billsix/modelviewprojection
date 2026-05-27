@@ -25,6 +25,19 @@ f_bright_light = (1.0, 1.0, 1.0, 1.0)
 
 y_rot: float = 0.0
 
+# Walk-around camera. Initial position matches the original demo's
+# fixed camera: 0.4 above the floor (y=0), at z=0 looking down -Z
+# toward the spinning torus/sphere group at z=-3.5.
+camera_x: float = 0.0
+camera_y: float = 0.4
+camera_z: float = 0.0
+camera_yaw: float = 0.0
+
+
+def apply_camera_transform() -> None:
+    GL.glRotatef(-math.degrees(camera_yaw), 0.0, 1.0, 0.0)
+    GL.glTranslatef(-camera_x, -camera_y, -camera_z)
+
 
 def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
     for i in range(stacks):
@@ -105,6 +118,7 @@ def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     GL.glPushMatrix()
+    apply_camera_transform()
     # Mirrored world: flip light below the floor too
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, f_light_pos_mirror)
     GL.glPushMatrix()
@@ -156,7 +170,6 @@ def change_size(w: int, h: int) -> None:
     GLU.gluPerspective(35.0, float(w) / float(h), 1.0, 50.0)
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GL.glTranslatef(0.0, -0.4, 0.0)
 
 
 def on_framebuffer_size(_window, w: int, h: int) -> None:
@@ -168,15 +181,30 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-TICK_INTERVAL: float = 10.0 / 1000.0
+Y_ROT_DEG_PER_SEC: float = 100.0
+MOVE_UNITS_PER_SEC: float = 3.0
+YAW_RAD_PER_SEC: float = 1.5
 
 
-def tick() -> None:
-    global y_rot
-    y_rot += 1.0
+def handle_camera_keys(window, dt: float) -> None:
+    global camera_x, camera_z, camera_yaw
+    move = MOVE_UNITS_PER_SEC * dt
+    yaw = YAW_RAD_PER_SEC * dt
+    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
+        camera_x += -move * math.sin(camera_yaw)
+        camera_z += -move * math.cos(camera_yaw)
+    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
+        camera_x -= -move * math.sin(camera_yaw)
+        camera_z -= -move * math.cos(camera_yaw)
+    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
+        camera_yaw += yaw
+    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
+        camera_yaw -= yaw
 
 
 def main() -> None:
+    global y_rot
+
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -190,6 +218,7 @@ def main() -> None:
         sys.exit(1)
 
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -197,14 +226,16 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_tick = time.monotonic()
+    last_frame = time.monotonic()
 
     while not glfw.window_should_close(window):
-        glfw.poll_events()
         now = time.monotonic()
-        if now - last_tick >= TICK_INTERVAL:
-            tick()
-            last_tick = now
+        dt = now - last_frame
+        last_frame = now
+
+        glfw.poll_events()
+        handle_camera_keys(window, dt)
+        y_rot = (y_rot + Y_ROT_DEG_PER_SEC * dt) % 360.0
         render_scene()
         glfw.swap_buffers(window)
 

@@ -8,6 +8,7 @@ import math
 import os
 import random
 import sys
+import time
 
 import glfw
 import numpy as np
@@ -40,12 +41,17 @@ def make_planar_shadow_matrix(
     a, b, c = plane_normal.x, plane_normal.y, plane_normal.z
     d = plane_d
     dx, dy, dz = -light_pos_4[0], -light_pos_4[1], -light_pos_4[2]
+    # CCW plane_equation can land w<0; OpenGL clips before perspective
+    # divide and the shadow disappears. Negate to keep w positive.
+    # See plans/notes-planar-shadow-w-clipping.md.
+    sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
-            b * dy + c * dz, -a * dy, -a * dz, 0.0,
-            -b * dx, a * dx + c * dz, -b * dz, 0.0,
-            -c * dx, -c * dy, a * dx + b * dy, 0.0,
-            -d * dx, -d * dy, -d * dz, a * dx + b * dy + c * dz,
+            sign * (b * dy + c * dz), sign * -a * dy, sign * -a * dz, 0.0,
+            sign * -b * dx, sign * (a * dx + c * dz), sign * -b * dz, 0.0,
+            sign * -c * dx, sign * -c * dy, sign * (a * dx + b * dy), 0.0,
+            sign * -d * dx, sign * -d * dy, sign * -d * dz,
+            sign * (a * dx + b * dy + c * dz),
         ],
         dtype=np.float32,
     )
@@ -110,10 +116,7 @@ def draw_ground() -> None:
 
 
 def draw_inhabitants(n_shadow: int) -> None:
-    global y_rot
-    if n_shadow == 0:
-        y_rot += 0.5
-    else:
+    if n_shadow != 0:
         GL.glColor3f(0.0, 0.0, 0.0)
 
     if n_shadow == 0:
@@ -222,18 +225,25 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_camera_keys(window) -> None:
+MOVE_UNITS_PER_SEC: float = 3.0
+YAW_RAD_PER_SEC: float = 1.5
+TORUS_DEG_PER_SEC: float = 30.0
+
+
+def handle_camera_keys(window, dt: float) -> None:
     global camera_x, camera_z, camera_yaw
+    move = MOVE_UNITS_PER_SEC * dt
+    yaw = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera_x += 0.1 * math.sin(camera_yaw)
-        camera_z += -0.1 * math.cos(camera_yaw)
+        camera_x += -move * math.sin(camera_yaw)
+        camera_z += -move * math.cos(camera_yaw)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera_x -= 0.1 * math.sin(camera_yaw)
-        camera_z -= -0.1 * math.cos(camera_yaw)
+        camera_x -= -move * math.sin(camera_yaw)
+        camera_z -= -move * math.cos(camera_yaw)
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera_yaw += 0.1
+        camera_yaw += yaw
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera_yaw -= 0.1
+        camera_yaw -= yaw
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -242,6 +252,8 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
 
 
 def main() -> None:
+    global y_rot
+
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -255,6 +267,7 @@ def main() -> None:
         sys.exit(1)
 
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -262,9 +275,16 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    last_frame = time.monotonic()
+
     while not glfw.window_should_close(window):
+        now = time.monotonic()
+        dt = now - last_frame
+        last_frame = now
+
         glfw.poll_events()
-        handle_camera_keys(window)
+        handle_camera_keys(window, dt)
+        y_rot = (y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
         render_scene()
         glfw.swap_buffers(window)
 

@@ -5,8 +5,10 @@
 # OpenGL SuperBible, Chapter 8
 # Python port of Tunnel.cpp by Richard S. Wright Jr.
 
+import math
 import os
 import sys
+import time
 
 import glfw
 import imageio.v3 as iio
@@ -22,8 +24,19 @@ PWD = os.path.dirname(os.path.abspath(__file__))
 TEXTURE_BRICK, TEXTURE_FLOOR, TEXTURE_CEILING = 0, 1, 2
 texture_files = ["brick.tga", "floor.tga", "ceiling.tga"]
 textures = [0, 0, 0]
-z_pos: float = -60.0
 filter_idx = 5  # 0..5 selects min filter mode
+
+# Walk-around camera. Initial position puts the camera at the tunnel
+# mouth looking down -Z, matching the original z_pos=-60 view.
+camera_x: float = 0.0
+camera_y: float = 0.0
+camera_z: float = 60.0
+camera_yaw: float = 0.0
+
+
+def apply_camera_transform() -> None:
+    GL.glRotatef(-math.degrees(camera_yaw), 0.0, 1.0, 0.0)
+    GL.glTranslatef(-camera_x, -camera_y, -camera_z)
 
 
 def load_textures() -> None:
@@ -68,9 +81,9 @@ def apply_filter(idx: int) -> None:
 
 
 def render_scene() -> None:
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     GL.glPushMatrix()
-    GL.glTranslatef(0.0, 0.0, z_pos)
+    apply_camera_transform()
 
     z = 60.0
     while z >= 0.0:
@@ -116,6 +129,7 @@ def render_scene() -> None:
 
 def setup_rc() -> None:
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
+    GL.glEnable(GL.GL_DEPTH_TEST)
     load_textures()
 
 
@@ -125,7 +139,11 @@ def change_size(w: int, h: int) -> None:
     GL.glViewport(0, 0, w, h)
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
-    GLU.gluPerspective(90.0, float(w) / float(h), 1.0, 120.0)
+    # 90 deg FOV (the original) fisheyes hard when the user yaws.
+    # 70 deg is the standard first-person-shooter value -- wide enough
+    # to feel like walking through a tunnel, narrow enough to keep
+    # rotation distortion in check.
+    GLU.gluPerspective(70.0, float(w) / float(h), 1.0, 120.0)
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 
@@ -134,12 +152,24 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_special_keys(window) -> None:
-    global z_pos
+MOVE_UNITS_PER_SEC: float = 10.0
+YAW_RAD_PER_SEC: float = 1.5
+
+
+def handle_special_keys(window, dt: float) -> None:
+    global camera_x, camera_z, camera_yaw
+    move = MOVE_UNITS_PER_SEC * dt
+    yaw = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        z_pos += 1.0
+        camera_x += -move * math.sin(camera_yaw)
+        camera_z += -move * math.cos(camera_yaw)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        z_pos -= 1.0
+        camera_x -= -move * math.sin(camera_yaw)
+        camera_z -= -move * math.cos(camera_yaw)
+    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
+        camera_yaw += yaw
+    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
+        camera_yaw -= yaw
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -182,10 +212,17 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    glfw.swap_interval(1)
+    last_frame = time.monotonic()
+
     while not glfw.window_should_close(window):
+        now = time.monotonic()
+        dt = now - last_frame
+        last_frame = now
+
         glfw.poll_events()
         impl.process_inputs()
-        handle_special_keys(window)
+        handle_special_keys(window, dt)
 
         render_scene()
 

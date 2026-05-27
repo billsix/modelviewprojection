@@ -8,6 +8,7 @@
 import math
 import os
 import sys
+import time
 
 import glfw
 import OpenGL.GL as GL
@@ -29,6 +30,25 @@ def draw_solid_cylinder(base_radius: float, top_radius: float, height: float, sl
         GL.glVertex3f(c * base_radius, s * base_radius, 0.0)
         GL.glVertex3f(c * top_radius, s * top_radius, height)
     GL.glEnd()
+
+
+def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
+    """Replacement for gluSphere -- emits (lat1, lat0) per slice so the
+    outward face winds CCW under the default glFrontFace(GL_CCW)."""
+    for i in range(stacks):
+        lat0 = math.pi * (-0.5 + float(i) / stacks)
+        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
+        s0, c0 = math.sin(lat0), math.cos(lat0)
+        s1, c1 = math.sin(lat1), math.cos(lat1)
+        GL.glBegin(GL.GL_QUAD_STRIP)
+        for j in range(slices + 1):
+            lng = 2.0 * math.pi * float(j) / slices
+            cl, sl = math.cos(lng), math.sin(lng)
+            GL.glNormal3f(cl * c1, sl * c1, s1)
+            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
+            GL.glNormal3f(cl * c0, sl * c0, s0)
+            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
+        GL.glEnd()
 
 
 def draw_solid_cone(base: float, height: float, slices: int) -> None:
@@ -85,6 +105,11 @@ def draw_unit_axes() -> None:
     draw_solid_cone(cone_radius, cone_length, 20)
     GL.glPopMatrix()
 
+    # White sphere at the origin -- the original gltDrawUnitAxes finished
+    # with gluSphere(0.05, 15, 15).
+    GL.glColor3f(1.0, 1.0, 1.0)
+    draw_solid_sphere(0.05, 15, 15)
+
 
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
@@ -130,16 +155,20 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_special_keys(window) -> None:
+ROT_DEG_PER_SEC: float = 90.0
+
+
+def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
+    step = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= 5.0
+        x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += 5.0
+        x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= 5.0
+        y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += 5.0
+        y_rot += step
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -157,6 +186,7 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -164,9 +194,15 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    last_frame = time.monotonic()
+
     while not glfw.window_should_close(window):
+        now = time.monotonic()
+        dt = now - last_frame
+        last_frame = now
+
         glfw.poll_events()
-        handle_special_keys(window)
+        handle_special_keys(window, dt)
         render_scene()
         glfw.swap_buffers(window)
 

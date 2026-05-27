@@ -9,6 +9,7 @@
 import math
 import os
 import sys
+import time
 
 import glfw
 import imageio.v3 as iio
@@ -107,12 +108,25 @@ def setup_rc() -> None:
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, f_diff_light)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_SPECULAR, f_spec_light)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
+    # Separate specular so highlights aren't modulated (dimmed) by the
+    # body/glass texture color.  The C++ sets this in SetupRC.
+    GL.glLightModeli(GL.GL_LIGHT_MODEL_COLOR_CONTROL,
+                     GL.GL_SEPARATE_SPECULAR_COLOR)
     GL.glEnable(GL.GL_LIGHTING)
     GL.glEnable(GL.GL_LIGHT0)
 
     GL.glEnable(GL.GL_COLOR_MATERIAL)
     GL.glColorMaterial(GL.GL_FRONT, GL.GL_AMBIENT_AND_DIFFUSE)
+    # Default material specular is black -- no highlights.  The C++
+    # sets specular to the (1,1,1) diffuse-light value.
+    GL.glMaterialfv(GL.GL_FRONT, GL.GL_SPECULAR, f_diff_light)
     GL.glMateriali(GL.GL_FRONT, GL.GL_SHININESS, 128)
+
+    # The render does glScalef(0.01, 0.01, 0.01) to shrink the model;
+    # that also scales normals to ~0.01 length, which kills diffuse
+    # lighting (dot(N, L) drops by 100x).  GL_RESCALE_NORMAL renormalizes
+    # after a uniform scale.  Without this the plane is nearly black.
+    GL.glEnable(GL.GL_RESCALE_NORMAL)
 
     # Compile body and glass into display lists
     model = load_model(PWD)
@@ -139,15 +153,31 @@ def render_scene() -> None:
     GL.glTranslatef(0.0, 0.0, -3.0)
     GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
     GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
-    GL.glScalef(f_scale, f_scale, f_scale)
 
+    # body.cpp and glass.cpp are authored in DIFFERENT coordinate
+    # systems: body needs -90 X to be drawn upright, glass is already
+    # upright and needs a small translate to sit on top of the cockpit.
+    # The user x_rot/y_rot above is applied to both (rigid-body motion);
+    # body's frame-fix and glass's offset are local to each.
+
+    GL.glPushMatrix()
+    GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
+    GL.glScalef(f_scale, f_scale, f_scale)
     GL.glColor4f(1.0, 1.0, 1.0, 1.0)
     GL.glCallList(body_list)
+    GL.glPopMatrix()
 
-    # Glass is transparent
+    # Glass is transparent. C++ draws it twice -- once with CW front-
+    # face so the back of the cockpit shows through, then once with the
+    # default CCW so the near side draws too.
+    GL.glTranslatef(0.0, 0.132, 0.555)
+    GL.glScalef(f_scale, f_scale, f_scale)
     GL.glEnable(GL.GL_BLEND)
     GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
     GL.glColor4f(1.0, 1.0, 1.0, 0.5)
+    GL.glFrontFace(GL.GL_CW)
+    GL.glCallList(glass_list)
+    GL.glFrontFace(GL.GL_CCW)
     GL.glCallList(glass_list)
     GL.glDisable(GL.GL_BLEND)
 
@@ -170,16 +200,20 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_special_keys(window) -> None:
+ROT_DEG_PER_SEC: float = 90.0
+
+
+def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
+    step = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= 5.0
+        x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += 5.0
+        x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= 5.0
+        y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += 5.0
+        y_rot += step
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -197,6 +231,7 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -204,9 +239,15 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    last_frame = time.monotonic()
+
     while not glfw.window_should_close(window):
+        now = time.monotonic()
+        dt = now - last_frame
+        last_frame = now
+
         glfw.poll_events()
-        handle_special_keys(window)
+        handle_special_keys(window, dt)
         render_scene()
         glfw.swap_buffers(window)
 

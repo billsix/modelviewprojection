@@ -38,10 +38,13 @@ def render_scene() -> None:
     GL.glRotatef(45.0, 0.0, 1.0, 0.0)
     GL.glRotatef(60.0, 1.0, 0.0, 0.0)
 
-    GL.glMap2f(GL.GL_MAP2_VERTEX_3,
-               0.0, 10.0, 3, 3,
-               0.0, 10.0, 9, 3,
-               ctrl_points)
+    # PyOpenGL's glMap2f has a non-standard 6-arg signature -- it omits
+    # the C ustride/uorder/vstride/vorder ints and infers them from the
+    # numpy array's shape (uorder=3, vorder=3, vstride=3, ustride=9 for
+    # a (3,3,3) array).  This swaps U and V relative to the C++ original
+    # but the surface is identical because the parametric range and the
+    # grid sampling are symmetric.
+    GL.glMap2f(GL.GL_MAP2_VERTEX_3, 0.0, 10.0, 0.0, 10.0, ctrl_points)
     GL.glEnable(GL.GL_MAP2_VERTEX_3)
 
     GL.glMapGrid2f(10, 0.0, 10.0, 10, 0.0, 10.0)

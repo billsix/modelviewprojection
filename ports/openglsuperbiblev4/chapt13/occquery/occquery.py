@@ -14,6 +14,7 @@
 import math
 import os
 import sys
+import time
 
 import glfw
 import imageio.v3 as iio
@@ -214,8 +215,6 @@ def setup_rc() -> None:
     GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, GL.GL_OBJECT_LINEAR)
     GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, GL.GL_OBJECT_LINEAR)
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
 
     img = np.flipud(iio.imread(os.path.join(PWD, "logo.tga")))
     h, w = img.shape[:2]
@@ -224,6 +223,14 @@ def setup_rc() -> None:
     img = np.ascontiguousarray(img, dtype=np.uint8)
     texture_id = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id)
+    # Bind FIRST, then set the params on this texture.  The C++ wrote
+    # to texture 0 (no glGenTextures, no glBindTexture) so its param
+    # order didn't matter; we have a real texture name now and the
+    # params need to land on it.  Without these, min-filter defaults
+    # to GL_NEAREST_MIPMAP_LINEAR -- since we don't upload mipmaps,
+    # the texture is incomplete and Mesa samples black.
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt,
                     GL.GL_UNSIGNED_BYTE, img)
 
@@ -245,8 +252,19 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     global camera_pos, occlusion_detection, show_bounding_volume, show_menu
 
-    if action != glfw.PRESS:
+    # Toggles fire only on PRESS (one shot).  Movement keys fire on
+    # PRESS or REPEAT so holding the key keeps moving, matching GLUT
+    # glutSpecialFunc's auto-repeat behavior.
+    is_movement = key in (glfw.KEY_LEFT, glfw.KEY_RIGHT,
+                          glfw.KEY_UP, glfw.KEY_DOWN,
+                          glfw.KEY_X, glfw.KEY_Y, glfw.KEY_Z)
+    if action == glfw.PRESS:
+        pass
+    elif action == glfw.REPEAT and is_movement:
+        pass
+    else:
         return
+
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
     elif key == glfw.KEY_O:
@@ -255,6 +273,18 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
         show_bounding_volume = not show_bounding_volume
     elif key == glfw.KEY_M:
         show_menu = not show_menu
+    # Arrow keys -- matches C++ SpecialKeys.  LEFT/RIGHT moves X (note
+    # the C++ inverts: LEFT increases, RIGHT decreases); UP/DOWN moves Y.
+    elif key == glfw.KEY_LEFT:
+        camera_pos[0] += 5.0
+    elif key == glfw.KEY_RIGHT:
+        camera_pos[0] -= 5.0
+    elif key == glfw.KEY_UP:
+        camera_pos[1] += 5.0
+    elif key == glfw.KEY_DOWN:
+        camera_pos[1] -= 5.0
+    # x/y/z letter keys -- shift inverts direction.  Matches the
+    # ProcessMenu callbacks in the C++ original.
     elif key == glfw.KEY_X:
         camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Y:
@@ -281,10 +311,29 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    # FPS reporter.  C++ updates every 100 frames, but at Python
+    # immediate-mode rates (a handful of fps with 540k triangles), 100
+    # frames takes 20+ seconds and feels frozen.  Report on a 1-second
+    # wall-clock cadence instead so the user sees the number quickly.
+    frames = 0
+    frame_timer = time.monotonic()
+
     while not glfw.window_should_close(window):
         glfw.poll_events()
         render_scene()
         glfw.swap_buffers(window)
+
+        frames += 1
+        now = time.monotonic()
+        if now - frame_timer >= 1.0:
+            fps = frames / (now - frame_timer)
+            label = "with" if occlusion_detection else "without"
+            glfw.set_window_title(
+                window,
+                f"Draw scene {label} occlusion detection {fps:.1f} fps",
+            )
+            frames = 0
+            frame_timer = now
 
     glfw.terminate()
 

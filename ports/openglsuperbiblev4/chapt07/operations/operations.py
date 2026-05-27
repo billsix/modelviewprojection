@@ -46,6 +46,7 @@ def render_scene() -> None:
     GL.glRasterPos2i(0, 0)
 
     modified = None
+    modified_fmt = image_fmt
 
     if i_render_mode == 2:
         # Flip
@@ -68,36 +69,28 @@ def render_scene() -> None:
         GL.glPixelTransferf(GL.GL_GREEN_SCALE, 0.0)
         GL.glPixelTransferf(GL.GL_BLUE_SCALE, 1.0)
     elif i_render_mode == 7:
-        # Black & white via NSTC luminance weights, draw then read back
-        GL.glDrawPixels(image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE,
-                        image_data)
-        GL.glPixelTransferf(GL.GL_RED_SCALE, 0.3)
-        GL.glPixelTransferf(GL.GL_GREEN_SCALE, 0.59)
-        GL.glPixelTransferf(GL.GL_BLUE_SCALE, 0.11)
-        modified = GL.glReadPixels(0, 0, image_w, image_h, GL.GL_LUMINANCE,
-                                   GL.GL_UNSIGNED_BYTE)
-        GL.glPixelTransferf(GL.GL_RED_SCALE, 1.0)
-        GL.glPixelTransferf(GL.GL_GREEN_SCALE, 1.0)
-        GL.glPixelTransferf(GL.GL_BLUE_SCALE, 1.0)
+        # Black & white. C++ did this via glPixelTransfer scale + a
+        # GL_LUMINANCE readback round-trip; same math (Rec. 601 weights)
+        # in numpy, no driver dependency.
+        weights = np.array([0.30, 0.59, 0.11], dtype=np.float32)
+        lum = image_data[:, :, :3].astype(np.float32) @ weights
+        modified = np.ascontiguousarray(np.clip(lum, 0, 255).astype(np.uint8))
+        modified_fmt = GL.GL_LUMINANCE
     elif i_render_mode == 8:
-        invert = np.empty(255, dtype=np.float32)
-        invert[0] = 1.0
-        for i in range(1, 255):
-            invert[i] = 1.0 - (1.0 / 255.0 * float(i))
-        GL.glPixelMapfv(GL.GL_PIXEL_MAP_R_TO_R, 255, invert)
-        GL.glPixelMapfv(GL.GL_PIXEL_MAP_G_TO_G, 255, invert)
-        GL.glPixelMapfv(GL.GL_PIXEL_MAP_B_TO_B, 255, invert)
-        GL.glPixelTransferi(GL.GL_MAP_COLOR, GL.GL_TRUE)
+        # C++ used glPixelMapfv with 255 entries to invert via lookup.
+        # Mesa segfaults on the non-power-of-2 size, and the array was
+        # one short for a full 0..255 mapping anyway. Plain numpy.
+        modified = np.ascontiguousarray(255 - image_data[:, :, :3])
+        modified_fmt = GL.GL_RGB
 
     if modified is None:
         GL.glDrawPixels(image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE,
                         image_data)
     else:
-        GL.glDrawPixels(image_w, image_h, GL.GL_LUMINANCE,
+        GL.glDrawPixels(image_w, image_h, modified_fmt,
                         GL.GL_UNSIGNED_BYTE, modified)
 
     # Reset
-    GL.glPixelTransferi(GL.GL_MAP_COLOR, GL.GL_FALSE)
     GL.glPixelTransferf(GL.GL_RED_SCALE, 1.0)
     GL.glPixelTransferf(GL.GL_GREEN_SCALE, 1.0)
     GL.glPixelTransferf(GL.GL_BLUE_SCALE, 1.0)

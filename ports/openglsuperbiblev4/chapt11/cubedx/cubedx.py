@@ -6,6 +6,7 @@
 
 import os
 import sys
+import time
 
 import glfw
 import numpy as np
@@ -47,7 +48,11 @@ def render_scene() -> None:
     GL.glPushMatrix()
     GL.glTranslatef(0.0, 0.0, -200.0)
     GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
-    GL.glRotatef(y_rot, 0.0, 0.0, 1.0)
+    # C++ original wrote (0,0,1) here -- y_rot rotating about Z, which
+    # makes LEFT/RIGHT spin the cube like a steering wheel and looks
+    # like warping once x_rot has tilted the cube.  Use the Y axis so
+    # LEFT/RIGHT does the expected yaw.
+    GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
 
     GL.glEnableClientState(GL.GL_VERTEX_ARRAY)
     GL.glVertexPointer(3, GL.GL_FLOAT, 0, corners)
@@ -76,16 +81,20 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_special_keys(window) -> None:
+ROT_DEG_PER_SEC: float = 90.0
+
+
+def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
+    step = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= 5.0
+        x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += 5.0
+        x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= 5.0
+        y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += 5.0
+        y_rot += step
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -103,6 +112,7 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -110,9 +120,15 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    last_frame = time.monotonic()
+
     while not glfw.window_should_close(window):
+        now = time.monotonic()
+        dt = now - last_frame
+        last_frame = now
+
         glfw.poll_events()
-        handle_special_keys(window)
+        handle_special_keys(window, dt)
         render_scene()
         glfw.swap_buffers(window)
 

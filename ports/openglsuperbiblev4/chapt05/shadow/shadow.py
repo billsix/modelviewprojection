@@ -10,6 +10,7 @@
 import math
 import os
 import sys
+import time
 
 import glfw
 import numpy as np
@@ -42,18 +43,27 @@ def make_planar_shadow_matrix(
     light_pos_4: "tuple[float, float, float, float]",
 ) -> "np.ndarray":
     """4x4 column-major shadow projection matrix. Same formula as
-    chapt01/block; will move to pyMatrixStack with Tier-1 task #3."""
+    chapt01/block; will move to pyMatrixStack with Tier-1 task #3.
+
+    The bottom-right entry below is the w of every transformed vertex
+    (rows 0-2 of column 3 are 0). With mvp's CCW plane_equation that w
+    can land negative, and OpenGL clips negative-w vertices *before*
+    perspective divide -- the shadow silently disappears. Negate the
+    whole matrix when needed to keep w positive. See
+    plans/notes-planar-shadow-w-clipping.md."""
     a, b, c = plane_normal.x, plane_normal.y, plane_normal.z
     d = plane_d
     dx = -light_pos_4[0]
     dy = -light_pos_4[1]
     dz = -light_pos_4[2]
+    sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
-            b * dy + c * dz, -a * dy, -a * dz, 0.0,
-            -b * dx, a * dx + c * dz, -b * dz, 0.0,
-            -c * dx, -c * dy, a * dx + b * dy, 0.0,
-            -d * dx, -d * dy, -d * dz, a * dx + b * dy + c * dz,
+            sign * (b * dy + c * dz), sign * -a * dy, sign * -a * dz, 0.0,
+            sign * -b * dx, sign * (a * dx + c * dz), sign * -b * dz, 0.0,
+            sign * -c * dx, sign * -c * dy, sign * (a * dx + b * dy), 0.0,
+            sign * -d * dx, sign * -d * dy, sign * -d * dz,
+            sign * (a * dx + b * dy + c * dz),
         ],
         dtype=np.float32,
     )
@@ -234,16 +244,22 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def handle_special_keys(window) -> None:
+# Rotation rate while an arrow key is held. Multiplied by frame delta
+# so the rotation speed is independent of the render framerate.
+ROT_DEG_PER_SEC: float = 90.0
+
+
+def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
+    step = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= 5.0
+        x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += 5.0
+        x_rot += step
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= 5.0
+        y_rot -= step
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += 5.0
+        y_rot += step
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -263,6 +279,7 @@ def main() -> None:
         sys.exit(1)
 
     glfw.make_context_current(window)
+    glfw.swap_interval(1)
     glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
@@ -270,9 +287,15 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
+    last_frame = time.monotonic()
+
     while not glfw.window_should_close(window):
+        now = time.monotonic()
+        dt = now - last_frame
+        last_frame = now
+
         glfw.poll_events()
-        handle_special_keys(window)
+        handle_special_keys(window, dt)
         render_scene()
         glfw.swap_buffers(window)
 
