@@ -81,26 +81,32 @@ PROJ_NEAR_Z: float = -5.0
 PROJ_FAR_Z: float = -150.0
 
 
-# Triangle pipeline (paddles + square): position + per-vertex color, animated
+# Shared top-level shaders.  The animated pipelines append the 2D-squash
+# snippet project_modelview2d.glsl; the ground is static (identity).
+
+# Triangle pipeline (paddles + square): per-vertex colour, animated.
 triangle_pipeline = _p.build_pipeline(
-    PWD, "triangle.vert", "triangle.frag", per_vertex_color=True, anim=True
+    "per_vertex_color.vert", "passthrough.frag",
+    per_vertex_color=True, anim=True, project="project_modelview2d.glsl",
 )
 
-# Ground pipeline: solid dark-gray cylinders.  Reuses ground.vert
-# (hardcoded dark gray, no project() -- ground is static even in this
-# animated demo) + triangle.frag.
-ground_pipeline = _p.build_pipeline(PWD, "ground.vert", "triangle.frag")
+# Ground pipeline: dark-gray cylinders, solid uniform colour (set in
+# draw_ground).  Static even in this animated demo -- identity project.
+ground_pipeline = _p.build_pipeline(
+    "uniform_color.vert", "passthrough.frag", color=True
+)
 
-# Axis pipeline: solid cylinder+cone arrows, animated.  Reuses axis.vert
-# (uniform color + animated project()) + triangle.frag (no geom shader).
+# Axis pipeline: cylinder+cone arrows, per-axis uniform colour, animated.
 axis_pipeline = _p.build_pipeline(
-    PWD, "axis.vert", "triangle.frag", color=True, anim=True
+    "uniform_color.vert", "passthrough.frag",
+    color=True, anim=True, project="project_modelview2d.glsl",
 )
 
-# NDC-cube pipeline (a 2D NDC outline in this demo, z=0): solid white
-# cylinders, no cones, animated.  Reuses axis.vert + triangle.frag.
+# NDC-cube pipeline (a 2D NDC outline in this demo, z=0): white cylinders,
+# animated.  Same shared shader + snippet as the axis pipeline.
 cube_pipeline = _p.build_pipeline(
-    PWD, "axis.vert", "triangle.frag", color=True, anim=True
+    "uniform_color.vert", "passthrough.frag",
+    color=True, anim=True, project="project_modelview2d.glsl",
 )
 
 
@@ -205,6 +211,7 @@ def draw_triangles(vao: int, vertex_count: int, time: float) -> None:
 def draw_ground(time: float) -> None:
     GL.glUseProgram(ground_pipeline.program)
     GL.glBindVertexArray(ground_vao)
+    GL.glUniform3f(ground_pipeline.u_color, 0.1, 0.1, 0.1)
     _p.set_uniforms(ground_pipeline.u_m, ground_pipeline.u_v, ground_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
 

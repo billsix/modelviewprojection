@@ -13,9 +13,11 @@ shallower because the demos live at depth 1 instead of depth 2.
 What this module owns:
     - GLFW + ImGui boilerplate: ``setup_window(title)``, ``install_esc_close``,
       ``install_camera_scroll``.
-    - Shader compilation: ``compile_program(pwd, vert, frag, geom=None)``.
-      Reads files relative to the *demo's own* pwd so each demo dir stays
-      self-contained for shaders.
+    - Shader compilation: ``compile_program(vert, frag, geom=None,
+      project=None)`` / ``build_pipeline(...)``.  All shaders are shared and
+      live at the top of ``mvpVisualization/`` (next to this module); the two
+      vertex shaders (``per_vertex_color.vert`` / ``uniform_color.vert``) get a
+      per-demo ``project_*.glsl`` snippet appended at compile time.
     - VAO builders: ``make_triangle_vao(...)`` and ``make_lines_vao(...)``.
       Both register their handles into ``all_vaos`` / ``all_vbos`` for
       cleanup; ``compile_program`` registers into ``all_programs``.
@@ -168,23 +170,43 @@ def install_camera_scroll(window, imguiio, camera) -> None:
 # ---------------------------------------------------------------------------
 
 
+# All visualization shaders now live at the top of mvpVisualization/ (next to
+# this module) and are shared across demos -- see compile_program below.
+_SHARED_DIR: str = os.path.dirname(os.path.abspath(__file__))
+
+
+def _read_shader(name: str) -> str:
+    with open(os.path.join(_SHARED_DIR, name), "r") as f:
+        return f.read()
+
+
 def compile_program(
-    pwd: str,
     vert: str,
     frag: str,
     geom: Optional[str] = None,
+    project: Optional[str] = None,
 ) -> int:
-    """Compile a vert+frag (and optional geom) program from files in ``pwd``.
-    The resulting program is registered for cleanup."""
-    with open(os.path.join(pwd, vert), "r") as f:
-        vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
-    with open(os.path.join(pwd, frag), "r") as f:
-        fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
+    """Compile a vert+frag (and optional geom) program from the shared shader
+    files in ``mvpVisualization/`` (next to this module).  The resulting program
+    is registered for cleanup.
+
+    ``project`` names a ``project_*.glsl`` snippet whose source is appended to
+    the vertex shader before compiling -- this supplies the body of the
+    forward-declared ``vec4 project(vec4)`` that ``per_vertex_color.vert`` /
+    ``uniform_color.vert`` call.  GLSL 330 has no ``#include``, so this string
+    concatenation is how each demo's projection animation is injected into the
+    two shared vertex shaders."""
+    vsrc = _read_shader(vert)
+    if project is not None:
+        vsrc = vsrc + "\n" + _read_shader(project)
+    vs = shaders.compileShader(vsrc, GL.GL_VERTEX_SHADER)
+    fs = shaders.compileShader(_read_shader(frag), GL.GL_FRAGMENT_SHADER)
     if geom is None:
         prog = shaders.compileProgram(vs, fs)
     else:
-        with open(os.path.join(pwd, geom), "r") as f:
-            gs = shaders.compileShader(f.read(), GL.GL_GEOMETRY_SHADER)
+        gs = shaders.compileShader(
+            _read_shader(geom), GL.GL_GEOMETRY_SHADER
+        )
         prog = shaders.compileProgram(vs, gs, fs)
     all_programs.append(prog)
     return prog
@@ -226,7 +248,6 @@ class Pipeline:
 
 
 def build_pipeline(
-    pwd: str,
     vert: str,
     frag: str,
     *,
@@ -235,19 +256,21 @@ def build_pipeline(
     anim: bool = False,
     screenspace: bool = False,
     geom: Optional[str] = None,
+    project: str = "project_identity.glsl",
 ) -> "Pipeline":
-    """Compile ``vert`` + ``frag`` (+ optional ``geom``) and cache its
-    ``mMatrix`` / ``vMatrix`` / ``pMatrix`` uniforms and ``position``
-    attribute.  Optional flags cache extra locations:
-    ``color`` -> ``color`` uniform; ``per_vertex_color`` -> ``color_in``
-    attribute; ``anim`` -> the frustum-animation uniforms
+    """Compile ``vert`` + ``frag`` (+ optional ``geom``) from the shared shader
+    set and cache its ``mMatrix`` / ``vMatrix`` / ``pMatrix`` uniforms and
+    ``position`` attribute.  ``project`` selects the appended ``project_*.glsl``
+    animation snippet (default: the static identity).  Optional flags cache
+    extra locations: ``color`` -> ``color`` uniform; ``per_vertex_color`` ->
+    ``color_in`` attribute; ``anim`` -> the frustum-animation uniforms
     (``field_of_view`` / ``aspect_ratio`` / ``near_z`` / ``far_z`` / ``time``);
     ``screenspace`` -> ``u_thickness`` / ``u_viewport_size``."""
 
     def u(name: str, enabled: bool) -> int:
         return GL.glGetUniformLocation(prog, name) if enabled else -1
 
-    prog = compile_program(pwd, vert, frag, geom=geom)
+    prog = compile_program(vert, frag, geom=geom, project=project)
     return Pipeline(
         program=prog,
         u_m=GL.glGetUniformLocation(prog, "mMatrix"),

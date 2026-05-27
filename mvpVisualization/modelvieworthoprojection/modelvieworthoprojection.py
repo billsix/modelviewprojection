@@ -71,32 +71,41 @@ GROUND_NEAR_Z: float = -5.0
 GROUND_FAR_Z: float = -150.0
 
 
-# Triangle pipeline (paddles + square): position + per-vertex color, animated
+# Shared top-level shaders.  Animated pipelines append the orthographic-squash
+# snippet project_ortho.glsl.
+
+# Triangle pipeline (paddles + square): per-vertex colour, animated.
 triangle_pipeline = _p.build_pipeline(
-    PWD, "triangle.vert", "triangle.frag", per_vertex_color=True, anim=True
+    "per_vertex_color.vert", "passthrough.frag",
+    per_vertex_color=True, anim=True, project="project_ortho.glsl",
 )
 
-# Ground pipeline: solid dark-gray cylinders.  Reuses ground.vert
-# (hardcoded dark gray, no project() -- ground is static) + triangle.frag.
-ground_pipeline = _p.build_pipeline(PWD, "ground.vert", "triangle.frag")
+# Ground pipeline: dark-gray cylinders, solid uniform colour (set in
+# draw_ground).  Static -- identity project.
+ground_pipeline = _p.build_pipeline(
+    "uniform_color.vert", "passthrough.frag", color=True
+)
 
-# Axis pipeline: solid cylinder+cone arrows + frustum near/far, no `time`
-# uniform.  Reuses axis.vert (uniform color via VS_OUT) + triangle.frag.
-# (axis.vert has no `time` uniform, so axis_pipeline.u_time stays -1.)
+# Axis pipeline: cylinder+cone arrows, per-axis uniform colour.  Carries the
+# ortho project() but draw_axis sets fov/aspect/near/far and *not* `time`, so
+# the axes hold at the pre-animation pose (time defaults to 0 -> identity) --
+# preserved behaviour.
 axis_pipeline = _p.build_pipeline(
-    PWD, "axis.vert", "triangle.frag", color=True, anim=True
+    "uniform_color.vert", "passthrough.frag",
+    color=True, anim=True, project="project_ortho.glsl",
 )
 
-# NDC-cube pipeline: solid white cylinders.  Reuses cube.vert (which
-# hardcodes white and has NO project() -- the cube is the static NDC
-# reference that the world morphs into) + triangle.frag.
-cube_pipeline = _p.build_pipeline(PWD, "cube.vert", "triangle.frag")
+# NDC-cube pipeline: white cylinders -- the static NDC reference the world
+# morphs into.  Identity project; colour set in draw_cube.
+cube_pipeline = _p.build_pipeline(
+    "uniform_color.vert", "passthrough.frag", color=True
+)
 
-# Frustum pipeline: solid white cylinders, animated.  Reuses frustum.vert
-# (smooth-interpolation projection animation, white hardcoded) +
-# triangle.frag.
+# Frustum pipeline: white cylinders, animated (project_ortho); colour set in
+# draw_frustum.
 frustum_pipeline = _p.build_pipeline(
-    PWD, "frustum.vert", "triangle.frag", anim=True
+    "uniform_color.vert", "passthrough.frag",
+    color=True, anim=True, project="project_ortho.glsl",
 )
 
 
@@ -201,6 +210,7 @@ def draw_triangles(vao: int, vertex_count: int, time: float) -> None:
 def draw_ground() -> None:
     GL.glUseProgram(ground_pipeline.program)
     GL.glBindVertexArray(ground_vao)
+    GL.glUniform3f(ground_pipeline.u_color, 0.1, 0.1, 0.1)
     _p.set_uniforms(ground_pipeline.u_m, ground_pipeline.u_v, ground_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
 
@@ -251,6 +261,7 @@ def draw_axis(grayed_out: bool = False) -> None:
 def draw_cube() -> None:
     GL.glUseProgram(cube_pipeline.program)
     GL.glBindVertexArray(cube_vao)
+    GL.glUniform3f(cube_pipeline.u_color, 1.0, 1.0, 1.0)
     _p.set_uniforms(cube_pipeline.u_m, cube_pipeline.u_v, cube_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
 
@@ -258,6 +269,7 @@ def draw_cube() -> None:
 def draw_frustum(time: float) -> None:
     GL.glUseProgram(frustum_pipeline.program)
     GL.glBindVertexArray(frustum_vao)
+    GL.glUniform3f(frustum_pipeline.u_color, 1.0, 1.0, 1.0)
     _p.set_uniforms(frustum_pipeline.u_m, frustum_pipeline.u_v, frustum_pipeline.u_p)
     GL.glUniform1f(frustum_pipeline.u_fov, PROJ_FOV)
     GL.glUniform1f(frustum_pipeline.u_aspect, PROJ_ASPECT)

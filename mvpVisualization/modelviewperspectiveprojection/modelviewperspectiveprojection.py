@@ -142,36 +142,49 @@ PIPELINE_FOV: float = 45.0
 PIPELINE_ASPECT: float = 1.0
 
 
-# Triangle pipeline (paddles + square): position + per-vertex color, animated
+# Shared top-level shaders.  Animated pipelines append the perspective-squash
+# snippet project_perspective.glsl.
+
+# Triangle pipeline (paddles + square): per-vertex colour, animated.
 triangle_pipeline = _p.build_pipeline(
-    PWD, "triangle.vert", "triangle.frag", per_vertex_color=True, anim=True
+    "per_vertex_color.vert", "passthrough.frag",
+    per_vertex_color=True, anim=True, project="project_perspective.glsl",
 )
 
-# Ground pipeline: solid dark-gray cylinders.  Reuses ground.vert
-# (hardcoded dark gray, no project() -- ground is static) + triangle.frag.
-ground_pipeline = _p.build_pipeline(PWD, "ground.vert", "triangle.frag")
+# Ground pipeline: dark-gray cylinders, solid uniform colour (set in
+# draw_ground).  Static -- identity project.
+ground_pipeline = _p.build_pipeline(
+    "uniform_color.vert", "passthrough.frag", color=True
+)
 
-# Axis pipeline: solid cylinder+cone arrows + frustum near/far, no `time`
-# uniform.  Reuses axis.vert (uniform color via VS_OUT) + triangle.frag.
-# (axis.vert has no `time` uniform, so axis_pipeline.u_time stays -1.)
+# Axis pipeline: cylinder+cone arrows, per-axis uniform colour.  Carries the
+# perspective project() but draw_axis sets fov/aspect/near/far and *not*
+# `time`, so the axes hold at the pre-animation pose (time defaults to 0 ->
+# identity).  (The old per-demo axis.vert had an out-of-sync project() that
+# would have snapped rather than interpolated had `time` ever been set; the
+# shared snippet removes that latent inconsistency.)
 axis_pipeline = _p.build_pipeline(
-    PWD, "axis.vert", "triangle.frag", color=True, anim=True
+    "uniform_color.vert", "passthrough.frag",
+    color=True, anim=True, project="project_perspective.glsl",
 )
 
-# NDC-cube pipeline: solid white cylinders.  Reuses cube.vert (which
-# hardcodes white and has NO project() -- the cube is the static NDC
-# reference that the world morphs into) + triangle.frag.
-cube_pipeline = _p.build_pipeline(PWD, "cube.vert", "triangle.frag")
+# NDC-cube pipeline: white cylinders -- the static NDC reference the world
+# morphs into.  Identity project; colour set in draw_cube.
+cube_pipeline = _p.build_pipeline(
+    "uniform_color.vert", "passthrough.frag", color=True
+)
 
 # Frustum pipeline: thick lines via the geometry shader, NOT cylinders.
 # The squash animation scales back-edge X/Y by near_z/far_z (~0.04x), which
 # would shrink solid-cylinder geometry to sub-pixel width and produce a
-# stippled appearance.  frustum.geom expands each line into a screen-space
+# stippled appearance.  thick_lines.geom expands each line into a screen-space
 # quad of constant pixel thickness, so back edges stay visible at any
-# squash factor.  screenspace=True wires up u_thickness / u_viewport_size.
+# squash factor.  screenspace=True wires up u_thickness / u_viewport_size;
+# the geometry-shader path uses passthrough_geom.frag (flat fColor).  Colour
+# set in draw_frustum.
 frustum_pipeline = _p.build_pipeline(
-    PWD, "frustum.vert", "frustum.frag", geom="frustum.geom",
-    anim=True, screenspace=True,
+    "uniform_color.vert", "passthrough_geom.frag", geom="thick_lines.geom",
+    color=True, anim=True, screenspace=True, project="project_perspective.glsl",
 )
 
 
@@ -330,6 +343,7 @@ def draw_triangles(vao: int, vertex_count: int, time: float) -> None:
 def draw_ground(time: float) -> None:
     GL.glUseProgram(ground_pipeline.program)
     GL.glBindVertexArray(ground_vao)
+    GL.glUniform3f(ground_pipeline.u_color, 0.1, 0.1, 0.1)
     _p.set_uniforms(ground_pipeline.u_m, ground_pipeline.u_v, ground_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
 
@@ -391,6 +405,7 @@ def draw_axis(grayed_out: bool = False) -> None:
 def draw_cube() -> None:
     GL.glUseProgram(cube_pipeline.program)
     GL.glBindVertexArray(cube_vao)
+    GL.glUniform3f(cube_pipeline.u_color, 1.0, 1.0, 1.0)
     _p.set_uniforms(cube_pipeline.u_m, cube_pipeline.u_v, cube_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
 
@@ -398,6 +413,7 @@ def draw_cube() -> None:
 def draw_frustum(time: float) -> None:
     GL.glUseProgram(frustum_pipeline.program)
     GL.glBindVertexArray(frustum_vao)
+    GL.glUniform3f(frustum_pipeline.u_color, 1.0, 1.0, 1.0)
     _p.set_uniforms(frustum_pipeline.u_m, frustum_pipeline.u_v, frustum_pipeline.u_p)
     GL.glUniform1f(frustum_pipeline.u_fov, frustum.field_of_view)
     GL.glUniform1f(frustum_pipeline.u_aspect, frustum.aspect_ratio)

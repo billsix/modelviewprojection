@@ -87,8 +87,24 @@ white added.
 
 ## Progress
 
-- [ ] create 9 shared shaders at top level
-- [ ] refactor `_pipeline.py`
-- [ ] rewrite 6 demos (pipeline calls + color in draw_*)
-- [ ] delete per-demo shaders
-- [ ] py_compile + pytest; stage; hand off GL verification
+- [x] create 9 shared shaders at top level (2 vert, 4 project snippets, 2 frag,
+      1 geom)
+- [x] refactor `_pipeline.py` (`_SHARED_DIR`, `compile_program(vert, frag,
+      geom, project)` with snippet concatenation, `build_pipeline` drops `pwd`,
+      adds `project=`)
+- [x] rewrite 6 demos (pipeline calls + gray in draw_ground, white in
+      ortho/persp draw_cube + draw_frustum)
+- [x] delete 30 per-demo shaders
+- [x] py_compile (7/7) + pytest (47/47); GLSL splice structurally verified
+      (1 #version, fwd-decl + 1 defn, version first) for all 8 vert×project
+      combos. **Staged — awaiting commit + Bill's on-display GL verification.**
+
+## Notes for GL verification (what to eyeball per demo)
+
+- ground renders dark gray (not black -> means u_color got set), cube/frustum
+  white. paddles/square keep per-vertex colours; axes R/G/B.
+- ortho + perspective: axes stay put through the projection animation (time is
+  intentionally never uploaded to the axis program -- preserved), while
+  paddles/square/frustum animate.
+- perspective frustum: thick constant-width lines via thick_lines.geom; back
+  edges stay visible under squash.

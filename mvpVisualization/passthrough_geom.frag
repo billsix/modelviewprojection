@@ -17,19 +17,15 @@
 
 #version 330 core
 
-layout (location = 0) in vec3 position;
+// Fragment shader for the geometry-shader (thick-line) path: thick_lines.geom
+// emits a flat `fColor` varying rather than the VS_OUT.color interface block,
+// so this is identical to passthrough.frag but for the input name.
 
-uniform mat4 mMatrix;
-uniform mat4 vMatrix;
-uniform mat4 pMatrix;
+out vec4 color;
 
-out VS_OUT {
-  vec4 color;
-} vs_out;
-
+in vec4 fColor;
 
 void main()
 {
-   gl_Position = pMatrix * vMatrix * mMatrix * vec4(position,1.0);
-   vs_out.color = vec4(0.1,0.1,0.1,1.0);
+   color = fColor;
 }

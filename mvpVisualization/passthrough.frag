@@ -17,19 +17,18 @@
 
 #version 330 core
 
-layout (location = 0) in vec3 position;
+// Universal fragment shader: pass the interpolated vertex colour through.
+// Used by every pipeline whose vertex shader emits the VS_OUT.color block
+// (per_vertex_color.vert and uniform_color.vert).  The geometry-shader path
+// uses passthrough_geom.frag instead.
 
-uniform mat4 mMatrix;
-uniform mat4 vMatrix;
-uniform mat4 pMatrix;
-uniform vec3 color;
+out vec4 color;
 
-out VS_OUT {
+in VS_OUT {
   vec4 color;
-} vs_out;
+} fs_in;
 
 void main()
 {
-  gl_Position = pMatrix * vMatrix * mMatrix * vec4(position,1.0);
-  vs_out.color = vec4(color,1.0);
+   color = fs_in.color;
 }

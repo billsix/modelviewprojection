@@ -46,22 +46,28 @@ _p.install_esc_close(window)
 # ---------------------------------------------------------------------------
 
 
-# Triangle pipeline (paddles + square): per-vertex position + per-vertex color
+# All four pipelines share the top-level shaders; this is a static demo, so
+# they take the default project_identity.glsl (no projection animation).
+
+# Triangle pipeline (paddles + square): per-vertex colour.
 triangle_pipeline = _p.build_pipeline(
-    PWD, "triangle.vert", "triangle.frag", per_vertex_color=True
+    "per_vertex_color.vert", "passthrough.frag", per_vertex_color=True
 )
 
-# Ground pipeline: solid dark-gray cylinders.  Reuses ground.vert (which
-# hardcodes dark gray) + triangle.frag (no geom shader).
-ground_pipeline = _p.build_pipeline(PWD, "ground.vert", "triangle.frag")
+# Ground pipeline: dark-gray cylinders, solid uniform colour (set in draw_ground).
+ground_pipeline = _p.build_pipeline(
+    "uniform_color.vert", "passthrough.frag", color=True
+)
 
-# Axis pipeline: solid cylinder+cone arrows.  Reuses axis.vert (uniform color
-# via VS_OUT interface block) + triangle.frag.  No geometry shader.
-axis_pipeline = _p.build_pipeline(PWD, "axis.vert", "triangle.frag", color=True)
+# Axis pipeline: cylinder+cone arrows, per-axis uniform colour.
+axis_pipeline = _p.build_pipeline(
+    "uniform_color.vert", "passthrough.frag", color=True
+)
 
-# NDC-cube pipeline: solid white cylinders, no end cones.  Same shader pair
-# as the axis pipeline.
-cube_pipeline = _p.build_pipeline(PWD, "axis.vert", "triangle.frag", color=True)
+# NDC-cube pipeline: white cylinders.  Same shared shader as the axis pipeline.
+cube_pipeline = _p.build_pipeline(
+    "uniform_color.vert", "passthrough.frag", color=True
+)
 
 
 # ---------------------------------------------------------------------------
@@ -133,6 +139,7 @@ def draw_triangles(vao: int, vertex_count: int) -> None:
 def draw_ground() -> None:
     GL.glUseProgram(ground_pipeline.program)
     GL.glBindVertexArray(ground_vao)
+    GL.glUniform3f(ground_pipeline.u_color, 0.1, 0.1, 0.1)
     _p.set_uniforms(ground_pipeline.u_m, ground_pipeline.u_v, ground_pipeline.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
 

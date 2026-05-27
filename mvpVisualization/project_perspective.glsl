@@ -1,37 +1,8 @@
-// Copyright (c) 2018-2026 William Emerison Six
-//
-// This program is free software; you can redistribute it and/or
-// modify it under the terms of the GNU General Public License
-// as published by the Free Software Foundation; either version 2
-// of the License, or (at your option) any later version.
-//
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-//
-// You should have received a copy of the GNU General Public License
-// along with this program; if not, write to the Free Software
-// Foundation, Inc., 59 Temple Place - Suite 330,
-// Boston, MA 02111-1307, USA.
-
-#version 330 core
-
-layout (location = 0) in vec3 position;
-
-uniform mat4 mMatrix;
-uniform mat4 vMatrix;
-uniform mat4 pMatrix;
-uniform float field_of_view;
-uniform float aspect_ratio;
-uniform float near_z;
-uniform float far_z;
-uniform float time;
-
-out VS_OUT {
-  vec4 color;
-} vs_out;
-
+// project_perspective.glsl -- perspective projection animation (modelviewperspectiveprojection).
+// time 90-95: squash x then y by near_z/z (the perspective-divide preview);
+// 100-105: translate to the origin then scale to the NDC cube.
+// (If you flip the depth convention to 1.0 / GL_LEQUAL and negate near_z/far_z,
+//  a standard projection matrix could replace this.)
 vec4 project(vec4 cameraSpace){
 
     float top = (-near_z) * tan(field_of_view * 3.14159265358979323846 / 360.0);
@@ -83,18 +54,5 @@ vec4 project(vec4 cameraSpace){
       scale_to_ndc =  mat4(1.0);
     }
 
-//ortho
-
-
      return scale_to_ndc * translate_to_origin * scale_y * scale_x * cameraSpace;
-}
-
-
-void main()
-{
-   // if you change the depth to be 1.0, and LEQUAL, instead of -1.0, and GREATER, and if
-   // you change the near_z far_z by negating them, then you could use the standard
-   // projection matrix here:
-     gl_Position = pMatrix * vMatrix * project(mMatrix * vec4(position,1.0));
-   vs_out.color = vec4(1.0,1.0,1.0,1.0);
 }

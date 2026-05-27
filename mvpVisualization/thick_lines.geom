@@ -15,8 +15,13 @@
 // Foundation, Inc., 59 Temple Place - Suite 330,
 // Boston, MA 02111-1307, USA.
 
-
 #version 330 core
+
+// Expand each input line into a screen-space quad of constant pixel width.
+// Used for the perspective-demo frustum outline, whose back edges shrink to
+// sub-pixel width under the squash animation -- a solid cylinder would stipple,
+// so we widen in screen space here instead.  Reads u_thickness (pixels) and
+// u_viewport_size (framebuffer w,h).
 
 layout (lines) in;
 layout (triangle_strip, max_vertices = 4) out;
