@@ -7,6 +7,21 @@ teaches a helper keeps its inline copy; from the next demo onward, import it fro
 a shared module, and update those later chapters' `literalinclude`s to show the
 import instead of a redefinition.
 
+## Progress
+- **2026-05-27 — `shading.py` DONE (staged, not committed).** Created
+  `src/modelviewprojection/shading.py` with the byte-identical
+  `_face_normal` + `light_dir_ws`; removed the inline copies from `demo22`,
+  `demo22a`, `demo23` (left a one-line breadcrumb comment at each site) and added
+  the import. Verified: `ruff` clean, `py_compile` OK, `pytest` 46/46, functions
+  import & return correct values. Zero book impact (these demos aren't in any
+  chapter). **Bill still needs to run the three GL demos to confirm visually.**
+- **Deferred:** `shaderutils.py` / `set_mvp_uniforms` — demo22 is a variant
+  (3-of-4 identical), which is the variant-reconciliation question Bill asked to
+  handle later. Not touched.
+- **Next:** `clipping.py` (`draw_in_square_viewport`) and `windowing.py`
+  (`on_key`) — these ARE book-referenced, so each needs coordinated
+  `literalinclude` edits; do after the variant investigation + Bill's go-ahead.
+
 ## Context
 This is teaching code, so *some* repetition is intentional (a student reads one
 demo top-to-bottom). But a few helpers are duplicated verbatim a dozen-plus times

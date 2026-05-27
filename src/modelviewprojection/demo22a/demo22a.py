@@ -62,8 +62,7 @@ from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.pyMatrixStack as ms
-
-
+from modelviewprojection.shading import _face_normal, light_dir_ws
 
 # ---------------------------------------------------------------------------
 # GLFW + GL 3.3 core context setup
@@ -280,18 +279,7 @@ _FLOATS_PER_VERTEX = 8  # 3 pos + 3 normal + 2 uv
 _STRIDE = _FLOATS_PER_VERTEX * 4
 
 
-def _face_normal(a, b, c) -> tuple[float, float, float]:
-    """Outward normal of triangle (a, b, c) listed counter-clockwise."""
-    ax, ay, az = a
-    bx, by, bz = b
-    cx, cy, cz = c
-    ux, uy, uz = bx - ax, by - ay, bz - az
-    vx, vy, vz = cx - ax, cy - ay, cz - az
-    nx = uy * vz - uz * vy
-    ny = uz * vx - ux * vz
-    nz = ux * vy - uy * vx
-    L = math.sqrt(nx * nx + ny * ny + nz * nz) or 1.0
-    return (nx / L, ny / L, nz / L)
+# _face_normal is imported from modelviewprojection.shading (see imports above).
 
 
 def _build_pyramid() -> np.ndarray:
@@ -480,14 +468,7 @@ LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)   # yellow
 # treat it as a directional light:  only the angle matters, not the
 # distance.  Re-derived from imgui sliders each frame so the user can
 # slide the light around.
-def light_dir_ws(az_deg: float, el_deg: float) -> tuple[float, float, float]:
-    az = math.radians(az_deg)
-    el = math.radians(el_deg)
-    return (
-        math.cos(el) * math.cos(az),
-        math.sin(el),
-        math.cos(el) * math.sin(az),
-    )
+# light_dir_ws is imported from modelviewprojection.shading (see imports above).
 
 
 # ---------------------------------------------------------------------------

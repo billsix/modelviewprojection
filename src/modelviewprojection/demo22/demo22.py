@@ -60,8 +60,7 @@ from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.pyMatrixStack as ms
-
-
+from modelviewprojection.shading import light_dir_ws
 
 # ---------------------------------------------------------------------------
 # GLFW + GL 3.3 core context setup
@@ -520,14 +519,7 @@ LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)
 # We compute the same vector each frame from the imgui azimuth/
 # elevation sliders so the shadow on the floor reshapes when the
 # user slides the light around.
-def light_dir_ws(az_deg: float, el_deg: float) -> tuple[float, float, float]:
-    az = math.radians(az_deg)
-    el = math.radians(el_deg)
-    return (
-        math.cos(el) * math.cos(az),
-        math.sin(el),
-        math.cos(el) * math.sin(az),
-    )
+# light_dir_ws is imported from modelviewprojection.shading (see imports above).
 
 # floor plane equation:  ax + by + cz + d = 0.  Floor is y = FLOOR_Y, so:
 FLOOR_PLANE = (0.0, 1.0, 0.0, -FLOOR_Y)
