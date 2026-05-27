@@ -18,10 +18,8 @@
 import ctypes
 import dataclasses
 import math
-
-
-from numpy import ndarray
-
+import os
+import sys
 
 # When using a pure python backend, prefer to import glfw before
 # imgui_bundle (so that you end up using the standard glfw, not the

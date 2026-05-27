@@ -612,7 +612,7 @@ def uniform_scale(m: float) -> InvertibleFunction[V]:
         return vector * (1.0 / m)
 
     tex_str: str = f"S_{{{m}}}"
-    inv_str: str = f"S_{{{-m}}}"
+    inv_str: str = f"S_{{1/{m}}}"
     return InvertibleFunction[V](f, f_inv, tex_str, inv_str)
     # doc-region-end define uniform scale
 
@@ -626,7 +626,7 @@ def scale_non_uniform_2d(
     def f_inv(vector: Vector2D) -> Vector2D:
         if m_x == 0.0 or m_y == 0.0:
             raise ValueError(
-                "Note invertible.  Scaling factors cannot be zero."
+                "Not invertible.  Scaling factors cannot be zero."
             )
 
         return Vector2D(vector.x / m_x, vector.y / m_y)
@@ -702,7 +702,7 @@ def is_counter_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
 
 # doc-region-begin clockwise
 def is_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
-    return not is_clockwise(v1, v2)
+    return not is_counter_clockwise(v1, v2)
     # doc-region-end clockwise
 
 
@@ -725,7 +725,7 @@ def scale_non_uniform_3d(
     def f_inv(vector: Vector3D) -> Vector3D:
         if m_x == 0.0 or m_y == 0.0 or m_z == 0.0:
             raise ValueError(
-                "Note invertible.  Scaling factors cannot be zero."
+                "Not invertible.  Scaling factors cannot be zero."
             )
         return Vector3D(vector.x / m_x, vector.y / m_y, vector.z / m_z)
 

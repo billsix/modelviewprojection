@@ -34,6 +34,7 @@ from modelviewprojection.mathutils import (
     compose,
     fn_stack,
     inverse,
+    is_clockwise,
     is_counter_clockwise,
     is_parallel,
     rotate,
@@ -392,6 +393,16 @@ def test_vec2_is_counter_clockwise():
         assert output_val == is_counter_clockwise(
             Vector2D(*input_val[0]), Vector2D(*input_val[1])
         )
+
+
+def test_vec2_is_clockwise():
+    e_1: Vector2D = Vector2D.e_1()
+    e_2: Vector2D = Vector2D.e_2()
+    # e_2 is counter-clockwise from e_1, so it is not clockwise -- and the
+    # reverse pair is clockwise.  (Regression test: is_clockwise used to
+    # call itself and recurse forever.)
+    assert not is_clockwise(e_1, e_2)
+    assert is_clockwise(e_2, e_1)
 
 
 # doc-region-begin translate test

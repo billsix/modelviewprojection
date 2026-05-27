@@ -18,7 +18,6 @@
 
 
 import dataclasses
-import os
 import sys
 
 import glfw
@@ -35,11 +34,10 @@ from modelviewprojection.mathutils import (
     uniform_scale,
 )
 
-
 e_1 = Vector3D.e_1()
 e_2 = Vector3D.e_2()
 e_3 = Vector3D.e_3()
-zero = Vector3D.e_3()
+zero = Vector3D.zero()
 
 
 if not glfw.init():
