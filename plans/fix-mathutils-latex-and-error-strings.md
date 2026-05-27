@@ -1,6 +1,6 @@
 # Plan: fix mathutils LaTeX-repr bugs + error-string typos
 
-**Status:** PARTIAL — items 1 (`uniform_scale` inverse LaTeX) & 3 ("Not invertible") done, committed `5f38f18` (2026-05-27); item 2 (`scale_non_uniform_2d/3d` malformed LaTeX) still TODO. **Type:** code (mathutils).
+**Status:** complete — items 1 (`uniform_scale` inverse LaTeX) & 3 ("Not invertible") committed `5f38f18` (2026-05-27); item 2 (`scale_non_uniform_2d` malformed LaTeX) fixed 2026-05-27, **pending commit**. Note: `scale_non_uniform_3d` was inspected and is **not** malformed (valid decimal-reciprocal LaTeX, `S_{0.5,0.25,...}`) — left unchanged. **Type:** code (mathutils).
 **Found during:** ch07–09 / ch10–12 drift audit. All verified by reading the source.
 
 ## Context

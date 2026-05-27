@@ -612,7 +612,7 @@ def uniform_scale(m: float) -> InvertibleFunction[V]:
         return vector * (1.0 / m)
 
     tex_str: str = f"S_{{{m}}}"
-    inv_str: str = f"S_{{1/{m}}}"
+    inv_str: str = f"S_{{\\frac{{1}}{{{m}}}}}"
     return InvertibleFunction[V](f, f_inv, tex_str, inv_str)
     # doc-region-end define uniform scale
 
@@ -635,7 +635,7 @@ def scale_non_uniform_2d(
         f,
         f_inv,
         f"S_{{<{m_x},{m_y}>}}",
-        f"S_{{<\\\frac{{1}}{{{m_x}}},\\\frac{{1}}{{{m_y}>}}",
+        f"S_{{<\\frac{{1}}{{{m_x}}},\\frac{{1}}{{{m_y}}}>}}",
     )
 
 
@@ -733,7 +733,7 @@ def scale_non_uniform_3d(
         f,
         f_inv,
         f"S_{{{m_x},{m_y},{m_z}}}",
-        f"S_{{{1.0 / m_x},{1.0 / m_y},{1.0 / m_z}}}",
+        f"S_{{\\frac{{1}}{{{m_x}}},\\frac{{1}}{{{m_y}}},\\frac{{1}}{{{m_z}}}}}",
     )
 
 
