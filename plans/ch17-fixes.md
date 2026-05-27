@@ -1,6 +1,6 @@
 # Plan: ch17 (camera rotation) fixes
 
-**Status:** planned. **Type:** book prose + content gaps. **Effort:** medium.
+**Status:** PARTIAL — wrong demo ref :41 ("demo17"→"demo18") fixed & staged 2026-05-27. Still open: explain `push_transformation` + `rotate_x/y/z` (item 2/3) and the diagrams (item 4). **Type:** book prose + content gaps.
 **Source:** ch16–18 drift audit.
 
 ## Findings + changes (`book/docs/ch17.rst`)

@@ -1,6 +1,6 @@
 # Plan: ch07 (Rotations) fixes
 
-**Status:** planned. **Type:** book prose. **Effort:** trivial.
+**Status:** PARTIAL — `\theta` LaTeX typo (:203) fixed & staged 2026-05-27. Still open: the `.. TODO -- discuss method chaining` comment (:58-59) — it's an RST comment (not rendered), so harmless; **needs Bill's call**: write the content or delete the marker. **Type:** book prose.
 **Source:** ch07–09 drift audit.
 
 ## Findings + changes (`book/docs/ch07.rst`)

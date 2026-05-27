@@ -38,7 +38,7 @@ a bigger ortho rectangular prism, but that won't solve the fundamental
 problem.
 
 This doesn't look like a 3D application should, where objects further away
-from the viewer would appear smaller.  This will be fixed in demo17.
+from the viewer would appear smaller.  This will be fixed in demo18.
 
 
 .. figure:: _static/screenshots/demo16.png

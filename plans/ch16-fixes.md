@@ -1,6 +1,6 @@
 # Plan: ch16 (jump to 3D) fixes
 
-**Status:** planned. **Type:** book prose + caption. **Effort:** small.
+**Status:** PARTIAL — caption :194 (`+.py`) fixed & staged 2026-05-27; the name refs (:184/:231) were done in the (archived) method-vs-function plan. Still open: the broken/short sentence ~:267 (**needs Bill's wording**). **Type:** book prose + caption.
 **Source:** ch16–18 drift audit (verified caption + name refs).
 
 ## Findings + changes (`book/docs/ch16.rst`)

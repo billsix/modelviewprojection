@@ -245,7 +245,7 @@ Right calculation based off of Top and aspect ratio
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo18.py
+   :caption: src/modelviewprojection/mathutils.py
 
 
 
@@ -259,7 +259,7 @@ Right calculation based off of Top and aspect ratio
    :end-before: doc-region-end define perspective
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo18.py
+   :caption: src/modelviewprojection/mathutils.py
 
 
 

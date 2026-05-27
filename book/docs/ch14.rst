@@ -130,7 +130,7 @@ Description
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils
+   :caption: src/modelviewprojection/mathutils.py
 
 
 Rotate Z

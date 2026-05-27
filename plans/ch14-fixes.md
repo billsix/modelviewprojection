@@ -1,6 +1,6 @@
 # Plan: ch14 fixes
 
-**Status:** planned. **Type:** book prose + caption + doc-region label. **Effort:** small.
+**Status:** PARTIAL — caption :133 (`+.py`) fixed & staged 2026-05-27. Still open: the shared `mathutils` "define vector class" doc-region relabel (item 2, ties to the natural-basis task) and the grammar/pronoun fixes (item 3). **Type:** book prose + caption + doc-region label.
 **Source:** ch13–15 drift audit (verified).
 
 ## Findings + changes (`book/docs/ch14.rst` unless noted)

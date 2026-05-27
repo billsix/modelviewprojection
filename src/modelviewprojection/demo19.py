@@ -261,9 +261,9 @@ while not glfw.window_should_close(window):
     # because 2 nodes are drawn off of world space
     # we need to save onto the current "function",
     # aka matrix, for the subsequent geometry
-    # the width statement ensures that the matrix is
-    # pushed onto a stack, and when the with block doc-region-ends,
-    # it will be automatically popped off of the stack
+    # glPushMatrix below saves the current matrix onto the
+    # stack; a matching glPopMatrix later pops it back off,
+    # restoring the matrix for whatever is drawn next
     # doc-region-begin first push matrix
     GL.glPushMatrix()
     # doc-region-end first push matrix

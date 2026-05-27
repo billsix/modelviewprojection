@@ -200,7 +200,7 @@ So the rotated point can be constructed by the following
     :align: center
     :figclass: align-center
 
-    $ \vec{r}(\vec{a}; theta) =  cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'} $
+    $ \vec{r}(\vec{a}; \theta) =  cos(\theta)*\vec{x'} + sin(\theta)*\vec{y'} $
 
 .. figure:: _static/cc0/williamesix/rotate7.svg
     :class: no-scale

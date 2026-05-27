@@ -1,6 +1,6 @@
 # Plan: ch19 (fixed-function GL) fixes
 
-**Status:** planned. **Type:** book prose + demo comment. **Effort:** small.
+**Status:** PARTIAL — the stray "with-statement" comment in demo19.py (:264-266) rewritten to describe the real `glPushMatrix`/`glPopMatrix`, fixed & staged 2026-05-27. Still open: `glPushStack/PopStack`→`glPush/PopMatrix` (:59,:60 — part of the GL-names batch #2) and the `.. TODO - mention 2 stacks` comment (:201, RST comment / not rendered — **needs Bill's call**: write or delete). **Type:** book prose + demo comment.
 **Source:** ch19–21 drift audit.
 
 ## Findings + changes
