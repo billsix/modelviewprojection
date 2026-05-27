@@ -10,8 +10,8 @@ real code bugs.
 | Finding | Plan |
 |---|---|
 | `e_1`/`e_2`/`e_3` natural basis used in every demo, explained nowhere (ch07–15 all hit) | [`../plans/book-explain-natural-basis.md`](../plans/book-explain-natural-basis.md) |
-| Module-level transforms called "methods" in prose (ch08:65,128; ch09:80) | [`../plans/fix-method-vs-function-wording.md`](../plans/fix-method-vs-function-wording.md) |
-| mathutils LaTeX-repr bugs + "Note invertible" typos (`uniform_scale` inv `-m`→`1/m`; `scale_non_uniform_2d/3d` malformed `\frac`; lines 629/728) | [`../plans/fix-mathutils-latex-and-error-strings.md`](../plans/fix-mathutils-latex-and-error-strings.md) |
+| ✅ Module-level transforms called "methods" in prose (ch08:65,128; ch09:80) — DONE | [`archive/fix-method-vs-function-wording.md`](archive/fix-method-vs-function-wording.md) |
+| ✅ mathutils LaTeX-repr bugs + "Note invertible" typos (all scale inverses → `\frac`; lines 629/728) — DONE | [`archive/fix-mathutils-latex-and-error-strings.md`](archive/fix-mathutils-latex-and-error-strings.md) |
 | ✅ `is_clockwise` self-recursion (`mathutils.py:705`) — DONE | [`archive/fix-is-clockwise-recursion.md`](archive/fix-is-clockwise-recursion.md) |
 | ✅ demo code bugs: `demo14.py:42 zero = Vector3D.e_3()` — DONE | [`archive/fix-demo-code-bugs.md`](archive/fix-demo-code-bugs.md) |
 | Reused `doc-region` label "define vector class" pulls Vector1D not Vector3D (manifests in ch14; also ch05/06) | [`../plans/ch14-fixes.md`](../plans/ch14-fixes.md) |

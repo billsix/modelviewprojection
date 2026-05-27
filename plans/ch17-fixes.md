@@ -20,7 +20,7 @@
 
 ## Related
 - e_1/e_2/e_3 omission → `plans/book-explain-natural-basis.md`.
-- `camera_space_to_ndc_space_fn` name ref (line 310) → `plans/fix-method-vs-function-wording.md`.
+- `camera_space_to_ndc_space_fn` name ref (line 310) → ✅ done, see `tasks/archive/fix-method-vs-function-wording.md`.
 
 ## Verification
 Read the demo17 `with push_transformation` blocks alongside the prose to place

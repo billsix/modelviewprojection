@@ -1,6 +1,8 @@
 # Plan: fix verified prose typos in ch02 / ch03
 
-**Status:** mostly done — all mechanical typos fixed & staged 2026-05-27 (ch02:77,79,189; ch03:185,232). **Only `ch02:464`** (the truncated sentence) remains — pending Bill's intended wording. **Type:** book prose (editorial).
+**Status:** complete
+**Completed:** 2026-05-27 — 6 typos fixed (ch02:77,79,189,464; ch03:185,232); `ch02:464` truncated sentence reworded to "…take the inverse of any directed edge that you traverse against its direction."
+**Type:** book prose (editorial).
 **Source finding:** `tasks/book-code-drift-ch1-6.md` item C. All six lines were
 read directly and confirmed.
 

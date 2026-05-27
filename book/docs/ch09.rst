@@ -77,7 +77,7 @@ function calls are evaluated.)
 But that caused erratic behavior of the paddle over time, as it was
 not rotating around its own origin.  It was not working.
 
-So in Demo 08 we fixed it by writing a "rotate_around" method, in
+So in Demo 08 we fixed it by writing a "rotate_around" function, in
 which we translated the paddle to its position, then in order to
 rotate around its center, we re-centered the paddle, did the rotation,
 and then re-translated to the paddle's position.

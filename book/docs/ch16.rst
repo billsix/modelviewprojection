@@ -181,7 +181,7 @@ Description
 Function stack.  Internally it has a list, where index 0 is
 the bottom of the stack.  In python we can store any object
 as a variable, and we will be storing functions which transform
-a vector to another vector, through the "modelspace_to_ndc" method.
+a vector to another vector, through the "modelspace_to_ndc_fn" method.
 
 
 
@@ -228,10 +228,10 @@ Event Loop
 
 
 
-In previous demos, camera_space_to_ndc_space_fn was always
+In previous demos, cs_to_ndc_space_fn was always
 the last function called in the method chained pipeline.  Put it on the bottom of the stack,
 by pushing it first,
-so that "modelspace_to_ndc" calls this function last.  Each subsequent push will add
+so that "modelspace_to_ndc_fn" calls this function last.  Each subsequent push will add
 a new function to the top of the stack.
 
 
@@ -483,7 +483,7 @@ Swap buffers and execute another iteration of the event loop
 
 Notice in the above code, adding functions to the stack is creating a shared
 context for transformations, and before we call "glVertex3f", we always call
-"modelspace_to_ndc" on the :term:`modelspace<Modelspace>` vector.  In Demo 19, we will be using
+"modelspace_to_ndc_fn" on the :term:`modelspace<Modelspace>` vector.  In Demo 19, we will be using
 OpenGL 2.1 matrix stacks.  Although we don't have the code for the OpenGL
 driver, given that you'll see that we pass :term:`modelspace<Modelspace>` data directly to "glVertex3f",
 it should be clear that the OpenGL implementation must fetch the :term:`modelspace<Modelspace>`

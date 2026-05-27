@@ -1,6 +1,8 @@
 # Plan: fix ch05 "translate" section (caption + false "method" prose + broken doctests)
 
-**Status:** planned. **Type:** book prose/correctness. **Effort:** small.
+**Status:** complete
+**Completed:** 2026-05-27 — fixed caption (:100 demo05.py→mathutils.py); rewrote the false "translate method" prose to describe the top-level `translate` function (returns an invertible function wrapping `vector + b`); replaced both non-runnable doctests with the real API (`translate(Vector2D(...))(...)`), output verified `Vector2D(x=4, y=6)`. **Not done (deferred, needs decision):** retitling the chapter "Add Translate Method to Vector" (touches toctree/cross-refs); minor grammar at :128 ("purpose of the parameters are") left as-is.
+**Type:** book prose/correctness.
 **Source finding:** `tasks/book-code-drift-ch1-6.md` items B3 + B4 (grouped — all
 in the one ch05 "Data Structures" section, edited together).
 

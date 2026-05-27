@@ -23,12 +23,12 @@ findings are prose / captions / hand-written code / a handful of real code bugs.
 
 **Cross-cutting plans (span ranges):**
 [`book-explain-natural-basis.md`](../plans/book-explain-natural-basis.md) (headline; e_1/e_2/e_3 unexplained ch05–18) ·
-[`fix-method-vs-function-wording.md`](../plans/fix-method-vs-function-wording.md) ·
-[`fix-mathutils-latex-and-error-strings.md`](../plans/fix-mathutils-latex-and-error-strings.md) (partial) ·
+✅ [`archive/fix-method-vs-function-wording.md`](archive/fix-method-vs-function-wording.md) (DONE) ·
+✅ [`archive/fix-mathutils-latex-and-error-strings.md`](archive/fix-mathutils-latex-and-error-strings.md) (DONE) ·
 ✅ [`archive/fix-is-clockwise-recursion.md`](archive/fix-is-clockwise-recursion.md) (DONE) ·
 ✅ [`archive/fix-demo-code-bugs.md`](archive/fix-demo-code-bugs.md) (DONE — demo14 `zero`, demo21 imports) ·
-[`ch05-translate-section-fixes.md`](../plans/ch05-translate-section-fixes.md) ·
-[`ch02-ch03-prose-typos.md`](../plans/ch02-ch03-prose-typos.md)
+✅ [`archive/ch05-translate-section-fixes.md`](archive/ch05-translate-section-fixes.md) (DONE) ·
+✅ [`archive/ch02-ch03-prose-typos.md`](archive/ch02-ch03-prose-typos.md) (DONE)
 
 **Verified code bugs surfaced by the audit (highest value):** `is_clockwise`
 recursion · `uniform_scale`/`scale_non_uniform` LaTeX-repr · "Note invertible"

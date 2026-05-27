@@ -461,7 +461,7 @@ of an inverse_
 
 To convert between any denomination, say dimes to dollars,
 just compose_ the functions, remembering to take the inverse_
-of any directed edge that you against.
+of any directed edge that you traverse against its direction.
 
 .. _compose: https://en.wikipedia.org/wiki/Function_composition
 

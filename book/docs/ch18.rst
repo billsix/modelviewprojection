@@ -222,7 +222,7 @@ Top calculation based off of vertical field of view
                              \ |
                               \|
 
-Right calculation based off of Top and aspect ration
+Right calculation based off of Top and aspect ratio
 
 ::
 

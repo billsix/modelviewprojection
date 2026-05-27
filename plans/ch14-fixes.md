@@ -17,7 +17,7 @@
    (line 106) shows only `Vector1D(x: float)`. **Fix at the source:** give the
    three regions unique labels (e.g. `define vector1d class` / `…vector2d…` /
    `…vector3d…`) in `mathutils.py` and point ch05/ch06/ch14 at the right one.
-   *This is a shared mathutils edit — coordinate with `plans/ch05-translate-section-fixes.md`
+   *This is a shared mathutils edit — coordinate with `tasks/archive/ch05-translate-section-fixes.md`
    and `plans/book-explain-natural-basis.md` (which also touches these classes).*
 3. **Grammar/pronoun.** Line 227 "the **paddles** have a z-coordinate" should be
    "the **square** has…" (copied from the paddle section above). Line 229 "do a

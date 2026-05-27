@@ -97,33 +97,34 @@ Data Structures
    :end-before: doc-region-end define vector class
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo05.py
+   :caption: src/modelviewprojection/mathutils.py
 
 
-We added a translate method to the Vector class.  Given a translation amount, the vector
-will be shifted by that amount.  This is a primitive that we will be using to transform
-from one space to another.
+We added a top-level ``translate`` function.  Given a translation amount ``b``,
+``translate(b)`` returns an invertible function that shifts any vector by ``b``
+--- internally, this is just vector addition, ``vector + b``.  This is a
+primitive that we will be using to transform from one space to another.
 
 
 If the reader wishes to use the data structures to test them out,
-import them and try the methods
+import them and try it out
 
 .. code:: Python
 
-       >>> from modelviewprojection.mathutils import Vector
-       >>> a = demo.Vector(x=1,y=2)
-       >>> a.translate(demo.Vector(x=3,y=4))
-       Vector(x=4, y=6)
+       >>> from modelviewprojection.mathutils import Vector2D, translate
+       >>> shift = translate(Vector2D(x=3, y=4))
+       >>> shift(Vector2D(x=1, y=2))
+       Vector2D(x=4, y=6)
 
 Note the use of "keyword arguments".  Without using keyword
 arguments, the code might look like this:
 
 .. code:: Python
 
-       >>> from modelviewprojection.mathutils import Vector
-       >>> a = demo.Vector(1,2)
-       >>> a.translate(demo.Vector(x=3,y=4))
-       Vector(x=4, y=6)
+       >>> from modelviewprojection.mathutils import Vector2D, translate
+       >>> shift = translate(Vector2D(3, 4))
+       >>> shift(Vector2D(1, 2))
+       Vector2D(x=4, y=6)
 
 Keyword arguments allow the reader to understand the purpose of the
 parameters are, at the call-site of the function.
