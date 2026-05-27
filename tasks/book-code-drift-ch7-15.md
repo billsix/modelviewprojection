@@ -23,7 +23,7 @@ real code bugs.
 | ch08/09 | only the "method"→"function" wording | (method-vs-function plan above) |
 | ch10 | `camera.x/y`→`camera.position_ws` (:363,:381); broken method-API code blocks (~:149-216, incl. missing `)`); typos (:120,:131,:257) | [`../plans/ch10-fixes.md`](../plans/ch10-fixes.md) |
 | ch11/12 | no chapter-specific drift beyond the basis omission (above) | — |
-| ch13 | figure `_static/demo11.png` shown for a Demo-13 chapter (:63) | [`../plans/ch13-fixes.md`](../plans/ch13-fixes.md) |
+| ch13 | ✅ figure `_static/demo11.png` shown for a Demo-13 chapter (:63) — DONE (per-chapter `demo13.dot`) | [`archive/ch13-fixes.md`](archive/ch13-fixes.md) |
 | ch14 | caption missing `.py` (:133); doc-region label collision (above); grammar/pronoun (:102,:227,:229,:322) | [`../plans/ch14-fixes.md`](../plans/ch14-fixes.md) |
 | ch15 | depth-buffer prose describes the "before" state in the "after" chapter (~:128-133); lowercase sentence starts | [`../plans/ch15-fixes.md`](../plans/ch15-fixes.md) |
 
