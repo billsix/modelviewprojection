@@ -48,39 +48,20 @@ _p.install_esc_close(window)
 
 
 # Triangle pipeline (paddles + square)
-triangle_program: int = _p.compile_program(PWD, "triangle.vert", "triangle.frag")
-u_triangle_m: int = GL.glGetUniformLocation(triangle_program, "mMatrix")
-u_triangle_v: int = GL.glGetUniformLocation(triangle_program, "vMatrix")
-u_triangle_p: int = GL.glGetUniformLocation(triangle_program, "pMatrix")
-triangle_attr_position: int = GL.glGetAttribLocation(
-    triangle_program, "position"
+triangle = _p.build_pipeline(
+    PWD, "triangle.vert", "triangle.frag", per_vertex_color=True
 )
-triangle_attr_color: int = GL.glGetAttribLocation(triangle_program, "color_in")
 
 # Ground pipeline: solid dark-gray cylinders.  Reuses ground.vert
 # (hardcoded dark gray) + triangle.frag (no geom shader).
-ground_program: int = _p.compile_program(PWD, "ground.vert", "triangle.frag")
-u_ground_m: int = GL.glGetUniformLocation(ground_program, "mMatrix")
-u_ground_v: int = GL.glGetUniformLocation(ground_program, "vMatrix")
-u_ground_p: int = GL.glGetUniformLocation(ground_program, "pMatrix")
-ground_attr_position: int = GL.glGetAttribLocation(ground_program, "position")
+ground = _p.build_pipeline(PWD, "ground.vert", "triangle.frag")
 
 # Axis pipeline: solid cylinder+cone arrows (axis.vert + triangle.frag, no geom)
-axis_program: int = _p.compile_program(PWD, "axis.vert", "triangle.frag")
-u_axis_m: int = GL.glGetUniformLocation(axis_program, "mMatrix")
-u_axis_v: int = GL.glGetUniformLocation(axis_program, "vMatrix")
-u_axis_p: int = GL.glGetUniformLocation(axis_program, "pMatrix")
-u_axis_color: int = GL.glGetUniformLocation(axis_program, "color")
-axis_attr_position: int = GL.glGetAttribLocation(axis_program, "position")
+axis = _p.build_pipeline(PWD, "axis.vert", "triangle.frag", color=True)
 
 # NDC-cube pipeline: solid white cylinders, no end cones.  Reuses the
 # axis.vert + triangle.frag shader pair (same as the axis pipeline).
-cube_program: int = _p.compile_program(PWD, "axis.vert", "triangle.frag")
-u_cube_m: int = GL.glGetUniformLocation(cube_program, "mMatrix")
-u_cube_v: int = GL.glGetUniformLocation(cube_program, "vMatrix")
-u_cube_p: int = GL.glGetUniformLocation(cube_program, "pMatrix")
-u_cube_color: int = GL.glGetUniformLocation(cube_program, "color")
-cube_attr_position: int = GL.glGetAttribLocation(cube_program, "position")
+cube = _p.build_pipeline(PWD, "axis.vert", "triangle.frag", color=True)
 
 
 # ---------------------------------------------------------------------------
@@ -89,27 +70,27 @@ cube_attr_position: int = GL.glGetAttribLocation(cube_program, "position")
 
 paddle1_vao, paddle1_vertex_count = _p.make_triangle_vao(
     _p.paddle_vertices, r=0.578123, g=0.0, b=1.0,
-    attr_position=triangle_attr_position, attr_color=triangle_attr_color,
+    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
 )
 paddle2_vao, paddle2_vertex_count = _p.make_triangle_vao(
     _p.paddle_vertices, r=1.0, g=1.0, b=0.0,
-    attr_position=triangle_attr_position, attr_color=triangle_attr_color,
+    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
 )
 square_vao, square_vertex_count = _p.make_triangle_vao(
     _p.square_vertices, r=0.0, g=0.0, b=1.0,
-    attr_position=triangle_attr_position, attr_color=triangle_attr_color,
+    attr_position=triangle.attr_position, attr_color=triangle.attr_color,
 )
 ground_vao, ground_vertex_count = _p.make_lines_vao(
-    _p.build_ground_cylinders(), ground_attr_position
+    _p.build_ground_cylinders(), ground.attr_position
 )
 axis_vao, axis_vertex_count = _p.make_lines_vao(
-    _p.build_axis_arrow_solid(), axis_attr_position
+    _p.build_axis_arrow_solid(), axis.attr_position
 )
 sphere_vao, sphere_vertex_count = _p.make_lines_vao(
-    _p.build_origin_sphere_solid(), axis_attr_position
+    _p.build_origin_sphere_solid(), axis.attr_position
 )
 cube_vao, cube_vertex_count = _p.make_lines_vao(
-    _p.build_ndc_cube_cylinders(), cube_attr_position
+    _p.build_ndc_cube_cylinders(), cube.attr_position
 )
 
 
@@ -140,30 +121,30 @@ _p.install_camera_scroll(window, imguiio, camera)
 
 
 def draw_triangles(vao: int, vertex_count: int) -> None:
-    GL.glUseProgram(triangle_program)
+    GL.glUseProgram(triangle.program)
     GL.glBindVertexArray(vao)
-    _p.set_uniforms(u_triangle_m, u_triangle_v, u_triangle_p)
+    _p.set_uniforms(triangle.u_m, triangle.u_v, triangle.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
 
 
 def draw_ground() -> None:
-    GL.glUseProgram(ground_program)
+    GL.glUseProgram(ground.program)
     GL.glBindVertexArray(ground_vao)
-    _p.set_uniforms(u_ground_m, u_ground_v, u_ground_p)
+    _p.set_uniforms(ground.u_m, ground.u_v, ground.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
 
 
 def _emit_axis(r: float, g: float, b: float, grayed_out: bool) -> None:
     if grayed_out:
-        GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
+        GL.glUniform3f(axis.u_color, 0.5, 0.5, 0.5)
     else:
-        GL.glUniform3f(u_axis_color, r, g, b)
-    _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
+        GL.glUniform3f(axis.u_color, r, g, b)
+    _p.set_uniforms(axis.u_m, axis.u_v, axis.u_p)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, axis_vertex_count)
 
 
 def draw_axis(grayed_out: bool = False) -> None:
-    GL.glUseProgram(axis_program)
+    GL.glUseProgram(axis.program)
     GL.glBindVertexArray(axis_vao)
     with ms.push_matrix(ms.MatrixStack.model):
         # x axis
@@ -181,18 +162,18 @@ def draw_axis(grayed_out: bool = False) -> None:
         # White origin sphere -- the dot gltDrawUnitAxes finishes with.
         GL.glBindVertexArray(sphere_vao)
         if grayed_out:
-            GL.glUniform3f(u_axis_color, 0.5, 0.5, 0.5)
+            GL.glUniform3f(axis.u_color, 0.5, 0.5, 0.5)
         else:
-            GL.glUniform3f(u_axis_color, 1.0, 1.0, 1.0)
-        _p.set_uniforms(u_axis_m, u_axis_v, u_axis_p)
+            GL.glUniform3f(axis.u_color, 1.0, 1.0, 1.0)
+        _p.set_uniforms(axis.u_m, axis.u_v, axis.u_p)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_vertex_count)
 
 
 def draw_cube() -> None:
-    GL.glUseProgram(cube_program)
+    GL.glUseProgram(cube.program)
     GL.glBindVertexArray(cube_vao)
-    _p.set_uniforms(u_cube_m, u_cube_v, u_cube_p)
-    GL.glUniform3f(u_cube_color, 1.0, 1.0, 1.0)
+    _p.set_uniforms(cube.u_m, cube.u_v, cube.u_p)
+    GL.glUniform3f(cube.u_color, 1.0, 1.0, 1.0)
     GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
 
 
