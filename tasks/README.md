@@ -38,7 +38,8 @@ typos · `demo14.py:42 zero = Vector3D.e_3()` · `demo21.py` missing `sys`/`os`.
 
 | Task | Status | Doc |
 |------|--------|-----|
-| **Extract duplicated demo helpers** into a shared module (teach-once-then-import) | inventory + design done; awaiting Bill's answers | [`../plans/extract-duplicated-demo-helpers.md`](../plans/extract-duplicated-demo-helpers.md) |
+| **Extract duplicated demo helpers** into per-concept modules (teach-once-then-import) | in progress — `shading.py` ✅, `windowing.py` (`on_key`) ✅; `clipping.py` (book-coupled) next; `set_mvp_uniforms` variant deferred | [`../plans/extract-duplicated-demo-helpers.md`](../plans/extract-duplicated-demo-helpers.md) |
+| De-duplicate per-demo `handle_inputs` (the camera-walk / paddle-move sub-blocks) | investigation task (not started) | [`../plans/dedup-handle-inputs.md`](../plans/dedup-handle-inputs.md) |
 | Confirm PDF + EPUB build green after inlinetex migration | blocked-on-Bill (needs build container) | [`finish-pdf-epub-build.md`](finish-pdf-epub-build.md) |
 | Curriculum math: planar-shadow matrix in `pyMatrixStack` | planned | [`../plans/planar-shadow-matrix.md`](../plans/planar-shadow-matrix.md) |
 | Curriculum math: `rotate_around_axis` in `pyMatrixStack` (decomposed, not Rodrigues) | planned | [`../plans/rotate-around-axis.md`](../plans/rotate-around-axis.md) |

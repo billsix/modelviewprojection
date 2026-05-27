@@ -16,13 +16,12 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
-import os
 import sys
 
 import glfw
 import OpenGL.GL as GL
 
-
+from modelviewprojection.windowing import on_key
 
 if not glfw.init():
     sys.exit()
@@ -36,11 +35,6 @@ if not window:
     sys.exit()
 
 glfw.make_context_current(window)
-
-
-def on_key(win, key, scancode, action, mods):
-    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)

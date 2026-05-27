@@ -32,9 +32,9 @@ import OpenGL.GLU as GLU
 from numpy.typing import NDArray
 
 import modelviewprojection.colorutils as colorutils
+from modelviewprojection.windowing import on_key
 
 # doc-region-end new imports
-
 
 
 if not glfw.init():
@@ -51,11 +51,6 @@ if not window:
     sys.exit()
 
 glfw.make_context_current(window)
-
-
-def on_key(win, key, scancode, action, mods):
-    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)

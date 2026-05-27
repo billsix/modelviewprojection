@@ -36,6 +36,7 @@ from numpy.typing import NDArray
 
 import modelviewprojection.colorutils as colorutils
 import modelviewprojection.pyMatrixStack as ms
+from modelviewprojection.windowing import on_key
 
 if not glfw.init():
     sys.exit()
@@ -115,9 +116,6 @@ glfw.make_context_current(window)
 
 
 # Install a key handler
-def on_key(win, key, scancode, action, mods):
-    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)

@@ -60,6 +60,7 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.pyMatrixStack as ms
 from modelviewprojection.shading import _face_normal, light_dir_ws
+from modelviewprojection.windowing import on_key
 
 # ---------------------------------------------------------------------------
 # GLFW + GL 3.3 core context setup
@@ -87,11 +88,6 @@ glfw.make_context_current(window)
 
 imgui.create_context()
 impl = GlfwRenderer(window)
-
-
-def on_key(win, key, scancode, action, mods):
-    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)

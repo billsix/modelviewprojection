@@ -15,12 +15,25 @@ import instead of a redefinition.
   the import. Verified: `ruff` clean, `py_compile` OK, `pytest` 46/46, functions
   import & return correct values. Zero book impact (these demos aren't in any
   chapter). **Bill still needs to run the three GL demos to confirm visually.**
+- **2026-05-27 — `windowing.py` DONE (staged, not committed).** Created
+  `src/modelviewprojection/windowing.py` with `import glfw` + the canonical
+  `on_key` (escape-to-quit). Investigation confirmed all 30 `on_key` copies are
+  escape-only (the 1 outlier, demo12, differed only in the param name
+  `window`→`win`), and `on_key`'s *code* is **not** shown via `literalinclude`
+  in any chapter (ch01 only mentions it in prose) — so **zero chapter edits**.
+  Kept the inline def in `demo01` (ch01 teaches it there); replaced the def with
+  the import in the **other 29 demos** (net +29/−203). Verified: only
+  demo01+windowing define `on_key`; import in 29; `set_key_callback` still wired
+  in all 30; `py_compile` clean on all; `pytest` 47/47. (5 remaining ruff errors
+  in demo19e/demo21/demo24 are **pre-existing**, unrelated.) glfw runtime import
+  not testable here (no glfw in container) → Bill's build/GL run confirms.
 - **Deferred:** `shaderutils.py` / `set_mvp_uniforms` — demo22 is a variant
-  (3-of-4 identical), which is the variant-reconciliation question Bill asked to
-  handle later. Not touched.
-- **Next:** `clipping.py` (`draw_in_square_viewport`) and `windowing.py`
-  (`on_key`) — these ARE book-referenced, so each needs coordinated
-  `literalinclude` edits; do after the variant investigation + Bill's go-ahead.
+  (3-of-4 identical), the variant-reconciliation question Bill asked to handle
+  later. Not touched.
+- **Next:** `clipping.py` (`draw_in_square_viewport`) — this one IS book-referenced
+  (shown via `literalinclude` in ch04/06/09/11/13/17), so it needs coordinated
+  chapter edits; do with Bill's go-ahead. Per-demo `handle_inputs` dedup tracked
+  separately in [`dedup-handle-inputs.md`](dedup-handle-inputs.md).
 
 ## Context
 This is teaching code, so *some* repetition is intentional (a student reads one

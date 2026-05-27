@@ -61,6 +61,7 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.pyMatrixStack as ms
 from modelviewprojection.shading import light_dir_ws
+from modelviewprojection.windowing import on_key
 
 # ---------------------------------------------------------------------------
 # GLFW + GL 3.3 core context setup
@@ -113,11 +114,6 @@ STAGE_LABELS: list[str] = [
 # left) but hides the marker behind the camera.  Slide and explore.
 light_az_deg: float = 60.0
 light_el_deg: float = 30.0
-
-
-def on_key(win, key, scancode, action, mods):
-    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(win, 1)
 
 
 # Setting our key callback after GlfwRenderer was constructed replaces

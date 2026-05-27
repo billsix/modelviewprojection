@@ -18,12 +18,10 @@
 
 # doc-region-begin import first module
 # doc-region-end import first module
-import os
 import sys
 
 import glfw
 import OpenGL.GL as GL
-
 
 # doc-region-begin initialize glfw
 if not glfw.init():

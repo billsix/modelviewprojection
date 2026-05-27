@@ -18,7 +18,6 @@
 
 
 import dataclasses
-import os
 import sys
 
 import glfw
@@ -34,7 +33,7 @@ from modelviewprojection.mathutils import (
     translate,
     uniform_scale,
 )
-
+from modelviewprojection.windowing import on_key
 
 e_1 = Vector2D.e_1()
 e_2 = Vector2D.e_2()
@@ -53,11 +52,6 @@ if not window:
     sys.exit()
 
 glfw.make_context_current(window)
-
-
-def on_key(win, key, scancode, action, mods):
-    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)

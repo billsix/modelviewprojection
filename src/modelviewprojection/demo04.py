@@ -18,15 +18,13 @@
 
 
 import dataclasses
-import os
 import sys
 
 import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.colorutils as colorutils
-
-
+from modelviewprojection.windowing import on_key
 
 if not glfw.init():
     sys.exit()
@@ -40,11 +38,6 @@ if not window:
     sys.exit()
 
 glfw.make_context_current(window)
-
-
-def on_key(win, key, scancode, action, mods):
-    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(win, 1)
 
 
 glfw.set_key_callback(window, on_key)
