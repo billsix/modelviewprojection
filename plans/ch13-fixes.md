@@ -1,6 +1,8 @@
 # Plan: ch13 fixes
 
-**Status:** planned. **Type:** book asset/figure. **Effort:** trivial.
+**Status:** complete
+**Completed:** 2026-05-27 — root cause was a *shared* Graphviz Cayley diagram: ch12 & ch13 both rendered `_static/demo11.png` (generated from `demo11.dot`). Fix (per Bill's "each demo gets its own copy"): created `demo12.dot`/`demo13.dot` as identical copies of `demo11.dot`, added `demo12.png`/`demo13.png` to `_static/Makefile`'s `graphs:` target, and repointed `ch12:66`→`demo12.png`, `ch13:63`→`demo13.png`. Each chapter now has an independently-editable `.dot` source. **Pending commit.** (PNGs regenerate in Bill's build — `texExpToPng`/`dot` not in this container.)
+**Type:** book asset/figure.
 **Source:** ch13–15 drift audit (verified).
 
 ## Finding + change (`book/docs/ch13.rst`)

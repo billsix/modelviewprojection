@@ -63,7 +63,7 @@ Cayley Graph
 ^^^^^^^^^^^^
 
 
-.. figure:: _static/demo11.png
+.. figure:: _static/demo12.png
     :class: no-scale
     :align: center
     :alt: Demo 12

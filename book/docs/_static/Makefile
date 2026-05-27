@@ -20,6 +20,8 @@ all: cayleyImages graphs rotate0-0.svg
 graphs: currency.png \
 	temp.png \
 	demo11.png \
+	demo12.png \
+	demo13.png \
 	demo10.png \
 	demo10-2.png \
 	demo06.png \
