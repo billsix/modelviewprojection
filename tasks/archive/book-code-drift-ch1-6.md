@@ -1,6 +1,7 @@
 # Task: book ↔ code drift in chapters 1–6
 
-**Status:** investigation done (2026-05-26); fixes not yet made.
+**Status:** ✅ COMPLETE (2026-05-27). All findings dispatched — A1/B2/B3/B4/C
+done (see per-finding plans below), D withdrawn as not-actually-drift.
 **Goal:** find places where `book/docs/ch0[1-6].rst` (+ `mathhomework1.rst`) prose
 has drifted from the current code, after several months of commits. The
 `literalinclude` code snippets are always live; the *prose around them* is what

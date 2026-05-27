@@ -1,6 +1,7 @@
 # mvpVisualization shared-shader refactor
 
-**Status:** in progress (started 2026-05-27)
+**Status:** ✅ COMPLETE (2026-05-27). Refactor staged; Bill verified the demos
+render correctly on a display.
 
 ## Goal
 
@@ -97,7 +98,8 @@ white added.
 - [x] delete 30 per-demo shaders
 - [x] py_compile (7/7) + pytest (47/47); GLSL splice structurally verified
       (1 #version, fwd-decl + 1 defn, version first) for all 8 vert×project
-      combos. **Staged — awaiting commit + Bill's on-display GL verification.**
+      combos.
+- [x] Bill verified the demos render correctly on a display (2026-05-27).
 
 ## Notes for GL verification (what to eyeball per demo)
 
