@@ -191,6 +191,60 @@ def compile_program(
 
 
 # ---------------------------------------------------------------------------
+# Pipeline -- a compiled program plus its cached uniform/attribute locations.
+# ---------------------------------------------------------------------------
+
+
+@dataclass(frozen=True)
+class Pipeline:
+    """A shader program with its cached uniform / attribute locations.
+
+    The mvpVisualization demos keep model / view / projection as three
+    separate uniforms (``mMatrix`` / ``vMatrix`` / ``pMatrix``) so the stages
+    can be shown independently -- hence ``u_m`` / ``u_v`` / ``u_p`` rather than
+    a single ``u_mvp``.  ``u_color`` / ``attr_color`` are ``-1`` for programs
+    that don't use them.
+    """
+
+    program: int
+    u_m: int
+    u_v: int
+    u_p: int
+    attr_position: int
+    u_color: int = -1
+    attr_color: int = -1
+
+
+def build_pipeline(
+    pwd: str,
+    vert: str,
+    frag: str,
+    *,
+    color: bool = False,
+    per_vertex_color: bool = False,
+    geom: Optional[str] = None,
+) -> "Pipeline":
+    """Compile ``vert`` + ``frag`` (+ optional ``geom``) and cache its
+    ``mMatrix`` / ``vMatrix`` / ``pMatrix`` uniforms and ``position``
+    attribute.  ``color=True`` also caches the ``color`` uniform;
+    ``per_vertex_color=True`` caches the ``color_in`` attribute."""
+    prog = compile_program(pwd, vert, frag, geom=geom)
+    return Pipeline(
+        program=prog,
+        u_m=GL.glGetUniformLocation(prog, "mMatrix"),
+        u_v=GL.glGetUniformLocation(prog, "vMatrix"),
+        u_p=GL.glGetUniformLocation(prog, "pMatrix"),
+        attr_position=GL.glGetAttribLocation(prog, "position"),
+        u_color=GL.glGetUniformLocation(prog, "color") if color else -1,
+        attr_color=(
+            GL.glGetAttribLocation(prog, "color_in")
+            if per_vertex_color
+            else -1
+        ),
+    )
+
+
+# ---------------------------------------------------------------------------
 # VAO builders -- each registers its VAO + VBO(s) for cleanup.
 # ---------------------------------------------------------------------------
 
