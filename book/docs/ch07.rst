@@ -320,13 +320,7 @@ Therefore
                                                      sin(\theta)*\vec{r}(\vec{a}; \pi/2 ) \text{ if } (\theta \ne \pi/2)
     \end{align*}
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
-   :language: python
-   :start-after: doc-region-begin define vector class
-   :end-before: doc-region-end define vector class
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+``Vector2D`` is the same data structure introduced earlier; it is unchanged here.
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python

@@ -478,13 +478,7 @@ the respective components together, and create a new Vector2D.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
-   :language: python
-   :start-after: doc-region-begin define vector class
-   :end-before: doc-region-end define vector class
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+``Vector2D`` is the same data structure introduced earlier; it is unchanged here.
 
 In a Python class, we can overload the '+' symbol, to make
 objects addable, by implementing the :py:meth:`__add__ <modelviewprojection.mathutils.Vector.__add__>`

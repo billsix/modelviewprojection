@@ -1,14 +1,14 @@
 # Plan: ch14 fixes
 
-**Status:** PARTIAL — caption :133 (`+.py`) and the grammar/pronoun fixes
-(:102,:227,:229,:322) done 2026-05-27. **Still open: the "define vector class"
-doc-region relabel — bigger than first thought.** That region is referenced by
-**7 chapters** (ch04, 05, 06, 07, 08, 14, 18), all currently pulling the first
-match (`Vector1D`); relabeling the 3 mathutils regions uniquely means deciding
-which `Vector` class each of the 7 should display — a per-chapter pedagogical
-call (proposed default: ch04–08 → `Vector2D`, ch14/ch18 → `Vector3D`). Needs
-Bill's confirmation before touching 7 chapters. Coordinate with the
-natural-basis task (which also touches these class regions).
+**Status:** complete (pending review/commit) — 2026-05-27. (1) caption :133
+(`+.py`); (2) grammar/pronoun (:102,:227,:229,:322); (3) **doc-region relabel
+done** per Bill's guidance (no base/`Vector1D` shown; define once, reference
+otherwise): split the colliding `define vector class` region in `mathutils.py`
+into `define vector1d/2d/3d class`; **ch05 → `Vector2D`** (its Data Structures
+section), **ch14 → `Vector3D`** (z is new); the redundant class re-displays in
+**ch06/07/08/18** were removed and replaced with a one-line reference. ch04 left
+alone (it pulls its own local `Vector` from `demo04.py` — a separate region).
+Verified: doc-region integrity clean across ch01–21, `pytest` 47/47.
 **Type:** book prose + caption + doc-region label.
 **Source:** ch13–15 drift audit (verified).
 

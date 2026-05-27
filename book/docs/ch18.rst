@@ -239,13 +239,7 @@ Right calculation based off of Top and aspect ratio
            |                                                     |    width/height, not necessarily the
            -------------------------------------------------------    window's
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
-   :language: python
-   :start-after: doc-region-begin define vector class
-   :end-before: doc-region-end define vector class
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+``Vector3D`` is the same data structure introduced when we added the Z axis; it is unchanged here.
 
 
 

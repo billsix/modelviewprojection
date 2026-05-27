@@ -201,11 +201,11 @@ class Vector:
         return np.sqrt(self.dot(self))
 
 
-# doc-region-begin define vector class
+# doc-region-begin define vector1d class
 @dataclasses.dataclass
 class Vector1D(Vector):
     x: float  #: The value of the 1D Vector
-    # doc-region-end define vector class
+    # doc-region-end define vector1d class
 
     @staticmethod
     def e_1() -> "Vector1D":
@@ -216,11 +216,11 @@ class Vector1D(Vector):
         return Vector1D(0.0)
 
 
-# doc-region-begin define vector class
+# doc-region-begin define vector2d class
 @dataclasses.dataclass
 class Vector2D(Vector1D):
     y: float  #: The y-component of the 2D Vector
-    # doc-region-end define vector class
+    # doc-region-end define vector2d class
 
     @staticmethod
     def e_1() -> "Vector2D":
@@ -235,11 +235,11 @@ class Vector2D(Vector1D):
         return Vector2D(0.0, 0.0)
 
 
-# doc-region-begin define vector class
+# doc-region-begin define vector3d class
 @dataclasses.dataclass
 class Vector3D(Vector2D):
     z: float  #: The z-component of the 3D Vector
-    # doc-region-end define vector class
+    # doc-region-end define vector3d class
 
     @staticmethod
     def e_1() -> "Vector3D":

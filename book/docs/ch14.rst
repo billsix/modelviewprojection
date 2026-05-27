@@ -126,8 +126,8 @@ Description
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
-   :start-after: doc-region-begin define vector class
-   :end-before: doc-region-end define vector class
+   :start-after: doc-region-begin define vector3d class
+   :end-before: doc-region-end define vector3d class
    :linenos:
    :lineno-match:
    :caption: src/modelviewprojection/mathutils.py

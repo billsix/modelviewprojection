@@ -1,6 +1,6 @@
 # Plan: ch18 (perspective / stack) fixes
 
-**Status:** PARTIAL — "ration"→"ratio" (:225) and captions :248/:262 (`demo18.py`→`mathutils.py`) fixed & staged 2026-05-27. Still open: the f1/f2/f3 + `Callable` content (item 3). **Type:** book prose + captions + content gaps.
+**Status:** PARTIAL — "ration"→"ratio" (:225) done; the `:262` perspective-include caption fixed (`demo18.py`→`mathutils.py`); the `:248` Vector-class include was **removed entirely** by the doc-region relabel (see `ch14-fixes.md`), replaced with a one-line `Vector3D` reference. Still open: the f1/f2/f3 + `Callable` content (item 3). **Type:** book prose + captions + content gaps.
 **Source:** ch16–18 drift audit (verified captions).
 
 ## Findings + changes (`book/docs/ch18.rst`)
