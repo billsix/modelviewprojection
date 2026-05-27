@@ -1,6 +1,15 @@
 # Plan: ch14 fixes
 
-**Status:** PARTIAL — caption :133 (`+.py`) fixed & staged 2026-05-27. Still open: the shared `mathutils` "define vector class" doc-region relabel (item 2, ties to the natural-basis task) and the grammar/pronoun fixes (item 3). **Type:** book prose + caption + doc-region label.
+**Status:** PARTIAL — caption :133 (`+.py`) and the grammar/pronoun fixes
+(:102,:227,:229,:322) done 2026-05-27. **Still open: the "define vector class"
+doc-region relabel — bigger than first thought.** That region is referenced by
+**7 chapters** (ch04, 05, 06, 07, 08, 14, 18), all currently pulling the first
+match (`Vector1D`); relabeling the 3 mathutils regions uniquely means deciding
+which `Vector` class each of the 7 should display — a per-chapter pedagogical
+call (proposed default: ch04–08 → `Vector2D`, ch14/ch18 → `Vector3D`). Needs
+Bill's confirmation before touching 7 chapters. Coordinate with the
+natural-basis task (which also touches these class regions).
+**Type:** book prose + caption + doc-region label.
 **Source:** ch13–15 drift audit (verified).
 
 ## Findings + changes (`book/docs/ch14.rst` unless noted)

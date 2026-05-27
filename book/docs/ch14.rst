@@ -99,7 +99,7 @@ Description
    Added translate in 3D.  Added scale in 3D.  These are just like
    the 2D versions, just with the same process applied to the z axis.
 
-   They direction of the rotation is defined by the right hand rule.
+   The direction of the rotation is defined by the right hand rule.
 
 
 
@@ -224,9 +224,9 @@ a z-coordinate of 0 in their :term:`modelspace<Modelspace>`.
    :caption: src/modelviewprojection/demo14.py
 
 
-The only new aspect of the square below is that the paddles have
-a z-coordinate of 0 in their :term:`modelspace<Modelspace>`.  N.B that since we
-do a sequence transformations to the :term:`modelspace<Modelspace>` data to get
+The only new aspect of the square below is that it has
+a z-coordinate of 0 in its :term:`modelspace<Modelspace>`.  N.B that since we
+do a sequence of transformations to the :term:`modelspace<Modelspace>` data to get
 to world-space coordinates, the X, Y, and Z coordinates
 are subject to be different.
 
@@ -319,6 +319,6 @@ see that the square can be hidden behind the paddle.
 Added translate in 3D.  Added scale in 3D.  These are just like
 the 2D versions, just with the same process applied to the z axis.
 
-They direction of the rotation is defined by the right hand rule.
+The direction of the rotation is defined by the right hand rule.
 
 https://en.wikipedia.org/wiki/Right-hand_rule
