@@ -24,19 +24,18 @@ from here instead of redefining them.
 
 import math
 
+from modelviewprojection.mathutils import Vector3D, find_normal
+
 
 def _face_normal(a, b, c) -> tuple[float, float, float]:
-    """Outward normal of triangle (a, b, c) listed counter-clockwise."""
-    ax, ay, az = a
-    bx, by, bz = b
-    cx, cy, cz = c
-    ux, uy, uz = bx - ax, by - ay, bz - az
-    vx, vy, vz = cx - ax, cy - ay, cz - az
-    nx = uy * vz - uz * vy
-    ny = uz * vx - ux * vz
-    nz = ux * vy - uy * vx
-    L = math.sqrt(nx * nx + ny * ny + nz * nz) or 1.0
-    return (nx / L, ny / L, nz / L)
+    """Outward *unit* normal of triangle (a, b, c), CCW-wound.
+
+    The cross product of two edges -- computed via
+    :func:`modelviewprojection.mathutils.find_normal` -- then normalized.
+    """
+    n = find_normal(Vector3D(*a), Vector3D(*b), Vector3D(*c))
+    mag = abs(n)
+    return tuple((1.0 / mag) * n) if mag else (0.0, 0.0, 0.0)
 
 
 def light_dir_ws(az_deg: float, el_deg: float) -> tuple[float, float, float]:
