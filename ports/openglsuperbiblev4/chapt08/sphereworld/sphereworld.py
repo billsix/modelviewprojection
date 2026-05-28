@@ -21,6 +21,8 @@ from modelviewprojection.mathutils import Vector3D, plane_equation
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
 
 NUM_SPHERES = 30
 sphere_positions = []
@@ -61,52 +63,13 @@ def make_planar_shadow_matrix(
     )
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        s0, c0 = math.sin(lat0), math.cos(lat0)
-        s1, c1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            # Texture coords roughly mapping the sphere -- not the
-            # SuperBible gltDrawSphere, which uses spherical UVs; this
-            # is a close approximation.
-            u = float(j) / slices
-            v0, v1 = float(i) / stacks, float(i + 1) / stacks
-            GL.glNormal3f(cl * c0, sl * c0, s0)
-            GL.glTexCoord2f(u, v0)
-            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
-            GL.glNormal3f(cl * c1, sl * c1, s1)
-            GL.glTexCoord2f(u, v1)
-            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
-        GL.glEnd()
-
-
-def draw_torus(major: float, minor: float, n_major: int, n_minor: int) -> None:
-    major_step = 2.0 * math.pi / n_major
-    minor_step = 2.0 * math.pi / n_minor
-    for i in range(n_major):
-        a0, a1 = i * major_step, (i + 1) * major_step
-        x0, y0 = math.cos(a0), math.sin(a0)
-        x1, y1 = math.cos(a1), math.sin(a1)
-        u0, u1 = float(i) / n_major, float(i + 1) / n_major
-        GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        for j in range(n_minor + 1):
-            b = j * minor_step
-            cb, sb = math.cos(b), math.sin(b)
-            r = minor * cb + major
-            z = minor * sb
-            v = float(j) / n_minor
-            GL.glNormal3f(x0 * cb, y0 * cb, sb)
-            GL.glTexCoord2f(u0, v)
-            GL.glVertex3f(x0 * r, y0 * r, z)
-            GL.glNormal3f(x1 * cb, y1 * cb, sb)
-            GL.glTexCoord2f(u1, v)
-            GL.glVertex3f(x1 * r, y1 * r, z)
-        GL.glEnd()
+# Geometry is identical every frame, so build the vertex bands once at import
+# and replay them (textured) in draw_inhabitants / draw_ground instead of
+# re-running the sin/cos loops on every draw.
+SPHERE_BIG = _primitives.build_sphere(0.3, 21, 11)
+SPHERE_SMALL = _primitives.build_sphere(0.1, 21, 11)
+TORUS = _primitives.build_torus(0.35, 0.15, 61, 37)
+GROUND = _primitives.build_ground(20.0, 1.0, -0.4, tex_step=1.0 / (20.0 * 0.075))
 
 
 def apply_camera_transform() -> None:
@@ -142,32 +105,12 @@ def load_textures() -> None:
 
 
 def draw_ground() -> None:
-    extent = 20.0
-    step = 1.0
-    y = -0.4
-    tex_step = 1.0 / (extent * 0.075)
+    # The texture binding + wrap mode stay in the per-frame path; only the
+    # grid geometry is precomputed (GROUND).
     GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[GROUND_TEXTURE])
     GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT)
     GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT)
-
-    s = 0.0
-    strip = -extent
-    while strip <= extent:
-        t = 0.0
-        GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        run = extent
-        while run >= -extent:
-            GL.glTexCoord2f(s, t)
-            GL.glNormal3f(0.0, 1.0, 0.0)
-            GL.glVertex3f(strip, y, run)
-            GL.glTexCoord2f(s + tex_step, t)
-            GL.glNormal3f(0.0, 1.0, 0.0)
-            GL.glVertex3f(strip + step, y, run)
-            t += tex_step
-            run -= step
-        GL.glEnd()
-        s += tex_step
-        strip += step
+    _primitives.draw_mesh(GROUND, textured=True)
 
 
 def draw_inhabitants(n_shadow: int) -> None:
@@ -180,7 +123,7 @@ def draw_inhabitants(n_shadow: int) -> None:
     for sx, sy, sz in sphere_positions:
         GL.glPushMatrix()
         GL.glTranslatef(sx, sy, sz)
-        draw_solid_sphere(0.3, 21, 11)
+        _primitives.draw_mesh(SPHERE_BIG, textured=True)
         GL.glPopMatrix()
 
     GL.glPushMatrix()
@@ -189,7 +132,7 @@ def draw_inhabitants(n_shadow: int) -> None:
     GL.glPushMatrix()
     GL.glRotatef(-y_rot * 2.0, 0.0, 1.0, 0.0)
     GL.glTranslatef(1.0, 0.0, 0.0)
-    draw_solid_sphere(0.1, 21, 11)
+    _primitives.draw_mesh(SPHERE_SMALL, textured=True)
     GL.glPopMatrix()
 
     if n_shadow == 0:
@@ -197,7 +140,7 @@ def draw_inhabitants(n_shadow: int) -> None:
 
     GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
     GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[TORUS_TEXTURE])
-    draw_torus(0.35, 0.15, 61, 37)
+    _primitives.draw_mesh(TORUS, textured=True)
     GL.glMaterialfv(GL.GL_FRONT, GL.GL_SPECULAR, f_no_light)
     GL.glPopMatrix()
 

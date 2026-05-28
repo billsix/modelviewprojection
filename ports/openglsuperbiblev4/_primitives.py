@@ -103,21 +103,27 @@ def build_torus(major: float, minor: float, n_major: int, n_minor: int) -> Mesh:
 
 
 def build_ground(extent: float = 20.0, step: float = 1.0,
-                 y: float = -0.4) -> Mesh:
+                 y: float = -0.4, tex_step: float = 0.0) -> Mesh:
     """Precompute the flat ground grid as ``GL_TRIANGLE_STRIP`` bands (one per
-    z-strip), every normal pointing up. Matches the plain (untextured,
-    uncolored) ``draw_ground`` the lit sphereworld demos used. The textured and
-    checkerboard grounds in other demos are handled per-demo, not here."""
+    z-strip), every normal pointing up. With the default ``tex_step=0.0`` all
+    texture coords are (0, 0) -- the plain grid the lit sphereworlds use. Pass
+    ``tex_step > 0`` (e.g. ``1 / (extent * 0.075)``) for the s/t-stepped grid the
+    textured sphereworlds use. The checkerboard (per-vertex color) and GL_LINES
+    grounds in other demos are handled per-demo, not here."""
     bands: list[list[Vertex]] = []
+    s = 0.0
     strip = -extent
     while strip <= extent:
+        t = 0.0
         band: list[Vertex] = []
         run = extent
         while run >= -extent:
-            band.append((0.0, 1.0, 0.0, 0.0, 0.0, strip, y, run))
-            band.append((0.0, 1.0, 0.0, 0.0, 0.0, strip + step, y, run))
+            band.append((0.0, 1.0, 0.0, s, t, strip, y, run))
+            band.append((0.0, 1.0, 0.0, s + tex_step, t, strip + step, y, run))
+            t += tex_step
             run -= step
         bands.append(band)
+        s += tex_step
         strip += step
     return (GL.GL_TRIANGLE_STRIP, bands)
 

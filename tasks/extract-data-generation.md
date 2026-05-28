@@ -36,6 +36,16 @@
   family done (ch05 + these 3). Remaining family: reflection/motionblur (checkerboard
   ground w/ per-vertex color — `build_ground` doesn't cover it), ch08/09 (textured),
   ch04 (GL_LINES + no-normal torus, unlit).
+- 2026-05-28 (Phase 2 textured): Converted **chapt08/sphereworld** (spheres 21×11)
+  and **chapt09/sphereworld** (17×9). Added `tex_step` param to `build_ground`
+  (default 0.0 = plain grid, unchanged for the 4 earlier demos; >0 = s/t-stepped
+  textured grid). Sphere/torus use `draw_mesh(..., textured=True)`; `draw_ground`
+  kept as a slim fn that does the `glBindTexture`/wrap-mode (per-frame state) then
+  `draw_mesh(GROUND, textured=True)`. Equivalence-verified: textured sphere & ground
+  EXACT; torus within 8.88e-16 (build_torus uses `a0+major_step` matching the ch05
+  family; ch08/09 originals used `(i+1)*major_step` — mathematically identical,
+  ≤1 ULP, visually irrelevant). 6 of 9 family demos done. Remaining: reflection +
+  motionblur (checkerboard ground, per-vertex color), ch04 (GL_LINES + no-normal torus).
 - NOTE discovered 2026-05-28: `_common.py` exists but NO demo imports it yet —
   the ports UX-pass menubar/camera wiring is not in master (the CLAUDE.md
   "Active plans" section is stale on this). `_primitives.py` is the first
