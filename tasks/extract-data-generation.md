@@ -17,6 +17,25 @@
   the pre-existing `I001` sibling-import style (same as chapt11/thunderbird).
   Cannot run a display here, so Bill should visually confirm these 3 render
   identically before the pattern propagates to ~30 more files.
+- 2026-05-28 (Phase 2): Added `build_torus(major,minor,n_major,n_minor)` and
+  `build_ground(extent,step,y)` to `_primitives.py` (equivalence-verified: torus
+  is an exact byte-match to the originals; ground positions match with all-up
+  normals). Fully converted **chapt05/sphereworld** — sphere(s)+torus+ground all
+  precomputed at import, replayed via `draw_mesh` in `draw_inhabitants`/
+  `render_scene` (replayed twice/frame: shadow pass + lit pass). Bill to verify.
+  Remaining sphereworld family: ch06/sphereworld, ch06/fogged, ch06/multisample
+  (same plain-grid pattern); then reflection/motionblur (checkerboard ground has
+  per-vertex color — needs handling), ch08/09 (textured torus+ground), ch04
+  (GL_LINES ground + no-normal torus, likely unlit). Variant analysis showed the
+  3 sphere "variants" are really 1 (math-identical; ch08/09 just adds the
+  texcoord my builder already computes); torus has a no-normal outlier (ch04).
+- 2026-05-28 (Phase 2 cont.): Converted the plain-grid trio — **chapt06/sphereworld**
+  (spheres 21×11), **chapt06/fogged** and **chapt06/multisample** (spheres 17×9) —
+  all sphere+torus+ground now precomputed + `draw_mesh`. compile-clean; no leftover
+  draw_* refs; lint only the accepted I001 + pre-existing S311. 4 of the sphereworld
+  family done (ch05 + these 3). Remaining family: reflection/motionblur (checkerboard
+  ground w/ per-vertex color — `build_ground` doesn't cover it), ch08/09 (textured),
+  ch04 (GL_LINES + no-normal torus, unlit).
 - NOTE discovered 2026-05-28: `_common.py` exists but NO demo imports it yet —
   the ports UX-pass menubar/camera wiring is not in master (the CLAUDE.md
   "Active plans" section is stale on this). `_primitives.py` is the first

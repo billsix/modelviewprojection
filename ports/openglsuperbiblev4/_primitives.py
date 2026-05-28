@@ -74,6 +74,54 @@ def build_sphere(radius: float, slices: int, stacks: int, *,
     return (GL.GL_QUAD_STRIP, bands)
 
 
+def build_torus(major: float, minor: float, n_major: int, n_minor: int) -> Mesh:
+    """Precompute a torus as ``GL_TRIANGLE_STRIP`` bands (one per major-ring
+    segment) -- the same vertices the hand-written ``draw_torus`` emitted every
+    frame. ``major``/``minor`` are the ring and tube radii; ``n_major``/
+    ``n_minor`` the subdivisions around each. Texture coords run u around the
+    ring, v around the tube."""
+    major_step = 2.0 * math.pi / n_major
+    minor_step = 2.0 * math.pi / n_minor
+    bands: list[list[Vertex]] = []
+    for i in range(n_major):
+        a0 = i * major_step
+        a1 = a0 + major_step
+        x0, y0 = math.cos(a0), math.sin(a0)
+        x1, y1 = math.cos(a1), math.sin(a1)
+        u0, u1 = float(i) / n_major, float(i + 1) / n_major
+        band: list[Vertex] = []
+        for j in range(n_minor + 1):
+            b = j * minor_step
+            cb, sb = math.cos(b), math.sin(b)
+            r = minor * cb + major
+            z = minor * sb
+            v = float(j) / n_minor
+            band.append((x0 * cb, y0 * cb, sb, u0, v, x0 * r, y0 * r, z))
+            band.append((x1 * cb, y1 * cb, sb, u1, v, x1 * r, y1 * r, z))
+        bands.append(band)
+    return (GL.GL_TRIANGLE_STRIP, bands)
+
+
+def build_ground(extent: float = 20.0, step: float = 1.0,
+                 y: float = -0.4) -> Mesh:
+    """Precompute the flat ground grid as ``GL_TRIANGLE_STRIP`` bands (one per
+    z-strip), every normal pointing up. Matches the plain (untextured,
+    uncolored) ``draw_ground`` the lit sphereworld demos used. The textured and
+    checkerboard grounds in other demos are handled per-demo, not here."""
+    bands: list[list[Vertex]] = []
+    strip = -extent
+    while strip <= extent:
+        band: list[Vertex] = []
+        run = extent
+        while run >= -extent:
+            band.append((0.0, 1.0, 0.0, 0.0, 0.0, strip, y, run))
+            band.append((0.0, 1.0, 0.0, 0.0, 0.0, strip + step, y, run))
+            run -= step
+        bands.append(band)
+        strip += step
+    return (GL.GL_TRIANGLE_STRIP, bands)
+
+
 def draw_mesh(mesh: Mesh, *, textured: bool = False) -> None:
     """Emit a precomputed mesh via immediate mode -- one ``glBegin``/``glEnd``
     per band, ``glNormal3f`` + ``glVertex3f`` per vertex. Set ``textured=True``
