@@ -1,6 +1,26 @@
 # Separate data generation from rendering in SuperBible v4 ports
 
-**Status:** in-progress (audit done; plan locked; awaiting Bill's go-ahead to implement)
+**Status:** in-progress — Phase 1 done (sphere builder + atom/atom2/solar). Bill to spot-check rendering; then sphereworld family next.
+
+## Progress
+- 2026-05-28: Created `ports/openglsuperbiblev4/_primitives.py` (lightweight,
+  `math` + `OpenGL.GL` only — no imgui, so minimal demos stay minimal).
+  `build_sphere(radius, slices, stacks, *, swap_winding=False)` precomputes the
+  per-band vertices; `draw_mesh(mesh, *, textured=False)` replays them via the
+  same immediate-mode `glBegin`/`glNormal`/`glTexCoord`/`glVertex` calls.
+  (Name: Bill picked `draw_mesh` over `replay`, matching the `draw_*` convention.)
+- 2026-05-28: Converted chapt04/atom, chapt04/atom2 (`swap_winding=False`),
+  chapt04/solar (`swap_winding=True`). Verified: an emission-equivalence test
+  (stubbing `OpenGL.GL`) proves `build_sphere`+`draw_mesh` emit a BYTE-IDENTICAL
+  GL call sequence to each demo's original `draw_solid_sphere` (990 / 2142 calls
+  per sphere). `py_compile` clean; `_primitives.py` ruff-clean; demos carry only
+  the pre-existing `I001` sibling-import style (same as chapt11/thunderbird).
+  Cannot run a display here, so Bill should visually confirm these 3 render
+  identically before the pattern propagates to ~30 more files.
+- NOTE discovered 2026-05-28: `_common.py` exists but NO demo imports it yet —
+  the ports UX-pass menubar/camera wiring is not in master (the CLAUDE.md
+  "Active plans" section is stale on this). `_primitives.py` is the first
+  actually-imported shared module in the ports tree.
 **Started:** 2026-05-28
 
 ## Goal

@@ -5,7 +5,6 @@
 # OpenGL SuperBible, Chapter 4
 # Python port of Solar.cpp by Richard S. Wright Jr.
 
-import math
 import os
 import sys
 import time
@@ -13,6 +12,10 @@ import time
 import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
 
 
 
@@ -29,27 +32,14 @@ EARTH_DEG_PER_SEC: float = 50.0
 start_time: float = 0.0
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    # Emit (lat1, lat0) per j, not (lat0, lat1). The latter winds each
-    # outside-facing quad CW in screen space, which under
-    # glFrontFace(GL_CCW) makes the camera-facing side count as back --
-    # it gets culled and we end up rendering the far hemisphere (whose
-    # outward normals point away from the light, so no diffuse).
-    # Swapping flips winding to CCW.
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        sin0, cos0 = math.sin(lat0), math.cos(lat0)
-        sin1, cos1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * cos1, sl * cos1, sin1)
-            GL.glVertex3f(radius * cl * cos1, radius * sl * cos1, radius * sin1)
-            GL.glNormal3f(cl * cos0, sl * cos0, sin0)
-            GL.glVertex3f(radius * cl * cos0, radius * sl * cos0, radius * sin0)
-        GL.glEnd()
+# Spheres are identical every frame, so build the vertex bands once at import
+# and replay them in render_scene. swap_winding=True emits each latitude band
+# as (lat1, lat0): that winds the camera-facing side CCW so glFrontFace(GL_CCW)
+# + GL_CULL_FACE keep it. The default (lat0, lat1) order would wind it CW, cull
+# the near hemisphere, and light the far one (whose normals point away from the
+# sun -> no diffuse).
+PLANET_SPHERE = _primitives.build_sphere(15.0, 30, 17, swap_winding=True)
+MOON_SPHERE = _primitives.build_sphere(6.0, 30, 17, swap_winding=True)
 
 
 def render_scene() -> None:
@@ -63,7 +53,7 @@ def render_scene() -> None:
     # Sun (yellow, no lighting -- it IS the light source)
     GL.glDisable(GL.GL_LIGHTING)
     GL.glColor3ub(255, 255, 0)
-    draw_solid_sphere(15.0, 30, 17)
+    _primitives.draw_mesh(PLANET_SPHERE)
     GL.glEnable(GL.GL_LIGHTING)
 
     # Place light at the sun's location
@@ -74,13 +64,13 @@ def render_scene() -> None:
     # Earth
     GL.glColor3ub(0, 0, 255)
     GL.glTranslatef(105.0, 0.0, 0.0)
-    draw_solid_sphere(15.0, 30, 17)
+    _primitives.draw_mesh(PLANET_SPHERE)
 
     # Moon -- in Earth's frame
     GL.glColor3ub(200, 200, 200)
     GL.glRotatef(f_moon_rot, 0.0, 1.0, 0.0)
     GL.glTranslatef(30.0, 0.0, 0.0)
-    draw_solid_sphere(6.0, 30, 17)
+    _primitives.draw_mesh(MOON_SPHERE)
 
     GL.glPopMatrix()
 
