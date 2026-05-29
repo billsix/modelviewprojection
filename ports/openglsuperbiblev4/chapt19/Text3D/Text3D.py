@@ -19,6 +19,25 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit menu item
+
+
+def imgui_menubar() -> None:
+    # The cube spins on its own and there are no movement keys, so the menubar
+    # only carries File -> Quit. Drawn inside the existing imgui frame (the
+    # demo already owns an imgui context for its text overlay).
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
 
 def draw_cube(s: float = 1.0) -> None:
     s /= 2.0
@@ -39,6 +58,7 @@ def draw_cube(s: float = 1.0) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -46,6 +66,7 @@ def main() -> None:
     window = glfw.create_window(640, 480, "Text3D", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
     imgui.create_context()
     impl = GlfwRenderer(window)
@@ -70,6 +91,7 @@ def main() -> None:
         draw_cube(1.5)
 
         imgui.new_frame()
+        imgui_menubar()
         imgui.set_next_window_pos((10, 10))
         imgui.begin("3D Text", None,
                     imgui.WindowFlags_.no_decoration.value

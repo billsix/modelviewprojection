@@ -1,8 +1,9 @@
 # occquery.py
 # Occlusion queries: a cube of 27 spheres is wrapped in bounding cubes;
 # at draw time only the spheres whose bounding box passed depth testing
-# in the previous frame are rendered. Press 'o' to toggle, 's' to show
-# the bounding volumes, x/y/z (and SHIFT) to fly the camera.
+# in the previous frame are rendered. The render options (occlusion
+# detection, bounding volumes, help overlay) live on an imgui panel;
+# arrows and x/y/z (and SHIFT) fly the camera.
 #
 # Note: the C++ original used glutSolidTetrahedron/Octahedron/etc. for
 # alternate bounding volumes; this port keeps just the box variant for
@@ -21,10 +22,16 @@ import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
 window_height: int = 768
 
@@ -187,6 +194,45 @@ def render_scene() -> None:
     draw_models()
 
 
+def _nudge_cam(axis: int, d: float) -> None:
+    camera_pos[axis] += d
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column (discovery); hold the key for
+    # continuous motion.
+    global occlusion_detection, show_bounding_volume, show_menu
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Render options", True):
+        clicked, v = imgui.menu_item("Occlusion detection", "",
+                                     occlusion_detection, True)
+        if clicked:
+            occlusion_detection = v
+        clicked, v = imgui.menu_item("Show bounding volumes", "",
+                                     show_bounding_volume, True)
+        if clicked:
+            show_bounding_volume = v
+        clicked, v = imgui.menu_item("Show help overlay", "", show_menu, True)
+        if clicked:
+            show_menu = v
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Camera +X", "Left", lambda: _nudge_cam(0, 5.0))
+        _common.menu_action("Camera -X", "Right", lambda: _nudge_cam(0, -5.0))
+        _common.menu_action("Camera +Y", "Up", lambda: _nudge_cam(1, 5.0))
+        _common.menu_action("Camera -Y", "Down", lambda: _nudge_cam(1, -5.0))
+        _common.menu_action("Camera +Z", "Z", lambda: _nudge_cam(2, 5.0))
+        _common.menu_action("Camera -Z", "Shift+Z", lambda: _nudge_cam(2, -5.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def setup_rc() -> None:
     global texture_id, query_ids
 
@@ -250,11 +296,12 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 
 
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global camera_pos, occlusion_detection, show_bounding_volume, show_menu
+    # Render-option toggles (O/S/M) moved to the imgui panel; keys here
+    # are navigation only.
+    global camera_pos
 
-    # Toggles fire only on PRESS (one shot).  Movement keys fire on
-    # PRESS or REPEAT so holding the key keeps moving, matching GLUT
-    # glutSpecialFunc's auto-repeat behavior.
+    # Movement keys fire on PRESS or REPEAT so holding the key keeps
+    # moving, matching GLUT glutSpecialFunc's auto-repeat behavior.
     is_movement = key in (glfw.KEY_LEFT, glfw.KEY_RIGHT,
                           glfw.KEY_UP, glfw.KEY_DOWN,
                           glfw.KEY_X, glfw.KEY_Y, glfw.KEY_Z)
@@ -267,12 +314,6 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
-    elif key == glfw.KEY_O:
-        occlusion_detection = not occlusion_detection
-    elif key == glfw.KEY_S:
-        show_bounding_volume = not show_bounding_volume
-    elif key == glfw.KEY_M:
-        show_menu = not show_menu
     # Arrow keys -- matches C++ SpecialKeys.  LEFT/RIGHT moves X (note
     # the C++ inverts: LEFT increases, RIGHT decreases); UP/DOWN moves Y.
     elif key == glfw.KEY_LEFT:
@@ -294,6 +335,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -303,9 +345,15 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
+
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -320,7 +368,12 @@ def main() -> None:
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
 
         frames += 1
@@ -335,6 +388,7 @@ def main() -> None:
             frames = 0
             frame_timer = now
 
+    impl.shutdown()
     glfw.terminate()
 
 

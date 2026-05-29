@@ -4,10 +4,10 @@
 # vertex shader uses two modelview matrices and blends positions and
 # normals based on the per-vertex weight attribute.
 #
-# C++ used a right-click GLUT menu; this port uses keys:
-#   B = toggle blending, S = toggle bones, Up/Down = elbow angle,
-#   Left/Right = sphere of influence, X/Y/Z = move camera (shift = -),
-#   Escape = quit.
+# C++ used a right-click GLUT menu; this port uses an imgui panel for
+# the model/render params (vertex blending, show bones, sphere of
+# influence, elbow bend). X/Y/Z move the camera (shift = -); Escape
+# quits.
 #
 # OpenGL SuperBible, Chapter 16
 # Python port of vertexblend.cpp by Benjamin Lipchak
@@ -21,10 +21,16 @@ import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
 window_height: int = 768
 
@@ -232,6 +238,45 @@ def render_scene() -> None:
     draw_models()
 
 
+def _nudge_cam(axis: int, d: float) -> None:
+    camera_pos[axis] += d
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column (discovery); hold the key for
+    # continuous motion.
+    global use_blending, show_bones, sphere_of_influence, elbow_bend
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Render options", True):
+        clicked, v = imgui.menu_item("Vertex blending", "", use_blending, True)
+        if clicked:
+            use_blending = v
+        clicked, v = imgui.menu_item("Show bones", "", show_bones, True)
+        if clicked:
+            show_bones = v
+        imgui.separator()
+        _, sphere_of_influence = imgui.slider_float(
+            "Influence", sphere_of_influence, 0.0, 1.0)
+        _, elbow_bend = imgui.slider_float(
+            "Elbow bend", elbow_bend, -150.0, 150.0)
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Camera +X", "X", lambda: _nudge_cam(0, 5.0))
+        _common.menu_action("Camera -X", "Shift+X", lambda: _nudge_cam(0, -5.0))
+        _common.menu_action("Camera +Y", "Y", lambda: _nudge_cam(1, 5.0))
+        _common.menu_action("Camera -Y", "Shift+Y", lambda: _nudge_cam(1, -5.0))
+        _common.menu_action("Camera +Z", "Z", lambda: _nudge_cam(2, 5.0))
+        _common.menu_action("Camera -Z", "Shift+Z", lambda: _nudge_cam(2, -5.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def setup_rc() -> None:
     global max_tex_size
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -265,29 +310,13 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 
 
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global use_blending, show_bones, sphere_of_influence, elbow_bend
+    # Model/render params (blending, show bones, sphere of influence,
+    # elbow bend) moved to the imgui panel; keys here are camera
+    # navigation only.
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
-    elif key == glfw.KEY_B:
-        use_blending = not use_blending
-        print(f"vertex blending: {'ON' if use_blending else 'OFF'}")
-    elif key == glfw.KEY_S:
-        show_bones = not show_bones
-        print(f"show bones: {'ON' if show_bones else 'OFF'}")
-    elif key == glfw.KEY_LEFT:
-        sphere_of_influence -= 0.05
-        if sphere_of_influence < 0.05:
-            sphere_of_influence = 0.0
-    elif key == glfw.KEY_RIGHT:
-        sphere_of_influence += 0.05
-        if sphere_of_influence > 0.95:
-            sphere_of_influence = 1.0
-    elif key == glfw.KEY_UP:
-        elbow_bend = min(150.0, elbow_bend + 5.0)
-    elif key == glfw.KEY_DOWN:
-        elbow_bend = max(-150.0, elbow_bend - 5.0)
     elif key == glfw.KEY_X:
         camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Y:
@@ -297,6 +326,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -306,14 +336,15 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
-    print("Vertex Blending Demo")
-    print("  B: toggle blending  S: toggle bones")
-    print("  Left/Right: sphere of influence  Up/Down: elbow angle")
-    print("  X/Y/Z: move camera (shift = negative)  Esc: quit")
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -321,9 +352,15 @@ def main() -> None:
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
 
+    impl.shutdown()
     glfw.terminate()
 
 

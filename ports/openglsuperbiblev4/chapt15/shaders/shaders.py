@@ -5,8 +5,8 @@
 # factor uniform.
 #
 # C++ used a right-click GLUT menu and imgui_impl_glut UI. This port
-# uses key bindings: V toggles vertex shader, F toggles fragment
-# shader, B toggles blink/flicker.
+# uses an imgui panel: checkboxes toggle the vertex shader, fragment
+# shader, and blink/flicker. X/Y/Z (shift = negative) move the camera.
 #
 # OpenGL SuperBible, Chapter 15
 # Python port of shaders.cpp by Benjamin Lipchak
@@ -19,12 +19,17 @@ import glfw
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
 window_height: int = 768
 
@@ -160,6 +165,82 @@ def setup_rc() -> None:
     link_program(True)
 
 
+def apply_vertex_shader() -> None:
+    # Attach or detach the vertex shader to match use_vertex_shader,
+    # then relink -- the same work the old V key did.
+    if use_vertex_shader:
+        GL.glAttachShader(prog_obj, v_shader)
+    else:
+        GL.glDetachShader(prog_obj, v_shader)
+    link_program(False)
+
+
+def apply_fragment_shader() -> None:
+    # Attach or detach the fragment shader to match use_fragment_shader,
+    # then relink -- the same work the old F key did.
+    if use_fragment_shader:
+        GL.glAttachShader(prog_obj, f_shader)
+    else:
+        GL.glDetachShader(prog_obj, f_shader)
+    link_program(False)
+
+
+def _nudge_cam(axis: int, d: float) -> None:
+    camera_pos[axis] += d
+
+
+def _toggle_vertex_shader(v: bool) -> None:
+    # Toggling relinks the program -- the same work the old V key did.
+    global use_vertex_shader
+    use_vertex_shader = v
+    apply_vertex_shader()
+
+
+def _toggle_fragment_shader(v: bool) -> None:
+    # Toggling relinks the program -- the same work the old F key did.
+    global use_fragment_shader
+    use_fragment_shader = v
+    apply_fragment_shader()
+
+
+def _set_blink(v: bool) -> None:
+    global do_blink
+    do_blink = v
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column; hold the key for continuous
+    # motion. Toggling vertex/fragment relinks the program.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Options", True):
+        clicked, v = imgui.menu_item("Vertex shader", "", use_vertex_shader, True)
+        if clicked:
+            _toggle_vertex_shader(v)
+        clicked, v = imgui.menu_item("Fragment shader", "",
+                                     use_fragment_shader, True)
+        if clicked:
+            _toggle_fragment_shader(v)
+        clicked, v = imgui.menu_item("Blink", "", do_blink, True)
+        if clicked:
+            _set_blink(v)
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Camera +X", "X", lambda: _nudge_cam(0, 5.0))
+        _common.menu_action("Camera -X", "Shift+X", lambda: _nudge_cam(0, -5.0))
+        _common.menu_action("Camera +Y", "Y", lambda: _nudge_cam(1, 5.0))
+        _common.menu_action("Camera -Y", "Shift+Y", lambda: _nudge_cam(1, -5.0))
+        _common.menu_action("Camera +Z", "Z", lambda: _nudge_cam(2, 5.0))
+        _common.menu_action("Camera -Z", "Shift+Z", lambda: _nudge_cam(2, -5.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def change_size(w: int, h: int) -> None:
     global window_width, window_height
     window_width, window_height = w, h
@@ -170,27 +251,12 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 
 
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global use_vertex_shader, use_fragment_shader, do_blink
+    # Shader toggles (vertex/fragment/blink) moved to the imgui panel;
+    # keys here are navigation only.
     if action != glfw.PRESS:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
-    elif key == glfw.KEY_V:
-        use_vertex_shader = not use_vertex_shader
-        if use_vertex_shader:
-            GL.glAttachShader(prog_obj, v_shader)
-        else:
-            GL.glDetachShader(prog_obj, v_shader)
-        link_program(False)
-    elif key == glfw.KEY_F:
-        use_fragment_shader = not use_fragment_shader
-        if use_fragment_shader:
-            GL.glAttachShader(prog_obj, f_shader)
-        else:
-            GL.glDetachShader(prog_obj, f_shader)
-        link_program(False)
-    elif key == glfw.KEY_B:
-        do_blink = not do_blink
     elif key == glfw.KEY_X:
         camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Y:
@@ -200,6 +266,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -209,9 +276,15 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
+
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -219,9 +292,15 @@ def main() -> None:
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
 
+    impl.shutdown()
     glfw.terminate()
 
 

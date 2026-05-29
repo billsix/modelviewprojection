@@ -1,8 +1,15 @@
 # Move keyboard-driven rendering options to imgui controls (SuperBible ports)
 
-**Status:** in-progress — full repo audit COMPLETE 2026-05-29 (see "Full audit" below): **16
+**Status:** IMPLEMENTED 2026-05-29 — all 18 demos converted (16 GROUP A + fogged + multisample);
+structurally verified (compile, wiring, keys removed, no F-code lint). Pending Bill's visual
+check + commit, then archive. Full repo audit was COMPLETE 2026-05-29 (see "Full audit" below): **16
 demos need work** (GROUP A), ~19 already have imgui panels (GROUP B), rest are nav/quit-only.
-Awaiting Bill's go-ahead on conventions/scope (see "Decisions to confirm") before editing.
+**Decisions confirmed 2026-05-29 (Bill):** (a) convert **all in one pass** (no pilot);
+(b) scope = migrate existing keyboard options **PLUS add always-on toggles** for chapt06/fogged
+(fog on/off) and chapt06/multisample (MSAA on/off) → **18 demos total** (16 GROUP A + those 2);
+(c) navigation (camera/object rotate/pan/zoom) stays on the keyboard; (d) context-dependent
+param keys (vertexshaders/fragmentshaders) → expose as imgui sliders shown for the relevant
+shader mode. Implementing now.
 
 ## Goal
 
@@ -103,6 +110,57 @@ ch11 thunderbird/vbo/cubedx, the ch19–22 stubs and text overlays, etc.
 4. **Coordinate** with [[shadowmap-depth-discrimination]] (its proposed `D` distinct-mode toggle
    should land as an imgui control here, not a key).
 5. Keep navigation (camera/object rotate, pan, zoom) on the keyboard — only options move.
+
+## Implementation (2026-05-29) — all 18 done
+
+Pattern (from the verified reference `chapt17/lighting/lighting.py`, applied to all): add
+`from imgui_bundle import imgui` + `GlfwRenderer`; `imgui.create_context()` + `impl =
+GlfwRenderer(window)` after the glfw callbacks (so imgui chains to them, Esc/nav keep working);
+per-frame `impl.process_inputs()` … `render_scene()` … `imgui.new_frame()`/`imgui_panel()`/
+`imgui.render()`/`impl.render(imgui.get_draw_data())`; `impl.shutdown()` after the loop. Each demo
+got an `imgui_panel()` with the audit-table widgets; option-key branches + `KEY_TO_SHADER` dicts +
+per-keypress `print()`s removed; navigation + Esc kept.
+
+- lighting converted by me as the reference; the other 17 by three parallel sub-agents, then I
+  verified every file: **18/18 py_compile clean; uniform imgui wiring; ZERO ruff F-codes** (no
+  undefined names / unused imports); a key re-inventory confirms every option key was removed and
+  only nav+Esc remain (e.g. shadowmap → `ESC X Y Z`; pixbufobj → `ESC` only; texfloat keeps arrows
+  for its pixel-probe cursor; proctex/hdrbloom keep LEFT/RIGHT for light).
+- **vertexshaders / fragmentshaders fully DECOUPLED** (not the fallback): shader select → combo,
+  fog-density/squash-stretch → conditional sliders, and the arrow/X-Y-Z keys reduced to pure nav.
+- **fogged / multisample**: added new on/off toggles (fog / MSAA) gated each frame on a new global;
+  the original always-on enable kept harmlessly.
+- FBO demos (fbodrawbuffers/fboenvmap/fboshadowmap/hdrbloom/pixbufobj): imgui renders on the
+  default framebuffer (each `render_scene` ends on FB 0; fbodrawbuffers got a defensive rebind for
+  its early-return path).
+
+**CAVEAT — not visually verified:** no display in-container, and `imgui_bundle` isn't installed
+here, so checks are syntax/structure-level only. Bill must run each demo to confirm the panels
+render and the widgets drive the right state — *especially* the context-dependent ones
+(vertexshaders/fragmentshaders) and the FBO/HDR ones (imgui-over-FBO ordering, hdrbloom combo/
+sliders). Coordinate the [[shadowmap-depth-discrimination]] `D` toggle as an imgui control here.
+
+## Post-verification fixes (2026-05-29)
+
+Bill ran the demos and found navigation broken (shadowmap/fboshadowmap "Move camera/Move light"
+radios select but nothing moves; bumpmap's light keys gone). **Root cause — a bug I introduced:**
+`GlfwRenderer(window)` installs its own glfw key callback that does NOT chain, and the reference
+pattern set the demo's `on_key` BEFORE creating it, so `on_key` got clobbered and every demo that
+navigates via `on_key` lost its keys (spot escaped only because its nav uses key *polling*).
+**Fixed in all 18:** moved `glfw.set_key_callback(window, on_key)` (and texfloat's
+`set_cursor_pos_callback`) to AFTER `GlfwRenderer(window)`. imgui still gets mouse via
+`process_inputs()`, so the panels keep working. Verified: all 18 py_compile clean and the key
+callback now follows GlfwRenderer in every file.
+
+**Two PRE-EXISTING crashes** surfaced during the same verification (NOT from this change — the
+commit only relocated key handling): chapt18/pixbufobj (`glReadPixels` into an unsized/literal-named
+PBO) and chapt18/texfloat (float-texture segfault at startup). Logged as
+[[ports-pbo-floattex-runtime-crashes]].
+
+**FLAG:** the *pre-existing* GROUP B imgui demos (spot, texgen, pyramid, tunnel, anisotropic, …)
+use the same set-callback-before-GlfwRenderer ordering. ESC-only ones are unaffected in practice,
+but any with `on_key`-based nav (e.g. texgen's arrows) likely have the same broken-nav issue.
+Out of this task's scope — worth a quick sweep/fix if Bill wants.
 
 ## Plan
 1. Decode the few remaining ambiguous keys (`fboshadowmap` `+`/`-`; `vertexshaders` arrows) and

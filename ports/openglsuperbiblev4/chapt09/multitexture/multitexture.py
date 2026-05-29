@@ -14,12 +14,15 @@ import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
-
-
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit menu item
 
 camera_x: float = 0.0
 camera_y: float = 0.0
@@ -155,10 +158,13 @@ def render_scene() -> None:
     GL.glPushMatrix()
     apply_camera_transform()
 
-    # Skybox -- only TEXTURE1 active
+    # Skybox -- only TEXTURE1 active. Re-assert the cube map each frame
+    # (setup_rc enabled it once, but we disable it before imgui draws below,
+    # so it must be turned back on here).
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glDisable(GL.GL_TEXTURE_2D)
     GL.glActiveTexture(GL.GL_TEXTURE1)
+    GL.glEnable(GL.GL_TEXTURE_CUBE_MAP)
     GL.glDisable(GL.GL_TEXTURE_GEN_S)
     GL.glDisable(GL.GL_TEXTURE_GEN_T)
     GL.glDisable(GL.GL_TEXTURE_GEN_R)
@@ -178,6 +184,18 @@ def render_scene() -> None:
     GL.glPopMatrix()
 
     GL.glPopMatrix()
+
+    # Leave a clean single-unit texture state for the imgui menubar, which is
+    # drawn next via the fixed-function GL2 backend on whatever unit is active.
+    # Without this, render_scene leaves TEXTURE1 active with the cube map +
+    # texgen on, so imgui binds its font to TEXTURE1 and corrupts the demo's
+    # multitexturing on the following frames.
+    GL.glActiveTexture(GL.GL_TEXTURE1)
+    GL.glDisable(GL.GL_TEXTURE_CUBE_MAP)
+    GL.glDisable(GL.GL_TEXTURE_GEN_S)
+    GL.glDisable(GL.GL_TEXTURE_GEN_T)
+    GL.glDisable(GL.GL_TEXTURE_GEN_R)
+    GL.glActiveTexture(GL.GL_TEXTURE0)
 
 
 def change_size(w: int, h: int) -> None:
@@ -220,7 +238,45 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
+# Per-click step for the menubar movement items (the keyboard, held, moves
+# continuously via handle_camera_keys; a menu click does one fixed step).
+BTN_MOVE_STEP: float = 0.5
+BTN_YAW_STEP: float = 0.1
+
+
+def _walk(direction: int) -> None:
+    global camera_x, camera_z
+    m = BTN_MOVE_STEP * direction
+    camera_x += -m * math.sin(camera_yaw)
+    camera_z += -m * math.cos(camera_yaw)
+
+
+def _turn(d: float) -> None:
+    global camera_yaw
+    camera_yaw += d
+
+
+def imgui_menubar() -> None:
+    # All controls in the top menubar. Movement items run once per click and
+    # show their key in the shortcut column; hold the key for continuous motion.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Forward", "Up", lambda: _walk(1))
+        _common.menu_action("Back", "Down", lambda: _walk(-1))
+        _common.menu_action("Turn left", "Left", lambda: _turn(BTN_YAW_STEP))
+        _common.menu_action("Turn right", "Right", lambda: _turn(-BTN_YAW_STEP))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def main() -> None:
+    global _window
+
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -229,10 +285,17 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
     glfw.swap_interval(1)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
+
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
+
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
@@ -245,9 +308,16 @@ def main() -> None:
         last_frame = now
 
         glfw.poll_events()
+        impl.process_inputs()
         handle_camera_keys(window, dt)
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
+
+    impl.shutdown()
     glfw.terminate()
 
 

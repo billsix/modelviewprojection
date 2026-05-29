@@ -16,6 +16,11 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 x_rot: float = 0.0
 y_rot: float = 0.0
 ambient_light = [1.0, 1.0, 1.0]
@@ -113,15 +118,33 @@ def render_scene() -> None:
     GL.glPopMatrix()
 
 
-def imgui_panel() -> None:
+def imgui_menubar() -> None:
     global ambient_light
-    imgui.begin("Set Ambient Light")
-    _, ambient_light = imgui.color_edit3("ambientLight", ambient_light)
-    GL.glLightModelfv(
-        GL.GL_LIGHT_MODEL_AMBIENT,
-        [ambient_light[0], ambient_light[1], ambient_light[2], 1.0],
-    )
-    imgui.end()
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Light", True):
+        # color_edit3 has no menubar-native form, so it renders as an
+        # ordinary widget inside this begin_menu/end_menu block.
+        _, ambient_light = imgui.color_edit3("ambientLight", ambient_light)
+        GL.glLightModelfv(
+            GL.GL_LIGHT_MODEL_AMBIENT,
+            [ambient_light[0], ambient_light[1], ambient_light[2], 1.0],
+        )
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Rotate up", "Up", lambda: _nudge_rot("x", -ROT_STEP))
+        _common.menu_action("Rotate down", "Down",
+                            lambda: _nudge_rot("x", ROT_STEP))
+        _common.menu_action("Rotate left", "Left",
+                            lambda: _nudge_rot("y", -ROT_STEP))
+        _common.menu_action("Rotate right", "Right",
+                            lambda: _nudge_rot("y", ROT_STEP))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def setup_rc() -> None:
@@ -158,6 +181,17 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 # Rotation rate while an arrow key is held. Multiplied by frame delta
 # so the rotation speed is independent of the render framerate.
 ROT_DEG_PER_SEC: float = 90.0
+# Step applied per held-button frame, mirroring the keyboard rotation
+# rate at a nominal 60fps so the buttons feel like holding an arrow key.
+ROT_STEP: float = ROT_DEG_PER_SEC / 60.0
+
+
+def _nudge_rot(axis: str, d: float) -> None:
+    global x_rot, y_rot
+    if axis == "x":
+        x_rot += d
+    else:
+        y_rot += d
 
 
 def handle_special_keys(window, dt: float) -> None:
@@ -179,6 +213,7 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -190,13 +225,16 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
 
+    _window = window
     glfw.make_context_current(window)
     glfw.swap_interval(1)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
+    # key callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -216,7 +254,7 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
 

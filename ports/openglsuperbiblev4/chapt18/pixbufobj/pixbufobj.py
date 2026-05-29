@@ -6,8 +6,8 @@
 # pixel data on the GPU so glReadPixels and glTexImage2D don't
 # round-trip through client memory.
 #
-# Keys: P toggles PBO mode; B toggles motion blur; arrows change
-# rotation speed; Esc quits.
+# Keys: Esc quits. Motion blur, PBO mode, and animation speed live on
+# an imgui panel.
 #
 # OpenGL SuperBible, Chapter 18
 # Python port of pixbufobj.cpp by Benjamin Lipchak
@@ -20,10 +20,16 @@ import glfw
 import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 512
 window_height: int = 512
 data_width: int = 512
@@ -86,6 +92,19 @@ def render_scene() -> None:
     current_frame = (current_frame + 1) % 3
     last_frame = (current_frame + 2) % 3
     frame_before_that = (current_frame + 1) % 3
+
+    # Re-assert the per-unit 2D enables each frame. setup_textures enabled
+    # GL_TEXTURE_2D on units 0/1/2 once, but the cleanup at the END of
+    # render_scene disables units 1/2 (so they don't multitexture the imgui
+    # menubar), so they must be turned back on here. Unit 2 follows the
+    # motion-blur state (matches setup_textures / toggle_motion_blur).
+    GL.glActiveTexture(GL.GL_TEXTURE1)
+    GL.glEnable(GL.GL_TEXTURE_2D)
+    GL.glActiveTexture(GL.GL_TEXTURE2)
+    if use_motion_blur:
+        GL.glEnable(GL.GL_TEXTURE_2D)
+    else:
+        GL.glDisable(GL.GL_TEXTURE_2D)
 
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glTranslatef(0.5, 0.5, 0.0)
@@ -151,6 +170,18 @@ def render_scene() -> None:
 
     GL.glActiveTexture(GL.GL_TEXTURE2)
     GL.glBindTexture(GL.GL_TEXTURE_2D, 2 + frame_before_that)
+
+    # Leave a clean single-unit state for the imgui menubar, drawn next via
+    # the fixed-function GL2 backend on whatever unit is active. render_scene
+    # otherwise returns with TEXTURE2 active and units 1/2's 2D textures still
+    # enabled (GL_ADD env mode), which would multitexture/garble the menubar
+    # AND bind imgui's font onto TEXTURE2, corrupting the blur on later frames.
+    # Re-enabled at the top of render_scene next frame.
+    GL.glActiveTexture(GL.GL_TEXTURE2)
+    GL.glDisable(GL.GL_TEXTURE_2D)
+    GL.glActiveTexture(GL.GL_TEXTURE1)
+    GL.glDisable(GL.GL_TEXTURE_2D)
+    GL.glActiveTexture(GL.GL_TEXTURE0)
 
 
 def toggle_motion_blur() -> None:
@@ -224,23 +255,42 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. This demo has no camera
+    # navigation, so there is no separate Controls menu -- just File->Quit
+    # plus the render options.
     global angle_increment
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Options", True):
+        # toggle_motion_blur / toggle_pbos flip the global and do the GL
+        # state work, so just call them when the item is clicked.
+        if imgui.menu_item("Motion blur", "", use_motion_blur, True)[0]:
+            toggle_motion_blur()
+        if imgui.menu_item("Use PBOs", "", use_pbos, True)[0]:
+            toggle_pbos()
+        imgui.separator()
+        _, angle_increment = imgui.slider_float(
+            "Animation speed", angle_increment, -10.0, 10.0)
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
+def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
+    # Render-option toggles moved to the imgui panel; only Esc remains
+    # (this demo has no camera navigation).
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
-    elif key == glfw.KEY_B:
-        toggle_motion_blur()
-    elif key == glfw.KEY_P:
-        toggle_pbos()
-    elif key in (glfw.KEY_UP, glfw.KEY_RIGHT):
-        angle_increment += 1.0
-    elif key in (glfw.KEY_DOWN, glfw.KEY_LEFT):
-        angle_increment -= 1.0
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -249,13 +299,18 @@ def main() -> None:
                                 "Pixel Buffer Object Demo", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
+
     print("Pixel Buffer Object Demo")
-    print("  P: toggle PBOs   B: toggle motion blur")
-    print("  arrows: rotation speed   Esc: quit")
+    print("  Esc: quit")
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -265,7 +320,12 @@ def main() -> None:
     last_t = time.time()
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
         frame_count += 1
         if frame_count == 100:
@@ -276,6 +336,7 @@ def main() -> None:
                                   f"Draw scene {label} {fps:.1f} fps")
             last_t = now
             frame_count = 0
+    impl.shutdown()
     glfw.terminate()
 
 

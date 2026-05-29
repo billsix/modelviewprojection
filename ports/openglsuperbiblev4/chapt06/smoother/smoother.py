@@ -19,6 +19,11 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 SCREEN_X = 800
 SCREEN_Y = 600
 SMALL_STARS = 100
@@ -133,16 +138,25 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-def imgui_panel() -> None:
+def imgui_menubar() -> None:
     global antialiased
-    imgui.begin("Smoother")
-    changed, antialiased = imgui.checkbox("Antialiased rendering", antialiased)
-    if changed:
-        apply_antialiasing(antialiased)
-    imgui.end()
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Render", True):
+        changed, antialiased = imgui.menu_item(
+            "Antialiased rendering", "", antialiased, True)
+        if changed:
+            apply_antialiasing(antialiased)
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -155,12 +169,15 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
 
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
+    # key callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     apply_antialiasing(antialiased)
@@ -174,7 +191,7 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
 

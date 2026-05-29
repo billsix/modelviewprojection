@@ -10,11 +10,52 @@ import time
 import glfw
 import numpy as np
 import OpenGL.GL as GL
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
 
+_window = None  # set in main(); used by the Quit menu item
 
 x_rot: float = 0.0
 y_rot: float = 0.0
+
+
+# Per-click step for the menubar rotate items (the keyboard, held, rotates
+# continuously via handle_special_keys; a menu click does one fixed step).
+BTN_ROT_STEP: float = 5.0
+
+
+def _rot(axis: str, d: float) -> None:
+    # Lambdas can't rebind a module global, so mutate here.
+    global x_rot, y_rot
+    if axis == "x":
+        x_rot += d
+    else:
+        y_rot += d
+
+
+def imgui_menubar() -> None:
+    # All controls in the top menubar. Rotate items run once per click and show
+    # their key in the shortcut column; hold the key for continuous rotation.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Rotate up", "Up", lambda: _rot("x", -BTN_ROT_STEP))
+        _common.menu_action("Rotate down", "Down",
+                            lambda: _rot("x", BTN_ROT_STEP))
+        _common.menu_action("Rotate left", "Left",
+                            lambda: _rot("y", -BTN_ROT_STEP))
+        _common.menu_action("Rotate right", "Right",
+                            lambda: _rot("y", BTN_ROT_STEP))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 # Bitmap of camp fire (32x32 pixels = 128 bytes)
 fire = np.array(
@@ -42,6 +83,7 @@ fire = np.array(
 
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
+    GL.glEnable(GL.GL_POLYGON_STIPPLE)
 
     GL.glPushMatrix()
     GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
@@ -60,6 +102,10 @@ def render_scene() -> None:
     GL.glEnd()
 
     GL.glPopMatrix()
+
+    # Disable so the imgui menubar isn't stippled (re-enabled below before
+    # the next polygon draw).
+    GL.glDisable(GL.GL_POLYGON_STIPPLE)
 
 
 def setup_rc() -> None:
@@ -112,6 +158,8 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
 
 
 def main() -> None:
+    global _window
+
     if not glfw.init():
         sys.exit(1)
 
@@ -122,10 +170,16 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
 
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
+
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -140,10 +194,16 @@ def main() -> None:
         last_frame = now
 
         glfw.poll_events()
+        impl.process_inputs()
         handle_special_keys(window, dt)
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
 
+    impl.shutdown()
     glfw.terminate()
 
 

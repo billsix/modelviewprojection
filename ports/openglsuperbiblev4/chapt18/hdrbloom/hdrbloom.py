@@ -5,10 +5,9 @@
 # final pass the COMBINE shader sums the original HDR scene, the four
 # blurred levels, and a one-frame-old afterglow PBO.
 #
-# Keys: 1..8 cycle stop points (orig/bright/pre-blur/post-blur/just-
-# bloom/no-afterglow/just-afterglow/full); arrows rotate light /
-# change tess; L/Shift+L change bloom limit; P pause spin; X/Y/Z +
-# shift to pan; Esc quits.
+# Keys: LEFT/RIGHT rotate light; X/Y/Z + shift to pan; Esc quits.
+# Stop point, tessellation, bloom limit, and pause live on an imgui
+# panel.
 #
 # OpenGL SuperBible, Chapter 18
 # Python port of hdrbloom.cpp by Benjamin Lipchak
@@ -21,12 +20,15 @@ import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
 
-
+_window = None  # set in main(); used by the Quit control button
 
 window_width: int = 512
 window_height: int = 512
@@ -48,6 +50,8 @@ JUST_BLOOM = 4
 NO_AFTER_GLOW = 5
 JUST_AFTER_GLOW = 6
 FULL_SCENE = 7
+stop_point_names = ["orig", "bright", "pre-blur", "post-blur",
+                    "just-bloom", "no-afterglow", "just-afterglow", "full"]
 which_stop_point: int = FULL_SCENE
 after_glow_valid: bool = False
 
@@ -296,7 +300,13 @@ def setup_rc() -> None:
 
     pbo_id = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_id)
-    GL.glBufferData(GL.GL_PIXEL_PACK_BUFFER, 1, None, GL.GL_STREAM_COPY)
+    # Allocate the PBO at its real size now. change_size only resizes it when
+    # the size *changes* from the initial, so at the default size it would stay
+    # the old 1-byte placeholder and the after-glow glReadPixels-into-PBO would
+    # read past the end -> GL_INVALID_OPERATION on startup. Same pitch as change_size.
+    _pbo_pitch = ((fbo_width * 3) + 3) & ~0x3
+    GL.glBufferData(GL.GL_PIXEL_PACK_BUFFER, fbo_height * _pbo_pitch, None,
+                    GL.GL_STREAM_COPY)
     GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
 
     renderbuffer_id = GL.glGenRenderbuffers(1)
@@ -362,9 +372,6 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 def select_stop_point(p: int) -> None:
     global which_stop_point
     which_stop_point = p
-    names = ["orig", "bright", "pre-blur", "post-blur",
-             "just-bloom", "no-afterglow", "just-afterglow", "full"]
-    print(f"stop point: {names[p]}")
     if p == JUST_AFTER_GLOW:
         for i, t in enumerate((1, 2, 3, 4)):
             GL.glActiveTexture(GL.GL_TEXTURE0 + t); GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
@@ -375,31 +382,76 @@ def select_stop_point(p: int) -> None:
     GL.glActiveTexture(GL.GL_TEXTURE0)
 
 
+def _nudge_light(d: float) -> None:
+    global light_rotation
+    light_rotation += d
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column; hold the key for continuous
+    # motion. Tessellation rebuilds the sphere; Bloom limit re-uploads the
+    # uniform; Paused freezes the spin animation.
+    global tess, bloom_limit, paused
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("View", True):
+        for i, name in enumerate(stop_point_names):
+            _common.menu_action(name, "", lambda i=i: select_stop_point(i),
+                                selected=(which_stop_point == i))
+        imgui.end_menu()
+    if imgui.begin_menu("Render", True):
+        if imgui.begin_menu("Tessellation", True):
+            changed, tess = imgui.slider_int("##tess", tess, 5, 150)
+            if changed:
+                rebuild_sphere()
+            imgui.end_menu()
+        if imgui.begin_menu("Bloom limit", True):
+            changed, bloom_limit = imgui.slider_float(
+                "##bloom", bloom_limit, 0.0, 5.0)
+            if changed:
+                GL.glUseProgram(prog_obj[HDRBALL])
+                GL.glUniform1f(bloom_limit_loc, bloom_limit)
+                GL.glUseProgram(0)
+            imgui.end_menu()
+        clicked, paused = imgui.menu_item("Paused", "", paused, True)
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Light -", "Left", lambda: _nudge_light(-5.0))
+        _common.menu_action("Light +", "Right", lambda: _nudge_light(5.0))
+        imgui.separator()
+        _common.menu_action("Camera +X", "X",
+                            lambda: camera_pos.__setitem__(0, camera_pos[0] + 5.0))
+        _common.menu_action("Camera -X", "Shift+X",
+                            lambda: camera_pos.__setitem__(0, camera_pos[0] - 5.0))
+        _common.menu_action("Camera +Y", "Y",
+                            lambda: camera_pos.__setitem__(1, camera_pos[1] + 5.0))
+        _common.menu_action("Camera -Y", "Shift+Y",
+                            lambda: camera_pos.__setitem__(1, camera_pos[1] - 5.0))
+        _common.menu_action("Camera +Z", "Z",
+                            lambda: camera_pos.__setitem__(2, camera_pos[2] + 5.0))
+        _common.menu_action("Camera -Z", "Shift+Z",
+                            lambda: camera_pos.__setitem__(2, camera_pos[2] - 5.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global light_rotation, tess, bloom_limit, paused
+    # Render-option toggles moved to the imgui panel; keys rotate the
+    # light and pan the camera only.
+    global light_rotation
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True); return
-    if glfw.KEY_1 <= key <= glfw.KEY_8:
-        select_stop_point(key - glfw.KEY_1); return
     if key == glfw.KEY_LEFT:
         light_rotation -= 5.0
     elif key == glfw.KEY_RIGHT:
         light_rotation += 5.0
-    elif key == glfw.KEY_UP:
-        tess += 5
-        rebuild_sphere()
-    elif key == glfw.KEY_DOWN:
-        tess = max(5, tess - 5)
-        rebuild_sphere()
-    elif key == glfw.KEY_L:
-        bloom_limit += 0.05 if (mods & glfw.MOD_SHIFT) else -0.05
-        GL.glUseProgram(prog_obj[HDRBALL])
-        GL.glUniform1f(bloom_limit_loc, bloom_limit)
-        GL.glUseProgram(0)
-    elif key == glfw.KEY_P:
-        paused = not paused
     elif key == glfw.KEY_X:
         camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Y:
@@ -409,6 +461,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -417,21 +470,35 @@ def main() -> None:
                                 "High Dynamic Range Bloom Demo", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
+
     print("HDR Bloom Demo")
-    print("  1..8: stop point   L / shift+L: bloom limit   P: pause")
-    print("  arrows: rotate light / change tess   X/Y/Z + shift: pan")
+    print("  LEFT/RIGHT: rotate light   X/Y/Z + shift: pan   Esc: quit")
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        # final_pass() bound framebuffer 0; the trailing glReadPixels
+        # into the PBO leaves us on framebuffer 0, so imgui draws to
+        # the window.
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
+    impl.shutdown()
     glfw.terminate()
 
 

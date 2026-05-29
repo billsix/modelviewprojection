@@ -21,6 +21,10 @@ from modelviewprojection.mathutils import Vector3D, find_normal
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Controls buttons
 
 x_rot: float = 0.0
 y_rot: float = 0.0
@@ -157,41 +161,78 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-def imgui_panel() -> None:
-    global env_mode_idx, min_filter_idx, mag_filter_idx, extra_radius
+def _nudge_x(d: float) -> None:
+    global x_rot
+    x_rot += d
 
-    imgui.begin("Set Ambient Light")
 
-    env_modes = ["Modulate", "Replace"]
-    changed, env_mode_idx = imgui.combo("Texture Env Mode", env_mode_idx,
-                                        env_modes)
-    if changed:
-        modes = [GL.GL_MODULATE, GL.GL_REPLACE]
-        GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE,
-                     modes[env_mode_idx])
+def _nudge_y(d: float) -> None:
+    global y_rot
+    y_rot += d
 
-    filters = ["Linear", "Nearest"]
-    changed, min_filter_idx = imgui.combo("Min Filter", min_filter_idx,
-                                          filters)
-    if changed:
-        f = [GL.GL_LINEAR, GL.GL_NEAREST]
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           f[min_filter_idx])
 
-    changed, mag_filter_idx = imgui.combo("Mag Filter", mag_filter_idx,
-                                          filters)
-    if changed:
-        f = [GL.GL_LINEAR, GL.GL_NEAREST]
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER,
-                           f[mag_filter_idx])
+def _set_env(idx: int) -> None:
+    global env_mode_idx
+    env_mode_idx = idx
+    modes = [GL.GL_MODULATE, GL.GL_REPLACE]
+    GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, modes[idx])
 
-    _, extra_radius = imgui.slider_float("Extra Camera Radius", extra_radius,
-                                         -4.0, 100.0)
 
-    imgui.end()
+def _set_min(idx: int) -> None:
+    global min_filter_idx
+    min_filter_idx = idx
+    f = [GL.GL_LINEAR, GL.GL_NEAREST]
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, f[idx])
+
+
+def _set_mag(idx: int) -> None:
+    global mag_filter_idx
+    mag_filter_idx = idx
+    f = [GL.GL_LINEAR, GL.GL_NEAREST]
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, f[idx])
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. The combos become radio menu
+    # items; the slider lives inside its own menu. Movement items show
+    # their key (hold the key for continuous rotation).
+    global extra_radius
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Texture Env Mode", True):
+        for i, label in enumerate(["Modulate", "Replace"]):
+            _common.menu_action(label, "", lambda v=i: _set_env(v),
+                                selected=(env_mode_idx == i))
+        imgui.end_menu()
+    if imgui.begin_menu("Min Filter", True):
+        for i, label in enumerate(["Linear", "Nearest"]):
+            _common.menu_action(label, "", lambda v=i: _set_min(v),
+                                selected=(min_filter_idx == i))
+        imgui.end_menu()
+    if imgui.begin_menu("Mag Filter", True):
+        for i, label in enumerate(["Linear", "Nearest"]):
+            _common.menu_action(label, "", lambda v=i: _set_mag(v),
+                                selected=(mag_filter_idx == i))
+        imgui.end_menu()
+    if imgui.begin_menu("Camera", True):
+        _, extra_radius = imgui.slider_float("Extra Radius", extra_radius,
+                                             -4.0, 100.0)
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Rotate Up", "Up", lambda: _nudge_x(-2.0))
+        _common.menu_action("Rotate Down", "Down", lambda: _nudge_x(2.0))
+        _common.menu_action("Rotate Left", "Left", lambda: _nudge_y(-2.0))
+        _common.menu_action("Rotate Right", "Right", lambda: _nudge_y(2.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -202,13 +243,16 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
 
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -229,7 +273,7 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
 

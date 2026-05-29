@@ -1,7 +1,15 @@
 # Cube-map reflection on the sphere doesn't update as the camera moves
 
-**Status:** not-started — logged 2026-05-29 (reported by Bill after spot-checking the
-geometry-extraction conversions). Investigate, then fix.
+**Status:** partially resolved — found 2026-05-29 (during the imgui texture-state sweep) that
+`chapt09/cubemap` ALREADY has the fix: `render_scene` wraps the sphere draw in a `GL_TEXTURE`
+matrix `glRotatef(degrees(camera_yaw), 0,1,0)` ("inverse-rotate so reflections track the camera").
+So cubemap is DONE. **`chapt09/multitexture` does NOT** have it — its cube-map reflection is on
+texture unit 1 and won't track the camera; the same fix needs applying on unit 1's texture matrix
+(wrap the sphere draw in `glActiveTexture(GL_TEXTURE1)` → `glMatrixMode(GL_TEXTURE)` → push →
+rotate by camera_yaw → draw → pop → restore). `chapt09/texgen` is N/A (model-rotate, no walk
+camera). Also check `chapt18/fboenvmap` / `chapt11/thundergl` (cube-map reflection) for the same.
+Untested in-container — Bill verifies. NOT yet applied to multitexture (don't want to re-touch the
+just-confirmed-working file blind without his go-ahead).
 
 ## Symptom
 

@@ -21,6 +21,12 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
+
 # Pick ids encoded as the red byte (0 reserved for background).
 SUN, MERCURY, VENUS, EARTH, MARS = 1, 2, 3, 4, 5
 PLANET_NAMES = {SUN: "Sun", MERCURY: "Mercury", VENUS: "Venus",
@@ -160,18 +166,27 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-def imgui_panel() -> None:
-    """Single checkbox that swaps the on-screen render between the
-    normal lit scene and the pick-color visualization."""
+def imgui_menubar() -> None:
+    """All controls live in the top menubar. The single checkbox swaps the
+    on-screen render between the normal lit scene and the pick-color
+    visualization; mouse-click picking works in either view. No keyboard nav
+    besides Esc, which the File -> Quit item covers."""
     global show_pick_buffer
-    imgui.begin("Picking")
-    _, show_pick_buffer = imgui.checkbox("Show selection buffer",
-                                         show_pick_buffer)
-    imgui.text("Click a planet to identify it (works in either view).")
-    imgui.end()
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Picking", True):
+        _, show_pick_buffer = imgui.menu_item(
+            "Show selection buffer", "", show_pick_buffer, True)
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -180,8 +195,8 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
@@ -192,6 +207,9 @@ def main() -> None:
     # button each frame and edge-detect a press, gated on whether
     # imgui wants the mouse (so clicks on the imgui panel don't pick).
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
+    # key callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -216,7 +234,7 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
 

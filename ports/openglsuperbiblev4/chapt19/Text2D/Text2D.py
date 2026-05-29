@@ -17,9 +17,28 @@ import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit menu item
+
+
+def imgui_menubar() -> None:
+    # This demo only displays static text, so the menubar only carries
+    # File -> Quit. Drawn inside the existing imgui frame (the demo already
+    # owns an imgui context for its text overlay).
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -27,6 +46,7 @@ def main() -> None:
     window = glfw.create_window(640, 480, "Text2D", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
     imgui.create_context()
     impl = GlfwRenderer(window)
@@ -41,6 +61,7 @@ def main() -> None:
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
         imgui.new_frame()
+        imgui_menubar()
         flags = (imgui.WindowFlags_.no_decoration.value
                  | imgui.WindowFlags_.no_background.value
                  | imgui.WindowFlags_.no_inputs.value)

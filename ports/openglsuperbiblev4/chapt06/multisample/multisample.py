@@ -14,14 +14,17 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import Vector3D, plane_equation
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
 
-
+_window = None  # set in main(); used by the Quit control button
 
 NUM_SPHERES = 30
 sphere_positions = []
@@ -35,6 +38,7 @@ f_low_light = (0.25, 0.25, 0.25, 1.0)
 f_bright_light = (1.0, 1.0, 1.0, 1.0)
 shadow_mat = None
 y_rot: float = 0.0
+msaa_enabled: bool = True
 
 
 def make_planar_shadow_matrix(
@@ -100,6 +104,10 @@ def draw_inhabitants(n_shadow: int) -> None:
 
 
 def render_scene() -> None:
+    if msaa_enabled:
+        GL.glEnable(GL.GL_MULTISAMPLE)
+    else:
+        GL.glDisable(GL.GL_MULTISAMPLE)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     GL.glPushMatrix()
     apply_camera_transform()
@@ -116,6 +124,56 @@ def render_scene() -> None:
     GL.glEnable(GL.GL_DEPTH_TEST)
     draw_inhabitants(0)
     GL.glPopMatrix()
+
+
+# Fixed per-frame steps for the Controls buttons. The keyboard walk scales by
+# dt (see handle_camera_keys); the buttons apply a constant nudge each held
+# frame instead, which keeps the mutator helpers free of timing state.
+BTN_MOVE_STEP: float = 0.05
+BTN_YAW_STEP: float = 0.025
+
+
+def _walk(direction: float) -> None:
+    """Move forward (+1) or back (-1) along the current heading."""
+    global camera_x, camera_z
+    step = direction * BTN_MOVE_STEP
+    camera_x += -step * math.sin(camera_yaw)
+    camera_z += -step * math.cos(camera_yaw)
+
+
+def _turn(d: float) -> None:
+    global camera_yaw
+    camera_yaw += d
+
+
+def _toggle_msaa() -> None:
+    global msaa_enabled
+    msaa_enabled = not msaa_enabled
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. MSAA is a checkable item; movement
+    # items show their key (hold the key for continuous walking).
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Options", True):
+        clicked, _ = imgui.menu_item("MSAA (multisample)", "",
+                                     msaa_enabled, True)
+        if clicked:
+            _toggle_msaa()
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Forward", "Up", lambda: _walk(1.0))
+        _common.menu_action("Back", "Down", lambda: _walk(-1.0))
+        _common.menu_action("Turn Left", "Left", lambda: _turn(BTN_YAW_STEP))
+        _common.menu_action("Turn Right", "Right",
+                            lambda: _turn(-BTN_YAW_STEP))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def setup_rc() -> None:
@@ -193,7 +251,7 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
 
 
 def main() -> None:
-    global y_rot
+    global y_rot, _window
 
     if not glfw.init():
         sys.exit(1)
@@ -208,10 +266,16 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
 
+    _window = window
     glfw.make_context_current(window)
     glfw.swap_interval(1)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
+
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -225,11 +289,17 @@ def main() -> None:
         last_frame = now
 
         glfw.poll_events()
+        impl.process_inputs()
         handle_camera_keys(window, dt)
         y_rot = (y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
 
+    impl.shutdown()
     glfw.terminate()
 
 

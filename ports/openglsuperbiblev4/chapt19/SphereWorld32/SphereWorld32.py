@@ -20,12 +20,17 @@ import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import Vector3D, plane_equation
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit menu item
+
 NUM_SPHERES = 30
 GROUND_TEXTURE, TORUS_TEXTURE, SPHERE_TEXTURE = 0, 1, 2
 texture_files = ["grass.tga", "wood.tga", "orb.tga"]
@@ -302,8 +307,48 @@ def handle_camera_keys(window, dt: float) -> None:
         camera_yaw -= YAW_DEG_PER_SEC * dt
 
 
+# Per-click step for the menubar movement items (the keyboard, held, moves
+# continuously via handle_camera_keys; a menu click does one fixed step).
+# camera_yaw is stored in degrees in this demo.
+BTN_MOVE_STEP: float = 0.5
+BTN_YAW_STEP_DEG: float = 5.0
+
+
+def _walk(direction: int) -> None:
+    global camera_x, camera_z
+    yaw_rad = math.radians(camera_yaw)
+    m = BTN_MOVE_STEP * direction
+    camera_x += -math.sin(yaw_rad) * m
+    camera_z += -math.cos(yaw_rad) * m
+
+
+def _turn(d: float) -> None:
+    global camera_yaw
+    camera_yaw += d
+
+
+def imgui_menubar() -> None:
+    # All controls in the top menubar. Movement items run once per click and
+    # show their key in the shortcut column; hold the key for continuous motion.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Forward", "Up", lambda: _walk(1))
+        _common.menu_action("Back", "Down", lambda: _walk(-1))
+        _common.menu_action("Turn left", "Left",
+                            lambda: _turn(BTN_YAW_STEP_DEG))
+        _common.menu_action("Turn right", "Right",
+                            lambda: _turn(-BTN_YAW_STEP_DEG))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def main() -> None:
-    global y_rot
+    global y_rot, _window
 
     if not glfw.init():
         sys.exit(1)
@@ -316,11 +361,17 @@ def main() -> None:
                                 "SphereWorld32", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
     glfw.swap_interval(1)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
     GL.glEnable(GL.GL_MULTISAMPLE)
+
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -334,10 +385,17 @@ def main() -> None:
         last_frame = now
 
         glfw.poll_events()
+        impl.process_inputs()
         handle_camera_keys(window, dt)
         y_rot = (y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
+
+    impl.shutdown()
     glfw.terminate()
 
 
