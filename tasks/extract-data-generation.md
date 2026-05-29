@@ -2,12 +2,11 @@
 
 **Status:** in-progress — done so far: Phase 1 (sphere builder + atom/atom2/solar), the
 sphereworld family (9/9), the remaining sphere/torus users (chapt05/shadow, chapt09
-cubemap/texgen/multitexture), and the cone demos (chapt05/spot, chapt10/axes3d) with the
-new `build_cone` + `draw_mesh(flat=…)`. reflection verified by Bill.
-**Next: the ch14–18 shader scenes** (shadowmap, shaders, vertexshaders, lighting,
-fragmentshaders, imageproc, fbo*) — they share the fan `build_cone` (ready) + a sphere/torus,
-and 4 of them (shadowmap, fbo{drawbuffers,envmap,shadowmap}) need a new `build_octahedron`.
-Then chapt11/thundergl.
+cubemap/texgen/multitexture), the cone demos (chapt05/spot, chapt10/axes3d), AND the
+ch14–18 shader scenes (9 demos). reflection verified by Bill.
+**Next: chapt11/thundergl** (jet mesh, immediate-mode re-emit; siblings thunderbird/vbo
+already bake it). After that, only the dynamic-tess (proctex/hdrbloom — dirty-flag) and
+leave-alone demos remain. NOTE: `build_octahedron` was NOT created (see Phase 5 note).
 
 ## Progress
 - 2026-05-28: Created `ports/openglsuperbiblev4/_primitives.py` (lightweight,
@@ -119,6 +118,22 @@ Then chapt11/thundergl.
   the accepted I001. **DEVIATED from plan: did NOT add `build_octahedron`** — its only callers
   are 4 ch14/ch18 shader scenes (none in this phase), so adding it now would be an unused
   builder; it lands with the shader-scene phase where its callers live.
+- 2026-05-29 (Phase 5 — ch14–18 shader scenes, 9 demos): Converted shadowmap, shaders,
+  vertexshaders, fragmentshaders, imageproc, lighting, fbodrawbuffers, fboenvmap, fboshadowmap.
+  A survey confirmed all 9 copy-paste the SAME sphere/cone/torus generators (sphere & cone
+  BYTE-IDENTICAL to the existing builders; torus the usual ≤1-ULP `(i+1)` variant). Params:
+  sphere (25,50,50)+(25,32,32)+(20,32,32), cone (25,50,50), torus (16,8,50,50) — verified
+  byte-identical (torus within 2.04e-14). `import math` dropped from the 7 that no longer need
+  it (kept in shadowmap + fboshadowmap, which use it for shadow-FOV math). **DECISION: did NOT
+  create `build_octahedron`, and dropped it from the plan entirely.** The octahedron (and the
+  cube) are HARDCODED literal vertices with NO trig — MIXED-TRIVIAL, not a per-frame-trig case,
+  so precomputing buys nothing; worse, the octahedron has 3 inconsistent variants across the 4
+  files (per-vertex-normal with two different face lists, plus a per-face cross-product variant),
+  so a shared builder couldn't even be byte-faithful. Cube + octahedron left exactly as-is.
+  Verified: all 9 py_compile clean, ZERO leftover draw_solid_sphere/draw_torus/draw_solid_cone
+  refs, no F-code lint (no undefined math, no unused imports); remaining lint is all pre-existing
+  (E702/E701 semicolon skybox/octa/cube lines, T201 prints, E501, S311) + accepted I001. (Edits
+  by a sub-agent against the exact byte-identical def block; I verified compile/refs/imports/diffs.)
 - NOTE discovered 2026-05-28: `_common.py` exists but NO demo imports it yet —
   the ports UX-pass menubar/camera wiring is not in master (the CLAUDE.md
   "Active plans" section is stale on this). `_primitives.py` is the first

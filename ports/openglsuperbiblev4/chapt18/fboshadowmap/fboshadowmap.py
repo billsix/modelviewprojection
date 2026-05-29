@@ -24,6 +24,8 @@ import OpenGL.GLU as GLU
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
 window_width: int = 512
 window_height: int = 512
 shadow_width: int = 512
@@ -66,51 +68,9 @@ def draw_solid_cube(size: float) -> None:
     GL.glEnd()
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        s0, c0 = math.sin(lat0), math.cos(lat0)
-        s1, c1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * c0, sl * c0, s0)
-            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
-            GL.glNormal3f(cl * c1, sl * c1, s1)
-            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
-        GL.glEnd()
-
-
-def draw_solid_cone(base: float, height: float, slices: int) -> None:
-    GL.glBegin(GL.GL_TRIANGLE_FAN)
-    GL.glNormal3f(0.0, 0.0, 1.0)
-    GL.glVertex3f(0.0, 0.0, height)
-    for i in range(slices + 1):
-        a = 2.0 * math.pi * float(i) / slices
-        GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
-    GL.glEnd()
-
-
-def draw_torus(major: float, minor: float, n_major: int, n_minor: int) -> None:
-    major_step = 2.0 * math.pi / n_major
-    minor_step = 2.0 * math.pi / n_minor
-    for i in range(n_major):
-        a0, a1 = i * major_step, (i + 1) * major_step
-        x0, y0 = math.cos(a0), math.sin(a0)
-        x1, y1 = math.cos(a1), math.sin(a1)
-        GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        for j in range(n_minor + 1):
-            b = j * minor_step
-            cb, sb = math.cos(b), math.sin(b)
-            r = minor * cb + major
-            z = minor * sb
-            GL.glNormal3f(x0 * cb, y0 * cb, sb)
-            GL.glVertex3f(x0 * r, y0 * r, z)
-            GL.glNormal3f(x1 * cb, y1 * cb, sb)
-            GL.glVertex3f(x1 * r, y1 * r, z)
-        GL.glEnd()
+SPHERE = _primitives.build_sphere(25.0, 50, 50)
+CONE = _primitives.build_cone(25.0, 50.0, 50)
+TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 
 def draw_solid_octahedron() -> None:
@@ -141,14 +101,14 @@ def draw_models(draw_base: bool) -> None:
     GL.glColor3f(1.0, 0.0, 0.0); draw_solid_cube(48.0)
     GL.glColor3f(0.0, 1.0, 0.0)
     GL.glPushMatrix(); GL.glTranslatef(-60.0, 0.0, 0.0)
-    draw_solid_sphere(25.0, 50, 50); GL.glPopMatrix()
+    _primitives.draw_mesh(SPHERE); GL.glPopMatrix()
     GL.glColor3f(1.0, 1.0, 0.0)
     GL.glPushMatrix(); GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
     GL.glTranslatef(60.0, 0.0, -24.0)
-    draw_solid_cone(25.0, 50.0, 50); GL.glPopMatrix()
+    _primitives.draw_mesh(CONE, flat=True); GL.glPopMatrix()
     GL.glColor3f(1.0, 0.0, 1.0)
     GL.glPushMatrix(); GL.glTranslatef(0.0, 0.0, 60.0)
-    draw_torus(16.0, 8.0, 50, 50); GL.glPopMatrix()
+    _primitives.draw_mesh(TORUS); GL.glPopMatrix()
     GL.glColor3f(0.0, 1.0, 1.0)
     GL.glPushMatrix(); GL.glTranslatef(0.0, 0.0, -60.0)
     GL.glScalef(25.0, 25.0, 25.0)
