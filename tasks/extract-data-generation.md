@@ -1,6 +1,13 @@
 # Separate data generation from rendering in SuperBible v4 ports
 
-**Status:** in-progress — Phase 1 done (sphere builder + atom/atom2/solar) and **the entire sphereworld family (9/9) now done**. Bill to spot-check rendering; next cluster is the shared cone/octahedron builders + ch14–18 shader scenes + thundergl.
+**Status:** in-progress — done so far: Phase 1 (sphere builder + atom/atom2/solar), the
+sphereworld family (9/9), the remaining sphere/torus users (chapt05/shadow, chapt09
+cubemap/texgen/multitexture), and the cone demos (chapt05/spot, chapt10/axes3d) with the
+new `build_cone` + `draw_mesh(flat=…)`. reflection verified by Bill.
+**Next: the ch14–18 shader scenes** (shadowmap, shaders, vertexshaders, lighting,
+fragmentshaders, imageproc, fbo*) — they share the fan `build_cone` (ready) + a sphere/torus,
+and 4 of them (shadowmap, fbo{drawbuffers,envmap,shadowmap}) need a new `build_octahedron`.
+Then chapt11/thundergl.
 
 ## Progress
 - 2026-05-28: Created `ports/openglsuperbiblev4/_primitives.py` (lightweight,
@@ -63,6 +70,55 @@
   `(i+1)` vs `a0+step` ≤1-ULP as ch08/09); ch04 torus BYTE-IDENTICAL (it already used
   `a0+step`, and `normals=False` matches its no-normal emission). py_compile clean; ruff shows
   only the accepted I001 sibling-import + pre-existing S311. Bill to visually confirm the 3.
+- 2026-05-29 (verification): Bill ran **chapt06/reflection** — renders correctly. ✅
+  **chapt06/motionblur** crashes at `glAccum(GL_LOAD)` (GLError 1282) — this is the
+  pre-existing accumulation-buffer limitation the file's header already warns about
+  (Mesa gives no accum buffer), NOT the geometry change: `draw_mesh(SPHERE)` ran a full
+  frame before the crash, and the commit didn't touch the `glAccum`/`render_scene` path.
+  OPEN: whether to add a graceful no-blur fallback (gate on `glGetIntegerv(GL_ACCUM_RED_BITS)`)
+  — left as-is for now (faithfulness tradeoff, Bill's call). chapt04/sphereworld not yet
+  spot-checked. Env limitation recorded in auto-memory.
+- 2026-05-29 (Phase 3 — remaining sphere/torus users, no new builder): Converted the
+  four non-sphereworld demos that reuse the existing sphere/torus builders.
+  **chapt05/shadow** — the only trig generator was the yellow light-marker
+  `draw_solid_sphere(5.0,10,10)` (the jet is a hardcoded literal mesh, left as-is) →
+  `build_sphere` + `draw_mesh`; dropped now-unused `import math`. **chapt09/cubemap** —
+  reflective `sphere(0.75,41,41)`, no stored texcoords (cube-map texgen makes them) →
+  `build_sphere` + `draw_mesh`. **chapt09/texgen** — `torus(0.35,0.15,61,37)`, no stored
+  texcoords (texgen makes them) → `build_torus` + `draw_mesh`; dropped `import math`.
+  **chapt09/multitexture** — `sphere(0.75,41,41)` puts its texcoord on TEXTURE0 via
+  `glMultiTexCoord2f`, which `draw_mesh` (emits `glTexCoord2f`) can't express, so kept a
+  slim local `draw_sphere_multitex()` that replays the precomputed `build_sphere` mesh with
+  `glMultiTexCoord2f` (same slim-wrapper pattern as ch08/09's textured `draw_ground`).
+  Equivalence-verified (GL-stub recorder): shadow + cubemap spheres BYTE-IDENTICAL;
+  multitexture multitex sphere BYTE-IDENTICAL; texgen torus within 8.88e-16 (the same
+  `(i+1)` vs `a0+step` ≤1-ULP as ch08/09/reflection). py_compile clean; no leftover
+  draw_solid_sphere/draw_torus refs. Lint: accepted I001 sibling-import on all four, plus
+  PRE-EXISTING E702 (semicolon `glTexCoord;glVertex` lines) in cubemap's `draw_skybox` (24)
+  and texgen's hardcoded quad (4) — both in untouched code, not from this change.
+  Remaining trig generators outside the leave-alone list: cone (chapt05/spot 4-arg w/ stacks,
+  chapt10/axes3d 3-arg) and octahedron need NEW builders; plus the ch14–18 shader scenes and
+  thundergl. Next phase: add `build_cone` (optional `stacks`) + `build_octahedron`, convert spot/axes3d.
+- 2026-05-29 (Phase 4 — cones: chapt05/spot + chapt10/axes3d): The "one build_cone with an
+  optional stacks param" idea from the plan was WRONG once I read the code — there are THREE
+  distinct cone tessellations: (a) spot's 4-arg cone = multi-stack GL_QUAD_STRIP with a
+  per-vertex *slant* normal + a base cap; (b) axes3d's 3-arg cone = a flat-normal GL_TRIANGLE_FAN
+  body + a reversed base disk; (c) the ch14–18 shader-scene 3-arg cone = the SAME fan body as
+  (b) but with NO disk. So `build_cone(base,height,slices)` now builds just the shared **fan
+  body** (apex + base ring, one flat +Z normal) — serves axes3d's body now and all 8 shader
+  scenes next phase. Added `draw_mesh(flat=True)`: emits one `glNormal3f` per band (from the
+  band's first vertex) then the vertices, matching how the fan/disk originals set a single
+  normal for the whole fan. spot's slant cone + cap and axes3d's base disk are demo-specific,
+  so they're precomputed LOCALLY in those files (the cone-cap/disk replay via draw_mesh(flat);
+  the slant cone via the default per-vertex draw_mesh). axes3d's cylinder rod emits ONE normal
+  shared by each base+top vertex *pair* (neither draw_mesh mode fits), so axes3d keeps a tiny
+  `_draw_cylinder()` replaying precomputed rings. spot's spheres ALL use swap_winding=True; its
+  blue sphere has 3 imgui-selectable tessellations (7/15/50) → precomputed all three, no
+  dirty-flag needed. Equivalence-verified (GL-stub recorder): EVERY piece BYTE-IDENTICAL
+  (spot cone/cap/3 spheres/bulb; axes3d fan/disk/cylinder/sphere). py_compile clean; ruff only
+  the accepted I001. **DEVIATED from plan: did NOT add `build_octahedron`** — its only callers
+  are 4 ch14/ch18 shader scenes (none in this phase), so adding it now would be an unused
+  builder; it lands with the shader-scene phase where its callers live.
 - NOTE discovered 2026-05-28: `_common.py` exists but NO demo imports it yet —
   the ports UX-pass menubar/camera wiring is not in master (the CLAUDE.md
   "Active plans" section is stale on this). `_primitives.py` is the first

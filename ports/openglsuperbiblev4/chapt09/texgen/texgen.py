@@ -4,7 +4,6 @@
 # OpenGL SuperBible, Chapter 9
 # Python port of TexGen.cpp by Richard S. Wright Jr.
 
-import math
 import os
 import sys
 import time
@@ -20,30 +19,18 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
+
 x_rot: float = 0.0
 y_rot: float = 0.0
 to_textures = [0, 0]
 i_render_mode: int = 3
 
 
-def draw_torus(major: float, minor: float, n_major: int, n_minor: int) -> None:
-    major_step = 2.0 * math.pi / n_major
-    minor_step = 2.0 * math.pi / n_minor
-    for i in range(n_major):
-        a0, a1 = i * major_step, (i + 1) * major_step
-        x0, y0 = math.cos(a0), math.sin(a0)
-        x1, y1 = math.cos(a1), math.sin(a1)
-        GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        for j in range(n_minor + 1):
-            b = j * minor_step
-            cb, sb = math.cos(b), math.sin(b)
-            r = minor * cb + major
-            z = minor * sb
-            GL.glNormal3f(x0 * cb, y0 * cb, sb)
-            GL.glVertex3f(x0 * r, y0 * r, z)
-            GL.glNormal3f(x1 * cb, y1 * cb, sb)
-            GL.glVertex3f(x1 * r, y1 * r, z)
-        GL.glEnd()
+# Torus the texgen modes are demonstrated on -- texgen generates its
+# texcoords, so none are stored; tessellate once at import.
+TORUS = _primitives.build_torus(0.35, 0.15, 61, 37)
 
 
 def apply_mode(mode: int) -> None:
@@ -100,7 +87,7 @@ def render_scene() -> None:
     GL.glTranslatef(0.0, 0.0, -2.0)
     GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
     GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
-    draw_torus(0.35, 0.15, 61, 37)
+    _primitives.draw_mesh(TORUS)
     GL.glPopMatrix()
 
 

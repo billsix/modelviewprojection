@@ -128,19 +128,42 @@ def build_ground(extent: float = 20.0, step: float = 1.0,
     return (GL.GL_TRIANGLE_STRIP, bands)
 
 
+def build_cone(base: float, height: float, slices: int) -> Mesh:
+    """Precompute a cone *body* as a single ``GL_TRIANGLE_FAN`` band: the apex
+    at ``(0, 0, height)`` followed by the base ring at ``z = 0``, every vertex
+    carrying the flat ``+Z`` normal the originals set once for the whole fan.
+    Matches the hand-written ``draw_solid_cone(base, height, slices)`` in
+    chapt10/axes3d and the chapt14-18 shader scenes -- they emit a single
+    ``glNormal3f`` then the fan, so replay with ``draw_mesh(cone, flat=True)``.
+    No base cap is included (the shader scenes have none); demos that want one
+    (axes3d) add their own disk."""
+    band: list[Vertex] = [(0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, height)]
+    for i in range(slices + 1):
+        a = 2.0 * math.pi * float(i) / slices
+        band.append((0.0, 0.0, 1.0, 0.0, 0.0,
+                     math.cos(a) * base, math.sin(a) * base, 0.0))
+    return (GL.GL_TRIANGLE_FAN, [band])
+
+
 def draw_mesh(mesh: Mesh, *, textured: bool = False,
-              normals: bool = True) -> None:
+              normals: bool = True, flat: bool = False) -> None:
     """Emit a precomputed mesh via immediate mode -- one ``glBegin``/``glEnd``
     per band, ``glNormal3f`` + ``glVertex3f`` per vertex. Set ``textured=True``
     to also emit each vertex's stored ``(s, t)`` texture coordinate. Set
     ``normals=False`` to skip ``glNormal3f`` for the unlit demos whose original
     hand-written generator emitted no normals (e.g. chapt04/sphereworld, drawn
-    in wireframe with lighting off)."""
+    in wireframe with lighting off). Set ``flat=True`` for flat-shaded fans
+    (cones, disks) whose original emitted a *single* ``glNormal3f`` for the
+    whole band: the normal of the band's first vertex is emitted once, before
+    the vertices."""
     mode, bands = mesh
     for band in bands:
         GL.glBegin(mode)
+        if flat and normals and band:
+            n = band[0]
+            GL.glNormal3f(n[0], n[1], n[2])
         for v in band:
-            if normals:
+            if normals and not flat:
                 GL.glNormal3f(v[0], v[1], v[2])
             if textured:
                 GL.glTexCoord2f(v[3], v[4])

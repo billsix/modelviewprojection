@@ -18,6 +18,9 @@ import OpenGL.GLU as GLU
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
+
 camera_x: float = 0.0
 camera_y: float = 0.0
 camera_z: float = 0.0
@@ -32,21 +35,9 @@ cube_targets = [
 ]
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        s0, c0 = math.sin(lat0), math.cos(lat0)
-        s1, c1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * c0, sl * c0, s0)
-            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
-            GL.glNormal3f(cl * c1, sl * c1, s1)
-            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
-        GL.glEnd()
+# Reflective sphere -- cube-map texgen generates its texcoords, so none
+# are stored; tessellate once at import.
+SPHERE = _primitives.build_sphere(0.75, 41, 41)
 
 
 def draw_skybox() -> None:
@@ -151,7 +142,7 @@ def render_scene() -> None:
     # Inverse-rotate the texture matrix so reflections track the camera
     GL.glRotatef(math.degrees(camera_yaw), 0.0, 1.0, 0.0)
 
-    draw_solid_sphere(0.75, 41, 41)
+    _primitives.draw_mesh(SPHERE)
 
     GL.glPopMatrix()
     GL.glMatrixMode(GL.GL_MODELVIEW)
