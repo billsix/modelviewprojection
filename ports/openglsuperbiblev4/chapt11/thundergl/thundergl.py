@@ -27,6 +27,10 @@ y_rot: float = 0.0
 
 CUBE_MAP, BODY_TEXTURE, GLASS_TEXTURE = 0, 1, 2
 texture_objects = [0, 0, 0]
+
+# Static jet mesh (vertices/normals/faces parsed from body.cpp + glass.cpp).
+# Loaded once in setup_rc; render_scene just replays it in immediate mode.
+jet_model: "dict[str, np.ndarray] | None" = None
 cube_faces = ["pos_x.tga", "neg_x.tga", "pos_y.tga", "neg_y.tga",
               "pos_z.tga", "neg_z.tga"]
 cube_targets = [
@@ -136,6 +140,9 @@ def load_cube_map() -> int:
 
 
 def setup_rc() -> None:
+    global jet_model
+    jet_model = load_model(PWD)
+
     f_amb = (0.1, 0.1, 0.1, 0.0)
     f_diff = (1.0, 1.0, 1.0, 0.0)
     f_spec = (0.5, 0.5, 0.5, 0.0)
@@ -204,7 +211,7 @@ def render_scene() -> None:
     # rotations above apply to both as a rigid body; per-mesh fixups
     # are local to each draw block.
 
-    model = load_model(PWD)
+    model = jet_model
 
     # Body: TU0 = body decal, TU1 = cube map reflection (texgen)
     GL.glActiveTexture(GL.GL_TEXTURE0)

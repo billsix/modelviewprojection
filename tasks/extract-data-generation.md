@@ -4,9 +4,11 @@
 sphereworld family (9/9), the remaining sphere/torus users (chapt05/shadow, chapt09
 cubemap/texgen/multitexture), the cone demos (chapt05/spot, chapt10/axes3d), AND the
 ch14–18 shader scenes (9 demos). reflection verified by Bill.
-**Next: chapt11/thundergl** (jet mesh, immediate-mode re-emit; siblings thunderbird/vbo
-already bake it). After that, only the dynamic-tess (proctex/hdrbloom — dirty-flag) and
-leave-alone demos remain. NOTE: `build_octahedron` was NOT created (see Phase 5 note).
+chapt11/thundergl handled (was already data/render-separated; see Phase 6 note).
+**Next / remaining: dynamic-tess demos** chapt17/proctex + chapt18/hdrbloom (rebuild on the
+tessellation slider only — precompute + dirty-flag, NOT every frame). After those, only the
+leave-alone set remains (occquery, bumpmap-TBN, transform/transformgl, vertexblend, imaging,
+florida/GLU). NOTE: `build_octahedron` was NOT created (see Phase 5 note).
 
 ## Progress
 - 2026-05-28: Created `ports/openglsuperbiblev4/_primitives.py` (lightweight,
@@ -134,6 +136,19 @@ leave-alone demos remain. NOTE: `build_octahedron` was NOT created (see Phase 5 
   refs, no F-code lint (no undefined math, no unused imports); remaining lint is all pre-existing
   (E702/E701 semicolon skybox/octa/cube lines, T201 prints, E501, S311) + accepted I001. (Edits
   by a sub-agent against the exact byte-identical def block; I verified compile/refs/imports/diffs.)
+- 2026-05-29 (Phase 6 — chapt11/thundergl): Investigated and found it was ALREADY
+  data/render-separated, contrary to the audit's MIXED-HEAVY tag. The jet mesh
+  (vertices/normals/face indices for body + glass) is parsed ONCE from body.cpp/glass.cpp by
+  `_thunderbird_data.load_model` (which caches by directory) — there is NO per-frame trig;
+  `draw_body`/`draw_glass` just index static numpy arrays and emit glNormal3fv/glVertex3fv. That
+  immediate-mode replay of precomputed data IS this task's target state. The siblings thunderbird
+  (display list) and vbo (VBO) "bake" it, but Bill's rule forbids introducing NEW display
+  lists/VBOs, so those aren't options here. The ONLY in-scope issue: `model = load_model(PWD)`
+  was called inside `render_scene` (cached, so parse-once, but the call sat in the render path).
+  Fix: hoisted it to a module global `jet_model` loaded in `setup_rc`; `render_scene` now reads
+  the global. Behavior-identical (setup runs before the loop; load_model was already cached).
+  py_compile clean; ruff = accepted I001 + a PRE-EXISTING `F401 'math' imported but unused`
+  (confirmed present in HEAD before this change — left as-is, not my cleanup to make; flag to Bill).
 - NOTE discovered 2026-05-28: `_common.py` exists but NO demo imports it yet —
   the ports UX-pass menubar/camera wiring is not in master (the CLAUDE.md
   "Active plans" section is stale on this). `_primitives.py` is the first
