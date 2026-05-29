@@ -4,11 +4,14 @@
 sphereworld family (9/9), the remaining sphere/torus users (chapt05/shadow, chapt09
 cubemap/texgen/multitexture), the cone demos (chapt05/spot, chapt10/axes3d), AND the
 ch14–18 shader scenes (9 demos). reflection verified by Bill.
-chapt11/thundergl handled (was already data/render-separated; see Phase 6 note).
-**Next / remaining: dynamic-tess demos** chapt17/proctex + chapt18/hdrbloom (rebuild on the
-tessellation slider only — precompute + dirty-flag, NOT every frame). After those, only the
-leave-alone set remains (occquery, bumpmap-TBN, transform/transformgl, vertexblend, imaging,
-florida/GLU). NOTE: `build_octahedron` was NOT created (see Phase 5 note).
+chapt11/thundergl handled (Phase 6); chapt17/proctex + chapt18/hdrbloom done via dirty-flag
+(Phase 7). **CONVERSION WORK COMPLETE** — a tree-wide grep confirms the only demos still
+defining draw_solid_sphere/draw_torus/draw_solid_cone are the intended leave-alone set
+(chapt04/transform+transformgl, chapt11/sphereworld [display-list], chapt12/select [2-arg torus],
+chapt13/occquery, chapt17/bumpmap [TBN]). Remaining: **Bill's visual verification** of the
+converted demos (only reflection confirmed so far) and a few open bug/UX tasks
+([[cubemap-reflection-static]], [[shadowmap-depth-discrimination]], [[ports-render-options-to-imgui]]).
+NOTE: `build_octahedron` was NOT created (see Phase 5 note). Not archiving until Bill verifies.
 
 ## Progress
 - 2026-05-28: Created `ports/openglsuperbiblev4/_primitives.py` (lightweight,
@@ -149,6 +152,18 @@ florida/GLU). NOTE: `build_octahedron` was NOT created (see Phase 5 note).
   the global. Behavior-identical (setup runs before the loop; load_model was already cached).
   py_compile clean; ruff = accepted I001 + a PRE-EXISTING `F401 'math' imported but unused`
   (confirmed present in HEAD before this change — left as-is, not my cleanup to make; flag to Bill).
+- 2026-05-29 (Phase 7 — dynamic-tess: chapt17/proctex + chapt18/hdrbloom): Both draw a single
+  `draw_solid_sphere(50.0, tess, tess)` (standard, default winding, NO texcoords — the shaders
+  generate the surface from position/normal) where `tess` is changed live by the UP/DOWN keys
+  (+5 / −5, min 5). Applied the dirty-flag pattern: a module-level `sphere_mesh` plus a
+  `rebuild_sphere()` that calls `build_sphere(50.0, tess, tess)` — invoked ONCE at import and
+  again ONLY in the UP/DOWN key branches, so the sin/cos runs on the keypress, never per-frame.
+  `render` replays via `draw_mesh(sphere_mesh)`. Dropped now-unused `import math` from both.
+  Equivalence-verified BYTE-IDENTICAL at tess 75 (initial), 80 (changed), and 5 (min). py_compile
+  clean; no leftover refs; no F-code lint (math removal clean); remaining lint all pre-existing
+  (E702/E701/E501/T201 semicolon/print lines, one B007) + accepted I001.
+- 2026-05-29 (completeness sweep): tree-wide grep for remaining generator DEFINITIONS returns only
+  the leave-alone set (above) — confirming every in-scope trig demo is converted.
 - NOTE discovered 2026-05-28: `_common.py` exists but NO demo imports it yet —
   the ports UX-pass menubar/camera wiring is not in master (the CLAUDE.md
   "Active plans" section is stale on this). `_primitives.py` is the first

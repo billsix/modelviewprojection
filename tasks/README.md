@@ -39,7 +39,7 @@ typos · `demo14.py:42 zero = Vector3D.e_3()` · `demo21.py` missing `sys`/`os`.
 | Task | Status | Doc |
 |------|--------|-----|
 | **Extract duplicated demo helpers** into per-concept modules (teach-once-then-import) | in progress — `shading.py` ✅, `windowing.py` (`on_key`) ✅, `clipping.py` (`draw_in_square_viewport`) ✅; `set_mvp_uniforms` variant deferred | [`../plans/extract-duplicated-demo-helpers.md`](../plans/extract-duplicated-demo-helpers.md) |
-| **Separate data generation from rendering** in SuperBible ports (precompute trig into `_primitives` builders) | in progress — sphere/torus/ground/cone done across ~20 demos; ch14–18 shader scenes next | [`extract-data-generation.md`](extract-data-generation.md) |
+| **Separate data generation from rendering** in SuperBible ports (precompute trig into `_primitives` builders) | conversions COMPLETE (~30 demos: sphere/torus/ground/cone + dynamic-tess dirty-flag); only leave-alone set remains; pending Bill's visual verification | [`extract-data-generation.md`](extract-data-generation.md) |
 | **Cube-map sphere reflection doesn't track the camera** (ch09 port bug) | not started — investigate + fix | [`cubemap-reflection-static.md`](cubemap-reflection-static.md) |
 | **Make shadow-map depth values visually distinguishable** (ch14/ch18 debug view) | not started — investigated; plan ready, approach TBD w/ Bill | [`shadowmap-depth-discrimination.md`](shadowmap-depth-discrimination.md) |
 | **Move keyboard render-options to imgui** (mode toggles/shader-select/etc. → checkboxes/combos) | not started — recent-commit set inventoried; coordinate w/ ports-ux Phase 3 | [`ports-render-options-to-imgui.md`](ports-render-options-to-imgui.md) |
