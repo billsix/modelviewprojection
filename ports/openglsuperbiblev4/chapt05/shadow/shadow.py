@@ -7,7 +7,6 @@
 # OpenGL SuperBible, Chapter 5
 # Python port of Shadow.cpp by Richard S. Wright Jr.
 
-import math
 import os
 import sys
 import time
@@ -23,6 +22,10 @@ from modelviewprojection.mathutils import (
     plane_equation,
 )
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
+
 
 
 x_rot: float = 0.0
@@ -35,6 +38,10 @@ light_pos = (-75.0, 150.0, -50.0, 0.0)
 specref = (1.0, 1.0, 1.0, 1.0)
 
 shadow_mat = None  # built in setup_rc -- 4x4 column-major np array
+
+# Yellow light-source marker sphere, redrawn each frame at the light
+# position -- tessellate once at import.
+SPHERE_LIGHT = _primitives.build_sphere(5.0, 10, 10)
 
 
 def make_planar_shadow_matrix(
@@ -136,23 +143,6 @@ def draw_jet(n_shadow: int) -> None:
     GL.glEnd()
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        sin0, cos0 = math.sin(lat0), math.cos(lat0)
-        sin1, cos1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * cos0, sl * cos0, sin0)
-            GL.glVertex3f(radius * cl * cos0, radius * sl * cos0, radius * sin0)
-            GL.glNormal3f(cl * cos1, sl * cos1, sin1)
-            GL.glVertex3f(radius * cl * cos1, radius * sl * cos1, radius * sin1)
-        GL.glEnd()
-
-
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
@@ -190,7 +180,7 @@ def render_scene() -> None:
     GL.glPushMatrix()
     GL.glTranslatef(light_pos[0], light_pos[1], light_pos[2])
     GL.glColor3ub(255, 255, 0)
-    draw_solid_sphere(5.0, 10, 10)
+    _primitives.draw_mesh(SPHERE_LIGHT)
     GL.glPopMatrix()
 
     GL.glEnable(GL.GL_DEPTH_TEST)

@@ -17,6 +17,10 @@ import OpenGL.GLU as GLU
 
 from modelviewprojection.mathutils import Vector3D, plane_equation
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
+
 
 
 NUM_SPHERES = 30
@@ -60,64 +64,19 @@ def make_planar_shadow_matrix(
     )
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        sin0, cos0 = math.sin(lat0), math.cos(lat0)
-        sin1, cos1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * cos0, sl * cos0, sin0)
-            GL.glVertex3f(radius * cl * cos0, radius * sl * cos0, radius * sin0)
-            GL.glNormal3f(cl * cos1, sl * cos1, sin1)
-            GL.glVertex3f(radius * cl * cos1, radius * sl * cos1, radius * sin1)
-        GL.glEnd()
-
-
-def draw_torus(major_radius: float, minor_radius: float, num_major: int, num_minor: int) -> None:
-    major_step = 2.0 * math.pi / num_major
-    minor_step = 2.0 * math.pi / num_minor
-    for i in range(num_major):
-        a0 = i * major_step
-        a1 = a0 + major_step
-        x0, y0 = math.cos(a0), math.sin(a0)
-        x1, y1 = math.cos(a1), math.sin(a1)
-        GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        for j in range(num_minor + 1):
-            b = j * minor_step
-            cb, sb = math.cos(b), math.sin(b)
-            r = minor_radius * cb + major_radius
-            z = minor_radius * sb
-            GL.glNormal3f(x0 * cb, y0 * cb, sb)
-            GL.glVertex3f(x0 * r, y0 * r, z)
-            GL.glNormal3f(x1 * cb, y1 * cb, sb)
-            GL.glVertex3f(x1 * r, y1 * r, z)
-        GL.glEnd()
+# Geometry is identical every frame, so build the vertex bands once at import
+# and replay them in draw_inhabitants / render_scene instead of re-running the
+# sin/cos loops on every draw. 30 spheres + a torus, each drawn twice per frame
+# (the shadow pass), were the bulk of the per-frame CPU cost.
+SPHERE_BIG = _primitives.build_sphere(0.3, 21, 11)
+SPHERE_SMALL = _primitives.build_sphere(0.1, 21, 11)
+TORUS = _primitives.build_torus(0.35, 0.15, 61, 37)
+GROUND = _primitives.build_ground(20.0, 1.0, -0.4)
 
 
 def apply_camera_transform() -> None:
     GL.glRotatef(-math.degrees(camera_yaw), 0.0, 1.0, 0.0)
     GL.glTranslatef(-camera_x, -camera_y, -camera_z)
-
-
-def draw_ground() -> None:
-    extent = 20.0
-    step = 1.0
-    y = -0.4
-    strip = -extent
-    while strip <= extent:
-        GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        GL.glNormal3f(0.0, 1.0, 0.0)
-        run = extent
-        while run >= -extent:
-            GL.glVertex3f(strip, y, run)
-            GL.glVertex3f(strip + step, y, run)
-            run -= step
-        GL.glEnd()
-        strip += step
 
 
 def draw_inhabitants(n_shadow: int) -> None:
@@ -131,7 +90,7 @@ def draw_inhabitants(n_shadow: int) -> None:
     for sx, sy, sz in sphere_positions:
         GL.glPushMatrix()
         GL.glTranslatef(sx, sy, sz)
-        draw_solid_sphere(0.3, 21, 11)
+        _primitives.draw_mesh(SPHERE_BIG)
         GL.glPopMatrix()
 
     GL.glPushMatrix()
@@ -143,7 +102,7 @@ def draw_inhabitants(n_shadow: int) -> None:
     GL.glPushMatrix()
     GL.glRotatef(-y_rot * 2.0, 0.0, 1.0, 0.0)
     GL.glTranslatef(1.0, 0.0, 0.0)
-    draw_solid_sphere(0.1, 21, 11)
+    _primitives.draw_mesh(SPHERE_SMALL)
     GL.glPopMatrix()
 
     if n_shadow == 0:
@@ -151,7 +110,7 @@ def draw_inhabitants(n_shadow: int) -> None:
         GL.glMaterialfv(GL.GL_FRONT, GL.GL_SPECULAR, f_bright_light)
 
     GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
-    draw_torus(0.35, 0.15, 61, 37)
+    _primitives.draw_mesh(TORUS)
     GL.glMaterialfv(GL.GL_FRONT, GL.GL_SPECULAR, f_no_light)
     GL.glPopMatrix()
 
@@ -166,7 +125,7 @@ def render_scene() -> None:
 
     # Ground
     GL.glColor3f(0.60, 0.40, 0.10)
-    draw_ground()
+    _primitives.draw_mesh(GROUND)
 
     # Shadows -- transparent and stencil-clipped to draw each pixel only once
     GL.glDisable(GL.GL_DEPTH_TEST)

@@ -39,6 +39,11 @@ typos · `demo14.py:42 zero = Vector3D.e_3()` · `demo21.py` missing `sys`/`os`.
 | Task | Status | Doc |
 |------|--------|-----|
 | **Extract duplicated demo helpers** into per-concept modules (teach-once-then-import) | in progress — `shading.py` ✅, `windowing.py` (`on_key`) ✅, `clipping.py` (`draw_in_square_viewport`) ✅; `set_mvp_uniforms` variant deferred | [`../plans/extract-duplicated-demo-helpers.md`](../plans/extract-duplicated-demo-helpers.md) |
+| **Separate data generation from rendering** in SuperBible ports (precompute trig into `_primitives` builders) | conversions COMPLETE (~30 demos: sphere/torus/ground/cone + dynamic-tess dirty-flag); only leave-alone set remains; pending Bill's visual verification | [`extract-data-generation.md`](extract-data-generation.md) |
+| **Cube-map sphere reflection doesn't track the camera** (ch09 port bug) | not started — investigate + fix | [`cubemap-reflection-static.md`](cubemap-reflection-static.md) |
+| **Make shadow-map depth values visually distinguishable** (ch14/ch18 debug view) | not started — investigated; plan ready, approach TBD w/ Bill | [`shadowmap-depth-discrimination.md`](shadowmap-depth-discrimination.md) |
+| **Move keyboard render-options to imgui** (mode toggles/shader-select/etc. → checkboxes/combos) | not started — recent-commit set inventoried; coordinate w/ ports-ux Phase 3 | [`ports-render-options-to-imgui.md`](ports-render-options-to-imgui.md) |
+| **hdrbloom crashes on startup** (after-glow PBO allocated 1 byte) | not started — root-caused, fix is small | [`hdrbloom-pbo-sizing-crash.md`](hdrbloom-pbo-sizing-crash.md) |
 | De-duplicate per-demo `handle_inputs` (the camera-walk / paddle-move sub-blocks) | investigation task (not started) | [`../plans/dedup-handle-inputs.md`](../plans/dedup-handle-inputs.md) |
 | Investigate `_face_normal` taking/returning `Vector3D` (vs the current tuple in/out) | investigation task (not started) | [`../plans/face-normal-vector3d-io.md`](../plans/face-normal-vector3d-io.md) |
 | Confirm PDF + EPUB build green after inlinetex migration | blocked-on-Bill (needs build container) | [`finish-pdf-epub-build.md`](finish-pdf-epub-build.md) |

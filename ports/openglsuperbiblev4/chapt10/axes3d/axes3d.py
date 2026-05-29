@@ -14,101 +14,103 @@ import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
+
 
 
 x_rot: float = 0.0
 y_rot: float = 0.0
 
+# Axis-arrow dimensions (rod + cone arrowhead). The originals regenerated
+# all of this trig every frame for three axes; precompute each piece once.
+ROD_RADIUS = 0.025
+CONE_RADIUS = 0.06
+ROD_LENGTH = 0.85
+CONE_LENGTH = 0.15
+AXIS_SLICES = 20
 
-def draw_solid_cylinder(base_radius: float, top_radius: float, height: float, slices: int) -> None:
-    """Replacement for gluCylinder side surface."""
+
+def _build_cylinder_rings(base_radius: float, top_radius: float, height: float,
+                          slices: int) -> list:
+    """Precompute the cylinder side surface's per-segment rings. The original
+    gluCylinder replacement emits ONE normal shared by each segment's base+top
+    vertex pair, which neither draw_mesh mode expresses, so _draw_cylinder
+    replays these directly. The trig still runs only once, here."""
+    rings = []
+    for i in range(slices + 1):
+        a = 2.0 * math.pi * float(i) / slices
+        c, s = math.cos(a), math.sin(a)
+        rings.append((c, s,
+                      (c * base_radius, s * base_radius, 0.0),
+                      (c * top_radius, s * top_radius, height)))
+    return rings
+
+
+def _draw_cylinder() -> None:
     GL.glBegin(GL.GL_QUAD_STRIP)
-    for i in range(slices + 1):
-        a = 2.0 * math.pi * float(i) / slices
-        c, s = math.cos(a), math.sin(a)
+    for c, s, base_v, top_v in CYLINDER_RINGS:
         GL.glNormal3f(c, s, 0.0)
-        GL.glVertex3f(c * base_radius, s * base_radius, 0.0)
-        GL.glVertex3f(c * top_radius, s * top_radius, height)
+        GL.glVertex3f(*base_v)
+        GL.glVertex3f(*top_v)
     GL.glEnd()
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    """Replacement for gluSphere -- emits (lat1, lat0) per slice so the
-    outward face winds CCW under the default glFrontFace(GL_CCW)."""
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        s0, c0 = math.sin(lat0), math.cos(lat0)
-        s1, c1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * c1, sl * c1, s1)
-            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
-            GL.glNormal3f(cl * c0, sl * c0, s0)
-            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
-        GL.glEnd()
-
-
-def draw_solid_cone(base: float, height: float, slices: int) -> None:
-    GL.glBegin(GL.GL_TRIANGLE_FAN)
-    GL.glNormal3f(0.0, 0.0, 1.0)
-    GL.glVertex3f(0.0, 0.0, height)
-    for i in range(slices + 1):
-        a = 2.0 * math.pi * float(i) / slices
-        c, s = math.cos(a), math.sin(a)
-        GL.glVertex3f(c * base, s * base, 0.0)
-    GL.glEnd()
-    # Base disk
-    GL.glBegin(GL.GL_TRIANGLE_FAN)
-    GL.glNormal3f(0.0, 0.0, -1.0)
-    GL.glVertex3f(0.0, 0.0, 0.0)
+def _build_cone_disk(radius: float, slices: int) -> "_primitives.Mesh":
+    """The cone's base cap: a -Z-facing GL_TRIANGLE_FAN wound in reverse, one
+    flat normal for the whole fan (replay with draw_mesh(flat=True))."""
+    band: list = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
     for i in range(slices, -1, -1):
         a = 2.0 * math.pi * float(i) / slices
-        GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
-    GL.glEnd()
+        band.append((0.0, 0.0, -1.0, 0.0, 0.0,
+                     math.cos(a) * radius, math.sin(a) * radius, 0.0))
+    return (GL.GL_TRIANGLE_FAN, [band])
+
+
+CYLINDER_RINGS = _build_cylinder_rings(ROD_RADIUS, ROD_RADIUS, ROD_LENGTH,
+                                       AXIS_SLICES)
+CONE_BODY = _primitives.build_cone(CONE_RADIUS, CONE_LENGTH, AXIS_SLICES)
+CONE_DISK = _build_cone_disk(CONE_RADIUS, AXIS_SLICES)
+ORIGIN_SPHERE = _primitives.build_sphere(0.05, 15, 15, swap_winding=True)
 
 
 def draw_unit_axes() -> None:
     """Draw three colored axes with cones at their tips. The original
     gltDrawUnitAxes drew red X, green Y, blue Z axes from origin to 1.0,
     each with a small cone arrowhead."""
-    rod_radius = 0.025
-    cone_radius = 0.06
-    rod_length = 0.85
-    cone_length = 0.15
-
     # +X axis -- red, rotated about Y so cylinder runs along +X
     GL.glColor3f(1.0, 0.0, 0.0)
     GL.glPushMatrix()
     GL.glRotatef(90.0, 0.0, 1.0, 0.0)
-    draw_solid_cylinder(rod_radius, rod_radius, rod_length, 20)
-    GL.glTranslatef(0.0, 0.0, rod_length)
-    draw_solid_cone(cone_radius, cone_length, 20)
+    _draw_axis_arrow()
     GL.glPopMatrix()
 
     # +Y axis -- green, rotated about X so cylinder runs along +Y
     GL.glColor3f(0.0, 1.0, 0.0)
     GL.glPushMatrix()
     GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
-    draw_solid_cylinder(rod_radius, rod_radius, rod_length, 20)
-    GL.glTranslatef(0.0, 0.0, rod_length)
-    draw_solid_cone(cone_radius, cone_length, 20)
+    _draw_axis_arrow()
     GL.glPopMatrix()
 
     # +Z axis -- blue, default orientation
     GL.glColor3f(0.0, 0.0, 1.0)
     GL.glPushMatrix()
-    draw_solid_cylinder(rod_radius, rod_radius, rod_length, 20)
-    GL.glTranslatef(0.0, 0.0, rod_length)
-    draw_solid_cone(cone_radius, cone_length, 20)
+    _draw_axis_arrow()
     GL.glPopMatrix()
 
     # White sphere at the origin -- the original gltDrawUnitAxes finished
     # with gluSphere(0.05, 15, 15).
     GL.glColor3f(1.0, 1.0, 1.0)
-    draw_solid_sphere(0.05, 15, 15)
+    _primitives.draw_mesh(ORIGIN_SPHERE)
+
+
+def _draw_axis_arrow() -> None:
+    """Rod + cone arrowhead (body then base disk), all precomputed."""
+    _draw_cylinder()
+    GL.glTranslatef(0.0, 0.0, ROD_LENGTH)
+    _primitives.draw_mesh(CONE_BODY, flat=True)
+    _primitives.draw_mesh(CONE_DISK, flat=True)
 
 
 def render_scene() -> None:

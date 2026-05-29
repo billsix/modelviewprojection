@@ -18,6 +18,9 @@ import OpenGL.GLU as GLU
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
+
 camera_x: float = 0.0
 camera_y: float = 0.0
 camera_z: float = 0.0
@@ -41,23 +44,21 @@ def load_image(fname: str) -> "tuple[np.ndarray, int, int, int]":
     return np.ascontiguousarray(img, dtype=np.uint8), w, h, fmt
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        s0, c0 = math.sin(lat0), math.cos(lat0)
-        s1, c1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            u = float(j) / slices
-            GL.glNormal3f(cl * c0, sl * c0, s0)
-            GL.glMultiTexCoord2f(GL.GL_TEXTURE0, u, float(i) / stacks)
-            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
-            GL.glNormal3f(cl * c1, sl * c1, s1)
-            GL.glMultiTexCoord2f(GL.GL_TEXTURE0, u, float(i + 1) / stacks)
-            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
+# Sphere with a tarnish color-map on unit 0. Its texcoords go on TEXTURE0
+# via glMultiTexCoord2f, so draw_mesh (which emits glTexCoord2f) doesn't
+# fit -- a slim local replay of the precomputed mesh handles it. The trig
+# still runs only once, at import.
+SPHERE = _primitives.build_sphere(0.75, 41, 41)
+
+
+def draw_sphere_multitex() -> None:
+    mode, bands = SPHERE
+    for band in bands:
+        GL.glBegin(mode)
+        for v in band:
+            GL.glNormal3f(v[0], v[1], v[2])
+            GL.glMultiTexCoord2f(GL.GL_TEXTURE0, v[3], v[4])
+            GL.glVertex3f(v[5], v[6], v[7])
         GL.glEnd()
 
 
@@ -173,7 +174,7 @@ def render_scene() -> None:
 
     GL.glPushMatrix()
     GL.glTranslatef(0.0, 0.0, -3.0)
-    draw_solid_sphere(0.75, 41, 41)
+    draw_sphere_multitex()
     GL.glPopMatrix()
 
     GL.glPopMatrix()

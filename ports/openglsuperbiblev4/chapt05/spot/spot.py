@@ -16,6 +16,10 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
+
 
 
 x_rot: float = 0.0
@@ -37,65 +41,56 @@ i_shade: int = MODE_FLAT
 i_tess: int = MODE_VERYLOW
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    # Emit (lat1, lat0) per j, not (lat0, lat1). The latter winds each
-    # outside-facing quad CW in screen space, which under the chapter's
-    # default glFrontFace(GL_CCW) makes the camera-facing side count as
-    # back -- it gets culled and we end up rendering the far hemisphere
-    # (whose outward normals point away from the light, so no diffuse
-    # contribution). Swapping the pair flips winding to CCW.
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        sin0, cos0 = math.sin(lat0), math.cos(lat0)
-        sin1, cos1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * cos1, sl * cos1, sin1)
-            GL.glVertex3f(radius * cl * cos1, radius * sl * cos1, radius * sin1)
-            GL.glNormal3f(cl * cos0, sl * cos0, sin0)
-            GL.glVertex3f(radius * cl * cos0, radius * sl * cos0, radius * sin0)
-        GL.glEnd()
-
-
-def draw_solid_cone(base: float, height: float, slices: int, stacks: int) -> None:
-    """Cone with base at z=0 and apex at z=+height -- matches GLUT's
-    glutSolidCone and mvp's demo22 _build_marker_cone convention. In
-    chapt05/spot.cpp the cone is drawn at the light position with the
-    bulb (yellow sphere) sitting at the base; the cone body extends
-    *behind* the bulb along the light axis."""
-    # Outward normal on the slant at angle lng: radial component
-    # (cl, sl, 0) plus +Z component proportional to slope, normalized.
+def _build_slant_cone(base: float, height: float, slices: int,
+                      stacks: int) -> "_primitives.Mesh":
+    """Spot's cone: base at z=0, apex at z=+height, with a *slant* normal per
+    vertex (radial + a +Z slope component, normalized) -- distinct from the
+    flat-normal fan cone in _primitives.build_cone. GL_QUAD_STRIP per stack,
+    emitting apex-side (r1,z1) then base-side (r0,z0) so the outward faces wind
+    CCW under glFrontFace(GL_CCW) (else they'd be culled). Per-vertex normals,
+    so replay with the default draw_mesh."""
     slope = base / height if height != 0 else 0.0
     mag = math.sqrt(1.0 + slope * slope)
+    nz = slope / mag
+    bands: list = []
     for i in range(stacks):
         z0 = float(i) / stacks * height
         z1 = float(i + 1) / stacks * height
-        r0 = base * (1.0 - float(i) / stacks)        # base ring at i=0
-        r1 = base * (1.0 - float(i + 1) / stacks)    # smaller ring at i+1
-        GL.glBegin(GL.GL_QUAD_STRIP)
+        r0 = base * (1.0 - float(i) / stacks)
+        r1 = base * (1.0 - float(i + 1) / stacks)
+        band: list = []
         for j in range(slices + 1):
             lng = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl / mag, sl / mag, slope / mag)
-            # Emit apex-direction-side (r1, z1) first, then base-side
-            # (r0, z0). Yields CCW screen winding from outside; without
-            # this swap the cone's outer faces are treated as back and
-            # culled. (Same root cause as the sphere bug above.)
-            GL.glVertex3f(r1 * cl, r1 * sl, z1)
-            GL.glVertex3f(r0 * cl, r0 * sl, z0)
-        GL.glEnd()
-    # Base cap at z=0 facing -Z (away from the apex).
-    # Wind CCW from -Z (= CW in screen XY when viewed from +Z).
-    GL.glBegin(GL.GL_TRIANGLE_FAN)
-    GL.glNormal3f(0.0, 0.0, -1.0)
-    GL.glVertex3f(0.0, 0.0, 0.0)
+            nx, ny = cl / mag, sl / mag
+            band.append((nx, ny, nz, 0.0, 0.0, r1 * cl, r1 * sl, z1))
+            band.append((nx, ny, nz, 0.0, 0.0, r0 * cl, r0 * sl, z0))
+        bands.append(band)
+    return (GL.GL_QUAD_STRIP, bands)
+
+
+def _build_cone_cap(base: float, slices: int) -> "_primitives.Mesh":
+    """Cone base cap at z=0 facing -Z, wound (cos, -sin) so it's CCW from -Z;
+    one flat normal for the whole fan -- replay with draw_mesh(flat=True)."""
+    band: list = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
     for j in range(slices + 1):
         lng = 2.0 * math.pi * float(j) / slices
-        GL.glVertex3f(base * math.cos(lng), -base * math.sin(lng), 0.0)
-    GL.glEnd()
+        band.append((0.0, 0.0, -1.0, 0.0, 0.0,
+                     base * math.cos(lng), -base * math.sin(lng), 0.0))
+    return (GL.GL_TRIANGLE_FAN, [band])
+
+
+# Geometry is fixed (the cone) or one of three fixed tessellations (the blue
+# sphere, switched live via the imgui Tessellation panel) -- tessellate every
+# variant once at import, replay each frame. All spheres use swap_winding so
+# they emit (lat1, lat0) per band: the camera-facing side then winds CCW under
+# glFrontFace(GL_CCW) and isn't culled (the unlit far hemisphere otherwise).
+CONE_SLANT = _build_slant_cone(4.0, 6.0, 15, 15)
+CONE_CAP = _build_cone_cap(4.0, 15)
+BULB_SPHERE = _primitives.build_sphere(3.0, 15, 15, swap_winding=True)
+BLUE_SPHERE_LOW = _primitives.build_sphere(30.0, 7, 7, swap_winding=True)
+BLUE_SPHERE_MEDIUM = _primitives.build_sphere(30.0, 15, 15, swap_winding=True)
+BLUE_SPHERE_HIGH = _primitives.build_sphere(30.0, 50, 50, swap_winding=True)
 
 
 def render_scene() -> None:
@@ -116,13 +111,14 @@ def render_scene() -> None:
     # Red cone enclosing the light source
     GL.glColor3ub(255, 0, 0)
     GL.glTranslatef(light_pos[0], light_pos[1], light_pos[2])
-    draw_solid_cone(4.0, 6.0, 15, 15)
+    _primitives.draw_mesh(CONE_SLANT)
+    _primitives.draw_mesh(CONE_CAP, flat=True)
 
     # Yellow sphere -- lighting off so it appears self-lit
     GL.glPushAttrib(GL.GL_LIGHTING_BIT)
     GL.glDisable(GL.GL_LIGHTING)
     GL.glColor3ub(255, 255, 0)
-    draw_solid_sphere(3.0, 15, 15)
+    _primitives.draw_mesh(BULB_SPHERE)
     GL.glPopAttrib()
 
     GL.glPopMatrix()
@@ -130,11 +126,11 @@ def render_scene() -> None:
     # The blue sphere being illuminated
     GL.glColor3ub(0, 0, 255)
     if i_tess == MODE_VERYLOW:
-        draw_solid_sphere(30.0, 7, 7)
+        _primitives.draw_mesh(BLUE_SPHERE_LOW)
     elif i_tess == MODE_MEDIUM:
-        draw_solid_sphere(30.0, 15, 15)
+        _primitives.draw_mesh(BLUE_SPHERE_MEDIUM)
     else:
-        draw_solid_sphere(30.0, 50, 50)
+        _primitives.draw_mesh(BLUE_SPHERE_HIGH)
 
 
 def imgui_panel() -> None:

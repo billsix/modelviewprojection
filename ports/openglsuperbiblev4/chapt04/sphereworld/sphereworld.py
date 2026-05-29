@@ -21,6 +21,10 @@ import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
+
 
 
 NUM_SPHERES = 50
@@ -38,44 +42,12 @@ camera_yaw: float = 0.0
 y_rot = 0.0  # animation angle for the orbiting sphere/torus group
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        sin0, cos0 = math.sin(lat0), math.cos(lat0)
-        sin1, cos1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * cos0, sl * cos0, sin0)
-            GL.glVertex3f(radius * cl * cos0, radius * sl * cos0, radius * sin0)
-            GL.glNormal3f(cl * cos1, sl * cos1, sin1)
-            GL.glVertex3f(radius * cl * cos1, radius * sl * cos1, radius * sin1)
-        GL.glEnd()
-
-
-def draw_torus(major_radius: float, minor_radius: float, num_major: int, num_minor: int) -> None:
-    major_step = 2.0 * math.pi / num_major
-    minor_step = 2.0 * math.pi / num_minor
-
-    for i in range(num_major):
-        a0 = i * major_step
-        a1 = a0 + major_step
-        x0 = math.cos(a0)
-        y0 = math.sin(a0)
-        x1 = math.cos(a1)
-        y1 = math.sin(a1)
-
-        GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        for j in range(num_minor + 1):
-            b = j * minor_step
-            c = math.cos(b)
-            r = minor_radius * c + major_radius
-            z = minor_radius * math.sin(b)
-            GL.glVertex3f(x0 * r, y0 * r, z)
-            GL.glVertex3f(x1 * r, y1 * r, z)
-        GL.glEnd()
+# The 50 field spheres, the orbiting sphere, and the torus are identical
+# every frame -- tessellate once at import, replay the stored vertices.
+# This demo renders in wireframe with lighting off (see setup_rc), so the
+# torus emits no normals, matching the original hand-written generator.
+SPHERE = _primitives.build_sphere(0.1, 13, 26)
+TORUS = _primitives.build_torus(0.35, 0.15, 40, 20)
 
 
 def apply_camera_transform() -> None:
@@ -126,7 +98,7 @@ def render_scene() -> None:
     for sx, sy, sz in sphere_positions:
         GL.glPushMatrix()
         GL.glTranslatef(sx, sy, sz)
-        draw_solid_sphere(0.1, 13, 26)
+        _primitives.draw_mesh(SPHERE)
         GL.glPopMatrix()
 
     # Torus orbited by a small sphere, both in front of the camera
@@ -136,11 +108,11 @@ def render_scene() -> None:
     GL.glPushMatrix()
     GL.glRotatef(-y_rot * 2.0, 0.0, 1.0, 0.0)
     GL.glTranslatef(1.0, 0.0, 0.0)
-    draw_solid_sphere(0.1, 13, 26)
+    _primitives.draw_mesh(SPHERE)
     GL.glPopMatrix()
 
     GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
-    draw_torus(0.35, 0.15, 40, 20)
+    _primitives.draw_mesh(TORUS, normals=False)
     GL.glPopMatrix()
 
     GL.glPopMatrix()

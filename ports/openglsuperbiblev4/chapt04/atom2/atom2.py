@@ -5,7 +5,6 @@
 # OpenGL SuperBible, Chapter 4
 # Python port of Atom2.cpp by Richard S. Wright Jr.
 
-import math
 import os
 import sys
 import time
@@ -13,6 +12,10 @@ import time
 import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
 
 
 
@@ -25,21 +28,11 @@ ELECTRON_DEG_PER_SEC: float = 100.0
 start_time: float = 0.0
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        sin0, cos0 = math.sin(lat0), math.cos(lat0)
-        sin1, cos1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * cos0, sl * cos0, sin0)
-            GL.glVertex3f(radius * cl * cos0, radius * sl * cos0, radius * sin0)
-            GL.glNormal3f(cl * cos1, sl * cos1, sin1)
-            GL.glVertex3f(radius * cl * cos1, radius * sl * cos1, radius * sin1)
-        GL.glEnd()
+# Sphere tessellation is identical every frame: build the bands once at import
+# and replay them in render_scene (same GL_QUAD_STRIP-per-band shape the old
+# draw_solid_sphere emitted).
+NUCLEUS_SPHERE = _primitives.build_sphere(10.0, 15, 15)
+ELECTRON_SPHERE = _primitives.build_sphere(6.0, 15, 15)
 
 
 def render_scene() -> None:
@@ -47,7 +40,7 @@ def render_scene() -> None:
 
     # Red nucleus
     GL.glColor3ub(255, 0, 0)
-    draw_solid_sphere(10.0, 15, 15)
+    _primitives.draw_mesh(NUCLEUS_SPHERE)
 
     # Yellow electrons
     GL.glColor3ub(255, 255, 0)
@@ -55,21 +48,21 @@ def render_scene() -> None:
     GL.glPushMatrix()
     GL.glRotatef(f_elect1, 0.0, 1.0, 0.0)
     GL.glTranslatef(90.0, 0.0, 0.0)
-    draw_solid_sphere(6.0, 15, 15)
+    _primitives.draw_mesh(ELECTRON_SPHERE)
     GL.glPopMatrix()
 
     GL.glPushMatrix()
     GL.glRotatef(45.0, 0.0, 0.0, 1.0)
     GL.glRotatef(f_elect1, 0.0, 1.0, 0.0)
     GL.glTranslatef(-70.0, 0.0, 0.0)
-    draw_solid_sphere(6.0, 15, 15)
+    _primitives.draw_mesh(ELECTRON_SPHERE)
     GL.glPopMatrix()
 
     GL.glPushMatrix()
     GL.glRotatef(360.0 - 45.0, 0.0, 0.0, 1.0)
     GL.glRotatef(f_elect1, 0.0, 1.0, 0.0)
     GL.glTranslatef(0.0, 0.0, 60.0)
-    draw_solid_sphere(6.0, 15, 15)
+    _primitives.draw_mesh(ELECTRON_SPHERE)
     GL.glPopMatrix()
 
 

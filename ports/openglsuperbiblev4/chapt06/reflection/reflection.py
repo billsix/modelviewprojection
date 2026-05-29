@@ -15,6 +15,10 @@ import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
+
 
 
 f_light_pos = (-100.0, 100.0, 50.0, 1.0)
@@ -39,41 +43,10 @@ def apply_camera_transform() -> None:
     GL.glTranslatef(-camera_x, -camera_y, -camera_z)
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        s0, c0 = math.sin(lat0), math.cos(lat0)
-        s1, c1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * c0, sl * c0, s0)
-            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
-            GL.glNormal3f(cl * c1, sl * c1, s1)
-            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
-        GL.glEnd()
-
-
-def draw_torus(major: float, minor: float, n_major: int, n_minor: int) -> None:
-    major_step = 2.0 * math.pi / n_major
-    minor_step = 2.0 * math.pi / n_minor
-    for i in range(n_major):
-        a0, a1 = i * major_step, (i + 1) * major_step
-        x0, y0 = math.cos(a0), math.sin(a0)
-        x1, y1 = math.cos(a1), math.sin(a1)
-        GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        for j in range(n_minor + 1):
-            b = j * minor_step
-            cb, sb = math.cos(b), math.sin(b)
-            r = minor * cb + major
-            z = minor * sb
-            GL.glNormal3f(x0 * cb, y0 * cb, sb)
-            GL.glVertex3f(x0 * r, y0 * r, z)
-            GL.glNormal3f(x1 * cb, y1 * cb, sb)
-            GL.glVertex3f(x1 * r, y1 * r, z)
-        GL.glEnd()
+# The orbiting sphere and torus are the same every frame -- run the
+# tessellation once at import, replay the stored vertices each frame.
+SPHERE = _primitives.build_sphere(0.1, 17, 9)
+TORUS = _primitives.build_torus(0.35, 0.15, 61, 37)
 
 
 def draw_ground() -> None:
@@ -106,11 +79,11 @@ def draw_world() -> None:
     GL.glPushMatrix()
     GL.glRotatef(-y_rot * 2.0, 0.0, 1.0, 0.0)
     GL.glTranslatef(1.0, 0.0, 0.0)
-    draw_solid_sphere(0.1, 17, 9)
+    _primitives.draw_mesh(SPHERE)
     GL.glPopMatrix()
 
     GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
-    draw_torus(0.35, 0.15, 61, 37)
+    _primitives.draw_mesh(TORUS)
     GL.glPopMatrix()
 
 

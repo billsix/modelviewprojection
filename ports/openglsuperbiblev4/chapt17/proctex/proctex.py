@@ -10,7 +10,6 @@
 # OpenGL SuperBible, Chapter 17
 # Python port of proctex.cpp by Benjamin Lipchak
 
-import math
 import os
 import sys
 
@@ -20,9 +19,12 @@ import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
 import OpenGL.GLU as GLU
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
+
+
+
 window_width: int = 1024
 window_height: int = 768
 
@@ -48,21 +50,15 @@ def transform_vec3(v: np.ndarray, m: np.ndarray) -> np.ndarray:
     return out
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        s0, c0 = math.sin(lat0), math.cos(lat0)
-        s1, c1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * c0, sl * c0, s0)
-            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
-            GL.glNormal3f(cl * c1, sl * c1, s1)
-            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
-        GL.glEnd()
+def rebuild_sphere() -> None:
+    """Re-tessellate the sphere. Called once at import, then ONLY when the tess
+    level changes (UP/DOWN keys) -- the sin/cos work happens on that key event,
+    never in the per-frame render path."""
+    global sphere_mesh
+    sphere_mesh = _primitives.build_sphere(50.0, tess, tess)
+
+
+rebuild_sphere()
 
 
 def prepare_shader(n: int) -> None:
@@ -94,7 +90,7 @@ def draw_models() -> None:
     loc = GL.glGetUniformLocation(p, "lightPos")
     if loc != -1:
         GL.glUniform3fv(loc, 1, light_pos_eye)
-    draw_solid_sphere(50.0, tess, tess)
+    _primitives.draw_mesh(sphere_mesh)
 
 
 def render_scene() -> None:
@@ -162,8 +158,10 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
         light_rotation += 5.0
     elif key == glfw.KEY_UP:
         tess += 5
+        rebuild_sphere()
     elif key == glfw.KEY_DOWN:
         tess = max(5, tess - 5)
+        rebuild_sphere()
     elif key == glfw.KEY_X:
         camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     elif key == glfw.KEY_Y:
