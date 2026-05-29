@@ -1,6 +1,6 @@
 # Separate data generation from rendering in SuperBible v4 ports
 
-**Status:** in-progress — Phase 1 done (sphere builder + atom/atom2/solar). Bill to spot-check rendering; then sphereworld family next.
+**Status:** in-progress — Phase 1 done (sphere builder + atom/atom2/solar) and **the entire sphereworld family (9/9) now done**. Bill to spot-check rendering; next cluster is the shared cone/octahedron builders + ch14–18 shader scenes + thundergl.
 
 ## Progress
 - 2026-05-28: Created `ports/openglsuperbiblev4/_primitives.py` (lightweight,
@@ -46,6 +46,23 @@
   family; ch08/09 originals used `(i+1)*major_step` — mathematically identical,
   ≤1 ULP, visually irrelevant). 6 of 9 family demos done. Remaining: reflection +
   motionblur (checkerboard ground, per-vertex color), ch04 (GL_LINES + no-normal torus).
+- 2026-05-28 (Phase 2 final — sphereworld family complete, 9/9): Converted the last
+  three. Added `normals=False` to `draw_mesh` (skips `glNormal3f`, parallel to the
+  `textured` flag) for unlit demos whose original generator emitted no normals.
+  **chapt06/reflection** — sphere(0.1,17,9)+torus(0.35,0.15,61,37) → builders+`draw_mesh`.
+  **chapt06/motionblur** — sphere(0.1,17,9) → builder (no torus); also dropped its now-unused
+  `import math`. **chapt04/sphereworld** — sphere(0.1,13,26) (both the 50-field and the
+  orbiting one) + torus(0.35,0.15,40,20) via `draw_mesh(TORUS, normals=False)`; this demo
+  renders wireframe with lighting off (`glPolygonMode(GL_LINE)`).
+  DECIDED (my call, per Bill's "whatever you think"): the **non-trig grounds stay local** —
+  reflection/motionblur keep their checkerboard `draw_ground` (per-vertex `glColor4f`, only a
+  `bounce%2` parity, no `sin`/`cos` to hoist) and ch04 keeps its `GL_LINES` line-grid ground
+  (different primitive, also no trig). The trig (the whole point of the task) lives in the
+  sphere/torus, which are now precomputed. Equivalence-verified by GL-stub recorder:
+  reflection/motionblur/ch04 spheres BYTE-IDENTICAL; reflection torus within 8.88e-16 (same
+  `(i+1)` vs `a0+step` ≤1-ULP as ch08/09); ch04 torus BYTE-IDENTICAL (it already used
+  `a0+step`, and `normals=False` matches its no-normal emission). py_compile clean; ruff shows
+  only the accepted I001 sibling-import + pre-existing S311. Bill to visually confirm the 3.
 - NOTE discovered 2026-05-28: `_common.py` exists but NO demo imports it yet —
   the ports UX-pass menubar/camera wiring is not in master (the CLAUDE.md
   "Active plans" section is stale on this). `_primitives.py` is the first

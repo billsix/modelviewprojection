@@ -128,15 +128,20 @@ def build_ground(extent: float = 20.0, step: float = 1.0,
     return (GL.GL_TRIANGLE_STRIP, bands)
 
 
-def draw_mesh(mesh: Mesh, *, textured: bool = False) -> None:
+def draw_mesh(mesh: Mesh, *, textured: bool = False,
+              normals: bool = True) -> None:
     """Emit a precomputed mesh via immediate mode -- one ``glBegin``/``glEnd``
     per band, ``glNormal3f`` + ``glVertex3f`` per vertex. Set ``textured=True``
-    to also emit each vertex's stored ``(s, t)`` texture coordinate."""
+    to also emit each vertex's stored ``(s, t)`` texture coordinate. Set
+    ``normals=False`` to skip ``glNormal3f`` for the unlit demos whose original
+    hand-written generator emitted no normals (e.g. chapt04/sphereworld, drawn
+    in wireframe with lighting off)."""
     mode, bands = mesh
     for band in bands:
         GL.glBegin(mode)
         for v in band:
-            GL.glNormal3f(v[0], v[1], v[2])
+            if normals:
+                GL.glNormal3f(v[0], v[1], v[2])
             if textured:
                 GL.glTexCoord2f(v[3], v[4])
             GL.glVertex3f(v[5], v[6], v[7])

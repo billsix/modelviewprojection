@@ -10,13 +10,16 @@
 # OpenGL SuperBible, Chapter 6
 # Python port of MotionBlur.cpp by Richard S. Wright Jr.
 
-import math
 import os
 import sys
 
 import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _primitives  # noqa: E402
 
 
 
@@ -28,21 +31,9 @@ f_bright_light = (1.0, 1.0, 1.0, 1.0)
 y_rot = 45.0
 
 
-def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
-    for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
-        s0, c0 = math.sin(lat0), math.cos(lat0)
-        s1, c1 = math.sin(lat1), math.cos(lat1)
-        GL.glBegin(GL.GL_QUAD_STRIP)
-        for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
-            cl, sl = math.cos(lng), math.sin(lng)
-            GL.glNormal3f(cl * c0, sl * c0, s0)
-            GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
-            GL.glNormal3f(cl * c1, sl * c1, s1)
-            GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
-        GL.glEnd()
+# The revolving sphere is the same every frame (drawn 10x per frame for
+# the accumulation-buffer blur) -- tessellate once at import, replay each pass.
+SPHERE = _primitives.build_sphere(0.1, 17, 9)
 
 
 def draw_ground() -> None:
@@ -75,7 +66,7 @@ def draw_geometry() -> None:
     GL.glTranslatef(0.0, 0.5, -3.5)
     GL.glRotatef(-(y_rot * 2.0), 0.0, 1.0, 0.0)
     GL.glTranslatef(1.0, 0.0, 0.0)
-    draw_solid_sphere(0.1, 17, 9)
+    _primitives.draw_mesh(SPHERE)
     GL.glPopMatrix()
 
 
