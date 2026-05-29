@@ -1,6 +1,9 @@
 # Separate data generation from rendering in SuperBible v4 ports
 
-**Status:** in-progress — done so far: Phase 1 (sphere builder + atom/atom2/solar), the
+**Status:** complete
+**Completed:** 2026-05-29
+
+Summary: Phase 1 (sphere builder + atom/atom2/solar), the
 sphereworld family (9/9), the remaining sphere/torus users (chapt05/shadow, chapt09
 cubemap/texgen/multitexture), the cone demos (chapt05/spot, chapt10/axes3d), AND the
 ch14–18 shader scenes (9 demos). reflection verified by Bill.
@@ -11,7 +14,8 @@ defining draw_solid_sphere/draw_torus/draw_solid_cone are the intended leave-alo
 chapt13/occquery, chapt17/bumpmap [TBN]). Remaining: **Bill's visual verification** of the
 converted demos (only reflection confirmed so far) and a few open bug/UX tasks
 ([[cubemap-reflection-static]], [[shadowmap-depth-discrimination]], [[ports-render-options-to-imgui]]).
-NOTE: `build_octahedron` was NOT created (see Phase 5 note). Not archiving until Bill verifies.
+NOTE: `build_octahedron` was NOT created (see Phase 5 note). Archived 2026-05-29 at Bill's
+request; his visual spot-checks were completed 2026-05-29 (see "Remaining before archive" below).
 
 ## Remaining before archive
 
