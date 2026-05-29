@@ -6,8 +6,8 @@
 # multi-output shader, or in four separate draws with single-output
 # shaders. Pass 3 tiles those four results back to the window.
 #
-# Keys: D toggle drawbuffers vs. multipass; P toggle post-processing;
-# arrows or X/Y/Z + shift to move camera; Esc to quit.
+# Keys: arrows or X/Y/Z + shift to move camera; Esc to quit. Draw
+# buffers (MRT) and post-processing toggles live on an imgui panel.
 #
 # OpenGL SuperBible, Chapter 18
 # Python port of fbodrawbuffers.cpp by Benjamin Lipchak
@@ -21,12 +21,17 @@ import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 512
 window_height: int = 512
 fbo_width: int = 512
@@ -354,18 +359,61 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
+def _nudge_cam(axis: int, d: float) -> None:
+    camera_pos[axis] += d
+
+
+def _set_use_draw_buffers(v: bool) -> None:
+    global use_draw_buffers
+    use_draw_buffers = v
+
+
+def _set_do_processing(v: bool) -> None:
+    global do_processing
+    do_processing = v
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column; hold the key for continuous
+    # motion.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Options", True):
+        clicked, v = imgui.menu_item("Use draw buffers (MRT)", "",
+                                     use_draw_buffers, True)
+        if clicked:
+            _set_use_draw_buffers(v)
+        clicked, v = imgui.menu_item("Post-processing", "", do_processing, True)
+        if clicked:
+            _set_do_processing(v)
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Camera +X", "X", lambda: _nudge_cam(0, 1.0))
+        _common.menu_action("Camera -X", "Shift+X", lambda: _nudge_cam(0, -1.0))
+        _common.menu_action("Camera +Y", "Y", lambda: _nudge_cam(1, 1.0))
+        _common.menu_action("Camera -Y", "Shift+Y", lambda: _nudge_cam(1, -1.0))
+        _common.menu_action("Camera +Z", "Z", lambda: _nudge_cam(2, 1.0))
+        _common.menu_action("Camera -Z", "Shift+Z", lambda: _nudge_cam(2, -1.0))
+        imgui.separator()
+        _common.menu_action("Camera left", "Left", lambda: _nudge_cam(0, -1.0))
+        _common.menu_action("Camera right", "Right", lambda: _nudge_cam(0, 1.0))
+        _common.menu_action("Camera forward", "Up", lambda: _nudge_cam(2, -1.0))
+        _common.menu_action("Camera back", "Down", lambda: _nudge_cam(2, 1.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global use_draw_buffers, do_processing
+    # Render-option toggles moved to the imgui panel; keys are navigation only.
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True); return
-    if key == glfw.KEY_D:
-        use_draw_buffers = not use_draw_buffers
-        print(f"draw buffers: {'ON' if use_draw_buffers else 'OFF'}"); return
-    if key == glfw.KEY_P:
-        do_processing = not do_processing
-        print(f"post-processing: {'ON' if do_processing else 'OFF'}"); return
     delta = -1.0 if (mods & glfw.MOD_SHIFT) else 1.0
     if key == glfw.KEY_X:
         camera_pos[0] += delta
@@ -384,6 +432,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -392,12 +441,17 @@ def main() -> None:
                                 "FBO Draw Buffers Demo", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
+
     print("FBO Draw Buffers Demo")
-    print("  D: toggle drawbuffers   P: toggle post-processing")
     print("  X/Y/Z + shift, arrows: move camera   Esc: quit")
 
     setup_rc()
@@ -405,8 +459,19 @@ def main() -> None:
     change_size(w, h)
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        # render_scene's no-processing path returns early (still on the
+        # default framebuffer); the processing path ends with Pass 3
+        # bound to framebuffer 0. Rebind defensively so imgui always
+        # draws to the window.
+        GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
+    impl.shutdown()
     glfw.terminate()
 
 

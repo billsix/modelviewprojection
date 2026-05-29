@@ -4,10 +4,10 @@
 # off-screen depth renderbuffer instead of the back buffer, so the
 # shadow texture can be larger than the window.
 #
-# Keys: S toggle shadows on/off; M show the shadow map; F toggle FBO;
-# C toggle camera vs light control; +/- adjust polygon offset factor;
-# X/Y/Z + shift to move; arrows for x/z; Esc to quit. Octahedron
-# replaced with a manual 8-triangle mesh.
+# Keys: X/Y/Z + shift to move; arrows for x/z; Esc to quit. Shadows,
+# show-shadow-map, FBO, camera/light control, and the polygon-offset
+# factor live on an imgui panel. Octahedron replaced with a manual
+# 8-triangle mesh.
 #
 # OpenGL SuperBible, Chapter 18
 # Python port of fboshadowmap.cpp by Benjamin Lipchak
@@ -20,12 +20,17 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 512
 window_height: int = 512
 shadow_width: int = 512
@@ -309,35 +314,98 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
+def _nudge(axis: int, delta: float) -> None:
+    # Move whichever target the panel/keyboard selects (camera or light);
+    # moving the light requires regenerating the shadow map (mirrors on_key).
+    target = camera_pos if control_camera else light_pos
+    target[axis] += delta
+    if not control_camera:
+        regenerate_shadow_map()
+
+
+def _set_shadows(on: bool) -> None:
+    # "Shadows" on means no_shadows off. The old S key cleared show_shadow_map.
+    global no_shadows, show_shadow_map
+    no_shadows = not on
+    show_shadow_map = False
+
+
+def _set_show_shadow_map(v: bool) -> None:
+    # The old M key cleared no_shadows.
+    global show_shadow_map, no_shadows
+    show_shadow_map = v
+    no_shadows = False
+
+
+def _set_use_fbo(v: bool) -> None:
+    global use_fbo
+    use_fbo = v
+    change_size(window_width, window_height)
+
+
+def _set_control_camera(v: bool) -> None:
+    global control_camera
+    control_camera = v
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column; hold the key for continuous
+    # motion. They move whichever target the Control mode selects.
+    global factor
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Options", True):
+        clicked, v = imgui.menu_item("Shadows", "", not no_shadows, True)
+        if clicked:
+            _set_shadows(v)
+        clicked, v = imgui.menu_item("Show shadow map", "", show_shadow_map, True)
+        if clicked:
+            _set_show_shadow_map(v)
+        clicked, v = imgui.menu_item("Use FBO", "", use_fbo, True)
+        if clicked:
+            _set_use_fbo(v)
+        imgui.separator()
+        _common.menu_action("Move camera", "", lambda: _set_control_camera(True),
+                            selected=control_camera)
+        _common.menu_action("Move light", "", lambda: _set_control_camera(False),
+                            selected=not control_camera)
+        imgui.separator()
+        if imgui.begin_menu("Polygon offset", True):
+            changed, factor = imgui.slider_float("Factor", factor, 0.0, 10.0)
+            if changed:
+                GL.glPolygonOffset(factor, 0.0)
+                regenerate_shadow_map()
+            imgui.end_menu()
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        # These move whichever target ("Move camera" / "Move light") is set.
+        _common.menu_action("+X", "X", lambda: _nudge(0, 5.0))
+        _common.menu_action("-X", "Shift+X", lambda: _nudge(0, -5.0))
+        _common.menu_action("+Y", "Y", lambda: _nudge(1, 5.0))
+        _common.menu_action("-Y", "Shift+Y", lambda: _nudge(1, -5.0))
+        _common.menu_action("+Z", "Z", lambda: _nudge(2, 5.0))
+        _common.menu_action("-Z", "Shift+Z", lambda: _nudge(2, -5.0))
+        imgui.separator()
+        _common.menu_action("Left", "Left", lambda: _nudge(0, -5.0))
+        _common.menu_action("Right", "Right", lambda: _nudge(0, 5.0))
+        _common.menu_action("Forward", "Up", lambda: _nudge(2, -5.0))
+        _common.menu_action("Back", "Down", lambda: _nudge(2, 5.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global no_shadows, show_shadow_map, control_camera, use_fbo, factor
+    # Render-option toggles moved to the imgui panel; keys move the
+    # camera or light (whichever the panel selects).
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True); return
-    if key == glfw.KEY_S:
-        no_shadows = not no_shadows; show_shadow_map = False
-        print(f"shadows: {'OFF' if no_shadows else 'ON'}")
-        return
-    if key == glfw.KEY_M:
-        show_shadow_map = not show_shadow_map; no_shadows = False
-        print(f"show shadowmap: {'ON' if show_shadow_map else 'OFF'}")
-        return
-    if key == glfw.KEY_C:
-        control_camera = not control_camera
-        print(f"control: {'CAMERA' if control_camera else 'LIGHT'}")
-        return
-    if key == glfw.KEY_F:
-        use_fbo = not use_fbo
-        print(f"FBO: {'ON' if use_fbo else 'OFF'}")
-        change_size(window_width, window_height)
-        return
-    if key in (glfw.KEY_EQUAL, glfw.KEY_KP_ADD):
-        factor += 1.0; GL.glPolygonOffset(factor, 0.0); regenerate_shadow_map()
-        return
-    if key in (glfw.KEY_MINUS, glfw.KEY_KP_SUBTRACT):
-        factor -= 1.0; GL.glPolygonOffset(factor, 0.0); regenerate_shadow_map()
-        return
     target = camera_pos if control_camera else light_pos
     delta = -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     if key == glfw.KEY_X:
@@ -361,6 +429,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -369,13 +438,17 @@ def main() -> None:
                                 "FBO Shadow Mapping Demo", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
+
     print("FBO Shadow Mapping Demo")
-    print("  S/M: shadows / show shadowmap   F: toggle FBO")
-    print("  C: camera vs light control     +/-: polygon offset")
     print("  X/Y/Z + shift, arrows: move    Esc: quit")
 
     setup_rc()
@@ -383,8 +456,14 @@ def main() -> None:
     change_size(w, h)
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
+    impl.shutdown()
     glfw.terminate()
 
 

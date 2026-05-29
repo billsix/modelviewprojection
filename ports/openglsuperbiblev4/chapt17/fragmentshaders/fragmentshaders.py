@@ -5,10 +5,11 @@
 # .fs); the fragment shader gets the interpolated gl_Color and
 # transforms it (heat-sig 1D-LUT, sepia matrix, fog mix, etc.).
 #
-# C++ used a right-click GLUT menu; this port uses keys 1..7 to pick
-# a shader, arrows to rotate lights / adjust fog, X/Y/Z + shift to
-# pan camera, Esc to quit. The C++ glutSolidTeapot is replaced with
-# a sphere — there's no equivalent in plain PyOpenGL.
+# C++ used a right-click GLUT menu; this port uses an imgui panel to
+# pick a shader (and adjust fog density in fog mode); arrows rotate
+# the light, X/Y/Z + shift to pan the camera, Esc to quit. The C++
+# glutSolidTeapot is replaced with a sphere — there's no equivalent in
+# plain PyOpenGL.
 #
 # OpenGL SuperBible, Chapter 17
 # Python port of fragmentshaders.cpp by Benjamin Lipchak
@@ -21,12 +22,17 @@ import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
 window_height: int = 768
 
@@ -196,8 +202,53 @@ def render_scene() -> None:
 def select_shader(n: int) -> None:
     global which_shader
     which_shader = n
-    print(f"Shader: {shader_names[n]}")
     GL.glUseProgram(prog_obj[which_shader])
+
+
+def _nudge_light(d: float) -> None:
+    global light_rotation
+    light_rotation += d
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column; hold the key for continuous
+    # motion. The fog-density slider only appears for the FOG filter.
+    global density
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Filter", True):
+        for i, name in enumerate(shader_names):
+            _common.menu_action(name, "", lambda i=i: select_shader(i),
+                                selected=(which_shader == i))
+        if which_shader == FOG:
+            imgui.separator()
+            if imgui.begin_menu("Fog density", True):
+                _, density = imgui.slider_float("##fog", density, 0.0, 5.0)
+                imgui.end_menu()
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Light -", "Left", lambda: _nudge_light(-5.0))
+        _common.menu_action("Light +", "Right", lambda: _nudge_light(5.0))
+        imgui.separator()
+        _common.menu_action("Camera +X", "X",
+                            lambda: camera_pos.__setitem__(0, camera_pos[0] + 5.0))
+        _common.menu_action("Camera -X", "Shift+X",
+                            lambda: camera_pos.__setitem__(0, camera_pos[0] - 5.0))
+        _common.menu_action("Camera +Y", "Up / Y",
+                            lambda: camera_pos.__setitem__(1, camera_pos[1] + 5.0))
+        _common.menu_action("Camera -Y", "Down / Shift+Y",
+                            lambda: camera_pos.__setitem__(1, camera_pos[1] - 5.0))
+        _common.menu_action("Camera +Z", "Z",
+                            lambda: camera_pos.__setitem__(2, camera_pos[2] + 5.0))
+        _common.menu_action("Camera -Z", "Shift+Z",
+                            lambda: camera_pos.__setitem__(2, camera_pos[2] - 5.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def setup_rc() -> None:
@@ -236,31 +287,18 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-KEY_TO_SHADER = {
-    glfw.KEY_1: SIMPLE, glfw.KEY_2: GRAYSCALE, glfw.KEY_3: SEPIA,
-    glfw.KEY_4: HEATSIG, glfw.KEY_5: FOG, glfw.KEY_6: GRAYINVERT,
-    glfw.KEY_7: COLORINVERT,
-}
-
-
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global density, light_rotation
+    # Shader selection and fog density moved to the imgui panel; keys here
+    # are navigation only. LEFT/RIGHT always rotate the light. These keys are
+    # mirrored by the panel's "Controls" buttons (which name each key).
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True); return
-    if key in KEY_TO_SHADER:
-        select_shader(KEY_TO_SHADER[key]); return
     if key == glfw.KEY_LEFT:
-        if which_shader == FOG:
-            density = max(0.0, density - 0.1)
-        else:
-            light_rotation -= 5.0
+        _nudge_light(-5.0)
     elif key == glfw.KEY_RIGHT:
-        if which_shader == FOG:
-            density += 0.1
-        else:
-            light_rotation += 5.0
+        _nudge_light(5.0)
     elif key == glfw.KEY_UP:
         camera_pos[1] += 5.0
     elif key == glfw.KEY_DOWN:
@@ -274,6 +312,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -283,14 +322,15 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
-    print("Fragment Shaders Demo")
-    print("Press 1..7 to select a shader:")
-    for i, n in enumerate(shader_names):
-        print(f"  {i + 1}: {n}")
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -298,9 +338,15 @@ def main() -> None:
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
 
+    impl.shutdown()
     glfw.terminate()
 
 

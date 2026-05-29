@@ -4,11 +4,13 @@
 # The shaders themselves live in shaders/*.vs and are loaded at startup.
 #
 # C++ used a right-click GLUT menu to switch shaders. This port uses
-# number keys 1..9 and 0 for the 10 entries, listed below in the
-# console at startup. Arrow keys rotate the lights (or change fog
-# density when a fog shader is active). The C++ glutSolidTeapot is
-# replaced with a second sphere — there is no equivalent in plain
-# PyOpenGL and the teapot is decorative; the demo is about shaders.
+# an imgui combo to pick one of the 10 shaders, with sliders that
+# appear for the fog shaders (fog density) and the stretch shader
+# (squash/stretch vector). The arrow and X/Y/Z keys are pure
+# navigation now: LEFT/RIGHT rotate the lights, UP/DOWN and X/Y/Z move
+# the camera. The C++ glutSolidTeapot is replaced with a second sphere
+# — there is no equivalent in plain PyOpenGL and the teapot is
+# decorative; the demo is about shaders.
 #
 # OpenGL SuperBible, Chapter 16
 # Python port of vertexshaders.cpp by Benjamin Lipchak
@@ -21,12 +23,17 @@ import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
 window_height: int = 768
 
@@ -224,7 +231,6 @@ def render_scene() -> None:
 def select_shader(n: int) -> None:
     global which_shader
     which_shader = n
-    print(f"Shader: {shader_names[n]}")
     GL.glUseProgram(prog_obj[which_shader])
 
     if which_shader == SEPSPEC:
@@ -260,6 +266,61 @@ def select_shader(n: int) -> None:
         GL.glActiveTexture(GL.GL_TEXTURE2); GL.glEnable(GL.GL_TEXTURE_1D)
         GL.glActiveTexture(GL.GL_TEXTURE1); GL.glEnable(GL.GL_TEXTURE_1D)
         GL.glActiveTexture(GL.GL_TEXTURE0)
+
+
+def _nudge_light(d: float) -> None:
+    global light_rotation
+    light_rotation += d
+
+
+def _nudge_cam(axis: int, d: float) -> None:
+    camera_pos[axis] += d
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column; hold the key for continuous
+    # motion. Shader-specific parameters (fog density, squash/stretch) are
+    # shown only for the shaders that use them.
+    global density
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Shader", True):
+        for i, name in enumerate(shader_names):
+            _common.menu_action(name, "", lambda i=i: select_shader(i),
+                                selected=(which_shader == i))
+        if which_shader in (FOGCOORD, FOG):
+            imgui.separator()
+            if imgui.begin_menu("Fog density", True):
+                _, density = imgui.slider_float("##fog", density, 0.0, 0.05)
+                imgui.end_menu()
+        elif which_shader == STRETCH:
+            imgui.separator()
+            if imgui.begin_menu("Squash / stretch", True):
+                _, squash_stretch[0] = imgui.slider_float(
+                    "X", squash_stretch[0], 0.0, 3.0)
+                _, squash_stretch[1] = imgui.slider_float(
+                    "Y", squash_stretch[1], 0.0, 3.0)
+                _, squash_stretch[2] = imgui.slider_float(
+                    "Z", squash_stretch[2], 0.0, 3.0)
+                imgui.end_menu()
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Light -", "Left", lambda: _nudge_light(-5.0))
+        _common.menu_action("Light +", "Right", lambda: _nudge_light(5.0))
+        imgui.separator()
+        _common.menu_action("Camera +X", "X", lambda: _nudge_cam(0, 5.0))
+        _common.menu_action("Camera -X", "Shift+X", lambda: _nudge_cam(0, -5.0))
+        _common.menu_action("Camera +Y", "Up", lambda: _nudge_cam(1, 5.0))
+        _common.menu_action("Camera -Y", "Down", lambda: _nudge_cam(1, -5.0))
+        _common.menu_action("Camera +Z", "Z", lambda: _nudge_cam(2, 5.0))
+        _common.menu_action("Camera -Z", "Shift+Z", lambda: _nudge_cam(2, -5.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def setup_rc() -> None:
@@ -304,60 +365,34 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-# Number-key shader bindings (1..9 => 0..8, 0 => 9)
-KEY_TO_SHADER = {
-    glfw.KEY_1: SIMPLE, glfw.KEY_2: DIFFUSE, glfw.KEY_3: SPECULAR,
-    glfw.KEY_4: SEPSPEC, glfw.KEY_5: TEXSPEC, glfw.KEY_6: THREELIGHTS,
-    glfw.KEY_7: FOGCOORD, glfw.KEY_8: FOG, glfw.KEY_9: PTSIZE,
-    glfw.KEY_0: STRETCH,
-}
-
-
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global density, light_rotation
+    # Shader selection moved to the imgui combo; the fog-density and
+    # squash/stretch parameters moved to imgui sliders. The arrow and
+    # X/Y/Z keys are now pure navigation: LEFT/RIGHT rotate the lights,
+    # UP/DOWN raise/lower the camera, X/Y/Z move the camera (shift = -).
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
         return
-    if key in KEY_TO_SHADER:
-        select_shader(KEY_TO_SHADER[key])
-        return
     if key == glfw.KEY_LEFT:
-        if which_shader in (FOGCOORD, FOG):
-            density = max(0.0, density - 0.0005)
-        else:
-            light_rotation -= 5.0
+        _nudge_light(-5.0)
     elif key == glfw.KEY_RIGHT:
-        if which_shader in (FOGCOORD, FOG):
-            density += 0.0005
-        else:
-            light_rotation += 5.0
+        _nudge_light(5.0)
     elif key == glfw.KEY_UP:
-        camera_pos[1] += 5.0
+        _nudge_cam(1, 5.0)
     elif key == glfw.KEY_DOWN:
-        camera_pos[1] -= 5.0
+        _nudge_cam(1, -5.0)
     elif key == glfw.KEY_X:
-        delta = -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
-        if which_shader == STRETCH:
-            squash_stretch[0] += delta * 0.002
-        else:
-            camera_pos[0] += delta
+        _nudge_cam(0, -5.0 if (mods & glfw.MOD_SHIFT) else 5.0)
     elif key == glfw.KEY_Y:
-        delta = -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
-        if which_shader == STRETCH:
-            squash_stretch[1] += delta * 0.002
-        else:
-            camera_pos[1] += delta
+        _nudge_cam(1, -5.0 if (mods & glfw.MOD_SHIFT) else 5.0)
     elif key == glfw.KEY_Z:
-        delta = -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
-        if which_shader == STRETCH:
-            squash_stretch[2] += delta * 0.002
-        else:
-            camera_pos[2] += delta
+        _nudge_cam(2, -5.0 if (mods & glfw.MOD_SHIFT) else 5.0)
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -367,15 +402,15 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
-    print("Vertex Shaders Demo")
-    print("Press 1..9, 0 to select a shader:")
-    for i, name in enumerate(shader_names):
-        key = (i + 1) % 10
-        print(f"  {key}: {name}")
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -383,9 +418,15 @@ def main() -> None:
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
 
+    impl.shutdown()
     glfw.terminate()
 
 

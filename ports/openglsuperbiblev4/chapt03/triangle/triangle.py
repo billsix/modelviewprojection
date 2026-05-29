@@ -17,6 +17,12 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
+
 # C++ original used a truncated 3.1415; that, combined with `angle <
 # 2*GL_PI` in the fan loop, dropped the closing vertex and left an open
 # seam in the cone. Use math.pi and an inclusive vertex count so all
@@ -122,6 +128,17 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 
 
 ROT_DEG_PER_SEC: float = 90.0
+# Step applied per held-button frame, mirroring the keyboard rotation
+# rate at a nominal 60fps so the buttons feel like holding an arrow key.
+ROT_STEP: float = ROT_DEG_PER_SEC / 60.0
+
+
+def _nudge_rot(axis: str, d: float) -> None:
+    global x_rot, y_rot
+    if axis == "x":
+        x_rot += d
+    else:
+        y_rot += d
 
 
 def handle_special_keys(window, dt: float) -> None:
@@ -142,16 +159,33 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-def imgui_panel() -> None:
+def imgui_menubar() -> None:
     global i_depth, i_cull, i_outline
-    imgui.begin("Triangle")
-    _, i_depth = imgui.checkbox("Depth test", i_depth)
-    _, i_cull = imgui.checkbox("Cull backface", i_cull)
-    _, i_outline = imgui.checkbox("Outline back", i_outline)
-    imgui.end()
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Options", True):
+        _, i_depth = imgui.menu_item("Depth test", "", i_depth, True)
+        _, i_cull = imgui.menu_item("Cull backface", "", i_cull, True)
+        _, i_outline = imgui.menu_item("Outline back", "", i_outline, True)
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Rotate up", "Up", lambda: _nudge_rot("x", -ROT_STEP))
+        _common.menu_action("Rotate down", "Down",
+                            lambda: _nudge_rot("x", ROT_STEP))
+        _common.menu_action("Rotate left", "Left",
+                            lambda: _nudge_rot("y", -ROT_STEP))
+        _common.menu_action("Rotate right", "Right",
+                            lambda: _nudge_rot("y", ROT_STEP))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
 
@@ -165,12 +199,15 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
 
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
+    # key callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -191,7 +228,7 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
 

@@ -18,6 +18,12 @@ from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Controls buttons
+
 
 # Initial square position and size (in the orthographic units set up by
 # change_size).
@@ -108,32 +114,41 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         paused = not paused
 
 
-def imgui_panel() -> None:
-    """Status overlay -- the C++ version used the ImGui demo window;
-    here we just show a small panel matching the spirit of the original
-    (a few values, a few controls)."""
+def imgui_menubar() -> None:
+    """Top menubar. The Bounce menu carries the step sliders plus the
+    Reverse and Pause/Resume actions (SPACE still toggles pause)."""
     global xstep, ystep, paused
-    imgui.begin("Bounce")
-    imgui.text(f"x = {x:.1f}, y = {y:.1f}")
-    imgui.text(f"xstep = {xstep:.2f}, ystep = {ystep:.2f}")
-    imgui.text(f"window {window_width:.0f} x {window_height:.0f}")
-    changed_x, xstep = imgui.slider_float("xstep", xstep, -5.0, 5.0)  # noqa: F841
-    changed_y, ystep = imgui.slider_float("ystep", ystep, -5.0, 5.0)  # noqa: F841
-    if imgui.button("Reverse"):
-        xstep = -xstep
-        ystep = -ystep
-    imgui.same_line()
-    if imgui.button("Pause" if not paused else "Resume"):
-        paused = not paused
-    imgui.text(
-        f"Application avg {1000.0 / max(imgui.get_io().framerate, 1.0):.3f} "
-        f"ms/frame ({imgui.get_io().framerate:.1f} FPS)"
-    )
-    imgui.end()
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Bounce", True):
+        # Sliders live inside the menu (begin_menu/end_menu); they have no
+        # menubar-native equivalent so they render as ordinary widgets here.
+        _, xstep = imgui.slider_float("xstep", xstep, -5.0, 5.0)
+        _, ystep = imgui.slider_float("ystep", ystep, -5.0, 5.0)
+        imgui.separator()
+
+        def _reverse() -> None:
+            global xstep, ystep
+            xstep = -xstep
+            ystep = -ystep
+
+        def _toggle_pause() -> None:
+            global paused
+            paused = not paused
+
+        _common.menu_action("Reverse", "", _reverse)
+        _common.menu_action("Resume" if paused else "Pause", "SPACE",
+                            _toggle_pause)
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def main() -> None:
-    global last_tick
+    global last_tick, _window
 
     if not glfw.init():
         sys.exit(1)
@@ -146,13 +161,16 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
 
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so SPACE/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -173,7 +191,7 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
 

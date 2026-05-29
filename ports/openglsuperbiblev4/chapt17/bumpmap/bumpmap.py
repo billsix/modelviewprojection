@@ -6,9 +6,9 @@
 # from the bumpmap texture (encoded as RGB = (n+1)/2) and uses the
 # TBN basis to bring the perturbed normal into eye space.
 #
-# Keys: 1/2/3 select shape (box/cylinder/torus); B/M switch between
-# bumpmap and showbump shaders; R/P pick rivets/pyramids bumpmap;
-# left/right rotate light; X/Y/Z + shift to pan; Esc to quit.
+# Shape (box/cylinder/torus), shader (bumpmap/showbump), and bumpmap
+# texture (rivets/pyramids) are selected on an imgui panel; left/right
+# rotate the light; X/Y/Z + shift to pan; Esc to quit.
 #
 # OpenGL SuperBible, Chapter 17
 # Python port of bumpmap.cpp by Benjamin Lipchak
@@ -22,10 +22,16 @@ import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 512
 window_height: int = 512
 
@@ -251,6 +257,74 @@ def draw_models() -> None:
         draw_box(70.0, 10.0)
 
 
+def select_shader(n: int) -> None:
+    global which_shader
+    which_shader = n
+    GL.glUseProgram(prog_obj[which_shader])
+
+
+def select_bumpmap(n: int) -> None:
+    global which_bumpmap
+    which_bumpmap = n
+    GL.glBindTexture(GL.GL_TEXTURE_2D, which_bumpmap)
+
+
+def _nudge_light(d: float) -> None:
+    global light_rotation
+    light_rotation += d
+    update_light()
+
+
+def _nudge_cam(axis: int, d: float) -> None:
+    camera_pos[axis] += d
+
+
+def _select_shape(i: int) -> None:
+    global which_shape
+    which_shape = i
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column (discovery); hold the key for
+    # continuous motion.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Render options", True):
+        if imgui.begin_menu("Shape", True):
+            for i, name in enumerate(shape_names):
+                _common.menu_action(name, "", lambda i=i: _select_shape(i),
+                                    selected=(which_shape == i))
+            imgui.end_menu()
+        if imgui.begin_menu("Shader", True):
+            for i, name in enumerate(shader_names):
+                _common.menu_action(name, "", lambda i=i: select_shader(i),
+                                    selected=(which_shader == i))
+            imgui.end_menu()
+        if imgui.begin_menu("Bump texture", True):
+            for i, name in enumerate(bumpmap_names):
+                _common.menu_action(name, "", lambda i=i: select_bumpmap(i),
+                                    selected=(which_bumpmap == i))
+            imgui.end_menu()
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Light -", "Left", lambda: _nudge_light(-5.0))
+        _common.menu_action("Light +", "Right", lambda: _nudge_light(5.0))
+        imgui.separator()
+        _common.menu_action("Camera +X", "X", lambda: _nudge_cam(0, 5.0))
+        _common.menu_action("Camera -X", "Shift+X", lambda: _nudge_cam(0, -5.0))
+        _common.menu_action("Camera +Y", "Up", lambda: _nudge_cam(1, 5.0))
+        _common.menu_action("Camera -Y", "Down", lambda: _nudge_cam(1, -5.0))
+        _common.menu_action("Camera +Z", "Z", lambda: _nudge_cam(2, 5.0))
+        _common.menu_action("Camera -Z", "Shift+Z", lambda: _nudge_cam(2, -5.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
@@ -309,46 +383,30 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 
 
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global which_shape, which_shader, which_bumpmap, light_rotation
+    # Shape, shader, and bumpmap texture selection moved to the imgui panel;
+    # keys here are navigation only.
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True); return
-    if key == glfw.KEY_1:
-        which_shape = BOX; print("shape: box"); return
-    if key == glfw.KEY_2:
-        which_shape = CYLINDER; print("shape: cylinder"); return
-    if key == glfw.KEY_3:
-        which_shape = TORUS; print("shape: torus"); return
-    if key == glfw.KEY_B:
-        which_shader = BUMPMAP; GL.glUseProgram(prog_obj[which_shader])
-        print("shader: bumpmap"); return
-    if key == glfw.KEY_M:
-        which_shader = SHOWBUMP; GL.glUseProgram(prog_obj[which_shader])
-        print("shader: showbump"); return
-    if key == glfw.KEY_R:
-        which_bumpmap = RIVETS; GL.glBindTexture(GL.GL_TEXTURE_2D, which_bumpmap)
-        print("bumpmap: rivets"); return
-    if key == glfw.KEY_P:
-        which_bumpmap = PYRAMIDS; GL.glBindTexture(GL.GL_TEXTURE_2D, which_bumpmap)
-        print("bumpmap: pyramids"); return
     if key == glfw.KEY_LEFT:
-        light_rotation -= 5.0; update_light()
+        _nudge_light(-5.0)
     elif key == glfw.KEY_RIGHT:
-        light_rotation += 5.0; update_light()
+        _nudge_light(5.0)
     elif key == glfw.KEY_UP:
-        camera_pos[1] += 5.0
+        _nudge_cam(1, 5.0)
     elif key == glfw.KEY_DOWN:
-        camera_pos[1] -= 5.0
+        _nudge_cam(1, -5.0)
     elif key == glfw.KEY_X:
-        camera_pos[0] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        _nudge_cam(0, -5.0 if (mods & glfw.MOD_SHIFT) else 5.0)
     elif key == glfw.KEY_Y:
-        camera_pos[1] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        _nudge_cam(1, -5.0 if (mods & glfw.MOD_SHIFT) else 5.0)
     elif key == glfw.KEY_Z:
-        camera_pos[2] += -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+        _nudge_cam(2, -5.0 if (mods & glfw.MOD_SHIFT) else 5.0)
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -357,23 +415,29 @@ def main() -> None:
                                 "Bump Mapping Demo", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
-    print("Bump Mapping Demo")
-    print("  1/2/3: shape (box/cylinder/torus)")
-    print("  B/M:   shader (bumpmap/showbump)")
-    print("  R/P:   bumpmap (rivets/pyramids)")
-    print("  Left/Right: rotate light  X/Y/Z + shift: pan camera")
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
+    impl.shutdown()
     glfw.terminate()
 
 

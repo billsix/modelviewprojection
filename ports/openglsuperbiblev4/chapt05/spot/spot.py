@@ -19,8 +19,9 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
 
-
+_window = None  # set in main(); used by the Controls buttons
 
 x_rot: float = 0.0
 y_rot: float = 0.0
@@ -133,23 +134,57 @@ def render_scene() -> None:
         _primitives.draw_mesh(BLUE_SPHERE_HIGH)
 
 
-def imgui_panel() -> None:
-    global i_shade, i_tess
-    imgui.begin("Spot")
-    imgui.text("Shade Model")
-    if imgui.radio_button("Flat", i_shade == MODE_FLAT):
-        i_shade = MODE_FLAT
-    if imgui.radio_button("Smooth", i_shade == MODE_SMOOTH):
-        i_shade = MODE_SMOOTH
-    imgui.separator()
-    imgui.text("Tessellation")
-    if imgui.radio_button("Very Low", i_tess == MODE_VERYLOW):
-        i_tess = MODE_VERYLOW
-    if imgui.radio_button("Medium", i_tess == MODE_MEDIUM):
-        i_tess = MODE_MEDIUM
-    if imgui.radio_button("Very High", i_tess == MODE_VERYHIGH):
-        i_tess = MODE_VERYHIGH
-    imgui.end()
+def _nudge_x(d: float) -> None:
+    global x_rot
+    x_rot += d
+
+
+def _nudge_y(d: float) -> None:
+    global y_rot
+    y_rot += d
+
+
+def _set_shade(mode: int) -> None:
+    global i_shade
+    i_shade = mode
+
+
+def _set_tess(mode: int) -> None:
+    global i_tess
+    i_tess = mode
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column (discovery); hold the key for
+    # continuous rotation.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Shade Model", True):
+        _common.menu_action("Flat", "", lambda: _set_shade(MODE_FLAT),
+                            selected=(i_shade == MODE_FLAT))
+        _common.menu_action("Smooth", "", lambda: _set_shade(MODE_SMOOTH),
+                            selected=(i_shade == MODE_SMOOTH))
+        imgui.end_menu()
+    if imgui.begin_menu("Tessellation", True):
+        _common.menu_action("Very Low", "", lambda: _set_tess(MODE_VERYLOW),
+                            selected=(i_tess == MODE_VERYLOW))
+        _common.menu_action("Medium", "", lambda: _set_tess(MODE_MEDIUM),
+                            selected=(i_tess == MODE_MEDIUM))
+        _common.menu_action("Very High", "", lambda: _set_tess(MODE_VERYHIGH),
+                            selected=(i_tess == MODE_VERYHIGH))
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Rotate Up", "Up", lambda: _nudge_x(-2.0))
+        _common.menu_action("Rotate Down", "Down", lambda: _nudge_x(2.0))
+        _common.menu_action("Rotate Left", "Left", lambda: _nudge_y(-2.0))
+        _common.menu_action("Rotate Right", "Right", lambda: _nudge_y(2.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def setup_rc() -> None:
@@ -214,6 +249,7 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -223,14 +259,17 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
 
     glfw.make_context_current(window)
     glfw.swap_interval(1)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -250,7 +289,7 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
 

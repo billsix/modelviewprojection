@@ -6,8 +6,9 @@
 # Toggling FBO mode either renders straight to the cube map's faces
 # (fast) or draws to the back buffer and copies it (slow).
 #
-# Keys: E toggle envmap; S show the 6 faces; F toggle FBO; X/Y/Z +
-# shift or arrows to move; Esc to quit. Teapot replaced with a sphere.
+# Keys: X/Y/Z + shift or arrows to move; Esc to quit. Env-mapping,
+# show-env-map, and FBO toggles live on an imgui panel. Teapot
+# replaced with a sphere.
 #
 # OpenGL SuperBible, Chapter 18
 # Python port of fboenvmap.cpp by Benjamin Lipchak
@@ -21,12 +22,17 @@ import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 512
 window_height: int = 512
 env_map_size: int = 512
@@ -336,23 +342,73 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
+def _nudge_cam(axis: int, d: float) -> None:
+    camera_pos[axis] += d
+
+
+def _set_use_env_map(v: bool) -> None:
+    # The old E key cleared show_env_map. Preserve that coupling.
+    global use_env_map, show_env_map
+    use_env_map = v
+    show_env_map = False
+
+
+def _set_show_env_map(v: bool) -> None:
+    # The old S key forced use_env_map on. Preserve that coupling.
+    global show_env_map, use_env_map
+    show_env_map = v
+    use_env_map = True
+
+
+def _set_use_fbo(v: bool) -> None:
+    global use_fbo
+    use_fbo = v
+    change_size(window_width, window_height)
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column; hold the key for continuous
+    # motion.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Options", True):
+        clicked, v = imgui.menu_item("Env mapping", "", use_env_map, True)
+        if clicked:
+            _set_use_env_map(v)
+        clicked, v = imgui.menu_item("Show env map", "", show_env_map, True)
+        if clicked:
+            _set_show_env_map(v)
+        clicked, v = imgui.menu_item("Use FBO", "", use_fbo, True)
+        if clicked:
+            _set_use_fbo(v)
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Camera +X", "X", lambda: _nudge_cam(0, 1.0))
+        _common.menu_action("Camera -X", "Shift+X", lambda: _nudge_cam(0, -1.0))
+        _common.menu_action("Camera +Y", "Y", lambda: _nudge_cam(1, 1.0))
+        _common.menu_action("Camera -Y", "Shift+Y", lambda: _nudge_cam(1, -1.0))
+        _common.menu_action("Camera +Z", "Z", lambda: _nudge_cam(2, 1.0))
+        _common.menu_action("Camera -Z", "Shift+Z", lambda: _nudge_cam(2, -1.0))
+        imgui.separator()
+        _common.menu_action("Camera left", "Left", lambda: _nudge_cam(0, -1.0))
+        _common.menu_action("Camera right", "Right", lambda: _nudge_cam(0, 1.0))
+        _common.menu_action("Camera forward", "Up", lambda: _nudge_cam(2, -1.0))
+        _common.menu_action("Camera back", "Down", lambda: _nudge_cam(2, 1.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global use_env_map, show_env_map, use_fbo
+    # Render-option toggles moved to the imgui panel; keys are navigation only.
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True); return
-    if key == glfw.KEY_E:
-        use_env_map = not use_env_map; show_env_map = False
-        print(f"envmap: {'ON' if use_env_map else 'OFF'}"); return
-    if key == glfw.KEY_S:
-        show_env_map = not show_env_map; use_env_map = True
-        print(f"show envmap: {'ON' if show_env_map else 'OFF'}"); return
-    if key == glfw.KEY_F:
-        use_fbo = not use_fbo
-        print(f"FBO: {'ON' if use_fbo else 'OFF'}")
-        change_size(window_width, window_height)
-        return
     delta = -1.0 if (mods & glfw.MOD_SHIFT) else 1.0
     if key == glfw.KEY_X:
         camera_pos[0] += delta
@@ -371,6 +427,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -379,12 +436,17 @@ def main() -> None:
                                 "FBO Environment Mapping Demo", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
+
     print("FBO Environment Mapping Demo")
-    print("  E: toggle envmap   S: show envmap   F: toggle FBO")
     print("  X/Y/Z + shift, arrows: move camera   Esc: quit")
 
     setup_rc()
@@ -395,7 +457,12 @@ def main() -> None:
     last_t = time.time()
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
         frame_count += 1
         if frame_count == 100:
@@ -406,6 +473,7 @@ def main() -> None:
                                   f"Draw scene {label} {fps:.1f} fps")
             last_t = now
             frame_count = 0
+    impl.shutdown()
     glfw.terminate()
 
 

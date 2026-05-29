@@ -13,7 +13,25 @@ import time
 import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
+PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit menu item
+
+
+def imgui_menubar() -> None:
+    # All controls in the top menubar; this demo has only Quit.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 d_radius: float = 0.1
@@ -68,6 +86,8 @@ TICK_INTERVAL: float = 50.0 / 1000.0
 
 
 def main() -> None:
+    global _window
+
     if not glfw.init():
         sys.exit(1)
 
@@ -82,10 +102,16 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
 
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
+
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     GL.glClearColor(0.0, 0.0, 1.0, 0.0)
     w, h = glfw.get_framebuffer_size(window)
@@ -95,13 +121,21 @@ def main() -> None:
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
 
         now = time.monotonic()
         if now - last_tick >= TICK_INTERVAL:
             render_scene()
+            # Single-buffered: draw the menubar over the accumulating
+            # spiral on the same tick, then flush (no buffer swap).
+            imgui.new_frame()
+            imgui_menubar()
+            imgui.render()
+            impl.render(imgui.get_draw_data())
             GL.glFlush()
             last_tick = now
 
+    impl.shutdown()
     glfw.terminate()
 
 

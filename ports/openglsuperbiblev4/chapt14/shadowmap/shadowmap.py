@@ -5,8 +5,9 @@
 # via GL_COMPARE_R_TO_TEXTURE.
 #
 # C++ used a right-click GLUT menu for shadow toggle / control mode;
-# replaced here with key bindings (S = toggle shadows, M = show
-# shadow map, C = toggle camera/light control).
+# replaced here with an imgui panel (shadows toggle, show shadow map,
+# camera/light control mode, polygon-offset factor). X/Y/Z move the
+# camera or the light depending on the panel's control radio.
 #
 # Note: the C++ original drew glutSolidTorus and glutSolidOctahedron;
 # this port substitutes a generic torus and a simple octahedron.
@@ -22,13 +23,15 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
 
-
-
+_window = None  # set in main(); used by the Quit control button
 control_camera: bool = True
 no_shadows: bool = False
 show_shadow_map: bool = False
@@ -276,6 +279,74 @@ def render_scene() -> None:
         GL.glDisable(GL.GL_TEXTURE_GEN_Q)
 
 
+def _nudge(axis: int, d: float) -> None:
+    # X/Y/Z move the camera or the light, mirroring on_key (the panel's
+    # control radio selects which); regenerate the shadow map after a
+    # light move so the shadow follows.
+    pos = camera_pos if control_camera else light_pos
+    pos[axis] += d
+    if not control_camera:
+        regenerate_shadow_map()
+
+
+def _set_shadows(on: bool) -> None:
+    global no_shadows
+    no_shadows = not on
+
+
+def _set_show_shadow_map(v: bool) -> None:
+    global show_shadow_map
+    show_shadow_map = v
+
+
+def _set_control_camera(v: bool) -> None:
+    global control_camera
+    control_camera = v
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column; hold the key for continuous
+    # motion. X/Y/Z move the camera or the light depending on the Control mode.
+    global factor
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Options", True):
+        clicked, v = imgui.menu_item("Shadows", "", not no_shadows, True)
+        if clicked:
+            _set_shadows(v)
+        clicked, v = imgui.menu_item("Show shadow map", "", show_shadow_map, True)
+        if clicked:
+            _set_show_shadow_map(v)
+        imgui.separator()
+        _common.menu_action("Move camera", "", lambda: _set_control_camera(True),
+                            selected=control_camera)
+        _common.menu_action("Move light", "", lambda: _set_control_camera(False),
+                            selected=not control_camera)
+        imgui.separator()
+        if imgui.begin_menu("Polygon offset", True):
+            changed, factor = imgui.slider_float("Factor", factor, 0.0, 10.0)
+            if changed:
+                GL.glPolygonOffset(factor, 0.0)
+                regenerate_shadow_map()
+            imgui.end_menu()
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        # X/Y/Z move the camera or the light depending on the Control mode.
+        _common.menu_action("+X", "X", lambda: _nudge(0, 5.0))
+        _common.menu_action("-X", "Shift+X", lambda: _nudge(0, -5.0))
+        _common.menu_action("+Y", "Y", lambda: _nudge(1, 5.0))
+        _common.menu_action("-Y", "Shift+Y", lambda: _nudge(1, -5.0))
+        _common.menu_action("+Z", "Z", lambda: _nudge(2, 5.0))
+        _common.menu_action("-Z", "Shift+Z", lambda: _nudge(2, -5.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def setup_rc() -> None:
     global shadow_texture_id
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -316,7 +387,9 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 
 
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global no_shadows, show_shadow_map, control_camera, factor
+    # Render options (shadows toggle, shadow-map view, control mode,
+    # polygon-offset factor) moved to the imgui panel; keys here move the
+    # camera or the light (selected via the panel's control radio).
     if action != glfw.PRESS:
         return
     if key == glfw.KEY_ESCAPE:
@@ -332,24 +405,13 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
         pos[1] += delta
     elif key == glfw.KEY_Z:
         pos[2] += delta
-    elif key == glfw.KEY_F:
-        factor += -1.0 if (mods & glfw.MOD_SHIFT) else 1.0
-        GL.glPolygonOffset(factor, 0.0)
-        regenerate_shadow_map()
-    elif key == glfw.KEY_S:
-        no_shadows = not no_shadows
-        show_shadow_map = False
-    elif key == glfw.KEY_M:
-        show_shadow_map = not show_shadow_map
-        no_shadows = False
-    elif key == glfw.KEY_C:
-        control_camera = not control_camera
 
     if not control_camera:
         regenerate_shadow_map()
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -359,9 +421,15 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
+
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -369,9 +437,15 @@ def main() -> None:
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
 
+    impl.shutdown()
     glfw.terminate()
 
 

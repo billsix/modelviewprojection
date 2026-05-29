@@ -58,6 +58,10 @@ window_width: int = 800
 window_height: int = 600
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Controls buttons
 
 
 # ---------------------------------------------------------------------------
@@ -399,21 +403,31 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
             n_step = 0
 
 
-def imgui_panel() -> None:
-    """Stage selector. Radio buttons are the primary control; SPACE
-    still works as an accelerator."""
+def _set_step(i: int) -> None:
     global n_step
-    imgui.set_next_window_pos((10.0, 10.0), imgui.Cond_.first_use_ever.value)
-    imgui.set_next_window_size((360.0, 0.0), imgui.Cond_.first_use_ever.value)
-    imgui.begin("3D Effects Demo")
-    imgui.text("Stage (SPACE cycles, or click):")
-    for i, label in enumerate(STAGE_LABELS):
-        if imgui.radio_button(label, n_step == i):
-            n_step = i
-    imgui.end()
+    n_step = i
+
+
+def imgui_menubar() -> None:
+    """Top menubar. The Demo menu's radio items select the stage (SPACE
+    still cycles through them as an accelerator)."""
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Demo", True):
+        for i, label in enumerate(STAGE_LABELS):
+            _common.menu_action(label, "SPACE" if i == 0 else "",
+                                lambda i=i: _set_step(i),
+                                selected=(n_step == i))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
 
@@ -424,13 +438,16 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
 
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so SPACE/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -443,7 +460,7 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
 

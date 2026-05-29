@@ -20,6 +20,11 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Controls buttons
+
 TEXTURE_BRICK, TEXTURE_FLOOR, TEXTURE_CEILING = 0, 1, 2
 texture_files = ["brick.tga", "floor.tga", "ceiling.tga"]
 textures = [0, 0, 0]
@@ -178,20 +183,65 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-def imgui_panel() -> None:
-    global filter_idx, anisotropic
-    imgui.begin("Anisotropic")
-    items = ["GL_NEAREST", "GL_LINEAR", "GL_NEAREST_MIPMAP_NEAREST",
-             "GL_NEAREST_MIPMAP_LINEAR", "GL_LINEAR_MIPMAP_NEAREST",
-             "GL_LINEAR_MIPMAP_LINEAR"]
-    f_changed, filter_idx = imgui.combo("Min Filter", filter_idx, items)
-    a_changed, anisotropic = imgui.checkbox("Anisotropic", anisotropic)
-    if f_changed or a_changed:
-        apply_filter(filter_idx, anisotropic)
-    imgui.end()
+def _move(sign: float) -> None:
+    global camera_x, camera_z
+    step = sign * MOVE_UNITS_PER_SEC / 60.0
+    camera_x += -step * math.sin(camera_yaw)
+    camera_z += -step * math.cos(camera_yaw)
+
+
+def _yaw(sign: float) -> None:
+    global camera_yaw
+    camera_yaw += sign * YAW_RAD_PER_SEC / 60.0
+
+
+FILTER_NAMES = ["GL_NEAREST", "GL_LINEAR", "GL_NEAREST_MIPMAP_NEAREST",
+                "GL_NEAREST_MIPMAP_LINEAR", "GL_LINEAR_MIPMAP_NEAREST",
+                "GL_LINEAR_MIPMAP_LINEAR"]
+
+
+def _set_filter(idx: int) -> None:
+    global filter_idx
+    filter_idx = idx
+    apply_filter(filter_idx, anisotropic)
+
+
+def _toggle_aniso() -> None:
+    global anisotropic
+    anisotropic = not anisotropic
+    apply_filter(filter_idx, anisotropic)
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. The min-filter combo becomes
+    # radio menu items, the Anisotropic checkbox a checkable item; movement
+    # items show their key (hold for continuous walking).
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Filtering", True):
+        for i, name in enumerate(FILTER_NAMES):
+            _common.menu_action(name, "", lambda v=i: _set_filter(v),
+                                selected=(filter_idx == i))
+        imgui.separator()
+        clicked, _ = imgui.menu_item("Anisotropic", "", anisotropic, True)
+        if clicked:
+            _toggle_aniso()
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Forward", "Up", lambda: _move(1.0))
+        _common.menu_action("Back", "Down", lambda: _move(-1.0))
+        _common.menu_action("Turn Left", "Left", lambda: _yaw(1.0))
+        _common.menu_action("Turn Right", "Right", lambda: _yaw(-1.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -200,12 +250,15 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     apply_filter(filter_idx, anisotropic)
@@ -225,7 +278,7 @@ def main() -> None:
         handle_special_keys(window, dt)
         render_scene()
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)

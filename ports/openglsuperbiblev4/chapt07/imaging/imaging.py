@@ -25,6 +25,10 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 image_data: np.ndarray
 image_w: int = 0
 image_h: int = 0
@@ -168,24 +172,39 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-def imgui_panel() -> None:
-    global i_render_mode, b_histogram
-    imgui.begin("Imaging")
-    for label, value in [
-        ("Raw Stretched Image", MODE_RAW),
-        ("Increase Contrast", MODE_CONTRAST),
-        ("Invert Color", MODE_INVERT),
-        ("Emboss Image", MODE_EMBOSS),
-        ("Sharpen Image", MODE_SHARPEN),
-    ]:
-        if imgui.radio_button(label, i_render_mode == value):
-            i_render_mode = value
-    imgui.separator()
-    _, b_histogram = imgui.checkbox("Histogram", b_histogram)
-    imgui.end()
+def _set_mode(value: int) -> None:
+    global i_render_mode
+    i_render_mode = value
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar (no keyboard nav besides Esc,
+    # which the File -> Quit item covers).
+    global b_histogram
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Imaging", True):
+        for label, value in [
+            ("Raw Stretched Image", MODE_RAW),
+            ("Increase Contrast", MODE_CONTRAST),
+            ("Invert Color", MODE_INVERT),
+            ("Emboss Image", MODE_EMBOSS),
+            ("Sharpen Image", MODE_SHARPEN),
+        ]:
+            _common.menu_action(label, "", lambda v=value: _set_mode(v),
+                                selected=(i_render_mode == value))
+        imgui.separator()
+        _, b_histogram = imgui.menu_item("Histogram", "", b_histogram, True)
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -196,12 +215,15 @@ def main() -> None:
         glfw.terminate()
         sys.exit(1)
 
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
+    # key callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -214,7 +236,7 @@ def main() -> None:
         render_scene()
 
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
 

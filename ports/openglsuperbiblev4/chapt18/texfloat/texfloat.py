@@ -5,10 +5,9 @@
 # shaders are interactive: they use the brightest texel within a
 # 51x51 cursor window to set their exposure or white-balance values.
 #
-# Keys: F1..F4 = clamped/trivial/iris/whitebalance shader; 1..8 picks
-# the EXR image (Blobbies, Desk, GoldenGate, MtTamWest, Ocean,
-# Spirals, StillLife, Tree); arrow keys move the cursor (mouse motion
-# also updates it); Esc to quit.
+# Keys: arrow keys move the pixel-probe cursor (mouse motion also
+# updates it); Esc to quit. The tone-map shader and the test image
+# live on an imgui panel.
 #
 # OpenGL SuperBible, Chapter 18
 # Python port of texfloat.cpp by Benjamin Lipchak
@@ -21,10 +20,16 @@ import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
 window_height: int = 768
 
@@ -39,6 +44,8 @@ exr_files = [
     "Blobbies.exr", "Desk.exr", "GoldenGate.exr", "MtTamWest.exr",
     "Ocean.exr", "Spirals.exr", "StillLife.exr", "Tree.exr",
 ]
+image_names = [os.path.splitext(f)[0] for f in exr_files]
+current_image: int = 0
 
 f_texels: np.ndarray | None = None
 npot_w: int = 0
@@ -90,7 +97,8 @@ def alter_aspect() -> None:
 
 
 def setup_textures(which: int) -> None:
-    global f_texels, npot_w, npot_h, pot_w, pot_h
+    global f_texels, npot_w, npot_h, pot_w, pot_h, current_image
+    current_image = which
     img = iio.imread(os.path.join(PWD, "openexr-images", exr_files[which]))
     img = np.flipud(img).astype(np.float32)
     if img.ndim == 3 and img.shape[2] >= 3:
@@ -187,22 +195,68 @@ def on_mouse_pos(_window, x: float, y: float) -> None:
         cursor_update(x / (window_width - 1), y / (window_height - 1))
 
 
+def _nudge_cursor(axis: int, delta: int) -> None:
+    # Move the pixel-probe cursor one pixel (mirrors the arrow keys); this
+    # is NOT a camera -- it positions the 51x51 readback window.
+    global i_cursor_x, i_cursor_y
+    if axis == 0:
+        i_cursor_x = max(0, min(window_width - 1, i_cursor_x + delta))
+    else:
+        i_cursor_y = max(0, min(window_height - 1, i_cursor_y + delta))
+    if window_width > 1 and window_height > 1:
+        cursor_update(i_cursor_x / (window_width - 1),
+                      i_cursor_y / (window_height - 1))
+
+
+def _select_shader(i: int) -> None:
+    global current_shader
+    current_shader = i
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. The tone-map shader and test
+    # image (were combos) are radio menus; the Controls menu drives the
+    # pixel-probe readback cursor, NOT a camera. F1-F4 / 1-8 are the C++
+    # shortcuts shown for discovery; hold an arrow for continuous motion.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Render options", True):
+        if imgui.begin_menu("Tone-map shader", True):
+            for i, name in enumerate(shader_names):
+                _common.menu_action(name, f"F{i + 1}",
+                                    lambda i=i: _select_shader(i),
+                                    selected=(current_shader == i))
+            imgui.end_menu()
+        if imgui.begin_menu("Test image", True):
+            for i, name in enumerate(image_names):
+                _common.menu_action(name, str(i + 1),
+                                    lambda i=i: setup_textures(i),
+                                    selected=(current_image == i))
+            imgui.end_menu()
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Cursor left", "Left",
+                            lambda: _nudge_cursor(0, -1))
+        _common.menu_action("Cursor right", "Right",
+                            lambda: _nudge_cursor(0, 1))
+        _common.menu_action("Cursor up", "Up", lambda: _nudge_cursor(1, -1))
+        _common.menu_action("Cursor down", "Down", lambda: _nudge_cursor(1, 1))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
-    global current_shader, i_cursor_x, i_cursor_y
+    # Shader and image selection moved to the imgui panel; the arrow
+    # keys still drive the pixel-probe cursor (a debug interaction).
+    global i_cursor_x, i_cursor_y
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True); return
-    if key == glfw.KEY_F1:
-        current_shader = CLAMPED; print("shader: clamped"); return
-    if key == glfw.KEY_F2:
-        current_shader = TRIVIAL; print("shader: trivial"); return
-    if key == glfw.KEY_F3:
-        current_shader = IRIS; print("shader: iris"); return
-    if key == glfw.KEY_F4:
-        current_shader = WHITEBALANCE; print("shader: whitebalance"); return
-    if glfw.KEY_1 <= key <= glfw.KEY_8:
-        setup_textures(key - glfw.KEY_1); return
     if key == glfw.KEY_LEFT:
         i_cursor_x = max(0, i_cursor_x - 1)
     elif key == glfw.KEY_RIGHT:
@@ -219,6 +273,7 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -227,15 +282,18 @@ def main() -> None:
                                 "Floating-Point Texture Demo", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
-    glfw.set_cursor_pos_callback(window, on_mouse_pos)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Register our callbacks AFTER GlfwRenderer (it installs non-chaining glfw
+    # key + cursor callbacks); imgui still gets mouse via process_inputs.
+    glfw.set_key_callback(window, on_key)
+    glfw.set_cursor_pos_callback(window, on_mouse_pos)
+
     print("Floating-Point Texture Demo")
-    print("  F1..F4: shader (clamped/trivial/iris/whitebalance)")
-    print("  1..8: image (Blobbies/Desk/GoldenGate/MtTamWest/")
-    print("               Ocean/Spirals/StillLife/Tree)")
     print("  arrows or mouse: move cursor   Esc: quit")
 
     setup_rc()
@@ -243,8 +301,14 @@ def main() -> None:
     change_size(w, h)
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
+    impl.shutdown()
     glfw.terminate()
 
 

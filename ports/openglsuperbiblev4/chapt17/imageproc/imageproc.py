@@ -3,8 +3,8 @@
 # then redraw a fullscreen quad through a 3x3-tap convolution
 # fragment shader. Selecting "blur" twice runs two passes.
 #
-# Keys: 1..8 select shader; P followed by 1..5 sets number of passes;
-# left/right rotate light; X/Y/Z + shift to pan; Esc to quit.
+# Shader selection and pass count live on an imgui panel; left/right
+# rotate the light; X/Y/Z + shift to pan; Esc to quit.
 #
 # OpenGL SuperBible, Chapter 17
 # Python port of imageproc.cpp by Benjamin Lipchak
@@ -17,12 +17,17 @@ import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders_mod
 import OpenGL.GLU as GLU
+from imgui_bundle import imgui
+from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
 window_height: int = 512
 texture_width: int = 1024
@@ -47,7 +52,6 @@ light_rotation: float = 0.0
 tex_coord_offsets: np.ndarray = np.zeros(18, dtype=np.float32)
 num_passes: int = 2
 max_tex_size: int = 0
-pending_pass_select: bool = False  # waiting for digit after 'P' is pressed
 
 
 def draw_solid_cube(size: float) -> None:
@@ -171,6 +175,56 @@ def render_scene() -> None:
     GL.glUseProgram(0)
 
 
+def _nudge_light(d: float) -> None:
+    global light_rotation
+    light_rotation += d
+
+
+def _select_filter(n: int) -> None:
+    global which_shader
+    which_shader = n
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column; hold the key for continuous
+    # motion. "Passes" runs the convolution shader 1..5 times.
+    global num_passes
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Filter", True):
+        for i, name in enumerate(shader_names):
+            _common.menu_action(name, "", lambda i=i: _select_filter(i),
+                                selected=(which_shader == i))
+        imgui.separator()
+        if imgui.begin_menu("Passes", True):
+            _, num_passes = imgui.slider_int("##passes", num_passes, 1, 5)
+            imgui.end_menu()
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Light -", "Left", lambda: _nudge_light(-5.0))
+        _common.menu_action("Light +", "Right", lambda: _nudge_light(5.0))
+        imgui.separator()
+        _common.menu_action("Camera +X", "X",
+                            lambda: camera_pos.__setitem__(0, camera_pos[0] + 5.0))
+        _common.menu_action("Camera -X", "Shift+X",
+                            lambda: camera_pos.__setitem__(0, camera_pos[0] - 5.0))
+        _common.menu_action("Camera +Y", "Up / Y",
+                            lambda: camera_pos.__setitem__(1, camera_pos[1] + 5.0))
+        _common.menu_action("Camera -Y", "Down / Shift+Y",
+                            lambda: camera_pos.__setitem__(1, camera_pos[1] - 5.0))
+        _common.menu_action("Camera +Z", "Z",
+                            lambda: camera_pos.__setitem__(2, camera_pos[2] + 5.0))
+        _common.menu_action("Camera -Z", "Shift+Z",
+                            lambda: camera_pos.__setitem__(2, camera_pos[2] - 5.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
 def setup_rc() -> None:
     global max_tex_size
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -215,39 +269,18 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-KEY_TO_SHADER = {
-    glfw.KEY_1: PASS_THROUGH, glfw.KEY_2: BLUR, glfw.KEY_3: SHARPEN,
-    glfw.KEY_4: DILATION, glfw.KEY_5: EROSION, glfw.KEY_6: LAPLACIAN,
-    glfw.KEY_7: SOBEL, glfw.KEY_8: PREWITT,
-}
-
-
 def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
-    global which_shader, num_passes, light_rotation, pending_pass_select
+    # Shader selection and pass count moved to the imgui panel; keys here
+    # are navigation only. These keys are mirrored by the panel's "Controls"
+    # buttons (which name each key).
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True); return
-    if pending_pass_select and key in (
-        glfw.KEY_1, glfw.KEY_2, glfw.KEY_3, glfw.KEY_4, glfw.KEY_5,
-    ):
-        num_passes = key - glfw.KEY_0
-        print(f"passes: {num_passes}")
-        pending_pass_select = False
-        return
-    pending_pass_select = False
-    if key == glfw.KEY_P:
-        pending_pass_select = True
-        print("press 1..5 to set number of passes")
-        return
-    if key in KEY_TO_SHADER:
-        which_shader = KEY_TO_SHADER[key]
-        print(f"Shader: {shader_names[which_shader]}")
-        return
     if key == glfw.KEY_LEFT:
-        light_rotation -= 5.0
+        _nudge_light(-5.0)
     elif key == glfw.KEY_RIGHT:
-        light_rotation += 5.0
+        _nudge_light(5.0)
     elif key == glfw.KEY_UP:
         camera_pos[1] += 5.0
     elif key == glfw.KEY_DOWN:
@@ -261,6 +294,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -269,22 +303,29 @@ def main() -> None:
                                 "Image Processing Demo", None, None)
     if not window:
         glfw.terminate(); sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
-    print("Image Processing Demo")
-    for i, n in enumerate(shader_names):
-        print(f"  {i + 1}: {n}")
-    print("  P then 1..5: set number of passes")
+    imgui.create_context()
+    impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so navigation/Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
     while not glfw.window_should_close(window):
         glfw.poll_events()
+        impl.process_inputs()
         render_scene()
+        imgui.new_frame()
+        imgui_menubar()
+        imgui.render()
+        impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
+    impl.shutdown()
     glfw.terminate()
 
 

@@ -21,6 +21,9 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _primitives  # noqa: E402
+import _common  # noqa: E402
+
+_window = None  # set in main(); used by the Controls buttons
 
 x_rot: float = 0.0
 y_rot: float = 0.0
@@ -89,6 +92,11 @@ def render_scene() -> None:
     GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
     _primitives.draw_mesh(TORUS)
     GL.glPopMatrix()
+
+    # Turn texgen off for the imgui menubar (re-enabled each frame above), so
+    # the menubar quad isn't given generated texture coords.
+    GL.glDisable(GL.GL_TEXTURE_GEN_S)
+    GL.glDisable(GL.GL_TEXTURE_GEN_T)
 
 
 def setup_rc() -> None:
@@ -159,18 +167,49 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-def imgui_panel() -> None:
+def _nudge_x(d: float) -> None:
+    global x_rot
+    x_rot += d
+
+
+def _nudge_y(d: float) -> None:
+    global y_rot
+    y_rot += d
+
+
+def _set_mode(value: int) -> None:
     global i_render_mode
-    imgui.begin("TexGen")
-    for label, value in [("Object Linear", 1), ("Eye Linear", 2),
-                         ("Sphere Map", 3)]:
-        if imgui.radio_button(label, i_render_mode == value):
-            i_render_mode = value
-            apply_mode(i_render_mode)
-    imgui.end()
+    i_render_mode = value
+    apply_mode(i_render_mode)
+
+
+def imgui_menubar() -> None:
+    # All controls live in the top menubar. Movement items run once per click
+    # and show their key in the shortcut column (discovery); hold the key for
+    # continuous rotation.
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        _common.menu_action("Quit", "Esc",
+                            lambda: glfw.set_window_should_close(_window, True))
+        imgui.end_menu()
+    if imgui.begin_menu("Render Mode", True):
+        for label, value in [("Object Linear", 1), ("Eye Linear", 2),
+                             ("Sphere Map", 3)]:
+            _common.menu_action(label, "", lambda v=value: _set_mode(v),
+                                selected=(i_render_mode == value))
+        imgui.end_menu()
+    if imgui.begin_menu("Controls", True):
+        _common.menu_action("Rotate Up", "Up", lambda: _nudge_x(-2.0))
+        _common.menu_action("Rotate Down", "Down", lambda: _nudge_x(2.0))
+        _common.menu_action("Rotate Left", "Left", lambda: _nudge_y(-2.0))
+        _common.menu_action("Rotate Right", "Right", lambda: _nudge_y(2.0))
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
 
 
 def main() -> None:
+    global _window
     if not glfw.init():
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
@@ -180,12 +219,15 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
+    _window = window
     glfw.make_context_current(window)
-    glfw.set_key_callback(window, on_key)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
     impl = GlfwRenderer(window)
+    # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
+    # callback that doesn't chain, so Esc must be registered last.
+    glfw.set_key_callback(window, on_key)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -204,7 +246,7 @@ def main() -> None:
         handle_special_keys(window, dt)
         render_scene()
         imgui.new_frame()
-        imgui_panel()
+        imgui_menubar()
         imgui.render()
         impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)
