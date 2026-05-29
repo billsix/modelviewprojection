@@ -13,6 +13,29 @@ converted demos (only reflection confirmed so far) and a few open bug/UX tasks
 ([[cubemap-reflection-static]], [[shadowmap-depth-discrimination]], [[ports-render-options-to-imgui]]).
 NOTE: `build_octahedron` was NOT created (see Phase 5 note). Not archiving until Bill verifies.
 
+## Remaining before archive
+
+The refactor itself is **done** — no more demos to convert, everything emission-verified
+byte-identical, leave-alone set confirmed by grep. What's left is not coding on this task:
+
+1. **Bill's visual spot-checks** of the converted demos (no display in-container; I can't do this).
+   Confirmed so far: `reflection`. Recommended quick coverage: one from each cluster — an
+   atom/solar, a sphereworld (e.g. ch06), a textured one (ch08/09 or cubemap/texgen), spot
+   (cone + 3 tess levels), axes3d (cone+cylinder+disk), one shader scene (lighting), and
+   proctex (UP/DOWN changes tessellation).
+2. **Two converted demos can't be visually checked until pre-existing (non-extraction) bugs are
+   fixed** — both tracked as their own tasks now, NOT part of this one:
+   - `chapt06/motionblur` — `glAccum` has no accumulation buffer on Bill's Mesa (environmental;
+     auto-memory `env-mvp-opengl-accum-buffer`). The converted sphere ran a full frame before the
+     crash, so the geometry is fine; only the accum technique is blocked.
+   - `chapt18/hdrbloom` — startup crash from a 1-byte after-glow PBO → [[hdrbloom-pbo-sizing-crash]].
+3. **Unrelated follow-ups** discovered alongside this work (separate tasks, not blockers for
+   archiving): [[cubemap-reflection-static]], [[shadowmap-depth-discrimination]],
+   [[ports-render-options-to-imgui]].
+
+**To close:** Bill commits the conversions, spot-checks per (1), then `/archive-task
+extract-data-generation`. The bugs in (2)/(3) live on as their own tasks.
+
 ## Progress
 - 2026-05-28: Created `ports/openglsuperbiblev4/_primitives.py` (lightweight,
   `math` + `OpenGL.GL` only — no imgui, so minimal demos stay minimal).
@@ -164,6 +187,15 @@ NOTE: `build_octahedron` was NOT created (see Phase 5 note). Not archiving until
   (E702/E701/E501/T201 semicolon/print lines, one B007) + accepted I001.
 - 2026-05-29 (completeness sweep): tree-wide grep for remaining generator DEFINITIONS returns only
   the leave-alone set (above) — confirming every in-scope trig demo is converted.
+- 2026-05-29 (verification side-findings — NOT extraction bugs): Bill running the converted demos
+  surfaced two PRE-EXISTING runtime bugs unrelated to this refactor (my diffs don't touch their
+  code): (1) chapt06/motionblur — `glAccum` GLError 1282 (no accumulation buffer on Mesa;
+  environmental, see [[env-mvp-opengl-accum-buffer]]); (2) chapt18/hdrbloom — `glTexImage2D`
+  GLError 1282 in `final_pass`: the after-glow PBO is allocated 1 byte in `setup_rc` (line ~299)
+  and only resized in `change_size` when the size *changes* from the initial, so at the default
+  512×512 it's never grown; `final_pass` then reads 512×512×3 bytes from a 1-byte PBO. A real
+  fixable port bug (size the PBO properly at setup), but out of scope for THIS task — should be its
+  own task. Both block Bill's visual check of those two demos' converted spheres.
 - NOTE discovered 2026-05-28: `_common.py` exists but NO demo imports it yet —
   the ports UX-pass menubar/camera wiring is not in master (the CLAUDE.md
   "Active plans" section is stale on this). `_primitives.py` is the first
