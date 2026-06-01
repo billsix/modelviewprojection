@@ -29,11 +29,9 @@
 # the origin of each actor's local frame, so you can literally see
 # what each push/pop is doing to the basis vectors.
 #
-# Controls:
-#   W / S         -- forward / backward (in camera-relative direction)
-#   A / D         -- yaw left / right
-#   PageUp/Down   -- pitch up / down
-#   ESC           -- quit
+# Controls:  LEFT/RIGHT yaw, PAGE_UP/PAGE_DOWN pitch, UP/DOWN walk
+# forward/back -- standard walk-around camera shared with the other
+# 3D demos.  ESC quits.
 
 import dataclasses
 import math
@@ -44,6 +42,7 @@ import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 
+from modelviewprojection.cameracontrols import walk_around_camera
 from modelviewprojection.windowing import on_key
 
 if not glfw.init():
@@ -174,24 +173,7 @@ camera: Camera = Camera()
 
 
 def handle_inputs() -> None:
-    global camera
-    move_step: float = 0.15
-
-    if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
-        camera.rot_y -= 0.03
-    if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
-        camera.rot_y += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
-        camera.rot_x += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        camera.rot_x -= 0.03
-
-    if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        camera.x -= move_step * math.sin(camera.rot_y)
-        camera.z -= move_step * math.cos(camera.rot_y)
-    if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        camera.x += move_step * math.sin(camera.rot_y)
-        camera.z += move_step * math.cos(camera.rot_y)
+    walk_around_camera(window, camera, move_step=0.15)
 
 
 y_rot: float = 0.0

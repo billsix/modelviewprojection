@@ -29,9 +29,11 @@
 # below -- you will get a sphere translated and then spun in place,
 # instead of a sphere put on an orbit.  Order of composition matters.
 #
-# Controls:  arrow keys yaw/pitch the world; PageUp/PageDown move the
-# camera in/out.
+# Controls:  LEFT/RIGHT yaw, PAGE_UP/PAGE_DOWN pitch, UP/DOWN walk
+# forward/back -- standard walk-around camera shared with the other
+# 3D demos.
 
+import dataclasses
 import math
 import sys
 
@@ -39,6 +41,7 @@ import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 
+from modelviewprojection.cameracontrols import walk_around_camera
 from modelviewprojection.clipping import draw_in_square_viewport
 from modelviewprojection.windowing import on_key
 
@@ -76,9 +79,16 @@ def draw_sphere(radius: float) -> None:
     GLU.gluSphere(_quadric, radius, 18, 12)
 
 
-x_rot: float = 0.3
-y_rot: float = 0.0
-camera_distance: float = 25.0
+@dataclasses.dataclass
+class Camera:
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    rot_y: float = 0.0
+    rot_x: float = 0.0
+
+
+camera: Camera = Camera(z=25.0)
 
 electron_1_angle: float = 0.0
 electron_2_angle: float = 0.0
@@ -86,19 +96,7 @@ electron_3_angle: float = 0.0
 
 
 def handle_inputs() -> None:
-    global x_rot, y_rot, camera_distance
-    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += 0.03
-    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= 0.03
-    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= 0.03
-    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
-        camera_distance = max(8.0, camera_distance - 0.2)
-    if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        camera_distance = min(80.0, camera_distance + 0.2)
+    walk_around_camera(window, camera, move_step=0.5)
 
 
 TARGET_FRAMERATE: int = 60
@@ -133,10 +131,11 @@ while not glfw.window_should_close(window):
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 
-    # camera:  pull the scene back, then yaw/pitch the world
-    GL.glTranslatef(0.0, 0.0, -camera_distance)
-    GL.glRotatef(math.degrees(x_rot), 1.0, 0.0, 0.0)
-    GL.glRotatef(math.degrees(y_rot), 0.0, 1.0, 0.0)
+    # Walk-around camera:  rotate the world opposite the camera's heading,
+    # then translate so the camera sits at origin in its own space.
+    GL.glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
+    GL.glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
+    GL.glTranslatef(-camera.x, -camera.y, -camera.z)
 
     # red nucleus at the origin
     GL.glColor3f(1.0, 0.2, 0.2)

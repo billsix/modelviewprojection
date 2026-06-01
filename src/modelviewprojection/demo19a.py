@@ -25,9 +25,11 @@
 # draw_unit_axes() call inside any glPushMatrix block to "see" what
 # the current modelview matrix is doing to the basis.
 #
-# Controls:  arrow keys yaw/pitch the world; PageUp/PageDown move the
-# camera in/out.
+# Controls:  LEFT/RIGHT yaw, PAGE_UP/PAGE_DOWN pitch, UP/DOWN walk
+# forward/back -- standard walk-around camera shared with the other
+# 3D demos.
 
+import dataclasses
 import math
 import sys
 
@@ -35,6 +37,7 @@ import glfw
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 
+from modelviewprojection.cameracontrols import walk_around_camera
 from modelviewprojection.clipping import draw_in_square_viewport
 from modelviewprojection.windowing import on_key
 
@@ -167,25 +170,20 @@ def draw_unit_axes() -> None:
 # doc-region-end draw unit axes
 
 
-x_rot: float = 0.3
-y_rot: float = 0.5
-camera_distance: float = 5.0
+@dataclasses.dataclass
+class Camera:
+    x: float = 0.0
+    y: float = 0.0
+    z: float = 0.0
+    rot_y: float = 0.0
+    rot_x: float = 0.0
+
+
+camera: Camera = Camera(z=5.0)
 
 
 def handle_inputs() -> None:
-    global x_rot, y_rot, camera_distance
-    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        y_rot += 0.03
-    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        y_rot -= 0.03
-    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        x_rot -= 0.03
-    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        x_rot += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
-        camera_distance = max(2.0, camera_distance - 0.1)
-    if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        camera_distance = min(40.0, camera_distance + 0.1)
+    walk_around_camera(window, camera, move_step=0.1)
 
 
 TARGET_FRAMERATE: int = 60
@@ -215,11 +213,12 @@ while not glfw.window_should_close(window):
 
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    # camera transform:  pull the world toward us along -z
-    GL.glTranslatef(0.0, 0.0, -camera_distance)
-    # spin the world so the axes are easy to see in 3D
-    GL.glRotatef(math.degrees(x_rot), 1.0, 0.0, 0.0)
-    GL.glRotatef(math.degrees(y_rot), 0.0, 1.0, 0.0)
+    # Walk-around camera transform:  rotate the world opposite the
+    # camera's heading, then translate so the camera sits at origin
+    # in its own space.
+    GL.glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
+    GL.glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
+    GL.glTranslatef(-camera.x, -camera.y, -camera.z)
 
     draw_unit_axes()
 

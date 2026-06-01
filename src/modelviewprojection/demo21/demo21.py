@@ -36,6 +36,7 @@ from numpy.typing import NDArray
 
 import modelviewprojection.colorutils as colorutils
 import modelviewprojection.pyMatrixStack as ms
+from modelviewprojection.cameracontrols import walk_around_camera
 from modelviewprojection.windowing import on_key
 
 if not glfw.init():
@@ -423,23 +424,7 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
         square_rotation += 0.1
 
-    move_multiple = 1.0
-    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.rot_y -= 0.03
-    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.rot_y += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
-        camera.rot_x += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        camera.rot_x -= 0.03
-    # //TODO -  explain movement on XZ-plane
-    # //TODO -  show camera movement in graphviz
-    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.x -= move_multiple * math.sin(camera.rot_y)
-        camera.z -= move_multiple * math.cos(camera.rot_y)
-    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.x += move_multiple * math.sin(camera.rot_y)
-        camera.z += move_multiple * math.cos(camera.rot_y)
+    walk_around_camera(window, camera, move_step=1.0)
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
         paddle1_position[1] -= 1.0

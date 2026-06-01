@@ -1,8 +1,57 @@
 # Task: de-duplicate the per-demo camera-walk block of `handle_inputs`
 
-**Status:** ready to execute (decisions confirmed 2026-06-01). No code changed
-yet. **Type:** refactor of `src/modelviewprojection/demo*.py`, book-coupled.
-Spun off from [`extract-duplicated-demo-helpers.md`](extract-duplicated-demo-helpers.md).
+**Status:** Phase A + B done 2026-06-01 (staged, not committed) — pending
+Bill's visual check of all 10 converted demos. **Type:** refactor of
+`src/modelviewprojection/demo*.py`, book-coupled. Spun off from
+[`extract-duplicated-demo-helpers.md`](extract-duplicated-demo-helpers.md).
+
+## Progress
+- **2026-06-01 — Phase A DONE (staged, not committed).** Created
+  `src/modelviewprojection/cameracontrols.py` with `walk_around_camera(window,
+  camera, move_step)` (LEFT/RIGHT yaw, PAGE_UP/PAGE_DOWN pitch, UP/DOWN walk).
+  Replaced the inline walk block in **6 demos**: demo20, 21 (book — ch20 only
+  slices doc-regions, doesn't show the walk block; ch21 dumps the whole file
+  and now shows the import call, which actually reinforces teach-once),
+  demo22, 22a, 23, 24 (no book chapters). **demo19 kept inline** as the
+  teach-once anchor (first GL walk-camera demo, taught in ch19).
+  **demo19e dropped from this batch** — it uses FPS-style W/A/S/D instead of
+  arrow keys (sphereworld convention), and the helper is arrow-key-only.
+  Verified: py_compile clean on all 7 touched files; pytest 47/47; ruff
+  clean on `cameracontrols.py`; the 3 ruff errors in demo20/21/24 are
+  pre-existing (confirmed by `git stash` + re-run). Net diff: +16/−99 across
+  the 6 demos, plus ~40 lines of new helper. **Bill needs to run the 6 GL
+  demos to confirm visually.**
+- **demo19e** — re-classified 2026-06-01 per Bill: "make it consistent with
+  the rest." Swapped WASD→arrow keys and converted to
+  `walk_around_camera(window, camera, move_step=0.15)`. Header comment
+  updated to match the standard scheme. Sphereworld now uses the same
+  control idiom as the other 3D demos.
+- **2026-06-01 — Phase B DONE (staged, not committed).** Converted
+  **demo19a (axes3d)**, **demo19b (atom)**, **demo19c (solar)**, and
+  **demo19d (moons)** from orbit (`x_rot`/`y_rot`/`camera_distance` globals)
+  to walk-around (a `Camera` dataclass instance + `walk_around_camera()`).
+  Per-demo changes:
+  - Added `import dataclasses` and the `cameracontrols` import.
+  - Replaced the three globals with a `Camera` dataclass (`x`, `y`, `z`,
+    `rot_y`, `rot_x`) and an instance whose `z` matches the demo's old
+    `camera_distance` default (5 / 25 / 60 / 90). `rot_x`/`rot_y` start at 0
+    so the scene is dead-center at launch.
+  - Replaced `handle_inputs` with a one-line call to `walk_around_camera`
+    with a per-demo `move_step` (0.1 / 0.5 / 2.0 / 3.0, scaled to each
+    scene's size).
+  - Swapped the modelview transform from the orbit pattern
+    (`translate(0,0,-distance) → rotate_x → rotate_y`) to the walk-around
+    pattern (`rotate_x(-rot_x) → rotate_y(-rot_y) → translate(-x,-y,-z)`).
+    The sign flip is because walk-around rotates the world opposite the
+    camera's heading rather than rotating the world around its own origin.
+  - Updated the controls comment in each header.
+  Verified: py_compile clean on all 4; pytest 47/47; ruff clean on all 4.
+  Net diff: +85/−87 across 4 files. **Bill needs to run all 4 GL demos to
+  confirm the SuperBible scene's visual content is preserved.** Expected
+  starting view at t=0: dead-center on the scene (axes / nucleus + electrons
+  / sun-earth-moon / sun + planets-with-moons) at the same camera distance
+  as the old orbit defaults; the rotated/pitched starting frame is gone
+  (user rotates from there with arrows).
 
 ## Context
 `handle_inputs` is the per-frame key-*polling* function each demo calls in its

@@ -86,6 +86,7 @@ from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.pyMatrixStack as ms
+from modelviewprojection.cameracontrols import walk_around_camera
 from modelviewprojection.shading import light_dir_ws
 from modelviewprojection.windowing import on_key
 
@@ -205,23 +206,8 @@ camera: Camera = Camera(
 def handle_inputs() -> None:
     """Same control scheme as demos 19 and 21:
        LEFT/RIGHT yaw, PAGE_UP/PAGE_DOWN pitch, UP/DOWN walk."""
-    global camera
-    move_step: float = 2.0  # scene units; cube is 50 units across
-
-    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.rot_y -= 0.03
-    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.rot_y += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
-        camera.rot_x += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        camera.rot_x -= 0.03
-    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.x -= move_step * math.sin(camera.rot_y)
-        camera.z -= move_step * math.cos(camera.rot_y)
-    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.x += move_step * math.sin(camera.rot_y)
-        camera.z += move_step * math.cos(camera.rot_y)
+    # scene units; cube is 50 units across
+    walk_around_camera(window, camera, move_step=2.0)
 
 
 GL.glClearColor(0.0, 0.0, 0.0, 1.0)

@@ -69,6 +69,7 @@ from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.pyMatrixStack as ms
+from modelviewprojection.cameracontrols import walk_around_camera
 from modelviewprojection.windowing import on_key
 
 # ---------------------------------------------------------------------------
@@ -155,22 +156,7 @@ light_distance: float = 60.0    # distance from origin
 
 
 def handle_inputs() -> None:
-    move_step: float = 0.1
-
-    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.rot_y -= 0.03
-    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.rot_y += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_UP) == glfw.PRESS:
-        camera.rot_x += 0.03
-    if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
-        camera.rot_x -= 0.03
-    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.x -= move_step * math.sin(camera.rot_y)
-        camera.z -= move_step * math.cos(camera.rot_y)
-    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.x += move_step * math.sin(camera.rot_y)
-        camera.z += move_step * math.cos(camera.rot_y)
+    walk_around_camera(window, camera, move_step=0.1)
 
 
 # ---------------------------------------------------------------------------
