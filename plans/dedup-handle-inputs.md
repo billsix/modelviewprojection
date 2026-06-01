@@ -1,9 +1,17 @@
 # Task: de-duplicate the per-demo camera-walk block of `handle_inputs`
 
-**Status:** Phase A + B done 2026-06-01 (staged, not committed) — pending
-Bill's visual check of all 10 converted demos. **Type:** refactor of
+**Status:** ✅ complete 2026-06-01 (Bill verified). **Type:** refactor of
 `src/modelviewprojection/demo*.py`, book-coupled. Spun off from
 [`extract-duplicated-demo-helpers.md`](extract-duplicated-demo-helpers.md).
+
+Final scope: 13 demos using the shared `walk_around_camera` helper —
+Phase A (8 demos already using the raw-float idiom: demo19, 20, 21, 22, 22a,
+23, 24, 19e) + Phase B (4 orbit-style demos converted: demo19a/b/c/d) +
+demo19e's WASD→arrow-keys normalization. demo17/18 stay inline by design
+(teach the InvertibleFunction abstraction). Per-demo paddle/square-rotate
+blocks stay inline by design (they *are* each demo's lesson). The remaining
+`handle_movement_of_paddles` dedup opportunity (3-of-6 identical cluster)
+lives under the parent plan, not this one.
 
 ## Progress
 - **2026-06-01 — Phase A DONE (staged, not committed).** Created

@@ -1,9 +1,13 @@
 # Move keyboard-driven rendering options to imgui controls (SuperBible ports)
 
-**Status:** IMPLEMENTED 2026-05-29 — all 18 demos converted (16 GROUP A + fogged + multisample);
-structurally verified (compile, wiring, keys removed, no F-code lint). Pending Bill's visual
-check + commit, then archive. Full repo audit was COMPLETE 2026-05-29 (see "Full audit" below): **16
-demos need work** (GROUP A), ~19 already have imgui panels (GROUP B), rest are nav/quit-only.
+**Status:** complete
+**Completed:** 2026-06-01
+
+All 18 demos converted (16 GROUP A + fogged + multisample); structurally
+verified 2026-05-29 (compile, wiring, keys removed, no F-code lint), Bill
+verified visually 2026-06-01. Full repo audit was COMPLETE 2026-05-29
+(see "Full audit" below): **16 demos need work** (GROUP A), ~19 already
+have imgui panels (GROUP B), rest are nav/quit-only.
 **Decisions confirmed 2026-05-29 (Bill):** (a) convert **all in one pass** (no pilot);
 (b) scope = migrate existing keyboard options **PLUS add always-on toggles** for chapt06/fogged
 (fog on/off) and chapt06/multisample (MSAA on/off) → **18 demos total** (16 GROUP A + those 2);
