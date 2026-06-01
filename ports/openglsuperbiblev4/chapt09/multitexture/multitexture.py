@@ -180,7 +180,18 @@ def render_scene() -> None:
 
     GL.glPushMatrix()
     GL.glTranslatef(0.0, 0.0, -3.0)
+
+    # Inverse-rotate TEXTURE1's texture matrix so reflections track the camera.
+    # GL_TEXTURE is per-unit; TEXTURE1 is the active unit here, so this only
+    # touches the cube map's matrix.
+    GL.glMatrixMode(GL.GL_TEXTURE)
+    GL.glPushMatrix()
+    GL.glRotatef(math.degrees(camera_yaw), 0.0, 1.0, 0.0)
+
     draw_sphere_multitex()
+
+    GL.glPopMatrix()
+    GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glPopMatrix()
 
     GL.glPopMatrix()
