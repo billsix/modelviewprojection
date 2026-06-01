@@ -25,10 +25,6 @@
 # spheres, and a small composite gizmo at the origin (a torus with one
 # orbiting moon) so you have a visible reference point as you fly.
 #
-# A small unit-axes gizmo is drawn at the origin of the world and at
-# the origin of each actor's local frame, so you can literally see
-# what each push/pop is doing to the basis vectors.
-#
 # Controls:  LEFT/RIGHT yaw, PAGE_UP/PAGE_DOWN pitch, UP/DOWN walk
 # forward/back -- standard walk-around camera shared with the other
 # 3D demos.  ESC quits.
@@ -104,23 +100,6 @@ _quadric = GLU.gluNewQuadric()
 
 def draw_sphere(radius: float) -> None:
     GLU.gluSphere(_quadric, radius, 14, 10)
-
-
-def draw_unit_axes(scale: float = 0.5) -> None:
-    """Draw an XYZ basis at the current frame's origin (X red, Y green, Z blue)."""
-    GL.glLineWidth(2.0)
-    GL.glBegin(GL.GL_LINES)
-    GL.glColor3f(1.0, 0.0, 0.0)
-    GL.glVertex3f(0.0, 0.0, 0.0)
-    GL.glVertex3f(scale, 0.0, 0.0)
-    GL.glColor3f(0.0, 1.0, 0.0)
-    GL.glVertex3f(0.0, 0.0, 0.0)
-    GL.glVertex3f(0.0, scale, 0.0)
-    GL.glColor3f(0.0, 0.0, 1.0)
-    GL.glVertex3f(0.0, 0.0, 0.0)
-    GL.glVertex3f(0.0, 0.0, scale)
-    GL.glEnd()
-    GL.glLineWidth(1.0)
 
 
 def draw_ground() -> None:
@@ -214,19 +193,14 @@ while not glfw.window_should_close(window):
     GL.glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
     GL.glTranslatef(-camera.x, -camera.y, -camera.z)
 
-    # World-space origin axes -- always visible, useful for orientation
-    draw_unit_axes(scale=1.0)
-
     draw_ground()
 
-    # Field of actor spheres -- each in its own pushed coordinate system,
-    # with a small axis gizmo to visualize the local frame.
+    # Field of actor spheres, each in its own pushed coordinate system.
     GL.glColor3f(0.7, 0.9, 1.0)
     for a in actors:
         GL.glPushMatrix()
         GL.glTranslatef(a.x, a.y, a.z)
         draw_sphere(0.2)
-        draw_unit_axes(scale=0.4)
         GL.glPopMatrix()
 
     # Centerpiece:  a torus with a small moon orbiting it, two units

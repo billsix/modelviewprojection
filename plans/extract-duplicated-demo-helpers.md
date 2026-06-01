@@ -50,6 +50,17 @@ import instead of a redefinition.
   (3-of-4 identical), the variant-reconciliation question Bill asked to handle
   later. Not touched. Per-demo `handle_inputs` dedup tracked separately in
   [`dedup-handle-inputs.md`](dedup-handle-inputs.md).
+- **2026-06-01 — `axes.py` DONE (staged, not committed).** Created
+  `src/modelviewprojection/axes.py` with `draw_unit_axes(scale: float = 1.0)`
+  plus three private primitives (`_draw_solid_cylinder`, `_draw_solid_cone`,
+  `_draw_solid_sphere`) ported from demo19a's local copies. Wraps the gizmo
+  draw in `glPushAttrib(GL_POLYGON_BIT)` + `glPolygonMode(GL_FILL)` so the
+  arrows render solid even when the surrounding scene uses wireframe.
+  **demo19a** replaced its local helpers + def with the import (−104 lines).
+  **demo19e** originally got the import too (to make its axes match 19a's),
+  but Bill subsequently asked to drop the gizmos entirely from sphereworld
+  (visually too busy with 30+ per-actor markers), so demo19e now has neither
+  the import nor any `draw_unit_axes` calls.
 
 ## Context
 This is teaching code, so *some* repetition is intentional (a student reads one
@@ -73,7 +84,8 @@ is the prime example.
 | `make_vao` | 4 | 3 | 2 | mostly keep (evolves) |
 | `draw_sphere` | 4 | 4 | 1 | **KEEP** — all different |
 | `compile_shader_program` | 4 | 4 | 1 | **KEEP** — evolves per demo |
-| `load_texture`, `_build_marker_cone/sphere`, `draw_unit_axes`, `planar_shadow_matrix` | 2–3 | all distinct | 1 | KEEP |
+| `load_texture`, `_build_marker_cone/sphere`, `planar_shadow_matrix` | 2–3 | all distinct | 1 | KEEP |
+| `draw_unit_axes` | ~~2~~ → 1 | ~~all distinct~~ → consolidated | n/a | **EXTRACTED** 2026-06-01 to `axes.py` — demo19a imports it; demo19e dropped the gizmo entirely per Bill |
 
 Reproduce: the AST/normalized-hash script in this repo's session notes (groups
 each top-level def across files by normalized body).
