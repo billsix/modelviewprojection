@@ -1,4 +1,3 @@
-
 # Copyright (c) 2018-2026 William Emerison Six
 #
 # This program is free software; you can redistribute it and/or
@@ -228,9 +227,10 @@ all_vbos: list[int] = []
 @dataclasses.dataclass(frozen=True)
 class AttribSpec:
     """One vertex attribute pulled from one VBO."""
+
     vbo: int
     location: int
-    size: int           # floats per vertex (2/3/4)
+    size: int  # floats per vertex (2/3/4)
     layout: tuple[int, int]  # (stride_bytes, offset_bytes)
 
 
@@ -255,8 +255,12 @@ def make_vao(attribs: list[AttribSpec]) -> int:
         GL.glEnableVertexAttribArray(a.location)
         stride, offset = a.layout
         GL.glVertexAttribPointer(
-            a.location, a.size, GL.GL_FLOAT, False,
-            stride, ctypes.c_void_p(offset),
+            a.location,
+            a.size,
+            GL.GL_FLOAT,
+            False,
+            stride,
+            ctypes.c_void_p(offset),
         )
     return vao
 
@@ -273,20 +277,20 @@ def _build_ground_vertices() -> NDArray:
     verts: list[float] = []
     for x in range(-600, 601, 20):
         for z in range(-600, 601, 20):
-            verts += [-float(x), -5.0,  float(z)]
-            verts += [ float(x), -5.0,  float(z)]
-            verts += [ float(x), -5.0, -float(z)]
-            verts += [ float(x), -5.0,  float(z)]
+            verts += [-float(x), -5.0, float(z)]
+            verts += [float(x), -5.0, float(z)]
+            verts += [float(x), -5.0, -float(z)]
+            verts += [float(x), -5.0, float(z)]
     return np.array(verts, dtype=np.float32)
 
 
 paddle_vertices: NDArray = np.array(
     [
         [-1.0, -3.0, 0.0],
-        [ 1.0, -3.0, 0.0],
-        [ 1.0,  3.0, 0.0],
-        [ 1.0,  3.0, 0.0],
-        [-1.0,  3.0, 0.0],
+        [1.0, -3.0, 0.0],
+        [1.0, 3.0, 0.0],
+        [1.0, 3.0, 0.0],
+        [-1.0, 3.0, 0.0],
         [-1.0, -3.0, 0.0],
     ],
     dtype=np.float32,
@@ -294,10 +298,10 @@ paddle_vertices: NDArray = np.array(
 square_vertices: NDArray = np.array(
     [
         [-0.5, -0.5, 0.0],
-        [ 0.5, -0.5, 0.0],
-        [ 0.5,  0.5, 0.0],
-        [ 0.5,  0.5, 0.0],
-        [-0.5,  0.5, 0.0],
+        [0.5, -0.5, 0.0],
+        [0.5, 0.5, 0.0],
+        [0.5, 0.5, 0.0],
+        [-0.5, 0.5, 0.0],
         [-0.5, -0.5, 0.0],
     ],
     dtype=np.float32,
@@ -309,9 +313,7 @@ paddle1_color: colorutils.Color4 = colorutils.Color4(
 paddle2_color: colorutils.Color4 = colorutils.Color4(
     r=1.0, g=1.0, b=0.0, a=0.75
 )
-square_color: colorutils.Color4 = colorutils.Color4(
-    r=0.0, g=0.0, b=1.0, a=0.75
-)
+square_color: colorutils.Color4 = colorutils.Color4(r=0.0, g=0.0, b=1.0, a=0.75)
 
 
 # Build VBOs first.  paddle_pos_vbo is shared by paddle1 and paddle2
@@ -324,22 +326,28 @@ ground_pos_vbo = make_vbo(ground_vertices)
 
 paddle1_vertex_count = paddle_vertices.size // floatsPerVector
 paddle2_vertex_count = paddle1_vertex_count
-square_vertex_count  = square_vertices.size  // floatsPerVector
-ground_vertex_count  = ground_vertices.size  // floatsPerVector
+square_vertex_count = square_vertices.size // floatsPerVector
+ground_vertex_count = ground_vertices.size // floatsPerVector
 
 paddle1_color_vbo = make_vbo(_color_array(paddle1_color, paddle1_vertex_count))
 paddle2_color_vbo = make_vbo(_color_array(paddle2_color, paddle2_vertex_count))
-square_color_vbo  = make_vbo(_color_array(square_color,  square_vertex_count))
+square_color_vbo = make_vbo(_color_array(square_color, square_vertex_count))
 
 
 def _triangle_attribs(pos_vbo: int, color_vbo: int) -> list[AttribSpec]:
     return [
-        AttribSpec(vbo=pos_vbo,
-                   location=triangle.attr_position,
-                   size=floatsPerVector, layout=(0, 0)),
-        AttribSpec(vbo=color_vbo,
-                   location=triangle.attr_color,
-                   size=floatsPerColor, layout=(0, 0)),
+        AttribSpec(
+            vbo=pos_vbo,
+            location=triangle.attr_position,
+            size=floatsPerVector,
+            layout=(0, 0),
+        ),
+        AttribSpec(
+            vbo=color_vbo,
+            location=triangle.attr_color,
+            size=floatsPerColor,
+            layout=(0, 0),
+        ),
     ]
 
 
@@ -347,13 +355,18 @@ def _triangle_attribs(pos_vbo: int, color_vbo: int) -> list[AttribSpec]:
 # two VAOs.  Previously this was two uploads via make_colored_vao.
 paddle1_vao = make_vao(_triangle_attribs(paddle_pos_vbo, paddle1_color_vbo))
 paddle2_vao = make_vao(_triangle_attribs(paddle_pos_vbo, paddle2_color_vbo))
-square_vao  = make_vao(_triangle_attribs(square_pos_vbo, square_color_vbo))
+square_vao = make_vao(_triangle_attribs(square_pos_vbo, square_color_vbo))
 
-ground_vao = make_vao([
-    AttribSpec(vbo=ground_pos_vbo,
-               location=ground.attr_position,
-               size=floatsPerVector, layout=(0, 0)),
-])
+ground_vao = make_vao(
+    [
+        AttribSpec(
+            vbo=ground_pos_vbo,
+            location=ground.attr_position,
+            size=floatsPerVector,
+            layout=(0, 0),
+        ),
+    ]
+)
 
 
 # ---------------------------------------------------------------------------

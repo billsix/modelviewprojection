@@ -142,9 +142,11 @@ def setup_window(title: str, width: int = 1920, height: int = 1080):
 
 def install_esc_close(window) -> None:
     """Standard Escape-closes-window key handler."""
+
     def on_key(win, key, scancode, action, mods):
         if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
             glfw.set_window_should_close(win, 1)
+
     glfw.set_key_callback(window, on_key)
 
 
@@ -204,9 +206,7 @@ def compile_program(
     if geom is None:
         prog = shaders.compileProgram(vs, fs)
     else:
-        gs = shaders.compileShader(
-            _read_shader(geom), GL.GL_GEOMETRY_SHADER
-        )
+        gs = shaders.compileShader(_read_shader(geom), GL.GL_GEOMETRY_SHADER)
         prog = shaders.compileProgram(vs, gs, fs)
     all_programs.append(prog)
     return prog
@@ -279,9 +279,7 @@ def build_pipeline(
         attr_position=GL.glGetAttribLocation(prog, "position"),
         u_color=u("color", color),
         attr_color=(
-            GL.glGetAttribLocation(prog, "color_in")
-            if per_vertex_color
-            else -1
+            GL.glGetAttribLocation(prog, "color_in") if per_vertex_color else -1
         ),
         u_fov=u("field_of_view", anim),
         u_aspect=u("aspect_ratio", anim),
@@ -323,6 +321,7 @@ class AttribSpec:
                   because the two are coupled -- they describe one
                   buffer-layout decision together.
     """
+
     vbo: int
     location: int
     size: int
@@ -353,8 +352,12 @@ def make_vao(attribs: list[AttribSpec]) -> int:
         GL.glEnableVertexAttribArray(a.location)
         stride, offset = a.layout
         GL.glVertexAttribPointer(
-            a.location, a.size, GL.GL_FLOAT, False,
-            stride, ctypes.c_void_p(offset),
+            a.location,
+            a.size,
+            GL.GL_FLOAT,
+            False,
+            stride,
+            ctypes.c_void_p(offset),
         )
     return vao
 
@@ -384,12 +387,22 @@ def make_triangle_vao(
 
     pos_vbo = make_vbo(vertices)
     color_vbo = make_vbo(colors)
-    vao = make_vao([
-        AttribSpec(vbo=pos_vbo, location=attr_position,
-                   size=floatsPerVertex, layout=(0, 0)),
-        AttribSpec(vbo=color_vbo, location=attr_color,
-                   size=floatsPerColor, layout=(0, 0)),
-    ])
+    vao = make_vao(
+        [
+            AttribSpec(
+                vbo=pos_vbo,
+                location=attr_position,
+                size=floatsPerVertex,
+                layout=(0, 0),
+            ),
+            AttribSpec(
+                vbo=color_vbo,
+                location=attr_color,
+                size=floatsPerColor,
+                layout=(0, 0),
+            ),
+        ]
+    )
     return vao, n_verts
 
 
@@ -399,10 +412,16 @@ def make_lines_vao(vertices: ndarray, attr_position: int) -> Tuple[int, int]:
     vertices = np.ascontiguousarray(vertices, dtype=np.float32).flatten()
     n_verts = vertices.size // floatsPerVertex
     vbo = make_vbo(vertices)
-    vao = make_vao([
-        AttribSpec(vbo=vbo, location=attr_position,
-                   size=floatsPerVertex, layout=(0, 0)),
-    ])
+    vao = make_vao(
+        [
+            AttribSpec(
+                vbo=vbo,
+                location=attr_position,
+                size=floatsPerVertex,
+                layout=(0, 0),
+            ),
+        ]
+    )
     return vao, n_verts
 
 
@@ -525,29 +544,29 @@ def build_axis_arrow_solid(
         c1, s1 = math.cos(a1), math.sin(a1)
 
         # Cylinder side -- quad split into two triangles
-        verts += [c0 * rod_radius, 0.0,   s0 * rod_radius]
-        verts += [c1 * rod_radius, 0.0,   s1 * rod_radius]
+        verts += [c0 * rod_radius, 0.0, s0 * rod_radius]
+        verts += [c1 * rod_radius, 0.0, s1 * rod_radius]
         verts += [c1 * rod_radius, h_rod, s1 * rod_radius]
 
-        verts += [c0 * rod_radius, 0.0,   s0 * rod_radius]
+        verts += [c0 * rod_radius, 0.0, s0 * rod_radius]
         verts += [c1 * rod_radius, h_rod, s1 * rod_radius]
         verts += [c0 * rod_radius, h_rod, s0 * rod_radius]
 
         # Cylinder bottom cap (closes the y=0 end)
-        verts += [0.0,             0.0,   0.0]
-        verts += [c0 * rod_radius, 0.0,   s0 * rod_radius]
-        verts += [c1 * rod_radius, 0.0,   s1 * rod_radius]
+        verts += [0.0, 0.0, 0.0]
+        verts += [c0 * rod_radius, 0.0, s0 * rod_radius]
+        verts += [c1 * rod_radius, 0.0, s1 * rod_radius]
 
         # Cone base disk (closes the y=rod_length end of the cone, which
         # is wider than the cylinder top so the gap is visible)
-        verts += [0.0,              h_rod, 0.0]
+        verts += [0.0, h_rod, 0.0]
         verts += [c0 * cone_radius, h_rod, s0 * cone_radius]
         verts += [c1 * cone_radius, h_rod, s1 * cone_radius]
 
         # Cone side -- triangle from base ring to tip
         verts += [c0 * cone_radius, h_rod, s0 * cone_radius]
         verts += [c1 * cone_radius, h_rod, s1 * cone_radius]
-        verts += [0.0,              h_tip, 0.0]
+        verts += [0.0, h_tip, 0.0]
 
     return np.array(verts, dtype=np.float32)
 
@@ -621,8 +640,12 @@ def build_cylinders_for_edges(
         for i in range(slices):
             a0 = 2.0 * math.pi * i / slices
             a1 = 2.0 * math.pi * (i + 1) / slices
-            off0 = right * (math.cos(a0) * radius) + up * (math.sin(a0) * radius)
-            off1 = right * (math.cos(a1) * radius) + up * (math.sin(a1) * radius)
+            off0 = right * (math.cos(a0) * radius) + up * (
+                math.sin(a0) * radius
+            )
+            off1 = right * (math.cos(a1) * radius) + up * (
+                math.sin(a1) * radius
+            )
             b0 = p0 + off0
             b1 = p0 + off1
             t0 = p1 + off0
@@ -656,20 +679,20 @@ def build_ndc_cube_cylinders(radius: float = 0.05, slices: int = 20) -> ndarray:
     solid white tubes instead of thick lines."""
     edges = [
         # back square (z = -1)
-        ((-1.0, -1.0, -1.0), ( 1.0, -1.0, -1.0)),
-        (( 1.0, -1.0, -1.0), ( 1.0,  1.0, -1.0)),
-        (( 1.0,  1.0, -1.0), (-1.0,  1.0, -1.0)),
-        ((-1.0,  1.0, -1.0), (-1.0, -1.0, -1.0)),
+        ((-1.0, -1.0, -1.0), (1.0, -1.0, -1.0)),
+        ((1.0, -1.0, -1.0), (1.0, 1.0, -1.0)),
+        ((1.0, 1.0, -1.0), (-1.0, 1.0, -1.0)),
+        ((-1.0, 1.0, -1.0), (-1.0, -1.0, -1.0)),
         # front square (z = +1)
-        ((-1.0, -1.0,  1.0), ( 1.0, -1.0,  1.0)),
-        (( 1.0, -1.0,  1.0), ( 1.0,  1.0,  1.0)),
-        (( 1.0,  1.0,  1.0), (-1.0,  1.0,  1.0)),
-        ((-1.0,  1.0,  1.0), (-1.0, -1.0,  1.0)),
+        ((-1.0, -1.0, 1.0), (1.0, -1.0, 1.0)),
+        ((1.0, -1.0, 1.0), (1.0, 1.0, 1.0)),
+        ((1.0, 1.0, 1.0), (-1.0, 1.0, 1.0)),
+        ((-1.0, 1.0, 1.0), (-1.0, -1.0, 1.0)),
         # connecting edges
-        (( 1.0,  1.0, -1.0), ( 1.0,  1.0,  1.0)),
-        (( 1.0, -1.0, -1.0), ( 1.0, -1.0,  1.0)),
-        ((-1.0,  1.0, -1.0), (-1.0,  1.0,  1.0)),
-        ((-1.0, -1.0, -1.0), (-1.0, -1.0,  1.0)),
+        ((1.0, 1.0, -1.0), (1.0, 1.0, 1.0)),
+        ((1.0, -1.0, -1.0), (1.0, -1.0, 1.0)),
+        ((-1.0, 1.0, -1.0), (-1.0, 1.0, 1.0)),
+        ((-1.0, -1.0, -1.0), (-1.0, -1.0, 1.0)),
     ]
     return build_cylinders_for_edges(edges, radius, slices)
 

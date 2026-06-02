@@ -1,4 +1,3 @@
-
 # Copyright (c) 2018-2026 William Emerison Six
 #
 # This program is free software; you can redistribute it and/or
@@ -81,8 +80,11 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
 
 window = glfw.create_window(
-    600, 600, "ModelViewProjection Demo 22a -- Textured Pyramid",
-    None, None,
+    600,
+    600,
+    "ModelViewProjection Demo 22a -- Textured Pyramid",
+    None,
+    None,
 )
 if not window:
     glfw.terminate()
@@ -143,8 +145,8 @@ diffuse: float = 0.75
 # WHERE the sun is, even though strictly speaking a directional light
 # has no position.  Defaults roughly match the SuperBible original
 # (-10, 5, 5) but tuned so the marker sits in the starting FOV.
-light_az_deg: float = 250.0     # 0 = +X, 90 = +Z, 180 = -X, 270 = -Z
-light_el_deg: float = 25.0      # angle above the XZ plane
+light_az_deg: float = 250.0  # 0 = +X, 90 = +Z, 180 = -X, 270 = -Z
+light_el_deg: float = 25.0  # angle above the XZ plane
 
 
 def handle_inputs() -> None:
@@ -191,14 +193,18 @@ u_tex = GL.glGetUniformLocation(program, "tex")
 
 def set_mvp_uniforms() -> None:
     GL.glUniformMatrix4fv(
-        u_mvp, 1, GL.GL_TRUE,
+        u_mvp,
+        1,
+        GL.GL_TRUE,
         np.ascontiguousarray(
             ms.get_current_matrix(ms.MatrixStack.modelviewprojection),
             dtype=np.float32,
         ),
     )
     GL.glUniformMatrix4fv(
-        u_model, 1, GL.GL_TRUE,
+        u_model,
+        1,
+        GL.GL_TRUE,
         np.ascontiguousarray(
             ms.get_current_matrix(ms.MatrixStack.model),
             dtype=np.float32,
@@ -226,15 +232,18 @@ def load_texture(path: str) -> int:
     GL.glTexParameteri(
         GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
     )
-    GL.glTexParameteri(
-        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR
-    )
-    GL.glTexParameteri(
-        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
-    )
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexImage2D(
-        GL.GL_TEXTURE_2D, 0, GL.GL_RGB8, w, h, 0,
-        GL.GL_RGB, GL.GL_UNSIGNED_BYTE, img,
+        GL.GL_TEXTURE_2D,
+        0,
+        GL.GL_RGB8,
+        w,
+        h,
+        0,
+        GL.GL_RGB,
+        GL.GL_UNSIGNED_BYTE,
+        img,
     )
     GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
     return tex
@@ -268,11 +277,11 @@ _STRIDE = _FLOATS_PER_VERTEX * 4
 
 def _build_pyramid() -> np.ndarray:
     corners = [
-        ( 0.0,  0.80,  0.00),  # 0 top
-        (-0.5,  0.00, -0.50),  # 1 back-left
-        ( 0.5,  0.00, -0.50),  # 2 back-right
-        ( 0.5,  0.00,  0.50),  # 3 front-right
-        (-0.5,  0.00,  0.50),  # 4 front-left
+        (0.0, 0.80, 0.00),  # 0 top
+        (-0.5, 0.00, -0.50),  # 1 back-left
+        (0.5, 0.00, -0.50),  # 2 back-right
+        (0.5, 0.00, 0.50),  # 3 front-right
+        (-0.5, 0.00, 0.50),  # 4 front-left
     ]
 
     # base normal points down, two triangles cover the square.  uv
@@ -280,26 +289,40 @@ def _build_pyramid() -> np.ndarray:
     base_n = (0.0, -1.0, 0.0)
     triangles = [
         # base (CCW from below, so normal faces -Y)
-        (corners[2], corners[4], corners[1], base_n,
-         [(1, 1), (0, 0), (0, 1)]),
-        (corners[2], corners[3], corners[4], base_n,
-         [(1, 1), (1, 0), (0, 0)]),
+        (corners[2], corners[4], corners[1], base_n, [(1, 1), (0, 0), (0, 1)]),
+        (corners[2], corners[3], corners[4], base_n, [(1, 1), (1, 0), (0, 0)]),
         # front face (apex, front-left, front-right)
-        (corners[0], corners[4], corners[3],
-         _face_normal(corners[0], corners[4], corners[3]),
-         [(0.5, 1.0), (0.0, 0.0), (1.0, 0.0)]),
+        (
+            corners[0],
+            corners[4],
+            corners[3],
+            _face_normal(corners[0], corners[4], corners[3]),
+            [(0.5, 1.0), (0.0, 0.0), (1.0, 0.0)],
+        ),
         # left face (apex, back-left, front-left)
-        (corners[0], corners[1], corners[4],
-         _face_normal(corners[0], corners[1], corners[4]),
-         [(0.5, 1.0), (0.0, 0.0), (1.0, 0.0)]),
+        (
+            corners[0],
+            corners[1],
+            corners[4],
+            _face_normal(corners[0], corners[1], corners[4]),
+            [(0.5, 1.0), (0.0, 0.0), (1.0, 0.0)],
+        ),
         # back face (apex, back-right, back-left)
-        (corners[0], corners[2], corners[1],
-         _face_normal(corners[0], corners[2], corners[1]),
-         [(0.5, 1.0), (0.0, 0.0), (1.0, 0.0)]),
+        (
+            corners[0],
+            corners[2],
+            corners[1],
+            _face_normal(corners[0], corners[2], corners[1]),
+            [(0.5, 1.0), (0.0, 0.0), (1.0, 0.0)],
+        ),
         # right face (apex, front-right, back-right)
-        (corners[0], corners[3], corners[2],
-         _face_normal(corners[0], corners[3], corners[2]),
-         [(0.5, 1.0), (0.0, 0.0), (1.0, 0.0)]),
+        (
+            corners[0],
+            corners[3],
+            corners[2],
+            _face_normal(corners[0], corners[3], corners[2]),
+            [(0.5, 1.0), (0.0, 0.0), (1.0, 0.0)],
+        ),
     ]
 
     out: list[float] = []
@@ -313,17 +336,23 @@ def _build_pyramid() -> np.ndarray:
 
 def _build_pyramid_wire() -> np.ndarray:
     corners = [
-        ( 0.0,  0.80,  0.00),
-        (-0.5,  0.00, -0.50),
-        ( 0.5,  0.00, -0.50),
-        ( 0.5,  0.00,  0.50),
-        (-0.5,  0.00,  0.50),
+        (0.0, 0.80, 0.00),
+        (-0.5, 0.00, -0.50),
+        (0.5, 0.00, -0.50),
+        (0.5, 0.00, 0.50),
+        (-0.5, 0.00, 0.50),
     ]
     edges = [
         # base
-        (1, 2), (2, 3), (3, 4), (4, 1),
+        (1, 2),
+        (2, 3),
+        (3, 4),
+        (4, 1),
         # apex to each base corner
-        (0, 1), (0, 2), (0, 3), (0, 4),
+        (0, 1),
+        (0, 2),
+        (0, 3),
+        (0, 4),
     ]
     out: list[float] = []
     for a, b in edges:
@@ -334,8 +363,7 @@ def _build_pyramid_wire() -> np.ndarray:
     return np.array(out, dtype=np.float32)
 
 
-def _build_marker_cone(radius: float, height: float,
-                       slices: int) -> np.ndarray:
+def _build_marker_cone(radius: float, height: float, slices: int) -> np.ndarray:
     """Right circular cone with the base at the origin and the apex
     sticking out along +z.  Modeled to match chapt05/spot.cpp:84-85
     (`glutSolidCone` after `glTranslatef(lightPos)`):  the light bulb
@@ -373,8 +401,7 @@ def _build_marker_cone(radius: float, height: float,
     return np.array(out, dtype=np.float32)
 
 
-def _build_marker_sphere(radius: float, slices: int,
-                         stacks: int) -> np.ndarray:
+def _build_marker_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
     """Tiny UV sphere for the "bulb" inside the cone.  Same winding
     rules as demo24's sphere generator (p00, p10, p01) gives outward
     normals; here normals don't matter because the marker is drawn
@@ -439,9 +466,9 @@ marker_cone_vao, marker_cone_vbo, marker_cone_count = make_vao(
 marker_bulb_vao, marker_bulb_vbo, marker_bulb_count = make_vao(
     _build_marker_sphere(radius=0.07, slices=14, stacks=8)
 )
-LIGHT_MARKER_DISTANCE: float = 1.4   # how far from origin the marker sits
-LIGHT_MARKER_CONE_COLOR: tuple = (0.85, 0.15, 0.15)   # red, like spot.cpp
-LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)   # yellow
+LIGHT_MARKER_DISTANCE: float = 1.4  # how far from origin the marker sits
+LIGHT_MARKER_CONE_COLOR: tuple = (0.85, 0.15, 0.15)  # red, like spot.cpp
+LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)  # yellow
 
 
 # ---------------------------------------------------------------------------
@@ -497,9 +524,11 @@ while not glfw.window_should_close(window):
     imgui.separator()
     imgui.text("Light direction (red cone + yellow bulb):")
     _, light_az_deg = imgui.slider_float(
-        "Azimuth (deg)", light_az_deg, 0.0, 360.0)
+        "Azimuth (deg)", light_az_deg, 0.0, 360.0
+    )
     _, light_el_deg = imgui.slider_float(
-        "Elevation (deg)", light_el_deg, 5.0, 89.0)
+        "Elevation (deg)", light_el_deg, 5.0, 89.0
+    )
     imgui.end()
 
     light_dir = light_dir_ws(light_az_deg, light_el_deg)
@@ -572,19 +601,19 @@ while not glfw.window_should_close(window):
     GL.glUniform1i(u_use_lighting, 0)
     GL.glUniform1i(u_use_texture, 0)
     with ms.push_matrix(ms.MatrixStack.model):
-        ms.translate(ms.MatrixStack.model,
-                     light_dir[0] * LIGHT_MARKER_DISTANCE,
-                     light_dir[1] * LIGHT_MARKER_DISTANCE,
-                     light_dir[2] * LIGHT_MARKER_DISTANCE)
+        ms.translate(
+            ms.MatrixStack.model,
+            light_dir[0] * LIGHT_MARKER_DISTANCE,
+            light_dir[1] * LIGHT_MARKER_DISTANCE,
+            light_dir[2] * LIGHT_MARKER_DISTANCE,
+        )
         # Rotate so the cone's local +z axis ends up parallel to
         # +light_dir.  See the comment in demo24 for the derivation;
         # the order here is rotate_y FIRST (post-multiplied last),
         # then rotate_x, so the matrix evaluates as
         #   T(distance*ld) @ R_y(90 - az) @ R_x(-el).
-        ms.rotate_y(ms.MatrixStack.model,
-                    math.radians(90.0 - light_az_deg))
-        ms.rotate_x(ms.MatrixStack.model,
-                    math.radians(-light_el_deg))
+        ms.rotate_y(ms.MatrixStack.model, math.radians(90.0 - light_az_deg))
+        ms.rotate_x(ms.MatrixStack.model, math.radians(-light_el_deg))
 
         # Cone -- red, apex closer to scene, base near the bulb.
         GL.glUniform3f(u_flat, *LIGHT_MARKER_CONE_COLOR)

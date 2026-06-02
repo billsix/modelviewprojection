@@ -1,4 +1,3 @@
-
 # Copyright (c) 2018-2026 William Emerison Six
 #
 # This program is free software; you can redistribute it and/or
@@ -105,8 +104,11 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
 
 window = glfw.create_window(
-    600, 600, "ModelViewProjection Demo 22 -- 3D Effects",
-    None, None,
+    600,
+    600,
+    "ModelViewProjection Demo 22 -- 3D Effects",
+    None,
+    None,
 )
 if not window:
     glfw.terminate()
@@ -205,7 +207,7 @@ camera: Camera = Camera(
 
 def handle_inputs() -> None:
     """Same control scheme as demos 19 and 21:
-       LEFT/RIGHT yaw, PAGE_UP/PAGE_DOWN pitch, UP/DOWN walk."""
+    LEFT/RIGHT yaw, PAGE_UP/PAGE_DOWN pitch, UP/DOWN walk."""
     # scene units; cube is 50 units across
     walk_around_camera(window, camera, move_step=2.0)
 
@@ -214,7 +216,7 @@ GL.glClearColor(0.0, 0.0, 0.0, 1.0)
 GL.glEnable(GL.GL_DEPTH_TEST)
 GL.glClearDepth(1.0)
 GL.glDepthFunc(GL.GL_LEQUAL)
-#GL.glLineWidth(2)
+# GL.glLineWidth(2)
 
 
 # ---------------------------------------------------------------------------
@@ -243,6 +245,7 @@ def compile_shader_program() -> int:
 @dataclasses.dataclass(frozen=True)
 class MainPipeline:
     """Lit + textured pass that does NOT consume a shadow map."""
+
     program: int
     u_mvp: int
     u_model: int
@@ -428,6 +431,7 @@ def _compile_inline(vs_src: str, fs_src: str) -> int:
 @dataclasses.dataclass(frozen=True)
 class ShadowDepthPipeline:
     """Depth-only render from the light's POV, into the shadow FBO."""
+
     program: int
     u_lightMVP: int
 
@@ -435,10 +439,11 @@ class ShadowDepthPipeline:
 @dataclasses.dataclass(frozen=True)
 class BlockShadowPipeline:
     """Same scene draw as MainPipeline, but consumes the shadow map."""
+
     program: int
     u_mvp: int
     u_model: int
-    u_shadow: int          # shadowMatrix = scaleBias * lightProj * lightView * model
+    u_shadow: int  # shadowMatrix = scaleBias * lightProj * lightView * model
     u_flat: int
     u_use_lighting: int
     u_use_texture: int
@@ -452,6 +457,7 @@ class BlockShadowPipeline:
 @dataclasses.dataclass(frozen=True)
 class ShadowViewPipeline:
     """Fullscreen-quad debug overlay sampling the shadow depth texture."""
+
     program: int
     u_depth_tex: int
 
@@ -504,6 +510,7 @@ shadow_view = _build_shadow_view_pipeline()
 # values for the "View shadow map" debug overlay (sampler2DShadow
 # can't be sampled with a plain ``texture()`` call).
 
+
 @dataclasses.dataclass(frozen=True)
 class ShadowResources:
     """The FBO and two textures used for shadow mapping.
@@ -513,9 +520,10 @@ class ShadowResources:
     depth values for the "View shadow map" debug overlay
     (``sampler2DShadow`` can't be sampled with a plain ``texture()``).
     """
+
     fbo: int
-    depth_tex: int       # GL_DEPTH_COMPONENT32F, used as sampler2DShadow
-    debug_tex: int       # GL_R32F, color attachment for the debug overlay
+    depth_tex: int  # GL_DEPTH_COMPONENT32F, used as sampler2DShadow
+    debug_tex: int  # GL_R32F, color attachment for the debug overlay
 
 
 def _build_shadow_resources() -> ShadowResources:
@@ -524,33 +532,69 @@ def _build_shadow_resources() -> ShadowResources:
 
     depth_tex = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, depth_tex)
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_DEPTH_COMPONENT32F,
-                    SHADOW_TEX_SIZE, SHADOW_TEX_SIZE, 0,
-                    GL.GL_DEPTH_COMPONENT, GL.GL_FLOAT, None)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D,
+        0,
+        GL.GL_DEPTH_COMPONENT32F,
+        SHADOW_TEX_SIZE,
+        SHADOW_TEX_SIZE,
+        0,
+        GL.GL_DEPTH_COMPONENT,
+        GL.GL_FLOAT,
+        None,
+    )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+    )
     # Hardware depth comparison so textureProj gives back 0/1 directly.
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_COMPARE_MODE,
-                       GL.GL_COMPARE_REF_TO_TEXTURE)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_COMPARE_FUNC,
-                       GL.GL_LEQUAL)
-    GL.glFramebufferTexture2D(GL.GL_FRAMEBUFFER, GL.GL_DEPTH_ATTACHMENT,
-                              GL.GL_TEXTURE_2D, depth_tex, 0)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D,
+        GL.GL_TEXTURE_COMPARE_MODE,
+        GL.GL_COMPARE_REF_TO_TEXTURE,
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_COMPARE_FUNC, GL.GL_LEQUAL
+    )
+    GL.glFramebufferTexture2D(
+        GL.GL_FRAMEBUFFER,
+        GL.GL_DEPTH_ATTACHMENT,
+        GL.GL_TEXTURE_2D,
+        depth_tex,
+        0,
+    )
 
     debug_tex = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, debug_tex)
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_R32F,
-                    SHADOW_TEX_SIZE, SHADOW_TEX_SIZE, 0,
-                    GL.GL_RED, GL.GL_FLOAT, None)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D,
+        0,
+        GL.GL_R32F,
+        SHADOW_TEX_SIZE,
+        SHADOW_TEX_SIZE,
+        0,
+        GL.GL_RED,
+        GL.GL_FLOAT,
+        None,
+    )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
-    GL.glFramebufferTexture2D(GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0,
-                              GL.GL_TEXTURE_2D, debug_tex, 0)
+    GL.glFramebufferTexture2D(
+        GL.GL_FRAMEBUFFER,
+        GL.GL_COLOR_ATTACHMENT0,
+        GL.GL_TEXTURE_2D,
+        debug_tex,
+        0,
+    )
 
-    if (GL.glCheckFramebufferStatus(GL.GL_FRAMEBUFFER)
-            != GL.GL_FRAMEBUFFER_COMPLETE):
+    if (
+        GL.glCheckFramebufferStatus(GL.GL_FRAMEBUFFER)
+        != GL.GL_FRAMEBUFFER_COMPLETE
+    ):
         raise RuntimeError("shadow FBO incomplete")
 
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
@@ -563,16 +607,20 @@ shadow_res = _build_shadow_resources()
 # Scale-bias matrix to convert clip-space [-1, 1] coordinates into
 # texture space [0, 1].  Multiplied with the light's projection-view-
 # model in shadowMatrix.
-_SCALE_BIAS = np.array([
-    [0.5, 0.0, 0.0, 0.5],
-    [0.0, 0.5, 0.0, 0.5],
-    [0.0, 0.0, 0.5, 0.5],
-    [0.0, 0.0, 0.0, 1.0],
-], dtype=np.float32)
+_SCALE_BIAS = np.array(
+    [
+        [0.5, 0.0, 0.0, 0.5],
+        [0.0, 0.5, 0.0, 0.5],
+        [0.0, 0.0, 0.5, 0.5],
+        [0.0, 0.0, 0.0, 1.0],
+    ],
+    dtype=np.float32,
+)
 
 
-def _light_proj_view(light_dir: tuple[float, float, float]
-                     ) -> tuple[np.ndarray, np.ndarray]:
+def _light_proj_view(
+    light_dir: tuple[float, float, float],
+) -> tuple[np.ndarray, np.ndarray]:
     """Build an orthographic light-space projection-view pair big
     enough to cover the cube + floor footprint from any light angle.
     Returns (proj, view) as 4x4 numpy arrays in pyMatrixStack's
@@ -614,8 +662,9 @@ def _light_proj_view(light_dir: tuple[float, float, float]
     return proj, view
 
 
-def render_shadow_map(stage: int, light_dir: tuple[float, float, float]
-                      ) -> np.ndarray:
+def render_shadow_map(
+    stage: int, light_dir: tuple[float, float, float]
+) -> np.ndarray:
     """Pass 1: render the cube (and the floor, just in case) into the
     depth FBO from the light's POV.  Returns the shadowMatrix
     (= scaleBias * lightProj * lightView), used by the camera pass to
@@ -634,7 +683,9 @@ def render_shadow_map(stage: int, light_dir: tuple[float, float, float]
     # clear leaks into the next frame's screen clear.
     saved_clear = (GL.GLfloat * 4)()
     GL.glGetFloatv(GL.GL_COLOR_CLEAR_VALUE, saved_clear)
-    GL.glClearColor(1.0, 1.0, 1.0, 1.0)  # depth=far for fragments we don't write
+    GL.glClearColor(
+        1.0, 1.0, 1.0, 1.0
+    )  # depth=far for fragments we don't write
     GL.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT)
     # Polygon offset to fight self-shadowing acne on the cube.  The
     # offset is in shadow-map space; tune empirically.
@@ -642,15 +693,19 @@ def render_shadow_map(stage: int, light_dir: tuple[float, float, float]
     GL.glPolygonOffset(2.0, 4.0)
     GL.glUseProgram(shadow_depth.program)
 
-    def _draw_obj(model_xform_extra=None,
-                  vao=cube_solid_vao, count=cube_solid_count):
+    def _draw_obj(
+        model_xform_extra=None, vao=cube_solid_vao, count=cube_solid_count
+    ):
         # lightMVP = lightProj * lightView * model
         # Compute model from pyMatrixStack's current model matrix.
         model = ms.get_current_matrix(ms.MatrixStack.model)
         mvp = light_proj @ light_view @ np.asarray(model, dtype=np.float32)
         GL.glUniformMatrix4fv(
-            shadow_depth.u_lightMVP, 1, GL.GL_TRUE,
-            np.ascontiguousarray(mvp, dtype=np.float32))
+            shadow_depth.u_lightMVP,
+            1,
+            GL.GL_TRUE,
+            np.ascontiguousarray(mvp, dtype=np.float32),
+        )
         GL.glBindVertexArray(vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, count)
 
@@ -662,8 +717,9 @@ def render_shadow_map(stage: int, light_dir: tuple[float, float, float]
     _draw_obj(vao=floor_vao, count=floor_count)
 
     GL.glDisable(GL.GL_POLYGON_OFFSET_FILL)
-    GL.glClearColor(saved_clear[0], saved_clear[1],
-                    saved_clear[2], saved_clear[3])
+    GL.glClearColor(
+        saved_clear[0], saved_clear[1], saved_clear[2], saved_clear[3]
+    )
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
 
     return _SCALE_BIAS @ light_proj @ light_view
@@ -690,7 +746,9 @@ def set_uniforms() -> None:
         ),
     )
     GL.glUniformMatrix4fv(
-        model_loc, 1, GL.GL_TRUE,
+        model_loc,
+        1,
+        GL.GL_TRUE,
         np.ascontiguousarray(model, dtype=np.float32),
     )
 
@@ -701,7 +759,9 @@ def set_uniforms() -> None:
         # ready-to-use matrix.
         sm = _shadow_pv_scaled @ np.asarray(model, dtype=np.float32)
         GL.glUniformMatrix4fv(
-            block_shadow.u_shadow, 1, GL.GL_TRUE,
+            block_shadow.u_shadow,
+            1,
+            GL.GL_TRUE,
             np.ascontiguousarray(sm, dtype=np.float32),
         )
 
@@ -720,12 +780,8 @@ def load_texture(path: str) -> int:
 
     tex = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
-    GL.glTexParameteri(
-        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR
-    )
-    GL.glTexParameteri(
-        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
-    )
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT)
     GL.glTexImage2D(
@@ -777,10 +833,11 @@ _STRIDE = _FLOATS_PER_VERTEX * 4
 @dataclasses.dataclass(frozen=True)
 class AttribSpec:
     """One vertex attribute pulled from one VBO."""
+
     vbo: int
     location: int
-    size: int                     # floats per vertex (2/3/4)
-    layout: tuple[int, int]       # (stride_bytes, offset_bytes)
+    size: int  # floats per vertex (2/3/4)
+    layout: tuple[int, int]  # (stride_bytes, offset_bytes)
 
 
 def make_vbo(data: np.ndarray, usage: int = GL.GL_STATIC_DRAW) -> int:
@@ -802,8 +859,12 @@ def make_vao(attribs: list[AttribSpec]) -> int:
         GL.glEnableVertexAttribArray(a.location)
         stride, offset = a.layout
         GL.glVertexAttribPointer(
-            a.location, a.size, GL.GL_FLOAT, False,
-            stride, ctypes.c_void_p(offset),
+            a.location,
+            a.size,
+            GL.GL_FLOAT,
+            False,
+            stride,
+            ctypes.c_void_p(offset),
         )
     return vao
 
@@ -813,7 +874,7 @@ def _interleaved_attribs(vbo: int) -> list[AttribSpec]:
     mesh in this demo.  Pinned to attribute slots 0/1/2 to match the
     block.vert / shadow_depth / block_shadow shaders."""
     return [
-        AttribSpec(vbo=vbo, location=0, size=3, layout=(_STRIDE, 0)),   # pos
+        AttribSpec(vbo=vbo, location=0, size=3, layout=(_STRIDE, 0)),  # pos
         AttribSpec(vbo=vbo, location=1, size=3, layout=(_STRIDE, 12)),  # normal
         AttribSpec(vbo=vbo, location=2, size=2, layout=(_STRIDE, 24)),  # uv
     ]
@@ -901,28 +962,47 @@ def _build_cube_solid() -> np.ndarray:
 def _build_cube_wire_full() -> np.ndarray:
     s = 25.0
     corners = [
-        (-s, -s, -s), (+s, -s, -s), (+s, +s, -s), (-s, +s, -s),  # back face
-        (-s, -s, +s), (+s, -s, +s), (+s, +s, +s), (-s, +s, +s),  # front face
+        (-s, -s, -s),
+        (+s, -s, -s),
+        (+s, +s, -s),
+        (-s, +s, -s),  # back face
+        (-s, -s, +s),
+        (+s, -s, +s),
+        (+s, +s, +s),
+        (-s, +s, +s),  # front face
     ]
     edges = [
         # back face
-        (0, 1), (1, 2), (2, 3), (3, 0),
+        (0, 1),
+        (1, 2),
+        (2, 3),
+        (3, 0),
         # front face
-        (4, 5), (5, 6), (6, 7), (7, 4),
+        (4, 5),
+        (5, 6),
+        (6, 7),
+        (7, 4),
         # connecting edges
-        (0, 4), (1, 5), (2, 6), (3, 7),
+        (0, 4),
+        (1, 5),
+        (2, 6),
+        (3, 7),
     ]
     out: list[float] = []
     for a, b in edges:
         for ci in (a, b):
             out.extend(corners[ci])
             out.extend((0.0, 0.0, 0.0))  # unused normal
-            out.extend((0.0, 0.0))       # unused uv
+            out.extend((0.0, 0.0))  # unused uv
     return np.array(out, dtype=np.float32)
 
 
-cube_solid_vao, _, cube_solid_count = _make_interleaved_mesh(_build_cube_solid())
-cube_wire_vao,  _, cube_wire_count  = _make_interleaved_mesh(_build_cube_wire_full())
+cube_solid_vao, _, cube_solid_count = _make_interleaved_mesh(
+    _build_cube_solid()
+)
+cube_wire_vao, _, cube_wire_count = _make_interleaved_mesh(
+    _build_cube_wire_full()
+)
 
 
 # Floor geometry -------------------------------------------------------------
@@ -953,8 +1033,8 @@ floor_vao, floor_vbo, floor_count = _make_interleaved_mesh(_build_floor())
 # units across, floor at y=-25).  Cone radius 5, height 12; bulb
 # radius 4.  Sits at light_radius units along +light_dir.
 
-def _build_marker_cone(radius: float, height: float,
-                       slices: int) -> np.ndarray:
+
+def _build_marker_cone(radius: float, height: float, slices: int) -> np.ndarray:
     """Cone with the base at z=0 and apex at z=+height, matching
     chapt05/spot.cpp's bulb-at-base / cone-body-behind layout.  In
     the demo's 8-float layout (pos + zero normal + zero uv).  Drawn
@@ -981,8 +1061,7 @@ def _build_marker_cone(radius: float, height: float,
     return np.array(out, dtype=np.float32)
 
 
-def _build_marker_sphere(radius: float, slices: int,
-                         stacks: int) -> np.ndarray:
+def _build_marker_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
     """UV sphere for the bulb (8-float layout, unlit)."""
     out: list[float] = []
     for i in range(stacks):
@@ -1054,13 +1133,15 @@ def planar_shadow_matrix(plane, light) -> np.matrix:
     dot = a * lx + b * ly + c * lz + d * lw
     return np.matrix(
         [
-            [dot - lx * a,    -lx * b,       -lx * c,       -lx * d],
-            [-ly * a,         dot - ly * b,  -ly * c,       -ly * d],
-            [-lz * a,         -lz * b,       dot - lz * c,  -lz * d],
-            [-lw * a,         -lw * b,       -lw * c,       dot - lw * d],
+            [dot - lx * a, -lx * b, -lx * c, -lx * d],
+            [-ly * a, dot - ly * b, -ly * c, -ly * d],
+            [-lz * a, -lz * b, dot - lz * c, -lz * d],
+            [-lw * a, -lw * b, -lw * c, dot - lw * d],
         ],
         dtype=np.float32,
     )
+
+
 # doc-region-end planar shadow
 
 
@@ -1093,7 +1174,7 @@ def setup_uniforms(
         GL.glUniform3f(block_shadow.u_ambient, 0.2, 0.2, 0.2)
         GL.glUniform3f(block_shadow.u_diffuse, 0.7, 0.7, 0.7)
         GL.glUniform1i(block_shadow.u_tex, 0)
-        GL.glUniform1i(block_shadow.u_shadow_map, 1)   # texture unit 1
+        GL.glUniform1i(block_shadow.u_shadow_map, 1)  # texture unit 1
     else:
         GL.glUseProgram(main.program)
         GL.glUniform1i(main.u_use_lighting, 1 if use_lighting else 0)
@@ -1198,10 +1279,10 @@ def draw_cube(stage: int) -> None:
             # any angle.  Face vertex offsets in the solid VAO are 6
             # apart in the order:  +Z, -Z, +Y, -Y, +X, -X.
             faces_to_draw = [
-                (tex_block_front, 0),   # +Z front
-                (tex_block_front, 6),   # -Z back
-                (tex_block_top,   12),  # +Y top
-                (tex_block_top,   18),  # -Y bottom
+                (tex_block_front, 0),  # +Z front
+                (tex_block_front, 6),  # -Z back
+                (tex_block_top, 12),  # +Y top
+                (tex_block_top, 18),  # -Y bottom
                 (tex_block_right, 24),  # +X right
                 (tex_block_right, 30),  # -X left
             ]
@@ -1285,24 +1366,30 @@ while not glfw.window_should_close(window):
             n_step = i
     imgui.separator()
     imgui.text("Shadow algorithm (stages 3, 4):")
-    if imgui.radio_button("planar (4x4 flatten matrix)",
-                          shadow_algo == "planar"):
+    if imgui.radio_button(
+        "planar (4x4 flatten matrix)", shadow_algo == "planar"
+    ):
         shadow_algo = "planar"
-        view_shadow_map = False     # planar has no shadow map to view
-    if imgui.radio_button("shadow map (depth texture)",
-                          shadow_algo == "shadow_map"):
+        view_shadow_map = False  # planar has no shadow map to view
+    if imgui.radio_button(
+        "shadow map (depth texture)", shadow_algo == "shadow_map"
+    ):
         shadow_algo = "shadow_map"
     if shadow_algo == "shadow_map":
         _, view_shadow_map = imgui.checkbox(
-            "View shadow map (replaces scene)", view_shadow_map)
+            "View shadow map (replaces scene)", view_shadow_map
+        )
     imgui.separator()
     imgui.text("Light direction (red cone + yellow bulb):")
     _, light_az_deg = imgui.slider_float(
-        "Azimuth (deg)", light_az_deg, 0.0, 360.0)
+        "Azimuth (deg)", light_az_deg, 0.0, 360.0
+    )
     _, light_el_deg = imgui.slider_float(
-        "Elevation (deg)", light_el_deg, 5.0, 89.0)
+        "Elevation (deg)", light_el_deg, 5.0, 89.0
+    )
     _, light_radius = imgui.slider_float(
-        "Radius (marker only)", light_radius, 10.0, 150.0)
+        "Radius (marker only)", light_radius, 10.0, 150.0
+    )
     imgui.end()
 
     # Recompute light + shadow each frame so the slider drives both
@@ -1379,25 +1466,31 @@ while not glfw.window_should_close(window):
     # +light_dir, base sits at the bulb, apex points back toward the
     # scene.  Drawn unlit so it doesn't shade against itself.
     with ms.push_matrix(ms.MatrixStack.model):
-        ms.translate(ms.MatrixStack.model,
-                     light_dir[0] * light_radius,
-                     light_dir[1] * light_radius,
-                     light_dir[2] * light_radius)
+        ms.translate(
+            ms.MatrixStack.model,
+            light_dir[0] * light_radius,
+            light_dir[1] * light_radius,
+            light_dir[2] * light_radius,
+        )
         # Rotation chain:  T @ R_y(90 - az) @ R_x(-el).  See demo22a.
-        ms.rotate_y(ms.MatrixStack.model,
-                    math.radians(90.0 - light_az_deg))
-        ms.rotate_x(ms.MatrixStack.model,
-                    math.radians(-light_el_deg))
+        ms.rotate_y(ms.MatrixStack.model, math.radians(90.0 - light_az_deg))
+        ms.rotate_x(ms.MatrixStack.model, math.radians(-light_el_deg))
 
-        setup_uniforms(use_lighting=False, use_texture=False,
-                       flat_color=LIGHT_MARKER_CONE_COLOR)
+        setup_uniforms(
+            use_lighting=False,
+            use_texture=False,
+            flat_color=LIGHT_MARKER_CONE_COLOR,
+        )
         set_uniforms()
         GL.glBindVertexArray(marker_cone_vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, marker_cone_count)
 
         # Bulb at the base of the cone (= local origin).
-        setup_uniforms(use_lighting=False, use_texture=False,
-                       flat_color=LIGHT_MARKER_BULB_COLOR)
+        setup_uniforms(
+            use_lighting=False,
+            use_texture=False,
+            flat_color=LIGHT_MARKER_BULB_COLOR,
+        )
         set_uniforms()
         GL.glBindVertexArray(marker_bulb_vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, marker_bulb_count)

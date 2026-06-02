@@ -4,696 +4,362 @@
 # modify it under the terms of the GNU General Public License
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful,
-# but WITHOUT ANY WARRANTY; without even the implied warranty of
-# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-# GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License
-# along with this program; if not, write to the Free Software
-# Foundation, Inc., 59 Temple Place - Suite 330,
-# Boston, MA 02111-1307, USA.
-import colorsys
+
+"""modelview2d, on the Cayley-graph engine.
+
+The 2D demo.  The scene camera is FLAT 2D ORTHOGRAPHIC -- viewed head-on down
+-z, no orbit/rotation (``setup_ortho_2d_view``); the "NDC" checkbox just zooms
+the ortho extent (15 -> 1).  Everything lives in the XY plane, so:
+  * the square has no z-translate (3 steps),
+  * the virtual camera only translates (1 step, no rotation),
+  * ``Camera->NDC`` is a single ``Scale`` (``project_modelview2d.glsl``).
+
+As each coordinate frame is built it shows its own *graph paper* (the local grid
+drawn flat in XY) plus its axis; once built, its geometry.  The virtual camera
+is drawn with its *view volume* -- a ±10 rectangular prism (flat, in 2D) that
+the squash scales by 1/10 down onto the ±1 NDC square."""
+
 import math
 import os
 import sys
-
-import glfw
-import numpy as np
-import OpenGL.GL as GL  # pip install PyOpenGL
-from imgui_bundle import imgui
-from numpy import ndarray
-
-import modelviewprojection.pyMatrixStack as ms
+from enum import Enum, auto
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(PWD))
-import _pipeline as _p  # noqa: E402
+import cayley_gl  # noqa: E402
+import cayleygraph  # noqa: E402
+import cayleyscene  # noqa: E402
+import glfw  # noqa: E402  (loaded by cayley_gl; needed here for key constants)
+import OpenGL.GL as GL  # noqa: E402  (after cayley_gl: glfw+GL before imgui)
 
-
-line_thickness = 2.0
-
-window, impl, imguiio = _p.setup_window("Model View 2D")
-_p.install_esc_close(window)
-
-
-def draw_in_square_viewport() -> None:
-    GL.glClearColor(0.2, 0.2, 0.2, 1.0)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-
-    w, h = glfw.get_framebuffer_size(window)
-    minimum_dimension = w if w < h else h
-
-    GL.glEnable(GL.GL_SCISSOR_TEST)
-    GL.glScissor(
-        int((w - minimum_dimension) / 2.0),
-        int((h - minimum_dimension) / 2.0),
-        minimum_dimension,
-        minimum_dimension,
-    )
-
-    GL.glClearColor(13.0 / 255.0, 64.0 / 255.0, 5.0 / 255.0, 1.0)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-    GL.glDisable(GL.GL_SCISSOR_TEST)
-
-    GL.glViewport(
-        int(0.0 + (w - minimum_dimension) / 2.0),
-        int(0.0 + (h - minimum_dimension) / 2.0),
-        minimum_dimension,
-        minimum_dimension,
-    )
-
-
-# ---------------------------------------------------------------------------
-# Pipeline -- compile each shader program once, cache uniform / attribute
-# locations.  The vert shaders here animate the projection derivation via a
-# `time` uniform plus frustum constants (field_of_view, aspect_ratio, near_z,
-# far_z), so each pipeline carries more uniform handles than the un-animated
-# visualizations.
-# ---------------------------------------------------------------------------
-
-
-# Frustum constants used by the animated `project()` in every vert shader.
-PROJ_FOV: float = 45.0
-PROJ_ASPECT: float = 1.0
-PROJ_NEAR_Z: float = -5.0
-PROJ_FAR_Z: float = -150.0
-
-
-# Shared top-level shaders.  The animated pipelines append the 2D-squash
-# snippet project_modelview2d.glsl; the ground is static (identity).
-
-# Triangle pipeline (paddles + square): per-vertex colour, animated.
-triangle_pipeline = _p.build_pipeline(
-    "per_vertex_color.vert", "passthrough.frag",
-    per_vertex_color=True, anim=True, project="project_modelview2d.glsl",
+import modelviewprojection.pyMatrixStack as ms  # noqa: E402
+from modelviewprojection.mathutils import (  # noqa: E402
+    Vector3D,
+    rotate_y,
+    rotate_z,
+    translate,
 )
 
-# Ground pipeline: dark-gray cylinders, solid uniform colour (set in
-# draw_ground).  Static even in this animated demo -- identity project.
-ground_pipeline = _p.build_pipeline(
-    "uniform_color.vert", "passthrough.frag", color=True
+imgui = cayley_gl.imgui
+
+
+class Space(Enum):
+    world = auto()
+    paddle1 = auto()
+    square = auto()
+    paddle2 = auto()
+    camera = auto()
+
+
+# 2D camera: a position only -- no rotation, so the edge has a single step.
+camera_edge = cayleygraph.Edge(
+    src=Space.camera,
+    dst=Space.world,
+    steps=[("T", translate(Vector3D(-1.5, 2.0, 0.0)))],
 )
 
-# Axis pipeline: cylinder+cone arrows, per-axis uniform colour, animated.
-axis_pipeline = _p.build_pipeline(
-    "uniform_color.vert", "passthrough.frag",
-    color=True, anim=True, project="project_modelview2d.glsl",
-)
-
-# NDC-cube pipeline (a 2D NDC outline in this demo, z=0): white cylinders,
-# animated.  Same shared shader + snippet as the axis pipeline.
-cube_pipeline = _p.build_pipeline(
-    "uniform_color.vert", "passthrough.frag",
-    color=True, anim=True, project="project_modelview2d.glsl",
-)
-
-
-# ---------------------------------------------------------------------------
-# Geometry.
-# ---------------------------------------------------------------------------
-
-
-def _build_2d_ndc_outline_cylinders(half_extent: float = 1.0) -> ndarray:
-    """The 2D NDC outline as 4 cylinder edges forming a square at z=0
-    with corners at ±half_extent.  modelview2d-specific; the 3D demos use
-    _p.build_ndc_cube_cylinders().  Pass half_extent=10 for the
-    virtual-camera "view volume" rendering (which used to do a scale(10)
-    on a unit outline -- scaling propagated to the cylinder radius)."""
-    h = half_extent
-    edges = [
-        ((-h, -h, 0.0), ( h, -h, 0.0)),
-        (( h, -h, 0.0), ( h,  h, 0.0)),
-        (( h,  h, 0.0), (-h,  h, 0.0)),
-        ((-h,  h, 0.0), (-h, -h, 0.0)),
+graph = cayleygraph.CayleyGraph(
+    [
+        cayleygraph.Edge(
+            src=Space.paddle1,
+            dst=Space.world,
+            steps=[
+                ("T", translate(Vector3D(-9.0, 1.0, 0.0))),
+                ("R", rotate_z(math.radians(45.0))),
+            ],
+        ),
+        # 2D square: no z-translate -- rotate-around, slide out, rotate.
+        cayleygraph.Edge(
+            src=Space.square,
+            dst=Space.paddle1,
+            steps=[
+                ("R1", rotate_z(math.radians(30.0))),
+                ("T_X", translate(Vector3D(1.5, 0.0, 0.0))),
+                ("R2", rotate_z(math.radians(90.0))),
+            ],
+        ),
+        cayleygraph.Edge(
+            src=Space.paddle2,
+            dst=Space.world,
+            steps=[
+                ("T", translate(Vector3D(9.0, 0.5, 0.0))),
+                ("R", rotate_z(math.radians(-20.0))),
+            ],
+        ),
+        camera_edge,
     ]
-    return _p.build_cylinders_for_edges(edges)
-
-
-paddle1_vao, paddle1_vertex_count = _p.make_triangle_vao(
-    _p.paddle_vertices, r=0.578123, g=0.0, b=1.0,
-    attr_position=triangle_pipeline.attr_position, attr_color=triangle_pipeline.attr_color,
-)
-paddle2_vao, paddle2_vertex_count = _p.make_triangle_vao(
-    _p.paddle_vertices, r=1.0, g=1.0, b=0.0,
-    attr_position=triangle_pipeline.attr_position, attr_color=triangle_pipeline.attr_color,
-)
-square_vao, square_vertex_count = _p.make_triangle_vao(
-    _p.square_vertices, r=0.0, g=0.0, b=1.0,
-    attr_position=triangle_pipeline.attr_position, attr_color=triangle_pipeline.attr_color,
-)
-ground_vao, ground_vertex_count = _p.make_lines_vao(
-    _p.build_ground_cylinders(), ground_pipeline.attr_position
-)
-axis_vao, axis_vertex_count = _p.make_lines_vao(
-    _p.build_axis_arrow_solid(), axis_pipeline.attr_position
-)
-sphere_vao, sphere_vertex_count = _p.make_lines_vao(
-    _p.build_origin_sphere_solid(), axis_pipeline.attr_position
-)
-cube_vao, cube_vertex_count = _p.make_lines_vao(
-    _build_2d_ndc_outline_cylinders(half_extent=1.0), cube_pipeline.attr_position
-)
-# A second outline at ±10 for the virtual-camera "view volume" rendering.
-# Edges baked at this scale so the cylinder thickness matches the regular
-# NDC outline instead of being scaled up 10x with the model matrix.
-cube_big_vao, cube_big_vertex_count = _p.make_lines_vao(
-    _build_2d_ndc_outline_cylinders(half_extent=10.0), cube_pipeline.attr_position
 )
 
+scene = cayleyscene.Scene(
+    graph=graph,
+    root=Space.world,
+    coordinate_frames=[
+        cayleyscene.CoordinateFrame(
+            space=Space.paddle1,
+            parent=Space.world,
+            geometry="paddle1",
+            dwell_before=5.0,
+        ),
+        cayleyscene.CoordinateFrame(
+            space=Space.square,
+            parent=Space.paddle1,
+            geometry="square",
+            dwell_before=5.0,
+        ),
+        cayleyscene.CoordinateFrame(
+            space=Space.paddle2,
+            parent=Space.world,
+            geometry="paddle2",
+            dwell_before=5.0,
+        ),
+        cayleyscene.CoordinateFrame(
+            space=Space.camera,
+            parent=Space.world,
+            geometry=None,
+            dwell_before=5.0,
+        ),
+    ],
+    to_ndc=[
+        cayleyscene.InverseOperations(
+            from_space=Space.world,
+            to_space=Space.camera,
+            group_title="World->Camera",
+        ),
+        cayleyscene.NonInvertibleTransformation(
+            group_title="Camera->NDC", step_labels=["Scale"]
+        ),
+    ],
+)
+animation = cayleyscene.Animation(scene)
+DRAW = {
+    Space.paddle1: "paddle1",
+    Space.square: "square",
+    Space.paddle2: "paddle2",
+}
 
-# ---------------------------------------------------------------------------
-# Scene state.  No camera scroll here -- this demo is 2D, no zoom.
-# ---------------------------------------------------------------------------
+window, impl, imguiio = cayley_gl.setup("Model View 2D (Cayley)")
+# no camera/orbit: the 2D view is flat (setup_ortho_2d_view), zoomed by the
+# NDC checkbox, not orbited.
+# project_modelview2d squashes x/y by 1/10; the camera's view volume is a flat
+# ±10 rectangular prism (near==far -> a square in 2D) that scales onto ±1 NDC.
+standard_objects = cayley_gl.build_standard(
+    animated=True,
+    project="project_modelview2d.glsl",
+    rect_prism=cayley_gl.RectangularPrism(
+        half_size=10.0, near_z=0.0, far_z=0.0
+    ),
+)
 
-
-paddle1_position: ndarray = np.array([-9.0, 1.0, 0.0])
-paddle1_rotation: float = math.radians(45.0)
-
-paddle2_position: ndarray = np.array([9.0, 0.5, 0.0])
-paddle2_rotation: float = math.radians(-20.0)
-
-square_rotation: float = math.radians(90.0)
-rotation_around_paddle1: float = math.radians(30.0)
-
-
-camera = _p.Camera(r=25.0, rot_y=math.radians(0.0), rot_x=math.radians(0.0))
-
-
-# ---------------------------------------------------------------------------
-# Rendering helpers.  Each draw_* takes an explicit `time` because some
-# callsites want the projection animation frozen at a specific moment (e.g.
-# the NDC outline drawn at time=0).
-# ---------------------------------------------------------------------------
-
-
-def _set_frustum_uniforms(
-    u_fov: int, u_aspect: int, u_near: int, u_far: int
-) -> None:
-    GL.glUniform1f(u_fov, PROJ_FOV)
-    GL.glUniform1f(u_aspect, PROJ_ASPECT)
-    GL.glUniform1f(u_near, PROJ_NEAR_Z)
-    GL.glUniform1f(u_far, PROJ_FAR_Z)
-
-
-def draw_triangles(vao: int, vertex_count: int, time: float) -> None:
-    GL.glUseProgram(triangle_pipeline.program)
-    GL.glBindVertexArray(vao)
-    _p.set_uniforms(triangle_pipeline.u_m, triangle_pipeline.u_v, triangle_pipeline.u_p)
-    _set_frustum_uniforms(
-        triangle_pipeline.u_fov, triangle_pipeline.u_aspect, triangle_pipeline.u_near, triangle_pipeline.u_far
-    )
-    GL.glUniform1f(triangle_pipeline.u_time, time)
-    GL.glDrawArrays(GL.GL_TRIANGLES, 0, vertex_count)
-
-
-def draw_ground(time: float) -> None:
-    GL.glUseProgram(ground_pipeline.program)
-    GL.glBindVertexArray(ground_vao)
-    GL.glUniform3f(ground_pipeline.u_color, 0.1, 0.1, 0.1)
-    _p.set_uniforms(ground_pipeline.u_m, ground_pipeline.u_v, ground_pipeline.u_p)
-    GL.glDrawArrays(GL.GL_TRIANGLES, 0, ground_vertex_count)
-
-
-def _emit_axis(
-    r: float, g: float, b: float, time: float, grayed_out: bool
-) -> None:
-    if grayed_out:
-        GL.glUniform3f(axis_pipeline.u_color, 0.5, 0.5, 0.5)
-    else:
-        GL.glUniform3f(axis_pipeline.u_color, r, g, b)
-    _p.set_uniforms(axis_pipeline.u_m, axis_pipeline.u_v, axis_pipeline.u_p)
-    _set_frustum_uniforms(axis_pipeline.u_fov, axis_pipeline.u_aspect, axis_pipeline.u_near, axis_pipeline.u_far)
-    GL.glUniform1f(axis_pipeline.u_time, time)
-    GL.glDrawArrays(GL.GL_TRIANGLES, 0, axis_vertex_count)
-
-
-def draw_axis(time: float, grayed_out: bool = False) -> None:
-    """Draw X (red, +90Z rotation) and Y (green, default).  The 2D demo
-    deliberately omits the Z axis."""
-    GL.glUseProgram(axis_pipeline.program)
-    GL.glBindVertexArray(axis_vao)
-    with ms.push_matrix(ms.MatrixStack.model):
-        # x axis -- rotate the Y-pointing arrow to point along +X
-        with ms.push_matrix(ms.MatrixStack.model):
-            ms.rotate_z(ms.MatrixStack.model, math.radians(-90.0))
-            _emit_axis(1.0, 0.0, 0.0, time, grayed_out)
-        # y axis -- already points +Y, no rotation needed
-        _emit_axis(0.0, 1.0, 0.0, time, grayed_out)
-
-        # White origin sphere -- shares the axis program's frustum+time
-        # uniforms so the 2D projection animation applies to it too.
-        GL.glBindVertexArray(sphere_vao)
-        if grayed_out:
-            GL.glUniform3f(axis_pipeline.u_color, 0.5, 0.5, 0.5)
-        else:
-            GL.glUniform3f(axis_pipeline.u_color, 1.0, 1.0, 1.0)
-        _p.set_uniforms(axis_pipeline.u_m, axis_pipeline.u_v, axis_pipeline.u_p)
-        _set_frustum_uniforms(axis_pipeline.u_fov, axis_pipeline.u_aspect, axis_pipeline.u_near, axis_pipeline.u_far)
-        GL.glUniform1f(axis_pipeline.u_time, time)
-        GL.glDrawArrays(GL.GL_TRIANGLES, 0, sphere_vertex_count)
+# the grid drawn flat in the XY plane (its default lies in XZ).
+GROUND_ROT = cayleyscene.to_matrix(
+    rotate_y(math.radians(90.0)) @ rotate_z(math.radians(90.0))
+)
+cam_pos = {"x": -1.5, "y": 2.0, "z": 0.0}
+state = {
+    "time": 0.0,
+    "speed": 1.0,
+    "paused": False,
+    "ndc": False,
+    "line_width": 2.0,
+}
+win_state = cayley_gl.WindowState()
 
 
-def draw_cube(time: float) -> None:
-    GL.glUseProgram(cube_pipeline.program)
-    GL.glBindVertexArray(cube_vao)
-    _p.set_uniforms(cube_pipeline.u_m, cube_pipeline.u_v, cube_pipeline.u_p)
-    _set_frustum_uniforms(cube_pipeline.u_fov, cube_pipeline.u_aspect, cube_pipeline.u_near, cube_pipeline.u_far)
-    GL.glUniform1f(cube_pipeline.u_time, time)
-    GL.glUniform3f(cube_pipeline.u_color, 1.0, 1.0, 1.0)
-    GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_vertex_count)
+def jump(start):
+    state["time"] = start
 
 
-def handle_inputs() -> None:
-    global rotation_around_paddle1
-    if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
-        rotation_around_paddle1 += 0.1
-
-    global square_rotation
-    if glfw.get_key(window, glfw.KEY_Q) == glfw.PRESS:
-        square_rotation += 0.1
-
-    if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1_position[1] -= 1.0
-    if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1_position[1] += 1.0
-    if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2_position[1] -= 1.0
-    if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2_position[1] += 1.0
-
-    global paddle1_rotation, paddle2_rotation
-    if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
-        paddle1_rotation += 0.1
-    if glfw.get_key(window, glfw.KEY_D) == glfw.PRESS:
-        paddle1_rotation -= 0.1
-    if glfw.get_key(window, glfw.KEY_J) == glfw.PRESS:
-        paddle2_rotation += 0.1
-    if glfw.get_key(window, glfw.KEY_L) == glfw.PRESS:
-        paddle2_rotation -= 0.1
-
-
-virtual_camera_position = np.array([-1.5, 2.0, 0.0], dtype=np.float32)
-virtual_camera_relative_offset = np.array([-0.0, 0.0, 0.0], dtype=np.float32)
-
-TARGET_FRAMERATE = 60  # fps
-
-# to try to standardize on 60 fps, compare times between frames
-time_at_beginning_of_previous_frame = glfw.get_time()
-
-animation_time = 0.0
-animation_time_multiplier = 1.0
-animation_paused = False
-NDC = False
-
-
-def highlighted_button(text: str, start_time: int, time: float) -> bool:
-    highlight = time > start_time and (time - start_time) < 5
-    if highlight:
-        imgui.push_id(str(3))
-        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.6, 0.6)
-        imgui.push_style_color(imgui.Col_.button.value, (r, g, b, 1.0))
-        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.7, 0.7)
-        imgui.push_style_color(imgui.Col_.button_hovered.value, (r, g, b, 1.0))
-        r, g, b = colorsys.hsv_to_rgb(0 / 7.0, 0.8, 0.8)
-        imgui.push_style_color(imgui.Col_.button_active.value, (r, g, b, 1.0))
-    return_value = imgui.button(label=text)
-    if highlight:
-        imgui.pop_style_color(3)
-        imgui.pop_id()
-    return return_value
-
-
-# Loop until the user closes the window
-while not glfw.window_should_close(window):
-    # poll the time to try to get a constant framerate
-    while (
-        glfw.get_time()
-        < time_at_beginning_of_previous_frame + 1.0 / TARGET_FRAMERATE
-    ):
-        pass
-    # set for comparison on the next frame
-    time_at_beginning_of_previous_frame = glfw.get_time()
-
-    if not animation_paused:
-        animation_time += 1.0 / 60.0 * animation_time_multiplier
-
-    # Poll for and process events
-    glfw.poll_events()
-    impl.process_inputs()
-
-    imgui.new_frame()
-
-    imgui.set_next_window_bg_alpha(0.05)
-    imgui.begin("Time", True)
-
-    clicked_animation_paused, animation_paused = imgui.checkbox(
-        "Pause", animation_paused
+def apply_camera():
+    camera_edge.steps[0].fn = translate(
+        Vector3D(cam_pos["x"], cam_pos["y"], cam_pos["z"])
     )
 
-    (
-        clicked_line_thickness,
-        line_thickness,
-    ) = imgui.slider_float("Line Width", line_thickness, 1.0, 10.0)
 
-    clicked_camera, camera.r = imgui.slider_float(
-        "Camera Radius", camera.r, 10, 1000.0
+def _toggle_pause():
+    state["paused"] = not state["paused"]
+
+
+def _restart():
+    state["time"] = 0.0
+
+
+def _toggle_graph():
+    win_state.show_graph = not win_state.show_graph
+
+
+def _toggle_ndc():
+    state["ndc"] = not state["ndc"]
+
+
+# 2D camera has no rotation, so cameraspace == worldspace: WASD nudge x/y.
+def _cam_move(dx, dy):
+    cam_pos["x"] += dx
+    cam_pos["y"] += dy
+    apply_camera()
+
+
+def imgui_menubar():
+    if not imgui.begin_main_menu_bar():
+        return
+    if imgui.begin_menu("File", True):
+        cayley_gl.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(window, True)
+        )
+        imgui.end_menu()
+    if imgui.begin_menu("Playback", True):
+        cayley_gl.menu_action(
+            "Resume" if state["paused"] else "Pause",
+            "SPACE",
+            _toggle_pause,
+            selected=state["paused"],
+        )
+        cayley_gl.menu_action("Restart", "R", _restart)
+        _, state["speed"] = imgui.slider_float(
+            "Sim Speed", state["speed"], -10.0, 10.0
+        )
+        imgui.menu_item(
+            f"t = {state['time']:.1f}s / {animation.timeline.duration:.0f}s",
+            "",
+            False,
+            False,
+        )
+        imgui.end_menu()
+    if imgui.begin_menu("Camera", True):  # flat 2D: position only, no orbit
+        changed = False
+        for label, key in (
+            ("X_Worldspace", "x"),
+            ("Y_Worldspace", "y"),
+            ("Z_Worldspace", "z"),
+        ):
+            c, cam_pos[key] = imgui.slider_float(
+                label, cam_pos[key], -25.0, 25.0
+            )
+            changed = changed or c
+        if changed:
+            apply_camera()
+        imgui.separator()
+        cayley_gl.menu_action("Up (+Y)", "W", lambda: _cam_move(0.0, 1.0))
+        cayley_gl.menu_action("Down (-Y)", "S", lambda: _cam_move(0.0, -1.0))
+        cayley_gl.menu_action("Left (-X)", "A", lambda: _cam_move(-1.0, 0.0))
+        cayley_gl.menu_action("Right (+X)", "D", lambda: _cam_move(1.0, 0.0))
+        imgui.end_menu()
+    if imgui.begin_menu("View", True):
+        cayley_gl.menu_action(
+            "Fullscreen",
+            "F11",
+            lambda: cayley_gl.toggle_fullscreen(window, win_state),
+            selected=win_state.fullscreen,
+        )
+        cayley_gl.menu_action(
+            "Show Graph", "G", _toggle_graph, selected=win_state.show_graph
+        )
+        # zoom the ortho extent down to the NDC square (15 -> 1)
+        cayley_gl.menu_action(
+            "NDC (zoom)", "N", _toggle_ndc, selected=state["ndc"]
+        )
+        _, state["line_width"] = imgui.slider_float(
+            "Line Width", state["line_width"], 1.0, 10.0
+        )
+        imgui.end_menu()
+    imgui.end_main_menu_bar()
+
+
+def on_key(window, key, scancode, action, mods):
+    cayley_gl.common_key(window, win_state, key, action)
+    if action not in (glfw.PRESS, glfw.REPEAT):
+        return
+    if key == glfw.KEY_W:
+        _cam_move(0.0, 1.0)
+    elif key == glfw.KEY_S:
+        _cam_move(0.0, -1.0)
+    elif key == glfw.KEY_A:
+        _cam_move(-1.0, 0.0)
+    elif key == glfw.KEY_D:
+        _cam_move(1.0, 0.0)
+    elif action == glfw.PRESS:
+        if key == glfw.KEY_SPACE:
+            _toggle_pause()
+        elif key == glfw.KEY_R:
+            _restart()
+        elif key == glfw.KEY_G:
+            _toggle_graph()
+        elif key == glfw.KEY_N:
+            _toggle_ndc()
+
+
+def graph_panel(t):
+    if not win_state.show_graph:
+        return
+    imgui.set_next_window_size(
+        imgui.ImVec2(470, 480), imgui.Cond_.first_use_ever
     )
-    (
-        clicked_animation_time_multiplier,
-        animation_time_multiplier,
-    ) = imgui.slider_float("Sim Speed", animation_time_multiplier, 0.1, 10.0)
-    if imgui.button("Restart"):
-        animation_time = 0.0
-
+    imgui.set_next_window_bg_alpha(0.7)
+    imgui.begin("Cayley Graph", True)
     imgui.set_next_item_open(True, imgui.Cond_.once)
-    if imgui.tree_node(
-        "From World Space, Against Arrows, Read Bottom Up",
-        "From World Space, Against Arrows, Read Bottom Up",
-    ):
-        imgui.set_next_item_open(True, imgui.Cond_.once)
-        if imgui.tree_node("Paddle 1->World", "Paddle 1->World"):
-            imgui.text("f_paddle1_to_world(x) = ")
-            imgui.text(" = (")
-            imgui.same_line()
-            if highlighted_button("T", 5, animation_time):
-                animation_time = 5.0
-            imgui.same_line()
-            imgui.text(" o ")
-            imgui.same_line()
-            if highlighted_button("R", 10, animation_time):
-                animation_time = 10.0
-            imgui.same_line()
-            imgui.text(" ) (x) ")
-
-            imgui.set_next_item_open(True, imgui.Cond_.once)
-            if imgui.tree_node("Square->World", "Square->World"):
-                imgui.text("f_square_to_world(x) = ")
-                imgui.text(" f_square_to_world o (")
-                imgui.text("      ")
-                imgui.same_line()
-                if highlighted_button("R1", 20, animation_time):
-                    animation_time = 20.0
-                imgui.same_line()
-                imgui.text(" o ")
-                imgui.same_line()
-                if highlighted_button("T_X", 25, animation_time):
-                    animation_time = 25.0
-                imgui.same_line()
-                imgui.text(" o ")
-                imgui.same_line()
-                if highlighted_button("R2", 30, animation_time):
-                    animation_time = 30.0
-                imgui.same_line()
-                imgui.text(" ) (x) ")
-                imgui.tree_pop()
-            imgui.tree_pop()
-
-        imgui.set_next_item_open(True, imgui.Cond_.once)
-        if imgui.tree_node("Paddle 2->World", "Paddle 2->World"):
-            imgui.text("f_paddle2_to_world(x) = (")
-            imgui.same_line()
-            if highlighted_button("T", 40, animation_time):
-                animation_time = 40.0
-            imgui.same_line()
-            imgui.text(" o ")
-            imgui.same_line()
-            if highlighted_button("R", 45, animation_time):
-                animation_time = 45.0
-            imgui.same_line()
-            imgui.text(" ) (x) ")
-            imgui.tree_pop()
-
-        imgui.set_next_item_open(True, imgui.Cond_.once)
-        if imgui.tree_node("Camera->World", "Camera->World"):
-            imgui.text("f_camera_to_world(x) = ")
-            imgui.same_line()
-            if highlighted_button("T", 55, animation_time):
-                animation_time = 55.0
-            imgui.same_line()
-            imgui.text("(x) ")
-            imgui.tree_pop()
+    if imgui.tree_node("From World Space, Against Arrows, Read Bottom Up"):
+        for grp in animation.frame_tree(t):
+            cayley_gl.render_tree(grp, jump)
         imgui.tree_pop()
-
     imgui.set_next_item_open(True, imgui.Cond_.once)
-    if imgui.tree_node(
-        "Towards NDC, With Arrows, Top Down Reading",
-        "Towards NDC, With Arrows, Top Down Reading",
-    ):
-        imgui.set_next_item_open(True, imgui.Cond_.once)
-        if imgui.tree_node("World->Camera", "World->Camera"):
-            imgui.text("f_camera_to_world^-1(x) = ")
-            imgui.text("     f_world_to_camera(x) = ")
-            imgui.same_line()
-            if highlighted_button("T^-1", 60, animation_time):
-                animation_time = 60.0
-            imgui.same_line()
-            imgui.text("(x)")
-            imgui.tree_pop()
-        imgui.set_next_item_open(True, imgui.Cond_.once)
-        if imgui.tree_node("Camera->NDC", "Camera->NDC"):
-            imgui.text("f_camera_to_ndc(x) = ortho(x) = ")
-            imgui.same_line()
-            if highlighted_button("Scale", 65, animation_time):
-                animation_time = 65.0
-            imgui.same_line()
-            imgui.text("(x)")
-            imgui.tree_pop()
+    if imgui.tree_node("Towards NDC, With Arrows, Top Down Reading"):
+        for grp in animation.ndc_tree(t):
+            cayley_gl.render_tree(grp, jump)
         imgui.tree_pop()
-
     imgui.end()
 
-    imgui.set_next_window_bg_alpha(0.05)
-    imgui.begin("Display Options", True)
 
-    clicked_NDC, NDC = imgui.checkbox("NDC", NDC)
-    imgui.end()
+def frame(w, h):
+    if not state["paused"]:
+        state["time"] = min(
+            animation.timeline.duration, state["time"] + state["speed"] / 60.0
+        )
+    t = state["time"]
+    graph_panel(t)
 
-    imgui.set_next_window_bg_alpha(0.05)
-    imgui.begin("Camera Options", True)
-
-    (
-        clicked_virtual_camera_positionx_clicked,
-        virtual_camera_position[0],
-    ) = imgui.slider_float(
-        "Camera X_Worldspace", virtual_camera_position[0], -25, 25.0
+    cayley_gl.setup_ortho_2d_view(
+        w, h, half_extent=1.0 if state["ndc"] else 15.0
     )
-    (
-        clicked_virtual_camera_positiony_clicked,
-        virtual_camera_position[1],
-    ) = imgui.slider_float(
-        "Camera Y_Worldspace", virtual_camera_position[1], -25, 25.0
-    )
-    (
-        clicked_virtual_camera_positionz_clicked,
-        virtual_camera_position[2],
-    ) = imgui.slider_float(
-        "Camera Z_Worldspace", virtual_camera_position[2], -25, 25.0
-    )
+    GL.glDisable(GL.GL_DEPTH_TEST)  # flat 2D -> painter order
+    lw = state["line_width"]
+    morph = cayleyscene.to_matrix(animation.inverse_transform(t))
 
-    imgui.end()
-
-    width, height = glfw.get_framebuffer_size(window)
-    GL.glViewport(0, 0, width, height)
-    GL.glClear(sum([GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT]))
-
-    # render scene
-    handle_inputs()
-
-    draw_in_square_viewport()
-
+    # persistent reference: the ±1 NDC square + the world graph paper (un-morphed)
     ms.set_to_identity_matrix(ms.MatrixStack.model)
-    ms.set_to_identity_matrix(ms.MatrixStack.view)
-    ms.set_to_identity_matrix(ms.MatrixStack.projection)
+    standard_objects.draw_cube()
+    ms.set_current_matrix(ms.MatrixStack.model, GROUND_ROT)
+    standard_objects.draw_ground()
 
-    # set the projection matrix to be ortho
-    if NDC:
-        ms.ortho(
-            left=-1.0, right=1.0, bottom=-1.0, top=1.0, near=0.0, far=550.0
+    # the virtual camera, drawn as an object: its graph paper + axis + the view
+    # volume (±10 prism), which the squash scales by 1/10 onto the NDC square.
+    if t >= animation.timeline.arrival_time(Space.camera):
+        base = morph @ cayleyscene.to_matrix(
+            animation.transform(Space.camera, t)
         )
-    else:
-        ms.ortho(
-            left=-15.0,
-            right=15.0,
-            bottom=-15.0,
-            top=15.0,
-            near=0.0,
-            far=550.0,
-        )
+        ms.set_current_matrix(ms.MatrixStack.model, base @ GROUND_ROT)
+        standard_objects.draw_ground()
+        ms.set_current_matrix(ms.MatrixStack.model, base)
+        standard_objects.draw_axis()
+        ms.set_current_matrix(ms.MatrixStack.model, base)
+        standard_objects.draw_rect_prism(t, lw, w, h)
 
-    # note - opengl matricies use degrees
-    ms.translate(ms.MatrixStack.view, 0.0, 0.0, -camera.r)
-    ms.rotate_x(ms.MatrixStack.view, camera.rot_x)
-    ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
+    # world axis: bright before paddle1 builds, grayed after
+    ms.set_current_matrix(ms.MatrixStack.model, morph)
+    standard_objects.draw_axis(
+        grayed=t >= animation.timeline.arrival_time(Space.paddle1)
+    )
 
-    # draw NDC in global space, so that we can see the camera space
-    # go to NDC
-    with ms.PushMatrix(ms.MatrixStack.model):
-        draw_cube(time=0.0)  # time stays still to stop animation
-    with ms.PushMatrix(ms.MatrixStack.model):
-        ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
-        ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
-        draw_ground(animation_time)
-
-    if animation_time > 60.0:
-        ms.translate(
-            ms.MatrixStack.model,
-            -virtual_camera_position[0]
-            * min(1.0, (animation_time - 60.0) / 5.0),
-            -virtual_camera_position[1]
-            * min(1.0, (animation_time - 60.0) / 5.0),
-            -virtual_camera_position[2]
-            * min(1.0, (animation_time - 60.0) / 5.0),
-        )
-
-    # draw virtual camera
-    if animation_time > 55.0:
-        with ms.push_matrix(ms.MatrixStack.model):
-            if animation_time > 55.0:
-                ms.translate(
-                    ms.MatrixStack.model,
-                    virtual_camera_position[0]
-                    * min(1.0, (animation_time - 55.0) / 5.0),
-                    virtual_camera_position[1]
-                    * min(1.0, (animation_time - 55.0) / 5.0),
-                    virtual_camera_position[2]
-                    * min(1.0, (animation_time - 55.0) / 5.0),
-                )
-            with ms.PushMatrix(ms.MatrixStack.model):
-                with ms.PushMatrix(ms.MatrixStack.model):
-                    ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
-                    ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
-                    draw_ground(animation_time)
-
-                GL.glDisable(GL.GL_DEPTH_TEST)
-                draw_axis(0.0)  # 0 time so it doesn't shrink
-                GL.glEnable(GL.GL_DEPTH_TEST)
-                # Draw the larger view-volume outline using the ±10 VAO so
-                # the cylinder thickness stays consistent with the NDC cube.
-                GL.glUseProgram(cube_pipeline.program)
-                GL.glBindVertexArray(cube_big_vao)
-                _p.set_uniforms(cube_pipeline.u_m, cube_pipeline.u_v, cube_pipeline.u_p)
-                _set_frustum_uniforms(cube_pipeline.u_fov, cube_pipeline.u_aspect, cube_pipeline.u_near, cube_pipeline.u_far)
-                GL.glUniform1f(cube_pipeline.u_time, animation_time)
-                GL.glUniform3f(cube_pipeline.u_color, 1.0, 1.0, 1.0)
-                GL.glDrawArrays(GL.GL_TRIANGLES, 0, cube_big_vertex_count)
-
-    GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
-
-    if animation_time < 5.0:
-        with ms.PushMatrix(ms.MatrixStack.model):
-            ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
-            ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
-            draw_ground(animation_time)
-        GL.glDisable(GL.GL_DEPTH_TEST)
-        draw_axis(animation_time)
-        GL.glEnable(GL.GL_DEPTH_TEST)
-    else:
-        GL.glDisable(GL.GL_DEPTH_TEST)
-        draw_axis(animation_time, grayed_out=True)
-        GL.glEnable(GL.GL_DEPTH_TEST)
-
-    with ms.PushMatrix(ms.MatrixStack.model):
-        if animation_time > 5.0:
-            ms.translate(
-                ms.MatrixStack.model,
-                paddle1_position[0] * min(1.0, (animation_time - 5.0) / 5.0),
-                paddle1_position[1] * min(1.0, (animation_time - 5.0) / 5.0),
-                0.0,
-            )
-        if animation_time > 10.0:
-            ms.rotate_z(
-                ms.MatrixStack.model,
-                paddle1_rotation * min(1.0, (animation_time - 10.0) / 5.0),
-            )
-
-        if animation_time > 0.0 and animation_time < 15.0:
-            with ms.PushMatrix(ms.MatrixStack.model):
-                ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
-                ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
-                draw_ground(animation_time)
-
-            GL.glDisable(GL.GL_DEPTH_TEST)
-            draw_axis(animation_time)
-            GL.glEnable(GL.GL_DEPTH_TEST)
-        if animation_time > 15.0:
-            # ascontiguousarray puts the array in column major order
-            draw_triangles(
-                paddle1_vao, paddle1_vertex_count, animation_time
-            )
-
-        # # draw the square
-
-        if animation_time > 20.0:
-            ms.rotate_z(
-                ms.MatrixStack.model,
-                rotation_around_paddle1
-                * min(1.0, (animation_time - 20.0) / 5.0),
-            )
-        if animation_time > 25.0:
-            ms.translate(
-                ms.MatrixStack.model,
-                1.5 * min(1.0, (animation_time - 25.0) / 5.0),
-                0.0,
-                0.0,
-            )
-        if animation_time > 30.0:
-            ms.rotate_z(
-                ms.MatrixStack.model,
-                square_rotation * min(1.0, (animation_time - 30.0) / 5.0),
-            )
-
-        if animation_time > 10.0 and animation_time < 35.0:
-            with ms.PushMatrix(ms.MatrixStack.model):
-                ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
-                ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
-                draw_ground(animation_time)
-            GL.glDisable(GL.GL_DEPTH_TEST)
-            draw_axis(animation_time)
-            GL.glEnable(GL.GL_DEPTH_TEST)
-
-        if animation_time > 35.0:
-            draw_triangles(square_vao, square_vertex_count, animation_time)
-
-    # get back to center of global space
-
-    with ms.PushMatrix(ms.MatrixStack.model):
-        # draw paddle 2
-        if animation_time > 40.0:
-            ms.translate(
-                ms.MatrixStack.model,
-                paddle2_position[0] * min(1.0, (animation_time - 40.0) / 5.0),
-                paddle2_position[1] * min(1.0, (animation_time - 40.0) / 5.0),
-                0.0,
-            )
-        if animation_time > 45.0:
-            ms.rotate_z(
-                ms.MatrixStack.model,
-                paddle2_rotation * min(1.0, (animation_time - 45.0) / 5.0),
-            )
-
-        if animation_time > 40.0 and animation_time < 50.0:
-            with ms.PushMatrix(ms.MatrixStack.model):
-                ms.rotate_y(ms.MatrixStack.model, math.radians(90.0))
-                ms.rotate_z(ms.MatrixStack.model, math.radians(90.0))
-                draw_ground(animation_time)
-            GL.glDisable(GL.GL_DEPTH_TEST)
-            draw_axis(animation_time)
-            GL.glEnable(GL.GL_DEPTH_TEST)
-
-        if animation_time > 50.0:
-            draw_triangles(
-                paddle2_vao, paddle2_vertex_count, animation_time
-            )
-
-    imgui.render()
-    impl.render(imgui.get_draw_data())
-
-    # done with frame, flush and swap buffers
-    # Swap front and back buffers
-    glfw.swap_buffers(window)
+    # each frame: while building -> its local graph paper + axis; once built ->
+    # its geometry (the mesh squashes with the animation).
+    for space, mesh in DRAW.items():
+        m = morph @ cayleyscene.to_matrix(animation.transform(space, t))
+        if animation.axis_visible(space, t):
+            ms.set_current_matrix(ms.MatrixStack.model, m @ GROUND_ROT)
+            standard_objects.draw_ground()
+            ms.set_current_matrix(ms.MatrixStack.model, m)
+            standard_objects.draw_axis()
+        if animation.geometry_visible(space, t):
+            ms.set_current_matrix(ms.MatrixStack.model, m)
+            standard_objects.draw_mesh(mesh, t)
 
 
-_p.cleanup()
-glfw.terminate()
+cayley_gl.run_loop(window, impl, frame, imgui_menubar, on_key)

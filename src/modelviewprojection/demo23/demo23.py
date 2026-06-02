@@ -78,8 +78,11 @@ glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
 
 window = glfw.create_window(
-    600, 600, "ModelViewProjection Demo 23 -- Lit Jet",
-    None, None,
+    600,
+    600,
+    "ModelViewProjection Demo 23 -- Lit Jet",
+    None,
+    None,
 )
 if not window:
     glfw.terminate()
@@ -129,8 +132,8 @@ jet_pitch: float = 0.0
 # 0 unlit, 1 Lambert, 2 Blinn-Phong (matches the shader's lightingMode)
 lighting_mode: int = 2
 wireframe: bool = False
-ambient: float = 0.3       # SuperBible used 0.3
-diffuse: float = 0.7       # SuperBible used 0.7
+ambient: float = 0.3  # SuperBible used 0.3
+diffuse: float = 0.7  # SuperBible used 0.7
 specular: float = 0.9
 shininess: float = 64.0
 
@@ -187,14 +190,18 @@ u_lighting_mode = GL.glGetUniformLocation(program, "lightingMode")
 
 def set_mvp_uniforms() -> None:
     GL.glUniformMatrix4fv(
-        u_mvp, 1, GL.GL_TRUE,
+        u_mvp,
+        1,
+        GL.GL_TRUE,
         np.ascontiguousarray(
             ms.get_current_matrix(ms.MatrixStack.modelviewprojection),
             dtype=np.float32,
         ),
     )
     GL.glUniformMatrix4fv(
-        u_model, 1, GL.GL_TRUE,
+        u_model,
+        1,
+        GL.GL_TRUE,
         np.ascontiguousarray(
             ms.get_current_matrix(ms.MatrixStack.model),
             dtype=np.float32,
@@ -218,7 +225,7 @@ def set_mvp_uniforms() -> None:
 # ---------------------------------------------------------------------------
 
 
-_FLOATS_PER_VERTEX = 6   # 3 pos + 3 normal
+_FLOATS_PER_VERTEX = 6  # 3 pos + 3 normal
 _STRIDE = _FLOATS_PER_VERTEX * 4
 _MESH_SCALE = 1.0 / 50.0
 
@@ -230,34 +237,37 @@ _MESH_SCALE = 1.0 / 50.0
 # exactly; CCW from outside the jet so GL_BACK culling works.
 _JET_TRIS: list = [
     # Nose cone -- bottom flat triangle, then two slanted sides.
-    ((  0.0,  0.0,  60.0), (-15.0,  0.0, 30.0), ( 15.0,  0.0,  30.0),
-        (0.0, -1.0, 0.0)),
-    (( 15.0,  0.0,  30.0), (  0.0, 15.0, 30.0), (  0.0,  0.0,  60.0), None),
-    ((  0.0,  0.0,  60.0), (  0.0, 15.0, 30.0), (-15.0,  0.0,  30.0), None),
-
+    ((0.0, 0.0, 60.0), (-15.0, 0.0, 30.0), (15.0, 0.0, 30.0), (0.0, -1.0, 0.0)),
+    ((15.0, 0.0, 30.0), (0.0, 15.0, 30.0), (0.0, 0.0, 60.0), None),
+    ((0.0, 0.0, 60.0), (0.0, 15.0, 30.0), (-15.0, 0.0, 30.0), None),
     # Body -- left side, right side, flat bottom.
-    ((-15.0,  0.0,  30.0), (  0.0, 15.0, 30.0), (  0.0,  0.0, -56.0), None),
-    ((  0.0,  0.0, -56.0), (  0.0, 15.0, 30.0), ( 15.0,  0.0,  30.0), None),
-    (( 15.0,  0.0,  30.0), (-15.0,  0.0, 30.0), (  0.0,  0.0, -56.0),
-        (0.0, -1.0, 0.0)),
-
+    ((-15.0, 0.0, 30.0), (0.0, 15.0, 30.0), (0.0, 0.0, -56.0), None),
+    ((0.0, 0.0, -56.0), (0.0, 15.0, 30.0), (15.0, 0.0, 30.0), None),
+    (
+        (15.0, 0.0, 30.0),
+        (-15.0, 0.0, 30.0),
+        (0.0, 0.0, -56.0),
+        (0.0, -1.0, 0.0),
+    ),
     # Wings -- single big bottom triangle, then a wedge on top.
-    ((  0.0,  2.0,  27.0), (-60.0,  2.0, -8.0), ( 60.0,  2.0,  -8.0), None),
-    (( 60.0,  2.0,  -8.0), (  0.0,  7.0, -8.0), (  0.0,  2.0,  27.0), None),
-    (( 60.0,  2.0,  -8.0), (-60.0,  2.0, -8.0), (  0.0,  7.0,  -8.0), None),
-    ((  0.0,  2.0,  27.0), (  0.0,  7.0, -8.0), (-60.0,  2.0,  -8.0), None),
-
+    ((0.0, 2.0, 27.0), (-60.0, 2.0, -8.0), (60.0, 2.0, -8.0), None),
+    ((60.0, 2.0, -8.0), (0.0, 7.0, -8.0), (0.0, 2.0, 27.0), None),
+    ((60.0, 2.0, -8.0), (-60.0, 2.0, -8.0), (0.0, 7.0, -8.0), None),
+    ((0.0, 2.0, 27.0), (0.0, 7.0, -8.0), (-60.0, 2.0, -8.0), None),
     # Horizontal tail fin -- bottom flat, two slanted sides, back.
-    ((-30.0, -0.5, -57.0), ( 30.0, -0.5, -57.0), (  0.0, -0.5, -40.0),
-        (0.0, -1.0, 0.0)),
-    ((  0.0, -0.5, -40.0), ( 30.0, -0.5, -57.0), (  0.0,  4.0, -57.0), None),
-    ((  0.0,  4.0, -57.0), (-30.0, -0.5, -57.0), (  0.0, -0.5, -40.0), None),
-    (( 30.0, -0.5, -57.0), (-30.0, -0.5, -57.0), (  0.0,  4.0, -57.0), None),
-
+    (
+        (-30.0, -0.5, -57.0),
+        (30.0, -0.5, -57.0),
+        (0.0, -0.5, -40.0),
+        (0.0, -1.0, 0.0),
+    ),
+    ((0.0, -0.5, -40.0), (30.0, -0.5, -57.0), (0.0, 4.0, -57.0), None),
+    ((0.0, 4.0, -57.0), (-30.0, -0.5, -57.0), (0.0, -0.5, -40.0), None),
+    ((30.0, -0.5, -57.0), (-30.0, -0.5, -57.0), (0.0, 4.0, -57.0), None),
     # Vertical stabilizer at the rear.
-    ((  0.0,  0.5, -40.0), (  3.0,  0.5, -57.0), (  0.0, 25.0, -65.0), None),
-    ((  0.0, 25.0, -65.0), ( -3.0,  0.5, -57.0), (  0.0,  0.5, -40.0), None),
-    ((  3.0,  0.5, -57.0), ( -3.0,  0.5, -57.0), (  0.0, 25.0, -65.0), None),
+    ((0.0, 0.5, -40.0), (3.0, 0.5, -57.0), (0.0, 25.0, -65.0), None),
+    ((0.0, 25.0, -65.0), (-3.0, 0.5, -57.0), (0.0, 0.5, -40.0), None),
+    ((3.0, 0.5, -57.0), (-3.0, 0.5, -57.0), (0.0, 25.0, -65.0), None),
 ]
 
 
@@ -286,8 +296,7 @@ def _build_jet_wire() -> np.ndarray:
     return np.array(out, dtype=np.float32)
 
 
-def _build_marker_cone(radius: float, height: float,
-                       slices: int) -> np.ndarray:
+def _build_marker_cone(radius: float, height: float, slices: int) -> np.ndarray:
     """Cone with the base at z=0 and apex at z=+height, matching
     chapt05/spot.cpp's bulb-at-base / cone-body-behind layout.  Same
     6-float layout (pos + zero normal) as the jet.  Drawn unlit."""
@@ -312,8 +321,7 @@ def _build_marker_cone(radius: float, height: float,
     return np.array(out, dtype=np.float32)
 
 
-def _build_marker_sphere(radius: float, slices: int,
-                         stacks: int) -> np.ndarray:
+def _build_marker_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
     """Tiny UV sphere for the bulb (6-float layout, unlit)."""
     out: list[float] = []
     for i in range(stacks):
@@ -430,9 +438,11 @@ while not glfw.window_should_close(window):
     imgui.separator()
     imgui.text("Light direction (red cone + yellow bulb):")
     _, light_az_deg = imgui.slider_float(
-        "Azimuth (deg)", light_az_deg, 0.0, 360.0)
+        "Azimuth (deg)", light_az_deg, 0.0, 360.0
+    )
     _, light_el_deg = imgui.slider_float(
-        "Elevation (deg)", light_el_deg, 5.0, 89.0)
+        "Elevation (deg)", light_el_deg, 5.0, 89.0
+    )
     imgui.end()
 
     light_dir = light_dir_ws(light_az_deg, light_el_deg)
@@ -490,15 +500,15 @@ while not glfw.window_should_close(window):
     # doesn't shade against itself.
     GL.glUniform1i(u_lighting_mode, 0)
     with ms.push_matrix(ms.MatrixStack.model):
-        ms.translate(ms.MatrixStack.model,
-                     light_dir[0] * LIGHT_MARKER_DISTANCE,
-                     light_dir[1] * LIGHT_MARKER_DISTANCE,
-                     light_dir[2] * LIGHT_MARKER_DISTANCE)
+        ms.translate(
+            ms.MatrixStack.model,
+            light_dir[0] * LIGHT_MARKER_DISTANCE,
+            light_dir[1] * LIGHT_MARKER_DISTANCE,
+            light_dir[2] * LIGHT_MARKER_DISTANCE,
+        )
         # See demo22a for the rotation derivation:  +z -> +light_dir.
-        ms.rotate_y(ms.MatrixStack.model,
-                    math.radians(90.0 - light_az_deg))
-        ms.rotate_x(ms.MatrixStack.model,
-                    math.radians(-light_el_deg))
+        ms.rotate_y(ms.MatrixStack.model, math.radians(90.0 - light_az_deg))
+        ms.rotate_x(ms.MatrixStack.model, math.radians(-light_el_deg))
 
         GL.glUniform3f(u_base, *LIGHT_MARKER_CONE_COLOR)
         set_mvp_uniforms()

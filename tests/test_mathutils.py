@@ -861,7 +861,8 @@ def test__distance_to_plane__signed():
     plane = mu.plane_equation(p1, p2, p3)  # XY plane, normal = +Z
 
     assert math.isclose(
-        mu.distance_to_plane(Vector3D(0.0, 0.0, 0.0), plane), 0.0,
+        mu.distance_to_plane(Vector3D(0.0, 0.0, 0.0), plane),
+        0.0,
         abs_tol=1e-7,
     )
     assert math.isclose(
@@ -874,6 +875,108 @@ def test__distance_to_plane__signed():
     assert math.isclose(
         mu.distance_to_plane(Vector3D(7.0, -2.0, 4.0), plane), 4.0
     )
+
+
+# ---------------------------------------------------------------------------
+# InvertibleFunction interpolation (at / steps) -- Phase 1 of
+# tasks/cayley-graph-datastructure.md.  Property checks: at(0)=identity,
+# at(1)=full, invertibility preserved at every t, composites recurse, and the
+# against-arrow case (inverse of the interpolated edge) matches negated params.
+# ---------------------------------------------------------------------------
+
+
+def test_interpolate_translate_endpoints_and_midpoint():
+    b = Vector3D(10.0, -20.0, 4.0)
+    T = translate(b)
+    origin = Vector3D(0.0, 0.0, 0.0)
+    assert T.at(0.0)(origin).isclose(origin)  # identity
+    assert T.at(0.5)(origin).isclose(Vector3D(5.0, -10.0, 2.0))  # halfway
+    assert T.at(1.0)(origin).isclose(b)  # full
+
+
+def test_interpolate_rotate_z_endpoints():
+    Rz = rotate_z(math.radians(90.0))
+    p = Vector3D(1.0, 0.0, 0.0)
+    assert Rz.at(0.0)(p).isclose(p)  # identity
+    assert Rz.at(1.0)(p).isclose(Vector3D(0.0, 1.0, 0.0))  # full 90 deg
+
+
+def test_interpolate_uniform_scale_is_linear_1_to_m():
+    # linear law 1 -> m (decision #2): at(0.5) of scale-by-5 is scale-by-3.
+    S = uniform_scale(5.0)
+    two = Vector1D(2.0)
+    assert S.at(0.0)(two).isclose(Vector1D(2.0))  # scale by 1.0
+    assert S.at(0.5)(two).isclose(Vector1D(6.0))  # scale by 3.0
+    assert S.at(1.0)(two).isclose(Vector1D(10.0))  # scale by 5.0
+
+
+def test_interpolate_composite_recurses_into_components():
+    # rotate_around is a compose([...]); at() recurses with no stored law.
+    ra = mu.rotate_around(math.radians(90.0), Vector2D(2.0, 0.0))
+    p = Vector2D(3.0, 0.0)
+    assert ra.at(0.0)(p).isclose(p)  # identity
+    assert ra.at(1.0)(p).isclose(ra(p))  # full equals the composite itself
+
+
+def test_interpolate_preserves_invertibility_at_every_t():
+    f = compose(
+        [
+            translate(Vector3D(1.0, 2.0, 3.0)),
+            rotate_z(math.radians(50.0)),
+            uniform_scale(2.0),
+        ]
+    )
+    p = Vector3D(0.7, -0.3, 1.1)
+    for t in (0.0, 0.25, 0.5, 0.75, 1.0):
+        ft = f.at(t)
+        assert inverse(ft)(ft(p)).isclose(p)
+
+
+def test_against_arrow_inverse_matches_negated_param():
+    # the Phase 2 player animates an against-arrow edge as inverse(edge.at(t)).
+    b = Vector3D(4.0, -2.0, 1.0)
+    T = translate(b)
+    p = Vector3D(1.0, 1.0, 1.0)
+    for t in (0.0, 0.3, 0.7, 1.0):
+        assert inverse(T.at(t))(p).isclose(translate(-b * t)(p))
+
+
+def test_at_default_is_step_for_handbuilt_function():
+    # neither a law nor components -> identity until t>=1, then itself.
+    f = InvertibleFunction(
+        lambda x: x + Vector1D(5.0), lambda x: x - Vector1D(5.0), "", ""
+    )
+    assert f.at(0.5)(Vector1D(0.0)).isclose(Vector1D(0.0))  # step: identity
+    assert f.at(1.0)(Vector1D(0.0)).isclose(Vector1D(5.0))  # step: full
+
+
+def test_inverse_commutes_with_at_for_compose_and_primitive():
+    # the case that matters: inverse(f).at(t) must equal inverse(f.at(t)) at
+    # EVERY t, not just the endpoints -- so an against-arrow composite edge
+    # (e.g. world->camera) animates smoothly, not as a step.
+    f = compose(
+        [
+            translate(Vector3D(10.0, 0.0, 0.0)),
+            rotate_z(math.radians(90.0)),
+            uniform_scale(2.0),
+        ]
+    )
+    p = Vector3D(1.0, -0.5, 0.3)
+    for t in (0.0, 0.25, 0.5, 0.75, 1.0):
+        assert inverse(f).at(t)(p).isclose(inverse(f.at(t))(p))
+    # also for a bare primitive
+    T = translate(Vector3D(3.0, -7.0, 2.0))
+    for t in (0.0, 0.4, 1.0):
+        assert inverse(T).at(t)(p).isclose(inverse(T.at(t))(p))
+    # and steps() decomposes an inverted composite into inverted leaves
+    assert len(list(inverse(f).steps())) == 3
+
+
+def test_steps_flattens_nested_composites():
+    inner = compose([translate(Vector2D(1.0, 0.0)), rotate(math.radians(30.0))])
+    outer = compose([uniform_scale(2.0), inner])
+    assert len(list(outer.steps())) == 3  # scale + (translate, rotate)
+    assert len(list(translate(Vector2D(1.0, 0.0)).steps())) == 1
 
 
 def test__doctest():

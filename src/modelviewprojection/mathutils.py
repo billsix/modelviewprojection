@@ -292,6 +292,18 @@ class InvertibleFunction(typing.Generic[V]):
     latex_repr_inv: str  #: The LaTeX representation of the inverse function
     # doc-region-end invertible function members
 
+    #: Optional interpolation law: maps ``t`` in ``[0, 1]`` to the
+    #: partially-applied function, with ``at(0)`` the identity and ``at(1)``
+    #: this function.  Bound by the transform primitives (translate, rotate,
+    #: scale, ...); left ``None`` for composites and hand-built functions.
+    interpolate: typing.Optional[
+        typing.Callable[[float], "InvertibleFunction[V]"]
+    ] = None
+    #: For composites built by :func:`compose`: the constituent functions, in
+    #: application order.  Lets interpolation and iteration recurse into the
+    #: parts *without* a stored law (see :meth:`at` and :meth:`steps`).
+    components: typing.Optional[typing.List["InvertibleFunction[V]"]] = None
+
     # doc-region-begin begin call
     def __call__(self, x: V) -> V:
         # doc-region-end begin call
@@ -365,6 +377,71 @@ class InvertibleFunction(typing.Generic[V]):
     def _repr_latex_(self):
         return "$" + self.latex_repr + "$"
 
+    def at(self, t: float) -> "InvertibleFunction[V]":
+        """The function interpolated at parameter ``t`` in ``[0, 1]``, where
+        ``at(0)`` is the identity and ``at(1)`` is the function itself.
+
+        This is how a transformation is animated: the same parameter-scaling
+        the demos do by hand (``translate(b * t)``, ``rotate(angle * t)``),
+        but carried by the function so a caller never re-derives it.
+
+        Resolution order:
+
+        * a primitive carries an :attr:`interpolate` law -> use it;
+        * a composite (from :func:`compose`) has no law -> recurse into its
+          :attr:`components`, interpolating each and re-composing;
+        * otherwise (a hand-built function with neither) -> a step: the
+          identity until ``t >= 1``, then the function itself.
+
+        Example:
+            >>> import math
+            >>> from modelviewprojection.mathutils import (
+            ...     translate, uniform_scale, compose, Vector2D,
+            ... )
+            >>> T = translate(Vector2D(10.0, 20.0))
+            >>> T.at(0.0)(Vector2D(0.0, 0.0))
+            Vector2D(x=0.0, y=0.0)
+            >>> T.at(0.5)(Vector2D(0.0, 0.0))
+            Vector2D(x=5.0, y=10.0)
+            >>> T.at(1.0)(Vector2D(0.0, 0.0))
+            Vector2D(x=10.0, y=20.0)
+            >>> # a composite interpolates by recursing into its components
+            >>> c = compose([translate(Vector2D(4.0, 0.0)), uniform_scale(3.0)])
+            >>> c.at(0.0)(Vector2D(1.0, 0.0))
+            Vector2D(x=1.0, y=0.0)
+            >>> c.at(1.0)(Vector2D(1.0, 0.0))
+            Vector2D(x=7.0, y=0.0)
+        """
+        if self.interpolate is not None:
+            return self.interpolate(t)
+        if self.components is not None:
+            return compose([c.at(t) for c in self.components])
+        return self if t >= 1.0 else identity()
+
+    def steps(self) -> "typing.Iterator[InvertibleFunction[V]]":
+        """Yield the leaf primitives in application order, flattening nested
+        compositions.  A primitive yields itself; a composite yields its
+        components' leaves recursively.
+
+        Example:
+            >>> import math
+            >>> from modelviewprojection.mathutils import (
+            ...     compose, translate, rotate, Vector2D,
+            ... )
+            >>> f = compose(
+            ...     [translate(Vector2D(1.0, 0.0)), rotate(math.radians(90.0))]
+            ... )
+            >>> len(list(f.steps()))
+            2
+            >>> len(list(translate(Vector2D(1.0, 0.0)).steps()))
+            1
+        """
+        if self.components is None:
+            yield self
+        else:
+            for c in self.components:
+                yield from c.steps()
+
 
 # doc-region-begin begin define inverse
 def inverse(f: InvertibleFunction[V]) -> InvertibleFunction[V]:
@@ -392,13 +469,34 @@ def inverse(f: InvertibleFunction[V]) -> InvertibleFunction[V]:
         7
         >>> inverse(foo)(foo(5))
         5
+        >>> # inverse commutes with at(): the inverse interpolates smoothly too
+        >>> import math
+        >>> from modelviewprojection.mathutils import (
+        ...     compose, translate, rotate_z, Vector3D,
+        ... )
+        >>> f = compose(
+        ...     [translate(Vector3D(10.0, 0.0, 0.0)), rotate_z(math.radians(90.0))]
+        ... )
+        >>> p = Vector3D(1.0, 0.0, 0.0)
+        >>> inverse(f).at(0.5)(p).isclose(inverse(f.at(0.5))(p))
+        True
     """
 
     # doc-region-begin inverse body
-    return InvertibleFunction[V](
+    f_inverse = InvertibleFunction[V](
         f.inverse, f.func, f.latex_repr_inv, f.latex_repr
     )
     # doc-region-end inverse body
+
+    # Make inverse commute with at():  inverse(f).at(t) == inverse(f.at(t))
+    # for all t.  A primitive carries its law; a composite carries its
+    # components reversed and each inverted -- the inverse-of-a-composition
+    # rule -- so interpolation/iteration recurse correctly through an inverse.
+    if f.interpolate is not None:
+        f_inverse.interpolate = lambda t: inverse(f.interpolate(t))
+    if f.components is not None:
+        f_inverse.components = [inverse(c) for c in reversed(f.components)]
+    return f_inverse
 
 
 def compose(
@@ -456,7 +554,13 @@ def compose(
         else:
             inv_str = inverse(f).latex_repr + r" \circ " + inv_str
 
-    return InvertibleFunction[V](composed_fn, inv_composed_fn, tex_str, inv_str)
+    return InvertibleFunction[V](
+        composed_fn,
+        inv_composed_fn,
+        tex_str,
+        inv_str,
+        components=list(functions),
+    )
 
 
 def compose_intermediate_fns(
@@ -579,7 +683,9 @@ def identity() -> InvertibleFunction[V]:
 
     tex_str: str = "I"
     inv_str: str = "I"
-    return InvertibleFunction[V](f, f_inv, tex_str, inv_str)
+    return InvertibleFunction[V](
+        f, f_inv, tex_str, inv_str, interpolate=lambda t: identity()
+    )
     # doc-region-end define identity
 
 
@@ -602,7 +708,9 @@ def translate(b: V) -> InvertibleFunction[V]:
         else str(negative_values)[1:-1]
     )
     inv_str: str = f"T_{{<[{inv_str_contents}]>}}"
-    return InvertibleFunction[V](f, f_inv, tex_str, inv_str)
+    return InvertibleFunction[V](
+        f, f_inv, tex_str, inv_str, interpolate=lambda t: translate(b * t)
+    )
     # doc-region-end define translate
 
 
@@ -619,7 +727,14 @@ def uniform_scale(m: float) -> InvertibleFunction[V]:
 
     tex_str: str = f"S_{{{m}}}"
     inv_str: str = f"S_{{\\frac{{1}}{{{m}}}}}"
-    return InvertibleFunction[V](f, f_inv, tex_str, inv_str)
+    # linear interpolation 1 -> m (matches the project_*.glsl squash/scale law)
+    return InvertibleFunction[V](
+        f,
+        f_inv,
+        tex_str,
+        inv_str,
+        interpolate=lambda t: uniform_scale(1.0 + (m - 1.0) * t),
+    )
     # doc-region-end define uniform scale
 
 
@@ -631,9 +746,7 @@ def scale_non_uniform_2d(
 
     def f_inv(vector: Vector2D) -> Vector2D:
         if m_x == 0.0 or m_y == 0.0:
-            raise ValueError(
-                "Not invertible.  Scaling factors cannot be zero."
-            )
+            raise ValueError("Not invertible.  Scaling factors cannot be zero.")
 
         return Vector2D(vector.x / m_x, vector.y / m_y)
 
@@ -642,6 +755,9 @@ def scale_non_uniform_2d(
         f_inv,
         f"S_{{<{m_x},{m_y}>}}",
         f"S_{{<\\frac{{1}}{{{m_x}}},\\frac{{1}}{{{m_y}}}>}}",
+        interpolate=lambda t: scale_non_uniform_2d(
+            1.0 + (m_x - 1.0) * t, 1.0 + (m_y - 1.0) * t
+        ),
     )
 
 
@@ -654,7 +770,11 @@ def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
         return -f(vector)
 
     return InvertibleFunction[Vector2D](
-        f, f_inv, "R_{<xy90>}", "R_{<xy90>}^{-1}"
+        f,
+        f_inv,
+        "R_{<xy90>}",
+        "R_{<xy90>}^{-1}",
+        interpolate=lambda t: rotate(math.radians(90.0) * t),
     )
 
 
@@ -678,6 +798,7 @@ def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2D]:
         create_rotate_function(inverse(r90)),
         f"R_{{<{sympy.latex(angle_in_radians)}>}}",
         f"R_{{<{sympy.latex(-angle_in_radians)}>}}",
+        interpolate=lambda t: rotate(angle_in_radians * t),
     )
     # doc-region-end define rotate
 
@@ -730,9 +851,7 @@ def scale_non_uniform_3d(
 
     def f_inv(vector: Vector3D) -> Vector3D:
         if m_x == 0.0 or m_y == 0.0 or m_z == 0.0:
-            raise ValueError(
-                "Not invertible.  Scaling factors cannot be zero."
-            )
+            raise ValueError("Not invertible.  Scaling factors cannot be zero.")
         return Vector3D(vector.x / m_x, vector.y / m_y, vector.z / m_z)
 
     return InvertibleFunction[Vector3D](
@@ -740,6 +859,11 @@ def scale_non_uniform_3d(
         f_inv,
         f"S_{{{m_x},{m_y},{m_z}}}",
         f"S_{{\\frac{{1}}{{{m_x}}},\\frac{{1}}{{{m_y}}},\\frac{{1}}{{{m_z}}}}}",
+        interpolate=lambda t: scale_non_uniform_3d(
+            1.0 + (m_x - 1.0) * t,
+            1.0 + (m_y - 1.0) * t,
+            1.0 + (m_z - 1.0) * t,
+        ),
     )
 
 
@@ -763,6 +887,7 @@ def rotate_x(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
         create_rotate_function(inverse(r)),
         f"RX_{{<{angle_in_radians}>}}",
         f"RX_{{<{-angle_in_radians}>}}",
+        interpolate=lambda t: rotate_x(angle_in_radians * t),
     )
     # doc-region-end define rotate x
 
@@ -787,6 +912,7 @@ def rotate_y(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
         create_rotate_function(inverse(r)),
         f"RY_{{<{angle_in_radians}>}}",
         f"RY_{{<{-angle_in_radians}>}}",
+        interpolate=lambda t: rotate_y(angle_in_radians * t),
     )
     # doc-region-end define rotate y
 
@@ -811,6 +937,7 @@ def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
         create_rotate_function(inverse(r)),
         f"RZ_{{<{angle_in_radians}>}}",
         f"RZ_{{<{-angle_in_radians}>}}",
+        interpolate=lambda t: rotate_z(angle_in_radians * t),
     )
     # doc-region-end define rotate z
 

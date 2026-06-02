@@ -90,8 +90,11 @@ glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
 glfw.window_hint(glfw.STENCIL_BITS, 8)
 
 window = glfw.create_window(
-    800, 600, "ModelViewProjection Demo 24 -- SphereWorld",
-    None, None,
+    800,
+    600,
+    "ModelViewProjection Demo 24 -- SphereWorld",
+    None,
+    None,
 )
 if not window:
     glfw.terminate()
@@ -138,8 +141,8 @@ camera: Camera = Camera(x=0.0, y=0.0, z=0.0, rot_y=0.0, rot_x=0.0)
 shadows_on: bool = True
 lighting_on: bool = True
 wireframe: bool = False
-ambient: float = 0.25     # SuperBible fLowLight
-diffuse: float = 1.0      # SuperBible fBrightLight
+ambient: float = 0.25  # SuperBible fLowLight
+diffuse: float = 1.0  # SuperBible fBrightLight
 specular: float = 1.0
 shininess: float = 128.0  # SuperBible glMateriali(..., 128)
 
@@ -150,9 +153,9 @@ shininess: float = 128.0  # SuperBible glMateriali(..., 128)
 # the low elevation casts long visible shadows -- both points the
 # students should notice.  The SuperBible original was higher and
 # behind the camera at (-100, 100, 50); slide the sliders to recreate.
-light_az_deg: float = 270.0     # 0 = +X, 90 = +Z, 180 = -X, 270 = -Z
-light_el_deg: float = 15.0      # angle above the XZ plane
-light_distance: float = 60.0    # distance from origin
+light_az_deg: float = 270.0  # 0 = +X, 90 = +Z, 180 = -X, 270 = -Z
+light_el_deg: float = 15.0  # angle above the XZ plane
+light_distance: float = 60.0  # distance from origin
 
 
 def handle_inputs() -> None:
@@ -189,14 +192,18 @@ u_tex = GL.glGetUniformLocation(program, "tex")
 
 def set_mvp_uniforms() -> None:
     GL.glUniformMatrix4fv(
-        u_mvp, 1, GL.GL_TRUE,
+        u_mvp,
+        1,
+        GL.GL_TRUE,
         np.ascontiguousarray(
             ms.get_current_matrix(ms.MatrixStack.modelviewprojection),
             dtype=np.float32,
         ),
     )
     GL.glUniformMatrix4fv(
-        u_model, 1, GL.GL_TRUE,
+        u_model,
+        1,
+        GL.GL_TRUE,
         np.ascontiguousarray(
             ms.get_current_matrix(ms.MatrixStack.model),
             dtype=np.float32,
@@ -224,15 +231,20 @@ def load_texture(path: str, repeat: bool) -> int:
     GL.glTexParameteri(
         GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR
     )
-    GL.glTexParameteri(
-        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
-    )
+    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     channels = img.shape[2]
     fmt = GL.GL_RGB if channels == 3 else GL.GL_RGBA
     internal = GL.GL_RGB8 if channels == 3 else GL.GL_RGBA8
     GL.glTexImage2D(
-        GL.GL_TEXTURE_2D, 0, internal, w, h, 0,
-        fmt, GL.GL_UNSIGNED_BYTE, img,
+        GL.GL_TEXTURE_2D,
+        0,
+        internal,
+        w,
+        h,
+        0,
+        fmt,
+        GL.GL_UNSIGNED_BYTE,
+        img,
     )
     GL.glGenerateMipmap(GL.GL_TEXTURE_2D)
     GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
@@ -270,7 +282,7 @@ def _build_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
     for i in range(stacks):
         v0 = i / stacks
         v1 = (i + 1) / stacks
-        phi0 = math.pi * v0 - math.pi / 2.0   # -pi/2 (south) .. pi/2 (north)
+        phi0 = math.pi * v0 - math.pi / 2.0  # -pi/2 (south) .. pi/2 (north)
         phi1 = math.pi * v1 - math.pi / 2.0
         cphi0, sphi0 = math.cos(phi0), math.sin(phi0)
         cphi1, sphi1 = math.cos(phi1), math.sin(phi1)
@@ -284,14 +296,26 @@ def _build_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
 
             # Four corners of this latitude/longitude quad.  Normal
             # equals the unit-radius position (it's a sphere).
-            p00 = ((cphi0 * st0, sphi0, cphi0 * ct0),
-                   (cphi0 * st0, sphi0, cphi0 * ct0), (u0, v0))
-            p10 = ((cphi0 * st1, sphi0, cphi0 * ct1),
-                   (cphi0 * st1, sphi0, cphi0 * ct1), (u1, v0))
-            p01 = ((cphi1 * st0, sphi1, cphi1 * ct0),
-                   (cphi1 * st0, sphi1, cphi1 * ct0), (u0, v1))
-            p11 = ((cphi1 * st1, sphi1, cphi1 * ct1),
-                   (cphi1 * st1, sphi1, cphi1 * ct1), (u1, v1))
+            p00 = (
+                (cphi0 * st0, sphi0, cphi0 * ct0),
+                (cphi0 * st0, sphi0, cphi0 * ct0),
+                (u0, v0),
+            )
+            p10 = (
+                (cphi0 * st1, sphi0, cphi0 * ct1),
+                (cphi0 * st1, sphi0, cphi0 * ct1),
+                (u1, v0),
+            )
+            p01 = (
+                (cphi1 * st0, sphi1, cphi1 * ct0),
+                (cphi1 * st0, sphi1, cphi1 * ct0),
+                (u0, v1),
+            )
+            p11 = (
+                (cphi1 * st1, sphi1, cphi1 * ct1),
+                (cphi1 * st1, sphi1, cphi1 * ct1),
+                (u1, v1),
+            )
 
             for vert in (p00, p10, p01, p10, p11, p01):
                 pos, nrm, uv = vert
@@ -301,8 +325,7 @@ def _build_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
     return np.array(out, dtype=np.float32)
 
 
-def _build_torus(R: float, r: float,
-                 sides: int, rings: int) -> np.ndarray:
+def _build_torus(R: float, r: float, sides: int, rings: int) -> np.ndarray:
     """Torus around the Y axis.  R = major radius (center of tube to
     Y axis), r = minor radius (tube thickness).  sides = segments
     around the major ring, rings = segments around the minor ring."""
@@ -323,8 +346,8 @@ def _build_torus(R: float, r: float,
                 nrm = (cv * cu, sv, cv * su)
                 return (pos, nrm, (us, vs))
 
-            p00 = vert(cu0, su0, cv0, sv0, i / sides,       j / rings)
-            p01 = vert(cu0, su0, cv1, sv1, i / sides,       (j + 1) / rings)
+            p00 = vert(cu0, su0, cv0, sv0, i / sides, j / rings)
+            p01 = vert(cu0, su0, cv1, sv1, i / sides, (j + 1) / rings)
             p10 = vert(cu1, su1, cv0, sv0, (i + 1) / sides, j / rings)
             p11 = vert(cu1, su1, cv1, sv1, (i + 1) / sides, (j + 1) / rings)
 
@@ -336,8 +359,9 @@ def _build_torus(R: float, r: float,
     return np.array(out, dtype=np.float32)
 
 
-def _build_ground(extent: float, step: float, y: float,
-                  tex_step: float) -> np.ndarray:
+def _build_ground(
+    extent: float, step: float, y: float, tex_step: float
+) -> np.ndarray:
     """Flat XZ grid at height y.  Normal points +Y everywhere.  UVs
     increment by tex_step per cell so the (REPEAT-wrapped) texture
     tiles."""
@@ -397,11 +421,12 @@ def make_vao(vertex_data: np.ndarray) -> tuple[int, int, int]:
 # Sphere small = orbiter (radius 0.1, gltDrawSphere(0.1, 21, 11))
 # Torus = (R 0.35, r 0.15, gltDrawTorus(0.35, 0.15, 61, 37))
 sphere_big_vao, sphere_big_vbo, sphere_big_count = make_vao(
-    _build_sphere(0.3, 21, 11))
+    _build_sphere(0.3, 21, 11)
+)
 sphere_small_vao, sphere_small_vbo, sphere_small_count = make_vao(
-    _build_sphere(0.1, 21, 11))
-torus_vao, torus_vbo, torus_count = make_vao(
-    _build_torus(0.35, 0.15, 61, 37))
+    _build_sphere(0.1, 21, 11)
+)
+torus_vao, torus_vbo, torus_count = make_vao(_build_torus(0.35, 0.15, 61, 37))
 
 # Ground:  40-unit-wide grid centered on origin, 1-unit cells, at
 # y=-0.4 (matches SuperBible).  texStep = 1/(20*0.075) ≈ 0.667 per
@@ -425,11 +450,13 @@ _rng = random.Random(42)
 NUM_INHABITANTS = 30
 sphere_origins: list[tuple[float, float, float]] = []
 for _ in range(NUM_INHABITANTS):
-    sphere_origins.append((
-        ((_rng.randint(0, 399)) - 200) * 0.1,
-        0.0,
-        ((_rng.randint(0, 399)) - 200) * 0.1,
-    ))
+    sphere_origins.append(
+        (
+            ((_rng.randint(0, 399)) - 200) * 0.1,
+            0.0,
+            ((_rng.randint(0, 399)) - 200) * 0.1,
+        )
+    )
 
 
 # ---------------------------------------------------------------------------
@@ -437,8 +464,9 @@ for _ in range(NUM_INHABITANTS):
 # ---------------------------------------------------------------------------
 
 
-def light_position_ws(az_deg: float, el_deg: float,
-                      distance: float) -> tuple[float, float, float]:
+def light_position_ws(
+    az_deg: float, el_deg: float, distance: float
+) -> tuple[float, float, float]:
     """Spherical -> Cartesian.  azimuth=0 is along +X; positive azimuth
     rotates toward +Z (counter-clockwise looking down from +Y).
     elevation=0 is on the XZ plane; positive elevation lifts toward
@@ -452,9 +480,10 @@ def light_position_ws(az_deg: float, el_deg: float,
     )
 
 
-def planar_shadow_matrix(plane: tuple[float, float, float, float],
-                         light: tuple[float, float, float, float]
-                         ) -> np.ndarray:
+def planar_shadow_matrix(
+    plane: tuple[float, float, float, float],
+    light: tuple[float, float, float, float],
+) -> np.ndarray:
     """Return the 4x4 matrix that projects world-space points onto the
     given plane (a*x + b*y + c*z + d = 0) along rays from the light
     position.
@@ -464,12 +493,15 @@ def planar_shadow_matrix(plane: tuple[float, float, float, float],
     a, b, c, d = plane
     Lx, Ly, Lz, Lw = light
     dot = a * Lx + b * Ly + c * Lz + d * Lw
-    return np.array([
-        [dot - a * Lx,    -b * Lx,         -c * Lx,         -d * Lx],
-        [-a * Ly,         dot - b * Ly,    -c * Ly,         -d * Ly],
-        [-a * Lz,         -b * Lz,         dot - c * Lz,    -d * Lz],
-        [-a * Lw,         -b * Lw,         -c * Lw,         dot - d * Lw],
-    ], dtype=np.float64)
+    return np.array(
+        [
+            [dot - a * Lx, -b * Lx, -c * Lx, -d * Lx],
+            [-a * Ly, dot - b * Ly, -c * Ly, -d * Ly],
+            [-a * Lz, -b * Lz, dot - c * Lz, -d * Lz],
+            [-a * Lw, -b * Lw, -c * Lw, dot - d * Lw],
+        ],
+        dtype=np.float64,
+    )
 
 
 # Ground plane y = GROUND_Y, normal +Y, so 0*x + 1*y + 0*z + (-GROUND_Y) = 0
@@ -566,11 +598,14 @@ while not glfw.window_should_close(window):
     imgui.separator()
     imgui.text("Light position (yellow ball):")
     _, light_az_deg = imgui.slider_float(
-        "Azimuth (deg)", light_az_deg, 0.0, 360.0)
+        "Azimuth (deg)", light_az_deg, 0.0, 360.0
+    )
     _, light_el_deg = imgui.slider_float(
-        "Elevation (deg)", light_el_deg, 5.0, 89.0)
+        "Elevation (deg)", light_el_deg, 5.0, 89.0
+    )
     _, light_distance = imgui.slider_float(
-        "Distance", light_distance, 20.0, 200.0)
+        "Distance", light_distance, 20.0, 200.0
+    )
     imgui.separator()
     _, ambient = imgui.slider_float("Ambient", ambient, 0.0, 1.0)
     _, diffuse = imgui.slider_float("Diffuse", diffuse, 0.0, 1.0)
@@ -602,7 +637,7 @@ while not glfw.window_should_close(window):
 
     aspect = float(width) / float(height) if height > 0 else 1.0
     ms.perspective(
-        field_of_view=35.0,    # SuperBible used 35 degrees
+        field_of_view=35.0,  # SuperBible used 35 degrees
         aspect_ratio=aspect,
         near_z=0.1,
         # Far plane has to contain the light marker even when the
@@ -668,8 +703,7 @@ while not glfw.window_should_close(window):
             GL.glUniform1i(u_render_mode, 0)
 
             with ms.push_matrix(ms.MatrixStack.model):
-                ms.multiply(ms.MatrixStack.model,
-                            np.matrix(shadow_matrix))
+                ms.multiply(ms.MatrixStack.model, np.matrix(shadow_matrix))
                 draw_inhabitants(yrot)
 
             GL.glEnable(GL.GL_CULL_FACE)
@@ -692,10 +726,12 @@ while not glfw.window_should_close(window):
         GL.glUniform3f(u_base, *LIGHT_MARKER_COLOR)
         with ms.push_matrix(ms.MatrixStack.model):
             ms.translate(ms.MatrixStack.model, *light_pos)
-            ms.scale(ms.MatrixStack.model,
-                     LIGHT_MARKER_SCALE,
-                     LIGHT_MARKER_SCALE,
-                     LIGHT_MARKER_SCALE)
+            ms.scale(
+                ms.MatrixStack.model,
+                LIGHT_MARKER_SCALE,
+                LIGHT_MARKER_SCALE,
+                LIGHT_MARKER_SCALE,
+            )
             set_mvp_uniforms()
             _bind_and_draw(sphere_small_vao, sphere_small_count)
 
