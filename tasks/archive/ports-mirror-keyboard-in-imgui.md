@@ -1,8 +1,11 @@
 # Mirror every keyboard control as a key-labeled imgui element
 
-**Status:** ✅ COMPLETE 2026-05-29 — all 94 keyboard-input demos now have a top imgui menubar
-(decided as menubar, not floating windows; see PIVOT + ROLLOUT COMPLETE below). Structurally
-verified; pending Bill's commit + visual spot-check.
+**Status:** complete
+**Completed:** 2026-06-02
+
+All 94 keyboard-input demos now have a top imgui menubar (decided as menubar,
+not floating windows; see PIVOT + ROLLOUT COMPLETE below). Structurally
+verified 2026-05-29; Bill spot-checked + committed 2026-06-02.
 
 ## Goal (Bill, 2026-05-29)
 

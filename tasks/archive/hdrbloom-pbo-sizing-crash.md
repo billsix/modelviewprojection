@@ -1,9 +1,13 @@
 # hdrbloom crashes on startup: after-glow PBO allocated 1 byte
 
-**Status:** FIXED 2026-05-29 (pending Bill's run-to-confirm) — sized the after-glow PBO at its real
-size in `setup_rc` (`fbo_height * (((fbo_width*3)+3)&~0x3)`) instead of the 1-byte placeholder, so
-`final_pass`'s `glReadPixels`-into-PBO no longer reads past the end on startup. Compiles clean.
-Root cause below. NOT related to the geometry-extraction refactor.
+**Status:** complete
+**Completed:** 2026-06-02
+
+Sized the after-glow PBO at its real size in `setup_rc`
+(`fbo_height * (((fbo_width*3)+3)&~0x3)`) instead of the 1-byte placeholder,
+so `final_pass`'s `glReadPixels`-into-PBO no longer reads past the end on
+startup. Bill confirmed the run 2026-06-02. NOT related to the
+geometry-extraction refactor.
 
 ## Symptom
 
