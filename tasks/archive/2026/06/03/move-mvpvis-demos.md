@@ -4,6 +4,14 @@
 **Completed:** 2026-06-03
 **Started:** 2026-06-03
 
+> Follow-up (same day, after archival): shader loading made demo-relative like
+> demo21/22. Each demo now computes `pwd = os.path.dirname(os.path.abspath(__file__))`
+> and passes `cayley_gl.build_standard(shader_dir=pwd, ...)`; `build_standard` threads
+> `shader_dir` to `_pipeline.build_pipeline` / `compile_program` / `_read_shader`, and
+> `_pipeline`'s hardcoded `_SHARED_DIR` was removed. Layout stays flat (shaders shared in
+> the package dir), but the path now keys off each demo's own `__file__`. compile + ruff
+> clean, 85 tests pass.
+
 ## Executed (2026-06-03)
 
 - `git mv` the tree into `src/modelviewprojection/mvpvisualization/`, flattening each
