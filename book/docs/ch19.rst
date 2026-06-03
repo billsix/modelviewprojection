@@ -63,7 +63,7 @@ Use glPushMatrix and glPopMatrix to save/restore a local coordinate
 system, that way a tree of objects can be drawn without one child
 destroying the relative coordinate system of the parent node.
 
-In mvpVisualization/pushmatrix/pushmatrix.py, the grayed out
+In src/modelviewprojection/mvpvisualization/pushmatrix.py, the grayed out
 coordinate system is one that has been pushed onto the stack,
 and it regains its color when it is reactivated by "glPopMatrix"
 

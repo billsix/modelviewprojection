@@ -1,21 +1,17 @@
 """Shared helpers for the MVP visualizations.
 
-Each visualization at ``mvpVisualization/<dir>/<demo>.py`` (one level under
-this module) imports it via::
+The visualizations live alongside this module in
+``modelviewprojection.mvpvisualization`` (the package), so each imports it with a
+plain absolute import::
 
-    PWD = os.path.dirname(os.path.abspath(__file__))
-    sys.path.insert(0, os.path.dirname(PWD))
-    import _pipeline as _p
-
-Same convention as ``ports/openglsuperbiblev4/_common.py``, just one directory
-shallower because the demos live at depth 1 instead of depth 2.
+    from modelviewprojection.mvpvisualization import _pipeline as _p
 
 What this module owns:
     - GLFW + ImGui boilerplate: ``setup_window(title)``, ``install_esc_close``,
       ``install_camera_scroll``.
     - Shader compilation: ``compile_program(vert, frag, geom=None,
       project=None)`` / ``build_pipeline(...)``.  All shaders are shared and
-      live at the top of ``mvpVisualization/`` (next to this module); the two
+      live next to this module in the package; the two
       vertex shaders (``per_vertex_color.vert`` / ``uniform_color.vert``) get a
       per-demo ``project_*.glsl`` snippet appended at compile time.
     - VAO builders: ``make_triangle_vao(...)`` and ``make_lines_vao(...)``.
@@ -42,7 +38,7 @@ import math
 import os
 import sys
 from dataclasses import dataclass
-from typing import Optional, Tuple
+from typing import Optional
 
 import glfw
 import numpy as np
@@ -53,7 +49,6 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 from numpy import ndarray
 
 import modelviewprojection.pyMatrixStack as ms
-
 
 glfloat_size: int = 4
 floatsPerVertex: int = 3
@@ -111,8 +106,7 @@ def setup_window(title: str, width: int = 1920, height: int = 1080):
     window = glfw.create_window(int(width), int(height), title, None, None)
     if not window:
         glfw.terminate()
-        print("Could not initialize Window")
-        sys.exit(1)
+        sys.exit("Could not initialize Window")
     glfw.make_context_current(window)
 
     # macOS Core Profile requires a non-zero VAO bound at all times for
@@ -167,13 +161,13 @@ def install_camera_scroll(window, imguiio, camera) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Shader compilation -- reads from each demo's own pwd so .vert/.frag/.geom
-# files stay co-located with the demo.
+# Shader compilation -- reads the shared .vert/.frag/.geom shaders
+# that live next to this module in the package.
 # ---------------------------------------------------------------------------
 
 
-# All visualization shaders now live at the top of mvpVisualization/ (next to
-# this module) and are shared across demos -- see compile_program below.
+# All visualization shaders live next to this module in the package and are
+# shared across demos -- see compile_program below.
 _SHARED_DIR: str = os.path.dirname(os.path.abspath(__file__))
 
 
@@ -189,7 +183,7 @@ def compile_program(
     project: Optional[str] = None,
 ) -> int:
     """Compile a vert+frag (and optional geom) program from the shared shader
-    files in ``mvpVisualization/`` (next to this module).  The resulting program
+    files next to this module in the package.  The resulting program
     is registered for cleanup.
 
     ``project`` names a ``project_*.glsl`` snippet whose source is appended to
@@ -221,7 +215,7 @@ def compile_program(
 class Pipeline:
     """A shader program with its cached uniform / attribute locations.
 
-    The mvpVisualization demos keep model / view / projection as three
+    The mvpvisualization demos keep model / view / projection as three
     separate uniforms (``mMatrix`` / ``vMatrix`` / ``pMatrix``) so the stages
     can be shown independently -- hence ``u_m`` / ``u_v`` / ``u_p`` rather than
     a single ``u_mvp``.  ``u_color`` / ``attr_color`` are ``-1`` for programs
@@ -325,7 +319,7 @@ class AttribSpec:
     vbo: int
     location: int
     size: int
-    layout: Tuple[int, int]
+    layout: tuple[int, int]
 
 
 def make_vbo(data: ndarray, usage: int = GL.GL_STATIC_DRAW) -> int:
@@ -376,7 +370,7 @@ def make_triangle_vao(
     *,
     attr_position: int,
     attr_color: int,
-) -> Tuple[int, int]:
+) -> tuple[int, int]:
     """VAO for the triangle pipeline: positions + per-vertex color (the same
     RGB triple repeated once per vertex).  Returns (vao, vertex_count).  The
     ``attr_*`` parameters are the shader's attribute indices, which differ
@@ -406,7 +400,7 @@ def make_triangle_vao(
     return vao, n_verts
 
 
-def make_lines_vao(vertices: ndarray, attr_position: int) -> Tuple[int, int]:
+def make_lines_vao(vertices: ndarray, attr_position: int) -> tuple[int, int]:
     """Position-only VAO for the lines pipelines (ground/axis/cube/frustum).
     Returns (vao, vertex_count)."""
     vertices = np.ascontiguousarray(vertices, dtype=np.float32).flatten()

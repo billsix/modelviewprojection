@@ -10,22 +10,20 @@ panel; ``cayley_gl`` supplies only the generic mechanisms.  Object-placement
 (paddle1 -> square nested -> paddle2), static perspective, one tree."""
 
 import math
-import os
-import sys
 from enum import Enum, auto
 
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(PWD))
-import cayley_gl  # noqa: E402
-import cayleygraph  # noqa: E402
-import cayleyscene  # noqa: E402
-import glfw  # noqa: E402  (loaded by cayley_gl; needed here for key constants)
+import glfw
 
-import modelviewprojection.pyMatrixStack as ms  # noqa: E402
-from modelviewprojection.mathutils import (  # noqa: E402
+from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection.mathutils import (
     Vector3D,
     rotate_z,
     translate,
+)
+from modelviewprojection.mvpvisualization import (
+    cayley_gl,
+    cayleygraph,
+    cayleyscene,
 )
 
 # imgui via cayley_gl so glfw + OpenGL.GL import BEFORE imgui_bundle (its own GL

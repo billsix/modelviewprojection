@@ -84,7 +84,7 @@ Description
 ^^^^^^^^^^^
 
 
-Before starting this demo, run mvpVisualization/modelvieworthoprojection/modelvieworthoprojection.py, as
+Before starting this demo, run src/modelviewprojection/mvpvisualization/modelvieworthoprojection.py, as
 it will show graphically all of the steps in this demo.  In the GUI,
 take a look at the camera options buttons, and once the camera
 is placed and oriented in world space, use the buttons to change the camera's position
@@ -111,7 +111,7 @@ you would
 #. rotate around the local y axis
 #. rotate around the local x axis
 
-To visualize this, run "python mvpVisualization/modelvieworthoprojection/modelvieworthoprojection.py"
+To visualize this, run "python src/modelviewprojection/mvpvisualization/modelvieworthoprojection.py"
 
 The ordering of 1) before 2) and 3) should be clear, as
 we are imagining a coordinate system that moves, just
@@ -186,7 +186,7 @@ to camera space.
    On the red axis, its 2*10 units wide, and 6*10 units tall, which matches
    the model-space data in the constructor for the Paddles.
 
-   Take a look at ../mvpVisualization/demoAnimation.py to see an animated
+   Take a look at src/modelviewprojection/mvpvisualization/modelviewperspectiveprojection.py to see an animated
    version of the axis being moved from into their world space positions,
    relative to which the model-space data is drawn.
 
@@ -202,7 +202,7 @@ to camera space.
    to world-space backwards, and you will see how the axes are moving and
    why.
 
-   Take a look at ../mvpVisualization/demoViewWorldTopLevel.py to see an
+   Take a look at src/modelviewprojection/mvpvisualization/modelviewperspectiveprojection.py to see an
    animated version that shows the objects being placed in world space,
    the camera being put into its space using the normal way of thinking
    of a coordinate system being moved, but then the transformations

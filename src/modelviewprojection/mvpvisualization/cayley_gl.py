@@ -24,8 +24,6 @@ from __future__ import annotations
 
 import dataclasses
 import math
-import os
-import sys
 import typing
 
 # IMPORT ORDER MATTERS: glfw + OpenGL.GL MUST import before imgui_bundle (its
@@ -37,10 +35,7 @@ import OpenGL.GL as GL
 from imgui_bundle import imgui, imgui_ctx  # noqa: F401  (re-exported for demos)
 
 import modelviewprojection.pyMatrixStack as ms
-
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, PWD)
-import _pipeline as _p  # noqa: E402
+from modelviewprojection.mvpvisualization import _pipeline as _p
 
 # The paddle/square + axis squash shaders use these fixed pipeline values (the
 # frustum outline uses the real frustum aspect instead).

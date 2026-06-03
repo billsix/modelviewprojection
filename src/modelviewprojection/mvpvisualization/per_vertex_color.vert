@@ -18,7 +18,7 @@
 #version 330 core
 
 // Shared vertex shader for geometry that carries a per-vertex colour
-// (the paddles and the square).  Used by every mvpVisualization demo.
+// (the paddles and the square).  Used by every mvpvisualization demo.
 //
 // The body of project() is appended at compile time from a per-demo snippet
 // (project_identity / project_modelview2d / project_ortho / project_perspective

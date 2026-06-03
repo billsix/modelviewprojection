@@ -33,6 +33,7 @@ src/modelviewprojection/
   demo22a/ demo23/ demo24/        # modernized SuperBible ports: pyramid / litjet / sphereworld
   notebooksrc/        # framebuffer.py, ndc.py, plot2d.py — jupytext % scripts -> .ipynb at build
   plotsforbook/       # matplotlib figure generation for the book
+  mvpvisualization/   # interactive Cayley-graph pedagogical aids (coordinatesystems.py, pushmatrix.py, ...) — NOT demos; run by path
 
 book/docs/            # the Sphinx book
   ch01.rst .. ch21.rst, intro/perspective/glossary/api/... ; index.rst toctree
@@ -42,7 +43,6 @@ book/docs/            # the Sphinx book
   Makefile            # make html / latexpdf / epub
 
 assignments/          # student assignments (assignment1, assignment2-screenspace, assignment3-strafe)
-mvpVisualization/     # interactive pedagogical aids (coordinatesystems/, pushmatrix/, ...) — NOT demos
 ports/openglsuperbiblev4/  # 1:1 SuperBible 4e -> Python port tree (PARKED this session)
 tests/                # test_mathutils.py (big), test_firstclassfunctions.py
 plans/                # detailed specs + dated HANDOFF-*.md notes (repo's durable notes home)

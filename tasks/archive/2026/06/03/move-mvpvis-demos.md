@@ -1,7 +1,53 @@
 # Move the mvpVisualization demos into the package
 
-**Status:** in-progress (planning — not yet executed)
+**Status:** complete
+**Completed:** 2026-06-03
 **Started:** 2026-06-03
+
+## Executed (2026-06-03)
+
+- `git mv` the tree into `src/modelviewprojection/mvpvisualization/`, flattening each
+  `<name>/<name>.py` → `<name>.py`; added `__init__.py`; removed the old shell (caches,
+  `imgui.ini`, stray `#…#` autosaves).
+- Rewrote all imports to absolute package form — no `sys.path.insert`, no `PWD`, no
+  `# noqa: E402`: demos use `from modelviewprojection.mvpvisualization import cayley_gl,
+  cayleygraph, cayleyscene` + `from modelviewprojection import pyMatrixStack as ms` +
+  `from modelviewprojection.mathutils import …` + plain `import glfw` / `import OpenGL.GL`.
+  `cayley_gl` imports `_pipeline` from the package; `cayleyscene` imports `cayleygraph` from
+  the package; `cayleygraph` was already absolute. `_SHARED_DIR = dirname(__file__)` unchanged.
+- Book prose (`.rst` source): updated run-commands to
+  `python src/modelviewprojection/mvpvisualization/<name>.py` in ch10/17/19; repointed the two
+  stale ch17 callouts (`demoAnimation.py`, `demoViewWorldTopLevel.py`) →
+  `modelviewperspectiveprojection.py` (it animates both the placement and the camera-inversion
+  those paragraphs describe); updated the `mvp_dict.pws` word to `mvpvisualization`.
+- Tests: `test_cayley_graph.py` / `test_cayley_scene.py` import from
+  `modelviewprojection.mvpvisualization`; deleted the now-obsolete `tests/conftest.py` path hack.
+- Also updated live references outside the book: `CLAUDE.md` line 72, `tasks/codebase-overview.md`
+  tree, and the credit comment in `ports/openglsuperbiblev4/_common.py`. Fixed two pre-existing
+  ruff nits in `_pipeline.py` (`typing.Tuple`→`tuple`, a `print`) surfaced by moving it into the
+  linted `src/` tree.
+
+**Verified:** moved tree + tests py_compile + ruff clean; 85 headless tests pass via the package
+path; no live `mvpVisualization/` references remain (only generated `_build/` and historical
+`plans/` notes, intentionally left). Bill runs a demo or two by path to confirm GL. Note: the
+`_common.py` import-sort nit is pre-existing in the PARKED ports tree, out of scope.
+
+## Decisions (Bill, 2026-06-03)
+
+1. **Subpackage name:** lowercase **`mvpvisualization`**.
+2. **Run as scripts, not modules:** invoked by file path
+   (`python src/modelviewprojection/mvpvisualization/<name>.py`), never
+   `python -m …`. ⇒ demos must use **absolute** imports
+   (`from modelviewprojection.mvpvisualization import cayley_gl`) — relative
+   imports fail in a path-run `__main__`. (Works because `modelviewprojection`
+   is already importable in Bill's env — same mechanism that makes today's
+   `from modelviewprojection.mathutils import …` work.) No `main()` wrapper /
+   console-scripts needed (the modules are never imported, only run).
+3. **Non-editable installs don't matter:** keep `__file__`-relative shader loading
+   as-is; NO `package-data` / `importlib.resources` work needed.
+4. **Stale ch17 refs:** repoint `demoAnimation.py` / `demoViewWorldTopLevel.py` to
+   the closest current demos (the animated `modelviewperspectiveprojection` and the
+   interactive `coordinatesystems`).
 
 ## Goal
 
@@ -84,29 +130,32 @@ Run with `python -m modelviewprojection.mvpvisualization.model` (and friends).
 With an editable install, running by file path still works too, since
 `modelviewprojection` resolves via the install rather than a path hack.
 
-## Plan
+## Plan (finalized) — DONE
 
-- [ ] `git mv mvpVisualization/* src/modelviewprojection/mvpvisualization/`, flattening
-      each `<name>/<name>.py` to `<name>.py`; add `__init__.py`. Drop `__pycache__`,
-      `imgui.ini`, and the stray `#…#` autosave.
-- [ ] Rewrite imports in all 7 demos + `cayley_gl.py` + `cayleygraph.py` + `cayleyscene.py`
-      + `_pipeline.py`: remove every `sys.path.insert` / `PWD` prelude; use package imports;
-      delete the now-unneeded `# noqa: E402` markers and the order-comment.
-- [ ] (Optional but recommended) wrap each demo's top-level window/`run_loop` code in a
-      `def main(): ...` + `if __name__ == "__main__": main()`, so importing a demo module has
-      no GL side effects. Enables `[project.scripts]` console entry points if wanted.
-- [ ] Add `package-data` to `pyproject.toml` so shaders ship in wheels (covers the existing
-      `demo20` gap too), e.g. `[tool.setuptools.package-data]` globbing
-      `*.glsl/*.vert/*.frag/*.geom`. Consider `importlib.resources` if zip-safe installs matter.
-- [ ] Update book prose paths: `ch10.rst`, `ch17.rst`, `ch19.rst` → new run command
-      (`python -m modelviewprojection.mvpvisualization.<name>` or the new file path). Resolve
-      the two stale `demoAnimation.py` / `demoViewWorldTopLevel.py` refs in ch17. Rebuild the
-      book so `_build/` regenerates; update `mvp_dict.pws` if needed.
-- [ ] Update `tests/conftest.py` (drops its `mvpVisualization` sys.path entry) and
+- [x] `git mv` the tree to `src/modelviewprojection/mvpvisualization/`, flattening each
+      `<name>/<name>.py` to `<name>.py`; add `__init__.py`. Drop `__pycache__`, `imgui.ini`,
+      and the stray `#…#` autosave (don't move those).
+- [x] Rewrite imports to **absolute** package form in all 7 demos + `cayley_gl.py` +
+      `cayleygraph.py` + `cayleyscene.py` + `_pipeline.py`: remove every `sys.path.insert` /
+      `PWD` prelude, `from modelviewprojection.mvpvisualization import cayley_gl/cayleygraph/
+      cayleyscene` (and `from modelviewprojection import mathutils, pyMatrixStack`), plain
+      `import glfw` / `import OpenGL.GL as GL`; delete the `# noqa: E402` markers and the
+      sys.path/order prelude comments. (`_SHARED_DIR = dirname(__file__)` stays.)
+- [x] Update book prose run-commands to the new file path
+      `python src/modelviewprojection/mvpvisualization/<name>.py`: `ch10.rst:253`,
+      `ch17.rst:87,114`, `ch19.rst:66`. Repoint the stale `ch17.rst:189,205`
+      (`demoAnimation.py` → `modelviewperspectiveprojection.py`;
+      `demoViewWorldTopLevel.py` → `coordinatesystems.py`). Update `mvp_dict.pws` if the
+      `mvpVisualization` spelling drops out of prose. Rebuild the book so `_build/` regenerates
+      (don't hand-edit `_build/`).
+- [x] Update `tests/conftest.py` (drop its `mvpVisualization` sys.path entry) and
       `tests/test_cayley_graph.py` / `tests/test_cayley_scene.py` to import from
       `modelviewprojection.mvpvisualization`. Confirm the 85 tests still pass.
-- [ ] py_compile + ruff across the moved tree; re-run tests; Bill visual-runs a demo or two
-      (GL needs a display).
+- [x] py_compile + ruff across the moved tree; re-run tests; Bill runs a demo or two by path
+      to visually confirm (GL needs a display).
+
+(Dropped from the earlier draft per Bill's decisions: no `package-data`/wheel work
+[#3], no `main()` wrapper / console-scripts / `python -m` [#2].)
 
 ## Notes / decisions
 
@@ -118,14 +167,4 @@ With an editable install, running by file path still works too, since
 
 ## Open questions
 
-- [ ] **Subpackage name:** `mvpvisualization` (lowercase, PEP-8) vs keep `mvpVisualization`?
-      Lowercase is conventional for an importable package; the book prose can still say "the
-      MVP visualizations."
-- [ ] **How should students run them** — `python -m modelviewprojection.mvpvisualization.<name>`,
-      a new file path, or console-script entry points (`mvp-modelview`, …)? Drives the book
-      wording and whether we add `main()` wrappers + `[project.scripts]`.
-- [ ] **Wheel correctness:** do we care about non-editable installs now (→ must add the
-      shader package-data, and ideally `importlib.resources` loading), or is editable-from-repo
-      the only supported mode for these demos (→ `__file__` loading is fine as-is)?
-- [ ] The stale `ch17` references (`demoAnimation.py`, `demoViewWorldTopLevel.py`) — repoint to
-      existing demos, or delete those callouts?
+All resolved — see **Decisions (Bill, 2026-06-03)** at the top.

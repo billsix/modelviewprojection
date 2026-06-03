@@ -6,7 +6,7 @@
 # of the License, or (at your option) any later version.
 
 """A Cayley graph as an IMMUTABLE, directed acyclic data structure, for the
-``mvpVisualization`` demos.
+``mvpvisualization`` demos.
 
 Nodes are coordinate **spaces** (typically members of a per-demo ``Enum``);
 directed **edges** are ordered sequences of *interpolable*
