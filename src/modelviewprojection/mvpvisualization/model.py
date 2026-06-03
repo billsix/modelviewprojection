@@ -10,6 +10,7 @@ panel; ``cayley_gl`` supplies only the generic mechanisms.  Object-placement
 (paddle1 -> square nested -> paddle2), static perspective, one tree."""
 
 import math
+import os
 from enum import Enum, auto
 
 import glfw
@@ -101,7 +102,8 @@ DRAW = {
 window, impl, imguiio = cayley_gl.setup("Model (Cayley)")
 camera = cayley_gl.make_camera()
 cayley_gl.install_scroll(window, imguiio, camera)
-standard_objects = cayley_gl.build_standard(animated=False)
+pwd = os.path.dirname(os.path.abspath(__file__))
+standard_objects = cayley_gl.build_standard(shader_dir=pwd, animated=False)
 
 state = {"time": 0.0, "speed": 1.0, "paused": False, "mouse": None}
 win_state = cayley_gl.WindowState()

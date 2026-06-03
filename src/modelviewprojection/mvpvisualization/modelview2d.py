@@ -20,6 +20,7 @@ is drawn with its *view volume* -- a ±10 rectangular prism (flat, in 2D) that
 the squash scales by 1/10 down onto the ±1 NDC square."""
 
 import math
+import os
 from enum import Enum, auto
 
 import glfw
@@ -140,7 +141,9 @@ window, impl, imguiio = cayley_gl.setup("Model View 2D (Cayley)")
 # NDC checkbox, not orbited.
 # project_modelview2d squashes x/y by 1/10; the camera's view volume is a flat
 # ±10 rectangular prism (near==far -> a square in 2D) that scales onto ±1 NDC.
+pwd = os.path.dirname(os.path.abspath(__file__))
 standard_objects = cayley_gl.build_standard(
+    shader_dir=pwd,
     animated=True,
     project="project_modelview2d.glsl",
     rect_prism=cayley_gl.RectangularPrism(

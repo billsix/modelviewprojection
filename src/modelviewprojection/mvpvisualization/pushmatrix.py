@@ -11,6 +11,7 @@ The demo owns its choreography -- including the persistent grayed axis at the
 squares' center -- and its imgui panel; ``cayley_gl`` supplies the mechanisms."""
 
 import math
+import os
 from enum import Enum, auto
 
 import glfw
@@ -114,7 +115,8 @@ GEOMETRY.update({_square(i): "square" for i in range(NUM_SQUARES)})
 window, impl, imguiio = cayley_gl.setup("Push Matrix (Cayley)")
 camera = cayley_gl.make_camera()
 cayley_gl.install_scroll(window, imguiio, camera)
-standard_objects = cayley_gl.build_standard(animated=False)
+pwd = os.path.dirname(os.path.abspath(__file__))
+standard_objects = cayley_gl.build_standard(shader_dir=pwd, animated=False)
 
 state = {"time": 0.0, "speed": 1.0, "paused": False, "mouse": None}
 win_state = cayley_gl.WindowState()

@@ -166,13 +166,8 @@ def install_camera_scroll(window, imguiio, camera) -> None:
 # ---------------------------------------------------------------------------
 
 
-# All visualization shaders live next to this module in the package and are
-# shared across demos -- see compile_program below.
-_SHARED_DIR: str = os.path.dirname(os.path.abspath(__file__))
-
-
-def _read_shader(name: str) -> str:
-    with open(os.path.join(_SHARED_DIR, name), "r") as f:
+def _read_shader(name: str, shader_dir: str) -> str:
+    with open(os.path.join(shader_dir, name), "r") as f:
         return f.read()
 
 
@@ -181,10 +176,13 @@ def compile_program(
     frag: str,
     geom: Optional[str] = None,
     project: Optional[str] = None,
+    *,
+    shader_dir: str,
 ) -> int:
-    """Compile a vert+frag (and optional geom) program from the shared shader
-    files next to this module in the package.  The resulting program
-    is registered for cleanup.
+    """Compile a vert+frag (and optional geom) program from shader files in
+    ``shader_dir`` -- the calling demo's own directory
+    (``os.path.dirname(os.path.abspath(__file__))``), so each demo loads its
+    shaders relative to itself.  The resulting program is registered for cleanup.
 
     ``project`` names a ``project_*.glsl`` snippet whose source is appended to
     the vertex shader before compiling -- this supplies the body of the
@@ -192,15 +190,19 @@ def compile_program(
     ``uniform_color.vert`` call.  GLSL 330 has no ``#include``, so this string
     concatenation is how each demo's projection animation is injected into the
     two shared vertex shaders."""
-    vsrc = _read_shader(vert)
+    vsrc = _read_shader(vert, shader_dir)
     if project is not None:
-        vsrc = vsrc + "\n" + _read_shader(project)
+        vsrc = vsrc + "\n" + _read_shader(project, shader_dir)
     vs = shaders.compileShader(vsrc, GL.GL_VERTEX_SHADER)
-    fs = shaders.compileShader(_read_shader(frag), GL.GL_FRAGMENT_SHADER)
+    fs = shaders.compileShader(
+        _read_shader(frag, shader_dir), GL.GL_FRAGMENT_SHADER
+    )
     if geom is None:
         prog = shaders.compileProgram(vs, fs)
     else:
-        gs = shaders.compileShader(_read_shader(geom), GL.GL_GEOMETRY_SHADER)
+        gs = shaders.compileShader(
+            _read_shader(geom, shader_dir), GL.GL_GEOMETRY_SHADER
+        )
         prog = shaders.compileProgram(vs, gs, fs)
     all_programs.append(prog)
     return prog
@@ -245,6 +247,7 @@ def build_pipeline(
     vert: str,
     frag: str,
     *,
+    shader_dir: str,
     color: bool = False,
     per_vertex_color: bool = False,
     anim: bool = False,
@@ -252,8 +255,9 @@ def build_pipeline(
     geom: Optional[str] = None,
     project: str = "project_identity.glsl",
 ) -> "Pipeline":
-    """Compile ``vert`` + ``frag`` (+ optional ``geom``) from the shared shader
-    set and cache its ``mMatrix`` / ``vMatrix`` / ``pMatrix`` uniforms and
+    """Compile ``vert`` + ``frag`` (+ optional ``geom``) from ``shader_dir`` (the
+    calling demo's own directory) and cache its ``mMatrix`` / ``vMatrix`` /
+    ``pMatrix`` uniforms and
     ``position`` attribute.  ``project`` selects the appended ``project_*.glsl``
     animation snippet (default: the static identity).  Optional flags cache
     extra locations: ``color`` -> ``color`` uniform; ``per_vertex_color`` ->
@@ -264,7 +268,9 @@ def build_pipeline(
     def u(name: str, enabled: bool) -> int:
         return GL.glGetUniformLocation(prog, name) if enabled else -1
 
-    prog = compile_program(vert, frag, geom=geom, project=project)
+    prog = compile_program(
+        vert, frag, geom=geom, project=project, shader_dir=shader_dir
+    )
     return Pipeline(
         program=prog,
         u_m=GL.glGetUniformLocation(prog, "mMatrix"),

@@ -316,6 +316,7 @@ class StandardObjects:
 
 
 def build_standard(
+    shader_dir,
     animated=False,
     project="project_identity.glsl",
     frustum=None,
@@ -323,28 +324,38 @@ def build_standard(
 ) -> StandardObjects:
     """Build the standard pipelines + meshes, plus an optional view volume --
     either a perspective ``frustum`` or an orthographic ``rect_prism`` (a demo
-    has at most one).  ``animated`` + ``project`` select the squash shader for
-    the triangle/axis pipelines."""
+    has at most one).  ``shader_dir`` is the calling demo's own directory
+    (``os.path.dirname(os.path.abspath(__file__))``), so the shaders load
+    relative to the demo.  ``animated`` + ``project`` select the squash shader
+    for the triangle/axis pipelines."""
     proj = project if animated else "project_identity.glsl"
     triangle = _p.build_pipeline(
         "per_vertex_color.vert",
         "passthrough.frag",
+        shader_dir=shader_dir,
         per_vertex_color=True,
         anim=animated,
         project=proj,
     )
     ground_p = _p.build_pipeline(
-        "uniform_color.vert", "passthrough.frag", color=True
+        "uniform_color.vert",
+        "passthrough.frag",
+        shader_dir=shader_dir,
+        color=True,
     )
     axis_p = _p.build_pipeline(
         "uniform_color.vert",
         "passthrough.frag",
+        shader_dir=shader_dir,
         color=True,
         anim=animated,
         project=proj,
     )
     cube_p = _p.build_pipeline(
-        "uniform_color.vert", "passthrough.frag", color=True
+        "uniform_color.vert",
+        "passthrough.frag",
+        shader_dir=shader_dir,
+        color=True,
     )
     meshes = {
         "paddle1": _p.make_triangle_vao(
@@ -398,6 +409,7 @@ def build_standard(
         vp = _p.build_pipeline(
             "uniform_color.vert",
             "passthrough_geom.frag",
+            shader_dir=shader_dir,
             geom="thick_lines.geom",
             color=True,
             anim=True,

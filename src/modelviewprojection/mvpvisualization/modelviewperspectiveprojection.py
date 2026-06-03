@@ -14,6 +14,7 @@ choreography + panel is OWNED HERE; ``cayley_gl`` supplies only the generic
 mechanisms."""
 
 import math
+import os
 from enum import Enum, auto
 
 import glfw
@@ -165,7 +166,9 @@ window, impl, imguiio = cayley_gl.setup(
 )
 camera = cayley_gl.make_camera()
 cayley_gl.install_scroll(window, imguiio, camera)
+pwd = os.path.dirname(os.path.abspath(__file__))
 standard_objects = cayley_gl.build_standard(
+    shader_dir=pwd,
     animated=True,
     project="project_perspective.glsl",
     frustum=cayley_gl.Frustum(),

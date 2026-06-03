@@ -14,6 +14,7 @@ ortho ``T-Center`` then ``Scale``, in ``project_ortho.glsl``) -- no perspective
 squash."""
 
 import math
+import os
 from enum import Enum, auto
 
 import glfw
@@ -151,7 +152,9 @@ camera = cayley_gl.make_camera()
 cayley_gl.install_scroll(window, imguiio, camera)
 # orthographic: project_ortho squash + a rectangular-prism view volume (matches
 # the shader's hard-coded box dims: half-size 5, near -0.5, far -15.5).
+pwd = os.path.dirname(os.path.abspath(__file__))
 standard_objects = cayley_gl.build_standard(
+    shader_dir=pwd,
     animated=True,
     project="project_ortho.glsl",
     rect_prism=cayley_gl.RectangularPrism(
