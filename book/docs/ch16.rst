@@ -48,26 +48,26 @@ What's the difference between drawing paddle 1 and the square?
 
 Here is paddle 1 code
 
-.. literalinclude:: ../../src/modelviewprojection/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo14.py
+   :caption: src/modelviewprojection/demos/demo14.py
 
 
 
 Here is the square's code:
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo14.py
+   :caption: src/modelviewprojection/demos/demo14.py
 
 
 
@@ -147,7 +147,7 @@ the paddle's :term:`modelspace<Modelspace>` data.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/modelviewprojection/demo16.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo16.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -213,13 +213,13 @@ Push identity onto the stack, which will will never pop off of the stack.
 
 Event Loop
 ^^^^^^^^^^
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 
 ::
@@ -250,13 +250,13 @@ a new function to the top of the stack.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin stack push camera space to ndc
    :end-before: doc-region-end stack push camera space to ndc
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 
 
@@ -306,13 +306,13 @@ camera space are.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin world space to camera space
    :end-before: doc-region-end world space to camera space
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 
 draw paddle 1
@@ -338,13 +338,13 @@ the current space
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin paddle 1 transformations
    :end-before: doc-region-end paddle 1 transformations
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 
 for each of the :term:`modelspace<Modelspace>` coordinates, apply all
@@ -353,13 +353,13 @@ this results in coordinate data in NDC space,
 which we can pass to glVertex3f
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 
 draw the square
@@ -385,21 +385,21 @@ remove these 4 transformations from the stack (done below)
     :figclass: align-center
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin square space to paddle 1 space
    :end-before: doc-region-end square space to paddle 1 space
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 
 Now we need to remove fns from the stack so that the
@@ -407,13 +407,13 @@ lambda stack will convert from world space to NDC.
 This will allow us to just add the transformations from
 world space to paddle2 space on the stack.
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin back to world space
    :end-before: doc-region-end back to world space
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 
 since paddle2's :term:`modelspace<Modelspace>` is independent of paddle 1's space, only
@@ -437,23 +437,23 @@ draw paddle 2
     :alt: Demo 12
     :figclass: align-center
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin paddle 2 model space to world space
    :end-before: doc-region-end paddle 2 model space to world space
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 
 
@@ -461,25 +461,25 @@ remove all fns from the function stack, as the next frame will set them
 clear makes the list empty, as the list (stack) will be repopulated
 the next iteration of the event loop.
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin clear function stack for next iteration of the event loop
    :end-before: doc-region-end clear function stack for next iteration of the event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 
 
 Swap buffers and execute another iteration of the event loop
 
-.. literalinclude:: ../../src/modelviewprojection/demo16.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
    :start-after: doc-region-begin flush framebuffer
    :end-before: doc-region-end flush framebuffer
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo16.py
+   :caption: src/modelviewprojection/demos/demo16.py
 
 Notice in the above code, adding functions to the stack is creating a shared
 context for transformations, and before we call "glVertex3f", we always call

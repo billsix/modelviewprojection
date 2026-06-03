@@ -32,7 +32,7 @@ of this region will not be displayed in the window.
 How to Execute
 ==============
 
-Load src/modelviewprojection/demo02.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo02.py in Spyder and hit the play button.
 
 
 Code
@@ -53,13 +53,13 @@ The Event Loop
 Within the event loop, demo02.py draws 2 rectangles, as one might see in
 a game of Pong.
 
-.. literalinclude:: ../../src/modelviewprojection/demo02.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo02.py
    :language: python
    :start-after: doc-region-begin event loop
    :end-before: doc-region-end event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo02.py
+   :caption: src/modelviewprojection/demos/demo02.py
 
 ::
 
@@ -93,13 +93,13 @@ Draw Paddle 1
 ^^^^^^^^^^^^^
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo02.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo02.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo02.py
+   :caption: src/modelviewprojection/demos/demo02.py
 
 
 
@@ -117,13 +117,13 @@ The paddle looks like this relative to :term:`NDC<Normalized Device Coordinates>
 Draw Paddle 2
 ^^^^^^^^^^^^^
 
-.. literalinclude:: ../../src/modelviewprojection/demo02.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo02.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo02.py
+   :caption: src/modelviewprojection/demos/demo02.py
 
 
 
@@ -137,13 +137,13 @@ The 2 paddles looks like this relative to :term:`NDC<Normalized Device Coordinat
 
     Rectangle
 
-.. literalinclude:: ../../src/modelviewprojection/demo02.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo02.py
    :language: python
    :start-after: doc-region-begin flush framebuffer to monitor
    :end-before: doc-region-end flush framebuffer to monitor
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo02.py
+   :caption: src/modelviewprojection/demos/demo02.py
 
 
 

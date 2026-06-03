@@ -24,14 +24,17 @@ point they're framed as the same idea executed on the GPU.
 
 ```
 src/modelviewprojection/
-  mathutils.py        # THE core abstraction (see below). ~1050 lines.
-  pyMatrixStack.py    # Pure-Python reimpl of the GL fixed-function matrix stack
-  colorutils.py       # Color4 etc.
-  nbplotutils.py, softwarerendering.py, wxapp*.py  # support / older bits
-  demo01.py ... demo19e.py        # single-file demos (2D -> 3D -> fixed-func GL)
-  demo20/ demo21/ demo22/         # OpenGL 3.3 Core demos: subfolder w/ .vert/.frag (+ .tga assets)
-  demo22a/ demo23/ demo24/        # modernized SuperBible ports: pyramid / litjet / sphereworld
+  mathutils.py        # THE core abstraction (see below). ~1050 lines. (kept at top)
+  pyMatrixStack.py    # Pure-Python reimpl of the GL fixed-function matrix stack (kept at top)
+  wxapp.py wxapp2.py wxapp2.xrc   # old wx bits (kept as-is at top)
+  demos/              # the book's runnable demos
+    demo01.py ... demo19e.py      # single-file demos (2D -> 3D -> fixed-func GL)
+    demo20/ demo21/ demo22/       # OpenGL 3.3 Core demos: subfolder w/ .vert/.frag (+ .tga assets)
+    demo22a/ demo23/ demo24/      # modernized SuperBible ports: pyramid / litjet / sphereworld
+  util/               # helpers: windowing, clipping, colorutils, cameracontrols, shading, nbplotutils, axes
+  framebuffer/        # softwarerendering.py — the virtual/software framebuffer (renderer)
   notebooksrc/        # framebuffer.py, ndc.py, plot2d.py — jupytext % scripts -> .ipynb at build
+                      #   (notebooksrc/framebuffer.py is a book notebook, distinct from the framebuffer/ renderer pkg)
   plotsforbook/       # matplotlib figure generation for the book
   mvpvisualization/   # interactive Cayley-graph pedagogical aids (coordinatesystems.py, pushmatrix.py, ...) — NOT demos; run by path
 

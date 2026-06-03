@@ -33,7 +33,7 @@ Learn how to :
 How to Execute
 ==============
 
-Load src/modelviewprojection/demo01.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo01.py in Spyder and hit the play button.
 
 
 Terminology
@@ -166,13 +166,13 @@ Importing Libraries
 Import Python modules, which are Python programmer's main form of libraries.
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin import first module
    :end-before: doc-region-end import first module
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 *  The "sys" module is imported.  Python has modules to let developers organize
    code into reusable, manageable pieces instead of keeping everything in one
@@ -189,13 +189,13 @@ Import Python modules, which are Python programmer's main form of libraries.
    are prefaced by their module names.
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin if the window is not created correctly, quit
    :end-before: doc-region-end if the window is not created correctly, quit
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 
 
@@ -241,13 +241,13 @@ GLFW/OpenGL Initialization
 Initialize GLFW.
 ^^^^^^^^^^^^^^^^
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin initialize glfw
    :end-before: doc-region-end initialize glfw
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 
 Initialize GLFW.  If initialization fails, the program should terminate.
@@ -266,26 +266,26 @@ For this demo, we use `OpenGL 1.4`_.  By the end of this book, we will be using 
 
 Inform GLFW that we wish to used OpenGL 1.4:
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin use opengl 1.4
    :end-before: doc-region-end use opengl 1.4
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 Create a Window
 ^^^^^^^^^^^^^^^
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin create window
    :end-before: doc-region-end create window
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 By calling glfw.create_window, we are creating a window.  What
 are the arguments passed?  It's likely that the first two arguments
@@ -298,25 +298,25 @@ where the intent of each parameter
 is clear at the site of calling the function.
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin if the window is not created correctly, quit
    :end-before: doc-region-end if the window is not created correctly, quit
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 
 *  If GLFW cannot open the window, the Python process terminates by calling sys.exit.
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin make context current
    :end-before: doc-region-end make context current
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 
 
@@ -325,13 +325,13 @@ is clear at the site of calling the function.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin on user hitting escape, end event loop and quit
    :end-before: doc-region-end on user hitting escape, end event loop and quit
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 
 If the user presses the "Escape" key while the program is running, inform
@@ -347,13 +347,13 @@ to other functions.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin set background color
    :end-before: doc-region-end set background color
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 * Before a frame is drawn, the framebuffer is first turned into a blank slate,
   where the color of each pixel is set to some value representing a
@@ -363,13 +363,13 @@ to other functions.
   "0,0,0,1", means black "0,0,0", without transparency (the "1").
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin don't use the built in mvp pipeline
    :end-before: doc-region-end don't use the built in mvp pipeline
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 * Don't worry about the 4 lines here.  Although they are necessary,
   we will cover them in depth later in this book.  After all, this
@@ -392,13 +392,13 @@ to terminate.
 
 * Define the :term:`Event Loop`
 
-.. literalinclude:: ../../src/modelviewprojection/demo01.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo01.py
    :language: python
    :start-after: doc-region-begin event loop
    :end-before: doc-region-end event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo01.py
+   :caption: src/modelviewprojection/demos/demo01.py
 
 * Run a loop that will run infinitely, until some event causes
   it to decide to exit.
@@ -458,7 +458,7 @@ Black Screen
 ============
 
 
-Load src/modelviewprojection/demo01.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo01.py in Spyder and hit the play button.
 
 The first demo is the least interesting graphical program possible.
 

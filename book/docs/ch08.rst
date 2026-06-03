@@ -34,7 +34,7 @@ way, but do it inelegantly.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/modelviewprojection/demo08.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo08.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -86,35 +86,35 @@ Within the event loop, this seems quite reasonable
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo08.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo08.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo08.py
+   :caption: src/modelviewprojection/demos/demo08.py
 
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo08.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo08.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo08.py
+   :caption: src/modelviewprojection/demos/demo08.py
 
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo08.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo08.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo08.py
+   :caption: src/modelviewprojection/demos/demo08.py
 
 
 

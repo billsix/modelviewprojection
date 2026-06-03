@@ -57,7 +57,7 @@ from modelviewprojection.mathutils import (
 from modelviewprojection.mathutils import rotate as R
 from modelviewprojection.mathutils import scale_non_uniform_2d as S
 from modelviewprojection.mathutils import translate as T
-from modelviewprojection.nbplotutils import (
+from modelviewprojection.util.nbplotutils import (
     create_basis,
     create_graphs,
     create_unit_circle,

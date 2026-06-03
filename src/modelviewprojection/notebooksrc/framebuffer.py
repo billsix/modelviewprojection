@@ -50,20 +50,19 @@
 
 import warnings
 
-from modelviewprojection.mathutils import (
-    Vector2D,
-)
-
 # %% [markdown]
 # The module below is our software implementation of a
 # framebuffer, we will use the name "sr" for
 # "software rendering":
 # %%
-from modelviewprojection.softwarerendering import (
+from modelviewprojection.framebuffer.softwarerendering import (
     BLACK,
     RED,
     WHITE,
     FrameBuffer,
+)
+from modelviewprojection.mathutils import (
+    Vector2D,
 )
 
 # turn warnings into exceptions

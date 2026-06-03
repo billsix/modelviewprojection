@@ -40,7 +40,9 @@ The same Pong scene (two paddles + a square defined relative to paddle1) is re-i
 - **demo21+**: OpenGL 3.3 Core, no fixed function. `pyMatrixStack` (`src/modelviewprojection/pyMatrixStack.py`) is a pure-Python reimplementation of the FF matrix stack with `MatrixStack.{model,view,projection,modelview,modelviewprojection}` and a `push_matrix(stack)` context manager; matrices uploaded as `mvpMatrix` uniform. `compile_program(vert, frag)` helper, VAO/VBO tracked in `all_vaos`/`all_vbos` for cleanup.
 - **demo22**: Lighting (Lambert), planar shadows, texturing — staged across multiple render modes.
 
-Modern style (demo20+): OpenGL 3.3 Core, shaders in separate `.vert`/`.frag` files in a `demoNN/` subfolder, `pyMatrixStack` for matrices, `colorutils.Color4`, optional `imgui_bundle` controls.
+Modern style (demo20+): OpenGL 3.3 Core, shaders in separate `.vert`/`.frag` files in a `demos/demoNN/` subfolder, `pyMatrixStack` for matrices, `util.colorutils.Color4`, optional `imgui_bundle` controls.
+
+Note (2026-06-03 restructure): the package is grouped — demos under `src/modelviewprojection/demos/`, helpers under `util/` (windowing, clipping, colorutils, cameracontrols, shading, nbplotutils, axes), the software framebuffer under `framebuffer/`; `mathutils.py` + `pyMatrixStack.py` stay at the package top. Imports are absolute (`from modelviewprojection.util.colorutils import …`); demos still run by path.
 
 ---
 

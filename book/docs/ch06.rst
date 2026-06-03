@@ -32,7 +32,7 @@ Learn about :term:`modelspace<Modelspace>` :index:`Modelspace`.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/modelviewprojection/demo06.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo06.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -708,24 +708,24 @@ This is because we will be scaling many Vector2Ds using the same scaling factor.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
    :language: python
    :start-after: doc-region-begin instantiate paddles
    :end-before: doc-region-end instantiate paddles
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo06.py
+   :caption: src/modelviewprojection/demos/demo06.py
 
 
 * paddles are using :term:`modelspace<Modelspace>` coordinates instead of NDC
 
-.. literalinclude:: ../../src/modelviewprojection/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
    :language: python
    :start-after: doc-region-begin define handle movement of paddles
    :end-before: doc-region-end define handle movement of paddles
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo06.py
+   :caption: src/modelviewprojection/demos/demo06.py
 
 
 
@@ -738,13 +738,13 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/modelviewprojection/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo06.py
+   :caption: src/modelviewprojection/demos/demo06.py
 
 
 
@@ -753,13 +753,13 @@ The Event Loop
 Rendering Paddle 1
 &&&&&&&&&&&&&&&&&&
 
-.. literalinclude:: ../../src/modelviewprojection/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo06.py
+   :caption: src/modelviewprojection/demos/demo06.py
 
 
 
@@ -804,13 +804,13 @@ Rendering Paddle 2
 &&&&&&&&&&&&&&&&&&
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo06.py
+   :caption: src/modelviewprojection/demos/demo06.py
 
 
 
@@ -849,10 +849,10 @@ not included a picture of that here.  Scaling happens relative to
 the origin, so the picture would be the same, just with different labels
 on the bottom and on the left.
 
-.. literalinclude:: ../../src/modelviewprojection/demo06.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo06.py
    :language: python
    :start-after: doc-region-begin flush framebuffer
    :end-before: doc-region-end flush framebuffer
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo06.py
+   :caption: src/modelviewprojection/demos/demo06.py

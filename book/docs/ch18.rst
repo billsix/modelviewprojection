@@ -81,7 +81,7 @@ if they were close by
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/modelviewprojection/demo18.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo18.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -257,13 +257,13 @@ Right calculation based off of Top and aspect ratio
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo18.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo18.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo18.py
+   :caption: src/modelviewprojection/demos/demo18.py
 
 
 ::
@@ -271,10 +271,10 @@ Right calculation based off of Top and aspect ratio
    ...
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo18.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo18.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo18.py
+   :caption: src/modelviewprojection/demos/demo18.py
