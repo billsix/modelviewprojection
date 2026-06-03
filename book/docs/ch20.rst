@@ -25,7 +25,7 @@ to use them in OpenGL 2.1.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/modelviewprojection/demo20/demo20.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo20/demo20.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -84,23 +84,23 @@ which a driver could implement in parallel.
 
 We have some new imports, "glUseProgram", "GL_VERTEX_SHADER", "GL_FRAGMENT_SHADER"
 
-.. literalinclude:: ../../src/modelviewprojection/demo20/demo20.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo20/demo20.py
    :language: python
    :start-after: doc-region-begin new imports
    :end-before: doc-region-end new imports
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo20/demo20.py
+   :caption: src/modelviewprojection/demos/demo20/demo20.py
 
 We now ask the OpenGL driver to accept OpenGL 2.1 function calls.
 
-.. literalinclude:: ../../src/modelviewprojection/demo20/demo20.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo20/demo20.py
    :language: python
    :start-after: doc-region-begin open gl version 2.1
    :end-before: doc-region-end open gl version 2.1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo20/demo20.py
+   :caption: src/modelviewprojection/demos/demo20/demo20.py
 
 Before the event loop starts, we send two mini programs to the GPU, the vertex
 shader and the fragment shader.  The purpose of the vertex shader is to transform
@@ -110,13 +110,13 @@ by the w; i.e. (x/w,y/w,z/w,1)
 I like to think of a matrix multiplication to a vector as a "function-application",
 in the same way we did in the lambda stack.
 
-.. literalinclude:: ../../src/modelviewprojection/demo20/demo20.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo20/demo20.py
    :language: python
    :start-after: doc-region-begin compile shaders
    :end-before: doc-region-end compile shaders
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo20/demo20.py
+   :caption: src/modelviewprojection/demos/demo20/demo20.py
 
 In the vertex shader, there are a lot of predefined variable names with values
 provided to us. "gl_ModelViewMatrix" is the matrix at the top of the modelview
@@ -130,7 +130,7 @@ which we haven't covered.  (Actually there are a bunch of other predefined varia
 outputs, including "gl_BackColor", for the case that we are looking at the back face
 of the geometry.
 
-.. literalinclude:: ../../src/modelviewprojection/demo20/triangle.vert
+.. literalinclude:: ../../src/modelviewprojection/demos/demo20/triangle.vert
    :language: glsl
 
 This is the fragment shader.  Unlike the vertex shader, which took an vector in (x,y,z)
@@ -142,7 +142,7 @@ and such questions are a moot point once we get to OpenGL 3.3 Core profile
 in the next section.
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo20/triangle.frag
+.. literalinclude:: ../../src/modelviewprojection/demos/demo20/triangle.frag
    :language: glsl
 
 The explicit mapping of variable names to values in OpenGL 3.3 Core Profile

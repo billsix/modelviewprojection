@@ -54,7 +54,7 @@ import matplotlib
 import moviepy
 import numpy as np
 
-import modelviewprojection.softwarerendering as sr
+import modelviewprojection.framebuffer.softwarerendering as sr
 from modelviewprojection.mathutils import (
     InvertibleFunction,
     Vector2D,

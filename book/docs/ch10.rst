@@ -35,7 +35,7 @@ horizontally.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/modelviewprojection/demo10.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo10.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -315,22 +315,22 @@ Code
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo10.py
    :language: python
    :start-after: doc-region-begin define camera class
    :end-before: doc-region-end define camera class
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo10.py
+   :caption: src/modelviewprojection/demos/demo10.py
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo10.py
    :language: python
    :start-after: doc-region-begin handle inputs
    :end-before: doc-region-end handle inputs
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo10.py
+   :caption: src/modelviewprojection/demos/demo10.py
 
 
 ::
@@ -347,24 +347,24 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/modelviewprojection/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo10.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo10.py
+   :caption: src/modelviewprojection/demos/demo10.py
 
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo10.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo10.py
+   :caption: src/modelviewprojection/demos/demo10.py
 
 
 The camera's position is ``camera.position_ws``.  So
@@ -376,13 +376,13 @@ values.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo10.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo10.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo10.py
+   :caption: src/modelviewprojection/demos/demo10.py
 
 
 The camera's position is ``camera.position_ws``.  So

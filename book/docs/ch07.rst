@@ -34,7 +34,7 @@ of how to interpret a sequence of transformations.
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/modelviewprojection/demo07.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo07.py in Spyder and hit the play button.
 
 Move the Paddles using the Keyboard
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -336,24 +336,24 @@ Therefore
   cos and sin are defined in the math module.
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo07.py
    :language: python
    :start-after: doc-region-begin define paddle class
    :end-before: doc-region-end define paddle class
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo07.py
+   :caption: src/modelviewprojection/demos/demo07.py
 
 
 * a rotation instance variable is defined, with a default value of 0
 
-.. literalinclude:: ../../src/modelviewprojection/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo07.py
    :language: python
    :start-after: doc-region-begin define handle movement of paddles
    :end-before: doc-region-end define handle movement of paddles
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo07.py
+   :caption: src/modelviewprojection/demos/demo07.py
 
 
 
@@ -379,13 +379,13 @@ Code
 The Event Loop
 ~~~~~~~~~~~~~~
 
-.. literalinclude:: ../../src/modelviewprojection/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo07.py
    :language: python
    :start-after: doc-region-begin begin  event loop
    :end-before: doc-region-end begin  event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo07.py
+   :caption: src/modelviewprojection/demos/demo07.py
 
 
 
@@ -394,13 +394,13 @@ we should translate to its position, and then rotate
 around the paddle's center.
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo07.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo07.py
+   :caption: src/modelviewprojection/demos/demo07.py
 
 
 
@@ -430,13 +430,13 @@ around the paddle's center.
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo07.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo07.py
+   :caption: src/modelviewprojection/demos/demo07.py
 
 
 .. inlinetex::
@@ -463,13 +463,13 @@ are not rotating around their center.
 Let's take a look in detail about what our paddle-space to
 world space transformations are doing.
 
-.. literalinclude:: ../../src/modelviewprojection/demo07.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo07.py
    :language: python
    :start-after: doc-region-begin compose transformations on paddle 1
    :end-before: doc-region-end compose transformations on paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo07.py
+   :caption: src/modelviewprojection/demos/demo07.py
 
 See :mod:`modelviewprojection.mathutils.compose`
 

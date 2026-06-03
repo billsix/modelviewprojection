@@ -58,7 +58,7 @@ Things that this demo doesn't end up doing correctly:
 How to Execute
 ^^^^^^^^^^^^^^
 
-Load src/modelviewprojection/demo14.py in Spyder and hit the play button.
+Load src/modelviewprojection/demos/demo14.py in Spyder and hit the play button.
 
 
 Move the Paddles using the Keyboard
@@ -230,13 +230,13 @@ Code
 The only new aspect of the code below is that the paddles have
 a z-coordinate of 0 in their :term:`modelspace<Modelspace>`.
 
-.. literalinclude:: ../../src/modelviewprojection/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
    :language: python
    :start-after: doc-region-begin instantiate paddle 1
    :end-before: doc-region-end instantiate paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo14.py
+   :caption: src/modelviewprojection/demos/demo14.py
 
 
 The only new aspect of the square below is that it has
@@ -246,37 +246,37 @@ to world-space coordinates, the X, Y, and Z coordinates
 are subject to be different.
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
    :language: python
    :start-after: doc-region-begin define camera class
    :end-before: doc-region-end define camera class
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo14.py
+   :caption: src/modelviewprojection/demos/demo14.py
 
 The camera now has a z-coordinate of 0 also.
 
 
-.. literalinclude:: ../../src/modelviewprojection/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
    :language: python
    :start-after: doc-region-begin instantiate square
    :end-before: doc-region-end instantiate square
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo14.py
+   :caption: src/modelviewprojection/demos/demo14.py
 
 
 
 Event Loop
 ~~~~~~~~~~
 
-.. literalinclude:: ../../src/modelviewprojection/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
    :language: python
    :start-after: doc-region-begin begin event loop
    :end-before: doc-region-end begin event loop
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo14.py
+   :caption: src/modelviewprojection/demos/demo14.py
 
 
 ::
@@ -285,13 +285,13 @@ Event Loop
 
 * Draw Paddle 1
 
-.. literalinclude:: ../../src/modelviewprojection/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
    :language: python
    :start-after: doc-region-begin draw paddle 1
    :end-before: doc-region-end draw paddle 1
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo14.py
+   :caption: src/modelviewprojection/demos/demo14.py
 
 
 The square should not be visible when hidden behind the paddle1,
@@ -301,13 +301,13 @@ that the square is always drawn over the paddle.
 
 * Draw the Square
 
-.. literalinclude:: ../../src/modelviewprojection/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
    :language: python
    :start-after: doc-region-begin draw square
    :end-before: doc-region-end draw square
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo14.py
+   :caption: src/modelviewprojection/demos/demo14.py
 
 
 
@@ -321,13 +321,13 @@ see that the square can be hidden behind the paddle.
 
 * Draw Paddle 2
 
-.. literalinclude:: ../../src/modelviewprojection/demo14.py
+.. literalinclude:: ../../src/modelviewprojection/demos/demo14.py
    :language: python
    :start-after: doc-region-begin draw paddle 2
    :end-before: doc-region-end draw paddle 2
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/demo14.py
+   :caption: src/modelviewprojection/demos/demo14.py
 
 
 

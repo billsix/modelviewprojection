@@ -1,7 +1,8 @@
-personal_ws-1.1 en 269 
+personal_ws-1.1 en 275 
 AMF
 APIs
 AbstractAlegbra
+BackColor
 BlackBox
 CGWOGL
 CGWOGLMonitor
@@ -20,6 +21,7 @@ Einheitskreis
 Emerison
 FCG
 FCGmonitor
+FrontColor
 GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbRRRRRRR
 GGGGGbbbbbbbbbbbbbbbbbbbbbbbbbYYYYYYY
 GL
@@ -41,6 +43,7 @@ Marschner
 MathematicsFor
 Maththing
 ModelView
+ModelViewMatrix
 ModelViewProjection
 Modelspace's
 NDC
@@ -61,6 +64,7 @@ Podman
 PortableGL
 Pre
 Precomputed
+ProjectionMatrix
 PushMatrix
 SHADER
 SICP
@@ -173,6 +177,7 @@ ing
 inlinetex
 inv
 invertible
+isclose
 jibronies
 jpg
 jupyter
@@ -268,3 +273,4 @@ viewport's
 virtualenv
 williamesix
 worldspace
+ws
