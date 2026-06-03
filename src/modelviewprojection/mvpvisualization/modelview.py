@@ -14,23 +14,22 @@ as an object, and the world->camera ``InverseOperations`` (the original's
 
 import math
 import os
-import sys
 from enum import Enum, auto
 
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(PWD))
-import cayley_gl  # noqa: E402
-import cayleygraph  # noqa: E402
-import cayleyscene  # noqa: E402
-import glfw  # noqa: E402  (loaded by cayley_gl; needed here for key constants)
+import glfw
 
-import modelviewprojection.pyMatrixStack as ms  # noqa: E402
-from modelviewprojection.mathutils import (  # noqa: E402
+from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection.mathutils import (
     Vector3D,
     rotate_x,
     rotate_y,
     rotate_z,
     translate,
+)
+from modelviewprojection.mvpvisualization import (
+    cayley_gl,
+    cayleygraph,
+    cayleyscene,
 )
 
 # imgui via cayley_gl so glfw + OpenGL.GL import before imgui_bundle.
@@ -132,7 +131,8 @@ window, impl, imguiio = cayley_gl.setup("Model View (Cayley)")
 camera = cayley_gl.make_camera(r=30.0)
 cayley_gl.install_scroll(window, imguiio, camera)
 # static perspective: no squash shader, no frustum
-standard_objects = cayley_gl.build_standard(animated=False)
+pwd = os.path.dirname(os.path.abspath(__file__))
+standard_objects = cayley_gl.build_standard(shader_dir=pwd, animated=False)
 
 state = {"time": 0.0, "speed": 1.0, "paused": False, "mouse": None}
 win_state = cayley_gl.WindowState()

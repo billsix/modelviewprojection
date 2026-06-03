@@ -1,13 +1,12 @@
 # Copyright (c) 2018-2026 William Emerison Six
 #
-# Unit tests for mvpVisualization/cayleygraph.py (Phase 2 of
+# Unit tests for modelviewprojection.mvpvisualization.cayleygraph (Phase 2 of
 # tasks/cayley-graph-datastructure.md).  Pure math, no display.
 
 from __future__ import annotations
 
 import math
 
-import cayleygraph  # importable via tests/conftest.py sys.path setup
 import pytest
 
 from modelviewprojection.mathutils import (
@@ -19,6 +18,7 @@ from modelviewprojection.mathutils import (
     rotate_z,
     translate,
 )
+from modelviewprojection.mvpvisualization import cayleygraph
 
 # --- a small demo-like scene: square -> paddle1 -> world, and camera -> world -
 

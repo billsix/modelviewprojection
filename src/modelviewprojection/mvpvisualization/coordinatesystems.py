@@ -15,21 +15,20 @@ against the placement arrows, the inverse).  No camera object is drawn."""
 
 import math
 import os
-import sys
 from enum import Enum, auto
 
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(PWD))
-import cayley_gl  # noqa: E402
-import cayleygraph  # noqa: E402
-import cayleyscene  # noqa: E402
-import glfw  # noqa: E402  (loaded by cayley_gl; needed here for key constants)
+import glfw
 
-import modelviewprojection.pyMatrixStack as ms  # noqa: E402
-from modelviewprojection.mathutils import (  # noqa: E402
+from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection.mathutils import (
     Vector3D,
     rotate_z,
     translate,
+)
+from modelviewprojection.mvpvisualization import (
+    cayley_gl,
+    cayleygraph,
+    cayleyscene,
 )
 
 imgui = cayley_gl.imgui
@@ -120,7 +119,8 @@ def frame_of(space):
 window, impl, imguiio = cayley_gl.setup("Coordinate Systems (Cayley)")
 camera = cayley_gl.make_camera(r=85.0)
 cayley_gl.install_scroll(window, imguiio, camera)
-standard_objects = cayley_gl.build_standard(animated=False)
+pwd = os.path.dirname(os.path.abspath(__file__))
+standard_objects = cayley_gl.build_standard(shader_dir=pwd, animated=False)
 
 state = {"mouse": None, "line_width": 2.0, "center_on": None}
 win_state = cayley_gl.WindowState()

@@ -5,51 +5,40 @@
 # as published by the Free Software Foundation; either version 2
 # of the License, or (at your option) any later version.
 
-"""pushmatrix, on the Cayley-graph engine.  One shared geometry-less
-``square_base`` node with four ``square_i`` leaves fanned at 0/90/180/270 deg.
-The demo owns its choreography -- including the persistent grayed axis at the
-squares' center -- and its imgui panel; ``cayley_gl`` supplies the mechanisms."""
+"""model, on the Cayley-graph engine.  The demo OWNS its choreography + imgui
+panel; ``cayley_gl`` supplies only the generic mechanisms.  Object-placement
+(paddle1 -> square nested -> paddle2), static perspective, one tree."""
 
 import math
 import os
-import sys
 from enum import Enum, auto
 
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(PWD))
-import cayley_gl  # noqa: E402
-import cayleygraph  # noqa: E402
-import cayleyscene  # noqa: E402
-import glfw  # noqa: E402  (loaded by cayley_gl; needed here for key constants)
+import glfw
 
-import modelviewprojection.pyMatrixStack as ms  # noqa: E402
-from modelviewprojection.mathutils import (  # noqa: E402
+from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection.mathutils import (
     Vector3D,
     rotate_z,
     translate,
+)
+from modelviewprojection.mvpvisualization import (
+    cayley_gl,
+    cayleygraph,
+    cayleyscene,
 )
 
 # imgui via cayley_gl so glfw + OpenGL.GL import BEFORE imgui_bundle (its own GL
 # loader must come after, or PyOpenGL's context tracking breaks at window setup).
 imgui = cayley_gl.imgui
 
-AROUND = math.radians(10.0)
-SQUARE_ROT = math.radians(45.0)
-NUM_SQUARES = 4
 
-
+# --- the scene, declared -- spaces are enum members, the whole (immutable,
+# acyclic) graph is passed at once.
 class Space(Enum):
     world = auto()
     paddle1 = auto()
-    square_base = auto()
-    square0 = auto()
-    square1 = auto()
-    square2 = auto()
-    square3 = auto()
-
-
-def _square(i):  # Space.square0 .. Space.square3 by index
-    return Space[f"square{i}"]
+    square = auto()
+    paddle2 = auto()
 
 
 graph = cayleygraph.CayleyGraph(
@@ -63,60 +52,58 @@ graph = cayleygraph.CayleyGraph(
             ],
         ),
         cayleygraph.Edge(
-            src=Space.square_base,
+            src=Space.square,
             dst=Space.paddle1,
-            steps=[("T_-Z", translate(Vector3D(0.0, 0.0, -5.0)))],
+            steps=[
+                ("T_-Z", translate(Vector3D(0.0, 0.0, -5.0))),
+                ("R_Z", rotate_z(math.radians(30.0))),
+                ("T_X", translate(Vector3D(1.5, 0.0, 0.0))),
+                ("R2_Z", rotate_z(math.radians(90.0))),
+            ],
         ),
-        *[
-            cayleygraph.Edge(
-                src=_square(i),
-                dst=Space.square_base,
-                steps=[
-                    ("R_Z", rotate_z(AROUND + i * math.pi / 2.0)),
-                    ("T_X", translate(Vector3D(3.0, 0.0, 0.0))),
-                    ("R2_Z", rotate_z(SQUARE_ROT)),
-                ],
-            )
-            for i in range(NUM_SQUARES)
-        ],
+        cayleygraph.Edge(
+            src=Space.paddle2,
+            dst=Space.world,
+            steps=[
+                ("T", translate(Vector3D(9.0, 0.5, 0.0))),
+                ("R_z", rotate_z(math.radians(-20.0))),
+            ],
+        ),
     ]
 )
-
-coordinate_frames = [
-    cayleyscene.CoordinateFrame(
-        space=Space.paddle1,
-        parent=Space.world,
-        geometry="paddle1",
-        dwell_before=5.0,
-    ),
-    # geometry-less center of the fan; keeps a grayed axis once built
-    cayleyscene.CoordinateFrame(
-        space=Space.square_base,
-        parent=Space.paddle1,
-        geometry=None,
-        grayed_axis_after_built=True,
-    ),
-]
-for i in range(NUM_SQUARES):
-    coordinate_frames.append(
-        cayleyscene.CoordinateFrame(
-            space=_square(i),
-            parent=Space.square_base,
-            geometry="square",
-            dwell_before=0.0 if i == 0 else 5.0,
-        )
-    )
 scene = cayleyscene.Scene(
-    graph=graph, root=Space.world, coordinate_frames=coordinate_frames
+    graph=graph,
+    root=Space.world,
+    coordinate_frames=[
+        cayleyscene.CoordinateFrame(
+            space=Space.paddle1,
+            parent=Space.world,
+            geometry="paddle1",
+            dwell_before=5.0,
+        ),
+        cayleyscene.CoordinateFrame(
+            space=Space.square, parent=Space.paddle1, geometry="square"
+        ),
+        cayleyscene.CoordinateFrame(
+            space=Space.paddle2, parent=Space.world, geometry="paddle2"
+        ),
+    ],
 )
 animation = cayleyscene.Animation(scene)
-GEOMETRY = {Space.paddle1: "paddle1"}
-GEOMETRY.update({_square(i): "square" for i in range(NUM_SQUARES)})
+# node -> mesh name
+DRAW = {
+    Space.paddle1: "paddle1",
+    Space.square: "square",
+    Space.paddle2: "paddle2",
+}
 
-window, impl, imguiio = cayley_gl.setup("Push Matrix (Cayley)")
+# --- GL setup --------------------------------------------------------------
+
+window, impl, imguiio = cayley_gl.setup("Model (Cayley)")
 camera = cayley_gl.make_camera()
 cayley_gl.install_scroll(window, imguiio, camera)
-standard_objects = cayley_gl.build_standard(animated=False)
+pwd = os.path.dirname(os.path.abspath(__file__))
+standard_objects = cayley_gl.build_standard(shader_dir=pwd, animated=False)
 
 state = {"time": 0.0, "speed": 1.0, "paused": False, "mouse": None}
 win_state = cayley_gl.WindowState()
@@ -139,6 +126,8 @@ def _toggle_graph():
 
 
 def imgui_menubar():
+    # controls live in the menubar (SuperBible-ports style); the tree panel is
+    # toggled by View -> Show Graph.
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
@@ -219,11 +208,13 @@ def frame(w, h):
     t = state["time"]
     graph_panel(t)
 
+    # --- input + view ---
     state["mouse"] = cayley_gl.orbit_input(
         window, imguiio, camera, state["mouse"]
     )
     cayley_gl.setup_orbit_view(camera, w, h)
 
+    # --- draw choreography (this demo's policy, incl. graying) ---
     ms.set_to_identity_matrix(ms.MatrixStack.model)
     standard_objects.draw_cube()
     ms.set_to_identity_matrix(ms.MatrixStack.model)
@@ -233,18 +224,12 @@ def frame(w, h):
         grayed=t >= animation.timeline.arrival_time(Space.paddle1)
     )
 
-    for placement in scene.coordinate_frames:
-        space = placement.space
+    for space, mesh in DRAW.items():
         m = cayleyscene.to_matrix(animation.transform(space, t))
         ms.set_current_matrix(ms.MatrixStack.model, m)
         if animation.axis_visible(space, t):
-            standard_objects.draw_axis()  # bright while building
-        elif placement.grayed_axis_after_built and animation.geometry_visible(
-            space, t
-        ):
-            standard_objects.draw_axis(grayed=True)  # persistent marker
-        mesh = GEOMETRY.get(space)
-        if mesh is not None and animation.geometry_visible(space, t):
+            standard_objects.draw_axis()
+        if animation.geometry_visible(space, t):
             ms.set_current_matrix(ms.MatrixStack.model, m)
             standard_objects.draw_mesh(mesh)
 

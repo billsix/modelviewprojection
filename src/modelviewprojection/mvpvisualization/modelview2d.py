@@ -21,23 +21,22 @@ the squash scales by 1/10 down onto the ±1 NDC square."""
 
 import math
 import os
-import sys
 from enum import Enum, auto
 
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(PWD))
-import cayley_gl  # noqa: E402
-import cayleygraph  # noqa: E402
-import cayleyscene  # noqa: E402
-import glfw  # noqa: E402  (loaded by cayley_gl; needed here for key constants)
-import OpenGL.GL as GL  # noqa: E402  (after cayley_gl: glfw+GL before imgui)
+import glfw
+import OpenGL.GL as GL
 
-import modelviewprojection.pyMatrixStack as ms  # noqa: E402
-from modelviewprojection.mathutils import (  # noqa: E402
+from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection.mathutils import (
     Vector3D,
     rotate_y,
     rotate_z,
     translate,
+)
+from modelviewprojection.mvpvisualization import (
+    cayley_gl,
+    cayleygraph,
+    cayleyscene,
 )
 
 imgui = cayley_gl.imgui
@@ -142,7 +141,9 @@ window, impl, imguiio = cayley_gl.setup("Model View 2D (Cayley)")
 # NDC checkbox, not orbited.
 # project_modelview2d squashes x/y by 1/10; the camera's view volume is a flat
 # ±10 rectangular prism (near==far -> a square in 2D) that scales onto ±1 NDC.
+pwd = os.path.dirname(os.path.abspath(__file__))
 standard_objects = cayley_gl.build_standard(
+    shader_dir=pwd,
     animated=True,
     project="project_modelview2d.glsl",
     rect_prism=cayley_gl.RectangularPrism(

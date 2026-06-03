@@ -15,25 +15,23 @@ squash."""
 
 import math
 import os
-import sys
 from enum import Enum, auto
 
+import glfw
 import numpy as np
 
-PWD = os.path.dirname(os.path.abspath(__file__))
-sys.path.insert(0, os.path.dirname(PWD))
-import cayley_gl  # noqa: E402
-import cayleygraph  # noqa: E402
-import cayleyscene  # noqa: E402
-import glfw  # noqa: E402  (loaded by cayley_gl; needed here for key constants)
-
-import modelviewprojection.pyMatrixStack as ms  # noqa: E402
-from modelviewprojection.mathutils import (  # noqa: E402
+from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection.mathutils import (
     Vector3D,
     rotate_x,
     rotate_y,
     rotate_z,
     translate,
+)
+from modelviewprojection.mvpvisualization import (
+    cayley_gl,
+    cayleygraph,
+    cayleyscene,
 )
 
 imgui = cayley_gl.imgui
@@ -154,7 +152,9 @@ camera = cayley_gl.make_camera()
 cayley_gl.install_scroll(window, imguiio, camera)
 # orthographic: project_ortho squash + a rectangular-prism view volume (matches
 # the shader's hard-coded box dims: half-size 5, near -0.5, far -15.5).
+pwd = os.path.dirname(os.path.abspath(__file__))
 standard_objects = cayley_gl.build_standard(
+    shader_dir=pwd,
     animated=True,
     project="project_ortho.glsl",
     rect_prism=cayley_gl.RectangularPrism(

@@ -186,7 +186,8 @@ def menu_action(label: str, key: str, action: Callable[[], None], *,
 # Camera (walk-around with optional focus-orbit on a scene object)
 # ---------------------------------------------------------------------------
 #
-# State follows Bill's convention from /mvp/mvpVisualization/: world-space
+# State follows Bill's convention from
+# /mvp/src/modelviewprojection/mvpvisualization/: world-space
 # position + angle rotated around Y + angle rotated around X (NOT yaw / pitch
 # / roll; we don't have roll). When ``focus_index`` is -1 the camera is in
 # walk-around mode and ``position`` is the world-space camera location. When

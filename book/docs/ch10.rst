@@ -250,7 +250,7 @@ The camera gets placed in world space just like any other :term:`modelspace<Mode
 In order to render from the camera's point of view, we need to move and orient the -1.0 to 1.0
 box relative to the camera to match the -1.0 to 1.0 box in world space.
 
-Run "python mvpVisualization/modelviewperspectiveprojection/modelviewperspectiveprojection.py", and follow along with the Cayley
+Run "python src/modelviewprojection/mvpvisualization/modelviewperspectiveprojection.py", and follow along with the Cayley
 graph.  The camera will be placed like any other :term:`modelspace<Modelspace>` data, but then
 the inverse of the transformations will be applied to all of the vertices.
 

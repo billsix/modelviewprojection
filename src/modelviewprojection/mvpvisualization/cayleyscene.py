@@ -29,7 +29,6 @@ from __future__ import annotations
 import dataclasses
 import typing
 
-import cayleygraph
 import numpy as np
 
 from modelviewprojection.mathutils import (
@@ -42,6 +41,7 @@ from modelviewprojection.mathutils import (
     rotate_y,
     translate,
 )
+from modelviewprojection.mvpvisualization import cayleygraph
 
 DEFAULT_STEP_DURATION = 5.0
 
@@ -203,7 +203,9 @@ class Timeline:
     def __init__(self, scene: Scene) -> None:
         self.scene = scene
         self.steps: typing.List[TimedStep] = []  # placement substeps
-        self.inverse_tracks: typing.List[InverseOpsTrack] = []  # CPU inverse operations
+        self.inverse_tracks: typing.List[
+            InverseOpsTrack
+        ] = []  # CPU inverse operations
         self.gpu_steps: typing.List[GpuStep] = []
         self._slot: typing.Dict[int, typing.Tuple[float, float]] = {}
         self._window: typing.Dict[typing.Any, typing.Tuple[float, float]] = {}
@@ -219,7 +221,9 @@ class Timeline:
             ).route
             first = t
             for s in edge_obj.steps:
-                self.steps.append(TimedStep(s.label, s, t, dur, placement.space))
+                self.steps.append(
+                    TimedStep(s.label, s, t, dur, placement.space)
+                )
                 self._slot[id(s)] = (t, dur)
                 t += dur
             self._window[placement.space] = (first, t)
@@ -230,7 +234,8 @@ class Timeline:
             if isinstance(op, InverseOperations):
                 title = op.group_title or (
                     f"{cayleygraph.node_label(op.from_space)}->"
-                    f"{cayleygraph.node_label(op.to_space)}")
+                    f"{cayleygraph.node_label(op.to_space)}"
+                )
                 for edge, forward in scene.graph.path(
                     op.from_space, op.to_space
                 ).route:
@@ -275,7 +280,9 @@ class Timeline:
 class Animation:
     """Evaluates a :class:`Scene`/:class:`Timeline` at a given frame time."""
 
-    def __init__(self, scene: Scene, timeline: typing.Optional[Timeline] = None):
+    def __init__(
+        self, scene: Scene, timeline: typing.Optional[Timeline] = None
+    ):
         self.scene = scene
         self.timeline = timeline or Timeline(scene)
 
@@ -291,7 +298,10 @@ class Animation:
         edge_fns: typing.List[InvertibleFunction] = []
         for edge, forward in route:
             live = compose(
-                [s.fn.at(interp(time, *self.timeline.slot(s))) for s in edge.steps]
+                [
+                    s.fn.at(interp(time, *self.timeline.slot(s)))
+                    for s in edge.steps
+                ]
             )
             edge_fns.append(live if forward else inverse(live))
         if not edge_fns:
@@ -316,7 +326,9 @@ class Animation:
         # first-declared track innermost -> reverse for compose (like edges)
         return compose([tr.live(time) for tr in reversed(tracks)])
 
-    def gpu_progress(self, time: float) -> typing.List[typing.Tuple[str, float]]:
+    def gpu_progress(
+        self, time: float
+    ) -> typing.List[typing.Tuple[str, float]]:
         """``(label, progress in [0,1])`` for each GPU projection substep -- the
         shell feeds these (or their start times) to the shader ``time`` uniform."""
         return [
@@ -350,7 +362,9 @@ class Animation:
             ]
             g = GuiGroup(
                 f"{cayleygraph.node_label(placement.space)}->"
-                f"{cayleygraph.node_label(placement.parent)}", buttons)
+                f"{cayleygraph.node_label(placement.parent)}",
+                buttons,
+            )
             groups[placement.space] = g
             parent = groups.get(placement.parent)
             (parent.children if parent else tops).append(g)
@@ -387,13 +401,14 @@ class Animation:
                 ]
                 out.append(GuiGroup(op.group_title, buttons))
         return out
-g
+
     def _track_for(
         self, op: InverseOperations
     ) -> typing.Optional[InverseOpsTrack]:
         title = op.group_title or (
-                    f"{cayleygraph.node_label(op.from_space)}->"
-                    f"{cayleygraph.node_label(op.to_space)}")
+            f"{cayleygraph.node_label(op.from_space)}->"
+            f"{cayleygraph.node_label(op.to_space)}"
+        )
         for tr in self.timeline.inverse_tracks:
             if tr.group_title == title:
                 return tr
