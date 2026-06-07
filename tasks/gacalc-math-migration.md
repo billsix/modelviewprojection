@@ -16,38 +16,38 @@ multivector vectors (`G1`/`Vector1`, `G2`/`Vector2`, `G3`/`Vector3`) instead.
 This is "Option B" from the investigation: switch the vector *type*, not just
 import a few helpers. It is the larger change but removes the most duplication.
 
-## Hard constraint: the ports are parked — DO NOT touch them
+## Ports: Path Y — port them (DECIDED 2026-06-07)
 
-The 13 SuperBible ports under `ports/openglsuperbiblev4/` are parked (don't edit).
-But they **do** use mvp math: each imports `Vector3D` plus `find_normal` /
-`plane_equation` from `modelviewprojection.mathutils`, and they rely on exactly
-the named-field API gacalc lacks — **positional** construction `Vector3D(0.0,
--25.0, 0.0)` and `.x`/`.y`/`.z` reads (`GL.glNormal3f(n.x, n.y, n.z)`,
-`glVertex3f(p1.x, p1.y, p1.z)`). A bare `Vector3D = Vector3` alias keeps the
-import line valid but **breaks them at runtime**.
+The 13 SuperBible ports under `ports/openglsuperbiblev4/` use mvp math: each
+imports `Vector3D` plus `find_normal` / `plane_equation` from
+`modelviewprojection.mathutils`, relying on the named-field API gacalc lacks —
+**positional** construction `Vector3D(0.0, -25.0, 0.0)` and `.x`/`.y`/`.z` reads
+(`GL.glNormal3f(n.x, n.y, n.z)`, `glVertex3f(p1.x, p1.y, p1.z)`).
 
-**Therefore the migration must preserve a backward-compatible surface** — the
-named-field `Vector3D` (positional ctor + `.x/.y/.z` + `.cross`), `find_normal`,
-`plane_equation`, `distance_to_plane` — kept in mvp **as-is, for the ports**, so
-those 13 files keep running with **zero edits**. "Delete the vector
-representation" applies to the **curriculum** side (demos / book / visualizations
-/ tests), which moves to raw gacalc; a thin compat layer lives on for the parked
-ports until they're un-parked and modernized in a separate, later task. The port
-files (chapt01 block; chapt05 litjet/shinyjet/shadow/sphereworld; chapt06
-fogged/multisample/sphereworld; chapt08 pyramid/sphereworld; chapt09/11
-sphereworld; chapt19 SphereWorld32) are **out of scope** here.
+**Decision: Path Y.** No compat type is kept. Rewrite the ports to gacalc idioms
+(positional → scaled-sum `x*e_1 + y*e_2 + z*e_3` or `Vector3(coeff_e_*=…)`;
+`.x/.y/.z` → `float(v.coeff_e_1)` etc. at the GL boundary), and **rebuild
+`find_normal`/`plane_equation`/`distance_to_plane` on gacalc** (cross →
+wedge+dual) so they take/return gacalc `Vector3`. This fully removes mvp's
+named-field vector type — the maximal-removal end-state Bill wants — at the cost
+of editing these parked files (bounded, mechanical). The 13 files:
+chapt01 block; chapt05 litjet/shinyjet/shadow/sphereworld;
+chapt06 fogged/multisample/sphereworld; chapt08 pyramid/sphereworld;
+chapt09/11 sphereworld; chapt19 SphereWorld32. They use **only** the plane
+geometry helpers — no transform/stack/animation surface — so the rewrite is
+purely vector-idiom + the two helpers.
 
 ## Decision: what moves where
 
 | mvp `mathutils` symbol(s) | Disposition |
 |---|---|
-| `Vector`, `Vector1D`, `Vector2D`, `Vector3D` | **DELETE from the curriculum** → use gacalc `AbstractMultiVector` / `Vector1` / `Vector2` / `Vector3`. **Exception:** a named-field `Vector3D` compat type stays for the parked ports (see "Hard constraint" above) |
+| `Vector`, `Vector1D`, `Vector2D`, `Vector3D` | **DELETE entirely** (Path Y) → use gacalc `AbstractMultiVector` / `Vector1` / `Vector2` / `Vector3` everywhere, incl. the rewritten ports. No compat type kept. |
 | `InvertibleFunction`, `inverse`, `compose`, `identity`, `compose_intermediate_fns`, `compose_intermediate_fns_and_fn`, `translate`, `uniform_scale`, `scale_non_uniform_2d/3d` | **DELETE** → import from `gacalc.transforms` (`scale_non_uniform_2d/3d` → general `scale_non_uniform(*factors)`) |
 | `InvertibleFunction.at()`, `.steps()`, `interpolate`/`components` fields (the animation layer) | **PORT UPSTREAM to gacalc** (new module) — Phase G. mvp then gets it for free via the import. |
 | `rotate`, `rotate_90_degrees`, `rotate_around` (angle-based 2D) | **REBUILD in mvp on gacalc** — these were deliberately removed from gacalc (planar-only, e₁e₂ plane) |
 | `rotate_x`, `rotate_y`, `rotate_z` (axis rotations) | **REBUILD in mvp on gacalc** |
 | `ortho`, `perspective`, `cs_to_ndc_space_fn` | **REBUILD in mvp on gacalc** (graphics-only) |
-| `find_normal`, `plane_equation`, `distance_to_plane` | **KEEP AS-IS in mvp** — the parked ports import these and expect named-field `Vector3D` in/out. (A gacalc-backed reimplementation, cross → wedge+dual, is possible later when the ports are modernized — not now.) |
+| `find_normal`, `plane_equation`, `distance_to_plane` | **REBUILD on gacalc** (Path Y; cross → wedge+dual, take/return gacalc `Vector3`) and update the ports that call them. Keep the CCW-winding tests as the oracle. |
 | `sine`, `cosine`, `is_counter_clockwise`, `is_clockwise`, `is_parallel`, `abs_sin` | **REBUILD in mvp on gacalc** (gacalc's `cosine`/`is_parallel_to` are different-API multivector methods, self-flagged uncertain — don't depend on them) |
 | `FunctionStack`, `fn_stack`, `push_transformation` | **LEAVE IN MVP** (rewire `modelspace_to_ndc_fn` to call gacalc `compose`) |
 
@@ -139,9 +139,10 @@ Reimplement, in mvp, against gacalc vectors + gacalc `InvertibleFunction`:
 ### Phase 2 — migrate the call sites (the bulk of the work)
 Rewrite vector construction / attribute access / iteration across the audited
 surface using the cheat-sheet above. Order by risk, lowest first:
-- **Ports (13 files) — DO NOT TOUCH.** Out of scope (parked). They keep importing
-  the retained compat `Vector3D` + `find_normal` / `plane_equation`; verify they
-  still import and run after the curriculum migration, but make **zero edits**.
+- **Ports (13 files) — in scope (Path Y).** Easiest conversion to do first: they
+  use only `Vector3D` + `find_normal`/`plane_equation`, mostly positional ctor +
+  `.x/.y/.z` reads, no transform/stack/animation. Good place to validate the
+  gacalc vector idioms before the harder demo/visualization edits.
 - **util** — `nbplotutils.py` (`sine`/`cosine`) migrates. `shading.py` uses
   `find_normal`; check whether it's curriculum (demo22 lighting) or shared with
   ports — if curriculum-only it can move to gacalc-backed vectors, otherwise it
@@ -175,41 +176,48 @@ and `test_mathutils.py`. Splitting into two cases:
 - **Slices of the deleted vector type + core transforms** (ch05 `Vector2D` class +
   basis; ch06 add/sub/mul/`translate`/`InvertibleFunction`/`inverse`/uniform_scale;
   ch14 `Vector3D` class + basis; ch06 `translate test` + ch16 `function stack
-  examples` from `test_mathutils.py`): **these point at source that will no longer
-  exist in mvp.** This is the crux decision (below). The book is the product;
-  do not break it silently.
+  examples` from `test_mathutils.py`): the source these point at is deleted.
+  **DECIDED (2026-06-07): rewrite these chapters to teach gacalc vectors as THE
+  vector type** — `Vector2`/`Vector3`, `e_1` class-constants, `component()`,
+  scaled-sum construction — rather than the old named-field `Vector2D`/`Vector3D`.
+  This is the honest end-state (book code = demo code) and the largest single doc
+  effort. It re-opens the natural-basis material just landed in
+  `archive/book-explain-natural-basis.md` (ch05 2D / ch14 3D), so re-do that
+  pedagogy in gacalc terms. New `literalinclude` targets: prose-authored snippets
+  or, where a slice is still wanted, gacalc-backed mvp helper source — **not** the
+  generated `coeff_e_*` gacalc files. Coordinate with the three
+  `book-code-drift-*` trackers; this supersedes their vector-class findings.
 
 This phase interacts with two existing trackers — `book-code-drift-ch1-6.md`,
 `book-code-drift-ch7-15.md`, `book-code-drift-ch16-21.md` — and the
 `archive/book-explain-natural-basis.md` work that just introduced `e_1/e_2/e_3`
 in ch05/ch14. A type switch re-opens exactly that material.
 
-## Open decisions for Bill (blocking)
+## Decisions
 
-1. **Book strategy for the deleted-vector slices (Phase 4).** Options:
-   (a) re-point those `literalinclude`s at the *installed gacalc source* (fragile:
-   site-packages path, gacalc's `coeff_e_*`/generated style won't read like the
-   current hand-written pedagogy, and `Vector2/3` are generated files);
-   (b) rewrite ch05/06/14 prose+code to teach gacalc vectors as the vector type
-   (large doc rewrite, but arguably the honest end state);
-   (c) keep a small *teaching-only* vector shim in mvp that the book slices from,
-   while demos use raw gacalc (contradicts "delete the representation," but
-   preserves the chapters). **This choice gates how much of `mathutils.py` can
-   actually be deleted.**
-2. **Raw gacalc vs. a thin mvp convenience layer.** You said "delete the
-   representation, use gacalc vectors." Confirm you want demos written in raw
-   gacalc idiom (`v.coeff_e_1`, `Vector3.e_1`, `v.dot(w).scalar_part()`,
-   `float(v.coeff_e_1)` at GL calls) — **not** a `Vector3D` convenience subclass
-   that restores `.x`/`.cross()`/`e_1()`/keyword-ctor. The subclass would cut
-   Phase 2 churn by a lot and keep book idioms, at the cost of not being "pure"
-   gacalc. (Default per your instruction: raw gacalc.)
-3. **Phase G module shape** (new `gacalc/animation.py` housing an enriched
-   `InvertibleFunction`, vs. enriching `transforms.py`). Your call as gacalc's
-   architect.
-4. **`scale_non_uniform` protocol gap.** gacalc's `scale_non_uniform` uses
-   `cls.project(onto=cls.basis_vector(i))`, which needs the full multivector
-   protocol — fine for gacalc vectors (our new world), but confirms why the old
-   mvp `Vector2D` couldn't have used it.
+**RESOLVED 2026-06-07:**
+0. **Ports → Path Y.** Rebuild `find_normal`/`plane_equation` on gacalc and edit
+   the 13 ports to gacalc idioms. No compat type kept.
+1. **Book → rewrite chapters on gacalc.** ch05/06/14 (+ the two `test_mathutils`
+   slices) are rewritten to teach gacalc vectors as the vector type.
+2. **Raw gacalc, no convenience subclass** (implied by 0+1). Curriculum + ports
+   both use raw gacalc idiom (`Vector3.e_1`, `v.coeff_e_1`,
+   `v.dot(w).scalar_part()`, `float(v.coeff_e_1)` at GL calls). *Allowed:* small
+   **stateless** ergonomic free-functions (e.g. a `gl3f(v)` returning the three
+   floats) — these don't reintroduce a vector *type*, so they're fine if they cut
+   GL-boundary noise. A `Vector3D` subclass restoring `.x`/`e_1()`/keyword-ctor is
+   **out**.
+
+**STILL OPEN (non-blocking for mvp; gacalc-side):**
+3. **Phase G module shape** — new `gacalc/animation.py` housing an enriched
+   `InvertibleFunction`, vs. enriching `transforms.py`. gacalc-architect call;
+   tracked in `/geometricalgebra/tasks/port-animation-layer-from-mvp.md`.
+
+**Informational:**
+4. **`scale_non_uniform` protocol** — gacalc's version uses
+   `cls.project(onto=cls.basis_vector(i))` (full multivector protocol); fine for
+   gacalc vectors, and the reason the old named-field `Vector2D` couldn't have
+   used it.
 
 ## Verification
 
@@ -229,10 +237,9 @@ in ch05/ch14. A type switch re-opens exactly that material.
 
 ## Blast-radius reference (from the rewrite-surface audit)
 
-**~43 files in scope** (curriculum): 14 demos (demo05–18) · 9 visualizations ·
-2 util · 3 tests · 3 notebooksrc · 1 assignment · 11 book `.rst` (~27 doc-region
-slices). **Plus 13 ports OUT OF SCOPE** (parked; kept running via the compat
-surface, zero edits).
+**~56 files in scope** (Path Y, everything migrates): 14 demos (demo05–18) · 9
+visualizations · 2 util · 3 tests · 3 notebooksrc · 1 assignment · **13 ports** ·
+11 book `.rst` (~27 doc-region slices, ch05/06/14 rewritten on gacalc).
 `.x/.y/.z` read ~126×; `Vector2D`/`Vector3D` in ~30 files; `rotate_x/y/z` in 22;
 `ortho`/`perspective` in 24. Animation layer (`.at`/`.steps`) used **only** in
 `mvpvisualization/` (+ `notebooksrc/plot2d.py`). Ports use **only** the plane
