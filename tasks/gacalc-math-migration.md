@@ -1,7 +1,21 @@
 # Migrate mvp math onto gacalc (delete overlapping math, import gacalc vectors)
 
-**Status:** IN PROGRESS — Phase 0 + Phase 1 landed 2026-06-08
+**Status:** IN PROGRESS — Phases 0–3 DONE; **only Phase 4 (the book) remains**
 **Started:** 2026-06-07
+
+> ## ▶ RESUME HERE — Phase 4: update the book
+> **This is the agreed next action (Bill, 2026-06-08): when we come back, we start
+> on Phase 4 — the book.** Phases 0/1/2/3 are complete (façade, rebuilt graphics
+> math, all call sites migrated, FunctionStack verified). What's left is the `.rst`
+> chapters: ~27 `doc-region` slices from `mathutils.py`/`test_mathutils.py`, and a
+> lot of what they slice **changed this session** — `rotate`/`rotate_around`/
+> `rotate_x/y/z` are now rotor-based, `is_counter_clockwise`/`is_clockwise`/
+> `is_parallel` use the cross-product / guarded forms, and the vector-arithmetic
+> slices moved out of mvp into gacalc. Reconciling chapter prose + slices is
+> pedagogy, so **talk through the strategy with Bill before editing chapters**
+> (it was flagged "highest risk — needs a Bill decision"). See the Phase 4 section
+> below and the book-drift audits `tasks/book-code-drift-ch7-15.md` /
+> `ch16-21.md` for input.
 
 ## Progress log
 

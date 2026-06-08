@@ -8,13 +8,15 @@ External sources Bill draws from: **OpenGL SuperBible v4** (main porting source 
 
 ## Central abstraction — Cayley graphs + `InvertibleFunction`
 
-The whole curriculum is built on **one substituted abstraction**: instead of 4×4 matrices, transformations are `InvertibleFunction`s on `Vector2D`/`Vector3D`, and coordinate systems form a **Cayley graph** where nodes are spaces and directed edges are these functions.
+The whole curriculum is built on **one substituted abstraction**: instead of 4×4 matrices, transformations are `InvertibleFunction`s on `Vector2`/`Vector3`, and coordinate systems form a **Cayley graph** where nodes are spaces and directed edges are these functions.
+
+> **Note (2026-06-08):** `mathutils.py` is now a **façade over the `gacalc` geometric-algebra library** — `Vector2`/`Vector3` are gacalc's graded vector types (the old in-repo `Vector2D`/`Vector3D` were deleted), `InvertibleFunction`/`translate`/`compose`/`scale_non_uniform`/… come from `gacalc.transforms`, and rotations are built on rotors (`rotor_from_vectors` + the closed-form `sandwich`). mvp keeps only the graphics-specific math (projections, plane geometry, predicates, `FunctionStack`). Status + remaining work (Phase 4, the book) in `tasks/gacalc-math-migration.md`.
 
 This substitution is the *point* of the course — it lets Bill explain everything (model→world→camera→NDC, push/pop, perspective) using only "function composition" and "inverse," with no linear-algebra prerequisite.
 
 **The abstraction (in `src/modelviewprojection/mathutils.py`):**
 - `InvertibleFunction[V]` = `(func, inverse, latex_repr, latex_repr_inv)`. `__call__` runs forward; `inverse(f)` swaps; `f1 @ f2` is `compose([f1, f2])`.
-- Primitives: `translate(b)`, `uniform_scale(m)`, `scale_non_uniform_2d/3d`, `rotate(θ)`, `rotate_x/y/z(θ)`, `rotate_around(θ, center)`, `ortho(...)`, `perspective(...)`, `cs_to_ndc_space_fn`, `identity()`.
+- Primitives: `translate(b)`, `uniform_scale(m)`, `scale_non_uniform(*factors)`, `rotate(θ)`, `rotate_x/y/z(θ)`, `rotate_around(θ, center)`, `ortho(...)`, `perspective(...)`, `cs_to_ndc_space_fn`, `identity()`.
 - `compose(list)` traverses a path; `inverse(...)` walks an edge backwards. **No matrix appears anywhere in demos 01–18.**
 - `FunctionStack` + module-level `fn_stack` = the Python analogue of OpenGL's matrix stack. `fn_stack.push(f)` / `fn_stack.pop()` / `fn_stack.modelspace_to_ndc_fn()` (= `compose(stack)`) / `push_transformation(f)` context manager.
 
@@ -33,7 +35,7 @@ The same Pong scene (two paddles + a square defined relative to paddle1) is re-i
 - **demo01–06**: 2D, immediate-mode (`glBegin`/`glEnd`), function composition via `mathutils.compose()`.
 - **demo07**: Pong paddles introduced — the running scene used through the rest of the course.
 - **demo12**: Matrix-stack concept introduced (still 2D, still function-based).
-- **demo16**: Jump to 3D (`Vector3D`, Z-axis, depth).
+- **demo16**: Jump to 3D (`Vector3`, Z-axis, depth).
 - **demo19**: Switch to OpenGL 2.1 fixed-function — `glMatrixMode`/`glLoadIdentity`/`glRotatef`/`glTranslate`/`gluPerspective`/`glPushMatrix`/`glPopMatrix`. *First time matrices exist*, but hidden behind the same API shape the student already learned. Comments say "just like putting the identity function on the lambda stack."
 - **demo19a–19e**: SuperBible ports (axes3d, atom, solar, sphereworld) — all fixed-function 3D.
 - **demo20**: Still fixed-function MVP calls, but with a trivial pass-through shader pair (`triangle.vert`/`.frag`) — introduces shader compilation only.
@@ -92,7 +94,7 @@ Plans live in `plans/`. At the start of a session, check `TaskList` against the 
 **Subsidiary plans (math / `pyMatrixStack`):**
 - [`plans/planar-shadow-matrix.md`](plans/planar-shadow-matrix.md) — add planar-shadow-projection 4×4 to `pyMatrixStack` (curriculum side). Deliberately *not* an `InvertibleFunction` (rank-deficient).
 - [`plans/rotate-around-axis.md`](plans/rotate-around-axis.md) — add `rotate_around_axis` to `pyMatrixStack`, *decomposed as a sequence of axis-aligned rotations* (Bill's pedagogy choice — derive arbitrary-axis rotation from rotations the student already knows; don't drop Rodrigues on them).
-- [`plans/plane-and-normal-helpers.md`](plans/plane-and-normal-helpers.md) — ✅ **done 2026-04-28**. `find_normal`, `plane_equation`, `distance_to_plane` now live in `mathutils.py` as free functions on `Vector3D`, with CCW winding convention (sign opposite to SuperBible's `m3dGetPlaneEquation` for plane normals, but planar-shadow matrices are sign-invariant). chapt01/block imports from mathutils. Used by chapt05/litjet, chapt05/shadow when those ports happen.
+- [`plans/plane-and-normal-helpers.md`](plans/plane-and-normal-helpers.md) — ✅ **done 2026-04-28**. `find_normal`, `plane_equation`, `distance_to_plane` now live in `mathutils.py` as free functions on `Vector3`, with CCW winding convention (sign opposite to SuperBible's `m3dGetPlaneEquation` for plane normals, but planar-shadow matrices are sign-invariant). chapt01/block imports from mathutils. Used by chapt05/litjet, chapt05/shadow when those ports happen.
 
 **Subsidiary plans (SuperBible ports — UX pass, recorded 2026-04-28):**
 - [`plans/ports-ux-pass.md`](plans/ports-ux-pass.md) — **read first.** Umbrella plan with the phased execution order across the eight tasks below. **Phase 1 done; Phase 2 next.**
