@@ -1,8 +1,34 @@
 # Migrate mvp math onto gacalc (delete overlapping math, import gacalc vectors)
 
-**Status:** proposed — needs go-ahead
+**Status:** IN PROGRESS — Phase 0 + Phase 1 landed 2026-06-08
 **Started:** 2026-06-07
-**Owner decisions pending:** see "Open decisions for Bill" — do not start coding until these are answered.
+
+## Progress log
+
+- **2026-06-08 — Phase 0 (dependency + façade) + Phase 1 (rebuild graphics math) DONE.**
+  - `gacalc>=0.0.3` added to `requirements.txt`; installed into a fresh `/mvp/venv`
+    (direct `pip install`, no podman). Math tests run via
+    `PYTHONPATH=/mvp/src /mvp/venv/bin/python -m pytest tests/test_mathutils.py`.
+  - `src/modelviewprojection/mathutils.py` is now a **gacalc façade**: re-exports
+    the transform layer + `Vector1/Vector2/Vector3`, and **rebuilds the
+    graphics-only math on gacalc vectors** — `rotate`/`rotate_90_degrees`/
+    `rotate_around`, `rotate_x/y/z` (each carries its interpolation law +
+    `Linearity.LINEAR`), `ortho` (AFFINE) / `perspective` (NONLINEAR) /
+    `cs_to_ndc_space_fn`, `find_normal` (cross = `wedge` then `dual`) /
+    `plane_equation` / `distance_to_plane`, the predicates, and `FunctionStack`.
+    doc-region markers preserved for ch07/08/14/16/17/18.
+  - `tests/test_mathutils.py` rewritten as a focused suite for the retained
+    graphics math (vector-arithmetic/transform-core tests now live in gacalc).
+    **22 passing**, incl. a test tying mvp's `rotate_z` to gacalc `to_matrix`.
+  - **Latent bug fixed:** the old `perspective` inverse un-scaled by the NDC-space
+    z instead of the recovered camera-space z, so it wasn't a true inverse; the
+    rebuild fixes it (round-trip test guards it).
+  - **gacalc-side follow-up:** restored `InvertibleFunction` as `Generic[V]`
+    (bound to `AbstractMultiVector`) — it had been generic in mvp but gacalc's
+    plainer version wasn't; `InvertibleFunction[Vector2]/[Vector3]` annotate again.
+- **NOT yet done:** Phase 2 (migrate call sites — demos/visualizations/util/
+  notebooks/assignment/ports/tests still import the deleted `Vector2D`/`Vector3D`
+  and are expected to be red until migrated) and Phase 4 (book rewrite).
 
 ## Goal
 
