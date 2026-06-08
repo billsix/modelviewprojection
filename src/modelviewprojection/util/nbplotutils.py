@@ -25,24 +25,37 @@ import matplotlib.figure
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
+from IPython import get_ipython
 from IPython.display import display
 from matplotlib.patches import Polygon
 from matplotlib_inline.backend_inline import set_matplotlib_formats
 
 from modelviewprojection.mathutils import (
-    Vector2D,
+    Vector2,
     cosine,
     identity,
     sine,
 )
 
-set_matplotlib_formats("svg")
+# the inline SVG backend only makes sense inside an IPython/Jupyter session;
+# guarding it lets this module import headless instead of raising.
+if get_ipython() is not None:
+    set_matplotlib_formats("svg")
 
 extraLinesMultiplier = 3
 
-e_1 = Vector2D.e_1()
-e_2 = Vector2D.e_2()
-zero = Vector2D.zero()
+zero = Vector2.zero()
+
+
+def _xy(vertices):
+    """(N, 2) float array of the vertices' 2D coordinates, for matplotlib.
+
+    gacalc vectors iterate their coefficient values, so ``list(v) == [x, y]``;
+    those values are sympy ``Float``s (rotations go through ``sympy.sqrt``), so
+    cast to ``float`` -- otherwise numpy builds an object array matplotlib can't
+    render.
+    """
+    return np.array([list(v) for v in vertices], dtype=float)
 
 
 def generategridlines(graphBounds, interval=1):
@@ -54,8 +67,8 @@ def generategridlines(graphBounds, interval=1):
         thickness = 4 if np.isclose(x, 0.0) else 1
         yield (
             [
-                x * e_1 + (-graphBounds[1] * extraLinesMultiplier) * e_2,
-                x * e_1 + (graphBounds[1] * extraLinesMultiplier) * e_2,
+                x * Vector2.e_1 + (-graphBounds[1] * extraLinesMultiplier) * Vector2.e_2,
+                x * Vector2.e_1 + (graphBounds[1] * extraLinesMultiplier) * Vector2.e_2,
             ],
             thickness,
         )
@@ -68,8 +81,8 @@ def generategridlines(graphBounds, interval=1):
         thickness = 4 if np.isclose(y, 0.0) else 1
         yield (
             [
-                (-graphBounds[0] * extraLinesMultiplier) * e_1 + y * e_2,
-                (graphBounds[0] * extraLinesMultiplier) * e_1 + y * e_2,
+                (-graphBounds[0] * extraLinesMultiplier) * Vector2.e_1 + y * Vector2.e_2,
+                (graphBounds[0] * extraLinesMultiplier) * Vector2.e_1 + y * Vector2.e_2,
             ],
             thickness,
         )
@@ -116,8 +129,8 @@ def create_basis(
         graph_bounds, interval=gridline_interval
     ):
         plt.plot(
-            [fn(vec).x for vec in vecs],
-            [fn(vec).y for vec in vecs],
+            [fn(vec).coeff_e_1 for vec in vecs],
+            [fn(vec).coeff_e_2 for vec in vecs],
             "-",
             lw=thickness,
             color=(0.1, 0.2, 0.5),
@@ -135,12 +148,12 @@ def create_unit_circle(
         for theta in np.arange(0.0, 2 * math.pi, theta_increment):
             yield (
                 [
-                    scale_radius * math.cos(theta) * e_1
-                    + math.sin(theta) * e_2,
+                    scale_radius * math.cos(theta) * Vector2.e_1
+                    + math.sin(theta) * Vector2.e_2,
                     scale_radius
                     * (
-                        math.cos(theta + theta_increment) * e_1
-                        + math.sin(theta + theta_increment) * e_2
+                        math.cos(theta + theta_increment) * Vector2.e_1
+                        + math.sin(theta + theta_increment) * Vector2.e_2
                     ),
                 ]
             )
@@ -148,8 +161,8 @@ def create_unit_circle(
     # plot transformed basis
     for vecs in generate_circle():
         plt.plot(
-            [fn(vec).x for vec in vecs],
-            [fn(vec).y for vec in vecs],
+            [fn(vec).coeff_e_1 for vec in vecs],
+            [fn(vec).coeff_e_2 for vec in vecs],
             "-",
             lw=1,
             color=(0.0, 0.0, 0.0),
@@ -163,20 +176,20 @@ def create_x_and_y(
     ycolor=(1.0, 0.0, 1.0),
 ):
     # x axis
-    x_axis = [zero, e_1]
+    x_axis = [zero, Vector2.e_1]
     plt.plot(
-        [fn(vec).x for vec in x_axis],
-        [fn(vec).y for vec in x_axis],
+        [fn(vec).coeff_e_1 for vec in x_axis],
+        [fn(vec).coeff_e_2 for vec in x_axis],
         "-",
         lw=1.0,
         color=xcolor,
     )
 
     # y axis
-    y_axis = [zero, e_2]
+    y_axis = [zero, Vector2.e_2]
     plt.plot(
-        [fn(vec).x for vec in y_axis],
-        [fn(vec).y for vec in y_axis],
+        [fn(vec).coeff_e_1 for vec in y_axis],
+        [fn(vec).coeff_e_2 for vec in y_axis],
         "-",
         lw=1.0,
         color=ycolor,
@@ -187,9 +200,9 @@ def draw_isoceles_triangle(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(e_1) - fn(zero)
-    x_world_space = e_1
-    y_prime_direction_world_space = fn(e_2) - fn(zero)
+    x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
+    x_world_space = Vector2.e_1
+    y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
     angle_radians = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
@@ -202,20 +215,20 @@ def draw_isoceles_triangle(
         fn(v)
         for v in [
             zero,
-            e_1,
-            0.5 * e_1 + e_2,
+            Vector2.e_1,
+            0.5 * Vector2.e_1 + Vector2.e_2,
         ]
     ]
 
     triangle = Polygon(
-        list(map(list, vertices)),
+        _xy(vertices),
         closed=True,
         facecolor="lightblue",
         edgecolor="black",
     )
     axes.add_patch(triangle)
 
-    vertices_as_np = np.array(list(map(list, vertices)))
+    vertices_as_np = np.array(_xy(vertices))
     # Plot dots at the vertices
     axes.scatter(
         vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
@@ -229,8 +242,8 @@ def draw_isoceles_triangle(
             label,
             xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
             xytext=(
-                vertices_as_np[i, 0] + label_offset.x,
-                vertices_as_np[i, 1] + label_offset.y,
+                vertices_as_np[i, 0] + label_offset.coeff_e_1,
+                vertices_as_np[i, 1] + label_offset.coeff_e_2,
             ),
             rotation=math.degrees(angle_radians),
             rotation_mode="anchor",
@@ -248,9 +261,9 @@ def draw_second_right_triangle(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(e_1) - fn(zero)
-    x_world_space = e_1
-    y_prime_direction_world_space = fn(e_2) - fn(zero)
+    x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
+    x_world_space = Vector2.e_1
+    y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
     angle_radians = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
@@ -263,20 +276,20 @@ def draw_second_right_triangle(
         fn(v)
         for v in [
             zero,
-            -4 * e_1,
-            -4 * e_1 + 3 * e_2,
+            -4 * Vector2.e_1,
+            -4 * Vector2.e_1 + 3 * Vector2.e_2,
         ]
     ]
 
     triangle = Polygon(
-        list(map(list, vertices)),
+        _xy(vertices),
         closed=True,
         facecolor="lightblue",
         edgecolor="black",
     )
     axes.add_patch(triangle)
 
-    vertices_as_np = np.array(list(map(list, vertices)))
+    vertices_as_np = np.array(_xy(vertices))
     # Plot dots at the vertices
     axes.scatter(
         vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
@@ -290,8 +303,8 @@ def draw_second_right_triangle(
             label,
             xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
             xytext=(
-                vertices_as_np[i, 0] - label_offset.x,
-                vertices_as_np[i, 1] + label_offset.y,
+                vertices_as_np[i, 0] - label_offset.coeff_e_1,
+                vertices_as_np[i, 1] + label_offset.coeff_e_2,
             ),
             rotation=math.degrees(angle_radians),
             rotation_mode="anchor",
@@ -303,9 +316,9 @@ def draw_right_triangle(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(e_1) - fn(zero)
-    x_world_space = e_1
-    y_prime_direction_world_space = fn(e_2) - fn(zero)
+    x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
+    x_world_space = Vector2.e_1
+    y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
     angle_radians = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
@@ -318,20 +331,20 @@ def draw_right_triangle(
         fn(v)
         for v in [
             zero,
-            3 * e_1,
-            3 * e_1 + 4 * e_2,
+            3 * Vector2.e_1,
+            3 * Vector2.e_1 + 4 * Vector2.e_2,
         ]
     ]
 
     triangle = Polygon(
-        list(map(list, vertices)),
+        _xy(vertices),
         closed=True,
         facecolor="lightblue",
         edgecolor="black",
     )
     axes.add_patch(triangle)
 
-    vertices_as_np = np.array(list(map(list, vertices)))
+    vertices_as_np = np.array(_xy(vertices))
     # Plot dots at the vertices
     axes.scatter(
         vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
@@ -345,8 +358,8 @@ def draw_right_triangle(
             label,
             xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
             xytext=(
-                vertices_as_np[i, 0] + label_offset.x,
-                vertices_as_np[i, 1] + label_offset.y,
+                vertices_as_np[i, 0] + label_offset.coeff_e_1,
+                vertices_as_np[i, 1] + label_offset.coeff_e_2,
             ),
             rotation=math.degrees(angle_radians),
             rotation_mode="anchor",
@@ -358,9 +371,9 @@ def draw_ndc(
     fn=identity(),
     color=(0.0, 0.0, 1.0),
 ):
-    x_prime_direction_world_space = fn(e_1) - fn(zero)
-    x_world_space = e_1
-    y_prime_direction_world_space = fn(e_2) - fn(zero)
+    x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
+    x_world_space = Vector2.e_1
+    y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
     angle_radians = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
@@ -372,22 +385,22 @@ def draw_ndc(
     vertices = [
         fn(v)
         for v in [
-            -1 * e_1 + -1 * e_2,
-            1 * e_1 + -1 * e_2,
-            1 * e_1 + 1 * e_2,
-            -1 * e_1 + 1 * e_2,
+            -1 * Vector2.e_1 + -1 * Vector2.e_2,
+            1 * Vector2.e_1 + -1 * Vector2.e_2,
+            1 * Vector2.e_1 + 1 * Vector2.e_2,
+            -1 * Vector2.e_1 + 1 * Vector2.e_2,
         ]
     ]
 
     square = Polygon(
-        list(map(list, vertices)),
+        _xy(vertices),
         closed=True,
         fc="none",
         edgecolor="black",
     )
     axes.add_patch(square)
 
-    vertices_as_np = np.array(list(map(list, vertices)))
+    vertices_as_np = np.array(_xy(vertices))
     # Plot dots at the vertices
     axes.scatter(
         vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
@@ -401,8 +414,8 @@ def draw_ndc(
             label,
             xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
             xytext=(
-                vertices_as_np[i, 0] + label_offset.x,
-                vertices_as_np[i, 1] + label_offset.y,
+                vertices_as_np[i, 0] + label_offset.coeff_e_1,
+                vertices_as_np[i, 1] + label_offset.coeff_e_2,
             ),
             rotation=math.degrees(angle_radians),
             rotation_mode="anchor",
@@ -423,18 +436,18 @@ def draw_screen(
             vertices = [
                 fn(v)
                 for v in [
-                    (-1.0 + d_width * x) * e_1 + (-1.0 + d_height * y) * e_2,
-                    (-1.0 + d_width * (x + 1)) * e_1
-                    + (-1.0 + d_height * y) * e_2,
-                    (-1.0 + d_width * (x + 1)) * e_1
-                    + (-1.0 + d_height * (y + 1)) * e_2,
-                    (-1.0 + d_width * (x)) * e_1
-                    + (-1.0 + d_height * (y + 1)) * e_2,
+                    (-1.0 + d_width * x) * Vector2.e_1 + (-1.0 + d_height * y) * Vector2.e_2,
+                    (-1.0 + d_width * (x + 1)) * Vector2.e_1
+                    + (-1.0 + d_height * y) * Vector2.e_2,
+                    (-1.0 + d_width * (x + 1)) * Vector2.e_1
+                    + (-1.0 + d_height * (y + 1)) * Vector2.e_2,
+                    (-1.0 + d_width * (x)) * Vector2.e_1
+                    + (-1.0 + d_height * (y + 1)) * Vector2.e_2,
                 ]
             ]
 
             square = Polygon(
-                list(map(list, vertices)),
+                _xy(vertices),
                 closed=True,
                 fc="none",
                 edgecolor="black",

@@ -24,7 +24,7 @@ import OpenGL.GL as GL
 
 import modelviewprojection.util.colorutils as colorutils
 from modelviewprojection.mathutils import (
-    Vector3D,
+    Vector3,
     compose,
     fn_stack,
     inverse,
@@ -38,9 +38,6 @@ from modelviewprojection.mathutils import (
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-e_1 = Vector3D.e_1()
-e_2 = Vector3D.e_2()
-e_3 = Vector3D.e_3()
 
 if not glfw.init():
     sys.exit()
@@ -73,32 +70,32 @@ GL.glLoadIdentity()
 
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector3D]
+    vertices: list[Vector3]
     color: colorutils.Color3
-    position: Vector3D
+    position: Vector3
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        -1 * e_1 + -3 * e_2,
-        e_1 + -3 * e_2,
-        e_1 + 3 * e_2,
-        -1 * e_1 + 3 * e_2,
+        -1 * Vector3.e_1 + -3 * Vector3.e_2,
+        Vector3.e_1 + -3 * Vector3.e_2,
+        Vector3.e_1 + 3 * Vector3.e_2,
+        -1 * Vector3.e_1 + 3 * Vector3.e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9 * e_1,
+    position=-9 * Vector3.e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -1 * e_1 + -3 * e_2,
-        e_1 + -3 * e_2,
-        e_1 + 3 * e_2,
-        -1 * e_1 + 3 * e_2,
+        -1 * Vector3.e_1 + -3 * Vector3.e_2,
+        Vector3.e_1 + -3 * Vector3.e_2,
+        Vector3.e_1 + 3 * Vector3.e_2,
+        -1 * Vector3.e_1 + 3 * Vector3.e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9 * e_1,
+    position=9 * Vector3.e_1,
 )
 
 
@@ -107,7 +104,7 @@ paddle2: Paddle = Paddle(
 
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector3D = dataclasses.field(default_factory=lambda: 15 * e_3)
+    position_ws: Vector3 = dataclasses.field(default_factory=lambda: 15 * Vector3.e_3)
     rot_y: float = 0.0
     rot_x: float = 0.0
     # doc-region-end define camera class
@@ -116,11 +113,11 @@ class Camera:
 camera: Camera = Camera()
 
 
-square: list[Vector3D] = [
-    -0.5 * e_1 + -0.5 * e_2,
-    0.5 * e_1 + -0.5 * e_2,
-    0.5 * e_1 + 0.5 * e_2,
-    -0.5 * e_1 + 0.5 * e_2,
+square: list[Vector3] = [
+    -0.5 * Vector3.e_1 + -0.5 * Vector3.e_2,
+    0.5 * Vector3.e_1 + -0.5 * Vector3.e_2,
+    0.5 * Vector3.e_1 + 0.5 * Vector3.e_2,
+    -0.5 * Vector3.e_1 + 0.5 * Vector3.e_2,
 ]
 square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
@@ -152,13 +149,13 @@ def handle_inputs() -> None:
 
     # doc-region-begin handle key input keys
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        forwards_cs = -1 * e_3
+        forwards_cs = -1 * Vector3.e_3
         forward_ws = compose(
             [translate(camera.position_ws), rotate_y(camera.rot_y)]
         )(forwards_cs)
         camera.position_ws = forward_ws
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        forwards_cs = e_3
+        forwards_cs = Vector3.e_3
         forward_ws = compose(
             [translate(camera.position_ws), rotate_y(camera.rot_y)]
         )(forwards_cs)
@@ -168,13 +165,13 @@ def handle_inputs() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position -= e_2
+        paddle1.position -= Vector3.e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position += e_2
+        paddle1.position += Vector3.e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position -= e_2
+        paddle2.position -= Vector3.e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position += e_2
+        paddle2.position += Vector3.e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -245,9 +242,9 @@ while not glfw.window_should_close(window):
                         p1_v_ms
                     )
                     GL.glVertex3f(
-                        paddle1_vector_ndc.x,
-                        paddle1_vector_ndc.y,
-                        paddle1_vector_ndc.z,
+                        paddle1_vector_ndc.coeff_e_1,
+                        paddle1_vector_ndc.coeff_e_2,
+                        paddle1_vector_ndc.coeff_e_3,
                     )
                 GL.glEnd()
 
@@ -255,9 +252,9 @@ while not glfw.window_should_close(window):
                 with push_transformation(
                     compose(
                         [
-                            translate(-1 * e_3),
+                            translate(-1 * Vector3.e_3),
                             rotate_z(rotation_around_paddle1),
-                            translate(2 * e_1),
+                            translate(2 * Vector3.e_1),
                             rotate_z(square_rotation),
                         ]
                     )
@@ -268,9 +265,9 @@ while not glfw.window_should_close(window):
                     for ms in square:
                         square_vector_ndc = fn_stack.modelspace_to_ndc_fn()(ms)
                         GL.glVertex3f(
-                            square_vector_ndc.x,
-                            square_vector_ndc.y,
-                            square_vector_ndc.z,
+                            square_vector_ndc.coeff_e_1,
+                            square_vector_ndc.coeff_e_2,
+                            square_vector_ndc.coeff_e_3,
                         )
                     GL.glEnd()
 
@@ -291,9 +288,9 @@ while not glfw.window_should_close(window):
                         p2_v_ms
                     )
                     GL.glVertex3f(
-                        paddle2_vector_ndc.x,
-                        paddle2_vector_ndc.y,
-                        paddle2_vector_ndc.z,
+                        paddle2_vector_ndc.coeff_e_1,
+                        paddle2_vector_ndc.coeff_e_2,
+                        paddle2_vector_ndc.coeff_e_3,
                     )
                 GL.glEnd()
 

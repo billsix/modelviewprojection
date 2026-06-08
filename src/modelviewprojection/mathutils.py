@@ -15,21 +15,56 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
+"""Math for the ModelViewProjection course.
+
+The vector algebra and the invertible-function transform layer now come from the
+**gacalc** geometric-algebra library (``Vector2`` / ``Vector3``,
+``InvertibleFunction``, ``compose`` / ``inverse`` / ``translate`` /
+``uniform_scale`` / ``scale_non_uniform``, the ``at`` / ``steps`` animation layer,
+and the ``Linearity`` tag).  They are re-exported here so the course can keep
+importing them from ``modelviewprojection.mathutils``.
+
+What lives *here* is the graphics-specific math that gacalc deliberately does not
+carry: angle-based 2D/axis rotations (built on top of gacalc vectors), the
+``ortho`` / ``perspective`` projections, the plane-geometry helpers
+(``find_normal`` via the geometric-algebra ``wedge`` + ``dual``, ``plane_equation``,
+``distance_to_plane``), the 2D orientation predicates, and the
+``FunctionStack`` (the Python analogue of OpenGL's matrix stack).
+"""
 
 import contextlib
 import dataclasses
-import itertools
 import math
 import typing
 
-import numpy as np
-import pytest
-import sympy
+# Re-exported from gacalc: the vector representations and the transform layer.
+from gacalc.base import AbstractMultiVector
+from gacalc.g1 import Vector1
+from gacalc.g2 import Vector2
+from gacalc.g3 import Vector3
+from gacalc.transforms import (
+    InvertibleFunction,
+    Linearity,
+    compose,
+    compose_intermediate_fns,
+    compose_intermediate_fns_and_fn,
+    identity,
+    inverse,
+    rotor_rotation,
+    scale_non_uniform,
+    to_matrix,
+    translate,
+    uniform_scale,
+)
 
 __all__ = [
-    "Vector",
-    "Vector1D",
+    # re-exported from gacalc
+    "AbstractMultiVector",
+    "Vector1",
+    "Vector2",
+    "Vector3",
     "InvertibleFunction",
+    "Linearity",
     "identity",
     "inverse",
     "compose",
@@ -37,21 +72,21 @@ __all__ = [
     "compose_intermediate_fns_and_fn",
     "translate",
     "uniform_scale",
-    "Vector2D",
-    "scale_non_uniform_2d",
+    "scale_non_uniform",
+    "to_matrix",
+    # graphics-specific, defined here on top of gacalc
     "rotate_90_degrees",
     "rotate",
     "rotate_around",
+    "rotate_x",
+    "rotate_y",
+    "rotate_z",
+    "cosine",
     "sine",
     "is_counter_clockwise",
     "is_clockwise",
     "is_parallel",
-    "Vector3D",
     "abs_sin",
-    "scale_non_uniform_3d",
-    "rotate_x",
-    "rotate_y",
-    "rotate_z",
     "find_normal",
     "plane_equation",
     "distance_to_plane",
@@ -64,740 +99,36 @@ __all__ = [
 ]
 
 
-@dataclasses.dataclass
-class Vector:
-    # doc-region-begin begin define add
-    def __add__(self, rhs: typing.Self) -> typing.Self:
-        # doc-region-end begin define add
-        """
-        Add together two Vectors, component-wise.
-
-        Args:
-            rhs (Vector): The vector on the right hand side of the addition
-                symbol
-        Returns:
-            Vector: The Vector that represents the additon of the two input Vectors
-        Example:
-            >>> from modelviewprojection.mathutils import Vector1D
-            >>> a = Vector1D(x=2)
-            >>> b = Vector1D(x=5)
-            >>> a + b
-            Vector1D(x=7)
-            >>> from modelviewprojection.mathutils import Vector2D
-            >>> a = Vector2D(x=2, y=3)
-            >>> b = Vector2D(x=5, y=6)
-            >>> a + b
-            Vector2D(x=7, y=9)
-            >>> from modelviewprojection.mathutils import Vector3D
-            >>> a = Vector3D(x=2, y=3, z=1)
-            >>> b = Vector3D(x=5, y=6, z=10)
-            >>> a + b
-            Vector3D(x=7, y=9, z=11)
-        """
-
-        # doc-region-begin define add
-        if type(self) is not type(rhs):
-            return NotImplemented
-        return type(self)(*[a + b for a, b in zip(self, rhs)])
-        # doc-region-end define add
-
-    # doc-region-begin define mul
-    def __mul__(self, scalar: float) -> typing.Self:
-        # doc-region-end define mul
-        """
-        Multiply the Vector by a scalar number, component-wise
-
-        Args:
-            rhs (Vector): The scalar to be multiplied to the Vector's component
-                subtraction symbol
-        Returns:
-            Vector: The Vector that represents scalar times the amount of the input
-                    Vector
-
-        Example:
-            >>> from modelviewprojection.mathutils import Vector1D
-            >>> a = Vector1D(x=2)
-            >>> a * 4
-            Vector1D(x=8)
-            >>> from modelviewprojection.mathutils import Vector2D
-            >>> a = Vector2D(x=2, y=3)
-            >>> a * 4
-            Vector2D(x=8, y=12)
-            >>> from modelviewprojection.mathutils import Vector3D
-            >>> a = Vector3D(x=2, y=3, z=5)
-            >>> a * 4
-            Vector3D(x=8, y=12, z=20)
-        """
-        # doc-region-begin define mul body
-        return type(self)(*[scalar * a for a in self])
-        # doc-region-end define mul body
-
-    def __neg__(self) -> typing.Self:
-        """
-        Let :math:`\\vec{a}` and constant :math:`-1`:
-
-        .. math::
-
-             -1 * \\vec{a}
-
-        Example:
-            >>> from modelviewprojection.mathutils import Vector1D
-            >>> a = Vector1D(x=2)
-            >>> -a
-            Vector1D(x=-2)
-        """
-        return -1 * self
-
-    def __iter__(self):
-        return iter(dataclasses.astuple(self))
-
-    # doc-region-begin begin define subtract
-    def __sub__(self, rhs: typing.Self) -> typing.Self:
-        # doc-region-end begin define subtract
-        """
-        .. math::
-
-             \\vec{a} + -\\vec{b}
-
-        Example:
-            >>> from modelviewprojection.mathutils import Vector1D
-            >>> a = Vector1D(x=2)
-            >>> b = Vector1D(x=5)
-            >>> a - b
-            Vector1D(x=-3)
-        """
-        # doc-region-begin define subtract
-        return self + typing.cast(typing.Self, -rhs)
-        # doc-region-end define subtract
-
-    def __rmul__(self, scalar: float) -> typing.Self:
-        return self * scalar
-
-    def isclose(self, other: typing.Self) -> float:
-        return all(
-            bool(np.isclose(v1, v2, rtol=1e-5, atol=1e-5))
-            for v1, v2 in zip(self, other)
-        )
-
-    def component_wise_with_index(self, other: typing.Self):
-        return itertools.product(
-            enumerate(self, start=1), enumerate(other, start=1)
-        )
-
-    # The dot method uses the generic iterators provided by self and other
-    def dot(self, other: typing.Self) -> float:
-        if type(self) is not type(other):
-            return NotImplemented
-        return sum(
-            self_component * other_component
-            for (self_index, self_component), (
-                other_index,
-                other_component,
-            ) in self.component_wise_with_index(other)
-            if self_index == other_index
-        )
-
-    def __abs__(self) -> float:
-        return np.sqrt(self.dot(self))
-
-
-# doc-region-begin define vector1d class
-@dataclasses.dataclass
-class Vector1D(Vector):
-    x: float  #: The value of the 1D Vector
-    # doc-region-end define vector1d class
-
-    @staticmethod
-    def e_1() -> "Vector1D":
-        return Vector1D(1.0)
-
-    @staticmethod
-    def zero() -> "Vector1D":
-        return Vector1D(0.0)
-
-
-# doc-region-begin define vector2d class
-@dataclasses.dataclass
-class Vector2D(Vector1D):
-    y: float  #: The y-component of the 2D Vector
-    # doc-region-end define vector2d class
-
-    # doc-region-begin define vector2d basis
-    @staticmethod
-    def e_1() -> "Vector2D":
-        return Vector2D(1.0, 0.0)
-
-    @staticmethod
-    def e_2() -> "Vector2D":
-        return Vector2D(0.0, 1.0)
-
-    @staticmethod
-    def zero() -> "Vector2D":
-        return Vector2D(0.0, 0.0)
-
-    # doc-region-end define vector2d basis
-
-
-# doc-region-begin define vector3d class
-@dataclasses.dataclass
-class Vector3D(Vector2D):
-    z: float  #: The z-component of the 3D Vector
-    # doc-region-end define vector3d class
-
-    # doc-region-begin define vector3d basis
-    @staticmethod
-    def e_1() -> "Vector3D":
-        return Vector3D(1.0, 0.0, 0.0)
-
-    @staticmethod
-    def e_2() -> "Vector3D":
-        return Vector3D(0.0, 1.0, 0.0)
-
-    @staticmethod
-    def e_3() -> "Vector3D":
-        return Vector3D(0.0, 0.0, 1.0)
-
-    @staticmethod
-    def zero() -> "Vector3D":
-        return Vector3D(0.0, 0.0, 0.0)
-
-    # doc-region-end define vector3d basis
-
-    def cross(self, rhs: typing.Self) -> "Vector3D":
-        return Vector3D(
-            x=self.y * rhs.z - self.z * rhs.y,
-            y=self.z * rhs.x - self.x * rhs.z,
-            z=self.x * rhs.y - self.y * rhs.x,
-        )
-
-
-V = typing.TypeVar("V", bound="Vector")
-
-
-# doc-region-begin begin define invertible function
-@dataclasses.dataclass
-class InvertibleFunction(typing.Generic[V]):
-    # doc-region-end begin define invertible function
-    """
-    Class that wraps a function and its
-    inverse function.  The function takes
-    type T as it's argument and it's evaluation
-    results in a value of type T.
-    """
-
-    # doc-region-begin invertible function members
-    func: typing.Callable[[V], V]  #: The wrapped function
-    inverse: typing.Callable[[V], V]  #: The inverse of the wrapped function
-    latex_repr: str  #: The LaTeX representation of the function
-    latex_repr_inv: str  #: The LaTeX representation of the inverse function
-    # doc-region-end invertible function members
-
-    #: Optional interpolation law: maps ``t`` in ``[0, 1]`` to the
-    #: partially-applied function, with ``at(0)`` the identity and ``at(1)``
-    #: this function.  Bound by the transform primitives (translate, rotate,
-    #: scale, ...); left ``None`` for composites and hand-built functions.
-    interpolate: typing.Optional[
-        typing.Callable[[float], "InvertibleFunction[V]"]
-    ] = None
-    #: For composites built by :func:`compose`: the constituent functions, in
-    #: application order.  Lets interpolation and iteration recurse into the
-    #: parts *without* a stored law (see :meth:`at` and :meth:`steps`).
-    components: typing.Optional[typing.List["InvertibleFunction[V]"]] = None
-
-    # doc-region-begin begin call
-    def __call__(self, x: V) -> V:
-        # doc-region-end begin call
-        """
-        Execute a function with the given value.
-
-        Args:
-            func (typing.Callable[[V], V]): A function that takes a
-                value of type V and returns a value of the same type V.
-            value (V): The input value to pass to the function
-        Returns:
-            V: The result of calling func(value).
-
-            Will be the same type as the input value.
-        Example:
-            >>> from modelviewprojection.mathutils import InvertibleFunction
-            >>> from modelviewprojection.mathutils import inverse
-            >>> def f(x):
-            ...     return 2 + x
-            ...
-            >>> def f_inv(x):
-            ...     return x - 2
-            ...
-            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="",
-            ...     latex_repr_inv="")
-            >>> foo(5)
-            7
-            >>> inverse(foo)(foo(5))
-            5
-        """
-        # doc-region-begin call definition
-        return self.func(x)
-        # doc-region-end call definition
-
-    def __matmul__(self, f2: "InvertibleFunction") -> "InvertibleFunction":
-        """
-        Override @ for function composition.  This is abusing the @ symbol,
-        which is normally for matrix multiplication.
-
-        Args:
-            f2 (mathutils.InvertibleFunction): A function that self is composed with
-                and returns a value of the same type V.
-        Returns:
-            InvertibleFunction: The composed function.
-
-        Example:
-            >>> from modelviewprojection.mathutils import InvertibleFunction
-            >>> from modelviewprojection.mathutils import inverse
-            >>> def f(x):
-            ...     return 2 + x
-            ...
-            >>> def f_inv(x):
-            ...     return x - 2
-            ...
-            >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="",
-            ...    latex_repr_inv="")
-            >>> foo(5)
-            7
-            >>> (foo @ foo)(5)
-            9
-            >>> inverse(foo @ foo)(5)
-            1
-            >>> (foo @ inverse(foo))(5)
-            5
-        """
-        return compose([self, f2])
-
-    def __rmatmul__(self, f2: "InvertibleFunction") -> "InvertibleFunction":
-        return f2 @ self
-
-    def _repr_latex_(self):
-        return "$" + self.latex_repr + "$"
-
-    def at(self, t: float) -> "InvertibleFunction[V]":
-        """The function interpolated at parameter ``t`` in ``[0, 1]``, where
-        ``at(0)`` is the identity and ``at(1)`` is the function itself.
-
-        This is how a transformation is animated: the same parameter-scaling
-        the demos do by hand (``translate(b * t)``, ``rotate(angle * t)``),
-        but carried by the function so a caller never re-derives it.
-
-        Resolution order:
-
-        * a primitive carries an :attr:`interpolate` law -> use it;
-        * a composite (from :func:`compose`) has no law -> recurse into its
-          :attr:`components`, interpolating each and re-composing;
-        * otherwise (a hand-built function with neither) -> a step: the
-          identity until ``t >= 1``, then the function itself.
-
-        Example:
-            >>> import math
-            >>> from modelviewprojection.mathutils import (
-            ...     translate, uniform_scale, compose, Vector2D,
-            ... )
-            >>> T = translate(Vector2D(10.0, 20.0))
-            >>> T.at(0.0)(Vector2D(0.0, 0.0))
-            Vector2D(x=0.0, y=0.0)
-            >>> T.at(0.5)(Vector2D(0.0, 0.0))
-            Vector2D(x=5.0, y=10.0)
-            >>> T.at(1.0)(Vector2D(0.0, 0.0))
-            Vector2D(x=10.0, y=20.0)
-            >>> # a composite interpolates by recursing into its components
-            >>> c = compose([translate(Vector2D(4.0, 0.0)), uniform_scale(3.0)])
-            >>> c.at(0.0)(Vector2D(1.0, 0.0))
-            Vector2D(x=1.0, y=0.0)
-            >>> c.at(1.0)(Vector2D(1.0, 0.0))
-            Vector2D(x=7.0, y=0.0)
-        """
-        if self.interpolate is not None:
-            return self.interpolate(t)
-        if self.components is not None:
-            return compose([c.at(t) for c in self.components])
-        return self if t >= 1.0 else identity()
-
-    def steps(self) -> "typing.Iterator[InvertibleFunction[V]]":
-        """Yield the leaf primitives in application order, flattening nested
-        compositions.  A primitive yields itself; a composite yields its
-        components' leaves recursively.
-
-        Example:
-            >>> import math
-            >>> from modelviewprojection.mathutils import (
-            ...     compose, translate, rotate, Vector2D,
-            ... )
-            >>> f = compose(
-            ...     [translate(Vector2D(1.0, 0.0)), rotate(math.radians(90.0))]
-            ... )
-            >>> len(list(f.steps()))
-            2
-            >>> len(list(translate(Vector2D(1.0, 0.0)).steps()))
-            1
-        """
-        if self.components is None:
-            yield self
-        else:
-            for c in self.components:
-                yield from c.steps()
-
-
-# doc-region-begin begin define inverse
-def inverse(f: InvertibleFunction[V]) -> InvertibleFunction[V]:
-    # doc-region-end begin define inverse
-    """
-    Get the inverse of the InvertibleFunction
-
-    Args:
-        f: InvertibleFunction: A function with it's associated inverse
-            function.
-    Returns:
-        InvertibleFunction: The Inverse of the function.
-    Example:
-        >>> from modelviewprojection.mathutils import InvertibleFunction
-        >>> from modelviewprojection.mathutils import inverse
-        >>> def f(x):
-        ...     return 2 + x
-        ...
-        >>> def f_inv(x):
-        ...     return x - 2
-        ...
-        >>> foo = InvertibleFunction(func=f, inverse=f_inv, latex_repr="",
-        ...    latex_repr_inv="")
-        >>> foo(5)
-        7
-        >>> inverse(foo)(foo(5))
-        5
-        >>> # inverse commutes with at(): the inverse interpolates smoothly too
-        >>> import math
-        >>> from modelviewprojection.mathutils import (
-        ...     compose, translate, rotate_z, Vector3D,
-        ... )
-        >>> f = compose(
-        ...     [translate(Vector3D(10.0, 0.0, 0.0)), rotate_z(math.radians(90.0))]
-        ... )
-        >>> p = Vector3D(1.0, 0.0, 0.0)
-        >>> inverse(f).at(0.5)(p).isclose(inverse(f.at(0.5))(p))
-        True
-    """
-
-    # doc-region-begin inverse body
-    f_inverse = InvertibleFunction[V](
-        f.inverse, f.func, f.latex_repr_inv, f.latex_repr
-    )
-    # doc-region-end inverse body
-
-    # Make inverse commute with at():  inverse(f).at(t) == inverse(f.at(t))
-    # for all t.  A primitive carries its law; a composite carries its
-    # components reversed and each inverted -- the inverse-of-a-composition
-    # rule -- so interpolation/iteration recurse correctly through an inverse.
-    if f.interpolate is not None:
-        f_inverse.interpolate = lambda t: inverse(f.interpolate(t))
-    if f.components is not None:
-        f_inverse.components = [inverse(c) for c in reversed(f.components)]
-    return f_inverse
-
-
-def compose(
-    functions: list[InvertibleFunction[V]],
-) -> InvertibleFunction[V]:
-    """
-    Compose a sequence of functions.
-
-    If two functions are passed as arguments, named :math:`f` and :math:`g`:
-
-        :math:`(f \\circ g)(x) = f(g(x))`.
-
-    If :math:`n` functions are passed as arguments, :math:`f_1...f_n`:
-
-        :math:`(f_1 \\circ (f_2 \\circ (... f_n )(x) = f_1(f_2...(f_n(x))`.
-
-    Args:
-        functions (list[InvertibleFunction]): Variable number of
-            InvertibleFunctions to compose.  At least on value must be provided.
-
-    Returns:
-        V: One function that is the aggregate function.
-
-    Example:
-        >>> from modelviewprojection.mathutils import compose
-        >>> from modelviewprojection.mathutils import translate as T
-        >>> from modelviewprojection.mathutils import uniform_scale as S
-        >>> from modelviewprojection.mathutils import Vector2D
-        >>> fn = compose([S(2), T(Vector2D(3, 4))])
-        >>> fn(Vector2D(1,1))
-        Vector2D(x=8, y=10)
-    """
-
-    def composed_fn(x: V) -> V:
-        for f in reversed(functions):
-            x = f(x)
-        return x
-
-    def inv_composed_fn(x: V) -> V:
-        for f in functions:
-            x = inverse(f)(x)
-        return x
-
-    tex_str: str = ""
-    for f in reversed(functions):
-        if tex_str == "":
-            tex_str = f.latex_repr
-        else:
-            tex_str = f.latex_repr + r" \circ " + tex_str
-
-    inv_str: str = ""
-    for f in functions:
-        if inv_str == "":
-            inv_str = inverse(f).latex_repr
-        else:
-            inv_str = inverse(f).latex_repr + r" \circ " + inv_str
-
-    return InvertibleFunction[V](
-        composed_fn,
-        inv_composed_fn,
-        tex_str,
-        inv_str,
-        components=list(functions),
-    )
-
-
-def compose_intermediate_fns(
-    functions: list[InvertibleFunction[V]], relative_basis: bool = False
-) -> typing.Iterable[InvertibleFunction[V]]:
-    """
-    Like compose, but returns a list of all of the partial compositions
-
-    Example:
-        >>> from modelviewprojection.mathutils import compose_intermediate_fns
-        >>> from modelviewprojection.mathutils import InvertibleFunction
-        >>> from modelviewprojection.mathutils import uniform_scale
-        >>> from modelviewprojection.mathutils import translate
-        >>> from modelviewprojection.mathutils import Vector1D
-        >>> from pytest import approx
-        >>> m = 5
-        >>> b = 2
-        >>> # natural basis
-        >>> fns: list[InvertibleFunction] = compose_intermediate_fns(
-        ...      [translate(Vector1D(b)), uniform_scale(m)]
-        ... )
-        >>> len(fns)
-        3
-        >>> fns[0](Vector1D(1))
-        Vector1D(x=1)
-        >>> fns[1](Vector1D(1))
-        Vector1D(x=5)
-        >>> fns[2](Vector1D(1))
-        Vector1D(x=7)
-        >>> # relative basis
-        >>> fns: list[InvertibleFunction] = compose_intermediate_fns(
-        ...     [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True
-        ... )
-        >>> len(fns)
-        3
-        >>> fns[0](Vector1D(1))
-        Vector1D(x=1)
-        >>> fns[1](Vector1D(1))
-        Vector1D(x=3)
-        >>> fns[2](Vector1D(1))
-        Vector1D(x=7)
-    """
-    functions_with_identity_fn: list[InvertibleFunction[V]] = (
-        [identity()] + functions if relative_basis else functions + [identity()]
-    )
-
-    return [
-        compose(fs)
-        for fs in (
-            [
-                functions_with_identity_fn[i:]
-                for i in reversed(range(len(functions_with_identity_fn)))
-            ]
-            if not relative_basis
-            else [
-                functions_with_identity_fn[:i]
-                for i in range(1, len(functions_with_identity_fn) + 1)
-            ]
-        )
-    ]
-
-
-def compose_intermediate_fns_and_fn(
-    functions: list[InvertibleFunction[V]], relative_basis: bool = False
-) -> list[tuple[InvertibleFunction[V], InvertibleFunction[V]]]:
-    """
-    Like compose, but returns a list of all of the partial compositions
-
-    Example:
-        >>> from modelviewprojection.mathutils import compose_intermediate_fns_and_fn
-        >>> from modelviewprojection.mathutils import InvertibleFunction
-        >>> from modelviewprojection.mathutils import uniform_scale
-        >>> from modelviewprojection.mathutils import translate
-        >>> from modelviewprojection.mathutils import Vector1D
-        >>> from pytest import approx
-        >>> m = 5
-        >>> b = 2
-        >>> # natural basis
-        >>> for aggregate_fn, current_fn in compose_intermediate_fns_and_fn(
-        ...      [translate(Vector1D(b)), uniform_scale(m)]):
-        ...      print("agg " + str(aggregate_fn(Vector1D(1))))
-        ...      print("current " + str(current_fn(Vector1D(1))))
-        ...
-        agg Vector1D(x=1)
-        current Vector1D(x=5)
-        agg Vector1D(x=5)
-        current Vector1D(x=3)
-        agg Vector1D(x=7)
-        current Vector1D(x=1)
-        >>> # relative basis
-        >>> for aggregate_fn, current_fn in compose_intermediate_fns_and_fn(
-        ...      [translate(Vector1D(b)), uniform_scale(m)], relative_basis=True):
-        ...      print("agg " + str(aggregate_fn(Vector1D(1))))
-        ...      print("current " + str(current_fn(Vector1D(1))))
-        ...
-        agg Vector1D(x=1)
-        current Vector1D(x=1)
-        agg Vector1D(x=3)
-        current Vector1D(x=3)
-        agg Vector1D(x=7)
-        current Vector1D(x=5)
-    """
-    return list(
-        zip(
-            compose_intermediate_fns(functions, relative_basis=relative_basis),
-            [identity()] + functions
-            if relative_basis
-            else reversed([identity()] + functions),
-        )
-    )
-
-
-# doc-region-begin define identity
-def identity() -> InvertibleFunction[V]:
-    def f(vector: V) -> V:
-        return vector
-
-    def f_inv(vector: V) -> V:
-        return vector
-
-    tex_str: str = "I"
-    inv_str: str = "I"
-    return InvertibleFunction[V](
-        f, f_inv, tex_str, inv_str, interpolate=lambda t: identity()
-    )
-    # doc-region-end define identity
-
-
-# doc-region-begin define translate
-def translate(b: V) -> InvertibleFunction[V]:
-    def f(vector: V) -> V:
-        return vector + b
-
-    def f_inv(vector: V) -> V:
-        return vector - b
-
-    values = list(b)
-    tex_str: str = (
-        f"T_{{<[{str(values[0]) if len(values) == 1 else str(values)[1:-1]}]>}}"
-    )
-    negative_values = list(-b)
-    inv_str_contents: str = (
-        str(negative_values[0])
-        if len(negative_values) == 1
-        else str(negative_values)[1:-1]
-    )
-    inv_str: str = f"T_{{<[{inv_str_contents}]>}}"
-    return InvertibleFunction[V](
-        f, f_inv, tex_str, inv_str, interpolate=lambda t: translate(b * t)
-    )
-    # doc-region-end define translate
-
-
-# doc-region-begin define uniform scale
-def uniform_scale(m: float) -> InvertibleFunction[V]:
-    def f(vector: V) -> V:
-        return vector * m
-
-    def f_inv(vector: V) -> V:
-        if m == 0.0:
-            raise ValueError("Not invertible.  Scaling factor cannot be zero.")
-
-        return vector * (1.0 / m)
-
-    tex_str: str = f"S_{{{m}}}"
-    inv_str: str = f"S_{{\\frac{{1}}{{{m}}}}}"
-    # linear interpolation 1 -> m (matches the project_*.glsl squash/scale law)
-    return InvertibleFunction[V](
-        f,
-        f_inv,
-        tex_str,
-        inv_str,
-        interpolate=lambda t: uniform_scale(1.0 + (m - 1.0) * t),
-    )
-    # doc-region-end define uniform scale
-
-
-def scale_non_uniform_2d(
-    m_x: float, m_y: float
-) -> InvertibleFunction[Vector2D]:
-    def f(vector: Vector2D) -> Vector2D:
-        return Vector2D(vector.x * m_x, vector.y * m_y)
-
-    def f_inv(vector: Vector2D) -> Vector2D:
-        if m_x == 0.0 or m_y == 0.0:
-            raise ValueError("Not invertible.  Scaling factors cannot be zero.")
-
-        return Vector2D(vector.x / m_x, vector.y / m_y)
-
-    return InvertibleFunction[Vector2D](
-        f,
-        f_inv,
-        f"S_{{<{m_x},{m_y}>}}",
-        f"S_{{<\\frac{{1}}{{{m_x}}},\\frac{{1}}{{{m_y}}}>}}",
-        interpolate=lambda t: scale_non_uniform_2d(
-            1.0 + (m_x - 1.0) * t, 1.0 + (m_y - 1.0) * t
-        ),
-    )
+#: Type variable for a vector representation an ``InvertibleFunction``
+#: transforms; bound to ``AbstractMultiVector``, matching gacalc's
+#: ``InvertibleFunction[V]``.  Used where the type is open (the function stack).
+V = typing.TypeVar("V", bound=AbstractMultiVector)
 
 
 # doc-region-begin define rotate
-def rotate_90_degrees() -> InvertibleFunction[Vector2D]:
-    def f(vector: Vector2D) -> Vector2D:
-        return Vector2D(-vector.y, vector.x)
-
-    def f_inv(vector: Vector2D) -> Vector2D:
-        return -f(vector)
-
-    return InvertibleFunction[Vector2D](
-        f,
-        f_inv,
-        "R_{<xy90>}",
-        "R_{<xy90>}^{-1}",
+def rotate_90_degrees() -> InvertibleFunction[Vector2]:
+    # a quarter turn carries e_1 to e_2; gacalc builds the rotor and applies it.
+    return rotor_rotation(
+        Vector2.e_1,
+        Vector2.e_2,
+        latex_repr="R_{<xy90>}",
+        latex_repr_inv="R_{<xy90>}^{-1}",
         interpolate=lambda t: rotate(math.radians(90.0) * t),
     )
 
 
-def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2D]:
-    r90: InvertibleFunction[Vector2D] = rotate_90_degrees()
-
-    def create_rotate_function(
-        perp: InvertibleFunction,
-    ) -> typing.Callable[[Vector2D], Vector2D]:
-        def f(vector: Vector2D) -> Vector2D:
-            parallel: Vector2D = math.cos(float(angle_in_radians)) * vector
-            perpendicular: Vector2D = math.sin(float(angle_in_radians)) * perp(
-                vector
-            )
-            return parallel + perpendicular
-
-        return f
-
-    return InvertibleFunction[Vector2D](
-        create_rotate_function(r90),
-        create_rotate_function(inverse(r90)),
-        f"R_{{<{sympy.latex(angle_in_radians)}>}}",
-        f"R_{{<{sympy.latex(-angle_in_radians)}>}}",
+def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2]:
+    # rotating by theta carries e_1 to the unit vector at angle theta; gacalc's
+    # rotor_rotation builds R = rotor_from_vectors(e_1, that) and sandwiches.
+    to_vector: Vector2 = (
+        math.cos(angle_in_radians) * Vector2.e_1
+        + math.sin(angle_in_radians) * Vector2.e_2
+    )
+    return rotor_rotation(
+        Vector2.e_1,
+        to_vector,
+        latex_repr=f"R_{{<{angle_in_radians}>}}",
+        latex_repr_inv=f"R_{{<{-angle_in_radians}>}}",
         interpolate=lambda t: rotate(angle_in_radians * t),
     )
     # doc-region-end define rotate
@@ -805,242 +136,169 @@ def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2D]:
 
 # doc-region-begin define rotate around
 def rotate_around(
-    angle_in_radians: float, center: Vector2D
-) -> InvertibleFunction[Vector2D]:
-    return compose(
-        [translate(center), rotate(angle_in_radians), translate(-center)]
-    )
+    angle_in_radians: float, center: Vector2
+) -> InvertibleFunction[Vector2]:
+    return compose([translate(center), rotate(angle_in_radians), translate(-center)])
     # doc-region-end define rotate around
 
 
-def cosine(v1: V, v2: V) -> float:
-    return v1.dot(v2) / (abs(v1) * (abs(v2)))
+def cosine(v1: AbstractMultiVector, v2: AbstractMultiVector) -> float:
+    # gacalc's dot product returns a (scalar) multivector; read off its value.
+    denominator: float = float(abs(v1)) * float(abs(v2))
+    if denominator == 0.0:
+        # the angle is undefined when either vector has zero length
+        return float("nan")
+    return float(v1.dot(v2).scalar_part()) / denominator
 
 
-def sine(v1: Vector2D, v2: Vector2D) -> float:
-    return rotate_90_degrees()(v1).dot(v2) / (abs(v1) * (abs(v2)))
+def sine(v1: Vector2, v2: Vector2) -> float:
+    denominator: float = float(abs(v1)) * float(abs(v2))
+    if denominator == 0.0:
+        return float("nan")
+    return float(rotate_90_degrees()(v1).dot(v2).scalar_part()) / denominator
 
 
 # doc-region-begin counter clockwise
-def is_counter_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
-    return sine(v1, v2) >= 0.000000
+def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
+    # orientation is the SIGN of the cross product  v1 x v2 = |v1||v2| sin(theta)
+    # (sine's numerator).  Use it unnormalized: dividing by the magnitudes would
+    # not change the sign but would blow up when either vector is zero -- e.g. a
+    # rasterized pixel sitting exactly on a triangle vertex.
+    return float(rotate_90_degrees()(v1).dot(v2).scalar_part()) >= 0.0
     # doc-region-end counter clockwise
 
 
 # doc-region-begin clockwise
-def is_clockwise(v1: Vector2D, v2: Vector2D) -> bool:
-    return not is_counter_clockwise(v1, v2)
+def is_clockwise(v1: Vector2, v2: Vector2) -> bool:
+    # the mirror of is_counter_clockwise (the cross product the other way).  Both
+    # include the cross == 0 (collinear / on-the-edge) case, so a point lying
+    # exactly on an edge or vertex counts as BOTH -- which lets the rasterizer
+    # light boundary pixels no matter which way the triangle is wound.
+    return float(rotate_90_degrees()(v1).dot(v2).scalar_part()) <= 0.0
     # doc-region-end clockwise
 
 
 # doc-region-begin parallel
-def is_parallel(v1: Vector2D, v2: Vector2D) -> bool:
-    return cosine(v1, v2) == pytest.approx(1.0, abs=0.01)
+def is_parallel(v1: Vector2, v2: Vector2) -> bool:
+    # a zero-length vector has no direction; treat it as degenerate/collinear so
+    # callers (e.g. the rasterizer's degenerate-triangle guard) get a definite
+    # answer instead of dividing by a zero magnitude.
+    if float(abs(v1)) == 0.0 or float(abs(v2)) == 0.0:
+        return True
+    return math.isclose(cosine(v1, v2), 1.0, abs_tol=0.01)
     # doc-region-end parallel
 
 
-def abs_sin(v1: Vector3D, v2: Vector3D) -> float:
-    return abs(v1.cross(v2)) / (abs(v1) * abs(v2))
-
-
-def scale_non_uniform_3d(
-    m_x: float, m_y: float, m_z: float
-) -> InvertibleFunction[Vector3D]:
-    def f(vector: Vector3D) -> Vector3D:
-        return Vector3D(vector.x * m_x, vector.y * m_y, vector.z * m_z)
-
-    def f_inv(vector: Vector3D) -> Vector3D:
-        if m_x == 0.0 or m_y == 0.0 or m_z == 0.0:
-            raise ValueError("Not invertible.  Scaling factors cannot be zero.")
-        return Vector3D(vector.x / m_x, vector.y / m_y, vector.z / m_z)
-
-    return InvertibleFunction[Vector3D](
-        f,
-        f_inv,
-        f"S_{{{m_x},{m_y},{m_z}}}",
-        f"S_{{\\frac{{1}}{{{m_x}}},\\frac{{1}}{{{m_y}}},\\frac{{1}}{{{m_z}}}}}",
-        interpolate=lambda t: scale_non_uniform_3d(
-            1.0 + (m_x - 1.0) * t,
-            1.0 + (m_y - 1.0) * t,
-            1.0 + (m_z - 1.0) * t,
-        ),
-    )
-
-
 # doc-region-begin define rotate x
-def rotate_x(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
-    def create_rotate_function(
-        r: InvertibleFunction[Vector2D],
-    ) -> typing.Callable[[Vector3D], Vector3D]:
-        def f(vector: Vector3D) -> Vector3D:
-            yz_on_xy: Vector2D = Vector2D(x=vector.y, y=vector.z)
-            rotated_yz_on_xy: Vector2D = r(yz_on_xy)
-            return Vector3D(
-                x=vector.x, y=rotated_yz_on_xy.x, z=rotated_yz_on_xy.y
-            )
-
-        return f
-
-    r: InvertibleFunction[Vector2D] = rotate(angle_in_radians)
-    return InvertibleFunction[Vector3D](
-        create_rotate_function(r),
-        create_rotate_function(inverse(r)),
-        f"RX_{{<{angle_in_radians}>}}",
-        f"RX_{{<{-angle_in_radians}>}}",
+def rotate_x(angle_in_radians: float) -> InvertibleFunction[Vector3]:
+    # rotation in the y-z plane: carry e_2 toward e_3 (the x axis, e_1, is fixed)
+    to_vector: Vector3 = (
+        math.cos(angle_in_radians) * Vector3.e_2
+        + math.sin(angle_in_radians) * Vector3.e_3
+    )
+    return rotor_rotation(
+        Vector3.e_2,
+        to_vector,
+        latex_repr=f"RX_{{<{angle_in_radians}>}}",
+        latex_repr_inv=f"RX_{{<{-angle_in_radians}>}}",
         interpolate=lambda t: rotate_x(angle_in_radians * t),
     )
     # doc-region-end define rotate x
 
 
 # doc-region-begin define rotate y
-def rotate_y(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
-    def create_rotate_function(
-        r: InvertibleFunction[Vector2D],
-    ) -> typing.Callable[[Vector3D], Vector3D]:
-        def f(vector: Vector3D) -> Vector3D:
-            zx_on_xy: Vector2D = Vector2D(x=vector.z, y=vector.x)
-            rotated_zx_on_xy: Vector2D = r(zx_on_xy)
-            return Vector3D(
-                x=rotated_zx_on_xy.y, y=vector.y, z=rotated_zx_on_xy.x
-            )
-
-        return f
-
-    r: InvertibleFunction[Vector2D] = rotate(angle_in_radians)
-    return InvertibleFunction[Vector3D](
-        create_rotate_function(r),
-        create_rotate_function(inverse(r)),
-        f"RY_{{<{angle_in_radians}>}}",
-        f"RY_{{<{-angle_in_radians}>}}",
+def rotate_y(angle_in_radians: float) -> InvertibleFunction[Vector3]:
+    # rotation in the z-x plane: carry e_3 toward e_1 (the y axis, e_2, is fixed)
+    to_vector: Vector3 = (
+        math.cos(angle_in_radians) * Vector3.e_3
+        + math.sin(angle_in_radians) * Vector3.e_1
+    )
+    return rotor_rotation(
+        Vector3.e_3,
+        to_vector,
+        latex_repr=f"RY_{{<{angle_in_radians}>}}",
+        latex_repr_inv=f"RY_{{<{-angle_in_radians}>}}",
         interpolate=lambda t: rotate_y(angle_in_radians * t),
     )
     # doc-region-end define rotate y
 
 
 # doc-region-begin define rotate z
-def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3D]:
-    def create_rotate_function(
-        r: InvertibleFunction[Vector2D],
-    ) -> typing.Callable[[Vector3D], Vector3D]:
-        def f(vector: Vector3D) -> Vector3D:
-            xy_on_xy: Vector2D = Vector2D(x=vector.x, y=vector.y)
-            rotated_xy_on_xy: Vector2D = r(xy_on_xy)
-            return Vector3D(
-                x=rotated_xy_on_xy.x, y=rotated_xy_on_xy.y, z=vector.z
-            )
-
-        return f
-
-    r: InvertibleFunction[Vector2D] = rotate(angle_in_radians)
-    return InvertibleFunction[Vector3D](
-        create_rotate_function(r),
-        create_rotate_function(inverse(r)),
-        f"RZ_{{<{angle_in_radians}>}}",
-        f"RZ_{{<{-angle_in_radians}>}}",
+def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3]:
+    # rotation in the x-y plane: carry e_1 toward e_2 (the z axis, e_3, is fixed)
+    to_vector: Vector3 = (
+        math.cos(angle_in_radians) * Vector3.e_1
+        + math.sin(angle_in_radians) * Vector3.e_2
+    )
+    return rotor_rotation(
+        Vector3.e_1,
+        to_vector,
+        latex_repr=f"RZ_{{<{angle_in_radians}>}}",
+        latex_repr_inv=f"RZ_{{<{-angle_in_radians}>}}",
         interpolate=lambda t: rotate_z(angle_in_radians * t),
     )
     # doc-region-end define rotate z
 
 
+def abs_sin(v1: Vector3, v2: Vector3) -> float:
+    # |a x b| == |a ^ b| (the magnitude of the bivector they span)
+    return float(abs(v1 ^ v2)) / (float(abs(v1)) * float(abs(v2)))
+
+
 # doc-region-begin define find normal
-def find_normal(p1: Vector3D, p2: Vector3D, p3: Vector3D) -> Vector3D:
-    """Surface normal of the triangle :math:`(p_1, p_2, p_3)`, computed
-    as the cross product of two edges. CCW winding (matching OpenGL's
-    default ``GL_CCW`` front-face convention) gives an outward-facing
-    normal in a right-handed coordinate system.
+def find_normal(p1: Vector3, p2: Vector3, p3: Vector3) -> Vector3:
+    """Surface normal of the triangle :math:`(p_1, p_2, p_3)`.
 
-    The result is **not** normalized -- its length equals twice the
-    area of the triangle, which is sometimes useful directly. Pass it
-    to :func:`uniform_scale` with ``1/abs(n)`` if you want a unit
-    normal.
+    In geometric algebra the cross product is the **dual of the wedge**:
+    :math:`a \\times b = (a \\wedge b)^{*}`.  The two edge vectors
+    :math:`p_2 - p_1` and :math:`p_3 - p_1` span a bivector; its dual is the
+    normal.  CCW winding (matching OpenGL's ``GL_CCW`` front face) gives an
+    outward-facing normal in a right-handed coordinate system.
 
-    Counterpart to ``m3dFindNormal`` in the OpenGL SuperBible 4e
-    ``math3d`` library; the formula here standardizes on CCW winding
-    rather than mirroring SuperBible's mixed conventions.
-
-    Example:
-        >>> from modelviewprojection.mathutils import (
-        ...     Vector3D, find_normal,
-        ... )
-        >>> p1 = Vector3D(0.0, 0.0, 0.0)
-        >>> p2 = Vector3D(1.0, 0.0, 0.0)
-        >>> p3 = Vector3D(0.0, 1.0, 0.0)
-        >>> n = find_normal(p1, p2, p3)
-        >>> n
-        Vector3D(x=0.0, y=0.0, z=1.0)
+    The result is **not** normalized -- its length equals twice the area of the
+    triangle.  Normalize with :func:`plane_equation` or ``n.normalize()`` for a
+    unit normal.
     """
-    return (p2 - p1).cross(p3 - p1)
+    bivector = (p2 - p1) ^ (p3 - p1)
+    n = bivector.dual()
+    return Vector3(
+        coeff_e_1=float(n.component(Vector3.e_1)),
+        coeff_e_2=float(n.component(Vector3.e_2)),
+        coeff_e_3=float(n.component(Vector3.e_3)),
+    )
     # doc-region-end define find normal
 
 
 # doc-region-begin define plane equation
 def plane_equation(
-    p1: Vector3D, p2: Vector3D, p3: Vector3D
-) -> typing.Tuple[Vector3D, float]:
-    """The plane through three points, expressed as ``(normal, d)``
-    such that :math:`\\vec{n} \\cdot P + d = 0` for all points
-    :math:`P` on the plane.
+    p1: Vector3, p2: Vector3, p3: Vector3
+) -> typing.Tuple[Vector3, float]:
+    """The plane through three points as ``(normal, d)`` with
+    :math:`\\vec{n} \\cdot P + d = 0` for all points :math:`P` on the plane.
 
-    The returned ``normal`` is a unit ``Vector3D``; ``d`` is the
-    signed offset from the origin along the normal. Winding follows
-    :func:`find_normal` (CCW), so the normal points outward from a
-    CCW-wound triangle.
-
-    Counterpart to ``m3dGetPlaneEquation`` in the OpenGL SuperBible 4e
-    ``math3d`` library, but using CCW winding instead of CW.
-
-    Example:
-        >>> from modelviewprojection.mathutils import (
-        ...     Vector3D, plane_equation,
-        ... )
-        >>> p1 = Vector3D(0.0, 0.0, 0.0)
-        >>> p2 = Vector3D(1.0, 0.0, 0.0)
-        >>> p3 = Vector3D(0.0, 1.0, 0.0)
-        >>> normal, d = plane_equation(p1, p2, p3)
-        >>> normal
-        Vector3D(x=0.0, y=0.0, z=1.0)
-        >>> d
-        -0.0
+    ``normal`` is a unit ``Vector3``; ``d`` is the signed offset from the origin
+    along the normal.  Winding follows :func:`find_normal` (CCW).
     """
     n = find_normal(p1, p2, p3)
     inv_len = 1.0 / float(abs(n))
-    n_unit = Vector3D(
-        float(n.x * inv_len), float(n.y * inv_len), float(n.z * inv_len)
+    n_unit = Vector3(
+        coeff_e_1=float(n.coeff_e_1) * inv_len,
+        coeff_e_2=float(n.coeff_e_2) * inv_len,
+        coeff_e_3=float(n.coeff_e_3) * inv_len,
     )
-    d = float(-n_unit.dot(p1))
+    d = float(-n_unit.dot(p1).scalar_part())
     return (n_unit, d)
     # doc-region-end define plane equation
 
 
 # doc-region-begin define distance to plane
-def distance_to_plane(
-    point: Vector3D, plane: typing.Tuple[Vector3D, float]
-) -> float:
-    """Signed distance from ``point`` to ``plane``. Positive when
-    ``point`` is on the side that the plane's normal points toward,
-    negative on the other side, zero on the plane.
-
-    ``plane`` is the ``(normal, d)`` tuple returned by
-    :func:`plane_equation`.
-
-    Counterpart to ``m3dGetDistanceToPlane`` in the OpenGL SuperBible
-    4e ``math3d`` library.
-
-    Example:
-        >>> from modelviewprojection.mathutils import (
-        ...     Vector3D, plane_equation, distance_to_plane,
-        ... )
-        >>> p1 = Vector3D(0.0, 0.0, 0.0)
-        >>> p2 = Vector3D(1.0, 0.0, 0.0)
-        >>> p3 = Vector3D(0.0, 1.0, 0.0)
-        >>> plane = plane_equation(p1, p2, p3)
-        >>> distance_to_plane(Vector3D(0.0, 0.0, 5.0), plane)
-        5.0
-        >>> distance_to_plane(Vector3D(0.0, 0.0, -3.0), plane)
-        -3.0
+def distance_to_plane(point: Vector3, plane: typing.Tuple[Vector3, float]) -> float:
+    """Signed distance from ``point`` to ``plane`` (the ``(normal, d)`` tuple
+    from :func:`plane_equation`).  Positive on the side the normal points
+    toward, negative on the other, zero on the plane.
     """
     normal, d = plane
-    return normal.dot(point) + d
+    return float(normal.dot(point).scalar_part()) + d
     # doc-region-end define distance to plane
 
 
@@ -1052,47 +310,48 @@ def ortho(
     top: float,
     near: float,
     far: float,
-) -> InvertibleFunction[Vector3D]:
-    midpoint = Vector3D(
-        x=(left + right) / 2.0, y=(bottom + top) / 2.0, z=(near + far) / 2.0
+) -> InvertibleFunction[Vector3]:
+    midpoint = Vector3(
+        coeff_e_1=(left + right) / 2.0,
+        coeff_e_2=(bottom + top) / 2.0,
+        coeff_e_3=(near + far) / 2.0,
     )
-    length_x: float
-    length_y: float
-    length_z: float
-    length_x, length_y, length_z = right - left, top - bottom, far - near
+    length_x: float = right - left
+    length_y: float = top - bottom
+    length_z: float = far - near
 
-    fn: InvertibleFunction[Vector3D] = compose(
+    fn: InvertibleFunction[Vector3] = compose(
         [
-            scale_non_uniform_3d(
-                m_x=(2.0 / length_x),
-                m_y=(2.0 / length_y),
-                m_z=(2.0 / (-length_z)),
+            scale_non_uniform(
+                2.0 / length_x,
+                2.0 / length_y,
+                2.0 / (-length_z),
             ),
             translate(-midpoint),
         ]
     )
 
-    def f(vector: Vector3D) -> Vector3D:
+    def f(vector: Vector3) -> Vector3:
         return fn(vector)
 
-    def f_inv(vector: Vector3D) -> Vector3D:
+    def f_inv(vector: Vector3) -> Vector3:
         return inverse(fn)(vector)
 
-    return InvertibleFunction[Vector3D](f, f_inv, "Ortho", "Ortho Inv")
+    return InvertibleFunction(
+        f, f_inv, "Ortho", "Ortho Inv", linearity=Linearity.AFFINE
+    )
     # doc-region-end define ortho
 
 
 # doc-region-begin define perspective
 def perspective(
     field_of_view: float, aspect_ratio: float, near_z: float, far_z: float
-) -> InvertibleFunction[Vector3D]:
-    # field_of_view, dataclasses.field of view, is angle of y
-    # aspect_ratio is x_width / y_width
-
+) -> InvertibleFunction[Vector3]:
+    # field_of_view is the angle of y; aspect_ratio is x_width / y_width.
     top: float = -near_z * math.tan(math.radians(field_of_view) / 2.0)
     right: float = top * aspect_ratio
 
-    fn: InvertibleFunction[Vector3D] = ortho(
+    fn: InvertibleFunction[Vector3] = ortho(
         left=-right,
         right=right,
         bottom=-top,
@@ -1101,44 +360,39 @@ def perspective(
         far=far_z,
     )
 
-    def f(vector: Vector3D) -> Vector3D:
-        s1d: InvertibleFunction[Vector1D] = uniform_scale(near_z / vector.z)
-        x_component: Vector1D = s1d(Vector1D(x=vector.x))
-        y_component: Vector1D = s1d(Vector1D(x=vector.y))
-
-        rectangular_prism: Vector3D = Vector3D(
-            x=x_component.x, y=y_component.x, z=vector.z
+    def f(vector: Vector3) -> Vector3:
+        # squish the frustum into a rectangular prism: scale x and y toward the
+        # axis in proportion to their depth (the perspective divide).
+        scale_factor: float = near_z / vector.coeff_e_3
+        rectangular_prism: Vector3 = Vector3(
+            coeff_e_1=vector.coeff_e_1 * scale_factor,
+            coeff_e_2=vector.coeff_e_2 * scale_factor,
+            coeff_e_3=vector.coeff_e_3,
         )
         return fn(rectangular_prism)
 
-    def f_inv(vector: Vector3D) -> Vector3D:
-        rectangular_prism: Vector3D = inverse(fn)(vector)
-
-        inverse_s1d: InvertibleFunction[Vector1D] = inverse(
-            uniform_scale(near_z / vector.z)
-        )
-        x_component: Vector1D = inverse_s1d(Vector1D(x=rectangular_prism.x))
-        y_component: Vector1D = inverse_s1d(Vector1D(x=rectangular_prism.y))
-
-        return Vector3D(
-            x_component.x,
-            y_component.x,
-            rectangular_prism.z,
+    def f_inv(vector: Vector3) -> Vector3:
+        rectangular_prism: Vector3 = inverse(fn)(vector)
+        # un-scale by the *camera-space* z (recovered as the prism's z), not the
+        # NDC input z -- that is what makes this a genuine inverse of f.
+        scale_factor: float = near_z / rectangular_prism.coeff_e_3
+        return Vector3(
+            coeff_e_1=rectangular_prism.coeff_e_1 / scale_factor,
+            coeff_e_2=rectangular_prism.coeff_e_2 / scale_factor,
+            coeff_e_3=rectangular_prism.coeff_e_3,
         )
 
-    return InvertibleFunction[Vector3D](
-        f, f_inv, "Perspective", "Perspective Inv"
+    # the perspective divide is non-linear: it is not representable as a single
+    # affine matrix recovered by probing points (see gacalc.to_matrix).
+    return InvertibleFunction(
+        f, f_inv, "Perspective", "Perspective Inv", linearity=Linearity.NONLINEAR
     )
     # doc-region-end define perspective
 
 
 # doc-region-begin define camera space to ndc
-def cs_to_ndc_space_fn(
-    vector: Vector3D,
-) -> InvertibleFunction[Vector3D]:
-    return perspective(
-        field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
-    )
+def cs_to_ndc_space_fn(vector: Vector3) -> InvertibleFunction[Vector3]:
+    return perspective(field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0)
 
 
 # doc-region-end define camera space to ndc
@@ -1147,9 +401,7 @@ def cs_to_ndc_space_fn(
 # doc-region-begin define function stack class
 @dataclasses.dataclass
 class FunctionStack(typing.Generic[V]):
-    stack: list[InvertibleFunction[V]] = dataclasses.field(
-        default_factory=lambda: []
-    )
+    stack: list[InvertibleFunction[V]] = dataclasses.field(default_factory=lambda: [])
 
     def push(self, o: InvertibleFunction[V]):
         self.stack.append(o)

@@ -16,7 +16,7 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-from modelviewprojection.mathutils import Vector3D, find_normal
+from modelviewprojection.mathutils import Vector3, find_normal
 
 
 
@@ -63,11 +63,11 @@ def render_scene() -> None:
     GL.glEnable(GL.GL_TEXTURE_2D)
 
     corners = [
-        Vector3D(0.0, 0.80, 0.0),     # 0 top
-        Vector3D(-0.5, 0.0, -0.50),   # 1 back-left
-        Vector3D(0.5, 0.0, -0.50),    # 2 back-right
-        Vector3D(0.5, 0.0, 0.5),      # 3 front-right
-        Vector3D(-0.5, 0.0, 0.5),     # 4 front-left
+        Vector3(0.0, 0.80, 0.0),     # 0 top
+        Vector3(-0.5, 0.0, -0.50),   # 1 back-left
+        Vector3(0.5, 0.0, -0.50),    # 2 back-right
+        Vector3(0.5, 0.0, 0.5),      # 3 front-right
+        Vector3(-0.5, 0.0, 0.5),     # 4 front-left
     ]
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
@@ -96,7 +96,7 @@ def render_scene() -> None:
         (corners[0], corners[3], corners[2]),
     ]:
         n = find_normal(*tri)
-        GL.glNormal3f(n.x, n.y, n.z)
+        GL.glNormal3f(n.coeff_e_1, n.coeff_e_2, n.coeff_e_3)
         GL.glTexCoord2f(0.5, 1.0); GL.glVertex3f(*tri[0])
         GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(*tri[1])
         GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(*tri[2])

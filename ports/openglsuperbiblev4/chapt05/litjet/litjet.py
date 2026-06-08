@@ -15,7 +15,7 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-from modelviewprojection.mathutils import Vector3D, find_normal
+from modelviewprojection.mathutils import Vector3, find_normal
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
@@ -28,15 +28,15 @@ x_rot: float = 0.0
 y_rot: float = 0.0
 
 
-def _emit_face(p1: Vector3D, p2: Vector3D, p3: Vector3D) -> None:
+def _emit_face(p1: Vector3, p2: Vector3, p3: Vector3) -> None:
     """Compute the face normal via mathutils.find_normal (CCW
     convention -- same direction as math3d.cpp's m3dFindNormal),
     issue glNormal3f, then issue the three glVertex3f calls."""
     n = find_normal(p1, p2, p3)
-    GL.glNormal3f(n.x, n.y, n.z)
-    GL.glVertex3f(p1.x, p1.y, p1.z)
-    GL.glVertex3f(p2.x, p2.y, p2.z)
-    GL.glVertex3f(p3.x, p3.y, p3.z)
+    GL.glNormal3f(n.coeff_e_1, n.coeff_e_2, n.coeff_e_3)
+    GL.glVertex3f(p1.coeff_e_1, p1.coeff_e_2, p1.coeff_e_3)
+    GL.glVertex3f(p2.coeff_e_1, p2.coeff_e_2, p2.coeff_e_3)
+    GL.glVertex3f(p3.coeff_e_1, p3.coeff_e_2, p3.coeff_e_3)
 
 
 def draw_jet() -> None:
@@ -52,26 +52,26 @@ def draw_jet() -> None:
     GL.glVertex3f(15.0, 0.0, 30.0)
 
     _emit_face(
-        Vector3D(15.0, 0.0, 30.0),
-        Vector3D(0.0, 15.0, 30.0),
-        Vector3D(0.0, 0.0, 60.0),
+        Vector3(15.0, 0.0, 30.0),
+        Vector3(0.0, 15.0, 30.0),
+        Vector3(0.0, 0.0, 60.0),
     )
     _emit_face(
-        Vector3D(0.0, 0.0, 60.0),
-        Vector3D(0.0, 15.0, 30.0),
-        Vector3D(-15.0, 0.0, 30.0),
+        Vector3(0.0, 0.0, 60.0),
+        Vector3(0.0, 15.0, 30.0),
+        Vector3(-15.0, 0.0, 30.0),
     )
 
     # --- Body ---
     _emit_face(
-        Vector3D(-15.0, 0.0, 30.0),
-        Vector3D(0.0, 15.0, 30.0),
-        Vector3D(0.0, 0.0, -56.0),
+        Vector3(-15.0, 0.0, 30.0),
+        Vector3(0.0, 15.0, 30.0),
+        Vector3(0.0, 0.0, -56.0),
     )
     _emit_face(
-        Vector3D(0.0, 0.0, -56.0),
-        Vector3D(0.0, 15.0, 30.0),
-        Vector3D(15.0, 0.0, 30.0),
+        Vector3(0.0, 0.0, -56.0),
+        Vector3(0.0, 15.0, 30.0),
+        Vector3(15.0, 0.0, 30.0),
     )
 
     # Bottom of body
@@ -82,24 +82,24 @@ def draw_jet() -> None:
 
     # --- Wing (top) ---
     _emit_face(
-        Vector3D(0.0, 2.0, 27.0),
-        Vector3D(-60.0, 2.0, -8.0),
-        Vector3D(60.0, 2.0, -8.0),
+        Vector3(0.0, 2.0, 27.0),
+        Vector3(-60.0, 2.0, -8.0),
+        Vector3(60.0, 2.0, -8.0),
     )
     _emit_face(
-        Vector3D(60.0, 2.0, -8.0),
-        Vector3D(0.0, 7.0, -8.0),
-        Vector3D(0.0, 2.0, 27.0),
+        Vector3(60.0, 2.0, -8.0),
+        Vector3(0.0, 7.0, -8.0),
+        Vector3(0.0, 2.0, 27.0),
     )
     _emit_face(
-        Vector3D(60.0, 2.0, -8.0),
-        Vector3D(-60.0, 2.0, -8.0),
-        Vector3D(0.0, 7.0, -8.0),
+        Vector3(60.0, 2.0, -8.0),
+        Vector3(-60.0, 2.0, -8.0),
+        Vector3(0.0, 7.0, -8.0),
     )
     _emit_face(
-        Vector3D(0.0, 2.0, 27.0),
-        Vector3D(0.0, 7.0, -8.0),
-        Vector3D(-60.0, 2.0, -8.0),
+        Vector3(0.0, 2.0, 27.0),
+        Vector3(0.0, 7.0, -8.0),
+        Vector3(-60.0, 2.0, -8.0),
     )
 
     # --- Tail ---
@@ -109,36 +109,36 @@ def draw_jet() -> None:
     GL.glVertex3f(0.0, -0.50, -40.0)
 
     _emit_face(
-        Vector3D(0.0, -0.5, -40.0),
-        Vector3D(30.0, -0.5, -57.0),
-        Vector3D(0.0, 4.0, -57.0),
+        Vector3(0.0, -0.5, -40.0),
+        Vector3(30.0, -0.5, -57.0),
+        Vector3(0.0, 4.0, -57.0),
     )
     _emit_face(
-        Vector3D(0.0, 4.0, -57.0),
-        Vector3D(-30.0, -0.5, -57.0),
-        Vector3D(0.0, -0.5, -40.0),
+        Vector3(0.0, 4.0, -57.0),
+        Vector3(-30.0, -0.5, -57.0),
+        Vector3(0.0, -0.5, -40.0),
     )
     _emit_face(
-        Vector3D(30.0, -0.5, -57.0),
-        Vector3D(-30.0, -0.5, -57.0),
-        Vector3D(0.0, 4.0, -57.0),
+        Vector3(30.0, -0.5, -57.0),
+        Vector3(-30.0, -0.5, -57.0),
+        Vector3(0.0, 4.0, -57.0),
     )
 
     # Vertical fin
     _emit_face(
-        Vector3D(0.0, 0.5, -40.0),
-        Vector3D(3.0, 0.5, -57.0),
-        Vector3D(0.0, 25.0, -65.0),
+        Vector3(0.0, 0.5, -40.0),
+        Vector3(3.0, 0.5, -57.0),
+        Vector3(0.0, 25.0, -65.0),
     )
     _emit_face(
-        Vector3D(0.0, 25.0, -65.0),
-        Vector3D(-3.0, 0.5, -57.0),
-        Vector3D(0.0, 0.5, -40.0),
+        Vector3(0.0, 25.0, -65.0),
+        Vector3(-3.0, 0.5, -57.0),
+        Vector3(0.0, 0.5, -40.0),
     )
     _emit_face(
-        Vector3D(3.0, 0.5, -57.0),
-        Vector3D(-3.0, 0.5, -57.0),
-        Vector3D(0.0, 25.0, -65.0),
+        Vector3(3.0, 0.5, -57.0),
+        Vector3(-3.0, 0.5, -57.0),
+        Vector3(0.0, 25.0, -65.0),
     )
 
     GL.glEnd()

@@ -33,7 +33,7 @@ import numpy as np
 
 from modelviewprojection.mathutils import (
     InvertibleFunction,
-    Vector3D,
+    Vector3,
     compose,
     identity,
     inverse,
@@ -68,7 +68,7 @@ class CameraControls:
     rot_x: float
 
     def apply(self) -> None:
-        self.translate_step.fn = translate(Vector3D(self.px, self.py, self.pz))
+        self.translate_step.fn = translate(Vector3(self.px, self.py, self.pz))
         self.rot_y_step.fn = rotate_y(self.rot_y)
         self.rot_x_step.fn = rotate_x(self.rot_x)
 
@@ -416,21 +416,21 @@ class Animation:
 
 
 def to_matrix(f: InvertibleFunction) -> np.ndarray:
-    """Realize an **affine** ``InvertibleFunction`` on ``Vector3D`` as a 4x4
+    """Realize an **affine** ``InvertibleFunction`` on ``Vector3`` as a 4x4
     (row-major, ``M @ [x, y, z, 1]``) for upload as a GL model matrix.
 
     Columns come from ``f(e_i) - f(0)`` and the translation from ``f(0)`` -- so
     ``to_matrix(f) @ [p, 1] == f(p)`` for any affine ``f``.  Not valid for the
     projective squash (which stays a shader; see decision #4)."""
-    o = f(Vector3D(0.0, 0.0, 0.0))
-    cx = f(Vector3D(1.0, 0.0, 0.0)) - o
-    cy = f(Vector3D(0.0, 1.0, 0.0)) - o
-    cz = f(Vector3D(0.0, 0.0, 1.0)) - o
+    o = f(Vector3(0.0, 0.0, 0.0))
+    cx = f(Vector3(1.0, 0.0, 0.0)) - o
+    cy = f(Vector3(0.0, 1.0, 0.0)) - o
+    cz = f(Vector3(0.0, 0.0, 1.0)) - o
     return np.array(
         [
-            [cx.x, cy.x, cz.x, o.x],
-            [cx.y, cy.y, cz.y, o.y],
-            [cx.z, cy.z, cz.z, o.z],
+            [cx.coeff_e_1, cy.coeff_e_1, cz.coeff_e_1, o.coeff_e_1],
+            [cx.coeff_e_2, cy.coeff_e_2, cz.coeff_e_2, o.coeff_e_2],
+            [cx.coeff_e_3, cy.coeff_e_3, cz.coeff_e_3, o.coeff_e_3],
             [0.0, 0.0, 0.0, 1.0],
         ]
     )

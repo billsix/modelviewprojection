@@ -38,6 +38,7 @@ typos · `demo14.py:42 zero = Vector3D.e_3()` · `demo21.py` missing `sys`/`os`.
 
 | Task | Status | Doc |
 |------|--------|-----|
+| **Migrate mvp math onto `gacalc`** (delete overlapping vector/transform math, import gacalc vectors; rebuild graphics-only math on top) | proposed — needs go-ahead. Scope DECIDED: Path Y (port the 13 ports, no compat type) + rewrite ch05/06/14 on gacalc. Blocks on a gacalc PyPI release (animation layer) | [`gacalc-math-migration.md`](gacalc-math-migration.md) |
 | **Extract duplicated demo helpers** into per-concept modules (teach-once-then-import) | in progress — `shading.py` ✅, `windowing.py` (`on_key`) ✅, `clipping.py` (`draw_in_square_viewport`) ✅; `set_mvp_uniforms` variant deferred | [`../plans/extract-duplicated-demo-helpers.md`](../plans/extract-duplicated-demo-helpers.md) |
 | **Separate data generation from rendering** in SuperBible ports (precompute trig into `_primitives` builders) | ✅ complete 2026-05-29 — archived (~30 demos converted; leave-alone set documented; spot-checked by Bill) | [`archive/extract-data-generation.md`](archive/extract-data-generation.md) |
 | **Cube-map sphere reflection doesn't track the camera** (ch09 port bug) | ✅ complete 2026-06-01 — archived (multitexture fixed; texgen/thundergl/fboenvmap audited as N/A) | [`archive/cubemap-reflection-static.md`](archive/cubemap-reflection-static.md) |

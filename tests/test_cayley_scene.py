@@ -12,7 +12,7 @@ import math
 import numpy as np
 
 from modelviewprojection.mathutils import (
-    Vector3D,
+    Vector3,
     compose,
     inverse,
     rotate_x,
@@ -24,21 +24,21 @@ from modelviewprojection.mathutils import (
 from modelviewprojection.mvpvisualization import cayleygraph, cayleyscene
 
 # demo constants (verbatim from modelviewperspectiveprojection.py)
-P1_POS = Vector3D(-9.0, 1.0, 0.0)
+P1_POS = Vector3(-9.0, 1.0, 0.0)
 P1_ROT = math.radians(45.0)
 SQ_ROT = math.radians(90.0)
 ROT_AROUND_P1 = math.radians(30.0)
-P2_POS = Vector3D(9.0, 0.5, 0.0)
+P2_POS = Vector3(9.0, 0.5, 0.0)
 P2_ROT = math.radians(-20.0)
-CAM_POS = Vector3D(-1.5, 0.0, 8.5)
+CAM_POS = Vector3(-1.5, 0.0, 8.5)
 CAM_ROT_Y = math.radians(25.0)
 CAM_ROT_X = math.radians(15.0)
 
 SAMPLES = [
-    Vector3D(0.0, 0.0, 0.0),
-    Vector3D(1.0, 1.0, 0.0),
-    Vector3D(-1.0, -1.0, 0.0),
-    Vector3D(0.3, -0.7, 0.2),
+    Vector3(0.0, 0.0, 0.0),
+    Vector3(1.0, 1.0, 0.0),
+    Vector3(-1.0, -1.0, 0.0),
+    Vector3(0.3, -0.7, 0.2),
 ]
 
 
@@ -54,9 +54,9 @@ def build_scene() -> cayleyscene.Scene:
                 "square",
                 "paddle1",
                 [
-                    ("T_-Z", translate(Vector3D(0.0, 0.0, -5.0))),
+                    ("T_-Z", translate(Vector3(0.0, 0.0, -5.0))),
                     ("R_Z", rotate_z(ROT_AROUND_P1)),
-                    ("T_X", translate(Vector3D(1.5, 0.0, 0.0))),
+                    ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
                     ("R2_Z", rotate_z(SQ_ROT)),
                 ],
             ),
@@ -116,7 +116,7 @@ def i(t, start):  # the demo's interp with 5.0s duration
 
 def assert_same_fn(fa, fb):
     for p in SAMPLES:
-        assert fa(p).isclose(fb(p))
+        assert fa(p).is_close(fb(p))
 
 
 # --- timeline derivation ---------------------------------------------------
@@ -153,9 +153,9 @@ def test_transform_square_nested_matches_demo():
             [
                 translate(P1_POS * i(t, 2)),
                 rotate_z(P1_ROT * i(t, 7)),
-                translate(Vector3D(0.0, 0.0, -5.0) * i(t, 12)),
+                translate(Vector3(0.0, 0.0, -5.0) * i(t, 12)),
                 rotate_z(ROT_AROUND_P1 * i(t, 17)),
-                translate(Vector3D(1.5, 0.0, 0.0) * i(t, 22)),
+                translate(Vector3(1.5, 0.0, 0.0) * i(t, 22)),
                 rotate_z(SQ_ROT * i(t, 27)),
             ]
         )
@@ -226,17 +226,17 @@ def test_camera_controls_edit_edge_steps_in_place():
     )
     tstep = cam_edge.steps[0]
     slot_before = animation.timeline.slot(tstep)
-    cam_before = animation.transform("camera", 60.0)(Vector3D(0.0, 0.0, 0.0))
-    morph_before = animation.inverse_transform(80.0)(Vector3D(1.0, 1.0, 1.0))
+    cam_before = animation.transform("camera", 60.0)(Vector3(0.0, 0.0, 0.0))
+    morph_before = animation.inverse_transform(80.0)(Vector3(1.0, 1.0, 1.0))
 
     controls.px, controls.py, controls.pz = 5.0, 2.0, -3.0
     controls.apply()
 
     assert animation.timeline.slot(tstep) == slot_before  # id(step) unchanged
-    assert not animation.transform("camera", 60.0)(Vector3D(0, 0, 0)).isclose(
+    assert not animation.transform("camera", 60.0)(Vector3(0, 0, 0)).is_close(
         cam_before
     )
-    assert not animation.inverse_transform(80.0)(Vector3D(1, 1, 1)).isclose(
+    assert not animation.inverse_transform(80.0)(Vector3(1, 1, 1)).is_close(
         morph_before
     )
 
@@ -244,16 +244,16 @@ def test_camera_controls_edit_edge_steps_in_place():
 def test_to_matrix_realizes_affine_function():
     f = compose(
         [
-            translate(Vector3D(3.0, 4.0, 5.0)),
+            translate(Vector3(3.0, 4.0, 5.0)),
             rotate_z(math.radians(30.0)),
             uniform_scale(2.0),
         ]
     )
     M = cayleyscene.to_matrix(f)
     for p in SAMPLES:
-        got = M @ np.array([p.x, p.y, p.z, 1.0])
+        got = M @ np.array([p.coeff_e_1, p.coeff_e_2, p.coeff_e_3, 1.0])
         want = f(p)
-        assert np.allclose(got, [want.x, want.y, want.z, 1.0])
+        assert np.allclose(got, [want.coeff_e_1, want.coeff_e_2, want.coeff_e_3, 1.0])
 
 
 def test_to_matrix_of_engine_transform_matches_point_application():
@@ -261,9 +261,9 @@ def test_to_matrix_of_engine_transform_matches_point_application():
     f = animation.transform("square", 20.0)
     M = cayleyscene.to_matrix(f)
     for p in SAMPLES:
-        got = M @ np.array([p.x, p.y, p.z, 1.0])
+        got = M @ np.array([p.coeff_e_1, p.coeff_e_2, p.coeff_e_3, 1.0])
         want = f(p)
-        assert np.allclose(got, [want.x, want.y, want.z, 1.0])
+        assert np.allclose(got, [want.coeff_e_1, want.coeff_e_2, want.coeff_e_3, 1.0])
 
 
 # --- projection tail: timeline, world->camera morph, GPU steps -------------
@@ -301,7 +301,7 @@ def test_morph_transform_matches_demo_inverse():
 def test_morph_transform_identity_before_it_starts():
     animation = cayleyscene.Animation(build_full_scene())
     for p in SAMPLES:
-        assert animation.inverse_transform(30.0)(p).isclose(p)
+        assert animation.inverse_transform(30.0)(p).is_close(p)
 
 
 def test_gpu_progress():

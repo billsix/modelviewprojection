@@ -17,7 +17,7 @@ import glfw
 
 from modelviewprojection import pyMatrixStack as ms
 from modelviewprojection.mathutils import (
-    Vector3D,
+    Vector3,
     rotate_z,
     translate,
 )
@@ -47,7 +47,7 @@ graph = cayleygraph.CayleyGraph(
             src=Space.paddle1,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector3D(-9.0, 1.0, 0.0))),
+                ("T", translate(Vector3(-9.0, 1.0, 0.0))),
                 ("R_z", rotate_z(math.radians(45.0))),
             ],
         ),
@@ -55,9 +55,9 @@ graph = cayleygraph.CayleyGraph(
             src=Space.square,
             dst=Space.paddle1,
             steps=[
-                ("T_-Z", translate(Vector3D(0.0, 0.0, -5.0))),
+                ("T_-Z", translate(Vector3(0.0, 0.0, -5.0))),
                 ("R_Z", rotate_z(math.radians(30.0))),
-                ("T_X", translate(Vector3D(1.5, 0.0, 0.0))),
+                ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
                 ("R2_Z", rotate_z(math.radians(90.0))),
             ],
         ),
@@ -65,7 +65,7 @@ graph = cayleygraph.CayleyGraph(
             src=Space.paddle2,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector3D(9.0, 0.5, 0.0))),
+                ("T", translate(Vector3(9.0, 0.5, 0.0))),
                 ("R_z", rotate_z(math.radians(-20.0))),
             ],
         ),
