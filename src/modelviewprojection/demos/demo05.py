@@ -25,14 +25,12 @@ import OpenGL.GL as GL
 import modelviewprojection.util.colorutils as colorutils
 from modelviewprojection.mathutils import (
     InvertibleFunction,
-    Vector2D,
+    Vector2,
 )
 from modelviewprojection.mathutils import translate as T
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-e_1 = Vector2D.e_1()
-e_2 = Vector2D.e_2()
 
 if not glfw.init():
     sys.exit()
@@ -61,33 +59,33 @@ GL.glLoadIdentity()
 # doc-region-begin define paddle class
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector2D]
+    vertices: list[Vector2]
     color: colorutils.Color3
-    position: Vector2D
+    position: Vector2
     # doc-region-end define paddle class
 
 
 # doc-region-begin instantiate paddles
 paddle1: Paddle = Paddle(
     vertices=[
-        -0.1 * e_1 + -0.3 * e_2,
-        0.1 * e_1 + -0.3 * e_2,
-        0.1 * e_1 + 0.3 * e_2,
-        -0.1 * e_1 + 0.3 * e_2,
+        -0.1 * Vector2.e_1 + -0.3 * Vector2.e_2,
+        0.1 * Vector2.e_1 + -0.3 * Vector2.e_2,
+        0.1 * Vector2.e_1 + 0.3 * Vector2.e_2,
+        -0.1 * Vector2.e_1 + 0.3 * Vector2.e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=(-0.9 * e_1),
+    position=(-0.9 * Vector2.e_1),
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -0.1 * e_1 + -0.3 * e_2,
-        0.1 * e_1 + -0.3 * e_2,
-        0.1 * e_1 + 0.3 * e_2,
-        -0.1 * e_1 + 0.3 * e_2,
+        -0.1 * Vector2.e_1 + -0.3 * Vector2.e_2,
+        0.1 * Vector2.e_1 + -0.3 * Vector2.e_2,
+        0.1 * Vector2.e_1 + 0.3 * Vector2.e_2,
+        -0.1 * Vector2.e_1 + 0.3 * Vector2.e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=0.9 * e_1,
+    position=0.9 * Vector2.e_1,
 )
 # doc-region-end instantiate paddles
 
@@ -97,13 +95,13 @@ def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position -= 0.1 * e_2
+        paddle1.position -= 0.1 * Vector2.e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position += 0.1 * e_2
+        paddle1.position += 0.1 * Vector2.e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position -= 0.1 * e_2
+        paddle2.position -= 0.1 * Vector2.e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position += 0.1 * e_2
+        paddle2.position += 0.1 * Vector2.e_2
     # doc-region-end define handle movement of paddles
 
 
@@ -136,21 +134,21 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc: Vector2D = T(paddle1.position)(p1_v_ms)
+        paddle1_vector_ndc: Vector2 = T(paddle1.position)(p1_v_ms)
         # we could have written
         # paddle1_vector_ndc: Vector = paddle1.position + p1_v_ms
-        GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
+        GL.glVertex2f(paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2)
     GL.glEnd()
     # doc-region-end draw paddle 1
 
     # doc-region-begin draw paddle 2
     GL.glColor3f(*iter(paddle2.color))
 
-    p2_fn: InvertibleFunction[Vector2D] = T(paddle2.position)
+    p2_fn: InvertibleFunction[Vector2] = T(paddle2.position)
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        paddle2_vector_ndc: Vector2D = p2_fn(p2_v_ms)
-        GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
+        paddle2_vector_ndc: Vector2 = p2_fn(p2_v_ms)
+        GL.glVertex2f(paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2)
     GL.glEnd()
     # doc-region-end draw paddle 2
 

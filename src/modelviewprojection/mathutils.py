@@ -144,29 +144,47 @@ def rotate_around(
 
 def cosine(v1: AbstractMultiVector, v2: AbstractMultiVector) -> float:
     # gacalc's dot product returns a (scalar) multivector; read off its value.
-    return float(v1.dot(v2).scalar_part()) / (float(abs(v1)) * float(abs(v2)))
+    denominator: float = float(abs(v1)) * float(abs(v2))
+    if denominator == 0.0:
+        # the angle is undefined when either vector has zero length
+        return float("nan")
+    return float(v1.dot(v2).scalar_part()) / denominator
 
 
 def sine(v1: Vector2, v2: Vector2) -> float:
-    return float(rotate_90_degrees()(v1).dot(v2).scalar_part()) / (
-        float(abs(v1)) * float(abs(v2))
-    )
+    denominator: float = float(abs(v1)) * float(abs(v2))
+    if denominator == 0.0:
+        return float("nan")
+    return float(rotate_90_degrees()(v1).dot(v2).scalar_part()) / denominator
 
 
 # doc-region-begin counter clockwise
 def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
-    return sine(v1, v2) >= 0.000000
+    # orientation is the SIGN of the cross product  v1 x v2 = |v1||v2| sin(theta)
+    # (sine's numerator).  Use it unnormalized: dividing by the magnitudes would
+    # not change the sign but would blow up when either vector is zero -- e.g. a
+    # rasterized pixel sitting exactly on a triangle vertex.
+    return float(rotate_90_degrees()(v1).dot(v2).scalar_part()) >= 0.0
     # doc-region-end counter clockwise
 
 
 # doc-region-begin clockwise
 def is_clockwise(v1: Vector2, v2: Vector2) -> bool:
-    return not is_counter_clockwise(v1, v2)
+    # the mirror of is_counter_clockwise (the cross product the other way).  Both
+    # include the cross == 0 (collinear / on-the-edge) case, so a point lying
+    # exactly on an edge or vertex counts as BOTH -- which lets the rasterizer
+    # light boundary pixels no matter which way the triangle is wound.
+    return float(rotate_90_degrees()(v1).dot(v2).scalar_part()) <= 0.0
     # doc-region-end clockwise
 
 
 # doc-region-begin parallel
 def is_parallel(v1: Vector2, v2: Vector2) -> bool:
+    # a zero-length vector has no direction; treat it as degenerate/collinear so
+    # callers (e.g. the rasterizer's degenerate-triangle guard) get a definite
+    # answer instead of dividing by a zero magnitude.
+    if float(abs(v1)) == 0.0 or float(abs(v2)) == 0.0:
+        return True
     return math.isclose(cosine(v1, v2), 1.0, abs_tol=0.01)
     # doc-region-end parallel
 

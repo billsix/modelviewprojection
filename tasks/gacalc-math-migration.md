@@ -38,11 +38,27 @@
     every `.x/.y/.z` was on a vector (`plane_normal`/`pn`/vertices), so no
     non-vector clobbering. Zero `Vector3D`/`.x/.y/.z` leftovers; all `py_compile`
     clean. (GL run-verification is Bill's — the venv has no glfw/GL.)
-- **NOT yet done (Phase 2 remainder):** 14 demos, 9 visualizations, 2 util,
-  3 notebooksrc, 1 assignment, 3 tests — these still import the deleted
-  `Vector2D`/`Vector3D` and need the same rename + `.x/.y/.z`→`.coeff_e_*` sweep
-  (the demos also construct via `e_1()`/scaled-sum, which needs the gacalc
-  `Vector2.e_1` class-constant idiom). Plus **Phase 4** (rewrite ch05/06/14 on
+- **2026-06-08 — Phase 2 (call-site migration) COMPLETE.** `grep Vector[123]D`
+  over `src/`+`tests/`+`assignments/`+`ports/` `.py` returns **nothing**.
+  Migrated this session beyond the ports: 14 demos (demo05–18), 9 viz/util,
+  4 plotting helpers (notebooksrc plot2d/ndc/framebuffer + util/nbplotutils),
+  2 cayley tests, the demo02 assignment, and `framebuffer/softwarerendering.py`.
+  - **Mechanical transform** per file: `Vector{1,2,3}D`→`Vector{1,2,3}`,
+    `.e_N()`→`.e_N` (basis static-method → class constant), `.x/.y/.z`→`.coeff_e_N`,
+    `.isclose`→`.is_close` (preserving `math.isclose`), keyword `Vector2D(x=,y=)`→
+    positional, `scale_non_uniform_{2,3}d`→`scale_non_uniform`. No GL `float()`
+    needed — `ctypes.c_float` accepts sympy `Float`.
+  - **Natural basis inlined** (per Bill): top-of-file `e_1 = Vector2.e_1` locals
+    removed, usages inlined to `Vector2.e_1`. Considered sourcing a bare `e_1`
+    from `from gacalc.g2 import e_1`, but that yields the **full `G2`**, not
+    `Vector2` — which loses the graded type AND defeats the fast generated
+    sandwich (a `G2` rotor has no closed-form `sandwich`). gacalc's own
+    convention prescribes `Vector2.e_1`, so the inlined form stays.
+  - **Verified headless:** `test_cayley_graph` **14 passed**; `vec1.py` worked
+    examples pass (its remaining failing assert is a deliberate student-TODO
+    placeholder). GL demos/ports are `py_compile`-clean; Bill run-verifies those.
+    `ports/README.md` still names `Vector3D` in prose — doc, left as-is.
+- **NOT yet done:** **Phase 4** (rewrite ch05/06/14 on
   gacalc).
 
 ## Goal

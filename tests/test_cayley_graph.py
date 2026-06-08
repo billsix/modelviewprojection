@@ -10,7 +10,7 @@ import math
 import pytest
 
 from modelviewprojection.mathutils import (
-    Vector3D,
+    Vector3,
     compose,
     inverse,
     rotate_x,
@@ -22,19 +22,19 @@ from modelviewprojection.mvpvisualization import cayleygraph
 
 # --- a small demo-like scene: square -> paddle1 -> world, and camera -> world -
 
-PADDLE1_POS = Vector3D(-9.0, 1.0, 0.0)
+PADDLE1_POS = Vector3(-9.0, 1.0, 0.0)
 PADDLE1_ROT = math.radians(45.0)
 SQUARE_ROT = math.radians(90.0)
 ROT_AROUND_P1 = math.radians(30.0)
-CAM_POS = Vector3D(-1.5, 0.0, 8.5)
+CAM_POS = Vector3(-1.5, 0.0, 8.5)
 CAM_ROT_Y = math.radians(25.0)
 CAM_ROT_X = math.radians(15.0)
 
 SAMPLES = [
-    Vector3D(0.0, 0.0, 0.0),
-    Vector3D(1.0, 1.0, 0.0),
-    Vector3D(-1.0, -1.0, 0.0),
-    Vector3D(0.3, -0.7, 0.2),
+    Vector3(0.0, 0.0, 0.0),
+    Vector3(1.0, 1.0, 0.0),
+    Vector3(-1.0, -1.0, 0.0),
+    Vector3(0.3, -0.7, 0.2),
 ]
 
 
@@ -50,9 +50,9 @@ def build_graph() -> cayleygraph.CayleyGraph:
                 "square",
                 "paddle1",
                 [
-                    ("T_-Z", translate(Vector3D(0.0, 0.0, -5.0))),
+                    ("T_-Z", translate(Vector3(0.0, 0.0, -5.0))),
                     ("R_Z", rotate_z(ROT_AROUND_P1)),
-                    ("T_X", translate(Vector3D(1.5, 0.0, 0.0))),
+                    ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
                     ("R2_Z", rotate_z(SQUARE_ROT)),
                 ],
             ),
@@ -71,7 +71,7 @@ def build_graph() -> cayleygraph.CayleyGraph:
 
 def assert_same_fn(fa, fb):
     for p in SAMPLES:
-        assert fa(p).isclose(fb(p))
+        assert fa(p).is_close(fb(p))
 
 
 # --- forward edge ----------------------------------------------------------
@@ -95,7 +95,7 @@ def test_backward_single_edge_is_the_inverse():
     assert_same_fn(world_to_cam.func, inverse(cam_to_world).func)
     # and they round-trip to the identity
     for p in SAMPLES:
-        assert world_to_cam(cam_to_world(p)).isclose(p)
+        assert world_to_cam(cam_to_world(p)).is_close(p)
 
 
 def test_round_trip_is_identity_multi_hop():
@@ -103,7 +103,7 @@ def test_round_trip_is_identity_multi_hop():
     there = g.path("square", "camera").function()
     back = g.path("camera", "square").function()
     for p in SAMPLES:
-        assert back(there(p)).isclose(p)
+        assert back(there(p)).is_close(p)
 
 
 # --- multi-hop composition (with and without an against-arrow edge) ---------
@@ -115,9 +115,9 @@ def test_multi_hop_all_forward():
     # square->paddle1 applied first (innermost), then paddle1->world
     a = compose(
         [
-            translate(Vector3D(0.0, 0.0, -5.0)),
+            translate(Vector3(0.0, 0.0, -5.0)),
             rotate_z(ROT_AROUND_P1),
-            translate(Vector3D(1.5, 0.0, 0.0)),
+            translate(Vector3(1.5, 0.0, 0.0)),
             rotate_z(SQUARE_ROT),
         ]
     )
@@ -132,9 +132,9 @@ def test_multi_hop_crosses_root_with_one_inverse():
     got = g.path("square", "camera").function()
     a = compose(
         [
-            translate(Vector3D(0.0, 0.0, -5.0)),
+            translate(Vector3(0.0, 0.0, -5.0)),
             rotate_z(ROT_AROUND_P1),
-            translate(Vector3D(1.5, 0.0, 0.0)),
+            translate(Vector3(1.5, 0.0, 0.0)),
             rotate_z(SQUARE_ROT),
         ]
     )
@@ -166,7 +166,7 @@ def test_oriented_steps_backward_inverts_and_relabels_in_reading_order():
     fwd = [translate(CAM_POS), rotate_y(CAM_ROT_Y), rotate_x(CAM_ROT_X)]
     for s, f in zip(steps, fwd):
         for p in SAMPLES:
-            assert s.fn(p).isclose(inverse(f)(p))
+            assert s.fn(p).is_close(inverse(f)(p))
 
 
 # --- Phase 1 integration: a path is itself interpolable / iterable ----------
@@ -177,8 +177,8 @@ def test_path_function_is_interpolable():
     f = g.path("square", "camera").function()
     # at(0) is identity, at(1) is the full transform
     for p in SAMPLES:
-        assert f.at(0.0)(p).isclose(p)
-        assert f.at(1.0)(p).isclose(f(p))
+        assert f.at(0.0)(p).is_close(p)
+        assert f.at(1.0)(p).is_close(f(p))
 
 
 def test_path_function_steps_count_matches_total_substeps():
@@ -198,7 +198,7 @@ def test_no_path_raises():
                 "paddle1", "world", [("T", translate(PADDLE1_POS))]
             ),
             cayleygraph.Edge(
-                "island", "island2", [("T", translate(Vector3D(1, 0, 0)))]
+                "island", "island2", [("T", translate(Vector3(1, 0, 0)))]
             ),  # disconnected
         ]
     )
@@ -211,10 +211,10 @@ def test_cyclic_graph_rejected():
         cayleygraph.CayleyGraph(
             [
                 cayleygraph.Edge(
-                    "a", "b", [("T", translate(Vector3D(1, 0, 0)))]
+                    "a", "b", [("T", translate(Vector3(1, 0, 0)))]
                 ),
                 cayleygraph.Edge(
-                    "b", "a", [("T", translate(Vector3D(0, 1, 0)))]
+                    "b", "a", [("T", translate(Vector3(0, 1, 0)))]
                 ),
             ]
         )
@@ -239,12 +239,12 @@ def test_enum_node_identifiers():
             cayleygraph.Edge(
                 Space.paddle,
                 Space.world,
-                [("T", translate(Vector3D(3.0, 0.0, 0.0)))],
+                [("T", translate(Vector3(3.0, 0.0, 0.0)))],
             ),
         ]
     )
     f = g.path(Space.paddle, Space.world).function()
-    assert f(Vector3D(0.0, 0.0, 0.0)).isclose(Vector3D(3.0, 0.0, 0.0))
+    assert f(Vector3(0.0, 0.0, 0.0)).is_close(Vector3(3.0, 0.0, 0.0))
     assert cayleygraph.node_label(Space.paddle) == "paddle"
     assert cayleygraph.node_label("world") == "world"  # strings still work too
 
@@ -253,4 +253,4 @@ def test_same_space_is_empty_identity_path():
     g = build_graph()
     f = g.path("world", "world").function()
     for p in SAMPLES:
-        assert f(p).isclose(p)
+        assert f(p).is_close(p)

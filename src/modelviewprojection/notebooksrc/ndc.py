@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.19.1
+#       jupytext_version: 1.19.3
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -57,9 +57,9 @@ import numpy as np
 import modelviewprojection.framebuffer.softwarerendering as sr
 from modelviewprojection.mathutils import (
     InvertibleFunction,
-    Vector2D,
+    Vector2,
     compose,
-    scale_non_uniform_2d,
+    scale_non_uniform,
     translate,
 )
 
@@ -68,9 +68,9 @@ warnings.filterwarnings("error", category=RuntimeWarning)
 matplotlib.rcParams["axes.formatter.use_mathtext"] = True
 
 
-e_1 = Vector2D.e_1()
-e_2 = Vector2D.e_2()
-zero = Vector2D.zero()
+e_1 = Vector2.e_1
+e_2 = Vector2.e_2
+zero = Vector2.zero()
 
 
 # %% [markdown]
@@ -126,11 +126,11 @@ fake_fb.show_framebuffer()
 # by Shirley and Marshner, page 60
 
 # %%
-ndc_to_screen: InvertibleFunction[Vector2D] = compose(
+ndc_to_screen: InvertibleFunction[Vector2] = compose(
     [
         translate(-0.5 * e_1 + -0.5 * e_2),
-        scale_non_uniform_2d(fake_fb.width, fake_fb.height),
-        scale_non_uniform_2d(0.5, 0.5),
+        scale_non_uniform(fake_fb.width, fake_fb.height),
+        scale_non_uniform(0.5, 0.5),
         translate(e_1 + e_2),
     ]
 )
@@ -144,7 +144,7 @@ ndc_to_screen: InvertibleFunction[Vector2D] = compose(
 # %%
 # Example: draw a white triangle
 
-triangle_in_NDC: list[Vector2D] = [
+triangle_in_NDC: list[Vector2] = [
     zero,
     0.2 * e_1,
     0.2 * e_1 + 0.2 * e_2,
@@ -157,7 +157,7 @@ triangle_in_NDC: list[Vector2D] = [
 # For each vector, apply the function
 
 # %%
-triangle_in_screen: list[Vector2D] = [ndc_to_screen(x) for x in triangle_in_NDC]
+triangle_in_screen: list[Vector2] = [ndc_to_screen(x) for x in triangle_in_NDC]
 print(triangle_in_screen)
 
 # %%
@@ -200,7 +200,7 @@ sixty_fps_times_2_sec = 120
 # Create 10 frames with simple animation
 for i in range(sixty_fps_times_2_sec):
     fake_fb.clear_framebuffer()
-    move: InvertibleFunction[Vector2D] = translate(
+    move: InvertibleFunction[Vector2] = translate(
         0.5 * (np.sin(np.pi / 60.0 * float(i))) * e_2
     )
 

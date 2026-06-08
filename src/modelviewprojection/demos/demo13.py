@@ -25,7 +25,7 @@ import OpenGL.GL as GL
 import modelviewprojection.util.colorutils as colorutils
 from modelviewprojection.mathutils import (
     InvertibleFunction,
-    Vector2D,
+    Vector2,
     compose,
     inverse,
     rotate,
@@ -35,9 +35,7 @@ from modelviewprojection.mathutils import (
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-e_1 = Vector2D.e_1()
-e_2 = Vector2D.e_2()
-zero = Vector2D.zero()
+zero = Vector2.zero()
 
 
 if not glfw.init():
@@ -67,48 +65,48 @@ GL.glLoadIdentity()
 
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector2D]
+    vertices: list[Vector2]
     color: colorutils.Color3
-    position: Vector2D
+    position: Vector2
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        -1 * e_1 + -3 * e_2,
-        e_1 + -3 * e_2,
-        e_1 + 3 * e_2,
-        -1 * e_1 + 3 * e_2,
+        -1 * Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + 3 * Vector2.e_2,
+        -1 * Vector2.e_1 + 3 * Vector2.e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9 * e_1,
+    position=-9 * Vector2.e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -1 * e_1 + -3 * e_2,
-        e_1 + -3 * e_2,
-        e_1 + 3 * e_2,
-        -1 * e_1 + 3 * e_2,
+        -1 * Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + 3 * Vector2.e_2,
+        -1 * Vector2.e_1 + 3 * Vector2.e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9 * e_1,
+    position=9 * Vector2.e_1,
 )
 
 
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector2D = dataclasses.field(default_factory=lambda: zero)
+    position_ws: Vector2 = dataclasses.field(default_factory=lambda: zero)
 
 
 camera: Camera = Camera()
 
 
-square: list[Vector2D] = [
-    -0.5 * e_1 + -0.5 * e_2,
-    0.5 * e_1 + -0.5 * e_2,
-    0.5 * e_1 + 0.5 * e_2,
-    -0.5 * e_1 + 0.5 * e_2,
+square: list[Vector2] = [
+    -0.5 * Vector2.e_1 + -0.5 * Vector2.e_2,
+    0.5 * Vector2.e_1 + -0.5 * Vector2.e_2,
+    0.5 * Vector2.e_1 + 0.5 * Vector2.e_2,
+    -0.5 * Vector2.e_1 + 0.5 * Vector2.e_2,
 ]
 square_rotation: float = 0.0
 # doc-region-begin define variable for square rotation around paddle's center
@@ -128,24 +126,24 @@ def handle_inputs():
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.position_ws += e_2
+        camera.position_ws += Vector2.e_2
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.position_ws -= e_2
+        camera.position_ws -= Vector2.e_2
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.position_ws -= e_1
+        camera.position_ws -= Vector2.e_1
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.position_ws += e_1
+        camera.position_ws += Vector2.e_1
 
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position -= e_2
+        paddle1.position -= Vector2.e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position += e_2
+        paddle1.position += Vector2.e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position -= e_2
+        paddle2.position -= Vector2.e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position += e_2
+        paddle2.position += Vector2.e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -185,7 +183,7 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ndc: InvertibleFunction[Vector2D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector2] = compose(
             [
                 # camera space to NDC
                 uniform_scale(1.0 / 10.0),
@@ -201,16 +199,16 @@ while not glfw.window_should_close(window):
             ]
         )
 
-        paddle1_vector_ndc: Vector2D = ms_to_ndc(p1_v_ms)
+        paddle1_vector_ndc: Vector2 = ms_to_ndc(p1_v_ms)
 
-        GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
+        GL.glVertex2f(paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2)
     GL.glEnd()
 
     # doc-region-begin draw square
     GL.glColor3f(0.0, 0.0, 1.0)
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
-        ms_to_ndc: InvertibleFunction[Vector2D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector2] = compose(
             [
                 # camera space to NDC
                 uniform_scale(1.0 / 10.0),
@@ -227,14 +225,14 @@ while not glfw.window_should_close(window):
                 compose(
                     [
                         rotate(rotation_around_paddle1),
-                        translate(2 * e_1),
+                        translate(2 * Vector2.e_1),
                         rotate(square_rotation),
                     ]
                 ),
             ]
         )
-        square_vector_ndc: Vector2D = ms_to_ndc(ms)
-        GL.glVertex2f(square_vector_ndc.x, square_vector_ndc.y)
+        square_vector_ndc: Vector2 = ms_to_ndc(ms)
+        GL.glVertex2f(square_vector_ndc.coeff_e_1, square_vector_ndc.coeff_e_2)
     GL.glEnd()
     # doc-region-end draw square
 
@@ -242,7 +240,7 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: InvertibleFunction[Vector2D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector2] = compose(
             [
                 # camera space to NDC
                 uniform_scale(1.0 / 10.0),
@@ -258,9 +256,9 @@ while not glfw.window_should_close(window):
             ]
         )
 
-        paddle2_vector_ndc: Vector2D = ms_to_ndc(p2_v_ms)
+        paddle2_vector_ndc: Vector2 = ms_to_ndc(p2_v_ms)
 
-        GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
+        GL.glVertex2f(paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2)
     GL.glEnd()
 
     glfw.swap_buffers(window)

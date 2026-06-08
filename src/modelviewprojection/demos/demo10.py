@@ -25,7 +25,7 @@ import OpenGL.GL as GL
 import modelviewprojection.util.colorutils as colorutils
 from modelviewprojection.mathutils import (
     InvertibleFunction,
-    Vector2D,
+    Vector2,
     compose,
     inverse,
     rotate,
@@ -35,9 +35,7 @@ from modelviewprojection.mathutils import (
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-e_1 = Vector2D.e_1()
-e_2 = Vector2D.e_2()
-zero = Vector2D.zero()
+zero = Vector2.zero()
 
 if not glfw.init():
     sys.exit()
@@ -65,32 +63,32 @@ GL.glLoadIdentity()
 
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector2D]
+    vertices: list[Vector2]
     color: colorutils.Color3
-    position: Vector2D
+    position: Vector2
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        -1 * e_1 + -3 * e_2,
-        e_1 + -3 * e_2,
-        e_1 + 3 * e_2,
-        -1 * e_1 + 3 * e_2,
+        -1 * Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + 3 * Vector2.e_2,
+        -1 * Vector2.e_1 + 3 * Vector2.e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9 * e_1,
+    position=-9 * Vector2.e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -1 * e_1 + -3 * e_2,
-        e_1 + -3 * e_2,
-        e_1 + 3 * e_2,
-        -1 * e_1 + 3 * e_2,
+        -1 * Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + 3 * Vector2.e_2,
+        -1 * Vector2.e_1 + 3 * Vector2.e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9 * e_1,
+    position=9 * Vector2.e_1,
 )
 
 
@@ -99,7 +97,7 @@ paddle2: Paddle = Paddle(
 
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector2D = dataclasses.field(default_factory=lambda: zero)
+    position_ws: Vector2 = dataclasses.field(default_factory=lambda: zero)
     # doc-region-end define camera class
 
 
@@ -111,24 +109,24 @@ def handle_inputs() -> None:
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.position_ws += e_2
+        camera.position_ws += Vector2.e_2
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.position_ws -= e_2
+        camera.position_ws -= Vector2.e_2
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.position_ws -= e_1
+        camera.position_ws -= Vector2.e_1
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.position_ws += e_1
+        camera.position_ws += Vector2.e_1
     # doc-region-end handle inputs
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position -= e_2
+        paddle1.position -= Vector2.e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position += e_2
+        paddle1.position += Vector2.e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position -= e_2
+        paddle2.position -= Vector2.e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position += e_2
+        paddle2.position += Vector2.e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -169,20 +167,20 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ws: InvertibleFunction[Vector2D] = compose(
+        ms_to_ws: InvertibleFunction[Vector2] = compose(
             [translate(paddle1.position), rotate(paddle1.rotation)]
         )
-        paddle1_vector_ws: Vector2D = ms_to_ws(p1_v_ms)
+        paddle1_vector_ws: Vector2 = ms_to_ws(p1_v_ms)
 
-        ws_to_cs: InvertibleFunction[Vector2D] = inverse(
+        ws_to_cs: InvertibleFunction[Vector2] = inverse(
             translate(camera.position_ws)
         )
-        paddle1_vector_cs: Vector2D = ws_to_cs(paddle1_vector_ws)
+        paddle1_vector_cs: Vector2 = ws_to_cs(paddle1_vector_ws)
 
-        cs_to_ndc: InvertibleFunction[Vector2D] = uniform_scale(1.0 / 10.0)
-        paddle1_vector_ndc: Vector2D = cs_to_ndc(paddle1_vector_cs)
+        cs_to_ndc: InvertibleFunction[Vector2] = uniform_scale(1.0 / 10.0)
+        paddle1_vector_ndc: Vector2 = cs_to_ndc(paddle1_vector_cs)
 
-        GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
+        GL.glVertex2f(paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2)
     GL.glEnd()
     # doc-region-end draw paddle 1
 
@@ -191,7 +189,7 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: InvertibleFunction[Vector2D] = compose(
+        ms_to_ndc: InvertibleFunction[Vector2] = compose(
             [
                 # camera space to NDC
                 uniform_scale(1.0 / 10.0),
@@ -207,9 +205,9 @@ while not glfw.window_should_close(window):
             ]
         )
 
-        paddle2_vector_ndc: Vector2D = ms_to_ndc(p2_v_ms)
+        paddle2_vector_ndc: Vector2 = ms_to_ndc(p2_v_ms)
 
-        GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
+        GL.glVertex2f(paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2)
     GL.glEnd()
     # doc-region-end draw paddle 2
 

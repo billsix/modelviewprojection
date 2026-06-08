@@ -24,7 +24,7 @@ from here instead of redefining them.
 
 import math
 
-from modelviewprojection.mathutils import Vector3D, find_normal
+from modelviewprojection.mathutils import Vector3, find_normal
 
 
 def _face_normal(a, b, c) -> tuple[float, float, float]:
@@ -33,7 +33,7 @@ def _face_normal(a, b, c) -> tuple[float, float, float]:
     The cross product of two edges -- computed via
     :func:`modelviewprojection.mathutils.find_normal` -- then normalized.
     """
-    n = find_normal(Vector3D(*a), Vector3D(*b), Vector3D(*c))
+    n = find_normal(Vector3(*a), Vector3(*b), Vector3(*c))
     mag = abs(n)
     return tuple((1.0 / mag) * n) if mag else (0.0, 0.0, 0.0)
 

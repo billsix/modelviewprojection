@@ -28,7 +28,7 @@ import OpenGL.GL as GL
 
 from modelviewprojection import pyMatrixStack as ms
 from modelviewprojection.mathutils import (
-    Vector3D,
+    Vector3,
     rotate_y,
     rotate_z,
     translate,
@@ -54,7 +54,7 @@ class Space(Enum):
 camera_edge = cayleygraph.Edge(
     src=Space.camera,
     dst=Space.world,
-    steps=[("T", translate(Vector3D(-1.5, 2.0, 0.0)))],
+    steps=[("T", translate(Vector3(-1.5, 2.0, 0.0)))],
 )
 
 graph = cayleygraph.CayleyGraph(
@@ -63,7 +63,7 @@ graph = cayleygraph.CayleyGraph(
             src=Space.paddle1,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector3D(-9.0, 1.0, 0.0))),
+                ("T", translate(Vector3(-9.0, 1.0, 0.0))),
                 ("R", rotate_z(math.radians(45.0))),
             ],
         ),
@@ -73,7 +73,7 @@ graph = cayleygraph.CayleyGraph(
             dst=Space.paddle1,
             steps=[
                 ("R1", rotate_z(math.radians(30.0))),
-                ("T_X", translate(Vector3D(1.5, 0.0, 0.0))),
+                ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
                 ("R2", rotate_z(math.radians(90.0))),
             ],
         ),
@@ -81,7 +81,7 @@ graph = cayleygraph.CayleyGraph(
             src=Space.paddle2,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector3D(9.0, 0.5, 0.0))),
+                ("T", translate(Vector3(9.0, 0.5, 0.0))),
                 ("R", rotate_z(math.radians(-20.0))),
             ],
         ),
@@ -172,7 +172,7 @@ def jump(start):
 
 def apply_camera():
     camera_edge.steps[0].fn = translate(
-        Vector3D(cam_pos["x"], cam_pos["y"], cam_pos["z"])
+        Vector3(cam_pos["x"], cam_pos["y"], cam_pos["z"])
     )
 
 

@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.19.1
+#       jupytext_version: 1.19.3
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -46,16 +46,16 @@ import math
 import sympy
 
 from modelviewprojection.mathutils import (
-    Vector1D,
-    Vector2D,
-    Vector3D,
+    Vector1,
+    Vector2,
+    Vector3,
     compose,
     compose_intermediate_fns,
     identity,
     inverse,
 )
 from modelviewprojection.mathutils import rotate as R
-from modelviewprojection.mathutils import scale_non_uniform_2d as S
+from modelviewprojection.mathutils import scale_non_uniform as S
 from modelviewprojection.mathutils import translate as T
 from modelviewprojection.util.nbplotutils import (
     create_basis,
@@ -69,31 +69,31 @@ from modelviewprojection.util.nbplotutils import (
 )
 
 # %%
-T(Vector1D(5))
+T(Vector1(5))
 
 # %%
 S(5, 6)
 
 # %%
-inverse(T(Vector1D(5)))
+inverse(T(Vector1(5)))
 
 # %%
-T(Vector2D(5, 6))
+T(Vector2(5, 6))
 
 # %%
-T(Vector3D(5, 6, 7))
+T(Vector3(5, 6, 7))
 
 # %%
-inverse(T(Vector3D(5, 6, 7)))
+inverse(T(Vector3(5, 6, 7)))
 
 # %%
 R(sympy.pi / 2)
 
 # %%
-compose([R(sympy.pi / 2), T(Vector2D(5, 6))])
+compose([R(sympy.pi / 2), T(Vector2(5, 6))])
 
 # %%
-inverse(compose([R(sympy.pi / 2), T(Vector2D(5, 6))]))
+inverse(compose([R(sympy.pi / 2), T(Vector2(5, 6))]))
 
 # %% [markdown]
 # Draw graph paper
@@ -184,7 +184,7 @@ with create_graphs(graph_bounds=(5, 5)) as axes:
 fn = compose(
     [
         R(sympy.pi / 4),
-        T(Vector2D(x=2.0, y=0.0)),
+        T(Vector2(2.0, 0.0)),
     ]
 )
 with create_graphs() as axes:
@@ -204,7 +204,7 @@ with create_graphs() as axes:
 # units on the left and bottom.
 
 # %%
-for f in compose_intermediate_fns([R(sympy.pi / 4), T(Vector2D(x=2.0, y=0.0))]):
+for f in compose_intermediate_fns([R(sympy.pi / 4), T(Vector2(2.0, 0.0))]):
     # TODO - figure out if I can render the latex as part of one markdown command,
     # if I were to uncomment out this line and other markdown lines,
     # the build of HTML would fail
@@ -231,7 +231,7 @@ for f in compose_intermediate_fns([R(sympy.pi / 4), T(Vector2D(x=2.0, y=0.0))]):
 for f in compose_intermediate_fns(
     [
         R(sympy.pi / 4),
-        T(Vector2D(x=1.0, y=0.0)),
+        T(Vector2(1.0, 0.0)),
     ],
     relative_basis=True,
 ):
@@ -247,10 +247,10 @@ screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
-        T(Vector2D(-0.5, -0.5)),
+        T(Vector2(-0.5, -0.5)),
         S(screen_width, screen_height),
         S(0.5, 0.5),
-        T(Vector2D(x=1.0, y=1.0)),
+        T(Vector2(1.0, 1.0)),
     ],
     relative_basis=False,
 ):
@@ -268,10 +268,10 @@ screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
-        T(Vector2D(-0.5, -0.5)),
+        T(Vector2(-0.5, -0.5)),
         S(screen_width, screen_height),
         S(0.5, 0.5),
-        T(Vector2D(x=1.0, y=1.0)),
+        T(Vector2(1.0, 1.0)),
     ],
     relative_basis=True,
 ):

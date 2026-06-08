@@ -5,7 +5,7 @@
 #       extension: .py
 #       format_name: percent
 #       format_version: '1.3'
-#       jupytext_version: 1.19.1
+#       jupytext_version: 1.19.3
 #   kernelspec:
 #     display_name: Python 3 (ipykernel)
 #     language: python
@@ -62,7 +62,7 @@ from modelviewprojection.framebuffer.softwarerendering import (
     FrameBuffer,
 )
 from modelviewprojection.mathutils import (
-    Vector2D,
+    Vector2,
 )
 
 # turn warnings into exceptions
@@ -70,8 +70,8 @@ warnings.filterwarnings("error", category=RuntimeWarning)
 
 
 # import unit vectors in the x and y direction
-e_1 = Vector2D.e_1()
-e_2 = Vector2D.e_2()
+e_1 = Vector2.e_1
+e_2 = Vector2.e_2
 
 # %% [markdown]
 # Make a framebuffer, which is just a rectangular region of

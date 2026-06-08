@@ -21,7 +21,7 @@ import glfw
 
 from modelviewprojection import pyMatrixStack as ms
 from modelviewprojection.mathutils import (
-    Vector3D,
+    Vector3,
     rotate_z,
     translate,
 )
@@ -58,7 +58,7 @@ paddle1_edge = cayleygraph.Edge(
     src=Space.paddle1,
     dst=Space.world,
     steps=[
-        ("T", translate(Vector3D(params["p1x"], params["p1y"], 0.0))),
+        ("T", translate(Vector3(params["p1x"], params["p1y"], 0.0))),
         ("R_z", rotate_z(params["p1rot"])),
     ],
 )
@@ -67,9 +67,9 @@ square_edge = cayleygraph.Edge(
     src=Space.square,
     dst=Space.paddle1,
     steps=[
-        ("T_-Z", translate(Vector3D(0.0, 0.0, -0.5))),
+        ("T_-Z", translate(Vector3(0.0, 0.0, -0.5))),
         ("R_around", rotate_z(params["around"])),
-        ("T_X", translate(Vector3D(1.5, 0.0, 0.0))),
+        ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
         ("R_sq", rotate_z(params["sqrot"])),
     ],
 )
@@ -77,7 +77,7 @@ paddle2_edge = cayleygraph.Edge(
     src=Space.paddle2,
     dst=Space.world,
     steps=[
-        ("T", translate(Vector3D(params["p2x"], params["p2y"], 0.0))),
+        ("T", translate(Vector3(params["p2x"], params["p2y"], 0.0))),
         ("R_z", rotate_z(params["p2rot"])),
     ],
 )
@@ -100,13 +100,13 @@ def sync_steps():
     """Rewrite the mutable steps in place from the live ``params`` (structure
     stays immutable; only each step's function changes)."""
     paddle1_edge.steps[0].fn = translate(
-        Vector3D(params["p1x"], params["p1y"], 0.0)
+        Vector3(params["p1x"], params["p1y"], 0.0)
     )
     paddle1_edge.steps[1].fn = rotate_z(params["p1rot"])
     square_edge.steps[1].fn = rotate_z(params["around"])
     square_edge.steps[3].fn = rotate_z(params["sqrot"])
     paddle2_edge.steps[0].fn = translate(
-        Vector3D(params["p2x"], params["p2y"], 0.0)
+        Vector3(params["p2x"], params["p2y"], 0.0)
     )
     paddle2_edge.steps[1].fn = rotate_z(params["p2rot"])
 

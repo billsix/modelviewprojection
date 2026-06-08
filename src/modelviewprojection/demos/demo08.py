@@ -25,7 +25,7 @@ import OpenGL.GL as GL
 import modelviewprojection.util.colorutils as colorutils
 from modelviewprojection.mathutils import (
     InvertibleFunction,
-    Vector2D,
+    Vector2,
     compose,
     rotate_around,
     translate,
@@ -34,8 +34,6 @@ from modelviewprojection.mathutils import (
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-e_1 = Vector2D.e_1()
-e_2 = Vector2D.e_2()
 
 if not glfw.init():
     sys.exit()
@@ -64,32 +62,32 @@ GL.glLoadIdentity()
 
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector2D]
+    vertices: list[Vector2]
     color: colorutils.Color3
-    position: Vector2D
+    position: Vector2
     rotation: float = 0.0
 
 
 paddle1: Paddle = Paddle(
     vertices=[
-        -1 * e_1 + -3 * e_2,
-        e_1 + -3 * e_2,
-        e_1 + 3 * e_2,
-        -1 * e_1 + 3 * e_2,
+        -1 * Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + 3 * Vector2.e_2,
+        -1 * Vector2.e_1 + 3 * Vector2.e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9 * e_1,
+    position=-9 * Vector2.e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -1 * e_1 + -3 * e_2,
-        e_1 + -3 * e_2,
-        e_1 + 3 * e_2,
-        -1 * e_1 + 3 * e_2,
+        -1 * Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + -3 * Vector2.e_2,
+        Vector2.e_1 + 3 * Vector2.e_2,
+        -1 * Vector2.e_1 + 3 * Vector2.e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9 * e_1,
+    position=9 * Vector2.e_1,
 )
 
 
@@ -97,13 +95,13 @@ def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position -= e_2
+        paddle1.position -= Vector2.e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position += e_2
+        paddle1.position += Vector2.e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position -= e_2
+        paddle2.position -= Vector2.e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position += e_2
+        paddle2.position += Vector2.e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -144,17 +142,17 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle1.color))
 
     GL.glBegin(GL.GL_QUADS)
-    rotatePoint: Vector2D = paddle1.position
+    rotatePoint: Vector2 = paddle1.position
     for p1_v_ms in paddle1.vertices:
-        fn: InvertibleFunction[Vector2D] = compose(
+        fn: InvertibleFunction[Vector2] = compose(
             [
                 uniform_scale(1.0 / 10.0),
                 rotate_around(paddle1.rotation, rotatePoint),
                 translate(paddle1.position),
             ]
         )
-        paddle1_vector_ndc: Vector2D = fn(p1_v_ms)
-        GL.glVertex2f(paddle1_vector_ndc.x, paddle1_vector_ndc.y)
+        paddle1_vector_ndc: Vector2 = fn(p1_v_ms)
+        GL.glVertex2f(paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2)
         # doc-region-end draw paddle 1
     GL.glEnd()
 
@@ -163,17 +161,17 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle2.color))
 
     GL.glBegin(GL.GL_QUADS)
-    rotatePoint: Vector2D = paddle2.position
+    rotatePoint: Vector2 = paddle2.position
     for p2_v_ms in paddle2.vertices:
-        fn: InvertibleFunction[Vector2D] = compose(
+        fn: InvertibleFunction[Vector2] = compose(
             [
                 uniform_scale(1.0 / 10.0),
                 rotate_around(paddle2.rotation, rotatePoint),
                 translate(paddle2.position),
             ]
         )
-        paddle2_vector_ndc: Vector2D = fn(p2_v_ms)
-        GL.glVertex2f(paddle2_vector_ndc.x, paddle2_vector_ndc.y)
+        paddle2_vector_ndc: Vector2 = fn(p2_v_ms)
+        GL.glVertex2f(paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2)
     GL.glEnd()
     # doc-region-end draw paddle 2
 

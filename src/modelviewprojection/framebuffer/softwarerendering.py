@@ -24,16 +24,15 @@ import PIL
 import PIL.Image
 
 from modelviewprojection.mathutils import (
-    Vector2D,
+    Vector2,
     compose,
+    is_clockwise,
     is_counter_clockwise,
     is_parallel,
-    scale_non_uniform_2d,
+    scale_non_uniform,
     translate,
 )
 
-e_1 = Vector2D.e_1()
-e_2 = Vector2D.e_2()
 
 
 BLACK: typing.Tuple[int, int, int] = (0, 0, 0)
@@ -71,24 +70,24 @@ class FrameBuffer:
         """Fill the framebuffer with the given color."""
         self._framebuffer[:, :] = self.clear_color
 
-    def screenspace_to_framebuffer(self, v: Vector2D) -> Vector2D:
+    def screenspace_to_framebuffer(self, v: Vector2) -> Vector2:
         """Convert from OpenGL-style coords to framebuffer array coords."""
         ss_to_fb = compose(
             [
-                translate((self.height - 1) * e_2),
-                scale_non_uniform_2d(m_x=1, m_y=-1),
+                translate((self.height - 1) * Vector2.e_2),
+                scale_non_uniform(1, -1),
             ]
         )
         return ss_to_fb(v)
 
-    def set_color(self, v: Vector2D, color: typing.Tuple[int, int, int]):
-        self._framebuffer[int(round(v.y)), int(round(v.x))] = color
+    def set_color(self, v: Vector2, color: typing.Tuple[int, int, int]):
+        self._framebuffer[int(round(v.coeff_e_2)), int(round(v.coeff_e_1))] = color
 
     def draw_filled_triangle(
         self,
-        p1: Vector2D,
-        p2: Vector2D,
-        p3: Vector2D,
+        p1: Vector2,
+        p2: Vector2,
+        p3: Vector2,
         color=(255, 255, 255),
     ):
         """
@@ -112,33 +111,34 @@ class FrameBuffer:
         min_y: int = max(int(min(y1, y2, y3)), 0)
         max_y: int = min(int(max(y1, y2, y3)), self.height - 1)
 
-        v1: Vector2D = x1 * e_1 + y1 * e_2
-        v2: Vector2D = x2 * e_1 + y2 * e_2
-        v3: Vector2D = x3 * e_1 + y3 * e_2
+        v1: Vector2 = x1 * Vector2.e_1 + y1 * Vector2.e_2
+        v2: Vector2 = x2 * Vector2.e_1 + y2 * Vector2.e_2
+        v3: Vector2 = x3 * Vector2.e_1 + y3 * Vector2.e_2
 
-        try:
-            if is_parallel(v2 - v1, v3 - v2):
-                return  # Degenerate triangle
-        except RuntimeWarning:
-            # if any of the Vectors are 0, nothing to do with that pixel
-            pass
+        # a zero-length edge (coincident vertices) or collinear vertices give a
+        # zero-area triangle -- is_parallel now answers True for those instead of
+        # dividing by zero
+        if is_parallel(v2 - v1, v3 - v2):
+            return  # degenerate triangle
 
         # Loop over bounding box
         for y in range(min_y, max_y + 1):
             for x in range(min_x, max_x + 1):
-                pixel_position: Vector2D = x * e_1 + y * e_2
-                try:
-                    counter_clockwise_values: list[bool] = [
-                        is_counter_clockwise(v2 - v1, pixel_position - v1),
-                        is_counter_clockwise(v3 - v2, pixel_position - v2),
-                        is_counter_clockwise(v1 - v3, pixel_position - v3),
-                    ]
+                pixel_position: Vector2 = x * Vector2.e_1 + y * Vector2.e_2
+                counter_clockwise_values: list[bool] = [
+                    is_counter_clockwise(v2 - v1, pixel_position - v1),
+                    is_counter_clockwise(v3 - v2, pixel_position - v2),
+                    is_counter_clockwise(v1 - v3, pixel_position - v3),
+                ]
+                clockwise_values: list[bool] = [
+                    is_clockwise(v2 - v1, pixel_position - v1),
+                    is_clockwise(v3 - v2, pixel_position - v2),
+                    is_clockwise(v1 - v3, pixel_position - v3),
+                ]
 
-                    # If the signs match the triangle area, pixel is inside
-                    if all(counter_clockwise_values) or not any(
-                        counter_clockwise_values
-                    ):
-                        self.set_color(x * e_1 + y * e_2, color)
-                except RuntimeWarning:
-                    # if any of the Vectors are 0, nothing to do with that pixel
-                    pass
+                # Inside (or on the boundary) when the pixel is on the same side
+                # of every edge.  A pixel exactly on an edge or vertex has a zero
+                # cross there -- counted as both CCW and CW -- so it is lit for
+                # either winding, vertices included.
+                if all(counter_clockwise_values) or all(clockwise_values):
+                    self.set_color(x * Vector2.e_1 + y * Vector2.e_2, color)
