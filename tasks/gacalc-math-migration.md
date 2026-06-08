@@ -26,9 +26,24 @@
   - **gacalc-side follow-up:** restored `InvertibleFunction` as `Generic[V]`
     (bound to `AbstractMultiVector`) — it had been generic in mvp but gacalc's
     plainer version wasn't; `InvertibleFunction[Vector2]/[Vector3]` annotate again.
-- **NOT yet done:** Phase 2 (migrate call sites — demos/visualizations/util/
-  notebooks/assignment/ports/tests still import the deleted `Vector2D`/`Vector3D`
-  and are expected to be red until migrated) and Phase 4 (book rewrite).
+- **2026-06-08 — Phase 2 (call-site migration) STARTED; ports phase DONE.**
+  - **Key idiom finding:** gacalc `Vector3` takes **positional** args, so
+    `Vector3D(x, y, z)` → `Vector3(x, y, z)` is a straight rename; `.x/.y/.z` →
+    `.coeff_e_1/2/3`. `find_normal`/`plane_equation` already return gacalc
+    `Vector3`. So the port migration was mechanical (rename + attribute swap),
+    no construction helper needed.
+  - **All 13 SuperBible ports migrated** (chapt01 block; chapt05
+    litjet/shinyjet/shadow/sphereworld; chapt06 fogged/multisample/sphereworld;
+    chapt08 pyramid/sphereworld; chapt09/11 sphereworld; chapt19 SphereWorld32) —
+    every `.x/.y/.z` was on a vector (`plane_normal`/`pn`/vertices), so no
+    non-vector clobbering. Zero `Vector3D`/`.x/.y/.z` leftovers; all `py_compile`
+    clean. (GL run-verification is Bill's — the venv has no glfw/GL.)
+- **NOT yet done (Phase 2 remainder):** 14 demos, 9 visualizations, 2 util,
+  3 notebooksrc, 1 assignment, 3 tests — these still import the deleted
+  `Vector2D`/`Vector3D` and need the same rename + `.x/.y/.z`→`.coeff_e_*` sweep
+  (the demos also construct via `e_1()`/scaled-sum, which needs the gacalc
+  `Vector2.e_1` class-constant idiom). Plus **Phase 4** (rewrite ch05/06/14 on
+  gacalc).
 
 ## Goal
 

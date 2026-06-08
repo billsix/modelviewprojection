@@ -18,7 +18,7 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-from modelviewprojection.mathutils import Vector3D, plane_equation
+from modelviewprojection.mathutils import Vector3, plane_equation
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
@@ -50,7 +50,7 @@ y_rot: float = 0.0
 
 
 def make_planar_shadow_matrix(
-    plane_normal: Vector3D,
+    plane_normal: Vector3,
     plane_d: float,
     light_pos_4: "tuple[float, float, float, float]",
 ) -> "np.ndarray":
@@ -60,7 +60,7 @@ def make_planar_shadow_matrix(
     perspective divide and the shadow disappears. Negate the matrix
     when needed to keep w positive. See
     plans/notes-planar-shadow-w-clipping.md."""
-    a, b, c = plane_normal.x, plane_normal.y, plane_normal.z
+    a, b, c = plane_normal.coeff_e_1, plane_normal.coeff_e_2, plane_normal.coeff_e_3
     d = plane_d
     dx = -light_pos_4[0]
     dy = -light_pos_4[1]
@@ -174,9 +174,9 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_LIGHT0)
 
     # Ground plane equation -- three CCW-wound points on y = -0.4
-    p1 = Vector3D(0.0, -0.4, 0.0)
-    p2 = Vector3D(10.0, -0.4, 0.0)
-    p3 = Vector3D(5.0, -0.4, -5.0)
+    p1 = Vector3(0.0, -0.4, 0.0)
+    p2 = Vector3(10.0, -0.4, 0.0)
+    p3 = Vector3(5.0, -0.4, -5.0)
     plane_normal, plane_d = plane_equation(p1, p2, p3)
     shadow_mat = make_planar_shadow_matrix(plane_normal, plane_d, f_light_pos)
 

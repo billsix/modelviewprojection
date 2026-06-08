@@ -17,7 +17,7 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-from modelviewprojection.mathutils import Vector3D, plane_equation
+from modelviewprojection.mathutils import Vector3, plane_equation
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
@@ -42,11 +42,11 @@ fog_enabled: bool = True
 
 
 def make_planar_shadow_matrix(
-    plane_normal: Vector3D,
+    plane_normal: Vector3,
     plane_d: float,
     light_pos_4: "tuple[float, float, float, float]",
 ) -> "np.ndarray":
-    a, b, c = plane_normal.x, plane_normal.y, plane_normal.z
+    a, b, c = plane_normal.coeff_e_1, plane_normal.coeff_e_2, plane_normal.coeff_e_3
     d = plane_d
     dx, dy, dz = -light_pos_4[0], -light_pos_4[1], -light_pos_4[2]
     # CCW plane_equation can land w<0; OpenGL clips before perspective
@@ -211,8 +211,8 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_LIGHTING)
     GL.glEnable(GL.GL_LIGHT0)
 
-    p1, p2, p3 = (Vector3D(0.0, -0.4, 0.0), Vector3D(10.0, -0.4, 0.0),
-                  Vector3D(5.0, -0.4, -5.0))
+    p1, p2, p3 = (Vector3(0.0, -0.4, 0.0), Vector3(10.0, -0.4, 0.0),
+                  Vector3(5.0, -0.4, -5.0))
     plane_normal, plane_d = plane_equation(p1, p2, p3)
     shadow_mat = make_planar_shadow_matrix(plane_normal, plane_d, f_light_pos)
 

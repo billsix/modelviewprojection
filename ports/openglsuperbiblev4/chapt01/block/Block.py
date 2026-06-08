@@ -21,7 +21,7 @@ import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-from modelviewprojection.mathutils import Vector3D, plane_equation
+from modelviewprojection.mathutils import Vector3, plane_equation
 
 
 STAGE_LABELS = (
@@ -48,9 +48,9 @@ v_light_pos = (-80.0, 120.0, 100.0, 0.0)
 # Three points defining the ground plane (used to derive the plane
 # equation for the planar-shadow projection)
 ground = [
-    Vector3D(0.0, -25.0, 0.0),
-    Vector3D(10.0, -25.0, 0.0),
-    Vector3D(10.0, -25.0, -10.0),
+    Vector3(0.0, -25.0, 0.0),
+    Vector3(10.0, -25.0, 0.0),
+    Vector3(10.0, -25.0, -10.0),
 ]
 
 textures = [0, 0, 0, 0]
@@ -74,7 +74,7 @@ _window = None  # set in main(); used by the Controls buttons
 # ---------------------------------------------------------------------------
 
 def make_planar_shadow_matrix(
-    plane_normal: Vector3D,
+    plane_normal: Vector3,
     plane_d: float,
     light_pos: "tuple[float, float, float, float]",
 ) -> "np.ndarray":
@@ -92,7 +92,7 @@ def make_planar_shadow_matrix(
     CW winding so w lands positive; mvp's plane_equation uses CCW so
     w lands negative and the shadow gets clipped away. We negate the
     whole matrix when needed to keep w positive."""
-    a, b, c = plane_normal.x, plane_normal.y, plane_normal.z
+    a, b, c = plane_normal.coeff_e_1, plane_normal.coeff_e_2, plane_normal.coeff_e_3
     d = plane_d
     dx, dy, dz = -light_pos[0], -light_pos[1], -light_pos[2]
     sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
