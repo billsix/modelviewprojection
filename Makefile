@@ -131,11 +131,13 @@ html: image ## Build the html from the sphinx source
                 $(CONTAINER_NAME)
 
 
-image-export: ## export the OCI image
-	podman save $(CONTAINER_NAME) -o $(CONTAINER_NAME)-$(shell date +%m-%d-%Y_%H-%M-%S).tar
+.PHONY: image-export
+image-export: ## export the OCI image to a timestamped tar in the repo root
+	$(CONTAINER_CMD) save $(CONTAINER_NAME) -o $(CONTAINER_NAME)-$(shell date +%m-%d-%Y_%H-%M-%S).tar
 
-image-import: ## import the OCI image, "make image-import FILE=foo.tar"
-	podman load -i $(FILE)
+.PHONY: image-import
+image-import: ## import an OCI image tar: make image-import FILE=foo.tar
+	$(CONTAINER_CMD) load -i $(FILE)
 
 
 .PHONY: help
