@@ -1,6 +1,6 @@
 # mvpViz demos fail when focusing on an object — root cause + fix plan
 
-**Status:** root cause CONFIRMED (reproduces on released gacalc 0.0.3) — fix not yet applied
+**Status:** mvp fix APPLIED + verified (full suite green); gacalc-side fix still pending (separate task)
 **Created:** 2026-06-13
 
 ## Symptom
@@ -54,13 +54,13 @@ The matrix passed to `np.linalg.inv` is **`dtype=object`**, because its entries 
 
 Two layers; recommend doing the mvp one now and the gacalc one as the proper fix.
 
-- [ ] **Immediate (mvp) — coerce to float at the numpy boundary.** In
-      `cayleyscene.to_matrix` build the array as float (`np.array([...], dtype=float)`,
-      or wrap each `coeff_*` in `float(...)`), and the same in
-      `CameraControls.apply` (`cayleyscene.py:71`) and anywhere else a gacalc
-      coefficient feeds numpy/GL. mvp already uses `float(...)` at some GL
-      boundaries (e.g. `mathutils.py:265`) — extend that consistently. This
-      unblocks the demos regardless of what gacalc returns.
+- [x] **Immediate (mvp) — coerce to float at the numpy boundary.** DONE:
+      `cayleyscene.to_matrix` now builds `np.array([...], dtype=float)`
+      (`cayleyscene.py:~437`). That was the one object-dtype source feeding
+      `np.linalg.inv` (all `_pipeline.py` matrices already pass `dtype=np.float32`).
+      `CameraControls.apply` (`cayleyscene.py:71`) builds no array itself — its
+      rotations' sympy flows through `to_matrix`, now covered. Verified: focus
+      matrix is `float64`, `np.linalg.inv` succeeds (round-trip err ~2e-16).
 - [ ] **Proper (gacalc) — keep numeric magnitudes numeric.** Make `magnitude()` /
       the rotor path return a Python float for numeric input instead of always
       `sympy.sqrt` → sympy. Tracked on the gacalc side as
@@ -75,11 +75,18 @@ Two layers; recommend doing the mvp one now and the gacalc one as the proper fix
 > from gacalc's internal numeric-vs-symbolic policy. The gacalc fix is
 > complementary, not a replacement — so **fix mvp first (this unblocks the demos),
 > then gacalc later, and do not revert the mvp change when gacalc lands.**
-- [ ] **Re-verify** every mvpViz demo's focus + camera path (esp.
-      modelviewperspectiveprojection / modelvieworthoprojection, which invert
-      matrices) after the fix.
-- [ ] **Regression guard.** Add a headless test: build a `rotate_z`-containing focus
-      path, `to_matrix`, assert `dtype == float` and that `np.linalg.inv` succeeds.
+- [x] **Re-verify.** DONE: full mvp suite green (`pytest` → 55 passed). Also fixed
+      two **pre-existing** failures in `tests/test_cayley_scene.py`
+      (`test_to_matrix_realizes_affine_function`,
+      `test_to_matrix_of_engine_transform_matches_point_application`) — they were
+      already broken before this change (confirmed against the committed
+      `to_matrix`): their assertion built `np.allclose(..., [want.coeff_e_1, …])`
+      from the **sympy** `want` side, so `np.allclose` raised `isfinite`. Now the
+      expected coeffs are wrapped in `float(...)`. (Real-display run of the GL
+      demos still wants a human check on Bill's host.)
+- [x] **Regression guard.** DONE: `tests/test_focus_to_matrix.py` builds a
+      `rotate_z` focus path, asserts the matrix is `float64`, and that
+      `np.linalg.inv` succeeds.
 - [ ] **Sub-item (separate):** when gacalc releases the base-class rename, update
       mvp `mathutils.py` (`AbstractMultiVector` → `MultiVectorBase`, lines
       41/62/103/105) and bump the `gacalc>=` pin together.
