@@ -15,6 +15,7 @@ mechanisms."""
 
 import math
 import os
+import typing
 from enum import Enum, auto
 
 import glfw
@@ -174,7 +175,7 @@ standard_objects = cayley_gl.build_standard(
     frustum=cayley_gl.Frustum(),
 )
 
-state = {
+state: dict[str, typing.Any] = {
     "time": 0.0,
     "speed": 1.0,
     "paused": False,
@@ -290,23 +291,25 @@ def imgui_menubar():
         cayley_gl.menu_action("Right (+X cam)", "D", _cam_right)
         imgui.separator()
         fr_changed = False
-        c, standard_objects.frustum.field_of_view = imgui.slider_float(
-            "Frustum FOV", standard_objects.frustum.field_of_view, 5.0, 120.0
+        fr = standard_objects.frustum
+        assert fr is not None  # this scene always has a perspective frustum
+        c, fr.field_of_view = imgui.slider_float(
+            "Frustum FOV", fr.field_of_view, 5.0, 120.0
         )
         fr_changed = fr_changed or c
-        c, standard_objects.frustum.aspect_ratio = imgui.slider_float(
-            "Frustum Aspect", standard_objects.frustum.aspect_ratio, 0.1, 3.0
+        c, fr.aspect_ratio = imgui.slider_float(
+            "Frustum Aspect", fr.aspect_ratio, 0.1, 3.0
         )
         fr_changed = fr_changed or c
-        c, standard_objects.frustum.near_z = imgui.slider_float(
-            "Frustum near_z", standard_objects.frustum.near_z, -200.0, -1.0
+        c, fr.near_z = imgui.slider_float(
+            "Frustum near_z", fr.near_z, -200.0, -1.0
         )
         fr_changed = fr_changed or c
-        c, standard_objects.frustum.far_z = imgui.slider_float(
+        c, fr.far_z = imgui.slider_float(
             "Frustum far_z",
-            standard_objects.frustum.far_z,
-            standard_objects.frustum.near_z,
-            standard_objects.frustum.near_z - 500.0,
+            fr.far_z,
+            fr.near_z,
+            fr.near_z - 500.0,
         )
         fr_changed = fr_changed or c
         if fr_changed:

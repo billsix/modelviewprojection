@@ -307,7 +307,7 @@ def main():
                     matplotlib.ticker.MultipleLocator(1)
                 )
                 fig.canvas.draw()
-                np.array(fig.canvas.renderer.buffer_rgba())
+                np.array(fig.canvas.renderer.buffer_rgba())  # ty: ignore[unresolved-attribute]
                 yield fig
 
         # create a single frame

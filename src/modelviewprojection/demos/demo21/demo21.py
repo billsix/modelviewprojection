@@ -234,7 +234,7 @@ class AttribSpec:
     layout: tuple[int, int]  # (stride_bytes, offset_bytes)
 
 
-def make_vbo(data: NDArray, usage: int = GL.GL_STATIC_DRAW) -> int:
+def make_vbo(data: NDArray, usage: int = GL.GL_STATIC_DRAW) -> int:  # ty: ignore[invalid-parameter-default]
     """Allocate a VBO and upload ``data``.  Touches no VAO state."""
     data = np.ascontiguousarray(data, dtype=np.float32)
     vbo = GL.glGenBuffers(1)

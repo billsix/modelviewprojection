@@ -88,9 +88,25 @@ class Edge(typing.Generic[N]):
     steps: typing.Tuple[Step, ...]
     realization: str = "cpu"
 
-    def __post_init__(self):
-        norm = tuple(s if isinstance(s, Step) else Step(*s) for s in self.steps)
-        object.__setattr__(self, "steps", norm)
+    def __init__(
+        self,
+        src: N,
+        dst: N,
+        steps: typing.Sequence[Step | typing.Tuple[str, InvertibleFunction]],
+        realization: str = "cpu",
+    ) -> None:
+        # ``steps`` accepts Step objects or (label, fn) pairs; both coerce to a
+        # tuple of Step.  A custom __init__ (rather than __post_init__) lets the
+        # stored ``steps`` field stay typed tuple[Step, ...] for readers while the
+        # constructor accepts the broader input.  (frozen -> object.__setattr__.)
+        object.__setattr__(self, "src", src)
+        object.__setattr__(self, "dst", dst)
+        object.__setattr__(
+            self,
+            "steps",
+            tuple(s if isinstance(s, Step) else Step(*s) for s in steps),
+        )
+        object.__setattr__(self, "realization", realization)
 
     def function(self) -> InvertibleFunction:
         """The edge as a single src->dst :class:`InvertibleFunction`."""
@@ -229,7 +245,9 @@ class CayleyGraph(typing.Generic[N]):
         route: typing.List[typing.Tuple[Edge, bool]] = []
         cur = b
         while prev[cur] is not None:
-            parent, edge, forward = prev[cur]  # type: ignore[misc]
+            step = prev[cur]
+            assert step is not None
+            parent, edge, forward = step
             route.append((edge, forward))
             cur = parent
         route.reverse()

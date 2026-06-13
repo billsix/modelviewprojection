@@ -43,6 +43,9 @@ from modelviewprojection.mathutils import (
 )
 from modelviewprojection.mvpvisualization import cayleygraph
 
+#: node-id type for a scene's coordinate spaces (an Enum member, typically)
+N = typing.TypeVar("N")
+
 DEFAULT_STEP_DURATION = 5.0
 
 
@@ -87,13 +90,13 @@ def interp(time: float, start: float, dur: float) -> float:
 
 
 @dataclasses.dataclass
-class CoordinateFrame:
+class CoordinateFrame(typing.Generic[N]):
     """One node placed in the scene: which space, its parent, the geometry to
     draw there (an opaque handle the demo's draw code understands; ``None`` for
     a pure coordinate frame), and an optional pause before its edge animates."""
 
-    space: typing.Any
-    parent: typing.Any
+    space: N
+    parent: N
     geometry: typing.Any = None
     dwell_before: float = 0.0
     #: keep a grayed-out axis at this node's frame after it is built (for a pure
@@ -103,13 +106,13 @@ class CoordinateFrame:
 
 
 @dataclasses.dataclass
-class InverseOperations:
+class InverseOperations(typing.Generic[N]):
     """A toward-NDC CPU segment: walk the path ``from_space -> to_space`` (e.g.
     world -> camera), animating each substep -- against-arrow edges invert
     automatically.  This is the world transforming into camera space."""
 
-    from_space: typing.Any
-    to_space: typing.Any
+    from_space: N
+    to_space: N
     group_title: str = ""
     dwell_before: float = 0.0
 
@@ -126,14 +129,14 @@ class NonInvertibleTransformation:
 
 
 @dataclasses.dataclass
-class Scene:
+class Scene(typing.Generic[N]):
     """A graph, an ordered list of coordinate_frames (the object-placement tree), and
     an ordered list of toward-NDC operations (CPU inverse + GPU)."""
 
-    graph: cayleygraph.CayleyGraph
-    root: typing.Any
-    coordinate_frames: typing.List[CoordinateFrame]
-    to_ndc: typing.List[InverseOperations | NonInvertibleTransformation] = (
+    graph: cayleygraph.CayleyGraph[N]
+    root: N
+    coordinate_frames: typing.List[CoordinateFrame[N]]
+    to_ndc: typing.List[InverseOperations[N] | NonInvertibleTransformation] = (
         dataclasses.field(default_factory=list)
     )
     step_duration: float = DEFAULT_STEP_DURATION
@@ -195,12 +198,12 @@ class GuiGroup:
     children: typing.List["GuiGroup"] = dataclasses.field(default_factory=list)
 
 
-class Timeline:
+class Timeline(typing.Generic[N]):
     """Assigns every substep a ``(start, dur)`` slot by walking the coordinate_frames
     then the to_ndc operations in order (accumulating ``dwell_before`` + the step
     durations), and answers per-node lifecycle questions."""
 
-    def __init__(self, scene: Scene) -> None:
+    def __init__(self, scene: Scene[N]) -> None:
         self.scene = scene
         self.steps: typing.List[TimedStep] = []  # placement substeps
         self.inverse_tracks: typing.List[
@@ -208,7 +211,7 @@ class Timeline:
         ] = []  # CPU inverse operations
         self.gpu_steps: typing.List[GpuStep] = []
         self._slot: typing.Dict[int, typing.Tuple[float, float]] = {}
-        self._window: typing.Dict[typing.Any, typing.Tuple[float, float]] = {}
+        self._window: typing.Dict[N, typing.Tuple[float, float]] = {}
 
         dur = scene.step_duration
         t = 0.0
@@ -263,32 +266,32 @@ class Timeline:
 
     # --- node lifecycle (the default geometry-reveal policy) ----------------
 
-    def built_time(self, space: str) -> float:
+    def built_time(self, space: N) -> float:
         return self._window.get(space, (0.0, 0.0))[1]
 
-    def arrival_time(self, space: str) -> float:
+    def arrival_time(self, space: N) -> float:
         return self._window.get(space, (0.0, 0.0))[0]
 
-    def axis_visible(self, space: str, time: float) -> bool:
+    def axis_visible(self, space: N, time: float) -> bool:
         start, end = self._window.get(space, (0.0, 0.0))
         return start <= time < end
 
-    def geometry_visible(self, space: str, time: float) -> bool:
+    def geometry_visible(self, space: N, time: float) -> bool:
         return time >= self.built_time(space)
 
 
-class Animation:
+class Animation(typing.Generic[N]):
     """Evaluates a :class:`Scene`/:class:`Timeline` at a given frame time."""
 
     def __init__(
-        self, scene: Scene, timeline: typing.Optional[Timeline] = None
+        self, scene: Scene[N], timeline: typing.Optional[Timeline[N]] = None
     ):
         self.scene = scene
         self.timeline = timeline or Timeline(scene)
 
     # --- object placement ---------------------------------------------------
 
-    def transform(self, space: str, time: float) -> InvertibleFunction:
+    def transform(self, space: N, time: float) -> InvertibleFunction:
         """Live ``space``-modelspace -> root transform at ``time``.
 
         Composes edge-by-edge; each substep at its own local ``t``, so a nested
@@ -308,10 +311,10 @@ class Animation:
             return identity()
         return compose(list(reversed(edge_fns)))
 
-    def axis_visible(self, space: str, time: float) -> bool:
+    def axis_visible(self, space: N, time: float) -> bool:
         return self.timeline.axis_visible(space, time)
 
-    def geometry_visible(self, space: str, time: float) -> bool:
+    def geometry_visible(self, space: N, time: float) -> bool:
         return self.timeline.geometry_visible(space, time)
 
     # --- toward-NDC tail ----------------------------------------------------
@@ -352,7 +355,7 @@ class Animation:
         """Tree 1 ("From World Space, Against Arrows, Read Bottom Up"): a group
         per placement (``space->parent``) with its substeps as buttons in edge
         order, nested by parent.  Returns the top-level groups."""
-        groups: typing.Dict[str, GuiGroup] = {}
+        groups: typing.Dict[N, GuiGroup] = {}
         tops: typing.List[GuiGroup] = []
         for placement in self.scene.coordinate_frames:
             buttons = [

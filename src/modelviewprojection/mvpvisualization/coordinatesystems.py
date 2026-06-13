@@ -15,6 +15,7 @@ against the placement arrows, the inverse).  No camera object is drawn."""
 
 import math
 import os
+import typing
 from enum import Enum, auto
 
 import glfw
@@ -122,7 +123,11 @@ cayley_gl.install_scroll(window, imguiio, camera)
 pwd = os.path.dirname(os.path.abspath(__file__))
 standard_objects = cayley_gl.build_standard(shader_dir=pwd, animated=False)
 
-state = {"mouse": None, "line_width": 2.0, "center_on": None}
+state: dict[str, typing.Any] = {
+    "mouse": None,
+    "line_width": 2.0,
+    "center_on": None,
+}
 win_state = cayley_gl.WindowState()
 
 

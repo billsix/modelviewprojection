@@ -34,7 +34,7 @@ class MatrixStack(enum.Enum):
     modelviewprojection = 5
 
 
-__modelStack__: list[np.matrix] = [
+__modelStack__: list[np.ndarray] = [
     np.matrix(
         [
             [1.0, 0.0, 0.0, 0.0],
@@ -46,7 +46,7 @@ __modelStack__: list[np.matrix] = [
     )
 ]
 
-__viewStack__: list[np.matrix] = [
+__viewStack__: list[np.ndarray] = [
     np.matrix(
         [
             [1.0, 0.0, 0.0, 0.0],
@@ -58,7 +58,7 @@ __viewStack__: list[np.matrix] = [
     )
 ]
 
-__projectionStack__: list[np.matrix] = [
+__projectionStack__: list[np.ndarray] = [
     np.matrix(
         [
             [1.0, 0.0, 0.0, 0.0],
@@ -71,7 +71,7 @@ __projectionStack__: list[np.matrix] = [
 ]
 
 
-def get_current_matrix(matrixStack: MatrixStack) -> np.matrix:
+def get_current_matrix(matrixStack: MatrixStack) -> np.ndarray:
     if matrixStack == MatrixStack.model:
         return __modelStack__[-1]
     if matrixStack == MatrixStack.view:
@@ -93,7 +93,7 @@ def get_current_matrix(matrixStack: MatrixStack) -> np.matrix:
         )
 
 
-def set_current_matrix(matrixStack: MatrixStack, m: np.matrix) -> None:
+def set_current_matrix(matrixStack: MatrixStack, m: np.ndarray) -> None:
     if matrixStack == MatrixStack.model:
         __modelStack__[-1] = m
     if matrixStack == MatrixStack.view:
@@ -360,7 +360,7 @@ def scale(matrixStack: MatrixStack, x: float, y: float, z: float):
     m[3, 2] = m[3, 2] * z
 
 
-def multiply(matrixStack: MatrixStack, rhs: np.matrix):
+def multiply(matrixStack: MatrixStack, rhs: np.ndarray):
     """Matrix multiply"""
     m = get_current_matrix(matrixStack)
     m[0:4, 0:4] = np.matmul(m.copy(), rhs)

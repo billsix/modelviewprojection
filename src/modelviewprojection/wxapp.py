@@ -189,7 +189,7 @@ class GLPanel(wxgl.GLCanvas):
 class MainFrame(wx.Frame):
     def __init__(self):
         super().__init__(
-            None, title="wxPython OpenGL 3.3 Example", size=(600, 500)
+            None, title="wxPython OpenGL 3.3 Example", size=wx.Size(600, 500)
         )
         panel = wx.Panel(self)
 

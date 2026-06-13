@@ -686,7 +686,7 @@ def render_shadow_map(
     GL.glClearColor(
         1.0, 1.0, 1.0, 1.0
     )  # depth=far for fragments we don't write
-    GL.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT)
+    GL.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT)  # ty: ignore[unsupported-operator]
     # Polygon offset to fight self-shadowing acne on the cube.  The
     # offset is in shadow-map space; tune empirically.
     GL.glEnable(GL.GL_POLYGON_OFFSET_FILL)
@@ -840,7 +840,7 @@ class AttribSpec:
     layout: tuple[int, int]  # (stride_bytes, offset_bytes)
 
 
-def make_vbo(data: np.ndarray, usage: int = GL.GL_STATIC_DRAW) -> int:
+def make_vbo(data: np.ndarray, usage: int = GL.GL_STATIC_DRAW) -> int:  # ty: ignore[invalid-parameter-default]
     """Allocate a VBO and upload ``data``.  Touches no VAO state."""
     data = np.ascontiguousarray(data, dtype=np.float32)
     vbo = GL.glGenBuffers(1)

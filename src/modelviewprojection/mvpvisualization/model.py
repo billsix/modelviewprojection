@@ -11,6 +11,7 @@ panel; ``cayley_gl`` supplies only the generic mechanisms.  Object-placement
 
 import math
 import os
+import typing
 from enum import Enum, auto
 
 import glfw
@@ -105,7 +106,12 @@ cayley_gl.install_scroll(window, imguiio, camera)
 pwd = os.path.dirname(os.path.abspath(__file__))
 standard_objects = cayley_gl.build_standard(shader_dir=pwd, animated=False)
 
-state = {"time": 0.0, "speed": 1.0, "paused": False, "mouse": None}
+state: dict[str, typing.Any] = {
+    "time": 0.0,
+    "speed": 1.0,
+    "paused": False,
+    "mouse": None,
+}
 win_state = cayley_gl.WindowState()
 
 

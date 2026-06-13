@@ -268,6 +268,7 @@ class StandardObjects:
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, n)
 
     def _draw_volume(self, p, time, thickness, w, h):
+        assert self.volume_geo is not None
         vao, n, _vbo = self.volume_geo
         GL.glUseProgram(p.program)
         GL.glBindVertexArray(vao)
@@ -282,6 +283,7 @@ class StandardObjects:
         """Draw the PERSPECTIVE frustum outline (uses its fov/aspect/near/far)."""
         p = self.volume_pipeline
         GL.glUseProgram(p.program)
+        assert self.frustum is not None
         GL.glUniform1f(p.u_fov, self.frustum.field_of_view)
         GL.glUniform1f(p.u_aspect, self.frustum.aspect_ratio)
         GL.glUniform1f(p.u_near, self.frustum.near_z)
@@ -296,6 +298,7 @@ class StandardObjects:
         GL.glUseProgram(p.program)
         GL.glUniform1f(p.u_fov, PIPELINE_FOV)
         GL.glUniform1f(p.u_aspect, PIPELINE_ASPECT)
+        assert self.rect_prism is not None
         GL.glUniform1f(p.u_near, self.rect_prism.near_z)
         GL.glUniform1f(p.u_far, self.rect_prism.far_z)
         self._draw_volume(p, time, thickness, w, h)
@@ -303,6 +306,8 @@ class StandardObjects:
     def rebuild_frustum(self):
         """Re-upload the perspective frustum edges after its FOV/aspect/near/far
         changed (the ortho prism has no sliders, so it never needs a rebuild)."""
+        assert self.frustum is not None
+        assert self.volume_geo is not None
         verts = frustum_lines(self.frustum)
         _vao, _n, vbo = self.volume_geo
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
@@ -416,12 +421,12 @@ def build_standard(
             screenspace=True,
             project=project,
         )
-        verts = (
-            frustum_lines(frustum)
-            if frustum is not None
-            else rectangular_prism_lines(rect_prism)
-        )
-        vbo = _p.make_vbo(verts, usage=GL.GL_DYNAMIC_DRAW)
+        if frustum is not None:
+            verts = frustum_lines(frustum)
+        else:
+            assert rect_prism is not None
+            verts = rectangular_prism_lines(rect_prism)
+        vbo = _p.make_vbo(verts, usage=GL.GL_DYNAMIC_DRAW)  # ty: ignore[invalid-argument-type]
         vao = _p.make_vao(
             [
                 _p.AttribSpec(
@@ -580,7 +585,7 @@ def run_loop(
             menubar()
         w, h = glfw.get_framebuffer_size(window)
         GL.glViewport(0, 0, w, h)
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # ty: ignore[unsupported-operator]
         frame(w, h)
         imgui.render()
         impl.render(imgui.get_draw_data())

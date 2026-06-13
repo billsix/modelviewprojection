@@ -15,6 +15,7 @@
 # Foundation, Inc., 59 Temple Place - Suite 330,
 # Boston, MA 02111-1307, USA.
 
+import functools
 import os
 
 import wx
@@ -31,11 +32,10 @@ from OpenGL import GL
 pwd = os.path.dirname(os.path.abspath(__file__))
 
 
+@functools.cache
 def _load_xrc():
     """Return the cached XmlResource."""
-    if not hasattr(_load_xrc, "_res"):
-        _load_xrc._res = xrc.XmlResource(os.path.join(pwd, "wxapp2.xrc"))
-    return _load_xrc._res
+    return xrc.XmlResource(os.path.join(pwd, "wxapp2.xrc"))
 
 
 # ---------------------------------------------------------------------------

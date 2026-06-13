@@ -38,7 +38,7 @@ import math
 import typing
 
 # Re-exported from gacalc: the vector representations and the transform layer.
-from gacalc.base import AbstractMultiVector
+from gacalc.base import MultiVectorBase
 from gacalc.g1 import Vector1
 from gacalc.g2 import Vector2
 from gacalc.g3 import Vector3
@@ -59,7 +59,7 @@ from gacalc.transforms import (
 
 __all__ = [
     # re-exported from gacalc
-    "AbstractMultiVector",
+    "MultiVectorBase",
     "Vector1",
     "Vector2",
     "Vector3",
@@ -100,9 +100,9 @@ __all__ = [
 
 
 #: Type variable for a vector representation an ``InvertibleFunction``
-#: transforms; bound to ``AbstractMultiVector``, matching gacalc's
+#: transforms; bound to ``MultiVectorBase``, matching gacalc's
 #: ``InvertibleFunction[V]``.  Used where the type is open (the function stack).
-V = typing.TypeVar("V", bound=AbstractMultiVector)
+V = typing.TypeVar("V", bound=MultiVectorBase)
 
 
 # doc-region-begin define rotate
@@ -138,11 +138,13 @@ def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2]:
 def rotate_around(
     angle_in_radians: float, center: Vector2
 ) -> InvertibleFunction[Vector2]:
-    return compose([translate(center), rotate(angle_in_radians), translate(-center)])
+    return compose(
+        [translate(center), rotate(angle_in_radians), translate(-center)]
+    )
     # doc-region-end define rotate around
 
 
-def cosine(v1: AbstractMultiVector, v2: AbstractMultiVector) -> float:
+def cosine(v1: MultiVectorBase, v2: MultiVectorBase) -> float:
     # gacalc's dot product returns a (scalar) multivector; read off its value.
     denominator: float = float(abs(v1)) * float(abs(v2))
     if denominator == 0.0:
@@ -262,9 +264,9 @@ def find_normal(p1: Vector3, p2: Vector3, p3: Vector3) -> Vector3:
     bivector = (p2 - p1) ^ (p3 - p1)
     n = bivector.dual()
     return Vector3(
-        coeff_e_1=float(n.component(Vector3.e_1)),
-        coeff_e_2=float(n.component(Vector3.e_2)),
-        coeff_e_3=float(n.component(Vector3.e_3)),
+        coeff_e_1=float(n.coefficient(Vector3.e_1)),
+        coeff_e_2=float(n.coefficient(Vector3.e_2)),
+        coeff_e_3=float(n.coefficient(Vector3.e_3)),
     )
     # doc-region-end define find normal
 
@@ -292,7 +294,9 @@ def plane_equation(
 
 
 # doc-region-begin define distance to plane
-def distance_to_plane(point: Vector3, plane: typing.Tuple[Vector3, float]) -> float:
+def distance_to_plane(
+    point: Vector3, plane: typing.Tuple[Vector3, float]
+) -> float:
     """Signed distance from ``point`` to ``plane`` (the ``(normal, d)`` tuple
     from :func:`plane_equation`).  Positive on the side the normal points
     toward, negative on the other, zero on the plane.
@@ -385,14 +389,20 @@ def perspective(
     # the perspective divide is non-linear: it is not representable as a single
     # affine matrix recovered by probing points (see gacalc.to_matrix).
     return InvertibleFunction(
-        f, f_inv, "Perspective", "Perspective Inv", linearity=Linearity.NONLINEAR
+        f,
+        f_inv,
+        "Perspective",
+        "Perspective Inv",
+        linearity=Linearity.NONLINEAR,
     )
     # doc-region-end define perspective
 
 
 # doc-region-begin define camera space to ndc
 def cs_to_ndc_space_fn(vector: Vector3) -> InvertibleFunction[Vector3]:
-    return perspective(field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0)
+    return perspective(
+        field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
+    )
 
 
 # doc-region-end define camera space to ndc
@@ -401,7 +411,9 @@ def cs_to_ndc_space_fn(vector: Vector3) -> InvertibleFunction[Vector3]:
 # doc-region-begin define function stack class
 @dataclasses.dataclass
 class FunctionStack(typing.Generic[V]):
-    stack: list[InvertibleFunction[V]] = dataclasses.field(default_factory=lambda: [])
+    stack: list[InvertibleFunction[V]] = dataclasses.field(
+        default_factory=lambda: []
+    )
 
     def push(self, o: InvertibleFunction[V]):
         self.stack.append(o)

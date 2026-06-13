@@ -21,6 +21,7 @@ the squash scales by 1/10 down onto the ±1 NDC square."""
 
 import math
 import os
+import typing
 from enum import Enum, auto
 
 import glfw
@@ -156,7 +157,7 @@ GROUND_ROT = cayleyscene.to_matrix(
     rotate_y(math.radians(90.0)) @ rotate_z(math.radians(90.0))
 )
 cam_pos = {"x": -1.5, "y": 2.0, "z": 0.0}
-state = {
+state: dict[str, typing.Any] = {
     "time": 0.0,
     "speed": 1.0,
     "paused": False,

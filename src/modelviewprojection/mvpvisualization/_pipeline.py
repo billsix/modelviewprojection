@@ -328,7 +328,7 @@ class AttribSpec:
     layout: tuple[int, int]
 
 
-def make_vbo(data: ndarray, usage: int = GL.GL_STATIC_DRAW) -> int:
+def make_vbo(data: ndarray, usage: int = GL.GL_STATIC_DRAW) -> int:  # ty: ignore[invalid-parameter-default]
     """Allocate a VBO and upload ``data`` (any ndarray, must be
     contiguous float32 -- the helper coerces).  Touches no VAO state.
     The handle is registered into ``all_vbos`` for cleanup."""

@@ -15,6 +15,7 @@ squash."""
 
 import math
 import os
+import typing
 from enum import Enum, auto
 
 import glfw
@@ -162,7 +163,7 @@ standard_objects = cayley_gl.build_standard(
     ),
 )
 
-state = {
+state: dict[str, typing.Any] = {
     "time": 0.0,
     "speed": 1.0,
     "paused": False,

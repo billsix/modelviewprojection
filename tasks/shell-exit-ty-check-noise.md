@@ -1,7 +1,47 @@
 # Shell-exit `ty check` floods the terminal and makes `make shell` fail
 
-**Status:** proposed — needs go-ahead
+**Status:** Axis B complete (ty fully clean) 2026-06-13 — Axis A (advisory ty-on-exit) NOT done, see below
 **Created:** 2026-06-13
+**Completed:** 2026-06-13 (Axis B)
+
+## Outcome (2026-06-13) — ty is fully clean
+
+`ty check src` and `ty check tests` both report **All checks passed!** (verified in a lean wx-capable
+container: fedora:44 + `python3-wxpython4` + gacalc 0.0.4 + the rest via uv). Started at 177 (post-bump,
+once `Real` flood removed) → **0**. Because `ty` is the LAST command in the `format.sh` exit sequence,
+`make shell` now exits **0** (the `Error 1` is gone) and the ty flood is eliminated — so Axis A
+(making ty advisory on exit) turned out to be **unnecessary** and was not done.
+
+**Two real runtime bugs the version bump would have caused (caught by the container ty run):**
+- `mathutils.py`: `from gacalc.base import AbstractMultiVector` → gacalc 0.0.4 renamed it
+  `MultiVectorBase`. Would have been an `ImportError` breaking the whole package. Fixed (5 uses).
+- `mathutils.py`: `.component(blade)` → gacalc 0.0.4 removed it (use `.coefficient(blade)`). Would have
+  been an `AttributeError`. Fixed (3 uses).
+
+**Type fixes (principled, per the agreed approach):**
+- `requirements.txt` `gacalc>=0.0.4`.
+- `Edge.steps` widened via explicit `__init__`; `set_current_matrix`/`get_current_matrix`/`multiply`
+  and the matrix stacks `np.matrix`→`np.ndarray`.
+- `cayleyscene.py` genericized (`Scene`/`Timeline`/`Animation`/`CoordinateFrame`/`InverseOperations`
+  over node `TypeVar N`); `frame_tree` groups dict keyed by `N`.
+- Per-file `state` dicts annotated `dict[str, typing.Any]` (procedural-friendly, per your call — no
+  TypedDict abstraction in the procedural viz scripts).
+- `cayley_gl.py` Optional narrowing (`assert` on `frustum`/`rect_prism`/`volume_geo`; rect_prism
+  ternary → if/else); same narrowing in `modelviewperspectiveprojection.py`; `cayleygraph.py` `prev[cur]`
+  unpack narrowed.
+- wx: `wxapp.py` `wx.Size(...)`; `wxapp2.py` `_load_xrc` → `@functools.cache`.
+- PyOpenGL stub gaps (dynamic `GL.*`): per-line `# ty: ignore[...]` (your choice) in demo21/22/24,
+  `_pipeline.py`, `cayley_gl.py`, and matplotlib `renderer` in `generate_plots.py`.
+
+**Not in scope / left as-is:**
+- **19 pre-existing `ruff` lint errors** (`T201` print, `B008` call-in-default, `S311` random) — these
+  are a different tool, pre-existing, and not introduced by this work. They still print on exit but no
+  longer affect the exit code (ty is last). A separate cleanup if wanted.
+- The edited files carry incidental `ruff format --line-length=80` reformatting (matches `format.sh`);
+  whole-repo formatting churn in untouched files was reverted.
+
+**Verification note:** can't build the full mvp image or install wxpython in the sandbox; verified via a
+throwaway container (since removed). Re-confirm `make image` + a real `make shell` exit on the host.
 
 ## Symptom
 
@@ -136,6 +176,36 @@ error[invalid-argument-type]: Argument is incorrect
 *fully clean* `ty` over this GL/wx/matplotlib + viz codebase is a sizable, judgment-heavy effort and
 realistically should be paired with **Axis A** (make `ty`-on-exit advisory/non-fatal) so `make shell`
 stops reporting failure while the debt is paid down incrementally. Decide scope before grinding the 165.
+
+## Progress — "fully clean ty" pass (2026-06-13)
+
+User chose **fully clean ty** + principled fixes + verify-in-container for wx. Verified against a lean
+throwaway `mvp-tycheck` image (fedora:44 + `python3-wxpython4` via dnf + the rest via `uv`, gacalc
+0.0.4) — avoids the 8 GB tmpfs / TeX Live problem. **177 → 92** ty diagnostics so far.
+
+- **CRITICAL runtime fix (found via the container):** `mathutils.py` did
+  `from gacalc.base import AbstractMultiVector`, but gacalc 0.0.4 **renamed** it to `MultiVectorBase`
+  — so the version bump would have made `import modelviewprojection.mathutils` raise `ImportError`,
+  breaking *every* demo/test. Renamed all 5 uses → `MultiVectorBase`; `python -c "import
+  modelviewprojection.mathutils"` now succeeds in the container.
+- `requirements.txt` → `gacalc>=0.0.4`.
+- `Edge.steps` widened input via explicit `__init__` (−38); `set_current_matrix` `np.matrix`→`np.ndarray`.
+- **Space cluster (−30):** genericized `cayleyscene.py` `Scene`/`Timeline`/`Animation`/`CoordinateFrame`/
+  `InverseOperations` over a node `TypeVar N` (the `space: str` annotations were inconsistent with the
+  rest of the file's `Any` node typing). `Space`-vs-`str` errors now 0.
+
+**Remaining 92, by category:**
+- ~32 — per-file heterogeneous `state = {"time":0.0,"speed":1.0,"paused":False,"mouse":None}` dict
+  (8 viz files) → `state["speed"]` infers `float|bool|None`, breaking `slider_float`/arithmetic. Fix:
+  a `TypedDict` per file.
+- ~21 — **PyOpenGL**: `GL.glClear`/`GL.GL_*` are dynamically generated, unresolvable by ty
+  (`unresolved-attribute` + `Constant | Constant`). Irreducible third-party stub gap → needs a
+  suppression strategy (per-line `# ty: ignore` vs scoped `ty.toml` override). **DECISION PENDING.**
+- ~4 — wx (`wxapp.py` `Size`, `wxapp2.py` `_load_xrc._res`) — now verifiable in the container.
+- misc — `Frustum|None`/`RectangularPrism|None` narrowing, 1 `N@Animation` str, matplotlib `renderer`.
+
+ty 0.0.37's glob parser rejects `#`, so an editor-autosave exclude in `ty.toml` isn't possible — but
+the autosave isn't actually checked, so no `ty.toml` is needed for that.
 
 ## Acceptance
 

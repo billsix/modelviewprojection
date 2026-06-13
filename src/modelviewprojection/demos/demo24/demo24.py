@@ -622,7 +622,7 @@ while not glfw.window_should_close(window):
     GL.glViewport(0, 0, width, height)
     GL.glClearStencil(0)
     GL.glClear(
-        GL.GL_COLOR_BUFFER_BIT
+        GL.GL_COLOR_BUFFER_BIT  # ty: ignore[unsupported-operator]
         | GL.GL_DEPTH_BUFFER_BIT
         | GL.GL_STENCIL_BUFFER_BIT
     )
