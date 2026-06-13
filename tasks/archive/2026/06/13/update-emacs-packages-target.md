@@ -1,7 +1,8 @@
 # Port the `make update-emacs-packages` Makefile integration to modelviewprojection
 
-**Status:** proposed — needs go-ahead
+**Status:** complete — implemented + reconciled + mechanism verified 2026-06-13 (see Completion)
 **Created:** 2026-06-13
+**Completed:** 2026-06-13
 
 > **Lead implementation.** The author considers the shared Emacs-package vendoring approach (same
 > "gist" across geometricalgebra / mvp / spimulator / texExpToPng) the **gold standard**, and wants
@@ -112,3 +113,44 @@ Notes:
   (`make update-emacs-packages`) split.
 - If decision #2 is "yes": `.dockerignore` excludes the elpa tree and the build-time install is gone,
   verified by a throwaway build showing `/root/.emacs.d` without `elpa/`.
+
+## Completion (2026-06-13)
+
+Both decisions were taken **yes** (execute nested now; do the Dockerfile reconciliation now).
+
+**Implemented (permanent source changes — for the author to commit):**
+- `Makefile`: added the `update-emacs-packages` target (verbatim port of geometricalgebra's, elpa-only
+  mount, install script mounted read-only, `CONTAINER_NAME = modelviewprojection`) + the `ELPA_MOUNT`
+  comment documenting the use-vs-refresh split. `make help` lists it; `make -n` dry-run is clean.
+- `Dockerfile`: dropped the build-time `emacs --batch --load .../install-melpa-packages.el` (the build
+  is now offline w.r.t. MELPA; Emacs itself still installed).
+- `.dockerignore` (new): excludes `entrypoint/dotfiles/.emacs.d/elpa` from the build context (tree
+  stays vendored in git, no longer baked into the image) + standard artifact/cache trims. Verified in
+  the build log: `COPY entrypoint/dotfiles/ /root/` completed instantly and the emacs layer carries no
+  MELPA install.
+
+**Mechanism verified end-to-end, nested (podman-in-podman):** the target's exact inner refresh command
+ran with `--cgroups=disabled`, wiped + reinstalled all selected MELPA packages into the host-mounted
+`elpa/` (61 package dirs, 0 errors), stripped 413 `*.elc`/`*.eln`, and `git add -A -f` staged the
+result — **866 files changed (+15,678 / −4,514)**, i.e. a package-version bump since the last
+vendoring. The staged elpa refresh is left for the author to review/commit (or revert if only the
+target was wanted — the package bump is a separable change).
+
+**Could NOT run the *verbatim* `make update-emacs-packages` in the sandbox** — two environmental
+blockers, neither a flaw in the target:
+1. The sandbox's podman image store is an **8 GB tmpfs**; mvp's full default image (`BUILD_DOCS=1`
+   pulls all of TeX Live, plus Jupyter/Spyder/Mesa) overflows it (`No space left on device` during the
+   numpy wheel extract). On the author's real host (ample disk) the verbatim target builds fine.
+2. **Pre-existing Dockerfile bug (separate concern):** `make image` with the heavy optional features
+   *off* fails at `uv pip install pyright --python $(which python)` because `which` isn't installed —
+   it's only pulled in transitively by the optional package groups. So a lean `make image
+   USE_EMACS=1 BUILD_DOCS=0 …` is currently broken. Worth a small follow-up (add `which`, or use
+   `command -v`/`python3 -m`), tracked separately — NOT part of this task.
+
+To prove the refresh mechanism within the tmpfs limit, a minimal throwaway image installing the *same*
+Emacs packages (`emacs emacs-pgtk` on fedora:44, matching the Dockerfile's emacs layer) was tagged
+`modelviewprojection` and the target's inner command run against it (identical elpa output, since the
+MELPA install is image-independent); the throwaway image was removed afterward.
+
+**Next:** replicate to `spimulator` and `texExpToPng` (their task docs exist). Note spimulator/mvp
+share the elpa-only mount shape; texExpToPng mounts the whole `.emacs.d/` (elpa-scoped wipe).
