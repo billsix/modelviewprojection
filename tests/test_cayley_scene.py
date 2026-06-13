@@ -253,7 +253,17 @@ def test_to_matrix_realizes_affine_function():
     for p in SAMPLES:
         got = M @ np.array([p.coeff_e_1, p.coeff_e_2, p.coeff_e_3, 1.0])
         want = f(p)
-        assert np.allclose(got, [want.coeff_e_1, want.coeff_e_2, want.coeff_e_3, 1.0])
+        # float(): want's coefficients can be sympy (rotor rotations go through
+        # gacalc magnitude()/sympy.sqrt); np.allclose can't handle an object array.
+        assert np.allclose(
+            got,
+            [
+                float(want.coeff_e_1),
+                float(want.coeff_e_2),
+                float(want.coeff_e_3),
+                1.0,
+            ],
+        )
 
 
 def test_to_matrix_of_engine_transform_matches_point_application():
@@ -263,7 +273,17 @@ def test_to_matrix_of_engine_transform_matches_point_application():
     for p in SAMPLES:
         got = M @ np.array([p.coeff_e_1, p.coeff_e_2, p.coeff_e_3, 1.0])
         want = f(p)
-        assert np.allclose(got, [want.coeff_e_1, want.coeff_e_2, want.coeff_e_3, 1.0])
+        # float(): want's coefficients can be sympy (rotor rotations go through
+        # gacalc magnitude()/sympy.sqrt); np.allclose can't handle an object array.
+        assert np.allclose(
+            got,
+            [
+                float(want.coeff_e_1),
+                float(want.coeff_e_2),
+                float(want.coeff_e_3),
+                1.0,
+            ],
+        )
 
 
 # --- projection tail: timeline, world->camera morph, GPU steps -------------

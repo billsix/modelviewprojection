@@ -426,11 +426,17 @@ def to_matrix(f: InvertibleFunction) -> np.ndarray:
     cx = f(Vector3(1.0, 0.0, 0.0)) - o
     cy = f(Vector3(0.0, 1.0, 0.0)) - o
     cz = f(Vector3(0.0, 0.0, 1.0)) - o
+    # gacalc coefficients can be sympy expressions (magnitude() uses sympy.sqrt,
+    # so rotor-based rotations yield sympy-typed components). Force float64 here:
+    # otherwise np.array infers dtype=object and downstream np.linalg.inv / GL
+    # upload fail with a cast error. This boundary cast stays even once gacalc
+    # returns plain numbers for numeric input -- numpy/GL want float64 regardless.
     return np.array(
         [
             [cx.coeff_e_1, cy.coeff_e_1, cz.coeff_e_1, o.coeff_e_1],
             [cx.coeff_e_2, cy.coeff_e_2, cz.coeff_e_2, o.coeff_e_2],
             [cx.coeff_e_3, cy.coeff_e_3, cz.coeff_e_3, o.coeff_e_3],
             [0.0, 0.0, 0.0, 1.0],
-        ]
+        ],
+        dtype=float,
     )
