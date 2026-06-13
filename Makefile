@@ -98,6 +98,21 @@ shell: ## Get Shell into a ephermeral container made from the image
 		/usr/local/bin/shell.sh
 
 
+# Format/lint/typecheck the source INSIDE the container (the image's pinned ruff +
+# ty).  loadpackages.sh installs the package editable (so ty resolves
+# `modelviewprojection`); then format.sh runs ruff check --fix / ruff format / ty
+# check -- the same pair the shell-exit trap runs.  We must `cd /mvp` HERE:
+# format.sh uses relative paths (`ruff check src`), and loadpackages.sh's own
+# `cd /mvp` is subprocess-local so it doesn't carry over to format.sh.
+.PHONY: format
+format: image ## (container) ruff + ty over the source (loadpackages.sh + format.sh)
+	$(CONTAINER_CMD) run --rm \
+		--entrypoint /bin/bash \
+		$(FILES_TO_MOUNT) \
+		$(CONTAINER_NAME) \
+		-c 'cd /mvp && loadpackages.sh && format.sh'
+
+
 # Refresh the vendored Emacs packages. Forces USE_EMACS=1 and rebuilds the image
 # first (so it doesn't matter whether the last `make image` set USE_EMACS). Then,
 # in the container, wipes the elpa tree and reinstalls from MELPA into the host's
