@@ -1,0 +1,23 @@
+# Trim the build context.
+#
+# The vendored Emacs package tree (entrypoint/dotfiles/.emacs.d/elpa) is excluded
+# from the image build: it stays vendored in git, but is NOT copied/baked into the
+# image. The build no longer installs MELPA packages either (the build-time
+# `emacs --batch --load .../install-melpa-packages.el` was dropped), so the build
+# is offline w.r.t. Emacs packages. The vendored tree is the sole source: an
+# interactive `make shell USE_EMACS=1` bind-mounts it into the container to *use*
+# the packages, and `make update-emacs-packages` refreshes it (see Makefile).
+# Only the elpa/ subtree is excluded -- the rest of .emacs.d (init.el,
+# install-melpa-packages.el, helm.el, preferences.el) is still copied to /root.
+entrypoint/dotfiles/.emacs.d/elpa
+
+# build artifacts / caches
+.git
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+build/
+dist/
+.ipynb_checkpoints/

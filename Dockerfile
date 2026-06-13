@@ -106,8 +106,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                   emacs \
                   emacs-gtk+x11 \
                   emacs-pgtk \
-                  python3-lsp-server && \
-      emacs --batch --load /root/.emacs.d/install-melpa-packages.el; \
+                  python3-lsp-server; \
     fi ; \
     if [ "$USE_JUPYTER" = "1" ]; then \
        dnf install -y \
