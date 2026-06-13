@@ -167,3 +167,6 @@ auto-save-list
 history
 recentf
 session.*
+
+# exported OCI image tars from `make image-export`
+modelviewprojection-*.tar

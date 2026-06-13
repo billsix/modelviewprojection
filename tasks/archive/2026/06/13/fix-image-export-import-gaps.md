@@ -1,7 +1,13 @@
 # Bring mvp's `image-export` / `image-import` up to the standard convention
 
-**Status:** proposed — needs go-ahead
+**Status:** complete — 2026-06-13
 **Created:** 2026-06-13
+**Completed:** 2026-06-13
+
+> **Done:** Makefile `image-export`/`image-import` now use `$(CONTAINER_CMD)` and are each `.PHONY`;
+> `.gitignore` excludes `modelviewprojection-*.tar`. Verified: `make help` lists both, `make -n
+> image-export` emits `podman save … -o modelviewprojection-<ts>.tar`, and `git check-ignore` confirms
+> the tar pattern is ignored. Left as working-tree changes for Bill to commit.
 
 ## Goal
 
