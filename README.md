@@ -3,80 +3,67 @@ ModelViewProjection
 
 http://billsix.github.io/modelviewprojection/intro.html
 
-Learn how to build 3D graphics from the ground up.
-This codebase demonstrates how to create objects, put
-them where you want them to go, view the scene with a camera
-that can move, and how to project that 3D data to a 2D screen.
+Learn how to build 3D graphics from the ground up. This codebase demonstrates how
+to create objects, put them where you want them to go, view the scene with a camera
+that can move, and project that 3D data onto a 2D screen.
 
+The course is built on one pedagogical hook: instead of 4×4 matrices, transformations
+are **invertible functions** and coordinate systems form a **Cayley graph** (nodes =
+spaces, edges = transformations) — so you learn everything via function composition
+and inverses, with no linear-algebra prerequisite. The math now lives in the
+**gacalc** geometric-algebra library (wrapped by `mathutils.py`). The repo also
+includes faithful Python ports of the **OpenGL SuperBible v4** examples under
+`ports/openglsuperbiblev4/`.
 
-For further information, such as lighting, shadows, and
-OpenGL in more explicit detail, consult
-1) OpenGL redbook/bluebook. (OpenGL superbible v4, because it covers fixed function and shaders)
-2) Mathematics for 3D Game Programming and Computer Graphics
-3) Computer Graphics: Principles and Practice in C (2nd Edition)
+For further reading (lighting, shadows, more explicit OpenGL):
 
-For RayTracing
-1) Physically Based Rendering
-2) Ray Tracing from the Ground Up
+1. OpenGL Redbook / Bluebook (and **OpenGL SuperBible v4** — it covers both fixed
+   function and shaders)
+2. *Mathematics for 3D Game Programming and Computer Graphics*
+3. *Computer Graphics: Principles and Practice* (2nd ed., in C)
 
+For ray tracing: *Physically Based Rendering*; *Ray Tracing from the Ground Up*.
 
 Approach
 --------
-This book uses "mistake-driven-development".  I show incrementally
-how to build a more complex graphics application, making mistakes along
-the way, and then fixing the mistakes.
+This book uses **"mistake-driven development"**: it shows, incrementally, how to
+build a more complex graphics application — making mistakes along the way, then
+fixing them. Demos are deliberately procedural (module-level globals) so they read
+top-to-bottom.
 
-Windows
--------
-Use Visual Studio 2019 (Tested on community, but I'm sure it will work on others).
+Running a demo
+--------------
+Install Python 3 and `glfw`, then use a virtualenv:
 
-Using Developer Command Prompt
+```sh
+python -m venv venv
+source venv/bin/activate          # Windows: venv\Scripts\activate.bat
+python -m pip install --upgrade pip setuptools
+python -m pip install -e .
+python src/modelviewprojection/demos/demo05.py
+```
 
-        cd book
-        python -m venv venv
-        cd venv\Scripts
-        activate.bat
-        cd ..\..\
-        python -m pip install --upgrade pip setuptools
-        python -m pip install -e .[dev]
-        python src\demo05\demo.py
+(On Windows, use the Visual Studio 2019 Developer Command Prompt for the venv steps.)
 
+Project structure
+-----------------
 
-Linux
------
-Install Python3, glfw via a package manager.  Use pip and virtualenv to install dependencies
+| Path | What |
+| --- | --- |
+| `src/modelviewprojection/` | The package: `mathutils.py` (gacalc façade + graphics math), `pyMatrixStack.py`, `demos/`, `util/`, `framebuffer/`, `mvpvisualization/` |
+| `ports/openglsuperbiblev4/` | ~104 Python ports of the SuperBible v4 examples |
+| `book/docs/` | The Sphinx book (chapters `ch01`–`ch21`) |
+| `assignments/` | Student assignments |
+| `plans/` | Durable design specs; `tasks/` | short-lived work tracking |
 
+See `CLAUDE.md` for the deep design context (the Cayley-graph abstraction, the
+gacalc migration, the demo arc, and the SuperBible port plan).
 
-#### Linux
+Build the book
+--------------
+The book builds in a podman container:
 
-
-        cd book
-        python -m venv venv
-        source venv/bin/activate
-        python -m pip install --upgrade pip setuptools
-        python -m pip install -e .[dev]
-        python src/demo05/demo.py
-
-
-Mac
----
-Python Python3 (via anaconda, homebrew, macports, whatever), and use pip and virtualenv to install dependencies.
-
-#### Mac OS X
-
-        cd book
-        python -m venv venv
-        source venv/bin/activate
-        python -m pip install --upgrade pip setuptools
-        python -m pip install -r requirements.txt
-        python src/demo05/demo.py
-
-
-### Build the book
-
-Install podman
-
-
-        make
-
-The book is then in the "output" directory
+```sh
+make image     # build the container (Sphinx + TeX Live)
+make html      # build the book (HTML/PDF/EPUB land under output/)
+```

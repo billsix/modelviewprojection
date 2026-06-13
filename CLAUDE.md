@@ -112,3 +112,13 @@ Plans live in `plans/`. At the start of a session, check `TaskList` against the 
 **Reference:**
 - [`plans/superbible-study.md`](plans/superbible-study.md) — umbrella for the /superbible study (both completed). Notes in [`notes-superbible-structure.md`](plans/notes-superbible-structure.md) and [`notes-superbible-math-diff.md`](plans/notes-superbible-math-diff.md).
 - [`plans/HANDOFF-2026-04-28.md`](plans/HANDOFF-2026-04-28.md) — most recent session's stopping point. Lists exactly which demos got ported (57 across chapt01–09 + 4 of chapt10) and what to do first next session. Read this at session start if resuming SuperBible port work.
+
+## Tasks (in-flight)
+
+Beyond `plans/`, short-lived work is tracked in `tasks/`:
+
+- `tasks/gacalc-math-migration.md` — the gacalc migration; **Phase 4 (the book) is
+  the remaining high-risk step** (ch05/06/14 must be rewritten to teach gacalc
+  vectors as *the* vector type).
+- `tasks/jupyter-sh-exec-fix.md` — one-line fix to a no-op `exec` in
+  `entrypoint/jupyter.sh`.
