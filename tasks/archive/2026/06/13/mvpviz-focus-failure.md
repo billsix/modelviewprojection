@@ -1,6 +1,7 @@
 # mvpViz demos fail when focusing on an object — root cause + fix plan
 
-**Status:** mvp fix APPLIED + verified (full suite green); gacalc-side fix still pending (separate task)
+**Status:** complete (mvp scope — focus crash fixed & verified; gacalc-side improvement tracked separately in `[[magnitude-numeric-for-numeric-input]]`)
+**Completed:** 2026-06-13
 **Created:** 2026-06-13
 
 ## Symptom
