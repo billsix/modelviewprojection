@@ -161,7 +161,7 @@ dmypy.json
 *.elc
 *.eln
 *~
-#*#
+\#*#
 
 auto-save-list
 history
@@ -170,3 +170,4 @@ session.*
 
 # exported OCI image tars from `make image-export`
 modelviewprojection-*.tar
+imgui.ini
