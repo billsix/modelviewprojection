@@ -105,7 +105,10 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    libXv \
                    libXxf86vm \
                    mesa-dri-drivers  \
-                   mesa-libGLU-devel; \
+                   mesa-libGLU-devel \
+                   libwayland-egl \
+                   libwayland-client \
+                   libxkbcommon; \
     fi ; \
     python3 -m venv --system-site-packages /venv/ && \
     export VIRTUAL_ENV_DISABLE_PROMPT=1  && \

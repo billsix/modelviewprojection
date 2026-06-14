@@ -40,10 +40,23 @@ FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 USE_X = -e DISPLAY=$(DISPLAY) \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	--security-opt label=type:container_runtime_t
+# GPU render node for hardware GL (Wayland EGL / X11); skipped if /dev/dri is absent.
+DRI_DEVICE := $(shell [ -d /dev/dri ] && echo "--device /dev/dri")
+
+# Wayland for the GUI demos, WITHOUT breaking imgui_bundle.  The demos' `import glfw`
+# (PyPI) loads first, then imgui_bundle's native lib -- and BOTH bind the same soname
+# `libglfw.so.3`.  PyPI glfw's *Wayland-only* build lacks `glfwGetX11Window` (which
+# imgui_bundle needs), so forcing that variant crashes imgui_bundle.  Instead point
+# PyPI glfw at the SYSTEM Fedora libglfw (a DUAL X11+Wayland build, from the `glfw`
+# rpm); it loads first, so imgui_bundle binds the same dual lib (has the X11 symbol)
+# and GLFW picks Wayland at runtime via WAYLAND_DISPLAY.  Needs libwayland-egl/
+# libwayland-client/libxkbcommon (Dockerfile USE_X_WINDOWS block).
 WAYLAND_FLAGS_FOR_CONTAINER = -e "XDG_SESSION_TYPE=wayland" \
                               -e "WAYLAND_DISPLAY=${WAYLAND_DISPLAY}" \
                               -e "XDG_RUNTIME_DIR=${XDG_RUNTIME_DIR}" \
-                              -v "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}"
+                              -e "PYGLFW_LIBRARY=/usr/lib64/libglfw.so.3" \
+                              -v "${XDG_RUNTIME_DIR}:${XDG_RUNTIME_DIR}" \
+                              $(DRI_DEVICE)
 
 
 # USE_EMACS=1 (the default) bind-mounts the vendored host elpa tree into the

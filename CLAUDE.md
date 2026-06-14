@@ -85,6 +85,58 @@ Bill's host is Fedora 43 (glibc 2.42). System SDL2 is the SDL2-compat shim on SD
 
 ---
 
+## Keeping the Dockerfile, Makefile, and dependencies in sync
+
+mvp's dependencies live in **a few places that must agree** — drift causes broken
+image builds. When you touch one, check the others.
+
+1. **`requirements.txt`** — the single source of truth for Python deps. `pyproject.toml`
+   has `dynamic = ['dependencies']`, so `pip install -e .` reads `requirements.txt`.
+   Needs **Python ≥ 3.13** (`gacalc>=0.0.4` requires it).
+2. **`Dockerfile`** — installs the *distro* (`python3-*`) packages that cover the
+   heavy/native deps (numpy, glfw, pyopengl, pillow, sympy, **wxpython**, matplotlib),
+   then makes a `--system-site-packages` venv and `pip install`s the rest **minus
+   wxpython** (`grep -v wxpython`). It also builds the **vendored** texExpToPng
+   (`book/docs/_static/tex_exp_to_png/`) under `BUILD_DOCS`. Base image Fedora 44
+   (Python 3.14).
+3. **`Makefile`** ↔ **`Dockerfile` `ARG`s** — every `--build-arg X=$(X)` in the
+   Makefile's `image` target must have a matching `ARG X` in the Dockerfile
+   (Makefile defaults `1`, Dockerfile defaults `0`). A `[Warning] one or more build
+   args were not consumed: [X]` means the Makefile passes `X` but the Dockerfile
+   never declares it (that's why `USE_IMGUI` was removed — imgui-bundle comes from
+   `requirements.txt`, not a build flag).
+
+**The vendored texExpToPng** (`book/docs/_static/tex_exp_to_png/`) is a copy of the
+external `/billopt/texExpToPng` repo. Changes there (e.g. the `--bg/--fg` dvipng
+flags) must be **replicated into the vendored copy** (`diff` the two `src/*.c` to
+confirm byte-identical); the Dockerfile + book builds use the vendored one.
+
+### How to resolve drift — and TEST it in a throwaway container
+
+Don't guess package names; verify them in a clean Fedora container. Pattern:
+
+```sh
+# nested podman needs --cgroups=disabled; --rm so the container is ephemeral.
+podman run --rm --cgroups=disabled -v "$(pwd)":/srcro:ro registry.fedoraproject.org/fedora:44 bash -c '
+  cp -a /srcro /mvp && cd /mvp
+  <install candidate deps>            # e.g. dnf install ...
+  texExpToPng --exp "\$x^2\$" --size 200 --fg "rgb 1 1 1" --bg Transparent -o /tmp/x.png
+'
+```
+
+- **On-screen GL can't be verified headless** in a nested container (no display /
+  GPU / xauth) — verify via *package import* + *texExpToPng render*, not a window.
+  (Getting the GUI to run in a container is its own task —
+  `tasks/run-demos-in-container-wayland.md`.)
+- **tmpfs:** the podman image store is a tmpfs (size varies — `df -h /var/lib/containers`,
+  16 GB as of 2026-06-14). **`podman rmi` each test image when done** to reclaim it;
+  `podman image prune -f` clears dangling layers.
+- After changing `requirements.txt`: re-check whether a new heavy dep should be a
+  *distro* package in the Dockerfile (vs left to pip), then re-run `make image` to
+  confirm.
+
+---
+
 ## Tasks
 
 Active work lives in `tasks/` (one file per task); completed work is moved to
