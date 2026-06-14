@@ -98,6 +98,24 @@ shell: ## Get Shell into a ephermeral container made from the image
 		/usr/local/bin/shell.sh
 
 
+.PHONY: jupyter
+jupyter: image ## Run Jupyter Lab in a container (open http://127.0.0.1:8888/lab)
+	@echo ""
+	@echo "  Jupyter Lab is starting in the container."
+	@echo "  Open this in your web browser:  http://127.0.0.1:8888/lab"
+	@echo "  (no token/password needed; press Ctrl-C here to stop the server)"
+	@echo ""
+	$(CONTAINER_CMD) run -it --rm \
+		--entrypoint /bin/bash \
+		$(FILES_TO_MOUNT) \
+		$(USE_X) \
+		$(WAYLAND_FLAGS_FOR_CONTAINER) \
+		$(EXPOSE_PORT) \
+                $(ELPA_MOUNT) \
+		$(CONTAINER_NAME) \
+		/usr/local/bin/jupyter.sh
+
+
 # Format/lint/typecheck the source INSIDE the container (the image's pinned ruff +
 # ty).  loadpackages.sh installs the package editable (so ty resolves
 # `modelviewprojection`); then format.sh runs ruff check --fix / ruff format / ty

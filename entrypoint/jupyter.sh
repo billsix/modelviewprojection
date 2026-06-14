@@ -1,10 +1,10 @@
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 source /venv/bin/activate
 cd /mvp/
-# in general this is super dangerous, but for our purposes,
-# it's fine
-exec
-
+# install the package editable so the notebooks can `import modelviewprojection`
+# (mirrors shell.sh; the install effect lands on /venv on disk).
+loadpackages.sh
+exec \
   jupyter lab \
          --allow-root \
          --ip=0.0.0.0 \
