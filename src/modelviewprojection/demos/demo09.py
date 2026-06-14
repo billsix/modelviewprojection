@@ -34,8 +34,6 @@ from modelviewprojection.mathutils import (
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-
-
 if not glfw.init():
     sys.exit()
 
@@ -155,7 +153,9 @@ while not glfw.window_should_close(window):
         )
         # doc-region-end paddle 1 transformations
         paddle1_vector_ndc: Vector2 = fn(p1_v_ms)
-        GL.glVertex2f(paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2)
+        GL.glVertex2f(
+            paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2
+        )
     GL.glEnd()
     # doc-region-end draw paddle 1
 
@@ -173,7 +173,9 @@ while not glfw.window_should_close(window):
             ]
         )
         paddle2_vector_ndc: Vector2 = fn(p2_v_ms)
-        GL.glVertex2f(paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2)
+        GL.glVertex2f(
+            paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2
+        )
     GL.glEnd()
     # doc-region-end draw paddle 2
     glfw.swap_buffers(window)

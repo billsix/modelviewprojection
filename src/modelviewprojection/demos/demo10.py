@@ -180,7 +180,9 @@ while not glfw.window_should_close(window):
         cs_to_ndc: InvertibleFunction[Vector2] = uniform_scale(1.0 / 10.0)
         paddle1_vector_ndc: Vector2 = cs_to_ndc(paddle1_vector_cs)
 
-        GL.glVertex2f(paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2)
+        GL.glVertex2f(
+            paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2
+        )
     GL.glEnd()
     # doc-region-end draw paddle 1
 
@@ -207,7 +209,9 @@ while not glfw.window_should_close(window):
 
         paddle2_vector_ndc: Vector2 = ms_to_ndc(p2_v_ms)
 
-        GL.glVertex2f(paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2)
+        GL.glVertex2f(
+            paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2
+        )
     GL.glEnd()
     # doc-region-end draw paddle 2
 

@@ -38,7 +38,6 @@ from modelviewprojection.mathutils import (
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-
 if not glfw.init():
     sys.exit()
 
@@ -104,7 +103,9 @@ paddle2: Paddle = Paddle(
 
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector3 = dataclasses.field(default_factory=lambda: 15 * Vector3.e_3)
+    position_ws: Vector3 = dataclasses.field(
+        default_factory=lambda: 15 * Vector3.e_3
+    )
     rot_y: float = 0.0
     rot_x: float = 0.0
     # doc-region-end define camera class

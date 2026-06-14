@@ -67,8 +67,10 @@ def generategridlines(graphBounds, interval=1):
         thickness = 4 if np.isclose(x, 0.0) else 1
         yield (
             [
-                x * Vector2.e_1 + (-graphBounds[1] * extraLinesMultiplier) * Vector2.e_2,
-                x * Vector2.e_1 + (graphBounds[1] * extraLinesMultiplier) * Vector2.e_2,
+                x * Vector2.e_1
+                + (-graphBounds[1] * extraLinesMultiplier) * Vector2.e_2,
+                x * Vector2.e_1
+                + (graphBounds[1] * extraLinesMultiplier) * Vector2.e_2,
             ],
             thickness,
         )
@@ -81,8 +83,10 @@ def generategridlines(graphBounds, interval=1):
         thickness = 4 if np.isclose(y, 0.0) else 1
         yield (
             [
-                (-graphBounds[0] * extraLinesMultiplier) * Vector2.e_1 + y * Vector2.e_2,
-                (graphBounds[0] * extraLinesMultiplier) * Vector2.e_1 + y * Vector2.e_2,
+                (-graphBounds[0] * extraLinesMultiplier) * Vector2.e_1
+                + y * Vector2.e_2,
+                (graphBounds[0] * extraLinesMultiplier) * Vector2.e_1
+                + y * Vector2.e_2,
             ],
             thickness,
         )
@@ -436,7 +440,8 @@ def draw_screen(
             vertices = [
                 fn(v)
                 for v in [
-                    (-1.0 + d_width * x) * Vector2.e_1 + (-1.0 + d_height * y) * Vector2.e_2,
+                    (-1.0 + d_width * x) * Vector2.e_1
+                    + (-1.0 + d_height * y) * Vector2.e_2,
                     (-1.0 + d_width * (x + 1)) * Vector2.e_1
                     + (-1.0 + d_height * y) * Vector2.e_2,
                     (-1.0 + d_width * (x + 1)) * Vector2.e_1

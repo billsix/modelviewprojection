@@ -33,8 +33,6 @@ from modelviewprojection.mathutils import (
     translate,
 )
 
-
-
 BLACK: typing.Tuple[int, int, int] = (0, 0, 0)
 WHITE: typing.Tuple[int, int, int] = (255, 255, 255)
 RED: typing.Tuple[int, int, int] = (255, 0, 0)
@@ -81,7 +79,9 @@ class FrameBuffer:
         return ss_to_fb(v)
 
     def set_color(self, v: Vector2, color: typing.Tuple[int, int, int]):
-        self._framebuffer[int(round(v.coeff_e_2)), int(round(v.coeff_e_1))] = color
+        self._framebuffer[int(round(v.coeff_e_2)), int(round(v.coeff_e_1))] = (
+            color
+        )
 
     def draw_filled_triangle(
         self,

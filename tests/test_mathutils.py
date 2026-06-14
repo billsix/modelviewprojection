@@ -225,7 +225,9 @@ def test_plane_equation_points_satisfy_it():
     p1, p2, p3 = v3(1, 0, 0), v3(0, 1, 0), v3(0, 0, 1)
     normal, d = plane_equation(p1, p2, p3)
     for p in (p1, p2, p3):
-        assert math.isclose(float(normal.dot(p).scalar_part()) + d, 0.0, abs_tol=1e-6)
+        assert math.isclose(
+            float(normal.dot(p).scalar_part()) + d, 0.0, abs_tol=1e-6
+        )
     # unit normal
     assert math.isclose(float(abs(normal)), 1.0, abs_tol=1e-6)
 
@@ -260,7 +262,9 @@ def test_ortho_is_invertible():
 
 
 def test_perspective_is_nonlinear_and_invertible():
-    fn = perspective(field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0)
+    fn = perspective(
+        field_of_view=45.0, aspect_ratio=1.0, near_z=-0.1, far_z=-1000.0
+    )
     assert fn.linearity is Linearity.NONLINEAR
     p = v3(1.0, 2.0, -5.0)
     assert inverse(fn)(fn(p)).is_close(p)

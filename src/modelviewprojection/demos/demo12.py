@@ -196,7 +196,9 @@ while not glfw.window_should_close(window):
 
         paddle1_vector_ndc: Vector2 = ms_to_ndc(p1_v_ms)
 
-        GL.glVertex2f(paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2)
+        GL.glVertex2f(
+            paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2
+        )
     GL.glEnd()
 
     # doc-region-begin draw square
@@ -253,7 +255,9 @@ while not glfw.window_should_close(window):
 
         paddle2_vector_ndc: Vector2 = ms_to_ndc(p2_v_ms)
 
-        GL.glVertex2f(paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2)
+        GL.glVertex2f(
+            paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2
+        )
     GL.glEnd()
 
     glfw.swap_buffers(window)

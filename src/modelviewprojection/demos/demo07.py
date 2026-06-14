@@ -33,8 +33,6 @@ from modelviewprojection.mathutils import uniform_scale as S
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-
-
 if not glfw.init():
     sys.exit()
 
@@ -151,7 +149,9 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         paddle1_vector_ndc: Vector2 = p1_to_ndc(p1_v_ms)
-        GL.glVertex2f(paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2)
+        GL.glVertex2f(
+            paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2
+        )
     GL.glEnd()
     # doc-region-end compose transformations on paddle 1
     # doc-region-end draw paddle 1
