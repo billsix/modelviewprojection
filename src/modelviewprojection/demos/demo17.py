@@ -242,11 +242,7 @@ while not glfw.window_should_close(window):
                     paddle1_vector_ndc = fn_stack.modelspace_to_ndc_fn()(
                         p1_v_ms
                     )
-                    GL.glVertex3f(
-                        paddle1_vector_ndc.coeff_e_1,
-                        paddle1_vector_ndc.coeff_e_2,
-                        paddle1_vector_ndc.coeff_e_3,
-                    )
+                    GL.glVertex3f(*paddle1_vector_ndc)
                 GL.glEnd()
 
                 # square space to paddle 1 space
@@ -265,11 +261,7 @@ while not glfw.window_should_close(window):
                     GL.glBegin(GL.GL_QUADS)
                     for ms in square:
                         square_vector_ndc = fn_stack.modelspace_to_ndc_fn()(ms)
-                        GL.glVertex3f(
-                            square_vector_ndc.coeff_e_1,
-                            square_vector_ndc.coeff_e_2,
-                            square_vector_ndc.coeff_e_3,
-                        )
+                        GL.glVertex3f(*square_vector_ndc)
                     GL.glEnd()
 
             # paddle 2 space to world space
@@ -288,11 +280,7 @@ while not glfw.window_should_close(window):
                     paddle2_vector_ndc = fn_stack.modelspace_to_ndc_fn()(
                         p2_v_ms
                     )
-                    GL.glVertex3f(
-                        paddle2_vector_ndc.coeff_e_1,
-                        paddle2_vector_ndc.coeff_e_2,
-                        paddle2_vector_ndc.coeff_e_3,
-                    )
+                    GL.glVertex3f(*paddle2_vector_ndc)
                 GL.glEnd()
 
     glfw.swap_buffers(window)

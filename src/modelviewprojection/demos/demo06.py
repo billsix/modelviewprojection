@@ -138,9 +138,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         paddle1_vector_ndc: Vector2 = p1_to_ndc(p1_v_ms)
-        GL.glVertex2f(
-            paddle1_vector_ndc.coeff_e_1, paddle1_vector_ndc.coeff_e_2
-        )
+        GL.glVertex2f(*paddle1_vector_ndc)
 
     GL.glEnd()
     # doc-region-end draw paddle 1
@@ -156,9 +154,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         paddle2_vector_ndc: Vector2 = p2_to_ndc(p2_v_ms)
-        GL.glVertex2f(
-            paddle2_vector_ndc.coeff_e_1, paddle2_vector_ndc.coeff_e_2
-        )
+        GL.glVertex2f(*paddle2_vector_ndc)
     GL.glEnd()
     # doc-region-end draw paddle 2
 

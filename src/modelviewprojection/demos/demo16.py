@@ -205,11 +205,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         paddle1_vector_ndc = fn_stack.modelspace_to_ndc_fn()(p1_v_ms)
-        GL.glVertex3f(
-            paddle1_vector_ndc.coeff_e_1,
-            paddle1_vector_ndc.coeff_e_2,
-            paddle1_vector_ndc.coeff_e_3,
-        )
+        GL.glVertex3f(*paddle1_vector_ndc)
     GL.glEnd()
     # doc-region-end draw paddle 1
 
@@ -230,11 +226,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
         square_vector_ndc = fn_stack.modelspace_to_ndc_fn()(ms)
-        GL.glVertex3f(
-            square_vector_ndc.coeff_e_1,
-            square_vector_ndc.coeff_e_2,
-            square_vector_ndc.coeff_e_3,
-        )
+        GL.glVertex3f(*square_vector_ndc)
     GL.glEnd()
     # doc-region-end draw square
 
@@ -257,11 +249,7 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         paddle2_vector_ndc = fn_stack.modelspace_to_ndc_fn()(p2_v_ms)
-        GL.glVertex3f(
-            paddle2_vector_ndc.coeff_e_1,
-            paddle2_vector_ndc.coeff_e_2,
-            paddle2_vector_ndc.coeff_e_3,
-        )
+        GL.glVertex3f(*paddle2_vector_ndc)
     GL.glEnd()
     # doc-region-end draw paddle 2
 
