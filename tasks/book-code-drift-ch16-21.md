@@ -9,9 +9,9 @@ chapters (esp. ch21) are not just drifted but **unfinished**.
 ## Cross-cutting
 | Finding | Plan |
 |---|---|
-| ✅ `e_1`/`e_2`/`e_3` natural basis unexplained — DONE (2D ch05, 3D ch14) | [`archive/book-explain-natural-basis.md`](archive/book-explain-natural-basis.md) |
-| ✅ Wrong code names in prose: `modelspace_to_ndc`→`modelspace_to_ndc_fn` (ch16:184,234,486); `camera_space_to_ndc_space_fn`→`cs_to_ndc_space_fn` (ch16:231, ch17:310) — DONE | [`archive/fix-method-vs-function-wording.md`](archive/fix-method-vs-function-wording.md) |
-| ✅ `demo21/demo21.py` missing `import sys`/`import os` (ships broken via ch21) — DONE | [`archive/fix-demo-code-bugs.md`](archive/fix-demo-code-bugs.md) |
+| ✅ `e_1`/`e_2`/`e_3` natural basis unexplained — DONE (2D ch05, 3D ch14) | [`archive/book-explain-natural-basis.md`](archive/2026/05/26/book-explain-natural-basis.md) |
+| ✅ Wrong code names in prose: `modelspace_to_ndc`→`modelspace_to_ndc_fn` (ch16:184,234,486); `camera_space_to_ndc_space_fn`→`cs_to_ndc_space_fn` (ch16:231, ch17:310) — DONE | [`archive/fix-method-vs-function-wording.md`](archive/2026/05/26/fix-method-vs-function-wording.md) |
+| ✅ `demo21/demo21.py` missing `import sys`/`import os` (ships broken via ch21) — DONE | [`archive/fix-demo-code-bugs.md`](archive/2026/05/26/fix-demo-code-bugs.md) |
 
 ## Per-chapter
 | Chapter | Findings (verified unless noted) | Plan |
@@ -19,7 +19,7 @@ chapters (esp. ch21) are not just drifted but **unfinished**.
 | ch16 | caption missing `.py` (:194); name refs (above); broken/short sentence ~:267 (TODO.org) | see **ch16 detail** below |
 | ch17 | "fixed in demo17"→demo18 (:41); `push_transformation` context manager + `rotate_x/y/z` introduced in code but unexplained; diagrams (TODO.org) | see **ch17 detail** below |
 | ch18 | captions say `demo18.py` on mathutils includes (:248,:262); "ration"→"ratio" (:225); f1/f2/f3 + `Callable` unexplained (TODO.org) | see **ch18 detail** below |
-| ch19 | ✅ `glPushStack`/`glPopStack`→`glPushMatrix`/`glPopMatrix` (:59,:60) + demo19 `with`-block comment (:264-266) — DONE (the `.. TODO` at :201 is a hidden RST comment, left per Bill) | [`archive/ch19-fixes.md`](archive/ch19-fixes.md) |
+| ch19 | ✅ `glPushStack`/`glPopStack`→`glPushMatrix`/`glPopMatrix` (:59,:60) + demo19 `with`-block comment (:264-266) — DONE (the `.. TODO` at :201 is a hidden RST comment, left per Bill) | [`archive/ch19-fixes.md`](archive/2026/05/26/ch19-fixes.md) |
 | ch20 | GLSL builtins misspelled: `gl_Modelview_matrix`/`glProjectionMatrix`→`gl_ModelViewMatrix`/`gl_ProjectionMatrix` (:122-123); thin prose (TODO.org) | see **ch20 detail** below |
 | ch21 | **unfinished** — scaffolding only, no explanatory prose; empty "Event Loop" (~:86-88); depends on demo21 import fix | see **ch21 detail** below |
 | perspective.rst | standalone math prose (no literalincludes); one stray `// TODO -- proof of monotonicity` (:675). No other drift found. | (fold into a future perspective pass) |

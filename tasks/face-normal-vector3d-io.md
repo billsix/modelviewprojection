@@ -2,7 +2,7 @@
 
 **Status:** not started (investigation). **Type:** refactor of
 `src/modelviewprojection/shading.py` + its callers. Follow-up to
-[`shading-use-vector3d.md`](../tasks/archive/shading-use-vector3d.md) (Finding 1, done — made
+[`shading-use-vector3d.md`](archive/2026/05/26/shading-use-vector3d.md) (Finding 1, done — made
 `_face_normal` compute via `mathutils.find_normal` but **kept tuple in/out**).
 
 ## Question

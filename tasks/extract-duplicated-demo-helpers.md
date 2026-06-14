@@ -4,7 +4,7 @@
 `light_dir_ws`), `windowing.py` (`on_key`), and `clipping.py`
 (`draw_in_square_viewport`) all extracted & committed (see Progress below).
 Remaining: `shaderutils.py` / `set_mvp_uniforms` (deferred — demo22 variant) and
-per-demo `handle_inputs` (separate, [`dedup-handle-inputs.md`](dedup-handle-inputs.md)).
+per-demo `handle_inputs` (separate, [`dedup-handle-inputs.md`](archive/2026/06/01/dedup-handle-inputs.md)).
 **Type:** refactor of `src/modelviewprojection/demo*.py`, coordinated with the book.
 **Approach (Bill's choice):** *teach-once-then-import* — the first chapter that
 teaches a helper keeps its inline copy; from the next demo onward, import it from
@@ -49,7 +49,7 @@ import instead of a redefinition.
 - **Deferred:** `shaderutils.py` / `set_mvp_uniforms` — demo22 is a variant
   (3-of-4 identical), the variant-reconciliation question Bill asked to handle
   later. Not touched. Per-demo `handle_inputs` dedup tracked separately in
-  [`dedup-handle-inputs.md`](dedup-handle-inputs.md).
+  [`dedup-handle-inputs.md`](archive/2026/06/01/dedup-handle-inputs.md).
 - **2026-06-01 — `axes.py` DONE (staged, not committed).** Created
   `src/modelviewprojection/axes.py` with `draw_unit_axes(scale: float = 1.0)`
   plus three private primitives (`_draw_solid_cylinder`, `_draw_solid_cone`,

@@ -3,7 +3,7 @@
 **Status:** NOT done — the one v4 demo that didn't land in the 2026-05-13
 session (two diagnoses were tried and reverted by Bill). Brought into master
 2026-05-27 alongside the v4 ports pull. Full session context:
-[`HANDOFF-2026-05-13.md`](HANDOFF-2026-05-13.md).
+[`HANDOFF-2026-05-13.md`](archive/2026/05/26/HANDOFF-2026-05-13.md).
 
 ## Symptom
 `ports/openglsuperbiblev4/chapt14/shadowmap/shadowmap.py` — the shadow pass
