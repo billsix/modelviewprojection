@@ -20,16 +20,16 @@ from enum import Enum, auto
 import glfw
 
 from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection.cayley import (
+    cayleygraph,
+    cayleyscene,
+)
 from modelviewprojection.mathutils import (
     Vector3,
     rotate_x,
     rotate_y,
     rotate_z,
     translate,
-)
-from modelviewprojection.cayley import (
-    cayleygraph,
-    cayleyscene,
 )
 from modelviewprojection.mvpvisualization import (
     cayley_gl,

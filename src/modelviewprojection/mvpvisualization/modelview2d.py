@@ -28,15 +28,15 @@ import glfw
 import OpenGL.GL as GL
 
 from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection.cayley import (
+    cayleygraph,
+    cayleyscene,
+)
 from modelviewprojection.mathutils import (
     Vector3,
     rotate_y,
     rotate_z,
     translate,
-)
-from modelviewprojection.cayley import (
-    cayleygraph,
-    cayleyscene,
 )
 from modelviewprojection.mvpvisualization import (
     cayley_gl,

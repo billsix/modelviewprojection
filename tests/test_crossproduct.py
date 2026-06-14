@@ -94,7 +94,11 @@ def test_rotor_edge_interpolates_smoothly():
     half = tuple(float(x) for x in edge.at(0.5)(a))
     full = tuple(float(x) for x in edge.at(1.0)(a))
     assert abs(start[0] - 2.0) < 1e-9 and abs(start[1] - 1.0) < 1e-9
-    assert abs(full[0] - mag) < 1e-6 and abs(full[1]) < 1e-6 and abs(full[2]) < 1e-6
+    assert (
+        abs(full[0] - mag) < 1e-6
+        and abs(full[1]) < 1e-6
+        and abs(full[2]) < 1e-6
+    )
     # halfway is strictly between (not snapped to either end)
     assert abs(half[0] - 2.0) > 1e-3 and abs(half[0] - mag) > 1e-3
 
@@ -102,7 +106,9 @@ def test_rotor_edge_interpolates_smoothly():
 @pytest.mark.slow
 def test_cross_product_equals_analytic_symbolically():
     # the proof: equal for ALL a, b (free symbols). ~minutes (radical simplify).
-    a_x, a_y, a_z, b_x, b_y, b_z = sympy.symbols("a_x a_y a_z b_x b_y b_z", real=True)
+    a_x, a_y, a_z, b_x, b_y, b_z = sympy.symbols(
+        "a_x a_y a_z b_x b_y b_z", real=True
+    )
     a = Vector3(a_x, a_y, a_z)
     b = Vector3(b_x, b_y, b_z)
 

@@ -1,7 +1,16 @@
 # Fix no-op `exec` in jupyter.sh
 
-**Status:** proposed — not started
+**Status:** complete
+**Completed:** 2026-06-14
 **Created:** 2026-06-13
+
+Resolved 2026-06-14 as part of restoring Jupyter support: `entrypoint/jupyter.sh`
+was rewritten to `exec jupyter lab …` (no more bare no-op `exec`) and to run
+`loadpackages.sh` first so the notebooks can `import modelviewprojection` (the
+editable install had been lost). Also (re)added a `make jupyter` target that prints
+the `http://127.0.0.1:8888/lab` URL, and seeded `~/.bash_history` with
+`/usr/local/bin/jupyter.sh # on http://127.0.0.1:8888/lab` (geometricalgebra style).
+The `.bash_history` line requires a `make image` rebuild to take effect.
 
 ## Goal
 

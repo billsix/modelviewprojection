@@ -9,6 +9,7 @@ import math
 
 import pytest
 
+from modelviewprojection.cayley import cayleygraph
 from modelviewprojection.mathutils import (
     Vector3,
     compose,
@@ -18,7 +19,6 @@ from modelviewprojection.mathutils import (
     rotate_z,
     translate,
 )
-from modelviewprojection.cayley import cayleygraph
 
 # --- a small demo-like scene: square -> paddle1 -> world, and camera -> world -
 

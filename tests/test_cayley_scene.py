@@ -11,6 +11,7 @@ import math
 
 import numpy as np
 
+from modelviewprojection.cayley import cayleygraph, cayleyscene
 from modelviewprojection.mathutils import (
     Vector3,
     compose,
@@ -21,7 +22,6 @@ from modelviewprojection.mathutils import (
     translate,
     uniform_scale,
 )
-from modelviewprojection.cayley import cayleygraph, cayleyscene
 
 # demo constants (verbatim from modelviewperspectiveprojection.py)
 P1_POS = Vector3(-9.0, 1.0, 0.0)

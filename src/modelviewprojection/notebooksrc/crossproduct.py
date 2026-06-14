@@ -42,10 +42,9 @@
 
 # %%
 import sympy
-from IPython.display import Markdown, display
-
 from gacalc.g3 import Vector3
 from gacalc.nbplotutils import show_mult
+from IPython.display import Markdown, display
 
 e_1, e_2, e_3 = Vector3.e_1, Vector3.e_2, Vector3.e_3
 
@@ -136,7 +135,9 @@ checks = [
     sympy.simplify(got_y - exp_y) == 0,
     sympy.simplify(got_z - exp_z) == 0,
 ]
-display(Markdown(f"All three components match the cross product: **{all(checks)}**"))
+display(
+    Markdown(f"All three components match the cross product: **{all(checks)}**")
+)
 
 # %% [markdown]
 # ## Part 2 — step by step, every multiplication via `show_mult`

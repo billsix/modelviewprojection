@@ -97,7 +97,9 @@ def _rotor_edge(from_vector, to_vector, label="R"):
     fv = to_vector.normalize()
 
     def _partial(t):
-        target = (1.0 - t) * fu + t * fv  # nlerp of directions -- no sin/cos/atan
+        target = (
+            1.0 - t
+        ) * fu + t * fv  # nlerp of directions -- no sin/cos/atan
         return rotor_rotation(from_vector, target)
 
     return rotor_rotation(
@@ -172,7 +174,9 @@ def cross_product_stepwise(a: Vector3, b: Vector3) -> Vector3:
 
     # R_z: a's shadow on the e1-e2 plane -> +x  (a then lies in the x-z plane).
     a_xy = Vector3.reject(away_from=e_3)(a)
-    r_z = Vector3.rotor_from_vectors(from_vector=a_xy, to_vector=e_1).normalize()
+    r_z = Vector3.rotor_from_vectors(
+        from_vector=a_xy, to_vector=e_1
+    ).normalize()
     a1 = r_z.sandwich(a)
 
     # R_y: that x-z vector -> the +x axis  (a is now |a| e_1).
@@ -331,7 +335,9 @@ def main() -> None:
     circle_vao, circle_n = _p.make_lines_vao(
         unit_circle_cyl_mesh(), solid.attr_position
     )
-    axis_vao, axis_n = _p.make_lines_vao(arrow_mesh(AXIS_LEN), solid.attr_position)
+    axis_vao, axis_n = _p.make_lines_vao(
+        arrow_mesh(AXIS_LEN), solid.attr_position
+    )
     sphere_vao, sphere_n = _p.make_lines_vao(
         _p.build_origin_sphere_solid(radius=0.08), solid.attr_position
     )
@@ -377,7 +383,9 @@ def main() -> None:
                     ms.rotate_x(ms.MatrixStack.model, _math.radians(90.0))
                 _draw_solid(vao, n, color)
 
-    def draw_ground(width, height, xy=True, yz=False, zx=False, color=(0.3, 0.3, 0.3)):
+    def draw_ground(
+        width, height, xy=True, yz=False, zx=False, color=(0.3, 0.3, 0.3)
+    ):
         _draw_on_planes(ground_vao, ground_n, color, xy, yz, zx)
 
     def draw_unit_circle(width, height, xy=True, yz=False, zx=False):
@@ -763,7 +771,6 @@ def main() -> None:
         if g.step_number not in _INSTANT_STEPS:
             g.current_animation_start_time = g.animation_time
 
-
     # -----------------------------------------------------------------------
     # The scene draw.  Transforms are gacalc InvertibleFunctions, realized to 4x4s
     # (to_matrix = the function's action on the basis) and multiplied in numpy --
@@ -928,9 +935,8 @@ def main() -> None:
                 @ edge_M(g.r_x_inv, step_progress(StepNumber.undo_rotate_x))
             )
             set_model_M(model_M)
-            if (
-                g.draw_undo_rotate_x_relative_coordinates
-                and not reached(StepNumber.show_plane)
+            if g.draw_undo_rotate_x_relative_coordinates and not reached(
+                StepNumber.show_plane
             ):
                 draw_ground(width, height, xy=False, yz=True)
                 relative_axes()
@@ -962,9 +968,8 @@ def main() -> None:
                 @ edge_M(g.r_y_inv, step_progress(StepNumber.undo_rotate_y))
             )
             set_model_M(model_M)
-            if (
-                g.draw_undo_rotate_y_relative_coordinates
-                and not reached(StepNumber.show_plane)
+            if g.draw_undo_rotate_y_relative_coordinates and not reached(
+                StepNumber.show_plane
             ):
                 draw_ground(width, height, xy=False, zx=True)
                 relative_axes()
@@ -996,9 +1001,8 @@ def main() -> None:
                 @ edge_M(g.r_z_inv, step_progress(StepNumber.undo_rotate_z))
             )
             set_model_M(model_M)
-            if (
-                g.draw_undo_rotate_z_relative_coordinates
-                and not reached(StepNumber.show_plane)
+            if g.draw_undo_rotate_z_relative_coordinates and not reached(
+                StepNumber.show_plane
             ):
                 draw_ground(width, height)
                 relative_axes()
@@ -1040,9 +1044,7 @@ def main() -> None:
                 if reached(StepNumber.show_plane):
                     set_model_M(chain_M)
                     draw_ground(width, height)
-                magnitude = _math.sqrt(
-                    g.vec1.x**2 + g.vec1.y**2 + g.vec1.z**2
-                )
+                magnitude = _math.sqrt(g.vec1.x**2 + g.vec1.y**2 + g.vec1.z**2)
                 chain_M = chain_M @ const_M(
                     "scale",
                     lambda: scale_non_uniform(1.0, 1.0, magnitude),
@@ -1099,7 +1101,9 @@ def main() -> None:
         if not g.animation_paused:
             g.animation_time += dt * g.animation_time_multiplier
         if g.auto_rotate_camera:
-            g.camera.rot_y += _math.radians(6.0) * dt  # ~6 deg/sec, fps-independent
+            g.camera.rot_y += (
+                _math.radians(6.0) * dt
+            )  # ~6 deg/sec, fps-independent
         if g.auto_play:
             advance_step()
         previous_mouse_position[0] = handle_inputs(previous_mouse_position[0])
@@ -1214,7 +1218,10 @@ def main() -> None:
                 ("z'", "highlight_relative_z"),
             ):
                 cayley_gl.menu_action(
-                    name, "", lambda a=attr: _toggle(a), selected=getattr(g, attr)
+                    name,
+                    "",
+                    lambda a=attr: _toggle(a),
+                    selected=getattr(g, attr),
                 )
             imgui.end_menu()
         if imgui.begin_menu("View", True):
