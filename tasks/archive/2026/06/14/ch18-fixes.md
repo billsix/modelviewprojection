@@ -16,7 +16,7 @@
 
 ## Related
 - e_1/e_2/e_3 omission, and `push_transformation` (deeply nested in demo18) →
-  `tasks/archive/book-explain-natural-basis.md` and `plans/ch17-fixes.md` (introduce the
+  `tasks/archive/book-explain-natural-basis.md` and `tasks/ch17-fixes.md` (introduce the
   context manager in ch17, the chapter where it first appears).
 
 ## Verification

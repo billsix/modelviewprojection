@@ -322,7 +322,7 @@ Duplication confirmed by grep (2026-05-28): `draw_solid_sphere` ×30,
       SEPARATED, GLU/DRIVER, STUB demos; and **occquery** (Bill: leave as-is).
 
 Overlaps the src/-side
-[`../plans/extract-duplicated-demo-helpers.md`](../plans/extract-duplicated-demo-helpers.md).
+[`../tasks/extract-duplicated-demo-helpers.md`](../tasks/extract-duplicated-demo-helpers.md).
 
 ## Notes / decisions
 - **DECIDED 2026-05-28 (Bill):** no display lists (or VBOs) unless the C++ source

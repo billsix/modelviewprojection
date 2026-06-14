@@ -59,7 +59,7 @@ def make_planar_shadow_matrix(
     plane_equation can make w land negative, which OpenGL clips before
     perspective divide and the shadow disappears. Negate the matrix
     when needed to keep w positive. See
-    plans/notes-planar-shadow-w-clipping.md."""
+    tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md."""
     a, b, c = plane_normal.coeff_e_1, plane_normal.coeff_e_2, plane_normal.coeff_e_3
     d = plane_d
     dx = -light_pos_4[0]

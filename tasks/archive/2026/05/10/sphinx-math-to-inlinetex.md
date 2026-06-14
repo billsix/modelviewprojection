@@ -20,7 +20,7 @@
 EPUB output of the book renders `.. math::` and `:math:` (Sphinx's
 standard LaTeX, served via mathjax/imgmath) incorrectly — that is the
 original reason the texExpToPng pipeline exists. With the
-`plans/sphinx-inline-tex-extension.md` work landed (ch02 migrated, both
+`tasks/archive/2026/05/10/sphinx-inline-tex-extension.md` work landed (ch02 migrated, both
 phases done 2026-05-10), the same machinery can be used for the rest of
 the chapters. End state: zero `.. math::` directives or `:math:` roles in
 `book/docs/*.rst`; everything goes through the texExpToPng path that's

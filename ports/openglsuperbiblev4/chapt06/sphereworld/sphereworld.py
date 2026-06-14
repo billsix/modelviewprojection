@@ -54,7 +54,7 @@ def make_planar_shadow_matrix(
     dx, dy, dz = -light_pos_4[0], -light_pos_4[1], -light_pos_4[2]
     # CCW plane_equation can land w<0; OpenGL clips before perspective
     # divide and the shadow disappears. Negate to keep w positive.
-    # See plans/notes-planar-shadow-w-clipping.md.
+    # See tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md.
     sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [

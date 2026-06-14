@@ -82,7 +82,7 @@ extensions = [
 
 # texExpToPng --size DPI for inlinetex-rendered PNGs. 300 (the extension
 # default) was too large at body-text scale; 150 gives roughly half the
-# pixel dimensions. See plans/sphinx-math-to-inlinetex.md.
+# pixel dimensions. See tasks/archive/2026/05/10/sphinx-math-to-inlinetex.md.
 inlinetex_default_size = 150
 
 nb_execution_timeout = 600  # timeout of ten minutes

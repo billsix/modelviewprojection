@@ -27,4 +27,4 @@ Expose the light-position radius (or whatever parameterizes the light placement 
 ## Open questions
 
 - Is the radius the only parameter Bill wants, or also angle? "Make the radius adjustable" reads literally — start with one slider, ask before adding more.
-- Should the slider also control the visible light marker (see [ports-visible-light-source.md](ports-visible-light-source.md))? demo22 already shows a visible light, so the marker should track the slider automatically — verify in code.
+- Should the slider also control the visible light marker (see the visible-light-source task, #40, now folded into [ports-ux-pass.md](ports-ux-pass.md) Phase 3)? demo22 already shows a visible light, so the marker should track the slider automatically — verify in code.

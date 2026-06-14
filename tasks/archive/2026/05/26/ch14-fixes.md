@@ -17,7 +17,7 @@ Verified: doc-region integrity clean across ch01–21, `pytest` 47/47.
 1. **Line 133 — caption missing `.py`.** `:caption:
    src/modelviewprojection/mathutils` → `…/mathutils.py` (siblings at lines 156,
    177, 197, 209 are correct). Same class of bug recurs in ch16:194 (see
-   `plans/ch16-fixes.md`).
+   `tasks/ch16-fixes.md`).
 2. **Lines 129-133 — doc-region label collision pulls the wrong class.** The
    `literalinclude` uses `:start-after: doc-region-begin define vector class`, but
    that label appears **3 times** in `mathutils.py` (around Vector1D@204,

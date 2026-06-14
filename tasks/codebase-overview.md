@@ -1,7 +1,7 @@
 # Codebase overview — modelviewprojection (Claude's edification notes)
 
 > Durable orientation notes for myself. Written 2026-05-26. The repo also has a
-> rich `CLAUDE.md` (read it first) and detailed specs in `plans/`. This file is
+> rich `CLAUDE.md` (read it first) and detailed specs in `tasks/`. This file is
 > the "how is the code actually laid out and what is it for" companion to those.
 
 ## What this project is
@@ -48,7 +48,7 @@ book/docs/            # the Sphinx book
 assignments/          # student assignments (assignment1, assignment2-screenspace, assignment3-strafe)
 ports/openglsuperbiblev4/  # 1:1 SuperBible 4e -> Python port tree (PARKED this session)
 tests/                # test_mathutils.py (big), test_firstclassfunctions.py
-plans/                # detailed specs + dated HANDOFF-*.md notes (repo's durable notes home)
+tasks/archive/<YYYY>/<MM>/<DD>/  # completed tasks, dated by completion (git history is the rest)
 tasks/                # THIS dir — lightweight session task tracker (global CLAUDE.md convention)
 ```
 

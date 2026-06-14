@@ -34,7 +34,7 @@ so sampling the depth texture yields a **grayscale intensity = depth**.
 An **optional** remap (default OFF, so the faithful grayscale view is preserved) that makes
 close depth values visually distinct. The demos are key-driven (S/M/C/F/X/Y/Z), so a new key
 (e.g. **`D`** = "distinct") is the consistent UI; an imgui checkbox is the alternative if/when
-these ports get the imgui treatment (see plans/ports-replace-cli-with-imgui.md).
+these ports get the imgui treatment (the CLI→imgui task, #36, now folded into tasks/ports-ux-pass.md Phase 3).
 
 ## Candidate techniques (pick one or cycle through)
 

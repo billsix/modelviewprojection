@@ -64,7 +64,7 @@ def make_planar_shadow_matrix(
     chapt05/sphereworld -- the C++ original. The CCW plane_equation
     can flip w<0 on the transformed vertices, which OpenGL clips
     before perspective divide and the shadow disappears; negate the
-    matrix when needed. See plans/notes-planar-shadow-w-clipping.md."""
+    matrix when needed. See tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md."""
     p1, p2, p3 = plane_pts
     pn, pd = plane_equation(Vector3(*p1), Vector3(*p2), Vector3(*p3))
     a, b, c, d = pn.coeff_e_1, pn.coeff_e_2, pn.coeff_e_3, pd

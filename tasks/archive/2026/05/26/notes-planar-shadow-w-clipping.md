@@ -9,7 +9,7 @@ planar-shadow helper, e.g. curriculum-side `pyMatrixStack.planar_shadow`).
 Durable technical note from the chapt01/block port. Applies to any
 port that builds a planar shadow matrix — including the wishlisted
 chapt05/shadow port and the curriculum-side
-`pyMatrixStack.planar_shadow` (see plans/planar-shadow-matrix.md).
+`pyMatrixStack.planar_shadow` (see tasks/planar-shadow-matrix.md).
 
 ## The trap
 

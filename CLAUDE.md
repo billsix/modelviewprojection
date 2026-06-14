@@ -85,41 +85,52 @@ Bill's host is Fedora 43 (glibc 2.42). System SDL2 is the SDL2-compat shim on SD
 
 ---
 
-## Active plans
+## Tasks
 
-Plans live in `plans/`. At the start of a session, check `TaskList` against the plan files for status — the plan files are durable, the task IDs are not.
+Active work lives in `tasks/` (one file per task); completed work is moved to
+`tasks/archive/<YYYY>/<MM>/<DD>/`. There is **no longer a `plans/` directory or
+session HANDOFF files** — those were folded into this `tasks/` + archive model.
+The list below is the curated set of the notable ones; `tasks/` is authoritative.
 
 **Top-level goal:**
-- [`plans/superbible-full-port.md`](plans/superbible-full-port.md) — **port the entire OpenGL SuperBible 4e example codebase to Python under `/mvp/ports/openglsuperbiblev4/`**, mirroring the SuperBible folder structure, so Bill's students can read the textbook in the second half of class while reading along in Python (no C++ required). Faithful 1:1 translation: GLFW (not GLUT), ImGui (not GLUT menus), fixed-function-stays-fixed-function, math in Bill's style only where it's not matrix-stack ops. **Status: COMPLETE** (2026-04-28). 101 .py files across chapt01–chapt22; chapt01–18 are real ports (~95 functional demos), chapt19 is mostly real ports plus stubs for the Win32 MFC demos that have no portable equivalent (Text2D/Text3D port the visual intent via imgui; RThread, GLView are stubbed), chapt20 (Apple Carbon/Cocoa), chapt22 (OpenGL ES) are all stubs since these target platform-specific APIs we can't reach from Python. All ports syntax-checked, none hardware-verified.
+- `tasks/superbible-full-port.md` — **port the entire OpenGL SuperBible 4e example
+  codebase to Python under `/mvp/ports/openglsuperbiblev4/`**, mirroring the
+  SuperBible folder structure (GLFW not GLUT, ImGui not GLUT menus,
+  fixed-function-stays-fixed-function, Bill's math style only where it isn't
+  matrix-stack ops). **The port itself is COMPLETE** (2026-04-28): 101 .py files
+  across chapt01–22; chapt01–18 real ports (~95 demos), chapt19 mostly real plus
+  Win32-MFC stubs (Text2D/Text3D via imgui; RThread/GLView stubbed), chapt20
+  (Apple) and chapt22 (GL ES) all stubs; all syntax-checked, none hardware-verified.
+  The remaining work is the UX pass below.
 
-**Subsidiary plans (math / `pyMatrixStack`):**
-- [`plans/planar-shadow-matrix.md`](plans/planar-shadow-matrix.md) — add planar-shadow-projection 4×4 to `pyMatrixStack` (curriculum side). Deliberately *not* an `InvertibleFunction` (rank-deficient).
-- [`plans/rotate-around-axis.md`](plans/rotate-around-axis.md) — add `rotate_around_axis` to `pyMatrixStack`, *decomposed as a sequence of axis-aligned rotations* (Bill's pedagogy choice — derive arbitrary-axis rotation from rotations the student already knows; don't drop Rodrigues on them).
-- [`plans/plane-and-normal-helpers.md`](plans/plane-and-normal-helpers.md) — ✅ **done 2026-04-28**. `find_normal`, `plane_equation`, `distance_to_plane` now live in `mathutils.py` as free functions on `Vector3`, with CCW winding convention (sign opposite to SuperBible's `m3dGetPlaneEquation` for plane normals, but planar-shadow matrices are sign-invariant). chapt01/block imports from mathutils. Used by chapt05/litjet, chapt05/shadow when those ports happen.
+**SuperBible ports — UX pass (Phase 1 done; Phase 2 next):**
+- `tasks/ports-ux-pass.md` — **read first.** Self-contained umbrella: the phased
+  execution order *plus* the per-task detail (the old `ports-walkaround-camera`,
+  `ports-sphereworld-camera-fix`, `ports-keyboard-standardization`,
+  `ports-replace-cli-with-imgui`, `ports-visible-light-source` satellites are
+  folded into the Phase 2 / Phase 3 sections — archived 2026-06-14). **NEXT** is
+  Phase 2: walk-around (demo22-style) camera for every 3D-space port (orbit only
+  when justified), with sphereworld as the canary. Phase 3 is keyboard
+  standardization, CLI→imgui, and visible light markers.
+- `tasks/demo22-light-radius-imgui.md` — *curriculum-side*: imgui slider for demo22's light radius.
 
-**Subsidiary plans (SuperBible ports — UX pass, recorded 2026-04-28):**
-- [`plans/ports-ux-pass.md`](plans/ports-ux-pass.md) — **read first.** Umbrella plan with the phased execution order across the eight tasks below. **Phase 1 done; Phase 2 next.**
-- [`plans/ports-imgui-menubar.md`](plans/ports-imgui-menubar.md) — ✅ done. Every port has imgui menubar (File→Quit, View→Fullscreen) via `_common.py`.
-- [`plans/ports-window-size-1920x1080.md`](plans/ports-window-size-1920x1080.md) — ✅ done. Ports default to 1920×1080 (or 90% of monitor on smaller displays) via `_common.resolve_default_window_size()`.
-- [`plans/ports-walkaround-camera.md`](plans/ports-walkaround-camera.md) — **NEXT (Phase 2).** Walk-around (demo22-style) camera for every 3D-space port; orbit/rotate-around only when justified.
-- [`plans/ports-sphereworld-camera-fix.md`](plans/ports-sphereworld-camera-fix.md) — Phase 2 follow-up; specific instance of the walk-around camera task.
-- [`plans/ports-keyboard-standardization.md`](plans/ports-keyboard-standardization.md) — Phase 3. Pick one keyboard convention (driven by demo22) and apply.
-- [`plans/ports-replace-cli-with-imgui.md`](plans/ports-replace-cli-with-imgui.md) — Phase 3. Replace any CLI args in ports with imgui controls.
-- [`plans/ports-visible-light-source.md`](plans/ports-visible-light-source.md) — Phase 3. Render a small visible marker at every light position (like demo22 does).
-- [`plans/demo22-light-radius-imgui.md`](plans/demo22-light-radius-imgui.md) — *curriculum-side, not a port task*: add an imgui slider for demo22's light radius.
+Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
+`resolve_default_window_size()`, `init_imgui(window)`, `WindowState`,
+`draw_menubar(window, win_state)`, `toggle_fullscreen(window, state)` (imgui menubar
++ 1920×1080 default already landed here). Demo import pattern:
+`sys.path.insert(0, os.path.dirname(os.path.dirname(PWD))); import _common`.
 
-**Shared helper for ports tree (added 2026-04-28):** `/mvp/ports/openglsuperbiblev4/_common.py` — central place for `_common.resolve_default_window_size()`, `_common.init_imgui(window)`, `_common.WindowState`, `_common.draw_menubar(window, win_state)`, `_common.toggle_fullscreen(window, state)`. Future phases (Camera, light marker) will land here. Demo import pattern: `sys.path.insert(0, os.path.dirname(os.path.dirname(PWD))); import _common`.
+**Math / `pyMatrixStack`:**
+- `tasks/planar-shadow-matrix.md` — planar-shadow-projection 4×4 for `pyMatrixStack`; deliberately *not* an `InvertibleFunction` (rank-deficient). (`find_normal`/`plane_equation`/`distance_to_plane` already live in `mathutils.py`.)
+- `tasks/rotate-around-axis.md` — `rotate_around_axis` decomposed as a sequence of axis-aligned rotations (Bill's pedagogy choice; don't drop Rodrigues on them).
+- `tasks/face-normal-vector3d-io.md` — investigation (not started).
 
-**Reference:**
-- [`plans/superbible-study.md`](plans/superbible-study.md) — umbrella for the /superbible study (both completed). Notes in [`notes-superbible-structure.md`](plans/notes-superbible-structure.md) and [`notes-superbible-math-diff.md`](plans/notes-superbible-math-diff.md).
-- [`plans/HANDOFF-2026-04-28.md`](plans/HANDOFF-2026-04-28.md) — most recent session's stopping point. Lists exactly which demos got ported (57 across chapt01–09 + 4 of chapt10) and what to do first next session. Read this at session start if resuming SuperBible port work.
+**Book / curriculum:**
+- `tasks/gacalc-math-migration.md` — **Phase 4 (the book) is the remaining high-risk step** (ch05/06/14 rewritten to teach gacalc vectors as *the* vector type).
+- `tasks/book-code-drift-ch7-15.md` and `tasks/book-code-drift-ch16-21.md` — book-prose drift trackers (planned/partial), now self-contained: the per-chapter `chNN-fixes.md` satellites were folded into these and archived 2026-06-14.
+- `tasks/v4-chapt14-shadowmap-fix.md` — the one v4 demo not yet landed.
+- `tasks/extract-duplicated-demo-helpers.md` — in progress (helper dedup).
+- `tasks/axis-cylinder-cone-lighting.md` — deferred.
+- `tasks/jupyter-sh-exec-fix.md` — one-line fix to a no-op `exec` in `entrypoint/jupyter.sh`.
 
-## Tasks (in-flight)
-
-Beyond `plans/`, short-lived work is tracked in `tasks/`:
-
-- `tasks/gacalc-math-migration.md` — the gacalc migration; **Phase 4 (the book) is
-  the remaining high-risk step** (ch05/06/14 must be rewritten to teach gacalc
-  vectors as *the* vector type).
-- `tasks/jupyter-sh-exec-fix.md` — one-line fix to a no-op `exec` in
-  `entrypoint/jupyter.sh`.
+(Other in-flight: `tasks/finish-pdf-epub-build.md`, `tasks/ports-pbo-floattex-runtime-crashes.md`, `tasks/shadowmap-depth-discrimination.md`; `tasks/codebase-overview.md` is a living orientation doc.)

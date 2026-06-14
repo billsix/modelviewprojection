@@ -33,6 +33,6 @@ look pixelated/too-small in the PDF, bump to 200 and regenerate. TODO.org also
 muses about making each equation independently sizable via the Makefile.
 
 ## Detailed spec
-`plans/sphinx-inline-tex-extension.md`, `plans/sphinx-math-to-inlinetex.md`,
-and `plans/HANDOFF-2026-05-10.md`.
+`tasks/archive/2026/05/10/sphinx-inline-tex-extension.md`, `tasks/archive/2026/05/10/sphinx-math-to-inlinetex.md`,
+and `tasks/archive/2026/05/10/HANDOFF-2026-05-10.md`.
 </content>

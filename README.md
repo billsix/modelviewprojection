@@ -54,7 +54,7 @@ Project structure
 | `ports/openglsuperbiblev4/` | ~104 Python ports of the SuperBible v4 examples |
 | `book/docs/` | The Sphinx book (chapters `ch01`–`ch21`) |
 | `assignments/` | Student assignments |
-| `plans/` | Durable design specs; `tasks/` | short-lived work tracking |
+| `tasks/` | Active work (one file per task); completed work under `tasks/archive/<YYYY>/<MM>/<DD>/` |
 
 See `CLAUDE.md` for the deep design context (the Cayley-graph abstraction, the
 gacalc migration, the demo arc, and the SuperBible port plan).

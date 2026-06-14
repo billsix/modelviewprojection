@@ -58,6 +58,6 @@ Shader-era chapters (chapt15+) keep SuperBible's `.vs`/`.fs` filename convention
 - chapt03 — `points`, `pointsz`, `lines`, `linesw`, `lstipple`, `lstrips`, `pstipple`, `single`, `scissor`, `star`, `stencil`, `triangle` (12 demos)
 - chapt04 — `atom`, `atom2`, `solar`, `sphereworld`, `transform`, `transformgl`, `ortho`, `perspect` (8 demos)
 
-**= 24 demos so far.** All pass `python -c "import ast; ast.parse(open(f).read())"`. None have been run on a display — Bill's task. See open issues #1–#6 in `/mvp/plans/superbible-full-port.md` for things to watch when first running.
+**= 24 demos so far.** All pass `python -c "import ast; ast.parse(open(f).read())"`. None have been run on a display — Bill's task. See open issues #1–#6 in `/mvp/tasks/superbible-full-port.md` for things to watch when first running.
 
-See `/mvp/plans/superbible-full-port.md` for the umbrella plan, the established translation patterns (skeleton, GLUT→GLFW mapping, GLFrame unfolding, etc.), and remaining phases. `/mvp/plans/superbible-study.md` is the upstream research. Check `TaskList` in Claude Code for current status of each chapter.
+See `/mvp/tasks/superbible-full-port.md` for the umbrella plan, the established translation patterns (skeleton, GLUT→GLFW mapping, GLFrame unfolding, etc.), and remaining phases. `/mvp/tasks/archive/2026/04/28/superbible-study.md` is the upstream research. Check `TaskList` in Claude Code for current status of each chapter.
