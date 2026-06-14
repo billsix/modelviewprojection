@@ -1,8 +1,8 @@
 # Math demos section + cross-product demo + its proof
 
-**Status:** proposed — needs go-ahead. Plan only; nothing built yet. Written
-2026-06-14 from a read of `multivariate-math/src/crossproduct/` and
-`multivariate-math/proofs/crossproduct.tex`.
+**Status:** Phase 1 DONE (2026-06-14). Phase 2 (port the demo) + Phase 3 (port the
+proof) remain. Written 2026-06-14 from a read of `multivariate-math/src/crossproduct/`
+and `multivariate-math/proofs/crossproduct.tex`.
 
 ## Goal
 
@@ -65,28 +65,38 @@ src/modelviewprojection/mathdemos/
     images/                  # a.png … z.png label textures (or render text instead)
 ```
 
-### Design decision (needs Bill): where does the shared Cayley machinery live?
+### Design decision — RESOLVED: promote to neutral home (Bill, 2026-06-14)
 
-`cayleygraph.py` / `cayleyscene.py` are general (pure math), but currently sit in
-`mvpvisualization/`. Options:
-1. **Import across packages** — `mathdemos/` imports
-   `from modelviewprojection.mvpvisualization import cayleygraph, cayleyscene`.
-   Zero churn; slightly odd dependency direction (math demo → mvp-viz).
-2. **Promote to a neutral home** — move `cayleygraph.py`/`cayleyscene.py` (and the
-   reusable bits of `_pipeline.py`) to e.g. `src/modelviewprojection/cayley/` (or
-   `util/`), and have *both* `mvpvisualization/` and `mathdemos/` import from there.
-   Cleaner conceptually; touches existing imports + ch10/17/19 references.
+Chosen: a neutral `src/modelviewprojection/cayley/` package; both
+`mvpvisualization/` and `mathdemos/` import from it. (The alternative — importing
+the machinery from `mvpvisualization/` — was rejected as the section is meant to
+grow.)
 
-Recommend **2** if the math-demos section is meant to grow; **1** for a quick first
-demo. Decide before Phase 1.
+## Phase 1 — scaffold the section — DONE (2026-06-14)
 
-## Phase 1 — scaffold the section
+- Created `src/modelviewprojection/cayley/` (neutral home) and
+  `src/modelviewprojection/mathdemos/` (the demos package), each with `__init__.py`.
+- `git mv`'d the pure, GL-free machinery `cayleygraph.py` + `cayleyscene.py` into
+  `cayley/`; fixed `cayleyscene`'s internal import.
+- Repointed every importer to `modelviewprojection.cayley`: the 7 viz demos
+  (`coordinatesystems`, `model`, `modelview`, `modelview2d`,
+  `modelvieworthoprojection`, `modelviewperspectiveprojection`, `pushmatrix` — split
+  their grouped import so `cayley_gl` still comes from `mvpvisualization`) and the 3
+  tests (`test_cayley_graph`, `test_cayley_scene`, `test_focus_to_matrix`).
+  `cayley_gl.py` needed no change (it imports only `_pipeline`, takes scenes as args).
+- Verified in the container: `cayley.cayleygraph`/`cayleyscene` import; the 7 demos
+  + `cayley_gl` py-compile; **full suite 58 passed**. The book references only the
+  *demo* file paths (unmoved), so no book edits needed.
 
-- Create `mathdemos/` package + its `__init__.py`; resolve the shared-machinery
-  decision above.
-- Add an image/billboard pipeline if keeping the `.png` labels: mvp's `_pipeline.py`
-  is line/triangle oriented; the source's `image.{vert,frag}` + `do_draw_image`
-  would need porting (or replace label textures with rendered text). Flag which.
+**Deferred to Phase 2 (intentional):** `_pipeline.py` was NOT moved. It's a mix of
+general infra (window/camera/`compile_program`/`build_pipeline`/VAO/VBO) and
+mvp-viz-specific geometry (cylinder/ndc-cube/axis-arrow builders). Rather than
+blind-split the GL render core during scaffolding, extract only the genuinely
+reusable infra into `cayley/pipeline.py` in Phase 2, informed by what the
+cross-product demo actually needs (then repoint `cayley_gl`'s `_p` import).
+- Also Phase 2: decide the image/billboard pipeline for the `.png` labels (port the
+  source's `image.{vert,frag}` + `do_draw_image`, or render text) — `_pipeline.py`
+  is currently line/triangle oriented.
 
 ## Phase 2 — port the cross-product demo as a Cayley scene
 

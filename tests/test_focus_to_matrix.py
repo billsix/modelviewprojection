@@ -30,7 +30,7 @@ fails with a dtype cast error.
 import numpy as np
 
 from modelviewprojection.mathutils import Vector3, rotate_z, translate
-from modelviewprojection.mvpvisualization import cayleygraph, cayleyscene
+from modelviewprojection.cayley import cayleygraph, cayleyscene
 
 
 def _v(x: float, y: float, z: float) -> Vector3:

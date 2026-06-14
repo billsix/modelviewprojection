@@ -30,10 +30,12 @@ from modelviewprojection.mathutils import (
     rotate_z,
     translate,
 )
-from modelviewprojection.mvpvisualization import (
-    cayley_gl,
+from modelviewprojection.cayley import (
     cayleygraph,
     cayleyscene,
+)
+from modelviewprojection.mvpvisualization import (
+    cayley_gl,
 )
 
 # imgui via cayley_gl so glfw + OpenGL.GL import BEFORE imgui_bundle (its own GL

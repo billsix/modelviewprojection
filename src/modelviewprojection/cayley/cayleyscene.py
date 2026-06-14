@@ -41,7 +41,7 @@ from modelviewprojection.mathutils import (
     rotate_y,
     translate,
 )
-from modelviewprojection.mvpvisualization import cayleygraph
+from modelviewprojection.cayley import cayleygraph
 
 #: node-id type for a scene's coordinate spaces (an Enum member, typically)
 N = typing.TypeVar("N")

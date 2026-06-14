@@ -1,6 +1,6 @@
 # Copyright (c) 2018-2026 William Emerison Six
 #
-# Tests for modelviewprojection.mvpvisualization.cayleyscene (Phase 3 engine core of
+# Tests for modelviewprojection.cayley.cayleyscene (Phase 3 engine core of
 # tasks/cayley-graph-datastructure.md).  Headless parity: the engine's derived
 # timeline + live transforms must match modelviewperspectiveprojection's
 # hand-coded arithmetic.  No display.
@@ -21,7 +21,7 @@ from modelviewprojection.mathutils import (
     translate,
     uniform_scale,
 )
-from modelviewprojection.mvpvisualization import cayleygraph, cayleyscene
+from modelviewprojection.cayley import cayleygraph, cayleyscene
 
 # demo constants (verbatim from modelviewperspectiveprojection.py)
 P1_POS = Vector3(-9.0, 1.0, 0.0)
