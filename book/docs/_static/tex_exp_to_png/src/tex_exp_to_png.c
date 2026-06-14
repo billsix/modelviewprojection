@@ -29,6 +29,8 @@ int main(int argc, char** argv) {
   gchar* filename = NULL;
   gint size = 0;
   gchar* output = NULL;
+  gchar* bg = NULL;
+  gchar* fg = NULL;
 
   GOptionEntry entries[] = {
       {"exp", 'e', 0, G_OPTION_ARG_STRING, &expression,
@@ -38,6 +40,10 @@ int main(int argc, char** argv) {
       {"size", 's', 0, G_OPTION_ARG_INT, &size, "DPI size for output", "SIZE"},
       {"output", 'o', 0, G_OPTION_ARG_FILENAME, &output, "Output PNG filename",
        "FILE"},
+      {"bg", 'b', 0, G_OPTION_ARG_STRING, &bg,
+       "dvipng background color, e.g. Transparent", "COLOR"},
+      {"fg", 'g', 0, G_OPTION_ARG_STRING, &fg,
+       "dvipng foreground color, e.g. \"rgb 1.0 1.0 1.0\"", "COLOR"},
       {NULL, 0, 0, 0, NULL, NULL, NULL}};
 
   GError* error = NULL;
@@ -102,8 +108,15 @@ int main(int argc, char** argv) {
   g_free(stdout_output);
   g_free(stderr_output);
 
+  /* optional -bg/-fg (e.g. -bg Transparent -fg "rgb 1 1 1") for overlay use;
+     omitted by default so existing callers keep dvipng's black-on-white. */
+  gchar* bg_opt = bg ? g_strdup_printf("-bg \"%s\" ", bg) : g_strdup("");
+  gchar* fg_opt = fg ? g_strdup_printf("-fg \"%s\" ", fg) : g_strdup("");
   gchar* dvipng_cmd =
-      g_strdup_printf("dvipng -D %d -T tight -o %s formula.dvi", size, output);
+      g_strdup_printf("dvipng -D %d -T tight %s%s-o %s formula.dvi", size,
+                      bg_opt, fg_opt, output);
+  g_free(bg_opt);
+  g_free(fg_opt);
 
   if (!g_spawn_command_line_sync(dvipng_cmd, &stdout_output, &stderr_output,
                                  &exit_status, &error)) {

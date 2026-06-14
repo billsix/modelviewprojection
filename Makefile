@@ -4,9 +4,8 @@
 # need the features
 BUILD_DOCS ?= 1
 USE_EMACS ?= 1
-USE_IMGUI ?= 1
 USE_JUPYTER ?= 1
-USE_SPYDER ?= 1
+USE_SPYDER ?= 0
 USE_X_WINDOWS ?= 1
 
 CONTAINER_CMD = podman
@@ -71,7 +70,6 @@ image: ## Build a podman image in which to build the book
 	$(CONTAINER_CMD) build  \
                          --build-arg BUILD_DOCS=$(BUILD_DOCS) \
                          --build-arg USE_EMACS=$(USE_EMACS) \
-                         --build-arg USE_IMGUI=$(USE_IMGUI) \
                          --build-arg USE_JUPYTER=$(USE_JUPYTER) \
                          --build-arg USE_SPYDER=$(USE_SPYDER) \
                          --build-arg USE_X_WINDOWS=$(USE_X_WINDOWS) \

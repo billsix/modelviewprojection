@@ -10,6 +10,10 @@ COPY entrypoint/dotfiles/ /root/
 COPY entrypoint/*.sh /usr/local/bin
 COPY entrypoint/entrypoint.sh /
 COPY requirements.txt /requirements.txt
+# vendored texExpToPng (the book's copy) -- built + installed below under
+# BUILD_DOCS so the crossproduct demo can render TeX billboard labels at runtime
+# (the demo skips labels gracefully when the binary is absent, e.g. on Win/Mac).
+COPY book/docs/_static/tex_exp_to_png/ /tmp/tex_exp_to_png/
 
 RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      --mount=type=cache,target=/var/lib/dnf \
@@ -75,7 +79,12 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    texlive-anyfontsize \
                    texlive-dvipng \
                    texlive-dvisvgm \
-                   texlive-standalone; \
+                   texlive-standalone && \
+       ( cd /tmp/tex_exp_to_png && \
+         meson setup builddir && \
+         meson compile -C builddir && \
+         meson install -C builddir ) && \
+       rm -rf /tmp/tex_exp_to_png ; \
        python3 -c "import matplotlib.pyplot as plt; plt.plot([1,2,3], [4,5,6]); plt.show()" ; \
     fi ; \
     if [ "$USE_X_WINDOWS" = "1" ]; then \
