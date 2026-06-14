@@ -31,6 +31,7 @@ import typing
 
 import numpy as np
 
+from modelviewprojection.cayley import cayleygraph
 from modelviewprojection.mathutils import (
     InvertibleFunction,
     Vector3,
@@ -41,7 +42,6 @@ from modelviewprojection.mathutils import (
     rotate_y,
     translate,
 )
-from modelviewprojection.mvpvisualization import cayleygraph
 
 #: node-id type for a scene's coordinate spaces (an Enum member, typically)
 N = typing.TypeVar("N")

@@ -22,6 +22,10 @@ import glfw
 import numpy as np
 
 from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection.cayley import (
+    cayleygraph,
+    cayleyscene,
+)
 from modelviewprojection.mathutils import (
     Vector3,
     rotate_x,
@@ -31,8 +35,6 @@ from modelviewprojection.mathutils import (
 )
 from modelviewprojection.mvpvisualization import (
     cayley_gl,
-    cayleygraph,
-    cayleyscene,
 )
 
 imgui = cayley_gl.imgui

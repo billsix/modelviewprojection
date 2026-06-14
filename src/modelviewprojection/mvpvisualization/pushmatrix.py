@@ -18,6 +18,10 @@ from enum import Enum, auto
 import glfw
 
 from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection.cayley import (
+    cayleygraph,
+    cayleyscene,
+)
 from modelviewprojection.mathutils import (
     Vector3,
     rotate_z,
@@ -25,8 +29,6 @@ from modelviewprojection.mathutils import (
 )
 from modelviewprojection.mvpvisualization import (
     cayley_gl,
-    cayleygraph,
-    cayleyscene,
 )
 
 # imgui via cayley_gl so glfw + OpenGL.GL import BEFORE imgui_bundle (its own GL

@@ -133,4 +133,12 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 - `tasks/axis-cylinder-cone-lighting.md` — deferred.
 - `tasks/jupyter-sh-exec-fix.md` — one-line fix to a no-op `exec` in `entrypoint/jupyter.sh`.
 
+**Math demos (new):**
+- `tasks/math-demos-section-crossproduct-and-proof.md` — **proposed.** Stand up a
+  general "math demos" section structured like `mvpvisualization/` (built on the
+  `cayleygraph.py`/`cayleyscene.py` Cayley-graph abstraction); first demo = the
+  cross product (ported from multivariate-math, re-expressing its hand-rolled
+  12-step `StepNumber` machine as a Cayley scene), plus porting its LaTeX proof
+  into a new book derivations section.
+
 (Other in-flight: `tasks/finish-pdf-epub-build.md`, `tasks/ports-pbo-floattex-runtime-crashes.md`, `tasks/shadowmap-depth-discrimination.md`; `tasks/codebase-overview.md` is a living orientation doc.)

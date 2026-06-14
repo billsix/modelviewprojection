@@ -139,6 +139,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
       echo "font/size = 18" >> ~/.config/spyder-py3/config/spyder.ini; \
     fi ; \
     echo "source ~/.extrabashrc" >> ~/.bashrc && \
+    echo "/usr/local/bin/jupyter.sh # on http://127.0.0.1:8888/lab" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils3d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils2d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils1d.py" >> ~/.bash_history && \
