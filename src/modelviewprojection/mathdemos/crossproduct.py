@@ -935,7 +935,9 @@ def main() -> None:
                 draw_ground(width, height, xy=False, yz=True)
                 relative_axes()
 
-        if g.draw_third_relative_coordinates:
+        if g.draw_third_relative_coordinates and not reached(
+            StepNumber.show_triangle
+        ):
             # rotate_x: y-z plane (green + blue).  Same uniform form as every forward
             # phase: o = coords @ r_x(t) @ r_x_inv(full).  Starts tilted in the
             # relative frame (t=0 -> coords @ r_x_inv, basis along b's perpendicular
@@ -967,7 +969,9 @@ def main() -> None:
                 draw_ground(width, height, xy=False, zx=True)
                 relative_axes()
 
-        if g.draw_second_relative_coordinates:
+        if g.draw_second_relative_coordinates and not reached(
+            StepNumber.rotate_x
+        ):
             # rotate_y: z-x plane (red + blue).  Same uniform form: o = coords @
             # r_y(t) @ r_y_inv(full).  Starts tilted in the relative frame (t=0 ->
             # coords @ r_y_inv, red along a-after-R_z) and rotates onto the WORLD z-x
@@ -999,7 +1003,9 @@ def main() -> None:
                 draw_ground(width, height)
                 relative_axes()
 
-        if g.draw_first_relative_coordinates:
+        if g.draw_first_relative_coordinates and not reached(
+            StepNumber.rotate_y
+        ):
             # rotate_z: x-y plane (red + green).  The uniform forward form: o =
             # coords @ r_z(t) @ r_z_inv(full).  At beginning (t=0) the graph paper
             # sits in the tilted relative frame (x' along a's x-y shadow), and as R_z

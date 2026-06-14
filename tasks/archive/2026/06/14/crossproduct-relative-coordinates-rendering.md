@@ -1,6 +1,42 @@
-# BROKEN: cross-product demo relative-coordinate plane rendering
+# Cross-product demo relative-coordinate plane rendering
 
-**Status: NOT WORKING — needs fresh eyes (handoff 2026-06-14).** Bill (the author)
+**Status:** complete
+**Completed:** 2026-06-14
+
+Resolved 2026-06-14 (fresh-eyes pass). The forward-phase relative-coordinate
+graph-paper plane and its basis vectors now render correctly. Root causes and
+fixes, all in `src/modelviewprojection/mathdemos/crossproduct.py`
+(`main()` -> `draw_scene`):
+
+1. **Ground frame** — each forward relative ground/basis is drawn at the uniform
+   transform `o = coords @ edge_M(r_phase, t) @ edge_M(r_phase_inv, 1.0)`: it
+   starts tilted in the relative frame (shown immediately, distinct from the world
+   grid) and rotates onto the world axis-plane as the phase animates.
+2. **Basis double-transform** — `draw_relative_basis` was projecting the input
+   vector into world space and then drawing it *under* `o` (already rotated),
+   rotating it twice. Fixed to draw the two in-plane MODEL-space unit axes under
+   `o` (like the original's `draw_axis`); `o`'s in-plane axes already ARE the
+   projected-input + its 90deg.
+3. **Prior-rotation special cases** — phases 2/3 baked in the prior rotors
+   (`@ r_z`, `@ r_y @ r_z`), over-rotating the plane/basis out of their axis-plane.
+   Removed: all three phases use the same `coords @ r_phase(t) @ r_phase_inv(1)`
+   form. The original's interleaved `do_*`/`draw_*` order means `draw_second` never
+   sees `R_z` and `draw_third` never sees `R_y`/`R_z`.
+4. **Phase-3 plane leaking into the next phase** — the teardown relied on a fragile
+   `ratio > 0.9999` flag-clear plus coincidence-masking (phases 1/2 end on the
+   xy/zx planes which the world ground hides; phase 3 ends on the bare yz plane with
+   no world ground, so any residue showed). Each forward block is now gated on its
+   step window (`not reached(<next step>)`), so it disappears deterministically when
+   the next phase begins.
+
+Verified numerically (rotor matrices vs the original's atan2 rotations match;
+basis vectors unit and in-plane) and visually by Bill.
+
+---
+
+Original handoff notes preserved below for history.
+
+**Status (at handoff): NOT WORKING — needs fresh eyes (handoff 2026-06-14).** Bill (the author)
 is frustrated after many failed iterations. The relative-coordinate **graph-paper
 plane** (and its basis vectors) for the FORWARD phases (rotate_z, rotate_y,
 rotate_x) is still not drawn correctly. Bill asked to reset context and re-approach
