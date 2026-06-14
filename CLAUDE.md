@@ -75,6 +75,7 @@ When porting, follow demo22's structure (subfolder with `.vert`/`.frag`/asset fi
 - The book chapters (`book/docs/chNN.rst`) are the authoritative source for terminology — use *Cayley graph*, *space*, *modelspace→NDC*, *invertible function*, not linear-algebra vocabulary.
 - Reference the visualizations in `src/modelviewprojection/mvpvisualization/` (`coordinatesystems.py`, `pushmatrix.py`, `modelviewperspectiveprojection.py`) when the user wants to *show* the graph traversal interactively — those are pedagogical aids, not demos. They are part of the installed package (run by path, e.g. `python src/modelviewprojection/mvpvisualization/coordinatesystems.py`).
 - Match the demo-era style (procedural, globals, inline comments explaining the *why*), not idiomatic modern Python. When porting from external sources, port *into* his style rather than preserving the source's structure.
+- **Passing a vector to immediate-mode GL: unpack it.** Write `GL.glVertex3f(*v)` / `GL.glVertex2f(*v)`, not `GL.glVertex3f(v.coeff_e_1, v.coeff_e_2, v.coeff_e_3)`. gacalc's `Vector2`/`Vector3` iterate their coordinates in `(e_1, e_2[, e_3])` order with exactly the right arity, so `*v` *is* the coordinate args (demos 05–18 use this). The iteration-order contract is guarded by `tests/test_gl_vector_unpacking.py`, so a gacalc upgrade that changed iteration order/arity fails there instead of the demos silently mis-drawing.
 
 ---
 
