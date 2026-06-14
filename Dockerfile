@@ -36,6 +36,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    uv \
                    tmux  \
                    ty \
+                   which \
                    wxGTK \
                    wxGTK-devel; \
      dnf install -y \
