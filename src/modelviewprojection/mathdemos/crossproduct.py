@@ -260,6 +260,7 @@ def main() -> None:
     import OpenGL.GL as GL
 
     from modelviewprojection import pyMatrixStack as ms
+    from modelviewprojection.mathdemos import _labels
     from modelviewprojection.mvpvisualization import _pipeline as _p
     from modelviewprojection.mvpvisualization import cayley_gl
 
@@ -286,6 +287,14 @@ def main() -> None:
     )
 
     AXIS_LEN = 1.0  # unit-length axes (match the unit circle)
+
+    # TeX billboard labels.  Generated at runtime by texExpToPng (white glyphs,
+    # 600 DPI, transparent bg) and drawn as camera-facing quads.  If texExpToPng
+    # is not on PATH (Win/Mac / non-podman build), labels.available is False and
+    # every label call is a no-op -- the demo runs unchanged, minus labels.
+    labels = _labels.LabelRenderer(
+        os.path.dirname(os.path.abspath(__file__))
+    )
 
     # -----------------------------------------------------------------------
     # Geometry generators (renderer.py + crossproduct.py).  These are static, so
@@ -791,6 +800,20 @@ def main() -> None:
     # as a distinct plane even when it starts coincident with a world grid.
     _REL_GROUND = (0.55, 0.55, 0.55)
 
+    # The a / b arrow labels, whose TEXT advances with the proof stage (the arrow
+    # is the same object rotating; the symbol describes where it now is).
+    def _a_label():
+        if reached(StepNumber.rotate_y):
+            return r"\vec a'' = \lVert a\rVert\,e_1"
+        if reached(StepNumber.rotate_z):
+            return r"\vec a' = R_z\,\vec a"
+        return r"\vec a"
+
+    def _b_label():
+        if reached(StepNumber.rotate_x):
+            return r"\vec b'' = R_y R_z\,\vec b"
+        return r"\vec b"
+
     def draw_scene(width, height):
         def set_model_M(m):
             # Upload a realized 4x4 to the model matrix; copy so a cached matrix is
@@ -1083,6 +1106,52 @@ def main() -> None:
         draw_vector(g.vec2, width, height)
         GL.glEnable(GL.GL_DEPTH_TEST)
 
+        # --- TeX billboard labels (no-op when texExpToPng is unavailable) ----
+        # Drawn last, over the scene, at the same model frames the vectors use.
+        if labels.available:
+            labels.begin(
+                ms.get_current_matrix(ms.MatrixStack.view),
+                ms.get_current_matrix(ms.MatrixStack.projection),
+                (width, height),
+            )
+            if g.draw_coordinate_system_of_natural_basis and not reached(
+                StepNumber.show_plane
+            ):
+                for axis_v, tex in (
+                    (np.array([AXIS_LEN * 1.18, 0.0, 0.0, 1.0]), "e_1"),
+                    (np.array([0.0, AXIS_LEN * 1.18, 0.0, 1.0]), "e_2"),
+                    (np.array([0.0, 0.0, AXIS_LEN * 1.18, 1.0]), "e_3"),
+                ):
+                    labels.draw(tex, (coords_M @ axis_v)[:3])
+            # a / b at their (slightly extended) tips, text per stage.
+            labels.draw(
+                _a_label(),
+                (model_M @ np.array(
+                    [g.vec1.x * 1.08, g.vec1.y * 1.08, g.vec1.z * 1.08, 1.0]
+                ))[:3],
+            )
+            labels.draw(
+                _b_label(),
+                (model_M @ np.array(
+                    [g.vec2.x * 1.08, g.vec2.y * 1.08, g.vec2.z * 1.08, 1.0]
+                ))[:3],
+            )
+            # the cross product, once it is revealed, at its tip in the math frame.
+            if reached(StepNumber.scale_by_mag_a):
+                axb = cross_product(
+                    Vector3(g.vec1.x, g.vec1.y, g.vec1.z),
+                    Vector3(g.vec2.x, g.vec2.y, g.vec2.z),
+                )
+                # axb is a gacalc Vector3 -> read its coords by iteration
+                # ((e_1, e_2, e_3) order), like _safe_cross does; it has no .x/.y/.z.
+                cx, cy, cz = (float(c) for c in axb)
+                axb_v = np.array([cx * 1.08, cy * 1.08, cz * 1.08, 1.0])
+                labels.draw(
+                    r"\vec a\times\vec b = \lVert a\rVert\,c\;e_3",
+                    (coords_M @ axb_v)[:3],
+                )
+            labels.end()
+
     # -----------------------------------------------------------------------
     # Per-frame entry point for cayley_gl.run_loop.  run_loop clears + sets the
     # full-window viewport and brackets imgui.new_frame()/render() for us.
@@ -1241,6 +1310,7 @@ def main() -> None:
         imgui.end_main_menu_bar()
 
     cayley_gl.run_loop(window, impl, frame, menubar, on_key)
+    labels.cleanup()
 
 
 if __name__ == "__main__":

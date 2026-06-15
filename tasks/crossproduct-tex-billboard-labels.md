@@ -1,8 +1,69 @@
 # Cross-product demo: TeX billboard labels for the vectors
 
-**Status:** proposed — needs go-ahead (2026-06-14, Bill). Annotate the demo's
-vectors with LaTeX labels rendered via `texExpToPng`, drawn as camera-facing
-billboards.
+**Status:** in-progress — **core functionality VERIFIED WORKING by Bill on a real
+display (2026-06-14)**: runtime texExpToPng generation -> RGBA texture -> camera-facing
+billboard, drawn per step, all good. Remaining is **how the labels are USED** —
+content/placement/visibility refinements Bill wants (TBD, his call); the rendering
+infrastructure itself is done. Annotate the demo's vectors with LaTeX labels rendered
+via `texExpToPng`, drawn as camera-facing billboards.
+
+**Open follow-ups (separate from the rendering infra, which works):**
+- Usage/content tweaks Bill mentioned (exact labels, placement, when each shows) —
+  awaiting his specifics.
+- `imgui-bundle` pin: Bill hit `undefined symbol: glfwGetX11Window` from a drifted
+  bundled glfw; the working wheel is **1.92.801**. Consider pinning
+  `imgui-bundle==1.92.801` in `requirements.txt` so a clean `make image` is
+  reproducible. (Not the label code's fault — it's `_pipeline.py`'s imgui import.)
+
+## Decisions LOCKED 2026-06-14 (final round)
+
+- **texExpToPng availability: BUILD IT INTO THE MVP IMAGE, under `BUILD_DOCS`.**
+  The mvp image does NOT bake in the repo source (only entrypoint + requirements
+  are COPY'd; `make html` sees the book via the runtime `-v $(pwd):/mvp` mount), so
+  the Dockerfile now `COPY`s `book/docs/_static/tex_exp_to_png/` into the build
+  context and, inside the existing `BUILD_DOCS` block (which already installs TeX
+  Live + has meson/ninja/glib2-devel), runs `meson setup/compile/install` ->
+  `/usr/local/bin/texExpToPng`. Gated on `BUILD_DOCS` (not a new flag) because that
+  is exactly when latex+dvipng are present; the demo's `shutil.which("texExpToPng")`
+  check finds it. Lean builds (`BUILD_DOCS=0`) / Win/Mac: binary absent -> demo
+  skips labels (graceful degradation).
+- **Color/DPI: white text, 600 DPI.** `texExpToPng --fg "rgb 1 1 1" --bg Transparent
+  --size 600`. (The `--bg/--fg` flags were replicated into the vendored copy
+  2026-06-14.)
+- **`--bg/--fg` already vendored:** `book/docs/_static/tex_exp_to_png/src/tex_exp_to_png.c`
+  now matches the outside repo's flag change byte-for-byte (the vendored image needs
+  a rebuild for it to take effect).
+
+## Label set + per-step visibility (PROPOSED — Bill, please eyeball)
+
+Labels are drawn at each item's tip. `||.||` = magnitude, `theta` = angle(a,b).
+The a/b arrows keep their label but its TEXT advances with the stage:
+
+| label LaTeX | on | shown when |
+|---|---|---|
+| `e_1` `e_2` `e_3` | axis tips | always (while natural basis drawn) |
+| `\vec a` | a-arrow tip | beginning |
+| `\vec a' = R_z\,\vec a` | a-arrow tip | after rotate_z (a in x-z plane) |
+| `\vec a'' = \lVert a\rVert\,e_1` | a-arrow tip | after rotate_y (a on +x) |
+| `\vec b` | b-arrow tip | until rotate_x |
+| `\vec b'' = R_y R_z\,\vec b` | b-arrow tip | after rotate_x (b in x-y plane) |
+| `c = \lVert b\rVert\sin\theta` | perpendicular (vec3) | show_triangle .. scale |
+| `\vec a\times\vec b = \lVert a\rVert\,c\;e_3` | cross (vec3) tip | scale_by_mag_a onward |
+
+Exact LaTeX, which intermediate shows when, and the font size are easy to tweak in
+the `_LABELS` table once the pipeline renders.
+
+## Implementation layers (this pass)
+
+1. Dockerfile/Makefile: `USE_TEX_LABELS` flag -> build vendored texExpToPng + TeX.
+2. `mathdemos/_labels.py`: runtime PNG generation (guarded by `shutil.which`), PIL ->
+   RGBA GL texture, a billboard pipeline (eye-space quad: a quad at the label's
+   eye-space center always faces the camera; projection-only MVP; alpha-blended),
+   and a per-step label table. GL/PIL imports are module-level but the module is only
+   imported *inside* `crossproduct.main()`, so the math/test import path stays headless.
+3. `mathdemos/billboard.vert` / `billboard.frag`: textured alpha quad.
+4. Wire into `crossproduct.py` `main()`/`draw_scene` (after the solids, blending on,
+   depth read-only), positions from the same model matrices the vectors use.
 
 ## Goal (Bill)
 

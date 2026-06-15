@@ -45,6 +45,47 @@ python src/modelviewprojection/demos/demo05.py
 
 (On Windows, use the Visual Studio 2019 Developer Command Prompt for the venv steps.)
 
+Math-demo labels (optional): install texExpToPng
+------------------------------------------------
+Some math visualizations (e.g. `src/modelviewprojection/mathdemos/crossproduct.py`)
+annotate the vectors with LaTeX labels rendered by **texExpToPng** — a small C tool
+(wrapping `latex` + `dvipng`) vendored at `book/docs/_static/tex_exp_to_png/`. The
+labels are **optional**: if `texExpToPng` is not on your `PATH`, the demos run
+normally, just without labels. (Inside the podman image it is already built by
+`make image`; these steps are only for running demos directly on your host.)
+
+Run the block for your platform from the **repo root** — copy, paste, enter:
+
+**Fedora / RHEL**
+```sh
+sudo dnf install -y gcc glib2-devel meson ninja-build pkgconf-pkg-config \
+                    texlive-scheme-basic texlive-standalone texlive-amsmath texlive-dvipng
+meson setup /tmp/texexp-build book/docs/_static/tex_exp_to_png --prefix="$HOME/.local"
+meson compile -C /tmp/texexp-build
+meson install -C /tmp/texexp-build
+export PATH="$HOME/.local/bin:$PATH"   # add this line to ~/.bashrc to make it permanent
+texExpToPng --help                     # should list --bg and --fg
+```
+
+**Debian / Ubuntu**
+```sh
+sudo apt-get update && sudo apt-get install -y \
+     build-essential libglib2.0-dev meson ninja-build pkg-config \
+     texlive-latex-base texlive-latex-extra dvipng
+meson setup /tmp/texexp-build book/docs/_static/tex_exp_to_png --prefix="$HOME/.local"
+meson compile -C /tmp/texexp-build
+meson install -C /tmp/texexp-build
+export PATH="$HOME/.local/bin:$PATH"   # add this line to ~/.bashrc to make it permanent
+texExpToPng --help                     # should list --bg and --fg
+```
+
+Verify it actually renders (this is the exact command the demo runs):
+```sh
+texExpToPng --exp '$\vec a \times \vec b$' --size 600 --fg "rgb 1 1 1" --bg Transparent --output /tmp/lbl.png
+```
+If `latex` errors about a missing `.sty`/`.cls`, install the matching `texlive-…`
+(Fedora) / `texlive-…` (Debian) package and re-run.
+
 Project structure
 -----------------
 
