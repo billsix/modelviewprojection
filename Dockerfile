@@ -31,6 +31,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    python3-openimageio \
 		   python3-pillow \
                    python3-pyopengl \
+                   python3-devel \
                    python3-pytest \
 		   python3-pytest-lsp \
                    python3-sympy \

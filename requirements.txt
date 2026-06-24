@@ -5,6 +5,7 @@ glfw
 ImageIO
 imgui-bundle[glfw]
 isort
+just_playback
 jupyter
 jupytext
 mathjax
