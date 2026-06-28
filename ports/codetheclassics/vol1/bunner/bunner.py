@@ -23,6 +23,7 @@ from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, soun
 import sys
 from random import *
 from enum import Enum
+from typing import Any, Callable, Optional  # noqa: E402
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -52,12 +53,12 @@ DEBUG_SHOW_ROW_BOUNDARIES = False
 # The MyActor class extends Pygame Zero's Actor class by allowing an object to have a list of child objects,
 # which are drawn relative to the parent object.
 class MyActor(Actor):
-    def __init__(self, image, pos, anchor=("center", "bottom")):
+    def __init__(self, image: str, pos: tuple[float, float], anchor: tuple[str, str] = ("center", "bottom")) -> None:
         super().__init__(image, pos, anchor)
 
-        self.children = []
+        self.children: list["MyActor"] = []
 
-    def draw(self, offset_x, offset_y):
+    def draw(self, offset_x: float, offset_y: float) -> None:  # ty: ignore[invalid-method-override]  # faithful port: MyActor.draw adds scroll offsets to Actor.draw()
         self.x += offset_x
         self.y += offset_y
 
@@ -68,18 +69,18 @@ class MyActor(Actor):
         self.x -= offset_x
         self.y -= offset_y
 
-    def update(self):
+    def update(self) -> None:
         for child_obj in self.children:
             child_obj.update()
 
 # The eagle catches the rabbit if it goes off the bottom of the screen
 class Eagle(MyActor):
-    def __init__(self, pos):
+    def __init__(self, pos: tuple[float, float]) -> None:
         super().__init__("eagles", pos)
 
         self.children.append(MyActor("eagle", (0, -32)))
 
-    def update(self):
+    def update(self) -> None:
         self.y += 12
 
 class PlayerState(Enum):
@@ -105,22 +106,22 @@ DY = [-4,0,4,0]
 class Bunner(MyActor):
     MOVE_DISTANCE = 10
 
-    def __init__(self, pos):
+    def __init__(self, pos: tuple[float, float]) -> None:
         super().__init__("blank", pos)
 
-        self.state = PlayerState.ALIVE
+        self.state: PlayerState = PlayerState.ALIVE
 
-        self.direction = 2
-        self.timer = 0
+        self.direction: int = 2
+        self.timer: int = 0
 
         # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
-        self.input_queue = []
+        self.input_queue: list[int] = []
 
         # Keeps track of the furthest distance we've reached so far in the level, for scoring
         # (Level Y coordinates decrease as the screen scrolls)
-        self.min_y = self.y
+        self.min_y: Any = self.y
 
-    def handle_input(self, dir):
+    def handle_input(self, dir: int) -> None:
         # Find row that player is trying to move to. This may or may not be the row they're currently standing on,
         # depending on whether the proposed movement would take them onto a different row
         for row in game.rows:
@@ -138,7 +139,7 @@ class Bunner(MyActor):
                 # No need to continue searching
                 return
 
-    def update(self):
+    def update(self) -> None:
         # Check each control direction
         for direction in range(4):
             if key_just_pressed(direction_keys[direction]):
@@ -153,7 +154,7 @@ class Bunner(MyActor):
                 # Take the next input off the queue and process it
                 self.handle_input(self.input_queue.pop(0))
 
-            land = False
+            land: bool = False
             if self.timer > 0:
                 # Apply movement
                 self.x += DX[self.direction]
@@ -161,7 +162,7 @@ class Bunner(MyActor):
                 self.timer -= 1
                 land = self.timer == 0      # If timer reaches zero, we've just landed
 
-            current_row = None
+            current_row: Optional["Row"] = None
             for row in game.rows:
                 if row.y == self.y:
                     current_row = row
@@ -228,12 +229,12 @@ class Bunner(MyActor):
 # The thing they all have in common, besides inheriting from MyActor, is that they need to store whether they're
 # moving left or right and update their X position each frame
 class Mover(MyActor):
-    def __init__(self, dx, image, pos):
+    def __init__(self, dx: int, image: str, pos: tuple[float, float]) -> None:
         super().__init__(image, pos)
 
-        self.dx = dx
+        self.dx: int = dx
 
-    def update(self):
+    def update(self) -> None:
         self.x += self.dx
 
 class Car(Mover):
@@ -242,16 +243,16 @@ class Car(Mover):
     SOUND_ZOOM = 0
     SOUND_HONK = 1
 
-    def __init__(self, dx, pos):
-        image = "car" + str(randint(0, 3)) + ("0" if dx < 0 else "1")
+    def __init__(self, dx: int, pos: tuple[float, float]) -> None:
+        image: str = "car" + str(randint(0, 3)) + ("0" if dx < 0 else "1")
         super().__init__(dx, image, pos)
 
         # Cars have two sound effects. Each can only play once. We use this
         # list to keep track of which has already played.
-        self.played = [False, False]
-        self.sounds = [("zoom", 6), ("honk", 4)]
+        self.played: list[bool] = [False, False]
+        self.sounds: list[tuple[str, int]] = [("zoom", 6), ("honk", 4)]
 
-    def play_sound(self, num):
+    def play_sound(self, num: int) -> None:
         if not self.played[num]:
             # Select a sound and pass the name and count to Game.play_sound.
             # The asterisk operator unpacks the two items and passes them to play_sound as separate arguments
@@ -259,35 +260,35 @@ class Car(Mover):
             self.played[num] = True
 
 class Log(Mover):
-    def __init__(self, dx, pos):
-        image = "log" + str(randint(0, 1))
+    def __init__(self, dx: int, pos: tuple[float, float]) -> None:
+        image: str = "log" + str(randint(0, 1))
         super().__init__(dx, image, pos)
 
 class Train(Mover):
-    def __init__(self, dx, pos):
-        image = "train"  +str(randint(0, 2)) + ("0" if dx < 0 else "1")
+    def __init__(self, dx: int, pos: tuple[float, float]) -> None:
+        image: str = "train"  +str(randint(0, 2)) + ("0" if dx < 0 else "1")
         super().__init__(dx, image, pos)
 
 # Row is the base class for Pavement, Grass, Dirt, Rail and ActiveRow
 # Each row corresponds to one of the 40 pixel high images which make up sections of grass, road, etc.
 # The last row of each section is 60 pixels high and overlaps with the row above
 class Row(MyActor):
-    def __init__(self, base_image, index, y):
+    def __init__(self, base_image: str, index: int, y: float) -> None:
         # base_image and index form the name of the image file to use
         # Last argument is the anchor point to use
         super().__init__(base_image + str(index), (0, y), ("left", "bottom"))
 
-        self.index = index
+        self.index: int = index
 
         # X direction of moving elements on this row
         # Zero by default - only ActiveRows (see below) and Rail have moving elements
-        self.dx = 0
+        self.dx: int = 0
 
-    def next(self):
+    def next(self) -> Optional["Row"]:
         # Overridden in child classes. See comments in Game.update
         return
 
-    def collide(self, x, margin=0):
+    def collide(self, x: float, margin: float = 0) -> Optional["MyActor"]:
         # Check to see if the given X coordinate is in contact with any of this row's child objects (e.g. logs, cars,
         # hedges). A negative margin makes the collideable area narrower than the child object's sprite, while a
         # positive margin makes the collideable area wider.
@@ -297,35 +298,35 @@ class Row(MyActor):
 
         return None
 
-    def push(self):
+    def push(self) -> int:
         return 0
 
-    def check_collision(self, x):
+    def check_collision(self, x: float) -> tuple[PlayerState, int]:
         # Returns the new state the player should be in, based on whether or not the player collided with anything on
         # this road. As this class is the base class for other types of row, this method defines the default behaviour
         # - i.e. unless a subclass overrides this method, the player can walk around on a row without dying.
         return PlayerState.ALIVE, 0
 
-    def allow_movement(self, x):
+    def allow_movement(self, x: float) -> bool:
         # Ensure the player can't walk off the left or right sides of the screen
         return x >= 16 and x <= WIDTH-16
 
 class ActiveRow(Row):
-    def __init__(self, child_type, dxs, base_image, index, y):
+    def __init__(self, child_type: Callable[..., Mover], dxs: list[int], base_image: str, index: int, y: float) -> None:
         super().__init__(base_image, index, y)
 
-        self.child_type = child_type    # Class to be used for child objects (e.g. Car)
-        self.timer = 0
+        self.child_type: Callable[..., Mover] = child_type    # Class to be used for child objects (e.g. Car)
+        self.timer: float = 0
         self.dx = choice(dxs)   # Randomly choose a direction for cars/logs to move
 
         # Populate the row with child objects (cars or logs). Without this, the row would initially be empty.
-        x = -WIDTH / 2 - 70
+        x: float = -WIDTH / 2 - 70
         while x < WIDTH / 2 + 70:
             x += randint(240, 480)
-            pos = (WIDTH / 2 + (x if self.dx > 0 else -x), 0)
+            pos: tuple[float, int] = (WIDTH / 2 + (x if self.dx > 0 else -x), 0)
             self.children.append(self.child_type(self.dx, pos))
 
-    def update(self):
+    def update(self) -> None:
         super().update()
 
         # Recreate the children list, excluding any which are too far off the edge of the screen to be visible
@@ -335,7 +336,7 @@ class ActiveRow(Row):
 
         # Create new child objects on a random interval
         if self.timer < 0:
-            pos = (WIDTH + 70 if self.dx < 0 else -70, 0)
+            pos: tuple[int, int] = (WIDTH + 70 if self.dx < 0 else -70, 0)
             self.children.append(self.child_type(self.dx, pos))
             # 240 is minimum distance between the start of one child object and the start of the next, assuming its
             # speed is 1. If the speed is 2, they can occur twice as frequently without risk of overlapping with
@@ -344,16 +345,16 @@ class ActiveRow(Row):
 
 # Grass rows sometimes contain hedges
 class Hedge(MyActor):
-    def __init__(self, x, y, pos):
+    def __init__(self, x: int, y: int, pos: tuple[float, float]) -> None:
         super().__init__("bush"+str(x)+str(y), pos)
 
-def generate_hedge_mask():
+def generate_hedge_mask() -> list[bool]:
     # In this context, a mask is a series of boolean values which allow or prevent parts of an underlying image from showing through.
     # This function creates a mask representing the presence or absence of hedges in a Grass row. False means a hedge
     # is present, True represents a gap. Initially we create a list of 12 elements. For each element there is a small
     # chance of a gap, but normally all element will be False, representing a hedge. We then randomly set one item to
     # True, to ensure that there is always at least one gap that the player can get through
-    mask = [random() < 0.01 for i in range(12)]
+    mask: list[bool] = [random() < 0.01 for i in range(12)]
     mask[randint(0, 11)] = True # force there to be one gap
 
     # We then widen gaps to a minimum of 3 tiles. This happens in two steps.
@@ -367,7 +368,7 @@ def generate_hedge_mask():
     # at the edges. The last step is to return a new list consisting of the old list with the first and last elements duplicated
     return [mask[0]] + mask + 2 * [mask[-1]]
 
-def classify_hedge_segment(mask, previous_mid_segment):
+def classify_hedge_segment(mask: list[bool], previous_mid_segment: Optional[int]) -> tuple[Optional[int], Optional[int]]:
     # This function helps determine which sprite should be used by a particular hedge segment. Hedge sprites are numbered
     # 00, 01, 10, 11, 20, 21 - up to 51. The second number indicates whether it's a bottom (0) or top (1) segment,
     # but this method is concerned only with the first number. 0 represents a single-tile-width hedge. 1 and 2 represent
@@ -378,7 +379,7 @@ def classify_hedge_segment(mask, previous_mid_segment):
     # and False represents a hedge. mask[1] is the item we're currently looking at.
     if mask[1]:
         # mask[1] == True represents a gap, so there will be no hedge sprite at this location
-        sprite_x = None
+        sprite_x: Optional[int] = None
     else:
         # There's a hedge here - need to check either side of it to see if it's a single-width, left-most, right-most
         # or middle piece. The calculation generates a number from 0 to 3 accordingly. Note that when boolean values
@@ -404,7 +405,7 @@ def classify_hedge_segment(mask, previous_mid_segment):
         return sprite_x, None
 
 class Grass(Row):
-    def __init__(self, predecessor, index, y):
+    def __init__(self, predecessor: Any, index: int, y: float) -> None:
         super().__init__("grass", index, y)
 
         # In computer graphics, a mask is a series of boolean (true or false) values indicating which parts of an image
@@ -413,8 +414,8 @@ class Grass(Row):
         # in the hedges. Hedges are two rows high - once hedges have been created on a row, the pattern will be
         # duplicated on the next row (although the sprites will be different - e.g. there are separate sprites
         # for the top-left and bottom-left corners of a hedge). Note that the upper sprites overlap with the row above.
-        self.hedge_row_index = None     # 0 or 1, or None if no hedges on this row
-        self.hedge_mask = None
+        self.hedge_row_index: Optional[int] = None     # 0 or 1, or None if no hedges on this row
+        self.hedge_mask: Any = None
 
         if not isinstance(predecessor, Grass) or predecessor.hedge_row_index == None:
             # Create a brand-new set of hedges? We will only create hedges if the previous row didn't have any.
@@ -429,22 +430,22 @@ class Grass(Row):
 
         if self.hedge_row_index != None:
             # See comments in classify_hedge_segment for explanation of previous_mid_segment
-            previous_mid_segment = None
+            previous_mid_segment: Optional[int] = None
             for i in range(1, 13):
                 sprite_x, previous_mid_segment = classify_hedge_segment(self.hedge_mask[i - 1:i + 3], previous_mid_segment)
                 if sprite_x != None:
                     self.children.append(Hedge(sprite_x, self.hedge_row_index, (i * 40 - 20, 0)))
 
-    def allow_movement(self, x):
+    def allow_movement(self, x: float) -> bool:
         # allow_movement in the base class ensures that the player can't walk off the left and right sides of the
         # screen. The call to our own collide method ensures that the player can't walk through hedges. The margin of
         # 8 prevents the player sprite from overlapping with the edge of a hedge.
         return super().allow_movement(x) and not self.collide(x, 8)
 
-    def play_sound(self):
+    def play_sound(self) -> None:
         game.play_sound("grass", 1)
 
-    def next(self):
+    def next(self) -> "Row":
         if self.index <= 5:
             row_class, index = Grass, self.index + 8
         elif self.index == 6:
@@ -460,13 +461,13 @@ class Grass(Row):
         return row_class(self, index, self.y - ROW_HEIGHT)
 
 class Dirt(Row):
-    def __init__(self, predecessor, index, y):
+    def __init__(self, predecessor: Any, index: int, y: float) -> None:
         super().__init__("dirt", index, y)
 
-    def play_sound(self):
+    def play_sound(self) -> None:
         game.play_sound("dirt", 1)
 
-    def next(self):
+    def next(self) -> "Row":
         if self.index <= 5:
             row_class, index = Dirt, self.index + 8
         elif self.index == 6:
@@ -482,7 +483,7 @@ class Dirt(Row):
         return row_class(self, index, self.y - ROW_HEIGHT)
     
 class Water(ActiveRow):
-    def __init__(self, predecessor, index, y):
+    def __init__(self, predecessor: Any, index: int, y: float) -> None:
         # dxs contains a list of possible directions (and speeds) in which child objects (in this case, logs) on this
         # row could move. We pass the lists to the constructor of the base class, which randomly chooses one of the
         # directions. We want logs on alternate rows to move in opposite directions, so we take advantage of the fact
@@ -490,10 +491,10 @@ class Water(ActiveRow):
         # So by looking at the direction of child objects on the previous row (predecessor.dx), we can decide whether
         # child objects on this row should move left or right. If this is the first of a series of Water rows,
         # predecessor.dx will be zero, so child objects could move in either direction.
-        dxs = [-2,-1]*(predecessor.dx >= 0) + [1,2]*(predecessor.dx <= 0)
+        dxs: list[int] = [-2,-1]*(predecessor.dx >= 0) + [1,2]*(predecessor.dx <= 0)
         super().__init__(Log, dxs, "water", index, y)
 
-    def update(self):
+    def update(self) -> None:
         super().update()
 
         for log in self.children:
@@ -504,12 +505,12 @@ class Water(ActiveRow):
             else:
                 log.y = 0
 
-    def push(self):
+    def push(self) -> int:
         # Called when the player is standing on a log on this row, so player object can be moved at the same speed and
         # in the same direction as the log
         return self.dx
 
-    def check_collision(self, x):
+    def check_collision(self, x: float) -> tuple[PlayerState, int]:
         # If we're colliding with a log, that's a good thing!
         # margin of -4 ensures we can't stand right on the edge of a log
         if self.collide(x, -4):
@@ -518,10 +519,10 @@ class Water(ActiveRow):
             game.play_sound("splash")
             return PlayerState.SPLASH, 0
 
-    def play_sound(self):
+    def play_sound(self) -> None:
         game.play_sound("log", 1)
 
-    def next(self):
+    def next(self) -> "Row":
         # After 2 water rows, there's a 50-50 chance of the next row being either another water row, or a dirt row
         if self.index == 7 or (self.index >= 1 and random() < 0.5):
             row_class, index = Dirt, randint(4,6)
@@ -532,14 +533,14 @@ class Water(ActiveRow):
         return row_class(self, index, self.y - ROW_HEIGHT)
 
 class Road(ActiveRow):
-    def __init__(self, predecessor, index, y):
+    def __init__(self, predecessor: Any, index: int, y: float) -> None:
         # Specify the possible directions and speeds from which the movement of cars on this row will be chosen
         # We use Python's set data structure to specify that the car velocities on this row will be any of the numbers
         # from -5 to 5, except for zero or the velocity of the cars on the previous row
-        dxs = list(set(range(-5, 6)) - set([0, predecessor.dx]))
+        dxs: list[int] = list(set(range(-5, 6)) - set([0, predecessor.dx]))
         super().__init__(Car, dxs, "road", index, y)
 
-    def update(self):
+    def update(self) -> None:
         super().update()
 
         # Trigger car sound effects. The zoom effect should play when the player is on the row above or below the car,
@@ -559,22 +560,22 @@ class Road(ActiveRow):
                         if abs(dx) < 100 and ((child_obj.dx < 0) != (dx < 0)) and (y_offset == 0 or abs(child_obj.dx) > 1):
                             child_obj.play_sound(car_sound_num)
 
-    def check_collision(self, x):
+    def check_collision(self, x: float) -> tuple[PlayerState, int]:
         if self.collide(x):
             game.play_sound("splat", 1)
             return PlayerState.SPLAT, 0
         else:
             return PlayerState.ALIVE, 0
 
-    def play_sound(self):
+    def play_sound(self) -> None:
         game.play_sound("road", 1)
 
-    def next(self):
+    def next(self) -> "Row":
         if self.index == 0:
             row_class, index = Road, 1
         elif self.index < 5:
             # 80% chance of another road
-            r = random()
+            r: float = random()
             if r < 0.8:
                 row_class, index = Road, self.index + 1
             elif r < 0.88:
@@ -597,13 +598,13 @@ class Road(ActiveRow):
         return row_class(self, index, self.y - ROW_HEIGHT)
 
 class Pavement(Row):
-    def __init__(self, predecessor, index, y):
+    def __init__(self, predecessor: Any, index: int, y: float) -> None:
         super().__init__("side", index, y)
 
-    def play_sound(self):
+    def play_sound(self) -> None:
         game.play_sound("sidewalk", 1)
 
-    def next(self):
+    def next(self) -> "Row":
         if self.index < 2:
             row_class, index = Pavement, self.index + 1
         else:
@@ -614,12 +615,12 @@ class Pavement(Row):
 
 # Note that Rail does not inherit from ActiveRow
 class Rail(Row):
-    def __init__(self, predecessor, index, y):
+    def __init__(self, predecessor: Any, index: int, y: float) -> None:
         super().__init__("rail", index, y)
 
-        self.predecessor = predecessor
+        self.predecessor: Any = predecessor
 
-    def update(self):
+    def update(self) -> None:
         super().update()
 
         # Only Rail rows with index 1 have trains on them
@@ -630,22 +631,22 @@ class Rail(Row):
             # If on-screen, and there is currently no train, and with a 1% chance every frame, create a train
             if self.y < game.scroll_pos+HEIGHT and len(self.children) == 0 and random() < 0.01:
                 # Randomly choose a direction for trains to move. This can be different for each train created
-                dx = choice([-20, 20])
+                dx: int = choice([-20, 20])
                 self.children.append(Train(dx, (WIDTH + 1000 if dx < 0 else -1000, -13)))
                 game.play_sound("bell")
                 game.play_sound("train", 2)
 
-    def check_collision(self, x):
+    def check_collision(self, x: float) -> tuple[PlayerState, int]:
         if self.index == 2 and self.predecessor.collide(x):
             game.play_sound("splat", 1)
             return PlayerState.SPLAT, 8     # For the meaning of the second return value, see comments in Bunner.update
         else:
             return PlayerState.ALIVE, 0
 
-    def play_sound(self):
+    def play_sound(self) -> None:
         game.play_sound("grass", 1)
 
-    def next(self):
+    def next(self) -> "Row":
         if self.index < 3:
             row_class, index = Rail, self.index + 1
         else:
@@ -656,9 +657,9 @@ class Rail(Row):
         return row_class(self, index, self.y - ROW_HEIGHT)
 
 class Game:
-    def __init__(self, bunner=None):
-        self.bunner = bunner
-        self.looped_sounds = {}
+    def __init__(self, bunner: Any = None) -> None:
+        self.bunner: Any = bunner
+        self.looped_sounds: dict[str, Any] = {}
 
         try:
             if bunner:
@@ -669,15 +670,15 @@ class Game:
         except:
             pass
 
-        self.eagle = None
-        self.frame = 0
+        self.eagle: Optional["Eagle"] = None
+        self.frame: int = 0
 
         # First (bottom) row is always grass
-        self.rows = [Grass(None, 0, 0)]
+        self.rows: list[Any] = [Grass(None, 0, 0)]
 
         self.scroll_pos = -HEIGHT
 
-    def update(self):
+    def update(self) -> "Game":
         if self.bunner:
             # Scroll faster if the player is close to the top of the screen. Limit scroll speed to
             # between 1 and 3 pixels per frame.
@@ -709,17 +710,17 @@ class Game:
             for name, count, row_class in [("river", 2, Water), ("traffic", 3, Road)]:
                 # The first line uses a list comprehension to get each row of the appropriate type, e.g. Water rows
                 # if we're currently updating the "river" sound effect.
-                volume = sum([16.0 / max(16.0, abs(r.y - self.bunner.y)) for r in self.rows if isinstance(r, row_class)]) - 0.2
+                volume: float = sum([16.0 / max(16.0, abs(r.y - self.bunner.y)) for r in self.rows if isinstance(r, row_class)]) - 0.2
                 volume = min(0.4, volume)
                 self.loop_sound(name, count, volume)
 
         return self
 
-    def draw(self):
+    def draw(self) -> None:
         # Create a list of all objects which need to be drawn. This includes all rows, plus the player
         # Using list(s.rows) means we're creating a copy of that list to use - we don't want to create a reference
         # to it as that would mean we're modifying the original list's contents
-        all_objs = list(self.rows)
+        all_objs: list[Any] = list(self.rows)
 
         if self.bunner:
             all_objs.append(self.bunner)
@@ -728,7 +729,7 @@ class Game:
         # after (and therefore in front of) objects higher up the screen. We can use Python's built-in sort function
         # to put the items in the desired order, before we draw the  The following function specifies the criteria
         # used to decide how the objects are sorted.
-        def sort_key(obj):
+        def sort_key(obj: Any) -> int:
             # Adding 39 and then doing an integer divide by 40 (the height of each row) deals with the situation where
             # the player sprite would otherwise be drawn underneath the row below. This could happen when the player
             # is moving up or down. If you assume that it occupies a 40x40 box which can be at an arbitrary y offset,
@@ -754,10 +755,10 @@ class Game:
                     pygame.draw.rect(screen.surface, (255, 255, 255), pygame.Rect(obj.x, obj.y - int(self.scroll_pos), screen.surface.get_width(), ROW_HEIGHT), 1)
                     screen.draw.text(str(obj.index), (obj.x, obj.y - int(self.scroll_pos) - ROW_HEIGHT))
 
-    def score(self):
+    def score(self) -> int:
         return int(-320 - game.bunner.min_y) // 40
 
-    def play_sound(self, name, count=1):
+    def play_sound(self, name: str, count: int = 1) -> None:
         try:
             # Some sounds have multiple varieties. If count > 1, we'll randomly choose one from those
             # We don't play any sounds if there is no player (e.g. if we're on the menu)
@@ -774,7 +775,7 @@ class Game:
             # If a sound fails to play, ignore the error
             pass
 
-    def loop_sound(self, name, count, volume):
+    def loop_sound(self, name: str, count: int, volume: float) -> None:
         try:
             # Similar to play_sound above, but for looped sounds we need to keep a reference to the sound so that we can
             # later modify its volume or turn it off. We use the dictionary self.looped_sounds for this - the sound
@@ -797,7 +798,7 @@ class Game:
             pass
 
 
-    def stop_looped_sounds(self):
+    def stop_looped_sounds(self) -> None:
         try:
             for sound in self.looped_sounds.values():
                 sound.stop()
@@ -807,16 +808,16 @@ class Game:
             pass
 
 # Dictionary to keep track of which keys are currently being held down
-key_status = {}
+key_status: dict[Any, bool] = {}
 
 # Was the given key just pressed? (i.e. is it currently down, but wasn't down on the previous frame?)
-def key_just_pressed(key):
-    result = False
+def key_just_pressed(key: Any) -> bool:
+    result: bool = False
 
     # Get key's previous status from the key_status dictionary. The dictionary.get method allows us to check for a given
     # entry without giving an error if that entry is not present in the dictionary. False is the default value returned
     # when the key is not present.
-    prev_status = key_status.get(key, False)
+    prev_status: bool = key_status.get(key, False)
 
     # If the key wasn't previously being pressed, but it is now, we're going to return True
     if not prev_status and keyboard[key]:
@@ -828,7 +829,7 @@ def key_just_pressed(key):
 
     return result
 
-def display_number(n, colour, x, align):
+def display_number(n: Any, colour: int, x: float, align: int) -> None:
     # align: 0 for left, 1 for right
     n = str(n)  # Convert number to string
     for i in range(len(n)):
@@ -842,7 +843,7 @@ class State(Enum):
     PLAY = 2
     GAME_OVER = 3
 
-def update():
+def update() -> None:
     global state, game, high_score
 
     if state == State.MENU:
@@ -877,7 +878,7 @@ def update():
             state = State.MENU
             game = Game()
 
-def draw():
+def draw() -> None:
     game.draw()
 
     if state == State.MENU:
@@ -905,15 +906,15 @@ except:
 # Load high score from file
 try:
     with open("high.txt", "r") as f:
-        high_score = int(f.read())
+        high_score: int = int(f.read())
 except:
     # If opening the file fails (likely because it hasn't yet been created), set high score to 0
     high_score = 0
 
 # Set the initial game state
-state = State.MENU
+state: State = State.MENU
 
 # Create a new Game object, without a Player object
-game = Game()
+game: Game = Game()
 
 pgzrun.go()

@@ -5,40 +5,58 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- shared runtime state.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# context.py -- a tiny holder for process-wide state that several shim modules
-# need but which is only known once the game starts: the active Renderer (set
-# after the GL context is created) and the asset root directory.
+"""Shared, process-wide runtime state for the ``pgzero_gl`` shim.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+A tiny holder for state that several shim modules need but which is only known
+once the game starts: the active :class:`~pgzero_gl.renderer.Renderer` (created
+after the GL context exists) and the asset root directory. Keeping it in one
+plain module, imported everywhere, avoids threading the renderer through every
+draw call and avoids import cycles between the API modules.
+"""
+
+from __future__ import annotations
 
 import os
 import sys
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:
+    from .renderer import Renderer
 
 # The active renderer.Renderer instance.  None until runner.run() creates the
 # GL context.  Drawing before then raises a clear error.
-renderer = None
+renderer: Renderer | None = None
 
-# The active GLFW window handle (set by the runner); used by exit().
-window = None
+# The active GLFW window handle (set by the runner); used by exit().  GLFW
+# window handles are opaque pointers, so this is typed Any.
+window: Any = None
 
 # True once glfw.init() has succeeded.  Joystick queries must not touch GLFW
 # before this (game modules call setup_joystick_controls() at import time, before
 # the window/loop exist).
-glfw_ready = False
+glfw_ready: bool = False
 
 # Directory that contains the game's images/, sounds/, music/ folders.
 # None means "resolve lazily" -- because game objects (and thus image/sound
 # loads) are routinely created at module-import time, BEFORE go() runs, we infer
 # the root from the main script's location when it hasn't been set explicitly.
-asset_root = None
+asset_root: str | None = None
 
 
-def get_asset_root():
+def get_asset_root() -> str:
+    """Return the directory holding the game's ``images/``/``sounds/``/``music/``.
+
+    Uses the explicitly-set :data:`asset_root` if present; otherwise infers it
+    from the main script's location (game objects load assets at import time,
+    before :func:`~pgzero_gl.go` runs and could set it), falling back to the
+    current working directory.
+    """
     if asset_root is not None:
         return asset_root
     main = sys.modules.get("__main__")
@@ -48,7 +66,12 @@ def get_asset_root():
     return os.getcwd()
 
 
-def require_renderer():
+def require_renderer() -> Renderer:
+    """Return the active :class:`~pgzero_gl.renderer.Renderer`.
+
+    Raises ``RuntimeError`` if called before the game loop has created the GL
+    context (i.e. if a game tries to draw at import time).
+    """
     if renderer is None:
         raise RuntimeError(
             "No GL renderer yet -- drawing happens inside the game loop "

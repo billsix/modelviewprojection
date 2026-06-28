@@ -37,6 +37,7 @@ import xml.etree.ElementTree as ET  # noqa: E402
 from abc import ABC, abstractmethod  # noqa: E402
 from enum import Enum  # noqa: E402
 from random import randint  # noqa: E402
+from typing import Any, Optional, cast  # noqa: E402
 
 
 # Set up constants
@@ -114,13 +115,13 @@ SPECIAL_FONT_SYMBOLS = {'xb_a':'%', 'xb_b':'#'}
 # Create a version of SPECIAL_FONT_SYMBOLS where the keys and values are swapped
 SPECIAL_FONT_SYMBOLS_INVERSE = dict((v,k) for k,v in SPECIAL_FONT_SYMBOLS.items())
 
-def move_towards(n, target, speed):
+def move_towards(n: int, target: int, speed: int) -> int:
     if n < target:
         return min(n + speed, target)
     else:
         return max(n - speed, target)
 
-def sign(x):
+def sign(x: float) -> int:
     # Returns 1, 0 or -1 depending on whether number is positive, zero or negative
     if x == 0:
         return 0
@@ -131,41 +132,41 @@ def sign(x):
 class Controls(ABC):
     NUM_BUTTONS = 2
 
-    def __init__(self):
-        self.button_previously_down = [False for i in range(Controls.NUM_BUTTONS)]
-        self.is_button_pressed = [False for i in range(Controls.NUM_BUTTONS)]
+    def __init__(self) -> None:
+        self.button_previously_down: list[bool] = [False for i in range(Controls.NUM_BUTTONS)]
+        self.is_button_pressed: list[bool] = [False for i in range(Controls.NUM_BUTTONS)]
 
-    def update(self):
+    def update(self) -> None:
         # Call each frame to update button status
         for button in range(Controls.NUM_BUTTONS):
-            button_down = self.button_down(button)
+            button_down: bool = self.button_down(button)
             self.is_button_pressed[button] = button_down and not self.button_previously_down[button]
             self.button_previously_down[button] = button_down
 
     @abstractmethod
-    def get_x(self):
+    def get_x(self) -> int:
         # Overridden by subclasses
         pass
 
     @abstractmethod
-    def get_y(self):
+    def get_y(self) -> int:
         # Overridden by subclasses
         pass
 
     @abstractmethod
-    def button_down(self, button):
+    def button_down(self, button: int) -> bool:
         # Overridden by subclasses
         pass
 
-    def button_pressed(self, button):
+    def button_pressed(self, button: int) -> bool:
         return self.is_button_pressed[button]
 
     @abstractmethod
-    def button_name(self, button):
+    def button_name(self, button: str) -> str:
         return "?"
 
 class KeyboardControls(Controls):
-    def get_x(self):
+    def get_x(self) -> int:
         if keyboard.left:
             return -1
         elif keyboard.right:
@@ -173,7 +174,7 @@ class KeyboardControls(Controls):
         else:
             return 0
 
-    def get_y(self):
+    def get_y(self) -> int:
         if keyboard.up:
             return -1
         elif keyboard.down:
@@ -181,13 +182,13 @@ class KeyboardControls(Controls):
         else:
             return 0
 
-    def button_down(self, button):
+    def button_down(self, button: int) -> bool:
         if button == 0:
             return keyboard.space
         else:
             return keyboard.z
 
-    def button_name(self, button):
+    def button_name(self, button: str) -> str:
         if button == "dash":
             return "Z"
         elif button == "jump":
@@ -196,12 +197,12 @@ class KeyboardControls(Controls):
             return "?"
 
 class JoystickControls(Controls):
-    def __init__(self, joystick):
+    def __init__(self, joystick: Any) -> None:
         super().__init__()
-        self.joystick = joystick
+        self.joystick: Any = joystick
         joystick.init() # Not necessary in Pygame 2.0.0 onwards
 
-    def get_axis(self, axis_num):
+    def get_axis(self, axis_num: int) -> int:
         if self.joystick.get_numhats() > 0 and self.joystick.get_hat(0)[axis_num] != 0:
             # For some reason, dpad up/down are inverted when getting inputs from
             # an Xbox controller, so need to negate the value if axis_num is 1
@@ -215,13 +216,13 @@ class JoystickControls(Controls):
             # digital movement
             return 1 if axis_value > 0 else -1
 
-    def get_x(self):
+    def get_x(self) -> int:
         return self.get_axis(0)
 
-    def get_y(self):
+    def get_y(self) -> int:
         return self.get_axis(1)
 
-    def button_down(self, button):
+    def button_down(self, button: int) -> bool:
         # Before checking button, check to make sure that the controller actually has enough buttons
         # There are some weird devices out there which could cause a crash if this check were not present
         if self.joystick.get_numbuttons() <= button:
@@ -229,7 +230,7 @@ class JoystickControls(Controls):
             return False
         return self.joystick.get_button(button) != 0
 
-    def button_name(self, button):
+    def button_name(self, button: str) -> str:
         if button == "dash":
             return SPECIAL_FONT_SYMBOLS["xb_b"]
         elif button == "jump":
@@ -243,66 +244,66 @@ class Gem(Actor):
     # The variable belongs to the class as a whole rather than any one particular instance (object) of the class
     next_type = 1
 
-    def __init__(self, pos):
+    def __init__(self, pos: tuple[float, float]) -> None:
         super().__init__("blank", pos, ANCHOR_CENTRE_BOTTOM)
 
         # Choose which type of gem we're going to be.
-        self.type = Gem.next_type
+        self.type: int = Gem.next_type
 
         # Set the type of the next gem
         Gem.next_type += 1
         if Gem.next_type >= 5:
             Gem.next_type = 1
 
-        self.collected = False
+        self.collected: bool = False
 
-    def update(self):
+    def update(self) -> None:
         # Does the player exist, and are they colliding with us?
         if game.player is not None and game.player.collidepoint(self.center):
             game.gain_time(game.time_pickup_bonus, self.centerx, self.centery)
             game.play_sound("collect")
             self.collected = True  # Disappear
 
-        anim_frame = str((game.timer // 6) % 4)
+        anim_frame: str = str((game.timer // 6) % 4)
         self.image = f"gem{self.type}_{anim_frame}"
 
     @staticmethod
-    def new_game():
+    def new_game() -> None:
         Gem.next_type = 1
 
 # The door prevents the player from leaving a level until all gems have been collected
 class Door(Actor):
-    def __init__(self, pos, biome="castle", variant=0, already_open=False):
-        self.biome = biome
-        self.variant = variant
-        self.opening = already_open
-        self.last_frame = 15 if biome == "castle" else 13
-        self.frame = self.last_frame if already_open else 0
+    def __init__(self, pos: tuple[float, float], biome: str = "castle", variant: Any = 0, already_open: bool = False) -> None:
+        self.biome: str = biome
+        self.variant: Any = variant
+        self.opening: bool = already_open
+        self.last_frame: int = 15 if biome == "castle" else 13
+        self.frame: int = self.last_frame if already_open else 0
         super().__init__(f"door_{biome}_{variant}_{self.frame}", pos, anchor=(0,0))
 
-    def update(self):
+    def update(self) -> None:
         if self.opening and self.frame < self.last_frame and game.timer % 3 == 0:
             self.frame += 1
             self.image = f"door_{self.biome}_{self.variant}_{self.frame}"
 
-    def open(self):
+    def open(self) -> None:
         self.opening = True
 
-    def is_fully_open(self):
+    def is_fully_open(self) -> bool:
         return self.frame == self.last_frame
 
 # Used for animations such as those that appear when you pick up a gem or lose a life
 class Animation(Actor):
-    def __init__(self, pos, image_format_str, num_frames, frame_interval, anchor=ANCHOR_CENTRE, initial_delay=0, rise_time=-1):
+    def __init__(self, pos: tuple[float, float], image_format_str: str, num_frames: int, frame_interval: int, anchor: Any = ANCHOR_CENTRE, initial_delay: int = 0, rise_time: int = -1) -> None:
         super().__init__("blank", pos, anchor)
-        self.image_format_str = image_format_str
-        self.num_frames = num_frames
-        self.frame_interval = frame_interval
-        self.timer = -initial_delay
-        self.rise_time = rise_time
+        self.image_format_str: str = image_format_str
+        self.num_frames: int = num_frames
+        self.frame_interval: int = frame_interval
+        self.timer: int = -initial_delay
+        self.rise_time: int = rise_time
         self.update_image()
 
-    def update(self):
+    def update(self) -> None:
         self.timer += 1
         self.update_image()
 
@@ -310,27 +311,27 @@ class Animation(Actor):
         if self.rise_time > -1 and self.timer > self.rise_time:
             self.y -= 1
 
-    def update_image(self):
+    def update_image(self) -> None:
         if self.timer < 0:
             self.image = "blank"
         else:
-            frame = min(self.timer // self.frame_interval, self.num_frames - 1)
+            frame: int = min(self.timer // self.frame_interval, self.num_frames - 1)
             self.image = self.image_format_str.format(frame)
 
-    def finished(self):
+    def finished(self) -> bool:
         return self.timer // self.frame_interval >= self.num_frames
 
 class DashTrail(Animation):
-    def __init__(self, pos, image):
+    def __init__(self, pos: tuple[float, float], image: str) -> None:
         # Receive's the player's current sprite, uses the trail version of that sprite
         super().__init__(pos, image + "_trail_{0}", 6, 5, ANCHOR_PLAYER)
 
 # Base class for objects which move around the level and collide with walls, such as the player and enemies
 class CollideActor(Actor):
-    def __init__(self, pos, anchor=ANCHOR_CENTRE):
+    def __init__(self, pos: tuple[float, float], anchor: Any = ANCHOR_CENTRE) -> None:
         super().__init__("blank", pos, anchor)
 
-    def move(self, dx, dy, speed):
+    def move(self, dx: int, dy: int, speed: int) -> bool:
         # Returns true if move was blocked
         # One of dx or dy will be 0
 
@@ -341,7 +342,7 @@ class CollideActor(Actor):
             new_x, new_y = new_x + dx, new_y + dy
 
             # Get the player rectangle as it would be if the position were changed to new_x, new_y
-            rect = self.get_rect(new_x, new_y)
+            rect: Rect = self.get_rect(new_x, new_y)
 
             # Does this proposed new position overlap with any of the collidable tiles, or the exit door?
             if game.position_blocked(rect):
@@ -355,7 +356,7 @@ class CollideActor(Actor):
         # Didn't collide with anything
         return False
 
-    def get_rect(self, centre_x=None, bottom_y=None):
+    def get_rect(self, centre_x: Optional[float] = None, bottom_y: Optional[float] = None) -> Rect:
         # Returns a rectangle representing this actor, assuming it were positioned at the specified x and y coordinates
         # (If None, we default to the actual X/Y pos of the actor)
         # We don't use the standard Pygame Zero practice of just using the sprite bounds as the rectangle, as for the
@@ -367,12 +368,12 @@ class CollideActor(Actor):
         w, h = self.get_collidable_width(), self.get_collidable_height()
         return Rect(centre_x - (w // 2), bottom_y - h, w, h)
 
-    def get_collidable_width(self):
+    def get_collidable_width(self) -> int:
         # Overridden for Player and Enemy
         image_surface = getattr(images, self.image)
         return image_surface.get_width()
 
-    def get_collidable_height(self):
+    def get_collidable_height(self) -> int:
         # Overridden for Player and Enemy
         image_surface = getattr(images, self.image)
         return image_surface.get_height()
@@ -391,15 +392,15 @@ class GravityActor(CollideActor):
         JUMPING = 2
         WALL_JUMPING = 3
 
-    def __init__(self, pos, gravity_enabled=True, anchor=ANCHOR_CENTRE_BOTTOM):
+    def __init__(self, pos: tuple[float, float], gravity_enabled: bool = True, anchor: Any = ANCHOR_CENTRE_BOTTOM) -> None:
         super().__init__(pos, anchor)
 
-        self.gravity_enabled = gravity_enabled
-        self.vel_y = 0
-        self.fall_state = GravityActor.FallState.FALLING
-        self.lower_gravity_timer = 0
+        self.gravity_enabled: bool = gravity_enabled
+        self.vel_y: int = 0
+        self.fall_state: GravityActor.FallState = GravityActor.FallState.FALLING
+        self.lower_gravity_timer: int = 0
 
-    def update(self, detect=True):
+    def update(self, detect: bool = True) -> None:
         if not self.gravity_enabled:
             return
 
@@ -436,7 +437,7 @@ class GravityActor(CollideActor):
             # Collision detection disabled - just update the Y coordinate without any further checks
             self.y += self.vel_y
 
-    def landed(self):
+    def landed(self) -> bool:
         return self.fall_state == GravityActor.FallState.LANDED
 
 
@@ -448,37 +449,37 @@ class Player(GravityActor):
     DASH_TIMER_TRAIL_CUTOFF = -10
     MAX_X_RUN_SPEED = 5
 
-    def __init__(self, controls):
+    def __init__(self, controls: Controls) -> None:
         # Call constructor of parent class. Initial pos is 0,0 but Game.next_level will set the actual starting position
         super().__init__((0, 0), anchor=ANCHOR_PLAYER)
 
-        self.controls = controls
+        self.controls: Controls = controls
 
         # Actor for the flame on the character's head
-        self.flame = Actor("flame_stand_0", self.pos, anchor=ANCHOR_FLAME)
+        self.flame: Actor = Actor("flame_stand_0", self.pos, anchor=ANCHOR_FLAME)
 
-        self.vel_x = 0
-        self.facing_x = 1
-        self.hurt = False
-        self.dash_timer = Player.DASH_TIMER_TRAIL_CUTOFF    # Counts down
-        self.dash_animation_timer = 0                       # Counts up
-        self.dash_allowed = False
-        self.grabbed_wall = 0
-        self.coyote_time = 0
-        self.fall_timer = 0                 # Number of frames since we started falling or jumping
-        self.wall_jump_coyote_time = 0
-        self.cached_jump_input_timer = 0
-        self.enemy_stomped_timer = 0
-        self.change_direction_timer = 0
-        self.last_dash_sprite = "dash_horizontal_0_0"   # Used for dash trails
+        self.vel_x: int = 0
+        self.facing_x: int = 1
+        self.hurt: bool = False
+        self.dash_timer: int = Player.DASH_TIMER_TRAIL_CUTOFF    # Counts down
+        self.dash_animation_timer: int = 0                       # Counts up
+        self.dash_allowed: bool = False
+        self.grabbed_wall: int = 0
+        self.coyote_time: int = 0
+        self.fall_timer: int = 0                 # Number of frames since we started falling or jumping
+        self.wall_jump_coyote_time: int = 0
+        self.cached_jump_input_timer: int = 0
+        self.enemy_stomped_timer: int = 0
+        self.change_direction_timer: int = 0
+        self.last_dash_sprite: str = "dash_horizontal_0_0"   # Used for dash trails
 
-        self.replay_data = []
+        self.replay_data: list[Any] = []
 
-    def new_level(self, start_pos):
+    def new_level(self, start_pos: tuple[float, float]) -> None:
         self.start_pos = start_pos
         self.reset()
 
-    def reset(self):
+    def reset(self) -> None:
         self.pos = self.start_pos
         self.vel_x = 0
         self.vel_y = 0
@@ -502,16 +503,16 @@ class Player(GravityActor):
                     enemy.destroy()
                     game.play_sound("enemy_death", 5)
 
-    def hit_test(self, other):
+    def hit_test(self, other: "Enemy") -> bool:
         # Check for collision between player and enemy - called from Player.update
         return self.get_rect(self.x, self.y).colliderect(other.get_rect()) and not self.hurt
 
-    def get_colliding_enemies(self):
+    def get_colliding_enemies(self) -> list["Enemy"]:
         return [enemy for enemy in game.enemies if not enemy.dying and self.hit_test(enemy)]
 
-    def update(self):
+    def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful port: narrows GravityActor.update's optional `detect`
         # Call GravityActor.update - parameter is whether we want to perform collision detection as we fall
-        was_landed = self.landed()
+        was_landed: bool = self.landed()
         super().update(not self.hurt)
 
         if was_landed and not self.landed():
@@ -523,13 +524,13 @@ class Player(GravityActor):
             self.reset()
 
         # Check for collisions with enemies, including landing on their heads
-        stomped_any = False
+        stomped_any: bool = False
         for enemy in self.get_colliding_enemies():
             # Die or stomp? Are we within the top 20% of the enemy collision rectangle?
             # If we're moving downward, increase the threshold to the top 50% of the collision rectangle
             # We're fairly forgiving about this - otherwise some of the deaths seem unfair
-            enemy_rect = enemy.get_rect()
-            threshold = enemy_rect.top + (enemy_rect.bottom - enemy_rect.top) * (0.5 if self.vel_y > 0 else 0.2)
+            enemy_rect: Rect = enemy.get_rect()
+            threshold: float = enemy_rect.top + (enemy_rect.bottom - enemy_rect.top) * (0.5 if self.vel_y > 0 else 0.2)
             # If the player stomps an enemy due to downward motion they'll now be moving up, so unless they're within
             # the top 20% of the sprite, they'll get hit by it on the next frame. Prevent this using stomped_last_frame
             if self.y < threshold or self.stomped_last_frame:
@@ -568,9 +569,9 @@ class Player(GravityActor):
             if self.dash_timer % Player.DASH_TRAIL_INTERVAL == 0:
                 game.animations.append(DashTrail(self.pos, self.last_dash_sprite))
 
-        dx = 0  # X direction we tried to move this frame, zero if we are standing still
+        dx: int = 0  # X direction we tried to move this frame, zero if we are standing still
 
-        jump_pressed = self.controls.button_pressed(0)
+        jump_pressed: bool = self.controls.button_pressed(0)
 
         if jump_pressed and DEBUG_MOVEMENT:
             print(game.timer, "jump pressed")
@@ -611,7 +612,7 @@ class Player(GravityActor):
             # Get keyboard input. dx represents the direction the player is facing
             dx = self.controls.get_x()
 
-            def jump():
+            def jump() -> None:
                 if DEBUG_MOVEMENT:
                     print(game.timer, "JUMP")
                 self.vel_y = JUMP_VEL_Y
@@ -622,7 +623,7 @@ class Player(GravityActor):
                 self.fall_timer = 0
                 game.play_sound("jump")
 
-            def wall_jump(wall_direction):
+            def wall_jump(wall_direction: int) -> None:
                 if DEBUG_MOVEMENT:
                     print(game.timer, "WALL JUMP", wall_direction)
                 self.vel_y = JUMP_VEL_Y
@@ -725,7 +726,7 @@ class Player(GravityActor):
 
                     if self.dash_allowed and self.controls.button_pressed(1):
                         # Dash
-                        dy = self.controls.get_y()
+                        dy: int = self.controls.get_y()
                         if dx != 0 or dy != 0:
                             if DEBUG_MOVEMENT:
                                 print(game.timer, "dash")
@@ -759,7 +760,7 @@ class Player(GravityActor):
         # Update replay data
         self.replay_data.append( (self.pos, game.level_index, self.image) )
 
-    def determine_sprite(self, dx):
+    def determine_sprite(self, dx: int) -> None:
         # Set sprite image. If we're currently hurt, the sprite will flash on and off on alternate frames.
         # dx is X direction we tried to move this frame, zero if there was no control input
         self.image = self.flame.image = "blank"
@@ -767,10 +768,10 @@ class Player(GravityActor):
         self.flame.anchor = ANCHOR_FLAME
         if not self.hurt or game.timer % 2 == 1:
             # Example sprite name: "run_0_3" - first number is direction (0 right, 1 left), second is the frame number
-            dir_index = "1" if self.facing_x < 0 else "0"
+            dir_index: str = "1" if self.facing_x < 0 else "0"
             if self.hurt:
                 # no flame for this animatoin
-                frame = min(self.fall_timer // 8, 5)
+                frame: int = min(self.fall_timer // 8, 5)
                 self.image = f"die_{frame}"
                 self.flame_image = "blank"
 
@@ -783,7 +784,7 @@ class Player(GravityActor):
                 # In air
                 if self.fall_state == GravityActor.FallState.JUMPING:
                     frame = min(self.fall_timer // 3, 5)
-                    flame_frame = min(self.fall_timer // 3, 5) + 1
+                    flame_frame: int = min(self.fall_timer // 3, 5) + 1
                     self.image = f"jump_{dir_index}_{frame}"
                     self.flame.image = f"flame_jump_{dir_index}_{flame_frame}"
                 elif self.fall_state == GravityActor.FallState.WALL_JUMPING:
@@ -801,10 +802,10 @@ class Player(GravityActor):
                         self.flame.image = f"flame_dash_start_{dir_index}_{flame_frame}"
                         self.flame.anchor = ANCHOR_FLAME
                     else:
-                        timer = self.dash_animation_timer - 4
+                        timer: int = self.dash_animation_timer - 4
                         frame = min(timer // 3, 2)
                         flame_frame = min(timer // 3, 7)
-                        sprite = "dash_"
+                        sprite: str = "dash_"
                         if self.vel_y < 0:
                             sprite += "up_"
                         elif self.vel_y > 0:
@@ -835,7 +836,7 @@ class Player(GravityActor):
                 self.image = f"run_{dir_index}_{frame}"
                 self.flame.image = f"flame_run_{dir_index}_{(game.timer // 4) % 8}"
 
-    def draw(self):
+    def draw(self) -> None:
         super().draw()
 
         self.flame.pos = self.pos
@@ -845,20 +846,20 @@ class Player(GravityActor):
             # Show collision rectangle
             screen.draw.rect(self.get_rect(), (255,255,255))
 
-    def get_collidable_width(self):
+    def get_collidable_width(self) -> int:
         return PLAYER_WIDTH
 
-    def get_collidable_height(self):
+    def get_collidable_height(self) -> int:
         return PLAYER_HEIGHT
 
 class GhostPlayer(Actor):
-    def __init__(self, replay_data):
+    def __init__(self, replay_data: list[Any]) -> None:
         super().__init__("blank", replay_data[0][0], ANCHOR_PLAYER)
-        self.replay_data = replay_data
-        self.replay_frame = 0
-        self.level = 0
+        self.replay_data: list[Any] = replay_data
+        self.replay_frame: int = 0
+        self.level: int = 0
 
-    def update(self):
+    def update(self) -> None:
         self.replay_frame += 1
         if self.replay_frame < len(self.replay_data):
             self.pos, self.level, sprite = self.replay_data[self.replay_frame]
@@ -867,35 +868,35 @@ class GhostPlayer(Actor):
             else:
                 self.image = "ghost_" + sprite
 
-    def draw(self):
+    def draw(self) -> None:
         # Only draw if we're on the same level as the actual player
         if self.level == game.level_index:
             super().draw()
 
 class Enemy(GravityActor):
-    def __init__(self, pos, type, biome, direction_x=1, appearance_count=1):
+    def __init__(self, pos: tuple[float, float], type: int, biome: Biome, direction_x: int = 1, appearance_count: int = 1) -> None:
         # Type must be a number from 0 to 3. 0 and 1 are both flying robots which don't have different frames for facing
         # left or right. 2 and 3 are non-flying robots which do have left/right facing frames.
 
         super().__init__(pos, gravity_enabled=not ENEMY_TYPES_FLYING[biome][type], anchor=ENEMY_TYPES_ANCHOR_POINTS[biome][type])
 
-        self.direction_x = direction_x
-        self.type = type
-        self.biome = biome
+        self.direction_x: int = direction_x
+        self.type: int = type
+        self.biome: Biome = biome
 
-        self.health = ENEMY_TYPES_HEALTH[type]
-        self.speed = ENEMY_TYPES_SPEED[type]
+        self.health: int = ENEMY_TYPES_HEALTH[type]
+        self.speed: int = ENEMY_TYPES_SPEED[type]
 
         # Flying enemies which are on their third appearance will move diagonally
-        self.direction_y = 1 if appearance_count >= 3 and not self.gravity_enabled else 0
+        self.direction_y: int = 1 if appearance_count >= 3 and not self.gravity_enabled else 0
 
         # Robot types 2 and 3, and fly/ghost have different sprites for facing left/right
-        self.use_directional_sprites = (self.biome == Biome.CASTLE and self.type >= 2) or (self.biome == Biome.FOREST and self.type < 2)
+        self.use_directional_sprites: bool = (self.biome == Biome.CASTLE and self.type >= 2) or (self.biome == Biome.FOREST and self.type < 2)
 
-        self.dying = False
-        self.stomped_timer = 0
+        self.dying: bool = False
+        self.stomped_timer: int = 0
 
-    def update(self):
+    def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful port: narrows GravityActor.update's optional `detect`
         super().update(detect=not self.dying)
 
         if not self.dying:
@@ -911,16 +912,16 @@ class Enemy(GravityActor):
                     self.direction_y = -self.direction_y
 
         # Choose and set sprite image
-        image = ENEMY_SPRITE_NAMES[self.biome][self.type]
+        image: str = ENEMY_SPRITE_NAMES[self.biome][self.type]
         if self.use_directional_sprites:
-            direction_idx = "1" if self.direction_x > 0 else "0"
+            direction_idx: str = "1" if self.direction_x > 0 else "0"
             image += "_" + str(direction_idx)
         image += "_" + str((game.timer // 4) % 8) # 8 frames of animation
         if self.stomped_timer > 0 or self.dying:
             image += "_hit"
         self.image = image
 
-    def stomped(self):
+    def stomped(self) -> None:
         # Don't lose health or play sound effect if we're being stomped multiple frames in a row
         if self.stomped_timer <= 0:
             self.health -= 1
@@ -931,24 +932,24 @@ class Enemy(GravityActor):
                 game.play_sound("enemy_take_damage", 5)
         self.stomped_timer = 2
 
-    def destroy(self):
+    def destroy(self) -> None:
         self.dying = True
         self.gravity_enabled = True
 
         # Create explosion animation. Do this before gain_time so it appears underneath gain time animation
-        explosion_sprite = "explosion" if self.type > 1 else "air_explosion"
+        explosion_sprite: str = "explosion" if self.type > 1 else "air_explosion"
         game.animations.append(Animation(self.pos, explosion_sprite + "_{0}", 12, 4, ANCHOR_CENTRE_BOTTOM))
 
         # Destroying an enemy always gains 3 seconds of time
         game.gain_time(STOMP_ENEMY_TIME_BONUS, self.centerx, self.centery)
 
-    def get_collidable_width(self):
+    def get_collidable_width(self) -> int:
         return ENEMY_TYPES_WIDTH_OVERRIDES[self.biome][self.type]
 
-    def get_collidable_height(self):
+    def get_collidable_height(self) -> int:
         return ENEMY_TYPES_HEIGHT_OVERRIDES[self.biome][self.type]
 
-    def draw(self):
+    def draw(self) -> None:
         super().draw()
 
         if DEBUG_SHOW_ENEMY_COLLISION_RECTS:
@@ -956,35 +957,35 @@ class Enemy(GravityActor):
             screen.draw.rect(self.get_rect(), (255,255,255))
 
 class Game:
-    def __init__(self, player=None, replays=None):
-        self.player = player
+    def __init__(self, player: Optional[Player] = None, replays: Optional[list[Any]] = None) -> None:
+        self.player: Optional[Player] = player
 
         # Gem class is told via a static method that a new game has started, so it can reset the next gem type variable
         Gem.new_game()
 
-        self.ghost_players = []
+        self.ghost_players: list[GhostPlayer] = []
         if replays is not None:
             for replay in replays:
                 self.ghost_players.append(GhostPlayer(replay))
 
-        self.timer = 0
-        self.time_remaining = INITIAL_TIME_REMAINING * 60
-        self.time_pickup_bonus = INITIAL_PICKUP_TIME_BONUS
-        self.gained_time_timer = 0
+        self.timer: int = 0
+        self.time_remaining: int = INITIAL_TIME_REMAINING * 60
+        self.time_pickup_bonus: float = INITIAL_PICKUP_TIME_BONUS
+        self.gained_time_timer: int = 0
 
-        self.level_index = (INITIAL_LEVEL_CYCLE * len(LEVEL_SEQUENCE)) - 1
+        self.level_index: int = (INITIAL_LEVEL_CYCLE * len(LEVEL_SEQUENCE)) - 1
 
-        self.level_text = ""
+        self.level_text: str = ""
 
         # These are set during load_level
-        self.grid = None
-        self.tileset_image = None
-        self.background_image = None
-        self.background_y_offset = 0
+        self.grid: Any = None
+        self.tileset_image: Any = None
+        self.background_image: Any = None
+        self.background_y_offset: int = 0
 
         self.next_level()
 
-    def next_level(self):
+    def next_level(self) -> None:
         self.level_index += 1
 
         # If the new level is a repeat of the first level, reduce self.time_pickup_bonus by 1 (to a minimum of 0.5)
@@ -994,16 +995,16 @@ class Game:
             elif self.time_pickup_bonus == 1:
                 self.time_pickup_bonus = 0.5
 
-        self.block_rects = []
-        self.doors = []
-        self.gems = []
-        self.enemies = []
-        self.animations = []
+        self.block_rects: list[Any] = []
+        self.doors: list[Door] = []
+        self.gems: list[Gem] = []
+        self.enemies: list[Enemy] = []
+        self.animations: list[Animation] = []
         self.level_text = ""
 
         # Set up level
-        level_filename = LEVEL_SEQUENCE[self.level_index % len(LEVEL_SEQUENCE)]
-        player_start_pos = self.load_level(level_filename)
+        level_filename: str = LEVEL_SEQUENCE[self.level_index % len(LEVEL_SEQUENCE)]
+        player_start_pos: tuple[float, float] = self.load_level(level_filename)
 
         self.exit_open = False
 
@@ -1018,18 +1019,18 @@ class Game:
 
         self.play_sound("new_wave")
 
-    def load_level(self, filename):
+    def load_level(self, filename: str) -> tuple[float, float]:
         # Returns player start pos, or (0,0) if none is found
-        player_start_pos = (0, 0)
+        player_start_pos: tuple[float, float] = (0, 0)
 
         # 0 for first time through the levels, 1 for second, etc
-        level_cycle = self.level_index // len(LEVEL_SEQUENCE)
+        level_cycle: int = self.level_index // len(LEVEL_SEQUENCE)
 
         # sys.path[0] gets the folder containing the Python file we're running
         # This is necessary because we could be running in an IDE where the default working folders is not the script
         # folder but is instead the parent folder, or we could be running preinstalled on a Raspberry Pi in which case
         # the current working folder is the user's home folder
-        path = os.path.join(sys.path[0], "tilemaps")
+        path: str = os.path.join(sys.path[0], "tilemaps")
 
         # The map and tileset files are XML files. We're using Python's built in ElementTree module (aliased here as ET)
         # to access the tags/nodes within the XML files.
@@ -1037,7 +1038,7 @@ class Game:
         map_root = map_tree.getroot()
 
         # Load background
-        properties_node = map_root.find("properties")
+        properties_node: Any = map_root.find("properties")
         self.background_image = properties_node.find("./property[@name='Background']").attrib["value"]
         bg_offset_node = properties_node.find("./property[@name='Background Offset Y']")
         self.background_y_offset = int(bg_offset_node.attrib["value"]) if bg_offset_node is not None else 0
@@ -1045,7 +1046,7 @@ class Game:
         # Load biome (used for determining which types of enemies and doors to generate)
         biome_node = properties_node.find("./property[@name='biome']")
         biome_name = biome_node.attrib["value"] if biome_node is not None else ""
-        biome = Biome[biome_name.upper()]
+        biome: Biome = Biome[biome_name.upper()]
 
         # Default level name text - may be replaced by tutorial text below
         self.level_text = "LEVEL " + str(self.level_index + 1)
@@ -1057,15 +1058,15 @@ class Game:
         if self.player is not None and tutorial_text_node is not None:
             tutorial_text = tutorial_text_node.attrib["value"]
             if level_cycle == 0 and len(tutorial_text) > 0:
-                dash_button_name = self.player.controls.button_name("dash")
-                jump_button_name = self.player.controls.button_name("jump")
+                dash_button_name: str = self.player.controls.button_name("dash")
+                jump_button_name: str = self.player.controls.button_name("jump")
                 self.level_text = tutorial_text.replace("{DASH}", dash_button_name).replace("{JUMP}", jump_button_name)
 
         # The map data consists of a comma-separated list of integers specifying tile IDs
         # The XML path is map/layer/data
-        layer_node = map_root.find("layer")
-        map_width = int(layer_node.attrib.get("width"))
-        map_height = int(layer_node.attrib.get("height"))
+        layer_node: Any = map_root.find("layer")
+        map_width: int = int(layer_node.attrib.get("width"))
+        map_height: int = int(layer_node.attrib.get("height"))
         map_data = layer_node.find("data").text.split(",")
 
         # Convert map data from CSV into a 2D list of ints
@@ -1074,21 +1075,21 @@ class Game:
         self.grid = []
         for row in range(map_height):
             # Extract each row from the map data
-            row_start_index = row * map_width
-            current_row = [int(tile) - 1 for tile in map_data[row_start_index:row_start_index+map_width]]
+            row_start_index: int = row * map_width
+            current_row: list[int] = [int(tile) - 1 for tile in map_data[row_start_index:row_start_index+map_width]]
             self.grid.append(current_row)
 
         # Read object layer, which specifies things like the player start position, gems and enemies
         object_group_node = map_root.find("objectgroup")
         if object_group_node is not None:
             for object_node in object_group_node.findall("object"):
-                object_name = object_node.attrib["name"]
+                object_name: str = object_node.attrib["name"]
 
                 # Extract the object position. Why do we write 'int(float(...))'? Because the number is read from the
                 # file as a string, and we'd like it as an int, but we also want to ignore anything after the
                 # decimal point, which we don't care about. We can't convert directly from string to int because
                 # that would fail when it encountered a number with a decimal point.
-                object_pos = (int(float(object_node.attrib["x"])), int(float(object_node.attrib["y"])))
+                object_pos: tuple[int, int] = (int(float(object_node.attrib["x"])), int(float(object_node.attrib["y"])))
                 if object_name == "PlayerStart":
                     player_start_pos = object_pos
 
@@ -1100,11 +1101,11 @@ class Game:
                     # first number indicates the enemy type (0 to 3), and the final number indicates the level cycle
                     # during which they first show up. Some enemies only show up on the second or third cycle through
                     # the levels
-                    enemy_level_cycle = int(object_name[-1])
-                    appearance_count = (level_cycle - enemy_level_cycle) + 1
+                    enemy_level_cycle: int = int(object_name[-1])
+                    appearance_count: int = (level_cycle - enemy_level_cycle) + 1
                     if appearance_count >= 1:
-                        facing = 1 if object_name[-3] == "R" else -1
-                        enemy_type = int(object_name[-2])
+                        facing: int = 1 if object_name[-3] == "R" else -1
+                        enemy_type: int = int(object_name[-2])
                         self.enemies.append(Enemy(object_pos, enemy_type, biome, facing, appearance_count))
 
                 elif "Door" in object_name:
@@ -1112,12 +1113,12 @@ class Game:
                     biome_node = object_node.find("./properties/property[@name='Biome']")
                     variant = variant_node.attrib["value"] if variant_node is not None else 0
                     door_biome_name = biome_node.attrib["value"] if biome_node is not None else biome_name
-                    entrance = "Entrance" in object_name
+                    entrance: bool = "Entrance" in object_name
                     self.doors.append(Door(object_pos, door_biome_name, variant, entrance))
 
         # For the purpose of simplicity we assume that each map file only uses one tileset, which will be either the
         # forest or castle tileset. The tileset filename is specified in the 'tileset' tag within the root node
-        tileset_filename = map_root.find("tileset").attrib.get("source")
+        tileset_filename = cast(Any, map_root.find("tileset")).attrib.get("source")
 
         # Read tileset file, which specifies which tiles are collidable
         self.collision_tiles = set()
@@ -1127,18 +1128,18 @@ class Game:
             self.collision_tiles.add(int(tile_node.attrib["id"]))
 
         # Load tileset image (if we haven't loaded it already)
-        tileset_image_filename = tileset_xml.getroot().find("image").attrib["source"]
+        tileset_image_filename = cast(Any, tileset_xml.getroot().find("image")).attrib["source"]
         if tileset_image_filename not in tileset_images:
             tileset_images[tileset_image_filename] = pygame.image.load(os.path.join(path, tileset_image_filename))
         self.tileset_image = tileset_images[tileset_image_filename]
 
         return player_start_pos
 
-    def generate_block_rects(self):
+    def generate_block_rects(self) -> None:
         self.block_rects = []
-        current_rect = None
+        current_rect: Optional[Rect] = None
 
-        def add():
+        def add() -> None:
             nonlocal current_rect
             self.block_rects.append(current_rect)
             current_rect = None
@@ -1148,8 +1149,8 @@ class Game:
             row = self.grid[gy]
             for gx in range(len(row)):
                 if row[gx] in self.collision_tiles:
-                    pos_x = gx * GRID_BLOCK_SIZE
-                    pos_y = gy * GRID_BLOCK_SIZE
+                    pos_x: int = gx * GRID_BLOCK_SIZE
+                    pos_y: int = gy * GRID_BLOCK_SIZE
                     # Is this the start of a new block rect?
                     if current_rect is None:
                         current_rect = Rect(pos_x, pos_y, GRID_BLOCK_SIZE, GRID_BLOCK_SIZE)
@@ -1166,17 +1167,17 @@ class Game:
         # Keep joining rectangles with rectangles of equal width directly below, until there are no more such
         # matches
 
-        def find_equal_width_block_below(current):
+        def find_equal_width_block_below(current: Rect) -> Optional[Rect]:
             # Returns a block with the same X coordinate and width, which is immediately below the current block,
             # or None if no such block exists
-            result = [rect for rect in self.block_rects if rect.x == current.x and rect.w == current.w and rect.y == current.y + current.h]
+            result: list[Any] = [rect for rect in self.block_rects if rect.x == current.x and rect.w == current.w and rect.y == current.y + current.h]
             return result[0] if len(result) > 0 else None
 
-        any_found = True
+        any_found: bool = True
         while any_found:
             any_found = False
             for current in self.block_rects:
-                equal_below = find_equal_width_block_below(current)
+                equal_below: Optional[Rect] = find_equal_width_block_below(current)
                 if equal_below is not None:
                     # Extend the height of the current block and remove the one below
                     current.h += equal_below.h
@@ -1192,7 +1193,7 @@ class Game:
                 rect.top = LEVEL_Y_BOUNDARY
                 rect.height = height + -LEVEL_Y_BOUNDARY
 
-    def update(self):
+    def update(self) -> None:
         self.timer += 1
         self.gained_time_timer -= 1
 
@@ -1222,7 +1223,7 @@ class Game:
                 for door in self.doors:
                     door.open()
 
-    def draw(self):
+    def draw(self) -> None:
         # Draw appropriate background for this level
         screen.blit(self.background_image, (0, self.background_y_offset))
 
@@ -1231,7 +1232,7 @@ class Game:
         tileset_grid_w = tileset_w // GRID_BLOCK_SIZE
         for row_y in range(len(self.grid)):
             row = self.grid[row_y]
-            x = 0
+            x: int = 0
             for tile in row:
                 if tile >= 0:
                     # Get sprite from tileset based on ID
@@ -1239,7 +1240,7 @@ class Game:
                     tileset_grid_x = tile % tileset_grid_w
                     # Have to use screen.surface.blit instead of screen.blit as the latter is a Pygame Zero method which
                     # passes through to the Pygame version but doesn't support the optional area parameter
-                    tile_rect = Rect(tileset_grid_x * GRID_BLOCK_SIZE, tileset_grid_y * GRID_BLOCK_SIZE, GRID_BLOCK_SIZE, GRID_BLOCK_SIZE)
+                    tile_rect: Rect = Rect(tileset_grid_x * GRID_BLOCK_SIZE, tileset_grid_y * GRID_BLOCK_SIZE, GRID_BLOCK_SIZE, GRID_BLOCK_SIZE)
                     screen.surface.blit(self.tileset_image, (x, row_y * GRID_BLOCK_SIZE), area=tile_rect)
                 x += GRID_BLOCK_SIZE
 
@@ -1255,7 +1256,7 @@ class Game:
 
         self.draw_ui()
 
-    def draw_ui(self):
+    def draw_ui(self) -> None:
         # Display level text and background
         pygame.draw.rect(screen.surface, (0,54,255), Rect(0,500,WIDTH, 50))
         screen.blit("text_area_frame", (0, 500))
@@ -1266,21 +1267,21 @@ class Game:
 
         # Show time remaining
         # Use bright font if player has just gained time
-        font = "font" if self.gained_time_timer < 0 else "fontbr"
+        font: str = "font" if self.gained_time_timer < 0 else "fontbr"
         draw_text(f"{self.time_remaining / 60:.1f}", WIDTH // 2, 10, align=TextAlign.CENTRE, font=font)
 
         if DEBUG_SHOW_FRAME_NUMBER:
             draw_text(str(game.timer), WIDTH // 2, 0, align=TextAlign.CENTRE)
 
-    def gain_time(self, time, x, y):
+    def gain_time(self, time: float, x: float, y: float) -> None:
         game.time_remaining += time * 60
-        time_added_id = "half" if time == 0.5 else str(time)
-        format_str = "timer_plus_" + time_added_id + "_{0}"
+        time_added_id: str = "half" if time == 0.5 else str(time)
+        format_str: str = "timer_plus_" + time_added_id + "_{0}"
         game.animations.append(Animation((x,y), format_str, 14, 4, initial_delay=5, rise_time=34))
         game.animations.append(Animation((x,y), "pickup_{0}", 8, 4))
         self.gained_time_timer = 20
 
-    def position_blocked(self, rect):
+    def position_blocked(self, rect: Rect) -> bool:
         # Check collision with block tiles
         for block_rect in self.block_rects:
             if rect.colliderect(block_rect):
@@ -1300,7 +1301,7 @@ class Game:
 
         return False
 
-    def play_sound(self, name, count=1):
+    def play_sound(self, name: str, count: int = 1) -> None:
         # Some sounds have multiple varieties. If count > 1, we'll randomly choose one from those
         # We don't play any sounds if there is no player (e.g. if we're on the menu)
         if self.player:
@@ -1319,7 +1320,7 @@ class Game:
                 # Also occurs if sound fails to play for another reason (e.g. if this machine has no sound hardware)
                 print(e)
 
-def get_char_image_and_width(char, font):
+def get_char_image_and_width(char: str, font: str) -> tuple[Any, int]:
     # Return width of given character. ord() gives the Unicode code for the given character.
     if char == " ":
         return None, 22
@@ -1331,7 +1332,7 @@ def get_char_image_and_width(char, font):
             image = getattr(images, f"{font}{ord(char):03d}")
         return image, image.get_width()
 
-def text_width(text, font):
+def text_width(text: str, font: str) -> int:
     return sum([get_char_image_and_width(c, font)[1] for c in text])
 
 class TextAlign(Enum):
@@ -1339,7 +1340,7 @@ class TextAlign(Enum):
     CENTRE = 1
     RIGHT = 2
     
-def draw_text(text, x, y, align=TextAlign.LEFT, font="font"):
+def draw_text(text: str, x: float, y: float, align: TextAlign = TextAlign.LEFT, font: str = "font") -> None:
     if align == TextAlign.CENTRE:
         x -= text_width(text, font) // 2
     elif align == TextAlign.RIGHT:
@@ -1357,17 +1358,17 @@ class State(Enum):
     PLAY = 3
     GAME_OVER = 4
 
-def get_joystick_if_exists():
+def get_joystick_if_exists() -> Any:
     return pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
 
-def setup_joystick_controls():
+def setup_joystick_controls() -> None:
     # We call this on startup, and keep calling it if no controller is present,
     # so a controller can be connected while the game is open
     global joystick_controls
     joystick = get_joystick_if_exists()
     joystick_controls = JoystickControls(joystick) if joystick is not None else None
 
-def update_controls():
+def update_controls() -> None:
     keyboard_controls.update()
     # Allow a controller to be connected while the game is open
     if joystick_controls is None:
@@ -1375,29 +1376,29 @@ def update_controls():
     if joystick_controls is not None:
         joystick_controls.update()
 
-def get_save_folder():
+def get_save_folder() -> str:
     # By default, we save to the same folder as the Python file
     # But if the current working folder is the same as the user's home folder, write save data to a subfolder of that,
     # because the folder containing the Python file may not be writeable. This is relevant when the games are run from
     # the pre-installed versions which come with Raspberry Pi OS
     # On Windows, the home folder is C:\Users\<username>\
-    current_working_folder = os.getcwd()
-    home_folder = os.path.expanduser('~')
+    current_working_folder: str = os.getcwd()
+    home_folder: str = os.path.expanduser('~')
     if current_working_folder != home_folder:
         return sys.path[0]
     else:
         # Get a location within the user's home folder, then ensure the folder exists
-        path = os.path.expanduser('~/.code-the-classics-vol-2')
+        path: str = os.path.expanduser('~/.code-the-classics-vol-2')
         if not os.path.exists(path):
             os.makedirs(path)
         return path
 
-def save_replays(replays):
+def save_replays(replays: list[Any]) -> None:
     # We'll save one replay per line, with entries separated by commas
     try:
         with open(os.path.join(get_save_folder(), REPLAY_FILENAME), "w") as file:
             for replay in replays:
-                line = ""
+                line: str = ""
                 for entry in replay:
                     # Each entry consists of a position (X and Y in a tuple), level number and sprite
                     # We'll separate the items using commas and the entries using semicolons. It doesn't matter what
@@ -1411,27 +1412,27 @@ def save_replays(replays):
     except Exception as e:
         print(f"Error while saving replays: {e}")
 
-def load_replays():
+def load_replays() -> tuple[list[Any], int]:
     # Returns list of replays and high score
-    replays = []
+    replays: list[Any] = []
     try:
-        path = os.path.join(get_save_folder(), REPLAY_FILENAME)
+        path: str = os.path.join(get_save_folder(), REPLAY_FILENAME)
         if os.path.exists(path):
             with open(path) as file:
                 for line in file:
-                    current_replay = []
+                    current_replay: list[Any] = []
 
                     # Remove the newline symbol from the end of the line
                     line = line.rstrip()
 
                     # Split the string on semicolon to get a list of all entries for this replay
-                    entries = line.split(";")
+                    entries: list[str] = line.split(";")
 
                     for entry in entries:
                         # Within each entry, split on comma and convert each element to the correct type
-                        elements = entry.split(",")
+                        elements: list[str] = entry.split(",")
 
-                        pos = (float(elements[0]), float(elements[1]))
+                        pos: tuple[float, float] = (float(elements[0]), float(elements[1]))
 
                         current_replay.append( (pos, int(elements[2]), elements[3]) )
 
@@ -1443,13 +1444,13 @@ def load_replays():
         return [], 0
 
     # The high score is stored as the total number of frames of data in the replay with the longest length
-    high_score = 0 if len(replays) == 0 else len(max(replays, key=lambda replay: len(replay)))
+    high_score: int = 0 if len(replays) == 0 else len(max(replays, key=lambda replay: len(replay)))
 
     return replays, high_score
 
 # Pygame Zero calls the update and draw functions each frame
 
-def update():
+def update() -> None:
     global state, game, high_score, game_over_state_timer, all_replays, total_frames
 
     # Run in slow motion if DEBUG_SLOWMO is higher than 1
@@ -1459,7 +1460,7 @@ def update():
 
     update_controls()
 
-    def button_pressed_controls(button_num):
+    def button_pressed_controls(button_num: int) -> Optional[Controls]:
         # Local function for detecting button 0 being pressed on either keyboard or controller, returns the controls
         # object which was used to press it, or None if button was not pressed
         for controls in (keyboard_controls, joystick_controls):
@@ -1477,7 +1478,7 @@ def update():
 
     elif state == State.CONTROLS:
         # Check for start game
-        controls = button_pressed_controls(0)
+        controls: Optional[Controls] = button_pressed_controls(0)
         if controls is not None:
             # Switch to play state, and create a new Game object, passing it a new Player object to use
             state = State.PLAY
@@ -1519,14 +1520,14 @@ def update():
             state = State.TITLE
             play_music("title_theme")
 
-def draw():
+def draw() -> None:
     if state == State.TITLE:
         # Draw title screen
         screen.blit("title", (0, 0))
         screen.blit("press_to_start", (0, 0))
 
         # Draw "start" animation, which has 11 frames numbered 0 to 10
-        anim_frame = (total_frames // 6) % 11
+        anim_frame: int = (total_frames // 6) % 11
         screen.blit("start" + str(anim_frame), (WIDTH//2 - 150, 360))
 
     elif state == State.CONTROLS:
@@ -1544,7 +1545,7 @@ def draw():
         anim_frame = (total_frames // 5) % 14
         screen.blit(f"gameover{anim_frame}", (WIDTH//2 - 625//2, 100))
 
-        seconds = int(game.timer / 60)
+        seconds: int = int(game.timer / 60)
         if seconds >= 60:
             screen.blit("survived_for_mins_seconds", (0, 0))
             draw_text(f"{seconds // 60}", 180, 270, align=TextAlign.RIGHT, font="fontlrg")
@@ -1559,7 +1560,7 @@ def draw():
             anim_frame = (total_frames // 5) % 8
             screen.blit(f"newrecord{anim_frame}", (WIDTH // 2 - 575 // 2, 380))
 
-def play_music(name, volume=0.3):
+def play_music(name: str, volume: float = 0.3) -> None:
     try:
         music.play(name)
         music.set_volume(volume)
@@ -1582,22 +1583,23 @@ except Exception:
     pass
 
 # Dictionary mapping tileset image filename to the loaded images, will be filled in as we load levels
-tileset_images = {}
+tileset_images: dict[str, Any] = {}
 
 # Set up controls
 keyboard_controls = KeyboardControls()
+joystick_controls: Any
 setup_joystick_controls()
 
 all_replays, high_score = load_replays()
 
 # Set the initial game state
-state = State.TITLE
-game = None
+state: State = State.TITLE
+game: Any = None
 
 # How long have we been in the game over state?
-game_over_state_timer = 0
+game_over_state_timer: int = 0
 
-total_frames = 0
+total_frames: int = 0
 
 # Tell Pygame Zero to take over
 pgzrun.go()

@@ -5,35 +5,48 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- fixed-function OpenGL 1.x renderer backend.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# renderer_gl1.py -- a drop-in alternative to renderer.Renderer that uses the
-# OpenGL 1.x FIXED-FUNCTION pipeline (glOrtho + glBegin/glEnd immediate mode +
-# fixed-function texturing) instead of 3.3 core + shaders.  Same interface, so
-# the rest of the shim is unchanged; selected with PGZERO_GL=1 (see runner.py).
-#
-# Why: runs on old / software / compat-only GL stacks where a 3.3 core context
-# isn't available -- and it's the exact fixed-function era the book introduces at
-# demo19 (glMatrixMode / glOrtho / glBegin / glEnable(GL_TEXTURE_2D)).  The 3.3
-# renderer and this one draw the same pixels; compare them with _smoketest.py.
-#
-# Targets OpenGL 1.4/1.5 (really anything >= 1.1: textures + immediate mode).
-# Image/Surface .gl_texture() upload via glGenTextures/glTexImage2D, which are
-# 1.x-compatible and need no VAO -- so nothing else changes.
+"""Fixed-function OpenGL 1.x back end -- a drop-in for :class:`Renderer`.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+:class:`Renderer1x` is a drop-in alternative to
+:class:`pgzero_gl.renderer.Renderer` that uses the OpenGL 1.x FIXED-FUNCTION
+pipeline (``glOrtho`` + ``glBegin``/``glEnd`` immediate mode + fixed-function
+texturing) instead of 3.3 core + shaders. It exposes the identical interface, so
+the rest of the shim is unchanged; it's selected with ``PGZERO_GL=1`` (see
+:mod:`pgzero_gl.runner`).
+
+Why: it runs on old / software / compat-only GL stacks where a 3.3 core context
+isn't available -- and it's the exact fixed-function era the book introduces at
+demo19 (``glMatrixMode`` / ``glOrtho`` / ``glBegin`` / ``glEnable(GL_TEXTURE_2D)``).
+The 3.3 renderer and this one draw the same pixels.
+
+Targets OpenGL 1.4/1.5 (really anything >= 1.1: textures + immediate mode).
+Image/Surface ``.gl_texture()`` upload via ``glGenTextures``/``glTexImage2D``,
+which are 1.x-compatible and need no VAO -- so nothing else changes.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import OpenGL.GL as GL
 
 from .renderer import _rgba  # shared colour normaliser
 
+if TYPE_CHECKING:
+    from ._types import Drawable, PointLike
+
 
 class Renderer1x:
-    def __init__(self, width, height):
+    """Fixed-function (OpenGL 1.x) renderer with the same interface as :class:`Renderer`."""
+
+    def __init__(self, width: int, height: int) -> None:
         self.width = width
         self.height = height
         self.fb_width = width
@@ -46,8 +59,11 @@ class Renderer1x:
         GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
 
     # -- frame ----------------------------------------------------------------
-    def begin_frame(self, fb_width=None, fb_height=None):
-        if fb_width:
+    def begin_frame(
+        self, fb_width: int | None = None, fb_height: int | None = None
+    ) -> None:
+        """Start a frame: update framebuffer size, clear, set the pixel-space ortho."""
+        if fb_width and fb_height:
             self.fb_width = fb_width
             self.fb_height = fb_height
         GL.glDisable(GL.GL_SCISSOR_TEST)
@@ -63,8 +79,15 @@ class Renderer1x:
 
     # -- sprites --------------------------------------------------------------
     def draw_image(
-        self, image, topleft, angle=0.0, anchor=None, tint=(1.0, 1.0, 1.0, 1.0), src=None
-    ):
+        self,
+        image: Drawable,
+        topleft: PointLike,
+        angle: float = 0.0,
+        anchor: PointLike | None = None,
+        tint: Any = (1.0, 1.0, 1.0, 1.0),
+        src: Any = None,
+    ) -> None:
+        """Draw a textured quad (see :meth:`Renderer.draw_image` for the semantics)."""
         tx, ty = topleft
         if src is not None:
             sx, sy, sw, sh = src
@@ -97,12 +120,14 @@ class Renderer1x:
         GL.glPopMatrix()
 
     # -- flat colour ----------------------------------------------------------
-    def fill(self, color):
-        c = _rgba(color)
+    def fill(self, color: Any) -> None:
+        """Clear the whole framebuffer to ``color``."""
+        c: tuple[float, float, float, float] = _rgba(color)
         GL.glClearColor(c[0], c[1], c[2], c[3])
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
-    def _flat(self, verts, color, mode):
+    def _flat(self, verts: Any, color: Any, mode: Any) -> None:
+        """Draw flat-colour ``verts`` (iterable of (x, y)) with GL ``mode``."""
         GL.glDisable(GL.GL_TEXTURE_2D)
         GL.glColor4f(*_rgba(color))
         GL.glBegin(mode)
@@ -110,36 +135,54 @@ class Renderer1x:
             GL.glVertex2f(float(x), float(y))
         GL.glEnd()
 
-    def filled_rect(self, x, y, w, h, color):
+    def filled_rect(
+        self, x: float, y: float, w: float, h: float, color: Any
+    ) -> None:
+        """Draw a filled rectangle at ``(x, y)`` of size ``(w, h)``."""
         self._flat(
-            [(x, y), (x + w, y), (x + w, y + h), (x, y + h)], color, GL.GL_QUADS
+            verts=[(x, y), (x + w, y), (x + w, y + h), (x, y + h)],
+            color=color,
+            mode=GL.GL_QUADS,
         )
 
-    def rect(self, x, y, w, h, color):
+    def rect(self, x: float, y: float, w: float, h: float, color: Any) -> None:
+        """Draw the outline of a rectangle at ``(x, y)`` of size ``(w, h)``."""
         self._flat(
-            [(x, y), (x + w, y), (x + w, y + h), (x, y + h)], color, GL.GL_LINE_LOOP
+            verts=[(x, y), (x + w, y), (x + w, y + h), (x, y + h)],
+            color=color,
+            mode=GL.GL_LINE_LOOP,
         )
 
-    def line(self, start, end, color):
-        self._flat([start, end], color, GL.GL_LINES)
+    def line(self, start: PointLike, end: PointLike, color: Any) -> None:
+        """Draw a line segment from ``start`` to ``end``."""
+        self._flat(verts=[start, end], color=color, mode=GL.GL_LINES)
 
-    def polygon(self, points, color, filled):
+    def polygon(self, points: Any, color: Any, filled: bool) -> None:
+        """Draw a polygon through ``points`` (filled, or outline)."""
         mode = GL.GL_POLYGON if filled else GL.GL_LINE_LOOP
-        self._flat([(p[0], p[1]) for p in points], color, mode)
+        self._flat(verts=[(p[0], p[1]) for p in points], color=color, mode=mode)
 
-    def circle(self, pos, radius, color, filled):
+    def circle(
+        self, pos: PointLike, radius: float, color: Any, filled: bool
+    ) -> None:
+        """Draw a circle centred at ``pos`` (filled fan, or outline)."""
         cx, cy = pos
-        n = 48
+        n: int = 48
         pts = []
         if filled:
             pts.append((cx, cy))
         for i in range(n + 1):
-            a = 2.0 * np.pi * i / n
+            a: float = 2.0 * np.pi * i / n
             pts.append((cx + radius * np.cos(a), cy + radius * np.sin(a)))
-        self._flat(pts, color, GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_STRIP)
+        self._flat(
+            verts=pts,
+            color=color,
+            mode=GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_STRIP,
+        )
 
     # -- scissor (screen.surface.set_clip) ------------------------------------
-    def set_clip(self, rect):
+    def set_clip(self, rect: Any) -> None:
+        """Clip drawing to pixel ``rect`` (``None`` disables clipping)."""
         if rect is None:
             GL.glDisable(GL.GL_SCISSOR_TEST)
             return

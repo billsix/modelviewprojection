@@ -5,18 +5,24 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- gamepad support, mapping pygame.joystick onto GLFW.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol2
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# joystick.py -- the Vol 2 games read gamepads via pygame.joystick.  We expose
-# the same small API backed by GLFW's joystick functions.  It is best-effort:
-# with no controller attached every query returns neutral values, so the games
-# remain fully playable on the keyboard.  (Gamepad behaviour can't be verified
-# in the headless build container -- that's for on-hardware testing.)
+"""Gamepad support -- ``pygame.joystick`` mapped onto GLFW.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol2
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+The Vol 2 games read gamepads via ``pygame.joystick``. We expose the same small
+API backed by GLFW's joystick functions. It is BEST EFFORT: with no controller
+attached every query returns a neutral value, so the games stay fully playable on
+the keyboard. (Gamepad behaviour can't be verified in the headless build
+container -- that's for on-hardware testing.)
+"""
+
+from __future__ import annotations
+
+from typing import List, Tuple
 
 import glfw
 
@@ -29,13 +35,14 @@ _HAT_DOWN = 4
 _HAT_LEFT = 8
 
 
-def get_count():
+def get_count() -> int:
+    """Return how many joysticks are present (0 until the runner has init'd GLFW)."""
     # GLFW must be initialized first.  Game modules call setup_joystick_controls()
     # at import time (before the window/loop exist); querying GLFW then returns
     # garbage, so report "no joysticks" until the runner has init'd GLFW.
     if not context.glfw_ready:
         return 0
-    n = 0
+    n: int = 0
     for jid in range(16):
         try:
             if glfw.joystick_present(jid):
@@ -45,35 +52,44 @@ def get_count():
     return n
 
 
-def get_init():
+def get_init() -> bool:
+    """Return whether the joystick subsystem is initialised (always True here)."""
     return True
 
 
-def init():
+def init() -> None:
+    """No-op: GLFW joysticks need no explicit init (pygame API compatibility)."""
     pass
 
 
 class Joystick:
-    def __init__(self, index):
+    """A single gamepad, addressed by its GLFW joystick id (== pygame index)."""
+
+    def __init__(self, index: int) -> None:
         self.index = index  # GLFW joystick id (0-based), matches pygame index
 
-    def init(self):
+    def init(self) -> None:
+        """No-op (pygame API compatibility)."""
         pass
 
-    def get_init(self):
+    def get_init(self) -> bool:
+        """Return whether this joystick is initialised (always True here)."""
         return True
 
-    def get_id(self):
+    def get_id(self) -> int:
+        """Return this joystick's id (its GLFW index)."""
         return self.index
 
-    def get_name(self):
+    def get_name(self) -> str:
+        """Return the controller's name, or ``""`` if unavailable."""
         try:
             name = glfw.get_joystick_name(self.index)
             return name.decode() if isinstance(name, bytes) else (name or "")
         except Exception:
             return ""
 
-    def _axes(self):
+    def _axes(self) -> List[float]:
+        """Return the current analog-axis values, or ``[]`` if unavailable."""
         if not context.glfw_ready:
             return []
         try:
@@ -81,7 +97,8 @@ class Joystick:
         except Exception:
             return []
 
-    def _buttons(self):
+    def _buttons(self) -> List[int]:
+        """Return the current button states, or ``[]`` if unavailable."""
         if not context.glfw_ready:
             return []
         try:
@@ -89,7 +106,8 @@ class Joystick:
         except Exception:
             return []
 
-    def _hats(self):
+    def _hats(self) -> List[int]:
+        """Return the current hat (d-pad) bitflags, or ``[]`` if unavailable."""
         if not context.glfw_ready:
             return []
         try:
@@ -97,21 +115,25 @@ class Joystick:
         except Exception:
             return []
 
-    def get_numaxes(self):
+    def get_numaxes(self) -> int:
+        """Return the number of analog axes."""
         return len(self._axes())
 
-    def get_axis(self, i):
-        a = self._axes()
+    def get_axis(self, i: int) -> float:
+        """Return axis ``i`` in -1.0..1.0 (0.0 if out of range / unavailable)."""
+        a: List[float] = self._axes()
         try:
             return float(a[i]) if i < len(a) else 0.0
         except (TypeError, ValueError):
             return 0.0
 
-    def get_numbuttons(self):
+    def get_numbuttons(self) -> int:
+        """Return the number of buttons."""
         return len(self._buttons())
 
-    def get_button(self, i):
-        b = self._buttons()
+    def get_button(self, i: int) -> int:
+        """Return button ``i`` as 1 (pressed) / 0 (released or out of range)."""
+        b: List[int] = self._buttons()
         if i >= len(b):
             return 0
         try:
@@ -119,14 +141,16 @@ class Joystick:
         except (TypeError, ValueError):
             return 1 if b[i] else 0
 
-    def get_numhats(self):
+    def get_numhats(self) -> int:
+        """Return the number of hats (d-pads)."""
         return len(self._hats())
 
-    def get_hat(self, i):
-        h = self._hats()
+    def get_hat(self, i: int) -> Tuple[int, int]:
+        """Return hat ``i`` as a pygame ``(x, y)`` in {-1,0,1}, y-up ((0, 0) if absent)."""
+        h: List[int] = self._hats()
         if i >= len(h):
             return (0, 0)
-        v = h[i]
-        x = (1 if v & _HAT_RIGHT else 0) - (1 if v & _HAT_LEFT else 0)
-        y = (1 if v & _HAT_UP else 0) - (1 if v & _HAT_DOWN else 0)
+        v: int = h[i]
+        x: int = (1 if v & _HAT_RIGHT else 0) - (1 if v & _HAT_LEFT else 0)
+        y: int = (1 if v & _HAT_UP else 0) - (1 if v & _HAT_DOWN else 0)
         return (x, y)

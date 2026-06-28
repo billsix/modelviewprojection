@@ -35,8 +35,9 @@ import math, sys
 from abc import ABC, abstractmethod
 from enum import Enum, IntEnum
 from random import random, randint, uniform, choice
-from pygame import surface
-from pygame.math import Vector2
+from pygame import surface  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
+from pygame.math import Vector2  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
+from typing import Any, Optional  # noqa: E402
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -203,38 +204,38 @@ LEVELS = [
          "  dccccd"]
 ]
 
-def get_mirrored_level(level):
+def get_mirrored_level(level: list[str]) -> list[str]:
     # For each row, return a new row which includes the existing row plus
     # a mirrored version.
     # row[-2::-1] produces a mirorred version of the list, excluding the last element
     return [row + row[-2::-1] for row in level]
 
 class Controls(ABC):
-    def __init__(self):
-        self.fire_previously_down = False
-        self.is_fire_pressed = False
+    def __init__(self) -> None:
+        self.fire_previously_down: bool = False
+        self.is_fire_pressed: bool = False
 
-    def update(self):
+    def update(self) -> None:
         # Call each frame to update fire status
-        fire_down = self.fire_down()
+        fire_down: bool = self.fire_down()
         self.is_fire_pressed = fire_down and not self.fire_previously_down
         self.fire_previously_down = fire_down
 
     @abstractmethod
-    def get_x(self):
+    def get_x(self) -> float:
         # Overridden by subclasses
         pass
 
     @abstractmethod
-    def fire_down(self):
+    def fire_down(self) -> bool:
         # Overridden by subclasses
         pass
 
-    def fire_pressed(self):
+    def fire_pressed(self) -> bool:
         return self.is_fire_pressed
 
 class KeyboardControls(Controls):
-    def get_x(self):
+    def get_x(self) -> float:
         if keyboard.left:
             return -BAT_SPEED
         elif keyboard.right:
@@ -242,16 +243,16 @@ class KeyboardControls(Controls):
         else:
             return 0
 
-    def fire_down(self):
+    def fire_down(self) -> bool:
         return keyboard.space
 
 class JoystickControls(Controls):
-    def __init__(self, joystick):
+    def __init__(self, joystick: Any) -> None:
         super().__init__()
-        self.joystick = joystick
+        self.joystick: Any = joystick
         joystick.init() # Not necessary in Pygame 2.0.0 onwards
 
-    def get_x(self):
+    def get_x(self) -> float:
         # First check if there is an input on the dpad for the X axis. The dpad is classified here as a joystick 'hat'
         if self.joystick.get_numhats() > 0 and self.joystick.get_hat(0)[0] != 0:
             return self.joystick.get_hat(0)[0] * BAT_SPEED
@@ -265,7 +266,7 @@ class JoystickControls(Controls):
         else:
             return axis_value * BAT_SPEED
 
-    def fire_down(self):
+    def fire_down(self) -> bool:
         # Before checking button 0, check to make sure that the controller actually has any buttons
         # There are some weird devices out there which could cause a crash if this check were not present
         if self.joystick.get_numbuttons() <= 0:
@@ -274,11 +275,11 @@ class JoystickControls(Controls):
         return self.joystick.get_button(0) != 0
 
 class AIControls(Controls):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__()
-        self.offset = 0
+        self.offset: int = 0
 
-    def get_x(self):
+    def get_x(self) -> float:
         if game.portal_active:
             # If the portal to the next level is open, just move right so that we go through it
             return BAT_SPEED
@@ -291,7 +292,7 @@ class AIControls(Controls):
             # Follow position of the first ball (in case of multiball)
             return min(BAT_SPEED, max(-BAT_SPEED, game.balls[0].x - (game.bat.x + self.offset)))
 
-    def fire_down(self):
+    def fire_down(self) -> bool:
         # Just have the AI mash the fire button
         return randint(0,5) == 0
 
@@ -341,12 +342,12 @@ class CollisionType(Enum):
     INDESTRUCTIBLE_BRICK = 4
 
 class Bullet(Actor):
-    def __init__(self, pos, side):
+    def __init__(self, pos: tuple[float, float], side: int) -> None:
         super().__init__(f"bullet{side}", pos)
 
-        self.alive = True
+        self.alive: bool = True
 
-    def update(self):
+    def update(self) -> None:
         self.y -= BULLET_SPEED
 
         # returns tuple of (tuple 2: impact pos, bool: show impact, CollisionType), or None if no collision
@@ -359,14 +360,14 @@ class Bullet(Actor):
 
 # The barrel class represents the collectable powerups that sometimes fall from destroyed bricks
 class Barrel(Actor):
-    def __init__(self, pos):
+    def __init__(self, pos: tuple[float, float]) -> None:
         super().__init__("blank", pos)
 
         # Decide powerup type, with each type able to have its own probability
         # First we create a dictionary of types to weights, where a higher weight means that powerup is more likely
         # to be chosen. For the PORTAL powerup, which opens a portal to the next level, it can't be generated unless
         # there are only a few bricks remaining, at which point it becomes very likely
-        weights = {Powerup.EXTEND_BAT:6,
+        weights: dict[Powerup, int] = {Powerup.EXTEND_BAT:6,
                    Powerup.GUN:6,
                    Powerup.SMALL_BAT:6,
                    Powerup.MAGNET:6,
@@ -378,18 +379,18 @@ class Barrel(Actor):
 
         # Create a list of powerup types, with each type repeated a certain
         # number of times based on its weight
-        types = [type for type, weight in weights.items() for i in range(weight)]
+        types: list[Powerup] = [type for type, weight in weights.items() for i in range(weight)]
 
         # Randomly choose one of the types from the list. Types which
         # are repeated many times are more likely to be chosen
-        self.type = choice(types)
+        self.type: Powerup = choice(types)
 
-        self.time = 0
+        self.time: int = 0
 
         # Create separate actor for shadow sprite
-        self.shadow = Actor("barrels", (self.x + SHADOW_OFFSET, self.y + SHADOW_OFFSET))
+        self.shadow: Actor = Actor("barrels", (self.x + SHADOW_OFFSET, self.y + SHADOW_OFFSET))
 
-    def update(self):
+    def update(self) -> None:
         self.time += 1
         self.y += 1
 
@@ -430,13 +431,13 @@ class Barrel(Actor):
 
 # The Impact class is used for the animations played when the ball hits a wall or destroys a brick
 class Impact(Actor):
-    def __init__(self, pos, type):
+    def __init__(self, pos: tuple[float, float], type: int) -> None:
         super().__init__("blank", pos)
 
-        self.type = type
-        self.time = 0
+        self.type: int = type
+        self.time: int = 0
 
-    def update(self):
+    def update(self) -> None:
         # The impact animation sprites have names like 'impact00' where the first digit is the type of impact and
         # the second is the animation frame. The type is converted into a hexadecimal number. The type can be between
         # 0 and 15, where values from 10 to 15 are represented by the hexadecimal digits a to f. The Python hex
@@ -447,7 +448,7 @@ class Impact(Actor):
         self.time += 1
 
 class Ball(Actor):
-    def __init__(self, x=0, y=0, dir=Vector2(0, 0), stuck_to_bat=True, speed=BALL_START_SPEED):
+    def __init__(self, x: float = 0, y: float = 0, dir: Vector2 = Vector2(0, 0), stuck_to_bat: bool = True, speed: int = BALL_START_SPEED) -> None:
         super().__init__("ball0", (0,0))
 
         self.x = x
@@ -458,20 +459,20 @@ class Ball(Actor):
         # Since a Vector2 is an object, it's a reference type. If you copy a reference type it means you now have two
         # variables referring to the same object. If we said below 'self.dir = dir' it would mean that when a ball
         # copied its direction from another ball, the directions of the two balls would remain linked to each other
-        self.dir = Vector2(dir)
+        self.dir: Vector2 = Vector2(dir)
 
-        self.stuck_to_bat = stuck_to_bat
-        self.bat_offset = BALL_INITIAL_OFFSET
+        self.stuck_to_bat: bool = stuck_to_bat
+        self.bat_offset: float = BALL_INITIAL_OFFSET
 
-        self.speed = speed
+        self.speed: int = speed
 
-        self.speed_up_timer = 0
-        self.time_since_touched_bat = 0
-        self.time_since_damaged_brick = 0
+        self.speed_up_timer: int = 0
+        self.time_since_touched_bat: int = 0
+        self.time_since_damaged_brick: int = 0
 
-        self.shadow = Actor("balls", (self.x + 16, self.y + 16))
+        self.shadow: Actor = Actor("balls", (self.x + 16, self.y + 16))
 
-    def update(self):
+    def update(self) -> None:
         self.time_since_damaged_brick += 1
 
         if self.stuck_to_bat:
@@ -491,8 +492,8 @@ class Ball(Actor):
             self.speed_up_timer += 1
             if self.time_since_touched_bat > 5 * 60:
                 self.speed_up_timer += 1
-            interval = BALL_SPEED_UP_INTERVAL if self.speed < BALL_FAST_SPEED_THRESHOLD else BALL_SPEED_UP_INTERVAL_FAST
-            interval2 = interval * 0.75
+            interval: int = BALL_SPEED_UP_INTERVAL if self.speed < BALL_FAST_SPEED_THRESHOLD else BALL_SPEED_UP_INTERVAL_FAST
+            interval2: float = interval * 0.75
             if self.speed_up_timer > interval or (self.speed_up_timer > interval2 and self.time_since_touched_bat > interval2):
                 self.increment_speed()
                 self.speed_up_timer = 0
@@ -582,7 +583,7 @@ class Ball(Actor):
                             # Send the ball off at an extreme angle, and increase speed
 
                             # Determine whether the ball will go left or right
-                            dx = 1 if self.x > game.bat.x else -1
+                            dx: int = 1 if self.x > game.bat.x else -1
 
                             # Determine new direction vector, with a slightly random Y velocity
                             # The new direction vector is normalised to ensure that it is a unit vector
@@ -599,10 +600,10 @@ class Ball(Actor):
         # Set shadow actor's position
         self.shadow.pos = (self.x + 16, self.y + 16)
 
-    def increment_speed(self):
+    def increment_speed(self) -> None:
         self.speed = min(self.speed + 1, BALL_MAX_SPEED)
 
-    def get_bat_bounce_vector(self):
+    def get_bat_bounce_vector(self) -> tuple[bool, Vector2]:
         # Determine the direction vector to use for the ball bouncing off the bat
         # For bat side collisions this is handled in update, in that case this
         # method is just used to determine whether the ball overlapped with the
@@ -619,7 +620,7 @@ class Ball(Actor):
             # Return that the ball was within the correct range on the X
             # axis for there to be a collision, and the bounce vector this
             # position corresponds to
-            vec = Vector2(dx / w, -0.5).normalize()
+            vec: Vector2 = Vector2(dx / w, -0.5).normalize()
             return True, vec
         else:
             # Return that the ball was not close enough on the X axis for a
@@ -629,16 +630,16 @@ class Ball(Actor):
             # None for these values could result in a crash in such a scenario
             return False, Vector2(0, -1)
 
-    def generate_multiballs(self):
+    def generate_multiballs(self) -> list["Ball"]:
         # Get multi ball initial positions
         # This method is called for each existing ball, returning a list of 3 new balls for each one
         # The original ball is then discarded
-        balls = []
+        balls: list["Ball"] = []
         for i in range(3):
             # Create direction vector for new ball, the first ball will have the same direction as
             # its original parent ball, the others will have direction vectors rotated 120 and 240
             # degrees from that
-            vec = self.dir.rotate(i * 120)
+            vec: Vector2 = self.dir.rotate(i * 120)
             if abs(vec.y) < 0.15:
                 # dy could be zero if the ball is currently stuck to the bat, or could be very close
                 # to zero by chance, which could lead to the ball bouncing left and right for ages
@@ -650,7 +651,7 @@ class Ball(Actor):
         return balls
 
     @staticmethod
-    def collision_sound(collision_type):
+    def collision_sound(collision_type: CollisionType) -> None:
         # A static method relates to the class as a whole rather than a specific instance
         # of the class, so doesn't have self as the first parameter
         if collision_type == CollisionType.BRICK or collision_type == CollisionType.INDESTRUCTIBLE_BRICK:
@@ -669,24 +670,24 @@ class Ball(Actor):
                 game.play_sound("hit_veryfast")
 
 class Bat(Actor):
-    def __init__(self, controls):
+    def __init__(self, controls: Controls) -> None:
         super().__init__("blank", (320, 590), anchor=("center", 15))
 
-        self.controls = controls
-        self.fire_timer = 0
+        self.controls: Controls = controls
+        self.fire_timer: int = 0
 
         # The values of target_type and current_type are instances the BatType enum
         # Normally these will be the same. If the player has just picked up a powerup/powerdown
         # then type is the type of bat we're transitioning to, once the transition animation has finished
         # the current type is set to the type
-        self.current_type = BatType.NORMAL
-        self.target_type = BatType.NORMAL
-        self.frame = 0
+        self.current_type: BatType = BatType.NORMAL
+        self.target_type: BatType = BatType.NORMAL
+        self.frame: int = 0
 
         # Create shadow actor
-        self.shadow = Actor("blank", (self.x + 16, self.y + 16), anchor=("center", 15))
+        self.shadow: Actor = Actor("blank", (self.x + 16, self.y + 16), anchor=("center", 15))
 
-    def update(self):
+    def update(self) -> None:
         # Handle animating to a new bat type
         # If we're a normal bat, we animate to a new type over 12 game frames,
         # changing animation frame every 4 game frames
@@ -738,37 +739,37 @@ class Bat(Actor):
 
         # Check for leaving level via portal
         if game.portal_active and new_x == BAT_MAX_X - (self.width // 2):
-            self.portal_animation_active = True
+            self.portal_animation_active: bool = True
 
         # Update shadow actor
         self.shadow.x = self.x + 16
         self.shadow.y = self.y + 16
         self.shadow.image = f"bats{str(int(self.current_type))}{self.frame // 4}"
 
-    def change_type(self, type):
+    def change_type(self, type: BatType) -> None:
         self.target_type = type
 
-    def is_portal_transition_complete(self):
+    def is_portal_transition_complete(self) -> bool:
         return self.x - (self.width // 2) >= WIDTH
 
 # Does the ball (x, y, radius) collide with the brick at the given
 # grid position? Returns the point at which the collision occurred
-def brick_collide(x, y, grid_x, grid_y, r):
+def brick_collide(x: float, y: float, grid_x: int, grid_y: int, r: float) -> tuple[float, float] | None:
     # Get ball extent as a square
-    x0 = x - r
-    y0 = y - r
-    x1 = x + r
-    y1 = y + r
+    x0: float = x - r
+    y0: float = y - r
+    x1: float = x + r
+    y1: float = y + r
 
     # Get brick's left, top, right and bottom coordinates
-    xb0 = grid_x * BRICK_WIDTH + BRICKS_X_START
-    yb0 = grid_y * BRICK_HEIGHT + BRICKS_Y_START
-    xb1 = xb0 + BRICK_WIDTH
-    yb1 = yb0 + BRICK_HEIGHT
+    xb0: int = grid_x * BRICK_WIDTH + BRICKS_X_START
+    yb0: int = grid_y * BRICK_HEIGHT + BRICKS_Y_START
+    xb1: int = xb0 + BRICK_WIDTH
+    yb1: int = yb0 + BRICK_HEIGHT
 
     # Calculate brick centre position
-    xbc = (xb0+xb1) // 2
-    ybc = (yb0+yb1) // 2
+    xbc: int = (xb0+xb1) // 2
+    ybc: int = (yb0+yb1) // 2
 
     # Detecting bounce off side of brick
     # if ball right edge > brick left edge,
@@ -794,14 +795,14 @@ def brick_collide(x, y, grid_x, grid_y, r):
 
     # Put x/y position into a Vector2 object, which allows us to use the Vector2 methods length/length_squared
     # to calculate distances
-    pos_vector = Vector2(x, y)
+    pos_vector: Vector2 = Vector2(x, y)
 
     # Get closest brick corner
     # We call the Python min function with a list of positions (one for each corner of the brick)
     # The key argument is a lambda function which calculates the squared distance between pos_vector (the pos we're
     # checking) and the corner position (p). We use length_squared rather than length because it's faster and we just
     # care about which corner is closest, not what the actual distance is
-    closest = min([(xb0, yb0), (xb1, yb0), (xb0, yb1), (xb1, yb1)],
+    closest: tuple[int, int] = min([(xb0, yb0), (xb1, yb0), (xb0, yb1), (xb1, yb1)],
                   key = lambda p: (pos_vector - Vector2(p)).length_squared())
 
     # Check if we are actually overlapping with the nearest corner
@@ -813,14 +814,14 @@ def brick_collide(x, y, grid_x, grid_y, r):
         return None
 
 class Game:
-    def __init__(self, controls=None, lives=3):
-        self.controls = controls if controls else AIControls()
-        self.lives = lives
-        self.score = 0
+    def __init__(self, controls: Optional[Controls] = None, lives: int = 3) -> None:
+        self.controls: Controls = controls if controls else AIControls()
+        self.lives: int = lives
+        self.score: int = 0
 
         self.new_level(0)
 
-    def new_level(self, level_num):
+    def new_level(self, level_num: int) -> None:
         self.play_sound("start_game")
 
         # Go back to first level if we've finished last level
@@ -834,38 +835,38 @@ class Game:
         self.shadow_surface = surface.Surface((WIDTH, HEIGHT), flags=pygame.SRCALPHA)
         self.shadow_surface.fill((0, 0, 0, 0))
 
-        level = get_mirrored_level(LEVELS[level_num])
+        level: list[str] = get_mirrored_level(LEVELS[level_num])
 
-        self.num_rows = len(level)
-        self.num_cols = len(level[0])
+        self.num_rows: int = len(level)
+        self.num_cols: int = len(level[0])
 
         # Convert level data, a list of strings, to as 2D list of integers (or None where no brick is present)
         # The numbers in the level data are in hexadecimal (base 16), where A to F represent 10 to 15
-        self.bricks = [[None if level[y][x] == " " else int(level[y][x], 16) for x in range(self.num_cols)] for y in range(self.num_rows)]
+        self.bricks: list[list[Any]] = [[None if level[y][x] == " " else int(level[y][x], 16) for x in range(self.num_cols)] for y in range(self.num_rows)]
 
         # Draw bricks, and count how many there are, not counting brick ID 13 which is indestructible
-        self.bricks_remaining = 0
+        self.bricks_remaining: int = 0
         for y in range(self.num_rows):
             for x in range(self.num_cols):
                 self.redraw_brick(x, y)
                 if self.bricks[y][x] != None and self.bricks[y][x] != 13:
                     self.bricks_remaining += 1
 
-        self.balls = [Ball()]
-        self.bat = Bat(self.controls)
+        self.balls: list[Ball] = [Ball()]
+        self.bat: Bat = Bat(self.controls)
 
-        self.bullets = []
-        self.barrels = []
-        self.impacts = []
+        self.bullets: list[Bullet] = []
+        self.barrels: list[Barrel] = []
+        self.impacts: list[Impact] = []
 
-        self.level_num = level_num
-        self.portal_active = False
-        self.portal_frame = 0
-        self.portal_timer = 0
+        self.level_num: int = level_num
+        self.portal_active: bool = False
+        self.portal_frame: int = 0
+        self.portal_timer: int = 0
 
-    def redraw_brick(self, x, y):
-        screen_x = x * BRICK_WIDTH + BRICKS_X_START
-        screen_y = y * BRICK_HEIGHT + BRICKS_Y_START
+    def redraw_brick(self, x: int, y: int) -> None:
+        screen_x: int = x * BRICK_WIDTH + BRICKS_X_START
+        screen_y: int = y * BRICK_HEIGHT + BRICKS_Y_START
         if self.bricks[y][x] != None:
             # Display a brick at this position
 
@@ -883,7 +884,7 @@ class Game:
             self.brick_surface.fill((0, 0, 0, 0), (screen_x, screen_y, BRICK_WIDTH, BRICK_HEIGHT))
             self.shadow_surface.fill((0, 0, 0, 0), (screen_x + SHADOW_OFFSET, screen_y + SHADOW_OFFSET, BRICK_WIDTH, BRICK_HEIGHT))
 
-    def collide(self, x, y, dir, r=BALL_RADIUS):
+    def collide(self, x: float, y: float, dir: Vector2, r: float = BALL_RADIUS) -> tuple[tuple[float, float], bool, CollisionType] | None:
         # Called to check whether a ball or a bullet would collide with something if it moved in the specified direction
         # Only checks for walls and bricks, collisions with bat are handled elsewhere
         # If there's a collision with a destructible brick, the brick will take damage
@@ -902,10 +903,10 @@ class Game:
         # Work out the range of brick rows and columns that the ball overlaps
         # This means we don't need to check the ball against every brick,
         # only against the bricks it could potentially be colliding with
-        x0 = max(0, math.floor((x-BRICKS_X_START-r)/BRICK_WIDTH))
-        y0 = max(0, math.floor((y-BRICKS_Y_START-r)/BRICK_HEIGHT))
-        x1 = min(self.num_cols - 1, math.floor((x - BRICKS_X_START + r) / BRICK_WIDTH))
-        y1 = min(self.num_rows - 1, math.floor((y - BRICKS_Y_START + r) / BRICK_HEIGHT))
+        x0: int = max(0, math.floor((x-BRICKS_X_START-r)/BRICK_WIDTH))
+        y0: int = max(0, math.floor((y-BRICKS_Y_START-r)/BRICK_HEIGHT))
+        x1: int = min(self.num_cols - 1, math.floor((x - BRICKS_X_START + r) / BRICK_WIDTH))
+        y1: int = min(self.num_rows - 1, math.floor((y - BRICKS_Y_START + r) / BRICK_HEIGHT))
 
         # Collide with bricks
         for yb in range(y0, y1+1):
@@ -913,14 +914,14 @@ class Game:
                 # Is there a brick in this position?
                 if self.bricks[yb][xb] != None:
                     # Check for collision with current brick
-                    c = brick_collide(x, y, xb, yb, r)
+                    c: tuple[float, float] | None = brick_collide(x, y, xb, yb, r)
 
                     if c is not None:
                         # There was a collision
-                        centre_pos = (xb * BRICK_WIDTH + BRICKS_X_START + BRICK_WIDTH // 2,
+                        centre_pos: tuple[int, int] = (xb * BRICK_WIDTH + BRICKS_X_START + BRICK_WIDTH // 2,
                                       yb * BRICK_HEIGHT + BRICKS_Y_START + BRICK_HEIGHT // 2)
 
-                        collision_type = CollisionType.BRICK
+                        collision_type: CollisionType = CollisionType.BRICK
 
                         # Check brick type
                         # Brick 12 (brickc.png) requires a hit to turn into brick 11
@@ -951,11 +952,11 @@ class Game:
 
         return None
 
-    def activate_portal(self):
+    def activate_portal(self) -> None:
         self.portal_active = True
         self.play_sound("portal_exit")
 
-    def update(self):
+    def update(self) -> None:
         # Update bat and balls
         for obj in [self.bat] + self.balls:
             obj.update()
@@ -1019,7 +1020,7 @@ class Game:
             if len(self.balls) > 0:
                 self.balls[0].time_since_touched_bat = 0
 
-    def detect_stuck_balls(self):
+    def detect_stuck_balls(self) -> bool:
         # Detect whether all balls are stuck bouncing between indestructible bricks,
         if len(self.balls) == 0:
             # Having no balls in play doesn't count as all balls being stuck
@@ -1033,7 +1034,7 @@ class Game:
         # All balls are stuck
         return True
 
-    def draw(self):
+    def draw(self) -> None:
         screen.blit(f"arena{self.level_num % len(LEVELS)}", (0,0))
 
         # Draw exit portal
@@ -1074,22 +1075,22 @@ class Game:
             self.draw_score()
             self.draw_lives()
 
-    def draw_score(self):
+    def draw_score(self) -> None:
         # Convert score into a string of digits (e.g. "150") so we can
         # draw each individual digit, from left to right
-        x = 15
+        x: int = 15
         for digit in str(self.score):
-            image = "digit" + digit
+            image: str = "digit" + digit
             screen.blit(image, (x, 50))
             x += 55
 
-    def draw_lives(self):
-        x = 0
+    def draw_lives(self) -> None:
+        x: int = 0
         for i in range(self.lives):
             screen.blit("life", (x, HEIGHT-20))
             x += 50
 
-    def play_sound(self, name, count=1):
+    def play_sound(self, name: str, count: int = 1) -> None:
         # We don't play any in-game sound effects if player is an AI player - as this means we're on the menu
         if not self.in_demo_mode():
             try:
@@ -1106,24 +1107,24 @@ class Game:
                 # Also occurs if sound fails to play for another reason (e.g. if this machine has no sound hardware)
                 print(e)
 
-    def change_all_ball_speeds(self, change):
+    def change_all_ball_speeds(self, change: int) -> None:
         for b in self.balls:
             b.speed = min(max(b.speed + change, BALL_MIN_SPEED), BALL_MAX_SPEED)
 
-    def in_demo_mode(self):
+    def in_demo_mode(self) -> bool:
         return isinstance(self.controls, AIControls)
 
-def get_joystick_if_exists():
+def get_joystick_if_exists() -> Any:
     return pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
 
-def setup_joystick_controls():
+def setup_joystick_controls() -> None:
     # We call this on startup, and keep calling it if no controller is present,
     # so a controller can be connected while the game is open
     global joystick_controls
     joystick = get_joystick_if_exists()
     joystick_controls = JoystickControls(joystick) if joystick is not None else None
 
-def update_controls():
+def update_controls() -> None:
     keyboard_controls.update()
     # Allow a controller to be connected while the game is open
     if joystick_controls is None:
@@ -1138,7 +1139,7 @@ class State(Enum):
 
 # Pygame Zero calls the update and draw functions each frame
 
-def update():
+def update() -> None:
     global state, game, total_frames
 
     total_frames += 1
@@ -1174,7 +1175,7 @@ def update():
                 state = state.TITLE
                 play_music("title_theme")
 
-def draw():
+def draw() -> None:
     game.draw()
 
     if state == State.TITLE:
@@ -1185,14 +1186,14 @@ def draw():
     elif state == State.GAME_OVER:
         screen.blit(f"gameover{(total_frames // 4) % 15}", (WIDTH//2 - 450//2, 450))
 
-def play_music(name):
+def play_music(name: str) -> None:
     try:
         music.play(name)
     except Exception:
         # If an error occurs (e.g. no sound hardware), ignore it
         pass
 
-def stop_music():
+def stop_music() -> None:
     try:
         music.stop()
     except Exception:
@@ -1214,15 +1215,16 @@ except Exception:
     pass
 
 # Set up controls
+joystick_controls: Any
 keyboard_controls = KeyboardControls()
 ai_controls = AIControls()
 setup_joystick_controls()
 
 # Set up state and Game object
-state = State.TITLE
-game = Game(ai_controls)
+state: State = State.TITLE
+game: Any = Game(ai_controls)
 
-total_frames = 0
+total_frames: int = 0
 
 # Tell Pygame Zero to take over
 pgzrun.go()

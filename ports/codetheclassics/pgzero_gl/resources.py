@@ -5,75 +5,90 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- image/sound resource loaders.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# resources.py -- reproduce PyGame Zero's `images` and `sounds` objects.  In
-# pgzero you write `Actor("ship")` or `sounds.explosion.play()` and it loads
-# images/ship.png / sounds/explosion.ogg lazily, by attribute access, cached.
-#
-# Key difference from pgzero: images decode to a CPU RGBA array immediately (so
-# width/height and pixel masks are available even before the window exists), but
-# the GL texture is uploaded lazily on first draw -- because game objects are
-# routinely constructed at import time, before the GL context exists.
+"""Image/sound resource loaders -- PyGame Zero's ``images`` and ``sounds``.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+In pgzero you write ``Actor("ship")`` or ``sounds.explosion.play()`` and it
+loads ``images/ship.png`` / ``sounds/explosion.ogg`` lazily, by attribute
+access, cached. We reproduce that with :class:`_Loader` and the module-level
+:data:`images` / :data:`sounds`.
+
+Key difference from pgzero: images decode to a CPU RGBA array immediately (so
+``width``/``height`` and pixel masks are available even before the window
+exists), but the GL texture is uploaded lazily on first draw -- because game
+objects are routinely constructed at import time, before the GL context exists.
+"""
+
+from __future__ import annotations
 
 import os
+from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
 
 import numpy as np
 import OpenGL.GL as GL
+from numpy.typing import NDArray
 from PIL import Image as PILImage
 
-from . import context
-from . import audio
+from . import audio, context
+
+if TYPE_CHECKING:
+    from .geometry import Rect
 
 
 class Image:
     """A loaded image: CPU pixels now, GL texture on first draw."""
 
-    def __init__(self, path):
-        self.path = path
+    def __init__(self, path: str) -> None:
+        self.path: str | None = path
         # Decode with Pillow + convert("RGBA").  This correctly turns palette
         # (mode "P") transparency and grayscale/LA into a real alpha channel --
         # imageio drops palette transparency (returns 3-channel RGB), which made
         # transparent sprite backgrounds render as opaque white boxes.
-        arr = np.array(PILImage.open(path).convert("RGBA"))
-        self.rgba = np.ascontiguousarray(arr.astype(np.uint8))
-        self.height, self.width = self.rgba.shape[0], self.rgba.shape[1]
-        self._tex = None
+        arr: NDArray[Any] = np.array(PILImage.open(path).convert("RGBA"))
+        self.rgba: NDArray[np.uint8] = np.ascontiguousarray(arr.astype(np.uint8))
+        self.height: int = int(self.rgba.shape[0])
+        self.width: int = int(self.rgba.shape[1])
+        self._tex: int | None = None
 
     @classmethod
-    def from_rgba(cls, arr):
+    def from_rgba(cls, arr: NDArray) -> Image:
         """Build an Image directly from an HxWx4 uint8 array (used by text.py)."""
-        obj = cls.__new__(cls)
+        obj: Image = cls.__new__(cls)
         obj.path = None
         obj.rgba = np.ascontiguousarray(arr.astype(np.uint8))
-        obj.height, obj.width = obj.rgba.shape[0], obj.rgba.shape[1]
+        obj.height, obj.width = int(obj.rgba.shape[0]), int(obj.rgba.shape[1])
         obj._tex = None
         return obj
 
     # pgzero/pygame Surface-compatible accessors used by some games.
-    def get_width(self):
+    def get_width(self) -> int:
+        """Return the image width in pixels."""
         return self.width
 
-    def get_height(self):
+    def get_height(self) -> int:
+        """Return the image height in pixels."""
         return self.height
 
-    def get_size(self):
+    def get_size(self) -> tuple[int, int]:
+        """Return ``(width, height)`` in pixels."""
         return (self.width, self.height)
 
-    def get_rect(self, **kwargs):
+    def get_rect(self, **kwargs: Any) -> Rect:
+        """Return a :class:`Rect` the size of this image; ``kwargs`` set anchor attrs."""
         from .geometry import Rect
 
-        r = Rect(0, 0, self.width, self.height)
+        r: Rect = Rect(0, 0, self.width, self.height)
         for k, v in kwargs.items():
             setattr(r, k, v)
         return r
 
-    def gl_texture(self):
+    def gl_texture(self) -> int:
+        """Return this image's GL texture name, uploading it to the GPU on first call."""
         if self._tex is None:
             context.require_renderer()
             self._tex = GL.glGenTextures(1)
@@ -101,7 +116,7 @@ class Image:
                 GL.GL_UNSIGNED_BYTE,
                 self.rgba,
             )
-        return self._tex
+        return cast(int, self._tex)
 
 
 class _Loader:
@@ -112,26 +127,30 @@ class _Loader:
     works because it's just attribute access with a computed name.
     """
 
-    def __init__(self, subdir, extns, make):
+    def __init__(
+        self, subdir: str, extns: list[str], make: Callable[[str], Any]
+    ) -> None:
         self._subdir = subdir
         self._extns = extns
         self._make = make
-        self._cache = {}
+        self._cache: dict[str, Any] = {}
 
-    def _path(self, name):
-        base = os.path.join(context.get_asset_root(), self._subdir, name)
+    def _path(self, name: str) -> str | None:
+        """Resolve ``name`` to an on-disk path under the resource folder, or ``None``."""
+        base: str = os.path.join(context.get_asset_root(), self._subdir, name)
         if os.path.isfile(base):
             return base
         for ext in self._extns:
-            p = base + "." + ext
+            p: str = base + "." + ext
             if os.path.exists(p):
                 return p
         return None
 
-    def load(self, name):
+    def load(self, name: str) -> Any:
+        """Load (and cache) the resource named ``name``; raise ``KeyError`` if absent."""
         if name in self._cache:
             return self._cache[name]
-        p = self._path(name)
+        p: str | None = self._path(name)
         if p is None:
             raise KeyError(
                 "No %s found like %r in %s/" % (self._subdir[:-1], name, self._subdir)
@@ -139,7 +158,7 @@ class _Loader:
         res = self._cache[name] = self._make(p)
         return res
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         if name.startswith("_"):
             raise AttributeError(name)
         try:
@@ -148,12 +167,14 @@ class _Loader:
             raise AttributeError(*e.args) from None
 
     # A couple of games iterate the loaded sounds.
-    def values(self):
+    def values(self) -> Iterable[Any]:
+        """Return the currently-cached (already-loaded) resources."""
         return self._cache.values()
 
-    def clear(self):
+    def clear(self) -> None:
+        """Drop all cached resources."""
         self._cache.clear()
 
 
-images = _Loader("images", ["png", "gif", "jpg", "jpeg", "bmp"], Image)
-sounds = _Loader("sounds", ["ogg", "wav", "oga"], audio.Sound)
+images = _Loader(subdir="images", extns=["png", "gif", "jpg", "jpeg", "bmp"], make=Image)
+sounds = _Loader(subdir="sounds", extns=["ogg", "wav", "oga"], make=audio.Sound)

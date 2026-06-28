@@ -29,7 +29,8 @@ import math, sys, time, platform
 from abc import ABC, abstractmethod
 from enum import Enum
 from random import randint, uniform, choice
-from pygame.math import Vector3, Vector2
+from pygame.math import Vector3, Vector2  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
+from typing import Any, Callable, Optional  # noqa: E402
 
 # If the game window doesn't fit on the screen, you may need to turn off or reduce display scaling in the Windows/macOS settings
 # On Windows, you can uncomment the following two lines to fix the issue. It sets the program as "DPI aware"
@@ -161,34 +162,34 @@ fade_to_black_image = pygame.Surface((WIDTH, HEIGHT))
 
 # Class used for timing how long certain bits of code take to run
 class Profiler:
-    def __init__(self, name=""):
-        self.start_time = time.perf_counter()
-        self.name = name
+    def __init__(self, name: str = "") -> None:
+        self.start_time: float = time.perf_counter()
+        self.name: str = name
 
-    def get_ms(self):
-        endTime = time.perf_counter()
-        diff = endTime - self.start_time
+    def get_ms(self) -> float:
+        endTime: float = time.perf_counter()
+        diff: float = endTime - self.start_time
         return diff * 1000
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name}: {self.get_ms()}ms"
 
 
 # Utility functions
 
-def remap(old_val, old_min, old_max, new_min, new_max):
+def remap(old_val: float, old_min: float, old_max: float, new_min: float, new_max: float) -> float:
     # Remap a number from one range to a different range
     # e.g. remapping 5 from source range of 0 to 10, to destination range of 0 to 100, becomes 50
     return (new_max - new_min)*(old_val - old_min) / (old_max - old_min) + new_min
 
-def remap_clamp(old_val, old_min, old_max, new_min, new_max):
+def remap_clamp(old_val: float, old_min: float, old_max: float, new_min: float, new_max: float) -> float:
     # Like remap, but constrains the resulting value so that it can't be outside the new range
     # These first two lines are in case new_min and new_max are inverted
-    lower_limit = min(new_min, new_max)
-    upper_limit = max(new_min, new_max)
+    lower_limit: float = min(new_min, new_max)
+    upper_limit: float = max(new_min, new_max)
     return min(upper_limit, max(lower_limit, remap(old_val, old_min, old_max, new_min, new_max)))
 
-def inverse_lerp(a, b, value):
+def inverse_lerp(a: float, b: float, value: float) -> float:
     # Lerp (linear interpolate) returns the number that is 'value' between a and b, where value is a
     # number typically between 0 and 1, 0 means return a, 1 means return b, 0.5 means return a number halfway between
     # a and b, etc.
@@ -198,27 +199,27 @@ def inverse_lerp(a, b, value):
         return min(1, max(0, ((value - a) / (b - a))))
     return 0
 
-def sign(x):
+def sign(x: float) -> int:
     # Returns 1, 0 or -1 depending on whether number is positive, zero or negative
     if x == 0:
         return 0
     else:
         return -1 if x < 0 else 1
 
-def move_towards(n, target, speed):
+def move_towards(n: float, target: float, speed: float) -> float:
     if n < target:
         return min(n + speed, target)
     else:
         return max(n - speed, target)
 
-def format_time(seconds):
+def format_time(seconds: float) -> str:
     # Return time string in the form "minutes:seconds.milliseconds"
     # 06.3f ensures that we always show 2 digits for the whole part of the seconds
     # 6 refers to the total number of characters including the decimal point
     # We want to display times like "1:05.123" not "1:5.123"
     return f"{int(seconds // 60)}:{seconds % 60:06.3f}"
 
-def get_char_image_and_width(char, font):
+def get_char_image_and_width(char: str, font: str) -> tuple[Any, int]:
     # Return width of given character. ord() gives the ASCII/Unicode code for the given character.
     if char == " ":
         return None, 30
@@ -231,10 +232,10 @@ def get_char_image_and_width(char, font):
 
 TEXT_GAP_X = {"font":-6, "status1b_":0, "status2_":0} # Characters in main font are italic so should overlap a little
 
-def text_width(text, font):
+def text_width(text: str, font: str) -> int:
     return sum([get_char_image_and_width(c, font)[1] for c in text]) + TEXT_GAP_X[font] * (len(text)-1)
 
-def draw_text(text, x, y, centre=False, font="font"):
+def draw_text(text: str, x: float, y: float, centre: bool = False, font: str = "font") -> None:
     if centre:
         x -= text_width(text, font) // 2
 
@@ -247,32 +248,32 @@ def draw_text(text, x, y, centre=False, font="font"):
 class Controls(ABC):
     NUM_BUTTONS = 2
 
-    def __init__(self):
-        self.button_previously_down = [False for i in range(Controls.NUM_BUTTONS)]
-        self.is_button_pressed = [False for i in range(Controls.NUM_BUTTONS)]
+    def __init__(self) -> None:
+        self.button_previously_down: list[bool] = [False for i in range(Controls.NUM_BUTTONS)]
+        self.is_button_pressed: list[bool] = [False for i in range(Controls.NUM_BUTTONS)]
 
-    def update(self):
+    def update(self) -> None:
         # Call each frame to update button status
         for button in range(Controls.NUM_BUTTONS):
-            button_down = self.button_down(button)
+            button_down: bool = self.button_down(button)
             self.is_button_pressed[button] = button_down and not self.button_previously_down[button]
             self.button_previously_down[button] = button_down
 
     @abstractmethod
-    def get_x(self):
+    def get_x(self) -> float:
         # Overridden by subclasses
         pass
 
     @abstractmethod
-    def button_down(self, button):
+    def button_down(self, button: int) -> bool:
         # Overridden by subclasses
         pass
 
-    def button_pressed(self, button):
+    def button_pressed(self, button: int) -> bool:
         return self.is_button_pressed[button]
 
 class KeyboardControls(Controls):
-    def get_x(self):
+    def get_x(self) -> int:
         if keyboard.left:
             return -1
         elif keyboard.right:
@@ -280,19 +281,19 @@ class KeyboardControls(Controls):
         else:
             return 0
 
-    def button_down(self, button):
+    def button_down(self, button: int) -> bool:  # ty: ignore[invalid-return-type]  # faithful port: implicitly returns None for button values other than 0/1
         if button == 0:
             return keyboard.lctrl or keyboard.z
         elif button == 1:
             return keyboard.lshift or keyboard.x
 
 class JoystickControls(Controls):
-    def __init__(self, joystick):
+    def __init__(self, joystick: Any) -> None:
         super().__init__()
-        self.joystick = joystick
+        self.joystick: Any = joystick
         joystick.init() # Not necessary in Pygame 2.0.0 onwards
 
-    def get_axis(self, axis_num):
+    def get_axis(self, axis_num: int) -> float:
         if self.joystick.get_numhats() > 0 and self.joystick.get_hat(0)[axis_num] != 0:
             # For some reason, dpad up/down are inverted when getting inputs from
             # an Xbox controller, so need to negate the value if axis_num is 1
@@ -305,13 +306,13 @@ class JoystickControls(Controls):
         else:
             return axis_value
 
-    def get_x(self):
+    def get_x(self) -> float:
         return self.get_axis(0)
 
-    def get_y(self):
+    def get_y(self) -> float:
         return self.get_axis(1)
 
-    def button_down(self, button):
+    def button_down(self, button: int) -> bool:
         # Before checking button, check to make sure that the controller actually has enough buttons
         # There are some weird devices out there which could cause a crash if this check were not present
         if self.joystick.get_numbuttons() <= button:
@@ -320,44 +321,44 @@ class JoystickControls(Controls):
         return self.joystick.get_button(button) != 0
 
 class Scenery:
-    def __init__(self, x, image, min_draw_distance=0, max_draw_distance=VIEW_DISTANCE // 2, scale=1, collision_zones=()):
-        self.x = x
-        self.image = image
-        self.min_draw_distance = min_draw_distance
-        self.max_draw_distance = max_draw_distance
-        self.scale = scale
-        self.collision_zones = collision_zones
+    def __init__(self, x: float, image: Any, min_draw_distance: float = 0, max_draw_distance: float = VIEW_DISTANCE // 2, scale: float = 1, collision_zones: tuple[tuple[float, float], ...] = ()) -> None:
+        self.x: float = x
+        self.image: Any = image
+        self.min_draw_distance: float = min_draw_distance
+        self.max_draw_distance: float = max_draw_distance
+        self.scale: float = scale
+        self.collision_zones: tuple[tuple[float, float], ...] = collision_zones
 
-    def get_image(self):
+    def get_image(self) -> Any:
         return self.image
 
 class StartGantry(Scenery):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(0, images.start0, min_draw_distance=1, max_draw_distance=VIEW_DISTANCE, scale=4, collision_zones=((-3000,-2400),(2400,3000)))
 
-    def get_image(self):
+    def get_image(self) -> Any:
         # Before we draw, update our billboard image to the appropriate one based on the game's start timer
         # Images go from start0 to start4, then we alternate between start4 and start5 every half second
         if game.start_timer > 0:
-            index = int(remap(game.start_timer, 4, 0, 0, 4))
+            index: int = int(remap(game.start_timer, 4, 0, 0, 4))
         else:
             index = 4 if int(game.timer * 2) % 2 == 0 else 5
-        image = "start" + str(index)
+        image: str = "start" + str(index)
         self.image = getattr(images, image)
         return self.image
 
 class Billboard(Scenery):
-    def __init__(self, x, image):
+    def __init__(self, x: float, image: Any) -> None:
         half_width = image.get_width() / 2
-        scale = 2
+        scale: int = 2
         super().__init__(x, image, scale=scale, collision_zones=((-half_width*scale,half_width*scale),))
 
 class LampLeft(Scenery):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(LAMP_X, images.left_light, scale=2, collision_zones=((350,1200),))
 
 class LampRight(Scenery):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(-LAMP_X, images.right_light, scale=2, collision_zones=((-1200,-350),))
 
 # The track is defined as list of track pieces. A track piece is technically just a line, but a polygon will be
@@ -370,38 +371,38 @@ class LampRight(Scenery):
 # X offset of zero and track piece 6 has a very large offset of 1000, it's while moving from 5 to 6 that the car
 # will start to move to the left
 class TrackPiece:
-    def __init__(self, scenery=(), offset_x=0, offset_y=0, cpu_max_target_speed=None, col=TRACK_COLOUR, width=TRACK_W):
-        self.scenery = scenery
-        self.offset_x = offset_x
-        self.offset_y = offset_y
-        self.cpu_max_target_speed = cpu_max_target_speed
-        self.col = col
-        self.width = width
-        self.cars = []  # Cars currently on this track piece
+    def __init__(self, scenery: Any = (), offset_x: float = 0, offset_y: float = 0, cpu_max_target_speed: Optional[float] = None, col: tuple[int, int, int] = TRACK_COLOUR, width: float = TRACK_W) -> None:
+        self.scenery: Any = scenery
+        self.offset_x: float = offset_x
+        self.offset_y: float = offset_y
+        self.cpu_max_target_speed: Optional[float] = cpu_max_target_speed
+        self.col: tuple[int, int, int] = col
+        self.width: float = width
+        self.cars: list[Car] = []  # Cars currently on this track piece
 
 class TrackPieceStartLine(TrackPiece):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(scenery = [StartGantry()], col=(255,255,255))
 
 class Car:
-    def __init__(self, pos, car_letter):
-        self.pos = pos
-        self.image = f"car_{car_letter}_0_0"
-        self.speed = 0
-        self.grip = 1
-        self.car_letter = car_letter
-        self.track_piece = None
-        self.tyre_rotation = 0
+    def __init__(self, pos: Vector3, car_letter: str) -> None:
+        self.pos: Vector3 = pos
+        self.image: str = f"car_{car_letter}_0_0"
+        self.speed: float = 0
+        self.grip: float = 1
+        self.car_letter: str = car_letter
+        self.track_piece: Optional[TrackPiece] = None
+        self.tyre_rotation: float = 0
 
-    def update(self, delta_time):
+    def update(self, delta_time: float) -> None:
         self.pos.z -= self.speed * delta_time
         self.update_current_track_piece()
         self.tyre_rotation += delta_time * self.speed * 0.75
 
-    def update_current_track_piece(self):
+    def update_current_track_piece(self) -> None:
         # Which track piece are we on?
-        current_track_piece = self.track_piece
-        idx = game.get_track_piece_for_z(self.pos.z)
+        current_track_piece: Optional[TrackPiece] = self.track_piece
+        idx: Optional[int] = game.get_track_piece_for_z(self.pos.z)
         if idx is not None:
             self.track_piece = game.track[idx]
             if self.track_piece is not current_track_piece:
@@ -410,9 +411,9 @@ class Car:
                     current_track_piece.cars.remove(self)
                 self.track_piece.cars.append(self)
 
-    def update_sprite(self, angle, braking, boost=False):
+    def update_sprite(self, angle: int, braking: bool, boost: bool = False) -> None:
         if self.speed == 0:
-            frame = 0
+            frame: int = 0
         elif braking:
             frame = 3
         elif boost:
@@ -423,20 +424,20 @@ class Car:
 
 
 class CPUCar(Car):
-    def __init__(self, pos, accel, speed):
+    def __init__(self, pos: Vector3, accel: float, speed: float) -> None:
         super().__init__(pos, choice(('b','c','d','e')))
 
         # CPU cars accelerate faster than player but have a lower top speed
-        self.accel = PLAYER_ACCELERATION_MAX * accel
-        self.target_speed = speed
-        self.target_x = pos.x
+        self.accel: float = PLAYER_ACCELERATION_MAX * accel
+        self.target_speed: float = speed
+        self.target_x: float = pos.x
 
         # Set based on track curvature, so we can display an angled variant of the car sprite
-        self.steering = 0
+        self.steering: float = 0
 
-        self.change_speed_timer = uniform(2, 4)
+        self.change_speed_timer: float = uniform(2, 4)
 
-    def update(self, delta_time):
+    def update(self, delta_time: float) -> None:
         if game.race_complete:
             self.target_speed = game.player_car.speed
 
@@ -458,7 +459,7 @@ class CPUCar(Car):
 
             # If we're on a sharp corner and speed is above a certain level, reduce target speed
             if track_piece_idx is not None:
-                target_speed_override = game.track[track_piece_idx].cpu_max_target_speed
+                target_speed_override: Optional[float] = game.track[track_piece_idx].cpu_max_target_speed
                 if target_speed_override is not None and self.target_speed > target_speed_override:
                     # Make it slightly random
                     self.target_speed = uniform(target_speed_override-3, target_speed_override)
@@ -466,7 +467,7 @@ class CPUCar(Car):
             # Also change target X pos to a random value
             # Ensure not too close to values for nearby cars, to avoid cars driving through each other
 
-            def is_target_x_too_close_to_nearby_cars():
+            def is_target_x_too_close_to_nearby_cars() -> bool:
                 for car in game.cars:
                     if car is not self and abs(self.pos.z - car.pos.z) < 20 and abs(self.target_x - car.pos.x) < 300:
                         return True
@@ -482,44 +483,44 @@ class CPUCar(Car):
             self.change_speed_timer = uniform(2, 4)
 
 class PlayerCar(Car):
-    def __init__(self, pos, controls):
+    def __init__(self, pos: Vector3, controls: Controls) -> None:
         super().__init__(pos, 'a')
-        self.pos = pos
-        self.controls = controls
-        self.offset_x_change = 0
-        self.resetting = False
-        self.explode_timer = None
-        self.last_checkpoint_idx = None
-        self.lap = 1
-        self.lap_time = 0
-        self.race_time = 0
-        self.fastest_lap = None
-        self.last_lap_was_fastest = False
-        self.braking = False
+        self.pos: Vector3 = pos
+        self.controls: Controls = controls
+        self.offset_x_change: float = 0
+        self.resetting: bool = False
+        self.explode_timer: Optional[int] = None
+        self.last_checkpoint_idx: Optional[int] = None
+        self.lap: int = 1
+        self.lap_time: float = 0
+        self.race_time: float = 0
+        self.fastest_lap: Optional[float] = None
+        self.last_lap_was_fastest: bool = False
+        self.braking: bool = False
 
         # Load engine and skid sounds. These are not played with Game.play_sound as they require custom behaviour.
         # Enclosed in a try/except section to deal with the case where the sound files can't be loaded, which can
         # occur if there is no sound hardware or sound is disabled
         try:
-            self.engine_sounds = [getattr(sounds, "engine_short" + str(i)) for i in range(40)]
-            self.skid_sound = sounds.skid_loop0
+            self.engine_sounds: list[Any] = [getattr(sounds, "engine_short" + str(i)) for i in range(40)]
+            self.skid_sound: Any = sounds.skid_loop0
         except Exception:
             self.engine_sounds = []
             self.skid_sound = None
 
-        self.current_engine_sound = None
-        self.current_engine_sound_idx = -1
+        self.current_engine_sound: Any = None
+        self.current_engine_sound_idx: int = -1
         self.update_engine_sound()
 
-        self.skid_sound_playing = False
+        self.skid_sound_playing: bool = False
 
-        self.grass_sound_repeat_timer = 0
-        self.on_grass = False
+        self.grass_sound_repeat_timer: float = 0
+        self.on_grass: bool = False
 
         # Last known position in the race, indexed from 0 - used to decide when to play overtaking sounds
-        self.prev_position = NUM_CARS - 1
+        self.prev_position: int = NUM_CARS - 1
 
-    def stop_engine_sound(self):
+    def stop_engine_sound(self) -> None:
         if self.current_engine_sound is not None:
             try:
                 self.current_engine_sound.stop()
@@ -527,7 +528,7 @@ class PlayerCar(Car):
                 # Ignore errors - e.g. no sound hardware, or sound mixer has been shut down
                 pass
 
-    def update(self, delta_time):
+    def update(self, delta_time: float) -> None:
         if not game.race_complete:
             self.lap_time += delta_time
             self.race_time += delta_time
@@ -537,7 +538,7 @@ class PlayerCar(Car):
         self.update_engine_sound()
 
         # Play overtaking sounds? See if our position in the race has changed since last frame
-        current_position = game.cars.index(self)
+        current_position: int = game.cars.index(self)
         if current_position != self.prev_position:
             # Only play sound if speed difference is high enough
             if abs(self.speed - game.cars[self.prev_position].speed) > 4:
@@ -555,8 +556,8 @@ class PlayerCar(Car):
                 self.pos.x = move_towards(self.pos.x, 0, 2000 * delta_time)
                 self.resetting = self.pos.x != 0
 
-        x_move = 0
-        accel = 0
+        x_move: float = 0
+        accel: float = 0
 
         if not self.resetting:
             # Not resetting - do normal movement & controls
@@ -575,7 +576,7 @@ class PlayerCar(Car):
                     self.speed = max(0, self.speed - delta_time * 10)
 
             # Apply drag in a frame-rate independent way
-            drag_factor = 0.9975
+            drag_factor: float = 0.9975
             if self.on_grass:
                 # More drag on grass
                 drag_factor -= 0.0025
@@ -624,11 +625,11 @@ class PlayerCar(Car):
                     # so we can't do a normal distance calculation.
                     # Instead we just check X and Z differences separately (Y is irrelevant as cars are always
                     # on the ground)
-                    vec = self.pos - car.pos
-                    COLLIDE_FRONT_DISTANCE_Z = 0.6
-                    COLLIDE_BACK_DISTANCE_Z = 1.2
+                    vec: Vector3 = self.pos - car.pos
+                    COLLIDE_FRONT_DISTANCE_Z: float = 0.6
+                    COLLIDE_BACK_DISTANCE_Z: float = 1.2
                     if abs(vec.x) < 260 and vec.z < COLLIDE_FRONT_DISTANCE_Z and vec.z > -COLLIDE_BACK_DISTANCE_Z:
-                        midpoint = (self.pos.z - car.pos.z) / 2 + car.pos.z
+                        midpoint: float = (self.pos.z - car.pos.z) / 2 + car.pos.z
                         # Which side did we collide on?
                         # An alternative way to do this would be to use the speed difference, e.g. if player speed
                         # is faster, we hit the car in front
@@ -641,7 +642,7 @@ class PlayerCar(Car):
                             # Colliding with the back of the car in front
                             self.speed = max(car.speed - 3, 0)
                             car.speed = max(car.speed, self.speed + 3)
-                            car.target_speed = car.speed
+                            car.target_speed = car.speed  # ty: ignore[unresolved-attribute]  # faithful port: the car collided with is a CPUCar, which has target_speed
 
                             # Shift us back and other car forward so we're not longer overlapping
                             self.pos.z = midpoint + COLLIDE_FRONT_DISTANCE_Z * 0.6
@@ -663,7 +664,7 @@ class PlayerCar(Car):
             # Check for collisions with scenery, driving on grass and passing a checkpoint
             track_piece_idx, _ = game.get_first_track_piece_ahead(self.pos.z)
             if track_piece_idx is not None:
-                track_piece = game.track[track_piece_idx]
+                track_piece: TrackPiece = game.track[track_piece_idx]
 
                 for scenery in track_piece.scenery:
                     for collision_zone in scenery.collision_zones:
@@ -721,7 +722,7 @@ class PlayerCar(Car):
         if self.skid_sound is not None:
             # Determine volume to play skid sound at
             if self.resetting or self.grip >= SKID_SOUND_START_GRIP or self.get_x_input() == 0:
-                volume = 0
+                volume: float = 0
 
             else:
                 volume = remap_clamp(self.grip, SKID_SOUND_START_GRIP, 0.5, 0, 1)
@@ -745,16 +746,16 @@ class PlayerCar(Car):
         if self.explode_timer is not None:
             self.image = f"explode{self.explode_timer//2:02}"
         else:
-            direction = 0
+            direction: int = 0
             if x_move < 0:
                 direction = -1
             elif x_move > 0:
                 direction = 1
-            boost = accel > 0 and self.speed < HIGH_ACCEL_THRESHOLD and self.speed > 0
+            boost: bool = accel > 0 and self.speed < HIGH_ACCEL_THRESHOLD and self.speed > 0
             self.update_sprite(direction, self.braking, boost)
 
-    def update_engine_sound(self):
-        sound_index = min(int(self.speed * 0.6), len(self.engine_sounds) - 1)
+    def update_engine_sound(self) -> None:
+        sound_index: int = min(int(self.speed * 0.6), len(self.engine_sounds) - 1)
         if sound_index != self.current_engine_sound_idx:
             self.current_engine_sound_idx = sound_index
             old_sound = self.current_engine_sound
@@ -769,14 +770,14 @@ class PlayerCar(Car):
             except Exception:
                 pass
 
-    def get_x_input(self):
+    def get_x_input(self) -> float:
         return self.controls.get_x()
 
-    def set_offset_x_change(self, value):
+    def set_offset_x_change(self, value: float) -> None:
         self.offset_x_change = value
 
 
-def generate_scenery(track_i, image=images.billboard00, interval=40, lamps=True):
+def generate_scenery(track_i: int, image: Any = images.billboard00, interval: int = 40, lamps: bool = True) -> list[Scenery]:
     if track_i % interval == 0:
         # Billboards
         return [Billboard(BILLBOARD_X, image), Billboard(-BILLBOARD_X, image)]
@@ -786,11 +787,11 @@ def generate_scenery(track_i, image=images.billboard00, interval=40, lamps=True)
     else:
         return []
 
-def make_track():
+def make_track() -> list[TrackPiece]:
     # Each track piece in the list represents a line with a particular width, with optional attached scenery.
     # When the track is drawn, we draw a polygon for each track piece, connecting this line with the line of the
     # previous track piece.
-    track = []
+    track: list[TrackPiece] = []
     for lap in range(NUM_LAPS + 1):
         track.extend([TrackPiece(scenery=generate_scenery(i,images.billboard02)) for i in range(15)])
 
@@ -868,46 +869,46 @@ def make_track():
     return track
 
 class Game:
-    def __init__(self, controls=None):
-        self.track = make_track()
+    def __init__(self, controls: Optional[Controls] = None) -> None:
+        self.track: list[TrackPiece] = make_track()
 
         # We only create a player car (in setup_cars) when there is a controls object
-        self.player_car = None
-        self.camera_follow_car = None
+        self.player_car: Any = None
+        self.camera_follow_car: Any = None
 
         self.setup_cars(controls)
 
-        self.camera = Vector3(0, 400, 0)
+        self.camera: Vector3 = Vector3(0, 400, 0)
 
-        self.background = images.background
-        self.bg_offset = Vector2(-self.background.get_width() // 2, 30)
+        self.background: Any = images.background
+        self.bg_offset: Vector2 = Vector2(-self.background.get_width() // 2, 30)
 
-        self.first_frame = True
-        self.on_screen_debug_strs = []
-        self.frame_counter = 0
-        self.timer = 0
-        self.race_complete = False
-        self.time_up = False
+        self.first_frame: bool = True
+        self.on_screen_debug_strs: list[str] = []
+        self.frame_counter: int = 0
+        self.timer: float = 0
+        self.race_complete: bool = False
+        self.time_up: bool = False
 
         if self.player_car is not None:
-            self.start_timer = 3.999
+            self.start_timer: float = 3.999
             play_music("engines_startline")
         else:
             # Race starts immediately on title screen
             self.start_timer = 0
 
-    def setup_cars(self, controls):
-        self.cars = []  # Will be kept in sorted order of position
+    def setup_cars(self, controls: Optional[Controls]) -> None:
+        self.cars: list[Car] = []  # Will be kept in sorted order of position
         for i in range(NUM_CARS):
-            z = -3 - i * GRID_CAR_SPACING
-            x = -400 if i % 2 == 0 else 400
+            z: float = -3 - i * GRID_CAR_SPACING
+            x: int = -400 if i % 2 == 0 else 400
             if i == 0 and controls is not None:
                 # Don't create player car on title screen
                 self.player_car = PlayerCar(Vector3(x, 0, z), controls)
                 self.cars.append(self.player_car)
             else:
-                target_speed = remap(i, 0, NUM_CARS - 1, CPU_CAR_MIN_TARGET_SPEED, CPU_CAR_MAX_TARGET_SPEED)
-                accel = remap(i, 0, NUM_CARS - 1, 1.5, 2)
+                target_speed: float = remap(i, 0, NUM_CARS - 1, CPU_CAR_MIN_TARGET_SPEED, CPU_CAR_MAX_TARGET_SPEED)
+                accel: float = remap(i, 0, NUM_CARS - 1, 1.5, 2)
                 self.cars.append(CPUCar(Vector3(x, 0, z), speed=target_speed, accel=accel))
 
         if self.player_car is not None:
@@ -915,7 +916,7 @@ class Game:
         else:
             self.camera_follow_car = self.cars[0]
 
-    def update(self, delta_time):
+    def update(self, delta_time: float) -> None:
         self.timer += delta_time
         self.frame_counter += 1
 
@@ -925,7 +926,7 @@ class Game:
             # they're displayed during the start countdown (during which time their update is not called)
             for car in self.cars:
                 car.update_current_track_piece()
-            timer_old = self.start_timer
+            timer_old: float = self.start_timer
             self.start_timer = max(0, self.start_timer - delta_time)
             # Every second of the countdown, make a sound effect
             if self.start_timer == 0:
@@ -937,7 +938,7 @@ class Game:
             elif int(timer_old) != int(self.start_timer):
                 game.play_sound("startbeep")
 
-        old_camera_z = self.camera.z
+        old_camera_z: float = self.camera.z
         prev_ahead, _ = self.get_first_track_piece_ahead(old_camera_z)
 
         # If race has started, update all cars
@@ -976,7 +977,7 @@ class Game:
 
         # Get the new camera pos and determine which track piece it's on. The logic is different depending on whether
         # the position change goes from one track piece to the next, or is within one track piece
-        new_camera_z = self.camera.z
+        new_camera_z: float = self.camera.z
         new_ahead, _ = self.get_first_track_piece_ahead(new_camera_z)
 
         # We need to deal with not just interpolating during movement within one track piece, but also when we pass the
@@ -1011,23 +1012,23 @@ class Game:
         # Get distance from here to next SPACING increment or new camera z, whichever is a smaller change (higher number)
         # Ignore if camera moved backwards (debug camera only), or the camera is before the start of the track
         # Don't do this on first frame, as camera won't have its correct initial Z position at the beginning of the frame
-        distance = old_camera_z - new_camera_z
-        offset_change = Vector2(0, 0)
+        distance: float = old_camera_z - new_camera_z
+        offset_change: Vector2 = Vector2(0, 0)
         if distance > 0 and not self.first_frame and prev_ahead >= 0 and new_ahead >= 0:
-            old_z_next_spacing_boundary = (old_camera_z // SPACING) * SPACING
-            new_z_prev_spacing_boundary = ((new_camera_z // SPACING) * SPACING) + SPACING
-            prev_track = self.track[prev_ahead]
-            new_track = self.track[new_ahead]
+            old_z_next_spacing_boundary: float = (old_camera_z // SPACING) * SPACING
+            new_z_prev_spacing_boundary: float = ((new_camera_z // SPACING) * SPACING) + SPACING
+            prev_track: TrackPiece = self.track[prev_ahead]
+            new_track: TrackPiece = self.track[new_ahead]
             if new_ahead > prev_ahead:
                 # Movement touches at least two track pieces
                 # Figure out how much of the movement was within the old and new track pieces, plus whether there
                 # are any intermediate track pieces between them (whose offsets will be fully applied)
 
                 # What proportion of the old and new track pieces have we covered?
-                distance_first = old_camera_z - old_z_next_spacing_boundary
-                distance_last = new_z_prev_spacing_boundary - new_camera_z
-                fraction_first = distance_first / SPACING
-                fraction_last = distance_last / SPACING
+                distance_first: float = old_camera_z - old_z_next_spacing_boundary
+                distance_last: float = new_z_prev_spacing_boundary - new_camera_z
+                fraction_first: float = distance_first / SPACING
+                fraction_last: float = distance_last / SPACING
 
                 # assert stops the program with an AssertionError if the specified condition is false. Both fractions
                 # should always be between zero and one, and if they aren't then we want to know about it. This assertion
@@ -1042,12 +1043,12 @@ class Game:
                 # fully add their offsets
                 if new_ahead - prev_ahead > 1:
                     for i in range(prev_ahead + 1, new_ahead):
-                        piece = self.track[i]
+                        piece: TrackPiece = self.track[i]
                         offset_change += Vector2(piece.offset_x, piece.offset_y)
 
             else:
                 # Movement was just within one track piece
-                fraction = distance / SPACING
+                fraction: float = distance / SPACING
                 assert(0 <= fraction <= 1)
                 offset_change = Vector2(prev_track.offset_x, prev_track.offset_y) * fraction
 
@@ -1074,7 +1075,7 @@ class Game:
 
         self.first_frame = False
 
-    def draw(self):
+    def draw(self) -> None:
         # Fill background with single colour
         # We use a different background colour depending on the Y offset of the background image, because
         # the top and bottom of that image are different colours
@@ -1084,12 +1085,12 @@ class Game:
             screen.fill( (0,77,180) )
 
         # Profiling times
-        times = {"scenery_scale": 0, "car_scale": 0, "prepare_draw_cars": 0}
+        times: dict[str, float] = {"scenery_scale": 0, "car_scale": 0, "prepare_draw_cars": 0}
 
         # Draw background
         # Need to draw either one or two backgrounds - second copy is for wrapping (when bg_offset.x changes enough that
         # we'd see the edge of the image)
-        profile_bg = Profiler()
+        profile_bg: Profiler = Profiler()
         self.on_screen_debug_strs.append(str(self.bg_offset))
         screen.blit(self.background, self.bg_offset)
         if self.bg_offset.x > 0:
@@ -1098,16 +1099,16 @@ class Game:
             screen.blit(self.background, self.bg_offset + Vector2(self.background.get_width(), 0))
         times["bg"] = profile_bg.get_ms()
 
-        def transform(point_v3, w=None, h=None, clipping_plane=CLIPPING_PLANE):
+        def transform(point_v3: Vector3, w: Optional[float] = None, h: Optional[float] = None, clipping_plane: float = CLIPPING_PLANE) -> Any:
             # This local function receives a point as a Vector3 and transforms it into a Vector2 point in screen space
             # When called for a car or scenery item, w and h are specified, referring to the size of the original
             # sprite, so it also calculates and returns the scaled width and height, based on the distance from the camera
-            newpoint = point_v3 - self.camera
+            newpoint: Vector3 = point_v3 - self.camera
             if newpoint.z > clipping_plane:
                 return None if w is None else (None, None, None)
 
             # Apply perspective and centre on the screen
-            point_v2 = pygame.math.Vector2((newpoint.x / newpoint.z) + HALF_WIDTH,
+            point_v2: Vector2 = pygame.math.Vector2((newpoint.x / newpoint.z) + HALF_WIDTH,
                                            (newpoint.y / newpoint.z) + HALF_HEIGHT)
 
             if w is None:
@@ -1117,28 +1118,28 @@ class Game:
 
         # offset and offset_delta keep track of the cumulative changes in track offsets (X and Y - Z remains as 0), so
         # that each track piece is drawn in the correct position
-        offset = Vector3(0, 0, 0)
-        offset_delta = Vector3(0, 0, 0)
+        offset: Vector3 = Vector3(0, 0, 0)
+        offset_delta: Vector3 = Vector3(0, 0, 0)
 
         # Tuples of pairs of Vector2s storing screen positions of left and right edges of the track, central
         # stripes and left/right rumble strips. We remember them so they don't need to be recalculated when joining up
         # a track piece or stripe with the previous one
         prev_track_screen = None
-        prev_stripe_screen = None
+        prev_stripe_screen: Any = None
         prev_rumble_left_outer_screen = None
         prev_rumble_right_outer_screen = None
 
         # Instead of drawing track pieces etc as we come across them, we store draw calls in this list. Then we once
         # we've finished going through track pieces, we execute the draw calls in reverse order, so that track
         # pieces, cars and scenery in the distance are drawn before things which are closer
-        draw_list = []
+        draw_list: list[tuple[Callable[[], Any], str]] = []
 
-        def add_to_draw_list(drawcall, type="?"):
+        def add_to_draw_list(drawcall: Callable[[], Any], type: str = "?") -> None:
             draw_list.append((drawcall, type))
 
-        is_first_track_piece_ahead = True
+        is_first_track_piece_ahead: bool = True
 
-        prof_track = Profiler("track")
+        prof_track: Profiler = Profiler("track")
 
         # Get index of first track piece that starts at or just in front of the camera Z position
         # This means the track piece we're currently part-way through won't be displayed, but that doesn't matter
@@ -1146,7 +1147,7 @@ class Game:
         first_track_piece_idx, current_piece_z = self.get_first_track_piece_ahead(self.camera.z)
 
         # Index of the track piece that we're drawing, relative to first_track_piece_idx
-        track_ahead_i = 0
+        track_ahead_i: int = 0
 
         # At the start of the loop body below, we subtract SPACING from current_piece_z. Therefore we must add SPACING
         # before the loop so that current_piece_z is correct for the first track piece.
@@ -1159,13 +1160,13 @@ class Game:
             if track_ahead_i > VIEW_DISTANCE:
                 break
 
-            track_piece = self.track[i]
+            track_piece: TrackPiece = self.track[i]
             current_piece_z -= SPACING
 
             # Because the camera is pointing down the negative Z axis, negative/positive X mean right/left from
             # camera's perspective
-            left = Vector3(track_piece.width / 2, 0, current_piece_z)
-            right = Vector3(-track_piece.width / 2, 0, current_piece_z)
+            left: Vector3 = Vector3(track_piece.width / 2, 0, current_piece_z)
+            right: Vector3 = Vector3(-track_piece.width / 2, 0, current_piece_z)
 
             # Interpolate for X offset between first and next track piece. Without this, going around corners would
             # look very juddery
@@ -1174,8 +1175,8 @@ class Game:
                 # Current track piece is actually the first track piece IN FRONT of Z
                 # And next is the one after that
                 # So to find the fraction we need to add spacing
-                adjusted_camera_z = self.camera.z - SPACING
-                fraction = inverse_lerp(current_piece_z - SPACING, current_piece_z, adjusted_camera_z)
+                adjusted_camera_z: float = self.camera.z - SPACING
+                fraction: float = inverse_lerp(current_piece_z - SPACING, current_piece_z, adjusted_camera_z)
                 offset_delta = Vector3(fraction * track_piece.offset_x, fraction * track_piece.offset_y, 0)
             else:
                 offset_delta += Vector3(track_piece.offset_x, track_piece.offset_y, 0)
@@ -1194,23 +1195,23 @@ class Game:
             # Calculate screen pos of central stripe
             # Always work out stripe points even for pieces which don't need them, because the next track piece may
             # make use of the calculated points to connect up to
-            stripe_left = Vector3(HALF_STRIPE_W, 0, current_piece_z) + offset
-            stripe_right = Vector3(-HALF_STRIPE_W, 0, current_piece_z) + offset
+            stripe_left: Vector3 = Vector3(HALF_STRIPE_W, 0, current_piece_z) + offset
+            stripe_right: Vector3 = Vector3(-HALF_STRIPE_W, 0, current_piece_z) + offset
             stripe_left_screen = transform(stripe_left)
             stripe_right_screen = transform(stripe_right)
 
             # Calculate screen pos of outer parts of left/right rumble strips (can just use left/right track positions
             # for inner part that touches track)
-            rumble_strip_left_outer = left + Vector3(HALF_RUMBLE_STRIP_W, 0, 0)
-            rumble_strip_right_outer = right - Vector3(HALF_RUMBLE_STRIP_W, 0, 0)
+            rumble_strip_left_outer: Vector3 = left + Vector3(HALF_RUMBLE_STRIP_W, 0, 0)
+            rumble_strip_right_outer: Vector3 = right - Vector3(HALF_RUMBLE_STRIP_W, 0, 0)
             rumble_strip_left_outer_screen = transform(rumble_strip_left_outer)
             rumble_strip_right_outer_screen = transform(rumble_strip_right_outer)
 
             # Calculate screen pos of left and right yellow lines, which are just inside the outer edges of the track
-            yellow_line_left_outer = left - Vector3(YELLOW_LINE_DISTANCE_FROM_EDGE, 0, 0)
-            yellow_line_left_inner = yellow_line_left_outer - Vector3(HALF_YELLOW_LINE_W, 0, 0)
-            yellow_line_right_outer = right + Vector3(YELLOW_LINE_DISTANCE_FROM_EDGE, 0, 0)
-            yellow_line_right_inner = yellow_line_right_outer + Vector3(HALF_YELLOW_LINE_W, 0, 0)
+            yellow_line_left_outer: Vector3 = left - Vector3(YELLOW_LINE_DISTANCE_FROM_EDGE, 0, 0)
+            yellow_line_left_inner: Vector3 = yellow_line_left_outer - Vector3(HALF_YELLOW_LINE_W, 0, 0)
+            yellow_line_right_outer: Vector3 = right + Vector3(YELLOW_LINE_DISTANCE_FROM_EDGE, 0, 0)
+            yellow_line_right_inner: Vector3 = yellow_line_right_outer + Vector3(HALF_YELLOW_LINE_W, 0, 0)
             yellow_line_left_outer_screen = transform(yellow_line_left_outer)
             yellow_line_left_inner_screen = transform(yellow_line_left_inner)
             yellow_line_right_outer_screen = transform(yellow_line_right_outer)
@@ -1220,12 +1221,12 @@ class Game:
             if left_screen is not None and right_screen is not None:
                 # To draw, there must be a previous track piece that we can connect to
                 if prev_track_screen is not None:
-                    def any_on_screen(points):
+                    def any_on_screen(points: Any) -> bool:
                         # point[1] gets Y for both tuple pair and Vector2
-                        on_screen = [point for point in points if point[1] < HEIGHT]
+                        on_screen: list[Any] = [point for point in points if point[1] < HEIGHT]
                         return any(on_screen)
 
-                    def draw_polygon(points, col):
+                    def draw_polygon(points: Any, col: Any) -> None:
                         if USE_GFXDRAW:
                             if OUTLINE_W == 0:
                                 pygame.gfxdraw.filled_polygon(screen.surface, points, col)
@@ -1234,7 +1235,7 @@ class Game:
                         else:
                             pygame.draw.polygon(screen.surface, col, points, OUTLINE_W)
 
-                    def draw_points(points, col, id):
+                    def draw_points(points: Any, col: Any, id: str) -> None:
                         if any_on_screen(points):
                             add_to_draw_list( lambda col=col, points=points: draw_polygon(points, col), id)
 
@@ -1269,7 +1270,7 @@ class Game:
                     # in reverse order
                     if SHOW_RUMBLE_STRIPS:
                         # Alternating colours
-                        rumble_col = RUMBLE_COLOUR_1 if (i // 2) % 2 == 0 else RUMBLE_COLOUR_2
+                        rumble_col: tuple[int, int, int] = RUMBLE_COLOUR_1 if (i // 2) % 2 == 0 else RUMBLE_COLOUR_2
                         rumble_left_points = (prev_rumble_left_outer_screen, prev_track_screen[0], left_screen, rumble_strip_left_outer_screen)
                         rumble_right_points = (prev_rumble_right_outer_screen, prev_track_screen[1], right_screen, rumble_strip_right_outer_screen)
                         draw_points(rumble_left_points, rumble_col, "rumble L")
@@ -1278,7 +1279,7 @@ class Game:
                     # Draw trackside
                     if SHOW_TRACKSIDE:
                         # Alternating colours
-                        trackside_col = TRACKSIDE_COLOUR_1 if (i // 5) % 2 == 0 else TRACKSIDE_COLOUR_2
+                        trackside_col: tuple[int, int, int] = TRACKSIDE_COLOUR_1 if (i // 5) % 2 == 0 else TRACKSIDE_COLOUR_2
                         trackside_left_points = (points[2], points[3], (0, points[3].y), (0, points[2].y))
                         trackside_right_points = (points[0], points[1], (WIDTH - 1, points[1].y), (WIDTH - 1, points[0].y))
                         draw_points(trackside_left_points, trackside_col, "trackside left")
@@ -1297,12 +1298,12 @@ class Game:
 
                 # Show debug info for this track piece
                 if SHOW_TRACK_PIECE_INDEX or SHOW_TRACK_PIECE_OFFSETS:
-                    items = []
+                    items: list[str] = []
                     if SHOW_TRACK_PIECE_INDEX:
                         items.append(str(i))
                     if SHOW_TRACK_PIECE_OFFSETS:
                         items.extend([str(track_piece.offset_x), str(track_piece.offset_y)])
-                    text = ",".join(items)
+                    text: str = ",".join(items)
                     add_to_draw_list(lambda left_screen=left_screen, text=text:
                                         screen.draw.text(text, (left_screen[0], left_screen[1] - 30)))
 
@@ -1310,7 +1311,7 @@ class Game:
             if SHOW_SCENERY:
                 for obj in track_piece.scenery:
                     if track_ahead_i * SPACING < obj.max_draw_distance:
-                        pos_v3 = Vector3(obj.x, 0, current_piece_z) + offset
+                        pos_v3: Vector3 = Vector3(obj.x, 0, current_piece_z) + offset
                         if self.camera.z - current_piece_z > obj.min_draw_distance:
                             billboard = obj.get_image()
                             pos, scaled_w, scaled_h = transform(pos_v3, billboard.get_width() * obj.scale,
@@ -1321,7 +1322,7 @@ class Game:
                                 # Anchor point at bottom
                                 pos -= Vector2(scaled_w // 2, scaled_h)
                                 try:
-                                    profile_scale = Profiler()
+                                    profile_scale: Profiler = Profiler()
                                     scaled = SCALE_FUNC(billboard, (int(scaled_w), int(scaled_h)))
                                     times["scenery_scale"] += profile_scale.get_ms()
                                     add_to_draw_list(lambda scaled=scaled, pos=pos: screen.blit(scaled, pos),
@@ -1333,13 +1334,13 @@ class Game:
                                     print(f"SCALE ERROR, w/h: {scaled_w} {scaled_h}")
 
             # Draw cars
-            profile_prepare_draw_cars = Profiler()
-            cars_to_draw = []
+            profile_prepare_draw_cars: Profiler = Profiler()
+            cars_to_draw: list[dict[str, Any]] = []
             for car in track_piece.cars:
                 # Each car needs to be drawn during the track piece it is on, but with an additional offset interpolated
                 # towards the next track piece, so that it starts turning a corner as it reaches the piece
                 # Also, the order of  drawing needs to be correct if there is more than one car per track piece
-                car_offset = Vector3(offset)
+                car_offset: Vector3 = Vector3(offset)
                 if car.pos.z % SPACING != 0:
                     # Interpolate offset between this and next track piece
                     # Note that "Interpolate for X offset between first and next track piece"
@@ -1347,7 +1348,7 @@ class Game:
 
                     # The following lines deal with the car when it's moving onto a track piece with an offset
                     fraction = inverse_lerp(current_piece_z, current_piece_z - SPACING, car.pos.z)
-                    next_track_piece = self.track[i + 1]
+                    next_track_piece: TrackPiece = self.track[i + 1]
                     car_offset += Vector3(fraction * next_track_piece.offset_x,
                                           fraction * next_track_piece.offset_y, -fraction * SPACING)
 
@@ -1364,7 +1365,7 @@ class Game:
                     car_offset.y = 0
 
                 pos_v3 = Vector3(car.pos.x, 0, current_piece_z) + car_offset
-                scale = 2
+                scale: int = 2
 
                 # For CPU cars, choose the sprite to use based on the car's angle in relation to the camera
                 if isinstance(car, CPUCar):
@@ -1372,10 +1373,10 @@ class Game:
                     # The further the car is ahead, the smaller the effect
                     # The car sprite filenames end in a number in the range -4 to 4, where 0 is the car not turning,
                     # -1 is the car turning slightly to the left, 1 is turning slightly to the right, etc
-                    z_distance = max(1, -(pos_v3.z - self.camera.z))
-                    offset_for_angle = (pos_v3.x - self.camera.x) / z_distance
+                    z_distance: float = max(1, -(pos_v3.z - self.camera.z))
+                    offset_for_angle: float = (pos_v3.x - self.camera.x) / z_distance
                     offset_for_angle += -car.steering * 10
-                    angle_sprite_idx = int(remap_clamp(offset_for_angle, -200, 200, -4, 4))
+                    angle_sprite_idx: int = int(remap_clamp(offset_for_angle, -200, 200, -4, 4))
 
                     # If this is the camera follow car (which for a CPU car will only be the case during
                     # the title screen), limit to only the shallowest angles (-1 to 1), as this car is a stand-in
@@ -1405,7 +1406,7 @@ class Game:
                     cars_to_draw.append({"z": car.pos.z, "drawcall": lambda scaled=scaled, pos=pos: screen.blit(scaled, pos)})
 
                     if SHOW_CPU_CAR_SPEEDS and isinstance(car, CPUCar):
-                        output = f"{car.target_speed:.0f}"
+                        output: str = f"{car.target_speed:.0f}"
                         add_to_draw_list(lambda pos=pos, output=output: draw_text(output, pos.x, pos.y - 40))
 
             times["prepare_draw_cars"] += profile_prepare_draw_cars.get_ms()
@@ -1417,7 +1418,7 @@ class Game:
 
         # Draw everything in draw_list, in reverse order - so that items furthest ahead are drawn first
         for draw_call, type in reversed(draw_list):
-            profiler = Profiler()
+            profiler: Profiler = Profiler()
             draw_call()
             if type not in times:
                 times[type] = profiler.get_ms()
@@ -1429,7 +1430,7 @@ class Game:
             # Show info text
             # Adapt to varying window widths by using fractions of WIDTH instead of absolute coordinates
 
-            player_pos = self.cars.index(self.player_car) + 1
+            player_pos: int = self.cars.index(self.player_car) + 1
 
             # Show race complete or time up screens if relevant
             if self.time_up:
@@ -1448,7 +1449,7 @@ class Game:
                 # Race not complete - show status text at top of screen
 
                 # Show status background
-                status_x = (WIDTH /2) - (565 / 2)
+                status_x: float = (WIDTH /2) - (565 / 2)
                 screen.blit("status", (status_x, 0))
 
                 # Show lap
@@ -1465,7 +1466,7 @@ class Game:
 
                 # Show fastest lap
                 if self.player_car.last_lap_was_fastest and self.player_car.lap_time < 4:
-                    y = HEIGHT * 0.4
+                    y: float = HEIGHT * 0.4
                     draw_text("FASTEST LAP!", WIDTH // 2, y, centre=True)
                     draw_text(format_time(self.player_car.fastest_lap), WIDTH // 2, y + 60, centre=True)
 
@@ -1498,8 +1499,8 @@ class Game:
     # Returns index of track piece at the specified Z position, or None if the specified position is off the end
     # of the track
     # e.g. track piece 0 goes from Z 0 to -0.999, etc
-    def get_track_piece_for_z(self, z):
-        idx = -int(z / SPACING)
+    def get_track_piece_for_z(self, z: float) -> Optional[int]:
+        idx: int = -int(z / SPACING)
         if idx >= len(self.track):
             return None
         else:
@@ -1507,15 +1508,15 @@ class Game:
 
     # Returns index and Z position of first track piece ahead of or exactly at the specified Z position, or None,None
     # if the specified position is off the end of the track
-    def get_first_track_piece_ahead(self, z):
-        idx = -int(math.floor(z / SPACING))
-        first_piece_z = -idx * SPACING
+    def get_first_track_piece_ahead(self, z: float) -> tuple[Any, Any]:
+        idx: int = -int(math.floor(z / SPACING))
+        first_piece_z: int = -idx * SPACING
         if idx >= len(self.track):
             return None, None
         else:
             return idx, first_piece_z
 
-    def play_sound(self, name, count=1):
+    def play_sound(self, name: str, count: int = 1) -> None:
         # Some sounds have multiple varieties. If count > 1, we'll randomly choose one from those
         # We don't play any sounds if there is no player (e.g. if we're on the menu)
         try:
@@ -1533,17 +1534,17 @@ class Game:
             # Also occurs if sound fails to play for another reason (e.g. if this machine has no sound hardware)
             print(e)
 
-def get_joystick_if_exists():
+def get_joystick_if_exists() -> Any:
     return pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
 
-def setup_joystick_controls():
+def setup_joystick_controls() -> None:
     # We call this on startup, and keep calling it if no controller is present,
     # so a controller can be connected while the game is open
     global joystick_controls
     joystick = get_joystick_if_exists()
     joystick_controls = JoystickControls(joystick) if joystick is not None else None
 
-def update_controls():
+def update_controls() -> None:
     keyboard_controls.update()
     # Allow a controller to be connected while the game is open
     if joystick_controls is None:
@@ -1559,13 +1560,13 @@ class State(Enum):
 
 # Pygame Zero calls the update and draw functions each frame
 
-def update(delta_time):
+def update(delta_time: float) -> None:
     # delta_time is the time passed (in seconds) since the previous frame
     global state, game, accumulated_time, demo_reset_timer, demo_start_timer
 
     update_controls()
 
-    def button_pressed_controls(button_num):
+    def button_pressed_controls(button_num: int) -> Any:
         # Local function for detecting button 0 being pressed on either keyboard or controller, returns the controls
         # object which was used to press it, or None if button was not pressed
         for controls in (keyboard_controls, joystick_controls):
@@ -1613,7 +1614,7 @@ def update(delta_time):
         accumulated_time -= FIXED_TIMESTEP
         game.update(FIXED_TIMESTEP)
 
-def draw():
+def draw() -> None:
     game.draw()
 
     if state == State.TITLE:
@@ -1621,8 +1622,8 @@ def draw():
             # Fade out screen prior to resetting demo game, and fade in whenever demo (re)starts
             # Draw a black image with gradually increasing/decreasing opacity
             # An alpha value of 255 is fully opaque, 0 is fully transparent
-            value = demo_reset_timer if demo_reset_timer < 1 else demo_start_timer
-            alpha = min(255, 255-(value*255))
+            value: float = demo_reset_timer if demo_reset_timer < 1 else demo_start_timer
+            alpha: float = min(255, 255-(value*255))
             fade_to_black_image.set_alpha(alpha)
             fade_to_black_image.fill((0,0,0))
             screen.blit(fade_to_black_image, (0, 0))
@@ -1630,7 +1631,7 @@ def draw():
         # Construct start game text
         # On macOS, encourage the user to use Z instead of left control to accelerate, because
         # Ctrl+arrow is the keyboard shortcut to switch desktop
-        text = f"PRESS {SPECIAL_FONT_SYMBOLS['xb_a']} OR {'Z' if 'Darwin' in platform.version() else 'LEFT CONTROL'}"
+        text: str = f"PRESS {SPECIAL_FONT_SYMBOLS['xb_a']} OR {'Z' if 'Darwin' in platform.version() else 'LEFT CONTROL'}"
 
         # Draw start game text
         draw_text(text, WIDTH//2, HEIGHT - 82, True)
@@ -1639,14 +1640,14 @@ def draw():
         logo_img = images.logo
         screen.blit(logo_img, (WIDTH//2 - logo_img.get_width() // 2, HEIGHT//3 - logo_img.get_height() // 2))
 
-def play_music(name):
+def play_music(name: str) -> None:
     try:
         music.play(name)
     except Exception:
         # If an error occurs (e.g. no sound hardware), ignore it
         pass
 
-def stop_music():
+def stop_music() -> None:
     try:
         music.stop()
     except Exception:
@@ -1668,17 +1669,18 @@ except Exception:
     pass
 
 # Set up controls
-keyboard_controls = KeyboardControls()
+keyboard_controls: KeyboardControls = KeyboardControls()
+joystick_controls: Any
 setup_joystick_controls()
 
 # Set up initial state and Game object
-state = State.TITLE
-game = Game()
+state: State = State.TITLE
+game: Game = Game()
 
-demo_reset_timer = 2 * 60    # Demo race resets after 2 mins
-demo_start_timer = 0
+demo_reset_timer: float = 2 * 60    # Demo race resets after 2 mins
+demo_start_timer: float = 0
 
-accumulated_time = 0
+accumulated_time: float = 0
 
 # Tell Pygame Zero to take over
 pgzrun.go()

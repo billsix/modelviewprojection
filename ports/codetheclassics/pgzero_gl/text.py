@@ -5,22 +5,27 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- text rendering, without pygame/ptext.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# text.py -- PyGame Zero's screen.draw.text() goes through `ptext`, which
-# rasterizes a string to a pygame Surface and blits it.  We do the same with
-# Pillow (already a project dependency): render the string to an RGBA bitmap,
-# wrap it as a lazily-uploaded GL texture, cache by (text, size, colour), and
-# blit at the requested anchor.  The games only use a small subset of ptext's
-# options -- colour, fontsize, and one positional anchor (pos / topleft /
-# center / ...).
+"""Text rendering, without pygame/ptext -- backs ``screen.draw.text()``.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+PyGame Zero's ``screen.draw.text()`` goes through ``ptext``, which rasterizes a
+string to a pygame Surface and blits it. We do the same with Pillow (already a
+project dependency): render the string to an RGBA bitmap, wrap it as a
+lazily-uploaded GL texture (:class:`pgzero_gl.resources.Image`), cache by
+``(text, size, colour)``, and blit at the requested anchor. The games only use a
+small subset of ptext's options -- colour, fontsize, and one positional anchor
+(``pos`` / ``topleft`` / ``center`` / ...).
+"""
+
+from __future__ import annotations
 
 import os
+from typing import Any
 
 import numpy as np
 from PIL import Image as PILImage
@@ -31,7 +36,7 @@ from .resources import Image
 DEFAULT_FONT_SIZE = 24
 
 # Anchor keyword -> (horizontal fraction, vertical fraction) of the text box.
-_ANCHORS = {
+_ANCHORS: dict[str, tuple[float, float]] = {
     "topleft": (0.0, 0.0),
     "midtop": (0.5, 0.0),
     "topright": (1.0, 0.0),
@@ -44,11 +49,13 @@ _ANCHORS = {
     "bottomright": (1.0, 1.0),
 }
 
-_font_cache = {}
-_text_cache = {}
+# (fontname, size) -> a loaded PIL font; (text, size, colour, fontname) -> Image.
+_font_cache: dict[tuple[str | None, int], Any] = {}
+_text_cache: dict[tuple[Any, ...], Image] = {}
 
 
-def _find_font():
+def _find_font() -> str | None:
+    """Return a path to a system DejaVuSans TTF, or ``None`` if none is found."""
     for p in (
         "/usr/share/fonts/dejavu-sans-fonts/DejaVuSans.ttf",
         "/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf",
@@ -59,29 +66,35 @@ def _find_font():
     return None
 
 
-def _get_font(fontname, size):
-    key = (fontname, size)
+def _get_font(fontname: str | None, size: int) -> Any:
+    """Return a cached PIL font for ``(fontname, size)`` (game font, system, or default)."""
+    key: tuple[str | None, int] = (fontname, size)
     if key in _font_cache:
         return _font_cache[key]
-    path = None
+    path: str | None = None
     if fontname:
         # game-supplied font name -> fonts/<name>.ttf
         from . import context
 
-        cand = os.path.join(context.get_asset_root(), "fonts", fontname + ".ttf")
+        cand: str = os.path.join(
+            context.get_asset_root(), "fonts", fontname + ".ttf"
+        )
         if os.path.exists(cand):
             path = cand
     if path is None:
         path = _find_font()
     try:
-        font = ImageFont.truetype(path, size) if path else ImageFont.load_default()
+        font: Any = (
+            ImageFont.truetype(path, size) if path else ImageFont.load_default()
+        )
     except Exception:
         font = ImageFont.load_default()
     _font_cache[key] = font
     return font
 
 
-def _to_rgb(color):
+def _to_rgb(color: Any) -> tuple[int, ...]:
+    """Coerce a colour (None / name / RGB(A) sequence) to an RGB int tuple."""
     if color is None:
         return (255, 255, 255)
     if isinstance(color, str):
@@ -99,46 +112,47 @@ def _to_rgb(color):
     return tuple(color)
 
 
-def _render(text, size, color, fontname):
-    key = (text, size, color, fontname)
-    img = _text_cache.get(key)
+def _render(text: str, size: int, color: Any, fontname: str | None) -> Image:
+    """Rasterize ``text`` to a cached :class:`Image` (RGBA bitmap + lazy GL texture)."""
+    key: tuple[Any, ...] = (text, size, color, fontname)
+    img: Image | None = _text_cache.get(key)
     if img is not None:
         return img
-    font = _get_font(fontname, size)
+    font: Any = _get_font(fontname=fontname, size=size)
     # Measure.
-    dummy = PILImage.new("RGBA", (1, 1))
+    dummy: Any = PILImage.new("RGBA", (1, 1))
     from PIL import ImageDraw
 
-    d = ImageDraw.Draw(dummy)
+    d: Any = ImageDraw.Draw(dummy)
     try:
         bbox = d.textbbox((0, 0), text, font=font)
-        w, h = max(1, bbox[2] - bbox[0]), max(1, bbox[3] - bbox[1])
+        w, h = int(max(1, bbox[2] - bbox[0])), int(max(1, bbox[3] - bbox[1]))
         ox, oy = bbox[0], bbox[1]
     except Exception:
-        w, h = d.textsize(text, font=font)
+        w, h = getattr(d, "textsize")(text, font=font)  # legacy Pillow fallback
         ox, oy = 0, 0
-        w, h = max(1, w), max(1, h)
-    surf = PILImage.new("RGBA", (w, h), (0, 0, 0, 0))
+        w, h = int(max(1, w)), int(max(1, h))
+    surf: Any = PILImage.new("RGBA", (w, h), (0, 0, 0, 0))
     ImageDraw.Draw(surf).text((-ox, -oy), text, font=font, fill=_to_rgb(color) + (255,))
     img = Image.from_rgba(np.array(surf))
     _text_cache[key] = img
     return img
 
 
-def draw(text, surf=None, **kwargs):
+def draw(text: object, surf: Any = None, **kwargs: Any) -> None:
     """screen.draw.text(text, pos=..., color=..., fontsize=...).  One of the
     anchor keywords (pos == topleft) gives the position."""
     from . import context
 
     text = str(text)
     color = kwargs.get("color", (255, 255, 255))
-    size = int(kwargs.get("fontsize", DEFAULT_FONT_SIZE))
+    size: int = int(kwargs.get("fontsize", DEFAULT_FONT_SIZE))
     fontname = kwargs.get("fontname")
 
-    img = _render(text, size, color, fontname)
+    img: Image = _render(text=text, size=size, color=color, fontname=fontname)
 
     # Determine anchor + position.
-    anchor = "topleft"
+    anchor: str = "topleft"
     pos = kwargs.get("pos")
     if pos is None:
         for name in _ANCHORS:
@@ -151,4 +165,4 @@ def draw(text, surf=None, **kwargs):
 
     fx, fy = _ANCHORS.get(anchor, (0.0, 0.0))
     topleft = (pos[0] - img.width * fx, pos[1] - img.height * fy)
-    context.require_renderer().draw_image(img, topleft)
+    context.require_renderer().draw_image(image=img, topleft=topleft)

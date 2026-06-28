@@ -5,122 +5,187 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- sound + music, without pygame.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# audio.py -- PyGame Zero gets audio from pygame.mixer (SDL).  We deliberately
-# avoid pygame here (the project's host runs an SDL2-on-SDL3 shim that breaks
-# SDL audio).  Instead we use `just_playback` (a thin wrapper over the bundled
-# miniaudio C library; ogg/wav/mp3, per-instance volume + looping).
-#
-# Audio is BEST EFFORT: if the backend can't be imported or a device can't be
-# opened, every call becomes a no-op.  The original games already wrap sound in
-# try/except, so silence never breaks gameplay -- and on-screen GL is what gets
-# human-verified here anyway (no audio device in the build container).
+"""Sound + music, without pygame -- PyGame Zero's ``sounds`` and ``music``.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+PyGame Zero gets audio from ``pygame.mixer`` (SDL). We deliberately avoid pygame
+here (the project's host runs an SDL2-on-SDL3 shim that breaks SDL audio).
+Instead we use ``just_playback`` (a thin wrapper over the bundled miniaudio C
+library; ogg/wav/mp3, per-instance volume + looping).
+
+Audio is BEST EFFORT: if the backend can't be imported or a device can't be
+opened, every call becomes a no-op. The original games already wrap sound in
+try/except, so silence never breaks gameplay -- and on-screen GL is what gets
+human-verified here anyway (no audio device in the build container).
+
+``just_playback`` ships no type information, so its ``Playback`` handle is typed
+``Any`` at this boundary.
+"""
+
+from __future__ import annotations
 
 import os
+from typing import Any
 
 from . import context
 
+# ``Playback`` factory (or None if the backend is unavailable); Any because
+# just_playback is untyped.
+_Playback: Any = None
+_BACKEND: bool = False
 try:
-    from just_playback import Playback as _Playback
+    import just_playback as _jp
 
+    _Playback = _jp.Playback
     _BACKEND = True
 except Exception:  # pragma: no cover - depends on runtime env
-    _Playback = None
-    _BACKEND = False
+    pass
 
 
-def available():
+def available() -> bool:
+    """Return whether an audio backend loaded (False -> all audio is a no-op)."""
     return _BACKEND
 
 
+# Max simultaneous voices kept alive per effect.  CRUCIAL: just_playback opens a
+# miniaudio stream per Playback and has NO finalizer, so a *dropped* Playback
+# leaks its audio stream forever.  We therefore keep a bounded pool per Sound and
+# RE-USE finished voices (load_file recycles the underlying stream) instead of
+# creating-and-dropping a fresh Playback each play -- otherwise rapid effects
+# (e.g. mashing a movement key) exhaust the OS audio backend and the game freezes.
+_MAX_VOICES_PER_SOUND = 8
+
+
 class Sound:
-    """A single sound effect, loaded from a file path.  `play()` spins up a
-    fresh playback each call so effects can overlap."""
+    """A single sound effect.  ``play()`` reuses a bounded pool of playback voices
+    so overlapping effects work without leaking miniaudio streams."""
 
-    def __init__(self, path):
+    def __init__(self, path: str) -> None:
         self.path = path
-        self._instances = []
+        self._instances: list[Any] = []
+        self._volume: float = 1.0
 
-    def play(self, loops=0):
+    def _acquire(self) -> Any:
+        """Return a playback voice (already file-loaded) to (re)use: a finished one
+        if available, else a new one up to the cap, else the oldest (stopped)."""
+        for p in self._instances:
+            if not _active(p):
+                return p
+        if len(self._instances) < _MAX_VOICES_PER_SOUND:
+            p = _Playback()
+            # Decode + open the stream ONCE per voice.  Doing this per *play*
+            # re-decodes the file and re-inits the audio device every time, which
+            # stutters the frame rate when an effect fires rapidly (e.g. a held
+            # movement key).  Subsequent plays just restart this loaded voice.
+            p.load_file(self.path)
+            self._instances.append(p)
+            return p
+        # All voices busy and at the cap: reuse the oldest (already loaded) rather
+        # than leak a new stream.
+        p = self._instances.pop(0)
+        try:
+            p.stop()
+        except Exception:
+            pass
+        self._instances.append(p)
+        return p
+
+    def play(self, loops: int = 0, maxtime: int = 0, fade_ms: int = 0) -> None:
+        """Play the effect (overlapping prior plays); ``loops != 0`` loops it.
+
+        ``maxtime``/``fade_ms`` are accepted for ``pygame.mixer.Sound.play``
+        compatibility but ignored (the backend has no real fade).
+        """
         if not _BACKEND:
             return
         try:
-            pb = _Playback()
-            pb.load_file(self.path)
-            if loops != 0:
-                pb.loop_at_end(True)
-            pb.play()
+            pb = self._acquire()  # already has the file loaded
+            pb.loop_at_end(loops != 0)
+            pb.set_volume(self._volume)
+            pb.play()  # restarts this voice from the start; no re-decode
         except Exception:
             return
-        # Keep references so they aren't garbage-collected mid-play; drop any
-        # that have finished.
-        self._instances = [p for p in self._instances if _active(p)]
-        self._instances.append(pb)
 
-    def stop(self):
+    def stop(self) -> None:
+        """Stop all currently-playing instances of this effect (voices are kept
+        pooled for reuse -- dropping them would leak their miniaudio streams)."""
         for p in self._instances:
             try:
                 p.stop()
             except Exception:
                 pass
-        self._instances.clear()
+
+    def set_volume(self, v: float) -> None:
+        """Set this effect's volume (0.0-1.0), applied to current + future plays."""
+        self._volume = v
+        for p in self._instances:
+            try:
+                p.set_volume(v)
+            except Exception:
+                pass
+
+    def get_volume(self) -> float:
+        """Return this effect's current volume (0.0-1.0)."""
+        return self._volume
+
+    def fadeout(self, time: int = 0) -> None:
+        # No real fade in the backend; stop is a faithful-enough fallback.
+        """Stop the effect (the backend has no real fade; ``time`` is ignored)."""
+        self.stop()
 
 
 class _Music:
     """The single streamed background track (pgzero's `music` object)."""
 
-    def __init__(self):
-        self._pb = None
-        self._volume = 1.0
+    def __init__(self) -> None:
+        self._pb: Any = None
+        self._volume: float = 1.0
 
-    def _path(self, name):
-        base = os.path.join(context.get_asset_root(), "music", name)
+    def _path(self, name: str) -> str | None:
+        """Resolve a track ``name`` to a file under ``music/``, or ``None``."""
+        base: str = os.path.join(context.get_asset_root(), "music", name)
         if os.path.isfile(base):
             return base
         for ext in ("ogg", "mp3", "wav"):
-            p = base + "." + ext
+            p: str = base + "." + ext
             if os.path.exists(p):
                 return p
         return None
 
-    def play(self, name):
+    def _play(self, name: str, loop: bool) -> None:
+        """Switch to track ``name`` by reloading the single reused Playback (which
+        recycles its stream), rather than dropping it and leaking the old stream."""
         if not _BACKEND:
             return
-        self.stop()
-        p = self._path(name)
+        p: str | None = self._path(name)
         if not p:
+            self.stop()
             return
         try:
-            self._pb = _Playback()
+            if self._pb is None:
+                self._pb = _Playback()
             self._pb.load_file(p)
-            self._pb.loop_at_end(True)
+            self._pb.loop_at_end(loop)
             self._pb.set_volume(self._volume)
             self._pb.play()
         except Exception:
             self._pb = None
 
-    def play_once(self, name):
-        if not _BACKEND:
-            return
-        self.stop()
-        p = self._path(name)
-        if not p:
-            return
-        try:
-            self._pb = _Playback()
-            self._pb.load_file(p)
-            self._pb.set_volume(self._volume)
-            self._pb.play()
-        except Exception:
-            self._pb = None
+    def play(self, name: str) -> None:
+        """Stop any current track and start ``name`` looping."""
+        self._play(name, True)
 
-    def set_volume(self, v):
+    def play_once(self, name: str) -> None:
+        """Stop any current track and start ``name`` once (no loop)."""
+        self._play(name, False)
+
+    def set_volume(self, v: float) -> None:
+        """Set the music volume (0.0-1.0), applied to the current track if any."""
         self._volume = v
         if self._pb is not None:
             try:
@@ -128,23 +193,27 @@ class _Music:
             except Exception:
                 pass
 
-    def get_volume(self):
+    def get_volume(self) -> float:
+        """Return the current music volume (0.0-1.0)."""
         return self._volume
 
-    def stop(self):
+    def stop(self) -> None:
+        """Stop the current track.  The Playback is kept for reuse -- dropping it
+        would leak its miniaudio stream (just_playback has no finalizer)."""
         if self._pb is not None:
             try:
                 self._pb.stop()
             except Exception:
                 pass
-            self._pb = None
 
-    def fadeout(self, seconds):
+    def fadeout(self, seconds: float) -> None:
         # No real fade in the backend; stop is a faithful-enough fallback.
+        """Stop the track (the backend has no real fade; ``seconds`` is ignored)."""
         self.stop()
 
 
-def _active(pb):
+def _active(pb: Any) -> bool:
+    """Return whether a just_playback handle is still playing (False on any error)."""
     try:
         return pb.active
     except Exception:

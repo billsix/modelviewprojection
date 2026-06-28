@@ -5,27 +5,37 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- the Actor sprite.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# actor.py -- PyGame Zero's Actor: an image positioned by a (default: centre)
-# anchor, in top-left-origin pixel space.  We reproduce its behaviour exactly so
-# ported game code is unchanged:
-#   * `.image = "name"` (re)loads images/name.png, keeping the anchor position;
-#   * `.pos`/`.x`/`.y` are the anchor position; `.left`/`.center`/... are rect
-#     edges delegated to an underlying Rect;
-#   * `.angle` rotates about the anchor;
-#   * arbitrary game attributes (`.dx`, `.speed`, ...) pass through to the
-#     instance dict.
+"""The :class:`Actor` sprite -- PyGame Zero's positioned, anchored image.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+An :class:`Actor` is an image positioned by an anchor (default: centre) in
+top-left-origin pixel space. We reproduce pgzero's behaviour exactly so ported
+game code is unchanged:
+
+* ``actor.image = "name"`` (re)loads ``images/name.png``, keeping the anchor
+  position;
+* ``actor.pos`` / ``.x`` / ``.y`` are the anchor position; ``.left`` / ``.center``
+  / ... are rect edges delegated to an underlying :class:`Rect`;
+* ``actor.angle`` rotates about the anchor;
+* arbitrary game attributes (``.dx``, ``.speed``, ...) pass through to the
+  instance dict.
+
+The routing that makes all that work lives in :meth:`Actor.__getattr__` /
+:meth:`Actor.__setattr__`, which is why most values here are typed ``Any``.
+"""
+
+from __future__ import annotations
 
 from math import atan2, degrees, sqrt
+from typing import Any, Iterator, Tuple
 
 from . import context
-from .geometry import Rect
+from .geometry import ZRect
 
 _ANCHOR_FRAC = {
     "x": {"left": 0.0, "center": 0.5, "middle": 0.5, "right": 1.0},
@@ -41,15 +51,31 @@ _DELEGATED = {
 }
 
 
-def _calc(value, dim, total):
+def _calc(value: Any, dim: str, total: float) -> float:
+    """Resolve an anchor component: a named fraction (``"center"``) times ``total``,
+    or a literal pixel offset."""
     if isinstance(value, str):
         return total * _ANCHOR_FRAC[dim][value]
     return float(value)
 
 
 class Actor:
-    def __init__(self, image, pos=None, anchor=None, **kwargs):
-        object.__setattr__(self, "_rect", Rect(0, 0, 0, 0))
+    """A pgzero ``Actor``: an image positioned by a (default-centre) anchor."""
+
+    # Private state, set via object.__setattr__ to bypass the routing below.
+    # ZRect (float coords): an Actor's anchor position is stored here, so
+    # movement at non-integer speeds keeps its sub-pixel precision instead of
+    # truncating each frame (pygame.Rect / our int Rect would drift).
+    _rect: ZRect
+    _anchor_value: Any
+    _angle: float
+    _image: Any
+    _image_name: str | None
+
+    def __init__(
+        self, image: Any, pos: Any = None, anchor: Any = None, **kwargs: Any
+    ) -> None:
+        object.__setattr__(self, "_rect", ZRect(0, 0, 0, 0))
         object.__setattr__(
             self, "_anchor_value", anchor if anchor is not None else ("center", "center")
         )
@@ -62,7 +88,9 @@ class Actor:
         if pos is not None:
             self._set_pos(pos)
         else:
-            sym = {k: v for k, v in kwargs.items() if k in _DELEGATED}
+            sym: dict[str, Any] = {
+                k: v for k, v in kwargs.items() if k in _DELEGATED
+            }
             if sym:
                 k, v = next(iter(sym.items()))
                 setattr(self._rect, k, v)
@@ -70,11 +98,12 @@ class Actor:
                 self._rect.topleft = (0, 0)
 
     # -- image ----------------------------------------------------------------
-    def _set_image(self, image):
+    def _set_image(self, image: Any) -> None:
+        """Set/replace the sprite image (by name or Image), preserving the anchor pos."""
         from .resources import images
 
         img = images.load(image) if isinstance(image, str) else image
-        keep = None
+        keep: Tuple[float, float] | None = None
         if self._image is not None:
             keep = self._anchor_pos()
         object.__setattr__(self, "_image", img)
@@ -86,24 +115,27 @@ class Actor:
             self._set_pos(keep)
 
     # -- anchor / position ----------------------------------------------------
-    def _anchor_offset(self):
+    def _anchor_offset(self) -> Tuple[float, float]:
+        """Return the anchor's pixel offset from the rect's top-left corner."""
         av = self._anchor_value
         return (
-            _calc(av[0], "x", self._rect.width),
-            _calc(av[1], "y", self._rect.height),
+            _calc(value=av[0], dim="x", total=self._rect.width),
+            _calc(value=av[1], dim="y", total=self._rect.height),
         )
 
-    def _anchor_pos(self):
+    def _anchor_pos(self) -> Tuple[float, float]:
+        """Return the current anchor position in pixel space."""
         ox, oy = self._anchor_offset()
         return (self._rect.left + ox, self._rect.top + oy)
 
-    def _set_pos(self, pos):
+    def _set_pos(self, pos: Any) -> None:
+        """Move the sprite so its anchor lands on ``pos``."""
         ox, oy = self._anchor_offset()
         self._rect.left = pos[0] - ox
         self._rect.top = pos[1] - oy
 
     # -- attribute routing ----------------------------------------------------
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> Any:
         # only called when normal lookup fails
         if name == "x":
             return self._anchor_pos()[0]
@@ -121,7 +153,7 @@ class Actor:
             return getattr(self._rect, name)
         raise AttributeError(name)
 
-    def __setattr__(self, name, value):
+    def __setattr__(self, name: str, value: Any) -> None:
         if name.startswith("_"):
             object.__setattr__(self, name, value)
             return
@@ -149,30 +181,35 @@ class Actor:
         object.__setattr__(self, name, value)
 
     # -- drawing & geometry ---------------------------------------------------
-    def draw(self):
+    def draw(self) -> None:
+        """Draw the sprite at its current position/angle via the active renderer."""
         context.require_renderer().draw_image(
-            self._image,
-            self._rect.topleft,
+            image=self._image,
+            topleft=self._rect.topleft,
             angle=self._angle,
             anchor=self._anchor_pos(),
         )
 
-    def angle_to(self, target):
+    def angle_to(self, target: Any) -> float:
+        """Return the angle (degrees) from this actor to ``target`` (Actor or point)."""
         tx, ty = target.pos if isinstance(target, Actor) else target
         mx, my = self.pos
         return degrees(atan2(my - ty, tx - mx))  # screen y inverted
 
-    def distance_to(self, target):
+    def distance_to(self, target: Any) -> float:
+        """Return the distance from this actor to ``target`` (Actor or point)."""
         tx, ty = target.pos if isinstance(target, Actor) else target
         mx, my = self.pos
         return sqrt((tx - mx) ** 2 + (ty - my) ** 2)
 
-    def colliderect(self, other):
+    def colliderect(self, other: Any) -> bool:
+        """Return whether this actor's rect overlaps ``other`` (Actor or Rect)."""
         o = other._rect if isinstance(other, Actor) else other
         return self._rect.colliderect(o)
 
-    def collidepoint(self, *p):
+    def collidepoint(self, *p: Any) -> bool:
+        """Return whether the point ``p`` lies within this actor's rect."""
         return self._rect.collidepoint(*p)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[float]:
         return iter(self._rect)

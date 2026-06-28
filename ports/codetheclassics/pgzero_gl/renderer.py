@@ -5,23 +5,36 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- a PyGame Zero compatibility shim on GLFW + OpenGL 3.3 core.
-#
-# Part of the ModelViewProjection port of "Code the Classics" from PyGame Zero
-# to modern OpenGL.  The original games are (c) Raspberry Pi Press and their
-# authors; see the per-game files for attribution.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# renderer.py -- the GL back end.  PyGame Zero draws by blitting CPU surfaces in
-# a top-left-origin, y-down pixel coordinate system.  We reproduce that exactly
-# with an orthographic projection and textured quads, so the ported game code
-# can keep its original pixel coordinates unchanged.
+"""The OpenGL 3.3 core back end -- textured quads in pgzero pixel space.
 
-import ctypes
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+PyGame Zero draws by blitting CPU surfaces in a top-left-origin, y-down pixel
+coordinate system. We reproduce that exactly with an orthographic projection
+(:func:`ortho_pixels`) and textured quads, so the ported game code keeps its
+original pixel coordinates unchanged. One shader program does both jobs --
+textured sprites and flat-colour primitives -- switched by the ``uUseTex``
+uniform and multiplied by a ``uTint`` colour. :class:`pgzero_gl.renderer_gl1` is
+the fixed-function sibling that draws the same pixels for old GL stacks.
+
+Matrices are row-major numpy, uploaded with ``transpose=GL_TRUE``; all
+coordinates are pgzero pixels: ``(0, 0)`` top-left, ``+x`` right, ``+y`` down.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Tuple
 
 import numpy as np
 import OpenGL.GL as GL
+from numpy.typing import NDArray
+
+if TYPE_CHECKING:
+    from ._types import Drawable, PointLike
 
 # ---------------------------------------------------------------------------
 # Matrix helpers (row-major numpy; uploaded with transpose=GL_TRUE).
@@ -29,31 +42,35 @@ import OpenGL.GL as GL
 # ---------------------------------------------------------------------------
 
 
-def _identity():
+def _identity() -> NDArray[np.float32]:
+    """Return a 4x4 identity matrix."""
     return np.identity(4, dtype=np.float32)
 
 
-def _translate(x, y):
-    m = _identity()
+def _translate(x: float, y: float) -> NDArray[np.float32]:
+    """Return a 4x4 translation by ``(x, y)`` pixels."""
+    m: NDArray[np.float32] = _identity()
     m[0, 3] = x
     m[1, 3] = y
     return m
 
 
-def _scale(sx, sy):
-    m = _identity()
+def _scale(sx: float, sy: float) -> NDArray[np.float32]:
+    """Return a 4x4 non-uniform scale by ``(sx, sy)``."""
+    m: NDArray[np.float32] = _identity()
     m[0, 0] = sx
     m[1, 1] = sy
     return m
 
 
-def _rotate_z(degrees):
+def _rotate_z(degrees: float) -> NDArray[np.float32]:
+    """Return a 4x4 rotation about z; positive turns the sprite visually CCW."""
     # PyGame's transform.rotate turns the image counter-clockwise (as seen on
     # screen) for a positive angle.  Screen y is inverted relative to maths y,
     # so the visual CCW rotation uses this sign convention.
     t = np.radians(degrees)
     c, s = np.cos(t), np.sin(t)
-    m = _identity()
+    m: NDArray[np.float32] = _identity()
     m[0, 0] = c
     m[0, 1] = s
     m[1, 0] = -s
@@ -61,9 +78,9 @@ def _rotate_z(degrees):
     return m
 
 
-def ortho_pixels(width, height):
+def ortho_pixels(width: float, height: float) -> NDArray[np.float32]:
     """Map pixel space (0,0)=top-left .. (width,height)=bottom-right to NDC."""
-    m = _identity()
+    m: NDArray[np.float32] = _identity()
     m[0, 0] = 2.0 / width
     m[0, 3] = -1.0
     m[1, 1] = -2.0 / height
@@ -108,8 +125,12 @@ void main() {
 """
 
 
-def _compile(src, kind):
-    sid = GL.glCreateShader(kind)
+def _compile(src: str, kind: Any) -> int:
+    """Compile one GLSL shader of the given ``kind``; raise on a compile error.
+
+    ``kind`` is a PyOpenGL ``GL_*_SHADER`` constant (opaque, so typed ``Any``).
+    """
+    sid: int = GL.glCreateShader(kind)
     GL.glShaderSource(sid, src)
     GL.glCompileShader(sid)
     if GL.glGetShaderiv(sid, GL.GL_COMPILE_STATUS) != GL.GL_TRUE:
@@ -118,20 +139,22 @@ def _compile(src, kind):
 
 
 class Renderer:
-    """Owns the GL program and the quad/line buffers.  Created once, after the
-    GL context exists (see runner.py)."""
+    """Owns the GL program and the quad/line buffers.
 
-    def __init__(self, width, height):
+    Created once, after the GL context exists (see :mod:`pgzero_gl.runner`).
+    """
+
+    def __init__(self, width: int, height: int) -> None:
         self.width = width          # logical (game) pixels
         self.height = height
         # Framebuffer pixels -- may exceed logical on HiDPI / scaled displays.
         # Updated every begin_frame from the real framebuffer size.
         self.fb_width = width
         self.fb_height = height
-        self.ortho = ortho_pixels(width, height)
+        self.ortho = ortho_pixels(width=width, height=height)
 
-        vs = _compile(_VERT, GL.GL_VERTEX_SHADER)
-        fs = _compile(_FRAG, GL.GL_FRAGMENT_SHADER)
+        vs: int = _compile(src=_VERT, kind=GL.GL_VERTEX_SHADER)
+        fs: int = _compile(src=_FRAG, kind=GL.GL_FRAGMENT_SHADER)
         self.program = GL.glCreateProgram()
         GL.glAttachShader(self.program, vs)
         GL.glAttachShader(self.program, fs)
@@ -150,7 +173,7 @@ class Renderer:
         self.u_tex_scale = GL.glGetUniformLocation(self.program, "uTexScale")
 
         # Unit quad [0,1]x[0,1] as two triangles (location 0 = aPos).
-        quad = np.array(
+        quad: NDArray[np.float32] = np.array(
             [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1], dtype=np.float32
         )
         self.quad_vao = GL.glGenVertexArrays(1)
@@ -174,8 +197,11 @@ class Renderer:
         GL.glDisable(GL.GL_DEPTH_TEST)
 
     # -- frame ----------------------------------------------------------------
-    def begin_frame(self, fb_width=None, fb_height=None):
-        if fb_width:
+    def begin_frame(
+        self, fb_width: int | None = None, fb_height: int | None = None
+    ) -> None:
+        """Start a frame: update framebuffer size, clear, bind the program + ortho."""
+        if fb_width and fb_height:
             self.fb_width = fb_width
             self.fb_height = fb_height
         GL.glDisable(GL.GL_SCISSOR_TEST)
@@ -187,29 +213,41 @@ class Renderer:
 
     # -- sprites --------------------------------------------------------------
     def draw_image(
-        self, image, topleft, angle=0.0, anchor=None, tint=(1.0, 1.0, 1.0, 1.0), src=None
-    ):
-        """Draw a textured quad.  topleft/anchor are pixel coords; anchor is the
-        pivot for rotation (defaults to the sprite centre).  `src`, if given as a
-        pixel rect (x, y, w, h) into the image, draws only that sub-region (used
-        for atlases / tilesets, e.g. screen.surface.blit(..., area=rect))."""
+        self,
+        image: Drawable,
+        topleft: PointLike,
+        angle: float = 0.0,
+        anchor: PointLike | None = None,
+        tint: Any = (1.0, 1.0, 1.0, 1.0),
+        src: Any = None,
+    ) -> None:
+        """Draw a textured quad.
+
+        ``topleft``/``anchor`` are pixel coords; ``anchor`` is the pivot for
+        rotation (defaults to the sprite centre). ``src``, if given as a pixel
+        rect ``(x, y, w, h)`` into the image, draws only that sub-region (used for
+        atlases / tilesets, e.g. ``screen.surface.blit(..., area=rect)``).
+        """
         tx, ty = topleft
         if src is not None:
             sx, sy, sw, sh = src
             w, h = sw, sh
-            tex_off = (sx / image.width, sy / image.height)
-            tex_scale = (sw / image.width, sh / image.height)
+            tex_off: tuple[float, float] = (sx / image.width, sy / image.height)
+            tex_scale: tuple[float, float] = (sw / image.width, sh / image.height)
         else:
             w, h = image.width, image.height
             tex_off = (0.0, 0.0)
             tex_scale = (1.0, 1.0)
-        model = _translate(tx, ty) @ _scale(w, h)
+        model: NDArray[np.float32] = _translate(x=tx, y=ty) @ _scale(sx=w, sy=h)
         if angle:
             if anchor is None:
                 anchor = (tx + w * 0.5, ty + h * 0.5)
             ax, ay = anchor
             model = (
-                _translate(ax, ay) @ _rotate_z(angle) @ _translate(-ax, -ay) @ model
+                _translate(x=ax, y=ay)
+                @ _rotate_z(angle)
+                @ _translate(x=-ax, y=-ay)
+                @ model
             )
         GL.glBindVertexArray(self.quad_vao)
         GL.glUniformMatrix4fv(self.u_model, 1, GL.GL_TRUE, model)
@@ -223,21 +261,29 @@ class Renderer:
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 6)
 
     # -- flat colour ----------------------------------------------------------
-    def fill(self, color):
-        c = _rgba(color)
+    def fill(self, color: Any) -> None:
+        """Clear the whole framebuffer to ``color``."""
+        c: tuple[float, float, float, float] = _rgba(color)
         GL.glClearColor(c[0], c[1], c[2], c[3])
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
-    def filled_rect(self, x, y, w, h, color):
-        model = _translate(x, y) @ _scale(w, h)
+    def filled_rect(
+        self, x: float, y: float, w: float, h: float, color: Any
+    ) -> None:
+        """Draw a filled rectangle at ``(x, y)`` of size ``(w, h)``."""
+        model: NDArray[np.float32] = _translate(x=x, y=y) @ _scale(sx=w, sy=h)
         GL.glBindVertexArray(self.quad_vao)
         GL.glUniformMatrix4fv(self.u_model, 1, GL.GL_TRUE, model)
         GL.glUniform1i(self.u_use_tex, 0)
         GL.glUniform4f(self.u_tint, *_rgba(color))
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 6)
 
-    def _draw_prim(self, verts, color, mode):
-        data = np.asarray(verts, dtype=np.float32).reshape(-1)
+    def _draw_prim(self, verts: Any, color: Any, mode: Any) -> None:
+        """Upload ``verts`` (flat pixel xy pairs) and draw them with GL ``mode``.
+
+        ``mode`` is a PyOpenGL primitive constant (``GL_LINES`` etc.; typed ``Any``).
+        """
+        data: NDArray[np.float32] = np.asarray(verts, dtype=np.float32).reshape(-1)
         GL.glBindVertexArray(self.prim_vao)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.prim_vbo)
         GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, GL.GL_DYNAMIC_DRAW)
@@ -246,41 +292,54 @@ class Renderer:
         GL.glUniform4f(self.u_tint, *_rgba(color))
         GL.glDrawArrays(mode, 0, len(data) // 2)
 
-    def rect(self, x, y, w, h, color):
+    def rect(self, x: float, y: float, w: float, h: float, color: Any) -> None:
+        """Draw the outline of a rectangle at ``(x, y)`` of size ``(w, h)``."""
         self._draw_prim(
-            [x, y, x + w, y, x + w, y + h, x, y + h, x, y], color, GL.GL_LINE_LOOP
+            verts=[x, y, x + w, y, x + w, y + h, x, y + h, x, y],
+            color=color,
+            mode=GL.GL_LINE_LOOP,
         )
 
-    def line(self, start, end, color):
-        self._draw_prim([start[0], start[1], end[0], end[1]], color, GL.GL_LINES)
+    def line(self, start: PointLike, end: PointLike, color: Any) -> None:
+        """Draw a line segment from ``start`` to ``end``."""
+        self._draw_prim(
+            verts=[start[0], start[1], end[0], end[1]],
+            color=color,
+            mode=GL.GL_LINES,
+        )
 
-    def polygon(self, points, color, filled):
-        pts = []
+    def polygon(self, points: Any, color: Any, filled: bool) -> None:
+        """Draw a polygon through ``points`` (filled fan, or outline)."""
+        pts: list[float] = []
         for p in points:
             pts += [float(p[0]), float(p[1])]
         mode = GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_LOOP
-        self._draw_prim(pts, color, mode)
+        self._draw_prim(verts=pts, color=color, mode=mode)
 
-    def circle(self, pos, radius, color, filled):
+    def circle(
+        self, pos: PointLike, radius: float, color: Any, filled: bool
+    ) -> None:
+        """Draw a circle centred at ``pos`` (filled fan, or outline)."""
         cx, cy = pos
         pts = []
         if filled:
             pts += [cx, cy]
-        n = 48
+        n: int = 48
         for i in range(n + 1):
-            a = 2.0 * np.pi * i / n
+            a: float = 2.0 * np.pi * i / n
             pts += [cx + radius * np.cos(a), cy + radius * np.sin(a)]
         mode = GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_STRIP
-        self._draw_prim(pts, color, mode)
+        self._draw_prim(verts=pts, color=color, mode=mode)
 
     # -- scissor (screen.surface.set_clip) ------------------------------------
-    def set_clip(self, rect):
+    def set_clip(self, rect: Any) -> None:
+        """Clip drawing to pixel ``rect`` (``None`` disables clipping)."""
         if rect is None:
             GL.glDisable(GL.GL_SCISSOR_TEST)
             return
         x, y, w, h = rect
-        sx = self.fb_width / self.width
-        sy = self.fb_height / self.height
+        sx: float = self.fb_width / self.width
+        sy: float = self.fb_height / self.height
         GL.glEnable(GL.GL_SCISSOR_TEST)
         # glScissor is in framebuffer pixels with origin bottom-left.
         GL.glScissor(
@@ -291,12 +350,14 @@ class Renderer:
         )
 
 
-def _rgba(color):
-    """Accept (r,g,b) or (r,g,b,a) in 0..255 ints or 0..1 floats, or a name-ish
-    tuple; return a 0..1 float 4-tuple."""
+def _rgba(color: Any) -> Tuple[float, float, float, float]:
+    """Normalise a colour to a 0..1 float RGBA 4-tuple.
+
+    Accepts ``(r, g, b)`` or ``(r, g, b, a)`` as 0..255 ints or 0..1 floats.
+    """
     if len(color) == 3:
         r, g, b = color
-        a = 255
+        a: int = 255
     else:
         r, g, b, a = color
     if isinstance(r, float) and r <= 1.0 and isinstance(g, float):

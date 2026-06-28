@@ -5,20 +5,27 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- the game loop / window, on GLFW + OpenGL 3.3 core.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# runner.py -- replaces pgzero's pgzrun.go().  Reads WIDTH/HEIGHT/TITLE/update/
-# draw/on_* from the calling game module, opens a GL 3.3 core window, and runs a
-# fixed 60 Hz loop (the games assume a fixed timestep -- they take no dt).
+"""The game loop / window -- pgzero's ``pgzrun.go()``, on GLFW + OpenGL.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+:func:`go` replaces pgzero's ``pgzrun.go()``. It reads ``WIDTH``/``HEIGHT``/
+``TITLE``/``update``/``draw``/``on_*`` from the calling game module, opens a GL
+window (3.3 core by default, or fixed-function 1.x under ``PGZERO_GL=1``), and
+runs a fixed 60 Hz loop -- the games assume a fixed timestep, so most ``update``
+functions take no ``dt`` (we pass one only if the signature accepts it).
+"""
+
+from __future__ import annotations
 
 import os
 import sys
 import time
+from typing import Any, Dict, Tuple
 
 import glfw
 import OpenGL.GL as GL
@@ -27,10 +34,13 @@ from . import context
 from .input import keyboard
 
 
-def _select_renderer():
-    """Pick the renderer backend (and whether it needs a legacy GL context) from
-    the PGZERO_GL env var.  Default = modern 3.3 core + shaders."""
-    mode = os.environ.get("PGZERO_GL", "").lower()
+def _select_renderer() -> Tuple[type, bool]:
+    """Pick the renderer backend (and whether it needs a legacy GL context).
+
+    Reads ``PGZERO_GL``; default = modern 3.3 core + shaders. Returns
+    ``(renderer_class, legacy)``.
+    """
+    mode: str = os.environ.get("PGZERO_GL", "").lower()
     if mode in ("1", "gl1", "legacy", "1.4", "1.5", "fixed"):
         from .renderer_gl1 import Renderer1x
 
@@ -40,7 +50,10 @@ def _select_renderer():
     return Renderer, False
 
 
-def _make_window(width, height, title, legacy=False):
+def _make_window(
+    width: int, height: int, title: str, legacy: bool = False
+) -> Any:
+    """Init GLFW, create the GL window/context, and return the window handle."""
     if not glfw.init():
         raise RuntimeError("glfw.init() failed")
     context.glfw_ready = True
@@ -54,7 +67,7 @@ def _make_window(width, height, title, legacy=False):
         glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
         glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
         glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
-    win = glfw.create_window(width, height, title, None, None)
+    win: Any = glfw.create_window(width, height, title, None, None)
     if not win:
         glfw.terminate()
         raise RuntimeError("glfw.create_window() failed")
@@ -67,14 +80,14 @@ def _make_window(width, height, title, legacy=False):
     return win
 
 
-def go(g=None):
-    """Run the game whose globals are `g` (defaults to the caller's module)."""
+def go(g: Dict[str, Any] | None = None) -> None:
+    """Run the game whose globals are ``g`` (defaults to the caller's module)."""
     if g is None:
         g = sys._getframe(1).f_globals
 
-    width = int(g.get("WIDTH", 800))
-    height = int(g.get("HEIGHT", 600))
-    title = g.get("TITLE", "Pygame Zero Game")
+    width: int = int(g.get("WIDTH", 800))
+    height: int = int(g.get("HEIGHT", 600))
+    title: str = g.get("TITLE", "Pygame Zero Game")
 
     # Assets live next to the game file.
     game_file = g.get("__file__")
@@ -82,7 +95,7 @@ def go(g=None):
         context.asset_root = os.path.dirname(os.path.abspath(game_file))
 
     renderer_cls, legacy = _select_renderer()
-    window = _make_window(width, height, title, legacy=legacy)
+    window: Any = _make_window(width=width, height=height, title=title, legacy=legacy)
     context.window = window
     context.renderer = renderer_cls(width, height)
 
@@ -99,32 +112,34 @@ def go(g=None):
                 GL.glGetString(GL.GL_RENDERER).decode(errors="replace"),
             )
         )
-    _max_frames = int(os.environ.get("PGZERO_MAX_FRAMES", "0") or 0)
+    _max_frames: int = int(os.environ.get("PGZERO_MAX_FRAMES", "0") or 0)
 
     update = g.get("update")
     draw = g.get("draw")
     on_key_down = g.get("on_key_down")
     on_key_up = g.get("on_key_up")
 
-    update_takes_dt = (
+    update_takes_dt: bool = (
         update is not None and update.__code__.co_argcount >= 1
     )
 
-    def key_cb(win, key, scancode, action, mods):
+    def key_cb(
+        win: Any, key: int, scancode: int, action: int, mods: int
+    ) -> None:
         if action == glfw.PRESS:
             keyboard._press(key)
             if on_key_down:
-                _call_key_hook(on_key_down, key, mods)
+                _call_key_hook(hook=on_key_down, key=key, mods=mods)
         elif action == glfw.RELEASE:
             keyboard._release(key)
             if on_key_up:
-                _call_key_hook(on_key_up, key, mods)
+                _call_key_hook(hook=on_key_up, key=key, mods=mods)
 
     glfw.set_key_callback(window, key_cb)
 
-    frame = 1.0 / 60.0
-    next_t = time.perf_counter()
-    frame_count = 0
+    frame: float = 1.0 / 60.0
+    next_t: float = time.perf_counter()
+    frame_count: int = 0
     try:
         while not glfw.window_should_close(window):
             glfw.poll_events()
@@ -133,7 +148,7 @@ def go(g=None):
                 update(frame) if update_takes_dt else update()
 
             fb_w, fb_h = glfw.get_framebuffer_size(window)
-            context.renderer.begin_frame(fb_w, fb_h)
+            context.renderer.begin_frame(fb_width=fb_w, fb_height=fb_h)
             if draw:
                 draw()
             glfw.swap_buffers(window)
@@ -143,7 +158,7 @@ def go(g=None):
                 break
 
             next_t += frame
-            sleep = next_t - time.perf_counter()
+            sleep: float = next_t - time.perf_counter()
             if sleep > 0:
                 time.sleep(sleep)
             else:
@@ -152,10 +167,14 @@ def go(g=None):
         glfw.terminate()
 
 
-def _call_key_hook(hook, key, mods):
+def _call_key_hook(hook: Any, key: int, mods: int) -> None:
+    """Call a game's ``on_key_*`` hook, passing whichever of (key, mod) it declares.
+
+    ``hook`` is a game function we introspect via ``__code__``, hence ``Any``.
+    """
     # Pass whichever of (key, mod) the handler declares, like pgzero does.
     names = hook.__code__.co_varnames[: hook.__code__.co_argcount]
-    kwargs = {}
+    kwargs: Dict[str, Any] = {}
     if "key" in names:
         kwargs["key"] = key
     if "mod" in names:
@@ -163,6 +182,7 @@ def _call_key_hook(hook, key, mods):
     hook(**kwargs)
 
 
-def quit_game():
+def quit_game() -> None:
+    """Ask the window to close, ending the game loop (pgzero's ``exit()``)."""
     if context.window is not None:
         glfw.set_window_should_close(context.window, True)

@@ -5,48 +5,67 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- a CPU-backed pygame.Surface work-alike.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol2
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# surface.py -- some Vol 2 games build an offscreen pygame.Surface and composite
-# into it (kinetix accumulates broken-brick sprites; beatstreets/leadingedge use
-# a full-screen black overlay).  We back a Surface with a CPU RGBA numpy buffer:
-# fill() and blit() composite on the CPU (these surfaces change rarely -- e.g.
-# only when a brick breaks), and the GL texture is re-uploaded lazily when the
-# buffer is dirty.  A Surface is drawable by screen.blit() because it exposes the
-# same width/height/gl_texture interface as resources.Image.
+"""A CPU-backed ``pygame.Surface`` work-alike.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol2
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+Some Vol 2 games build an offscreen ``pygame.Surface`` and composite into it
+(``kinetix`` accumulates broken-brick sprites; ``beatstreets``/``leadingedge``
+use a full-screen black overlay). We back a :class:`Surface` with a CPU RGBA
+numpy buffer: :meth:`~Surface.fill` and :meth:`~Surface.blit` composite on the
+CPU (these surfaces change rarely -- e.g. only when a brick breaks), and the GL
+texture is re-uploaded lazily when the buffer is dirty. A :class:`Surface` is
+drawable by :meth:`Screen.blit` because it exposes the same
+``width``/``height``/:meth:`~Surface.gl_texture` interface as
+:class:`pgzero_gl.resources.Image` (the :class:`pgzero_gl._types.Drawable`
+protocol).
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Sequence, cast
 
 import numpy as np
 import OpenGL.GL as GL
+from numpy.typing import NDArray
 
 from . import context
+from ._types import Color, ColorRGBA, PointLike, RGBASource
+
+if TYPE_CHECKING:
+    from .geometry import Rect
 
 SRCALPHA = 0x00010000
 
 
-def _rgba_tuple(color):
+def _rgba_tuple(color: Sequence[int]) -> ColorRGBA:
+    """Normalise an RGB or RGBA colour to a 4-tuple of ints (RGB -> opaque)."""
     if len(color) == 3:
         return (int(color[0]), int(color[1]), int(color[2]), 255)
-    return tuple(int(c) for c in color)
+    return (int(color[0]), int(color[1]), int(color[2]), int(color[3]))
 
 
 class Surface:
-    def __init__(self, size, flags=0):
+    """An offscreen RGBA image the games can ``fill``/``blit`` into and then draw."""
+
+    def __init__(self, size: PointLike, flags: int = 0) -> None:
         w, h = int(size[0]), int(size[1])
-        self.width, self.height = w, h
+        self.width: int = w
+        self.height: int = h
         # SRCALPHA -> start transparent; otherwise opaque black (pygame default).
-        self.rgba = np.zeros((h, w, 4), dtype=np.uint8)
+        self.rgba: NDArray[np.uint8] = np.zeros((h, w, 4), dtype=np.uint8)
         if not (flags & SRCALPHA):
             self.rgba[..., 3] = 255
-        self._tex = None
-        self._dirty = True
+        self._tex: int | None = None
+        self._dirty: bool = True
 
     # -- pygame.Surface API the games use -------------------------------------
-    def fill(self, color, rect=None):
+    def fill(self, color: Color, rect: PointLike | None = None) -> None:
+        """Fill the whole surface (or the ``rect`` sub-region) with ``color``."""
         r, g, b, a = _rgba_tuple(color)
         if rect is None:
             self.rgba[..., 0] = r
@@ -61,8 +80,11 @@ class Surface:
                 self.rgba[y0:y1, x0:x1] = (r, g, b, a)
         self._dirty = True
 
-    def blit(self, src, pos, area=None):
-        src_rgba = src.rgba
+    def blit(
+        self, src: RGBASource, pos: PointLike, area: PointLike | None = None
+    ) -> None:
+        """Alpha-composite ``src`` (optionally a sub-``area`` of it) onto this surface at ``pos``."""
+        src_rgba: NDArray[np.uint8] = src.rgba
         if area is not None:
             ax, ay, aw, ah = (int(v) for v in area)
             src_rgba = src_rgba[ay:ay + ah, ax:ax + aw]
@@ -74,14 +96,14 @@ class Surface:
         if dx1 <= dx0 or dy1 <= dy0:
             return
         sx0, sy0 = dx0 - x, dy0 - y
-        s = src_rgba[sy0:sy0 + (dy1 - dy0), sx0:sx0 + (dx1 - dx0)].astype(np.float32)
-        d = self.rgba[dy0:dy1, dx0:dx1].astype(np.float32)
+        s: NDArray[np.float32] = src_rgba[sy0:sy0 + (dy1 - dy0), sx0:sx0 + (dx1 - dx0)].astype(np.float32)
+        d: NDArray[np.float32] = self.rgba[dy0:dy1, dx0:dx1].astype(np.float32)
         # straight-alpha src-over
-        sa = s[..., 3:4] / 255.0
-        da = d[..., 3:4] / 255.0
-        out_a = sa + da * (1.0 - sa)
+        sa: NDArray[np.float32] = s[..., 3:4] / 255.0
+        da: NDArray[np.float32] = d[..., 3:4] / 255.0
+        out_a: NDArray[np.float32] = sa + da * (1.0 - sa)
         with np.errstate(invalid="ignore", divide="ignore"):
-            out_rgb = (s[..., :3] * sa + d[..., :3] * da * (1.0 - sa)) / np.where(
+            out_rgb: NDArray[Any] = (s[..., :3] * sa + d[..., :3] * da * (1.0 - sa)) / np.where(
                 out_a == 0, 1.0, out_a
             )
         self.rgba[dy0:dy1, dx0:dx1, :3] = np.clip(out_rgb, 0, 255).astype(np.uint8)
@@ -90,32 +112,38 @@ class Surface:
         )
         self._dirty = True
 
-    def get_width(self):
+    def get_width(self) -> int:
+        """Return the surface width in pixels."""
         return self.width
 
-    def get_height(self):
+    def get_height(self) -> int:
+        """Return the surface height in pixels."""
         return self.height
 
-    def get_size(self):
+    def get_size(self) -> tuple[int, int]:
+        """Return ``(width, height)`` in pixels."""
         return (self.width, self.height)
 
-    def get_rect(self, **kwargs):
+    def get_rect(self, **kwargs: Any) -> Rect:
+        """Return a :class:`Rect` the size of this surface; ``kwargs`` set anchor attrs."""
         from .geometry import Rect
 
-        r = Rect(0, 0, self.width, self.height)
+        r: Rect = Rect(0, 0, self.width, self.height)
         for k, v in kwargs.items():
             setattr(r, k, v)
         return r
 
-    def set_alpha(self, a):
+    def set_alpha(self, a: int | None) -> None:
         # Uniform surface alpha (used for fades).  Scale the alpha channel.
+        """Scale the whole surface's alpha by ``a`` (0-255); ``None`` is a no-op (used for fades)."""
         if a is None:
             return
         self.rgba[..., 3] = np.clip(self.rgba[..., 3].astype(np.float32) * (a / 255.0), 0, 255).astype(np.uint8)
         self._dirty = True
 
     # -- drawable-by-screen.blit interface (like resources.Image) -------------
-    def gl_texture(self):
+    def gl_texture(self) -> int:
+        """Return this surface's GL texture name, uploading the CPU buffer if dirty."""
         context.require_renderer()
         if self._tex is None:
             self._tex = GL.glGenTextures(1)
@@ -130,4 +158,4 @@ class Surface:
                 GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, np.ascontiguousarray(self.rgba),
             )
             self._dirty = False
-        return self._tex
+        return cast(int, self._tex)

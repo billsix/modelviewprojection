@@ -5,25 +5,30 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- keyboard input, backed by GLFW.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# input.py -- reproduce pgzero's `keyboard` object (boolean attribute access:
-# `keyboard.space`, `keyboard.left`, ...) and the `keys` constants used by the
-# on_key_down(key) hook.  Both are keyed on GLFW key codes; the runner feeds key
-# events in via _press/_release.
+"""Keyboard input, backed by GLFW -- PyGame Zero's ``keyboard`` and ``keys``.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+Reproduces pgzero's ``keyboard`` object (boolean attribute access:
+``keyboard.space``, ``keyboard.left``, ...) and the ``keys`` constants used by
+the ``on_key_down(key)`` hook. Both are keyed on GLFW key codes; the runner
+feeds key events in via :meth:`Keyboard._press`/:meth:`Keyboard._release`.
+"""
+
+from __future__ import annotations
 
 import glfw
 
 # pgzero attribute name -> GLFW key code.
-_NAME_TO_KEY = {}
+_NAME_TO_KEY: dict[str, int] = {}
 
 
-def _register():
+def _register() -> None:
+    """Populate :data:`_NAME_TO_KEY` with the pgzero key names the games use."""
     # letters a-z, digits 0-9
     for ch in "abcdefghijklmnopqrstuvwxyz":
         _NAME_TO_KEY[ch] = getattr(glfw, "KEY_" + ch.upper())
@@ -58,24 +63,28 @@ _register()
 class Keyboard:
     """`keyboard.<name>` is True while that key is held."""
 
-    def __init__(self):
-        self._pressed = set()
+    def __init__(self) -> None:
+        self._pressed: set[int] = set()
 
-    def _press(self, key):
+    def _press(self, key: int) -> None:
+        """Mark ``key`` (a GLFW code) as held; called by the runner on key-down."""
         self._pressed.add(key)
 
-    def _release(self, key):
+    def _release(self, key: int) -> None:
+        """Mark ``key`` (a GLFW code) as released; called by the runner on key-up."""
         self._pressed.discard(key)
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> bool:
+        """Return whether the named key (``keyboard.space``, ...) is currently held."""
         if name.startswith("_"):
             raise AttributeError(name)
-        code = _NAME_TO_KEY.get(name.lower())
+        code: int | None = _NAME_TO_KEY.get(name.lower())
         if code is None:
             return False
         return code in self._pressed
 
-    def __getitem__(self, code):
+    def __getitem__(self, code: int) -> bool:
+        """Return whether the GLFW key ``code`` is currently held."""
         return code in self._pressed
 
 
@@ -83,10 +92,10 @@ class _Keys:
     """pgzero `keys.SPACE` etc.  Values are GLFW codes, matching what the runner
     passes to on_key_down(key)."""
 
-    def __getattr__(self, name):
+    def __getattr__(self, name: str) -> int:
         if name.startswith("_"):
             raise AttributeError(name)
-        code = _NAME_TO_KEY.get(name.lower())
+        code: int | None = _NAME_TO_KEY.get(name.lower())
         if code is None:
             raise AttributeError("Unknown key constant: %s" % name)
         return code

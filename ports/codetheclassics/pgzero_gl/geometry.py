@@ -5,19 +5,34 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- a minimal pygame.Rect / pgzero ZRect work-alike.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# geometry.py -- the games use Rect for collisions and as a positioning helper.
-# This is a small float-friendly rectangle exposing the subset of the
-# pygame.Rect API they actually touch (the virtual corner/edge attributes,
-# colliderect, collidepoint, contains, move, inflate).
+"""Vectors + rectangle -- ``pygame.math.Vector2``/``Vector3`` and ``pygame.Rect``.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+The games use :class:`Vector2` for movement maths, :class:`Vector3` for
+leadingedge's pseudo-3D road, and :class:`Rect` for collisions and as a
+positioning helper. Each is a small float-friendly work-alike exposing only the
+subset of the pygame API the games actually touch.
+
+The "vector-like" operands of the arithmetic dunders (and the polymorphic first
+argument of each constructor, which may be a scalar, a sequence, or another
+vector) are typed :data:`VectorLike` / ``Any`` -- pygame accepts any indexable of
+the right arity there, and pinning a narrower type would reject calls the games
+legitimately make.
+"""
+
+from __future__ import annotations
 
 import math
+from typing import Any, Iterator, Tuple
+
+# A vector-like operand: another Vector2/Vector3, a tuple, or any object indexable
+# as ``o[0]``, ``o[1]`` (and ``o[2]`` for 3D) -- whatever pygame would accept.
+VectorLike = Any
 
 
 class Vector2:
@@ -25,7 +40,8 @@ class Vector2:
 
     __slots__ = ("x", "y")
 
-    def __init__(self, x=0.0, y=0.0):
+    def __init__(self, x: Any = 0.0, y: float = 0.0) -> None:
+        # x may be a scalar, a (x, y) sequence, or an object with .x/.y attrs.
         if hasattr(x, "__len__"):
             x, y = x
         elif hasattr(x, "x") and hasattr(x, "y"):
@@ -33,75 +49,88 @@ class Vector2:
         self.x = float(x)
         self.y = float(y)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[float]:
         return iter((self.x, self.y))
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> float:
         return (self.x, self.y)[i]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return 2
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Vector2(%g, %g)" % (self.x, self.y)
 
-    def __eq__(self, o):
+    def __eq__(self, o: Any) -> bool:
         return self.x == o[0] and self.y == o[1]
 
-    def __add__(self, o):
+    def __add__(self, o: VectorLike) -> Vector2:
         return Vector2(self.x + o[0], self.y + o[1])
 
     __radd__ = __add__
 
-    def __sub__(self, o):
+    def __sub__(self, o: VectorLike) -> Vector2:
         return Vector2(self.x - o[0], self.y - o[1])
 
-    def __rsub__(self, o):
+    def __rsub__(self, o: VectorLike) -> Vector2:
         return Vector2(o[0] - self.x, o[1] - self.y)
 
-    def __mul__(self, s):
+    def __mul__(self, s: Any) -> Any:
+        # pygame semantics: vec * vec is the dot product (a scalar); vec * scalar
+        # scales each component.
+        if hasattr(s, "__len__"):
+            return self.x * s[0] + self.y * s[1]
         return Vector2(self.x * s, self.y * s)
 
     __rmul__ = __mul__
 
-    def __truediv__(self, s):
+    def __truediv__(self, s: float) -> Vector2:
         return Vector2(self.x / s, self.y / s)
 
-    def __neg__(self):
+    def __neg__(self) -> Vector2:
         return Vector2(-self.x, -self.y)
 
-    def length(self):
+    def length(self) -> float:
         return math.hypot(self.x, self.y)
 
-    def length_squared(self):
+    def length_squared(self) -> float:
         return self.x * self.x + self.y * self.y
 
-    def magnitude(self):
+    def magnitude(self) -> float:
         return self.length()
 
-    def dot(self, o):
+    def dot(self, o: VectorLike) -> float:
         return self.x * o[0] + self.y * o[1]
 
-    def normalize(self):
-        n = self.length()
+    def normalize(self) -> Vector2:
+        n: float = self.length()
         return Vector2(self.x / n, self.y / n) if n else Vector2(0, 0)
 
-    def normalize_ip(self):
-        n = self.length()
+    def normalize_ip(self) -> None:
+        n: float = self.length()
         if n:
             self.x /= n
             self.y /= n
 
-    def distance_to(self, o):
+    def scale_to_length(self, length: float) -> None:
+        # pygame: rescale in place to the given length; error on zero length.
+        n: float = self.length()
+        if n == 0:
+            raise ValueError("Cannot scale a vector with zero length")
+        factor = length / n
+        self.x *= factor
+        self.y *= factor
+
+    def distance_to(self, o: VectorLike) -> float:
         return math.hypot(self.x - o[0], self.y - o[1])
 
-    def rotate(self, degrees):
+    def rotate(self, degrees: float) -> Vector2:
         # pygame Vector2.rotate is counter-clockwise in screen space (y down).
-        t = math.radians(degrees)
+        t: float = math.radians(degrees)
         c, s = math.cos(t), math.sin(t)
         return Vector2(self.x * c - self.y * s, self.x * s + self.y * c)
 
-    def copy(self):
+    def copy(self) -> Vector2:
         return Vector2(self.x, self.y)
 
 
@@ -110,74 +139,89 @@ class Vector3:
 
     __slots__ = ("x", "y", "z")
 
-    def __init__(self, x=0.0, y=0.0, z=0.0):
+    def __init__(self, x: Any = 0.0, y: float = 0.0, z: float = 0.0) -> None:
+        # x may be a scalar, an (x, y, z) sequence, or an object with .x/.y/.z.
         if hasattr(x, "__len__"):
             x, y, z = x
         elif hasattr(x, "z"):
             x, y, z = x.x, x.y, x.z
         self.x, self.y, self.z = float(x), float(y), float(z)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[float]:
         return iter((self.x, self.y, self.z))
 
-    def __getitem__(self, i):
+    def __getitem__(self, i: int) -> float:
         return (self.x, self.y, self.z)[i]
 
-    def __len__(self):
+    def __len__(self) -> int:
         return 3
 
-    def __repr__(self):
+    def __repr__(self) -> str:
         return "Vector3(%g, %g, %g)" % (self.x, self.y, self.z)
 
-    def __eq__(self, o):
+    def __eq__(self, o: Any) -> bool:
         return self.x == o[0] and self.y == o[1] and self.z == o[2]
 
-    def __add__(self, o):
+    def __add__(self, o: VectorLike) -> Vector3:
         return Vector3(self.x + o[0], self.y + o[1], self.z + o[2])
 
     __radd__ = __add__
 
-    def __sub__(self, o):
+    def __sub__(self, o: VectorLike) -> Vector3:
         return Vector3(self.x - o[0], self.y - o[1], self.z - o[2])
 
-    def __rsub__(self, o):
+    def __rsub__(self, o: VectorLike) -> Vector3:
         return Vector3(o[0] - self.x, o[1] - self.y, o[2] - self.z)
 
-    def __mul__(self, s):
+    def __mul__(self, s: Any) -> Any:
+        # pygame semantics: vec * vec is the dot product (a scalar); vec * scalar
+        # scales each component.
+        if hasattr(s, "__len__"):
+            return self.x * s[0] + self.y * s[1] + self.z * s[2]
         return Vector3(self.x * s, self.y * s, self.z * s)
 
     __rmul__ = __mul__
 
-    def __truediv__(self, s):
+    def __truediv__(self, s: float) -> Vector3:
         return Vector3(self.x / s, self.y / s, self.z / s)
 
-    def __neg__(self):
+    def __neg__(self) -> Vector3:
         return Vector3(-self.x, -self.y, -self.z)
 
-    def length(self):
+    def length(self) -> float:
         return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
 
-    def length_squared(self):
+    def length_squared(self) -> float:
         return self.x ** 2 + self.y ** 2 + self.z ** 2
 
-    def dot(self, o):
+    def dot(self, o: VectorLike) -> float:
         return self.x * o[0] + self.y * o[1] + self.z * o[2]
 
-    def cross(self, o):
+    def cross(self, o: VectorLike) -> Vector3:
         return Vector3(
             self.y * o[2] - self.z * o[1],
             self.z * o[0] - self.x * o[2],
             self.x * o[1] - self.y * o[0],
         )
 
-    def normalize(self):
-        n = self.length()
+    def normalize(self) -> Vector3:
+        n: float = self.length()
         return Vector3(self.x / n, self.y / n, self.z / n) if n else Vector3()
 
-    def distance_to(self, o):
+    def scale_to_length(self, length: float) -> None:
+        # pygame: rescale in place to the given length; error on zero length.
+        n: float = self.length()
+        if n == 0:
+            raise ValueError("Cannot scale a vector with zero length")
+        factor = length / n
+        self.x *= factor
+        self.y *= factor
+        self.z *= factor
+
+    def distance_to(self, o: VectorLike) -> float:
         return math.sqrt((self.x - o[0]) ** 2 + (self.y - o[1]) ** 2 + (self.z - o[2]) ** 2)
 
-    def copy(self):
+    def copy(self) -> Vector3:
         return Vector3(self.x, self.y, self.z)
 
 
@@ -191,7 +235,26 @@ _VIRTUALS = {
 
 
 class Rect:
-    def __init__(self, *args):
+    """A small ``pygame.Rect`` work-alike (the subset the games touch).
+
+    Exposes the virtual corner/edge attributes (settable, so ``rect.center =
+    ...`` repositions), ``colliderect``/``collidepoint``/``contains``, and
+    ``move``/``inflate``.
+
+    Coordinates are **integers**, like ``pygame.Rect`` (assignments are
+    truncated toward zero) -- the games rely on this, e.g. ``randint(rect.top,
+    rect.bottom)`` needs ints, and pgzero/pygame collision is integer-pixel.
+    The float-coordinate variant pgzero calls ``ZRect`` -- used by :class:`Actor`
+    to keep sub-pixel positions -- is the :class:`ZRect` subclass below, which
+    overrides only the coordinate coercion.
+    """
+
+    @staticmethod
+    def _coord(v: float) -> float:
+        # pygame.Rect stores integer coordinates, truncated toward zero.
+        return int(v)
+
+    def __init__(self, *args: Any) -> None:
         if len(args) == 1:  # Rect(other) or Rect((x,y,w,h))
             a = args[0]
             if isinstance(a, Rect):
@@ -202,170 +265,208 @@ class Rect:
             (x, y), (w, h) = args
         else:
             x, y, w, h = args
-        self.x = float(x)
-        self.y = float(y)
-        self.width = float(w)
-        self.height = float(h)
+        # Assign through the coercing properties so Rect truncates to int and
+        # ZRect keeps float -- every other coordinate write funnels here too.
+        self.x = x
+        self.y = y
+        self.width = w
+        self.height = h
+
+    # backing storage + coordinate coercion ----------------------------------
+    # x/y/width/height are properties so that *every* coordinate write (here,
+    # the edge/corner setters, move_ip, ...) is coerced by ``_coord`` in one
+    # place -- int for Rect, float for ZRect.
+    @property
+    def x(self) -> float:
+        return self._x
+
+    @x.setter
+    def x(self, v: float) -> None:
+        self._x = self._coord(v)
+
+    @property
+    def y(self) -> float:
+        return self._y
+
+    @y.setter
+    def y(self, v: float) -> None:
+        self._y = self._coord(v)
+
+    @property
+    def width(self) -> float:
+        return self._w
+
+    @width.setter
+    def width(self, v: float) -> None:
+        self._w = self._coord(v)
+
+    @property
+    def height(self) -> float:
+        return self._h
+
+    @height.setter
+    def height(self, v: float) -> None:
+        self._h = self._coord(v)
 
     # primary edges -----------------------------------------------------------
     @property
-    def left(self):
+    def left(self) -> float:
         return self.x
 
     @left.setter
-    def left(self, v):
+    def left(self, v: float) -> None:
         self.x = v
 
     @property
-    def top(self):
+    def top(self) -> float:
         return self.y
 
     @top.setter
-    def top(self, v):
+    def top(self, v: float) -> None:
         self.y = v
 
     @property
-    def right(self):
+    def right(self) -> float:
         return self.x + self.width
 
     @right.setter
-    def right(self, v):
+    def right(self, v: float) -> None:
         self.x = v - self.width
 
     @property
-    def bottom(self):
+    def bottom(self) -> float:
         return self.y + self.height
 
     @bottom.setter
-    def bottom(self, v):
+    def bottom(self, v: float) -> None:
         self.y = v - self.height
 
     @property
-    def centerx(self):
-        return self.x + self.width / 2
+    def centerx(self) -> float:
+        return self._coord(self.x + self.width / 2)
 
     @centerx.setter
-    def centerx(self, v):
+    def centerx(self, v: float) -> None:
         self.x = v - self.width / 2
 
     @property
-    def centery(self):
-        return self.y + self.height / 2
+    def centery(self) -> float:
+        return self._coord(self.y + self.height / 2)
 
     @centery.setter
-    def centery(self, v):
+    def centery(self, v: float) -> None:
         self.y = v - self.height / 2
 
     @property
-    def w(self):
+    def w(self) -> float:
         return self.width
 
     @w.setter
-    def w(self, v):
+    def w(self, v: float) -> None:
         self.width = v
 
     @property
-    def h(self):
+    def h(self) -> float:
         return self.height
 
     @h.setter
-    def h(self, v):
+    def h(self, v: float) -> None:
         self.height = v
 
     @property
-    def size(self):
+    def size(self) -> Tuple[float, float]:
         return (self.width, self.height)
 
     @size.setter
-    def size(self, v):
+    def size(self, v: Any) -> None:
         self.width, self.height = v
 
     # corner / mid pairs ------------------------------------------------------
-    def _pair(self, hx, vy):
+    def _pair(self, hx: str, vy: str) -> Tuple[float, float]:
         return (getattr(self, hx), getattr(self, vy))
 
-    def _set_pair(self, hx, vy, val):
+    def _set_pair(self, hx: str, vy: str, val: Any) -> None:
         setattr(self, hx, val[0])
         setattr(self, vy, val[1])
 
     @property
-    def topleft(self):
+    def topleft(self) -> Tuple[float, float]:
         return (self.left, self.top)
 
     @topleft.setter
-    def topleft(self, v):
+    def topleft(self, v: Any) -> None:
         self._set_pair("left", "top", v)
 
     @property
-    def topright(self):
+    def topright(self) -> Tuple[float, float]:
         return (self.right, self.top)
 
     @topright.setter
-    def topright(self, v):
+    def topright(self, v: Any) -> None:
         self._set_pair("right", "top", v)
 
     @property
-    def bottomleft(self):
+    def bottomleft(self) -> Tuple[float, float]:
         return (self.left, self.bottom)
 
     @bottomleft.setter
-    def bottomleft(self, v):
+    def bottomleft(self, v: Any) -> None:
         self._set_pair("left", "bottom", v)
 
     @property
-    def bottomright(self):
+    def bottomright(self) -> Tuple[float, float]:
         return (self.right, self.bottom)
 
     @bottomright.setter
-    def bottomright(self, v):
+    def bottomright(self, v: Any) -> None:
         self._set_pair("right", "bottom", v)
 
     @property
-    def center(self):
+    def center(self) -> Tuple[float, float]:
         return (self.centerx, self.centery)
 
     @center.setter
-    def center(self, v):
+    def center(self, v: Any) -> None:
         self._set_pair("centerx", "centery", v)
 
     @property
-    def midtop(self):
+    def midtop(self) -> Tuple[float, float]:
         return (self.centerx, self.top)
 
     @midtop.setter
-    def midtop(self, v):
+    def midtop(self, v: Any) -> None:
         self._set_pair("centerx", "top", v)
 
     @property
-    def midbottom(self):
+    def midbottom(self) -> Tuple[float, float]:
         return (self.centerx, self.bottom)
 
     @midbottom.setter
-    def midbottom(self, v):
+    def midbottom(self, v: Any) -> None:
         self._set_pair("centerx", "bottom", v)
 
     @property
-    def midleft(self):
+    def midleft(self) -> Tuple[float, float]:
         return (self.left, self.centery)
 
     @midleft.setter
-    def midleft(self, v):
+    def midleft(self, v: Any) -> None:
         self._set_pair("left", "centery", v)
 
     @property
-    def midright(self):
+    def midright(self) -> Tuple[float, float]:
         return (self.right, self.centery)
 
     @midright.setter
-    def midright(self, v):
+    def midright(self, v: Any) -> None:
         self._set_pair("right", "centery", v)
 
     # queries -----------------------------------------------------------------
-    def collidepoint(self, *p):
+    def collidepoint(self, *p: Any) -> bool:
         px, py = p[0] if len(p) == 1 else p
         return self.left <= px < self.right and self.top <= py < self.bottom
 
-    def colliderect(self, o):
+    def colliderect(self, o: Rect) -> bool:
         return (
             self.left < o.right
             and self.right > o.left
@@ -373,7 +474,7 @@ class Rect:
             and self.bottom > o.top
         )
 
-    def contains(self, o):
+    def contains(self, o: Rect) -> bool:
         return (
             self.left <= o.left
             and self.right >= o.right
@@ -381,23 +482,39 @@ class Rect:
             and self.bottom >= o.bottom
         )
 
-    def move(self, dx, dy):
-        return Rect(self.x + dx, self.y + dy, self.width, self.height)
+    def move(self, dx: float, dy: float) -> Rect:
+        return self.__class__(self.x + dx, self.y + dy, self.width, self.height)
 
-    def move_ip(self, dx, dy):
+    def move_ip(self, dx: float, dy: float) -> None:
         self.x += dx
         self.y += dy
 
-    def inflate(self, dx, dy):
-        return Rect(
+    def inflate(self, dx: float, dy: float) -> Rect:
+        return self.__class__(
             self.x - dx / 2, self.y - dy / 2, self.width + dx, self.height + dy
         )
 
-    def copy(self):
-        return Rect(self.x, self.y, self.width, self.height)
+    def copy(self) -> Rect:
+        return self.__class__(self.x, self.y, self.width, self.height)
 
-    def __iter__(self):
+    def __iter__(self) -> Iterator[float]:
         return iter((self.x, self.y, self.width, self.height))
 
-    def __repr__(self):
-        return "Rect(%g, %g, %g, %g)" % (self.x, self.y, self.width, self.height)
+    def __repr__(self) -> str:
+        return "%s(%g, %g, %g, %g)" % (
+            type(self).__name__, self.x, self.y, self.width, self.height
+        )
+
+
+class ZRect(Rect):
+    """pgzero's float-coordinate rectangle (``pgzero.rect.ZRect``).
+
+    Identical to :class:`Rect` except coordinates keep sub-pixel precision
+    instead of truncating to int. :class:`~pgzero_gl.actor.Actor` stores its
+    anchor position in a ``ZRect`` so movement at non-integer speeds doesn't
+    drift; games that want integer pygame-rect semantics use :class:`Rect`.
+    """
+
+    @staticmethod
+    def _coord(v: float) -> float:
+        return float(v)

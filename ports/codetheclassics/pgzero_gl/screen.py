@@ -5,106 +5,146 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- the `screen` object.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# screen.py -- PyGame Zero's drawing surface: screen.blit(name, pos),
-# screen.fill(color), and screen.draw.{text,rect,filled_rect,line,circle,...}.
-# A small `screen.surface` facade covers the games that reach the raw pygame
-# surface for set_clip (-> glScissor) and blit.
+"""The ``screen`` object -- PyGame Zero's drawing surface.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+Reproduces pgzero's ``screen``: :meth:`Screen.blit`, :meth:`Screen.fill`, and the
+``screen.draw.*`` primitives (:meth:`_Painter.text` / ``rect`` / ``filled_rect`` /
+``line`` / ``circle`` / ...). Every method forwards to the active
+:class:`pgzero_gl.renderer.Renderer`, so ``screen`` carries no state of its own --
+it is a thin, stateless facade over the GL back end.
+
+A small :class:`_Surface` covers the games that reach the raw pygame
+``screen.surface`` for ``set_clip`` (-> ``glScissor``) and ``blit``.
+"""
+
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any, Tuple
 
 from . import context
 from . import text as _text
 
+if TYPE_CHECKING:
+    from .geometry import Rect
+
 
 class _Painter:
-    """screen.draw.* -- thin adapter onto the renderer's flat-colour drawing."""
+    """``screen.draw.*`` -- thin adapter onto the renderer's flat-colour drawing."""
 
-    def text(self, *args, **kwargs):
+    def text(self, *args: Any, **kwargs: Any) -> None:
+        """Draw text (see :func:`pgzero_gl.text.draw` for the keyword options)."""
         _text.draw(*args, **kwargs)
 
-    def rect(self, rect, color):
-        context.require_renderer().rect(rect.x, rect.y, rect.width, rect.height, color)
-
-    def filled_rect(self, rect, color):
-        context.require_renderer().filled_rect(
-            rect.x, rect.y, rect.width, rect.height, color
+    def rect(self, rect: Rect, color: Any) -> None:
+        """Draw the outline of ``rect`` in ``color``."""
+        context.require_renderer().rect(
+            x=rect.x, y=rect.y, w=rect.width, h=rect.height, color=color
         )
 
-    def line(self, start, end, color):
-        context.require_renderer().line(start, end, color)
+    def filled_rect(self, rect: Rect, color: Any) -> None:
+        """Draw ``rect`` filled with ``color``."""
+        context.require_renderer().filled_rect(
+            x=rect.x, y=rect.y, w=rect.width, h=rect.height, color=color
+        )
 
-    def circle(self, pos, radius, color):
-        context.require_renderer().circle(pos, radius, color, filled=False)
+    def line(self, start: Any, end: Any, color: Any) -> None:
+        """Draw a line from ``start`` to ``end`` in ``color``."""
+        context.require_renderer().line(start=start, end=end, color=color)
 
-    def filled_circle(self, pos, radius, color):
-        context.require_renderer().circle(pos, radius, color, filled=True)
+    def circle(self, pos: Any, radius: float, color: Any) -> None:
+        """Draw the outline of a circle centred at ``pos``."""
+        context.require_renderer().circle(
+            pos=pos, radius=radius, color=color, filled=False
+        )
+
+    def filled_circle(self, pos: Any, radius: float, color: Any) -> None:
+        """Draw a filled circle centred at ``pos``."""
+        context.require_renderer().circle(
+            pos=pos, radius=radius, color=color, filled=True
+        )
 
 
 class _Surface:
-    """Minimal stand-in for `screen.surface` (the raw pygame Surface).  Only the
-    operations the games use are implemented."""
+    """Minimal stand-in for ``screen.surface`` (the raw pygame Surface).
 
-    def set_clip(self, rect):
+    Only the operations the games use are implemented.
+    """
+
+    def set_clip(self, rect: Any) -> None:
+        """Clip subsequent drawing to ``rect`` (``None`` clears the clip)."""
         context.require_renderer().set_clip(rect)
 
-    def blit(self, image, pos, area=None):
+    def blit(self, image: Any, pos: Any, area: Any = None) -> None:
+        """Blit ``image`` (name or Image) at ``pos``; ``area`` is a sub-rect source."""
         from .resources import images
 
         img = images.load(image) if isinstance(image, str) else image
         if hasattr(pos, "topleft"):
             pos = pos.topleft
-        src = tuple(area) if area is not None else None
-        context.require_renderer().draw_image(img, pos, src=src)
+        src: tuple[Any, ...] | None = tuple(area) if area is not None else None
+        context.require_renderer().draw_image(image=img, topleft=pos, src=src)
 
-    def get_width(self):
+    def get_width(self) -> int:
+        """Return the screen width in pixels."""
         return context.require_renderer().width
 
-    def get_height(self):
+    def get_height(self) -> int:
+        """Return the screen height in pixels."""
         return context.require_renderer().height
 
-    def get_size(self):
+    def get_size(self) -> Tuple[int, int]:
+        """Return ``(width, height)`` in pixels."""
         r = context.require_renderer()
         return (r.width, r.height)
 
 
 class Screen:
-    def __init__(self):
+    """pgzero's ``screen``: ``blit``/``fill`` plus the ``draw`` and ``surface`` facades."""
+
+    def __init__(self) -> None:
         self.draw = _Painter()
         self.surface = _Surface()
 
     @property
-    def width(self):
+    def width(self) -> int:
+        """The screen width in pixels."""
         return context.require_renderer().width
 
     @property
-    def height(self):
+    def height(self) -> int:
+        """The screen height in pixels."""
         return context.require_renderer().height
 
-    def bounds(self):
+    def bounds(self) -> Rect:
+        """Return a :class:`Rect` covering the whole screen."""
         from .geometry import Rect
 
         r = context.require_renderer()
         return Rect(0, 0, r.width, r.height)
 
-    def clear(self):
+    def clear(self) -> None:
+        """Clear the screen to black."""
         context.require_renderer().fill((0, 0, 0))
 
-    def fill(self, color):
+    def fill(self, color: Any) -> None:
+        """Fill the whole screen with ``color``."""
         context.require_renderer().fill(color)
 
-    def blit(self, image, pos):
+    def blit(self, image: Any, pos: Any) -> None:
+        """Blit ``image`` (name or Image) at ``pos`` (a point or a Rect's topleft)."""
         from .resources import images
 
         img = images.load(image) if isinstance(image, str) else image
         # pos may be a Rect -> use its topleft
         if hasattr(pos, "topleft"):
             pos = pos.topleft
-        context.require_renderer().draw_image(img, pos)
+        context.require_renderer().draw_image(image=img, topleft=pos)
 
 
 screen = Screen()

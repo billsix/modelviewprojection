@@ -5,37 +5,51 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-# pgzero_gl -- a minimal pygame.mask work-alike.
-#
-# Part of the ModelViewProjection "Code the Classics" port.  Originals (c)
-# Raspberry Pi Press and authors.
-#   Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol2
-#   Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
-#
-# mask.py -- avenger builds a collision mask from its terrain image and queries
-# per-pixel opacity (get_at).  We back the mask with the image's alpha channel
-# (which we already keep on the CPU), so this needs no GL.
+"""A minimal ``pygame.mask`` work-alike.
+
+Part of the ModelViewProjection "Code the Classics" port (originals (c)
+Raspberry Pi Press and authors).
+
+* Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol2
+* Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
+
+``avenger`` builds a collision mask from its terrain image and queries per-pixel
+opacity (:meth:`Mask.get_at`). We back the mask with the image's alpha channel
+(kept on the CPU already), so this needs no GL.
+"""
+
+from __future__ import annotations
 
 import numpy as np
+from numpy.typing import NDArray
+
+from ._types import Point, PointLike, RGBASource
 
 
 class Mask:
-    def __init__(self, alpha):
-        self._a = alpha  # HxW bool/uint8: True where opaque
-        self.height, self.width = alpha.shape[0], alpha.shape[1]
+    """A boolean per-pixel opacity grid, queried like ``pygame.mask.Mask``."""
 
-    def get_size(self):
+    def __init__(self, alpha: NDArray) -> None:
+        self._a = alpha  # HxW bool/uint8: True where opaque
+        self.height: int = int(alpha.shape[0])
+        self.width: int = int(alpha.shape[1])
+
+    def get_size(self) -> tuple[int, int]:
+        """Return ``(width, height)`` in pixels."""
         return (self.width, self.height)
 
-    def get_at(self, pos):
+    def get_at(self, pos: PointLike) -> int:
+        """Return ``1`` if the pixel at ``pos`` is opaque, else ``0`` (or out of bounds)."""
         x, y = int(pos[0]), int(pos[1])
         if 0 <= x < self.width and 0 <= y < self.height:
             return 1 if self._a[y, x] else 0
         return 0
 
-    def overlap(self, other, offset):
+    def overlap(self, other: Mask, offset: PointLike) -> Point | None:
         # Bounding-box-clipped per-pixel AND of the two masks (rare; provided for
         # completeness).  Returns a colliding point or None.
+        """Return a point where ``self`` and ``other`` (shifted by ``offset``) both
+        have opaque pixels, or ``None`` if they do not overlap."""
         ox, oy = int(offset[0]), int(offset[1])
         for y in range(max(0, oy), min(self.height, oy + other.height)):
             for x in range(max(0, ox), min(self.width, ox + other.width)):
@@ -44,6 +58,6 @@ class Mask:
         return None
 
 
-def from_surface(surface, threshold=127):
-    """Build a Mask from an Image/Surface, marking pixels with alpha > threshold."""
+def from_surface(surface: RGBASource, threshold: int = 127) -> Mask:
+    """Build a :class:`Mask` from an Image/Surface; pixels with alpha > threshold are opaque."""
     return Mask(surface.rgba[..., 3] > threshold)

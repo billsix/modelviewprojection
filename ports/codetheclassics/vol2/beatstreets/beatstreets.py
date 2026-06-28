@@ -35,7 +35,8 @@ import sys, json, time
 from abc import ABC, abstractmethod
 from enum import Enum
 from random import randint, choice
-from pygame import Vector2, mixer
+from pygame import Vector2, mixer  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
+from typing import Any, Callable  # noqa: E402
 
 HEALTH_STAMINA_BAR_WIDTH = 235
 HEALTH_STAMINA_BAR_HEIGHT = 26
@@ -83,20 +84,20 @@ SPECIAL_FONT_SYMBOLS = {'xb_a':'%'}
 # Create a version of SPECIAL_FONT_SYMBOLS where the keys and values are swapped
 SPECIAL_FONT_SYMBOLS_INVERSE = dict((v,k) for k,v in SPECIAL_FONT_SYMBOLS.items())
 
-debug_drawcalls = []
+debug_drawcalls: list[Callable[[], None]] = []
 
 # Class for measuring how long code takes to run
 class Profiler:
-    def __init__(self, name=""):
-        self.start_time = time.perf_counter()
-        self.name = name
+    def __init__(self, name: str = "") -> None:
+        self.start_time: float = time.perf_counter()
+        self.name: str = name
 
-    def get_ms(self):
-        endTime = time.perf_counter()
-        diff = endTime - self.start_time
+    def get_ms(self) -> float:
+        endTime: float = time.perf_counter()
+        diff: float = endTime - self.start_time
         return diff * 1000
 
-    def __str__(self):
+    def __str__(self) -> str:
         return f"{self.name}: {self.get_ms()}ms"
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
@@ -153,30 +154,30 @@ fullscreen_black_bmp.fill((0, 0, 0))
 
 # Utility functions
 
-def clamp(value, min_val, max_val):
+def clamp(value: float, min_val: float, max_val: float) -> float:
     # Clamp a value within a given range
     return min(max(value, min_val), max_val)
 
-def remap(old_val, old_min, old_max, new_min, new_max):
+def remap(old_val: float, old_min: float, old_max: float, new_min: float, new_max: float) -> float:
     # Remap a number from one range to a different range
     # e.g. remapping 5 from source range of 0 to 10, to destination range of 0 to 100, becomes 50
     return (new_max - new_min)*(old_val - old_min) / (old_max - old_min) + new_min
 
-def remap_clamp(old_val, old_min, old_max, new_min, new_max):
+def remap_clamp(old_val: float, old_min: float, old_max: float, new_min: float, new_max: float) -> float:
     # Like remap, but constrains the resulting value so that it can't be outside the new range
     # These first two lines are in case new_min and new_max are inverted
-    lower_limit = min(new_min, new_max)
-    upper_limit = max(new_min, new_max)
+    lower_limit: float = min(new_min, new_max)
+    upper_limit: float = max(new_min, new_max)
     return min(upper_limit, max(lower_limit, remap(old_val, old_min, old_max, new_min, new_max)))
 
-def sign(x):
+def sign(x: float) -> int:
     # Returns 1, 0 or -1 depending on whether number is positive, zero or negative
     if x == 0:
         return 0
     else:
         return -1 if x < 0 else 1
 
-def move_towards(n, target, speed):
+def move_towards(n: float, target: float, speed: float) -> tuple[float, int]:
     # Returns new value, and the direction of travel (-1, 0 or 1)
     if n < target:
         return min(n + speed, target), 1
@@ -189,37 +190,37 @@ def move_towards(n, target, speed):
 class Controls(ABC):
     NUM_BUTTONS = 4
 
-    def __init__(self):
-        self.button_previously_down = [False for i in range(Controls.NUM_BUTTONS)]
-        self.is_button_pressed = [False for i in range(Controls.NUM_BUTTONS)]
+    def __init__(self) -> None:
+        self.button_previously_down: list[bool] = [False for i in range(Controls.NUM_BUTTONS)]
+        self.is_button_pressed: list[bool] = [False for i in range(Controls.NUM_BUTTONS)]
 
-    def update(self):
+    def update(self) -> None:
         # Call each frame to update button status
         for button in range(Controls.NUM_BUTTONS):
-            button_down = self.button_down(button)
+            button_down: bool = self.button_down(button)
             self.is_button_pressed[button] = button_down and not self.button_previously_down[button]
             self.button_previously_down[button] = button_down
 
     @abstractmethod
-    def get_x(self):
+    def get_x(self) -> int:
         # Overridden by subclasses
         pass
 
     @abstractmethod
-    def get_y(self):
+    def get_y(self) -> int:
         # Overridden by subclasses
         pass
 
     @abstractmethod
-    def button_down(self, button):
+    def button_down(self, button: int) -> bool:
         # Overridden by subclasses
         pass
 
-    def button_pressed(self, button):
+    def button_pressed(self, button: int) -> bool:
         return self.is_button_pressed[button]
 
 class KeyboardControls(Controls):
-    def get_x(self):
+    def get_x(self) -> int:
         if keyboard.left:
             return -1
         elif keyboard.right:
@@ -227,7 +228,7 @@ class KeyboardControls(Controls):
         else:
             return 0
 
-    def get_y(self):
+    def get_y(self) -> int:
         if keyboard.up:
             return -1
         elif keyboard.down:
@@ -235,7 +236,7 @@ class KeyboardControls(Controls):
         else:
             return 0
 
-    def button_down(self, button):
+    def button_down(self, button: int) -> bool:  # ty: ignore[invalid-return-type]  # faithful port: returns bool for buttons 0-3, implicitly None otherwise
         if button == 0:
             return keyboard.space or keyboard.z or keyboard.lctrl   # punch
         elif button == 1:
@@ -246,12 +247,12 @@ class KeyboardControls(Controls):
             return keyboard.a   # flying kick
 
 class JoystickControls(Controls):
-    def __init__(self, joystick):
+    def __init__(self, joystick: Any) -> None:
         super().__init__()
-        self.joystick = joystick
+        self.joystick: Any = joystick
         joystick.init() # Not necessary in Pygame 2.0.0 onwards
 
-    def get_axis(self, axis_num):
+    def get_axis(self, axis_num: int) -> int:
         if self.joystick.get_numhats() > 0 and self.joystick.get_hat(0)[axis_num] != 0:
             # For some reason, dpad up/down are inverted when getting inputs from
             # an Xbox controller, so need to negate the value if axis_num is 1
@@ -265,13 +266,13 @@ class JoystickControls(Controls):
             # digital movement
             return 1 if axis_value > 0 else -1
 
-    def get_x(self):
+    def get_x(self) -> int:
         return self.get_axis(0)
 
-    def get_y(self):
+    def get_y(self) -> int:
         return self.get_axis(1)
 
-    def button_down(self, button):
+    def button_down(self, button: int) -> bool:
         # Before checking button, check to make sure that the controller actually has enough buttons
         # There are some weird devices out there which could cause a crash if this check were not present
         if self.joystick.get_numbuttons() <= button:
@@ -280,36 +281,37 @@ class JoystickControls(Controls):
         return self.joystick.get_button(button) != 0
 
 class Attack:
-    def __init__(self, sprite=None, strength=None, anim_time=None, frame_time=5, frames=0, hit_frames=(),
-                 recovery_time=0, reach=80, throw=False, grab=False, combo_next=None, flyingkick=False,
-                 stamina_cost=10, rear_attack=False, stamina_damage_multiplier=1, stun_time_multiplier=1, initial_sound=None, hit_sound=None):
+    def __init__(self, sprite: Any = None, strength: Any = None, anim_time: Any = None, frame_time: int = 5, frames: int = 0, hit_frames: Any = (),
+                 recovery_time: int = 0, reach: int = 80, throw: bool = False, grab: bool = False, combo_next: Any = None, flyingkick: bool = False,
+                 stamina_cost: int = 10, rear_attack: bool = False, stamina_damage_multiplier: float = 1, stun_time_multiplier: float = 1, initial_sound: Any = None, hit_sound: Any = None) -> None:
         # Some data for attacks loaded from attacks.json must be modified to be in the format the game expects
         # For example, the keys in combo_next should be integers, but are strings in the json file as JSON only allows
         # string keys.
         if combo_next is not None:
             combo_next = {int(key):value for (key,value) in combo_next.items()}
 
-        self.sprite = sprite
-        self.strength = strength
-        self.recovery_time = recovery_time  # Can't attack for this many frames after attack animation finishes
-        self.anim_time = anim_time      # Frames for which animation plays, this allows us to stay on the last frame longer than previous frames
-        self.frame_time = frame_time    # Frames for which each animation frame plays
-        self.frames = frames            # Number of frames in animation
-        self.hit_frames = hit_frames    # frames on which an opponent can be hit by this attack
-        self.reach = reach              # Opponent must be closer than this for attack to hit
-        self.throw = throw              # Is this an attack where we throw something, such as a barrel or the player?
-        self.grab = grab                # Is this the attack where the boss grabs the player and throws him?
-        self.combo_next = combo_next
-        self.flying_kick = flyingkick
-        self.stamina_cost = stamina_cost
-        self.rear_attack = rear_attack
-        self.stamina_damage_multiplier = stamina_damage_multiplier  # Does this attack do additional damage to the opponent's stamina?
-        self.stun_time_multiplier = stun_time_multiplier
-        self.initial_sound = initial_sound
-        self.hit_sound = hit_sound
+        self.sprite: Any = sprite
+        self.strength: Any = strength
+        self.recovery_time: int = recovery_time  # Can't attack for this many frames after attack animation finishes
+        self.anim_time: Any = anim_time      # Frames for which animation plays, this allows us to stay on the last frame longer than previous frames
+        self.frame_time: int = frame_time    # Frames for which each animation frame plays
+        self.frames: int = frames            # Number of frames in animation
+        self.hit_frames: Any = hit_frames    # frames on which an opponent can be hit by this attack
+        self.reach: int = reach              # Opponent must be closer than this for attack to hit
+        self.throw: bool = throw              # Is this an attack where we throw something, such as a barrel or the player?
+        self.grab: bool = grab                # Is this the attack where the boss grabs the player and throws him?
+        self.combo_next: Any = combo_next
+        self.flying_kick: bool = flyingkick
+        self.stamina_cost: int = stamina_cost
+        self.rear_attack: bool = rear_attack
+        self.stamina_damage_multiplier: float = stamina_damage_multiplier  # Does this attack do additional damage to the opponent's stamina?
+        self.stun_time_multiplier: float = stun_time_multiplier
+        self.initial_sound: Any = initial_sound
+        self.hit_sound: Any = hit_sound
 
-# Load attack data from file
-with open("attacks.json") as attacks_file:
+# Load attack data from file (resolve relative to this script so the game can be
+# launched from any working directory, not just its own folder)
+with open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "attacks.json")) as attacks_file:
     ATTACKS = json.load(attacks_file)
     for key, value in ATTACKS.items():
         # Turn values in the dictionary into constructor parameters of the Attack class
@@ -324,17 +326,17 @@ with open("attacks.json") as attacks_file:
 # on the Y axis than if they were on the ground, but it's their Y position in relation to the ground which should
 # determine whether they're drawn behind or in front of other actors.
 class ScrollHeightActor(Actor):
-    def __init__(self, img, pos, anchor=None, separate_shadow=False):
+    def __init__(self, img: Any, pos: Any, anchor: Any = None, separate_shadow: bool = False) -> None:
         super().__init__(img, pos, anchor=anchor)
-        self.vpos = Vector2(pos)
-        self.height_above_ground = 0
+        self.vpos: Vector2 = Vector2(pos)
+        self.height_above_ground: float = 0
         if separate_shadow:
-            self.shadow_actor = Actor("blank", pos, anchor=anchor)
+            self.shadow_actor: Any = Actor("blank", pos, anchor=anchor)
         else:
             self.shadow_actor = None
 
     # We draw with the supplied Vector2 offset to enable scrolling
-    def draw(self, offset):
+    def draw(self, offset: Vector2) -> None:  # ty: ignore[invalid-method-override]  # faithful port: ScrollHeightActor.draw takes a scroll offset, widening Actor.draw(self)
         # Draw shadow first, if we are using a separate shadow sprite (most have the shadow as part of the sprite
         # but for player it is separate)
         if self.shadow_actor is not None:
@@ -348,13 +350,13 @@ class ScrollHeightActor(Actor):
         if DEBUG_SHOW_ANCHOR_POINTS:
             screen.draw.circle(self.pos, 5, (255,255,255))
 
-    def on_screen(self):
+    def on_screen(self) -> bool:
         # Use self.x rather than self.vpos.x to get actual screen position rather than world position
         # Note that self.x only updates when the actor is drawn, so if vpos.x is updated during update causing the
         # actor to move off-screen, the value returned by this method will not update until the following frame
         return 0 < self.x < WIDTH
 
-    def get_draw_order_offset(self):
+    def get_draw_order_offset(self) -> int:
         # See Player and Stick classes for explanation
         return 0
 
@@ -369,74 +371,74 @@ class Fighter(ScrollHeightActor, ABC):
         GRABBED = 3
         THROWN = 4
 
-    def log(self, str):
+    def log(self, str: str) -> None:
         if DEBUG_LOGGING_ENABLED:
-            l = f"{game.timer} {str} {self.vpos}"
+            l: str = f"{game.timer} {str} {self.vpos}"
             print(self, l)
             self.logs.append(l)
 
-    def __init__(self, pos, anchor, speed, sprite, health, anim_update_rate=8, stamina=500, half_hit_area=Vector2(25, 20), lives=1, colour_variant=None, separate_shadow=False, hit_sound=None):
+    def __init__(self, pos: Any, anchor: Any, speed: Vector2, sprite: str, health: int, anim_update_rate: int = 8, stamina: int = 500, half_hit_area: Vector2 = Vector2(25, 20), lives: int = 1, colour_variant: Any = None, separate_shadow: bool = False, hit_sound: Any = None) -> None:
         super().__init__("blank", pos, anchor, separate_shadow=separate_shadow)
 
         # Speed is a Vector2 containing x and y speed
-        self.speed = speed
+        self.speed: Vector2 = speed
 
         # e.g. "hero" or "enemy"
-        self.sprite = sprite
+        self.sprite: str = sprite
 
-        self.anim_update_rate = anim_update_rate
+        self.anim_update_rate: int = anim_update_rate
 
-        self.facing_x = 1
+        self.facing_x: int = 1
 
         # Updates each game frame, then is translated into an animation frame number depending on the animation
         # being played
-        self.frame = 0
+        self.frame: int = 0
 
         # Last attack is current attack if attack_timer is above zero
-        self.last_attack = None
+        self.last_attack: Any = None
 
         # Above zero = currently attacking, zero or below = time since last attack
-        self.attack_timer = 0
+        self.attack_timer: int = 0
 
         # Are we knocked down or in the process of being knocked down?
-        self.falling_state = Fighter.FallingState.STANDING
+        self.falling_state: Fighter.FallingState = Fighter.FallingState.STANDING
 
         # Are we currently walking? Used to determine whether to use standing or walking animation
-        self.walking = False
+        self.walking: bool = False
 
-        self.vel = Vector2(0, 0)  # Velocity X used when falling or being pushed backwards or for flying kick, velocity Y for jumping
+        self.vel: Vector2 = Vector2(0, 0)  # Velocity X used when falling or being pushed backwards or for flying kick, velocity Y for jumping
 
-        self.pickup_animation = None
+        self.pickup_animation: Any = None
 
-        self.hit_timer = 0      # if above 0, we've just been hit and are doing the animation where we recoil from that
-        self.hit_frame = 0
+        self.hit_timer: int = 0      # if above 0, we've just been hit and are doing the animation where we recoil from that
+        self.hit_frame: int = 0
 
-        self.stamina = stamina
-        self.max_stamina = stamina
+        self.stamina: int = stamina
+        self.max_stamina: int = stamina
 
         # Determines whether an opponent's attack will hit us, based on the distance between us and the attack's reach
         # Larger number for the portal, because the portal is physically bigger
-        self.half_hit_area = half_hit_area
+        self.half_hit_area: Vector2 = half_hit_area
 
-        self.health = health
-        self.start_health = health
-        self.lives = lives
+        self.health: int = health
+        self.start_health: int = health
+        self.lives: int = lives
 
         # Used for enemies with multiple colour variants - appended to sprite name
-        self.colour_variant = colour_variant
+        self.colour_variant: Any = colour_variant
 
-        self.hit_sound = hit_sound
+        self.hit_sound: Any = hit_sound
 
-        self.weapon = None
+        self.weapon: Any = None
 
         # Used for animation where Scooterboy enemy is knocked off his scooter
-        self.just_knocked_off_scooter = False
+        self.just_knocked_off_scooter: bool = False
 
-        self.use_die_animation = False
+        self.use_die_animation: bool = False
 
-        self.logs = []
+        self.logs: list[str] = []
 
-    def update(self):
+    def update(self) -> None:
         self.attack_timer -= 1
 
         # Apply gravity and velocity if in air
@@ -541,7 +543,7 @@ class Fighter(ScrollHeightActor, ABC):
                 # Before deciding if we want to attack - do we instead want to pick up or drop a weapon?
                 if self.weapon is None:
                     # Find weapons within reach
-                    nearby_weapons = [weapon for weapon in game.weapons if (weapon.vpos - self.vpos).length() < 50]
+                    nearby_weapons: list[Any] = [weapon for weapon in game.weapons if (weapon.vpos - self.vpos).length() < 50]
                     if len(nearby_weapons) > 0:
                         if self.determine_pick_up_weapon():
                             # Sort nearby weapons by distance. length_squared is used to order them instead of
@@ -589,11 +591,11 @@ class Fighter(ScrollHeightActor, ABC):
             if self.attack_timer <= 0:
                 # Not attacking
                 # Update facing_x. If get_desired_facing returns None, leave facing_x as it is
-                desired_facing = self.get_desired_facing()
+                desired_facing: int | None = self.get_desired_facing()
                 if desired_facing is not None:
                     self.facing_x = desired_facing
 
-                target = self.get_move_target()
+                target: Vector2 = self.get_move_target()
                 if target != self.vpos:
                     self.walking = True
 
@@ -612,7 +614,7 @@ class Fighter(ScrollHeightActor, ABC):
                 # Currently attacking
                 self.frame += 1
 
-                frame = self.get_attack_frame()
+                frame: int = self.get_attack_frame()
 
                 # If current frame of attack is a hit frame, inflict damage to enemies
                 if frame in self.last_attack.hit_frames:
@@ -635,14 +637,14 @@ class Fighter(ScrollHeightActor, ABC):
                     # doesn't hit opponents because the position it's in when it's released is already past them
                     self.attack(self.last_attack)
 
-    def attack(self, attack):
+    def attack(self, attack: Any) -> None:
         # See if there is an opponent directly in front of us who we can hit (or behind us if it's a rear attack
         # such as elbow)
         if attack.strength > 0:
             # Loop through all opponents to see which (if any) this attack should hit
             for opponent in self.get_opponents():
-                vec = opponent.vpos - self.vpos
-                facing_correct = sign(self.facing_x) == sign(vec.x)
+                vec: Vector2 = opponent.vpos - self.vpos
+                facing_correct: bool = sign(self.facing_x) == sign(vec.x)
                 if attack.rear_attack:
                     facing_correct = not facing_correct
 
@@ -655,11 +657,11 @@ class Fighter(ScrollHeightActor, ABC):
                         self.drop_weapon()
 
             if DEBUG_SHOW_ATTACKS:
-                attack_facing = self.facing_x * (-1 if attack.rear_attack else 1)
-                debug_rect = Rect(self.x - (attack.reach if attack_facing == -1 else 0), self.y - 5, attack.reach, 10)
+                attack_facing: int = self.facing_x * (-1 if attack.rear_attack else 1)
+                debug_rect: Rect = Rect(self.x - (attack.reach if attack_facing == -1 else 0), self.y - 5, attack.reach, 10)
                 debug_drawcalls.append(lambda: screen.draw.filled_rect(debug_rect, (255, 0, 0)))
 
-    def hit(self, hitter, attack):
+    def hit(self, hitter: Any, attack: Any) -> None:
         # Hitter can be another fighter, or a weapon such as a barrel
         # Can't be hit if we're falling/getting up
         if self.falling_state == Fighter.FallingState.STANDING or self.falling_state == Fighter.FallingState.GRABBED:
@@ -718,19 +720,19 @@ class Fighter(ScrollHeightActor, ABC):
                     # Get knocked backwards
                     self.vel.x += -self.facing_x * 10
 
-    def died(self):
+    def died(self) -> None:
         # Called when out of lives, can be overridden in cases where subclasses need to know that - e.g.
         # EnemyHoodie may drop stick on death
         pass
 
-    def draw(self, offset):
+    def draw(self, offset: Vector2) -> None:
         # Determine sprite to use based on our current action
         self.image = self.determine_sprite()
 
         super().draw(offset)
 
         if DEBUG_SHOW_HEALTH_AND_STAMINA:
-            text = f"HP: {self.health}\nSTM: {self.stamina}"
+            text: str = f"HP: {self.health}\nSTM: {self.stamina}"
             screen.draw.text(text, fontsize=24, center=(self.x, self.y - 200), color="#FFFFFF", align="center")
 
         if DEBUG_SHOW_HIT_AREA_WIDTH:
@@ -742,8 +744,8 @@ class Fighter(ScrollHeightActor, ABC):
                 screen.draw.text(l, fontsize=14, center=(self.x, y), color="#FFFFFF", align="center")
                 y += 10
 
-    def determine_sprite(self):
-        show = True
+    def determine_sprite(self) -> str:
+        show: bool = True
 
         if self.falling_state == Fighter.FallingState.FALLING:
             if self.frame > 60 and self.health <= 0 and (self.frame // 10) % 2 == 0:
@@ -764,8 +766,8 @@ class Fighter(ScrollHeightActor, ABC):
 
                 # Now choose the sprite to use this frame
                 if self.just_knocked_off_scooter:
-                    anim_type = "knocked_off"
-                    frame = 0
+                    anim_type: str = "knocked_off"
+                    frame: int = 0
                 elif self.use_die_animation:
                     anim_type = "die"
                     frame = min(self.frame // 20, 2)
@@ -821,8 +823,8 @@ class Fighter(ScrollHeightActor, ABC):
 
         if show:
             # In sprite filenames, 0 = facing left, 1 = right
-            facing_id = 1 if self.facing_x == 1 else 0
-            image = f"{self.sprite}_{anim_type}_{facing_id}_{frame}"
+            facing_id: int = 1 if self.facing_x == 1 else 0
+            image: str = f"{self.sprite}_{anim_type}_{facing_id}_{frame}"
             if self.colour_variant is not None:
                 image += "_" + str(self.colour_variant)
         else:
@@ -830,31 +832,31 @@ class Fighter(ScrollHeightActor, ABC):
 
         return image
 
-    def get_attack_frame(self):
+    def get_attack_frame(self) -> int:
         # return value of this function is an animation frame, e.g. we are on the third frame of the punch animation
         # self.frame is a game frame, increasing by 1 every 1/60th of a second
         # We use self.last_attack to get the current attack that we're doing, i.e. it's the last attack we started
         # doing, and we're still doing it
-        frame = (self.frame // self.last_attack.frame_time)
+        frame: int = (self.frame // self.last_attack.frame_time)
         frame = min(frame, self.last_attack.frames - 1)
         return frame
 
-    def override_walking(self):
+    def override_walking(self) -> bool:
         # Used by subclasses to prevent the usual walking/attacking behaviour
         return False
 
-    def drop_weapon(self):
+    def drop_weapon(self) -> None:
         self.pickup_animation = None    # Stop pickup animation if we're in the middle of one
         self.weapon.dropped()
         self.weapon = None
 
-    def grabbed(self):
+    def grabbed(self) -> None:
         self.log("Grabbed")
         self.falling_state = Fighter.FallingState.GRABBED
         if self.weapon is not None:
             self.drop_weapon()
 
-    def thrown(self, dir_x):
+    def thrown(self, dir_x: int) -> None:
         self.log("Thrown")
         self.falling_state = Fighter.FallingState.THROWN
         self.vel.x = dir_x * PLAYER_THROW_VEL_X
@@ -865,7 +867,7 @@ class Fighter(ScrollHeightActor, ABC):
         self.vpos.x += dir_x * 50
         self.height_above_ground = 45
 
-    def apply_movement_boundaries(self, dx, dy):
+    def apply_movement_boundaries(self, dx: float, dy: float) -> None:
         # A fighter outside the boundary can walk in a direction which will help them get inside the boundary, but not
         # in the direction that will take them further out of it
         if dx < 0 and self.vpos.x < game.boundary.left:
@@ -880,37 +882,37 @@ class Fighter(ScrollHeightActor, ABC):
     # Every class that inherits from Fighter must implement each of the following abstract methods
 
     @abstractmethod
-    def determine_attack(self):
+    def determine_attack(self) -> Any:
         pass
 
     @abstractmethod
-    def determine_pick_up_weapon(self):
+    def determine_pick_up_weapon(self) -> bool:
         pass
 
     @abstractmethod
-    def determine_drop_weapon(self):
+    def determine_drop_weapon(self) -> bool:
         pass
 
     @abstractmethod
-    def get_opponents(self):
+    def get_opponents(self) -> list:
         pass
 
     @abstractmethod
-    def get_move_target(self):
+    def get_move_target(self) -> Vector2:
         pass
 
     @abstractmethod
-    def get_desired_facing(self):
+    def get_desired_facing(self) -> int | None:
         pass
 
 class Player(Fighter):
-    def __init__(self, controls):
+    def __init__(self, controls: Any) -> None:
         # Anchor point just above bottom of sprite
         super().__init__(pos=(400, 400), anchor=("center",256), speed=Vector2(3,2), sprite="hero", health=30, lives=3, separate_shadow=True)
-        self.controls = controls
-        self.extra_life_timer = 0
+        self.controls: Any = controls
+        self.extra_life_timer: int = 0
 
-    def update(self):
+    def update(self) -> None:
         super().update()
 
         self.extra_life_timer -= 1
@@ -920,12 +922,12 @@ class Player(Fighter):
             if (powerup.vpos - self.vpos).length() < 30:
                 powerup.collect(self)
 
-    def draw(self, offset):
+    def draw(self, offset: Vector2) -> None:
         super().draw(offset)
         # screen.draw.text(f"{self.vpos}", (0,0))
         # screen.draw.text(f"{self.vpos}", self.pos)
 
-    def determine_attack(self):
+    def determine_attack(self) -> Any:
         # Do we have a weapon?
         if self.weapon is not None:
             # Ensure we cannot attack during the pickup animation
@@ -956,20 +958,20 @@ class Player(Fighter):
 
         return None
 
-    def determine_pick_up_weapon(self):
+    def determine_pick_up_weapon(self) -> bool:
         return self.controls.button_pressed(0)
 
-    def determine_drop_weapon(self):
+    def determine_drop_weapon(self) -> bool:
         return self.weapon is not None and self.controls.button_pressed(1)
 
-    def get_opponents(self):
+    def get_opponents(self) -> list:
         return game.enemies
 
-    def get_move_target(self):
+    def get_move_target(self) -> Vector2:
         # Our target position is our current position offset based on control inputs and speed
         return self.vpos + Vector2(self.controls.get_x() * self.speed.x, self.controls.get_y() * self.speed.y)
 
-    def get_desired_facing(self):
+    def get_desired_facing(self) -> int | None:
         dx = self.controls.get_x()
         if dx != 0:
             self.facing_x = sign(dx)
@@ -977,11 +979,11 @@ class Player(Fighter):
             # Keep facing same direction as before if no X input
             return self.facing_x
 
-    def get_draw_order_offset(self):
+    def get_draw_order_offset(self) -> int:
         # Consider player to be in front of another object with the same Y pos
         return 1
 
-    def gain_extra_life(self):
+    def gain_extra_life(self) -> None:
         self.lives += 1
         self.extra_life_timer = 30
 
@@ -997,41 +999,41 @@ class Enemy(Fighter, ABC):
         PORTAL = 6
         PORTAL_EXPLODE = 7
 
-    def __init__(self, pos, name, attacks, start_timer,
-                 speed=Vector2(1, 1),
-                 health=15,
-                 stamina=500,
-                 approach_player_distance=ENEMY_APPROACH_PLAYER_DISTANCE,
-                 anchor_y=256,
-                 half_hit_area=Vector2(25, 20),
-                 colour_variant=None,
-                 hit_sound=None,
-                 score=10):
+    def __init__(self, pos: Any, name: str, attacks: Any, start_timer: int,
+                 speed: Vector2 = Vector2(1, 1),
+                 health: int = 15,
+                 stamina: int = 500,
+                 approach_player_distance: int = ENEMY_APPROACH_PLAYER_DISTANCE,
+                 anchor_y: int = 256,
+                 half_hit_area: Vector2 = Vector2(25, 20),
+                 colour_variant: Any = None,
+                 hit_sound: Any = None,
+                 score: int = 10) -> None:
         # Slower animation speed than Hero
         super().__init__(pos, ("center",anchor_y), speed=speed, sprite=name, health=health, stamina=stamina,
                          anim_update_rate=14, half_hit_area=half_hit_area, colour_variant=colour_variant, hit_sound=hit_sound)
 
         # Target is a Vector2 instance
         # Must make a copy of the value, not a copy of the reference
-        self.target = Vector2(self.vpos)
+        self.target: Vector2 = Vector2(self.vpos)
 
-        self.target_weapon = None
+        self.target_weapon: Any = None
 
         # Enemies don't try to target player until their start timer drops to zero
         # e.g. on starting a new stage we might not want them to start targeting the player until they have
         # scrolled onto the screen
-        self.state = Enemy.State.PAUSE
-        self.state_timer = start_timer
+        self.state: Enemy.State = Enemy.State.PAUSE
+        self.state_timer: int = start_timer
 
-        self.attacks = attacks
-        self.approach_player_distance = approach_player_distance
-        self.score = score
+        self.attacks: Any = attacks
+        self.approach_player_distance: int = approach_player_distance
+        self.score: int = score
 
-    def spawned(self):
+    def spawned(self) -> None:
         # Called when the enemy is added into the game (when its stage is reached)
         pass
 
-    def update(self):
+    def update(self) -> None:
         if self.state == Enemy.State.APPROACH_PLAYER:
             player = game.player
 
@@ -1047,7 +1049,7 @@ class Enemy(Fighter, ABC):
                 # Head towards player
                 # If we are holding a barrel, use a larger X offset so we throw from a distance
                 if isinstance(self.weapon, Barrel):
-                    x_offset = ENEMY_APPROACH_PLAYER_DISTANCE_BARREL
+                    x_offset: int = ENEMY_APPROACH_PLAYER_DISTANCE_BARREL
                 else:
                     x_offset = self.approach_player_distance
                 self.target.x = player.vpos.x + (x_offset * sign(self.vpos.x - player.vpos.x))
@@ -1098,7 +1100,7 @@ class Enemy(Fighter, ABC):
 
             # Check to see if another enemy is already heading for the new target pos, or one very close to it.
             # If so, make a new decision
-            other_enemies_same_target = [enemy for enemy in game.enemies if enemy is not self and
+            other_enemies_same_target: list[Any] = [enemy for enemy in game.enemies if enemy is not self and
                                          (enemy.target - self.target).length() < 20]
             if len(other_enemies_same_target) > 0:
                 self.log("Same target")
@@ -1107,13 +1109,13 @@ class Enemy(Fighter, ABC):
         # Call through to Fighter class update
         super().update()
 
-    def draw(self, offset):
+    def draw(self, offset: Vector2) -> None:
         super().draw(offset)
 
         if DEBUG_SHOW_TARGET_POS:
             screen.draw.line(self.vpos - offset, self.target - offset, (255,255,255))
 
-    def determine_attack(self):
+    def determine_attack(self) -> Any:
         # Allow attacking if we're in APPROACH_PLAYER state, aligned with player on Y axis, both I and player are
         # standing up, and we're within the right range of distances on the X axis, finally a must pass a random chance
         # check of 1 in 20
@@ -1122,7 +1124,7 @@ class Enemy(Fighter, ABC):
         # Unpack player pos into more convenient variables
         px, py = game.player.vpos
 
-        holding_barrel = isinstance(self.weapon, Barrel)
+        holding_barrel: bool = isinstance(self.weapon, Barrel)
 
         if self.state == Enemy.State.APPROACH_PLAYER \
                and game.player.falling_state == Fighter.FallingState.STANDING \
@@ -1141,16 +1143,16 @@ class Enemy(Fighter, ABC):
 
                 return chosen_attack
 
-    def determine_pick_up_weapon(self):
+    def determine_pick_up_weapon(self) -> bool:
         return False
 
-    def determine_drop_weapon(self):
+    def determine_drop_weapon(self) -> bool:
         return False
 
-    def get_opponents(self):
+    def get_opponents(self) -> list:
         return [game.player]
 
-    def get_move_target(self):
+    def get_move_target(self) -> Vector2:
         # Move towards player
         # Choose a location to walk to, depending on which side of the player we're on
         # We aim for a position 1 pixel above the player on the Y axis, so that we draw behind them
@@ -1163,14 +1165,14 @@ class Enemy(Fighter, ABC):
             #return self.target.get_pos()
             return self.target
 
-    def get_desired_facing(self):
+    def get_desired_facing(self) -> int:
         # Always face towards player, unless we're on a scooter
         if self.state == Enemy.State.RIDING_SCOOTER:
             return self.facing_x
         else:
             return 1 if self.vpos.x < game.player.vpos.x else -1
 
-    def hit(self, hitter, attack):
+    def hit(self, hitter: Any, attack: Any) -> None:
         if self.state == Enemy.State.KNOCKED_DOWN:
             # Already knocked down
             return
@@ -1189,7 +1191,7 @@ class Enemy(Fighter, ABC):
             self.state = Enemy.State.KNOCKED_DOWN
             self.log("Knocked down")
 
-    def make_decision(self):
+    def make_decision(self) -> None:
         player = game.player
 
         # If we're not going for a weapon:
@@ -1203,11 +1205,11 @@ class Enemy(Fighter, ABC):
             # 3/10 chance of going to a random point slightly further from the player
             # 1/10 chance of pausing for a short time
 
-            r = randint(0, 9)
+            r: int = randint(0, 9)
             if r < 7:
                 # Check to see if another enemy on the same X side of the player is already heading to attack them
                 # If so, flank instead
-                other_enemies_on_same_side_attacking = [enemy for enemy in game.enemies if enemy is not self
+                other_enemies_on_same_side_attacking: list[Any] = [enemy for enemy in game.enemies if enemy is not self
                                                         and enemy.state == Enemy.State.APPROACH_PLAYER
                                                         and sign(enemy.vpos.x - player.vpos.x) == sign(self.vpos.x - player.vpos.x)]
                 if len(other_enemies_on_same_side_attacking) > 0:
@@ -1228,13 +1230,13 @@ class Enemy(Fighter, ABC):
                 # Go to a random point at a moderate distance from the player
                 # Stick to same half of screen on X axis
                 self.log("Go to distance from player")
-                x_side = sign(self.vpos.x - player.vpos.x)
+                x_side: int = sign(self.vpos.x - player.vpos.x)
                 if x_side == 0:
                     x_side = choice((1,-1))
-                x1 = int(player.vpos.x + (150 * x_side))
-                x2 = int(player.vpos.x + (400 * x_side))
-                x = randint(min(x1,x2), max(x1,x2))
-                y = randint(game.boundary.top, game.boundary.bottom)
+                x1: int = int(player.vpos.x + (150 * x_side))
+                x2: int = int(player.vpos.x + (400 * x_side))
+                x: int = randint(min(x1,x2), max(x1,x2))
+                y: int = randint(game.boundary.top, game.boundary.bottom)
                 self.target = Vector2(x, y)
                 self.state = Enemy.State.GO_TO_POS
 
@@ -1245,14 +1247,14 @@ class Enemy(Fighter, ABC):
                 self.state = Enemy.State.PAUSE
 
 class EnemyVax(Enemy):
-    def __init__(self, pos, start_timer=20):
+    def __init__(self, pos: Any, start_timer: int = 20) -> None:
         super().__init__(pos, "vax", ("vax_lpunch", "vax_rpunch", "vax_pound"), start_timer=start_timer, colour_variant=randint(0,2), score=20)
 
 class EnemyHoodie(Enemy):
-    def __init__(self, pos, start_timer=20):
+    def __init__(self, pos: Any, start_timer: int = 20) -> None:
         super().__init__(pos, "hoodie", ("hoodie_lpunch", "hoodie_rpunch", "hoodie_special"), health=12, speed=Vector2(1.2, 1), start_timer=start_timer, colour_variant=randint(0,2), score=20)
 
-    def died(self):
+    def died(self) -> None:
         super().died()
 
         # Chance of dropping a stick
@@ -1264,14 +1266,14 @@ class EnemyScooterboy(Enemy):
     SCOOTER_SPEED_FAST = 12
     SCOOTER_ACCELERATION = 0.2
 
-    def __init__(self, pos, start_timer=20):
+    def __init__(self, pos: Any, start_timer: int = 20) -> None:
         super().__init__(pos, "scooterboy", ("scooterboy_attack1",), start_timer=start_timer, approach_player_distance=ENEMY_APPROACH_PLAYER_DISTANCE_SCOOTERBOY, colour_variant=randint(0,2), score=30)
         self.state = Enemy.State.RIDING_SCOOTER
-        self.scooter_speed = EnemyScooterboy.SCOOTER_SPEED_SLOW
-        self.scooter_target_speed = self.scooter_speed
-        self.scooter_sound_channel = None
+        self.scooter_speed: float = EnemyScooterboy.SCOOTER_SPEED_SLOW
+        self.scooter_target_speed: float = self.scooter_speed
+        self.scooter_sound_channel: Any = None
 
-    def spawned(self):
+    def spawned(self) -> None:
         super().spawned()
         try:
             self.scooter_sound_channel = pygame.mixer.find_channel()
@@ -1281,16 +1283,16 @@ class EnemyScooterboy(Enemy):
             # Don't crash if no sound hardware
             pass
 
-    def make_decision(self):
+    def make_decision(self) -> None:
         # Scooterboy stays on scooter until knocked off
         if self.state != Enemy.State.RIDING_SCOOTER:
             super().make_decision()
 
-    def determine_sprite(self):
+    def determine_sprite(self) -> str:
         # Riding scooter is a state unique to Scooterboy, so it is dealt with here
         if self.state == Enemy.State.RIDING_SCOOTER:
-            facing_id = 1 if self.facing_x == 1 else 0
-            frame = 0
+            facing_id: int = 1 if self.facing_x == 1 else 0
+            frame: int = 0
             if self.scooter_speed < self.scooter_target_speed:
                 # Currently speeding up
                 frame = min(self.frame // 5, 2)
@@ -1298,14 +1300,14 @@ class EnemyScooterboy(Enemy):
         else:
             return super().determine_sprite()
 
-    def update(self):
+    def update(self) -> None:
         if self.state == Enemy.State.RIDING_SCOOTER:
             player = game.player
 
             # Change volume independently on left and right speakers
             if self.scooter_sound_channel is not None:
-                left_volume = remap_clamp(abs(self.vpos.x - player.vpos.x + 500), 0, 1000, 1, 0)
-                right_volume = remap_clamp(abs(self.vpos.x - player.vpos.x - 500), 0, 1000, 1, 0)
+                left_volume: float = remap_clamp(abs(self.vpos.x - player.vpos.x + 500), 0, 1000, 1, 0)
+                right_volume: float = remap_clamp(abs(self.vpos.x - player.vpos.x - 500), 0, 1000, 1, 0)
                 self.scooter_sound_channel.set_volume(left_volume, right_volume)
 
             # Currently accelerating/decelerating?
@@ -1357,10 +1359,10 @@ class EnemyScooterboy(Enemy):
 
         super().update()
 
-    def override_walking(self):
+    def override_walking(self) -> bool:
         return self.state == Enemy.State.RIDING_SCOOTER
 
-    def died(self):
+    def died(self) -> None:
         super().died()
 
         # Low chance of dropping a chain
@@ -1372,21 +1374,21 @@ class EnemyScooterboy(Enemy):
             self.scooter_sound_channel.stop()
 
 class EnemyBoss(Enemy):
-    def __init__(self, pos, start_timer=20):
+    def __init__(self, pos: Any, start_timer: int = 20) -> None:
         super().__init__(pos, "boss", ("boss_lpunch", "boss_rpunch", "boss_kick", "boss_grab_player",),
                          speed=Vector2(0.9,0.8), health=25, stamina=1000, start_timer=start_timer, anchor_y=280,
                          half_hit_area=Vector2(30, 20), colour_variant=randint(0,2), score=75)
 
-    def make_decision(self):
+    def make_decision(self) -> None:
         # Boss can pick up a barrel, if they're not currently holding one
         # Look for a barrel we can walk to. Barrel must not be held by anyone else and must be on the screen
         if self.weapon is None:
-            available_barrels = [weapon for weapon in game.weapons if isinstance(weapon, Barrel) and weapon.can_be_picked_up() and weapon.on_screen()]
+            available_barrels: list[Any] = [weapon for weapon in game.weapons if isinstance(weapon, Barrel) and weapon.can_be_picked_up() and weapon.on_screen()]
             if len(available_barrels) > 0:
                 # Find a weapon to go to
                 for weapon in available_barrels:
                     # Don't go to a barrel if another enemy is already going to it
-                    other_enemies_same_target = [enemy for enemy in game.enemies if enemy is not self and
+                    other_enemies_same_target: list[Any] = [enemy for enemy in game.enemies if enemy is not self and
                                                  enemy.target_weapon is weapon]
                     if len(other_enemies_same_target) == 0:
                         # This weapon is OK to go for
@@ -1403,34 +1405,34 @@ class EnemyPortal(Enemy):
     GENERATE_ANIMATION_DIVISOR = 16
     GENERATE_ANIMATION_TIME = GENERATE_ANIMATION_FRAMES * GENERATE_ANIMATION_DIVISOR
 
-    def __init__(self, pos, enemies, spawn_interval, spawn_interval_change=0, max_spawn_interval=600, max_enemies=5, start_timer=90):
+    def __init__(self, pos: Any, enemies: Any, spawn_interval: int, spawn_interval_change: int = 0, max_spawn_interval: int = 600, max_enemies: int = 5, start_timer: int = 90) -> None:
         # Hittable area is larger for portals
         super().__init__(pos, "portal", (), start_timer=start_timer, anchor_y=340, half_hit_area=Vector2(50, 50), hit_sound="portal_hit")
-        self.enemies = enemies
-        self.spawn_interval = spawn_interval
-        self.spawn_timer = spawn_interval
-        self.spawn_interval_change = spawn_interval_change
-        self.max_spawn_interval = max_spawn_interval
-        self.max_enemies = max_enemies
-        self.spawning_enemy = None
-        self.spawn_facing = 0
+        self.enemies: Any = enemies
+        self.spawn_interval: int = spawn_interval
+        self.spawn_timer: int = spawn_interval
+        self.spawn_interval_change: int = spawn_interval_change
+        self.max_spawn_interval: int = max_spawn_interval
+        self.max_enemies: int = max_enemies
+        self.spawning_enemy: Any = None
+        self.spawn_facing: int = 0
 
-    def spawned(self):
+    def spawned(self) -> None:
         super().spawned()
         game.play_sound("portal_appear")
 
-    def make_decision(self):
+    def make_decision(self) -> None:
         # Like all enemies, portals start in the PAUSE state until their start_timer expires
         self.state = Enemy.State.PORTAL
 
-    def determine_sprite(self):
+    def determine_sprite(self) -> str:
         if self.state == Enemy.State.PAUSE and self.frame // 8 < 4:
             return "portal_grow_" + str(min(self.frame // 8, 3))
         elif self.state == Enemy.State.PORTAL_EXPLODE:
             return "portal_destroyed_" + str(min(self.frame // 6, 7))
         elif self.spawning_enemy is not None:
             # 3 frames of neutral generate animation, then 3 frames of animation for generating specific enemy
-            frame = self.frame // EnemyPortal.GENERATE_ANIMATION_DIVISOR
+            frame: int = self.frame // EnemyPortal.GENERATE_ANIMATION_DIVISOR
             if frame < 3:
                 return "portal_generate_" + str(frame)
             else:
@@ -1442,7 +1444,7 @@ class EnemyPortal(Enemy):
         else:
             return "portal_idle_" + str((self.frame // 8) % 8)
 
-    def update(self):
+    def update(self) -> None:
         self.frame += 1
 
         if self.state == Enemy.State.PORTAL:
@@ -1490,42 +1492,42 @@ class EnemyPortal(Enemy):
 
         super().update()
 
-    def override_walking(self):
+    def override_walking(self) -> bool:
         # A portal never walks
         return True
 
 # This is the scooter on its own, with the rider having been knocked off
 class Scooter(ScrollHeightActor):
-    def __init__(self, pos, facing_x, colour_variant):
+    def __init__(self, pos: Any, facing_x: int, colour_variant: Any) -> None:
         super().__init__("blank", pos, ("center",256))
-        self.facing_x = facing_x
-        self.colour_variant = colour_variant
-        self.vel_x = -facing_x * 8
-        self.frame = 0
+        self.facing_x: int = facing_x
+        self.colour_variant: Any = colour_variant
+        self.vel_x: float = -facing_x * 8
+        self.frame: int = 0
         game.play_sound("scooter_fall")
 
-    def update(self):
+    def update(self) -> None:
         self.frame += 1
         self.vpos.x += self.vel_x
         self.vel_x *= 0.94
-        facing_id = 1 if self.facing_x > 0 else 0
+        facing_id: int = 1 if self.facing_x > 0 else 0
         self.image = f"scooterboy_bike_{facing_id}_{min(self.frame // 30, 2)}_{self.colour_variant}"
 
-    def get_draw_order_offset(self):
+    def get_draw_order_offset(self) -> int:
         return -1
 
 class Weapon(ScrollHeightActor):
-    def __init__(self, name, sprite, pos, end_pickup_frame, anchor=ANCHOR_CENTRE, bounciness=0, ground_friction=0.5, air_friction=0.996, separate_shadow=False):
+    def __init__(self, name: str, sprite: str, pos: Any, end_pickup_frame: int, anchor: Any = ANCHOR_CENTRE, bounciness: float = 0, ground_friction: float = 0.5, air_friction: float = 0.996, separate_shadow: bool = False) -> None:
         super().__init__(sprite, pos, anchor=anchor, separate_shadow=separate_shadow)
-        self.name = name
-        self.end_pickup_frame = end_pickup_frame
-        self.held = False
-        self.vel = Vector2(0,0)
-        self.bounciness = bounciness
-        self.ground_friction = ground_friction
-        self.air_friction = air_friction
+        self.name: str = name
+        self.end_pickup_frame: int = end_pickup_frame
+        self.held: bool = False
+        self.vel: Vector2 = Vector2(0,0)
+        self.bounciness: float = bounciness
+        self.ground_friction: float = ground_friction
+        self.air_friction: float = air_friction
 
-    def update(self):
+    def update(self) -> None:
         if not self.held:
             # If not held, check whether we're above the ground, or if we're moving
             if self.height_above_ground > 0 or self.vel.y != 0:
@@ -1550,39 +1552,39 @@ class Weapon(ScrollHeightActor):
             self.vpos.x += self.vel.x
 
             # Friction on X axis, varies depending on whether we're on the ground or in the air
-            friction = self.ground_friction if self.height_above_ground == 0 else self.air_friction
+            friction: float = self.ground_friction if self.height_above_ground == 0 else self.air_friction
             self.vel.x *= friction
             if abs(self.vel.x) < 0.05:
                 self.vel.x = 0
 
-    def can_be_picked_up(self):
+    def can_be_picked_up(self) -> bool:
         return not self.held and self.height_above_ground == 0
 
-    def pick_up(self, hold_height):
+    def pick_up(self, hold_height: float) -> None:
         assert(not self.held)
         self.held = True
         self.height_above_ground = hold_height   # for when we are dropped
         self.vel = Vector2(0, 0)
         self.image = "blank"
 
-    def dropped(self):
+    def dropped(self) -> None:
         # Subclass has the responsibility of setting image to the correct sprite
         assert(self.held)
         self.held = False
 
-    def used(self):
+    def used(self) -> None:
         pass
 
-    def is_broken(self):
+    def is_broken(self) -> bool:
         return False
 
 class Barrel(Weapon):
-    def __init__(self, pos):
+    def __init__(self, pos: Any) -> None:
         super().__init__("barrel", "barrel_upright", pos, end_pickup_frame=2, anchor=("center", 190), bounciness=0.75, ground_friction=0.96, separate_shadow=True)
-        self.last_thrower = None
-        self.frame = 0
+        self.last_thrower: Any = None
+        self.frame: int = 0
 
-    def update(self):
+    def update(self) -> None:
         # Call parent update
         super().update()
 
@@ -1600,10 +1602,10 @@ class Barrel(Weapon):
                 # is at the feet and the Y anchor of the barrel is at its centre.
                 # The barrel isn't able to bounce above the head of a fighter (unless we added a really short fighter),
                 # so we don't need to check that
-                BARREL_HEIGHT = 40
+                BARREL_HEIGHT: int = 40
                 fighter_bottom_height = fighter.height_above_ground
-                barrel_bottom_height = self.height_above_ground - (BARREL_HEIGHT // 2)
-                barrel_top_height = barrel_bottom_height + BARREL_HEIGHT
+                barrel_bottom_height: float = self.height_above_ground - (BARREL_HEIGHT // 2)
+                barrel_top_height: float = barrel_bottom_height + BARREL_HEIGHT
 
                 if fighter is not self.last_thrower \
                   and fighter.falling_state == Fighter.FallingState.STANDING \
@@ -1613,11 +1615,11 @@ class Barrel(Weapon):
                     fighter.hit(self, ATTACKS["barrel"])
 
             # Update rolling animation
-            facing_id = 1 if self.vel.x > 0 else 0
+            facing_id: int = 1 if self.vel.x > 0 else 0
             self.frame += 1
             self.image = f"barrel_roll_{facing_id}_{(self.frame // 14) % 4}"
 
-    def throw(self, dir_x, thrower):
+    def throw(self, dir_x: int, thrower: Any) -> None:
         self.dropped()
         self.vel.x = dir_x * BARREL_THROW_VEL_X
         self.vel.y = BARREL_THROW_VEL_Y
@@ -1627,76 +1629,76 @@ class Barrel(Weapon):
         self.vpos.x += dir_x * 104
         #self.height_above_ground += 54
 
-    def dropped(self):
+    def dropped(self) -> None:
         super().dropped()
         self.image = "barrel_roll_0_0"
 
-    def can_be_picked_up(self):
+    def can_be_picked_up(self) -> bool:
         return super().can_be_picked_up() and self.vel.length() < 1
 
-    def get_draw_order_offset(self):
+    def get_draw_order_offset(self) -> int:
         # Consider barrel to be in front of another object with the same Y pos
         # (including player which has draw offset of 1)
         return 2
 
 class BreakableWeapon(Weapon):
-    def __init__(self, pos, name, durability):
+    def __init__(self, pos: Any, name: str, durability: int) -> None:
         super().__init__(name, name, pos, end_pickup_frame=1, anchor=("center", "center"))
-        self.break_counter = durability
+        self.break_counter: int = durability
 
-    def dropped(self):
+    def dropped(self) -> None:
         super().dropped()
         self.image = self.name
 
-    def get_draw_order_offset(self):
+    def get_draw_order_offset(self) -> int:
         # Used for stick/chain on ground. Default draw order means it is sometimes drawn on top of a character standing on
         # it, but changing Y anchor point also has some undesirable effects
         return -50
 
-    def used(self):
+    def used(self) -> None:
         self.break_counter -= 1
         if self.break_counter == 0:
             self.on_break()
 
-    def is_broken(self):
+    def is_broken(self) -> bool:
         return self.break_counter <= 0
 
     @abstractmethod
-    def on_break(self):
+    def on_break(self) -> None:
         # Can't call this break as that's a keyword in Python!
         pass
 
 class Stick(BreakableWeapon):
-    def __init__(self, pos):
+    def __init__(self, pos: Any) -> None:
         super().__init__(pos, "stick", durability=randint(12, 16))
 
-    def on_break(self):
+    def on_break(self) -> None:
         game.play_sound("stick_break")
 
 class Chain(BreakableWeapon):
-    def __init__(self, pos):
+    def __init__(self, pos: Any) -> None:
         super().__init__(pos, "chain", durability=randint(18, 25))
 
-    def on_break(self):
+    def on_break(self) -> None:
         game.play_sound("chain_break")
 
 class Powerup(ScrollHeightActor):
-    def __init__(self, image, pos):
+    def __init__(self, image: Any, pos: Any) -> None:
         super().__init__(pos, image)
-        self.collected = False
+        self.collected: bool = False
 
-    def update(self):
+    def update(self) -> None:
         pass
 
     @abstractmethod
-    def collect(self, collector):
+    def collect(self, collector: Any) -> None:
         self.collected = True
 
 class HealthPowerup(Powerup):
-    def __init__(self, pos):
+    def __init__(self, pos: Any) -> None:
         super().__init__(pos, "health_pickup")
 
-    def collect(self, collector):
+    def collect(self, collector: Any) -> None:
         super().collect(collector)
 
         # Add 20 health to the player who collected us, but don't go over their max health
@@ -1705,16 +1707,16 @@ class HealthPowerup(Powerup):
         game.play_sound("health", 1)
 
 class ExtraLifePowerup(Powerup):
-    def __init__(self, pos):
+    def __init__(self, pos: Any) -> None:
         super().__init__(pos, "ingame_life9")
-        self.timer = 0
+        self.timer: int = 0
 
-    def update(self):
+    def update(self) -> None:
         super().update()
         self.timer += 1
         self.image = "ingame_life" + str((self.timer // 2) % 10)
 
-    def collect(self, collector):
+    def collect(self, collector: Any) -> None:
         super().collect(collector)
 
         collector.gain_extra_life()
@@ -1724,13 +1726,15 @@ class ExtraLifePowerup(Powerup):
 # A stage consists of a group of enemies and a level X boundary. When the enemies are
 # defeated, the next stage begins
 class Stage:
-    def __init__(self, enemies, max_scroll_x, weapons=[], powerups=[]):
-        self.enemies = enemies
-        self.powerups = powerups
-        self.max_scroll_x = max_scroll_x
-        self.weapons = weapons
+    def __init__(self, enemies: list, max_scroll_x: int, weapons: list = [], powerups: list = []) -> None:
+        self.enemies: list = enemies
+        self.powerups: list = powerups
+        self.max_scroll_x: int = max_scroll_x
+        self.weapons: list = weapons
 
-def setup_stages():
+STAGES: Any
+
+def setup_stages() -> None:
     global STAGES
     STAGES = (
             # Stage(max_scroll_x=0, enemies=[]),
@@ -1981,28 +1985,28 @@ def setup_stages():
     )
 
 class Game:
-    def __init__(self, controls=None):
-        self.player = Player(controls)
+    def __init__(self, controls: Any = None) -> None:
+        self.player: Player = Player(controls)
 
-        self.enemies = []
-        self.weapons = []
-        self.scooters = []
-        self.powerups = []
+        self.enemies: list = []
+        self.weapons: list = []
+        self.scooters: list = []
+        self.powerups: list = []
 
-        self.stage_index = -1
-        self.timer = 0
-        self.score = 0
+        self.stage_index: int = -1
+        self.timer: int = 0
+        self.score: int = 0
 
-        self.scroll_offset = Vector2(0,0)
-        self.max_scroll_offset_x = 0
-        self.scrolling = False
+        self.scroll_offset: Vector2 = Vector2(0,0)
+        self.max_scroll_offset_x: int = 0
+        self.scrolling: bool = False
 
-        self.boundary = Rect(0, MIN_WALK_Y, WIDTH-1, HEIGHT-MIN_WALK_Y)
+        self.boundary: Rect = Rect(0, MIN_WALK_Y, WIDTH-1, HEIGHT-MIN_WALK_Y)
 
         setup_stages()
 
         # Set up intro text, selecting randomly from one of several stolen items
-        stolen_items = ("A SHIPMENT OF RASPBERRY\nPIS",
+        stolen_items: tuple[str, ...] = ("A SHIPMENT OF RASPBERRY\nPIS",
                         "YOUR COPY OF CODE THE\nCLASSICS VOL 2",
                         "THE COMPLETE WORKS OF\nSHAKESPEARE",
                         "THE BLOCKCHAIN",
@@ -2010,11 +2014,11 @@ class Game:
                         "ALL OF YOUR SAVED GAME\nFILES",
                         "YOUR DOG'S FLEA MEDICINE")
 
-        self.text_active = INTRO_ENABLED
-        self.intro_text = "THE NOTORIOUS CRIME BOSS\nEBEN UPTON HAS STOLEN\n" \
+        self.text_active: bool = INTRO_ENABLED
+        self.intro_text: str = "THE NOTORIOUS CRIME BOSS\nEBEN UPTON HAS STOLEN\n" \
                           + choice(stolen_items) \
                           + "\n\n\nFIGHT TO RECLAIM WHAT\nHAS BEEN TAKEN!"
-        self.outro_text = "FOLLOWING THE DEFEAT OF\n" \
+        self.outro_text: str = "FOLLOWING THE DEFEAT OF\n" \
                           + "THE EVIL GANG, HUMANITY\n" \
                           + "ENTERED A NEW GOLDEN AGE\n" \
                           + "IN WHICH CRIME BECAME A\n" \
@@ -2024,10 +2028,10 @@ class Game:
                           + "HAD A BIG PARTY IN YOUR\n" \
                           + "HONOUR.\n" \
                           + "\nNICE JOB!"
-        self.current_text = self.intro_text
-        self.displayed_text = ""
+        self.current_text: str = self.intro_text
+        self.displayed_text: str = ""
 
-    def next_stage(self):
+    def next_stage(self) -> None:
         # A stage is over when we've scrolled to its max_scroll_x and there are no enemies left
         # Enemies are created when we start scrolling (or here, if no scrolling is to take place or is already taking place)
         self.stage_index += 1
@@ -2046,11 +2050,11 @@ class Game:
                 self.displayed_text = ""
                 self.timer = 0
 
-    def check_won(self):
+    def check_won(self) -> bool:
         # Have we been through all stages, and has the outro text finished?
         return self.stage_index >= len(STAGES) and not self.text_active
 
-    def create_stage_objects(self, stage):
+    def create_stage_objects(self, stage: Stage) -> None:
         # Copy the enemies list from the stage, and tell them that they've been spawned
         self.enemies = stage.enemies.copy()
         for enemy in self.enemies:
@@ -2060,14 +2064,14 @@ class Game:
         self.weapons.extend(stage.weapons)
         self.powerups.extend(stage.powerups)
 
-    def spawn_enemy(self, enemy):
+    def spawn_enemy(self, enemy: Any) -> None:
         # Called by Portal
         self.enemies.append(enemy)
         enemy.spawned()
 
-    def update(self):
+    def update(self) -> None:
         if DEBUG_PROFILING:
-            p = Profiler()
+            p: Profiler = Profiler()
 
         self.timer += 1
 
@@ -2075,7 +2079,7 @@ class Game:
             # Every 6 frames, update the displayed text to display an extra character, and make a sound if the
             # new character is visible (as opposed to a space or new line)
             if self.timer % 6 == 0 and len(self.displayed_text) < len(self.current_text):
-                length_to_display = min(self.timer // 6, len(self.current_text))
+                length_to_display: int = min(self.timer // 6, len(self.current_text))
                 self.displayed_text = self.current_text[:length_to_display]
                 if not self.displayed_text[-1].isspace():
                     self.play_sound("teletype")
@@ -2098,7 +2102,7 @@ class Game:
         if self.scrolling:
             if self.scroll_offset.x < self.max_scroll_offset_x:
                 # How far are we from reaching the new max scroll offset?
-                diff = self.max_scroll_offset_x - self.scroll_offset.x
+                diff: float = self.max_scroll_offset_x - self.scroll_offset.x
                 # Scroll at 1-4px per frame depending on player's distance from right edge
                 scroll_speed = self.player.x / (WIDTH/4)
                 scroll_speed = min(diff, scroll_speed)
@@ -2109,7 +2113,7 @@ class Game:
                 self.scrolling = False
         else:
             # Start scrolling if player is near right hand edge of screen and max_scroll_offset_x allows to to scroll
-            begin_scroll_boundary = WIDTH - 300
+            begin_scroll_boundary: int = WIDTH - 300
             if self.player.vpos.x - self.scroll_offset.x > begin_scroll_boundary and self.scroll_offset.x < self.max_scroll_offset_x:
                 self.scrolling = True
 
@@ -2139,14 +2143,14 @@ class Game:
         if DEBUG_PROFILING:
             print(f"update: {p.get_ms()}")
 
-    def draw(self):
+    def draw(self) -> None:
         # Draw background
         self.draw_background()
 
         # Draw all objects, lowest on screen first
         # Y pos used is modified by result of get_draw_order_offset, for certain cases where we need more nuance than
         # just "lowest on screen first"
-        p = Profiler()
+        p: Profiler = Profiler()
         all_objs = [self.player] + self.enemies + self.weapons + self.scooters + self.powerups
         all_objs.sort(key=lambda obj: obj.vpos.y + obj.get_draw_order_offset())
         for obj in all_objs:
@@ -2172,7 +2176,7 @@ class Game:
         # An alpha value of 255 is fully opaque, 0 is fully transparent
         if self.text_active or self.timer < 255:
             if self.text_active:
-                alpha = 255
+                alpha: int = 255
             else:
                 alpha = max(0, 255 - self.timer)
             fullscreen_black_bmp.set_alpha(alpha)
@@ -2198,20 +2202,20 @@ class Game:
             # Show profiler timing for everything not in another category
             print("rest: {0}".format(p.get_ms()))
 
-    def draw_ui(self):
+    def draw_ui(self) -> None:
         # Show status bar and player health, stamina and lives
         # Have to use the actual Pygame blit rather than Pygame Zero version so that we can specify which area of the
         # source image to copy
-        health_bar_w = int((game.player.health / game.player.start_health) * HEALTH_STAMINA_BAR_WIDTH)
+        health_bar_w: int = int((game.player.health / game.player.start_health) * HEALTH_STAMINA_BAR_WIDTH)
         screen.surface.blit(getattr(images, "health"), (48, 11), Rect(0, 0, health_bar_w, HEALTH_STAMINA_BAR_HEIGHT))
-        stamina_bar_w = int((game.player.stamina / game.player.max_stamina) * HEALTH_STAMINA_BAR_WIDTH)
+        stamina_bar_w: int = int((game.player.stamina / game.player.max_stamina) * HEALTH_STAMINA_BAR_WIDTH)
         screen.surface.blit(getattr(images, "stamina"), (517, 11), Rect(0, 0, stamina_bar_w, HEALTH_STAMINA_BAR_HEIGHT))
 
         screen.blit("status", (0, 0))
 
         for i in range(game.player.lives):
             if game.player.extra_life_timer <= 0 or i < game.player.lives - 1:
-                sprite_idx = 9
+                sprite_idx: int = 9
             else:
                 sprite_idx = min(9, (30 - game.player.extra_life_timer) // 3)
 
@@ -2220,11 +2224,11 @@ class Game:
         # Show score
         draw_text(f"{self.score:04}", WIDTH // 2, 0, True)
 
-    def draw_background(self):
+    def draw_background(self) -> None:
         # Draw two copies of road background
-        p = Profiler()
-        road1_x = -(self.scroll_offset.x % WIDTH)
-        road2_x = road1_x + WIDTH
+        p: Profiler = Profiler()
+        road1_x: float = -(self.scroll_offset.x % WIDTH)
+        road2_x: float = road1_x + WIDTH
         screen.blit("road", (road1_x, 0))
         screen.blit("road", (road2_x, 0))
         if DEBUG_PROFILING:
@@ -2233,7 +2237,7 @@ class Game:
         # Set initial position for background tiles
         # Due to isometric nature of background, each background tile includes a transparent part - the second line
         # skips that part for the first tile
-        pos = -self.scroll_offset
+        pos: Vector2 = -self.scroll_offset
         pos.x -= BACKGROUND_TILE_SPACING
 
         # Draw background tiles
@@ -2251,17 +2255,17 @@ class Game:
         if DEBUG_PROFILING:
             print("bg " + str(p.get_ms()))
 
-    def shutdown(self):
+    def shutdown(self) -> None:
         # When game is over, we need to tell enemies to die, since that's how the scooter engine sound effect gets
         # turned off
         for enemy in self.enemies:
             enemy.died()
 
-    def get_sound(self, name, count=1):
+    def get_sound(self, name: str, count: int = 1) -> Any:
         if self.player:
             return getattr(sounds, name + str(randint(0, count - 1)))
 
-    def play_sound(self, name, count=1):
+    def play_sound(self, name: str, count: int = 1) -> None:
         # Some sounds have multiple varieties. If count > 1, we'll randomly choose one from those
         # We don't play any sounds if there is no player (e.g. if we're on the menu)
         if self.player:
@@ -2281,7 +2285,7 @@ class Game:
                 print(e)
 
 # From Eggzy
-def get_char_image_and_width(char):
+def get_char_image_and_width(char: str) -> tuple[Any, int]:
     # Return width of given character. ord() gives the ASCII/Unicode code for the given character.
     if char == " ":
         return None, 22
@@ -2292,15 +2296,15 @@ def get_char_image_and_width(char):
             image = getattr(images, "font0"+str(ord(char)))
         return image, image.get_width()
 
-def text_width(text):
+def text_width(text: str) -> int:
     return sum([get_char_image_and_width(c)[1] for c in text])
 
-def draw_text(text, x, y, centre=False):
+def draw_text(text: str, x: int, y: int, centre: bool = False) -> None:
     # Note that the centre option does not work correctly for text with line breaks
     if centre:
         x -= text_width(text) // 2
 
-    start_x = x
+    start_x: int = x
 
     for char in text:
         if char == "\n":
@@ -2314,17 +2318,19 @@ def draw_text(text, x, y, centre=False):
             x += width
 
 # Set up controls
-def get_joystick_if_exists():
+joystick_controls: Any
+
+def get_joystick_if_exists() -> Any:
     return pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
 
-def setup_joystick_controls():
+def setup_joystick_controls() -> None:
     # We call this on startup, and keep calling it if no controller is present,
     # so a controller can be connected while the game is open
     global joystick_controls
     joystick = get_joystick_if_exists()
     joystick_controls = JoystickControls(joystick) if joystick is not None else None
 
-def update_controls():
+def update_controls() -> None:
     keyboard_controls.update()
     # Allow a controller to be connected while the game is open
     if joystick_controls is None:
@@ -2341,14 +2347,14 @@ class State(Enum):
 
 # Pygame Zero calls the update and draw functions each frame
 
-def update():
+def update() -> None:
     global state, game, total_frames
 
     total_frames += 1
 
     update_controls()
 
-    def button_pressed_controls(button_num):
+    def button_pressed_controls(button_num: int) -> Any:
         # Local function for detecting button 0 being pressed on either keyboard or controller, returns the controls
         # object which was used to press it, or None if button was not pressed
         for controls in (keyboard_controls, joystick_controls):
@@ -2385,7 +2391,7 @@ def update():
             state = State.TITLE
             game = None
 
-def draw():
+def draw() -> None:
     if state == State.TITLE:
         # Draw logo
         logo_img = images.title0 if total_frames // 20 % 2 == 0 else images.title1
@@ -2432,7 +2438,7 @@ setup_joystick_controls()
 
 # Set the initial game state
 state = State.TITLE
-game = None
+game: Any = None
 
 # Tell Pygame Zero to take over
 pgzrun.go()
