@@ -137,6 +137,29 @@ podman run --rm --cgroups=disabled -v "$(pwd)":/srcro:ro registry.fedoraproject.
 
 ---
 
+## Code-the-Classics ports (`ports/codetheclassics/`)
+
+A separate subtree from the course: **`pgzero_gl/`**, a clean-room PyGame-Zero/pygame
+compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** under
+`vol1/` and `vol2/` (BSD-2-Clause, © Eben Upton et al.).
+
+- **Two different rule-sets.** The **games are faithful ports** — type-annotations only,
+  **no behaviour changes, no restructuring, no `ruff`** (stay byte-faithful to upstream).
+  The **shim (`pgzero_gl/`) is our code** — it may get real bug fixes to reproduce
+  pygame/pgzero APIs correctly.
+- **Enforcement:** `entrypoint/format.sh` runs `ty check` on `pgzero_gl` + `vol1` + `vol2`.
+- **Fidelity gotchas worth not rediscovering:**
+  - Audio is **`just_playback`**, not `pygame.mixer` (host SDL is broken). It has **no
+    finalizer**, so a dropped `Playback` leaks its miniaudio stream — `Sound`/`_Music`
+    pool and reuse voices instead of creating-and-dropping.
+  - `geometry.Rect` is **integer-coord like `pygame.Rect`**; **`ZRect`** is the float
+    variant, and **`Actor` uses `ZRect`** to keep sub-pixel positions.
+  - Vector `*` is the **dot product** for vector operands (pygame semantics), not
+    component-wise scaling.
+- History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`.
+
+---
+
 ## Tasks
 
 Active work lives in `tasks/` (one file per task); completed work is moved to
