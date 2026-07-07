@@ -20,25 +20,16 @@ FILES_TO_MOUNT = $(SOURCE_FILES_TO_MOUNT) \
                  $(SHELL_SCRIPTS_TO_MOUNT) \
                  -v ./entrypoint/dotfiles/.tmux.conf:/root/.tmux.conf:Z
 
-PACKAGE_CACHE_ROOT = ~/.cache/packagecache/fedora/43
-
-DNF_CACHE_TO_MOUNT = -v $(PACKAGE_CACHE_ROOT)/var/cache/libdnf5:/var/cache/libdnf5:Z \
-	             -v $(PACKAGE_CACHE_ROOT)/var/lib/dnf:/var/lib/dnf:Z
-
 
 .PHONY: all
 all: shell ## Build the image and get a shell in it
 
 .PHONY: image
 image: ## Build podman image to run the examples
-	# cache rpm packages
-	mkdir -p $(PACKAGE_CACHE_ROOT)/var/cache/libdnf5
-	mkdir -p $(PACKAGE_CACHE_ROOT)/var/lib/dnf
 	# build the container
 	$(CONTAINER_CMD) build \
                          -t $(CONTAINER_NAME) \
                          --build-arg USE_EMACS=$(USE_EMACS) \
-                         $(DNF_CACHE_TO_MOUNT) \
                          .
 
 .PHONY: shell

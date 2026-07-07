@@ -34,8 +34,7 @@ FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
 		-v ./output/:/output/:Z \
                 $(TMUX_MOUNT) \
                 $(GITCONFIG_MOUNT) \
-                $(GNUPG_MOUNT) \
-		$(DNF_CACHE_TO_MOUNT)
+                $(GNUPG_MOUNT)
 
 USE_X = -e DISPLAY=$(DISPLAY) \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
@@ -88,7 +87,6 @@ image: ## Build a podman image in which to build the book
                          --build-arg USE_X_WINDOWS=$(USE_X_WINDOWS) \
                          $(ELPA_MOUNT) \
                          -t $(CONTAINER_NAME) \
-                         $(PACKAGE_CACHE) \
                          .
 
 

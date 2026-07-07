@@ -1,4 +1,4 @@
-FROM registry.fedoraproject.org/fedora:43
+FROM registry.fedoraproject.org/fedora:44
 
 ARG USE_EMACS=0
 
@@ -13,7 +13,9 @@ COPY entrypoint/entrypoint.sh /
 
 
 
-RUN if [ "$USE_EMACS" = "1" ]; then \
+RUN --mount=type=cache,target=/var/cache/libdnf5 \
+    --mount=type=cache,target=/var/lib/dnf \
+    if [ "$USE_EMACS" = "1" ]; then \
        dnf install -y \
                    emacs && \
        emacs --batch --load /root/.emacs.d/install-melpa-packages.el && \
@@ -21,7 +23,9 @@ RUN if [ "$USE_EMACS" = "1" ]; then \
      fi ;
 
 
-RUN sed -i -e "s@tsflags=nodocs@#tsflags=nodocs@g" /etc/dnf/dnf.conf && \
+RUN --mount=type=cache,target=/var/cache/libdnf5 \
+    --mount=type=cache,target=/var/lib/dnf \
+    sed -i -e "s@tsflags=nodocs@#tsflags=nodocs@g" /etc/dnf/dnf.conf && \
     echo "keepcache=True" >> /etc/dnf/dnf.conf && \
     dnf upgrade -y && \
     dnf install -y clang \
