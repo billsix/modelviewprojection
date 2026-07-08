@@ -1,12 +1,52 @@
 # Code the Classics: extend type coverage to locals and attributes
 
-**Status:** proposed — needs go-ahead
+**Status:** proposed — needs go-ahead; **priority raised 2026-07-08: the
+official `make format` gate is RED until this task's first item lands (see
+"URGENT" below)**
 **Created:** 2026-07-08
 
 ## Goal (Bill, 2026-07-08)
 
 Add more Python types across the Code-the-Classics tree (pgzero_gl + vol1 +
 vol2): function definitions AND local variables.
+
+## URGENT first item: the `game`-global union errors now fail `make format`
+
+**What's red and why.** `make format` runs `entrypoint/format.sh` in the
+container; the script's last steps are `ty check` over pgzero_gl/vol1/vol2,
+and its exit code is the script's exit code. As of 2026-07-08,
+`ty check vol2` reports **~120 errors** (avenger ~45, beatstreets ~74,
+eggzy 1) of the form::
+
+    error[unresolved-attribute]: Attribute `player` is not defined on
+    `None` in union `Game | None | Any`
+
+**Root cause — a toolchain bump, not a code regression.** Every game
+initializes a module-level ``game`` global to ``None`` and only assigns a
+real ``Game(...)`` later (in ``update()`` on the first state transition),
+while methods everywhere dereference ``game.player`` etc. unguarded. Each
+`make image` dnf-installs the *current* Fedora 44 `ty`, and that package
+moved to a stricter version some time after the gate was last green — the
+new ty sees through the deferred-initialization pattern the old one let
+slide. Verified 2026-07-08 via git-stash comparisons that the diagnostics
+are byte-identical before/after every one of that day's changes
+(dataclasses, formatting, honest-imports, match): nothing regressed; the
+checker got smarter.
+
+**Fix (this task's first chunk).** Type the ``game`` global honestly and
+make the accesses type-safe. Candidate approaches, to be chosen per the
+codebase's teaching style:
+- ``game: Game | None = None`` + narrowing at the access sites (the
+  *correct* fix, but touches many lines — pairs naturally with this task's
+  attribute-annotation sweep);
+- a late-bound ``game: Game`` with the None phase eliminated (e.g. create
+  the attract-mode ``Game()`` at module init, which most vol1 games already
+  effectively do — check why vol1 passes and vol2 doesn't and consider
+  making vol2 match vol1's shape);
+- last resort: a per-file ty suppression policy (documents the debt without
+  paying it).
+Until one of these lands, expect `make format` to exit 1 on the vol2 ty
+step with these ~120 pre-existing findings.
 
 ## Where coverage actually stands (measured 2026-07-08)
 

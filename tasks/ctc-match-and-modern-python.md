@@ -23,8 +23,28 @@ modern-features half (`@override` sweep, StrEnum, Self) remains
       with the hardened version).
 - [x] Gates: all 10 games + shim compile; ruff clean + format idempotent;
       ty at exact baselines (vol1 clean, vol2 120 pre-existing).
-- [ ] `@override` on the Actor-subclass update/draw overrides (the
-      dispatch-audit companion; hundreds of sites, mechanical).
+- [ ] **The `@override` sweep** (the dispatch-audit companion; hundreds of
+      sites, mechanical). `typing.override` (Python 3.12, PEP 698) is a
+      decorator declaring "this method intentionally overrides a base-class
+      method". Its value is the INVERSE of the override checking we already
+      have: ty's `invalid-method-override` catches overrides with wrong
+      signatures, but nothing today catches an override that silently STOPS
+      being one — rename `Actor.update()` in the shim, or typo `def updte()`
+      in a game, and the subclass method becomes a dead orphan: the base
+      no-op runs instead, no error anywhere, the game just quietly
+      misbehaves. With `@override`, the type checker errors the moment a
+      decorated method no longer matches anything in a base class. For CTC
+      this is unusually valuable because the dispatch audit (see the
+      archived ctc-dataclasses-and-dispatch task) showed the whole
+      architecture hangs on those override links: the heterogeneous
+      `update()`/`draw()` loops, bunner's Row API
+      (`check_collision`/`push`/`next`/`play_sound`/`allow_movement`), the
+      Weapon and Powerup families, the Controls ABCs. Mechanics:
+      `from typing import override` per file, decorate every overriding
+      method across the shim + 10 games, ty then enforces every link. The
+      existing faithful-port `ty: ignore[invalid-method-override]`
+      suppressions coexist with `@override` (different checks: signature
+      compatibility vs. link existence).
 - [ ] StrEnum for string-y state enums; `typing.Self` in the shim.
 
 ## NOTE for ctc-more-types (raised 2026-07-08)
