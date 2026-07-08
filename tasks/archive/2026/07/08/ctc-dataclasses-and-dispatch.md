@@ -4,8 +4,10 @@
 dispatch-audited; per-game ty gates all show zero new diagnostics (vol1
 fully clean; avenger/beatstreets/eggzy carry pre-existing `game`-union
 noise under the strict local ty, byte-identical before/after — verified via
-git stash). Remaining: Bill's on-display batch boot of the games (boing
-already verified), and a final in-container `format.sh` ty run.
+git stash). **COMPLETE: Bill boot-tested games in-container and committed 2026-07-08**
+(covers this diff plus the formatting + honest-imports waves); the
+authoritative in-container format.sh gate was kicked off the same day
+(result in session summary).
 **Created:** 2026-07-08
 
 ## Progress + pattern rules (established on boing, refined on bunner)
