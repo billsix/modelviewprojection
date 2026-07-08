@@ -41,11 +41,21 @@ from abc import ABC, abstractmethod
 from dataclasses import InitVar, dataclass, field
 from enum import Enum, IntEnum
 from random import randint, uniform
-from typing import Any, ClassVar, cast  # noqa: E402
+from typing import Any, ClassVar, cast, override  # noqa: E402
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
-from pgzero_gl import joystick, mask
-from pgzero_gl.geometry import Vector2
+from gacalc.g2 import Vector2
+from pgzero_gl import (  # noqa: E402
+    Actor,
+    go,
+    images,
+    joystick,
+    keyboard,
+    mask,
+    mixer,
+    music,
+    screen,
+    sounds,
+)
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -178,6 +188,7 @@ class Controls(ABC):
 
 
 class KeyboardControls(Controls):
+    @override
     def get_x(self) -> int:
         if keyboard.left:
             return -1
@@ -186,6 +197,7 @@ class KeyboardControls(Controls):
         else:
             return 0
 
+    @override
     def get_y(self) -> int:
         if keyboard.up:
             return -1
@@ -194,6 +206,7 @@ class KeyboardControls(Controls):
         else:
             return 0
 
+    @override
     def button_down(self, button: int) -> bool:
         if button == 0:
             return keyboard.space
@@ -227,12 +240,15 @@ class JoystickControls(Controls):
             # digital movement
             return 1 if axis_value > 0 else -1
 
+    @override
     def get_x(self) -> int:
         return self.get_axis(0)
 
+    @override
     def get_y(self) -> int:
         return self.get_axis(1)
 
+    @override
     def button_down(self, button: int) -> bool:
         # Before checking button, check to make sure that the controller actually has enough buttons
         # There are some weird devices out there which could cause a crash if this check were not present
@@ -255,6 +271,7 @@ class WrapActor(Actor):
         while self.x - game.player.x > LEVEL_WIDTH / 2:
             self.relocate(-LEVEL_WIDTH)
 
+    @override
     def draw(self, offset_x: float, offset_y: float) -> None:  # ty: ignore[invalid-method-override]  # faithful port: WrapActor adds scroll offsets, widening Actor.draw(self)
         # offset_x/y are for scrolling
         # Before drawing the sprite, we adjust the actor's position to take account of scrolling,
@@ -275,19 +292,23 @@ class WrapActor(Actor):
 # the generated __eq__ would compare fields and set __hash__ to None)
 @dataclass(eq=False)
 class Bullet(WrapActor):
-    pos: InitVar[Any]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[Any]
     velocity: Vector2
 
-    def __post_init__(self, pos: Any) -> None:
-        super().__init__("blank", pos)
-        distance: float = (Vector2(pos) - Vector2(game.player.pos)).length()
+    def __post_init__(self, spawn_pos: Any) -> None:
+        super().__init__("blank", spawn_pos)
+        distance: float = float(
+            (Vector2(*spawn_pos) - game.player.pos).magnitude()
+        )
         volume: float = remap_clamp(distance, 400, 2500, 1, 0)
         game.play_sound("enemy_laser", volume=volume)
 
     def update(self) -> bool:  # ty: ignore[invalid-method-override]  # faithful port: update returns a destroy-flag, narrowing WrapActor.update's None
         super().update()
 
-        self.pos += self.velocity
+        self.pos = self.pos + self.velocity
 
         # Update sprite animation
         self.image = "bullet" + str((game.timer // 4) % 2)
@@ -311,6 +332,7 @@ class Laser(WrapActor):
         self.anim_timer: int = 0
         game.play_sound("player_shoot")
 
+    @override
     def update(self) -> bool:  # ty: ignore[invalid-method-override]  # faithful port: update returns a destroy-flag, narrowing WrapActor.update's None
         super().update()
 
@@ -397,7 +419,8 @@ class Player(WrapActor):
         # As the sprite's rectangle is bigger than the actual visible part of the sprite (see e.g. ship0.png),
         # instead of calling self.colliderect, we just check to see whether the given position is within 40 pixels
         # of the centre of the sprite on the X axis, and within 15 pixels of the centre on the Y axis
-        if abs(pos[0] - self.x) < 40 and abs(pos[1] - self.y) < 15:
+        px, py = pos  # tuple OR gacalc vector
+        if abs(px - self.x) < 40 and abs(py - self.y) < 15:
             # If there's a collision, set the 'hurt' timer so that we glow to indicate damage, and decrease shields
             # by 1
             self.timers[Player.Timer.HURT] = 60
@@ -432,6 +455,7 @@ class Player(WrapActor):
         else:
             return False
 
+    @override
     def update(self) -> None:
         # Decrease all timer values by 1
         self.timers = [i - 1 for i in self.timers]
@@ -471,7 +495,9 @@ class Player(WrapActor):
 
             # Only apply movement force on X axis if player facing the same direction they're trying to accelerate in,
             # and the ship has fully animated to that facing direction
-            if self.frame % 8 != 0 or sign(self.facing_x) != sign(move.x):
+            if self.frame % 8 != 0 or sign(self.facing_x) != sign(
+                float(move.x)
+            ):
                 move.x = 0
 
             self.velocity = Vector2(
@@ -480,7 +506,7 @@ class Player(WrapActor):
             )
 
             # Apply velocity to position
-            self.pos += self.velocity
+            self.pos = self.pos + self.velocity
 
             # Limit Y position
             self.y = max(0, min(LEVEL_HEIGHT, self.y))
@@ -493,7 +519,7 @@ class Player(WrapActor):
                 for human in game.humans:
                     if (
                         human.can_be_picked_up_by_player()
-                        and (Vector2(human.pos) - self.pos).length() < 40
+                        and (human.pos - self.pos).magnitude() < 40
                     ):
                         human.picked_up(self)
                         self.carried_human = human
@@ -501,7 +527,7 @@ class Player(WrapActor):
             else:
                 # If we're carrying a human, update their position and check if are they in a place where they can be
                 # safely deposited on the ground
-                self.carried_human.pos = (self.pos[0], self.pos[1] + 50)
+                self.carried_human.pos = self.pos + Vector2(0, 50)
                 if self.carried_human.terrain_check():
                     self.carried_human.dropped()
                     self.carried_human = None
@@ -525,7 +551,7 @@ class Player(WrapActor):
                 ):
                     self.timers[Player.Timer.FIRE] = 10
                     # Create a laser with the appropriate offset from the player
-                    laser_vel_x: float = self.velocity[0] + 20 * self.facing_x
+                    laser_vel_x: float = self.velocity.x + 20 * self.facing_x
                     laser_x: float = self.x + 40 * self.facing_x
                     laser_y: float = self.y + self.get_laser_fire_y_offset()
                     game.lasers.append(Laser(laser_x, laser_y, laser_vel_x))
@@ -579,9 +605,8 @@ class Player(WrapActor):
                 self.thrust_sprite.image = f"boost_{direction}_{frame}"
                 x_offset: int = 66
                 y_offset: int = -3
-                self.thrust_sprite.pos = (
-                    self.x + x_offset * -move.x,
-                    self.y + y_offset,
+                self.thrust_sprite.pos = self.pos + Vector2(
+                    x_offset * -move.x, y_offset
                 )
 
     def respawn(self) -> None:
@@ -615,7 +640,7 @@ class Player(WrapActor):
                 # If there are enemies, score the random position based on how far away the closest
                 # enemy is on the X axis - the further the better
                 all_distances: list[float] = [
-                    wrap_distance(enemy.x, random_pos.x)
+                    wrap_distance(enemy.x, float(random_pos.x))
                     for enemy in game.enemies
                 ]
                 score: float = min(all_distances)
@@ -641,6 +666,7 @@ class Player(WrapActor):
         # tilt_y (which will be either -1, 0 or 1)
         return [-1, 3, 2][self.tilt_y + 1]
 
+    @override
     def draw(self, offset_x: float, offset_y: float) -> None:
         # Draw the sprite with the given offset to account for scrolling, and with laser firing flash if required
 
@@ -682,9 +708,10 @@ class Radar(Actor):
 
     def radar_pos(self, pos: Any) -> tuple[float, float]:
         # Converts a position in world space into a position on the radar in screen space
+        px, py = pos  # tuple OR gacalc vector
         return (
-            self.left + ((int(pos[0]) % LEVEL_WIDTH) / 11.5),
-            self.y + (int(pos[1]) // 11),
+            self.left + ((int(px) % LEVEL_WIDTH) / 11.5),
+            self.y + (int(py) // 11),
         )
 
 
@@ -778,6 +805,7 @@ class Enemy(WrapActor):
 
         self.anim_timer: int = randint(0, 47)
 
+    @override
     def relocate(self, delta: float) -> None:
         super().relocate(delta)
 
@@ -811,6 +839,7 @@ class Enemy(WrapActor):
         else:
             return False
 
+    @override
     def update(self) -> None:
         super().update()
 
@@ -869,8 +898,8 @@ class Enemy(WrapActor):
                         self.target_human = min(
                             available_humans,
                             key=lambda human: (
-                                Vector2(human.pos) - self.pos
-                            ).length_squared(),
+                                human.pos - self.pos
+                            ).magnitude_squared(),
                         )
 
                 # Try to move towards a target position. This will either be the player position, a human we're about to
@@ -880,11 +909,11 @@ class Enemy(WrapActor):
                     if self.carrying:
                         # Carrying a human into the sky - target pos will be our current pos on the X axis
                         # and close to the top of the screen on the Y axis
-                        self.target_pos = Vector2(self.pos[0], 64)
+                        self.target_pos = Vector2(self.x, 64)
                         max_speed = 0.5
 
                         # If we reach the top of the screen, turn the captured human into a mutant enemy
-                        if abs(self.pos[1] - self.target_pos.y) < 10:
+                        if abs(self.y - self.target_pos.y) < 10:
                             game.enemies.append(
                                 Enemy(
                                     type=EnemyType.MUTANT,
@@ -904,15 +933,15 @@ class Enemy(WrapActor):
                             max_speed = 1
                         if x_distance > 100:
                             # Set target pos to be above our target human's pos
-                            self.target_pos = Vector2(
-                                self.target_human.pos
-                            ) - Vector2(0, 200)
+                            self.target_pos = self.target_human.pos - Vector2(
+                                0, 200
+                            )
                         else:
                             # Set target pos to our target human's pos. Start carrying them when we get within 55 pixels
-                            self.target_pos = Vector2(self.target_human.pos)
-                            distance: float = Vector2(
-                                self.pos - self.target_pos
-                            ).length()
+                            self.target_pos = self.target_human.pos
+                            distance: float = float(
+                                (self.pos - self.target_pos).magnitude()
+                            )
                             if distance < 55:
                                 self.carrying = True
                                 self.target_human.picked_up(self)
@@ -924,7 +953,7 @@ class Enemy(WrapActor):
                         self.update_target_timer = 60
 
                         # Get player pos as a Vector2
-                        player_pos: Vector2 = Vector2(game.player.pos)
+                        player_pos: Vector2 = game.player.pos
 
                         # Landers go for the player if they're nearby, other enemies will always go for
                         # the player regardless of distance
@@ -936,7 +965,7 @@ class Enemy(WrapActor):
 
                         if (
                             self.pos - player_pos
-                        ).length() < max_player_distance:
+                        ).magnitude() < max_player_distance:
                             # Go for the player
                             self.target_pos = player_pos
 
@@ -955,7 +984,7 @@ class Enemy(WrapActor):
 
                 # Get vector from our pos to target pos
                 # This is used to determine the force applied to our velocity, and also used later if we fire a bullet
-                distance = (self.target_pos - self.pos).length()
+                distance = float((self.target_pos - self.pos).magnitude())
                 if distance > 0:
                     # Get a unit vector (i.e. a vector of length 1) from our current pos in the direction of the target pos
                     vec: Vector2 = (self.target_pos - self.pos).normalize()
@@ -977,19 +1006,19 @@ class Enemy(WrapActor):
                 self.velocity += force
 
                 # Limit max speed
-                if self.velocity.length() > max_speed:
+                if self.velocity.magnitude() > max_speed:
                     # If we're over our max speed, slow down gradually over several frames, rather than slowing
                     # down suddenly. This is most relevant when max speed drastically decreases when we pick up a human.
-                    self.velocity.scale_to_length(
-                        max(self.velocity.length() * 0.9, max_speed)
+                    self.velocity = self.velocity.normalize() * max(
+                        self.velocity.magnitude() * 0.9, max_speed
                     )
 
                 # Apply velocity to position
-                self.pos += self.velocity
+                self.pos = self.pos + self.velocity
 
                 # If carrying, update carried human pos
                 if self.carrying:
-                    self.target_human.pos = (self.pos[0], self.pos[1] + 50)  # ty: ignore[invalid-assignment]  # faithful port: target_human is non-None when carrying, but flow analysis keeps None in the union
+                    self.target_human.pos = self.pos + Vector2(0, 50)  # ty: ignore[invalid-assignment]  # faithful port: target_human is non-None when carrying, but flow analysis keeps None in the union
 
                 # Count down bullet timer, if it's zero or lower and enemy is near player (but not too near!),
                 # fire a bullet
@@ -1010,15 +1039,13 @@ class Enemy(WrapActor):
 
                     elif game.player.lives > 0:
                         # Other enemy types only fire if the player is alive
-                        player_vec: Vector2 = (
-                            Vector2(game.player.pos) - self.pos
-                        )
-                        player_distance: float = player_vec.length()
+                        player_vec: Vector2 = game.player.pos - self.pos
+                        player_distance: float = float(player_vec.magnitude())
                         if 100 < player_distance < 300:
                             # Fire bullet at the player, with a bit of random inaccuracy. The bullet speed will average 6 pixels
                             # per frame, although due to the way the random inaccuracy is added, this will vary
                             # Normalise player_vec (vector from us to player) to a unit vector
-                            player_vec.normalize_ip()
+                            player_vec = player_vec.normalize()
                             velocity = (
                                 Vector2(
                                     player_vec.x + uniform(-0.5, 0.5),
@@ -1045,9 +1072,11 @@ class Enemy(WrapActor):
                             if self.carrying:
                                 frame = 2
                             else:
-                                distance = (
-                                    Vector2(self.pos) - self.target_human.pos
-                                ).length()
+                                distance = float(
+                                    (
+                                        self.pos - self.target_human.pos
+                                    ).magnitude()
+                                )
                                 if distance < 90:
                                     frame = 1
                         self.image = "lander" + str(frame)
@@ -1084,6 +1113,7 @@ class Enemy(WrapActor):
         # Update radar blip pos
         self.blip.pos = game.radar.radar_pos(self.pos)
 
+    @override
     def draw(self, offset_x: float, offset_y: float) -> None:
         super().draw(offset_x, offset_y)
 
@@ -1100,7 +1130,9 @@ class Enemy(WrapActor):
 
 @dataclass(eq=False)
 class Human(WrapActor):
-    pos: InitVar[Any]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[Any]
     y_velocity: float = 0
     # Our radar blip
     blip: Actor = field(default_factory=lambda: Actor("dot-green"))
@@ -1111,8 +1143,8 @@ class Human(WrapActor):
     carrier: Any = None
     falling: bool = False
 
-    def __post_init__(self, pos: Any) -> None:
-        super().__init__("blank", pos)
+    def __post_init__(self, spawn_pos: Any) -> None:
+        super().__init__("blank", spawn_pos)
 
     def laser_hit_test(self, pos: Any) -> bool:
         # Given a position, see if it falls within this sprite's rectangle
@@ -1122,6 +1154,7 @@ class Human(WrapActor):
         else:
             return False
 
+    @override
     def update(self) -> None:
         super().update()
 

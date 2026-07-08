@@ -312,7 +312,7 @@ class Renderer:
     def line(self, start: PointLike, end: PointLike, color: Any) -> None:
         """Draw a line segment from ``start`` to ``end``."""
         self._draw_prim(
-            verts=[start[0], start[1], end[0], end[1]],
+            verts=[*start, *end],  # unpack: tuples OR gacalc vectors
             color=color,
             mode=GL.GL_LINES,
         )
@@ -321,7 +321,9 @@ class Renderer:
         """Draw a polygon through ``points`` (filled fan, or outline)."""
         pts: list[float] = []
         for p in points:
-            pts += [float(p[0]), float(p[1])]
+            # unpack, not index: points may be tuples OR gacalc vectors
+            px, py = p
+            pts += [float(px), float(py)]
         mode = GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_LOOP
         self._draw_prim(verts=pts, color=color, mode=mode)
 

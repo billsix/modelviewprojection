@@ -1,6 +1,17 @@
 # Code the Classics: replace `from pgzero_gl import *` with named imports
 
-**Status:** proposed — needs go-ahead
+**Status:** COMPLETE 2026-07-08 — every game's `from pgzero_gl import *`
+replaced with a named import of its used subset (8-11 of the 12 names;
+`exit` turned out to be called by NO game, so nobody imports it); bunner's
+`from random import *` also made explicit (choice/randint/random).
+F403/F405 removed from the ports ruff ignores — and the unmasking
+immediately paid for itself: it caught a REAL latent bug (soccer's
+honest-imports conversion used `gldraw.` in its debug-draw paths without
+the import — a NameError waiting on DEBUG_SHOW_*) plus four upstream
+loop-carried variables in leadingedge (used before their bottom-of-loop
+assignment; noqa'd with explanation, faithful port). Gates: ruff fully
+clean with the trimmed ignore list, all compile, ty clean both volumes,
+in-container format.sh exit 0.
 **Created:** 2026-07-08
 
 ## Goal (Bill, 2026-07-08)

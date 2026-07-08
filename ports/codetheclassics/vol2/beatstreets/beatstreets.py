@@ -43,11 +43,22 @@ from collections.abc import Callable  # noqa: E402
 from dataclasses import InitVar, dataclass, field
 from enum import Enum
 from random import choice, randint
-from typing import Any, cast
+from typing import Any, cast, override
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
-from pgzero_gl import joystick, surface
-from pgzero_gl.geometry import Vector2
+from gacalc.g2 import Vector2
+from pgzero_gl import (  # noqa: E402
+    Actor,
+    Rect,
+    go,
+    images,
+    joystick,
+    keyboard,
+    mixer,
+    music,
+    screen,
+    sounds,
+    surface,
+)
 
 HEALTH_STAMINA_BAR_WIDTH = 235
 HEALTH_STAMINA_BAR_HEIGHT = 26
@@ -323,6 +334,7 @@ class Controls(ABC):
 
 
 class KeyboardControls(Controls):
+    @override
     def get_x(self) -> int:
         if keyboard.left:
             return -1
@@ -331,6 +343,7 @@ class KeyboardControls(Controls):
         else:
             return 0
 
+    @override
     def get_y(self) -> int:
         if keyboard.up:
             return -1
@@ -339,6 +352,7 @@ class KeyboardControls(Controls):
         else:
             return 0
 
+    @override
     def button_down(self, button: int) -> bool:  # ty: ignore[invalid-return-type]  # faithful port: returns bool for buttons 0-3, implicitly None otherwise
         if button == 0:
             return keyboard.space or keyboard.z or keyboard.lctrl  # punch
@@ -375,12 +389,15 @@ class JoystickControls(Controls):
             # digital movement
             return 1 if axis_value > 0 else -1
 
+    @override
     def get_x(self) -> int:
         return self.get_axis(0)
 
+    @override
     def get_y(self) -> int:
         return self.get_axis(1)
 
+    @override
     def button_down(self, button: int) -> bool:
         # Before checking button, check to make sure that the controller actually has enough buttons
         # There are some weird devices out there which could cause a crash if this check were not present
@@ -462,7 +479,7 @@ class ScrollHeightActor(Actor):
         separate_shadow: bool = False,
     ) -> None:
         super().__init__(img, pos, anchor=anchor)
-        self.vpos: Vector2 = Vector2(pos)
+        self.vpos: Vector2 = Vector2(*pos)
         self.height_above_ground: float = 0
         if separate_shadow:
             self.shadow_actor: Any = Actor("blank", pos, anchor=anchor)
@@ -470,6 +487,7 @@ class ScrollHeightActor(Actor):
             self.shadow_actor = None
 
     # We draw with the supplied Vector2 offset to enable scrolling
+    @override
     def draw(self, offset: Vector2) -> None:  # ty: ignore[invalid-method-override]  # faithful port: ScrollHeightActor.draw takes a scroll offset, widening Actor.draw(self)
         # Draw shadow first, if we are using a separate shadow sprite (most have the shadow as part of the sprite
         # but for player it is separate)
@@ -609,7 +627,7 @@ class Fighter(ScrollHeightActor, ABC):
                 else JUMP_GRAVITY
             )
             self.height_above_ground -= self.vel.y
-            self.apply_movement_boundaries(self.vel.x, 0)
+            self.apply_movement_boundaries(float(self.vel.x), 0)
             if self.height_above_ground < 0:
                 self.height_above_ground = 0
                 self.vel.x = 0
@@ -626,9 +644,9 @@ class Fighter(ScrollHeightActor, ABC):
         if self.falling_state == Fighter.FallingState.FALLING:
             # Get pushed backwards
             self.vpos.x += self.vel.x
-            self.vel.x, _ = move_towards(self.vel.x, 0, 0.5)
+            self.vel.x, _ = move_towards(float(self.vel.x), 0, 0.5)
 
-            self.apply_movement_boundaries(self.vel.x, 0)
+            self.apply_movement_boundaries(float(self.vel.x), 0)
 
             self.frame += 1
 
@@ -713,7 +731,7 @@ class Fighter(ScrollHeightActor, ABC):
                     nearby_weapons: list[Any] = [
                         weapon
                         for weapon in game.weapons
-                        if (weapon.vpos - self.vpos).length() < 50
+                        if (weapon.vpos - self.vpos).magnitude() < 50
                     ]
                     if len(nearby_weapons) > 0:
                         if self.determine_pick_up_weapon():
@@ -722,7 +740,7 @@ class Fighter(ScrollHeightActor, ABC):
                             nearby_weapons.sort(
                                 key=lambda weapon: (
                                     weapon.vpos - self.vpos
-                                ).length_squared()
+                                ).magnitude_squared()
                             )
                             for weapon in nearby_weapons:
                                 if weapon.can_be_picked_up():
@@ -775,10 +793,10 @@ class Fighter(ScrollHeightActor, ABC):
                     self.walking = True
 
                     self.vpos.x, dx = move_towards(
-                        self.vpos.x, target.x, self.speed.x
+                        float(self.vpos.x), float(target.x), float(self.speed.x)
                     )
                     self.vpos.y, dy = move_towards(
-                        self.vpos.y, target.y, self.speed.y
+                        float(self.vpos.y), float(target.y), float(self.speed.y)
                     )
 
                     self.apply_movement_boundaries(dx, dy)
@@ -826,7 +844,7 @@ class Fighter(ScrollHeightActor, ABC):
             # Loop through all opponents to see which (if any) this attack should hit
             for opponent in self.get_opponents():
                 vec: Vector2 = opponent.vpos - self.vpos
-                facing_correct: bool = sign(self.facing_x) == sign(vec.x)
+                facing_correct: bool = sign(self.facing_x) == sign(float(vec.x))
                 if attack.rear_attack:
                     facing_correct = not facing_correct
 
@@ -939,6 +957,7 @@ class Fighter(ScrollHeightActor, ABC):
         # EnemyHoodie may drop stick on death
         pass
 
+    @override
     def draw(self, offset: Vector2) -> None:
         # Determine sprite to use based on our current action
         self.image = self.determine_sprite()
@@ -1169,6 +1188,7 @@ class Player(Fighter):
         self.controls: Any = controls
         self.extra_life_timer: int = 0
 
+    @override
     def update(self) -> None:
         super().update()
 
@@ -1176,9 +1196,10 @@ class Player(Fighter):
 
         # Check for collecting powerups
         for powerup in game.powerups:
-            if (powerup.vpos - self.vpos).length() < 30:
+            if (powerup.vpos - self.vpos).magnitude() < 30:
                 powerup.collect(self)
 
+    @override
     def draw(self, offset: Vector2) -> None:
         super().draw(offset)
         # screen.draw.text(f"{self.vpos}", (0,0))
@@ -1298,7 +1319,7 @@ class Enemy(Fighter, ABC):
 
         # Target is a Vector2 instance
         # Must make a copy of the value, not a copy of the reference
-        self.target: Vector2 = Vector2(self.vpos)
+        self.target: Vector2 = Vector2(*self.vpos)
 
         self.target_weapon: Any = None
 
@@ -1316,6 +1337,7 @@ class Enemy(Fighter, ABC):
         # Called when the enemy is added into the game (when its stage is reached)
         pass
 
+    @override
     def update(self) -> None:
         match self.state:
             case Enemy.State.APPROACH_PLAYER:
@@ -1357,7 +1379,7 @@ class Enemy(Fighter, ABC):
                     self.target_weapon = None
                     self.make_decision()
                 else:
-                    self.target = Vector2(self.target_weapon.vpos)
+                    self.target = Vector2(*self.target_weapon.vpos)
                     if self.target == self.vpos:
                         # Arrived - pick up weapon and make new decision
                         self.log("Pick up weapon")
@@ -1397,7 +1419,7 @@ class Enemy(Fighter, ABC):
                 enemy
                 for enemy in game.enemies
                 if enemy is not self
-                and (enemy.target - self.target).length() < 20
+                and (enemy.target - self.target).magnitude() < 20
             ]
             if len(other_enemies_same_target) > 0:
                 self.log("Same target")
@@ -1406,6 +1428,7 @@ class Enemy(Fighter, ABC):
         # Call through to Fighter class update
         super().update()
 
+    @override
     def draw(self, offset: Vector2) -> None:
         super().draw(offset)
 
@@ -1624,6 +1647,7 @@ class EnemyScooterboy(Enemy):
         self.scooter_target_speed: float = self.scooter_speed
         self.scooter_sound_channel: Any = None
 
+    @override
     def spawned(self) -> None:
         super().spawned()
         try:
@@ -1636,6 +1660,7 @@ class EnemyScooterboy(Enemy):
             # Don't crash if no sound hardware
             pass
 
+    @override
     def make_decision(self) -> None:
         # Scooterboy stays on scooter until knocked off
         if self.state != Enemy.State.RIDING_SCOOTER:
@@ -1654,6 +1679,7 @@ class EnemyScooterboy(Enemy):
             case _:
                 return super().determine_sprite()
 
+    @override
     def update(self) -> None:
         if self.state == Enemy.State.RIDING_SCOOTER:
             player = game.player
@@ -1774,6 +1800,7 @@ class EnemyBoss(Enemy):
             score=75,
         )
 
+    @override
     def make_decision(self) -> None:
         # Boss can pick up a barrel, if they're not currently holding one
         # Look for a barrel we can walk to. Barrel must not be held by anyone else and must be on the screen
@@ -1841,10 +1868,12 @@ class EnemyPortal(Enemy):
         self.spawning_enemy: Any = None
         self.spawn_facing: int = 0
 
+    @override
     def spawned(self) -> None:
         super().spawned()
         game.play_sound("portal_appear")
 
+    @override
     def make_decision(self) -> None:
         # Like all enemies, portals start in the PAUSE state until their start_timer expires
         self.state = Enemy.State.PORTAL
@@ -1868,6 +1897,7 @@ class EnemyPortal(Enemy):
         else:
             return "portal_idle_" + str((self.frame // 8) % 8)
 
+    @override
     def update(self) -> None:
         self.frame += 1
 
@@ -1950,6 +1980,7 @@ class Scooter(ScrollHeightActor):
         facing_id: int = 1 if self.facing_x > 0 else 0
         self.image = f"scooterboy_bike_{facing_id}_{min(self.frame // 30, 2)}_{self.colour_variant}"
 
+    @override
     def get_draw_order_offset(self) -> int:
         return -1
 
@@ -2052,6 +2083,7 @@ class Barrel(Weapon):
         self.last_thrower: Any = None
         self.frame: int = 0
 
+    @override
     def update(self) -> None:
         # Call parent update
         super().update()
@@ -2101,13 +2133,16 @@ class Barrel(Weapon):
         self.vpos.x += dir_x * 104
         # self.height_above_ground += 54
 
+    @override
     def dropped(self) -> None:
         super().dropped()
         self.image = "barrel_roll_0_0"
 
+    @override
     def can_be_picked_up(self) -> bool:
-        return super().can_be_picked_up() and self.vel.length() < 1
+        return super().can_be_picked_up() and self.vel.magnitude() < 1
 
+    @override
     def get_draw_order_offset(self) -> int:
         # Consider barrel to be in front of another object with the same Y pos
         # (including player which has draw offset of 1)
@@ -2121,20 +2156,24 @@ class BreakableWeapon(Weapon):
         )
         self.break_counter: int = durability
 
+    @override
     def dropped(self) -> None:
         super().dropped()
         self.image = self.name
 
+    @override
     def get_draw_order_offset(self) -> int:
         # Used for stick/chain on ground. Default draw order means it is sometimes drawn on top of a character standing on
         # it, but changing Y anchor point also has some undesirable effects
         return -50
 
+    @override
     def used(self) -> None:
         self.break_counter -= 1
         if self.break_counter == 0:
             self.on_break()
 
+    @override
     def is_broken(self) -> bool:
         return self.break_counter <= 0
 
@@ -2148,6 +2187,7 @@ class Stick(BreakableWeapon):
     def __init__(self, pos: Any) -> None:
         super().__init__(pos, "stick", durability=randint(12, 16))
 
+    @override
     def on_break(self) -> None:
         game.play_sound("stick_break")
 
@@ -2156,6 +2196,7 @@ class Chain(BreakableWeapon):
     def __init__(self, pos: Any) -> None:
         super().__init__(pos, "chain", durability=randint(18, 25))
 
+    @override
     def on_break(self) -> None:
         game.play_sound("chain_break")
 
@@ -2177,6 +2218,7 @@ class HealthPowerup(Powerup):
     def __init__(self, pos: Any) -> None:
         super().__init__(pos, "health_pickup")
 
+    @override
     def collect(self, collector: Any) -> None:
         super().collect(collector)
 
@@ -2191,11 +2233,13 @@ class ExtraLifePowerup(Powerup):
         super().__init__(pos, "ingame_life9")
         self.timer: int = 0
 
+    @override
     def update(self) -> None:
         super().update()
         self.timer += 1
         self.image = "ingame_life" + str((self.timer // 2) % 10)
 
+    @override
     def collect(self, collector: Any) -> None:
         super().collect(collector)
 

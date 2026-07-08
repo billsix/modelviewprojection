@@ -36,12 +36,22 @@ from abc import ABC, abstractmethod  # noqa: E402
 from dataclasses import InitVar, dataclass, field  # noqa: E402
 from enum import Enum  # noqa: E402
 from random import randint  # noqa: E402
-from typing import Any, ClassVar, Optional, cast  # noqa: E402
+from typing import Any, ClassVar, Optional, cast, override  # noqa: E402
 
-from pgzero_gl import *  # noqa: E402,F401,F403
+from gacalc.g2 import Vector2
+from pgzero_gl import (  # noqa: E402
+    Actor,
+    Rect,
+    go,
+    images,
+    joystick,
+    keyboard,
+    mixer,
+    music,
+    screen,
+    sounds,
+)
 from pgzero_gl import draw as gldraw
-from pgzero_gl import joystick
-from pgzero_gl.geometry import Vector2
 from pgzero_gl.resources import Image as GLImage
 
 # Set up constants
@@ -227,6 +237,7 @@ class Controls(ABC):
 
 
 class KeyboardControls(Controls):
+    @override
     def get_x(self) -> int:
         if keyboard.left:
             return -1
@@ -235,6 +246,7 @@ class KeyboardControls(Controls):
         else:
             return 0
 
+    @override
     def get_y(self) -> int:
         if keyboard.up:
             return -1
@@ -243,12 +255,14 @@ class KeyboardControls(Controls):
         else:
             return 0
 
+    @override
     def button_down(self, button: int) -> bool:
         if button == 0:
             return keyboard.space
         else:
             return keyboard.z
 
+    @override
     def button_name(self, button: str) -> str:
         if button == "dash":
             return "Z"
@@ -283,12 +297,15 @@ class JoystickControls(Controls):
             # digital movement
             return 1 if axis_value > 0 else -1
 
+    @override
     def get_x(self) -> int:
         return self.get_axis(0)
 
+    @override
     def get_y(self) -> int:
         return self.get_axis(1)
 
+    @override
     def button_down(self, button: int) -> bool:
         # Before checking button, check to make sure that the controller actually has enough buttons
         # There are some weird devices out there which could cause a crash if this check were not present
@@ -297,6 +314,7 @@ class JoystickControls(Controls):
             return False
         return self.joystick.get_button(button) != 0
 
+    @override
     def button_name(self, button: str) -> str:
         if button == "dash":
             return SPECIAL_FONT_SYMBOLS["xb_b"]
@@ -316,11 +334,13 @@ class Gem(Actor):
     # (ClassVar keeps it out of the dataclass's instance fields/__init__)
     next_type: ClassVar[int] = 1
 
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     collected: bool = False
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("blank", pos, ANCHOR_CENTRE_BOTTOM)
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+        super().__init__("blank", spawn_pos, ANCHOR_CENTRE_BOTTOM)
 
         # Choose which type of gem we're going to be.
         self.type: int = Gem.next_type
@@ -348,19 +368,23 @@ class Gem(Actor):
 # The door prevents the player from leaving a level until all gems have been collected
 @dataclass(eq=False)
 class Door(Actor):
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     biome: str = "castle"
     variant: Any = 0
     already_open: InitVar[bool] = False
 
     def __post_init__(
-        self, pos: tuple[float, float], already_open: bool
+        self, spawn_pos: tuple[float, float] | Vector2, already_open: bool
     ) -> None:
         self.opening: bool = already_open
         self.last_frame: int = 15 if self.biome == "castle" else 13
         self.frame: int = self.last_frame if already_open else 0
         super().__init__(
-            f"door_{self.biome}_{self.variant}_{self.frame}", pos, anchor=(0, 0)
+            f"door_{self.biome}_{self.variant}_{self.frame}",
+            spawn_pos,
+            anchor=(0, 0),
         )
 
     def update(self) -> None:
@@ -383,7 +407,7 @@ class Door(Actor):
 class Animation(Actor):
     def __init__(
         self,
-        pos: tuple[float, float],
+        pos: tuple[float, float] | Vector2,
         image_format_str: str,
         num_frames: int,
         frame_interval: int,
@@ -421,7 +445,7 @@ class Animation(Actor):
 
 
 class DashTrail(Animation):
-    def __init__(self, pos: tuple[float, float], image: str) -> None:
+    def __init__(self, pos: tuple[float, float] | Vector2, image: str) -> None:
         # Receive's the player's current sprite, uses the trail version of that sprite
         super().__init__(pos, image + "_trail_{0}", 6, 5, ANCHOR_PLAYER)
 
@@ -429,7 +453,7 @@ class DashTrail(Animation):
 # Base class for objects which move around the level and collide with walls, such as the player and enemies
 class CollideActor(Actor):
     def __init__(
-        self, pos: tuple[float, float], anchor: Any = ANCHOR_CENTRE
+        self, pos: tuple[float, float] | Vector2, anchor: Any = ANCHOR_CENTRE
     ) -> None:
         super().__init__("blank", pos, anchor)
 
@@ -498,7 +522,7 @@ class GravityActor(CollideActor):
 
     def __init__(
         self,
-        pos: tuple[float, float],
+        pos: tuple[float, float] | Vector2,
         gravity_enabled: bool = True,
         anchor: Any = ANCHOR_CENTRE_BOTTOM,
     ) -> None:
@@ -590,7 +614,7 @@ class Player(GravityActor):
             "flame_stand_0", self.pos, anchor=ANCHOR_FLAME
         )
 
-    def new_level(self, start_pos: tuple[float, float]) -> None:
+    def new_level(self, start_pos: tuple[float, float] | Vector2) -> None:
         self.start_pos = start_pos
         self.reset()
 
@@ -634,6 +658,7 @@ class Player(GravityActor):
             if not enemy.dying and self.hit_test(enemy)
         ]
 
+    @override
     def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful port: narrows GravityActor.update's optional `detect`
         # Call GravityActor.update - parameter is whether we want to perform collision detection as we fall
         was_landed: bool = self.landed()
@@ -1010,6 +1035,7 @@ class Player(GravityActor):
                     f"flame_run_{dir_index}_{(game.timer // 4) % 8}"
                 )
 
+    @override
     def draw(self) -> None:
         super().draw()
 
@@ -1020,9 +1046,11 @@ class Player(GravityActor):
             # Show collision rectangle
             screen.draw.rect(self.get_rect(), (255, 255, 255))
 
+    @override
     def get_collidable_width(self) -> int:
         return PLAYER_WIDTH
 
+    @override
     def get_collidable_height(self) -> int:
         return PLAYER_HEIGHT
 
@@ -1045,6 +1073,7 @@ class GhostPlayer(Actor):
             else:
                 self.image = "ghost_" + sprite
 
+    @override
     def draw(self) -> None:
         # Only draw if we're on the same level as the actual player
         if self.level == game.level_index:
@@ -1056,7 +1085,7 @@ class GhostPlayer(Actor):
 class Enemy(GravityActor):
     def __init__(
         self,
-        pos: tuple[float, float],
+        pos: tuple[float, float] | Vector2,
         type: int,
         biome: Biome,
         direction_x: int = 1,
@@ -1091,6 +1120,7 @@ class Enemy(GravityActor):
         self.dying: bool = False
         self.stomped_timer: int = 0
 
+    @override
     def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful port: narrows GravityActor.update's optional `detect`
         super().update(detect=not self.dying)
 
@@ -1155,6 +1185,7 @@ class Enemy(GravityActor):
     def get_collidable_height(self) -> int:
         return ENEMY_TYPES_HEIGHT_OVERRIDES[self.biome][self.type]
 
+    @override
     def draw(self) -> None:
         super().draw()
 
@@ -1220,7 +1251,9 @@ class Game:
         level_filename: str = LEVEL_SEQUENCE[
             self.level_index % len(LEVEL_SEQUENCE)
         ]
-        player_start_pos: tuple[float, float] = self.load_level(level_filename)
+        player_start_pos: tuple[float, float] | Vector2 = self.load_level(
+            level_filename
+        )
 
         self.exit_open = False
 
@@ -1237,7 +1270,7 @@ class Game:
 
     def load_level(self, filename: str) -> tuple[float, float]:
         # Returns player start pos, or (0,0) if none is found
-        player_start_pos: tuple[float, float] = (0, 0)
+        player_start_pos: tuple[float, float] | Vector2 = (0, 0)
 
         # 0 for first time through the levels, 1 for second, etc
         level_cycle: int = self.level_index // len(LEVEL_SEQUENCE)
@@ -1731,11 +1764,13 @@ def save_replays(replays: list[Any]) -> None:
             for replay in replays:
                 line: str = ""
                 for entry in replay:
-                    # Each entry consists of a position (X and Y in a tuple), level number and sprite
+                    # Each entry consists of a position (X and Y -- recorded
+                    # as a gacalc Vector2, unpacked here), level number and sprite
                     # We'll separate the items using commas and the entries using semicolons. It doesn't matter what
                     # the symbols are as long as they don't occur within the data
                     # Open the replays file to see what it looks like!
-                    line += f"{int(entry[0][0])},{int(entry[0][1])},{entry[1]},{entry[2]};"
+                    px, py = entry[0]
+                    line += f"{int(px)},{int(py)},{entry[1]},{entry[2]};"
 
                 # Write the string for the current replay to the file, removing the trailing symbol from the end, and
                 # adding a new line on the end
@@ -1764,7 +1799,7 @@ def load_replays() -> tuple[list[Any], int]:
                         # Within each entry, split on comma and convert each element to the correct type
                         elements: list[str] = entry.split(",")
 
-                        pos: tuple[float, float] = (
+                        pos: tuple[float, float] | Vector2 = (
                             float(elements[0]),
                             float(elements[1]),
                         )

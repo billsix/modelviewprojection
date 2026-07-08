@@ -25,13 +25,12 @@ A small :class:`_Surface` covers the games that reach the raw pygame
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Tuple
+from typing import Any, Tuple
 
 from . import context
 from . import text as _text
-
-if TYPE_CHECKING:
-    from .geometry import Rect
+from .geometry import Rect
+from .resources import images
 
 
 class _Painter:
@@ -82,13 +81,14 @@ class _Surface:
 
     def blit(self, image: Any, pos: Any, area: Any = None) -> None:
         """Blit ``image`` (name or Image) at ``pos``; ``area`` is a sub-rect source."""
-        from .resources import images
-
         img = images.load(image) if isinstance(image, str) else image
         if hasattr(pos, "topleft"):
             pos = pos.topleft
+        x, y = pos  # tuple OR gacalc vector (iterable pair)
         src: tuple[Any, ...] | None = tuple(area) if area is not None else None
-        context.require_renderer().draw_image(image=img, topleft=pos, src=src)
+        context.require_renderer().draw_image(
+            image=img, topleft=(x, y), src=src
+        )
 
     def get_width(self) -> int:
         """Return the screen width in pixels."""
@@ -123,8 +123,6 @@ class Screen:
 
     def bounds(self) -> Rect:
         """Return a :class:`Rect` covering the whole screen."""
-        from .geometry import Rect
-
         r = context.require_renderer()
         return Rect(0, 0, r.width, r.height)
 
@@ -138,13 +136,12 @@ class Screen:
 
     def blit(self, image: Any, pos: Any) -> None:
         """Blit ``image`` (name or Image) at ``pos`` (a point or a Rect's topleft)."""
-        from .resources import images
-
         img = images.load(image) if isinstance(image, str) else image
         # pos may be a Rect -> use its topleft
         if hasattr(pos, "topleft"):
             pos = pos.topleft
-        context.require_renderer().draw_image(image=img, topleft=pos)
+        x, y = pos  # tuple OR gacalc vector (iterable pair)
+        context.require_renderer().draw_image(image=img, topleft=(x, y))
 
 
 screen = Screen()

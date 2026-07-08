@@ -39,7 +39,8 @@ class Mask:
 
     def get_at(self, pos: PointLike) -> int:
         """Return ``1`` if the pixel at ``pos`` is opaque, else ``0`` (or out of bounds)."""
-        x, y = int(pos[0]), int(pos[1])
+        px, py = pos  # unpack: tuple OR gacalc vector
+        x, y = int(px), int(py)
         if 0 <= x < self.width and 0 <= y < self.height:
             return 1 if self._a[y, x] else 0
         return 0
@@ -49,7 +50,8 @@ class Mask:
         # completeness).  Returns a colliding point or None.
         """Return a point where ``self`` and ``other`` (shifted by ``offset``) both
         have opaque pixels, or ``None`` if they do not overlap."""
-        ox, oy = int(offset[0]), int(offset[1])
+        o_x, o_y = offset  # unpack: tuple OR gacalc vector
+        ox, oy = int(o_x), int(o_y)
         for y in range(max(0, oy), min(self.height, oy + other.height)):
             for x in range(max(0, ox), min(self.width, ox + other.width)):
                 if self._a[y, x] and other._a[y - oy, x - ox]:

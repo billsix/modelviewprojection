@@ -30,6 +30,8 @@ human-verified here anyway (no audio device in the build container).
 from __future__ import annotations
 
 import os
+import threading
+import time
 from typing import Any
 
 from . import context
@@ -59,6 +61,66 @@ def available() -> bool:
 # creating-and-dropping a fresh Playback each play -- otherwise rapid effects
 # (e.g. mashing a movement key) exhaust the OS audio backend and the game freezes.
 _MAX_VOICES_PER_SOUND = 8
+
+
+# ---------------------------------------------------------------------------
+# Fades.  pygame's ``fade_ms`` / ``fadeout`` are volume ramps on live voices;
+# the backend has no native fade, so a small daemon thread ramps volumes at
+# ~50 Hz.  This is more than polish: leadingedge crossfades between 40 looping
+# engine samples as speed changes, and the old stop-then-restart "fade"
+# hammered stop()/play() on live miniaudio streams every time the speed band
+# flapped (audibly clunky acceleration, and the prime suspect in a reported
+# freeze -- rapid stream stop/start storms).  A ramp touches only
+# ``set_volume`` on an already-playing voice and stops it once, at the end.
+_fades: dict[int, dict[str, Any]] = {}  # id(pb) -> job
+_fades_lock = threading.Lock()
+_fade_thread: threading.Thread | None = None
+
+
+def _fade_loop() -> None:
+    while True:
+        time.sleep(0.02)
+        now = time.monotonic()
+        with _fades_lock:
+            jobs = list(_fades.items())
+        for key, job in jobs:
+            try:
+                t = (now - job["t0"]) / job["dur"]
+                if t >= 1.0:
+                    job["pb"].set_volume(job["v_to"])
+                    if job["stop_at_end"]:
+                        job["pb"].stop()
+                    with _fades_lock:
+                        _fades.pop(key, None)
+                else:
+                    v = job["v_from"] + (job["v_to"] - job["v_from"]) * t
+                    job["pb"].set_volume(v)
+            except Exception:
+                with _fades_lock:
+                    _fades.pop(key, None)
+
+
+def _start_fade(
+    pb: Any, v_from: float, v_to: float, dur_s: float, stop_at_end: bool
+) -> None:
+    global _fade_thread
+    with _fades_lock:
+        _fades[id(pb)] = {
+            "pb": pb,
+            "v_from": v_from,
+            "v_to": v_to,
+            "t0": time.monotonic(),
+            "dur": max(dur_s, 1e-3),
+            "stop_at_end": stop_at_end,
+        }
+        if _fade_thread is None:
+            _fade_thread = threading.Thread(target=_fade_loop, daemon=True)
+            _fade_thread.start()
+
+
+def _cancel_fade(pb: Any) -> None:
+    with _fades_lock:
+        _fades.pop(id(pb), None)
 
 
 class Sound:
@@ -95,19 +157,34 @@ class Sound:
         self._instances.append(p)
         return p
 
-    def play(self, loops: int = 0, maxtime: int = 0, fade_ms: int = 0) -> None:
+    def play(
+        self,
+        loops: int = 0,
+        maxtime: int = 0,
+        fade_ms: int = 0,
+        volume: float | None = None,
+    ) -> None:
         """Play the effect (overlapping prior plays); ``loops != 0`` loops it.
 
-        ``maxtime``/``fade_ms`` are accepted for ``pygame.mixer.Sound.play``
-        compatibility but ignored (the backend has no real fade).
+        ``maxtime`` is accepted for ``pygame.mixer.Sound.play`` compatibility
+        but ignored.  ``fade_ms`` ramps this play's voice up from silence
+        (see the fade engine above).  ``volume`` overrides this effect's
+        volume for THIS play only -- it is applied to the voice acquired for
+        this play, so concurrent plays keep their own volumes (the
+        mixer.Sound wrapper in ``__init__`` uses this to give pygame's
+        per-instance-volume semantics without a Sound per volume).
         """
         if not _BACKEND:
             return
         try:
             pb = self._acquire()  # already has the file loaded
+            _cancel_fade(pb)  # a reused voice must not inherit a stale ramp
+            target = self._volume if volume is None else volume
             pb.loop_at_end(loops != 0)
-            pb.set_volume(self._volume)
+            pb.set_volume(0.0 if fade_ms > 0 else target)
             pb.play()  # restarts this voice from the start; no re-decode
+            if fade_ms > 0:
+                _start_fade(pb, 0.0, target, fade_ms / 1000.0, False)
         except Exception:
             return
 
@@ -116,6 +193,7 @@ class Sound:
         pooled for reuse -- dropping them would leak their miniaudio streams)."""
         for p in self._instances:
             try:
+                _cancel_fade(p)
                 p.stop()
             except Exception:
                 pass
@@ -134,9 +212,17 @@ class Sound:
         return self._volume
 
     def fadeout(self, time: int = 0) -> None:
-        # No real fade in the backend; stop is a faithful-enough fallback.
-        """Stop the effect (the backend has no real fade; ``time`` is ignored)."""
-        self.stop()
+        """Ramp all playing instances to silence over ``time`` ms, then stop
+        them (pygame semantics).  ``time <= 0`` stops immediately."""
+        if time <= 0:
+            self.stop()
+            return
+        for p in self._instances:
+            try:
+                if _active(p):
+                    _start_fade(p, self._volume, 0.0, time / 1000.0, True)
+            except Exception:
+                pass
 
 
 class _Music:
@@ -169,6 +255,7 @@ class _Music:
         try:
             if self._pb is None:
                 self._pb = _Playback()
+            _cancel_fade(self._pb)  # restarting mustn't inherit a fadeout
             self._pb.load_file(p)
             self._pb.loop_at_end(loop)
             self._pb.set_volume(self._volume)
@@ -202,14 +289,20 @@ class _Music:
         would leak its miniaudio stream (just_playback has no finalizer)."""
         if self._pb is not None:
             try:
+                _cancel_fade(self._pb)
                 self._pb.stop()
             except Exception:
                 pass
 
     def fadeout(self, seconds: float) -> None:
-        # No real fade in the backend; stop is a faithful-enough fallback.
-        """Stop the track (the backend has no real fade; ``seconds`` is ignored)."""
-        self.stop()
+        """Ramp the track to silence over ``seconds``, then stop it."""
+        if self._pb is None or seconds <= 0:
+            self.stop()
+            return
+        try:
+            _start_fade(self._pb, self._volume, 0.0, seconds, True)
+        except Exception:
+            self.stop()
 
 
 def _active(pb: Any) -> bool:

@@ -28,7 +28,7 @@ protocol).
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
 
 import numpy as np
 import OpenGL.GL as GL
@@ -36,9 +36,7 @@ from numpy.typing import NDArray
 
 from . import context
 from ._types import Color, ColorRGBA, PointLike, RGBASource
-
-if TYPE_CHECKING:
-    from .geometry import Rect
+from .geometry import Rect
 
 SRCALPHA = 0x00010000
 
@@ -90,7 +88,8 @@ class Surface:
             ax, ay, aw, ah = (int(v) for v in area)
             src_rgba = src_rgba[ay : ay + ah, ax : ax + aw]
         sh, sw = src_rgba.shape[0], src_rgba.shape[1]
-        x, y = int(pos[0]), int(pos[1])
+        px, py = pos  # unpack: tuple OR gacalc vector
+        x, y = int(px), int(py)
         # Clip to destination bounds.
         dx0, dy0 = max(0, x), max(0, y)
         dx1, dy1 = min(self.width, x + sw), min(self.height, y + sh)
@@ -131,8 +130,6 @@ class Surface:
 
     def get_rect(self, **kwargs: Any) -> Rect:
         """Return a :class:`Rect` the size of this surface; ``kwargs`` set anchor attrs."""
-        from .geometry import Rect
-
         r: Rect = Rect(0, 0, self.width, self.height)
         for k, v in kwargs.items():
             setattr(r, k, v)

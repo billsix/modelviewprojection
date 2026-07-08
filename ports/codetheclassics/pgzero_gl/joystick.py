@@ -22,7 +22,7 @@ container -- that's for on-hardware testing.)
 
 from __future__ import annotations
 
-from typing import List, Tuple
+from typing import Any, List, Tuple
 
 import glfw
 
@@ -62,6 +62,27 @@ def init() -> None:
     pass
 
 
+def _read_glfw_array(result: Any) -> List[Any]:
+    """Unpack pyGLFW's ``(ctypes_array_pointer, count)`` joystick returns.
+
+    pyGLFW hands joystick state back as a ``(POINTER, count)`` tuple, so
+    ``list()`` of it is ``[pointer, count]`` -- NOT the values.  The pointer
+    then leaks into arithmetic (crashed avenger's d-pad path with
+    "unsupported operand & for LP_c_ubyte", 2026-07-09).  Index the pointer
+    up to ``count``.  Tolerates a plain sequence (other bindings) and None.
+    """
+    if not result:
+        return []
+    if (
+        isinstance(result, tuple)
+        and len(result) == 2
+        and isinstance(result[1], int)
+    ):
+        arr, count = result
+        return [arr[i] for i in range(count)]
+    return list(result)
+
+
 class Joystick:
     """A single gamepad, addressed by its GLFW joystick id (== pygame index)."""
 
@@ -93,7 +114,7 @@ class Joystick:
         if not context.glfw_ready:
             return []
         try:
-            return list(glfw.get_joystick_axes(self.index) or [])
+            return _read_glfw_array(glfw.get_joystick_axes(self.index))
         except Exception:
             return []
 
@@ -102,7 +123,7 @@ class Joystick:
         if not context.glfw_ready:
             return []
         try:
-            return list(glfw.get_joystick_buttons(self.index) or [])
+            return _read_glfw_array(glfw.get_joystick_buttons(self.index))
         except Exception:
             return []
 
@@ -111,7 +132,7 @@ class Joystick:
         if not context.glfw_ready:
             return []
         try:
-            return list(glfw.get_joystick_hats(self.index) or [])
+            return _read_glfw_array(glfw.get_joystick_hats(self.index))
         except Exception:
             return []
 

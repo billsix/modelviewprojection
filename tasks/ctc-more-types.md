@@ -1,8 +1,35 @@
 # Code the Classics: extend type coverage to locals and attributes
 
-**Status:** proposed — needs go-ahead; **the URGENT first item below was
-implemented 2026-07-08** (the rest of the task — locals/attributes/Any
-shrinking — remains proposed)
+**Status:** in progress, 2026-07-08 night pass — NOT archived because the
+remaining work needs Bill's calls (see "Open issues for Bill"). Done so
+far: the urgent game-union gate fix (committed; details below), and the
+signature layer verified 100% complete by AST scan (zero unannotated
+defs/params anywhere in shim+games — the earlier "1 straggler" was a
+grep artifact on multi-line signatures). Also done across the other
+night tasks, overlapping this one's goals: ~35 classes' attributes are
+now declared dataclass fields, and 98 @override decorators landed.
+
+## Open issues for Bill (answer these, then the rest is mechanical)
+
+- [ ] **The ~1,000 remaining bare locals/attrs**: ty infers all of them
+      fine (both volumes typecheck clean today). Annotating them is
+      pure churn for the checker — the value would be readability/
+      documentation only. Do you still want the blanket sweep, or only
+      attributes in the remaining non-dataclass classes (Fighter, the
+      Game classes, Rock, Enemy — the meaningful subset), or skip?
+- [ ] **Shim `Any` shrinking (~100 usages)**: wholesale pass, or
+      opportunistic (tighten signatures as files get touched)? The
+      heavy clusters are actor.py (pos/anchor/image params), screen,
+      text, audio.
+- [ ] **`Rect`/`ZRect` per-class property typing**: making `Rect.top`
+      return `int` (its documented contract) while `ZRect.top` stays
+      `float` requires ~50 lines of property-override boilerplate in
+      ZRect (they share implementations). Exactly ONE call site has
+      ever needed it (beatstreets' randint, now int-wrapped at the
+      site). Worth the boilerplate, or leave the wrap?
+- [ ] The 22 `ty: ignore` comments were re-verified: all are the
+      documented faithful-port method-override variances — proposed
+      disposition: keep as-is (no action).
 **Created:** 2026-07-08
 
 ## RESOLUTION of the urgent item (2026-07-08)

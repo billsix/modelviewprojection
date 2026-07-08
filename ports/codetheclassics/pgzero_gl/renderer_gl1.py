@@ -166,7 +166,10 @@ class Renderer1x:
     def polygon(self, points: Any, color: Any, filled: bool) -> None:
         """Draw a polygon through ``points`` (filled, or outline)."""
         mode = GL.GL_POLYGON if filled else GL.GL_LINE_LOOP
-        self._flat(verts=[(p[0], p[1]) for p in points], color=color, mode=mode)
+        # unpack, not index: points may be tuples OR gacalc vectors
+        self._flat(
+            verts=[(px, py) for px, py in points], color=color, mode=mode
+        )
 
     def circle(
         self, pos: PointLike, radius: float, color: Any, filled: bool

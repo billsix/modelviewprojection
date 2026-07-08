@@ -28,10 +28,20 @@ import sys
 from collections.abc import Callable  # noqa: E402
 from dataclasses import InitVar, dataclass, field
 from enum import Enum
-from random import *
-from typing import Any, ClassVar, Optional
+from random import choice, randint, random
+from typing import Any, ClassVar, Optional, override
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
+from pgzero_gl import (  # noqa: E402
+    Actor,
+    Rect,
+    go,
+    keyboard,
+    keys,
+    mixer,
+    music,
+    screen,
+    sounds,
+)
 from pgzero_gl import draw as gldraw
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
@@ -66,6 +76,7 @@ class MyActor(Actor):
 
         self.children: list["MyActor"] = []
 
+    @override
     def draw(self, offset_x: float, offset_y: float) -> None:  # ty: ignore[invalid-method-override]  # faithful port: MyActor.draw adds scroll offsets to Actor.draw()
         self.x += offset_x
         self.y += offset_y
@@ -87,12 +98,15 @@ class MyActor(Actor):
 # the generated __eq__ would compare fields and set __hash__ to None)
 @dataclass(eq=False)
 class Eagle(MyActor):
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float]]
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("eagles", pos)
+    def __post_init__(self, spawn_pos: tuple[float, float]) -> None:
+        super().__init__("eagles", spawn_pos)
         self.children.append(MyActor("eagle", (0, -32)))
 
+    @override
     def update(self) -> None:
         self.y += 12
 
@@ -123,15 +137,17 @@ DY = [-4, 0, 4, 0]
 class Bunner(MyActor):
     MOVE_DISTANCE: ClassVar[int] = 10
 
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float]]
     state: PlayerState = PlayerState.ALIVE
     direction: int = 2
     timer: int = 0
     # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
     input_queue: list[int] = field(default_factory=list)
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("blank", pos)
+    def __post_init__(self, spawn_pos: tuple[float, float]) -> None:
+        super().__init__("blank", spawn_pos)
         # Keeps track of the furthest distance we've reached so far in the level, for scoring
         # (Level Y coordinates decrease as the screen scrolls)
         self.min_y: Any = self.y
@@ -154,6 +170,7 @@ class Bunner(MyActor):
                 # No need to continue searching
                 return
 
+    @override
     def update(self) -> None:
         # Check each control direction
         for direction in range(4):
@@ -261,6 +278,7 @@ class Mover(MyActor):
 
         self.dx: int = dx
 
+    @override
     def update(self) -> None:
         self.x += self.dx
 
@@ -374,6 +392,7 @@ class ActiveRow(Row):
             pos: tuple[float, int] = (WIDTH / 2 + (x if self.dx > 0 else -x), 0)
             self.children.append(self.child_type(self.dx, pos))
 
+    @override
     def update(self) -> None:
         super().update()
 
@@ -501,6 +520,7 @@ class Grass(Row):
                         Hedge(sprite_x, self.hedge_row_index, (i * 40 - 20, 0))
                     )
 
+    @override
     def allow_movement(self, x: float) -> bool:
         # allow_movement in the base class ensures that the player can't walk off the left and right sides of the
         # screen. The call to our own collide method ensures that the player can't walk through hedges. The margin of
@@ -510,6 +530,7 @@ class Grass(Row):
     def play_sound(self) -> None:
         game.play_sound("grass", 1)
 
+    @override
     def next(self) -> "Row":
         if self.index <= 5:
             row_class, index = Grass, self.index + 8
@@ -533,6 +554,7 @@ class Dirt(Row):
     def play_sound(self) -> None:
         game.play_sound("dirt", 1)
 
+    @override
     def next(self) -> "Row":
         if self.index <= 5:
             row_class, index = Dirt, self.index + 8
@@ -563,6 +585,7 @@ class Water(ActiveRow):
         )
         super().__init__(Log, dxs, "water", index, y)
 
+    @override
     def update(self) -> None:
         super().update()
 
@@ -578,11 +601,13 @@ class Water(ActiveRow):
             else:
                 log.y = 0
 
+    @override
     def push(self) -> int:
         # Called when the player is standing on a log on this row, so player object can be moved at the same speed and
         # in the same direction as the log
         return self.dx
 
+    @override
     def check_collision(self, x: float) -> tuple[PlayerState, int]:
         # If we're colliding with a log, that's a good thing!
         # margin of -4 ensures we can't stand right on the edge of a log
@@ -595,6 +620,7 @@ class Water(ActiveRow):
     def play_sound(self) -> None:
         game.play_sound("log", 1)
 
+    @override
     def next(self) -> "Row":
         # After 2 water rows, there's a 50-50 chance of the next row being either another water row, or a dirt row
         if self.index == 7 or (self.index >= 1 and random() < 0.5):
@@ -614,6 +640,7 @@ class Road(ActiveRow):
         dxs: list[int] = list(set(range(-5, 6)) - set([0, predecessor.dx]))
         super().__init__(Car, dxs, "road", index, y)
 
+    @override
     def update(self) -> None:
         super().update()
 
@@ -642,6 +669,7 @@ class Road(ActiveRow):
                         ):
                             child_obj.play_sound(car_sound_num)
 
+    @override
     def check_collision(self, x: float) -> tuple[PlayerState, int]:
         if self.collide(x):
             game.play_sound("splat", 1)
@@ -652,6 +680,7 @@ class Road(ActiveRow):
     def play_sound(self) -> None:
         game.play_sound("road", 1)
 
+    @override
     def next(self) -> "Row":
         if self.index == 0:
             row_class, index = Road, 1
@@ -687,6 +716,7 @@ class Pavement(Row):
     def play_sound(self) -> None:
         game.play_sound("sidewalk", 1)
 
+    @override
     def next(self) -> "Row":
         if self.index < 2:
             row_class, index = Pavement, self.index + 1
@@ -704,6 +734,7 @@ class Rail(Row):
 
         self.predecessor: Any = predecessor
 
+    @override
     def update(self) -> None:
         super().update()
 
@@ -728,6 +759,7 @@ class Rail(Row):
                 game.play_sound("bell")
                 game.play_sound("train", 2)
 
+    @override
     def check_collision(self, x: float) -> tuple[PlayerState, int]:
         if self.index == 2 and self.predecessor.collide(x):
             game.play_sound("splat", 1)
@@ -741,6 +773,7 @@ class Rail(Row):
     def play_sound(self) -> None:
         game.play_sound("grass", 1)
 
+    @override
     def next(self) -> "Row":
         if self.index < 3:
             row_class, index = Rail, self.index + 1

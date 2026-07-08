@@ -15,13 +15,13 @@ from __future__ import annotations
 
 from typing import Any
 
+import numpy as np
+from PIL import Image as PILImage
+
+from .resources import Image as GLImage
+
 
 def scale(surf: Any, size: Any, dest: Any = None) -> Any:
-    import numpy as np
-    from PIL import Image as PILImage
-
-    from .resources import Image as GLImage
-
     pil = PILImage.fromarray(surf.rgba).resize(
         (max(1, int(size[0])), max(1, int(size[1]))),
         PILImage.Resampling.NEAREST,
@@ -30,11 +30,6 @@ def scale(surf: Any, size: Any, dest: Any = None) -> Any:
 
 
 def smoothscale(surf: Any, size: Any, dest: Any = None) -> Any:
-    import numpy as np
-    from PIL import Image as PILImage
-
-    from .resources import Image as GLImage
-
     pil = PILImage.fromarray(surf.rgba).resize(
         (max(1, int(size[0])), max(1, int(size[1]))),
         PILImage.Resampling.BILINEAR,

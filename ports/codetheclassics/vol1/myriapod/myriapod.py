@@ -29,7 +29,16 @@ from enum import Enum
 from random import choice, randint, random
 from typing import Any, ClassVar, Optional
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
+from gacalc.g2 import Vector2
+from pgzero_gl import (  # noqa: E402
+    Actor,
+    go,
+    keyboard,
+    mixer,
+    music,
+    screen,
+    sounds,
+)
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -72,12 +81,14 @@ def cell2pos(
 # the generated __eq__ would compare fields and set __hash__ to None)
 @dataclass(eq=False)
 class Explosion(Actor):
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     type: int
     timer: int = 0
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("blank", pos)
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+        super().__init__("blank", spawn_pos)
 
     def update(self) -> None:
         self.timer += 1
@@ -93,7 +104,9 @@ class Player(Actor):
     RESPAWN_TIME: ClassVar[int] = 100
     RELOAD_TIME: ClassVar[int] = 10
 
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     # These determine which frame of animation the player sprite will use
     direction: int = 0
     frame: int = 0
@@ -106,8 +119,8 @@ class Player(Actor):
     # down - when it reaches zero the player can shoot again
     fire_timer: int = 0
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("blank", pos)
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+        super().__init__("blank", spawn_pos)
 
     def move(self, dx: int, dy: int, speed: int) -> None:
         # dx and dy will each be either 0, -1 or 1. speed is an integer indicating
@@ -345,11 +358,13 @@ class Rock(Actor):
 
 @dataclass(eq=False)
 class Bullet(Actor):
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     done: bool = False
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("bullet", pos)
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+        super().__init__("bullet", spawn_pos)
 
     def update(self) -> None:
         # Move up the screen, 24 pixels per frame

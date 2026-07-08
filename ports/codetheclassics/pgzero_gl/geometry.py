@@ -5,7 +5,7 @@
 # Full license text: ports/codetheclassics/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 
-"""Vectors + rectangle -- ``pygame.math.Vector2``/``Vector3`` and ``pygame.Rect``.
+"""Rectangles -- ``pygame.Rect`` and pgzero's float ``ZRect``.
 
 Part of the ModelViewProjection "Code the Classics" port (originals (c)
 Raspberry Pi Press and authors).
@@ -13,219 +13,22 @@ Raspberry Pi Press and authors).
 * Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
 * Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 
-The games use :class:`Vector2` for movement maths, :class:`Vector3` for
-leadingedge's pseudo-3D road, and :class:`Rect` for collisions and as a
-positioning helper. Each is a small float-friendly work-alike exposing only the
-subset of the pygame API the games actually touch.
-
-The "vector-like" operands of the arithmetic dunders (and the polymorphic first
-argument of each constructor, which may be a scalar, a sequence, or another
-vector) are typed :data:`VectorLike` / ``Any`` -- pygame accepts any indexable of
-the right arity there, and pinning a narrower type would reject calls the games
-legitimately make.
+This module used to carry pygame ``Vector2``/``Vector3`` work-alikes; the
+games now use the gacalc geometric-algebra vectors directly
+(``gacalc.g2.Vector2`` / ``gacalc.g3.Vector3`` -- see the ctc section of the
+repo CLAUDE.md), so only the rectangles remain.  Position-like parameters
+here and across the shim are typed :data:`VectorLike` / ``Any`` -- pygame
+accepts any indexable/iterable pair, including gacalc vectors.
 """
 
 from __future__ import annotations
 
-import math
 from collections.abc import Iterator
-from typing import Any, Tuple
+from typing import Any, Self, Tuple
 
-# A vector-like operand: another Vector2/Vector3, a tuple, or any object indexable
-# as ``o[0]``, ``o[1]`` (and ``o[2]`` for 3D) -- whatever pygame would accept.
+# A vector-like operand: a gacalc vector, a tuple, or any object providing
+# two (or three) coordinates -- whatever pygame would accept.
 VectorLike = Any
-
-
-class Vector2:
-    """A small pygame.math.Vector2 work-alike (the subset the games use)."""
-
-    __slots__ = ("x", "y")
-
-    def __init__(self, x: Any = 0.0, y: float = 0.0) -> None:
-        # x may be a scalar, a (x, y) sequence, or an object with .x/.y attrs.
-        if hasattr(x, "__len__"):
-            x, y = x
-        elif hasattr(x, "x") and hasattr(x, "y"):
-            x, y = x.x, x.y
-        self.x = float(x)
-        self.y = float(y)
-
-    def __iter__(self) -> Iterator[float]:
-        return iter((self.x, self.y))
-
-    def __getitem__(self, i: int) -> float:
-        return (self.x, self.y)[i]
-
-    def __len__(self) -> int:
-        return 2
-
-    def __repr__(self) -> str:
-        return "Vector2(%g, %g)" % (self.x, self.y)
-
-    def __eq__(self, o: Any) -> bool:
-        return self.x == o[0] and self.y == o[1]
-
-    def __add__(self, o: VectorLike) -> Vector2:
-        return Vector2(self.x + o[0], self.y + o[1])
-
-    __radd__ = __add__
-
-    def __sub__(self, o: VectorLike) -> Vector2:
-        return Vector2(self.x - o[0], self.y - o[1])
-
-    def __rsub__(self, o: VectorLike) -> Vector2:
-        return Vector2(o[0] - self.x, o[1] - self.y)
-
-    def __mul__(self, s: Any) -> Any:
-        # pygame semantics: vec * vec is the dot product (a scalar); vec * scalar
-        # scales each component.
-        if hasattr(s, "__len__"):
-            return self.x * s[0] + self.y * s[1]
-        return Vector2(self.x * s, self.y * s)
-
-    __rmul__ = __mul__
-
-    def __truediv__(self, s: float) -> Vector2:
-        return Vector2(self.x / s, self.y / s)
-
-    def __neg__(self) -> Vector2:
-        return Vector2(-self.x, -self.y)
-
-    def length(self) -> float:
-        return math.hypot(self.x, self.y)
-
-    def length_squared(self) -> float:
-        return self.x * self.x + self.y * self.y
-
-    def magnitude(self) -> float:
-        return self.length()
-
-    def dot(self, o: VectorLike) -> float:
-        return self.x * o[0] + self.y * o[1]
-
-    def normalize(self) -> Vector2:
-        n: float = self.length()
-        return Vector2(self.x / n, self.y / n) if n else Vector2(0, 0)
-
-    def normalize_ip(self) -> None:
-        n: float = self.length()
-        if n:
-            self.x /= n
-            self.y /= n
-
-    def scale_to_length(self, length: float) -> None:
-        # pygame: rescale in place to the given length; error on zero length.
-        n: float = self.length()
-        if n == 0:
-            raise ValueError("Cannot scale a vector with zero length")
-        factor = length / n
-        self.x *= factor
-        self.y *= factor
-
-    def distance_to(self, o: VectorLike) -> float:
-        return math.hypot(self.x - o[0], self.y - o[1])
-
-    def rotate(self, degrees: float) -> Vector2:
-        # pygame Vector2.rotate is counter-clockwise in screen space (y down).
-        t: float = math.radians(degrees)
-        c, s = math.cos(t), math.sin(t)
-        return Vector2(self.x * c - self.y * s, self.x * s + self.y * c)
-
-    def copy(self) -> Vector2:
-        return Vector2(self.x, self.y)
-
-
-class Vector3:
-    """A small pygame.math.Vector3 work-alike (leadingedge's pseudo-3D road)."""
-
-    __slots__ = ("x", "y", "z")
-
-    def __init__(self, x: Any = 0.0, y: float = 0.0, z: float = 0.0) -> None:
-        # x may be a scalar, an (x, y, z) sequence, or an object with .x/.y/.z.
-        if hasattr(x, "__len__"):
-            x, y, z = x
-        elif hasattr(x, "z"):
-            x, y, z = x.x, x.y, x.z
-        self.x, self.y, self.z = float(x), float(y), float(z)
-
-    def __iter__(self) -> Iterator[float]:
-        return iter((self.x, self.y, self.z))
-
-    def __getitem__(self, i: int) -> float:
-        return (self.x, self.y, self.z)[i]
-
-    def __len__(self) -> int:
-        return 3
-
-    def __repr__(self) -> str:
-        return "Vector3(%g, %g, %g)" % (self.x, self.y, self.z)
-
-    def __eq__(self, o: Any) -> bool:
-        return self.x == o[0] and self.y == o[1] and self.z == o[2]
-
-    def __add__(self, o: VectorLike) -> Vector3:
-        return Vector3(self.x + o[0], self.y + o[1], self.z + o[2])
-
-    __radd__ = __add__
-
-    def __sub__(self, o: VectorLike) -> Vector3:
-        return Vector3(self.x - o[0], self.y - o[1], self.z - o[2])
-
-    def __rsub__(self, o: VectorLike) -> Vector3:
-        return Vector3(o[0] - self.x, o[1] - self.y, o[2] - self.z)
-
-    def __mul__(self, s: Any) -> Any:
-        # pygame semantics: vec * vec is the dot product (a scalar); vec * scalar
-        # scales each component.
-        if hasattr(s, "__len__"):
-            return self.x * s[0] + self.y * s[1] + self.z * s[2]
-        return Vector3(self.x * s, self.y * s, self.z * s)
-
-    __rmul__ = __mul__
-
-    def __truediv__(self, s: float) -> Vector3:
-        return Vector3(self.x / s, self.y / s, self.z / s)
-
-    def __neg__(self) -> Vector3:
-        return Vector3(-self.x, -self.y, -self.z)
-
-    def length(self) -> float:
-        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
-
-    def length_squared(self) -> float:
-        return self.x**2 + self.y**2 + self.z**2
-
-    def dot(self, o: VectorLike) -> float:
-        return self.x * o[0] + self.y * o[1] + self.z * o[2]
-
-    def cross(self, o: VectorLike) -> Vector3:
-        return Vector3(
-            self.y * o[2] - self.z * o[1],
-            self.z * o[0] - self.x * o[2],
-            self.x * o[1] - self.y * o[0],
-        )
-
-    def normalize(self) -> Vector3:
-        n: float = self.length()
-        return Vector3(self.x / n, self.y / n, self.z / n) if n else Vector3()
-
-    def scale_to_length(self, length: float) -> None:
-        # pygame: rescale in place to the given length; error on zero length.
-        n: float = self.length()
-        if n == 0:
-            raise ValueError("Cannot scale a vector with zero length")
-        factor = length / n
-        self.x *= factor
-        self.y *= factor
-        self.z *= factor
-
-    def distance_to(self, o: VectorLike) -> float:
-        return math.sqrt(
-            (self.x - o[0]) ** 2 + (self.y - o[1]) ** 2 + (self.z - o[2]) ** 2
-        )
-
-    def copy(self) -> Vector3:
-        return Vector3(self.x, self.y, self.z)
 
 
 _VIRTUALS = {
@@ -502,19 +305,19 @@ class Rect:
             and self.bottom >= o.bottom
         )
 
-    def move(self, dx: float, dy: float) -> Rect:
+    def move(self, dx: float, dy: float) -> Self:
         return self.__class__(self.x + dx, self.y + dy, self.width, self.height)
 
     def move_ip(self, dx: float, dy: float) -> None:
         self.x += dx
         self.y += dy
 
-    def inflate(self, dx: float, dy: float) -> Rect:
+    def inflate(self, dx: float, dy: float) -> Self:
         return self.__class__(
             self.x - dx / 2, self.y - dy / 2, self.width + dx, self.height + dy
         )
 
-    def copy(self) -> Rect:
+    def copy(self) -> Self:
         return self.__class__(self.x, self.y, self.width, self.height)
 
     def __iter__(self) -> Iterator[float]:

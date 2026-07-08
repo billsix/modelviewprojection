@@ -1,5 +1,11 @@
 # Math demos section + cross-product demo + its proof
 
+> **ARCHIVED 2026-07-09, superseded by multivariate-math:** mvp's
+> crossproduct demo was removed (Bill approved; see
+> `remove-crossproduct-demo.md` in this archive dir). The demo, labels
+> infra, and proof work continue in the multivariate-math repo.
+
+
 > **ACTIVE BUG (2026-06-14) — read first if resuming:** the demo's
 > relative-coordinate *plane* (graph paper) for the forward phases is drawn wrong;
 > Bill is frustrated after many failed iterations and asked for a fresh-eyes

@@ -38,12 +38,23 @@ from collections.abc import Callable  # noqa: E402
 from dataclasses import dataclass, field
 from enum import Enum
 from random import choice, randint, uniform
-from typing import Any, Optional
+from typing import Any, Optional, override
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
+from gacalc.g2 import Vector2
+from gacalc.g3 import Vector3
 from pgzero_gl import draw as gldraw
-from pgzero_gl import joystick, surface, transform
-from pgzero_gl.geometry import Vector2, Vector3
+from pgzero_gl import (  # noqa: E402
+    go,
+    images,
+    joystick,
+    keyboard,
+    mixer,
+    music,
+    screen,
+    sounds,
+    surface,
+    transform,
+)
 
 # If the game window doesn't fit on the screen, you may need to turn off or reduce display scaling in the Windows/macOS settings
 # On Windows, you can uncomment the following two lines to fix the issue. It sets the program as "DPI aware"
@@ -335,6 +346,7 @@ class Controls(ABC):
 
 
 class KeyboardControls(Controls):
+    @override
     def get_x(self) -> int:
         if keyboard.left:
             return -1
@@ -343,6 +355,7 @@ class KeyboardControls(Controls):
         else:
             return 0
 
+    @override
     def button_down(self, button: int) -> bool:  # ty: ignore[invalid-return-type]  # faithful port: implicitly returns None for button values other than 0/1
         if button == 0:
             return keyboard.lctrl or keyboard.z
@@ -374,12 +387,14 @@ class JoystickControls(Controls):
         else:
             return axis_value
 
+    @override
     def get_x(self) -> float:
         return self.get_axis(0)
 
     def get_y(self) -> float:
         return self.get_axis(1)
 
+    @override
     def button_down(self, button: int) -> bool:
         # Before checking button, check to make sure that the controller actually has enough buttons
         # There are some weird devices out there which could cause a crash if this check were not present
@@ -415,6 +430,7 @@ class StartGantry(Scenery):
             collision_zones=((-3000, -2400), (2400, 3000)),
         )
 
+    @override
     def get_image(self) -> Any:
         # Before we draw, update our billboard image to the appropriate one based on the game's start timer
         # Images go from start0 to start4, then we alternate between start4 and start5 every half second
@@ -503,7 +519,7 @@ class Car:
     def update_current_track_piece(self) -> None:
         # Which track piece are we on?
         current_track_piece: Optional[TrackPiece] = self.track_piece
-        idx: Optional[int] = game.get_track_piece_for_z(self.pos.z)
+        idx: Optional[int] = game.get_track_piece_for_z(float(self.pos.z))
         if idx is not None:
             self.track_piece = game.track[idx]
             if self.track_piece is not current_track_piece:
@@ -536,13 +552,14 @@ class CPUCar(Car):
         # CPU cars accelerate faster than player but have a lower top speed
         self.accel: float = PLAYER_ACCELERATION_MAX * accel
         self.target_speed: float = speed
-        self.target_x: float = pos.x
+        self.target_x: float = float(pos.x)
 
         # Set based on track curvature, so we can display an angled variant of the car sprite
         self.steering: float = 0
 
         self.change_speed_timer: float = uniform(2, 4)
 
+    @override
     def update(self, delta_time: float) -> None:
         if game.race_complete:
             self.target_speed = game.player_car.speed
@@ -550,11 +567,13 @@ class CPUCar(Car):
         self.speed = move_towards(
             self.speed, self.target_speed, self.accel * delta_time
         )
-        self.pos.x = move_towards(self.pos.x, self.target_x, 400 * delta_time)
+        self.pos.x = move_towards(
+            float(self.pos.x), self.target_x, 400 * delta_time
+        )
 
         super().update(delta_time)
 
-        track_piece_idx, _ = game.get_first_track_piece_ahead(self.pos.z)
+        track_piece_idx, _ = game.get_first_track_piece_ahead(float(self.pos.z))
         if track_piece_idx is not None:
             self.steering = game.track[track_piece_idx].offset_x
 
@@ -654,6 +673,7 @@ class PlayerCar(Car):
                 # Ignore errors - e.g. no sound hardware, or sound mixer has been shut down
                 pass
 
+    @override
     def update(self, delta_time: float) -> None:
         if not game.race_complete:
             self.lap_time += delta_time
@@ -679,7 +699,9 @@ class PlayerCar(Car):
                     self.explode_timer = None
             else:
                 # Reset player to centre of track over about 2 seconds
-                self.pos.x = move_towards(self.pos.x, 0, 2000 * delta_time)
+                self.pos.x = move_towards(
+                    float(self.pos.x), 0, 2000 * delta_time
+                )
                 self.resetting = self.pos.x != 0
 
         x_move: float = 0
@@ -745,7 +767,7 @@ class PlayerCar(Car):
 
             # Get track piece we were on before forward motion was applied
             previous_track_piece_idx, _ = game.get_first_track_piece_ahead(
-                self.pos.z
+                float(self.pos.z)
             )
 
             # Apply steering
@@ -785,8 +807,8 @@ class PlayerCar(Car):
                         # is faster, we hit the car in front
                         if abs(vec.z) < 0.2:
                             # Side collision
-                            self.pos.x += sign(vec.x) * 50
-                            car.pos.x -= sign(vec.x) * 50
+                            self.pos.x += sign(float(vec.x)) * 50
+                            car.pos.x -= sign(float(vec.x)) * 50
 
                         elif vec.z > 0:
                             # Colliding with the back of the car in front
@@ -818,7 +840,9 @@ class PlayerCar(Car):
                             game.play_sound("bump_behind")
 
             # Check for collisions with scenery, driving on grass and passing a checkpoint
-            track_piece_idx, _ = game.get_first_track_piece_ahead(self.pos.z)
+            track_piece_idx, _ = game.get_first_track_piece_ahead(
+                float(self.pos.z)
+            )
             if track_piece_idx is not None:
                 track_piece: TrackPiece = game.track[track_piece_idx]
 
@@ -1339,7 +1363,7 @@ class Game:
             elif int(timer_old) != int(self.start_timer):
                 game.play_sound("startbeep")
 
-        old_camera_z: float = self.camera.z
+        old_camera_z: float = float(self.camera.z)
         prev_ahead, _ = self.get_first_track_piece_ahead(old_camera_z)
 
         # If race has started, update all cars
@@ -1378,7 +1402,7 @@ class Game:
 
         # Get the new camera pos and determine which track piece it's on. The logic is different depending on whether
         # the position change goes from one track piece to the next, or is within one track piece
-        new_camera_z: float = self.camera.z
+        new_camera_z: float = float(self.camera.z)
         new_ahead, _ = self.get_first_track_piece_ahead(new_camera_z)
 
         # We need to deal with not just interpolating during movement within one track piece, but also when we pass the
@@ -1584,7 +1608,7 @@ class Game:
         # This means the track piece we're currently part-way through won't be displayed, but that doesn't matter
         # as it would be off the bottom of the camera.
         first_track_piece_idx, current_piece_z = (
-            self.get_first_track_piece_ahead(self.camera.z)
+            self.get_first_track_piece_ahead(float(self.camera.z))
         )
 
         # Index of the track piece that we're drawing, relative to first_track_piece_idx
@@ -1692,9 +1716,14 @@ class Game:
                 if prev_track_screen is not None:
 
                     def any_on_screen(points: Any) -> bool:
-                        # point[1] gets Y for both tuple pair and Vector2
+                        # unpack (not index) to get Y: the lists mix tuple
+                        # pairs and gacalc Vector2s (iterable, not indexable)
+                        def point_y(point: Any) -> float:
+                            _, y = point
+                            return y
+
                         on_screen: list[Any] = [
-                            point for point in points if point[1] < HEIGHT
+                            point for point in points if point_y(point) < HEIGHT
                         ]
                         return any(on_screen)
 
@@ -1735,10 +1764,10 @@ class Game:
                     # draw list are drawn in reverse order
                     if SHOW_YELLOW_LINES:
                         left_yellow_line_points = (
-                            prev_yellow_line_left_outer_screen,
+                            prev_yellow_line_left_outer_screen,  # noqa: F821  # loop-carried: assigned at the bottom of the previous iteration
                             yellow_line_left_outer_screen,
                             yellow_line_left_inner_screen,
-                            prev_yellow_line_left_inner_screen,
+                            prev_yellow_line_left_inner_screen,  # noqa: F821  # loop-carried: assigned at the bottom of the previous iteration
                         )
                         draw_points(
                             left_yellow_line_points,
@@ -1747,10 +1776,10 @@ class Game:
                         )
 
                         right_yellow_line_points = (
-                            prev_yellow_line_right_outer_screen,
+                            prev_yellow_line_right_outer_screen,  # noqa: F821  # loop-carried: assigned at the bottom of the previous iteration
                             yellow_line_right_outer_screen,
                             yellow_line_right_inner_screen,
-                            prev_yellow_line_right_inner_screen,
+                            prev_yellow_line_right_inner_screen,  # noqa: F821  # loop-carried: assigned at the bottom of the previous iteration
                         )
                         draw_points(
                             right_yellow_line_points,
@@ -1858,7 +1887,7 @@ class Game:
                     add_to_draw_list(
                         lambda left_screen=left_screen, text=text: (
                             screen.draw.text(
-                                text, (left_screen[0], left_screen[1] - 30)
+                                text, (left_screen.x, left_screen.y - 30)
                             )
                         )
                     )
@@ -1918,7 +1947,7 @@ class Game:
                 # Each car needs to be drawn during the track piece it is on, but with an additional offset interpolated
                 # towards the next track piece, so that it starts turning a corner as it reaches the piece
                 # Also, the order of  drawing needs to be correct if there is more than one car per track piece
-                car_offset: Vector3 = Vector3(offset)
+                car_offset: Vector3 = Vector3(*offset)
                 if car.pos.z % SPACING != 0:
                     # Interpolate offset between this and next track piece
                     # Note that "Interpolate for X offset between first and next track piece"
@@ -1926,7 +1955,9 @@ class Game:
 
                     # The following lines deal with the car when it's moving onto a track piece with an offset
                     fraction = inverse_lerp(
-                        current_piece_z, current_piece_z - SPACING, car.pos.z
+                        current_piece_z,
+                        current_piece_z - SPACING,
+                        float(car.pos.z),
                     )
                     next_track_piece: TrackPiece = self.track[i + 1]
                     car_offset += Vector3(

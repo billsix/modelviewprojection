@@ -174,3 +174,4 @@ imgui.ini
 
 # runtime high-score files the CTC games write to their cwd
 high.txt
+ports/codetheclassics/.instrumentation/

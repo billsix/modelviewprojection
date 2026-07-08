@@ -41,11 +41,27 @@ from abc import ABC, abstractmethod
 from dataclasses import InitVar, dataclass
 from enum import Enum, IntEnum
 from random import choice, randint, random, uniform
-from typing import Any, Optional  # noqa: E402
+from typing import Any, Optional, override  # noqa: E402
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
-from pgzero_gl import joystick, surface
-from pgzero_gl.geometry import Vector2
+from gacalc.g2 import Vector2
+from gacalc.transforms import plane_rotation
+from pgzero_gl import (  # noqa: E402
+    Actor,
+    go,
+    images,
+    joystick,
+    keyboard,
+    mixer,
+    music,
+    screen,
+    sounds,
+    surface,
+)
+
+# The screen plane's rotation factory: one unit bivector (e_1 wedge e_2)
+# established once, then _turn(theta) rotates any vector by theta in that
+# plane (kinetix only ever rotates by fixed multiples of 120 degrees).
+_turn = plane_rotation(Vector2.e_1, Vector2.e_2)
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -250,6 +266,7 @@ class Controls(ABC):
 
 
 class KeyboardControls(Controls):
+    @override
     def get_x(self) -> float:
         if keyboard.left:
             return -BAT_SPEED
@@ -258,6 +275,7 @@ class KeyboardControls(Controls):
         else:
             return 0
 
+    @override
     def fire_down(self) -> bool:
         return keyboard.space
 
@@ -268,6 +286,7 @@ class JoystickControls(Controls):
         self.joystick: Any = joystick
         joystick.init()  # Not necessary in Pygame 2.0.0 onwards
 
+    @override
     def get_x(self) -> float:
         # First check if there is an input on the dpad for the X axis. The dpad is classified here as a joystick 'hat'
         if self.joystick.get_numhats() > 0 and self.joystick.get_hat(0)[0] != 0:
@@ -282,6 +301,7 @@ class JoystickControls(Controls):
         else:
             return axis_value * BAT_SPEED
 
+    @override
     def fire_down(self) -> bool:
         # Before checking button 0, check to make sure that the controller actually has any buttons
         # There are some weird devices out there which could cause a crash if this check were not present
@@ -296,6 +316,7 @@ class AIControls(Controls):
         super().__init__()
         self.offset: int = 0
 
+    @override
     def get_x(self) -> float:
         if game.portal_active:
             # If the portal to the next level is open, just move right so that we go through it
@@ -312,6 +333,7 @@ class AIControls(Controls):
                 max(-BAT_SPEED, game.balls[0].x - (game.bat.x + self.offset)),
             )
 
+    @override
     def fire_down(self) -> bool:
         # Just have the AI mash the fire button
         return randint(0, 5) == 0
@@ -370,12 +392,16 @@ class CollisionType(Enum):
 # the generated __eq__ would compare fields and set __hash__ to None)
 @dataclass(eq=False)
 class Bullet(Actor):
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     side: InitVar[int]
     alive: bool = True
 
-    def __post_init__(self, pos: tuple[float, float], side: int) -> None:
-        super().__init__(f"bullet{side}", pos)
+    def __post_init__(
+        self, spawn_pos: tuple[float, float] | Vector2, side: int
+    ) -> None:
+        super().__init__(f"bullet{side}", spawn_pos)
 
     def update(self) -> None:
         self.y -= BULLET_SPEED
@@ -431,7 +457,7 @@ class Barrel(Actor):
 
         # Create separate actor for shadow sprite
         self.shadow: Actor = Actor(
-            "barrels", (self.x + SHADOW_OFFSET, self.y + SHADOW_OFFSET)
+            "barrels", self.pos + Vector2(SHADOW_OFFSET, SHADOW_OFFSET)
         )
 
     def update(self) -> None:
@@ -477,18 +503,21 @@ class Barrel(Actor):
         # We switch to a new animation frame every 10 game frames
         self.image = f"barrel{int(self.type)}{self.time // 10 % 10}"
 
-        self.shadow.pos = (self.x + SHADOW_OFFSET, self.y + SHADOW_OFFSET)
+        self.shadow.pos = self.pos + Vector2(SHADOW_OFFSET, SHADOW_OFFSET)
 
 
 # The Impact class is used for the animations played when the ball hits a wall or destroys a brick
 @dataclass(eq=False)
 class Impact(Actor):
-    pos: InitVar[tuple[float, float]]
+    # a coordinate pair OR a gacalc Vector2 (Actor's pos setter unpacks both)
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     type: int
     time: int = 0
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("blank", pos)
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+        super().__init__("blank", spawn_pos)
 
     def update(self) -> None:
         # The impact animation sprites have names like 'impact00' where the first digit is the type of impact and
@@ -523,7 +552,7 @@ class Ball(Actor):
         # Since a Vector2 is an object, it's a reference type. If you copy a reference type it means you now have two
         # variables referring to the same object. If we said below 'self.dir = dir' it would mean that when a ball
         # copied its direction from another ball, the directions of the two balls would remain linked to each other
-        self.dir: Vector2 = Vector2(dir)
+        self.dir: Vector2 = Vector2(*dir)
 
         self.stuck_to_bat: bool = stuck_to_bat
         self.bat_offset: float = BALL_INITIAL_OFFSET
@@ -534,7 +563,7 @@ class Ball(Actor):
         self.time_since_touched_bat: int = 0
         self.time_since_damaged_brick: int = 0
 
-        self.shadow: Actor = Actor("balls", (self.x + 16, self.y + 16))
+        self.shadow: Actor = Actor("balls", self.pos + Vector2(16, 16))
 
     def update(self) -> None:
         self.time_since_damaged_brick += 1
@@ -679,7 +708,7 @@ class Ball(Actor):
                             Ball.collision_sound(CollisionType.BAT_EDGE)
 
         # Set shadow actor's position
-        self.shadow.pos = (self.x + 16, self.y + 16)
+        self.shadow.pos = self.pos + Vector2(16, 16)
 
     def increment_speed(self) -> None:
         self.speed = min(self.speed + 1, BALL_MAX_SPEED)
@@ -720,7 +749,7 @@ class Ball(Actor):
             # Create direction vector for new ball, the first ball will have the same direction as
             # its original parent ball, the others will have direction vectors rotated 120 and 240
             # degrees from that
-            vec: Vector2 = self.dir.rotate(i * 120)
+            vec: Vector2 = _turn(math.radians(i * 120))(self.dir)
             if abs(vec.y) < 0.15:
                 # dy could be zero if the ball is currently stuck to the bat, or could be very close
                 # to zero by chance, which could lead to the ball bouncing left and right for ages
@@ -771,7 +800,7 @@ class Bat(Actor):
         # Create shadow actor (positioned from our own x/y, so created after
         # super().__init__ has set them)
         self.shadow: Actor = Actor(
-            "blank", (self.x + 16, self.y + 16), anchor=("center", 15)
+            "blank", self.pos + Vector2(16, 16), anchor=("center", 15)
         )
 
     def update(self) -> None:
@@ -814,8 +843,8 @@ class Bat(Actor):
 
             self.image += "f"  # not really visible for the 1 frame it's shown
 
-            game.bullets.append(Bullet((self.x - 20, self.y), 0))
-            game.bullets.append(Bullet((self.x + 20, self.y), 1))
+            game.bullets.append(Bullet(self.pos - Vector2(20, 0), 0))
+            game.bullets.append(Bullet(self.pos + Vector2(20, 0), 1))
 
             game.play_sound("laser")
 
@@ -854,13 +883,13 @@ class Bat(Actor):
 # Does the ball (x, y, radius) collide with the brick at the given
 # grid position? Returns the point at which the collision occurred
 def brick_collide(
-    x: float, y: float, grid_x: int, grid_y: int, r: float
-) -> tuple[float, float] | None:
+    pos: Vector2, grid_x: int, grid_y: int, r: float
+) -> Vector2 | None:
     # Get ball extent as a square
-    x0: float = x - r
-    y0: float = y - r
-    x1: float = x + r
-    y1: float = y + r
+    x0: float = float(pos.x - r)
+    y0: float = float(pos.y - r)
+    x1: float = float(pos.x + r)
+    y1: float = float(pos.y + r)
 
     # Get brick's left, top, right and bottom coordinates
     xb0: int = grid_x * BRICK_WIDTH + BRICKS_X_START
@@ -877,39 +906,40 @@ def brick_collide(
     #  and ball left edge < brick right edge
     #  and ball y centre > brick top edge
     #  and ball y centre < brick bottom edge
-    if x1 > xb0 and x0 < xb1 and y > yb0 and y < yb1:
-        if x < xbc:
-            return xb0, y
+    if x1 > xb0 and x0 < xb1 and pos.y > yb0 and pos.y < yb1:
+        if pos.x < xbc:
+            return Vector2(xb0, pos.y)
         else:
-            return xb1, y
+            return Vector2(xb1, pos.y)
 
     # Detect bounce off top or bottom of brick
     # if ball x centre > brick left edge
     #  and ball x centre < brick right edge
     #  and ball y bottom > brick y top
     #  and ball y top < brick y bottom
-    if x > xb0 and x < xb1 and y1 > yb0 and y0 < yb1:
-        if y < ybc:
-            return x, yb0
+    if pos.x > xb0 and pos.x < xb1 and y1 > yb0 and y0 < yb1:
+        if pos.y < ybc:
+            return Vector2(pos.x, yb0)
         else:
-            return x, yb1
-
-    # Put x/y position into a Vector2 object, which allows us to use the Vector2 methods length/length_squared
-    # to calculate distances
-    pos_vector: Vector2 = Vector2(x, y)
+            return Vector2(pos.x, yb1)
 
     # Get closest brick corner
     # We call the Python min function with a list of positions (one for each corner of the brick)
     # The key argument is a lambda function which calculates the squared distance between pos_vector (the pos we're
     # checking) and the corner position (p). We use length_squared rather than length because it's faster and we just
     # care about which corner is closest, not what the actual distance is
-    closest: tuple[int, int] = min(
-        [(xb0, yb0), (xb1, yb0), (xb0, yb1), (xb1, yb1)],
-        key=lambda p: (pos_vector - Vector2(p)).length_squared(),
+    closest: Vector2 = min(
+        [
+            Vector2(xb0, yb0),
+            Vector2(xb1, yb0),
+            Vector2(xb0, yb1),
+            Vector2(xb1, yb1),
+        ],
+        key=lambda p: (pos - p).magnitude_squared(),
     )
 
     # Check if we are actually overlapping with the nearest corner
-    if (pos_vector - Vector2(closest)).length() < r:
+    if (pos - closest).magnitude() < r:
         # Position does overlap with nearest corner, return corner position
         return closest
     else:
@@ -1015,7 +1045,7 @@ class Game:
 
     def collide(
         self, x: float, y: float, dir: Vector2, r: float = BALL_RADIUS
-    ) -> tuple[tuple[float, float], bool, CollisionType] | None:
+    ) -> tuple[Vector2, bool, CollisionType] | None:
         # Called to check whether a ball or a bullet would collide with something if it moved in the specified direction
         # Only checks for walls and bricks, collisions with bat are handled elsewhere
         # If there's a collision with a destructible brick, the brick will take damage
@@ -1025,11 +1055,11 @@ class Game:
         dx, dy = dir
 
         if dx < 0 and x < LEFT_EDGE + r:
-            return (LEFT_EDGE, y), True, CollisionType.WALL
+            return Vector2(LEFT_EDGE, y), True, CollisionType.WALL
         if dx > 0 and x > RIGHT_EDGE - r:
-            return (RIGHT_EDGE, y), True, CollisionType.WALL
+            return Vector2(RIGHT_EDGE, y), True, CollisionType.WALL
         if dy < 0 and y < TOP_EDGE + r:
-            return (x, TOP_EDGE), True, CollisionType.WALL
+            return Vector2(x, TOP_EDGE), True, CollisionType.WALL
 
         # Work out the range of brick rows and columns that the ball overlaps
         # This means we don't need to check the ball against every brick,
@@ -1051,9 +1081,7 @@ class Game:
                 # Is there a brick in this position?
                 if self.bricks[yb][xb] != None:
                     # Check for collision with current brick
-                    c: tuple[float, float] | None = brick_collide(
-                        x, y, xb, yb, r
-                    )
+                    c: Vector2 | None = brick_collide(Vector2(x, y), xb, yb, r)
 
                     if c is not None:
                         # There was a collision

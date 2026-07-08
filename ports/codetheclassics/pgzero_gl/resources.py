@@ -28,7 +28,7 @@ from __future__ import annotations
 
 import os
 from collections.abc import Callable, Iterable
-from typing import TYPE_CHECKING, Any, cast
+from typing import Any, cast
 
 import numpy as np
 import OpenGL.GL as GL
@@ -36,9 +36,7 @@ from numpy.typing import NDArray
 from PIL import Image as PILImage
 
 from . import audio, context
-
-if TYPE_CHECKING:
-    from .geometry import Rect
+from .geometry import Rect
 
 
 class Image:
@@ -83,8 +81,6 @@ class Image:
 
     def get_rect(self, **kwargs: Any) -> Rect:
         """Return a :class:`Rect` the size of this image; ``kwargs`` set anchor attrs."""
-        from .geometry import Rect
-
         r: Rect = Rect(0, 0, self.width, self.height)
         for k, v in kwargs.items():
             setattr(r, k, v)
@@ -166,9 +162,15 @@ class _Loader:
         if name.startswith("_"):
             raise AttributeError(name)
         try:
-            return self.load(name)
+            res = self.load(name)
         except KeyError as e:
             raise AttributeError(*e.args) from None
+        # First-touch caching: bind the loaded resource as a real instance
+        # attribute so repeat accesses (``images.font048`` every frame in
+        # leadingedge -- 148k __getattr__ trips in the audit) resolve
+        # statically and never come back through here.
+        setattr(self, name, res)
+        return res
 
     # A couple of games iterate the loaded sounds.
     def values(self) -> Iterable[Any]:

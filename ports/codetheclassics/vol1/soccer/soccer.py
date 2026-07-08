@@ -28,10 +28,21 @@ import sys
 from collections.abc import Callable  # noqa: E402
 from dataclasses import dataclass, field
 from enum import Enum
-from typing import Any, Optional
+from typing import Any, Optional, override
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
-from pgzero_gl.geometry import Vector2
+from gacalc.g2 import Vector2
+from pgzero_gl import (  # noqa: E402
+    Actor,
+    Rect,
+    go,
+    keyboard,
+    keys,
+    mixer,
+    music,
+    screen,
+    sounds,
+)
+from pgzero_gl import draw as gldraw  # noqa: E402
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -168,14 +179,14 @@ def angle_to_vec(angle: float) -> Vector2:
 # p.vpos - pos results in a Vector2 which we can get the length of, giving us
 # the distance between pos and p.vpos
 def dist_key(pos: Vector2) -> Callable[[Any], float]:
-    return lambda p: (p.vpos - pos).length()
+    return lambda p: (p.vpos - pos).magnitude()
 
 
 # Turn a vector into a unit vector - i.e. a vector with length 1
 # We also return the original length, before normalisation.
 # We check for zero length, as trying to normalise a zero-length vector results in an error
 def safe_normalise(vec: Vector2) -> tuple[Vector2, float]:
-    length: float = vec.length()
+    length: float = float(vec.magnitude())
     if length == 0:
         return Vector2(0, 0), 0
     else:
@@ -194,9 +205,10 @@ class MyActor(Actor):
         self.vpos: Vector2 = Vector2(x, y)
 
     # We draw with the supplied offset to enable scrolling
-    def draw(self, offset_x: float, offset_y: float) -> None:  # ty: ignore[invalid-method-override]  # faithful port: MyActor.draw adds scroll offsets to Actor.draw()
+    @override
+    def draw(self, offset: Vector2) -> None:  # ty: ignore[invalid-method-override]  # faithful port: MyActor.draw adds the camera offset to Actor.draw()
         # Set Actor's screen pos
-        self.pos = (self.vpos.x - offset_x, self.vpos.y - offset_y)
+        self.pos = self.vpos - offset
         super().draw()
 
 
@@ -268,7 +280,12 @@ def targetable(target: Any, source: Any) -> bool:
             # from the safe_normalise function), the result of which is a number between -1 and 1. In this case we use
             # the result to determine whether player 'p' (vector v1) is in roughly the same direction as player 'target'
             # (vector v0), from the point of view of player 'source'.
-            if p.team != target.team and d1 > 0 and d1 < d0 and v0 * v1 > 0.8:
+            if (
+                p.team != target.team
+                and d1 > 0
+                and d1 < d0
+                and v0.scalar_product(v1) > 0.8
+            ):
                 return False
 
     # If target is on the same team, and ahead of source, and not too far away, and source is facing
@@ -281,7 +298,7 @@ def targetable(target: Any, source: Any) -> bool:
         target.team == source.team
         and d0 > 0
         and d0 < 300
-        and v0 * angle_to_vec(source.dir) > 0.8
+        and v0.scalar_product(angle_to_vec(source.dir)) > 0.8
     )
 
 
@@ -291,12 +308,12 @@ def avg(a: float, b: float) -> float:
     return b if abs(b - a) < 1 else (a + b) / 2
 
 
-def on_pitch(x: float, y: float) -> bool:
+def on_pitch(pos: Vector2) -> bool:
     # Only used when dribbling
     return (
-        PITCH_RECT.collidepoint(x, y)
-        or GOAL_0_RECT.collidepoint(x, y)
-        or GOAL_1_RECT.collidepoint(x, y)
+        PITCH_RECT.collidepoint(*pos)
+        or GOAL_0_RECT.collidepoint(*pos)
+        or GOAL_1_RECT.collidepoint(*pos)
     )
 
 
@@ -315,7 +332,9 @@ class Ball(MyActor):
     def collide(self, p: "Player") -> bool:
         # The ball collides with p if p's hold-off timer has expired
         # and it is DRIBBLE_DIST_X or fewer pixels away
-        return p.timer < 0 and (p.vpos - self.vpos).length() <= DRIBBLE_DIST_X
+        return (
+            p.timer < 0 and (p.vpos - self.vpos).magnitude() <= DRIBBLE_DIST_X
+        )
 
     def update(self) -> None:
         self.timer -= 1
@@ -330,18 +349,24 @@ class Ball(MyActor):
             # to reflect that that the game's perspective is not completely top-down - so the positions the ball can
             # take in relation to the player should form an ellipse instead of a circle.
             # todo explain maths
-            new_x: float = avg(
-                self.vpos.x,
-                self.owner.vpos.x + DRIBBLE_DIST_X * sin(self.owner.dir),
-            )
-            new_y: float = avg(
-                self.vpos.y,
-                self.owner.vpos.y - DRIBBLE_DIST_Y * cos(self.owner.dir),
+            new_pos: Vector2 = Vector2(
+                avg(
+                    float(self.vpos.x),
+                    float(
+                        self.owner.vpos.x + DRIBBLE_DIST_X * sin(self.owner.dir)
+                    ),
+                ),
+                avg(
+                    float(self.vpos.y),
+                    float(
+                        self.owner.vpos.y - DRIBBLE_DIST_Y * cos(self.owner.dir)
+                    ),
+                ),
             )
 
-            if on_pitch(new_x, new_y):
+            if on_pitch(new_pos):
                 # New position is on the pitch, so update
-                self.vpos = Vector2(new_x, new_y)
+                self.vpos = new_pos
             else:
                 # New position is off the pitch, so player loses the ball
                 # Set hold-off timer so player can't immediately reacquire the ball
@@ -372,14 +397,14 @@ class Ball(MyActor):
                 bounds_y = PITCH_BOUNDS_Y
 
             self.vpos.x, self.vel.x = ball_physics(
-                self.vpos.x, self.vel.x, bounds_x
+                float(self.vpos.x), float(self.vel.x), bounds_x
             )
             self.vpos.y, self.vel.y = ball_physics(
-                self.vpos.y, self.vel.y, bounds_y
+                float(self.vpos.y), float(self.vel.y), bounds_y
             )
 
         # Update shadow position to track ball
-        self.shadow.vpos = Vector2(self.vpos)
+        self.shadow.vpos = Vector2(*self.vpos)
 
         # Search for a player that can acquire the ball
         for target in game.players:
@@ -504,20 +529,20 @@ class Ball(MyActor):
 
 # Return True if the given position is inside the level area, otherwise False
 # Takes the goals into account so you can't run through them
-def allow_movement(x: float, y: float) -> bool:
-    if abs(x - HALF_LEVEL_W) > HALF_LEVEL_W:
+def allow_movement(pos: Vector2) -> bool:
+    if abs(pos.x - HALF_LEVEL_W) > HALF_LEVEL_W:
         # Trying to walk off the left or right side of the level
         return False
 
-    elif abs(x - HALF_LEVEL_W) < HALF_GOAL_W + 20:
+    elif abs(pos.x - HALF_LEVEL_W) < HALF_GOAL_W + 20:
         # Player is within the bounds of the goals on the X axis, don't let them walk into, through or behind the goal
         # +20 takes with of player sprite into account
-        return abs(y - HALF_LEVEL_H) < HALF_PITCH_H
+        return abs(pos.y - HALF_LEVEL_H) < HALF_PITCH_H
 
     else:
         # Player is outside the bounds of the goals on the X axis, so they can walk off the pitch and to the edge
         # of the level
-        return abs(y - HALF_LEVEL_H) < HALF_LEVEL_H
+        return abs(pos.y - HALF_LEVEL_H) < HALF_LEVEL_H
 
 
 # Generate a score for a given position, where lower numbers are considered to be better.
@@ -535,13 +560,13 @@ def cost(pos: Vector2, team: int, handicap: float = 0) -> tuple[Any, Vector2]:
     own_goal_pos: Vector2 = Vector2(
         HALF_LEVEL_W, 78 if team == 1 else LEVEL_H - 78
     )
-    inverse_own_goal_distance: float = 3500 / (pos - own_goal_pos).length()
+    inverse_own_goal_distance: float = 3500 / (pos - own_goal_pos).magnitude()
 
     result: float = (
         inverse_own_goal_distance
         + sum(
             [
-                4000 / max(24, (p.vpos - pos).length())
+                4000 / max(24, (p.vpos - pos).magnitude())
                 for p in game.players
                 if p.team != team
             ]
@@ -557,6 +582,14 @@ def cost(pos: Vector2, team: int, handicap: float = 0) -> tuple[Any, Vector2]:
 # position (not the x/y args), and Player instances are compared by identity
 # against game.kickoff_player / active_control_player.
 class Player(MyActor):
+    # Kickoff wiring, assigned CROSS-OBJECT in Game.reset (a.peer = b,
+    # b.mark = ..., zipped[0].lead = ...) rather than in __init__ -- declared
+    # here (annotations only, no runtime effect) so the attribute surface is
+    # explicit now that Actor no longer has an open-world __setattr__.
+    peer: "Player"
+    mark: "Player | Goal"
+    lead: float | None
+
     ANCHOR = (25, 37)
 
     def __init__(self, x: float, y: float, team: int) -> None:
@@ -605,7 +638,7 @@ class Player(MyActor):
 
         # One of the main jobs of this method is to decide where the player will run to, and at what speed.
         # The default is to run slowly towards home position, but target and speed may be overwritten in the code below
-        target: Vector2 = Vector2(self.home)  # Take a copy of home position
+        target: Vector2 = Vector2(*self.home)  # Take a copy of home position
         speed: float = PLAYER_DEFAULT_SPEED
 
         # Some shorthand variables to make the code below a bit easier to follow
@@ -718,7 +751,7 @@ class Player(MyActor):
                         # We don't do the marking behaviour below for human teams for a number of reasons. Try changing
                         # the code to see how the game feels when marking behaviour applies to both human and computer
                         # teams.
-                        target = Vector2(ball.vpos)
+                        target = Vector2(*ball.vpos)
                     else:
                         # Get vector between the ball and whatever we're marking
                         vec, length = safe_normalise(ball.vpos - self.mark.vpos)
@@ -752,22 +785,22 @@ class Player(MyActor):
                 # after each frame. We also work out how far the player could have moved at each frame, and whether
                 # that distance would be enough to reach the currently simulated location of the ball.
                 target = Vector2(
-                    ball.vpos
+                    *ball.vpos
                 )  # current simulated location of ball
                 vel: Vector2 = Vector2(
-                    ball.vel
+                    *ball.vel
                 )  # ball velocity - slows down each frame due to friction
                 frame: int = 0
 
                 # DRIBBLE_DIST_X is the distance at which a player can gain control of the ball.
-                # vel.length() > 0.5 ensures we don't keep simulating frames for longer than necessary - once the ball
+                # vel.magnitude() > 0.5 ensures we don't keep simulating frames for longer than necessary - once the ball
                 # is moving that slowly, it's not going to move much further, so there's no point in simulating dozens
                 # more frames of very tiny movements. If you experience a decreased frame rate when no one has the ball,
                 # try increasing 0.5 to a higher number.
                 while (
-                    (target - self.vpos).length()
+                    (target - self.vpos).magnitude()
                     > PLAYER_INTERCEPT_BALL_SPEED * frame + DRIBBLE_DIST_X
-                    and vel.length() > 0.5
+                    and vel.magnitude() > 0.5
                 ):
                     target += vel
                     vel *= DRAG
@@ -785,7 +818,7 @@ class Player(MyActor):
         # vec[0] and vec[1] will be the x and y components of the vector
         vec, distance = safe_normalise(target - self.vpos)
 
-        self.debug_target = Vector2(target)
+        self.debug_target = Vector2(*target)
 
         # Check to see if we're already at the target position
         if distance > 0:
@@ -798,9 +831,9 @@ class Player(MyActor):
             # Update the x and y components of the player's position - but don't allow them to go off the edge of the
             # level. Processing the x and y components separately allows the player to slide along the edge when trying
             # to move diagonally off the edge of the level.
-            if allow_movement(self.vpos.x + vec.x * distance, self.vpos.y):
+            if allow_movement(self.vpos + Vector2(vec.x * distance, 0)):
                 self.vpos.x += vec.x * distance
-            if allow_movement(self.vpos.x, self.vpos.y + vec.y * distance):
+            if allow_movement(self.vpos + Vector2(0, vec.y * distance)):
                 self.vpos.y += vec.y * distance
 
             # todo
@@ -826,7 +859,7 @@ class Player(MyActor):
         self.shadow.image = "players" + suffix
 
         # Update shadow position to track player
-        self.shadow.vpos = Vector2(self.vpos)
+        self.shadow.vpos = Vector2(*self.vpos)
 
 
 @dataclass(eq=False)
@@ -924,7 +957,7 @@ class Game:
         self.ball: Ball = Ball()
 
         # Focus camera on ball - copy ball pos
-        self.camera_focus: Vector2 = Vector2(self.ball.vpos)
+        self.camera_focus: Vector2 = Vector2(*self.ball.vpos)
 
         self.debug_shoot_target: Any = None
 
@@ -1043,7 +1076,7 @@ class Game:
                 # this weighting added. We use this function as the key for the min function, which will choose
                 # the player who results in the lowest value when passed as an argument to dist_key_weighted.
                 def dist_key_weighted(p: Any) -> float:
-                    dist_to_ball: float = (p.vpos - self.ball.vpos).length()
+                    dist_to_ball: float = (p.vpos - self.ball.vpos).magnitude()
                     # Thonny gives a warning about the following line, relating to closures (an advanced topic), but
                     # in this case there is not actually a problem as the closure is only called within the loop
                     goal_dir: int = 2 * team_num - 1
@@ -1067,15 +1100,13 @@ class Game:
 
     def draw(self) -> None:
         # For the purpose of scrolling, all objects will be drawn with these offsets
-        offset_x: float = max(
-            0, min(LEVEL_W - WIDTH, self.camera_focus.x - WIDTH / 2)
+        # the camera offset, clamped per axis to the level bounds
+        offset: Vector2 = Vector2(
+            max(0, min(LEVEL_W - WIDTH, self.camera_focus.x - WIDTH / 2)),
+            max(0, min(LEVEL_H - HEIGHT, self.camera_focus.y - HEIGHT / 2)),
         )
-        offset_y: float = max(
-            0, min(LEVEL_H - HEIGHT, self.camera_focus.y - HEIGHT / 2)
-        )
-        offset: Vector2 = Vector2(offset_x, offset_y)
 
-        screen.blit("pitch", (-offset_x, -offset_y))
+        screen.blit("pitch", -offset)
 
         # Prepare to draw all objects
         # 1. Create a list of all players and the ball, sorted based on their Y positions
@@ -1089,7 +1120,7 @@ class Game:
 
         # Draw all objects
         for obj in objects:
-            obj.draw(offset_x, offset_y)
+            obj.draw(offset)
 
         # Show active players
         for t in range(2):

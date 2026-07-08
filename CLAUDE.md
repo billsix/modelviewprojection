@@ -164,8 +164,22 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
     pool and reuse voices instead of creating-and-dropping.
   - `geometry.Rect` is **integer-coord like `pygame.Rect`**; **`ZRect`** is the float
     variant, and **`Actor` uses `ZRect`** to keep sub-pixel positions.
-  - Vector `*` is the **dot product** for vector operands (pygame semantics), not
-    component-wise scaling.
+  - **The games use `gacalc.g2.Vector2` / `gacalc.g3.Vector3` DIRECTLY**
+    (2026-07-09; needs `gacalc>=0.0.8` — the release with `x`/`y`/`z`
+    coordinate properties and quotient `/`). There is **no shim vector
+    type** — `geometry.py` keeps only `Rect`/`ZRect` (the short-lived
+    gacalc-backed subclass of 2026-07-08 was superseded the next day;
+    see geometricalgebra `tasks/upgrade-rotation-and-ctc-vector-mapping.md`).
+    The dialect mapping: `length`→`magnitude`, `dot`→`scalar_product`
+    (float via `float(...)` at float-typed boundaries — gacalc returns
+    `Coef`, which admits sympy), `rotate(deg)`→`plane_rotation(e_1, e_2)`
+    (kinetix's module-level `_turn`), copies/`.pos` mixing via
+    `Vector2(*x)` unpacking, in-place `normalize_ip`/`scale_to_length`
+    → rebinding. Vector `*` scalar scales; two vectors is the geometric
+    product; every game dot product is an explicit call (Bill, 2026-07-09).
+    Shim position parameters (Actor pos setter, `screen.blit`) **unpack**
+    (`x, y = pos`) rather than index, so they accept tuples AND gacalc
+    vectors.
 - History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`.
 
 ---

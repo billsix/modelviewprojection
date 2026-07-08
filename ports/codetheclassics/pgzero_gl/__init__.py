@@ -28,7 +28,8 @@ and otherwise keeps PyGame Zero's globals: :class:`Actor`, :data:`screen`,
 :data:`keyboard`, :data:`keys`, :data:`sounds`, :data:`music`, :data:`images`,
 :class:`Rect`, :data:`mixer` (a no-op stand-in for pygame.mixer) and
 :func:`go` (PyGame Zero's ``pgzrun.go``). Deeper pygame APIs are real
-submodules imported explicitly: :mod:`pgzero_gl.geometry` (Vector2/Vector3),
+submodules imported explicitly: :mod:`pgzero_gl.geometry` (Rect/ZRect;
+vectors come from gacalc directly),
 :mod:`pgzero_gl.draw`, :mod:`pgzero_gl.transform`, :mod:`pgzero_gl.surface`,
 :mod:`pgzero_gl.joystick`, :mod:`pgzero_gl.mask`.  (Until 2026-07-08 the shim
 instead forged synthetic ``pygame``/``pgzero``/``pgzrun`` modules into
@@ -38,8 +39,11 @@ with the byte-faithfulness rule -- imports now say what they mean.)
 
 from __future__ import annotations
 
+import functools
+import os
 from typing import Any
 
+from . import audio, context
 from .actor import Actor
 from .audio import music
 from .geometry import Rect, ZRect
@@ -94,12 +98,45 @@ class _Mixer:
     def get_busy(self) -> bool:
         return False
 
-    class Sound:  # only used as a type by some games
-        def __init__(self, *a: Any, **k: Any) -> None:
-            pass
+    Sound = staticmethod(lambda path: _MixerSound(path))
 
-        def play(self, *a: Any, **k: Any) -> None:
-            pass
+
+@functools.lru_cache(maxsize=64)
+def _pooled_sound(path: str) -> audio.Sound:
+    """One decoded, voice-pooled Sound per file (see audio.Sound's pooling)."""
+    return audio.Sound(path)
+
+
+class _MixerSound:
+    """``pygame.mixer.Sound`` work-alike over the pooled audio backend.
+
+    avenger constructs one of these per distance-attenuated shot
+    (``mixer.Sound("sounds/x.ogg")`` then ``set_volume``); the old no-op stub
+    silently dropped every such sound (found 2026-07-09). A naive
+    one-audio.Sound-per-call would leak miniaudio streams (dropped Playbacks
+    have no finalizer -- see audio.py), so the decoded sound is pooled by
+    path and this wrapper's volume is applied PER PLAY to the voice acquired
+    for that play: pygame's per-instance-volume semantics, without the leak.
+    """
+
+    def __init__(self, path: Any) -> None:
+        # pygame resolves relative to the game folder; so do we.
+        self._sound = _pooled_sound(
+            os.path.join(context.get_asset_root(), str(path))
+        )
+        self._volume: float = 1.0
+
+    def set_volume(self, v: float) -> None:
+        self._volume = float(v)
+
+    def get_volume(self) -> float:
+        return self._volume
+
+    def play(self, *a: Any, **k: Any) -> None:
+        self._sound.play(volume=self._volume)
+
+    def stop(self) -> None:
+        self._sound.stop()
 
 
 mixer: Any = _Mixer()

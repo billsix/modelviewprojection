@@ -29,8 +29,9 @@ from typing import Any
 
 import numpy as np
 from PIL import Image as PILImage
-from PIL import ImageFont
+from PIL import ImageDraw, ImageFont
 
+from . import context
 from .resources import Image
 
 DEFAULT_FONT_SIZE = 24
@@ -74,8 +75,6 @@ def _get_font(fontname: str | None, size: int) -> Any:
     path: str | None = None
     if fontname:
         # game-supplied font name -> fonts/<name>.ttf
-        from . import context
-
         cand: str = os.path.join(
             context.get_asset_root(), "fonts", fontname + ".ttf"
         )
@@ -121,8 +120,6 @@ def _render(text: str, size: int, color: Any, fontname: str | None) -> Image:
     font: Any = _get_font(fontname=fontname, size=size)
     # Measure.
     dummy: Any = PILImage.new("RGBA", (1, 1))
-    from PIL import ImageDraw
-
     d: Any = ImageDraw.Draw(dummy)
     try:
         bbox = d.textbbox((0, 0), text, font=font)
@@ -144,8 +141,6 @@ def _render(text: str, size: int, color: Any, fontname: str | None) -> Image:
 def draw(text: object, surf: Any = None, **kwargs: Any) -> None:
     """screen.draw.text(text, pos=..., color=..., fontsize=...).  One of the
     anchor keywords (pos == topleft) gives the position."""
-    from . import context
-
     text = str(text)
     color = kwargs.get("color", (255, 255, 255))
     size: int = int(kwargs.get("fontsize", DEFAULT_FONT_SIZE))
@@ -166,5 +161,6 @@ def draw(text: object, surf: Any = None, **kwargs: Any) -> None:
         pos = (0, 0)
 
     fx, fy = _ANCHORS.get(anchor, (0.0, 0.0))
-    topleft = (pos[0] - img.width * fx, pos[1] - img.height * fy)
+    px, py = pos  # unpack: tuple OR gacalc vector
+    topleft = (px - img.width * fx, py - img.height * fy)
     context.require_renderer().draw_image(image=img, topleft=topleft)

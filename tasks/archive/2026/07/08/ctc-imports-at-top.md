@@ -1,6 +1,14 @@
 # Code the Classics: hoist mid-function imports to the top of the file
 
-**Status:** proposed — needs go-ahead
+**Status:** COMPLETE 2026-07-08 — hoisted every hoistable function-local
+import in the shim (actor's `images`, text's `context`+`ImageDraw`,
+screen/resources/surface's runtime `Rect`+`images`, transform's
+numpy/PIL/GLImage, killing the now-redundant TYPE_CHECKING-only Rect
+blocks); deliberate keeps commented in place: runner's env-chosen renderer
+import (defers the OpenGL import until the game starts) and _smoketest's
+post-chdir imports. The games had ZERO function-local imports (earlier
+restructures already cleared them). Verified in-container: every shim
+module imports cleanly (no cycles) and format.sh exits 0.
 **Created:** 2026-07-08
 
 ## Goal (Bill, 2026-07-08)

@@ -1,7 +1,15 @@
 # Code the Classics: adopt `match` where reasonable + modern-Python audit
 
-**Status:** in progress — the `match` half is DONE (2026-07-08); the
-modern-features half (`@override` sweep, StrEnum, Self) remains
+**Status:** COMPLETE 2026-07-08 — match half done earlier in the day;
+the modern-features half landed the same night: **98 verified `@override`
+decorators** across the 10 games (AST sweep over-approximated candidates,
+ty's `invalid-explicit-override` check pruned 6 cross-game name-collision
+false positives, everything remaining is checker-verified); **StrEnum: no
+candidates** (no string-valued enums exist in the games — the image-name
+composition uses ints/format-strings, not enum values); **`typing.Self`**
+applied to the shim's `Rect.move/inflate/copy` (they construct via
+`self.__class__`, so ZRect correctly gets ZRect back — Self was NOT applied
+to Vector2/Vector3.copy, which hardcode their own constructors).
 **Created:** 2026-07-08
 
 ## Progress (2026-07-08)
@@ -23,7 +31,7 @@ modern-features half (`@override` sweep, StrEnum, Self) remains
       with the hardened version).
 - [x] Gates: all 10 games + shim compile; ruff clean + format idempotent;
       ty at exact baselines (vol1 clean, vol2 120 pre-existing).
-- [ ] **The `@override` sweep** (the dispatch-audit companion; hundreds of
+- [x] **The `@override` sweep** (DONE — 98 verified decorators) (the dispatch-audit companion; hundreds of
       sites, mechanical). `typing.override` (Python 3.12, PEP 698) is a
       decorator declaring "this method intentionally overrides a base-class
       method". Its value is the INVERSE of the override checking we already
@@ -45,7 +53,8 @@ modern-features half (`@override` sweep, StrEnum, Self) remains
       existing faithful-port `ty: ignore[invalid-method-override]`
       suppressions coexist with `@override` (different checks: signature
       compatibility vs. link existence).
-- [ ] StrEnum for string-y state enums; `typing.Self` in the shim.
+- [x] StrEnum (no candidates — decision recorded in status) and
+      `typing.Self` (Rect.move/inflate/copy) — DONE.
 
 ## NOTE for ctc-more-types (raised 2026-07-08)
 

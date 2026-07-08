@@ -1,6 +1,13 @@
 # Task: migrate the Code-the-Classics ports' math to gacalc (as much as reasonable)
 
-**Status:** proposed — needs go-ahead
+**Status:** ACCOMPLISHED (and exceeded) 2026-07-09 — archived. What this
+proposed was delivered by the ctc-vector2-deferral →
+upgrade-rotation-and-ctc-vector-mapping (gacalc repo) → shim-dynamism-audit
+chain: the games use `gacalc.g2.Vector2`/`g3.Vector3` DIRECTLY (the shim
+vector types were deleted, not migrated), `Actor.pos` returns a gacalc
+vector, kinetix rotates via `plane_rotation`, and gacalc grew the missing
+ergonomics (x/y/z properties, quotient `/`) in 0.0.8. The background notes
+below predate all of that and are stale.
 **Created:** 2026-06-28
 **Area:** `ports/codetheclassics/`
 **Related:** `tasks/gacalc-math-migration.md` (the mvp-core precedent), `tasks/codetheclassics-types-and-docstrings.md` (just-completed Phase 0/1 typed the shim — do this *after*, on the typed baseline)

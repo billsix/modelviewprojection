@@ -40,6 +40,9 @@ def _select_renderer() -> Tuple[type, bool]:
     Reads ``PGZERO_GL``; default = modern 3.3 core + shaders. Returns
     ``(renderer_class, legacy)``.
     """
+    # Deliberately function-local imports: which renderer module loads is
+    # chosen by env var at run time, and importing a renderer pulls in
+    # OpenGL -- deferred until the game actually starts.
     mode: str = os.environ.get("PGZERO_GL", "").lower()
     if mode in ("1", "gl1", "legacy", "1.4", "1.5", "fixed"):
         from .renderer_gl1 import Renderer1x

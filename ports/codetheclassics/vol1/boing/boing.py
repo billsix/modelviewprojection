@@ -28,13 +28,21 @@ sys.path.insert(
         os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
     ),
 )
-import math  # noqa: E402
 import random  # noqa: E402
 from collections.abc import Callable, Sequence  # noqa: E402
 from dataclasses import InitVar, dataclass  # noqa: E402
 from enum import Enum  # noqa: E402
 
-from pgzero_gl import *  # noqa: E402,F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
+from gacalc.g2 import Vector2  # noqa: E402
+from pgzero_gl import (  # noqa: E402
+    Actor,
+    go,
+    keyboard,
+    mixer,
+    music,
+    screen,
+    sounds,
+)
 
 # Set up constants
 WIDTH = 800
@@ -48,15 +56,6 @@ PLAYER_SPEED = 6
 MAX_AI_SPEED = 6
 
 
-def normalised(x: float, y: float) -> tuple[float, float]:
-    # Return a unit vector
-    # Get length of vector (x,y) - math.hypot uses Pythagoras' theorem to get length of hypotenuse
-    # of right-angle triangle with sides of length x and y
-    # todo note on safety
-    length: float = math.hypot(x, y)
-    return (x / length, y / length)
-
-
 def sign(x: float) -> int:
     # Returns -1 or 1 depending on whether number is positive or negative
     return -1 if x < 0 else 1
@@ -67,11 +66,13 @@ def sign(x: float) -> int:
 # the generated __eq__ would compare fields and set __hash__ to None)
 @dataclass(eq=False)
 class Impact(Actor):
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     time: int = 0
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("blank", pos)
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+        super().__init__("blank", spawn_pos)
 
     def update(self) -> None:
         # There are 5 impact sprites numbered 0 to 4. We update to a new sprite every 2 frames.
@@ -84,13 +85,14 @@ class Impact(Actor):
 
 @dataclass(eq=False)
 class Ball(Actor):
-    # dx and dy together describe the direction in which the ball is moving. For example, if dx and dy are 1 and 0,
-    # the ball is moving to the right, with no movement up or down. If both values are negative, the ball is moving
-    # left and up, with the angle depending on the relative values of the two variables. If you're familiar with
-    # vectors, dx and dy represent a unit vector. If you're not familiar with vectors, see the explanation in the
-    # book.
-    dx: float
-    dy: float = 0
+    # dir describes the direction in which the ball is moving, as a unit
+    # vector. For example, if dir is (1, 0), the ball is moving to the right,
+    # with no movement up or down; if both components are negative, the ball
+    # is moving left and up, with the angle depending on their relative
+    # values. (The book's original uses two floats, dx and dy, and explains
+    # them as a vector; here it IS one -- a gacalc grade-1 vector of the
+    # plane's geometric algebra.)
+    dir: Vector2
     speed: int = 5
 
     def __post_init__(self) -> None:
@@ -103,9 +105,9 @@ class Ball(Actor):
             # Store the previous x position
             original_x: float = self.x
 
-            # Move the ball based on dx and dy
-            self.x += self.dx
-            self.y += self.dy
+            # Move the ball based on its direction vector
+            self.x += self.dir.x
+            self.y += self.dir.y
 
             # Check to see if ball needs to bounce off a bat
 
@@ -144,7 +146,7 @@ class Ball(Actor):
                     # and 2 metres per second down. Imagine this is taking place in space, so gravity isn't a factor.
                     # After the ball hits the bat, it's still going to be moving at 2 m/s down, but it's now going to be
                     # moving 1 m/s to the left instead of right. So its speed on the y-axis hasn't changed, but its
-                    # direction on the x-axis has been reversed. This is extremely easy to code - "self.dx = -self.dx".
+                    # direction on the x-axis has been reversed. This is extremely easy to code - "self.dir.x = -self.dir.x".
                     # However, games don't have to perfectly reflect reality.
                     # In Pong, hitting the ball with the upper or lower parts of the bat would make it bounce diagonally
                     # upwards or downwards respectively. This gives the player a degree of control over where the ball
@@ -154,22 +156,23 @@ class Ball(Actor):
                     # bat. This gives the player a bit of control over where the ball goes.
 
                     # Bounce the opposite way on the X axis
-                    self.dx = -self.dx
+                    self.dir.x = -self.dir.x
 
                     # Deflect slightly up or down depending on where ball hit bat
-                    self.dy += difference_y / 128
+                    self.dir.y += difference_y / 128
 
                     # Limit the Y component of the vector so we don't get into a situation where the ball is bouncing
                     # up and down too rapidly
-                    self.dy = min(max(self.dy, -1), 1)
+                    self.dir.y = min(max(float(self.dir.y), -1), 1)
 
                     # Ensure our direction vector is a unit vector, i.e. represents a distance of the equivalent of
-                    # 1 pixel regardless of its angle
-                    self.dx, self.dy = normalised(self.dx, self.dy)
+                    # 1 pixel regardless of its angle. (A zero vector would
+                    # raise, but dir.x is always +/-1 here.)
+                    self.dir = self.dir.normalize()
 
                     # Create an impact effect
                     game.impacts.append(
-                        Impact((self.x - new_dir_x * 10, self.y))
+                        Impact(self.pos - Vector2(new_dir_x * 10, 0))
                     )
 
                     # Increase speed with each hit
@@ -197,8 +200,8 @@ class Ball(Actor):
             if abs(self.y - HALF_HEIGHT) > 220:
                 # Invert vertical direction and apply new dy to y so that the ball is no longer overlapping with the
                 # edge of the arena
-                self.dy = -self.dy
-                self.y += self.dy
+                self.dir.y = -self.dir.y
+                self.y += self.dir.y
 
                 # Create impact effect
                 game.impacts.append(Impact(self.pos))
@@ -304,7 +307,7 @@ class Game:
         self.bats: list[Bat] = [Bat(0, controls[0]), Bat(1, controls[1])]
 
         # Create a ball object
-        self.ball: Ball = Ball(-1)
+        self.ball: Ball = Ball(Vector2(-1, 0))
 
         # Create an empty list which will later store the details of currently playing impact
         # animations - these are displayed for a short time every time the ball bounces
@@ -349,7 +352,7 @@ class Game:
             elif self.bats[losing_player].timer == 0:
                 # After 20 frames, create a new ball, heading in the direction of the player who just missed the ball
                 direction: int = -1 if losing_player == 0 else 1
-                self.ball = Ball(direction)
+                self.ball = Ball(Vector2(direction, 0))
 
     def draw(self) -> None:
         # Draw background

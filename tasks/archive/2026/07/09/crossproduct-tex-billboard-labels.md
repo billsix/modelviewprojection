@@ -1,5 +1,11 @@
 # Cross-product demo: TeX billboard labels for the vectors
 
+> **ARCHIVED 2026-07-09, superseded by multivariate-math:** mvp's
+> crossproduct demo was removed (Bill approved; see
+> `remove-crossproduct-demo.md` in this archive dir). The demo, labels
+> infra, and proof work continue in the multivariate-math repo.
+
+
 **Status:** in-progress — **core functionality VERIFIED WORKING by Bill on a real
 display (2026-06-14)**: runtime texExpToPng generation -> RGBA texture -> camera-facing
 billboard, drawn per step, all good. Remaining is **how the labels are USED** —

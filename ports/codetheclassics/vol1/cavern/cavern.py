@@ -26,9 +26,18 @@ import sys
 from dataclasses import InitVar, dataclass
 from enum import Enum
 from random import choice, randint, random, shuffle
-from typing import Any, ClassVar, Optional, cast  # noqa: E402
+from typing import Any, ClassVar, Optional, cast, override  # noqa: E402
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
+from gacalc.g2 import Vector2
+from pgzero_gl import (  # noqa: E402
+    Actor,
+    go,
+    keyboard,
+    mixer,
+    music,
+    screen,
+    sounds,
+)
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -137,7 +146,9 @@ def sign(x: float) -> int:
 
 class CollideActor(Actor):
     def __init__(
-        self, pos: tuple[float, float], anchor: tuple[str, str] = ANCHOR_CENTRE
+        self,
+        pos: tuple[float, float] | Vector2,
+        anchor: tuple[str, str] = ANCHOR_CENTRE,
     ) -> None:
         super().__init__("blank", pos, anchor)
 
@@ -188,7 +199,9 @@ class CollideActor(Actor):
 class Orb(CollideActor):
     MAX_TIMER: ClassVar[int] = 250
 
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     # Orbs are initially blown horizontally, then start floating upwards
     direction_x: int
     floating: bool = False
@@ -200,8 +213,8 @@ class Orb(CollideActor):
         6  # Number of frames during which we will be pushed horizontally
     )
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__(pos)
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+        super().__init__(spawn_pos)
 
     def hit_test(self, bolt: "Bolt") -> bool:
         # Check for collision with a bolt
@@ -251,12 +264,14 @@ class Orb(CollideActor):
 class Bolt(CollideActor):
     SPEED: ClassVar[int] = 7
 
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     direction_x: int
     active: bool = True
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__(pos)
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+        super().__init__(spawn_pos)
 
     def update(self) -> None:
         # Move horizontally and check to see if we've collided with a block
@@ -277,12 +292,14 @@ class Bolt(CollideActor):
 
 @dataclass(eq=False)
 class Pop(Actor):
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     type: int
     timer: int = -1
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("blank", pos)
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+        super().__init__("blank", spawn_pos)
 
     def update(self) -> None:
         self.timer += 1
@@ -292,7 +309,7 @@ class Pop(Actor):
 class GravityActor(CollideActor):
     MAX_FALL_SPEED = 10
 
-    def __init__(self, pos: tuple[float, float]) -> None:
+    def __init__(self, pos: tuple[float, float] | Vector2) -> None:
         super().__init__(pos, ANCHOR_CENTRE_BOTTOM)
 
         self.vel_y: int = 0
@@ -331,7 +348,7 @@ class Fruit(GravityActor):
     EXTRA_LIFE = 4
 
     def __init__(
-        self, pos: tuple[float, float], trapped_enemy_type: int = 0
+        self, pos: tuple[float, float] | Vector2, trapped_enemy_type: int = 0
     ) -> None:
         super().__init__(pos)
 
@@ -354,6 +371,7 @@ class Fruit(GravityActor):
 
         self.time_to_live: int = 500  # Counts down to zero
 
+    @override
     def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful upstream: narrows GravityActor.update's optional `detect`
         super().update()
 
@@ -419,6 +437,7 @@ class Player(GravityActor):
         else:
             return False
 
+    @override
     def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful upstream: narrows GravityActor.update's optional `detect`
         # Call GravityActor.update - parameter is whether we want to perform collision detection as we fall. If health
         # is zero, we want the player to just fall out of the level
@@ -511,17 +530,20 @@ class Robot(GravityActor):
     TYPE_NORMAL: ClassVar[int] = 0
     TYPE_AGGRESSIVE: ClassVar[int] = 1
 
-    pos: InitVar[tuple[float, float]]
+    # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
+    # would treat the property object as this field's default value
+    spawn_pos: InitVar[tuple[float, float] | Vector2]
     type: int
     direction_x: int = 1
     alive: bool = True
     change_dir_timer: int = 0
     fire_timer: int = 100
 
-    def __post_init__(self, pos: tuple[float, float]) -> None:
-        super().__init__(pos)
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+        super().__init__(spawn_pos)
         self.speed: int = randint(1, 3)
 
+    @override
     def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful upstream: narrows GravityActor.update's optional `detect`
         super().update()
 
@@ -573,7 +595,7 @@ class Robot(GravityActor):
             #  Once the fire timer has been set to 0, it will count up - frame 8 of the animation is when the actual bolt is fired
             game.bolts.append(
                 Bolt(
-                    (self.x + self.direction_x * 20, self.y - 38),
+                    self.pos + Vector2(self.direction_x * 20, -38),
                     self.direction_x,
                 )
             )

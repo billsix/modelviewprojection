@@ -22,11 +22,17 @@ game code is unchanged:
 * ``actor.pos`` / ``.x`` / ``.y`` are the anchor position; ``.left`` / ``.center``
   / ... are rect edges delegated to an underlying :class:`Rect`;
 * ``actor.angle`` rotates about the anchor;
-* arbitrary game attributes (``.dx``, ``.speed``, ...) pass through to the
-  instance dict.
+* arbitrary game attributes (``.dx``, ``.speed``, ...) are ordinary instance
+  attributes.
 
-The routing that makes all that work lives in :meth:`Actor.__getattr__` /
-:meth:`Actor.__setattr__`, which is why most values here are typed ``Any``.
+All of that used to be routed through ``__getattr__``/``__setattr__`` string
+ladders (upstream pgzero's open-world design, built so beginners never
+declare anything). The 2026-07-09 shim-dynamism audit instrumented all 10
+games and found the attribute surface is CLOSED -- x/y alone were 93% of
+2.5M dynamic reads, and nothing ever used the open-world read path -- so the
+magic names and the rect delegations are now real (static) properties, and
+game data attributes hit the instance dict natively. See
+tasks/ctc-shim-dynamism-audit.md.
 """
 
 from __future__ import annotations
@@ -35,8 +41,11 @@ from collections.abc import Iterator
 from math import atan2, degrees, sqrt
 from typing import Any, Tuple
 
+from gacalc.g2 import Vector2
+
 from . import context
 from .geometry import ZRect
+from .resources import images
 
 _ANCHOR_FRAC = {
     "x": {"left": 0.0, "center": 0.5, "middle": 0.5, "right": 1.0},
@@ -79,7 +88,7 @@ def _calc(value: Any, dim: str, total: float) -> float:
 class Actor:
     """A pgzero ``Actor``: an image positioned by a (default-centre) anchor."""
 
-    # Private state, set via object.__setattr__ to bypass the routing below.
+    # Private state backing the properties below.
     # ZRect (float coords): an Actor's anchor position is stored here, so
     # movement at non-integer speeds keeps its sub-pixel precision instead of
     # truncating each frame (pygame.Rect / our int Rect would drift).
@@ -88,19 +97,21 @@ class Actor:
     _angle: float
     _image: Any
     _image_name: str | None
+    # memoized anchor offset; None = recompute (invalidated when the anchor
+    # or the rect size changes)
+    _offset_cache: Tuple[float, float] | None
 
     def __init__(
         self, image: Any, pos: Any = None, anchor: Any = None, **kwargs: Any
     ) -> None:
-        object.__setattr__(self, "_rect", ZRect(0, 0, 0, 0))
-        object.__setattr__(
-            self,
-            "_anchor_value",
-            anchor if anchor is not None else ("center", "center"),
+        self._rect = ZRect(0, 0, 0, 0)
+        self._offset_cache = None
+        self._anchor_value = (
+            anchor if anchor is not None else ("center", "center")
         )
-        object.__setattr__(self, "_angle", 0.0)
-        object.__setattr__(self, "_image", None)
-        object.__setattr__(self, "_image_name", None)
+        self._angle = 0.0
+        self._image = None
+        self._image_name = None
 
         self._set_image(image)
 
@@ -119,28 +130,34 @@ class Actor:
     # -- image ----------------------------------------------------------------
     def _set_image(self, image: Any) -> None:
         """Set/replace the sprite image (by name or Image), preserving the anchor pos."""
-        from .resources import images
-
         img = images.load(image) if isinstance(image, str) else image
         keep: Tuple[float, float] | None = None
         if self._image is not None:
             keep = self._anchor_pos()
-        object.__setattr__(self, "_image", img)
-        object.__setattr__(
-            self, "_image_name", image if isinstance(image, str) else None
-        )
+        self._image = img
+        self._image_name = image if isinstance(image, str) else None
         self._rect.size = (img.width, img.height)
+        self._offset_cache = None  # size feeds the anchor offset
         if keep is not None:
             self._set_pos(keep)
 
     # -- anchor / position ----------------------------------------------------
     def _anchor_offset(self) -> Tuple[float, float]:
-        """Return the anchor's pixel offset from the rect's top-left corner."""
+        """Return the anchor's pixel offset from the rect's top-left corner.
+
+        Memoized: x/y reads are the games' hottest attribute path (93% of
+        2.5M dynamic reads in the 2026-07-09 audit), and the offset only
+        changes when the anchor or the sprite size does."""
+        cached = self._offset_cache
+        if cached is not None:
+            return cached
         av = self._anchor_value
-        return (
+        offset = (
             _calc(value=av[0], dim="x", total=self._rect.width),
             _calc(value=av[1], dim="y", total=self._rect.height),
         )
+        self._offset_cache = offset
+        return offset
 
     def _anchor_pos(self) -> Tuple[float, float]:
         """Return the current anchor position in pixel space."""
@@ -150,54 +167,139 @@ class Actor:
     def _set_pos(self, pos: Any) -> None:
         """Move the sprite so its anchor lands on ``pos``."""
         ox, oy = self._anchor_offset()
-        self._rect.left = pos[0] - ox
-        self._rect.top = pos[1] - oy
+        # unpack rather than index: pos may be a tuple OR a gacalc vector
+        # (iterable of coordinates, not indexable)
+        px, py = pos
+        self._rect.left = px - ox
+        self._rect.top = py - oy
 
-    # -- attribute routing ----------------------------------------------------
-    def __getattr__(self, name: str) -> Any:
-        # only called when normal lookup fails
-        if name == "x":
-            return self._anchor_pos()[0]
-        if name == "y":
-            return self._anchor_pos()[1]
-        if name == "pos":
-            return self._anchor_pos()
-        if name == "angle":
-            return self._angle
-        if name == "image":
-            return self._image_name
-        if name == "anchor":
-            return self._anchor_value
-        if name in _DELEGATED:
-            return getattr(self._rect, name)
-        raise AttributeError(name)
+    # -- the pgzero attribute surface, as REAL properties ---------------------
+    # (static descriptors; formerly a __getattr__/__setattr__ string ladder)
+    @property
+    def x(self) -> float:
+        return self._anchor_pos()[0]
 
-    def __setattr__(self, name: str, value: Any) -> None:
-        if name.startswith("_"):
-            object.__setattr__(self, name, value)
-            return
-        if name == "x":
-            self._set_pos((value, self._anchor_pos()[1]))
-            return
-        if name == "y":
-            self._set_pos((self._anchor_pos()[0], value))
-            return
-        if name == "pos":
-            self._set_pos(value)
-            return
-        if name == "angle":
-            object.__setattr__(self, "_angle", value)
-            return
-        if name == "image":
-            self._set_image(value)
-            return
-        if name == "anchor":
-            object.__setattr__(self, "_anchor_value", value)
-            return
-        if name in _DELEGATED:
-            setattr(self._rect, name, value)
-            return
-        object.__setattr__(self, name, value)
+    @x.setter
+    def x(self, value: float) -> None:
+        self._set_pos((value, self._anchor_pos()[1]))
+
+    @property
+    def y(self) -> float:
+        return self._anchor_pos()[1]
+
+    @y.setter
+    def y(self, value: float) -> None:
+        self._set_pos((self._anchor_pos()[0], value))
+
+    @property
+    def pos(self) -> Vector2:
+        # the anchor position AS a geometric-algebra vector: game code adds
+        # velocities (``self.pos + self.velocity``), takes differences
+        # (``player.pos - self.pos``), and measures magnitudes directly.
+        # (Anything needing a tuple unpacks it -- gacalc vectors iterate.)
+        px, py = self._anchor_pos()
+        return Vector2(px, py)
+
+    @pos.setter
+    def pos(self, value: Any) -> None:
+        self._set_pos(value)
+
+    @property
+    def angle(self) -> float:
+        return self._angle
+
+    @angle.setter
+    def angle(self, value: float) -> None:
+        self._angle = value
+
+    @property
+    def image(self) -> str:
+        # the games always address images by name; an Actor built from a raw
+        # Image object (no name) reads as "" rather than None
+        return self._image_name or ""
+
+    @image.setter
+    def image(self, value: Any) -> None:
+        self._set_image(value)
+
+    @property
+    def anchor(self) -> Any:
+        return self._anchor_value
+
+    @anchor.setter
+    def anchor(self, value: Any) -> None:
+        self._anchor_value = value
+        self._offset_cache = None
+
+    # rect edges/centres, delegated to the underlying ZRect -- exactly the
+    # subset the 10 games touch (per the 2026-07-09 audit; the shim's charter
+    # is the subset the games use, so the 12 unused pygame.Rect virtual
+    # attributes are deliberately NOT reproduced here).
+    @property
+    def left(self) -> Any:
+        return self._rect.left
+
+    @left.setter
+    def left(self, value: Any) -> None:
+        self._rect.left = value
+
+    @property
+    def top(self) -> Any:
+        return self._rect.top
+
+    @top.setter
+    def top(self, value: Any) -> None:
+        self._rect.top = value
+
+    @property
+    def bottom(self) -> Any:
+        return self._rect.bottom
+
+    @bottom.setter
+    def bottom(self, value: Any) -> None:
+        self._rect.bottom = value
+
+    @property
+    def centerx(self) -> Any:
+        return self._rect.centerx
+
+    @centerx.setter
+    def centerx(self, value: Any) -> None:
+        self._rect.centerx = value
+
+    @property
+    def centery(self) -> Any:
+        return self._rect.centery
+
+    @centery.setter
+    def centery(self, value: Any) -> None:
+        self._rect.centery = value
+
+    @property
+    def center(self) -> Any:
+        return self._rect.center
+
+    @center.setter
+    def center(self, value: Any) -> None:
+        self._rect.center = value
+
+    @property
+    def width(self) -> Any:
+        return self._rect.width
+
+    @width.setter
+    def width(self, value: Any) -> None:
+        self._rect.width = value
+        self._offset_cache = None  # size feeds the anchor offset
+
+    @property
+    def height(self) -> Any:
+        return self._rect.height
+
+    @height.setter
+    def height(self, value: Any) -> None:
+        self._rect.height = value
+        self._offset_cache = None  # size feeds the anchor offset
 
     # -- drawing & geometry ---------------------------------------------------
     def draw(self) -> None:
