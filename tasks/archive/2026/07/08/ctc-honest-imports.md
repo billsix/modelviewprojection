@@ -3,8 +3,8 @@
 **Status:** implemented 2026-07-08 — all ~94 sites converted; gates green
 (zero non-comment `pygame`/`pgzrun`/`pgzero` references remain, all 133 port
 files compile, ruff clean + format idempotent, ty back to exact baselines
-with the 4 unresolved-import suppressions GONE). Bill's on-display boots
-pending (batched with the dataclasses/formatting diffs).
+with the 4 unresolved-import suppressions GONE). COMPLETE: Bill
+boot-tested games in-container after this landed and committed 2026-07-08.
 
 Implementation notes:
 - New real shim modules `pgzero_gl/draw.py` (rect/line/polygon +
