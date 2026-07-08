@@ -1658,7 +1658,9 @@ def update() -> None:
                         # Switch to title screen state
                         state = State.TITLE
                         state_timer = 0
-                        game = cast("Game", None)  # see the game global's comment
+                        game = cast(
+                            "Game", None
+                        )  # see the game global's comment
                         play_music("menu_theme")
 
 
