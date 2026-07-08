@@ -1,6 +1,13 @@
 # Unvendor texExpToPng — build it from a SHA-pinned git clone instead
 
-**Status:** proposed — needs go-ahead
+**Status:** implemented 2026-07-08 — pinned `fbbd9a3fefa48ab86136ca4fba9861553289c5ee`
+after verifying the GitHub mirror's HEAD is byte-identical to the vendored
+copy's `src/tex_exp_to_png.c` (so the Pi origin's newer `ebea794d` history
+contains nothing the build needs — no mirror push required before pinning).
+Dockerfile: COPY removed, `git` added to the BUILD_DOCS dnf list, clone+
+checkout+meson stanza in place; vendored dir deleted; CLAUDE.md contract
+rewritten; the 2026-06-14 billboard task's vendoring decisions annotated as
+superseded. Gate result in session summary.
 **Created:** 2026-07-08
 
 ## Goal

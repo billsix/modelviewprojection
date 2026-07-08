@@ -106,10 +106,14 @@ image builds. When you touch one, check the others.
    never declares it (that's why `USE_IMGUI` was removed — imgui-bundle comes from
    `requirements.txt`, not a build flag).
 
-**The vendored texExpToPng** (`book/docs/_static/tex_exp_to_png/`) is a copy of the
-external `/billopt/texExpToPng` repo. Changes there (e.g. the `--bg/--fg` dvipng
-flags) must be **replicated into the vendored copy** (`diff` the two `src/*.c` to
-confirm byte-identical); the Dockerfile + book builds use the vendored one.
+**texExpToPng is built from a SHA-pinned git clone** (unvendored 2026-07-08;
+the old copy at `book/docs/_static/tex_exp_to_png/` is gone). The Dockerfile's
+`BUILD_DOCS` block clones `https://github.com/billsix/tex-expression-to-png.git`,
+checks out the pinned SHA (`fbbd9a3f…`, verified to carry the `--bg/--fg`
+dvipng flags), and meson-builds it to `/usr/local/bin/texExpToPng`. When the
+external tool changes, push the GitHub mirror and **bump the SHA in the
+Dockerfile deliberately** — there is no vendored copy to sync anymore
+(multivariate-math uses the identical scheme).
 
 ### How to resolve drift — and TEST it in a throwaway container
 

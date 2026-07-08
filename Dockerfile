@@ -10,11 +10,6 @@ COPY entrypoint/dotfiles/ /root/
 COPY entrypoint/*.sh /usr/local/bin
 COPY entrypoint/entrypoint.sh /
 COPY requirements.txt /requirements.txt
-# vendored texExpToPng (the book's copy) -- built + installed below under
-# BUILD_DOCS so the crossproduct demo can render TeX billboard labels at runtime
-# (the demo skips labels gracefully when the binary is absent, e.g. on Win/Mac).
-COPY book/docs/_static/tex_exp_to_png/ /tmp/tex_exp_to_png/
-
 RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      --mount=type=cache,target=/var/lib/dnf \
      echo "keepcache=True" >> /etc/dnf/dnf.conf && \
@@ -54,6 +49,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    aspell-en \
                    g++ \
                    gcc \
+                   git \
                    gnuplot \
                    graphviz \
                    ImageMagick \
@@ -81,7 +77,9 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    texlive-dvipng \
                    texlive-dvisvgm \
                    texlive-standalone && \
-       ( cd /tmp/tex_exp_to_png && \
+       ( git clone https://github.com/billsix/tex-expression-to-png.git /tmp/tex_exp_to_png && \
+         cd /tmp/tex_exp_to_png && \
+         git checkout fbbd9a3fefa48ab86136ca4fba9861553289c5ee && \
          meson setup builddir && \
          meson compile -C builddir && \
          meson install -C builddir ) && \

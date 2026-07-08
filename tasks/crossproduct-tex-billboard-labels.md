@@ -17,22 +17,22 @@ via `texExpToPng`, drawn as camera-facing billboards.
 
 ## Decisions LOCKED 2026-06-14 (final round)
 
+> **Update 2026-07-08 (tasks/unvendor-texexptopng.md):** the vendored-copy
+> mechanics below are superseded — the Dockerfile now builds texExpToPng from
+> a **SHA-pinned git clone** of `billsix/tex-expression-to-png` (pinned
+> `fbbd9a3f…`, byte-identical to what the vendored copy held, `--bg/--fg`
+> included). Still under `BUILD_DOCS`, still `/usr/local/bin/texExpToPng`,
+> graceful degradation unchanged. The vendored dir is deleted.
+
 - **texExpToPng availability: BUILD IT INTO THE MVP IMAGE, under `BUILD_DOCS`.**
-  The mvp image does NOT bake in the repo source (only entrypoint + requirements
-  are COPY'd; `make html` sees the book via the runtime `-v $(pwd):/mvp` mount), so
-  the Dockerfile now `COPY`s `book/docs/_static/tex_exp_to_png/` into the build
-  context and, inside the existing `BUILD_DOCS` block (which already installs TeX
-  Live + has meson/ninja/glib2-devel), runs `meson setup/compile/install` ->
-  `/usr/local/bin/texExpToPng`. Gated on `BUILD_DOCS` (not a new flag) because that
-  is exactly when latex+dvipng are present; the demo's `shutil.which("texExpToPng")`
-  check finds it. Lean builds (`BUILD_DOCS=0`) / Win/Mac: binary absent -> demo
+  Inside the existing `BUILD_DOCS` block (which already installs TeX Live +
+  meson/glib2-devel), build texExpToPng -> `/usr/local/bin/texExpToPng`.
+  Gated on `BUILD_DOCS` (not a new flag) because that is exactly when
+  latex+dvipng are present; the demo's `shutil.which("texExpToPng")` check
+  finds it. Lean builds (`BUILD_DOCS=0`) / Win/Mac: binary absent -> demo
   skips labels (graceful degradation).
 - **Color/DPI: white text, 600 DPI.** `texExpToPng --fg "rgb 1 1 1" --bg Transparent
-  --size 600`. (The `--bg/--fg` flags were replicated into the vendored copy
-  2026-06-14.)
-- **`--bg/--fg` already vendored:** `book/docs/_static/tex_exp_to_png/src/tex_exp_to_png.c`
-  now matches the outside repo's flag change byte-for-byte (the vendored image needs
-  a rebuild for it to take effect).
+  --size 600`.
 
 ## Label set + per-step visibility (PROPOSED — Bill, please eyeball)
 
