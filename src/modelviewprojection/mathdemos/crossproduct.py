@@ -292,9 +292,7 @@ def main() -> None:
     # 600 DPI, transparent bg) and drawn as camera-facing quads.  If texExpToPng
     # is not on PATH (Win/Mac / non-podman build), labels.available is False and
     # every label call is a no-op -- the demo runs unchanged, minus labels.
-    labels = _labels.LabelRenderer(
-        os.path.dirname(os.path.abspath(__file__))
-    )
+    labels = _labels.LabelRenderer(os.path.dirname(os.path.abspath(__file__)))
 
     # -----------------------------------------------------------------------
     # Geometry generators (renderer.py + crossproduct.py).  These are static, so
@@ -1126,15 +1124,21 @@ def main() -> None:
             # a / b at their (slightly extended) tips, text per stage.
             labels.draw(
                 _a_label(),
-                (model_M @ np.array(
-                    [g.vec1.x * 1.08, g.vec1.y * 1.08, g.vec1.z * 1.08, 1.0]
-                ))[:3],
+                (
+                    model_M
+                    @ np.array(
+                        [g.vec1.x * 1.08, g.vec1.y * 1.08, g.vec1.z * 1.08, 1.0]
+                    )
+                )[:3],
             )
             labels.draw(
                 _b_label(),
-                (model_M @ np.array(
-                    [g.vec2.x * 1.08, g.vec2.y * 1.08, g.vec2.z * 1.08, 1.0]
-                ))[:3],
+                (
+                    model_M
+                    @ np.array(
+                        [g.vec2.x * 1.08, g.vec2.y * 1.08, g.vec2.z * 1.08, 1.0]
+                    )
+                )[:3],
             )
             # the cross product, once it is revealed, at its tip in the math frame.
             if reached(StepNumber.scale_by_mag_a):

@@ -1,7 +1,40 @@
 # Code the Classics: adopt `match` where reasonable + modern-Python audit
 
-**Status:** proposed — needs go-ahead
+**Status:** in progress — the `match` half is DONE (2026-07-08); the
+modern-features half (`@override` sweep, StrEnum, Self) remains
 **Created:** 2026-07-08
+
+## Progress (2026-07-08)
+
+- [x] **`match` conversions: ~27 chains across all 10 games.** Every
+      top-level `state` machine (update/draw in each game), plus the inner
+      enum machines that are pure chains: bunner's `PlayerState`, avenger's
+      `EnemyState` + the four `EnemyType` speed/sprite tables, beatstreets'
+      four `Enemy.State` machines, eggzy's `State` pair. Done via a chain
+      transformer (scratchpad `to_match.py`) that only converts chains where
+      EVERY branch is exactly `subject == Enum.MEMBER` (+ optional trailing
+      `else` → `case _`), and **rejects chains with trailing non-enum
+      elif/else branches** — those (kinetix's Powerup chain, eggzy's
+      `fall_state`, beatstreets' `falling_state`, bunner's direction ints)
+      correctly remain if/elif per "wherever reasonable". Transformer bug
+      found and fixed during the run: a converted enum-prefix would orphan a
+      trailing `elif self.hit_timer > 0:`-style branch (SyntaxError caught
+      by the compile gate; beatstreets/eggzy reverted to HEAD and redone
+      with the hardened version).
+- [x] Gates: all 10 games + shim compile; ruff clean + format idempotent;
+      ty at exact baselines (vol1 clean, vol2 120 pre-existing).
+- [ ] `@override` on the Actor-subclass update/draw overrides (the
+      dispatch-audit companion; hundreds of sites, mechanical).
+- [ ] StrEnum for string-y state enums; `typing.Self` in the shim.
+
+## NOTE for ctc-more-types (raised 2026-07-08)
+
+The container's ty (Fedora 44 package) updated and now reports vol2's ~120
+pre-existing `game`-union diagnostics in the OFFICIAL format.sh gate (exit
+1), matching the strict local ty. Those diagnostics predate all of today's
+work (verified byte-identical via git stash) but now block a green
+`make format` — clearing them (proper Optional handling for the
+module-level `game`) should move up ctc-more-types' priority.
 
 ## Goal (Bill, 2026-07-08)
 

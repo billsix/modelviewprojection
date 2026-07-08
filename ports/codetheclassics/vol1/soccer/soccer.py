@@ -1221,98 +1221,105 @@ class MenuState(Enum):
 def update() -> None:
     global state, game, menu_state, menu_num_players, menu_difficulty
 
-    if state == State.MENU:
-        if key_just_pressed(keys.SPACE):
-            if menu_state == MenuState.NUM_PLAYERS:
-                # If we're doing a 2 player game, skip difficulty selection
-                if menu_num_players == 1:
-                    menu_state = MenuState.DIFFICULTY
+    match state:
+        case State.MENU:
+            if key_just_pressed(keys.SPACE):
+                if menu_state == MenuState.NUM_PLAYERS:
+                    # If we're doing a 2 player game, skip difficulty selection
+                    if menu_num_players == 1:
+                        menu_state = MenuState.DIFFICULTY
+                    else:
+                        # Start 2P game
+                        state = State.PLAY
+                        menu_state = None
+                        game = Game(Controls(0), Controls(1))
                 else:
-                    # Start 2P game
+                    # Start 1P game
                     state = State.PLAY
                     menu_state = None
-                    game = Game(Controls(0), Controls(1))
+                    game = Game(Controls(0), None, menu_difficulty)
             else:
-                # Start 1P game
-                state = State.PLAY
-                menu_state = None
-                game = Game(Controls(0), None, menu_difficulty)
-        else:
-            # Detect + act on up/down arrow keys
-            selection_change: int = 0
-            if key_just_pressed(keys.DOWN):
-                selection_change = 1
-            elif key_just_pressed(keys.UP):
-                selection_change = -1
-            if selection_change != 0:
-                try:
-                    sounds.move.play()
-                except Exception:
-                    # Ignore sound errors
-                    pass
-                if menu_state == MenuState.NUM_PLAYERS:
-                    menu_num_players = 2 if menu_num_players == 1 else 1
-                else:
-                    menu_difficulty = (menu_difficulty + selection_change) % 3
+                # Detect + act on up/down arrow keys
+                selection_change: int = 0
+                if key_just_pressed(keys.DOWN):
+                    selection_change = 1
+                elif key_just_pressed(keys.UP):
+                    selection_change = -1
+                if selection_change != 0:
+                    try:
+                        sounds.move.play()
+                    except Exception:
+                        # Ignore sound errors
+                        pass
+                    if menu_state == MenuState.NUM_PLAYERS:
+                        menu_num_players = 2 if menu_num_players == 1 else 1
+                    else:
+                        menu_difficulty = (
+                            menu_difficulty + selection_change
+                        ) % 3
 
-        game.update()
-
-    elif state == State.PLAY:
-        # First player to 9 wins
-        if (
-            max([team.score for team in game.teams]) == 9
-            and game.score_timer == 1
-        ):
-            state = State.GAME_OVER
-        else:
             game.update()
 
-    elif state == State.GAME_OVER:
-        if key_just_pressed(keys.SPACE):
-            # Switch to menu state, and create a new game object without a player
-            state = State.MENU
-            menu_state = MenuState.NUM_PLAYERS
-            game = Game()
+        case State.PLAY:
+            # First player to 9 wins
+            if (
+                max([team.score for team in game.teams]) == 9
+                and game.score_timer == 1
+            ):
+                state = State.GAME_OVER
+            else:
+                game.update()
+
+        case State.GAME_OVER:
+            if key_just_pressed(keys.SPACE):
+                # Switch to menu state, and create a new game object without a player
+                state = State.MENU
+                menu_state = MenuState.NUM_PLAYERS
+                game = Game()
 
 
 def draw() -> None:
     game.draw()
 
-    if state == State.MENU:
-        # Draw title screen and menu
-        # There are 5 menu images numbered 01, 02, 10, 11 and 12.
-        # 01 and 02 are the images for indicating whether 1 or 2 player mode
-        # is selected; 10, 11 and 12 are for the difficulty selection screen -
-        # easy, medium or hard
-        if menu_state == MenuState.NUM_PLAYERS:
-            image: str = "menu0" + str(menu_num_players)
-        else:
-            image = "menu1" + str(menu_difficulty)
-        screen.blit(image, (0, 0))
+    match state:
+        case State.MENU:
+            # Draw title screen and menu
+            # There are 5 menu images numbered 01, 02, 10, 11 and 12.
+            # 01 and 02 are the images for indicating whether 1 or 2 player mode
+            # is selected; 10, 11 and 12 are for the difficulty selection screen -
+            # easy, medium or hard
+            if menu_state == MenuState.NUM_PLAYERS:
+                image: str = "menu0" + str(menu_num_players)
+            else:
+                image = "menu1" + str(menu_difficulty)
+            screen.blit(image, (0, 0))
 
-    elif state == State.PLAY:
-        # Display score bar at top
-        screen.blit("bar", (HALF_WINDOW_W - 176, 0))
+        case State.PLAY:
+            # Display score bar at top
+            screen.blit("bar", (HALF_WINDOW_W - 176, 0))
 
-        # Show score for each team
-        for i in range(2):
-            screen.blit(
-                "s" + str(game.teams[i].score), (HALF_WINDOW_W + 7 - 39 * i, 6)
+            # Show score for each team
+            for i in range(2):
+                screen.blit(
+                    "s" + str(game.teams[i].score),
+                    (HALF_WINDOW_W + 7 - 39 * i, 6),
+                )
+
+            # Show GOAL image if a goal has recently been scored
+            if game.score_timer > 0:
+                screen.blit("goal", (HALF_WINDOW_W - 300, HEIGHT / 2 - 88))
+
+        case State.GAME_OVER:
+            # Display "Game Over" image
+            img: str = "over" + str(
+                int(game.teams[1].score > game.teams[0].score)
             )
+            screen.blit(img, (0, 0))
 
-        # Show GOAL image if a goal has recently been scored
-        if game.score_timer > 0:
-            screen.blit("goal", (HALF_WINDOW_W - 300, HEIGHT / 2 - 88))
-
-    elif state == State.GAME_OVER:
-        # Display "Game Over" image
-        img: str = "over" + str(int(game.teams[1].score > game.teams[0].score))
-        screen.blit(img, (0, 0))
-
-        # Show score for each team
-        for i in range(2):
-            img = "l" + str(i) + str(game.teams[i].score)
-            screen.blit(img, (HALF_WINDOW_W + 25 - 125 * i, 144))
+            # Show score for each team
+            for i in range(2):
+                img = "l" + str(i) + str(game.teams[i].score)
+                screen.blit(img, (HALF_WINDOW_W + 25 - 125 * i, 144))
 
 
 # Set up sound system

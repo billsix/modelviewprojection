@@ -1308,50 +1308,53 @@ def update() -> None:
 
     update_controls()
 
-    if state == State.TITLE:
-        ai_controls.update()
-        game.update()
-
-        # Check for start game
-        for controls in (keyboard_controls, joystick_controls):
-            # Check for fire button being pressed on each controls object
-            # joystick_controls will be None if there is no controller, so must check for that
-            if controls is not None and controls.fire_pressed():
-                game = Game(controls)
-                state = State.PLAY
-                stop_music()
-                break
-
-    elif state == State.PLAY:
-        if game.lives > 0:
+    match state:
+        case State.TITLE:
+            ai_controls.update()
             game.update()
-        else:
-            game.play_sound("game_over")
-            state = State.GAME_OVER
 
-    elif state == State.GAME_OVER:
-        for controls in (keyboard_controls, joystick_controls):
-            if controls is not None and controls.fire_pressed():
-                # Return to title screen, which includes a game being played by AI in the background
-                game = Game(ai_controls)
-                state = state.TITLE
-                play_music("title_theme")
+            # Check for start game
+            for controls in (keyboard_controls, joystick_controls):
+                # Check for fire button being pressed on each controls object
+                # joystick_controls will be None if there is no controller, so must check for that
+                if controls is not None and controls.fire_pressed():
+                    game = Game(controls)
+                    state = State.PLAY
+                    stop_music()
+                    break
+
+        case State.PLAY:
+            if game.lives > 0:
+                game.update()
+            else:
+                game.play_sound("game_over")
+                state = State.GAME_OVER
+
+        case State.GAME_OVER:
+            for controls in (keyboard_controls, joystick_controls):
+                if controls is not None and controls.fire_pressed():
+                    # Return to title screen, which includes a game being played by AI in the background
+                    game = Game(ai_controls)
+                    state = state.TITLE
+                    play_music("title_theme")
 
 
 def draw() -> None:
     game.draw()
 
-    if state == State.TITLE:
-        screen.blit("title", (0, 0))
-        screen.blit("startgame", (20, 80))
-        screen.blit(
-            f"start{(total_frames // 4) % 13}", (WIDTH // 2 - 250 // 2, 530)
-        )
+    match state:
+        case State.TITLE:
+            screen.blit("title", (0, 0))
+            screen.blit("startgame", (20, 80))
+            screen.blit(
+                f"start{(total_frames // 4) % 13}", (WIDTH // 2 - 250 // 2, 530)
+            )
 
-    elif state == State.GAME_OVER:
-        screen.blit(
-            f"gameover{(total_frames // 4) % 15}", (WIDTH // 2 - 450 // 2, 450)
-        )
+        case State.GAME_OVER:
+            screen.blit(
+                f"gameover{(total_frames // 4) % 15}",
+                (WIDTH // 2 - 450 // 2, 450),
+            )
 
 
 def play_music(name: str) -> None:

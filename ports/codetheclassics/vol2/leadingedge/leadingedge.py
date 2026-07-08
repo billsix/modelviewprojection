@@ -2228,35 +2228,36 @@ def update(delta_time: float) -> None:
                 return controls
         return None
 
-    if state == State.TITLE:
-        # Check for player starting game with either keyboard or controller
-        controls = button_pressed_controls(0)
-        if controls is not None:
-            # Switch to play state, and create a new Game object, passing it a controls object
-            state = State.PLAY
-            game = Game(controls)
+    match state:
+        case State.TITLE:
+            # Check for player starting game with either keyboard or controller
+            controls = button_pressed_controls(0)
+            if controls is not None:
+                # Switch to play state, and create a new Game object, passing it a controls object
+                state = State.PLAY
+                game = Game(controls)
 
-        # If the demo race has been running for a while, reset it, otherwise the AI cars will run out of track!
-        demo_reset_timer -= delta_time
-        demo_start_timer += delta_time
-        if demo_reset_timer <= 0:
-            game = Game()
-            demo_reset_timer = 60 * 2
-            demo_start_timer = 0
+            # If the demo race has been running for a while, reset it, otherwise the AI cars will run out of track!
+            demo_reset_timer -= delta_time
+            demo_start_timer += delta_time
+            if demo_reset_timer <= 0:
+                game = Game()
+                demo_reset_timer = 60 * 2
+                demo_start_timer = 0
 
-    elif state == State.PLAY:
-        if game.race_complete:
-            state = State.GAME_OVER
+        case State.PLAY:
+            if game.race_complete:
+                state = State.GAME_OVER
 
-    elif state == State.GAME_OVER:
-        if button_pressed_controls(0) is not None:
-            # Go back into demo/title screen mode - create a new Game object without a player
-            # First stop the player car's skid sound
-            game.player_car.stop_engine_sound()
+        case State.GAME_OVER:
+            if button_pressed_controls(0) is not None:
+                # Go back into demo/title screen mode - create a new Game object without a player
+                # First stop the player car's skid sound
+                game.player_car.stop_engine_sound()
 
-            state = State.TITLE
-            game = Game()
-            play_music("title_theme")
+                state = State.TITLE
+                game = Game()
+                play_music("title_theme")
 
     # Call game.update each time while accumulated_time is above FIXED_TIMESTEP. If it is double or more of FIXED_TIMESTEP,
     # which would occur if the frame rate is low, we call game.update two or more times per frame

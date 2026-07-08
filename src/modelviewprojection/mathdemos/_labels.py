@@ -55,7 +55,9 @@ class LabelRenderer:
             labels.end()
     """
 
-    def __init__(self, shader_dir: str, *, dpi: int = 600, fg: str = "rgb 1 1 1"):
+    def __init__(
+        self, shader_dir: str, *, dpi: int = 600, fg: str = "rgb 1 1 1"
+    ):
         self.available = AVAILABLE
         self._dpi = dpi
         self._fg = fg
@@ -82,7 +84,11 @@ class LabelRenderer:
         for loc, size, off in ((0, 3, 0), (1, 2, 3), (2, 2, 5)):
             GL.glEnableVertexAttribArray(loc)
             GL.glVertexAttribPointer(
-                loc, size, GL.GL_FLOAT, GL.GL_FALSE, stride,
+                loc,
+                size,
+                GL.GL_FLOAT,
+                GL.GL_FALSE,
+                stride,
                 ctypes.c_void_p(off * 4),
             )
         GL.glBindVertexArray(0)
@@ -123,11 +129,16 @@ class LabelRenderer:
             subprocess.run(
                 [
                     TEXEXP,
-                    "--exp", f"${latex}$",
-                    "--size", str(self._dpi),
-                    "--fg", self._fg,
-                    "--bg", "Transparent",
-                    "--output", out,
+                    "--exp",
+                    f"${latex}$",
+                    "--size",
+                    str(self._dpi),
+                    "--fg",
+                    self._fg,
+                    "--bg",
+                    "Transparent",
+                    "--output",
+                    out,
                 ],
                 cwd=self._cachedir,  # texExpToPng leaves formula.tex/.dvi in CWD
                 check=True,
@@ -158,8 +169,15 @@ class LabelRenderer:
             GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
         )
         GL.glTexImage2D(
-            GL.GL_TEXTURE_2D, 0, GL.GL_RGBA8, w, h, 0,
-            GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, data,
+            GL.GL_TEXTURE_2D,
+            0,
+            GL.GL_RGBA8,
+            w,
+            h,
+            0,
+            GL.GL_RGBA,
+            GL.GL_UNSIGNED_BYTE,
+            data,
         )
         GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
         return (tex, w, h)
@@ -185,7 +203,9 @@ class LabelRenderer:
         GL.glDisable(GL.GL_DEPTH_TEST)  # labels read on top, always legible
         GL.glBindVertexArray(self._vao)
 
-    def draw(self, latex: str, center_world, *, height_px: float = 44.0) -> None:
+    def draw(
+        self, latex: str, center_world, *, height_px: float = 44.0
+    ) -> None:
         """Draw ``latex`` centered at world point ``center_world`` (xyz), sized to
         ``height_px`` screen pixels tall (width follows the glyph aspect)."""
         if not self.available:

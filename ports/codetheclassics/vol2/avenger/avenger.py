@@ -725,21 +725,22 @@ class Enemy(WrapActor):
 
         self.type: EnemyType = type
 
-        if self.type == EnemyType.LANDER:
-            self.max_speed: int = 5
-            self.acceleration: float = 0.1
-        elif self.type == EnemyType.MUTANT:
-            self.max_speed = 9
-            self.acceleration = 0.5
-        elif self.type == EnemyType.BAITER:
-            self.max_speed = 9
-            self.acceleration = 0.01
-        elif self.type == EnemyType.POD:
-            self.max_speed = 10
-            self.acceleration = 0.03
-        elif self.type == EnemyType.SWARMER:
-            self.max_speed = 8
-            self.acceleration = 1
+        match self.type:
+            case EnemyType.LANDER:
+                self.max_speed: int = 5
+                self.acceleration: float = 0.1
+            case EnemyType.MUTANT:
+                self.max_speed = 9
+                self.acceleration = 0.5
+            case EnemyType.BAITER:
+                self.max_speed = 9
+                self.acceleration = 0.01
+            case EnemyType.POD:
+                self.max_speed = 10
+                self.acceleration = 0.03
+            case EnemyType.SWARMER:
+                self.max_speed = 8
+                self.acceleration = 1
 
         # Select a target position which the enemy will oscillate around. If the enemy is within a particular
         # distance of the player, this will be updated to a random offset from the player's current position, unless
@@ -754,12 +755,13 @@ class Enemy(WrapActor):
         )
 
         # Most enemies start in 'start' state where they play an animation to appear. Swarmers just appear immediately
-        if self.type == EnemyType.SWARMER:
-            self.state: EnemyState = EnemyState.ALIVE
-            self.state_timer: int = 0
-        else:
-            self.state = EnemyState.START
-            self.state_timer = start_timer
+        match self.type:
+            case EnemyType.SWARMER:
+                self.state: EnemyState = EnemyState.ALIVE
+                self.state_timer: int = 0
+            case _:
+                self.state = EnemyState.START
+                self.state_timer = start_timer
 
         # Enemies will sometimes pick up humans and carry them into the sky, turning them into mutants
         self.target_human: Any = None
@@ -812,256 +814,272 @@ class Enemy(WrapActor):
     def update(self) -> None:
         super().update()
 
-        if self.state == EnemyState.START:
-            self.state_timer += 1
-            # When state timer hits 1, that means our appear animation has just started
-            if self.state_timer == 1:
-                if self.type == EnemyType.MUTANT:
-                    game.play_sound("enemy_appear_mutant")
-                elif self.type == EnemyType.LANDER:
-                    game.play_sound("enemy_appear_normal")
-                elif self.type == EnemyType.BAITER:
-                    game.play_sound("enemy_appear_ufo")
+        match self.state:
+            case EnemyState.START:
+                self.state_timer += 1
+                # When state timer hits 1, that means our appear animation has just started
+                if self.state_timer == 1:
+                    match self.type:
+                        case EnemyType.MUTANT:
+                            game.play_sound("enemy_appear_mutant")
+                        case EnemyType.LANDER:
+                            game.play_sound("enemy_appear_normal")
+                        case EnemyType.BAITER:
+                            game.play_sound("enemy_appear_ufo")
 
-            # When state timer hits 33, we've finished the appear animation, so we switch to the alive state
-            if self.state_timer == 33:
-                self.state = EnemyState.ALIVE
+                # When state timer hits 33, we've finished the appear animation, so we switch to the alive state
+                if self.state_timer == 33:
+                    self.state = EnemyState.ALIVE
 
-            elif self.state_timer >= 0:
-                # Play appear animation
-                self.image = "appear" + str(self.state_timer // 3)
+                elif self.state_timer >= 0:
+                    # Play appear animation
+                    self.image = "appear" + str(self.state_timer // 3)
 
-        elif self.state == EnemyState.ALIVE:
-            # Enemy is alive
-            max_speed: float = self.max_speed
+            case EnemyState.ALIVE:
+                # Enemy is alive
+                max_speed: float = self.max_speed
 
-            # If we're targeting or carrying a human, check to see if they were shot by the player
-            if self.target_human is not None and self.target_human.dead:
-                self.target_human = None
-                self.carrying = False
+                # If we're targeting or carrying a human, check to see if they were shot by the player
+                if self.target_human is not None and self.target_human.dead:
+                    self.target_human = None
+                    self.carrying = False
 
-            # Should we start heading for a human to pick up?
-            if (
-                self.target_human is None
-                and self.type == EnemyType.LANDER
-                and uniform(0, 1) < 0.001
-            ):
-                # Find a human who isn't currently being carried, and isn't being targeted by another enemy
-                targeted_humans = [
-                    enemy.target_human
-                    for enemy in game.enemies
-                    if enemy.target_human is not None
-                ]
-                available_humans = [
-                    human
-                    for human in game.humans
-                    if human not in targeted_humans
-                    and human.can_be_picked_up_by_enemy()
-                ]
-                if len(available_humans) > 0:
-                    # Choose nearest human - i.e. the human with the minimum distance
-                    # We use length_squared in this case to get the distance, instead of length, because length_squared
-                    # is faster, and we don't care about what the actual distance is, just which distance is shortest
-                    self.target_human = min(
-                        available_humans,
-                        key=lambda human: (
-                            Vector2(human.pos) - self.pos
-                        ).length_squared(),
-                    )
-
-            # Try to move towards a target position. This will either be the player position, a human we're about to
-            # pick up, the top of the sky (if we're carrying a human), or the previously determined target pos, which
-            # is initially an offset from the starting position
-            if self.target_human is not None:
-                if self.carrying:
-                    # Carrying a human into the sky - target pos will be our current pos on the X axis
-                    # and close to the top of the screen on the Y axis
-                    self.target_pos = Vector2(self.pos[0], 64)
-                    max_speed = 0.5
-
-                    # If we reach the top of the screen, turn the captured human into a mutant enemy
-                    if abs(self.pos[1] - self.target_pos.y) < 10:
-                        game.enemies.append(
-                            Enemy(
-                                type=EnemyType.MUTANT, pos=self.target_human.pos
-                            )
+                # Should we start heading for a human to pick up?
+                if (
+                    self.target_human is None
+                    and self.type == EnemyType.LANDER
+                    and uniform(0, 1) < 0.001
+                ):
+                    # Find a human who isn't currently being carried, and isn't being targeted by another enemy
+                    targeted_humans = [
+                        enemy.target_human
+                        for enemy in game.enemies
+                        if enemy.target_human is not None
+                    ]
+                    available_humans = [
+                        human
+                        for human in game.humans
+                        if human not in targeted_humans
+                        and human.can_be_picked_up_by_enemy()
+                    ]
+                    if len(available_humans) > 0:
+                        # Choose nearest human - i.e. the human with the minimum distance
+                        # We use length_squared in this case to get the distance, instead of length, because length_squared
+                        # is faster, and we don't care about what the actual distance is, just which distance is shortest
+                        self.target_human = min(
+                            available_humans,
+                            key=lambda human: (
+                                Vector2(human.pos) - self.pos
+                            ).length_squared(),
                         )
-                        self.target_human.die()
-                        self.target_human = None
-                        self.carrying = False
-                else:
-                    # If we're going to a human, we initially go to a position above them, then go down to pick
-                    # them up. If our position on the X axis is sufficiently different from the human's, we're in
-                    # the first phase. As we get closer, we reduce our max speed to ensure we don't overshoot
-                    x_distance: float = abs(self.x - self.target_human.x)
-                    if x_distance < 80:
-                        # Slow down as we approach the human so we don't overshoot
-                        max_speed = 1
-                    if x_distance > 100:
-                        # Set target pos to be above our target human's pos
-                        self.target_pos = Vector2(
-                            self.target_human.pos
-                        ) - Vector2(0, 200)
-                    else:
-                        # Set target pos to our target human's pos. Start carrying them when we get within 55 pixels
-                        self.target_pos = Vector2(self.target_human.pos)
-                        distance: float = Vector2(
-                            self.pos - self.target_pos
-                        ).length()
-                        if distance < 55:
-                            self.carrying = True
-                            self.target_human.picked_up(self)
-            else:
-                # No target human - go for our target position, and update target position every so often
-                self.update_target_timer -= 1
-                if self.update_target_timer <= 0:
-                    # Update target pos
-                    self.update_target_timer = 60
 
-                    # Get player pos as a Vector2
-                    player_pos: Vector2 = Vector2(game.player.pos)
-
-                    # Landers go for the player if they're nearby, other enemies will always go for
-                    # the player regardless of distance
-                    max_player_distance: int = (
-                        500 if self.type == EnemyType.LANDER else LEVEL_WIDTH
-                    )
-
-                    if (self.pos - player_pos).length() < max_player_distance:
-                        # Go for the player
-                        self.target_pos = player_pos
-
-                    # In either case, we add a random offset to our target position. Baiter enemies have quite a large
-                    # random variation
-                    x_range: int = 800 if self.type == EnemyType.BAITER else 100
-                    y_range: int = 300 if self.type == EnemyType.BAITER else 100
-                    self.target_pos = self.target_pos + Vector2(
-                        uniform(-x_range, x_range), uniform(-y_range, y_range)
-                    )
-
-            # Get vector from our pos to target pos
-            # This is used to determine the force applied to our velocity, and also used later if we fire a bullet
-            distance = (self.target_pos - self.pos).length()
-            if distance > 0:
-                # Get a unit vector (i.e. a vector of length 1) from our current pos in the direction of the target pos
-                vec: Vector2 = (self.target_pos - self.pos).normalize()
-            else:
-                # Can't call normalize() on a zero-length vector
-                vec = Vector2(0, 0)
-
-            # The force we apply each frame will be a fraction of the unit vector (depending on accleration attribute)
-            force: Vector2 = vec * self.acceleration
-
-            # If we're near the top or bottom of the game world, apply an additional force
-            # to push us away from the edge
-            if self.y < 64:
-                force.y += 0.2
-            if self.y > LEVEL_HEIGHT - 64:
-                force.y -= 0.2
-
-            # Apply force to velocity
-            self.velocity += force
-
-            # Limit max speed
-            if self.velocity.length() > max_speed:
-                # If we're over our max speed, slow down gradually over several frames, rather than slowing
-                # down suddenly. This is most relevant when max speed drastically decreases when we pick up a human.
-                self.velocity.scale_to_length(
-                    max(self.velocity.length() * 0.9, max_speed)
-                )
-
-            # Apply velocity to position
-            self.pos += self.velocity
-
-            # If carrying, update carried human pos
-            if self.carrying:
-                self.target_human.pos = (self.pos[0], self.pos[1] + 50)  # ty: ignore[invalid-assignment]  # faithful port: target_human is non-None when carrying, but flow analysis keeps None in the union
-
-            # Count down bullet timer, if it's zero or lower and enemy is near player (but not too near!),
-            # fire a bullet
-            self.bullet_timer -= 1
-            if self.bullet_timer <= 0:
-                if self.type == EnemyType.BAITER:
-                    # Baiters have their own firing pattern and don't care about the position of the player
-                    velocity: Vector2 = (
-                        Vector2(
-                            math.cos(self.fire_angle), math.sin(self.fire_angle)
-                        )
-                        * 3
-                    )
-                    game.bullets.append(Bullet(self.pos, velocity))
-                    self.bullet_timer = 8
-                    self.fire_angle += 0.3
-
-                elif game.player.lives > 0:
-                    # Other enemy types only fire if the player is alive
-                    player_vec: Vector2 = Vector2(game.player.pos) - self.pos
-                    player_distance: float = player_vec.length()
-                    if 100 < player_distance < 300:
-                        # Fire bullet at the player, with a bit of random inaccuracy. The bullet speed will average 6 pixels
-                        # per frame, although due to the way the random inaccuracy is added, this will vary
-                        # Normalise player_vec (vector from us to player) to a unit vector
-                        player_vec.normalize_ip()
-                        velocity = (
-                            Vector2(
-                                player_vec.x + uniform(-0.5, 0.5),
-                                player_vec.y + uniform(-0.5, 0.5),
-                            )
-                            * 6
-                        )
-                        game.bullets.append(Bullet(self.pos, velocity))
-
-                        # Non-baiter enemies fire at a random interval, with mutants firing more often
-                        upper_limit: int = (
-                            30 if self.type == EnemyType.MUTANT else 90
-                        )
-                        self.bullet_timer = randint(20, upper_limit)
-
-            # Update sprite/animation
-            if self.type == EnemyType.LANDER:
-                # Frame 0 if not picking up a human
-                # Frame 1 if close to picking up a human
-                # Frame 2 if picked up a human
-                frame: int = 0
+                # Try to move towards a target position. This will either be the player position, a human we're about to
+                # pick up, the top of the sky (if we're carrying a human), or the previously determined target pos, which
+                # is initially an offset from the starting position
                 if self.target_human is not None:
                     if self.carrying:
-                        frame = 2
+                        # Carrying a human into the sky - target pos will be our current pos on the X axis
+                        # and close to the top of the screen on the Y axis
+                        self.target_pos = Vector2(self.pos[0], 64)
+                        max_speed = 0.5
+
+                        # If we reach the top of the screen, turn the captured human into a mutant enemy
+                        if abs(self.pos[1] - self.target_pos.y) < 10:
+                            game.enemies.append(
+                                Enemy(
+                                    type=EnemyType.MUTANT,
+                                    pos=self.target_human.pos,
+                                )
+                            )
+                            self.target_human.die()
+                            self.target_human = None
+                            self.carrying = False
                     else:
-                        distance = (
-                            Vector2(self.pos) - self.target_human.pos
-                        ).length()
-                        if distance < 90:
-                            frame = 1
-                self.image = "lander" + str(frame)
-            elif self.type == EnemyType.MUTANT:
-                self.anim_timer += 1
-                self.image = "mutant" + str((self.anim_timer // 6) % 4)
-            elif self.type == EnemyType.BAITER:
-                self.anim_timer += 1
-                self.image = "baiter" + str((self.anim_timer // 3) % 8)
-            elif self.type == EnemyType.POD:
-                # Frames 0 to 2 = left, 3 to 5 = right
-                self.anim_timer += 1
-                frame = forward_backward_animation_frame(
-                    self.anim_timer // 6, 3
-                )
-                if self.velocity.x > 0:
-                    frame += 3
-                self.image = "pod" + str(frame)
-            elif self.type == EnemyType.SWARMER:
-                self.anim_timer += 1
-                self.image = "swarmer" + str((self.anim_timer // 6) % 8)
+                        # If we're going to a human, we initially go to a position above them, then go down to pick
+                        # them up. If our position on the X axis is sufficiently different from the human's, we're in
+                        # the first phase. As we get closer, we reduce our max speed to ensure we don't overshoot
+                        x_distance: float = abs(self.x - self.target_human.x)
+                        if x_distance < 80:
+                            # Slow down as we approach the human so we don't overshoot
+                            max_speed = 1
+                        if x_distance > 100:
+                            # Set target pos to be above our target human's pos
+                            self.target_pos = Vector2(
+                                self.target_human.pos
+                            ) - Vector2(0, 200)
+                        else:
+                            # Set target pos to our target human's pos. Start carrying them when we get within 55 pixels
+                            self.target_pos = Vector2(self.target_human.pos)
+                            distance: float = Vector2(
+                                self.pos - self.target_pos
+                            ).length()
+                            if distance < 55:
+                                self.carrying = True
+                                self.target_human.picked_up(self)
+                else:
+                    # No target human - go for our target position, and update target position every so often
+                    self.update_target_timer -= 1
+                    if self.update_target_timer <= 0:
+                        # Update target pos
+                        self.update_target_timer = 60
 
-        elif self.state == EnemyState.EXPLODING:
-            # There are 10 frames of the 'explode' animation
-            # Update animation frame every 2 game frames. There are 10 frames of animation numbered from 0 to 9
-            self.anim_timer += 1
-            frame = self.anim_timer // 2
-            self.image = "enemy_explode" + str(min(9, frame))
+                        # Get player pos as a Vector2
+                        player_pos: Vector2 = Vector2(game.player.pos)
 
-            if frame == 10:
-                # Animation finished, the enemy is now officially dead
-                self.state = EnemyState.DEAD
+                        # Landers go for the player if they're nearby, other enemies will always go for
+                        # the player regardless of distance
+                        max_player_distance: int = (
+                            500
+                            if self.type == EnemyType.LANDER
+                            else LEVEL_WIDTH
+                        )
+
+                        if (
+                            self.pos - player_pos
+                        ).length() < max_player_distance:
+                            # Go for the player
+                            self.target_pos = player_pos
+
+                        # In either case, we add a random offset to our target position. Baiter enemies have quite a large
+                        # random variation
+                        x_range: int = (
+                            800 if self.type == EnemyType.BAITER else 100
+                        )
+                        y_range: int = (
+                            300 if self.type == EnemyType.BAITER else 100
+                        )
+                        self.target_pos = self.target_pos + Vector2(
+                            uniform(-x_range, x_range),
+                            uniform(-y_range, y_range),
+                        )
+
+                # Get vector from our pos to target pos
+                # This is used to determine the force applied to our velocity, and also used later if we fire a bullet
+                distance = (self.target_pos - self.pos).length()
+                if distance > 0:
+                    # Get a unit vector (i.e. a vector of length 1) from our current pos in the direction of the target pos
+                    vec: Vector2 = (self.target_pos - self.pos).normalize()
+                else:
+                    # Can't call normalize() on a zero-length vector
+                    vec = Vector2(0, 0)
+
+                # The force we apply each frame will be a fraction of the unit vector (depending on accleration attribute)
+                force: Vector2 = vec * self.acceleration
+
+                # If we're near the top or bottom of the game world, apply an additional force
+                # to push us away from the edge
+                if self.y < 64:
+                    force.y += 0.2
+                if self.y > LEVEL_HEIGHT - 64:
+                    force.y -= 0.2
+
+                # Apply force to velocity
+                self.velocity += force
+
+                # Limit max speed
+                if self.velocity.length() > max_speed:
+                    # If we're over our max speed, slow down gradually over several frames, rather than slowing
+                    # down suddenly. This is most relevant when max speed drastically decreases when we pick up a human.
+                    self.velocity.scale_to_length(
+                        max(self.velocity.length() * 0.9, max_speed)
+                    )
+
+                # Apply velocity to position
+                self.pos += self.velocity
+
+                # If carrying, update carried human pos
+                if self.carrying:
+                    self.target_human.pos = (self.pos[0], self.pos[1] + 50)  # ty: ignore[invalid-assignment]  # faithful port: target_human is non-None when carrying, but flow analysis keeps None in the union
+
+                # Count down bullet timer, if it's zero or lower and enemy is near player (but not too near!),
+                # fire a bullet
+                self.bullet_timer -= 1
+                if self.bullet_timer <= 0:
+                    if self.type == EnemyType.BAITER:
+                        # Baiters have their own firing pattern and don't care about the position of the player
+                        velocity: Vector2 = (
+                            Vector2(
+                                math.cos(self.fire_angle),
+                                math.sin(self.fire_angle),
+                            )
+                            * 3
+                        )
+                        game.bullets.append(Bullet(self.pos, velocity))
+                        self.bullet_timer = 8
+                        self.fire_angle += 0.3
+
+                    elif game.player.lives > 0:
+                        # Other enemy types only fire if the player is alive
+                        player_vec: Vector2 = (
+                            Vector2(game.player.pos) - self.pos
+                        )
+                        player_distance: float = player_vec.length()
+                        if 100 < player_distance < 300:
+                            # Fire bullet at the player, with a bit of random inaccuracy. The bullet speed will average 6 pixels
+                            # per frame, although due to the way the random inaccuracy is added, this will vary
+                            # Normalise player_vec (vector from us to player) to a unit vector
+                            player_vec.normalize_ip()
+                            velocity = (
+                                Vector2(
+                                    player_vec.x + uniform(-0.5, 0.5),
+                                    player_vec.y + uniform(-0.5, 0.5),
+                                )
+                                * 6
+                            )
+                            game.bullets.append(Bullet(self.pos, velocity))
+
+                            # Non-baiter enemies fire at a random interval, with mutants firing more often
+                            upper_limit: int = (
+                                30 if self.type == EnemyType.MUTANT else 90
+                            )
+                            self.bullet_timer = randint(20, upper_limit)
+
+                # Update sprite/animation
+                match self.type:
+                    case EnemyType.LANDER:
+                        # Frame 0 if not picking up a human
+                        # Frame 1 if close to picking up a human
+                        # Frame 2 if picked up a human
+                        frame: int = 0
+                        if self.target_human is not None:
+                            if self.carrying:
+                                frame = 2
+                            else:
+                                distance = (
+                                    Vector2(self.pos) - self.target_human.pos
+                                ).length()
+                                if distance < 90:
+                                    frame = 1
+                        self.image = "lander" + str(frame)
+                    case EnemyType.MUTANT:
+                        self.anim_timer += 1
+                        self.image = "mutant" + str((self.anim_timer // 6) % 4)
+                    case EnemyType.BAITER:
+                        self.anim_timer += 1
+                        self.image = "baiter" + str((self.anim_timer // 3) % 8)
+                    case EnemyType.POD:
+                        # Frames 0 to 2 = left, 3 to 5 = right
+                        self.anim_timer += 1
+                        frame = forward_backward_animation_frame(
+                            self.anim_timer // 6, 3
+                        )
+                        if self.velocity.x > 0:
+                            frame += 3
+                        self.image = "pod" + str(frame)
+                    case EnemyType.SWARMER:
+                        self.anim_timer += 1
+                        self.image = "swarmer" + str((self.anim_timer // 6) % 8)
+
+            case EnemyState.EXPLODING:
+                # There are 10 frames of the 'explode' animation
+                # Update animation frame every 2 game frames. There are 10 frames of animation numbered from 0 to 9
+                self.anim_timer += 1
+                frame = self.anim_timer // 2
+                self.image = "enemy_explode" + str(min(9, frame))
+
+                if frame == 10:
+                    # Animation finished, the enemy is now officially dead
+                    self.state = EnemyState.DEAD
 
         # Update radar blip pos
         self.blip.pos = game.radar.radar_pos(self.pos)
@@ -1605,57 +1623,59 @@ def update() -> None:
 
     state_timer += 1
 
-    if state == State.TITLE:
-        # Check for start game
-        for controls in (keyboard_controls, joystick_controls):
-            # Check for button 0 being pressed on each controls object
-            # joystick_controls will be None if there was no controller was connected on game startup,
-            # so must check for that
-            if controls is not None and controls.button_pressed(0):
-                # Switch to play state, and create a new Game object, passing it a new Player object to use
-                state = State.PLAY
-                state_timer = 0
-                game = Game(Player(controls))
-                break
+    match state:
+        case State.TITLE:
+            # Check for start game
+            for controls in (keyboard_controls, joystick_controls):
+                # Check for button 0 being pressed on each controls object
+                # joystick_controls will be None if there was no controller was connected on game startup,
+                # so must check for that
+                if controls is not None and controls.button_pressed(0):
+                    # Switch to play state, and create a new Game object, passing it a new Player object to use
+                    state = State.PLAY
+                    state_timer = 0
+                    game = Game(Player(controls))
+                    break
 
-    elif state == State.PLAY:
-        if game.player.lives <= 0:
-            state = State.GAME_OVER
-            state_timer = 0
-        else:
+        case State.PLAY:
+            if game.player.lives <= 0:
+                state = State.GAME_OVER
+                state_timer = 0
+            else:
+                game.update()
+
+        case State.GAME_OVER:
+            # The game carries on updating in the background of the game over screen
             game.update()
 
-    elif state == State.GAME_OVER:
-        # The game carries on updating in the background of the game over screen
-        game.update()
-
-        # Don't allow the player to press a button to go back to the main menu until one second has passed
-        # This prevents the issue of accidentally skipping the game over screen because the player was just starting
-        # to press the fire button as the game ended
-        if state_timer > 60:
-            # Check for button 0 being pressed
-            for controls in (keyboard_controls, joystick_controls):
-                if controls is not None and controls.button_pressed(0):
-                    # Switch to title screen state
-                    state = State.TITLE
-                    state_timer = 0
-                    game = None
-                    play_music("menu_theme")
+            # Don't allow the player to press a button to go back to the main menu until one second has passed
+            # This prevents the issue of accidentally skipping the game over screen because the player was just starting
+            # to press the fire button as the game ended
+            if state_timer > 60:
+                # Check for button 0 being pressed
+                for controls in (keyboard_controls, joystick_controls):
+                    if controls is not None and controls.button_pressed(0):
+                        # Switch to title screen state
+                        state = State.TITLE
+                        state_timer = 0
+                        game = None
+                        play_music("menu_theme")
 
 
 def draw() -> None:
-    if state == State.TITLE:
-        screen.blit("title", (0, 0))
-        screen.blit(
-            f"start{(state_timer // 4) % 14}", (WIDTH // 2 - 350 // 2, 450)
-        )
+    match state:
+        case State.TITLE:
+            screen.blit("title", (0, 0))
+            screen.blit(
+                f"start{(state_timer // 4) % 14}", (WIDTH // 2 - 350 // 2, 450)
+            )
 
-    elif state == State.PLAY:
-        game.draw()
+        case State.PLAY:
+            game.draw()
 
-    elif state == State.GAME_OVER:
-        game.draw()
-        draw_text("GAME OVER", WIDTH // 2, (HEIGHT // 2) - 100, True)
+        case State.GAME_OVER:
+            game.draw()
+            draw_text("GAME OVER", WIDTH // 2, (HEIGHT // 2) - 100, True)
 
 
 def play_music(name: str) -> None:

@@ -160,77 +160,78 @@ class Bunner(MyActor):
             if key_just_pressed(direction_keys[direction]):
                 self.input_queue.append(direction)
 
-        if self.state == PlayerState.ALIVE:
-            # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
-            # the ground. If it's above zero, they're currently jumping to a new location.
+        match self.state:
+            case PlayerState.ALIVE:
+                # While the player is alive, the timer variable is used for movement. If it's zero, the player is on
+                # the ground. If it's above zero, they're currently jumping to a new location.
 
-            # Are we on the ground, and are there inputs to process?
-            if self.timer == 0 and len(self.input_queue) > 0:
-                # Take the next input off the queue and process it
-                self.handle_input(self.input_queue.pop(0))
+                # Are we on the ground, and are there inputs to process?
+                if self.timer == 0 and len(self.input_queue) > 0:
+                    # Take the next input off the queue and process it
+                    self.handle_input(self.input_queue.pop(0))
 
-            land: bool = False
-            if self.timer > 0:
-                # Apply movement
-                self.x += DX[self.direction]
-                self.y += DY[self.direction]
-                self.timer -= 1
-                land = (
-                    self.timer == 0
-                )  # If timer reaches zero, we've just landed
+                land: bool = False
+                if self.timer > 0:
+                    # Apply movement
+                    self.x += DX[self.direction]
+                    self.y += DY[self.direction]
+                    self.timer -= 1
+                    land = (
+                        self.timer == 0
+                    )  # If timer reaches zero, we've just landed
 
-            current_row: Optional["Row"] = None
-            for row in game.rows:
-                if row.y == self.y:
-                    current_row = row
-                    break
+                current_row: Optional["Row"] = None
+                for row in game.rows:
+                    if row.y == self.y:
+                        current_row = row
+                        break
 
-            if current_row:
-                # Row.check receives the player's X coordinate and returns the new state the player should be in
-                # (normally ALIVE, but SPLAT or SPLASH if they've collided with a vehicle or if they've fallen in
-                # the water). It also returns a second result which is only used if there was a collision, and even
-                # then only for certain collisions. When the new state is SPLAT, we will add a new child object to the
-                # current row, with the appropriate 'splat' image. In this case, the second result returned from
-                # check_collision is a Y offset which affects the position of this new child object. If the player is
-                # hit by a car the Y offset is zero, but if they are hit by a train the returned offset is 8 as this
-                # positioning looks a little better.
-                self.state, dead_obj_y_offset = current_row.check_collision(
-                    self.x
-                )
-                if self.state == PlayerState.ALIVE:
-                    # Water rows move the player along the X axis, if standing on a log
-                    self.x += current_row.push()
+                if current_row:
+                    # Row.check receives the player's X coordinate and returns the new state the player should be in
+                    # (normally ALIVE, but SPLAT or SPLASH if they've collided with a vehicle or if they've fallen in
+                    # the water). It also returns a second result which is only used if there was a collision, and even
+                    # then only for certain collisions. When the new state is SPLAT, we will add a new child object to the
+                    # current row, with the appropriate 'splat' image. In this case, the second result returned from
+                    # check_collision is a Y offset which affects the position of this new child object. If the player is
+                    # hit by a car the Y offset is zero, but if they are hit by a train the returned offset is 8 as this
+                    # positioning looks a little better.
+                    self.state, dead_obj_y_offset = current_row.check_collision(
+                        self.x
+                    )
+                    if self.state == PlayerState.ALIVE:
+                        # Water rows move the player along the X axis, if standing on a log
+                        self.x += current_row.push()
 
-                    if land:
-                        # Just landed - play sound effect appropriate to the current row
-                        current_row.play_sound()
+                        if land:
+                            # Just landed - play sound effect appropriate to the current row
+                            current_row.play_sound()
+                    else:
+                        if self.state == PlayerState.SPLAT:
+                            # Add 'splat' graphic to current row with the specified position and Y offset
+                            current_row.children.insert(
+                                0,
+                                MyActor(
+                                    "splat" + str(self.direction),
+                                    (self.x, dead_obj_y_offset),
+                                ),
+                            )
+                        self.timer = 100
                 else:
-                    if self.state == PlayerState.SPLAT:
-                        # Add 'splat' graphic to current row with the specified position and Y offset
-                        current_row.children.insert(
-                            0,
-                            MyActor(
-                                "splat" + str(self.direction),
-                                (self.x, dead_obj_y_offset),
-                            ),
-                        )
-                    self.timer = 100
-            else:
-                # There's no current row - either because player is currently changing row, or the row they were on
-                # has been deleted. Has the player gone off the bottom of the screen?
-                if self.y > game.scroll_pos + HEIGHT + 80:
-                    # Create eagle
-                    game.eagle = Eagle((self.x, game.scroll_pos))
-                    self.state = PlayerState.EAGLE
-                    self.timer = 150
-                    game.play_sound("eagle")
+                    # There's no current row - either because player is currently changing row, or the row they were on
+                    # has been deleted. Has the player gone off the bottom of the screen?
+                    if self.y > game.scroll_pos + HEIGHT + 80:
+                        # Create eagle
+                        game.eagle = Eagle((self.x, game.scroll_pos))
+                        self.state = PlayerState.EAGLE
+                        self.timer = 150
+                        game.play_sound("eagle")
 
-            # Limit x position so player doesn't go off the screen. The player movement code doesn't allow jumping off
-            # the screen, but without this line, the player could be carried off the screen by a log
-            self.x = max(16, min(WIDTH - 16, self.x))
-        else:
-            # Not alive - timer now counts down prior to game over screen
-            self.timer -= 1
+                # Limit x position so player doesn't go off the screen. The player movement code doesn't allow jumping off
+                # the screen, but without this line, the player could be carried off the screen by a log
+                self.x = max(16, min(WIDTH - 16, self.x))
+            case _:
+                # Not alive - timer now counts down prior to game over screen
+                self.timer -= 1
 
         # Keep track of the furthest we've got in the level
         self.min_y = min(self.min_y, self.y)
@@ -985,57 +986,59 @@ class State(Enum):
 def update() -> None:
     global state, game, high_score
 
-    if state == State.MENU:
-        if key_just_pressed(keys.SPACE):
-            state = State.PLAY
-            game = Game(Bunner((240, -320)))
-        else:
-            game.update()
+    match state:
+        case State.MENU:
+            if key_just_pressed(keys.SPACE):
+                state = State.PLAY
+                game = Game(Bunner((240, -320)))
+            else:
+                game.update()
 
-    elif state == State.PLAY:
-        # Is it game over?
-        if game.bunner.state != PlayerState.ALIVE and game.bunner.timer < 0:
-            # Update high score
-            high_score = max(high_score, game.score())
+        case State.PLAY:
+            # Is it game over?
+            if game.bunner.state != PlayerState.ALIVE and game.bunner.timer < 0:
+                # Update high score
+                high_score = max(high_score, game.score())
 
-            # Write high score file
-            try:
-                with open("high.txt", "w") as file:
-                    file.write(str(high_score))
-            except:
-                # If an error occurs writing the file, just ignore it and carry on, rather than crashing
-                pass
+                # Write high score file
+                try:
+                    with open("high.txt", "w") as file:
+                        file.write(str(high_score))
+                except:
+                    # If an error occurs writing the file, just ignore it and carry on, rather than crashing
+                    pass
 
-            state = State.GAME_OVER
-        else:
-            game.update()
+                state = State.GAME_OVER
+            else:
+                game.update()
 
-    elif state == State.GAME_OVER:
-        # Switch to menu state, and create a new game object without a player
-        if key_just_pressed(keys.SPACE):
-            game.stop_looped_sounds()
-            state = State.MENU
-            game = Game()
+        case State.GAME_OVER:
+            # Switch to menu state, and create a new game object without a player
+            if key_just_pressed(keys.SPACE):
+                game.stop_looped_sounds()
+                state = State.MENU
+                game = Game()
 
 
 def draw() -> None:
     game.draw()
 
-    if state == State.MENU:
-        screen.blit("title", (0, 0))
-        screen.blit(
-            "start" + str([0, 1, 2, 1][game.scroll_pos // 6 % 4]),
-            ((WIDTH - 270) // 2, HEIGHT - 240),
-        )
+    match state:
+        case State.MENU:
+            screen.blit("title", (0, 0))
+            screen.blit(
+                "start" + str([0, 1, 2, 1][game.scroll_pos // 6 % 4]),
+                ((WIDTH - 270) // 2, HEIGHT - 240),
+            )
 
-    elif state == State.PLAY:
-        # Display score and high score
-        display_number(game.score(), 0, 0, 0)
-        display_number(high_score, 1, WIDTH - 10, 1)
+        case State.PLAY:
+            # Display score and high score
+            display_number(game.score(), 0, 0, 0)
+            display_number(high_score, 1, WIDTH - 10, 1)
 
-    elif state == State.GAME_OVER:
-        # Display "Game Over" image
-        screen.blit("gameover", (0, 0))
+        case State.GAME_OVER:
+            # Display "Game Over" image
+            screen.blit("gameover", (0, 0))
 
 
 # Set up sound system

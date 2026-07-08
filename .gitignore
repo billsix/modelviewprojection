@@ -171,3 +171,6 @@ session.*
 # exported OCI image tars from `make image-export`
 modelviewprojection-*.tar
 imgui.ini
+
+# runtime high-score files the CTC games write to their cwd
+high.txt

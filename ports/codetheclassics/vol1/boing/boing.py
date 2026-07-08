@@ -446,53 +446,55 @@ def update() -> None:
         space_pressed = True
     space_down = keyboard.space
 
-    if state == State.MENU:
-        if space_pressed:
-            # Switch to play state, and create a new Game object, passing it the controls function for
-            # player 1, and if we're in 2 player mode, the controls function for player 2 (otherwise the
-            # 'None' value indicating this player should be computer-controlled)
-            state = State.PLAY
-            controls: list[Callable[[], int] | None] = [p1_controls]
-            controls.append(p2_controls if num_players == 2 else None)
-            game = Game(controls)
-        else:
-            # Detect up/down keys
-            if num_players == 2 and keyboard.up:
-                game.play_sound("up", menu_sound=True)
+    match state:
+        case State.MENU:
+            if space_pressed:
+                # Switch to play state, and create a new Game object, passing it the controls function for
+                # player 1, and if we're in 2 player mode, the controls function for player 2 (otherwise the
+                # 'None' value indicating this player should be computer-controlled)
+                state = State.PLAY
+                controls: list[Callable[[], int] | None] = [p1_controls]
+                controls.append(p2_controls if num_players == 2 else None)
+                game = Game(controls)
+            else:
+                # Detect up/down keys
+                if num_players == 2 and keyboard.up:
+                    game.play_sound("up", menu_sound=True)
+                    num_players = 1
+                elif num_players == 1 and keyboard.down:
+                    game.play_sound("down", menu_sound=True)
+                    num_players = 2
+
+                # Update the 'attract mode' game in the background (two AIs playing each other)
+                game.update()
+
+        case State.PLAY:
+            # Has anyone won?
+            if max(game.bats[0].score, game.bats[1].score) > 9:
+                state = State.GAME_OVER
+            else:
+                game.update()
+
+        case State.GAME_OVER:
+            if space_pressed:
+                # Reset to menu state
+                state = State.MENU
                 num_players = 1
-            elif num_players == 1 and keyboard.down:
-                game.play_sound("down", menu_sound=True)
-                num_players = 2
 
-            # Update the 'attract mode' game in the background (two AIs playing each other)
-            game.update()
-
-    elif state == State.PLAY:
-        # Has anyone won?
-        if max(game.bats[0].score, game.bats[1].score) > 9:
-            state = State.GAME_OVER
-        else:
-            game.update()
-
-    elif state == State.GAME_OVER:
-        if space_pressed:
-            # Reset to menu state
-            state = State.MENU
-            num_players = 1
-
-            # Create a new Game object, without any players
-            game = Game()
+                # Create a new Game object, without any players
+                game = Game()
 
 
 def draw() -> None:
     game.draw()
 
-    if state == State.MENU:
-        menu_image: str = "menu" + str(num_players - 1)
-        screen.blit(menu_image, (0, 0))
+    match state:
+        case State.MENU:
+            menu_image: str = "menu" + str(num_players - 1)
+            screen.blit(menu_image, (0, 0))
 
-    elif state == State.GAME_OVER:
-        screen.blit("over", (0, 0))
+        case State.GAME_OVER:
+            screen.blit("over", (0, 0))
 
 
 # The mixer allows us to play sounds and music

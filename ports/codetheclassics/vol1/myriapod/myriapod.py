@@ -982,27 +982,28 @@ class State(Enum):
 def update() -> None:
     global state, game
 
-    if state == State.MENU:
-        if space_pressed():
-            state = State.PLAY
-            game = Game(
-                Player((240, 768))
-            )  # Create new Game object, with a Player object
+    match state:
+        case State.MENU:
+            if space_pressed():
+                state = State.PLAY
+                game = Game(
+                    Player((240, 768))
+                )  # Create new Game object, with a Player object
 
-        game.update()
-
-    elif state == State.PLAY:
-        if game.player.lives == 0 and game.player.timer == 100:
-            sounds.gameover.play()
-            state = State.GAME_OVER
-        else:
             game.update()
 
-    elif state == State.GAME_OVER:
-        if space_pressed():
-            # Switch to menu state, and create a new game object without a player
-            state = State.MENU
-            game = Game()
+        case State.PLAY:
+            if game.player.lives == 0 and game.player.timer == 100:
+                sounds.gameover.play()
+                state = State.GAME_OVER
+            else:
+                game.update()
+
+        case State.GAME_OVER:
+            if space_pressed():
+                # Switch to menu state, and create a new game object without a player
+                state = State.MENU
+                game = Game()
 
 
 def draw() -> None:
@@ -1010,29 +1011,30 @@ def draw() -> None:
     # during the main menu and game over screens
     game.draw()
 
-    if state == State.MENU:
-        # Display logo
-        screen.blit("title", (0, 0))
+    match state:
+        case State.MENU:
+            # Display logo
+            screen.blit("title", (0, 0))
 
-        # 14 frames of animation for "Press space to start", updating every 4 frames
-        screen.blit("space" + str((game.time // 4) % 14), (0, 420))
+            # 14 frames of animation for "Press space to start", updating every 4 frames
+            screen.blit("space" + str((game.time // 4) % 14), (0, 420))
 
-    elif state == State.PLAY:
-        # Display number of lives
-        for i in range(game.player.lives):
-            screen.blit("life", (i * 40 + 8, 4))
+        case State.PLAY:
+            # Display number of lives
+            for i in range(game.player.lives):
+                screen.blit("life", (i * 40 + 8, 4))
 
-        # Display score
-        score: str = str(game.score)
-        for i in range(1, len(score) + 1):
-            # In Python, a negative index into a list (or in this case, into a string) gives you items in reverse order,
-            # e.g. 'hello'[-1] gives 'o', 'hello'[-2] gives 'l', etc.
-            digit: str = score[-i]
-            screen.blit("digit" + digit, (468 - i * 24, 5))
+            # Display score
+            score: str = str(game.score)
+            for i in range(1, len(score) + 1):
+                # In Python, a negative index into a list (or in this case, into a string) gives you items in reverse order,
+                # e.g. 'hello'[-1] gives 'o', 'hello'[-2] gives 'l', etc.
+                digit: str = score[-i]
+                screen.blit("digit" + digit, (468 - i * 24, 5))
 
-    elif state == State.GAME_OVER:
-        # Display "Game Over" image
-        screen.blit("over", (0, 0))
+        case State.GAME_OVER:
+            # Display "Game Over" image
+            screen.blit("over", (0, 0))
 
 
 # Set up music on game start

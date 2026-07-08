@@ -1317,65 +1317,66 @@ class Enemy(Fighter, ABC):
         pass
 
     def update(self) -> None:
-        if self.state == Enemy.State.APPROACH_PLAYER:
-            player = game.player
+        match self.state:
+            case Enemy.State.APPROACH_PLAYER:
+                player = game.player
 
-            # If player is attacking and we are quite close, chance (each frame) of backing up a little
-            if (
-                player.attack_timer > 0
-                and abs(self.vpos.y - player.vpos.y) < 20
-                and abs(self.vpos.x - player.vpos.x) < 200
-                and randint(0, 500) == 0
-            ):
-                self.log("Back away from attack")
-                self.target.x = self.vpos.x - self.facing_x * 90
-                self.state = Enemy.State.GO_TO_POS
-            else:
-                # Head towards player
-                # If we are holding a barrel, use a larger X offset so we throw from a distance
-                if isinstance(self.weapon, Barrel):
-                    x_offset: int = ENEMY_APPROACH_PLAYER_DISTANCE_BARREL
+                # If player is attacking and we are quite close, chance (each frame) of backing up a little
+                if (
+                    player.attack_timer > 0
+                    and abs(self.vpos.y - player.vpos.y) < 20
+                    and abs(self.vpos.x - player.vpos.x) < 200
+                    and randint(0, 500) == 0
+                ):
+                    self.log("Back away from attack")
+                    self.target.x = self.vpos.x - self.facing_x * 90
+                    self.state = Enemy.State.GO_TO_POS
                 else:
-                    x_offset = self.approach_player_distance
-                self.target.x = player.vpos.x + (
-                    x_offset * sign(self.vpos.x - player.vpos.x)
-                )
-                self.target.y = player.vpos.y
+                    # Head towards player
+                    # If we are holding a barrel, use a larger X offset so we throw from a distance
+                    if isinstance(self.weapon, Barrel):
+                        x_offset: int = ENEMY_APPROACH_PLAYER_DISTANCE_BARREL
+                    else:
+                        x_offset = self.approach_player_distance
+                    self.target.x = player.vpos.x + (
+                        x_offset * sign(self.vpos.x - player.vpos.x)
+                    )
+                    self.target.y = player.vpos.y
 
-        elif self.state == Enemy.State.GO_TO_POS:
-            # In this state we just check to see if we've reached the target position, if so we make a new decision
-            if self.target == self.vpos:
-                self.make_decision()
-
-        elif self.state == Enemy.State.GO_TO_WEAPON:
-            if (
-                not self.target_weapon.can_be_picked_up()
-                or not self.target_weapon.on_screen()
-            ):
-                # Weapon no longer available, make a new decision
-                self.target_weapon = None
-                self.make_decision()
-            else:
-                self.target = Vector2(self.target_weapon.vpos)
+            case Enemy.State.GO_TO_POS:
+                # In this state we just check to see if we've reached the target position, if so we make a new decision
                 if self.target == self.vpos:
-                    # Arrived - pick up weapon and make new decision
-                    self.log("Pick up weapon")
-                    self.pickup_animation = self.target_weapon.name
-                    self.frame = 0
-                    self.target_weapon.pick_up(Fighter.WEAPON_HOLD_HEIGHT)
-                    self.weapon = self.target_weapon
-                    self.target_weapon = None
                     self.make_decision()
 
-        elif self.state == Enemy.State.PAUSE:
-            self.state_timer -= 1
-            if self.state_timer < 0:
-                self.make_decision()
+            case Enemy.State.GO_TO_WEAPON:
+                if (
+                    not self.target_weapon.can_be_picked_up()
+                    or not self.target_weapon.on_screen()
+                ):
+                    # Weapon no longer available, make a new decision
+                    self.target_weapon = None
+                    self.make_decision()
+                else:
+                    self.target = Vector2(self.target_weapon.vpos)
+                    if self.target == self.vpos:
+                        # Arrived - pick up weapon and make new decision
+                        self.log("Pick up weapon")
+                        self.pickup_animation = self.target_weapon.name
+                        self.frame = 0
+                        self.target_weapon.pick_up(Fighter.WEAPON_HOLD_HEIGHT)
+                        self.weapon = self.target_weapon
+                        self.target_weapon = None
+                        self.make_decision()
 
-        elif self.state == Enemy.State.KNOCKED_DOWN:
-            # Check to see if we've got up again, if so switch state
-            if self.falling_state == Fighter.FallingState.STANDING:
-                self.make_decision()
+            case Enemy.State.PAUSE:
+                self.state_timer -= 1
+                if self.state_timer < 0:
+                    self.make_decision()
+
+            case Enemy.State.KNOCKED_DOWN:
+                # Check to see if we've got up again, if so switch state
+                if self.falling_state == Fighter.FallingState.STANDING:
+                    self.make_decision()
 
         # Update of RIDING_SCOOTER state is in EnemyScooterboy class
 
@@ -1475,10 +1476,11 @@ class Enemy(Fighter, ABC):
 
     def get_desired_facing(self) -> int:
         # Always face towards player, unless we're on a scooter
-        if self.state == Enemy.State.RIDING_SCOOTER:
-            return self.facing_x
-        else:
-            return 1 if self.vpos.x < game.player.vpos.x else -1
+        match self.state:
+            case Enemy.State.RIDING_SCOOTER:
+                return self.facing_x
+            case _:
+                return 1 if self.vpos.x < game.player.vpos.x else -1
 
     def hit(self, hitter: Any, attack: Any) -> None:
         if self.state == Enemy.State.KNOCKED_DOWN:
@@ -1636,17 +1638,16 @@ class EnemyScooterboy(Enemy):
 
     def determine_sprite(self) -> str:
         # Riding scooter is a state unique to Scooterboy, so it is dealt with here
-        if self.state == Enemy.State.RIDING_SCOOTER:
-            facing_id: int = 1 if self.facing_x == 1 else 0
-            frame: int = 0
-            if self.scooter_speed < self.scooter_target_speed:
-                # Currently speeding up
-                frame = min(self.frame // 5, 2)
-            return (
-                f"{self.sprite}_ride_{facing_id}_{frame}_{self.colour_variant}"
-            )
-        else:
-            return super().determine_sprite()
+        match self.state:
+            case Enemy.State.RIDING_SCOOTER:
+                facing_id: int = 1 if self.facing_x == 1 else 0
+                frame: int = 0
+                if self.scooter_speed < self.scooter_target_speed:
+                    # Currently speeding up
+                    frame = min(self.frame // 5, 2)
+                return f"{self.sprite}_ride_{facing_id}_{frame}_{self.colour_variant}"
+            case _:
+                return super().determine_sprite()
 
     def update(self) -> None:
         if self.state == Enemy.State.RIDING_SCOOTER:
@@ -1865,55 +1866,60 @@ class EnemyPortal(Enemy):
     def update(self) -> None:
         self.frame += 1
 
-        if self.state == Enemy.State.PORTAL:
-            if self.health <= 0:
-                self.state = Enemy.State.PORTAL_EXPLODE
-                self.frame = 0
-                game.play_sound("portal_destroyed")
+        match self.state:
+            case Enemy.State.PORTAL:
+                if self.health <= 0:
+                    self.state = Enemy.State.PORTAL_EXPLODE
+                    self.frame = 0
+                    game.play_sound("portal_destroyed")
 
-            else:
-                self.spawn_timer -= 1
-                if self.spawn_timer <= 0 and self.spawning_enemy is not None:
-                    # Animation complete, actually put the enemy in the level
-                    game.spawn_enemy(self.spawning_enemy)
+                else:
+                    self.spawn_timer -= 1
+                    if (
+                        self.spawn_timer <= 0
+                        and self.spawning_enemy is not None
+                    ):
+                        # Animation complete, actually put the enemy in the level
+                        game.spawn_enemy(self.spawning_enemy)
 
-                    self.spawning_enemy = None
+                        self.spawning_enemy = None
 
-                    # Reset spawn timer, depending on spawn_interval_change we may spawn less frequently as time goes on
-                    self.spawn_interval += self.spawn_interval_change
-                    self.spawn_interval = min(
-                        self.spawn_interval, self.max_spawn_interval
-                    )
-                    self.spawn_timer = self.spawn_interval
-
-                elif (
-                    self.spawning_enemy is None
-                    and self.spawn_timer <= EnemyPortal.GENERATE_ANIMATION_TIME
-                ):
-                    if len(game.enemies) >= self.max_enemies:
-                        # Too many enemies to spawn at the moment, try again in one second
-                        self.spawn_timer = 60
-                    else:
-                        # Randomly choose an enemy to spawn from our enemies list
-                        chosen_enemy = choice(self.enemies)
-
-                        # Choose direction for spawned enemy to face (0/1 = left/right)
-                        self.spawn_facing = (
-                            0 if self.vpos.x > game.player.vpos.x else 1
+                        # Reset spawn timer, depending on spawn_interval_change we may spawn less frequently as time goes on
+                        self.spawn_interval += self.spawn_interval_change
+                        self.spawn_interval = min(
+                            self.spawn_interval, self.max_spawn_interval
                         )
+                        self.spawn_timer = self.spawn_interval
 
-                        # Instantiate the enemy, but it won't appear in the level until the animation is complete
-                        self.spawning_enemy = chosen_enemy(self.vpos)
+                    elif (
+                        self.spawning_enemy is None
+                        and self.spawn_timer
+                        <= EnemyPortal.GENERATE_ANIMATION_TIME
+                    ):
+                        if len(game.enemies) >= self.max_enemies:
+                            # Too many enemies to spawn at the moment, try again in one second
+                            self.spawn_timer = 60
+                        else:
+                            # Randomly choose an enemy to spawn from our enemies list
+                            chosen_enemy = choice(self.enemies)
 
-                        # Reset frame for spawning animation
-                        self.frame = 0
+                            # Choose direction for spawned enemy to face (0/1 = left/right)
+                            self.spawn_facing = (
+                                0 if self.vpos.x > game.player.vpos.x else 1
+                            )
 
-                        game.play_sound("portal_enemy_spawn")
+                            # Instantiate the enemy, but it won't appear in the level until the animation is complete
+                            self.spawning_enemy = chosen_enemy(self.vpos)
 
-        elif self.state == Enemy.State.PORTAL_EXPLODE:
-            if self.frame > 50:
-                self.lives -= 1
-                self.died()
+                            # Reset frame for spawning animation
+                            self.frame = 0
+
+                            game.play_sound("portal_enemy_spawn")
+
+            case Enemy.State.PORTAL_EXPLODE:
+                if self.frame > 50:
+                    self.lives -= 1
+                    self.died()
 
         super().update()
 
@@ -3125,75 +3131,77 @@ def update() -> None:
                 return controls
         return None
 
-    if state == State.TITLE:
-        # Check for start game
-        if button_pressed_controls(0) is not None:
-            state = State.CONTROLS
+    match state:
+        case State.TITLE:
+            # Check for start game
+            if button_pressed_controls(0) is not None:
+                state = State.CONTROLS
 
-    elif state == State.CONTROLS:
-        # Check for player starting game with either keyboard or controller
-        controls = button_pressed_controls(0)
-        if controls is not None:
-            # Switch to play state, and create a new Game object, passing it the controls object which was used to start the game
-            state = State.PLAY
-            game = Game(controls)
+        case State.CONTROLS:
+            # Check for player starting game with either keyboard or controller
+            controls = button_pressed_controls(0)
+            if controls is not None:
+                # Switch to play state, and create a new Game object, passing it the controls object which was used to start the game
+                state = State.PLAY
+                game = Game(controls)
 
-    elif state == State.PLAY:
-        game.update()
-        if game.player.lives <= 0 or game.check_won():
-            # Need to call game.shutdown to turn off scooter engine sound
-            game.shutdown()
-            state = State.GAME_OVER
+        case State.PLAY:
+            game.update()
+            if game.player.lives <= 0 or game.check_won():
+                # Need to call game.shutdown to turn off scooter engine sound
+                game.shutdown()
+                state = State.GAME_OVER
 
-    elif state == State.GAME_OVER:
-        if button_pressed_controls(0) is not None:
-            # Go back into title screen mode
-            state = State.TITLE
-            game = None
+        case State.GAME_OVER:
+            if button_pressed_controls(0) is not None:
+                # Go back into title screen mode
+                state = State.TITLE
+                game = None
 
 
 def draw() -> None:
-    if state == State.TITLE:
-        # Draw logo
-        logo_img = (
-            images.title0 if total_frames // 20 % 2 == 0 else images.title1
-        )
-        screen.blit(
-            logo_img,
-            (
-                WIDTH // 2 - logo_img.get_width() // 2,
-                HEIGHT // 2 - logo_img.get_height() // 2,
-            ),
-        )
+    match state:
+        case State.TITLE:
+            # Draw logo
+            logo_img = (
+                images.title0 if total_frames // 20 % 2 == 0 else images.title1
+            )
+            screen.blit(
+                logo_img,
+                (
+                    WIDTH // 2 - logo_img.get_width() // 2,
+                    HEIGHT // 2 - logo_img.get_height() // 2,
+                ),
+            )
 
-        draw_text(
-            f"PRESS {SPECIAL_FONT_SYMBOLS['xb_a']} OR Z",
-            WIDTH // 2,
-            HEIGHT - 50,
-            True,
-        )
+            draw_text(
+                f"PRESS {SPECIAL_FONT_SYMBOLS['xb_a']} OR Z",
+                WIDTH // 2,
+                HEIGHT - 50,
+                True,
+            )
 
-    elif state == State.CONTROLS:
-        screen.fill((0, 0, 0))
-        screen.blit("menu_controls", (0, 0))
+        case State.CONTROLS:
+            screen.fill((0, 0, 0))
+            screen.blit("menu_controls", (0, 0))
 
-    elif state == State.PLAY:
-        game.draw()
+        case State.PLAY:
+            game.draw()
 
-    elif state == State.GAME_OVER:
-        # Draw game over screen
-        # Did player win or lose?
-        if game.check_won():
-            img = images.status_win
-        else:
-            img = images.status_lose
-        screen.blit(
-            img,
-            (
-                WIDTH // 2 - img.get_width() // 2,
-                HEIGHT // 2 - img.get_height() // 2,
-            ),
-        )
+        case State.GAME_OVER:
+            # Draw game over screen
+            # Did player win or lose?
+            if game.check_won():
+                img = images.status_win
+            else:
+                img = images.status_lose
+            screen.blit(
+                img,
+                (
+                    WIDTH // 2 - img.get_width() // 2,
+                    HEIGHT // 2 - img.get_height() // 2,
+                ),
+            )
 
 
 ##############################################################################

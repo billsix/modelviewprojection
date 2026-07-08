@@ -1824,112 +1824,122 @@ def update() -> None:
                 return controls
         return None
 
-    if state == State.TITLE:
-        # Check for player starting game with either keyboard or controller
-        if button_pressed_controls(0) is not None:
-            state = State.CONTROLS
+    match state:
+        case State.TITLE:
+            # Check for player starting game with either keyboard or controller
+            if button_pressed_controls(0) is not None:
+                state = State.CONTROLS
 
-    elif state == State.CONTROLS:
-        # Check for start game
-        controls: Optional[Controls] = button_pressed_controls(0)
-        if controls is not None:
-            # Switch to play state, and create a new Game object, passing it a new Player object to use
-            state = State.PLAY
-            game = Game(Player(controls), all_replays)
-            play_music("ingame_theme", 0.2)
+        case State.CONTROLS:
+            # Check for start game
+            controls: Optional[Controls] = button_pressed_controls(0)
+            if controls is not None:
+                # Switch to play state, and create a new Game object, passing it a new Player object to use
+                state = State.PLAY
+                game = Game(Player(controls), all_replays)
+                play_music("ingame_theme", 0.2)
 
-    elif state == State.PLAY:
-        if game.time_remaining <= 0:
-            game.play_sound("gameover")
-            state = State.GAME_OVER
-            game_over_state_timer = 0
+        case State.PLAY:
+            if game.time_remaining <= 0:
+                game.play_sound("gameover")
+                state = State.GAME_OVER
+                game_over_state_timer = 0
 
-            # Add the replay data for this game to all_replays
-            all_replays.append(game.player.replay_data)
+                # Add the replay data for this game to all_replays
+                all_replays.append(game.player.replay_data)
 
-            # Ensure that all_replays never has more than 10 replays, otherwise there could be performance issues
-            if len(all_replays) > MAX_REPLAYS:
-                # Sort replays by length, longest first
-                all_replays.sort(key=lambda replay: len(replay), reverse=True)
+                # Ensure that all_replays never has more than 10 replays, otherwise there could be performance issues
+                if len(all_replays) > MAX_REPLAYS:
+                    # Sort replays by length, longest first
+                    all_replays.sort(
+                        key=lambda replay: len(replay), reverse=True
+                    )
 
-                # Recreate the list, consisting of only the first 10
-                all_replays = all_replays[:MAX_REPLAYS]
+                    # Recreate the list, consisting of only the first 10
+                    all_replays = all_replays[:MAX_REPLAYS]
 
-            save_replays(all_replays)
-        else:
-            game.update()
+                save_replays(all_replays)
+            else:
+                game.update()
 
-    elif state == State.GAME_OVER:
-        # Don't allow the player to press a button to go back to the main menu until one second has passed
-        # This prevents the issue of accidentally skipping the game over screen because the player was just starting
-        # to press the jump button as the time ran out
-        game_over_state_timer += 1
-        if (
-            game_over_state_timer > 60
-            and button_pressed_controls(0) is not None
-        ):
-            # Update high score variable at this point
-            if game.timer > high_score:
-                high_score = game.timer
+        case State.GAME_OVER:
+            # Don't allow the player to press a button to go back to the main menu until one second has passed
+            # This prevents the issue of accidentally skipping the game over screen because the player was just starting
+            # to press the jump button as the time ran out
+            game_over_state_timer += 1
+            if (
+                game_over_state_timer > 60
+                and button_pressed_controls(0) is not None
+            ):
+                # Update high score variable at this point
+                if game.timer > high_score:
+                    high_score = game.timer
 
-            # Switch to title screen state
-            state = State.TITLE
-            play_music("title_theme")
+                # Switch to title screen state
+                state = State.TITLE
+                play_music("title_theme")
 
 
 def draw() -> None:
-    if state == State.TITLE:
-        # Draw title screen
-        screen.blit("title", (0, 0))
-        screen.blit("press_to_start", (0, 0))
+    match state:
+        case State.TITLE:
+            # Draw title screen
+            screen.blit("title", (0, 0))
+            screen.blit("press_to_start", (0, 0))
 
-        # Draw "start" animation, which has 11 frames numbered 0 to 10
-        anim_frame: int = (total_frames // 6) % 11
-        screen.blit("start" + str(anim_frame), (WIDTH // 2 - 150, 360))
+            # Draw "start" animation, which has 11 frames numbered 0 to 10
+            anim_frame: int = (total_frames // 6) % 11
+            screen.blit("start" + str(anim_frame), (WIDTH // 2 - 150, 360))
 
-    elif state == State.CONTROLS:
-        screen.fill((0, 0, 0))
-        screen.blit("controls", (0, 0))
+        case State.CONTROLS:
+            screen.fill((0, 0, 0))
+            screen.blit("controls", (0, 0))
 
-    elif state == State.PLAY:
-        game.draw()
+        case State.PLAY:
+            game.draw()
 
-    elif state == State.GAME_OVER:
-        screen.fill((0, 54, 255))
+        case State.GAME_OVER:
+            screen.fill((0, 54, 255))
 
-        # Display "Game Over" images
-        # 625 is the width of the game over images
-        anim_frame = (total_frames // 5) % 14
-        screen.blit(f"gameover{anim_frame}", (WIDTH // 2 - 625 // 2, 100))
+            # Display "Game Over" images
+            # 625 is the width of the game over images
+            anim_frame = (total_frames // 5) % 14
+            screen.blit(f"gameover{anim_frame}", (WIDTH // 2 - 625 // 2, 100))
 
-        seconds: int = int(game.timer / 60)
-        if seconds >= 60:
-            screen.blit("survived_for_mins_seconds", (0, 0))
-            draw_text(
-                f"{seconds // 60}",
-                180,
-                270,
-                align=TextAlign.RIGHT,
-                font="fontlrg",
-            )
-            draw_text(
-                f"{seconds % 60}",
-                470,
-                270,
-                align=TextAlign.CENTRE,
-                font="fontlrg",
-            )
-        else:
-            screen.blit("survived_for_seconds", (0, 0))
-            draw_text(
-                f"{seconds}", 300, 310, align=TextAlign.RIGHT, font="fontlrg"
-            )
+            seconds: int = int(game.timer / 60)
+            if seconds >= 60:
+                screen.blit("survived_for_mins_seconds", (0, 0))
+                draw_text(
+                    f"{seconds // 60}",
+                    180,
+                    270,
+                    align=TextAlign.RIGHT,
+                    font="fontlrg",
+                )
+                draw_text(
+                    f"{seconds % 60}",
+                    470,
+                    270,
+                    align=TextAlign.CENTRE,
+                    font="fontlrg",
+                )
+            else:
+                screen.blit("survived_for_seconds", (0, 0))
+                draw_text(
+                    f"{seconds}",
+                    300,
+                    310,
+                    align=TextAlign.RIGHT,
+                    font="fontlrg",
+                )
 
-        if game.timer > high_score:
-            # Show "NEW RECORD!"
-            # 575 is the width of the new record images
-            anim_frame = (total_frames // 5) % 8
-            screen.blit(f"newrecord{anim_frame}", (WIDTH // 2 - 575 // 2, 380))
+            if game.timer > high_score:
+                # Show "NEW RECORD!"
+                # 575 is the width of the new record images
+                anim_frame = (total_frames // 5) % 8
+                screen.blit(
+                    f"newrecord{anim_frame}", (WIDTH // 2 - 575 // 2, 380)
+                )
 
 
 def play_music(name: str, volume: float = 0.3) -> None:
