@@ -1,9 +1,29 @@
 # Code the Classics: extend type coverage to locals and attributes
 
-**Status:** proposed — needs go-ahead; **priority raised 2026-07-08: the
-official `make format` gate is RED until this task's first item lands (see
-"URGENT" below)**
+**Status:** proposed — needs go-ahead; **the URGENT first item below was
+implemented 2026-07-08** (the rest of the task — locals/attributes/Any
+shrinking — remains proposed)
 **Created:** 2026-07-08
+
+## RESOLUTION of the urgent item (2026-07-08)
+
+Fixed with the codebase's own precedent (cavern's `cast("Player", player)`)
+rather than 120 narrowing guards: avenger's and beatstreets' module-level
+``game`` globals are now ``game: "Game" = cast("Game", None)`` with the
+invariant documented at the declaration ("None ONLY on the title screen,
+where nothing touches it"), and the two title-return resets use the same
+cast. Runtime behaviour is byte-identical (`cast` is an identity function).
+Two follow-on diagnostics the sharper typing surfaced were fixed at their
+sites: beatstreets' ``randint(game.boundary.top, ...)`` int-wrapped (a
+runtime no-op — shim `Rect` coordinates ARE ints; its properties are typed
+``int | float`` only because ZRect shares them — precise per-class property
+typing is future shim work for this task), and eggzy's
+``game.player.replay_data`` cast under its PLAY-state invariant.
+Result: **`ty check vol2` went 120 → 0**; vol1 already clean; the shim's
+9 local-only diagnostics are sandbox import noise (glfw/OpenGL/
+just_playback aren't installed locally; they resolve in the container).
+Authoritative in-container `format.sh` re-run kicked off the same day —
+result in session summary.
 
 ## Goal (Bill, 2026-07-08)
 

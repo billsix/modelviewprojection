@@ -43,7 +43,7 @@ from collections.abc import Callable  # noqa: E402
 from dataclasses import InitVar, dataclass, field
 from enum import Enum
 from random import choice, randint
-from typing import Any
+from typing import Any, cast
 
 from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
 from pgzero_gl import joystick, surface
@@ -1555,7 +1555,12 @@ class Enemy(Fighter, ABC):
                 x1: int = int(player.vpos.x + (150 * x_side))
                 x2: int = int(player.vpos.x + (400 * x_side))
                 x: int = randint(min(x1, x2), max(x1, x2))
-                y: int = randint(game.boundary.top, game.boundary.bottom)
+                # int() is a runtime no-op: Rect coordinates are integers (see
+                # pgzero_gl.geometry.Rect), but its properties are currently typed
+                # int | float because ZRect shares them
+                y: int = randint(
+                    int(game.boundary.top), int(game.boundary.bottom)
+                )
                 self.target = Vector2(x, y)
                 self.state = Enemy.State.GO_TO_POS
 
@@ -3156,7 +3161,7 @@ def update() -> None:
             if button_pressed_controls(0) is not None:
                 # Go back into title screen mode
                 state = State.TITLE
-                game = None
+                game = cast("Game", None)  # see the game global's comment
 
 
 def draw() -> None:
@@ -3227,7 +3232,11 @@ setup_joystick_controls()
 
 # Set the initial game state
 state = State.TITLE
-game: Any = None
+# game is None ONLY while on the title screen, and nothing touches it there;
+# all actor/game code runs under the invariant that a real Game exists.  The
+# cast documents that invariant for the type checker (same idiom as cavern's
+# Game.player) instead of leaving ~74 unguarded Optional accesses.
+game: "Game" = cast("Game", None)
 
 # Tell Pygame Zero to take over
 go()

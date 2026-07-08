@@ -1846,7 +1846,9 @@ def update() -> None:
                 game_over_state_timer = 0
 
                 # Add the replay data for this game to all_replays
-                all_replays.append(game.player.replay_data)
+                # game.player is always a real Player in the PLAY state (only the
+                # menu's attract-mode Game has player=None)
+                all_replays.append(cast(Player, game.player).replay_data)
 
                 # Ensure that all_replays never has more than 10 replays, otherwise there could be performance issues
                 if len(all_replays) > MAX_REPLAYS:

@@ -41,7 +41,7 @@ from abc import ABC, abstractmethod
 from dataclasses import InitVar, dataclass, field
 from enum import Enum, IntEnum
 from random import randint, uniform
-from typing import Any, ClassVar  # noqa: E402
+from typing import Any, ClassVar, cast  # noqa: E402
 
 from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
 from pgzero_gl import joystick, mask
@@ -1658,7 +1658,7 @@ def update() -> None:
                         # Switch to title screen state
                         state = State.TITLE
                         state_timer = 0
-                        game = None
+                        game = cast("Game", None)  # see the game global's comment
                         play_music("menu_theme")
 
 
@@ -1713,7 +1713,11 @@ setup_joystick_controls()
 state: State = State.TITLE
 
 # No game object to begin with
-game: Any = None
+# game is None ONLY while on the title screen, and nothing touches it there;
+# all actor/game code runs under the invariant that a real Game exists.  The
+# cast documents that invariant for the type checker (same idiom as cavern's
+# Game.player) instead of leaving ~45 unguarded Optional accesses.
+game: "Game" = cast("Game", None)
 
 # How long have we been in the current state?
 state_timer: int = 0
