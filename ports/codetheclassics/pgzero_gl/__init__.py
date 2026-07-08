@@ -26,16 +26,18 @@ with ::
 
 and otherwise keeps PyGame Zero's globals: :class:`Actor`, :data:`screen`,
 :data:`keyboard`, :data:`keys`, :data:`sounds`, :data:`music`, :data:`images`,
-:class:`Rect`, plus stub ``pygame`` / ``pgzrun`` / ``pgzero`` modules (built by
-:func:`_make_pygame`) so the original mixer-setup boilerplate and ``pgzrun.go()``
-call still work. The synthesized modules are typed ``Any``: they are
-``types.ModuleType`` objects assembled at runtime, so their attributes aren't
-statically known.
+:class:`Rect`, :data:`mixer` (a no-op stand-in for pygame.mixer) and
+:func:`go` (PyGame Zero's ``pgzrun.go``). Deeper pygame APIs are real
+submodules imported explicitly: :mod:`pgzero_gl.geometry` (Vector2/Vector3),
+:mod:`pgzero_gl.draw`, :mod:`pgzero_gl.transform`, :mod:`pgzero_gl.surface`,
+:mod:`pgzero_gl.joystick`, :mod:`pgzero_gl.mask`.  (Until 2026-07-08 the shim
+instead forged synthetic ``pygame``/``pgzero``/``pgzrun`` modules into
+``sys.modules`` so upstream import lines could stay verbatim; that was retired
+with the byte-faithfulness rule -- imports now say what they mean.)
 """
 
 from __future__ import annotations
 
-import types
 from typing import Any
 
 from .actor import Actor
@@ -58,9 +60,7 @@ __all__ = [
     "screen",
     "go",
     "exit",
-    "pygame",
-    "pgzrun",
-    "pgzero",
+    "mixer",
 ]
 
 
@@ -69,11 +69,11 @@ def exit() -> None:
     quit_game()
 
 
-# --- minimal stand-ins for the modules the games import -------------------
-# These exist so a ported game's original boilerplate keeps working with only
-# its import line changed.  They are intentionally tiny -- the real work is done
-# by the shim above.  Vol 2 games that reach deeper into pygame (mask, gfxdraw,
-# joystick, offscreen Surface, transform) extend these as those ports land.
+# --- the mixer stand-in -----------------------------------------------------
+# A no-op object matching the slice of pygame.mixer's API the games' audio
+# boilerplate calls (real audio is handled by pgzero_gl.audio).  Exported as
+# `mixer` so the games' init/quit/set_num_channels lines keep working with
+# `pygame.mixer.` replaced by `mixer.`.
 
 
 class _Mixer:
@@ -102,145 +102,4 @@ class _Mixer:
             pass
 
 
-def _submodule(name: str, **attrs: Any) -> Any:
-    """Make a real ModuleType and register it so ``from pygame.X import Y`` and
-    ``import pygame.X`` both resolve."""
-    import sys
-
-    mod: types.ModuleType = types.ModuleType("pygame." + name)
-    for k, v in attrs.items():
-        setattr(mod, k, v)
-    sys.modules["pygame." + name] = mod
-    return mod
-
-
-def _make_pygame() -> Any:
-    """Build and register the synthetic ``pygame`` module (and its submodules)."""
-    import sys
-
-    from . import joystick as _joy
-    from . import mask as _mask
-    from .geometry import Vector2, Vector3
-    from .surface import SRCALPHA, Surface
-
-    m: Any = types.ModuleType("pygame")
-    m.error = Exception
-    m.Rect = Rect
-    m.Vector2 = Vector2
-    m.Surface = Surface
-    m.SRCALPHA = SRCALPHA
-
-    # not a submodule type, but games only use pygame.mixer.* -- Any so it can go
-    # into sys.modules (which is typed dict[str, ModuleType]) below.
-    mixer_stub: Any = _Mixer()
-    m.mixer = mixer_stub
-
-    def _image_load(path: str) -> Any:
-        from .resources import Image as GLImage
-
-        return GLImage(path)
-
-    def _draw_rect(surface: Any, color: Any, rect: Any, width: int = 0) -> None:
-        from . import context
-
-        r = context.require_renderer()
-        x, y, w, h = rect.x, rect.y, rect.width, rect.height
-        (r.rect if width else r.filled_rect)(x=x, y=y, w=w, h=h, color=color)
-
-    def _draw_line(
-        surface: Any, color: Any, start: Any, end: Any, width: int = 1
-    ) -> None:
-        from . import context
-
-        context.require_renderer().line(start=start, end=end, color=color)
-
-    def _draw_polygon(
-        surface: Any, color: Any, points: Any, width: int = 0
-    ) -> None:
-        from . import context
-
-        context.require_renderer().polygon(
-            points=points, color=color, filled=(width == 0)
-        )
-
-    def _scale(surf: Any, size: Any, dest: Any = None) -> Any:
-        import numpy as np
-        from PIL import Image as PILImage
-
-        from .resources import Image as GLImage
-
-        pil = PILImage.fromarray(surf.rgba).resize(
-            (max(1, int(size[0])), max(1, int(size[1]))),
-            PILImage.Resampling.NEAREST,
-        )
-        return GLImage.from_rgba(np.array(pil.convert("RGBA")))
-
-    def _smoothscale(surf: Any, size: Any, dest: Any = None) -> Any:
-        import numpy as np
-        from PIL import Image as PILImage
-
-        from .resources import Image as GLImage
-
-        pil = PILImage.fromarray(surf.rgba).resize(
-            (max(1, int(size[0])), max(1, int(size[1]))),
-            PILImage.Resampling.BILINEAR,
-        )
-        return GLImage.from_rgba(np.array(pil.convert("RGBA")))
-
-    # gfxdraw -> renderer polygons (target surface ignored: draws to screen)
-    def _gfx_filled_polygon(surface: Any, points: Any, color: Any) -> None:
-        from . import context
-
-        context.require_renderer().polygon(
-            points=points, color=color, filled=True
-        )
-
-    def _gfx_polygon(surface: Any, points: Any, color: Any) -> None:
-        from . import context
-
-        context.require_renderer().polygon(
-            points=points, color=color, filled=False
-        )
-
-    # Register submodules so `from pygame.X import Y` / `import pygame.X` work.
-    m.math = _submodule(
-        "math", Vector2=Vector2, Vector3=Vector3, Vector=Vector2
-    )
-    m.rect = _submodule("rect", Rect=Rect)
-    m.surface = _submodule("surface", Surface=Surface, SRCALPHA=SRCALPHA)
-    m.image = _submodule("image", load=_image_load)
-    m.draw = _submodule(
-        "draw", rect=_draw_rect, line=_draw_line, polygon=_draw_polygon
-    )
-    m.transform = _submodule(
-        "transform", scale=_scale, smoothscale=_smoothscale
-    )
-    m.gfxdraw = _submodule(
-        "gfxdraw", filled_polygon=_gfx_filled_polygon, polygon=_gfx_polygon
-    )
-    m.joystick = _submodule(
-        "joystick",
-        Joystick=_joy.Joystick,
-        get_count=_joy.get_count,
-        get_init=_joy.get_init,
-        init=_joy.init,
-    )
-    m.mask = _submodule(
-        "mask", from_surface=_mask.from_surface, Mask=_mask.Mask
-    )
-    sys.modules["pygame.mixer"] = mixer_stub  # allow `from pygame import mixer`
-    sys.modules["pygame"] = m
-    return m
-
-
-pygame = _make_pygame()
-
-pgzrun: Any = types.ModuleType("pgzrun")
-pgzrun.go = go
-
-pgzero: Any = types.ModuleType("pgzero")
-# Report a high version so the games' "require pgzero >= 1.2" checks pass and the
-# original source can be kept verbatim (we don't need to strip the check).
-pgzero.__version__ = "2.0"
-# pgzero.rect exposes Rect (int) and ZRect (float); some games import ZRect here.
-pgzero.rect = _submodule("rect", Rect=Rect, ZRect=ZRect)
+mixer: Any = _Mixer()

@@ -1,6 +1,30 @@
 # Code the Classics: retire the synthetic pygame/pgzero/pgzrun modules
 
-**Status:** proposed — needs go-ahead
+**Status:** implemented 2026-07-08 — all ~94 sites converted; gates green
+(zero non-comment `pygame`/`pgzrun`/`pgzero` references remain, all 133 port
+files compile, ruff clean + format idempotent, ty back to exact baselines
+with the 4 unresolved-import suppressions GONE). Bill's on-display boots
+pending (batched with the dataclasses/formatting diffs).
+
+Implementation notes:
+- New real shim modules `pgzero_gl/draw.py` (rect/line/polygon +
+  gfx_polygon/gfx_filled_polygon) and `pgzero_gl/transform.py`
+  (scale/smoothscale), promoted from `_make_pygame`'s inline closures;
+  `mixer = _Mixer()` exported via `__all__`; `_submodule`/`_make_pygame`/
+  the synthetic `pygame`/`pgzrun`/`pgzero` and their `sys.modules`
+  registrations deleted (~140 lines); shim docstring rewritten.
+- Games: `mixer.`/`joystick.`/`gldraw.`/`transform.`/`surface.`/`mask.`/
+  `GLImage(`/`Rect(`/`Vector2(` direct forms; `pgzrun.go()` → `go()`;
+  the 8 pgzero version-check boilerplate blocks deleted; star-import
+  comments updated. `draw` module aliased as `gldraw` in games (every game
+  defines its own `draw()` callback).
+- Honest typing surfaced three latent issues: shim `Surface.set_alpha`
+  widened to accept floats (pygame does); soccer's `cost()` tuple
+  comparison and leadingedge's Optional `w/h` division got faithful-port
+  `ty: ignore` comments (upstream relies on runtime invariants).
+- leadingedge's `if USE_GFXDRAW: import pygame.gfxdraw` block removed (the
+  work-alikes are always importable now; the flag still selects them at the
+  draw site).
 **Created:** 2026-07-08
 
 ## Goal (Bill, 2026-07-08)

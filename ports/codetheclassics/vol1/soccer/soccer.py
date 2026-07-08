@@ -30,10 +30,8 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
-from pygame.math import (  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules)
-    Vector2,
-)
+from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
+from pgzero_gl.geometry import Vector2
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -43,21 +41,6 @@ if sys.version_info < (3, 5):
     )
     sys.exit()
 
-# Check Pygame Zero version. This is a bit trickier because Pygame Zero only lets us get its version number as a string.
-# So we have to split the string into a list, using '.' as the character to split on. We convert each element of the
-# version number into an integer - but only if the string contains numbers and nothing else, because it's possible for
-# a component of the version to contain letters as well as numbers (e.g. '2.0.dev0')
-# We're using a Python feature called list comprehension - this is explained in the Bubble Bobble/Cavern chapter.
-pgzero_version = [
-    int(s) if s.isnumeric() else s for s in pgzero.__version__.split(".")
-]
-if pgzero_version < [1, 2]:
-    print(
-        "This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(
-            pgzero.__version__
-        )
-    )
-    sys.exit()
 
 WIDTH = 800
 HEIGHT = 480
@@ -87,13 +70,11 @@ GOAL_BOUNDS_Y = (
     HALF_LEVEL_H + HALF_PITCH_H + GOAL_DEPTH,
 )
 
-PITCH_RECT = pygame.rect.Rect(
+PITCH_RECT = Rect(
     PITCH_BOUNDS_X[0], PITCH_BOUNDS_Y[0], HALF_PITCH_W * 2, HALF_PITCH_H * 2
 )
-GOAL_0_RECT = pygame.rect.Rect(
-    GOAL_BOUNDS_X[0], GOAL_BOUNDS_Y[0], GOAL_WIDTH, GOAL_DEPTH
-)
-GOAL_1_RECT = pygame.rect.Rect(
+GOAL_0_RECT = Rect(GOAL_BOUNDS_X[0], GOAL_BOUNDS_Y[0], GOAL_WIDTH, GOAL_DEPTH)
+GOAL_1_RECT = Rect(
     GOAL_BOUNDS_X[0], GOAL_BOUNDS_Y[1] - GOAL_DEPTH, GOAL_WIDTH, GOAL_DEPTH
 )
 
@@ -452,7 +433,7 @@ class Ball(MyActor):
                 do_shoot = (
                     self.timer <= 0
                     and target
-                    and cost(target.vpos, self.owner.team)
+                    and cost(target.vpos, self.owner.team)  # ty: ignore[unsupported-operator]  # faithful upstream: tuple compare falls to Vector2 only on exact float ties, which don't occur
                     < cost(self.owner.vpos, self.owner.team)
                 )
 
@@ -1126,33 +1107,25 @@ class Game:
                 if game.ball.owner and p.lead:
                     line_start: Vector2 = game.ball.owner.vpos - offset
                     line_end: Vector2 = p.vpos - offset
-                    pygame.draw.line(
-                        screen.surface, (0, 0, 0), line_start, line_end
-                    )
+                    gldraw.line(screen.surface, (0, 0, 0), line_start, line_end)
 
         if DEBUG_SHOW_TARGETS:
             for p in self.players:
                 line_start = p.debug_target - offset
                 line_end = p.vpos - offset
-                pygame.draw.line(
-                    screen.surface, (255, 0, 0), line_start, line_end
-                )
+                gldraw.line(screen.surface, (255, 0, 0), line_start, line_end)
 
         if DEBUG_SHOW_PEERS:
             for p in self.players:
                 line_start = p.peer.vpos - offset
                 line_end = p.vpos - offset
-                pygame.draw.line(
-                    screen.surface, (0, 0, 255), line_start, line_end
-                )
+                gldraw.line(screen.surface, (0, 0, 255), line_start, line_end)
 
         if DEBUG_SHOW_SHOOT_TARGET:
             if self.debug_shoot_target and self.ball.owner:
                 line_start = self.ball.owner.vpos - offset
                 line_end = self.debug_shoot_target - offset
-                pygame.draw.line(
-                    screen.surface, (255, 0, 255), line_start, line_end
-                )
+                gldraw.line(screen.surface, (255, 0, 255), line_start, line_end)
 
         if DEBUG_SHOW_COSTS and self.ball.owner:
             for x in range(0, LEVEL_W, 60):
@@ -1344,8 +1317,8 @@ def draw() -> None:
 
 # Set up sound system
 try:
-    pygame.mixer.quit()
-    pygame.mixer.init(44100, -16, 2, 1024)
+    mixer.quit()
+    mixer.init(44100, -16, 2, 1024)
 except Exception:
     # Ignore sound errors
     pass
@@ -1361,4 +1334,4 @@ menu_difficulty: int = 0
 # Create a new Game object
 game: Game = Game()
 
-pgzrun.go()
+go()

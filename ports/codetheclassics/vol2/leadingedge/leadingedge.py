@@ -40,11 +40,10 @@ from enum import Enum
 from random import choice, randint, uniform
 from typing import Any, Optional
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
-from pygame.math import (  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
-    Vector2,
-    Vector3,
-)
+from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
+from pgzero_gl import draw as gldraw
+from pgzero_gl import joystick, surface, transform
+from pgzero_gl.geometry import Vector2, Vector3
 
 # If the game window doesn't fit on the screen, you may need to turn off or reduce display scaling in the Windows/macOS settings
 # On Windows, you can uncomment the following two lines to fix the issue. It sets the program as "DPI aware"
@@ -56,9 +55,9 @@ from pygame.math import (  # ty: ignore[unresolved-import]  # pygame is a synthe
 # but in the latest version at the time of writing (2.2.0) it may actually be slightly slower than the default drawing
 # module. See further down for more performance options
 USE_GFXDRAW = False
-
-if USE_GFXDRAW:
-    import pygame.gfxdraw
+# (The gfxdraw work-alikes now live in pgzero_gl.draw -- imported above as
+# gldraw -- so no conditional import is needed; the flag still selects them
+# at the draw site.)
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -68,19 +67,6 @@ if sys.version_info < (3, 6):
     )
     sys.exit()
 
-# Check Pygame Zero version. This is a bit trickier because Pygame Zero only lets us get its version number as a string.
-# So we have to split the string into a list, using '.' as the character to split on. We convert each element of the
-# version number into an integer - but only if the string contains numbers and nothing else, because it's possible for
-# a component of the version to contain letters as well as numbers (e.g. '2.0.dev0')
-# This uses a Python feature called list comprehension
-pgzero_version = [
-    int(s) if s.isnumeric() else s for s in pgzero.__version__.split(".")
-]
-if pgzero_version < [1, 2]:
-    print(
-        f"This game requires at least version 1.2 of Pygame Zero. You have version {pgzero.__version__}. Please upgrade using the command 'pip3 install --upgrade pgzero'"
-    )
-    sys.exit()
 
 # For a better frame rate, try width/height of 640x480, or even lower
 WIDTH = 960
@@ -112,7 +98,7 @@ else:
 
 CLIPPING_PLANE = -0.25  # too close to 0 = frame rate issues (drawing huge polygons which are mostly off-screen), too far = stuff just in front of camera not being drawn
 CLIPPING_PLANE_CARS = -0.08  # bring closer to zero to fix occasional flickering of CPU cars when very close to the camera, at the potential cost of frame rate
-SCALE_FUNC = pygame.transform.scale  # Which scale function to use - pygame.transform.smoothscale is better quality but slower
+SCALE_FUNC = transform.scale  # Which scale function to use - transform.smoothscale is better quality but slower
 MAX_SCENERY_SCALED_WIDTH = (
     WIDTH * 2
 )  # When scaling scenery based on distance from camera, don't try to draw anything that would be scaled to wider than this
@@ -190,7 +176,7 @@ SPECIAL_FONT_SYMBOLS_INVERSE = dict(
 )
 
 # A black image whose alpha (transparency) we vary, to fade the screen to black during the title screen
-fade_to_black_image = pygame.Surface((WIDTH, HEIGHT))
+fade_to_black_image = surface.Surface((WIDTH, HEIGHT))
 
 
 # Class used for timing how long certain bits of code take to run
@@ -1557,7 +1543,7 @@ class Game:
                 return None if w is None else (None, None, None)
 
             # Apply perspective and centre on the screen
-            point_v2: Vector2 = pygame.math.Vector2(
+            point_v2: Vector2 = Vector2(
                 (newpoint.x / newpoint.z) + HALF_WIDTH,
                 (newpoint.y / newpoint.z) + HALF_HEIGHT,
             )
@@ -1565,7 +1551,7 @@ class Game:
             if w is None:
                 return point_v2
             else:
-                return point_v2, w / -newpoint.z, h / -newpoint.z
+                return point_v2, w / -newpoint.z, h / -newpoint.z  # ty: ignore[unsupported-operator]  # faithful upstream: w/h are None only when unused
 
         # offset and offset_delta keep track of the cumulative changes in track offsets (X and Y - Z remains as 0), so
         # that each track piece is drawn in the correct position
@@ -1715,15 +1701,13 @@ class Game:
                     def draw_polygon(points: Any, col: Any) -> None:
                         if USE_GFXDRAW:
                             if OUTLINE_W == 0:
-                                pygame.gfxdraw.filled_polygon(
+                                gldraw.gfx_filled_polygon(
                                     screen.surface, points, col
                                 )
                             else:
-                                pygame.gfxdraw.polygon(
-                                    screen.surface, points, col
-                                )
+                                gldraw.gfx_polygon(screen.surface, points, col)
                         else:
-                            pygame.draw.polygon(
+                            gldraw.polygon(
                                 screen.surface, col, points, OUTLINE_W
                             )
 
@@ -1919,7 +1903,7 @@ class Game:
                                         ),
                                         "scenery_draw",
                                     )
-                                except pygame.error:
+                                except Exception:
                                     # Have experienced out of memory errors with a too-small clipping plane, due to trying to
                                     # scale to too big a size. In extreme cases Pygame may try to allocate bitmaps over 1GB
                                     # in size!
@@ -2154,7 +2138,7 @@ class Game:
             print(self.frame_counter, times)
 
             # test drawing a very large polygon
-            # pygame.draw.polygon(screen.surface, (255,0,0), (Vector2(-4000,test), Vector2(WIDTH*4,test), Vector2(0,test+500)))
+            # gldraw.polygon(screen.surface, (255,0,0), (Vector2(-4000,test), Vector2(WIDTH*4,test), Vector2(0,test+500)))
 
     # Returns index of track piece at the specified Z position, or None if the specified position is off the end
     # of the track
@@ -2196,9 +2180,7 @@ class Game:
 
 
 def get_joystick_if_exists() -> Any:
-    return (
-        pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
-    )
+    return joystick.Joystick(0) if joystick.get_count() > 0 else None
 
 
 def setup_joystick_controls() -> None:
@@ -2341,8 +2323,8 @@ def stop_music() -> None:
 try:
     # Restart the Pygame audio mixer which Pygame Zero sets up by default. We find that the default settings
     # cause issues with delayed or non-playing sounds on some devices
-    pygame.mixer.quit()
-    pygame.mixer.init(44100, -16, 2, 1024)
+    mixer.quit()
+    mixer.init(44100, -16, 2, 1024)
 
     play_music("title_theme")
 except Exception:
@@ -2364,4 +2346,4 @@ demo_start_timer: float = 0
 accumulated_time: float = 0
 
 # Tell Pygame Zero to take over
-pgzrun.go()
+go()

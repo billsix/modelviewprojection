@@ -39,6 +39,10 @@ from random import randint  # noqa: E402
 from typing import Any, ClassVar, Optional, cast  # noqa: E402
 
 from pgzero_gl import *  # noqa: E402,F401,F403
+from pgzero_gl import draw as gldraw
+from pgzero_gl import joystick
+from pgzero_gl.geometry import Vector2
+from pgzero_gl.resources import Image as GLImage
 
 # Set up constants
 WIDTH = 825
@@ -882,10 +886,7 @@ class Player(GravityActor):
                         if dx != 0 or dy != 0:
                             if DEBUG_MOVEMENT:
                                 print(game.timer, "dash")
-                            v = (
-                                pygame.math.Vector2(dx, dy).normalize()
-                                * Player.DASH_SPEED
-                            )
+                            v = Vector2(dx, dy).normalize() * Player.DASH_SPEED
                             self.vel_x = int(v.x)
                             self.vel_y = int(v.y)
                             self.gravity_enabled = False
@@ -1395,7 +1396,7 @@ class Game:
             Any, tileset_xml.getroot().find("image")
         ).attrib["source"]
         if tileset_image_filename not in tileset_images:
-            tileset_images[tileset_image_filename] = pygame.image.load(
+            tileset_images[tileset_image_filename] = GLImage(
                 os.path.join(path, tileset_image_filename)
             )
         self.tileset_image = tileset_images[tileset_image_filename]
@@ -1560,7 +1561,7 @@ class Game:
 
     def draw_ui(self) -> None:
         # Display level text and background
-        pygame.draw.rect(screen.surface, (0, 54, 255), Rect(0, 500, WIDTH, 50))
+        gldraw.rect(screen.surface, (0, 54, 255), Rect(0, 500, WIDTH, 50))
         screen.blit("text_area_frame", (0, 500))
         draw_text(self.level_text, WIDTH // 2, 508, align=TextAlign.CENTRE)
 
@@ -1681,9 +1682,7 @@ class State(Enum):
 
 
 def get_joystick_if_exists() -> Any:
-    return (
-        pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
-    )
+    return joystick.Joystick(0) if joystick.get_count() > 0 else None
 
 
 def setup_joystick_controls() -> None:
@@ -1948,8 +1947,8 @@ def play_music(name: str, volume: float = 0.3) -> None:
 try:
     # Restart the Pygame audio mixer which Pygame Zero sets up by default. We find that the default settings
     # cause issues with delayed or non-playing sounds on some devices
-    pygame.mixer.quit()
-    pygame.mixer.init(48000, -16, 2, 1024)
+    mixer.quit()
+    mixer.init(48000, -16, 2, 1024)
 
     play_music("title_theme")
 except Exception:
@@ -1976,4 +1975,4 @@ game_over_state_timer: int = 0
 total_frames: int = 0
 
 # Tell Pygame Zero to take over
-pgzrun.go()
+go()

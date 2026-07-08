@@ -34,7 +34,7 @@ from collections.abc import Callable, Sequence  # noqa: E402
 from dataclasses import InitVar, dataclass  # noqa: E402
 from enum import Enum  # noqa: E402
 
-from pgzero_gl import *  # noqa: E402,F401,F403  (Actor, screen, keyboard, sounds, music, pygame, pgzrun, ...)
+from pgzero_gl import *  # noqa: E402,F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
 
 # Set up constants
 WIDTH = 800
@@ -497,8 +497,8 @@ def draw() -> None:
 
 # The mixer allows us to play sounds and music
 try:
-    pygame.mixer.quit()
-    pygame.mixer.init(44100, -16, 2, 1024)
+    mixer.quit()
+    mixer.init(44100, -16, 2, 1024)
 
     music.play("theme")
     music.set_volume(0.3)
@@ -513,4 +513,4 @@ state = State.MENU
 game = Game()
 
 # Tell Pygame Zero to start - this line is only required when running the game from an IDE such as IDLE or PyCharm
-pgzrun.go()
+go()

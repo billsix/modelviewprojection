@@ -138,7 +138,7 @@ class Surface:
             setattr(r, k, v)
         return r
 
-    def set_alpha(self, a: int | None) -> None:
+    def set_alpha(self, a: int | float | None) -> None:
         # Uniform surface alpha (used for fades).  Scale the alpha channel.
         """Scale the whole surface's alpha by ``a`` (0-255); ``None`` is a no-op (used for fades)."""
         if a is None:

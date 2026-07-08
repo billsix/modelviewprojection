@@ -43,10 +43,9 @@ from enum import Enum, IntEnum
 from random import randint, uniform
 from typing import Any, ClassVar  # noqa: E402
 
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
-from pygame.math import (  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules)
-    Vector2,
-)
+from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, mixer, go, ...)
+from pgzero_gl import joystick, mask
+from pgzero_gl.geometry import Vector2
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -56,19 +55,6 @@ if sys.version_info < (3, 6):
     )
     sys.exit()
 
-# Check Pygame Zero version. This is a bit trickier because Pygame Zero only lets us get its version number as a string.
-# So we have to split the string into a list, using '.' as the character to split on. We convert each element of the
-# version number into an integer - but only if the string contains numbers and nothing else, because it's possible for
-# a component of the version to contain letters as well as numbers (e.g. '2.0.dev0')
-# This uses a Python feature called list comprehension
-pgzero_version = [
-    int(s) if s.isnumeric() else s for s in pgzero.__version__.split(".")
-]
-if pgzero_version < [1, 2]:
-    print(
-        f"This game requires at least version 1.2 of Pygame Zero. You have version {pgzero.__version__}. Please upgrade using the command 'pip3 install --upgrade pgzero'"
-    )
-    sys.exit()
 
 WIDTH = 960
 HEIGHT = 540
@@ -1248,7 +1234,7 @@ class Game:
         self.player_camera_offset_x: float = WIDTH / 3
 
         self.terrain_surface: Any = images.terrain
-        self.terrain_mask: Any = pygame.mask.from_surface(self.terrain_surface)
+        self.terrain_mask: Any = mask.from_surface(self.terrain_surface)
 
         self.new_wave()
 
@@ -1541,7 +1527,7 @@ class Game:
                 # For sounds where we want the volume to vary, we must create a separate instance of the sound object
                 # for each volume we play it at, otherwise setting the volume would change the volume of all currently
                 # playing instances of that sound
-                sound = pygame.mixer.Sound("sounds/" + fullname + ".ogg")
+                sound = mixer.Sound("sounds/" + fullname + ".ogg")
                 sound.set_volume(volume)
             else:
                 sound = getattr(sounds, fullname)
@@ -1587,9 +1573,7 @@ class State(Enum):
 
 # Set up controls
 def get_joystick_if_exists() -> Any:
-    return (
-        pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
-    )
+    return joystick.Joystick(0) if joystick.get_count() > 0 else None
 
 
 def setup_joystick_controls() -> None:
@@ -1688,11 +1672,11 @@ def play_music(name: str) -> None:
 try:
     # Restart the Pygame audio mixer which Pygame Zero sets up by default. We find that the default settings
     # cause issues with delayed or non-playing sounds on some devices
-    pygame.mixer.quit()
-    pygame.mixer.init(44100, -16, 2, 1024)
+    mixer.quit()
+    mixer.init(44100, -16, 2, 1024)
 
     # Raise the number of audio channels so it copes with more sound effects at once
-    pygame.mixer.set_num_channels(16)
+    mixer.set_num_channels(16)
 
     play_music("menu_theme")
 
@@ -1715,4 +1699,4 @@ game: Any = None
 state_timer: int = 0
 
 # Tell Pygame Zero to take over
-pgzrun.go()
+go()
