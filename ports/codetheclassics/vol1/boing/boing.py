@@ -29,6 +29,7 @@ from pgzero_gl import *  # noqa: E402,F401,F403  (Actor, screen, keyboard, sound
 
 import math  # noqa: E402
 import random  # noqa: E402
+from dataclasses import InitVar, dataclass  # noqa: E402
 from enum import Enum  # noqa: E402
 from typing import Callable, Sequence  # noqa: E402
 
@@ -58,10 +59,15 @@ def sign(x: float) -> int:
 
 
 # Class for an animation which is displayed briefly whenever the ball bounces
+# (eq=False on these Actor dataclasses keeps identity comparison/hashing --
+# the generated __eq__ would compare fields and set __hash__ to None)
+@dataclass(eq=False)
 class Impact(Actor):
-    def __init__(self, pos: tuple[float, float]) -> None:
+    pos: InitVar[tuple[float, float]]
+    time: int = 0
+
+    def __post_init__(self, pos: tuple[float, float]) -> None:
         super().__init__("blank", pos)
-        self.time: int = 0
 
     def update(self) -> None:
         # There are 5 impact sprites numbered 0 to 4. We update to a new sprite every 2 frames.
@@ -72,20 +78,20 @@ class Impact(Actor):
         self.time += 1
 
 
+@dataclass(eq=False)
 class Ball(Actor):
-    def __init__(self, dx: int) -> None:
-        super().__init__("ball", (0,0))
+    # dx and dy together describe the direction in which the ball is moving. For example, if dx and dy are 1 and 0,
+    # the ball is moving to the right, with no movement up or down. If both values are negative, the ball is moving
+    # left and up, with the angle depending on the relative values of the two variables. If you're familiar with
+    # vectors, dx and dy represent a unit vector. If you're not familiar with vectors, see the explanation in the
+    # book.
+    dx: float
+    dy: float = 0
+    speed: int = 5
 
+    def __post_init__(self) -> None:
+        super().__init__("ball", (0, 0))
         self.x, self.y = HALF_WIDTH, HALF_HEIGHT
-
-        # dx and dy together describe the direction in which the ball is moving. For example, if dx and dy are 1 and 0,
-        # the ball is moving to the right, with no movement up or down. If both values are negative, the ball is moving
-        # left and up, with the angle depending on the relative values of the two variables. If you're familiar with
-        # vectors, dx and dy represent a unit vector. If you're not familiar with vectors, see the explanation in the
-        # book.
-        self.dx, self.dy = dx, 0
-
-        self.speed: int = 5
 
     def update(self) -> None:
         # Each frame, we move the ball in a series of small steps - the number of steps being based on its speed attribute
@@ -198,29 +204,27 @@ class Ball(Actor):
         return self.x < 0 or self.x > WIDTH
 
 
+@dataclass(eq=False)
 class Bat(Actor):
-    def __init__(self, player: int, move_func: Callable[[], float] | None = None) -> None:
-        x: int = 40 if player == 0 else 760
+    player: int
+    # move_func is a function we may or may not have been passed by the code which created this object. If this bat
+    # is meant to be player controlled, move_func will be a function that when called, returns a number indicating
+    # the direction and speed in which the bat should move, based on the keys the player is currently pressing.
+    # If move_func is None, this indicates that this bat should instead be controlled by the AI method
+    # (resolved in __post_init__, where self.ai exists).
+    move_func_init: InitVar[Callable[[], float] | None] = None
+    score: int = 0
+    # Each bat has a timer which starts at zero and counts down by one every frame. When a player concedes a point,
+    # their timer is set to 20, which causes the bat to display a different animation frame. It is also used to
+    # decide when to create a new ball in the centre of the screen - see comments in Game.update for more on this.
+    # Finally, it is used in Game.draw to determine when to display a visual effect over the top of the background
+    timer: int = 0
+
+    def __post_init__(self, move_func_init: Callable[[], float] | None) -> None:
+        x: int = 40 if self.player == 0 else 760
         y: int = HALF_HEIGHT
         super().__init__("blank", (x, y))
-
-        self.player: int = player
-        self.score: int = 0
-
-        # move_func is a function we may or may not have been passed by the code which created this object. If this bat
-        # is meant to be player controlled, move_func will be a function that when called, returns a number indicating
-        # the direction and speed in which the bat should move, based on the keys the player is currently pressing.
-        # If move_func is None, this indicates that this bat should instead be controlled by the AI method.
-        if move_func != None:
-            self.move_func = move_func
-        else:
-            self.move_func = self.ai
-
-        # Each bat has a timer which starts at zero and counts down by one every frame. When a player concedes a point,
-        # their timer is set to 20, which causes the bat to display a different animation frame. It is also used to
-        # decide when to create a new ball in the centre of the screen - see comments in Game.update for more on this.
-        # Finally, it is used in Game.draw to determine when to display a visual effect over the top of the background
-        self.timer: int = 0
+        self.move_func = move_func_init if move_func_init is not None else self.ai
 
     def update(self) -> None:
         self.timer -= 1
@@ -279,6 +283,8 @@ class Bat(Actor):
         return min(MAX_AI_SPEED, max(-MAX_AI_SPEED, target_y - self.y))
 
 
+# Not a dataclass: every attribute is derived from the `controls` parameter,
+# so a generated __init__ would add nothing (all fields would be init=False).
 class Game:
     def __init__(self, controls: Sequence[Callable[[], int] | None] = (None, None)) -> None:
         # Create a list of two bats, giving each a player number and a function to use to receive

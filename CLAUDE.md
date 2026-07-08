@@ -147,10 +147,14 @@ A separate subtree from the course: **`pgzero_gl/`**, a clean-room PyGame-Zero/p
 compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** under
 `vol1/` and `vol2/` (BSD-2-Clause, © Eben Upton et al.).
 
-- **Two different rule-sets.** The **games are faithful ports** — type-annotations only,
-  **no behaviour changes, no restructuring, no `ruff`** (stay byte-faithful to upstream).
-  The **shim (`pgzero_gl/`) is our code** — it may get real bug fixes to reproduce
-  pygame/pgzero APIs correctly.
+- **Two different rule-sets.** The **games are behaviour-faithful ports** —
+  **no behaviour changes** (same RNG call order, same update/draw order, same
+  gameplay), but as of 2026-07-08 their *structure* may be modernized:
+  dataclasses, `match`, type annotations, `@override`, precise callable types
+  (see the `ctc-*` task series; this relaxes the old "no restructuring" rule —
+  Bill's call). Still **no `ruff`** on the games. The **shim (`pgzero_gl/`) is
+  our code** — it may get real bug fixes to reproduce pygame/pgzero APIs
+  correctly.
 - **Enforcement:** `entrypoint/format.sh` runs `ty check` on `pgzero_gl` + `vol1` + `vol2`.
 - **Fidelity gotchas worth not rediscovering:**
   - Audio is **`just_playback`**, not `pygame.mixer` (host SDL is broken). It has **no

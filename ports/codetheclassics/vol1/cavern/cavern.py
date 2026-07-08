@@ -19,9 +19,10 @@ _sys.path.append(_os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abs
 from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
 
 from random import choice, randint, random, shuffle
+from dataclasses import InitVar, dataclass
 from enum import Enum
 import sys
-from typing import Any, Optional, cast  # noqa: E402
+from typing import Any, ClassVar, Optional, cast  # noqa: E402
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -136,18 +137,22 @@ class CollideActor(Actor):
         # Didn't collide with block or edge of level
         return False
 
+# (eq=False on these Actor dataclasses keeps identity comparison/hashing --
+# the generated __eq__ would compare fields and set __hash__ to None)
+@dataclass(eq=False)
 class Orb(CollideActor):
-    MAX_TIMER = 250
+    MAX_TIMER: ClassVar[int] = 250
 
-    def __init__(self, pos: tuple[float, float], dir_x: int) -> None:
+    pos: InitVar[tuple[float, float]]
+    # Orbs are initially blown horizontally, then start floating upwards
+    direction_x: int
+    floating: bool = False
+    trapped_enemy_type: Optional[int] = None      # Number representing which type of enemy is trapped in this bubble
+    timer: int = -1
+    blown_frames: int = 6  # Number of frames during which we will be pushed horizontally
+
+    def __post_init__(self, pos: tuple[float, float]) -> None:
         super().__init__(pos)
-
-        # Orbs are initially blown horizontally, then start floating upwards
-        self.direction_x: int = dir_x
-        self.floating: bool = False
-        self.trapped_enemy_type: Optional[int] = None      # Number representing which type of enemy is trapped in this bubble
-        self.timer: int = -1
-        self.blown_frames: int = 6  # Number of frames during which we will be pushed horizontally
 
     def hit_test(self, bolt: "Bolt") -> bool:
         # Check for collision with a bolt
@@ -188,14 +193,16 @@ class Orb(CollideActor):
             else:
                 self.image = "orb" + str(3 + (((self.timer - 9) // 8) % 4))
 
+@dataclass(eq=False)
 class Bolt(CollideActor):
-    SPEED = 7
+    SPEED: ClassVar[int] = 7
 
-    def __init__(self, pos: tuple[float, float], dir_x: int) -> None:
+    pos: InitVar[tuple[float, float]]
+    direction_x: int
+    active: bool = True
+
+    def __post_init__(self, pos: tuple[float, float]) -> None:
         super().__init__(pos)
-
-        self.direction_x: int = dir_x
-        self.active: bool = True
 
     def update(self) -> None:
         # Move horizontally and check to see if we've collided with a block
@@ -213,12 +220,14 @@ class Bolt(CollideActor):
         anim_frame: str = str((game.timer // 4) % 2)
         self.image = "bolt" + direction_idx + anim_frame
 
+@dataclass(eq=False)
 class Pop(Actor):
-    def __init__(self, pos: tuple[float, float], type: int) -> None:
-        super().__init__("blank", pos)
+    pos: InitVar[tuple[float, float]]
+    type: int
+    timer: int = -1
 
-        self.type: int = type
-        self.timer: int = -1
+    def __post_init__(self, pos: tuple[float, float]) -> None:
+        super().__init__("blank", pos)
 
     def update(self) -> None:
         self.timer += 1
@@ -308,14 +317,15 @@ class Fruit(GravityActor):
         anim_frame: str = str([0, 1, 2, 1][(game.timer // 6) % 4])
         self.image = "fruit" + str(self.type) + anim_frame
 
+@dataclass(eq=False)
 class Player(GravityActor):
-    def __init__(self):
+    lives: int = 2
+    score: int = 0
+
+    def __post_init__(self) -> None:
         # Call constructor of parent class. Initial pos is 0,0 but reset is always called straight afterwards which
         # will set the actual starting position.
         super().__init__((0, 0))
-
-        self.lives: int = 2
-        self.score: int = 0
 
     def reset(self) -> None:
         self.pos = (WIDTH / 2, 100)
@@ -431,21 +441,21 @@ class Player(GravityActor):
             else:
                 self.image = "run" + dir_index + str((game.timer // 8) % 4)
 
+@dataclass(eq=False)
 class Robot(GravityActor):
-    TYPE_NORMAL = 0
-    TYPE_AGGRESSIVE = 1
+    TYPE_NORMAL: ClassVar[int] = 0
+    TYPE_AGGRESSIVE: ClassVar[int] = 1
 
-    def __init__(self, pos: tuple[float, float], type: int) -> None:
+    pos: InitVar[tuple[float, float]]
+    type: int
+    direction_x: int = 1
+    alive: bool = True
+    change_dir_timer: int = 0
+    fire_timer: int = 100
+
+    def __post_init__(self, pos: tuple[float, float]) -> None:
         super().__init__(pos)
-
-        self.type: int = type
-
         self.speed: int = randint(1, 3)
-        self.direction_x: int = 1
-        self.alive: bool = True
-
-        self.change_dir_timer: int = 0
-        self.fire_timer: int = 100
 
     def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful upstream: narrows GravityActor.update's optional `detect`
         super().update()

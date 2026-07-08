@@ -33,10 +33,11 @@ from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, soun
 
 import math, sys
 from random import randint, uniform
+from dataclasses import InitVar, dataclass, field
 from enum import Enum, IntEnum
 from abc import ABC, abstractmethod
 from pygame.math import Vector2  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
-from typing import Any  # noqa: E402
+from typing import Any, ClassVar  # noqa: E402
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -222,10 +223,15 @@ class WrapActor(Actor):
         self.x += delta
 
 # A bullet fired by an enemy
+# (eq=False on these Actor dataclasses keeps identity comparison/hashing --
+# the generated __eq__ would compare fields and set __hash__ to None)
+@dataclass(eq=False)
 class Bullet(WrapActor):
-    def __init__(self, pos: Any, velocity: Vector2) -> None:
+    pos: InitVar[Any]
+    velocity: Vector2
+
+    def __post_init__(self, pos: Any) -> None:
         super().__init__("blank", pos)
-        self.velocity: Vector2 = velocity
         distance: float = (Vector2(pos) - Vector2(game.player.pos)).length()
         volume: float = remap_clamp(distance, 400, 2500, 1, 0)
         game.play_sound("enemy_laser", volume=volume)
@@ -244,6 +250,7 @@ class Bullet(WrapActor):
         return game.player.hit_test(self.pos) or too_far
 
 # A laser fired by the player
+# Not a dataclass: the super-args (image, pos) are computed from vel_x/x/y.
 class Laser(WrapActor):
     def __init__(self, x: float, y: float, vel_x: float) -> None:
         facing_idx: int = 0 if vel_x > 0 else 1
@@ -277,16 +284,17 @@ class Laser(WrapActor):
 
         return too_far or sum(collisions) > 0
 
+@dataclass(eq=False)
 class Player(WrapActor):
     # Drag for X and Y axes - closer to 1 = less drag, higher top speed
-    DRAG = Vector2(0.98, 0.9)
+    DRAG: ClassVar[Vector2] = Vector2(0.98, 0.9)
 
     # Force for X and Y axes - higher numbers = more acceleration, higher top speed
-    FORCE = Vector2(0.2, 0.5)
+    FORCE: ClassVar[Vector2] = Vector2(0.2, 0.5)
 
     # Number of frames for which the player ship plays its explode animation
-    EXPLODE_ANIM_SPEED = 4
-    EXPLODE_FRAMES = 18 * EXPLODE_ANIM_SPEED
+    EXPLODE_ANIM_SPEED: ClassVar[int] = 4
+    EXPLODE_FRAMES: ClassVar[int] = 18 * EXPLODE_ANIM_SPEED
 
     class Timer(IntEnum):
         HURT = 0
@@ -294,32 +302,26 @@ class Player(WrapActor):
         ANIM = 2
         EXPLODE = 3
 
-    def __init__(self, controls: Controls) -> None:
+    controls: Controls
+    velocity: Vector2 = field(default_factory=lambda: Vector2(0, 0))
+    lives: int = 5
+    shields: int = 5
+    extra_life_tokens: int = 0
+    facing_x: int = 1
+    tilt_y: int = 0
+    # We store and update the timers as a list of four numbers, the indices corresponding to the values in the
+    # Timer enum above
+    timers: list[int] = field(default_factory=lambda: [0, 0, 0, 0])
+    frame: int = 0
+    carried_human: Any = None
+    # Our radar blip
+    blip: Actor = field(default_factory=lambda: Actor("dot-white"))
+    # Thrust sprite
+    thrust_sprite: WrapActor = field(default_factory=lambda: WrapActor("blank", (0, 0)))
+    thrust_sound_playing: bool = False
+
+    def __post_init__(self) -> None:
         super().__init__("blank", (WIDTH / 2, LEVEL_HEIGHT / 2))
-
-        self.controls: Controls = controls
-
-        self.velocity: Vector2 = Vector2(0, 0)
-
-        self.lives: int = 5
-        self.shields: int = 5
-        self.extra_life_tokens: int = 0
-        self.facing_x: int = 1
-        self.tilt_y: int = 0
-
-        # We store and update the timers as a list of four numbers, the indices corresponding to the values in the
-        # Timer enum above
-        self.timers: list[int] = [0, 0, 0, 0]
-
-        self.frame: int = 0
-
-        self.carried_human: Any = None
-
-        # Our radar blip
-        self.blip: Actor = Actor("dot-white")
-
-        # Thrust sprite
-        self.thrust_sprite: WrapActor = WrapActor("blank", (0,0))
 
         # Load thrust sound. This is not played with Game.play_sound as it requires custom behaviour - looping and
         # fading in/out. Enclosed in a try/except section to deal with the case where the sound file can't be loaded,
@@ -328,7 +330,6 @@ class Player(WrapActor):
             self.thrust_sound: Any = sounds.thrust0
         except Exception:
             self.thrust_sound = None
-        self.thrust_sound_playing: bool = False
 
     def hit_test(self, pos: Any) -> bool:
         # Check if the given position falls within the bounds of the player sprite
@@ -609,6 +610,8 @@ class EnemyType(Enum):
     POD = 3
     SWARMER = 4
 
+# Not a dataclass: init branches on type for speeds/state, and generates a
+# random position/target -- the init logic is the interesting part.
 class Enemy(WrapActor):
     def __init__(self, start_timer: int = 0, type: EnemyType = EnemyType.LANDER, pos: Any = None, start_vel: Any = None) -> None:
         # Varying start_timer allows the creation of enemies which wait a while before beginning their 'appear'
@@ -918,23 +921,21 @@ class Enemy(WrapActor):
 
         #screen.draw.rect(Rect(self.left + offset_x, self.top + offset_y, self.width, self.height), (255,255,255))
 
+@dataclass(eq=False)
 class Human(WrapActor):
-    def __init__(self, pos: Any) -> None:
+    pos: InitVar[Any]
+    y_velocity: float = 0
+    # Our radar blip
+    blip: Actor = field(default_factory=lambda: Actor("dot-green"))
+    anim_timer: int = 0
+    waving: bool = False
+    dead: bool = False
+    exploding: bool = False
+    carrier: Any = None
+    falling: bool = False
+
+    def __post_init__(self, pos: Any) -> None:
         super().__init__("blank", pos)
-
-        self.y_velocity: float = 0
-
-        # Create our radar blip
-        self.blip: Actor = Actor("dot-green")
-
-        self.anim_timer: int = 0
-        self.waving: bool = False
-
-        self.dead: bool = False
-        self.exploding: bool = False
-
-        self.carrier: Any = None
-        self.falling: bool = False
 
     def laser_hit_test(self, pos: Any) -> bool:
         # Given a position, see if it falls within this sprite's rectangle

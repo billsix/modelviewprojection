@@ -33,6 +33,7 @@ from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, soun
 
 import math, sys
 from abc import ABC, abstractmethod
+from dataclasses import InitVar, dataclass
 from enum import Enum, IntEnum
 from random import random, randint, uniform, choice
 from pygame import surface  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
@@ -341,11 +342,16 @@ class CollisionType(Enum):
     BRICK = 3
     INDESTRUCTIBLE_BRICK = 4
 
+# (eq=False on these Actor dataclasses keeps identity comparison/hashing --
+# the generated __eq__ would compare fields and set __hash__ to None)
+@dataclass(eq=False)
 class Bullet(Actor):
-    def __init__(self, pos: tuple[float, float], side: int) -> None:
-        super().__init__(f"bullet{side}", pos)
+    pos: InitVar[tuple[float, float]]
+    side: InitVar[int]
+    alive: bool = True
 
-        self.alive: bool = True
+    def __post_init__(self, pos: tuple[float, float], side: int) -> None:
+        super().__init__(f"bullet{side}", pos)
 
     def update(self) -> None:
         self.y -= BULLET_SPEED
@@ -359,6 +365,8 @@ class Bullet(Actor):
                 game.play_sound("bullet_hit", 4)
 
 # The barrel class represents the collectable powerups that sometimes fall from destroyed bricks
+# Not a dataclass: init chooses the powerup type from a weighted table that
+# reads live game state -- the init logic is the interesting part.
 class Barrel(Actor):
     def __init__(self, pos: tuple[float, float]) -> None:
         super().__init__("blank", pos)
@@ -430,12 +438,14 @@ class Barrel(Actor):
         self.shadow.pos = (self.x + SHADOW_OFFSET, self.y + SHADOW_OFFSET)
 
 # The Impact class is used for the animations played when the ball hits a wall or destroys a brick
+@dataclass(eq=False)
 class Impact(Actor):
-    def __init__(self, pos: tuple[float, float], type: int) -> None:
-        super().__init__("blank", pos)
+    pos: InitVar[tuple[float, float]]
+    type: int
+    time: int = 0
 
-        self.type: int = type
-        self.time: int = 0
+    def __post_init__(self, pos: tuple[float, float]) -> None:
+        super().__init__("blank", pos)
 
     def update(self) -> None:
         # The impact animation sprites have names like 'impact00' where the first digit is the type of impact and
@@ -447,6 +457,9 @@ class Impact(Actor):
 
         self.time += 1
 
+# Not a dataclass: x/y params intentionally overwrite Actor's x/y AFTER the
+# super().__init__ call (a dataclass would assign them first and lose them),
+# and the dir param is defensively copied.
 class Ball(Actor):
     def __init__(self, x: float = 0, y: float = 0, dir: Vector2 = Vector2(0, 0), stuck_to_bat: bool = True, speed: int = BALL_START_SPEED) -> None:
         super().__init__("ball0", (0,0))
@@ -669,22 +682,22 @@ class Ball(Actor):
             else:
                 game.play_sound("hit_veryfast")
 
+@dataclass(eq=False)
 class Bat(Actor):
-    def __init__(self, controls: Controls) -> None:
+    controls: Controls
+    fire_timer: int = 0
+    # The values of target_type and current_type are instances the BatType enum
+    # Normally these will be the same. If the player has just picked up a powerup/powerdown
+    # then type is the type of bat we're transitioning to, once the transition animation has finished
+    # the current type is set to the type
+    current_type: BatType = BatType.NORMAL
+    target_type: BatType = BatType.NORMAL
+    frame: int = 0
+
+    def __post_init__(self) -> None:
         super().__init__("blank", (320, 590), anchor=("center", 15))
-
-        self.controls: Controls = controls
-        self.fire_timer: int = 0
-
-        # The values of target_type and current_type are instances the BatType enum
-        # Normally these will be the same. If the player has just picked up a powerup/powerdown
-        # then type is the type of bat we're transitioning to, once the transition animation has finished
-        # the current type is set to the type
-        self.current_type: BatType = BatType.NORMAL
-        self.target_type: BatType = BatType.NORMAL
-        self.frame: int = 0
-
-        # Create shadow actor
+        # Create shadow actor (positioned from our own x/y, so created after
+        # super().__init__ has set them)
         self.shadow: Actor = Actor("blank", (self.x + 16, self.y + 16), anchor=("center", 15))
 
     def update(self) -> None:

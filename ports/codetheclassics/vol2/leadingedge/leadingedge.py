@@ -27,6 +27,7 @@ from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, soun
 
 import math, sys, time, platform
 from abc import ABC, abstractmethod
+from dataclasses import dataclass, field
 from enum import Enum
 from random import randint, uniform, choice
 from pygame.math import Vector3, Vector2  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
@@ -320,14 +321,16 @@ class JoystickControls(Controls):
             return False
         return self.joystick.get_button(button) != 0
 
+# (eq=False on these dataclasses keeps identity comparison/hashing -- the
+# generated __eq__ would compare fields and set __hash__ to None)
+@dataclass(eq=False)
 class Scenery:
-    def __init__(self, x: float, image: Any, min_draw_distance: float = 0, max_draw_distance: float = VIEW_DISTANCE // 2, scale: float = 1, collision_zones: tuple[tuple[float, float], ...] = ()) -> None:
-        self.x: float = x
-        self.image: Any = image
-        self.min_draw_distance: float = min_draw_distance
-        self.max_draw_distance: float = max_draw_distance
-        self.scale: float = scale
-        self.collision_zones: tuple[tuple[float, float], ...] = collision_zones
+    x: float
+    image: Any
+    min_draw_distance: float = 0
+    max_draw_distance: float = VIEW_DISTANCE // 2
+    scale: float = 1
+    collision_zones: tuple[tuple[float, float], ...] = ()
 
     def get_image(self) -> Any:
         return self.image
@@ -370,29 +373,31 @@ class LampRight(Scenery):
 # The X and Y offsets are the offsets from the previous track piece, so if, for example, track pieces 0 to 5 have an
 # X offset of zero and track piece 6 has a very large offset of 1000, it's while moving from 5 to 6 that the car
 # will start to move to the left
+@dataclass(eq=False)
 class TrackPiece:
-    def __init__(self, scenery: Any = (), offset_x: float = 0, offset_y: float = 0, cpu_max_target_speed: Optional[float] = None, col: tuple[int, int, int] = TRACK_COLOUR, width: float = TRACK_W) -> None:
-        self.scenery: Any = scenery
-        self.offset_x: float = offset_x
-        self.offset_y: float = offset_y
-        self.cpu_max_target_speed: Optional[float] = cpu_max_target_speed
-        self.col: tuple[int, int, int] = col
-        self.width: float = width
-        self.cars: list[Car] = []  # Cars currently on this track piece
+    scenery: Any = ()
+    offset_x: float = 0
+    offset_y: float = 0
+    cpu_max_target_speed: Optional[float] = None
+    col: tuple[int, int, int] = TRACK_COLOUR
+    width: float = TRACK_W
+    cars: list["Car"] = field(default_factory=list)  # Cars currently on this track piece
 
 class TrackPieceStartLine(TrackPiece):
     def __init__(self) -> None:
         super().__init__(scenery = [StartGantry()], col=(255,255,255))
 
+@dataclass(eq=False)
 class Car:
-    def __init__(self, pos: Vector3, car_letter: str) -> None:
-        self.pos: Vector3 = pos
-        self.image: str = f"car_{car_letter}_0_0"
-        self.speed: float = 0
-        self.grip: float = 1
-        self.car_letter: str = car_letter
-        self.track_piece: Optional[TrackPiece] = None
-        self.tyre_rotation: float = 0
+    pos: Vector3
+    car_letter: str
+    speed: float = 0
+    grip: float = 1
+    track_piece: Optional[TrackPiece] = None
+    tyre_rotation: float = 0
+
+    def __post_init__(self) -> None:
+        self.image: str = f"car_{self.car_letter}_0_0"
 
     def update(self, delta_time: float) -> None:
         self.pos.z -= self.speed * delta_time
@@ -423,6 +428,9 @@ class Car:
         self.image = f"car_{self.car_letter}_{angle}_{frame}"
 
 
+# Not a dataclass: Car (the base) is one, and dataclass-over-dataclass merges
+# inherited fields into the subclass __init__ signature (see task doc rule 3);
+# also the car letter is chosen randomly for the super() call.
 class CPUCar(Car):
     def __init__(self, pos: Vector3, accel: float, speed: float) -> None:
         super().__init__(pos, choice(('b','c','d','e')))
@@ -482,6 +490,7 @@ class CPUCar(Car):
             # Reset timer
             self.change_speed_timer = uniform(2, 4)
 
+# Not a dataclass: same rule-3 reason as CPUCar (Car is a dataclass base).
 class PlayerCar(Car):
     def __init__(self, pos: Vector3, controls: Controls) -> None:
         super().__init__(pos, 'a')

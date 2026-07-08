@@ -19,9 +19,10 @@ _sys.path.append(_os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abs
 from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
 
 import sys
+from dataclasses import InitVar, dataclass
 from random import choice, randint, random
 from enum import Enum
-from typing import Any, Callable, Optional  # noqa: E402
+from typing import Any, Callable, ClassVar, Optional  # noqa: E402
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -62,12 +63,16 @@ def cell2pos(cell_x: int, cell_y: int, x_offset: int = 0, y_offset: int = 0) -> 
     # X axis, there's a 16 pixel border at the left and right of the screen, hence +16 becomes +32.
     return ((cell_x * 32) + 32 + x_offset, (cell_y * 32) + 16 + y_offset)
 
+# (eq=False on these Actor dataclasses keeps identity comparison/hashing --
+# the generated __eq__ would compare fields and set __hash__ to None)
+@dataclass(eq=False)
 class Explosion(Actor):
-    def __init__(self, pos: tuple[float, float], type: int) -> None:
-        super().__init__("blank", pos)
+    pos: InitVar[tuple[float, float]]
+    type: int
+    timer: int = 0
 
-        self.type: int = type
-        self.timer: int = 0
+    def __post_init__(self, pos: tuple[float, float]) -> None:
+        super().__init__("blank", pos)
 
     def update(self) -> None:
         self.timer += 1
@@ -77,29 +82,28 @@ class Explosion(Actor):
         self.image = "exp" + str(self.type) + str(self.timer // 4)
 
 
+@dataclass(eq=False)
 class Player(Actor):
 
-    INVULNERABILITY_TIME = 100
-    RESPAWN_TIME = 100
-    RELOAD_TIME = 10
+    INVULNERABILITY_TIME: ClassVar[int] = 100
+    RESPAWN_TIME: ClassVar[int] = 100
+    RELOAD_TIME: ClassVar[int] = 10
 
-    def __init__(self, pos: tuple[float, float]) -> None:
+    pos: InitVar[tuple[float, float]]
+    # These determine which frame of animation the player sprite will use
+    direction: int = 0
+    frame: int = 0
+    lives: int = 3
+    alive: bool = True
+    # timer is used for animation, respawning and for ensuring the player is
+    # invulnerable immediately after respawning
+    timer: int = 0
+    # When the player shoots, this is set to RELOAD_TIME - it then counts
+    # down - when it reaches zero the player can shoot again
+    fire_timer: int = 0
+
+    def __post_init__(self, pos: tuple[float, float]) -> None:
         super().__init__("blank", pos)
-
-        # These determine which frame of animation the player sprite will use
-        self.direction: int = 0
-        self.frame: int = 0
-
-        self.lives: int = 3
-        self.alive: bool = True
-
-        # timer is used for animation, respawning and for ensuring the player is
-        # invulnerable immediately after respawning
-        self.timer: int = 0
-
-        # When the player shoots, this is set to RELOAD_TIME - it then counts
-        # down - when it reaches zero the player can shoot again
-        self.fire_timer: int = 0
 
     def move(self, dx: int, dy: int, speed: int) -> None:
         # dx and dy will each be either 0, -1 or 1. speed is an integer indicating
@@ -233,6 +237,8 @@ class Player(Actor):
         else:
             self.image = "blank"
 
+# Not a dataclass: the super().__init__ position depends on `side`, computed
+# (sometimes randomly) from player_x -- the init logic is the interesting part.
 class FlyingEnemy(Actor):
     def __init__(self, player_x: float) -> None:
         # Choose which side of the screen we start from. Don't start right next to the player as that would be
@@ -267,6 +273,8 @@ class FlyingEnemy(Actor):
         self.image = "meanie" + str(self.type) + anim_frame
 
 
+# Not a dataclass: init branches on `totem` (RNG, health, a sound side
+# effect) and computes the anchor for super().__init__.
 class Rock(Actor):
     def __init__(self, x: int, y: int, totem: bool = False) -> None:
         # Use a custom anchor point for totem rocks, which are taller than other rocks
@@ -326,11 +334,13 @@ class Rock(Actor):
         self.image = "rock" + colour + str(self.type) + health
 
 
+@dataclass(eq=False)
 class Bullet(Actor):
-    def __init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("bullet", pos)
+    pos: InitVar[tuple[float, float]]
+    done: bool = False
 
-        self.done: bool = False
+    def __post_init__(self, pos: tuple[float, float]) -> None:
+        super().__init__("bullet", pos)
 
     def update(self) -> None:
         # Move up the screen, 24 pixels per frame
@@ -439,32 +449,28 @@ def is_horizontal(dir: int) -> bool:
     return dir == DIRECTION_LEFT or dir == DIRECTION_RIGHT
 
 
+@dataclass(eq=False)
 class Segment(Actor):
-    def __init__(self, cx: int, cy: int, health: int, fast: bool, head: bool) -> None:
+    # Grid cell positions
+    cell_x: int
+    cell_y: int
+    health: int
+    # Determines whether the 'fast' version of the sprite is used. Note that the actual speed of the myriapod is
+    # determined by how much time is included in the State.update method
+    fast: bool
+    head: bool        # Should this segment use the head sprite?
+    # Each myriapod segment moves in a defined pattern within its current cell, before moving to the next one.
+    # It will start at one of the edges - represented by a number, where 0=down,1=right,2=up,3=left
+    # self.in_edge stores the edge through which it entered the cell.
+    # Several frames after entering a cell, it chooses which edge to leave through - stored in out_edge
+    # The path it follows is explained in the update and rank methods
+    in_edge: int = DIRECTION_LEFT
+    out_edge: int = DIRECTION_RIGHT
+    disallow_direction: int = DIRECTION_UP      # Prevents segment from moving in a particular direction
+    previous_x_direction: int = 1               # Used to create winding/snaking motion
+
+    def __post_init__(self) -> None:
         super().__init__("blank")
-
-        # Grid cell positions
-        self.cell_x: int = cx
-        self.cell_y: int = cy
-
-        self.health: int = health
-
-        # Determines whether the 'fast' version of the sprite is used. Note that the actual speed of the myriapod is
-        # determined by how much time is included in the State.update method
-        self.fast: bool = fast
-
-        self.head: bool = head        # Should this segment use the head sprite?
-
-        # Each myriapod segment moves in a defined pattern within its current cell, before moving to the next one.
-        # It will start at one of the edges - represented by a number, where 0=down,1=right,2=up,3=left
-        # self.in_edge stores the edge through which it entered the cell.
-        # Several frames after entering a cell, it chooses which edge to leave through - stored in out_edge
-        # The path it follows is explained in the update and rank methods
-        self.in_edge: int = DIRECTION_LEFT
-        self.out_edge: int = DIRECTION_RIGHT
-
-        self.disallow_direction: int = DIRECTION_UP      # Prevents segment from moving in a particular direction
-        self.previous_x_direction: int = 1               # Used to create winding/snaking motion
 
     def rank(self) -> Callable[[int], tuple[bool, ...]]:
         # The rank method creates and returns a function. Don't worry if this seems a strange concept - it is

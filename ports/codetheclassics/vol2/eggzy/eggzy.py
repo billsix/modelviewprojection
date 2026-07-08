@@ -35,9 +35,10 @@ from pgzero_gl import *  # noqa: E402,F401,F403
 
 import xml.etree.ElementTree as ET  # noqa: E402
 from abc import ABC, abstractmethod  # noqa: E402
+from dataclasses import InitVar, dataclass, field  # noqa: E402
 from enum import Enum  # noqa: E402
 from random import randint  # noqa: E402
-from typing import Any, Optional, cast  # noqa: E402
+from typing import Any, ClassVar, Optional, cast  # noqa: E402
 
 
 # Set up constants
@@ -239,12 +240,19 @@ class JoystickControls(Controls):
             return "?"
 
 # Class for gem pickups
+# (eq=False on these Actor dataclasses keeps identity comparison/hashing --
+# the generated __eq__ would compare fields and set __hash__ to None)
+@dataclass(eq=False)
 class Gem(Actor):
     # This is a class variable, equivalent to what is known in other languages as a static variable
     # The variable belongs to the class as a whole rather than any one particular instance (object) of the class
-    next_type = 1
+    # (ClassVar keeps it out of the dataclass's instance fields/__init__)
+    next_type: ClassVar[int] = 1
 
-    def __init__(self, pos: tuple[float, float]) -> None:
+    pos: InitVar[tuple[float, float]]
+    collected: bool = False
+
+    def __post_init__(self, pos: tuple[float, float]) -> None:
         super().__init__("blank", pos, ANCHOR_CENTRE_BOTTOM)
 
         # Choose which type of gem we're going to be.
@@ -254,8 +262,6 @@ class Gem(Actor):
         Gem.next_type += 1
         if Gem.next_type >= 5:
             Gem.next_type = 1
-
-        self.collected: bool = False
 
     def update(self) -> None:
         # Does the player exist, and are they colliding with us?
@@ -272,14 +278,18 @@ class Gem(Actor):
         Gem.next_type = 1
 
 # The door prevents the player from leaving a level until all gems have been collected
+@dataclass(eq=False)
 class Door(Actor):
-    def __init__(self, pos: tuple[float, float], biome: str = "castle", variant: Any = 0, already_open: bool = False) -> None:
-        self.biome: str = biome
-        self.variant: Any = variant
+    pos: InitVar[tuple[float, float]]
+    biome: str = "castle"
+    variant: Any = 0
+    already_open: InitVar[bool] = False
+
+    def __post_init__(self, pos: tuple[float, float], already_open: bool) -> None:
         self.opening: bool = already_open
-        self.last_frame: int = 15 if biome == "castle" else 13
+        self.last_frame: int = 15 if self.biome == "castle" else 13
         self.frame: int = self.last_frame if already_open else 0
-        super().__init__(f"door_{biome}_{variant}_{self.frame}", pos, anchor=(0,0))
+        super().__init__(f"door_{self.biome}_{self.variant}_{self.frame}", pos, anchor=(0,0))
 
     def update(self) -> None:
         if self.opening and self.frame < self.last_frame and game.timer % 3 == 0:
@@ -441,39 +451,39 @@ class GravityActor(CollideActor):
         return self.fall_state == GravityActor.FallState.LANDED
 
 
+@dataclass(eq=False)
 class Player(GravityActor):
-    DASH_TIME = 18
-    DASH_SPEED = 10
-    DASH_PAUSE_TIME = 5
-    DASH_TRAIL_INTERVAL = 3
-    DASH_TIMER_TRAIL_CUTOFF = -10
-    MAX_X_RUN_SPEED = 5
+    DASH_TIME: ClassVar[int] = 18
+    DASH_SPEED: ClassVar[int] = 10
+    DASH_PAUSE_TIME: ClassVar[int] = 5
+    DASH_TRAIL_INTERVAL: ClassVar[int] = 3
+    DASH_TIMER_TRAIL_CUTOFF: ClassVar[int] = -10
+    MAX_X_RUN_SPEED: ClassVar[int] = 5
 
-    def __init__(self, controls: Controls) -> None:
+    controls: Controls
+    vel_x: int = 0
+    facing_x: int = 1
+    hurt: bool = False
+    dash_timer: int = DASH_TIMER_TRAIL_CUTOFF    # Counts down
+    dash_animation_timer: int = 0                # Counts up
+    dash_allowed: bool = False
+    grabbed_wall: int = 0
+    coyote_time: int = 0
+    fall_timer: int = 0                 # Number of frames since we started falling or jumping
+    wall_jump_coyote_time: int = 0
+    cached_jump_input_timer: int = 0
+    enemy_stomped_timer: int = 0
+    change_direction_timer: int = 0
+    last_dash_sprite: str = "dash_horizontal_0_0"   # Used for dash trails
+    replay_data: list[Any] = field(default_factory=list)
+
+    def __post_init__(self) -> None:
         # Call constructor of parent class. Initial pos is 0,0 but Game.next_level will set the actual starting position
         super().__init__((0, 0), anchor=ANCHOR_PLAYER)
 
-        self.controls: Controls = controls
-
-        # Actor for the flame on the character's head
+        # Actor for the flame on the character's head (positioned from our own
+        # pos, so created after super().__init__ has set it)
         self.flame: Actor = Actor("flame_stand_0", self.pos, anchor=ANCHOR_FLAME)
-
-        self.vel_x: int = 0
-        self.facing_x: int = 1
-        self.hurt: bool = False
-        self.dash_timer: int = Player.DASH_TIMER_TRAIL_CUTOFF    # Counts down
-        self.dash_animation_timer: int = 0                       # Counts up
-        self.dash_allowed: bool = False
-        self.grabbed_wall: int = 0
-        self.coyote_time: int = 0
-        self.fall_timer: int = 0                 # Number of frames since we started falling or jumping
-        self.wall_jump_coyote_time: int = 0
-        self.cached_jump_input_timer: int = 0
-        self.enemy_stomped_timer: int = 0
-        self.change_direction_timer: int = 0
-        self.last_dash_sprite: str = "dash_horizontal_0_0"   # Used for dash trails
-
-        self.replay_data: list[Any] = []
 
     def new_level(self, start_pos: tuple[float, float]) -> None:
         self.start_pos = start_pos
@@ -852,12 +862,14 @@ class Player(GravityActor):
     def get_collidable_height(self) -> int:
         return PLAYER_HEIGHT
 
+@dataclass(eq=False)
 class GhostPlayer(Actor):
-    def __init__(self, replay_data: list[Any]) -> None:
-        super().__init__("blank", replay_data[0][0], ANCHOR_PLAYER)
-        self.replay_data: list[Any] = replay_data
-        self.replay_frame: int = 0
-        self.level: int = 0
+    replay_data: list[Any]
+    replay_frame: int = 0
+    level: int = 0
+
+    def __post_init__(self) -> None:
+        super().__init__("blank", self.replay_data[0][0], ANCHOR_PLAYER)
 
     def update(self) -> None:
         self.replay_frame += 1
@@ -873,6 +885,8 @@ class GhostPlayer(Actor):
         if self.level == game.level_index:
             super().draw()
 
+# Not a dataclass: the super-kwargs and half the attributes are derived from
+# the ENEMY_TYPES_* lookup tables -- the init logic is the interesting part.
 class Enemy(GravityActor):
     def __init__(self, pos: tuple[float, float], type: int, biome: Biome, direction_x: int = 1, appearance_count: int = 1) -> None:
         # Type must be a number from 0 to 3. 0 and 1 are both flying robots which don't have different frames for facing

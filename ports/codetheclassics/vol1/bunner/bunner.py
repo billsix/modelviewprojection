@@ -21,9 +21,10 @@ _sys.path.append(_os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abs
 from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
 
 import sys
+from dataclasses import InitVar, dataclass, field
 from random import *
 from enum import Enum
-from typing import Any, Callable, Optional  # noqa: E402
+from typing import Any, Callable, ClassVar, Optional  # noqa: E402
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
@@ -74,10 +75,14 @@ class MyActor(Actor):
             child_obj.update()
 
 # The eagle catches the rabbit if it goes off the bottom of the screen
+# (eq=False on these Actor dataclasses keeps identity comparison/hashing --
+# the generated __eq__ would compare fields and set __hash__ to None)
+@dataclass(eq=False)
 class Eagle(MyActor):
-    def __init__(self, pos: tuple[float, float]) -> None:
-        super().__init__("eagles", pos)
+    pos: InitVar[tuple[float, float]]
 
+    def __post_init__(self, pos: tuple[float, float]) -> None:
+        super().__init__("eagles", pos)
         self.children.append(MyActor("eagle", (0, -32)))
 
     def update(self) -> None:
@@ -103,20 +108,19 @@ direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
 DX = [0,4,0,-4]
 DY = [-4,0,4,0]
 
+@dataclass(eq=False)
 class Bunner(MyActor):
-    MOVE_DISTANCE = 10
+    MOVE_DISTANCE: ClassVar[int] = 10
 
-    def __init__(self, pos: tuple[float, float]) -> None:
+    pos: InitVar[tuple[float, float]]
+    state: PlayerState = PlayerState.ALIVE
+    direction: int = 2
+    timer: int = 0
+    # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
+    input_queue: list[int] = field(default_factory=list)
+
+    def __post_init__(self, pos: tuple[float, float]) -> None:
         super().__init__("blank", pos)
-
-        self.state: PlayerState = PlayerState.ALIVE
-
-        self.direction: int = 2
-        self.timer: int = 0
-
-        # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
-        self.input_queue: list[int] = []
-
         # Keeps track of the furthest distance we've reached so far in the level, for scoring
         # (Level Y coordinates decrease as the screen scrolls)
         self.min_y: Any = self.y
@@ -312,10 +316,12 @@ class Row(MyActor):
         return x >= 16 and x <= WIDTH-16
 
 class ActiveRow(Row):
-    def __init__(self, child_type: Callable[..., Mover], dxs: list[int], base_image: str, index: int, y: float) -> None:
+    # child_type's precise shape: Car/Log constructors take (dx, pos) -- NOT
+    # Mover's (dx, image, pos) -- so `type[Mover]` would mistype the calls.
+    def __init__(self, child_type: Callable[[int, tuple[float, float]], Mover], dxs: list[int], base_image: str, index: int, y: float) -> None:
         super().__init__(base_image, index, y)
 
-        self.child_type: Callable[..., Mover] = child_type    # Class to be used for child objects (e.g. Car)
+        self.child_type: Callable[[int, tuple[float, float]], Mover] = child_type    # Class to be used for child objects (e.g. Car)
         self.timer: float = 0
         self.dx = choice(dxs)   # Randomly choose a direction for cars/logs to move
 

@@ -33,6 +33,7 @@ from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, soun
 
 import sys, json, time
 from abc import ABC, abstractmethod
+from dataclasses import InitVar, dataclass, field
 from enum import Enum
 from random import randint, choice
 from pygame import Vector2, mixer  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
@@ -280,34 +281,42 @@ class JoystickControls(Controls):
             return False
         return self.joystick.get_button(button) != 0
 
+# (eq=False on these dataclasses keeps identity comparison/hashing -- the
+# generated __eq__ would compare fields and set __hash__ to None.  Field/
+# parameter names must stay exactly as they are: instances are constructed
+# via Attack(**value) from attacks.json.)
+@dataclass(eq=False)
 class Attack:
-    def __init__(self, sprite: Any = None, strength: Any = None, anim_time: Any = None, frame_time: int = 5, frames: int = 0, hit_frames: Any = (),
-                 recovery_time: int = 0, reach: int = 80, throw: bool = False, grab: bool = False, combo_next: Any = None, flyingkick: bool = False,
-                 stamina_cost: int = 10, rear_attack: bool = False, stamina_damage_multiplier: float = 1, stun_time_multiplier: float = 1, initial_sound: Any = None, hit_sound: Any = None) -> None:
+    sprite: Any = None
+    strength: Any = None
+    anim_time: Any = None    # Frames for which animation plays, this allows us to stay on the last frame longer than previous frames
+    frame_time: int = 5      # Frames for which each animation frame plays
+    frames: int = 0          # Number of frames in animation
+    hit_frames: Any = ()     # frames on which an opponent can be hit by this attack
+    recovery_time: int = 0   # Can't attack for this many frames after attack animation finishes
+    reach: int = 80          # Opponent must be closer than this for attack to hit
+    throw: bool = False      # Is this an attack where we throw something, such as a barrel or the player?
+    grab: bool = False       # Is this the attack where the boss grabs the player and throws him?
+    combo_next: Any = None
+    # The json key is 'flyingkick' but the attribute the game reads is
+    # 'flying_kick' -- an InitVar keeps the constructor parameter name while
+    # __post_init__ stores it under the game-facing name.
+    flyingkick: InitVar[bool] = False
+    stamina_cost: int = 10
+    rear_attack: bool = False
+    stamina_damage_multiplier: float = 1  # Does this attack do additional damage to the opponent's stamina?
+    stun_time_multiplier: float = 1
+    initial_sound: Any = None
+    hit_sound: Any = None
+
+    def __post_init__(self, flyingkick: bool) -> None:
+        self.flying_kick: bool = flyingkick
+
         # Some data for attacks loaded from attacks.json must be modified to be in the format the game expects
         # For example, the keys in combo_next should be integers, but are strings in the json file as JSON only allows
         # string keys.
-        if combo_next is not None:
-            combo_next = {int(key):value for (key,value) in combo_next.items()}
-
-        self.sprite: Any = sprite
-        self.strength: Any = strength
-        self.recovery_time: int = recovery_time  # Can't attack for this many frames after attack animation finishes
-        self.anim_time: Any = anim_time      # Frames for which animation plays, this allows us to stay on the last frame longer than previous frames
-        self.frame_time: int = frame_time    # Frames for which each animation frame plays
-        self.frames: int = frames            # Number of frames in animation
-        self.hit_frames: Any = hit_frames    # frames on which an opponent can be hit by this attack
-        self.reach: int = reach              # Opponent must be closer than this for attack to hit
-        self.throw: bool = throw              # Is this an attack where we throw something, such as a barrel or the player?
-        self.grab: bool = grab                # Is this the attack where the boss grabs the player and throws him?
-        self.combo_next: Any = combo_next
-        self.flying_kick: bool = flyingkick
-        self.stamina_cost: int = stamina_cost
-        self.rear_attack: bool = rear_attack
-        self.stamina_damage_multiplier: float = stamina_damage_multiplier  # Does this attack do additional damage to the opponent's stamina?
-        self.stun_time_multiplier: float = stun_time_multiplier
-        self.initial_sound: Any = initial_sound
-        self.hit_sound: Any = hit_sound
+        if self.combo_next is not None:
+            self.combo_next = {int(key):value for (key,value) in self.combo_next.items()}
 
 # Load attack data from file (resolve relative to this script so the game can be
 # launched from any working directory, not just its own folder)
@@ -1725,12 +1734,14 @@ class ExtraLifePowerup(Powerup):
 
 # A stage consists of a group of enemies and a level X boundary. When the enemies are
 # defeated, the next stage begins
+@dataclass(eq=False)
 class Stage:
-    def __init__(self, enemies: list, max_scroll_x: int, weapons: list = [], powerups: list = []) -> None:
-        self.enemies: list = enemies
-        self.powerups: list = powerups
-        self.max_scroll_x: int = max_scroll_x
-        self.weapons: list = weapons
+    enemies: list
+    max_scroll_x: int
+    # default_factory replaces the original's shared mutable default
+    # arguments ([]): each Stage now gets its own empty list.
+    weapons: list = field(default_factory=list)
+    powerups: list = field(default_factory=list)
 
 STAGES: Any
 

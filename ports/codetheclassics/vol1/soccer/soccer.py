@@ -19,6 +19,7 @@ _sys.path.append(_os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abs
 from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
 
 import math, sys, random
+from dataclasses import dataclass, field
 from enum import Enum
 from pygame.math import Vector2  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); Vector2 not statically resolvable
 from typing import Any, Callable, Optional  # noqa: E402
@@ -96,21 +97,23 @@ DEBUG_SHOW_PEERS = False
 DEBUG_SHOW_SHOOT_TARGET = False
 DEBUG_SHOW_COSTS = False
 
+# (eq=False on these dataclasses keeps identity comparison/hashing -- the
+# generated __eq__ would compare fields and set __hash__ to None)
+@dataclass(eq=False)
 class Difficulty:
-    def __init__(self, goalie_enabled: bool, second_lead_enabled: bool, speed_boost: float, holdoff_timer: int) -> None:
-        self.goalie_enabled: bool = goalie_enabled
+    goalie_enabled: bool
 
-        # When a player has the ball, either one or two players will be chosen from the other team to try to intercept
-        # the ball owner. Those players will have their 'lead' attributes set to a number indicating how far ahead of the
-        # ball they should try to run. (If they tried to go to where the ball is currently, they'd always trail behind)
-        # This attribute determines whether there should be one or two lead players
-        self.second_lead_enabled: bool = second_lead_enabled
+    # When a player has the ball, either one or two players will be chosen from the other team to try to intercept
+    # the ball owner. Those players will have their 'lead' attributes set to a number indicating how far ahead of the
+    # ball they should try to run. (If they tried to go to where the ball is currently, they'd always trail behind)
+    # This attribute determines whether there should be one or two lead players
+    second_lead_enabled: bool
 
-        # Speed boost to apply to CPU-team players in certain circumstances
-        self.speed_boost: float = speed_boost
+    # Speed boost to apply to CPU-team players in certain circumstances
+    speed_boost: float
 
-        # Hold-off timer limits rate at which computer-controlled players can pass the ball
-        self.holdoff_timer: int = holdoff_timer
+    # Hold-off timer limits rate at which computer-controlled players can pass the ball
+    holdoff_timer: int
 
 DIFFICULTY = [Difficulty(False, False, 0, 120), Difficulty(False, True, 0.1, 90), Difficulty(True, True, 0.2, 60)]
 
@@ -192,13 +195,14 @@ def steps(distance: float) -> int:
 
     return steps
 
+@dataclass(eq=False)
 class Goal(MyActor):
-    def __init__(self, team: int) -> None:
-        x: int = HALF_LEVEL_W
-        y: int = 0 if team == 0 else LEVEL_H
-        super().__init__("goal" + str(team), x, y)
+    team: int
 
-        self.team: int = team
+    def __post_init__(self) -> None:
+        x: int = HALF_LEVEL_W
+        y: int = 0 if self.team == 0 else LEVEL_H
+        super().__init__("goal" + str(self.team), x, y)
 
     def active(self) -> bool:
         # Is ball within 500 pixels on the Y axis?
@@ -248,17 +252,16 @@ def on_pitch(x: float, y: float) -> bool:
            or GOAL_0_RECT.collidepoint(x,y) \
            or GOAL_1_RECT.collidepoint(x,y)
 
+@dataclass(eq=False)
 class Ball(MyActor):
-    def __init__(self) -> None:
+    # Velocity
+    vel: Vector2 = field(default_factory=lambda: Vector2(0, 0))
+    owner: Optional["Player"] = None
+    timer: int = 0
+    shadow: MyActor = field(default_factory=lambda: MyActor("balls"))
+
+    def __post_init__(self) -> None:
         super().__init__("ball", HALF_LEVEL_W, HALF_LEVEL_H)
-
-        # Velocity
-        self.vel: Vector2 = Vector2(0, 0)
-
-        self.owner: Optional["Player"] = None
-        self.timer: int = 0
-
-        self.shadow: MyActor = MyActor("balls")
 
     # Check for collision with player p
     def collide(self, p: "Player") -> bool:
@@ -459,6 +462,9 @@ def cost(pos: Vector2, team: int, handicap: float = 0) -> tuple[Any, Vector2]:
 
     return result, pos
 
+# Not a dataclass: the super().__init__ position is the computed kickoff
+# position (not the x/y args), and Player instances are compared by identity
+# against game.kickoff_player / active_control_player.
 class Player(MyActor):
     ANCHOR = (25,37)
 
@@ -703,11 +709,11 @@ class Player(MyActor):
         self.shadow.vpos = Vector2(self.vpos)
 
 
+@dataclass(eq=False)
 class Team:
-    def __init__(self, controls: Any) -> None:
-        self.controls: Any = controls
-        self.active_control_player: Any = None
-        self.score: int = 0
+    controls: Any
+    active_control_player: Any = None
+    score: int = 0
 
     def human(self) -> bool:
         return self.controls != None
