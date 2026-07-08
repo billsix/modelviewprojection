@@ -27,7 +27,8 @@ objects are routinely constructed at import time, before the GL context exists.
 from __future__ import annotations
 
 import os
-from typing import TYPE_CHECKING, Any, Callable, Iterable, cast
+from collections.abc import Callable, Iterable
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 import OpenGL.GL as GL
@@ -50,7 +51,9 @@ class Image:
         # imageio drops palette transparency (returns 3-channel RGB), which made
         # transparent sprite backgrounds render as opaque white boxes.
         arr: NDArray[Any] = np.array(PILImage.open(path).convert("RGBA"))
-        self.rgba: NDArray[np.uint8] = np.ascontiguousarray(arr.astype(np.uint8))
+        self.rgba: NDArray[np.uint8] = np.ascontiguousarray(
+            arr.astype(np.uint8)
+        )
         self.height: int = int(self.rgba.shape[0])
         self.width: int = int(self.rgba.shape[1])
         self._tex: int | None = None
@@ -153,7 +156,8 @@ class _Loader:
         p: str | None = self._path(name)
         if p is None:
             raise KeyError(
-                "No %s found like %r in %s/" % (self._subdir[:-1], name, self._subdir)
+                "No %s found like %r in %s/"
+                % (self._subdir[:-1], name, self._subdir)
             )
         res = self._cache[name] = self._make(p)
         return res
@@ -176,5 +180,7 @@ class _Loader:
         self._cache.clear()
 
 
-images = _Loader(subdir="images", extns=["png", "gif", "jpg", "jpeg", "bmp"], make=Image)
+images = _Loader(
+    subdir="images", extns=["png", "gif", "jpg", "jpeg", "bmp"], make=Image
+)
 sounds = _Loader(subdir="sounds", extns=["ogg", "wav", "oga"], make=audio.Sound)

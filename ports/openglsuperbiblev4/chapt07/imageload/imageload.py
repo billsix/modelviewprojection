@@ -43,8 +43,9 @@ def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
     GL.glRasterPos2i(0, 0)
-    GL.glDrawPixels(image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE,
-                    image_data)
+    GL.glDrawPixels(
+        image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE, image_data
+    )
 
 
 def setup_rc() -> None:
@@ -78,8 +79,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

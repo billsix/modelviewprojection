@@ -31,8 +31,9 @@ The routing that makes all that work lives in :meth:`Actor.__getattr__` /
 
 from __future__ import annotations
 
+from collections.abc import Iterator
 from math import atan2, degrees, sqrt
-from typing import Any, Iterator, Tuple
+from typing import Any, Tuple
 
 from . import context
 from .geometry import ZRect
@@ -44,10 +45,26 @@ _ANCHOR_FRAC = {
 
 # rect attributes delegated straight through to the underlying Rect
 _DELEGATED = {
-    "left", "right", "top", "bottom", "centerx", "centery",
-    "center", "topleft", "topright", "bottomleft", "bottomright",
-    "midtop", "midbottom", "midleft", "midright",
-    "width", "height", "size", "w", "h",
+    "left",
+    "right",
+    "top",
+    "bottom",
+    "centerx",
+    "centery",
+    "center",
+    "topleft",
+    "topright",
+    "bottomleft",
+    "bottomright",
+    "midtop",
+    "midbottom",
+    "midleft",
+    "midright",
+    "width",
+    "height",
+    "size",
+    "w",
+    "h",
 }
 
 
@@ -77,7 +94,9 @@ class Actor:
     ) -> None:
         object.__setattr__(self, "_rect", ZRect(0, 0, 0, 0))
         object.__setattr__(
-            self, "_anchor_value", anchor if anchor is not None else ("center", "center")
+            self,
+            "_anchor_value",
+            anchor if anchor is not None else ("center", "center"),
         )
         object.__setattr__(self, "_angle", 0.0)
         object.__setattr__(self, "_image", None)

@@ -22,11 +22,10 @@ from modelviewprojection.mathutils import Vector3, plane_equation
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit menu item
-
 
 
 NUM_SPHERES = 30
@@ -60,7 +59,11 @@ def make_planar_shadow_matrix(
     perspective divide and the shadow disappears. Negate the matrix
     when needed to keep w positive. See
     tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md."""
-    a, b, c = plane_normal.coeff_e_1, plane_normal.coeff_e_2, plane_normal.coeff_e_3
+    a, b, c = (
+        plane_normal.coeff_e_1,
+        plane_normal.coeff_e_2,
+        plane_normal.coeff_e_3,
+    )
     d = plane_d
     dx = -light_pos_4[0]
     dy = -light_pos_4[1]
@@ -68,10 +71,21 @@ def make_planar_shadow_matrix(
     sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
-            sign * (b * dy + c * dz), sign * -a * dy, sign * -a * dz, 0.0,
-            sign * -b * dx, sign * (a * dx + c * dz), sign * -b * dz, 0.0,
-            sign * -c * dx, sign * -c * dy, sign * (a * dx + b * dy), 0.0,
-            sign * -d * dx, sign * -d * dy, sign * -d * dz,
+            sign * (b * dy + c * dz),
+            sign * -a * dy,
+            sign * -a * dz,
+            0.0,
+            sign * -b * dx,
+            sign * (a * dx + c * dz),
+            sign * -b * dz,
+            0.0,
+            sign * -c * dx,
+            sign * -c * dy,
+            sign * (a * dx + b * dy),
+            0.0,
+            sign * -d * dx,
+            sign * -d * dy,
+            sign * -d * dz,
             sign * (a * dx + b * dy + c * dz),
         ],
         dtype=np.float32,
@@ -261,8 +275,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))

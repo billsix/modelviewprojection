@@ -34,35 +34,59 @@ def render_scene() -> None:
 
     GL.glBegin(GL.GL_QUADS)
     # Front
-    GL.glColor3ub(255, 255, 255); GL.glVertex3f(50.0, 50.0, 50.0)
-    GL.glColor3ub(255, 255, 0);   GL.glVertex3f(50.0, -50.0, 50.0)
-    GL.glColor3ub(255, 0, 0);     GL.glVertex3f(-50.0, -50.0, 50.0)
-    GL.glColor3ub(255, 0, 255);   GL.glVertex3f(-50.0, 50.0, 50.0)
+    GL.glColor3ub(255, 255, 255)
+    GL.glVertex3f(50.0, 50.0, 50.0)
+    GL.glColor3ub(255, 255, 0)
+    GL.glVertex3f(50.0, -50.0, 50.0)
+    GL.glColor3ub(255, 0, 0)
+    GL.glVertex3f(-50.0, -50.0, 50.0)
+    GL.glColor3ub(255, 0, 255)
+    GL.glVertex3f(-50.0, 50.0, 50.0)
     # Back
-    GL.glColor3f(0.0, 1.0, 1.0);  GL.glVertex3f(50.0, 50.0, -50.0)
-    GL.glColor3f(0.0, 1.0, 0.0);  GL.glVertex3f(50.0, -50.0, -50.0)
-    GL.glColor3f(0.0, 0.0, 0.0);  GL.glVertex3f(-50.0, -50.0, -50.0)
-    GL.glColor3f(0.0, 0.0, 1.0);  GL.glVertex3f(-50.0, 50.0, -50.0)
+    GL.glColor3f(0.0, 1.0, 1.0)
+    GL.glVertex3f(50.0, 50.0, -50.0)
+    GL.glColor3f(0.0, 1.0, 0.0)
+    GL.glVertex3f(50.0, -50.0, -50.0)
+    GL.glColor3f(0.0, 0.0, 0.0)
+    GL.glVertex3f(-50.0, -50.0, -50.0)
+    GL.glColor3f(0.0, 0.0, 1.0)
+    GL.glVertex3f(-50.0, 50.0, -50.0)
     # Top
-    GL.glColor3f(0.0, 1.0, 1.0);  GL.glVertex3f(50.0, 50.0, -50.0)
-    GL.glColor3f(1.0, 1.0, 1.0);  GL.glVertex3f(50.0, 50.0, 50.0)
-    GL.glColor3f(1.0, 0.0, 1.0);  GL.glVertex3f(-50.0, 50.0, 50.0)
-    GL.glColor3f(0.0, 0.0, 1.0);  GL.glVertex3f(-50.0, 50.0, -50.0)
+    GL.glColor3f(0.0, 1.0, 1.0)
+    GL.glVertex3f(50.0, 50.0, -50.0)
+    GL.glColor3f(1.0, 1.0, 1.0)
+    GL.glVertex3f(50.0, 50.0, 50.0)
+    GL.glColor3f(1.0, 0.0, 1.0)
+    GL.glVertex3f(-50.0, 50.0, 50.0)
+    GL.glColor3f(0.0, 0.0, 1.0)
+    GL.glVertex3f(-50.0, 50.0, -50.0)
     # Bottom
-    GL.glColor3f(0.0, 1.0, 0.0);  GL.glVertex3f(50.0, -50.0, -50.0)
-    GL.glColor3f(1.0, 1.0, 0.0);  GL.glVertex3f(50.0, -50.0, 50.0)
-    GL.glColor3f(1.0, 0.0, 0.0);  GL.glVertex3f(-50.0, -50.0, 50.0)
-    GL.glColor3f(0.0, 0.0, 0.0);  GL.glVertex3f(-50.0, -50.0, -50.0)
+    GL.glColor3f(0.0, 1.0, 0.0)
+    GL.glVertex3f(50.0, -50.0, -50.0)
+    GL.glColor3f(1.0, 1.0, 0.0)
+    GL.glVertex3f(50.0, -50.0, 50.0)
+    GL.glColor3f(1.0, 0.0, 0.0)
+    GL.glVertex3f(-50.0, -50.0, 50.0)
+    GL.glColor3f(0.0, 0.0, 0.0)
+    GL.glVertex3f(-50.0, -50.0, -50.0)
     # Left
-    GL.glColor3f(1.0, 1.0, 1.0);  GL.glVertex3f(50.0, 50.0, 50.0)
-    GL.glColor3f(0.0, 1.0, 1.0);  GL.glVertex3f(50.0, 50.0, -50.0)
-    GL.glColor3f(0.0, 1.0, 0.0);  GL.glVertex3f(50.0, -50.0, -50.0)
-    GL.glColor3f(1.0, 1.0, 0.0);  GL.glVertex3f(50.0, -50.0, 50.0)
+    GL.glColor3f(1.0, 1.0, 1.0)
+    GL.glVertex3f(50.0, 50.0, 50.0)
+    GL.glColor3f(0.0, 1.0, 1.0)
+    GL.glVertex3f(50.0, 50.0, -50.0)
+    GL.glColor3f(0.0, 1.0, 0.0)
+    GL.glVertex3f(50.0, -50.0, -50.0)
+    GL.glColor3f(1.0, 1.0, 0.0)
+    GL.glVertex3f(50.0, -50.0, 50.0)
     # Right
-    GL.glColor3f(1.0, 0.0, 1.0);  GL.glVertex3f(-50.0, 50.0, 50.0)
-    GL.glColor3f(0.0, 0.0, 1.0);  GL.glVertex3f(-50.0, 50.0, -50.0)
-    GL.glColor3f(0.0, 0.0, 0.0);  GL.glVertex3f(-50.0, -50.0, -50.0)
-    GL.glColor3f(1.0, 0.0, 0.0);  GL.glVertex3f(-50.0, -50.0, 50.0)
+    GL.glColor3f(1.0, 0.0, 1.0)
+    GL.glVertex3f(-50.0, 50.0, 50.0)
+    GL.glColor3f(0.0, 0.0, 1.0)
+    GL.glVertex3f(-50.0, 50.0, -50.0)
+    GL.glColor3f(0.0, 0.0, 0.0)
+    GL.glVertex3f(-50.0, -50.0, -50.0)
+    GL.glColor3f(1.0, 0.0, 0.0)
+    GL.glVertex3f(-50.0, -50.0, 50.0)
     GL.glEnd()
 
     GL.glPopMatrix()
@@ -132,17 +156,23 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
-        _common.menu_action("Rotate up", "Up", lambda: _rotate(-BTN_ROT_STEP, 0))
-        _common.menu_action("Rotate down", "Down",
-                            lambda: _rotate(BTN_ROT_STEP, 0))
-        _common.menu_action("Rotate left", "Left",
-                            lambda: _rotate(0, -BTN_ROT_STEP))
-        _common.menu_action("Rotate right", "Right",
-                            lambda: _rotate(0, BTN_ROT_STEP))
+        _common.menu_action(
+            "Rotate up", "Up", lambda: _rotate(-BTN_ROT_STEP, 0)
+        )
+        _common.menu_action(
+            "Rotate down", "Down", lambda: _rotate(BTN_ROT_STEP, 0)
+        )
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _rotate(0, -BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _rotate(0, BTN_ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

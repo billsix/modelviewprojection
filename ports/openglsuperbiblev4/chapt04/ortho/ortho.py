@@ -67,20 +67,28 @@ def render_scene() -> None:
 
     # ---- Outer sides ----
     GL.glNormal3f(0.0, 1.0, 0.0)
-    GL.glVertex3f(-50.0, 50.0, fz); GL.glVertex3f(50.0, 50.0, fz)
-    GL.glVertex3f(50.0, 50.0, bz); GL.glVertex3f(-50.0, 50.0, bz)
+    GL.glVertex3f(-50.0, 50.0, fz)
+    GL.glVertex3f(50.0, 50.0, fz)
+    GL.glVertex3f(50.0, 50.0, bz)
+    GL.glVertex3f(-50.0, 50.0, bz)
 
     GL.glNormal3f(0.0, -1.0, 0.0)
-    GL.glVertex3f(-50.0, -50.0, fz); GL.glVertex3f(-50.0, -50.0, bz)
-    GL.glVertex3f(50.0, -50.0, bz); GL.glVertex3f(50.0, -50.0, fz)
+    GL.glVertex3f(-50.0, -50.0, fz)
+    GL.glVertex3f(-50.0, -50.0, bz)
+    GL.glVertex3f(50.0, -50.0, bz)
+    GL.glVertex3f(50.0, -50.0, fz)
 
     GL.glNormal3f(1.0, 0.0, 0.0)
-    GL.glVertex3f(50.0, 50.0, fz); GL.glVertex3f(50.0, -50.0, fz)
-    GL.glVertex3f(50.0, -50.0, bz); GL.glVertex3f(50.0, 50.0, bz)
+    GL.glVertex3f(50.0, 50.0, fz)
+    GL.glVertex3f(50.0, -50.0, fz)
+    GL.glVertex3f(50.0, -50.0, bz)
+    GL.glVertex3f(50.0, 50.0, bz)
 
     GL.glNormal3f(-1.0, 0.0, 0.0)
-    GL.glVertex3f(-50.0, 50.0, fz); GL.glVertex3f(-50.0, 50.0, bz)
-    GL.glVertex3f(-50.0, -50.0, bz); GL.glVertex3f(-50.0, -50.0, fz)
+    GL.glVertex3f(-50.0, 50.0, fz)
+    GL.glVertex3f(-50.0, 50.0, bz)
+    GL.glVertex3f(-50.0, -50.0, bz)
+    GL.glVertex3f(-50.0, -50.0, fz)
     GL.glEnd()
 
     GL.glFrontFace(GL.GL_CW)
@@ -89,38 +97,54 @@ def render_scene() -> None:
     GL.glBegin(GL.GL_QUADS)
     GL.glNormal3f(0.0, 0.0, -1.0)
 
-    GL.glVertex3f(-50.0, 50.0, bz); GL.glVertex3f(-50.0, -50.0, bz)
-    GL.glVertex3f(-35.0, -50.0, bz); GL.glVertex3f(-35.0, 50.0, bz)
+    GL.glVertex3f(-50.0, 50.0, bz)
+    GL.glVertex3f(-50.0, -50.0, bz)
+    GL.glVertex3f(-35.0, -50.0, bz)
+    GL.glVertex3f(-35.0, 50.0, bz)
 
-    GL.glVertex3f(50.0, 50.0, bz); GL.glVertex3f(35.0, 50.0, bz)
-    GL.glVertex3f(35.0, -50.0, bz); GL.glVertex3f(50.0, -50.0, bz)
+    GL.glVertex3f(50.0, 50.0, bz)
+    GL.glVertex3f(35.0, 50.0, bz)
+    GL.glVertex3f(35.0, -50.0, bz)
+    GL.glVertex3f(50.0, -50.0, bz)
 
-    GL.glVertex3f(-35.0, 50.0, bz); GL.glVertex3f(-35.0, 35.0, bz)
-    GL.glVertex3f(35.0, 35.0, bz); GL.glVertex3f(35.0, 50.0, bz)
+    GL.glVertex3f(-35.0, 50.0, bz)
+    GL.glVertex3f(-35.0, 35.0, bz)
+    GL.glVertex3f(35.0, 35.0, bz)
+    GL.glVertex3f(35.0, 50.0, bz)
 
-    GL.glVertex3f(-35.0, -35.0, bz); GL.glVertex3f(-35.0, -50.0, bz)
-    GL.glVertex3f(35.0, -50.0, bz); GL.glVertex3f(35.0, -35.0, bz)
+    GL.glVertex3f(-35.0, -35.0, bz)
+    GL.glVertex3f(-35.0, -50.0, bz)
+    GL.glVertex3f(35.0, -50.0, bz)
+    GL.glVertex3f(35.0, -35.0, bz)
 
     # ---- Inner walls ----
     GL.glColor3f(0.75, 0.75, 0.75)
 
     GL.glNormal3f(0.0, 1.0, 0.0)
-    GL.glVertex3f(-35.0, 35.0, fz); GL.glVertex3f(35.0, 35.0, fz)
-    GL.glVertex3f(35.0, 35.0, bz); GL.glVertex3f(-35.0, 35.0, bz)
+    GL.glVertex3f(-35.0, 35.0, fz)
+    GL.glVertex3f(35.0, 35.0, fz)
+    GL.glVertex3f(35.0, 35.0, bz)
+    GL.glVertex3f(-35.0, 35.0, bz)
 
     # NB: the C++ source has GL_NORMAL = (0,1,0) below too -- preserved
     # verbatim even though geometrically it should be (0,-1,0).
     GL.glNormal3f(0.0, 1.0, 0.0)
-    GL.glVertex3f(-35.0, -35.0, fz); GL.glVertex3f(-35.0, -35.0, bz)
-    GL.glVertex3f(35.0, -35.0, bz); GL.glVertex3f(35.0, -35.0, fz)
+    GL.glVertex3f(-35.0, -35.0, fz)
+    GL.glVertex3f(-35.0, -35.0, bz)
+    GL.glVertex3f(35.0, -35.0, bz)
+    GL.glVertex3f(35.0, -35.0, fz)
 
     GL.glNormal3f(1.0, 0.0, 0.0)
-    GL.glVertex3f(-35.0, 35.0, fz); GL.glVertex3f(-35.0, 35.0, bz)
-    GL.glVertex3f(-35.0, -35.0, bz); GL.glVertex3f(-35.0, -35.0, fz)
+    GL.glVertex3f(-35.0, 35.0, fz)
+    GL.glVertex3f(-35.0, 35.0, bz)
+    GL.glVertex3f(-35.0, -35.0, bz)
+    GL.glVertex3f(-35.0, -35.0, fz)
 
     GL.glNormal3f(-1.0, 0.0, 0.0)
-    GL.glVertex3f(35.0, 35.0, fz); GL.glVertex3f(35.0, -35.0, fz)
-    GL.glVertex3f(35.0, -35.0, bz); GL.glVertex3f(35.0, 35.0, bz)
+    GL.glVertex3f(35.0, 35.0, fz)
+    GL.glVertex3f(35.0, -35.0, fz)
+    GL.glVertex3f(35.0, -35.0, bz)
+    GL.glVertex3f(35.0, 35.0, bz)
     GL.glEnd()
 
     GL.glFrontFace(GL.GL_CCW)
@@ -158,11 +182,23 @@ def change_size(w: int, h: int) -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if w <= h:
-        GL.glOrtho(-n_range, n_range, -n_range * h / w, n_range * h / w,
-                   -n_range * 2.0, n_range * 2.0)
+        GL.glOrtho(
+            -n_range,
+            n_range,
+            -n_range * h / w,
+            n_range * h / w,
+            -n_range * 2.0,
+            n_range * 2.0,
+        )
     else:
-        GL.glOrtho(-n_range * w / h, n_range * w / h, -n_range, n_range,
-                   -n_range * 2.0, n_range * 2.0)
+        GL.glOrtho(
+            -n_range * w / h,
+            n_range * w / h,
+            -n_range,
+            n_range,
+            -n_range * 2.0,
+            n_range * 2.0,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 
@@ -216,17 +252,21 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rotate_x(-BTN_ROT_STEP))
-        _common.menu_action("Rotate down", "Down",
-                            lambda: _rotate_x(BTN_ROT_STEP))
-        _common.menu_action("Rotate left", "Left",
-                            lambda: _rotate_y(-BTN_ROT_STEP))
-        _common.menu_action("Rotate right", "Right",
-                            lambda: _rotate_y(BTN_ROT_STEP))
+        _common.menu_action(
+            "Rotate down", "Down", lambda: _rotate_x(BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _rotate_y(-BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _rotate_y(BTN_ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -240,9 +280,7 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(
-        800, 600, "Orthographic Projection", None, None
-    )
+    window = glfw.create_window(800, 600, "Orthographic Projection", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)

@@ -25,8 +25,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -83,8 +81,17 @@ def create_rivet_map() -> None:
             else:
                 texels[idx + 2] = 1.0
             texels[idx + 3] = 1.0
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA16,
-                    tex_size, tex_size, 0, GL.GL_RGBA, GL.GL_FLOAT, texels)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D,
+        0,
+        GL.GL_RGBA16,
+        tex_size,
+        tex_size,
+        0,
+        GL.GL_RGBA,
+        GL.GL_FLOAT,
+        texels,
+    )
 
 
 def create_pyramid_map() -> None:
@@ -107,8 +114,17 @@ def create_pyramid_map() -> None:
             else:
                 texels[idx + 2] = 1.0
             texels[idx + 3] = 1.0
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA16,
-                    tex_size, tex_size, 0, GL.GL_RGBA, GL.GL_FLOAT, texels)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D,
+        0,
+        GL.GL_RGBA16,
+        tex_size,
+        tex_size,
+        0,
+        GL.GL_RGBA,
+        GL.GL_FLOAT,
+        texels,
+    )
 
 
 def prepare_shader(n: int) -> None:
@@ -129,20 +145,30 @@ def prepare_shader(n: int) -> None:
         sys.exit(1)
 
 
-def draw_cylinder(radius: float, height: float, slices: int,
-                  x_tex_scale: float, y_tex_scale: float) -> None:
+def draw_cylinder(
+    radius: float,
+    height: float,
+    slices: int,
+    x_tex_scale: float,
+    y_tex_scale: float,
+) -> None:
     inc = (2.0 * math.pi) / slices
     GL.glBegin(GL.GL_QUAD_STRIP)
     for i in range(slices + 1):
         a = inc * i
         GL.glMultiTexCoord2f(GL.GL_TEXTURE0, x_tex_scale * i / slices, 0.0)
-        GL.glMultiTexCoord3f(GL.GL_TEXTURE1, math.cos(a + math.pi * 0.5), 0.0,
-                             math.sin(a + math.pi * 0.5))
+        GL.glMultiTexCoord3f(
+            GL.GL_TEXTURE1,
+            math.cos(a + math.pi * 0.5),
+            0.0,
+            math.sin(a + math.pi * 0.5),
+        )
         GL.glMultiTexCoord3f(GL.GL_TEXTURE2, 0.0, 1.0, 0.0)
         GL.glMultiTexCoord3f(GL.GL_TEXTURE3, math.cos(a), 0.0, math.sin(a))
         GL.glVertex3f(radius * math.cos(a), -height * 0.5, radius * math.sin(a))
-        GL.glMultiTexCoord2f(GL.GL_TEXTURE0,
-                             x_tex_scale * i / slices, y_tex_scale)
+        GL.glMultiTexCoord2f(
+            GL.GL_TEXTURE0, x_tex_scale * i / slices, y_tex_scale
+        )
         GL.glVertex3f(radius * math.cos(a), height * 0.5, radius * math.sin(a))
     GL.glEnd()
 
@@ -155,10 +181,14 @@ def draw_cylinder(radius: float, height: float, slices: int,
     GL.glVertex3f(0.0, height * 0.5, 0.0)
     for i in range(slices + 1):
         a = inc * i
-        GL.glMultiTexCoord2f(GL.GL_TEXTURE0,
-                             x_tex_scale * math.cos(a) * 0.159155,
-                             x_tex_scale * math.sin(a) * 0.159155)
-        GL.glVertex3f(radius * math.cos(-a), height * 0.5, radius * math.sin(-a))
+        GL.glMultiTexCoord2f(
+            GL.GL_TEXTURE0,
+            x_tex_scale * math.cos(a) * 0.159155,
+            x_tex_scale * math.sin(a) * 0.159155,
+        )
+        GL.glVertex3f(
+            radius * math.cos(-a), height * 0.5, radius * math.sin(-a)
+        )
     GL.glEnd()
 
     # Bottom cap
@@ -170,25 +200,35 @@ def draw_cylinder(radius: float, height: float, slices: int,
     GL.glVertex3f(0.0, -height * 0.5, 0.0)
     for i in range(slices + 1):
         a = inc * i
-        GL.glMultiTexCoord2f(GL.GL_TEXTURE0,
-                             x_tex_scale * math.cos(a) * 0.159155,
-                             x_tex_scale * math.sin(a) * 0.159155)
+        GL.glMultiTexCoord2f(
+            GL.GL_TEXTURE0,
+            x_tex_scale * math.cos(a) * 0.159155,
+            x_tex_scale * math.sin(a) * 0.159155,
+        )
         GL.glVertex3f(radius * math.cos(a), -height * 0.5, radius * math.sin(a))
     GL.glEnd()
 
 
-def draw_torus(inner_radius: float, ring_radius: float, rings: int,
-               slices: int, x_tex_scale: float, y_tex_scale: float) -> None:
+def draw_torus(
+    inner_radius: float,
+    ring_radius: float,
+    rings: int,
+    slices: int,
+    x_tex_scale: float,
+    y_tex_scale: float,
+) -> None:
     s_inc = (2.0 * math.pi) / slices
     r_inc = (2.0 * math.pi) / rings
     for i in range(rings + 1):
         GL.glBegin(GL.GL_QUAD_STRIP)
         for j in range(slices + 1):
             sj = s_inc * j
-            cs = math.cos(sj); ss = math.sin(sj)
+            cs = math.cos(sj)
+            ss = math.sin(sj)
             for offset in (1, 0):
                 ri = r_inc * (i + offset) if offset else r_inc * i
-                cr = math.cos(ri); sr = math.sin(ri)
+                cr = math.cos(ri)
+                sr = math.sin(ri)
                 u_idx = (i + offset) if offset else i
                 GL.glMultiTexCoord2f(
                     GL.GL_TEXTURE0,
@@ -197,12 +237,15 @@ def draw_torus(inner_radius: float, ring_radius: float, rings: int,
                 )
                 GL.glMultiTexCoord3f(
                     GL.GL_TEXTURE1,
-                    math.cos(ri + math.pi * 0.5), 0.0,
+                    math.cos(ri + math.pi * 0.5),
+                    0.0,
                     math.sin(ri + math.pi * 0.5),
                 )
                 GL.glMultiTexCoord3f(
-                    GL.GL_TEXTURE2, 0.0,
-                    math.sin(sj + math.pi * 0.5), 0.0,
+                    GL.GL_TEXTURE2,
+                    0.0,
+                    math.sin(sj + math.pi * 0.5),
+                    0.0,
                 )
                 GL.glMultiTexCoord3f(GL.GL_TEXTURE3, cr, ss, sr)
                 rr = inner_radius + ring_radius + ring_radius * cs
@@ -213,21 +256,50 @@ def draw_torus(inner_radius: float, ring_radius: float, rings: int,
 def draw_box(size: float, tex_scale: float) -> None:
     s = size * 0.5
     faces = [
-        ((1, 0, 0), (0, 1, 0), (0, 0, -1),
-         [(-s, -s, -s), (-s, s, -s), (s, s, -s), (s, -s, -s)]),
-        ((-1, 0, 0), (0, 1, 0), (0, 0, 1),
-         [(s, -s, s), (s, s, s), (-s, s, s), (-s, -s, s)]),
-        ((0, 0, 1), (0, 1, 0), (1, 0, 0),
-         [(s, -s, -s), (s, s, -s), (s, s, s), (s, -s, s)]),
-        ((0, 0, -1), (0, 1, 0), (-1, 0, 0),
-         [(-s, -s, s), (-s, s, s), (-s, s, -s), (-s, -s, -s)]),
-        ((1, 0, 0), (0, 0, 1), (0, 1, 0),
-         [(-s, s, -s), (-s, s, s), (s, s, s), (s, s, -s)]),
-        ((1, 0, 0), (0, 0, -1), (0, -1, 0),
-         [(-s, -s, s), (-s, -s, -s), (s, -s, -s), (s, -s, s)]),
+        (
+            (1, 0, 0),
+            (0, 1, 0),
+            (0, 0, -1),
+            [(-s, -s, -s), (-s, s, -s), (s, s, -s), (s, -s, -s)],
+        ),
+        (
+            (-1, 0, 0),
+            (0, 1, 0),
+            (0, 0, 1),
+            [(s, -s, s), (s, s, s), (-s, s, s), (-s, -s, s)],
+        ),
+        (
+            (0, 0, 1),
+            (0, 1, 0),
+            (1, 0, 0),
+            [(s, -s, -s), (s, s, -s), (s, s, s), (s, -s, s)],
+        ),
+        (
+            (0, 0, -1),
+            (0, 1, 0),
+            (-1, 0, 0),
+            [(-s, -s, s), (-s, s, s), (-s, s, -s), (-s, -s, -s)],
+        ),
+        (
+            (1, 0, 0),
+            (0, 0, 1),
+            (0, 1, 0),
+            [(-s, s, -s), (-s, s, s), (s, s, s), (s, s, -s)],
+        ),
+        (
+            (1, 0, 0),
+            (0, 0, -1),
+            (0, -1, 0),
+            [(-s, -s, s), (-s, -s, -s), (s, -s, -s), (s, -s, s)],
+        ),
     ]
     GL.glBegin(GL.GL_QUADS)
-    uvs = [(0.0, 0.0), (0.0, tex_scale), (tex_scale, tex_scale), (tex_scale, 0.0)]
+    uvs = [
+        (0.0, 0.0),
+        (0.0, tex_scale),
+        (tex_scale, tex_scale),
+        (tex_scale, 0.0),
+    ]
     for (tx, ty, tz), (bx, by, bz), (nx, ny, nz), verts in faces:
         for k, vert in enumerate(verts):
             u, v = uvs[k]
@@ -291,24 +363,37 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Render options", True):
         if imgui.begin_menu("Shape", True):
             for i, name in enumerate(shape_names):
-                _common.menu_action(name, "", lambda i=i: _select_shape(i),
-                                    selected=(which_shape == i))
+                _common.menu_action(
+                    name,
+                    "",
+                    lambda i=i: _select_shape(i),
+                    selected=(which_shape == i),
+                )
             imgui.end_menu()
         if imgui.begin_menu("Shader", True):
             for i, name in enumerate(shader_names):
-                _common.menu_action(name, "", lambda i=i: select_shader(i),
-                                    selected=(which_shader == i))
+                _common.menu_action(
+                    name,
+                    "",
+                    lambda i=i: select_shader(i),
+                    selected=(which_shader == i),
+                )
             imgui.end_menu()
         if imgui.begin_menu("Bump texture", True):
             for i, name in enumerate(bumpmap_names):
-                _common.menu_action(name, "", lambda i=i: select_bumpmap(i),
-                                    selected=(which_bumpmap == i))
+                _common.menu_action(
+                    name,
+                    "",
+                    lambda i=i: select_bumpmap(i),
+                    selected=(which_bumpmap == i),
+                )
             imgui.end_menu()
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
@@ -331,8 +416,17 @@ def render_scene() -> None:
     GLU.gluPerspective(45.0, 1.0, 1.0, 1000.0)
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(camera_pos[0], camera_pos[1], camera_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GLU.gluLookAt(
+        camera_pos[0],
+        camera_pos[1],
+        camera_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    )
     GL.glViewport(0, 0, window_width, window_height)
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
@@ -350,16 +444,18 @@ def setup_rc() -> None:
     max_tex_size = GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE)
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                       GL.GL_LINEAR_MIPMAP_LINEAR)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR
+    )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_GENERATE_MIPMAP, GL.GL_TRUE)
     create_rivet_map()
     GL.glBindTexture(GL.GL_TEXTURE_2D, 1)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                       GL.GL_LINEAR_MIPMAP_LINEAR)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR
+    )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT)
@@ -388,7 +484,8 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
-        glfw.set_window_should_close(window, True); return
+        glfw.set_window_should_close(window, True)
+        return
     if key == glfw.KEY_LEFT:
         _nudge_light(-5.0)
     elif key == glfw.KEY_RIGHT:
@@ -411,10 +508,12 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(window_width, window_height,
-                                "Bump Mapping Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Bump Mapping Demo", None, None
+    )
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)

@@ -19,8 +19,8 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit menu item
 
@@ -29,12 +29,21 @@ camera_y: float = 0.0
 camera_z: float = 0.0
 camera_yaw: float = 0.0
 
-cube_faces = ["pos_x.tga", "neg_x.tga", "pos_y.tga", "neg_y.tga",
-              "pos_z.tga", "neg_z.tga"]
+cube_faces = [
+    "pos_x.tga",
+    "neg_x.tga",
+    "pos_y.tga",
+    "neg_y.tga",
+    "pos_z.tga",
+    "neg_z.tga",
+]
 cube_targets = [
-    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+    GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+    GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+    GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
 ]
 
 
@@ -47,35 +56,59 @@ def draw_skybox() -> None:
     e = 15.0
     GL.glBegin(GL.GL_QUADS)
     # -X
-    GL.glTexCoord3f(-1.0, -1.0, 1.0); GL.glVertex3f(-e, -e, e)
-    GL.glTexCoord3f(-1.0, -1.0, -1.0); GL.glVertex3f(-e, -e, -e)
-    GL.glTexCoord3f(-1.0, 1.0, -1.0); GL.glVertex3f(-e, e, -e)
-    GL.glTexCoord3f(-1.0, 1.0, 1.0); GL.glVertex3f(-e, e, e)
+    GL.glTexCoord3f(-1.0, -1.0, 1.0)
+    GL.glVertex3f(-e, -e, e)
+    GL.glTexCoord3f(-1.0, -1.0, -1.0)
+    GL.glVertex3f(-e, -e, -e)
+    GL.glTexCoord3f(-1.0, 1.0, -1.0)
+    GL.glVertex3f(-e, e, -e)
+    GL.glTexCoord3f(-1.0, 1.0, 1.0)
+    GL.glVertex3f(-e, e, e)
     # +X
-    GL.glTexCoord3f(1.0, -1.0, -1.0); GL.glVertex3f(e, -e, -e)
-    GL.glTexCoord3f(1.0, -1.0, 1.0); GL.glVertex3f(e, -e, e)
-    GL.glTexCoord3f(1.0, 1.0, 1.0); GL.glVertex3f(e, e, e)
-    GL.glTexCoord3f(1.0, 1.0, -1.0); GL.glVertex3f(e, e, -e)
+    GL.glTexCoord3f(1.0, -1.0, -1.0)
+    GL.glVertex3f(e, -e, -e)
+    GL.glTexCoord3f(1.0, -1.0, 1.0)
+    GL.glVertex3f(e, -e, e)
+    GL.glTexCoord3f(1.0, 1.0, 1.0)
+    GL.glVertex3f(e, e, e)
+    GL.glTexCoord3f(1.0, 1.0, -1.0)
+    GL.glVertex3f(e, e, -e)
     # -Z
-    GL.glTexCoord3f(-1.0, -1.0, -1.0); GL.glVertex3f(-e, -e, -e)
-    GL.glTexCoord3f(1.0, -1.0, -1.0); GL.glVertex3f(e, -e, -e)
-    GL.glTexCoord3f(1.0, 1.0, -1.0); GL.glVertex3f(e, e, -e)
-    GL.glTexCoord3f(-1.0, 1.0, -1.0); GL.glVertex3f(-e, e, -e)
+    GL.glTexCoord3f(-1.0, -1.0, -1.0)
+    GL.glVertex3f(-e, -e, -e)
+    GL.glTexCoord3f(1.0, -1.0, -1.0)
+    GL.glVertex3f(e, -e, -e)
+    GL.glTexCoord3f(1.0, 1.0, -1.0)
+    GL.glVertex3f(e, e, -e)
+    GL.glTexCoord3f(-1.0, 1.0, -1.0)
+    GL.glVertex3f(-e, e, -e)
     # +Z
-    GL.glTexCoord3f(1.0, -1.0, 1.0); GL.glVertex3f(e, -e, e)
-    GL.glTexCoord3f(-1.0, -1.0, 1.0); GL.glVertex3f(-e, -e, e)
-    GL.glTexCoord3f(-1.0, 1.0, 1.0); GL.glVertex3f(-e, e, e)
-    GL.glTexCoord3f(1.0, 1.0, 1.0); GL.glVertex3f(e, e, e)
+    GL.glTexCoord3f(1.0, -1.0, 1.0)
+    GL.glVertex3f(e, -e, e)
+    GL.glTexCoord3f(-1.0, -1.0, 1.0)
+    GL.glVertex3f(-e, -e, e)
+    GL.glTexCoord3f(-1.0, 1.0, 1.0)
+    GL.glVertex3f(-e, e, e)
+    GL.glTexCoord3f(1.0, 1.0, 1.0)
+    GL.glVertex3f(e, e, e)
     # +Y
-    GL.glTexCoord3f(-1.0, 1.0, 1.0); GL.glVertex3f(-e, e, e)
-    GL.glTexCoord3f(-1.0, 1.0, -1.0); GL.glVertex3f(-e, e, -e)
-    GL.glTexCoord3f(1.0, 1.0, -1.0); GL.glVertex3f(e, e, -e)
-    GL.glTexCoord3f(1.0, 1.0, 1.0); GL.glVertex3f(e, e, e)
+    GL.glTexCoord3f(-1.0, 1.0, 1.0)
+    GL.glVertex3f(-e, e, e)
+    GL.glTexCoord3f(-1.0, 1.0, -1.0)
+    GL.glVertex3f(-e, e, -e)
+    GL.glTexCoord3f(1.0, 1.0, -1.0)
+    GL.glVertex3f(e, e, -e)
+    GL.glTexCoord3f(1.0, 1.0, 1.0)
+    GL.glVertex3f(e, e, e)
     # -Y
-    GL.glTexCoord3f(-1.0, -1.0, -1.0); GL.glVertex3f(-e, -e, -e)
-    GL.glTexCoord3f(-1.0, -1.0, 1.0); GL.glVertex3f(-e, -e, e)
-    GL.glTexCoord3f(1.0, -1.0, 1.0); GL.glVertex3f(e, -e, e)
-    GL.glTexCoord3f(1.0, -1.0, -1.0); GL.glVertex3f(e, -e, -e)
+    GL.glTexCoord3f(-1.0, -1.0, -1.0)
+    GL.glVertex3f(-e, -e, -e)
+    GL.glTexCoord3f(-1.0, -1.0, 1.0)
+    GL.glVertex3f(-e, -e, e)
+    GL.glTexCoord3f(1.0, -1.0, 1.0)
+    GL.glVertex3f(e, -e, e)
+    GL.glTexCoord3f(1.0, -1.0, -1.0)
+    GL.glVertex3f(e, -e, -e)
     GL.glEnd()
 
 
@@ -85,27 +118,35 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_CULL_FACE)
     GL.glEnable(GL.GL_DEPTH_TEST)
 
-    GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_MAG_FILTER,
-                       GL.GL_LINEAR)
-    GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_MIN_FILTER,
-                       GL.GL_LINEAR_MIPMAP_LINEAR)
-    GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_S,
-                       GL.GL_CLAMP_TO_EDGE)
-    GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_T,
-                       GL.GL_CLAMP_TO_EDGE)
-    GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_R,
-                       GL.GL_CLAMP_TO_EDGE)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_CUBE_MAP,
+        GL.GL_TEXTURE_MIN_FILTER,
+        GL.GL_LINEAR_MIPMAP_LINEAR,
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_CUBE_MAP, GL.GL_TEXTURE_WRAP_R, GL.GL_CLAMP_TO_EDGE
+    )
 
     for i, fname in enumerate(cube_faces):
         img = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4
-               else GL.GL_RGB)
+        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
         img = np.ascontiguousarray(img, dtype=np.uint8)
-        GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_GENERATE_MIPMAP,
-                           GL.GL_TRUE)
-        GL.glTexImage2D(cube_targets[i], 0, fmt, w, h, 0, fmt,
-                        GL.GL_UNSIGNED_BYTE, img)
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_CUBE_MAP, GL.GL_GENERATE_MIPMAP, GL.GL_TRUE
+        )
+        GL.glTexImage2D(
+            cube_targets[i], 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        )
 
     GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP)
     GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, GL.GL_REFLECTION_MAP)
@@ -227,8 +268,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))

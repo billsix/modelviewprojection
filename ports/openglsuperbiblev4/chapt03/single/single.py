@@ -28,8 +28,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -96,9 +97,7 @@ def main() -> None:
     # Match GLUT_SINGLE -- single buffer, no swap between draws
     glfw.window_hint(glfw.DOUBLEBUFFER, glfw.FALSE)
 
-    window = glfw.create_window(
-        800, 600, "OpenGL Single Buffered", None, None
-    )
+    window = glfw.create_window(800, 600, "OpenGL Single Buffered", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)

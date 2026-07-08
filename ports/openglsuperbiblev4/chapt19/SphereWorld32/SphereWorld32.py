@@ -72,16 +72,30 @@ def make_planar_shadow_matrix(
     s = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
-            s*(b*dy + c*dz), s*-a*dy, s*-a*dz, 0.0,
-            s*-b*dx, s*(a*dx + c*dz), s*-b*dz, 0.0,
-            s*-c*dx, s*-c*dy, s*(a*dx + b*dy), 0.0,
-            s*-d*dx, s*-d*dy, s*-d*dz, s*(a*dx + b*dy + c*dz),
+            s * (b * dy + c * dz),
+            s * -a * dy,
+            s * -a * dz,
+            0.0,
+            s * -b * dx,
+            s * (a * dx + c * dz),
+            s * -b * dz,
+            0.0,
+            s * -c * dx,
+            s * -c * dy,
+            s * (a * dx + b * dy),
+            0.0,
+            s * -d * dx,
+            s * -d * dy,
+            s * -d * dz,
+            s * (a * dx + b * dy + c * dz),
         ],
         dtype=np.float32,
     )
 
 
-def gl_draw_torus(major: float, minor: float, n_major: int, n_minor: int) -> None:
+def gl_draw_torus(
+    major: float, minor: float, n_major: int, n_minor: int
+) -> None:
     major_step = 2.0 * math.pi / n_major
     minor_step = 2.0 * math.pi / n_minor
     for i in range(n_major):
@@ -127,9 +141,11 @@ def draw_ground() -> None:
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
         run = f_extent
         while run >= -f_extent:
-            GL.glTexCoord2f(s, t); GL.glNormal3f(0.0, 1.0, 0.0)
+            GL.glTexCoord2f(s, t)
+            GL.glNormal3f(0.0, 1.0, 0.0)
             GL.glVertex3f(strip, y, run)
-            GL.glTexCoord2f(s + tex_step, t); GL.glNormal3f(0.0, 1.0, 0.0)
+            GL.glTexCoord2f(s + tex_step, t)
+            GL.glNormal3f(0.0, 1.0, 0.0)
             GL.glVertex3f(strip + step, y, run)
             t += tex_step
             run -= step
@@ -168,8 +184,11 @@ def draw_inhabitants(shadow: int) -> None:
 
 
 def render_scene() -> None:
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT
-               | GL.GL_STENCIL_BUFFER_BIT)
+    GL.glClear(
+        GL.GL_COLOR_BUFFER_BIT
+        | GL.GL_DEPTH_BUFFER_BIT
+        | GL.GL_STENCIL_BUFFER_BIT
+    )
     GL.glPushMatrix()
     GL.glRotatef(-camera_yaw, 0.0, 1.0, 0.0)
     GL.glTranslatef(-camera_x, -camera_y, -camera_z)
@@ -225,8 +244,8 @@ def setup_rc() -> None:
 
     random.seed(42)
     for _ in range(NUM_SPHERES):
-        sx = ((random.randint(0, 399) - 200) * 0.1)
-        sz = ((random.randint(0, 399) - 200) * 0.1)
+        sx = (random.randint(0, 399) - 200) * 0.1
+        sz = (random.randint(0, 399) - 200) * 0.1
         sphere_positions.append((sx, sz))
 
     GL.glEnable(GL.GL_TEXTURE_2D)
@@ -240,16 +259,33 @@ def setup_rc() -> None:
         img = np.ascontiguousarray(img, dtype=np.uint8)
         h, w = img.shape[:2]
         GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[i])
-        GLU.gluBuild2DMipmaps(GL.GL_TEXTURE_2D, GL.GL_RGB, w, h,
-                              GL.GL_RGB, GL.GL_UNSIGNED_BYTE, img)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           GL.GL_LINEAR_MIPMAP_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE)
+        GLU.gluBuild2DMipmaps(
+            GL.GL_TEXTURE_2D,
+            GL.GL_RGB,
+            w,
+            h,
+            GL.GL_RGB,
+            GL.GL_UNSIGNED_BYTE,
+            img,
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_MIN_FILTER,
+            GL.GL_LINEAR_MIPMAP_LINEAR,
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+        )
 
-    GL.glLightModeli(GL.GL_LIGHT_MODEL_COLOR_CONTROL,
-                     GL.GL_SEPARATE_SPECULAR_COLOR)
+    GL.glLightModeli(
+        GL.GL_LIGHT_MODEL_COLOR_CONTROL, GL.GL_SEPARATE_SPECULAR_COLOR
+    )
 
     torus_list = GL.glGenLists(2)
     sphere_list = torus_list + 1
@@ -333,16 +369,19 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))
         _common.menu_action("Back", "Down", lambda: _walk(-1))
-        _common.menu_action("Turn left", "Left",
-                            lambda: _turn(BTN_YAW_STEP_DEG))
-        _common.menu_action("Turn right", "Right",
-                            lambda: _turn(-BTN_YAW_STEP_DEG))
+        _common.menu_action(
+            "Turn left", "Left", lambda: _turn(BTN_YAW_STEP_DEG)
+        )
+        _common.menu_action(
+            "Turn right", "Right", lambda: _turn(-BTN_YAW_STEP_DEG)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -357,10 +396,12 @@ def main() -> None:
     glfw.window_hint(glfw.STENCIL_BITS, 8)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(window_width, window_height,
-                                "SphereWorld32", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "SphereWorld32", None, None
+    )
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     glfw.swap_interval(1)

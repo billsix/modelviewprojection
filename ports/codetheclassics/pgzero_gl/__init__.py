@@ -39,12 +39,12 @@ import types
 from typing import Any
 
 from .actor import Actor
+from .audio import music
 from .geometry import Rect, ZRect
 from .input import keyboard, keys
 from .resources import images, sounds
-from .audio import music
-from .screen import screen
 from .runner import go, quit_game
+from .screen import screen
 
 __all__ = [
     "Actor",
@@ -118,10 +118,10 @@ def _make_pygame() -> Any:
     """Build and register the synthetic ``pygame`` module (and its submodules)."""
     import sys
 
-    from .geometry import Vector2, Vector3
-    from .surface import Surface, SRCALPHA
     from . import joystick as _joy
     from . import mask as _mask
+    from .geometry import Vector2, Vector3
+    from .surface import SRCALPHA, Surface
 
     m: Any = types.ModuleType("pygame")
     m.error = Exception
@@ -164,22 +164,26 @@ def _make_pygame() -> Any:
         )
 
     def _scale(surf: Any, size: Any, dest: Any = None) -> Any:
-        from PIL import Image as PILImage
-        from .resources import Image as GLImage
         import numpy as np
+        from PIL import Image as PILImage
+
+        from .resources import Image as GLImage
 
         pil = PILImage.fromarray(surf.rgba).resize(
-            (max(1, int(size[0])), max(1, int(size[1]))), PILImage.Resampling.NEAREST
+            (max(1, int(size[0])), max(1, int(size[1]))),
+            PILImage.Resampling.NEAREST,
         )
         return GLImage.from_rgba(np.array(pil.convert("RGBA")))
 
     def _smoothscale(surf: Any, size: Any, dest: Any = None) -> Any:
-        from PIL import Image as PILImage
-        from .resources import Image as GLImage
         import numpy as np
+        from PIL import Image as PILImage
+
+        from .resources import Image as GLImage
 
         pil = PILImage.fromarray(surf.rgba).resize(
-            (max(1, int(size[0])), max(1, int(size[1]))), PILImage.Resampling.BILINEAR
+            (max(1, int(size[0])), max(1, int(size[1]))),
+            PILImage.Resampling.BILINEAR,
         )
         return GLImage.from_rgba(np.array(pil.convert("RGBA")))
 
@@ -187,20 +191,30 @@ def _make_pygame() -> Any:
     def _gfx_filled_polygon(surface: Any, points: Any, color: Any) -> None:
         from . import context
 
-        context.require_renderer().polygon(points=points, color=color, filled=True)
+        context.require_renderer().polygon(
+            points=points, color=color, filled=True
+        )
 
     def _gfx_polygon(surface: Any, points: Any, color: Any) -> None:
         from . import context
 
-        context.require_renderer().polygon(points=points, color=color, filled=False)
+        context.require_renderer().polygon(
+            points=points, color=color, filled=False
+        )
 
     # Register submodules so `from pygame.X import Y` / `import pygame.X` work.
-    m.math = _submodule("math", Vector2=Vector2, Vector3=Vector3, Vector=Vector2)
+    m.math = _submodule(
+        "math", Vector2=Vector2, Vector3=Vector3, Vector=Vector2
+    )
     m.rect = _submodule("rect", Rect=Rect)
     m.surface = _submodule("surface", Surface=Surface, SRCALPHA=SRCALPHA)
     m.image = _submodule("image", load=_image_load)
-    m.draw = _submodule("draw", rect=_draw_rect, line=_draw_line, polygon=_draw_polygon)
-    m.transform = _submodule("transform", scale=_scale, smoothscale=_smoothscale)
+    m.draw = _submodule(
+        "draw", rect=_draw_rect, line=_draw_line, polygon=_draw_polygon
+    )
+    m.transform = _submodule(
+        "transform", scale=_scale, smoothscale=_smoothscale
+    )
     m.gfxdraw = _submodule(
         "gfxdraw", filled_polygon=_gfx_filled_polygon, polygon=_gfx_polygon
     )
@@ -211,7 +225,9 @@ def _make_pygame() -> Any:
         get_init=_joy.get_init,
         init=_joy.init,
     )
-    m.mask = _submodule("mask", from_surface=_mask.from_surface, Mask=_mask.Mask)
+    m.mask = _submodule(
+        "mask", from_surface=_mask.from_surface, Mask=_mask.Mask
+    )
     sys.modules["pygame.mixer"] = mixer_stub  # allow `from pygame import mixer`
     sys.modules["pygame"] = m
     return m

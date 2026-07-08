@@ -44,9 +44,11 @@ def setup_gl_state() -> None:
     xr = yb * aspect
     GL.glViewport(0, 0, window_width, window_height)
     GL.glClearColor(0.0, 1.0, 1.0, 1.0)
-    GL.glMatrixMode(GL.GL_PROJECTION); GL.glLoadIdentity()
+    GL.glMatrixMode(GL.GL_PROJECTION)
+    GL.glLoadIdentity()
     GL.glFrustum(xl, xr, yb, yt, 0.1, 100.0)
-    GL.glMatrixMode(GL.GL_MODELVIEW); GL.glLoadIdentity()
+    GL.glMatrixMode(GL.GL_MODELVIEW)
+    GL.glLoadIdentity()
 
 
 def draw() -> None:
@@ -55,16 +57,22 @@ def draw() -> None:
     nre_x = window_width // 2 + int(0.3 * (window_width // 2))
     nre_y = window_height // 2
     min_len = 0.1 * (window_width // 2)
-    lt_mag = max(min_len, math.sqrt((mouse_x - nle_x) ** 2 + (mouse_y - nle_y) ** 2))
-    rt_mag = max(min_len, math.sqrt((mouse_x - nre_x) ** 2 + (mouse_y - nre_y) ** 2))
+    lt_mag = max(
+        min_len, math.sqrt((mouse_x - nle_x) ** 2 + (mouse_y - nle_y) ** 2)
+    )
+    rt_mag = max(
+        min_len, math.sqrt((mouse_x - nre_x) ** 2 + (mouse_y - nre_y) ** 2)
+    )
     fLeftX = (mouse_x - nle_x) / lt_mag
     fLeftY = -(mouse_y - nle_y) / lt_mag
     fRightX = (mouse_x - nre_x) / rt_mag
     fRightY = -(mouse_y - nre_y) / rt_mag
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-    GL.glMatrixMode(GL.GL_PROJECTION); GL.glLoadIdentity()
-    GL.glMatrixMode(GL.GL_MODELVIEW); GL.glLoadIdentity()
+    GL.glMatrixMode(GL.GL_PROJECTION)
+    GL.glLoadIdentity()
+    GL.glMatrixMode(GL.GL_MODELVIEW)
+    GL.glLoadIdentity()
 
     GL.glColor3f(1.0, 1.0, 1.0)
     GL.glScalef(0.20, 0.20, 1.0)
@@ -85,7 +93,8 @@ def draw() -> None:
     GL.glTranslatef(fRightX, fRightY, 0.0)
     draw_circle()
 
-    GL.glMatrixMode(GL.GL_MODELVIEW); GL.glLoadIdentity()
+    GL.glMatrixMode(GL.GL_MODELVIEW)
+    GL.glLoadIdentity()
     GL.glColor3f(0.5, 0.0, 0.7)
     GL.glScalef(0.20, 0.20, 1.0)
     GL.glTranslatef(0.0, -1.5, 0.0)
@@ -118,8 +127,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -130,10 +140,12 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(window_width, window_height,
-                                "Eyeballs (GLX/Python)", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Eyeballs (GLX/Python)", None, None
+    )
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_size)

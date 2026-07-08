@@ -24,12 +24,10 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit control button
 window_width: int = 512
@@ -41,7 +39,14 @@ use_draw_buffers: bool = True
 do_processing: bool = True
 
 TOTAL_SHADERS = 6
-shader_names = ["multirender", "combine", "blur", "laplacian", "grayscale", "colorinvert"]
+shader_names = [
+    "multirender",
+    "combine",
+    "blur",
+    "laplacian",
+    "grayscale",
+    "colorinvert",
+]
 f_shader = [0] * TOTAL_SHADERS
 prog_obj = [0] * TOTAL_SHADERS
 
@@ -69,9 +74,24 @@ TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 
 def draw_solid_octahedron() -> None:
-    verts = [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]
-    faces = [(0, 2, 4), (0, 4, 3), (0, 3, 5), (0, 5, 2),
-             (1, 4, 2), (1, 3, 4), (1, 5, 3), (1, 2, 5)]
+    verts = [
+        (1, 0, 0),
+        (-1, 0, 0),
+        (0, 1, 0),
+        (0, -1, 0),
+        (0, 0, 1),
+        (0, 0, -1),
+    ]
+    faces = [
+        (0, 2, 4),
+        (0, 4, 3),
+        (0, 3, 5),
+        (0, 5, 2),
+        (1, 4, 2),
+        (1, 3, 4),
+        (1, 5, 3),
+        (1, 2, 5),
+    ]
     GL.glBegin(GL.GL_TRIANGLES)
     for i, j, k in faces:
         a, b, c = verts[i], verts[j], verts[k]
@@ -79,12 +99,15 @@ def draw_solid_octahedron() -> None:
         ny = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2])
         nz = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
         GL.glNormal3f(nx, ny, nz)
-        GL.glVertex3f(*a); GL.glVertex3f(*b); GL.glVertex3f(*c)
+        GL.glVertex3f(*a)
+        GL.glVertex3f(*b)
+        GL.glVertex3f(*c)
     GL.glEnd()
 
 
 def draw_models(_draw_teapot: bool) -> None:
-    GL.glColor3f(0.0, 0.0, 0.90); GL.glNormal3f(0.0, 1.0, 0.0)
+    GL.glColor3f(0.0, 0.0, 0.90)
+    GL.glNormal3f(0.0, 1.0, 0.0)
     GL.glBegin(GL.GL_QUADS)
     GL.glVertex3f(-100.0, -25.0, -100.0)
     GL.glVertex3f(-100.0, -25.0, 100.0)
@@ -94,14 +117,46 @@ def draw_models(_draw_teapot: bool) -> None:
 
     GL.glEnable(GL.GL_TEXTURE_2D)
     walls = [
-        (wall_texture_id[0], (1.0, 0.0, 0.0),
-         [(-100, -25, 100), (-100, 125, 100), (-100, 125, -100), (-100, -25, -100)]),
-        (wall_texture_id[2], (-1.0, 0.0, 0.0),
-         [(100, -25, -100), (100, 125, -100), (100, 125, 100), (100, -25, 100)]),
-        (wall_texture_id[1], (0.0, 0.0, 1.0),
-         [(-100, -25, -100), (-100, 125, -100), (100, 125, -100), (100, -25, -100)]),
-        (wall_texture_id[3], (0.0, 0.0, -1.0),
-         [(100, -25, 100), (100, 125, 100), (-100, 125, 100), (-100, -25, 100)]),
+        (
+            wall_texture_id[0],
+            (1.0, 0.0, 0.0),
+            [
+                (-100, -25, 100),
+                (-100, 125, 100),
+                (-100, 125, -100),
+                (-100, -25, -100),
+            ],
+        ),
+        (
+            wall_texture_id[2],
+            (-1.0, 0.0, 0.0),
+            [
+                (100, -25, -100),
+                (100, 125, -100),
+                (100, 125, 100),
+                (100, -25, 100),
+            ],
+        ),
+        (
+            wall_texture_id[1],
+            (0.0, 0.0, 1.0),
+            [
+                (-100, -25, -100),
+                (-100, 125, -100),
+                (100, 125, -100),
+                (100, -25, -100),
+            ],
+        ),
+        (
+            wall_texture_id[3],
+            (0.0, 0.0, -1.0),
+            [
+                (100, -25, 100),
+                (100, 125, 100),
+                (-100, 125, 100),
+                (-100, -25, 100),
+            ],
+        ),
     ]
     GL.glColor3f(1.0, 1.0, 1.0)
     uvs = [(0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)]
@@ -110,11 +165,13 @@ def draw_models(_draw_teapot: bool) -> None:
         GL.glNormal3f(nx, ny, nz)
         GL.glBegin(GL.GL_QUADS)
         for k, v in enumerate(verts):
-            GL.glTexCoord2f(*uvs[k]); GL.glVertex3f(*v)
+            GL.glTexCoord2f(*uvs[k])
+            GL.glVertex3f(*v)
         GL.glEnd()
     GL.glDisable(GL.GL_TEXTURE_2D)
 
-    GL.glColor3f(1.0, 0.6, 0.6); GL.glNormal3f(0.0, -1.0, 0.0)
+    GL.glColor3f(1.0, 0.6, 0.6)
+    GL.glNormal3f(0.0, -1.0, 0.0)
     GL.glBegin(GL.GL_QUADS)
     GL.glVertex3f(-100.0, 125.0, -100.0)
     GL.glVertex3f(-100.0, 125.0, 100.0)
@@ -124,25 +181,36 @@ def draw_models(_draw_teapot: bool) -> None:
 
     # C++ used glutSolidTeapot here; substituting another sphere.
     GL.glColor3f(1.0, 0.6, 0.4)
-    GL.glPushMatrix(); _primitives.draw_mesh(SPHERE_CENTER); GL.glPopMatrix()
+    GL.glPushMatrix()
+    _primitives.draw_mesh(SPHERE_CENTER)
+    GL.glPopMatrix()
 
     GL.glColor3f(0.0, 1.0, 0.0)
-    GL.glPushMatrix(); GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
+    GL.glPushMatrix()
+    GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
     GL.glTranslatef(-60.0, 0.0, 0.0)
-    _primitives.draw_mesh(SPHERE); GL.glPopMatrix()
+    _primitives.draw_mesh(SPHERE)
+    GL.glPopMatrix()
     GL.glColor3f(1.0, 1.0, 0.0)
-    GL.glPushMatrix(); GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
+    GL.glPushMatrix()
+    GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
     GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
     GL.glTranslatef(60.0, 0.0, -24.0)
-    _primitives.draw_mesh(CONE, flat=True); GL.glPopMatrix()
+    _primitives.draw_mesh(CONE, flat=True)
+    GL.glPopMatrix()
     GL.glColor3f(1.0, 0.0, 1.0)
-    GL.glPushMatrix(); GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
+    GL.glPushMatrix()
+    GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
     GL.glTranslatef(0.0, 0.0, 60.0)
-    _primitives.draw_mesh(TORUS); GL.glPopMatrix()
+    _primitives.draw_mesh(TORUS)
+    GL.glPopMatrix()
     GL.glColor3f(0.0, 1.0, 1.0)
-    GL.glPushMatrix(); GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
-    GL.glTranslatef(0.0, 0.0, -60.0); GL.glScalef(25.0, 25.0, 25.0)
-    draw_solid_octahedron(); GL.glPopMatrix()
+    GL.glPushMatrix()
+    GL.glRotatef(animation_angle, 0.0, 1.0, 0.0)
+    GL.glTranslatef(0.0, 0.0, -60.0)
+    GL.glScalef(25.0, 25.0, 25.0)
+    draw_solid_octahedron()
+    GL.glPopMatrix()
 
 
 def prepare_shader(n: int) -> None:
@@ -172,29 +240,66 @@ def setup_textures() -> None:
         h, w = img.shape[:2]
         GL.glBindTexture(GL.GL_TEXTURE_2D, wall_texture_id[i])
         GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_GENERATE_MIPMAP, 1)
-        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB8, w, h, 0,
-                        GL.GL_RGB, GL.GL_UNSIGNED_BYTE, img)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           GL.GL_LINEAR_MIPMAP_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE)
+        GL.glTexImage2D(
+            GL.GL_TEXTURE_2D,
+            0,
+            GL.GL_RGB8,
+            w,
+            h,
+            0,
+            GL.GL_RGB,
+            GL.GL_UNSIGNED_BYTE,
+            img,
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_MIN_FILTER,
+            GL.GL_LINEAR_MIPMAP_LINEAR,
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+        )
 
     render_texture_id = list(GL.glGenTextures(5))
     for i in range(max_draw_buffers + 1):
         if i > 0:
             GL.glActiveTexture(GL.GL_TEXTURE0 + i - 1)
         GL.glBindTexture(GL.GL_TEXTURE_2D, render_texture_id[i])
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
+        )
         if i == 0:
-            GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                               GL.GL_LINEAR_MIPMAP_NEAREST)
-        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA8,
-                        fbo_width, fbo_height, 0,
-                        GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, None)
+            GL.glTexParameteri(
+                GL.GL_TEXTURE_2D,
+                GL.GL_TEXTURE_MIN_FILTER,
+                GL.GL_LINEAR_MIPMAP_NEAREST,
+            )
+        GL.glTexImage2D(
+            GL.GL_TEXTURE_2D,
+            0,
+            GL.GL_RGBA8,
+            fbo_width,
+            fbo_height,
+            0,
+            GL.GL_RGBA,
+            GL.GL_UNSIGNED_BYTE,
+            None,
+        )
     GL.glActiveTexture(GL.GL_TEXTURE0)
 
 
@@ -202,21 +307,44 @@ def render_scene() -> None:
     global animation_angle
     animation_angle = (animation_angle + 1.0) % 360.0
 
-    GL.glMatrixMode(GL.GL_PROJECTION); GL.glLoadIdentity()
+    GL.glMatrixMode(GL.GL_PROJECTION)
+    GL.glLoadIdentity()
     if window_width > window_height:
         ar = float(window_width) / float(window_height)
-        GL.glFrustum(-ar * camera_zoom, ar * camera_zoom,
-                     -camera_zoom, camera_zoom, 2.0, 1000.0)
+        GL.glFrustum(
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            -camera_zoom,
+            camera_zoom,
+            2.0,
+            1000.0,
+        )
     else:
         ar = float(window_height) / float(window_width)
-        GL.glFrustum(-camera_zoom, camera_zoom,
-                     -ar * camera_zoom, ar * camera_zoom, 2.0, 1000.0)
+        GL.glFrustum(
+            -camera_zoom,
+            camera_zoom,
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            2.0,
+            1000.0,
+        )
     camera_pos[0] = max(-99.0, min(99.0, camera_pos[0]))
     camera_pos[1] = max(-20.0, min(120.0, camera_pos[1]))
     camera_pos[2] = max(-99.0, min(99.0, camera_pos[2]))
-    GL.glMatrixMode(GL.GL_MODELVIEW); GL.glLoadIdentity()
-    GLU.gluLookAt(camera_pos[0], camera_pos[1], camera_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GL.glMatrixMode(GL.GL_MODELVIEW)
+    GL.glLoadIdentity()
+    GLU.gluLookAt(
+        camera_pos[0],
+        camera_pos[1],
+        camera_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    )
 
     if do_processing:
         GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[0])
@@ -236,8 +364,10 @@ def render_scene() -> None:
     GL.glGenerateMipmap(GL.GL_TEXTURE_2D)
 
     if use_draw_buffers:
-        GL.glDrawBuffers(max_draw_buffers,
-                         [GL.GL_COLOR_ATTACHMENT0 + i for i in range(max_draw_buffers)])
+        GL.glDrawBuffers(
+            max_draw_buffers,
+            [GL.GL_COLOR_ATTACHMENT0 + i for i in range(max_draw_buffers)],
+        )
         loops = [0]
     else:
         loops = list(range(max_draw_buffers))
@@ -258,13 +388,19 @@ def render_scene() -> None:
             GL.glUniform2fv(loc, 9, tex_coord_offsets)
 
         GL.glDisable(GL.GL_DEPTH_TEST)
-        GL.glMatrixMode(GL.GL_PROJECTION); GL.glLoadIdentity()
-        GL.glMatrixMode(GL.GL_MODELVIEW); GL.glLoadIdentity()
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glLoadIdentity()
         GL.glBegin(GL.GL_QUADS)
-        GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 0.0); GL.glVertex2f(-1.0, -1.0)
-        GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 1.0); GL.glVertex2f(-1.0, 1.0)
-        GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 1.0, 1.0); GL.glVertex2f(1.0, 1.0)
-        GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 1.0, 0.0); GL.glVertex2f(1.0, -1.0)
+        GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 0.0)
+        GL.glVertex2f(-1.0, -1.0)
+        GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 1.0)
+        GL.glVertex2f(-1.0, 1.0)
+        GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 1.0, 1.0)
+        GL.glVertex2f(1.0, 1.0)
+        GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 1.0, 0.0)
+        GL.glVertex2f(1.0, -1.0)
         GL.glEnd()
 
     # Pass 3: combine 4 textures back into a tiled image on screen
@@ -277,10 +413,14 @@ def render_scene() -> None:
             GL.glUniform1i(loc, i)
     GL.glBindTexture(GL.GL_TEXTURE_2D, render_texture_id[1])
     GL.glBegin(GL.GL_QUADS)
-    GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 0.0); GL.glVertex2f(-1.0, -1.0)
-    GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 1.0); GL.glVertex2f(-1.0, 1.0)
-    GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 1.0, 1.0); GL.glVertex2f(1.0, 1.0)
-    GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 1.0, 0.0); GL.glVertex2f(1.0, -1.0)
+    GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 0.0)
+    GL.glVertex2f(-1.0, -1.0)
+    GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 1.0)
+    GL.glVertex2f(-1.0, 1.0)
+    GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 1.0, 1.0)
+    GL.glVertex2f(1.0, 1.0)
+    GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 1.0, 0.0)
+    GL.glVertex2f(1.0, -1.0)
     GL.glEnd()
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glUseProgram(0)
@@ -304,30 +444,49 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_NORMALIZE)
     GL.glEnable(GL.GL_LIGHT0)
 
-    max_draw_buffers = min(GL.glGetIntegerv(GL.GL_MAX_DRAW_BUFFERS),
-                           GL.glGetIntegerv(GL.GL_MAX_COLOR_ATTACHMENTS),
-                           GL.glGetIntegerv(GL.GL_MAX_TEXTURE_IMAGE_UNITS) - 1, 4)
-    max_tex_size = min(GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE),
-                       GL.glGetIntegerv(GL.GL_MAX_RENDERBUFFER_SIZE))
+    max_draw_buffers = min(
+        GL.glGetIntegerv(GL.GL_MAX_DRAW_BUFFERS),
+        GL.glGetIntegerv(GL.GL_MAX_COLOR_ATTACHMENTS),
+        GL.glGetIntegerv(GL.GL_MAX_TEXTURE_IMAGE_UNITS) - 1,
+        4,
+    )
+    max_tex_size = min(
+        GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE),
+        GL.glGetIntegerv(GL.GL_MAX_RENDERBUFFER_SIZE),
+    )
     setup_textures()
     for i in range(TOTAL_SHADERS):
         prepare_shader(i)
     renderbuffer_id = GL.glGenRenderbuffers(1)
     GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, renderbuffer_id)
-    GL.glRenderbufferStorage(GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32,
-                             fbo_width, fbo_height)
+    GL.glRenderbufferStorage(
+        GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32, fbo_width, fbo_height
+    )
     fbs = list(GL.glGenFramebuffers(2))
     framebuffer_id[0], framebuffer_id[1] = fbs
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[0])
-    GL.glFramebufferRenderbuffer(GL.GL_FRAMEBUFFER, GL.GL_DEPTH_ATTACHMENT,
-                                 GL.GL_RENDERBUFFER, renderbuffer_id)
-    GL.glFramebufferTexture2D(GL.GL_FRAMEBUFFER, GL.GL_COLOR_ATTACHMENT0,
-                              GL.GL_TEXTURE_2D, render_texture_id[0], 0)
+    GL.glFramebufferRenderbuffer(
+        GL.GL_FRAMEBUFFER,
+        GL.GL_DEPTH_ATTACHMENT,
+        GL.GL_RENDERBUFFER,
+        renderbuffer_id,
+    )
+    GL.glFramebufferTexture2D(
+        GL.GL_FRAMEBUFFER,
+        GL.GL_COLOR_ATTACHMENT0,
+        GL.GL_TEXTURE_2D,
+        render_texture_id[0],
+        0,
+    )
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[1])
     for i in range(max_draw_buffers):
-        GL.glFramebufferTexture2D(GL.GL_FRAMEBUFFER,
-                                  GL.GL_COLOR_ATTACHMENT0 + i,
-                                  GL.GL_TEXTURE_2D, render_texture_id[i + 1], 0)
+        GL.glFramebufferTexture2D(
+            GL.GL_FRAMEBUFFER,
+            GL.GL_COLOR_ATTACHMENT0 + i,
+            GL.GL_TEXTURE_2D,
+            render_texture_id[i + 1],
+            0,
+        )
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
 
 
@@ -336,17 +495,28 @@ def change_size(w: int, h: int) -> None:
     orig = (fbo_width, fbo_height)
     window_width = fbo_width = w
     window_height = fbo_height = h
-    if fbo_width > max_tex_size: fbo_width = max_tex_size
-    if fbo_height > max_tex_size: fbo_height = max_tex_size
+    if fbo_width > max_tex_size:
+        fbo_width = max_tex_size
+    if fbo_height > max_tex_size:
+        fbo_height = max_tex_size
     if (fbo_width, fbo_height) != orig and renderbuffer_id != 0:
         GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, renderbuffer_id)
-        GL.glRenderbufferStorage(GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32,
-                                 fbo_width, fbo_height)
+        GL.glRenderbufferStorage(
+            GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32, fbo_width, fbo_height
+        )
         for i in range(max_draw_buffers + 1):
             GL.glBindTexture(GL.GL_TEXTURE_2D, render_texture_id[i])
-            GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGBA8,
-                            fbo_width, fbo_height, 0,
-                            GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, None)
+            GL.glTexImage2D(
+                GL.GL_TEXTURE_2D,
+                0,
+                GL.GL_RGBA8,
+                fbo_width,
+                fbo_height,
+                0,
+                GL.GL_RGBA,
+                GL.GL_UNSIGNED_BYTE,
+                None,
+            )
         x_inc = 1.0 / fbo_width
         y_inc = 1.0 / fbo_height
         for i in range(3):
@@ -380,12 +550,14 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Options", True):
-        clicked, v = imgui.menu_item("Use draw buffers (MRT)", "",
-                                     use_draw_buffers, True)
+        clicked, v = imgui.menu_item(
+            "Use draw buffers (MRT)", "", use_draw_buffers, True
+        )
         if clicked:
             _set_use_draw_buffers(v)
         clicked, v = imgui.menu_item("Post-processing", "", do_processing, True)
@@ -413,7 +585,8 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
-        glfw.set_window_should_close(window, True); return
+        glfw.set_window_should_close(window, True)
+        return
     delta = -1.0 if (mods & glfw.MOD_SHIFT) else 1.0
     if key == glfw.KEY_X:
         camera_pos[0] += delta
@@ -437,10 +610,12 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(window_width, window_height,
-                                "FBO Draw Buffers Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "FBO Draw Buffers Demo", None, None
+    )
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)

@@ -19,8 +19,8 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit menu item
 
@@ -203,8 +203,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))

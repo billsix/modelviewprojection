@@ -56,14 +56,27 @@ def make_planar_shadow_matrix(
     # CCW plane_equation can land w<0; OpenGL clips before perspective
     # divide and the shadow disappears. Negate to keep w positive.
     # See tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md.
-    s = 1.0 if (a*dx + b*dy + c*dz) > 0.0 else -1.0
+    s = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
-            s*(b*dy + c*dz), s*-a*dy, s*-a*dz, 0.0,
-            s*-b*dx, s*(a*dx + c*dz), s*-b*dz, 0.0,
-            s*-c*dx, s*-c*dy, s*(a*dx + b*dy), 0.0,
-            s*-d*dx, s*-d*dy, s*-d*dz, s*(a*dx + b*dy + c*dz),
-        ], dtype=np.float32,
+            s * (b * dy + c * dz),
+            s * -a * dy,
+            s * -a * dz,
+            0.0,
+            s * -b * dx,
+            s * (a * dx + c * dz),
+            s * -b * dz,
+            0.0,
+            s * -c * dx,
+            s * -c * dy,
+            s * (a * dx + b * dy),
+            0.0,
+            s * -d * dx,
+            s * -d * dy,
+            s * -d * dz,
+            s * (a * dx + b * dy + c * dz),
+        ],
+        dtype=np.float32,
     )
 
 
@@ -124,9 +137,11 @@ def draw_ground() -> None:
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
         run = extent
         while run >= -extent:
-            GL.glTexCoord2f(s, t); GL.glNormal3f(0.0, 1.0, 0.0)
+            GL.glTexCoord2f(s, t)
+            GL.glNormal3f(0.0, 1.0, 0.0)
             GL.glVertex3f(strip, y, run)
-            GL.glTexCoord2f(s + tex_step, t); GL.glNormal3f(0.0, 1.0, 0.0)
+            GL.glTexCoord2f(s + tex_step, t)
+            GL.glNormal3f(0.0, 1.0, 0.0)
             GL.glVertex3f(strip + step, y, run)
             t += tex_step
             run -= step
@@ -147,21 +162,27 @@ def load_textures() -> None:
     for i, fname in enumerate(texture_files):
         img = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4
-               else GL.GL_RGB)
+        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
         img = np.ascontiguousarray(img, dtype=np.uint8)
         texture_objects[i] = GL.glGenTextures(1)
         GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[i])
-        GLU.gluBuild2DMipmaps(GL.GL_TEXTURE_2D, fmt, w, h, fmt,
-                              GL.GL_UNSIGNED_BYTE, img)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER,
-                           GL.GL_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           GL.GL_LINEAR_MIPMAP_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S,
-                           GL.GL_CLAMP_TO_EDGE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T,
-                           GL.GL_CLAMP_TO_EDGE)
+        GLU.gluBuild2DMipmaps(
+            GL.GL_TEXTURE_2D, fmt, w, h, fmt, GL.GL_UNSIGNED_BYTE, img
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_MIN_FILTER,
+            GL.GL_LINEAR_MIPMAP_LINEAR,
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+        )
 
 
 def draw_inhabitants(n_shadow: int) -> None:
@@ -197,8 +218,11 @@ def draw_inhabitants(n_shadow: int) -> None:
 
 
 def render_scene() -> None:
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT
-               | GL.GL_STENCIL_BUFFER_BIT)
+    GL.glClear(
+        GL.GL_COLOR_BUFFER_BIT
+        | GL.GL_DEPTH_BUFFER_BIT
+        | GL.GL_STENCIL_BUFFER_BIT
+    )
     GL.glPushMatrix()
     apply_camera_transform()
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, f_light_pos)
@@ -247,8 +271,11 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_LIGHTING)
     GL.glEnable(GL.GL_LIGHT0)
 
-    p1, p2, p3 = (Vector3(0.0, -0.4, 0.0), Vector3(10.0, -0.4, 0.0),
-                  Vector3(5.0, -0.4, -5.0))
+    p1, p2, p3 = (
+        Vector3(0.0, -0.4, 0.0),
+        Vector3(10.0, -0.4, 0.0),
+        Vector3(5.0, -0.4, -5.0),
+    )
     pn, pd = plane_equation(p1, p2, p3)
     shadow_mat = make_planar_shadow_matrix(pn, pd, f_light_pos)
 
@@ -348,8 +375,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))
@@ -368,8 +396,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
     glfw.window_hint(glfw.STENCIL_BITS, 8)
-    window = glfw.create_window(800, 600, "Sphereworld with display lists",
-                                None, None)
+    window = glfw.create_window(
+        800, 600, "Sphereworld with display lists", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)

@@ -145,7 +145,7 @@ class Renderer:
     """
 
     def __init__(self, width: int, height: int) -> None:
-        self.width = width          # logical (game) pixels
+        self.width = width  # logical (game) pixels
         self.height = height
         # Framebuffer pixels -- may exceed logical on HiDPI / scaled displays.
         # Updated every begin_frame from the real framebuffer size.
@@ -180,7 +180,9 @@ class Renderer:
         self.quad_vbo = GL.glGenBuffers(1)
         GL.glBindVertexArray(self.quad_vao)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.quad_vbo)
-        GL.glBufferData(GL.GL_ARRAY_BUFFER, quad.nbytes, quad, GL.GL_STATIC_DRAW)
+        GL.glBufferData(
+            GL.GL_ARRAY_BUFFER, quad.nbytes, quad, GL.GL_STATIC_DRAW
+        )
         GL.glEnableVertexAttribArray(0)
         GL.glVertexAttribPointer(0, 2, GL.GL_FLOAT, GL.GL_FALSE, 0, None)
 
@@ -233,7 +235,10 @@ class Renderer:
             sx, sy, sw, sh = src
             w, h = sw, sh
             tex_off: tuple[float, float] = (sx / image.width, sy / image.height)
-            tex_scale: tuple[float, float] = (sw / image.width, sh / image.height)
+            tex_scale: tuple[float, float] = (
+                sw / image.width,
+                sh / image.height,
+            )
         else:
             w, h = image.width, image.height
             tex_off = (0.0, 0.0)
@@ -283,10 +288,14 @@ class Renderer:
 
         ``mode`` is a PyOpenGL primitive constant (``GL_LINES`` etc.; typed ``Any``).
         """
-        data: NDArray[np.float32] = np.asarray(verts, dtype=np.float32).reshape(-1)
+        data: NDArray[np.float32] = np.asarray(verts, dtype=np.float32).reshape(
+            -1
+        )
         GL.glBindVertexArray(self.prim_vao)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.prim_vbo)
-        GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, GL.GL_DYNAMIC_DRAW)
+        GL.glBufferData(
+            GL.GL_ARRAY_BUFFER, data.nbytes, data, GL.GL_DYNAMIC_DRAW
+        )
         GL.glUniformMatrix4fv(self.u_model, 1, GL.GL_TRUE, _identity())
         GL.glUniform1i(self.u_use_tex, 0)
         GL.glUniform4f(self.u_tint, *_rgba(color))

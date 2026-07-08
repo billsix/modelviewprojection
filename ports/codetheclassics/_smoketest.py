@@ -45,24 +45,40 @@ def make_context(w, h, legacy=False):
         raise RuntimeError("eglInitialize failed (no EGL device?)")
     EGL.eglBindAPI(EGL.EGL_OPENGL_API)
     ca = (EGL.EGLint * 13)(
-        EGL.EGL_SURFACE_TYPE, EGL.EGL_PBUFFER_BIT,
-        EGL.EGL_RENDERABLE_TYPE, EGL.EGL_OPENGL_BIT,
-        EGL.EGL_RED_SIZE, 8, EGL.EGL_GREEN_SIZE, 8,
-        EGL.EGL_BLUE_SIZE, 8, EGL.EGL_ALPHA_SIZE, 8, EGL.EGL_NONE,
+        EGL.EGL_SURFACE_TYPE,
+        EGL.EGL_PBUFFER_BIT,
+        EGL.EGL_RENDERABLE_TYPE,
+        EGL.EGL_OPENGL_BIT,
+        EGL.EGL_RED_SIZE,
+        8,
+        EGL.EGL_GREEN_SIZE,
+        8,
+        EGL.EGL_BLUE_SIZE,
+        8,
+        EGL.EGL_ALPHA_SIZE,
+        8,
+        EGL.EGL_NONE,
     )
     cfg, n = EGL.EGLConfig(), EGL.EGLint()
     EGL.eglChooseConfig(dpy, ca, ctypes.byref(cfg), 1, ctypes.byref(n))
     if legacy:
         # Compatibility 2.1 context -> fixed-function GL 1.x available.
         cxa = (EGL.EGLint * 5)(
-            EGL.EGL_CONTEXT_MAJOR_VERSION, 2, EGL.EGL_CONTEXT_MINOR_VERSION, 1,
+            EGL.EGL_CONTEXT_MAJOR_VERSION,
+            2,
+            EGL.EGL_CONTEXT_MINOR_VERSION,
+            1,
             EGL.EGL_NONE,
         )
     else:
         cxa = (EGL.EGLint * 7)(
-            EGL.EGL_CONTEXT_MAJOR_VERSION, 3, EGL.EGL_CONTEXT_MINOR_VERSION, 3,
+            EGL.EGL_CONTEXT_MAJOR_VERSION,
+            3,
+            EGL.EGL_CONTEXT_MINOR_VERSION,
+            3,
             EGL.EGL_CONTEXT_OPENGL_PROFILE_MASK,
-            EGL.EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT, EGL.EGL_NONE,
+            EGL.EGL_CONTEXT_OPENGL_CORE_PROFILE_BIT,
+            EGL.EGL_NONE,
         )
     ctx = EGL.eglCreateContext(dpy, cfg, EGL.EGL_NO_CONTEXT, cxa)
     pa = (EGL.EGLint * 5)(EGL.EGL_WIDTH, w, EGL.EGL_HEIGHT, h, EGL.EGL_NONE)
@@ -79,11 +95,23 @@ def _stub_glfw():
     for d in string.digits:
         setattr(glfw, "KEY_" + d, ord(d))
     for nm, v in dict(
-        KEY_SPACE=32, KEY_UP=200, KEY_DOWN=201, KEY_LEFT=202, KEY_RIGHT=203,
-        KEY_ENTER=257, KEY_ESCAPE=256, KEY_TAB=258, KEY_BACKSPACE=259,
-        KEY_LEFT_SHIFT=340, KEY_RIGHT_SHIFT=344, KEY_LEFT_CONTROL=341,
-        KEY_RIGHT_CONTROL=345, KEY_LEFT_ALT=342, KEY_RIGHT_ALT=346,
-        PRESS=1, RELEASE=0,
+        KEY_SPACE=32,
+        KEY_UP=200,
+        KEY_DOWN=201,
+        KEY_LEFT=202,
+        KEY_RIGHT=203,
+        KEY_ENTER=257,
+        KEY_ESCAPE=256,
+        KEY_TAB=258,
+        KEY_BACKSPACE=259,
+        KEY_LEFT_SHIFT=340,
+        KEY_RIGHT_SHIFT=344,
+        KEY_LEFT_CONTROL=341,
+        KEY_RIGHT_CONTROL=345,
+        KEY_LEFT_ALT=342,
+        KEY_RIGHT_ALT=346,
+        PRESS=1,
+        RELEASE=0,
     ).items():
         setattr(glfw, nm, v)
     sys.modules["glfw"] = glfw
@@ -104,11 +132,20 @@ def _setup(mod, name):
 def main():
     args = [a for a in sys.argv[1:] if not a.startswith("-")]
     gl1 = ("--gl1" in sys.argv) or os.environ.get("PGZERO_GL", "").lower() in (
-        "1", "gl1", "legacy", "1.4", "1.5", "fixed"
+        "1",
+        "gl1",
+        "legacy",
+        "1.4",
+        "1.5",
+        "fixed",
     )
     path = os.path.abspath(args[0])
     name = os.path.splitext(os.path.basename(path))[0]
-    out = args[1] if len(args) > 1 else "/tmp/%s%s.png" % (name, "_gl1" if gl1 else "")
+    out = (
+        args[1]
+        if len(args) > 1
+        else "/tmp/%s%s.png" % (name, "_gl1" if gl1 else "")
+    )
 
     _stub_glfw()
     sys.modules.setdefault("just_playback", types.ModuleType("just_playback"))
@@ -117,7 +154,9 @@ def main():
 
     gamedir = os.path.dirname(os.path.abspath(path))
     sys.path.insert(0, gamedir)
-    os.chdir(gamedir)  # games open data files (e.g. attacks.json) by relative path
+    os.chdir(
+        gamedir
+    )  # games open data files (e.g. attacks.json) by relative path
 
     import pgzero_gl
     from pgzero_gl import context
@@ -166,7 +205,14 @@ def main():
     nb = int((px[..., :3].sum(2) > 10).sum())
     print(
         "%s: %dx%d, %d%% non-black, %d distinct colours -> %s"
-        % (name, w, h, 100 * nb // (w * h), len(np.unique(px[..., :3].reshape(-1, 3), axis=0)), out)
+        % (
+            name,
+            w,
+            h,
+            100 * nb // (w * h),
+            len(np.unique(px[..., :3].reshape(-1, 3), axis=0)),
+            out,
+        )
     )
     if nb < w * h * 0.2:
         print("WARNING: frame is mostly black -- likely a render bug.")

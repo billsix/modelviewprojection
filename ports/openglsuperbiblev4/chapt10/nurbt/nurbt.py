@@ -23,15 +23,26 @@ _window = None  # set in main(); used by the Quit menu item
 
 ctrl_points: np.ndarray = np.array(
     [
-        [[-6.0, -6.0, 0.0], [-6.0, -2.0, 0.0], [-6.0, 2.0, 0.0], [-6.0, 6.0, 0.0]],
-        [[-2.0, -6.0, 0.0], [-2.0, -2.0, 8.0], [-2.0, 2.0, 8.0], [-2.0, 6.0, 0.0]],
+        [
+            [-6.0, -6.0, 0.0],
+            [-6.0, -2.0, 0.0],
+            [-6.0, 2.0, 0.0],
+            [-6.0, 6.0, 0.0],
+        ],
+        [
+            [-2.0, -6.0, 0.0],
+            [-2.0, -2.0, 8.0],
+            [-2.0, 2.0, 8.0],
+            [-2.0, 6.0, 0.0],
+        ],
         [[2.0, -6.0, 0.0], [2.0, -2.0, 8.0], [2.0, 2.0, 8.0], [2.0, 6.0, 0.0]],
         [[6.0, -6.0, 0.0], [6.0, -2.0, 0.0], [6.0, 2.0, 0.0], [6.0, 6.0, 0.0]],
     ],
     dtype=np.float32,
 )
 knots: np.ndarray = np.array(
-    [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0], dtype=np.float32,
+    [0.0, 0.0, 0.0, 0.0, 1.0, 1.0, 1.0, 1.0],
+    dtype=np.float32,
 )
 # Outer trim contour (CCW) -- include entire surface
 outside_pts: np.ndarray = np.array(
@@ -116,8 +127,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

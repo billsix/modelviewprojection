@@ -23,8 +23,6 @@ import OpenGL.GL.shaders as shaders_mod
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -41,8 +39,14 @@ prog_obj = [0] * TOTAL_SHADERS
 current_shader: int = TRIVIAL
 
 exr_files = [
-    "Blobbies.exr", "Desk.exr", "GoldenGate.exr", "MtTamWest.exr",
-    "Ocean.exr", "Spirals.exr", "StillLife.exr", "Tree.exr",
+    "Blobbies.exr",
+    "Desk.exr",
+    "GoldenGate.exr",
+    "MtTamWest.exr",
+    "Ocean.exr",
+    "Spirals.exr",
+    "StillLife.exr",
+    "Tree.exr",
 ]
 image_names = [os.path.splitext(f)[0] for f in exr_files]
 current_image: int = 0
@@ -108,13 +112,27 @@ def setup_textures(which: int) -> None:
     f_texels = np.ascontiguousarray(img, dtype=np.float32)
     alter_aspect()
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_GENERATE_MIPMAP, 1)
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB16F, pot_w, pot_h, 0,
-                    GL.GL_RGB, GL.GL_FLOAT, f_texels)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D,
+        0,
+        GL.GL_RGB16F,
+        pot_w,
+        pot_h,
+        0,
+        GL.GL_RGB,
+        GL.GL_FLOAT,
+        f_texels,
+    )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                       GL.GL_LINEAR_MIPMAP_LINEAR)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+    )
     print(f"Loaded {exr_files[which]} ({npot_w}x{npot_h})")
 
 
@@ -126,8 +144,10 @@ def render_scene() -> None:
     if current_shader in (IRIS, WHITEBALANCE) and f_texels is not None:
         center_u = int(((f_cursor_x / x_aspect) + 1.0) * 0.5 * npot_w)
         center_v = int(((f_cursor_y / y_aspect) + 1.0) * 0.5 * npot_h)
-        u0 = max(0, center_u - 25); u1 = min(npot_w, center_u + 26)
-        v0 = max(0, center_v - 25); v1 = min(npot_h, center_v + 26)
+        u0 = max(0, center_u - 25)
+        u1 = min(npot_w, center_u + 26)
+        v0 = max(0, center_v - 25)
+        v1 = min(npot_h, center_v + 26)
         if u1 > u0 and v1 > v0:
             patch = f_texels[v0:v1, u0:u1]
             new_max = patch.reshape(-1, 3).max(axis=0)
@@ -190,7 +210,8 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 
 def on_mouse_pos(_window, x: float, y: float) -> None:
     global i_cursor_x, i_cursor_y
-    i_cursor_x = int(x); i_cursor_y = int(y)
+    i_cursor_x = int(x)
+    i_cursor_y = int(y)
     if window_width > 1 and window_height > 1:
         cursor_update(x / (window_width - 1), y / (window_height - 1))
 
@@ -204,8 +225,9 @@ def _nudge_cursor(axis: int, delta: int) -> None:
     else:
         i_cursor_y = max(0, min(window_height - 1, i_cursor_y + delta))
     if window_width > 1 and window_height > 1:
-        cursor_update(i_cursor_x / (window_width - 1),
-                      i_cursor_y / (window_height - 1))
+        cursor_update(
+            i_cursor_x / (window_width - 1), i_cursor_y / (window_height - 1)
+        )
 
 
 def _select_shader(i: int) -> None:
@@ -221,28 +243,35 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Render options", True):
         if imgui.begin_menu("Tone-map shader", True):
             for i, name in enumerate(shader_names):
-                _common.menu_action(name, f"F{i + 1}",
-                                    lambda i=i: _select_shader(i),
-                                    selected=(current_shader == i))
+                _common.menu_action(
+                    name,
+                    f"F{i + 1}",
+                    lambda i=i: _select_shader(i),
+                    selected=(current_shader == i),
+                )
             imgui.end_menu()
         if imgui.begin_menu("Test image", True):
             for i, name in enumerate(image_names):
-                _common.menu_action(name, str(i + 1),
-                                    lambda i=i: setup_textures(i),
-                                    selected=(current_image == i))
+                _common.menu_action(
+                    name,
+                    str(i + 1),
+                    lambda i=i: setup_textures(i),
+                    selected=(current_image == i),
+                )
             imgui.end_menu()
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
-        _common.menu_action("Cursor left", "Left",
-                            lambda: _nudge_cursor(0, -1))
-        _common.menu_action("Cursor right", "Right",
-                            lambda: _nudge_cursor(0, 1))
+        _common.menu_action("Cursor left", "Left", lambda: _nudge_cursor(0, -1))
+        _common.menu_action(
+            "Cursor right", "Right", lambda: _nudge_cursor(0, 1)
+        )
         _common.menu_action("Cursor up", "Up", lambda: _nudge_cursor(1, -1))
         _common.menu_action("Cursor down", "Down", lambda: _nudge_cursor(1, 1))
         imgui.end_menu()
@@ -256,7 +285,8 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
-        glfw.set_window_should_close(window, True); return
+        glfw.set_window_should_close(window, True)
+        return
     if key == glfw.KEY_LEFT:
         i_cursor_x = max(0, i_cursor_x - 1)
     elif key == glfw.KEY_RIGHT:
@@ -268,8 +298,9 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
     else:
         return
     if window_width > 1 and window_height > 1:
-        cursor_update(i_cursor_x / (window_width - 1),
-                      i_cursor_y / (window_height - 1))
+        cursor_update(
+            i_cursor_x / (window_width - 1), i_cursor_y / (window_height - 1)
+        )
 
 
 def main() -> None:
@@ -278,10 +309,12 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(window_width, window_height,
-                                "Floating-Point Texture Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Floating-Point Texture Demo", None, None
+    )
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)

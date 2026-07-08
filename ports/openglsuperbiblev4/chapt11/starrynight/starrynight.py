@@ -4,7 +4,6 @@
 # OpenGL SuperBible, Chapter 11
 # Python port of starrynight.cpp by Richard S. Wright Jr.
 
-import math
 import os
 import random
 import sys
@@ -16,8 +15,6 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
-
-
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
@@ -40,17 +37,19 @@ def load_textures() -> None:
     for i, fname in enumerate(["star.tga", "moon.tga"]):
         img = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4
-               else GL.GL_RGB)
+        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
         img = np.ascontiguousarray(img, dtype=np.uint8)
         textures[i] = GL.glGenTextures(1)
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[i])
-        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt,
-                        GL.GL_UNSIGNED_BYTE, img)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER,
-                           GL.GL_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           GL.GL_LINEAR)
+        GL.glTexImage2D(
+            GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR
+        )
 
 
 def apply_mode(mode: int) -> None:
@@ -124,10 +123,20 @@ def render_scene() -> None:
 
     GL.glLineWidth(3.5)
     GL.glBegin(GL.GL_LINE_STRIP)
-    for px, py in [(0.0, 25.0), (50.0, 100.0), (100.0, 25.0), (225.0, 125.0),
-                   (300.0, 50.0), (375.0, 100.0), (460.0, 25.0),
-                   (525.0, 100.0), (600.0, 20.0), (675.0, 70.0),
-                   (750.0, 25.0), (800.0, 90.0)]:
+    for px, py in [
+        (0.0, 25.0),
+        (50.0, 100.0),
+        (100.0, 25.0),
+        (225.0, 125.0),
+        (300.0, 50.0),
+        (375.0, 100.0),
+        (460.0, 25.0),
+        (525.0, 100.0),
+        (600.0, 20.0),
+        (675.0, 70.0),
+        (750.0, 25.0),
+        (800.0, 90.0),
+    ]:
         GL.glVertex2f(px, py)
     GL.glEnd()
 
@@ -135,17 +144,20 @@ def render_scene() -> None:
 def setup_rc() -> None:
     random.seed(0)
     for i in range(SMALL_STARS):
-        v_small_stars[i] = (float(random.randint(0, SCREEN_X - 1)),
-                            float(random.randint(0, SCREEN_Y - 100 - 1))
-                            + 100.0)
+        v_small_stars[i] = (
+            float(random.randint(0, SCREEN_X - 1)),
+            float(random.randint(0, SCREEN_Y - 100 - 1)) + 100.0,
+        )
     for i in range(MEDIUM_STARS):
-        v_medium_stars[i] = (float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0,
-                             float(random.randint(0, SCREEN_Y - 100 - 1))
-                             + 100.0)
+        v_medium_stars[i] = (
+            float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0,
+            float(random.randint(0, SCREEN_Y - 100 - 1)) + 100.0,
+        )
     for i in range(LARGE_STARS):
-        v_large_stars[i] = (float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0,
-                            float(random.randint(0, (SCREEN_Y - 100) * 10 - 1))
-                            / 10.0 + 100.0)
+        v_large_stars[i] = (
+            float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0,
+            float(random.randint(0, (SCREEN_Y - 100) * 10 - 1)) / 10.0 + 100.0,
+        )
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     load_textures()
     GL.glTexEnvi(GL.GL_POINT_SPRITE, GL.GL_COORD_REPLACE, GL.GL_TRUE)
@@ -183,14 +195,22 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Starry Night", True):
-        for label, value in [("Normal Points", 1), ("Antialiased Points", 2),
-                             ("Point Sprites", 3)]:
-            _common.menu_action(label, "", lambda v=value: _set_mode(v),
-                                selected=(draw_mode == value))
+        for label, value in [
+            ("Normal Points", 1),
+            ("Antialiased Points", 2),
+            ("Point Sprites", 3),
+        ]:
+            _common.menu_action(
+                label,
+                "",
+                lambda v=value: _set_mode(v),
+                selected=(draw_mode == value),
+            )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

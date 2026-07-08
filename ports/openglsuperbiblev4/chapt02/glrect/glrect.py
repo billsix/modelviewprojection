@@ -23,8 +23,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -50,11 +51,23 @@ def change_size(w: int, h: int) -> None:
 
     aspect_ratio = float(w) / float(h)
     if w <= h:
-        GL.glOrtho(-100.0, 100.0, -100.0 / aspect_ratio,
-                   100.0 / aspect_ratio, 1.0, -1.0)
+        GL.glOrtho(
+            -100.0,
+            100.0,
+            -100.0 / aspect_ratio,
+            100.0 / aspect_ratio,
+            1.0,
+            -1.0,
+        )
     else:
-        GL.glOrtho(-100.0 * aspect_ratio, 100.0 * aspect_ratio,
-                   -100.0, 100.0, 1.0, -1.0)
+        GL.glOrtho(
+            -100.0 * aspect_ratio,
+            100.0 * aspect_ratio,
+            -100.0,
+            100.0,
+            1.0,
+            -1.0,
+        )
 
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()

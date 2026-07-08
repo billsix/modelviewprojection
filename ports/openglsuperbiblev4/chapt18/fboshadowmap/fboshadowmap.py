@@ -23,12 +23,10 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit control button
 window_width: int = 512
@@ -79,9 +77,24 @@ TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 
 def draw_solid_octahedron() -> None:
-    verts = [(1, 0, 0), (-1, 0, 0), (0, 1, 0), (0, -1, 0), (0, 0, 1), (0, 0, -1)]
-    faces = [(0, 2, 4), (0, 4, 3), (0, 3, 5), (0, 5, 2),
-             (1, 4, 2), (1, 3, 4), (1, 5, 3), (1, 2, 5)]
+    verts = [
+        (1, 0, 0),
+        (-1, 0, 0),
+        (0, 1, 0),
+        (0, -1, 0),
+        (0, 0, 1),
+        (0, 0, -1),
+    ]
+    faces = [
+        (0, 2, 4),
+        (0, 4, 3),
+        (0, 3, 5),
+        (0, 5, 2),
+        (1, 4, 2),
+        (1, 3, 4),
+        (1, 5, 3),
+        (1, 2, 5),
+    ]
     GL.glBegin(GL.GL_TRIANGLES)
     for i, j, k in faces:
         a, b, c = verts[i], verts[j], verts[k]
@@ -89,13 +102,16 @@ def draw_solid_octahedron() -> None:
         ny = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2])
         nz = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
         GL.glNormal3f(nx, ny, nz)
-        GL.glVertex3f(*a); GL.glVertex3f(*b); GL.glVertex3f(*c)
+        GL.glVertex3f(*a)
+        GL.glVertex3f(*b)
+        GL.glVertex3f(*c)
     GL.glEnd()
 
 
 def draw_models(draw_base: bool) -> None:
     if draw_base:
-        GL.glColor3f(0.0, 0.0, 0.90); GL.glNormal3f(0.0, 1.0, 0.0)
+        GL.glColor3f(0.0, 0.0, 0.90)
+        GL.glNormal3f(0.0, 1.0, 0.0)
         GL.glBegin(GL.GL_QUADS)
         GL.glVertex3f(-100.0, -25.0, -100.0)
         GL.glVertex3f(-100.0, -25.0, 100.0)
@@ -103,21 +119,30 @@ def draw_models(draw_base: bool) -> None:
         GL.glVertex3f(100.0, -25.0, -100.0)
         GL.glEnd()
 
-    GL.glColor3f(1.0, 0.0, 0.0); draw_solid_cube(48.0)
+    GL.glColor3f(1.0, 0.0, 0.0)
+    draw_solid_cube(48.0)
     GL.glColor3f(0.0, 1.0, 0.0)
-    GL.glPushMatrix(); GL.glTranslatef(-60.0, 0.0, 0.0)
-    _primitives.draw_mesh(SPHERE); GL.glPopMatrix()
+    GL.glPushMatrix()
+    GL.glTranslatef(-60.0, 0.0, 0.0)
+    _primitives.draw_mesh(SPHERE)
+    GL.glPopMatrix()
     GL.glColor3f(1.0, 1.0, 0.0)
-    GL.glPushMatrix(); GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
+    GL.glPushMatrix()
+    GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
     GL.glTranslatef(60.0, 0.0, -24.0)
-    _primitives.draw_mesh(CONE, flat=True); GL.glPopMatrix()
+    _primitives.draw_mesh(CONE, flat=True)
+    GL.glPopMatrix()
     GL.glColor3f(1.0, 0.0, 1.0)
-    GL.glPushMatrix(); GL.glTranslatef(0.0, 0.0, 60.0)
-    _primitives.draw_mesh(TORUS); GL.glPopMatrix()
+    GL.glPushMatrix()
+    GL.glTranslatef(0.0, 0.0, 60.0)
+    _primitives.draw_mesh(TORUS)
+    GL.glPopMatrix()
     GL.glColor3f(0.0, 1.0, 1.0)
-    GL.glPushMatrix(); GL.glTranslatef(0.0, 0.0, -60.0)
+    GL.glPushMatrix()
+    GL.glTranslatef(0.0, 0.0, -60.0)
     GL.glScalef(25.0, 25.0, 25.0)
-    draw_solid_octahedron(); GL.glPopMatrix()
+    draw_solid_octahedron()
+    GL.glPopMatrix()
 
 
 def regenerate_shadow_map() -> None:
@@ -130,14 +155,17 @@ def regenerate_shadow_map() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     GLU.gluPerspective(fov, 1.0, near_plane, near_plane + 2.0 * scene_radius)
-    light_proj = np.array(GL.glGetFloatv(GL.GL_PROJECTION_MATRIX),
-                          dtype=np.float32).reshape((4, 4))
+    light_proj = np.array(
+        GL.glGetFloatv(GL.GL_PROJECTION_MATRIX), dtype=np.float32
+    ).reshape((4, 4))
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(light_pos[0], light_pos[1], light_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
-    light_mv = np.array(GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX),
-                        dtype=np.float32).reshape((4, 4))
+    GLU.gluLookAt(
+        light_pos[0], light_pos[1], light_pos[2], 0.0, 0.0, 0.0, 0.0, 1.0, 0.0
+    )
+    light_mv = np.array(
+        GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
+    ).reshape((4, 4))
     GL.glViewport(0, 0, shadow_width, shadow_height)
 
     if use_fbo:
@@ -150,8 +178,16 @@ def regenerate_shadow_map() -> None:
     GL.glColorMask(False, False, False, False)
     GL.glEnable(GL.GL_POLYGON_OFFSET_FILL)
     draw_models(False)
-    GL.glCopyTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_DEPTH_COMPONENT,
-                        0, 0, shadow_width, shadow_height, 0)
+    GL.glCopyTexImage2D(
+        GL.GL_TEXTURE_2D,
+        0,
+        GL.GL_DEPTH_COMPONENT,
+        0,
+        0,
+        shadow_width,
+        shadow_height,
+        0,
+    )
     if use_fbo:
         GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
     GL.glShadeModel(GL.GL_SMOOTH)
@@ -161,12 +197,15 @@ def regenerate_shadow_map() -> None:
     GL.glColorMask(True, True, True, True)
     GL.glDisable(GL.GL_POLYGON_OFFSET_FILL)
 
-    bias = np.array([
-        [0.5, 0.0, 0.0, 0.5],
-        [0.0, 0.5, 0.0, 0.5],
-        [0.0, 0.0, 0.5, 0.5],
-        [0.0, 0.0, 0.0, 1.0],
-    ], dtype=np.float32)
+    bias = np.array(
+        [
+            [0.5, 0.0, 0.0, 0.5],
+            [0.0, 0.5, 0.0, 0.5],
+            [0.0, 0.0, 0.5, 0.5],
+            [0.0, 0.0, 0.0, 1.0],
+        ],
+        dtype=np.float32,
+    )
     # GL matrices are column-major, so light_proj_T @ light_mv_T = (light_mv @ light_proj).T
     proj_t = light_proj.T
     mv_t = light_mv.T
@@ -179,38 +218,69 @@ def render_scene() -> None:
     GL.glLoadIdentity()
     if window_width > window_height:
         ar = float(window_width) / float(window_height)
-        GL.glFrustum(-ar * camera_zoom, ar * camera_zoom,
-                     -camera_zoom, camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            -camera_zoom,
+            camera_zoom,
+            1.0,
+            1000.0,
+        )
     else:
         ar = float(window_height) / float(window_width)
-        GL.glFrustum(-camera_zoom, camera_zoom,
-                     -ar * camera_zoom, ar * camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -camera_zoom,
+            camera_zoom,
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            1.0,
+            1000.0,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(camera_pos[0], camera_pos[1], camera_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GLU.gluLookAt(
+        camera_pos[0],
+        camera_pos[1],
+        camera_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    )
     GL.glViewport(0, 0, window_width, window_height)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     if show_shadow_map:
-        GL.glMatrixMode(GL.GL_PROJECTION); GL.glLoadIdentity()
-        GL.glMatrixMode(GL.GL_MODELVIEW); GL.glLoadIdentity()
-        GL.glMatrixMode(GL.GL_TEXTURE); GL.glPushMatrix(); GL.glLoadIdentity()
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glLoadIdentity()
+        GL.glMatrixMode(GL.GL_TEXTURE)
+        GL.glPushMatrix()
+        GL.glLoadIdentity()
         GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glDisable(GL.GL_LIGHTING)
         GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_COMPARE_MODE, GL.GL_NONE)
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_COMPARE_MODE, GL.GL_NONE
+        )
         # Stretch the depth texture to fill the entire window. The
         # SuperBible original sized the quad to the texture's native
         # pixel dimensions (so a 512×512 shadow map appeared in the
         # bottom-left of a 1920×1080 window). For an educational
         # debug view we want it to fill the screen.
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex2f(-1.0, -1.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex2f( 1.0, -1.0)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex2f( 1.0,  1.0)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex2f(-1.0,  1.0)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex2f(-1.0, -1.0)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex2f(1.0, -1.0)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex2f(1.0, 1.0)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex2f(-1.0, 1.0)
         GL.glEnd()
         GL.glDisable(GL.GL_TEXTURE_2D)
         GL.glEnable(GL.GL_LIGHTING)
@@ -234,10 +304,17 @@ def render_scene() -> None:
         GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, diffuse_light)
         GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_COMPARE_MODE,
-                           GL.GL_COMPARE_R_TO_TEXTURE)
-        for gen in (GL.GL_TEXTURE_GEN_S, GL.GL_TEXTURE_GEN_T,
-                    GL.GL_TEXTURE_GEN_R, GL.GL_TEXTURE_GEN_Q):
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_COMPARE_MODE,
+            GL.GL_COMPARE_R_TO_TEXTURE,
+        )
+        for gen in (
+            GL.GL_TEXTURE_GEN_S,
+            GL.GL_TEXTURE_GEN_T,
+            GL.GL_TEXTURE_GEN_R,
+            GL.GL_TEXTURE_GEN_Q,
+        ):
             GL.glEnable(gen)
         GL.glTexGenfv(GL.GL_S, GL.GL_EYE_PLANE, texture_matrix[0])
         GL.glTexGenfv(GL.GL_T, GL.GL_EYE_PLANE, texture_matrix[1])
@@ -246,8 +323,12 @@ def render_scene() -> None:
         draw_models(True)
         GL.glDisable(GL.GL_ALPHA_TEST)
         GL.glDisable(GL.GL_TEXTURE_2D)
-        for gen in (GL.GL_TEXTURE_GEN_S, GL.GL_TEXTURE_GEN_T,
-                    GL.GL_TEXTURE_GEN_R, GL.GL_TEXTURE_GEN_Q):
+        for gen in (
+            GL.GL_TEXTURE_GEN_S,
+            GL.GL_TEXTURE_GEN_T,
+            GL.GL_TEXTURE_GEN_R,
+            GL.GL_TEXTURE_GEN_Q,
+        ):
             GL.glDisable(gen)
 
 
@@ -270,11 +351,17 @@ def setup_rc() -> None:
 
     shadow_texture_id = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, shadow_texture_id)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+    )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_DEPTH_TEXTURE_MODE, GL.GL_INTENSITY)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_DEPTH_TEXTURE_MODE, GL.GL_INTENSITY
+    )
     for axis in (GL.GL_S, GL.GL_T, GL.GL_R, GL.GL_Q):
         GL.glTexGeni(axis, GL.GL_TEXTURE_GEN_MODE, GL.GL_EYE_LINEAR)
 
@@ -282,13 +369,21 @@ def setup_rc() -> None:
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id)
     renderbuffer_id = GL.glGenRenderbuffers(1)
     GL.glBindRenderbuffer(GL.GL_RENDERBUFFER, renderbuffer_id)
-    GL.glRenderbufferStorage(GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32,
-                             max_tex_size, max_tex_size)
-    GL.glFramebufferRenderbuffer(GL.GL_FRAMEBUFFER, GL.GL_DEPTH_ATTACHMENT,
-                                 GL.GL_RENDERBUFFER, renderbuffer_id)
+    GL.glRenderbufferStorage(
+        GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32, max_tex_size, max_tex_size
+    )
+    GL.glFramebufferRenderbuffer(
+        GL.GL_FRAMEBUFFER,
+        GL.GL_DEPTH_ATTACHMENT,
+        GL.GL_RENDERBUFFER,
+        renderbuffer_id,
+    )
     GL.glDrawBuffer(GL.GL_NONE)
     GL.glReadBuffer(GL.GL_NONE)
-    if GL.glCheckFramebufferStatus(GL.GL_FRAMEBUFFER) != GL.GL_FRAMEBUFFER_COMPLETE:
+    if (
+        GL.glCheckFramebufferStatus(GL.GL_FRAMEBUFFER)
+        != GL.GL_FRAMEBUFFER_COMPLETE
+    ):
         sys.stderr.write("FBO incomplete\n")
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, 0)
 
@@ -304,8 +399,10 @@ def change_size(w: int, h: int) -> None:
     else:
         shadow_width = w
         shadow_height = h
-    if shadow_width > max_tex_size: shadow_width = max_tex_size
-    if shadow_height > max_tex_size: shadow_height = max_tex_size
+    if shadow_width > max_tex_size:
+        shadow_width = max_tex_size
+    if shadow_height > max_tex_size:
+        shadow_height = max_tex_size
     if (orig_w, orig_h) != (shadow_width, shadow_height):
         regenerate_shadow_map()
 
@@ -356,24 +453,35 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Options", True):
         clicked, v = imgui.menu_item("Shadows", "", not no_shadows, True)
         if clicked:
             _set_shadows(v)
-        clicked, v = imgui.menu_item("Show shadow map", "", show_shadow_map, True)
+        clicked, v = imgui.menu_item(
+            "Show shadow map", "", show_shadow_map, True
+        )
         if clicked:
             _set_show_shadow_map(v)
         clicked, v = imgui.menu_item("Use FBO", "", use_fbo, True)
         if clicked:
             _set_use_fbo(v)
         imgui.separator()
-        _common.menu_action("Move camera", "", lambda: _set_control_camera(True),
-                            selected=control_camera)
-        _common.menu_action("Move light", "", lambda: _set_control_camera(False),
-                            selected=not control_camera)
+        _common.menu_action(
+            "Move camera",
+            "",
+            lambda: _set_control_camera(True),
+            selected=control_camera,
+        )
+        _common.menu_action(
+            "Move light",
+            "",
+            lambda: _set_control_camera(False),
+            selected=not control_camera,
+        )
         imgui.separator()
         if imgui.begin_menu("Polygon offset", True):
             changed, factor = imgui.slider_float("Factor", factor, 0.0, 10.0)
@@ -405,7 +513,8 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
-        glfw.set_window_should_close(window, True); return
+        glfw.set_window_should_close(window, True)
+        return
     target = camera_pos if control_camera else light_pos
     delta = -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     if key == glfw.KEY_X:
@@ -434,10 +543,12 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(window_width, window_height,
-                                "FBO Shadow Mapping Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "FBO Shadow Mapping Demo", None, None
+    )
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)

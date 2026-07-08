@@ -23,8 +23,6 @@ import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -41,7 +39,11 @@ data_offset_y: int = 0
 use_pbos: bool = False
 use_motion_blur: bool = True
 
-pixels: list = [None, None, None]  # numpy arrays in client mode, None when on GPU
+pixels: list = [
+    None,
+    None,
+    None,
+]  # numpy arrays in client mode, None when on GPU
 frame_good: list = [False, False, False]
 current_frame: int = 0
 angle_increment: float = 1.0
@@ -58,8 +60,17 @@ def setup_textures() -> None:
 
     half = (img.astype(np.uint16) >> 1).astype(np.uint8)
     GL.glBindTexture(GL.GL_TEXTURE_2D, 1)
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB8, w, h, 0,
-                    GL.GL_RGB, GL.GL_UNSIGNED_BYTE, half)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D,
+        0,
+        GL.GL_RGB8,
+        w,
+        h,
+        0,
+        GL.GL_RGB,
+        GL.GL_UNSIGNED_BYTE,
+        half,
+    )
     for p in (GL.GL_TEXTURE_MAG_FILTER, GL.GL_TEXTURE_MIN_FILTER):
         GL.glTexParameteri(GL.GL_TEXTURE_2D, p, GL.GL_LINEAR)
     for p in (GL.GL_TEXTURE_WRAP_S, GL.GL_TEXTURE_WRAP_T):
@@ -68,8 +79,17 @@ def setup_textures() -> None:
     quarter = (half.astype(np.uint16) >> 1).astype(np.uint8)
     for i in (2, 3, 4):
         GL.glBindTexture(GL.GL_TEXTURE_2D, i)
-        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB8, w, h, 0,
-                        GL.GL_RGB, GL.GL_UNSIGNED_BYTE, quarter)
+        GL.glTexImage2D(
+            GL.GL_TEXTURE_2D,
+            0,
+            GL.GL_RGB8,
+            w,
+            h,
+            0,
+            GL.GL_RGB,
+            GL.GL_UNSIGNED_BYTE,
+            quarter,
+        )
         for p in (GL.GL_TEXTURE_MAG_FILTER, GL.GL_TEXTURE_MIN_FILTER):
             GL.glTexParameteri(GL.GL_TEXTURE_2D, p, GL.GL_LINEAR)
         for p in (GL.GL_TEXTURE_WRAP_S, GL.GL_TEXTURE_WRAP_T):
@@ -118,8 +138,12 @@ def render_scene() -> None:
         GL.glBindTexture(GL.GL_TEXTURE_2D, 1)
 
     GL.glBegin(GL.GL_QUADS)
-    for verts in [(-1.0, -1.0, 0.0, 0.0), (-1.0, 1.0, 0.0, 1.0),
-                  (1.0, 1.0, 1.0, 1.0), (1.0, -1.0, 1.0, 0.0)]:
+    for verts in [
+        (-1.0, -1.0, 0.0, 0.0),
+        (-1.0, 1.0, 0.0, 1.0),
+        (1.0, 1.0, 1.0, 1.0),
+        (1.0, -1.0, 1.0, 0.0),
+    ]:
         x, y, u, v = verts
         for i in range(3):
             GL.glMultiTexCoord2f(GL.GL_TEXTURE0 + i, u, v)
@@ -128,13 +152,25 @@ def render_scene() -> None:
 
     if use_pbos:
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, current_frame + 1)
-        GL.glReadPixels(data_offset_x, data_offset_y, data_width, data_height,
-                        GL.GL_RGB, GL.GL_UNSIGNED_BYTE, None)
+        GL.glReadPixels(
+            data_offset_x,
+            data_offset_y,
+            data_width,
+            data_height,
+            GL.GL_RGB,
+            GL.GL_UNSIGNED_BYTE,
+            None,
+        )
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
     else:
         pixels[current_frame] = GL.glReadPixels(
-            data_offset_x, data_offset_y, data_width, data_height,
-            GL.GL_RGB, GL.GL_UNSIGNED_BYTE)
+            data_offset_x,
+            data_offset_y,
+            data_width,
+            data_height,
+            GL.GL_RGB,
+            GL.GL_UNSIGNED_BYTE,
+        )
 
     frame_good[current_frame] = True
 
@@ -144,9 +180,11 @@ def render_scene() -> None:
         GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, last_frame + 1)
         ptr = GL.glMapBuffer(GL.GL_PIXEL_UNPACK_BUFFER, GL.GL_READ_WRITE)
         if ptr:
-            arr = (np.ctypeslib.as_array(
-                (np.ctypes.c_uint8 * (data_height * data_pitch)).from_address(int(ptr))
-            ))
+            arr = np.ctypeslib.as_array(
+                (np.ctypes.c_uint8 * (data_height * data_pitch)).from_address(
+                    int(ptr)
+                )
+            )
             arr >>= 2
             GL.glUnmapBuffer(GL.GL_PIXEL_UNPACK_BUFFER)
     else:
@@ -159,14 +197,30 @@ def render_scene() -> None:
     GL.glBindTexture(GL.GL_TEXTURE_2D, 2 + last_frame)
     if use_pbos:
         if frame_good[last_frame]:
-            GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB8,
-                            data_width, data_height, 0,
-                            GL.GL_RGB, GL.GL_UNSIGNED_BYTE, None)
+            GL.glTexImage2D(
+                GL.GL_TEXTURE_2D,
+                0,
+                GL.GL_RGB8,
+                data_width,
+                data_height,
+                0,
+                GL.GL_RGB,
+                GL.GL_UNSIGNED_BYTE,
+                None,
+            )
         GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, 0)
     elif frame_good[last_frame]:
-        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_RGB8,
-                        data_width, data_height, 0,
-                        GL.GL_RGB, GL.GL_UNSIGNED_BYTE, pixels[last_frame])
+        GL.glTexImage2D(
+            GL.GL_TEXTURE_2D,
+            0,
+            GL.GL_RGB8,
+            data_width,
+            data_height,
+            0,
+            GL.GL_RGB,
+            GL.GL_UNSIGNED_BYTE,
+            pixels[last_frame],
+        )
 
     GL.glActiveTexture(GL.GL_TEXTURE2)
     GL.glBindTexture(GL.GL_TEXTURE_2D, 2 + frame_before_that)
@@ -205,15 +259,20 @@ def toggle_pbos() -> None:
         for i in range(3):
             GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, i + 1)
             data = pixels[i] if pixels[i] is not None else None
-            GL.glBufferData(GL.GL_PIXEL_PACK_BUFFER,
-                            data_height * data_pitch, data, usage_hint)
+            GL.glBufferData(
+                GL.GL_PIXEL_PACK_BUFFER,
+                data_height * data_pitch,
+                data,
+                usage_hint,
+            )
             pixels[i] = None
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
     else:
         for i in range(3):
             GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, i + 1)
             buf = GL.glGetBufferSubData(
-                GL.GL_PIXEL_PACK_BUFFER, 0, data_height * data_pitch)
+                GL.GL_PIXEL_PACK_BUFFER, 0, data_height * data_pitch
+            )
             pixels[i] = bytes(buf)
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
         GL.glDeleteBuffers(3, [1, 2, 3])
@@ -246,8 +305,12 @@ def change_size(w: int, h: int) -> None:
             pixels[i] = bytes(data_height * data_pitch)
         else:
             GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, i + 1)
-            GL.glBufferData(GL.GL_PIXEL_PACK_BUFFER,
-                            data_height * data_pitch, None, usage_hint)
+            GL.glBufferData(
+                GL.GL_PIXEL_PACK_BUFFER,
+                data_height * data_pitch,
+                None,
+                usage_hint,
+            )
             GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
 
 
@@ -263,8 +326,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Options", True):
         # toggle_motion_blur / toggle_pbos flip the global and do the GL
@@ -275,7 +339,8 @@ def imgui_menubar() -> None:
             toggle_pbos()
         imgui.separator()
         _, angle_increment = imgui.slider_float(
-            "Animation speed", angle_increment, -10.0, 10.0)
+            "Animation speed", angle_increment, -10.0, 10.0
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -295,10 +360,12 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(window_width, window_height,
-                                "Pixel Buffer Object Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Pixel Buffer Object Demo", None, None
+    )
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
@@ -332,8 +399,7 @@ def main() -> None:
             now = time.time()
             fps = 100.0 / (now - last_t)
             label = "with PBOs" if use_pbos else "without PBOs"
-            glfw.set_window_title(window,
-                                  f"Draw scene {label} {fps:.1f} fps")
+            glfw.set_window_title(window, f"Draw scene {label} {fps:.1f} fps")
             last_t = now
             frame_count = 0
     impl.shutdown()

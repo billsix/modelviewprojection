@@ -18,8 +18,6 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import Vector3, find_normal
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -41,33 +39,36 @@ def load_texture() -> None:
     img = iio.imread(os.path.join(PWD, "stone.tga"))
     img = np.flipud(img)
     h, w = img.shape[:2]
-    fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB)
+    fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     internal = GL.GL_RGBA8 if fmt == GL.GL_RGBA else GL.GL_RGB8
     img = np.ascontiguousarray(img, dtype=np.uint8)
 
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
     texture_id = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id)
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, internal, w, h, 0, fmt,
-                    GL.GL_UNSIGNED_BYTE, img)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D, 0, internal, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+    )
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
 
 
 def render_scene() -> None:
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S,
-                       GL.GL_CLAMP_TO_EDGE)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T,
-                       GL.GL_CLAMP_TO_EDGE)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+    )
     GL.glEnable(GL.GL_TEXTURE_2D)
 
     corners = [
-        Vector3(0.0, 0.80, 0.0),     # 0 top
-        Vector3(-0.5, 0.0, -0.50),   # 1 back-left
-        Vector3(0.5, 0.0, -0.50),    # 2 back-right
-        Vector3(0.5, 0.0, 0.5),      # 3 front-right
-        Vector3(-0.5, 0.0, 0.5),     # 4 front-left
+        Vector3(0.0, 0.80, 0.0),  # 0 top
+        Vector3(-0.5, 0.0, -0.50),  # 1 back-left
+        Vector3(0.5, 0.0, -0.50),  # 2 back-right
+        Vector3(0.5, 0.0, 0.5),  # 3 front-right
+        Vector3(-0.5, 0.0, 0.5),  # 4 front-left
     ]
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
@@ -81,12 +82,18 @@ def render_scene() -> None:
 
     # Bottom -- two triangles, normal points down
     GL.glNormal3f(0.0, -1.0, 0.0)
-    GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(*corners[2])
-    GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(*corners[4])
-    GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(*corners[1])
-    GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(*corners[2])
-    GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(*corners[3])
-    GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(*corners[4])
+    GL.glTexCoord2f(1.0, 1.0)
+    GL.glVertex3f(*corners[2])
+    GL.glTexCoord2f(0.0, 0.0)
+    GL.glVertex3f(*corners[4])
+    GL.glTexCoord2f(0.0, 1.0)
+    GL.glVertex3f(*corners[1])
+    GL.glTexCoord2f(1.0, 1.0)
+    GL.glVertex3f(*corners[2])
+    GL.glTexCoord2f(1.0, 0.0)
+    GL.glVertex3f(*corners[3])
+    GL.glTexCoord2f(0.0, 0.0)
+    GL.glVertex3f(*corners[4])
 
     # Front, left, back, right faces -- normal computed via mathutils
     for tri in [
@@ -97,9 +104,12 @@ def render_scene() -> None:
     ]:
         n = find_normal(*tri)
         GL.glNormal3f(n.coeff_e_1, n.coeff_e_2, n.coeff_e_3)
-        GL.glTexCoord2f(0.5, 1.0); GL.glVertex3f(*tri[0])
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(*tri[1])
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(*tri[2])
+        GL.glTexCoord2f(0.5, 1.0)
+        GL.glVertex3f(*tri[0])
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(*tri[1])
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(*tri[2])
 
     GL.glEnd()
     GL.glPopMatrix()
@@ -200,27 +210,38 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Texture Env Mode", True):
         for i, label in enumerate(["Modulate", "Replace"]):
-            _common.menu_action(label, "", lambda v=i: _set_env(v),
-                                selected=(env_mode_idx == i))
+            _common.menu_action(
+                label, "", lambda v=i: _set_env(v), selected=(env_mode_idx == i)
+            )
         imgui.end_menu()
     if imgui.begin_menu("Min Filter", True):
         for i, label in enumerate(["Linear", "Nearest"]):
-            _common.menu_action(label, "", lambda v=i: _set_min(v),
-                                selected=(min_filter_idx == i))
+            _common.menu_action(
+                label,
+                "",
+                lambda v=i: _set_min(v),
+                selected=(min_filter_idx == i),
+            )
         imgui.end_menu()
     if imgui.begin_menu("Mag Filter", True):
         for i, label in enumerate(["Linear", "Nearest"]):
-            _common.menu_action(label, "", lambda v=i: _set_mag(v),
-                                selected=(mag_filter_idx == i))
+            _common.menu_action(
+                label,
+                "",
+                lambda v=i: _set_mag(v),
+                selected=(mag_filter_idx == i),
+            )
         imgui.end_menu()
     if imgui.begin_menu("Camera", True):
-        _, extra_radius = imgui.slider_float("Extra Radius", extra_radius,
-                                             -4.0, 100.0)
+        _, extra_radius = imgui.slider_float(
+            "Extra Radius", extra_radius, -4.0, 100.0
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate Up", "Up", lambda: _nudge_x(-2.0))

@@ -20,7 +20,6 @@ opacity (:meth:`Mask.get_at`). We back the mask with the image's alpha channel
 
 from __future__ import annotations
 
-import numpy as np
 from numpy.typing import NDArray
 
 from ._types import Point, PointLike, RGBASource

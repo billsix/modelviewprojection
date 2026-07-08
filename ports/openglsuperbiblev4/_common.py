@@ -54,14 +54,14 @@ higher in the tree.)
 from __future__ import annotations
 
 import math
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import Callable, List, Optional, Sequence, Tuple
+from typing import List, Optional, Tuple
 
 import glfw
 import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
-
 
 WINDOW_DEFAULT: Tuple[int, int] = (1920, 1080)
 
@@ -99,6 +99,7 @@ class WindowState:
     panel (off by default; toggle from View → Show Controls). 2D demos
     that don't register a camera ignore this field.
     """
+
     fullscreen: bool = False
     saved_x: int = 0
     saved_y: int = 0
@@ -115,9 +116,15 @@ def toggle_fullscreen(window, state: WindowState) -> None:
     the way back to return to the saved windowed geometry.
     """
     if state.fullscreen:
-        glfw.set_window_monitor(window, None,
-                                state.saved_x, state.saved_y,
-                                state.saved_w, state.saved_h, 0)
+        glfw.set_window_monitor(
+            window,
+            None,
+            state.saved_x,
+            state.saved_y,
+            state.saved_w,
+            state.saved_h,
+            0,
+        )
         state.fullscreen = False
     else:
         state.saved_x, state.saved_y = glfw.get_window_pos(window)
@@ -126,14 +133,21 @@ def toggle_fullscreen(window, state: WindowState) -> None:
         if monitor is None:
             return
         mode = glfw.get_video_mode(monitor)
-        glfw.set_window_monitor(window, monitor, 0, 0,
-                                mode.size.width, mode.size.height,
-                                mode.refresh_rate)
+        glfw.set_window_monitor(
+            window,
+            monitor,
+            0,
+            0,
+            mode.size.width,
+            mode.size.height,
+            mode.refresh_rate,
+        )
         state.fullscreen = True
 
 
-def draw_menubar(window, state: WindowState, *,
-                 has_camera_controls: bool = False) -> None:
+def draw_menubar(
+    window, state: WindowState, *, has_camera_controls: bool = False
+) -> None:
     """Draw the standard menubar. Sets GLFW close flag on Quit, calls
     ``toggle_fullscreen`` on the View toggle. Must be called inside
     the imgui frame (between ``imgui.new_frame()`` and ``imgui.render()``).
@@ -145,8 +159,7 @@ def draw_menubar(window, state: WindowState, *,
 
     Pushes a tighter ``frame_padding`` style around the main menubar so
     the bar height stays close to the font height."""
-    imgui.push_style_var(
-        imgui.StyleVar_.frame_padding.value, (6.0, 2.0))
+    imgui.push_style_var(imgui.StyleVar_.frame_padding.value, (6.0, 2.0))
     opened = imgui.begin_main_menu_bar()
     if not opened:
         imgui.pop_style_var(1)
@@ -158,19 +171,22 @@ def draw_menubar(window, state: WindowState, *,
         imgui.end_menu()
     if imgui.begin_menu("View", True):
         clicked_fs, _ = imgui.menu_item(
-            "Fullscreen", "", state.fullscreen, True)
+            "Fullscreen", "", state.fullscreen, True
+        )
         if clicked_fs:
             toggle_fullscreen(window, state)
         if has_camera_controls:
             _, state.show_camera_controls = imgui.menu_item(
-                "Show Controls", "", state.show_camera_controls, True)
+                "Show Controls", "", state.show_camera_controls, True
+            )
         imgui.end_menu()
     imgui.end_main_menu_bar()
     imgui.pop_style_var(1)
 
 
-def menu_action(label: str, key: str, action: Callable[[], None], *,
-                selected: bool = False) -> None:
+def menu_action(
+    label: str, key: str, action: Callable[[], None], *, selected: bool = False
+) -> None:
     """A menubar item that mirrors a keyboard control. ``key`` is shown in the
     item's right-hand shortcut column (so the menu both performs the action and
     tells the user the keyboard equivalent); ``selected`` shows a check mark
@@ -203,6 +219,7 @@ class SceneObject:
     """A focusable object the camera can orbit. ``position`` is a
     callable returning the current world-space position so animated
     objects keep being tracked while focused."""
+
     name: str
     position: Callable[[], Tuple[float, float, float]]
 
@@ -227,8 +244,7 @@ class Camera:
     demo's world units; pick something sensible for your scene scale.
     """
 
-    position: List[float] = field(
-        default_factory=lambda: [0.0, 0.0, 10.0])
+    position: List[float] = field(default_factory=lambda: [0.0, 0.0, 10.0])
     rot_y: float = 0.0
     rot_x: float = 0.0
     focus_index: int = -1
@@ -258,8 +274,9 @@ def bind_camera_inputs(window, camera: Camera) -> None:
     glfw.set_scroll_callback(window, _scroll_cb)
 
 
-def update_camera(window, camera: Camera,
-                  scene_objects: Sequence[SceneObject]) -> None:
+def update_camera(
+    window, camera: Camera, scene_objects: Sequence[SceneObject]
+) -> None:
     """Read input and update camera state. Call between
     ``impl.process_inputs()`` and the demo's render code each frame.
 
@@ -328,8 +345,9 @@ def update_camera(window, camera: Camera,
 
     if not want_mouse:
         cur = glfw.get_cursor_pos(window)
-        pressed = (glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT)
-                   == glfw.PRESS)
+        pressed = (
+            glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS
+        )
         if pressed:
             if camera._prev_mouse is not None:
                 dx = cur[0] - camera._prev_mouse[0]
@@ -349,8 +367,7 @@ def update_camera(window, camera: Camera,
         camera.rot_x = -half_pi
 
 
-def apply_camera(camera: Camera,
-                 scene_objects: Sequence[SceneObject]) -> None:
+def apply_camera(camera: Camera, scene_objects: Sequence[SceneObject]) -> None:
     """Emit the camera transform on the current ``GL_MODELVIEW``
     matrix. Call right after ``glLoadIdentity()`` and before the demo
     draws scene geometry. Must be in ``glMatrixMode(GL_MODELVIEW)``."""
@@ -363,14 +380,14 @@ def apply_camera(camera: Camera,
     else:
         GL.glRotatef(math.degrees(-camera.rot_x), 1.0, 0.0, 0.0)
         GL.glRotatef(math.degrees(-camera.rot_y), 0.0, 1.0, 0.0)
-        GL.glTranslatef(-camera.position[0],
-                        -camera.position[1],
-                        -camera.position[2])
+        GL.glTranslatef(
+            -camera.position[0], -camera.position[1], -camera.position[2]
+        )
 
 
-def draw_camera_controls(camera: Camera,
-                         scene_objects: Sequence[SceneObject],
-                         state: WindowState) -> None:
+def draw_camera_controls(
+    camera: Camera, scene_objects: Sequence[SceneObject], state: WindowState
+) -> None:
     """ImGui panel: shows current mode + state, lets the user pick a
     focus object or return to walk-around. Hidden by default; toggled
     on via View → Show Controls in the menubar (or the window's X
@@ -379,7 +396,8 @@ def draw_camera_controls(camera: Camera,
     if not state.show_camera_controls:
         return
     expanded, state.show_camera_controls = imgui.begin(
-        "Camera", state.show_camera_controls)
+        "Camera", state.show_camera_controls
+    )
     if not expanded:
         imgui.end()
         return
@@ -388,18 +406,21 @@ def draw_camera_controls(camera: Camera,
         imgui.text("Mode: Walk-around")
         imgui.text(
             f"Position: ({camera.position[0]:.2f}, "
-            f"{camera.position[1]:.2f}, {camera.position[2]:.2f})")
+            f"{camera.position[1]:.2f}, {camera.position[2]:.2f})"
+        )
     else:
         obj = scene_objects[camera.focus_index]
         ox, oy, oz = obj.position()
         imgui.text(f"Mode: Focus on '{obj.name}'")
         imgui.text(f"Object at ({ox:.2f}, {oy:.2f}, {oz:.2f})")
         _, camera.focus_radius = imgui.slider_float(
-            "Radius", camera.focus_radius, 0.1, 1000.0)
+            "Radius", camera.focus_radius, 0.1, 1000.0
+        )
 
     imgui.text(
         f"rot_y={math.degrees(camera.rot_y):6.1f}°  "
-        f"rot_x={math.degrees(camera.rot_x):6.1f}°")
+        f"rot_x={math.degrees(camera.rot_x):6.1f}°"
+    )
     imgui.separator()
     imgui.text("Focus on:")
     if imgui.radio_button("(walk around)", camera.focus_index < 0):
@@ -411,5 +432,6 @@ def draw_camera_controls(camera: Camera,
     imgui.text_wrapped(
         "Walk-around: WASD strafes, QE up/down. Arrows or left-mouse "
         "drag to look. Scroll to move forward/back. Pick an object "
-        "above to orbit around it instead.")
+        "above to orbit around it instead."
+    )
     imgui.end()

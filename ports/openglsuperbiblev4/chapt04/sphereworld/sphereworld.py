@@ -25,8 +25,8 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit menu item
 
@@ -68,8 +68,8 @@ def setup_rc() -> None:
     random.seed(0)
     for _ in range(NUM_SPHERES):
         # Place between -20 and 20 in 0.1 increments
-        sx = ((random.randint(0, 399) - 200) * 0.1)
-        sz = ((random.randint(0, 399) - 200) * 0.1)
+        sx = (random.randint(0, 399) - 200) * 0.1
+        sz = (random.randint(0, 399) - 200) * 0.1
         sphere_positions.append((sx, 0.0, sz))
 
 
@@ -193,8 +193,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))
@@ -214,9 +215,7 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(
-        800, 600, "OpenGL SphereWorld Demo", None, None
-    )
+    window = glfw.create_window(800, 600, "OpenGL SphereWorld Demo", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)

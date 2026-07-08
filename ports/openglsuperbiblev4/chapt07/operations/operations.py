@@ -16,8 +16,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -88,11 +86,13 @@ def render_scene() -> None:
         modified_fmt = GL.GL_RGB
 
     if modified is None:
-        GL.glDrawPixels(image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE,
-                        image_data)
+        GL.glDrawPixels(
+            image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE, image_data
+        )
     else:
-        GL.glDrawPixels(image_w, image_h, modified_fmt,
-                        GL.GL_UNSIGNED_BYTE, modified)
+        GL.glDrawPixels(
+            image_w, image_h, modified_fmt, GL.GL_UNSIGNED_BYTE, modified
+        )
 
     # Reset
     GL.glPixelTransferf(GL.GL_RED_SCALE, 1.0)
@@ -138,18 +138,27 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Operations", True):
         for label, value in [
-            ("Draw Pixels", 1), ("Flip Pixels", 2), ("Zoom Pixels", 3),
-            ("Just Red Channel", 4), ("Just Green Channel", 5),
-            ("Just Blue Channel", 6), ("Black and White", 7),
+            ("Draw Pixels", 1),
+            ("Flip Pixels", 2),
+            ("Zoom Pixels", 3),
+            ("Just Red Channel", 4),
+            ("Just Green Channel", 5),
+            ("Just Blue Channel", 6),
+            ("Black and White", 7),
             ("Invert Colors", 8),
         ]:
-            _common.menu_action(label, "", lambda v=value: _set_mode(v),
-                                selected=(i_render_mode == value))
+            _common.menu_action(
+                label,
+                "",
+                lambda v=value: _set_mode(v),
+                selected=(i_render_mode == value),
+            )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

@@ -16,12 +16,10 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Controls buttons
 
@@ -69,10 +67,14 @@ def render_scene() -> None:
     GL.glDepthMask(GL.GL_FALSE)
 
     GL.glBegin(GL.GL_QUADS)
-    GL.glTexCoord2f(0.0, 0.0); GL.glVertex2f(0.0, 0.0)
-    GL.glTexCoord2f(1.0, 0.0); GL.glVertex2f(1.0, 0.0)
-    GL.glTexCoord2f(1.0, 1.0); GL.glVertex2f(1.0, 1.0)
-    GL.glTexCoord2f(0.0, 1.0); GL.glVertex2f(0.0, 1.0)
+    GL.glTexCoord2f(0.0, 0.0)
+    GL.glVertex2f(0.0, 0.0)
+    GL.glTexCoord2f(1.0, 0.0)
+    GL.glVertex2f(1.0, 0.0)
+    GL.glTexCoord2f(1.0, 1.0)
+    GL.glVertex2f(1.0, 1.0)
+    GL.glTexCoord2f(0.0, 1.0)
+    GL.glVertex2f(0.0, 1.0)
     GL.glEnd()
 
     GL.glMatrixMode(GL.GL_PROJECTION)
@@ -109,21 +111,21 @@ def setup_rc() -> None:
     for i, fname in enumerate(["stripes.tga", "Environment.tga"]):
         img = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4
-               else GL.GL_RGB)
+        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
         img = np.ascontiguousarray(img, dtype=np.uint8)
         to_textures[i] = GL.glGenTextures(1)
         GL.glBindTexture(GL.GL_TEXTURE_2D, to_textures[i])
-        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt,
-                        GL.GL_UNSIGNED_BYTE, img)
-        GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           GL.GL_LINEAR)
-        GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER,
-                           GL.GL_LINEAR)
-        GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S,
-                           GL.GL_REPEAT)
-        GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T,
-                           GL.GL_REPEAT)
+        GL.glTexImage2D(
+            GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        )
+        GL.glTexParameterf(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameterf(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT)
+        GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT)
 
     GL.glEnable(GL.GL_TEXTURE_2D)
     GL.glEnable(GL.GL_TEXTURE_GEN_S)
@@ -190,14 +192,22 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Render Mode", True):
-        for label, value in [("Object Linear", 1), ("Eye Linear", 2),
-                             ("Sphere Map", 3)]:
-            _common.menu_action(label, "", lambda v=value: _set_mode(v),
-                                selected=(i_render_mode == value))
+        for label, value in [
+            ("Object Linear", 1),
+            ("Eye Linear", 2),
+            ("Sphere Map", 3),
+        ]:
+            _common.menu_action(
+                label,
+                "",
+                lambda v=value: _set_mode(v),
+                selected=(i_render_mode == value),
+            )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate Up", "Up", lambda: _nudge_x(-2.0))
@@ -214,8 +224,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(800, 600, "Texture Coordinate Generation",
-                                None, None)
+    window = glfw.create_window(
+        800, 600, "Texture Coordinate Generation", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)

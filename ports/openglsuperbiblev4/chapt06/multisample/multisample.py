@@ -21,8 +21,8 @@ from modelviewprojection.mathutils import Vector3, plane_equation
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit control button
 
@@ -49,14 +49,27 @@ def make_planar_shadow_matrix(
     # CCW plane_equation can land w<0; OpenGL clips before perspective
     # divide and the shadow disappears. Negate to keep w positive.
     # See tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md.
-    s = 1.0 if (a*dx + b*dy + c*dz) > 0.0 else -1.0
+    s = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
-            s*(b*dy+c*dz), s*-a*dy, s*-a*dz, 0.0,
-            s*-b*dx, s*(a*dx+c*dz), s*-b*dz, 0.0,
-            s*-c*dx, s*-c*dy, s*(a*dx+b*dy), 0.0,
-            s*-d*dx, s*-d*dy, s*-d*dz, s*(a*dx+b*dy+c*dz),
-        ], dtype=np.float32,
+            s * (b * dy + c * dz),
+            s * -a * dy,
+            s * -a * dz,
+            0.0,
+            s * -b * dx,
+            s * (a * dx + c * dz),
+            s * -b * dz,
+            0.0,
+            s * -c * dx,
+            s * -c * dy,
+            s * (a * dx + b * dy),
+            0.0,
+            s * -d * dx,
+            s * -d * dy,
+            s * -d * dz,
+            s * (a * dx + b * dy + c * dz),
+        ],
+        dtype=np.float32,
     )
 
 
@@ -157,12 +170,14 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Options", True):
-        clicked, _ = imgui.menu_item("MSAA (multisample)", "",
-                                     msaa_enabled, True)
+        clicked, _ = imgui.menu_item(
+            "MSAA (multisample)", "", msaa_enabled, True
+        )
         if clicked:
             _toggle_msaa()
         imgui.end_menu()
@@ -170,8 +185,7 @@ def imgui_menubar() -> None:
         _common.menu_action("Forward", "Up", lambda: _walk(1.0))
         _common.menu_action("Back", "Down", lambda: _walk(-1.0))
         _common.menu_action("Turn Left", "Left", lambda: _turn(BTN_YAW_STEP))
-        _common.menu_action("Turn Right", "Right",
-                            lambda: _turn(-BTN_YAW_STEP))
+        _common.menu_action("Turn Right", "Right", lambda: _turn(-BTN_YAW_STEP))
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -190,8 +204,11 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_LIGHTING)
     GL.glEnable(GL.GL_LIGHT0)
 
-    p1, p2, p3 = (Vector3(0.0, -0.4, 0.0), Vector3(10.0, -0.4, 0.0),
-                  Vector3(5.0, -0.4, -5.0))
+    p1, p2, p3 = (
+        Vector3(0.0, -0.4, 0.0),
+        Vector3(10.0, -0.4, 0.0),
+        Vector3(5.0, -0.4, -5.0),
+    )
     pn, pd = plane_equation(p1, p2, p3)
     shadow_mat = make_planar_shadow_matrix(pn, pd, f_light_pos)
 

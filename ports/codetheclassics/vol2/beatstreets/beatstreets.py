@@ -14,8 +14,8 @@
 # If the game window doesn't fit on the screen, you may need to turn off or reduce display scaling in the Windows/macOS settings
 # On Windows, you can uncomment the following two lines to fix the issue. It sets the program as "DPI aware"
 # meaning that display scaling won't be applied to it.
-#import ctypes
-#ctypes.windll.user32.SetProcessDPIAware()
+# import ctypes
+# ctypes.windll.user32.SetProcessDPIAware()
 
 # ---------------------------------------------------------------------------
 # PyGame Zero -> GLFW + OpenGL 3.3 core port (ModelViewProjection).
@@ -27,17 +27,29 @@
 #   Original source: https://github.com/raspberrypipress/Code-the-Classics-Vol2
 #   Book:            https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 # ---------------------------------------------------------------------------
-import os as _os, sys as _sys
-_sys.path.append(_os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))))
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
+import os as _os
+import sys as _sys
 
-import sys, json, time
+_sys.path.append(
+    _os.path.dirname(
+        _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    )
+)
+import json
+import sys
+import time
 from abc import ABC, abstractmethod
+from collections.abc import Callable  # noqa: E402
 from dataclasses import InitVar, dataclass, field
 from enum import Enum
-from random import randint, choice
-from pygame import Vector2, mixer  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
-from typing import Any, Callable  # noqa: E402
+from random import choice, randint
+from typing import Any
+
+from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
+from pygame import (  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
+    Vector2,
+    mixer,
+)
 
 HEALTH_STAMINA_BAR_WIDTH = 235
 HEALTH_STAMINA_BAR_HEIGHT = 26
@@ -80,12 +92,15 @@ DEBUG_PROFILING = False
 # These symbols substitute for the controller button images when displaying text.
 # The symbols representing these images must be ones that aren't actually used themselves, e.g. we don't use the
 # percent sign in text
-SPECIAL_FONT_SYMBOLS = {'xb_a':'%'}
+SPECIAL_FONT_SYMBOLS = {"xb_a": "%"}
 
 # Create a version of SPECIAL_FONT_SYMBOLS where the keys and values are swapped
-SPECIAL_FONT_SYMBOLS_INVERSE = dict((v,k) for k,v in SPECIAL_FONT_SYMBOLS.items())
+SPECIAL_FONT_SYMBOLS_INVERSE = dict(
+    (v, k) for k, v in SPECIAL_FONT_SYMBOLS.items()
+)
 
 debug_drawcalls: list[Callable[[], None]] = []
+
 
 # Class for measuring how long code takes to run
 class Profiler:
@@ -101,10 +116,13 @@ class Profiler:
     def __str__(self) -> str:
         return f"{self.name}: {self.get_ms()}ms"
 
+
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
-if sys.version_info < (3,6):
-    print("This game requires at least version 3.6 of Python. Please download it from www.python.org")
+if sys.version_info < (3, 6):
+    print(
+        "This game requires at least version 3.6 of Python. Please download it from www.python.org"
+    )
     sys.exit()
 
 # Check Pygame Zero version. This is a bit trickier because Pygame Zero only lets us get its version number as a string.
@@ -112,9 +130,13 @@ if sys.version_info < (3,6):
 # version number into an integer - but only if the string contains numbers and nothing else, because it's possible for
 # a component of the version to contain letters as well as numbers (e.g. '2.0.dev0')
 # This uses a Python feature called list comprehension
-pgzero_version = [int(s) if s.isnumeric() else s for s in pgzero.__version__.split('.')]
-if pgzero_version < [1,2]:
-    print(f"This game requires at least version 1.2 of Pygame Zero. You have version {pgzero.__version__}. Please upgrade using the command 'pip3 install --upgrade pgzero'")
+pgzero_version = [
+    int(s) if s.isnumeric() else s for s in pgzero.__version__.split(".")
+]
+if pgzero_version < [1, 2]:
+    print(
+        f"This game requires at least version 1.2 of Pygame Zero. You have version {pgzero.__version__}. Please upgrade using the command 'pip3 install --upgrade pgzero'"
+    )
     sys.exit()
 
 WIDTH = 800
@@ -133,21 +155,86 @@ ANCHOR_CENTRE_BOTTOM = ("center", "bottom")
 BACKGROUND_TILE_SPACING = 290
 
 # 1st row of TILE_DEMO+_3.png
-BACKGROUND_TILES = ["wall_end1", "wall_fill1", "wall_fill5", "wall_fill2", "alley1", "wall_end6", "wall_fill7",
-                    "wall_fill5", "alley2", "wall_end3", "wall_fill3", "wall_fill4", "wall_fill8", "alley5",
-                    "wall_end2", "alley3", "wall_end4", "wall_fill6",
-#row 2
-                    "alley6", "wall_end8", "wall_fill4", "alley7", "wall_end5", "alley8", "set_pc_a1", "set_pc_a2",
-                    "alley9", "set_pc_b1", "set_pc_b2", "set_pc_b3", "wall_end3", "wall_fill3", "alley8", "set_pc_a1",
-                    "set_pc_a2", "wall_fill2",
-#3
-                    "con_start2", "con_end1a", "con_end2", "con_start2", "con_end1", "con_fill1", "con_end2a",
-                    "con_start2", "con_end1a", "con_fill1a", "con_end2", "set_pc_c1", "set_pc_c2", "set_pc_c3",
-                    "con_start1", "con_end1", "con_fill1", "con_fill2", "con_fill1a", "con_fill2a",
-#4
-                    "wall_end1", "alley10", "steps_end1a", "steps_fill1a", "steps_fill2a", "steps_end2a",
-                    "flats_alley1", "steps_end1", "steps_end2", "flats_alley1",  "flats_end1a", "steps_fill2",
-                    "steps_fill1", "flats_end2a", "flats_alley2", "set_pc_d1", "set_pc_d2", "set_pc_d3", "steps_end2a"]
+BACKGROUND_TILES = [
+    "wall_end1",
+    "wall_fill1",
+    "wall_fill5",
+    "wall_fill2",
+    "alley1",
+    "wall_end6",
+    "wall_fill7",
+    "wall_fill5",
+    "alley2",
+    "wall_end3",
+    "wall_fill3",
+    "wall_fill4",
+    "wall_fill8",
+    "alley5",
+    "wall_end2",
+    "alley3",
+    "wall_end4",
+    "wall_fill6",
+    # row 2
+    "alley6",
+    "wall_end8",
+    "wall_fill4",
+    "alley7",
+    "wall_end5",
+    "alley8",
+    "set_pc_a1",
+    "set_pc_a2",
+    "alley9",
+    "set_pc_b1",
+    "set_pc_b2",
+    "set_pc_b3",
+    "wall_end3",
+    "wall_fill3",
+    "alley8",
+    "set_pc_a1",
+    "set_pc_a2",
+    "wall_fill2",
+    # 3
+    "con_start2",
+    "con_end1a",
+    "con_end2",
+    "con_start2",
+    "con_end1",
+    "con_fill1",
+    "con_end2a",
+    "con_start2",
+    "con_end1a",
+    "con_fill1a",
+    "con_end2",
+    "set_pc_c1",
+    "set_pc_c2",
+    "set_pc_c3",
+    "con_start1",
+    "con_end1",
+    "con_fill1",
+    "con_fill2",
+    "con_fill1a",
+    "con_fill2a",
+    # 4
+    "wall_end1",
+    "alley10",
+    "steps_end1a",
+    "steps_fill1a",
+    "steps_fill2a",
+    "steps_end2a",
+    "flats_alley1",
+    "steps_end1",
+    "steps_end2",
+    "flats_alley1",
+    "flats_end1a",
+    "steps_fill2",
+    "steps_fill1",
+    "flats_end2a",
+    "flats_alley2",
+    "set_pc_d1",
+    "set_pc_d2",
+    "set_pc_d3",
+    "steps_end2a",
+]
 
 fullscreen_black_bmp = pygame.Surface((WIDTH, HEIGHT))
 fullscreen_black_bmp.fill((0, 0, 0))
@@ -155,21 +242,42 @@ fullscreen_black_bmp.fill((0, 0, 0))
 
 # Utility functions
 
+
 def clamp(value: float, min_val: float, max_val: float) -> float:
     # Clamp a value within a given range
     return min(max(value, min_val), max_val)
 
-def remap(old_val: float, old_min: float, old_max: float, new_min: float, new_max: float) -> float:
+
+def remap(
+    old_val: float,
+    old_min: float,
+    old_max: float,
+    new_min: float,
+    new_max: float,
+) -> float:
     # Remap a number from one range to a different range
     # e.g. remapping 5 from source range of 0 to 10, to destination range of 0 to 100, becomes 50
-    return (new_max - new_min)*(old_val - old_min) / (old_max - old_min) + new_min
+    return (new_max - new_min) * (old_val - old_min) / (
+        old_max - old_min
+    ) + new_min
 
-def remap_clamp(old_val: float, old_min: float, old_max: float, new_min: float, new_max: float) -> float:
+
+def remap_clamp(
+    old_val: float,
+    old_min: float,
+    old_max: float,
+    new_min: float,
+    new_max: float,
+) -> float:
     # Like remap, but constrains the resulting value so that it can't be outside the new range
     # These first two lines are in case new_min and new_max are inverted
     lower_limit: float = min(new_min, new_max)
     upper_limit: float = max(new_min, new_max)
-    return min(upper_limit, max(lower_limit, remap(old_val, old_min, old_max, new_min, new_max)))
+    return min(
+        upper_limit,
+        max(lower_limit, remap(old_val, old_min, old_max, new_min, new_max)),
+    )
+
 
 def sign(x: float) -> int:
     # Returns 1, 0 or -1 depending on whether number is positive, zero or negative
@@ -177,6 +285,7 @@ def sign(x: float) -> int:
         return 0
     else:
         return -1 if x < 0 else 1
+
 
 def move_towards(n: float, target: float, speed: float) -> tuple[float, int]:
     # Returns new value, and the direction of travel (-1, 0 or 1)
@@ -187,19 +296,26 @@ def move_towards(n: float, target: float, speed: float) -> tuple[float, int]:
     else:
         return n, 0
 
+
 # ABC = abstract base class - a class which is only there to serve as a base class, not to be instantiated directly
 class Controls(ABC):
     NUM_BUTTONS = 4
 
     def __init__(self) -> None:
-        self.button_previously_down: list[bool] = [False for i in range(Controls.NUM_BUTTONS)]
-        self.is_button_pressed: list[bool] = [False for i in range(Controls.NUM_BUTTONS)]
+        self.button_previously_down: list[bool] = [
+            False for i in range(Controls.NUM_BUTTONS)
+        ]
+        self.is_button_pressed: list[bool] = [
+            False for i in range(Controls.NUM_BUTTONS)
+        ]
 
     def update(self) -> None:
         # Call each frame to update button status
         for button in range(Controls.NUM_BUTTONS):
             button_down: bool = self.button_down(button)
-            self.is_button_pressed[button] = button_down and not self.button_previously_down[button]
+            self.is_button_pressed[button] = (
+                button_down and not self.button_previously_down[button]
+            )
             self.button_previously_down[button] = button_down
 
     @abstractmethod
@@ -220,6 +336,7 @@ class Controls(ABC):
     def button_pressed(self, button: int) -> bool:
         return self.is_button_pressed[button]
 
+
 class KeyboardControls(Controls):
     def get_x(self) -> int:
         if keyboard.left:
@@ -239,25 +356,31 @@ class KeyboardControls(Controls):
 
     def button_down(self, button: int) -> bool:  # ty: ignore[invalid-return-type]  # faithful port: returns bool for buttons 0-3, implicitly None otherwise
         if button == 0:
-            return keyboard.space or keyboard.z or keyboard.lctrl   # punch
+            return keyboard.space or keyboard.z or keyboard.lctrl  # punch
         elif button == 1:
-            return keyboard.x or keyboard.lalt      # kick
+            return keyboard.x or keyboard.lalt  # kick
         elif button == 2:
-            return keyboard.c or keyboard.lshift    # elbow
+            return keyboard.c or keyboard.lshift  # elbow
         elif button == 3:
-            return keyboard.a   # flying kick
+            return keyboard.a  # flying kick
+
 
 class JoystickControls(Controls):
     def __init__(self, joystick: Any) -> None:
         super().__init__()
         self.joystick: Any = joystick
-        joystick.init() # Not necessary in Pygame 2.0.0 onwards
+        joystick.init()  # Not necessary in Pygame 2.0.0 onwards
 
     def get_axis(self, axis_num: int) -> int:
-        if self.joystick.get_numhats() > 0 and self.joystick.get_hat(0)[axis_num] != 0:
+        if (
+            self.joystick.get_numhats() > 0
+            and self.joystick.get_hat(0)[axis_num] != 0
+        ):
             # For some reason, dpad up/down are inverted when getting inputs from
             # an Xbox controller, so need to negate the value if axis_num is 1
-            return self.joystick.get_hat(0)[axis_num] * (-1 if axis_num == 1 else 1)
+            return self.joystick.get_hat(0)[axis_num] * (
+                -1 if axis_num == 1 else 1
+            )
 
         axis_value = self.joystick.get_axis(axis_num)
         if abs(axis_value) < 0.6:
@@ -281,6 +404,7 @@ class JoystickControls(Controls):
             return False
         return self.joystick.get_button(button) != 0
 
+
 # (eq=False on these dataclasses keeps identity comparison/hashing -- the
 # generated __eq__ would compare fields and set __hash__ to None.  Field/
 # parameter names must stay exactly as they are: instances are constructed
@@ -289,14 +413,16 @@ class JoystickControls(Controls):
 class Attack:
     sprite: Any = None
     strength: Any = None
-    anim_time: Any = None    # Frames for which animation plays, this allows us to stay on the last frame longer than previous frames
-    frame_time: int = 5      # Frames for which each animation frame plays
-    frames: int = 0          # Number of frames in animation
-    hit_frames: Any = ()     # frames on which an opponent can be hit by this attack
-    recovery_time: int = 0   # Can't attack for this many frames after attack animation finishes
-    reach: int = 80          # Opponent must be closer than this for attack to hit
-    throw: bool = False      # Is this an attack where we throw something, such as a barrel or the player?
-    grab: bool = False       # Is this the attack where the boss grabs the player and throws him?
+    anim_time: Any = None  # Frames for which animation plays, this allows us to stay on the last frame longer than previous frames
+    frame_time: int = 5  # Frames for which each animation frame plays
+    frames: int = 0  # Number of frames in animation
+    hit_frames: Any = ()  # frames on which an opponent can be hit by this attack
+    recovery_time: int = (
+        0  # Can't attack for this many frames after attack animation finishes
+    )
+    reach: int = 80  # Opponent must be closer than this for attack to hit
+    throw: bool = False  # Is this an attack where we throw something, such as a barrel or the player?
+    grab: bool = False  # Is this the attack where the boss grabs the player and throws him?
     combo_next: Any = None
     # The json key is 'flyingkick' but the attribute the game reads is
     # 'flying_kick' -- an InitVar keeps the constructor parameter name while
@@ -304,7 +430,9 @@ class Attack:
     flyingkick: InitVar[bool] = False
     stamina_cost: int = 10
     rear_attack: bool = False
-    stamina_damage_multiplier: float = 1  # Does this attack do additional damage to the opponent's stamina?
+    stamina_damage_multiplier: float = (
+        1  # Does this attack do additional damage to the opponent's stamina?
+    )
     stun_time_multiplier: float = 1
     initial_sound: Any = None
     hit_sound: Any = None
@@ -316,15 +444,21 @@ class Attack:
         # For example, the keys in combo_next should be integers, but are strings in the json file as JSON only allows
         # string keys.
         if self.combo_next is not None:
-            self.combo_next = {int(key):value for (key,value) in self.combo_next.items()}
+            self.combo_next = {
+                int(key): value for (key, value) in self.combo_next.items()
+            }
+
 
 # Load attack data from file (resolve relative to this script so the game can be
 # launched from any working directory, not just its own folder)
-with open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "attacks.json")) as attacks_file:
+with open(
+    _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "attacks.json")
+) as attacks_file:
     ATTACKS = json.load(attacks_file)
     for key, value in ATTACKS.items():
         # Turn values in the dictionary into constructor parameters of the Attack class
         ATTACKS[key] = Attack(**value)
+
 
 # The ScrollHeightActor class extends Pygame Zero's Actor class by providing the attribute 'vpos', which stores the
 # object's current position using Pygame's Vector2 class. All code should change or read the position via vpos, as
@@ -335,7 +469,13 @@ with open(_os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "attacks.j
 # on the Y axis than if they were on the ground, but it's their Y position in relation to the ground which should
 # determine whether they're drawn behind or in front of other actors.
 class ScrollHeightActor(Actor):
-    def __init__(self, img: Any, pos: Any, anchor: Any = None, separate_shadow: bool = False) -> None:
+    def __init__(
+        self,
+        img: Any,
+        pos: Any,
+        anchor: Any = None,
+        separate_shadow: bool = False,
+    ) -> None:
         super().__init__(img, pos, anchor=anchor)
         self.vpos: Vector2 = Vector2(pos)
         self.height_above_ground: float = 0
@@ -349,15 +489,23 @@ class ScrollHeightActor(Actor):
         # Draw shadow first, if we are using a separate shadow sprite (most have the shadow as part of the sprite
         # but for player it is separate)
         if self.shadow_actor is not None:
-            self.shadow_actor.pos = (self.vpos.x - offset.x, self.vpos.y - offset.y)
-            self.shadow_actor.image = "blank" if self.image == "blank" else self.image + "_shadow"
+            self.shadow_actor.pos = (
+                self.vpos.x - offset.x,
+                self.vpos.y - offset.y,
+            )
+            self.shadow_actor.image = (
+                "blank" if self.image == "blank" else self.image + "_shadow"
+            )
             self.shadow_actor.draw()
 
         # Set Actor's screen pos
-        self.pos = (self.vpos.x - offset.x, self.vpos.y - offset.y - self.height_above_ground)
+        self.pos = (
+            self.vpos.x - offset.x,
+            self.vpos.y - offset.y - self.height_above_ground,
+        )
         super().draw()
         if DEBUG_SHOW_ANCHOR_POINTS:
-            screen.draw.circle(self.pos, 5, (255,255,255))
+            screen.draw.circle(self.pos, 5, (255, 255, 255))
 
     def on_screen(self) -> bool:
         # Use self.x rather than self.vpos.x to get actual screen position rather than world position
@@ -368,6 +516,7 @@ class ScrollHeightActor(Actor):
     def get_draw_order_offset(self) -> int:
         # See Player and Stick classes for explanation
         return 0
+
 
 # Inherits from both ScrollActor and ABC (abstract base class)
 class Fighter(ScrollHeightActor, ABC):
@@ -386,7 +535,21 @@ class Fighter(ScrollHeightActor, ABC):
             print(self, l)
             self.logs.append(l)
 
-    def __init__(self, pos: Any, anchor: Any, speed: Vector2, sprite: str, health: int, anim_update_rate: int = 8, stamina: int = 500, half_hit_area: Vector2 = Vector2(25, 20), lives: int = 1, colour_variant: Any = None, separate_shadow: bool = False, hit_sound: Any = None) -> None:
+    def __init__(
+        self,
+        pos: Any,
+        anchor: Any,
+        speed: Vector2,
+        sprite: str,
+        health: int,
+        anim_update_rate: int = 8,
+        stamina: int = 500,
+        half_hit_area: Vector2 = Vector2(25, 20),
+        lives: int = 1,
+        colour_variant: Any = None,
+        separate_shadow: bool = False,
+        hit_sound: Any = None,
+    ) -> None:
         super().__init__("blank", pos, anchor, separate_shadow=separate_shadow)
 
         # Speed is a Vector2 containing x and y speed
@@ -415,11 +578,13 @@ class Fighter(ScrollHeightActor, ABC):
         # Are we currently walking? Used to determine whether to use standing or walking animation
         self.walking: bool = False
 
-        self.vel: Vector2 = Vector2(0, 0)  # Velocity X used when falling or being pushed backwards or for flying kick, velocity Y for jumping
+        self.vel: Vector2 = Vector2(
+            0, 0
+        )  # Velocity X used when falling or being pushed backwards or for flying kick, velocity Y for jumping
 
         self.pickup_animation: Any = None
 
-        self.hit_timer: int = 0      # if above 0, we've just been hit and are doing the animation where we recoil from that
+        self.hit_timer: int = 0  # if above 0, we've just been hit and are doing the animation where we recoil from that
         self.hit_frame: int = 0
 
         self.stamina: int = stamina
@@ -453,7 +618,11 @@ class Fighter(ScrollHeightActor, ABC):
         # Apply gravity and velocity if in air
         if self.height_above_ground > 0 or self.vel.y != 0:
             self.vpos.x += self.vel.x
-            self.vel.y += THROWN_GRAVITY if self.falling_state == Fighter.FallingState.THROWN else JUMP_GRAVITY
+            self.vel.y += (
+                THROWN_GRAVITY
+                if self.falling_state == Fighter.FallingState.THROWN
+                else JUMP_GRAVITY
+            )
             self.height_above_ground -= self.vel.y
             self.apply_movement_boundaries(self.vel.x, 0)
             if self.height_above_ground < 0:
@@ -501,7 +670,9 @@ class Fighter(ScrollHeightActor, ABC):
 
         elif self.falling_state == Fighter.FallingState.GETTING_UP:
             self.frame += 1
-            self.vpos.x += 0.1 * self.facing_x     # Move forward slightly as we get up
+            self.vpos.x += (
+                0.1 * self.facing_x
+            )  # Move forward slightly as we get up
             if self.frame > 20:
                 self.falling_state = Fighter.FallingState.STANDING
                 self.frame = 0
@@ -543,7 +714,9 @@ class Fighter(ScrollHeightActor, ABC):
 
             # Are we ready to attack or pick up/drop a weapon?
             # If we're out of stamina, recovery time will be longer
-            last_attack_recovery_time = 0 if not self.last_attack else self.last_attack.recovery_time
+            last_attack_recovery_time = (
+                0 if not self.last_attack else self.last_attack.recovery_time
+            )
             if self.stamina <= 0:
                 last_attack_recovery_time *= 3
             if self.attack_timer <= -last_attack_recovery_time:
@@ -552,12 +725,20 @@ class Fighter(ScrollHeightActor, ABC):
                 # Before deciding if we want to attack - do we instead want to pick up or drop a weapon?
                 if self.weapon is None:
                     # Find weapons within reach
-                    nearby_weapons: list[Any] = [weapon for weapon in game.weapons if (weapon.vpos - self.vpos).length() < 50]
+                    nearby_weapons: list[Any] = [
+                        weapon
+                        for weapon in game.weapons
+                        if (weapon.vpos - self.vpos).length() < 50
+                    ]
                     if len(nearby_weapons) > 0:
                         if self.determine_pick_up_weapon():
                             # Sort nearby weapons by distance. length_squared is used to order them instead of
                             # length as it is more efficient
-                            nearby_weapons.sort(key=lambda weapon: (weapon.vpos - self.vpos).length_squared())
+                            nearby_weapons.sort(
+                                key=lambda weapon: (
+                                    weapon.vpos - self.vpos
+                                ).length_squared()
+                            )
                             for weapon in nearby_weapons:
                                 if weapon.can_be_picked_up():
                                     self.pickup_animation = weapon.name
@@ -608,8 +789,12 @@ class Fighter(ScrollHeightActor, ABC):
                 if target != self.vpos:
                     self.walking = True
 
-                    self.vpos.x, dx = move_towards(self.vpos.x, target.x, self.speed.x)
-                    self.vpos.y, dy = move_towards(self.vpos.y, target.y, self.speed.y)
+                    self.vpos.x, dx = move_towards(
+                        self.vpos.x, target.x, self.speed.x
+                    )
+                    self.vpos.y, dy = move_towards(
+                        self.vpos.y, target.y, self.speed.y
+                    )
 
                     self.apply_movement_boundaries(dx, dy)
 
@@ -632,7 +817,10 @@ class Fighter(ScrollHeightActor, ABC):
                         # If the current attack is a grab attack, that means we're the boss throwing the player
                         if self.last_attack.grab:
                             # Throw the player, if we haven't already done that on a previous frame
-                            if game.player.falling_state == Fighter.FallingState.GRABBED:
+                            if (
+                                game.player.falling_state
+                                == Fighter.FallingState.GRABBED
+                            ):
                                 game.player.hit(self, self.last_attack)
                                 game.player.thrown(self.facing_x)
 
@@ -658,7 +846,11 @@ class Fighter(ScrollHeightActor, ABC):
                     facing_correct = not facing_correct
 
                 # Should attack hit this opponent?
-                if abs(vec.y) < opponent.half_hit_area.y and facing_correct and abs(vec.x) < attack.reach + opponent.half_hit_area.x:
+                if (
+                    abs(vec.y) < opponent.half_hit_area.y
+                    and facing_correct
+                    and abs(vec.x) < attack.reach + opponent.half_hit_area.x
+                ):
                     opponent.hit(self, attack)
 
                     # If we're using a weapon, it may have broken as a result of being used
@@ -666,28 +858,49 @@ class Fighter(ScrollHeightActor, ABC):
                         self.drop_weapon()
 
             if DEBUG_SHOW_ATTACKS:
-                attack_facing: int = self.facing_x * (-1 if attack.rear_attack else 1)
-                debug_rect: Rect = Rect(self.x - (attack.reach if attack_facing == -1 else 0), self.y - 5, attack.reach, 10)
-                debug_drawcalls.append(lambda: screen.draw.filled_rect(debug_rect, (255, 0, 0)))
+                attack_facing: int = self.facing_x * (
+                    -1 if attack.rear_attack else 1
+                )
+                debug_rect: Rect = Rect(
+                    self.x - (attack.reach if attack_facing == -1 else 0),
+                    self.y - 5,
+                    attack.reach,
+                    10,
+                )
+                debug_drawcalls.append(
+                    lambda: screen.draw.filled_rect(debug_rect, (255, 0, 0))
+                )
 
     def hit(self, hitter: Any, attack: Any) -> None:
         # Hitter can be another fighter, or a weapon such as a barrel
         # Can't be hit if we're falling/getting up
-        if self.falling_state == Fighter.FallingState.STANDING or self.falling_state == Fighter.FallingState.GRABBED:
+        if (
+            self.falling_state == Fighter.FallingState.STANDING
+            or self.falling_state == Fighter.FallingState.GRABBED
+        ):
             # Can't be hit if we're already in the hit animation
             if self.hit_timer <= 0:
-                self.stamina -= attack.strength * BASE_STAMINA_DAMAGE_MULTIPLIER * attack.stamina_damage_multiplier
+                self.stamina -= (
+                    attack.strength
+                    * BASE_STAMINA_DAMAGE_MULTIPLIER
+                    * attack.stamina_damage_multiplier
+                )
                 self.stamina = max(self.stamina, MIN_STAMINA)
                 self.health -= attack.strength
 
                 # Hit timer ensures we can't receive damage again until it's counted down, and stuns the fighter
                 # Stronger attacks stun for longer
-                self.hit_timer = attack.strength * 8 * attack.stun_time_multiplier
+                self.hit_timer = (
+                    attack.strength * 8 * attack.stun_time_multiplier
+                )
                 self.hit_frame = randint(0, 1)
 
                 # Stop our attack if we're in the middle of one - unless it's a flying kick, in which case continue.
                 # Code elsewhere will ensure we don't do the 'been hit' animation at the end of a flying kick
-                if self.attack_timer > 0 and (self.last_attack is not None and not self.last_attack.flying_kick):
+                if self.attack_timer > 0 and (
+                    self.last_attack is not None
+                    and not self.last_attack.flying_kick
+                ):
                     self.attack_timer = 0
 
                 # Drop weapon
@@ -705,7 +918,9 @@ class Fighter(ScrollHeightActor, ABC):
 
                 # Check for being knocked down due to being out of health or stamina
                 # Portals can't fall
-                if (self.stamina <= 0 or self.health <= 0) and not isinstance(self, EnemyPortal):
+                if (self.stamina <= 0 or self.health <= 0) and not isinstance(
+                    self, EnemyPortal
+                ):
                     self.falling_state = Fighter.FallingState.FALLING
                     self.frame = 0
                     self.hit_timer = 0
@@ -713,7 +928,9 @@ class Fighter(ScrollHeightActor, ABC):
                     # If we're knocked down due to being out of stamina, and we're close to death, just die already
                     if self.health < 3:
                         self.health = 0
-                        self.use_die_animation = (randint(0,1) == 0)    # Use die animation 50% of the time
+                        self.use_die_animation = (
+                            randint(0, 1) == 0
+                        )  # Use die animation 50% of the time
 
                 # If the attacker was using a weapon, tell the weapon that it was used
                 # Must check that hitter is a Fighter, as it might be a barrel!
@@ -725,7 +942,10 @@ class Fighter(ScrollHeightActor, ABC):
             if hitter.vpos.x != self.vpos.x:
                 self.facing_x = sign(hitter.vpos.x - self.vpos.x)
 
-                if self.falling_state == Fighter.FallingState.FALLING and not self.use_die_animation:
+                if (
+                    self.falling_state == Fighter.FallingState.FALLING
+                    and not self.use_die_animation
+                ):
                     # Get knocked backwards
                     self.vel.x += -self.facing_x * 10
 
@@ -742,22 +962,46 @@ class Fighter(ScrollHeightActor, ABC):
 
         if DEBUG_SHOW_HEALTH_AND_STAMINA:
             text: str = f"HP: {self.health}\nSTM: {self.stamina}"
-            screen.draw.text(text, fontsize=24, center=(self.x, self.y - 200), color="#FFFFFF", align="center")
+            screen.draw.text(
+                text,
+                fontsize=24,
+                center=(self.x, self.y - 200),
+                color="#FFFFFF",
+                align="center",
+            )
 
         if DEBUG_SHOW_HIT_AREA_WIDTH:
-            screen.draw.rect(Rect(self.x - self.half_hit_area.x, self.y - self.half_hit_area.y, self.half_hit_area.x * 2, self.half_hit_area.y * 2), (255,255,255))
+            screen.draw.rect(
+                Rect(
+                    self.x - self.half_hit_area.x,
+                    self.y - self.half_hit_area.y,
+                    self.half_hit_area.x * 2,
+                    self.half_hit_area.y * 2,
+                ),
+                (255, 255, 255),
+            )
 
         if DEBUG_SHOW_LOGS:
             y = self.y
             for l in reversed(self.logs):
-                screen.draw.text(l, fontsize=14, center=(self.x, y), color="#FFFFFF", align="center")
+                screen.draw.text(
+                    l,
+                    fontsize=14,
+                    center=(self.x, y),
+                    color="#FFFFFF",
+                    align="center",
+                )
                 y += 10
 
     def determine_sprite(self) -> str:
         show: bool = True
 
         if self.falling_state == Fighter.FallingState.FALLING:
-            if self.frame > 60 and self.health <= 0 and (self.frame // 10) % 2 == 0:
+            if (
+                self.frame > 60
+                and self.health <= 0
+                and (self.frame // 10) % 2 == 0
+            ):
                 # If we're out of health, flash on and off for a short while
                 show = False
 
@@ -771,7 +1015,11 @@ class Fighter(ScrollHeightActor, ABC):
                         self.just_knocked_off_scooter = False
 
                         # Create the scooter as an independent object
-                        game.scooters.append(Scooter(self.vpos, self.facing_x, self.colour_variant))
+                        game.scooters.append(
+                            Scooter(
+                                self.vpos, self.facing_x, self.colour_variant
+                            )
+                        )
 
                 # Now choose the sprite to use this frame
                 if self.just_knocked_off_scooter:
@@ -818,7 +1066,9 @@ class Fighter(ScrollHeightActor, ABC):
                 # switching animation frames), the result of that is MODded 4 to reduce it to the actual animation
                 # frame to use in the range 0-3
                 anim_type = "walk"
-                frame = (self.frame // self.anim_update_rate) % 4  # 4 frames of walking animation
+                frame = (
+                    self.frame // self.anim_update_rate
+                ) % 4  # 4 frames of walking animation
             else:
                 # Standing
                 frame = 0
@@ -828,7 +1078,9 @@ class Fighter(ScrollHeightActor, ABC):
 
             # Add the weapon name to the walking/standing animation
             # This isn't done for weapon attack animations, because barrel is released during the throw animation
-            anim_type += ("_" + self.weapon.name) if self.weapon is not None else ""
+            anim_type += (
+                ("_" + self.weapon.name) if self.weapon is not None else ""
+            )
 
         if show:
             # In sprite filenames, 0 = facing left, 1 = right
@@ -846,7 +1098,7 @@ class Fighter(ScrollHeightActor, ABC):
         # self.frame is a game frame, increasing by 1 every 1/60th of a second
         # We use self.last_attack to get the current attack that we're doing, i.e. it's the last attack we started
         # doing, and we're still doing it
-        frame: int = (self.frame // self.last_attack.frame_time)
+        frame: int = self.frame // self.last_attack.frame_time
         frame = min(frame, self.last_attack.frames - 1)
         return frame
 
@@ -855,7 +1107,9 @@ class Fighter(ScrollHeightActor, ABC):
         return False
 
     def drop_weapon(self) -> None:
-        self.pickup_animation = None    # Stop pickup animation if we're in the middle of one
+        self.pickup_animation = (
+            None  # Stop pickup animation if we're in the middle of one
+        )
         self.weapon.dropped()
         self.weapon = None
 
@@ -914,10 +1168,19 @@ class Fighter(ScrollHeightActor, ABC):
     def get_desired_facing(self) -> int | None:
         pass
 
+
 class Player(Fighter):
     def __init__(self, controls: Any) -> None:
         # Anchor point just above bottom of sprite
-        super().__init__(pos=(400, 400), anchor=("center",256), speed=Vector2(3,2), sprite="hero", health=30, lives=3, separate_shadow=True)
+        super().__init__(
+            pos=(400, 400),
+            anchor=("center", 256),
+            speed=Vector2(3, 2),
+            sprite="hero",
+            health=30,
+            lives=3,
+            separate_shadow=True,
+        )
         self.controls: Any = controls
         self.extra_life_timer: int = 0
 
@@ -940,12 +1203,18 @@ class Player(Fighter):
         # Do we have a weapon?
         if self.weapon is not None:
             # Ensure we cannot attack during the pickup animation
-            if self.pickup_animation is None and self.controls.button_pressed(0):
+            if self.pickup_animation is None and self.controls.button_pressed(
+                0
+            ):
                 return ATTACKS[self.weapon.name]
 
         elif self.controls.button_pressed(0):
             # in combo?
-            if self.last_attack is not None and self.last_attack.combo_next is not None and self.attack_timer >= -30:
+            if (
+                self.last_attack is not None
+                and self.last_attack.combo_next is not None
+                and self.attack_timer >= -30
+            ):
                 # Get next attack in combo
                 # 0 here represents button 0, ideally this code should be made more general, but in practice
                 # the only combo we actually have is where you press button 0 three times to do a sequence of punches
@@ -978,7 +1247,10 @@ class Player(Fighter):
 
     def get_move_target(self) -> Vector2:
         # Our target position is our current position offset based on control inputs and speed
-        return self.vpos + Vector2(self.controls.get_x() * self.speed.x, self.controls.get_y() * self.speed.y)
+        return self.vpos + Vector2(
+            self.controls.get_x() * self.speed.x,
+            self.controls.get_y() * self.speed.y,
+        )
 
     def get_desired_facing(self) -> int | None:
         dx = self.controls.get_x()
@@ -996,6 +1268,7 @@ class Player(Fighter):
         self.lives += 1
         self.extra_life_timer = 30
 
+
 class Enemy(Fighter, ABC):
     # State is an inner class - a class within a class, so its name doesn't clash with the global class State
     class State(Enum):
@@ -1008,19 +1281,35 @@ class Enemy(Fighter, ABC):
         PORTAL = 6
         PORTAL_EXPLODE = 7
 
-    def __init__(self, pos: Any, name: str, attacks: Any, start_timer: int,
-                 speed: Vector2 = Vector2(1, 1),
-                 health: int = 15,
-                 stamina: int = 500,
-                 approach_player_distance: int = ENEMY_APPROACH_PLAYER_DISTANCE,
-                 anchor_y: int = 256,
-                 half_hit_area: Vector2 = Vector2(25, 20),
-                 colour_variant: Any = None,
-                 hit_sound: Any = None,
-                 score: int = 10) -> None:
+    def __init__(
+        self,
+        pos: Any,
+        name: str,
+        attacks: Any,
+        start_timer: int,
+        speed: Vector2 = Vector2(1, 1),
+        health: int = 15,
+        stamina: int = 500,
+        approach_player_distance: int = ENEMY_APPROACH_PLAYER_DISTANCE,
+        anchor_y: int = 256,
+        half_hit_area: Vector2 = Vector2(25, 20),
+        colour_variant: Any = None,
+        hit_sound: Any = None,
+        score: int = 10,
+    ) -> None:
         # Slower animation speed than Hero
-        super().__init__(pos, ("center",anchor_y), speed=speed, sprite=name, health=health, stamina=stamina,
-                         anim_update_rate=14, half_hit_area=half_hit_area, colour_variant=colour_variant, hit_sound=hit_sound)
+        super().__init__(
+            pos,
+            ("center", anchor_y),
+            speed=speed,
+            sprite=name,
+            health=health,
+            stamina=stamina,
+            anim_update_rate=14,
+            half_hit_area=half_hit_area,
+            colour_variant=colour_variant,
+            hit_sound=hit_sound,
+        )
 
         # Target is a Vector2 instance
         # Must make a copy of the value, not a copy of the reference
@@ -1047,10 +1336,12 @@ class Enemy(Fighter, ABC):
             player = game.player
 
             # If player is attacking and we are quite close, chance (each frame) of backing up a little
-            if player.attack_timer > 0 \
-              and abs(self.vpos.y - player.vpos.y) < 20 \
-              and abs(self.vpos.x - player.vpos.x) < 200 \
-              and randint(0, 500) == 0:
+            if (
+                player.attack_timer > 0
+                and abs(self.vpos.y - player.vpos.y) < 20
+                and abs(self.vpos.x - player.vpos.x) < 200
+                and randint(0, 500) == 0
+            ):
                 self.log("Back away from attack")
                 self.target.x = self.vpos.x - self.facing_x * 90
                 self.state = Enemy.State.GO_TO_POS
@@ -1061,7 +1352,9 @@ class Enemy(Fighter, ABC):
                     x_offset: int = ENEMY_APPROACH_PLAYER_DISTANCE_BARREL
                 else:
                     x_offset = self.approach_player_distance
-                self.target.x = player.vpos.x + (x_offset * sign(self.vpos.x - player.vpos.x))
+                self.target.x = player.vpos.x + (
+                    x_offset * sign(self.vpos.x - player.vpos.x)
+                )
                 self.target.y = player.vpos.y
 
         elif self.state == Enemy.State.GO_TO_POS:
@@ -1070,7 +1363,10 @@ class Enemy(Fighter, ABC):
                 self.make_decision()
 
         elif self.state == Enemy.State.GO_TO_WEAPON:
-            if not self.target_weapon.can_be_picked_up() or not self.target_weapon.on_screen():
+            if (
+                not self.target_weapon.can_be_picked_up()
+                or not self.target_weapon.on_screen()
+            ):
                 # Weapon no longer available, make a new decision
                 self.target_weapon = None
                 self.make_decision()
@@ -1098,9 +1394,11 @@ class Enemy(Fighter, ABC):
 
         # Update of RIDING_SCOOTER state is in EnemyScooterboy class
 
-        if self.state == Enemy.State.APPROACH_PLAYER \
-                or self.state == Enemy.State.GO_TO_POS \
-                or self.state == Enemy.State.GO_TO_WEAPON:
+        if (
+            self.state == Enemy.State.APPROACH_PLAYER
+            or self.state == Enemy.State.GO_TO_POS
+            or self.state == Enemy.State.GO_TO_WEAPON
+        ):
             # Ensure that target position is within the level boundary
             self.target.x = max(self.target.x, game.boundary.left)
             self.target.x = min(self.target.x, game.boundary.right)
@@ -1109,8 +1407,12 @@ class Enemy(Fighter, ABC):
 
             # Check to see if another enemy is already heading for the new target pos, or one very close to it.
             # If so, make a new decision
-            other_enemies_same_target: list[Any] = [enemy for enemy in game.enemies if enemy is not self and
-                                         (enemy.target - self.target).length() < 20]
+            other_enemies_same_target: list[Any] = [
+                enemy
+                for enemy in game.enemies
+                if enemy is not self
+                and (enemy.target - self.target).length() < 20
+            ]
             if len(other_enemies_same_target) > 0:
                 self.log("Same target")
                 self.make_decision()
@@ -1122,7 +1424,9 @@ class Enemy(Fighter, ABC):
         super().draw(offset)
 
         if DEBUG_SHOW_TARGET_POS:
-            screen.draw.line(self.vpos - offset, self.target - offset, (255,255,255))
+            screen.draw.line(
+                self.vpos - offset, self.target - offset, (255, 255, 255)
+            )
 
     def determine_attack(self) -> Any:
         # Allow attacking if we're in APPROACH_PLAYER state, aligned with player on Y axis, both I and player are
@@ -1135,19 +1439,29 @@ class Enemy(Fighter, ABC):
 
         holding_barrel: bool = isinstance(self.weapon, Barrel)
 
-        if self.state == Enemy.State.APPROACH_PLAYER \
-               and game.player.falling_state == Fighter.FallingState.STANDING \
-               and self.vpos.y == py \
-               and (self.approach_player_distance * 0.9 < abs(self.vpos.x - px) <= self.approach_player_distance * 1.1 or
-                    holding_barrel) \
-               and randint(0,19) == 0:
+        if (
+            self.state == Enemy.State.APPROACH_PLAYER
+            and game.player.falling_state == Fighter.FallingState.STANDING
+            and self.vpos.y == py
+            and (
+                self.approach_player_distance * 0.9
+                < abs(self.vpos.x - px)
+                <= self.approach_player_distance * 1.1
+                or holding_barrel
+            )
+            and randint(0, 19) == 0
+        ):
             if self.weapon is not None:
                 return ATTACKS[self.weapon.name]
             else:
                 chosen_attack = ATTACKS[choice(self.attacks)]
 
                 # If the chosen attack is a grab, don't allow it if the player is currently doing a flying kick
-                if chosen_attack.grab and game.player.last_attack is not None and game.player.last_attack.flying_kick:
+                if (
+                    chosen_attack.grab
+                    and game.player.last_attack is not None
+                    and game.player.last_attack.flying_kick
+                ):
                     return None
 
                 return chosen_attack
@@ -1171,7 +1485,7 @@ class Enemy(Fighter, ABC):
             # If no target, just return our current position
             return self.vpos
         else:
-            #return self.target.get_pos()
+            # return self.target.get_pos()
             return self.target
 
     def get_desired_facing(self) -> int:
@@ -1218,18 +1532,27 @@ class Enemy(Fighter, ABC):
             if r < 7:
                 # Check to see if another enemy on the same X side of the player is already heading to attack them
                 # If so, flank instead
-                other_enemies_on_same_side_attacking: list[Any] = [enemy for enemy in game.enemies if enemy is not self
-                                                        and enemy.state == Enemy.State.APPROACH_PLAYER
-                                                        and sign(enemy.vpos.x - player.vpos.x) == sign(self.vpos.x - player.vpos.x)]
+                other_enemies_on_same_side_attacking: list[Any] = [
+                    enemy
+                    for enemy in game.enemies
+                    if enemy is not self
+                    and enemy.state == Enemy.State.APPROACH_PLAYER
+                    and sign(enemy.vpos.x - player.vpos.x)
+                    == sign(self.vpos.x - player.vpos.x)
+                ]
                 if len(other_enemies_on_same_side_attacking) > 0:
                     # Go to opposite side of player, at a Y position offset from them but on the same Y side that
                     # we're on now (e.g. if we're below, stay below). If Y pos is same, choose Y side randomly.
                     self.log("Begin flanking (same target)")
                     self.state = Enemy.State.GO_TO_POS
-                    self.target.x = player.vpos.x - sign(self.vpos.x - player.vpos.x) * 50
-                    self.target.y = player.vpos.y + sign(self.vpos.y - player.vpos.y) * 50
+                    self.target.x = (
+                        player.vpos.x - sign(self.vpos.x - player.vpos.x) * 50
+                    )
+                    self.target.y = (
+                        player.vpos.y + sign(self.vpos.y - player.vpos.y) * 50
+                    )
                     if self.target.y == player.vpos.y:
-                        self.target.y = player.vpos.y + choice((-1,1)) * 50
+                        self.target.y = player.vpos.y + choice((-1, 1)) * 50
                 else:
                     # Go to player
                     self.log("Go to player")
@@ -1241,10 +1564,10 @@ class Enemy(Fighter, ABC):
                 self.log("Go to distance from player")
                 x_side: int = sign(self.vpos.x - player.vpos.x)
                 if x_side == 0:
-                    x_side = choice((1,-1))
+                    x_side = choice((1, -1))
                 x1: int = int(player.vpos.x + (150 * x_side))
                 x2: int = int(player.vpos.x + (400 * x_side))
-                x: int = randint(min(x1,x2), max(x1,x2))
+                x: int = randint(min(x1, x2), max(x1, x2))
                 y: int = randint(game.boundary.top, game.boundary.bottom)
                 self.target = Vector2(x, y)
                 self.state = Enemy.State.GO_TO_POS
@@ -1255,13 +1578,31 @@ class Enemy(Fighter, ABC):
                 self.state_timer = randint(50, 100)
                 self.state = Enemy.State.PAUSE
 
+
 class EnemyVax(Enemy):
     def __init__(self, pos: Any, start_timer: int = 20) -> None:
-        super().__init__(pos, "vax", ("vax_lpunch", "vax_rpunch", "vax_pound"), start_timer=start_timer, colour_variant=randint(0,2), score=20)
+        super().__init__(
+            pos,
+            "vax",
+            ("vax_lpunch", "vax_rpunch", "vax_pound"),
+            start_timer=start_timer,
+            colour_variant=randint(0, 2),
+            score=20,
+        )
+
 
 class EnemyHoodie(Enemy):
     def __init__(self, pos: Any, start_timer: int = 20) -> None:
-        super().__init__(pos, "hoodie", ("hoodie_lpunch", "hoodie_rpunch", "hoodie_special"), health=12, speed=Vector2(1.2, 1), start_timer=start_timer, colour_variant=randint(0,2), score=20)
+        super().__init__(
+            pos,
+            "hoodie",
+            ("hoodie_lpunch", "hoodie_rpunch", "hoodie_special"),
+            health=12,
+            speed=Vector2(1.2, 1),
+            start_timer=start_timer,
+            colour_variant=randint(0, 2),
+            score=20,
+        )
 
     def died(self) -> None:
         super().died()
@@ -1270,13 +1611,22 @@ class EnemyHoodie(Enemy):
         if randint(0, 2) == 0:
             game.weapons.append(Stick(self.vpos))
 
+
 class EnemyScooterboy(Enemy):
     SCOOTER_SPEED_SLOW = 4
     SCOOTER_SPEED_FAST = 12
     SCOOTER_ACCELERATION = 0.2
 
     def __init__(self, pos: Any, start_timer: int = 20) -> None:
-        super().__init__(pos, "scooterboy", ("scooterboy_attack1",), start_timer=start_timer, approach_player_distance=ENEMY_APPROACH_PLAYER_DISTANCE_SCOOTERBOY, colour_variant=randint(0,2), score=30)
+        super().__init__(
+            pos,
+            "scooterboy",
+            ("scooterboy_attack1",),
+            start_timer=start_timer,
+            approach_player_distance=ENEMY_APPROACH_PLAYER_DISTANCE_SCOOTERBOY,
+            colour_variant=randint(0, 2),
+            score=30,
+        )
         self.state = Enemy.State.RIDING_SCOOTER
         self.scooter_speed: float = EnemyScooterboy.SCOOTER_SPEED_SLOW
         self.scooter_target_speed: float = self.scooter_speed
@@ -1287,8 +1637,10 @@ class EnemyScooterboy(Enemy):
         try:
             self.scooter_sound_channel = pygame.mixer.find_channel()
             if self.scooter_sound_channel is not None:
-                self.scooter_sound_channel.play(game.get_sound("scooter_slow"), loops=-1, fade_ms=200)
-        except Exception as e:
+                self.scooter_sound_channel.play(
+                    game.get_sound("scooter_slow"), loops=-1, fade_ms=200
+                )
+        except Exception:
             # Don't crash if no sound hardware
             pass
 
@@ -1305,7 +1657,9 @@ class EnemyScooterboy(Enemy):
             if self.scooter_speed < self.scooter_target_speed:
                 # Currently speeding up
                 frame = min(self.frame // 5, 2)
-            return f"{self.sprite}_ride_{facing_id}_{frame}_{self.colour_variant}"
+            return (
+                f"{self.sprite}_ride_{facing_id}_{frame}_{self.colour_variant}"
+            )
         else:
             return super().determine_sprite()
 
@@ -1315,19 +1669,31 @@ class EnemyScooterboy(Enemy):
 
             # Change volume independently on left and right speakers
             if self.scooter_sound_channel is not None:
-                left_volume: float = remap_clamp(abs(self.vpos.x - player.vpos.x + 500), 0, 1000, 1, 0)
-                right_volume: float = remap_clamp(abs(self.vpos.x - player.vpos.x - 500), 0, 1000, 1, 0)
+                left_volume: float = remap_clamp(
+                    abs(self.vpos.x - player.vpos.x + 500), 0, 1000, 1, 0
+                )
+                right_volume: float = remap_clamp(
+                    abs(self.vpos.x - player.vpos.x - 500), 0, 1000, 1, 0
+                )
                 self.scooter_sound_channel.set_volume(left_volume, right_volume)
 
             # Currently accelerating/decelerating?
             if self.scooter_speed != self.scooter_target_speed:
-                self.scooter_speed, _ = move_towards(self.scooter_speed, self.scooter_target_speed, EnemyScooterboy.SCOOTER_ACCELERATION)
+                self.scooter_speed, _ = move_towards(
+                    self.scooter_speed,
+                    self.scooter_target_speed,
+                    EnemyScooterboy.SCOOTER_ACCELERATION,
+                )
                 self.frame += 1
-            elif self.on_screen() and randint(0,30) == 0:
+            elif self.on_screen() and randint(0, 30) == 0:
                 # If on screen, random chance of accelerating
                 self.scooter_target_speed = EnemyScooterboy.SCOOTER_SPEED_FAST
                 if self.scooter_sound_channel is not None:
-                    self.scooter_sound_channel.play(game.get_sound("scooter_accelerate", 6), loops=0, fade_ms=200)
+                    self.scooter_sound_channel.play(
+                        game.get_sound("scooter_accelerate", 6),
+                        loops=0,
+                        fade_ms=200,
+                    )
                 self.frame = 0
 
             # Move forward
@@ -1336,7 +1702,9 @@ class EnemyScooterboy(Enemy):
 
             # Turn around if we've gone off the edge of the screen
             # We check self.x which is the actual screen position as opposed to the position in the scrolling level
-            if (self.facing_x > 0 and self.x > WIDTH + 200) or (self.facing_x < 0 and self.x < -200):
+            if (self.facing_x > 0 and self.x > WIDTH + 200) or (
+                self.facing_x < 0 and self.x < -200
+            ):
                 self.facing_x = -self.facing_x
                 self.target.y = player.vpos.y
 
@@ -1346,7 +1714,7 @@ class EnemyScooterboy(Enemy):
                     self.vpos.y = self.target.y
                 else:
                     while abs(self.vpos.y - self.target.y) < 40:
-                        self.vpos.y = randint(MIN_WALK_Y, HEIGHT-1)
+                        self.vpos.y = randint(MIN_WALK_Y, HEIGHT - 1)
 
                 # Also slow down if at high speed
                 self.scooter_target_speed = EnemyScooterboy.SCOOTER_SPEED_SLOW
@@ -1354,16 +1722,24 @@ class EnemyScooterboy(Enemy):
 
                 # Go back to slow sound
                 if self.scooter_sound_channel is not None:
-                    self.scooter_sound_channel.play(game.get_sound("scooter_slow"), loops=-1, fade_ms=200)
+                    self.scooter_sound_channel.play(
+                        game.get_sound("scooter_slow"), loops=-1, fade_ms=200
+                    )
 
             # Check to see if we hit the player
-            if player.falling_state == Fighter.FallingState.STANDING \
-              and abs(player.vpos.y - self.vpos.y) < 30 \
-              and abs(self.vpos.x - player.vpos.x) < 60 \
-              and player.height_above_ground < 20:
+            if (
+                player.falling_state == Fighter.FallingState.STANDING
+                and abs(player.vpos.y - self.vpos.y) < 30
+                and abs(self.vpos.x - player.vpos.x) < 60
+                and player.height_above_ground < 20
+            ):
                 player.hit(self, ATTACKS["scooter_hit"])
 
-        elif self.just_knocked_off_scooter and self.scooter_sound_channel is not None and self.scooter_sound_channel.get_busy():
+        elif (
+            self.just_knocked_off_scooter
+            and self.scooter_sound_channel is not None
+            and self.scooter_sound_channel.get_busy()
+        ):
             self.scooter_sound_channel.stop()
 
         super().update()
@@ -1379,26 +1755,54 @@ class EnemyScooterboy(Enemy):
             game.weapons.append(Chain(self.vpos))
 
         # Stop scooter sound - only needed for when we're skipping stages in debug mode
-        if self.scooter_sound_channel is not None and self.scooter_sound_channel.get_busy():
+        if (
+            self.scooter_sound_channel is not None
+            and self.scooter_sound_channel.get_busy()
+        ):
             self.scooter_sound_channel.stop()
+
 
 class EnemyBoss(Enemy):
     def __init__(self, pos: Any, start_timer: int = 20) -> None:
-        super().__init__(pos, "boss", ("boss_lpunch", "boss_rpunch", "boss_kick", "boss_grab_player",),
-                         speed=Vector2(0.9,0.8), health=25, stamina=1000, start_timer=start_timer, anchor_y=280,
-                         half_hit_area=Vector2(30, 20), colour_variant=randint(0,2), score=75)
+        super().__init__(
+            pos,
+            "boss",
+            (
+                "boss_lpunch",
+                "boss_rpunch",
+                "boss_kick",
+                "boss_grab_player",
+            ),
+            speed=Vector2(0.9, 0.8),
+            health=25,
+            stamina=1000,
+            start_timer=start_timer,
+            anchor_y=280,
+            half_hit_area=Vector2(30, 20),
+            colour_variant=randint(0, 2),
+            score=75,
+        )
 
     def make_decision(self) -> None:
         # Boss can pick up a barrel, if they're not currently holding one
         # Look for a barrel we can walk to. Barrel must not be held by anyone else and must be on the screen
         if self.weapon is None:
-            available_barrels: list[Any] = [weapon for weapon in game.weapons if isinstance(weapon, Barrel) and weapon.can_be_picked_up() and weapon.on_screen()]
+            available_barrels: list[Any] = [
+                weapon
+                for weapon in game.weapons
+                if isinstance(weapon, Barrel)
+                and weapon.can_be_picked_up()
+                and weapon.on_screen()
+            ]
             if len(available_barrels) > 0:
                 # Find a weapon to go to
                 for weapon in available_barrels:
                     # Don't go to a barrel if another enemy is already going to it
-                    other_enemies_same_target: list[Any] = [enemy for enemy in game.enemies if enemy is not self and
-                                                 enemy.target_weapon is weapon]
+                    other_enemies_same_target: list[Any] = [
+                        enemy
+                        for enemy in game.enemies
+                        if enemy is not self and enemy.target_weapon is weapon
+                    ]
                     if len(other_enemies_same_target) == 0:
                         # This weapon is OK to go for
                         self.log("Go to weapon")
@@ -1409,14 +1813,34 @@ class EnemyBoss(Enemy):
         # If we didn't enter the GO_TO_WEAPON state, call the parent method
         super().make_decision()
 
+
 class EnemyPortal(Enemy):
     GENERATE_ANIMATION_FRAMES = 6
     GENERATE_ANIMATION_DIVISOR = 16
-    GENERATE_ANIMATION_TIME = GENERATE_ANIMATION_FRAMES * GENERATE_ANIMATION_DIVISOR
+    GENERATE_ANIMATION_TIME = (
+        GENERATE_ANIMATION_FRAMES * GENERATE_ANIMATION_DIVISOR
+    )
 
-    def __init__(self, pos: Any, enemies: Any, spawn_interval: int, spawn_interval_change: int = 0, max_spawn_interval: int = 600, max_enemies: int = 5, start_timer: int = 90) -> None:
+    def __init__(
+        self,
+        pos: Any,
+        enemies: Any,
+        spawn_interval: int,
+        spawn_interval_change: int = 0,
+        max_spawn_interval: int = 600,
+        max_enemies: int = 5,
+        start_timer: int = 90,
+    ) -> None:
         # Hittable area is larger for portals
-        super().__init__(pos, "portal", (), start_timer=start_timer, anchor_y=340, half_hit_area=Vector2(50, 50), hit_sound="portal_hit")
+        super().__init__(
+            pos,
+            "portal",
+            (),
+            start_timer=start_timer,
+            anchor_y=340,
+            half_hit_area=Vector2(50, 50),
+            hit_sound="portal_hit",
+        )
         self.enemies: Any = enemies
         self.spawn_interval: int = spawn_interval
         self.spawn_timer: int = spawn_interval
@@ -1472,10 +1896,15 @@ class EnemyPortal(Enemy):
 
                     # Reset spawn timer, depending on spawn_interval_change we may spawn less frequently as time goes on
                     self.spawn_interval += self.spawn_interval_change
-                    self.spawn_interval = min(self.spawn_interval, self.max_spawn_interval)
+                    self.spawn_interval = min(
+                        self.spawn_interval, self.max_spawn_interval
+                    )
                     self.spawn_timer = self.spawn_interval
 
-                elif self.spawning_enemy is None and self.spawn_timer <= EnemyPortal.GENERATE_ANIMATION_TIME:
+                elif (
+                    self.spawning_enemy is None
+                    and self.spawn_timer <= EnemyPortal.GENERATE_ANIMATION_TIME
+                ):
                     if len(game.enemies) >= self.max_enemies:
                         # Too many enemies to spawn at the moment, try again in one second
                         self.spawn_timer = 60
@@ -1484,7 +1913,9 @@ class EnemyPortal(Enemy):
                         chosen_enemy = choice(self.enemies)
 
                         # Choose direction for spawned enemy to face (0/1 = left/right)
-                        self.spawn_facing = 0 if self.vpos.x > game.player.vpos.x else 1
+                        self.spawn_facing = (
+                            0 if self.vpos.x > game.player.vpos.x else 1
+                        )
 
                         # Instantiate the enemy, but it won't appear in the level until the animation is complete
                         self.spawning_enemy = chosen_enemy(self.vpos)
@@ -1505,10 +1936,11 @@ class EnemyPortal(Enemy):
         # A portal never walks
         return True
 
+
 # This is the scooter on its own, with the rider having been knocked off
 class Scooter(ScrollHeightActor):
     def __init__(self, pos: Any, facing_x: int, colour_variant: Any) -> None:
-        super().__init__("blank", pos, ("center",256))
+        super().__init__("blank", pos, ("center", 256))
         self.facing_x: int = facing_x
         self.colour_variant: Any = colour_variant
         self.vel_x: float = -facing_x * 8
@@ -1525,13 +1957,27 @@ class Scooter(ScrollHeightActor):
     def get_draw_order_offset(self) -> int:
         return -1
 
+
 class Weapon(ScrollHeightActor):
-    def __init__(self, name: str, sprite: str, pos: Any, end_pickup_frame: int, anchor: Any = ANCHOR_CENTRE, bounciness: float = 0, ground_friction: float = 0.5, air_friction: float = 0.996, separate_shadow: bool = False) -> None:
-        super().__init__(sprite, pos, anchor=anchor, separate_shadow=separate_shadow)
+    def __init__(
+        self,
+        name: str,
+        sprite: str,
+        pos: Any,
+        end_pickup_frame: int,
+        anchor: Any = ANCHOR_CENTRE,
+        bounciness: float = 0,
+        ground_friction: float = 0.5,
+        air_friction: float = 0.996,
+        separate_shadow: bool = False,
+    ) -> None:
+        super().__init__(
+            sprite, pos, anchor=anchor, separate_shadow=separate_shadow
+        )
         self.name: str = name
         self.end_pickup_frame: int = end_pickup_frame
         self.held: bool = False
-        self.vel: Vector2 = Vector2(0,0)
+        self.vel: Vector2 = Vector2(0, 0)
         self.bounciness: float = bounciness
         self.ground_friction: float = ground_friction
         self.air_friction: float = air_friction
@@ -1546,9 +1992,12 @@ class Weapon(ScrollHeightActor):
                     # Bounce if we have bounciness, but stop bouncing if Y velocity is low
                     if self.bounciness > 0 and self.vel.y > 1:
                         # eg bounciness 1, height_above_ground 10, vel y 15, bounce amount should be 5
-                        self.height_above_ground = abs(self.height_above_ground - self.vel.y) * self.bounciness
+                        self.height_above_ground = (
+                            abs(self.height_above_ground - self.vel.y)
+                            * self.bounciness
+                        )
                         self.vel.y = -self.vel.y * self.bounciness
-                        #print(f"{self.vel.y=}, {self.height_above_ground=}")
+                        # print(f"{self.vel.y=}, {self.height_above_ground=}")
                     else:
                         self.height_above_ground = 0
                         self.vel.y = 0
@@ -1556,12 +2005,16 @@ class Weapon(ScrollHeightActor):
                     # Didn't bounce - apply velocity to Y pos
                     self.height_above_ground -= self.vel.y
 
-                assert(self.height_above_ground >= 0)
+                assert self.height_above_ground >= 0
 
             self.vpos.x += self.vel.x
 
             # Friction on X axis, varies depending on whether we're on the ground or in the air
-            friction: float = self.ground_friction if self.height_above_ground == 0 else self.air_friction
+            friction: float = (
+                self.ground_friction
+                if self.height_above_ground == 0
+                else self.air_friction
+            )
             self.vel.x *= friction
             if abs(self.vel.x) < 0.05:
                 self.vel.x = 0
@@ -1570,15 +2023,15 @@ class Weapon(ScrollHeightActor):
         return not self.held and self.height_above_ground == 0
 
     def pick_up(self, hold_height: float) -> None:
-        assert(not self.held)
+        assert not self.held
         self.held = True
-        self.height_above_ground = hold_height   # for when we are dropped
+        self.height_above_ground = hold_height  # for when we are dropped
         self.vel = Vector2(0, 0)
         self.image = "blank"
 
     def dropped(self) -> None:
         # Subclass has the responsibility of setting image to the correct sprite
-        assert(self.held)
+        assert self.held
         self.held = False
 
     def used(self) -> None:
@@ -1587,9 +2040,19 @@ class Weapon(ScrollHeightActor):
     def is_broken(self) -> bool:
         return False
 
+
 class Barrel(Weapon):
     def __init__(self, pos: Any) -> None:
-        super().__init__("barrel", "barrel_upright", pos, end_pickup_frame=2, anchor=("center", 190), bounciness=0.75, ground_friction=0.96, separate_shadow=True)
+        super().__init__(
+            "barrel",
+            "barrel_upright",
+            pos,
+            end_pickup_frame=2,
+            anchor=("center", 190),
+            bounciness=0.75,
+            ground_friction=0.96,
+            separate_shadow=True,
+        )
         self.last_thrower: Any = None
         self.frame: int = 0
 
@@ -1613,14 +2076,18 @@ class Barrel(Weapon):
                 # so we don't need to check that
                 BARREL_HEIGHT: int = 40
                 fighter_bottom_height = fighter.height_above_ground
-                barrel_bottom_height: float = self.height_above_ground - (BARREL_HEIGHT // 2)
+                barrel_bottom_height: float = self.height_above_ground - (
+                    BARREL_HEIGHT // 2
+                )
                 barrel_top_height: float = barrel_bottom_height + BARREL_HEIGHT
 
-                if fighter is not self.last_thrower \
-                  and fighter.falling_state == Fighter.FallingState.STANDING \
-                  and abs(fighter.vpos.y - self.vpos.y) < 30 \
-                  and abs(self.vpos.x - fighter.vpos.x) < 30 \
-                  and fighter_bottom_height < barrel_top_height:
+                if (
+                    fighter is not self.last_thrower
+                    and fighter.falling_state == Fighter.FallingState.STANDING
+                    and abs(fighter.vpos.y - self.vpos.y) < 30
+                    and abs(self.vpos.x - fighter.vpos.x) < 30
+                    and fighter_bottom_height < barrel_top_height
+                ):
                     fighter.hit(self, ATTACKS["barrel"])
 
             # Update rolling animation
@@ -1636,7 +2103,7 @@ class Barrel(Weapon):
 
         # Shift position for throw animation
         self.vpos.x += dir_x * 104
-        #self.height_above_ground += 54
+        # self.height_above_ground += 54
 
     def dropped(self) -> None:
         super().dropped()
@@ -1650,9 +2117,12 @@ class Barrel(Weapon):
         # (including player which has draw offset of 1)
         return 2
 
+
 class BreakableWeapon(Weapon):
     def __init__(self, pos: Any, name: str, durability: int) -> None:
-        super().__init__(name, name, pos, end_pickup_frame=1, anchor=("center", "center"))
+        super().__init__(
+            name, name, pos, end_pickup_frame=1, anchor=("center", "center")
+        )
         self.break_counter: int = durability
 
     def dropped(self) -> None:
@@ -1677,6 +2147,7 @@ class BreakableWeapon(Weapon):
         # Can't call this break as that's a keyword in Python!
         pass
 
+
 class Stick(BreakableWeapon):
     def __init__(self, pos: Any) -> None:
         super().__init__(pos, "stick", durability=randint(12, 16))
@@ -1684,12 +2155,14 @@ class Stick(BreakableWeapon):
     def on_break(self) -> None:
         game.play_sound("stick_break")
 
+
 class Chain(BreakableWeapon):
     def __init__(self, pos: Any) -> None:
         super().__init__(pos, "chain", durability=randint(18, 25))
 
     def on_break(self) -> None:
         game.play_sound("chain_break")
+
 
 class Powerup(ScrollHeightActor):
     def __init__(self, image: Any, pos: Any) -> None:
@@ -1703,6 +2176,7 @@ class Powerup(ScrollHeightActor):
     def collect(self, collector: Any) -> None:
         self.collected = True
 
+
 class HealthPowerup(Powerup):
     def __init__(self, pos: Any) -> None:
         super().__init__(pos, "health_pickup")
@@ -1714,6 +2188,7 @@ class HealthPowerup(Powerup):
         collector.health = min(collector.health + 20, collector.start_health)
 
         game.play_sound("health", 1)
+
 
 class ExtraLifePowerup(Powerup):
     def __init__(self, pos: Any) -> None:
@@ -1732,6 +2207,7 @@ class ExtraLifePowerup(Powerup):
 
         game.play_sound("health", 1)
 
+
 # A stage consists of a group of enemies and a level X boundary. When the enemies are
 # defeated, the next stage begins
 @dataclass(eq=False)
@@ -1743,257 +2219,459 @@ class Stage:
     weapons: list = field(default_factory=list)
     powerups: list = field(default_factory=list)
 
+
 STAGES: Any
+
 
 def setup_stages() -> None:
     global STAGES
     STAGES = (
-            # Stage(max_scroll_x=0, enemies=[]),
-
-            # Stage(max_scroll_x=200,
-            #       enemies=[],
-            #       #enemies=[EnemyScooterboy(pos=(200, 400))],
-            #       #enemies=[EnemyPortal(pos=(600, 400), enemies=(EnemyVax, EnemyHoodie), spawn_interval=60, spawn_interval_change=30)],
-            #       #enemies=[EnemyScooterboy(pos=(200, 400)),EnemyScooterboy(pos=(100, 300)),EnemyScooterboy(pos=(300, 600)),EnemyScooterboy(pos=(200, 500)),],
-            #       #enemies=[EnemyVax(pos=(200, 400)),EnemyVax(pos=(100, 300)),EnemyVax(pos=(300, 600)),EnemyVax(pos=(200, 500)),],
-            #       #enemies=[EnemyBoss(pos=(500, 380))],
-            #       weapons=[Barrel((300, 400))]
-            #       ),
-
-            # Stage(max_scroll_x=250,
-            #       #enemies=[EnemyScooterboy(pos=(200, 400))],
-            #       enemies=[EnemyPortal(pos=(600, 400), enemies=(EnemyVax, EnemyHoodie), spawn_interval=120, spawn_interval_change=30, start_timer=300)],
-            #       #enemies=[EnemyScooterboy(pos=(200, 400)),EnemyScooterboy(pos=(100, 300)),EnemyScooterboy(pos=(300, 600)),EnemyScooterboy(pos=(200, 500)),],
-            #       #enemies=[EnemyBoss(pos=(500, 380))],
-            #       weapons=[Barrel((300, 400))]
-            #       ),
-
-            Stage(max_scroll_x=300,
-                  enemies=[EnemyVax(pos=(1000,400))],
-                  #weapons=[Barrel((300, 400))],
-                  #powerups=[HealthPowerup(pos=(1100, MIN_WALK_Y)), ExtraLifePowerup(pos=(1000, MIN_WALK_Y))]
-                  ),
-
-            Stage(max_scroll_x=600,
-                  enemies=[EnemyVax(pos=(1400,400)),
-                           EnemyHoodie(pos=(1500,500))],
-                  weapons=[Barrel((1600, 400))]),
-
-            Stage(max_scroll_x=600,
-                  enemies=[EnemyScooterboy(pos=(200,400))]),
-
-            Stage(max_scroll_x=900,
-                  enemies=[EnemyBoss(pos=(1800,400)),
-                           EnemyVax(pos=(400,400))]),
-
-            Stage(max_scroll_x=1400,
-                  enemies=[EnemyHoodie(pos=(2100,380)),
-                           EnemyHoodie(pos=(2100,480)),
-                           EnemyHoodie(pos=(800,420))],
-                  powerups=[HealthPowerup(pos=(2300, MIN_WALK_Y))]
-                  ),
-
-            Stage(max_scroll_x=1900,
-                  enemies=[EnemyVax(pos=(2400,380)),
-                           EnemyHoodie(pos=(2500,480)),
-                           EnemyScooterboy(pos=(2800,400))]),
-
-            Stage(max_scroll_x=2500,
-                  enemies=[EnemyScooterboy(pos=(3800,380)),
-                           EnemyScooterboy(pos=(3300,480)),
-                           EnemyScooterboy(pos=(1200,400))]),
-
-            Stage(max_scroll_x=3000,
-                  enemies=[EnemyVax(pos=(4000,380)),
-                           EnemyVax(pos=(3900,480)),
-                           EnemyVax(pos=(4200,460)),
-                           EnemyVax(pos=(4200,450)),
-                           EnemyHoodie(pos=(3900,300)),
-                           EnemyHoodie(pos=(3950,320))]),
-
-            Stage(max_scroll_x=3600,
-                  enemies=[EnemyVax(pos=(4600,380)),
-                           EnemyScooterboy(pos=(1200,350)),
-                           EnemyScooterboy(pos=(1400,350)),
-                           EnemyScooterboy(pos=(1600,350)),
-                           EnemyScooterboy(pos=(1800,350)),
-                           EnemyScooterboy(pos=(2000,350))],
-                  powerups=[HealthPowerup(pos=(5100, MIN_WALK_Y))]
-                  ),
-
-            Stage(max_scroll_x=4600,
-                  enemies=[EnemyHoodie(pos=(4800,380)),
-                           EnemyHoodie(pos=(4800,350)),
-                           EnemyScooterboy(pos=(1200,350)),
-                           EnemyScooterboy(pos=(1400,350)),
-                           EnemyScooterboy(pos=(4800,350)),
-                           EnemyScooterboy(pos=(4800,400)),
-                           EnemyScooterboy(pos=(4900,450))]),
-
-            Stage(max_scroll_x=5500,
-                  enemies=[EnemyBoss(pos=(6500,380)),
-                           EnemyBoss(pos=(6500,360))],
-                  weapons=[Barrel(pos=(6000, 400)),
-                           Barrel(pos=(5900, 370))]),
-
-            Stage(max_scroll_x=6400,
-                  enemies=[EnemyBoss(pos=(7000,380)),
-                           EnemyBoss(pos=(7000,360)),
-                           EnemyBoss(pos=(7000,390))],
-                  weapons=[Barrel(pos=(7000, 380))]),
-
-            Stage(max_scroll_x=6900,
-                  enemies=[EnemyVax(pos=(7500,380)),
-                           EnemyScooterboy(pos=(7500,350)),
-                           EnemyScooterboy(pos=(7500,360))]),
-
-            Stage(max_scroll_x=7550,
-                  enemies=[EnemyHoodie(pos=(8000,380), start_timer=50),
-                           EnemyVax(pos=(8200,340), start_timer=100),
-                           EnemyHoodie(pos=(8200,340), start_timer=150),
-                           EnemyHoodie(pos=(7900,360), start_timer=200),
-                           EnemyHoodie(pos=(8300,390), start_timer=250),
-                           EnemyVax(pos=(8700,400), start_timer=300),
-                           EnemyHoodie(pos=(8800,400), start_timer=400),
-                           EnemyHoodie(pos=(8900,400), start_timer=500),
-                           EnemyVax(pos=(9000,320), start_timer=600),
-                           EnemyVax(pos=(9100,400), start_timer=700),
-                           EnemyHoodie(pos=(9100,450), start_timer=800),
-                           EnemyVax(pos=(9100,420), start_timer=900),
-                           EnemyBoss(pos=(9100,450), start_timer=1000),
-                           ],
-                  powerups=[HealthPowerup(pos=(8000, MIN_WALK_Y)),
-                            ExtraLifePowerup(pos=(8200, MIN_WALK_Y))]
-                  ),
-
-            Stage(max_scroll_x=8400,
-                  enemies=[EnemyPortal(pos=(8900, 400), enemies=(EnemyVax, EnemyHoodie), spawn_interval=120, spawn_interval_change=30, max_spawn_interval=250, max_enemies=2),],
-                  # weapons=[Barrel(pos=(9000,380)),
-                  #          Barrel(pos=(8900,360))
-                  ),
-
-            Stage(max_scroll_x=8900,
-                  enemies=[EnemyPortal(pos=(9500, 400), enemies=(EnemyVax, EnemyHoodie), spawn_interval=120, spawn_interval_change=50, max_spawn_interval=250, max_enemies=5),
-                           EnemyPortal(pos=(9500, 400), enemies=(EnemyScooterboy,), spawn_interval=160, spawn_interval_change=50, max_spawn_interval=250, max_enemies=5),],
-                  # weapons=[Barrel(pos=(9000,380)),
-                  #          Barrel(pos=(8900,360))
-                  ),
-
-            Stage(max_scroll_x=9600,
-                  enemies=[EnemyPortal(pos=(10000, 420), enemies=(EnemyVax, EnemyHoodie), spawn_interval=120, spawn_interval_change=50, max_spawn_interval=250, max_enemies=5),
-                           EnemyScooterboy(pos=(10500,320)),
-                           EnemyScooterboy(pos=(10500,350)),
-                           EnemyScooterboy(pos=(10500,380)),
-                           ],
-                  # weapons=[Barrel(pos=(9000,380)),
-                  #          Barrel(pos=(8900,360))
-                  ),
-
-            Stage(max_scroll_x=10800,
-                  enemies=[EnemyPortal(pos=(11200, 420), enemies=(EnemyHoodie,), spawn_interval=40, spawn_interval_change=10, max_spawn_interval=250, max_enemies=8),
-                           ],
-                  # weapons=[Barrel(pos=(9000,380)),
-                  #          Barrel(pos=(8900,360))
-                  ),
-
-            Stage(max_scroll_x=11400,
-                  enemies=[EnemyPortal(pos=(12100, 340), enemies=(EnemyScooterboy,), spawn_interval=40, spawn_interval_change=20, max_spawn_interval=250, max_enemies=8),
-                           EnemyPortal(pos=(11900, 400), enemies=(EnemyScooterboy,), spawn_interval=50, spawn_interval_change=25, max_spawn_interval=250, max_enemies=8),
-                           ],
-                  weapons=[Barrel(pos=(11800,380))],
-                  powerups=[HealthPowerup(pos=(12000, MIN_WALK_Y)),
-                            HealthPowerup(pos=(12500, MIN_WALK_Y))]
-                  ),
-
-            Stage(max_scroll_x=12600,
-                  enemies=[EnemyPortal(pos=(12900, 340), enemies=(EnemyBoss,), spawn_interval=240, spawn_interval_change=20, max_spawn_interval=300, max_enemies=4),
-                           EnemyHoodie(pos=(13200,320)),
-                           EnemyHoodie(pos=(13200,330)),
-                           EnemyVax(pos=(13400,360)),
-                           ],
-                  ),
-
-            Stage(max_scroll_x=13400,
-                  enemies=[EnemyPortal(pos=(13600, 320), enemies=(EnemyVax,), spawn_interval=230, spawn_interval_change=20, max_spawn_interval=300, max_enemies=10),
-                           EnemyPortal(pos=(13600, 435), enemies=(EnemyHoodie,), spawn_interval=240, spawn_interval_change=20, max_spawn_interval=300, max_enemies=10),
-                           EnemyPortal(pos=(14000, 320), enemies=(EnemyScooterboy,), spawn_interval=250, spawn_interval_change=30, max_spawn_interval=300, max_enemies=10),
-                           EnemyPortal(pos=(14000, 435), enemies=(EnemyBoss,), spawn_interval=260, spawn_interval_change=30, max_spawn_interval=300, max_enemies=10),
-                          ],
-                  ),
-
-            Stage(max_scroll_x=14700,
-                  enemies=[EnemyPortal(pos=(14900, 320), enemies=(EnemyVax,), spawn_interval=220, spawn_interval_change=20, max_spawn_interval=300, max_enemies=8),
-                           EnemyPortal(pos=(14900, 435), enemies=(EnemyHoodie,), spawn_interval=230, spawn_interval_change=20, max_spawn_interval=300, max_enemies=8),
-                           EnemyPortal(pos=(15300, 320), enemies=(EnemyScooterboy,), spawn_interval=240, spawn_interval_change=20, max_spawn_interval=300, max_enemies=8),
-                           EnemyPortal(pos=(15300, 435), enemies=(EnemyBoss,), spawn_interval=250, spawn_interval_change=20, max_spawn_interval=300, max_enemies=8),
-                          ],
-                  powerups=[HealthPowerup(pos=(14650, 350)),]
-                  ),
-
-            Stage(max_scroll_x=15400,
-                  enemies=[EnemyPortal(pos=(15800, 350), enemies=(EnemyVax,EnemyHoodie,EnemyScooterboy), spawn_interval=60, spawn_interval_change=20, max_spawn_interval=300, max_enemies=8),
-                          ],
-                  powerups=[HealthPowerup(pos=(16000, MIN_WALK_Y)),]
-                  ),
-
-            Stage(max_scroll_x=16600,
-                  enemies=[EnemyVax(pos=(17600,300)),
-                           EnemyVax(pos=(17900,320)),
-                           EnemyVax(pos=(17600,340)),
-                           EnemyVax(pos=(17900,360)),
-                           EnemyVax(pos=(17600,380)),
-                           EnemyVax(pos=(17900,400)),
-                           EnemyVax(pos=(17600,420)),
-                          ],
-                  powerups=[HealthPowerup(pos=(17000, MIN_WALK_Y)),],
-                  weapons=[Barrel(pos=(17000,380))],
-                  ),
-
-            Stage(max_scroll_x=17400,
-                  enemies=[EnemyBoss(pos=(17800,MIN_WALK_Y)),
-                           EnemyScooterboy(pos=(18500,380)),
-                           EnemyScooterboy(pos=(18600,380)),
-                           EnemyScooterboy(pos=(18700,380)),
-                           EnemyScooterboy(pos=(18800,380)),
-                           EnemyScooterboy(pos=(19000,380)),
-                          ],
-                  weapons=[Stick(pos=(18000,340))],
-                  ),
-
-            Stage(max_scroll_x=18500,
-                  enemies=[EnemyBoss(pos=(18800, 320)),
-                           EnemyPortal(pos=(18900, 390), enemies=(EnemyVax, EnemyHoodie),
-                                       start_timer=400, spawn_interval=30, spawn_interval_change=5, max_enemies=10),
-                           ],
-             ),
-
-            Stage(max_scroll_x=19300,
-                  enemies=[EnemyScooterboy(pos=(19900, 340))],
-                  weapons=[Barrel(pos=(19400,340))],
-                  powerups=[HealthPowerup(pos=(19600, MIN_WALK_Y)),],
-             ),
-
-            # Final battles
-
-            Stage(max_scroll_x=20500,
-                  enemies=[EnemyHoodie(pos=(20900, 380), start_timer=500),
-                           EnemyBoss(pos=(21500,330)),
-                           EnemyBoss(pos=(21500,350)),
-                           EnemyBoss(pos=(21500,370)),
-                           EnemyBoss(pos=(21500,390)),
-                           EnemyBoss(pos=(18200,320)),
-                           EnemyBoss(pos=(17800,390)),
-                           ],
-                  powerups=[ExtraLifePowerup(pos=(20900, MIN_WALK_Y))]),
-
-            Stage(max_scroll_x=20500,
-                  enemies=[EnemyPortal(pos=(20700, 315), enemies=(EnemyVax,), start_timer=600, spawn_interval=60, spawn_interval_change=5, max_enemies=20),
-                           EnemyPortal(pos=(20700, 440), enemies=(EnemyHoodie,), start_timer=600, spawn_interval=60, spawn_interval_change=10, max_enemies=20),
-                           EnemyPortal(pos=(21100, 315), enemies=(EnemyScooterboy,), start_timer=600, spawn_interval=60, spawn_interval_change=15, max_enemies=20),
-                           EnemyPortal(pos=(21100, 440), enemies=(EnemyBoss,), start_timer=600, spawn_interval=60, spawn_interval_change=20, max_enemies=20),
-                           ]),
-
+        # Stage(max_scroll_x=0, enemies=[]),
+        # Stage(max_scroll_x=200,
+        #       enemies=[],
+        #       #enemies=[EnemyScooterboy(pos=(200, 400))],
+        #       #enemies=[EnemyPortal(pos=(600, 400), enemies=(EnemyVax, EnemyHoodie), spawn_interval=60, spawn_interval_change=30)],
+        #       #enemies=[EnemyScooterboy(pos=(200, 400)),EnemyScooterboy(pos=(100, 300)),EnemyScooterboy(pos=(300, 600)),EnemyScooterboy(pos=(200, 500)),],
+        #       #enemies=[EnemyVax(pos=(200, 400)),EnemyVax(pos=(100, 300)),EnemyVax(pos=(300, 600)),EnemyVax(pos=(200, 500)),],
+        #       #enemies=[EnemyBoss(pos=(500, 380))],
+        #       weapons=[Barrel((300, 400))]
+        #       ),
+        # Stage(max_scroll_x=250,
+        #       #enemies=[EnemyScooterboy(pos=(200, 400))],
+        #       enemies=[EnemyPortal(pos=(600, 400), enemies=(EnemyVax, EnemyHoodie), spawn_interval=120, spawn_interval_change=30, start_timer=300)],
+        #       #enemies=[EnemyScooterboy(pos=(200, 400)),EnemyScooterboy(pos=(100, 300)),EnemyScooterboy(pos=(300, 600)),EnemyScooterboy(pos=(200, 500)),],
+        #       #enemies=[EnemyBoss(pos=(500, 380))],
+        #       weapons=[Barrel((300, 400))]
+        #       ),
+        Stage(
+            max_scroll_x=300,
+            enemies=[EnemyVax(pos=(1000, 400))],
+            # weapons=[Barrel((300, 400))],
+            # powerups=[HealthPowerup(pos=(1100, MIN_WALK_Y)), ExtraLifePowerup(pos=(1000, MIN_WALK_Y))]
+        ),
+        Stage(
+            max_scroll_x=600,
+            enemies=[EnemyVax(pos=(1400, 400)), EnemyHoodie(pos=(1500, 500))],
+            weapons=[Barrel((1600, 400))],
+        ),
+        Stage(max_scroll_x=600, enemies=[EnemyScooterboy(pos=(200, 400))]),
+        Stage(
+            max_scroll_x=900,
+            enemies=[EnemyBoss(pos=(1800, 400)), EnemyVax(pos=(400, 400))],
+        ),
+        Stage(
+            max_scroll_x=1400,
+            enemies=[
+                EnemyHoodie(pos=(2100, 380)),
+                EnemyHoodie(pos=(2100, 480)),
+                EnemyHoodie(pos=(800, 420)),
+            ],
+            powerups=[HealthPowerup(pos=(2300, MIN_WALK_Y))],
+        ),
+        Stage(
+            max_scroll_x=1900,
+            enemies=[
+                EnemyVax(pos=(2400, 380)),
+                EnemyHoodie(pos=(2500, 480)),
+                EnemyScooterboy(pos=(2800, 400)),
+            ],
+        ),
+        Stage(
+            max_scroll_x=2500,
+            enemies=[
+                EnemyScooterboy(pos=(3800, 380)),
+                EnemyScooterboy(pos=(3300, 480)),
+                EnemyScooterboy(pos=(1200, 400)),
+            ],
+        ),
+        Stage(
+            max_scroll_x=3000,
+            enemies=[
+                EnemyVax(pos=(4000, 380)),
+                EnemyVax(pos=(3900, 480)),
+                EnemyVax(pos=(4200, 460)),
+                EnemyVax(pos=(4200, 450)),
+                EnemyHoodie(pos=(3900, 300)),
+                EnemyHoodie(pos=(3950, 320)),
+            ],
+        ),
+        Stage(
+            max_scroll_x=3600,
+            enemies=[
+                EnemyVax(pos=(4600, 380)),
+                EnemyScooterboy(pos=(1200, 350)),
+                EnemyScooterboy(pos=(1400, 350)),
+                EnemyScooterboy(pos=(1600, 350)),
+                EnemyScooterboy(pos=(1800, 350)),
+                EnemyScooterboy(pos=(2000, 350)),
+            ],
+            powerups=[HealthPowerup(pos=(5100, MIN_WALK_Y))],
+        ),
+        Stage(
+            max_scroll_x=4600,
+            enemies=[
+                EnemyHoodie(pos=(4800, 380)),
+                EnemyHoodie(pos=(4800, 350)),
+                EnemyScooterboy(pos=(1200, 350)),
+                EnemyScooterboy(pos=(1400, 350)),
+                EnemyScooterboy(pos=(4800, 350)),
+                EnemyScooterboy(pos=(4800, 400)),
+                EnemyScooterboy(pos=(4900, 450)),
+            ],
+        ),
+        Stage(
+            max_scroll_x=5500,
+            enemies=[EnemyBoss(pos=(6500, 380)), EnemyBoss(pos=(6500, 360))],
+            weapons=[Barrel(pos=(6000, 400)), Barrel(pos=(5900, 370))],
+        ),
+        Stage(
+            max_scroll_x=6400,
+            enemies=[
+                EnemyBoss(pos=(7000, 380)),
+                EnemyBoss(pos=(7000, 360)),
+                EnemyBoss(pos=(7000, 390)),
+            ],
+            weapons=[Barrel(pos=(7000, 380))],
+        ),
+        Stage(
+            max_scroll_x=6900,
+            enemies=[
+                EnemyVax(pos=(7500, 380)),
+                EnemyScooterboy(pos=(7500, 350)),
+                EnemyScooterboy(pos=(7500, 360)),
+            ],
+        ),
+        Stage(
+            max_scroll_x=7550,
+            enemies=[
+                EnemyHoodie(pos=(8000, 380), start_timer=50),
+                EnemyVax(pos=(8200, 340), start_timer=100),
+                EnemyHoodie(pos=(8200, 340), start_timer=150),
+                EnemyHoodie(pos=(7900, 360), start_timer=200),
+                EnemyHoodie(pos=(8300, 390), start_timer=250),
+                EnemyVax(pos=(8700, 400), start_timer=300),
+                EnemyHoodie(pos=(8800, 400), start_timer=400),
+                EnemyHoodie(pos=(8900, 400), start_timer=500),
+                EnemyVax(pos=(9000, 320), start_timer=600),
+                EnemyVax(pos=(9100, 400), start_timer=700),
+                EnemyHoodie(pos=(9100, 450), start_timer=800),
+                EnemyVax(pos=(9100, 420), start_timer=900),
+                EnemyBoss(pos=(9100, 450), start_timer=1000),
+            ],
+            powerups=[
+                HealthPowerup(pos=(8000, MIN_WALK_Y)),
+                ExtraLifePowerup(pos=(8200, MIN_WALK_Y)),
+            ],
+        ),
+        Stage(
+            max_scroll_x=8400,
+            enemies=[
+                EnemyPortal(
+                    pos=(8900, 400),
+                    enemies=(EnemyVax, EnemyHoodie),
+                    spawn_interval=120,
+                    spawn_interval_change=30,
+                    max_spawn_interval=250,
+                    max_enemies=2,
+                ),
+            ],
+            # weapons=[Barrel(pos=(9000,380)),
+            #          Barrel(pos=(8900,360))
+        ),
+        Stage(
+            max_scroll_x=8900,
+            enemies=[
+                EnemyPortal(
+                    pos=(9500, 400),
+                    enemies=(EnemyVax, EnemyHoodie),
+                    spawn_interval=120,
+                    spawn_interval_change=50,
+                    max_spawn_interval=250,
+                    max_enemies=5,
+                ),
+                EnemyPortal(
+                    pos=(9500, 400),
+                    enemies=(EnemyScooterboy,),
+                    spawn_interval=160,
+                    spawn_interval_change=50,
+                    max_spawn_interval=250,
+                    max_enemies=5,
+                ),
+            ],
+            # weapons=[Barrel(pos=(9000,380)),
+            #          Barrel(pos=(8900,360))
+        ),
+        Stage(
+            max_scroll_x=9600,
+            enemies=[
+                EnemyPortal(
+                    pos=(10000, 420),
+                    enemies=(EnemyVax, EnemyHoodie),
+                    spawn_interval=120,
+                    spawn_interval_change=50,
+                    max_spawn_interval=250,
+                    max_enemies=5,
+                ),
+                EnemyScooterboy(pos=(10500, 320)),
+                EnemyScooterboy(pos=(10500, 350)),
+                EnemyScooterboy(pos=(10500, 380)),
+            ],
+            # weapons=[Barrel(pos=(9000,380)),
+            #          Barrel(pos=(8900,360))
+        ),
+        Stage(
+            max_scroll_x=10800,
+            enemies=[
+                EnemyPortal(
+                    pos=(11200, 420),
+                    enemies=(EnemyHoodie,),
+                    spawn_interval=40,
+                    spawn_interval_change=10,
+                    max_spawn_interval=250,
+                    max_enemies=8,
+                ),
+            ],
+            # weapons=[Barrel(pos=(9000,380)),
+            #          Barrel(pos=(8900,360))
+        ),
+        Stage(
+            max_scroll_x=11400,
+            enemies=[
+                EnemyPortal(
+                    pos=(12100, 340),
+                    enemies=(EnemyScooterboy,),
+                    spawn_interval=40,
+                    spawn_interval_change=20,
+                    max_spawn_interval=250,
+                    max_enemies=8,
+                ),
+                EnemyPortal(
+                    pos=(11900, 400),
+                    enemies=(EnemyScooterboy,),
+                    spawn_interval=50,
+                    spawn_interval_change=25,
+                    max_spawn_interval=250,
+                    max_enemies=8,
+                ),
+            ],
+            weapons=[Barrel(pos=(11800, 380))],
+            powerups=[
+                HealthPowerup(pos=(12000, MIN_WALK_Y)),
+                HealthPowerup(pos=(12500, MIN_WALK_Y)),
+            ],
+        ),
+        Stage(
+            max_scroll_x=12600,
+            enemies=[
+                EnemyPortal(
+                    pos=(12900, 340),
+                    enemies=(EnemyBoss,),
+                    spawn_interval=240,
+                    spawn_interval_change=20,
+                    max_spawn_interval=300,
+                    max_enemies=4,
+                ),
+                EnemyHoodie(pos=(13200, 320)),
+                EnemyHoodie(pos=(13200, 330)),
+                EnemyVax(pos=(13400, 360)),
+            ],
+        ),
+        Stage(
+            max_scroll_x=13400,
+            enemies=[
+                EnemyPortal(
+                    pos=(13600, 320),
+                    enemies=(EnemyVax,),
+                    spawn_interval=230,
+                    spawn_interval_change=20,
+                    max_spawn_interval=300,
+                    max_enemies=10,
+                ),
+                EnemyPortal(
+                    pos=(13600, 435),
+                    enemies=(EnemyHoodie,),
+                    spawn_interval=240,
+                    spawn_interval_change=20,
+                    max_spawn_interval=300,
+                    max_enemies=10,
+                ),
+                EnemyPortal(
+                    pos=(14000, 320),
+                    enemies=(EnemyScooterboy,),
+                    spawn_interval=250,
+                    spawn_interval_change=30,
+                    max_spawn_interval=300,
+                    max_enemies=10,
+                ),
+                EnemyPortal(
+                    pos=(14000, 435),
+                    enemies=(EnemyBoss,),
+                    spawn_interval=260,
+                    spawn_interval_change=30,
+                    max_spawn_interval=300,
+                    max_enemies=10,
+                ),
+            ],
+        ),
+        Stage(
+            max_scroll_x=14700,
+            enemies=[
+                EnemyPortal(
+                    pos=(14900, 320),
+                    enemies=(EnemyVax,),
+                    spawn_interval=220,
+                    spawn_interval_change=20,
+                    max_spawn_interval=300,
+                    max_enemies=8,
+                ),
+                EnemyPortal(
+                    pos=(14900, 435),
+                    enemies=(EnemyHoodie,),
+                    spawn_interval=230,
+                    spawn_interval_change=20,
+                    max_spawn_interval=300,
+                    max_enemies=8,
+                ),
+                EnemyPortal(
+                    pos=(15300, 320),
+                    enemies=(EnemyScooterboy,),
+                    spawn_interval=240,
+                    spawn_interval_change=20,
+                    max_spawn_interval=300,
+                    max_enemies=8,
+                ),
+                EnemyPortal(
+                    pos=(15300, 435),
+                    enemies=(EnemyBoss,),
+                    spawn_interval=250,
+                    spawn_interval_change=20,
+                    max_spawn_interval=300,
+                    max_enemies=8,
+                ),
+            ],
+            powerups=[
+                HealthPowerup(pos=(14650, 350)),
+            ],
+        ),
+        Stage(
+            max_scroll_x=15400,
+            enemies=[
+                EnemyPortal(
+                    pos=(15800, 350),
+                    enemies=(EnemyVax, EnemyHoodie, EnemyScooterboy),
+                    spawn_interval=60,
+                    spawn_interval_change=20,
+                    max_spawn_interval=300,
+                    max_enemies=8,
+                ),
+            ],
+            powerups=[
+                HealthPowerup(pos=(16000, MIN_WALK_Y)),
+            ],
+        ),
+        Stage(
+            max_scroll_x=16600,
+            enemies=[
+                EnemyVax(pos=(17600, 300)),
+                EnemyVax(pos=(17900, 320)),
+                EnemyVax(pos=(17600, 340)),
+                EnemyVax(pos=(17900, 360)),
+                EnemyVax(pos=(17600, 380)),
+                EnemyVax(pos=(17900, 400)),
+                EnemyVax(pos=(17600, 420)),
+            ],
+            powerups=[
+                HealthPowerup(pos=(17000, MIN_WALK_Y)),
+            ],
+            weapons=[Barrel(pos=(17000, 380))],
+        ),
+        Stage(
+            max_scroll_x=17400,
+            enemies=[
+                EnemyBoss(pos=(17800, MIN_WALK_Y)),
+                EnemyScooterboy(pos=(18500, 380)),
+                EnemyScooterboy(pos=(18600, 380)),
+                EnemyScooterboy(pos=(18700, 380)),
+                EnemyScooterboy(pos=(18800, 380)),
+                EnemyScooterboy(pos=(19000, 380)),
+            ],
+            weapons=[Stick(pos=(18000, 340))],
+        ),
+        Stage(
+            max_scroll_x=18500,
+            enemies=[
+                EnemyBoss(pos=(18800, 320)),
+                EnemyPortal(
+                    pos=(18900, 390),
+                    enemies=(EnemyVax, EnemyHoodie),
+                    start_timer=400,
+                    spawn_interval=30,
+                    spawn_interval_change=5,
+                    max_enemies=10,
+                ),
+            ],
+        ),
+        Stage(
+            max_scroll_x=19300,
+            enemies=[EnemyScooterboy(pos=(19900, 340))],
+            weapons=[Barrel(pos=(19400, 340))],
+            powerups=[
+                HealthPowerup(pos=(19600, MIN_WALK_Y)),
+            ],
+        ),
+        # Final battles
+        Stage(
+            max_scroll_x=20500,
+            enemies=[
+                EnemyHoodie(pos=(20900, 380), start_timer=500),
+                EnemyBoss(pos=(21500, 330)),
+                EnemyBoss(pos=(21500, 350)),
+                EnemyBoss(pos=(21500, 370)),
+                EnemyBoss(pos=(21500, 390)),
+                EnemyBoss(pos=(18200, 320)),
+                EnemyBoss(pos=(17800, 390)),
+            ],
+            powerups=[ExtraLifePowerup(pos=(20900, MIN_WALK_Y))],
+        ),
+        Stage(
+            max_scroll_x=20500,
+            enemies=[
+                EnemyPortal(
+                    pos=(20700, 315),
+                    enemies=(EnemyVax,),
+                    start_timer=600,
+                    spawn_interval=60,
+                    spawn_interval_change=5,
+                    max_enemies=20,
+                ),
+                EnemyPortal(
+                    pos=(20700, 440),
+                    enemies=(EnemyHoodie,),
+                    start_timer=600,
+                    spawn_interval=60,
+                    spawn_interval_change=10,
+                    max_enemies=20,
+                ),
+                EnemyPortal(
+                    pos=(21100, 315),
+                    enemies=(EnemyScooterboy,),
+                    start_timer=600,
+                    spawn_interval=60,
+                    spawn_interval_change=15,
+                    max_enemies=20,
+                ),
+                EnemyPortal(
+                    pos=(21100, 440),
+                    enemies=(EnemyBoss,),
+                    start_timer=600,
+                    spawn_interval=60,
+                    spawn_interval_change=20,
+                    max_enemies=20,
+                ),
+            ],
+        ),
     )
+
 
 class Game:
     def __init__(self, controls: Any = None) -> None:
@@ -2008,37 +2686,45 @@ class Game:
         self.timer: int = 0
         self.score: int = 0
 
-        self.scroll_offset: Vector2 = Vector2(0,0)
+        self.scroll_offset: Vector2 = Vector2(0, 0)
         self.max_scroll_offset_x: int = 0
         self.scrolling: bool = False
 
-        self.boundary: Rect = Rect(0, MIN_WALK_Y, WIDTH-1, HEIGHT-MIN_WALK_Y)
+        self.boundary: Rect = Rect(
+            0, MIN_WALK_Y, WIDTH - 1, HEIGHT - MIN_WALK_Y
+        )
 
         setup_stages()
 
         # Set up intro text, selecting randomly from one of several stolen items
-        stolen_items: tuple[str, ...] = ("A SHIPMENT OF RASPBERRY\nPIS",
-                        "YOUR COPY OF CODE THE\nCLASSICS VOL 2",
-                        "THE COMPLETE WORKS OF\nSHAKESPEARE",
-                        "THE BLOCKCHAIN",
-                        "THE WORLD'S ENTIRE SUPPLY\nOF COVID VACCINES",
-                        "ALL OF YOUR SAVED GAME\nFILES",
-                        "YOUR DOG'S FLEA MEDICINE")
+        stolen_items: tuple[str, ...] = (
+            "A SHIPMENT OF RASPBERRY\nPIS",
+            "YOUR COPY OF CODE THE\nCLASSICS VOL 2",
+            "THE COMPLETE WORKS OF\nSHAKESPEARE",
+            "THE BLOCKCHAIN",
+            "THE WORLD'S ENTIRE SUPPLY\nOF COVID VACCINES",
+            "ALL OF YOUR SAVED GAME\nFILES",
+            "YOUR DOG'S FLEA MEDICINE",
+        )
 
         self.text_active: bool = INTRO_ENABLED
-        self.intro_text: str = "THE NOTORIOUS CRIME BOSS\nEBEN UPTON HAS STOLEN\n" \
-                          + choice(stolen_items) \
-                          + "\n\n\nFIGHT TO RECLAIM WHAT\nHAS BEEN TAKEN!"
-        self.outro_text: str = "FOLLOWING THE DEFEAT OF\n" \
-                          + "THE EVIL GANG, HUMANITY\n" \
-                          + "ENTERED A NEW GOLDEN AGE\n" \
-                          + "IN WHICH CRIME BECAME A\n" \
-                          + "THING OF THE PAST. THE\n" \
-                          + "WORD ITSELF WAS SOON\n" \
-                          + "FORGOTTEN AND EVERYONE\n" \
-                          + "HAD A BIG PARTY IN YOUR\n" \
-                          + "HONOUR.\n" \
-                          + "\nNICE JOB!"
+        self.intro_text: str = (
+            "THE NOTORIOUS CRIME BOSS\nEBEN UPTON HAS STOLEN\n"
+            + choice(stolen_items)
+            + "\n\n\nFIGHT TO RECLAIM WHAT\nHAS BEEN TAKEN!"
+        )
+        self.outro_text: str = (
+            "FOLLOWING THE DEFEAT OF\n"
+            + "THE EVIL GANG, HUMANITY\n"
+            + "ENTERED A NEW GOLDEN AGE\n"
+            + "IN WHICH CRIME BECAME A\n"
+            + "THING OF THE PAST. THE\n"
+            + "WORD ITSELF WAS SOON\n"
+            + "FORGOTTEN AND EVERYONE\n"
+            + "HAD A BIG PARTY IN YOUR\n"
+            + "HONOUR.\n"
+            + "\nNICE JOB!"
+        )
         self.current_text: str = self.intro_text
         self.displayed_text: str = ""
 
@@ -2049,8 +2735,13 @@ class Game:
         if self.stage_index < len(STAGES):
             stage = STAGES[self.stage_index]
             self.max_scroll_offset_x = stage.max_scroll_x
-            if self.scrolling or self.max_scroll_offset_x <= self.scroll_offset.x:
-                print("No scrolling or already scrolling - create stage objects")
+            if (
+                self.scrolling
+                or self.max_scroll_offset_x <= self.scroll_offset.x
+            ):
+                print(
+                    "No scrolling or already scrolling - create stage objects"
+                )
                 self.create_stage_objects(stage)
         else:
             # If stage_index has reached len(STAGES), we go into the outro state (like intro text, but with different text)
@@ -2089,8 +2780,12 @@ class Game:
         if self.text_active:
             # Every 6 frames, update the displayed text to display an extra character, and make a sound if the
             # new character is visible (as opposed to a space or new line)
-            if self.timer % 6 == 0 and len(self.displayed_text) < len(self.current_text):
-                length_to_display: int = min(self.timer // 6, len(self.current_text))
+            if self.timer % 6 == 0 and len(self.displayed_text) < len(
+                self.current_text
+            ):
+                length_to_display: int = min(
+                    self.timer // 6, len(self.current_text)
+                )
                 self.displayed_text = self.current_text[:length_to_display]
                 if not self.displayed_text[-1].isspace():
                     self.play_sound("teletype")
@@ -2107,7 +2802,13 @@ class Game:
             debug_drawcalls.clear()
 
         # Update all objects
-        for obj in [self.player] + self.enemies + self.weapons + self.scooters + self.powerups:
+        for obj in (
+            [self.player]
+            + self.enemies
+            + self.weapons
+            + self.scooters
+            + self.powerups
+        ):
             obj.update()
 
         if self.scrolling:
@@ -2115,7 +2816,7 @@ class Game:
                 # How far are we from reaching the new max scroll offset?
                 diff: float = self.max_scroll_offset_x - self.scroll_offset.x
                 # Scroll at 1-4px per frame depending on player's distance from right edge
-                scroll_speed = self.player.x / (WIDTH/4)
+                scroll_speed = self.player.x / (WIDTH / 4)
                 scroll_speed = min(diff, scroll_speed)
                 self.scroll_offset.x += scroll_speed
                 self.boundary.left = self.scroll_offset.x  # as boundary is a rectangle, moving boundary.left moves the entire rectangle
@@ -2125,7 +2826,11 @@ class Game:
         else:
             # Start scrolling if player is near right hand edge of screen and max_scroll_offset_x allows to to scroll
             begin_scroll_boundary: int = WIDTH - 300
-            if self.player.vpos.x - self.scroll_offset.x > begin_scroll_boundary and self.scroll_offset.x < self.max_scroll_offset_x:
+            if (
+                self.player.vpos.x - self.scroll_offset.x
+                > begin_scroll_boundary
+                and self.scroll_offset.x < self.max_scroll_offset_x
+            ):
                 self.scrolling = True
 
                 # When we start scrolling, create enemies for the current stage
@@ -2135,20 +2840,35 @@ class Game:
                     self.create_stage_objects(stage)
 
         # Remove expired enemies and gain score
-        self.score += sum([enemy.score for enemy in self.enemies if enemy.lives <= 0])
+        self.score += sum(
+            [enemy.score for enemy in self.enemies if enemy.lives <= 0]
+        )
         self.enemies = [enemy for enemy in self.enemies if enemy.lives > 0]
 
         # Remove expired scooters
-        self.scooters = [scooter for scooter in self.scooters if scooter.frame < 200]
+        self.scooters = [
+            scooter for scooter in self.scooters if scooter.frame < 200
+        ]
 
         # Remove broken weapons and ones which are off the left of the screen
-        self.weapons = [weapon for weapon in self.weapons if not weapon.is_broken() and weapon.x > -200]
+        self.weapons = [
+            weapon
+            for weapon in self.weapons
+            if not weapon.is_broken() and weapon.x > -200
+        ]
 
         # Remove collected powerups, and ones off the left of the screen
-        self.powerups = [powerup for powerup in self.powerups if not powerup.collected and powerup.x > -200]
+        self.powerups = [
+            powerup
+            for powerup in self.powerups
+            if not powerup.collected and powerup.x > -200
+        ]
 
         # If no enemies and we've fully scrolled to the current stage's max_scroll_x, start the next stage
-        if len(self.enemies) == 0 and self.scroll_offset.x == self.max_scroll_offset_x:
+        if (
+            len(self.enemies) == 0
+            and self.scroll_offset.x == self.max_scroll_offset_x
+        ):
             self.next_stage()
 
         if DEBUG_PROFILING:
@@ -2162,7 +2882,13 @@ class Game:
         # Y pos used is modified by result of get_draw_order_offset, for certain cases where we need more nuance than
         # just "lowest on screen first"
         p: Profiler = Profiler()
-        all_objs = [self.player] + self.enemies + self.weapons + self.scooters + self.powerups
+        all_objs = (
+            [self.player]
+            + self.enemies
+            + self.weapons
+            + self.scooters
+            + self.powerups
+        )
         all_objs.sort(key=lambda obj: obj.vpos.y + obj.get_draw_order_offset())
         for obj in all_objs:
             if obj:
@@ -2173,8 +2899,11 @@ class Game:
         p = Profiler()
 
         # If player can scroll the level, show flashing arrow
-        if self.scroll_offset.x < self.max_scroll_offset_x and (self.timer // 30) % 2 == 0:
-            screen.blit("arrow", (WIDTH-450, 120))
+        if (
+            self.scroll_offset.x < self.max_scroll_offset_x
+            and (self.timer // 30) % 2 == 0
+        ):
+            screen.blit("arrow", (WIDTH - 450, 120))
 
         self.draw_ui()
 
@@ -2199,11 +2928,21 @@ class Game:
 
         # Debug
         if DEBUG_SHOW_SCROLL_POS:
-            screen.draw.text(f"{self.scroll_offset} {self.max_scroll_offset_x}", (0, 25))
+            screen.draw.text(
+                f"{self.scroll_offset} {self.max_scroll_offset_x}", (0, 25)
+            )
             screen.draw.text(str(self.boundary.left), (0, 45))
 
         if DEBUG_SHOW_BOUNDARY:
-            screen.draw.rect(Rect(self.boundary.left - self.scroll_offset.x, self.boundary.top, self.boundary.width, self.boundary.height), (255,255,255))
+            screen.draw.rect(
+                Rect(
+                    self.boundary.left - self.scroll_offset.x,
+                    self.boundary.top,
+                    self.boundary.width,
+                    self.boundary.height,
+                ),
+                (255, 255, 255),
+            )
 
         # If there are any debug draw calls, execute them - used by DEBUG_SHOW_ATTACKS
         for func in debug_drawcalls:
@@ -2217,10 +2956,24 @@ class Game:
         # Show status bar and player health, stamina and lives
         # Have to use the actual Pygame blit rather than Pygame Zero version so that we can specify which area of the
         # source image to copy
-        health_bar_w: int = int((game.player.health / game.player.start_health) * HEALTH_STAMINA_BAR_WIDTH)
-        screen.surface.blit(getattr(images, "health"), (48, 11), Rect(0, 0, health_bar_w, HEALTH_STAMINA_BAR_HEIGHT))
-        stamina_bar_w: int = int((game.player.stamina / game.player.max_stamina) * HEALTH_STAMINA_BAR_WIDTH)
-        screen.surface.blit(getattr(images, "stamina"), (517, 11), Rect(0, 0, stamina_bar_w, HEALTH_STAMINA_BAR_HEIGHT))
+        health_bar_w: int = int(
+            (game.player.health / game.player.start_health)
+            * HEALTH_STAMINA_BAR_WIDTH
+        )
+        screen.surface.blit(
+            getattr(images, "health"),
+            (48, 11),
+            Rect(0, 0, health_bar_w, HEALTH_STAMINA_BAR_HEIGHT),
+        )
+        stamina_bar_w: int = int(
+            (game.player.stamina / game.player.max_stamina)
+            * HEALTH_STAMINA_BAR_WIDTH
+        )
+        screen.surface.blit(
+            getattr(images, "stamina"),
+            (517, 11),
+            Rect(0, 0, stamina_bar_w, HEALTH_STAMINA_BAR_HEIGHT),
+        )
 
         screen.blit("status", (0, 0))
 
@@ -2295,6 +3048,7 @@ class Game:
                 # Also occurs if sound fails to play for another reason (e.g. if this machine has no sound hardware)
                 print(e)
 
+
 # From Eggzy
 def get_char_image_and_width(char: str) -> tuple[Any, int]:
     # Return width of given character. ord() gives the ASCII/Unicode code for the given character.
@@ -2304,11 +3058,13 @@ def get_char_image_and_width(char: str) -> tuple[Any, int]:
         if char in SPECIAL_FONT_SYMBOLS_INVERSE:
             image = getattr(images, SPECIAL_FONT_SYMBOLS_INVERSE[char])
         else:
-            image = getattr(images, "font0"+str(ord(char)))
+            image = getattr(images, "font0" + str(ord(char)))
         return image, image.get_width()
+
 
 def text_width(text: str) -> int:
     return sum([get_char_image_and_width(c)[1] for c in text])
+
 
 def draw_text(text: str, x: int, y: int, centre: bool = False) -> None:
     # Note that the centre option does not work correctly for text with line breaks
@@ -2328,18 +3084,26 @@ def draw_text(text: str, x: int, y: int, centre: bool = False) -> None:
                 screen.blit(image, (x, y))
             x += width
 
+
 # Set up controls
 joystick_controls: Any
 
+
 def get_joystick_if_exists() -> Any:
-    return pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
+    return (
+        pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
+    )
+
 
 def setup_joystick_controls() -> None:
     # We call this on startup, and keep calling it if no controller is present,
     # so a controller can be connected while the game is open
     global joystick_controls
     joystick = get_joystick_if_exists()
-    joystick_controls = JoystickControls(joystick) if joystick is not None else None
+    joystick_controls = (
+        JoystickControls(joystick) if joystick is not None else None
+    )
+
 
 def update_controls() -> None:
     keyboard_controls.update()
@@ -2349,6 +3113,7 @@ def update_controls() -> None:
     if joystick_controls is not None:
         joystick_controls.update()
 
+
 class State(Enum):
     TITLE = 1
     CONTROLS = 2
@@ -2357,6 +3122,7 @@ class State(Enum):
 
 
 # Pygame Zero calls the update and draw functions each frame
+
 
 def update() -> None:
     global state, game, total_frames
@@ -2402,17 +3168,31 @@ def update() -> None:
             state = State.TITLE
             game = None
 
+
 def draw() -> None:
     if state == State.TITLE:
         # Draw logo
-        logo_img = images.title0 if total_frames // 20 % 2 == 0 else images.title1
-        screen.blit(logo_img, (WIDTH//2 - logo_img.get_width() // 2, HEIGHT//2 - logo_img.get_height() // 2))
+        logo_img = (
+            images.title0 if total_frames // 20 % 2 == 0 else images.title1
+        )
+        screen.blit(
+            logo_img,
+            (
+                WIDTH // 2 - logo_img.get_width() // 2,
+                HEIGHT // 2 - logo_img.get_height() // 2,
+            ),
+        )
 
-        draw_text(f"PRESS {SPECIAL_FONT_SYMBOLS['xb_a']} OR Z",  WIDTH//2, HEIGHT - 50, True)
+        draw_text(
+            f"PRESS {SPECIAL_FONT_SYMBOLS['xb_a']} OR Z",
+            WIDTH // 2,
+            HEIGHT - 50,
+            True,
+        )
 
     elif state == State.CONTROLS:
-        screen.fill((0,0,0))
-        screen.blit("menu_controls", (0,0))
+        screen.fill((0, 0, 0))
+        screen.blit("menu_controls", (0, 0))
 
     elif state == State.PLAY:
         game.draw()
@@ -2424,7 +3204,14 @@ def draw() -> None:
             img = images.status_win
         else:
             img = images.status_lose
-        screen.blit(img, (WIDTH//2 - img.get_width() // 2, HEIGHT//2 - img.get_height() // 2))
+        screen.blit(
+            img,
+            (
+                WIDTH // 2 - img.get_width() // 2,
+                HEIGHT // 2 - img.get_height() // 2,
+            ),
+        )
+
 
 ##############################################################################
 
@@ -2437,7 +3224,7 @@ try:
 
     music.play("theme")
     music.set_volume(0.3)
-except Exception as e:
+except Exception:
     # If an error occurs (e.g. no sound hardware), ignore it
     pass
 

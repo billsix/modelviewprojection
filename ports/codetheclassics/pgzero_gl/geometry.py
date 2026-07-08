@@ -28,7 +28,8 @@ legitimately make.
 from __future__ import annotations
 
 import math
-from typing import Any, Iterator, Tuple
+from collections.abc import Iterator
+from typing import Any, Tuple
 
 # A vector-like operand: another Vector2/Vector3, a tuple, or any object indexable
 # as ``o[0]``, ``o[1]`` (and ``o[2]`` for 3D) -- whatever pygame would accept.
@@ -189,10 +190,10 @@ class Vector3:
         return Vector3(-self.x, -self.y, -self.z)
 
     def length(self) -> float:
-        return math.sqrt(self.x ** 2 + self.y ** 2 + self.z ** 2)
+        return math.sqrt(self.x**2 + self.y**2 + self.z**2)
 
     def length_squared(self) -> float:
-        return self.x ** 2 + self.y ** 2 + self.z ** 2
+        return self.x**2 + self.y**2 + self.z**2
 
     def dot(self, o: VectorLike) -> float:
         return self.x * o[0] + self.y * o[1] + self.z * o[2]
@@ -219,18 +220,37 @@ class Vector3:
         self.z *= factor
 
     def distance_to(self, o: VectorLike) -> float:
-        return math.sqrt((self.x - o[0]) ** 2 + (self.y - o[1]) ** 2 + (self.z - o[2]) ** 2)
+        return math.sqrt(
+            (self.x - o[0]) ** 2 + (self.y - o[1]) ** 2 + (self.z - o[2]) ** 2
+        )
 
     def copy(self) -> Vector3:
         return Vector3(self.x, self.y, self.z)
 
 
 _VIRTUALS = {
-    "topleft", "topright", "bottomleft", "bottomright",
-    "midtop", "midbottom", "midleft", "midright",
-    "center", "centerx", "centery",
-    "left", "right", "top", "bottom",
-    "width", "height", "size", "w", "h", "x", "y",
+    "topleft",
+    "topright",
+    "bottomleft",
+    "bottomright",
+    "midtop",
+    "midbottom",
+    "midleft",
+    "midright",
+    "center",
+    "centerx",
+    "centery",
+    "left",
+    "right",
+    "top",
+    "bottom",
+    "width",
+    "height",
+    "size",
+    "w",
+    "h",
+    "x",
+    "y",
 }
 
 
@@ -502,7 +522,11 @@ class Rect:
 
     def __repr__(self) -> str:
         return "%s(%g, %g, %g, %g)" % (
-            type(self).__name__, self.x, self.y, self.width, self.height
+            type(self).__name__,
+            self.x,
+            self.y,
+            self.width,
+            self.height,
         )
 
 

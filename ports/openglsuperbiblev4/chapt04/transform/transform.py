@@ -27,7 +27,9 @@ _window = None  # set in main(); used by the Quit menu item
 y_rot: float = 0.0
 
 
-def rotation_matrix_about_axis(angle_rad: float, x: float, y: float, z: float) -> "np.ndarray":
+def rotation_matrix_about_axis(
+    angle_rad: float, x: float, y: float, z: float
+) -> "np.ndarray":
     """Replacement for m3dRotationMatrix44(angle, x, y, z). Builds a 4x4
     column-major rotation matrix about an arbitrary unit axis (x, y, z)
     by `angle_rad` radians. Uses Rodrigues' formula expanded into the
@@ -58,7 +60,10 @@ def rotation_matrix_about_axis(angle_rad: float, x: float, y: float, z: float) -
             (one_c * z * z) + c,
             0.0,
             # column 3
-            0.0, 0.0, 0.0, 1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
         ],
         dtype=np.float32,
     )
@@ -152,8 +157,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

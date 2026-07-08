@@ -86,13 +86,11 @@ def load_model(directory: str) -> Dict[str, np.ndarray]:
         "normals": _parse_array(body_text, "normals", np.float32),
         "textures": _parse_array(body_text, "textures", np.float32),
         "face_indices_glass": _parse_array(
-            glass_text, "face_indiciesGlass", np.int32),
-        "vertices_glass": _parse_array(
-            glass_text, "verticesGlass", np.float32),
-        "normals_glass": _parse_array(
-            glass_text, "normalsGlass", np.float32),
-        "textures_glass": _parse_array(
-            glass_text, "texturesGlass", np.float32),
+            glass_text, "face_indiciesGlass", np.int32
+        ),
+        "vertices_glass": _parse_array(glass_text, "verticesGlass", np.float32),
+        "normals_glass": _parse_array(glass_text, "normalsGlass", np.float32),
+        "textures_glass": _parse_array(glass_text, "texturesGlass", np.float32),
     }
     _cache[directory] = data
     return data

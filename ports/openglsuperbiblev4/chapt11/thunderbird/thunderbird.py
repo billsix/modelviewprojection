@@ -6,7 +6,6 @@
 # OpenGL SuperBible, Chapter 11
 # Python port of ThunderBird.cpp by Richard S. Wright Jr.
 
-import math
 import os
 import sys
 import time
@@ -21,8 +20,8 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 # The shared loader lives one directory up
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from _thunderbird_data import load_model  # noqa: E402
 import _common  # noqa: E402
+from _thunderbird_data import load_model  # noqa: E402
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 
@@ -70,17 +69,18 @@ def draw_glass(model: "dict[str, np.ndarray]") -> None:
 def load_texture(path: str) -> int:
     img = np.flipud(iio.imread(path))
     h, w = img.shape[:2]
-    fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4
-           else GL.GL_RGB)
+    fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     img = np.ascontiguousarray(img, dtype=np.uint8)
     tex = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt,
-                    GL.GL_UNSIGNED_BYTE, img)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+    )
     try:
         f_largest = GL.glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT)
-        GL.glTexParameterf(GL.GL_TEXTURE_2D,
-                           GL_TEXTURE_MAX_ANISOTROPY_EXT, float(f_largest))
+        GL.glTexParameterf(
+            GL.GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, float(f_largest)
+        )
     except Exception:
         pass
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
@@ -104,7 +104,9 @@ def setup_rc() -> None:
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
 
     texture_objects[BODY_TEXTURE] = load_texture(os.path.join(PWD, "body.tga"))
-    texture_objects[GLASS_TEXTURE] = load_texture(os.path.join(PWD, "glass.tga"))
+    texture_objects[GLASS_TEXTURE] = load_texture(
+        os.path.join(PWD, "glass.tga")
+    )
 
     GL.glLightModelfv(GL.GL_LIGHT_MODEL_AMBIENT, f_amb_light)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, f_amb_light)
@@ -113,8 +115,9 @@ def setup_rc() -> None:
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
     # Separate specular so highlights aren't modulated (dimmed) by the
     # body/glass texture color.  The C++ sets this in SetupRC.
-    GL.glLightModeli(GL.GL_LIGHT_MODEL_COLOR_CONTROL,
-                     GL.GL_SEPARATE_SPECULAR_COLOR)
+    GL.glLightModeli(
+        GL.GL_LIGHT_MODEL_COLOR_CONTROL, GL.GL_SEPARATE_SPECULAR_COLOR
+    )
     GL.glEnable(GL.GL_LIGHTING)
     GL.glEnable(GL.GL_LIGHT0)
 
@@ -245,14 +248,19 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rot_x(-BTN_ROT_STEP))
         _common.menu_action("Rotate down", "Down", lambda: _rot_x(BTN_ROT_STEP))
-        _common.menu_action("Rotate left", "Left", lambda: _rot_y(-BTN_ROT_STEP))
-        _common.menu_action("Rotate right", "Right", lambda: _rot_y(BTN_ROT_STEP))
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _rot_y(-BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _rot_y(BTN_ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

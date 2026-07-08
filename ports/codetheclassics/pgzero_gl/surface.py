@@ -27,7 +27,8 @@ protocol).
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Sequence, cast
+from collections.abc import Sequence
+from typing import TYPE_CHECKING, Any, cast
 
 import numpy as np
 import OpenGL.GL as GL
@@ -87,7 +88,7 @@ class Surface:
         src_rgba: NDArray[np.uint8] = src.rgba
         if area is not None:
             ax, ay, aw, ah = (int(v) for v in area)
-            src_rgba = src_rgba[ay:ay + ah, ax:ax + aw]
+            src_rgba = src_rgba[ay : ay + ah, ax : ax + aw]
         sh, sw = src_rgba.shape[0], src_rgba.shape[1]
         x, y = int(pos[0]), int(pos[1])
         # Clip to destination bounds.
@@ -96,20 +97,24 @@ class Surface:
         if dx1 <= dx0 or dy1 <= dy0:
             return
         sx0, sy0 = dx0 - x, dy0 - y
-        s: NDArray[np.float32] = src_rgba[sy0:sy0 + (dy1 - dy0), sx0:sx0 + (dx1 - dx0)].astype(np.float32)
+        s: NDArray[np.float32] = src_rgba[
+            sy0 : sy0 + (dy1 - dy0), sx0 : sx0 + (dx1 - dx0)
+        ].astype(np.float32)
         d: NDArray[np.float32] = self.rgba[dy0:dy1, dx0:dx1].astype(np.float32)
         # straight-alpha src-over
         sa: NDArray[np.float32] = s[..., 3:4] / 255.0
         da: NDArray[np.float32] = d[..., 3:4] / 255.0
         out_a: NDArray[np.float32] = sa + da * (1.0 - sa)
         with np.errstate(invalid="ignore", divide="ignore"):
-            out_rgb: NDArray[Any] = (s[..., :3] * sa + d[..., :3] * da * (1.0 - sa)) / np.where(
-                out_a == 0, 1.0, out_a
-            )
-        self.rgba[dy0:dy1, dx0:dx1, :3] = np.clip(out_rgb, 0, 255).astype(np.uint8)
-        self.rgba[dy0:dy1, dx0:dx1, 3:4] = np.clip(out_a * 255.0, 0, 255).astype(
+            out_rgb: NDArray[Any] = (
+                s[..., :3] * sa + d[..., :3] * da * (1.0 - sa)
+            ) / np.where(out_a == 0, 1.0, out_a)
+        self.rgba[dy0:dy1, dx0:dx1, :3] = np.clip(out_rgb, 0, 255).astype(
             np.uint8
         )
+        self.rgba[dy0:dy1, dx0:dx1, 3:4] = np.clip(
+            out_a * 255.0, 0, 255
+        ).astype(np.uint8)
         self._dirty = True
 
     def get_width(self) -> int:
@@ -138,7 +143,9 @@ class Surface:
         """Scale the whole surface's alpha by ``a`` (0-255); ``None`` is a no-op (used for fades)."""
         if a is None:
             return
-        self.rgba[..., 3] = np.clip(self.rgba[..., 3].astype(np.float32) * (a / 255.0), 0, 255).astype(np.uint8)
+        self.rgba[..., 3] = np.clip(
+            self.rgba[..., 3].astype(np.float32) * (a / 255.0), 0, 255
+        ).astype(np.uint8)
         self._dirty = True
 
     # -- drawable-by-screen.blit interface (like resources.Image) -------------
@@ -154,8 +161,15 @@ class Surface:
             for p in (GL.GL_TEXTURE_WRAP_S, GL.GL_TEXTURE_WRAP_T):
                 GL.glTexParameteri(GL.GL_TEXTURE_2D, p, GL.GL_CLAMP_TO_EDGE)
             GL.glTexImage2D(
-                GL.GL_TEXTURE_2D, 0, GL.GL_RGBA, self.width, self.height, 0,
-                GL.GL_RGBA, GL.GL_UNSIGNED_BYTE, np.ascontiguousarray(self.rgba),
+                GL.GL_TEXTURE_2D,
+                0,
+                GL.GL_RGBA,
+                self.width,
+                self.height,
+                0,
+                GL.GL_RGBA,
+                GL.GL_UNSIGNED_BYTE,
+                np.ascontiguousarray(self.rgba),
             )
             self._dirty = False
         return cast(int, self._tex)

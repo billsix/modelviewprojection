@@ -28,5 +28,17 @@ select = [
        ]
 ignore = []
 
+[tool.ruff.lint.per-file-ignores]
+# The ports are ruff-FORMATTED (see entrypoint/format.sh) but keep their
+# upstream style where a rule would fight it: long teaching comments (E501),
+# the pgzero `from pgzero_gl import *` idiom (F403/F405), game RNG (S311),
+# upstream debug prints (T201), `== None` comparisons (E711/E712), unused
+# loop vars (B007), and typing-module imports the ports still use (UP035).
+# ... plus bare excepts guarding sound playback (E722), the sys.path-then-
+# import dance (E402), upstream variable naming/lambdas/defaults (E741, E731,
+# B008, F841, UP007).
+"ports/**" = ["E501", "F403", "F405", "S311", "T201", "E711", "E712", "B007",
+              "UP035", "E722", "E402", "E741", "E731", "B008", "F841", "UP007"]
+
 [project.scripts]
 generate_plots_for_book = "modelviewprojection.plotsforbook.generate_plots:main"

@@ -26,8 +26,8 @@ from modelviewprojection.mathutils import (
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit menu item
 
@@ -62,7 +62,11 @@ def make_planar_shadow_matrix(
     perspective divide -- the shadow silently disappears. Negate the
     whole matrix when needed to keep w positive. See
     tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md."""
-    a, b, c = plane_normal.coeff_e_1, plane_normal.coeff_e_2, plane_normal.coeff_e_3
+    a, b, c = (
+        plane_normal.coeff_e_1,
+        plane_normal.coeff_e_2,
+        plane_normal.coeff_e_3,
+    )
     d = plane_d
     dx = -light_pos_4[0]
     dy = -light_pos_4[1]
@@ -70,10 +74,21 @@ def make_planar_shadow_matrix(
     sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
-            sign * (b * dy + c * dz), sign * -a * dy, sign * -a * dz, 0.0,
-            sign * -b * dx, sign * (a * dx + c * dz), sign * -b * dz, 0.0,
-            sign * -c * dx, sign * -c * dy, sign * (a * dx + b * dy), 0.0,
-            sign * -d * dx, sign * -d * dy, sign * -d * dz,
+            sign * (b * dy + c * dz),
+            sign * -a * dy,
+            sign * -a * dz,
+            0.0,
+            sign * -b * dx,
+            sign * (a * dx + c * dz),
+            sign * -b * dz,
+            0.0,
+            sign * -c * dx,
+            sign * -c * dy,
+            sign * (a * dx + b * dy),
+            0.0,
+            sign * -d * dx,
+            sign * -d * dy,
+            sign * -d * dz,
             sign * (a * dx + b * dy + c * dz),
         ],
         dtype=np.float32,
@@ -101,48 +116,90 @@ def draw_jet(n_shadow: int) -> None:
     GL.glVertex3f(-15.0, 0.0, 30.0)
     GL.glVertex3f(15.0, 0.0, 30.0)
 
-    _emit_face(Vector3(15.0, 0.0, 30.0), Vector3(0.0, 15.0, 30.0),
-               Vector3(0.0, 0.0, 60.0))
-    _emit_face(Vector3(0.0, 0.0, 60.0), Vector3(0.0, 15.0, 30.0),
-               Vector3(-15.0, 0.0, 30.0))
+    _emit_face(
+        Vector3(15.0, 0.0, 30.0),
+        Vector3(0.0, 15.0, 30.0),
+        Vector3(0.0, 0.0, 60.0),
+    )
+    _emit_face(
+        Vector3(0.0, 0.0, 60.0),
+        Vector3(0.0, 15.0, 30.0),
+        Vector3(-15.0, 0.0, 30.0),
+    )
 
-    _emit_face(Vector3(-15.0, 0.0, 30.0), Vector3(0.0, 15.0, 30.0),
-               Vector3(0.0, 0.0, -56.0))
-    _emit_face(Vector3(0.0, 0.0, -56.0), Vector3(0.0, 15.0, 30.0),
-               Vector3(15.0, 0.0, 30.0))
+    _emit_face(
+        Vector3(-15.0, 0.0, 30.0),
+        Vector3(0.0, 15.0, 30.0),
+        Vector3(0.0, 0.0, -56.0),
+    )
+    _emit_face(
+        Vector3(0.0, 0.0, -56.0),
+        Vector3(0.0, 15.0, 30.0),
+        Vector3(15.0, 0.0, 30.0),
+    )
 
     GL.glNormal3f(0.0, -1.0, 0.0)
     GL.glVertex3f(15.0, 0.0, 30.0)
     GL.glVertex3f(-15.0, 0.0, 30.0)
     GL.glVertex3f(0.0, 0.0, -56.0)
 
-    _emit_face(Vector3(0.0, 2.0, 27.0), Vector3(-60.0, 2.0, -8.0),
-               Vector3(60.0, 2.0, -8.0))
-    _emit_face(Vector3(60.0, 2.0, -8.0), Vector3(0.0, 7.0, -8.0),
-               Vector3(0.0, 2.0, 27.0))
-    _emit_face(Vector3(60.0, 2.0, -8.0), Vector3(-60.0, 2.0, -8.0),
-               Vector3(0.0, 7.0, -8.0))
-    _emit_face(Vector3(0.0, 2.0, 27.0), Vector3(0.0, 7.0, -8.0),
-               Vector3(-60.0, 2.0, -8.0))
+    _emit_face(
+        Vector3(0.0, 2.0, 27.0),
+        Vector3(-60.0, 2.0, -8.0),
+        Vector3(60.0, 2.0, -8.0),
+    )
+    _emit_face(
+        Vector3(60.0, 2.0, -8.0),
+        Vector3(0.0, 7.0, -8.0),
+        Vector3(0.0, 2.0, 27.0),
+    )
+    _emit_face(
+        Vector3(60.0, 2.0, -8.0),
+        Vector3(-60.0, 2.0, -8.0),
+        Vector3(0.0, 7.0, -8.0),
+    )
+    _emit_face(
+        Vector3(0.0, 2.0, 27.0),
+        Vector3(0.0, 7.0, -8.0),
+        Vector3(-60.0, 2.0, -8.0),
+    )
 
     GL.glNormal3f(0.0, -1.0, 0.0)
     GL.glVertex3f(-30.0, -0.50, -57.0)
     GL.glVertex3f(30.0, -0.50, -57.0)
     GL.glVertex3f(0.0, -0.50, -40.0)
 
-    _emit_face(Vector3(0.0, -0.5, -40.0), Vector3(30.0, -0.5, -57.0),
-               Vector3(0.0, 4.0, -57.0))
-    _emit_face(Vector3(0.0, 4.0, -57.0), Vector3(-30.0, -0.5, -57.0),
-               Vector3(0.0, -0.5, -40.0))
-    _emit_face(Vector3(30.0, -0.5, -57.0), Vector3(-30.0, -0.5, -57.0),
-               Vector3(0.0, 4.0, -57.0))
+    _emit_face(
+        Vector3(0.0, -0.5, -40.0),
+        Vector3(30.0, -0.5, -57.0),
+        Vector3(0.0, 4.0, -57.0),
+    )
+    _emit_face(
+        Vector3(0.0, 4.0, -57.0),
+        Vector3(-30.0, -0.5, -57.0),
+        Vector3(0.0, -0.5, -40.0),
+    )
+    _emit_face(
+        Vector3(30.0, -0.5, -57.0),
+        Vector3(-30.0, -0.5, -57.0),
+        Vector3(0.0, 4.0, -57.0),
+    )
 
-    _emit_face(Vector3(0.0, 0.5, -40.0), Vector3(3.0, 0.5, -57.0),
-               Vector3(0.0, 25.0, -65.0))
-    _emit_face(Vector3(0.0, 25.0, -65.0), Vector3(-3.0, 0.5, -57.0),
-               Vector3(0.0, 0.5, -40.0))
-    _emit_face(Vector3(3.0, 0.5, -57.0), Vector3(-3.0, 0.5, -57.0),
-               Vector3(0.0, 25.0, -65.0))
+    _emit_face(
+        Vector3(0.0, 0.5, -40.0),
+        Vector3(3.0, 0.5, -57.0),
+        Vector3(0.0, 25.0, -65.0),
+    )
+    _emit_face(
+        Vector3(0.0, 25.0, -65.0),
+        Vector3(-3.0, 0.5, -57.0),
+        Vector3(0.0, 0.5, -40.0),
+    )
+    _emit_face(
+        Vector3(3.0, 0.5, -57.0),
+        Vector3(-3.0, 0.5, -57.0),
+        Vector3(0.0, 25.0, -65.0),
+    )
 
     GL.glEnd()
 
@@ -278,17 +335,23 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
-        _common.menu_action("Rotate up", "Up", lambda: _rotate(-BTN_ROT_STEP, 0))
-        _common.menu_action("Rotate down", "Down",
-                            lambda: _rotate(BTN_ROT_STEP, 0))
-        _common.menu_action("Rotate left", "Left",
-                            lambda: _rotate(0, -BTN_ROT_STEP))
-        _common.menu_action("Rotate right", "Right",
-                            lambda: _rotate(0, BTN_ROT_STEP))
+        _common.menu_action(
+            "Rotate up", "Up", lambda: _rotate(-BTN_ROT_STEP, 0)
+        )
+        _common.menu_action(
+            "Rotate down", "Down", lambda: _rotate(BTN_ROT_STEP, 0)
+        )
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _rotate(0, -BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _rotate(0, BTN_ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

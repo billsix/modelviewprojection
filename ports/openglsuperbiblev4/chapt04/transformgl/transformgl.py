@@ -27,7 +27,9 @@ _window = None  # set in main(); used by the Quit menu item
 y_rot: float = 0.0
 
 
-def rotation_matrix_about_axis(angle_rad: float, x: float, y: float, z: float) -> "np.ndarray":
+def rotation_matrix_about_axis(
+    angle_rad: float, x: float, y: float, z: float
+) -> "np.ndarray":
     """Same as in transform.py -- 4x4 column-major rotation matrix."""
     c = math.cos(angle_rad)
     s = math.sin(angle_rad)
@@ -51,13 +53,18 @@ def rotation_matrix_about_axis(angle_rad: float, x: float, y: float, z: float) -
             (one_c * y * z) - (x * s),
             (one_c * z * z) + c,
             0.0,
-            0.0, 0.0, 0.0, 1.0,
+            0.0,
+            0.0,
+            0.0,
+            1.0,
         ],
         dtype=np.float32,
     )
 
 
-def draw_torus(major_radius: float, minor_radius: float, num_major: int, num_minor: int) -> None:
+def draw_torus(
+    major_radius: float, minor_radius: float, num_major: int, num_minor: int
+) -> None:
     """Replacement for gltDrawTorus -- standard parametric torus."""
     major_step = 2.0 * math.pi / num_major
     minor_step = 2.0 * math.pi / num_minor
@@ -127,8 +134,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

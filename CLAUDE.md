@@ -152,9 +152,11 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
   gameplay), but as of 2026-07-08 their *structure* may be modernized:
   dataclasses, `match`, type annotations, `@override`, precise callable types
   (see the `ctc-*` task series; this relaxes the old "no restructuring" rule —
-  Bill's call). Still **no `ruff`** on the games. The **shim (`pgzero_gl/`) is
-  our code** — it may get real bug fixes to reproduce pygame/pgzero APIs
-  correctly.
+  Bill's call). As of 2026-07-08 the games and the SuperBible ports are also
+  **ruff-formatted** by `format.sh` (`ruff check ports --fix` + `ruff format
+  ports`) — the old byte-faithful/no-ruff rule is fully retired. The **shim
+  (`pgzero_gl/`) is our code** — it may get real bug fixes to reproduce
+  pygame/pgzero APIs correctly.
 - **Enforcement:** `entrypoint/format.sh` runs `ty check` on `pgzero_gl` + `vol1` + `vol2`.
 - **Fidelity gotchas worth not rediscovering:**
   - Audio is **`just_playback`**, not `pygame.mixer` (host SDL is broken). It has **no

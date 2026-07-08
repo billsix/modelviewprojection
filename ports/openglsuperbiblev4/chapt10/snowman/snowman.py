@@ -38,12 +38,12 @@ def render_scene() -> None:
     # Body
     GL.glPushMatrix()
     GL.glColor3f(1.0, 1.0, 1.0)
-    GLU.gluSphere(obj, 0.40, 26, 13)            # Bottom
+    GLU.gluSphere(obj, 0.40, 26, 13)  # Bottom
 
-    GL.glTranslatef(0.0, 0.55, 0.0)             # Mid
+    GL.glTranslatef(0.0, 0.55, 0.0)  # Mid
     GLU.gluSphere(obj, 0.30, 26, 13)
 
-    GL.glTranslatef(0.0, 0.45, 0.0)             # Head
+    GL.glTranslatef(0.0, 0.45, 0.0)  # Head
     GLU.gluSphere(obj, 0.24, 26, 13)
 
     # Eyes
@@ -154,15 +154,19 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rot_x(-BTN_ROT_STEP))
         _common.menu_action("Rotate down", "Down", lambda: _rot_x(BTN_ROT_STEP))
-        _common.menu_action("Rotate left", "Left", lambda: _rot_y(-BTN_ROT_STEP))
-        _common.menu_action("Rotate right", "Right",
-                            lambda: _rot_y(BTN_ROT_STEP))
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _rot_y(-BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _rot_y(BTN_ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

@@ -31,8 +31,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -45,7 +46,8 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
     window = glfw.create_window(640, 480, "Text2D", None, None)
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     imgui.create_context()
@@ -62,9 +64,11 @@ def main() -> None:
 
         imgui.new_frame()
         imgui_menubar()
-        flags = (imgui.WindowFlags_.no_decoration.value
-                 | imgui.WindowFlags_.no_background.value
-                 | imgui.WindowFlags_.no_inputs.value)
+        flags = (
+            imgui.WindowFlags_.no_decoration.value
+            | imgui.WindowFlags_.no_background.value
+            | imgui.WindowFlags_.no_inputs.value
+        )
         imgui.set_next_window_pos((0, 0))
         size = glfw.get_framebuffer_size(window)
         imgui.set_next_window_size((size[0], size[1]))
@@ -72,11 +76,13 @@ def main() -> None:
         imgui.set_cursor_pos((20, 20))
         imgui.text_colored((1, 1, 0, 1), "OpenGL Bitmap Fonts")
         imgui.set_cursor_pos((20, 60))
-        imgui.text_colored((1, 1, 1, 1),
-                           "Win32 wglUseFontBitmaps not portable;")
+        imgui.text_colored(
+            (1, 1, 1, 1), "Win32 wglUseFontBitmaps not portable;"
+        )
         imgui.set_cursor_pos((20, 80))
-        imgui.text_colored((1, 1, 1, 1),
-                           "rendered here via imgui_bundle. Esc to exit.")
+        imgui.text_colored(
+            (1, 1, 1, 1), "rendered here via imgui_bundle. Esc to exit."
+        )
         imgui.end()
         imgui.render()
         impl.render(imgui.get_draw_data())

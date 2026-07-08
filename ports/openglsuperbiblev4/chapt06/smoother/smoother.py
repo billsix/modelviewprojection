@@ -17,8 +17,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -75,9 +73,18 @@ def render_scene() -> None:
     GL.glLineWidth(3.5)
     GL.glBegin(GL.GL_LINE_STRIP)
     for px, py in [
-        (0.0, 25.0), (50.0, 100.0), (100.0, 25.0), (225.0, 125.0),
-        (300.0, 50.0), (375.0, 100.0), (460.0, 25.0), (525.0, 100.0),
-        (600.0, 20.0), (675.0, 70.0), (750.0, 25.0), (800.0, 90.0),
+        (0.0, 25.0),
+        (50.0, 100.0),
+        (100.0, 25.0),
+        (225.0, 125.0),
+        (300.0, 50.0),
+        (375.0, 100.0),
+        (460.0, 25.0),
+        (525.0, 100.0),
+        (600.0, 20.0),
+        (675.0, 70.0),
+        (750.0, 25.0),
+        (800.0, 90.0),
     ]:
         GL.glVertex2f(px, py)
     GL.glEnd()
@@ -143,12 +150,14 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Render", True):
         changed, antialiased = imgui.menu_item(
-            "Antialiased rendering", "", antialiased, True)
+            "Antialiased rendering", "", antialiased, True
+        )
         if changed:
             apply_antialiasing(antialiased)
         imgui.end_menu()

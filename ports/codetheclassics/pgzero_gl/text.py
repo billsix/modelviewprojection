@@ -133,7 +133,9 @@ def _render(text: str, size: int, color: Any, fontname: str | None) -> Image:
         ox, oy = 0, 0
         w, h = int(max(1, w)), int(max(1, h))
     surf: Any = PILImage.new("RGBA", (w, h), (0, 0, 0, 0))
-    ImageDraw.Draw(surf).text((-ox, -oy), text, font=font, fill=_to_rgb(color) + (255,))
+    ImageDraw.Draw(surf).text(
+        (-ox, -oy), text, font=font, fill=_to_rgb(color) + (255,)
+    )
     img = Image.from_rgba(np.array(surf))
     _text_cache[key] = img
     return img

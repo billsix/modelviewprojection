@@ -22,8 +22,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -74,7 +72,9 @@ def convolve3x3(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     out = np.zeros(image.shape, dtype=np.float32)
     for i in range(3):
         for j in range(3):
-            out += kernel[i, j] * padded[i:i + h, j:j + w].astype(np.float32)
+            out += kernel[i, j] * padded[i : i + h, j : j + w].astype(
+                np.float32
+            )
     return np.clip(out, 0, 255).astype(np.uint8)
 
 
@@ -93,7 +93,9 @@ def process_image(mode: int) -> np.ndarray:
         return image_data
     if mode == MODE_CONTRAST:
         # C++: glScalef(1.25, 1.25, 1.25) on the GL_COLOR matrix.
-        return np.clip(image_data.astype(np.float32) * 1.25, 0, 255).astype(np.uint8)
+        return np.clip(image_data.astype(np.float32) * 1.25, 0, 255).astype(
+            np.uint8
+        )
     if mode == MODE_INVERT:
         # C++: glColorTable inverting every entry.
         out = image_data.copy()
@@ -125,8 +127,7 @@ def render_scene() -> None:
 
     processed = process_image(i_render_mode)
     processed = np.ascontiguousarray(processed)
-    GL.glDrawPixels(image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE,
-                    processed)
+    GL.glDrawPixels(image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE, processed)
 
     if b_histogram:
         # Scale histogram x-extent to the window so it stays readable
@@ -184,8 +185,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Imaging", True):
         for label, value in [
@@ -195,8 +197,12 @@ def imgui_menubar() -> None:
             ("Emboss Image", MODE_EMBOSS),
             ("Sharpen Image", MODE_SHARPEN),
         ]:
-            _common.menu_action(label, "", lambda v=value: _set_mode(v),
-                                selected=(i_render_mode == value))
+            _common.menu_action(
+                label,
+                "",
+                lambda v=value: _set_mode(v),
+                selected=(i_render_mode == value),
+            )
         imgui.separator()
         _, b_histogram = imgui.menu_item("Histogram", "", b_histogram, True)
         imgui.end_menu()

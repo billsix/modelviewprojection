@@ -18,8 +18,8 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit menu item
 
@@ -36,8 +36,9 @@ CONE_LENGTH = 0.15
 AXIS_SLICES = 20
 
 
-def _build_cylinder_rings(base_radius: float, top_radius: float, height: float,
-                          slices: int) -> list:
+def _build_cylinder_rings(
+    base_radius: float, top_radius: float, height: float, slices: int
+) -> list:
     """Precompute the cylinder side surface's per-segment rings. The original
     gluCylinder replacement emits ONE normal shared by each segment's base+top
     vertex pair, which neither draw_mesh mode expresses, so _draw_cylinder
@@ -46,9 +47,14 @@ def _build_cylinder_rings(base_radius: float, top_radius: float, height: float,
     for i in range(slices + 1):
         a = 2.0 * math.pi * float(i) / slices
         c, s = math.cos(a), math.sin(a)
-        rings.append((c, s,
-                      (c * base_radius, s * base_radius, 0.0),
-                      (c * top_radius, s * top_radius, height)))
+        rings.append(
+            (
+                c,
+                s,
+                (c * base_radius, s * base_radius, 0.0),
+                (c * top_radius, s * top_radius, height),
+            )
+        )
     return rings
 
 
@@ -67,13 +73,24 @@ def _build_cone_disk(radius: float, slices: int) -> "_primitives.Mesh":
     band: list = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
     for i in range(slices, -1, -1):
         a = 2.0 * math.pi * float(i) / slices
-        band.append((0.0, 0.0, -1.0, 0.0, 0.0,
-                     math.cos(a) * radius, math.sin(a) * radius, 0.0))
+        band.append(
+            (
+                0.0,
+                0.0,
+                -1.0,
+                0.0,
+                0.0,
+                math.cos(a) * radius,
+                math.sin(a) * radius,
+                0.0,
+            )
+        )
     return (GL.GL_TRIANGLE_FAN, [band])
 
 
-CYLINDER_RINGS = _build_cylinder_rings(ROD_RADIUS, ROD_RADIUS, ROD_LENGTH,
-                                       AXIS_SLICES)
+CYLINDER_RINGS = _build_cylinder_rings(
+    ROD_RADIUS, ROD_RADIUS, ROD_LENGTH, AXIS_SLICES
+)
 CONE_BODY = _primitives.build_cone(CONE_RADIUS, CONE_LENGTH, AXIS_SLICES)
 CONE_DISK = _build_cone_disk(CONE_RADIUS, AXIS_SLICES)
 ORIGIN_SPHERE = _primitives.build_sphere(0.05, 15, 15, swap_winding=True)
@@ -203,15 +220,19 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rot_x(-BTN_ROT_STEP))
         _common.menu_action("Rotate down", "Down", lambda: _rot_x(BTN_ROT_STEP))
-        _common.menu_action("Rotate left", "Left", lambda: _rot_y(-BTN_ROT_STEP))
-        _common.menu_action("Rotate right", "Right",
-                            lambda: _rot_y(BTN_ROT_STEP))
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _rot_y(-BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _rot_y(BTN_ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

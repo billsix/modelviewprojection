@@ -14,8 +14,6 @@ import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -123,8 +121,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Light", True):
         # color_edit3 has no menubar-native form, so it renders as an
@@ -136,13 +135,18 @@ def imgui_menubar() -> None:
         )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
-        _common.menu_action("Rotate up", "Up", lambda: _nudge_rot("x", -ROT_STEP))
-        _common.menu_action("Rotate down", "Down",
-                            lambda: _nudge_rot("x", ROT_STEP))
-        _common.menu_action("Rotate left", "Left",
-                            lambda: _nudge_rot("y", -ROT_STEP))
-        _common.menu_action("Rotate right", "Right",
-                            lambda: _nudge_rot("y", ROT_STEP))
+        _common.menu_action(
+            "Rotate up", "Up", lambda: _nudge_rot("x", -ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate down", "Down", lambda: _nudge_rot("x", ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _nudge_rot("y", -ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _nudge_rot("y", ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -165,11 +169,23 @@ def change_size(w: int, h: int) -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if w <= h:
-        GL.glOrtho(-n_range, n_range, -n_range * h / w, n_range * h / w,
-                   -n_range, n_range)
+        GL.glOrtho(
+            -n_range,
+            n_range,
+            -n_range * h / w,
+            n_range * h / w,
+            -n_range,
+            n_range,
+        )
     else:
-        GL.glOrtho(-n_range * w / h, n_range * w / h, -n_range, n_range,
-                   -n_range, n_range)
+        GL.glOrtho(
+            -n_range * w / h,
+            n_range * w / h,
+            -n_range,
+            n_range,
+            -n_range,
+            n_range,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 

@@ -26,12 +26,10 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
@@ -41,8 +39,16 @@ SIMPLE, DIFFUSE, SPECULAR, SEPSPEC, TEXSPEC = 0, 1, 2, 3, 4
 THREELIGHTS, FOGCOORD, FOG, PTSIZE, STRETCH = 5, 6, 7, 8, 9
 TOTAL_SHADERS = 10
 shader_names = [
-    "simple", "diffuse", "specular", "sepspec", "texspec",
-    "3lights", "fogcoord", "fog", "ptsize", "stretch",
+    "simple",
+    "diffuse",
+    "specular",
+    "sepspec",
+    "texspec",
+    "3lights",
+    "fogcoord",
+    "fog",
+    "ptsize",
+    "stretch",
 ]
 
 v_shader = [0] * TOTAL_SHADERS
@@ -69,7 +75,9 @@ def transform_vec3(v: np.ndarray, m: np.ndarray) -> np.ndarray:
     """Like m3dTransformVector3: 4x4 column-major mat times 4-vec, drop w."""
     out = np.zeros(3, dtype=np.float32)
     for r in range(3):
-        out[r] = m[r] * v[0] + m[r + 4] * v[1] + m[r + 8] * v[2] + m[r + 12] * v[3]
+        out[r] = (
+            m[r] * v[0] + m[r + 4] * v[1] + m[r + 8] * v[2] + m[r + 12] * v[3]
+        )
     return out
 
 
@@ -86,8 +94,16 @@ def create_pow_map(r: float, g: float, b: float) -> None:
         texels[x * 4 + 2] = b * v
         texels[x * 4 + 3] = 1.0
     texels[0] = texels[1] = texels[2] = 0.0
-    GL.glTexImage1D(GL.GL_TEXTURE_1D, 0, GL.GL_RGBA16,
-                    tex_size, 0, GL.GL_RGBA, GL.GL_FLOAT, texels)
+    GL.glTexImage1D(
+        GL.GL_TEXTURE_1D,
+        0,
+        GL.GL_RGBA16,
+        tex_size,
+        0,
+        GL.GL_RGBA,
+        GL.GL_FLOAT,
+        texels,
+    )
 
 
 def draw_solid_cube(size: float) -> None:
@@ -117,7 +133,9 @@ def prepare_shader(shader_num: int) -> None:
     fname = os.path.join(PWD, "shaders", f"{shader_names[shader_num]}.vs")
     with open(fname) as f:
         vs_src = f.read()
-    v_shader[shader_num] = shaders_mod.compileShader(vs_src, GL.GL_VERTEX_SHADER)
+    v_shader[shader_num] = shaders_mod.compileShader(
+        vs_src, GL.GL_VERTEX_SHADER
+    )
     prog_obj[shader_num] = GL.glCreateProgram()
     GL.glAttachShader(prog_obj[shader_num], v_shader[shader_num])
     GL.glLinkProgram(prog_obj[shader_num])
@@ -131,7 +149,9 @@ def draw_models() -> None:
     # Transform light positions to eye space
     GL.glPushMatrix()
     GL.glRotatef(light_rotation, 0.0, 1.0, 0.0)
-    mv = np.array(GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32).flatten()
+    mv = np.array(
+        GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
+    ).flatten()
     light_pos_eye0 = transform_vec3(light_pos0, mv)
     light_pos_eye1 = light_pos_eye2 = np.zeros(3, dtype=np.float32)
     if which_shader == THREELIGHTS:
@@ -165,7 +185,8 @@ def draw_models() -> None:
     GL.glVertex3f(100.0, -25.0, -100.0)
     GL.glEnd()
 
-    GL.glColor3f(1.0, 0.0, 0.0); draw_solid_cube(48.0)
+    GL.glColor3f(1.0, 0.0, 0.0)
+    draw_solid_cube(48.0)
 
     GL.glColor3f(0.0, 1.0, 0.0)
     GL.glPushMatrix()
@@ -206,16 +227,37 @@ def render_scene() -> None:
     GL.glLoadIdentity()
     if window_width > window_height:
         ar = float(window_width) / float(window_height)
-        GL.glFrustum(-ar * camera_zoom, ar * camera_zoom,
-                     -camera_zoom, camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            -camera_zoom,
+            camera_zoom,
+            1.0,
+            1000.0,
+        )
     else:
         ar = float(window_height) / float(window_width)
-        GL.glFrustum(-camera_zoom, camera_zoom,
-                     -ar * camera_zoom, ar * camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -camera_zoom,
+            camera_zoom,
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            1.0,
+            1000.0,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(camera_pos[0], camera_pos[1], camera_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GLU.gluLookAt(
+        camera_pos[0],
+        camera_pos[1],
+        camera_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    )
     GL.glViewport(0, 0, window_width, window_height)
 
     if which_shader in (FOGCOORD, FOG):
@@ -254,7 +296,12 @@ def select_shader(n: int) -> None:
         GL.glDisable(GL.GL_POINT_SMOOTH)
         GL.glDisable(GL.GL_BLEND)
 
-    for unit in (GL.GL_TEXTURE3, GL.GL_TEXTURE2, GL.GL_TEXTURE1, GL.GL_TEXTURE0):
+    for unit in (
+        GL.GL_TEXTURE3,
+        GL.GL_TEXTURE2,
+        GL.GL_TEXTURE1,
+        GL.GL_TEXTURE0,
+    ):
         GL.glActiveTexture(unit)
         GL.glDisable(GL.GL_TEXTURE_1D)
 
@@ -262,9 +309,12 @@ def select_shader(n: int) -> None:
         GL.glActiveTexture(GL.GL_TEXTURE0)
         GL.glEnable(GL.GL_TEXTURE_1D)
     elif which_shader == THREELIGHTS:
-        GL.glActiveTexture(GL.GL_TEXTURE3); GL.glEnable(GL.GL_TEXTURE_1D)
-        GL.glActiveTexture(GL.GL_TEXTURE2); GL.glEnable(GL.GL_TEXTURE_1D)
-        GL.glActiveTexture(GL.GL_TEXTURE1); GL.glEnable(GL.GL_TEXTURE_1D)
+        GL.glActiveTexture(GL.GL_TEXTURE3)
+        GL.glEnable(GL.GL_TEXTURE_1D)
+        GL.glActiveTexture(GL.GL_TEXTURE2)
+        GL.glEnable(GL.GL_TEXTURE_1D)
+        GL.glActiveTexture(GL.GL_TEXTURE1)
+        GL.glEnable(GL.GL_TEXTURE_1D)
         GL.glActiveTexture(GL.GL_TEXTURE0)
 
 
@@ -286,13 +336,18 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Shader", True):
         for i, name in enumerate(shader_names):
-            _common.menu_action(name, "", lambda i=i: select_shader(i),
-                                selected=(which_shader == i))
+            _common.menu_action(
+                name,
+                "",
+                lambda i=i: select_shader(i),
+                selected=(which_shader == i),
+            )
         if which_shader in (FOGCOORD, FOG):
             imgui.separator()
             if imgui.begin_menu("Fog density", True):
@@ -302,11 +357,14 @@ def imgui_menubar() -> None:
             imgui.separator()
             if imgui.begin_menu("Squash / stretch", True):
                 _, squash_stretch[0] = imgui.slider_float(
-                    "X", squash_stretch[0], 0.0, 3.0)
+                    "X", squash_stretch[0], 0.0, 3.0
+                )
                 _, squash_stretch[1] = imgui.slider_float(
-                    "Y", squash_stretch[1], 0.0, 3.0)
+                    "Y", squash_stretch[1], 0.0, 3.0
+                )
                 _, squash_stretch[2] = imgui.slider_float(
-                    "Z", squash_stretch[2], 0.0, 3.0)
+                    "Z", squash_stretch[2], 0.0, 3.0
+                )
                 imgui.end_menu()
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
@@ -347,8 +405,12 @@ def setup_rc() -> None:
         GL.glActiveTexture(unit)
         GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_ADD)
         GL.glBindTexture(GL.GL_TEXTURE_1D, unit - GL.GL_TEXTURE0)
-        GL.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE)
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_1D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+        )
         create_pow_map(*color)
 
     for i in range(TOTAL_SHADERS):
@@ -397,8 +459,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(window_width, window_height,
-                                "Vertex Shaders Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Vertex Shaders Demo", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)

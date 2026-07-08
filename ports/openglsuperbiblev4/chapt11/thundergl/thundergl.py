@@ -5,7 +5,6 @@
 # OpenGL SuperBible, Chapter 11
 # Python port of thundergl.cpp by Richard S. Wright Jr.
 
-import math
 import os
 import sys
 import time
@@ -19,8 +18,8 @@ from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-from _thunderbird_data import load_model  # noqa: E402
 import _common  # noqa: E402
+from _thunderbird_data import load_model  # noqa: E402
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 
@@ -35,12 +34,21 @@ texture_objects = [0, 0, 0]
 # Static jet mesh (vertices/normals/faces parsed from body.cpp + glass.cpp).
 # Loaded once in setup_rc; render_scene just replays it in immediate mode.
 jet_model: "dict[str, np.ndarray] | None" = None
-cube_faces = ["pos_x.tga", "neg_x.tga", "pos_y.tga", "neg_y.tga",
-              "pos_z.tga", "neg_z.tga"]
+cube_faces = [
+    "pos_x.tga",
+    "neg_x.tga",
+    "pos_y.tga",
+    "neg_y.tga",
+    "pos_z.tga",
+    "neg_z.tga",
+]
 cube_targets = [
-    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+    GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+    GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+    GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
 ]
 
 
@@ -75,13 +83,13 @@ def draw_glass(model: "dict[str, np.ndarray]") -> None:
 def load_2d_texture(path: str) -> int:
     img = np.flipud(iio.imread(path))
     h, w = img.shape[:2]
-    fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4
-           else GL.GL_RGB)
+    fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     img = np.ascontiguousarray(img, dtype=np.uint8)
     tex = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt,
-                    GL.GL_UNSIGNED_BYTE, img)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+    )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     return tex
@@ -96,23 +104,35 @@ def draw_sky_box() -> None:
     # (texcoord, vertex) for each of 24 quad vertices, six faces.
     faces = [
         # -X
-        ((-1, -1,  1), (-e, -e,  e)), ((-1, -1, -1), (-e, -e, -e)),
-        ((-1,  1, -1), (-e,  e, -e)), ((-1,  1,  1), (-e,  e,  e)),
+        ((-1, -1, 1), (-e, -e, e)),
+        ((-1, -1, -1), (-e, -e, -e)),
+        ((-1, 1, -1), (-e, e, -e)),
+        ((-1, 1, 1), (-e, e, e)),
         # +X
-        (( 1, -1, -1), ( e, -e, -e)), (( 1, -1,  1), ( e, -e,  e)),
-        (( 1,  1,  1), ( e,  e,  e)), (( 1,  1, -1), ( e,  e, -e)),
+        ((1, -1, -1), (e, -e, -e)),
+        ((1, -1, 1), (e, -e, e)),
+        ((1, 1, 1), (e, e, e)),
+        ((1, 1, -1), (e, e, -e)),
         # -Z
-        ((-1, -1, -1), (-e, -e, -e)), (( 1, -1, -1), ( e, -e, -e)),
-        (( 1,  1, -1), ( e,  e, -e)), ((-1,  1, -1), (-e,  e, -e)),
+        ((-1, -1, -1), (-e, -e, -e)),
+        ((1, -1, -1), (e, -e, -e)),
+        ((1, 1, -1), (e, e, -e)),
+        ((-1, 1, -1), (-e, e, -e)),
         # +Z
-        (( 1, -1,  1), ( e, -e,  e)), ((-1, -1,  1), (-e, -e,  e)),
-        ((-1,  1,  1), (-e,  e,  e)), (( 1,  1,  1), ( e,  e,  e)),
+        ((1, -1, 1), (e, -e, e)),
+        ((-1, -1, 1), (-e, -e, e)),
+        ((-1, 1, 1), (-e, e, e)),
+        ((1, 1, 1), (e, e, e)),
         # +Y
-        ((-1,  1,  1), (-e,  e,  e)), ((-1,  1, -1), (-e,  e, -e)),
-        (( 1,  1, -1), ( e,  e, -e)), (( 1,  1,  1), ( e,  e,  e)),
+        ((-1, 1, 1), (-e, e, e)),
+        ((-1, 1, -1), (-e, e, -e)),
+        ((1, 1, -1), (e, e, -e)),
+        ((1, 1, 1), (e, e, e)),
         # -Y
-        ((-1, -1, -1), (-e, -e, -e)), ((-1, -1,  1), (-e, -e,  e)),
-        (( 1, -1,  1), ( e, -e,  e)), (( 1, -1, -1), ( e, -e, -e)),
+        ((-1, -1, -1), (-e, -e, -e)),
+        ((-1, -1, 1), (-e, -e, e)),
+        ((1, -1, 1), (e, -e, e)),
+        ((1, -1, -1), (e, -e, -e)),
     ]
     GL.glBegin(GL.GL_QUADS)
     for tc, v in faces:
@@ -124,22 +144,25 @@ def draw_sky_box() -> None:
 def load_cube_map() -> int:
     tex = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, tex)
-    for p in [(GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
-              (GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR),
-              (GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE),
-              (GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE),
-              (GL.GL_TEXTURE_WRAP_R, GL.GL_CLAMP_TO_EDGE)]:
+    for p in [
+        (GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
+        (GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR),
+        (GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE),
+        (GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE),
+        (GL.GL_TEXTURE_WRAP_R, GL.GL_CLAMP_TO_EDGE),
+    ]:
         GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, p[0], p[1])
     for i, fname in enumerate(cube_faces):
         img = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4
-               else GL.GL_RGB)
+        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
         img = np.ascontiguousarray(img, dtype=np.uint8)
-        GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_GENERATE_MIPMAP,
-                           GL.GL_TRUE)
-        GL.glTexImage2D(cube_targets[i], 0, fmt, w, h, 0, fmt,
-                        GL.GL_UNSIGNED_BYTE, img)
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_CUBE_MAP, GL.GL_GENERATE_MIPMAP, GL.GL_TRUE
+        )
+        GL.glTexImage2D(
+            cube_targets[i], 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        )
     return tex
 
 
@@ -158,9 +181,11 @@ def setup_rc() -> None:
 
     texture_objects[CUBE_MAP] = load_cube_map()
     texture_objects[BODY_TEXTURE] = load_2d_texture(
-        os.path.join(PWD, "body.tga"))
+        os.path.join(PWD, "body.tga")
+    )
     texture_objects[GLASS_TEXTURE] = load_2d_texture(
-        os.path.join(PWD, "glass.tga"))
+        os.path.join(PWD, "glass.tga")
+    )
 
     GL.glLightModelfv(GL.GL_LIGHT_MODEL_AMBIENT, f_amb)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, f_amb)
@@ -169,8 +194,9 @@ def setup_rc() -> None:
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
     # Keep specular highlights from being dimmed by the body/glass
     # texture colors (matches the C++ SetupRC).
-    GL.glLightModeli(GL.GL_LIGHT_MODEL_COLOR_CONTROL,
-                     GL.GL_SEPARATE_SPECULAR_COLOR)
+    GL.glLightModeli(
+        GL.GL_LIGHT_MODEL_COLOR_CONTROL, GL.GL_SEPARATE_SPECULAR_COLOR
+    )
     GL.glEnable(GL.GL_LIGHTING)
     GL.glEnable(GL.GL_LIGHT0)
     GL.glEnable(GL.GL_COLOR_MATERIAL)
@@ -320,14 +346,19 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rot_x(-BTN_ROT_STEP))
         _common.menu_action("Rotate down", "Down", lambda: _rot_x(BTN_ROT_STEP))
-        _common.menu_action("Rotate left", "Left", lambda: _rot_y(-BTN_ROT_STEP))
-        _common.menu_action("Rotate right", "Right", lambda: _rot_y(BTN_ROT_STEP))
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _rot_y(-BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _rot_y(BTN_ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -338,9 +369,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(800, 600,
-                                "Thunderbird w/ Cube Map Reflection",
-                                None, None)
+    window = glfw.create_window(
+        800, 600, "Thunderbird w/ Cube Map Reflection", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)

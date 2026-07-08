@@ -14,20 +14,29 @@
 #   Original source: https://github.com/raspberrypipress/Code-the-Classics-Vol1
 #   Book:            https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 # ---------------------------------------------------------------------------
-import os as _os, sys as _sys
-_sys.path.append(_os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))))
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
+import os as _os
+import sys as _sys
 
+_sys.path.append(
+    _os.path.dirname(
+        _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    )
+)
 import sys
+from collections.abc import Callable  # noqa: E402
 from dataclasses import InitVar, dataclass
-from random import choice, randint, random
 from enum import Enum
-from typing import Any, Callable, ClassVar, Optional  # noqa: E402
+from random import choice, randint, random
+from typing import Any, ClassVar, Optional
+
+from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
-if sys.version_info < (3,5):
-    print("This game requires at least version 3.5 of Python. Please download it from www.python.org")
+if sys.version_info < (3, 5):
+    print(
+        "This game requires at least version 3.5 of Python. Please download it from www.python.org"
+    )
     sys.exit()
 
 # Check Pygame Zero version. This is a bit trickier because Pygame Zero only lets us get its version number as a string.
@@ -35,9 +44,15 @@ if sys.version_info < (3,5):
 # version number into an integer - but only if the string contains numbers and nothing else, because it's possible for
 # a component of the version to contain letters as well as numbers (e.g. '2.0.dev0')
 # We're using a Python feature called list comprehension - this is explained in the Bubble Bobble/Cavern chapter.
-pgzero_version = [int(s) if s.isnumeric() else s for s in pgzero.__version__.split('.')]
-if pgzero_version < [1,2]:
-    print("This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(pgzero.__version__))
+pgzero_version = [
+    int(s) if s.isnumeric() else s for s in pgzero.__version__.split(".")
+]
+if pgzero_version < [1, 2]:
+    print(
+        "This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(
+            pgzero.__version__
+        )
+    )
     sys.exit()
 
 WIDTH = 480
@@ -53,15 +68,20 @@ CENTRE_ANCHOR = ("center", "center")
 num_grid_rows = 25
 num_grid_cols = 14
 
+
 # Convert a position in pixel units to a position in grid units. In this game, a grid square is 32 pixels.
 def pos2cell(x: float, y: float) -> tuple[int, int]:
-    return ((int(x)-16)//32, int(y)//32)
+    return ((int(x) - 16) // 32, int(y) // 32)
+
 
 # Convert grid cell position to pixel coordinates, with a given offset
-def cell2pos(cell_x: int, cell_y: int, x_offset: int = 0, y_offset: int = 0) -> tuple[int, int]:
+def cell2pos(
+    cell_x: int, cell_y: int, x_offset: int = 0, y_offset: int = 0
+) -> tuple[int, int]:
     # If the requested offset is zero, returns the centre of the requested cell, hence the +16. In the case of the
     # X axis, there's a 16 pixel border at the left and right of the screen, hence +16 becomes +32.
     return ((cell_x * 32) + 32 + x_offset, (cell_y * 32) + 16 + y_offset)
+
 
 # (eq=False on these Actor dataclasses keeps identity comparison/hashing --
 # the generated __eq__ would compare fields and set __hash__ to None)
@@ -84,7 +104,6 @@ class Explosion(Actor):
 
 @dataclass(eq=False)
 class Player(Actor):
-
     INVULNERABILITY_TIME: ClassVar[int] = 100
     RESPAWN_TIME: ClassVar[int] = 100
     RELOAD_TIME: ClassVar[int] = 10
@@ -151,7 +170,7 @@ class Player(Actor):
             # 7  0  1
             # 6 -1  2
             # 5  4  3
-            directions: list[int] = [7,0,1,6,-1,2,5,4,3]
+            directions: list[int] = [7, 0, 1, 6, -1, 2, 5, 4, 3]
 
             # But! If you look at the values that self.direction actually takes on during the game, you only see
             # numbers from 0 to 3. This is because although there are eight possible directions of travel, there are
@@ -165,14 +184,13 @@ class Player(Actor):
             # # It can be useful to think of the vehicle as being able to drive both forwards and backwards.
 
             # Choose the relevant direction from the above list, based on dx and dy
-            dir: int = directions[dx+3*dy+4]
+            dir: int = directions[dx + 3 * dy + 4]
 
             # Every other frame, if the player is pressing a key to move in a particular direction, update the current
             # direction to rotate towards facing the new direction
             if self.timer % 2 == 0 and dir >= 0:
-
                 # We first calculate the difference between the desired direction and the current direction.
-                difference: int = (dir - self.direction)
+                difference: int = dir - self.direction
 
                 # We use the following list to decide how much to rotate by each frame, based on difference.
                 # It's easiest to think about this by just considering the first four direction values - 0 to 3,
@@ -189,7 +207,6 @@ class Player(Actor):
 
                 rotation: int = rotation_table[difference % 4]
                 self.direction = (self.direction + rotation) % 4
-
 
             self.fire_timer -= 1
 
@@ -227,7 +244,9 @@ class Player(Actor):
                 self.alive = True
                 self.timer = 0
                 self.pos = (240, 768)
-                game.clear_rocks_for_respawn(*self.pos)     # Ensure there are no rocks at the player's respawn position
+                game.clear_rocks_for_respawn(
+                    *self.pos
+                )  # Ensure there are no rocks at the player's respawn position
 
         # Display the player sprite if alive - BUT, if player is currently invulnerable, due to having just respawned,
         # switch between showing and not showing the player sprite on alternate frames
@@ -237,21 +256,26 @@ class Player(Actor):
         else:
             self.image = "blank"
 
+
 # Not a dataclass: the super().__init__ position depends on `side`, computed
 # (sometimes randomly) from player_x -- the init logic is the interesting part.
 class FlyingEnemy(Actor):
     def __init__(self, player_x: float) -> None:
         # Choose which side of the screen we start from. Don't start right next to the player as that would be
         # unfair - if not near player, start on a random side
-        side: int = 1 if player_x < 160 else 0 if player_x > 320 else randint(0, 1)
+        side: int = (
+            1 if player_x < 160 else 0 if player_x > 320 else randint(0, 1)
+        )
 
-        super().__init__("blank", (550*side-35, 688))
+        super().__init__("blank", (550 * side - 35, 688))
 
         # Always moves in the same X direction, but randomly pauses to just fly straight up or down
-        self.moving_x: int = 1       # 0 if we're currently moving only vertically, 1 if moving along x axis (as well as y axis)
-        self.dx: int = 1 - 2 * side  # Move left or right depending on which side of the screen we're on
-        self.dy: int = choice([-1, 1])   # Start moving either up or down
-        self.type: int = randint(0, 2)   # 3 different colours
+        self.moving_x: int = 1  # 0 if we're currently moving only vertically, 1 if moving along x axis (as well as y axis)
+        self.dx: int = (
+            1 - 2 * side
+        )  # Move left or right depending on which side of the screen we're on
+        self.dy: int = choice([-1, 1])  # Start moving either up or down
+        self.type: int = randint(0, 2)  # 3 different colours
 
         self.health: int = 1
 
@@ -369,9 +393,20 @@ class Bullet(Actor):
                     if isinstance(obj, Segment):
                         # Should we create a new rock in the segment's place? Health must be zero, there must be no
                         # rock there already, and the player sprite must not overlap with the location
-                        if obj.health == 0 and not game.grid[obj.cell_y][obj.cell_x] and game.allow_movement(game.player.x, game.player.y, obj.cell_x, obj.cell_y):
+                        if (
+                            obj.health == 0
+                            and not game.grid[obj.cell_y][obj.cell_x]
+                            and game.allow_movement(
+                                game.player.x,
+                                game.player.y,
+                                obj.cell_x,
+                                obj.cell_y,
+                            )
+                        ):
                             # Create new rock - 20% chance of being a totem
-                            game.grid[obj.cell_y][obj.cell_x] = Rock(obj.cell_x, obj.cell_y, random() < .2)
+                            game.grid[obj.cell_y][obj.cell_x] = Rock(
+                                obj.cell_x, obj.cell_y, random() < 0.2
+                            )
 
                         game.play_sound("segment_explode")
                         game.score += 10
@@ -380,7 +415,7 @@ class Bullet(Actor):
                         game.play_sound("meanie_explode")
                         game.score += 20
 
-                    self.done = True    # Destroy self
+                    self.done = True  # Destroy self
 
                     # Don't continue the for loop, this bullet has hit something so shouldn't hit anything else
                     return
@@ -412,7 +447,7 @@ class Bullet(Actor):
 # This list represents how much the segment moves along the secondary axis, in situations where it makes two 45° turns
 # as described above. For the first four frames it doesn't move at all along the secondary axis. For the next eight
 # frames it moves at one pixel per frame, then for the last four frames it moves at two pixels per frame.
-SECONDARY_AXIS_SPEED = [0]*4 + [1]*8 + [2]*4
+SECONDARY_AXIS_SPEED = [0] * 4 + [1] * 8 + [2] * 4
 
 
 # The code below creates a list of 16 elements, where each element is the sum of all the equivalent elements in the
@@ -432,8 +467,9 @@ DIRECTION_LEFT = 3
 
 # X and Y directions indexed into by in_edge and out_edge in Segment
 # The indices correspond to the direction numbers above, i.e. 0 = up, 1 = right, 2 = down, 3 = left
-DX = [0,1,0,-1]
-DY = [-1,0,1,0]
+DX = [0, 1, 0, -1]
+DY = [-1, 0, 1, 0]
+
 
 def inverse_direction(dir: int) -> int:  # ty: ignore[invalid-return-type]  # exhaustive over the four valid directions; fall-through is unreachable in practice
     if dir == DIRECTION_UP:
@@ -444,6 +480,7 @@ def inverse_direction(dir: int) -> int:  # ty: ignore[invalid-return-type]  # ex
         return DIRECTION_UP
     elif dir == DIRECTION_LEFT:
         return DIRECTION_RIGHT
+
 
 def is_horizontal(dir: int) -> bool:
     return dir == DIRECTION_LEFT or dir == DIRECTION_RIGHT
@@ -458,7 +495,7 @@ class Segment(Actor):
     # Determines whether the 'fast' version of the sprite is used. Note that the actual speed of the myriapod is
     # determined by how much time is included in the State.update method
     fast: bool
-    head: bool        # Should this segment use the head sprite?
+    head: bool  # Should this segment use the head sprite?
     # Each myriapod segment moves in a defined pattern within its current cell, before moving to the next one.
     # It will start at one of the edges - represented by a number, where 0=down,1=right,2=up,3=left
     # self.in_edge stores the edge through which it entered the cell.
@@ -466,8 +503,10 @@ class Segment(Actor):
     # The path it follows is explained in the update and rank methods
     in_edge: int = DIRECTION_LEFT
     out_edge: int = DIRECTION_RIGHT
-    disallow_direction: int = DIRECTION_UP      # Prevents segment from moving in a particular direction
-    previous_x_direction: int = 1               # Used to create winding/snaking motion
+    disallow_direction: int = (
+        DIRECTION_UP  # Prevents segment from moving in a particular direction
+    )
+    previous_x_direction: int = 1  # Used to create winding/snaking motion
 
     def __post_init__(self) -> None:
         super().__init__("blank")
@@ -493,13 +532,20 @@ class Segment(Actor):
             # Note: when the segments start, they are all outside the grid so this would be True, except for the case of
             # walking onto the top-left cell of the grid. But the end result of this and the following factors is that
             # it will still be allowed to continue walking forwards onto the screen.
-            out: bool = new_cell_x < 0  or new_cell_x > num_grid_cols - 1 or new_cell_y < 0 or new_cell_y > num_grid_rows - 1
+            out: bool = (
+                new_cell_x < 0
+                or new_cell_x > num_grid_cols - 1
+                or new_cell_y < 0
+                or new_cell_y > num_grid_rows - 1
+            )
 
             # We don't want it to to turn back on itself..
             turning_back_on_self: bool = proposed_out_edge == self.in_edge
 
             # ..or go in a direction that's disallowed (see comments in update method)
-            direction_disallowed: bool = proposed_out_edge == self.disallow_direction
+            direction_disallowed: bool = (
+                proposed_out_edge == self.disallow_direction
+            )
 
             # Check to see if there's a rock at the proposed new grid cell.
             # rock will either be the Rock object at the new grid cell, or None.
@@ -517,7 +563,14 @@ class Segment(Actor):
 
             # Is new cell already occupied by another segment, or is another segment trying to enter my cell from
             # the opposite direction?
-            occupied_by_segment: bool = (new_cell_x, new_cell_y) in game.occupied or (self.cell_x, self.cell_y, proposed_out_edge) in game.occupied
+            occupied_by_segment: bool = (
+                new_cell_x,
+                new_cell_y,
+            ) in game.occupied or (
+                self.cell_x,
+                self.cell_y,
+                proposed_out_edge,
+            ) in game.occupied
 
             # Prefer to move horizontally, unless there's a rock in the way.
             # If there are rocks both horizontally and vertically, prefer to move vertically
@@ -527,11 +580,21 @@ class Segment(Actor):
                 horizontal_blocked = not is_horizontal(proposed_out_edge)
 
             # Prefer not to go in the previous horizontal direction after we move up/down
-            same_as_previous_x_direction: bool = proposed_out_edge == self.previous_x_direction
+            same_as_previous_x_direction: bool = (
+                proposed_out_edge == self.previous_x_direction
+            )
 
             # Finally we create and return a tuple of factors determining which cell segment should try to move into next.
             # Most important first - e.g. we shouldn't enter a new cell if if's outside the grid
-            return (out, turning_back_on_self, direction_disallowed, occupied_by_segment, rock_present, horizontal_blocked, same_as_previous_x_direction)
+            return (
+                out,
+                turning_back_on_self,
+                direction_disallowed,
+                occupied_by_segment,
+                rock_present,
+                horizontal_blocked,
+                same_as_previous_x_direction,
+            )
 
         return inner
 
@@ -555,7 +618,7 @@ class Segment(Actor):
             # During the title screen, we allow segments to go all the way back up to the top of the screen.
             if self.cell_y == (18 if game.player else 0):
                 self.disallow_direction = DIRECTION_UP
-            if self.cell_y == num_grid_rows-1:
+            if self.cell_y == num_grid_rows - 1:
                 self.disallow_direction = DIRECTION_DOWN
 
         elif phase == 4:
@@ -570,14 +633,14 @@ class Segment(Actor):
             # When Python compares two such tuples, it considers values of False to be less than values of True,
             # and values that come earlier in the sequence are more significant than later values. So (False,True)
             # would be considered less than (True,False).
-            self.out_edge = min(range(4), key = self.rank())
+            self.out_edge = min(range(4), key=self.rank())
 
             if is_horizontal(self.out_edge):
                 self.previous_x_direction = self.out_edge
 
             new_cell_x: int = self.cell_x + DX[self.out_edge]
             new_cell_y: int = self.cell_y + DY[self.out_edge]
-            
+
             # Destroy any rock that might be in the new cell
             if new_cell_x >= 0 and new_cell_x < num_grid_cols:
                 game.damage(new_cell_x, new_cell_y, 5)
@@ -587,7 +650,9 @@ class Segment(Actor):
             # neighbouring cells. It allows a segment to tell if another segment trying to enter its cell from
             # the opposite direction
             game.occupied.add((new_cell_x, new_cell_y))
-            game.occupied.add((new_cell_x, new_cell_y, inverse_direction(self.out_edge)))
+            game.occupied.add(
+                (new_cell_x, new_cell_y, inverse_direction(self.out_edge))
+            )
 
         # turn_idx tells us whether the segment is going to be making a 90 degree turn in the current cell, or moving
         # in a straight line. 1 = anti-clockwise turn, 2 = straight ahead, 3 = clockwise turn, 0 = leaving through same
@@ -614,15 +679,25 @@ class Segment(Actor):
         # initially slow to moving at 1px per phase, and then stop moving completely. Effectively, the secondary axis
         # is stealing movement from the primary axis - hence the name 'stolen_y_movement'
         offset_x: int = SECONDARY_AXIS_POSITIONS[phase] * (2 - turn_idx)
-        stolen_y_movement: int = (turn_idx % 2) * SECONDARY_AXIS_POSITIONS[phase]
+        stolen_y_movement: int = (turn_idx % 2) * SECONDARY_AXIS_POSITIONS[
+            phase
+        ]
         offset_y: int = -16 + (phase * 2) - stolen_y_movement
 
         # A rotation matrix is a set of numbers which, when multiplied by a set of coordinates, result in those
         # coordinates being rotated. Recall that the code above  makes the assumption that segment is starting from the
         # top edge of the cell and moving down. The code below chooses the appropriate rotation matrix based on the
         # actual edge the segment started from, and then modifies offset_x and offset_y based on this rotation matrix.
-        rotation_matrix: list[int] = [[1,0,0,1],[0,-1,1,0],[-1,0,0,-1],[0,1,-1,0]][self.in_edge]
-        offset_x, offset_y = offset_x * rotation_matrix[0] + offset_y * rotation_matrix[1], offset_x * rotation_matrix[2] + offset_y * rotation_matrix[3]
+        rotation_matrix: list[int] = [
+            [1, 0, 0, 1],
+            [0, -1, 1, 0],
+            [-1, 0, 0, -1],
+            [0, 1, -1, 0],
+        ][self.in_edge]
+        offset_x, offset_y = (
+            offset_x * rotation_matrix[0] + offset_y * rotation_matrix[1],
+            offset_x * rotation_matrix[2] + offset_y * rotation_matrix[3],
+        )
 
         # Finally, we can calculate the segment's position on the screen. See cell2pos function above.
         self.pos = cell2pos(self.cell_x, self.cell_y, offset_x, offset_y)
@@ -651,13 +726,25 @@ class Segment(Actor):
         # coming from the top edge of its cell, and therefore should be facing down. So we add 4 to account for this.
         # After all this, we may have ended up with a number outside the desired range of 0 to 7. So the final step
         # is to MOD by 8.
-        direction: int = ((SECONDARY_AXIS_SPEED[phase] * (turn_idx - 2)) + (self.in_edge * 2) + 4) % 8
+        direction: int = (
+            (SECONDARY_AXIS_SPEED[phase] * (turn_idx - 2))
+            + (self.in_edge * 2)
+            + 4
+        ) % 8
 
         leg_frame: int = phase // 4  # 16 phase cycle, 4 frames of animation
 
         # Converting a boolean value to an integer gives 0 for False and 1 for True. We then need to convert the
         # result to a string, as an integer can't be appended to a string.
-        self.image = "seg" + str(int(self.fast)) + str(int(self.health == 2)) + str(int(self.head)) + str(direction) + str(leg_frame)
+        self.image = (
+            "seg"
+            + str(int(self.fast))
+            + str(int(self.health == 2))
+            + str(int(self.head))
+            + str(direction)
+            + str(leg_frame)
+        )
+
 
 class Game:
     def __init__(self, player: Optional["Player"] = None) -> None:
@@ -668,7 +755,9 @@ class Game:
 
         # Create empty grid of 14 columns, 25 rows, each element intially just containing the value 'None'
         # Rocks will be added to the grid later
-        self.grid: list[list[Optional["Rock"]]] = [[None] * num_grid_cols for y in range(num_grid_rows)]
+        self.grid: list[list[Optional["Rock"]]] = [
+            [None] * num_grid_cols for y in range(num_grid_rows)
+        ]
 
         self.bullets: list["Bullet"] = []
         self.explosions: list["Explosion"] = []
@@ -678,7 +767,9 @@ class Game:
 
         self.score: int = 0
 
-    def damage(self, cell_x: int, cell_y: int, amount: int, from_bullet: bool = False) -> bool:
+    def damage(
+        self, cell_x: int, cell_y: int, amount: int, from_bullet: bool = False
+    ) -> bool:
         # Find the rock at this grid cell (or None if no rock here)
         rock: Optional["Rock"] = self.grid[cell_y][cell_x]
 
@@ -691,7 +782,9 @@ class Game:
         # Return whether or not there was a rock at this position
         return rock != None
 
-    def allow_movement(self, x: float, y: float, ax: int = -1, ay: int = -1) -> bool:
+    def allow_movement(
+        self, x: float, y: float, ax: int = -1, ay: int = -1
+    ) -> bool:
         # ax/ay are only supplied when a segment is being destroyed, and we check to see if we should create a new
         # rock in the segment's place. They indicate a grid cell location where we're planning to create the new rock,
         # we need to ensure the new rock would not overlap with the player sprite
@@ -701,12 +794,12 @@ class Game:
             return False
 
         # Get coordinates of corners of player sprite's collision rectangle
-        x0, y0 = pos2cell(x-18, y-10)
-        x1, y1 = pos2cell(x+18, y+10)
+        x0, y0 = pos2cell(x - 18, y - 10)
+        x1, y1 = pos2cell(x + 18, y + 10)
 
         # Check each corner against grid
-        for yi in range(y0, y1+1):
-            for xi in range(x0, x1+1):
+        for yi in range(y0, y1 + 1):
+            for xi in range(x0, x1 + 1):
                 if self.grid[yi][xi] or xi == ax and yi == ay:
                     return False
 
@@ -715,16 +808,16 @@ class Game:
     def clear_rocks_for_respawn(self, x: float, y: float) -> None:
         # Destroy any rocks that might be overlapping with the player when they respawn
         # Could be more than one rock, hence the loop
-        x0, y0 = pos2cell(x-18, y-10)
-        x1, y1 = pos2cell(x+18, y+10)
+        x0, y0 = pos2cell(x - 18, y - 10)
+        x1, y1 = pos2cell(x + 18, y + 10)
 
-        for yi in range(y0, y1+1):
-            for xi in range(x0, x1+1):
+        for yi in range(y0, y1 + 1):
+            for xi in range(x0, x1 + 1):
                 self.damage(xi, yi, 5)
 
     def update(self) -> "Game":
         # Increment time - used by segments. Time moves twice as fast every fourth wave.
-        self.time += (2 if self.wave % 4 == 3 else 1)
+        self.time += 2 if self.wave % 4 == 3 else 1
 
         # At the start of each frame, we reset occupied to be an empty set. As each individual myriapod segment is
         # updated, it will create entries in the occupied set to indicate that other segments should not attempt to
@@ -738,7 +831,14 @@ class Game:
         # Call update method on all objects. grid is a list of lists, equivalent to a 2-dimensional array,
         # so sum can be used to produce a single list containing all grid objects plus the contents of the other
         # Actor lists. The player and flying enemy, which are object references rather than lists, are appended as single-item lists.
-        all_objects = sum(self.grid, self.bullets + self.segments + self.explosions + [self.player] + [self.flying_enemy])
+        all_objects = sum(
+            self.grid,
+            self.bullets
+            + self.segments
+            + self.explosions
+            + [self.player]
+            + [self.flying_enemy],
+        )
         for obj in all_objects:
             if obj:
                 obj.update()
@@ -754,10 +854,18 @@ class Game:
 
         if self.flying_enemy:
             # Destroy flying enemy if it goes off the left or right sides of the screen, or health is zero
-            if self.flying_enemy.health <= 0 or self.flying_enemy.x < -35 or self.flying_enemy.x > 515:
+            if (
+                self.flying_enemy.health <= 0
+                or self.flying_enemy.x < -35
+                or self.flying_enemy.x > 515
+            ):
                 self.flying_enemy = None
-        elif random() < .01:    # If there is no flying enemy, small chance of creating one each frame
-            self.flying_enemy = FlyingEnemy(self.player.x if self.player else 240)
+        elif (
+            random() < 0.01
+        ):  # If there is no flying enemy, small chance of creating one each frame
+            self.flying_enemy = FlyingEnemy(
+                self.player.x if self.player else 240
+            )
 
         if self.segments == []:
             # No myriapod segments - start a new wave
@@ -768,9 +876,12 @@ class Game:
                 for element in row:
                     if element != None:
                         num_rocks += 1
-            if num_rocks < 31+self.wave:
+            if num_rocks < 31 + self.wave:
                 while True:
-                    x, y = randint(0, num_grid_cols-1), randint(1, num_grid_rows-3)     # Leave last 2 rows rock-free
+                    x, y = (
+                        randint(0, num_grid_cols - 1),
+                        randint(1, num_grid_rows - 3),
+                    )  # Leave last 2 rows rock-free
                     if self.grid[y][x] == None:
                         self.grid[y][x] = Rock(x, y)
                         break
@@ -780,18 +891,28 @@ class Game:
                 self.wave += 1
                 self.time = 0
                 self.segments = []
-                num_segments: int = 8 + self.wave // 4 * 2   # On the first four waves there are 8 segments - then 10, and so on
+                num_segments: int = (
+                    8 + self.wave // 4 * 2
+                )  # On the first four waves there are 8 segments - then 10, and so on
                 for i in range(num_segments):
                     if DEBUG_TEST_RANDOM_POSITIONS:
                         cell_x, cell_y = randint(1, 7), randint(1, 7)
                     else:
-                        cell_x, cell_y = -1-i, 0
+                        cell_x, cell_y = -1 - i, 0
                     # Determines whether segments take one or two hits to kill, based on the wave number.
                     # e.g. on wave 0 all segments take one hit; on wave 1 they alternate between one and two hits
-                    health: int = [[1,1],[1,2],[2,2],[1,1]][self.wave % 4][i % 2]
-                    fast: bool = self.wave % 4 == 3   # Every fourth myriapod moves faster than usual
-                    head: bool = i == 0           # The first segment of each myriapod is the head
-                    self.segments.append(Segment(cell_x, cell_y, health, fast, head))
+                    health: int = [[1, 1], [1, 2], [2, 2], [1, 1]][
+                        self.wave % 4
+                    ][i % 2]
+                    fast: bool = (
+                        self.wave % 4 == 3
+                    )  # Every fourth myriapod moves faster than usual
+                    head: bool = (
+                        i == 0
+                    )  # The first segment of each myriapod is the head
+                    self.segments.append(
+                        Segment(cell_x, cell_y, health, fast, head)
+                    )
 
         return self
 
@@ -800,7 +921,10 @@ class Game:
 
         # Create a list of all grid locations and other objects which need to be drawn
         # (Most grid locations will be set to None as they are unoccupied, hence the check "if obj:" further down)
-        all_objs: list[Any] = sum(self.grid, self.bullets + self.segments + self.explosions + [self.player])
+        all_objs: list[Any] = sum(
+            self.grid,
+            self.bullets + self.segments + self.explosions + [self.player],
+        )
 
         # We want to draw objects in order based on their Y position. Objects further down the screen should be drawn
         # after (and therefore in front of) objects higher up the screen. We can use Python's built-in sort function
@@ -840,8 +964,10 @@ class Game:
                 # If no such sound file exists, print the name
                 print(e)
 
+
 # Is the space bar currently being pressed down?
 space_down: bool = False
+
 
 # Has the space bar just been pressed? i.e. gone from not being pressed, to being pressed
 def space_pressed() -> bool:
@@ -861,10 +987,12 @@ def space_pressed() -> bool:
 
 # Pygame Zero calls the update and draw functions each frame
 
+
 class State(Enum):
     MENU = 1
     PLAY = 2
     GAME_OVER = 3
+
 
 def update() -> None:
     global state, game
@@ -872,7 +1000,9 @@ def update() -> None:
     if state == State.MENU:
         if space_pressed():
             state = State.PLAY
-            game = Game(Player((240, 768)))  # Create new Game object, with a Player object
+            game = Game(
+                Player((240, 768))
+            )  # Create new Game object, with a Player object
 
         game.update()
 
@@ -889,6 +1019,7 @@ def update() -> None:
             state = State.MENU
             game = Game()
 
+
 def draw() -> None:
     # Draw the game, which covers both the game during gameplay but also the game displaying in the background
     # during the main menu and game over screens
@@ -904,19 +1035,20 @@ def draw() -> None:
     elif state == State.PLAY:
         # Display number of lives
         for i in range(game.player.lives):
-            screen.blit("life", (i*40+8, 4))
+            screen.blit("life", (i * 40 + 8, 4))
 
         # Display score
         score: str = str(game.score)
-        for i in range(1, len(score)+1):
+        for i in range(1, len(score) + 1):
             # In Python, a negative index into a list (or in this case, into a string) gives you items in reverse order,
             # e.g. 'hello'[-1] gives 'o', 'hello'[-2] gives 'l', etc.
             digit: str = score[-i]
-            screen.blit("digit"+digit, (468-i*24, 5))
+            screen.blit("digit" + digit, (468 - i * 24, 5))
 
     elif state == State.GAME_OVER:
         # Display "Game Over" image
         screen.blit("over", (0, 0))
+
 
 # Set up music on game start
 try:

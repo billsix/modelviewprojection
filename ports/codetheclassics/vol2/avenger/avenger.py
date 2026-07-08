@@ -14,8 +14,8 @@
 # If the game window doesn't fit on the screen, you may need to turn off or reduce display scaling in the Windows/macOS settings
 # On Windows, you can uncomment the following two lines to fix the issue. It sets the program as "DPI aware"
 # meaning that display scaling won't be applied to it.
-#import ctypes
-#ctypes.windll.user32.SetProcessDPIAware()
+# import ctypes
+# ctypes.windll.user32.SetProcessDPIAware()
 
 # ---------------------------------------------------------------------------
 # PyGame Zero -> GLFW + OpenGL 3.3 core port (ModelViewProjection).
@@ -27,22 +27,33 @@
 #   Original source: https://github.com/raspberrypipress/Code-the-Classics-Vol2
 #   Book:            https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 # ---------------------------------------------------------------------------
-import os as _os, sys as _sys
-_sys.path.append(_os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))))
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
+import os as _os
+import sys as _sys
 
-import math, sys
-from random import randint, uniform
+_sys.path.append(
+    _os.path.dirname(
+        _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    )
+)
+import math
+import sys
+from abc import ABC, abstractmethod
 from dataclasses import InitVar, dataclass, field
 from enum import Enum, IntEnum
-from abc import ABC, abstractmethod
-from pygame.math import Vector2  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules); not statically resolvable
+from random import randint, uniform
 from typing import Any, ClassVar  # noqa: E402
+
+from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
+from pygame.math import (  # ty: ignore[unresolved-import]  # pygame is a synthetic runtime module (sys.modules)
+    Vector2,
+)
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
-if sys.version_info < (3,6):
-    print("This game requires at least version 3.6 of Python. Please download it from www.python.org")
+if sys.version_info < (3, 6):
+    print(
+        "This game requires at least version 3.6 of Python. Please download it from www.python.org"
+    )
     sys.exit()
 
 # Check Pygame Zero version. This is a bit trickier because Pygame Zero only lets us get its version number as a string.
@@ -50,9 +61,13 @@ if sys.version_info < (3,6):
 # version number into an integer - but only if the string contains numbers and nothing else, because it's possible for
 # a component of the version to contain letters as well as numbers (e.g. '2.0.dev0')
 # This uses a Python feature called list comprehension
-pgzero_version = [int(s) if s.isnumeric() else s for s in pgzero.__version__.split('.')]
-if pgzero_version < [1,2]:
-    print(f"This game requires at least version 1.2 of Pygame Zero. You have version {pgzero.__version__}. Please upgrade using the command 'pip3 install --upgrade pgzero'")
+pgzero_version = [
+    int(s) if s.isnumeric() else s for s in pgzero.__version__.split(".")
+]
+if pgzero_version < [1, 2]:
+    print(
+        f"This game requires at least version 1.2 of Pygame Zero. You have version {pgzero.__version__}. Please upgrade using the command 'pip3 install --upgrade pgzero'"
+    )
     sys.exit()
 
 WIDTH = 960
@@ -67,11 +82,23 @@ WAVE_COMPLETE_SCREEN_DURATION = 320
 SHOW_DEBUG_LINES = False
 
 # These positions are all relative to the terrain image, which is displayed with an offset from the top of the game world
-HUMAN_START_POS = ((204, 410), (489,209), (865,374), (1262,405), (1937,263), (2193,278), (2601,405), (2846,347), (3317,193), (3646,233))
+HUMAN_START_POS = (
+    (204, 410),
+    (489, 209),
+    (865, 374),
+    (1262, 405),
+    (1937, 263),
+    (2193, 278),
+    (2601, 405),
+    (2846, 347),
+    (3317, 193),
+    (3646, 233),
+)
 
 TERRAIN_OFFSET_Y = 160
 
 # Utility functions
+
 
 def sign(x: float) -> int:
     # Returns 1, 0 or -1 depending on whether number is positive, zero or negative
@@ -80,17 +107,37 @@ def sign(x: float) -> int:
     else:
         return -1 if x < 0 else 1
 
-def remap(old_val: float, old_min: float, old_max: float, new_min: float, new_max: float) -> float:
+
+def remap(
+    old_val: float,
+    old_min: float,
+    old_max: float,
+    new_min: float,
+    new_max: float,
+) -> float:
     # Remap a number from one range to a different range
     # e.g. remapping 5 from source range of 0 to 10, to destination range of 0 to 100, becomes 50
-    return (new_max - new_min)*(old_val - old_min) / (old_max - old_min) + new_min
+    return (new_max - new_min) * (old_val - old_min) / (
+        old_max - old_min
+    ) + new_min
 
-def remap_clamp(old_val: float, old_min: float, old_max: float, new_min: float, new_max: float) -> float:
+
+def remap_clamp(
+    old_val: float,
+    old_min: float,
+    old_max: float,
+    new_min: float,
+    new_max: float,
+) -> float:
     # Like remap, but constrains the resulting value so that it can't be outside the new range
     # These first two lines are in case new_min and new_max are inverted
     lower_limit: float = min(new_min, new_max)
     upper_limit: float = max(new_min, new_max)
-    return min(upper_limit, max(lower_limit, remap(old_val, old_min, old_max, new_min, new_max)))
+    return min(
+        upper_limit,
+        max(lower_limit, remap(old_val, old_min, old_max, new_min, new_max)),
+    )
+
 
 # For animations which should run from the first frame to the last frame and then backwards through those frames
 # before repeating
@@ -98,7 +145,7 @@ def forward_backward_animation_frame(frame: int, num_frames: int) -> int:
     # With 4 frames, the repeating sequence should be 0, 1, 2, 3, 2, 1
     if num_frames < 2:
         return 0
-    frame %= ((num_frames * 2) - 2)
+    frame %= (num_frames * 2) - 2
     if frame >= num_frames:
         frame = (num_frames - 1) * 2 - frame
     return frame
@@ -109,14 +156,20 @@ class Controls(ABC):
     NUM_BUTTONS = 1
 
     def __init__(self) -> None:
-        self.button_previously_down: list[bool] = [False for i in range(Controls.NUM_BUTTONS)]
-        self.is_button_pressed: list[bool] = [False for i in range(Controls.NUM_BUTTONS)]
+        self.button_previously_down: list[bool] = [
+            False for i in range(Controls.NUM_BUTTONS)
+        ]
+        self.is_button_pressed: list[bool] = [
+            False for i in range(Controls.NUM_BUTTONS)
+        ]
 
     def update(self) -> None:
         # Call each frame to update button status
         for button in range(Controls.NUM_BUTTONS):
             button_down: bool = self.button_down(button)
-            self.is_button_pressed[button] = button_down and not self.button_previously_down[button]
+            self.is_button_pressed[button] = (
+                button_down and not self.button_previously_down[button]
+            )
             self.button_previously_down[button] = button_down
 
     @abstractmethod
@@ -136,6 +189,7 @@ class Controls(ABC):
 
     def button_pressed(self, button: int) -> bool:
         return self.is_button_pressed[button]
+
 
 class KeyboardControls(Controls):
     def get_x(self) -> int:
@@ -159,18 +213,24 @@ class KeyboardControls(Controls):
             return keyboard.space
         return False
 
+
 class JoystickControls(Controls):
     def __init__(self, joystick: Any) -> None:
         super().__init__()
         self.joystick: Any = joystick
-        joystick.init() # Not necessary in Pygame 2.0.0 onwards
+        joystick.init()  # Not necessary in Pygame 2.0.0 onwards
 
     def get_axis(self, axis_num: int) -> int:
         # First check if there is an input on the dpad for the X axis. The dpad is classified here as a joystick 'hat'
-        if self.joystick.get_numhats() > 0 and self.joystick.get_hat(0)[axis_num] != 0:
+        if (
+            self.joystick.get_numhats() > 0
+            and self.joystick.get_hat(0)[axis_num] != 0
+        ):
             # For some reason, dpad up/down are inverted when getting inputs from
             # an Xbox controller, so need to negate the value if axis_num is 1
-            return self.joystick.get_hat(0)[axis_num] * (-1 if axis_num == 1 else 1)
+            return self.joystick.get_hat(0)[axis_num] * (
+                -1 if axis_num == 1 else 1
+            )
 
         # If no input on the dpad, check for analogue left/right input
         axis_value = self.joystick.get_axis(axis_num)
@@ -195,6 +255,7 @@ class JoystickControls(Controls):
             return False
         return self.joystick.get_button(button) != 0
 
+
 # This class encapsulates the concept of an object in a scrolling game world that wraps around at the edges
 class WrapActor(Actor):
     def __init__(self, image: str, pos: Any) -> None:
@@ -203,9 +264,9 @@ class WrapActor(Actor):
     def update(self) -> None:
         # If the actor goes off the left or right edge of the game world, relative to the player,
         # wrap it back round to the other side
-        while self.x - game.player.x < -LEVEL_WIDTH/2:
+        while self.x - game.player.x < -LEVEL_WIDTH / 2:
             self.relocate(LEVEL_WIDTH)
-        while self.x - game.player.x > LEVEL_WIDTH/2:
+        while self.x - game.player.x > LEVEL_WIDTH / 2:
             self.relocate(-LEVEL_WIDTH)
 
     def draw(self, offset_x: float, offset_y: float) -> None:  # ty: ignore[invalid-method-override]  # faithful port: WrapActor adds scroll offsets, widening Actor.draw(self)
@@ -221,6 +282,7 @@ class WrapActor(Actor):
 
     def relocate(self, delta: float) -> None:
         self.x += delta
+
 
 # A bullet fired by an enemy
 # (eq=False on these Actor dataclasses keeps identity comparison/hashing --
@@ -246,8 +308,11 @@ class Bullet(WrapActor):
 
         # Return True or False depending on whether we want the bullet to be destroyed, either when it's hit something,
         # or because it's gone too far from the player.
-        too_far: bool = self.x < game.player.x - WIDTH or self.x > game.player.x + WIDTH
+        too_far: bool = (
+            self.x < game.player.x - WIDTH or self.x > game.player.x + WIDTH
+        )
         return game.player.hit_test(self.pos) or too_far
+
 
 # A laser fired by the player
 # Not a dataclass: the super-args (image, pos) are computed from vel_x/x/y.
@@ -280,9 +345,12 @@ class Laser(WrapActor):
         # tell how many collisions occurred. This works because when converting a boolean to an integer in Python,
         # True is equivalent to 1 and False is equivalent to 0.
         # This will also kill any enemy of human that collides with the laser
-        collisions = [obj.laser_hit_test(self.pos) for obj in game.enemies + game.humans]
+        collisions = [
+            obj.laser_hit_test(self.pos) for obj in game.enemies + game.humans
+        ]
 
         return too_far or sum(collisions) > 0
+
 
 @dataclass(eq=False)
 class Player(WrapActor):
@@ -317,7 +385,9 @@ class Player(WrapActor):
     # Our radar blip
     blip: Actor = field(default_factory=lambda: Actor("dot-white"))
     # Thrust sprite
-    thrust_sprite: WrapActor = field(default_factory=lambda: WrapActor("blank", (0, 0)))
+    thrust_sprite: WrapActor = field(
+        default_factory=lambda: WrapActor("blank", (0, 0))
+    )
     thrust_sound_playing: bool = False
 
     def __post_init__(self) -> None:
@@ -384,7 +454,9 @@ class Player(WrapActor):
         # frame, then randomise our position when the timer runs out
         if self.timers[Player.Timer.EXPLODE] > 0:
             # Work out animation frame and set sprite image
-            frame: int = (Player.EXPLODE_FRAMES - self.timers[Player.Timer.EXPLODE]) // Player.EXPLODE_ANIM_SPEED
+            frame: int = (
+                Player.EXPLODE_FRAMES - self.timers[Player.Timer.EXPLODE]
+            ) // Player.EXPLODE_ANIM_SPEED
             self.image = "ship_explode" + str(frame)
 
             # No thrust sprite while exploding
@@ -416,8 +488,10 @@ class Player(WrapActor):
             if self.frame % 8 != 0 or sign(self.facing_x) != sign(move.x):
                 move.x = 0
 
-            self.velocity = Vector2(self.velocity.x * Player.DRAG.x + move.x * Player.FORCE.x,
-                                    self.velocity.y * Player.DRAG.y + move.y * Player.FORCE.y)
+            self.velocity = Vector2(
+                self.velocity.x * Player.DRAG.x + move.x * Player.FORCE.x,
+                self.velocity.y * Player.DRAG.y + move.y * Player.FORCE.y,
+            )
 
             # Apply velocity to position
             self.pos += self.velocity
@@ -431,7 +505,10 @@ class Player(WrapActor):
             # Check to see if we can pick up a falling human
             if self.carried_human is None:
                 for human in game.humans:
-                    if human.can_be_picked_up_by_player() and (Vector2(human.pos) - self.pos).length() < 40:
+                    if (
+                        human.can_be_picked_up_by_player()
+                        and (Vector2(human.pos) - self.pos).length() < 40
+                    ):
                         human.picked_up(self)
                         self.carried_human = human
                         break
@@ -456,7 +533,10 @@ class Player(WrapActor):
 
             if self.frame == target:
                 # If we're on our target frame, and we haven't fired too recently, we're allowed to fire
-                if self.controls.button_down(0) and self.timers[Player.Timer.FIRE] <= 0:
+                if (
+                    self.controls.button_down(0)
+                    and self.timers[Player.Timer.FIRE] <= 0
+                ):
                     self.timers[Player.Timer.FIRE] = 10
                     # Create a laser with the appropriate offset from the player
                     laser_vel_x: float = self.velocity[0] + 20 * self.facing_x
@@ -475,18 +555,28 @@ class Player(WrapActor):
             # try/except block ensures that this code still works if there is no sound hardware
             try:
                 if self.thrust_sound is not None:
-                    if move.x != 0 and self.frame == target and not self.thrust_sound_playing:
+                    if (
+                        move.x != 0
+                        and self.frame == target
+                        and not self.thrust_sound_playing
+                    ):
                         self.thrust_sound.set_volume(0.3)
-                        self.thrust_sound.play(loops=-1, fade_ms=200)  # Loop indefinitely, fade in
+                        self.thrust_sound.play(
+                            loops=-1, fade_ms=200
+                        )  # Loop indefinitely, fade in
                         self.thrust_sound_playing = True
-                    elif (move.x == 0 or self.frame != target) and self.thrust_sound_playing:
+                    elif (
+                        move.x == 0 or self.frame != target
+                    ) and self.thrust_sound_playing:
                         self.thrust_sound.fadeout(200)
                         self.thrust_sound_playing = False
             except Exception:
                 # Ignore errors
                 pass
 
-            anim_type: str = "ship" if self.timers[Player.Timer.HURT] <= 0 else "hurt"
+            anim_type: str = (
+                "ship" if self.timers[Player.Timer.HURT] <= 0 else "hurt"
+            )
             tilt: str = ""
             if self.frame % 8 == 0 and self.tilt_y != 0:
                 tilt = "u" if self.tilt_y < 0 else "d"
@@ -503,7 +593,10 @@ class Player(WrapActor):
                 self.thrust_sprite.image = f"boost_{direction}_{frame}"
                 x_offset: int = 66
                 y_offset: int = -3
-                self.thrust_sprite.pos = (self.x + x_offset * -move.x, self.y + y_offset)
+                self.thrust_sprite.pos = (
+                    self.x + x_offset * -move.x,
+                    self.y + y_offset,
+                )
 
     def respawn(self) -> None:
         # Restore shields
@@ -513,6 +606,7 @@ class Player(WrapActor):
         # any one enemy on the X axis
         best_score: float = 0
         for i in range(20):
+
             def wrap_distance(x1: float, x2: float) -> float:
                 # Return the distance between two X positions, taking the wrapping nature of the level
                 # into account
@@ -524,7 +618,9 @@ class Player(WrapActor):
                 else:
                     return LEVEL_WIDTH - dist
 
-            random_pos: Vector2 = Vector2(uniform(0, LEVEL_WIDTH - 1), uniform(150, 300))
+            random_pos: Vector2 = Vector2(
+                uniform(0, LEVEL_WIDTH - 1), uniform(150, 300)
+            )
             if len(game.enemies) == 0:
                 # If there are no enemies, just go with the first random position
                 self.pos = random_pos
@@ -532,7 +628,10 @@ class Player(WrapActor):
             else:
                 # If there are enemies, score the random position based on how far away the closest
                 # enemy is on the X axis - the further the better
-                all_distances: list[float] = [wrap_distance(enemy.x, random_pos.x) for enemy in game.enemies]
+                all_distances: list[float] = [
+                    wrap_distance(enemy.x, random_pos.x)
+                    for enemy in game.enemies
+                ]
                 score: float = min(all_distances)
                 if score >= best_score:
                     self.pos = random_pos
@@ -548,7 +647,7 @@ class Player(WrapActor):
             sprite: str = "flash" + str(self.frame // 8)
             x: float = self.x + offset_x - 25
             y: float = self.y + offset_y - 13 + self.get_laser_fire_y_offset()
-            screen.blit(sprite, (x,y))
+            screen.blit(sprite, (x, y))
 
     def get_laser_fire_y_offset(self) -> int:
         # The starting Y position of the laser should vary by a few pixels depending on how the ship is tilted
@@ -577,7 +676,9 @@ class Player(WrapActor):
     def is_carrying_human(self) -> bool:
         return self.carried_human is not None
 
-    def level_ended(self, shield_restore_amount: int, humans_saved: int) -> None:
+    def level_ended(
+        self, shield_restore_amount: int, humans_saved: int
+    ) -> None:
         self.shields = min(self.shields + shield_restore_amount, 5)
 
         # Earn an extra life token if all humans were saved
@@ -591,17 +692,22 @@ class Player(WrapActor):
 
 class Radar(Actor):
     def __init__(self) -> None:
-        super().__init__("radar", pos=(WIDTH/2, 4), anchor=('center', 'top'))
+        super().__init__("radar", pos=(WIDTH / 2, 4), anchor=("center", "top"))
 
     def radar_pos(self, pos: Any) -> tuple[float, float]:
         # Converts a position in world space into a position on the radar in screen space
-        return (self.left + ((int(pos[0]) % LEVEL_WIDTH) / 11.5), self.y + (int(pos[1]) // 11))
+        return (
+            self.left + ((int(pos[0]) % LEVEL_WIDTH) / 11.5),
+            self.y + (int(pos[1]) // 11),
+        )
+
 
 class EnemyState(Enum):
     START = 0
     ALIVE = 1
     EXPLODING = 2
     DEAD = 3
+
 
 class EnemyType(Enum):
     LANDER = 0
@@ -610,10 +716,17 @@ class EnemyType(Enum):
     POD = 3
     SWARMER = 4
 
+
 # Not a dataclass: init branches on type for speeds/state, and generates a
 # random position/target -- the init logic is the interesting part.
 class Enemy(WrapActor):
-    def __init__(self, start_timer: int = 0, type: EnemyType = EnemyType.LANDER, pos: Any = None, start_vel: Any = None) -> None:
+    def __init__(
+        self,
+        start_timer: int = 0,
+        type: EnemyType = EnemyType.LANDER,
+        pos: Any = None,
+        start_vel: Any = None,
+    ) -> None:
         # Varying start_timer allows the creation of enemies which wait a while before beginning their 'appear'
         # animation, the default value of zero means the appear animation will start immediately.
 
@@ -645,10 +758,14 @@ class Enemy(WrapActor):
         # Select a target position which the enemy will oscillate around. If the enemy is within a particular
         # distance of the player, this will be updated to a random offset from the player's current position, unless
         # the target pos is already close to the player
-        self.target_pos: Vector2 = Vector2(self.x + uniform(-100, 100), self.y + uniform(-100, 100))
+        self.target_pos: Vector2 = Vector2(
+            self.x + uniform(-100, 100), self.y + uniform(-100, 100)
+        )
         self.update_target_timer: int = 0
 
-        self.velocity: Vector2 = start_vel if start_vel is not None else Vector2(0, 0)
+        self.velocity: Vector2 = (
+            start_vel if start_vel is not None else Vector2(0, 0)
+        )
 
         # Most enemies start in 'start' state where they play an animation to appear. Swarmers just appear immediately
         if self.type == EnemyType.SWARMER:
@@ -695,8 +812,12 @@ class Enemy(WrapActor):
             # If we're a pod, release several swarmers
             if self.type == EnemyType.POD:
                 for i in range(3):
-                    start_vel: Vector2 = Vector2(uniform(-25,25), uniform(-25,25))
-                    game.enemies.append(Enemy(0, EnemyType.SWARMER, pos, start_vel))
+                    start_vel: Vector2 = Vector2(
+                        uniform(-25, 25), uniform(-25, 25)
+                    )
+                    game.enemies.append(
+                        Enemy(0, EnemyType.SWARMER, pos, start_vel)
+                    )
 
             return True
         else:
@@ -724,7 +845,6 @@ class Enemy(WrapActor):
                 # Play appear animation
                 self.image = "appear" + str(self.state_timer // 3)
 
-
         elif self.state == EnemyState.ALIVE:
             # Enemy is alive
             max_speed: float = self.max_speed
@@ -735,15 +855,33 @@ class Enemy(WrapActor):
                 self.carrying = False
 
             # Should we start heading for a human to pick up?
-            if self.target_human is None and self.type == EnemyType.LANDER and uniform(0, 1) < 0.001:
+            if (
+                self.target_human is None
+                and self.type == EnemyType.LANDER
+                and uniform(0, 1) < 0.001
+            ):
                 # Find a human who isn't currently being carried, and isn't being targeted by another enemy
-                targeted_humans = [enemy.target_human for enemy in game.enemies if enemy.target_human is not None]
-                available_humans = [human for human in game.humans if human not in targeted_humans and human.can_be_picked_up_by_enemy()]
+                targeted_humans = [
+                    enemy.target_human
+                    for enemy in game.enemies
+                    if enemy.target_human is not None
+                ]
+                available_humans = [
+                    human
+                    for human in game.humans
+                    if human not in targeted_humans
+                    and human.can_be_picked_up_by_enemy()
+                ]
                 if len(available_humans) > 0:
                     # Choose nearest human - i.e. the human with the minimum distance
                     # We use length_squared in this case to get the distance, instead of length, because length_squared
                     # is faster, and we don't care about what the actual distance is, just which distance is shortest
-                    self.target_human = min(available_humans, key=lambda human: (Vector2(human.pos) - self.pos).length_squared())
+                    self.target_human = min(
+                        available_humans,
+                        key=lambda human: (
+                            Vector2(human.pos) - self.pos
+                        ).length_squared(),
+                    )
 
             # Try to move towards a target position. This will either be the player position, a human we're about to
             # pick up, the top of the sky (if we're carrying a human), or the previously determined target pos, which
@@ -757,7 +895,11 @@ class Enemy(WrapActor):
 
                     # If we reach the top of the screen, turn the captured human into a mutant enemy
                     if abs(self.pos[1] - self.target_pos.y) < 10:
-                        game.enemies.append(Enemy(type=EnemyType.MUTANT, pos=self.target_human.pos))
+                        game.enemies.append(
+                            Enemy(
+                                type=EnemyType.MUTANT, pos=self.target_human.pos
+                            )
+                        )
                         self.target_human.die()
                         self.target_human = None
                         self.carrying = False
@@ -771,11 +913,15 @@ class Enemy(WrapActor):
                         max_speed = 1
                     if x_distance > 100:
                         # Set target pos to be above our target human's pos
-                        self.target_pos = Vector2(self.target_human.pos) - Vector2(0, 200)
+                        self.target_pos = Vector2(
+                            self.target_human.pos
+                        ) - Vector2(0, 200)
                     else:
                         # Set target pos to our target human's pos. Start carrying them when we get within 55 pixels
                         self.target_pos = Vector2(self.target_human.pos)
-                        distance: float = Vector2(self.pos - self.target_pos).length()
+                        distance: float = Vector2(
+                            self.pos - self.target_pos
+                        ).length()
                         if distance < 55:
                             self.carrying = True
                             self.target_human.picked_up(self)
@@ -791,7 +937,9 @@ class Enemy(WrapActor):
 
                     # Landers go for the player if they're nearby, other enemies will always go for
                     # the player regardless of distance
-                    max_player_distance: int = 500 if self.type == EnemyType.LANDER else LEVEL_WIDTH
+                    max_player_distance: int = (
+                        500 if self.type == EnemyType.LANDER else LEVEL_WIDTH
+                    )
 
                     if (self.pos - player_pos).length() < max_player_distance:
                         # Go for the player
@@ -801,7 +949,9 @@ class Enemy(WrapActor):
                     # random variation
                     x_range: int = 800 if self.type == EnemyType.BAITER else 100
                     y_range: int = 300 if self.type == EnemyType.BAITER else 100
-                    self.target_pos = self.target_pos + Vector2(uniform(-x_range, x_range), uniform(-y_range, y_range))
+                    self.target_pos = self.target_pos + Vector2(
+                        uniform(-x_range, x_range), uniform(-y_range, y_range)
+                    )
 
             # Get vector from our pos to target pos
             # This is used to determine the force applied to our velocity, and also used later if we fire a bullet
@@ -820,7 +970,7 @@ class Enemy(WrapActor):
             # to push us away from the edge
             if self.y < 64:
                 force.y += 0.2
-            if self.y > LEVEL_HEIGHT-64:
+            if self.y > LEVEL_HEIGHT - 64:
                 force.y -= 0.2
 
             # Apply force to velocity
@@ -830,7 +980,9 @@ class Enemy(WrapActor):
             if self.velocity.length() > max_speed:
                 # If we're over our max speed, slow down gradually over several frames, rather than slowing
                 # down suddenly. This is most relevant when max speed drastically decreases when we pick up a human.
-                self.velocity.scale_to_length(max(self.velocity.length() * 0.9, max_speed))
+                self.velocity.scale_to_length(
+                    max(self.velocity.length() * 0.9, max_speed)
+                )
 
             # Apply velocity to position
             self.pos += self.velocity
@@ -845,7 +997,12 @@ class Enemy(WrapActor):
             if self.bullet_timer <= 0:
                 if self.type == EnemyType.BAITER:
                     # Baiters have their own firing pattern and don't care about the position of the player
-                    velocity: Vector2 = Vector2(math.cos(self.fire_angle), math.sin(self.fire_angle)) * 3
+                    velocity: Vector2 = (
+                        Vector2(
+                            math.cos(self.fire_angle), math.sin(self.fire_angle)
+                        )
+                        * 3
+                    )
                     game.bullets.append(Bullet(self.pos, velocity))
                     self.bullet_timer = 8
                     self.fire_angle += 0.3
@@ -859,11 +1016,19 @@ class Enemy(WrapActor):
                         # per frame, although due to the way the random inaccuracy is added, this will vary
                         # Normalise player_vec (vector from us to player) to a unit vector
                         player_vec.normalize_ip()
-                        velocity = Vector2(player_vec.x + uniform(-.5, .5), player_vec.y + uniform(-.5, .5)) * 6
+                        velocity = (
+                            Vector2(
+                                player_vec.x + uniform(-0.5, 0.5),
+                                player_vec.y + uniform(-0.5, 0.5),
+                            )
+                            * 6
+                        )
                         game.bullets.append(Bullet(self.pos, velocity))
 
                         # Non-baiter enemies fire at a random interval, with mutants firing more often
-                        upper_limit: int = 30 if self.type == EnemyType.MUTANT else 90
+                        upper_limit: int = (
+                            30 if self.type == EnemyType.MUTANT else 90
+                        )
                         self.bullet_timer = randint(20, upper_limit)
 
             # Update sprite/animation
@@ -876,7 +1041,9 @@ class Enemy(WrapActor):
                     if self.carrying:
                         frame = 2
                     else:
-                        distance = (Vector2(self.pos) - self.target_human.pos).length()
+                        distance = (
+                            Vector2(self.pos) - self.target_human.pos
+                        ).length()
                         if distance < 90:
                             frame = 1
                 self.image = "lander" + str(frame)
@@ -889,7 +1056,9 @@ class Enemy(WrapActor):
             elif self.type == EnemyType.POD:
                 # Frames 0 to 2 = left, 3 to 5 = right
                 self.anim_timer += 1
-                frame = forward_backward_animation_frame(self.anim_timer // 6, 3)
+                frame = forward_backward_animation_frame(
+                    self.anim_timer // 6, 3
+                )
                 if self.velocity.x > 0:
                     frame += 3
                 self.image = "pod" + str(frame)
@@ -911,15 +1080,19 @@ class Enemy(WrapActor):
         # Update radar blip pos
         self.blip.pos = game.radar.radar_pos(self.pos)
 
-
     def draw(self, offset_x: float, offset_y: float) -> None:
         super().draw(offset_x, offset_y)
 
         # Debug
         if SHOW_DEBUG_LINES:
-            screen.draw.line(self.pos + Vector2(offset_x, offset_y), self.target_pos + Vector2(offset_x, offset_y), (255, 255, 255))
+            screen.draw.line(
+                self.pos + Vector2(offset_x, offset_y),
+                self.target_pos + Vector2(offset_x, offset_y),
+                (255, 255, 255),
+            )
 
-        #screen.draw.rect(Rect(self.left + offset_x, self.top + offset_y, self.width, self.height), (255,255,255))
+        # screen.draw.rect(Rect(self.left + offset_x, self.top + offset_y, self.width, self.height), (255,255,255))
+
 
 @dataclass(eq=False)
 class Human(WrapActor):
@@ -959,7 +1132,7 @@ class Human(WrapActor):
                 # Switch to explosion sprites. We must store the current position and then re-set it after
                 # changing the anchor position, so that the new anchor position correctly affects the sprite position
                 pos = self.pos
-                self.anchor = (175,172)
+                self.anchor = (175, 172)
                 self.image = "human_explode" + str(frame)
                 self.pos = pos
             return
@@ -1025,9 +1198,15 @@ class Human(WrapActor):
     def terrain_check(self) -> bool:
         # To find out if we're on the ground, we need to work out where we're at on the terrain image
         # Convert world pos to pixel pos on terrain image
-        pos_terrain: tuple[int, int] = (int(self.x % LEVEL_WIDTH), int(self.y - TERRAIN_OFFSET_Y))
+        pos_terrain: tuple[int, int] = (
+            int(self.x % LEVEL_WIDTH),
+            int(self.y - TERRAIN_OFFSET_Y),
+        )
         mask_width, mask_height = game.terrain_mask.get_size()
-        if 0 <= pos_terrain[0] < mask_width and 0 <= pos_terrain[1] < mask_height:
+        if (
+            0 <= pos_terrain[0] < mask_width
+            and 0 <= pos_terrain[1] < mask_height
+        ):
             # Use the terrain mask to tell if there's an opaque pixel there
             return game.terrain_mask.get_at(pos_terrain)
 
@@ -1094,11 +1273,19 @@ class Game:
                 num_swarmers = self.wave // 2
             else:
                 num_mutants = self.wave // 2
-        self.enemies += [Enemy(-i * 20, EnemyType.LANDER) for i in range(num_landers)]
+        self.enemies += [
+            Enemy(-i * 20, EnemyType.LANDER) for i in range(num_landers)
+        ]
         self.enemies += [Enemy(-i * 50, EnemyType.POD) for i in range(num_pods)]
-        self.enemies += [Enemy(-i * 100, EnemyType.BAITER) for i in range(num_baiters)]
-        self.enemies += [Enemy(-i * 10, EnemyType.MUTANT) for i in range(num_mutants)]
-        self.enemies += [Enemy(-i * 10, EnemyType.SWARMER) for i in range(num_swarmers)]
+        self.enemies += [
+            Enemy(-i * 100, EnemyType.BAITER) for i in range(num_baiters)
+        ]
+        self.enemies += [
+            Enemy(-i * 10, EnemyType.MUTANT) for i in range(num_mutants)
+        ]
+        self.enemies += [
+            Enemy(-i * 10, EnemyType.SWARMER) for i in range(num_swarmers)
+        ]
 
         # Create humans
         self.humans = []
@@ -1119,7 +1306,11 @@ class Game:
         self.timer += 1
 
         # Make a baiter enemy every 30 seconds, if the player is alive
-        if self.wave_timer > 0 and self.wave_timer % (30 * 60) == 0 and self.player.lives > 0:
+        if (
+            self.wave_timer > 0
+            and self.wave_timer % (30 * 60) == 0
+            and self.player.lives > 0
+        ):
             self.enemies.append(Enemy(type=EnemyType.BAITER))
 
         self.player.update()
@@ -1144,15 +1335,19 @@ class Game:
             self.score += 150 * difference
 
         # Start next level if there are no enemies and no falling humans, and the player is not carrying a human
-        if self.wave_timer > 0 \
-                and len(self.enemies) == 0 \
-                and len([human for human in self.humans if human.falling]) == 0 \
-                and not self.player.is_carrying_human():
+        if (
+            self.wave_timer > 0
+            and len(self.enemies) == 0
+            and len([human for human in self.humans if human.falling]) == 0
+            and not self.player.is_carrying_human()
+        ):
             self.wave_timer = -WAVE_COMPLETE_SCREEN_DURATION
 
             # Tell the player how many shields to restore and how many humans were saved, if they save
             # all ten they get an extra life token
-            self.player.level_ended(self.get_shield_restore_amount(), self.get_humans_saved())
+            self.player.level_ended(
+                self.get_shield_restore_amount(), self.get_humans_saved()
+            )
 
             self.play_sound("wave_complete")
 
@@ -1171,17 +1366,26 @@ class Game:
         # If target_camera_offset_x is different from the current camera offset, we want to transition to
         # the new offset over a series of frames, not just snap to the new offset. We'll transition faster
         # when the difference is bigger, but at a maximum of 8 pixels per frame
-        camera_offset_delta: float = min(8, max(-8, (target_camera_offset_x - self.player_camera_offset_x) / 20))
+        camera_offset_delta: float = min(
+            8,
+            max(
+                -8, (target_camera_offset_x - self.player_camera_offset_x) / 20
+            ),
+        )
 
         # Update player camera offset - math.floor ensures the result will always be a whole number
-        self.player_camera_offset_x = math.floor(self.player_camera_offset_x + camera_offset_delta)
+        self.player_camera_offset_x = math.floor(
+            self.player_camera_offset_x + camera_offset_delta
+        )
 
         # Calculate where to display background, terrain and objects, based on player position and player camera offset
         # If left of level was at the left hand edge of the screen, and then camera scrolled 100 pixels to the right,
         # that means we want to display everything shifted 100 pixels to the left. Think of scrolling not as the
         # camera moving, but everything in the game moving in the opposite direction
         # Top won't go lower than -100, to prevent seeing off the bottom of the terrain
-        left: int = -(int(self.player.x - self.player_camera_offset_x) % LEVEL_WIDTH)
+        left: int = -(
+            int(self.player.x - self.player_camera_offset_x) % LEVEL_WIDTH
+        )
         top: int = max(-int(self.player.y / 4), -100)
 
         # Draw background five times - four because the level is four times wider than the background, and another
@@ -1190,12 +1394,14 @@ class Game:
         # as parallax scrolling
         bg_width = images.background.get_width()
         for i in range(5):
-            screen.blit('background', (left // 2 + bg_width * i, top // 2))
+            screen.blit("background", (left // 2 + bg_width * i, top // 2))
 
         # Draw terrain twice, second one is for when we're near the right-hand side of the level, just before
         # the level wraps back around to the left
         screen.blit(self.terrain_surface, (left, top + TERRAIN_OFFSET_Y))
-        screen.blit(self.terrain_surface, (left + LEVEL_WIDTH, top + TERRAIN_OFFSET_Y))
+        screen.blit(
+            self.terrain_surface, (left + LEVEL_WIDTH, top + TERRAIN_OFFSET_Y)
+        )
 
         offset_x: float = -(self.player.x - self.player_camera_offset_x)
 
@@ -1203,8 +1409,16 @@ class Game:
         # The order of drawing the player and the lasers that they fire varies depending on the tilt of the ship
         # The laser is fired from the underside of the ship, unless the ship is tilting up the turret is
         # obscured by the ship
-        for obj in self.bullets + self.humans + self.enemies + \
-                   (self.lasers + [self.player] if self.player.tilt_y == 1 else [self.player] + self.lasers):
+        for obj in (
+            self.bullets
+            + self.humans
+            + self.enemies
+            + (
+                self.lasers + [self.player]
+                if self.player.tilt_y == 1
+                else [self.player] + self.lasers
+            )
+        ):
             # Pass through the offset for scrolling
             obj.draw(offset_x, top)
 
@@ -1219,7 +1433,14 @@ class Game:
         # Draw radar blips. We first set a clipping zone, which ensures no graphics can be drawn outside
         # the boundaries of the radar. This ensures that the small circles of the radar blips don't extend
         # beyond the radar when they are right on its edge
-        screen.surface.set_clip((self.radar.x - self.radar.width / 2, self.radar.y, self.radar.width, self.radar.height))
+        screen.surface.set_clip(
+            (
+                self.radar.x - self.radar.width / 2,
+                self.radar.y,
+                self.radar.width,
+                self.radar.height,
+            )
+        )
 
         for enemy in self.enemies:
             if enemy.state == EnemyState.ALIVE:
@@ -1235,21 +1456,21 @@ class Game:
 
         # Show lives
         for i in range(self.player.lives):
-            screen.blit('life', (20 + 20 * i, 21))
+            screen.blit("life", (20 + 20 * i, 21))
 
         # Show shields
         for i in range(self.player.shields):
-            screen.blit('armor', (20 + 20 * i, 52))
+            screen.blit("armor", (20 + 20 * i, 52))
 
         # Show extra life tokens
         for i in range(self.player.extra_life_tokens):
             frame: int = ((self.timer // 6) + i) % 8
-            screen.blit(f'token{frame}', (20 + 20 * i, 83))
+            screen.blit(f"token{frame}", (20 + 20 * i, 83))
 
         # Show score using the status font
         score_text: str = str(self.score)
         score_width: int = text_width(score_text, font="font_status")
-        draw_text(score_text, WIDTH-score_width-20, 28, font="font_status")
+        draw_text(score_text, WIDTH - score_width - 20, 28, font="font_status")
 
         # Show wave end text if wave is ending
         if self.wave_timer < 0:
@@ -1270,13 +1491,19 @@ class Game:
         # Return a list of strings where each string within the list is one line of the level end text.
         # As wave_timer increases we display more lines of text
         humans_saved: int = self.get_humans_saved()
-        i: int = (self.wave_timer + WAVE_COMPLETE_SCREEN_DURATION) // (WAVE_COMPLETE_SCREEN_DURATION // 4)
+        i: int = (self.wave_timer + WAVE_COMPLETE_SCREEN_DURATION) // (
+            WAVE_COMPLETE_SCREEN_DURATION // 4
+        )
         lines: list[str] = [f"WAVE {self.wave} COMPLETE"]
         if i >= 1:
-            lines.append(f"{humans_saved} HUMAN{'' if humans_saved == 1 else 'S'} SAVED")
+            lines.append(
+                f"{humans_saved} HUMAN{'' if humans_saved == 1 else 'S'} SAVED"
+            )
         if i >= 2:
             num_shields_restored: int = self.get_shield_restore_amount()
-            lines.append(f"{num_shields_restored} SHIELD{'' if num_shields_restored == 1 else 'S'} RESTORED")
+            lines.append(
+                f"{num_shields_restored} SHIELD{'' if num_shields_restored == 1 else 'S'} RESTORED"
+            )
         if i >= 3 and humans_saved == 10:
             # If we saved 10 humans but have no extra life tokens, that must mean we just got 3 extra life tokens,
             # which gains an extra life and resets the tokens to zero, therefore display that we got an extra life
@@ -1297,7 +1524,10 @@ class Game:
         # Some sounds have multiple varieties. If count > 1, we'll randomly choose one from those
         # Don't bother playing the sound if the volume is 0 or less
         # Also don't create the sound if it's game over and the player has been dead for a while
-        if volume <= 0 or (self.player.lives == 0 and self.player.timers[Player.Timer.HURT] < -1000):
+        if volume <= 0 or (
+            self.player.lives == 0
+            and self.player.timers[Player.Timer.HURT] < -1000
+        ):
             return
         try:
             # Pygame Zero allows you to write things like 'sounds.explosion.play()'
@@ -1322,6 +1552,7 @@ class Game:
             # Also occurs if sound fails to play for another reason (e.g. if this machine has no sound hardware)
             print(e)
 
+
 def get_char_image_and_width(char: str, font: str) -> tuple[Any, int]:
     # Return width of given character. ord() gives the ASCII/Unicode code for the given character.
     if char == " ":
@@ -1330,10 +1561,14 @@ def get_char_image_and_width(char: str, font: str) -> tuple[Any, int]:
         image = getattr(images, font + "0" + str(ord(char)))
         return image, image.get_width()
 
+
 def text_width(text: str, font: str = "font") -> int:
     return sum([get_char_image_and_width(c, font)[1] for c in text])
 
-def draw_text(text: str, x: float, y: float, centre: bool = False, font: str = "font") -> None:
+
+def draw_text(
+    text: str, x: float, y: float, centre: bool = False, font: str = "font"
+) -> None:
     if centre:
         x -= text_width(text) // 2
 
@@ -1343,21 +1578,29 @@ def draw_text(text: str, x: float, y: float, centre: bool = False, font: str = "
             screen.blit(image, (x, y))
         x += width
 
+
 class State(Enum):
     TITLE = 1
     PLAY = 2
     GAME_OVER = 3
 
+
 # Set up controls
 def get_joystick_if_exists() -> Any:
-    return pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
+    return (
+        pygame.joystick.Joystick(0) if pygame.joystick.get_count() > 0 else None
+    )
+
 
 def setup_joystick_controls() -> None:
     # We call this on startup, and keep calling it if there was no controller present on startup,
     # so a controller can be connected while the game is open
     global joystick_controls
     joystick = get_joystick_if_exists()
-    joystick_controls = JoystickControls(joystick) if joystick is not None else None
+    joystick_controls = (
+        JoystickControls(joystick) if joystick is not None else None
+    )
+
 
 def update_controls() -> None:
     keyboard_controls.update()
@@ -1367,7 +1610,9 @@ def update_controls() -> None:
     if joystick_controls is not None:
         joystick_controls.update()
 
+
 # Pygame Zero calls the update and draw functions each frame
+
 
 def update() -> None:
     global state, game, state_timer, joystick_controls
@@ -1413,10 +1658,13 @@ def update() -> None:
                     game = None
                     play_music("menu_theme")
 
+
 def draw() -> None:
     if state == State.TITLE:
-        screen.blit('title', (0,0))
-        screen.blit(f"start{(state_timer // 4) % 14}", (WIDTH // 2 - 350 // 2, 450))
+        screen.blit("title", (0, 0))
+        screen.blit(
+            f"start{(state_timer // 4) % 14}", (WIDTH // 2 - 350 // 2, 450)
+        )
 
     elif state == State.PLAY:
         game.draw()
@@ -1432,6 +1680,7 @@ def play_music(name: str) -> None:
     except Exception:
         # If an error occurs (e.g. no sound hardware), ignore it
         pass
+
 
 ##############################################################################
 

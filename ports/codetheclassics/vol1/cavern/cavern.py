@@ -14,20 +14,28 @@
 #   Original source: https://github.com/raspberrypipress/Code-the-Classics-Vol1
 #   Book:            https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 # ---------------------------------------------------------------------------
-import os as _os, sys as _sys
-_sys.path.append(_os.path.dirname(_os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))))
-from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
+import os as _os
+import sys as _sys
 
-from random import choice, randint, random, shuffle
+_sys.path.append(
+    _os.path.dirname(
+        _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
+    )
+)
+import sys
 from dataclasses import InitVar, dataclass
 from enum import Enum
-import sys
+from random import choice, randint, random, shuffle
 from typing import Any, ClassVar, Optional, cast  # noqa: E402
+
+from pgzero_gl import *  # noqa: F401,F403  (Actor, screen, keyboard, keys, sounds, music, images, Rect, pygame, pgzero, pgzrun, ...)
 
 # Check Python version number. sys.version_info gives version as a tuple, e.g. if (3,7,2,'final',0) for version 3.7.2.
 # Unlike many languages, Python can compare two tuples in the same way that you can compare numbers.
-if sys.version_info < (3,5):
-    print("This game requires at least version 3.5 of Python. Please download it from www.python.org")
+if sys.version_info < (3, 5):
+    print(
+        "This game requires at least version 3.5 of Python. Please download it from www.python.org"
+    )
     sys.exit()
 
 # Check Pygame Zero version. This is a bit trickier because Pygame Zero only lets us get its version number as a string.
@@ -35,9 +43,15 @@ if sys.version_info < (3,5):
 # version number into an integer - but only if the string contains numbers and nothing else, because it's possible for
 # a component of the version to contain letters as well as numbers (e.g. '2.0.dev0')
 # We're using a Python feature called list comprehension - this is explained in the Bubble Bobble/Cavern chapter.
-pgzero_version = [int(s) if s.isnumeric() else s for s in pgzero.__version__.split('.')]
-if pgzero_version < [1,2]:
-    print("This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(pgzero.__version__))
+pgzero_version = [
+    int(s) if s.isnumeric() else s for s in pgzero.__version__.split(".")
+]
+if pgzero_version < [1, 2]:
+    print(
+        "This game requires at least version 1.2 of Pygame Zero. You have version {0}. Please upgrade using the command 'pip3 install --upgrade pgzero'".format(
+            pgzero.__version__
+        )
+    )
     sys.exit()
 
 # Set up constants
@@ -54,34 +68,66 @@ GRID_BLOCK_SIZE = 25
 ANCHOR_CENTRE = ("center", "center")
 ANCHOR_CENTRE_BOTTOM = ("center", "bottom")
 
-LEVELS = [ ["XXXXX     XXXXXXXX     XXXXX",
-            "","","","",
-            "   XXXXXXX        XXXXXXX   ",
-            "","","",
-            "   XXXXXXXXXXXXXXXXXXXXXX   ",
-            "","","",
-            "XXXXXXXXX          XXXXXXXXX",
-            "","",""],
+LEVELS = [
+    [
+        "XXXXX     XXXXXXXX     XXXXX",
+        "",
+        "",
+        "",
+        "",
+        "   XXXXXXX        XXXXXXX   ",
+        "",
+        "",
+        "",
+        "   XXXXXXXXXXXXXXXXXXXXXX   ",
+        "",
+        "",
+        "",
+        "XXXXXXXXX          XXXXXXXXX",
+        "",
+        "",
+        "",
+    ],
+    [
+        "XXXX    XXXXXXXXXXXX    XXXX",
+        "",
+        "",
+        "",
+        "",
+        "    XXXXXXXXXXXXXXXXXXXX    ",
+        "",
+        "",
+        "",
+        "XXXXXX                XXXXXX",
+        "      X              X      ",
+        "       X            X       ",
+        "        X          X        ",
+        "         X        X         ",
+        "",
+        "",
+        "",
+    ],
+    [
+        "XXXX    XXXX    XXXX    XXXX",
+        "",
+        "",
+        "",
+        "",
+        "  XXXXXXXX        XXXXXXXX  ",
+        "",
+        "",
+        "",
+        "XXXX      XXXXXXXX      XXXX",
+        "",
+        "",
+        "",
+        "    XXXXXX        XXXXXX    ",
+        "",
+        "",
+        "",
+    ],
+]
 
-           ["XXXX    XXXXXXXXXXXX    XXXX",
-            "","","","",
-            "    XXXXXXXXXXXXXXXXXXXX    ",
-            "","","",
-            "XXXXXX                XXXXXX",
-            "      X              X      ",
-            "       X            X       ",
-            "        X          X        ",
-            "         X        X         ",
-            "","",""],
-
-           ["XXXX    XXXX    XXXX    XXXX",
-            "","","","",
-            "  XXXXXXXX        XXXXXXXX  ",
-            "","","",
-            "XXXX      XXXXXXXX      XXXX",
-            "","","",
-            "    XXXXXX        XXXXXX    ",
-            "","",""]]
 
 def block(x: int, y: int) -> bool:
     # Is there a level grid block at these coordinates?
@@ -89,16 +135,25 @@ def block(x: int, y: int) -> bool:
     grid_y: int = y // GRID_BLOCK_SIZE
     if grid_y > 0 and grid_y < NUM_ROWS:
         row: str = game.grid[grid_y]
-        return grid_x >= 0 and grid_x < NUM_COLUMNS and len(row) > 0 and row[grid_x] != " "
+        return (
+            grid_x >= 0
+            and grid_x < NUM_COLUMNS
+            and len(row) > 0
+            and row[grid_x] != " "
+        )
     else:
         return False
+
 
 def sign(x: float) -> int:
     # Returns -1 or 1 depending on whether number is positive or negative
     return -1 if x < 0 else 1
 
+
 class CollideActor(Actor):
-    def __init__(self, pos: tuple[float, float], anchor: tuple[str, str] = ANCHOR_CENTRE) -> None:
+    def __init__(
+        self, pos: tuple[float, float], anchor: tuple[str, str] = ANCHOR_CENTRE
+    ) -> None:
         super().__init__("blank", pos, anchor)
 
     def move(self, dx: int, dy: int, speed: int) -> bool:
@@ -125,17 +180,22 @@ class CollideActor(Actor):
             # of GRID_BLOCK_SIZE. For moving left, we check to see if the new x coordinate is the last (right-most)
             # pixel of a grid block.
             # Note that we don't check for collisions when the player is moving up.
-            if ((dy > 0 and new_y % GRID_BLOCK_SIZE == 0 or
-                 dx > 0 and new_x % GRID_BLOCK_SIZE == 0 or
-                 dx < 0 and new_x % GRID_BLOCK_SIZE == GRID_BLOCK_SIZE-1)
-                and block(new_x, new_y)):
-                    return True
+            if (
+                dy > 0
+                and new_y % GRID_BLOCK_SIZE == 0
+                or dx > 0
+                and new_x % GRID_BLOCK_SIZE == 0
+                or dx < 0
+                and new_x % GRID_BLOCK_SIZE == GRID_BLOCK_SIZE - 1
+            ) and block(new_x, new_y):
+                return True
 
             # We only update the object's position if there wasn't a block there.
             self.pos = new_x, new_y
 
         # Didn't collide with block or edge of level
         return False
+
 
 # (eq=False on these Actor dataclasses keeps identity comparison/hashing --
 # the generated __eq__ would compare fields and set __hash__ to None)
@@ -147,9 +207,13 @@ class Orb(CollideActor):
     # Orbs are initially blown horizontally, then start floating upwards
     direction_x: int
     floating: bool = False
-    trapped_enemy_type: Optional[int] = None      # Number representing which type of enemy is trapped in this bubble
+    trapped_enemy_type: Optional[int] = (
+        None  # Number representing which type of enemy is trapped in this bubble
+    )
     timer: int = -1
-    blown_frames: int = 6  # Number of frames during which we will be pushed horizontally
+    blown_frames: int = (
+        6  # Number of frames during which we will be pushed horizontally
+    )
 
     def __post_init__(self, pos: tuple[float, float]) -> None:
         super().__init__(pos)
@@ -189,9 +253,14 @@ class Orb(CollideActor):
             self.image = "orb" + str(self.timer // 3)
         else:
             if self.trapped_enemy_type != None:
-                self.image = "trap" + str(self.trapped_enemy_type) + str((self.timer // 4) % 8)
+                self.image = (
+                    "trap"
+                    + str(self.trapped_enemy_type)
+                    + str((self.timer // 4) % 8)
+                )
             else:
                 self.image = "orb" + str(3 + (((self.timer - 9) // 8) % 4))
+
 
 @dataclass(eq=False)
 class Bolt(CollideActor):
@@ -220,6 +289,7 @@ class Bolt(CollideActor):
         anim_frame: str = str((game.timer // 4) % 2)
         self.image = "bolt" + direction_idx + anim_frame
 
+
 @dataclass(eq=False)
 class Pop(Actor):
     pos: InitVar[tuple[float, float]]
@@ -232,6 +302,7 @@ class Pop(Actor):
     def update(self) -> None:
         self.timer += 1
         self.image = "pop" + str(self.type) + str(self.timer // 2)
+
 
 class GravityActor(CollideActor):
     MAX_FALL_SPEED = 10
@@ -265,6 +336,7 @@ class GravityActor(CollideActor):
             # Collision detection disabled - just update the Y coordinate without any further checks
             self.y += self.vel_y
 
+
 # Class for pickups including fruit, extra health and extra life
 class Fruit(GravityActor):
     APPLE = 0
@@ -273,7 +345,9 @@ class Fruit(GravityActor):
     EXTRA_HEALTH = 3
     EXTRA_LIFE = 4
 
-    def __init__(self, pos: tuple[float, float], trapped_enemy_type: int = 0) -> None:
+    def __init__(
+        self, pos: tuple[float, float], trapped_enemy_type: int = 0
+    ) -> None:
         super().__init__(pos)
 
         # Choose which type of fruit we're going to be.
@@ -284,12 +358,16 @@ class Fruit(GravityActor):
             # of enemy. In this case there is a chance of getting an extra help or extra life power up
             # We create a list containing the possible types of fruit, in proportions based on the probability we want
             # each type of fruit to be chosen
-            types: list[int] = 10 * [Fruit.APPLE, Fruit.RASPBERRY, Fruit.LEMON]    # Each of these appear in the list 10 times
-            types += 9 * [Fruit.EXTRA_HEALTH]                           # This appears 9 times
-            types += [Fruit.EXTRA_LIFE]                                 # This only appears once
-            self.type = choice(types)                                   # Randomly choose one from the list
+            types: list[int] = 10 * [
+                Fruit.APPLE,
+                Fruit.RASPBERRY,
+                Fruit.LEMON,
+            ]  # Each of these appear in the list 10 times
+            types += 9 * [Fruit.EXTRA_HEALTH]  # This appears 9 times
+            types += [Fruit.EXTRA_LIFE]  # This only appears once
+            self.type = choice(types)  # Randomly choose one from the list
 
-        self.time_to_live: int = 500 # Counts down to zero
+        self.time_to_live: int = 500  # Counts down to zero
 
     def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful upstream: narrows GravityActor.update's optional `detect`
         super().update()
@@ -306,7 +384,7 @@ class Fruit(GravityActor):
                 game.player.score += (self.type + 1) * 100
                 game.play_sound("score")
 
-            self.time_to_live = 0   # Disappear
+            self.time_to_live = 0  # Disappear
         else:
             self.time_to_live -= 1
 
@@ -316,6 +394,7 @@ class Fruit(GravityActor):
 
         anim_frame: str = str([0, 1, 2, 1][(game.timer // 6) % 4])
         self.image = "fruit" + str(self.type) + anim_frame
+
 
 @dataclass(eq=False)
 class Player(GravityActor):
@@ -330,9 +409,9 @@ class Player(GravityActor):
     def reset(self) -> None:
         self.pos = (WIDTH / 2, 100)
         self.vel_y = 0
-        self.direction_x = 1            # -1 = left, 1 = right
+        self.direction_x = 1  # -1 = left, 1 = right
         self.fire_timer = 0
-        self.hurt_timer = 100   # Invulnerable for this many frames
+        self.hurt_timer = 100  # Invulnerable for this many frames
         self.health = 3
         self.blowing_orb = None
 
@@ -376,7 +455,7 @@ class Player(GravityActor):
             if self.health > 0:
                 self.move(self.direction_x, 0, 4)
             else:
-                if self.top >= HEIGHT*1.5:
+                if self.top >= HEIGHT * 1.5:
                     self.lives -= 1
                     self.reset()
         else:
@@ -402,7 +481,7 @@ class Player(GravityActor):
                 # bounds of the level
                 x = min(730, max(70, self.x + self.direction_x * 38))
                 y = self.y - 35
-                self.blowing_orb = Orb((x,y), self.direction_x)
+                self.blowing_orb = Orb((x, y), self.direction_x)
                 game.orbs.append(self.blowing_orb)
                 game.play_sound("blow", 4)
                 self.fire_timer = 20
@@ -440,6 +519,7 @@ class Player(GravityActor):
                 self.image = "still"
             else:
                 self.image = "run" + dir_index + str((game.timer // 8) % 4)
+
 
 @dataclass(eq=False)
 class Robot(GravityActor):
@@ -481,7 +561,11 @@ class Robot(GravityActor):
             # Go through all orbs to see if any can be shot at
             for orb in game.orbs:
                 # The orb must be at our height, and within 200 pixels on the x axis
-                if orb.y >= self.top and orb.y < self.bottom and abs(orb.x - self.x) < 200:
+                if (
+                    orb.y >= self.top
+                    and orb.y < self.bottom
+                    and abs(orb.x - self.x) < 200
+                ):
                     self.direction_x = sign(orb.x - self.x)
                     self.fire_timer = 0
                     break
@@ -490,7 +574,11 @@ class Robot(GravityActor):
         if self.fire_timer >= 12:
             # Random chance of firing each frame. Likelihood increases 10 times if player is at the same height as us
             fire_probability: float = game.fire_probability()
-            if game.player and self.top < game.player.bottom and self.bottom > game.player.top:
+            if (
+                game.player
+                and self.top < game.player.bottom
+                and self.bottom > game.player.top
+            ):
                 fire_probability *= 10
             if random() < fire_probability:
                 self.fire_timer = 0
@@ -498,7 +586,12 @@ class Robot(GravityActor):
 
         elif self.fire_timer == 8:
             #  Once the fire timer has been set to 0, it will count up - frame 8 of the animation is when the actual bolt is fired
-            game.bolts.append(Bolt((self.x + self.direction_x * 20, self.y - 38), self.direction_x))
+            game.bolts.append(
+                Bolt(
+                    (self.x + self.direction_x * 20, self.y - 38),
+                    self.direction_x,
+                )
+            )
 
         # Am I colliding with an orb? If so, become trapped by it
         for orb in game.orbs:
@@ -575,7 +668,9 @@ class Game:
         # by a number, and by adding two lists together. The resulting list will consist of a series of copies of
         # the number 1 (the number depending on the value of num_strong_enemies), followed by a series of copies of
         # the number zero, based on num_weak_enemies.
-        self.pending_enemies: list[int] = num_strong_enemies * [Robot.TYPE_AGGRESSIVE] + num_weak_enemies * [Robot.TYPE_NORMAL]
+        self.pending_enemies: list[int] = num_strong_enemies * [
+            Robot.TYPE_AGGRESSIVE
+        ] + num_weak_enemies * [Robot.TYPE_NORMAL]
 
         # Finally we shuffle the list so that the order is randomised (using Python's random.shuffle function)
         shuffle(self.pending_enemies)
@@ -585,24 +680,31 @@ class Game:
     def get_robot_spawn_x(self) -> float:
         # Find a spawn location for a robot, by checking the top row of the grid for empty spots
         # Start by choosing a random grid column
-        r: int = randint(0, NUM_COLUMNS-1)
+        r: int = randint(0, NUM_COLUMNS - 1)
 
         for i in range(NUM_COLUMNS):
             # Keep looking at successive columns (wrapping round if we go off the right-hand side) until
             # we find one where the top grid column is unoccupied
-            grid_x: int = (r+i) % NUM_COLUMNS
-            if self.grid[0][grid_x] == ' ':
+            grid_x: int = (r + i) % NUM_COLUMNS
+            if self.grid[0][grid_x] == " ":
                 return GRID_BLOCK_SIZE * grid_x + LEVEL_X_OFFSET + 12
 
         # If we failed to find an opening in the top grid row (shouldn't ever happen), just spawn the enemy
         # in the centre of the screen
-        return WIDTH/2
+        return WIDTH / 2
 
     def update(self) -> None:
         self.timer += 1
 
         # Update all objects
-        for obj in self.fruits + self.bolts + self.enemies + self.pops + [self.player] + self.orbs:
+        for obj in (
+            self.fruits
+            + self.bolts
+            + self.enemies
+            + self.pops
+            + [self.player]
+            + self.orbs
+        ):
             if obj:
                 obj.update()
 
@@ -615,13 +717,20 @@ class Game:
         self.orbs = [o for o in self.orbs if o.timer < 250 and o.y > -40]
 
         # Every 100 frames, create a random fruit (unless there are no remaining enemies on this level)
-        if self.timer % 100 == 0 and len(self.pending_enemies + self.enemies) > 0:
+        if (
+            self.timer % 100 == 0
+            and len(self.pending_enemies + self.enemies) > 0
+        ):
             # Create fruit at random position
             self.fruits.append(Fruit((randint(70, 730), randint(75, 400))))
 
         # Every 81 frames, if there is at least 1 pending enemy, and the number of active enemies is below the current
         # level's maximum enemies, create a robot
-        if self.timer % 81 == 0 and len(self.pending_enemies) > 0 and len(self.enemies) < self.max_enemies():
+        if (
+            self.timer % 81 == 0
+            and len(self.pending_enemies) > 0
+            and len(self.enemies) < self.max_enemies()
+        ):
             # Retrieve and remove the last element from the pending enemies list
             robot_type: int = self.pending_enemies.pop()
             pos: tuple[float, int] = (self.get_robot_spawn_x(), -30)
@@ -630,8 +739,16 @@ class Game:
         # End level if there are no enemies remaining to be created, no existing enemies, no fruit, no popping orbs,
         # and no orbs containing trapped enemies. (We don't want to include orbs which don't contain trapped enemies,
         # as the level would never end if the player kept firing new orbs)
-        if len(self.pending_enemies + self.fruits + self.enemies + self.pops) == 0:
-            if len([orb for orb in self.orbs if orb.trapped_enemy_type != None]) == 0:
+        if (
+            len(self.pending_enemies + self.fruits + self.enemies + self.pops)
+            == 0
+        ):
+            if (
+                len(
+                    [orb for orb in self.orbs if orb.trapped_enemy_type != None]
+                )
+                == 0
+            ):
                 self.next_level()
 
     def draw(self) -> None:
@@ -647,12 +764,14 @@ class Game:
                 # Initial offset - large blocks at edge of level are 50 pixels wide
                 x: int = LEVEL_X_OFFSET
                 for block in row:
-                    if block != ' ':
+                    if block != " ":
                         screen.blit(block_sprite, (x, row_y * GRID_BLOCK_SIZE))
                     x += GRID_BLOCK_SIZE
 
         # Draw all objects
-        all_objs: list[Any] = self.fruits + self.bolts + self.enemies + self.pops + self.orbs
+        all_objs: list[Any] = (
+            self.fruits + self.bolts + self.enemies + self.pops + self.orbs
+        )
         all_objs.append(self.player)
         for obj in all_objs:
             if obj:
@@ -675,9 +794,37 @@ class Game:
                 # If no such sound file exists, print the name
                 print(e)
 
+
 # Widths of the letters A to Z in the font images
-CHAR_WIDTH = [27, 26, 25, 26, 25, 25, 26, 25, 12, 26, 26, 25, 33, 25, 26,
-              25, 27, 26, 26, 25, 26, 26, 38, 25, 25, 25]
+CHAR_WIDTH = [
+    27,
+    26,
+    25,
+    26,
+    25,
+    25,
+    26,
+    25,
+    12,
+    26,
+    26,
+    25,
+    33,
+    25,
+    26,
+    25,
+    27,
+    26,
+    26,
+    25,
+    26,
+    26,
+    38,
+    25,
+    25,
+    25,
+]
+
 
 def char_width(char: str) -> int:
     # Return width of given character. For characters other than the letters A to Z (i.e. space, and the digits 0 to 9),
@@ -685,16 +832,19 @@ def char_width(char: str) -> int:
     index: int = max(0, ord(char) - 65)
     return CHAR_WIDTH[index]
 
+
 def draw_text(text: str, y: float, x: Optional[float] = None) -> None:
     if x == None:
         # If no X pos specified, draw text in centre of the screen - must first work out total width of text
         x = (WIDTH - sum([char_width(c) for c in text])) // 2
 
     for char in text:
-        screen.blit("font0"+str(ord(char)), (x, y))
+        screen.blit("font0" + str(ord(char)), (x, y))
         x += char_width(char)
 
-IMAGE_WIDTH = {"life":44, "plus":40, "health":40}
+
+IMAGE_WIDTH = {"life": 44, "plus": 40, "health": 40}
+
 
 def draw_status() -> None:
     # Display score, right-justified at edge of screen
@@ -718,8 +868,10 @@ def draw_status() -> None:
         screen.blit(image, (x, 450))
         x += IMAGE_WIDTH[image]
 
+
 # Is the space bar currently being pressed down?
 space_down: bool = False
+
 
 # Has the space bar just been pressed? i.e. gone from not being pressed, to being pressed
 def space_pressed() -> bool:
@@ -736,7 +888,9 @@ def space_pressed() -> bool:
         space_down = False
         return False
 
+
 # Pygame Zero calls the update and draw functions each frame
+
 
 class State(Enum):
     MENU = 1
@@ -768,6 +922,7 @@ def update() -> None:
             state = State.MENU
             game = Game()
 
+
 def draw() -> None:
     game.draw()
 
@@ -792,6 +947,7 @@ def draw() -> None:
         # Display "Game Over" image
         screen.blit("over", (0, 0))
 
+
 # Set up sound system and start music
 try:
     pygame.mixer.quit()
@@ -802,7 +958,6 @@ try:
 except:
     # If an error occurs, just ignore it
     pass
-
 
 
 # Set the initial game state

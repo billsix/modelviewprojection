@@ -10,7 +10,9 @@ import sys
 
 
 def main() -> None:
-    print("CarbonGL is a deprecated Apple Carbon sample (no portable equivalent).")
+    print(
+        "CarbonGL is a deprecated Apple Carbon sample (no portable equivalent)."
+    )
     print("See /superbible/examples/src/chapt20/CarbonGL/ for the original.")
     sys.exit(0)
 

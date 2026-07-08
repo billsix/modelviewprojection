@@ -24,8 +24,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -58,7 +56,9 @@ max_tex_size: int = 0
 def transform_vec3(v: np.ndarray, m: np.ndarray) -> np.ndarray:
     out = np.zeros(3, dtype=np.float32)
     for r in range(3):
-        out[r] = m[r] * v[0] + m[r + 4] * v[1] + m[r + 8] * v[2] + m[r + 12] * v[3]
+        out[r] = (
+            m[r] * v[0] + m[r + 4] * v[1] + m[r + 8] * v[2] + m[r + 12] * v[3]
+        )
     return out
 
 
@@ -73,8 +73,16 @@ def create_pow_map(r: float, g: float, b: float) -> None:
         texels[x * 4 + 2] = b * v
         texels[x * 4 + 3] = 1.0
     texels[0] = texels[1] = texels[2] = 0.0
-    GL.glTexImage1D(GL.GL_TEXTURE_1D, 0, GL.GL_RGBA16,
-                    tex_size, 0, GL.GL_RGBA, GL.GL_FLOAT, texels)
+    GL.glTexImage1D(
+        GL.GL_TEXTURE_1D,
+        0,
+        GL.GL_RGBA16,
+        tex_size,
+        0,
+        GL.GL_RGBA,
+        GL.GL_FLOAT,
+        texels,
+    )
 
 
 def prepare_shader() -> None:
@@ -96,8 +104,13 @@ def prepare_shader() -> None:
     weight_loc = GL.glGetAttribLocation(prog_obj, "weight")
 
 
-def draw_cylinder(length: float, diameter1: float, diameter2: float,
-                  start_weight: float, end_weight: float) -> None:
+def draw_cylinder(
+    length: float,
+    diameter1: float,
+    diameter2: float,
+    start_weight: float,
+    end_weight: float,
+) -> None:
     num_facets = 50
     num_sections = 50
     angle_incr = (2.0 * math.pi) / num_facets
@@ -110,17 +123,23 @@ def draw_cylinder(length: float, diameter1: float, diameter2: float,
     for i in range(num_facets):
         a1 = i * angle_incr
         a2 = ((i + 1) % num_facets) * angle_incr
-        y1f = math.sin(a1) * diameter1; y1o = math.sin(a1) * diameter2
-        z1f = math.cos(a1) * diameter1; z1o = math.cos(a1) * diameter2
-        y2f = math.sin(a2) * diameter1; y2o = math.sin(a2) * diameter2
-        z2f = math.cos(a2) * diameter1; z2o = math.cos(a2) * diameter2
+        y1f = math.sin(a1) * diameter1
+        y1o = math.sin(a1) * diameter2
+        z1f = math.cos(a1) * diameter1
+        z1o = math.cos(a1) * diameter2
+        y2f = math.sin(a2) * diameter1
+        y2o = math.sin(a2) * diameter2
+        z2f = math.cos(a2) * diameter1
+        z2o = math.cos(a2) * diameter2
         n1y, n1z = y1f, z1f
         n2y, n2z = y2f, z2f
 
         GL.glBegin(GL.GL_QUAD_STRIP)
         GL.glVertexAttrib1f(weight_loc, start_weight if use_blending else 1.0)
-        GL.glNormal3f(0.0, n1y, n1z); GL.glVertex3f(0.0, y1f, z1f)
-        GL.glNormal3f(0.0, n2y, n2z); GL.glVertex3f(0.0, y2f, z2f)
+        GL.glNormal3f(0.0, n1y, n1z)
+        GL.glVertex3f(0.0, y1f, z1f)
+        GL.glNormal3f(0.0, n2y, n2z)
+        GL.glVertex3f(0.0, y2f, z2f)
 
         for j in range(num_sections):
             param_end = float(j + 1) / float(num_sections)
@@ -136,14 +155,18 @@ def draw_cylinder(length: float, diameter1: float, diameter2: float,
                 p = param_end * (1.0 / influence_start)
                 w_end = start_weight + p * (1.0 - start_weight)
             elif influence_start < 1.0:
-                p = (param_end - influence_start) * (1.0 / (1.0 - influence_start))
+                p = (param_end - influence_start) * (
+                    1.0 / (1.0 - influence_start)
+                )
                 w_end = 1.0 + p * (end_weight - 1.0)
             else:
                 w_end = 1.0
 
             GL.glVertexAttrib1f(weight_loc, w_end)
-            GL.glNormal3f(0.0, n1y, n1z); GL.glVertex3f(length_end, y1e, z1e)
-            GL.glNormal3f(0.0, n2y, n2z); GL.glVertex3f(length_end, y2e, z2e)
+            GL.glNormal3f(0.0, n1y, n1z)
+            GL.glVertex3f(length_end, y1e, z1e)
+            GL.glNormal3f(0.0, n2y, n2z)
+            GL.glVertex3f(length_end, y2e, z2e)
 
         GL.glEnd()
 
@@ -174,8 +197,9 @@ def invert_matrix(m: np.ndarray) -> np.ndarray:
 
 
 def draw_models() -> None:
-    mv = np.array(GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX),
-                  dtype=np.float32).flatten()
+    mv = np.array(
+        GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
+    ).flatten()
     light_pos_eye = transform_vec3(light_pos, mv)
     GL.glUniform3fv(light_pos_loc, 1, light_pos_eye)
 
@@ -184,8 +208,9 @@ def draw_models() -> None:
     GL.glPushMatrix()
     GL.glRotatef(elbow_bend, 0.0, 0.0, 1.0)
     GL.glTranslatef(-50.0, 0.0, 0.0)
-    mv2 = np.array(GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX),
-                   dtype=np.float32).flatten()
+    mv2 = np.array(
+        GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
+    ).flatten()
     GL.glPopMatrix()
     GL.glTranslatef(-50.0, 0.0, 0.0)
 
@@ -203,8 +228,9 @@ def draw_models() -> None:
     # toward bone-2 stay attached to the upper arm.
     GL.glTranslatef(50.0, 0.0, 0.0)
     GL.glPushMatrix()
-    mv2 = np.array(GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX),
-                   dtype=np.float32).flatten()
+    mv2 = np.array(
+        GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
+    ).flatten()
     GL.glPopMatrix()
     GL.glRotatef(elbow_bend, 0.0, 0.0, 1.0)
 
@@ -223,16 +249,37 @@ def render_scene() -> None:
     GL.glLoadIdentity()
     if window_width > window_height:
         ar = float(window_width) / float(window_height)
-        GL.glFrustum(-ar * camera_zoom, ar * camera_zoom,
-                     -camera_zoom, camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            -camera_zoom,
+            camera_zoom,
+            1.0,
+            1000.0,
+        )
     else:
         ar = float(window_height) / float(window_width)
-        GL.glFrustum(-camera_zoom, camera_zoom,
-                     -ar * camera_zoom, ar * camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -camera_zoom,
+            camera_zoom,
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            1.0,
+            1000.0,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(camera_pos[0], camera_pos[1], camera_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GLU.gluLookAt(
+        camera_pos[0],
+        camera_pos[1],
+        camera_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    )
     GL.glViewport(0, 0, window_width, window_height)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     draw_models()
@@ -250,8 +297,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Render options", True):
         clicked, v = imgui.menu_item("Vertex blending", "", use_blending, True)
@@ -262,9 +310,11 @@ def imgui_menubar() -> None:
             show_bones = v
         imgui.separator()
         _, sphere_of_influence = imgui.slider_float(
-            "Influence", sphere_of_influence, 0.0, 1.0)
+            "Influence", sphere_of_influence, 0.0, 1.0
+        )
         _, elbow_bend = imgui.slider_float(
-            "Elbow bend", elbow_bend, -150.0, 150.0)
+            "Elbow bend", elbow_bend, -150.0, 150.0
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Camera +X", "X", lambda: _nudge_cam(0, 5.0))
@@ -292,7 +342,9 @@ def setup_rc() -> None:
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_ADD)
     GL.glBindTexture(GL.GL_TEXTURE_1D, 0)
     GL.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
-    GL.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_1D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+    )
     create_pow_map(1.0, 1.0, 1.0)
     GL.glEnable(GL.GL_TEXTURE_1D)
 
@@ -331,8 +383,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(window_width, window_height,
-                                "Vertex Blending Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Vertex Blending Demo", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)

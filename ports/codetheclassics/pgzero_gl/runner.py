@@ -95,7 +95,9 @@ def go(g: Dict[str, Any] | None = None) -> None:
         context.asset_root = os.path.dirname(os.path.abspath(game_file))
 
     renderer_cls, legacy = _select_renderer()
-    window: Any = _make_window(width=width, height=height, title=title, legacy=legacy)
+    window: Any = _make_window(
+        width=width, height=height, title=title, legacy=legacy
+    )
     context.window = window
     context.renderer = renderer_cls(width, height)
 

@@ -45,17 +45,21 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rot("x", -BTN_ROT_STEP))
-        _common.menu_action("Rotate down", "Down",
-                            lambda: _rot("x", BTN_ROT_STEP))
-        _common.menu_action("Rotate left", "Left",
-                            lambda: _rot("y", -BTN_ROT_STEP))
-        _common.menu_action("Rotate right", "Right",
-                            lambda: _rot("y", BTN_ROT_STEP))
+        _common.menu_action(
+            "Rotate down", "Down", lambda: _rot("x", BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _rot("y", -BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _rot("y", BTN_ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -96,11 +100,23 @@ def change_size(w: int, h: int) -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if w <= h:
-        GL.glOrtho(-n_range, n_range, -n_range * h / w, n_range * h / w,
-                   -n_range, n_range)
+        GL.glOrtho(
+            -n_range,
+            n_range,
+            -n_range * h / w,
+            n_range * h / w,
+            -n_range,
+            n_range,
+        )
     else:
-        GL.glOrtho(-n_range * w / h, n_range * w / h, -n_range, n_range,
-                   -n_range, n_range)
+        GL.glOrtho(
+            -n_range * w / h,
+            n_range * w / h,
+            -n_range,
+            n_range,
+            -n_range,
+            n_range,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 

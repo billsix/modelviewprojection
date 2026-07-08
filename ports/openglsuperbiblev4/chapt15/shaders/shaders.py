@@ -22,12 +22,10 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
@@ -79,7 +77,8 @@ def draw_models() -> None:
     GL.glVertex3f(100.0, -25.0, -100.0)
     GL.glEnd()
 
-    GL.glColor3f(1.0, 0.0, 0.0); draw_solid_cube(48.0)
+    GL.glColor3f(1.0, 0.0, 0.0)
+    draw_solid_cube(48.0)
 
     GL.glColor3f(0.0, 1.0, 0.0)
     GL.glPushMatrix()
@@ -122,16 +121,37 @@ def render_scene() -> None:
     GL.glLoadIdentity()
     if window_width > window_height:
         ar = float(window_width) / float(window_height)
-        GL.glFrustum(-ar * camera_zoom, ar * camera_zoom,
-                     -camera_zoom, camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            -camera_zoom,
+            camera_zoom,
+            1.0,
+            1000.0,
+        )
     else:
         ar = float(window_height) / float(window_width)
-        GL.glFrustum(-camera_zoom, camera_zoom,
-                     -ar * camera_zoom, ar * camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -camera_zoom,
+            camera_zoom,
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            1.0,
+            1000.0,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(camera_pos[0], camera_pos[1], camera_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GLU.gluLookAt(
+        camera_pos[0],
+        camera_pos[1],
+        camera_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    )
     GL.glViewport(0, 0, window_width, window_height)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
@@ -215,15 +235,19 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Options", True):
-        clicked, v = imgui.menu_item("Vertex shader", "", use_vertex_shader, True)
+        clicked, v = imgui.menu_item(
+            "Vertex shader", "", use_vertex_shader, True
+        )
         if clicked:
             _toggle_vertex_shader(v)
-        clicked, v = imgui.menu_item("Fragment shader", "",
-                                     use_fragment_shader, True)
+        clicked, v = imgui.menu_item(
+            "Fragment shader", "", use_fragment_shader, True
+        )
         if clicked:
             _toggle_fragment_shader(v)
         clicked, v = imgui.menu_item("Blink", "", do_blink, True)
@@ -271,8 +295,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(window_width, window_height,
-                                "Hello World GLSL Shaders", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Hello World GLSL Shaders", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)

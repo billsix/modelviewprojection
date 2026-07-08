@@ -25,8 +25,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -138,11 +136,12 @@ def draw_models() -> None:
                     if show_bounding_volume:
                         GL.glColor3f(r * 0.5, g * 0.5, b * 0.5)
                     GL.glPushMatrix()
-                    GL.glTranslatef(100.0 * r - 100.0,
-                                    100.0 * g - 100.0,
-                                    100.0 * b - 100.0)
-                    GL.glBeginQuery(GL.GL_SAMPLES_PASSED,
-                                    int(query_ids[r * 9 + g * 3 + b]))
+                    GL.glTranslatef(
+                        100.0 * r - 100.0, 100.0 * g - 100.0, 100.0 * b - 100.0
+                    )
+                    GL.glBeginQuery(
+                        GL.GL_SAMPLES_PASSED, int(query_ids[r * 9 + g * 3 + b])
+                    )
                     draw_solid_cube(100.0)
                     GL.glEndQuery(GL.GL_SAMPLES_PASSED)
                     GL.glPopMatrix()
@@ -162,9 +161,9 @@ def draw_models() -> None:
             for b in range(3):
                 GL.glColor3f(r * 0.5, g * 0.5, b * 0.5)
                 GL.glPushMatrix()
-                GL.glTranslatef(100.0 * r - 100.0,
-                                100.0 * g - 100.0,
-                                100.0 * b - 100.0)
+                GL.glTranslatef(
+                    100.0 * r - 100.0, 100.0 * g - 100.0, 100.0 * b - 100.0
+                )
                 draw_sphere_at(r * 9 + g * 3 + b)
                 GL.glPopMatrix()
 
@@ -178,17 +177,38 @@ def render_scene() -> None:
     GL.glLoadIdentity()
     if window_width > window_height:
         ar = float(window_width) / float(window_height)
-        GL.glFrustum(-ar * camera_zoom, ar * camera_zoom,
-                     -camera_zoom, camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            -camera_zoom,
+            camera_zoom,
+            1.0,
+            1000.0,
+        )
     else:
         ar = float(window_height) / float(window_width)
-        GL.glFrustum(-camera_zoom, camera_zoom,
-                     -ar * camera_zoom, ar * camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -camera_zoom,
+            camera_zoom,
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            1.0,
+            1000.0,
+        )
 
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(camera_pos[0], camera_pos[1], camera_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GLU.gluLookAt(
+        camera_pos[0],
+        camera_pos[1],
+        camera_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    )
     GL.glViewport(0, 0, window_width, window_height)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     draw_models()
@@ -206,16 +226,19 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Render options", True):
-        clicked, v = imgui.menu_item("Occlusion detection", "",
-                                     occlusion_detection, True)
+        clicked, v = imgui.menu_item(
+            "Occlusion detection", "", occlusion_detection, True
+        )
         if clicked:
             occlusion_detection = v
-        clicked, v = imgui.menu_item("Show bounding volumes", "",
-                                     show_bounding_volume, True)
+        clicked, v = imgui.menu_item(
+            "Show bounding volumes", "", show_bounding_volume, True
+        )
         if clicked:
             show_bounding_volume = v
         clicked, v = imgui.menu_item("Show help overlay", "", show_menu, True)
@@ -264,8 +287,7 @@ def setup_rc() -> None:
 
     img = np.flipud(iio.imread(os.path.join(PWD, "logo.tga")))
     h, w = img.shape[:2]
-    fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4
-           else GL.GL_RGB)
+    fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     img = np.ascontiguousarray(img, dtype=np.uint8)
     texture_id = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id)
@@ -277,13 +299,20 @@ def setup_rc() -> None:
     # the texture is incomplete and Mesa samples black.
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt,
-                    GL.GL_UNSIGNED_BYTE, img)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+    )
 
-    GL.glTexGenfv(GL.GL_S, GL.GL_OBJECT_PLANE,
-                  np.array([1.0 / 50.0, 0.0, 0.0, -0.5], dtype=np.float32))
-    GL.glTexGenfv(GL.GL_T, GL.GL_OBJECT_PLANE,
-                  np.array([0.0, 1.0 / 50.0, 0.0, -0.5], dtype=np.float32))
+    GL.glTexGenfv(
+        GL.GL_S,
+        GL.GL_OBJECT_PLANE,
+        np.array([1.0 / 50.0, 0.0, 0.0, -0.5], dtype=np.float32),
+    )
+    GL.glTexGenfv(
+        GL.GL_T,
+        GL.GL_OBJECT_PLANE,
+        np.array([0.0, 1.0 / 50.0, 0.0, -0.5], dtype=np.float32),
+    )
 
 
 def change_size(w: int, h: int) -> None:
@@ -302,9 +331,15 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
     # Movement keys fire on PRESS or REPEAT so holding the key keeps
     # moving, matching GLUT glutSpecialFunc's auto-repeat behavior.
-    is_movement = key in (glfw.KEY_LEFT, glfw.KEY_RIGHT,
-                          glfw.KEY_UP, glfw.KEY_DOWN,
-                          glfw.KEY_X, glfw.KEY_Y, glfw.KEY_Z)
+    is_movement = key in (
+        glfw.KEY_LEFT,
+        glfw.KEY_RIGHT,
+        glfw.KEY_UP,
+        glfw.KEY_DOWN,
+        glfw.KEY_X,
+        glfw.KEY_Y,
+        glfw.KEY_Z,
+    )
     if action == glfw.PRESS:
         pass
     elif action == glfw.REPEAT and is_movement:
@@ -340,8 +375,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 5)
-    window = glfw.create_window(window_width, window_height,
-                                "Occlusion Query Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Occlusion Query Demo", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)

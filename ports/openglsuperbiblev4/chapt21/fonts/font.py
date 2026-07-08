@@ -29,8 +29,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -43,7 +44,8 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
     window = glfw.create_window(500, 60, "Fonts", None, None)
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     imgui.create_context()
@@ -60,9 +62,11 @@ def main() -> None:
         imgui.new_frame()
         imgui_menubar()
         size = glfw.get_framebuffer_size(window)
-        flags = (imgui.WindowFlags_.no_decoration.value
-                 | imgui.WindowFlags_.no_background.value
-                 | imgui.WindowFlags_.no_inputs.value)
+        flags = (
+            imgui.WindowFlags_.no_decoration.value
+            | imgui.WindowFlags_.no_background.value
+            | imgui.WindowFlags_.no_inputs.value
+        )
         imgui.set_next_window_pos((0, 0))
         imgui.set_next_window_size((size[0], size[1]))
         imgui.begin("text", None, flags)

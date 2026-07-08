@@ -21,8 +21,8 @@ from modelviewprojection.mathutils import Vector3, plane_equation
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit control button
 
@@ -46,7 +46,11 @@ def make_planar_shadow_matrix(
     plane_d: float,
     light_pos_4: "tuple[float, float, float, float]",
 ) -> "np.ndarray":
-    a, b, c = plane_normal.coeff_e_1, plane_normal.coeff_e_2, plane_normal.coeff_e_3
+    a, b, c = (
+        plane_normal.coeff_e_1,
+        plane_normal.coeff_e_2,
+        plane_normal.coeff_e_3,
+    )
     d = plane_d
     dx, dy, dz = -light_pos_4[0], -light_pos_4[1], -light_pos_4[2]
     # CCW plane_equation can land w<0; OpenGL clips before perspective
@@ -55,10 +59,21 @@ def make_planar_shadow_matrix(
     sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
-            sign * (b * dy + c * dz), sign * -a * dy, sign * -a * dz, 0.0,
-            sign * -b * dx, sign * (a * dx + c * dz), sign * -b * dz, 0.0,
-            sign * -c * dx, sign * -c * dy, sign * (a * dx + b * dy), 0.0,
-            sign * -d * dx, sign * -d * dy, sign * -d * dz,
+            sign * (b * dy + c * dz),
+            sign * -a * dy,
+            sign * -a * dz,
+            0.0,
+            sign * -b * dx,
+            sign * (a * dx + c * dz),
+            sign * -b * dz,
+            0.0,
+            sign * -c * dx,
+            sign * -c * dy,
+            sign * (a * dx + b * dy),
+            0.0,
+            sign * -d * dx,
+            sign * -d * dy,
+            sign * -d * dz,
             sign * (a * dx + b * dy + c * dz),
         ],
         dtype=np.float32,
@@ -170,8 +185,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Options", True):
         clicked, _ = imgui.menu_item("Fog", "", fog_enabled, True)
@@ -182,8 +198,7 @@ def imgui_menubar() -> None:
         _common.menu_action("Forward", "Up", lambda: _walk(1.0))
         _common.menu_action("Back", "Down", lambda: _walk(-1.0))
         _common.menu_action("Turn Left", "Left", lambda: _turn(BTN_YAW_STEP))
-        _common.menu_action("Turn Right", "Right",
-                            lambda: _turn(-BTN_YAW_STEP))
+        _common.menu_action("Turn Right", "Right", lambda: _turn(-BTN_YAW_STEP))
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -211,8 +226,11 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_LIGHTING)
     GL.glEnable(GL.GL_LIGHT0)
 
-    p1, p2, p3 = (Vector3(0.0, -0.4, 0.0), Vector3(10.0, -0.4, 0.0),
-                  Vector3(5.0, -0.4, -5.0))
+    p1, p2, p3 = (
+        Vector3(0.0, -0.4, 0.0),
+        Vector3(10.0, -0.4, 0.0),
+        Vector3(5.0, -0.4, -5.0),
+    )
     plane_normal, plane_d = plane_equation(p1, p2, p3)
     shadow_mat = make_planar_shadow_matrix(plane_normal, plane_d, f_light_pos)
 

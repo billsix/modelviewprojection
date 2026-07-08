@@ -104,7 +104,9 @@ class Renderer1x:
 
         GL.glPushMatrix()
         if angle:
-            ax, ay = anchor if anchor is not None else (tx + w * 0.5, ty + h * 0.5)
+            ax, ay = (
+                anchor if anchor is not None else (tx + w * 0.5, ty + h * 0.5)
+            )
             GL.glTranslatef(ax, ay, 0.0)
             # -angle to match the 3.3 renderer's y-down rotation convention.
             GL.glRotatef(-angle, 0.0, 0.0, 1.0)
@@ -112,10 +114,14 @@ class Renderer1x:
         GL.glTranslatef(tx, ty, 0.0)
         GL.glScalef(w, h, 1.0)
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(u0, v0); GL.glVertex2f(0.0, 0.0)
-        GL.glTexCoord2f(u1, v0); GL.glVertex2f(1.0, 0.0)
-        GL.glTexCoord2f(u1, v1); GL.glVertex2f(1.0, 1.0)
-        GL.glTexCoord2f(u0, v1); GL.glVertex2f(0.0, 1.0)
+        GL.glTexCoord2f(u0, v0)
+        GL.glVertex2f(0.0, 0.0)
+        GL.glTexCoord2f(u1, v0)
+        GL.glVertex2f(1.0, 0.0)
+        GL.glTexCoord2f(u1, v1)
+        GL.glVertex2f(1.0, 1.0)
+        GL.glTexCoord2f(u0, v1)
+        GL.glVertex2f(0.0, 1.0)
         GL.glEnd()
         GL.glPopMatrix()
 
@@ -191,5 +197,8 @@ class Renderer1x:
         sy = self.fb_height / self.height
         GL.glEnable(GL.GL_SCISSOR_TEST)
         GL.glScissor(
-            int(x * sx), int(self.fb_height - (y + h) * sy), int(w * sx), int(h * sy)
+            int(x * sx),
+            int(self.fb_height - (y + h) * sy),
+            int(w * sx),
+            int(h * sy),
         )

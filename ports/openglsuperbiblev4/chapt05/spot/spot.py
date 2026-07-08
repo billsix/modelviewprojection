@@ -18,8 +18,8 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Controls buttons
 
@@ -42,8 +42,9 @@ i_shade: int = MODE_FLAT
 i_tess: int = MODE_VERYLOW
 
 
-def _build_slant_cone(base: float, height: float, slices: int,
-                      stacks: int) -> "_primitives.Mesh":
+def _build_slant_cone(
+    base: float, height: float, slices: int, stacks: int
+) -> "_primitives.Mesh":
     """Spot's cone: base at z=0, apex at z=+height, with a *slant* normal per
     vertex (radial + a +Z slope component, normalized) -- distinct from the
     flat-normal fan cone in _primitives.build_cone. GL_QUAD_STRIP per stack,
@@ -76,8 +77,18 @@ def _build_cone_cap(base: float, slices: int) -> "_primitives.Mesh":
     band: list = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
     for j in range(slices + 1):
         lng = 2.0 * math.pi * float(j) / slices
-        band.append((0.0, 0.0, -1.0, 0.0, 0.0,
-                     base * math.cos(lng), -base * math.sin(lng), 0.0))
+        band.append(
+            (
+                0.0,
+                0.0,
+                -1.0,
+                0.0,
+                0.0,
+                base * math.cos(lng),
+                -base * math.sin(lng),
+                0.0,
+            )
+        )
     return (GL.GL_TRIANGLE_FAN, [band])
 
 
@@ -161,22 +172,43 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Shade Model", True):
-        _common.menu_action("Flat", "", lambda: _set_shade(MODE_FLAT),
-                            selected=(i_shade == MODE_FLAT))
-        _common.menu_action("Smooth", "", lambda: _set_shade(MODE_SMOOTH),
-                            selected=(i_shade == MODE_SMOOTH))
+        _common.menu_action(
+            "Flat",
+            "",
+            lambda: _set_shade(MODE_FLAT),
+            selected=(i_shade == MODE_FLAT),
+        )
+        _common.menu_action(
+            "Smooth",
+            "",
+            lambda: _set_shade(MODE_SMOOTH),
+            selected=(i_shade == MODE_SMOOTH),
+        )
         imgui.end_menu()
     if imgui.begin_menu("Tessellation", True):
-        _common.menu_action("Very Low", "", lambda: _set_tess(MODE_VERYLOW),
-                            selected=(i_tess == MODE_VERYLOW))
-        _common.menu_action("Medium", "", lambda: _set_tess(MODE_MEDIUM),
-                            selected=(i_tess == MODE_MEDIUM))
-        _common.menu_action("Very High", "", lambda: _set_tess(MODE_VERYHIGH),
-                            selected=(i_tess == MODE_VERYHIGH))
+        _common.menu_action(
+            "Very Low",
+            "",
+            lambda: _set_tess(MODE_VERYLOW),
+            selected=(i_tess == MODE_VERYLOW),
+        )
+        _common.menu_action(
+            "Medium",
+            "",
+            lambda: _set_tess(MODE_MEDIUM),
+            selected=(i_tess == MODE_MEDIUM),
+        )
+        _common.menu_action(
+            "Very High",
+            "",
+            lambda: _set_tess(MODE_VERYHIGH),
+            selected=(i_tess == MODE_VERYHIGH),
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate Up", "Up", lambda: _nudge_x(-2.0))

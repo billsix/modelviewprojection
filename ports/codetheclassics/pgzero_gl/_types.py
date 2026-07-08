@@ -14,7 +14,8 @@ anywhere in ``pgzero_gl``.
 
 from __future__ import annotations
 
-from typing import Protocol, Sequence, Tuple, Union
+from collections.abc import Sequence
+from typing import Protocol, Tuple, Union
 
 import numpy as np
 from numpy.typing import NDArray

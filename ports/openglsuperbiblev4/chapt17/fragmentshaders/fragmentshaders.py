@@ -25,12 +25,10 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
@@ -39,8 +37,13 @@ window_height: int = 768
 SIMPLE, GRAYSCALE, SEPIA, HEATSIG, FOG, GRAYINVERT, COLORINVERT = range(7)
 TOTAL_SHADERS = 7
 shader_names = [
-    "simple", "grayscale", "sepia", "heatsig",
-    "fog", "grayinvert", "colorinvert",
+    "simple",
+    "grayscale",
+    "sepia",
+    "heatsig",
+    "fog",
+    "grayinvert",
+    "colorinvert",
 ]
 f_shader = [0] * TOTAL_SHADERS
 prog_obj = [0] * TOTAL_SHADERS
@@ -79,8 +82,16 @@ def create_heatsig_map() -> None:
             texels[x * 4 + 0] = 1.0
             texels[x * 4 + 1] = 1.0 - p
         texels[x * 4 + 3] = 1.0
-    GL.glTexImage1D(GL.GL_TEXTURE_1D, 0, GL.GL_RGBA8,
-                    tex_size, 0, GL.GL_RGBA, GL.GL_FLOAT, texels)
+    GL.glTexImage1D(
+        GL.GL_TEXTURE_1D,
+        0,
+        GL.GL_RGBA8,
+        tex_size,
+        0,
+        GL.GL_RGBA,
+        GL.GL_FLOAT,
+        texels,
+    )
 
 
 def draw_solid_cube(size: float) -> None:
@@ -143,7 +154,8 @@ def draw_models() -> None:
     GL.glVertex3f(100.0, -25.0, -100.0)
     GL.glEnd()
 
-    GL.glColor3f(1.0, 0.0, 0.0); draw_solid_cube(48.0)
+    GL.glColor3f(1.0, 0.0, 0.0)
+    draw_solid_cube(48.0)
 
     GL.glColor3f(0.0, 1.0, 0.0)
     GL.glPushMatrix()
@@ -176,16 +188,37 @@ def render_scene() -> None:
     GL.glLoadIdentity()
     if window_width > window_height:
         ar = float(window_width) / float(window_height)
-        GL.glFrustum(-ar * camera_zoom, ar * camera_zoom,
-                     -camera_zoom, camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            -camera_zoom,
+            camera_zoom,
+            1.0,
+            1000.0,
+        )
     else:
         ar = float(window_height) / float(window_width)
-        GL.glFrustum(-camera_zoom, camera_zoom,
-                     -ar * camera_zoom, ar * camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -camera_zoom,
+            camera_zoom,
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            1.0,
+            1000.0,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(camera_pos[0], camera_pos[1], camera_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GLU.gluLookAt(
+        camera_pos[0],
+        camera_pos[1],
+        camera_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    )
     GL.glViewport(0, 0, window_width, window_height)
 
     if which_shader == FOG:
@@ -218,13 +251,18 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Filter", True):
         for i, name in enumerate(shader_names):
-            _common.menu_action(name, "", lambda i=i: select_shader(i),
-                                selected=(which_shader == i))
+            _common.menu_action(
+                name,
+                "",
+                lambda i=i: select_shader(i),
+                selected=(which_shader == i),
+            )
         if which_shader == FOG:
             imgui.separator()
             if imgui.begin_menu("Fog density", True):
@@ -235,18 +273,36 @@ def imgui_menubar() -> None:
         _common.menu_action("Light -", "Left", lambda: _nudge_light(-5.0))
         _common.menu_action("Light +", "Right", lambda: _nudge_light(5.0))
         imgui.separator()
-        _common.menu_action("Camera +X", "X",
-                            lambda: camera_pos.__setitem__(0, camera_pos[0] + 5.0))
-        _common.menu_action("Camera -X", "Shift+X",
-                            lambda: camera_pos.__setitem__(0, camera_pos[0] - 5.0))
-        _common.menu_action("Camera +Y", "Up / Y",
-                            lambda: camera_pos.__setitem__(1, camera_pos[1] + 5.0))
-        _common.menu_action("Camera -Y", "Down / Shift+Y",
-                            lambda: camera_pos.__setitem__(1, camera_pos[1] - 5.0))
-        _common.menu_action("Camera +Z", "Z",
-                            lambda: camera_pos.__setitem__(2, camera_pos[2] + 5.0))
-        _common.menu_action("Camera -Z", "Shift+Z",
-                            lambda: camera_pos.__setitem__(2, camera_pos[2] - 5.0))
+        _common.menu_action(
+            "Camera +X",
+            "X",
+            lambda: camera_pos.__setitem__(0, camera_pos[0] + 5.0),
+        )
+        _common.menu_action(
+            "Camera -X",
+            "Shift+X",
+            lambda: camera_pos.__setitem__(0, camera_pos[0] - 5.0),
+        )
+        _common.menu_action(
+            "Camera +Y",
+            "Up / Y",
+            lambda: camera_pos.__setitem__(1, camera_pos[1] + 5.0),
+        )
+        _common.menu_action(
+            "Camera -Y",
+            "Down / Shift+Y",
+            lambda: camera_pos.__setitem__(1, camera_pos[1] - 5.0),
+        )
+        _common.menu_action(
+            "Camera +Z",
+            "Z",
+            lambda: camera_pos.__setitem__(2, camera_pos[2] + 5.0),
+        )
+        _common.menu_action(
+            "Camera -Z",
+            "Shift+Z",
+            lambda: camera_pos.__setitem__(2, camera_pos[2] - 5.0),
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -270,7 +326,9 @@ def setup_rc() -> None:
     GL.glActiveTexture(GL.GL_TEXTURE0)
     GL.glBindTexture(GL.GL_TEXTURE_1D, 0)
     GL.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
-    GL.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_1D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+    )
     create_heatsig_map()
 
     for i in range(TOTAL_SHADERS):
@@ -294,7 +352,8 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
-        glfw.set_window_should_close(window, True); return
+        glfw.set_window_should_close(window, True)
+        return
     if key == glfw.KEY_LEFT:
         _nudge_light(-5.0)
     elif key == glfw.KEY_RIGHT:
@@ -317,8 +376,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(window_width, window_height,
-                                "Fragment Shaders Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Fragment Shaders Demo", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)

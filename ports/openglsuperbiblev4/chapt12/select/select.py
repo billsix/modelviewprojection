@@ -36,8 +36,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 # _PWD is this demo's dir; its parent's parent is the ports root where
 # _common lives.  (We dropped _PWD from sys.path above; the ports root
 # was never on it, so add it explicitly.)
@@ -49,8 +47,8 @@ _window = None  # set in main(); used by the Quit control button
 # Pick ids encoded as the red byte (0 reserved for background).
 TORUS, SPHERE = 1, 2
 PICK_PALETTE = {
-    TORUS:  (1.0, 1.0, 0.0),   # yellow
-    SPHERE: (1.0, 0.0, 1.0),   # magenta
+    TORUS: (1.0, 1.0, 0.0),  # yellow
+    SPHERE: (1.0, 0.0, 1.0),  # magenta
 }
 
 # UI state
@@ -79,8 +77,7 @@ def draw_torus(num_major: int, num_minor: int) -> None:
             GL.glTexCoord2f(float(i) / num_major, float(j) / num_minor)
             GL.glNormal3f(x0 * cb, y0 * cb, z / minor_radius)
             GL.glVertex3f(x0 * r, y0 * r, z)
-            GL.glTexCoord2f(float(i + 1) / num_major,
-                            float(j) / num_minor)
+            GL.glTexCoord2f(float(i + 1) / num_major, float(j) / num_minor)
             GL.glNormal3f(x1 * cb, y1 * cb, z / minor_radius)
             GL.glVertex3f(x1 * r, y1 * r, z)
         GL.glEnd()
@@ -94,7 +91,9 @@ def draw_sphere(radius: float) -> None:
     GLU.gluDeleteQuadric(obj)
 
 
-def _set_color(mode: str, pid: int, normal: "tuple[float, float, float]") -> None:
+def _set_color(
+    mode: str, pid: int, normal: "tuple[float, float, float]"
+) -> None:
     """mode in {'normal', 'pick_encode', 'pick_debug'}."""
     if mode == "pick_encode":
         GL.glColor3ub(pid, 0, 0)
@@ -135,8 +134,7 @@ def render_scene() -> None:
         GL.glPushMatrix()
         GL.glLoadIdentity()
         # Flipped Y so the rect lives in window coords (y=0 at top).
-        GL.glOrtho(viewport[0], viewport[2], viewport[3], viewport[1],
-                   -1, 1)
+        GL.glOrtho(viewport[0], viewport[2], viewport[3], viewport[1], -1, 1)
         GL.glMatrixMode(GL.GL_MODELVIEW)
         GL.glPushMatrix()
         GL.glLoadIdentity()
@@ -159,11 +157,7 @@ def _compute_bounds(arr: np.ndarray, pid: int) -> "List[int] | None":
     """Find the pixels with R==pid and G==B==0 in the pick-encoded
     framebuffer.  Return [top, bottom, left, right] in window coords
     (y=0 at top), or None if no pixels matched."""
-    mask = (
-        (arr[:, :, 0] == pid)
-        & (arr[:, :, 1] == 0)
-        & (arr[:, :, 2] == 0)
-    )
+    mask = (arr[:, :, 0] == pid) & (arr[:, :, 1] == 0) & (arr[:, :, 2] == 0)
     ys, xs = np.nonzero(mask)
     if len(xs) == 0:
         return None
@@ -268,12 +262,14 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Selection", True):
         _, show_pick_buffer = imgui.menu_item(
-            "Show selection buffer", "", show_pick_buffer, True)
+            "Show selection buffer", "", show_pick_buffer, True
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -313,11 +309,9 @@ def main() -> None:
         impl.process_inputs()
 
         click = (
-            glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT)
-            == glfw.PRESS
+            glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS
         )
-        if (click and not prev_click
-                and not imgui.get_io().want_capture_mouse):
+        if click and not prev_click and not imgui.get_io().want_capture_mouse:
             x_pos, y_pos = glfw.get_cursor_pos(window)
             process_selection(window, x_pos, y_pos)
         prev_click = click

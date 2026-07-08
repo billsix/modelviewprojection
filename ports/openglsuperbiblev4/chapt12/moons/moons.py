@@ -22,8 +22,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -43,9 +41,9 @@ PICK_MARS_MOON2 = 5
 # are too dim to see by eye.  Same scene topology, just visually
 # distinguishable.
 PICK_PALETTE = {
-    PICK_EARTH:      (1.0, 0.0, 0.0),  # red
+    PICK_EARTH: (1.0, 0.0, 0.0),  # red
     PICK_EARTH_MOON: (1.0, 0.6, 0.0),  # orange
-    PICK_MARS:       (1.0, 1.0, 0.0),  # yellow
+    PICK_MARS: (1.0, 1.0, 0.0),  # yellow
     PICK_MARS_MOON1: (0.0, 1.0, 1.0),  # cyan
     PICK_MARS_MOON2: (1.0, 0.0, 1.0),  # magenta
 }
@@ -61,7 +59,9 @@ def draw_sphere(radius: float) -> None:
     GLU.gluDeleteQuadric(obj)
 
 
-def _set_color(mode: str, pid: int, normal: "tuple[float, float, float]") -> None:
+def _set_color(
+    mode: str, pid: int, normal: "tuple[float, float, float]"
+) -> None:
     """Bind the right color for this body based on render mode:
     'normal'      = physical color, lit
     'pick_encode' = (pid, 0, 0) raw bytes -- read back by glReadPixels
@@ -205,12 +205,14 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Picking", True):
         _, show_pick_buffer = imgui.menu_item(
-            "Show selection buffer", "", show_pick_buffer, True)
+            "Show selection buffer", "", show_pick_buffer, True
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -221,8 +223,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(800, 600, "Pick a Planet (Hierarchical)",
-                                None, None)
+    window = glfw.create_window(
+        800, 600, "Pick a Planet (Hierarchical)", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -253,11 +256,9 @@ def main() -> None:
         impl.process_inputs()
 
         click = (
-            glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT)
-            == glfw.PRESS
+            glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS
         )
-        if (click and not prev_click
-                and not imgui.get_io().want_capture_mouse):
+        if click and not prev_click and not imgui.get_io().want_capture_mouse:
             x_pos, y_pos = glfw.get_cursor_pos(window)
             process_selection(window, x_pos, y_pos)
         prev_click = click

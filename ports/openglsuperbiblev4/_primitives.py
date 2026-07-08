@@ -38,8 +38,9 @@ Vertex = tuple[float, float, float, float, float, float, float, float]
 Mesh = tuple[int, list[list[Vertex]]]
 
 
-def build_sphere(radius: float, slices: int, stacks: int, *,
-                 swap_winding: bool = False) -> Mesh:
+def build_sphere(
+    radius: float, slices: int, stacks: int, *, swap_winding: bool = False
+) -> Mesh:
     """Precompute a solid sphere as a stack of ``GL_QUAD_STRIP`` bands (one per
     latitude band) -- the same vertices the hand-written ``draw_solid_sphere``
     used to emit every frame.
@@ -60,10 +61,26 @@ def build_sphere(radius: float, slices: int, stacks: int, *,
             lng = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
             u = float(j) / slices
-            row0 = (cl * cos0, sl * cos0, sin0, u, v0,
-                    radius * cl * cos0, radius * sl * cos0, radius * sin0)
-            row1 = (cl * cos1, sl * cos1, sin1, u, v1,
-                    radius * cl * cos1, radius * sl * cos1, radius * sin1)
+            row0 = (
+                cl * cos0,
+                sl * cos0,
+                sin0,
+                u,
+                v0,
+                radius * cl * cos0,
+                radius * sl * cos0,
+                radius * sin0,
+            )
+            row1 = (
+                cl * cos1,
+                sl * cos1,
+                sin1,
+                u,
+                v1,
+                radius * cl * cos1,
+                radius * sl * cos1,
+                radius * sin1,
+            )
             if swap_winding:
                 band.append(row1)
                 band.append(row0)
@@ -102,8 +119,12 @@ def build_torus(major: float, minor: float, n_major: int, n_minor: int) -> Mesh:
     return (GL.GL_TRIANGLE_STRIP, bands)
 
 
-def build_ground(extent: float = 20.0, step: float = 1.0,
-                 y: float = -0.4, tex_step: float = 0.0) -> Mesh:
+def build_ground(
+    extent: float = 20.0,
+    step: float = 1.0,
+    y: float = -0.4,
+    tex_step: float = 0.0,
+) -> Mesh:
     """Precompute the flat ground grid as ``GL_TRIANGLE_STRIP`` bands (one per
     z-strip), every normal pointing up. With the default ``tex_step=0.0`` all
     texture coords are (0, 0) -- the plain grid the lit sphereworlds use. Pass
@@ -140,13 +161,28 @@ def build_cone(base: float, height: float, slices: int) -> Mesh:
     band: list[Vertex] = [(0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, height)]
     for i in range(slices + 1):
         a = 2.0 * math.pi * float(i) / slices
-        band.append((0.0, 0.0, 1.0, 0.0, 0.0,
-                     math.cos(a) * base, math.sin(a) * base, 0.0))
+        band.append(
+            (
+                0.0,
+                0.0,
+                1.0,
+                0.0,
+                0.0,
+                math.cos(a) * base,
+                math.sin(a) * base,
+                0.0,
+            )
+        )
     return (GL.GL_TRIANGLE_FAN, [band])
 
 
-def draw_mesh(mesh: Mesh, *, textured: bool = False,
-              normals: bool = True, flat: bool = False) -> None:
+def draw_mesh(
+    mesh: Mesh,
+    *,
+    textured: bool = False,
+    normals: bool = True,
+    flat: bool = False,
+) -> None:
     """Emit a precomputed mesh via immediate mode -- one ``glBegin``/``glEnd``
     per band, ``glNormal3f`` + ``glVertex3f`` per vertex. Set ``textured=True``
     to also emit each vertex's stored ``(s, t)`` texture coordinate. Set

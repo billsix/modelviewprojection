@@ -19,8 +19,8 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit menu item
 
@@ -31,19 +31,28 @@ camera_yaw: float = 0.0
 
 CUBE_MAP, COLOR_MAP = 0, 1
 texture_objects = [0, 0]
-cube_faces = ["pos_x.tga", "neg_x.tga", "pos_y.tga", "neg_y.tga",
-              "pos_z.tga", "neg_z.tga"]
+cube_faces = [
+    "pos_x.tga",
+    "neg_x.tga",
+    "pos_y.tga",
+    "neg_y.tga",
+    "pos_z.tga",
+    "neg_z.tga",
+]
 cube_targets = [
-    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X, GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
-    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y, GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
-    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Z, GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
+    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X,
+    GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
+    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
+    GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Y,
+    GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Z,
+    GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_Z,
 ]
 
 
 def load_image(fname: str) -> "tuple[np.ndarray, int, int, int]":
     img = np.flipud(iio.imread(os.path.join(PWD, fname)))
     h, w = img.shape[:2]
-    fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB)
+    fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
     return np.ascontiguousarray(img, dtype=np.uint8), w, h, fmt
 
 
@@ -70,23 +79,47 @@ def draw_skybox() -> None:
     # Six faces, all with explicit cube-map coords on TEXTURE1
     faces = [
         # -X
-        [(-1.0, -1.0, 1.0, -e, -e, e), (-1.0, -1.0, -1.0, -e, -e, -e),
-         (-1.0, 1.0, -1.0, -e, e, -e), (-1.0, 1.0, 1.0, -e, e, e)],
+        [
+            (-1.0, -1.0, 1.0, -e, -e, e),
+            (-1.0, -1.0, -1.0, -e, -e, -e),
+            (-1.0, 1.0, -1.0, -e, e, -e),
+            (-1.0, 1.0, 1.0, -e, e, e),
+        ],
         # +X
-        [(1.0, -1.0, -1.0, e, -e, -e), (1.0, -1.0, 1.0, e, -e, e),
-         (1.0, 1.0, 1.0, e, e, e), (1.0, 1.0, -1.0, e, e, -e)],
+        [
+            (1.0, -1.0, -1.0, e, -e, -e),
+            (1.0, -1.0, 1.0, e, -e, e),
+            (1.0, 1.0, 1.0, e, e, e),
+            (1.0, 1.0, -1.0, e, e, -e),
+        ],
         # -Z
-        [(-1.0, -1.0, -1.0, -e, -e, -e), (1.0, -1.0, -1.0, e, -e, -e),
-         (1.0, 1.0, -1.0, e, e, -e), (-1.0, 1.0, -1.0, -e, e, -e)],
+        [
+            (-1.0, -1.0, -1.0, -e, -e, -e),
+            (1.0, -1.0, -1.0, e, -e, -e),
+            (1.0, 1.0, -1.0, e, e, -e),
+            (-1.0, 1.0, -1.0, -e, e, -e),
+        ],
         # +Z
-        [(1.0, -1.0, 1.0, e, -e, e), (-1.0, -1.0, 1.0, -e, -e, e),
-         (-1.0, 1.0, 1.0, -e, e, e), (1.0, 1.0, 1.0, e, e, e)],
+        [
+            (1.0, -1.0, 1.0, e, -e, e),
+            (-1.0, -1.0, 1.0, -e, -e, e),
+            (-1.0, 1.0, 1.0, -e, e, e),
+            (1.0, 1.0, 1.0, e, e, e),
+        ],
         # +Y
-        [(-1.0, 1.0, 1.0, -e, e, e), (-1.0, 1.0, -1.0, -e, e, -e),
-         (1.0, 1.0, -1.0, e, e, -e), (1.0, 1.0, 1.0, e, e, e)],
+        [
+            (-1.0, 1.0, 1.0, -e, e, e),
+            (-1.0, 1.0, -1.0, -e, e, -e),
+            (1.0, 1.0, -1.0, e, e, -e),
+            (1.0, 1.0, 1.0, e, e, e),
+        ],
         # -Y
-        [(-1.0, -1.0, -1.0, -e, -e, -e), (-1.0, -1.0, 1.0, -e, -e, e),
-         (1.0, -1.0, 1.0, e, -e, e), (1.0, -1.0, -1.0, e, -e, -e)],
+        [
+            (-1.0, -1.0, -1.0, -e, -e, -e),
+            (-1.0, -1.0, 1.0, -e, -e, e),
+            (1.0, -1.0, 1.0, e, -e, e),
+            (1.0, -1.0, -1.0, e, -e, -e),
+        ],
     ]
     GL.glBegin(GL.GL_QUADS)
     for face in faces:
@@ -107,30 +140,37 @@ def setup_rc() -> None:
 
     # Cube map
     GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, texture_objects[CUBE_MAP])
-    for p in [(GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
-              (GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR),
-              (GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE),
-              (GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE),
-              (GL.GL_TEXTURE_WRAP_R, GL.GL_CLAMP_TO_EDGE)]:
+    for p in [
+        (GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
+        (GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR),
+        (GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE),
+        (GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE),
+        (GL.GL_TEXTURE_WRAP_R, GL.GL_CLAMP_TO_EDGE),
+    ]:
         GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, p[0], p[1])
     for i, fname in enumerate(cube_faces):
         img, w, h, fmt = load_image(fname)
-        GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, GL.GL_GENERATE_MIPMAP,
-                           GL.GL_TRUE)
-        GL.glTexImage2D(cube_targets[i], 0, fmt, w, h, 0, fmt,
-                        GL.GL_UNSIGNED_BYTE, img)
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_CUBE_MAP, GL.GL_GENERATE_MIPMAP, GL.GL_TRUE
+        )
+        GL.glTexImage2D(
+            cube_targets[i], 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        )
 
     # Color map
     GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[COLOR_MAP])
-    for p in [(GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
-              (GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR),
-              (GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE),
-              (GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE)]:
+    for p in [
+        (GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
+        (GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR),
+        (GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE),
+        (GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE),
+    ]:
         GL.glTexParameteri(GL.GL_TEXTURE_2D, p[0], p[1])
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_GENERATE_MIPMAP, GL.GL_TRUE)
     img, w, h, fmt = load_image("tarnish.tga")
-    GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt,
-                    GL.GL_UNSIGNED_BYTE, img)
+    GL.glTexImage2D(
+        GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+    )
 
     # Texture units
     GL.glActiveTexture(GL.GL_TEXTURE0)
@@ -273,8 +313,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))

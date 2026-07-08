@@ -17,7 +17,6 @@ import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -121,8 +120,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Bounce", True):
         # Sliders live inside the menu (begin_menu/end_menu); they have no
@@ -141,8 +141,9 @@ def imgui_menubar() -> None:
             paused = not paused
 
         _common.menu_action("Reverse", "", _reverse)
-        _common.menu_action("Resume" if paused else "Pause", "SPACE",
-                            _toggle_pause)
+        _common.menu_action(
+            "Resume" if paused else "Pause", "SPACE", _toggle_pause
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

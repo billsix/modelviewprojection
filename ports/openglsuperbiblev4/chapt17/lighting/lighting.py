@@ -21,12 +21,10 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit control button
 window_width: int = 1024
@@ -52,7 +50,9 @@ light_rotation: float = 0.0
 def transform_vec3(v: np.ndarray, m: np.ndarray) -> np.ndarray:
     out = np.zeros(3, dtype=np.float32)
     for r in range(3):
-        out[r] = m[r] * v[0] + m[r + 4] * v[1] + m[r + 8] * v[2] + m[r + 12] * v[3]
+        out[r] = (
+            m[r] * v[0] + m[r + 4] * v[1] + m[r + 8] * v[2] + m[r + 12] * v[3]
+        )
     return out
 
 
@@ -100,8 +100,9 @@ def prepare_shader(n: int) -> None:
 def draw_models() -> None:
     GL.glPushMatrix()
     GL.glRotatef(light_rotation, 0.0, 1.0, 0.0)
-    mv = np.array(GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX),
-                  dtype=np.float32).flatten()
+    mv = np.array(
+        GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
+    ).flatten()
     le0 = transform_vec3(light_pos0, mv)
     le1 = le2 = np.zeros(3, dtype=np.float32)
     if which_shader == THREELIGHTS:
@@ -132,20 +133,29 @@ def draw_models() -> None:
     GL.glVertex3f(100.0, -25.0, -100.0)
     GL.glEnd()
 
-    GL.glColor3f(1.0, 0.0, 0.0); draw_solid_cube(48.0)
+    GL.glColor3f(1.0, 0.0, 0.0)
+    draw_solid_cube(48.0)
     GL.glColor3f(0.0, 1.0, 0.0)
-    GL.glPushMatrix(); GL.glTranslatef(-60.0, 0.0, 0.0)
-    _primitives.draw_mesh(SPHERE_BIG); GL.glPopMatrix()
+    GL.glPushMatrix()
+    GL.glTranslatef(-60.0, 0.0, 0.0)
+    _primitives.draw_mesh(SPHERE_BIG)
+    GL.glPopMatrix()
     GL.glColor3f(1.0, 0.0, 1.0)
-    GL.glPushMatrix(); GL.glTranslatef(0.0, 0.0, 60.0)
-    _primitives.draw_mesh(TORUS); GL.glPopMatrix()
+    GL.glPushMatrix()
+    GL.glTranslatef(0.0, 0.0, 60.0)
+    _primitives.draw_mesh(TORUS)
+    GL.glPopMatrix()
     GL.glColor3f(1.0, 1.0, 0.0)
-    GL.glPushMatrix(); GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
+    GL.glPushMatrix()
+    GL.glRotatef(-90.0, 1.0, 0.0, 0.0)
     GL.glTranslatef(60.0, 0.0, -24.0)
-    _primitives.draw_mesh(CONE, flat=True); GL.glPopMatrix()
+    _primitives.draw_mesh(CONE, flat=True)
+    GL.glPopMatrix()
     GL.glColor3f(0.0, 1.0, 1.0)
-    GL.glPushMatrix(); GL.glTranslatef(0.0, 0.0, -60.0)
-    _primitives.draw_mesh(SPHERE_SMALL); GL.glPopMatrix()
+    GL.glPushMatrix()
+    GL.glTranslatef(0.0, 0.0, -60.0)
+    _primitives.draw_mesh(SPHERE_SMALL)
+    GL.glPopMatrix()
 
 
 def render_scene() -> None:
@@ -153,16 +163,37 @@ def render_scene() -> None:
     GL.glLoadIdentity()
     if window_width > window_height:
         ar = float(window_width) / float(window_height)
-        GL.glFrustum(-ar * camera_zoom, ar * camera_zoom,
-                     -camera_zoom, camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            -camera_zoom,
+            camera_zoom,
+            1.0,
+            1000.0,
+        )
     else:
         ar = float(window_height) / float(window_width)
-        GL.glFrustum(-camera_zoom, camera_zoom,
-                     -ar * camera_zoom, ar * camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -camera_zoom,
+            camera_zoom,
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            1.0,
+            1000.0,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(camera_pos[0], camera_pos[1], camera_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GLU.gluLookAt(
+        camera_pos[0],
+        camera_pos[1],
+        camera_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    )
     GL.glViewport(0, 0, window_width, window_height)
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
@@ -191,13 +222,18 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Shader", True):
         for i, name in enumerate(shader_names):
-            _common.menu_action(name, "", lambda i=i: select_shader(i),
-                                selected=(which_shader == i))
+            _common.menu_action(
+                name,
+                "",
+                lambda i=i: select_shader(i),
+                selected=(which_shader == i),
+            )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Light -", "Left", lambda: _nudge_light(-5.0))
@@ -238,7 +274,8 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     if action != glfw.PRESS and action != glfw.REPEAT:
         return
     if key == glfw.KEY_ESCAPE:
-        glfw.set_window_should_close(window, True); return
+        glfw.set_window_should_close(window, True)
+        return
     if key == glfw.KEY_LEFT:
         _nudge_light(-5.0)
     elif key == glfw.KEY_RIGHT:
@@ -261,10 +298,12 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(window_width, window_height,
-                                "Lighting Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Lighting Demo", None, None
+    )
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)

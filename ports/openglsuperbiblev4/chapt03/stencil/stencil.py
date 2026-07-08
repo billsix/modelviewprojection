@@ -26,8 +26,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -56,8 +57,9 @@ def render_scene() -> None:
     d_radius = 0.1
     d_angle = 0.0
     while d_angle < 400.0:
-        GL.glVertex2d(d_radius * math.cos(d_angle),
-                      d_radius * math.sin(d_angle))
+        GL.glVertex2d(
+            d_radius * math.cos(d_angle), d_radius * math.sin(d_angle)
+        )
         d_radius *= 1.002
         d_angle += 0.1
     GL.glEnd()
@@ -131,9 +133,7 @@ def main() -> None:
     # Request a stencil buffer (matching GLUT_STENCIL)
     glfw.window_hint(glfw.STENCIL_BITS, 8)
 
-    window = glfw.create_window(
-        800, 600, "OpenGL Stencil Test", None, None
-    )
+    window = glfw.create_window(800, 600, "OpenGL Stencil Test", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)

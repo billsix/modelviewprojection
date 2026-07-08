@@ -28,8 +28,8 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit control button
 control_camera: bool = True
@@ -77,13 +77,22 @@ TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
 def draw_solid_octahedron() -> None:
     """A unit octahedron -- 8 triangle faces, vertices at ±1 on each axis."""
     verts = [
-        (1.0, 0.0, 0.0), (-1.0, 0.0, 0.0),
-        (0.0, 1.0, 0.0), (0.0, -1.0, 0.0),
-        (0.0, 0.0, 1.0), (0.0, 0.0, -1.0),
+        (1.0, 0.0, 0.0),
+        (-1.0, 0.0, 0.0),
+        (0.0, 1.0, 0.0),
+        (0.0, -1.0, 0.0),
+        (0.0, 0.0, 1.0),
+        (0.0, 0.0, -1.0),
     ]
     faces = [
-        (0, 2, 4), (2, 1, 4), (1, 3, 4), (3, 0, 4),
-        (2, 0, 5), (1, 2, 5), (3, 1, 5), (0, 3, 5),
+        (0, 2, 4),
+        (2, 1, 4),
+        (1, 3, 4),
+        (3, 0, 4),
+        (2, 0, 5),
+        (1, 2, 5),
+        (3, 1, 5),
+        (0, 3, 5),
     ]
     GL.glBegin(GL.GL_TRIANGLES)
     for f in faces:
@@ -154,8 +163,9 @@ def regenerate_shadow_map() -> None:
 
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(light_pos[0], light_pos[1], light_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GLU.gluLookAt(
+        light_pos[0], light_pos[1], light_pos[2], 0.0, 0.0, 0.0, 0.0, 1.0, 0.0
+    )
     light_modelview = np.array(
         GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
     )
@@ -171,8 +181,16 @@ def regenerate_shadow_map() -> None:
 
     draw_models(False)
 
-    GL.glCopyTexImage2D(GL.GL_TEXTURE_2D, 0, GL.GL_DEPTH_COMPONENT,
-                        0, 0, shadow_width, shadow_height, 0)
+    GL.glCopyTexImage2D(
+        GL.GL_TEXTURE_2D,
+        0,
+        GL.GL_DEPTH_COMPONENT,
+        0,
+        0,
+        shadow_width,
+        shadow_height,
+        0,
+    )
 
     GL.glShadeModel(GL.GL_SMOOTH)
     GL.glEnable(GL.GL_LIGHTING)
@@ -181,12 +199,27 @@ def regenerate_shadow_map() -> None:
     GL.glColorMask(True, True, True, True)
     GL.glDisable(GL.GL_POLYGON_OFFSET_FILL)
 
-    bias_matrix = np.array([
-        0.5, 0.0, 0.0, 0.0,
-        0.0, 0.5, 0.0, 0.0,
-        0.0, 0.0, 0.5, 0.0,
-        0.5, 0.5, 0.5, 1.0,
-    ], dtype=np.float32).reshape(4, 4)
+    bias_matrix = np.array(
+        [
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            0.0,
+            0.0,
+            0.0,
+            0.5,
+            0.0,
+            0.5,
+            0.5,
+            0.5,
+            1.0,
+        ],
+        dtype=np.float32,
+    ).reshape(4, 4)
     proj = light_projection.reshape(4, 4)
     mv = light_modelview.reshape(4, 4)
     # Column-major matmul: (bias * proj * mv) -- transposed for GL plane eqs
@@ -199,30 +232,55 @@ def render_scene() -> None:
     GL.glLoadIdentity()
     if window_width > window_height:
         ar = float(window_width) / float(window_height)
-        GL.glFrustum(-ar * camera_zoom, ar * camera_zoom,
-                     -camera_zoom, camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            -camera_zoom,
+            camera_zoom,
+            1.0,
+            1000.0,
+        )
     else:
         ar = float(window_height) / float(window_width)
-        GL.glFrustum(-camera_zoom, camera_zoom,
-                     -ar * camera_zoom, ar * camera_zoom, 1.0, 1000.0)
+        GL.glFrustum(
+            -camera_zoom,
+            camera_zoom,
+            -ar * camera_zoom,
+            ar * camera_zoom,
+            1.0,
+            1000.0,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
-    GLU.gluLookAt(camera_pos[0], camera_pos[1], camera_pos[2],
-                  0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
+    GLU.gluLookAt(
+        camera_pos[0],
+        camera_pos[1],
+        camera_pos[2],
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1.0,
+        0.0,
+    )
     GL.glViewport(0, 0, window_width, window_height)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, light_pos)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     if show_shadow_map:
-        GL.glMatrixMode(GL.GL_PROJECTION); GL.glLoadIdentity()
-        GL.glMatrixMode(GL.GL_MODELVIEW);  GL.glLoadIdentity()
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glLoadIdentity()
         GL.glMatrixMode(GL.GL_TEXTURE)
-        GL.glPushMatrix(); GL.glLoadIdentity()
+        GL.glPushMatrix()
+        GL.glLoadIdentity()
         GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glDisable(GL.GL_LIGHTING)
         GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_REPLACE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_COMPARE_MODE,
-                           GL.GL_NONE)
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_COMPARE_MODE, GL.GL_NONE
+        )
         # Stretch the depth texture to fill the entire window. The
         # SuperBible original sized the quad to the texture's native
         # pixel dimensions (so a 1024×512 shadow map appeared in the
@@ -230,10 +288,14 @@ def render_scene() -> None:
         # debug view we want it to fill the screen so the user can
         # actually see what's in the shadow map.
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex2f(-1.0, -1.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex2f( 1.0, -1.0)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex2f( 1.0,  1.0)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex2f(-1.0,  1.0)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex2f(-1.0, -1.0)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex2f(1.0, -1.0)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex2f(1.0, 1.0)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex2f(-1.0, 1.0)
         GL.glEnd()
         GL.glDisable(GL.GL_TEXTURE_2D)
         GL.glEnable(GL.GL_LIGHTING)
@@ -258,8 +320,11 @@ def render_scene() -> None:
         GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, diffuse_light)
         GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_COMPARE_MODE,
-                           GL.GL_COMPARE_R_TO_TEXTURE)
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_COMPARE_MODE,
+            GL.GL_COMPARE_R_TO_TEXTURE,
+        )
         GL.glEnable(GL.GL_TEXTURE_GEN_S)
         GL.glEnable(GL.GL_TEXTURE_GEN_T)
         GL.glEnable(GL.GL_TEXTURE_GEN_R)
@@ -312,21 +377,32 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Options", True):
         clicked, v = imgui.menu_item("Shadows", "", not no_shadows, True)
         if clicked:
             _set_shadows(v)
-        clicked, v = imgui.menu_item("Show shadow map", "", show_shadow_map, True)
+        clicked, v = imgui.menu_item(
+            "Show shadow map", "", show_shadow_map, True
+        )
         if clicked:
             _set_show_shadow_map(v)
         imgui.separator()
-        _common.menu_action("Move camera", "", lambda: _set_control_camera(True),
-                            selected=control_camera)
-        _common.menu_action("Move light", "", lambda: _set_control_camera(False),
-                            selected=not control_camera)
+        _common.menu_action(
+            "Move camera",
+            "",
+            lambda: _set_control_camera(True),
+            selected=control_camera,
+        )
+        _common.menu_action(
+            "Move light",
+            "",
+            lambda: _set_control_camera(False),
+            selected=not control_camera,
+        )
         imgui.separator()
         if imgui.begin_menu("Polygon offset", True):
             changed, factor = imgui.slider_float("Factor", factor, 0.0, 10.0)
@@ -361,14 +437,17 @@ def setup_rc() -> None:
 
     shadow_texture_id = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, shadow_texture_id)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S,
-                       GL.GL_CLAMP_TO_EDGE)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T,
-                       GL.GL_CLAMP_TO_EDGE)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+    )
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+    )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
-    GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_DEPTH_TEXTURE_MODE,
-                       GL.GL_INTENSITY)
+    GL.glTexParameteri(
+        GL.GL_TEXTURE_2D, GL.GL_DEPTH_TEXTURE_MODE, GL.GL_INTENSITY
+    )
     GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, GL.GL_EYE_LINEAR)
     GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, GL.GL_EYE_LINEAR)
     GL.glTexGeni(GL.GL_R, GL.GL_TEXTURE_GEN_MODE, GL.GL_EYE_LINEAR)
@@ -416,8 +495,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(window_width, window_height,
-                                "Shadow Mapping Demo", None, None)
+    window = glfw.create_window(
+        window_width, window_height, "Shadow Mapping Demo", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)

@@ -19,8 +19,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -29,17 +27,22 @@ _window = None  # set in main(); used by the Quit control button
 
 # Pick ids encoded as the red byte (0 reserved for background).
 SUN, MERCURY, VENUS, EARTH, MARS = 1, 2, 3, 4, 5
-PLANET_NAMES = {SUN: "Sun", MERCURY: "Mercury", VENUS: "Venus",
-                EARTH: "Earth", MARS: "Mars"}
+PLANET_NAMES = {
+    SUN: "Sun",
+    MERCURY: "Mercury",
+    VENUS: "Venus",
+    EARTH: "Earth",
+    MARS: "Mars",
+}
 
 # Bright distinct colors for the "Show selection buffer" debug view.
 # The actual pick encoding is 1..5 in the red byte, too dim to see.
 PICK_PALETTE = {
-    SUN:     (1.0, 1.0, 0.0),  # yellow
+    SUN: (1.0, 1.0, 0.0),  # yellow
     MERCURY: (1.0, 0.0, 0.0),  # red
-    VENUS:   (1.0, 0.0, 1.0),  # magenta
-    EARTH:   (0.0, 1.0, 1.0),  # cyan
-    MARS:    (0.0, 1.0, 0.0),  # green
+    VENUS: (1.0, 0.0, 1.0),  # magenta
+    EARTH: (0.0, 1.0, 1.0),  # cyan
+    MARS: (0.0, 1.0, 0.0),  # green
 }
 
 # UI state -- toggled by imgui checkbox in the main loop.
@@ -55,11 +58,11 @@ def draw_sphere(radius: float) -> None:
 
 _PLANETS = [
     # (display color,           distance, radius, pick id)
-    ((1.0, 1.0, 0.0),           0.0,      15.0,   SUN),
-    ((0.5, 0.0, 0.0),           24.0,      2.0,   MERCURY),
-    ((0.5, 0.5, 1.0),           60.0,      4.0,   VENUS),
-    ((0.0, 0.0, 1.0),          100.0,      8.0,   EARTH),
-    ((1.0, 0.0, 0.0),          150.0,      4.0,   MARS),
+    ((1.0, 1.0, 0.0), 0.0, 15.0, SUN),
+    ((0.5, 0.0, 0.0), 24.0, 2.0, MERCURY),
+    ((0.5, 0.5, 1.0), 60.0, 4.0, VENUS),
+    ((0.0, 0.0, 1.0), 100.0, 8.0, EARTH),
+    ((1.0, 0.0, 0.0), 150.0, 4.0, MARS),
 ]
 
 
@@ -175,12 +178,14 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Picking", True):
         _, show_pick_buffer = imgui.menu_item(
-            "Show selection buffer", "", show_pick_buffer, True)
+            "Show selection buffer", "", show_pick_buffer, True
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -222,11 +227,9 @@ def main() -> None:
         impl.process_inputs()
 
         click = (
-            glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT)
-            == glfw.PRESS
+            glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS
         )
-        if (click and not prev_click
-                and not imgui.get_io().want_capture_mouse):
+        if click and not prev_click and not imgui.get_io().want_capture_mouse:
             x_pos, y_pos = glfw.get_cursor_pos(window)
             process_selection(window, x_pos, y_pos)
         prev_click = click

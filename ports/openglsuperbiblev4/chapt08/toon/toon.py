@@ -38,30 +38,35 @@ def transform_vector3(v: "np.ndarray", m: "np.ndarray") -> "np.ndarray":
     treated as (x, y, z, 1) when applying the rotation portion (the
     translation is subtracted by the caller)."""
     out = np.empty(3, dtype=np.float32)
-    out[0] = m[0]*v[0] + m[4]*v[1] + m[8]*v[2]
-    out[1] = m[1]*v[0] + m[5]*v[1] + m[9]*v[2]
-    out[2] = m[2]*v[0] + m[6]*v[1] + m[10]*v[2]
+    out[0] = m[0] * v[0] + m[4] * v[1] + m[8] * v[2]
+    out[1] = m[1] * v[0] + m[5] * v[1] + m[9] * v[2]
+    out[2] = m[2] * v[0] + m[6] * v[1] + m[10] * v[2]
     return out
 
 
 def normalize3(v: "np.ndarray") -> "np.ndarray":
-    n = math.sqrt(v[0]*v[0] + v[1]*v[1] + v[2]*v[2])
+    n = math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
     if n != 0.0:
         return v / n
     return v
 
 
-def toon_draw_torus(major_radius: float, minor_radius: float,
-                    num_major: int, num_minor: int,
-                    light_dir: "np.ndarray") -> None:
+def toon_draw_torus(
+    major_radius: float,
+    minor_radius: float,
+    num_major: int,
+    num_minor: int,
+    light_dir: "np.ndarray",
+) -> None:
     # Bring the world-space light direction into object space by
     # multiplying by the inverse modelview's 3x3 rotation part. The
     # original C++ called m3dTransformVector3 (which adds the
     # translation column) and then subtracted the translation column
     # back out to leave a pure direction; transform_vector3 here
     # already does the rotation-only form, so no subtraction.
-    model = np.array(GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX),
-                     dtype=np.float32).flatten()
+    model = np.array(
+        GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
+    ).flatten()
     inverted = invert_matrix44(model)
     new_light = normalize3(transform_vector3(light_dir, inverted))
 
@@ -81,14 +86,16 @@ def toon_draw_torus(major_radius: float, minor_radius: float,
             r = minor_radius * cb + major_radius
             z = minor_radius * math.sin(b)
 
-            n0 = np.array([x0 * cb, y0 * cb, z / minor_radius],
-                          dtype=np.float32)
+            n0 = np.array(
+                [x0 * cb, y0 * cb, z / minor_radius], dtype=np.float32
+            )
             n0 = normalize3(n0)
             GL.glTexCoord1f(float(np.dot(new_light, n0)))
             GL.glVertex3f(x0 * r, y0 * r, z)
 
-            n1 = np.array([x1 * cb, y1 * cb, z / minor_radius],
-                          dtype=np.float32)
+            n1 = np.array(
+                [x1 * cb, y1 * cb, z / minor_radius], dtype=np.float32
+            )
             n1 = normalize3(n1)
             GL.glTexCoord1f(float(np.dot(new_light, n1)))
             GL.glVertex3f(x1 * r, y1 * r, z)
@@ -118,8 +125,16 @@ def setup_rc() -> None:
     GL.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_1D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP)
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
-    GL.glTexImage1D(GL.GL_TEXTURE_1D, 0, GL.GL_RGB, 4, 0, GL.GL_RGB,
-                    GL.GL_UNSIGNED_BYTE, toon_table)
+    GL.glTexImage1D(
+        GL.GL_TEXTURE_1D,
+        0,
+        GL.GL_RGB,
+        4,
+        0,
+        GL.GL_RGB,
+        GL.GL_UNSIGNED_BYTE,
+        toon_table,
+    )
     GL.glEnable(GL.GL_TEXTURE_1D)
 
 
@@ -149,8 +164,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

@@ -8,7 +8,6 @@
 # OpenGL SuperBible, Chapter 19
 # Python port of Text3D.cpp by Richard S. Wright Jr.
 
-import math
 import os
 import sys
 import time
@@ -33,8 +32,9 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -65,7 +65,8 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
     window = glfw.create_window(640, 480, "Text3D", None, None)
     if not window:
-        glfw.terminate(); sys.exit(1)
+        glfw.terminate()
+        sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     imgui.create_context()
@@ -83,9 +84,11 @@ def main() -> None:
         GL.glViewport(0, 0, w, h)
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
-        GL.glMatrixMode(GL.GL_PROJECTION); GL.glLoadIdentity()
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
         GLU.gluPerspective(45.0, w / h, 0.1, 50.0)
-        GL.glMatrixMode(GL.GL_MODELVIEW); GL.glLoadIdentity()
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glLoadIdentity()
         GLU.gluLookAt(3.0, 3.0, 3.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0)
         GL.glRotatef((time.time() - start) * 30.0, 0.0, 1.0, 0.0)
         draw_cube(1.5)
@@ -93,9 +96,12 @@ def main() -> None:
         imgui.new_frame()
         imgui_menubar()
         imgui.set_next_window_pos((10, 10))
-        imgui.begin("3D Text", None,
-                    imgui.WindowFlags_.no_decoration.value
-                    | imgui.WindowFlags_.no_background.value)
+        imgui.begin(
+            "3D Text",
+            None,
+            imgui.WindowFlags_.no_decoration.value
+            | imgui.WindowFlags_.no_background.value,
+        )
         imgui.text_colored((1, 1, 0, 1), "OpenGL 3D Text")
         imgui.text("Win32 wglUseFontOutlines is not portable;")
         imgui.text("imgui overlay used as substitute. Esc to exit.")

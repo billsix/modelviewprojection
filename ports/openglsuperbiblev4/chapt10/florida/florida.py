@@ -16,8 +16,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -25,20 +23,40 @@ import _common  # noqa: E402
 _window = None  # set in main(); used by the Quit control button
 COAST: np.ndarray = np.array(
     [
-        [-70.0, 30.0, 0.0], [-50.0, 30.0, 0.0], [-50.0, 27.0, 0.0],
-        [-5.0, 27.0, 0.0], [0.0, 20.0, 0.0], [8.0, 10.0, 0.0],
-        [12.0, 5.0, 0.0], [10.0, 0.0, 0.0], [15.0, -10.0, 0.0],
-        [20.0, -20.0, 0.0], [20.0, -35.0, 0.0], [10.0, -40.0, 0.0],
-        [0.0, -30.0, 0.0], [-5.0, -20.0, 0.0], [-12.0, -10.0, 0.0],
-        [-13.0, -5.0, 0.0], [-12.0, 5.0, 0.0], [-20.0, 10.0, 0.0],
-        [-30.0, 20.0, 0.0], [-40.0, 15.0, 0.0], [-50.0, 15.0, 0.0],
-        [-55.0, 20.0, 0.0], [-60.0, 25.0, 0.0], [-70.0, 25.0, 0.0],
+        [-70.0, 30.0, 0.0],
+        [-50.0, 30.0, 0.0],
+        [-50.0, 27.0, 0.0],
+        [-5.0, 27.0, 0.0],
+        [0.0, 20.0, 0.0],
+        [8.0, 10.0, 0.0],
+        [12.0, 5.0, 0.0],
+        [10.0, 0.0, 0.0],
+        [15.0, -10.0, 0.0],
+        [20.0, -20.0, 0.0],
+        [20.0, -35.0, 0.0],
+        [10.0, -40.0, 0.0],
+        [0.0, -30.0, 0.0],
+        [-5.0, -20.0, 0.0],
+        [-12.0, -10.0, 0.0],
+        [-13.0, -5.0, 0.0],
+        [-12.0, 5.0, 0.0],
+        [-20.0, 10.0, 0.0],
+        [-30.0, 20.0, 0.0],
+        [-40.0, 15.0, 0.0],
+        [-50.0, 15.0, 0.0],
+        [-55.0, 20.0, 0.0],
+        [-60.0, 25.0, 0.0],
+        [-70.0, 25.0, 0.0],
     ],
     dtype=np.float64,
 )
 LAKE: np.ndarray = np.array(
-    [[10.0, -20.0, 0.0], [15.0, -25.0, 0.0],
-     [10.0, -30.0, 0.0], [5.0, -25.0, 0.0]],
+    [
+        [10.0, -20.0, 0.0],
+        [15.0, -25.0, 0.0],
+        [10.0, -30.0, 0.0],
+        [5.0, -25.0, 0.0],
+    ],
     dtype=np.float64,
 )
 
@@ -67,8 +85,9 @@ def _tess_polygon(contours: list[np.ndarray]) -> None:
     GLU.gluTessCallback(tess, GLU.GLU_TESS_BEGIN, GL.glBegin)
     GLU.gluTessCallback(tess, GLU.GLU_TESS_END, GL.glEnd)
     GLU.gluTessCallback(tess, GLU.GLU_TESS_VERTEX, GL.glVertex3dv)
-    GLU.gluTessProperty(tess, GLU.GLU_TESS_WINDING_RULE,
-                        GLU.GLU_TESS_WINDING_ODD)
+    GLU.gluTessProperty(
+        tess, GLU.GLU_TESS_WINDING_RULE, GLU.GLU_TESS_WINDING_ODD
+    )
     GLU.gluTessBeginPolygon(tess, None)
     for contour in contours:
         GLU.gluTessBeginContour(tess)
@@ -128,15 +147,22 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Florida", True):
-        for label, value in [("Line Loops", DRAW_LOOPS),
-                             ("Concave Polygon", DRAW_CONCAVE),
-                             ("Complex Polygon", DRAW_COMPLEX)]:
-            _common.menu_action(label, "", lambda v=value: _set_method(v),
-                                selected=(i_method == value))
+        for label, value in [
+            ("Line Loops", DRAW_LOOPS),
+            ("Concave Polygon", DRAW_CONCAVE),
+            ("Complex Polygon", DRAW_COMPLEX),
+        ]:
+            _common.menu_action(
+                label,
+                "",
+                lambda v=value: _set_method(v),
+                selected=(i_method == value),
+            )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

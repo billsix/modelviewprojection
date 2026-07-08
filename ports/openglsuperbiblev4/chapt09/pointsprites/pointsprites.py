@@ -5,7 +5,6 @@
 # OpenGL SuperBible, Chapter 9
 # Python port of pointsprites.c by Richard S. Wright Jr.
 
-import math
 import os
 import random
 import sys
@@ -17,8 +16,6 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
-
-
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
@@ -44,12 +41,15 @@ def load_textures() -> None:
         img = np.ascontiguousarray(img, dtype=np.uint8)
         textures[i] = GL.glGenTextures(1)
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[i])
-        GL.glTexImage2D(GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt,
-                        GL.GL_UNSIGNED_BYTE, img)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER,
-                           GL.GL_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           GL.GL_LINEAR)
+        GL.glTexImage2D(
+            GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR
+        )
 
 
 def apply_mode(mode: int) -> None:
@@ -92,17 +92,20 @@ def render_scene() -> None:
 
     GL.glPointSize(7.0)
     GL.glBegin(GL.GL_POINTS)
-    for sx, sy in small_stars: GL.glVertex2f(sx, sy)
+    for sx, sy in small_stars:
+        GL.glVertex2f(sx, sy)
     GL.glEnd()
 
     GL.glPointSize(12.0)
     GL.glBegin(GL.GL_POINTS)
-    for sx, sy in medium_stars: GL.glVertex2f(sx, sy)
+    for sx, sy in medium_stars:
+        GL.glVertex2f(sx, sy)
     GL.glEnd()
 
     GL.glPointSize(20.0)
     GL.glBegin(GL.GL_POINTS)
-    for sx, sy in large_stars: GL.glVertex2f(sx, sy)
+    for sx, sy in large_stars:
+        GL.glVertex2f(sx, sy)
     GL.glEnd()
 
     GL.glPointSize(120.0)
@@ -123,10 +126,20 @@ def render_scene() -> None:
     # Distant horizon
     GL.glLineWidth(3.5)
     GL.glBegin(GL.GL_LINE_STRIP)
-    for px, py in [(0.0, 25.0), (50.0, 100.0), (100.0, 25.0), (225.0, 125.0),
-                   (300.0, 50.0), (375.0, 100.0), (460.0, 25.0),
-                   (525.0, 100.0), (600.0, 20.0), (675.0, 70.0),
-                   (750.0, 25.0), (800.0, 90.0)]:
+    for px, py in [
+        (0.0, 25.0),
+        (50.0, 100.0),
+        (100.0, 25.0),
+        (225.0, 125.0),
+        (300.0, 50.0),
+        (375.0, 100.0),
+        (460.0, 25.0),
+        (525.0, 100.0),
+        (600.0, 20.0),
+        (675.0, 70.0),
+        (750.0, 25.0),
+        (800.0, 90.0),
+    ]:
         GL.glVertex2f(px, py)
     GL.glEnd()
 
@@ -134,14 +147,27 @@ def render_scene() -> None:
 def setup_rc() -> None:
     random.seed(0)
     for _ in range(SMALL_STARS):
-        small_stars.append((float(random.randint(0, SCREEN_X - 1)),
-                            float(random.randint(0, SCREEN_Y - 100 - 1)) + 100.0))
+        small_stars.append(
+            (
+                float(random.randint(0, SCREEN_X - 1)),
+                float(random.randint(0, SCREEN_Y - 100 - 1)) + 100.0,
+            )
+        )
     for _ in range(MEDIUM_STARS):
-        medium_stars.append((float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0,
-                             float(random.randint(0, SCREEN_Y - 100 - 1)) + 100.0))
+        medium_stars.append(
+            (
+                float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0,
+                float(random.randint(0, SCREEN_Y - 100 - 1)) + 100.0,
+            )
+        )
     for _ in range(LARGE_STARS):
-        large_stars.append((float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0,
-                            float(random.randint(0, (SCREEN_Y - 100) * 10 - 1)) / 10.0 + 100.0))
+        large_stars.append(
+            (
+                float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0,
+                float(random.randint(0, (SCREEN_Y - 100) * 10 - 1)) / 10.0
+                + 100.0,
+            )
+        )
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     load_textures()
     GL.glTexEnvi(GL.GL_POINT_SPRITE, GL.GL_COORD_REPLACE, GL.GL_TRUE)
@@ -177,14 +203,22 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Draw mode", True):
-        for label, value in [("Normal Points", 1), ("Antialiased Points", 2),
-                             ("Point Sprites", 3)]:
-            _common.menu_action(label, "", lambda v=value: _set_mode(v),
-                                selected=(draw_mode == value))
+        for label, value in [
+            ("Normal Points", 1),
+            ("Antialiased Points", 2),
+            ("Point Sprites", 3),
+        ]:
+            _common.menu_action(
+                label,
+                "",
+                lambda v=value: _set_mode(v),
+                selected=(draw_mode == value),
+            )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

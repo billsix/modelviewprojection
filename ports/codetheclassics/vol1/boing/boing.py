@@ -23,16 +23,18 @@ import sys
 
 # Make the shared `pgzero_gl` shim importable (it lives two directories up).
 sys.path.insert(
-    0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+    0,
+    os.path.dirname(
+        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    ),
 )
-from pgzero_gl import *  # noqa: E402,F401,F403  (Actor, screen, keyboard, sounds, music, pygame, pgzrun, ...)
-
 import math  # noqa: E402
 import random  # noqa: E402
+from collections.abc import Callable, Sequence  # noqa: E402
 from dataclasses import InitVar, dataclass  # noqa: E402
 from enum import Enum  # noqa: E402
-from typing import Callable, Sequence  # noqa: E402
 
+from pgzero_gl import *  # noqa: E402,F401,F403  (Actor, screen, keyboard, sounds, music, pygame, pgzrun, ...)
 
 # Set up constants
 WIDTH = 800
@@ -45,6 +47,7 @@ HALF_HEIGHT = HEIGHT // 2
 PLAYER_SPEED = 6
 MAX_AI_SPEED = 6
 
+
 def normalised(x: float, y: float) -> tuple[float, float]:
     # Return a unit vector
     # Get length of vector (x,y) - math.hypot uses Pythagoras' theorem to get length of hypotenuse
@@ -52,6 +55,7 @@ def normalised(x: float, y: float) -> tuple[float, float]:
     # todo note on safety
     length: float = math.hypot(x, y)
     return (x / length, y / length)
+
 
 def sign(x: float) -> int:
     # Returns -1 or 1 depending on whether number is positive or negative
@@ -114,8 +118,10 @@ class Ball(Actor):
             # screen, it can bounce off a bat (assuming the bat is in the right position on the Y axis - checked
             # shortly afterwards).
             # We also check the previous X position to ensure that this is the first frame in which the ball crossed the threshold.
-            if abs(self.x - HALF_WIDTH) >= 344 and abs(original_x - HALF_WIDTH) < 344:
-
+            if (
+                abs(self.x - HALF_WIDTH) >= 344
+                and abs(original_x - HALF_WIDTH) < 344
+            ):
                 # Now that we know the edge of the ball has crossed the threshold on the x-axis, we need to check to
                 # see if the bat on the relevant side of the arena is at a suitable position on the y-axis for the
                 # ball collide with it.
@@ -162,7 +168,9 @@ class Ball(Actor):
                     self.dx, self.dy = normalised(self.dx, self.dy)
 
                     # Create an impact effect
-                    game.impacts.append(Impact((self.x - new_dir_x * 10, self.y)))
+                    game.impacts.append(
+                        Impact((self.x - new_dir_x * 10, self.y))
+                    )
 
                     # Increase speed with each hit
                     self.speed += 1
@@ -224,7 +232,9 @@ class Bat(Actor):
         x: int = 40 if self.player == 0 else 760
         y: int = HALF_HEIGHT
         super().__init__("blank", (x, y))
-        self.move_func = move_func_init if move_func_init is not None else self.ai
+        self.move_func = (
+            move_func_init if move_func_init is not None else self.ai
+        )
 
     def update(self) -> None:
         self.timer -= 1
@@ -286,7 +296,9 @@ class Bat(Actor):
 # Not a dataclass: every attribute is derived from the `controls` parameter,
 # so a generated __init__ would add nothing (all fields would be init=False).
 class Game:
-    def __init__(self, controls: Sequence[Callable[[], int] | None] = (None, None)) -> None:
+    def __init__(
+        self, controls: Sequence[Callable[[], int] | None] = (None, None)
+    ) -> None:
         # Create a list of two bats, giving each a player number and a function to use to receive
         # control inputs (or the value None if this is intended to be an AI player)
         self.bats: list[Bat] = [Bat(0, controls[0]), Bat(1, controls[1])]
@@ -341,12 +353,12 @@ class Game:
 
     def draw(self) -> None:
         # Draw background
-        screen.blit("table", (0,0))
+        screen.blit("table", (0, 0))
 
         # Draw 'just scored' effects, if required
-        for p in (0,1):
+        for p in (0, 1):
             if self.bats[p].timer > 0 and game.ball.out():
-                screen.blit("effect" + str(p), (0,0))
+                screen.blit("effect" + str(p), (0, 0))
 
         # Draw bats, ball and impact effects - in that order. Square brackets are needed around the ball because
         # it's just an object, whereas the other two are lists - and you can't directly join an object onto a
@@ -355,11 +367,11 @@ class Game:
             obj.draw()
 
         # Display scores - outer loop goes through each player
-        for p in (0,1):
+        for p in (0, 1):
             # Convert score into a string of 2 digits (e.g. "05") so we can later get the individual digits
             score: str = "{0:02d}".format(self.bats[p].score)
             # Inner loop goes through each digit
-            for i in (0,1):
+            for i in (0, 1):
                 # Digit sprites are numbered 00 to 29, where the first digit is the colour (0 = grey,
                 # 1 = blue, 2 = green) and the second digit is the digit itself
                 # Colour is usually grey but turns red or green (depending on player number) when a
@@ -367,11 +379,13 @@ class Game:
                 colour: str = "0"
                 other_p: int = 1 - p
                 if self.bats[other_p].timer > 0 and game.ball.out():
-                    colour = "2" if p == 0  else "1"
+                    colour = "2" if p == 0 else "1"
                 image: str = "digit" + colour + str(score[i])
                 screen.blit(image, (255 + (160 * p) + (i * 55), 46))
 
-    def play_sound(self, name: str, count: int = 1, menu_sound: bool = False) -> None:
+    def play_sound(
+        self, name: str, count: int = 1, menu_sound: bool = False
+    ) -> None:
         # Some sounds have multiple varieties. If count > 1, we'll randomly choose one from those
         # We don't play any in-game sound effects if player 0 is an AI player - as this means we're on the menu
         # Updated Jan 2022 - some Pygame installations have issues playing ogg sound files. play_sound can skip sound
@@ -385,8 +399,9 @@ class Game:
             # to access an attribute of Pygame Zero's sounds object, we must use Python's built-in function getattr
             try:
                 getattr(sounds, name + str(random.randint(0, count - 1))).play()
-            except Exception as e:
+            except Exception:
                 pass
+
 
 def p1_controls() -> int:
     move: int = 0
@@ -396,6 +411,7 @@ def p1_controls() -> int:
         move = -PLAYER_SPEED
     return move
 
+
 def p2_controls() -> int:
     move: int = 0
     if keyboard.m:
@@ -404,10 +420,12 @@ def p2_controls() -> int:
         move = -PLAYER_SPEED
     return move
 
+
 class State(Enum):
     MENU = 1
     PLAY = 2
     GAME_OVER = 3
+
 
 num_players: int = 1
 
@@ -416,6 +434,7 @@ space_down: bool = False
 
 
 # Pygame Zero calls the update and draw functions each frame
+
 
 def update() -> None:
     global state, game, num_players, space_down
@@ -464,15 +483,16 @@ def update() -> None:
             # Create a new Game object, without any players
             game = Game()
 
+
 def draw() -> None:
     game.draw()
 
     if state == State.MENU:
         menu_image: str = "menu" + str(num_players - 1)
-        screen.blit(menu_image, (0,0))
+        screen.blit(menu_image, (0, 0))
 
     elif state == State.GAME_OVER:
-        screen.blit("over", (0,0))
+        screen.blit("over", (0, 0))
 
 
 # The mixer allows us to play sounds and music

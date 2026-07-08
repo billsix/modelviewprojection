@@ -17,8 +17,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -43,6 +41,7 @@ def apply_camera_transform() -> None:
     GL.glRotatef(-math.degrees(camera_yaw), 0.0, 1.0, 0.0)
     GL.glTranslatef(-camera_x, -camera_y, -camera_z)
 
+
 GL_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FE
 GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FF
 
@@ -54,27 +53,38 @@ def load_textures() -> None:
     for i, fname in enumerate(texture_files):
         img = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = (GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4
-               else GL.GL_RGB)
+        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
         img = np.ascontiguousarray(img, dtype=np.uint8)
         textures[i] = GL.glGenTextures(1)
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[i])
-        GLU.gluBuild2DMipmaps(GL.GL_TEXTURE_2D, fmt, w, h, fmt,
-                              GL.GL_UNSIGNED_BYTE, img)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER,
-                           GL.GL_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           GL.GL_LINEAR_MIPMAP_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S,
-                           GL.GL_CLAMP_TO_EDGE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T,
-                           GL.GL_CLAMP_TO_EDGE)
+        GLU.gluBuild2DMipmaps(
+            GL.GL_TEXTURE_2D, fmt, w, h, fmt, GL.GL_UNSIGNED_BYTE, img
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_MIN_FILTER,
+            GL.GL_LINEAR_MIPMAP_LINEAR,
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+        )
 
 
 def apply_filter(idx: int, aniso: bool) -> None:
-    modes = [GL.GL_NEAREST, GL.GL_LINEAR, GL.GL_NEAREST_MIPMAP_NEAREST,
-             GL.GL_NEAREST_MIPMAP_LINEAR, GL.GL_LINEAR_MIPMAP_NEAREST,
-             GL.GL_LINEAR_MIPMAP_LINEAR]
+    modes = [
+        GL.GL_NEAREST,
+        GL.GL_LINEAR,
+        GL.GL_NEAREST_MIPMAP_NEAREST,
+        GL.GL_NEAREST_MIPMAP_LINEAR,
+        GL.GL_LINEAR_MIPMAP_NEAREST,
+        GL.GL_LINEAR_MIPMAP_LINEAR,
+    ]
     f_max_aniso = 1.0
     try:
         f_max_aniso = GL.glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT)
@@ -82,16 +92,20 @@ def apply_filter(idx: int, aniso: bool) -> None:
         pass
     for tex in textures:
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           modes[idx])
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, modes[idx]
+        )
         try:
             if aniso:
-                GL.glTexParameterf(GL.GL_TEXTURE_2D,
-                                   GL_TEXTURE_MAX_ANISOTROPY_EXT,
-                                   float(f_max_aniso))
+                GL.glTexParameterf(
+                    GL.GL_TEXTURE_2D,
+                    GL_TEXTURE_MAX_ANISOTROPY_EXT,
+                    float(f_max_aniso),
+                )
             else:
-                GL.glTexParameterf(GL.GL_TEXTURE_2D,
-                                   GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0)
+                GL.glTexParameterf(
+                    GL.GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, 1.0
+                )
         except Exception:
             pass
 
@@ -104,30 +118,46 @@ def render_scene() -> None:
     while z >= 0.0:
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[TEXTURE_FLOOR])
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(-10.0, -10.0, z)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(10.0, -10.0, z)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(10.0, -10.0, z - 10.0)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(-10.0, -10.0, z - 10.0)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(-10.0, -10.0, z)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(10.0, -10.0, z)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(10.0, -10.0, z - 10.0)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(-10.0, -10.0, z - 10.0)
         GL.glEnd()
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[TEXTURE_CEILING])
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(-10.0, 10.0, z - 10.0)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(10.0, 10.0, z - 10.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(10.0, 10.0, z)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(-10.0, 10.0, z)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(-10.0, 10.0, z - 10.0)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(10.0, 10.0, z - 10.0)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(10.0, 10.0, z)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(-10.0, 10.0, z)
         GL.glEnd()
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[TEXTURE_BRICK])
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(-10.0, -10.0, z)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(-10.0, -10.0, z - 10.0)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(-10.0, 10.0, z - 10.0)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(-10.0, 10.0, z)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(-10.0, -10.0, z)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(-10.0, -10.0, z - 10.0)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(-10.0, 10.0, z - 10.0)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(-10.0, 10.0, z)
         GL.glEnd()
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(10.0, 10.0, z)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(10.0, 10.0, z - 10.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(10.0, -10.0, z - 10.0)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(10.0, -10.0, z)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(10.0, 10.0, z)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(10.0, 10.0, z - 10.0)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(10.0, -10.0, z - 10.0)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(10.0, -10.0, z)
         GL.glEnd()
         z -= 10.0
     GL.glPopMatrix()
@@ -195,9 +225,14 @@ def _yaw(sign: float) -> None:
     camera_yaw += sign * YAW_RAD_PER_SEC / 60.0
 
 
-FILTER_NAMES = ["GL_NEAREST", "GL_LINEAR", "GL_NEAREST_MIPMAP_NEAREST",
-                "GL_NEAREST_MIPMAP_LINEAR", "GL_LINEAR_MIPMAP_NEAREST",
-                "GL_LINEAR_MIPMAP_LINEAR"]
+FILTER_NAMES = [
+    "GL_NEAREST",
+    "GL_LINEAR",
+    "GL_NEAREST_MIPMAP_NEAREST",
+    "GL_NEAREST_MIPMAP_LINEAR",
+    "GL_LINEAR_MIPMAP_NEAREST",
+    "GL_LINEAR_MIPMAP_LINEAR",
+]
 
 
 def _set_filter(idx: int) -> None:
@@ -219,13 +254,15 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Filtering", True):
         for i, name in enumerate(FILTER_NAMES):
-            _common.menu_action(name, "", lambda v=i: _set_filter(v),
-                                selected=(filter_idx == i))
+            _common.menu_action(
+                name, "", lambda v=i: _set_filter(v), selected=(filter_idx == i)
+            )
         imgui.separator()
         clicked, _ = imgui.menu_item("Anisotropic", "", anisotropic, True)
         if clicked:

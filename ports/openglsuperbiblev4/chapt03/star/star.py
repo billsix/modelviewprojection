@@ -14,8 +14,6 @@ import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -48,24 +46,39 @@ def render_scene() -> None:
 
     GL.glBegin(GL.GL_TRIANGLES)
 
-    GL.glEdgeFlag(b_edge_flag); GL.glVertex2f(-20.0, 0.0)
-    GL.glEdgeFlag(True);        GL.glVertex2f(20.0, 0.0)
+    GL.glEdgeFlag(b_edge_flag)
+    GL.glVertex2f(-20.0, 0.0)
+    GL.glEdgeFlag(True)
+    GL.glVertex2f(20.0, 0.0)
     GL.glVertex2f(0.0, 40.0)
 
-    GL.glVertex2f(-20.0, 0.0); GL.glVertex2f(-60.0, -20.0)
-    GL.glEdgeFlag(b_edge_flag); GL.glVertex2f(-20.0, -40.0); GL.glEdgeFlag(True)
+    GL.glVertex2f(-20.0, 0.0)
+    GL.glVertex2f(-60.0, -20.0)
+    GL.glEdgeFlag(b_edge_flag)
+    GL.glVertex2f(-20.0, -40.0)
+    GL.glEdgeFlag(True)
 
-    GL.glVertex2f(-20.0, -40.0); GL.glVertex2f(0.0, -80.0)
-    GL.glEdgeFlag(b_edge_flag); GL.glVertex2f(20.0, -40.0); GL.glEdgeFlag(True)
+    GL.glVertex2f(-20.0, -40.0)
+    GL.glVertex2f(0.0, -80.0)
+    GL.glEdgeFlag(b_edge_flag)
+    GL.glVertex2f(20.0, -40.0)
+    GL.glEdgeFlag(True)
 
-    GL.glVertex2f(20.0, -40.0); GL.glVertex2f(60.0, -20.0)
-    GL.glEdgeFlag(b_edge_flag); GL.glVertex2f(20.0, 0.0); GL.glEdgeFlag(True)
+    GL.glVertex2f(20.0, -40.0)
+    GL.glVertex2f(60.0, -20.0)
+    GL.glEdgeFlag(b_edge_flag)
+    GL.glVertex2f(20.0, 0.0)
+    GL.glEdgeFlag(True)
 
     # Center square as two triangles
     GL.glEdgeFlag(b_edge_flag)
-    GL.glVertex2f(-20.0, 0.0); GL.glVertex2f(-20.0, -40.0); GL.glVertex2f(20.0, 0.0)
+    GL.glVertex2f(-20.0, 0.0)
+    GL.glVertex2f(-20.0, -40.0)
+    GL.glVertex2f(20.0, 0.0)
 
-    GL.glVertex2f(-20.0, -40.0); GL.glVertex2f(20.0, -40.0); GL.glVertex2f(20.0, 0.0)
+    GL.glVertex2f(-20.0, -40.0)
+    GL.glVertex2f(20.0, -40.0)
+    GL.glVertex2f(20.0, 0.0)
     GL.glEdgeFlag(True)
 
     GL.glEnd()
@@ -85,11 +98,23 @@ def change_size(w: int, h: int) -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if w <= h:
-        GL.glOrtho(-n_range, n_range, -n_range * h / w, n_range * h / w,
-                   -n_range, n_range)
+        GL.glOrtho(
+            -n_range,
+            n_range,
+            -n_range * h / w,
+            n_range * h / w,
+            -n_range,
+            n_range,
+        )
     else:
-        GL.glOrtho(-n_range * w / h, n_range * w / h, -n_range, n_range,
-                   -n_range, n_range)
+        GL.glOrtho(
+            -n_range * w / h,
+            n_range * w / h,
+            -n_range,
+            n_range,
+            -n_range,
+            n_range,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 
@@ -140,28 +165,45 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Mode", True):
-        _common.menu_action("Solid", "", lambda: _set_mode(MODE_SOLID),
-                            selected=(i_mode == MODE_SOLID))
-        _common.menu_action("Outline", "", lambda: _set_mode(MODE_LINE),
-                            selected=(i_mode == MODE_LINE))
-        _common.menu_action("Points", "", lambda: _set_mode(MODE_POINT),
-                            selected=(i_mode == MODE_POINT))
+        _common.menu_action(
+            "Solid",
+            "",
+            lambda: _set_mode(MODE_SOLID),
+            selected=(i_mode == MODE_SOLID),
+        )
+        _common.menu_action(
+            "Outline",
+            "",
+            lambda: _set_mode(MODE_LINE),
+            selected=(i_mode == MODE_LINE),
+        )
+        _common.menu_action(
+            "Points",
+            "",
+            lambda: _set_mode(MODE_POINT),
+            selected=(i_mode == MODE_POINT),
+        )
         imgui.separator()
-        _, b_edge_flag = imgui.menu_item(
-            "Edge flag", "", b_edge_flag, True)
+        _, b_edge_flag = imgui.menu_item("Edge flag", "", b_edge_flag, True)
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
-        _common.menu_action("Rotate up", "Up", lambda: _nudge_rot("x", -ROT_STEP))
-        _common.menu_action("Rotate down", "Down",
-                            lambda: _nudge_rot("x", ROT_STEP))
-        _common.menu_action("Rotate left", "Left",
-                            lambda: _nudge_rot("y", -ROT_STEP))
-        _common.menu_action("Rotate right", "Right",
-                            lambda: _nudge_rot("y", ROT_STEP))
+        _common.menu_action(
+            "Rotate up", "Up", lambda: _nudge_rot("x", -ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate down", "Down", lambda: _nudge_rot("x", ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _nudge_rot("y", -ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _nudge_rot("y", ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
@@ -174,9 +216,7 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(
-        800, 600, "Solid and Outlined Star", None, None
-    )
+    window = glfw.create_window(800, 600, "Solid and Outlined Star", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)

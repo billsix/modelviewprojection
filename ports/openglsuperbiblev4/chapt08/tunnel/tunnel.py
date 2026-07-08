@@ -18,8 +18,6 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-
-
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
@@ -61,28 +59,39 @@ def load_textures() -> None:
 
         textures[i] = GL.glGenTextures(1)
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[i])
-        GLU.gluBuild2DMipmaps(GL.GL_TEXTURE_2D, internal, w, h, fmt,
-                              GL.GL_UNSIGNED_BYTE, img)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER,
-                           GL.GL_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           GL.GL_LINEAR_MIPMAP_LINEAR)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S,
-                           GL.GL_CLAMP_TO_EDGE)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T,
-                           GL.GL_CLAMP_TO_EDGE)
+        GLU.gluBuild2DMipmaps(
+            GL.GL_TEXTURE_2D, internal, w, h, fmt, GL.GL_UNSIGNED_BYTE, img
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D,
+            GL.GL_TEXTURE_MIN_FILTER,
+            GL.GL_LINEAR_MIPMAP_LINEAR,
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
+        )
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_CLAMP_TO_EDGE
+        )
 
 
 def apply_filter(idx: int) -> None:
     modes = [
-        GL.GL_NEAREST, GL.GL_LINEAR,
-        GL.GL_NEAREST_MIPMAP_NEAREST, GL.GL_NEAREST_MIPMAP_LINEAR,
-        GL.GL_LINEAR_MIPMAP_NEAREST, GL.GL_LINEAR_MIPMAP_LINEAR,
+        GL.GL_NEAREST,
+        GL.GL_LINEAR,
+        GL.GL_NEAREST_MIPMAP_NEAREST,
+        GL.GL_NEAREST_MIPMAP_LINEAR,
+        GL.GL_LINEAR_MIPMAP_NEAREST,
+        GL.GL_LINEAR_MIPMAP_LINEAR,
     ]
     for tex in textures:
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
-        GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER,
-                           modes[idx])
+        GL.glTexParameteri(
+            GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, modes[idx]
+        )
 
 
 def render_scene() -> None:
@@ -95,36 +104,52 @@ def render_scene() -> None:
         # Floor
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[TEXTURE_FLOOR])
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(-10.0, -10.0, z)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(10.0, -10.0, z)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(10.0, -10.0, z - 10.0)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(-10.0, -10.0, z - 10.0)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(-10.0, -10.0, z)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(10.0, -10.0, z)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(10.0, -10.0, z - 10.0)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(-10.0, -10.0, z - 10.0)
         GL.glEnd()
 
         # Ceiling
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[TEXTURE_CEILING])
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(-10.0, 10.0, z - 10.0)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(10.0, 10.0, z - 10.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(10.0, 10.0, z)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(-10.0, 10.0, z)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(-10.0, 10.0, z - 10.0)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(10.0, 10.0, z - 10.0)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(10.0, 10.0, z)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(-10.0, 10.0, z)
         GL.glEnd()
 
         # Left wall
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[TEXTURE_BRICK])
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(-10.0, -10.0, z)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(-10.0, -10.0, z - 10.0)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(-10.0, 10.0, z - 10.0)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(-10.0, 10.0, z)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(-10.0, -10.0, z)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(-10.0, -10.0, z - 10.0)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(-10.0, 10.0, z - 10.0)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(-10.0, 10.0, z)
         GL.glEnd()
 
         # Right wall
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(10.0, 10.0, z)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(10.0, 10.0, z - 10.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(10.0, -10.0, z - 10.0)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(10.0, -10.0, z)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(10.0, 10.0, z)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(10.0, 10.0, z - 10.0)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(10.0, -10.0, z - 10.0)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(10.0, -10.0, z)
         GL.glEnd()
 
         z -= 10.0
@@ -194,9 +219,14 @@ def _yaw(sign: float) -> None:
     camera_yaw += sign * YAW_RAD_PER_SEC / 60.0
 
 
-FILTER_NAMES = ["GL_NEAREST", "GL_LINEAR", "GL_NEAREST_MIPMAP_NEAREST",
-                "GL_NEAREST_MIPMAP_LINEAR", "GL_LINEAR_MIPMAP_NEAREST",
-                "GL_LINEAR_MIPMAP_LINEAR"]
+FILTER_NAMES = [
+    "GL_NEAREST",
+    "GL_LINEAR",
+    "GL_NEAREST_MIPMAP_NEAREST",
+    "GL_NEAREST_MIPMAP_LINEAR",
+    "GL_LINEAR_MIPMAP_NEAREST",
+    "GL_LINEAR_MIPMAP_LINEAR",
+]
 
 
 def _set_filter(idx: int) -> None:
@@ -212,13 +242,15 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Min Filter", True):
         for i, name in enumerate(FILTER_NAMES):
-            _common.menu_action(name, "", lambda v=i: _set_filter(v),
-                                selected=(filter_idx == i))
+            _common.menu_action(
+                name, "", lambda v=i: _set_filter(v), selected=(filter_idx == i)
+            )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _move(1.0))

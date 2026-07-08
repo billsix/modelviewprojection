@@ -16,8 +16,8 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
-import _primitives  # noqa: E402
 import _common  # noqa: E402
+import _primitives  # noqa: E402
 
 _window = None  # set in main(); used by the Quit menu item
 
@@ -101,11 +101,23 @@ def change_size(w: int, h: int) -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if w <= h:
-        GL.glOrtho(-n_range, n_range, -n_range * h / w, n_range * h / w,
-                   -n_range * 2.0, n_range * 2.0)
+        GL.glOrtho(
+            -n_range,
+            n_range,
+            -n_range * h / w,
+            n_range * h / w,
+            -n_range * 2.0,
+            n_range * 2.0,
+        )
     else:
-        GL.glOrtho(-n_range * w / h, n_range * w / h, -n_range, n_range,
-                   -n_range * 2.0, n_range * 2.0)
+        GL.glOrtho(
+            -n_range * w / h,
+            n_range * w / h,
+            -n_range,
+            n_range,
+            -n_range * 2.0,
+            n_range * 2.0,
+        )
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
 
@@ -156,17 +168,21 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rotate_x(-BTN_ROT_STEP))
-        _common.menu_action("Rotate down", "Down",
-                            lambda: _rotate_x(BTN_ROT_STEP))
-        _common.menu_action("Rotate left", "Left",
-                            lambda: _rotate_y(-BTN_ROT_STEP))
-        _common.menu_action("Rotate right", "Right",
-                            lambda: _rotate_y(BTN_ROT_STEP))
+        _common.menu_action(
+            "Rotate down", "Down", lambda: _rotate_x(BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate left", "Left", lambda: _rotate_y(-BTN_ROT_STEP)
+        )
+        _common.menu_action(
+            "Rotate right", "Right", lambda: _rotate_y(BTN_ROT_STEP)
+        )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 

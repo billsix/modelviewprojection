@@ -23,7 +23,6 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import Vector3, plane_equation
 
-
 STAGE_LABELS = (
     "0  Wireframe cube",
     "1  Wireframe cube + hidden-line removal",
@@ -32,7 +31,6 @@ STAGE_LABELS = (
     "4  Lit cube + planar shadow",
     "5  Textured cube + textured floor + shadow",
 )
-
 
 
 # Keep track of effects step
@@ -73,6 +71,7 @@ _window = None  # set in main(); used by the Controls buttons
 # task #5) and is imported above.
 # ---------------------------------------------------------------------------
 
+
 def make_planar_shadow_matrix(
     plane_normal: Vector3,
     plane_d: float,
@@ -92,20 +91,35 @@ def make_planar_shadow_matrix(
     CW winding so w lands positive; mvp's plane_equation uses CCW so
     w lands negative and the shadow gets clipped away. We negate the
     whole matrix when needed to keep w positive."""
-    a, b, c = plane_normal.coeff_e_1, plane_normal.coeff_e_2, plane_normal.coeff_e_3
+    a, b, c = (
+        plane_normal.coeff_e_1,
+        plane_normal.coeff_e_2,
+        plane_normal.coeff_e_3,
+    )
     d = plane_d
     dx, dy, dz = -light_pos[0], -light_pos[1], -light_pos[2]
     sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
             # column 0
-            sign * (b * dy + c * dz), sign * -a * dy, sign * -a * dz, 0.0,
+            sign * (b * dy + c * dz),
+            sign * -a * dy,
+            sign * -a * dz,
+            0.0,
             # column 1
-            sign * -b * dx, sign * (a * dx + c * dz), sign * -b * dz, 0.0,
+            sign * -b * dx,
+            sign * (a * dx + c * dz),
+            sign * -b * dz,
+            0.0,
             # column 2
-            sign * -c * dx, sign * -c * dy, sign * (a * dx + b * dy), 0.0,
+            sign * -c * dx,
+            sign * -c * dy,
+            sign * (a * dx + b * dy),
+            0.0,
             # column 3
-            sign * -d * dx, sign * -d * dy, sign * -d * dz,
+            sign * -d * dx,
+            sign * -d * dy,
+            sign * -d * dz,
             sign * (a * dx + b * dy + c * dz),
         ],
         dtype=np.float32,
@@ -116,33 +130,46 @@ def make_planar_shadow_matrix(
 # Inline replacements for glutSolidCube / glutWireCube
 # ---------------------------------------------------------------------------
 
+
 def draw_solid_cube(size: float) -> None:
     s = size / 2.0
     GL.glBegin(GL.GL_QUADS)
     # +Z
     GL.glNormal3f(0.0, 0.0, 1.0)
-    GL.glVertex3f(-s, -s, s); GL.glVertex3f(s, -s, s)
-    GL.glVertex3f(s, s, s); GL.glVertex3f(-s, s, s)
+    GL.glVertex3f(-s, -s, s)
+    GL.glVertex3f(s, -s, s)
+    GL.glVertex3f(s, s, s)
+    GL.glVertex3f(-s, s, s)
     # -Z
     GL.glNormal3f(0.0, 0.0, -1.0)
-    GL.glVertex3f(s, -s, -s); GL.glVertex3f(-s, -s, -s)
-    GL.glVertex3f(-s, s, -s); GL.glVertex3f(s, s, -s)
+    GL.glVertex3f(s, -s, -s)
+    GL.glVertex3f(-s, -s, -s)
+    GL.glVertex3f(-s, s, -s)
+    GL.glVertex3f(s, s, -s)
     # +X
     GL.glNormal3f(1.0, 0.0, 0.0)
-    GL.glVertex3f(s, -s, s); GL.glVertex3f(s, -s, -s)
-    GL.glVertex3f(s, s, -s); GL.glVertex3f(s, s, s)
+    GL.glVertex3f(s, -s, s)
+    GL.glVertex3f(s, -s, -s)
+    GL.glVertex3f(s, s, -s)
+    GL.glVertex3f(s, s, s)
     # -X
     GL.glNormal3f(-1.0, 0.0, 0.0)
-    GL.glVertex3f(-s, -s, -s); GL.glVertex3f(-s, -s, s)
-    GL.glVertex3f(-s, s, s); GL.glVertex3f(-s, s, -s)
+    GL.glVertex3f(-s, -s, -s)
+    GL.glVertex3f(-s, -s, s)
+    GL.glVertex3f(-s, s, s)
+    GL.glVertex3f(-s, s, -s)
     # +Y
     GL.glNormal3f(0.0, 1.0, 0.0)
-    GL.glVertex3f(-s, s, s); GL.glVertex3f(s, s, s)
-    GL.glVertex3f(s, s, -s); GL.glVertex3f(-s, s, -s)
+    GL.glVertex3f(-s, s, s)
+    GL.glVertex3f(s, s, s)
+    GL.glVertex3f(s, s, -s)
+    GL.glVertex3f(-s, s, -s)
     # -Y
     GL.glNormal3f(0.0, -1.0, 0.0)
-    GL.glVertex3f(-s, -s, -s); GL.glVertex3f(s, -s, -s)
-    GL.glVertex3f(s, -s, s); GL.glVertex3f(-s, -s, s)
+    GL.glVertex3f(-s, -s, -s)
+    GL.glVertex3f(s, -s, -s)
+    GL.glVertex3f(s, -s, s)
+    GL.glVertex3f(-s, -s, s)
     GL.glEnd()
 
 
@@ -176,6 +203,7 @@ def draw_wire_cube(size: float) -> None:
 # Texture loading (replaces gltLoadTGA)
 # ---------------------------------------------------------------------------
 
+
 def load_tga_texture(path: str) -> int:
     img = iio.imread(path)
     if img.ndim == 2:
@@ -204,6 +232,7 @@ def load_tga_texture(path: str) -> int:
 # Scene rendering
 # ---------------------------------------------------------------------------
 
+
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     GL.glShadeModel(GL.GL_SMOOTH)
@@ -218,10 +247,14 @@ def render_scene() -> None:
         GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[0])
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(-100.0, -25.3, -100.0)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(-100.0, -25.3, 100.0)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(100.0, -25.3, 100.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(100.0, -25.3, -100.0)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(-100.0, -25.3, -100.0)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(-100.0, -25.3, 100.0)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(100.0, -25.3, 100.0)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(100.0, -25.3, -100.0)
         GL.glEnd()
     else:
         GL.glColor3f(0.0, 0.0, 0.90)
@@ -259,22 +292,32 @@ def render_scene() -> None:
         # only the front three faces' edges
         GL.glBegin(GL.GL_LINES)
         # Front face (before rotation)
-        GL.glVertex3f(25.0, 25.0, 25.0); GL.glVertex3f(25.0, -25.0, 25.0)
-        GL.glVertex3f(25.0, -25.0, 25.0); GL.glVertex3f(-25.0, -25.0, 25.0)
-        GL.glVertex3f(-25.0, -25.0, 25.0); GL.glVertex3f(-25.0, 25.0, 25.0)
-        GL.glVertex3f(-25.0, 25.0, 25.0); GL.glVertex3f(25.0, 25.0, 25.0)
+        GL.glVertex3f(25.0, 25.0, 25.0)
+        GL.glVertex3f(25.0, -25.0, 25.0)
+        GL.glVertex3f(25.0, -25.0, 25.0)
+        GL.glVertex3f(-25.0, -25.0, 25.0)
+        GL.glVertex3f(-25.0, -25.0, 25.0)
+        GL.glVertex3f(-25.0, 25.0, 25.0)
+        GL.glVertex3f(-25.0, 25.0, 25.0)
+        GL.glVertex3f(25.0, 25.0, 25.0)
         GL.glEnd()
         GL.glBegin(GL.GL_LINES)
         # Top face
-        GL.glVertex3f(25.0, 25.0, 25.0); GL.glVertex3f(25.0, 25.0, -25.0)
-        GL.glVertex3f(25.0, 25.0, -25.0); GL.glVertex3f(-25.0, 25.0, -25.0)
-        GL.glVertex3f(-25.0, 25.0, -25.0); GL.glVertex3f(-25.0, 25.0, 25.0)
-        GL.glVertex3f(-25.0, 25.0, 25.0); GL.glVertex3f(25.0, 25.0, 25.0)
+        GL.glVertex3f(25.0, 25.0, 25.0)
+        GL.glVertex3f(25.0, 25.0, -25.0)
+        GL.glVertex3f(25.0, 25.0, -25.0)
+        GL.glVertex3f(-25.0, 25.0, -25.0)
+        GL.glVertex3f(-25.0, 25.0, -25.0)
+        GL.glVertex3f(-25.0, 25.0, 25.0)
+        GL.glVertex3f(-25.0, 25.0, 25.0)
+        GL.glVertex3f(25.0, 25.0, 25.0)
         GL.glEnd()
         GL.glBegin(GL.GL_LINES)
         # Last two segments
-        GL.glVertex3f(25.0, 25.0, -25.0); GL.glVertex3f(25.0, -25.0, -25.0)
-        GL.glVertex3f(25.0, -25.0, -25.0); GL.glVertex3f(25.0, -25.0, 25.0)
+        GL.glVertex3f(25.0, 25.0, -25.0)
+        GL.glVertex3f(25.0, -25.0, -25.0)
+        GL.glVertex3f(25.0, -25.0, -25.0)
+        GL.glVertex3f(25.0, -25.0, 25.0)
         GL.glEnd()
     elif n_step == 2:
         draw_solid_cube(50.0)
@@ -289,9 +332,7 @@ def render_scene() -> None:
         GL.glDisable(GL.GL_LIGHTING)
         GL.glPushMatrix()
 
-        plane_normal, plane_d = plane_equation(
-            ground[0], ground[1], ground[2]
-        )
+        plane_normal, plane_d = plane_equation(ground[0], ground[1], ground[2])
         shadow_mat = make_planar_shadow_matrix(
             plane_normal, plane_d, v_light_pos
         )
@@ -307,28 +348,40 @@ def render_scene() -> None:
         # Front face
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[1])
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(25.0, 25.0, 25.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(25.0, -25.0, 25.0)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(-25.0, -25.0, 25.0)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(-25.0, 25.0, 25.0)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(25.0, 25.0, 25.0)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(25.0, -25.0, 25.0)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(-25.0, -25.0, 25.0)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(-25.0, 25.0, 25.0)
         GL.glEnd()
 
         # Top face
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[2])
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(25.0, 25.0, 25.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(25.0, 25.0, -25.0)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(-25.0, 25.0, -25.0)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(-25.0, 25.0, 25.0)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(25.0, 25.0, 25.0)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(25.0, 25.0, -25.0)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(-25.0, 25.0, -25.0)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(-25.0, 25.0, 25.0)
         GL.glEnd()
 
         # Right face
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[3])
         GL.glBegin(GL.GL_QUADS)
-        GL.glTexCoord2f(1.0, 1.0); GL.glVertex3f(25.0, 25.0, -25.0)
-        GL.glTexCoord2f(1.0, 0.0); GL.glVertex3f(25.0, -25.0, -25.0)
-        GL.glTexCoord2f(0.0, 0.0); GL.glVertex3f(25.0, -25.0, 25.0)
-        GL.glTexCoord2f(0.0, 1.0); GL.glVertex3f(25.0, 25.0, 25.0)
+        GL.glTexCoord2f(1.0, 1.0)
+        GL.glVertex3f(25.0, 25.0, -25.0)
+        GL.glTexCoord2f(1.0, 0.0)
+        GL.glVertex3f(25.0, -25.0, -25.0)
+        GL.glTexCoord2f(0.0, 0.0)
+        GL.glVertex3f(25.0, -25.0, 25.0)
+        GL.glTexCoord2f(0.0, 1.0)
+        GL.glVertex3f(25.0, 25.0, 25.0)
         GL.glEnd()
 
         GL.glPopMatrix()
@@ -336,9 +389,7 @@ def render_scene() -> None:
         GL.glDisable(GL.GL_TEXTURE_2D)
 
         GL.glPushMatrix()
-        plane_normal, plane_d = plane_equation(
-            ground[0], ground[1], ground[2]
-        )
+        plane_normal, plane_d = plane_equation(ground[0], ground[1], ground[2])
         shadow_mat = make_planar_shadow_matrix(
             plane_normal, plane_d, v_light_pos
         )
@@ -414,14 +465,18 @@ def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
-        _common.menu_action("Quit", "Esc",
-                            lambda: glfw.set_window_should_close(_window, True))
+        _common.menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
+        )
         imgui.end_menu()
     if imgui.begin_menu("Demo", True):
         for i, label in enumerate(STAGE_LABELS):
-            _common.menu_action(label, "SPACE" if i == 0 else "",
-                                lambda i=i: _set_step(i),
-                                selected=(n_step == i))
+            _common.menu_action(
+                label,
+                "SPACE" if i == 0 else "",
+                lambda i=i: _set_step(i),
+                selected=(n_step == i),
+            )
         imgui.end_menu()
     imgui.end_main_menu_bar()
 
