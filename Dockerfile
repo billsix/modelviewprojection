@@ -76,6 +76,11 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    texlive-anyfontsize \
                    texlive-dvipng \
                    texlive-dvisvgm \
+                   texlive-fontspec \
+                   texlive-gnu-freefont \
+                   texlive-luahbtex \
+                   texlive-luatex85 \
+                   texlive-polyglossia \
                    texlive-standalone && \
        ( git clone https://github.com/billsix/tex-expression-to-png.git /tmp/tex_exp_to_png && \
          cd /tmp/tex_exp_to_png && \

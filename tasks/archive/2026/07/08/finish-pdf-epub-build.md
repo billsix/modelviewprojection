@@ -1,7 +1,17 @@
 # Task: confirm PDF + EPUB build is green after inlinetex migration
 
-**Status:** blocked-on-Bill (needs the podman build container + a display-free
-`make html`). The inlinetex code itself is committed (`e682de3`).
+**Status:** COMPLETE 2026-07-08 — Bill's full build produced both artifacts
+(`_build/latex/modelviewprojection.pdf` 8.6 MB, `_build/epub/
+ModelViewProjection.epub` 15.8 MB, plus `output/`). Both failure modes this
+doc predicted actually fired first and were fixed structurally the same day:
+the "Unicode character" pdflatex death (a `√` U+221A via autodoc'd gacalc
+docstrings, not a notebook glyph) is gone permanently via
+`latex_engine = "lualatex"` (+ `latex_use_xindy = False`, five texlive
+packages in the Dockerfile), and the stale-`.aux` "Runaway argument /
+\@newl@bel" bit exactly as described (step 1's `rm -rf _build/latex` was the
+cure). Remaining related item — inline-math "get the size reasonable"
+(TODO.org, imgtex DPI knob) — stays open in TODO.org; it was never this
+doc's core goal.
 
 ## Context
 The `inlinetex` Sphinx extension + LaTeX→inlinetex migration (HANDOFF

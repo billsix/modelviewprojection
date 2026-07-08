@@ -2,12 +2,11 @@ all: cayleyImages graphs rotate0-0.svg
 	cd gnuplot && make
 
 
-/usr/local/bin/texExpToPng: tex_exp_to_png/meson.build
-	cd tex_exp_to_png &&  \
-           meson setup builddir && \
-           meson compile -C builddir && \
-           meson install -C builddir
-
+# /usr/local/bin/texExpToPng is baked into the image at image-build time (the
+# Dockerfile's BUILD_DOCS block builds it from a SHA-pinned clone of
+# billsix/tex-expression-to-png -- the vendored copy is gone).  It stays a
+# prerequisite so a BUILD_DOCS=0 image fails here with a clear message instead
+# of at the first texExpToPng invocation.
 
 %.png: %.tex /usr/local/bin/texExpToPng
 	texExpToPng --file $< --size 300 --output $@

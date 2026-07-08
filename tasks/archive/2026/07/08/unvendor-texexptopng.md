@@ -7,7 +7,15 @@ contains nothing the build needs — no mirror push required before pinning).
 Dockerfile: COPY removed, `git` added to the BUILD_DOCS dnf list, clone+
 checkout+meson stanza in place; vendored dir deleted; CLAUDE.md contract
 rewritten; the 2026-06-14 billboard task's vendoring decisions annotated as
-superseded. Gate result in session summary.
+superseded. One miss caught by Bill's first `make html`:
+`book/docs/_static/Makefile` had its own build-from-vendored-dir rule for
+`/usr/local/bin/texExpToPng` — removed (the binary is baked into the image;
+the prerequisite stays so a BUILD_DOCS=0 image errors clearly). Gates:
+default-flags image build + in-container texExpToPng render + full sphinx
+html book build all PASS; **COMPLETE 2026-07-08 — Bill built the html
+himself.** (The lualatex PDF-engine switch done the same day is a separate,
+also-verified change: conf.py `latex_engine`/`latex_use_xindy` + five
+texlive packages.)
 **Created:** 2026-07-08
 
 ## Goal

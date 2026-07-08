@@ -57,6 +57,19 @@ imgmath_font_size = 20  # for font size 14
 imgmath_latex_preamble = "\\usepackage{amsmath}\n" + "\\usepackage{xcolor}\n"
 
 
+# lualatex (the engine the openstax book pipelines use) instead of pdflatex:
+# it is Unicode-native, so characters like the U+221A radical that reach the
+# book through autodoc'd docstrings (e.g. gacalc's "|A| = √(A~ * A)")
+# render instead of aborting the PDF build.  Fonts come from fontspec + GNU
+# FreeFont (Sphinx's default for the unicode engines); the Dockerfile installs
+# texlive-luahbtex/fontspec/gnu-freefont under BUILD_DOCS.
+latex_engine = "lualatex"
+
+# Sphinx silently switches the index processor to xindy for the unicode
+# engines; the image ships makeindex (which indexed this book fine under
+# pdflatex), not xindy (which drags in clisp).  Keep makeindex.
+latex_use_xindy = False
+
 latex_elements = {
     "preamble": r"""
 \usepackage{graphicx}
