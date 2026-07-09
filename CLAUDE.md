@@ -10,7 +10,7 @@ External sources Bill draws from: **OpenGL SuperBible v4** (main porting source 
 
 The whole curriculum is built on **one substituted abstraction**: instead of 4×4 matrices, transformations are `InvertibleFunction`s on `Vector2`/`Vector3`, and coordinate systems form a **Cayley graph** where nodes are spaces and directed edges are these functions.
 
-> **Note (2026-06-08):** `mathutils.py` is now a **façade over the `gacalc` geometric-algebra library** — `Vector2`/`Vector3` are gacalc's graded vector types (the old in-repo `Vector2D`/`Vector3D` were deleted), `InvertibleFunction`/`translate`/`compose`/`scale_non_uniform`/… come from `gacalc.transforms`, and rotations are built on rotors (`rotor_from_vectors` + the closed-form `sandwich`). mvp keeps only the graphics-specific math (projections, plane geometry, predicates, `FunctionStack`). Status + remaining work (Phase 4, the book) in `tasks/gacalc-math-migration.md`.
+> **Note (2026-06-08):** `mathutils.py` is now a **façade over the `gacalc` geometric-algebra library** — `Vector2`/`Vector3` are gacalc's graded vector types (the old in-repo `Vector2D`/`Vector3D` were deleted), `InvertibleFunction`/`translate`/`compose`/`scale_non_uniform`/… come from `gacalc.transforms`, and rotations come from gacalc's `plane_rotation(a, b)` (gacalc ≥ 0.0.8) — `rotate`/`rotate_x/y/z` are direct bindings of it to the relevant basis-vector pairs (half-angle rotor sandwich under the hood; numeric θ stays float, no sympy leak). mvp keeps only the graphics-specific math (projections, plane geometry, `FunctionStack`; the orientation predicates live in `framebuffer/softwarerendering.py`, their sole consumer). The code migration is complete; the remaining book-prose work is `tasks/book-rotate-prose-update.md`.
 
 This substitution is the *point* of the course — it lets Bill explain everything (model→world→camera→NDC, push/pop, perspective) using only "function composition" and "inverse," with no linear-algebra prerequisite.
 
@@ -159,9 +159,14 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
   pygame/pgzero APIs correctly.
 - **Enforcement:** `entrypoint/format.sh` runs `ty check` on `pgzero_gl` + `vol1` + `vol2`.
 - **Fidelity gotchas worth not rediscovering:**
-  - Audio is **`just_playback`**, not `pygame.mixer` (host SDL is broken). It has **no
-    finalizer**, so a dropped `Playback` leaks its miniaudio stream — `Sound`/`_Music`
-    pool and reuse voices instead of creating-and-dropping.
+  - Audio is a **single-device software mixer on `miniaudio`** (`pgzero_gl/audio.py`,
+    2026-07-09), not `pygame.mixer` (host SDL is broken) and no longer `just_playback` —
+    its stream-per-voice model exhausted ALSA client slots and **blocked the game
+    thread** (leadingedge's 41 engine samples; see
+    `tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md`). One
+    `PlaybackDevice`, all voices mixed in the callback like pygame's channels:
+    decoded-buffer voices with gapless loop wraparound and per-frame fade ramps,
+    8-voice-per-Sound cap, music streamed in chunks. Headless → graceful no-op.
   - `geometry.Rect` is **integer-coord like `pygame.Rect`**; **`ZRect`** is the float
     variant, and **`Actor` uses `ZRect`** to keep sub-pixel positions.
   - **The games use `gacalc.g2.Vector2` / `gacalc.g3.Vector3` DIRECTLY**
@@ -235,7 +240,7 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 - `tasks/face-normal-vector3d-io.md` — investigation (not started).
 
 **Book / curriculum:**
-- `tasks/gacalc-math-migration.md` — **Phase 4 (the book) is the remaining high-risk step** (ch05/06/14 rewritten to teach gacalc vectors as *the* vector type).
+- `tasks/book-rotate-prose-update.md` — **the remaining book-prose work** (Bill's to write): update rotate prose for `plane_rotation`, and it carries the old gacalc-math-migration Phase 4 (ch05/06/14 teach gacalc vectors as *the* vector type). The code phases are done and archived.
 - `tasks/book-code-drift-ch7-15.md` and `tasks/book-code-drift-ch16-21.md` — book-prose drift trackers (planned/partial), now self-contained: the per-chapter `chNN-fixes.md` satellites were folded into these and archived 2026-06-14.
 - `tasks/v4-chapt14-shadowmap-fix.md` — the one v4 demo not yet landed.
 - `tasks/extract-duplicated-demo-helpers.md` — in progress (helper dedup).
