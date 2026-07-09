@@ -1,13 +1,11 @@
 # Fix the 79 `ty check src` diagnostics exposed by the Fedora ty bump
 
-**Status:** diagnostics RESOLVED 2026-07-09 — `ty check src` is **0**
-(was 79; all of them died with the crossproduct-demo removal, see
-archive/2026/07/09/remove-crossproduct-demo.md). src, tests, and the whole
-ctc tree are now ty-clean. The ONLY remaining item is this task's
-follow-through decision: flip `entrypoint/format.sh` to fail-on-any-step
-(set -e or per-step exit-code collection) so the gate can never again
-report green off the last step alone — needs Bill's go-ahead.
-**Created:** 2026-07-08
+**Status:** DONE 2026-07-09, archived. The 79 diagnostics died with
+the crossproduct-demo removal (79 -> 0), and format.sh is now
+**fail-on-any-step** (Bill: "flip it"): every step runs so one pass
+reports all the red, and the script exits nonzero if ANY step failed.
+Verified both paths in-container: full green gate exits 0; an
+injected unfixable finding exits nonzero.
 
 ## Context
 

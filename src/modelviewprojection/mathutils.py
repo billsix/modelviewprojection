@@ -40,7 +40,7 @@ import typing
 # Re-exported from gacalc: the vector representations and the transform layer.
 from gacalc.base import MultiVectorBase
 from gacalc.g1 import Vector1
-from gacalc.g2 import Vector2
+from gacalc.g2 import Bivector2, Vector2
 from gacalc.g3 import Vector3
 from gacalc.transforms import (
     InvertibleFunction,
@@ -50,7 +50,7 @@ from gacalc.transforms import (
     compose_intermediate_fns_and_fn,
     identity,
     inverse,
-    rotor_rotation,
+    plane_rotation,
     scale_non_uniform,
     to_matrix,
     translate,
@@ -75,7 +75,6 @@ __all__ = [
     "scale_non_uniform",
     "to_matrix",
     # graphics-specific, defined here on top of gacalc
-    "rotate_90_degrees",
     "rotate",
     "rotate_around",
     "rotate_x",
@@ -83,9 +82,6 @@ __all__ = [
     "rotate_z",
     "cosine",
     "sine",
-    "is_counter_clockwise",
-    "is_clockwise",
-    "is_parallel",
     "abs_sin",
     "find_normal",
     "plane_equation",
@@ -106,32 +102,20 @@ V = typing.TypeVar("V", bound=MultiVectorBase)
 
 
 # doc-region-begin define rotate
-def rotate_90_degrees() -> InvertibleFunction[Vector2]:
-    # a quarter turn carries e_1 to e_2; gacalc builds the rotor and applies it.
-    return rotor_rotation(
-        Vector2.e_1,
-        Vector2.e_2,
-        latex_repr="R_{<xy90>}",
-        latex_repr_inv="R_{<xy90>}^{-1}",
-        interpolate=lambda t: rotate(math.radians(90.0) * t),
-    )
-
-
-def rotate(angle_in_radians: float) -> InvertibleFunction[Vector2]:
-    # rotating by theta carries e_1 to the unit vector at angle theta; gacalc's
-    # rotor_rotation builds R = rotor_from_vectors(e_1, that) and sandwiches.
-    to_vector: Vector2 = (
-        math.cos(angle_in_radians) * Vector2.e_1
-        + math.sin(angle_in_radians) * Vector2.e_2
-    )
-    return rotor_rotation(
-        Vector2.e_1,
-        to_vector,
-        latex_repr=f"R_{{<{angle_in_radians}>}}",
-        latex_repr_inv=f"R_{{<{-angle_in_radians}>}}",
-        interpolate=lambda t: rotate(angle_in_radians * t),
-    )
-    # doc-region-end define rotate
+# rotate(theta) rotates a Vector2 by theta in the plane e_1 wedge e_2 (the
+# only plane there is, in 2D).  It is bound at module scope ON PURPOSE:
+# plane_rotation derives the plane ONCE (wedge -> normalized unit bivector,
+# cached in the closure), so each rotate(theta) call -- and every animation
+# frame's .at(t) -- just assembles the half-angle rotor from it.  Rebinding
+# it per call would re-derive the plane every time.  A numeric theta stays
+# in plain floats end to end.
+rotate: typing.Callable[[float], InvertibleFunction[Vector2]] = plane_rotation(
+    Vector2.e_1,
+    Vector2.e_2,
+    latex_repr=lambda t: f"R_{{<{t}>}}",
+    latex_repr_inv=lambda t: f"R_{{<{-t}>}}",
+)
+# doc-region-end define rotate
 
 
 # doc-region-begin define rotate around
@@ -157,89 +141,52 @@ def sine(v1: Vector2, v2: Vector2) -> float:
     denominator: float = float(abs(v1)) * float(abs(v2))
     if denominator == 0.0:
         return float("nan")
-    return float(rotate_90_degrees()(v1).dot(v2).scalar_part()) / denominator
-
-
-# doc-region-begin counter clockwise
-def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
-    # orientation is the SIGN of the cross product  v1 x v2 = |v1||v2| sin(theta)
-    # (sine's numerator).  Use it unnormalized: dividing by the magnitudes would
-    # not change the sign but would blow up when either vector is zero -- e.g. a
-    # rasterized pixel sitting exactly on a triangle vertex.
-    return float(rotate_90_degrees()(v1).dot(v2).scalar_part()) >= 0.0
-    # doc-region-end counter clockwise
-
-
-# doc-region-begin clockwise
-def is_clockwise(v1: Vector2, v2: Vector2) -> bool:
-    # the mirror of is_counter_clockwise (the cross product the other way).  Both
-    # include the cross == 0 (collinear / on-the-edge) case, so a point lying
-    # exactly on an edge or vertex counts as BOTH -- which lets the rasterizer
-    # light boundary pixels no matter which way the triangle is wound.
-    return float(rotate_90_degrees()(v1).dot(v2).scalar_part()) <= 0.0
-    # doc-region-end clockwise
-
-
-# doc-region-begin parallel
-def is_parallel(v1: Vector2, v2: Vector2) -> bool:
-    # a zero-length vector has no direction; treat it as degenerate/collinear so
-    # callers (e.g. the rasterizer's degenerate-triangle guard) get a definite
-    # answer instead of dividing by a zero magnitude.
-    if float(abs(v1)) == 0.0 or float(abs(v2)) == 0.0:
-        return True
-    return math.isclose(cosine(v1, v2), 1.0, abs_tol=0.01)
-    # doc-region-end parallel
+    # |v1||v2| sin(theta) IS the 2D wedge -- the bivector coefficient of
+    # v1 ^ v2, a.k.a. the 2D cross product / signed area.  The classic
+    # "rotate v1 by 90 degrees, then dot with v2" trick computes exactly
+    # this number; the algebra hands it to us directly.
+    return float((v1 ^ v2).coefficient(Bivector2.e_12)) / denominator
 
 
 # doc-region-begin define rotate x
-def rotate_x(angle_in_radians: float) -> InvertibleFunction[Vector3]:
-    # rotation in the y-z plane: carry e_2 toward e_3 (the x axis, e_1, is fixed)
-    to_vector: Vector3 = (
-        math.cos(angle_in_radians) * Vector3.e_2
-        + math.sin(angle_in_radians) * Vector3.e_3
-    )
-    return rotor_rotation(
+# rotation in the y-z plane: carry e_2 toward e_3 (the x axis, e_1, is
+# fixed).  Bound at module scope for the same reason as rotate: the plane
+# is derived once, each call is just trig + rotor.
+rotate_x: typing.Callable[[float], InvertibleFunction[Vector3]] = (
+    plane_rotation(
         Vector3.e_2,
-        to_vector,
-        latex_repr=f"RX_{{<{angle_in_radians}>}}",
-        latex_repr_inv=f"RX_{{<{-angle_in_radians}>}}",
-        interpolate=lambda t: rotate_x(angle_in_radians * t),
+        Vector3.e_3,
+        latex_repr=lambda t: f"RX_{{<{t}>}}",
+        latex_repr_inv=lambda t: f"RX_{{<{-t}>}}",
     )
-    # doc-region-end define rotate x
+)
+# doc-region-end define rotate x
 
 
 # doc-region-begin define rotate y
-def rotate_y(angle_in_radians: float) -> InvertibleFunction[Vector3]:
-    # rotation in the z-x plane: carry e_3 toward e_1 (the y axis, e_2, is fixed)
-    to_vector: Vector3 = (
-        math.cos(angle_in_radians) * Vector3.e_3
-        + math.sin(angle_in_radians) * Vector3.e_1
-    )
-    return rotor_rotation(
+# rotation in the z-x plane: carry e_3 toward e_1 (the y axis, e_2, is fixed)
+rotate_y: typing.Callable[[float], InvertibleFunction[Vector3]] = (
+    plane_rotation(
         Vector3.e_3,
-        to_vector,
-        latex_repr=f"RY_{{<{angle_in_radians}>}}",
-        latex_repr_inv=f"RY_{{<{-angle_in_radians}>}}",
-        interpolate=lambda t: rotate_y(angle_in_radians * t),
+        Vector3.e_1,
+        latex_repr=lambda t: f"RY_{{<{t}>}}",
+        latex_repr_inv=lambda t: f"RY_{{<{-t}>}}",
     )
-    # doc-region-end define rotate y
+)
+# doc-region-end define rotate y
 
 
 # doc-region-begin define rotate z
-def rotate_z(angle_in_radians: float) -> InvertibleFunction[Vector3]:
-    # rotation in the x-y plane: carry e_1 toward e_2 (the z axis, e_3, is fixed)
-    to_vector: Vector3 = (
-        math.cos(angle_in_radians) * Vector3.e_1
-        + math.sin(angle_in_radians) * Vector3.e_2
-    )
-    return rotor_rotation(
+# rotation in the x-y plane: carry e_1 toward e_2 (the z axis, e_3, is fixed)
+rotate_z: typing.Callable[[float], InvertibleFunction[Vector3]] = (
+    plane_rotation(
         Vector3.e_1,
-        to_vector,
-        latex_repr=f"RZ_{{<{angle_in_radians}>}}",
-        latex_repr_inv=f"RZ_{{<{-angle_in_radians}>}}",
-        interpolate=lambda t: rotate_z(angle_in_radians * t),
+        Vector3.e_2,
+        latex_repr=lambda t: f"RZ_{{<{t}>}}",
+        latex_repr_inv=lambda t: f"RZ_{{<{-t}>}}",
     )
-    # doc-region-end define rotate z
+)
+# doc-region-end define rotate z
 
 
 def abs_sin(v1: Vector3, v2: Vector3) -> float:

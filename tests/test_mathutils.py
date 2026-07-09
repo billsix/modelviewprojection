@@ -33,6 +33,11 @@ import pytest
 from gacalc.g2 import Vector2
 from gacalc.g3 import Vector3
 
+from modelviewprojection.framebuffer.softwarerendering import (
+    is_clockwise,
+    is_counter_clockwise,
+    is_parallel,
+)
 from modelviewprojection.mathutils import (
     Linearity,
     abs_sin,
@@ -41,14 +46,10 @@ from modelviewprojection.mathutils import (
     find_normal,
     fn_stack,
     inverse,
-    is_clockwise,
-    is_counter_clockwise,
-    is_parallel,
     ortho,
     perspective,
     plane_equation,
     rotate,
-    rotate_90_degrees,
     rotate_around,
     rotate_x,
     rotate_y,
@@ -73,8 +74,10 @@ def v3(x, y, z):
 # --------------------------------------------------------------------------- #
 
 
-def test_rotate_90_degrees():
-    fn = rotate_90_degrees()
+def test_rotate_quarter_turn():
+    # rotate_90_degrees was retired 2026-07-09; a quarter turn is just
+    # rotate(pi/2) on the module-level plane factory.
+    fn = rotate(math.radians(90.0))
     fn_inv = inverse(fn)
     pairs = [
         (Vector2.zero(), Vector2.zero()),

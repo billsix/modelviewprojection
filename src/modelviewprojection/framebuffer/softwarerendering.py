@@ -16,22 +16,59 @@
 # Boston, MA 02111-1307, USA.
 
 import dataclasses
+import math
 import typing
 
 import IPython.display as display
 import numpy as np
 import PIL
 import PIL.Image
+from gacalc.g2 import Bivector2
 
 from modelviewprojection.mathutils import (
     Vector2,
     compose,
-    is_clockwise,
-    is_counter_clockwise,
-    is_parallel,
+    cosine,
     scale_non_uniform,
     translate,
 )
+
+
+# The three orientation predicates live HERE, next to their only
+# consumer (the point-in-triangle test below); they moved out of
+# mathutils 2026-07-09 when the audit showed the rasterizer was the
+# sole caller.
+# doc-region-begin counter clockwise
+def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
+    # orientation is the SIGN of the cross product  v1 x v2 = |v1||v2| sin(theta)
+    # -- which in 2D is exactly the wedge  v1 ^ v2  (sine's numerator; see the
+    # note there).  Use it unnormalized: dividing by the magnitudes would not
+    # change the sign but would blow up when either vector is zero -- e.g. a
+    # rasterized pixel sitting exactly on a triangle vertex.
+    return float((v1 ^ v2).coefficient(Bivector2.e_12)) >= 0.0
+    # doc-region-end counter clockwise
+
+
+# doc-region-begin clockwise
+def is_clockwise(v1: Vector2, v2: Vector2) -> bool:
+    # the mirror of is_counter_clockwise (the cross product the other way).  Both
+    # include the cross == 0 (collinear / on-the-edge) case, so a point lying
+    # exactly on an edge or vertex counts as BOTH -- which lets the rasterizer
+    # light boundary pixels no matter which way the triangle is wound.
+    return float((v1 ^ v2).coefficient(Bivector2.e_12)) <= 0.0
+    # doc-region-end clockwise
+
+
+# doc-region-begin parallel
+def is_parallel(v1: Vector2, v2: Vector2) -> bool:
+    # a zero-length vector has no direction; treat it as degenerate/collinear so
+    # callers (e.g. the rasterizer's degenerate-triangle guard) get a definite
+    # answer instead of dividing by a zero magnitude.
+    if float(abs(v1)) == 0.0 or float(abs(v2)) == 0.0:
+        return True
+    return math.isclose(cosine(v1, v2), 1.0, abs_tol=0.01)
+    # doc-region-end parallel
+
 
 BLACK: typing.Tuple[int, int, int] = (0, 0, 0)
 WHITE: typing.Tuple[int, int, int] = (255, 255, 255)

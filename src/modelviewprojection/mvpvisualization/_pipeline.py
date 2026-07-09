@@ -745,7 +745,8 @@ def set_uniforms(u_m: int, u_v: int, u_p: int) -> None:
 
     Note: ``glUniform*`` updates the program object's default-uniform-block
     state -- it does not "upload" bytes to GPU memory the way
-    ``glBufferData`` does.  See tasks/archive/2026/05/27/notes-uniform-terminology.md."""
+    ``glBufferData`` does.  See
+    tasks/archive/2026/05/27/notes-uniform-terminology.md."""
     GL.glUniformMatrix4fv(
         u_m,
         1,

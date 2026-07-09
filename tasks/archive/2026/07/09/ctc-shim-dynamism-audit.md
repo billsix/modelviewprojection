@@ -1,9 +1,9 @@
 # CTC: audit the shim's dynamism against the 10 games' real uses; make the basics static
 
-**Status:** COMPLETE except Bill's final boot pass (2026-07-09). All
-phases done: de-dynamism (static Actor), dataclass-design revisit
-(Bill: "do whatever you recommend"), AND the follow-up Vector2 pass —
-`Actor.pos` now returns a `gacalc.g2.Vector2`. Staged, uncommitted.
+**Status:** DONE 2026-07-09, archived (Bill: "yes it's done").
+The one open thread — leadingedge's clunky engine audio + freeze —
+is deliberately split out and lives on in
+`tasks/leadingedge-audio-clunk-and-freeze.md` (confirmed present).
 **Created:** 2026-07-09 (Bill)
 
 ## Design revisit + follow-up pass (2026-07-09, all landed)

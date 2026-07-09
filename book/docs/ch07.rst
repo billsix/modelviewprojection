@@ -322,6 +322,13 @@ Therefore
 
 ``Vector2D`` is the same data structure introduced earlier; it is unchanged here.
 
+.. TODO (2026-07-09, tasks/book-rotate-prose-update.md): the included
+   code changed -- ``rotate`` is now bound directly from gacalc's
+   ``plane_rotation`` factory (the plane e1^e2 is derived once at module
+   import; each call is just the half-angle rotor).  The prose around this
+   include still narrates the old build-a-to-vector-and-call-rotor_rotation
+   shape and needs rewriting to the plane+angle story.
+
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define rotate

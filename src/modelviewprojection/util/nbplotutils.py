@@ -121,8 +121,13 @@ def create_graphs(graph_bounds=(3, 3), title=None, filename=None):
     return fig
 
 
+# the shared no-op default for create_basis (B008: don't call in defaults;
+# identity() is stateless, so one module-level instance serves every call)
+_IDENTITY = identity()
+
+
 def create_basis(
-    fn=identity(),
+    fn=_IDENTITY,
     graph_bounds=(10, 10),
     gridline_interval=1,
     xcolor=(0.0, 0.0, 1.0),
@@ -143,7 +148,7 @@ def create_basis(
 
 
 def create_unit_circle(
-    fn=identity(),
+    fn=_IDENTITY,
 ):
     def generate_circle():
         theta_increment: float = 0.01
@@ -175,7 +180,7 @@ def create_unit_circle(
 
 
 def create_x_and_y(
-    fn=identity(),
+    fn=_IDENTITY,
     xcolor=(0.0, 0.0, 1.0),
     ycolor=(1.0, 0.0, 1.0),
 ):
@@ -201,7 +206,7 @@ def create_x_and_y(
 
 
 def draw_isoceles_triangle(
-    fn=identity(),
+    fn=_IDENTITY,
     color=(0.0, 0.0, 1.0),
 ):
     x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
@@ -262,7 +267,7 @@ def draw_isoceles_triangle(
 
 
 def draw_second_right_triangle(
-    fn=identity(),
+    fn=_IDENTITY,
     color=(0.0, 0.0, 1.0),
 ):
     x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
@@ -317,7 +322,7 @@ def draw_second_right_triangle(
 
 
 def draw_right_triangle(
-    fn=identity(),
+    fn=_IDENTITY,
     color=(0.0, 0.0, 1.0),
 ):
     x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
@@ -372,7 +377,7 @@ def draw_right_triangle(
 
 
 def draw_ndc(
-    fn=identity(),
+    fn=_IDENTITY,
     color=(0.0, 0.0, 1.0),
 ):
     x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
@@ -430,7 +435,7 @@ def draw_ndc(
 def draw_screen(
     width,
     height,
-    fn=identity(),
+    fn=_IDENTITY,
     color=(0.0, 0.0, 1.0),
 ):
     d_width = 2.0 / width

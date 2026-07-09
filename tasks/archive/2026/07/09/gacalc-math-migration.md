@@ -1,6 +1,9 @@
 # Migrate mvp math onto gacalc (delete overlapping math, import gacalc vectors)
 
-**Status:** IN PROGRESS — Phases 0–3 DONE; **only Phase 4 (the book) remains**
+**Status:** ARCHIVED 2026-07-09 — Phases 0–3 (all the code) DONE long
+since; Phase 4 (the book) RELOCATED to `tasks/book-rotate-prose-update.md`
+(which grew out of the 2026-07-09 plane_rotation adoption and now carries
+the full book-catch-up scope).
 **Started:** 2026-06-07
 
 > ## ▶ RESUME HERE — Phase 4: update the book

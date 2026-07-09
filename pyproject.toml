@@ -37,6 +37,16 @@ ignore = []
 # ... plus bare excepts guarding sound playback (E722), the sys.path-then-
 # import dance (E402), upstream variable naming/lambdas/defaults (E741, E731,
 # B008, F841, UP007).
+# the src demos draw random scenery/spawns exactly like the game ports do
+# (game RNG, not crypto -- same S311 rationale as ports/** below), and print
+# on purpose (shader logs, teaching output -- same T201 rationale).
+"src/modelviewprojection/demos/**" = ["S311", "T201"]
+# assignments are student-facing scripts whose printed output IS the point.
+"assignments/**" = ["T201"]
+# build-time script; its progress output is deliberate.
+"src/modelviewprojection/plotsforbook/**" = ["T201"]
+# jupytext notebooks: printed output IS the notebook content.
+"src/modelviewprojection/notebooksrc/**" = ["T201"]
 "ports/**" = ["E501", "S311", "T201", "E711", "E712", "B007",
               "UP035", "E722", "E402", "E741", "E731", "B008", "F841", "UP007"]
 

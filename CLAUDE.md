@@ -184,6 +184,16 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
 
 ---
 
+## Assignments (`assignments/`)
+
+Student-facing exercises (`assignment1.py`, `assignment2-screenspace.py`,
+`assignment3-strafe.py`, `demo02/`), runnable standalone. As of 2026-07-09
+they are **covered by `format.sh`** (ruff check + format; `T201` exempted —
+their printed output is the point), but their *content* predates the gacalc
+migration: each carries a bespoke `Vertex2D` and raw GLFW boilerplate.
+Modernization direction is an open task (`tasks/assignments-review.md`) —
+don't "fix" their vocabulary ad hoc; the exercise design is Bill's call.
+
 ## Tasks
 
 Active work lives in `tasks/` (one file per task); completed work is moved to

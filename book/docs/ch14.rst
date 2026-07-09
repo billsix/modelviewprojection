@@ -162,6 +162,12 @@ the z component at all.
     :figclass: align-center
 
 
+.. TODO (2026-07-09, tasks/book-rotate-prose-update.md): rotate_z /
+   rotate_x / rotate_y below are now bound directly from gacalc's
+   ``plane_rotation`` factory (one plane per axis, derived once at module
+   import).  The surrounding prose still describes the old per-call
+   to-vector construction and needs the plane+angle rewrite.
+
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
    :start-after: doc-region-begin define rotate z
