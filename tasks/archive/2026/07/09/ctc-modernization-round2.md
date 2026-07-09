@@ -1,8 +1,6 @@
 # CTC modernization round 2: two IntEnums + the remaining match chains
 
-**Status:** DONE 2026-07-09 (Bill: "ok, go ahead and implement") —
-staged, uncommitted. **Remaining: Bill's boot pass of
-bunner/myriapod/cavern/kinetix/beatstreets**, then archive.
+**Status:** DONE + boot-passed 2026-07-09 (Bill: "looks fine") — archived.
 
 Implementation notes:
 - `Direction(IntEnum)` landed in both bunner and myriapod as designed;

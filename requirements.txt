@@ -15,6 +15,10 @@ myst-nb
 nbsphinx
 numpy
 PyOpenGL
+# The optional C accelerator for PyOpenGL (silences the 'No OpenGL_accelerate
+# module loaded' INFO and speeds up per-call array marshalling). Pinned to
+# match the dnf python3-pyopengl version in the Dockerfile -- bump together.
+PyOpenGL-accelerate==3.1.10
 pytest
 Sphinx
 sphinxcontrib-bibtex
