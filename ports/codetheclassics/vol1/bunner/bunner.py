@@ -27,7 +27,7 @@ _sys.path.append(
 import sys
 from collections.abc import Callable  # noqa: E402
 from dataclasses import InitVar, dataclass, field
-from enum import Enum
+from enum import Enum, IntEnum
 from random import choice, randint, random
 from typing import Any, ClassVar, Optional, override
 
@@ -118,11 +118,16 @@ class PlayerState(Enum):
     EAGLE = 3
 
 
-# Constants representing directions
-DIRECTION_UP: int = 0
-DIRECTION_RIGHT: int = 1
-DIRECTION_DOWN: int = 2
-DIRECTION_LEFT: int = 3
+class Direction(IntEnum):
+    # IntEnum, not Enum: directions index the DX/DY/direction_keys lists,
+    # and sprite names are built as e.g. "sit" + str(direction) -- since
+    # Python 3.11 str() of an IntEnum member is the plain number, so those
+    # stay byte-identical.
+    UP = 0
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
+
 
 direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
 
@@ -141,10 +146,10 @@ class Bunner(MyActor):
     # would treat the property object as this field's default value
     spawn_pos: InitVar[tuple[float, float]]
     state: PlayerState = PlayerState.ALIVE
-    direction: int = 2
+    direction: Direction = Direction.DOWN
     timer: int = 0
     # If a control input is pressed while the rabbit is in the middle of jumping, it's added to the input queue
-    input_queue: list[int] = field(default_factory=list)
+    input_queue: list[Direction] = field(default_factory=list)
 
     def __post_init__(self, spawn_pos: tuple[float, float]) -> None:
         super().__init__("blank", spawn_pos)
@@ -152,7 +157,7 @@ class Bunner(MyActor):
         # (Level Y coordinates decrease as the screen scrolls)
         self.min_y: Any = self.y
 
-    def handle_input(self, dir: int) -> None:
+    def handle_input(self, dir: Direction) -> None:
         # Find row that player is trying to move to. This may or may not be the row they're currently standing on,
         # depending on whether the proposed movement would take them onto a different row
         for row in game.rows:
@@ -173,7 +178,7 @@ class Bunner(MyActor):
     @override
     def update(self) -> None:
         # Check each control direction
-        for direction in range(4):
+        for direction in Direction:
             if key_just_pressed(direction_keys[direction]):
                 self.input_queue.append(direction)
 

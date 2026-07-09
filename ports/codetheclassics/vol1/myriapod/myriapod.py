@@ -25,7 +25,7 @@ _sys.path.append(
 import sys
 from collections.abc import Callable  # noqa: E402
 from dataclasses import InitVar, dataclass
-from enum import Enum
+from enum import Enum, IntEnum
 from random import choice, randint, random
 from typing import Any, ClassVar, Optional
 
@@ -459,11 +459,14 @@ SECONDARY_AXIS_SPEED = [0] * 4 + [1] * 8 + [2] * 4
 SECONDARY_AXIS_POSITIONS = [sum(SECONDARY_AXIS_SPEED[:i]) for i in range(16)]
 
 
-# Constants representing directions
-DIRECTION_UP: int = 0
-DIRECTION_RIGHT: int = 1
-DIRECTION_DOWN: int = 2
-DIRECTION_LEFT: int = 3
+class Direction(IntEnum):
+    # IntEnum, not Enum: directions index the DX/DY lists and participate
+    # in min(Direction, key=...) selection below.
+    UP = 0
+    RIGHT = 1
+    DOWN = 2
+    LEFT = 3
+
 
 # X and Y directions indexed into by in_edge and out_edge in Segment
 # The indices correspond to the direction numbers above, i.e. 0 = up, 1 = right, 2 = down, 3 = left
@@ -471,21 +474,22 @@ DX: list[int] = [0, 1, 0, -1]
 DY: list[int] = [-1, 0, 1, 0]
 
 
-def inverse_direction(dir: int) -> int:
-    if dir == DIRECTION_UP:
-        return DIRECTION_DOWN
-    elif dir == DIRECTION_RIGHT:
-        return DIRECTION_LEFT
-    elif dir == DIRECTION_DOWN:
-        return DIRECTION_UP
-    elif dir == DIRECTION_LEFT:
-        return DIRECTION_RIGHT
-    # exhaustive over the four valid directions -- make it explicit
+def inverse_direction(dir: Direction) -> Direction:
+    match dir:
+        case Direction.UP:
+            return Direction.DOWN
+        case Direction.RIGHT:
+            return Direction.LEFT
+        case Direction.DOWN:
+            return Direction.UP
+        case Direction.LEFT:
+            return Direction.RIGHT
+    # exhaustive over the four directions -- make it explicit
     raise ValueError(f"not a direction: {dir!r}")
 
 
-def is_horizontal(dir: int) -> bool:
-    return dir == DIRECTION_LEFT or dir == DIRECTION_RIGHT
+def is_horizontal(dir: Direction) -> bool:
+    return dir == Direction.LEFT or dir == Direction.RIGHT
 
 
 @dataclass(eq=False)
@@ -503,24 +507,26 @@ class Segment(Actor):
     # self.in_edge stores the edge through which it entered the cell.
     # Several frames after entering a cell, it chooses which edge to leave through - stored in out_edge
     # The path it follows is explained in the update and rank methods
-    in_edge: int = DIRECTION_LEFT
-    out_edge: int = DIRECTION_RIGHT
-    disallow_direction: int = (
-        DIRECTION_UP  # Prevents segment from moving in a particular direction
+    in_edge: Direction = Direction.LEFT
+    out_edge: Direction = Direction.RIGHT
+    disallow_direction: Direction = (
+        Direction.UP  # Prevents segment from moving in a particular direction
     )
-    previous_x_direction: int = 1  # Used to create winding/snaking motion
+    previous_x_direction: Direction = (
+        Direction.RIGHT  # Used to create winding/snaking motion
+    )
 
     def __post_init__(self) -> None:
         super().__init__("blank")
 
-    def rank(self) -> Callable[[int], tuple[bool, ...]]:
+    def rank(self) -> Callable[[Direction], tuple[bool, ...]]:
         # The rank method creates and returns a function. Don't worry if this seems a strange concept - it is
         # fairly advanced stuff. The returned function is passed to Python's 'min' function in the update method,
         # as the 'key' optional parameter. min then calls this function with the numbers 0 to 3, representing the four
         # directions
 
-        def inner(proposed_out_edge: int) -> tuple[bool, ...]:
-            # proposed_out_edge is a number between 0 and 3, representing a possible direction to move - see DIRECTION_UP etc and DX/DY above
+        def inner(proposed_out_edge: Direction) -> tuple[bool, ...]:
+            # proposed_out_edge is one of the four Directions - see Direction and DX/DY above
             # This function returns a tuple consisting of a series of factors determining which grid cell the segment should try to move into next.
             # These are not absolute rules - rather they are used to rank the four directions in order of preference,
             # i.e. which direction is the best (or at least, least bad) to move in. The factors are boolean (True or False)
@@ -619,14 +625,14 @@ class Segment(Actor):
             # Once it reaches row 18, it starts moving down again, so that it remains a threat to the player.
             # During the title screen, we allow segments to go all the way back up to the top of the screen.
             if self.cell_y == (18 if game.player else 0):
-                self.disallow_direction = DIRECTION_UP
+                self.disallow_direction = Direction.UP
             if self.cell_y == num_grid_rows - 1:
-                self.disallow_direction = DIRECTION_DOWN
+                self.disallow_direction = Direction.DOWN
 
         elif phase == 4:
             # At this point we decide which new cell we're going to go into (and therefore, which edge of the current
             # cell we will leave via - to be stored in out_edge)
-            # range(4) generates all the numbers from 0 to 3 (corresponding to DIRECTION_UP etc)
+            # iterate the four Direction members, choosing the best-ranked one
             # Python's built-in 'min' function usually chooses the lowest number, so would usually return 0 as the result.
             # But if the optional 'key' argument is specified, this changes how the function determines the result.
             # The rank function (see above) returns a function (named 'inner' in rank), which min calls to decide
@@ -635,7 +641,7 @@ class Segment(Actor):
             # When Python compares two such tuples, it considers values of False to be less than values of True,
             # and values that come earlier in the sequence are more significant than later values. So (False,True)
             # would be considered less than (True,False).
-            self.out_edge = min(range(4), key=self.rank())
+            self.out_edge = min(Direction, key=self.rank())
 
             if is_horizontal(self.out_edge):
                 self.previous_x_direction = self.out_edge
@@ -662,7 +668,7 @@ class Segment(Actor):
         turn_idx: int = (self.out_edge - self.in_edge) % 4
 
         # Calculate segment offset in the cell, measured from the cell's centre
-        # We start off assuming that the segment is starting from the top of the cell - i.e. self.in_edge being DIRECTION_UP,
+        # We start off assuming that the segment is starting from the top of the cell - i.e. self.in_edge being Direction.UP,
         # corresponding to zero. The primary and secondary axes, as described under "SEGMENT MOVEMENT" above, are Y and X.
         # We then apply a calculation to rotate these X and Y offsets, based on the actual direction the segment is coming from.
         # Let's take as an example the case where the segment is moving in a straight line from top to bottom.

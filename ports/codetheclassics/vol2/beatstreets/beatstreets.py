@@ -357,14 +357,17 @@ class KeyboardControls(Controls):
     def button_down(self, button: int) -> bool | None:
         # bool for buttons 0-3, implicitly None otherwise (callers only
         # test truthiness)
-        if button == 0:
-            return keyboard.space or keyboard.z or keyboard.lctrl  # punch
-        elif button == 1:
-            return keyboard.x or keyboard.lalt  # kick
-        elif button == 2:
-            return keyboard.c or keyboard.lshift  # elbow
-        elif button == 3:
-            return keyboard.a  # flying kick
+        match button:
+            case 0:
+                return keyboard.space or keyboard.z or keyboard.lctrl  # punch
+            case 1:
+                return keyboard.x or keyboard.lalt  # kick
+            case 2:
+                return keyboard.c or keyboard.lshift  # elbow
+            case 3:
+                return keyboard.a  # flying kick
+            case _:
+                return None
 
 
 class JoystickControls(Controls):

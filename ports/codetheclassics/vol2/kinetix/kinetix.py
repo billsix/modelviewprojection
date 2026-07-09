@@ -483,20 +483,23 @@ class Barrel(Actor):
             # Move barrel off the bottom of the screen, it will then be deleted
             self.y = HEIGHT + 100
 
-            if self.type in POWERUP_BAT_TYPES:
-                game.bat.change_type(POWERUP_BAT_TYPES[self.type])
-            elif self.type == Powerup.MULTI_BALL:
-                game.balls = [
-                    j for b in game.balls for j in b.generate_multiballs()
-                ]
-            elif self.type == Powerup.FAST_BALLS:
-                game.change_all_ball_speeds(3)
-            elif self.type == Powerup.SLOW_BALLS:
-                game.change_all_ball_speeds(-3)
-            elif self.type == Powerup.PORTAL:
-                game.activate_portal()
-            elif self.type == Powerup.EXTRA_LIFE:
-                game.lives += 1
+            match self.type:
+                # the bat-changing powerups share one handler, keyed by
+                # the POWERUP_BAT_TYPES table
+                case t if t in POWERUP_BAT_TYPES:
+                    game.bat.change_type(POWERUP_BAT_TYPES[t])
+                case Powerup.MULTI_BALL:
+                    game.balls = [
+                        j for b in game.balls for j in b.generate_multiballs()
+                    ]
+                case Powerup.FAST_BALLS:
+                    game.change_all_ball_speeds(3)
+                case Powerup.SLOW_BALLS:
+                    game.change_all_ball_speeds(-3)
+                case Powerup.PORTAL:
+                    game.activate_portal()
+                case Powerup.EXTRA_LIFE:
+                    game.lives += 1
 
         # The name of each powerup sprite has the format "barrel[powerup type][frame]",
         # where powerup type is a number from 0 to 8 and frame is a number from 0 to 9
@@ -764,23 +767,21 @@ class Ball(Actor):
     def collision_sound(collision_type: CollisionType) -> None:
         # A static method relates to the class as a whole rather than a specific instance
         # of the class, so doesn't have self as the first parameter
-        if (
-            collision_type == CollisionType.BRICK
-            or collision_type == CollisionType.INDESTRUCTIBLE_BRICK
-        ):
-            game.play_sound("hit_brick")
-        elif collision_type == CollisionType.WALL:
-            game.play_sound("hit_wall")
-        elif collision_type == CollisionType.BAT:
-            if game.bat.current_type == BatType.MAGNET:
-                game.play_sound("ball_stick")
-            else:
-                game.play_sound("hit_fast")
-        elif collision_type == CollisionType.BAT_EDGE:
-            if game.bat.current_type == BatType.MAGNET:
-                game.play_sound("ball_stick")
-            else:
-                game.play_sound("hit_veryfast")
+        match collision_type:
+            case CollisionType.BRICK | CollisionType.INDESTRUCTIBLE_BRICK:
+                game.play_sound("hit_brick")
+            case CollisionType.WALL:
+                game.play_sound("hit_wall")
+            case CollisionType.BAT:
+                if game.bat.current_type == BatType.MAGNET:
+                    game.play_sound("ball_stick")
+                else:
+                    game.play_sound("hit_fast")
+            case CollisionType.BAT_EDGE:
+                if game.bat.current_type == BatType.MAGNET:
+                    game.play_sound("ball_stick")
+                else:
+                    game.play_sound("hit_veryfast")
 
 
 @dataclass(eq=False)

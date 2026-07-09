@@ -24,7 +24,7 @@ _sys.path.append(
 )
 import sys
 from dataclasses import InitVar, dataclass
-from enum import Enum
+from enum import Enum, IntEnum
 from random import choice, randint, random, shuffle
 from typing import Any, ClassVar, Optional, cast, override  # noqa: E402
 
@@ -341,11 +341,14 @@ class GravityActor(CollideActor):
 
 # Class for pickups including fruit, extra health and extra life
 class Fruit(GravityActor):
-    APPLE: int = 0
-    RASPBERRY: int = 1
-    LEMON: int = 2
-    EXTRA_HEALTH: int = 3
-    EXTRA_LIFE: int = 4
+    class Type(IntEnum):
+        # IntEnum: sprite names are built as "fruit" + str(type), and since
+        # Python 3.11 str() of an IntEnum member is the plain number.
+        APPLE = 0
+        RASPBERRY = 1
+        LEMON = 2
+        EXTRA_HEALTH = 3
+        EXTRA_LIFE = 4
 
     def __init__(
         self, pos: tuple[float, float] | Vector2, trapped_enemy_type: int = 0
@@ -354,19 +357,21 @@ class Fruit(GravityActor):
 
         # Choose which type of fruit we're going to be.
         if trapped_enemy_type == Robot.TYPE_NORMAL:
-            self.type: int = choice([Fruit.APPLE, Fruit.RASPBERRY, Fruit.LEMON])
+            self.type: Fruit.Type = choice(
+                [Fruit.Type.APPLE, Fruit.Type.RASPBERRY, Fruit.Type.LEMON]
+            )
         else:
             # If trapped_enemy_type is 1, it means this fruit came from bursting an orb containing the more dangerous type
             # of enemy. In this case there is a chance of getting an extra help or extra life power up
             # We create a list containing the possible types of fruit, in proportions based on the probability we want
             # each type of fruit to be chosen
-            types: list[int] = 10 * [
-                Fruit.APPLE,
-                Fruit.RASPBERRY,
-                Fruit.LEMON,
+            types: list[Fruit.Type] = 10 * [
+                Fruit.Type.APPLE,
+                Fruit.Type.RASPBERRY,
+                Fruit.Type.LEMON,
             ]  # Each of these appear in the list 10 times
-            types += 9 * [Fruit.EXTRA_HEALTH]  # This appears 9 times
-            types += [Fruit.EXTRA_LIFE]  # This only appears once
+            types += 9 * [Fruit.Type.EXTRA_HEALTH]  # This appears 9 times
+            types += [Fruit.Type.EXTRA_LIFE]  # This only appears once
             self.type = choice(types)  # Randomly choose one from the list
 
         self.time_to_live: int = 500  # Counts down to zero
@@ -380,10 +385,10 @@ class Fruit(GravityActor):
 
         # Does the player exist, and are they colliding with us?
         if game.player and game.player.collidepoint(self.center):
-            if self.type == Fruit.EXTRA_HEALTH:
+            if self.type == Fruit.Type.EXTRA_HEALTH:
                 game.player.health = min(3, game.player.health + 1)
                 game.play_sound("bonus")
-            elif self.type == Fruit.EXTRA_LIFE:
+            elif self.type == Fruit.Type.EXTRA_LIFE:
                 game.player.lives += 1
                 game.play_sound("bonus")
             else:

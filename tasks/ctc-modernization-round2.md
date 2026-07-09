@@ -1,6 +1,32 @@
 # CTC modernization round 2: two IntEnums + the remaining match chains
 
-**Status:** proposed — needs go-ahead
+**Status:** DONE 2026-07-09 (Bill: "ok, go ahead and implement") —
+staged, uncommitted. **Remaining: Bill's boot pass of
+bunner/myriapod/cavern/kinetix/beatstreets**, then archive.
+
+Implementation notes:
+- `Direction(IntEnum)` landed in both bunner and myriapod as designed;
+  myriapod's `min(range(4), key=...)` became `min(Direction, key=...)`
+  (member iteration order == range(4) order, verified), `rank()`'s
+  Callable annotation followed, and `inverse_direction` is now a match
+  over Direction with the explicit unreachable raise as the tail.
+  Runtime contract verified in-container: inverses, is_horizontal,
+  DX/DY indexing, sprite-name str() (`"sit2"`), min-over-members.
+- `Fruit.Type(IntEnum)` nested in cavern (choice pools + comparisons +
+  the `types` list retyped).
+- Matches: beatstreets `button_down` (with an explicit `case _: None`),
+  kinetix Powerup effects (dict-membership arm as a guarded
+  `case t if t in POWERUP_BAT_TYPES`), kinetix collision sounds (the
+  compound first arm as an or-pattern
+  `CollisionType.BRICK | INDESTRUCTIBLE_BRICK`).
+- **The three flagged beatstreets sites were NOT converted, as suspected**:
+  650 and 1009 are nested-if shapes (detector false positives), 1046 is a
+  mixed-subject chain (falling_state arms followed by hit_timer /
+  pickup_animation arms) — the exact shape that produced the
+  orphaned-elif crash in the first match pass; restructuring it would
+  trade clarity for match-ness.
+- Gates: ty all-clean, ruff/format clean, 60 pytest, definitions gate on
+  all five touched games, Direction behavior contract.
 **Created:** 2026-07-09 (Bill: "is there any more stuff... more dataclasses,
 if reasonable? or what about enum types... or more match expressions?" —
 survey answers below; task per his ask, including the opted-out items)
