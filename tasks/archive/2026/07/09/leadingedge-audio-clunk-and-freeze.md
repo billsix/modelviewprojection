@@ -1,10 +1,9 @@
 # leadingedge: engine audio still clunky, game still freezes — investigate
 
-**Status:** FIXED 2026-07-09 (Bill: "ok go ahead and fix it") — staged,
-uncommitted. **Remaining: Bill's ears** — rebuild the image (requirements
-swapped just_playback -> miniaudio) or `pip install miniaudio` in the
-running container, then drive leadingedge: the engine should crossfade
-smoothly through the bands and the freeze should be gone.
+**Status:** FIXED, TESTED BY BILL, ARCHIVED 2026-07-09. The
+single-device software mixer (below) replaced the stream-per-voice
+backend; Bill rebuilt, drove leadingedge, and confirmed ("committed and
+tested"). The typed/dataclass polish landed the same day.
 
 ## The fix (implemented)
 
