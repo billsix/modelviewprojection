@@ -5,7 +5,9 @@ glfw
 ImageIO
 imgui-bundle[glfw]
 isort
-just_playback
+# single-device audio backend (decode + PlaybackDevice); replaced
+# just_playback 2026-07-09 -- see tasks/leadingedge-audio-clunk-and-freeze.md
+miniaudio
 jupyter
 jupytext
 mathjax

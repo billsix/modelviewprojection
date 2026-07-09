@@ -1,8 +1,43 @@
 # leadingedge: engine audio still clunky, game still freezes — investigate
 
-**Status:** ROOT CAUSE IDENTIFIED 2026-07-09 (investigation Bill directed:
-"study pygame zero... compare... to the original leading edge source...
-figure out why"). Fix direction proposed below — needs go-ahead.
+**Status:** FIXED 2026-07-09 (Bill: "ok go ahead and fix it") — staged,
+uncommitted. **Remaining: Bill's ears** — rebuild the image (requirements
+swapped just_playback -> miniaudio) or `pip install miniaudio` in the
+running container, then drive leadingedge: the engine should crossfade
+smoothly through the bands and the freeze should be gone.
+
+## The fix (implemented)
+
+`pgzero_gl/audio.py` rewritten on pygame.mixer's architecture, exactly as
+proposed: **one** miniaudio `PlaybackDevice` (opened lazily on first play;
+headless -> graceful no-op) fed by a software-mixing generator. Effects
+decode ONCE into shared numpy float32 buffers; each play is a lightweight
+`_Voice` (offset/volume/loop/fade state) mixed in the callback — gapless
+loops via buffer wraparound, per-FRAME linear fade ramps (fade_ms /
+fadeout run inside the mixer now; the 2026-07-09 fade thread is gone),
+per-effect voice cap of 8 (pygame's default channel count), and
+starting/stopping a voice is a flag flip under a lock. Music streams from
+disk in 1024-frame chunks (a decoded multi-minute track would be tens of
+MB) with loop-by-stream-restart, like SDL_mixer's streamed music. The
+public API (`Sound`, `music`, `available`, per-play `volume` for
+`mixer.Sound`) is unchanged; `just_playback` is dropped from
+requirements (replaced by `miniaudio`).
+
+**Verified headless in-container** by driving the mixer generator by
+hand against real leadingedge assets: gapless loop wraparound
+(sample-exact), non-loop end, fade-in ramp from silence, fadeout to
+zero + voice removal, additive mixing with per-play volumes, the exact
+engine band-change shape (two crossfading looped engine samples ->
+old voice fades out and is removed), the 8-voice cap with
+oldest-eviction, and music streaming/volume/fadeout(seconds)/play_once
+against `ambience`/`title_theme`. Plus: ty all-clean, ruff clean,
+60 pytest, definitions gate 10/10, and the avenger `mixer.Sound`
+wrapper re-verified over the new backend.
+
+Worth knowing: total OS audio streams is now exactly ONE, ever — the
+freeze mechanism (client-slot exhaustion blocking the game thread) is
+structurally impossible, and band changes no longer touch devices at
+all (crossfades are pure math in the callback).
 **Created:** 2026-07-09
 
 ## Investigation results (2026-07-09)

@@ -13,37 +13,58 @@ Raspberry Pi Press and authors).
 * Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
 * Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 
-PyGame Zero gets audio from ``pygame.mixer`` (SDL). We deliberately avoid pygame
-here (the project's host runs an SDL2-on-SDL3 shim that breaks SDL audio).
-Instead we use ``just_playback`` (a thin wrapper over the bundled miniaudio C
-library; ogg/wav/mp3, per-instance volume + looping).
+PyGame Zero gets audio from ``pygame.mixer`` (SDL). We deliberately avoid
+pygame here (the project's host runs an SDL2-on-SDL3 shim that breaks SDL
+audio) -- but we DO mirror pygame.mixer's architecture, because the games
+were written against it: **one** output device opened once, every effect
+decoded into an in-memory buffer at load, and N voices software-mixed in
+the device's audio callback. Loops are gapless (buffer wraparound in the
+mixer), fades are per-frame volume ramps inside the callback, and starting
+or stopping a voice is a flag flip -- zero OS device operations after
+startup.
 
-Audio is BEST EFFORT: if the backend can't be imported or a device can't be
-opened, every call becomes a no-op. The original games already wrap sound in
-try/except, so silence never breaks gameplay -- and on-screen GL is what gets
-human-verified here anyway (no audio device in the build container).
+History (2026-07-09): the previous backend (just_playback) opened a
+SEPARATE miniaudio stream per voice. leadingedge's 41-sample engine
+crossfade turned that into dozens of concurrent ALSA/PipeWire streams --
+audibly clunky band changes (device start/stop clicks, plus decode on the
+game thread per new band) and eventually a frozen game once the audio
+client slots ran out and snd_pcm blocked the game thread. Root-cause
+analysis: tasks/leadingedge-audio-clunk-and-freeze.md.
 
-``just_playback`` ships no type information, so its ``Playback`` handle is typed
-``Any`` at this boundary.
+Audio remains BEST EFFORT: if miniaudio can't be imported or a device can't
+be opened, every call becomes a no-op. The original games already wrap
+sound in try/except, so silence never breaks gameplay -- and on-screen GL
+is what gets human-verified here anyway (no audio device in the build
+container).
 """
 
 from __future__ import annotations
 
 import os
 import threading
-import time
-from typing import Any
+from collections.abc import Generator, Iterator
+from dataclasses import InitVar, dataclass, field
+from typing import TYPE_CHECKING, Any, cast
+
+import numpy as np
+from numpy.typing import NDArray
 
 from . import context
 
-# ``Playback`` factory (or None if the backend is unavailable); Any because
-# just_playback is untyped.
-_Playback: Any = None
+if TYPE_CHECKING:
+    import miniaudio
+
+#: interleaved float32 PCM at the mixing format
+_PCM = NDArray[np.float32]
+
+# the miniaudio module (or None if unavailable); Any so the sentinel and
+# the module share a type
+_ma: Any = None
 _BACKEND: bool = False
 try:
-    import just_playback as _jp
+    import miniaudio as _miniaudio
 
-    _Playback = _jp.Playback
+    _ma = _miniaudio
     _BACKEND = True
 except Exception:  # pragma: no cover - depends on runtime env
     pass
@@ -54,108 +75,219 @@ def available() -> bool:
     return _BACKEND
 
 
-# Max simultaneous voices kept alive per effect.  CRUCIAL: just_playback opens a
-# miniaudio stream per Playback and has NO finalizer, so a *dropped* Playback
-# leaks its audio stream forever.  We therefore keep a bounded pool per Sound and
-# RE-USE finished voices (load_file recycles the underlying stream) instead of
-# creating-and-dropping a fresh Playback each play -- otherwise rapid effects
-# (e.g. mashing a movement key) exhaust the OS audio backend and the game freezes.
+# One mixing format for everything; decode/stream converts to it.
+_SAMPLE_RATE = 44100
+_CHANNELS = 2
+
+# pygame.mixer defaults to 8 mixing channels; cap concurrent voices per
+# effect similarly so a rapidly-refired sound reuses its budget.
 _MAX_VOICES_PER_SOUND = 8
 
 
-# ---------------------------------------------------------------------------
-# Fades.  pygame's ``fade_ms`` / ``fadeout`` are volume ramps on live voices;
-# the backend has no native fade, so a small daemon thread ramps volumes at
-# ~50 Hz.  This is more than polish: leadingedge crossfades between 40 looping
-# engine samples as speed changes, and the old stop-then-restart "fade"
-# hammered stop()/play() on live miniaudio streams every time the speed band
-# flapped (audibly clunky acceleration, and the prime suspect in a reported
-# freeze -- rapid stream stop/start storms).  A ramp touches only
-# ``set_volume`` on an already-playing voice and stops it once, at the end.
-_fades: dict[int, dict[str, Any]] = {}  # id(pb) -> job
-_fades_lock = threading.Lock()
-_fade_thread: threading.Thread | None = None
+@dataclass(slots=True)
+class _Voice:
+    """One playing instance inside the mixer: a position in a shared buffer
+    (effects) or a pull-stream (music), plus volume/loop/fade state.
+
+    Mutated under the engine lock; consumed by the mixer callback.
+    """
+
+    samples: _PCM | None
+    stream: Iterator[Any] | None
+    volume: float
+    looping: bool
+    #: fade-in duration; consumed by __post_init__ into the ramp fields
+    fade_in_ms: InitVar[float]
+    #: frame offset into ``samples`` (buffer voices only)
+    pos: int = field(default=0, init=False)
+    #: fade_gain multiplies volume and ramps by fade_step per FRAME
+    fade_gain: float = field(default=1.0, init=False)
+    fade_step: float = field(default=0.0, init=False)
+    stop_when_faded: bool = field(default=False, init=False)
+    done: bool = field(default=False, init=False)
+
+    def __post_init__(self, fade_in_ms: float) -> None:
+        if fade_in_ms > 0:
+            self.fade_gain = 0.0
+            self.fade_step = 1.0 / (_SAMPLE_RATE * fade_in_ms / 1000.0)
+
+    def start_fadeout(self, ms: float) -> None:
+        frames = max(_SAMPLE_RATE * ms / 1000.0, 1.0)
+        self.fade_step = -self.fade_gain / frames
+        self.stop_when_faded = True
 
 
-def _fade_loop() -> None:
-    while True:
-        time.sleep(0.02)
-        now = time.monotonic()
-        with _fades_lock:
-            jobs = list(_fades.items())
-        for key, job in jobs:
-            try:
-                t = (now - job["t0"]) / job["dur"]
-                if t >= 1.0:
-                    job["pb"].set_volume(job["v_to"])
-                    if job["stop_at_end"]:
-                        job["pb"].stop()
-                    with _fades_lock:
-                        _fades.pop(key, None)
-                else:
-                    v = job["v_from"] + (job["v_to"] - job["v_from"]) * t
-                    job["pb"].set_volume(v)
-            except Exception:
-                with _fades_lock:
-                    _fades.pop(key, None)
+class _Engine:
+    """The single miniaudio PlaybackDevice + the software mixer feeding it."""
+
+    def __init__(self) -> None:
+        self._lock = threading.Lock()
+        self._voices: list[_Voice] = []
+        self._device: miniaudio.PlaybackDevice | None = None
+        self._failed = False
+
+    # -- device ---------------------------------------------------------
+    def _ensure_device(self) -> bool:
+        if self._device is not None:
+            return True
+        if self._failed or not _BACKEND:
+            return False
+        try:
+            device = _ma.PlaybackDevice(
+                output_format=_ma.SampleFormat.FLOAT32,
+                nchannels=_CHANNELS,
+                sample_rate=_SAMPLE_RATE,
+            )
+            gen = self._mixer()
+            next(gen)  # prime the generator protocol
+            # numpy arrays satisfy the buffer protocol miniaudio consumes;
+            # its stubs only admit bytes/array.array, hence the cast.
+            device.start(cast(Any, gen))
+            self._device = device
+            return True
+        except Exception:
+            # no sound hardware (e.g. the headless build container):
+            # audio becomes a no-op, exactly like the old backend.
+            self._failed = True
+            return False
+
+    # -- the mixer callback (runs on miniaudio's thread) ------------------
+    def _mixer(self) -> Generator[_PCM, int, None]:
+        required = yield np.zeros(0, dtype=np.float32)
+        while True:
+            out = np.zeros(required * _CHANNELS, dtype=np.float32)
+            with self._lock:
+                voices = list(self._voices)
+            for v in voices:
+                try:
+                    self._mix_voice(v, out, required)
+                except Exception:
+                    v.done = True
+            with self._lock:
+                self._voices = [v for v in self._voices if not v.done]
+            required = yield out
+
+    def _mix_voice(self, v: _Voice, out: _PCM, frames: int) -> None:
+        """Add up to ``frames`` frames of ``v`` into ``out`` (interleaved)."""
+        filled = 0
+        while filled < frames and not v.done:
+            if v.stream is not None:
+                chunk = self._next_stream_chunk(v)
+                if chunk is None:
+                    v.done = True
+                    break
+                take = min(frames - filled, len(chunk) // _CHANNELS)
+                seg = chunk[: take * _CHANNELS]
+                # stash any remainder for the next pull
+                rest = chunk[take * _CHANNELS :]
+                v.samples = rest if len(rest) else None
+            else:
+                assert v.samples is not None
+                total = len(v.samples) // _CHANNELS
+                if v.pos >= total:
+                    if v.looping:
+                        v.pos = 0  # gapless wraparound
+                        continue
+                    v.done = True
+                    break
+                take = min(frames - filled, total - v.pos)
+                seg = v.samples[v.pos * _CHANNELS : (v.pos + take) * _CHANNELS]
+                v.pos += take
+
+            gain: _PCM | float
+            if v.fade_step != 0.0:
+                # a per-frame linear ramp while fading (in or out)
+                ramp = v.fade_gain + v.fade_step * np.arange(
+                    1, take + 1, dtype=np.float32
+                )
+                np.clip(ramp, 0.0, 1.0, out=ramp)
+                v.fade_gain = float(ramp[-1])
+                if v.fade_step > 0 and v.fade_gain >= 1.0:
+                    v.fade_gain, v.fade_step = 1.0, 0.0
+                gain = np.repeat(ramp, _CHANNELS) * v.volume
+                if v.fade_gain <= 0.0 and v.stop_when_faded:
+                    v.done = True
+            else:
+                gain = v.fade_gain * v.volume
+            sl = slice(filled * _CHANNELS, (filled + take) * _CHANNELS)
+            out[sl] += seg * gain
+            filled += take
+
+    def _next_stream_chunk(self, v: _Voice) -> _PCM | None:
+        """The music path: the leftover stash, else the next decoded chunk."""
+        if v.samples is not None and len(v.samples):
+            chunk, v.samples = v.samples, None
+            return chunk
+        assert v.stream is not None
+        try:
+            return np.asarray(next(v.stream), dtype=np.float32)
+        except StopIteration:
+            return None
+
+    # -- game-thread API ---------------------------------------------------
+    def play_buffer(
+        self,
+        samples: _PCM,
+        volume: float,
+        looping: bool,
+        fade_in_ms: float,
+    ) -> _Voice | None:
+        if not self._ensure_device():
+            return None
+        v = _Voice(samples, None, volume, looping, fade_in_ms)
+        with self._lock:
+            self._voices.append(v)
+        return v
+
+    def play_stream(
+        self, stream: Iterator[Any], volume: float, fade_in_ms: float = 0.0
+    ) -> _Voice | None:
+        if not self._ensure_device():
+            return None
+        v = _Voice(None, stream, volume, looping=False, fade_in_ms=fade_in_ms)
+        with self._lock:
+            self._voices.append(v)
+        return v
+
+    def stop_voice(self, v: _Voice) -> None:
+        with self._lock:
+            v.done = True
 
 
-def _start_fade(
-    pb: Any, v_from: float, v_to: float, dur_s: float, stop_at_end: bool
-) -> None:
-    global _fade_thread
-    with _fades_lock:
-        _fades[id(pb)] = {
-            "pb": pb,
-            "v_from": v_from,
-            "v_to": v_to,
-            "t0": time.monotonic(),
-            "dur": max(dur_s, 1e-3),
-            "stop_at_end": stop_at_end,
-        }
-        if _fade_thread is None:
-            _fade_thread = threading.Thread(target=_fade_loop, daemon=True)
-            _fade_thread.start()
+_engine = _Engine()
 
 
-def _cancel_fade(pb: Any) -> None:
-    with _fades_lock:
-        _fades.pop(id(pb), None)
+def _decode(path: str) -> _PCM:
+    decoded = _ma.decode_file(
+        path,
+        output_format=_ma.SampleFormat.FLOAT32,
+        nchannels=_CHANNELS,
+        sample_rate=_SAMPLE_RATE,
+    )
+    return np.asarray(decoded.samples, dtype=np.float32)
 
 
 class Sound:
-    """A single sound effect.  ``play()`` reuses a bounded pool of playback voices
-    so overlapping effects work without leaking miniaudio streams."""
+    """A single sound effect: decoded ONCE into a shared buffer; each play is
+    a lightweight mixer voice over that buffer (pygame.mixer semantics)."""
 
     def __init__(self, path: str) -> None:
         self.path = path
-        self._instances: list[Any] = []
+        self._samples: _PCM | None = None
         self._volume: float = 1.0
+        self._voices: list[_Voice] = []
 
-    def _acquire(self) -> Any:
-        """Return a playback voice (already file-loaded) to (re)use: a finished one
-        if available, else a new one up to the cap, else the oldest (stopped)."""
-        for p in self._instances:
-            if not _active(p):
-                return p
-        if len(self._instances) < _MAX_VOICES_PER_SOUND:
-            p = _Playback()
-            # Decode + open the stream ONCE per voice.  Doing this per *play*
-            # re-decodes the file and re-inits the audio device every time, which
-            # stutters the frame rate when an effect fires rapidly (e.g. a held
-            # movement key).  Subsequent plays just restart this loaded voice.
-            p.load_file(self.path)
-            self._instances.append(p)
-            return p
-        # All voices busy and at the cap: reuse the oldest (already loaded) rather
-        # than leak a new stream.
-        p = self._instances.pop(0)
-        try:
-            p.stop()
-        except Exception:
-            pass
-        self._instances.append(p)
-        return p
+    def _buffer(self) -> _PCM | None:
+        if self._samples is None:
+            try:
+                self._samples = _decode(self.path)
+            except Exception:
+                return None
+        return self._samples
+
+    def _live(self) -> list[_Voice]:
+        self._voices = [v for v in self._voices if not v.done]
+        return self._voices
 
     def play(
         self,
@@ -168,44 +300,37 @@ class Sound:
 
         ``maxtime`` is accepted for ``pygame.mixer.Sound.play`` compatibility
         but ignored.  ``fade_ms`` ramps this play's voice up from silence
-        (see the fade engine above).  ``volume`` overrides this effect's
-        volume for THIS play only -- it is applied to the voice acquired for
-        this play, so concurrent plays keep their own volumes (the
-        mixer.Sound wrapper in ``__init__`` uses this to give pygame's
-        per-instance-volume semantics without a Sound per volume).
+        inside the mixer.  ``volume`` overrides this effect's volume for THIS
+        play only (the mixer.Sound wrapper in ``__init__`` uses this to give
+        pygame's per-instance-volume semantics without a Sound per volume).
         """
         if not _BACKEND:
             return
-        try:
-            pb = self._acquire()  # already has the file loaded
-            _cancel_fade(pb)  # a reused voice must not inherit a stale ramp
-            target = self._volume if volume is None else volume
-            pb.loop_at_end(loops != 0)
-            pb.set_volume(0.0 if fade_ms > 0 else target)
-            pb.play()  # restarts this voice from the start; no re-decode
-            if fade_ms > 0:
-                _start_fade(pb, 0.0, target, fade_ms / 1000.0, False)
-        except Exception:
+        buf = self._buffer()
+        if buf is None:
             return
+        live = self._live()
+        if len(live) >= _MAX_VOICES_PER_SOUND:
+            _engine.stop_voice(live[0])  # oldest voice yields its budget
+        v = _engine.play_buffer(
+            buf,
+            self._volume if volume is None else volume,
+            looping=loops != 0,
+            fade_in_ms=fade_ms,
+        )
+        if v is not None:
+            self._voices.append(v)
 
     def stop(self) -> None:
-        """Stop all currently-playing instances of this effect (voices are kept
-        pooled for reuse -- dropping them would leak their miniaudio streams)."""
-        for p in self._instances:
-            try:
-                _cancel_fade(p)
-                p.stop()
-            except Exception:
-                pass
+        """Stop all currently-playing instances of this effect."""
+        for v in self._live():
+            _engine.stop_voice(v)
 
     def set_volume(self, v: float) -> None:
         """Set this effect's volume (0.0-1.0), applied to current + future plays."""
         self._volume = v
-        for p in self._instances:
-            try:
-                p.set_volume(v)
-            except Exception:
-                pass
+        for voice in self._live():
+            voice.volume = v
 
     def get_volume(self) -> float:
         """Return this effect's current volume (0.0-1.0)."""
@@ -213,24 +338,22 @@ class Sound:
 
     def fadeout(self, time: int = 0) -> None:
         """Ramp all playing instances to silence over ``time`` ms, then stop
-        them (pygame semantics).  ``time <= 0`` stops immediately."""
+        them (pygame semantics; the ramp runs per-frame inside the mixer).
+        ``time <= 0`` stops immediately."""
         if time <= 0:
             self.stop()
             return
-        for p in self._instances:
-            try:
-                if _active(p):
-                    _start_fade(p, self._volume, 0.0, time / 1000.0, True)
-            except Exception:
-                pass
+        for v in self._live():
+            v.start_fadeout(time)
 
 
 class _Music:
     """The single streamed background track (pgzero's `music` object)."""
 
     def __init__(self) -> None:
-        self._pb: Any = None
+        self._voice: _Voice | None = None
         self._volume: float = 1.0
+        self._looping: bool = False
 
     def _path(self, name: str) -> str | None:
         """Resolve a track ``name`` to a file under ``music/``, or ``None``."""
@@ -243,9 +366,29 @@ class _Music:
                 return p
         return None
 
+    def _stream(self, path: str) -> Iterator[Any]:
+        outer = self
+
+        def gen() -> Iterator[Any]:
+            # music streams from disk (a decoded multi-minute track would be
+            # tens of MB); looping restarts the stream -- like SDL_mixer's
+            # streamed music, the loop seam lands on a chunk boundary.
+            while True:
+                inner = _ma.stream_file(
+                    path,
+                    output_format=_ma.SampleFormat.FLOAT32,
+                    nchannels=_CHANNELS,
+                    sample_rate=_SAMPLE_RATE,
+                    frames_to_read=1024,
+                )
+                for chunk in inner:
+                    yield chunk
+                if not outer._looping:
+                    return
+
+        return gen()
+
     def _play(self, name: str, loop: bool) -> None:
-        """Switch to track ``name`` by reloading the single reused Playback (which
-        recycles its stream), rather than dropping it and leaking the old stream."""
         if not _BACKEND:
             return
         p: str | None = self._path(name)
@@ -253,64 +396,44 @@ class _Music:
             self.stop()
             return
         try:
-            if self._pb is None:
-                self._pb = _Playback()
-            _cancel_fade(self._pb)  # restarting mustn't inherit a fadeout
-            self._pb.load_file(p)
-            self._pb.loop_at_end(loop)
-            self._pb.set_volume(self._volume)
-            self._pb.play()
+            self.stop()
+            self._looping = loop
+            self._voice = _engine.play_stream(self._stream(p), self._volume)
         except Exception:
-            self._pb = None
+            self._voice = None
 
     def play(self, name: str) -> None:
-        """Stop any current track and start ``name`` looping."""
-        self._play(name, True)
+        """Play track ``name`` on loop."""
+        self._play(name, loop=True)
 
     def play_once(self, name: str) -> None:
-        """Stop any current track and start ``name`` once (no loop)."""
-        self._play(name, False)
+        """Play track ``name`` a single time."""
+        self._play(name, loop=False)
 
     def set_volume(self, v: float) -> None:
         """Set the music volume (0.0-1.0), applied to the current track if any."""
         self._volume = v
-        if self._pb is not None:
-            try:
-                self._pb.set_volume(v)
-            except Exception:
-                pass
+        if self._voice is not None and not self._voice.done:
+            self._voice.volume = v
 
     def get_volume(self) -> float:
-        """Return the current music volume (0.0-1.0)."""
+        """Return the music volume (0.0-1.0)."""
         return self._volume
 
     def stop(self) -> None:
-        """Stop the current track.  The Playback is kept for reuse -- dropping it
-        would leak its miniaudio stream (just_playback has no finalizer)."""
-        if self._pb is not None:
-            try:
-                _cancel_fade(self._pb)
-                self._pb.stop()
-            except Exception:
-                pass
+        """Stop the current track."""
+        self._looping = False
+        if self._voice is not None:
+            _engine.stop_voice(self._voice)
+            self._voice = None
 
     def fadeout(self, seconds: float) -> None:
         """Ramp the track to silence over ``seconds``, then stop it."""
-        if self._pb is None or seconds <= 0:
+        if self._voice is None or self._voice.done or seconds <= 0:
             self.stop()
             return
-        try:
-            _start_fade(self._pb, self._volume, 0.0, seconds, True)
-        except Exception:
-            self.stop()
-
-
-def _active(pb: Any) -> bool:
-    """Return whether a just_playback handle is still playing (False on any error)."""
-    try:
-        return pb.active
-    except Exception:
-        return False
+        self._looping = False
+        self._voice.start_fadeout(seconds * 1000.0)
 
 
 music = _Music()
