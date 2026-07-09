@@ -17,33 +17,45 @@ ignored: everything draws to the screen via the active renderer.
 
 from __future__ import annotations
 
+from collections.abc import Sequence
 from typing import Any
 
 from . import context
+from ._types import Color, PointLike
+from .geometry import _RectBase
+
+# what pygame.draw.rect accepts: any rect flavor (int Rect, float ZRect)
+RectLike = _RectBase[Any]  # any coordinate flavor (int Rect / float ZRect)
 
 
-def rect(surface: Any, color: Any, rect: Any, width: int = 0) -> None:
+def rect(surface: Any, color: Color, rect: RectLike, width: int = 0) -> None:
     r = context.require_renderer()
     x, y, w, h = rect.x, rect.y, rect.width, rect.height
     (r.rect if width else r.filled_rect)(x=x, y=y, w=w, h=h, color=color)
 
 
 def line(
-    surface: Any, color: Any, start: Any, end: Any, width: int = 1
+    surface: Any, color: Color, start: PointLike, end: PointLike, width: int = 1
 ) -> None:
     context.require_renderer().line(start=start, end=end, color=color)
 
 
-def polygon(surface: Any, color: Any, points: Any, width: int = 0) -> None:
+def polygon(
+    surface: Any, color: Color, points: Sequence[PointLike], width: int = 0
+) -> None:
     context.require_renderer().polygon(
         points=points, color=color, filled=(width == 0)
     )
 
 
 # pygame.gfxdraw argument order differs from pygame.draw: (surface, points, color)
-def gfx_filled_polygon(surface: Any, points: Any, color: Any) -> None:
+def gfx_filled_polygon(
+    surface: Any, points: Sequence[PointLike], color: Color
+) -> None:
     context.require_renderer().polygon(points=points, color=color, filled=True)
 
 
-def gfx_polygon(surface: Any, points: Any, color: Any) -> None:
+def gfx_polygon(
+    surface: Any, points: Sequence[PointLike], color: Color
+) -> None:
     context.require_renderer().polygon(points=points, color=color, filled=False)

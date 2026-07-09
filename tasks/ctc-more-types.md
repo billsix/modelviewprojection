@@ -1,35 +1,47 @@
 # Code the Classics: extend type coverage to locals and attributes
 
-**Status:** in progress, 2026-07-08 night pass — NOT archived because the
-remaining work needs Bill's calls (see "Open issues for Bill"). Done so
-far: the urgent game-union gate fix (committed; details below), and the
-signature layer verified 100% complete by AST scan (zero unannotated
-defs/params anywhere in shim+games — the earlier "1 straggler" was a
-grep artifact on multi-line signatures). Also done across the other
-night tasks, overlapping this one's goals: ~35 classes' attributes are
-now declared dataclass fields, and 98 @override decorators landed.
+**Status:** DONE 2026-07-09 — Bill answered all four questions ("I like
+the human readability") and everything actionable landed. Staged,
+uncommitted. Ready to archive.
 
-## Open issues for Bill (answer these, then the rest is mechanical)
+## Outcomes (2026-07-09, Bill's answers -> execution)
 
-- [ ] **The ~1,000 remaining bare locals/attrs**: ty infers all of them
-      fine (both volumes typecheck clean today). Annotating them is
-      pure churn for the checker — the value would be readability/
-      documentation only. Do you still want the blanket sweep, or only
-      attributes in the remaining non-dataclass classes (Fighter, the
-      Game classes, Rock, Enemy — the meaningful subset), or skip?
-- [ ] **Shim `Any` shrinking (~100 usages)**: wholesale pass, or
-      opportunistic (tighten signatures as files get touched)? The
-      heavy clusters are actor.py (pos/anchor/image params), screen,
-      text, audio.
-- [ ] **`Rect`/`ZRect` per-class property typing**: making `Rect.top`
-      return `int` (its documented contract) while `ZRect.top` stays
-      `float` requires ~50 lines of property-override boilerplate in
-      ZRect (they share implementations). Exactly ONE call site has
-      ever needed it (beatstreets' randint, now int-wrapped at the
-      site). Worth the boilerplate, or leave the wrap?
-- [ ] The 22 `ty: ignore` comments were re-verified: all are the
-      documented faithful-port method-override variances — proposed
-      disposition: keep as-is (no action).
+1. **Bare locals/attrs sweep ("do them")**: +278 annotations landed via a
+   conservative AST annotator (first-binding-only; literal/ctor/known-fn/
+   module-constant/same-module-class inference; hardened against
+   dataclass fields — a class-level annotation IS a field — Enum members,
+   global/nonlocal names, loop vars, tuple unpacks, re-assignments).
+   Census: 1039 -> 1317 AnnAssigns across the 10 games. The residue is
+   re-assignments (not first bindings — annotating them would be wrong),
+   tuple unpacks, and RHS needing per-site game knowledge; the inferable
+   tier is exhausted. One upstream oddity found: beatstreets names a
+   parameter `str` (shadows the builtin), which blocks annotating in that
+   scope.
+2. **Shim Any ("do whatever you can deduce")**: ~100 -> 66, the remainder
+   sitting on untyped third-party boundaries (GL plumbing, PIL,
+   just_playback). actor.py went 30 -> 2; _types.py gained
+   PointLike-with-Vector2 and Anchor; screen/draw/geometry APIs typed
+   (Color, PointLike, RectLike, Drawable); a typed `_as_xy` normalizer
+   replaced blit's untyped pos juggling.
+3. **Rect/ZRect per-class typing ("if you can do it, do it")**: done
+   WITHOUT the feared 50-line boilerplate — `_RectBase(Generic[_C])` with
+   `Rect = _RectBase[int]`, `ZRect = _RectBase[float]`; every coordinate
+   property/pair is typed `_C` once. `Rect.top` is an honest int:
+   beatstreets' int-wrapped randint reverted to the faithful upstream
+   line, and it typechecks.
+4. **The 22 ty:ignores ("figure out if you can not ignore them")**: 18
+   remained after tonight's earlier work; now **5**, each irreducible and
+   documented (the four draw-offset override widenings — upstream's
+   design — and soccer's tuple-compare tie quirk). Eliminated via honest
+   means: base `update`/`button_down` return-type widening
+   (`bool | None`), accepting GravityActor's optional `detect` param
+   (`del detect`), asserts on documented invariants, `cast` for the
+   CPUCar collision, an explicit unreachable `raise` in myriapod's
+   direction table.
+
+Gates: ty all-clean over shim+vol1+vol2, ruff clean, format clean,
+60 pytest, 10/10 definitions gate.
+
 **Created:** 2026-07-08
 
 ## RESOLUTION of the urgent item (2026-07-08)

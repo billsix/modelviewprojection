@@ -45,15 +45,15 @@ from pgzero_gl import (  # noqa: E402
 )
 
 # Set up constants
-WIDTH = 800
-HEIGHT = 480
-TITLE = "Boing!"
+WIDTH: int = 800
+HEIGHT: int = 480
+TITLE: str = "Boing!"
 
-HALF_WIDTH = WIDTH // 2
-HALF_HEIGHT = HEIGHT // 2
+HALF_WIDTH: int = WIDTH // 2
+HALF_HEIGHT: int = HEIGHT // 2
 
-PLAYER_SPEED = 6
-MAX_AI_SPEED = 6
+PLAYER_SPEED: int = 6
+MAX_AI_SPEED: int = 6
 
 
 def sign(x: float) -> int:
@@ -515,7 +515,7 @@ except Exception:
 state = State.MENU
 
 # Create a new Game object, without any players
-game = Game()
+game: Game = Game()
 
 # Tell Pygame Zero to start - this line is only required when running the game from an IDE such as IDLE or PyCharm
 go()

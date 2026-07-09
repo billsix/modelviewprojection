@@ -73,51 +73,51 @@ if sys.version_info < (3, 6):
 
 
 # Set up constants
-WIDTH = 640
-HEIGHT = 640
-TITLE = "Kinetix"
+WIDTH: int = 640
+HEIGHT: int = 640
+TITLE: str = "Kinetix"
 
-BAT_SPEED = 8
+BAT_SPEED: int = 8
 
-BAT_MIN_X = 35
-BAT_MAX_X = 605
+BAT_MIN_X: int = 35
+BAT_MAX_X: int = 605
 
-TOP_EDGE = 50
-RIGHT_EDGE = 617
-LEFT_EDGE = 23
+TOP_EDGE: int = 50
+RIGHT_EDGE: int = 617
+LEFT_EDGE: int = 23
 
-BAT_TOP_EDGE = 590
+BAT_TOP_EDGE: int = 590
 
-BALL_INITIAL_OFFSET = 10
+BALL_INITIAL_OFFSET: int = 10
 
-BALL_START_SPEED = 5
-BALL_MIN_SPEED = 4
-BALL_MAX_SPEED = 11
+BALL_START_SPEED: int = 5
+BALL_MIN_SPEED: int = 4
+BALL_MAX_SPEED: int = 11
 
-BALL_SPEED_UP_INTERVAL = (
+BALL_SPEED_UP_INTERVAL: int = (
     10 * 60
 )  # Normal ball speed up interval (10 seconds at 60 frames per second)
-BALL_SPEED_UP_INTERVAL_FAST = (
+BALL_SPEED_UP_INTERVAL_FAST: int = (
     15 * 60
 )  # Speed up interval for when the ball is above a speed threshold
-BALL_FAST_SPEED_THRESHOLD = 7
+BALL_FAST_SPEED_THRESHOLD: int = 7
 
-BALL_RADIUS = 7
+BALL_RADIUS: int = 7
 
-BULLET_SPEED = 8
+BULLET_SPEED: int = 8
 
-BRICKS_X_START = 20
-BRICKS_Y_START = 100
+BRICKS_X_START: int = 20
+BRICKS_Y_START: int = 100
 
-BRICK_WIDTH = 40
-BRICK_HEIGHT = 20
-SHADOW_OFFSET = 10
+BRICK_WIDTH: int = 40
+BRICK_HEIGHT: int = 20
+SHADOW_OFFSET: int = 10
 
-POWERUP_CHANCE = 0.2
+POWERUP_CHANCE: float = 0.2
 
-FIRE_INTERVAL = 30
+FIRE_INTERVAL: int = 30
 
-PORTAL_ANIMATION_SPEED = 5
+PORTAL_ANIMATION_SPEED: int = 5
 
 LEVELS = [
     [
@@ -501,7 +501,7 @@ class Barrel(Actor):
         # The name of each powerup sprite has the format "barrel[powerup type][frame]",
         # where powerup type is a number from 0 to 8 and frame is a number from 0 to 9
         # We switch to a new animation frame every 10 game frames
-        self.image = f"barrel{int(self.type)}{self.time // 10 % 10}"
+        self.image: str = f"barrel{int(self.type)}{self.time // 10 % 10}"
 
         self.shadow.pos = self.pos + Vector2(SHADOW_OFFSET, SHADOW_OFFSET)
 
@@ -828,7 +828,7 @@ class Bat(Actor):
             self.current_type = self.target_type
 
         # Choose sprite based on current_type and frame
-        self.image = f"bat{int(self.current_type)}{self.frame // 4}"
+        self.image: str = f"bat{int(self.current_type)}{self.frame // 4}"
 
         self.fire_timer -= 1
 
@@ -1179,7 +1179,7 @@ class Game:
         # between indestructible bricks
         if self.detect_stuck_balls():
             # Go through all bricks, change indestructible bricks to two-hit bricks
-            changed_any = False
+            changed_any: bool = False
             for row in range(self.num_rows):
                 for col in range(self.num_cols):
                     # 13 is indestructible brick, 12 is two-hit brick
@@ -1417,8 +1417,8 @@ except Exception:
 
 # Set up controls
 joystick_controls: Any
-keyboard_controls = KeyboardControls()
-ai_controls = AIControls()
+keyboard_controls: KeyboardControls = KeyboardControls()
+ai_controls: AIControls = AIControls()
 setup_joystick_controls()
 
 # Set up state and Game object

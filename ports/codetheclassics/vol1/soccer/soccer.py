@@ -53,24 +53,24 @@ if sys.version_info < (3, 5):
     sys.exit()
 
 
-WIDTH = 800
-HEIGHT = 480
-TITLE = "Substitute Soccer"
+WIDTH: int = 800
+HEIGHT: int = 480
+TITLE: str = "Substitute Soccer"
 
-HALF_WINDOW_W = WIDTH / 2
+HALF_WINDOW_W: float = WIDTH / 2
 
 # Size of level, including both the pitch and the boundary surrounding it
-LEVEL_W = 1000
-LEVEL_H = 1400
-HALF_LEVEL_W = LEVEL_W // 2
-HALF_LEVEL_H = LEVEL_H // 2
+LEVEL_W: int = 1000
+LEVEL_H: int = 1400
+HALF_LEVEL_W: int = LEVEL_W // 2
+HALF_LEVEL_H: int = LEVEL_H // 2
 
-HALF_PITCH_W = 442
-HALF_PITCH_H = 622
+HALF_PITCH_W: int = 442
+HALF_PITCH_H: int = 622
 
-GOAL_WIDTH = 186
-GOAL_DEPTH = 20
-HALF_GOAL_W = GOAL_WIDTH // 2
+GOAL_WIDTH: int = 186
+GOAL_DEPTH: int = 20
+HALF_GOAL_W: int = GOAL_WIDTH // 2
 
 PITCH_BOUNDS_X = (HALF_LEVEL_W - HALF_PITCH_W, HALF_LEVEL_W + HALF_PITCH_W)
 PITCH_BOUNDS_Y = (HALF_LEVEL_H - HALF_PITCH_H, HALF_LEVEL_H + HALF_PITCH_H)
@@ -81,18 +81,20 @@ GOAL_BOUNDS_Y = (
     HALF_LEVEL_H + HALF_PITCH_H + GOAL_DEPTH,
 )
 
-PITCH_RECT = Rect(
+PITCH_RECT: Rect = Rect(
     PITCH_BOUNDS_X[0], PITCH_BOUNDS_Y[0], HALF_PITCH_W * 2, HALF_PITCH_H * 2
 )
-GOAL_0_RECT = Rect(GOAL_BOUNDS_X[0], GOAL_BOUNDS_Y[0], GOAL_WIDTH, GOAL_DEPTH)
-GOAL_1_RECT = Rect(
+GOAL_0_RECT: Rect = Rect(
+    GOAL_BOUNDS_X[0], GOAL_BOUNDS_Y[0], GOAL_WIDTH, GOAL_DEPTH
+)
+GOAL_1_RECT: Rect = Rect(
     GOAL_BOUNDS_X[0], GOAL_BOUNDS_Y[1] - GOAL_DEPTH, GOAL_WIDTH, GOAL_DEPTH
 )
 
-AI_MIN_X = 78
-AI_MAX_X = LEVEL_W - 78
-AI_MIN_Y = 98
-AI_MAX_Y = LEVEL_H - 98
+AI_MIN_X: int = 78
+AI_MAX_X: int = LEVEL_W - 78
+AI_MIN_Y: int = 98
+AI_MAX_Y: int = LEVEL_H - 98
 
 PLAYER_START_POS = [
     (350, 550),
@@ -104,25 +106,25 @@ PLAYER_START_POS = [
     (650, 1150),
 ]
 
-LEAD_DISTANCE_1 = 10
-LEAD_DISTANCE_2 = 50
+LEAD_DISTANCE_1: int = 10
+LEAD_DISTANCE_2: int = 50
 
 DRIBBLE_DIST_X, DRIBBLE_DIST_Y = 18, 16
 
 # Speeds for players in various situations. Speeds including 'BASE' can be boosted by the speed_boost difficulty
 # setting (only for players on a computer-controlled team)
-PLAYER_DEFAULT_SPEED = 2
-CPU_PLAYER_WITH_BALL_BASE_SPEED = 2.6
-PLAYER_INTERCEPT_BALL_SPEED = 2.75
-LEAD_PLAYER_BASE_SPEED = 2.9
-HUMAN_PLAYER_WITH_BALL_SPEED = 3
-HUMAN_PLAYER_WITHOUT_BALL_SPEED = 3.3
+PLAYER_DEFAULT_SPEED: int = 2
+CPU_PLAYER_WITH_BALL_BASE_SPEED: float = 2.6
+PLAYER_INTERCEPT_BALL_SPEED: float = 2.75
+LEAD_PLAYER_BASE_SPEED: float = 2.9
+HUMAN_PLAYER_WITH_BALL_SPEED: int = 3
+HUMAN_PLAYER_WITHOUT_BALL_SPEED: float = 3.3
 
-DEBUG_SHOW_LEADS = False
-DEBUG_SHOW_TARGETS = False
-DEBUG_SHOW_PEERS = False
-DEBUG_SHOW_SHOOT_TARGET = False
-DEBUG_SHOW_COSTS = False
+DEBUG_SHOW_LEADS: bool = False
+DEBUG_SHOW_TARGETS: bool = False
+DEBUG_SHOW_PEERS: bool = False
+DEBUG_SHOW_SHOOT_TARGET: bool = False
+DEBUG_SHOW_COSTS: bool = False
 
 
 # (eq=False on these dataclasses keeps identity comparison/hashing -- the
@@ -144,7 +146,7 @@ class Difficulty:
     holdoff_timer: int
 
 
-DIFFICULTY = [
+DIFFICULTY: list[Difficulty] = [
     Difficulty(False, False, 0, 120),
     Difficulty(False, True, 0.1, 90),
     Difficulty(True, True, 0.2, 60),
@@ -213,8 +215,8 @@ class MyActor(Actor):
 
 
 # Ball physics model parameters
-KICK_STRENGTH = 11.5
-DRAG = 0.98
+KICK_STRENGTH: float = 11.5
+DRAG: float = 0.98
 
 
 # ball physics for one axis

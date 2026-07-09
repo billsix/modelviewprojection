@@ -24,7 +24,17 @@ accepts any indexable/iterable pair, including gacalc vectors.
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import Any, Self, Tuple
+from typing import Any, Generic, Self, Tuple, TypeVar
+
+from ._types import PointLike
+
+#: The coordinate type of a rectangle: ``int`` for :class:`Rect` (pygame
+#: truncates), ``float`` for :class:`ZRect` (pgzero keeps sub-pixel
+#: precision).  Making the shared implementation generic over it lets each
+#: class advertise its documented coordinate type (``Rect.top`` is an
+#: ``int``; ``ZRect.top`` is a ``float``) without duplicating ~20
+#: properties.
+_C = TypeVar("_C", int, float)
 
 # A vector-like operand: a gacalc vector, a tuple, or any object providing
 # two (or three) coordinates -- whatever pygame would accept.
@@ -57,30 +67,28 @@ _VIRTUALS = {
 }
 
 
-class Rect:
-    """A small ``pygame.Rect`` work-alike (the subset the games touch).
+class _RectBase(Generic[_C]):
+    """The shared rectangle implementation, generic over its coordinate type.
 
     Exposes the virtual corner/edge attributes (settable, so ``rect.center =
     ...`` repositions), ``colliderect``/``collidepoint``/``contains``, and
-    ``move``/``inflate``.
-
-    Coordinates are **integers**, like ``pygame.Rect`` (assignments are
-    truncated toward zero) -- the games rely on this, e.g. ``randint(rect.top,
-    rect.bottom)`` needs ints, and pgzero/pygame collision is integer-pixel.
-    The float-coordinate variant pgzero calls ``ZRect`` -- used by :class:`Actor`
-    to keep sub-pixel positions -- is the :class:`ZRect` subclass below, which
-    overrides only the coordinate coercion.
+    ``move``/``inflate``.  :class:`Rect` binds ``_C = int`` (pygame
+    truncates), :class:`ZRect` binds ``_C = float`` (sub-pixel precision);
+    each subclass supplies only ``_coord``.
     """
 
-    @staticmethod
-    def _coord(v: float) -> float:
-        # pygame.Rect stores integer coordinates, truncated toward zero.
-        return int(v)
+    _x: _C
+    _y: _C
+    _w: _C
+    _h: _C
+
+    def _coord(self, v: float) -> _C:
+        raise NotImplementedError  # Rect -> int, ZRect -> float
 
     def __init__(self, *args: Any) -> None:
         if len(args) == 1:  # Rect(other) or Rect((x,y,w,h))
             a = args[0]
-            if isinstance(a, Rect):
+            if isinstance(a, _RectBase):
                 x, y, w, h = a.x, a.y, a.width, a.height
             else:
                 x, y, w, h = a
@@ -100,7 +108,7 @@ class Rect:
     # the edge/corner setters, move_ip, ...) is coerced by ``_coord`` in one
     # place -- int for Rect, float for ZRect.
     @property
-    def x(self) -> float:
+    def x(self) -> _C:
         return self._x
 
     @x.setter
@@ -108,7 +116,7 @@ class Rect:
         self._x = self._coord(v)
 
     @property
-    def y(self) -> float:
+    def y(self) -> _C:
         return self._y
 
     @y.setter
@@ -116,7 +124,7 @@ class Rect:
         self._y = self._coord(v)
 
     @property
-    def width(self) -> float:
+    def width(self) -> _C:
         return self._w
 
     @width.setter
@@ -124,7 +132,7 @@ class Rect:
         self._w = self._coord(v)
 
     @property
-    def height(self) -> float:
+    def height(self) -> _C:
         return self._h
 
     @height.setter
@@ -133,7 +141,7 @@ class Rect:
 
     # primary edges -----------------------------------------------------------
     @property
-    def left(self) -> float:
+    def left(self) -> _C:
         return self.x
 
     @left.setter
@@ -141,7 +149,7 @@ class Rect:
         self.x = v
 
     @property
-    def top(self) -> float:
+    def top(self) -> _C:
         return self.y
 
     @top.setter
@@ -149,7 +157,7 @@ class Rect:
         self.y = v
 
     @property
-    def right(self) -> float:
+    def right(self) -> _C:
         return self.x + self.width
 
     @right.setter
@@ -157,7 +165,7 @@ class Rect:
         self.x = v - self.width
 
     @property
-    def bottom(self) -> float:
+    def bottom(self) -> _C:
         return self.y + self.height
 
     @bottom.setter
@@ -165,7 +173,7 @@ class Rect:
         self.y = v - self.height
 
     @property
-    def centerx(self) -> float:
+    def centerx(self) -> _C:
         return self._coord(self.x + self.width / 2)
 
     @centerx.setter
@@ -173,7 +181,7 @@ class Rect:
         self.x = v - self.width / 2
 
     @property
-    def centery(self) -> float:
+    def centery(self) -> _C:
         return self._coord(self.y + self.height / 2)
 
     @centery.setter
@@ -181,7 +189,7 @@ class Rect:
         self.y = v - self.height / 2
 
     @property
-    def w(self) -> float:
+    def w(self) -> _C:
         return self.width
 
     @w.setter
@@ -189,7 +197,7 @@ class Rect:
         self.width = v
 
     @property
-    def h(self) -> float:
+    def h(self) -> _C:
         return self.height
 
     @h.setter
@@ -197,91 +205,93 @@ class Rect:
         self.height = v
 
     @property
-    def size(self) -> Tuple[float, float]:
+    def size(self) -> Tuple[_C, _C]:
         return (self.width, self.height)
 
     @size.setter
-    def size(self, v: Any) -> None:
+    def size(self, v: PointLike) -> None:
         self.width, self.height = v
 
     # corner / mid pairs ------------------------------------------------------
-    def _pair(self, hx: str, vy: str) -> Tuple[float, float]:
+    def _pair(self, hx: str, vy: str) -> Tuple[_C, _C]:
         return (getattr(self, hx), getattr(self, vy))
 
-    def _set_pair(self, hx: str, vy: str, val: Any) -> None:
-        setattr(self, hx, val[0])
-        setattr(self, vy, val[1])
+    def _set_pair(self, hx: str, vy: str, val: PointLike) -> None:
+        # unpack, not index: gacalc vectors iterate but don't subscript
+        vx, vy_val = val
+        setattr(self, hx, vx)
+        setattr(self, vy, vy_val)
 
     @property
-    def topleft(self) -> Tuple[float, float]:
+    def topleft(self) -> Tuple[_C, _C]:
         return (self.left, self.top)
 
     @topleft.setter
-    def topleft(self, v: Any) -> None:
+    def topleft(self, v: PointLike) -> None:
         self._set_pair("left", "top", v)
 
     @property
-    def topright(self) -> Tuple[float, float]:
+    def topright(self) -> Tuple[_C, _C]:
         return (self.right, self.top)
 
     @topright.setter
-    def topright(self, v: Any) -> None:
+    def topright(self, v: PointLike) -> None:
         self._set_pair("right", "top", v)
 
     @property
-    def bottomleft(self) -> Tuple[float, float]:
+    def bottomleft(self) -> Tuple[_C, _C]:
         return (self.left, self.bottom)
 
     @bottomleft.setter
-    def bottomleft(self, v: Any) -> None:
+    def bottomleft(self, v: PointLike) -> None:
         self._set_pair("left", "bottom", v)
 
     @property
-    def bottomright(self) -> Tuple[float, float]:
+    def bottomright(self) -> Tuple[_C, _C]:
         return (self.right, self.bottom)
 
     @bottomright.setter
-    def bottomright(self, v: Any) -> None:
+    def bottomright(self, v: PointLike) -> None:
         self._set_pair("right", "bottom", v)
 
     @property
-    def center(self) -> Tuple[float, float]:
+    def center(self) -> Tuple[_C, _C]:
         return (self.centerx, self.centery)
 
     @center.setter
-    def center(self, v: Any) -> None:
+    def center(self, v: PointLike) -> None:
         self._set_pair("centerx", "centery", v)
 
     @property
-    def midtop(self) -> Tuple[float, float]:
+    def midtop(self) -> Tuple[_C, _C]:
         return (self.centerx, self.top)
 
     @midtop.setter
-    def midtop(self, v: Any) -> None:
+    def midtop(self, v: PointLike) -> None:
         self._set_pair("centerx", "top", v)
 
     @property
-    def midbottom(self) -> Tuple[float, float]:
+    def midbottom(self) -> Tuple[_C, _C]:
         return (self.centerx, self.bottom)
 
     @midbottom.setter
-    def midbottom(self, v: Any) -> None:
+    def midbottom(self, v: PointLike) -> None:
         self._set_pair("centerx", "bottom", v)
 
     @property
-    def midleft(self) -> Tuple[float, float]:
+    def midleft(self) -> Tuple[_C, _C]:
         return (self.left, self.centery)
 
     @midleft.setter
-    def midleft(self, v: Any) -> None:
+    def midleft(self, v: PointLike) -> None:
         self._set_pair("left", "centery", v)
 
     @property
-    def midright(self) -> Tuple[float, float]:
+    def midright(self) -> Tuple[_C, _C]:
         return (self.right, self.centery)
 
     @midright.setter
-    def midright(self, v: Any) -> None:
+    def midright(self, v: PointLike) -> None:
         self._set_pair("right", "centery", v)
 
     # queries -----------------------------------------------------------------
@@ -289,7 +299,7 @@ class Rect:
         px, py = p[0] if len(p) == 1 else p
         return self.left <= px < self.right and self.top <= py < self.bottom
 
-    def colliderect(self, o: Rect) -> bool:
+    def colliderect(self, o: "_RectBase[Any]") -> bool:
         return (
             self.left < o.right
             and self.right > o.left
@@ -297,7 +307,7 @@ class Rect:
             and self.bottom > o.top
         )
 
-    def contains(self, o: Rect) -> bool:
+    def contains(self, o: "_RectBase[Any]") -> bool:
         return (
             self.left <= o.left
             and self.right >= o.right
@@ -320,7 +330,7 @@ class Rect:
     def copy(self) -> Self:
         return self.__class__(self.x, self.y, self.width, self.height)
 
-    def __iter__(self) -> Iterator[float]:
+    def __iter__(self) -> Iterator[_C]:
         return iter((self.x, self.y, self.width, self.height))
 
     def __repr__(self) -> str:
@@ -333,7 +343,18 @@ class Rect:
         )
 
 
-class ZRect(Rect):
+class Rect(_RectBase[int]):
+    """``pygame.Rect``: integer coordinates, truncated toward zero.
+
+    The games rely on the int contract -- e.g. ``randint(rect.top,
+    rect.bottom)`` -- and pgzero/pygame collision is integer-pixel.
+    """
+
+    def _coord(self, v: float) -> int:
+        return int(v)
+
+
+class ZRect(_RectBase[float]):
     """pgzero's float-coordinate rectangle (``pgzero.rect.ZRect``).
 
     Identical to :class:`Rect` except coordinates keep sub-pixel precision
@@ -342,6 +363,5 @@ class ZRect(Rect):
     drift; games that want integer pygame-rect semantics use :class:`Rect`.
     """
 
-    @staticmethod
-    def _coord(v: float) -> float:
+    def _coord(self, v: float) -> float:
         return float(v)

@@ -60,48 +60,48 @@ from pgzero_gl import (  # noqa: E402
     surface,
 )
 
-HEALTH_STAMINA_BAR_WIDTH = 235
-HEALTH_STAMINA_BAR_HEIGHT = 26
+HEALTH_STAMINA_BAR_WIDTH: int = 235
+HEALTH_STAMINA_BAR_HEIGHT: int = 26
 
-INTRO_ENABLED = True
+INTRO_ENABLED: bool = True
 
-FLYING_KICK_VEL_X = 3
-FLYING_KICK_VEL_Y = -8
+FLYING_KICK_VEL_X: int = 3
+FLYING_KICK_VEL_Y: int = -8
 
-JUMP_GRAVITY = 0.4
-THROWN_GRAVITY = 0.025
-WEAPON_GRAVITY = 0.5
+JUMP_GRAVITY: float = 0.4
+THROWN_GRAVITY: float = 0.025
+WEAPON_GRAVITY: float = 0.5
 
-BARREL_THROW_VEL_X = 4
-BARREL_THROW_VEL_Y = 0
+BARREL_THROW_VEL_X: int = 4
+BARREL_THROW_VEL_Y: int = 0
 
 # For when player is thrown by boss
-PLAYER_THROW_VEL_X = 5
-PLAYER_THROW_VEL_Y = 0.5
+PLAYER_THROW_VEL_X: int = 5
+PLAYER_THROW_VEL_Y: float = 0.5
 
 # By default, the effect of an attack on the opponent's stamina is damage * 100
 # Some attacks have an additional stamina damage multiplier
-BASE_STAMINA_DAMAGE_MULTIPLIER = 100
+BASE_STAMINA_DAMAGE_MULTIPLIER: int = 100
 
 # If stamina goes below zero, player can be knocked over more easily and minimum interval between attacks
 # is longer
-MIN_STAMINA = -100
+MIN_STAMINA: int = -100
 
-DEBUG_LOGGING_ENABLED = False
-DEBUG_SHOW_SCROLL_POS = False
-DEBUG_SHOW_BOUNDARY = False
-DEBUG_SHOW_ATTACKS = False
-DEBUG_SHOW_TARGET_POS = False
-DEBUG_SHOW_ANCHOR_POINTS = False
-DEBUG_SHOW_HIT_AREA_WIDTH = False
-DEBUG_SHOW_LOGS = False
-DEBUG_SHOW_HEALTH_AND_STAMINA = False
-DEBUG_PROFILING = False
+DEBUG_LOGGING_ENABLED: bool = False
+DEBUG_SHOW_SCROLL_POS: bool = False
+DEBUG_SHOW_BOUNDARY: bool = False
+DEBUG_SHOW_ATTACKS: bool = False
+DEBUG_SHOW_TARGET_POS: bool = False
+DEBUG_SHOW_ANCHOR_POINTS: bool = False
+DEBUG_SHOW_HIT_AREA_WIDTH: bool = False
+DEBUG_SHOW_LOGS: bool = False
+DEBUG_SHOW_HEALTH_AND_STAMINA: bool = False
+DEBUG_PROFILING: bool = False
 
 # These symbols substitute for the controller button images when displaying text.
 # The symbols representing these images must be ones that aren't actually used themselves, e.g. we don't use the
 # percent sign in text
-SPECIAL_FONT_SYMBOLS = {"xb_a": "%"}
+SPECIAL_FONT_SYMBOLS: dict[str, str] = {"xb_a": "%"}
 
 # Create a version of SPECIAL_FONT_SYMBOLS where the keys and values are swapped
 SPECIAL_FONT_SYMBOLS_INVERSE = dict(
@@ -135,23 +135,23 @@ if sys.version_info < (3, 6):
     sys.exit()
 
 
-WIDTH = 800
-HEIGHT = 480
-TITLE = "Beat Streets"
+WIDTH: int = 800
+HEIGHT: int = 480
+TITLE: str = "Beat Streets"
 
-MIN_WALK_Y = 310
+MIN_WALK_Y: int = 310
 
-ENEMY_APPROACH_PLAYER_DISTANCE = 85
-ENEMY_APPROACH_PLAYER_DISTANCE_SCOOTERBOY = 140
-ENEMY_APPROACH_PLAYER_DISTANCE_BARREL = 180
+ENEMY_APPROACH_PLAYER_DISTANCE: int = 85
+ENEMY_APPROACH_PLAYER_DISTANCE_SCOOTERBOY: int = 140
+ENEMY_APPROACH_PLAYER_DISTANCE_BARREL: int = 180
 
 ANCHOR_CENTRE = ("center", "center")
 ANCHOR_CENTRE_BOTTOM = ("center", "bottom")
 
-BACKGROUND_TILE_SPACING = 290
+BACKGROUND_TILE_SPACING: int = 290
 
 # 1st row of TILE_DEMO+_3.png
-BACKGROUND_TILES = [
+BACKGROUND_TILES: list[str] = [
     "wall_end1",
     "wall_fill1",
     "wall_fill5",
@@ -295,7 +295,7 @@ def move_towards(n: float, target: float, speed: float) -> tuple[float, int]:
 
 # ABC = abstract base class - a class which is only there to serve as a base class, not to be instantiated directly
 class Controls(ABC):
-    NUM_BUTTONS = 4
+    NUM_BUTTONS: int = 4
 
     def __init__(self) -> None:
         self.button_previously_down: list[bool] = [
@@ -308,7 +308,7 @@ class Controls(ABC):
     def update(self) -> None:
         # Call each frame to update button status
         for button in range(Controls.NUM_BUTTONS):
-            button_down: bool = self.button_down(button)
+            button_down: bool = bool(self.button_down(button))
             self.is_button_pressed[button] = (
                 button_down and not self.button_previously_down[button]
             )
@@ -325,8 +325,9 @@ class Controls(ABC):
         pass
 
     @abstractmethod
-    def button_down(self, button: int) -> bool:
-        # Overridden by subclasses
+    def button_down(self, button: int) -> bool | None:
+        # Overridden by subclasses (some return None for unmapped buttons;
+        # callers only test truthiness)
         pass
 
     def button_pressed(self, button: int) -> bool:
@@ -353,7 +354,9 @@ class KeyboardControls(Controls):
             return 0
 
     @override
-    def button_down(self, button: int) -> bool:  # ty: ignore[invalid-return-type]  # faithful port: returns bool for buttons 0-3, implicitly None otherwise
+    def button_down(self, button: int) -> bool | None:
+        # bool for buttons 0-3, implicitly None otherwise (callers only
+        # test truthiness)
         if button == 0:
             return keyboard.space or keyboard.z or keyboard.lctrl  # punch
         elif button == 1:
@@ -523,7 +526,7 @@ class ScrollHeightActor(Actor):
 
 # Inherits from both ScrollActor and ABC (abstract base class)
 class Fighter(ScrollHeightActor, ABC):
-    WEAPON_HOLD_HEIGHT = 100
+    WEAPON_HOLD_HEIGHT: int = 100
 
     class FallingState(Enum):
         STANDING = 0
@@ -534,7 +537,7 @@ class Fighter(ScrollHeightActor, ABC):
 
     def log(self, str: str) -> None:
         if DEBUG_LOGGING_ENABLED:
-            l: str = f"{game.timer} {str} {self.vpos}"
+            l = f"{game.timer} {str} {self.vpos}"
             print(self, l)
             self.logs.append(l)
 
@@ -629,7 +632,7 @@ class Fighter(ScrollHeightActor, ABC):
             self.height_above_ground -= self.vel.y
             self.apply_movement_boundaries(float(self.vel.x), 0)
             if self.height_above_ground < 0:
-                self.height_above_ground = 0
+                self.height_above_ground: int = 0
                 self.vel.x = 0
                 self.vel.y = 0
 
@@ -1384,7 +1387,7 @@ class Enemy(Fighter, ABC):
                         # Arrived - pick up weapon and make new decision
                         self.log("Pick up weapon")
                         self.pickup_animation = self.target_weapon.name
-                        self.frame = 0
+                        self.frame: int = 0
                         self.target_weapon.pick_up(Fighter.WEAPON_HOLD_HEIGHT)
                         self.weapon = self.target_weapon
                         self.target_weapon = None
@@ -1516,8 +1519,8 @@ class Enemy(Fighter, ABC):
         if self.state == Enemy.State.RIDING_SCOOTER:
             self.falling_state = Fighter.FallingState.FALLING
             self.frame = 0
-            self.hit_timer = 0
-            self.just_knocked_off_scooter = True
+            self.hit_timer: int = 0
+            self.just_knocked_off_scooter: bool = True
 
         if self.falling_state == Fighter.FallingState.FALLING:
             # Set state as knocked down
@@ -1578,12 +1581,7 @@ class Enemy(Fighter, ABC):
                 x1: int = int(player.vpos.x + (150 * x_side))
                 x2: int = int(player.vpos.x + (400 * x_side))
                 x: int = randint(min(x1, x2), max(x1, x2))
-                # int() is a runtime no-op: Rect coordinates are integers (see
-                # pgzero_gl.geometry.Rect), but its properties are currently typed
-                # int | float because ZRect shares them
-                y: int = randint(
-                    int(game.boundary.top), int(game.boundary.bottom)
-                )
+                y: int = randint(game.boundary.top, game.boundary.bottom)
                 self.target = Vector2(x, y)
                 self.state = Enemy.State.GO_TO_POS
 
@@ -1628,9 +1626,9 @@ class EnemyHoodie(Enemy):
 
 
 class EnemyScooterboy(Enemy):
-    SCOOTER_SPEED_SLOW = 4
-    SCOOTER_SPEED_FAST = 12
-    SCOOTER_ACCELERATION = 0.2
+    SCOOTER_SPEED_SLOW: int = 4
+    SCOOTER_SPEED_FAST: int = 12
+    SCOOTER_ACCELERATION: float = 0.2
 
     def __init__(self, pos: Any, start_timer: int = 20) -> None:
         super().__init__(
@@ -1833,8 +1831,8 @@ class EnemyBoss(Enemy):
 
 
 class EnemyPortal(Enemy):
-    GENERATE_ANIMATION_FRAMES = 6
-    GENERATE_ANIMATION_DIVISOR = 16
+    GENERATE_ANIMATION_FRAMES: int = 6
+    GENERATE_ANIMATION_DIVISOR: int = 16
     GENERATE_ANIMATION_TIME = (
         GENERATE_ANIMATION_FRAMES * GENERATE_ANIMATION_DIVISOR
     )
@@ -1978,7 +1976,7 @@ class Scooter(ScrollHeightActor):
         self.vpos.x += self.vel_x
         self.vel_x *= 0.94
         facing_id: int = 1 if self.facing_x > 0 else 0
-        self.image = f"scooterboy_bike_{facing_id}_{min(self.frame // 30, 2)}_{self.colour_variant}"
+        self.image: str = f"scooterboy_bike_{facing_id}_{min(self.frame // 30, 2)}_{self.colour_variant}"
 
     @override
     def get_draw_order_offset(self) -> int:
@@ -2054,7 +2052,7 @@ class Weapon(ScrollHeightActor):
         self.held = True
         self.height_above_ground = hold_height  # for when we are dropped
         self.vel = Vector2(0, 0)
-        self.image = "blank"
+        self.image: str = "blank"
 
     def dropped(self) -> None:
         # Subclass has the responsibility of setting image to the correct sprite
@@ -2121,7 +2119,9 @@ class Barrel(Weapon):
             # Update rolling animation
             facing_id: int = 1 if self.vel.x > 0 else 0
             self.frame += 1
-            self.image = f"barrel_roll_{facing_id}_{(self.frame // 14) % 4}"
+            self.image: str = (
+                f"barrel_roll_{facing_id}_{(self.frame // 14) % 4}"
+            )
 
     def throw(self, dir_x: int, thrower: Any) -> None:
         self.dropped()
@@ -3268,10 +3268,10 @@ except Exception:
     # If an error occurs (e.g. no sound hardware), ignore it
     pass
 
-total_frames = 0
+total_frames: int = 0
 
 # Set up controls
-keyboard_controls = KeyboardControls()
+keyboard_controls: KeyboardControls = KeyboardControls()
 setup_joystick_controls()
 
 # Set the initial game state

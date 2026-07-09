@@ -49,15 +49,15 @@ if sys.version_info < (3, 5):
 
 
 # Set up constants
-WIDTH = 800
-HEIGHT = 480
-TITLE = "Cavern"
+WIDTH: int = 800
+HEIGHT: int = 480
+TITLE: str = "Cavern"
 
-NUM_ROWS = 18
-NUM_COLUMNS = 28
+NUM_ROWS: int = 18
+NUM_COLUMNS: int = 28
 
-LEVEL_X_OFFSET = 50
-GRID_BLOCK_SIZE = 25
+LEVEL_X_OFFSET: int = 50
+GRID_BLOCK_SIZE: int = 25
 
 ANCHOR_CENTRE = ("center", "center")
 ANCHOR_CENTRE_BOTTOM = ("center", "bottom")
@@ -307,7 +307,7 @@ class Pop(Actor):
 
 
 class GravityActor(CollideActor):
-    MAX_FALL_SPEED = 10
+    MAX_FALL_SPEED: int = 10
 
     def __init__(self, pos: tuple[float, float] | Vector2) -> None:
         super().__init__(pos, ANCHOR_CENTRE_BOTTOM)
@@ -341,11 +341,11 @@ class GravityActor(CollideActor):
 
 # Class for pickups including fruit, extra health and extra life
 class Fruit(GravityActor):
-    APPLE = 0
-    RASPBERRY = 1
-    LEMON = 2
-    EXTRA_HEALTH = 3
-    EXTRA_LIFE = 4
+    APPLE: int = 0
+    RASPBERRY: int = 1
+    LEMON: int = 2
+    EXTRA_HEALTH: int = 3
+    EXTRA_LIFE: int = 4
 
     def __init__(
         self, pos: tuple[float, float] | Vector2, trapped_enemy_type: int = 0
@@ -372,7 +372,10 @@ class Fruit(GravityActor):
         self.time_to_live: int = 500  # Counts down to zero
 
     @override
-    def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful upstream: narrows GravityActor.update's optional `detect`
+    def update(self, detect: bool = True) -> None:
+        # `detect` accepted for Liskov (GravityActor.update's optional param);
+        # unused here, exactly as upstream ignores it.
+        del detect
         super().update()
 
         # Does the player exist, and are they colliding with us?
@@ -411,11 +414,11 @@ class Player(GravityActor):
 
     def reset(self) -> None:
         self.pos = (WIDTH / 2, 100)
-        self.vel_y = 0
-        self.direction_x = 1  # -1 = left, 1 = right
-        self.fire_timer = 0
-        self.hurt_timer = 100  # Invulnerable for this many frames
-        self.health = 3
+        self.vel_y: int = 0
+        self.direction_x: int = 1  # -1 = left, 1 = right
+        self.fire_timer: int = 0
+        self.hurt_timer: int = 100  # Invulnerable for this many frames
+        self.health: int = 3
         self.blowing_orb = None
 
     def hit_test(self, other: "Bolt") -> bool:
@@ -427,7 +430,7 @@ class Player(GravityActor):
             self.hurt_timer = 200
             self.health -= 1
             self.vel_y = -12
-            self.landed = False
+            self.landed: bool = False
             self.direction_x = other.direction_x
             if self.health > 0:
                 game.play_sound("ouch", 4)
@@ -438,7 +441,10 @@ class Player(GravityActor):
             return False
 
     @override
-    def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful upstream: narrows GravityActor.update's optional `detect`
+    def update(self, detect: bool = True) -> None:
+        # `detect` accepted for Liskov (GravityActor.update's optional param);
+        # unused here, exactly as upstream ignores it.
+        del detect
         # Call GravityActor.update - parameter is whether we want to perform collision detection as we fall. If health
         # is zero, we want the player to just fall out of the level
         super().update(self.health > 0)
@@ -509,7 +515,7 @@ class Player(GravityActor):
             self.blowing_orb = None
 
         # Set sprite image. If we're currently hurt, the sprite will flash on and off on alternate frames.
-        self.image = "blank"
+        self.image: str = "blank"
         if self.hurt_timer <= 0 or self.hurt_timer % 2 == 1:
             dir_index: str = "1" if self.direction_x > 0 else "0"
             if self.hurt_timer > 100:
@@ -544,7 +550,10 @@ class Robot(GravityActor):
         self.speed: int = randint(1, 3)
 
     @override
-    def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful upstream: narrows GravityActor.update's optional `detect`
+    def update(self, detect: bool = True) -> None:
+        # `detect` accepted for Liskov (GravityActor.update's optional param);
+        # unused here, exactly as upstream ignores it.
+        del detect
         super().update()
 
         self.change_dir_timer -= 1
@@ -803,7 +812,7 @@ class Game:
 
 
 # Widths of the letters A to Z in the font images
-CHAR_WIDTH = [
+CHAR_WIDTH: list[int] = [
     27,
     26,
     25,
@@ -850,7 +859,7 @@ def draw_text(text: str, y: float, x: Optional[float] = None) -> None:
         x += char_width(char)
 
 
-IMAGE_WIDTH = {"life": 44, "plus": 40, "health": 40}
+IMAGE_WIDTH: dict[str, int] = {"life": 44, "plus": 40, "health": 40}
 
 
 def draw_status() -> None:

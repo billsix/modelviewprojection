@@ -66,16 +66,16 @@ if sys.version_info < (3, 6):
     sys.exit()
 
 
-WIDTH = 960
-HEIGHT = 540
-TITLE = "Avenger"
+WIDTH: int = 960
+HEIGHT: int = 540
+TITLE: str = "Avenger"
 
-LEVEL_WIDTH = 4096
-LEVEL_HEIGHT = 640
+LEVEL_WIDTH: int = 4096
+LEVEL_HEIGHT: int = 640
 
-WAVE_COMPLETE_SCREEN_DURATION = 320
+WAVE_COMPLETE_SCREEN_DURATION: int = 320
 
-SHOW_DEBUG_LINES = False
+SHOW_DEBUG_LINES: bool = False
 
 # These positions are all relative to the terrain image, which is displayed with an offset from the top of the game world
 HUMAN_START_POS = (
@@ -91,7 +91,7 @@ HUMAN_START_POS = (
     (3646, 233),
 )
 
-TERRAIN_OFFSET_Y = 160
+TERRAIN_OFFSET_Y: int = 160
 
 # Utility functions
 
@@ -149,7 +149,7 @@ def forward_backward_animation_frame(frame: int, num_frames: int) -> int:
 
 # ABC = abstract base class - a class which is only there to serve as a base class, not to be instantiated directly
 class Controls(ABC):
-    NUM_BUTTONS = 1
+    NUM_BUTTONS: int = 1
 
     def __init__(self) -> None:
         self.button_previously_down: list[bool] = [
@@ -263,7 +263,9 @@ class WrapActor(Actor):
     def __init__(self, image: str, pos: Any) -> None:
         super().__init__(image, pos)
 
-    def update(self) -> None:
+    def update(self) -> bool | None:
+        # subclasses that return a destroy-flag narrow this to ``bool``;
+        # the base (and most subclasses) return None.
         # If the actor goes off the left or right edge of the game world, relative to the player,
         # wrap it back round to the other side
         while self.x - game.player.x < -LEVEL_WIDTH / 2:
@@ -305,7 +307,7 @@ class Bullet(WrapActor):
         volume: float = remap_clamp(distance, 400, 2500, 1, 0)
         game.play_sound("enemy_laser", volume=volume)
 
-    def update(self) -> bool:  # ty: ignore[invalid-method-override]  # faithful port: update returns a destroy-flag, narrowing WrapActor.update's None
+    def update(self) -> bool:
         super().update()
 
         self.pos = self.pos + self.velocity
@@ -333,7 +335,7 @@ class Laser(WrapActor):
         game.play_sound("player_shoot")
 
     @override
-    def update(self) -> bool:  # ty: ignore[invalid-method-override]  # faithful port: update returns a destroy-flag, narrowing WrapActor.update's None
+    def update(self) -> bool:
         super().update()
 
         # Update position
@@ -1018,7 +1020,9 @@ class Enemy(WrapActor):
 
                 # If carrying, update carried human pos
                 if self.carrying:
-                    self.target_human.pos = self.pos + Vector2(0, 50)  # ty: ignore[invalid-assignment]  # faithful port: target_human is non-None when carrying, but flow analysis keeps None in the union
+                    # carrying implies a target: make the invariant explicit
+                    assert self.target_human is not None
+                    self.target_human.pos = self.pos + Vector2(0, 50)
 
                 # Count down bullet timer, if it's zero or lower and enemy is near player (but not too near!),
                 # fire a bullet
@@ -1740,7 +1744,7 @@ except Exception:
     pass
 
 # Set up controls
-keyboard_controls = KeyboardControls()
+keyboard_controls: KeyboardControls = KeyboardControls()
 joystick_controls: Any
 setup_joystick_controls()
 

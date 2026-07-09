@@ -49,18 +49,18 @@ if sys.version_info < (3, 5):
     sys.exit()
 
 
-WIDTH = 480
-HEIGHT = 800
-TITLE = "Myriapod"
+WIDTH: int = 480
+HEIGHT: int = 800
+TITLE: str = "Myriapod"
 
-DEBUG_TEST_RANDOM_POSITIONS = False
+DEBUG_TEST_RANDOM_POSITIONS: bool = False
 
 # Pygame Zero allows you to access and change sprite positions based on various
 # anchor points
 CENTRE_ANCHOR = ("center", "center")
 
-num_grid_rows = 25
-num_grid_cols = 14
+num_grid_rows: int = 25
+num_grid_cols: int = 14
 
 
 # Convert a position in pixel units to a position in grid units. In this game, a grid square is 32 pixels.
@@ -460,18 +460,18 @@ SECONDARY_AXIS_POSITIONS = [sum(SECONDARY_AXIS_SPEED[:i]) for i in range(16)]
 
 
 # Constants representing directions
-DIRECTION_UP = 0
-DIRECTION_RIGHT = 1
-DIRECTION_DOWN = 2
-DIRECTION_LEFT = 3
+DIRECTION_UP: int = 0
+DIRECTION_RIGHT: int = 1
+DIRECTION_DOWN: int = 2
+DIRECTION_LEFT: int = 3
 
 # X and Y directions indexed into by in_edge and out_edge in Segment
 # The indices correspond to the direction numbers above, i.e. 0 = up, 1 = right, 2 = down, 3 = left
-DX = [0, 1, 0, -1]
-DY = [-1, 0, 1, 0]
+DX: list[int] = [0, 1, 0, -1]
+DY: list[int] = [-1, 0, 1, 0]
 
 
-def inverse_direction(dir: int) -> int:  # ty: ignore[invalid-return-type]  # exhaustive over the four valid directions; fall-through is unreachable in practice
+def inverse_direction(dir: int) -> int:
     if dir == DIRECTION_UP:
         return DIRECTION_DOWN
     elif dir == DIRECTION_RIGHT:
@@ -480,6 +480,8 @@ def inverse_direction(dir: int) -> int:  # ty: ignore[invalid-return-type]  # ex
         return DIRECTION_UP
     elif dir == DIRECTION_LEFT:
         return DIRECTION_RIGHT
+    # exhaustive over the four valid directions -- make it explicit
+    raise ValueError(f"not a direction: {dir!r}")
 
 
 def is_horizontal(dir: int) -> bool:

@@ -53,14 +53,14 @@ if sys.version_info < (3, 5):
     sys.exit()
 
 
-WIDTH = 480
-HEIGHT = 800
-TITLE = "Infinite Bunner"
+WIDTH: int = 480
+HEIGHT: int = 800
+TITLE: str = "Infinite Bunner"
 
-ROW_HEIGHT = 40
+ROW_HEIGHT: int = 40
 
 # See what happens when you change this to True
-DEBUG_SHOW_ROW_BOUNDARIES = False
+DEBUG_SHOW_ROW_BOUNDARIES: bool = False
 
 
 # The MyActor class extends Pygame Zero's Actor class by allowing an object to have a list of child objects,
@@ -119,18 +119,18 @@ class PlayerState(Enum):
 
 
 # Constants representing directions
-DIRECTION_UP = 0
-DIRECTION_RIGHT = 1
-DIRECTION_DOWN = 2
-DIRECTION_LEFT = 3
+DIRECTION_UP: int = 0
+DIRECTION_RIGHT: int = 1
+DIRECTION_DOWN: int = 2
+DIRECTION_LEFT: int = 3
 
 direction_keys = [keys.UP, keys.RIGHT, keys.DOWN, keys.LEFT]
 
 # X and Y directions indexed into by in_edge and out_edge in Segment
 # The indices correspond to the direction numbers above, i.e. 0 = up, 1 = right, 2 = down, 3 = left
 # Numbers 0 to 3 correspond to up, right, down, left
-DX = [0, 4, 0, -4]
-DY = [-4, 0, 4, 0]
+DX: list[int] = [0, 4, 0, -4]
+DY: list[int] = [-4, 0, 4, 0]
 
 
 @dataclass(eq=False)
@@ -254,7 +254,7 @@ class Bunner(MyActor):
         self.min_y = min(self.min_y, self.y)
 
         # Choose sprite image
-        self.image = "blank"
+        self.image: str = "blank"
         if self.state == PlayerState.ALIVE:
             if self.timer > 0:
                 self.image = "jump" + str(self.direction)
@@ -286,8 +286,8 @@ class Mover(MyActor):
 class Car(Mover):
     # These correspond to the indicies of the lists self.sounds and self.played. Used in Car.update to trigger
     # playing of the corresponding sound effects.
-    SOUND_ZOOM = 0
-    SOUND_HONK = 1
+    SOUND_ZOOM: int = 0
+    SOUND_HONK: int = 1
 
     def __init__(self, dx: int, pos: tuple[float, float]) -> None:
         image: str = "car" + str(randint(0, 3)) + ("0" if dx < 0 else "1")
@@ -805,7 +805,7 @@ class Game:
         # First (bottom) row is always grass
         self.rows: list[Any] = [Grass(None, 0, 0)]
 
-        self.scroll_pos = -HEIGHT
+        self.scroll_pos: int = -HEIGHT
 
     def update(self) -> "Game":
         if self.bunner:

@@ -39,12 +39,13 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from math import atan2, degrees, sqrt
-from typing import Any, Tuple
+from typing import Any, Tuple, Union
 
 from gacalc.g2 import Vector2
 
 from . import context
-from .geometry import ZRect
+from ._types import Anchor, Drawable, PointLike
+from .geometry import ZRect, _RectBase
 from .resources import images
 
 _ANCHOR_FRAC = {
@@ -93,16 +94,20 @@ class Actor:
     # movement at non-integer speeds keeps its sub-pixel precision instead of
     # truncating each frame (pygame.Rect / our int Rect would drift).
     _rect: ZRect
-    _anchor_value: Any
+    _anchor_value: Anchor
     _angle: float
-    _image: Any
+    _image: Drawable | None
     _image_name: str | None
     # memoized anchor offset; None = recompute (invalidated when the anchor
     # or the rect size changes)
     _offset_cache: Tuple[float, float] | None
 
     def __init__(
-        self, image: Any, pos: Any = None, anchor: Any = None, **kwargs: Any
+        self,
+        image: Union[str, Drawable],
+        pos: PointLike | None = None,
+        anchor: Anchor | None = None,
+        **kwargs: float,
     ) -> None:
         self._rect = ZRect(0, 0, 0, 0)
         self._offset_cache = None
@@ -128,7 +133,7 @@ class Actor:
                 self._rect.topleft = (0, 0)
 
     # -- image ----------------------------------------------------------------
-    def _set_image(self, image: Any) -> None:
+    def _set_image(self, image: Union[str, Drawable]) -> None:
         """Set/replace the sprite image (by name or Image), preserving the anchor pos."""
         img = images.load(image) if isinstance(image, str) else image
         keep: Tuple[float, float] | None = None
@@ -164,7 +169,7 @@ class Actor:
         ox, oy = self._anchor_offset()
         return (self._rect.left + ox, self._rect.top + oy)
 
-    def _set_pos(self, pos: Any) -> None:
+    def _set_pos(self, pos: PointLike) -> None:
         """Move the sprite so its anchor lands on ``pos``."""
         ox, oy = self._anchor_offset()
         # unpack rather than index: pos may be a tuple OR a gacalc vector
@@ -201,7 +206,7 @@ class Actor:
         return Vector2(px, py)
 
     @pos.setter
-    def pos(self, value: Any) -> None:
+    def pos(self, value: PointLike) -> None:
         self._set_pos(value)
 
     @property
@@ -219,15 +224,15 @@ class Actor:
         return self._image_name or ""
 
     @image.setter
-    def image(self, value: Any) -> None:
+    def image(self, value: Union[str, Drawable]) -> None:
         self._set_image(value)
 
     @property
-    def anchor(self) -> Any:
+    def anchor(self) -> Anchor:
         return self._anchor_value
 
     @anchor.setter
-    def anchor(self, value: Any) -> None:
+    def anchor(self, value: Anchor) -> None:
         self._anchor_value = value
         self._offset_cache = None
 
@@ -236,74 +241,76 @@ class Actor:
     # is the subset the games use, so the 12 unused pygame.Rect virtual
     # attributes are deliberately NOT reproduced here).
     @property
-    def left(self) -> Any:
+    def left(self) -> float:
         return self._rect.left
 
     @left.setter
-    def left(self, value: Any) -> None:
+    def left(self, value: float) -> None:
         self._rect.left = value
 
     @property
-    def top(self) -> Any:
+    def top(self) -> float:
         return self._rect.top
 
     @top.setter
-    def top(self, value: Any) -> None:
+    def top(self, value: float) -> None:
         self._rect.top = value
 
     @property
-    def bottom(self) -> Any:
+    def bottom(self) -> float:
         return self._rect.bottom
 
     @bottom.setter
-    def bottom(self, value: Any) -> None:
+    def bottom(self, value: float) -> None:
         self._rect.bottom = value
 
     @property
-    def centerx(self) -> Any:
+    def centerx(self) -> float:
         return self._rect.centerx
 
     @centerx.setter
-    def centerx(self, value: Any) -> None:
+    def centerx(self, value: float) -> None:
         self._rect.centerx = value
 
     @property
-    def centery(self) -> Any:
+    def centery(self) -> float:
         return self._rect.centery
 
     @centery.setter
-    def centery(self, value: Any) -> None:
+    def centery(self, value: float) -> None:
         self._rect.centery = value
 
     @property
-    def center(self) -> Any:
+    def center(self) -> Tuple[float, float]:
         return self._rect.center
 
     @center.setter
-    def center(self, value: Any) -> None:
+    def center(self, value: PointLike) -> None:
         self._rect.center = value
 
     @property
-    def width(self) -> Any:
+    def width(self) -> float:
         return self._rect.width
 
     @width.setter
-    def width(self, value: Any) -> None:
+    def width(self, value: float) -> None:
         self._rect.width = value
         self._offset_cache = None  # size feeds the anchor offset
 
     @property
-    def height(self) -> Any:
+    def height(self) -> float:
         return self._rect.height
 
     @height.setter
-    def height(self, value: Any) -> None:
+    def height(self, value: float) -> None:
         self._rect.height = value
         self._offset_cache = None  # size feeds the anchor offset
 
     # -- drawing & geometry ---------------------------------------------------
     def draw(self) -> None:
         """Draw the sprite at its current position/angle via the active renderer."""
+        # _set_image ran in __init__, so _image is always bound by draw time
+        assert self._image is not None
         context.require_renderer().draw_image(
             image=self._image,
             topleft=self._rect.topleft,
@@ -311,19 +318,19 @@ class Actor:
             anchor=self._anchor_pos(),
         )
 
-    def angle_to(self, target: Any) -> float:
+    def angle_to(self, target: Union["Actor", PointLike]) -> float:
         """Return the angle (degrees) from this actor to ``target`` (Actor or point)."""
         tx, ty = target.pos if isinstance(target, Actor) else target
         mx, my = self.pos
         return degrees(atan2(my - ty, tx - mx))  # screen y inverted
 
-    def distance_to(self, target: Any) -> float:
+    def distance_to(self, target: Union["Actor", PointLike]) -> float:
         """Return the distance from this actor to ``target`` (Actor or point)."""
         tx, ty = target.pos if isinstance(target, Actor) else target
         mx, my = self.pos
         return sqrt((tx - mx) ** 2 + (ty - my) ** 2)
 
-    def colliderect(self, other: Any) -> bool:
+    def colliderect(self, other: Union["Actor", "_RectBase[Any]"]) -> bool:
         """Return whether this actor's rect overlaps ``other`` (Actor or Rect)."""
         o = other._rect if isinstance(other, Actor) else other
         return self._rect.colliderect(o)

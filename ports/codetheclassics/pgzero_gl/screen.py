@@ -25,12 +25,32 @@ A small :class:`_Surface` covers the games that reach the raw pygame
 
 from __future__ import annotations
 
-from typing import Any, Tuple
+import typing
+from collections.abc import Sequence
+from typing import Any, Tuple, Union
+
+from gacalc.g2 import Vector2
 
 from . import context
 from . import text as _text
-from .geometry import Rect
+from ._types import Color, Drawable, PointLike
+from .geometry import Rect, _RectBase  # noqa: F401  # Rect kept for re-export
 from .resources import images
+
+# any rect flavor (int Rect / float ZRect)
+RectLike = _RectBase[Any]  # any coordinate flavor (int Rect / float ZRect)
+
+
+def _as_xy(pos: Union[PointLike, RectLike]) -> Tuple[float, float]:
+    """Normalize a blit position -- a point-like or a rect (its topleft)."""
+    if isinstance(pos, _RectBase):
+        # ty resolves the constrained-TypeVar property through Any to
+        # `object`; both coordinate flavors read fine as float.
+        r = typing.cast("_RectBase[float]", pos)
+        return (float(r.left), float(r.top))
+    if isinstance(pos, Vector2):
+        return (float(pos.x), float(pos.y))
+    return (float(pos[0]), float(pos[1]))
 
 
 class _Painter:
@@ -40,29 +60,31 @@ class _Painter:
         """Draw text (see :func:`pgzero_gl.text.draw` for the keyword options)."""
         _text.draw(*args, **kwargs)
 
-    def rect(self, rect: Rect, color: Any) -> None:
+    def rect(self, rect: RectLike, color: Color) -> None:
         """Draw the outline of ``rect`` in ``color``."""
         context.require_renderer().rect(
             x=rect.x, y=rect.y, w=rect.width, h=rect.height, color=color
         )
 
-    def filled_rect(self, rect: Rect, color: Any) -> None:
+    def filled_rect(self, rect: RectLike, color: Color) -> None:
         """Draw ``rect`` filled with ``color``."""
         context.require_renderer().filled_rect(
             x=rect.x, y=rect.y, w=rect.width, h=rect.height, color=color
         )
 
-    def line(self, start: Any, end: Any, color: Any) -> None:
+    def line(self, start: PointLike, end: PointLike, color: Color) -> None:
         """Draw a line from ``start`` to ``end`` in ``color``."""
         context.require_renderer().line(start=start, end=end, color=color)
 
-    def circle(self, pos: Any, radius: float, color: Any) -> None:
+    def circle(self, pos: PointLike, radius: float, color: Color) -> None:
         """Draw the outline of a circle centred at ``pos``."""
         context.require_renderer().circle(
             pos=pos, radius=radius, color=color, filled=False
         )
 
-    def filled_circle(self, pos: Any, radius: float, color: Any) -> None:
+    def filled_circle(
+        self, pos: PointLike, radius: float, color: Color
+    ) -> None:
         """Draw a filled circle centred at ``pos``."""
         context.require_renderer().circle(
             pos=pos, radius=radius, color=color, filled=True
@@ -75,19 +97,21 @@ class _Surface:
     Only the operations the games use are implemented.
     """
 
-    def set_clip(self, rect: Any) -> None:
+    def set_clip(self, rect: RectLike | Sequence[float] | None) -> None:
         """Clip subsequent drawing to ``rect`` (``None`` clears the clip)."""
         context.require_renderer().set_clip(rect)
 
-    def blit(self, image: Any, pos: Any, area: Any = None) -> None:
+    def blit(
+        self,
+        image: Union[str, Drawable],
+        pos: Union[PointLike, RectLike],
+        area: RectLike | Sequence[float] | None = None,
+    ) -> None:
         """Blit ``image`` (name or Image) at ``pos``; ``area`` is a sub-rect source."""
         img = images.load(image) if isinstance(image, str) else image
-        if hasattr(pos, "topleft"):
-            pos = pos.topleft
-        x, y = pos  # tuple OR gacalc vector (iterable pair)
         src: tuple[Any, ...] | None = tuple(area) if area is not None else None
         context.require_renderer().draw_image(
-            image=img, topleft=(x, y), src=src
+            image=img, topleft=_as_xy(pos), src=src
         )
 
     def get_width(self) -> int:
@@ -130,18 +154,16 @@ class Screen:
         """Clear the screen to black."""
         context.require_renderer().fill((0, 0, 0))
 
-    def fill(self, color: Any) -> None:
+    def fill(self, color: Color) -> None:
         """Fill the whole screen with ``color``."""
         context.require_renderer().fill(color)
 
-    def blit(self, image: Any, pos: Any) -> None:
+    def blit(
+        self, image: Union[str, Drawable], pos: Union[PointLike, RectLike]
+    ) -> None:
         """Blit ``image`` (name or Image) at ``pos`` (a point or a Rect's topleft)."""
         img = images.load(image) if isinstance(image, str) else image
-        # pos may be a Rect -> use its topleft
-        if hasattr(pos, "topleft"):
-            pos = pos.topleft
-        x, y = pos  # tuple OR gacalc vector (iterable pair)
-        context.require_renderer().draw_image(image=img, topleft=(x, y))
+        context.require_renderer().draw_image(image=img, topleft=_as_xy(pos))
 
 
 screen = Screen()

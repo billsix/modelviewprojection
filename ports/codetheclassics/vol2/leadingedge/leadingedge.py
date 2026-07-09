@@ -38,7 +38,7 @@ from collections.abc import Callable  # noqa: E402
 from dataclasses import dataclass, field
 from enum import Enum
 from random import choice, randint, uniform
-from typing import Any, Optional, override
+from typing import Any, Optional, cast, override
 
 from gacalc.g2 import Vector2
 from gacalc.g3 import Vector3
@@ -65,7 +65,7 @@ from pgzero_gl import (  # noqa: E402
 # Enable this to use Pygame's 'gfxdraw' module for displaying polygons. This is faster in some older versions of Pygame,
 # but in the latest version at the time of writing (2.2.0) it may actually be slightly slower than the default drawing
 # module. See further down for more performance options
-USE_GFXDRAW = False
+USE_GFXDRAW: bool = False
 # (The gfxdraw work-alikes now live in pgzero_gl.draw -- imported above as
 # gldraw -- so no conditional import is needed; the flag still selects them
 # at the draw site.)
@@ -80,23 +80,23 @@ if sys.version_info < (3, 6):
 
 
 # For a better frame rate, try width/height of 640x480, or even lower
-WIDTH = 960
-HEIGHT = 540
+WIDTH: int = 960
+HEIGHT: int = 540
 
-TITLE = "Leading Edge"
+TITLE: str = "Leading Edge"
 
 # Set to True improve frame rate by turning off scenery, drawing unfilled polygons and changing the draw distance
-PERFORMANCE_MODE = False
+PERFORMANCE_MODE: bool = False
 
 if not PERFORMANCE_MODE:
-    SHOW_SCENERY = True
-    SHOW_TRACKSIDE = True
-    SHOW_RUMBLE_STRIPS = True
-    SHOW_YELLOW_LINES = True
-    OUTLINE_W = (
+    SHOW_SCENERY: bool = True
+    SHOW_TRACKSIDE: bool = True
+    SHOW_RUMBLE_STRIPS: bool = True
+    SHOW_YELLOW_LINES: bool = True
+    OUTLINE_W: int = (
         0  # Change to 1 for unfilled polygons, which are a bit faster to draw
     )
-    VIEW_DISTANCE = 200  # This is in units of number of track pieces, try 60 for a better frame rate, try 2000 for a bad frame rate but impressive draw distance
+    VIEW_DISTANCE: int = 200  # This is in units of number of track pieces, try 60 for a better frame rate, try 2000 for a bad frame rate but impressive draw distance
 else:
     SHOW_SCENERY = False
     SHOW_TRACKSIDE = False
@@ -107,21 +107,21 @@ else:
     )
     VIEW_DISTANCE = 150  # This is in units of number of track pieces, try 60 for a better frame rate, try 2000 for a bad frame rate but impressive draw distance
 
-CLIPPING_PLANE = -0.25  # too close to 0 = frame rate issues (drawing huge polygons which are mostly off-screen), too far = stuff just in front of camera not being drawn
-CLIPPING_PLANE_CARS = -0.08  # bring closer to zero to fix occasional flickering of CPU cars when very close to the camera, at the potential cost of frame rate
+CLIPPING_PLANE: float = -0.25  # too close to 0 = frame rate issues (drawing huge polygons which are mostly off-screen), too far = stuff just in front of camera not being drawn
+CLIPPING_PLANE_CARS: float = -0.08  # bring closer to zero to fix occasional flickering of CPU cars when very close to the camera, at the potential cost of frame rate
 SCALE_FUNC = transform.scale  # Which scale function to use - transform.smoothscale is better quality but slower
-MAX_SCENERY_SCALED_WIDTH = (
+MAX_SCENERY_SCALED_WIDTH: int = (
     WIDTH * 2
 )  # When scaling scenery based on distance from camera, don't try to draw anything that would be scaled to wider than this
-MAX_CAR_SCALED_WIDTH = WIDTH * 1  # As above but for cars
+MAX_CAR_SCALED_WIDTH: int = WIDTH * 1  # As above but for cars
 
 # Constants for track
-SPACING = 1
-TRACK_W = 3000
-HALF_STRIPE_W = 25
-HALF_RUMBLE_STRIP_W = 250
-HALF_YELLOW_LINE_W = 80
-YELLOW_LINE_DISTANCE_FROM_EDGE = 150
+SPACING: int = 1
+TRACK_W: int = 3000
+HALF_STRIPE_W: int = 25
+HALF_RUMBLE_STRIP_W: int = 250
+HALF_YELLOW_LINE_W: int = 80
+YELLOW_LINE_DISTANCE_FROM_EDGE: int = 150
 TRACK_COLOUR = (35, 96, 198)
 TRACKSIDE_COLOUR_1 = (0, 77, 180)
 TRACKSIDE_COLOUR_2 = (50, 77, 170)
@@ -133,53 +133,55 @@ YELLOW_LINE_COL = (
 )  # Yes, it's actually green, not yellow. It looks yellow because it's night.
 RUMBLE_COLOUR_1 = (0, 116, 255)
 RUMBLE_COLOUR_2 = (0, 58, 135)
-SECTION_VERY_SHORT = 25
-SECTION_SHORT = 50
-SECTION_MEDIUM = 100
-SECTION_LONG = 200
-LAMP_X = TRACK_W // 2 + 300
-BILLBOARD_X = TRACK_W // 2 + 600
+SECTION_VERY_SHORT: int = 25
+SECTION_SHORT: int = 50
+SECTION_MEDIUM: int = 100
+SECTION_LONG: int = 200
+LAMP_X: int = TRACK_W // 2 + 300
+BILLBOARD_X: int = TRACK_W // 2 + 600
 
-CAMERA_FOLLOW_DISTANCE = 2
+CAMERA_FOLLOW_DISTANCE: int = 2
 
 # Player car gameplay settings
-LOSE_GRIP_SPEED = 50
-ZERO_GRIP_SPEED = 100
-PLAYER_ACCELERATION_MAX = 20
-PLAYER_ACCELERATION_MIN = 10
-HIGH_ACCEL_THRESHOLD = 30
-CORNER_OFFSET_MULTIPLIER = 5.8  # Higher = harder to corner
-STEERING_STRENGTH = 72  # Higher = steering has a stronger effect
+LOSE_GRIP_SPEED: int = 50
+ZERO_GRIP_SPEED: int = 100
+PLAYER_ACCELERATION_MAX: int = 20
+PLAYER_ACCELERATION_MIN: int = 10
+HIGH_ACCEL_THRESHOLD: int = 30
+CORNER_OFFSET_MULTIPLIER: float = 5.8  # Higher = harder to corner
+STEERING_STRENGTH: int = 72  # Higher = steering has a stronger effect
 
 # Min/max CPU car target speeds - see also track generation, some track pieces have target speed overrides set
-CPU_CAR_MIN_TARGET_SPEED = 40
-CPU_CAR_MAX_TARGET_SPEED = 65
+CPU_CAR_MIN_TARGET_SPEED: int = 40
+CPU_CAR_MAX_TARGET_SPEED: int = 65
 
-NUM_LAPS = 5
-NUM_CARS = 20
+NUM_LAPS: int = 5
+NUM_CARS: int = 20
 
-GRID_CAR_SPACING = 0.55  # How spaced out the cars are on the starting grid
+GRID_CAR_SPACING: float = (
+    0.55  # How spaced out the cars are on the starting grid
+)
 
 # Half-width and height used during point transform, to save having to calculate them each time
-HALF_WIDTH = WIDTH // 2
-HALF_HEIGHT = HEIGHT // 2
+HALF_WIDTH: int = WIDTH // 2
+HALF_HEIGHT: int = HEIGHT // 2
 
 # Skid sound starts fading in when grip goes below this level
-SKID_SOUND_START_GRIP = 0.8
+SKID_SOUND_START_GRIP: float = 0.8
 
 # Debug options
-SHOW_TRACK_PIECE_INDEX = False
-SHOW_TRACK_PIECE_OFFSETS = False
-SHOW_CPU_CAR_SPEEDS = False
-SHOW_DEBUG_TEXT = False
-SHOW_PROFILE_TIMINGS = False
+SHOW_TRACK_PIECE_INDEX: bool = False
+SHOW_TRACK_PIECE_OFFSETS: bool = False
+SHOW_CPU_CAR_SPEEDS: bool = False
+SHOW_DEBUG_TEXT: bool = False
+SHOW_PROFILE_TIMINGS: bool = False
 
-FIXED_TIMESTEP = 1 / 60
+FIXED_TIMESTEP: float = 1 / 60
 
 # These symbols substitute for the controller button images when displaying text.
 # The symbols representing these images must be ones that aren't actually used themselves, e.g. we don't use the
 # percent sign in text
-SPECIAL_FONT_SYMBOLS = {"xb_a": "%"}
+SPECIAL_FONT_SYMBOLS: dict[str, str] = {"xb_a": "%"}
 
 # Create a version of SPECIAL_FONT_SYMBOLS where the keys and values are swapped
 SPECIAL_FONT_SYMBOLS_INVERSE = dict(
@@ -285,7 +287,7 @@ def get_char_image_and_width(char: str, font: str) -> tuple[Any, int]:
         return image, image.get_width()
 
 
-TEXT_GAP_X = {
+TEXT_GAP_X: dict[str, int] = {
     "font": -6,
     "status1b_": 0,
     "status2_": 0,
@@ -312,7 +314,7 @@ def draw_text(
 
 
 class Controls(ABC):
-    NUM_BUTTONS = 2
+    NUM_BUTTONS: int = 2
 
     def __init__(self) -> None:
         self.button_previously_down: list[bool] = [
@@ -325,7 +327,7 @@ class Controls(ABC):
     def update(self) -> None:
         # Call each frame to update button status
         for button in range(Controls.NUM_BUTTONS):
-            button_down: bool = self.button_down(button)
+            button_down: bool = bool(self.button_down(button))
             self.is_button_pressed[button] = (
                 button_down and not self.button_previously_down[button]
             )
@@ -337,8 +339,9 @@ class Controls(ABC):
         pass
 
     @abstractmethod
-    def button_down(self, button: int) -> bool:
-        # Overridden by subclasses
+    def button_down(self, button: int) -> bool | None:
+        # Overridden by subclasses (some return None for unmapped buttons;
+        # callers only test truthiness)
         pass
 
     def button_pressed(self, button: int) -> bool:
@@ -356,7 +359,9 @@ class KeyboardControls(Controls):
             return 0
 
     @override
-    def button_down(self, button: int) -> bool:  # ty: ignore[invalid-return-type]  # faithful port: implicitly returns None for button values other than 0/1
+    def button_down(self, button: int) -> bool | None:
+        # bool for buttons 0/1, implicitly None otherwise (callers only
+        # test truthiness)
         if button == 0:
             return keyboard.lctrl or keyboard.z
         elif button == 1:
@@ -814,7 +819,9 @@ class PlayerCar(Car):
                             # Colliding with the back of the car in front
                             self.speed = max(car.speed - 3, 0)
                             car.speed = max(car.speed, self.speed + 3)
-                            car.target_speed = car.speed  # ty: ignore[unresolved-attribute]  # faithful port: the car collided with is a CPUCar, which has target_speed
+                            # the collided-with car is always a CPUCar
+                            # (the player is `self`); it has target_speed
+                            cast(CPUCar, car).target_speed = car.speed
 
                             # Shift us back and other car forward so we're not longer overlapping
                             self.pos.z = (
@@ -940,7 +947,7 @@ class PlayerCar(Car):
 
         # Set sprite
         if self.explode_timer is not None:
-            self.image = f"explode{self.explode_timer // 2:02}"
+            self.image: str = f"explode{self.explode_timer // 2:02}"
         else:
             direction: int = 0
             if x_move < 0:
@@ -1575,7 +1582,9 @@ class Game:
             if w is None:
                 return point_v2
             else:
-                return point_v2, w / -newpoint.z, h / -newpoint.z  # ty: ignore[unsupported-operator]  # faithful upstream: w/h are None only when unused
+                # w and h are always passed together
+                assert h is not None
+                return point_v2, w / -newpoint.z, h / -newpoint.z
 
         # offset and offset_delta keep track of the cumulative changes in track offsets (X and Y - Z remains as 0), so
         # that each track piece is drawn in the correct position

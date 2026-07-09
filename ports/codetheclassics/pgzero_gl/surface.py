@@ -52,7 +52,8 @@ class Surface:
     """An offscreen RGBA image the games can ``fill``/``blit`` into and then draw."""
 
     def __init__(self, size: PointLike, flags: int = 0) -> None:
-        w, h = int(size[0]), int(size[1])
+        w_f, h_f = size  # unpack: tuple OR gacalc vector
+        w, h = int(w_f), int(h_f)
         self.width: int = w
         self.height: int = h
         # SRCALPHA -> start transparent; otherwise opaque black (pygame default).

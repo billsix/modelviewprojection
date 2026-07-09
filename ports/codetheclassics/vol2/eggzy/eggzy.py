@@ -55,9 +55,9 @@ from pgzero_gl import draw as gldraw
 from pgzero_gl.resources import Image as GLImage
 
 # Set up constants
-WIDTH = 825
-HEIGHT = 550
-TITLE = "Eggzy"
+WIDTH: int = 825
+HEIGHT: int = 550
+TITLE: str = "Eggzy"
 
 LEVEL_SEQUENCE = (
     "starter1.tmx",
@@ -83,24 +83,24 @@ LEVEL_SEQUENCE = (
     "forest8.tmx",
 )
 
-GRID_BLOCK_SIZE = 25
-LEVEL_Y_BOUNDARY = -100
+GRID_BLOCK_SIZE: int = 25
+LEVEL_Y_BOUNDARY: int = -100
 
 # Change to 1, 2 or 3 to start with enemies/more enemies and less bonus time for gems
-INITIAL_LEVEL_CYCLE = 0
+INITIAL_LEVEL_CYCLE: int = 0
 
-INITIAL_TIME_REMAINING = 15
-INITIAL_PICKUP_TIME_BONUS = 2
-STOMP_ENEMY_TIME_BONUS = 3
+INITIAL_TIME_REMAINING: int = 15
+INITIAL_PICKUP_TIME_BONUS: int = 2
+STOMP_ENEMY_TIME_BONUS: int = 3
 
 # Constants affecting player movement
-COYOTE_TIME = 6
-JUMP_VEL_Y = -10
-WALL_JUMP_X_VEL = 8
-WALL_JUMP_COYOTE_TIME = 15
-CACHE_JUMP_INPUT_TIME = 5
-PLAYER_WIDTH = 20  # Width of player for the purpose of collisions - slightly smaller than the bounds of the sprite
-PLAYER_HEIGHT = 40  # For player head collision with ceilings
+COYOTE_TIME: int = 6
+JUMP_VEL_Y: int = -10
+WALL_JUMP_X_VEL: int = 8
+WALL_JUMP_COYOTE_TIME: int = 15
+CACHE_JUMP_INPUT_TIME: int = 5
+PLAYER_WIDTH: int = 20  # Width of player for the purpose of collisions - slightly smaller than the bounds of the sprite
+PLAYER_HEIGHT: int = 40  # For player head collision with ceilings
 
 ANCHOR_CENTRE = ("center", "center")
 ANCHOR_CENTRE_BOTTOM = ("center", "bottom")
@@ -151,25 +151,25 @@ ENEMY_TYPES_ANCHOR_POINTS = {
     ],
 }
 
-ENEMY_TYPES_HEALTH = [1, 3, 1, 3]
-ENEMY_TYPES_SPEED = [2, 1, 2, 1]
+ENEMY_TYPES_HEALTH: list[int] = [1, 3, 1, 3]
+ENEMY_TYPES_SPEED: list[int] = [2, 1, 2, 1]
 
-REPLAY_FILENAME = "eggzy-replays"
-MAX_REPLAYS = 10
+REPLAY_FILENAME: str = "eggzy-replays"
+MAX_REPLAYS: int = 10
 
-DEBUG_SHOW_PLAYER_COLLISION_RECT = False
-DEBUG_SHOW_ENEMY_COLLISION_RECTS = False
-DEBUG_SHOW_BLOCK_COLLISION_RECTS = False
-DEBUG_SHOW_FRAME_NUMBER = False
-DEBUG_MOVEMENT = False
-DEBUG_SLOWMO = (
+DEBUG_SHOW_PLAYER_COLLISION_RECT: bool = False
+DEBUG_SHOW_ENEMY_COLLISION_RECTS: bool = False
+DEBUG_SHOW_BLOCK_COLLISION_RECTS: bool = False
+DEBUG_SHOW_FRAME_NUMBER: bool = False
+DEBUG_MOVEMENT: bool = False
+DEBUG_SLOWMO: int = (
     1  # Set to 2 or higher to run in slow motion, useful for testing animations
 )
 
 # These symbols substitute for the controller button images when displaying text.
 # The symbols representing these images must be ones that aren't actually used themselves, e.g. we don't use the
 # percent sign in text
-SPECIAL_FONT_SYMBOLS = {"xb_a": "%", "xb_b": "#"}
+SPECIAL_FONT_SYMBOLS: dict[str, str] = {"xb_a": "%", "xb_b": "#"}
 
 # Create a version of SPECIAL_FONT_SYMBOLS where the keys and values are swapped
 SPECIAL_FONT_SYMBOLS_INVERSE = dict(
@@ -194,7 +194,7 @@ def sign(x: float) -> int:
 
 # ABC = abstract base class - a class which is only there to serve as a base class, not to be instantiated directly
 class Controls(ABC):
-    NUM_BUTTONS = 2
+    NUM_BUTTONS: int = 2
 
     def __init__(self) -> None:
         self.button_previously_down: list[bool] = [
@@ -358,7 +358,7 @@ class Gem(Actor):
             self.collected = True  # Disappear
 
         anim_frame: str = str((game.timer // 6) % 4)
-        self.image = f"gem{self.type}_{anim_frame}"
+        self.image: str = f"gem{self.type}_{anim_frame}"
 
     @staticmethod
     def new_game() -> None:
@@ -394,7 +394,7 @@ class Door(Actor):
             and game.timer % 3 == 0
         ):
             self.frame += 1
-            self.image = f"door_{self.biome}_{self.variant}_{self.frame}"
+            self.image: str = f"door_{self.biome}_{self.variant}_{self.frame}"
 
     def open(self) -> None:
         self.opening = True
@@ -433,7 +433,7 @@ class Animation(Actor):
 
     def update_image(self) -> None:
         if self.timer < 0:
-            self.image = "blank"
+            self.image: str = "blank"
         else:
             frame: int = min(
                 self.timer // self.frame_interval, self.num_frames - 1
@@ -512,7 +512,7 @@ class CollideActor(Actor):
 # demonstrating a drawback of inheritance in object-oriented programming! In a component-based
 # system such as Unity, objects which want gravity could instead have a gravity component.
 class GravityActor(CollideActor):
-    MAX_FALL_SPEED = 7
+    MAX_FALL_SPEED: int = 7
 
     class FallState(Enum):
         LANDED = 0
@@ -621,11 +621,11 @@ class Player(GravityActor):
     def reset(self) -> None:
         self.pos = self.start_pos
         self.vel_x = 0
-        self.vel_y = 0
+        self.vel_y: int = 0
         self.facing_x = 1  # -1 = left, 1 = right
         self.hurt = False
         self.dash_timer = Player.DASH_TIMER_TRAIL_CUTOFF
-        self.gravity_enabled = True
+        self.gravity_enabled: bool = True
         self.grabbed_wall = 0
         self.coyote_time = 0
         self.wall_jump_coyote_time = 0
@@ -659,7 +659,10 @@ class Player(GravityActor):
         ]
 
     @override
-    def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful port: narrows GravityActor.update's optional `detect`
+    def update(self, detect: bool = True) -> None:
+        # `detect` accepted for Liskov (GravityActor.update's optional param);
+        # unused here, exactly as upstream ignores it.
+        del detect
         # Call GravityActor.update - parameter is whether we want to perform collision detection as we fall
         was_landed: bool = self.landed()
         super().update(not self.hurt)
@@ -779,7 +782,7 @@ class Player(GravityActor):
                 self.fall_state = GravityActor.FallState.JUMPING
                 self.coyote_time = 0
                 self.cached_jump_input_timer = 0
-                self.lower_gravity_timer = 5
+                self.lower_gravity_timer: int = 5
                 self.fall_timer = 0
                 game.play_sound("jump")
 
@@ -791,7 +794,7 @@ class Player(GravityActor):
                 self.vel_x = -wall_direction * WALL_JUMP_X_VEL
                 self.facing_x = -wall_direction
                 self.grabbed_wall = 0
-                self.previous_grabbed_wall = 0
+                self.previous_grabbed_wall: int = 0
                 self.wall_jump_coyote_time = 0
                 self.cached_jump_input_timer = 0
                 self.fall_timer = 0
@@ -956,7 +959,7 @@ class Player(GravityActor):
                 # no flame for this animatoin
                 frame: int = min(self.fall_timer // 8, 5)
                 self.image = f"die_{frame}"
-                self.flame_image = "blank"
+                self.flame_image: str = "blank"
 
             elif self.grabbed_wall != 0 and self.vel_y >= 0:
                 # We don't do wall slide animation if we're moving upward
@@ -1069,7 +1072,7 @@ class GhostPlayer(Actor):
         if self.replay_frame < len(self.replay_data):
             self.pos, self.level, sprite = self.replay_data[self.replay_frame]
             if sprite == "blank":
-                self.image = "blank"
+                self.image: str = "blank"
             else:
                 self.image = "ghost_" + sprite
 
@@ -1121,7 +1124,10 @@ class Enemy(GravityActor):
         self.stomped_timer: int = 0
 
     @override
-    def update(self) -> None:  # ty: ignore[invalid-method-override]  # faithful port: narrows GravityActor.update's optional `detect`
+    def update(self, detect: bool = True) -> None:
+        # `detect` accepted for Liskov (GravityActor.update's optional param);
+        # unused here, exactly as upstream ignores it.
+        del detect
         super().update(detect=not self.dying)
 
         if not self.dying:
@@ -1164,7 +1170,7 @@ class Enemy(GravityActor):
 
     def destroy(self) -> None:
         self.dying = True
-        self.gravity_enabled = True
+        self.gravity_enabled: bool = True
 
         # Create explosion animation. Do this before gain_time so it appears underneath gain time animation
         explosion_sprite: str = (
@@ -1255,7 +1261,7 @@ class Game:
             level_filename
         )
 
-        self.exit_open = False
+        self.exit_open: bool = False
 
         if self.player is not None:
             self.player.new_level(player_start_pos)
@@ -2006,7 +2012,7 @@ except Exception:
 tileset_images: dict[str, Any] = {}
 
 # Set up controls
-keyboard_controls = KeyboardControls()
+keyboard_controls: KeyboardControls = KeyboardControls()
 joystick_controls: Any
 setup_joystick_controls()
 
