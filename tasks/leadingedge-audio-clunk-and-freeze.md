@@ -1,9 +1,79 @@
 # leadingedge: engine audio still clunky, game still freezes — investigate
 
-**Status:** proposed — investigate later (Bill, 2026-07-09). Reproducible
-on Bill's machine; NOT reproducible headless (no sound hardware in the
-build container), so diagnosis needs his box.
+**Status:** ROOT CAUSE IDENTIFIED 2026-07-09 (investigation Bill directed:
+"study pygame zero... compare... to the original leading edge source...
+figure out why"). Fix direction proposed below — needs go-ahead.
 **Created:** 2026-07-09
+
+## Investigation results (2026-07-09)
+
+**Method** (per Bill): cloned the untouched upstream
+(`raspberrypipress/Code-the-Classics-Vol2`) and pgzero
+(`lordmauve/pgzero`) sources; compared against our port and read
+just_playback's installed source. (NB the in-repo import dc5bb77e was
+already shim-based, but its game LOGIC is byte-identical to upstream —
+verified by diff; only annotations/formatting differ. So the entire
+behavioural delta is the audio framework.)
+
+**How the original stack works** (pgzero + pygame.mixer/SDL_mixer):
+- pgzero calls `pygame.mixer.pre_init(22050, -16, 2)` — **one** audio
+  device for the whole process, opened once.
+- `sounds.engine_short17` is `pygame.mixer.Sound(path)`: the file is
+  **fully decoded into a memory buffer at load**.
+- `play(loops=-1, fade_ms=100)`, `fadeout(150)`, `set_volume` all execute
+  inside SDL_mixer's single audio callback, software-mixing N channels:
+  **gapless loops** (buffer wraparound), **sample-accurate fades**, zero
+  device operations per play. Starting/stopping a sound is a flag flip.
+
+**How our shim works** (just_playback/miniaudio — from its source):
+- **Every `Playback` owns its own miniaudio audio STREAM** —
+  `load_file()` runs `terminate_audio_stream` + decode +
+  `init_audio_stream`, and volume is set at DEVICE level
+  (`set_device_volume`). Our `audio.Sound` pools up to
+  `_MAX_VOICES_PER_SOUND = 8` such Playbacks per sound and — by design,
+  to avoid the no-finalizer leak — **keeps them open forever** for
+  reuse.
+- leadingedge ships **41 engine sample files** (+22 other sounds).
+  Driving through the speed range touches up to 40 engine sounds → up to
+  40 permanently-open OS audio streams, plus the skid loop, plus
+  road/grass/zoom pools (≤8 voices each).
+
+**Root cause — the clunk**: an engine band change stops one OS-level
+stream and starts another (unsynchronized device start/stop = clicks;
+start latency is tens of ms), and the FIRST play of each band runs
+decode + stream-init **on the game thread** (a frame hitch per new
+band). A sample-level crossfade across two separate devices is
+physically impossible — which is why the 50 Hz volume-ramp fade engine
+improved semantics but couldn't fix the sound. One-shot effects reuse an
+already-open stream, hence "other sounds are smooth".
+
+**Root cause — the freeze**: stream accumulation. Dozens of concurrent
+ALSA/PipeWire streams (one per pooled voice) exhaust the finite dmix/
+client slots; when that happens, snd_pcm calls **block the calling
+thread** — and our play()/stop() run inline on the game thread. Matches
+the freeze arriving after driving a while (bands accumulate), not at
+startup.
+
+**Why no other game shows it**: the others use a handful of one-shot
+sounds (≤8 streams/sound, few sounds hot); only leadingedge multiplies
+41 loopable samples by the stream-per-voice architecture.
+
+## The fix (proposed — needs go-ahead)
+
+Rebuild `pgzero_gl/audio.py` on pygame.mixer's architecture: **one**
+output device + a software mixer.
+- Backend: the `miniaudio` (pyminiaudio) package — one `PlaybackDevice`
+  with a single mixing generator over **decoded in-memory buffers**
+  (numpy add + clip), or `sounddevice`/PortAudio equivalently.
+- Per-voice state (offset, volume, loop flag, fade ramp) lives in the
+  mixer: gapless loops = buffer wraparound; fades = per-chunk ramps;
+  play/stop = flag flips. Zero device operations after startup.
+- Keep the existing public surface (`Sound`, `music`, `mixer.Sound`,
+  per-play volume) so the games and the earlier fixes are untouched;
+  drop `just_playback` from requirements. The 2026-07-09 fade-engine
+  thread becomes unnecessary (fades move into the mixer callback).
+- Est. ~200–300 lines; test headless via a null/none backend if
+  miniaudio offers one, else Bill's ears.
 
 ## Symptoms (Bill)
 
