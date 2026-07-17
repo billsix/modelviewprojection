@@ -289,7 +289,11 @@ def ortho(
         return inverse(fn)(vector)
 
     return InvertibleFunction(
-        f, f_inv, "Ortho", "Ortho Inv", linearity=Linearity.AFFINE
+        func=f,
+        latex_repr="Ortho",
+        inverse=f_inv,
+        latex_repr_inv="Ortho Inv",
+        linearity=Linearity.AFFINE,
     )
     # doc-region-end define ortho
 
@@ -336,10 +340,10 @@ def perspective(
     # the perspective divide is non-linear: it is not representable as a single
     # affine matrix recovered by probing points (see gacalc.to_matrix).
     return InvertibleFunction(
-        f,
-        f_inv,
-        "Perspective",
-        "Perspective Inv",
+        func=f,
+        latex_repr="Perspective",
+        inverse=f_inv,
+        latex_repr_inv="Perspective Inv",
         linearity=Linearity.NONLINEAR,
     )
     # doc-region-end define perspective
