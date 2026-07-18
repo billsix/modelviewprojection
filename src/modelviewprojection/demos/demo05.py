@@ -23,11 +23,17 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.util.colorutils as colorutils
+
+# The chapter's Cayley-graph edges are labelled in vector notation --
+# \vec{R}_<theta>, \vec{T}_<x,y>, \vec{S}_<s>.  The code spells them out in
+# full (Python naming), so read the graph labels as:
+#     R -> rotate(...)      T -> translate(b=...)
+#     S -> uniform_scale(m=...)
 from modelviewprojection.mathutils import (
     InvertibleFunction,
     Vector2,
+    translate,
 )
-from modelviewprojection.mathutils import translate as T
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
@@ -133,7 +139,7 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc: Vector2 = T(paddle1.position)(p1_v_ms)
+        paddle1_vector_ndc: Vector2 = translate(b=paddle1.position)(p1_v_ms)
         # we could have written
         # paddle1_vector_ndc: Vector = paddle1.position + p1_v_ms
         GL.glVertex2f(*paddle1_vector_ndc)
@@ -143,7 +149,7 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     GL.glColor3f(*iter(paddle2.color))
 
-    p2_fn: InvertibleFunction[Vector2] = T(paddle2.position)
+    p2_fn: InvertibleFunction[Vector2] = translate(b=paddle2.position)
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         paddle2_vector_ndc: Vector2 = p2_fn(p2_v_ms)

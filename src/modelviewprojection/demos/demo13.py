@@ -114,7 +114,7 @@ rotation_around_paddle1: float = 0.0
 # doc-region-end define variable for square rotation around paddle's center
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1
@@ -186,13 +186,13 @@ while not glfw.window_should_close(window):
         ms_to_ndc: InvertibleFunction[Vector2] = compose(
             [
                 # camera space to NDC
-                uniform_scale(1.0 / 10.0),
+                uniform_scale(m=1.0 / 10.0),
                 # world space to camera space
-                inverse(translate(camera.position_ws)),
+                inverse(translate(b=camera.position_ws)),
                 # model space to world space
                 compose(
                     [
-                        translate(paddle1.position),
+                        translate(b=paddle1.position),
                         rotate(paddle1.rotation),
                     ]
                 ),
@@ -211,13 +211,13 @@ while not glfw.window_should_close(window):
         ms_to_ndc: InvertibleFunction[Vector2] = compose(
             [
                 # camera space to NDC
-                uniform_scale(1.0 / 10.0),
+                uniform_scale(m=1.0 / 10.0),
                 # world space to camera space
-                inverse(translate(camera.position_ws)),
+                inverse(translate(b=camera.position_ws)),
                 # model space to world space
                 compose(
                     [
-                        translate(paddle1.position),
+                        translate(b=paddle1.position),
                         rotate(paddle1.rotation),
                     ]
                 ),
@@ -225,7 +225,7 @@ while not glfw.window_should_close(window):
                 compose(
                     [
                         rotate(rotation_around_paddle1),
-                        translate(2 * Vector2.e_1),
+                        translate(b=2 * Vector2.e_1),
                         rotate(square_rotation),
                     ]
                 ),
@@ -243,13 +243,13 @@ while not glfw.window_should_close(window):
         ms_to_ndc: InvertibleFunction[Vector2] = compose(
             [
                 # camera space to NDC
-                uniform_scale(1.0 / 10.0),
+                uniform_scale(m=1.0 / 10.0),
                 # world space to camera space
-                inverse(translate(camera.position_ws)),
+                inverse(translate(b=camera.position_ws)),
                 # model space to world space
                 compose(
                     [
-                        translate(paddle2.position),
+                        translate(b=paddle2.position),
                         rotate(paddle2.rotation),
                     ]
                 ),

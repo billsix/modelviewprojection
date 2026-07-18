@@ -16,16 +16,20 @@
 # Boston, MA 02111-1307, USA.
 
 import math
+import os
 import sys
 
 import matplotlib
 import matplotlib.pyplot as plt
 import numpy as np
 
-import modelviewprojection.plotsforbook.plotutils.generategridlines as generategridlines
 import modelviewprojection.plotsforbook.plotutils.mpltransformations as mplt
+from modelviewprojection.plotsforbook.plotutils import generategridlines
 
-matplotlib.use("TkAgg")
+# TkAgg needs an interactive display. Fall back to the headless Agg backend
+# when there is none, so importing this module (and collecting its doctests)
+# works in CI and in a container without X.
+matplotlib.use("TkAgg" if os.environ.get("DISPLAY") else "Agg")
 
 N = 50
 x = np.random.rand(N) * 10
@@ -33,11 +37,11 @@ y = np.random.rand(N) * 10
 
 plt.scatter(x, y)
 
-graphBounds = (10, 10)
+graph_bounds = (10, 10)
 
 axes = plt.gca()
-axes.set_xlim((-2.0, graphBounds[0]))
-axes.set_ylim((-2.0, graphBounds[1]))
+axes.set_xlim((-2.0, graph_bounds[0]))
+axes.set_ylim((-2.0, graph_bounds[1]))
 
 
 if __name__ == "__main__":
@@ -53,19 +57,19 @@ if __name__ == "__main__":
             sys.exit(1)
 
     # plot natural basis
-    for xs, ys, thickness in generategridlines.generategridlines(graphBounds):
+    for xs, ys, thickness in generategridlines.generategridlines(graph_bounds):
         plt.plot(xs, ys, "k-", lw=thickness)
 
     # plot different basis
-    for xs, ys, thickness in generategridlines.generategridlines(graphBounds):
-        transformedXs, transformedYs = list(
+    for xs, ys, thickness in generategridlines.generategridlines(graph_bounds):
+        transformed_xs, transformed_ys = list(
             mplt.translate(2, 2)(
                 *mplt.scale(math.sqrt(8), math.sqrt(8))(
                     *mplt.rotate(math.radians(45.0))(xs, ys)
                 )
             )
         )
-        plt.plot(transformedXs, transformedYs, "k-", lw=thickness)
+        plt.plot(transformed_xs, transformed_ys, "k-", lw=thickness)
 
     # make sure the x and y axis are equally proportional in screen space
     plt.gca().set_aspect("equal", adjustable="box")

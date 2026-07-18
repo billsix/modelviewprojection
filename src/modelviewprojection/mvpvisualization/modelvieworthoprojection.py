@@ -37,6 +37,14 @@ from modelviewprojection.mvpvisualization import (
     cayley_gl,
 )
 
+if typing.TYPE_CHECKING:
+    # glfw types every window parameter as `_GLFWwindowPointerT`; it is private
+    # and absent at runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
+
+    GLFWWindow = _GLFWwindowPointerT
+
+
 imgui = cayley_gl.imgui
 
 
@@ -176,53 +184,53 @@ state: dict[str, typing.Any] = {
 win_state = cayley_gl.WindowState()
 
 
-def jump(start):
+def jump(start: float) -> None:
     state["time"] = start
 
 
-def _toggle_pause():
+def _toggle_pause() -> None:
     state["paused"] = not state["paused"]
 
 
-def _restart():
+def _restart() -> None:
     state["time"] = 0.0
 
 
-def _toggle_graph():
+def _toggle_graph() -> None:
     win_state.show_graph = not win_state.show_graph
 
 
-def _focus(node):
+def _focus(node: Space | None) -> None:
     state["center_on"] = node
 
 
 # camera moves in cameraspace (px/pz adjusted by heading rot_y); shared by the
 # Camera menu actions and the WASD keys.
-def _cam_forward():  # -Z cameraspace
+def _cam_forward() -> None:  # -Z cameraspace
     controls.px -= math.sin(controls.rot_y)
     controls.pz -= math.cos(controls.rot_y)
     controls.apply()
 
 
-def _cam_back():  # +Z cameraspace
+def _cam_back() -> None:  # +Z cameraspace
     controls.px += math.sin(controls.rot_y)
     controls.pz += math.cos(controls.rot_y)
     controls.apply()
 
 
-def _cam_left():  # -X cameraspace
+def _cam_left() -> None:  # -X cameraspace
     controls.px -= math.cos(controls.rot_y)
     controls.pz += math.sin(controls.rot_y)
     controls.apply()
 
 
-def _cam_right():  # +X cameraspace
+def _cam_right() -> None:  # +X cameraspace
     controls.px += math.cos(controls.rot_y)
     controls.pz -= math.sin(controls.rot_y)
     controls.apply()
 
 
-def imgui_menubar():
+def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
@@ -308,7 +316,9 @@ def imgui_menubar():
     imgui.end_main_menu_bar()
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(
+    window: "GLFWWindow", key: int, scancode: int, action: int, mods: int
+) -> None:
     cayley_gl.common_key(window, win_state, key, action)
     if action not in (glfw.PRESS, glfw.REPEAT):
         return
@@ -329,7 +339,7 @@ def on_key(window, key, scancode, action, mods):
             _toggle_graph()
 
 
-def graph_panel(t):
+def graph_panel(t: float) -> None:
     if not win_state.show_graph:
         return
     imgui.set_next_window_size(
@@ -350,7 +360,7 @@ def graph_panel(t):
     imgui.end()
 
 
-def frame(w, h):
+def frame(w: int, h: int) -> None:
     if not state["paused"]:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0

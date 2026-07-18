@@ -89,7 +89,8 @@ def test_no_dataclass_field_shadows_an_actor_property() -> None:
                 ):
                     offenders.append(
                         f"{game.relative_to(CTC)}:{stmt.lineno}: "
-                        f"{name}.{stmt.target.id} shadows Actor.{stmt.target.id}"
+                        f"{name}.{stmt.target.id} shadows "
+                        f"Actor.{stmt.target.id}"
                     )
     assert not offenders, (
         "dataclass fields shadowing Actor properties (rename them, e.g. "

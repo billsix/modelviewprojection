@@ -141,13 +141,13 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle1.color))
 
     GL.glBegin(GL.GL_QUADS)
-    rotatePoint: Vector2 = paddle1.position
+    rotate_point: Vector2 = paddle1.position
     for p1_v_ms in paddle1.vertices:
         fn: InvertibleFunction[Vector2] = compose(
             [
-                uniform_scale(1.0 / 10.0),
-                rotate_around(paddle1.rotation, rotatePoint),
-                translate(paddle1.position),
+                uniform_scale(m=1.0 / 10.0),
+                rotate_around(paddle1.rotation, rotate_point),
+                translate(b=paddle1.position),
             ]
         )
         paddle1_vector_ndc: Vector2 = fn(p1_v_ms)
@@ -160,13 +160,13 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle2.color))
 
     GL.glBegin(GL.GL_QUADS)
-    rotatePoint: Vector2 = paddle2.position
+    rotate_point: Vector2 = paddle2.position
     for p2_v_ms in paddle2.vertices:
         fn: InvertibleFunction[Vector2] = compose(
             [
-                uniform_scale(1.0 / 10.0),
-                rotate_around(paddle2.rotation, rotatePoint),
-                translate(paddle2.position),
+                uniform_scale(m=1.0 / 10.0),
+                rotate_around(paddle2.rotation, rotate_point),
+                translate(b=paddle2.position),
             ]
         )
         paddle2_vector_ndc: Vector2 = fn(p2_v_ms)

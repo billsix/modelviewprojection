@@ -25,7 +25,7 @@ from __future__ import annotations
 import os
 import sys
 import time
-from typing import Any, Dict, Tuple
+from typing import Any
 
 import glfw
 import OpenGL.GL as GL
@@ -34,7 +34,7 @@ from . import context
 from .input import keyboard
 
 
-def _select_renderer() -> Tuple[type, bool]:
+def _select_renderer() -> tuple[type, bool]:
     """Pick the renderer backend (and whether it needs a legacy GL context).
 
     Reads ``PGZERO_GL``; default = modern 3.3 core + shaders. Returns
@@ -83,7 +83,7 @@ def _make_window(
     return win
 
 
-def go(g: Dict[str, Any] | None = None) -> None:
+def go(g: dict[str, Any] | None = None) -> None:
     """Run the game whose globals are ``g`` (defaults to the caller's module)."""
     if g is None:
         g = sys._getframe(1).f_globals
@@ -179,7 +179,7 @@ def _call_key_hook(hook: Any, key: int, mods: int) -> None:
     """
     # Pass whichever of (key, mod) the handler declares, like pgzero does.
     names = hook.__code__.co_varnames[: hook.__code__.co_argcount]
-    kwargs: Dict[str, Any] = {}
+    kwargs: dict[str, Any] = {}
     if "key" in names:
         kwargs["key"] = key
     if "mod" in names:

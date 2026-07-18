@@ -8,7 +8,8 @@
 """pushmatrix, on the Cayley-graph engine.  One shared geometry-less
 ``square_base`` node with four ``square_i`` leaves fanned at 0/90/180/270 deg.
 The demo owns its choreography -- including the persistent grayed axis at the
-squares' center -- and its imgui panel; ``cayley_gl`` supplies the mechanisms."""
+squares' center -- and its imgui panel; ``cayley_gl`` supplies the
+mechanisms."""
 
 import math
 import os
@@ -31,8 +32,17 @@ from modelviewprojection.mvpvisualization import (
     cayley_gl,
 )
 
+if typing.TYPE_CHECKING:
+    # glfw types every window parameter as `_GLFWwindowPointerT`; it is private
+    # and absent at runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
+
+    GLFWWindow = _GLFWwindowPointerT
+
+
 # imgui via cayley_gl so glfw + OpenGL.GL import BEFORE imgui_bundle (its own GL
-# loader must come after, or PyOpenGL's context tracking breaks at window setup).
+# loader must come after, or PyOpenGL's context tracking breaks at window
+# setup).
 imgui = cayley_gl.imgui
 
 AROUND = math.radians(10.0)
@@ -50,7 +60,7 @@ class Space(Enum):
     square3 = auto()
 
 
-def _square(i):  # Space.square0 .. Space.square3 by index
+def _square(i: int) -> Space:  # Space.square0 .. Space.square3 by index
     return Space[f"square{i}"]
 
 
@@ -130,23 +140,23 @@ state: dict[str, typing.Any] = {
 win_state = cayley_gl.WindowState()
 
 
-def jump(start):
+def jump(start: float) -> None:
     state["time"] = start
 
 
-def _toggle_pause():
+def _toggle_pause() -> None:
     state["paused"] = not state["paused"]
 
 
-def _restart():
+def _restart() -> None:
     state["time"] = 0.0
 
 
-def _toggle_graph():
+def _toggle_graph() -> None:
     win_state.show_graph = not win_state.show_graph
 
 
-def imgui_menubar():
+def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
@@ -191,7 +201,9 @@ def imgui_menubar():
     imgui.end_main_menu_bar()
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(
+    window: "GLFWWindow", key: int, scancode: int, action: int, mods: int
+) -> None:
     cayley_gl.common_key(window, win_state, key, action)
     if action != glfw.PRESS:
         return
@@ -203,7 +215,7 @@ def on_key(window, key, scancode, action, mods):
         _toggle_graph()
 
 
-def graph_panel(t):
+def graph_panel(t: float) -> None:
     if not win_state.show_graph:
         return
     imgui.set_next_window_size(
@@ -219,7 +231,7 @@ def graph_panel(t):
     imgui.end()
 
 
-def frame(w, h):
+def frame(w: int, h: int) -> None:
     if not state["paused"]:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0

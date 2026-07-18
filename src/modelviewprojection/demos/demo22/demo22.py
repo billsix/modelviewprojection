@@ -85,6 +85,7 @@ from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.pyMatrixStack as ms
+from modelviewprojection.mvpvisualization._pipeline import GLenum
 from modelviewprojection.util.cameracontrols import walk_around_camera
 from modelviewprojection.util.shading import light_dir_ws
 from modelviewprojection.util.windowing import on_key
@@ -399,7 +400,7 @@ void main() {
 SHADOW_VIEW_FS = """
 #version 330 core
 in vec2 v_uv;
-uniform sampler2D depthTex;     // R32F debug attachment, not the sampler2DShadow
+uniform sampler2D depthTex;     // R32F debug attachment, not sampler2DShadow
 out vec4 fragColor;
 
 void main() {
@@ -433,7 +434,7 @@ class ShadowDepthPipeline:
     """Depth-only render from the light's POV, into the shadow FBO."""
 
     program: int
-    u_lightMVP: int
+    u_light_mvp: int
 
 
 @dataclasses.dataclass(frozen=True)
@@ -466,7 +467,7 @@ def _build_shadow_depth_pipeline() -> ShadowDepthPipeline:
     prog = _compile_inline(SHADOW_DEPTH_VS, SHADOW_DEPTH_FS)
     return ShadowDepthPipeline(
         program=prog,
-        u_lightMVP=GL.glGetUniformLocation(prog, "lightMVP"),
+        u_light_mvp=GL.glGetUniformLocation(prog, "lightMVP"),
     )
 
 
@@ -651,14 +652,16 @@ def _light_proj_view(
     # Orthographic frustum sized to envelop the cube (50 across) +
     # floor (200 across).  Generous near/far so the cube is never
     # near-plane-clipped from the light's POV.
-    L, R, B, T, N, F = -120.0, 120.0, -120.0, 120.0, 1.0, 300.0
+    left, right = -120.0, 120.0
+    bottom, top = -120.0, 120.0
+    near, far = 1.0, 300.0
     proj = np.identity(4, dtype=np.float32)
-    proj[0, 0] = 2.0 / (R - L)
-    proj[1, 1] = 2.0 / (T - B)
-    proj[2, 2] = -2.0 / (F - N)
-    proj[0, 3] = -(R + L) / (R - L)
-    proj[1, 3] = -(T + B) / (T - B)
-    proj[2, 3] = -(F + N) / (F - N)
+    proj[0, 0] = 2.0 / (right - left)
+    proj[1, 1] = 2.0 / (top - bottom)
+    proj[2, 2] = -2.0 / (far - near)
+    proj[0, 3] = -(right + left) / (right - left)
+    proj[1, 3] = -(top + bottom) / (top - bottom)
+    proj[2, 3] = -(far + near) / (far - near)
     return proj, view
 
 
@@ -694,14 +697,14 @@ def render_shadow_map(
     GL.glUseProgram(shadow_depth.program)
 
     def _draw_obj(
-        model_xform_extra=None, vao=cube_solid_vao, count=cube_solid_count
-    ):
-        # lightMVP = lightProj * lightView * model
-        # Compute model from pyMatrixStack's current model matrix.
+        model_xform_extra: np.ndarray | None = None,
+        vao: int = cube_solid_vao,
+        count: int = cube_solid_count,
+    ) -> None:
         model = ms.get_current_matrix(ms.MatrixStack.model)
         mvp = light_proj @ light_view @ np.asarray(model, dtype=np.float32)
         GL.glUniformMatrix4fv(
-            shadow_depth.u_lightMVP,
+            shadow_depth.u_light_mvp,
             1,
             GL.GL_TRUE,
             np.ascontiguousarray(mvp, dtype=np.float32),
@@ -840,7 +843,7 @@ class AttribSpec:
     layout: tuple[int, int]  # (stride_bytes, offset_bytes)
 
 
-def make_vbo(data: np.ndarray, usage: int = GL.GL_STATIC_DRAW) -> int:  # ty: ignore[invalid-parameter-default]
+def make_vbo(data: np.ndarray, usage: GLenum = GL.GL_STATIC_DRAW) -> int:
     """Allocate a VBO and upload ``data``.  Touches no VAO state."""
     data = np.ascontiguousarray(data, dtype=np.float32)
     vbo = GL.glGenBuffers(1)
@@ -1110,14 +1113,18 @@ LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)
 # We compute the same vector each frame from the imgui azimuth/
 # elevation sliders so the shadow on the floor reshapes when the
 # user slides the light around.
-# light_dir_ws is imported from modelviewprojection.util.shading (see imports above).
+# light_dir_ws is imported from modelviewprojection.util.shading (see imports
+# above).
 
 # floor plane equation:  ax + by + cz + d = 0.  Floor is y = FLOOR_Y, so:
 FLOOR_PLANE = (0.0, 1.0, 0.0, -FLOOR_Y)
 
 
 # doc-region-begin planar shadow
-def planar_shadow_matrix(plane, light) -> np.matrix:
+def planar_shadow_matrix(
+    plane: tuple[float, float, float, float],
+    light: tuple[float, float, float, float],
+) -> np.ndarray:
     """
     Returns a 4x4 matrix that, applied to a world-space point, projects
     that point onto `plane` along the direction (or position) `light`.
@@ -1131,7 +1138,7 @@ def planar_shadow_matrix(plane, light) -> np.matrix:
     a, b, c, d = plane
     lx, ly, lz, lw = light
     dot = a * lx + b * ly + c * lz + d * lw
-    return np.matrix(
+    return np.array(
         [
             [dot - lx * a, -lx * b, -lx * c, -lx * d],
             [-ly * a, dot - ly * b, -ly * c, -ly * d],
@@ -1313,9 +1320,9 @@ def draw_cube(stage: int) -> None:
         with ms.push_matrix(ms.MatrixStack.model):
             # shadow operates on world-space points; we need to flatten
             # AFTER the cube is in the world, so pre-multiply: model =
-            # SHADOW * translate(-10,0,10).  pyMatrixStack.multiply does
+            # SHADOW * translate(b=-10,0,10).  pyMatrixStack.multiply does
             # current = current * rhs, so doing multiply(SHADOW) then
-            # translate(...) yields exactly that.
+            # translate(b=...) yields exactly that.
             ms.multiply(ms.MatrixStack.model, shadow_matrix)
             ms.translate(ms.MatrixStack.model, -10.0, 0.0, 10.0)
 

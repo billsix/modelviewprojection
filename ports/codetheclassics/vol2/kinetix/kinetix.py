@@ -90,6 +90,10 @@ BAT_TOP_EDGE: int = 590
 
 BALL_INITIAL_OFFSET: int = 10
 
+# Default direction for a Ball. A shared object, but Ball copies it (see the
+# defensive-copy note on the class), so no ball aliases another's direction.
+DEFAULT_BALL_DIR: Vector2 = Vector2(0, 0)
+
 BALL_START_SPEED: int = 5
 BALL_MIN_SPEED: int = 4
 BALL_MAX_SPEED: int = 11
@@ -541,7 +545,7 @@ class Ball(Actor):
         self,
         x: float = 0,
         y: float = 0,
-        dir: Vector2 = Vector2(0, 0),
+        dir: Vector2 = DEFAULT_BALL_DIR,
         stuck_to_bat: bool = True,
         speed: int = BALL_START_SPEED,
     ) -> None:
@@ -602,7 +606,7 @@ class Ball(Actor):
                 self.speed_up_timer = 0
 
             # Move one pixel at a time, speed times (rounded down to a whole number)
-            for i in range(self.speed):
+            for _i in range(self.speed):
                 # Move and collide on X axis
                 self.x += self.dir.x
 
@@ -996,7 +1000,7 @@ class Game:
         for y in range(self.num_rows):
             for x in range(self.num_cols):
                 self.redraw_brick(x, y)
-                if self.bricks[y][x] != None and self.bricks[y][x] != 13:
+                if self.bricks[y][x] is not None and self.bricks[y][x] != 13:
                     self.bricks_remaining += 1
 
         self.balls: list[Ball] = [Ball()]
@@ -1014,7 +1018,7 @@ class Game:
     def redraw_brick(self, x: int, y: int) -> None:
         screen_x: int = x * BRICK_WIDTH + BRICKS_X_START
         screen_y: int = y * BRICK_HEIGHT + BRICKS_Y_START
-        if self.bricks[y][x] != None:
+        if self.bricks[y][x] is not None:
             # Display a brick at this position
 
             # Get brick image via filename, the files have names brick0 to brickd, see Impact class for a comment
@@ -1080,7 +1084,7 @@ class Game:
         for yb in range(y0, y1 + 1):
             for xb in range(x0, x1 + 1):
                 # Is there a brick in this position?
-                if self.bricks[yb][xb] != None:
+                if self.bricks[yb][xb] is not None:
                     # Check for collision with current brick
                     c: Vector2 | None = brick_collide(Vector2(x, y), xb, yb, r)
 
@@ -1269,7 +1273,7 @@ class Game:
 
     def draw_lives(self) -> None:
         x: int = 0
-        for i in range(self.lives):
+        for _i in range(self.lives):
             screen.blit("life", (x, HEIGHT - 20))
             x += 50
 

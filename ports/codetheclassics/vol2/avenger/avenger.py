@@ -618,7 +618,7 @@ class Player(WrapActor):
         # Try several random positions and assign a score to each one, choosing the one which is furthest from
         # any one enemy on the X axis
         best_score: float = 0
-        for i in range(20):
+        for _i in range(20):
 
             def wrap_distance(x1: float, x2: float) -> float:
                 # Return the distance between two X positions, taking the wrapping nature of the level
@@ -829,7 +829,7 @@ class Enemy(WrapActor):
 
             # If we're a pod, release several swarmers
             if self.type == EnemyType.POD:
-                for i in range(3):
+                for _i in range(3):
                     start_vel: Vector2 = Vector2(
                         uniform(-25, 25), uniform(-25, 25)
                     )
@@ -1357,7 +1357,7 @@ class Game:
         self.player.update()
 
         # Update lasers and bullets, remove expired ones from the lists (update returns False when they want to expire)
-        self.lasers = [l for l in self.lasers if not l.update()]
+        self.lasers = [laser for laser in self.lasers if not laser.update()]
         self.bullets = [b for b in self.bullets if not b.update()]
 
         for obj in self.enemies + self.humans:

@@ -185,18 +185,18 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin stack push camera space to ndc
     # camera space to NDC
-    fn_stack.push(uniform_scale(1.0 / 10.0))
+    fn_stack.push(uniform_scale(m=1.0 / 10.0))
     # doc-region-end stack push camera space to ndc
 
     # doc-region-begin world space to camera space
     # world space to camera space
-    fn_stack.push(inverse(translate(camera.position_ws)))
+    fn_stack.push(inverse(translate(b=camera.position_ws)))
     # doc-region-end world space to camera space
 
     # doc-region-begin paddle 1 transformations
     # paddle 1 model space to world space
     fn_stack.push(
-        compose([translate(paddle1.position), rotate_z(paddle1.rotation)])
+        compose([translate(b=paddle1.position), rotate_z(paddle1.rotation)])
     )
     # doc-region-end paddle 1 transformations
 
@@ -213,9 +213,9 @@ while not glfw.window_should_close(window):
     fn_stack.push(
         compose(
             [
-                translate(-1 * Vector3.e_3),
+                translate(b=-1 * Vector3.e_3),
                 rotate_z(rotation_around_paddle1),
-                translate(2 * Vector3.e_1),
+                translate(b=2 * Vector3.e_1),
                 rotate_z(square_rotation),
             ]
         )
@@ -239,7 +239,7 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin paddle 2 model space to world space
     fn_stack.push(
-        compose([translate(paddle2.position), rotate_z(paddle2.rotation)])
+        compose([translate(b=paddle2.position), rotate_z(paddle2.rotation)])
     )
     # doc-region-end paddle 2 model space to world space
 
@@ -254,7 +254,8 @@ while not glfw.window_should_close(window):
     # doc-region-end draw paddle 2
 
     # doc-region-begin clear function stack for next iteration of the event loop
-    # done rendering everything for this frame, just go ahead and clear all functions
+    # done rendering everything for this frame, just go ahead and clear all
+    # functions
     # off of the stack, back to NDC as current space
     fn_stack.clear()
 

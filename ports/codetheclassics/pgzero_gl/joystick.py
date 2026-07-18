@@ -22,7 +22,7 @@ container -- that's for on-hardware testing.)
 
 from __future__ import annotations
 
-from typing import Any, List, Tuple
+from typing import Any
 
 import glfw
 
@@ -62,7 +62,7 @@ def init() -> None:
     pass
 
 
-def _read_glfw_array(result: Any) -> List[Any]:
+def _read_glfw_array(result: Any) -> list[Any]:
     """Unpack pyGLFW's ``(ctypes_array_pointer, count)`` joystick returns.
 
     pyGLFW hands joystick state back as a ``(POINTER, count)`` tuple, so
@@ -109,7 +109,7 @@ class Joystick:
         except Exception:
             return ""
 
-    def _axes(self) -> List[float]:
+    def _axes(self) -> list[float]:
         """Return the current analog-axis values, or ``[]`` if unavailable."""
         if not context.glfw_ready:
             return []
@@ -118,7 +118,7 @@ class Joystick:
         except Exception:
             return []
 
-    def _buttons(self) -> List[int]:
+    def _buttons(self) -> list[int]:
         """Return the current button states, or ``[]`` if unavailable."""
         if not context.glfw_ready:
             return []
@@ -127,7 +127,7 @@ class Joystick:
         except Exception:
             return []
 
-    def _hats(self) -> List[int]:
+    def _hats(self) -> list[int]:
         """Return the current hat (d-pad) bitflags, or ``[]`` if unavailable."""
         if not context.glfw_ready:
             return []
@@ -142,7 +142,7 @@ class Joystick:
 
     def get_axis(self, i: int) -> float:
         """Return axis ``i`` in -1.0..1.0 (0.0 if out of range / unavailable)."""
-        a: List[float] = self._axes()
+        a: list[float] = self._axes()
         try:
             return float(a[i]) if i < len(a) else 0.0
         except (TypeError, ValueError):
@@ -154,7 +154,7 @@ class Joystick:
 
     def get_button(self, i: int) -> int:
         """Return button ``i`` as 1 (pressed) / 0 (released or out of range)."""
-        b: List[int] = self._buttons()
+        b: list[int] = self._buttons()
         if i >= len(b):
             return 0
         try:
@@ -166,9 +166,9 @@ class Joystick:
         """Return the number of hats (d-pads)."""
         return len(self._hats())
 
-    def get_hat(self, i: int) -> Tuple[int, int]:
+    def get_hat(self, i: int) -> tuple[int, int]:
         """Return hat ``i`` as a pygame ``(x, y)`` in {-1,0,1}, y-up ((0, 0) if absent)."""
-        h: List[int] = self._hats()
+        h: list[int] = self._hats()
         if i >= len(h):
             return (0, 0)
         v: int = h[i]

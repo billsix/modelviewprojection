@@ -18,6 +18,7 @@
 
 import contextlib
 import math
+from collections.abc import Generator, Iterator, Sequence
 
 import matplotlib
 import matplotlib.axes
@@ -31,6 +32,7 @@ from matplotlib.patches import Polygon
 from matplotlib_inline.backend_inline import set_matplotlib_formats
 
 from modelviewprojection.mathutils import (
+    InvertibleFunction,
     Vector2,
     cosine,
     identity,
@@ -42,12 +44,12 @@ from modelviewprojection.mathutils import (
 if get_ipython() is not None:
     set_matplotlib_formats("svg")
 
-extraLinesMultiplier = 3
+extra_lines_multiplier = 3
 
 zero = Vector2.zero()
 
 
-def _xy(vertices):
+def _xy(vertices: Sequence[Vector2]) -> np.ndarray:
     """(N, 2) float array of the vertices' 2D coordinates, for matplotlib.
 
     gacalc vectors iterate their coefficient values, so ``list(v) == [x, y]``;
@@ -58,34 +60,36 @@ def _xy(vertices):
     return np.array([list(v) for v in vertices], dtype=float)
 
 
-def generategridlines(graphBounds, interval=1):
+def generategridlines(
+    graph_bounds: tuple[int, int], interval: int = 1
+) -> Iterator[tuple[list[Vector2], int]]:
     for x in range(
-        -graphBounds[0] * extraLinesMultiplier,
-        graphBounds[0] * extraLinesMultiplier,
+        -graph_bounds[0] * extra_lines_multiplier,
+        graph_bounds[0] * extra_lines_multiplier,
         interval,
     ):
         thickness = 4 if np.isclose(x, 0.0) else 1
         yield (
             [
                 x * Vector2.e_1
-                + (-graphBounds[1] * extraLinesMultiplier) * Vector2.e_2,
+                + (-graph_bounds[1] * extra_lines_multiplier) * Vector2.e_2,
                 x * Vector2.e_1
-                + (graphBounds[1] * extraLinesMultiplier) * Vector2.e_2,
+                + (graph_bounds[1] * extra_lines_multiplier) * Vector2.e_2,
             ],
             thickness,
         )
 
     for y in range(
-        -graphBounds[1] * extraLinesMultiplier,
-        graphBounds[1] * extraLinesMultiplier,
+        -graph_bounds[1] * extra_lines_multiplier,
+        graph_bounds[1] * extra_lines_multiplier,
         interval,
     ):
         thickness = 4 if np.isclose(y, 0.0) else 1
         yield (
             [
-                (-graphBounds[0] * extraLinesMultiplier) * Vector2.e_1
+                (-graph_bounds[0] * extra_lines_multiplier) * Vector2.e_1
                 + y * Vector2.e_2,
-                (graphBounds[0] * extraLinesMultiplier) * Vector2.e_1
+                (graph_bounds[0] * extra_lines_multiplier) * Vector2.e_1
                 + y * Vector2.e_2,
             ],
             thickness,
@@ -96,7 +100,11 @@ axes: matplotlib.axes.Axes
 
 
 @contextlib.contextmanager
-def create_graphs(graph_bounds=(3, 3), title=None, filename=None):
+def create_graphs(
+    graph_bounds: tuple[int, int] = (3, 3),
+    title: str | None = None,
+    filename: str | None = None,
+) -> Generator[matplotlib.axes.Axes, None, matplotlib.figure.Figure]:
     global axes
     fig: matplotlib.figure.Figure
     fig, axes = plt.subplots(figsize=graph_bounds)
@@ -127,12 +135,12 @@ _IDENTITY = identity()
 
 
 def create_basis(
-    fn=_IDENTITY,
-    graph_bounds=(10, 10),
-    gridline_interval=1,
-    xcolor=(0.0, 0.0, 1.0),
-    ycolor=(1.0, 0.0, 1.0),
-):
+    fn: InvertibleFunction = _IDENTITY,
+    graph_bounds: tuple[int, int] = (10, 10),
+    gridline_interval: int = 1,
+    xcolor: tuple[float, float, float] = (0.0, 0.0, 1.0),
+    ycolor: tuple[float, float, float] = (1.0, 0.0, 1.0),
+) -> None:
     # plot transformed basis
     for vecs, thickness in generategridlines(
         graph_bounds, interval=gridline_interval
@@ -148,9 +156,9 @@ def create_basis(
 
 
 def create_unit_circle(
-    fn=_IDENTITY,
-):
-    def generate_circle():
+    fn: InvertibleFunction = _IDENTITY,
+) -> None:
+    def generate_circle() -> Iterator[list[Vector2]]:
         theta_increment: float = 0.01
         scale_radius: float = 1.0
 
@@ -180,10 +188,10 @@ def create_unit_circle(
 
 
 def create_x_and_y(
-    fn=_IDENTITY,
-    xcolor=(0.0, 0.0, 1.0),
-    ycolor=(1.0, 0.0, 1.0),
-):
+    fn: InvertibleFunction = _IDENTITY,
+    xcolor: tuple[float, float, float] = (0.0, 0.0, 1.0),
+    ycolor: tuple[float, float, float] = (1.0, 0.0, 1.0),
+) -> None:
     # x axis
     x_axis = [zero, Vector2.e_1]
     plt.plot(
@@ -205,10 +213,19 @@ def create_x_and_y(
     )
 
 
-def draw_isoceles_triangle(
-    fn=_IDENTITY,
-    color=(0.0, 0.0, 1.0),
-):
+def _draw_labelled_triangle(
+    vertices_in_model_space: Sequence[Vector2],
+    labels: Sequence[str],
+    fn: InvertibleFunction = _IDENTITY,
+    color: tuple[float, float, float] = (0.0, 0.0, 1.0),
+    label_offset_x_sign: float = 1.0,
+) -> None:
+    """Draw a filled, vertex-labelled triangle under the transform ``fn``.
+
+    The three ``draw_*_triangle`` helpers below were 53-line near-duplicates
+    (91-92% identical); only the two non-origin vertices, the label strings, and
+    which way the labels are nudged in x ever differed.
+    """
     x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
     x_world_space = Vector2.e_1
     y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
@@ -220,14 +237,7 @@ def draw_isoceles_triangle(
         0 * x_prime_direction_world_space + 0.20 * y_prime_direction_world_space
     )
 
-    vertices = [
-        fn(v)
-        for v in [
-            zero,
-            Vector2.e_1,
-            0.5 * Vector2.e_1 + Vector2.e_2,
-        ]
-    ]
+    vertices = [fn(v) for v in vertices_in_model_space]
 
     triangle = Polygon(
         _xy(vertices),
@@ -244,20 +254,60 @@ def draw_isoceles_triangle(
     )  # zorder ensures dots are on top
 
     # Label each vertex
-    labels = ["A", "B", "C"]
     for i, label in enumerate(labels):
         # Use plt.annotate to place the label near the point
         plt.annotate(
             label,
             xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
             xytext=(
-                vertices_as_np[i, 0] + label_offset.coeff_e_1,
+                vertices_as_np[i, 0]
+                + label_offset_x_sign * label_offset.coeff_e_1,
                 vertices_as_np[i, 1] + label_offset.coeff_e_2,
             ),
             rotation=math.degrees(angle_radians),
             rotation_mode="anchor",
             zorder=6,
         )
+
+
+def draw_isoceles_triangle(
+    fn: InvertibleFunction = _IDENTITY,
+    color: tuple[float, float, float] = (0.0, 0.0, 1.0),
+) -> None:
+    """An isoceles triangle with vertices labelled A, B, C."""
+    _draw_labelled_triangle(
+        [zero, Vector2.e_1, 0.5 * Vector2.e_1 + Vector2.e_2],
+        ["A", "B", "C"],
+        fn,
+        color,
+    )
+
+
+def draw_second_right_triangle(
+    fn: InvertibleFunction = _IDENTITY,
+    color: tuple[float, float, float] = (0.0, 0.0, 1.0),
+) -> None:
+    """A right triangle in the second quadrant, labelled by coordinate."""
+    _draw_labelled_triangle(
+        [zero, -4 * Vector2.e_1, -4 * Vector2.e_1 + 3 * Vector2.e_2],
+        ["(0,0)", "(-4,0)", "(-4,3)"],
+        fn,
+        color,
+        label_offset_x_sign=-1.0,
+    )
+
+
+def draw_right_triangle(
+    fn: InvertibleFunction = _IDENTITY,
+    color: tuple[float, float, float] = (0.0, 0.0, 1.0),
+) -> None:
+    """A 3-4-5 right triangle in the first quadrant, labelled by coordinate."""
+    _draw_labelled_triangle(
+        [zero, 3 * Vector2.e_1, 3 * Vector2.e_1 + 4 * Vector2.e_2],
+        ["(0,0)", "(3,0)", "(3,4)"],
+        fn,
+        color,
+    )
 
 
 #         # Annotate with a 45-degree rotation
@@ -266,120 +316,10 @@ def draw_isoceles_triangle(
 #             rotation=45)
 
 
-def draw_second_right_triangle(
-    fn=_IDENTITY,
-    color=(0.0, 0.0, 1.0),
-):
-    x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
-    x_world_space = Vector2.e_1
-    y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
-    angle_radians = math.atan2(
-        sine(x_world_space, x_prime_direction_world_space),
-        cosine(x_world_space, x_prime_direction_world_space),
-    )
-    label_offset = (
-        0 * x_prime_direction_world_space + 0.20 * y_prime_direction_world_space
-    )
-
-    vertices = [
-        fn(v)
-        for v in [
-            zero,
-            -4 * Vector2.e_1,
-            -4 * Vector2.e_1 + 3 * Vector2.e_2,
-        ]
-    ]
-
-    triangle = Polygon(
-        _xy(vertices),
-        closed=True,
-        facecolor="lightblue",
-        edgecolor="black",
-    )
-    axes.add_patch(triangle)
-
-    vertices_as_np = np.array(_xy(vertices))
-    # Plot dots at the vertices
-    axes.scatter(
-        vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
-    )  # zorder ensures dots are on top
-
-    # Label each vertex
-    labels = ["(0,0)", "(-4,0)", "(-4,3)"]
-    for i, label in enumerate(labels):
-        # Use plt.annotate to place the label near the point
-        plt.annotate(
-            label,
-            xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
-            xytext=(
-                vertices_as_np[i, 0] - label_offset.coeff_e_1,
-                vertices_as_np[i, 1] + label_offset.coeff_e_2,
-            ),
-            rotation=math.degrees(angle_radians),
-            rotation_mode="anchor",
-            zorder=6,
-        )
-
-
-def draw_right_triangle(
-    fn=_IDENTITY,
-    color=(0.0, 0.0, 1.0),
-):
-    x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
-    x_world_space = Vector2.e_1
-    y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
-    angle_radians = math.atan2(
-        sine(x_world_space, x_prime_direction_world_space),
-        cosine(x_world_space, x_prime_direction_world_space),
-    )
-    label_offset = (
-        0 * x_prime_direction_world_space + 0.20 * y_prime_direction_world_space
-    )
-
-    vertices = [
-        fn(v)
-        for v in [
-            zero,
-            3 * Vector2.e_1,
-            3 * Vector2.e_1 + 4 * Vector2.e_2,
-        ]
-    ]
-
-    triangle = Polygon(
-        _xy(vertices),
-        closed=True,
-        facecolor="lightblue",
-        edgecolor="black",
-    )
-    axes.add_patch(triangle)
-
-    vertices_as_np = np.array(_xy(vertices))
-    # Plot dots at the vertices
-    axes.scatter(
-        vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
-    )  # zorder ensures dots are on top
-
-    # Label each vertex
-    labels = ["(0,0)", "(3,0)", "(3,4)"]
-    for i, label in enumerate(labels):
-        # Use plt.annotate to place the label near the point
-        plt.annotate(
-            label,
-            xy=(vertices_as_np[i, 0], vertices_as_np[i, 1]),
-            xytext=(
-                vertices_as_np[i, 0] + label_offset.coeff_e_1,
-                vertices_as_np[i, 1] + label_offset.coeff_e_2,
-            ),
-            rotation=math.degrees(angle_radians),
-            rotation_mode="anchor",
-            zorder=6,
-        )
-
-
 def draw_ndc(
-    fn=_IDENTITY,
-    color=(0.0, 0.0, 1.0),
-):
+    fn: InvertibleFunction = _IDENTITY,
+    color: tuple[float, float, float] = (0.0, 0.0, 1.0),
+) -> None:
     x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
     x_world_space = Vector2.e_1
     y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
@@ -416,7 +356,7 @@ def draw_ndc(
     )  # zorder ensures dots are on top
 
     # Label each vertex
-    labels = ["(-1,-1)", "(-1,1)", "(1,1)", "(-1,1)"]
+    labels = ["(-1,-1)", "(1,-1)", "(1,1)", "(-1,1)"]
     for i, label in enumerate(labels):
         # Use plt.annotate to place the label near the point
         plt.annotate(
@@ -433,11 +373,11 @@ def draw_ndc(
 
 
 def draw_screen(
-    width,
-    height,
-    fn=_IDENTITY,
-    color=(0.0, 0.0, 1.0),
-):
+    width: int,
+    height: int,
+    fn: InvertibleFunction = _IDENTITY,
+    color: tuple[float, float, float] = (0.0, 0.0, 1.0),
+) -> None:
     d_width = 2.0 / width
     d_height = 2.0 / height
     for x in range(width):

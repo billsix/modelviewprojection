@@ -19,12 +19,30 @@ where = ["src"]
 [tool.pytest]
 testpaths = ["tests"]
 
+[tool.ruff]
+# 80 because the book is built as a PDF from this source -- wider lines either
+# wrap badly or run off the page. This governs BOTH the formatter and E501, so
+# entrypoint/format.sh no longer passes --line-length; this is the one source of
+# truth. (The ports keep E501 ignored below: their upstream teaching comments run
+# long and reflowing 1557 of them is churn without value.)
+line-length = 80
+
 [tool.ruff.lint]
 select = [
+       # E231/E302 were listed here until 2026-07-18 but are preview-only rules,
+       # so they did nothing except emit "has no effect because preview is not
+       # enabled" on every ruff run. `ruff format` already handles both (spacing
+       # after a comma, blank lines around defs). Removed rather than enabling
+       # preview, which would turn on a batch of unstable rules for two checks
+       # the formatter covers.
        'F401', 'F811', 'E402', 'I001', 'TID252', "F841",
-       "E302", "E231", "B006", "B007", "B008", "UP007",
+       "B006", "B007", "B008", "UP007",
        "UP035", "S311", "S602", "T201",
-       "E", "F", "I"
+       "E", "F", "I",
+       # pep8-naming. Enabled 2026-07-18 after the whole tree was brought into
+       # compliance; the only exemptions are in per-file-ignores below, each
+       # with its reason (book notation, math convention, wx framework names).
+       "N",
        ]
 ignore = []
 
@@ -40,7 +58,38 @@ ignore = []
 # the src demos draw random scenery/spawns exactly like the game ports do
 # (game RNG, not crypto -- same S311 rationale as ports/** below), and print
 # on purpose (shader logs, teaching output -- same T201 rationale).
-"src/modelviewprojection/demos/**" = ["S311", "T201"]
+#
+# Python naming wins over the book's mathematical shorthand (Bill, 2026-07-18).
+# The demos previously aliased `translate as T` / `uniform_scale as S` /
+# `rotate as R` to match the Cayley-graph edge labels, and used single-capital
+# frustum/light locals (L,R,B,T,N,F / Lx,Ly,Lz,Lw). Those are now spelled out.
+# The graph-to-code mapping is kept explicit in a comment at each demo's import
+# block, so a student can still line the diagram up with the source.
+#   N813  `pyMatrixStack as ms` is the ONE remaining naming exemption, and it is
+#         temporary: the real fix is renaming the camelCase MODULE, which drops
+#         this entry entirely. See tasks/rename-pymatrixstack-module.md.
+"src/modelviewprojection/demos/**" = [
+    "S311",
+    "T201",
+    "N813",
+]
+# `import modelviewprojection.pyMatrixStack as ms` -- same repo-wide idiom as the
+# demos above (N813). The root cause is the module's own camelCase FILENAME; if
+# pyMatrixStack.py is ever renamed to matrix_stack.py this exemption and the
+# demos' N813 both become unnecessary (see tasks/pymatrixstack-bugs.md, which
+# defers the filename question because it would touch every import).
+# The genuinely-bad names here were renamed in the 2026-07-18 pass
+# (floatsPerVertex, floatsPerColor).
+"src/modelviewprojection/mvpvisualization/**" = ["N813"]
+# wxPython framework boundary. `OnPaint`, `OnTimer`, `InitGL`, `OnDraw`, `OnInit`
+# are overrides -- wx looks up those EXACT names, so renaming them to snake_case
+# would silently unbind them and the app would stop drawing. An externally-defined
+# name always wins over a naming convention; the linter is wrong here, not the
+# code. Scoped to N802 (function names) only: the locals inside those methods DO
+# follow house style, and were fixed in the 2026-07-18 pass (VBO -> vbo,
+# attribList -> attrib_list, keeping wx's `attribList=` keyword at the call).
+"src/modelviewprojection/wxapp.py" = ["N802"]
+"src/modelviewprojection/wxapp2.py" = ["N802"]
 # assignments are student-facing scripts whose printed output IS the point.
 "assignments/**" = ["T201"]
 # build-time script; its progress output is deliberate.

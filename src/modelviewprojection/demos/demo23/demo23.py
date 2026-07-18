@@ -230,7 +230,8 @@ _STRIDE = _FLOATS_PER_VERTEX * 4
 _MESH_SCALE = 1.0 / 50.0
 
 
-# _face_normal is imported from modelviewprojection.util.shading (see imports above).
+# _face_normal is imported from modelviewprojection.util.shading (see imports
+# above).
 
 
 # (a, b, c, normal_or_None).  Order and orientation match litjet.cpp
@@ -391,7 +392,8 @@ LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)
 # treat it as a directional light, normalized -- only the angle
 # matters.  Re-derived from imgui sliders each frame.  The shader
 # treats lightDirWS as "direction toward the light".
-# light_dir_ws is imported from modelviewprojection.util.shading (see imports above).
+# light_dir_ws is imported from modelviewprojection.util.shading (see imports
+# above).
 
 # Mid-gray jet body, matching SuperBible glColor3ub(128,128,128).
 JET_COLOR = (0.5, 0.5, 0.5)

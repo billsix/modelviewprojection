@@ -101,7 +101,7 @@ class Ball(Actor):
 
     def update(self) -> None:
         # Each frame, we move the ball in a series of small steps - the number of steps being based on its speed attribute
-        for i in range(self.speed):
+        for _i in range(self.speed):
             # Store the previous x position
             original_x: float = self.x
 

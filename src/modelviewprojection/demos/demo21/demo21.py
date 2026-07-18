@@ -19,6 +19,7 @@ import dataclasses
 import math
 import os
 import sys
+import typing
 
 # When using a pure python backend, prefer to import glfw before
 # imgui_bundle (so that you end up using the standard glfw, not the
@@ -35,8 +36,17 @@ from numpy.typing import NDArray
 
 import modelviewprojection.pyMatrixStack as ms
 import modelviewprojection.util.colorutils as colorutils
+from modelviewprojection.mvpvisualization._pipeline import GLenum
 from modelviewprojection.util.cameracontrols import walk_around_camera
 from modelviewprojection.util.windowing import on_key
+
+if typing.TYPE_CHECKING:
+    # glfw types window handles as `_GLFWwindowPointerT`: private, and absent at
+    # runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
+
+    GLFWWindow = _GLFWwindowPointerT
+
 
 if not glfw.init():
     sys.exit()
@@ -46,8 +56,8 @@ pwd = os.path.dirname(os.path.abspath(__file__))
 
 # NEW - for shaders
 glfloat_size = 4
-floatsPerVector = 3
-floatsPerColor = 4
+floats_per_vector = 3
+floats_per_color = 4
 
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
@@ -63,7 +73,8 @@ glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
 
 
 def init_fonts_and_markdown() -> None:
-    # uncomment to keep using the default hardcoded font, or load your default font here
+    # uncomment to keep using the default hardcoded font, or load your
+    # default font here
     # imgui.get_io().fonts.add_font_default()
 
     # Load markdown fonts
@@ -72,8 +83,7 @@ def init_fonts_and_markdown() -> None:
     font_loader()
 
 
-def impl_glfw_init():
-
+def impl_glfw_init() -> "GLFWWindow":
     width, height = 500, 500
     window_name = "ModelViewProjection Demo 21 "
 
@@ -234,7 +244,7 @@ class AttribSpec:
     layout: tuple[int, int]  # (stride_bytes, offset_bytes)
 
 
-def make_vbo(data: NDArray, usage: int = GL.GL_STATIC_DRAW) -> int:  # ty: ignore[invalid-parameter-default]
+def make_vbo(data: NDArray, usage: GLenum = GL.GL_STATIC_DRAW) -> int:
     """Allocate a VBO and upload ``data``.  Touches no VAO state."""
     data = np.ascontiguousarray(data, dtype=np.float32)
     vbo = GL.glGenBuffers(1)
@@ -324,10 +334,10 @@ paddle_pos_vbo = make_vbo(paddle_vertices)
 square_pos_vbo = make_vbo(square_vertices)
 ground_pos_vbo = make_vbo(ground_vertices)
 
-paddle1_vertex_count = paddle_vertices.size // floatsPerVector
+paddle1_vertex_count = paddle_vertices.size // floats_per_vector
 paddle2_vertex_count = paddle1_vertex_count
-square_vertex_count = square_vertices.size // floatsPerVector
-ground_vertex_count = ground_vertices.size // floatsPerVector
+square_vertex_count = square_vertices.size // floats_per_vector
+ground_vertex_count = ground_vertices.size // floats_per_vector
 
 paddle1_color_vbo = make_vbo(_color_array(paddle1_color, paddle1_vertex_count))
 paddle2_color_vbo = make_vbo(_color_array(paddle2_color, paddle2_vertex_count))
@@ -339,13 +349,13 @@ def _triangle_attribs(pos_vbo: int, color_vbo: int) -> list[AttribSpec]:
         AttribSpec(
             vbo=pos_vbo,
             location=triangle.attr_position,
-            size=floatsPerVector,
+            size=floats_per_vector,
             layout=(0, 0),
         ),
         AttribSpec(
             vbo=color_vbo,
             location=triangle.attr_color,
-            size=floatsPerColor,
+            size=floats_per_color,
             layout=(0, 0),
         ),
     ]
@@ -362,7 +372,7 @@ ground_vao = make_vao(
         AttribSpec(
             vbo=ground_pos_vbo,
             location=ground.attr_position,
-            size=floatsPerVector,
+            size=floats_per_vector,
             layout=(0, 0),
         ),
     ]

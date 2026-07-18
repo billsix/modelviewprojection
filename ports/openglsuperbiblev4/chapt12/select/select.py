@@ -18,7 +18,6 @@
 import math
 import os
 import sys
-from typing import List
 
 # This file is named select.py, which collides with stdlib's `select`
 # module.  When run as `python chapt12/select/select.py`, Python puts
@@ -53,7 +52,7 @@ PICK_PALETTE = {
 
 # UI state
 selected_object: int = 0
-bounding_rect: List[int] = [0, 0, 0, 0]  # top, bottom, left, right
+bounding_rect: list[int] = [0, 0, 0, 0]  # top, bottom, left, right
 f_aspect: float = 1.0
 show_pick_buffer: bool = False
 
@@ -153,7 +152,7 @@ def render_scene() -> None:
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
 
-def _compute_bounds(arr: np.ndarray, pid: int) -> "List[int] | None":
+def _compute_bounds(arr: np.ndarray, pid: int) -> "list[int] | None":
     """Find the pixels with R==pid and G==B==0 in the pick-encoded
     framebuffer.  Return [top, bottom, left, right] in window coords
     (y=0 at top), or None if no pixels matched."""

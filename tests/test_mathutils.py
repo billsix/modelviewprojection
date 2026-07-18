@@ -305,16 +305,20 @@ def test_function_stack_push_pop():
 
 def test_to_matrix_of_rotate_z_is_homogeneous_rotation():
     # a linear 3D map is still a 4x4 with a zero translation column.
-    M = to_matrix(rotate_z(math.radians(90.0)), Vector3)
-    assert M.shape == (4, 4)
-    assert np.allclose(M[:3, 3], [0, 0, 0])  # zero translation
+    transform_matrix = to_matrix(rotate_z(math.radians(90.0)), Vector3)
+    assert transform_matrix.shape == (4, 4)
+    assert np.allclose(transform_matrix[:3, 3], [0, 0, 0])  # zero translation
     # rotate_z(90): e_1 -> e_2 (column-vector premultiply convention)
     assert np.allclose(
-        M @ np.array([1, 0, 0, 1], dtype=np.float32), [0, 1, 0, 1], atol=1e-6
+        transform_matrix @ np.array([1, 0, 0, 1], dtype=np.float32),
+        [0, 1, 0, 1],
+        atol=1e-6,
     )
     # e_3 is fixed
     assert np.allclose(
-        M @ np.array([0, 0, 1, 1], dtype=np.float32), [0, 0, 1, 1], atol=1e-6
+        transform_matrix @ np.array([0, 0, 1, 1], dtype=np.float32),
+        [0, 0, 1, 1],
+        atol=1e-6,
     )
 
 

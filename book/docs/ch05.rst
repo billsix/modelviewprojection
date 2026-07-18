@@ -101,7 +101,7 @@ Data Structures
 
 
 We added a top-level ``translate`` function.  Given a translation amount ``b``,
-``translate(b)`` returns an invertible function that shifts any vector by ``b``
+``translate(b=b)`` returns an invertible function that shifts any vector by ``b``
 --- internally, this is just vector addition, ``vector + b``.  This is a
 primitive that we will be using to transform from one space to another.
 
@@ -112,7 +112,7 @@ import them and try it out
 .. code:: Python
 
        >>> from modelviewprojection.mathutils import Vector2D, translate
-       >>> shift = translate(Vector2D(x=3, y=4))
+       >>> shift = translate(b=Vector2D(x=3, y=4))
        >>> shift(Vector2D(x=1, y=2))
        Vector2D(x=4, y=6)
 
@@ -122,7 +122,7 @@ arguments, the code might look like this:
 .. code:: Python
 
        >>> from modelviewprojection.mathutils import Vector2D, translate
-       >>> shift = translate(Vector2D(3, 4))
+       >>> shift = translate(b=Vector2D(3, 4))
        >>> shift(Vector2D(1, 2))
        Vector2D(x=4, y=6)
 

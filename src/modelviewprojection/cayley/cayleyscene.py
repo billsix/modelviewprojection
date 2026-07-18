@@ -6,7 +6,8 @@
 # of the License, or (at your option) any later version.
 
 """Turn a :class:`~cayleygraph.CayleyGraph` plus a declarative *scene* into an
-animation: a timeline (when each edge-substep plays) and a :class:`Animation` that,
+animation: a timeline (when each edge-substep plays) and a :class:`Animation`
+that,
 for any frame time, gives the live transform of each placed object, the
 world->camera inverse toward NDC, which geometry/axes are visible, and the two
 imgui trees -- all derived from the one graph the author declares.
@@ -16,8 +17,10 @@ Three things come out of the scene, no hand-kept parallel structures:
 * the object-placement tree (modelspace -> ... -> world): forward edges,
   animated in visit order, with the default geometry-reveal lifecycle;
 * the toward-NDC tail: the world->camera **inverse** (affine, CPU -- the
-  "camera placed forward, world transforms via inverse" lesson) plus the projective
-  squash/ortho steps, which stay GPU/shader (``realization="gpu"``, decision #4);
+  "camera placed forward, world transforms via inverse" lesson) plus the
+  projective
+  squash/ortho steps, which stay GPU/shader (``realization="gpu"``, decision
+  #4);
 * the two imgui trees, which are just two traversal views of the same graph.
 
 No OpenGL here (only a 4x4 realization helper for the GL shell), so it is
@@ -130,7 +133,8 @@ class NonInvertibleTransformation:
 
 @dataclasses.dataclass
 class Scene(typing.Generic[N]):
-    """A graph, an ordered list of coordinate_frames (the object-placement tree), and
+    """A graph, an ordered list of coordinate_frames (the object-placement
+    tree), and
     an ordered list of toward-NDC operations (CPU inverse + GPU)."""
 
     graph: cayleygraph.CayleyGraph[N]
@@ -199,8 +203,10 @@ class GuiGroup:
 
 
 class Timeline(typing.Generic[N]):
-    """Assigns every substep a ``(start, dur)`` slot by walking the coordinate_frames
-    then the to_ndc operations in order (accumulating ``dwell_before`` + the step
+    """Assigns every substep a ``(start, dur)`` slot by walking the
+    coordinate_frames
+    then the to_ndc operations in order (accumulating ``dwell_before`` + the
+    step
     durations), and answers per-node lifecycle questions."""
 
     def __init__(self, scene: Scene[N]) -> None:
@@ -333,7 +339,8 @@ class Animation(typing.Generic[N]):
         self, time: float
     ) -> typing.List[typing.Tuple[str, float]]:
         """``(label, progress in [0,1])`` for each GPU projection substep -- the
-        shell feeds these (or their start times) to the shader ``time`` uniform."""
+        shell feeds these (or their start times) to the shader ``time``
+        uniform."""
         return [
             (g.label, interp(time, g.start, g.dur))
             for g in self.timeline.gpu_steps
@@ -342,7 +349,8 @@ class Animation(typing.Generic[N]):
     # --- imgui-tree data ----------------------------------------------------
 
     def active_label(self, time: float) -> typing.Optional[str]:
-        """Label of the placement substep currently animating (imgui highlight)."""
+        """Label of the placement substep currently animating (imgui
+        highlight)."""
         for ts in self.timeline.steps:
             if ts.start <= time < ts.start + ts.dur:
                 return ts.label
@@ -375,7 +383,8 @@ class Animation(typing.Generic[N]):
 
     def ndc_tree(self, time: float) -> typing.List[GuiGroup]:
         """Tree 2 ("Towards NDC, With Arrows, Top Down Reading"): one group per
-        to_ndc segment, buttons in application / outermost-first order (reverse of
+        to_ndc segment, buttons in application / outermost-first order (reverse
+        of
         time), inverse-marked for the CPU inverse segments."""
         out: typing.List[GuiGroup] = []
         for op in self.scene.to_ndc:
@@ -430,10 +439,11 @@ def to_matrix(f: InvertibleFunction) -> np.ndarray:
     cy = f(Vector3(0.0, 1.0, 0.0)) - o
     cz = f(Vector3(0.0, 0.0, 1.0)) - o
     # gacalc coefficients can be sympy expressions (magnitude() uses sympy.sqrt,
-    # so rotor-based rotations yield sympy-typed components). Force float64 here:
-    # otherwise np.array infers dtype=object and downstream np.linalg.inv / GL
-    # upload fail with a cast error. This boundary cast stays even once gacalc
-    # returns plain numbers for numeric input -- numpy/GL want float64 regardless.
+    # so rotor-based rotations yield sympy-typed components). Force float64
+    # here: otherwise np.array infers dtype=object and downstream np.linalg.inv
+    # / GL upload fail with a cast error. This boundary cast stays even once
+    # gacalc returns plain numbers for numeric input -- numpy/GL want float64
+    # regardless.
     return np.array(
         [
             [cx.coeff_e_1, cy.coeff_e_1, cz.coeff_e_1, o.coeff_e_1],

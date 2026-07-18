@@ -19,58 +19,73 @@ import doctest
 import itertools
 import math
 import sys
+import typing
 from collections import namedtuple
+from collections.abc import Iterator, Sequence
 
 import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
 
-import modelviewprojection.plotsforbook.plotutils.generategridlines as generategridlines
 import modelviewprojection.plotsforbook.plotutils.mpltransformations as mplt
+from modelviewprojection.plotsforbook.plotutils import generategridlines
 
 matplotlib.use("agg")
 
 
 # TODO, generalize to any number of dimensions
-def accumulate_transformation(procedures, forwards=True):
-    """Given a pipeline of functions, provide all intermediate results via a function.
+#: One axis of plot data.  matplotlib takes parallel arrays, so a 2-D point set
+#: is the pair ``(xs, ys)`` -- each a sequence of coordinates.
+Axis = typing.Sequence[float]
+#: A 2-D transform in the plotting pipeline: ``(xs, ys) -> (xs, ys)``, built by
+#: ``mpltransformations.translate`` / ``rotate`` / ``scale``.  Those are
+#: themselves unannotated, so this documents the contract more than it
+#: gets it checked.
+PlotTransform = typing.Callable[[Axis, Axis], tuple[Axis, Axis]]
+
+
+def accumulate_transformation(
+    procedures: list[PlotTransform], forwards: bool = True
+) -> Iterator[tuple[PlotTransform, int]]:
+    """Given a pipeline of functions, provide all intermediate results via a
+    function.
 
     >>> fs = [mplt.translate(0,10),
     ...       mplt.translate(5,0)]
     >>> f = accumulate_transformation(fs, forwards=False)
-    >>> f1, stepsRemaining = next(f)
+    >>> f1, steps_remaining = next(f)
     >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
-    >>> stepsRemaining
+    >>> steps_remaining
     2
-    >>> f2, stepsRemaining = next(f)
+    >>> f2, steps_remaining = next(f)
     >>> f2((1, 2, 3), (4, 5, 6))
     ((6, 7, 8), (4, 5, 6))
-    >>> stepsRemaining
+    >>> steps_remaining
     1
-    >>> f3, stepsRemaining = next(f)
+    >>> f3, steps_remaining = next(f)
     >>> f3((1, 2, 3), (4, 5, 6))
     ((6, 7, 8), (14, 15, 16))
-    >>> stepsRemaining
+    >>> steps_remaining
     0
     >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
     >>> f = accumulate_transformation(fs, forwards=True)
-    >>> f1, stepsRemaining = next(f)
+    >>> f1, steps_remaining = next(f)
     >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
-    >>> stepsRemaining
+    >>> steps_remaining
     2
-    >>> f2, stepsRemaining = next(f)
+    >>> f2, steps_remaining = next(f)
     >>> f2((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (14, 15, 16))
-    >>> stepsRemaining
+    >>> steps_remaining
     1
-    >>> f3, stepsRemaining = next(f)
+    >>> f3, steps_remaining = next(f)
     >>> f3((1, 2, 3), (4, 5, 6))
     ((6, 7, 8), (14, 15, 16))
-    >>> stepsRemaining
+    >>> steps_remaining
     0
     >>> f1((1, 2, 3), (4, 5, 6))
     ((1, 2, 3), (4, 5, 6))
@@ -82,8 +97,10 @@ def accumulate_transformation(procedures, forwards=True):
     # would have an error in it, because of scope in a nested
     # function being retained.  I should figure out what is actually
     # happening there.
-    def python_scoping_is_dumb(r, procedures):
-        def foo(x, y):
+    def python_scoping_is_dumb(
+        r: Sequence[int], procedures: Sequence[PlotTransform]
+    ) -> PlotTransform:
+        def foo(x: Axis, y: Axis) -> tuple[Axis, Axis]:
             result_x, result_y = x, y
             for current_fn_index in r:
                 result_x, result_y = procedures[current_fn_index](
@@ -93,7 +110,7 @@ def accumulate_transformation(procedures, forwards=True):
 
         return foo
 
-    def id(x, y):
+    def id(x: Axis, y: Axis) -> tuple[Axis, Axis]:
         return x, y
 
     yield id, len(procedures)
@@ -120,7 +137,7 @@ def accumulate_transformation(procedures, forwards=True):
             )
 
 
-def main():
+def main() -> None:
     modules = [sys.modules[__name__]]
     for m in modules:
         try:
@@ -175,16 +192,16 @@ def main():
     )
 
     def create_graphs(
-        title,
-        filename,
-        geometry,
-        procedures,
-        forwards=True,
-        graph_bounds=(10, 10),
-        gridline_interval=1,
-        unit_x=1.0,
-        unit_y=1.0,
-    ):
+        title: str,
+        filename: str,
+        geometry: Geometry,
+        procedures: list[PlotTransform],
+        forwards: bool = True,
+        graph_bounds: tuple[int, int] = (10, 10),
+        gridline_interval: int = 1,
+        unit_x: float = 1.0,
+        unit_y: float = 1.0,
+    ) -> None:
         """
         Creates an animated dif of the geometry, through a sequence of
         transformations
@@ -199,17 +216,22 @@ def main():
         # when plotting the transformations is forwards order, show the axis
         # at the last step first before plotting the data
 
-        def idProc(x, y):
+        def id_proc(x: Axis, y: Axis) -> tuple[Axis, Axis]:
             return (x, y)
 
         if forwards:
-            procs.append(idProc)
-            procs.append(idProc)
+            procs.append(id_proc)
+            procs.append(id_proc)
         else:
-            procs.insert(0, idProc)
+            procs.insert(0, id_proc)
 
         # create a single frame of the animated gif
-        def create_single_frame(accumfn, stepsRemaining, fn, frame_number):
+        def create_single_frame(
+            accumfn: PlotTransform,
+            steps_remaining: int,
+            fn: PlotTransform,
+            frame_number: int,
+        ) -> Iterator[plt.Figure]:
             for round_number in [1] if not forwards else [1, 2]:
                 fig, axes = plt.subplots()
                 axes.set_xlim((-graph_bounds[0], graph_bounds[0]))
@@ -219,7 +241,7 @@ def main():
                 for xs, ys, thickness in generategridlines.generategridlines(
                     graph_bounds, interval=gridline_interval
                 ):
-                    if (not forwards) and stepsRemaining > 1:
+                    if (not forwards) and steps_remaining > 1:
                         transformed_xs, transformed_ys = accumfn(xs, ys)
                     elif (forwards) and round_number == 1 and frame_number != 1:
                         transformed_xs, transformed_ys = fn(xs, ys)
@@ -235,7 +257,7 @@ def main():
                     )
 
                 # x axis
-                if (not forwards) and stepsRemaining > 1:
+                if (not forwards) and steps_remaining > 1:
                     transformed_xs, transformed_ys = accumfn(
                         [0.0, unit_x], [0.0, 0.0]
                     )
@@ -254,7 +276,7 @@ def main():
                 )
 
                 # y axis
-                if (not forwards) and stepsRemaining > 1:
+                if (not forwards) and steps_remaining > 1:
                     transformed_xs, transformed_ys = accumfn(
                         [0.0, 0.0], [0.0, unit_y]
                     )
@@ -272,17 +294,17 @@ def main():
                     color=(1.0, 0.0, 1.0),
                 )
 
-                if stepsRemaining <= 0:
-                    plotCharacter = "-"
+                if steps_remaining <= 0:
+                    plot_character = "-"
                 else:
-                    plotCharacter = "."
+                    plot_character = "."
                 # plot the points
                 transformed_xs, transformed_ys = accumfn(*geometry.points)
                 plt.title(str.format("{}\nStep {}", title, str(frame_number)))
                 plt.plot(
                     transformed_xs,
                     transformed_ys,
-                    plotCharacter,
+                    plot_character,
                     lw=2,
                     color=geometry.color,
                 )
@@ -298,7 +320,8 @@ def main():
                         ha="center",
                     )
 
-                # make sure the x and y axis are equally proportional in screen space
+                # make sure the x and y axis are equally proportional in screen
+                # space
                 plt.gca().set_aspect("equal", adjustable="box")
                 axes.xaxis.set_major_locator(
                     matplotlib.ticker.MultipleLocator(1)
@@ -312,8 +335,8 @@ def main():
 
         # create a single frame
         animated_images_list = [
-            create_single_frame(accumfn, stepsRemaining, fn, frame_number)
-            for (accumfn, stepsRemaining), fn, frame_number in zip(
+            create_single_frame(accumfn, steps_remaining, fn, frame_number)
+            for (accumfn, steps_remaining), fn, frame_number in zip(
                 accumulate_transformation(procs, forwards),
                 [procs[0], *procs],
                 itertools.count(start=1),
@@ -504,7 +527,7 @@ def main():
         geometry=square,
         procedures=[
             mplt.rotate(math.radians(-45.0)),
-            mplt.scale(scaleX=2.0, scaleY=4.5),
+            mplt.scale(scale_x=2.0, scale_y=4.5),
             mplt.rotate(math.radians(45.0)),
         ],
         forwards=False,
@@ -516,7 +539,7 @@ def main():
         geometry=square,
         procedures=[
             mplt.rotate(math.radians(-45.0)),
-            mplt.scale(scaleX=2.0, scaleY=4.5),
+            mplt.scale(scale_x=2.0, scale_y=4.5),
             mplt.rotate(math.radians(45.0)),
         ],
         forwards=True,
@@ -532,7 +555,7 @@ def main():
         geometry=circle,
         procedures=[
             mplt.rotate(math.radians(-45.0)),
-            mplt.scale(scaleX=2.0, scaleY=4.5),
+            mplt.scale(scale_x=2.0, scale_y=4.5),
             mplt.rotate(math.radians(45.0)),
         ],
         forwards=False,
@@ -544,7 +567,7 @@ def main():
         geometry=circle,
         procedures=[
             mplt.rotate(math.radians(-45.0)),
-            mplt.scale(scaleX=2.0, scaleY=4.5),
+            mplt.scale(scale_x=2.0, scale_y=4.5),
             mplt.rotate(math.radians(45.0)),
         ],
         forwards=True,
@@ -573,7 +596,7 @@ def main():
         filename="inverse-ortho2d-backwards",
         geometry=square_ndc,
         procedures=[
-            mplt.scale(scaleX=1.0 / 2.0, scaleY=7.0 / 2.0),
+            mplt.scale(scale_x=1.0 / 2.0, scale_y=7.0 / 2.0),
             mplt.translate(1.0 / 2, 7.0 / 2),
         ],
         forwards=False,
@@ -588,7 +611,7 @@ def main():
         filename="inverse-ortho2d",
         geometry=square_ndc,
         procedures=[
-            mplt.scale(scaleX=1.0 / 2.0, scaleY=7.0 / 2.0),
+            mplt.scale(scale_x=1.0 / 2.0, scale_y=7.0 / 2.0),
             mplt.translate(1.0 / 2, 7.0 / 2),
         ],
         forwards=True,
@@ -622,7 +645,7 @@ def main():
         geometry=square_ndc,
         procedures=[
             mplt.translate(-1.0 / 2, -7.0 / 2),
-            mplt.scale(scaleX=1.0 / (1.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
+            mplt.scale(scale_x=1.0 / (1.0 / 2.0), scale_y=1.0 / (7.0 / 2.0)),
         ],
         forwards=False,
         graph_bounds=(10, 10),
@@ -637,7 +660,7 @@ def main():
         geometry=square_ndc,
         procedures=[
             mplt.translate(-1.0 / 2, -7.0 / 2),
-            mplt.scale(scaleX=1.0 / (1.0 / 2.0), scaleY=1.0 / (7.0 / 2.0)),
+            mplt.scale(scale_x=1.0 / (1.0 / 2.0), scale_y=1.0 / (7.0 / 2.0)),
         ],
         forwards=True,
         graph_bounds=(10, 10),

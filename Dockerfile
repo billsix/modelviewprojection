@@ -117,6 +117,14 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
     python3 -m venv --system-site-packages /venv/ && \
     export VIRTUAL_ENV_DISABLE_PROMPT=1  && \
     source /venv/bin/activate && \
+    # setuptools/wheel are BUILD prereqs for loadpackages.sh's editable install.
+    # It runs `uv pip install --no-index --no-build-isolation -e .`, which by
+    # design neither creates an isolated build env nor installs
+    # build-system.requires -- so the backend must already be in /venv. Python
+    # 3.12+ venvs no longer seed setuptools, so without this the editable
+    # install fails with ModuleNotFoundError and `make format` never runs.
+    # (gacalc's Dockerfile does the same thing.)
+    uv pip install setuptools wheel --python $(which python) && \
     dnf install -y libatomic && uv pip install pyright --python $(which python); \
     if [ "$USE_EMACS" = "1" ]; then \
       dnf install -y \

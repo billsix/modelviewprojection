@@ -189,7 +189,8 @@ def plot(
     # >>> np.arange(.0,1.0,.2)
     # array([. , .2, .4, .6, .8])
     for x in np.arange(domain[0], domain[1], interval, dtype=float):
-        # GL.glVertex is here twice because line segments are assumed to be in pairs
+        # GL.glVertex is here twice because line segments are assumed to be in
+        # pairs
         GL.glVertex2f(x, fn(x))
         GL.glVertex2f(x, fn(x))
     GL.glEnd()

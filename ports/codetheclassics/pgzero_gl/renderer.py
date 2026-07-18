@@ -27,7 +27,7 @@ coordinates are pgzero pixels: ``(0, 0)`` top-left, ``+x`` right, ``+y`` down.
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, Tuple
+from typing import TYPE_CHECKING, Any
 
 import numpy as np
 import OpenGL.GL as GL
@@ -361,7 +361,7 @@ class Renderer:
         )
 
 
-def _rgba(color: Any) -> Tuple[float, float, float, float]:
+def _rgba(color: Any) -> tuple[float, float, float, float]:
     """Normalise a colour to a 0..1 float RGBA 4-tuple.
 
     Accepts ``(r, g, b)`` or ``(r, g, b, a)`` as 0..255 ints or 0..1 floats.

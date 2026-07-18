@@ -63,10 +63,10 @@ def draw() -> None:
     rt_mag = max(
         min_len, math.sqrt((mouse_x - nre_x) ** 2 + (mouse_y - nre_y) ** 2)
     )
-    fLeftX = (mouse_x - nle_x) / lt_mag
-    fLeftY = -(mouse_y - nle_y) / lt_mag
-    fRightX = (mouse_x - nre_x) / rt_mag
-    fRightY = -(mouse_y - nre_y) / rt_mag
+    left_x = (mouse_x - nle_x) / lt_mag
+    left_y = -(mouse_y - nle_y) / lt_mag
+    right_x = (mouse_x - nre_x) / rt_mag
+    right_y = -(mouse_y - nre_y) / rt_mag
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
     GL.glMatrixMode(GL.GL_PROJECTION)
@@ -80,7 +80,7 @@ def draw() -> None:
     draw_circle()
     GL.glColor3f(0.0, 0.0, 0.0)
     GL.glScalef(0.40, 0.40, 1.0)
-    GL.glTranslatef(fLeftX, fLeftY, 0.0)
+    GL.glTranslatef(left_x, left_y, 0.0)
     draw_circle()
 
     GL.glColor3f(1.0, 1.0, 1.0)
@@ -90,7 +90,7 @@ def draw() -> None:
     draw_circle()
     GL.glColor3f(0.0, 0.0, 0.0)
     GL.glScalef(0.40, 0.40, 1.0)
-    GL.glTranslatef(fRightX, fRightY, 0.0)
+    GL.glTranslatef(right_x, right_y, 0.0)
     draw_circle()
 
     GL.glMatrixMode(GL.GL_MODELVIEW)

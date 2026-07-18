@@ -20,14 +20,17 @@
 The vector algebra and the invertible-function transform layer now come from the
 **gacalc** geometric-algebra library (``Vector2`` / ``Vector3``,
 ``InvertibleFunction``, ``compose`` / ``inverse`` / ``translate`` /
-``uniform_scale`` / ``scale_non_uniform``, the ``at`` / ``steps`` animation layer,
+``uniform_scale`` / ``scale_non_uniform``, the ``at`` / ``steps`` animation
+layer,
 and the ``Linearity`` tag).  They are re-exported here so the course can keep
 importing them from ``modelviewprojection.mathutils``.
 
-What lives *here* is the graphics-specific math that gacalc deliberately does not
+What lives *here* is the graphics-specific math that gacalc deliberately does
+not
 carry: angle-based 2D/axis rotations (built on top of gacalc vectors), the
 ``ortho`` / ``perspective`` projections, the plane-geometry helpers
-(``find_normal`` via the geometric-algebra ``wedge`` + ``dual``, ``plane_equation``,
+(``find_normal`` via the geometric-algebra ``wedge`` + ``dual``,
+``plane_equation``,
 ``distance_to_plane``), the 2D orientation predicates, and the
 ``FunctionStack`` (the Python analogue of OpenGL's matrix stack).
 """

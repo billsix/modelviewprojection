@@ -24,7 +24,7 @@ accepts any indexable/iterable pair, including gacalc vectors.
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import Any, Generic, Self, Tuple, TypeVar
+from typing import Any, Generic, Self, TypeVar
 
 from ._types import PointLike
 
@@ -205,7 +205,7 @@ class _RectBase(Generic[_C]):
         self.height = v
 
     @property
-    def size(self) -> Tuple[_C, _C]:
+    def size(self) -> tuple[_C, _C]:
         return (self.width, self.height)
 
     @size.setter
@@ -213,7 +213,7 @@ class _RectBase(Generic[_C]):
         self.width, self.height = v
 
     # corner / mid pairs ------------------------------------------------------
-    def _pair(self, hx: str, vy: str) -> Tuple[_C, _C]:
+    def _pair(self, hx: str, vy: str) -> tuple[_C, _C]:
         return (getattr(self, hx), getattr(self, vy))
 
     def _set_pair(self, hx: str, vy: str, val: PointLike) -> None:
@@ -223,7 +223,7 @@ class _RectBase(Generic[_C]):
         setattr(self, vy, vy_val)
 
     @property
-    def topleft(self) -> Tuple[_C, _C]:
+    def topleft(self) -> tuple[_C, _C]:
         return (self.left, self.top)
 
     @topleft.setter
@@ -231,7 +231,7 @@ class _RectBase(Generic[_C]):
         self._set_pair("left", "top", v)
 
     @property
-    def topright(self) -> Tuple[_C, _C]:
+    def topright(self) -> tuple[_C, _C]:
         return (self.right, self.top)
 
     @topright.setter
@@ -239,7 +239,7 @@ class _RectBase(Generic[_C]):
         self._set_pair("right", "top", v)
 
     @property
-    def bottomleft(self) -> Tuple[_C, _C]:
+    def bottomleft(self) -> tuple[_C, _C]:
         return (self.left, self.bottom)
 
     @bottomleft.setter
@@ -247,7 +247,7 @@ class _RectBase(Generic[_C]):
         self._set_pair("left", "bottom", v)
 
     @property
-    def bottomright(self) -> Tuple[_C, _C]:
+    def bottomright(self) -> tuple[_C, _C]:
         return (self.right, self.bottom)
 
     @bottomright.setter
@@ -255,7 +255,7 @@ class _RectBase(Generic[_C]):
         self._set_pair("right", "bottom", v)
 
     @property
-    def center(self) -> Tuple[_C, _C]:
+    def center(self) -> tuple[_C, _C]:
         return (self.centerx, self.centery)
 
     @center.setter
@@ -263,7 +263,7 @@ class _RectBase(Generic[_C]):
         self._set_pair("centerx", "centery", v)
 
     @property
-    def midtop(self) -> Tuple[_C, _C]:
+    def midtop(self) -> tuple[_C, _C]:
         return (self.centerx, self.top)
 
     @midtop.setter
@@ -271,7 +271,7 @@ class _RectBase(Generic[_C]):
         self._set_pair("centerx", "top", v)
 
     @property
-    def midbottom(self) -> Tuple[_C, _C]:
+    def midbottom(self) -> tuple[_C, _C]:
         return (self.centerx, self.bottom)
 
     @midbottom.setter
@@ -279,7 +279,7 @@ class _RectBase(Generic[_C]):
         self._set_pair("centerx", "bottom", v)
 
     @property
-    def midleft(self) -> Tuple[_C, _C]:
+    def midleft(self) -> tuple[_C, _C]:
         return (self.left, self.centery)
 
     @midleft.setter
@@ -287,7 +287,7 @@ class _RectBase(Generic[_C]):
         self._set_pair("left", "centery", v)
 
     @property
-    def midright(self) -> Tuple[_C, _C]:
+    def midright(self) -> tuple[_C, _C]:
         return (self.right, self.centery)
 
     @midright.setter

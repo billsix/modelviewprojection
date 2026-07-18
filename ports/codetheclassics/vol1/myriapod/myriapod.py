@@ -125,7 +125,7 @@ class Player(Actor):
     def move(self, dx: int, dy: int, speed: int) -> None:
         # dx and dy will each be either 0, -1 or 1. speed is an integer indicating
         # how many pixels we should move in the specified direction.
-        for i in range(speed):
+        for _i in range(speed):
             # For each pixel we want to move, we must first check if it's a valid place to move to
             if game.allow_movement(self.x + dx, self.y + dy):
                 self.x += dx
@@ -567,7 +567,7 @@ class Segment(Actor):
             else:
                 rock = game.grid[new_cell_y][new_cell_x]
 
-            rock_present: bool = rock != None
+            rock_present: bool = rock is not None
 
             # Is new cell already occupied by another segment, or is another segment trying to enter my cell from
             # the opposite direction?
@@ -781,14 +781,14 @@ class Game:
         # Find the rock at this grid cell (or None if no rock here)
         rock: Optional["Rock"] = self.grid[cell_y][cell_x]
 
-        if rock != None:
+        if rock is not None:
             # rock.damage returns False if the rock has lost all its health - in this case, the grid cell will be set
             # to None, overwriting the rock object reference
             if rock.damage(amount, from_bullet):
                 self.grid[cell_y][cell_x] = None
 
         # Return whether or not there was a rock at this position
-        return rock != None
+        return rock is not None
 
     def allow_movement(
         self, x: float, y: float, ax: int = -1, ay: int = -1
@@ -882,7 +882,7 @@ class Game:
             num_rocks: int = 0
             for row in self.grid:
                 for element in row:
-                    if element != None:
+                    if element is not None:
                         num_rocks += 1
             if num_rocks < 31 + self.wave:
                 while True:
@@ -890,7 +890,7 @@ class Game:
                         randint(0, num_grid_cols - 1),
                         randint(1, num_grid_rows - 3),
                     )  # Leave last 2 rows rock-free
-                    if self.grid[y][x] == None:
+                    if self.grid[y][x] is None:
                         self.grid[y][x] = Rock(x, y)
                         break
             else:
@@ -1067,7 +1067,7 @@ try:
 
     music.play("theme")
     music.set_volume(0.4)
-except:
+except Exception:
     # If an error occurs, just ignore it
     pass
 

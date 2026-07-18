@@ -152,13 +152,13 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         forwards_cs = -1 * Vector3.e_3
         forward_ws = compose(
-            [translate(camera.position_ws), rotate_y(camera.rot_y)]
+            [translate(b=camera.position_ws), rotate_y(camera.rot_y)]
         )(forwards_cs)
         camera.position_ws = forward_ws
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         forwards_cs = Vector3.e_3
         forward_ws = compose(
-            [translate(camera.position_ws), rotate_y(camera.rot_y)]
+            [translate(b=camera.position_ws), rotate_y(camera.rot_y)]
         )(forwards_cs)
         camera.position_ws = forward_ws
     # doc-region-end handle key input keys
@@ -220,7 +220,7 @@ while not glfw.window_should_close(window):
             inverse(
                 compose(
                     [
-                        translate(camera.position_ws),
+                        translate(b=camera.position_ws),
                         rotate_y(camera.rot_y),
                         rotate_x(camera.rot_x),
                     ]
@@ -231,7 +231,7 @@ while not glfw.window_should_close(window):
             with push_transformation(
                 compose(
                     [
-                        translate(paddle1.position),
+                        translate(b=paddle1.position),
                         rotate_z(paddle1.rotation),
                     ]
                 )
@@ -249,9 +249,9 @@ while not glfw.window_should_close(window):
                 with push_transformation(
                     compose(
                         [
-                            translate(-1 * Vector3.e_3),
+                            translate(b=-1 * Vector3.e_3),
                             rotate_z(rotation_around_paddle1),
-                            translate(2 * Vector3.e_1),
+                            translate(b=2 * Vector3.e_1),
                             rotate_z(square_rotation),
                         ]
                     )
@@ -268,7 +268,7 @@ while not glfw.window_should_close(window):
             with push_transformation(
                 compose(
                     [
-                        translate(paddle2.position),
+                        translate(b=paddle2.position),
                         rotate_z(paddle2.rotation),
                     ]
                 )

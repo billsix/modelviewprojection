@@ -19,6 +19,7 @@ import typing
 from enum import Enum, auto
 
 import glfw
+import numpy as np
 
 from modelviewprojection import pyMatrixStack as ms
 from modelviewprojection.cayley import (
@@ -34,6 +35,14 @@ from modelviewprojection.mvpvisualization import (
     cayley_gl,
 )
 
+if typing.TYPE_CHECKING:
+    # glfw types every window parameter as `_GLFWwindowPointerT`; it is private
+    # and absent at runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
+
+    GLFWWindow = _GLFWwindowPointerT
+
+
 imgui = cayley_gl.imgui
 
 
@@ -44,8 +53,8 @@ class Space(Enum):
     paddle2 = auto()
 
 
-# live parameters -- all start at zero, like the original (keyboard-driven there,
-# slider-driven here).
+# live parameters -- all start at zero, like the original (keyboard-driven
+# there, slider-driven here).
 params = {
     "p1x": -9.0,
     "p1y": 1.0,
@@ -99,7 +108,7 @@ FOCUS = [
 ]
 
 
-def sync_steps():
+def sync_steps() -> None:
     """Rewrite the mutable steps in place from the live ``params`` (structure
     stays immutable; only each step's function changes)."""
     paddle1_edge.steps[0].fn = translate(
@@ -114,7 +123,7 @@ def sync_steps():
     paddle2_edge.steps[1].fn = rotate_z(params["p2rot"])
 
 
-def frame_of(space):
+def frame_of(space: Space) -> np.ndarray:
     """4x4 placing ``space``-local coords into world (along the arrows)."""
     return cayleyscene.to_matrix(graph.path(space, Space.world).function())
 
@@ -133,11 +142,11 @@ state: dict[str, typing.Any] = {
 win_state = cayley_gl.WindowState()
 
 
-def _focus(node):
+def _focus(node: Space | None) -> None:
     state["center_on"] = node
 
 
-def imgui_menubar():
+def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
@@ -207,19 +216,21 @@ def imgui_menubar():
     imgui.end_main_menu_bar()
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(
+    window: "GLFWWindow", key: int, scancode: int, action: int, mods: int
+) -> None:
     cayley_gl.common_key(window, win_state, key, action)  # Esc, F11
 
 
-def frame(w, h):
+def frame(w: int, h: int) -> None:
     sync_steps()
 
     state["mouse"] = cayley_gl.orbit_input(
         window, imguiio, camera, state["mouse"]
     )
     cayley_gl.setup_orbit_view(camera, w, h)
-    # focus: walk world -> space (against the arrows) and post-multiply the view,
-    # centering AND orienting on that space.
+    # focus: walk world -> space (against the arrows) and post-multiply the
+    # view, centering AND orienting on that space.
     if state["center_on"] is not None:
         ms.multiply(
             ms.MatrixStack.view,

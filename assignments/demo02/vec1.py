@@ -37,7 +37,7 @@
 # ---------
 #
 # Below, Implement fahrenheit_to_kelvin, celsius_to_fahrenheit, and
-# kelvin_to_fahrenheit.  replace "translate(0.0) with your
+# kelvin_to_fahrenheit.  replace "translate(b=0.0) with your
 # implementation
 
 
@@ -90,7 +90,7 @@ Vector1(5.0) - Vector1(1.0)
 
 # %%
 # doc-region-begin invertible function
-fn: InvertibleFunction = translate(Vector1(2.0))
+fn: InvertibleFunction = translate(b=Vector1(2.0))
 # doc-region-end invertible function
 
 
@@ -116,7 +116,7 @@ assert inverse(fn)(Vector1(7)) == Vector1(5.0)
 # doc-region-begin y = m*x + b
 m: float = 5.0
 b: float = 2.0
-fn: InvertibleFunction = compose([translate(Vector1(b)), uniform_scale(m)])
+fn: InvertibleFunction = compose([translate(b=Vector1(b)), uniform_scale(m=m)])
 print(fn(Vector1(0.0)))
 print(fn(Vector1(1.0)))
 
@@ -126,7 +126,7 @@ assert fn(Vector1(1.0)) == Vector1(7.0)
 
 
 # %%
-fn: InvertibleFunction = uniform_scale(4.0)
+fn: InvertibleFunction = uniform_scale(m=4.0)
 print(fn(Vector1(1.0)))
 assert fn(Vector1(1.0)) == Vector1(4.0)
 print(fn(Vector1(2.0)))
@@ -136,14 +136,14 @@ assert fn(Vector1(3.0)) == Vector1(12.0)
 
 # %%
 # doc-region-begin defined functions
-celsius_to_kelvin: InvertibleFunction = translate(Vector1(273.15))
+celsius_to_kelvin: InvertibleFunction = translate(b=Vector1(273.15))
 assert celsius_to_kelvin(Vector1(0.0)).is_close(Vector1(273.15))
 
 assert celsius_to_kelvin(Vector1(100.0)).is_close(Vector1(373.15))
 
 
 fahrenheit_to_celsius: InvertibleFunction = compose(
-    [uniform_scale(5.0 / 9.0), translate(Vector1(-32.0))]
+    [uniform_scale(m=5.0 / 9.0), translate(b=Vector1(-32.0))]
 )
 assert fahrenheit_to_celsius(Vector1(32.0)).is_close(Vector1(0.0))
 
@@ -160,23 +160,24 @@ assert kelvin_to_celsius(Vector1(373.15)).is_close(Vector1(100.0))
 
 
 # %% [markdown]
-# Implement fahrenheit_to_kelvin, celsius_to_fahrenheit, and kelvin_to_fahrenheit.
-# replace "translate(Vector1(0.0)) with your implementation
+# Implement fahrenheit_to_kelvin, celsius_to_fahrenheit, and
+# kelvin_to_fahrenheit.
+# replace "translate(b=Vector1(0.0)) with your implementation
 
 # %%
 
 # doc-region-begin work to do
-fahrenheit_to_kelvin: InvertibleFunction = translate(Vector1(0.0))
+fahrenheit_to_kelvin: InvertibleFunction = translate(b=Vector1(0.0))
 assert fahrenheit_to_kelvin(Vector1(32.0)).is_close(Vector1(273.15))
 assert fahrenheit_to_kelvin(Vector1(212.0)).is_close(Vector1(373.15))
 
-celsius_to_fahrenheit: InvertibleFunction = translate(Vector1(0.0))
+celsius_to_fahrenheit: InvertibleFunction = translate(b=Vector1(0.0))
 assert celsius_to_fahrenheit(Vector1(0.0)).is_close(Vector1(32.0))
 
 assert celsius_to_fahrenheit(Vector1(100.0)).is_close(Vector1(212.0))
 
 
-kelvin_to_fahrenheit: InvertibleFunction = translate(Vector1(0.0))
+kelvin_to_fahrenheit: InvertibleFunction = translate(b=Vector1(0.0))
 assert kelvin_to_fahrenheit(Vector1(273.15)).is_close(Vector1(32.0))
 assert kelvin_to_fahrenheit(Vector1(373.15)).is_close(Vector1(212.0))
 # doc-region-end work to do

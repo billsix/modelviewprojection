@@ -474,7 +474,7 @@ def classify_hedge_segment(
             return 5, None
         else:
             # Alternate between 3 and 4
-            if previous_mid_segment == None or previous_mid_segment == 4:
+            if previous_mid_segment is None or previous_mid_segment == 4:
                 sprite_x = 3
             elif previous_mid_segment == 3:
                 sprite_x = 4
@@ -501,7 +501,7 @@ class Grass(Row):
 
         if (
             not isinstance(predecessor, Grass)
-            or predecessor.hedge_row_index == None
+            or predecessor.hedge_row_index is None
         ):
             # Create a brand-new set of hedges? We will only create hedges if the previous row didn't have any.
             # We also only want hedges to appear on certain types of grass row, and on only a random selection
@@ -513,14 +513,14 @@ class Grass(Row):
             self.hedge_mask = predecessor.hedge_mask
             self.hedge_row_index = 1
 
-        if self.hedge_row_index != None:
+        if self.hedge_row_index is not None:
             # See comments in classify_hedge_segment for explanation of previous_mid_segment
             previous_mid_segment: Optional[int] = None
             for i in range(1, 13):
                 sprite_x, previous_mid_segment = classify_hedge_segment(
                     self.hedge_mask[i - 1 : i + 3], previous_mid_segment
                 )
-                if sprite_x != None:
+                if sprite_x is not None:
                     self.children.append(
                         Hedge(sprite_x, self.hedge_row_index, (i * 40 - 20, 0))
                     )
@@ -801,7 +801,7 @@ class Game:
             else:
                 music.play("theme")
                 music.set_volume(1)
-        except:
+        except Exception:
             pass
 
         self.eagle: Optional["Eagle"] = None
@@ -941,7 +941,7 @@ class Game:
                 # to access an attribute of Pygame Zero's sounds object, we must use Python's built-in function getattr
                 sound = getattr(sounds, name + str(randint(0, count - 1)))
                 sound.play()
-        except:
+        except Exception:
             # If a sound fails to play, ignore the error
             pass
 
@@ -965,7 +965,7 @@ class Game:
                 else:
                     sound.stop()
                     del self.looped_sounds[name]
-        except:
+        except Exception:
             # If a sound fails to play, ignore the error
             pass
 
@@ -974,7 +974,7 @@ class Game:
             for sound in self.looped_sounds.values():
                 sound.stop()
             self.looped_sounds.clear()
-        except:
+        except Exception:
             # If sound system is not working/present, ignore the error
             pass
 
@@ -1042,7 +1042,7 @@ def update() -> None:
                 try:
                     with open("high.txt", "w") as file:
                         file.write(str(high_score))
-                except:
+                except Exception:
                     # If an error occurs writing the file, just ignore it and carry on, rather than crashing
                     pass
 
@@ -1084,7 +1084,7 @@ try:
     mixer.quit()
     mixer.init(44100, -16, 2, 512)
     mixer.set_num_channels(16)
-except:
+except Exception:
     # If an error occurs, just ignore it
     pass
 
@@ -1092,7 +1092,7 @@ except:
 try:
     with open("high.txt", "r") as f:
         high_score: int = int(f.read())
-except:
+except Exception:
     # If opening the file fails (likely because it hasn't yet been created), set high score to 0
     high_score = 0
 

@@ -16,12 +16,11 @@ from __future__ import annotations
 import ast
 import os
 import re
-from typing import Dict
 
 import numpy as np
 
 # Cache parsed data per directory so re-imports are cheap
-_cache: Dict[str, Dict[str, np.ndarray]] = {}
+_cache: dict[str, dict[str, np.ndarray]] = {}
 
 
 def _parse_array(text: str, name: str, dtype: "np.dtype | type") -> np.ndarray:
@@ -66,7 +65,7 @@ def _parse_array(text: str, name: str, dtype: "np.dtype | type") -> np.ndarray:
     return np.array(ast.literal_eval(body), dtype=dtype)
 
 
-def load_model(directory: str) -> Dict[str, np.ndarray]:
+def load_model(directory: str) -> dict[str, np.ndarray]:
     """Parse body.cpp and glass.cpp from the given directory; return a
     dict with the four body arrays and four glass arrays."""
     if directory in _cache:

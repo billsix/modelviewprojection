@@ -199,8 +199,8 @@ class Profiler:
         self.name: str = name
 
     def get_ms(self) -> float:
-        endTime: float = time.perf_counter()
-        diff: float = endTime - self.start_time
+        end_time: float = time.perf_counter()
+        diff: float = end_time - self.start_time
         return diff * 1000
 
     def __str__(self) -> str:
@@ -620,7 +620,7 @@ class CPUCar(Car):
                 return False
 
             # Limit number of attempts to ensure no chance of infinite loop
-            for attempt in range(0, 20):
+            for _attempt in range(0, 20):
                 self.target_x = uniform(-1000, 1000)
                 if not is_target_x_too_close_to_nearby_cars():
                     break
@@ -797,12 +797,12 @@ class PlayerCar(Car):
                     # Instead we just check X and Z differences separately (Y is irrelevant as cars are always
                     # on the ground)
                     vec: Vector3 = self.pos - car.pos
-                    COLLIDE_FRONT_DISTANCE_Z: float = 0.6
-                    COLLIDE_BACK_DISTANCE_Z: float = 1.2
+                    collide_front_distance_z: float = 0.6
+                    collide_back_distance_z: float = 1.2
                     if (
                         abs(vec.x) < 260
-                        and vec.z < COLLIDE_FRONT_DISTANCE_Z
-                        and vec.z > -COLLIDE_BACK_DISTANCE_Z
+                        and vec.z < collide_front_distance_z
+                        and vec.z > -collide_back_distance_z
                     ):
                         midpoint: float = (
                             self.pos.z - car.pos.z
@@ -825,10 +825,10 @@ class PlayerCar(Car):
 
                             # Shift us back and other car forward so we're not longer overlapping
                             self.pos.z = (
-                                midpoint + COLLIDE_FRONT_DISTANCE_Z * 0.6
+                                midpoint + collide_front_distance_z * 0.6
                             )
                             car.pos.z = (
-                                midpoint - COLLIDE_FRONT_DISTANCE_Z * 0.6
+                                midpoint - collide_front_distance_z * 0.6
                             )
 
                             game.play_sound("bump", 6)
@@ -840,9 +840,9 @@ class PlayerCar(Car):
 
                             # Shift other car back and us forward so we're not longer overlapping
                             self.pos.z = (
-                                midpoint - COLLIDE_BACK_DISTANCE_Z * 0.6
+                                midpoint - collide_back_distance_z * 0.6
                             )
-                            car.pos.z = midpoint + COLLIDE_BACK_DISTANCE_Z * 0.6
+                            car.pos.z = midpoint + collide_back_distance_z * 0.6
 
                             game.play_sound("bump_behind")
 
@@ -1007,7 +1007,7 @@ def make_track() -> list[TrackPiece]:
     # When the track is drawn, we draw a polygon for each track piece, connecting this line with the line of the
     # previous track piece.
     track: list[TrackPiece] = []
-    for lap in range(NUM_LAPS + 1):
+    for _lap in range(NUM_LAPS + 1):
         track.extend(
             [
                 TrackPiece(scenery=generate_scenery(i, images.billboard02))
@@ -1598,6 +1598,13 @@ class Game:
         prev_stripe_screen: Any = None
         prev_rumble_left_outer_screen = None
         prev_rumble_right_outer_screen = None
+        # Same loop-carried pattern as the four above: read near the top of an
+        # iteration (inside the `prev_track_screen is not None` guard, so never on
+        # the first pass) and reassigned at the bottom for the next one.
+        prev_yellow_line_left_outer_screen: Any = None
+        prev_yellow_line_left_inner_screen: Any = None
+        prev_yellow_line_right_outer_screen: Any = None
+        prev_yellow_line_right_inner_screen: Any = None
 
         # Instead of drawing track pieces etc as we come across them, we store draw calls in this list. Then we once
         # we've finished going through track pieces, we execute the draw calls in reverse order, so that track
@@ -1773,10 +1780,10 @@ class Game:
                     # draw list are drawn in reverse order
                     if SHOW_YELLOW_LINES:
                         left_yellow_line_points = (
-                            prev_yellow_line_left_outer_screen,  # noqa: F821  # loop-carried: assigned at the bottom of the previous iteration
+                            prev_yellow_line_left_outer_screen,
                             yellow_line_left_outer_screen,
                             yellow_line_left_inner_screen,
-                            prev_yellow_line_left_inner_screen,  # noqa: F821  # loop-carried: assigned at the bottom of the previous iteration
+                            prev_yellow_line_left_inner_screen,
                         )
                         draw_points(
                             left_yellow_line_points,
@@ -1785,10 +1792,10 @@ class Game:
                         )
 
                         right_yellow_line_points = (
-                            prev_yellow_line_right_outer_screen,  # noqa: F821  # loop-carried: assigned at the bottom of the previous iteration
+                            prev_yellow_line_right_outer_screen,
                             yellow_line_right_outer_screen,
                             yellow_line_right_inner_screen,
-                            prev_yellow_line_right_inner_screen,  # noqa: F821  # loop-carried: assigned at the bottom of the previous iteration
+                            prev_yellow_line_right_inner_screen,
                         )
                         draw_points(
                             right_yellow_line_points,

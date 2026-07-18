@@ -69,6 +69,7 @@ from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.pyMatrixStack as ms
+from modelviewprojection.mvpvisualization._pipeline import GLenum
 from modelviewprojection.util.cameracontrols import walk_around_camera
 from modelviewprojection.util.windowing import on_key
 
@@ -325,10 +326,12 @@ def _build_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
     return np.array(out, dtype=np.float32)
 
 
-def _build_torus(R: float, r: float, sides: int, rings: int) -> np.ndarray:
-    """Torus around the Y axis.  R = major radius (center of tube to
-    Y axis), r = minor radius (tube thickness).  sides = segments
-    around the major ring, rings = segments around the minor ring."""
+def _build_torus(
+    major_radius: float, minor_radius: float, sides: int, rings: int
+) -> np.ndarray:
+    """Torus around the Y axis.  ``major_radius`` is centre-of-tube to the Y
+    axis, ``minor_radius`` the tube thickness.  sides = segments around the
+    major ring, rings = segments around the minor ring."""
     out: list[float] = []
     for i in range(sides):
         u0 = i / sides * 2.0 * math.pi
@@ -341,8 +344,23 @@ def _build_torus(R: float, r: float, sides: int, rings: int) -> np.ndarray:
             cv0, sv0 = math.cos(v0), math.sin(v0)
             cv1, sv1 = math.cos(v1), math.sin(v1)
 
-            def vert(cu, su, cv, sv, us, vs):
-                pos = ((R + r * cv) * cu, r * sv, (R + r * cv) * su)
+            def vert(
+                cu: float,
+                su: float,
+                cv: float,
+                sv: float,
+                us: float,
+                vs: float,
+            ) -> tuple[
+                tuple[float, float, float],
+                tuple[float, float, float],
+                tuple[float, float],
+            ]:
+                pos = (
+                    (major_radius + minor_radius * cv) * cu,
+                    minor_radius * sv,
+                    (major_radius + minor_radius * cv) * su,
+                )
                 nrm = (cv * cu, sv, cv * su)
                 return (pos, nrm, (us, vs))
 
@@ -489,16 +507,16 @@ def planar_shadow_matrix(
     position.
 
     Standard form:  M = (n . L) * I - L * n^T,  where n=(a,b,c,d)
-    and L=(Lx,Ly,Lz,Lw).  Stored row-major like np.matrix expects."""
+    and L=(light_x,light_y,light_z,light_w).  Stored row-major."""
     a, b, c, d = plane
-    Lx, Ly, Lz, Lw = light
-    dot = a * Lx + b * Ly + c * Lz + d * Lw
+    light_x, light_y, light_z, light_w = light
+    dot = a * light_x + b * light_y + c * light_z + d * light_w
     return np.array(
         [
-            [dot - a * Lx, -b * Lx, -c * Lx, -d * Lx],
-            [-a * Ly, dot - b * Ly, -c * Ly, -d * Ly],
-            [-a * Lz, -b * Lz, dot - c * Lz, -d * Lz],
-            [-a * Lw, -b * Lw, -c * Lw, dot - d * Lw],
+            [dot - a * light_x, -b * light_x, -c * light_x, -d * light_x],
+            [-a * light_y, dot - b * light_y, -c * light_y, -d * light_y],
+            [-a * light_z, -b * light_z, dot - c * light_z, -d * light_z],
+            [-a * light_w, -b * light_w, -c * light_w, dot - d * light_w],
         ],
         dtype=np.float64,
     )
@@ -521,7 +539,11 @@ LIGHT_MARKER_COLOR: tuple[float, float, float] = (1.0, 1.0, 0.0)
 # ---------------------------------------------------------------------------
 
 
-def _bind_and_draw(vao: int, count: int, mode=GL.GL_TRIANGLES) -> None:
+def _bind_and_draw(
+    vao: int,
+    count: int,
+    mode: GLenum = GL.GL_TRIANGLES,
+) -> None:
     GL.glBindVertexArray(vao)
     GL.glDrawArrays(mode, 0, count)
     GL.glBindVertexArray(0)
@@ -703,7 +725,7 @@ while not glfw.window_should_close(window):
             GL.glUniform1i(u_render_mode, 0)
 
             with ms.push_matrix(ms.MatrixStack.model):
-                ms.multiply(ms.MatrixStack.model, np.matrix(shadow_matrix))
+                ms.multiply(ms.MatrixStack.model, np.array(shadow_matrix))
                 draw_inhabitants(yrot)
 
             GL.glEnable(GL.GL_CULL_FACE)

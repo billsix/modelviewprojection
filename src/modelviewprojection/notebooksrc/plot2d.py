@@ -53,10 +53,10 @@ from modelviewprojection.mathutils import (
     compose_intermediate_fns,
     identity,
     inverse,
+    rotate,
+    scale_non_uniform,
+    translate,
 )
-from modelviewprojection.mathutils import rotate as R
-from modelviewprojection.mathutils import scale_non_uniform as S
-from modelviewprojection.mathutils import translate as T
 from modelviewprojection.util.nbplotutils import (
     create_basis,
     create_graphs,
@@ -69,31 +69,35 @@ from modelviewprojection.util.nbplotutils import (
 )
 
 # %%
-T(Vector1(5))
+translate(b=5 * Vector1.e_1)
 
 # %%
-S(5, 6)
+scale_non_uniform(5, 6)
 
 # %%
-inverse(T(Vector1(5)))
+inverse(translate(b=5 * Vector1.e_1))
 
 # %%
-T(Vector2(5, 6))
+translate(b=5 * Vector2.e_1 + 6 * Vector2.e_2)
 
 # %%
-T(Vector3(5, 6, 7))
+translate(b=5 * Vector3.e_1 + 6 * Vector3.e_2 + 7 * Vector3.e_3)
 
 # %%
-inverse(T(Vector3(5, 6, 7)))
+inverse(translate(b=5 * Vector3.e_1 + 6 * Vector3.e_2 + 7 * Vector3.e_3))
 
 # %%
-R(sympy.pi / 2)
+rotate(sympy.pi / 2)
 
 # %%
-compose([R(sympy.pi / 2), T(Vector2(5, 6))])
+compose([rotate(sympy.pi / 2), translate(b=5 * Vector2.e_1 + 6 * Vector2.e_2)])
 
 # %%
-inverse(compose([R(sympy.pi / 2), T(Vector2(5, 6))]))
+inverse(
+    compose(
+        [rotate(sympy.pi / 2), translate(b=5 * Vector2.e_1 + 6 * Vector2.e_2)]
+    )
+)
 
 # %% [markdown]
 # Draw graph paper
@@ -106,7 +110,7 @@ inverse(compose([R(sympy.pi / 2), T(Vector2(5, 6))]))
 #
 
 # %%
-fn = R(math.radians(53.130102))
+fn = rotate(math.radians(53.130102))
 with create_graphs(graph_bounds=(5, 5)) as axes:
     create_basis(fn=fn)
     create_x_and_y(fn=fn)
@@ -124,10 +128,10 @@ with create_graphs(graph_bounds=(5, 5)) as axes:
 # graph papers.
 
 # %%
-fn = R(math.radians(53.130102))
+fn = rotate(math.radians(53.130102))
 with create_graphs(graph_bounds=(5, 5)) as axes:
-    create_basis(fn=R(0.0))
-    create_x_and_y(fn=R(0.0))
+    create_basis(fn=rotate(0.0))
+    create_x_and_y(fn=rotate(0.0))
     create_basis(
         fn=fn,
         xcolor=(0, 1, 0),
@@ -152,10 +156,10 @@ with create_graphs(graph_bounds=(5, 5)) as axes:
 # graph papers.
 
 # %%
-fn = R(math.radians(53.130102))
+fn = rotate(math.radians(53.130102))
 with create_graphs(graph_bounds=(5, 5)) as axes:
-    create_basis(fn=R(0.0))
-    create_x_and_y(fn=R(0.0))
+    create_basis(fn=rotate(0.0))
+    create_x_and_y(fn=rotate(0.0))
     create_basis(
         fn=fn,
         xcolor=(0, 1, 0),
@@ -183,8 +187,8 @@ with create_graphs(graph_bounds=(5, 5)) as axes:
 # %%
 fn = compose(
     [
-        R(sympy.pi / 4),
-        T(Vector2(2.0, 0.0)),
+        rotate(sympy.pi / 4),
+        translate(b=2.0 * Vector2.e_1),
     ]
 )
 with create_graphs() as axes:
@@ -204,9 +208,11 @@ with create_graphs() as axes:
 # units on the left and bottom.
 
 # %%
-for f in compose_intermediate_fns([R(sympy.pi / 4), T(Vector2(2.0, 0.0))]):
-    # TODO - figure out if I can render the latex as part of one markdown command,
-    # if I were to uncomment out this line and other markdown lines,
+for f in compose_intermediate_fns(
+    [rotate(sympy.pi / 4), translate(b=2.0 * Vector2.e_1)]
+):
+    # TODO - figure out if I can render the latex as part of one markdown
+    # command, if I were to uncomment out this line and other markdown lines,
     # the build of HTML would fail
 
     with create_graphs() as axes:
@@ -230,8 +236,8 @@ for f in compose_intermediate_fns([R(sympy.pi / 4), T(Vector2(2.0, 0.0))]):
 # %%
 for f in compose_intermediate_fns(
     [
-        R(sympy.pi / 4),
-        T(Vector2(1.0, 0.0)),
+        rotate(sympy.pi / 4),
+        translate(b=1.0 * Vector2.e_1),
     ],
     relative_basis=True,
 ):
@@ -247,10 +253,10 @@ screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
-        T(Vector2(-0.5, -0.5)),
-        S(screen_width, screen_height),
-        S(0.5, 0.5),
-        T(Vector2(1.0, 1.0)),
+        translate(b=-0.5 * Vector2.e_1 - 0.5 * Vector2.e_2),
+        scale_non_uniform(screen_width, screen_height),
+        scale_non_uniform(0.5, 0.5),
+        translate(b=1.0 * Vector2.e_1 + 1.0 * Vector2.e_2),
     ],
     relative_basis=False,
 ):
@@ -268,10 +274,10 @@ screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
-        T(Vector2(-0.5, -0.5)),
-        S(screen_width, screen_height),
-        S(0.5, 0.5),
-        T(Vector2(1.0, 1.0)),
+        translate(b=-0.5 * Vector2.e_1 - 0.5 * Vector2.e_2),
+        scale_non_uniform(screen_width, screen_height),
+        scale_non_uniform(0.5, 0.5),
+        translate(b=1.0 * Vector2.e_1 + 1.0 * Vector2.e_2),
     ],
     relative_basis=True,
 ):

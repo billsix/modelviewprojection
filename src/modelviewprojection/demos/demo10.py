@@ -168,16 +168,16 @@ while not glfw.window_should_close(window):
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         ms_to_ws: InvertibleFunction[Vector2] = compose(
-            [translate(paddle1.position), rotate(paddle1.rotation)]
+            [translate(b=paddle1.position), rotate(paddle1.rotation)]
         )
         paddle1_vector_ws: Vector2 = ms_to_ws(p1_v_ms)
 
         ws_to_cs: InvertibleFunction[Vector2] = inverse(
-            translate(camera.position_ws)
+            translate(b=camera.position_ws)
         )
         paddle1_vector_cs: Vector2 = ws_to_cs(paddle1_vector_ws)
 
-        cs_to_ndc: InvertibleFunction[Vector2] = uniform_scale(1.0 / 10.0)
+        cs_to_ndc: InvertibleFunction[Vector2] = uniform_scale(m=1.0 / 10.0)
         paddle1_vector_ndc: Vector2 = cs_to_ndc(paddle1_vector_cs)
 
         GL.glVertex2f(*paddle1_vector_ndc)
@@ -192,13 +192,13 @@ while not glfw.window_should_close(window):
         ms_to_ndc: InvertibleFunction[Vector2] = compose(
             [
                 # camera space to NDC
-                uniform_scale(1.0 / 10.0),
+                uniform_scale(m=1.0 / 10.0),
                 # world space to camera space
-                inverse(translate(camera.position_ws)),
+                inverse(translate(b=camera.position_ws)),
                 # model space to world space
                 compose(
                     [
-                        translate(paddle2.position),
+                        translate(b=paddle2.position),
                         rotate(paddle2.rotation),
                     ]
                 ),

@@ -108,3 +108,42 @@ The book builds in a podman container:
 make image     # build the container (Sphinx + TeX Live)
 make html      # build the book (HTML/PDF/EPUB land under output/)
 ```
+
+Contributing
+------------
+Run the gate before sending a change:
+
+```sh
+make format    # ruff check --fix, ruff format, and ty over src/tests/ports
+make test      # or: python -m pytest -q   (doctests in the library run too)
+```
+
+Most of PEP 8 is enforced mechanically by `ruff` (see `[tool.ruff]` in
+`pyproject.toml`), so a green `make format` settles layout, imports, naming
+(`pep8-naming`), and modern-union syntax. Two things about that config are worth
+knowing before you fight it:
+
+* **`line-length = 80`**, governing the formatter *and* `E501`. The book is built
+  as a PDF, where wider lines wrap badly or run off the page.
+* **Every `per-file-ignores` entry carries its reason inline.** Read it before
+  "fixing" a name ruff flagged somewhere else. The main one is `wxapp*.py`, which
+  keeps wxPython's `OnPaint`/`InitGL`/`OnDraw` because wx looks up those exact names.
+  Python naming otherwise wins over mathematical shorthand, including in the demos:
+  the chapters' Cayley-graph edges are labelled `\vec{R}`/`\vec{T}`/`\vec{S}`, but
+  the code says `rotate()`/`translate()`/`uniform_scale()`, with a comment above each
+  demo's imports mapping the diagram onto the source.
+
+The judgment calls ruff can't check — annotation policy, function shape, when to
+inline a single-use value, and the OpenGL-specific conventions (row-major matrices
+with the transpose at the `glUniformMatrix4fv` boundary, CCW winding, the pinned
+GL-import order, the `-1` "uniform not present" sentinel) — live in **`CLAUDE.md` ›
+"Coding standard (Python)"**, which is the canonical source.
+
+Two repo-specific things that surprise newcomers:
+
+* **`doc-region-begin` / `doc-region-end` comments are part of the build.** The book
+  excerpts code between them; a refactor that moves code must move its markers.
+* **Duplication across `demos/` is often deliberate.** The course teaches a concept
+  in one chapter and only then shares it; `util/clipping.py`, `util/windowing.py` and
+  `util/cameracontrols.py` document their own cases. Don't DRY the near-identical
+  `Paddle`/`Camera` classes without reading those notes.

@@ -128,10 +128,10 @@ fake_fb.show_framebuffer()
 # %%
 ndc_to_screen: InvertibleFunction[Vector2] = compose(
     [
-        translate(-0.5 * e_1 + -0.5 * e_2),
+        translate(b=-0.5 * e_1 + -0.5 * e_2),
         scale_non_uniform(fake_fb.width, fake_fb.height),
         scale_non_uniform(0.5, 0.5),
-        translate(e_1 + e_2),
+        translate(b=e_1 + e_2),
     ]
 )
 
@@ -144,7 +144,7 @@ ndc_to_screen: InvertibleFunction[Vector2] = compose(
 # %%
 # Example: draw a white triangle
 
-triangle_in_NDC: list[Vector2] = [
+triangle_in_ndc: list[Vector2] = [
     zero,
     0.2 * e_1,
     0.2 * e_1 + 0.2 * e_2,
@@ -157,7 +157,7 @@ triangle_in_NDC: list[Vector2] = [
 # For each vector, apply the function
 
 # %%
-triangle_in_screen: list[Vector2] = [ndc_to_screen(x) for x in triangle_in_NDC]
+triangle_in_screen: list[Vector2] = [ndc_to_screen(x) for x in triangle_in_ndc]
 print(triangle_in_screen)
 
 # %%
@@ -180,10 +180,10 @@ fake_fb.show_framebuffer()
 # result and convert it from NDC to screenspace
 
 # %%
-move = translate(0.5 * e_2)
+move = translate(b=0.5 * e_2)
 
 triangle_in_screen = [
-    compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
+    compose([ndc_to_screen, move])(x) for x in triangle_in_ndc
 ]
 print(triangle_in_screen)
 
@@ -201,11 +201,11 @@ sixty_fps_times_2_sec = 120
 for i in range(sixty_fps_times_2_sec):
     fake_fb.clear_framebuffer()
     move: InvertibleFunction[Vector2] = translate(
-        0.5 * (np.sin(np.pi / 60.0 * float(i))) * e_2
+        b=0.5 * (np.sin(np.pi / 60.0 * float(i))) * e_2
     )
 
     triangle_in_screen = [
-        compose([ndc_to_screen, move])(x) for x in triangle_in_NDC
+        compose([ndc_to_screen, move])(x) for x in triangle_in_ndc
     ]
     fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
 

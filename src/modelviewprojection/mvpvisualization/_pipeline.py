@@ -1,7 +1,8 @@
 """Shared helpers for the MVP visualizations.
 
 The visualizations live alongside this module in
-``modelviewprojection.mvpvisualization`` (the package), so each imports it with a
+``modelviewprojection.mvpvisualization`` (the package), so each imports it with
+a
 plain absolute import::
 
     from modelviewprojection.mvpvisualization import _pipeline as _p
@@ -37,6 +38,7 @@ import ctypes
 import math
 import os
 import sys
+import typing
 from dataclasses import dataclass
 from typing import Optional
 
@@ -47,12 +49,32 @@ import OpenGL.GL.shaders as shaders
 from imgui_bundle import imgui, imgui_md
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 from numpy import ndarray
+from OpenGL.constant import Constant
 
 import modelviewprojection.pyMatrixStack as ms
 
+if typing.TYPE_CHECKING:
+    # glfw types window handles as `_GLFWwindowPointerT`: private, absent at
+    # runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
+
+    GLFWWindow = _GLFWwindowPointerT
+
+
 glfloat_size: int = 4
-floatsPerVertex: int = 3
-floatsPerColor: int = 3
+floats_per_vertex: int = 3
+floats_per_color: int = 3
+
+
+#: A value OpenGL accepts where it wants an enum or bitfield.
+#:
+#: PyOpenGL's constants (``GL.GL_STATIC_DRAW`` and friends) subclass ``int`` at
+#: runtime, but the type checker resolves them to ``OpenGL.constant.Constant``,
+#: so a parameter annotated plain ``int`` rejects a GL constant as its default.
+#: Annotating with this union accepts both a GL constant and a bare int, which
+#: is what these APIs really take -- and it replaces the ``# ty: ignore`` that
+#: used to be copy-pasted onto every such signature (_pipeline, demo21, demo22).
+GLenum = int | Constant
 
 
 # ---------------------------------------------------------------------------
@@ -89,7 +111,11 @@ def init_fonts_and_markdown() -> None:
     font_loader()
 
 
-def setup_window(title: str, width: int = 1920, height: int = 1080):
+def setup_window(
+    title: str,
+    width: int = 1920,
+    height: int = 1080,
+) -> tuple["GLFWWindow", GlfwRenderer, imgui.IO]:
     """Initialize GLFW + a 3.3-core context + ImGui.  Returns
     ``(window, impl, imguiio)``.  Sets the standard background colour and
     enables depth testing."""
@@ -134,22 +160,32 @@ def setup_window(title: str, width: int = 1920, height: int = 1080):
     return window, impl, imguiio
 
 
-def install_esc_close(window) -> None:
+def install_esc_close(window: "GLFWWindow") -> None:
     """Standard Escape-closes-window key handler."""
 
-    def on_key(win, key, scancode, action, mods):
+    def on_key(
+        win: "GLFWWindow",
+        key: int,
+        scancode: int,
+        action: int,
+        mods: int,
+    ) -> None:
         if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
             glfw.set_window_should_close(win, 1)
 
     glfw.set_key_callback(window, on_key)
 
 
-def install_camera_scroll(window, imguiio, camera) -> None:
+def install_camera_scroll(
+    window: "GLFWWindow",
+    imguiio: imgui.IO,
+    camera: "Camera",
+) -> None:
     """Standard mouse-wheel-zooms-camera scroll callback.  Chains with any
     pre-existing scroll callback.  Skip this in 2D demos with no zoom."""
     prev_cb = [glfw.set_scroll_callback(window, None)]
 
-    def scroll_cb(win, x_offset, y_offset):
+    def scroll_cb(win: "GLFWWindow", x_offset: float, y_offset: float) -> None:
         if prev_cb[0] is not None:
             prev_cb[0](win, x_offset, y_offset)
         if not imguiio.want_capture_mouse:
@@ -182,7 +218,8 @@ def compile_program(
     """Compile a vert+frag (and optional geom) program from shader files in
     ``shader_dir`` -- the calling demo's own directory
     (``os.path.dirname(os.path.abspath(__file__))``), so each demo loads its
-    shaders relative to itself.  The resulting program is registered for cleanup.
+    shaders relative to itself.  The resulting program is registered for
+    cleanup.
 
     ``project`` names a ``project_*.glsl`` snippet whose source is appended to
     the vertex shader before compiling -- this supplies the body of the
@@ -255,7 +292,8 @@ def build_pipeline(
     geom: Optional[str] = None,
     project: str = "project_identity.glsl",
 ) -> "Pipeline":
-    """Compile ``vert`` + ``frag`` (+ optional ``geom``) from ``shader_dir`` (the
+    """Compile ``vert`` + ``frag`` (+ optional ``geom``) from ``shader_dir``
+    (the
     calling demo's own directory) and cache its ``mMatrix`` / ``vMatrix`` /
     ``pMatrix`` uniforms and
     ``position`` attribute.  ``project`` selects the appended ``project_*.glsl``
@@ -328,7 +366,7 @@ class AttribSpec:
     layout: tuple[int, int]
 
 
-def make_vbo(data: ndarray, usage: int = GL.GL_STATIC_DRAW) -> int:  # ty: ignore[invalid-parameter-default]
+def make_vbo(data: ndarray, usage: GLenum = GL.GL_STATIC_DRAW) -> int:
     """Allocate a VBO and upload ``data`` (any ndarray, must be
     contiguous float32 -- the helper coerces).  Touches no VAO state.
     The handle is registered into ``all_vbos`` for cleanup."""
@@ -382,7 +420,7 @@ def make_triangle_vao(
     ``attr_*`` parameters are the shader's attribute indices, which differ
     per program."""
     vertices = np.ascontiguousarray(vertices, dtype=np.float32).flatten()
-    n_verts = vertices.size // floatsPerVertex
+    n_verts = vertices.size // floats_per_vertex
     colors = np.tile(np.array([r, g, b], dtype=np.float32), n_verts)
 
     pos_vbo = make_vbo(vertices)
@@ -392,13 +430,13 @@ def make_triangle_vao(
             AttribSpec(
                 vbo=pos_vbo,
                 location=attr_position,
-                size=floatsPerVertex,
+                size=floats_per_vertex,
                 layout=(0, 0),
             ),
             AttribSpec(
                 vbo=color_vbo,
                 location=attr_color,
-                size=floatsPerColor,
+                size=floats_per_color,
                 layout=(0, 0),
             ),
         ]
@@ -410,14 +448,14 @@ def make_lines_vao(vertices: ndarray, attr_position: int) -> tuple[int, int]:
     """Position-only VAO for the lines pipelines (ground/axis/cube/frustum).
     Returns (vao, vertex_count)."""
     vertices = np.ascontiguousarray(vertices, dtype=np.float32).flatten()
-    n_verts = vertices.size // floatsPerVertex
+    n_verts = vertices.size // floats_per_vertex
     vbo = make_vbo(vertices)
     vao = make_vao(
         [
             AttribSpec(
                 vbo=vbo,
                 location=attr_position,
-                size=floatsPerVertex,
+                size=floats_per_vertex,
                 layout=(0, 0),
             ),
         ]

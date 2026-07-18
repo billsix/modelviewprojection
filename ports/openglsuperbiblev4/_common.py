@@ -56,17 +56,17 @@ from __future__ import annotations
 import math
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
-from typing import List, Optional, Tuple
+from typing import Optional
 
 import glfw
 import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-WINDOW_DEFAULT: Tuple[int, int] = (1920, 1080)
+WINDOW_DEFAULT: tuple[int, int] = (1920, 1080)
 
 
-def resolve_default_window_size() -> Tuple[int, int]:
+def resolve_default_window_size() -> tuple[int, int]:
     """Pick an initial window size: 1920x1080 if the primary monitor
     fits it, otherwise 90% of the monitor's video mode."""
     monitor = glfw.get_primary_monitor()
@@ -221,7 +221,7 @@ class SceneObject:
     objects keep being tracked while focused."""
 
     name: str
-    position: Callable[[], Tuple[float, float, float]]
+    position: Callable[[], tuple[float, float, float]]
 
 
 @dataclass
@@ -244,7 +244,7 @@ class Camera:
     demo's world units; pick something sensible for your scene scale.
     """
 
-    position: List[float] = field(default_factory=lambda: [0.0, 0.0, 10.0])
+    position: list[float] = field(default_factory=lambda: [0.0, 0.0, 10.0])
     rot_y: float = 0.0
     rot_x: float = 0.0
     focus_index: int = -1
@@ -255,7 +255,7 @@ class Camera:
     mouse_look_speed: float = 0.005
     scroll_speed: float = 1.0
 
-    _prev_mouse: Optional[Tuple[float, float]] = None
+    _prev_mouse: Optional[tuple[float, float]] = None
     _scroll_accum: float = 0.0
 
 

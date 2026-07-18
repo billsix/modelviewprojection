@@ -28,14 +28,25 @@ import typing
 
 # IMPORT ORDER MATTERS: glfw + OpenGL.GL MUST import before imgui_bundle (its
 # own GL loader must come second, or PyOpenGL's context tracking fails at window
-# setup).  Demos must get imgui via `cayley_gl.imgui`, not import imgui_bundle first.
+# setup).  Demos must get imgui via `cayley_gl.imgui`, not import imgui_bundle
+# first.
 import glfw
 import numpy as np
 import OpenGL.GL as GL
 from imgui_bundle import imgui, imgui_ctx  # noqa: F401  (re-exported for demos)
 
 import modelviewprojection.pyMatrixStack as ms
+from modelviewprojection.cayley import cayleyscene
 from modelviewprojection.mvpvisualization import _pipeline as _p
+
+if typing.TYPE_CHECKING:
+    # glfw's stubs type every window parameter as `_GLFWwindowPointerT`.  The
+    # leading underscore marks it private and it does not exist at runtime, so
+    # alias it once, under TYPE_CHECKING, instead of repeating a private import.
+    from glfw import _GLFWwindowPointerT
+    from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+
+    GLFWWindow = _GLFWwindowPointerT
 
 # The paddle/square + axis squash shaders use these fixed pipeline values (the
 # frustum outline uses the real frustum aspect instead).
@@ -56,7 +67,8 @@ class Frustum:
 
 @dataclasses.dataclass
 class RectangularPrism:
-    """An ORTHOGRAPHIC view volume -- a box (front == back == ±half_size).  Not a
+    """An ORTHOGRAPHIC view volume -- a box (front == back == ±half_size).  Not
+    a
     frustum: ortho has no perspective foreshortening, so the cross section is
     constant.  See :func:`rectangular_prism_lines`."""
 
@@ -70,7 +82,7 @@ class RectangularPrism:
 # ---------------------------------------------------------------------------
 
 
-def setup(title: str):
+def setup(title: str) -> tuple["GLFWWindow", "GlfwRenderer", imgui.IO]:
     """Open a window + ImGui; returns ``(window, impl, imguiio)``."""
     window, impl, imguiio = _p.setup_window(title)
     _p.install_esc_close(window)
@@ -81,15 +93,26 @@ _DEFAULT_ROT_Y = math.radians(45.0)
 _DEFAULT_ROT_X = math.radians(35.264)
 
 
-def make_camera(r=25.0, rot_y=_DEFAULT_ROT_Y, rot_x=_DEFAULT_ROT_X):
+def make_camera(
+    r: float = 25.0,
+    rot_y: float = _DEFAULT_ROT_Y,
+    rot_x: float = _DEFAULT_ROT_X,
+) -> _p.Camera:
     return _p.Camera(r=r, rot_y=rot_y, rot_x=rot_x)
 
 
-def install_scroll(window, imguiio, camera):
+def install_scroll(
+    window: "GLFWWindow", imguiio: imgui.IO, camera: _p.Camera
+) -> None:
     _p.install_camera_scroll(window, imguiio, camera)
 
 
-def orbit_input(window, imguiio, camera, prev_mouse):
+def orbit_input(
+    window: "GLFWWindow",
+    imguiio: imgui.IO,
+    camera: _p.Camera,
+    prev_mouse: tuple[float, float] | None,
+) -> tuple[float, float] | None:
     """Arrow keys + left-drag orbit the camera.  Returns the new mouse pos (or
     None when the button is up).  Pure input mechanism."""
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
@@ -111,7 +134,7 @@ def orbit_input(window, imguiio, camera, prev_mouse):
     return new
 
 
-def setup_orbit_view(camera, w, h):
+def setup_orbit_view(camera: _p.Camera, w: int, h: int) -> None:
     """Reset the matrices and set a perspective projection + 3rd-person orbit
     view.  The demo may add a centering translate afterwards if it wants."""
     ms.set_to_identity_matrix(ms.MatrixStack.model)
@@ -128,12 +151,15 @@ def setup_orbit_view(camera, w, h):
     ms.rotate_y(ms.MatrixStack.view, -camera.rot_y)
 
 
-def setup_ortho_2d_view(w, h, half_extent, depth=100.0):
+def setup_ortho_2d_view(
+    w: int, h: int, half_extent: float, depth: float = 100.0
+) -> None:
     """Flat 2D ORTHOGRAPHIC view, square-letterboxed -- NO orbit/rotation (the
     scene is 2D, viewed head-on down -z; modelview2d).  ``half_extent`` is the
     ortho half-width (e.g. 15 for the whole scene, 1 to zoom to NDC).  ``depth``
     is a fixed view z-push so the z~=0 scene sits inside [near, far].  The
-    viewport is letterboxed to a centered square so the scene keeps its aspect."""
+    viewport is letterboxed to a centered square so the scene keeps its
+    aspect."""
     m = min(w, h)
     GL.glViewport(int((w - m) / 2.0), int((h - m) / 2.0), m, m)
     ms.set_to_identity_matrix(ms.MatrixStack.model)
@@ -155,28 +181,44 @@ def setup_ortho_2d_view(w, h, half_extent, depth=100.0):
 # ---------------------------------------------------------------------------
 
 
+#: A GL object name -- a VAO, VBO, texture, or program.  OpenGL hands these back
+#: as plain ints; the alias records *which kind* of int a field holds, which the
+#: bare `int` did not.
+GLHandle = int
+#: How many vertices to draw for a mesh (the count passed to glDrawArrays).
+VertexCount = int
+#: A drawable mesh: the VAO to bind and how many vertices to draw.  Was written
+#: out as `typing.Tuple[int, int]` at every use.
+Mesh = tuple[GLHandle, VertexCount]
+#: A mesh whose vertex data is re-uploaded at runtime, so its VBO is kept too.
+#: Was `typing.Optional[typing.Tuple[int, int, int]]` with a `# vao,n,vbo`
+#: comment doing the work this name now does.
+MutableMesh = tuple[GLHandle, VertexCount, GLHandle]
+
+
 @dataclasses.dataclass
 class StandardObjects:
     """The standard pipelines + meshes for a Cayley demo, plus draw helpers.
     Each ``draw_*`` reads the current model matrix (set by the caller via
     ``ms.set_current_matrix(ms.MatrixStack.model, ...)``)."""
 
-    triangle_pipeline: typing.Any
-    ground_pipeline: typing.Any
-    axis_pipeline: typing.Any
-    cube_pipeline: typing.Any
-    meshes: typing.Dict[str, typing.Tuple[int, int]]
-    ground: typing.Tuple[int, int]
-    axis: typing.Tuple[int, int]
-    sphere: typing.Tuple[int, int]
-    cube: typing.Tuple[int, int]
-    #: at most one view volume per demo: a perspective frustum OR an ortho prism.
+    triangle_pipeline: _p.Pipeline
+    ground_pipeline: _p.Pipeline
+    axis_pipeline: _p.Pipeline
+    cube_pipeline: _p.Pipeline
+    meshes: dict[str, Mesh]
+    ground: Mesh
+    axis: Mesh
+    sphere: Mesh
+    cube: Mesh
+    #: at most one view volume per demo: a perspective frustum OR an ortho
+    #: prism.
     frustum: typing.Optional[Frustum] = None
     rect_prism: typing.Optional[RectangularPrism] = None
-    volume_pipeline: typing.Any = None
-    volume_geo: typing.Optional[typing.Tuple[int, int, int]] = None  # vao,n,vbo
+    volume_pipeline: _p.Pipeline | None = None
+    volume_geo: MutableMesh | None = None
 
-    def _anim(self, p, time=None):
+    def _anim(self, p: _p.Pipeline, time: float | None = None) -> None:
         if p.u_fov != -1:  # perspective squash reads fov/aspect/near/far
             GL.glUniform1f(p.u_fov, PIPELINE_FOV)
             GL.glUniform1f(p.u_aspect, PIPELINE_ASPECT)
@@ -187,13 +229,13 @@ class StandardObjects:
                 GL.glUniform1f(p.u_near, volume.near_z)
                 GL.glUniform1f(p.u_far, volume.far_z)
         # u_time is INDEPENDENT of u_fov: the ortho / modelview2d squash shaders
-        # use only `time` (their fov/near/far are optimized out, so u_fov == -1).
-        # Gating time on u_fov used to silently disable those squashes.  Axes
-        # pass time=None so they hold at 0 and never squash.
+        # use only `time` (their fov/near/far are optimized out, so u_fov ==
+        # -1). Gating time on u_fov used to silently disable those squashes.
+        # Axes pass time=None so they hold at 0 and never squash.
         if time is not None and p.u_time != -1:
             GL.glUniform1f(p.u_time, time)
 
-    def draw_mesh(self, name, time=0.0):
+    def draw_mesh(self, name: str, time: float = 0.0) -> None:
         vao, n = self.meshes[name]
         GL.glUseProgram(self.triangle_pipeline.program)
         GL.glBindVertexArray(vao)
@@ -205,7 +247,7 @@ class StandardObjects:
         self._anim(self.triangle_pipeline, time)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, n)
 
-    def draw_ground(self):
+    def draw_ground(self) -> None:
         vao, n = self.ground
         GL.glUseProgram(self.ground_pipeline.program)
         GL.glBindVertexArray(vao)
@@ -217,7 +259,7 @@ class StandardObjects:
         )
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, n)
 
-    def _emit_axis(self, r, g, b, grayed):
+    def _emit_axis(self, r: float, g: float, b: float, grayed: bool) -> None:
         GL.glUniform3f(
             self.axis_pipeline.u_color,
             *((0.5, 0.5, 0.5) if grayed else (r, g, b)),
@@ -230,7 +272,7 @@ class StandardObjects:
         self._anim(self.axis_pipeline)  # no time -> axes never squash
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.axis[1])
 
-    def draw_axis(self, grayed=False):
+    def draw_axis(self, grayed: bool = False) -> None:
         GL.glUseProgram(self.axis_pipeline.program)
         GL.glBindVertexArray(self.axis[0])
         with ms.push_matrix(ms.MatrixStack.model):
@@ -255,7 +297,7 @@ class StandardObjects:
             self._anim(self.axis_pipeline)
             GL.glDrawArrays(GL.GL_TRIANGLES, 0, self.sphere[1])
 
-    def draw_cube(self):
+    def draw_cube(self) -> None:
         vao, n = self.cube
         GL.glUseProgram(self.cube_pipeline.program)
         GL.glBindVertexArray(vao)
@@ -267,7 +309,9 @@ class StandardObjects:
         )
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, n)
 
-    def _draw_volume(self, p, time, thickness, w, h):
+    def _draw_volume(
+        self, p: _p.Pipeline, time: float, thickness: float, w: int, h: int
+    ) -> None:
         assert self.volume_geo is not None
         vao, n, _vbo = self.volume_geo
         GL.glUseProgram(p.program)
@@ -279,33 +323,42 @@ class StandardObjects:
         GL.glUniform2f(p.u_viewport, w, h)
         GL.glDrawArrays(GL.GL_LINES, 0, n)
 
-    def draw_frustum(self, time, thickness, w, h):
-        """Draw the PERSPECTIVE frustum outline (uses its fov/aspect/near/far)."""
+    def draw_frustum(
+        self, time: float, thickness: float, w: int, h: int
+    ) -> None:
+        """Draw the PERSPECTIVE frustum outline (uses its
+        fov/aspect/near/far)."""
+        assert self.volume_pipeline is not None
+        assert self.frustum is not None
         p = self.volume_pipeline
         GL.glUseProgram(p.program)
-        assert self.frustum is not None
         GL.glUniform1f(p.u_fov, self.frustum.field_of_view)
         GL.glUniform1f(p.u_aspect, self.frustum.aspect_ratio)
         GL.glUniform1f(p.u_near, self.frustum.near_z)
         GL.glUniform1f(p.u_far, self.frustum.far_z)
         self._draw_volume(p, time, thickness, w, h)
 
-    def draw_rect_prism(self, time, thickness, w, h):
+    def draw_rect_prism(
+        self, time: float, thickness: float, w: int, h: int
+    ) -> None:
         """Draw the ORTHOGRAPHIC box outline.  The ortho squash shaders ignore
         fov/aspect, so only near/far/time matter (fov/aspect set to pipeline
-        defaults to keep the geometry shader's screenspace math well-defined)."""
+        defaults to keep the geometry shader's screenspace math
+        well-defined)."""
+        assert self.volume_pipeline is not None
+        assert self.rect_prism is not None
         p = self.volume_pipeline
         GL.glUseProgram(p.program)
         GL.glUniform1f(p.u_fov, PIPELINE_FOV)
         GL.glUniform1f(p.u_aspect, PIPELINE_ASPECT)
-        assert self.rect_prism is not None
         GL.glUniform1f(p.u_near, self.rect_prism.near_z)
         GL.glUniform1f(p.u_far, self.rect_prism.far_z)
         self._draw_volume(p, time, thickness, w, h)
 
-    def rebuild_frustum(self):
+    def rebuild_frustum(self) -> None:
         """Re-upload the perspective frustum edges after its FOV/aspect/near/far
-        changed (the ortho prism has no sliders, so it never needs a rebuild)."""
+        changed (the ortho prism has no sliders, so it never needs a
+        rebuild)."""
         assert self.frustum is not None
         assert self.volume_geo is not None
         verts = frustum_lines(self.frustum)
@@ -321,11 +374,11 @@ class StandardObjects:
 
 
 def build_standard(
-    shader_dir,
-    animated=False,
-    project="project_identity.glsl",
-    frustum=None,
-    rect_prism=None,
+    shader_dir: str,
+    animated: bool = False,
+    project: str = "project_identity.glsl",
+    frustum: Frustum | None = None,
+    rect_prism: RectangularPrism | None = None,
 ) -> StandardObjects:
     """Build the standard pipelines + meshes, plus an optional view volume --
     either a perspective ``frustum`` or an orthographic ``rect_prism`` (a demo
@@ -426,13 +479,13 @@ def build_standard(
         else:
             assert rect_prism is not None
             verts = rectangular_prism_lines(rect_prism)
-        vbo = _p.make_vbo(verts, usage=GL.GL_DYNAMIC_DRAW)  # ty: ignore[invalid-argument-type]
+        vbo = _p.make_vbo(verts, usage=GL.GL_DYNAMIC_DRAW)
         vao = _p.make_vao(
             [
                 _p.AttribSpec(
                     vbo=vbo,
                     location=vp.attr_position,
-                    size=_p.floatsPerVertex,
+                    size=_p.floats_per_vertex,
                     layout=(0, 0),
                 )
             ]
@@ -440,7 +493,7 @@ def build_standard(
         standard_objects.volume_pipeline = vp
         standard_objects.volume_geo = (
             vao,
-            verts.size // _p.floatsPerVertex,
+            verts.size // _p.floats_per_vertex,
             vbo,
         )
     return standard_objects
@@ -451,7 +504,9 @@ def build_standard(
 # ---------------------------------------------------------------------------
 
 
-def gui_button(button, on_jump) -> None:
+def gui_button(
+    button: cayleyscene.GuiButton, on_jump: typing.Callable[[float], None]
+) -> None:
     """A highlighted (when active) jump-button for a timeline substep."""
     if button.active:
         imgui.push_style_color(imgui.Col_.button.value, (0.6, 0.2, 0.2, 1.0))
@@ -464,10 +519,13 @@ def gui_button(button, on_jump) -> None:
         on_jump(button.start)
 
 
-def render_tree(group, on_jump) -> None:
+def render_tree(
+    group: cayleyscene.GuiGroup, on_jump: typing.Callable[[float], None]
+) -> None:
     """Render a :class:`cayleyscene.GuiGroup` as a nested tree of jump-buttons,
     with `` o `` (the compose operator) between successive buttons so the row
-    reads as function composition, e.g. ``[T] o [R_z]``.  ``on_jump(start_time)``
+    reads as function composition, e.g. ``[T] o [R_z]``.
+    ``on_jump(start_time)``
     is called when a button is clicked."""
     imgui.set_next_item_open(True, imgui.Cond_.once)
     if imgui.tree_node(group.title):
@@ -505,7 +563,13 @@ class WindowState:
     saved_h: int = 0
 
 
-def menu_action(label, key, action, *, selected=False) -> None:
+def menu_action(
+    label: str,
+    key: str,
+    action: typing.Callable[[], None],
+    *,
+    selected: bool = False,
+) -> None:
     """A menubar item that also shows its keyboard shortcut (``key``, in the
     right-hand column) and an optional check mark (``selected``).  Runs
     ``action()`` once on click.  Call inside a ``begin_menu`` block."""
@@ -514,7 +578,7 @@ def menu_action(label, key, action, *, selected=False) -> None:
         action()
 
 
-def toggle_fullscreen(window, state: WindowState) -> None:
+def toggle_fullscreen(window: "GLFWWindow", state: WindowState) -> None:
     """Flip between windowed and exclusive fullscreen on the primary monitor,
     saving/restoring the windowed geometry (mirrors the SuperBible ports)."""
     if state.fullscreen:
@@ -547,9 +611,12 @@ def toggle_fullscreen(window, state: WindowState) -> None:
         state.fullscreen = True
 
 
-def common_key(window, state: WindowState, key, action) -> None:
+def common_key(
+    window: "GLFWWindow", state: WindowState, key: int, action: int
+) -> None:
     """Handle the keys every demo shares: Esc quits, F11 toggles fullscreen.
-    Call first from the demo's GLFW key callback, then add demo-specific keys."""
+    Call first from the demo's GLFW key callback, then add demo-specific
+    keys."""
     if action != glfw.PRESS:
         return
     if key == glfw.KEY_ESCAPE:
@@ -564,7 +631,12 @@ def common_key(window, state: WindowState, key, action) -> None:
 
 
 def run_loop(
-    window, impl, frame, menubar=None, on_key=None, target_framerate=60
+    window: "GLFWWindow",
+    impl: "GlfwRenderer",
+    frame: typing.Callable[[int, int], None],
+    menubar: typing.Callable[[], None] | None = None,
+    on_key: typing.Callable[..., None] | None = None,
+    target_framerate: int = 60,
 ) -> None:
     """Drive the GL/ImGui loop.  ``menubar()`` (if given) draws the demo's main
     menu bar each frame; ``frame(w, h)`` draws the scene + any floating panels.
@@ -594,7 +666,18 @@ def run_loop(
     glfw.terminate()
 
 
-def _volume_edges(n, fa, fl, frr, ftt, fb, bl, brr, btt, bb) -> np.ndarray:
+def _volume_edges(
+    n: float,
+    fa: float,
+    fl: float,
+    frr: float,
+    ftt: float,
+    fb: float,
+    bl: float,
+    brr: float,
+    btt: float,
+    bb: float,
+) -> np.ndarray:
     """The 12 edges of a view volume (front face at z=n, back at z=fa) as a flat
     GL_LINES vertex array.  Shared by the frustum and the rectangular prism --
     they differ only in whether the front/back cross sections match."""

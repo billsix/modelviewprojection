@@ -464,7 +464,7 @@ class CollideActor(Actor):
         new_x, new_y = self.x, self.y
 
         # Movement is done 1 pixel at a time, which ensures we don't get embedded into a wall we're moving towards
-        for i in range(speed):
+        for _i in range(speed):
             new_x, new_y = new_x + dx, new_y + dy
 
             # Get the player rectangle as it would be if the position were changed to new_x, new_y

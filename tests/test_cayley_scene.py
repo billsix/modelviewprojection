@@ -249,12 +249,15 @@ def test_to_matrix_realizes_affine_function():
             uniform_scale(2.0),
         ]
     )
-    M = cayleyscene.to_matrix(f)
+    transform_matrix = cayleyscene.to_matrix(f)
     for p in SAMPLES:
-        got = M @ np.array([p.coeff_e_1, p.coeff_e_2, p.coeff_e_3, 1.0])
+        got = transform_matrix @ np.array(
+            [p.coeff_e_1, p.coeff_e_2, p.coeff_e_3, 1.0]
+        )
         want = f(p)
         # float(): want's coefficients can be sympy (rotor rotations go through
-        # gacalc magnitude()/sympy.sqrt); np.allclose can't handle an object array.
+        # gacalc magnitude()/sympy.sqrt); np.allclose can't handle an object
+        # array.
         assert np.allclose(
             got,
             [
@@ -269,12 +272,15 @@ def test_to_matrix_realizes_affine_function():
 def test_to_matrix_of_engine_transform_matches_point_application():
     animation = cayleyscene.Animation(build_scene())
     f = animation.transform("square", 20.0)
-    M = cayleyscene.to_matrix(f)
+    transform_matrix = cayleyscene.to_matrix(f)
     for p in SAMPLES:
-        got = M @ np.array([p.coeff_e_1, p.coeff_e_2, p.coeff_e_3, 1.0])
+        got = transform_matrix @ np.array(
+            [p.coeff_e_1, p.coeff_e_2, p.coeff_e_3, 1.0]
+        )
         want = f(p)
         # float(): want's coefficients can be sympy (rotor rotations go through
-        # gacalc magnitude()/sympy.sqrt); np.allclose can't handle an object array.
+        # gacalc magnitude()/sympy.sqrt); np.allclose can't handle an object
+        # array.
         assert np.allclose(
             got,
             [

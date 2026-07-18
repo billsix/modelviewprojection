@@ -20,10 +20,10 @@ run ruff check tests --fix
 # was retired along with the structural modernization (see the ctc-* task
 # series); the games stay BEHAVIOUR-faithful only.
 run ruff check ports --fix
-run ruff format assignments --line-length=80
-run ruff format src --line-length=80
-run ruff format tests --line-length=80
-run ruff format ports --line-length=80
+run ruff format assignments
+run ruff format src
+run ruff format tests
+run ruff format ports
 run ty check /mvp/src
 run ty check /mvp/tests
 # Code-the-Classics pygame compatibility shim + the typed game ports.

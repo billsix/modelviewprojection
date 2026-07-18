@@ -33,7 +33,7 @@ pwd = os.path.dirname(os.path.abspath(__file__))
 
 
 @functools.cache
-def _load_xrc():
+def _load_xrc() -> xrc.XmlResource:
     """Return the cached XmlResource."""
     return xrc.XmlResource(os.path.join(pwd, "wxapp2.xrc"))
 
@@ -46,7 +46,7 @@ def _load_xrc():
 class AnimationControlTab(wx.Panel):
     """Animation controls tab. Layout from XRC."""
 
-    def __init__(self, parent, opengl_panel):
+    def __init__(self, parent: wx.Window, opengl_panel: "OpenGLPanel") -> None:
         wx.Panel.__init__(self)
         _load_xrc().LoadPanel(self, parent, "AnimationControlTab")
 
@@ -58,17 +58,17 @@ class AnimationControlTab(wx.Panel):
         self.Bind(wx.EVT_CHECKBOX, self.on_toggle_animation, self.chk_enable)
         self.Bind(wx.EVT_SLIDER, self.on_speed_change, self.sld_speed)
 
-    def on_toggle_animation(self, event):
+    def on_toggle_animation(self, event: wx.CommandEvent) -> None:
         self.opengl_panel.set_animation_enabled(event.IsChecked())
 
-    def on_speed_change(self, event):
+    def on_speed_change(self, event: wx.CommandEvent) -> None:
         self.opengl_panel.set_rotation_speed(self.sld_speed.GetValue())
 
 
 class ColorControlTab(wx.Panel):
     """Color controls tab. Layout from XRC."""
 
-    def __init__(self, parent, opengl_panel):
+    def __init__(self, parent: wx.Window, opengl_panel: "OpenGLPanel") -> None:
         wx.Panel.__init__(self)
         _load_xrc().LoadPanel(self, parent, "ColorControlTab")
 
@@ -80,7 +80,7 @@ class ColorControlTab(wx.Panel):
 
         self.Bind(wx.EVT_RADIOBUTTON, self.on_color_change)
 
-    def on_color_change(self, event):
+    def on_color_change(self, event: wx.CommandEvent) -> None:
         if self.rb_cyan.GetValue():
             self.opengl_panel.set_color(0.0, 1.0, 1.0)
         elif self.rb_red.GetValue():
@@ -92,7 +92,7 @@ class ColorControlTab(wx.Panel):
 class ControlPanel(wx.Panel):
     """Plain panel + plain notebook, safe to use as an AUI dockable pane."""
 
-    def __init__(self, parent, opengl_panel):
+    def __init__(self, parent: wx.Window, opengl_panel: "OpenGLPanel") -> None:
         super().__init__(parent)
 
         notebook = wx.Notebook(self)
@@ -113,15 +113,15 @@ class ControlPanel(wx.Panel):
 class OpenGLPanel(wx.glcanvas.GLCanvas):
     """OpenGL rendering panel. Cannot live in XRC (needs custom attribList)."""
 
-    def __init__(self, parent):
-        attribList = [
+    def __init__(self, parent: wx.Window) -> None:
+        attrib_list = [
             wx.glcanvas.WX_GL_RGBA,
             wx.glcanvas.WX_GL_DOUBLEBUFFER,
             wx.glcanvas.WX_GL_DEPTH_SIZE,
             24,
         ]
         super().__init__(
-            parent, attribList=attribList, style=wx.FULL_REPAINT_ON_RESIZE
+            parent, attribList=attrib_list, style=wx.FULL_REPAINT_ON_RESIZE
         )
         self.context = wx.glcanvas.GLContext(self)
         self.init_gl = False
@@ -137,7 +137,7 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         self.Bind(wx.EVT_TIMER, self.on_timer, self.timer)
         self.timer.Start(16)
 
-    def on_paint(self, event):
+    def on_paint(self, event: wx.PaintEvent) -> None:
         wx.PaintDC(self)
         wx.glcanvas.GLContext.SetCurrent(self.context, self)
         if not self.init_gl:
@@ -145,28 +145,28 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
             self.init_gl = True
         self.on_draw()
 
-    def on_size(self, event):
+    def on_size(self, event: wx.SizeEvent) -> None:
         width, height = self.GetSize()
         if self.context and self.IsShownOnScreen():
             wx.glcanvas.GLContext.SetCurrent(self.context, self)
             GL.glViewport(0, 0, width, height)
         event.Skip()
 
-    def on_timer(self, event):
+    def on_timer(self, event: wx.TimerEvent) -> None:
         if self.is_enabled:
             self.rotation_angle += self.rotation_speed / 50.0
             if self.rotation_angle > 360:
                 self.rotation_angle -= 360
             self.Refresh(False)
 
-    def initialize_opengl(self):
+    def initialize_opengl(self) -> None:
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
         GL.glMatrixMode(GL.GL_PROJECTION)
         GL.glLoadIdentity()
         GL.glOrtho(-1, 1, -1, 1, -1, 1)
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
-    def on_draw(self):
+    def on_draw(self) -> None:
         GL.glClear(sum([GL.GL_COLOR_BUFFER_BIT, GL.GL_DEPTH_BUFFER_BIT]))
         GL.glLoadIdentity()
         GL.glRotatef(self.rotation_angle, 0.0, 0.0, 1.0)
@@ -179,19 +179,18 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         GL.glEnd()
         self.SwapBuffers()
 
-    def set_rotation_speed(self, speed):
+    def set_rotation_speed(self, speed: float) -> None:
         self.rotation_speed = speed
 
-    def set_animation_enabled(self, is_enabled):
+    def set_animation_enabled(self, is_enabled: bool) -> None:
         self.is_enabled = is_enabled
 
-    def set_color(self, r, g, b):
+    def set_color(self, r: float, g: float, b: float) -> None:
         self.color = (r, g, b)
 
 
 class MainFrame(wx.Frame):
-    def __init__(self):
-        # Two-phase XRC construction
+    def __init__(self) -> None:
         wx.Frame.__init__(self)
         _load_xrc().LoadFrame(self, None, "MainFrame")
 
@@ -223,7 +222,7 @@ class MainFrame(wx.Frame):
         self.Bind(wx.EVT_CLOSE, self.on_close)
         self.Show()
 
-    def on_close(self, event):
+    def on_close(self, event: wx.CloseEvent) -> None:
         self._mgr.UnInit()
         event.Skip()
 

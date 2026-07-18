@@ -103,7 +103,7 @@ square_rotation: float = 0.0
 rotation_around_paddle1: float = 0.0
 
 
-def handle_inputs():
+def handle_inputs() -> None:
     global rotation_around_paddle1
     if glfw.get_key(window, glfw.KEY_E) == glfw.PRESS:
         rotation_around_paddle1 += 0.1

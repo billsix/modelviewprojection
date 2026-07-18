@@ -29,9 +29,9 @@ def test_vector3_iterates_as_x_then_y_then_z():
 
 
 def test_unpacking_matches_glvertex_positional_args():
-    # Mirror the exact call shape the demos use -- ``GL.glVertex?f(*v)`` -- with a
-    # stand-in that records its positional args, so the contract is tested the way
-    # the demos actually rely on it (no real GL / display required).
+    # Mirror the exact call shape the demos use -- ``GL.glVertex?f(*v)`` -- with
+    # a stand-in that records its positional args, so the contract is tested the
+    # way the demos actually rely on it (no real GL / display required).
     def record_positional_args(*args):
         return args
 

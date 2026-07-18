@@ -42,6 +42,14 @@ from modelviewprojection.mvpvisualization import (
     cayley_gl,
 )
 
+if typing.TYPE_CHECKING:
+    # glfw types every window parameter as `_GLFWwindowPointerT`; it is private
+    # and absent at runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
+
+    GLFWWindow = _GLFWwindowPointerT
+
+
 imgui = cayley_gl.imgui
 
 
@@ -169,40 +177,40 @@ state: dict[str, typing.Any] = {
 win_state = cayley_gl.WindowState()
 
 
-def jump(start):
+def jump(start: float) -> None:
     state["time"] = start
 
 
-def apply_camera():
+def apply_camera() -> None:
     camera_edge.steps[0].fn = translate(
         Vector3(cam_pos["x"], cam_pos["y"], cam_pos["z"])
     )
 
 
-def _toggle_pause():
+def _toggle_pause() -> None:
     state["paused"] = not state["paused"]
 
 
-def _restart():
+def _restart() -> None:
     state["time"] = 0.0
 
 
-def _toggle_graph():
+def _toggle_graph() -> None:
     win_state.show_graph = not win_state.show_graph
 
 
-def _toggle_ndc():
+def _toggle_ndc() -> None:
     state["ndc"] = not state["ndc"]
 
 
 # 2D camera has no rotation, so cameraspace == worldspace: WASD nudge x/y.
-def _cam_move(dx, dy):
+def _cam_move(dx: float, dy: float) -> None:
     cam_pos["x"] += dx
     cam_pos["y"] += dy
     apply_camera()
 
 
-def imgui_menubar():
+def imgui_menubar() -> None:
     if not imgui.begin_main_menu_bar():
         return
     if imgui.begin_menu("File", True):
@@ -268,7 +276,9 @@ def imgui_menubar():
     imgui.end_main_menu_bar()
 
 
-def on_key(window, key, scancode, action, mods):
+def on_key(
+    window: "GLFWWindow", key: int, scancode: int, action: int, mods: int
+) -> None:
     cayley_gl.common_key(window, win_state, key, action)
     if action not in (glfw.PRESS, glfw.REPEAT):
         return
@@ -291,7 +301,7 @@ def on_key(window, key, scancode, action, mods):
             _toggle_ndc()
 
 
-def graph_panel(t):
+def graph_panel(t: float) -> None:
     if not win_state.show_graph:
         return
     imgui.set_next_window_size(
@@ -312,7 +322,7 @@ def graph_panel(t):
     imgui.end()
 
 
-def frame(w, h):
+def frame(w: int, h: int) -> None:
     if not state["paused"]:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0
@@ -327,7 +337,8 @@ def frame(w, h):
     lw = state["line_width"]
     morph = cayleyscene.to_matrix(animation.inverse_transform(t))
 
-    # persistent reference: the ±1 NDC square + the world graph paper (un-morphed)
+    # persistent reference: the ±1 NDC square + the world graph paper
+    # (un-morphed)
     ms.set_to_identity_matrix(ms.MatrixStack.model)
     standard_objects.draw_cube()
     ms.set_current_matrix(ms.MatrixStack.model, GROUND_ROT)

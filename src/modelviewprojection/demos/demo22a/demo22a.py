@@ -272,7 +272,8 @@ _FLOATS_PER_VERTEX = 8  # 3 pos + 3 normal + 2 uv
 _STRIDE = _FLOATS_PER_VERTEX * 4
 
 
-# _face_normal is imported from modelviewprojection.util.shading (see imports above).
+# _face_normal is imported from modelviewprojection.util.shading (see imports
+# above).
 
 
 def _build_pyramid() -> np.ndarray:
@@ -479,7 +480,8 @@ LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)  # yellow
 # treat it as a directional light:  only the angle matters, not the
 # distance.  Re-derived from imgui sliders each frame so the user can
 # slide the light around.
-# light_dir_ws is imported from modelviewprojection.util.shading (see imports above).
+# light_dir_ws is imported from modelviewprojection.util.shading (see imports
+# above).
 
 
 # ---------------------------------------------------------------------------

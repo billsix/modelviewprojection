@@ -505,7 +505,7 @@ def select_stop_point(p: int) -> None:
     global which_stop_point
     which_stop_point = p
     if p == JUST_AFTER_GLOW:
-        for i, t in enumerate((1, 2, 3, 4)):
+        for t in (1, 2, 3, 4):
             GL.glActiveTexture(GL.GL_TEXTURE0 + t)
             GL.glBindTexture(GL.GL_TEXTURE_2D, 0)
     else:

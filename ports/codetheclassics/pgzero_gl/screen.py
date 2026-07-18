@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import typing
 from collections.abc import Sequence
-from typing import Any, Tuple, Union
+from typing import Any
 
 from gacalc.g2 import Vector2
 
@@ -41,7 +41,7 @@ from .resources import images
 RectLike = _RectBase[Any]  # any coordinate flavor (int Rect / float ZRect)
 
 
-def _as_xy(pos: Union[PointLike, RectLike]) -> Tuple[float, float]:
+def _as_xy(pos: PointLike | RectLike) -> tuple[float, float]:
     """Normalize a blit position -- a point-like or a rect (its topleft)."""
     if isinstance(pos, _RectBase):
         # ty resolves the constrained-TypeVar property through Any to
@@ -103,8 +103,8 @@ class _Surface:
 
     def blit(
         self,
-        image: Union[str, Drawable],
-        pos: Union[PointLike, RectLike],
+        image: str | Drawable,
+        pos: PointLike | RectLike,
         area: RectLike | Sequence[float] | None = None,
     ) -> None:
         """Blit ``image`` (name or Image) at ``pos``; ``area`` is a sub-rect source."""
@@ -122,7 +122,7 @@ class _Surface:
         """Return the screen height in pixels."""
         return context.require_renderer().height
 
-    def get_size(self) -> Tuple[int, int]:
+    def get_size(self) -> tuple[int, int]:
         """Return ``(width, height)`` in pixels."""
         r = context.require_renderer()
         return (r.width, r.height)
@@ -158,9 +158,7 @@ class Screen:
         """Fill the whole screen with ``color``."""
         context.require_renderer().fill(color)
 
-    def blit(
-        self, image: Union[str, Drawable], pos: Union[PointLike, RectLike]
-    ) -> None:
+    def blit(self, image: str | Drawable, pos: PointLike | RectLike) -> None:
         """Blit ``image`` (name or Image) at ``pos`` (a point or a Rect's topleft)."""
         img = images.load(image) if isinstance(image, str) else image
         context.require_renderer().draw_image(image=img, topleft=_as_xy(pos))

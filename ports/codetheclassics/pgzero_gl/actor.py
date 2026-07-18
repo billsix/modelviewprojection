@@ -39,7 +39,7 @@ from __future__ import annotations
 
 from collections.abc import Iterator
 from math import atan2, degrees, sqrt
-from typing import Any, Tuple, Union
+from typing import Any
 
 from gacalc.g2 import Vector2
 
@@ -100,11 +100,11 @@ class Actor:
     _image_name: str | None
     # memoized anchor offset; None = recompute (invalidated when the anchor
     # or the rect size changes)
-    _offset_cache: Tuple[float, float] | None
+    _offset_cache: tuple[float, float] | None
 
     def __init__(
         self,
-        image: Union[str, Drawable],
+        image: str | Drawable,
         pos: PointLike | None = None,
         anchor: Anchor | None = None,
         **kwargs: float,
@@ -133,10 +133,10 @@ class Actor:
                 self._rect.topleft = (0, 0)
 
     # -- image ----------------------------------------------------------------
-    def _set_image(self, image: Union[str, Drawable]) -> None:
+    def _set_image(self, image: str | Drawable) -> None:
         """Set/replace the sprite image (by name or Image), preserving the anchor pos."""
         img = images.load(image) if isinstance(image, str) else image
-        keep: Tuple[float, float] | None = None
+        keep: tuple[float, float] | None = None
         if self._image is not None:
             keep = self._anchor_pos()
         self._image = img
@@ -147,7 +147,7 @@ class Actor:
             self._set_pos(keep)
 
     # -- anchor / position ----------------------------------------------------
-    def _anchor_offset(self) -> Tuple[float, float]:
+    def _anchor_offset(self) -> tuple[float, float]:
         """Return the anchor's pixel offset from the rect's top-left corner.
 
         Memoized: x/y reads are the games' hottest attribute path (93% of
@@ -164,7 +164,7 @@ class Actor:
         self._offset_cache = offset
         return offset
 
-    def _anchor_pos(self) -> Tuple[float, float]:
+    def _anchor_pos(self) -> tuple[float, float]:
         """Return the current anchor position in pixel space."""
         ox, oy = self._anchor_offset()
         return (self._rect.left + ox, self._rect.top + oy)
@@ -224,7 +224,7 @@ class Actor:
         return self._image_name or ""
 
     @image.setter
-    def image(self, value: Union[str, Drawable]) -> None:
+    def image(self, value: str | Drawable) -> None:
         self._set_image(value)
 
     @property
@@ -281,7 +281,7 @@ class Actor:
         self._rect.centery = value
 
     @property
-    def center(self) -> Tuple[float, float]:
+    def center(self) -> tuple[float, float]:
         return self._rect.center
 
     @center.setter
@@ -318,19 +318,19 @@ class Actor:
             anchor=self._anchor_pos(),
         )
 
-    def angle_to(self, target: Union["Actor", PointLike]) -> float:
+    def angle_to(self, target: "Actor" | PointLike) -> float:
         """Return the angle (degrees) from this actor to ``target`` (Actor or point)."""
         tx, ty = target.pos if isinstance(target, Actor) else target
         mx, my = self.pos
         return degrees(atan2(my - ty, tx - mx))  # screen y inverted
 
-    def distance_to(self, target: Union["Actor", PointLike]) -> float:
+    def distance_to(self, target: "Actor" | PointLike) -> float:
         """Return the distance from this actor to ``target`` (Actor or point)."""
         tx, ty = target.pos if isinstance(target, Actor) else target
         mx, my = self.pos
         return sqrt((tx - mx) ** 2 + (ty - my) ** 2)
 
-    def colliderect(self, other: Union["Actor", "_RectBase[Any]"]) -> bool:
+    def colliderect(self, other: "Actor" | "_RectBase[Any]") -> bool:
         """Return whether this actor's rect overlaps ``other`` (Actor or Rect)."""
         o = other._rect if isinstance(other, Actor) else other
         return self._rect.colliderect(o)

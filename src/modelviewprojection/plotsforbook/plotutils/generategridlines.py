@@ -18,35 +18,35 @@
 
 import numpy as np
 
-extraLinesMultiplier = 3
+extra_lines_multiplier = 3
 
 
-def generategridlines(graphBounds, interval=1):
+def generategridlines(graph_bounds, interval=1):
     for x in range(
-        -graphBounds[0] * extraLinesMultiplier,
-        graphBounds[0] * extraLinesMultiplier,
+        -graph_bounds[0] * extra_lines_multiplier,
+        graph_bounds[0] * extra_lines_multiplier,
         interval,
     ):
         thickness = 4 if np.isclose(x, 0.0) else 1
         yield (
             [x, x],
             [
-                -graphBounds[1] * extraLinesMultiplier,
-                graphBounds[1] * extraLinesMultiplier,
+                -graph_bounds[1] * extra_lines_multiplier,
+                graph_bounds[1] * extra_lines_multiplier,
             ],
             thickness,
         )
 
     for y in range(
-        -graphBounds[1] * extraLinesMultiplier,
-        graphBounds[1] * extraLinesMultiplier,
+        -graph_bounds[1] * extra_lines_multiplier,
+        graph_bounds[1] * extra_lines_multiplier,
         interval,
     ):
         thickness = 4 if np.isclose(y, 0.0) else 1
         yield (
             [
-                -graphBounds[0] * extraLinesMultiplier,
-                graphBounds[0] * extraLinesMultiplier,
+                -graph_bounds[0] * extra_lines_multiplier,
+                graph_bounds[0] * extra_lines_multiplier,
             ],
             [y, y],
             thickness,

@@ -156,7 +156,7 @@ class CollideActor(Actor):
         new_x, new_y = int(self.x), int(self.y)
 
         # Movement is done 1 pixel at a time, which ensures we don't get embedded into a wall we're moving towards
-        for i in range(speed):
+        for _i in range(speed):
             new_x, new_y = new_x + dx, new_y + dy
 
             if new_x < 70 or new_x > 730:
@@ -240,7 +240,7 @@ class Orb(CollideActor):
         elif self.timer >= Orb.MAX_TIMER or self.y <= -40:
             # Pop if our lifetime has run out or if we have gone off the top of the screen
             game.pops.append(Pop(self.pos, 1))
-            if self.trapped_enemy_type != None:
+            if self.trapped_enemy_type is not None:
                 # trapped_enemy_type is either zero or one. A value of one means there's a chance of creating a
                 # powerup such as an extra life or extra health
                 game.fruits.append(Fruit(self.pos, self.trapped_enemy_type))
@@ -250,7 +250,7 @@ class Orb(CollideActor):
             # Orb grows to full size over the course of 9 frames - the animation frame updating every 3 frames
             self.image = "orb" + str(self.timer // 3)
         else:
-            if self.trapped_enemy_type != None:
+            if self.trapped_enemy_type is not None:
                 self.image = (
                     "trap"
                     + str(self.trapped_enemy_type)
@@ -616,7 +616,7 @@ class Robot(GravityActor):
 
         # Am I colliding with an orb? If so, become trapped by it
         for orb in game.orbs:
-            if orb.trapped_enemy_type == None and self.collidepoint(orb.center):
+            if orb.trapped_enemy_type is None and self.collidepoint(orb.center):
                 self.alive = False
                 orb.floating = True
                 orb.trapped_enemy_type = self.type
@@ -766,7 +766,11 @@ class Game:
         ):
             if (
                 len(
-                    [orb for orb in self.orbs if orb.trapped_enemy_type != None]
+                    [
+                        orb
+                        for orb in self.orbs
+                        if orb.trapped_enemy_type is not None
+                    ]
                 )
                 == 0
             ):
@@ -855,7 +859,7 @@ def char_width(char: str) -> int:
 
 
 def draw_text(text: str, y: float, x: Optional[float] = None) -> None:
-    if x == None:
+    if x is None:
         # If no X pos specified, draw text in centre of the screen - must first work out total width of text
         x = (WIDTH - sum([char_width(c) for c in text])) // 2
 
@@ -978,7 +982,7 @@ try:
 
     music.play("theme")
     music.set_volume(0.3)
-except:
+except Exception:
     # If an error occurs, just ignore it
     pass
 

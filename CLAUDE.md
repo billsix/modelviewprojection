@@ -185,6 +185,22 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
     Shim position parameters (Actor pos setter, `screen.blit`) **unpack**
     (`x, y = pos`) rather than index, so they accept tuples AND gacalc
     vectors.
+  - **gacalc vectors are MUTABLE, and the games mutate them in place** —
+    `self.dir.x = -self.dir.x`, `self.vpos.y = …` (gacalc's generated types are
+    `@dataclass(slots=True)` but deliberately not frozen; `x`/`y` are properties
+    *with setters*). So **a vector in a shared location is one object aliased by
+    every reader.** A default argument is the sharp edge: `def __init__(…,
+    half_hit_area: Vector2 = Vector2(25, 20))` evaluates once at import, so every
+    instance taking the default shares it. The fix is **two parts**: a named
+    module-level constant for the default (`DEFAULT_HALF_HIT_AREA`), **and a copy on
+    assignment** — `self.half_hit_area = Vector2(*half_hit_area)`.
+    **The constant alone fixes nothing** — ruff's `B008` only flags *calls* in
+    defaults, so a bare name silences the lint while the aliasing survives; the copy
+    is the part that works. Don't "simplify" a `Vector2(*v)` assignment back to `v`.
+    (Found 2026-07-18: `beatstreets`' `Player`/`EnemyVax`/`EnemyHoodie`/
+    `EnemyScooterboy` all shared one `half_hit_area`; nothing mutated it, so it was a
+    trap rather than a live bug — but this file mutates vectors in place constantly,
+    so it was one line away.)
 - History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`.
 
 ---
@@ -198,6 +214,146 @@ their printed output is the point), but their *content* predates the gacalc
 migration: each carries a bespoke `Vertex2D` and raw GLFW boilerplate.
 Modernization direction is an open task (`tasks/assignments-review.md`) —
 don't "fix" their vocabulary ad hoc; the exercise design is Bill's call.
+
+## Coding standard (Python)
+
+Written for humans and AI agents alike. **The standard is split in two** — what ruff
+enforces mechanically (don't hand-review these; if `make format` is green they're done)
+and the judgment calls ruff can't check (spend attention here). Adapted from the sibling
+**geometricalgebra** repo's section of the same name; the two are deliberately separate
+copies, so they may diverge where the projects differ.
+
+### (a) Enforced by ruff
+
+The `[tool.ruff.lint] select` in `pyproject.toml` gives PEP 8 layout (`E`), the Pyflakes
+correctness tier (`F`), import sorting (`I`), modern unions (`UP007`/`UP035`), no
+mutable/callable defaults (`B006`/`B008`), no unused loop var (`B007`), absolute imports
+(`TID252`), no stray `print` (`T201`), non-crypto `random` / `shell=True`
+(`S311`/`S602`), and **naming (`N`, pep8-naming)**. **`line-length = 80`** governs both
+the formatter and E501 — 80 because the book is built as a PDF, where wider lines wrap
+badly or run off the page. Treat a green ruff as authority on all of this.
+
+**Every `per-file-ignores` entry carries its reason in `pyproject.toml`.** Read them
+before "fixing" a flagged name — most are deliberate (below).
+
+### (b) Judgment calls
+
+- **An externally-defined name overrides the naming rules.** Where a name is dictated
+  from outside — a framework superclass method being overridden, a protocol/dunder, a
+  fixed callback or keyword — match it **exactly**; renaming unbinds it. Here that is
+  `wxapp.py` / `wxapp2.py` (`OnPaint`, `OnTimer`, `InitGL`, `OnDraw`, `OnInit` — wx looks
+  up those exact names; exempted from `N802` only) and wx's `attribList=` keyword. The
+  exemption covers only the fixed name: locals inside those methods follow house style
+  (hence `VBO` -> `vbo`, `attribList` -> `attrib_list` at the local).
+- **Python naming wins over the book's mathematical shorthand — everywhere, including
+  the demos.** The chapters' Cayley-graph edges are labelled in vector notation
+  (`\vec{R}_<θ>`, `\vec{T}_<x,y>`, `\vec{S}_<s>`) and the demos used to alias
+  `translate as T` / `rotate as R` / `uniform_scale as S` to match, with frustum bounds
+  as `L,R,B,T,N,F` and a light position as `Lx,Ly,Lz,Lw`. **All of that is spelled out
+  now**: `translate()`, `rotate()`, `uniform_scale()`, `left/right/bottom/top/near/far`,
+  `light_x…light_w`.
+  **The graph-to-code mapping is what makes this safe, so keep it.** Each affected demo
+  carries a short comment above its imports reading the graph labels off against the
+  function names. When you add a demo whose chapter has a diagram, add the same note —
+  a student must be able to line the picture up with the source without guessing.
+  The single remaining naming exemption is `N813` for `import … pyMatrixStack as ms`,
+  and it is temporary: the fix is renaming the camelCase *module*
+  (`tasks/rename-pymatrixstack-module.md`), which deletes the exemption at the source
+  rather than suppressing it.
+- **`m` and `b` are a deliberate, protected exception to the naming rules.**
+  gacalc's `translate(b=...)` / `uniform_scale(m=...)` are named for `f(x) = m*x + b` —
+  the intercept and the slope — so the transforms connect to an equation every student
+  already knows. Teaching-facing code (demos, notebooks, assignments, the `.rst`
+  examples) calls them **by keyword**; library internals may stay positional. **Do not
+  rename them to `offset`/`factor`.**
+- **Annotate generously — "when in doubt, annotate."** Signatures always; locals as much
+  as is reasonable, including loop/unpack targets (declare the type on the line *above*;
+  it does not reach comprehension variables). Read-only container params take
+  `Mapping`/`Sequence`, not `dict`/`list`. **Don't fight the checker** — where an
+  annotation makes `ty` worse, leave it inferred and say why at the site.
+- **Inline a value used exactly once**, unless the name documents an otherwise-opaque
+  expression. This *takes precedence* over "annotate generously": don't keep a single-use
+  local just to give it a type.
+- **What earns an extraction: duplication, or naming a phase — not reshaping control
+  flow.** Settled 2026-07-18 (this replaces the earlier provisional "inner-fn first,
+  guards below" wording, after trying it on three real functions):
+  - **Module-level** when more than one caller needs it. In gacalc, one helper replaced
+    the same lambda written out 9 times across 5 functions, and one shared function
+    replaced three 58-line 91-93%-identical plot helpers (net -75 lines). Giving each
+    function its own private nested copy would have been strictly worse.
+  - **Nested** when the extracted part **closes over the enclosing parameters** and names
+    a distinct phase. `cayley/cayleygraph.py:_route` is the worked example here: it
+    splits into `breadth_first_parents` / `walk_back`, both closing over `a` and `b`, and
+    its tail is then a three-case `match` that reads as the algorithm.
+  - **Neither** when the helper would be used exactly once and exists only to reshape
+    control flow or avoid mutating a local — that is "inline a single-use value" applied
+    to functions.
+
+  **The "guards at the bottom" shape is a consequence, not the goal.** What actually made
+  `_route`'s tail clean was moving its "no path" error *into the search that discovers
+  it*, not relocating guards. **Don't churn existing early-return code**, and a cheap
+  top-of-function `raise` is always fine — `setup_window` (linear GL init) and the
+  `graph_panel` / `imgui_menubar` family (one visibility guard each) were all examined
+  and correctly left alone.
+- **Prefer `match` + `case _` over an open-ended `if`/`elif` chain, for exhaustiveness.**
+  A chain with no final `else` can fall through silently and the hole is invisible. **This
+  repo has already been bitten:** `pyMatrixStack.get_current_matrix` was five `if`s with
+  no `else`, annotated `-> np.ndarray`, and fell off the end returning `None` for any
+  unhandled `MatrixStack` member — while every caller indexed the result. It is now a
+  `match` with `case _: raise`. **Always write the `case _`**; a `match` without one has
+  the same hole. See also `_route` in `cayley/cayleygraph.py`, whose tail is a three-case
+  `match`. **Caveat:** `match` earns its keep on *structural* patterns; one whose every
+  case is a boolean guard (`case (start, end) if start == end:`) is an `if`/`elif` in
+  different syntax, justified only by the exhaustiveness argument — don't convert every
+  two-branch conditional.
+- **Use modern Python, and flag it proactively.** The container runs **3.14** and
+  compatibility with older Pythons is **not** a concern. Prefer `match` over `if`/`elif`
+  chains on an enum (with `case _:` making the fall-through explicit — see
+  `pyMatrixStack.get_current_matrix`), `X | Y` unions and builtin generics, `@override`,
+  `Self`, `TypeIs`, `enum.IntEnum` for a set of related constants (see
+  `cayleygraph._DfsColor`, which replaced a bare `WHITE, GRAY, BLACK = 0, 1, 2`),
+  `dataclass(slots=True, kw_only=True)`. When a newer feature would solve a problem in
+  code you're touching, **say so** rather than silently preserving the old form.
+- **Comments explain *why*, inline at the point they apply.** **Never leave a comment
+  line holding a single word or fragment** — when a line runs long, reflow the whole
+  paragraph, not the offending line.
+- **New code vs existing code.** These shapes apply to *new* code; working code is not
+  rewritten to chase them. (The 2026-07-18 sweep that brought the tree into compliance
+  was a deliberate one-time exception, not the ongoing rule.)
+
+### (c) mvp-specific — things a general Python standard would miss
+
+- **Import order is semantically load-bearing, not cosmetic.** `glfw` and `OpenGL.GL`
+  **must** import before `imgui_bundle` or PyOpenGL's context tracking fails at window
+  setup; demos get imgui via `cayley_gl.imgui`, not their own import. See
+  `cayley_gl.py:30-35`. isort must not reorder these.
+- **GL constants are not `int`.** PyOpenGL constants are `IntConstant`, so annotating a
+  GL enum parameter as `int` needs a checker suppression. Decide it **once** rather than
+  copy-pasting `# ty: ignore` a fourth time — currently duplicated in `_pipeline.py`,
+  `demo21.py`, `demo22.py`. Also: the repo mixes `# ty: ignore` and `# type: ignore`;
+  prefer `# ty: ignore`, which is the checker actually running.
+- **`-1` is the "uniform/attribute not present" sentinel**, and **each check must be
+  justified independently** — gating one uniform's use on *another* uniform's presence
+  caused a real bug (`cayley_gl.py:190-193` documents it).
+- **All 4x4s are row-major, `M @ column_vector`; the transpose happens exactly at the
+  `glUniformMatrix4fv` boundary** (`GL_TRUE`). Do not "fix" that flag.
+- **Winding is CCW everywhere** and outward normals depend on it; any new geometry
+  builder documents its winding.
+- **Shaders resolve relative to the calling demo's directory** (`shader_dir`,
+  keyword-only), never cwd. GLSL 330 has no `#include`, so composition is string
+  concatenation (`_pipeline.py:183-196`).
+- **GL resources are freed via a central registry, not RAII.** New code creates handles
+  through `_pipeline`'s builders so `cleanup()` releases them; several older demos
+  predate this and call a bare `glfw.terminate()`.
+- **macOS Core Profile requires a non-zero VAO bound at all times** — the default VAO in
+  `_pipeline.py:113-121` is deliberate, and `glBindVertexArray(0)` is never called.
+- **`doc-region-begin` / `doc-region-end` comments are part of the book build.** A
+  refactor that moves code must move its markers, and markers must not split a logical
+  unit. `book/docs/*.rst` has **129** `literalinclude`s pointing into `demos/`.
+- **Duplication across `demos/` is deliberate — "teach once, then share."** A demo may
+  re-inline a helper when its chapter teaches it; `util/clipping.py`, `util/windowing.py`
+  and `util/cameracontrols.py` document their own cases. Do not DRY the ~20 near-identical
+  `Paddle`/`Camera` dataclasses without reading those notes.
 
 ## Tasks
 

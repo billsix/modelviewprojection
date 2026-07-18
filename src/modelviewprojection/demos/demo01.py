@@ -18,9 +18,18 @@
 # doc-region-begin import first module
 # doc-region-end import first module
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
+
+if typing.TYPE_CHECKING:
+    # glfw types window handles as `_GLFWwindowPointerT`: private, and absent at
+    # runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
+
+    GLFWWindow = _GLFWwindowPointerT
+
 
 # doc-region-begin initialize glfw
 if not glfw.init():
@@ -48,7 +57,13 @@ glfw.make_context_current(window)
 
 
 # doc-region-begin on user hitting escape, end event loop and quit
-def on_key(win, key, scancode, action, mods):
+def on_key(
+    win: "GLFWWindow",
+    key: int,
+    scancode: int,
+    action: int,
+    mods: int,
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(win, 1)
 

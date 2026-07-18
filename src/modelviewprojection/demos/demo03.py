@@ -16,11 +16,20 @@
 # Boston, MA 02111-1307, USA.
 
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
 
 from modelviewprojection.util.windowing import on_key
+
+if typing.TYPE_CHECKING:
+    # glfw types window handles as `_GLFWwindowPointerT`: private, and absent at
+    # runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
+
+    GLFWWindow = _GLFWwindowPointerT
+
 
 if not glfw.init():
     sys.exit()
@@ -47,10 +56,7 @@ GL.glLoadIdentity()
 
 
 # doc-region-begin square viewport
-def draw_in_square_viewport(window) -> None:
-    # doc-region-end square viewport
-
-    # doc-region-begin set to gray
+def draw_in_square_viewport(window: "GLFWWindow") -> None:
     GL.glClearColor(0.2, 0.2, 0.2, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
     # doc-region-end set to gray

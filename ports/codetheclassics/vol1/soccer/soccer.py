@@ -486,7 +486,7 @@ class Ball(MyActor):
                         8 if team.human() and isinstance(target, Player) else 1
                     )
 
-                    for i in range(iterations):
+                    for _i in range(iterations):
                         # In the first loop, t will simply be the position of the targeted player or goal.
                         # In subsequent loops (if there are any), it will represent a position which is at the
                         # target's feet plus a bit further in whichever direction the player is currently pressing.
@@ -645,7 +645,7 @@ class Player(MyActor):
 
         # Some shorthand variables to make the code below a bit easier to follow
         my_team: "Team" = game.teams[self.team]
-        pre_kickoff: bool = game.kickoff_player != None
+        pre_kickoff: bool = game.kickoff_player is not None
         i_am_kickoff_player: bool = self == game.kickoff_player
         ball: Ball = game.ball
 
@@ -668,7 +668,7 @@ class Player(MyActor):
             # Find target by calling the controller for the player's team todo comment
             target = self.vpos + my_team.controls.move(speed)
 
-        elif ball.owner != None:
+        elif ball.owner is not None:
             # Someone has the ball - is it me?
             if ball.owner == self:
                 # We are the owner, and are computer-controlled (otherwise we would have taken the other arm
@@ -871,7 +871,7 @@ class Team:
     score: int = 0
 
     def human(self) -> bool:
-        return self.controls != None
+        return self.controls is not None
 
 
 class Game:
@@ -912,7 +912,10 @@ class Game:
         # The lambda function is used to give the player start positions a slight random offset so they're not
         # perfectly aligned to their starting spots
         self.players: list[Player] = []
-        random_offset = lambda x: x + random.randint(-32, 32)
+
+        def random_offset(coordinate: float) -> float:
+            return coordinate + random.randint(-32, 32)
+
         for pos in PLAYER_START_POS:
             # pos is a pair of coordinates in a tuple
             # For each entry in pos, create one player for each team - positions are flipped (both horizontally and
@@ -1014,7 +1017,7 @@ class Game:
             # Create a list of players who are on the opposite team from the ball owner, are allowed to acquire
             # the ball (their hold-off timer must not be positive), are not currently being controlled by a human,
             # and are not currently assigned to be the goalie. The list is sorted based on distance from the ball owner.
-            l: list[Player] = sorted(
+            chase_candidates: list[Player] = sorted(
                 [
                     p
                     for p in self.players
@@ -1029,23 +1032,25 @@ class Game:
                 key=dist_key(pos),
             )
 
-            # a is a list of players from l who are upfield of the ball owner (i.e. towards our own goal, away from the
+            # a is a list of players from chase_candidates who are upfield of the ball owner (i.e. towards our own goal, away from the
             # direction of the goal the ball owner is trying to score in). b is all the other players. It's possible for
             # one of these to be empty, as there might not be any players in the relevant direction.
             a: list[Player] = [
                 p
-                for p in l
+                for p in chase_candidates
                 if (p.vpos.y > pos.y if team == 0 else p.vpos.y < pos.y)
             ]
-            b: list[Player] = [p for p in l if p not in a]
+            b: list[Player] = [p for p in chase_candidates if p not in a]
 
-            # Zip a and b together in an alternating fashion. Why do we add NONE2 (i.e. [None,None]) to each list?
+            # Zip a and b together in an alternating fashion. Why do we add none_pair (i.e. [None,None]) to each list?
             # Because the zip function stops when there are no more items in one of the lists. We want our final list
-            # to contain at least 2 elements. Adding NONE2 (i.e. [None,None] as defined near the top) ensures that each
+            # to contain at least 2 elements. Adding none_pair (i.e. [None,None] as defined near the top) ensures that each
             # list has at least 2 items. But we don't want any values in the final list to be None, hence the final part
             # of the list comprehension 'for s in t if s', which discards any None values from the final result
-            NONE2: list[None] = [None] * 2
-            zipped = [s for t in zip(a + NONE2, b + NONE2) for s in t if s]
+            none_pair: list[None] = [None] * 2
+            zipped = [
+                s for t in zip(a + none_pair, b + none_pair) for s in t if s
+            ]
 
             # Either one or two players (depending on difficulty settings) follow the ball owner, one from up-field and
             # one from down-field of the owner
@@ -1176,7 +1181,7 @@ class Game:
         if state != State.MENU:
             try:
                 getattr(sounds, name + str(random.randint(0, c - 1))).play()
-            except:
+            except Exception:
                 # Ignore sound errors
                 pass
 

@@ -23,13 +23,19 @@ import glfw
 import OpenGL.GL as GL
 
 import modelviewprojection.util.colorutils as colorutils
+
+# The chapter's Cayley-graph edges are labelled in vector notation --
+# \vec{R}_<theta>, \vec{T}_<x,y>, \vec{S}_<s>.  The code spells them out in
+# full (Python naming), so read the graph labels as:
+#     R -> rotate(...)      T -> translate(b=...)
+#     S -> uniform_scale(m=...)
 from modelviewprojection.mathutils import (
     InvertibleFunction,
     Vector2,
+    rotate,
+    translate,
+    uniform_scale,
 )
-from modelviewprojection.mathutils import rotate as R
-from modelviewprojection.mathutils import translate as T
-from modelviewprojection.mathutils import uniform_scale as S
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
@@ -141,8 +147,10 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*iter(paddle1.color))
 
     # doc-region-begin compose transformations on paddle 1
-    world_space_to_ndc = S(1.0 / 10.0)
-    p1_space_to_world_space = R(paddle1.rotation) @ T(paddle1.position)
+    world_space_to_ndc = uniform_scale(m=1.0 / 10.0)
+    p1_space_to_world_space = rotate(paddle1.rotation) @ translate(
+        b=paddle1.position
+    )
     p1_to_ndc: InvertibleFunction[Vector2] = (
         world_space_to_ndc @ p1_space_to_world_space
     )
@@ -157,8 +165,10 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     GL.glColor3f(*iter(paddle2.color))
 
-    world_space_to_ndc = S(1.0 / 10.0)
-    p2_space_to_world_space = R(paddle2.rotation) @ T(paddle2.position)
+    world_space_to_ndc = uniform_scale(m=1.0 / 10.0)
+    p2_space_to_world_space = rotate(paddle2.rotation) @ translate(
+        b=paddle2.position
+    )
     p2_to_ndc: InvertibleFunction[Vector2] = (
         world_space_to_ndc @ p2_space_to_world_space
     )

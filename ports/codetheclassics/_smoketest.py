@@ -183,9 +183,9 @@ def main():
 
         context.renderer = Renderer1x(w, h)
     else:
-        from pgzero_gl import renderer as R
+        from pgzero_gl import renderer
 
-        context.renderer = R.Renderer(w, h)
+        context.renderer = renderer.Renderer(w, h)
     pgzero_gl.pgzrun.go = lambda gl=None: None
 
     spec = importlib.util.spec_from_file_location("game_under_test", path)

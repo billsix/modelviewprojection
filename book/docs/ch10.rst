@@ -144,7 +144,7 @@ Inverses
 Inverse Of Translate
 &&&&&&&&&&&&&&&&&&&&
 
-The inverse of ``translate(b)`` is ``translate(-b)`` -- shift back by the
+The inverse of ``translate(b=b)`` is ``translate(b=-b)`` -- shift back by the
 negative.  The built-in ``inverse`` agrees:
 
 .. code:: Python
@@ -153,7 +153,7 @@ negative.  The built-in ``inverse`` agrees:
       >>> e_1, e_2 = Vector2D.e_1(), Vector2D.e_2()
       >>> b = 3.0 * e_1 + 4.0 * e_2
       >>> p = 10.0 * e_1 + 20.0 * e_2
-      >>> inverse(translate(b))(p).isclose(translate(-b)(p))
+      >>> inverse(translate(b=b))(p).isclose(translate(b=-b)(p))
       True
 
 Inverse Of Rotate
@@ -216,7 +216,7 @@ The inverse of ``compose([f1, f2])`` is ``compose([inverse(f2), inverse(f1)])``
       ... )
       >>> e_1, e_2 = Vector2D.e_1(), Vector2D.e_2()
       >>> f1 = rotate(math.radians(30.0))
-      >>> f2 = translate(3.0 * e_1 + 4.0 * e_2)
+      >>> f2 = translate(b=3.0 * e_1 + 4.0 * e_2)
       >>> p = 5.0 * e_1 + 6.0 * e_2
       >>> inverse(compose([f1, f2]))(p).isclose(
       ...     compose([inverse(f2), inverse(f1)])(p))

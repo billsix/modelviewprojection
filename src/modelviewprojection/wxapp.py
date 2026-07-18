@@ -23,6 +23,14 @@ import numpy as np
 import wx
 import wx.glcanvas as wxgl
 from OpenGL import GL
+from OpenGL.constant import Constant
+
+#: A value OpenGL accepts where it wants an enum -- PyOpenGL constants resolve
+#: to `OpenGL.constant.Constant`, not `int`, so a plain `int` annotation rejects
+#: them.  Duplicated from mvpvisualization/_pipeline.py on purpose: importing
+#: that module here would drag glfw + imgui into a wx app.
+GLenum = int | Constant
+
 
 vertex_shader_src = """
 #version 330 core
@@ -52,7 +60,7 @@ void main()
 
 
 class GLPanel(wxgl.GLCanvas):
-    def __init__(self, parent):
+    def __init__(self, parent: wx.Window) -> None:
         attribs = [
             wxgl.WX_GL_RGBA,
             wxgl.WX_GL_DOUBLEBUFFER,
@@ -77,7 +85,7 @@ class GLPanel(wxgl.GLCanvas):
         self.timer.Start(16)  # ~60 FPS
         self.last_time = time.time()
 
-    def OnPaint(self, event):
+    def OnPaint(self, event: wx.PaintEvent) -> None:
         wx.PaintDC(self)
         self.SetCurrent(self.context)
 
@@ -88,14 +96,14 @@ class GLPanel(wxgl.GLCanvas):
         self.OnDraw()
         self.SwapBuffers()
 
-    def OnTimer(self, event):
+    def OnTimer(self, event: wx.TimerEvent) -> None:
         now = time.time()
         dt = now - self.last_time
         self.last_time = now
         self.angle += self.speed * dt
         self.Refresh(False)
 
-    def compile_shader(self, source, shader_type):
+    def compile_shader(self, source: str, shader_type: GLenum) -> int:
         shader = GL.glCreateShader(shader_type)
         GL.glShaderSource(shader, source)
         GL.glCompileShader(shader)
@@ -104,8 +112,7 @@ class GLPanel(wxgl.GLCanvas):
             raise RuntimeError(f"Shader compile error: {error}")
         return shader
 
-    def InitGL(self):
-        # Compile shaders
+    def InitGL(self) -> None:
         vs = self.compile_shader(vertex_shader_src, GL.GL_VERTEX_SHADER)
         fs = self.compile_shader(fragment_shader_src, GL.GL_FRAGMENT_SHADER)
         self.program = GL.glCreateProgram()
@@ -144,11 +151,11 @@ class GLPanel(wxgl.GLCanvas):
             dtype=np.float32,
         )
 
-        self.VAO = GL.glGenVertexArrays(1)
-        VBO = GL.glGenBuffers(1)
+        self.vao = GL.glGenVertexArrays(1)
+        vbo = GL.glGenBuffers(1)
 
-        GL.glBindVertexArray(self.VAO)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, VBO)
+        GL.glBindVertexArray(self.vao)
+        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
         GL.glBufferData(
             GL.GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL.GL_STATIC_DRAW
         )
@@ -170,7 +177,7 @@ class GLPanel(wxgl.GLCanvas):
 
         GL.glClearColor(0.1, 0.1, 0.1, 1.0)
 
-    def OnDraw(self):
+    def OnDraw(self) -> None:
         w, h = self.GetClientSize()
 
         dw = self.GetContentScaleFactor()
@@ -181,13 +188,13 @@ class GLPanel(wxgl.GLCanvas):
         angle_loc = GL.glGetUniformLocation(self.program, "angle")
         GL.glUniform1f(angle_loc, self.angle)
 
-        GL.glBindVertexArray(self.VAO)
+        GL.glBindVertexArray(self.vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, 3)
         GL.glBindVertexArray(0)
 
 
 class MainFrame(wx.Frame):
-    def __init__(self):
+    def __init__(self) -> None:
         super().__init__(
             None, title="wxPython OpenGL 3.3 Example", size=wx.Size(600, 500)
         )
@@ -245,10 +252,10 @@ class MainFrame(wx.Frame):
         self.paused = False
 
     # --- Menu handlers ---
-    def on_quit(self, event):
+    def on_quit(self, event: wx.CommandEvent) -> None:
         self.Close()
 
-    def on_preferences(self, event):
+    def on_preferences(self, event: wx.CommandEvent) -> None:
         wx.MessageBox(
             "Preferences dialog would go here.",
             "Preferences",
@@ -256,25 +263,25 @@ class MainFrame(wx.Frame):
         )
 
     # --- Button/slider handlers ---
-    def on_pause(self, event):
+    def on_pause(self, event: wx.CommandEvent) -> None:
         self.paused = not self.paused
         self.canvas.speed = (
             0.0 if self.paused else self.slider.GetValue() * math.pi / 180.0
         )
 
-    def on_reverse(self, event):
+    def on_reverse(self, event: wx.CommandEvent) -> None:
         self.canvas.speed *= -1
 
-    def on_reset(self, event):
+    def on_reset(self, event: wx.CommandEvent) -> None:
         self.canvas.angle = 0.0
 
-    def on_slide(self, event):
+    def on_slide(self, event: wx.CommandEvent) -> None:
         if not self.paused:
             self.canvas.speed = self.slider.GetValue() * math.pi / 180.0
 
 
 class MyApp(wx.App):
-    def OnInit(self):
+    def OnInit(self) -> bool:
         frame = MainFrame()
         frame.Show()
         return True

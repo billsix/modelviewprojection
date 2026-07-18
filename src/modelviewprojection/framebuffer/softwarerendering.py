@@ -40,18 +40,19 @@ from modelviewprojection.mathutils import (
 # sole caller.
 # doc-region-begin counter clockwise
 def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
-    # orientation is the SIGN of the cross product  v1 x v2 = |v1||v2| sin(theta)
-    # -- which in 2D is exactly the wedge  v1 ^ v2  (sine's numerator; see the
-    # note there).  Use it unnormalized: dividing by the magnitudes would not
-    # change the sign but would blow up when either vector is zero -- e.g. a
-    # rasterized pixel sitting exactly on a triangle vertex.
+    # orientation is the SIGN of the cross product  v1 x v2 = |v1||v2|
+    # sin(theta) -- which in 2D is exactly the wedge  v1 ^ v2  (sine's
+    # numerator; see the note there).  Use it unnormalized: dividing by the
+    # magnitudes would not change the sign but would blow up when either
+    # vector is zero -- e.g. a rasterized pixel sitting exactly on a
+    # triangle vertex.
     return float((v1 ^ v2).coefficient(Bivector2.e_12)) >= 0.0
     # doc-region-end counter clockwise
 
 
 # doc-region-begin clockwise
 def is_clockwise(v1: Vector2, v2: Vector2) -> bool:
-    # the mirror of is_counter_clockwise (the cross product the other way).  Both
+    # the mirror of is_counter_clockwise (the cross product the other way). Both
     # include the cross == 0 (collinear / on-the-edge) case, so a point lying
     # exactly on an edge or vertex counts as BOTH -- which lets the rasterizer
     # light boundary pixels no matter which way the triangle is wound.
@@ -153,8 +154,8 @@ class FrameBuffer:
         v3: Vector2 = x3 * Vector2.e_1 + y3 * Vector2.e_2
 
         # a zero-length edge (coincident vertices) or collinear vertices give a
-        # zero-area triangle -- is_parallel now answers True for those instead of
-        # dividing by zero
+        # zero-area triangle -- is_parallel now answers True for those instead
+        # of dividing by zero
         if is_parallel(v2 - v1, v3 - v2):
             return  # degenerate triangle
 
@@ -174,8 +175,8 @@ class FrameBuffer:
                 ]
 
                 # Inside (or on the boundary) when the pixel is on the same side
-                # of every edge.  A pixel exactly on an edge or vertex has a zero
-                # cross there -- counted as both CCW and CW -- so it is lit for
-                # either winding, vertices included.
+                # of every edge.  A pixel exactly on an edge or vertex has a
+                # zero cross there -- counted as both CCW and CW -- so it is lit
+                # for either winding, vertices included.
                 if all(counter_clockwise_values) or all(clockwise_values):
                     self.set_color(x * Vector2.e_1 + y * Vector2.e_2, color)

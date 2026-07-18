@@ -87,6 +87,12 @@ BASE_STAMINA_DAMAGE_MULTIPLIER: int = 100
 # is longer
 MIN_STAMINA: int = -100
 
+# Defaults for Fighter/Enemy constructor params. Vector2 is mutable, so these are
+# shared objects -- every constructor that takes one copies it (Vector2(*v)) rather
+# than storing the reference, or all fighters would share one hit area / speed.
+DEFAULT_HALF_HIT_AREA: Vector2 = Vector2(25, 20)
+DEFAULT_ENEMY_SPEED: Vector2 = Vector2(1, 1)
+
 DEBUG_LOGGING_ENABLED: bool = False
 DEBUG_SHOW_SCROLL_POS: bool = False
 DEBUG_SHOW_BOUNDARY: bool = False
@@ -118,8 +124,8 @@ class Profiler:
         self.name: str = name
 
     def get_ms(self) -> float:
-        endTime: float = time.perf_counter()
-        diff: float = endTime - self.start_time
+        end_time: float = time.perf_counter()
+        diff: float = end_time - self.start_time
         return diff * 1000
 
     def __str__(self) -> str:
@@ -540,9 +546,9 @@ class Fighter(ScrollHeightActor, ABC):
 
     def log(self, str: str) -> None:
         if DEBUG_LOGGING_ENABLED:
-            l = f"{game.timer} {str} {self.vpos}"
-            print(self, l)
-            self.logs.append(l)
+            message = f"{game.timer} {str} {self.vpos}"
+            print(self, message)
+            self.logs.append(message)
 
     def __init__(
         self,
@@ -553,7 +559,7 @@ class Fighter(ScrollHeightActor, ABC):
         health: int,
         anim_update_rate: int = 8,
         stamina: int = 500,
-        half_hit_area: Vector2 = Vector2(25, 20),
+        half_hit_area: Vector2 = DEFAULT_HALF_HIT_AREA,
         lives: int = 1,
         colour_variant: Any = None,
         separate_shadow: bool = False,
@@ -561,8 +567,9 @@ class Fighter(ScrollHeightActor, ABC):
     ) -> None:
         super().__init__("blank", pos, anchor, separate_shadow=separate_shadow)
 
-        # Speed is a Vector2 containing x and y speed
-        self.speed: Vector2 = speed
+        # Speed is a Vector2 containing x and y speed -- copied, not stored by
+        # reference (see the half_hit_area note below).
+        self.speed: Vector2 = Vector2(*speed)
 
         # e.g. "hero" or "enemy"
         self.sprite: str = sprite
@@ -601,7 +608,10 @@ class Fighter(ScrollHeightActor, ABC):
 
         # Determines whether an opponent's attack will hit us, based on the distance between us and the attack's reach
         # Larger number for the portal, because the portal is physically bigger
-        self.half_hit_area: Vector2 = half_hit_area
+        # copied, not stored by reference: the default is a shared module-level
+        # Vector2, and Vector2 is mutable -- storing it directly would give every
+        # fighter that takes the default the same hit area object.
+        self.half_hit_area: Vector2 = Vector2(*half_hit_area)
 
         self.health: int = health
         self.start_health: int = health
@@ -993,9 +1003,9 @@ class Fighter(ScrollHeightActor, ABC):
 
         if DEBUG_SHOW_LOGS:
             y = self.y
-            for l in reversed(self.logs):
+            for message in reversed(self.logs):
                 screen.draw.text(
-                    l,
+                    message,
                     fontsize=14,
                     center=(self.x, y),
                     color="#FFFFFF",
@@ -1299,12 +1309,12 @@ class Enemy(Fighter, ABC):
         name: str,
         attacks: Any,
         start_timer: int,
-        speed: Vector2 = Vector2(1, 1),
+        speed: Vector2 = DEFAULT_ENEMY_SPEED,
         health: int = 15,
         stamina: int = 500,
         approach_player_distance: int = ENEMY_APPROACH_PLAYER_DISTANCE,
         anchor_y: int = 256,
-        half_hit_area: Vector2 = Vector2(25, 20),
+        half_hit_area: Vector2 = DEFAULT_HALF_HIT_AREA,
         colour_variant: Any = None,
         hit_sound: Any = None,
         score: int = 10,
@@ -2103,12 +2113,12 @@ class Barrel(Weapon):
                 # is at the feet and the Y anchor of the barrel is at its centre.
                 # The barrel isn't able to bounce above the head of a fighter (unless we added a really short fighter),
                 # so we don't need to check that
-                BARREL_HEIGHT: int = 40
+                barrel_height: int = 40
                 fighter_bottom_height = fighter.height_above_ground
                 barrel_bottom_height: float = self.height_above_ground - (
-                    BARREL_HEIGHT // 2
+                    barrel_height // 2
                 )
-                barrel_top_height: float = barrel_bottom_height + BARREL_HEIGHT
+                barrel_top_height: float = barrel_bottom_height + barrel_height
 
                 if (
                     fighter is not self.last_thrower

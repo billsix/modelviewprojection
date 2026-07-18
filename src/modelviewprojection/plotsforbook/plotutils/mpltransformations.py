@@ -20,68 +20,68 @@ import math
 import numpy as np
 
 
-def mapMatplotlibData(f, *pointsOnAxis):
+def map_matplotlib_data(f, *points_on_axis):
     """In plotting with numpy, the points on a given axis are supposed
     to be their own arrays, which is not helpful when wanting to transform
-    points.  mapMatplotlibData
+    points.  map_matplotlib_data
     allows the programmer to transform each x,y pair by function f
 
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([0.0,0.0])
-    >>> txs, tys = mapMatplotlibData(lambda point: (point[0]+1.0, point[1]+1.0),
-    ...                              xs,
-    ...                              ys)
-    >>> txs
+    >>> txs, tys = map_matplotlib_data(
+    ...     lambda point: (point[0]+1.0, point[1]+1.0), xs, ys
+    ... )
+    >>> tuple(float(v) for v in txs)
     (-4.0, 6.0)
-    >>> tys
+    >>> tuple(float(v) for v in tys)
     (1.0, 1.0)
-    >>> # regardless of the number of arguments, mapMatplotlibData works!
+    >>> # regardless of the number of arguments, map_matplotlib_data works!
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([.0,.0])
     >>> zs = np.array([2.0,3.0])
-    >>> txs, tys, tzs =mapMatplotlibData(lambda point: (point[0]+1.0,
+    >>> txs, tys, tzs =map_matplotlib_data(lambda point: (point[0]+1.0,
     ...                                                 point[1]+1.0,
     ...                                                 point[2]-1.0),
     ...                                  xs,
     ...                                  ys,
     ...                                  zs)
-    >>> txs
+    >>> tuple(float(v) for v in txs)
     (-4.0, 6.0)
-    >>> tys
+    >>> tuple(float(v) for v in tys)
     (1.0, 1.0)
-    >>> tzs
+    >>> tuple(float(v) for v in tzs)
     (1.0, 2.0)
     """
-    return zip(*map(f, zip(*pointsOnAxis)))
+    return zip(*map(f, zip(*points_on_axis)))
 
 
-def _rotatePoint(angle, x, y):
+def _rotate_point(angle, x, y):
     """Rotate an X and Y value by an angle
 
     >>> x = 1.0
     >>> y = 0.0
-    >>> _rotatePoint(math.radians(0.0),x,y)
+    >>> _rotate_point(math.radians(0.0),x,y)
     (1.0, 0.0)
 
     >>> x = 0.0
     >>> y = 1.0
-    >>> _rotatePoint(math.radians(0.0),x,y)
+    >>> _rotate_point(math.radians(0.0),x,y)
     (0.0, 1.0)
 
     >>> x = 1.0
     >>> y = 0.0
-    >>> _rotatePoint(math.radians(45.0),x,y)
+    >>> _rotate_point(math.radians(45.0),x,y)
     (0.7071067811865476, 0.7071067811865475)
 
     >>> x = 5.0
     >>> y = 0.0
-    >>> _rotatePoint(math.radians(45.0),x,y)
+    >>> _rotate_point(math.radians(45.0),x,y)
     (3.5355339059327378, 3.5355339059327373)
 
 
     >>> x = 5.0
     >>> y = 0.0
-    >>> _rotatePoint(math.radians(0.1),x,y)
+    >>> _rotate_point(math.radians(0.1),x,y)
     (4.999992384566438, 0.008726641829491543)
     """
     return (
@@ -94,28 +94,28 @@ def rotate(angle):
     """Rotate the xs and ys by angle
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([0.0,0.0])
-    >>> for transformedAxis in rotate(math.radians(0.1))(xs,ys):
-    ...      print(transformedAxis)
+    >>> for transformed_axis in rotate(math.radians(0.1))(xs,ys):
+    ...      print(tuple(float(v) for v in transformed_axis))
     (-4.999992384566438, 4.999992384566438)
     (-0.008726641829491543, 0.008726641829491543)
     """
-    return lambda xs, ys: mapMatplotlibData(
-        lambda point: _rotatePoint(angle, point[0], point[1]), xs, ys
+    return lambda xs, ys: map_matplotlib_data(
+        lambda point: _rotate_point(angle, point[0], point[1]), xs, ys
     )
 
 
-def scale(scaleX, scaleY):
+def scale(scale_x, scale_y):
     """Scale the xs and ys
 
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([1.0,1.0])
-    >>> for transformedAxis in scale(2,2)(xs,ys):
-    ...      print(transformedAxis)
+    >>> for transformed_axis in scale(2,2)(xs,ys):
+    ...      print(tuple(float(v) for v in transformed_axis))
     (-10.0, 10.0)
     (2.0, 2.0)
     """
-    return lambda xs, ys: mapMatplotlibData(
-        lambda point: (point[0] * scaleX, point[1] * scaleY), xs, ys
+    return lambda xs, ys: map_matplotlib_data(
+        lambda point: (point[0] * scale_x, point[1] * scale_y), xs, ys
     )
 
 
@@ -124,12 +124,12 @@ def translate(tx, ty):
 
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([1.0,1.0])
-    >>> for transformedAxis in translate(1,2)(xs,ys):
-    ...      print(transformedAxis)
+    >>> for transformed_axis in translate(1,2)(xs,ys):
+    ...      print(tuple(float(v) for v in transformed_axis))
     (-4.0, 6.0)
     (3.0, 3.0)
     """
-    return lambda xs, ys: mapMatplotlibData(
+    return lambda xs, ys: map_matplotlib_data(
         lambda point: (point[0] + tx, point[1] + ty), xs, ys
     )
 

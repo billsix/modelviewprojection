@@ -16,7 +16,8 @@ import OpenGL.GL as GL
 def _draw_solid_cylinder(
     base_radius: float, top_radius: float, height: float, slices: int
 ) -> None:
-    """Cylinder side surface, oriented along +Z (replacement for gluCylinder)."""
+    """Cylinder side surface, oriented along +Z (replacement for
+    gluCylinder)."""
     GL.glBegin(GL.GL_QUAD_STRIP)
     for i in range(slices + 1):
         a = 2.0 * math.pi * float(i) / slices
