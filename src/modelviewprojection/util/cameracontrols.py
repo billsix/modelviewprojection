@@ -11,11 +11,23 @@ use this helper.
 """
 
 import math
+import typing
 
 import glfw
 
+if typing.TYPE_CHECKING:
+    # glfw types window handles as `_GLFWwindowPointerT`: private, absent at
+    # runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
 
-def walk_around_camera(window, camera, move_step: float) -> None:
+    GLFWWindow = _GLFWwindowPointerT
+
+
+def walk_around_camera(
+    window: "GLFWWindow",
+    camera: typing.Any,
+    move_step: float,
+) -> None:
     """Poll the standard walk-around camera keys and mutate *camera*.
 
     LEFT/RIGHT yaw, PAGE_UP/PAGE_DOWN pitch, UP/DOWN walk forward/back

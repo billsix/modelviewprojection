@@ -24,11 +24,20 @@ instead of redefining the identical body.  (demo03 keeps its own annotated copy
 for the chapter; demo19e keeps its own -- it uses a different background color.)
 """
 
+import typing
+
 import glfw
 import OpenGL.GL as GL
 
+if typing.TYPE_CHECKING:
+    # glfw types window handles as `_GLFWwindowPointerT`: private, absent at
+    # runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
 
-def draw_in_square_viewport(window) -> None:
+    GLFWWindow = _GLFWwindowPointerT
+
+
+def draw_in_square_viewport(window: "GLFWWindow") -> None:
     GL.glClearColor(0.2, 0.2, 0.2, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 

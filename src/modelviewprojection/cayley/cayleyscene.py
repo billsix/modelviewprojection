@@ -290,8 +290,10 @@ class Animation(typing.Generic[N]):
     """Evaluates a :class:`Scene`/:class:`Timeline` at a given frame time."""
 
     def __init__(
-        self, scene: Scene[N], timeline: typing.Optional[Timeline[N]] = None
-    ):
+        self,
+        scene: Scene[N],
+        timeline: typing.Optional[Timeline[N]] = None,
+    ) -> None:
         self.scene = scene
         self.timeline = timeline or Timeline(scene)
 

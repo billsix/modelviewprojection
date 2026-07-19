@@ -23,11 +23,16 @@ from here instead of redefining them.
 """
 
 import math
+import typing
 
 from modelviewprojection.mathutils import Vector3, find_normal
 
 
-def _face_normal(a, b, c) -> tuple[float, float, float]:
+def _face_normal(
+    a: typing.Sequence[float],
+    b: typing.Sequence[float],
+    c: typing.Sequence[float],
+) -> tuple[float, float, float]:
     """Outward *unit* normal of triangle (a, b, c), CCW-wound.
 
     The cross product of two edges -- computed via

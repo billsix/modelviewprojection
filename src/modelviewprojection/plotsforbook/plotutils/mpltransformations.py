@@ -16,11 +16,23 @@
 # Boston, MA 02111-1307, USA.
 
 import math
+import typing
 
 import numpy as np
 
+#: One axis of plot data.  matplotlib takes parallel arrays, so a 2-D point set
+#: is the pair ``(xs, ys)``.
+Axis = typing.Sequence[float]
+#: A 2-D transform over that pair.  The result is ``Iterable``, not ``tuple``,
+#: because ``map_matplotlib_data`` hands back a ``zip`` object while
+#: :func:`compose` hands back a tuple -- callers unpack either as ``xs, ys``.
+PlotTransform = typing.Callable[[Axis, Axis], typing.Iterable[Axis]]
 
-def map_matplotlib_data(f, *points_on_axis):
+
+def map_matplotlib_data(
+    f: typing.Callable[[typing.Sequence[float]], typing.Sequence[float]],
+    *points_on_axis: Axis,
+) -> typing.Iterable[Axis]:
     """In plotting with numpy, the points on a given axis are supposed
     to be their own arrays, which is not helpful when wanting to transform
     points.  map_matplotlib_data
@@ -55,7 +67,7 @@ def map_matplotlib_data(f, *points_on_axis):
     return zip(*map(f, zip(*points_on_axis)))
 
 
-def _rotate_point(angle, x, y):
+def _rotate_point(angle: float, x: float, y: float) -> tuple[float, float]:
     """Rotate an X and Y value by an angle
 
     >>> x = 1.0
@@ -90,7 +102,7 @@ def _rotate_point(angle, x, y):
     )
 
 
-def rotate(angle):
+def rotate(angle: float) -> PlotTransform:
     """Rotate the xs and ys by angle
     >>> xs = np.array([-5.0,5.0])
     >>> ys = np.array([0.0,0.0])
@@ -104,7 +116,7 @@ def rotate(angle):
     )
 
 
-def scale(scale_x, scale_y):
+def scale(scale_x: float, scale_y: float) -> PlotTransform:
     """Scale the xs and ys
 
     >>> xs = np.array([-5.0,5.0])
@@ -119,7 +131,7 @@ def scale(scale_x, scale_y):
     )
 
 
-def translate(tx, ty):
+def translate(tx: float, ty: float) -> PlotTransform:
     """translate the xs and ys
 
     >>> xs = np.array([-5.0,5.0])
@@ -137,3 +149,29 @@ def translate(tx, ty):
 if __name__ == "__main__":
     # np is need for doctest and don't want autoflake to remove it
     ignore = np.eye(1)
+
+
+def compose(*transforms: PlotTransform) -> PlotTransform:
+    """Apply ``transforms`` right-to-left, like function composition.
+
+    ``compose(translate(...), scale(...), rotate(...))`` rotates first, then
+    scales, then translates -- the same order the maths is written in, and the
+    same order the ``procedures=[...]`` lists elsewhere in this package use.
+    Without it a chained transform has to be written inside-out, re-splatting
+    each stage's ``(xs, ys)`` into the next.
+
+    >>> xs = np.array([1.0, 2.0])
+    >>> ys = np.array([0.0, 0.0])
+    >>> shift_then_double = compose(scale(2, 2), translate(1, 0))
+    >>> for axis in shift_then_double(xs, ys):
+    ...     print(tuple(float(v) for v in axis))
+    (4.0, 6.0)
+    (0.0, 0.0)
+    """
+
+    def composed(xs: Axis, ys: Axis) -> typing.Iterable[Axis]:
+        for transform in reversed(transforms):
+            xs, ys = transform(xs, ys)
+        return xs, ys
+
+    return composed

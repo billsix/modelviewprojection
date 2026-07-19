@@ -52,7 +52,7 @@ from modelviewprojection.mathutils import (
 N = typing.TypeVar("N")  # node-id type (an Enum member, typically)
 
 
-def node_label(node) -> str:
+def node_label(node: typing.Any) -> str:
     """A readable name for a node id (the ``Enum`` member name, or ``str``)."""
     return node.name if isinstance(node, enum.Enum) else str(node)
 

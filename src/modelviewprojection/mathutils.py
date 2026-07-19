@@ -369,13 +369,13 @@ class FunctionStack(typing.Generic[V]):
         default_factory=lambda: []
     )
 
-    def push(self, o: InvertibleFunction[V]):
+    def push(self, o: InvertibleFunction[V]) -> None:
         self.stack.append(o)
 
     def pop(self) -> InvertibleFunction[V]:
         return self.stack.pop()
 
-    def clear(self):
+    def clear(self) -> None:
         self.stack.clear()
 
     def modelspace_to_ndc_fn(self) -> InvertibleFunction[V]:
@@ -387,7 +387,9 @@ fn_stack = FunctionStack()
 
 
 @contextlib.contextmanager
-def push_transformation(f: InvertibleFunction[V]):
+def push_transformation(
+    f: InvertibleFunction[V],
+) -> typing.Iterator["FunctionStack[V]"]:
     try:
         fn_stack.push(f)
         yield fn_stack

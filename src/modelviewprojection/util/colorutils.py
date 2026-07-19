@@ -30,7 +30,7 @@ class Color3:
     g: float
     b: float
 
-    def __iter__(self):
+    def __iter__(self) -> typing.Iterator[float]:
         return iter(dataclasses.astuple(self))
 
 
@@ -41,5 +41,5 @@ class Color4:
     b: float
     a: float
 
-    def __iter__(self):
+    def __iter__(self) -> typing.Iterator[float]:
         return iter(dataclasses.astuple(self))

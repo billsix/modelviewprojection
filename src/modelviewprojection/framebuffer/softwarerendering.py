@@ -89,7 +89,7 @@ class FrameBuffer:
         init=False
     )  # the array that holds the color values
 
-    def __post_init__(self):
+    def __post_init__(self) -> None:
         self._framebuffer = np.random.randint(
             0, 256, (self.height, self.width, 3), dtype=np.uint8
         )
@@ -116,7 +116,7 @@ class FrameBuffer:
         )
         return ss_to_fb(v)
 
-    def set_color(self, v: Vector2, color: typing.Tuple[int, int, int]):
+    def set_color(self, v: Vector2, color: typing.Tuple[int, int, int]) -> None:
         self._framebuffer[int(round(v.coeff_e_2)), int(round(v.coeff_e_1))] = (
             color
         )
@@ -126,8 +126,8 @@ class FrameBuffer:
         p1: Vector2,
         p2: Vector2,
         p3: Vector2,
-        color=(255, 255, 255),
-    ):
+        color: tuple[int, int, int] = (255, 255, 255),
+    ) -> None:
         """
         Draw a filled triangle using the edge function (cross product) method.
         p1, p2, p3 are (x, y) tuples in framebuffer coordinates.

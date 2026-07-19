@@ -62,13 +62,12 @@ if __name__ == "__main__":
 
     # plot different basis
     for xs, ys, thickness in generategridlines.generategridlines(graph_bounds):
-        transformed_xs, transformed_ys = list(
-            mplt.translate(2, 2)(
-                *mplt.scale(math.sqrt(8), math.sqrt(8))(
-                    *mplt.rotate(math.radians(45.0))(xs, ys)
-                )
-            )
+        rotate_scale_translate = mplt.compose(
+            mplt.translate(2, 2),
+            mplt.scale(math.sqrt(8), math.sqrt(8)),
+            mplt.rotate(math.radians(45.0)),
         )
+        transformed_xs, transformed_ys = rotate_scale_translate(xs, ys)
         plt.plot(transformed_xs, transformed_ys, "k-", lw=thickness)
 
     # make sure the x and y axis are equally proportional in screen space

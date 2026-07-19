@@ -16,12 +16,17 @@
 # Boston, MA 02111-1307, USA.
 
 
+import typing
+
 import numpy as np
 
 extra_lines_multiplier = 3
 
 
-def generategridlines(graph_bounds, interval=1):
+def generategridlines(
+    graph_bounds: tuple[int, int],
+    interval: int = 1,
+) -> typing.Iterator[tuple[list[float], list[float], int]]:
     for x in range(
         -graph_bounds[0] * extra_lines_multiplier,
         graph_bounds[0] * extra_lines_multiplier,

@@ -24,9 +24,24 @@ Per-frame, per-demo key handling lives in each demo's own `handle_inputs`,
 which is intentionally *not* shared.
 """
 
+import typing
+
 import glfw
 
+if typing.TYPE_CHECKING:
+    # glfw types window handles as `_GLFWwindowPointerT`: private, absent at
+    # runtime, so alias it here for the annotations below.
+    from glfw import _GLFWwindowPointerT
 
-def on_key(win, key, scancode, action, mods):
+    GLFWWindow = _GLFWwindowPointerT
+
+
+def on_key(
+    win: "GLFWWindow",
+    key: int,
+    scancode: int,
+    action: int,
+    mods: int,
+) -> None:
     if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
         glfw.set_window_should_close(win, 1)

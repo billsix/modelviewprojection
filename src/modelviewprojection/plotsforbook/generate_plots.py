@@ -19,7 +19,6 @@ import doctest
 import itertools
 import math
 import sys
-import typing
 from collections import namedtuple
 from collections.abc import Iterator, Sequence
 
@@ -30,21 +29,15 @@ import numpy as np
 
 import modelviewprojection.plotsforbook.plotutils.mpltransformations as mplt
 from modelviewprojection.plotsforbook.plotutils import generategridlines
+from modelviewprojection.plotsforbook.plotutils.mpltransformations import (
+    Axis,
+    PlotTransform,
+)
 
 matplotlib.use("agg")
 
 
 # TODO, generalize to any number of dimensions
-#: One axis of plot data.  matplotlib takes parallel arrays, so a 2-D point set
-#: is the pair ``(xs, ys)`` -- each a sequence of coordinates.
-Axis = typing.Sequence[float]
-#: A 2-D transform in the plotting pipeline: ``(xs, ys) -> (xs, ys)``, built by
-#: ``mpltransformations.translate`` / ``rotate`` / ``scale``.  Those are
-#: themselves unannotated, so this documents the contract more than it
-#: gets it checked.
-PlotTransform = typing.Callable[[Axis, Axis], tuple[Axis, Axis]]
-
-
 def accumulate_transformation(
     procedures: list[PlotTransform], forwards: bool = True
 ) -> Iterator[tuple[PlotTransform, int]]:
