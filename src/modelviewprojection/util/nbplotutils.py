@@ -17,6 +17,7 @@
 
 
 import contextlib
+import contextvars
 import math
 from collections.abc import Generator, Iterator, Sequence
 
@@ -96,7 +97,32 @@ def generategridlines(
         )
 
 
-axes: matplotlib.axes.Axes
+#: The axes established by the enclosing ``create_graphs()`` block.
+#:
+#: A :class:`contextvars.ContextVar` rather than a plain module global for two
+#: reasons.  ``set()`` returns a token and ``reset(token)`` restores the
+#: *previous* value, so nested ``create_graphs()`` blocks no longer clobber each
+#: other (a bare global left the outer block with ``None``).  And an unset
+#: ContextVar raises at the point of use, which is how ``_current_axes()`` can
+#: report the real mistake instead of an ``AttributeError`` further downstream.
+_axes: contextvars.ContextVar[matplotlib.axes.Axes] = contextvars.ContextVar(
+    "axes"
+)
+
+
+def _current_axes() -> matplotlib.axes.Axes:
+    """The axes of the enclosing ``create_graphs()`` block.
+
+    Raises :class:`RuntimeError` naming the actual mistake if there is no such
+    block -- this replaced scattered ``assert axes is not None`` checks.
+    """
+    try:
+        return _axes.get()
+    except LookupError:
+        raise RuntimeError(
+            "no active figure -- call this inside a "
+            "`with create_graphs():` block"
+        ) from None
 
 
 @contextlib.contextmanager
@@ -105,15 +131,18 @@ def create_graphs(
     title: str | None = None,
     filename: str | None = None,
 ) -> Generator[matplotlib.axes.Axes, None, matplotlib.figure.Figure]:
-    global axes
     fig: matplotlib.figure.Figure
     fig, axes = plt.subplots(figsize=graph_bounds)
+    token = _axes.set(axes)
     axes.set_xlim((-graph_bounds[0], graph_bounds[0]))
     axes.set_ylim((-graph_bounds[1], graph_bounds[1]))
 
     plt.tight_layout()
 
-    yield axes
+    try:
+        yield axes
+    finally:
+        _axes.reset(token)
 
     fig.patch.set_edgecolor("black")
     fig.patch.set_linewidth(2)
@@ -226,6 +255,7 @@ def _draw_labelled_triangle(
     (91-92% identical); only the two non-origin vertices, the label strings, and
     which way the labels are nudged in x ever differed.
     """
+    axes = _current_axes()
     x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
     x_world_space = Vector2.e_1
     y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
@@ -320,6 +350,7 @@ def draw_ndc(
     fn: InvertibleFunction = _IDENTITY,
     color: tuple[float, float, float] = (0.0, 0.0, 1.0),
 ) -> None:
+    axes = _current_axes()
     x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
     x_world_space = Vector2.e_1
     y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
@@ -378,6 +409,7 @@ def draw_screen(
     fn: InvertibleFunction = _IDENTITY,
     color: tuple[float, float, float] = (0.0, 0.0, 1.0),
 ) -> None:
+    axes = _current_axes()
     d_width = 2.0 / width
     d_height = 2.0 / height
     for x in range(width):

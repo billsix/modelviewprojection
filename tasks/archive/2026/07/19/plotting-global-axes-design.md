@@ -1,6 +1,7 @@
 # Analyze the `global axes` threading in the matplotlib plot helpers
 
-**Status:** proposed — **analysis only, no code changes without a decision**
+**Status:** **DECIDED and DONE 2026-07-19 — Design A (keep the implicit global, make it
+honest).** Bill weighed the options and chose to keep the short call site.
 **Created:** 2026-07-18
 **Requested by:** Bill, 2026-07-18 — "analyze how I do the matplotlib plotting with
 threading global axes through. I don't really like the design but I don't know what else
@@ -58,7 +59,51 @@ It also mirrors how matplotlib itself works (`plt.plot` draws on the current axe
 4. **Two independent copies have already diverged** (mvp's and gacalc's), so the design
    flaw is duplicated too.
 
-## Options to weigh
+## Decision (2026-07-19)
+
+**Chosen: keep the implicit global, backed by a `contextvars.ContextVar` and reached
+through one `_current_axes()` accessor. Zero call sites changed.**
+
+**The metric that decided it:** passing `axes` explicitly would have lengthened **~150
+teaching-facing call sites** -- 40 draw calls in mvp's `plot2d.py` alone (against only 8
+`create_graphs` blocks), ~80 across mvp, and ~74 in gacalc (`displaymv.py` 34,
+`displayg2.py` 28, `nbplotutils.py` 12) -- to restate a dependency that the enclosing
+`with create_graphs():` block already establishes two lines above. Bill's call: not worth
+it in teaching code. The plotter-object option was rejected as equally verbose plus a
+class.
+
+**Options 3 and 4 turned out to be the same edit.** "Keep the global but make it honest"
+needs one accessor; backing that accessor with a `ContextVar` instead of a module global
+costs nothing extra at the call sites and fixes nesting for free. So the cheap fix and
+the better mechanism were never a trade-off.
+
+### What landed, in both repos
+
+- `_axes: contextvars.ContextVar` replaces the module-level `axes` global.
+- `_current_axes()` raises `RuntimeError("no active figure -- call this inside a
+  `with create_graphs():` block")` at the point of use.
+- `create_graphs` publishes with `set()` and restores with `reset(token)` in a `finally`.
+- Each of the three draw helpers binds `axes = _current_axes()` once; their bodies are
+  untouched.
+- **gacalc's 3 scattered `assert axes is not None` checks deleted** -- that was the job
+  the accessor took over. (mvp had none, so a stray call there was a bare `NameError`.)
+
+**Behaviour verified, not assumed:**
+
+```
+outside a block -> RuntimeError: no active figure -- call this inside a `with create_graphs():` block
+after nested block, outer still current: True      # a plain global left it None
+```
+
+**Gates:** mvp 7/7 and gacalc 6/6 rendered figures pixel-identical; mvp 67 tests + `ty`
+unchanged at 11 (third-party stubs only); gacalc 286 tests, `ty` and `ruff` clean;
+`plot2d.py` runs.
+
+**What this does NOT fix, deliberately:** the dependency is still invisible in the
+signatures -- `draw_ndc(fn, color)` does not mention that it needs an active figure. That
+was the known cost of Design A, accepted in exchange for the call sites staying short.
+
+## Options that were weighed
 
 1. **Explicit parameter — `draw_isoceles_triangle(axes, fn=...)`.** Honest, typed,
    testable, no global. Cost: every notebook call site grows, and the teaching cell stops
