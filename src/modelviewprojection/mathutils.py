@@ -104,7 +104,7 @@ __all__ = [
 V = typing.TypeVar("V", bound=MultiVectorBase)
 
 
-# doc-region-begin define rotate
+# doc-region-begin define rotate 2d
 # rotate(theta) rotates a Vector2 by theta in the plane e_1 wedge e_2 (the
 # only plane there is, in 2D).  It is bound at module scope ON PURPOSE:
 # plane_rotation derives the plane ONCE (wedge -> normalized unit bivector,
@@ -118,7 +118,7 @@ rotate: typing.Callable[[float], InvertibleFunction[Vector2]] = plane_rotation(
     latex_repr=lambda t: f"R_{{<{t}>}}",
     latex_repr_inv=lambda t: f"R_{{<{-t}>}}",
 )
-# doc-region-end define rotate
+# doc-region-end define rotate 2d
 
 
 # doc-region-begin define rotate around

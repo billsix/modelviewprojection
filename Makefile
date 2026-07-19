@@ -74,7 +74,7 @@ EXPOSE_PORT = -p 8888:8888
 
 
 .PHONY: all
-all: image ## Build the HTML and PDF from scratch in Debian Bulleye
+all: check-regions image ## Build the HTML and PDF from scratch in Debian Bulleye
 
 .PHONY: image
 image: ## Build a podman image in which to build the book
@@ -140,6 +140,14 @@ format: image ## (container) ruff + ty over the source (loadpackages.sh + format
 		-c 'cd /mvp && loadpackages.sh && format.sh'
 
 
+# Validate the book's doc-region anchors (resolve + no prefix collisions).
+# Deliberately NOT ##-documented: it is never run on its own, only as a
+# prerequisite of the book build (html), so it stays out of `make help`.
+.PHONY: check-regions
+check-regions:
+	python3 tools/check_doc_regions.py
+
+
 # Refresh the vendored Emacs packages. Forces USE_EMACS=1 and rebuilds the image
 # first (so it doesn't matter whether the last `make image` set USE_EMACS). Then,
 # in the container, wipes the elpa tree and reinstalls from MELPA into the host's
@@ -165,7 +173,7 @@ update-emacs-packages: ## USE_EMACS=1: rebuild image, wipe+reinstall elpa, strip
 	@echo "Done: reinstalled packages, stripped *.elc/*.eln, staged elpa -- review and commit."
 
 
-html: image ## Build the html from the sphinx source
+html: check-regions image ## Build the html from the sphinx source
 	printf "This documentation was generated from from commit " > book/docs/version.txt
 	git rev-parse HEAD >> book/docs/version.txt
 	$(CONTAINER_CMD) run -it --rm  \

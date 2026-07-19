@@ -112,6 +112,15 @@ silent warning. Either build with `-W` for these specific warnings, or add a sma
 `make check-includes` that greps every `literalinclude` anchor against its target and
 exits nonzero. Cheap, and it is the reason 25 of these accumulated unnoticed.
 
+**CHECKER BUILT 2026-07-19 (`tools/check_doc_regions.py`, `make check-regions`).**
+Assertions #1 (resolve) and #2 (prefix) are implemented and wired; #3 (content lockfile)
+is deferred until the marker-ID scheme is chosen (`emit-doc-region-markers`). The prefix
+part is **green** — the 4 live `define rotate` collisions were fixed by renaming the bare
+`define rotate` marker to `define rotate 2d` (in `mathutils.py` and its ch07 anchor). The
+resolve part is **red on the 46 anchors below** — which is the rest of THIS task (the
+dangling includes); `make check-regions` now quantifies them precisely and will go green as
+they are fixed.
+
 **Scope grew 2026-07-19 — the checker must assert THREE things, not one.** Two further
 failure modes were found by experiment while designing gacalc's marker scheme
 (`geometricalgebra/tasks/emit-doc-region-markers.md`):

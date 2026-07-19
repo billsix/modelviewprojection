@@ -331,8 +331,8 @@ Therefore
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
    :language: python
-   :start-after: doc-region-begin define rotate
-   :end-before: doc-region-end define rotate
+   :start-after: doc-region-begin define rotate 2d
+   :end-before: doc-region-end define rotate 2d
    :linenos:
    :lineno-match:
    :caption: src/modelviewprojection/mathutils.py

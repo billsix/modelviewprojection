@@ -84,6 +84,8 @@ ignore = []
 "src/modelviewprojection/plotsforbook/**" = ["T201"]
 # jupytext notebooks: printed output IS the notebook content.
 "src/modelviewprojection/notebooksrc/**" = ["T201"]
+# command-line dev tools: printing diagnostics to stdout IS their job.
+"tools/**" = ["T201"]
 "ports/**" = ["E501", "S311", "T201", "E711", "E712", "B007",
               "UP035", "E722", "E402", "E741", "E731", "B008", "F841", "UP007"]
 
