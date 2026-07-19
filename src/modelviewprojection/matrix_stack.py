@@ -72,6 +72,25 @@ __projectionStack__: list[np.ndarray] = [
 
 
 def get_current_matrix(matrix_stack: MatrixStack) -> np.ndarray:
+    """The matrix on top of the requested stack.
+
+    ``model`` / ``view`` / ``projection`` return their own stored top; the two
+    combined members are **products computed on demand**, not stored stacks.
+
+    >>> import numpy as np
+    >>> set_to_identity_matrix(MatrixStack.model)
+    >>> get_current_matrix(MatrixStack.model).astype(int).tolist()
+    [[1, 0, 0, 0], [0, 1, 0, 0], [0, 0, 1, 0], [0, 0, 0, 1]]
+
+    ``modelview`` is ``view * model``, so a translation on ``model`` alone shows
+    up in it:
+
+    >>> set_to_identity_matrix(MatrixStack.model)
+    >>> set_to_identity_matrix(MatrixStack.view)
+    >>> translate(MatrixStack.model, 3.0, 4.0, 5.0)
+    >>> get_current_matrix(MatrixStack.modelview)[:, 3].tolist()
+    [3.0, 4.0, 5.0, 1.0]
+    """
     # A chain of `if`s with no `else` fell off the end and returned None for
     # any unhandled member -- while the signature promises an ndarray, and
     # every caller indexes the result immediately. The `case _` makes that
@@ -170,8 +189,26 @@ def _pop_matrix(matrix_stack: MatrixStack) -> None:
 
 @contextlib.contextmanager
 def push_matrix(m: MatrixStack) -> typing.Iterator[MatrixStack]:
-    """Instead of manually pushing and poping the matrix stack,
-    this allows using the "with" keyword."""
+    """Save the current matrix for the duration of a ``with`` block, restoring
+    it on exit.
+
+    The analogue of OpenGL's ``glPushMatrix`` / ``glPopMatrix``: transforms
+    applied inside the block are undone when it ends, so a child's transforms
+    never leak back to its parent.
+
+    >>> import numpy as np
+    >>> set_to_identity_matrix(MatrixStack.model)
+    >>> with push_matrix(MatrixStack.model):
+    ...     scale(MatrixStack.model, 2.0, 2.0, 2.0)
+    ...     np.diag(get_current_matrix(MatrixStack.model)).tolist()
+    [2.0, 2.0, 2.0, 1.0]
+
+    Back outside the block, the scale is gone -- the matrix is the identity it
+    was before:
+
+    >>> np.diag(get_current_matrix(MatrixStack.model)).tolist()
+    [1.0, 1.0, 1.0, 1.0]
+    """
     matrix_stack = m
     try:
         _push_matrix(matrix_stack)

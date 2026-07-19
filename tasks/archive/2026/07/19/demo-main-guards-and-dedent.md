@@ -1,10 +1,26 @@
 # Main-guard the demos, and `:dedent:` the book includes that excerpt them
 
-**Status:** proposed — **on hold, and the approach itself is not settled.** Bill approved
-it in principle 2026-07-18 ("option 1 sounds great"), then revisited: *"we'll get to that
-later, after everything from [the `N` pass] is done. I'm still unsure if what I've
-suggested is the best path."*
+**Status:** **CLOSED 2026-07-19 -- NOT NEEDED. Do not implement this plan.**
 
+The premise was wrong. This task existed to collapse `pytest.ini`'s `testpaths`
+allow-list, on the belief that the allow-list blocked the doctest goal in
+[doctests-everywhere](doctests-everywhere.md). It does not: the allow-list already
+names **every library area in the repo** -- `tests`, `cayley/`, `framebuffer/`,
+`plotsforbook/`, `util/`, `mathutils.py`, `matrix_stack.py`. So doctests can be written
+for 100% of the library **today, with zero restructuring**.
+
+The only files it excludes are `demos/`, `mvpvisualization/`, and `notebooksrc/` --
+runnable scripts and jupytext notebooks. A demo is a flat script that opens a GL window
+and runs a render loop: there is no function to call and no return value to show, so it
+is the *least* valuable place to put a doctest. Paying 25 reshaped demo files + 129 book
+`:dedent:` edits to enable that is a bad trade.
+
+**Superseded, partly.** The measurements taken here (2026-07-19) were folded into
+`move-demos-out-of-package.md`, which proposes moving the runnable scripts to top-level
+`demos/` + `visualizations/`. That move happens to make the allow-list unnecessary as a
+**side effect** (`testpaths = src tests` never looks outside `src/`) -- but it is
+justified on **student discoverability**, not on doctests, and it needs no main guards
+and no `:dedent:` because no file changes shape.
 **Created:** 2026-07-18
 **Enables:** [doctests-everywhere](doctests-everywhere.md) — this is its prerequisite
 

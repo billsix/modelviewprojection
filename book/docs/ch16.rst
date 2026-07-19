@@ -186,9 +186,49 @@ a vector to another vector, through the "modelspace_to_ndc_fn" method.
 
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
-   :language: python
    :start-after: doc-region-begin define function stack class
+   :end-before: doc-region-end function stack class signature
+   :language: python
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :start-after: doc-region-begin function stack class fields
+   :end-before: doc-region-end function stack push signature
+   :language: python
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :start-after: doc-region-begin function stack push body
+   :end-before: doc-region-end function stack pop signature
+   :language: python
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :start-after: doc-region-begin function stack pop body
+   :end-before: doc-region-end function stack clear signature
+   :language: python
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :start-after: doc-region-begin function stack clear body
+   :end-before: doc-region-end function stack compose signature
+   :language: python
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :start-after: doc-region-begin function stack compose body
    :end-before: doc-region-end define function stack class
+   :language: python
    :linenos:
    :lineno-match:
    :caption: src/modelviewprojection/mathutils.py

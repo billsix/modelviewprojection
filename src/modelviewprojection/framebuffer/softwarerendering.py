@@ -40,6 +40,20 @@ from modelviewprojection.mathutils import (
 # sole caller.
 # doc-region-begin counter clockwise
 def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
+    """True when the turn from ``v1`` to ``v2`` is counter-clockwise.
+
+    >>> from modelviewprojection.mathutils import Vector2
+    >>> is_counter_clockwise(1.0 * Vector2.e_1, 1.0 * Vector2.e_2)
+    True
+    >>> is_counter_clockwise(1.0 * Vector2.e_2, 1.0 * Vector2.e_1)
+    False
+
+    Collinear vectors count as counter-clockwise too (the boundary case) --
+    that is deliberate, so an edge-pixel is lit for either winding:
+
+    >>> is_counter_clockwise(1.0 * Vector2.e_1, 2.0 * Vector2.e_1)
+    True
+    """
     # orientation is the SIGN of the cross product  v1 x v2 = |v1||v2|
     # sin(theta) -- which in 2D is exactly the wedge  v1 ^ v2  (sine's
     # numerator; see the note there).  Use it unnormalized: dividing by the
@@ -52,6 +66,22 @@ def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
 
 # doc-region-begin clockwise
 def is_clockwise(v1: Vector2, v2: Vector2) -> bool:
+    """The mirror of :func:`is_counter_clockwise`.
+
+    >>> from modelviewprojection.mathutils import Vector2
+    >>> is_clockwise(1.0 * Vector2.e_2, 1.0 * Vector2.e_1)
+    True
+    >>> is_clockwise(1.0 * Vector2.e_1, 1.0 * Vector2.e_2)
+    False
+
+    A collinear pair is BOTH clockwise and counter-clockwise -- both predicates
+    include the zero-cross case, which is how a pixel exactly on an edge gets
+    lit no matter which way the triangle is wound:
+
+    >>> pair = (1.0 * Vector2.e_1, 2.0 * Vector2.e_1)
+    >>> is_clockwise(*pair) and is_counter_clockwise(*pair)
+    True
+    """
     # the mirror of is_counter_clockwise (the cross product the other way). Both
     # include the cross == 0 (collinear / on-the-edge) case, so a point lying
     # exactly on an edge or vertex counts as BOTH -- which lets the rasterizer
@@ -61,7 +91,29 @@ def is_clockwise(v1: Vector2, v2: Vector2) -> bool:
 
 
 # doc-region-begin parallel
-def is_parallel(v1: Vector2, v2: Vector2) -> bool:
+def is_parallel_and_same_orientation(v1: Vector2, v2: Vector2) -> bool:
+    """True when two vectors are parallel **and point the same way**.
+
+    The name is precise on purpose.  In geometric algebra "parallel" means the
+    wedge is zero (``a ^ b == 0``), which holds for *either* orientation; this
+    predicate adds the further requirement of the **same** orientation, so an
+    anti-parallel pair is excluded:
+
+    >>> from modelviewprojection.mathutils import Vector2
+    >>> is_parallel_and_same_orientation(1.0 * Vector2.e_1, 2.0 * Vector2.e_1)
+    True
+    >>> is_parallel_and_same_orientation(1.0 * Vector2.e_1, -1.0 * Vector2.e_1)
+    False
+    >>> is_parallel_and_same_orientation(1.0 * Vector2.e_1, 1.0 * Vector2.e_2)
+    False
+
+    A zero-length vector has no direction, so it is treated as matching
+    anything -- giving the rasterizer's degenerate-triangle guard a definite
+    answer instead of a divide-by-zero:
+
+    >>> is_parallel_and_same_orientation(0.0 * Vector2.e_1, 1.0 * Vector2.e_1)
+    True
+    """
     # a zero-length vector has no direction; treat it as degenerate/collinear so
     # callers (e.g. the rasterizer's degenerate-triangle guard) get a definite
     # answer instead of dividing by a zero magnitude.
@@ -153,10 +205,11 @@ class FrameBuffer:
         v2: Vector2 = x2 * Vector2.e_1 + y2 * Vector2.e_2
         v3: Vector2 = x3 * Vector2.e_1 + y3 * Vector2.e_2
 
-        # a zero-length edge (coincident vertices) or collinear vertices give a
-        # zero-area triangle -- is_parallel now answers True for those instead
-        # of dividing by zero
-        if is_parallel(v2 - v1, v3 - v2):
+        # a zero-length edge (coincident vertices) or same-direction collinear
+        # vertices give a zero-area triangle -- cull it instead of dividing by
+        # zero.  (An anti-parallel edge pair is also zero-area but is NOT caught
+        # here; see tasks/is-parallel-ga-semantics.md.)
+        if is_parallel_and_same_orientation(v2 - v1, v3 - v2):
             return  # degenerate triangle
 
         # Loop over bounding box

@@ -37,6 +37,22 @@ def _face_normal(
 
     The cross product of two edges -- computed via
     :func:`modelviewprojection.mathutils.find_normal` -- then normalized.
+
+    A triangle in the x-y plane wound counter-clockwise faces +z:
+
+    >>> _face_normal((0, 0, 0), (1, 0, 0), (0, 1, 0))
+    (0.0, 0.0, 1.0)
+
+    Reversing the winding flips the normal to face the other way:
+
+    >>> _face_normal((0, 0, 0), (0, 1, 0), (1, 0, 0))
+    (0.0, 0.0, -1.0)
+
+    A degenerate (zero-area) triangle has no normal; report zeros rather than
+    divide by a zero magnitude:
+
+    >>> _face_normal((0, 0, 0), (1, 0, 0), (2, 0, 0))
+    (0.0, 0.0, 0.0)
     """
     n = find_normal(Vector3(*a), Vector3(*b), Vector3(*c))
     mag = abs(n)
@@ -44,6 +60,31 @@ def _face_normal(
 
 
 def light_dir_ws(az_deg: float, el_deg: float) -> tuple[float, float, float]:
+    """Unit direction to a light, from azimuth + elevation in **degrees**.
+
+    Azimuth sweeps the x-z plane from +x toward +z; elevation lifts toward +y.
+    So the three cardinal directions read off directly:
+
+    >>> def rounded(v):
+    ...     return tuple(round(c, 6) for c in v)
+    >>> rounded(light_dir_ws(0, 0))       # azimuth 0, on the horizon -> +x
+    (1.0, 0.0, 0.0)
+    >>> rounded(light_dir_ws(90, 0))      # quarter turn in azimuth -> +z
+    (0.0, 0.0, 1.0)
+    >>> rounded(light_dir_ws(0, 90))      # straight up -> +y
+    (0.0, 1.0, 0.0)
+
+    Halfway up at azimuth 0 splits evenly between +x and +y:
+
+    >>> rounded(light_dir_ws(0, 45))
+    (0.707107, 0.707107, 0.0)
+
+    The result is always unit length -- it is a direction, not a position:
+
+    >>> x, y, z = light_dir_ws(37, 52)
+    >>> round((x * x + y * y + z * z) ** 0.5, 6)
+    1.0
+    """
     az = math.radians(az_deg)
     el = math.radians(el_deg)
     return (

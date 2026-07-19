@@ -248,9 +248,17 @@ Right calculation based off of Top and aspect ratio
    ...
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
-   :language: python
    :start-after: doc-region-begin define perspective
+   :end-before: doc-region-end perspective signature
+   :language: python
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :start-after: doc-region-begin perspective body
    :end-before: doc-region-end define perspective
+   :language: python
    :linenos:
    :lineno-match:
    :caption: src/modelviewprojection/mathutils.py

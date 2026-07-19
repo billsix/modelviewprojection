@@ -71,9 +71,17 @@ around a given point in world space, in this case, the paddle's center.
 
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
-   :language: python
    :start-after: doc-region-begin define rotate around
+   :end-before: doc-region-end rotate around signature
+   :language: python
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :start-after: doc-region-begin rotate around body
    :end-before: doc-region-end define rotate around
+   :language: python
    :linenos:
    :lineno-match:
    :caption: src/modelviewprojection/mathutils.py

@@ -1,7 +1,9 @@
 # Investigate: does the book's plotting code teach transforms the way the GL code does?
 
-**Status:** **INVESTIGATED 2026-07-19 — the premise was wrong; recommendation is a
-small, local change.** See "Findings" below. No code changed yet.
+**Status:** **COMPLETE 2026-07-19.** Investigated, premise overturned, recommendation
+implemented. `compose()` added to `mpltransformations` and used at the single nested-splat
+call site; the module is fully annotated. **170/170 generated figures verified identical.**
+No model rewrite -- see Findings for why.
 **Created:** 2026-07-18
 **Requested by:** Bill, 2026-07-18 — "investigate what makes more sense to a student"
 

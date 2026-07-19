@@ -81,7 +81,26 @@ class CameraControls:
 
 def interp(time: float, start: float, dur: float) -> float:
     """The demos' parameter-scaling factor: 0 before ``start``, ramping to 1.0
-    over ``dur``, clamped at 1.0 after.  ``dur <= 0`` is a step at ``start``."""
+    over ``dur``, clamped at 1.0 after.  ``dur <= 0`` is a step at ``start``.
+
+    A ramp starting at t=1 over 2 seconds: flat 0 until it starts, linear
+    across the middle, flat 1 once done.
+
+    >>> interp(0.0, start=1.0, dur=2.0)   # before it starts
+    0.0
+    >>> interp(2.0, start=1.0, dur=2.0)   # halfway through the ramp
+    0.5
+    >>> interp(5.0, start=1.0, dur=2.0)   # long after -> clamped at 1
+    1.0
+
+    A non-positive duration degenerates to a step at ``start`` -- 0 before,
+    1 from ``start`` on:
+
+    >>> interp(0.9, start=1.0, dur=0.0)
+    0.0
+    >>> interp(1.0, start=1.0, dur=0.0)
+    1.0
+    """
     if dur <= 0.0:
         return 1.0 if time >= start else 0.0
     if time <= start:
@@ -435,7 +454,22 @@ def to_matrix(f: InvertibleFunction) -> np.ndarray:
 
     Columns come from ``f(e_i) - f(0)`` and the translation from ``f(0)`` -- so
     ``to_matrix(f) @ [p, 1] == f(p)`` for any affine ``f``.  Not valid for the
-    projective squash (which stays a shader; see decision #4)."""
+    projective squash (which stays a shader; see decision #4).
+
+    A translation becomes a 4x4 whose last column is the offset:
+
+    >>> import numpy as np
+    >>> from modelviewprojection.mathutils import translate, Vector3
+    >>> m = to_matrix(translate(Vector3(3.0, 4.0, 5.0)))
+    >>> m[:, 3].tolist()
+    [3.0, 4.0, 5.0, 1.0]
+
+    The defining property -- applying the matrix to a point matches applying
+    the function to it:
+
+    >>> (m @ np.array([1.0, 2.0, 3.0, 1.0])).tolist()
+    [4.0, 6.0, 8.0, 1.0]
+    """
     o = f(Vector3(0.0, 0.0, 0.0))
     cx = f(Vector3(1.0, 0.0, 0.0)) - o
     cy = f(Vector3(0.0, 1.0, 0.0)) - o

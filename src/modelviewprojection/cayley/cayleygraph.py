@@ -53,7 +53,22 @@ N = typing.TypeVar("N")  # node-id type (an Enum member, typically)
 
 
 def node_label(node: typing.Any) -> str:
-    """A readable name for a node id (the ``Enum`` member name, or ``str``)."""
+    """A readable name for a node id (the ``Enum`` member name, or ``str``).
+
+    An ``Enum`` node reads as its member name, not its ``repr``:
+
+    >>> import enum
+    >>> class Space(enum.Enum):
+    ...     world = 1
+    ...     camera = 2
+    >>> node_label(Space.world)
+    'world'
+
+    Anything else falls back to ``str``, so plain string node ids work too:
+
+    >>> node_label("ndc")
+    'ndc'
+    """
     return node.name if isinstance(node, enum.Enum) else str(node)
 
 
@@ -201,7 +216,35 @@ class Path:
 
 class CayleyGraph(typing.Generic[N]):
     """An immutable directed acyclic graph of spaces, built from all its edges
-    at once: ``CayleyGraph([Edge(a, b, ...), Edge(c, b, ...), ...])``."""
+    at once: ``CayleyGraph([Edge(a, b, ...), Edge(c, b, ...), ...])``.
+
+    Build one from a list of edges; every space mentioned becomes a node:
+
+    >>> import enum
+    >>> from modelviewprojection.mathutils import identity
+    >>> class Space(enum.Enum):
+    ...     world = 1
+    ...     camera = 2
+    ...     ndc = 3
+    >>> graph = CayleyGraph([
+    ...     Edge(Space.world, Space.camera, [("V", identity)]),
+    ...     Edge(Space.camera, Space.ndc, [("P", identity)]),
+    ... ])
+    >>> len(graph.spaces)
+    3
+
+    The edges are directed and must be **acyclic** -- that is validated at
+    construction, so a cycle is rejected up front rather than looping forever
+    when a path is later traced:
+
+    >>> CayleyGraph([
+    ...     Edge(Space.world, Space.camera, [("V", identity)]),
+    ...     Edge(Space.camera, Space.world, [("V_inv", identity)]),
+    ... ])  # doctest: +ELLIPSIS
+    Traceback (most recent call last):
+        ...
+    ValueError: Cayley graph must be acyclic; cycle through ...
+    """
 
     def __init__(self, edges: typing.Iterable[Edge]) -> None:
         self._edges: typing.Tuple[Edge, ...] = tuple(edges)

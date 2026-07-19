@@ -215,6 +215,41 @@ migration: each carries a bespoke `Vertex2D` and raw GLFW boilerplate.
 Modernization direction is an open task (`tasks/assignments-review.md`) —
 don't "fix" their vocabulary ad hoc; the exercise design is Bill's call.
 
+## The book includes code by MARKER, not by line number — so line numbers take care of themselves
+
+**Every `literalinclude` in `book/docs/` selects code with `:start-after: doc-region-begin
+<name>` / `:end-before: doc-region-end <name>` and renders it with `:lineno-match:`.**
+Measured 2026-07-19: **174 `:lineno-match:`, zero `:lineno-start:`, zero `:lines:`** — not
+one listing is pinned to a hardcoded line range.
+
+**Consequence: editing a source file NEVER "breaks" the book's line numbers.** Sphinx
+recomputes them from the markers at build time, so if you add 175 lines near the top of
+`mathutils.py`, every later listing simply renders with its new, correct numbers. That is
+the entire reason the markers exist. **Do not report a line-number shift as an impact, a
+regression, or something needing repair — it is the design working.** (Claude did exactly
+that on 2026-07-19 and Bill had to correct it.)
+
+**What DOES change the book, and is worth checking before you edit:**
+
+1. **Code text inside a published region** — adding a statement, or a **docstring**, to a
+   function whose region the book includes. That lands verbatim in the chapter.
+2. **Adding, moving, renaming, or deleting a region marker** — that changes which lines a
+   chapter publishes, and a renamed marker breaks the include outright (Sphinx finds no
+   anchor).
+3. Prose citing a specific number, or an `:emphasize-lines:` — neither exists in this book
+   today (checked 2026-07-19), so in practice only 1 and 2 apply.
+
+So the check before editing a source file is **"is this text inside a published region?"**
+— never "did the line numbers move?".
+
+**Regions can be SPLIT, and begin/end need not share a name.** The two markers are
+independent text anchors: in `demos/demo03.py`, `doc-region-begin square viewport` is
+closed by `doc-region-end set to gray`. That is how a construct gets carved into several
+published pieces with the parts between them left unpublished — e.g. publishing a
+function's signature and body as two adjacent listings while skipping its docstring (25
+back-to-back `literalinclude` pairs already appear in the book). Use this when a function
+needs a docstring or doctests that students should not have to read.
+
 ## Coding standard (Python)
 
 Written for humans and AI agents alike. **The standard is split in two** — what ruff

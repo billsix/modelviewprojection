@@ -36,7 +36,7 @@ from gacalc.g3 import Vector3
 from modelviewprojection.framebuffer.softwarerendering import (
     is_clockwise,
     is_counter_clockwise,
-    is_parallel,
+    is_parallel_and_same_orientation,
 )
 from modelviewprojection.mathutils import (
     Linearity,
@@ -171,7 +171,7 @@ def test_cosine_and_sine():
     assert math.isclose(sine(Vector2.e_1, Vector2.e_1), 0.0, abs_tol=1e-9)
 
 
-def test_is_parallel():
+def test_is_parallel_and_same_orientation():
     cases = [
         ((1, 0), (2, 0), True),
         ((0, 5), (0, 1), True),
@@ -179,7 +179,7 @@ def test_is_parallel():
         ((0, 5), (0.2, 1), False),
     ]
     for a, b, expected in cases:
-        assert is_parallel(v2(*a), v2(*b)) is expected
+        assert is_parallel_and_same_orientation(v2(*a), v2(*b)) is expected
 
 
 def test_is_counter_clockwise_and_clockwise():

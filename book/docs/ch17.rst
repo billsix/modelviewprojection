@@ -298,9 +298,17 @@ prism to the origin, and scaling by the inverse of the width, height, and depth
 of the viewable region.
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
-   :language: python
    :start-after: doc-region-begin define ortho
+   :end-before: doc-region-end ortho signature
+   :language: python
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :start-after: doc-region-begin ortho body
    :end-before: doc-region-end define ortho
+   :language: python
    :linenos:
    :lineno-match:
    :caption: src/modelviewprojection/mathutils.py
@@ -311,9 +319,17 @@ We will make a wrapper function cs_to_ndc_space_fn which
 calls ortho, setting the size of the rectangular prism.
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py
-   :language: python
    :start-after: doc-region-begin define camera space to ndc
+   :end-before: doc-region-end camera space to ndc signature
+   :language: python
+   :linenos:
+   :lineno-match:
+   :caption: src/modelviewprojection/mathutils.py
+
+.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+   :start-after: doc-region-begin camera space to ndc body
    :end-before: doc-region-end define camera space to ndc
+   :language: python
    :linenos:
    :lineno-match:
    :caption: src/modelviewprojection/mathutils.py
