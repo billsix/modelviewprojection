@@ -91,7 +91,7 @@ Project structure
 
 | Path | What |
 | --- | --- |
-| `src/modelviewprojection/` | The package: `mathutils.py` (gacalc façade + graphics math), `pyMatrixStack.py`, `demos/`, `util/`, `framebuffer/`, `mvpvisualization/` |
+| `src/modelviewprojection/` | The package: `mathutils.py` (gacalc façade + graphics math), `matrix_stack.py`, `demos/`, `util/`, `framebuffer/`, `mvpvisualization/` |
 | `ports/openglsuperbiblev4/` | ~104 Python ports of the SuperBible v4 examples |
 | `book/docs/` | The Sphinx book (chapters `ch01`–`ch21`) |
 | `assignments/` | Student assignments (standalone exercises; lint/format-gated by `format.sh`) |

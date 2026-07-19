@@ -58,7 +58,7 @@ import OpenGL.GL.shaders as shaders
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-import modelviewprojection.pyMatrixStack as ms
+import modelviewprojection.matrix_stack as ms
 from modelviewprojection.util.cameracontrols import walk_around_camera
 from modelviewprojection.util.shading import _face_normal, light_dir_ws
 from modelviewprojection.util.windowing import on_key

@@ -84,7 +84,7 @@ import OpenGL.GL.shaders as shaders
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-import modelviewprojection.pyMatrixStack as ms
+import modelviewprojection.matrix_stack as ms
 from modelviewprojection.mvpvisualization._pipeline import GLenum
 from modelviewprojection.util.cameracontrols import walk_around_camera
 from modelviewprojection.util.shading import light_dir_ws
@@ -624,7 +624,7 @@ def _light_proj_view(
 ) -> tuple[np.ndarray, np.ndarray]:
     """Build an orthographic light-space projection-view pair big
     enough to cover the cube + floor footprint from any light angle.
-    Returns (proj, view) as 4x4 numpy arrays in pyMatrixStack's
+    Returns (proj, view) as 4x4 numpy arrays in matrix_stack's
     row-major convention."""
     # Light position: 100 units along light_dir from origin.
     lx, ly, lz = (c * 100.0 for c in light_dir)
@@ -729,7 +729,7 @@ def render_shadow_map(
 
 
 def set_uniforms() -> None:
-    """Push the current pyMatrixStack matrices into the bound program.
+    """Push the current matrix_stack matrices into the bound program.
 
     When ``_using_shadow_map`` is on we also feed the block_shadow
     program's ``shadowMatrix`` uniform with ``shadow_matrix * model``
@@ -1320,7 +1320,7 @@ def draw_cube(stage: int) -> None:
         with ms.push_matrix(ms.MatrixStack.model):
             # shadow operates on world-space points; we need to flatten
             # AFTER the cube is in the world, so pre-multiply: model =
-            # SHADOW * translate(b=-10,0,10).  pyMatrixStack.multiply does
+            # SHADOW * translate(b=-10,0,10).  matrix_stack.multiply does
             # current = current * rhs, so doing multiply(SHADOW) then
             # translate(b=...) yields exactly that.
             ms.multiply(ms.MatrixStack.model, shadow_matrix)

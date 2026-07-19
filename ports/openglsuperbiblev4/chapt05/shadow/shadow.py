@@ -2,7 +2,7 @@
 # Demonstrates planar shadows: the lit jet drops a darkened copy of
 # itself onto a green ground plane via a shadow projection matrix.
 # Uses mathutils.plane_equation to derive the plane, and an inline
-# planar-shadow matrix builder (will move to pyMatrixStack with
+# planar-shadow matrix builder (will move to matrix_stack with
 # Tier-1 task #3).
 # OpenGL SuperBible, Chapter 5
 # Python port of Shadow.cpp by Richard S. Wright Jr.
@@ -54,7 +54,7 @@ def make_planar_shadow_matrix(
     light_pos_4: "tuple[float, float, float, float]",
 ) -> "np.ndarray":
     """4x4 column-major shadow projection matrix. Same formula as
-    chapt01/block; will move to pyMatrixStack with Tier-1 task #3.
+    chapt01/block; will move to matrix_stack with Tier-1 task #3.
 
     The bottom-right entry below is the w of every transformed vertex
     (rows 0-2 of column 3 are 0). With mvp's CCW plane_equation that w

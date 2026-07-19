@@ -1,6 +1,6 @@
 # Apply the Python coding standard to modelviewprojection
 
-**Status:** **in progress — naming and annotations DONE; type aliases partly done.**
+**Status:** **in progress — naming, annotations, and type aliases DONE.**
 
 Landed 2026-07-18/19: ports lint cleanup; 80-column limit from one config key; **`N`
 enabled repo-wide with 0 violations**; the `## Coding standard (Python)` section written
@@ -16,12 +16,14 @@ in `wxapp.py` -- importing `_pipeline` there would drag glfw+imgui into a wx app
 `Mesh` / `MutableMesh` / `GLHandle` / `VertexCount` (`cayley_gl`), `Axis` /
 `PlotTransform` (`generate_plots`).
 
-**Remaining:** the last 43 annotations are stragglers, 1-5 per file across twelve files.
-**Deliberately deferred: `plotsforbook/plotutils/mpltransformations.py` (5)** -- its types
-depend on the outcome of
-[investigate-plotting-transform-model](investigate-plotting-transform-model.md), so
-annotating it now would likely be redone. Bill wants that investigation done first, then
-the remaining type work.
+**Annotation sweep COMPLETE 2026-07-19: 439 -> 0.** **Every function in `src/modelviewprojection` (65 files) now has typed parameters and a
+typed return** -- the last 3 landed with the `matrix_stack` rename. `ty check src` is
+back to its pre-sweep 11 diagnostics -- all third-party stub issues (10 glfw, 1 wx
+`LoadFrame`) that Bill chose to leave -- so the sweep added **zero** new ones.
+
+`mpltransformations` was the one genuinely blocked module; its investigation resolved
+(see below), it now has a `compose()` helper and full annotations. **Nothing else was
+blocking typing.**
 **Created:** 2026-07-18
 
 ## Goal

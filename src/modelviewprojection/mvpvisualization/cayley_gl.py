@@ -11,7 +11,7 @@ This module is **mechanism only** -- the reusable pieces a Cayley demo needs:
 standard pipelines + geometry (a :class:`StandardObjects`), ``draw_*``
 helpers that read the current model matrix, imgui *widgets* (``render_tree`` /
 ``gui_button``), the orbit camera + input, and a loop runner.  Demos drive the
-matrix stack with ``pyMatrixStack`` directly -- no wrappers here for that.
+matrix stack with ``matrix_stack`` directly -- no wrappers here for that.
 
 It owns NO policy: not the per-frame draw choreography, not the reveal/graying
 decisions, not which imgui panels exist.  Those differ per demo and live in each
@@ -35,7 +35,7 @@ import numpy as np
 import OpenGL.GL as GL
 from imgui_bundle import imgui, imgui_ctx  # noqa: F401  (re-exported for demos)
 
-import modelviewprojection.pyMatrixStack as ms
+import modelviewprojection.matrix_stack as ms
 from modelviewprojection.cayley import cayleyscene
 from modelviewprojection.mvpvisualization import _pipeline as _p
 

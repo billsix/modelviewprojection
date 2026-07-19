@@ -39,12 +39,12 @@ The same Pong scene (two paddles + a square defined relative to paddle1) is re-i
 - **demo19**: Switch to OpenGL 2.1 fixed-function — `glMatrixMode`/`glLoadIdentity`/`glRotatef`/`glTranslate`/`gluPerspective`/`glPushMatrix`/`glPopMatrix`. *First time matrices exist*, but hidden behind the same API shape the student already learned. Comments say "just like putting the identity function on the lambda stack."
 - **demo19a–19e**: SuperBible ports (axes3d, atom, solar, sphereworld) — all fixed-function 3D.
 - **demo20**: Still fixed-function MVP calls, but with a trivial pass-through shader pair (`triangle.vert`/`.frag`) — introduces shader compilation only.
-- **demo21+**: OpenGL 3.3 Core, no fixed function. `pyMatrixStack` (`src/modelviewprojection/pyMatrixStack.py`) is a pure-Python reimplementation of the FF matrix stack with `MatrixStack.{model,view,projection,modelview,modelviewprojection}` and a `push_matrix(stack)` context manager; matrices uploaded as `mvpMatrix` uniform. `compile_program(vert, frag)` helper, VAO/VBO tracked in `all_vaos`/`all_vbos` for cleanup.
+- **demo21+**: OpenGL 3.3 Core, no fixed function. `matrix_stack` (`src/modelviewprojection/matrix_stack.py`) is a pure-Python reimplementation of the FF matrix stack with `MatrixStack.{model,view,projection,modelview,modelviewprojection}` and a `push_matrix(stack)` context manager; matrices uploaded as `mvpMatrix` uniform. `compile_program(vert, frag)` helper, VAO/VBO tracked in `all_vaos`/`all_vbos` for cleanup.
 - **demo22**: Lighting (Lambert), planar shadows, texturing — staged across multiple render modes.
 
-Modern style (demo20+): OpenGL 3.3 Core, shaders in separate `.vert`/`.frag` files in a `demos/demoNN/` subfolder, `pyMatrixStack` for matrices, `util.colorutils.Color4`, optional `imgui_bundle` controls.
+Modern style (demo20+): OpenGL 3.3 Core, shaders in separate `.vert`/`.frag` files in a `demos/demoNN/` subfolder, `matrix_stack` for matrices, `util.colorutils.Color4`, optional `imgui_bundle` controls.
 
-Note (2026-06-03 restructure): the package is grouped — demos under `src/modelviewprojection/demos/`, helpers under `util/` (windowing, clipping, colorutils, cameracontrols, shading, nbplotutils, axes), the software framebuffer under `framebuffer/`; `mathutils.py` + `pyMatrixStack.py` stay at the package top. Imports are absolute (`from modelviewprojection.util.colorutils import …`); demos still run by path.
+Note (2026-06-03 restructure): the package is grouped — demos under `src/modelviewprojection/demos/`, helpers under `util/` (windowing, clipping, colorutils, cameracontrols, shading, nbplotutils, axes), the software framebuffer under `framebuffer/`; `mathutils.py` + `matrix_stack.py` stay at the package top. Imports are absolute (`from modelviewprojection.util.colorutils import …`); demos still run by path.
 
 ---
 
@@ -64,7 +64,7 @@ Note (2026-06-03 restructure): the package is grouped — demos under `src/model
 - **litjet** (lit jet plane) — advances lighting beyond demo22's Lambert: per-vertex normals on a complex mesh, specular/Phong. Slot as **demo23**.
 - **sphereworld (modernized)** — demo19e covers the concept in fixed-function. A 3.3-Core, lit version → **demo24** or later, after litjet establishes the lighting model.
 
-When porting, follow demo22's structure (subfolder with `.vert`/`.frag`/asset files, `compile_program()` helper, VAO/VBO tracked in `all_vaos`/`all_vbos`, `pyMatrixStack` for MVP). Confirm slot before writing code — pedagogical placement matters more than the port itself.
+When porting, follow demo22's structure (subfolder with `.vert`/`.frag`/asset files, `compile_program()` helper, VAO/VBO tracked in `all_vaos`/`all_vbos`, `matrix_stack` for MVP). Confirm slot before writing code — pedagogical placement matters more than the port itself.
 
 ---
 
@@ -256,9 +256,9 @@ before "fixing" a flagged name — most are deliberate (below).
   carries a short comment above its imports reading the graph labels off against the
   function names. When you add a demo whose chapter has a diagram, add the same note —
   a student must be able to line the picture up with the source without guessing.
-  The single remaining naming exemption is `N813` for `import … pyMatrixStack as ms`,
+  The single remaining naming exemption is `N813` for `import … matrix_stack as ms`,
   and it is temporary: the fix is renaming the camelCase *module*
-  (`tasks/rename-pymatrixstack-module.md`), which deletes the exemption at the source
+  (`tasks/archive/2026/07/19/rename-pymatrixstack-module.md`), which deletes the exemption at the source
   rather than suppressing it.
 - **`m` and `b` are a deliberate, protected exception to the naming rules.**
   gacalc's `translate(b=...)` / `uniform_scale(m=...)` are named for `f(x) = m*x + b` —
@@ -297,7 +297,7 @@ before "fixing" a flagged name — most are deliberate (below).
   and correctly left alone.
 - **Prefer `match` + `case _` over an open-ended `if`/`elif` chain, for exhaustiveness.**
   A chain with no final `else` can fall through silently and the hole is invisible. **This
-  repo has already been bitten:** `pyMatrixStack.get_current_matrix` was five `if`s with
+  repo has already been bitten:** `matrix_stack.get_current_matrix` was five `if`s with
   no `else`, annotated `-> np.ndarray`, and fell off the end returning `None` for any
   unhandled `MatrixStack` member — while every caller indexed the result. It is now a
   `match` with `case _: raise`. **Always write the `case _`**; a `match` without one has
@@ -309,7 +309,7 @@ before "fixing" a flagged name — most are deliberate (below).
 - **Use modern Python, and flag it proactively.** The container runs **3.14** and
   compatibility with older Pythons is **not** a concern. Prefer `match` over `if`/`elif`
   chains on an enum (with `case _:` making the fall-through explicit — see
-  `pyMatrixStack.get_current_matrix`), `X | Y` unions and builtin generics, `@override`,
+  `matrix_stack.get_current_matrix`), `X | Y` unions and builtin generics, `@override`,
   `Self`, `TypeIs`, `enum.IntEnum` for a set of related constants (see
   `cayleygraph._DfsColor`, which replaced a bare `WHITE, GRAY, BLACK = 0, 1, 2`),
   `dataclass(slots=True, kw_only=True)`. When a newer feature would solve a problem in
@@ -390,8 +390,8 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 + 1920×1080 default already landed here). Demo import pattern:
 `sys.path.insert(0, os.path.dirname(os.path.dirname(PWD))); import _common`.
 
-**Math / `pyMatrixStack`:**
-- `tasks/planar-shadow-matrix.md` — planar-shadow-projection 4×4 for `pyMatrixStack`; deliberately *not* an `InvertibleFunction` (rank-deficient). (`find_normal`/`plane_equation`/`distance_to_plane` already live in `mathutils.py`.)
+**Math / `matrix_stack`:**
+- `tasks/planar-shadow-matrix.md` — planar-shadow-projection 4×4 for `matrix_stack`; deliberately *not* an `InvertibleFunction` (rank-deficient). (`find_normal`/`plane_equation`/`distance_to_plane` already live in `mathutils.py`.)
 - `tasks/rotate-around-axis.md` — `rotate_around_axis` decomposed as a sequence of axis-aligned rotations (Bill's pedagogy choice; don't drop Rodrigues on them).
 - `tasks/face-normal-vector3d-io.md` — investigation (not started).
 

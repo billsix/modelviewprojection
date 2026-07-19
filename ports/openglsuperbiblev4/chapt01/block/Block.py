@@ -66,7 +66,7 @@ _window = None  # set in main(); used by the Controls buttons
 # Planar shadow matrix
 #
 # Inline here because the demo uses fixed-function `glMultMatrixf` and
-# pyMatrixStack's planar_shadow (Tier-1 task #3) hasn't landed yet. The
+# matrix_stack's planar_shadow (Tier-1 task #3) hasn't landed yet. The
 # plane-equation helper, however, now lives in mathutils.py (Tier-1
 # task #5) and is imported above.
 # ---------------------------------------------------------------------------

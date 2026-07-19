@@ -65,22 +65,10 @@ ignore = []
 # frustum/light locals (L,R,B,T,N,F / Lx,Ly,Lz,Lw). Those are now spelled out.
 # The graph-to-code mapping is kept explicit in a comment at each demo's import
 # block, so a student can still line the diagram up with the source.
-#   N813  `pyMatrixStack as ms` is the ONE remaining naming exemption, and it is
-#         temporary: the real fix is renaming the camelCase MODULE, which drops
-#         this entry entirely. See tasks/rename-pymatrixstack-module.md.
 "src/modelviewprojection/demos/**" = [
     "S311",
     "T201",
-    "N813",
 ]
-# `import modelviewprojection.pyMatrixStack as ms` -- same repo-wide idiom as the
-# demos above (N813). The root cause is the module's own camelCase FILENAME; if
-# pyMatrixStack.py is ever renamed to matrix_stack.py this exemption and the
-# demos' N813 both become unnecessary (see tasks/pymatrixstack-bugs.md, which
-# defers the filename question because it would touch every import).
-# The genuinely-bad names here were renamed in the 2026-07-18 pass
-# (floatsPerVertex, floatsPerColor).
-"src/modelviewprojection/mvpvisualization/**" = ["N813"]
 # wxPython framework boundary. `OnPaint`, `OnTimer`, `InitGL`, `OnDraw`, `OnInit`
 # are overrides -- wx looks up those EXACT names, so renaming them to snake_case
 # would silently unbind them and the app would stop drawing. An externally-defined

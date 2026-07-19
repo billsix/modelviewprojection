@@ -51,7 +51,7 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 from numpy import ndarray
 from OpenGL.constant import Constant
 
-import modelviewprojection.pyMatrixStack as ms
+import modelviewprojection.matrix_stack as ms
 
 if typing.TYPE_CHECKING:
     # glfw types window handles as `_GLFWwindowPointerT`: private, absent at

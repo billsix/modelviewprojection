@@ -34,7 +34,7 @@
 #   jet in demo23 or the cube in demo22).
 # * Many lit instances -- 30 randomly placed spheres, a rotating torus,
 #   and a small orbiting sphere, all sharing one shader and lighting
-#   setup.  Each gets its own model matrix via pyMatrixStack.
+#   setup.  Each gets its own model matrix via matrix_stack.
 # * Stencil-buffered planar shadows -- the shadow projection happens
 #   on the CPU as a 4x4 matrix multiplied into the model stack
 #   *before* each actor's local transform, so the same VBOs draw a
@@ -68,7 +68,7 @@ import OpenGL.GL.shaders as shaders
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-import modelviewprojection.pyMatrixStack as ms
+import modelviewprojection.matrix_stack as ms
 from modelviewprojection.mvpvisualization._pipeline import GLenum
 from modelviewprojection.util.cameracontrols import walk_around_camera
 from modelviewprojection.util.windowing import on_key

@@ -18,7 +18,7 @@ from enum import Enum, auto
 
 import glfw
 
-from modelviewprojection import pyMatrixStack as ms
+from modelviewprojection import matrix_stack as ms
 from modelviewprojection.cayley import (
     cayleygraph,
     cayleyscene,

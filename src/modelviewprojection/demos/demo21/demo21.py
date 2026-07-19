@@ -34,7 +34,7 @@ from imgui_bundle import imgui, imgui_md
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 from numpy.typing import NDArray
 
-import modelviewprojection.pyMatrixStack as ms
+import modelviewprojection.matrix_stack as ms
 import modelviewprojection.util.colorutils as colorutils
 from modelviewprojection.mvpvisualization._pipeline import GLenum
 from modelviewprojection.util.cameracontrols import walk_around_camera

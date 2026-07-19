@@ -339,7 +339,7 @@ def translate(matrix_stack: MatrixStack, x: float, y: float, z: float) -> None:
     m[3, 3] = m[3, 0] * x + m[3, 1] * y + m[3, 2] * z + m[3, 3]
 
 
-def scale(matrix_stack: MatrixStack, x: float, y: float, z: float):
+def scale(matrix_stack: MatrixStack, x: float, y: float, z: float) -> None:
     """Using a normal linear algebra notation, which
     is row-major, 1-based indexes, the following
     matrix multiplication shows how to add a translation
@@ -378,7 +378,7 @@ def scale(matrix_stack: MatrixStack, x: float, y: float, z: float):
     m[3, 2] = m[3, 2] * z
 
 
-def multiply(matrix_stack: MatrixStack, rhs: np.ndarray):
+def multiply(matrix_stack: MatrixStack, rhs: np.ndarray) -> None:
     """Matrix multiply"""
     m = get_current_matrix(matrix_stack)
     m[0:4, 0:4] = np.matmul(m.copy(), rhs)
@@ -391,7 +391,7 @@ def ortho(
     top: float,
     near: float,
     far: float,
-):
+) -> None:
     """ortho projection, like a blueprint diagram for a house.
     depth down the z axis does not affect x and y position
     in screen space.

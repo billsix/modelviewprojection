@@ -1,6 +1,26 @@
 # Rename `pyMatrixStack` to a pythonic module name
 
-**Status:** proposed — needs go-ahead
+**Status:** **COMPLETE 2026-07-19.** `pyMatrixStack.py` -> `matrix_stack.py` via
+`git mv` (history follows). 22 Python references updated across 16 files, plus prose in
+`README.md` (1) and `CLAUDE.md` (10). **Both `N813` exemptions deleted from
+`pyproject.toml`** -- the whole `mvpvisualization/**` entry and `N813` from `demos/**` --
+and `ruff --select N813` is clean, so the suppression is gone at the source rather than
+carried. The **last 3 annotations** this was blocking are done: the repo is now at
+**0 missing returns and 0 missing params**.
+
+**Two things the plan missed, found while doing it:**
+- **The ports referenced it** (`chapt01/block/Block.py`, `chapt05/shadow/shadow.py`) --
+  only in comments about a future task, so nothing broke, but they would have gone stale.
+  Updated.
+- **gacalc referenced it too**: `src/gacalc/transforms.py:499` said "matching mvp's
+  ``pyMatrixStack``". A cross-repo doc reference the inventory did not anticipate.
+  Updated in gacalc.
+
+**Verified:** 67 tests; `ty check src` at 11 diagnostics (unchanged -- all third-party
+stubs); `ruff` clean; all 10 stack consumers render under Xvfb (demos 21/22/22a/23/24 and
+mvpvisualization modelview2d/coordinatesystems/pushmatrix/model/modelview). The
+module-level-mutable-state risk was checked explicitly: both import forms resolve to **one**
+`sys.modules` entry and share state, so there is no double-stack.
 **Created:** 2026-07-18
 **Requested by:** Bill, 2026-07-18
 **Unblocks:** deleting two `N813` exemptions added during the naming pass
