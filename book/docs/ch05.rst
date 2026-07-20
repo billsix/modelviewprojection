@@ -111,7 +111,8 @@ import them and try it out
 
 .. code:: Python
 
-       >>> from modelviewprojection.mathutils import Vector2, translate
+       >>> from gacalc.g2 import Vector2
+       >>> from gacalc.transforms import translate
        >>> shift = translate(b=Vector2(x=3, y=4))
        >>> shift(Vector2(x=1, y=2))
        Vector2(x=4, y=6)
@@ -121,7 +122,8 @@ arguments, the code might look like this:
 
 .. code:: Python
 
-       >>> from modelviewprojection.mathutils import Vector2, translate
+       >>> from gacalc.g2 import Vector2
+       >>> from gacalc.transforms import translate
        >>> shift = translate(b=Vector2(3, 4))
        >>> shift(Vector2(1, 2))
        Vector2(x=4, y=6)

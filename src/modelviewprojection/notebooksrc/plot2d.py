@@ -44,19 +44,19 @@
 import math
 
 import sympy
-
-from modelviewprojection.mathutils import (
-    Vector1,
-    Vector2,
-    Vector3,
+from gacalc.g1 import Vector1
+from gacalc.g2 import Vector2
+from gacalc.g3 import Vector3
+from gacalc.transforms import (
     compose,
     compose_intermediate_fns,
     identity,
     inverse,
-    rotate,
     scale_non_uniform,
     translate,
 )
+
+from modelviewprojection.mathutils import rotate
 from modelviewprojection.util.nbplotutils import (
     create_basis,
     create_graphs,

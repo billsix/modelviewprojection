@@ -42,12 +42,7 @@ import enum
 import typing
 from collections import deque
 
-from modelviewprojection.mathutils import (
-    InvertibleFunction,
-    compose,
-    identity,
-    inverse,
-)
+from gacalc.transforms import InvertibleFunction, compose, identity, inverse
 
 N = typing.TypeVar("N")  # node-id type (an Enum member, typically)
 
@@ -221,7 +216,7 @@ class CayleyGraph(typing.Generic[N]):
     Build one from a list of edges; every space mentioned becomes a node:
 
     >>> import enum
-    >>> from modelviewprojection.mathutils import identity
+    >>> from gacalc.transforms import identity
     >>> class Space(enum.Enum):
     ...     world = 1
     ...     camera = 2

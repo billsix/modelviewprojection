@@ -50,6 +50,8 @@
 
 import warnings
 
+from gacalc.g2 import Vector2
+
 # %% [markdown]
 # The module below is our software implementation of a
 # framebuffer, we will use the name "sr" for
@@ -60,9 +62,6 @@ from modelviewprojection.framebuffer.softwarerendering import (
     RED,
     WHITE,
     FrameBuffer,
-)
-from modelviewprojection.mathutils import (
-    Vector2,
 )
 
 # turn warnings into exceptions

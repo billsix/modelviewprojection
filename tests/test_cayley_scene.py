@@ -10,18 +10,11 @@ from __future__ import annotations
 import math
 
 import numpy as np
+from gacalc.g3 import Vector3
+from gacalc.transforms import compose, inverse, translate, uniform_scale
 
 from modelviewprojection.cayley import cayleygraph, cayleyscene
-from modelviewprojection.mathutils import (
-    Vector3,
-    compose,
-    inverse,
-    rotate_x,
-    rotate_y,
-    rotate_z,
-    translate,
-    uniform_scale,
-)
+from modelviewprojection.mathutils import rotate_x, rotate_y, rotate_z
 
 # demo constants (verbatim from modelviewperspectiveprojection.py)
 P1_POS = Vector3(-9.0, 1.0, 0.0)

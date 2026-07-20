@@ -32,6 +32,13 @@ import numpy as np
 import pytest
 from gacalc.g2 import Vector2
 from gacalc.g3 import Vector3
+from gacalc.transforms import (
+    Linearity,
+    inverse,
+    to_matrix,
+    translate,
+    uniform_scale,
+)
 
 from modelviewprojection.framebuffer.softwarerendering import (
     is_clockwise,
@@ -39,13 +46,11 @@ from modelviewprojection.framebuffer.softwarerendering import (
     is_parallel_and_same_orientation,
 )
 from modelviewprojection.mathutils import (
-    Linearity,
     abs_sin,
     cosine,
     distance_to_plane,
     find_normal,
     fn_stack,
-    inverse,
     ortho,
     perspective,
     plane_equation,
@@ -55,9 +60,6 @@ from modelviewprojection.mathutils import (
     rotate_y,
     rotate_z,
     sine,
-    to_matrix,
-    translate,
-    uniform_scale,
 )
 
 

@@ -22,20 +22,16 @@ import sys
 import glfw
 import OpenGL.GL as GL
 
-import modelviewprojection.util.colorutils as colorutils
-
 # The chapter's Cayley-graph edges are labelled in vector notation --
 # \vec{R}_<theta>, \vec{T}_<x,y>, \vec{S}_<s>.  The code spells them out in
 # full (Python naming), so read the graph labels as:
 #     R -> rotate(...)      T -> translate(b=...)
 #     S -> uniform_scale(m=...)
-from modelviewprojection.mathutils import (
-    InvertibleFunction,
-    Vector2,
-    rotate,
-    translate,
-    uniform_scale,
-)
+from gacalc.g2 import Vector2
+from gacalc.transforms import InvertibleFunction, translate, uniform_scale
+
+import modelviewprojection.util.colorutils as colorutils
+from modelviewprojection.mathutils import rotate
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 

@@ -25,7 +25,9 @@ from here instead of redefining them.
 import math
 import typing
 
-from modelviewprojection.mathutils import Vector3, find_normal
+from gacalc.g3 import Vector3
+
+from modelviewprojection.mathutils import find_normal
 
 
 def _face_normal(

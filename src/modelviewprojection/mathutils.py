@@ -17,13 +17,14 @@
 
 """Math for the ModelViewProjection course.
 
-The vector algebra and the invertible-function transform layer now come from the
+The vector algebra and the invertible-function transform layer come from the
 **gacalc** geometric-algebra library (``Vector2`` / ``Vector3``,
 ``InvertibleFunction``, ``compose`` / ``inverse`` / ``translate`` /
 ``uniform_scale`` / ``scale_non_uniform``, the ``at`` / ``steps`` animation
-layer,
-and the ``Linearity`` tag).  They are re-exported here so the course can keep
-importing them from ``modelviewprojection.mathutils``.
+layer, and the ``Linearity`` tag).  **Import those from gacalc directly**
+(``from gacalc.g2 import Vector2``, ``from gacalc.transforms import translate``,
+...) -- this module is NOT a re-export facade; it merely imports the gacalc
+pieces it needs internally.
 
 What lives *here* is the graphics-specific math that gacalc deliberately does
 not
@@ -40,44 +41,27 @@ import dataclasses
 import math
 import typing
 
-# Re-exported from gacalc: the vector representations and the transform layer.
+# gacalc pieces used INTERNALLY by the helpers below (not re-exported -- callers
+# import these from gacalc directly).
 from gacalc.base import MultiVectorBase
-from gacalc.g1 import Vector1
 from gacalc.g2 import Bivector2, Vector2
 from gacalc.g3 import Vector3
 from gacalc.transforms import (
     InvertibleFunction,
     Linearity,
     compose,
-    compose_intermediate_fns,
-    compose_intermediate_fns_and_fn,
-    identity,
     inverse,
     plane_rotation,
     scale_non_uniform,
-    to_matrix,
     translate,
-    uniform_scale,
 )
 
 __all__ = [
-    # re-exported from gacalc
-    "MultiVectorBase",
-    "Vector1",
-    "Vector2",
-    "Vector3",
-    "InvertibleFunction",
-    "Linearity",
-    "identity",
-    "inverse",
-    "compose",
-    "compose_intermediate_fns",
-    "compose_intermediate_fns_and_fn",
-    "translate",
-    "uniform_scale",
-    "scale_non_uniform",
-    "to_matrix",
-    # graphics-specific, defined here on top of gacalc
+    # Only the graphics-specific math DEFINED here.  The vector algebra and the
+    # transform layer are gacalc's -- import those from gacalc directly
+    # (``from gacalc.g2 import Vector2``, ``from gacalc.transforms import
+    # translate``, ...), not through this module.  mathutils is no longer a
+    # re-export facade; it imports the gacalc pieces it needs internally.
     "rotate",
     "rotate_around",
     "rotate_x",
@@ -132,7 +116,7 @@ def rotate_around(
     there, then put it back.
 
     >>> import math
-    >>> from modelviewprojection.mathutils import Vector2
+    >>> from gacalc.g2 import Vector2
     >>> quarter_turn = rotate_around(math.pi / 2, 1.0 * Vector2.e_1)
     >>> [round(float(c), 6) for c in quarter_turn(2.0 * Vector2.e_1)]
     [1.0, 1.0]
@@ -162,7 +146,7 @@ def cosine(v1: MultiVectorBase, v2: MultiVectorBase) -> float:
     the directions -- ``1`` for parallel, ``0`` for perpendicular, ``-1`` for
     opposite:
 
-    >>> from modelviewprojection.mathutils import Vector2
+    >>> from gacalc.g2 import Vector2
     >>> cosine(1.0 * Vector2.e_1, 1.0 * Vector2.e_1)
     1.0
     >>> cosine(1.0 * Vector2.e_1, 1.0 * Vector2.e_2)
@@ -193,7 +177,7 @@ def cosine(v1: MultiVectorBase, v2: MultiVectorBase) -> float:
 def sine(v1: Vector2, v2: Vector2) -> float:
     """Sine of the angle from ``v1`` to ``v2``, in 2D.  **Signed.**
 
-    >>> from modelviewprojection.mathutils import Vector2
+    >>> from gacalc.g2 import Vector2
     >>> sine(1.0 * Vector2.e_1, 1.0 * Vector2.e_2)
     1.0
 
@@ -273,7 +257,7 @@ def abs_sin(v1: Vector3, v2: Vector3) -> float:
     single "turn direction" to take a sign from, since the two vectors span a
     plane that can be viewed from either side:
 
-    >>> from modelviewprojection.mathutils import Vector3
+    >>> from gacalc.g3 import Vector3
     >>> abs_sin(1.0 * Vector3.e_1, 1.0 * Vector3.e_2)
     1.0
     >>> abs_sin(1.0 * Vector3.e_2, 1.0 * Vector3.e_1)
@@ -305,7 +289,7 @@ def find_normal(p1: Vector3, p2: Vector3, p3: Vector3) -> Vector3:
     A triangle in the x-y plane, wound counter-clockwise, has a normal pointing
     along +z:
 
-    >>> from modelviewprojection.mathutils import Vector3
+    >>> from gacalc.g3 import Vector3
     >>> origin = 0.0 * Vector3.e_1
     >>> find_normal(origin, 1.0 * Vector3.e_1, 1.0 * Vector3.e_2)
     Vector3(coeff_e_1=0.0, coeff_e_2=0.0, coeff_e_3=1.0)
@@ -344,7 +328,7 @@ def plane_equation(
 
     The horizontal plane at ``z == 3``, given by three of its points:
 
-    >>> from modelviewprojection.mathutils import Vector3
+    >>> from gacalc.g3 import Vector3
     >>> normal, d = plane_equation(
     ...     3.0 * Vector3.e_3,
     ...     1.0 * Vector3.e_1 + 3.0 * Vector3.e_3,
@@ -389,7 +373,7 @@ def distance_to_plane(
     Using the ``z == 3`` plane from :func:`plane_equation`, whose normal points
     up:
 
-    >>> from modelviewprojection.mathutils import Vector3
+    >>> from gacalc.g3 import Vector3
     >>> plane = plane_equation(
     ...     3.0 * Vector3.e_3,
     ...     1.0 * Vector3.e_1 + 3.0 * Vector3.e_3,
@@ -431,7 +415,7 @@ def ortho(
     Center the prism on the origin, then scale each axis by the inverse of its
     length.  The corner of the viewable region lands on the corner of the cube:
 
-    >>> from modelviewprojection.mathutils import Vector3
+    >>> from gacalc.g3 import Vector3
     >>> to_ndc = ortho(
     ...     left=-10.0, right=10.0, bottom=-10.0, top=10.0,
     ...     near=-1.0, far=-100.0,
@@ -495,7 +479,7 @@ def perspective(
     are scaled toward the axis in proportion to depth (the perspective divide),
     and the squished result is then handed to :func:`ortho`.
 
-    >>> from modelviewprojection.mathutils import Vector3
+    >>> from gacalc.g3 import Vector3
     >>> to_ndc = perspective(
     ...     field_of_view=90.0, aspect_ratio=1.0, near_z=-1.0, far_z=-100.0
     ... )
@@ -583,7 +567,7 @@ def cs_to_ndc_space_fn(vector: Vector3) -> InvertibleFunction[Vector3]:
     A :func:`perspective` with the settings the demos use, wrapped so a demo
     can say what it means without repeating the four numbers:
 
-    >>> from modelviewprojection.mathutils import Vector3
+    >>> from gacalc.g3 import Vector3
     >>> to_ndc = cs_to_ndc_space_fn(0.0 * Vector3.e_1)
     >>> [round(float(c), 6) for c in to_ndc(-10.0 * Vector3.e_3)]
     [0.0, 0.0, 0.980198]
@@ -607,7 +591,8 @@ class FunctionStack(typing.Generic[V]):
     Push transformations as you descend a scene hierarchy, pop as you come back
     up, and ask for the composed function whenever you need to draw.
 
-    >>> from modelviewprojection.mathutils import Vector3, translate
+    >>> from gacalc.g3 import Vector3
+    >>> from gacalc.transforms import translate
     >>> stack = FunctionStack()
     >>> stack.push(translate(1.0 * Vector3.e_1))
     >>> len(stack.stack)
@@ -668,6 +653,8 @@ class FunctionStack(typing.Generic[V]):
 
         An empty stack composes to the identity -- nothing moves:
 
+        >>> from gacalc.g3 import Vector3
+        >>> from gacalc.transforms import translate, uniform_scale
         >>> stack = FunctionStack()
         >>> composed = stack.modelspace_to_ndc_fn()
         >>> [round(float(c), 6) for c in composed(3.0 * Vector3.e_1)]
@@ -703,7 +690,8 @@ def push_transformation(
 
     The block yields the stack itself, so the depth is visible inside it:
 
-    >>> from modelviewprojection.mathutils import Vector3, translate
+    >>> from gacalc.g3 import Vector3
+    >>> from gacalc.transforms import translate
     >>> with push_transformation(translate(1.0 * Vector3.e_1)) as stack:
     ...     len(stack.stack)
     1

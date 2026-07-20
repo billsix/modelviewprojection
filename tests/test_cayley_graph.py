@@ -8,17 +8,11 @@ from __future__ import annotations
 import math
 
 import pytest
+from gacalc.g3 import Vector3
+from gacalc.transforms import compose, inverse, translate
 
 from modelviewprojection.cayley import cayleygraph
-from modelviewprojection.mathutils import (
-    Vector3,
-    compose,
-    inverse,
-    rotate_x,
-    rotate_y,
-    rotate_z,
-    translate,
-)
+from modelviewprojection.mathutils import rotate_x, rotate_y, rotate_z
 
 # --- a small demo-like scene: square -> paddle1 -> world, and camera -> world -
 

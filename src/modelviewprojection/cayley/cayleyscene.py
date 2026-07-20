@@ -33,18 +33,17 @@ import dataclasses
 import typing
 
 import numpy as np
-
-from modelviewprojection.cayley import cayleygraph
-from modelviewprojection.mathutils import (
+from gacalc.g3 import Vector3
+from gacalc.transforms import (
     InvertibleFunction,
-    Vector3,
     compose,
     identity,
     inverse,
-    rotate_x,
-    rotate_y,
     translate,
 )
+
+from modelviewprojection.cayley import cayleygraph
+from modelviewprojection.mathutils import rotate_x, rotate_y
 
 #: node-id type for a scene's coordinate spaces (an Enum member, typically)
 N = typing.TypeVar("N")
@@ -459,7 +458,8 @@ def to_matrix(f: InvertibleFunction) -> np.ndarray:
     A translation becomes a 4x4 whose last column is the offset:
 
     >>> import numpy as np
-    >>> from modelviewprojection.mathutils import translate, Vector3
+    >>> from gacalc.g3 import Vector3
+    >>> from gacalc.transforms import translate
     >>> m = to_matrix(translate(Vector3(3.0, 4.0, 5.0)))
     >>> m[:, 3].tolist()
     [3.0, 4.0, 5.0, 1.0]

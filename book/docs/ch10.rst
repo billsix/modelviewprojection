@@ -149,11 +149,12 @@ negative.  The built-in ``inverse`` agrees:
 
 .. code:: Python
 
-      >>> from modelviewprojection.mathutils import Vector2, translate, inverse
-      >>> e_1, e_2 = Vector2.e_1(), Vector2.e_2()
+      >>> from gacalc.g2 import Vector2
+      >>> from gacalc.transforms import inverse, translate
+      >>> e_1, e_2 = Vector2.e_1, Vector2.e_2
       >>> b = 3.0 * e_1 + 4.0 * e_2
       >>> p = 10.0 * e_1 + 20.0 * e_2
-      >>> inverse(translate(b=b))(p).isclose(translate(b=-b)(p))
+      >>> inverse(translate(b=b))(p).is_close(translate(b=-b)(p))
       True
 
 Inverse Of Rotate
@@ -167,27 +168,30 @@ negative angle.  The built-in ``inverse`` agrees:
 .. code:: Python
 
       >>> import math
-      >>> from modelviewprojection.mathutils import Vector2, rotate, inverse
-      >>> e_1, e_2 = Vector2.e_1(), Vector2.e_2()
+      >>> from gacalc.g2 import Vector2
+      >>> from gacalc.transforms import inverse
+      >>> from modelviewprojection.mathutils import rotate
+      >>> e_1, e_2 = Vector2.e_1, Vector2.e_2
       >>> angle = math.radians(90.0)
       >>> p = 1.0 * e_1 + 2.0 * e_2
-      >>> inverse(rotate(angle))(p).isclose(rotate(-angle)(p))
+      >>> inverse(rotate(angle))(p).is_close(rotate(-angle)(p))
       True
 
 Inverse Of Scale
 &&&&&&&&&&&&&&&&
 
-The inverse of ``scale_non_uniform_2d(m_x, m_y)`` is
-``scale_non_uniform_2d(1.0 / m_x, 1.0 / m_y)`` -- scale by the reciprocals.
+The inverse of ``scale_non_uniform(m_x, m_y)`` is
+``scale_non_uniform(1.0 / m_x, 1.0 / m_y)`` -- scale by the reciprocals.
 The built-in ``inverse`` agrees:
 
 .. code:: Python
 
-      >>> from modelviewprojection.mathutils import Vector2, scale_non_uniform_2d, inverse
-      >>> e_1, e_2 = Vector2.e_1(), Vector2.e_2()
+      >>> from gacalc.g2 import Vector2
+      >>> from gacalc.transforms import inverse, scale_non_uniform
+      >>> e_1, e_2 = Vector2.e_1, Vector2.e_2
       >>> p = 8.0 * e_1 + 12.0 * e_2
-      >>> inverse(scale_non_uniform_2d(2.0, 4.0))(p).isclose(
-      ...     scale_non_uniform_2d(1.0 / 2.0, 1.0 / 4.0)(p))
+      >>> inverse(scale_non_uniform(2.0, 4.0))(p).is_close(
+      ...     scale_non_uniform(1.0 / 2.0, 1.0 / 4.0)(p))
       True
 
 
@@ -211,14 +215,14 @@ The inverse of ``compose([f1, f2])`` is ``compose([inverse(f2), inverse(f1)])``
 .. code:: Python
 
       >>> import math
-      >>> from modelviewprojection.mathutils import (
-      ...     Vector2, translate, rotate, compose, inverse,
-      ... )
-      >>> e_1, e_2 = Vector2.e_1(), Vector2.e_2()
+      >>> from gacalc.g2 import Vector2
+      >>> from gacalc.transforms import compose, inverse, translate
+      >>> from modelviewprojection.mathutils import rotate
+      >>> e_1, e_2 = Vector2.e_1, Vector2.e_2
       >>> f1 = rotate(math.radians(30.0))
       >>> f2 = translate(b=3.0 * e_1 + 4.0 * e_2)
       >>> p = 5.0 * e_1 + 6.0 * e_2
-      >>> inverse(compose([f1, f2]))(p).isclose(
+      >>> inverse(compose([f1, f2]))(p).is_close(
       ...     compose([inverse(f2), inverse(f1)])(p))
       True
 

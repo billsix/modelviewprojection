@@ -21,17 +21,17 @@ import sys
 
 import glfw
 import OpenGL.GL as GL
-
-import modelviewprojection.util.colorutils as colorutils
-from modelviewprojection.mathutils import (
+from gacalc.g3 import Vector3
+from gacalc.transforms import (
     InvertibleFunction,
-    Vector3,
     compose,
     inverse,
-    rotate_z,
     translate,
     uniform_scale,
 )
+
+import modelviewprojection.util.colorutils as colorutils
+from modelviewprojection.mathutils import rotate_z
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 

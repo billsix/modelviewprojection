@@ -26,18 +26,15 @@ from enum import Enum, auto
 
 import glfw
 import OpenGL.GL as GL
+from gacalc.g3 import Vector3
+from gacalc.transforms import translate
 
 from modelviewprojection import matrix_stack as ms
 from modelviewprojection.cayley import (
     cayleygraph,
     cayleyscene,
 )
-from modelviewprojection.mathutils import (
-    Vector3,
-    rotate_y,
-    rotate_z,
-    translate,
-)
+from modelviewprojection.mathutils import rotate_y, rotate_z
 from modelviewprojection.mvpvisualization import (
     cayley_gl,
 )

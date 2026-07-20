@@ -23,15 +23,10 @@ import IPython.display as display
 import numpy as np
 import PIL
 import PIL.Image
-from gacalc.g2 import Bivector2
+from gacalc.g2 import Bivector2, Vector2
+from gacalc.transforms import compose, scale_non_uniform, translate
 
-from modelviewprojection.mathutils import (
-    Vector2,
-    compose,
-    cosine,
-    scale_non_uniform,
-    translate,
-)
+from modelviewprojection.mathutils import cosine
 
 
 # The three orientation predicates live HERE, next to their only
@@ -42,7 +37,7 @@ from modelviewprojection.mathutils import (
 def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
     """True when the turn from ``v1`` to ``v2`` is counter-clockwise.
 
-    >>> from modelviewprojection.mathutils import Vector2
+    >>> from gacalc.g2 import Vector2
     >>> is_counter_clockwise(1.0 * Vector2.e_1, 1.0 * Vector2.e_2)
     True
     >>> is_counter_clockwise(1.0 * Vector2.e_2, 1.0 * Vector2.e_1)
@@ -68,7 +63,7 @@ def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
 def is_clockwise(v1: Vector2, v2: Vector2) -> bool:
     """The mirror of :func:`is_counter_clockwise`.
 
-    >>> from modelviewprojection.mathutils import Vector2
+    >>> from gacalc.g2 import Vector2
     >>> is_clockwise(1.0 * Vector2.e_2, 1.0 * Vector2.e_1)
     True
     >>> is_clockwise(1.0 * Vector2.e_1, 1.0 * Vector2.e_2)
@@ -99,7 +94,7 @@ def is_parallel_and_same_orientation(v1: Vector2, v2: Vector2) -> bool:
     predicate adds the further requirement of the **same** orientation, so an
     anti-parallel pair is excluded:
 
-    >>> from modelviewprojection.mathutils import Vector2
+    >>> from gacalc.g2 import Vector2
     >>> is_parallel_and_same_orientation(1.0 * Vector2.e_1, 2.0 * Vector2.e_1)
     True
     >>> is_parallel_and_same_orientation(1.0 * Vector2.e_1, -1.0 * Vector2.e_1)

@@ -9,7 +9,8 @@
 # these fail loudly here instead of the demos silently drawing garbage.  Pure
 # data -- no display / no real GL needed.
 
-from modelviewprojection.mathutils import Vector2, Vector3
+from gacalc.g2 import Vector2
+from gacalc.g3 import Vector3
 
 
 def test_vector2_iterates_as_x_then_y():

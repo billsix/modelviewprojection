@@ -27,18 +27,14 @@ import matplotlib.figure
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
+from gacalc.g2 import Vector2
+from gacalc.transforms import InvertibleFunction, identity
 from IPython import get_ipython
 from IPython.display import display
 from matplotlib.patches import Polygon
 from matplotlib_inline.backend_inline import set_matplotlib_formats
 
-from modelviewprojection.mathutils import (
-    InvertibleFunction,
-    Vector2,
-    cosine,
-    identity,
-    sine,
-)
+from modelviewprojection.mathutils import cosine, sine
 
 # the inline SVG backend only makes sense inside an IPython/Jupyter session;
 # guarding it lets this module import headless instead of raising.

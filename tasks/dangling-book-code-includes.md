@@ -36,11 +36,13 @@ anchor -> gacalc region name; captions -> `gacalc/<mod>.py`):
   sentence so it no longer references a listing.
 
 ### Known imperfections (refinement, not blocking)
-- **Generated method sig/body pairs collapsed.** The book split `add`/`subtract`/`mul` into
-  a signature directive + a body directive, but gacalc's generated regions are whole-method
-  only, so both now point at the same whole-method region (the method shows twice in nearby
-  listings). Fixable later by consolidating each pair to one directive, or by teaching the
-  generator to split generated methods sig/body.
+- **Generated method sig/body pairs collapsed — FIXED 2026-07-20 (Option 1).** The book
+  split `add`/`subtract`/`mul` into a signature + a body directive, but gacalc's generated
+  regions are whole-method only, so both pointed at the same region and the method rendered
+  twice. Consolidated each pair to a single directive in ch06 (removed 3 duplicate
+  `literalinclude` blocks); each method now renders once. (Option 2 -- splitting generated
+  methods sig/body in the generator -- was declined: the sig/body split earns its keep for
+  the InvertibleFunction cluster, not a dataclass's arithmetic.)
 - **`Vector2D` vs `Vector2` naming drift.** The prose still says `Vector2D` in places while
   the now-included gacalc source says `Vector2`. Pre-existing migration tension, not
   addressed here.

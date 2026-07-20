@@ -494,27 +494,10 @@ tests listed after.
    :lineno-match:
    :caption: gacalc/g2.py
 
-.. literalinclude:: _gacalc_src/g2.py
-   :language: python
-   :start-after: doc-region-begin Vector2 __add__ method
-   :end-before: doc-region-end Vector2 __add__ method
-   :linenos:
-   :lineno-match:
-   :caption: gacalc/g2.py
-
 
 We can also model the opposite procedure, subtraction,
 by implementing the :py:meth:`__sub__ <modelviewprojection.mathutils.MultiVectorBase.__sub__>`
 method.
-
-.. literalinclude:: _gacalc_src/g2.py
-   :language: python
-   :start-after: doc-region-begin Vector2 __sub__ method
-   :end-before: doc-region-end Vector2 __sub__ method
-   :linenos:
-   :lineno-match:
-   :caption: gacalc/g2.py
-
 
 .. literalinclude:: _gacalc_src/g2.py
    :language: python
@@ -656,14 +639,6 @@ that scaled the Vector2 by the same amount in all directions.  We do this
 by implementing the :py:meth:`__mul__ <modelviewprojection.mathutils.MultiVectorBase.__mul__>`
 and :py:meth:`__rmul__ <modelviewprojection.mathutils.MultiVectorBase.__rmul__>` methods, where __rmul__ just means
 that this object is on the right hand side of the multiplication.
-
-.. literalinclude:: _gacalc_src/g2.py
-   :language: python
-   :start-after: doc-region-begin Vector2 __mul__ method
-   :end-before: doc-region-end Vector2 __mul__ method
-   :linenos:
-   :lineno-match:
-   :caption: gacalc/g2.py
 
 .. literalinclude:: _gacalc_src/g2.py
    :language: python

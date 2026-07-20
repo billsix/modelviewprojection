@@ -53,15 +53,15 @@ import IPython.display
 import matplotlib
 import moviepy
 import numpy as np
-
-import modelviewprojection.framebuffer.softwarerendering as sr
-from modelviewprojection.mathutils import (
+from gacalc.g2 import Vector2
+from gacalc.transforms import (
     InvertibleFunction,
-    Vector2,
     compose,
     scale_non_uniform,
     translate,
 )
+
+import modelviewprojection.framebuffer.softwarerendering as sr
 
 # turn warnings into exceptions
 warnings.filterwarnings("error", category=RuntimeWarning)

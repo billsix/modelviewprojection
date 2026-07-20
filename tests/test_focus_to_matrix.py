@@ -28,9 +28,11 @@ fails with a dtype cast error.
 """
 
 import numpy as np
+from gacalc.g3 import Vector3
+from gacalc.transforms import translate
 
 from modelviewprojection.cayley import cayleygraph, cayleyscene
-from modelviewprojection.mathutils import Vector3, rotate_z, translate
+from modelviewprojection.mathutils import rotate_z
 
 
 def _v(x: float, y: float, z: float) -> Vector3:
