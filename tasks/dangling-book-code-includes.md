@@ -68,6 +68,24 @@ at `src/modelviewprojection/mathutils.py` for `define vector2d class`, `define a
 `mathutils.py` now merely re-exports them. **gacalc has zero `doc-region` markers** — the
 anchors do not exist there either, so nothing can currently be included from it.
 
+**LOCAL MISMATCHES HANDLED 2026-07-20.** The "5 local" turned out to be:
+- **ch01 `import first module`** — already resolved (demo01.py has both markers); the old
+  Sphinx warning was stale. No change needed.
+- **ch03 `square viewport` / `set to gray`** — FIXED. demo03.py had `begin square viewport`
+  closed by `end set to gray`; split into the two regions ch03 shows (the function
+  signature, then the clear-to-gray lines). Verified the rendered content matches the
+  prose.
+- **ch16 `function stack examples definitions`** — FIXED. The example the chapter wants is
+  `test_function_stack_push_pop` in `tests/test_mathutils.py`, which existed unmarked;
+  wrapped it in the region.
+- **ch06 `translate test`** — NOT a local mismatch after all. `translate` moved to gacalc
+  and its dedicated test went with it, so there is no local code to point at. This is
+  **gacalc-blocked** like the other 20, OR needs a decision (point ch06 at gacalc's
+  translate test, or drop the directive). Folded into the gacalc-dependent set below.
+
+Checker now reports **42 unresolved** (was 46); the remaining 42 are all gacalc-dependent
+(40 moved-to-gacalc + ch06's 2 `translate test`).
+
 **2. Mismatched begin/end names (5 of 25).** ch03 asks for `doc-region-end square
 viewport`, but `demos/demo03.py` closes that region with `doc-region-end set to gray`, and
 ch03's next include asks for `doc-region-begin set to gray` which is only an *end* marker.

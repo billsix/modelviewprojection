@@ -57,6 +57,8 @@ GL.glLoadIdentity()
 
 # doc-region-begin square viewport
 def draw_in_square_viewport(window: "GLFWWindow") -> None:
+    # doc-region-end square viewport
+    # doc-region-begin set to gray
     GL.glClearColor(0.2, 0.2, 0.2, 1.0)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
     # doc-region-end set to gray

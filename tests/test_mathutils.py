@@ -278,6 +278,7 @@ def test_perspective_is_nonlinear_and_invertible():
 # --------------------------------------------------------------------------- #
 
 
+# doc-region-begin function stack examples definitions
 def test_function_stack_push_pop():
     fn_stack.clear()
     e_1 = Vector3.e_1
@@ -296,6 +297,7 @@ def test_function_stack_push_pop():
     fn_stack.pop()
     assert fn_stack.modelspace_to_ndc_fn()(e_1).is_close(e_1)
     fn_stack.clear()
+    # doc-region-end function stack examples definitions
 
 
 # --------------------------------------------------------------------------- #
