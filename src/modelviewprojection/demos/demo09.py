@@ -138,7 +138,7 @@ while not glfw.window_should_close(window):
 
     # draw paddle 1
     # doc-region-begin draw paddle 1
-    GL.glColor3f(*iter(paddle1.color))
+    GL.glColor3f(*paddle1.color)
 
     GL.glBegin(GL.GL_QUADS)
 
@@ -159,7 +159,7 @@ while not glfw.window_should_close(window):
 
     # draw paddle 2
     # doc-region-begin draw paddle 2
-    GL.glColor3f(*iter(paddle2.color))
+    GL.glColor3f(*paddle2.color)
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:

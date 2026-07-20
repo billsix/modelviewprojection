@@ -146,7 +146,7 @@ while not glfw.window_should_close(window):
     # doc-region-end call handle movement of paddles
 
     # doc-region-begin draw paddle 1
-    GL.glColor3f(*iter(paddle1.color))
+    GL.glColor3f(*paddle1.color)
 
     GL.glBegin(GL.GL_QUADS)
     for vector in paddle1.vertices:
@@ -155,7 +155,7 @@ while not glfw.window_should_close(window):
     # doc-region-end draw paddle 1
 
     # doc-region-begin draw paddle 2
-    GL.glColor3f(*iter(paddle2.color))
+    GL.glColor3f(*paddle2.color)
 
     GL.glBegin(GL.GL_QUADS)
     for vector in paddle2.vertices:

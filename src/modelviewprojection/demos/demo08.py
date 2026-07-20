@@ -138,7 +138,7 @@ while not glfw.window_should_close(window):
 
     # draw paddle 1
     # doc-region-begin draw paddle 1
-    GL.glColor3f(*iter(paddle1.color))
+    GL.glColor3f(*paddle1.color)
 
     GL.glBegin(GL.GL_QUADS)
     rotate_point: Vector2 = paddle1.position
@@ -157,7 +157,7 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin draw paddle 2
     # draw paddle 2
-    GL.glColor3f(*iter(paddle2.color))
+    GL.glColor3f(*paddle2.color)
 
     GL.glBegin(GL.GL_QUADS)
     rotate_point: Vector2 = paddle2.position

@@ -179,7 +179,7 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport(window)
     handle_inputs()
 
-    GL.glColor3f(*iter(paddle1.color))
+    GL.glColor3f(*paddle1.color)
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
@@ -236,7 +236,7 @@ while not glfw.window_should_close(window):
     GL.glEnd()
     # doc-region-end draw square
 
-    GL.glColor3f(*iter(paddle2.color))
+    GL.glColor3f(*paddle2.color)
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:

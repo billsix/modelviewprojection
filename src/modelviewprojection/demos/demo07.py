@@ -140,7 +140,7 @@ while not glfw.window_should_close(window):
     handle_movement_of_paddles()
 
     # doc-region-begin draw paddle 1
-    GL.glColor3f(*iter(paddle1.color))
+    GL.glColor3f(*paddle1.color)
 
     # doc-region-begin compose transformations on paddle 1
     world_space_to_ndc = uniform_scale(m=1.0 / 10.0)
@@ -159,7 +159,7 @@ while not glfw.window_should_close(window):
     # doc-region-end draw paddle 1
 
     # doc-region-begin draw paddle 2
-    GL.glColor3f(*iter(paddle2.color))
+    GL.glColor3f(*paddle2.color)
 
     world_space_to_ndc = uniform_scale(m=1.0 / 10.0)
     p2_space_to_world_space = rotate(paddle2.rotation) @ translate(

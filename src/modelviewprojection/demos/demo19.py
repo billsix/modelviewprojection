@@ -235,7 +235,7 @@ while not glfw.window_should_close(window):
     # doc-region-end first push matrix
 
     # doc-region-begin draw paddle 1
-    GL.glColor3f(*iter(paddle1.color))
+    GL.glColor3f(*paddle1.color)
 
     GL.glTranslate(
         paddle1.position[0],
@@ -287,7 +287,7 @@ while not glfw.window_should_close(window):
     # need to push matrix, and on the next iteration of the event loop,
     # all matrices will be cleared to identity, so who cares if we
     # mutate the values for now.
-    GL.glColor3f(*iter(paddle2.color))
+    GL.glColor3f(*paddle2.color)
 
     GL.glTranslate(
         paddle2.position[0],

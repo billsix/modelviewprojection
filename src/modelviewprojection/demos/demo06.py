@@ -130,7 +130,7 @@ while not glfw.window_should_close(window):
     # doc-region-end begin event loop
 
     # doc-region-begin draw paddle 1
-    GL.glColor3f(*iter(paddle1.color))
+    GL.glColor3f(*paddle1.color)
 
     world_space_to_ndc: InvertibleFunction[Vector2] = uniform_scale(
         m=1.0 / 10.0
@@ -150,7 +150,7 @@ while not glfw.window_should_close(window):
     # doc-region-end draw paddle 1
 
     # doc-region-begin draw paddle 2
-    GL.glColor3f(*iter(paddle2.color))
+    GL.glColor3f(*paddle2.color)
 
     world_space_to_ndc: InvertibleFunction[Vector2] = uniform_scale(
         m=1.0 / 10.0

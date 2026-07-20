@@ -195,7 +195,7 @@ while not glfw.window_should_close(window):
     # doc-region-end paddle 1 transformations
 
     # doc-region-begin draw paddle 1
-    GL.glColor3f(*iter(paddle1.color))
+    GL.glColor3f(*paddle1.color)
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
         paddle1_vector_ndc = fn_stack.modelspace_to_ndc_fn()(p1_v_ms)
@@ -239,7 +239,7 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin draw paddle 2
     # draw paddle 2
-    GL.glColor3f(*iter(paddle2.color))
+    GL.glColor3f(*paddle2.color)
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
         paddle2_vector_ndc = fn_stack.modelspace_to_ndc_fn()(p2_v_ms)
