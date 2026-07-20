@@ -1,26 +1,31 @@
 # 25 book code listings are silently EMPTY — dangling `literalinclude` anchors
 
-**Status:** proposed — **direction DECIDED by Bill 2026-07-19, not started.** All three
-parts below live in this one task; nothing has been changed yet.
+**Status:** **in progress 2026-07-20.** Checker DONE + wired into the book build; 5 local
+mismatches DONE (46→42 unresolved); gacalc markers DONE + released (0.0.11). Source acquisition
+DECIDED: **PyPI sdist, no GitHub.** Remaining: the white/black-box call, then wire the sdist
+source into the image and repoint/delete the 42 directives.
 
 ## Decisions (Bill, 2026-07-19)
 
 1. **Do not fix the 5 name-mismatched anchors ad hoc** — they are part of this task.
 2. **Add the anchor checker** (was "option E") — also part of this task.
-3. **For the 20 gacalc-moved includes: add `doc-region` markers to gacalc**, and have
-   **mvp's Dockerfile pull a tagged gacalc release from GitHub into the image**, so the
-   book generates its listings from those markers.
-4. **Clarified 2026-07-19 — BOTH sources are wanted, on purpose, and this is not a
-   contradiction:**
-   - **PyPI wheel stays the runtime dependency** (`requirements.txt`) — what the code
-     imports.
-   - **The SOURCE is acquired separately from GitHub at the same tag** — because the book
-     needs readable source files with `doc-region` markers, and **a wheel is not something
-     `literalinclude` can point at**.
+3. **For the 20 gacalc-moved includes: add `doc-region` markers to gacalc** (DONE, released
+   in gacalc **0.0.11**), and have **mvp's Docker build pull the gacalc source into the
+   image** so the book can `literalinclude` those markers.
+4. **BOTH artifacts are wanted, on purpose — for two different jobs, and BOTH from PyPI:**
+   - **PyPI wheel = the runtime dependency** (`requirements.txt`, `gacalc==0.0.11`) — what
+     the code imports.
+   - **PyPI sdist = the docs-only source** — pulled into the image *purely* so Sphinx has
+     real files to `literalinclude`; nothing imports it, it is never on `sys.path`. **A
+     wheel is not something `literalinclude` can point at**, but the sdist unpacks to the
+     real `.py` files (hand-written *and* generated, markers baked in).
 
-   An earlier draft of this doc framed these as competing options ("GitHub tag *or* PyPI
-   artifact?"). That was a misreading: they serve two different jobs — runtime import
-   versus documentation input — and wanting both is the correct design, not a redundancy.
+   **UPDATED 2026-07-20 — sdist from PyPI is the primary approach, NOT a GitHub clone**
+   (Bill's decision). An earlier draft said "pull a tagged release from GitHub"; that is
+   dropped. The sdist gives everything the book needs with **no `git clone`, no generator
+   run in the image** (see the Sourcing section). Both wheel and sdist come from the same
+   PyPI version, driven by one `ARG GACALC_VERSION`, so the book can never document a
+   different version than the code runs.
 
 **Created:** 2026-07-19
 **Found while:** splitting doc-regions for `mathutils.py` doctests; a verification pass
@@ -178,11 +183,9 @@ generated modules are **gitignored** in gacalc, so:
 | `git clone --branch v0.0.10` from GitHub | **no** — gitignored | must run gacalc's generator (`make generate`; 𝒢₃ takes ~30s, needs numpy+sympy) |
 
 So a GitHub tag checkout needs a generator run in the image before the book can include
-`Vector2`/`Vector3`; the PyPI artifact does not. **Either satisfies "pull a tagged
-release" and both are version-pinned** — the git tag gives the repo (markers in
-hand-written files land directly), the PyPI artifact gives generated code for free.
-**Worth confirming with Bill which he intended**, since he said "from github" — see Open
-questions.
+`Vector2`/`Vector3`; the PyPI sdist does not. **DECIDED 2026-07-20: the PyPI sdist**
+(see Decision 4 / Open question 1) — it carries the generated code for free, so no git
+clone and no generator run in the image.
 
 **Independent of that choice, the markers must be emitted by the generator** for the
 generated classes: `g2.py`/`g3.py` are build artifacts, so hand-editing them is always
@@ -251,33 +254,38 @@ the `.rst` (a leading `/` means relative to the source dir), so pointing at
 needs a build step that copies or symlinks the gacalc source into the docs tree, or a
 `conf.py` hook. **Needs a spike before committing to the design.**
 
-## Recommendation
+## Recommendation / plan (updated 2026-07-20)
 
-**Do the anchor checker first, then the 5 mismatches, then the gacalc work.**
-
-1. **E — the anchor checker.** Whatever is decided about content, the book should never
-   again silently drop a listing. This is a small script and it pays for itself
-   immediately.
-2. **Cause 2 (5 includes: ch01, ch03, ch16) — just fix them.** The code exists, only the
-   anchor names disagree; this is a mechanical, low-risk fix that restores 5 listings.
-3. **Cause 1 (20 includes) is a pedagogy decision, not a technical one** — it is really
-   the question "now that the vector math lives in gacalc, should this book still show its
-   source?". I lean **A for the hand-written pieces** (`translate`, `uniform_scale`,
-   `InvertibleFunction` — genuinely part of the course's argument) and **C for the
-   generated classes** (`Vector2`/`Vector3` are generated code; showing the generated
-   source is arguably worse teaching than describing the interface). But this needs Bill.
+1. **Anchor checker — DONE.** `tools/check_doc_regions.py` + `make check-regions`, wired
+   into the book build so a broken anchor now halts it loudly.
+2. **The 5 "local mismatches" — DONE.** ch01 was already fine; ch03 + ch16 fixed; ch06's
+   `translate test` turned out to be gacalc-moved (not local). Count 46 → 42.
+3. **gacalc markers — DONE, released in 0.0.11.**
+4. **Remaining, and it needs one decision from Bill:** the white/black-box call — which of
+   the 42 gacalc-moved includes to **white-box** (include the source from the sdist) vs
+   **black-box** (replace the directive with a sentence + a pointer to gacalc). The book
+   read (see `tasks/archive/.../` and the ch06 analysis) points to: white-box the ch06
+   `InvertibleFunction` cluster (`translate`, `uniform_scale`, `InvertibleFunction` /
+   `__call__` / `inverse` — the course narrates this code); black-box the ch05/ch14 data
+   types (`Vector2`/`Vector3`, add/subtract/mul — the author already says "don't stress
+   about the implementation").
+5. **Then the mechanics:** pin `gacalc==0.0.11`, add `ARG GACALC_VERSION` driving both the
+   pip pin and the **sdist** source-pull into the image, wire the sdist source into the
+   docs tree so `literalinclude` can reach it, and repoint (white-box) or delete
+   (black-box) each of the 42 directives. Checker/book build then goes green.
 
 ## Open questions
 
-*(Question 1 is RESOLVED — see decision 4: both sources, for two different jobs.)*
+*(Question 1 RESOLVED 2026-07-20 — sdist from PyPI, no GitHub. See below.)*
 
-1. **How does the image obtain the gacalc SOURCE — `git clone --branch v<X>` plus a
-   generator run, or the PyPI sdist?** **Now measured** (see the assessment section): the
-   sdist contains the hand-written *and* generated modules, so it needs **no generator
-   run**, while a git clone does. Both satisfy decision 4 ("source, separately from the
-   runtime wheel"). Recommend the **sdist** on simplicity — unless the book should track
-   the *repo* rather than a published release, in which case git is right despite the
-   extra step. **Bill's call; he asked for github specifically.**
+1. ~~How does the image obtain the gacalc source — git clone or PyPI sdist?~~ **DECIDED
+   (Bill, 2026-07-20): the PyPI sdist.** `pip download --no-binary :all:
+   gacalc==$GACALC_VERSION` (or a direct fetch from the PyPI JSON API) unpacks to the full
+   source — hand-written *and* generated modules, markers baked in — with **no `git clone`
+   and no generator run in the image**. The only things a GitHub clone would add (git
+   history, branches, `tools/`, tests) are things the book does not need for
+   doc-referencing. Verified against the 0.0.10 sdist; 0.0.11 (the marker release) confirmed
+   to carry the markers.
 2. **How should the book reach the gacalc source?** `literalinclude` paths are relative to
    the `.rst`. Copy/symlink gacalc's source into the docs tree at build time, or a
    `conf.py` hook? Needs a spike.

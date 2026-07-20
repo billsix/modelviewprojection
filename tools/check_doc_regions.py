@@ -17,10 +17,11 @@ This tool makes both loud (exit 1):
    target file.  Sphinx renders an EMPTY block -- the caption and prose survive,
    the code silently vanishes.
 
-2. **Prefix collision.** Sphinx matches the first line *containing* the anchor
-   text, so if one anchor name is a prefix of another in the same file
-   (``define rotate`` vs ``define rotate around``), a query for the shorter can
-   match the longer's line and pull the wrong region -- again with no error.
+2. **Name collision.** Two regions with the same name (a query always selects
+   the first), or one name that is a **prefix** of another in the same file
+   (``define rotate`` vs ``define rotate around``) -- Sphinx matches the first
+   line *containing* the anchor text, so the shorter can pull the wrong region.
+   Both are silent.
 
 Run from the repo root: ``python tools/check_doc_regions.py`` (or ``make
 check-regions``).  A third check -- region content vs a lockfile, to catch
@@ -30,6 +31,7 @@ scheme still being decided); see ``tasks/dangling-book-code-includes.md``.
 
 from __future__ import annotations
 
+import collections
 import pathlib
 import re
 import sys
@@ -51,11 +53,15 @@ _START_AFTER: re.Pattern[str] = re.compile(
 _END_BEFORE: re.Pattern[str] = re.compile(
     r":end-before: doc-region-end (?P<name>.+?)[ \t]*$", re.MULTILINE
 )
+# Match only genuine marker COMMENTS (``# doc-region-begin ...``), not the
+# string ``doc-region-begin`` appearing inside a regex/docstring (this file
+# itself contains the pattern in its regex literals -- without the ``#`` anchor
+# it would falsely flag its own source as a duplicate).
 _BEGIN_MARKER: re.Pattern[str] = re.compile(
-    r"doc-region-begin (?P<name>.+?)[ \t]*$", re.MULTILINE
+    r"#\s*doc-region-begin (?P<name>.+?)[ \t]*$", re.MULTILINE
 )
 _END_MARKER: re.Pattern[str] = re.compile(
-    r"doc-region-end (?P<name>.+?)[ \t]*$", re.MULTILINE
+    r"#\s*doc-region-end (?P<name>.+?)[ \t]*$", re.MULTILINE
 )
 
 
@@ -101,8 +107,11 @@ def _unresolved_anchor_errors() -> list[str]:
     return errors
 
 
-def _prefix_collision_errors() -> list[str]:
-    """Every pair of anchors in one file where one name is a prefix of another.
+def _name_collision_errors() -> list[str]:
+    """Every anchor in one file that another anchor can shadow: an **exact
+    duplicate** (two regions with the same name -- a query always selects the
+    first) or a **prefix** of another name (a query for the shorter can match
+    the longer's line, since Sphinx matches the first *containing* line).
 
     Checked for begin- and end-markers separately, since ``:start-after:`` and
     ``:end-before:`` select on their own marker kind.
@@ -116,9 +125,22 @@ def _prefix_collision_errors() -> list[str]:
         marker: re.Pattern[str]
         kind: str
         for marker, kind in ((_BEGIN_MARKER, "begin"), (_END_MARKER, "end")):
-            names: list[str] = sorted(
-                {m.group("name") for m in marker.finditer(text)}
-            )
+            # raw list keeps repeats, so exact duplicates are visible (a set
+            # would collapse them and hide the collision)
+            occurrences: list[str] = [
+                m.group("name") for m in marker.finditer(text)
+            ]
+            counts: collections.Counter[str] = collections.Counter(occurrences)
+            name: str
+            count: int
+            for name, count in sorted(counts.items()):
+                if count > 1:
+                    errors.append(
+                        f"{source_path.relative_to(_REPO_ROOT)}: "
+                        f"doc-region-{kind} '{name}' appears {count} times -- "
+                        f"a query always selects the first"
+                    )
+            names: list[str] = sorted(counts)
             shorter: str
             longer: str
             for shorter in names:
@@ -135,10 +157,10 @@ def _prefix_collision_errors() -> list[str]:
 
 def main() -> int:
     unresolved: list[str] = _unresolved_anchor_errors()
-    collisions: list[str] = _prefix_collision_errors()
+    collisions: list[str] = _name_collision_errors()
 
     if collisions:
-        print("PREFIX COLLISIONS (a query can select the wrong region):")
+        print("NAME COLLISIONS (a query can select the wrong region):")
         for problem in collisions:
             print(f"  {problem}")
     if unresolved:
@@ -148,10 +170,10 @@ def main() -> int:
 
     total: int = len(unresolved) + len(collisions)
     if total == 0:
-        print("doc-region anchors OK: all resolve, no prefix collisions.")
+        print("doc-region anchors OK: all resolve, no name collisions.")
         return 0
     print(
-        f"\n{total} problem(s): {len(collisions)} prefix collision(s), "
+        f"\n{total} problem(s): {len(collisions)} name collision(s), "
         f"{len(unresolved)} unresolved anchor(s)."
     )
     return 1
