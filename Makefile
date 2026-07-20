@@ -74,7 +74,7 @@ EXPOSE_PORT = -p 8888:8888
 
 
 .PHONY: all
-all: check-regions image ## Build the HTML and PDF from scratch in Debian Bulleye
+all: image ## Build the HTML and PDF from scratch in Debian Bulleye
 
 .PHONY: image
 image: ## Build a podman image in which to build the book
@@ -140,12 +140,21 @@ format: image ## (container) ruff + ty over the source (loadpackages.sh + format
 		-c 'cd /mvp && loadpackages.sh && format.sh'
 
 
-# Validate the book's doc-region anchors (resolve + no prefix collisions).
-# Deliberately NOT ##-documented: it is never run on its own, only as a
-# prerequisite of the book build (html), so it stays out of `make help`.
+# Validate the book's doc-region anchors (resolve + no name collisions).  Runs
+# in the container because some anchors resolve against the docs-only gacalc
+# source, which lives at /opt/gacalc-src in the image (not on the host); the
+# recipe populates book/docs/_gacalc_src/ first, exactly as entrypoint.sh does
+# before the book build.  The book build (html) runs this same check itself via
+# entrypoint.sh, so it is not wired in as a prerequisite here.
 .PHONY: check-regions
-check-regions:
-	python3 tools/check_doc_regions.py
+check-regions: image ## (container) verify the book's doc-region anchors resolve
+	$(CONTAINER_CMD) run --rm \
+		--entrypoint /bin/bash \
+		$(FILES_TO_MOUNT) \
+		$(CONTAINER_NAME) \
+		-c 'mkdir -p /mvp/book/docs/_gacalc_src && \
+		    cp /opt/gacalc-src/*.py /mvp/book/docs/_gacalc_src/ && \
+		    cd /mvp && python tools/check_doc_regions.py'
 
 
 # Refresh the vendored Emacs packages. Forces USE_EMACS=1 and rebuilds the image
@@ -173,7 +182,7 @@ update-emacs-packages: ## USE_EMACS=1: rebuild image, wipe+reinstall elpa, strip
 	@echo "Done: reinstalled packages, stripped *.elc/*.eln, staged elpa -- review and commit."
 
 
-html: check-regions image ## Build the html from the sphinx source
+html: image ## Build the html from the sphinx source
 	printf "This documentation was generated from from commit " > book/docs/version.txt
 	git rev-parse HEAD >> book/docs/version.txt
 	$(CONTAINER_CMD) run -it --rm  \

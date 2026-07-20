@@ -67,7 +67,7 @@ around a given point in world space, in this case, the paddle's center.
 
 
 
-``Vector2D`` is the same data structure introduced earlier; it is unchanged here.
+``Vector2`` is the same data structure introduced earlier; it is unchanged here.
 
 
 .. literalinclude:: ../../src/modelviewprojection/mathutils.py

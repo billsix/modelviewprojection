@@ -250,6 +250,32 @@ function's signature and body as two adjacent listings while skipping its docstr
 back-to-back `literalinclude` pairs already appear in the book). Use this when a function
 needs a docstring or doctests that students should not have to read.
 
+**Some listings are included from GACALC's source, pulled in DOCS-ONLY (2026-07-20).** The
+vector/transform math (`Vector2`/`Vector3`, `translate`, `uniform_scale`, `InvertibleFunction`,
+`__call__`, `inverse`, add/subtract/mul) lives in the external **gacalc** library, not in this
+repo. The book still shows that code by `literalinclude`-ing gacalc's own `doc-region` markers
+from a copy of gacalc's source:
+
+- **Two artifacts, both from PyPI, same version.** The **wheel** is the runtime dependency
+  (`requirements.txt`, `gacalc==<X>`) — what the code imports. The **sdist** is the docs-only
+  source: the `Dockerfile` (`ARG GACALC_VERSION`, must match the requirements pin) fetches the
+  sdist and unpacks `src/gacalc/*.py` to `/opt/gacalc-src`. Nothing imports it; it is never on
+  `sys.path`. The sdist is used, not a git clone, because it already contains the generated
+  `g1/g2/g3/scalar.py` with markers baked in (no checkout, no code generation needed).
+- **`entrypoint.sh` copies `/opt/gacalc-src/*.py` into `book/docs/_gacalc_src/`** (gitignored)
+  before the build, so `literalinclude:: _gacalc_src/<mod>.py` can reach it. These listings
+  caption `gacalc/<mod>.py`.
+- **The doc-region checker moved INTO the container** for this reason: `_gacalc_src` only exists
+  in the image, not on the host, so a host-side check can't resolve those anchors.
+  `entrypoint.sh` runs `python tools/check_doc_regions.py` after populating the source and before
+  `make html`; `make check-regions` is a container target that does the same. `html`/`all` no
+  longer carry a host-side `check-regions` prerequisite.
+- **To bump the gacalc version shown in the book:** bump BOTH `requirements.txt`'s `gacalc==`
+  pin and the Dockerfile's `ARG GACALC_VERSION` to the same released version, then rebuild the
+  image. gacalc's markers must exist in that release (they landed in gacalc 0.0.11).
+- Editing the *content* of a gacalc-included listing means editing gacalc and releasing it —
+  this repo only points at it. See `tasks/dangling-book-code-includes.md`.
+
 ## Coding standard (Python)
 
 Written for humans and AI agents alike. **The standard is split in two** — what ruff

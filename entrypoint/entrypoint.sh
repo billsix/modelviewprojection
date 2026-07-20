@@ -17,6 +17,17 @@ jupytext --to notebook src/modelviewprojection/notebooksrc/ndc.py --output book/
 
 uv pip install --no-deps --no-index --no-build-isolation -e . --system
 
+# Populate the docs-only gacalc source tree (baked into the image at
+# /opt/gacalc-src by the Dockerfile) so the book's literalinclude directives can
+# reference gacalc's doc-region markers.  Gitignored, docs-only, never imported.
+mkdir -p /mvp/book/docs/_gacalc_src
+cp /opt/gacalc-src/*.py /mvp/book/docs/_gacalc_src/
+
+# Now that the gacalc source is present, verify every book doc-region anchor
+# resolves (and no name collisions) before building -- a broken anchor renders
+# an empty listing silently, so fail the build loudly instead.
+cd /mvp && python tools/check_doc_regions.py || exit
+
 cd /mvp/book/docs
 make html
 make latexpdf

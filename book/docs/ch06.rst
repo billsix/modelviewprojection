@@ -471,58 +471,58 @@ and convert them to NDC.
     \]
 
 Modelviewprojection comes with a math library, the 2D version is
-named "mathutils.py".  The main class in this module is "Vector2D",
+named "mathutils.py".  The main class in this module is "Vector2",
 which has two components: and x value, and a y value.  To add a vector2d
 to another one on the right hand side of the '+' symbol, we just add
-the respective components together, and create a new Vector2D.
+the respective components together, and create a new Vector2.
 
 
 
-``Vector2D`` is the same data structure introduced earlier; it is unchanged here.
+``Vector2`` is the same data structure introduced earlier; it is unchanged here.
 
 In a Python class, we can overload the '+' symbol, to make
-objects addable, by implementing the :py:meth:`__add__ <modelviewprojection.mathutils.Vector.__add__>`
+objects addable, by implementing the :py:meth:`__add__ <modelviewprojection.mathutils.MultiVectorBase.__add__>`
 method.  The definition is just saying pairwise add each component.
 Don't stress about understanding the implementation, look at the
 tests listed after.
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/g2.py
    :language: python
-   :start-after: doc-region-begin begin define add
-   :end-before: doc-region-end begin define add
+   :start-after: doc-region-begin Vector2 __add__ method
+   :end-before: doc-region-end Vector2 __add__ method
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/g2.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/g2.py
    :language: python
-   :start-after: doc-region-begin define add
-   :end-before: doc-region-end define add
+   :start-after: doc-region-begin Vector2 __add__ method
+   :end-before: doc-region-end Vector2 __add__ method
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/g2.py
 
 
 We can also model the opposite procedure, subtraction,
-by implementing the :py:meth:`__sub__ <modelviewprojection.mathutils.Vector.__sub__>`
+by implementing the :py:meth:`__sub__ <modelviewprojection.mathutils.MultiVectorBase.__sub__>`
 method.
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/g2.py
    :language: python
-   :start-after: doc-region-begin begin define subtract
-   :end-before: doc-region-end begin define subtract
+   :start-after: doc-region-begin Vector2 __sub__ method
+   :end-before: doc-region-end Vector2 __sub__ method
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/g2.py
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/g2.py
    :language: python
-   :start-after: doc-region-begin define subtract
-   :end-before: doc-region-end define subtract
+   :start-after: doc-region-begin Vector2 __sub__ method
+   :end-before: doc-region-end Vector2 __sub__ method
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/g2.py
 
 
 
@@ -532,53 +532,44 @@ In our graphics code, instead of using "a+b", we'll use a more descriptive
 name: "translate", which is implemented using the addition symbol.  But a few
 things to note, :py:meth:`translate <modelviewprojection.mathutils.translate>`
 is a function on the mathutils module, not a method
-on Vector2D class, and it's wrapped in a class named
+on Vector2 class, and it's wrapped in a class named
 :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`.
 
 
 
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/transforms.py
    :language: python
-   :start-after: doc-region-begin define translate
-   :end-before: doc-region-end define translate
+   :start-after: doc-region-begin translate signature
+   :end-before: doc-region-end translate body
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/transforms.py
 
 Notice in particular that the "b" parameter
 is passed as an argument to "translate",
-but the function for translating, named "f", and the inverse of "f" named "f_inv", take a Vector2D.
-This is because we will be translating many Vector2Ds using the same amount.
+but the function for translating, named "f", and the inverse of "f" named "f_inv", take a Vector2.
+This is because we will be translating many Vector2s using the same amount.
 
 
 Invertible functions are stored in pairs, with the "active" function
 being the first one passed to the constructor.  So for translate above,
-the adding of the Vector2Ds will be the function, but
+the adding of the Vector2s will be the function, but
 :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`
 holds onto the second function, for later use to be able to undo the function's
 application.
 
-
-.. literalinclude:: ../../tests/test_mathutils.py
-   :language: python
-   :start-after: doc-region-begin translate test
-   :end-before: doc-region-end translate test
-   :linenos:
-   :lineno-match:
-   :caption: tests/test_mathutils.py
-
-The above is a unit test that shows how the translate function can be used.
+Here is how the ``translate`` function is used.
 We call "translate", a function which takes a translate amount, both in the x
 direction and the y direction, but we have not yet specified what needs to be translated
 by that amount.  "translate" returns an
 :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`, which is
-Callable[Vector2D, Vector2D].  Callable[Vector2D, Vector2D] is a type which
-is a function that takes a Vector2D as input, and returns a Vector2D (in this case,
-the output is the input, translated by Vector2D(x=2.0, y=3.0).
+Callable[Vector2, Vector2].  Callable[Vector2, Vector2] is a type which
+is a function that takes a Vector2 as input, and returns a Vector2 (in this case,
+the output is the input, translated by Vector2(x=2.0, y=3.0).
 
-On the next 3 lines, we call the function t, passing in a Vector2D to be translated, and
+On the next 3 lines, we call the function t, passing in a Vector2 to be translated, and
 we test if the result is equal to the specified amount.  ("approx", is a function from the
 pytest module, which when tested for equality, returns true if the two floating point
 numbers under comparison are "close enough").
@@ -593,22 +584,22 @@ composing t_inv and t results in no transformation.
 
 Here's how :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>` is implemented:
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/functions.py
    :language: python
-   :start-after: doc-region-begin begin define invertible function
-   :end-before: doc-region-end begin define invertible function
+   :start-after: doc-region-begin invertible function class signature
+   :end-before: doc-region-end invertible function class signature
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/functions.py
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/functions.py
    :language: python
    :start-after: doc-region-begin invertible function members
    :end-before: doc-region-end invertible function members
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/functions.py
 
 
 
@@ -619,68 +610,68 @@ in Python, any object can be treated as a function, by implementing the
 :py:meth:`__call__ <modelviewprojection.mathutils.InvertibleFunction.__call__>`
 method.
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/functions.py
    :language: python
-   :start-after: doc-region-begin begin call
-   :end-before: doc-region-end begin call
+   :start-after: doc-region-begin composable function call signature
+   :end-before: doc-region-end composable function call signature
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/functions.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/functions.py
    :language: python
-   :start-after: doc-region-begin call definition
-   :end-before: doc-region-end call definition
+   :start-after: doc-region-begin composable function call body
+   :end-before: doc-region-end composable function call body
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/functions.py
 
 We can get the inverse of the procedure by the following
 :py:meth:`inverse <modelviewprojection.mathutils.inverse>`, procedure
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/functions.py
    :language: python
-   :start-after: doc-region-begin begin define inverse
-   :end-before: doc-region-end begin define inverse
+   :start-after: doc-region-begin inverse signature
+   :end-before: doc-region-end inverse signature
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/functions.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/functions.py
    :language: python
    :start-after: doc-region-begin inverse body
    :end-before: doc-region-end inverse body
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/functions.py
 
 
 
 
 
 
-Back to method's on the Vector2D class.  We can also define scaling of a Vector2D,
-by implementing multiplication of Vector2D's by a scalar, meaning a real number
-that scaled the Vector2D by the same amount in all directions.  We do this
-by implementing the :py:meth:`__mul__ <modelviewprojection.mathutils.Vector.__mul__>`
-and :py:meth:`__rmul__ <modelviewprojection.mathutils.Vector.__rmul__>` methods, where __rmul__ just means
+Back to method's on the Vector2 class.  We can also define scaling of a Vector2,
+by implementing multiplication of Vector2's by a scalar, meaning a real number
+that scaled the Vector2 by the same amount in all directions.  We do this
+by implementing the :py:meth:`__mul__ <modelviewprojection.mathutils.MultiVectorBase.__mul__>`
+and :py:meth:`__rmul__ <modelviewprojection.mathutils.MultiVectorBase.__rmul__>` methods, where __rmul__ just means
 that this object is on the right hand side of the multiplication.
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/g2.py
    :language: python
-   :start-after: doc-region-begin define mul
-   :end-before: doc-region-end define mul
+   :start-after: doc-region-begin Vector2 __mul__ method
+   :end-before: doc-region-end Vector2 __mul__ method
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/g2.py
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/g2.py
    :language: python
-   :start-after: doc-region-begin define mul body
-   :end-before: doc-region-end define mul body
+   :start-after: doc-region-begin Vector2 __mul__ method
+   :end-before: doc-region-end Vector2 __mul__ method
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/g2.py
 
 
 
@@ -690,16 +681,16 @@ Just like we made a top level invertible function called "translate" for additio
 we are going to do the same for multiplication, and call it "uniform_scale".
 Notice in particular that the scalar is passed as an argument to
 :py:meth:`uniform_scale <modelviewprojection.mathutils.uniform_scale>`,
-but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vector2D.
-This is because we will be scaling many Vector2Ds using the same scaling factor.
+but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vector2.
+This is because we will be scaling many Vector2s using the same scaling factor.
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/transforms.py
    :language: python
-   :start-after: doc-region-begin define uniform scale
-   :end-before: doc-region-end define uniform scale
+   :start-after: doc-region-begin uniform scale signature
+   :end-before: doc-region-end uniform scale body
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/transforms.py
 
 
 

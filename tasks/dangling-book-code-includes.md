@@ -1,9 +1,54 @@
 # 25 book code listings are silently EMPTY — dangling `literalinclude` anchors
 
-**Status:** **in progress 2026-07-20.** Checker DONE + wired into the book build; 5 local
-mismatches DONE (46→42 unresolved); gacalc markers DONE + released (0.0.11). Source acquisition
-DECIDED: **PyPI sdist, no GitHub.** Remaining: the white/black-box call, then wire the sdist
-source into the image and repoint/delete the 42 directives.
+**Status:** **substantially DONE 2026-07-20.** Checker done; local mismatches done; gacalc
+markers released (0.0.11); **sdist wired into the Docker build and all 42 directives
+repointed/resolved.** Book build is green (checker passes, Sphinx has no gacalc-anchor
+warnings). Remaining is refinement, not blocking — see "What was done" below.
+
+## What was done 2026-07-20 (the sdist wiring + linking)
+
+**Docker build pulls the gacalc sdist (docs-only):**
+- `Dockerfile`: `ARG GACALC_VERSION=0.0.11`; a RUN step fetches the sdist from the PyPI JSON
+  API and unpacks its `src/gacalc/*.py` to `/opt/gacalc-src` (docs-only, never imported).
+- `entrypoint.sh`: before the book build, copies `/opt/gacalc-src/*.py` into
+  `book/docs/_gacalc_src/` (gitignored), then runs `check_doc_regions.py`, then `make html`.
+- `requirements.txt`: pinned `gacalc==0.0.11` (the runtime wheel, same version as the source).
+- **`_gacalc_src` is gitignored**; the check moved INTO the container (entrypoint + a
+  container-based `make check-regions`) because the gacalc source only exists in the image,
+  not on the host -- the old host-side `html: check-regions` prerequisite was removed.
+
+**18 of the 21 directives repointed to gacalc regions** (target -> `_gacalc_src/<mod>.py`,
+anchor -> gacalc region name; captions -> `gacalc/<mod>.py`):
+- Hand-written cluster (clean granularity match): `translate`, `uniform_scale`,
+  `InvertibleFunction`, `__call__`, `inverse` -> `functions.py`/`transforms.py` sig/body
+  regions. The book already split some into signature+body directives, which lined up with
+  gacalc's split exactly.
+- Generated: `Vector2`/`Vector3` class -> `Vector2 declaration`/`Vector3 declaration`;
+  add/subtract/mul -> the whole `Vector2 __add__`/`__sub__`/`__mul__` method regions.
+- All verified rendering real gacalc code in a Sphinx build.
+
+**3 directives had no gacalc equivalent -> removed with a light prose touch-up:**
+- ch05 "vector2d basis" / ch14 "vector3d basis": gacalc does not mark basis constants
+  (`Vector2.e_1` etc. are post-class assignments); the concept is taught in the surrounding
+  prose, so the empty listing was replaced by naming the constants inline. (This is exactly
+  the "black-box" treatment the book read recommended for the data types.)
+- ch06 "translate test": the test moved to gacalc with the code; reworded the lead-in
+  sentence so it no longer references a listing.
+
+### Known imperfections (refinement, not blocking)
+- **Generated method sig/body pairs collapsed.** The book split `add`/`subtract`/`mul` into
+  a signature directive + a body directive, but gacalc's generated regions are whole-method
+  only, so both now point at the same whole-method region (the method shows twice in nearby
+  listings). Fixable later by consolidating each pair to one directive, or by teaching the
+  generator to split generated methods sig/body.
+- **`Vector2D` vs `Vector2` naming drift.** The prose still says `Vector2D` in places while
+  the now-included gacalc source says `Vector2`. Pre-existing migration tension, not
+  addressed here.
+- **basis listings dropped** rather than shown -- if a basis listing is wanted back, gacalc
+  would need to mark the basis constants (a future release).
+- **ch01 "import first module"** still warns in Sphinx -- a pre-existing empty-region issue
+  in `demo01.py`, unrelated to gacalc; the substring-based checker does not catch it (it is
+  an adjacent begin/end with no lines between).
 
 ## Decisions (Bill, 2026-07-19)
 

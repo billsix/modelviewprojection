@@ -171,4 +171,25 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
     grep -v wxpython /requirements.txt | uv pip install --python $(which python) -r - && \
     rm /requirements.txt
 
+# gacalc SOURCE version for the book's literalinclude (docs-only, see below).
+# MUST match the gacalc== pin in requirements.txt -- the same version drives both
+# the runtime wheel and the docs source, so the book never documents a version
+# the code does not run.  Declared HERE (not with the ARGs up top) so a version
+# bump only rebuilds this layer, not the expensive TeX/dnf install above.
+ARG GACALC_VERSION=0.0.11
+# Pull the gacalc SOURCE (its PyPI sdist) into the image, purely so the book can
+# ``literalinclude`` gacalc's doc-region markers.  This is DOCS-ONLY: nothing
+# imports it and it is never on sys.path -- the runtime dependency is the gacalc
+# WHEEL installed from requirements.txt above.  The sdist is used (not a git
+# clone) because it already contains the generated g1/g2/g3/scalar modules with
+# markers baked in, so no git checkout and no code generation are needed here.
+# entrypoint.sh copies these files into book/docs/_gacalc_src/ before the build.
+RUN python3 -c "import json, urllib.request, tarfile, io; \
+d = json.load(urllib.request.urlopen('https://pypi.org/pypi/gacalc/${GACALC_VERSION}/json')); \
+url = [f['url'] for f in d['urls'] if f['packagetype'] == 'sdist'][0]; \
+tarfile.open(fileobj=io.BytesIO(urllib.request.urlopen(url).read())).extractall('/opt/gacalc-sdist')" && \
+    mkdir -p /opt/gacalc-src && \
+    cp /opt/gacalc-sdist/gacalc-${GACALC_VERSION}/src/gacalc/*.py /opt/gacalc-src/ && \
+    rm -rf /opt/gacalc-sdist
+
 ENTRYPOINT ["/entrypoint.sh"]

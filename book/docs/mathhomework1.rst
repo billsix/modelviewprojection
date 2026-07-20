@@ -52,7 +52,7 @@ and show you features that you might not realize exists.
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do addition on :class:`Vector1D <modelviewprojection.mathutils.Vector1D>` using "+", :py:meth:`__add__ <modelviewprojection.mathutils.Vector.__add__>`
+We can do addition on :class:`Vector1 <modelviewprojection.mathutils.Vector1>` using "+", :py:meth:`__add__ <modelviewprojection.mathutils.MultiVectorBase.__add__>`
 
 
 
@@ -64,7 +64,7 @@ We can do addition on :class:`Vector1D <modelviewprojection.mathutils.Vector1D>`
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do subtraction on :class:`Vector1D <modelviewprojection.mathutils.Vector1D>` using "-", :py:meth:`__sub__ <modelviewprojection.mathutils.Vector.__sub__>`
+We can do subtraction on :class:`Vector1 <modelviewprojection.mathutils.Vector1>` using "-", :py:meth:`__sub__ <modelviewprojection.mathutils.MultiVectorBase.__sub__>`
 
 
 .. literalinclude:: ../../assignments/demo02/vec1.py
@@ -75,7 +75,7 @@ We can do subtraction on :class:`Vector1D <modelviewprojection.mathutils.Vector1
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do multiply a scalar by  :class:`Vector1D <modelviewprojection.mathutils.Vector1D>` using "*", :py:meth:`__mul__ <modelviewprojection.mathutils.Vector.__mul__>`
+We can do multiply a scalar by  :class:`Vector1 <modelviewprojection.mathutils.Vector1>` using "*", :py:meth:`__mul__ <modelviewprojection.mathutils.MultiVectorBase.__mul__>`
 
 
 .. literalinclude:: ../../assignments/demo02/vec1.py
@@ -86,7 +86,7 @@ We can do multiply a scalar by  :class:`Vector1D <modelviewprojection.mathutils.
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-We can do negate a  :class:`Vector1D <modelviewprojection.mathutils.Vector1D>` using "-", :py:meth:`__neg__ <modelviewprojection.mathutils.Vector.__neg__>`
+We can do negate a  :class:`Vector1 <modelviewprojection.mathutils.Vector1>` using "-", :py:meth:`__neg__ <modelviewprojection.mathutils.MultiVectorBase.__neg__>`
 
 
 .. literalinclude:: ../../assignments/demo02/vec1.py
@@ -103,8 +103,8 @@ Translate Implementation
 Next we have a very import function, :py:meth:`translate <modelviewprojection.mathutils.translate>`.  Read
 the API documentation in the link, it's a very important function.
 
-Translate is a function which partially binds a constant :class:`Vector1D` to
-one of the arguments of :py:meth:`__add__ <modelviewprojection.mathutils.Vector.__add__>`, thus creating
+Translate is a function which partially binds a constant :class:`Vector1` to
+one of the arguments of :py:meth:`__add__ <modelviewprojection.mathutils.MultiVectorBase.__add__>`, thus creating
 a new function of one argument.
 
 In high school math, you'd learn about classes of functions,  such as
@@ -182,13 +182,13 @@ Definition (White Box)
 ^^^^^^^^^^^^^^^^^^^^^^
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/transforms.py
    :language: python
-   :start-after: doc-region-begin define translate
-   :end-before: doc-region-end define translate
+   :start-after: doc-region-begin translate signature
+   :end-before: doc-region-end translate body
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/transforms.py
 
 
 

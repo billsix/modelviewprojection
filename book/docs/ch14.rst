@@ -124,25 +124,18 @@ Description
 * starting on the z axis, rotating to x axis, thumb is on the positive y axis.
 
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/g3.py
    :language: python
-   :start-after: doc-region-begin define vector3d class
-   :end-before: doc-region-end define vector3d class
+   :start-after: doc-region-begin Vector3 declaration
+   :end-before: doc-region-end Vector3 declaration
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/g3.py
 
 
 The natural basis extends to 3D with a third unit vector, ``e_3``, one unit
-along the z axis:
-
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
-   :language: python
-   :start-after: doc-region-begin define vector3d basis
-   :end-before: doc-region-end define vector3d basis
-   :linenos:
-   :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+along the z axis --- the class constants ``Vector3.e_1``, ``Vector3.e_2``, and
+``Vector3.e_3``.
 
 A 3D vertex is then ``a * e_1 + b * e_2 + c * e_3`` --- the same scaled-sum form
 as in 2D, with the new z term.
@@ -221,13 +214,13 @@ Rotate Y
 Scale
 ~~~~~
 
-.. literalinclude:: ../../src/modelviewprojection/mathutils.py
+.. literalinclude:: _gacalc_src/transforms.py
    :language: python
-   :start-after: doc-region-begin define uniform scale
-   :end-before: doc-region-end define uniform scale
+   :start-after: doc-region-begin uniform scale signature
+   :end-before: doc-region-end uniform scale body
    :linenos:
    :lineno-match:
-   :caption: src/modelviewprojection/mathutils.py
+   :caption: gacalc/transforms.py
 
 
 Code

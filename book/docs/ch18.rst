@@ -239,7 +239,7 @@ Right calculation based off of Top and aspect ratio
            |                                                     |    width/height, not necessarily the
            -------------------------------------------------------    window's
 
-``Vector3D`` is the same data structure introduced when we added the Z axis; it is unchanged here.
+``Vector3`` is the same data structure introduced when we added the Z axis; it is unchanged here.
 
 
 

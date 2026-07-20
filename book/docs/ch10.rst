@@ -149,8 +149,8 @@ negative.  The built-in ``inverse`` agrees:
 
 .. code:: Python
 
-      >>> from modelviewprojection.mathutils import Vector2D, translate, inverse
-      >>> e_1, e_2 = Vector2D.e_1(), Vector2D.e_2()
+      >>> from modelviewprojection.mathutils import Vector2, translate, inverse
+      >>> e_1, e_2 = Vector2.e_1(), Vector2.e_2()
       >>> b = 3.0 * e_1 + 4.0 * e_2
       >>> p = 10.0 * e_1 + 20.0 * e_2
       >>> inverse(translate(b=b))(p).isclose(translate(b=-b)(p))
@@ -167,8 +167,8 @@ negative angle.  The built-in ``inverse`` agrees:
 .. code:: Python
 
       >>> import math
-      >>> from modelviewprojection.mathutils import Vector2D, rotate, inverse
-      >>> e_1, e_2 = Vector2D.e_1(), Vector2D.e_2()
+      >>> from modelviewprojection.mathutils import Vector2, rotate, inverse
+      >>> e_1, e_2 = Vector2.e_1(), Vector2.e_2()
       >>> angle = math.radians(90.0)
       >>> p = 1.0 * e_1 + 2.0 * e_2
       >>> inverse(rotate(angle))(p).isclose(rotate(-angle)(p))
@@ -183,8 +183,8 @@ The built-in ``inverse`` agrees:
 
 .. code:: Python
 
-      >>> from modelviewprojection.mathutils import Vector2D, scale_non_uniform_2d, inverse
-      >>> e_1, e_2 = Vector2D.e_1(), Vector2D.e_2()
+      >>> from modelviewprojection.mathutils import Vector2, scale_non_uniform_2d, inverse
+      >>> e_1, e_2 = Vector2.e_1(), Vector2.e_2()
       >>> p = 8.0 * e_1 + 12.0 * e_2
       >>> inverse(scale_non_uniform_2d(2.0, 4.0))(p).isclose(
       ...     scale_non_uniform_2d(1.0 / 2.0, 1.0 / 4.0)(p))
@@ -212,9 +212,9 @@ The inverse of ``compose([f1, f2])`` is ``compose([inverse(f2), inverse(f1)])``
 
       >>> import math
       >>> from modelviewprojection.mathutils import (
-      ...     Vector2D, translate, rotate, compose, inverse,
+      ...     Vector2, translate, rotate, compose, inverse,
       ... )
-      >>> e_1, e_2 = Vector2D.e_1(), Vector2D.e_2()
+      >>> e_1, e_2 = Vector2.e_1(), Vector2.e_2()
       >>> f1 = rotate(math.radians(30.0))
       >>> f2 = translate(b=3.0 * e_1 + 4.0 * e_2)
       >>> p = 5.0 * e_1 + 6.0 * e_2
