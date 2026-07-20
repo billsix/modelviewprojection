@@ -18,20 +18,21 @@ names AST-scanned out of ``pgzero_gl/actor.py`` -- no imports, no GL needed.
 import ast
 import pathlib
 
-CTC = (
+CTC: pathlib.Path = (
     pathlib.Path(__file__).resolve().parent.parent / "ports" / "codetheclassics"
 )
-GAMES = sorted(CTC.glob("vol*/*/*.py"))
+GAMES: list[pathlib.Path] = sorted(CTC.glob("vol*/*/*.py"))
 
 
 def actor_property_names() -> set[str]:
-    tree = ast.parse((CTC / "pgzero_gl" / "actor.py").read_text())
-    actor = next(
+    tree: ast.Module = ast.parse((CTC / "pgzero_gl" / "actor.py").read_text())
+    actor: ast.ClassDef = next(
         n
         for n in tree.body
         if isinstance(n, ast.ClassDef) and n.name == "Actor"
     )
     names: set[str] = set()
+    node: ast.stmt
     for node in actor.body:
         if isinstance(node, ast.FunctionDef) and any(
             (isinstance(d, ast.Name) and d.id == "property")
@@ -43,35 +44,41 @@ def actor_property_names() -> set[str]:
 
 
 def test_actor_properties_exist() -> None:
-    props = actor_property_names()
+    props: set[str] = actor_property_names()
     # the core pgzero surface must be present (a rename would silently
     # defang the collision check below)
     assert {"x", "y", "pos", "image", "anchor", "angle"} <= props
 
 
 def test_no_dataclass_field_shadows_an_actor_property() -> None:
-    props = actor_property_names()
+    props: set[str] = actor_property_names()
     offenders: list[str] = []
+    game: pathlib.Path
     for game in GAMES:
-        tree = ast.parse(game.read_text())
-        classes = {
+        tree: ast.Module = ast.parse(game.read_text())
+        classes: dict[str, ast.ClassDef] = {
             n.name: n for n in ast.walk(tree) if isinstance(n, ast.ClassDef)
         }
         # transitively Actor-rooted classes (by base-name within the module)
         actorish: set[str] = set()
-        changed = True
+        changed: bool = True
         while changed:
-            changed = False
+            changed: bool = False
+            name: str
+            node: ast.ClassDef
             for name, node in classes.items():
-                bases = {b.id for b in node.bases if isinstance(b, ast.Name)}
+                bases: set[str] = {
+                    b.id for b in node.bases if isinstance(b, ast.Name)
+                }
                 if name not in actorish and (
                     "Actor" in bases or bases & actorish
                 ):
                     actorish.add(name)
-                    changed = True
+                    changed: bool = True
+        name: str
         for name in actorish:
-            node = classes[name]
-            is_dataclass = any(
+            node: ast.ClassDef = classes[name]
+            is_dataclass: bool = any(
                 (
                     isinstance(d, ast.Call)
                     and getattr(d.func, "id", "") == "dataclass"
@@ -81,6 +88,7 @@ def test_no_dataclass_field_shadows_an_actor_property() -> None:
             )
             if not is_dataclass:
                 continue
+            stmt: ast.stmt
             for stmt in node.body:
                 if (
                     isinstance(stmt, ast.AnnAssign)

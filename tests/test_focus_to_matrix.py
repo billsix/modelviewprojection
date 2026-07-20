@@ -42,12 +42,12 @@ def _v(x: float, y: float, z: float) -> Vector3:
 def _focus_matrix() -> np.ndarray:
     # mirror a focus path: an edge with a translate + a rotor-based rotation,
     # walked against the arrow (world -> paddle1), then realized as a matrix.
-    edge = cayleygraph.Edge(
+    edge: cayleygraph.Edge[str] = cayleygraph.Edge(
         src="paddle1",
         dst="world",
         steps=[("T", translate(_v(0.5, 0.3, 0.0))), ("R_z", rotate_z(0.7))],
     )
-    graph = cayleygraph.CayleyGraph([edge])
+    graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph([edge])
     return cayleyscene.to_matrix(graph.path("world", "paddle1").function())
 
 

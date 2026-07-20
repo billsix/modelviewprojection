@@ -21,7 +21,7 @@ import typing
 
 
 # doc-region-begin test first class functions
-def test_first_class_functions():
+def test_first_class_functions() -> None:
     def doubler(x: int) -> int:
         return x * 2
 
@@ -34,8 +34,8 @@ def test_first_class_functions():
 
 
 # doc-region-begin test factorial no recursion
-def test_factorial_no_recursion():
-    def factorial(n, f):
+def test_factorial_no_recursion() -> None:
+    def factorial(n: int, f: typing.Callable) -> int:
         if n == 1:
             return 1
         else:

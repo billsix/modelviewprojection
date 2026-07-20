@@ -13,27 +13,27 @@ from gacalc.g2 import Vector2
 from gacalc.g3 import Vector3
 
 
-def test_vector2_iterates_as_x_then_y():
-    v = Vector2(3.0, 4.0)
+def test_vector2_iterates_as_x_then_y() -> None:
+    v: Vector2 = Vector2(3.0, 4.0)
     assert tuple(v) == (3.0, 4.0)
     assert list(v) == [3.0, 4.0]
     # glVertex2f wants exactly (x, y)
     assert len(tuple(v)) == 2
 
 
-def test_vector3_iterates_as_x_then_y_then_z():
-    v = Vector3(1.0, 2.0, 5.0)
+def test_vector3_iterates_as_x_then_y_then_z() -> None:
+    v: Vector3 = Vector3(1.0, 2.0, 5.0)
     assert tuple(v) == (1.0, 2.0, 5.0)
     assert list(v) == [1.0, 2.0, 5.0]
     # glVertex3f wants exactly (x, y, z)
     assert len(tuple(v)) == 3
 
 
-def test_unpacking_matches_glvertex_positional_args():
+def test_unpacking_matches_glvertex_positional_args() -> None:
     # Mirror the exact call shape the demos use -- ``GL.glVertex?f(*v)`` -- with
     # a stand-in that records its positional args, so the contract is tested the
     # way the demos actually rely on it (no real GL / display required).
-    def record_positional_args(*args):
+    def record_positional_args(*args: float) -> tuple[float, ...]:
         return args
 
     assert record_positional_args(*Vector2(7.0, 8.0)) == (7.0, 8.0)

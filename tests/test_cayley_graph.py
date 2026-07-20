@@ -6,25 +6,27 @@
 from __future__ import annotations
 
 import math
+from collections.abc import Callable
 
 import pytest
+from gacalc.base import MultiVectorBase
 from gacalc.g3 import Vector3
-from gacalc.transforms import compose, inverse, translate
+from gacalc.transforms import InvertibleFunction, compose, inverse, translate
 
 from modelviewprojection.cayley import cayleygraph
 from modelviewprojection.mathutils import rotate_x, rotate_y, rotate_z
 
 # --- a small demo-like scene: square -> paddle1 -> world, and camera -> world -
 
-PADDLE1_POS = Vector3(-9.0, 1.0, 0.0)
-PADDLE1_ROT = math.radians(45.0)
-SQUARE_ROT = math.radians(90.0)
-ROT_AROUND_P1 = math.radians(30.0)
-CAM_POS = Vector3(-1.5, 0.0, 8.5)
-CAM_ROT_Y = math.radians(25.0)
-CAM_ROT_X = math.radians(15.0)
+PADDLE1_POS: Vector3 = Vector3(-9.0, 1.0, 0.0)
+PADDLE1_ROT: float = math.radians(45.0)
+SQUARE_ROT: float = math.radians(90.0)
+ROT_AROUND_P1: float = math.radians(30.0)
+CAM_POS: Vector3 = Vector3(-1.5, 0.0, 8.5)
+CAM_ROT_Y: float = math.radians(25.0)
+CAM_ROT_X: float = math.radians(15.0)
 
-SAMPLES = [
+SAMPLES: list[Vector3] = [
     Vector3(0.0, 0.0, 0.0),
     Vector3(1.0, 1.0, 0.0),
     Vector3(-1.0, -1.0, 0.0),
@@ -63,7 +65,11 @@ def build_graph() -> cayleygraph.CayleyGraph:
     )
 
 
-def assert_same_fn(fa, fb):
+def assert_same_fn(
+    fa: Callable[..., MultiVectorBase],
+    fb: Callable[..., MultiVectorBase],
+) -> None:
+    p: Vector3
     for p in SAMPLES:
         assert fa(p).is_close(fb(p))
 
@@ -71,31 +77,35 @@ def assert_same_fn(fa, fb):
 # --- forward edge ----------------------------------------------------------
 
 
-def test_forward_single_edge_equals_compose_of_steps():
-    g = build_graph()
-    got = g.path("paddle1", "world").function()
-    want = compose([translate(PADDLE1_POS), rotate_z(PADDLE1_ROT)])
+def test_forward_single_edge_equals_compose_of_steps() -> None:
+    g: cayleygraph.CayleyGraph = build_graph()
+    got: InvertibleFunction = g.path("paddle1", "world").function()
+    want: InvertibleFunction[Vector3] = compose(
+        [translate(PADDLE1_POS), rotate_z(PADDLE1_ROT)]
+    )
     assert_same_fn(got.func, want.func)
 
 
 # --- against-arrow edge auto-inverts ---------------------------------------
 
 
-def test_backward_single_edge_is_the_inverse():
-    g = build_graph()
-    cam_to_world = g.path("camera", "world").function()
-    world_to_cam = g.path("world", "camera").function()
+def test_backward_single_edge_is_the_inverse() -> None:
+    g: cayleygraph.CayleyGraph = build_graph()
+    cam_to_world: InvertibleFunction = g.path("camera", "world").function()
+    world_to_cam: InvertibleFunction = g.path("world", "camera").function()
     # world->camera is exactly the inverse of camera->world
     assert_same_fn(world_to_cam.func, inverse(cam_to_world).func)
     # and they round-trip to the identity
+    p: Vector3
     for p in SAMPLES:
         assert world_to_cam(cam_to_world(p)).is_close(p)
 
 
-def test_round_trip_is_identity_multi_hop():
-    g = build_graph()
-    there = g.path("square", "camera").function()
-    back = g.path("camera", "square").function()
+def test_round_trip_is_identity_multi_hop() -> None:
+    g: cayleygraph.CayleyGraph = build_graph()
+    there: InvertibleFunction = g.path("square", "camera").function()
+    back: InvertibleFunction = g.path("camera", "square").function()
+    p: Vector3
     for p in SAMPLES:
         assert back(there(p)).is_close(p)
 
@@ -103,11 +113,11 @@ def test_round_trip_is_identity_multi_hop():
 # --- multi-hop composition (with and without an against-arrow edge) ---------
 
 
-def test_multi_hop_all_forward():
-    g = build_graph()
-    got = g.path("square", "world").function()
+def test_multi_hop_all_forward() -> None:
+    g: cayleygraph.CayleyGraph = build_graph()
+    got: InvertibleFunction = g.path("square", "world").function()
     # square->paddle1 applied first (innermost), then paddle1->world
-    a = compose(
+    a: InvertibleFunction[Vector3] = compose(
         [
             translate(Vector3(0.0, 0.0, -5.0)),
             rotate_z(ROT_AROUND_P1),
@@ -115,16 +125,18 @@ def test_multi_hop_all_forward():
             rotate_z(SQUARE_ROT),
         ]
     )
-    b = compose([translate(PADDLE1_POS), rotate_z(PADDLE1_ROT)])
-    want = compose([b, a])
+    b: InvertibleFunction[Vector3] = compose(
+        [translate(PADDLE1_POS), rotate_z(PADDLE1_ROT)]
+    )
+    want: InvertibleFunction[Vector3] = compose([b, a])
     assert_same_fn(got.func, want.func)
 
 
-def test_multi_hop_crosses_root_with_one_inverse():
-    g = build_graph()
+def test_multi_hop_crosses_root_with_one_inverse() -> None:
+    g: cayleygraph.CayleyGraph = build_graph()
     # square -> paddle1 -> world -> camera : last hop is against camera->world
-    got = g.path("square", "camera").function()
-    a = compose(
+    got: InvertibleFunction = g.path("square", "camera").function()
+    a: InvertibleFunction[Vector3] = compose(
         [
             translate(Vector3(0.0, 0.0, -5.0)),
             rotate_z(ROT_AROUND_P1),
@@ -132,33 +144,50 @@ def test_multi_hop_crosses_root_with_one_inverse():
             rotate_z(SQUARE_ROT),
         ]
     )
-    b = compose([translate(PADDLE1_POS), rotate_z(PADDLE1_ROT)])
-    cam_to_world = compose(
+    b: InvertibleFunction[Vector3] = compose(
+        [translate(PADDLE1_POS), rotate_z(PADDLE1_ROT)]
+    )
+    cam_to_world: InvertibleFunction[Vector3] = compose(
         [translate(CAM_POS), rotate_y(CAM_ROT_Y), rotate_x(CAM_ROT_X)]
     )
-    want = compose([inverse(cam_to_world), b, a])  # world->camera outermost
+    want: InvertibleFunction[Vector3] = compose(
+        [inverse(cam_to_world), b, a]
+    )  # world->camera outermost
     assert_same_fn(got.func, want.func)
 
 
 # --- oriented_steps: labels + orientation + order --------------------------
 
 
-def test_oriented_steps_forward():
-    g = build_graph()
-    steps = g.path("paddle1", "world").oriented_steps()
+def test_oriented_steps_forward() -> None:
+    g: cayleygraph.CayleyGraph = build_graph()
+    steps: list[cayleygraph.OrientedStep] = g.path(
+        "paddle1", "world"
+    ).oriented_steps()
     assert [s.label for s in steps] == ["T", "R_z"]
     assert all(s.forward for s in steps)
 
 
-def test_oriented_steps_backward_inverts_and_relabels_in_reading_order():
-    g = build_graph()
-    steps = g.path("world", "camera").oriented_steps()
+def test_oriented_steps_backward_inverts_and_relabels_in_reading_order() -> (
+    None
+):
+    g: cayleygraph.CayleyGraph = build_graph()
+    steps: list[cayleygraph.OrientedStep] = g.path(
+        "world", "camera"
+    ).oriented_steps()
     # reading order: T^{-1} first (matches the demo's camera-inverse animation)
     assert [s.label for s in steps] == ["T^{-1}", "R_y^{-1}", "R_x^{-1}"]
     assert all(not s.forward for s in steps)
     # each oriented fn is the inverse of the forward primitive
-    fwd = [translate(CAM_POS), rotate_y(CAM_ROT_Y), rotate_x(CAM_ROT_X)]
+    fwd: list[InvertibleFunction[Vector3]] = [
+        translate(CAM_POS),
+        rotate_y(CAM_ROT_Y),
+        rotate_x(CAM_ROT_X),
+    ]
+    s: cayleygraph.OrientedStep
+    f: InvertibleFunction[Vector3]
     for s, f in zip(steps, fwd):
+        p: Vector3
         for p in SAMPLES:
             assert s.fn(p).is_close(inverse(f)(p))
 
@@ -166,18 +195,19 @@ def test_oriented_steps_backward_inverts_and_relabels_in_reading_order():
 # --- Phase 1 integration: a path is itself interpolable / iterable ----------
 
 
-def test_path_function_is_interpolable():
-    g = build_graph()
-    f = g.path("square", "camera").function()
+def test_path_function_is_interpolable() -> None:
+    g: cayleygraph.CayleyGraph = build_graph()
+    f: InvertibleFunction = g.path("square", "camera").function()
     # at(0) is identity, at(1) is the full transform
+    p: Vector3
     for p in SAMPLES:
         assert f.at(0.0)(p).is_close(p)
         assert f.at(1.0)(p).is_close(f(p))
 
 
-def test_path_function_steps_count_matches_total_substeps():
-    g = build_graph()
-    f = g.path("square", "camera").function()
+def test_path_function_steps_count_matches_total_substeps() -> None:
+    g: cayleygraph.CayleyGraph = build_graph()
+    f: InvertibleFunction = g.path("square", "camera").function()
     # 4 (square->paddle1) + 2 (paddle1->world) + 3 (world->camera) = 9 leaves
     assert len(list(f.steps())) == 9
 
@@ -185,8 +215,8 @@ def test_path_function_steps_count_matches_total_substeps():
 # --- errors ----------------------------------------------------------------
 
 
-def test_no_path_raises():
-    g = cayleygraph.CayleyGraph(
+def test_no_path_raises() -> None:
+    g: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
         [
             cayleygraph.Edge(
                 "paddle1", "world", [("T", translate(PADDLE1_POS))]
@@ -200,7 +230,7 @@ def test_no_path_raises():
         g.path("world", "island")
 
 
-def test_cyclic_graph_rejected():
+def test_cyclic_graph_rejected() -> None:
     with pytest.raises(ValueError):
         cayleygraph.CayleyGraph(
             [
@@ -214,21 +244,21 @@ def test_cyclic_graph_rejected():
         )
 
 
-def test_constructed_all_at_once_is_immutable():
-    g = build_graph()
+def test_constructed_all_at_once_is_immutable() -> None:
+    g: cayleygraph.CayleyGraph = build_graph()
     assert not hasattr(g, "add_edge")  # no mutation API
     assert len(g.edges) == 3  # edges is an immutable tuple
     assert isinstance(g.edges, tuple)
 
 
-def test_enum_node_identifiers():
+def test_enum_node_identifiers() -> None:
     from enum import Enum, auto
 
     class Space(Enum):
         world = auto()
         paddle = auto()
 
-    g = cayleygraph.CayleyGraph(
+    g: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
         [
             cayleygraph.Edge(
                 Space.paddle,
@@ -237,14 +267,15 @@ def test_enum_node_identifiers():
             ),
         ]
     )
-    f = g.path(Space.paddle, Space.world).function()
+    f: InvertibleFunction = g.path(Space.paddle, Space.world).function()
     assert f(Vector3(0.0, 0.0, 0.0)).is_close(Vector3(3.0, 0.0, 0.0))
     assert cayleygraph.node_label(Space.paddle) == "paddle"
     assert cayleygraph.node_label("world") == "world"  # strings still work too
 
 
-def test_same_space_is_empty_identity_path():
-    g = build_graph()
-    f = g.path("world", "world").function()
+def test_same_space_is_empty_identity_path() -> None:
+    g: cayleygraph.CayleyGraph = build_graph()
+    f: InvertibleFunction = g.path("world", "world").function()
+    p: Vector3
     for p in SAMPLES:
         assert f(p).is_close(p)
