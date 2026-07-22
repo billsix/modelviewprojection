@@ -4,7 +4,7 @@
 
 This is the "I need to work on X and X is weird" doc. It covers the parts of modelviewprojection that are *not* self-evident from a file skim. It deliberately does **not** restate the high-level architecture (`tasks/reference/architecture-overview.md`) or the book-build pipeline (`tasks/reference/book-and-docs-pipeline.md`), and it does not duplicate `CLAUDE.md` — it goes deeper on four subsystems and one supporting one.
 
-The through-line worth holding in your head: **mvp is a course, and gacalc (the geometric-algebra library at `/foo/opt/geometricalgebra`) is where the math actually lives.** mvp's transforms (`translate`, `rotate`, `perspective`, …) are gacalc `InvertibleFunction`s over `Vector3`/`Vector2`, not matrices. Almost every subsystem below is "some graphics thing, but expressed in gacalc's algebra instead of the usual linear-algebra way," and that is exactly what makes them non-obvious.
+The through-line worth holding in your head: **mvp is a course, and gacalc (the geometric-algebra library, `github.com/billsix/geometricalgebra`) is where the math actually lives.** mvp's transforms (`translate`, `rotate`, `perspective`, …) are gacalc `InvertibleFunction`s over `Vector3`/`Vector2`, not matrices. Almost every subsystem below is "some graphics thing, but expressed in gacalc's algebra instead of the usual linear-algebra way," and that is exactly what makes them non-obvious.
 
 ---
 
@@ -149,7 +149,7 @@ Two independent porting projects, both kept under `ports/` (not in the curriculu
 
 ## Cross-cutting gotchas
 
-- **gacalc is a hard dependency and lives at `/foo/opt/geometricalgebra`.** Its generated modules (`g1.py`/`g2.py`/`g3.py`/`scalar.py`) are gitignored and produced by its generator. If `from gacalc.g2 import Vector2` fails, gacalc hasn't been generated/installed — that's a gacalc-side `make generate`, not an mvp bug.
+- **gacalc is a hard dependency (`github.com/billsix/geometricalgebra`).** Its generated modules (`g1.py`/`g2.py`/`g3.py`/`scalar.py`) are gitignored and produced by its generator. If `from gacalc.g2 import Vector2` fails, gacalc hasn't been generated/installed — that's a gacalc-side `make generate`, not an mvp bug.
 - **Don't re-add facades.** Both `mathutils` and `pgzero_gl` had re-export facades that were deliberately removed; imports now say what they mean (`from gacalc… import`). Adding a convenience re-export re-introduces the anti-pattern.
 - **Two stacks, two meanings.** `mathutils.FunctionStack` (composes `InvertibleFunction`s) vs `matrix_stack.py` / `ms` (composes numpy 4×4s). The Cayley GL shell drives the numpy one for uniform upload; the algebra-first material uses the function one.
 - **The `id(step)`-keyed timeline** means Step identity is load-bearing: mutate a `Step.fn` in place (the editable-camera pattern), never replace the `Step` object, or its timeline slot is lost.

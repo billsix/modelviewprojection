@@ -152,8 +152,9 @@ Restoring those listings is not just "add markers in gacalc":
   gitignored.** Markers there would have to be emitted by
   `tools/gen_specialized.py`, and the book would be including a file that does not exist
   in a fresh checkout until `make generate` runs.
-- **gacalc is a separate repo.** `literalinclude` takes a relative path; reaching
-  `/foo/opt/geometricalgebra/src/...` is not portable for anyone else building the book.
+- **gacalc is a separate repo.** `literalinclude` takes a relative path; reaching a sibling
+  `geometricalgebra` checkout (`github.com/billsix/geometricalgebra`) by absolute path is not
+  portable for anyone else building the book.
   `translate` / `uniform_scale` (`transforms.py`) and `InvertibleFunction`
   (`functions.py`) are hand-written, so markers are easy — but the *path* problem applies
   to them too.

@@ -56,7 +56,7 @@ Not part of the installed package; kept in mvp's style for teaching and as porti
 
 ## 3. How gacalc is used
 
-mvp depends on **gacalc** (the sibling geometric-algebra library at `/foo/opt/geometricalgebra`) for all of its core vector algebra and the invertible-function transform layer: `Vector2`/`Vector3` (gacalc's graded vector types — the old in-repo `Vector2D`/`Vector3D` were deleted), `InvertibleFunction`, `compose`/`inverse`/`translate`/`uniform_scale`/`scale_non_uniform`, the `at`/`steps` animation layer, and `plane_rotation` (which mvp's `rotate`/`rotate_x/y/z` bind to specific basis-vector pairs). Callers import these from gacalc directly; `mathutils.py` is a graphics-math façade around them, not a re-export.
+mvp depends on **gacalc** (the sibling geometric-algebra library, `github.com/billsix/geometricalgebra`) for all of its core vector algebra and the invertible-function transform layer: `Vector2`/`Vector3` (gacalc's graded vector types — the old in-repo `Vector2D`/`Vector3D` were deleted), `InvertibleFunction`, `compose`/`inverse`/`translate`/`uniform_scale`/`scale_non_uniform`, the `at`/`steps` animation layer, and `plane_rotation` (which mvp's `rotate`/`rotate_x/y/z` bind to specific basis-vector pairs). Callers import these from gacalc directly; `mathutils.py` is a graphics-math façade around them, not a re-export.
 
 Two artifacts of the **same released version** are consumed, both from PyPI:
 - **The wheel** is the runtime dependency — pinned in `requirements.txt` (`gacalc==0.0.11` at time of writing) — and is what the code imports.
