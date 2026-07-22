@@ -109,11 +109,13 @@ image builds. When you touch one, check the others.
 **texExpToPng is built from a SHA-pinned git clone** (unvendored 2026-07-08;
 the old copy at `book/docs/_static/tex_exp_to_png/` is gone). The Dockerfile's
 `BUILD_DOCS` block clones `https://github.com/billsix/tex-expression-to-png.git`,
-checks out the pinned SHA (`fbbd9a3f…`, verified to carry the `--bg/--fg`
-dvipng flags), and meson-builds it to `/usr/local/bin/texExpToPng`. When the
-external tool changes, push the GitHub mirror and **bump the SHA in the
-Dockerfile deliberately** — there is no vendored copy to sync anymore
-(multivariate-math uses the identical scheme).
+checks out the pinned SHA (`1bd78c0…` as of 2026-07-22 — carries the `--bg/--fg`
+dvipng flags **and** the `\documentclass[varwidth]{standalone}` fix that lets the
+book's display math — `\[…\]`, `align*` in ch04/ch06/ch14 — render; the prior
+`fbbd9a3f…` used bare `standalone` and failed on those), and meson-builds it to
+`/usr/local/bin/texExpToPng`. When the external tool changes, push the GitHub
+mirror and **bump the SHA in the Dockerfile deliberately** — there is no vendored
+copy to sync anymore (multivariate-math uses the identical scheme).
 
 ### How to resolve drift — and TEST it in a throwaway container
 

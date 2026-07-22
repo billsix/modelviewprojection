@@ -68,6 +68,6 @@ Clean tree, then `make html` (or the containerized book build): `_static/make` e
 ## Relationships
 
 - Sibling findings from the same clean-build investigation:
-  `tasks/texexptopng-amsmath-preamble.md`, `tasks/demo01-import-region-empty.md`.
+  `tasks/texexptopng-standalone-display-math.md`, `tasks/demo01-import-region-empty.md`.
 - Context: `tasks/archive/2026/07/22/dual-coefficient-cleanup.md` (the gacalc-0.0.13 bump whose
   book-render check surfaced this).

@@ -84,7 +84,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    texlive-standalone && \
        ( git clone https://github.com/billsix/tex-expression-to-png.git /tmp/tex_exp_to_png && \
          cd /tmp/tex_exp_to_png && \
-         git checkout fbbd9a3fefa48ab86136ca4fba9861553289c5ee && \
+         git checkout 67da442daf12eff07d5d8e6d57258be01492e3d0 && \
          meson setup builddir && \
          meson compile -C builddir && \
          meson install -C builddir ) && \
