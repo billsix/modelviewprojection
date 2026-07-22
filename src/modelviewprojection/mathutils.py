@@ -44,8 +44,8 @@ import typing
 # gacalc pieces used INTERNALLY by the helpers below (not re-exported -- callers
 # import these from gacalc directly).
 from gacalc.base import MultiVectorBase
-from gacalc.g2 import Bivector2, Vector2
-from gacalc.g3 import Vector3
+from gacalc.g2 import Vector2
+from gacalc.g3 import Bivector3, Vector3
 from gacalc.transforms import (
     InvertibleFunction,
     Linearity,
@@ -206,7 +206,7 @@ def sine(v1: Vector2, v2: Vector2) -> float:
     # v1 ^ v2, a.k.a. the 2D cross product / signed area.  The classic
     # "rotate v1 by 90 degrees, then dot with v2" trick computes exactly
     # this number; the algebra hands it to us directly.
-    return float((v1 ^ v2).coefficient(Bivector2.e_12)) / denominator
+    return float((v1 ^ v2).coeff_e_12) / denominator
 
 
 # doc-region-begin define rotate x
@@ -306,7 +306,7 @@ def find_normal(p1: Vector3, p2: Vector3, p3: Vector3) -> Vector3:
     >>> float(abs(find_normal(origin, 1.0 * Vector3.e_1, 1.0 * Vector3.e_2)))
     1.0
     """
-    bivector = (p2 - p1) ^ (p3 - p1)
+    bivector: Bivector3 = (p2 - p1) ^ (p3 - p1)
     n = bivector.dual()
     return Vector3(
         coeff_e_1=float(n.coefficient(Vector3.e_1)),

@@ -23,7 +23,7 @@ import IPython.display as display
 import numpy as np
 import PIL
 import PIL.Image
-from gacalc.g2 import Bivector2, Vector2
+from gacalc.g2 import Vector2
 from gacalc.transforms import compose, scale_non_uniform, translate
 
 from modelviewprojection.mathutils import cosine
@@ -55,7 +55,7 @@ def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
     # magnitudes would not change the sign but would blow up when either
     # vector is zero -- e.g. a rasterized pixel sitting exactly on a
     # triangle vertex.
-    return float((v1 ^ v2).coefficient(Bivector2.e_12)) >= 0.0
+    return float((v1 ^ v2).coeff_e_12) >= 0.0
     # doc-region-end counter clockwise
 
 
@@ -81,7 +81,7 @@ def is_clockwise(v1: Vector2, v2: Vector2) -> bool:
     # include the cross == 0 (collinear / on-the-edge) case, so a point lying
     # exactly on an edge or vertex counts as BOTH -- which lets the rasterizer
     # light boundary pixels no matter which way the triangle is wound.
-    return float((v1 ^ v2).coefficient(Bivector2.e_12)) <= 0.0
+    return float((v1 ^ v2).coeff_e_12) <= 0.0
     # doc-region-end clockwise
 
 

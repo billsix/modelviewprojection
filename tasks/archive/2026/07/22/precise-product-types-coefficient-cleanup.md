@@ -1,7 +1,34 @@
 # Simplify coefficient access now that gacalc products type precisely
 
-**Status:** proposed — needs go-ahead. **GATED** on a gacalc release carrying the operator
-overloads + bumping mvp's `gacalc==` pin (see below). Created 2026-07-21.
+**Status:** complete
+**Completed:** 2026-07-22
+Created 2026-07-21. Unblocked by gacalc 0.0.12 (on PyPI + GitHub) carrying the operator overloads.
+
+## Outcome (what shipped)
+
+- **Pin bumped** `gacalc==0.0.11 → 0.0.12` in `requirements.txt` **and** `ARG GACALC_VERSION` in the
+  `Dockerfile` (they must match — wheel + docs-source sdist).
+- **3 wedge reads simplified** to direct field access (the `^` result now types `Bivector2`):
+  `framebuffer/softwarerendering.py:58,84` and `mathutils.py:209` — `(v1 ^ v2).coefficient(
+  Bivector2.e_12)` → `(v1 ^ v2).coeff_e_12`. Dropped the now-unused `Bivector2` import from both.
+- **`find_normal`** (`mathutils.py`): annotated `bivector: Bivector3` (the wedge of two `Vector3`
+  subtractions types precisely as `Bivector3` now); added `Bivector3` to the `gacalc.g3` import. The
+  `n = bivector.dual()` + `n.coefficient(Vector3.e_*)` reads **stay** — `dual()` isn't grade-precise
+  yet; that residual is `tasks/dual-coefficient-cleanup.md` (gated on gacalc 0.0.13).
+- **Verified**: `ty` clean + doctests pass on both files (via a venv-style resolution matching the
+  container gate). A re-scan found no `.coefficient()` sites beyond the documented ones.
+
+**Verification note (worth remembering):** running `ty` against a pip-installed gacalc in the
+sandbox gave a *false* `Vector − Vector → G3` reading — an artifact of `ty --python <prefix>` when
+gacalc is installed in a prefix that isn't ty's default env. mvp's real gate is unaffected: the
+container builds a venv (`/venv --system-site-packages`) and runs `ty` inside it, so pip and ty
+share one environment and resolve overloads correctly (`Vector − Vector → Vector`). Use a venv (or
+`PYTHONPATH` to the actual site-packages), not `--python <prefix>`, when checking mvp against an
+installed gacalc.
+
+---
+
+## Original context (below, for reference)
 
 ## Context
 
