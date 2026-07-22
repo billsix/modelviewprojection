@@ -1,8 +1,28 @@
 # Simplify `find_normal`'s dual coefficient reads once gacalc `dual()` types precisely
 
-**Status:** proposed — **GATED** on gacalc shipping precise `dual()` typing **and** a release +
-mvp pin bump (see Gating). Created 2026-07-22. Follow-on to
-`tasks/precise-product-types-coefficient-cleanup.md` (the one site that task had to leave alone).
+**Status:** complete
+**Completed:** 2026-07-22 (gacalc 0.0.13 released, mvp pin bumped, `find_normal` simplified). Follow-on
+to `tasks/precise-product-types-coefficient-cleanup.md` (the one site that task had to leave alone).
+
+## Outcome (what shipped, 2026-07-22)
+
+gacalc 0.0.13 (PyPI + GitHub) types `Bivector3.dual() -> Vector3`, so the ceremony collapsed further
+than planned. **Bill's call: bare `return bivector.dual()`** — dropped the reconstruction *and* the
+`float()` casts entirely (not just the `.coefficient()` → `.coeff_e_*` swap the plan sketched), since
+`n` is already the `Vector3` normal.
+
+- **`requirements.txt`** `gacalc==0.0.12 → 0.0.13`; **`Dockerfile`** `ARG GACALC_VERSION=0.0.12 → 0.0.13`
+  (both PyPI artifacts — wheel + sdist — confirmed present for 0.0.13).
+- **`mathutils.py` `find_normal`**: body is now `bivector = (p2-p1) ^ (p3-p1); return bivector.dual()`.
+- **Wrinkle handled:** the dual's sign-flip (`coeff_e_2 = -coeff_e_13`) leaves a **`-0.0`** on a zero
+  component; the old `.coefficient()` path hid it (its `to_blade_dict()` drops zeros). Bill chose to
+  **show the `-0.0`** rather than normalize, so two `find_normal` doctests + one `plane_equation`
+  doctest now read `coeff_e_2=-0.0`. Numerically identical; purely display.
+- **Verified** against released gacalc 0.0.13: `ty check mathutils.py` clean, mathutils doctests 16/16,
+  `test_mathutils.py` `find_normal` tests use `is_close`/magnitude (−0.0-safe). Full `make format` /
+  `make html` container gate not run (heavy TeX image); the change is a leaf edit with no signature
+  change, so whole-tree typing is unaffected.
+- `find_normal` is the **only** `.coefficient()`-on-`dual()` site in mvp (re-scan confirmed).
 
 ## Context
 
@@ -25,7 +45,7 @@ has no `coeff_e_1`/`e_2`/`e_3` fields, forcing the base `.coefficient(...)` read
 
 ## The change (once unblocked)
 
-With `Bivector3.dual() -> Vector3` (gacalc `tasks/precise-dual-typing.md`), `n` types as `Vector3`
+With `Bivector3.dual() -> Vector3` (gacalc `tasks/archive/2026/07/22/precise-dual-typing.md`), `n` types as `Vector3`
 and the reads become direct fields — and the whole tail likely collapses:
 
 ```python
@@ -42,7 +62,7 @@ Re-scan for any other `.coefficient()` reads sitting on a `dual()` result at tha
 
 ## Gating (why "later")
 
-1. **gacalc must ship precise `dual()`** — `tasks/precise-dual-typing.md` in
+1. **gacalc must ship precise `dual()`** — `tasks/archive/2026/07/22/precise-dual-typing.md` in
    `github.com/billsix/geometricalgebra`.
 2. **gacalc must release it** (bump to 0.0.13, `make release` → **PyPI** + GitHub). mvp consumes
    gacalc only from PyPI: the `gacalc==` wheel in `requirements.txt` and the sdist the `Dockerfile`
@@ -58,5 +78,5 @@ builds, and the `find_normal` doctests still pass. Confirm `bivector.dual().coef
 
 ## Relationships
 
-- gacalc `tasks/precise-dual-typing.md` (the upstream typing change + its release step).
+- gacalc `tasks/archive/2026/07/22/precise-dual-typing.md` (the upstream typing change + its release step).
 - `tasks/precise-product-types-coefficient-cleanup.md` (this is its deferred residual).

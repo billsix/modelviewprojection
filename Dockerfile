@@ -176,7 +176,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
 # the runtime wheel and the docs source, so the book never documents a version
 # the code does not run.  Declared HERE (not with the ARGs up top) so a version
 # bump only rebuilds this layer, not the expensive TeX/dnf install above.
-ARG GACALC_VERSION=0.0.12
+ARG GACALC_VERSION=0.0.13
 # Pull the gacalc SOURCE (its PyPI sdist) into the image, purely so the book can
 # ``literalinclude`` gacalc's doc-region markers.  This is DOCS-ONLY: nothing
 # imports it and it is never on sys.path -- the runtime dependency is the gacalc
