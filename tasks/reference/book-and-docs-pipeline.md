@@ -1,6 +1,6 @@
 # The mvp book & docs pipeline
 
-**Reference document** — how the Sphinx book is built and how it pulls code (including gacalc's) via doc-region literalinclude. Not a task; update in place. Last updated 2026-07-21.
+**Reference document** — how the Sphinx book is built and how it pulls code (including gacalc's) via doc-region literalinclude. Not a task; update in place. Last updated 2026-07-23.
 
 ---
 
@@ -112,9 +112,9 @@ It is invoked two ways, both in the container: by `entrypoint.sh:29` as a **buil
 
 mvp depends on gacalc **twice, for two different reasons**, and the two must stay in lockstep.
 
-**(a) The runtime WHEEL.** `requirements.txt:3` pins `gacalc==0.0.11`. This is the ordinary runtime dependency — `pip`-installed into `/venv`, imported by the package (`from gacalc.g2 import Vector2`, etc.). `pyproject.toml` reads dependencies dynamically from `requirements.txt` (`[tool.setuptools.dynamic]`).
+**(a) The runtime WHEEL.** `requirements.txt:3` pins `gacalc==0.0.13`. This is the ordinary runtime dependency — `pip`-installed into `/venv`, imported by the package (`from gacalc.g2 import Vector2`, etc.). `pyproject.toml` reads dependencies dynamically from `requirements.txt` (`[tool.setuptools.dynamic]`).
 
-**(b) The docs-only SOURCE sdist.** The book `literalinclude`s **gacalc's own source** (its `functions.py`, `transforms.py`, `g2.py`, `g3.py`) to teach GA concepts — e.g. `book/docs/ch06.rst` quotes `_gacalc_src/functions.py` for `InvertibleFunction`, ch05/ch14 quote `g2.py`/`g3.py`/`transforms.py`. To do that, gacalc's real source must be *on disk inside the book tree*. The `Dockerfile` (`ARG GACALC_VERSION=0.0.11`, lines 179-193):
+**(b) The docs-only SOURCE sdist.** The book `literalinclude`s **gacalc's own source** (its `functions.py`, `transforms.py`, `g2.py`, `g3.py`) to teach GA concepts — e.g. `book/docs/ch06.rst` quotes `_gacalc_src/functions.py` for `InvertibleFunction`, ch05/ch14 quote `g2.py`/`g3.py`/`transforms.py`. To do that, gacalc's real source must be *on disk inside the book tree*. The `Dockerfile` (`ARG GACALC_VERSION=0.0.13`, lines 179-193):
 
 1. Fetches the gacalc **sdist** from the PyPI JSON API for exactly `${GACALC_VERSION}`.
 2. Extracts it and copies `src/gacalc/*.py` into the image at **`/opt/gacalc-src/`**.
