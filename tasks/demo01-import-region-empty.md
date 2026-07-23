@@ -61,6 +61,6 @@ Clean `make html`: no `end-before pattern not found` warning; ch01 renders the i
 
 ## Relationships
 
-- Sibling findings: `tasks/fix-editable-install-system-flag.md`,
+- Sibling findings: `tasks/archive/2026/07/23/fix-editable-install-system-flag.md`,
   `tasks/texexptopng-standalone-display-math.md`.
 - Context: `tasks/archive/2026/07/22/dual-coefficient-cleanup.md`.

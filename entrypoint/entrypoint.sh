@@ -15,7 +15,12 @@ jupytext --to notebook src/modelviewprojection/notebooksrc/framebuffer.py --outp
 jupytext --to notebook src/modelviewprojection/notebooksrc/ndc.py --output notebooks/ndc.ipynb
 jupytext --to notebook src/modelviewprojection/notebooksrc/ndc.py --output book/docs/ndc.ipynb
 
-uv pip install --no-deps --no-index --no-build-isolation -e . --system
+# Install into the ACTIVE venv (which has setuptools/wheel, seeded by the
+# Dockerfile), not --system: --system targets /usr, which has no setuptools, so
+# the editable build fails and the `generate_plots_for_book` console-script never
+# installs -- then `book/docs/_static/make` dies (command not found) and the plot
+# SVGs never regenerate.  Matches loadpackages.sh.
+uv pip install --no-deps --no-index --no-build-isolation -e . --python "$(which python)"
 
 # Populate the docs-only gacalc source tree (baked into the image at
 # /opt/gacalc-src by the Dockerfile) so the book's literalinclude directives can

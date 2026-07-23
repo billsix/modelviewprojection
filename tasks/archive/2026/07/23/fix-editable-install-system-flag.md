@@ -1,8 +1,28 @@
 # Fix the `--system` editable install so `generate_plots_for_book` installs (clean-build SVGs)
 
-**Status:** proposed — needs go-ahead. Created 2026-07-22. Found while confirming the book renders
-after the gacalc-0.0.13 bump (`tasks/archive/2026/07/22/dual-coefficient-cleanup.md`): a **clean**
-`make html` fails to regenerate the book's plot/diagram SVGs.
+**Status:** complete
+**Completed:** 2026-07-23 (fix applied to `entrypoint/entrypoint.sh`; verified). Created 2026-07-22.
+Found while confirming the book renders after the gacalc-0.0.13 bump
+(`tasks/archive/2026/07/22/dual-coefficient-cleanup.md`): a **clean** `make html` failed to
+regenerate the book's plot/diagram SVGs.
+
+## Outcome (what shipped)
+
+`entrypoint/entrypoint.sh:18` changed from `-e . --system` to `-e . --python "$(which python)"` (with
+a comment), matching `entrypoint/loadpackages.sh` — so the editable install goes into the **active
+venv** (which the Dockerfile seeds with setuptools/wheel) instead of `/usr` (no setuptools).
+`loadpackages.sh` (used by `shell.sh`/`jupyter.sh`/the `format` target) was **already** correct; only
+`entrypoint.sh` (the book build) used `--system`.
+
+**Verified** (in a throwaway copy, current image): the fixed line installs
+`modelviewprojection==0.0.2` into the venv, `generate_plots_for_book` resolves to `/venv/bin/...`,
+`book/docs/_static/make` exits 0 (it was dying at `generate_plots_for_book: command not found`), and
+the plot SVGs (`plot1.svg`, `rotate0-0.svg`, …) regenerate — so a clean `make html` no longer emits
+the ~44 `_static/*.svg not readable` warnings. (End-to-end confirmation over a full image rebuild not
+re-run; the exact failing step is directly verified.)
+
+The change is a **build-file edit** (uncommitted, Bill commits). The fix reaches the book image only
+on the next `make image` (it bakes `entrypoint.sh`).
 
 ## Symptom
 

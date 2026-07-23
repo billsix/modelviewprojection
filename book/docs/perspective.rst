@@ -151,10 +151,7 @@ Translate Rectangular Prism's Center to Center
                          {y_c} \\
                          {z_c} \\
                          {w_c=1}
-               \end{bmatrix})
-    \]
-
-  = \begin{bmatrix}
+               \end{bmatrix}) = \begin{bmatrix}
           1 & 0 & 0 & 0 \\
           0 & 1 & 0 & 0 \\
           0 & 0 & 1 & {-{{farZ_c + nearZ_c} \over 2}} \\
@@ -166,6 +163,7 @@ Translate Rectangular Prism's Center to Center
                              {z_c} \\
                              {w_c=1} \\
                    \end{bmatrix}
+    \]
 
 
 .. figure:: _static/screenshots/frustum5.png
@@ -643,7 +641,7 @@ Towards that, let's look at these jibronies.
                    \end{bmatrix}
     \end{align*}
 
-     ..
+..
         //  clipSpace.z = A* c.z + B * 1.0  (the first column and the second column are zero because z is independent of x and y)
         //  for nearZ, which must map to -1.0,
         //    ndc.z = clipSpace.z / clipSpace.w =   (A * nearZ + B) / nearZ = -1.0
