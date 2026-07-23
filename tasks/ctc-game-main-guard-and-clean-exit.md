@@ -2,7 +2,7 @@
 
 **Status:** proposed — needs go-ahead
 **Created:** 2026-07-18 (surfaced while profiling gacalc via the CtC games; the
-games needed SIGKILL to stop — see gacalc `tasks/profile-gacalc-op-mix-in-mvp.md`)
+games needed SIGKILL to stop — see gacalc's `tasks/archive/2026/07/18/profile-gacalc-op-mix-in-mvp.md` (`github.com/billsix/geometricalgebra`))
 
 ## Goal
 

@@ -202,7 +202,7 @@ Camera; both trees.
 ## Cross-cutting (applies to several, do once in the engine)
 
 - **In-scene step labels via the TeX billboards** (from
-  `tasks/.../crossproduct-tex-billboard-labels.md`): every animating step should be
+  `tasks/archive/2026/07/09/crossproduct-tex-billboard-labels.md`): every animating step should be
   nameable in the 3D view, not only in the tree. Build it into `cayley_gl` /
   `StandardObjects` so all demos get it.
 - **Tree↔scene highlight sync:** the currently-animating step should glow in the

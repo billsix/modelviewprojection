@@ -132,7 +132,7 @@ composition, and the code was right all along.
 
 **RESOLVED 2026-07-18.** gacalc 0.0.10 is released and mvp is bumped to it; these 4
 errors are gone with **zero changes to mvp source**, and a 5th (`to_matrix`) cleared with
-them. Tracked in geometricalgebra's `tasks/archive/2026/07/18/release-0-0-10-and-bump-mvp.md`;
+them. Tracked in gacalc's `tasks/archive/2026/07/18/release-0-0-10-and-bump-mvp.md` (`github.com/billsix/geometricalgebra`);
 once that lands, bump `requirements.txt` to `>=0.0.10`, rebuild, and these 4 disappear
 on their own.
 

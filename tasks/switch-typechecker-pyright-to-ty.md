@@ -8,7 +8,7 @@ Standardize on **ty** (Astral) as mvp's only type checker — matching gacalc, w
 ty-clean and uses ty as its gate. Concretely this also removes a real ty-vs-pyright
 divergence: gacalc's generated graded types now type their **operators** via
 `@typing.overload` (so `v2 * v2 : Rotor2`, `v2 ^ v2 : Bivector2` — see gacalc
-`tasks/.../typed-product-helper-functions.md`). **ty accepts these overloads; pyright's
+gacalc's `tasks/archive/2026/07/21/typed-product-helper-functions.md` (`github.com/billsix/geometricalgebra`)). **ty accepts these overloads; pyright's
 stricter `reportIncompatibleMethodOverride` might flag them.** Since mvp consumes those
 types, a single ty-based toolchain avoids a checker disagreeing with the library it depends
 on.

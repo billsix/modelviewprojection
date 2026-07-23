@@ -298,7 +298,7 @@ Bill wants `translate` / `uniform_scale` called with their keyword names
 (`translate(b=e_1 + 3*e_2)`) to make the line-equation connection explicit. The
 parameters are **already** named `b` and `m` in gacalc; the work is docstrings plus
 **214 call sites in this repo** (276 across both). Tracked in geometricalgebra's
-`tasks/mx-plus-b-named-parameters.md` — it owns the API and the docstrings; this repo
+gacalc's `tasks/archive/2026/07/21/mx-plus-b-named-parameters.md` (`github.com/billsix/geometricalgebra`) — it owns the API and the docstrings; this repo
 supplies most of the call sites. **Open scope question there:** whether every call site
 converts, or only the teaching-facing ones (demos/notebooks/assignments), leaving
 library internals positional.

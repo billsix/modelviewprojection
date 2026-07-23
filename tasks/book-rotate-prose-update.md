@@ -9,7 +9,7 @@ sources later, add in a task for this particular one").
 
 `src/modelviewprojection/mathutils.py`, 2026-07-09 (the plane_rotation
 adoption + Bill's inline/typing/wedge follow-ups — details in
-`tasks/plane-rotation-mathutils-adoption.md`):
+`tasks/archive/2026/07/09/plane-rotation-mathutils-adoption.md`):
 
 - **`rotate` / `rotate_x` / `rotate_y` / `rotate_z` are no longer `def`s**:
   each is a typed module-level binding of gacalc's `plane_rotation`

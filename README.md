@@ -49,18 +49,21 @@ Math-demo labels (optional): install texExpToPng
 ------------------------------------------------
 Some math visualizations (e.g. `src/modelviewprojection/mathdemos/crossproduct.py`)
 annotate the vectors with LaTeX labels rendered by **texExpToPng** — a small C tool
-(wrapping `latex` + `dvipng`) vendored at `book/docs/_static/tex_exp_to_png/`. The
-labels are **optional**: if `texExpToPng` is not on your `PATH`, the demos run
-normally, just without labels. (Inside the podman image it is already built by
-`make image`; these steps are only for running demos directly on your host.)
+(wrapping `latex` + `dvipng`) that lives in its own repository,
+https://github.com/billsix/tex-expression-to-png. The labels are **optional**: if
+`texExpToPng` is not on your `PATH`, the demos run normally, just without labels.
+(Inside the podman image it is already built by `make image`, from the commit pinned
+in the `Dockerfile`; these steps are only for running demos directly on your host.)
 
-Run the block for your platform from the **repo root** — copy, paste, enter:
+Run the block for your platform — copy, paste, enter. It clones the tool into `/tmp`,
+so you can run it from any directory:
 
 **Fedora / RHEL**
 ```sh
-sudo dnf install -y gcc glib2-devel meson ninja-build pkgconf-pkg-config \
+sudo dnf install -y git gcc glib2-devel meson ninja-build pkgconf-pkg-config \
                     texlive-scheme-basic texlive-standalone texlive-amsmath texlive-dvipng
-meson setup /tmp/texexp-build book/docs/_static/tex_exp_to_png --prefix="$HOME/.local"
+git clone https://github.com/billsix/tex-expression-to-png.git /tmp/tex_exp_to_png
+meson setup /tmp/texexp-build /tmp/tex_exp_to_png --prefix="$HOME/.local"
 meson compile -C /tmp/texexp-build
 meson install -C /tmp/texexp-build
 export PATH="$HOME/.local/bin:$PATH"   # add this line to ~/.bashrc to make it permanent
@@ -70,9 +73,10 @@ texExpToPng --help                     # should list --bg and --fg
 **Debian / Ubuntu**
 ```sh
 sudo apt-get update && sudo apt-get install -y \
-     build-essential libglib2.0-dev meson ninja-build pkg-config \
+     git build-essential libglib2.0-dev meson ninja-build pkg-config \
      texlive-latex-base texlive-latex-extra dvipng
-meson setup /tmp/texexp-build book/docs/_static/tex_exp_to_png --prefix="$HOME/.local"
+git clone https://github.com/billsix/tex-expression-to-png.git /tmp/tex_exp_to_png
+meson setup /tmp/texexp-build /tmp/tex_exp_to_png --prefix="$HOME/.local"
 meson compile -C /tmp/texexp-build
 meson install -C /tmp/texexp-build
 export PATH="$HOME/.local/bin:$PATH"   # add this line to ~/.bashrc to make it permanent

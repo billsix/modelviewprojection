@@ -109,13 +109,15 @@ image builds. When you touch one, check the others.
 **texExpToPng is built from a SHA-pinned git clone** (unvendored 2026-07-08;
 the old copy at `book/docs/_static/tex_exp_to_png/` is gone). The Dockerfile's
 `BUILD_DOCS` block clones `https://github.com/billsix/tex-expression-to-png.git`,
-checks out the pinned SHA (`1bd78c0…` as of 2026-07-22 — carries the `--bg/--fg`
-dvipng flags **and** the `\documentclass[varwidth]{standalone}` fix that lets the
-book's display math — `\[…\]`, `align*` in ch04/ch06/ch14 — render; the prior
-`fbbd9a3f…` used bare `standalone` and failed on those), and meson-builds it to
-`/usr/local/bin/texExpToPng`. When the external tool changes, push the GitHub
-mirror and **bump the SHA in the Dockerfile deliberately** — there is no vendored
-copy to sync anymore (multivariate-math uses the identical scheme).
+checks out the pinned SHA (`67da442d…` at time of writing — **the Dockerfile is
+authoritative, this note is not**), and meson-builds it to
+`/usr/local/bin/texExpToPng`. Two things any pin must carry, because the book
+breaks without them: the `--bg`/`--fg` dvipng flags, and the
+`\documentclass[varwidth]{standalone}` fix that lets the book's display math —
+`\[…\]`, `align*` in ch04/ch06/ch14 — render (an early pin used bare `standalone`
+and failed on those). When the external tool changes, push the GitHub mirror and
+**bump the SHA in the Dockerfile deliberately** — there is no vendored copy to
+sync anymore (multivariate-math uses the identical scheme).
 
 ### How to resolve drift — and TEST it in a throwaway container
 
@@ -132,8 +134,8 @@ podman run --rm --cgroups=disabled -v "$(pwd)":/srcro:ro registry.fedoraproject.
 
 - **On-screen GL can't be verified headless** in a nested container (no display /
   GPU / xauth) — verify via *package import* + *texExpToPng render*, not a window.
-  (Getting the GUI to run in a container is its own task —
-  `tasks/run-demos-in-container-wayland.md`.)
+  (Getting the GUI to run in a container was its own task —
+  `tasks/archive/2026/06/15/run-demos-in-container-wayland.md`.)
 - **tmpfs:** the podman image store is a tmpfs (size varies — `df -h /var/lib/containers`,
   16 GB as of 2026-06-14). **`podman rmi` each test image when done** to reclaim it;
   `podman image prune -f` clears dangling layers.
@@ -176,7 +178,8 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
     coordinate properties and quotient `/`). There is **no shim vector
     type** — `geometry.py` keeps only `Rect`/`ZRect` (the short-lived
     gacalc-backed subclass of 2026-07-08 was superseded the next day;
-    see geometricalgebra `tasks/upgrade-rotation-and-ctc-vector-mapping.md`).
+    see gacalc's `tasks/archive/2026/07/09/upgrade-rotation-and-ctc-vector-mapping.md`,
+    `github.com/billsix/geometricalgebra`).
     The dialect mapping: `length`→`magnitude`, `dot`→`scalar_product`
     (float via `float(...)` at float-typed boundaries — gacalc returns
     `Coef`, which admits sympy), `rotate(deg)`→`plane_rotation(e_1, e_2)`
@@ -187,10 +190,15 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
     Shim position parameters (Actor pos setter, `screen.blit`) **unpack**
     (`x, y = pos`) rather than index, so they accept tuples AND gacalc
     vectors.
-  - **gacalc vectors are MUTABLE, and the games mutate them in place** —
-    `self.dir.x = -self.dir.x`, `self.vpos.y = …` (gacalc's generated types are
-    `@dataclass(slots=True)` but deliberately not frozen; `x`/`y` are properties
-    *with setters*). So **a vector in a shared location is one object aliased by
+  - **gacalc vectors are MUTABLE at the pinned version (0.0.13), and the games
+    mutate them in place** — *this is on its way out*: gacalc froze its generated
+    value types on 2026-07-23, so everything in this bullet applies only until mvp
+    bumps the pin, at which point every site converts to rebinding and the aliasing
+    hazard below disappears entirely (`tasks/frozen-vectors-rebind-migration.md`).
+    Against the current pin, the games write
+    `self.dir.x = -self.dir.x`, `self.vpos.y = …` — 0.0.13's generated types are
+    `@dataclass(slots=True)` and *not* frozen, so `x`/`y` are properties **with
+    setters**. So **a vector in a shared location is one object aliased by
     every reader.** A default argument is the sharp edge: `def __init__(…,
     half_hit_area: Vector2 = Vector2(25, 20))` evaluates once at import, so every
     instance taking the default shares it. The fix is **two parts**: a named
@@ -464,14 +472,13 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 - `tasks/v4-chapt14-shadowmap-fix.md` — the one v4 demo not yet landed.
 - `tasks/extract-duplicated-demo-helpers.md` — in progress (helper dedup).
 - `tasks/axis-cylinder-cone-lighting.md` — deferred.
-- `tasks/jupyter-sh-exec-fix.md` — one-line fix to a no-op `exec` in `entrypoint/jupyter.sh`.
 
-**Math demos (new):**
-- `tasks/math-demos-section-crossproduct-and-proof.md` — **proposed.** Stand up a
-  general "math demos" section structured like `mvpvisualization/` (built on the
-  `cayleygraph.py`/`cayleyscene.py` Cayley-graph abstraction); first demo = the
-  cross product (ported from multivariate-math, re-expressing its hand-rolled
-  12-step `StepNumber` machine as a Cayley scene), plus porting its LaTeX proof
-  into a new book derivations section.
+**Cross-repo, gated:**
+- `tasks/frozen-vectors-rebind-migration.md` — gacalc's generated value types became
+  **frozen** (immutable) on 2026-07-23, so mvp's ~150 in-place `.x/.y/.z` mutation
+  sites (mostly the Code-the-Classics ports) must convert to rebinding. **Gated** on
+  gacalc releasing the frozen version and mvp bumping its pin; until then the pinned
+  gacalc (0.0.13) is still mutable and the Code-the-Classics notes above hold as
+  written.
 
-(Other in-flight: `tasks/finish-pdf-epub-build.md`, `tasks/ports-pbo-floattex-runtime-crashes.md`, `tasks/shadowmap-depth-discrimination.md`; `tasks/codebase-overview.md` is a living orientation doc.)
+(Other in-flight: `tasks/ports-pbo-floattex-runtime-crashes.md`, `tasks/shadowmap-depth-discrimination.md`; `tasks/codebase-overview.md` is a living orientation doc. `tasks/` is authoritative — the archive holds the rest, including the math-demos section, the PDF/EPUB build, and the `jupyter.sh` fix.)
