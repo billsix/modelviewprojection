@@ -1,6 +1,6 @@
 autoflake
 furo
-gacalc==0.0.13
+gacalc==0.0.14
 glfw
 ImageIO
 imgui-bundle[glfw]

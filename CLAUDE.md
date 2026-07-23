@@ -190,27 +190,27 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
     Shim position parameters (Actor pos setter, `screen.blit`) **unpack**
     (`x, y = pos`) rather than index, so they accept tuples AND gacalc
     vectors.
-  - **gacalc vectors are MUTABLE at the pinned version (0.0.13), and the games
-    mutate them in place** — *this is on its way out*: gacalc froze its generated
-    value types on 2026-07-23, so everything in this bullet applies only until mvp
-    bumps the pin, at which point every site converts to rebinding and the aliasing
-    hazard below disappears entirely (`tasks/frozen-vectors-rebind-migration.md`).
-    Against the current pin, the games write
-    `self.dir.x = -self.dir.x`, `self.vpos.y = …` — 0.0.13's generated types are
-    `@dataclass(slots=True)` and *not* frozen, so `x`/`y` are properties **with
-    setters**. So **a vector in a shared location is one object aliased by
-    every reader.** A default argument is the sharp edge: `def __init__(…,
-    half_hit_area: Vector2 = Vector2(25, 20))` evaluates once at import, so every
-    instance taking the default shares it. The fix is **two parts**: a named
-    module-level constant for the default (`DEFAULT_HALF_HIT_AREA`), **and a copy on
-    assignment** — `self.half_hit_area = Vector2(*half_hit_area)`.
-    **The constant alone fixes nothing** — ruff's `B008` only flags *calls* in
-    defaults, so a bare name silences the lint while the aliasing survives; the copy
-    is the part that works. Don't "simplify" a `Vector2(*v)` assignment back to `v`.
-    (Found 2026-07-18: `beatstreets`' `Player`/`EnemyVax`/`EnemyHoodie`/
-    `EnemyScooterboy` all shared one `half_hit_area`; nothing mutated it, so it was a
-    trap rather than a live bug — but this file mutates vectors in place constantly,
-    so it was one line away.)
+  - **gacalc vectors are FROZEN (immutable) at the pinned version (0.0.14), so a
+    coordinate is changed by REBINDING, never in place.** Write
+    `self.dir = Vector2(-self.dir.x, self.dir.y)`, not `self.dir.x = -self.dir.x`;
+    an augmented write becomes
+    `self.vpos = Vector2(self.vpos.x + self.vel.x, self.vpos.y)`. The ~80-site
+    conversion landed 2026-07-23 with the 0.0.13 → 0.0.14 pin bump. Two things to
+    know when a write is rejected: a **field** write (`v.coeff_e_1 = …`) raises a
+    clean `FrozenInstanceError`, but the ergonomic **property** write (`v.x = …`)
+    raises a confusing `TypeError: super(type, obj)…` — a Python 3.14
+    frozen+slots+property quirk gacalc keeps deliberately, not a bug in this repo.
+    And **`ty` catches a plain `v.x = …` but NOT an augmented `v.x += …`**, so a
+    grep for `\.(x|y|z)\s*[-+*/]?=` is still part of any audit.
+    **Immutability retired the aliasing hazard that used to live here.** A vector in
+    a shared location (module constant, class attribute, default argument) can no
+    longer be mutated out from under its other readers, and the basis constants
+    (`Vector2.e_1`, …) are safe to share. The defensive copies that were the fix for
+    that — `self.half_hit_area = Vector2(*half_hit_area)` in `beatstreets`, guarding
+    a `Player`/`EnemyVax`/`EnemyHoodie`/`EnemyScooterboy` shared default (found
+    2026-07-18) — are now redundant rather than load-bearing. They were left in place
+    during the freeze migration on purpose, so that change stayed a pure
+    mutation→rebinding conversion; removing them is a separate, deliberate pass.
 - History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`.
 
 ---
@@ -473,12 +473,13 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 - `tasks/extract-duplicated-demo-helpers.md` — in progress (helper dedup).
 - `tasks/axis-cylinder-cone-lighting.md` — deferred.
 
-**Cross-repo, gated:**
-- `tasks/frozen-vectors-rebind-migration.md` — gacalc's generated value types became
-  **frozen** (immutable) on 2026-07-23, so mvp's ~150 in-place `.x/.y/.z` mutation
-  sites (mostly the Code-the-Classics ports) must convert to rebinding. **Gated** on
-  gacalc releasing the frozen version and mvp bumping its pin; until then the pinned
-  gacalc (0.0.13) is still mutable and the Code-the-Classics notes above hold as
-  written.
+**Cross-repo (done):**
+- The gacalc **frozen-vector migration landed 2026-07-23**: pin bumped to
+  **0.0.14** (`requirements.txt` *and* the Dockerfile `ARG GACALC_VERSION`), and
+  ~80 in-place `.x/.y/.z` writes across six Code-the-Classics games converted to
+  rebinding, verified byte-identical by a seeded 300-frame differential state trace.
+  Work record: `tasks/archive/2026/07/23/frozen-vectors-rebind-migration.md`;
+  rationale: `tasks/reference/design-decisions.md` › "gacalc's value types became
+  frozen".
 
 (Other in-flight: `tasks/ports-pbo-floattex-runtime-crashes.md`, `tasks/shadowmap-depth-discrimination.md`; `tasks/codebase-overview.md` is a living orientation doc. `tasks/` is authoritative — the archive holds the rest, including the math-demos section, the PDF/EPUB build, and the `jupyter.sh` fix.)

@@ -500,7 +500,7 @@ class Player(WrapActor):
             if self.frame % 8 != 0 or sign(self.facing_x) != sign(
                 float(move.x)
             ):
-                move.x = 0
+                move = Vector2(0, move.y)
 
             self.velocity = Vector2(
                 self.velocity.x * Player.DRAG.x + move.x * Player.FORCE.x,
@@ -1000,9 +1000,9 @@ class Enemy(WrapActor):
                 # If we're near the top or bottom of the game world, apply an additional force
                 # to push us away from the edge
                 if self.y < 64:
-                    force.y += 0.2
+                    force = Vector2(force.x, force.y + 0.2)
                 if self.y > LEVEL_HEIGHT - 64:
-                    force.y -= 0.2
+                    force = Vector2(force.x, force.y - 0.2)
 
                 # Apply force to velocity
                 self.velocity += force

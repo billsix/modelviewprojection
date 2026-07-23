@@ -398,12 +398,16 @@ class Ball(MyActor):
             else:
                 bounds_y = PITCH_BOUNDS_Y
 
-            self.vpos.x, self.vel.x = ball_physics(
+            new_x, new_vel_x = ball_physics(
                 float(self.vpos.x), float(self.vel.x), bounds_x
             )
-            self.vpos.y, self.vel.y = ball_physics(
+            self.vpos = Vector2(new_x, self.vpos.y)
+            self.vel = Vector2(new_vel_x, self.vel.y)
+            new_y, new_vel_y = ball_physics(
                 float(self.vpos.y), float(self.vel.y), bounds_y
             )
+            self.vpos = Vector2(self.vpos.x, new_y)
+            self.vel = Vector2(self.vel.x, new_vel_y)
 
         # Update shadow position to track ball
         self.shadow.vpos = Vector2(*self.vpos)
@@ -721,8 +725,10 @@ class Player(MyActor):
                     # 400 pixels ahead of the ball. Team 0 are trying to score in the goal at the top of the
                     # pitch, team 1 the goal at the bottom
                     direction: int = -1 if self.team == 0 else 1
-                    target.x = (ball.vpos.x + target.x) / 2
-                    target.y = (ball.vpos.y + 400 * direction + target.y) / 2
+                    target = Vector2(
+                        (ball.vpos.x + target.x) / 2,
+                        (ball.vpos.y + 400 * direction + target.y) / 2,
+                    )
                 # If we're not active, we'll do the default action of moving towards our home position
             else:
                 # Ball is owned by a player on the opposite team
@@ -737,8 +743,10 @@ class Player(MyActor):
                     )
 
                     # Stay on the pitch
-                    target.x = max(AI_MIN_X, min(AI_MAX_X, target.x))
-                    target.y = max(AI_MIN_Y, min(AI_MAX_Y, target.y))
+                    target = Vector2(
+                        max(AI_MIN_X, min(AI_MAX_X, target.x)),
+                        max(AI_MIN_Y, min(AI_MAX_Y, target.y)),
+                    )
 
                     other_team: int = 1 if self.team == 0 else 0
                     speed = LEAD_PLAYER_BASE_SPEED
@@ -814,7 +822,7 @@ class Player(MyActor):
                 # Waiting for kick-off, but we're not the kickoff player
                 # Just stay where we are. Without this we'd run to our home position, but that is different from
                 # our position at kickoff (where all players are on their team's side of the pitch)
-                target.y = self.vpos.y
+                target = Vector2(target.x, self.vpos.y)
 
         # Get direction vector and distance beteen current pos and target pos
         # vec[0] and vec[1] will be the x and y components of the vector
@@ -834,9 +842,9 @@ class Player(MyActor):
             # level. Processing the x and y components separately allows the player to slide along the edge when trying
             # to move diagonally off the edge of the level.
             if allow_movement(self.vpos + Vector2(vec.x * distance, 0)):
-                self.vpos.x += vec.x * distance
+                self.vpos = Vector2(self.vpos.x + vec.x * distance, self.vpos.y)
             if allow_movement(self.vpos + Vector2(0, vec.y * distance)):
-                self.vpos.y += vec.y * distance
+                self.vpos = Vector2(self.vpos.x, self.vpos.y + vec.y * distance)
 
             # todo
             self.anim_frame = (self.anim_frame + max(distance, 1.5)) % 72

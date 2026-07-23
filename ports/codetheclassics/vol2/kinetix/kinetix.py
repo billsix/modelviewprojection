@@ -615,7 +615,7 @@ class Ball(Actor):
 
                 if c is not None:
                     # Invert X direction and move back to previous position, before the collision
-                    self.dir.x = -self.dir.x
+                    self.dir = Vector2(-self.dir.x, self.dir.y)
                     self.x += self.dir.x
 
                     if c[1]:
@@ -638,7 +638,7 @@ class Ball(Actor):
 
                 if c is not None:
                     # Invert Y direction and move back to previous position, before the collision
-                    self.dir.y = -self.dir.y
+                    self.dir = Vector2(self.dir.x, -self.dir.y)
                     self.y += self.dir.y
 
                     if c[1]:

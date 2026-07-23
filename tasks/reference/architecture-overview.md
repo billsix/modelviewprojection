@@ -50,7 +50,7 @@ Small, focused, individually-documented modules the demos import: `axes.py` (uni
 ### `ports/` — faithful ports from external graphics sources
 Not part of the installed package; kept in mvp's style for teaching and as porting source material.
 - **`ports/openglsuperbiblev4/`** — ~104 Python ports of the *OpenGL SuperBible v4* examples, organized by chapter (`chapt01 … chapt22`). The main source Bill draws demos from; some are already slotted into the numbered demos (`axes3d`→demo19a, `atom`→19b, `solar`→19c, `sphereworld`→19e, `Block`→demo22 — see `CLAUDE.md` › "SuperBible port plan").
-- **`ports/codetheclassics/`** — ports of the *Code the Classics* (vol 1 & 2) games (boing, bunner, cavern, myriapod, soccer / avenger, beatstreets, eggzy, kinetix, leadingedge). Built on **`pgzero_gl/`**, an in-repo Pygame-Zero-compatible layer that renders through OpenGL and uses gacalc `Vector2`/`Vector3` (and their in-place mutability) throughout. These exercise the library as a real consumer; see `CLAUDE.md` › "Code-the-Classics ports".
+- **`ports/codetheclassics/`** — ports of the *Code the Classics* (vol 1 & 2) games (boing, bunner, cavern, myriapod, soccer / avenger, beatstreets, eggzy, kinetix, leadingedge). Built on **`pgzero_gl/`**, an in-repo Pygame-Zero-compatible layer that renders through OpenGL and uses gacalc `Vector2`/`Vector3` throughout — as of the 0.0.14 pin those are **frozen**, so positions and velocities are updated by rebinding (`self.vpos = Vector2(self.vpos.x + self.vel.x, self.vpos.y)`), never by writing a coordinate in place. These exercise the library as a real consumer; see `CLAUDE.md` › "Code-the-Classics ports".
 
 ---
 

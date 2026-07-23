@@ -56,6 +56,22 @@ from pgzero_gl import (  # noqa: E402
     transform,
 )
 
+
+# gacalc's vectors are frozen (immutable), so a car's position is updated by
+# rebinding a new vector rather than writing one coordinate in place.  This
+# game moves cars along X (steering) and Z (forward motion) independently, so
+# the two single-coordinate replacements below are spelled once here instead of
+# repeating the three-argument constructor at every one of their ~11 call sites.
+def with_x(vector: Vector3, x: float) -> Vector3:
+    """Return ``vector`` with its x coordinate replaced by ``x``."""
+    return Vector3(x, vector.y, vector.z)
+
+
+def with_z(vector: Vector3, z: float) -> Vector3:
+    """Return ``vector`` with its z coordinate replaced by ``z``."""
+    return Vector3(vector.x, vector.y, z)
+
+
 # If the game window doesn't fit on the screen, you may need to turn off or reduce display scaling in the Windows/macOS settings
 # On Windows, you can uncomment the following two lines to fix the issue. It sets the program as "DPI aware"
 # meaning that display scaling won't be applied to it.
@@ -517,7 +533,7 @@ class Car:
         self.image: str = f"car_{self.car_letter}_0_0"
 
     def update(self, delta_time: float) -> None:
-        self.pos.z -= self.speed * delta_time
+        self.pos = with_z(self.pos, self.pos.z - self.speed * delta_time)
         self.update_current_track_piece()
         self.tyre_rotation += delta_time * self.speed * 0.75
 
@@ -572,8 +588,9 @@ class CPUCar(Car):
         self.speed = move_towards(
             self.speed, self.target_speed, self.accel * delta_time
         )
-        self.pos.x = move_towards(
-            float(self.pos.x), self.target_x, 400 * delta_time
+        self.pos = with_x(
+            self.pos,
+            move_towards(float(self.pos.x), self.target_x, 400 * delta_time),
         )
 
         super().update(delta_time)
@@ -704,8 +721,9 @@ class PlayerCar(Car):
                     self.explode_timer = None
             else:
                 # Reset player to centre of track over about 2 seconds
-                self.pos.x = move_towards(
-                    float(self.pos.x), 0, 2000 * delta_time
+                self.pos = with_x(
+                    self.pos,
+                    move_towards(float(self.pos.x), 0, 2000 * delta_time),
                 )
                 self.resetting = self.pos.x != 0
 
@@ -762,8 +780,10 @@ class PlayerCar(Car):
                 # motion that has taken place since the previous frame, which already takes delta_time into account
                 # We don't do this if the race is complete - just let car go around the corners with no steering needed
                 if not game.race_complete:
-                    self.pos.x -= (
-                        self.offset_x_change * CORNER_OFFSET_MULTIPLIER
+                    self.pos = with_x(
+                        self.pos,
+                        self.pos.x
+                        - self.offset_x_change * CORNER_OFFSET_MULTIPLIER,
                     )
 
             else:
@@ -784,7 +804,7 @@ class PlayerCar(Car):
                     * self.grip
                     * delta_time
                 )
-                self.pos.x -= x_move
+                self.pos = with_x(self.pos, self.pos.x - x_move)
 
             # Call parent (Car) update method, which includes applying motion
             super().update(delta_time)
@@ -812,8 +832,12 @@ class PlayerCar(Car):
                         # is faster, we hit the car in front
                         if abs(vec.z) < 0.2:
                             # Side collision
-                            self.pos.x += sign(float(vec.x)) * 50
-                            car.pos.x -= sign(float(vec.x)) * 50
+                            self.pos = with_x(
+                                self.pos, self.pos.x + sign(float(vec.x)) * 50
+                            )
+                            car.pos = with_x(
+                                car.pos, car.pos.x - sign(float(vec.x)) * 50
+                            )
 
                         elif vec.z > 0:
                             # Colliding with the back of the car in front
@@ -824,11 +848,13 @@ class PlayerCar(Car):
                             cast(CPUCar, car).target_speed = car.speed
 
                             # Shift us back and other car forward so we're not longer overlapping
-                            self.pos.z = (
-                                midpoint + collide_front_distance_z * 0.6
+                            self.pos = with_z(
+                                self.pos,
+                                midpoint + collide_front_distance_z * 0.6,
                             )
-                            car.pos.z = (
-                                midpoint - collide_front_distance_z * 0.6
+                            car.pos = with_z(
+                                car.pos,
+                                midpoint - collide_front_distance_z * 0.6,
                             )
 
                             game.play_sound("bump", 6)
@@ -839,10 +865,14 @@ class PlayerCar(Car):
                             car.speed = max(self.speed - 3, 0)
 
                             # Shift other car back and us forward so we're not longer overlapping
-                            self.pos.z = (
-                                midpoint - collide_back_distance_z * 0.6
+                            self.pos = with_z(
+                                self.pos,
+                                midpoint - collide_back_distance_z * 0.6,
                             )
-                            car.pos.z = midpoint + collide_back_distance_z * 0.6
+                            car.pos = with_z(
+                                car.pos,
+                                midpoint + collide_back_distance_z * 0.6,
+                            )
 
                             game.play_sound("bump_behind")
 
@@ -1402,8 +1432,11 @@ class Game:
             self.cars.sort(key=lambda car: car.pos.z)
 
         # Update camera position to follow player car
-        self.camera.x = self.camera_follow_car.pos.x
-        self.camera.z = self.camera_follow_car.pos.z + CAMERA_FOLLOW_DISTANCE
+        self.camera = Vector3(
+            self.camera_follow_car.pos.x,
+            self.camera.y,
+            self.camera_follow_car.pos.z + CAMERA_FOLLOW_DISTANCE,
+        )
 
         # As camera moves around corners, add to bg_offset and shift car X position so that steering is required on corners
 
@@ -1508,9 +1541,15 @@ class Game:
 
             # Keep bg_offset.x within the range -backgroundwidth to +backgroundwidth
             while self.bg_offset.x < -self.background.get_width():
-                self.bg_offset.x += self.background.get_width()
+                self.bg_offset = Vector2(
+                    self.bg_offset.x + self.background.get_width(),
+                    self.bg_offset.y,
+                )
             while self.bg_offset.x > self.background.get_width():
-                self.bg_offset.x -= self.background.get_width()
+                self.bg_offset = Vector2(
+                    self.bg_offset.x - self.background.get_width(),
+                    self.bg_offset.y,
+                )
 
         # Shift player car's X offset - this means the car will go off the track if you go around a corner without
         # steering. Without this, the car would magically stick to the track as if the corner wasn't there - because
@@ -1521,8 +1560,10 @@ class Game:
         # This deals with moving the background when the camera is moving backwards, which will only happen if the
         # player uses the down arrow key debug mode
         if new_ahead < prev_ahead:
-            self.bg_offset.x -= self.track[prev_ahead].offset_x
-            self.bg_offset.y -= self.track[prev_ahead].offset_y
+            self.bg_offset = Vector2(
+                self.bg_offset.x - self.track[prev_ahead].offset_x,
+                self.bg_offset.y - self.track[prev_ahead].offset_y,
+            )
 
         self.first_frame = False
 
@@ -1991,8 +2032,7 @@ class Game:
                 # (For Y offset, you can achieve an interesting effect by changing 0 to -car_offset.y / 2, but
                 # it is a bit glitchy sometimes so we've left it at zero)
                 if car is self.camera_follow_car:
-                    car_offset.x = 0
-                    car_offset.y = 0
+                    car_offset = Vector3(0, 0, car_offset.z)
 
                 pos_v3 = Vector3(car.pos.x, 0, current_piece_z) + car_offset
                 scale: int = 2

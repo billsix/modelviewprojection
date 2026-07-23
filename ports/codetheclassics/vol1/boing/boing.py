@@ -156,14 +156,18 @@ class Ball(Actor):
                     # bat. This gives the player a bit of control over where the ball goes.
 
                     # Bounce the opposite way on the X axis
-                    self.dir.x = -self.dir.x
+                    self.dir = Vector2(-self.dir.x, self.dir.y)
 
                     # Deflect slightly up or down depending on where ball hit bat
-                    self.dir.y += difference_y / 128
+                    self.dir = Vector2(
+                        self.dir.x, self.dir.y + difference_y / 128
+                    )
 
                     # Limit the Y component of the vector so we don't get into a situation where the ball is bouncing
                     # up and down too rapidly
-                    self.dir.y = min(max(float(self.dir.y), -1), 1)
+                    self.dir = Vector2(
+                        self.dir.x, min(max(float(self.dir.y), -1), 1)
+                    )
 
                     # Ensure our direction vector is a unit vector, i.e. represents a distance of the equivalent of
                     # 1 pixel regardless of its angle. (A zero vector would
@@ -200,7 +204,7 @@ class Ball(Actor):
             if abs(self.y - HALF_HEIGHT) > 220:
                 # Invert vertical direction and apply new dy to y so that the ball is no longer overlapping with the
                 # edge of the arena
-                self.dir.y = -self.dir.y
+                self.dir = Vector2(self.dir.x, -self.dir.y)
                 self.y += self.dir.y
 
                 # Create impact effect
