@@ -1,7 +1,13 @@
 # Fix demo01's empty `import first module` doc-region (Sphinx anchor warning)
 
-**Status:** proposed — needs go-ahead. Created 2026-07-22. Found while confirming the book renders
-after the gacalc-0.0.13 bump. **Pre-existing**, unrelated to gacalc/find_normal. Trivial.
+**Status:** complete
+**Completed:** 2026-07-23 — moved `# doc-region-end import first module` in
+`src/modelviewprojection/demos/demo01.py` from *above* the imports to *below* them, so the region now
+contains `import sys` / `import typing` / `import glfw` / `import OpenGL.GL as GL` (the block the ch01
+"Importing Libraries" prose walks through). Verified: clean book build → the `end-before pattern not
+found` warning is gone and the book builds with **zero warnings**. Uncommitted (Bill commits).
+Created 2026-07-22. Found while confirming the book renders after the gacalc-0.0.13 bump.
+**Pre-existing**, unrelated to gacalc/find_normal. Trivial.
 
 ## Symptom
 

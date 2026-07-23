@@ -16,12 +16,12 @@
 # Boston, MA 02111-1307, USA.
 
 # doc-region-begin import first module
-# doc-region-end import first module
 import sys
 import typing
 
 import glfw
 import OpenGL.GL as GL
+# doc-region-end import first module
 
 if typing.TYPE_CHECKING:
     # glfw types window handles as `_GLFWwindowPointerT`: private, and absent at
