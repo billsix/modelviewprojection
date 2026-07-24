@@ -21,6 +21,7 @@ import typing
 
 import glfw
 import OpenGL.GL as GL
+
 # doc-region-end import first module
 
 if typing.TYPE_CHECKING:

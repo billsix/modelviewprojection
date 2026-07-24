@@ -2898,7 +2898,10 @@ class Game:
                 self.scroll_offset = Vector2(
                     self.scroll_offset.x + scroll_speed, self.scroll_offset.y
                 )
-                self.boundary.left = self.scroll_offset.x  # as boundary is a rectangle, moving boundary.left moves the entire rectangle
+                # ``Rect.left``'s setter takes a float; ``scroll_offset.x`` is a
+                # gacalc ``Coef`` (int | float | sympy.Expr), so coerce at this
+                # float-typed boundary. (moving boundary.left moves the whole rect.)
+                self.boundary.left = float(self.scroll_offset.x)
             else:
                 # Scrolling is complete
                 self.scrolling = False
