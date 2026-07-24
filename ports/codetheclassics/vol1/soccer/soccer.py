@@ -464,7 +464,9 @@ class Ball(MyActor):
                 do_shoot = (
                     self.timer <= 0
                     and target
-                    and cost(target.vpos, self.owner.team)  # ty: ignore[unsupported-operator]  # faithful upstream: tuple compare falls to Vector2 only on exact float ties, which don't occur
+                    and cost(
+                        target.vpos, self.owner.team
+                    )  # faithful upstream: tuple compare falls to Vector2 only on exact float ties, which don't occur
                     < cost(self.owner.vpos, self.owner.team)
                 )
 
