@@ -34,7 +34,12 @@ import types
 import numpy as np
 from PIL import Image as PILImage
 
+# EGL_PLATFORM (Mesa) selects the surfaceless/offscreen device; PYOPENGL_PLATFORM
+# (PyOpenGL) makes PyOpenGL bind and track the EGL context rather than defaulting
+# to GLX -- without it, ``GL.*`` calls raise "no valid context".  Both must be set
+# before ``from OpenGL import ...``, which reads them at import time.
 os.environ.setdefault("EGL_PLATFORM", "surfaceless")
+os.environ.setdefault("PYOPENGL_PLATFORM", "egl")
 from OpenGL import EGL, GL  # noqa: E402
 
 
@@ -148,7 +153,6 @@ def main():
     )
 
     _stub_glfw()
-    sys.modules.setdefault("just_playback", types.ModuleType("just_playback"))
     here = os.path.dirname(os.path.abspath(__file__))
     sys.path.insert(0, here)
 
@@ -186,7 +190,14 @@ def main():
         from pgzero_gl import renderer
 
         context.renderer = renderer.Renderer(w, h)
-    pgzero_gl.pgzrun.go = lambda gl=None: None
+    # Neutralise the game's module-level ``go()`` call so importing it renders
+    # nothing and opens no window -- we drive update()/draw() ourselves below.
+    # (Games do ``from pgzero_gl import go``, binding this attribute at their
+    # import time, so it must be stubbed before ``exec_module`` runs.)  Formerly
+    # ``pgzero_gl.pgzrun.go``; the honest-imports pass (2026-07-08) removed the
+    # synthetic ``pgzrun`` module -- ``go`` now lives directly on the package.
+    pgzero_gl.go = lambda g=None: None
+    pgzero_gl.runner.go = lambda g=None: None
 
     spec = importlib.util.spec_from_file_location("game_under_test", path)
     mod = importlib.util.module_from_spec(spec)
@@ -201,7 +212,7 @@ def main():
         GL.glReadPixels(0, 0, w, h, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE), np.uint8
     ).reshape(h, w, 4)
     px = np.flipud(px)  # GL is bottom-up; PNG is top-down
-    PILImage.fromarray(px, "RGBA").save(out)
+    PILImage.fromarray(px).save(out)  # mode inferred (RGBA) from shape+dtype
     nb = int((px[..., :3].sum(2) > 10).sum())
     print(
         "%s: %dx%d, %d%% non-black, %d distinct colours -> %s"

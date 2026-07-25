@@ -1,8 +1,41 @@
 # Fix `ports/codetheclassics/_smoketest.py` — broken `pgzero_gl.pgzrun` reference
 
-**Status:** proposed — needs go-ahead
+**Status:** **DONE 2026-07-25.** `_smoketest.py` renders again; verified on 6 games
+(both renderer backends). See "Resolution".
 **Created:** 2026-07-23 (surfaced while verifying the frozen-vector rebind migration —
 the smoke test was the intended render gate and couldn't run)
+
+## Resolution (2026-07-25)
+
+Three fixes in `_smoketest.py`:
+
+1. **The `pgzrun` crash (the headline bug).** `pgzero_gl.pgzrun.go = …` →
+   `pgzero_gl.go = …` (plus `pgzero_gl.runner.go`). The honest-imports pass
+   (2026-07-08) deleted the synthetic `pgzrun` module; `go` now lives directly on the
+   package. The stub still runs *before* `exec_module`, which is what matters — games do
+   `from pgzero_gl import go`, binding the attribute at their own import time.
+2. **Dead `just_playback` stub removed.** Audio moved to `miniaudio` (2026-07-09) with a
+   guarded `try: import miniaudio` (graceful no-op if absent), and `miniaudio` is in the
+   image — so the `sys.modules.setdefault("just_playback", …)` line was stubbing a module
+   nothing imports anymore.
+3. **`PYOPENGL_PLATFORM=egl` now set** (alongside the existing `EGL_PLATFORM=surfaceless`).
+   This was the *second* breakage behind the first: with only the Mesa var set, PyOpenGL
+   defaulted to GLX and every `GL.*` call raised "Attempt to retrieve context when no valid
+   context." Both vars must be set before `from OpenGL import …`. Also dropped the
+   deprecated `PILImage.fromarray(px, "RGBA")` mode arg (removed in Pillow 13, 2026-10-15).
+
+**Verification (in-container, EGL surfaceless + Mesa llvmpipe).** Rendered non-black
+frames, exit 0, for boing (97%), cavern (95%), soccer (98%), eggzy (99% — exercises the
+`State.PLAY` `_setup` hook), kinetix (94%); the `gl1` legacy fixed-function backend
+(`PGZERO_GL=1`) also renders. **Looked at the PNGs**, not just the percentages: boing shows
+the title screen + menu, eggzy shows real gameplay (character, gem, brick level) — confirming
+actual scene rendering, not noise. `ruff` clean; the file is not in ty's scope.
+
+## Not done (left as a deliberate follow-up)
+
+**Wiring it as an automated gate** (task step 5) — `_smoketest.py` is still a manual tool;
+nothing runs it in `format.sh` or a make target. That's a separate decision (which games,
+what non-black threshold, container render deps), not part of "make it work again."
 
 ## The bug
 
