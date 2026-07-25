@@ -69,7 +69,7 @@ glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
 # and a discrete card over time based off of usage.
 glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 # for osx
-glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
+glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
 
 
 def init_fonts_and_markdown() -> None:
@@ -96,7 +96,7 @@ def impl_glfw_init() -> "GLFWWindow":
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
     glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 
-    glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
+    glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
 
     # Create a windowed mode window and its OpenGL context
     window = glfw.create_window(

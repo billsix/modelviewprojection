@@ -584,7 +584,9 @@ def toggle_fullscreen(window: "GLFWWindow", state: WindowState) -> None:
     if state.fullscreen:
         glfw.set_window_monitor(
             window,
-            None,
+            # glfw's stub types `monitor` non-optional, but None IS the
+            # documented value that selects windowed (non-fullscreen) mode.
+            None,  # ty: ignore[invalid-argument-type]
             state.saved_x,
             state.saved_y,
             state.saved_w,

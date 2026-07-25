@@ -192,7 +192,9 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
 class MainFrame(wx.Frame):
     def __init__(self) -> None:
         wx.Frame.__init__(self)
-        _load_xrc().LoadFrame(self, None, "MainFrame")
+        # wx's stub types `parent` as wx.Window, but None is valid and means
+        # "no parent" -- this is the top-level frame.
+        _load_xrc().LoadFrame(self, None, "MainFrame")  # ty: ignore[invalid-argument-type]
 
         # AuiManager manages the frame's client area
         self._mgr = wx.aui.AuiManager(self)

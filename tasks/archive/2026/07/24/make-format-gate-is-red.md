@@ -1,45 +1,49 @@
 # `make format` — the repo's only gate is red on master
 
-**Status:** **layer 1 FIXED** (2026-07-18) and **layer 2b/2c RESOLVED** (gacalc bump).
-The gate now runs and is **red *by design*** — the only remaining diagnostics are
-third-party-stub mismatches Bill chose to leave, plus one ty comment-parsing
-false-positive. `ruff` is fully clean. See "Current state" below.
+**Status:** **DONE 2026-07-24 — `make format` exits 0.** Layer 1 fixed (2026-07-18);
+layers 2b/2c cleared by the gacalc bump; the frozen-vector migration removed the 58
+read-only errors; and this session Bill said to suppress the third-party-stub family, so
+the last 12 diagnostics were resolved (see "Resolution"). `ruff` and `ty` are both fully
+green over `assignments`/`src`/`tests`/`ports`, verified in-container against gacalc
+0.0.14.
 **Created:** 2026-07-18
 **Found by:** trying to run the gate during
 [apply-python-coding-standard](apply-python-coding-standard.md)
 
-## Current state (re-measured 2026-07-24, image rebuilt against gacalc 0.0.14)
+## Resolution — how exit 0 was reached (2026-07-24)
 
-`ruff check` and `ruff format` are **clean** across `assignments`/`src`/`tests`/`ports`.
-`ty` reports **12 diagnostics, all pre-existing / by-design** — none are a bug in mvp
-source, and none were introduced by the frozen-vector migration (verified by running
-the same gate against `a4168504^`: the set is identical there, alongside the 58
-now-fixed read-only errors). So `make format` exits 1, as designed.
+The last 12 `ty` diagnostics were all third-party-stub artifacts (none an mvp-source
+bug; verified none came from the frozen migration by running the same gate against
+`a4168504^`). Fixed by the **right mechanism per case**, not one blunt suppression:
 
-- **10 — third-party glfw stub mismatches** (`window_hint`'s value arg is a PyOpenGL
-  `Constant`, not `int`; `set_scroll_callback`/`set_window_monitor` reject `None`).
-  Across `demos/demo21`–`demo24`, `mvpvisualization/_pipeline.py`, `cayley_gl.py`,
-  `pgzero_gl/runner.py`. **Deliberately left (Bill, 2026-07-18: "leave them")** — we
-  don't own the glfw stubs; the count grew from 6 → 10 only because newer demos
-  (`demo22a/23/24`) and a newer glfw `.pyi` cover more call sites, not because of any
-  regression.
-- **1 — `wxapp2.py:195` `XmlResource.LoadFrame(self, None, "MainFrame")`.** Same class
-  as the glfw ones: the wx stub types `parent` as `wx.Window`, we pass `None`. A
-  third-party-stub mismatch surfaced by a newer wx `.pyi`; leave with the glfw set
-  unless we decide to suppress that family.
-- **1 — `_pipeline.py:75` `invalid-ignore-comment` — a ty FALSE POSITIVE.** Line 75 is
-  a *comment* that quotes the string "`# ty: ignore`" in prose; ty parses the embedded
-  text as a real (malformed) directive. Fix, if wanted, is to reword the comment so it
-  doesn't contain that literal — not a code change.
-- ~~1 — `soccer.py:467` unused `# ty: ignore[unsupported-operator]`~~ — **REMOVED
-  2026-07-24.** gacalc 0.0.14's precise operator typing made the suppressed
-  `unsupported-operator` resolve, so the directive was dead; dropped the directive,
-  kept the "faithful upstream" explanation.
+- **8× `glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)` → `glfw.TRUE`.** Not a
+  suppression — the *correct* constant. `glfw.TRUE` is glfw's own int-typed constant
+  (== 1, identical to `GL.GL_TRUE` at runtime), so the type error disappears at the
+  source and it reads cleanly (consistent with the adjacent `glfw.OPENGL_CORE_PROFILE`).
+  Chosen over an inline suppression **specifically because `demo21.py` is whole-file
+  `literalinclude`d by `ch21.rst`** (a bare include, no markers) — a trailing
+  `# ty: ignore` would have leaked into the book. Across `demo21` (×2), `demo22`,
+  `demo22a`, `demo23`, `demo24`, `_pipeline.py`, `pgzero_gl/runner.py`. **Left every
+  other `GL.GL_TRUE` untouched** — notably the `glUniformMatrix4fv(..., GL.GL_TRUE, ...)`
+  transpose flag, which CLAUDE.md says never to change.
+- **3× genuine `None` args → narrow inline `# ty: ignore[invalid-argument-type]` with a
+  reason** (the value is intentional and can't be "fixed"): `set_scroll_callback(window,
+  None)` (None clears the callback), `set_window_monitor(..., None, ...)` (None = windowed
+  mode), `LoadFrame(self, None, ...)` (None parent = top-level frame). None of these three
+  files is book-included, so the comments don't leak.
+- **1× ty false-positive** at `_pipeline.py:75` — the prose comment literally contained
+  the `ty:`-ignore directive text (describing the old suppressions it replaced), which ty
+  parsed as a real, malformed directive. Reworded to "per-parameter type-ignore comments"
+  so the token no longer appears. No code change.
+- Earlier the same day: `soccer.py:467`'s now-unused `# ty: ignore[unsupported-operator]`
+  removed (gacalc 0.0.14's precise typing made it dead), and the frozen migration's one
+  unmasked issue (`beatstreets.py:2901` `Rect.left = Coef`) fixed with `float(...)`.
 
-**The frozen-vector migration's effect on this gate:** it removed **58** read-only
-errors (in-place writes to now-frozen gacalc vectors) and unmasked exactly one latent
-issue (`beatstreets.py:2901`, a `Rect.left = Coef` assignment previously hidden behind
-an adjacent read-only error), fixed with a `float(...)` coercion. Net 71 → 12.
+**Book impact to note:** the `demo21.py` `glfw.TRUE` change lands in ch21 (whole-file
+include) — a strict improvement (glfw call using glfw's constant), behaviour-identical,
+but it *is* published book content.
+
+**Net across the whole arc:** 71 diagnostics (58 frozen read-only + 13 stub) → **0**.
 
 `make format` is mvp's only real verification gate — there is no `make test` target. It
 **exits 1 on master**, and has been failing for long enough that a second layer of

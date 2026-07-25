@@ -72,8 +72,9 @@ floats_per_color: int = 3
 #: runtime, but the type checker resolves them to ``OpenGL.constant.Constant``,
 #: so a parameter annotated plain ``int`` rejects a GL constant as its default.
 #: Annotating with this union accepts both a GL constant and a bare int, which
-#: is what these APIs really take -- and it replaces the ``# ty: ignore`` that
-#: used to be copy-pasted onto every such signature (_pipeline, demo21, demo22).
+#: is what these APIs really take -- and it replaces the per-parameter
+#: type-ignore comments that used to be copy-pasted onto every such signature
+#: (_pipeline, demo21, demo22).
 GLenum = int | Constant
 
 
@@ -125,7 +126,7 @@ def setup_window(
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
     glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-    glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)
+    glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
 
     imgui.create_context()
 
@@ -183,7 +184,9 @@ def install_camera_scroll(
 ) -> None:
     """Standard mouse-wheel-zooms-camera scroll callback.  Chains with any
     pre-existing scroll callback.  Skip this in 2D demos with no zoom."""
-    prev_cb = [glfw.set_scroll_callback(window, None)]
+    # glfw's stub types `cbfun` as the callback, but None is the documented
+    # value that clears the current callback (and returns the previous one).
+    prev_cb = [glfw.set_scroll_callback(window, None)]  # ty: ignore[invalid-argument-type]
 
     def scroll_cb(win: "GLFWWindow", x_offset: float, y_offset: float) -> None:
         if prev_cb[0] is not None:
