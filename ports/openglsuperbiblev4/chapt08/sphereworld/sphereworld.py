@@ -25,14 +25,35 @@ sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
-
 NUM_SPHERES = 30
 sphere_positions = []
-camera_x: float = 0.0
-camera_y: float = 0.0
-camera_z: float = 0.0
-camera_yaw: float = 0.0
+
+# Walk-around camera (demo22-style), replacing the old yaw-only
+# camera_x/y/z/yaw globals. Params tuned for this ~6-unit ground scene: a
+# low eye height, a slight downward tilt, and gentle move/scroll speeds.
+camera = _common.Camera(
+    position=[0.0, 0.5, 6.0],
+    rot_x=math.radians(-5.0),
+    move_speed=0.2,
+    scroll_speed=0.5,
+    focus_radius=4.0,
+)
+win_state = _common.WindowState()
+
+
+def torus_orbiter_position() -> tuple[float, float, float]:
+    # The small sphere orbits the central torus at radius 1 (see
+    # draw_inhabitants); expose its live world position so the camera's
+    # focus mode can track it while it moves.
+    angle = math.radians(-y_rot * 2.0)
+    return (math.cos(angle), 0.1, -2.5 - math.sin(angle))
+
+
+scene_objects = [
+    _common.SceneObject("Torus (center)", lambda: (0.0, 0.1, -2.5)),
+    _common.SceneObject("Torus orbiter", torus_orbiter_position),
+    _common.SceneObject("Ground center", lambda: (0.0, -0.4, 0.0)),
+]
 
 f_light_pos = (-100.0, 100.0, 50.0, 1.0)
 f_no_light = (0.0, 0.0, 0.0, 0.0)
@@ -88,11 +109,6 @@ TORUS = _primitives.build_torus(0.35, 0.15, 61, 37)
 GROUND = _primitives.build_ground(
     20.0, 1.0, -0.4, tex_step=1.0 / (20.0 * 0.075)
 )
-
-
-def apply_camera_transform() -> None:
-    GL.glRotatef(-math.degrees(camera_yaw), 0.0, 1.0, 0.0)
-    GL.glTranslatef(-camera_x, -camera_y, -camera_z)
 
 
 def load_textures() -> None:
@@ -178,7 +194,7 @@ def render_scene() -> None:
     )
 
     GL.glPushMatrix()
-    apply_camera_transform()
+    _common.apply_camera(camera, scene_objects)
     GL.glLightfv(GL.GL_LIGHT0, GL.GL_POSITION, f_light_pos)
 
     GL.glColor3f(1.0, 1.0, 1.0)
@@ -261,25 +277,7 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
     change_size(w, h)
 
 
-MOVE_UNITS_PER_SEC: float = 3.0
-YAW_RAD_PER_SEC: float = 1.5
 TORUS_DEG_PER_SEC: float = 30.0
-
-
-def handle_camera_keys(window, dt: float) -> None:
-    global camera_x, camera_z, camera_yaw
-    move = MOVE_UNITS_PER_SEC * dt
-    yaw = YAW_RAD_PER_SEC * dt
-    if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera_x += -move * math.sin(camera_yaw)
-        camera_z += -move * math.cos(camera_yaw)
-    if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera_x -= -move * math.sin(camera_yaw)
-        camera_z -= -move * math.cos(camera_yaw)
-    if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera_yaw += yaw
-    if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera_yaw -= yaw
 
 
 def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
@@ -287,45 +285,8 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
         glfw.set_window_should_close(window, True)
 
 
-# Per-click step for the menubar movement items (the keyboard, held, moves
-# continuously via handle_camera_keys; a menu click does one fixed step).
-BTN_MOVE_STEP: float = 0.5
-BTN_YAW_STEP: float = 0.1
-
-
-def _walk(direction: int) -> None:
-    global camera_x, camera_z
-    m = BTN_MOVE_STEP * direction
-    camera_x += -m * math.sin(camera_yaw)
-    camera_z += -m * math.cos(camera_yaw)
-
-
-def _turn(d: float) -> None:
-    global camera_yaw
-    camera_yaw += d
-
-
-def imgui_menubar() -> None:
-    # All controls in the top menubar. Movement items run once per click and
-    # show their key in the shortcut column; hold the key for continuous motion.
-    if not imgui.begin_main_menu_bar():
-        return
-    if imgui.begin_menu("File", True):
-        _common.menu_action(
-            "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
-        )
-        imgui.end_menu()
-    if imgui.begin_menu("Controls", True):
-        _common.menu_action("Forward", "Up", lambda: _walk(1))
-        _common.menu_action("Back", "Down", lambda: _walk(-1))
-        _common.menu_action("Turn left", "Left", lambda: _turn(BTN_YAW_STEP))
-        _common.menu_action("Turn right", "Right", lambda: _turn(-BTN_YAW_STEP))
-        imgui.end_menu()
-    imgui.end_main_menu_bar()
-
-
 def main() -> None:
-    global y_rot, _window
+    global y_rot
 
     if not glfw.init():
         sys.exit(1)
@@ -339,7 +300,6 @@ def main() -> None:
     if not window:
         glfw.terminate()
         sys.exit(1)
-    _window = window
 
     glfw.make_context_current(window)
     glfw.swap_interval(1)
@@ -350,6 +310,8 @@ def main() -> None:
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
+    # Chain the camera's scroll handler off imgui's (installed by GlfwRenderer).
+    _common.bind_camera_inputs(window, camera)
 
     setup_rc()
     w, h = glfw.get_framebuffer_size(window)
@@ -364,11 +326,12 @@ def main() -> None:
 
         glfw.poll_events()
         impl.process_inputs()
-        handle_camera_keys(window, dt)
+        _common.update_camera(window, camera, scene_objects)
         y_rot = (y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
         render_scene()
         imgui.new_frame()
-        imgui_menubar()
+        _common.draw_menubar(window, win_state, has_camera_controls=True)
+        _common.draw_camera_controls(camera, scene_objects, win_state)
         imgui.render()
         impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)

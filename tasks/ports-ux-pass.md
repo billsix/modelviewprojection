@@ -1,6 +1,37 @@
 # Plan: SuperBible ports UX pass — phased execution order
 
-**Status:** Phase 1 (#33 + #34) ✅ **done 2026-04-28**. Phases 2–3 not started. Umbrella plan covering the eight UX tasks (#33–#40) added 2026-04-28, plus how to schedule them.
+**Status:** Phase 1 (#33 + #34) ✅ **done 2026-04-28**. **Phase 2 IN PROGRESS (2026-07-25):** the
+`_common.Camera` helper already exists and is sound (the postmortem's "lost in the reset,
+re-implement next time" was done at some point since) — so Phase 2 is *migration only*, and
+**0 of ~56 3D ports are wired to it yet**. Canary (`chapt08/sphereworld`) re-migrated 2026-07-25
+and renders correctly headless; **awaiting Bill's interactive feel-check before the bulk pass.**
+Phase 3 not started. Umbrella plan covering the eight UX tasks (#33–#40) added 2026-04-28.
+
+## Update 2026-07-25 — corrected state + canary re-done
+
+- **The Camera helper is DONE.** `ports/openglsuperbiblev4/_common.py` has `Camera`,
+  `SceneObject`, `bind_camera_inputs`, `update_camera`, `apply_camera`, `draw_camera_controls`
+  — a complete walk-around/focus-orbit camera matching demo22's model (world `position` +
+  `rot_y` + `rot_x`, WASD/QE move, arrow + mouse-drag look, scroll, imgui-gated, `rot_x`
+  clamped ±π/2). This is what the postmortem said to re-implement; it exists. So the earlier
+  "build the Camera" work is not needed — Phase 2 is purely wiring ports to it.
+- **0 / ~56 3D ports migrated.** (An earlier loose grep that seemed to show ports using it was
+  matching each port's *own* `apply_camera_transform`, not `_common`'s API.)
+- **Canary `chapt08/sphereworld` re-migrated** per the postmortem's Bill-accepted form (Camera
+  params `position=[0,0.5,6]`, `rot_x=-5°`, `move_speed=0.2`, `scroll_speed=0.5`,
+  `focus_radius=4`; three `SceneObject`s incl. the animated torus orbiter; `_common` menubar +
+  camera-controls panel). Verified: compiles, ruff-clean, **exhaustive stale-ref grep clean**
+  (the gate that catches the postmortem's compile-clean-but-NameError bug), and **renders a
+  correct frame headless** (EGL, 100% non-black — the migrated `apply_camera` path draws).
+- **What still needs Bill:** the interactive walk-around *feel* (a static render can't show it),
+  same as the first canary he signed off on. And a design confirm: use the full free-fly
+  `_common.Camera` (QE vertical + pitch) on ground demos, or constrain to FPS-on-ground? The
+  first attempt used full free-fly and Bill said "good enough for now" — kept that here,
+  revisitable.
+- **For the bulk pass:** a per-port headless render-regression driver exists in scratch
+  (`render_port.py` — imports a port, drives `setup_rc`/`change_size`/`render_scene` under EGL,
+  dumps a PNG + non-black %). This is the "run, don't just compile" instrumentation the
+  postmortem asked for; can be added to the repo if we want before/after render diffs per port.
 
 ## Why this exists
 
