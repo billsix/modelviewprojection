@@ -87,9 +87,10 @@ BASE_STAMINA_DAMAGE_MULTIPLIER: int = 100
 # is longer
 MIN_STAMINA: int = -100
 
-# Defaults for Fighter/Enemy constructor params. Vector2 is mutable, so these are
-# shared objects -- every constructor that takes one copies it (Vector2(*v)) rather
-# than storing the reference, or all fighters would share one hit area / speed.
+# Defaults for Fighter/Enemy constructor params, as named module-level constants
+# rather than inline ``Vector2(...)`` defaults (which ruff B008 flags as a call in
+# a default argument). gacalc vectors are frozen, so sharing one is safe -- storing
+# the argument directly, with no defensive copy, cannot alias-mutate anything.
 DEFAULT_HALF_HIT_AREA: Vector2 = Vector2(25, 20)
 DEFAULT_ENEMY_SPEED: Vector2 = Vector2(1, 1)
 
@@ -567,9 +568,8 @@ class Fighter(ScrollHeightActor, ABC):
     ) -> None:
         super().__init__("blank", pos, anchor, separate_shadow=separate_shadow)
 
-        # Speed is a Vector2 containing x and y speed -- copied, not stored by
-        # reference (see the half_hit_area note below).
-        self.speed: Vector2 = Vector2(*speed)
+        # Speed is a Vector2 containing x and y speed.
+        self.speed: Vector2 = speed
 
         # e.g. "hero" or "enemy"
         self.sprite: str = sprite
@@ -608,10 +608,7 @@ class Fighter(ScrollHeightActor, ABC):
 
         # Determines whether an opponent's attack will hit us, based on the distance between us and the attack's reach
         # Larger number for the portal, because the portal is physically bigger
-        # copied, not stored by reference: the default is a shared module-level
-        # Vector2, and Vector2 is mutable -- storing it directly would give every
-        # fighter that takes the default the same hit area object.
-        self.half_hit_area: Vector2 = Vector2(*half_hit_area)
+        self.half_hit_area: Vector2 = half_hit_area
 
         self.health: int = health
         self.start_health: int = health
@@ -1343,7 +1340,7 @@ class Enemy(Fighter, ABC):
 
         # Target is a Vector2 instance
         # Must make a copy of the value, not a copy of the reference
-        self.target: Vector2 = Vector2(*self.vpos)
+        self.target: Vector2 = self.vpos
 
         self.target_weapon: Any = None
 
@@ -1406,7 +1403,7 @@ class Enemy(Fighter, ABC):
                     self.target_weapon = None
                     self.make_decision()
                 else:
-                    self.target = Vector2(*self.target_weapon.vpos)
+                    self.target = self.target_weapon.vpos
                     if self.target == self.vpos:
                         # Arrived - pick up weapon and make new decision
                         self.log("Pick up weapon")

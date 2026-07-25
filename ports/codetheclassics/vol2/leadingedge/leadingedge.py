@@ -2004,7 +2004,7 @@ class Game:
                 # Each car needs to be drawn during the track piece it is on, but with an additional offset interpolated
                 # towards the next track piece, so that it starts turning a corner as it reaches the piece
                 # Also, the order of  drawing needs to be correct if there is more than one car per track piece
-                car_offset: Vector3 = Vector3(*offset)
+                car_offset: Vector3 = offset
                 if car.pos.z % SPACING != 0:
                     # Interpolate offset between this and next track piece
                     # Note that "Interpolate for X offset between first and next track piece"

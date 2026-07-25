@@ -538,8 +538,7 @@ class Impact(Actor):
 
 
 # Not a dataclass: x/y params intentionally overwrite Actor's x/y AFTER the
-# super().__init__ call (a dataclass would assign them first and lose them),
-# and the dir param is defensively copied.
+# super().__init__ call (a dataclass would assign them first and lose them).
 class Ball(Actor):
     def __init__(
         self,
@@ -554,12 +553,11 @@ class Ball(Actor):
         self.x = x
         self.y = y
 
-        # Direction should always be a unit vector (a vector with a length of 1)
-        # It's important that we make a full copy of the direction, rather than just copying the reference.
-        # Since a Vector2 is an object, it's a reference type. If you copy a reference type it means you now have two
-        # variables referring to the same object. If we said below 'self.dir = dir' it would mean that when a ball
-        # copied its direction from another ball, the directions of the two balls would remain linked to each other
-        self.dir: Vector2 = Vector2(*dir)
+        # Direction should always be a unit vector (a vector with a length of 1).
+        # gacalc vectors are frozen, so two balls sharing one dir object cannot
+        # affect each other -- changing a ball's direction rebinds self.dir to a
+        # new vector rather than mutating the shared one -- so no copy is needed.
+        self.dir: Vector2 = dir
 
         self.stuck_to_bat: bool = stuck_to_bat
         self.bat_offset: float = BALL_INITIAL_OFFSET

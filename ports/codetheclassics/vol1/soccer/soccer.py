@@ -410,7 +410,7 @@ class Ball(MyActor):
             self.vel = Vector2(self.vel.x, new_vel_y)
 
         # Update shadow position to track ball
-        self.shadow.vpos = Vector2(*self.vpos)
+        self.shadow.vpos = self.vpos
 
         # Search for a player that can acquire the ball
         for target in game.players:
@@ -646,7 +646,9 @@ class Player(MyActor):
 
         # One of the main jobs of this method is to decide where the player will run to, and at what speed.
         # The default is to run slowly towards home position, but target and speed may be overwritten in the code below
-        target: Vector2 = Vector2(*self.home)  # Take a copy of home position
+        target: Vector2 = (
+            self.home
+        )  # start from home; rebound below, never mutated
         speed: float = PLAYER_DEFAULT_SPEED
 
         # Some shorthand variables to make the code below a bit easier to follow
@@ -763,7 +765,7 @@ class Player(MyActor):
                         # We don't do the marking behaviour below for human teams for a number of reasons. Try changing
                         # the code to see how the game feels when marking behaviour applies to both human and computer
                         # teams.
-                        target = Vector2(*ball.vpos)
+                        target = ball.vpos
                     else:
                         # Get vector between the ball and whatever we're marking
                         vec, length = safe_normalise(ball.vpos - self.mark.vpos)
@@ -830,7 +832,7 @@ class Player(MyActor):
         # vec[0] and vec[1] will be the x and y components of the vector
         vec, distance = safe_normalise(target - self.vpos)
 
-        self.debug_target = Vector2(*target)
+        self.debug_target = target
 
         # Check to see if we're already at the target position
         if distance > 0:
@@ -871,7 +873,7 @@ class Player(MyActor):
         self.shadow.image = "players" + suffix
 
         # Update shadow position to track player
-        self.shadow.vpos = Vector2(*self.vpos)
+        self.shadow.vpos = self.vpos
 
 
 @dataclass(eq=False)
@@ -972,7 +974,7 @@ class Game:
         self.ball: Ball = Ball()
 
         # Focus camera on ball - copy ball pos
-        self.camera_focus: Vector2 = Vector2(*self.ball.vpos)
+        self.camera_focus: Vector2 = self.ball.vpos
 
         self.debug_shoot_target: Any = None
 
