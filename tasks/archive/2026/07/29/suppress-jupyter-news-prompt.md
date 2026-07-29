@@ -1,6 +1,21 @@
 # Suppress JupyterLab's "official Jupyter news" notification prompt
 
-**Status:** proposed — needs go-ahead to implement
+**Status:** DONE 2026-07-29 — implemented and gate-verified; ready to archive
+
+Outcome: implemented **with one deviation from the plan below** — the call
+needs `--level=user`. The first build (default sys_prefix level) passed its
+gate but verification caught the config landing in
+`/usr/etc/jupyter/labconfig/`, which the venv-launched server never reads:
+at that point in the giant RUN the venv has no `jupyter` binary yet (the
+requirements pip install that seeds `jupyter_core` into /venv comes later),
+so the command resolved to `/usr/bin/jupyter` (system-python shebang →
+sys.prefix=/usr). `--level=user` writes `/root/.jupyter/labconfig/
+page_config.json`, read under any prefix. Rebuilt gate PASSED; plugin lists
+under "Disabled extensions" with the venv active; jupytext default-viewer
+setting survived. (Unlike gacalc/mvm's sys-prefix writes, the user-level
+write is not auto-locked — acceptable for a single-user container.)
+Remaining human check: `make jupyter` in a fresh browser profile shows no
+news prompt.
 
 ## Goal
 
