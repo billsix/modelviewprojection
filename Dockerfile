@@ -146,7 +146,8 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    myst-nb \
         	   python3-jupyterlab-jupytext \
         	   python3-jupyter-lsp  && \
-       uv pip install moviepy --python $(which python); \
+       uv pip install moviepy --python $(which python) && \
+       jupytext-config set-default-viewer python; \
     fi; \
     if [ "$USE_SPYDER" = "1" ]; then \
       dnf install -y spyder && \

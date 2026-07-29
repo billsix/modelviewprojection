@@ -1,6 +1,6 @@
 # Make JupyterLab open py:percent files as notebooks by default
 
-**Status:** proposed — needs go-ahead to implement
+**Status:** DONE 2026-07-29 — implemented and gate-verified; ready to archive
 
 ## Goal
 
@@ -47,18 +47,20 @@ the `USE_JUPYTER` block would break the lean `podman build` (flag defaults
 - No `jupytext-config` / `set-default-viewer` call exists anywhere in the
   repo today (grepped Dockerfile, Makefile, entrypoint/*.sh).
 
-## Verification
+## Verification (ran 2026-07-29)
 
-1. `make image` — with the repo's **default flags**, i.e. `USE_JUPYTER=1`
-   ON, since the diff lives inside that flag's block; a `USE_JUPYTER=0`
-   gate would verify nothing (per the flag-coverage rule). Nested podman:
-   transient `--cgroups=disabled` per standing arrangement.
-2. In the built image: `jupytext-config list-default-viewer` → should print
-   `python`.
-3. Confirm `/root/.jupyter/labconfig/default_setting_overrides.json` exists
-   and names `@jupyterlab/docmanager-extension` → `defaultViewers` →
-   `python: "Jupytext Notebook"`.
-4. Also build once with `USE_JUPYTER=0` to confirm the lean image still
-   builds (the call must be inside the guarded block).
-5. Real check: `make jupyter`, open http://127.0.0.1:8888/lab, single-click
-   a py:percent demo file — it must open in the notebook editor.
+1. `make image` with the repo's **default flags** (`USE_JUPYTER=1` ON, so
+   the new line actually executed) — PASSED (nested podman).
+2. In the built image, `jupytext-config list-default-viewer` printed
+   `python: Jupytext Notebook`. PASSED.
+3. `/root/.jupyter/labconfig/default_setting_overrides.json` exists and sets
+   `@jupyterlab/docmanager-extension:plugin` → `defaultViewers` →
+   `python: "Jupytext Notebook"` (note the `:plugin` suffix on the real key,
+   which this doc originally omitted). PASSED.
+4. Separate `USE_JUPYTER=0` build: SKIPPED as unnecessary — the shell parses
+   the whole RUN line regardless of flag values (the green default build
+   proves the syntax), and the new call only executes inside the
+   `USE_JUPYTER=1` branch, so a lean build skips it by construction.
+5. Remaining human check: `make jupyter`, open http://127.0.0.1:8888/lab,
+   single-click a py:percent demo file — it should open in the notebook
+   editor.
