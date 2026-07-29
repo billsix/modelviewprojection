@@ -148,7 +148,12 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
         	   python3-jupyter-lsp  && \
        uv pip install moviepy --python $(which python) && \
        jupytext-config set-default-viewer python && \
-       jupyter labextension disable "@jupyterlab/apputils-extension:announcements"; \
+       # --level=user writes /root/.jupyter/labconfig/, which JupyterLab reads
+       # under any prefix. The default sys_prefix level would resolve through
+       # /usr/bin/jupyter here (the venv gets its own jupyter binary only from
+       # the later requirements install) and write /usr/etc, which the
+       # venv-launched server never reads.
+       jupyter labextension disable --level=user "@jupyterlab/apputils-extension:announcements"; \
     fi; \
     if [ "$USE_SPYDER" = "1" ]; then \
       dnf install -y spyder && \
