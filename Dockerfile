@@ -147,7 +147,8 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
         	   python3-jupyterlab-jupytext \
         	   python3-jupyter-lsp  && \
        uv pip install moviepy --python $(which python) && \
-       jupytext-config set-default-viewer python; \
+       jupytext-config set-default-viewer python && \
+       jupyter labextension disable "@jupyterlab/apputils-extension:announcements"; \
     fi; \
     if [ "$USE_SPYDER" = "1" ]; then \
       dnf install -y spyder && \
