@@ -305,8 +305,10 @@ library internals positional.
 
 ## Still open
 
-- **The 4 `F841`s in `leadingedge.py`** — see the section below; possible rendering bug,
-  needs Bill's read.
+- ~~The 4 `F841`s in `leadingedge.py`~~ — **RESOLVED (verified 2026-07-30):**
+  the `prev_yellow_line_*` variables are now consumed by the
+  `SHOW_YELLOW_LINES` draw block (`leadingedge.py:1824-1839`), and
+  `ruff --isolated --select F841` is clean on the file. No action needed.
 - **mvp-specific rules the gacalc standard doesn't cover.** Candidates to propose once
   the first-party read happens (all unverified guesses at this point, listed so the
   question isn't lost): OpenGL/PyOpenGL conventions (GL constants vs `int` typing — the
@@ -365,13 +367,13 @@ in a follow-up now that the violations are gone.
 `half_hit_area: Vector2 = Vector2(25, 20)` and stored it **by reference with no copy**,
 so every fighter shared one object. Fixed with a `None` sentinel.
 
-### Open — 4 `F841` in `leadingedge.py` may be a rendering bug, deliberately not deleted
+### Resolved — the 4 `F841` in `leadingedge.py` (was: possible rendering bug)
 
-`prev_yellow_line_{left,right}_{outer,inner}_screen` are assigned beside
-`prev_track_screen` / `prev_rumble_*` (which *are* used) under the comment "Store
-screen positions ... as they form half of the polygon for the next track piece."
-Either the yellow-line rendering lost its use of them, or it should be using them.
-Needs Bill's call — do not silently delete.
+`prev_yellow_line_{left,right}_{outer,inner}_screen` were assigned but unread
+when this was written; not deleting them was the right call — the yellow-line
+rendering now uses all four (the `SHOW_YELLOW_LINES` block builds
+`left/right_yellow_line_points` from them and `draw_points` them). Verified
+2026-07-30: `ruff --isolated --select F841` reports nothing on the file.
 
 ### Resolved — named default constants + defensive copy (replaces the `None` sentinels)
 
@@ -428,11 +430,11 @@ Run in-container (`--cgroups=disabled`, nested podman).
   `pgzero_gl/runner.py:72` `glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, GL.GL_TRUE)`
   — "Expected `int`, found `Constant`", a glfw/PyOpenGL stub mismatch. This task's only
   edit to that file was `Dict`/`Tuple` → `dict`/`tuple`; line 72 is untouched.
-- **`make format` itself does NOT currently run**, for a reason unrelated to this task:
-  `loadpackages.sh`'s editable install fails with `ModuleNotFoundError: No module named
-  'setuptools'` under uv's build isolation. Needs `setuptools` in
-  `build-system.requires` (or `[tool.uv.extra-build-dependencies]`). **The repo's
-  primary gate is red on `master` independent of this work** — worth its own task.
+- **`make format` itself did NOT run at the time**, for a reason unrelated to this
+  task: `loadpackages.sh`'s editable install failed with `ModuleNotFoundError: No
+  module named 'setuptools'`. **Fixed 2026-07-24** — got its own task as hoped;
+  see `tasks/archive/2026/07/24/make-format-gate-is-red.md` and
+  `tasks/reference/tests-and-gates.md` §1.
 
 Two ruff warnings also surface each run: `E231`/`E302` in `select` "have no effect
 because preview is not enabled".
