@@ -271,7 +271,7 @@ techniques the **book itself teaches**:
   Vertex arrays: `chapt11/starrynight`.
 - Setup-once images: `chapt07/bitmaps`, `chapt07/imageload`, `chapt18/texfloat`.
 
-### Genuinely dynamic (can't just bake — geometry changes per frame)
+### Truly dynamic (can't just bake — geometry changes per frame)
 - `chapt17/proctex`, `chapt18/hdrbloom` — keyboard-adjustable tessellation.
 - `chapt16/vertexblend` — live skinning weights from elbow/influence state.
 - `chapt04/transform` — per-vertex CPU transform is the lesson.

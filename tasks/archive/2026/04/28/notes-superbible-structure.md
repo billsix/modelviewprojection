@@ -52,7 +52,7 @@ This is where the reusable library lives. Five logical pieces:
 | `TriangleMesh.{h,cpp}`, `VBOMesh.{h,cpp}` | — | mesh loaders (later chapters). |
 | `stopwatch.h`, `wglext.h`, `openexr-*` | — | timing, Windows GL ext, OpenEXR for HDR demo. |
 
-**Key insight:** `gltools.h` is the equivalent of mvp's "boilerplate at the top of every demo." `GLFrame` is roughly mvp's `Camera` dataclass *plus* an orthonormal basis — but applied to objects too, not just the camera. `GLFrustum` corresponds to mvp's `mathutils.perspective`.
+**The crux:** `gltools.h` is the equivalent of mvp's "boilerplate at the top of every demo." `GLFrame` is roughly mvp's `Camera` dataclass *plus* an orthonormal basis — but applied to objects too, not just the camera. `GLFrustum` corresponds to mvp's `mathutils.perspective`.
 
 ## examples/projects/ — build system
 

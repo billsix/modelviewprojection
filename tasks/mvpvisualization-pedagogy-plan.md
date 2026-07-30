@@ -17,7 +17,7 @@ This doc is a design plan, not yet implemented. Everything proposed below is
 expressible with the existing engine (`cayley/cayleygraph.py` + `cayleyscene.py`:
 `Scene`, `CoordinateFrame`, `Timeline`, `Animation`, `InverseOperations`,
 `NonInvertibleTransformation`, the two imgui trees, the focus/anchor mechanism,
-and the `StandardObjects` draw helpers). Where a proposal needs a genuinely new
+and the `StandardObjects` draw helpers). Where a proposal needs a new
 mechanism, it's flagged **[new mechanism]**.
 
 ## The throughline (so each demo can lean on the previous)
@@ -114,7 +114,7 @@ single placement tree.
 `world→camera` inverse animated; `Camera→NDC` a single scale; NDC-zoom toggle.
 
 **What students should see:**
-- **The pivotal reveal: place the camera, then run the arrow backwards.** First
+- **The big reveal: place the camera, then run the arrow backwards.** First
   animate the camera being *placed* like any object (forward edge, with its axis),
   then visibly *reverse* that edge and apply the inverse to the whole world — the
   classic "the camera doesn't move, the world moves opposite" moment. The two trees
@@ -164,7 +164,7 @@ virtual camera (px/py/pz, rot); focus buttons.
 - **"Center then scale" shown as two distinct moves:** first translate the box so
   its center sits at the origin, *pause*, then scale to ±1 — two labeled steps, not
   one blur.
-- **Editable volume [enhancement]:** expose the box half-size/near/far as sliders
+- **Editable volume [optional extra]:** expose the box half-size/near/far as sliders
   (today they're hard-coded) so the student can shrink the box and watch geometry
   clip and the NDC mapping rescale — the ortho analogue of the perspective demo's
   frustum sliders.

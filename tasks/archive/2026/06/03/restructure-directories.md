@@ -67,7 +67,7 @@ package's internal imports, then applying it.
    plus `mathutils.py`). Moving demos ⇒ rewrite those paths.
 2. **Python imports — ~250 sites** of `from modelviewprojection.<module> import`. Moving a
    *utility/core* module into a subpackage rewrites every importer (mathutils alone = 130).
-   **Key insight:** moving a *demo* does NOT change its imports (it still does
+   **The crux:** moving a *demo* does NOT change its imports (it still does
    `from modelviewprojection.mathutils import …`, and mathutils' location is unchanged) —
    so demo moves are cheap (book paths only); utility moves are expensive (import churn).
 

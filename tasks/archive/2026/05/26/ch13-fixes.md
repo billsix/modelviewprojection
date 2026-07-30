@@ -9,7 +9,7 @@
 - **Line 63 — wrong figure.** `.. figure:: _static/demo11.png` with `:alt: Demo
   13` (and a Demo-13 caption). The chapter shows the **demo11** screenshot. Either
   the path should point at a `demo13.png` (which does not currently exist in
-  `_static/`) or the figure is genuinely meant to be demo11's and the alt/caption
+  `_static/`) or the figure really is meant to be demo11's and the alt/caption
   are wrong. **Confirm with Bill** which: if a demo13 screenshot is intended,
   it needs to be generated (a display-capture step Bill does); if reusing
   demo11's image is intentional, fix the alt/caption to say so.

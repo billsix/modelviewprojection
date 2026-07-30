@@ -89,7 +89,7 @@ this rename does not touch the book build at all.
 - The module holds **module-level mutable state** (`__modelStack__`, `__viewStack__`,
   `__projectionStack__`). If anything imports it twice under two names during the
   transition, there would be two independent stacks. Do the rename in one commit rather
-  than leaving a compatibility shim; a shim here is genuinely dangerous.
+  than leaving a compatibility shim; a shim here is actively dangerous.
 - Check `entrypoint/*.sh` and any Makefile target for a hardcoded path before finishing.
 
 ## Gates

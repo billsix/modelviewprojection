@@ -69,7 +69,7 @@ See [`notes-superbible-math-diff.md`](notes-superbible-math-diff.md). Tier 1 has
 
 Tier 2 and Tier 3 are tabled as parked tasks (status: pending, no plan files yet) — to be picked up only when a specific demo port needs them.
 
-Top-tier overview (load-bearing for anything Bill wants to port):
+Top-tier overview (needed for anything Bill wants to port):
 
 1. **`m3dMakePlanarShadowMatrix(planeEq, lightPos)`** — the one Bill flagged. Projects geometry onto a plane via a light position. **Not invertible** (collapses a dimension), so it does *not* fit `InvertibleFunction`. Recommend adding it as a 4×4 matrix in `pyMatrixStack`, since it's only used in the matrix-era demos anyway — and the "this is not a Cayley graph edge" point is itself a teaching moment.
 2. **`m3dRotationMatrix44(angle, x, y, z)` — rotation around arbitrary axis (Rodrigues).** Mvp has only `rotate_x/y/z`. Used heavily in `GLFrame::RotateLocal*`. Fits `InvertibleFunction[Vector3D]` perfectly.

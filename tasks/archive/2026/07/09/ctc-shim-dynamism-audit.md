@@ -47,7 +47,7 @@ is deliberately split out and lives on in
 - **soccer's camera offset is a Vector2 end to end**: the
   split-into-scalars/rebuild dance is gone — `MyActor.draw(offset)`,
   `self.pos = self.vpos - offset`, `screen.blit("pitch", -offset)`.
-  (avenger/bunner offsets deliberately stay scalar: genuinely 1-D
+  (avenger/bunner offsets deliberately stay scalar: 1-D
   scroll designs.)
 - `Actor.distance_to` now measures via `(self.pos - Vector2(...)).magnitude()`.
 - Position annotations widened where vectors now flow (kinetix Bullet).
@@ -124,7 +124,7 @@ engine channel is silently absent (the game guards for it).
 - **resources: first-touch caching** — `__getattr__` binds the loaded
   resource as a real instance attribute, so repeat `images.font048`
   accesses never re-enter the dynamic path.
-- **keyboard/keys: kept dynamic** (data: not hot; names genuinely open).
+- **keyboard/keys: kept dynamic** (data: not hot; names open-ended).
 - Instrumentation module + all hooks removed.
 - **Microbenchmark (container, 100k reps):** plain data write
   844 → 10 ns (**84x**), delegated read 484 → 27 ns (**18x**),

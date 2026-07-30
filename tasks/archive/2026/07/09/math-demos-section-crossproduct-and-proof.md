@@ -47,7 +47,7 @@ Written 2026-06-14 from a read of `multivariate-math/src/crossproduct/` and
 
 ## Rigor: what is *proven* vs. *verified*
 
-Three different claims get made about this work, at genuinely different levels of
+Three different claims get made about this work, at different levels of
 rigor. Keeping them straight (don't call a numeric check a "proof"):
 
 1. **PROVEN -- the symbolic cross-product identity (the one real proof).**
@@ -401,7 +401,7 @@ grow.)
 **Deferred to Phase 2 (intentional):** `_pipeline.py` was NOT moved. It's a mix of
 general infra (window/camera/`compile_program`/`build_pipeline`/VAO/VBO) and
 mvp-viz-specific geometry (cylinder/ndc-cube/axis-arrow builders). Rather than
-blind-split the GL render core during scaffolding, extract only the genuinely
+blind-split the GL render core during scaffolding, extract only the truly
 reusable infra into `cayley/pipeline.py` in Phase 2, informed by what the
 cross-product demo actually needs (then repoint `cayley_gl`'s `_p` import).
 - Also Phase 2: decide the image/billboard pipeline for the `.png` labels (port the

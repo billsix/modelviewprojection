@@ -82,7 +82,7 @@ the full book-catch-up scope).
 
 Stop maintaining mvp's home-grown vector algebra and transform layer. Depend on
 the published **`gacalc`** package (PyPI) for everything that overlaps, **delete
-the duplicated code from `mathutils.py`**, and rebuild only the genuinely
+the duplicated code from `mathutils.py`**, and rebuild only the truly
 graphics-specific math *on top of* gacalc. The MVP vector representation
 (`Vector`/`Vector1D`/`Vector2D`/`Vector3D`) is **deleted** — demos use gacalc's
 multivector vectors (`G1`/`Vector1`, `G2`/`Vector2`, `G3`/`Vector3`) instead.
@@ -130,7 +130,7 @@ transform/vector names and re-exports them, and defines the rebuilt
 graphics-only helpers + the function stack locally. Keeping the façade means most
 `from modelviewprojection.mathutils import translate, compose, …` lines in demos
 keep working unchanged — only *vector construction and attribute access* must be
-rewritten (the type genuinely differs; that can't be façaded away).
+rewritten (the type really does differ; that can't be façaded away).
 
 ## Hard sequencing constraint (read first)
 

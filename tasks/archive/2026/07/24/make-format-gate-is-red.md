@@ -148,7 +148,7 @@ report these; that is not a regression.**
 **This is fallout from a gacalc change, not an mvp bug.** gacalc split its function
 hierarchy (`functions.py`, 2026-07-17): `ComposableFunction` is compose + label with **no
 inverse**, and `InvertibleFunction` extends it. `project` / `reject` now return
-`ComposableFunction`, because a projection discards information and genuinely is not
+`ComposableFunction`, because a projection discards information and is not
 invertible — gacalc's `CLAUDE.md` states that making this a *type* error rather than a
 runtime surprise was the entire point of the split.
 

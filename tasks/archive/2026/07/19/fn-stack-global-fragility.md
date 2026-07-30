@@ -90,7 +90,7 @@ call sites. All teaching-facing.
 
 **A. Do nothing; document the constraint.** Add a comment at the definition saying
 `mathutils` must never be imported under two names, and why. Cost: zero. Leaves a silent
-failure mode armed. Honest if we decide the risk is genuinely negligible.
+failure mode armed. Honest if we decide the risk really is negligible.
 
 **B. Make the global canonical via `sys.modules`.** Bind `fn_stack` on first import so a
 second import reuses it. Cost: small, ugly, and it fights the language rather than

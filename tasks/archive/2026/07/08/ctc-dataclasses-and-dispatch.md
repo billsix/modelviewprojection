@@ -21,7 +21,7 @@ authoritative in-container format.sh gate was kicked off the same day
       framework bases (MyActor/Mover/Row/ActiveRow) and the
       RNG-in-`__init__` classes (Car/Log/Train/Hedge/Grass/Water/Road/Rail/
       Dirt/Pavement) + Game keep explicit `__init__` (see rules below).
-      Dispatch audit: all overrides load-bearing via `game.rows`; tightened
+      Dispatch audit: all overrides reached via `game.rows`; tightened
       `child_type: Callable[..., Mover]` →
       `Callable[[int, tuple[float, float]], Mover]` (NOT `type[Mover]` —
       subclass constructors take (dx, pos), not Mover's (dx, image, pos)).
@@ -155,7 +155,7 @@ separately:
    Bullet/Laser/Player/Enemy/Human`. These ARE used polymorphically — the
    game loops iterate heterogeneous lists (`for obj in self.rows +
    [self.bunner, self.eagle]: obj.update()`), so this virtual dispatch is
-   load-bearing. Audit question per class: is every override actually reached
+   exercised for real. Audit question per class: is every override actually reached
    via a base-typed reference, or do some subclasses exist only to hold a
    different constructor (→ dataclass field defaults could replace them)?
 3. **Classes/functions passed as values** — bunner's `Row.__init__(child_type:

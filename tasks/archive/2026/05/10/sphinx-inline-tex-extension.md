@@ -10,7 +10,7 @@ end-to-end on a clean Sphinx build:
   hashed PNGs and HTML succeeded with the same 34 pre-existing warnings.
 - Smoke-test page (`book/docs/inlinetex_smoketest.rst` + its index.rst
   entry) removed after verification — ch02 itself now exercises the
-  directive heavily, so the sandbox is no longer load-bearing.
+  directive heavily, so the sandbox is no longer needed.
 
 ## Goal
 

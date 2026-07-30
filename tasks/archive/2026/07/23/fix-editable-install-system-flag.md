@@ -78,7 +78,7 @@ remaining 10 are unrelated — see the texExpToPng and demo01 tasks).
   step needs the package importable; if it uses the same `--system -e .`, it has the same bug. Grep
   the repo for `--system` on a `uv pip install -e .` and fix each. (Alternative already in use for
   running demos: `PYTHONPATH=/mvp/src`, but the editable install is what registers the console
-  scripts, so the book build genuinely needs the install to succeed.)
+  scripts, so the book build needs the install to succeed.)
 
 ## Verify
 

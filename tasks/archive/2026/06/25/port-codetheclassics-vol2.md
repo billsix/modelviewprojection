@@ -11,7 +11,7 @@ hardware 2026-06-25** (`just_playback`). Remaining: human play-feel pass.
 **Canary changed kinetix → eggzy.** On closer read kinetix needs FBO-backed
 offscreen `Surface`s (its brick/shadow accumulation buffers) and heavy joystick
 — both unverifiable headless and well beyond the boing-proven core. A finer
-per-game survey (below) showed **eggzy** is the genuinely lightest Vol 2 lift for
+per-game survey (below) showed **eggzy** is the lightest Vol 2 lift for
 this shim: **no** offscreen `Surface`, **no** mask, **no** gfxdraw, **no** text.
 This matches the fallback noted in the original plan ("if kinetix leans on
 something awkward, pick another"). kinetix remains a Phase 2 game.
@@ -53,7 +53,7 @@ Shim extensions added (all in the shared `pgzero_gl`), simpler than first feared
   games only need solid fills (beatstreets/leadingedge fades) and sprite
   accumulation (kinetix bricks/shadows), which are `fill(color, rect)` +
   `blit(img, pos, area)` composited on the CPU and uploaded as a texture when
-  dirty. Far simpler + more robust than render-to-FBO. **kinetix's brick wall
+  dirty. Far simpler + less fragile than render-to-FBO. **kinetix's brick wall
   renders correctly in gameplay** (verified — the riskiest path).
 - **`pygame.gfxdraw` + `pygame.draw.polygon`** → `renderer.polygon` (GL triangle
   fan / line loop) for leadingedge's road.

@@ -21,7 +21,7 @@ typed return** -- the last 3 landed with the `matrix_stack` rename. `ty check sr
 back to its pre-sweep 11 diagnostics -- all third-party stub issues (10 glfw, 1 wx
 `LoadFrame`) that Bill chose to leave -- so the sweep added **zero** new ones.
 
-`mpltransformations` was the one genuinely blocked module; its investigation resolved
+`mpltransformations` was the one truly blocked module; its investigation resolved
 (see below), it now has a `compose()` helper and full annotations. **Nothing else was
 blocking typing.**
 **Created:** 2026-07-18
@@ -59,12 +59,12 @@ ignores rule-by-rule and fixing the code to satisfy them — which diverges the 
 from their upstream source.** That divergence is the point now, but:
 
 - **Confirm rule-by-rule, not wholesale.** Some ignores encode a real upstream idiom
-  that's genuinely intended (e.g. pgzero's `from pgzero_gl import *` → F403/F405; the
+  that's intended (e.g. pgzero's `from pgzero_gl import *` → F403/F405; the
   `sys.path`-then-import dance → E402; game RNG → S311). Before deleting an ignore and
   "fixing" its violations, check with Bill whether that specific idiom should be
   reworked or kept. Delete-and-fix the ones that are just upstream sloppiness
   (naming, unused vars, `== None`, missing annotations); keep (and keep documenting)
-  the ones that are load-bearing idioms.
+  the ones the framework requires.
 - **Update the `CLAUDE.md` rationale block as you go** so it always describes the
   *remaining* ignores accurately (open-issues-list discipline: don't leave a
   retired ignore documented as if it's still there).
@@ -264,7 +264,7 @@ in-sandbox run. After each module:
 4. First-party demos, then first-party assignments/tooling.
 5. **The ports**, one module at a time — the biggest, highest-churn part. Per port
    module: rename (N + naming grammar), annotate, then retire the `per-file-ignores`
-   entries it no longer needs (checking the load-bearing-idiom ones with Bill first,
+   entries it no longer needs (checking the framework-required ones with Bill first,
    per the Scope section) and update the `CLAUDE.md` rationale. Each is its own
    review → commit unit; this is where "small, visible passes" matters most.
 6. Final full-gate pass with the repo's **default** flags.

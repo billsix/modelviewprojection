@@ -97,7 +97,7 @@ So the book can show the `def` line (`start-after: define rotate around` / `end-
 - If a name is a **prefix** of another name in the same file (`define rotate` vs `define rotate around`), a query for the shorter can match the longer's marker line and pull the wrong region.
 - If a name is **duplicated**, the query always grabs the *first* occurrence.
 
-This is also why gacalc's own marker naming is descriptive-and-prefix-free with a load-bearing trailing keyword (`... signature`/`... body`/`... method`).
+This is also why gacalc's own marker naming is descriptive-and-prefix-free with a required trailing keyword (`... signature`/`... body`/`... method`).
 
 ### The silent-empty-listing failure — why the checker exists
 
@@ -136,7 +136,7 @@ mvp depends on gacalc **twice, for two different reasons**, and the two must sta
 
 **`make check-regions`** (`Makefile:150`) is the standalone anchor validator; it runs in the container, populates `_gacalc_src` from `/opt/gacalc-src` first (because gacalc anchors resolve there), then runs the checker. The html build runs the same check via `entrypoint.sh`, so `check-regions` is *not* wired as an html prerequisite.
 
-**Related non-book targets.** `make format` (container ruff+ty via `loadpackages.sh && format.sh`), `make shell` (interactive), `make jupyter` (JupyterLab on 8888). `format.sh` runs every step and exits nonzero if *any* failed (so one pass reports all the red).
+**Related non-book targets.** `make format` (container ruff+ty via `loadpackages.sh && format.sh`), `make shell` (interactive), `make jupyter` (JupyterLab on 8888; opens py:percent files as notebooks on a single click and has the Jupyter-news prompt disabled — both baked into the Dockerfile's `USE_JUPYTER` block, see CLAUDE.md's sync section for the `--level=user` gotcha). `format.sh` runs every step and exits nonzero if *any* failed (so one pass reports all the red).
 
 **Running nested** (inside the sandbox): every inner `podman run` needs `--cgroups=disabled` (the sandbox's `/sys/fs/cgroup` is read-only). Add it transiently to the target's `podman run`. The book build itself is headless (no GUI); the xvfb/`DISPLAY` recipe is only relevant for the OpenGL *demo* targets (`make shell` + running a `demos/*.py`), not for `make html`. Note the html/shell/jupyter targets carry `-it` — needed for the aspell gate (§1) and for interactive shells; a fully non-interactive nested html build will hang at spellcheck unless aspell input is clean.
 

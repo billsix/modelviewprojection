@@ -17,7 +17,7 @@ below predate all of that and are stale.
 Replace the ports tree's hand-rolled vector/matrix math with **gacalc** (the
 geometric-algebra library mvp core already sits on) **wherever it's reasonable**
 — i.e. wherever gacalc can back the math without breaking the two hard
-constraints below. The phrase "as much as reasonable" is load-bearing: part of
+constraints below. The phrase "as much as reasonable" is doing real work: part of
 this task is deciding, per component, whether migration is a net win or a
 compatibility liability, and saying so.
 

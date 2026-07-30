@@ -65,7 +65,7 @@ lives under the parent plan, not this one.
 `handle_inputs` is the per-frame key-*polling* function each demo calls in its
 event loop (`glfw.get_key(window, KEY_X) == glfw.PRESS` → mutate state). Unlike
 `on_key` (the discrete escape-to-quit callback, now shared in `windowing.py`),
-`handle_inputs` is **genuinely different per demo** — measured at 21 copies /
+`handle_inputs` is **different per demo** — measured at 21 copies /
 18 distinct variants — because the keys it wires up are part of the lesson
 (paddle move, square rotate, camera placement, etc.). The dedup target is **not**
 `handle_inputs` itself, but the camera-walk *sub-block* that's repeated identically

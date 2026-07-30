@@ -52,6 +52,6 @@ visible at any depth" — a cleaner approach than the cylinder geometry for
 animated/projected line work.
 
 Credit: this is Bill's shader, predating the recent refactor. It came along
-for free with the original line rendering, then we rediscovered why it's
-load-bearing the moment we tried to replace it with cylinders during the
+for free with the original line rendering, then we rediscovered what depends
+on it the moment we tried to replace it with cylinders during the
 squash animation.

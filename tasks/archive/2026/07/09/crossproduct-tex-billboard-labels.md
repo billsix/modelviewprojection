@@ -98,7 +98,7 @@ works in this sandbox, so labels can be generated here.
   over the 3D scene we want **light text on a transparent background**. Two options:
   1. **Post-process in mvp** (PIL): key the white bg to alpha and recolor the glyphs
      (load once at startup). No texExpToPng change.
-  2. **Enhance texExpToPng** to pass `dvipng -bg Transparent -fg <color>` (small
+  2. **Extend texExpToPng** to pass `dvipng -bg Transparent -fg <color>` (small
      change to that project; cleaner output). Bill controls that repo too.
   Leaning (1) to keep texExpToPng untouched unless Bill prefers (2).
 
@@ -129,7 +129,7 @@ works in this sandbox, so labels can be generated here.
   `b'' = R_y R_z b`, `c = \lVert b\rVert \sin\theta`,
   `a \times b = \lVert a\rVert\, c\; e_3`.
 - **Basis labels: `e_1, e_2, e_3`** (gacalc/course convention).
-- **Text color/transparency: ENHANCE texExpToPng** -- add `dvipng -bg Transparent
+- **Text color/transparency: EXTEND texExpToPng** -- add `dvipng -bg Transparent
   -fg <color>` flags so it emits clean transparent/light PNGs directly (Bill owns
   that repo).  So this feature also entails a small `/billopt/texExpToPng` change
   (new flags) + rebuilding that image before generating the label assets.

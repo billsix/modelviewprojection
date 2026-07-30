@@ -6,7 +6,7 @@ render correctly on a display.
 ## Goal
 
 Eliminate the heavy copy-paste across the `mvpVisualization/*/` shader files by
-promoting the genuinely shared shaders to the **top of `mvpVisualization/`** and
+promoting the truly shared shaders to the **top of `mvpVisualization/`** and
 parametrizing the rest. Approved by Bill ("everything you suggest is fine, just
 put the shared ones at the top of the mvpViz directory").
 

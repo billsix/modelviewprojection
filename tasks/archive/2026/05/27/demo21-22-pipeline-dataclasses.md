@@ -181,8 +181,8 @@ pattern is mechanical: `u_bs_mvp` → `block_shadow.u_mvp`.
 
 1. **Naming**: `triangle.u_mvp` (keep the `u_` prefix as a hint that
    this is a uniform location) or `triangle.mvp` (shorter, but loses
-   the hint)? The current globals all use `u_*`, suggesting the prefix
-   is load-bearing for the curriculum. Recommend keeping it.
+   the hint)? The current globals all use `u_*`, suggesting the curriculum
+   relies on the prefix. Recommend keeping it.
 2. **Attribute locations**: in demo21 the attribute locations
    (`triangle_attr_position`, `ground_attr_position`) are part of the
    pipeline group. Should they be queried (current behavior) or pinned

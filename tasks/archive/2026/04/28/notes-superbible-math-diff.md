@@ -11,7 +11,7 @@ For each `m3d*` function in `math3d.h`, asked:
 
 Skipped: trivial/duplicate ops (`Load`/`Copy`/`Add`/`Subtract`/`Scale` on vectors, identity matrices, transpose, multiply) — mvp has these via dataclass operators or numpy/`pyMatrixStack`. Skipped 4-vec versions of things mvp covers in 3D — homogeneous coords aren't part of Bill's pedagogy.
 
-## Tier 1 — Missing and *load-bearing for demos Bill wants to port*
+## Tier 1 — Missing and *needed for demos Bill wants to port*
 
 ### `m3dMakePlanarShadowMatrix(M3DMatrix44 proj, planeEq, lightPos)` ⭐ Bill flagged this
 
@@ -37,7 +37,7 @@ mvp has only `rotate_x`, `rotate_y`, `rotate_z`. SuperBible uses arbitrary-axis 
 
 **Signature port:** `rotate_around_axis(axis: Vector3D, angle: float) -> InvertibleFunction[Vector3D]`. Inverse is straightforward: same axis, negated angle.
 
-**Fit:** Perfect fit for `InvertibleFunction[Vector3D]`. Should be added if any GLFrame-using demo gets ported. Honestly, it's surprising it isn't there already.
+**Fit:** Perfect fit for `InvertibleFunction[Vector3D]`. Should be added if any GLFrame-using demo gets ported. It's surprising it isn't there already.
 
 ---
 

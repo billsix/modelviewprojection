@@ -244,7 +244,7 @@ Stay within the book/code stack: `glfw`, `PyOpenGL`, `numpy`, `imageio`,
   (imgui_bundle already present) can stamp text. Match ptext's default
   (center/topleft anchoring, color, fontsize); don't need ptext's full feature
   set — the games use a tiny subset.
-- **Audio** — the one genuinely new dependency. Candidates: **`miniaudio`**
+- **Audio** — the one new dependency. Candidates: **`miniaudio`**
   (decodes ogg/wav/mp3, simple playback, few transitive deps — leading choice),
   or `soundfile`+`sounddevice` (libsndfile; ogg ok), or `pyopenal`. Needs:
   multiple simultaneous SFX + one streamed music track + per-source volume.

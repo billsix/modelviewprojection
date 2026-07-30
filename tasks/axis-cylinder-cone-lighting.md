@@ -43,7 +43,7 @@ def setup_rc() -> None:
     GL.glColorMaterial(GL.GL_FRONT, GL.GL_AMBIENT_AND_DIFFUSE)
 ```
 
-The crucial bit is `GL_COLOR_MATERIAL` + `glColorMaterial(GL_FRONT,
+What makes it work is `GL_COLOR_MATERIAL` + `glColorMaterial(GL_FRONT,
 GL_AMBIENT_AND_DIFFUSE)`: each `glColor3f` call in the draw functions then
 implicitly sets the material's ambient and diffuse, so the existing
 red/green/blue + grayed-out logic keeps working with no other change.

@@ -87,7 +87,7 @@ route. Options, cheapest first:
 
 1. **Status quo — keep the `pytest.ini` allow-list.** Cost: zero. Loss: demos can never
    host a doctest, and the list needs a line whenever a new library module appears
-   (rare). Honestly defensible; the allow-list is small and documented.
+   (rare). Defensible; the allow-list is small and documented.
 2. **Move the runnable demos out of the importable package** — e.g. a top-level
    `demos/` (or `scripts/`) directory outside `src/modelviewprojection/`. Then nothing
    under `src/` executes on import, `testpaths = src tests` works with no list, and no

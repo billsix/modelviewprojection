@@ -82,8 +82,8 @@ Two measurements overturn the framing this task was written with.
   `generate_plots_for_book` entry point that `book/docs/_static/Makefile` runs.
 
 **This kills the main argument for keeping the design as-is.** The task assumed the prose
-might teach "a transform is a function", making the function-piping style pedagogically
-load-bearing. It does not, because a student never sees this source. The design should be
+might teach "a transform is a function", making the function-piping style carry
+pedagogical weight. It does not, because a student never sees this source. The design should be
 judged purely on maintainability, and its only audience is whoever edits the plot
 generator.
 

@@ -50,7 +50,7 @@ so every instance taking the default shared **one** object.
 
 The fix (found 2026-07-18) was two parts: a named module-level constant for the
 default, **and a defensive copy on assignment** — `self.half_hit_area =
-Vector2(*half_hit_area)`. The copy was the load-bearing half; the constant alone only
+Vector2(*half_hit_area)`. The copy was the half that mattered; the constant alone only
 silenced ruff `B008`.
 
 **gacalc 0.0.14 froze the value types** (`tasks/archive/2026/07/23/frozen-vectors-rebind-migration.md`).
@@ -65,7 +65,7 @@ Decide, per site, whether each defensive copy / dedicated-default-constant is:
 - **redundant** (only there for the now-impossible aliasing hazard) → remove;
 - **still doing real work** (copies a mutable tuple/list arg, normalizes an incoming
   type, or the surrounding code relies on identity) → keep, with a one-line reason;
-- **load-bearing for a non-obvious reason** → keep and document.
+- **needed for a non-obvious reason** → keep and document.
 
 Do **not** assume "frozen ⇒ delete them all." A `Vector2(*pos)` at a boundary may
 also be **normalizing a tuple-or-vector argument into a vector** (the shim's position

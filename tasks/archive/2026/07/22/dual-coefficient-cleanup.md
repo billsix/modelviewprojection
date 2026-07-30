@@ -39,7 +39,7 @@ return Vector3(
 )
 ```
 
-`n` is genuinely a `Vector3` (in 𝒢₃ the dual of a bivector is a vector), but gacalc currently
+`n` really is a `Vector3` (in 𝒢₃ the dual of a bivector is a vector), but gacalc currently
 declares `Bivector3.dual() -> Self` (an unsound `cast`), so the checker sees a `Bivector3` — which
 has no `coeff_e_1`/`e_2`/`e_3` fields, forcing the base `.coefficient(...)` reader.
 

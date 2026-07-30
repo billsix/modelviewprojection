@@ -179,7 +179,7 @@ adds explicit type annotations to **local variables** too, across **both**:
     directions; fall-through unreachable).
   - `cast` ×1 — `Game.player` in cavern (menu/attract `Game` has no player; every
     unguarded deref runs only when a real `Player` exists).
-- Recurring pattern worth noting for Phase 3: nullable-but-unguarded Actor
+- Recurring pattern for Phase 3: nullable-but-unguarded Actor
   attributes (`game.player`, `game.bunner`, `Team.active_control_player`) are typed
   `Any` rather than `Optional[...]` — the games assume-non-null at deref sites, and
   `Optional` would just relocate the error. This matches the shim's own dynamic

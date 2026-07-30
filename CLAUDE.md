@@ -98,7 +98,15 @@ image builds. When you touch one, check the others.
    then makes a `--system-site-packages` venv and `pip install`s the rest **minus
    wxpython** (`grep -v wxpython`). It also builds the **vendored** texExpToPng
    (`book/docs/_static/tex_exp_to_png/`) under `BUILD_DOCS`. Base image Fedora 44
-   (Python 3.14).
+   (Python 3.14). The `USE_JUPYTER` block also bakes two JupyterLab defaults
+   (2026-07-29): `jupytext-config set-default-viewer python` (single-click opens
+   py:percent files as notebooks) and `jupyter labextension disable --level=user
+   "@jupyterlab/apputils-extension:announcements"` (no news prompt). **The
+   `--level=user` flag is required:** at that point in the RUN the venv has no
+   `jupyter` binary yet (the requirements install that seeds `jupyter_core` comes
+   later), so the default sys_prefix level resolves through `/usr/bin/jupyter` and
+   writes `/usr/etc/...`, which the venv-launched server never reads — user level
+   writes `/root/.jupyter/labconfig/`, read under any prefix.
 3. **`Makefile`** ↔ **`Dockerfile` `ARG`s** — every `--build-arg X=$(X)` in the
    Makefile's `image` target must have a matching `ARG X` in the Dockerfile
    (Makefile defaults `1`, Dockerfile defaults `0`). A `[Warning] one or more build
@@ -208,7 +216,7 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
     (`Vector2.e_1`, …) are safe to share. The defensive copies that were the fix for
     that — `self.half_hit_area = Vector2(*half_hit_area)` in `beatstreets`, guarding
     a `Player`/`EnemyVax`/`EnemyHoodie`/`EnemyScooterboy` shared default (found
-    2026-07-18) — are now redundant rather than load-bearing. They were left in place
+    2026-07-18) — are now redundant; nothing depends on them. They were left in place
     during the freeze migration on purpose, so that change stayed a pure
     mutation→rebinding conversion; removing them is a separate, deliberate pass.
 - History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`.

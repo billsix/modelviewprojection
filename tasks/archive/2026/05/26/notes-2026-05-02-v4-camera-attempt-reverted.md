@@ -175,5 +175,5 @@ approach if anything from `/tmp/` is reused.
 - **Don't conflate "object rotation" with "camera movement".**
   They look syntactically similar (`glRotatef` calls) but are
   pedagogically opposite.  The walk-around-camera plan should
-  have specified which demos genuinely have a *camera* (vs.
+  have specified which demos actually have a *camera* (vs.
   object tumble) before any migration started.
