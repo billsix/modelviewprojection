@@ -19,10 +19,6 @@
 import dataclasses
 import typing
 
-# doc-region-begin define invertible function
-# Define a generic type variable
-T = typing.TypeVar("T")
-
 
 @dataclasses.dataclass
 class Color3:

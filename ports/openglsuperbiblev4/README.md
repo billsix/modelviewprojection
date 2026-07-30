@@ -26,9 +26,10 @@ Mechanical, applied uniformly across every port:
 | `glutKeyboardFunc` / `glutSpecialFunc` | `glfw.set_key_callback` or `glfw.get_key` polling |
 | `glutCreateMenu`, `glutBitmapCharacter`, GLUI | `imgui_bundle` (Dear ImGui) overlays |
 | `glutSolidCube` / `glutWireCube` / `glutSolidSphere` / etc. | inline draw calls (`glBegin`/`glEnd`) — no GLUT dependency |
-| `M3DVector3f` (C array) | `numpy.ndarray` or `Vector3D` from `modelviewprojection.mathutils` |
-| `M3DMatrix44f` + `glMultMatrixf` | `numpy.matrix` + `glMultMatrixf` |
-| `m3dFindNormal`, `m3dGetPlaneEquation`, `m3dMakePlanarShadowMatrix`, etc. | inline helper functions in the demo file (or `modelviewprojection.mathutils` once those land there) |
+| `M3DVector3f` (C array) | `numpy.ndarray`, or gacalc's `Vector3` where vector algebra is used |
+| `M3DMatrix44f` + `glMultMatrixf` | plain `numpy.ndarray` (4×4, float32) + `glMultMatrixf` |
+| `m3dFindNormal`, `m3dGetPlaneEquation`, `m3dGetDistanceToPlane` | `find_normal`, `plane_equation`, `distance_to_plane` from `modelviewprojection.mathutils` |
+| `m3dMakePlanarShadowMatrix`, `m3dRotationMatrix44`, etc. | inline helper functions in the demo file |
 | `gltLoadTGA` | `imageio.v3.imread` |
 | `GLFrame` (camera or actor frame) | unfolded inline as `glRotatef` + `glTranslate` matching the frame's forward/up/origin — no Python `GLFrame` class |
 
@@ -44,20 +45,29 @@ Shader-era chapters (chapt15+) keep SuperBible's `.vs`/`.fs` filename convention
 - Module-level globals (matching the procedural style of both SuperBible and the curriculum demos).
 - Wayland workaround at the top of each file (`PYOPENGL_PLATFORM=x11`) since PyOpenGL has trouble with Wayland.
 
-## What's not ported
+## What's stubbed rather than ported
 
-- **chapt20** (Apple-specific Carbon/Cocoa demos) — skipped entirely; the originals depend on dead Apple frameworks.
-- **chapt21/GLXBasics** — X11/GLX direct context creation; redundant with GLFW. Other chapt21 demos triaged on entry.
-- **chapt22/ES_example** — OpenGL ES sample; the Python GLES ecosystem doesn't match the desktop GL stack used elsewhere in this tree.
+These exist as `.py` files that print a notice and exit, so every upstream
+demo has an entry in the tree:
 
-## Status (as of 2026-04-28)
+- **chapt19/GLView, chapt19/RThread** — Win32 MFC dialog / WGL threading; the
+  rest of chapt19 (GLRect, fscreen, SphereWorld32) is real, and Text2D/Text3D
+  are re-done via imgui.
+- **chapt20** (all 4) — deprecated Apple Carbon/Cocoa.
+- **chapt22/ES_example** — OpenGL ES; doesn't map to the desktop GL stack
+  used here.
 
-**Done (syntax-checked, not yet hardware-verified):**
-- chapt01 — `block` (1 demo)
-- chapt02 — `simple`, `glrect`, `bounce` (3 demos)
-- chapt03 — `points`, `pointsz`, `lines`, `linesw`, `lstipple`, `lstrips`, `pstipple`, `single`, `scissor`, `star`, `stencil`, `triangle` (12 demos)
-- chapt04 — `atom`, `atom2`, `solar`, `sphereworld`, `transform`, `transformgl`, `ortho`, `perspect` (8 demos)
+## Status (as of 2026-07-30)
 
-**= 24 demos so far.** All pass `python -c "import ast; ast.parse(open(f).read())"`. None have been run on a display — Bill's task. See open issues #1–#6 in `/mvp/tasks/superbible-full-port.md` for things to watch when first running.
+**The port is COMPLETE (2026-04-28): ~101 demo files across chapt01–chapt22**
+(everything real except the stubs listed above), plus the shared
+`_common.py` (window/imgui/menubar/camera machinery — 95 ports import it) and
+`_primitives.py` (precomputed tessellation for ~30 immediate-mode demos).
+All syntax-checked; **hardware verification is ongoing and is Bill's task** —
+see the punchlist in `/mvp/tasks/superbible-full-port.md`. The walk-around
+camera migration is in progress (`/mvp/tasks/ports-ux-pass.md`; only the
+`chapt08/sphereworld` canary is wired so far).
 
-See `/mvp/tasks/superbible-full-port.md` for the umbrella plan, the established translation patterns (skeleton, GLUT→GLFW mapping, GLFrame unfolding, etc.), and remaining phases. `/mvp/tasks/archive/2026/04/28/superbible-study.md` is the upstream research. Check `TaskList` in Claude Code for current status of each chapter.
+The full translation rulebook (per-demo skeleton, GLUT→GLFW mapping, GLFrame
+unfolding, helper exemplars, upstream source map) lives in
+`/mvp/tasks/reference/superbible-ports-guide.md`.

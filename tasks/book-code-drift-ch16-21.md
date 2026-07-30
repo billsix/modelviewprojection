@@ -124,5 +124,5 @@ Work:
 
 ## Notes
 Line numbers as of 2026-05-27; match on text. Constraints per
-`tasks/codebase-overview.md` (no commits / doc build / GL run here).
-</content>
+`tasks/reference/architecture-overview.md` § "Working constraints"
+(no commits / doc build / GL run here).

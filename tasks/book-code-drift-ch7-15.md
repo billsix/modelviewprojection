@@ -48,5 +48,5 @@ confirm the ch15 copy is stale. Bill renders via `make html`.
 ## Notes
 - Line numbers are as of 2026-05-27; match on surrounding text when editing.
 - Constraints unchanged: I can edit + `git add`, **no commits**, **no doc build**
-  (`texExpToPng` absent), **no GL run**. See `tasks/codebase-overview.md`.
-</content>
+  (`texExpToPng` absent), **no GL run**. See
+  `tasks/reference/architecture-overview.md` § "Working constraints".

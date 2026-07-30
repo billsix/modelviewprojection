@@ -1,6 +1,6 @@
 # modelviewprojection — architecture & orientation
 
-**Reference document** — the map of what mvp is and how its subsystems fit; read this first to get oriented. Not a task; update in place. Last updated 2026-07-21.
+**Reference document** — the map of what mvp is and how its subsystems fit; read this first to get oriented. Not a task; update in place. Last updated 2026-07-30.
 
 This complements — never restates — the repo's `CLAUDE.md` (the Cayley-graph abstraction, the demo arc, the coding standard, dependency-sync rules) and `README.md` (how to run a demo, build the book). Read those for the *why* and the *rules*; read this for the *shape of the tree* and *where things live*. Deeper subsystem docs are linked inline; when one exists, defer to it rather than duplicating.
 
@@ -42,7 +42,9 @@ A from-scratch, no-OpenGL renderer used to teach what the GPU does: a `FrameBuff
 The data-structure realization of the book's central abstraction, with **no OpenGL** so it is pure and unit-testable. `cayleygraph.py`: an immutable, directed, acyclic graph whose nodes are coordinate **spaces** (per-demo `Enum`s) and whose edges are ordered sequences of *interpolable* `InvertibleFunction`s (`Step`/`Edge`/`Path`/`CayleyGraph`); `CayleyGraph.path(a, b)` breadth-first routes between spaces and composes the edge functions, auto-inverting any edge walked against its arrow — the chapter-02 rule executed instead of drawn. `cayleyscene.py` turns a graph + a declarative scene description into something the `mvpvisualization` GL demos render.
 
 ### `util/` — shared demo helpers
-Small, focused, individually-documented modules the demos import: `axes.py` (unit basis gizmo, X/Y/Z red/green/blue), `windowing.py` (GLFW setup), `clipping.py` (near-plane clipping), `cameracontrols.py` (per-frame keyboard walk-around polling), `colorutils.py` (`Color4`, iterable so it unpacks into GL calls), `shading.py` (lighting/geometry helpers for the lighting-era demos), `nbplotutils.py` (notebook plotting). Each documents its own case; several intentionally overlap with per-demo copies (see the demos note).
+Small, focused, individually-documented modules the demos import: `axes.py` (unit basis gizmo, X/Y/Z red/green/blue), `windowing.py` (GLFW setup), `clipping.py` (near-plane clipping), `cameracontrols.py` (per-frame keyboard walk-around polling), `colorutils.py` (`Color4`, iterable so it unpacks into GL calls), `shading.py` (lighting/geometry helpers for the lighting-era demos). Each documents its own case; several intentionally overlap with per-demo copies (see the demos note). The adoption ledger (which demo introduced each helper, who keeps private copies) is in `tasks/reference/demo-chapter-inventory.md`. **Caveat:** `nbplotutils.py` lives here but is *not* a demo helper — its sole consumer is `notebooksrc/plot2d.py` (the largest file in the directory; notebook plumbing, not demo code).
+
+**Naming trap:** `notebooksrc/framebuffer.py` (a book notebook source) and the `framebuffer/` package (the software rasterizer) are two different things that share a word.
 
 ### `notebooksrc/` and `plotsforbook/` — figure/notebook generation
 `notebooksrc/` — jupytext percent-format source (`plot2d.py`, `ndc.py`, `framebuffer.py`) for the book's interactive/notebook figures. `plotsforbook/generate_plots.py` (entry point `generate_plots_for_book`, see `pyproject.toml`) plus its `plotutils/` (grid lines, matplotlib graphs, transformation plots) — a build-time script that renders the static matplotlib figures the chapters embed.
@@ -59,14 +61,31 @@ Not part of the installed package; kept in mvp's style for teaching and as porti
 mvp depends on **gacalc** (the sibling geometric-algebra library, `github.com/billsix/geometricalgebra`) for all of its core vector algebra and the invertible-function transform layer: `Vector2`/`Vector3` (gacalc's graded vector types — the old in-repo `Vector2D`/`Vector3D` were deleted), `InvertibleFunction`, `compose`/`inverse`/`translate`/`uniform_scale`/`scale_non_uniform`, the `at`/`steps` animation layer, and `plane_rotation` (which mvp's `rotate`/`rotate_x/y/z` bind to specific basis-vector pairs). Callers import these from gacalc directly; `mathutils.py` is a graphics-math façade around them, not a re-export.
 
 Two artifacts of the **same released version** are consumed, both from PyPI:
-- **The wheel** is the runtime dependency — pinned in `requirements.txt` (`gacalc==0.0.13` at time of writing) — and is what the code imports.
+- **The wheel** is the runtime dependency — pinned in `requirements.txt` (`gacalc==0.0.14` at time of writing) — and is what the code imports.
 - **The sdist** is pulled in **docs-only** so the book can `literalinclude` gacalc's own `doc-region` markers (the `Vector2`/`Vector3`/`translate`/`InvertibleFunction` listings the chapters show). The Dockerfile's `ARG GACALC_VERSION` (which must match the requirements pin) fetches the sdist, and `entrypoint.sh` copies its `src/gacalc/*.py` into `book/docs/_gacalc_src/` (gitignored) before the build. Nothing imports it; it is never on `sys.path`.
 
 Editing the *content* of a gacalc-included listing means editing gacalc and releasing it — this repo only points at it. **The full mechanics (version-bump procedure, the in-container region checker, why the sdist not a git clone) live in `tasks/reference/book-and-docs-pipeline.md` and `CLAUDE.md` › "Some listings are included from GACALC's source"** — go there rather than relying on this summary.
 
 ---
 
-## 4. Where do I look for X
+## 4. Working constraints in the Claude container
+
+(Relocated from the retired `tasks/codebase-overview.md`; the drift trackers
+point here.)
+
+- ✅ Read/edit code, run `pytest`/`ruff`/`ty` in-sandbox, `git add` to stage;
+  nested-podman gates when the sandbox was launched with `NESTED_PODMAN=1`.
+- ❌ **No commits** — Bill commits and GPG-signs outside the container.
+- ❌ **No on-screen GL/display runs** — Bill verifies anything needing a real
+  display (headless Xvfb/EGL tricks exist; see `tests-and-gates.md` §4 and the
+  global CLAUDE.md's nested-container notes).
+- ❌ **`texExpToPng` is not installed in the sandbox** — only the project's
+  built image has it, so the full doc build is exercised via `make html` (or
+  by Bill), never host-side.
+- ❌ The auto-mode classifier blocks `rm -rf` of pre-existing paths (e.g.
+  clearing a stale `_build/latex/`).
+
+## 5. Where do I look for X
 
 | Concern | Location |
 | --- | --- |
@@ -82,7 +101,12 @@ Editing the *content* of a gacalc-included listing means editing gacalc and rele
 | A SuperBible example port | `ports/openglsuperbiblev4/chaptNN/<name>/<name>.py` |
 | A Code-the-Classics game port (and its Pygame-Zero→GL layer) | `ports/codetheclassics/vol{1,2}/<game>/<game>.py` (layer: `pgzero_gl/`) |
 | The book chapters (prose + `literalinclude` markers) | `book/docs/chNN.rst` (config `book/docs/conf.py`) |
-| The book build pipeline, extensions, gacalc docs-source injection | **`tasks/reference/book-and-docs-pipeline.md`** |
+| The book build pipeline, doc-region mechanics, gacalc docs-source injection | **`tasks/reference/book-and-docs-pipeline.md`** |
+| Figures, math images (`inlinetex`), notebook generation | **`tasks/reference/book-figures-and-images.md`** |
+| Which demo pairs with which chapter; un-chaptered demos; util adoption ledger | **`tasks/reference/demo-chapter-inventory.md`** |
+| Gates, contract tests, proof harnesses, ty/bulk-edit playbooks | **`tasks/reference/tests-and-gates.md`** |
+| GL/imgui/GLFW failure modes | **`tasks/reference/gl-and-imgui-gotchas.md`** |
+| SuperBible upstream map, translation rules, ports inventory | **`tasks/reference/superbible-ports-guide.md`** |
 | Dependency pins (must stay in sync with Dockerfile) | `requirements.txt` + `CLAUDE.md` › "Keeping the Dockerfile, Makefile, and dependencies in sync" |
 | Coding standard, naming exemptions, per-file ruff ignores | `CLAUDE.md` › "Coding standard (Python)" + `[tool.ruff]` in `pyproject.toml` |
 | Build/run/test/format commands | `Makefile`, `README.md`, `CLAUDE.md` › "Dev environment" |

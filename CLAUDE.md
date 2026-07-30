@@ -50,21 +50,20 @@ Note (2026-06-03 restructure): the package is grouped — demos under `src/model
 
 ## SuperBible port plan
 
-**Already ported (do not re-port):**
+**Already ported into the curriculum (do not re-port):**
 - `axes3d` → demo19a (unit basis vector visualization)
 - `atom` → demo19b
 - `solar` → demo19c (sun/earth/moon nested frames)
+- chapt12 `moons` → demo19d (branching planets/moons matrix-stack hierarchy)
 - `sphereworld` → demo19e (FPS camera + random sphere field) — fixed-function 2.1 version using GLU spheres
 - `Block` → demo22 (cube with lighting + planar shadow + texture)
+- `pyramid` → **demo22a** (gentler texturing intro before Block's complexity)
+- `litjet` → **demo23** (per-vertex normals on a complex mesh, specular)
+- `sphereworld` modernized → **demo24** (3.3-Core, lit)
 
-**Stated wishlist (2026-04-27):** litjet, pyramid, sphereworld (modernized).
+The 2026-04-27 wishlist (litjet, pyramid, modernized sphereworld) is **implemented** — demo22a/23/24 exist as `demoNN/` subfolders with their own shaders and textures; none of 19a–e/22–24 has a book chapter yet (their long header comments are the docs — see `tasks/reference/demo-chapter-inventory.md`).
 
-**Recommended slotting:**
-- **pyramid** (textured pyramid) — gentler texturing intro than demo22's Block. Slot as **demo21b** or **demo22a**, *before* full Block complexity.
-- **litjet** (lit jet plane) — advances lighting beyond demo22's Lambert: per-vertex normals on a complex mesh, specular/Phong. Slot as **demo23**.
-- **sphereworld (modernized)** — demo19e covers the concept in fixed-function. A 3.3-Core, lit version → **demo24** or later, after litjet establishes the lighting model.
-
-When porting, follow demo22's structure (subfolder with `.vert`/`.frag`/asset files, `compile_program()` helper, VAO/VBO tracked in `all_vaos`/`all_vbos`, `matrix_stack` for MVP). Confirm slot before writing code — pedagogical placement matters more than the port itself.
+When porting any future demo, follow demo22's structure (subfolder with `.vert`/`.frag`/asset files, `compile_program()` helper, VAO/VBO tracked in `all_vaos`/`all_vbos`, `matrix_stack` for MVP). Confirm slot before writing code — pedagogical placement matters more than the port itself.
 
 ---
 
@@ -81,7 +80,7 @@ When porting, follow demo22's structure (subfolder with `.vert`/`.frag`/asset fi
 
 ## Dev environment
 
-Bill's host is Fedora 43 (glibc 2.42). System SDL2 is the SDL2-compat shim on SDL3 — breaks SDL2-audio apps. I can build/package locally, but Bill verifies anything requiring a display, FUSE, or audio.
+Bill's host is Fedora 43 (glibc 2.42). System SDL2 is the SDL2-compat shim on SDL3 — breaks SDL2-audio apps. I can build/package locally, but Bill verifies anything requiring a display, FUSE, or audio. **Never edit the vendored `entrypoint/dotfiles/.emacs.d/elpa/` tree** — it is committed on purpose (refreshed only via `make update-emacs-packages`).
 
 ---
 
@@ -216,9 +215,10 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
     (`Vector2.e_1`, …) are safe to share. The defensive copies that were the fix for
     that — `self.half_hit_area = Vector2(*half_hit_area)` in `beatstreets`, guarding
     a `Player`/`EnemyVax`/`EnemyHoodie`/`EnemyScooterboy` shared default (found
-    2026-07-18) — are now redundant; nothing depends on them. They were left in place
-    during the freeze migration on purpose, so that change stayed a pure
-    mutation→rebinding conversion; removing them is a separate, deliberate pass.
+    2026-07-18) — became redundant, and **the deliberate removal pass ran
+    2026-07-25**: 12 pure-aliasing copies deleted; 2 kept because they *normalize*
+    `Any`/tuple-typed inputs; the `DEFAULT_*` constants stay (removing one re-trips
+    ruff `B008`). Details: `tasks/reference/design-decisions.md` › Ports.
 - History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`.
 
 ---
@@ -490,4 +490,4 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
   rationale: `tasks/reference/design-decisions.md` › "gacalc's value types became
   frozen".
 
-(Other in-flight: `tasks/ports-pbo-floattex-runtime-crashes.md`, `tasks/shadowmap-depth-discrimination.md`; `tasks/codebase-overview.md` is a living orientation doc. `tasks/` is authoritative — the archive holds the rest, including the math-demos section, the PDF/EPUB build, and the `jupyter.sh` fix.)
+(Other in-flight: `tasks/ports-pbo-floattex-runtime-crashes.md`, `tasks/shadowmap-depth-discrimination.md`. The old `tasks/codebase-overview.md` orientation doc was retired 2026-07-30 — orientation now lives in `tasks/reference/architecture-overview.md`. `tasks/` is authoritative — the archive holds the rest, including the math-demos section, the PDF/EPUB build, and the `jupyter.sh` fix.)

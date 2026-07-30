@@ -4,9 +4,6 @@
   - [X] Get the equations ported, including multiline ones
   - [ ] Get the size reasonable
     - [ ] perhaps modify the makefile, to make each one sizable independently
-* TODO [%] Change all of the rotate, translate, scale functions to use R, T, S
-  - [ ] Change imports
-  - [ ] Change code
 * TODO [%] Add explanation of I for identity function, and T, R, etc
   - [ ]  Figure out where to put it
   - [ ] Add explanation of I for identity function, and T, R, etc

@@ -10,8 +10,10 @@ that can move, and project that 3D data onto a 2D screen.
 The course is built on one pedagogical hook: instead of 4×4 matrices, transformations
 are **invertible functions** and coordinate systems form a **Cayley graph** (nodes =
 spaces, edges = transformations) — so you learn everything via function composition
-and inverses, with no linear-algebra prerequisite. The math now lives in the
-**gacalc** geometric-algebra library (wrapped by `mathutils.py`). The repo also
+and inverses, with no linear-algebra prerequisite. The vector algebra and the
+transform layer live in the **gacalc** geometric-algebra library and are
+imported from it directly; `mathutils.py` carries only the graphics-specific
+math (projections, plane geometry, the function stack). The repo also
 includes faithful Python ports of the **OpenGL SuperBible v4** examples under
 `ports/openglsuperbiblev4/`.
 
@@ -45,15 +47,15 @@ python src/modelviewprojection/demos/demo05.py
 
 (On Windows, use the Visual Studio 2019 Developer Command Prompt for the venv steps.)
 
-Math-demo labels (optional): install texExpToPng
-------------------------------------------------
-Some math visualizations (e.g. `src/modelviewprojection/mathdemos/crossproduct.py`)
-annotate the vectors with LaTeX labels rendered by **texExpToPng** — a small C tool
-(wrapping `latex` + `dvipng`) that lives in its own repository,
-https://github.com/billsix/tex-expression-to-png. The labels are **optional**: if
-`texExpToPng` is not on your `PATH`, the demos run normally, just without labels.
-(Inside the podman image it is already built by `make image`, from the commit pinned
-in the `Dockerfile`; these steps are only for running demos directly on your host.)
+Building the book's math images on your host (optional): install texExpToPng
+-----------------------------------------------------------------------------
+The book renders every LaTeX expression to PNG with **texExpToPng** — a small
+C tool (wrapping `latex` + `dvipng`) that lives in its own repository,
+https://github.com/billsix/tex-expression-to-png — via the custom `inlinetex`
+Sphinx extension and the `_static` figure Makefile. Inside the podman image it
+is already built by `make image`, from the commit pinned in the `Dockerfile`,
+so **the normal book build needs none of this**. These steps are only for
+experimenting with the doc pipeline directly on your host.
 
 Run the block for your platform — copy, paste, enter. It clones the tool into `/tmp`,
 so you can run it from any directory:
@@ -83,7 +85,7 @@ export PATH="$HOME/.local/bin:$PATH"   # add this line to ~/.bashrc to make it p
 texExpToPng --help                     # should list --bg and --fg
 ```
 
-Verify it actually renders (this is the exact command the demo runs):
+Verify it actually renders:
 ```sh
 texExpToPng --exp '$\vec a \times \vec b$' --size 600 --fg "rgb 1 1 1" --bg Transparent --output /tmp/lbl.png
 ```
