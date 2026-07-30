@@ -126,6 +126,7 @@ def imgui_menubar() -> None:
             "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
         )
         imgui.end_menu()
+    _common.draw_view_menu(_window)
     if imgui.begin_menu("Light", True):
         # color_edit3 has no menubar-native form, so it renders as an
         # ordinary widget inside this begin_menu/end_menu block.

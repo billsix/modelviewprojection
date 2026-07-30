@@ -39,6 +39,7 @@ student writes its NDC-to-screen mapping).
 """
 
 import argparse
+import os
 import pathlib
 import runpy
 import sys
@@ -71,13 +72,27 @@ if held:
 # a controller plugged into the host would otherwise perturb a scripted run
 glfw.get_joystick_axes = lambda joy: []
 
+# With MVP_GLFW_X11 set, pin GLFW to X11 so the window lives on the Xvfb
+# DISPLAY instead of the sandbox-mounted Wayland socket, which belongs to
+# the maintainer's compositor: a window there appears on their desktop,
+# and when their screen is off the compositor withholds frame callbacks
+# and every swap blocks forever (2026-10-14). Unset WAYLAND_DISPLAY in the
+# same run, so PyOpenGL picks its GLX backend to match
+# (headless-verification.md §3).
+if os.environ.get("MVP_GLFW_X11"):
+    glfw.init_hint(glfw.PLATFORM, glfw.PLATFORM_X11)
+
 _real_swap = glfw.swap_buffers
-state: dict = {"frames": 0, "image": None}
+_real_flush = GL.glFlush
+state: dict = {"frames": 0, "swaps": 0, "image": None}
 
 
-def _probing_swap(window):
+def _end_frame(window) -> None:
     state["frames"] += 1
-    if state["frames"] == 1:
+    # The LAST frame, not the first: imgui hides a new window on its
+    # first frame (the auto-fit frame), so a first-frame capture never
+    # shows a demo's control panel.
+    if state["frames"] == args.frames:
         width, height = glfw.get_framebuffer_size(window)
         raw = GL.glReadPixels(
             0, 0, width, height, GL.GL_RGB, GL.GL_UNSIGNED_BYTE
@@ -85,10 +100,26 @@ def _probing_swap(window):
         state["image"] = Image.frombytes(
             "RGB", (width, height), bytes(raw)
         ).transpose(Image.FLIP_TOP_BOTTOM)
+
+
+def _probing_swap(window):
+    state["swaps"] += 1
+    _end_frame(window)  # the back buffer, just before it is shown
     return _real_swap(window)
 
 
+def _probing_flush():
+    # A single-buffered script (chapt03/single: GLUT_SINGLE + glFlush)
+    # never swaps; its glFlush ends the frame, and the front buffer holds
+    # it afterwards. A flush counts only while no swap has been seen, so
+    # double-buffered scripts that flush before swapping are unaffected.
+    _real_flush()
+    if state["swaps"] == 0:
+        _end_frame(glfw.get_current_context())
+
+
 glfw.swap_buffers = _probing_swap
+GL.glFlush = _probing_flush
 glfw.window_should_close = lambda window: state["frames"] >= args.frames
 
 globals_after: dict = runpy.run_path(args.script, run_name="__main__")

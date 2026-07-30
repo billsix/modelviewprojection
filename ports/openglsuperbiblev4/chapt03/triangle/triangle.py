@@ -180,6 +180,7 @@ def imgui_menubar() -> None:
             "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
         )
         imgui.end_menu()
+    _common.draw_view_menu(_window)
     if imgui.begin_menu("Options", True):
         _, i_depth = imgui.menu_item("Depth test", "", i_depth, True)
         _, i_cull = imgui.menu_item("Cull backface", "", i_cull, True)

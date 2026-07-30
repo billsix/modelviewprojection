@@ -186,6 +186,7 @@ def imgui_menubar() -> None:
             "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
         )
         imgui.end_menu()
+    _common.draw_view_menu(_window)
     if imgui.begin_menu("Picking", True):
         _, show_pick_buffer = imgui.menu_item(
             "Show selection buffer", "", show_pick_buffer, True

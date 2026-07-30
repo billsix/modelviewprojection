@@ -188,3 +188,6 @@ ports/codetheclassics/.instrumentation/
 # docs-only gacalc source, pulled from the sdist at book-build time
 book/docs/_gacalc_src/
 .virtual_documents/
+
+# demo22b regenerates its glTF scene from export_scene.py every startup
+src/modelviewprojection/demos/demo22b/scene.glb

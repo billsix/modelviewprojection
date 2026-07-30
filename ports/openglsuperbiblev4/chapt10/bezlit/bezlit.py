@@ -95,6 +95,7 @@ def imgui_menubar() -> None:
             "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
         )
         imgui.end_menu()
+    _common.draw_view_menu(_window)
     imgui.end_main_menu_bar()
 
 

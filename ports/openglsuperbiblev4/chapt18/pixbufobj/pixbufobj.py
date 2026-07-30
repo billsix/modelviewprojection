@@ -371,6 +371,7 @@ def imgui_menubar() -> None:
             "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
         )
         imgui.end_menu()
+    _common.draw_view_menu(_window)
     if imgui.begin_menu("Options", True):
         # toggle_motion_blur / toggle_pbos flip the global and do the GL
         # state work, so just call them when the item is clicked.

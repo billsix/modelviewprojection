@@ -33,8 +33,11 @@ sections above are the failure modes.
   makes a demo immune (fixed-function units don't govern then) — why
   vertexshaders was fine.
   (`tasks/archive/2026/06/01/ports-mirror-keyboard-in-imgui.md`)
-- **Menubar conventions (Bill's call, 2026-05-29):** ports use a top menubar,
-  not floating windows (`_common.draw_menubar` / `menu_action`). Menu items
+- **Menubar conventions (Bill's call, 2026-05-29; extended to every port
+  tree 2026-10-14):** ports use a top menubar, not floating windows
+  (`_common.draw_menubar` / `menu_action`; View → Fullscreen is also F11,
+  polled by `_common.poll_fullscreen_key`; a demo's widgets go in the
+  Controls menu, `c-to-python-rules.md` §3). Menu items
   can't hold-to-repeat — movement items fire once per click and display their
   key in the shortcut column; holding the *key* gives continuous motion.
   Sliders/pickers live in a `begin_menu` submenu so the menu stays open while
@@ -47,6 +50,42 @@ sections above are the failure modes.
   **1.92.801**. Same symbol family as the `PYGLFW_LIBRARY` dual-lib fix in
   `design-decisions.md` › Wayland.
   (`tasks/archive/2026/07/09/crossproduct-tex-billboard-labels.md`)
+- **`import glfw` must run before `import imgui_bundle` in every demo (the
+  first GLFW loaded into the process wins).** imgui_bundle ships its own
+  `libglfw.so.3`, an X11-only build. If its native module loads first, pyglfw
+  binds that copy (pyglfw's search finds it already loaded), the window gets a
+  GLX context through XWayland, and PyOpenGL, which picks its EGL backend
+  purely from `WAYLAND_DISPLAY`, sees no current context. Its extension check
+  then fails, so every GL 4.2+ function that `OpenGL.GL` exposes as an ARB
+  alias (`glBindImageTexture`, `glMemoryBarrier`, `glTexStorage2D`,
+  `glDispatchCompute`, `glViewportIndexedf`) raises `NullFunctionError` while
+  `glGetString` still says 4.6. Symptom on a host venv: the 11-oit /
+  11-doublewrite / 11-overdrawcount Red Book ports died on
+  `glBindImageTexture` at startup (William Emerison Six <billsix@gmail.com>,
+  2026-10-14). `make shell` hides it, because the Makefile exports
+  `PYGLFW_LIBRARY=/usr/lib64/libglfw.so.3` (the dual build, see
+  `design-decisions.md` › Wayland), and `tools/render_probe.py` hides it by
+  importing glfw itself, which is why the headless sweep passed. Rule: a demo
+  that imports `imgui_bundle` directly carries `import glfw  # noqa: F401`
+  above it (ruff's isort puts it first); frameworks (`_vapp`, `_sb7`) import
+  glfw before imgui (a demo whose `import _sb7` / `import _vapp` precedes the
+  imgui import is covered by that). Check, prints the violators, must print
+  nothing: `for f in $(rg -l "^from imgui_bundle" ports); do grep -m1
+  "^import glfw\|^import _sb7\|^import _vapp\|^from imgui_bundle" "$f" |
+  grep -q "^from imgui_bundle" && echo "$f"; done`.
+- **A bare `imgui.begin(title)` opens too narrow to show a slider, and
+  `imgui.ini` then remembers it.** imgui auto-fits a new window once and
+  sizes each slider to 65 % of the window's width on that first frame
+  (near zero), so the window fits around collapsed sliders; the saved
+  `imgui.ini` (gitignored, written to the cwd) pins the size for every
+  later run. Fix: `always_auto_resize` (fixed item width, re-fit every
+  frame) plus `set_next_window_size_constraints` with a minimum width,
+  which overrides a saved size. The ports no longer open floating
+  control windows at all: every demo's widgets are in the menubar's
+  Controls menu (`c-to-python-rules.md` §3, 2026-10-14). Also:
+  imgui hides a new window on its first frame, so a headless capture of
+  frame 1 never shows a panel; `tools/render_probe.py` captures its last
+  frame for that reason (2026-10-14).
 
 ## 2. Fixed-function GL (the SuperBible-era rules)
 

@@ -332,8 +332,13 @@ def main() -> None:
         y_rot = (y_rot + TORUS_DEG_PER_SEC * dt) % 360.0
         render_scene()
         imgui.new_frame()
-        _common.draw_menubar(window, win_state, has_camera_controls=True)
-        _common.draw_camera_controls(camera, scene_objects, win_state)
+        _common.draw_menubar(
+            window,
+            win_state,
+            controls=lambda: _common.draw_camera_controls(
+                camera, scene_objects
+            ),
+        )
         imgui.render()
         impl.render(imgui.get_draw_data())
         glfw.swap_buffers(window)

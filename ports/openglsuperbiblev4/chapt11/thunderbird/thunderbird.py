@@ -21,7 +21,10 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 from OpenGL.constant import Constant
 
 # The shared loader lives one directory up
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+PWD = os.path.dirname(os.path.abspath(__file__))
+# The tree root for _common, and chapt11/ for _thunderbird_data.
+sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
+sys.path.insert(0, os.path.dirname(PWD))
 import _common  # noqa: E402
 from _thunderbird_data import load_model  # noqa: E402
 
@@ -256,6 +259,7 @@ def imgui_menubar() -> None:
             "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
         )
         imgui.end_menu()
+    _common.draw_view_menu(_window)
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Rotate up", "Up", lambda: _rot_x(-BTN_ROT_STEP))
         _common.menu_action("Rotate down", "Down", lambda: _rot_x(BTN_ROT_STEP))

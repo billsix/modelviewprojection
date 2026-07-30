@@ -188,7 +188,7 @@ def _pop_matrix(matrix_stack: MatrixStack) -> None:
 
 
 @contextlib.contextmanager
-def push_matrix(m: MatrixStack) -> typing.Iterator[MatrixStack]:
+def push_matrix(m: MatrixStack) -> typing.Generator[MatrixStack]:
     """Save the current matrix for the duration of a ``with`` block, restoring
     it on exit.
 

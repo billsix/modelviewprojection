@@ -676,7 +676,7 @@ fn_stack: FunctionStack = FunctionStack()
 @contextlib.contextmanager
 def push_transformation(
     f: InvertibleFunction[V],
-) -> typing.Iterator["FunctionStack[V]"]:
+) -> typing.Generator["FunctionStack[V]"]:
     """Push a transformation onto the global stack for the duration of a block.
 
     The Python analogue of OpenGL's ``glPushMatrix`` / ``glPopMatrix`` pair.

@@ -321,6 +321,7 @@ def imgui_menubar() -> None:
             "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
         )
         imgui.end_menu()
+    _common.draw_view_menu(_window)
     if imgui.begin_menu("Controls", True):
         _common.menu_action("Forward", "Up", lambda: _walk(1))
         _common.menu_action("Back", "Down", lambda: _walk(-1))

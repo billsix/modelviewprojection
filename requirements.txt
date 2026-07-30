@@ -16,6 +16,9 @@ moviepy
 myst-nb
 nbsphinx
 numpy
+# glTF 2.0 reader/writer. Used by demo22b (src/.../demos/demo22b/), which
+# round-trips the demo22 scene through a .glb. Pure-Python, no native deps.
+pygltflib==1.16.5
 PyOpenGL
 # The optional C accelerator for PyOpenGL (silences the 'No OpenGL_accelerate
 # module loaded' INFO and speeds up per-call array marshalling). Pinned to

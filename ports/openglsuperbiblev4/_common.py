@@ -14,9 +14,11 @@ import this module to pick up:
   - ``WindowState``                    — dataclass tracking the borderless-
     fullscreen toggle state and the saved windowed geometry to restore to.
 
-  - ``draw_menubar(window, state)``    — the standard menubar with
-    File→Quit and View→Fullscreen. Mutates state on toggle and sets
-    the GLFW close flag on Quit.
+  - ``draw_menubar(window, state, controls=…)`` — the standard menubar:
+    File→Quit, View→Fullscreen (F11, also polled from the keyboard), and
+    a Controls menu whose body is the demo's ``controls`` callback.
+  - ``draw_view_menu(window)``         — the same View menu for a demo
+    that draws its own menubar (the 93 chaptNN demos do).
 
   - ``Camera``, ``SceneObject``         — unified walk-around / focus
     camera for 3D demos. ``Camera.position`` + ``rot_y`` + ``rot_x`` is
@@ -36,8 +38,9 @@ import this module to pick up:
     ``glTranslatef`` on the current ``GL_MODELVIEW`` matrix. Call after
     ``glLoadIdentity()`` but before drawing scene geometry.
 
-  - ``draw_camera_controls(camera, scene_objects)`` — imgui panel with
-    mode display, focus selector, current state, key reminders.
+  - ``draw_camera_controls(camera, scene_objects)`` — the camera's
+    Controls-menu content: mode display, focus selector, current
+    state, key reminders. Pass it as ``draw_menubar``'s ``controls``.
 
 Each demo imports this by prepending the ports root to ``sys.path``.
 For a demo at ``chaptNN/<demo>/<demo>.py`` (two levels under the ports
@@ -53,7 +56,9 @@ higher in the tree.)
 
 from __future__ import annotations
 
+import ctypes
 import math
+import os
 import typing
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
@@ -96,9 +101,8 @@ class WindowState:
     ``fullscreen`` flips False→True we save the current windowed
     geometry so the inverse toggle restores it.
 
-    ``show_camera_controls`` is the visibility flag for the Camera
-    panel (off by default; toggle from View → Show Controls). 2D demos
-    that don't register a camera ignore this field.
+    ``f11_down`` is the edge detector for ``poll_fullscreen_key``: the
+    key is polled every frame, and only the frame it goes down toggles.
     """
 
     fullscreen: bool = False
@@ -106,7 +110,7 @@ class WindowState:
     saved_y: int = 0
     saved_w: int = 0
     saved_h: int = 0
-    show_camera_controls: bool = False
+    f11_down: bool = False
 
 
 def toggle_fullscreen(window, state: WindowState) -> None:
@@ -146,17 +150,71 @@ def toggle_fullscreen(window, state: WindowState) -> None:
         state.fullscreen = True
 
 
-def draw_menubar(
-    window, state: WindowState, *, has_camera_controls: bool = False
-) -> None:
-    """Draw the standard menubar. Sets GLFW close flag on Quit, calls
-    ``toggle_fullscreen`` on the View toggle. Must be called inside
-    the imgui frame (between ``imgui.new_frame()`` and ``imgui.render()``).
+FULLSCREEN_KEY: int = glfw.KEY_F11
+FULLSCREEN_KEY_LABEL: str = "F11"
 
-    When ``has_camera_controls=True``, View also shows a "Show Controls"
-    toggle bound to ``state.show_camera_controls``. The demo's main loop
-    is responsible for actually calling ``draw_camera_controls`` (which
-    returns early when the flag is False).
+
+def poll_fullscreen_key(window, state: WindowState) -> None:
+    """Toggle fullscreen on the frame F11 goes down. Polled, not a
+    callback: the demos own their GLFW key callbacks, and a callback
+    installed later silently replaces an earlier one
+    (gl-and-imgui-gotchas.md §1), whereas a poll from the menubar draw
+    needs no per-demo wiring. Call once per frame."""
+    down: bool = glfw.get_key(window, FULLSCREEN_KEY) == glfw.PRESS
+    if down and not state.f11_down:
+        toggle_fullscreen(window, state)
+    state.f11_down = down
+
+
+# One WindowState per GLFW window for demos that draw their own menubar
+# and have no WindowState of their own (``draw_view_menu``). Keyed by the
+# window handle's address; a demo opens one window, so this holds one.
+_view_states: dict[int, WindowState] = {}
+
+
+def _window_state_for(window) -> WindowState:
+    key: int = ctypes.cast(window, ctypes.c_void_p).value or 0
+    if key not in _view_states:
+        _view_states[key] = WindowState()
+    return _view_states[key]
+
+
+def draw_view_menu(window, state: Optional[WindowState] = None) -> None:
+    """The View menu: "Fullscreen   F11", checked while fullscreen, and
+    the F11 poll. Call between ``imgui.begin_main_menu_bar()`` and
+    ``imgui.end_main_menu_bar()``, after the File menu. ``state`` is
+    the demo's ``WindowState`` if it keeps one; otherwise one is kept
+    here per window."""
+    st: WindowState = state if state is not None else _window_state_for(window)
+    poll_fullscreen_key(window, st)
+    if imgui.begin_menu("View", True):
+        menu_action(
+            "Fullscreen",
+            FULLSCREEN_KEY_LABEL,
+            lambda: toggle_fullscreen(window, st),
+            selected=st.fullscreen,
+        )
+        imgui.end_menu()
+
+
+def draw_menubar(
+    window,
+    state: WindowState,
+    *,
+    controls: Optional[Callable[[], None]] = None,
+) -> None:
+    """Draw the standard menubar: File → Quit (Esc), View → Fullscreen
+    (F11, also polled from the keyboard), and, when ``controls`` is
+    given, a Controls menu whose body is ``controls()``. Sets the GLFW
+    close flag on Quit. Must be called inside the imgui frame (between
+    ``imgui.new_frame()`` and ``imgui.render()``).
+
+    ``controls`` runs only while the Controls menu is open, as any
+    ``begin_menu`` body does; a demo applies a widget's change on the
+    spot or stores it where its renderer reads it. With the environment
+    variable ``MVP_CONTROLS_WINDOW`` set, ``controls()`` is also drawn
+    in a plain window every frame, so a headless run executes every
+    widget (the gates' hook; never set it for a user).
 
     Pushes a tighter ``frame_padding`` style around the main menubar so
     the bar height stays close to the font height."""
@@ -166,23 +224,23 @@ def draw_menubar(
         imgui.pop_style_var(1)
         return
     if imgui.begin_menu("File", True):
-        clicked_quit, _ = imgui.menu_item("Quit", "Esc", False, True)
-        if clicked_quit:
-            glfw.set_window_should_close(window, True)
-        imgui.end_menu()
-    if imgui.begin_menu("View", True):
-        clicked_fs, _ = imgui.menu_item(
-            "Fullscreen", "", state.fullscreen, True
+        menu_action(
+            "Quit", "Esc", lambda: glfw.set_window_should_close(window, True)
         )
-        if clicked_fs:
-            toggle_fullscreen(window, state)
-        if has_camera_controls:
-            _, state.show_camera_controls = imgui.menu_item(
-                "Show Controls", "", state.show_camera_controls, True
-            )
+        imgui.end_menu()
+    draw_view_menu(window, state)
+    if controls is not None and imgui.begin_menu("Controls", True):
+        controls()
         imgui.end_menu()
     imgui.end_main_menu_bar()
     imgui.pop_style_var(1)
+    if controls is not None and os.environ.get("MVP_CONTROLS_WINDOW"):
+        imgui.begin(
+            "Controls (verification window)",
+            flags=imgui.WindowFlags_.always_auto_resize,
+        )
+        controls()
+        imgui.end()
 
 
 def menu_action(
@@ -390,22 +448,12 @@ def apply_camera(camera: Camera, scene_objects: Sequence[SceneObject]) -> None:
 
 
 def draw_camera_controls(
-    camera: Camera, scene_objects: Sequence[SceneObject], state: WindowState
+    camera: Camera, scene_objects: Sequence[SceneObject]
 ) -> None:
-    """ImGui panel: shows current mode + state, lets the user pick a
-    focus object or return to walk-around. Hidden by default; toggled
-    on via View → Show Controls in the menubar (or the window's X
-    button). Call inside the imgui frame after ``draw_menubar``; safe
-    to call unconditionally — returns early when the panel is hidden."""
-    if not state.show_camera_controls:
-        return
-    expanded, state.show_camera_controls = imgui.begin(
-        "Camera", state.show_camera_controls
-    )
-    if not expanded:
-        imgui.end()
-        return
-
+    """The camera's Controls-menu content: current mode + state, a
+    focus-object picker (or back to walk-around), key reminders. Pass
+    ``lambda: draw_camera_controls(camera, objects)`` as
+    ``draw_menubar``'s ``controls``; it draws inside that menu."""
     if camera.focus_index < 0:
         imgui.text("Mode: Walk-around")
         imgui.text(
@@ -438,4 +486,3 @@ def draw_camera_controls(
         "drag to look. Scroll to move forward/back. Pick an object "
         "above to orbit around it instead."
     )
-    imgui.end()

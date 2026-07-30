@@ -126,6 +126,7 @@ def imgui_menubar() -> None:
             "Quit", "Esc", lambda: glfw.set_window_should_close(_window, True)
         )
         imgui.end_menu()
+    _common.draw_view_menu(_window)
     if imgui.begin_menu("Bounce", True):
         # Sliders live inside the menu (begin_menu/end_menu); they have no
         # menubar-native equivalent so they render as ordinary widgets here.

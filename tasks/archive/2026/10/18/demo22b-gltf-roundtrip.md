@@ -1,6 +1,6 @@
 # demo22b — the demo22 scene, round-tripped through a glTF file
 
-**Status:** proposed — needs go-ahead before any code is written
+**Status:** done — implemented 2026-10-18 (William Emerison Six <billsix@gmail.com>)
 **Priority:** 6
 **Difficulty:** 7
 **Created:** 2026-06-29
@@ -154,3 +154,65 @@ bakes PNG-converted copies into the glb.
   and Bill decides it belongs in the arc.
 - **A standalone `python export_scene.py scene.glb` inspection path** + dumping the
   glTF JSON for students to read — cheap to add, good teaching artifact.
+
+## Implementation record (2026-10-18, William Emerison Six <billsix@gmail.com>)
+
+Built as planned. Files under `src/modelviewprojection/demos/demo22b/`:
+
+- `export_scene.py` — context-free (no GL, no window), depends only on numpy /
+  pygltflib / imageio, **not** on the rest of the mvp package, so it round-trips
+  in isolation and is unit-testable. Holds the five `build_*` mesh builders
+  (copied verbatim from demo22 — the parity source of truth, with a comment
+  saying so), `write_glb()` and `read_glb()`. Also a standalone inspector:
+  `python export_scene.py scene.glb`.
+- `demo22b.py` — demo22 copied verbatim, with the *only* change being the data
+  source: at startup it calls `export_scene.write_glb()` then `read_glb()`, and
+  the five VAOs, four textures and the initial light az/el come from the glb.
+  The whole render loop (shaders, both shadow algorithms, the five stages, the
+  marker, the camera, the per-face texture offset table) is demo22's, unchanged.
+- `block.vert` / `block.frag` — copied from demo22 (glTF carries no shaders).
+- `scene.glb` — regenerated every startup, gitignored.
+
+**Standalone from the ports (maintainer's instruction, this session):** the glTF
+decode here is a deliberate separate copy of the approach first worked out in
+`ports/McNopper/src/mcnopper/_gltf.py`; demo22b does not import anything from the
+ports tree. (This also keeps demo22b working regardless of the McNopper→OpenGL
+move tracked separately.)
+
+**Decisions settled during implementation (consistent with the plan above):**
+
+- **Geometry** is de-interleaved into three glTF accessors per mesh (POSITION /
+  NORMAL / TEXCOORD_0, tightly packed FLOAT), then re-interleaved on read into
+  demo22's exact 8-float layout. Non-indexed (demo22 uses `glDrawArrays`). glTF
+  mode carries TRIANGLES/LINES but the app still picks the draw mode per stage.
+- **Textures**: the four TGA files are converted to embedded PNG (lossless) and
+  demo22b loads them **by image name** (`floor`, `Block4/5/6`), not through
+  materials — the cube is one 36-vertex primitive textured across three images
+  by the app-side offset table, so one primitive's material cannot reference all
+  three (per the caveat box above). Consequence: materials reference `floor` and
+  `Block4`, leaving `Block5`/`Block6` as present-but-unreferenced textures, which
+  glTF-Validator reports as `UNUSED_OBJECT` at **INFO** severity (still
+  spec-conformant). The clean fix is the per-face-primitives stretch.
+- **Light**: a `KHR_lights_punctual` directional light on a node whose 4×4
+  **matrix** (not TRS/quaternion — matches the matrix-era decision) orients its
+  +Z along demo22's "direction toward the light". On read, the +Z column of the
+  node matrix recovers the direction, converted back to az/el. Round-trips to
+  60°/30° and at several other angles (tested).
+- **Node transforms** stay at identity — the cube's `translate(-10,0,10)` is kept
+  in app code (parity-first), so baking it into a node too would double-apply.
+
+**Verification (done):**
+
+- `tests/test_demo22b_gltf_roundtrip.py` — headless, no GPU: asserts each of the
+  five meshes is **byte-identical** to its builder output, each texture's pixels
+  equal the source TGA's, the light round-trips (defaults + four other angles),
+  and the glb reloads as valid glTF 2.0. 8 tests, all pass.
+- Gates run in the container (ruff, `ty check src`, `ty check tests`,
+  `check_local_annotations.py --include-module`, pytest) — all green.
+- On-display parity across the five stages / both shadow algorithms is the
+  maintainer's to confirm (GL windows aren't verifiable headless here).
+
+> Note: the local `make image` was 3 days stale and lacked `pygltflib` (it was
+> added to `requirements.txt` with the McNopper port); a fresh `make image` / CI
+> build installs it. Verified by installing `pygltflib==1.16.5` into a container
+> run. demo22b (and the McNopper demos) need a rebuilt image to run.
