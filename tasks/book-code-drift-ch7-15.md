@@ -45,6 +45,23 @@ Changes in `book/docs/ch15.rst`:
 Verification: prose only. Read ch14:282-302 and ch15:128-133 side by side to
 confirm the ch15 copy is stale. Bill renders via `make html`.
 
+## Dead doc-region markers — unincluded regions (surfaced 2026-08-02)
+
+`python tools/check_doc_regions.py --report-dead` (added 2026-08-01) flags these
+markers in ch12/ch15's demos as referenced by **no** chapter — the chapter
+includes some regions of the file but not these. Each is either a region a
+chapter *should* include (drift) or a marker to retire. Distinct from the 7
+truly-orphaned markers deleted 2026-08-01 (those had no chapter relationship at
+all — see `tasks/archive/2026/08/01/check-doc-regions-empty-slices.md`).
+
+- `demos/demo12.py` (ch12): `draw paddle 2`
+- `demos/demo15.py` (ch15): `instantiate paddle 1`, `instantiate square`,
+  `define camera class`, `begin event loop`, `draw paddle 1`, `draw square`,
+  `draw paddle 2`
+
+Per region: wire it into the chapter (add the `literalinclude`) or delete the
+marker. Re-run `--report-dead` after to confirm.
+
 ## Notes
 - Line numbers are as of 2026-05-27; match on surrounding text when editing.
 - Constraints unchanged: I can edit + `git add`, **no commits**, **no doc build**

@@ -272,7 +272,6 @@ def abs_sin(v1: Vector3, v2: Vector3) -> float:
     return float(abs(v1 ^ v2)) / (float(abs(v1)) * float(abs(v2)))
 
 
-# doc-region-begin define find normal
 def find_normal(p1: Vector3, p2: Vector3, p3: Vector3) -> Vector3:
     """Surface normal of the triangle :math:`(p_1, p_2, p_3)`.
 
@@ -311,10 +310,8 @@ def find_normal(p1: Vector3, p2: Vector3, p3: Vector3) -> Vector3:
     # is a vector, so this already *is* the normal (gacalc types it Vector3 as
     # of 0.0.13 -- no coefficient reads or reconstruction needed)
     return bivector.dual()
-    # doc-region-end define find normal
 
 
-# doc-region-begin define plane equation
 def plane_equation(
     p1: Vector3, p2: Vector3, p3: Vector3
 ) -> typing.Tuple[Vector3, float]:
@@ -357,10 +354,8 @@ def plane_equation(
     )
     d = float(-n_unit.dot(p1).scalar_part())
     return (n_unit, d)
-    # doc-region-end define plane equation
 
 
-# doc-region-begin define distance to plane
 def distance_to_plane(
     point: Vector3, plane: typing.Tuple[Vector3, float]
 ) -> float:
@@ -395,7 +390,6 @@ def distance_to_plane(
     """
     normal, d = plane
     return float(normal.dot(point).scalar_part()) + d
-    # doc-region-end define distance to plane
 
 
 # doc-region-begin define ortho

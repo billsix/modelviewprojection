@@ -1120,7 +1120,6 @@ LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)
 FLOOR_PLANE = (0.0, 1.0, 0.0, -FLOOR_Y)
 
 
-# doc-region-begin planar shadow
 def planar_shadow_matrix(
     plane: tuple[float, float, float, float],
     light: tuple[float, float, float, float],
@@ -1149,7 +1148,6 @@ def planar_shadow_matrix(
     )
 
 
-# doc-region-end planar shadow
 
 
 # Recomputed in the per-frame draw loop from the slider-driven

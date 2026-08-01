@@ -122,6 +122,24 @@ Work:
   **no chapters** and aren't in the toctree (stops at ch21). Curriculum gap, not
   drift — track separately if Bill wants chapters for them.
 
+## Dead doc-region markers — unincluded regions (surfaced 2026-08-02)
+
+`python tools/check_doc_regions.py --report-dead` (added 2026-08-01) flags these
+markers in ch16/ch19/ch20's demos as referenced by **no** chapter — the chapter
+includes some regions of the file but not these. Each is either a region a
+chapter *should* include (drift) or a marker to retire. Distinct from the 7
+truly-orphaned markers deleted 2026-08-01 (see
+`tasks/archive/2026/08/01/check-doc-regions-empty-slices.md`).
+
+- `demos/demo16.py` (ch16): `instantiate paddle 1`, `instantiate square`,
+  `define camera class`
+- `demos/demo19.py` (ch19): `of paddle 1` (dead end-marker of a split region)
+- `demos/demo20/demo20.py` (ch20): `of paddle 1` (dead end-marker of a split
+  region)
+
+Per region: wire it into the chapter (add the `literalinclude`) or delete the
+marker. Re-run `--report-dead` after to confirm.
+
 ## Notes
 Line numbers as of 2026-05-27; match on text. Constraints per
 `tasks/reference/architecture-overview.md` § "Working constraints"
