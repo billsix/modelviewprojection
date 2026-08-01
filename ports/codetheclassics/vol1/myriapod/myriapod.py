@@ -14,23 +14,16 @@
 #   Original source: https://github.com/raspberrypipress/Code-the-Classics-Vol1
 #   Book:            https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 # ---------------------------------------------------------------------------
-import os as _os
-import sys as _sys
-
-_sys.path.append(
-    _os.path.dirname(
-        _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-    )
-)
 import sys
-from collections.abc import Callable  # noqa: E402
+from collections.abc import Callable
 from dataclasses import InitVar, dataclass
 from enum import Enum, IntEnum
 from random import choice, randint, random
 from typing import Any, ClassVar, Optional
 
 from gacalc.g2 import Vector2
-from pgzero_gl import (  # noqa: E402
+
+from modelviewprojection.pgzero_gl import (
     Actor,
     go,
     keyboard,

@@ -27,25 +27,18 @@
 #   Original source: https://github.com/raspberrypipress/Code-the-Classics-Vol2
 #   Book:            https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 # ---------------------------------------------------------------------------
-import os as _os
-import sys as _sys
-
-_sys.path.append(
-    _os.path.dirname(
-        _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-    )
-)
 import math
 import sys
 from abc import ABC, abstractmethod
 from dataclasses import InitVar, dataclass
 from enum import Enum, IntEnum
 from random import choice, randint, random, uniform
-from typing import Any, Optional, override  # noqa: E402
+from typing import Any, Optional, override
 
 from gacalc.g2 import Vector2
 from gacalc.transforms import plane_rotation
-from pgzero_gl import (  # noqa: E402
+
+from modelviewprojection.pgzero_gl import (
     Actor,
     go,
     images,

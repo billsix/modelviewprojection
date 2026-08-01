@@ -162,8 +162,8 @@ def main():
         gamedir
     )  # games open data files (e.g. attacks.json) by relative path
 
-    import pgzero_gl
-    from pgzero_gl import context
+    import modelviewprojection.pgzero_gl as pgzero_gl
+    from modelviewprojection.pgzero_gl import context
 
     context.glfw_ready = True  # let joystick query (stubbed) but stay safe
 
@@ -183,16 +183,16 @@ def main():
     make_context(w, h, legacy=gl1)
     context.asset_root = gamedir
     if gl1:
-        from pgzero_gl.renderer_gl1 import Renderer1x
+        from modelviewprojection.pgzero_gl.renderer_gl1 import Renderer1x
 
         context.renderer = Renderer1x(w, h)
     else:
-        from pgzero_gl import renderer
+        from modelviewprojection.pgzero_gl import renderer
 
         context.renderer = renderer.Renderer(w, h)
     # Neutralise the game's module-level ``go()`` call so importing it renders
     # nothing and opens no window -- we drive update()/draw() ourselves below.
-    # (Games do ``from pgzero_gl import go``, binding this attribute at their
+    # (Games do ``from modelviewprojection.pgzero_gl import go``, binding this attribute at their
     # import time, so it must be stubbed before ``exec_module`` runs.)  Formerly
     # ``pgzero_gl.pgzrun.go``; the honest-imports pass (2026-07-08) removed the
     # synthetic ``pgzrun`` module -- ``go`` now lives directly on the package.

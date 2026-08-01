@@ -18,23 +18,14 @@
 # game uses on top of GLFW + OpenGL 3.3 core (the renderer the ModelViewProjection
 # book ends on).  The game logic below is unchanged from the original.
 
-import os
-import sys
+import random
+from collections.abc import Callable, Sequence
+from dataclasses import InitVar, dataclass
+from enum import Enum
 
-# Make the shared `pgzero_gl` shim importable (it lives two directories up).
-sys.path.insert(
-    0,
-    os.path.dirname(
-        os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-    ),
-)
-import random  # noqa: E402
-from collections.abc import Callable, Sequence  # noqa: E402
-from dataclasses import InitVar, dataclass  # noqa: E402
-from enum import Enum  # noqa: E402
+from gacalc.g2 import Vector2
 
-from gacalc.g2 import Vector2  # noqa: E402
-from pgzero_gl import (  # noqa: E402
+from modelviewprojection.pgzero_gl import (
     Actor,
     go,
     keyboard,

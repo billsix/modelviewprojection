@@ -21,20 +21,12 @@
 #   Original source: https://github.com/raspberrypipress/Code-the-Classics-Vol2
 #   Book:            https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 # ---------------------------------------------------------------------------
-import os as _os
-import sys as _sys
-
-_sys.path.append(
-    _os.path.dirname(
-        _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-    )
-)
 import math
 import platform
 import sys
 import time
 from abc import ABC, abstractmethod
-from collections.abc import Callable  # noqa: E402
+from collections.abc import Callable
 from dataclasses import dataclass, field
 from enum import Enum
 from random import choice, randint, uniform
@@ -42,8 +34,9 @@ from typing import Any, Optional, cast, override
 
 from gacalc.g2 import Vector2
 from gacalc.g3 import Vector3
-from pgzero_gl import draw as gldraw
-from pgzero_gl import (  # noqa: E402
+
+from modelviewprojection.pgzero_gl import draw as gldraw
+from modelviewprojection.pgzero_gl import (
     go,
     images,
     joystick,

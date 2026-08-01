@@ -154,9 +154,15 @@ podman run --rm --cgroups=disabled -v "$(pwd)":/srcro:ro registry.fedoraproject.
 
 ## Code-the-Classics ports (`ports/codetheclassics/`)
 
-A separate subtree from the course: **`pgzero_gl/`**, a clean-room PyGame-Zero/pygame
-compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** under
-`vol1/` and `vol2/` (BSD-2-Clause, © Eben Upton et al.).
+A separate subtree from the course: **10 faithful game ports** under
+`ports/codetheclassics/vol1/` and `vol2/` (BSD-2-Clause, © Eben Upton et al.),
+running on **`pgzero_gl`**, a clean-room PyGame-Zero/pygame compatibility shim on
+GLFW + OpenGL 3.3 core. **The shim lives IN the package** at
+`src/modelviewprojection/pgzero_gl/` (moved out of `ports/codetheclassics/`
+2026-08-01, LGPL-2.1 — see `tasks/archive/2026/08/01/move-ctc-pgzero-shim-into-package.md`);
+the games import it as `from modelviewprojection.pgzero_gl import ...` at the top,
+with no `sys.path` dance (so no `# noqa: E402`, and E402 is no longer ignored for
+`ports/codetheclassics/**` — only for `ports/openglsuperbiblev4/**`).
 
 - **Two different rule-sets.** The **games are behaviour-faithful ports** —
   **no behaviour changes** (same RNG call order, same update/draw order, same
@@ -166,11 +172,12 @@ compatibility shim on GLFW + OpenGL 3.3 core, plus **10 faithful game ports** un
   Bill's call). As of 2026-07-08 the games and the SuperBible ports are also
   **ruff-formatted** by `format.sh` (`ruff check ports --fix` + `ruff format
   ports`) — the old byte-faithful/no-ruff rule is fully retired. The **shim
-  (`pgzero_gl/`) is our code** — it may get real bug fixes to reproduce
-  pygame/pgzero APIs correctly.
-- **Enforcement:** `entrypoint/format.sh` runs `ty check` on `pgzero_gl` + `vol1` + `vol2`.
+  (`src/modelviewprojection/pgzero_gl/`) is our code** — it may get real bug
+  fixes to reproduce pygame/pgzero APIs correctly.
+- **Enforcement:** `entrypoint/format.sh` runs `ty check` on `vol1` + `vol2` (the
+  shim is covered by `ty check /mvp/src`, being inside the package now).
 - **Fidelity gotchas worth not rediscovering:**
-  - Audio is a **single-device software mixer on `miniaudio`** (`pgzero_gl/audio.py`,
+  - Audio is a **single-device software mixer on `miniaudio`** (`src/modelviewprojection/pgzero_gl/audio.py`,
     2026-07-09), not `pygame.mixer` (host SDL is broken) and no longer `just_playback` —
     its stream-per-voice model exhausted ALSA client slots and **blocked the game
     thread** (leadingedge's 41 engine samples; see

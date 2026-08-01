@@ -24,22 +24,16 @@
 
 import os
 import sys
-
-# Make the shared `pgzero_gl` shim importable.  Use append (not insert(0)): this
-# game relies on sys.path[0] pointing at its own directory (for tilemaps/ and
-# the save folder), and `python eggzy.py` sets sys.path[0] to that directory.
-sys.path.append(
-    os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-)
-import xml.etree.ElementTree as ET  # noqa: E402
-from abc import ABC, abstractmethod  # noqa: E402
-from dataclasses import InitVar, dataclass, field  # noqa: E402
-from enum import Enum  # noqa: E402
-from random import randint  # noqa: E402
-from typing import Any, ClassVar, Optional, cast, override  # noqa: E402
+import xml.etree.ElementTree as ET
+from abc import ABC, abstractmethod
+from dataclasses import InitVar, dataclass, field
+from enum import Enum
+from random import randint
+from typing import Any, ClassVar, Optional, cast, override
 
 from gacalc.g2 import Vector2
-from pgzero_gl import (  # noqa: E402
+
+from modelviewprojection.pgzero_gl import (
     Actor,
     Rect,
     go,
@@ -51,8 +45,8 @@ from pgzero_gl import (  # noqa: E402
     screen,
     sounds,
 )
-from pgzero_gl import draw as gldraw
-from pgzero_gl.resources import Image as GLImage
+from modelviewprojection.pgzero_gl import draw as gldraw
+from modelviewprojection.pgzero_gl.resources import Image as GLImage
 
 # Set up constants
 WIDTH: int = 825

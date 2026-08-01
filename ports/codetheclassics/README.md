@@ -24,11 +24,14 @@ ever published, confirm redistribution permission with Raspberry Pi Press first.
 
 ```
 codetheclassics/
-├── pgzero_gl/        shared shim: reimplements the slice of the PyGame Zero API
-│                     the games use, on GLFW + OpenGL 3.3 core
 ├── vol1/<game>/      one ported game per dir, with its own images/sounds/music
 └── vol2/<game>/      (vol2 games also vendor tilemaps/ etc. as needed)
 ```
+
+The shared `pgzero_gl` shim (reimplements the slice of the PyGame Zero API the
+games use, on GLFW + OpenGL 3.3 core) **lives in the package** at
+`src/modelviewprojection/pgzero_gl/` (moved there 2026-08-01), so the games
+import it as an ordinary dependency instead of hacking `sys.path`.
 
 ## How `pgzero_gl` works
 
@@ -38,8 +41,8 @@ the same names; a ported game is a **near-verbatim copy of the original** whose
 only change is its first import line:
 
 ```python
-import pygame, pgzero, pgzrun          # original
-from pgzero_gl import *                 # port  (+ a sys.path line to find the shim)
+import pygame, pgzero, pgzrun                       # original
+from modelviewprojection.pgzero_gl import Actor, screen, ...   # port
 ```
 
 The shim reproduces PyGame Zero's top-left-origin, y-down **pixel coordinate

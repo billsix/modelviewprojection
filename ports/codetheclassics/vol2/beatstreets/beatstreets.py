@@ -27,26 +27,20 @@
 #   Original source: https://github.com/raspberrypipress/Code-the-Classics-Vol2
 #   Book:            https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 # ---------------------------------------------------------------------------
-import os as _os
-import sys as _sys
-
-_sys.path.append(
-    _os.path.dirname(
-        _os.path.dirname(_os.path.dirname(_os.path.abspath(__file__)))
-    )
-)
 import json
+import os
 import sys
 import time
 from abc import ABC, abstractmethod
-from collections.abc import Callable  # noqa: E402
+from collections.abc import Callable
 from dataclasses import InitVar, dataclass, field
 from enum import Enum
 from random import choice, randint
 from typing import Any, cast, override
 
 from gacalc.g2 import Vector2
-from pgzero_gl import (  # noqa: E402
+
+from modelviewprojection.pgzero_gl import (
     Actor,
     Rect,
     go,
@@ -467,7 +461,7 @@ class Attack:
 # Load attack data from file (resolve relative to this script so the game can be
 # launched from any working directory, not just its own folder)
 with open(
-    _os.path.join(_os.path.dirname(_os.path.abspath(__file__)), "attacks.json")
+    os.path.join(os.path.dirname(os.path.abspath(__file__)), "attacks.json")
 ) as attacks_file:
     ATTACKS = json.load(attacks_file)
     for key, value in ATTACKS.items():
