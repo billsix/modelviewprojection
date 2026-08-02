@@ -132,6 +132,14 @@ could in principle hit the same at extreme angles — untested.
   a later `glTexImage2D` read 786 KB from a 1-byte buffer
   (`GL_INVALID_OPERATION`). Row pitch: `((width*3)+3) & ~0x3`.
   (`tasks/archive/2026/06/01/hdrbloom-pbo-sizing-crash.md`)
+- **PyOpenGL's `None` to `glReadPixels`/`glTexImage2D` defeats a bound PBO.** The C
+  code passes `(GLvoid*)0` = offset 0 into the buffer; PyOpenGL turns `None` into a
+  freshly-allocated *client* array and passes its pointer, so GL reads that as a giant
+  byte offset → `GL_INVALID_OPERATION (1282)`. Pass **`ctypes.c_void_p(0)`** for the
+  offset-0 case. Two siblings from the same demo: the ring PBOs must come from
+  `glGenBuffers` (not literal names `1/2/3`), and the map/attenuate helper must use
+  stdlib **`ctypes.c_uint8`**, not `np.ctypes.c_uint8` (numpy has no `ctypes` attr).
+  All three bit chapt18/pixbufobj. (`tasks/ports-pbo-floattex-runtime-crashes.md`)
 
 ## 6. Python-side traps
 
