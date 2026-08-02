@@ -269,7 +269,7 @@ Introduction to Cayley Graphs
 =============================
 
 The following is a graph :cite:`IGT`, specifically
-a Cayley Graph [1]_ :cite:`AbstractAlegbra`, of the two spaces
+a Cayley Graph [1]_ :cite:`AbstractAlgebra`, of the two spaces
 shown so far.  The nodes represent a coordinate system (i.e. origin and axes),
 and the directed edge represents an invertible function that converts coordinates from one
 coordinate system to another.  If this isn't clear to the reader, look
@@ -288,7 +288,7 @@ meters to feet, etc.
        :cite:`MathematicsFor3DGame` from World Space to Camera space could be
        reversed, to represent the placement of the camera in World Space.
        It was two years
-       later that I was reading :cite:`AbstractAlegbra` and I realized
+       later that I was reading :cite:`AbstractAlgebra` and I realized
        what I rediscovered was actual math, instead of an ad-hoc notation
        just for use in computer graphics
 

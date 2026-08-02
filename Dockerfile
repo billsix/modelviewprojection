@@ -124,8 +124,8 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
     # 3.12+ venvs no longer seed setuptools, so without this the editable
     # install fails with ModuleNotFoundError and `make format` never runs.
     # (gacalc's Dockerfile does the same thing.)
-    uv pip install setuptools wheel --python $(which python) && \
-    dnf install -y libatomic && uv pip install pyright --python $(which python); \
+    uv pip install setuptools wheel --python /venv/bin/python && \
+    dnf install -y libatomic && uv pip install pyright --python /venv/bin/python; \
     if [ "$USE_EMACS" = "1" ]; then \
       dnf install -y \
                   emacs \
@@ -146,7 +146,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
                    myst-nb \
         	   python3-jupyterlab-jupytext \
         	   python3-jupyter-lsp  && \
-       uv pip install moviepy --python $(which python) && \
+       uv pip install moviepy --python /venv/bin/python && \
        jupytext-config set-default-viewer python && \
        # --level=user writes /root/.jupyter/labconfig/, which JupyterLab reads
        # under any prefix. The default sys_prefix level would resolve through
@@ -175,7 +175,7 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
     echo "emacs src/modelviewprojection/mathutils2d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils1d.py" >> ~/.bash_history && \
     echo "emacs src/modelviewprojection/mathutils.py" >> ~/.bash_history && \
-    grep -v wxpython /requirements.txt | uv pip install --python $(which python) -r - && \
+    grep -v wxpython /requirements.txt | uv pip install --python /venv/bin/python -r - && \
     rm /requirements.txt
 
 # gacalc SOURCE version for the book's literalinclude (docs-only, see below).

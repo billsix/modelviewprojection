@@ -202,12 +202,6 @@ carries the full detail). Any future bulk mechanical pass should follow these:
 
 ## 8. Vestigial / trap files a reader will trip over
 
-- **`tox.ini`** — vestigial: only `[flake8] max-line-length = 80`; flake8 is
-  not used (ruff owns lint at `line-length = 80` in `pyproject.toml`, the one
-  source of truth).
-- **`run.sh`** — stale and orphaned: runs a *published* `docker.io/billsix`
-  image (0.0.3), hand-rolls display env, doesn't mount the repo. `make shell`
-  supersedes it.
 - **`setup.py`** — a 4-line setuptools shim; `pyproject.toml` is authoritative
   (`dynamic = ['dependencies']` ← `requirements.txt`).
 - **`entrypoint/spyder.sh`** — mounted by `FILES_TO_MOUNT` but `USE_SPYDER`

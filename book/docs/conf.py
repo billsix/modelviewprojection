@@ -52,10 +52,6 @@ release = "0.0.2"
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 
-imgmath_image_format = "svg"
-imgmath_font_size = 20  # for font size 14
-imgmath_latex_preamble = "\\usepackage{amsmath}\n" + "\\usepackage{xcolor}\n"
-
 
 # lualatex (the engine the openstax book pipelines use) instead of pdflatex:
 # it is Unicode-native, so characters like the U+221A radical that reach the
@@ -130,9 +126,6 @@ mathjax3_config = {
     },
 }
 
-
-# Add any paths that contain templates here, relative to this directory.
-templates_path = ["_templates"]
 
 # List of patterns, relative to source directory, that match files and
 # directories to ignore when looking for source files.

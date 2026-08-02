@@ -1,7 +1,37 @@
 # Book config cruft — one bundled cleanup pass
 
-**Status:** not started
+**Status:** DONE 2026-08-02 (items 1–4 applied; item 5 glossary entries
+**drafted** — Bill to refine in his voice). `make html` is Bill's final gate.
 **Created:** 2026-07-30
+
+## Item 5 (2026-08-02): glossary entries drafted
+
+Replaced the `World Space` / `Modelspace` self-definitions in `glossary.rst`
+with draft prose in the course's paddle-scene voice (Modelspace = geometry
+relative to an object's own origin; World Space = the shared scene coordinate
+system, cross-linked to Modelspace via `:term:`). All words used are common
+English or already in `mvp_dict.pws` (`modelspace` etc.), so no dictionary
+additions were needed — but the **aspell + `make html` gates are Bill's** to
+run, and the wording is a **draft for Bill to refine** (book prose is his
+voice).
+
+## Done (2026-08-02)
+
+1. ✅ Deleted the dead `imgmath_*` config from `conf.py` (`sphinx.ext.imgmath`
+   isn't in `extensions`; math is mathjax).
+2. ✅ Deleted `templates_path = ["_templates"]` from `conf.py` (no `_templates/`
+   dir exists).
+3. ✅ Removed `sphinx_rtd_theme` from `requirements.txt` (theme is `furo`,
+   `html_theme = "furo"` in conf.py).
+4. ✅ Renamed the bib key `AbstractAlegbra` → `AbstractAlgebra` in
+   `references.bib`, both `:cite:` sites in `ch02.rst`, **and** the stale
+   whitelist word in `mvp_dict.pws` (count header unchanged, still 278).
+
+Static verification: `conf.py` compiles, no `imgmath`/`templates_path`/
+`sphinx_rtd`/`AbstractAlegbra` left anywhere. **The real gate (`make html`)
+is Bill's** (texExpToPng absent in-sandbox).
+
+**Item 5 (glossary placeholders) is NOT done** — needs Bill's prose (see below).
 
 Small, mostly mechanical items found in the 2026-07-30 reference-doc survey
 (recorded in `tasks/reference/book-figures-and-images.md` §4). Bundled because

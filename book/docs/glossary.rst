@@ -17,10 +17,18 @@ Glossary
      be mapped to a pixel.
 
    World Space
-     World space
+     The single, shared coordinate system that every object is placed into to
+     form the scene.  An object whose geometry is given in its own
+     :term:`modelspace <Modelspace>` is moved into world space by a
+     transformation that positions and orients it relative to one common
+     world origin, so that objects defined independently share a single frame
+     of reference.
 
    Modelspace
-     Modelspace
+     The coordinate system in which a single object's geometry is defined,
+     relative to that object's own local origin.  For example, a paddle's four
+     corners are given as offsets from the center of the paddle, describing the
+     paddle's shape independently of where it later sits in the scene.
 
    Screen Space
      Screen space is an index (x,y) that is mapped to a pixel on a monitor.

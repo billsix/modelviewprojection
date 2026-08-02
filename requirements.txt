@@ -24,6 +24,5 @@ PyOpenGL-accelerate==3.1.10
 pytest
 Sphinx
 sphinxcontrib-bibtex
-sphinx_rtd_theme
 sympy
 wxpython
