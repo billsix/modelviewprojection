@@ -1,6 +1,8 @@
 # CtC games: guard `go()` behind `if __name__ == "__main__"` + exit cleanly
 
 **Status:** proposed — needs go-ahead
+**Priority:** 5
+**Difficulty:** 4
 **Created:** 2026-07-18 (surfaced while profiling gacalc via the CtC games; the
 games needed SIGKILL to stop — see gacalc's `tasks/archive/2026/07/18/profile-gacalc-op-mix-in-mvp.md` (`github.com/billsix/geometricalgebra`))
 

@@ -1,6 +1,8 @@
 # Plan: ImGui controls for light position radius in demo22
 
 **Status:** not started — task #35. Recorded 2026-04-28.
+**Priority:** 6
+**Difficulty:** 3
 
 **Scope:** `/mvp/src/modelviewprojection/demo22.py` (curriculum-side), *not* the SuperBible ports.
 

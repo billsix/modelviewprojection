@@ -1,6 +1,8 @@
 # Dark-mode-friendly images for the furo HTML book
 
 **Status:** research complete — **direction decided (best fidelity)**, implementation not started
+**Priority:** 6
+**Difficulty:** 7
 **Created:** 2026-08-02
 
 ## Decision (Bill, 2026-08-02): best fidelity

@@ -1,6 +1,8 @@
 # demo22b — the demo22 scene, round-tripped through a glTF file
 
 **Status:** proposed — needs go-ahead before any code is written
+**Priority:** 6
+**Difficulty:** 7
 **Created:** 2026-06-29
 **Area:** `src/modelviewprojection/demos/demo22b/` (new), `requirements.txt`, Dockerfile/Makefile dep-sync, book (later)
 

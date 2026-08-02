@@ -5,6 +5,8 @@
 (`draw_in_square_viewport`) all extracted & committed (see Progress below).
 Remaining: `shaderutils.py` / `set_mvp_uniforms` (deferred — demo22 variant) and
 per-demo `handle_inputs` (separate, [`dedup-handle-inputs.md`](archive/2026/06/01/dedup-handle-inputs.md)).
+**Priority:** 5
+**Difficulty:** 5
 **Type:** refactor of `src/modelviewprojection/demo*.py`, coordinated with the book.
 **Approach (Bill's choice):** *teach-once-then-import* — the first chapter that
 teaches a helper keeps its inline copy; from the next demo onward, import it from

@@ -4,6 +4,8 @@
 `src/modelviewprojection/shading.py` + its callers. Follow-up to
 [`shading-use-vector3d.md`](archive/2026/05/26/shading-use-vector3d.md) (Finding 1, done — made
 `_face_normal` compute via `mathutils.find_normal` but **kept tuple in/out**).
+**Priority:** 6
+**Difficulty:** 3
 
 ## Question
 Right now `_face_normal(a, b, c) -> tuple[float, float, float]` takes 3 tuples and

@@ -1,6 +1,8 @@
 # mvpvisualization demos — pedagogy plan (what students should see)
 
 **Status:** proposed — needs go-ahead
+**Priority:** 6
+**Difficulty:** 7
 **Created:** 2026-06-15
 
 ## Goal

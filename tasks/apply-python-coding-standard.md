@@ -1,6 +1,8 @@
 # Apply the Python coding standard to modelviewprojection
 
 **Status:** **in progress — naming, annotations, and type aliases DONE.**
+**Priority:** 4
+**Difficulty:** 6
 
 Landed 2026-07-18/19: ports lint cleanup; 80-column limit from one config key; **`N`
 enabled repo-wide with 0 violations**; the `## Coding standard (Python)` section written

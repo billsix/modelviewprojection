@@ -3,6 +3,8 @@
 **Status:** proposed — Bill will fix the book sources himself later
 (2026-07-09: "just update the book's sources with a todo — I'll fix book
 sources later, add in a task for this particular one").
+**Priority:** 7
+**Difficulty:** 3
 **Created:** 2026-07-09
 
 ## What changed in the included code (the prose still tells the old story)

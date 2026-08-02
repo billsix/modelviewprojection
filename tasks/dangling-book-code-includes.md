@@ -4,6 +4,8 @@
 markers released (0.0.11); **sdist wired into the Docker build and all 42 directives
 repointed/resolved.** Book build is green (checker passes, Sphinx has no gacalc-anchor
 warnings). Remaining is refinement, not blocking — see "What was done" below.
+**Priority:** 6
+**Difficulty:** 3
 
 ## What was done 2026-07-20 (the sdist wiring + linking)
 

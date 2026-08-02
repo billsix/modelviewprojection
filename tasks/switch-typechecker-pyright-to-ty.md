@@ -1,6 +1,8 @@
 # Switch the type checker from pyright to ty (single checker: ty)
 
 **Status:** proposed — needs go-ahead. Created 2026-07-21 (Bill).
+**Priority:** 5
+**Difficulty:** 3
 
 ## Motivation
 

@@ -6,6 +6,8 @@ Win32-MFC stubs, chapt20 (Apple) and chapt22 (GL ES) stubs, all
 syntax-checked. **What remains open in this task is Bill's hardware
 verification** (punchlist below). The follow-on UX work (walk-around camera,
 etc.) is `tasks/ports-ux-pass.md`.
+**Priority:** 5
+**Difficulty:** 5
 
 **The durable content this doc used to carry — the C++→Python translation
 rulebook, the per-demo skeleton, the helper-replacement exemplar table, the

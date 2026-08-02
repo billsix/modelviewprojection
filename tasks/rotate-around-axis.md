@@ -1,6 +1,8 @@
 # Plan: `rotate_around_axis` in `pyMatrixStack`
 
 **Status:** not started — research-only until Bill OKs the decomposition below.
+**Priority:** 5
+**Difficulty:** 4
 
 **Reference implementation in the ports tree (NOT what to copy):** `chapt04/transform/transform.py` and `chapt04/transformgl/transformgl.py` have a `rotation_matrix_about_axis(angle_rad, x, y, z)` that does **direct Rodrigues** — that's the *faithful translation* of `m3dRotationMatrix44` in math3d.cpp. **This task wants the opposite** for the curriculum side: build arbitrary-axis rotation as a *composition of axis-aligned rotations* (`rotate_z` to align in XZ-plane, `rotate_y` to align with X, `rotate_x` for the actual rotation, then inverse to undo alignment) — Bill's pedagogical choice so students see arbitrary-axis rotation built from rotations they already know. The ports tree's direct Rodrigues stays as-is (the C++ does it that way, so the faithful translation should too); the curriculum side gets the decomposed version.
 

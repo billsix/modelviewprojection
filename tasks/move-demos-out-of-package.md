@@ -1,6 +1,8 @@
 # Move the runnable scripts out of the package, into top-level `demos/` + `visualizations/`
 
 **Status:** **PARKED 2026-07-19 — NOT approved, do not start.** No files were moved.
+**Priority:** 10
+**Difficulty:** 9
 
 Bill called this off the same day it was drafted, and the reason matters more than the
 proposal: **this was goal drift.** The original goal was *"doctests always run as part of

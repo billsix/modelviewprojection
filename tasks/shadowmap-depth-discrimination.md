@@ -2,6 +2,8 @@
 
 **Status:** not-started — logged 2026-05-29 (Bill). Investigate (done below) + design an
 option to visually discriminate close depth values; confirm approach with Bill before building.
+**Priority:** 6
+**Difficulty:** 4
 
 ## Symptom (Bill)
 

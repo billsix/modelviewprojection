@@ -2,6 +2,8 @@
 
 **Status:** in progress (2026-08-02) — **pixbufobj fix applied**, **texfloat
 instrumented**; awaiting Bill's host-GL verification (can't reproduce headless).
+**Priority:** 3
+**Difficulty:** 5
 
 ## Update 2026-08-02 (evening) — pixbufobj crash FULLY fixed + reproduced headless
 

@@ -4,6 +4,8 @@
 session (two diagnoses were tried and reverted by Bill). Brought into master
 2026-05-27 alongside the v4 ports pull. Full session context:
 [`HANDOFF-2026-05-13.md`](archive/2026/05/26/HANDOFF-2026-05-13.md).
+**Priority:** 6
+**Difficulty:** 6
 
 ## Symptom
 `ports/openglsuperbiblev4/chapt14/shadowmap/shadowmap.py` — the shadow pass

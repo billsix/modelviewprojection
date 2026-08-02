@@ -2,6 +2,8 @@
 
 **Status:** open — **needs reproduction on Bill's hardware GPU** (does NOT reproduce in the
 sandbox's software GL). Paused 2026-08-02 (Bill).
+**Priority:** 5
+**Difficulty:** 6
 
 ## Symptom (Bill)
 

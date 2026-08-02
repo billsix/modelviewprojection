@@ -1,6 +1,8 @@
 # Plan: Planar shadow projection matrix in `pyMatrixStack`
 
 **Status:** not started — research-only until Bill OKs the approach below.
+**Priority:** 5
+**Difficulty:** 4
 
 **Reference implementation already in the codebase:** `chapt01/block/Block.py` has working inline `get_plane_equation()` and `make_planar_shadow_matrix(plane_eq, light_pos)` that returns a column-major flat 16-element numpy array, used via `glMultMatrixf`. Match those formulas (taken directly from `math3d.cpp:1026`) when implementing the `pyMatrixStack` version. The chapt01/block helpers will eventually be replaceable by `from modelviewprojection.mathutils import plane_equation` (Tier-1 task #5) and `from modelviewprojection.pyMatrixStack import planar_shadow` (this task) — until then the ports keep their inline copies.
 

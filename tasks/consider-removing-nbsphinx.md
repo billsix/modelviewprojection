@@ -1,6 +1,8 @@
 # Consider removing nbsphinx (redundant with myst_nb)
 
 **Status:** proposed — deferred (Bill: "not yet"), revisit later
+**Priority:** 7
+**Difficulty:** 3
 **Created:** 2026-08-02
 
 ## Why

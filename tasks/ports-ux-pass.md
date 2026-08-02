@@ -3,6 +3,8 @@
 **Status:** Phase 1 (#33 + #34) ✅ **done 2026-04-28**. **Phase 2 IN PROGRESS (2026-07-25):** the
 `_common.Camera` helper already exists and is sound (the postmortem's "lost in the reset,
 re-implement next time" was done at some point since) — so Phase 2 is *migration only*, and
+**Priority:** 4
+**Difficulty:** 7
 **0 of ~56 3D ports are wired to it yet**. Canary (`chapt08/sphereworld`) re-migrated 2026-07-25
 and renders correctly headless; **awaiting Bill's interactive feel-check before the bulk pass.**
 Phase 3 not started. Umbrella plan covering the eight UX tasks (#33–#40) added 2026-04-28.

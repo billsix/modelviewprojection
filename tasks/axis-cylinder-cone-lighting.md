@@ -3,6 +3,8 @@
 **Status: deferred 2026-04-30.** Bill verified the cylinder+cone axes look
 correct on hardware; current shading is flat. He wants the lighted look
 from the source demo eventually, just not today.
+**Priority:** 8
+**Difficulty:** 4
 
 ## Context
 

@@ -1,6 +1,8 @@
 # Review the assignments against the modern demos; update or re-scope them
 
 **Status:** proposed — needs go-ahead on the direction per assignment
+**Priority:** 6
+**Difficulty:** 5
 **Created:** 2026-07-09 (Bill: "Take a look at the assignments, and see how
 they should be updated relative to the other demos. For instance, one of
 the assignments is just checking to see if they can figure out how to

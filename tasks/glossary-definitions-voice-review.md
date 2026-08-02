@@ -1,6 +1,8 @@
 # Voice-review the drafted glossary definitions
 
 **Status:** open — deferred, for Bill (the definitions are his voice to set)
+**Priority:** 8
+**Difficulty:** 4
 **Created:** 2026-08-02
 
 ## What

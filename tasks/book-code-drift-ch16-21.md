@@ -5,6 +5,8 @@ self-contained tracker — per-chapter fix detail is folded in below (the old
 `ch16-fixes.md … ch21-fixes.md` satellites were archived 2026-06-14). doc-region
 wiring intact; drift is prose / captions / content gaps / a code bug. The later
 chapters (esp. ch21) are not just drifted but **unfinished**.
+**Priority:** 4
+**Difficulty:** 6
 
 ## Cross-cutting
 | Finding | Plan |
