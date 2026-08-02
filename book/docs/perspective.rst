@@ -16,7 +16,7 @@ Standard Perspective Matrix
 Objective
 ^^^^^^^^^
 
-Derive the standard perspective matrix that OpenGL expects.
+Derive the :term:`standard perspective matrix <Standard Perspective Matrix>` that OpenGL expects.
 
 
 
@@ -242,7 +242,7 @@ Pre-multiply the matricies
 
 Multiply them all together to get the following.  The elements of this premultiplied matrix have no geometric
 meaning to the author, and that's ok.  The matricies above all of geometric meaning, and we premultiply them
-together for computational efficiency, as well as being able to do the next step in clip space, which
+together for computational efficiency, as well as being able to do the next step in :term:`clip space <Clip Space>`, which
 we couldn't do without having the premultiplied matrix.
 
 .. inlinetex::
@@ -278,24 +278,24 @@ we couldn't do without having the premultiplied matrix.
 Clip Space
 &&&&&&&&&&
 
-convert the data from NDC to clip-space.
+convert the data from :term:`NDC <Normalized Device Coordinates>` to :term:`clip-space <Clip Space>`.
 
 We have never used clip-space in the class, only NDC,
 because 4D space is confusing geometrically, nevermind
 the fact that (NDCx NDCy NDCz) = (Clipx/Clipw, Clipy/Clipy, Clipz/Clipz)
 
 The purpose of going to clip space is that eventually we will be
-able to remove the camera space's z coordinate from the matrix.
-This will allow us to use one perspective projection matrix for
-all vertices, independent of the z coordinate of each input vector.
+able to remove the :term:`camera space <Camera Space>`'s z coordinate from the matrix.
+This will allow us to use one :term:`perspective projection <Perspective Projection>` matrix for
+all :term:`vertices <Vertex>`, independent of the z coordinate of each input vector.
 
 I assume, without any evidence to support me, that this
-was done for efficiency reasons when using OpenGL's fixed function pipeline.
-(Side note, the standard perspective projection matrix,
+was done for efficiency reasons when using OpenGL's :term:`fixed function pipeline <Fixed-Function Pipeline>`.
+(Side note, the :term:`standard perspective projection matrix <Standard Perspective Matrix>`,
 which we will get to by demo 25, does not linearly
 position the :inlinetex:`nearZ_c` to :inlinetex:`farZ_c` data into NDC. Everything
 we've done so far in the class does.  The standard
-perspective matrix ends up having less Z-fighting
+perspective matrix ends up having less :term:`Z-fighting <Z-fighting>`
 close to :inlinetex:`nearZ_c`, and more problems with Z-fighting
 near farZ_c)
 
@@ -330,7 +330,7 @@ such as follows.
 
 So to put our NDC data into clip space, knowing what OpenGL is going to do in
 the equation above, we need to decide what we want our clip space value, :inlinetex:`w` to be,
-and do the inverse of the equation above
+and do the :term:`inverse <Inverse>` of the equation above
 
 .. inlinetex::
     :class: no-scale
@@ -409,7 +409,7 @@ the following
 because multiplying by this matrix will remove the :inlinetex:`z_c` out of
 the upper left quadrant.
 
-But wait.  In camera space, the viewing frustum is defined
+But wait.  In camera space, the viewing :term:`frustum <Frustum>` is defined
 to be in negative :inlinetex:`z`.  So that will
 
 Remove Z of Camera Space from Part of the Matrix
@@ -417,8 +417,8 @@ Remove Z of Camera Space from Part of the Matrix
 
 
 To get camera z out of the matrix, where it's currently in two denominators, we
-can use knowledge of clip space, wherein we put cameraspace's z into W.     because cameraSpace's z coordinate is negative, we want to scale
-all dimensions without reflecting over the origin, hence the negative sign in  :inlinetex:`-z_c`.
+can use knowledge of clip space, wherein we put cameraspace's z into W.     because cameraSpace's z coordinate is negative, we want to :term:`scale <Scaling>`
+all dimensions without reflecting over the :term:`origin <Origin>`, hence the negative sign in  :inlinetex:`-z_c`.
 
 
 .. inlinetex::
@@ -518,7 +518,7 @@ Remove Z of Camera Space from the Rest of the Matrix
 We successfully moved :inlinetex:`z_c` out of the upper left quadrant, but in doing so, we moved it down
 to the lower right. Can we get rid of it there too?  Turn out, we can.
 
-Since the vector multiplied by this matrix will provide :inlinetex:`z_c` as it's third element,
+Since the :term:`vector <Vector (Vector2 / Vector3)>` multiplied by this matrix will provide :inlinetex:`z_c` as it's third element,
 we can put :inlinetex:`-z_c` into the :inlinetex:`w` by taking the explicit version of it out of the fourth column,
 and put :inlinetex:`-1` into the third column's :inlinetex:`w`.
 

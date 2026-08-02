@@ -48,9 +48,9 @@ Approach
 ========
 
 You'll learn how to place geometric objects in space, draw them relative to
-other geometric objects, position a camera in space which moves over time
+other geometric objects, position a :term:`camera <Virtual Camera>` in space which moves over time
 based on user input, and
-transform all those objects into the 2D pixel coordinates of your
+:term:`transform <Transformation>` all those objects into the 2D :term:`pixel <Pixel>` coordinates of your
 screen. By the end, you'll understand the foundations of creating
 first-person and third-person applications or games. The goal? To
 empower you to build the graphics programs you want, using math you

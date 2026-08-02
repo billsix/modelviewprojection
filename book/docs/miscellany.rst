@@ -18,7 +18,7 @@ Miscellany
 First Class Functions
 =====================
 
-Functions are first class values in Python, and are objects just
+Functions are :term:`first class <First-Class Functions>` values in Python, and are objects just
 like anything else.  The can be passed as arguments, stored in variables,
 and applied later zero, 1, or more times.  As an example, here is a unit
 test in the code to demonstrate.
@@ -55,7 +55,7 @@ test in the code to demonstrate.
 
 
 As a harder example, if Python didn't have recursion, but it does
-have first class functions as values, the programmer could simulate
+have :term:`first class functions <First-Class Functions>` as values, the programmer could simulate
 recursion by passing a function to itself as a parameter.
 
 .. literalinclude:: ../../tests/test_firstclassfunctions.py

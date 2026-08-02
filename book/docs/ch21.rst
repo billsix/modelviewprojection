@@ -17,7 +17,7 @@ OpenGL3.3 Core Profile - Demo 21
 Objective
 ^^^^^^^^^
 
-In OpenGL 3.3 Core Profile, shaders are no longer optional,
+In :term:`OpenGL 3.3 Core Profile <OpenGL Core Profile>`, :term:`shaders <Shader>` are no longer optional,
 they are mandatory.
 
 

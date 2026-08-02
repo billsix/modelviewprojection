@@ -16,7 +16,7 @@
 Objective
 ^^^^^^^^^
 
-Implement a perspective projection so that objects
+Implement a :term:`perspective projection <Perspective Projection>` so that objects
 further away are smaller than the would be
 if they were close by
 
@@ -186,7 +186,7 @@ whatever point the line above intersects the line at z=nearZ.  Let's call that p
 
 
 
-Top calculation based off of vertical field of view
+Top calculation based off of vertical :term:`field of view <Field of View>`
 
 ::
 
@@ -222,7 +222,7 @@ Top calculation based off of vertical field of view
                              \ |
                               \|
 
-Right calculation based off of Top and aspect ratio
+Right calculation based off of Top and :term:`aspect ratio <Aspect Ratio>`
 
 ::
 

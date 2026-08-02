@@ -17,7 +17,7 @@ Objective
 ^^^^^^^^^
 
 Graphical programs in which the viewer never "moves" are boring.
-Model a virtual "camera", and let the user move the camera around
+Model a :term:`virtual "camera" <Virtual Camera>`, and let the user move the camera around
 in the scene.  In this picture, notice that the purple paddle
 is no longer on the left side of the screen, but towards the right,
 horizontally.
@@ -63,8 +63,8 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-"Camera space" means the coordinates of everything relative
-to a camera, not relative to world space.
+":term:`Camera space <Camera Space>`" means the coordinates of everything relative
+to a camera, not relative to :term:`world space <World Space>`.
 
 .. figure:: _static/screenshots/2dcameraspace.png
     :class: no-scale
@@ -74,23 +74,24 @@ to a camera, not relative to world space.
 
     Camera space
 
-In the picture above, NDC is the square in the center
-of the screen, and its coordinate system is defined by its two axes X
+In the picture above, :term:`NDC <Normalized Device Coordinates>` is the square in the center
+of the screen, and its :term:`coordinate system <Coordinate System>` is defined by its two axes X
 and Y. The square to the to the left and up is the position of the
 camera; which has its own X axis and Y axis.
 
 The coordinates of the paddle can be described
-in world space, or in camera space, and that we can create functions
+in :term:`world space <World Space>`, or in :term:`camera space <Camera Space>`, and that we can create functions
 to convert coordinates between the two spaces.
 
 
 
-Towards that, in the Cayley graph, camera space will be between world
-space and NDC, but which way should the direction of the edge be?
+Towards that, in the :term:`Cayley graph <Cayley Graph>`, :term:`camera space
+<Camera Space>` will be between
+:term:`world space <World Space>` and :term:`NDC <Normalized Device Coordinates>`, but which way should the direction of the edge be?
 
 It could be
 
-* From world space to camera space.
+* From :term:`world space <World Space>` to :term:`camera space <Camera Space>`.
 
 .. figure:: _static/demo10.png
     :class: no-scale
@@ -100,7 +101,7 @@ It could be
 
     Demo 10
 
-* From camera space to world space.
+* From :term:`camera space <Camera Space>` to :term:`world space <World Space>`.
 
 .. figure:: _static/demo10-2.png
     :class: no-scale
@@ -111,10 +112,10 @@ It could be
     Demo 10
 
 
-Since the camera's position will be described relative to world space in world space coordinates,
+Since the camera's position will be described relative to :term:`world space <World Space>` in world space coordinates,
 just like the paddles are,
 it makes more sense to use the latter, in which the directed edge
-goes from camera space to world space.
+goes from :term:`camera space <Camera Space>` to :term:`world space <World Space>`.
 
 
 Think about it this way.  Imagine you are driving.  Are you staying
@@ -127,16 +128,16 @@ The math is easier in the aggregate if you describe your position as moving rela
 to earth.
 
 But this introduces a new problem.  Follow from the paddle's :term:`modelspace<Modelspace>`
-to screen space.  Up until this demo, we've always been
-following the direction of each edge.  In our new Cayley graph, when going from world
-space to camera space, we're moving in the opposite direction
+to :term:`screen space <Screen Space>`.  Up until this demo, we've always been
+following the direction of each edge.  In our new :term:`Cayley graph <Cayley Graph>`, when going from
+:term:`world space <World Space>` to :term:`camera space <Camera Space>`, we're moving in the opposite direction
 of the edge.
 
 Going against the direction
-of an edge in a Cayley Graph means that we don't apply the function itself;
-instead we apply the inverse of the function.  This concept
+of an edge in a :term:`Cayley graph <Cayley Graph>` means that we don't apply the function itself;
+instead we apply the :term:`inverse <Inverse>` of the function.  This concept
 comes from Group Theory in Abstract Algebra, the details of which won't
-be discussed here, but we will use it to help us reason about the transformations.
+be discussed here, but we will use it to help us reason about the :term:`transformations <Transformation>`.
 
 Inverses
 ~~~~~~~~
@@ -144,7 +145,7 @@ Inverses
 Inverse Of Translate
 &&&&&&&&&&&&&&&&&&&&
 
-The inverse of ``translate(b=b)`` is ``translate(b=-b)`` -- shift back by the
+The :term:`inverse <Inverse>` of ``translate(b=b)`` is ``translate(b=-b)`` -- shift back by the
 negative.  The built-in ``inverse`` agrees:
 
 .. code:: Python
@@ -162,7 +163,7 @@ Inverse Of Rotate
 
 
 
-The inverse of ``rotate(angle)`` is ``rotate(-angle)`` -- rotate back by the
+The :term:`inverse <Inverse>` of ``rotate(angle)`` is ``rotate(-angle)`` -- rotate back by the
 negative angle.  The built-in ``inverse`` agrees:
 
 .. code:: Python
@@ -180,7 +181,7 @@ negative angle.  The built-in ``inverse`` agrees:
 Inverse Of Scale
 &&&&&&&&&&&&&&&&
 
-The inverse of ``scale_non_uniform(m_x, m_y)`` is
+The :term:`inverse <Inverse>` of ``scale_non_uniform(m_x, m_y)`` is
 ``scale_non_uniform(1.0 / m_x, 1.0 / m_y)`` -- scale by the reciprocals.
 The built-in ``inverse`` agrees:
 
@@ -198,7 +199,7 @@ The built-in ``inverse`` agrees:
 Inverse Of Sequence Of Functions
 &&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&&
 
-The inverse of a sequence of functions is the inverse of each function, applied in reverse order.
+The :term:`inverse <Inverse>` of a sequence of functions is the inverse of each function, applied in reverse order.
 
 For the linear-algebra inclined reader,
 
@@ -209,7 +210,7 @@ For the linear-algebra inclined reader,
 
     $ {(A * B)}^{-1}     = {B}^{-1}*{A}^{-1} $
 
-The inverse of ``compose([f1, f2])`` is ``compose([inverse(f2), inverse(f1)])``
+The :term:`inverse <Inverse>` of ``compose([f1, f2])`` is ``compose([inverse(f2), inverse(f1)])``
 -- each function inverted, in reverse order.  The built-in ``inverse`` agrees:
 
 .. code:: Python
@@ -230,7 +231,7 @@ The inverse of ``compose([f1, f2])`` is ``compose([inverse(f2), inverse(f1)])``
 
 
 
-Think of the inverses this way.  Stand up.  Make sure that nothing
+Think of the :term:`inverses <Inverse>` this way.  Stand up.  Make sure that nothing
 is close around you that you could trip on or that you would walk into.
 Look forward.
 Keeping your eyes straight ahead, sidestep a few steps to the
@@ -249,23 +250,23 @@ Towards the left.
 
     Camera is 3D space
 
-Looking at the graph paper on the ground there, that's world space.
-The camera gets placed in world space just like any other :term:`modelspace<Modelspace>` data.
+Looking at the graph paper on the ground there, that's :term:`world space <World Space>`.
+The camera gets placed in :term:`world space <World Space>` just like any other :term:`modelspace<Modelspace>` data.
 In order to render from the camera's point of view, we need to move and orient the -1.0 to 1.0
-box relative to the camera to match the -1.0 to 1.0 box in world space.
+box relative to the camera to match the -1.0 to 1.0 box in :term:`world space <World Space>`.
 
-Run "python src/modelviewprojection/mvpvisualization/modelviewperspectiveprojection.py", and follow along with the Cayley
-graph.  The camera will be placed like any other :term:`modelspace<Modelspace>` data, but then
-the inverse of the transformations will be applied to all of the vertices.
+Run "python src/modelviewprojection/mvpvisualization/modelviewperspectiveprojection.py", and follow along with the
+:term:`Cayley graph <Cayley Graph>`.  The camera will be placed like any other :term:`modelspace<Modelspace>` data, but then
+the :term:`inverse <Inverse>` of the transformations will be applied to all of the :term:`vertices <Vertex>`.
 
 For the attentive reader
 ~~~~~~~~~~~~~~~~~~~~~~~~
 
 The purpose of watching that animation was to see how the camera was placed just like
 the :term:`modelspace<Modelspace>` data was placed, while not modifying the modelspace data,
-but then the inverse was applied, moving the :term:`modelspace<Modelspace>` data.
+but then the :term:`inverse <Inverse>` was applied, moving the :term:`modelspace<Modelspace>` data.
 
-The attentive reader may notice: "Bill, you said the inverse causes the operations
+The attentive reader may notice: "Bill, you said the :term:`inverse <Inverse>` causes the operations
 to be run in opposite order, yet I saw them run in the same order.  For camera
 placement, I saw translate,
 then rotate sideways, then rotate up.  For the inverse, I saw inverse translate, then
@@ -289,7 +290,7 @@ Let's say we read the following from left to right
 
 So we imagine the a transformation, then the b transformation, then the c.
 
-To take the inverse, we reverse the order of the transformations, and invert them.
+To take the :term:`inverse <Inverse>`, we reverse the order of the :term:`transformations <Transformation>`, and invert them.
 
 .. inlinetex::
     :class: no-scale
@@ -372,8 +373,8 @@ The Event Loop
 
 
 The camera's position is ``camera.position_ws``.  So
-apply the inverse of the camera's transformations
-to paddle 1's vertices, i.e. translate with the negative
+apply the :term:`inverse <Inverse>` of the camera's :term:`transformations <Transformation>`
+to paddle 1's :term:`vertices <Vertex>`, i.e. translate with the negative
 values.
 
 
@@ -390,6 +391,6 @@ values.
 
 
 The camera's position is ``camera.position_ws``.  So
-apply the inverse of the camera's  transformations
+apply the :term:`inverse <Inverse>` of the camera's  transformations
 to paddle 2's vertices, i.e. translate with the negative
 values.

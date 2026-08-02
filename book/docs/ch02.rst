@@ -17,9 +17,9 @@ Draw A Rectangle - Demo 02
 Objective
 =========
 
-Learn how to draw rectangles in an OpenGL window.  Learn about OpenGL's coordinate system, :term:`Normalized Device Coordinates` (NDC),
+Learn how to draw rectangles in an OpenGL window.  Learn about OpenGL's :term:`coordinate system <Coordinate System>`, :term:`Normalized Device Coordinates` (NDC),
 which are from -1.0 to 1.0, in the X, Y, and Z directions.  Geometry drawn outside
-of this region will not be displayed in the window.
+of this region will not be displayed in the :term:`window <Window>`.
 
 .. figure:: _static/screenshots/demo02.png
     :class: no-scale
@@ -41,7 +41,7 @@ Code
 GLFW/OpenGL Initialization
 --------------------------
 
-The setup code is the same.  Initialize GLFW.  Set the OpenGL version.
+The setup code is the same.  Initialize :term:`GLFW`.  Set the OpenGL version.
 Create the window.  Set a key handler for closing.  Set the background to be black.
 Execute the event/drawing loop.
 
@@ -50,7 +50,7 @@ Execute the event/drawing loop.
 The Event Loop
 --------------
 
-Within the event loop, demo02.py draws 2 rectangles, as one might see in
+Within the :term:`event loop <Event Loop>`, demo02.py draws 2 rectangles, as one might see in
 a game of Pong.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo02.py
@@ -80,7 +80,7 @@ for the subsequently-drawn graphical shape(s).  Let's make the first
 paddle purple, and a second paddle yellow.
 
 To specify the corners of the rectangle,
-"glBegin(GL_QUADS)" tells OpenGL that we will soon specify 4 *vertices*,
+"glBegin(GL_QUADS)" tells OpenGL that we will soon specify 4 :term:`vertices <Vertex>`,
 (i.e. points) which define the
 quadrilateral.  The vertices will be specified by calling "glVertex2f" 4 times.
 
@@ -147,12 +147,12 @@ The 2 paddles looks like this relative to :term:`NDC<Normalized Device Coordinat
 
 
 
-* done with frame, flush the current buffer to the monitor
+* done with :term:`frame <Frame>`, flush the current buffer to the monitor
 * Swap front and back buffers
 
 
 
-The frame sent to the monitor is a set of values like this ::
+The frame sent to the :term:`monitor <Monitor>` is a set of values like this ::
 
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
     bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb
@@ -171,7 +171,7 @@ The frame sent to the monitor is a set of values like this ::
 
 
 What do we have to do to convert from :term:`NDC<Normalized Device Coordinates>` (i.e. (1.0, 0.8))
-into pixel coordinates (i.e. pixel (10,15))?  Nothing, OpenGL does that for us automatically; therefore
+into :term:`pixel <Pixel>` coordinates (i.e. pixel (10,15))?  Nothing, OpenGL does that for us automatically; therefore
 we never have to think in terms of pixels coordinates, only in terms of vertices of shapes,
 specified using coordinates relative to :term:`NDC<Normalized Device Coordinates>`. OpenGL also automatically colors all of the pixels
 which are inside of the quadrilateral.
@@ -188,7 +188,7 @@ The author owns two monitors, one which has 1024x768 pixels, and one which has
 will run correctly on either monitor, in full-screen mode.  If a graphics programmer
 had to explicitly set the color of individual pixels using the pixel's coordinates, the programmer would have to
 program using "screen-space" (Any space_ means a system of numbers which you're using.
-Screen-space means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be yellow).
+:term:`Screen-space <Screen Space>` means you're specifically using pixel coordinates, i.e, set pixel (5,10) to be yellow).
 
 .. _space: https://en.wikipedia.org/wiki/Space_(mathematics)
 
@@ -227,7 +227,7 @@ and an fixed range horizontally.  OpenGL will have to convert points from some s
 and since this is done in hardware (i.e. you can't pragmatically change how the conversion
 happens), it should be a fixed size.
 
-OpenGL uses what's called *:term:`NDC<Normalized Device Coordinates>`*,
+OpenGL uses what's called :term:`NDC<Normalized Device Coordinates>`,
 which is a continuous space from -1.0 to 1.0 horizontally,
 -1.0 to 1.0 vertically, and from -1.0 to 1.0 depth-ally.  (Is there an
 actual word for that???)
@@ -244,7 +244,7 @@ actual word for that???)
 
 
 It should look the same whether we own a small monitor (ignoring
-aspect ratio, for now).
+:term:`aspect ratio <Aspect Ratio>`, for now).
 
 .. figure:: _static/ndcSpace1.svg
     :class: no-scale
@@ -269,12 +269,12 @@ Introduction to Cayley Graphs
 =============================
 
 The following is a graph :cite:`IGT`, specifically
-a Cayley Graph [1]_ :cite:`AbstractAlgebra`, of the two spaces
-shown so far.  The nodes represent a coordinate system (i.e. origin and axes),
-and the directed edge represents an invertible function that converts coordinates from one
+a :term:`Cayley Graph` [1]_ :cite:`AbstractAlgebra`, of the two spaces
+shown so far.  The nodes represent a :term:`coordinate system <Coordinate System>` (i.e. :term:`origin <Origin>` and axes),
+and the directed edge represents an :term:`invertible function <Invertible Function>` that converts coordinates from one
 coordinate system to another.  If this isn't clear to the reader, look
 above at the 3 pictures of the 2 quadrilaterals.  They look the same, but
-if you label each vector on all three graphs, and look at the axes to find
+if you label each :term:`vector <Vector (Vector2 / Vector3)>` on all three graphs, and look at the axes to find
 their plotted values, you will find that they differ.  Changing between
 coordinate systems means to take vertices from one coordinate system and
 changing them to another, like converting from Celsius to Fahrenheit,
@@ -283,9 +283,9 @@ meters to feet, etc.
 
 .. [1] I rediscovered Cayley Graphs when looking at Figure 1.3 of
        :cite:`MathematicsFor3DGame` and I realized that placement of
-       the camera in world space is the
+       the camera in :term:`world space <World Space>` is the
        same process of placing any object in world space, so the arrow in
-       :cite:`MathematicsFor3DGame` from World Space to Camera space could be
+       :cite:`MathematicsFor3DGame` from World Space to :term:`Camera space <Camera Space>` could be
        reversed, to represent the placement of the camera in World Space.
        It was two years
        later that I was reading :cite:`AbstractAlgebra` and I realized
@@ -307,7 +307,7 @@ NDC/Screenspace Conversion
 The function that converts from :term:`Normalized Device Coordinates` to :term:`Screen Space` is
 arbitrarily named "f", sub-scripted by "ndc", super-scripted
 by "ss".  This is a notation for naming
-functions that change basis, i.e. coordinate conversion.
+functions that :term:`change basis <Change of Basis>`, i.e. coordinate conversion.
 A definition of this function is not provided right now,
 because we can't change it in software, but we must recognize that it exists.
 
@@ -315,14 +315,14 @@ because we can't change it in software, but we must recognize that it exists.
 
 
 
-The Wikipedia article for Cayley graphs (https://en.wikipedia.org/wiki/Cayley_graph) is intimidating,
+The Wikipedia article for :term:`Cayley graphs <Cayley Graph>` (https://en.wikipedia.org/wiki/Cayley_graph) is intimidating,
 but for our purposes, the use of Cayley graphs is very simple.
 
 
 Currency Conversion
 -------------------
 
-An univariate example use of Cayley graphs is exchanging coins with
+An univariate example use of :term:`Cayley graphs <Cayley Graph>` is exchanging coins with
 a bank.
 
 .. figure:: _static/currency.png
@@ -366,7 +366,7 @@ a bank.
 
 
 The directed edges in the Cayley graph show the direction that
-the function, i.e. transformation, applies.
+the function, i.e. :term:`transformation <Transformation>`, applies.
 
 
 To convert 20 nickels into pennies, start at nickel,
@@ -494,7 +494,7 @@ out, but the details of those functions are not relevant when traversing the Cay
 
 .. _composition: https://en.wikipedia.org/wiki/Function_composition
 
-Function composition is used extensively throughout this book.  As a reminder
+:term:`Function composition <Function Composition>` is used extensively throughout this book.  As a reminder
 
 
 .. inlinetex::
@@ -525,7 +525,7 @@ omits the argument :inlinetex:`x`
 Temperature Conversion
 ----------------------
 
-Another univariate example use of Cayley graphs is converting a temperature
+Another univariate example use of :term:`Cayley graphs <Cayley Graph>` is converting a temperature
 between different units of measure.
 
 
@@ -620,8 +620,8 @@ to figure out what to ignore. To quote Gerald Sussman in the SICP video lectures
 to understanding complicated things is to know what not to look, and what not to compute, and what not to think."
 
 
-Below is a Cayley graph that shows
-coordinate systems "a", "b", "c", and "d", and functions are provided
+Below is a :term:`Cayley graph <Cayley Graph>` that shows
+:term:`coordinate systems <Coordinate System>` "a", "b", "c", and "d", and functions are provided
 to us to convert between some of the spaces.  What do those names "a", "b",
 "c", and "d" mean?  It doesn't matter.
 What is the definition of all of the functions?  It doesn't matter. All that

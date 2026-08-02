@@ -16,7 +16,7 @@ Shaders - Demo 20
 Objective
 ^^^^^^^^^
 
-Learn what "shaders" are, with a brief introduction to how
+Learn what ":term:`shaders <Shader>`" are, with a brief introduction to how
 to use them in OpenGL 2.1.
 
 
@@ -57,12 +57,12 @@ Description
 ^^^^^^^^^^^
 
 In the previous demo, in the footnote, we found that "glVertex"
-did a lot behind the scenes, sneakily grabbing data from the matrix
-stacks and the current color (and lots of other things we haven't covered in
+did a lot behind the scenes, sneakily grabbing data from the
+:term:`matrix stacks <Matrix Stack>` and the current color (and lots of other things we haven't covered in
 this book, like texturing and lighting).
 
 What did the graphics driver do with the data?  This older style of graphics
-programming is called "fixed-function" graphics programming, in that we can
+programming is called ":term:`fixed-function <Fixed-Function Pipeline>`" graphics programming, in that we can
 tweak some values, but the graphics card and its driver are going to do
 whatever they were programmed to, and we can't control it.  Kind of like having
 a graphing calculator, but not having the ability to program it - OpenGL is
@@ -71,15 +71,15 @@ in control at this point, and we can just parameterize it.
 Programmers wanted more control, first over how lighting works (which we don't
 cover in this book).  Rather than having 3 or so lighting models to choose from,
 the programmers wanted to be able to specify the math of how their custom
-lighting worked.  So OpenGL 2.1 allowed the programmer to create "shaders",
+lighting worked.  So OpenGL 2.1 allowed the programmer to create ":term:`shaders <Shader>`",
 which I believe were called such because they allow the programmer to change
-the "shade" of a fragment [1]_.
+the "shade" of a :term:`fragment <Fragment>` [1]_.
 
 In this demo, we keep most of the code from the previous demo the same,
-we just add in programmable shaders.  So the calls to "glVertex"
-are no longer a black box, in which something happens of the graphics card;
+we just add in programmable :term:`shaders <Shader>`.  So the calls to "glVertex"
+are no longer a :term:`black box <Black Box vs White Box>`, in which something happens of the graphics card;
 instead, before sending :term:`modelspace<Modelspace>` data to the graphics card, we program
-a sequence of transformations that happen on the graphics card per vector,
+a sequence of :term:`transformations <Transformation>` that happen on the graphics card per :term:`vector <Vector (Vector2 / Vector3)>`,
 which a driver could implement in parallel.
 
 We have some new imports, "glUseProgram", "GL_VERTEX_SHADER", "GL_FRAGMENT_SHADER"
@@ -102,9 +102,9 @@ We now ask the OpenGL driver to accept OpenGL 2.1 function calls.
    :lineno-match:
    :caption: src/modelviewprojection/demos/demo20/demo20.py
 
-Before the event loop starts, we send two mini programs to the GPU, the vertex
-shader and the fragment shader.  The purpose of the vertex shader is to transform
-the :term:`modelspace<Modelspace>` data to clip-space (x,y,z,w), where to get NDC you would divide
+Before the :term:`event loop <Event Loop>` starts, we send two mini programs to the :term:`GPU`, the
+:term:`vertex shader <Vertex Shader>` and the :term:`fragment shader <Fragment Shader>`.  The purpose of the :term:`vertex shader <Vertex Shader>` is to transform
+the :term:`modelspace<Modelspace>` data to :term:`clip-space <Clip Space>` (x,y,z,w), where to get :term:`NDC <Normalized Device Coordinates>` you would divide
 by the w; i.e. (x/w,y/w,z/w,1)
 
 I like to think of a matrix multiplication to a vector as a "function-application",
@@ -118,14 +118,14 @@ in the same way we did in the lambda stack.
    :lineno-match:
    :caption: src/modelviewprojection/demos/demo20/demo20.py
 
-In the vertex shader, there are a lot of predefined variable names with values
+In the :term:`vertex shader <Vertex Shader>`, there are a lot of predefined variable names with values
 provided to us. "gl_ModelViewMatrix" is the matrix at the top of the modelview
-matrix stack at the time "glVertex" is called, "gl_ProjectionMatrix" is the top of
+:term:`matrix stack <Matrix Stack>` at the time "glVertex" is called, "gl_ProjectionMatrix" is the top of
 the projection matrix stack (although there is typically only one).  "gl_Color"
 is the color that was defined for this vector by calling "glColor3f".
 
-In OpenGL 2.1, the output of the vertex shader that we use here is "gl_FrontColor",
-which is a variable name that we must use to get the data to the fragment shader,
+In OpenGL 2.1, the output of the :term:`vertex shader <Vertex Shader>` that we use here is "gl_FrontColor",
+which is a variable name that we must use to get the data to the :term:`fragment shader <Fragment Shader>`,
 which we haven't covered.  (Actually there are a bunch of other predefined variable
 outputs, including "gl_BackColor", for the case that we are looking at the back face
 of the geometry.
@@ -133,30 +133,30 @@ of the geometry.
 .. literalinclude:: ../../src/modelviewprojection/demos/demo20/triangle.vert
    :language: glsl
 
-This is the fragment shader.  Unlike the vertex shader, which took an vector in (x,y,z)
-and outputted clip-space (NDC), the fragment shader for a given pixel is determining
-the color [2]_.  Is "gl_Color" in the fragment shader the same "gl_Color" from the vertex
-shader, or is it the value of the vertex shader's output "gl_FrontColor"?  Honestly,
+This is the :term:`fragment shader <Fragment Shader>`.  Unlike the :term:`vertex shader <Vertex Shader>`, which took an vector in (x,y,z)
+and outputted :term:`clip-space <Clip Space>` (:term:`NDC <Normalized Device Coordinates>`), the :term:`fragment shader <Fragment Shader>` for a given :term:`pixel <Pixel>` is determining
+the color [2]_.  Is "gl_Color" in the :term:`fragment shader <Fragment Shader>` the same "gl_Color" from the
+:term:`vertex shader <Vertex Shader>`, or is it the value of the vertex shader's output "gl_FrontColor"?  Honestly,
 the author doesn't know, but it is set to the output of the fragment shader,
-and such questions are a moot point once we get to OpenGL 3.3 Core profile
+and such questions are a moot point once we get to :term:`OpenGL 3.3 Core profile <OpenGL Core Profile>`
 in the next section.
 
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo20/triangle.frag
    :language: glsl
 
-The explicit mapping of variable names to values in OpenGL 3.3 Core Profile
-will make the flow of data from the CPU program, to the GPU vertex shader,
-to the fragment shader much more clear, albeit at the expense of verbosity.
+The explicit mapping of variable names to values in :term:`OpenGL 3.3 Core Profile <OpenGL Core Profile>`
+will make the flow of data from the CPU program, to the :term:`GPU` :term:`vertex shader <Vertex Shader>`,
+to the :term:`fragment shader <Fragment Shader>` much more clear, albeit at the expense of verbosity.
 
 
-.. [1] To note.  The word "shader" now just means a small function
-       the executes on the GPU.  Taylor Swift would not write a song
-       saying "A Shader's gonna shade shade shade shade", because shaders
-       do all sorts of things now, like transformations of vertices
-       from :term:`modelspace<Modelspace>` to clip-space, or adding new geometry in the
+.. [1] To note.  The word ":term:`shader <Shader>`" now just means a small function
+       the executes on the :term:`GPU`.  Taylor Swift would not write a song
+       saying "A Shader's gonna shade shade shade shade", because :term:`shaders <Shader>`
+       do all sorts of things now, like :term:`transformations <Transformation>` of :term:`vertices <Vertex>`
+       from :term:`modelspace<Modelspace>` to :term:`clip-space <Clip Space>`, or adding new geometry in the
        middle of the graphic transformation pipeline.
 
-.. [2] We are not yet concerned about how the rasterization process works,
+.. [2] We are not yet concerned about how the :term:`rasterization <Rasterization>` process works,
        and the linear interpolation of color, normals, etc.  Online
        resources like "LearnOpenGL" and "PortableGL" cover this.

@@ -16,8 +16,8 @@ Moving Camera in 3D Space - Demo 17
 Objective
 ^^^^^^^^^
 
-Make a moving camera in 3D space.  Use Ortho to transform a rectangular prism, defined relative to camera space,
-into NDC.
+Make a moving camera in 3D space.  Use Ortho to transform a rectangular prism, defined relative to :term:`camera space <Camera Space>`,
+into :term:`NDC <Normalized Device Coordinates>`.
 
 .. figure:: _static/screenshots/ortho.png
     :class: no-scale
@@ -32,8 +32,8 @@ Problem purposefully put in
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 When running this demo and moving the viewer, parts of the geometry will disappear.
-This is because it gets "clipped out", as the geometry will be outside
-of NDC, (-1 to 1 on all three axis).  We could fix this by making
+This is because it gets ":term:`clipped <Clipping>` out", as the geometry will be outside
+of :term:`NDC <Normalized Device Coordinates>`, (-1 to 1 on all three axis).  We could fix this by making
 a bigger ortho rectangular prism, but that won't solve the fundamental
 problem.
 
@@ -87,7 +87,7 @@ Description
 Before starting this demo, run src/modelviewprojection/mvpvisualization/modelvieworthoprojection.py, as
 it will show graphically all of the steps in this demo.  In the GUI,
 take a look at the camera options buttons, and once the camera
-is placed and oriented in world space, use the buttons to change the camera's position
+is placed and oriented in :term:`world space <World Space>`, use the buttons to change the camera's position
 and orientation.  This will demonstrate what we have to do for moving the
 camera in a 3D scene.
 
@@ -106,7 +106,7 @@ the camera's x axis, and one around the camera's y axis).
 To position the camera
 you would
 
-#. translate to the camera's position, using the actual position values
+#. :term:`translate <Translation>` to the camera's position, using the actual position values
    of camera position in world space coordinates.
 #. rotate around the local y axis
 #. rotate around the local x axis
@@ -114,10 +114,10 @@ you would
 To visualize this, run "python src/modelviewprojection/mvpvisualization/modelvieworthoprojection.py"
 
 The ordering of 1) before 2) and 3) should be clear, as
-we are imagining a coordinate system that moves, just
+we are imagining a :term:`coordinate system <Coordinate System>` that moves, just
 like we do for the :term:`modelspace<Modelspace>` to world space transformations.
-The ordering of 2) before 3) is very important, as two rotations
-around different axes are not commutative, meaning that you can't
+The ordering of 2) before 3) is very important, as two :term:`rotations <Rotation>`
+around different axes are :term:`not commutative <Non-commutativity of Rotations>`, meaning that you can't
 change the order and still expect the same results
 https://en.wikipedia.org/wiki/Commutative_property.
 
@@ -140,7 +140,7 @@ for :term:`modelspace<Modelspace>` to world-space data)
 
 
 Back to the point, we are envisioning the camera relative to the world
-space by making a moving coordinate system (composed of an origin, 1 unit
+space by making a moving coordinate system (composed of an :term:`origin <Origin>`, 1 unit
 in the "x" axis, 1 unit in the "y" axis, and 1 unit in the "z" axis), where
 each subsequent transformation is relative to the previous coordinate system.
 (This system is beneficial btw because it allows us to think of only one coordinate
@@ -151,7 +151,7 @@ But this system of thinking works only when we are placing the camera into
 its position/orientation relative to world space, which is not what we need
 to actually do.  We don't need to place the camera.
 We need to move every already-plotted object in world space towards the origin and
-orientation of NDC.  Looking at the following graph,
+orientation of :term:`NDC <Normalized Device Coordinates>`.  Looking at the following graph,
 
 .. figure:: _static/demo16.png
     :class: no-scale
@@ -163,10 +163,10 @@ orientation of NDC.  Looking at the following graph,
 
 We want to take the :term:`modelspace<Modelspace>` geometry from,
 say Paddle1 space, to world space,
-and then to camera space (which is going in the opposite direction of the arrow, therefore requires
-an inverse operation, because to plot data we go from :term:`modelspace<Modelspace>` to screen space on the graph.
+and then to :term:`camera space <Camera Space>` (which is going in the opposite direction of the arrow, therefore requires
+an :term:`inverse <Inverse>` operation, because to plot data we go from :term:`modelspace<Modelspace>` to :term:`screen space <Screen Space>` on the graph.
 
-Given that the inverse of a sequence of transformations is the sequence backwards,
+Given that the inverse of a sequence of :term:`transformations <Transformation>` is the sequence backwards,
 with each transformations inverted, we must do that to get from world space
 to camera space.
 
@@ -274,7 +274,7 @@ angle, page up and page down the vertical angle.
 
 
 The up arrow and down arrow make the user move forwards
-and backwards.  Unlike the camera space to world space
+and backwards.  Unlike the :term:`camera space <Camera Space>` to :term:`world space <World Space>`
 transformation, here for movement code,
 we don't do the rotate around the x axis.  This is because
 users expect to simulate walking on the ground, not flying

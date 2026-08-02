@@ -103,20 +103,20 @@ Translate Implementation
 Next we have a very import function, :py:meth:`translate <modelviewprojection.mathutils.translate>`.  Read
 the API documentation in the link, it's a very important function.
 
-Translate is a function which partially binds a constant :class:`Vector1` to
+Translate is a function which :term:`partially binds <Partial Application>` a constant :class:`Vector1` to
 one of the arguments of :py:meth:`__add__ <modelviewprojection.mathutils.MultiVectorBase.__add__>`, thus creating
 a new function of one argument.
 
 In high school math, you'd learn about classes of functions,  such as
-affine functions that follow the pattern
+:term:`affine functions <Affine Function>` that follow the pattern
 :inlinetex:`f(x) = m \times x + b`.  You were told that :inlinetex:`m` and :inlinetex:`b`
 were constant.
 
-You could recognize :inlinetex:`f(x) = 2 \times x + 3` as being an affine function
+You could recognize :inlinetex:`f(x) = 2 \times x + 3` as being an :term:`affine function <Affine Function>`
 where :inlinetex:`m=2` and :inlinetex:`b=3`.  You could recognize
-:inlinetex:`f(x) = 5 \times x + 0` as being an affine function where
+:inlinetex:`f(x) = 5 \times x + 0` as being an :term:`affine function <Affine Function>` where
 :inlinetex:`m=5` and :inlinetex:`b=0`.  You could recognize :inlinetex:`f(x) = x \times x` as
-not being affine, although it's
+not being :term:`affine <Affine Function>`, although it's
 implicit that :inlinetex:`b=0`, there is no constant times :inlinetex:`x`
 But could you generate a new function for a given :inlinetex:`m` and given
 :inlinetex:`b`?
@@ -155,9 +155,9 @@ or many times.
    :lineno-match:
    :caption: assignments/demo02/vec1.py
 
-Inverting such a function is done by negating :inlinetex:`b`, so (:inlinetex:`{T_{b=2}}^{-1} \circ {T_{b=2}}) (x) = ({T_{b=-2}} \circ {T_{b=2}}) (x) = x`
+:term:`Inverting <Inverse>` such a function is done by negating :inlinetex:`b`, so (:inlinetex:`{T_{b=2}}^{-1} \circ {T_{b=2}}) (x) = ({T_{b=-2}} \circ {T_{b=2}}) (x) = x`
 
-To get the inverse in Python, we can call the :py:meth:`inverse <modelviewprojection.mathutils.inverse>` function
+To get the :term:`inverse <Inverse>` in Python, we can call the :py:meth:`inverse <modelviewprojection.mathutils.inverse>` function
 on our function, without having to worry about how it's implemented.
 
 
@@ -174,7 +174,7 @@ on our function, without having to worry about how it's implemented.
 What's nice about that is we can look at the implementation of
 :py:meth:`translate <modelviewprojection.mathutils.translate>`
 once, understand how it works internally, and then forget those details and treat
-it as an invertible BlackBox_.
+it as an :term:`invertible <Invertible Function>` BlackBox_.
 
 .. _BlackBox:  https://en.wikipedia.org/wiki/Black_box
 
@@ -196,8 +196,8 @@ Function Composition
 --------------------
 
 Similarly to how we defined :inlinetex:`T_{b}(x) = x + b` for adding a constant
-:inlinetex:`b`, we can define a "scaling" function :inlinetex:`S_{m}(x) = m \times x`.  We can use
-function composition of a partially bound :inlinetex:`S` and partially bound :inlinetex:`T`
+:inlinetex:`b`, we can define a ":term:`scaling <Scaling>`" function :inlinetex:`S_{m}(x) = m \times x`.  We can use
+:term:`function composition <Function Composition>` of a :term:`partially bound <Partial Application>` :inlinetex:`S` and partially bound :inlinetex:`T`
 to generate new instances of :inlinetex:`f(x) = m \times x + b`
 
 :inlinetex:`f(x) = {m}{x} + b = T_{b=2} \circ S_{m=5}`

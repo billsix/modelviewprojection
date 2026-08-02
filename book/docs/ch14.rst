@@ -18,15 +18,15 @@ Objective
 ^^^^^^^^^
 Do the same stuff as the previous demo, but use 3D coordinates,
 where the negative z axis goes into the screen (because
-of the right hand rule).  Positive z comes out of the monitor
+of the :term:`right hand rule <Right-Hand Rule>`).  Positive z comes out of the :term:`monitor <Monitor>`
 towards your face.
 
 
 Things that this demo doesn't end up doing correctly:
 
 * The blue square is always drawn, even
-  when its z-coordinate in world space is less than the paddle's.  The solution will be
-  z-buffering https://en.wikipedia.org/wiki/Z-buffering,
+  when its z-coordinate in :term:`world space <World Space>` is less than the paddle's.  The solution will be
+  :term:`z-buffering <Z-buffering>` https://en.wikipedia.org/wiki/Z-buffering,
   and it is implemented in the next demo.
 
 
@@ -103,8 +103,8 @@ Description
 
 
 
-* Vector data will now have an X, Y, and Z component.
-* Rotations around an angle in 3D space follow the right hand rule_.  Here's a link to them
+* :term:`Vector <Vector (Vector2 / Vector3)>` data will now have an X, Y, and Z component.
+* :term:`Rotations <Rotation>` around an angle in 3D space follow the right hand rule_.  Here's a link to them
   in matrix_ form, which we have not yet covered.
 
 .. _rule: https://en.wikipedia.org/wiki/Right-hand_rule
@@ -133,11 +133,11 @@ Description
    :caption: gacalc/g3.py
 
 
-The natural basis extends to 3D with a third unit vector, ``e_3``, one unit
+The :term:`natural basis <Natural Basis / Basis Vector>` extends to 3D with a third unit vector, ``e_3``, one unit
 along the z axis --- the class constants ``Vector3.e_1``, ``Vector3.e_2``, and
 ``Vector3.e_3``.
 
-A 3D vertex is then ``a * e_1 + b * e_2 + c * e_3`` --- the same scaled-sum form
+A 3D :term:`vertex <Vertex>` is then ``a * e_1 + b * e_2 + c * e_3`` --- the same scaled-sum form
 as in 2D, with the new z term.
 
 
@@ -240,8 +240,8 @@ a z-coordinate of 0 in their :term:`modelspace<Modelspace>`.
 
 The only new aspect of the square below is that it has
 a z-coordinate of 0 in its :term:`modelspace<Modelspace>`.  N.B that since we
-do a sequence of transformations to the :term:`modelspace<Modelspace>` data to get
-to world-space coordinates, the X, Y, and Z coordinates
+do a sequence of :term:`transformations <Transformation>` to the :term:`modelspace<Modelspace>` data to get
+to :term:`world-space <World Space>` coordinates, the X, Y, and Z coordinates
 are subject to be different.
 
 
@@ -311,7 +311,7 @@ that the square is always drawn over the paddle.
 
 
 This is because without depth_ buffering, the object drawn last
-clobbers the color of any previously drawn object at the pixel.
+clobbers the color of any previously drawn object at the :term:`pixel <Pixel>`.
 Try moving the square drawing code to the beginning, and you will
 see that the square can be hidden behind the paddle.
 
@@ -333,6 +333,6 @@ see that the square can be hidden behind the paddle.
 Added translate in 3D.  Added scale in 3D.  These are just like
 the 2D versions, just with the same process applied to the z axis.
 
-The direction of the rotation is defined by the right hand rule.
+The direction of the :term:`rotation <Rotation>` is defined by the :term:`right hand rule <Right-Hand Rule>`.
 
 https://en.wikipedia.org/wiki/Right-hand_rule

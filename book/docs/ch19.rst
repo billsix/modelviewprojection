@@ -16,32 +16,32 @@ Matrix Stacks - Demo 19
 Objective
 ^^^^^^^^^
 
-Replace lambda stacks with OpenGL 2.1 matrix stacks, provided
+Replace lambda stacks with OpenGL 2.1 :term:`matrix stacks <Matrix Stack>`, provided
 by the driver for your graphics card.  This is how preshader
 opengl worked.
 
-The function stack allowed us to aggregate the entirety of
-the transformations from :term:`modelspace<Modelspace>` to NDC, by creating a context
+The :term:`function stack <Function Stack>` allowed us to aggregate the entirety of
+the transformations from :term:`modelspace<Modelspace>` to :term:`NDC <Normalized Device Coordinates>`, by creating a context
 of transformations, and a function to do the conversion.  We then
 needed to push or pop functions from the stack, depending on what
 space transition we were currently dealing with.
 
 A given matrix in OpenGL2.1 is the equivalent of a function stack;
-given one matrix, it can perform a sequence of transformations
+given one matrix, it can perform a sequence of :term:`transformations <Transformation>`
 from one space to another, with one matrix multiplication.
 
-OpenGL 2.1 deals with two different types of matrices: 1) the projection
-matrix, which effectively is the function from camera space
-to NDC (clip space) and 2) The model-view matrix, which deals
+OpenGL 2.1 deals with two different types of matrices: 1) the :term:`projection
+matrix <Projection Matrix>`, which effectively is the function from :term:`camera space <Camera Space>`
+to NDC (:term:`clip space <Clip Space>`) and 2) The :term:`model-view matrix <Model-View Matrix>`, which deals
 with the transformations from :term:`modelspace<Modelspace>` to camera space.
 
 Given that a matrix can perform a sequence of transformations
-across multiple spaces in the Cayley graph, it may appear
+across multiple spaces in the :term:`Cayley graph <Cayley Graph>`, it may appear
 that we no longer need any notion of a stack, as we had in the function
 stacks.  But that is not true.  For the Model-View matrix, we still
 need a stack of matrices, so that we can return to a previous
-transformation sequence.  For instance, if we are at world space,
-the Model-View matrix at the top of the matrix stack will convert
+transformation sequence.  For instance, if we are at :term:`world space <World Space>`,
+the Model-View matrix at the top of the :term:`matrix stack <Matrix Stack>` will convert
 from world space to camera space.  But we need to draw two relative
 child spaces to world space, paddle 1 space and paddle 2 space.
 So before we do the transformations to paddle 1 space, we "push"
@@ -59,8 +59,8 @@ and instead of adding fns and later having to remove them,
 we can save onto the current frame of reference with a "glPushMatrix",
 and restore the saved state by "glPopMatrix".
 
-Use glPushMatrix and glPopMatrix to save/restore a local coordinate
-system, that way a tree of objects can be drawn without one child
+Use glPushMatrix and glPopMatrix to save/restore a local :term:`coordinate
+system <Coordinate System>`, that way a tree of objects can be drawn without one child
 destroying the relative coordinate system of the parent node.
 
 In src/modelviewprojection/mvpvisualization/pushmatrix.py, the grayed out
@@ -106,16 +106,16 @@ Description
 
 
 
-First thing to note is that we are now using OpenGL 2.1's official transformation
+First thing to note is that we are now using OpenGL 2.1's official :term:`transformation <Transformation>`
 procedures, and in the projection transformation, they flip the z axis, making
-it a left hand coordinate system.  The reason for this is long, and I
+it a left hand :term:`coordinate system <Coordinate System>`.  The reason for this is long, and I
 have begun discusses in the "Standard Perspective Matrix" section, but it is an
 incomplete section for now.
-But for now, all it means that we have to change how the depth test
+But for now, all it means that we have to change how the :term:`depth test <Depth Test>`
 will be configured, as after the projection transformation, the far z
 value is 1.0, and the near z value is -1
 
-The clear depth that is set for each fragment each frame is now 1.0,
+The clear depth that is set for each :term:`fragment <Fragment>` each :term:`frame <Frame>` is now 1.0,
 and the test for a given fragment to overwrite the color in the color
 buffer is changed to be less than or equal to.
 
@@ -138,7 +138,7 @@ The Event Loop
 ~~~~~~~~~~~~~~
 
 
-Set the model, view, and projection matrix to the identity
+Set the model, view, and :term:`projection matrix <Projection Matrix>` to the :term:`identity <Identity>`
 matrix.  This just means that the functions (currently)
 will not transform data.
 In univariate terms, f(x) = x
@@ -153,11 +153,11 @@ In univariate terms, f(x) = x
 
 
 
-change the projection matrix to convert the frustum
-to clip space
+change the projection matrix to convert the :term:`frustum <Frustum>`
+to :term:`clip space <Clip Space>`
 set the projection matrix to be perspective.  Since
-the viewport is always square, set the aspect ratio to be 1.0.
-We are now going to clip space instead of to NDC, which we be discussed
+the :term:`viewport <Viewport>` is always square, set the :term:`aspect ratio <Aspect Ratio>` to be 1.0.
+We are now going to clip space instead of to :term:`NDC <Normalized Device Coordinates>`, which we be discussed
 in the next chapter.
 
 .. figure:: _static/perspective.png
@@ -176,15 +176,15 @@ in the next chapter.
    :lineno-match:
    :caption: src/modelviewprojection/demos/demo19.py
 
-"glMatrixMode" tells the computer which matrix stack should be the active one,
+"glMatrixMode" tells the computer which :term:`matrix stack <Matrix Stack>` should be the active one,
 against which subsequent matrix operations which affect.  In this case, we set
 the current matrix stack to be the projection one.  We then call "gluPerspective"
 to set the projection transformation, which we covered in previous sections,
-and we will ignore the implementation of it; it is now a black box.
+and we will ignore the implementation of it; it is now a :term:`black box <Black Box vs White Box>`.
 
-Now onto camera space!
+Now onto :term:`camera space <Camera Space>`!
 
-The camera's position could be described relative to world space by
+The camera's position could be described relative to :term:`world space <World Space>` by
 the following sequence of transformations.
 
 ::
@@ -196,7 +196,7 @@ the following sequence of transformations.
 
 Therefore, to take the object's world space coordinates
 and transform them into camera space, we need to
-do the inverse operations to the view stack.
+do the :term:`inverse <Inverse>` operations to the view stack.
 
 .. TODO - mention 2 stacks
 
@@ -208,9 +208,9 @@ do the inverse operations to the view stack.
    :lineno-match:
    :caption: src/modelviewprojection/demos/demo19.py
 
-First thing we did was set the current matrix to be the model-view matrix, instead
+First thing we did was set the current matrix to be the :term:`model-view matrix <Model-View Matrix>`, instead
 of the projection matrix.  Most of our work will be with the model-view matrix,
-as looking at the Cayley graph, there's only one function from camera space
+as looking at the :term:`Cayley graph <Cayley Graph>`, there's only one function from camera space
 to NDC.  N.B., OpenGL 2.1 transformations use degrees, not radians, so
 we need to convert to degrees.
 
@@ -219,7 +219,7 @@ we need to convert to degrees.
 
 Unlike in the lambda stack demo, in which a new function was added to the
 top of the stack, without modifying any functions below it on the stack,
-with OpenGL matrices, each transformation, such as translate, rotate, and scale,
+with OpenGL matrices, each transformation, such as :term:`translate <Translation>`, :term:`rotate <Rotation>`, and :term:`scale <Scaling>`,
 actually destructively modifies the matrix at the top of the stack, as matrices
 can be premultiplied together for efficiency.
 
@@ -273,8 +273,8 @@ be read forwards, where each operation translates/rotates/scales
 the current space.
 
 glVertex data is specified in :term:`modelspace<Modelspace>` coordinates,
-but since we loaded the projection matrix and the modelview
-matrix into OpenGL, glVertex3f will apply those transformations for us [1]_!
+but since we loaded the :term:`projection matrix <Projection Matrix>` and the :term:`modelview
+matrix <Model-View Matrix>` into OpenGL, glVertex3f will apply those transformations for us [1]_!
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo19.py
    :language: python
@@ -310,8 +310,8 @@ draw paddle 2
 ~~~~~~~~~~~~~
 
 No need to push matrix here, as this is the last object that
-we are drawing, and upon the next iteration of the event loop,
-all 3 matrices will be reset to the identity
+we are drawing, and upon the next iteration of the :term:`event loop <Event Loop>`,
+all 3 matrices will be reset to the :term:`identity <Identity>`
 
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo19.py
@@ -325,17 +325,17 @@ all 3 matrices will be reset to the identity
 
 
 .. [1] To note.  The computer has no notion of these relative coordinate systems.
-       From the computer's point of view, there is one coordinate system, (x,y,z,w).
+       From the computer's point of view, there is one :term:`coordinate system <Coordinate System>`, (x,y,z,w).
        So now let's look at what the OpenGL drawing calls are in more detail, and think
        about what they must do.  "glBegin(GL_QUADS)", 4 calls to "glVertex", and "glEnd".
-       "glVertex", given :term:`modelspace<Modelspace>` data, must pull 2 matrices from OpenGL's matrix stacks,
-       the modelview and the projection.  It then does two transformations to turn
-       the :term:`modelspace<Modelspace>` data in NDC (clip-space, where the x y and z are each divided by the w to get
+       "glVertex", given :term:`modelspace<Modelspace>` data, must pull 2 matrices from OpenGL's :term:`matrix stacks <Matrix Stack>`,
+       the modelview and the projection.  It then does two :term:`transformations <Transformation>` to turn
+       the :term:`modelspace<Modelspace>` data in :term:`NDC <Normalized Device Coordinates>` (:term:`clip-space <Clip Space>`, where the x y and z are each divided by the w to get
        NDC).  From this point of view, there are no relative coordinate systems, just numbers
        in and numbers out.  So then what do glBegin and glEnd do?  This will
-       be a subject for after the midterm, but the 4 vertices will be converted to screen space,
+       be a subject for after the midterm, but the 4 :term:`vertices <Vertex>` will be converted to :term:`screen space <Screen Space>`,
        given the matrices, and when "glEnd" is called, the graphics driver will need to determine
-       what pixels are within the quadrilateral or not.  For the fragments within the quadrilateral,
+       what :term:`pixels <Pixel>` are within the quadrilateral or not.  For the :term:`fragments <Fragment>` within the quadrilateral,
        the driver will also need to know the color of the vector.  So glVertex is doing a lot behind
        the scenes, grabbing the modelview and the projection matrices from the top of the stack,
        grabbing the current color, set by "glColor3f".

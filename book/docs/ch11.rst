@@ -105,7 +105,7 @@ Code
    we would need to change the code in multiple places.
    Later demos will show how to handle this problem more gracefully.
 
-Define the geometry of the square in its own modelspace.
+Define the geometry of the square in its own :term:`modelspace <Modelspace>`.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo11.py
    :language: python
@@ -145,20 +145,20 @@ Draw paddle 1, just as before.
    :caption: src/modelviewprojection/demos/demo11.py
 
 
-As a refresher, the author recommends reading the code from modelspace
-to worldspace from the bottom up, and from worldspace to NDC from top down.
+As a refresher, the author recommends reading the code from :term:`modelspace <Modelspace>`
+to :term:`worldspace <World Space>` from the bottom up, and from worldspace to :term:`NDC <Normalized Device Coordinates>` from top down.
 
-* Read from modelspace to world space, bottom up
-* Reset the coordinate system
-* Read from world space to camera space, knowing that camera transformations
-  are implemented as the inverse of placing the camera space in world space.
-* Reset the coordinate system
-* Read camera-space to NDC
+* Read from :term:`modelspace <Modelspace>` to :term:`world space <World Space>`, bottom up
+* Reset the :term:`coordinate system <Coordinate System>`
+* Read from :term:`world space <World Space>` to :term:`camera space <Camera Space>`, knowing that camera transformations
+  are implemented as the :term:`inverse <Inverse>` of placing the camera space in world space.
+* Reset the :term:`coordinate system <Coordinate System>`
+* Read :term:`camera-space <Camera Space>` to :term:`NDC <Normalized Device Coordinates>`
 
 New part!  Draw the square relative to the first paddle!
 Translate the square to the right by 2 units.
-We are dealing with a -1 to 1 world space, which
-later gets scaled down to NDC.
+We are dealing with a -1 to 1 :term:`world space <World Space>`, which
+later gets scaled down to :term:`NDC <Normalized Device Coordinates>`.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo11.py
    :language: python
@@ -169,27 +169,27 @@ later gets scaled down to NDC.
    :caption: src/modelviewprojection/demos/demo11.py
 
 
-Towards that, we need to do all of the transformations to the square
+Towards that, we need to do all of the :term:`transformations <Transformation>` to the square
 that we would to the paddle, and then do any extra transformations
 afterwards.
 
 As such, read
 
-* Read paddle1space to world space, from bottom up
+* Read paddle1space to :term:`world space <World Space>`, from bottom up
 
 If we were to plot the square now, it would be in paddle 1's space.  We don't want
 that, we want in to be moved in the X direction some units.  Therefore
 
-* Read modelspace to paddle1space, from bottom up
-* Reset the coordinate system.
+* Read :term:`modelspace <Modelspace>` to paddle1space, from bottom up
+* Reset the :term:`coordinate system <Coordinate System>`.
 
 Now the square's geometry will be in its own space!
 
-* Read from worldspace to camera-space, knowing that camera transformations
-  are implemented as the inverse of placing the camera space in world space.
+* Read from :term:`worldspace <World Space>` to :term:`camera-space <Camera Space>`, knowing that camera transformations
+  are implemented as the :term:`inverse <Inverse>` of placing the camera space in world space.
 
-* Reset the coordinate system
-* Read camera-space to NDC
+* Reset the :term:`coordinate system <Coordinate System>`
+* Read :term:`camera-space <Camera Space>` to :term:`NDC <Normalized Device Coordinates>`
 
 
 Draw paddle 2 just like before.

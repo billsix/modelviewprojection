@@ -15,7 +15,7 @@ Rotate the Square - Demo 12
 
 Objective
 ^^^^^^^^^
-Rotate the square around its origin.
+Rotate the square around its :term:`origin <Origin>`.
 
 
 .. figure:: _static/screenshots/demo12.png
@@ -119,8 +119,8 @@ the square.
 
 
 
-Since we just want to add one rotation at the end of the sequence
-of transformations from paddle 1 space to square space, just add
+Since we just want to add one :term:`rotation <Rotation>` at the end of the sequence
+of :term:`transformations <Transformation>` from paddle 1 space to square space, just add
 a rotate call at the top.
 
 

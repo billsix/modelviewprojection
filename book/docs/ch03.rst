@@ -28,9 +28,9 @@ Window Resizing and Proportionality - Demo 03
 Problem With Previous Demo
 ^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-When running Demo02, if the user resizes the windows,
+When running Demo02, if the user resizes the :term:`windows <Window>`,
 then the paddles lose their proportionality, as NDC
-no longer is mapped to a square screen-space.
+no longer is mapped to a square :term:`screen-space <Screen Space>`.
 
 
 
@@ -77,7 +77,7 @@ Ideally, we would like to draw our paddles with
 a black background within a square region in the center of the window, regardless of the dimensions
 of the window.
 
-OpenGL has a solution for us.  The *viewport* is a rectangular region contained
+OpenGL has a solution for us.  The :term:`viewport <Viewport>` is a rectangular region contained
 within the window into which OpenGL will render.  By specifying a viewport, OpenGL
 will convert the :term:`NDC<Normalized Device Coordinates>`
 to the sub-window space of the viewport, instead of the whole
@@ -114,7 +114,7 @@ Code
 GLFW/OpenGL Initialization
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-The setup code is the same as the previous demo's setup.  Initialize GLFW.  Set the OpenGL version.
+The setup code is the same as the previous demo's setup.  Initialize :term:`GLFW`.  Set the OpenGL version.
 Create the window.  Set a key handler for closing.
 Execute the event/drawing loop.  The only code showed in this book will be the relevant parts.
 Consult the python source for the full, working code.
@@ -132,7 +132,7 @@ Set to Draw in Square Subsection Of Window
    :caption: src/modelviewprojection/demos/demo03.py
 
 
-* declare a function to configure OpenGL to draw only in a square subset of the monitor, i.e. the viewport
+* declare a function to configure OpenGL to draw only in a square subset of the :term:`monitor <Monitor>`, i.e. the viewport
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo03.py
    :language: python
@@ -144,7 +144,7 @@ Set to Draw in Square Subsection Of Window
 
 
 * set the clear color to be gray.
-* glClear clear the color of every pixel in the whole frame buffer, independent of viewport.
+* glClear clear the color of every :term:`pixel <Pixel>` in the whole :term:`frame buffer <Frame Buffer>`, independent of viewport.
   So now the entire framebuffer is gray.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo03.py
@@ -158,7 +158,7 @@ Set to Draw in Square Subsection Of Window
 
 * figure out the minimum dimension of the window.  In the image above, the "square_size" is 1200,
   as the monitor's vertical screen-space is only 1200 pixels tall.
-* To make a square sub-region, we need a number for the distance between vertices of the square.
+* To make a square sub-region, we need a number for the distance between :term:`vertices <Vertex>` of the square.
   By using the minimum of the width and height, we can at least fill up the screen in one dimension.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo03.py
@@ -170,7 +170,7 @@ Set to Draw in Square Subsection Of Window
    :caption: src/modelviewprojection/demos/demo03.py
 
 
-* Enable the scissor test.  Internally, OpenGL drivers likely have global variables
+* Enable the :term:`scissor test <Scissor Test>`.  Internally, OpenGL drivers likely have global variables
   that we set by calling functions.  Every OpenGL feature isn't used by every OpenGL
   program.  For instance, we are not using lighting to add realism.  We aren't using
   texturing.  We are using the scissor test, so we must enable it.  We only enable
@@ -183,7 +183,7 @@ Set to Draw in Square Subsection Of Window
   of the framebuffer into which the OpenGL operations
   will apply.  In this case, the color in every pixel in the framebuffer is currently gray
   because of the existing call to glClearColor.
-  By calling glScissor, we are setting a value in each fragment (i.e., pixel) on a square
+  By calling glScissor, we are setting a value in each :term:`fragment <Fragment>` (i.e., pixel) on a square
   region of pixels to be true (and false everywhere else) which means "only do the OpenGL call on these fragments,
   ignore the others".
   As we will learn later, OpenGL stores much more information
@@ -196,7 +196,7 @@ Set to Draw in Square Subsection Of Window
     :figclass: align-center
 
 
-* Look at the image above of NDC superimposed on Screen Space.  From this,
+* Look at the image above of NDC superimposed on :term:`Screen Space`.  From this,
   the arguments sent to glScissor should be clear.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo03.py
@@ -246,7 +246,7 @@ that we care about, which is the black square.
 The Event Loop
 &&&&&&&&&&&&&&
 
-This demo's event loop is just like the previous demo,
+This demo's :term:`event loop <Event Loop>` is just like the previous demo,
 but this time we call the procedure to
 ensure that we only draw in a square subset of
 the window.
@@ -270,7 +270,7 @@ the window.
 
 
 * The event loop is the same as the previous demo, except
-  that we call draw_in_square_viewport every frame at the beginning.
+  that we call draw_in_square_viewport every :term:`frame <Frame>` at the beginning.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo03.py
    :language: python

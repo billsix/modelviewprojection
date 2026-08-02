@@ -57,12 +57,12 @@ chapters exist in real life, and are 2 meters wide and 6 meters tall.
 The graphics programmer should be able to use those numbers directly;
 they shouldn't have to manually transform the distances into :term:`NDC<Normalized Device Coordinates>`.
 
-Whatever a convenient numbering system is (i.e. coordinate system) for modeling objects
+Whatever a convenient numbering system is (i.e. :term:`coordinate system <Coordinate System>`) for modeling objects
 is called :term:`modelspace<Modelspace>`.  Since a paddle has four corners, which corner should be at
-the origin (0,0)?  If you don't already know what you want at the origin, then
+the :term:`origin <Origin>` (0,0)?  If you don't already know what you want at the origin, then
 none of the corners should be; instead put the center of the object
 at the origin (Because by putting the center of the object at the origin,
-scaling and rotating the object are trivial, as shown in later chapters).
+:term:`scaling <Scaling>` and :term:`rotating <Rotation>` the object are trivial, as shown in later chapters).
 
 
 .. figure:: _static/modelspace.svg
@@ -75,19 +75,19 @@ scaling and rotating the object are trivial, as shown in later chapters).
 
 
 :term:`modelspace<Modelspace>` - the coordinate system (origin plus axes), in which some object's
-vertices are defined.
+:term:`vertices <Vertex>` are defined.
 
 
 WorldSpace
 ^^^^^^^^^^
 
-WorldSpace is a top-level space, independent of NDC, that we choose to use.  It is arbitrary.
-If you were to model a racetrack for a racing game, the origin of WorldSpace may be the center of that racetrack.
+WorldSpace is a top-level space, independent of :term:`NDC <Normalized Device Coordinates>`, that we choose to use.  It is arbitrary.
+If you were to model a racetrack for a racing game, the :term:`origin <Origin>` of WorldSpace may be the center of that racetrack.
 If you were modeling our solar system, the center of the sun could be the origin of "WorldSpace".
 I personally would put the center of our flat earth at the origin, but reasonable people
 can disagree.
 
-For our demo with paddles, the author arbitrarily defines the WorldSpace to be 20 units wide, 20 units tall, with the origin at the center.
+For our demo with paddles, the author arbitrarily defines the :term:`WorldSpace <World Space>` to be 20 units wide, 20 units tall, with the origin at the center.
 
 .. figure:: _static/demo06.png
     :class: no-scale
@@ -102,15 +102,15 @@ For our demo with paddles, the author arbitrarily defines the WorldSpace to be 2
 Modelspace to WorldSpace
 ^^^^^^^^^^^^^^^^^^^^^^^^
 
-The author prefers to view transformations as changes to the graph paper,
+The author prefers to view :term:`transformations <Transformation>` as changes to the graph paper,
 as compared to view transformations as changes to points.
 
-As such, for placing paddle1, we can view the translation as a change
-to the graph paper relative to world space coordinates (only incidentally
+As such, for placing paddle1, we can view the :term:`translation <Translation>` as a change
+to the graph paper relative to :term:`world space <World Space>` coordinates (only incidentally
 bringing the vertices
 along with it) and then resetting the graph paper (i.e. both origin and axes)
 back to its original position and orientation.
-Although we will think of the paddle's vertices as relative to its own space
+Although we will think of the paddle's :term:`vertices <Vertex>` as relative to its own space
 (i.e. -1 to 1 horizontally, -3 to 3 vertically),
 we will not look at the numbers of what they are in world space coordinates,
 as doing so
@@ -157,10 +157,10 @@ Modelspace of Paddle 1 Superimposed on Worldspace after the translation
 
 
 Paddle 1's graph paper gets translated -9 units in the x direction, and some
-number of units in the y direction, 0 during the first frame, based off of user input.  The origin
+number of units in the y direction, 0 during the first :term:`frame <Frame>`, based off of user input.  The :term:`origin <Origin>`
 is translated, and the graph paper comes with it, onto which you can
-plot the vertices.  Notice that the coordinate system labels below the plot and to the left of the plot
-is unchanged.  That is world space, which has not changed.
+plot the vertices.  Notice that the :term:`coordinate system <Coordinate System>` labels below the plot and to the left of the plot
+is unchanged.  That is :term:`world space <World Space>`, which has not changed.
 
 .. figure:: _static/translation-forwards-2.svg
     :class: no-scale
@@ -204,12 +204,12 @@ d               (-8,-1)
 
 
 
-Now that the transformation has happened, the vertices are all in world space.
+Now that the :term:`transformation <Transformation>` has happened, the vertices are all in :term:`world space <World Space>`.
 You could calculate their values in world space, but that will not give you any insight.  The only numbers
 that matter for insight as that the entire graph paper of :term:`modelspace<Modelspace>`, which originally
-was the same as world space, has changed, bringing the vertices along with it.
+was the same as world space, has changed, bringing the :term:`vertices <Vertex>` along with it.
 
-Same goes for Paddle 2's :term:`modelspace<Modelspace>`, relative to its translation, which
+Same goes for Paddle 2's :term:`modelspace<Modelspace>`, relative to its :term:`translation <Translation>`, which
 are different values.
 
 
@@ -304,19 +304,19 @@ d               (10,-7)
 Scaling
 ~~~~~~~
 
-Our paddles are now well outside of NDC, and as such, they would not
-be displayed, as they would be *clipped* out.  Their values are outside
+Our paddles are now well outside of :term:`NDC <Normalized Device Coordinates>`, and as such, they would not
+be displayed, as they would be :term:`clipped <Clipping>` out.  Their values are outside
 of -1.0 to 1.0.  All we will need to do to convert them from
-world space to NDC is divide each component, x and y, by 10.
+:term:`world space <World Space>` to NDC is divide each component, x and y, by 10.
 
-As a demonstration of how scaling works, let's make an
+As a demonstration of how :term:`scaling <Scaling>` works, let's make an
 object's width twice as large, and height three times as large. (The author
 tried doing the actual scaling of 1/10 in an animated gif, and it looked awful,
 therefore a different scaling gif is showed here, but the concept
 is the same).
 
 We can expand or shrink the size of an object
-by "scale"ing each component of the vertices by some coefficient.
+by "scale"ing each component of the :term:`vertices <Vertex>` by some coefficient.
 
 
 
@@ -415,7 +415,7 @@ and to get it into NDC, we need to scale by dividing by 10
 
 where x_p1, y_p1  are the :term:`modelspace<Modelspace>` coordinates of the paddle's vertices,
 and where p1_center_x_worldspace, p1_center_y_worldspace,
-are the offset from the world space's origin to the center of the paddle, i.e. the translation.
+are the offset from the world space's :term:`origin <Origin>` to the center of the paddle, i.e. the :term:`translation <Translation>`.
 
 
 
@@ -536,7 +536,7 @@ but the function for translating, named "f", and the inverse of "f" named "f_inv
 This is because we will be translating many Vector2s using the same amount.
 
 
-Invertible functions are stored in pairs, with the "active" function
+:term:`Invertible functions <Invertible Function>` are stored in pairs, with the "active" function
 being the first one passed to the constructor.  So for translate above,
 the adding of the Vector2s will be the function, but
 :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`
@@ -756,11 +756,11 @@ Rendering Paddle 1
     Reset coordinate system.
 
 
-The coordinate system now resets back to the coordinate system specified
+The :term:`coordinate system <Coordinate System>` now resets back to the coordinate system specified
 on the left and below.
 Now, we must scale everything by 1/10.  I have
-not included a picture of that here.  Scaling happens relative to
-the origin, so the picture would be the same, just with different labels
+not included a picture of that here.  :term:`Scaling` happens relative to
+the :term:`origin <Origin>`, so the picture would be the same, just with different labels
 on the bottom and on the left.
 
 
@@ -810,9 +810,9 @@ Rendering Paddle 2
     Reset coordinate system.
 
 
-The coordinate system is reset.  Now scale everything by 1/10.  I have
-not included a picture of that here.  Scaling happens relative to
-the origin, so the picture would be the same, just with different labels
+The :term:`coordinate system <Coordinate System>` is reset.  Now scale everything by 1/10.  I have
+not included a picture of that here.  :term:`Scaling` happens relative to
+the :term:`origin <Origin>`, so the picture would be the same, just with different labels
 on the bottom and on the left.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo06.py

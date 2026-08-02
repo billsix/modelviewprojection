@@ -49,8 +49,8 @@ Keyboard Input  Action
 Paddles which don't move are quite boring.  Let's make them move up or down
 by getting keyboard input.
 
-And while we are at it, let's go ahead and create data structures for a Vector,
-and for the collection of vertices that make up a Paddle.
+And while we are at it, let's go ahead and create data structures for a :term:`Vector <Vector (Vector2 / Vector3)>`,
+and for the collection of :term:`vertices <Vertex>` that make up a Paddle.
 
 Code
 ^^^^
@@ -186,7 +186,7 @@ Query User Input and Use It To Animate
 
 
 
-- If the user presses 's' this frame, subtract 0.1 from the y component of each of
+- If the user presses 's' this :term:`frame <Frame>`, subtract 0.1 from the y component of each of
   the vertices in the paddle. If the
   key continues to be held down over time, this value will continue to decrease.
 - If the user presses  'w' this frame, add 0.1 more to the y component of each of
@@ -207,9 +207,9 @@ Query User Input and Use It To Animate
 The Event Loop
 ~~~~~~~~~~~~~~
 
-Monitors can have variable frame-rates, and in order to ensure
+:term:`Monitors <Monitor>` can have variable :term:`frame-rates <Frame Rate>`, and in order to ensure
 that movement is consistent across different monitors, we choose
-to only flush the screen at 60 hertz (frames per second).
+to only flush the screen at 60 :term:`hertz <Hertz>` (frames per second).
 
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo04.py
@@ -257,7 +257,7 @@ to only flush the screen at 60 hertz (frames per second).
    :caption: src/modelviewprojection/demos/demo04.py
 
 
-* We're still near the beginning of the event loop, and we
+* We're still near the beginning of the :term:`event loop <Event Loop>`, and we
   haven't drawn the paddles yet.  So we call the function
   to query the user input, which will also modify the vertices'
   values if there was input.

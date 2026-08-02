@@ -17,11 +17,11 @@ Objective
 ^^^^^^^^^
 
 
-Remove repetition in the coordinate transformations,
+Remove repetition in the coordinate :term:`transformations <Transformation>`,
 as previous demos had very similar transformations,
-especially from camera space to NDC space.
+especially from :term:`camera space <Camera Space>` to :term:`NDC <Normalized Device Coordinates>` space.
 Each edge of the graph of objects
-should only be specified once per frame.
+should only be specified once per :term:`frame <Frame>`.
 
 
 .. figure:: _static/demo18-1.png
@@ -32,11 +32,11 @@ should only be specified once per frame.
 
     Full Cayley graph.
 
-Noticing in the previous demos that the lower parts of the transformations
+Noticing in the previous demos that the lower parts of the :term:`transformations <Transformation>`
 have a common pattern, we can create a stack of functions for later application.
 Before drawing geometry, we add any functions to the top of the stack,
 apply all of our functions in the stack to our :term:`modelspace<Modelspace>` data to
-get NDC data,
+get :term:`NDC <Normalized Device Coordinates>` data,
 and before we return to the parent
 node, we pop the functions we added off of the stack, to ensure that
 we return the stack to the state that the parent node gave us.
@@ -75,19 +75,19 @@ Here is the square's code:
 
 The only difference is the square's :term:`modelspace<Modelspace>` to paddle1 space.  Everything else is exactly the same.
 In a graphics program, because the scene is a hierarchy of relative
-objects, it is unwise to put this much repetition in the transformation
+objects, it is unwise to put this much repetition in the :term:`transformation <Transformation>`
 sequence.  Especially if we might change how the camera operates,
-or from perspective to ortho.  It would required a lot of code changes.
+or from :term:`perspective <Perspective Projection>` to :term:`ortho <Orthographic Projection>`.  It would required a lot of code changes.
 And I don't like reading from the bottom of the code up.  Code doesn't
 execute that way.  I want to read from top to bottom.
 
-When reading the transformation sequences in the previous demos from top down
+When reading the :term:`transformation <Transformation>` sequences in the previous demos from top down
 the transformation at the top is applied first, the transformation
 at the bottom is applied last, with the intermediate results method-chained together.
 (look up above for a reminder)
 
 
-With a function stack, the function at the top of the stack (f5) is applied first,
+With a :term:`function stack <Function Stack>`, the function at the top of the stack (f5) is applied first,
 the result of this is then given as input to f4 (second on the stack), all
 the way down to f1, which was the first fn to be placed on the stack,
 and as such, the last to be applied. (Last In First Applied - LIFA)
@@ -135,7 +135,7 @@ in the same order as all of the previous demos, they need to be
 pushed onto the stack in reverse order.
 
 
-This means that from :term:`modelspace<Modelspace>` to world space, we can now
+This means that from :term:`modelspace<Modelspace>` to :term:`world space <World Space>`, we can now
 read the transformations FROM TOP TO BOTTOM!!!!  SUCCESS!
 
 Then, to draw the square relative to paddle one, those six
@@ -178,10 +178,10 @@ Keyboard Input  Action
 Description
 ^^^^^^^^^^^
 
-Function stack.  Internally it has a list, where index 0 is
+:term:`Function stack <Function Stack>`.  Internally it has a list, where index 0 is
 the bottom of the stack.  In python we can store any object
 as a variable, and we will be storing functions which transform
-a vector to another vector, through the "modelspace_to_ndc_fn" method.
+a :term:`vector <Vector (Vector2 / Vector3)>` to another vector, through the "modelspace_to_ndc_fn" method.
 
 
 
@@ -236,7 +236,7 @@ a vector to another vector, through the "modelspace_to_ndc_fn" method.
 
 Define four functions, which we will compose on the stack.
 
-Push identity onto the stack, which will will never pop off of the stack.
+Push :term:`identity <Identity>` onto the stack, which will will never pop off of the stack.
 
 
 .. literalinclude:: ../../tests/test_mathutils.py
@@ -301,13 +301,13 @@ a new function to the top of the stack.
 
 
 Unlike in previous demos in which we read the transformations
-from :term:`modelspace<Modelspace>` to world space backwards; this time because the transformations
+from :term:`modelspace<Modelspace>` to :term:`world space <World Space>` backwards; this time because the transformations
 are on a stack, the fns on the model stack can
 be read forwards, where each operation translates/rotates/scales
 the current space
 
 The camera's position and orientation are defined relative
-to world space like so, read top to bottom:
+to :term:`world space <World Space>` like so, read top to bottom:
 
 .. inlinetex::
     :class: no-scale
@@ -324,7 +324,7 @@ to world space like so, read top to bottom:
 
 
 
-But, since we need to transform world-space to camera space,
+But, since we need to transform :term:`world-space <World Space>` to :term:`camera space <Camera Space>`,
 they must be inverted by reversing the order, and negating
 the arguments
 
@@ -359,7 +359,7 @@ draw paddle 1
 ~~~~~~~~~~~~~
 
 Unlike in previous demos in which we read the transformations
-from :term:`modelspace<Modelspace>` to world space backwards; because the transformations
+from :term:`modelspace<Modelspace>` to :term:`world space <World Space>` backwards; because the transformations
 are on a stack, the fns on the model stack can
 be read forwards, where each operation translates/rotates/scales
 the current space
@@ -389,7 +389,7 @@ the current space
 
 for each of the :term:`modelspace<Modelspace>` coordinates, apply all
 of the procedures on the stack from top to bottom
-this results in coordinate data in NDC space,
+this results in coordinate data in :term:`NDC <Normalized Device Coordinates>` space,
 which we can pass to glVertex3f
 
 
@@ -443,9 +443,9 @@ remove these 4 transformations from the stack (done below)
 
 
 Now we need to remove fns from the stack so that the
-lambda stack will convert from world space to NDC.
+:term:`lambda stack <Function Stack>` will convert from world space to :term:`NDC <Normalized Device Coordinates>`.
 This will allow us to just add the transformations from
-world space to paddle2 space on the stack.
+:term:`world space <World Space>` to paddle2 space on the stack.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
@@ -497,7 +497,7 @@ draw paddle 2
 
 
 
-remove all fns from the function stack, as the next frame will set them
+remove all fns from the :term:`function stack <Function Stack>`, as the next frame will set them
 clear makes the list empty, as the list (stack) will be repopulated
 the next iteration of the event loop.
 
@@ -511,7 +511,7 @@ the next iteration of the event loop.
 
 
 
-Swap buffers and execute another iteration of the event loop
+:term:`Swap buffers <Swap Buffers>` and execute another iteration of the :term:`event loop <Event Loop>`
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo16.py
    :language: python
@@ -524,7 +524,7 @@ Swap buffers and execute another iteration of the event loop
 Notice in the above code, adding functions to the stack is creating a shared
 context for transformations, and before we call "glVertex3f", we always call
 "modelspace_to_ndc_fn" on the :term:`modelspace<Modelspace>` vector.  In Demo 19, we will be using
-OpenGL 2.1 matrix stacks.  Although we don't have the code for the OpenGL
+OpenGL 2.1 :term:`matrix stacks <Matrix Stack>`.  Although we don't have the code for the OpenGL
 driver, given that you'll see that we pass :term:`modelspace<Modelspace>` data directly to "glVertex3f",
 it should be clear that the OpenGL implementation must fetch the :term:`modelspace<Modelspace>`
-to NDC transformations from the ModelView and Projection matrix stacks.
+to :term:`NDC <Normalized Device Coordinates>` transformations from the ModelView and Projection matrix stacks.

@@ -20,7 +20,7 @@ Objective
 Restructure the code towards the model view projection
 pipeline.
 
-Transforming vertices, such as translating, is one of the core concept
+Transforming :term:`vertices <Vertex>`, such as translating, is one of the core concept
 of computer graphics.
 
 
@@ -57,11 +57,11 @@ Translation
 Dealing with the two Paddles the way we did before is not
 ideal.  Both Paddles have the same size, although they are placed
 in different spots of the screen.  We should be able to
-a set of vertices for the Paddle, relative to the paddle's center,
+a set of :term:`vertices <Vertex>` for the Paddle, relative to the paddle's center,
 that is independent of its
-placement in NDC.
+placement in :term:`NDC <Normalized Device Coordinates>`.
 
-Rather than using values for each vector relative to NDC, in the
+Rather than using values for each :term:`vector <Vector (Vector2 / Vector3)>` relative to NDC, in the
 Paddle data structure, each vector will be an offset from
 the center of the Paddle.  The center of the paddle will be considered x=0, y=0.
 Before rendering, each Paddle's
@@ -82,7 +82,7 @@ rather than mutating the instance variables.  The author
 does this on purpose to enable method-chaining the Python
 methods, which will be useful later on.
 
-Method-chaining is the equivalent of function composition in math.
+Method-chaining is the equivalent of :term:`function composition <Function Composition>` in math.
 
 
 Code
@@ -100,8 +100,8 @@ Data Structures
    :caption: gacalc/g2.py
 
 
-We added a top-level ``translate`` function.  Given a translation amount ``b``,
-``translate(b=b)`` returns an invertible function that shifts any vector by ``b``
+We added a top-level ``translate`` function.  Given a :term:`translation <Translation>` amount ``b``,
+``translate(b=b)`` returns an :term:`invertible function <Invertible Function>` that shifts any :term:`vector <Vector (Vector2 / Vector3)>` by ``b``
 --- internally, this is just vector addition, ``vector + b``.  This is a
 primitive that we will be using to transform from one space to another.
 
@@ -148,13 +148,13 @@ relative to the center of the paddle.
 The Natural Basis
 ~~~~~~~~~~~~~~~~~
 
-We will define each vertex relative to the paddle's center using two special
-unit vectors, the *natural basis*: ``e_1`` is one unit along the x axis, and
+We will define each :term:`vertex <Vertex>` relative to the paddle's center using two special
+unit vectors, the :term:`natural basis <Natural Basis / Basis Vector>`: ``e_1`` is one unit along the x axis, and
 ``e_2`` is one unit along the y axis.  ``Vector2`` provides them (and the
-origin) as the class constants ``Vector2.e_1``, ``Vector2.e_2``, and
+:term:`origin <Origin>`) as the class constants ``Vector2.e_1``, ``Vector2.e_2``, and
 ``Vector2.zero()``.
 
-Any 2D vector is a *scaled sum* of these two: scale each basis vector by a
+Any 2D vector is a *scaled sum* of these two: scale each :term:`basis vector <Natural Basis / Basis Vector>` by a
 number (``__rmul__``) and add the results (``__add__``).  So ``3 * e_1 + 2 *
 e_2`` is the vector ``(3, 2)``, and ``zero`` --- the origin --- is just
 ``0 * e_1 + 0 * e_2``.  Writing the paddle's vertices in this form makes their
@@ -174,8 +174,8 @@ Instantiation of the Paddles
    :caption: src/modelviewprojection/demos/demo05.py
 
 
-* The vertices are now defined as relative distances from the center of the paddle.  The centers
-  of each paddle are placed in positions relative to NDC that preserve the positions of the
+* The :term:`vertices <Vertex>` are now defined as relative distances from the center of the paddle.  The centers
+  of each paddle are placed in positions relative to :term:`NDC <Normalized Device Coordinates>` that preserve the positions of the
   paddles, as they were in the previous demo.
 
 Handling User Input
@@ -190,8 +190,8 @@ Handling User Input
    :caption: src/modelviewprojection/demos/demo05.py
 
 
-* We put the transformation on the center of the paddle, instead
-  of directly on each vector.  This is because the vertices are
+* We put the :term:`transformation <Transformation>` on the center of the paddle, instead
+  of directly on each :term:`vector <Vector (Vector2 / Vector3)>`.  This is because the :term:`vertices <Vertex>` are
   defined relative to the center of the paddle.
 
 The Event Loop
@@ -216,9 +216,9 @@ The Event Loop
 
 
 
-Here each of paddle 1's vertices, which are in their :term:`Modelspace`,
-are converted to NDC by calling the translate method on the vector.
-This function corresponds to the Cayley graph below, the function
+Here each of paddle 1's :term:`vertices <Vertex>`, which are in their :term:`Modelspace`,
+are converted to :term:`NDC <Normalized Device Coordinates>` by calling the translate method on the vector.
+This function corresponds to the :term:`Cayley graph <Cayley Graph>` below, the function
 from Paddle 1 space to NDC.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo05.py
@@ -243,9 +243,9 @@ from Paddle 1 space to NDC.
 The only part of the diagram that we need to think about right now is the function
 that converts from paddle1's space to NDC, and from paddle2's space to NDC.
 
-These functions in the Python code are the translation of the paddle's center (i.e. paddle1.position)
+These functions in the Python code are the :term:`translation <Translation>` of the paddle's center (i.e. paddle1.position)
 by the vector's offset from the center.
 
 N.B.  In the code, I name the vertices by their space.  I.e. "modelSpace" instead of "vector_relative_to_modelspace".
-I do this to emphasize that you should view the transformation as happening to the "graph paper", instead of to each
+I do this to emphasize that you should view the :term:`transformation <Transformation>` as happening to the "graph paper", instead of to each
 of the points.  This will be explained more clearly later.

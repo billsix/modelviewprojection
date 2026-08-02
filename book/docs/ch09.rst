@@ -21,8 +21,8 @@ more clearly.
 
 We do this by the following:
 
-* Read sequence of transformations from :term:`modelspace<Modelspace>` to worldspace in the reverse order, from bottom to top.
-* Each subsequent transformation is relative to the current local coordinate system.
+* Read sequence of :term:`transformations <Transformation>` from :term:`modelspace<Modelspace>` to :term:`worldspace <World Space>` in the reverse order, from bottom to top.
+* Each subsequent transformation is relative to the current local :term:`coordinate system <Coordinate System>`.
 
 .. figure:: _static/screenshots/demo09.png
     :class: no-scale
@@ -58,7 +58,7 @@ Description
 ^^^^^^^^^^^
 
 
-In Demo 07 we tried to represent the translation and then rotation
+In Demo 07 we tried to represent the :term:`translation <Translation>` and then :term:`rotation <Rotation>`
 around the paddle's center by code that worked as follows
 
 .. inlinetex::
@@ -75,7 +75,7 @@ function calls are evaluated.)
 
 
 But that caused erratic behavior of the paddle over time, as it was
-not rotating around its own origin.  It was not working.
+not rotating around its own :term:`origin <Origin>`.  It was not working.
 
 So in Demo 08 we fixed it by writing a "rotate_around" function, in
 which we translated the paddle to its position, then in order to
@@ -96,7 +96,7 @@ and then re-translated to the paddle's position.
     \end{split}
     \end{equation*}
 
-So translate and inverse translate cancel out, and demonstrate to us
+So translate and :term:`inverse <Inverse>` translate cancel out, and demonstrate to us
 that the rotate function actually needs to be applied first, then the
 translate function.  Which means that we were actually reading the
 function applications in the wrong order!  Intuition can lead us astray!
@@ -108,9 +108,9 @@ about it in one of two ways, forwards or backwards.
 Reading transformations top-down
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-When reading a composition of function calls top down,
-all the transformations happen relative to the global
-origin and axes, i.e. the natural *basis*.  After each function call, the basis
+When reading a :term:`composition <Function Composition>` of function calls top down,
+all the :term:`transformations <Transformation>` happen relative to the global
+origin and axes, i.e. the natural :term:`basis <Natural Basis / Basis Vector>`.  After each function call, the basis
 is set back to the origin basis.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo09.py
@@ -127,9 +127,9 @@ Reading transformations bottom-up
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-Alternatively, you can read the transformations backwards,
+Alternatively, you can read the :term:`transformations <Transformation>` backwards,
 where the operations
-all cumulatively modify the current axes and origin, i.e. basis, to a new basis.
+all cumulatively modify the current axes and :term:`origin <Origin>`, i.e. basis, to a new basis.
 All subsequent functions move that relative basis to a new relative basis.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo09.py
@@ -146,8 +146,8 @@ Suggested Order
 
 The author has a strong opinion on the matter for computer graphics.
 
-Start at world space node.  As a reminder, this is the top-level coordinate
-system that we choose to use.  It is whatever you want it to be.
+Start at :term:`world space <World Space>` node.  As a reminder, this is the top-level
+:term:`coordinate system <Coordinate System>` that we choose to use.  It is whatever you want it to be.
 
 .. figure:: _static/demo09.png
     :class: no-scale
@@ -157,14 +157,14 @@ system that we choose to use.  It is whatever you want it to be.
 
     Demo 09
 
-Think of world space's origin, x and y axes.  On the Cayley graph, move towards each :term:`modelspace<Modelspace>` node,
+Think of :term:`world space <World Space>`'s origin, x and y axes.  On the :term:`Cayley graph <Cayley Graph>`, move towards each :term:`modelspace<Modelspace>` node,
 which is against the direction of the edge,  Look at that edge's corresponding
-sequence of function calls in the graphics code.  Read the transformations
-from the bottom up, imagining a transformed local coordinate system against which
+sequence of function calls in the graphics code.  Read the :term:`transformations <Transformation>`
+from the bottom up, imagining a transformed local :term:`coordinate system <Coordinate System>` against which
 each function in the sequence operates.
 
-The data you plot that is in its own :term:`modelspace<Modelspace>` will actually be plotted relative to that transformed coordinate
-system.
+The data you plot that is in its own :term:`modelspace<Modelspace>` will actually be plotted relative to that transformed
+:term:`coordinate system <Coordinate System>`.
 
 
 For the linear-algebra inclined reader, we've used
@@ -191,17 +191,17 @@ L by a right-multiplication of M.
 
 
 
-Now go back to world space.  Think
+Now go back to :term:`world space <World Space>`.  Think
 of all :term:`modelspace<Modelspace>` data as having already been "plotted".  So now follow
-the edges to screen space,
+the edges to :term:`screen space <Screen Space>`,
 reading the transformations
-from top down, and resetting the coordinate system after every transformation.
+from top down, and resetting the :term:`coordinate system <Coordinate System>` after every transformation.
 
 
 
 
 
-As a side note,	the computer has no notion of coordinate systems.  It just has a sequence of procedures
+As a side note,	the computer has no notion of :term:`coordinate systems <Coordinate System>`.  It just has a sequence of procedures
 to apply on a sequence of numbers.  For us humans to make sense of what we are modeling,
 and to implement it correctly, we need to be able to reason and compose our thoughts clearly.
 
@@ -232,9 +232,9 @@ The Event Loop
    :caption: src/modelviewprojection/demos/demo09.py
 
 
-* Read the :term:`modelspace<Modelspace>` to world space, starting from the bottom, up.  Translate, then rotate
+* Read the :term:`modelspace<Modelspace>` to :term:`world space <World Space>`, starting from the bottom, up.  Translate, then rotate
 * Reset the coordinate system
-* Read the worldspace to NDC
+* Read the :term:`worldspace <World Space>` to :term:`NDC <Normalized Device Coordinates>`
 
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo09.py
@@ -247,6 +247,6 @@ The Event Loop
 
 
 
-* Read the :term:`modelspace<Modelspace>` to world space, starting from the bottom, up.  Translate, then rotate
+* Read the :term:`modelspace<Modelspace>` to :term:`world space <World Space>`, starting from the bottom, up.  Translate, then rotate
 * Reset the coordinate system
-* Read the worldspace to NDC
+* Read the :term:`worldspace <World Space>` to :term:`NDC <Normalized Device Coordinates>`

@@ -18,9 +18,9 @@ Objective
 ^^^^^^^^^
 
 Attempt to rotate the paddles around their center.
-Learn about rotations.  This demo does not
+Learn about :term:`rotations <Rotation>`.  This demo does not
 work correctly, because of a misunderstanding
-of how to interpret a sequence of transformations.
+of how to interpret a sequence of :term:`transformations <Transformation>`.
 
 .. figure:: _static/screenshots/demo07.png
     :class: no-scale
@@ -68,15 +68,15 @@ see
 Rotate the Paddles About their Center
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-Besides translate and scale, the third main operation in computer
-graphics is to rotate an object.
+Besides :term:`translate <Translation>` and :term:`scale <Scaling>`, the third main operation in computer
+graphics is to :term:`rotate <Rotation>` an object.
 
 
 Rotation Around Origin (0,0)
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 We can rotate an object around (0,0) by rotating
-all of the object's vertices around (0,0).
+all of the object's :term:`vertices <Vertex>` around (0,0).
 
 
 In high school math, you will have learned about sin, cos, and tangent.
@@ -91,7 +91,7 @@ starts from the positive x axis.
 
 
 We can expand on this knowledge, allowing
-us to rotate all vertices, wherever they are, around the origin (0,0), by some
+us to rotate all vertices, wherever they are, around the :term:`origin <Origin>` (0,0), by some
 angle :inlinetex:`\theta`.
 
 Let's take any arbitrary point
@@ -397,7 +397,7 @@ The Event Loop
 
 
 So to rotate paddle 1 about its center,
-we should translate to its position, and then rotate
+we should :term:`translate <Translation>` to its position, and then rotate
 around the paddle's center.
 
 
@@ -464,11 +464,11 @@ Why it is Wrong
 ^^^^^^^^^^^^^^^
 
 Turns out, our program doesn't work as predicted, even though
-translate, scale, and rotate are all defined correctly.  The paddles
+:term:`translate <Translation>`, :term:`scale <Scaling>`, and :term:`rotate <Rotation>` are all defined correctly.  The paddles
 are not rotating around their center.
 
 Let's take a look in detail about what our paddle-space to
-world space transformations are doing.
+:term:`world space <World Space>` :term:`transformations <Transformation>` are doing.
 
 .. literalinclude:: ../../src/modelviewprojection/demos/demo07.py
    :language: python
@@ -482,7 +482,7 @@ See :mod:`modelviewprojection.mathutils.compose`
 
 
 
-* :term:`modelspace<Modelspace>` vertices
+* :term:`modelspace<Modelspace>` :term:`vertices <Vertex>`
 
 
 .. figure:: _static/incorrectrotate-forwards-1.svg
@@ -502,7 +502,7 @@ See :mod:`modelviewprojection.mathutils.compose`
     :figclass: align-center
 
 
-* Reset the coordinate system
+* Reset the :term:`coordinate system <Coordinate System>`
 
 .. figure:: _static/incorrectrotate-forwards-3.svg
     :class: no-scale
