@@ -1,6 +1,10 @@
 # Task: book ↔ code drift in chapters 7–15
 
-**Status:** audited 2026-05-27 (5 Explore agents + direct verification of all
+**Status:** complete — all findings resolved (the ch15 depth-buffer prose, the last
+open row, was closed 2026-08-02).
+**Completed:** 2026-08-02
+
+Originally audited 2026-05-27 (5 Explore agents + direct verification of all
 code-level claims). This is the self-contained tracker — per-chapter fix detail
 is folded in below (the old `tasks/archive/2026/06/14/ch15-fixes.md` satellite was archived
 2026-06-14). Same method as `book-code-drift-ch1-6.md`: doc-region wiring is

@@ -12,6 +12,7 @@
 # OpenGL SuperBible, Chapter 18
 # Python port of pixbufobj.cpp by Benjamin Lipchak
 
+import ctypes
 import os
 import sys
 import time
@@ -48,6 +49,23 @@ frame_good: list = [False, False, False]
 current_frame: int = 0
 angle_increment: float = 1.0
 usage_hint: int = GL.GL_STREAM_COPY
+# PBO buffer-object ids from glGenBuffers (populated in setup_rc). The demo
+# previously bound the pixel-pack buffers by the literal names 1/2/3 WITHOUT
+# ever calling glGenBuffers, which is what tripped glReadPixels with
+# GL_INVALID_OPERATION (1282) on Mesa. Use real generated ids instead.
+pbo_ids: list = []
+
+
+def _check_gl(label: str) -> None:
+    # Instrumentation: report the exact GL error site if the PBO fix doesn't
+    # fully hold on this Mesa. glReadPixels into a PBO is the call that was
+    # raising 1282; a clean run prints nothing here.
+    err = GL.glGetError()
+    if err != 0:
+        print(
+            f"[pixbufobj] GL error {err} (0x{err:x}) after {label}",
+            flush=True,
+        )
 
 
 def setup_textures() -> None:
@@ -151,7 +169,7 @@ def render_scene() -> None:
     GL.glEnd()
 
     if use_pbos:
-        GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, current_frame + 1)
+        GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_ids[current_frame])
         GL.glReadPixels(
             data_offset_x,
             data_offset_y,
@@ -159,8 +177,14 @@ def render_scene() -> None:
             data_height,
             GL.GL_RGB,
             GL.GL_UNSIGNED_BYTE,
-            None,
+            # NOT None: PyOpenGL turns None into a freshly-allocated client
+            # array and passes its pointer. With a PBO bound to
+            # GL_PIXEL_PACK_BUFFER, glReadPixels reads that pointer as a byte
+            # OFFSET into the buffer -> huge -> GL_INVALID_OPERATION (1282).
+            # ctypes.c_void_p(0) is the real NULL/offset-0 the C code uses.
+            ctypes.c_void_p(0),
         )
+        _check_gl("glReadPixels into PBO")
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
     else:
         pixels[current_frame] = GL.glReadPixels(
@@ -177,11 +201,11 @@ def render_scene() -> None:
     # Dim the last frame in place. With PBOs we map the buffer for
     # read-write; without, the bytes are already in client memory.
     if use_pbos:
-        GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, last_frame + 1)
+        GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, pbo_ids[last_frame])
         ptr = GL.glMapBuffer(GL.GL_PIXEL_UNPACK_BUFFER, GL.GL_READ_WRITE)
         if ptr:
             arr = np.ctypeslib.as_array(
-                (np.ctypes.c_uint8 * (data_height * data_pitch)).from_address(
+                (ctypes.c_uint8 * (data_height * data_pitch)).from_address(
                     int(ptr)
                 )
             )
@@ -206,7 +230,10 @@ def render_scene() -> None:
                 0,
                 GL.GL_RGB,
                 GL.GL_UNSIGNED_BYTE,
-                None,
+                # offset 0 into the bound unpack PBO (see the glReadPixels note
+                # above) -- None would make PyOpenGL allocate/expect client data
+                # instead of sourcing from the PBO.
+                ctypes.c_void_p(0),
             )
         GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, 0)
     elif frame_good[last_frame]:
@@ -257,7 +284,7 @@ def toggle_pbos() -> None:
     use_pbos = not use_pbos
     if use_pbos:
         for i in range(3):
-            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, i + 1)
+            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_ids[i])
             data = pixels[i] if pixels[i] is not None else None
             GL.glBufferData(
                 GL.GL_PIXEL_PACK_BUFFER,
@@ -269,13 +296,14 @@ def toggle_pbos() -> None:
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
     else:
         for i in range(3):
-            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, i + 1)
+            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_ids[i])
             buf = GL.glGetBufferSubData(
                 GL.GL_PIXEL_PACK_BUFFER, 0, data_height * data_pitch
             )
             pixels[i] = bytes(buf)
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, 0)
-        GL.glDeleteBuffers(3, [1, 2, 3])
+        # Keep the buffers for the app's lifetime (freed on context destroy);
+        # re-enabling re-sizes them via glBufferData above.
     print(f"PBOs: {'ON' if use_pbos else 'OFF'}")
 
 
@@ -286,6 +314,8 @@ def setup_rc() -> None:
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     GL.glColor4f(0.0, 0.0, 0.0, 1.0)
     GL.glMatrixMode(GL.GL_TEXTURE)
+    # Generate the three ring-buffer PBOs up front (real names, not literals).
+    pbo_ids[:] = [int(b) for b in GL.glGenBuffers(3)]
     setup_textures()
 
 
@@ -304,7 +334,7 @@ def change_size(w: int, h: int) -> None:
         if not use_pbos:
             pixels[i] = bytes(data_height * data_pitch)
         else:
-            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, i + 1)
+            GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_ids[i])
             GL.glBufferData(
                 GL.GL_PIXEL_PACK_BUFFER,
                 data_height * data_pitch,

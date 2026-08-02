@@ -1,6 +1,66 @@
 # Pre-existing runtime crashes: pixbufobj (PBO readback) + texfloat (float-texture segfault)
 
-**Status:** not-started — surfaced 2026-05-29 while Bill visually verified the
+**Status:** in progress (2026-08-02) — **pixbufobj fix applied**, **texfloat
+instrumented**; awaiting Bill's host-GL verification (can't reproduce headless).
+
+## Update 2026-08-02 (evening) — pixbufobj crash FULLY fixed + reproduced headless
+
+Reproduced both symptoms headlessly (Xvfb + nested `mvp-docs` container + software Mesa) —
+so this no longer needs Bill's host GL to *diagnose*. The pixbufobj PBO crash was **three
+stacked bugs**, each uncovered by fixing the previous:
+
+1. `glGenBuffers` never called — PBOs bound by literal names (earlier fix, `pbo_ids`).
+2. **`glReadPixels(…, None)` / `glTexImage2D(…, None)`** — PyOpenGL turns `None` into a
+   freshly-allocated client array and passes its pointer; with a PBO bound, GL reads that as
+   a byte OFFSET → `GL_INVALID_OPERATION (1282)`. The C uses `(GLvoid*)0`. Fixed with
+   **`ctypes.c_void_p(0)`** (readback + PBO→texture upload).
+3. **`np.ctypes.c_uint8`** in the map/attenuate code — numpy has no `ctypes` attribute →
+   `AttributeError`. Fixed to stdlib **`ctypes.c_uint8`**.
+
+Verified: with PBOs forced on, the demo now runs the full duration and renders (no crash).
+Staged.
+
+**The pixbufobj "multiple spinning images" issue is now its own task:
+`tasks/pixbufobj-port-fidelity.md`** (behavioural fidelity, not a crash). Short version: it
+does **not** reproduce under the sandbox's software GL — the port renders one clean rotating
+album there (corners pixel-verified black), with draw-time GL state provably identical to the
+C++ — so it appears hardware/driver-specific and needs reproduction on Bill's GPU.
+
+## (earlier) Work done 2026-08-02 + what to run
+
+**pixbufobj — fix applied.** Root cause confirmed by reading the code: `glGenBuffers`
+was **never called**; the three pixel-pack PBOs were bound by the literal names `1/2/3`
+(`current_frame + 1`, `i + 1`), and `glDeleteBuffers(3, [1,2,3])` deleted literals too —
+that's what tripped `glReadPixels` → `GL_INVALID_OPERATION` (1282) on Mesa. Fix: a module
+global `pbo_ids`, populated once in `setup_rc` via `glGenBuffers(3)`, used everywhere the
+literals were; kept for the app lifetime (freed on context destroy). Added a `_check_gl()`
+probe right after the PBO `glReadPixels` so a residual error still prints its site.
+
+**texfloat — instrumented (no fix yet; cause unknown).** The startup SIGSEGV is C-level,
+so a Python try/except can't catch it. Added a `_trace()` helper (flushed prints) before
+each GL call in `setup_rc` → `setup_textures` (incl. `GL_GENERATE_MIPMAP`, the `RGB16F`/
+`GL_FLOAT` `glTexImage2D`, and a `GL_MAX_TEXTURE_SIZE` readout). The **last `[texfloat]`
+line printed before the crash names the failing call.**
+
+**To run (on your host GL, in the mvp `make shell`):**
+
+```sh
+# 1. pixbufobj — open the "Options" menu and toggle "Use PBOs" ON.
+#    A clean run prints NO "[pixbufobj] GL error ..." line (fix worked).
+python ports/openglsuperbiblev4/chapt18/pixbufobj/pixbufobj.py
+
+# 2. texfloat — it will still crash; send me the LAST "[texfloat] ..." line.
+python ports/openglsuperbiblev4/chapt18/texfloat/texfloat.py
+```
+
+Both files are verified syntax- + ruff-clean; the real verification is your host run
+(the bugs are Fedora/Mesa-specific and don't reproduce under the sandbox's software GL).
+The `texfloat` `_trace` calls are temporary debug instrumentation — remove them once the
+culprit GL call is fixed.
+
+---
+
+Surfaced 2026-05-29 while Bill visually verified the
 [[ports-render-options-to-imgui]] work. Both are PRE-EXISTING (never-hardware-verified) port
 bugs, NOT caused by the imgui change — confirmed via diff (the imgui commit only relocated key
 handling; neither touched the crashing GL paths). Same family as [[hdrbloom-pbo-sizing-crash]]

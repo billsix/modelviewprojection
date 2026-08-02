@@ -68,6 +68,14 @@ max_g: float = 0.0
 max_b: float = 0.0
 
 
+def _trace(msg: str) -> None:
+    # DEBUG instrumentation: texfloat segfaults (C-level SIGSEGV) at startup on
+    # some Mesa drivers, somewhere in setup_rc -> setup_textures. flush=True so
+    # the LAST line printed before the crash survives and names the failing
+    # call. Remove once the culprit GL call is identified and fixed.
+    print(f"[texfloat] {msg}", flush=True)
+
+
 def prepare_shader(n: int) -> None:
     fname = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
     with open(fname) as f:
@@ -103,6 +111,7 @@ def alter_aspect() -> None:
 def setup_textures(which: int) -> None:
     global f_texels, npot_w, npot_h, pot_w, pot_h, current_image
     current_image = which
+    _trace(f"setup_textures({which}): imread {exr_files[which]}")
     img = iio.imread(os.path.join(PWD, "openexr-images", exr_files[which]))
     img = np.flipud(img).astype(np.float32)
     if img.ndim == 3 and img.shape[2] >= 3:
@@ -110,8 +119,14 @@ def setup_textures(which: int) -> None:
     npot_h, npot_w = img.shape[:2]
     pot_w, pot_h = npot_w, npot_h
     f_texels = np.ascontiguousarray(img, dtype=np.float32)
+    _trace(
+        f"  image {npot_w}x{npot_h} shape={f_texels.shape} "
+        f"MAX_TEXTURE_SIZE={GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE)}"
+    )
     alter_aspect()
+    _trace("  glTexParameteri(GL_GENERATE_MIPMAP, 1)")
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_GENERATE_MIPMAP, 1)
+    _trace(f"  glTexImage2D(RGB16F, {pot_w}, {pot_h}, GL_RGB, GL_FLOAT)")
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D,
         0,
@@ -123,6 +138,7 @@ def setup_textures(which: int) -> None:
         GL.GL_FLOAT,
         f_texels,
     )
+    _trace("  glTexImage2D returned OK")
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(
         GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR
@@ -184,10 +200,13 @@ def render_scene() -> None:
 
 
 def setup_rc() -> None:
+    _trace("setup_rc: start")
     GL.glClearColor(0.0, 0.0, 0.0, 1.0)
     setup_textures(0)
     for i in range(TOTAL_SHADERS):
+        _trace(f"setup_rc: prepare_shader({i}) [{shader_names[i]}]")
         prepare_shader(i)
+    _trace("setup_rc: done -- all textures + shaders set up")
 
 
 def cursor_update(x: float, y: float) -> None:

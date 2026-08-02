@@ -483,7 +483,7 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 
 **Book / curriculum:**
 - `tasks/book-rotate-prose-update.md` — **the remaining book-prose work** (Bill's to write): update rotate prose for `plane_rotation`, and it carries the old gacalc-math-migration Phase 4 (ch05/06/14 teach gacalc vectors as *the* vector type). The code phases are done and archived.
-- `tasks/book-code-drift-ch7-15.md` and `tasks/book-code-drift-ch16-21.md` — book-prose drift trackers (planned/partial), now self-contained: the per-chapter `chNN-fixes.md` satellites were folded into these and archived 2026-06-14.
+- `tasks/book-code-drift-ch16-21.md` — book-prose drift tracker (planned/partial), self-contained: the per-chapter `chNN-fixes.md` satellites were folded in and archived 2026-06-14. Its sibling `book-code-drift-ch7-15` is **complete** (archived `tasks/archive/2026/08/02/book-code-drift-ch7-15.md`).
 - `tasks/v4-chapt14-shadowmap-fix.md` — the one v4 demo not yet landed.
 - `tasks/extract-duplicated-demo-helpers.md` — in progress (helper dedup).
 - `tasks/axis-cylinder-cone-lighting.md` — deferred.

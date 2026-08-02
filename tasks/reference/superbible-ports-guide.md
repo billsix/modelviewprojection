@@ -10,7 +10,29 @@ the live work is the UX pass (`tasks/ports-ux-pass.md`) and Bill's hardware
 verification (punchlist in `tasks/superbible-full-port.md`). GL failure modes
 learned during the port live in `tasks/reference/gl-and-imgui-gotchas.md`.
 
+A full, verified map of the upstream C++ (framework, build, per-chapter, chapt18 deep-dive)
+now lives in the source repo itself:
+**github.com/billsix/OpenGLSuperBibleV4Code** under `tasks/reference/`.
+
 ---
+
+## 0. Port fidelity — NOT every port renders identically to the C++ original
+
+The `ports/` demos are faithful translations, but a few do **not** reproduce the original's
+on-screen behaviour yet. Track each as its own task; known cases:
+
+- **chapt18/pixbufobj — "multiple spinning images" on some hardware.** The C++ shows one
+  motion-blurred rotating album; on Bill's hardware Mesa/GPU the port appears to show
+  multiple overlapping copies. **Does NOT reproduce under the sandbox's software GL
+  (llvmpipe)** — there the port renders one clean rotating album (window corners
+  pixel-verified black, `CLAMP_TO_BORDER` working), and its draw-time GL state (units,
+  bound textures, texture-matrix rotation, wrap mode, border colour, blend, viewport) is
+  provably identical to the C++. So it looks **hardware/driver-specific** (a texture-matrix
+  + multitexture + `CLAMP_TO_BORDER` edge case llvmpipe doesn't hit) or tied to interactive
+  state. Tracked in `tasks/pixbufobj-port-fidelity.md`. (Its *separate* PBO-readback crash
+  is already fixed — see `tasks/ports-pbo-floattex-runtime-crashes.md`.)
+
+Add to this list as more divergences surface.
 
 ## 1. Why this tree exists (two artifacts, two purposes)
 
