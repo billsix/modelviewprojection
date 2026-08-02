@@ -1,7 +1,12 @@
 # Percent-notebook ↔ Sphinx cross-references (labelled sections, RST hyperlinks)
 
-**Status:** core work done & verified — ongoing per-section labelling is Bill's manual process
+**Status:** complete
+**Completed:** 2026-08-02
 **Created:** 2026-08-02
+
+(Ongoing per-section labelling + inbound `:ref:` links are Bill's manual, as-needed
+process — not tracked work. Durable knowledge lives in
+`tasks/reference/notebook-sphinx-integration.md`.)
 
 > **Durable "how it works" knowledge now lives in
 > `tasks/reference/notebook-sphinx-integration.md`** (the pipeline, the nbsphinx/myst_nb
