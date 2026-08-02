@@ -1,4 +1,4 @@
-personal_ws-1.1 en 295
+personal_ws-1.1 en 295 
 AMF
 APIs
 AbstractAlgebra
@@ -36,8 +36,10 @@ InvertibleFunction
 Jupyter
 Kosinus
 Kulla
+LEQUAL
 LIFA
 LearnOpenGL
+MDN
 MERCHANTABILITY
 MacOS
 Marschner
@@ -68,6 +70,7 @@ Pre
 Precomputed
 ProjectionMatrix
 PushMatrix
+RGB
 SHADER
 SICP
 Scratchapixel
@@ -159,8 +162,10 @@ glBegin
 glClear
 glClearColor
 glColor
+glEnable
 glEnd
 glFrontColor
+glLoadIdentity
 glMatrixMode
 glPopMatrix
 glPopStack
@@ -174,7 +179,9 @@ glVertex
 glVertexs
 glViewport
 glfw
+glfwCreateWindow
 glfwSwapBuffers
+glfwSwapInterval
 glsl
 gluPerspective
 glvector
@@ -214,6 +221,7 @@ monotonicity
 mul
 mvp
 mvpvisualization
+mx
 mypy
 ndc
 ndcSpace
@@ -237,6 +245,7 @@ preshader
 prewritten
 programmingproj
 projX
+pseudocode
 pushmatrix
 py
 pytest
@@ -246,6 +255,7 @@ rasterization
 requisities
 rmatmul
 rmul
+runnable
 screenspace
 setuptools
 shader
@@ -284,13 +294,3 @@ vsync
 williamesix
 worldspace
 ws
-LEQUAL
-MDN
-RGB
-glEnable
-glLoadIdentity
-glfwCreateWindow
-glfwSwapInterval
-mx
-pseudocode
-runnable

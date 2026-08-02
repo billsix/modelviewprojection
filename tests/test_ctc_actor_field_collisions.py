@@ -18,14 +18,18 @@ names AST-scanned out of ``pgzero_gl/actor.py`` -- no imports, no GL needed.
 import ast
 import pathlib
 
-CTC: pathlib.Path = (
-    pathlib.Path(__file__).resolve().parent.parent / "ports" / "codetheclassics"
-)
+_REPO_ROOT: pathlib.Path = pathlib.Path(__file__).resolve().parent.parent
+CTC: pathlib.Path = _REPO_ROOT / "ports" / "codetheclassics"
 GAMES: list[pathlib.Path] = sorted(CTC.glob("vol*/*/*.py"))
+# The pgzero_gl shim moved into the package (2026-08-01); actor.py lives here
+# now, while the games stay under ports/codetheclassics (CTC above).
+_ACTOR_PY: pathlib.Path = (
+    _REPO_ROOT / "src" / "modelviewprojection" / "pgzero_gl" / "actor.py"
+)
 
 
 def actor_property_names() -> set[str]:
-    tree: ast.Module = ast.parse((CTC / "pgzero_gl" / "actor.py").read_text())
+    tree: ast.Module = ast.parse(_ACTOR_PY.read_text())
     actor: ast.ClassDef = next(
         n
         for n in tree.body

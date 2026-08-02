@@ -58,7 +58,9 @@ def _face_normal(
     """
     n = find_normal(Vector3(*a), Vector3(*b), Vector3(*c))
     mag = abs(n)
-    return tuple((1.0 / mag) * n) if mag else (0.0, 0.0, 0.0)
+    # gacalc keeps exact/int inputs symbolic (Coef); coerce at this
+    # float-typed boundary so callers (and OpenGL) get plain floats.
+    return tuple(float(x) for x in (1.0 / mag) * n) if mag else (0.0, 0.0, 0.0)
 
 
 def light_dir_ws(az_deg: float, el_deg: float) -> tuple[float, float, float]:
