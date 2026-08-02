@@ -26,10 +26,15 @@ hand-written code / a few real code bugs.
 | ch11/12 | no chapter-specific drift beyond the basis omission (above) | — |
 | ch13 | ✅ figure `_static/demo11.png` shown for a Demo-13 chapter (:63) — DONE (per-chapter `demo13.dot`) | [`archive/ch13-fixes.md`](archive/2026/05/26/ch13-fixes.md) |
 | ch14 | ✅ DONE — caption `+.py` (:133); doc-region relabel (split into vector1d/2d/3d; ch05→2D, ch14→3D, others reference); grammar/pronoun (:102,:227,:229,:322) | [`archive/ch14-fixes.md`](archive/2026/05/26/ch14-fixes.md) |
-| ch15 | depth-buffer prose describes the "before" state in the "after" chapter (~:128-133); lowercase sentence starts | see **ch15 detail** below |
+| ch15 | ✅ DONE — depth-buffer prose restated the "before" bug + obsolete workaround in the "after" chapter (~:128-133); rewritten to the "after" state, workaround dropped, capitalization fixed | see **ch15 detail** below |
 
 ## ch15 detail (depth buffer) — folded from ch15-fixes.md
-**Status:** planned. **Type:** book prose. **Effort:** small.
+**Status:** DONE 2026-08-02 (Bill approved the rewrite). Both items below applied
+to `book/docs/ch15.rst:128-133`: the passage now describes the "after" state
+(depth test enabled → square correctly hidden behind paddle1 despite being drawn
+after it, via `GL_GREATER`), drops ch14's obsolete "reorder the draws" workaround,
+and capitalizes the sentence starts. Bill renders via `make html`. **Type:** book
+prose. **Effort:** small.
 
 Changes in `book/docs/ch15.rst`:
 1. **Lines ~128-133 — context drift.** This passage reads as if depth buffering

@@ -125,9 +125,12 @@ if nearer objects are drawn in front
    :caption: src/modelviewprojection/demos/demo15.py
 
 
-the square should not be visible when hidden behind the paddle1,
-as we did a translate by -1.
-this is because without depth buffering, the object drawn last
-clobbers the color of any previously drawn object at the pixel.
-Try moving the square drawing code to the beginning, and you will
-see that the square can be hidden behind the paddle.
+With the depth test enabled, the square is now correctly hidden behind
+paddle1 — even though it is still drawn *after* the paddle.  In the previous
+chapter the square (translated by -1, so behind paddle1) was wrongly drawn
+over it, because without a depth buffer the object drawn last clobbers the
+color of whatever was already at that pixel.  Now each fragment also carries
+its depth, and ``GL_GREATER`` keeps a newly drawn fragment only when it is
+nearer than the value already in the depth buffer, so the farther square no
+longer overwrites the nearer paddle.  The previous chapter's manual workaround
+of reordering the draw calls is no longer needed.
