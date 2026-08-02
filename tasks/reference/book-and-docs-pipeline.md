@@ -2,7 +2,7 @@
 
 **Reference document** — how the Sphinx book is built and how it pulls code (including gacalc's) via doc-region literalinclude. Not a task; update in place. Last updated 2026-07-30.
 
-Sibling doc: **`tasks/reference/book-figures-and-images.md`** owns everything that produces an image or executed notebook (the five figure toolchains, the `inlinetex` extension, jupytext). This doc owns the build sequence and the code-quoting mechanism.
+Sibling doc: **`tasks/reference/book-figures-and-images.md`** owns everything that produces an image or executed notebook (the five figure toolchains, the `inlinetex` extension, jupytext). This doc owns the build sequence and the code-quoting mechanism. **`tasks/reference/notebook-sphinx-integration.md`** owns the percent-notebook↔Sphinx cross-reference mechanism (`(label)=` in a markdown cell → `:ref:` from RST → HTML link) and the nbsphinx-vs-myst_nb handler situation (both are enabled; myst_nb is the active handler, and that is load-bearing — see that doc, and the deferred `tasks/consider-removing-nbsphinx.md`).
 
 ---
 

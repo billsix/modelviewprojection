@@ -15,6 +15,10 @@ still excluded (option D's photo handling: a light matte/border, no per-photo da
 variants — unless a specific photo warrants one). Implementation is a separate future
 effort; this task now scopes *that* work.
 
+Reference: the image toolchains this task restyles are documented in
+`tasks/reference/book-figures-and-images.md` (texExpToPng math, matplotlib
+`generate_plots.py`, graphviz `dot`, `inlinetex`).
+
 ## Goal / problem (Bill)
 
 The furo HTML theme renders in **light or dark** mode (follows the browser's

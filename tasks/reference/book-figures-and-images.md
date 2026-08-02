@@ -9,6 +9,10 @@ Sibling of `tasks/reference/book-and-docs-pipeline.md`, which owns the Sphinx
 build sequence and the doc-region `literalinclude` mechanism. This doc owns
 everything that produces a PNG/SVG/notebook the chapters embed.
 
+Open future work on these images: `tasks/dark-mode-images.md` — making the generated
+figures render correctly in furo's dark mode (they currently show as white boxes; direction
+decided = best-fidelity dual light/dark assets, implementation deferred).
+
 ---
 
 ## 1. The five toolchains

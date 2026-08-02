@@ -6,8 +6,14 @@ how to make a **labelled section** in a notebook that other chapters can **hyper
 Read this before touching the notebook pipeline, adding a notebook cross-reference, or
 changing the Sphinx notebook extensions.
 
-Related tasks: `tasks/notebook-percent-cross-references.md` (the label/toctree work),
-`tasks/consider-removing-nbsphinx.md` (the nbsphinx cleanup, deferred).
+Sibling reference docs: `tasks/reference/book-and-docs-pipeline.md` (the Sphinx build
+sequence + doc-region `literalinclude`) and `tasks/reference/book-figures-and-images.md`
+(the figure toolchains, `inlinetex`, and the jupytext notebook *generation* this doc's
+cross-references sit on top of).
+
+Related tasks: `tasks/consider-removing-nbsphinx.md` (the nbsphinx cleanup, deferred);
+the label/toctree work is done and archived at
+`tasks/archive/2026/08/02/notebook-percent-cross-references.md`.
 
 ## The pipeline, end to end
 
