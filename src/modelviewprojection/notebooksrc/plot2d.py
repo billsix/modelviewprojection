@@ -13,6 +13,7 @@
 # ---
 
 # %% [markdown]
+# (plot2dlabel)=
 # # Plot 2D
 
 

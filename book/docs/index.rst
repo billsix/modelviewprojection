@@ -54,6 +54,8 @@ Model View Projection
    bibliography
    miscellany
    plot2d
+   framebuffer
+   ndc
 
 
 
