@@ -38,14 +38,17 @@ def build_graph() -> cayleygraph.CayleyGraph:
     return cayleygraph.CayleyGraph(
         [
             cayleygraph.Edge(
-                "paddle1",
-                "world",
-                [("T", translate(PADDLE1_POS)), ("R_z", rotate_z(PADDLE1_ROT))],
+                src="paddle1",
+                dst="world",
+                steps=[
+                    ("T", translate(PADDLE1_POS)),
+                    ("R_z", rotate_z(PADDLE1_ROT)),
+                ],
             ),
             cayleygraph.Edge(
-                "square",
-                "paddle1",
-                [
+                src="square",
+                dst="paddle1",
+                steps=[
                     ("T_-Z", translate(Vector3(0.0, 0.0, -5.0))),
                     ("R_Z", rotate_z(ROT_AROUND_P1)),
                     ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
@@ -53,9 +56,9 @@ def build_graph() -> cayleygraph.CayleyGraph:
                 ],
             ),
             cayleygraph.Edge(
-                "camera",
-                "world",
-                [
+                src="camera",
+                dst="world",
+                steps=[
                     ("T", translate(CAM_POS)),
                     ("R_y", rotate_y(CAM_ROT_Y)),
                     ("R_x", rotate_x(CAM_ROT_X)),
@@ -219,10 +222,14 @@ def test_no_path_raises() -> None:
     g: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
         [
             cayleygraph.Edge(
-                "paddle1", "world", [("T", translate(PADDLE1_POS))]
+                src="paddle1",
+                dst="world",
+                steps=[("T", translate(PADDLE1_POS))],
             ),
             cayleygraph.Edge(
-                "island", "island2", [("T", translate(Vector3(1, 0, 0)))]
+                src="island",
+                dst="island2",
+                steps=[("T", translate(Vector3(1, 0, 0)))],
             ),  # disconnected
         ]
     )
@@ -235,10 +242,14 @@ def test_cyclic_graph_rejected() -> None:
         cayleygraph.CayleyGraph(
             [
                 cayleygraph.Edge(
-                    "a", "b", [("T", translate(Vector3(1, 0, 0)))]
+                    src="a",
+                    dst="b",
+                    steps=[("T", translate(Vector3(1, 0, 0)))],
                 ),
                 cayleygraph.Edge(
-                    "b", "a", [("T", translate(Vector3(0, 1, 0)))]
+                    src="b",
+                    dst="a",
+                    steps=[("T", translate(Vector3(0, 1, 0)))],
                 ),
             ]
         )
@@ -261,9 +272,9 @@ def test_enum_node_identifiers() -> None:
     g: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
         [
             cayleygraph.Edge(
-                Space.paddle,
-                Space.world,
-                [("T", translate(Vector3(3.0, 0.0, 0.0)))],
+                src=Space.paddle,
+                dst=Space.world,
+                steps=[("T", translate(Vector3(3.0, 0.0, 0.0)))],
             ),
         ]
     )

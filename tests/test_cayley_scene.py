@@ -47,14 +47,14 @@ def build_scene() -> cayleyscene.Scene:
     g: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
         [
             cayleygraph.Edge(
-                "paddle1",
-                "world",
-                [("T", translate(P1_POS)), ("R_z", rotate_z(P1_ROT))],
+                src="paddle1",
+                dst="world",
+                steps=[("T", translate(P1_POS)), ("R_z", rotate_z(P1_ROT))],
             ),
             cayleygraph.Edge(
-                "square",
-                "paddle1",
-                [
+                src="square",
+                dst="paddle1",
+                steps=[
                     ("T_-Z", translate(Vector3(0.0, 0.0, -5.0))),
                     ("R_Z", rotate_z(ROT_AROUND_P1)),
                     ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
@@ -62,14 +62,14 @@ def build_scene() -> cayleyscene.Scene:
                 ],
             ),
             cayleygraph.Edge(
-                "paddle2",
-                "world",
-                [("T", translate(P2_POS)), ("R_z", rotate_z(P2_ROT))],
+                src="paddle2",
+                dst="world",
+                steps=[("T", translate(P2_POS)), ("R_z", rotate_z(P2_ROT))],
             ),
             cayleygraph.Edge(
-                "camera",
-                "world",
-                [
+                src="camera",
+                dst="world",
+                steps=[
                     ("T", translate(CAM_POS)),
                     ("R_y", rotate_y(CAM_ROT_Y)),
                     ("R_x", rotate_x(CAM_ROT_X)),
@@ -82,12 +82,22 @@ def build_scene() -> cayleyscene.Scene:
         root="world",
         coordinate_frames=[
             cayleyscene.CoordinateFrame(
-                "paddle1", "world", geometry="paddle1", dwell_before=2.0
+                space="paddle1",
+                parent="world",
+                geometry="paddle1",
+                dwell_before=2.0,
             ),
-            cayleyscene.CoordinateFrame("square", "paddle1", geometry="square"),
-            cayleyscene.CoordinateFrame("paddle2", "world", geometry="paddle2"),
             cayleyscene.CoordinateFrame(
-                "camera", "world", geometry="camera", dwell_before=5.0
+                space="square", parent="paddle1", geometry="square"
+            ),
+            cayleyscene.CoordinateFrame(
+                space="paddle2", parent="world", geometry="paddle2"
+            ),
+            cayleyscene.CoordinateFrame(
+                space="camera",
+                parent="world",
+                geometry="camera",
+                dwell_before=5.0,
             ),
         ],
     )
@@ -97,14 +107,17 @@ def build_full_scene() -> cayleyscene.Scene:
     """build_scene plus the toward-NDC tail (world->camera inverse + GPU)."""
     scene: cayleyscene.Scene = build_scene()
     scene.to_ndc = [
-        cayleyscene.InverseOperations("world", "camera", "World->Camera"),
+        cayleyscene.InverseOperations(
+            from_space="world", to_space="camera", group_title="World->Camera"
+        ),
         cayleyscene.NonInvertibleTransformation(
-            "Frustum->Rectangular Prism",
-            ["Squash X", "Squash Y"],
+            group_title="Frustum->Rectangular Prism",
+            step_labels=["Squash X", "Squash Y"],
             dwell_before=10.0,
         ),
         cayleyscene.NonInvertibleTransformation(
-            "Ortho, Rectangular Prism->NDC", ["T - Center", "Scale"]
+            group_title="Ortho, Rectangular Prism->NDC",
+            step_labels=["T - Center", "Scale"],
         ),
     ]
     scene.end_dwell = 5.0
@@ -223,9 +236,9 @@ def test_camera_controls_edit_edge_steps_in_place() -> None:
     animation: cayleyscene.Animation = cayleyscene.Animation(scene)
     cam_edge: cayleygraph.Edge = scene.graph.path("camera", "world").route[0][0]
     controls: cayleyscene.CameraControls = cayleyscene.CameraControls(
-        cam_edge.steps[0],
-        cam_edge.steps[1],
-        cam_edge.steps[2],
+        translate_step=cam_edge.steps[0],
+        rot_y_step=cam_edge.steps[1],
+        rot_x_step=cam_edge.steps[2],
         px=-1.5,
         py=0.0,
         pz=8.5,

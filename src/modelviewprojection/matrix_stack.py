@@ -421,6 +421,73 @@ def multiply(matrix_stack: MatrixStack, rhs: np.ndarray) -> None:
     m[0:4, 0:4] = np.matmul(m.copy(), rhs)
 
 
+def planar_shadow(
+    matrix_stack: MatrixStack,
+    plane_eq: tuple[float, float, float, float],
+    light_pos: tuple[float, float, float],
+) -> None:
+    """Flatten geometry onto a plane to fake a shadow -- the SuperBible
+    "squish it into the floor" trick (``m3dMakePlanarShadowMatrix`` in
+    math3d.cpp, ``glMultMatrixf``'d in chapt01/block/Block.py).
+
+    Unlike every other function in this module, the matrix built here is
+    **rank 3 -- it has no inverse**. It collapses all of 3D onto a 2D
+    plane, so two different points can share one shadow and there is no
+    way back. That is exactly why it is NOT an ``InvertibleFunction`` in
+    ``mathutils.py`` and NOT an edge in the Cayley graph: it is the
+    course's canonical example of a transform that only goes one way.
+
+    ``plane_eq`` is ``(a, b, c, d)`` for the plane ``ax + by + cz + d =
+    0`` (see ``mathutils.plane_equation``). ``light_pos`` is treated as a
+    **direction** (SuperBible's ``w = 0`` convention): the shadow is a
+    *parallel* projection along the ray from the origin toward
+    ``light_pos``, so the fourth row is zero and every vertex keeps the
+    same ``w``.
+
+    Writing ``(dx, dy, dz) = (-Lx, -Ly, -Lz)``, the shadow matrix in
+    row-major, 1-based notation is::
+
+        b*dy + c*dz   -b*dx          -c*dx          -d*dx
+        -a*dy         a*dx + c*dz    -c*dy          -d*dy
+        -a*dz         -b*dz          a*dx + b*dy    -d*dz
+        0             0              0              a*dx + b*dy + c*dz
+
+    Derivation: a point ``P`` casts to where the ray through it, parallel
+    to the light direction, meets the plane; solving ``a x + b y + c z +
+    d = 0`` for that intersection and writing it as a homogeneous matrix
+    gives the entries above.
+
+    It is post-multiplied onto the current matrix, exactly like
+    ``glMultMatrixf(shadow)`` in the fixed-function demo, so the shadow is
+    applied in the same object space as the geometry it flattens.
+
+    Winding caveat: OpenGL clips on ``w`` *before* the perspective
+    divide, discarding ``w < 0``. With CCW winding (mvp's
+    ``plane_equation``) the shared ``w`` here, ``a*dx + b*dy + c*dz``, can
+    land negative and clip the whole shadow away; a demo may need to
+    negate the plane equation (or the matrix) to keep ``w`` positive, as
+    Block.py does. That is a rendering concern for the call site, not the
+    math -- the matrix above is the canonical one.
+    """
+    a, b, c, d = plane_eq
+    dx, dy, dz = -light_pos[0], -light_pos[1], -light_pos[2]
+
+    # fmt: off
+    shadow = np.array(
+        [
+            [b * dy + c * dz, -b * dx,         -c * dx,         -d * dx],
+            [-a * dy,         a * dx + c * dz, -c * dy,         -d * dy],
+            [-a * dz,         -b * dz,         a * dx + b * dy, -d * dz],
+            [0.0,             0.0,             0.0,             a * dx + b * dy + c * dz],  # noqa: E501
+        ],
+        dtype=np.float32,
+    )
+    # fmt: on
+
+    m = get_current_matrix(matrix_stack)
+    m[0:4, 0:4] = np.matmul(m.copy(), shadow)
+
+
 def ortho(
     left: float,
     right: float,

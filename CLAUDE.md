@@ -477,7 +477,7 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 `sys.path.insert(0, os.path.dirname(os.path.dirname(PWD))); import _common`.
 
 **Math / `matrix_stack`:**
-- `tasks/planar-shadow-matrix.md` — planar-shadow-projection 4×4 for `matrix_stack`; deliberately *not* an `InvertibleFunction` (rank-deficient). (`find_normal`/`plane_equation`/`distance_to_plane` already live in `mathutils.py`.)
+- `tasks/archive/2026/08/03/planar-shadow-matrix.md` — **done** (2026-08-03): `planar_shadow(matrix_stack, plane_eq, light_pos)` added — the directional/parallel SuperBible shadow, deliberately *not* an `InvertibleFunction` (rank-deficient) — with `tests/test_matrix_stack.py`. Rationale in `tasks/reference/design-decisions.md` › "The matrix / function stack".
 - `tasks/rotate-around-axis.md` — `rotate_around_axis` decomposed as a sequence of axis-aligned rotations (Bill's pedagogy choice; don't drop Rodrigues on them).
 - `tasks/face-normal-vector3d-io.md` — investigation (not started).
 

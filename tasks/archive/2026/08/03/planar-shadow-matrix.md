@@ -1,8 +1,12 @@
-# Plan: Planar shadow projection matrix in `pyMatrixStack`
+# Plan: Planar shadow projection matrix in `matrix_stack`
 
-**Status:** not started — research-only until Bill OKs the approach below.
+**Status:** complete (2026-08-03). Bill's decision: **keep the directional
+(parallel) shadow** — not the point-light perspective variant. Design rationale
+harvested to `tasks/reference/design-decisions.md` › "The matrix / function stack".
+(Module is `matrix_stack.py` now, not the old `pyMatrixStack`.)
 **Priority:** 5
 **Difficulty:** 4
+**Completed:** 2026-08-03
 
 **Reference implementation already in the codebase:** `chapt01/block/Block.py` has working inline `get_plane_equation()` and `make_planar_shadow_matrix(plane_eq, light_pos)` that returns a column-major flat 16-element numpy array, used via `glMultMatrixf`. Match those formulas (taken directly from `math3d.cpp:1026`) when implementing the `pyMatrixStack` version. The chapt01/block helpers will eventually be replaceable by `from modelviewprojection.mathutils import plane_equation` (Tier-1 task #5) and `from modelviewprojection.pyMatrixStack import planar_shadow` (this task) — until then the ports keep their inline copies.
 
@@ -69,3 +73,59 @@ The docstring should:
 
 - The signature uses tuples for `plane_eq` and `light_pos`. Should it instead take a `Vector3D` for the light and accept a `Vector4D`-shaped argument? Adding `Vector4D` to `mathutils.py` for this one use is probably not worth it; a 4-tuple is fine.
 - Should the docstring derivation be written as a chapter aside, or as inline LaTeX in the docstring? Match the existing style — the existing functions use plain ASCII matrices, so likely the same.
+
+## Work record (2026-08-03, autonomous session)
+
+Implemented `planar_shadow(matrix_stack, plane_eq, light_pos)` in
+`src/modelviewprojection/matrix_stack.py` (added just before `ortho`) and a new
+test file `tests/test_matrix_stack.py` (the module had no test before).
+
+**What it does.** Builds the SuperBible planar-shadow matrix and
+**post-multiplies** it onto the current matrix, exactly like
+`glMultMatrixf(shadow)` in `chapt01/block/Block.py`. Stored row-major
+(`M @ column_vector`) per the module convention — i.e. the transpose of
+Block.py's column-major flat buffer. Signature matches the plan:
+`plane_eq=(a,b,c,d)`, `light_pos=(x,y,z)`, in-place mutation like `translate`.
+
+**Faithfulness proof.** A scratch check plus `test_matches_block_reference`
+confirm the row-major matrix is **byte-identical** (max abs diff `0.0`) to an
+independent transcription of Block.py's reference (unsigned, `sign=+1`),
+reinterpreted row-major. Rank/`det` and on-plane projection also asserted.
+
+**Decisions made with discretion (flag for review):**
+
+1. **Directional (parallel), not point-light (perspective).** The matrix the
+   reference actually builds — and the one I matched — is the SuperBible `w = 0`
+   *directional* shadow: the bottom row is zero, every vertex keeps the same
+   `w`, and a point projects **straight along the light direction** (parallel
+   projection), not along a ray fanning out from a finite point light. Block.py
+   uses `v_light_pos = (…, 0.0)`, confirming directional. **This contradicts
+   this plan's own "How" section**, which sketched the *point-light* derivation
+   (`substitute P + t(L − P)`), a perspective shadow with a non-zero bottom row.
+   I followed the "match math3d.cpp / Block.py" instruction (the authoritative
+   reference) over the plan's derivation prose. **If you actually want the
+   point-light perspective shadow, that is a different matrix and a one-line
+   change to the bottom row — say so and I'll switch it.**
+2. **Excluded Block.py's `sign` negation.** That flip is an mvp-specific
+   CCW-winding / `w`-clipping rendering hack, not part of the canonical
+   `m3dMakePlanarShadowMatrix`. The library builder produces the canonical
+   matrix; the docstring documents the winding caveat and points at Block.py so
+   a call site can negate if its winding needs `w > 0`.
+3. **Param named `light_pos`** (matches SuperBible / Block.py API and the
+   course vocabulary), with the docstring stating plainly it is used as a
+   *direction*.
+
+**Verification (this bare sandbox — no gacalc/glfw/GL):**
+- `ruff check` + `ruff format --check --line-length=80`: clean on both files.
+- `ty check` on both files: clean (module imports only numpy — no gacalc, so
+  the "never ty against installed gacalc" trap does not apply here).
+- `pytest tests/` (gacalc pip-installed for collection): **75 passed**, incl.
+  the 5 new `test_matrix_stack.py` tests + the 2 `matrix_stack` doctests.
+- **Not run:** the containerized `make format` gate and `make html` book build
+  (heavy TeXLive/Sphinx — out of scope per session limits); the full
+  `--doctest-modules` sweep (needs `glfw`/`tkinter`, absent here). None touch
+  this change — it is purely additive (one new function, one new test file),
+  no existing code edited.
+
+**Out of scope, untouched (as the plan says):** not wired into any demo, no
+book chapter. Block.py keeps its inline copy.
