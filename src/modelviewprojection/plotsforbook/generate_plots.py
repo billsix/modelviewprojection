@@ -26,7 +26,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector2, e_1, e_2
 from gacalc.transforms import (
     InvertibleFunction,
     compose_intermediate_fns,
@@ -57,10 +57,7 @@ def _apply(
     against sympy ``Float`` coefficients leaking from a rotation (same reason as
     ``util.nbplotutils._xy``); a purely numeric pipeline stays numeric anyway.
     """
-    vectors = [
-        fn(float(x) * Vector2.e_1 + float(y) * Vector2.e_2)
-        for x, y in zip(xs, ys)
-    ]
+    vectors = [fn(float(x) * e_1 + float(y) * e_2) for x, y in zip(xs, ys)]
     return (
         [float(v.coeff_e_1) for v in vectors],
         [float(v.coeff_e_2) for v in vectors],
@@ -310,7 +307,7 @@ def main() -> None:
         title="Translation",
         filename="translation-forwards",
         geometry=paddle1,
-        procedures=[translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2)],
+        procedures=[translate(b=-9.0 * e_1 + 2.0 * e_2)],
         forwards=True,
     )
 
@@ -318,7 +315,7 @@ def main() -> None:
         title="Translation",
         filename="translation2-forwards",
         geometry=paddle2,
-        procedures=[translate(b=9.0 * Vector2.e_1 + -4.0 * Vector2.e_2)],
+        procedures=[translate(b=9.0 * e_1 + -4.0 * e_2)],
         forwards=True,
     )
 
@@ -326,7 +323,7 @@ def main() -> None:
         title="Translation",
         filename="translation-backwards",
         geometry=paddle1,
-        procedures=[translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2)],
+        procedures=[translate(b=-9.0 * e_1 + 2.0 * e_2)],
         forwards=False,
     )
 
@@ -334,7 +331,7 @@ def main() -> None:
         title="Translation",
         filename="translation2-backwards",
         geometry=paddle2,
-        procedures=[translate(b=9.0 * Vector2.e_1 + -4.0 * Vector2.e_2)],
+        procedures=[translate(b=9.0 * e_1 + -4.0 * e_2)],
         forwards=False,
     )
 
@@ -364,7 +361,7 @@ def main() -> None:
         filename="rotate1-forwards",
         geometry=paddle1,
         procedures=[
-            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            translate(b=-9.0 * e_1 + 2.0 * e_2),
             rotate(math.radians(45.0)),
         ],
         graph_bounds=(12, 12),
@@ -377,7 +374,7 @@ def main() -> None:
         geometry=paddle1,
         procedures=[
             rotate(math.radians(65.0)),
-            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            translate(b=-9.0 * e_1 + 2.0 * e_2),
         ],
         graph_bounds=(12, 12),
         forwards=True,
@@ -389,7 +386,7 @@ def main() -> None:
         geometry=paddle1,
         procedures=[
             rotate(math.radians(65.0)),
-            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            translate(b=-9.0 * e_1 + 2.0 * e_2),
         ],
         forwards=False,
         graph_bounds=(12, 12),
@@ -400,10 +397,10 @@ def main() -> None:
         filename="rotate-sloppy-backwards",
         geometry=paddle1,
         procedures=[
-            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            translate(b=-9.0 * e_1 + 2.0 * e_2),
             rotate(math.radians(45.0)),
-            translate(b=9.0 * Vector2.e_1 + -2.0 * Vector2.e_2),
-            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            translate(b=9.0 * e_1 + -2.0 * e_2),
+            translate(b=-9.0 * e_1 + 2.0 * e_2),
         ],
         forwards=True,
         graph_bounds=(12, 12),
@@ -414,10 +411,10 @@ def main() -> None:
         filename="rotate-sloppy-forwards",
         geometry=paddle1,
         procedures=[
-            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            translate(b=-9.0 * e_1 + 2.0 * e_2),
             rotate(math.radians(45.0)),
-            translate(b=9.0 * Vector2.e_1 + -2.0 * Vector2.e_2),
-            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            translate(b=9.0 * e_1 + -2.0 * e_2),
+            translate(b=-9.0 * e_1 + 2.0 * e_2),
         ],
         graph_bounds=(12, 12),
         forwards=True,
@@ -428,7 +425,7 @@ def main() -> None:
         filename="rotate1-backwards",
         geometry=paddle1,
         procedures=[
-            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            translate(b=-9.0 * e_1 + 2.0 * e_2),
             rotate(math.radians(45.0)),
         ],
         graph_bounds=(12, 12),
@@ -440,7 +437,7 @@ def main() -> None:
         filename="rotate2-forwards",
         geometry=paddle2,
         procedures=[
-            translate(b=9.0 * Vector2.e_1 + -4.0 * Vector2.e_2),
+            translate(b=9.0 * e_1 + -4.0 * e_2),
             rotate(math.radians(-1.0)),
         ],
         graph_bounds=(12, 12),
@@ -452,7 +449,7 @@ def main() -> None:
         filename="rotate2-backwards",
         geometry=paddle2,
         procedures=[
-            translate(b=9.0 * Vector2.e_1 + -4.0 * Vector2.e_2),
+            translate(b=9.0 * e_1 + -4.0 * e_2),
             rotate(math.radians(-1.0)),
         ],
         graph_bounds=(12, 12),
@@ -553,7 +550,7 @@ def main() -> None:
         geometry=square_ndc,
         procedures=[
             scale_non_uniform(1.0 / 2.0, 7.0 / 2.0),
-            translate(b=1.0 / 2 * Vector2.e_1 + 7.0 / 2 * Vector2.e_2),
+            translate(b=1.0 / 2 * e_1 + 7.0 / 2 * e_2),
         ],
         forwards=False,
         graph_bounds=(10, 10),
@@ -568,7 +565,7 @@ def main() -> None:
         geometry=square_ndc,
         procedures=[
             scale_non_uniform(1.0 / 2.0, 7.0 / 2.0),
-            translate(b=1.0 / 2 * Vector2.e_1 + 7.0 / 2 * Vector2.e_2),
+            translate(b=1.0 / 2 * e_1 + 7.0 / 2 * e_2),
         ],
         forwards=True,
         graph_bounds=(10, 10),
@@ -600,7 +597,7 @@ def main() -> None:
         filename="ortho2d-backwards",
         geometry=square_ndc,
         procedures=[
-            translate(b=-1.0 / 2 * Vector2.e_1 + -7.0 / 2 * Vector2.e_2),
+            translate(b=-1.0 / 2 * e_1 + -7.0 / 2 * e_2),
             scale_non_uniform(1.0 / (1.0 / 2.0), 1.0 / (7.0 / 2.0)),
         ],
         forwards=False,
@@ -615,7 +612,7 @@ def main() -> None:
         filename="ortho2d",
         geometry=square_ndc,
         procedures=[
-            translate(b=-1.0 / 2 * Vector2.e_1 + -7.0 / 2 * Vector2.e_2),
+            translate(b=-1.0 / 2 * e_1 + -7.0 / 2 * e_2),
             scale_non_uniform(1.0 / (1.0 / 2.0), 1.0 / (7.0 / 2.0)),
         ],
         forwards=True,

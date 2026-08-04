@@ -23,7 +23,7 @@ import IPython.display as display
 import numpy as np
 import PIL
 import PIL.Image
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector2, e_1, e_2
 from gacalc.transforms import compose, scale_non_uniform, translate
 
 from modelviewprojection.mathutils import cosine
@@ -37,15 +37,15 @@ def is_counter_clockwise(v1: Vector2, v2: Vector2) -> bool:
     """True when the turn from ``v1`` to ``v2`` is counter-clockwise.
 
     >>> from gacalc.g2 import Vector2
-    >>> is_counter_clockwise(1.0 * Vector2.e_1, 1.0 * Vector2.e_2)
+    >>> is_counter_clockwise(1.0 * e_1, 1.0 * e_2)
     True
-    >>> is_counter_clockwise(1.0 * Vector2.e_2, 1.0 * Vector2.e_1)
+    >>> is_counter_clockwise(1.0 * e_2, 1.0 * e_1)
     False
 
     Collinear vectors count as counter-clockwise too (the boundary case) --
     that is deliberate, so an edge-pixel is lit for either winding:
 
-    >>> is_counter_clockwise(1.0 * Vector2.e_1, 2.0 * Vector2.e_1)
+    >>> is_counter_clockwise(1.0 * e_1, 2.0 * e_1)
     True
     """
     # orientation is the SIGN of the cross product  v1 x v2 = |v1||v2|
@@ -61,16 +61,16 @@ def is_clockwise(v1: Vector2, v2: Vector2) -> bool:
     """The mirror of :func:`is_counter_clockwise`.
 
     >>> from gacalc.g2 import Vector2
-    >>> is_clockwise(1.0 * Vector2.e_2, 1.0 * Vector2.e_1)
+    >>> is_clockwise(1.0 * e_2, 1.0 * e_1)
     True
-    >>> is_clockwise(1.0 * Vector2.e_1, 1.0 * Vector2.e_2)
+    >>> is_clockwise(1.0 * e_1, 1.0 * e_2)
     False
 
     A collinear pair is BOTH clockwise and counter-clockwise -- both predicates
     include the zero-cross case, which is how a pixel exactly on an edge gets
     lit no matter which way the triangle is wound:
 
-    >>> pair = (1.0 * Vector2.e_1, 2.0 * Vector2.e_1)
+    >>> pair = (1.0 * e_1, 2.0 * e_1)
     >>> is_clockwise(*pair) and is_counter_clockwise(*pair)
     True
     """
@@ -90,18 +90,18 @@ def is_parallel_and_same_orientation(v1: Vector2, v2: Vector2) -> bool:
     anti-parallel pair is excluded:
 
     >>> from gacalc.g2 import Vector2
-    >>> is_parallel_and_same_orientation(1.0 * Vector2.e_1, 2.0 * Vector2.e_1)
+    >>> is_parallel_and_same_orientation(1.0 * e_1, 2.0 * e_1)
     True
-    >>> is_parallel_and_same_orientation(1.0 * Vector2.e_1, -1.0 * Vector2.e_1)
+    >>> is_parallel_and_same_orientation(1.0 * e_1, -1.0 * e_1)
     False
-    >>> is_parallel_and_same_orientation(1.0 * Vector2.e_1, 1.0 * Vector2.e_2)
+    >>> is_parallel_and_same_orientation(1.0 * e_1, 1.0 * e_2)
     False
 
     A zero-length vector has no direction, so it is treated as matching
     anything -- giving the rasterizer's degenerate-triangle guard a definite
     answer instead of a divide-by-zero:
 
-    >>> is_parallel_and_same_orientation(0.0 * Vector2.e_1, 1.0 * Vector2.e_1)
+    >>> is_parallel_and_same_orientation(0.0 * e_1, 1.0 * e_1)
     True
     """
     # a zero-length vector has no direction; treat it as degenerate/collinear so
@@ -151,7 +151,7 @@ class FrameBuffer:
         """Convert from OpenGL-style coords to framebuffer array coords."""
         ss_to_fb = compose(
             [
-                translate((self.height - 1) * Vector2.e_2),
+                translate((self.height - 1) * e_2),
                 scale_non_uniform(1, -1),
             ]
         )
@@ -190,9 +190,9 @@ class FrameBuffer:
         min_y: int = max(int(min(y1, y2, y3)), 0)
         max_y: int = min(int(max(y1, y2, y3)), self.height - 1)
 
-        v1: Vector2 = x1 * Vector2.e_1 + y1 * Vector2.e_2
-        v2: Vector2 = x2 * Vector2.e_1 + y2 * Vector2.e_2
-        v3: Vector2 = x3 * Vector2.e_1 + y3 * Vector2.e_2
+        v1: Vector2 = x1 * e_1 + y1 * e_2
+        v2: Vector2 = x2 * e_1 + y2 * e_2
+        v3: Vector2 = x3 * e_1 + y3 * e_2
 
         # a zero-length edge (coincident vertices) or same-direction collinear
         # vertices give a zero-area triangle -- cull it instead of dividing by
@@ -204,7 +204,7 @@ class FrameBuffer:
         # Loop over bounding box
         for y in range(min_y, max_y + 1):
             for x in range(min_x, max_x + 1):
-                pixel_position: Vector2 = x * Vector2.e_1 + y * Vector2.e_2
+                pixel_position: Vector2 = x * e_1 + y * e_2
                 counter_clockwise_values: list[bool] = [
                     is_counter_clockwise(v2 - v1, pixel_position - v1),
                     is_counter_clockwise(v3 - v2, pixel_position - v2),
@@ -221,4 +221,4 @@ class FrameBuffer:
                 # zero cross there -- counted as both CCW and CW -- so it is lit
                 # for either winding, vertices included.
                 if all(counter_clockwise_values) or all(clockwise_values):
-                    self.set_color(x * Vector2.e_1 + y * Vector2.e_2, color)
+                    self.set_color(x * e_1 + y * e_2, color)

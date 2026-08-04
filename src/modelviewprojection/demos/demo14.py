@@ -21,7 +21,7 @@ import sys
 
 import glfw
 import OpenGL.GL as GL
-from gacalc.g3 import Vector3
+from gacalc.g3 import Vector3, e_1, e_2, e_3
 from gacalc.transforms import (
     InvertibleFunction,
     compose,
@@ -74,24 +74,24 @@ class Paddle:
 # doc-region-begin instantiate paddle 1
 paddle1: Paddle = Paddle(
     vertices=[
-        -1 * Vector3.e_1 + -3 * Vector3.e_2,
-        Vector3.e_1 + -3 * Vector3.e_2,
-        Vector3.e_1 + 3 * Vector3.e_2,
-        -1 * Vector3.e_1 + 3 * Vector3.e_2,
+        -1 * e_1 + -3 * e_2,
+        e_1 + -3 * e_2,
+        e_1 + 3 * e_2,
+        -1 * e_1 + 3 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9 * Vector3.e_1,
+    position=-9 * e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -1 * Vector3.e_1 + -3 * Vector3.e_2,
-        Vector3.e_1 + -3 * Vector3.e_2,
-        Vector3.e_1 + 3 * Vector3.e_2,
-        -1 * Vector3.e_1 + 3 * Vector3.e_2,
+        -1 * e_1 + -3 * e_2,
+        e_1 + -3 * e_2,
+        e_1 + 3 * e_2,
+        -1 * e_1 + 3 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9 * Vector3.e_1,
+    position=9 * e_1,
 )
 # doc-region-end instantiate paddle 1
 
@@ -107,10 +107,10 @@ camera: Camera = Camera()
 
 # doc-region-begin instantiate square
 square: list[Vector3] = [
-    -0.5 * Vector3.e_1 + -0.5 * Vector3.e_2,
-    0.5 * Vector3.e_1 + -0.5 * Vector3.e_2,
-    0.5 * Vector3.e_1 + 0.5 * Vector3.e_2,
-    -0.5 * Vector3.e_1 + 0.5 * Vector3.e_2,
+    -0.5 * e_1 + -0.5 * e_2,
+    0.5 * e_1 + -0.5 * e_2,
+    0.5 * e_1 + 0.5 * e_2,
+    -0.5 * e_1 + 0.5 * e_2,
 ]
 # doc-region-end instantiate square
 
@@ -130,24 +130,24 @@ def handle_inputs() -> None:
     global camera
 
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        camera.position_ws += Vector3.e_2
+        camera.position_ws += e_2
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
-        camera.position_ws -= Vector3.e_2
+        camera.position_ws -= e_2
     if glfw.get_key(window, glfw.KEY_LEFT) == glfw.PRESS:
-        camera.position_ws -= Vector3.e_1
+        camera.position_ws -= e_1
     if glfw.get_key(window, glfw.KEY_RIGHT) == glfw.PRESS:
-        camera.position_ws += Vector3.e_1
+        camera.position_ws += e_1
 
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position -= Vector3.e_2
+        paddle1.position -= e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position += Vector3.e_2
+        paddle1.position += e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position -= Vector3.e_2
+        paddle2.position -= e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position += Vector3.e_2
+        paddle2.position += e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1
@@ -229,9 +229,9 @@ while not glfw.window_should_close(window):
                 # square space to paddle 1 space
                 compose(
                     [
-                        translate(b=-1 * Vector3.e_3),
+                        translate(b=-1 * e_3),
                         rotate_z(rotation_around_paddle1),
-                        translate(b=2 * Vector3.e_1),
+                        translate(b=2 * e_1),
                         rotate_z(square_rotation),
                     ]
                 ),

@@ -21,7 +21,7 @@ import sys
 
 import glfw
 import OpenGL.GL as GL
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector2, e_1, e_2
 from gacalc.transforms import (
     InvertibleFunction,
     compose,
@@ -69,24 +69,24 @@ class Paddle:
 
 paddle1: Paddle = Paddle(
     vertices=[
-        -1 * Vector2.e_1 + -3 * Vector2.e_2,
-        Vector2.e_1 + -3 * Vector2.e_2,
-        Vector2.e_1 + 3 * Vector2.e_2,
-        -1 * Vector2.e_1 + 3 * Vector2.e_2,
+        -1 * e_1 + -3 * e_2,
+        e_1 + -3 * e_2,
+        e_1 + 3 * e_2,
+        -1 * e_1 + 3 * e_2,
     ],
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
-    position=-9 * Vector2.e_1,
+    position=-9 * e_1,
 )
 
 paddle2: Paddle = Paddle(
     vertices=[
-        -1 * Vector2.e_1 + -3 * Vector2.e_2,
-        Vector2.e_1 + -3 * Vector2.e_2,
-        Vector2.e_1 + 3 * Vector2.e_2,
-        -1 * Vector2.e_1 + 3 * Vector2.e_2,
+        -1 * e_1 + -3 * e_2,
+        e_1 + -3 * e_2,
+        e_1 + 3 * e_2,
+        -1 * e_1 + 3 * e_2,
     ],
     color=colorutils.Color3(r=1.0, g=1.0, b=0.0),
-    position=9 * Vector2.e_1,
+    position=9 * e_1,
 )
 
 
@@ -94,13 +94,13 @@ def handle_movement_of_paddles() -> None:
     global paddle1, paddle2
 
     if glfw.get_key(window, glfw.KEY_S) == glfw.PRESS:
-        paddle1.position -= Vector2.e_2
+        paddle1.position -= e_2
     if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
-        paddle1.position += Vector2.e_2
+        paddle1.position += e_2
     if glfw.get_key(window, glfw.KEY_K) == glfw.PRESS:
-        paddle2.position -= Vector2.e_2
+        paddle2.position -= e_2
     if glfw.get_key(window, glfw.KEY_I) == glfw.PRESS:
-        paddle2.position += Vector2.e_2
+        paddle2.position += e_2
 
     if glfw.get_key(window, glfw.KEY_A) == glfw.PRESS:
         paddle1.rotation += 0.1

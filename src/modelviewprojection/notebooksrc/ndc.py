@@ -54,7 +54,7 @@ import IPython.display
 import matplotlib
 import moviepy
 import numpy as np
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector2, e_1, e_2
 from gacalc.transforms import (
     InvertibleFunction,
     compose,
@@ -69,8 +69,8 @@ warnings.filterwarnings("error", category=RuntimeWarning)
 matplotlib.rcParams["axes.formatter.use_mathtext"] = True
 
 
-e_1 = Vector2.e_1
-e_2 = Vector2.e_2
+e_1 = e_1
+e_2 = e_2
 zero = Vector2.zero()
 
 

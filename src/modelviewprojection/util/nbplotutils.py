@@ -27,7 +27,7 @@ import matplotlib.figure
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector2, e_1, e_2
 from gacalc.transforms import InvertibleFunction, identity
 from IPython import get_ipython
 from IPython.display import display
@@ -68,10 +68,8 @@ def generategridlines(
         thickness = 4 if np.isclose(x, 0.0) else 1
         yield (
             [
-                x * Vector2.e_1
-                + (-graph_bounds[1] * extra_lines_multiplier) * Vector2.e_2,
-                x * Vector2.e_1
-                + (graph_bounds[1] * extra_lines_multiplier) * Vector2.e_2,
+                x * e_1 + (-graph_bounds[1] * extra_lines_multiplier) * e_2,
+                x * e_1 + (graph_bounds[1] * extra_lines_multiplier) * e_2,
             ],
             thickness,
         )
@@ -84,10 +82,8 @@ def generategridlines(
         thickness = 4 if np.isclose(y, 0.0) else 1
         yield (
             [
-                (-graph_bounds[0] * extra_lines_multiplier) * Vector2.e_1
-                + y * Vector2.e_2,
-                (graph_bounds[0] * extra_lines_multiplier) * Vector2.e_1
-                + y * Vector2.e_2,
+                (-graph_bounds[0] * extra_lines_multiplier) * e_1 + y * e_2,
+                (graph_bounds[0] * extra_lines_multiplier) * e_1 + y * e_2,
             ],
             thickness,
         )
@@ -190,12 +186,12 @@ def create_unit_circle(
         for theta in np.arange(0.0, 2 * math.pi, theta_increment):
             yield (
                 [
-                    scale_radius * math.cos(theta) * Vector2.e_1
-                    + math.sin(theta) * Vector2.e_2,
+                    scale_radius * math.cos(theta) * e_1
+                    + math.sin(theta) * e_2,
                     scale_radius
                     * (
-                        math.cos(theta + theta_increment) * Vector2.e_1
-                        + math.sin(theta + theta_increment) * Vector2.e_2
+                        math.cos(theta + theta_increment) * e_1
+                        + math.sin(theta + theta_increment) * e_2
                     ),
                 ]
             )
@@ -218,7 +214,7 @@ def create_x_and_y(
     ycolor: tuple[float, float, float] = (1.0, 0.0, 1.0),
 ) -> None:
     # x axis
-    x_axis = [zero, Vector2.e_1]
+    x_axis = [zero, e_1]
     plt.plot(
         [fn(vec).coeff_e_1 for vec in x_axis],
         [fn(vec).coeff_e_2 for vec in x_axis],
@@ -228,7 +224,7 @@ def create_x_and_y(
     )
 
     # y axis
-    y_axis = [zero, Vector2.e_2]
+    y_axis = [zero, e_2]
     plt.plot(
         [fn(vec).coeff_e_1 for vec in y_axis],
         [fn(vec).coeff_e_2 for vec in y_axis],
@@ -252,9 +248,9 @@ def _draw_labelled_triangle(
     which way the labels are nudged in x ever differed.
     """
     axes = _current_axes()
-    x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
-    x_world_space = Vector2.e_1
-    y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
+    x_prime_direction_world_space = fn(e_1) - fn(zero)
+    x_world_space = e_1
+    y_prime_direction_world_space = fn(e_2) - fn(zero)
     angle_radians = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
@@ -302,7 +298,7 @@ def draw_isoceles_triangle(
 ) -> None:
     """An isoceles triangle with vertices labelled A, B, C."""
     _draw_labelled_triangle(
-        [zero, Vector2.e_1, 0.5 * Vector2.e_1 + Vector2.e_2],
+        [zero, e_1, 0.5 * e_1 + e_2],
         ["A", "B", "C"],
         fn,
         color,
@@ -315,7 +311,7 @@ def draw_second_right_triangle(
 ) -> None:
     """A right triangle in the second quadrant, labelled by coordinate."""
     _draw_labelled_triangle(
-        [zero, -4 * Vector2.e_1, -4 * Vector2.e_1 + 3 * Vector2.e_2],
+        [zero, -4 * e_1, -4 * e_1 + 3 * e_2],
         ["(0,0)", "(-4,0)", "(-4,3)"],
         fn,
         color,
@@ -329,7 +325,7 @@ def draw_right_triangle(
 ) -> None:
     """A 3-4-5 right triangle in the first quadrant, labelled by coordinate."""
     _draw_labelled_triangle(
-        [zero, 3 * Vector2.e_1, 3 * Vector2.e_1 + 4 * Vector2.e_2],
+        [zero, 3 * e_1, 3 * e_1 + 4 * e_2],
         ["(0,0)", "(3,0)", "(3,4)"],
         fn,
         color,
@@ -347,9 +343,9 @@ def draw_ndc(
     color: tuple[float, float, float] = (0.0, 0.0, 1.0),
 ) -> None:
     axes = _current_axes()
-    x_prime_direction_world_space = fn(Vector2.e_1) - fn(zero)
-    x_world_space = Vector2.e_1
-    y_prime_direction_world_space = fn(Vector2.e_2) - fn(zero)
+    x_prime_direction_world_space = fn(e_1) - fn(zero)
+    x_world_space = e_1
+    y_prime_direction_world_space = fn(e_2) - fn(zero)
     angle_radians = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
@@ -361,10 +357,10 @@ def draw_ndc(
     vertices = [
         fn(v)
         for v in [
-            -1 * Vector2.e_1 + -1 * Vector2.e_2,
-            1 * Vector2.e_1 + -1 * Vector2.e_2,
-            1 * Vector2.e_1 + 1 * Vector2.e_2,
-            -1 * Vector2.e_1 + 1 * Vector2.e_2,
+            -1 * e_1 + -1 * e_2,
+            1 * e_1 + -1 * e_2,
+            1 * e_1 + 1 * e_2,
+            -1 * e_1 + 1 * e_2,
         ]
     ]
 
@@ -413,14 +409,13 @@ def draw_screen(
             vertices = [
                 fn(v)
                 for v in [
-                    (-1.0 + d_width * x) * Vector2.e_1
-                    + (-1.0 + d_height * y) * Vector2.e_2,
-                    (-1.0 + d_width * (x + 1)) * Vector2.e_1
-                    + (-1.0 + d_height * y) * Vector2.e_2,
-                    (-1.0 + d_width * (x + 1)) * Vector2.e_1
-                    + (-1.0 + d_height * (y + 1)) * Vector2.e_2,
-                    (-1.0 + d_width * (x)) * Vector2.e_1
-                    + (-1.0 + d_height * (y + 1)) * Vector2.e_2,
+                    (-1.0 + d_width * x) * e_1 + (-1.0 + d_height * y) * e_2,
+                    (-1.0 + d_width * (x + 1)) * e_1
+                    + (-1.0 + d_height * y) * e_2,
+                    (-1.0 + d_width * (x + 1)) * e_1
+                    + (-1.0 + d_height * (y + 1)) * e_2,
+                    (-1.0 + d_width * (x)) * e_1
+                    + (-1.0 + d_height * (y + 1)) * e_2,
                 ]
             ]
 

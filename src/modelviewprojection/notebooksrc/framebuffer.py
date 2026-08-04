@@ -50,7 +50,7 @@
 
 import warnings
 
-from gacalc.g2 import Vector2
+from gacalc.g2 import e_1, e_2
 
 # %% [markdown]
 # The module below is our software implementation of a
@@ -69,8 +69,8 @@ warnings.filterwarnings("error", category=RuntimeWarning)
 
 
 # import unit vectors in the x and y direction
-e_1 = Vector2.e_1
-e_2 = Vector2.e_2
+e_1 = e_1
+e_2 = e_2
 
 # %% [markdown]
 # Make a framebuffer, which is just a rectangular region of
