@@ -22,8 +22,12 @@ gates, in the order they bite:
    `entrypoint/format.sh` (ruff check `--fix`, ruff format, `ty check` over
    `src`, `tests`, and the three `ports/codetheclassics/*` trees). Every step
    always runs; the script exits nonzero if *any* step failed (see
-   `design-decisions.md` › "format.sh fails on ANY step"). **There is no
-   `make test` target** — pytest runs standalone or via the book build.
+   `design-decisions.md` › "format.sh fails on ANY step"). Since 2026-08-04 there
+   is also a **`make test`** target — in-container pytest (glfw present, so the
+   windowing modules and their doctests actually run), venv activated, `pythonpath
+   = src` from `pytest.ini` (no editable install), and WITHOUT `--exitfirst` so it
+   reports every failure. It does **not** replace the book build's own inline
+   pytest gate (gate 2 below); both exist.
 2. **`entrypoint.sh`'s pytest gate** — `pytest --exitfirst` runs before the
    book builds; a failing test (doctests included) aborts the whole build.
 3. **`tools/check_doc_regions.py`** — the anchor checker, run in-container

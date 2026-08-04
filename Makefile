@@ -140,6 +140,23 @@ format: image ## (container) ruff + ty over the source (loadpackages.sh + format
 		-c 'cd /mvp && loadpackages.sh && format.sh'
 
 
+# Run the pytest suite INSIDE the container (the image's pinned interpreter, with
+# glfw/GL present -- so the windowing modules and their doctests that cannot import
+# on a bare host DO run here).  Same suite and environment as the book-build gate
+# in entrypoint.sh: activate the venv, then pytest, which picks up `pythonpath =
+# src` from pytest.ini (so no editable install is needed).  WITHOUT `--exitfirst`,
+# so a standalone `make test` reports every failure, not just the first.  This does
+# NOT replace the book build's own inline `pytest --exitfirst` gate in
+# entrypoint.sh -- that stays as-is.
+.PHONY: test
+test: image ## (container) run the pytest suite (glfw present; all failures, not just the first)
+	$(CONTAINER_CMD) run --rm \
+		--entrypoint /bin/bash \
+		$(FILES_TO_MOUNT) \
+		$(CONTAINER_NAME) \
+		-c 'source /venv/bin/activate && cd /mvp && pytest'
+
+
 # Validate the book's doc-region anchors (resolve + no name collisions).  Runs
 # in the container because some anchors resolve against the docs-only gacalc
 # source, which lives at /opt/gacalc-src in the image (not on the host); the
