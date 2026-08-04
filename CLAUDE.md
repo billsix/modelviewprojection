@@ -204,7 +204,7 @@ with no `sys.path` dance (so no `# noqa: E402`, and E402 is no longer ignored fo
     Shim position parameters (Actor pos setter, `screen.blit`) **unpack**
     (`x, y = pos`) rather than index, so they accept tuples AND gacalc
     vectors.
-  - **gacalc vectors are FROZEN (immutable) at the pinned version (0.0.14), so a
+  - **gacalc vectors are FROZEN (immutable) — frozen since 0.0.14, pin now 0.0.15 — so a
     coordinate is changed by REBINDING, never in place.** Write
     `self.dir = Vector2(-self.dir.x, self.dir.y)`, not `self.dir.x = -self.dir.x`;
     an augmented write becomes
@@ -489,6 +489,15 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 - `tasks/axis-cylinder-cone-lighting.md` — deferred.
 
 **Cross-repo (done):**
+- **gacalc bumped to 0.0.15 (2026-08-04): graded module constants + `isclose`.**
+  `from gacalc.g2 import e_1` is now a `Vector2` (was `G2`), so the demos import basis
+  constants **unqualified** — pin bumped to **0.0.15** in `requirements.txt` + the
+  Dockerfile `ARG GACALC_VERSION`; **545** `Vector2.e_1`→`e_1` sites unqualified across 19
+  files (𝒢₂/𝒢₃-collision files stay qualified — see `tasks/reference/design-decisions.md`
+  › "Math library & gacalc integration"); and gacalc's `is_close`→`isclose` rename + now
+  zero-default tolerances migrated at 36 test sites (`rel_tol=1e-5, abs_tol=1e-5`). A
+  `make test` target was added (in-container pytest, glfw present). Archived:
+  `tasks/archive/2026/08/04/{unqualify-graded-basis-imports,gacalc-0015-isclose-tolerance-migration}.md`.
 - The gacalc **frozen-vector migration landed 2026-07-23**: pin bumped to
   **0.0.14** (`requirements.txt` *and* the Dockerfile `ARG GACALC_VERSION`), and
   ~80 in-place `.x/.y/.z` writes across six Code-the-Classics games converted to
