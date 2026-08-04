@@ -2,6 +2,9 @@
 
 **Status:** done (2026-08-03) — feasibility confirmed AND executed; pixel-perfect (0
 differing pixels across all 170 figures). Staged, not committed.
+**Durable rationale harvested to** `tasks/reference/design-decisions.md` (the migration under
+"Math library & gacalc integration"; the keep-the-list decision + the superseded 2026-07-19
+"don't rewrite" call under "Investigations that recommended NOT rewriting").
 **Priority:** 4
 **Difficulty:** 5
 
