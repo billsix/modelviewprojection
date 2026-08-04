@@ -74,7 +74,7 @@ def assert_same_fn(
 ) -> None:
     p: Vector3
     for p in SAMPLES:
-        assert fa(p).is_close(fb(p))
+        assert fa(p).isclose(fb(p), rel_tol=1e-5, abs_tol=1e-5)
 
 
 # --- forward edge ----------------------------------------------------------
@@ -101,7 +101,9 @@ def test_backward_single_edge_is_the_inverse() -> None:
     # and they round-trip to the identity
     p: Vector3
     for p in SAMPLES:
-        assert world_to_cam(cam_to_world(p)).is_close(p)
+        assert world_to_cam(cam_to_world(p)).isclose(
+            p, rel_tol=1e-5, abs_tol=1e-5
+        )
 
 
 def test_round_trip_is_identity_multi_hop() -> None:
@@ -110,7 +112,7 @@ def test_round_trip_is_identity_multi_hop() -> None:
     back: InvertibleFunction = g.path("camera", "square").function()
     p: Vector3
     for p in SAMPLES:
-        assert back(there(p)).is_close(p)
+        assert back(there(p)).isclose(p, rel_tol=1e-5, abs_tol=1e-5)
 
 
 # --- multi-hop composition (with and without an against-arrow edge) ---------
@@ -192,7 +194,7 @@ def test_oriented_steps_backward_inverts_and_relabels_in_reading_order() -> (
     for s, f in zip(steps, fwd):
         p: Vector3
         for p in SAMPLES:
-            assert s.fn(p).is_close(inverse(f)(p))
+            assert s.fn(p).isclose(inverse(f)(p), rel_tol=1e-5, abs_tol=1e-5)
 
 
 # --- Phase 1 integration: a path is itself interpolable / iterable ----------
@@ -204,8 +206,8 @@ def test_path_function_is_interpolable() -> None:
     # at(0) is identity, at(1) is the full transform
     p: Vector3
     for p in SAMPLES:
-        assert f.at(0.0)(p).is_close(p)
-        assert f.at(1.0)(p).is_close(f(p))
+        assert f.at(0.0)(p).isclose(p, rel_tol=1e-5, abs_tol=1e-5)
+        assert f.at(1.0)(p).isclose(f(p), rel_tol=1e-5, abs_tol=1e-5)
 
 
 def test_path_function_steps_count_matches_total_substeps() -> None:
@@ -279,7 +281,9 @@ def test_enum_node_identifiers() -> None:
         ]
     )
     f: InvertibleFunction = g.path(Space.paddle, Space.world).function()
-    assert f(Vector3(0.0, 0.0, 0.0)).is_close(Vector3(3.0, 0.0, 0.0))
+    assert f(Vector3(0.0, 0.0, 0.0)).isclose(
+        Vector3(3.0, 0.0, 0.0), rel_tol=1e-5, abs_tol=1e-5
+    )
     assert cayleygraph.node_label(Space.paddle) == "paddle"
     assert cayleygraph.node_label("world") == "world"  # strings still work too
 
@@ -289,4 +293,4 @@ def test_same_space_is_empty_identity_path() -> None:
     f: InvertibleFunction = g.path("world", "world").function()
     p: Vector3
     for p in SAMPLES:
-        assert f(p).is_close(p)
+        assert f(p).isclose(p, rel_tol=1e-5, abs_tol=1e-5)

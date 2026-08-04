@@ -93,31 +93,37 @@ def test_rotate_quarter_turn() -> None:
     inp: Vector2
     out: Vector2
     for inp, out in pairs:
-        assert fn(inp).is_close(out)
-        assert fn_inv(out).is_close(inp)
+        assert fn(inp).isclose(out, rel_tol=1e-5, abs_tol=1e-5)
+        assert fn_inv(out).isclose(inp, rel_tol=1e-5, abs_tol=1e-5)
 
 
 def test_rotate_3_4_5() -> None:
     fn: InvertibleFunction[Vector2] = rotate(math.atan2(4, 3))
-    assert fn(v2(5, 0)).is_close(v2(3, 4))
-    assert inverse(fn)(v2(3, 4)).is_close(v2(5, 0))
+    assert fn(v2(5, 0)).isclose(v2(3, 4), rel_tol=1e-5, abs_tol=1e-5)
+    assert inverse(fn)(v2(3, 4)).isclose(v2(5, 0), rel_tol=1e-5, abs_tol=1e-5)
 
 
 def test_rotate_is_linear_and_animatable() -> None:
     fn: InvertibleFunction[Vector2] = rotate(math.radians(90.0))
     assert fn.linearity is Linearity.LINEAR
     # at(0) is identity, at(1) the full rotation
-    assert fn.at(0.0)(Vector2.e_1).is_close(Vector2.e_1)
-    assert fn.at(1.0)(Vector2.e_1).is_close(Vector2.e_2)
+    assert fn.at(0.0)(Vector2.e_1).isclose(
+        Vector2.e_1, rel_tol=1e-5, abs_tol=1e-5
+    )
+    assert fn.at(1.0)(Vector2.e_1).isclose(
+        Vector2.e_2, rel_tol=1e-5, abs_tol=1e-5
+    )
 
 
 def test_rotate_around_a_point() -> None:
     # rotating the point itself about itself is a no-op
     center: Vector2 = v2(2, 0)
     fn: InvertibleFunction[Vector2] = rotate_around(math.radians(90.0), center)
-    assert fn(center).is_close(center)
+    assert fn(center).isclose(center, rel_tol=1e-5, abs_tol=1e-5)
     # a point one unit +x of center swings to one unit +y of center
-    assert fn(center + Vector2.e_1).is_close(center + Vector2.e_2)
+    assert fn(center + Vector2.e_1).isclose(
+        center + Vector2.e_2, rel_tol=1e-5, abs_tol=1e-5
+    )
 
 
 # --------------------------------------------------------------------------- #
@@ -137,8 +143,8 @@ def test_rotate_x() -> None:
     inp: Vector3
     out: Vector3
     for inp, out in pairs:
-        assert fn(inp).is_close(out)
-        assert inverse(fn)(out).is_close(inp)
+        assert fn(inp).isclose(out, rel_tol=1e-5, abs_tol=1e-5)
+        assert inverse(fn)(out).isclose(inp, rel_tol=1e-5, abs_tol=1e-5)
 
 
 def test_rotate_y() -> None:
@@ -152,8 +158,8 @@ def test_rotate_y() -> None:
     inp: Vector3
     out: Vector3
     for inp, out in pairs:
-        assert fn(inp).is_close(out)
-        assert inverse(fn)(out).is_close(inp)
+        assert fn(inp).isclose(out, rel_tol=1e-5, abs_tol=1e-5)
+        assert inverse(fn)(out).isclose(inp, rel_tol=1e-5, abs_tol=1e-5)
 
 
 def test_rotate_z() -> None:
@@ -167,8 +173,8 @@ def test_rotate_z() -> None:
     inp: Vector3
     out: Vector3
     for inp, out in pairs:
-        assert fn(inp).is_close(out)
-        assert inverse(fn)(out).is_close(inp)
+        assert fn(inp).isclose(out, rel_tol=1e-5, abs_tol=1e-5)
+        assert inverse(fn)(out).isclose(inp, rel_tol=1e-5, abs_tol=1e-5)
 
 
 # --------------------------------------------------------------------------- #
@@ -219,14 +225,14 @@ def test_abs_sin() -> None:
 
 def test_find_normal_ccw_is_plus_z() -> None:
     n: Vector3 = find_normal(v3(0, 0, 0), v3(1, 0, 0), v3(0, 1, 0))
-    assert n.is_close(Vector3.e_3)
+    assert n.isclose(Vector3.e_3, rel_tol=1e-5, abs_tol=1e-5)
 
 
 def test_find_normal_cw_flips_sign() -> None:
     p1, p2, p3 = v3(0, 0, 0), v3(1, 0, 0), v3(0, 1, 0)
     n_ccw: Vector3 = find_normal(p1, p2, p3)
     n_cw: Vector3 = find_normal(p1, p3, p2)
-    assert n_ccw.is_close(-1 * n_cw)
+    assert n_ccw.isclose(-1 * n_cw, rel_tol=1e-5, abs_tol=1e-5)
 
 
 def test_find_normal_unnormalized_magnitude() -> None:
@@ -271,7 +277,7 @@ def test_ortho_maps_box_to_ndc() -> None:
         left=-2, right=2, bottom=-4, top=4, near=-1, far=-9
     )
     # the box centre maps to the NDC origin
-    assert fn(v3(0, 0, -5)).is_close(Vector3.zero())
+    assert fn(v3(0, 0, -5)).isclose(Vector3.zero(), rel_tol=1e-5, abs_tol=1e-5)
     # +x face -> +1 in x; +y face -> +1 in y
     assert math.isclose(float(fn(v3(2, 0, -5)).coeff_e_1), 1.0)
     assert math.isclose(float(fn(v3(0, 4, -5)).coeff_e_2), 1.0)
@@ -283,7 +289,7 @@ def test_ortho_is_invertible() -> None:
         left=-2, right=2, bottom=-4, top=4, near=-1, far=-9
     )
     p: Vector3 = v3(1.5, -3.0, -7.0)
-    assert inverse(fn)(fn(p)).is_close(p)
+    assert inverse(fn)(fn(p)).isclose(p, rel_tol=1e-5, abs_tol=1e-5)
 
 
 def test_perspective_is_nonlinear_and_invertible() -> None:
@@ -292,7 +298,7 @@ def test_perspective_is_nonlinear_and_invertible() -> None:
     )
     assert fn.linearity is Linearity.NONLINEAR
     p: Vector3 = v3(1.0, 2.0, -5.0)
-    assert inverse(fn)(fn(p)).is_close(p)
+    assert inverse(fn)(fn(p)).isclose(p, rel_tol=1e-5, abs_tol=1e-5)
 
 
 # --------------------------------------------------------------------------- #
@@ -306,18 +312,28 @@ def test_function_stack_push_pop() -> None:
     e_1: Vector3 = Vector3.e_1
 
     fn_stack.push(uniform_scale(1.0))
-    assert fn_stack.modelspace_to_ndc_fn()(e_1).is_close(e_1)
+    assert fn_stack.modelspace_to_ndc_fn()(e_1).isclose(
+        e_1, rel_tol=1e-5, abs_tol=1e-5
+    )
 
     fn_stack.push(translate(e_1))  # x + 1
-    assert fn_stack.modelspace_to_ndc_fn()(e_1).is_close(2 * e_1)
+    assert fn_stack.modelspace_to_ndc_fn()(e_1).isclose(
+        2 * e_1, rel_tol=1e-5, abs_tol=1e-5
+    )
 
     fn_stack.push(uniform_scale(2.0))  # (x * 2) + 1
-    assert fn_stack.modelspace_to_ndc_fn()(e_1).is_close(3 * e_1)
+    assert fn_stack.modelspace_to_ndc_fn()(e_1).isclose(
+        3 * e_1, rel_tol=1e-5, abs_tol=1e-5
+    )
 
     fn_stack.pop()
-    assert fn_stack.modelspace_to_ndc_fn()(e_1).is_close(2 * e_1)
+    assert fn_stack.modelspace_to_ndc_fn()(e_1).isclose(
+        2 * e_1, rel_tol=1e-5, abs_tol=1e-5
+    )
     fn_stack.pop()
-    assert fn_stack.modelspace_to_ndc_fn()(e_1).is_close(e_1)
+    assert fn_stack.modelspace_to_ndc_fn()(e_1).isclose(
+        e_1, rel_tol=1e-5, abs_tol=1e-5
+    )
     fn_stack.clear()
     # doc-region-end function stack examples definitions
 

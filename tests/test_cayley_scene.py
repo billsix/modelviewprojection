@@ -134,7 +134,7 @@ def assert_same_fn(
 ) -> None:
     p: Vector3
     for p in SAMPLES:
-        assert fa(p).is_close(fb(p))
+        assert fa(p).isclose(fb(p), rel_tol=1e-5, abs_tol=1e-5)
 
 
 # --- timeline derivation ---------------------------------------------------
@@ -258,11 +258,11 @@ def test_camera_controls_edit_edge_steps_in_place() -> None:
     controls.apply()
 
     assert animation.timeline.slot(tstep) == slot_before  # id(step) unchanged
-    assert not animation.transform("camera", 60.0)(Vector3(0, 0, 0)).is_close(
-        cam_before
+    assert not animation.transform("camera", 60.0)(Vector3(0, 0, 0)).isclose(
+        cam_before, rel_tol=1e-5, abs_tol=1e-5
     )
-    assert not animation.inverse_transform(80.0)(Vector3(1, 1, 1)).is_close(
-        morph_before
+    assert not animation.inverse_transform(80.0)(Vector3(1, 1, 1)).isclose(
+        morph_before, rel_tol=1e-5, abs_tol=1e-5
     )
 
 
@@ -356,7 +356,9 @@ def test_morph_transform_identity_before_it_starts() -> None:
     animation: cayleyscene.Animation = cayleyscene.Animation(build_full_scene())
     p: Vector3
     for p in SAMPLES:
-        assert animation.inverse_transform(30.0)(p).is_close(p)
+        assert animation.inverse_transform(30.0)(p).isclose(
+            p, rel_tol=1e-5, abs_tol=1e-5
+        )
 
 
 def test_gpu_progress() -> None:

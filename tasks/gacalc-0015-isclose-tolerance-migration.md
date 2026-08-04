@@ -1,7 +1,11 @@
 # Migrate mvp tests off gacalc's removed `is_close` (0.0.15 renamed it to `isclose`)
 
-**Status:** proposed — needs go-ahead (found 2026-08-04 during the basis-constant sweep)
-**Priority:** high — `pytest` is red on master
+**Status:** DONE (2026-08-04) — migrated all 36 `.is_close(x)` callers to
+`.isclose(x, rel_tol=1e-5, abs_tol=1e-5)` (the old numpy default, and gacalc's in-tree
+convention per `approximate-float-equality.md`). Bill confirmed the zero-tolerance default is
+intentional; callers state their tolerance. `pytest` green — **51 passed** against gacalc 0.0.15.
+Staged (`test_mathutils.py`, `test_cayley_graph.py`, `test_cayley_scene.py`).
+**Priority:** high — `pytest` is red on master (resolved)
 **Difficulty:** 2
 
 ## Problem
