@@ -1,6 +1,7 @@
 # Investigate: rewrite the book's matplotlib-plot transforms to use gacalc
 
-**Status:** investigating (2026-08-03) — deliverable is a feasibility opinion
+**Status:** done (2026-08-03) — feasibility confirmed AND executed; pixel-perfect (0
+differing pixels across all 170 figures). Staged, not committed.
 **Priority:** 4
 **Difficulty:** 5
 
@@ -39,6 +40,70 @@ whether it's feasible** (not necessarily do it yet).
 A feasibility writeup (feasible / not / partially, with the gaps and an effort estimate), plus a
 recommendation. If feasible and low-risk, sketch the migration; do NOT do the full rewrite until
 Bill signs off.
+
+## Execution result (2026-08-03) — DONE, pixel-perfect
+
+Bill approved the rewrite (no branch; a second checkout at HEAD as the pixel baseline).
+Executed and verified.
+
+**What changed:**
+- `src/modelviewprojection/plotsforbook/generate_plots.py` — migrated off the bespoke
+  `mpltransformations`:
+  - `mplt.translate/scale/rotate` → gacalc `translate(b=…)` / `scale_non_uniform(…)` /
+    `mathutils.rotate` (the `plane_rotation(e_1, e_2)` binding).
+  - `accumulate_transformation` (+ its `python_scoping_is_dumb` helper and doctests)
+    **deleted**, replaced by a 6-line `_accumulate` wrapping gacalc's
+    `compose_intermediate_fns` (the same routine *ported from this book*). `forwards`
+    maps to `relative_basis` (`True→False`, `False→True`); list arg is
+    `reversed(procedures)`; `steps_remaining = len(procedures) - i`.
+  - Added `_apply(fn, xs, ys)` — the one bridge between matplotlib parallel `(xs, ys)`
+    arrays and gacalc `Vector2` (mirrors `util/nbplotutils.py::_xy`, incl. the `float()`
+    cast for sympy-leak safety). Every `accumfn(...)`/`fn(...)` call site now goes through
+    it, so **all `plt.plot`/annotate/patch plumbing is byte-identical** — that is why the
+    output is pixel-perfect. `Geometry.points` stays as `(xs, ys)` (the bridge converts at
+    apply time), which was lower-risk than converting to `list[Vector2]` and achieves the
+    same de-coupling — a deliberate deviation from the briefed "convert Geometry.points".
+- `src/modelviewprojection/plotsforbook/plotutils/matplotgraphs.py` — **`git rm`** (dead:
+  no importers, not a console script, not in the book — see
+  `tasks/delete-dead-matplotgraphs.md`).
+- `src/modelviewprojection/plotsforbook/plotutils/mpltransformations.py` — **`git rm`**
+  (the two files above were its only consumers; now unimported).
+
+**The one risk — `relative_basis` frame mapping — validated BEFORE deleting the doctests.**
+A standalone check (`scratchpad/validate_frames.py`) ran the old `accumulate_transformation`
+and gacalc's `compose_intermediate_fns_and_fn` on 5 procedure lists (1–4 procs, mixed
+translate/scale/rotate), both `forwards=True` and `False`, comparing the transformed test
+points frame-for-frame: **34 frames, worst delta 1.78e-15** (float last-ULP). Mapping
+confirmed: `forwards=True ↔ relative_basis=False`, `forwards=False ↔ relative_basis=True`,
+gacalc list = `reversed(procs)`. Note: gacalc's `_and_fn` variant's `current_fn` pairing is
+off-by-one vs the book's existing `[procs[0], *procs]` basis-render sequence, so `_accumulate`
+uses the aggregate-only `compose_intermediate_fns` and preserves that `fn` list unchanged.
+
+**Pixel-perfect verification (per-figure).** Baseline SVGs generated from a HEAD worktree
+(bespoke code), migrated SVGs from the main copy; both rasterized to PNG at 100 DPI with
+inkscape and diffed with `compare -metric AE`:
+
+- **170 figures compared, 170 with ZERO differing pixels. Worst: 0 px.**
+- Harness validated as non-trivial: control diff of two different figures = 1.39e7 px;
+  baseline vs migrated SVGs are textually different (independently generated — different
+  float-formatted coordinates and embedded paths) yet rasterize identically. The
+  ~1e-15 coordinate noise is far sub-pixel, so even the SVG-level differences vanish on
+  raster.
+
+**Code verification:**
+- `ruff check` — clean; `ruff format --check` — already formatted (line-length 80).
+- `ty check generate_plots.py` — clean. The only diagnostics are two `unresolved-import`
+  for `gacalc.*`, a **pre-existing environment artifact**: gacalc installs under
+  `/usr/local/lib/python3.14/site-packages` but ty searches only `/usr/lib`+`/usr/lib64`;
+  every gacalc-importing file shows it (`mathutils.py` 4, `nbplotutils.py` 2), and with the
+  gacalc prefix on the path ty reports "All checks passed!". The repo's container gate (venv
+  path) sees zero.
+- `pytest` — full suite still collects (75 tests, no import breakage from the deletions);
+  the 7 transform-layer tests in `test_cayley_scene.py` pass. `generate_plots.py` now has 0
+  doctests (they lived in the deleted `accumulate_transformation`; gacalc's own doctests
+  cover `compose_intermediate_fns`).
+
+---
 
 ## Feasibility assessment (2026-08-03)
 

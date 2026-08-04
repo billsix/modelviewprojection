@@ -26,108 +26,69 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
-
-import modelviewprojection.plotsforbook.plotutils.mpltransformations as mplt
-from modelviewprojection.plotsforbook.plotutils import generategridlines
-from modelviewprojection.plotsforbook.plotutils.mpltransformations import (
-    Axis,
-    PlotTransform,
+from gacalc.g2 import Vector2
+from gacalc.transforms import (
+    InvertibleFunction,
+    compose_intermediate_fns,
+    identity,
+    scale_non_uniform,
+    translate,
 )
+
+from modelviewprojection.mathutils import rotate
+from modelviewprojection.plotsforbook.plotutils import generategridlines
 
 matplotlib.use("agg")
 
-
-# TODO, generalize to any number of dimensions
-def accumulate_transformation(
-    procedures: list[PlotTransform], forwards: bool = True
-) -> Iterator[tuple[PlotTransform, int]]:
-    """Given a pipeline of functions, provide all intermediate results via a
-    function.
-
-    >>> fs = [mplt.translate(0,10),
-    ...       mplt.translate(5,0)]
-    >>> f = accumulate_transformation(fs, forwards=False)
-    >>> f1, steps_remaining = next(f)
-    >>> f1((1, 2, 3), (4, 5, 6))
-    ((1, 2, 3), (4, 5, 6))
-    >>> steps_remaining
-    2
-    >>> f2, steps_remaining = next(f)
-    >>> f2((1, 2, 3), (4, 5, 6))
-    ((6, 7, 8), (4, 5, 6))
-    >>> steps_remaining
-    1
-    >>> f3, steps_remaining = next(f)
-    >>> f3((1, 2, 3), (4, 5, 6))
-    ((6, 7, 8), (14, 15, 16))
-    >>> steps_remaining
-    0
-    >>> f1((1, 2, 3), (4, 5, 6))
-    ((1, 2, 3), (4, 5, 6))
-    >>> f = accumulate_transformation(fs, forwards=True)
-    >>> f1, steps_remaining = next(f)
-    >>> f1((1, 2, 3), (4, 5, 6))
-    ((1, 2, 3), (4, 5, 6))
-    >>> steps_remaining
-    2
-    >>> f2, steps_remaining = next(f)
-    >>> f2((1, 2, 3), (4, 5, 6))
-    ((1, 2, 3), (14, 15, 16))
-    >>> steps_remaining
-    1
-    >>> f3, steps_remaining = next(f)
-    >>> f3((1, 2, 3), (4, 5, 6))
-    ((6, 7, 8), (14, 15, 16))
-    >>> steps_remaining
-    0
-    >>> f1((1, 2, 3), (4, 5, 6))
-    ((1, 2, 3), (4, 5, 6))
+#: One axis of a matplotlib point set: the parallel array of xs, or of ys.  A
+#: 2-D point set is the pair ``(xs, ys)``.  The transforms themselves are gacalc
+#: ``InvertibleFunction``s over :class:`Vector2`; ``_apply`` bridges the two
+#: representations at the matplotlib boundary (like ``util.nbplotutils._xy``).
+Axis = Sequence[float]
 
 
+def _apply(
+    fn: InvertibleFunction[Vector2], xs: Axis, ys: Axis
+) -> tuple[list[float], list[float]]:
+    """Apply the gacalc transform ``fn`` to matplotlib parallel arrays.
+
+    Packs each ``(x, y)`` into a :class:`Vector2`, applies ``fn``, and reads the
+    coordinates back out as parallel ``float`` lists.  The ``float`` casts guard
+    against sympy ``Float`` coefficients leaking from a rotation (same reason as
+    ``util.nbplotutils._xy``); a purely numeric pipeline stays numeric anyway.
     """
+    vectors = [
+        fn(float(x) * Vector2.e_1 + float(y) * Vector2.e_2)
+        for x, y in zip(xs, ys)
+    ]
+    return (
+        [float(v.coeff_e_1) for v in vectors],
+        [float(v.coeff_e_2) for v in vectors],
+    )
 
-    # without this function, accumulate_transformation
-    # would have an error in it, because of scope in a nested
-    # function being retained.  I should figure out what is actually
-    # happening there.
-    def python_scoping_is_dumb(
-        r: Sequence[int], procedures: Sequence[PlotTransform]
-    ) -> PlotTransform:
-        def foo(x: Axis, y: Axis) -> tuple[Axis, Axis]:
-            result_x, result_y = x, y
-            for current_fn_index in r:
-                result_x, result_y = procedures[current_fn_index](
-                    result_x, result_y
-                )
-            return result_x, result_y
 
-        return foo
+def _accumulate(
+    procedures: list[InvertibleFunction[Vector2]], forwards: bool
+) -> Iterator[tuple[InvertibleFunction[Vector2], int]]:
+    """The per-frame "aggregate transform + steps remaining" sequence.
 
-    def id(x: Axis, y: Axis) -> tuple[Axis, Axis]:
-        return x, y
-
-    yield id, len(procedures)
-
-    if forwards:
-        for number_of_fns_to_apply_this_round in [
-            x + 1 for x in range(len(procedures))
-        ]:
-            yield (
-                python_scoping_is_dumb(
-                    range(number_of_fns_to_apply_this_round), procedures
-                ),
-                len(procedures) - number_of_fns_to_apply_this_round,
-            )
-    else:
-        reversed_procs = list(range(len(procedures)))
-        reversed_procs.reverse()
-        for proc_index in reversed_procs:
-            yield (
-                python_scoping_is_dumb(
-                    range(proc_index, len(procedures)), procedures
-                ),
-                proc_index,
-            )
+    Formerly the bespoke ``accumulate_transformation`` generator; gacalc's
+    ``compose_intermediate_fns`` -- itself *ported from this book* -- yields the
+    partial compositions.  The old ``forwards`` flag maps to its
+    ``relative_basis``: ``forwards=True`` is the natural basis
+    (``relative_basis=False``), ``forwards=False`` is ``relative_basis=True``.
+    Validated frame-for-frame against the old generator's doctests (worst
+    delta 1.8e-15) before it was deleted.  The list argument is
+    ``reversed(procedures)`` because ``compose`` applies its list right-to-left
+    while the old generator applied ``procs[0]`` first, and ``steps_remaining``
+    is just ``len(procedures) - i`` (both old branches produced that identical
+    countdown).
+    """
+    intermediates = compose_intermediate_fns(
+        list(reversed(procedures)), relative_basis=not forwards
+    )
+    for i, aggregate_fn in enumerate(intermediates):
+        yield aggregate_fn, len(procedures) - i
 
 
 def main() -> None:
@@ -188,7 +149,7 @@ def main() -> None:
         title: str,
         filename: str,
         geometry: Geometry,
-        procedures: list[PlotTransform],
+        procedures: list[InvertibleFunction[Vector2]],
         forwards: bool = True,
         graph_bounds: tuple[int, int] = (10, 10),
         gridline_interval: int = 1,
@@ -209,20 +170,17 @@ def main() -> None:
         # when plotting the transformations is forwards order, show the axis
         # at the last step first before plotting the data
 
-        def id_proc(x: Axis, y: Axis) -> tuple[Axis, Axis]:
-            return (x, y)
-
         if forwards:
-            procs.append(id_proc)
-            procs.append(id_proc)
+            procs.append(identity())
+            procs.append(identity())
         else:
-            procs.insert(0, id_proc)
+            procs.insert(0, identity())
 
         # create a single frame of the animated gif
         def create_single_frame(
-            accumfn: PlotTransform,
+            accumfn: InvertibleFunction[Vector2],
             steps_remaining: int,
-            fn: PlotTransform,
+            fn: InvertibleFunction[Vector2],
             frame_number: int,
         ) -> Iterator[plt.Figure]:
             for round_number in [1] if not forwards else [1, 2]:
@@ -235,9 +193,9 @@ def main() -> None:
                     graph_bounds, interval=gridline_interval
                 ):
                     if (not forwards) and steps_remaining > 1:
-                        transformed_xs, transformed_ys = accumfn(xs, ys)
+                        transformed_xs, transformed_ys = _apply(accumfn, xs, ys)
                     elif (forwards) and round_number == 1 and frame_number != 1:
-                        transformed_xs, transformed_ys = fn(xs, ys)
+                        transformed_xs, transformed_ys = _apply(fn, xs, ys)
                     else:
                         transformed_xs, transformed_ys = xs, ys
                     plt.plot(
@@ -251,12 +209,12 @@ def main() -> None:
 
                 # x axis
                 if (not forwards) and steps_remaining > 1:
-                    transformed_xs, transformed_ys = accumfn(
-                        [0.0, unit_x], [0.0, 0.0]
+                    transformed_xs, transformed_ys = _apply(
+                        accumfn, [0.0, unit_x], [0.0, 0.0]
                     )
                 elif (forwards) and round_number == 1 and frame_number != 1:
-                    transformed_xs, transformed_ys = fn(
-                        [0.0, unit_x], [0.0, 0.0]
+                    transformed_xs, transformed_ys = _apply(
+                        fn, [0.0, unit_x], [0.0, 0.0]
                     )
                 else:
                     transformed_xs, transformed_ys = [0.0, unit_x], [0.0, 0.0]
@@ -270,12 +228,12 @@ def main() -> None:
 
                 # y axis
                 if (not forwards) and steps_remaining > 1:
-                    transformed_xs, transformed_ys = accumfn(
-                        [0.0, 0.0], [0.0, unit_y]
+                    transformed_xs, transformed_ys = _apply(
+                        accumfn, [0.0, 0.0], [0.0, unit_y]
                     )
                 elif (forwards) and round_number == 1 and frame_number != 1:
-                    transformed_xs, transformed_ys = fn(
-                        [0.0, 0.0], [0.0, unit_y]
+                    transformed_xs, transformed_ys = _apply(
+                        fn, [0.0, 0.0], [0.0, unit_y]
                     )
                 else:
                     transformed_xs, transformed_ys = [0.0, 0.0], [0.0, unit_y]
@@ -292,7 +250,9 @@ def main() -> None:
                 else:
                     plot_character = "."
                 # plot the points
-                transformed_xs, transformed_ys = accumfn(*geometry.points)
+                transformed_xs, transformed_ys = _apply(
+                    accumfn, *geometry.points
+                )
                 plt.title(str.format("{}\nStep {}", title, str(frame_number)))
                 plt.plot(
                     transformed_xs,
@@ -330,7 +290,7 @@ def main() -> None:
         animated_images_list = [
             create_single_frame(accumfn, steps_remaining, fn, frame_number)
             for (accumfn, steps_remaining), fn, frame_number in zip(
-                accumulate_transformation(procs, forwards),
+                _accumulate(procs, forwards),
                 [procs[0], *procs],
                 itertools.count(start=1),
             )
@@ -350,7 +310,7 @@ def main() -> None:
         title="Translation",
         filename="translation-forwards",
         geometry=paddle1,
-        procedures=[mplt.translate(-9.0, 2.0)],
+        procedures=[translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2)],
         forwards=True,
     )
 
@@ -358,7 +318,7 @@ def main() -> None:
         title="Translation",
         filename="translation2-forwards",
         geometry=paddle2,
-        procedures=[mplt.translate(9.0, -4.0)],
+        procedures=[translate(b=9.0 * Vector2.e_1 + -4.0 * Vector2.e_2)],
         forwards=True,
     )
 
@@ -366,7 +326,7 @@ def main() -> None:
         title="Translation",
         filename="translation-backwards",
         geometry=paddle1,
-        procedures=[mplt.translate(-9.0, 2.0)],
+        procedures=[translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2)],
         forwards=False,
     )
 
@@ -374,7 +334,7 @@ def main() -> None:
         title="Translation",
         filename="translation2-backwards",
         geometry=paddle2,
-        procedures=[mplt.translate(9.0, -4.0)],
+        procedures=[translate(b=9.0 * Vector2.e_1 + -4.0 * Vector2.e_2)],
         forwards=False,
     )
 
@@ -383,7 +343,7 @@ def main() -> None:
         filename="rotate0",
         geometry=paddle1,
         procedures=[
-            mplt.rotate(math.radians(45.0)),
+            rotate(math.radians(45.0)),
         ],
         graph_bounds=(12, 12),
         forwards=True,
@@ -394,7 +354,7 @@ def main() -> None:
         filename="scale",
         geometry=paddle1,
         procedures=[
-            mplt.scale(2.0, 3.0),
+            scale_non_uniform(2.0, 3.0),
         ],
         forwards=True,
     )
@@ -404,8 +364,8 @@ def main() -> None:
         filename="rotate1-forwards",
         geometry=paddle1,
         procedures=[
-            mplt.translate(-9.0, 2.0),
-            mplt.rotate(math.radians(45.0)),
+            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            rotate(math.radians(45.0)),
         ],
         graph_bounds=(12, 12),
         forwards=True,
@@ -416,8 +376,8 @@ def main() -> None:
         filename="incorrectrotate-forwards",
         geometry=paddle1,
         procedures=[
-            mplt.rotate(math.radians(65.0)),
-            mplt.translate(-9.0, 2.0),
+            rotate(math.radians(65.0)),
+            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
         ],
         graph_bounds=(12, 12),
         forwards=True,
@@ -428,8 +388,8 @@ def main() -> None:
         filename="incorrectrotate-backwards",
         geometry=paddle1,
         procedures=[
-            mplt.rotate(math.radians(65.0)),
-            mplt.translate(-9.0, 2.0),
+            rotate(math.radians(65.0)),
+            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
         ],
         forwards=False,
         graph_bounds=(12, 12),
@@ -440,10 +400,10 @@ def main() -> None:
         filename="rotate-sloppy-backwards",
         geometry=paddle1,
         procedures=[
-            mplt.translate(-9.0, 2.0),
-            mplt.rotate(math.radians(45.0)),
-            mplt.translate(9.0, -2.0),
-            mplt.translate(-9.0, 2.0),
+            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            rotate(math.radians(45.0)),
+            translate(b=9.0 * Vector2.e_1 + -2.0 * Vector2.e_2),
+            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
         ],
         forwards=True,
         graph_bounds=(12, 12),
@@ -454,10 +414,10 @@ def main() -> None:
         filename="rotate-sloppy-forwards",
         geometry=paddle1,
         procedures=[
-            mplt.translate(-9.0, 2.0),
-            mplt.rotate(math.radians(45.0)),
-            mplt.translate(9.0, -2.0),
-            mplt.translate(-9.0, 2.0),
+            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            rotate(math.radians(45.0)),
+            translate(b=9.0 * Vector2.e_1 + -2.0 * Vector2.e_2),
+            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
         ],
         graph_bounds=(12, 12),
         forwards=True,
@@ -468,8 +428,8 @@ def main() -> None:
         filename="rotate1-backwards",
         geometry=paddle1,
         procedures=[
-            mplt.translate(-9.0, 2.0),
-            mplt.rotate(math.radians(45.0)),
+            translate(b=-9.0 * Vector2.e_1 + 2.0 * Vector2.e_2),
+            rotate(math.radians(45.0)),
         ],
         graph_bounds=(12, 12),
         forwards=False,
@@ -479,7 +439,10 @@ def main() -> None:
         title="Rotation, Relative to World Space",
         filename="rotate2-forwards",
         geometry=paddle2,
-        procedures=[mplt.translate(9.0, -4.0), mplt.rotate(math.radians(-1.0))],
+        procedures=[
+            translate(b=9.0 * Vector2.e_1 + -4.0 * Vector2.e_2),
+            rotate(math.radians(-1.0)),
+        ],
         graph_bounds=(12, 12),
         forwards=True,
     )
@@ -489,8 +452,8 @@ def main() -> None:
         filename="rotate2-backwards",
         geometry=paddle2,
         procedures=[
-            mplt.translate(9.0, -4.0),
-            mplt.rotate(math.radians(-1.0)),
+            translate(b=9.0 * Vector2.e_1 + -4.0 * Vector2.e_2),
+            rotate(math.radians(-1.0)),
         ],
         graph_bounds=(12, 12),
         forwards=False,
@@ -519,9 +482,9 @@ def main() -> None:
         filename="covariance-backwards",
         geometry=square,
         procedures=[
-            mplt.rotate(math.radians(-45.0)),
-            mplt.scale(scale_x=2.0, scale_y=4.5),
-            mplt.rotate(math.radians(45.0)),
+            rotate(math.radians(-45.0)),
+            scale_non_uniform(2.0, 4.5),
+            rotate(math.radians(45.0)),
         ],
         forwards=False,
     )
@@ -531,9 +494,9 @@ def main() -> None:
         filename="covariance-forwards",
         geometry=square,
         procedures=[
-            mplt.rotate(math.radians(-45.0)),
-            mplt.scale(scale_x=2.0, scale_y=4.5),
-            mplt.rotate(math.radians(45.0)),
+            rotate(math.radians(-45.0)),
+            scale_non_uniform(2.0, 4.5),
+            rotate(math.radians(45.0)),
         ],
         forwards=True,
     )
@@ -547,9 +510,9 @@ def main() -> None:
         filename="circle-backwards",
         geometry=circle,
         procedures=[
-            mplt.rotate(math.radians(-45.0)),
-            mplt.scale(scale_x=2.0, scale_y=4.5),
-            mplt.rotate(math.radians(45.0)),
+            rotate(math.radians(-45.0)),
+            scale_non_uniform(2.0, 4.5),
+            rotate(math.radians(45.0)),
         ],
         forwards=False,
     )
@@ -559,9 +522,9 @@ def main() -> None:
         filename="circle-forwards",
         geometry=circle,
         procedures=[
-            mplt.rotate(math.radians(-45.0)),
-            mplt.scale(scale_x=2.0, scale_y=4.5),
-            mplt.rotate(math.radians(45.0)),
+            rotate(math.radians(-45.0)),
+            scale_non_uniform(2.0, 4.5),
+            rotate(math.radians(45.0)),
         ],
         forwards=True,
     )
@@ -589,8 +552,8 @@ def main() -> None:
         filename="inverse-ortho2d-backwards",
         geometry=square_ndc,
         procedures=[
-            mplt.scale(scale_x=1.0 / 2.0, scale_y=7.0 / 2.0),
-            mplt.translate(1.0 / 2, 7.0 / 2),
+            scale_non_uniform(1.0 / 2.0, 7.0 / 2.0),
+            translate(b=1.0 / 2 * Vector2.e_1 + 7.0 / 2 * Vector2.e_2),
         ],
         forwards=False,
         graph_bounds=(10, 10),
@@ -604,8 +567,8 @@ def main() -> None:
         filename="inverse-ortho2d",
         geometry=square_ndc,
         procedures=[
-            mplt.scale(scale_x=1.0 / 2.0, scale_y=7.0 / 2.0),
-            mplt.translate(1.0 / 2, 7.0 / 2),
+            scale_non_uniform(1.0 / 2.0, 7.0 / 2.0),
+            translate(b=1.0 / 2 * Vector2.e_1 + 7.0 / 2 * Vector2.e_2),
         ],
         forwards=True,
         graph_bounds=(10, 10),
@@ -637,8 +600,8 @@ def main() -> None:
         filename="ortho2d-backwards",
         geometry=square_ndc,
         procedures=[
-            mplt.translate(-1.0 / 2, -7.0 / 2),
-            mplt.scale(scale_x=1.0 / (1.0 / 2.0), scale_y=1.0 / (7.0 / 2.0)),
+            translate(b=-1.0 / 2 * Vector2.e_1 + -7.0 / 2 * Vector2.e_2),
+            scale_non_uniform(1.0 / (1.0 / 2.0), 1.0 / (7.0 / 2.0)),
         ],
         forwards=False,
         graph_bounds=(10, 10),
@@ -652,8 +615,8 @@ def main() -> None:
         filename="ortho2d",
         geometry=square_ndc,
         procedures=[
-            mplt.translate(-1.0 / 2, -7.0 / 2),
-            mplt.scale(scale_x=1.0 / (1.0 / 2.0), scale_y=1.0 / (7.0 / 2.0)),
+            translate(b=-1.0 / 2 * Vector2.e_1 + -7.0 / 2 * Vector2.e_2),
+            scale_non_uniform(1.0 / (1.0 / 2.0), 1.0 / (7.0 / 2.0)),
         ],
         forwards=True,
         graph_bounds=(10, 10),
