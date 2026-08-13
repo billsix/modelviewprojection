@@ -20,7 +20,7 @@ from enum import Enum, auto
 
 import glfw
 import numpy as np
-from gacalc.g3 import Vector3
+from gacalc.g3 import Vector
 from gacalc.transforms import translate
 
 from modelviewprojection import matrix_stack as ms
@@ -68,7 +68,7 @@ paddle1_edge = cayleygraph.Edge(
     src=Space.paddle1,
     dst=Space.world,
     steps=[
-        ("T", translate(Vector3(params["p1x"], params["p1y"], 0.0))),
+        ("T", translate(Vector(params["p1x"], params["p1y"], 0.0))),
         ("R_z", rotate_z(params["p1rot"])),
     ],
 )
@@ -77,9 +77,9 @@ square_edge = cayleygraph.Edge(
     src=Space.square,
     dst=Space.paddle1,
     steps=[
-        ("T_-Z", translate(Vector3(0.0, 0.0, -0.5))),
+        ("T_-Z", translate(Vector(0.0, 0.0, -0.5))),
         ("R_around", rotate_z(params["around"])),
-        ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
+        ("T_X", translate(Vector(1.5, 0.0, 0.0))),
         ("R_sq", rotate_z(params["sqrot"])),
     ],
 )
@@ -87,7 +87,7 @@ paddle2_edge = cayleygraph.Edge(
     src=Space.paddle2,
     dst=Space.world,
     steps=[
-        ("T", translate(Vector3(params["p2x"], params["p2y"], 0.0))),
+        ("T", translate(Vector(params["p2x"], params["p2y"], 0.0))),
         ("R_z", rotate_z(params["p2rot"])),
     ],
 )
@@ -110,13 +110,13 @@ def sync_steps() -> None:
     """Rewrite the mutable steps in place from the live ``params`` (structure
     stays immutable; only each step's function changes)."""
     paddle1_edge.steps[0].fn = translate(
-        Vector3(params["p1x"], params["p1y"], 0.0)
+        Vector(params["p1x"], params["p1y"], 0.0)
     )
     paddle1_edge.steps[1].fn = rotate_z(params["p1rot"])
     square_edge.steps[1].fn = rotate_z(params["around"])
     square_edge.steps[3].fn = rotate_z(params["sqrot"])
     paddle2_edge.steps[0].fn = translate(
-        Vector3(params["p2x"], params["p2y"], 0.0)
+        Vector(params["p2x"], params["p2y"], 0.0)
     )
     paddle2_edge.steps[1].fn = rotate_z(params["p2rot"])
 

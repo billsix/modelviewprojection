@@ -18,7 +18,7 @@ from collections.abc import Sequence
 from typing import Protocol
 
 import numpy as np
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector
 from numpy.typing import NDArray
 
 # A colour as the games supply it: 3 (RGB) or 4 (RGBA) channels, each 0-255.
@@ -30,7 +30,7 @@ Color = ColorRGB | ColorRGBA
 # is the concrete pair the shim returns; ``PointLike`` is what it accepts (the
 # games pass tuples, lists, or gacalc vectors -- anything unpack-able as x, y).
 Point = tuple[float, float]
-PointLike = Sequence[float] | Vector2
+PointLike = Sequence[float] | Vector
 
 # An anchor spec: each component is a named fraction ("left"/"center"/...)
 # or a literal pixel offset.

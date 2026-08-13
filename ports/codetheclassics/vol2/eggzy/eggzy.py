@@ -31,7 +31,7 @@ from enum import Enum
 from random import randint
 from typing import Any, ClassVar, Optional, cast, override
 
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector
 
 from modelviewprojection.pgzero_gl import (
     Actor,
@@ -330,10 +330,10 @@ class Gem(Actor):
 
     # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
     # would treat the property object as this field's default value
-    spawn_pos: InitVar[tuple[float, float] | Vector2]
+    spawn_pos: InitVar[tuple[float, float] | Vector]
     collected: bool = False
 
-    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector) -> None:
         super().__init__("blank", spawn_pos, ANCHOR_CENTRE_BOTTOM)
 
         # Choose which type of gem we're going to be.
@@ -364,13 +364,13 @@ class Gem(Actor):
 class Door(Actor):
     # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
     # would treat the property object as this field's default value
-    spawn_pos: InitVar[tuple[float, float] | Vector2]
+    spawn_pos: InitVar[tuple[float, float] | Vector]
     biome: str = "castle"
     variant: Any = 0
     already_open: InitVar[bool] = False
 
     def __post_init__(
-        self, spawn_pos: tuple[float, float] | Vector2, already_open: bool
+        self, spawn_pos: tuple[float, float] | Vector, already_open: bool
     ) -> None:
         self.opening: bool = already_open
         self.last_frame: int = 15 if self.biome == "castle" else 13
@@ -401,7 +401,7 @@ class Door(Actor):
 class Animation(Actor):
     def __init__(
         self,
-        pos: tuple[float, float] | Vector2,
+        pos: tuple[float, float] | Vector,
         image_format_str: str,
         num_frames: int,
         frame_interval: int,
@@ -439,7 +439,7 @@ class Animation(Actor):
 
 
 class DashTrail(Animation):
-    def __init__(self, pos: tuple[float, float] | Vector2, image: str) -> None:
+    def __init__(self, pos: tuple[float, float] | Vector, image: str) -> None:
         # Receive's the player's current sprite, uses the trail version of that sprite
         super().__init__(pos, image + "_trail_{0}", 6, 5, ANCHOR_PLAYER)
 
@@ -447,7 +447,7 @@ class DashTrail(Animation):
 # Base class for objects which move around the level and collide with walls, such as the player and enemies
 class CollideActor(Actor):
     def __init__(
-        self, pos: tuple[float, float] | Vector2, anchor: Any = ANCHOR_CENTRE
+        self, pos: tuple[float, float] | Vector, anchor: Any = ANCHOR_CENTRE
     ) -> None:
         super().__init__("blank", pos, anchor)
 
@@ -516,7 +516,7 @@ class GravityActor(CollideActor):
 
     def __init__(
         self,
-        pos: tuple[float, float] | Vector2,
+        pos: tuple[float, float] | Vector,
         gravity_enabled: bool = True,
         anchor: Any = ANCHOR_CENTRE_BOTTOM,
     ) -> None:
@@ -608,7 +608,7 @@ class Player(GravityActor):
             "flame_stand_0", self.pos, anchor=ANCHOR_FLAME
         )
 
-    def new_level(self, start_pos: tuple[float, float] | Vector2) -> None:
+    def new_level(self, start_pos: tuple[float, float] | Vector) -> None:
         self.start_pos = start_pos
         self.reset()
 
@@ -908,7 +908,7 @@ class Player(GravityActor):
                         if dx != 0 or dy != 0:
                             if DEBUG_MOVEMENT:
                                 print(game.timer, "dash")
-                            v = Vector2(dx, dy).normalize() * Player.DASH_SPEED
+                            v = Vector(dx, dy).normalize() * Player.DASH_SPEED
                             self.vel_x = int(v.x)
                             self.vel_y = int(v.y)
                             self.gravity_enabled = False
@@ -1082,7 +1082,7 @@ class GhostPlayer(Actor):
 class Enemy(GravityActor):
     def __init__(
         self,
-        pos: tuple[float, float] | Vector2,
+        pos: tuple[float, float] | Vector,
         type: int,
         biome: Biome,
         direction_x: int = 1,
@@ -1251,7 +1251,7 @@ class Game:
         level_filename: str = LEVEL_SEQUENCE[
             self.level_index % len(LEVEL_SEQUENCE)
         ]
-        player_start_pos: tuple[float, float] | Vector2 = self.load_level(
+        player_start_pos: tuple[float, float] | Vector = self.load_level(
             level_filename
         )
 
@@ -1270,7 +1270,7 @@ class Game:
 
     def load_level(self, filename: str) -> tuple[float, float]:
         # Returns player start pos, or (0,0) if none is found
-        player_start_pos: tuple[float, float] | Vector2 = (0, 0)
+        player_start_pos: tuple[float, float] | Vector = (0, 0)
 
         # 0 for first time through the levels, 1 for second, etc
         level_cycle: int = self.level_index // len(LEVEL_SEQUENCE)
@@ -1765,7 +1765,7 @@ def save_replays(replays: list[Any]) -> None:
                 line: str = ""
                 for entry in replay:
                     # Each entry consists of a position (X and Y -- recorded
-                    # as a gacalc Vector2, unpacked here), level number and sprite
+                    # as a gacalc Vector, unpacked here), level number and sprite
                     # We'll separate the items using commas and the entries using semicolons. It doesn't matter what
                     # the symbols are as long as they don't occur within the data
                     # Open the replays file to see what it looks like!
@@ -1799,7 +1799,7 @@ def load_replays() -> tuple[list[Any], int]:
                         # Within each entry, split on comma and convert each element to the correct type
                         elements: list[str] = entry.split(",")
 
-                        pos: tuple[float, float] | Vector2 = (
+                        pos: tuple[float, float] | Vector = (
                             float(elements[0]),
                             float(elements[1]),
                         )

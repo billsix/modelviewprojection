@@ -44,10 +44,10 @@
 # %%
 import math
 
+import gacalc.g1 as g1
+import gacalc.g2 as g2
+import gacalc.g3 as g3
 import sympy
-from gacalc.g1 import Vector1
-from gacalc.g2 import Vector2
-from gacalc.g3 import Vector3
 from gacalc.transforms import (
     compose,
     compose_intermediate_fns,
@@ -70,33 +70,38 @@ from modelviewprojection.util.nbplotutils import (
 )
 
 # %%
-translate(b=5 * Vector1.e_1)
+translate(b=5 * g1.Vector.e_1)
 
 # %%
 scale_non_uniform(5, 6)
 
 # %%
-inverse(translate(b=5 * Vector1.e_1))
+inverse(translate(b=5 * g1.Vector.e_1))
 
 # %%
-translate(b=5 * Vector2.e_1 + 6 * Vector2.e_2)
+translate(b=5 * g2.Vector.e_1 + 6 * g2.Vector.e_2)
 
 # %%
-translate(b=5 * Vector3.e_1 + 6 * Vector3.e_2 + 7 * Vector3.e_3)
+translate(b=5 * g3.Vector.e_1 + 6 * g3.Vector.e_2 + 7 * g3.Vector.e_3)
 
 # %%
-inverse(translate(b=5 * Vector3.e_1 + 6 * Vector3.e_2 + 7 * Vector3.e_3))
+inverse(translate(b=5 * g3.Vector.e_1 + 6 * g3.Vector.e_2 + 7 * g3.Vector.e_3))
 
 # %%
 rotate(sympy.pi / 2)
 
 # %%
-compose([rotate(sympy.pi / 2), translate(b=5 * Vector2.e_1 + 6 * Vector2.e_2)])
+compose(
+    [rotate(sympy.pi / 2), translate(b=5 * g2.Vector.e_1 + 6 * g2.Vector.e_2)]
+)
 
 # %%
 inverse(
     compose(
-        [rotate(sympy.pi / 2), translate(b=5 * Vector2.e_1 + 6 * Vector2.e_2)]
+        [
+            rotate(sympy.pi / 2),
+            translate(b=5 * g2.Vector.e_1 + 6 * g2.Vector.e_2),
+        ]
     )
 )
 
@@ -189,7 +194,7 @@ with create_graphs(graph_bounds=(5, 5)) as axes:
 fn = compose(
     [
         rotate(sympy.pi / 4),
-        translate(b=2.0 * Vector2.e_1),
+        translate(b=2.0 * g2.Vector.e_1),
     ]
 )
 with create_graphs() as axes:
@@ -210,7 +215,7 @@ with create_graphs() as axes:
 
 # %%
 for f in compose_intermediate_fns(
-    [rotate(sympy.pi / 4), translate(b=2.0 * Vector2.e_1)]
+    [rotate(sympy.pi / 4), translate(b=2.0 * g2.Vector.e_1)]
 ):
     # TODO - figure out if I can render the latex as part of one markdown
     # command, if I were to uncomment out this line and other markdown lines,
@@ -238,7 +243,7 @@ for f in compose_intermediate_fns(
 for f in compose_intermediate_fns(
     [
         rotate(sympy.pi / 4),
-        translate(b=1.0 * Vector2.e_1),
+        translate(b=1.0 * g2.Vector.e_1),
     ],
     relative_basis=True,
 ):
@@ -254,10 +259,10 @@ screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
-        translate(b=-0.5 * Vector2.e_1 - 0.5 * Vector2.e_2),
+        translate(b=-0.5 * g2.Vector.e_1 - 0.5 * g2.Vector.e_2),
         scale_non_uniform(screen_width, screen_height),
         scale_non_uniform(0.5, 0.5),
-        translate(b=1.0 * Vector2.e_1 + 1.0 * Vector2.e_2),
+        translate(b=1.0 * g2.Vector.e_1 + 1.0 * g2.Vector.e_2),
     ],
     relative_basis=False,
 ):
@@ -275,10 +280,10 @@ screen_height: int = 3
 
 for f in compose_intermediate_fns(
     [
-        translate(b=-0.5 * Vector2.e_1 - 0.5 * Vector2.e_2),
+        translate(b=-0.5 * g2.Vector.e_1 - 0.5 * g2.Vector.e_2),
         scale_non_uniform(screen_width, screen_height),
         scale_non_uniform(0.5, 0.5),
-        translate(b=1.0 * Vector2.e_1 + 1.0 * Vector2.e_2),
+        translate(b=1.0 * g2.Vector.e_1 + 1.0 * g2.Vector.e_2),
     ],
     relative_basis=True,
 ):

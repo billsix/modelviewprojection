@@ -93,8 +93,8 @@ Data Structures
 
 .. literalinclude:: _gacalc_src/g2.py
    :language: python
-   :start-after: doc-region-begin Vector2 declaration
-   :end-before: doc-region-end Vector2 declaration
+   :start-after: doc-region-begin Vector declaration
+   :end-before: doc-region-end Vector declaration
    :linenos:
    :lineno-match:
    :caption: gacalc/g2.py

@@ -20,7 +20,7 @@ from enum import Enum, auto
 
 import glfw
 import numpy as np
-from gacalc.g3 import Vector3
+from gacalc.g3 import Vector
 from gacalc.transforms import translate
 
 from modelviewprojection import matrix_stack as ms
@@ -56,7 +56,7 @@ camera_edge = cayleygraph.Edge(
     src=Space.camera,
     dst=Space.world,
     steps=[
-        ("T", translate(Vector3(-1.5, 0.0, 8.5))),
+        ("T", translate(Vector(-1.5, 0.0, 8.5))),
         ("R_y", rotate_y(math.radians(25.0))),
         ("R_x", rotate_x(math.radians(15.0))),
     ],
@@ -68,7 +68,7 @@ graph = cayleygraph.CayleyGraph(
             src=Space.paddle1,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector3(-9.0, 1.0, 0.0))),
+                ("T", translate(Vector(-9.0, 1.0, 0.0))),
                 ("R_z", rotate_z(math.radians(45.0))),
             ],
         ),
@@ -76,9 +76,9 @@ graph = cayleygraph.CayleyGraph(
             src=Space.square,
             dst=Space.paddle1,
             steps=[
-                ("T_-Z", translate(Vector3(0.0, 0.0, -5.0))),
+                ("T_-Z", translate(Vector(0.0, 0.0, -5.0))),
                 ("R_Z", rotate_z(math.radians(30.0))),
-                ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
+                ("T_X", translate(Vector(1.5, 0.0, 0.0))),
                 ("R2_Z", rotate_z(math.radians(90.0))),
             ],
         ),
@@ -86,7 +86,7 @@ graph = cayleygraph.CayleyGraph(
             src=Space.paddle2,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector3(9.0, 0.5, 0.0))),
+                ("T", translate(Vector(9.0, 0.5, 0.0))),
                 ("R_z", rotate_z(math.radians(-20.0))),
             ],
         ),

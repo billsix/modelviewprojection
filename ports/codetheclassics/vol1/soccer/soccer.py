@@ -22,7 +22,7 @@ from dataclasses import dataclass, field
 from enum import Enum
 from typing import Any, Optional, override
 
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector
 
 from modelviewprojection.pgzero_gl import (
     Actor,
@@ -157,7 +157,7 @@ def cos(x: float) -> float:
 
 
 # Convert a vector to an angle in the range 0 to 7
-def vec_to_angle(vec: Vector2) -> int:
+def vec_to_angle(vec: Vector) -> int:
     # todo explain a bit
     # https://gamedev.stackexchange.com/questions/14602/what-are-atan-and-atan2-used-for-in-games
     return int(4 * math.atan2(vec.x, -vec.y) / math.pi + 8.5) % 8
@@ -165,31 +165,31 @@ def vec_to_angle(vec: Vector2) -> int:
 
 # Convert an angle  in the range 0 to 7 to a direction vector. We use -cos rather than cos as increasing angles move
 # in a clockwise rather than the usual anti-clockwise direction.
-def angle_to_vec(angle: float) -> Vector2:
-    return Vector2(sin(angle), -cos(angle))
+def angle_to_vec(angle: float) -> Vector:
+    return Vector(sin(angle), -cos(angle))
 
 
 # Used when calling functions such as sorted and min.
 # todo explain more
-# p.vpos - pos results in a Vector2 which we can get the length of, giving us
+# p.vpos - pos results in a Vector which we can get the length of, giving us
 # the distance between pos and p.vpos
-def dist_key(pos: Vector2) -> Callable[[Any], float]:
+def dist_key(pos: Vector) -> Callable[[Any], float]:
     return lambda p: (p.vpos - pos).magnitude()
 
 
 # Turn a vector into a unit vector - i.e. a vector with length 1
 # We also return the original length, before normalisation.
 # We check for zero length, as trying to normalise a zero-length vector results in an error
-def safe_normalise(vec: Vector2) -> tuple[Vector2, float]:
+def safe_normalise(vec: Vector) -> tuple[Vector, float]:
     length: float = float(vec.magnitude())
     if length == 0:
-        return Vector2(0, 0), 0
+        return Vector(0, 0), 0
     else:
         return vec.normalize(), length
 
 
 # The MyActor class extends Pygame Zero's Actor class by providing the attribute 'vpos', which stores the object's
-# current position using Pygame's Vector2 class. All code should change or read the position via vpos, as opposed to
+# current position using Pygame's Vector class. All code should change or read the position via vpos, as opposed to
 # Actor's x/y or pos attributes. When the object is drawn, we set self.pos (equivalent to setting both self.x and
 # self.y) based on vpos, but taking scrolling into account.
 class MyActor(Actor):
@@ -197,11 +197,11 @@ class MyActor(Actor):
         self, img: str, x: float = 0, y: float = 0, anchor: Any = None
     ) -> None:
         super().__init__(img, (0, 0), anchor=anchor)
-        self.vpos: Vector2 = Vector2(x, y)
+        self.vpos: Vector = Vector(x, y)
 
     # We draw with the supplied offset to enable scrolling
     @override
-    def draw(self, offset: Vector2) -> None:  # ty: ignore[invalid-method-override]  # faithful port: MyActor.draw adds the camera offset to Actor.draw()
+    def draw(self, offset: Vector) -> None:  # ty: ignore[invalid-method-override]  # faithful port: MyActor.draw adds the camera offset to Actor.draw()
         # Set Actor's screen pos
         self.pos = self.vpos - offset
         super().draw()
@@ -303,7 +303,7 @@ def avg(a: float, b: float) -> float:
     return b if abs(b - a) < 1 else (a + b) / 2
 
 
-def on_pitch(pos: Vector2) -> bool:
+def on_pitch(pos: Vector) -> bool:
     # Only used when dribbling
     return (
         PITCH_RECT.collidepoint(*pos)
@@ -315,7 +315,7 @@ def on_pitch(pos: Vector2) -> bool:
 @dataclass(eq=False)
 class Ball(MyActor):
     # Velocity
-    vel: Vector2 = field(default_factory=lambda: Vector2(0, 0))
+    vel: Vector = field(default_factory=lambda: Vector(0, 0))
     owner: Optional["Player"] = None
     timer: int = 0
     shadow: MyActor = field(default_factory=lambda: MyActor("balls"))
@@ -344,7 +344,7 @@ class Ball(MyActor):
             # to reflect that that the game's perspective is not completely top-down - so the positions the ball can
             # take in relation to the player should form an ellipse instead of a circle.
             # todo explain maths
-            new_pos: Vector2 = Vector2(
+            new_pos: Vector = Vector(
                 avg(
                     float(self.vpos.x),
                     float(
@@ -394,13 +394,13 @@ class Ball(MyActor):
             new_x, new_vel_x = ball_physics(
                 float(self.vpos.x), float(self.vel.x), bounds_x
             )
-            self.vpos = Vector2(new_x, self.vpos.y)
-            self.vel = Vector2(new_vel_x, self.vel.y)
+            self.vpos = Vector(new_x, self.vpos.y)
+            self.vel = Vector(new_vel_x, self.vel.y)
             new_y, new_vel_y = ball_physics(
                 float(self.vpos.y), float(self.vel.y), bounds_y
             )
-            self.vpos = Vector2(self.vpos.x, new_y)
-            self.vel = Vector2(self.vel.x, new_vel_y)
+            self.vpos = Vector(self.vpos.x, new_y)
+            self.vel = Vector(self.vel.x, new_vel_y)
 
         # Update shadow position to track ball
         self.shadow.vpos = self.vpos
@@ -459,7 +459,7 @@ class Ball(MyActor):
                     and target
                     and cost(
                         target.vpos, self.owner.team
-                    )  # faithful upstream: tuple compare falls to Vector2 only on exact float ties, which don't occur
+                    )  # faithful upstream: tuple compare falls to Vector only on exact float ties, which don't occur
                     < cost(self.owner.vpos, self.owner.team)
                 )
 
@@ -489,7 +489,7 @@ class Ball(MyActor):
                         # In the first loop, t will simply be the position of the targeted player or goal.
                         # In subsequent loops (if there are any), it will represent a position which is at the
                         # target's feet plus a bit further in whichever direction the player is currently pressing.
-                        t: Vector2 = (
+                        t: Vector = (
                             target.vpos + angle_to_vec(self.owner.dir) * r
                         )
 
@@ -530,7 +530,7 @@ class Ball(MyActor):
 
 # Return True if the given position is inside the level area, otherwise False
 # Takes the goals into account so you can't run through them
-def allow_movement(pos: Vector2) -> bool:
+def allow_movement(pos: Vector) -> bool:
     if abs(pos.x - HALF_LEVEL_W) > HALF_LEVEL_W:
         # Trying to walk off the left or right side of the level
         return False
@@ -554,11 +554,11 @@ def allow_movement(pos: Vector2) -> bool:
 # - the proximity of players on the other team - we want to get the ball away from them as much as possible
 # - a quadratic equation (don't panic too much!) causing the player to favour the centre of the pitch and their opponents goal
 # - an optional handicap value which can bias the result towards or away from a particular position
-def cost(pos: Vector2, team: int, handicap: float = 0) -> tuple[Any, Vector2]:
+def cost(pos: Vector, team: int, handicap: float = 0) -> tuple[Any, Vector]:
     # Get pos of our own goal. We do it this way rather than getting the pos of the actual goal object
     # because this way gives us the pos of the goal's entrance, whereas the actual goal sprites are not anchored based
     # on the entrances.
-    own_goal_pos: Vector2 = Vector2(
+    own_goal_pos: Vector = Vector(
         HALF_LEVEL_W, 78 if team == 1 else LEVEL_H - 78
     )
     inverse_own_goal_distance: float = 3500 / (pos - own_goal_pos).magnitude()
@@ -609,7 +609,7 @@ class Player(MyActor):
         super().__init__("blank", x, kickoff_y, Player.ANCHOR)
 
         # Remember home position, where we'll stand by default if we're not active (i.e. far from the ball)
-        self.home: Vector2 = Vector2(x, y)
+        self.home: Vector = Vector(x, y)
 
         # Store team
         self.team: int = team
@@ -625,7 +625,7 @@ class Player(MyActor):
         self.shadow: MyActor = MyActor("blank", 0, 0, Player.ANCHOR)
 
         # Used when DEBUG_SHOW_TARGETS is on
-        self.debug_target: Any = Vector2(0, 0)
+        self.debug_target: Any = Vector(0, 0)
 
     def active(self) -> bool:
         # Is ball within 400 pixels on the Y axis? If so I'll be considered active, meaning I'm currently doing
@@ -639,7 +639,7 @@ class Player(MyActor):
 
         # One of the main jobs of this method is to decide where the player will run to, and at what speed.
         # The default is to run slowly towards home position, but target and speed may be overwritten in the code below
-        target: Vector2 = (
+        target: Vector = (
             self.home
         )  # start from home; rebound below, never mutated
         speed: float = PLAYER_DEFAULT_SPEED
@@ -685,7 +685,7 @@ class Player(MyActor):
 
                 # First, create a list of costs for each of the 5 tested positions - a lower number is better. Each
                 # element is a tuple containing the cost and the position that cost relates to.
-                costs: list[tuple[Any, Vector2]] = [
+                costs: list[tuple[Any, Vector]] = [
                     cost(
                         self.vpos + angle_to_vec(self.dir + d) * 3,
                         self.team,
@@ -699,7 +699,7 @@ class Player(MyActor):
                 # value and the target position). When comparing a pair of tuples using <, Python first compares the
                 # first element of each tuple. If they're different, that's what determines which tuple is considered to
                 # have a lower value. If they're the same, Python moves on to looking at the next element. However, this
-                # can lead to a crash in this case as the target position is an instance of the Vector2 class, which
+                # can lead to a crash in this case as the target position is an instance of the Vector class, which
                 # does not support comparisons using <. In practice it's rare for two positions to have the same cost
                 # value, but it's nevertheless prudent to eliminate the risk. The solution we chosen is to use the
                 # optional 'key' parameter for min, telling the function to only use the first element of each tuple
@@ -722,7 +722,7 @@ class Player(MyActor):
                     # 400 pixels ahead of the ball. Team 0 are trying to score in the goal at the top of the
                     # pitch, team 1 the goal at the bottom
                     direction: int = -1 if self.team == 0 else 1
-                    target = Vector2(
+                    target = Vector(
                         (ball.vpos.x + target.x) / 2,
                         (ball.vpos.y + 400 * direction + target.y) / 2,
                     )
@@ -740,7 +740,7 @@ class Player(MyActor):
                     )
 
                     # Stay on the pitch
-                    target = Vector2(
+                    target = Vector(
                         max(AI_MIN_X, min(AI_MAX_X, target.x)),
                         max(AI_MIN_Y, min(AI_MAX_Y, target.y)),
                     )
@@ -791,10 +791,10 @@ class Player(MyActor):
                 # The code below simulates the ball's movement over a series of frames, working out where it would be
                 # after each frame. We also work out how far the player could have moved at each frame, and whether
                 # that distance would be enough to reach the currently simulated location of the ball.
-                target = Vector2(
+                target = Vector(
                     *ball.vpos
                 )  # current simulated location of ball
-                vel: Vector2 = Vector2(
+                vel: Vector = Vector(
                     *ball.vel
                 )  # ball velocity - slows down each frame due to friction
                 frame: int = 0
@@ -819,7 +819,7 @@ class Player(MyActor):
                 # Waiting for kick-off, but we're not the kickoff player
                 # Just stay where we are. Without this we'd run to our home position, but that is different from
                 # our position at kickoff (where all players are on their team's side of the pitch)
-                target = Vector2(target.x, self.vpos.y)
+                target = Vector(target.x, self.vpos.y)
 
         # Get direction vector and distance beteen current pos and target pos
         # vec[0] and vec[1] will be the x and y components of the vector
@@ -838,10 +838,10 @@ class Player(MyActor):
             # Update the x and y components of the player's position - but don't allow them to go off the edge of the
             # level. Processing the x and y components separately allows the player to slide along the edge when trying
             # to move diagonally off the edge of the level.
-            if allow_movement(self.vpos + Vector2(vec.x * distance, 0)):
-                self.vpos = Vector2(self.vpos.x + vec.x * distance, self.vpos.y)
-            if allow_movement(self.vpos + Vector2(0, vec.y * distance)):
-                self.vpos = Vector2(self.vpos.x, self.vpos.y + vec.y * distance)
+            if allow_movement(self.vpos + Vector(vec.x * distance, 0)):
+                self.vpos = Vector(self.vpos.x + vec.x * distance, self.vpos.y)
+            if allow_movement(self.vpos + Vector(0, vec.y * distance)):
+                self.vpos = Vector(self.vpos.x, self.vpos.y + vec.y * distance)
 
             # todo
             self.anim_frame = (self.anim_frame + max(distance, 1.5)) % 72
@@ -959,7 +959,7 @@ class Game:
         self.kickoff_player: Optional[Player] = self.players[other_team]
 
         # Set pos of kickoff player. A team 0 player will stand to the left of the ball, team 1 on the right
-        self.kickoff_player.vpos = Vector2(
+        self.kickoff_player.vpos = Vector(
             HALF_LEVEL_W - 30 + other_team * 60, HALF_LEVEL_H
         )
 
@@ -967,7 +967,7 @@ class Game:
         self.ball: Ball = Ball()
 
         # Focus camera on ball - copy ball pos
-        self.camera_focus: Vector2 = self.ball.vpos
+        self.camera_focus: Vector = self.ball.vpos
 
         self.debug_shoot_target: Any = None
 
@@ -1113,7 +1113,7 @@ class Game:
     def draw(self) -> None:
         # For the purpose of scrolling, all objects will be drawn with these offsets
         # the camera offset, clamped per axis to the level bounds
-        offset: Vector2 = Vector2(
+        offset: Vector = Vector(
             max(0, min(LEVEL_W - WIDTH, self.camera_focus.x - WIDTH / 2)),
             max(0, min(LEVEL_H - HEIGHT, self.camera_focus.y - HEIGHT / 2)),
         )
@@ -1138,18 +1138,18 @@ class Game:
         for t in range(2):
             # Only show arrow for human teams
             if self.teams[t].human():
-                arrow_pos: Vector2 = (
+                arrow_pos: Vector = (
                     self.teams[t].active_control_player.vpos
                     - offset
-                    - Vector2(11, 45)
+                    - Vector(11, 45)
                 )
                 screen.blit("arrow" + str(t), arrow_pos)
 
         if DEBUG_SHOW_LEADS:
             for p in self.players:
                 if game.ball.owner and p.lead:
-                    line_start: Vector2 = game.ball.owner.vpos - offset
-                    line_end: Vector2 = p.vpos - offset
+                    line_start: Vector = game.ball.owner.vpos - offset
+                    line_end: Vector = p.vpos - offset
                     gldraw.line(screen.surface, (0, 0, 0), line_start, line_end)
 
         if DEBUG_SHOW_TARGETS:
@@ -1173,12 +1173,12 @@ class Game:
         if DEBUG_SHOW_COSTS and self.ball.owner:
             for x in range(0, LEVEL_W, 60):
                 for y in range(0, LEVEL_H, 26):
-                    c = cost(Vector2(x, y), self.ball.owner.team)[0]
-                    screen_pos = Vector2(x, y) - offset
+                    c = cost(Vector(x, y), self.ball.owner.team)[0]
+                    screen_pos = Vector(x, y) - offset
                     screen_pos = (
                         screen_pos.x,
                         screen_pos.y,
-                    )  # draw.text can't reliably take a Vector2
+                    )  # draw.text can't reliably take a Vector
                     screen.draw.text("{0:.0f}".format(c), center=screen_pos)
 
     def play_sound(self, name: str, c: int) -> None:
@@ -1230,7 +1230,7 @@ class Controls:
             self.key_right = keys.D
             self.key_shoot = keys.LSHIFT
 
-    def move(self, speed: float) -> Vector2:
+    def move(self, speed: float) -> Vector:
         # Return vector representing amount of movement that should occur
         dx, dy = 0, 0
         if keyboard[self.key_left]:
@@ -1241,7 +1241,7 @@ class Controls:
             dy = -1
         elif keyboard[self.key_down]:
             dy = 1
-        return Vector2(dx, dy) * speed
+        return Vector(dx, dy) * speed
 
     def shoot(self) -> bool:
         return key_just_pressed(self.key_shoot)

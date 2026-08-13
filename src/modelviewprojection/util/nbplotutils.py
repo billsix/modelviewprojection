@@ -27,7 +27,7 @@ import matplotlib.figure
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
-from gacalc.g2 import Vector2, e_1, e_2
+from gacalc.g2 import Vector, e_1, e_2
 from gacalc.transforms import InvertibleFunction, identity
 from IPython import get_ipython
 from IPython.display import display
@@ -43,10 +43,10 @@ if get_ipython() is not None:
 
 extra_lines_multiplier = 3
 
-zero = Vector2.zero()
+zero = Vector.zero()
 
 
-def _xy(vertices: Sequence[Vector2]) -> np.ndarray:
+def _xy(vertices: Sequence[Vector]) -> np.ndarray:
     """(N, 2) float array of the vertices' 2D coordinates, for matplotlib.
 
     gacalc vectors iterate their coefficient values, so ``list(v) == [x, y]``;
@@ -59,7 +59,7 @@ def _xy(vertices: Sequence[Vector2]) -> np.ndarray:
 
 def generategridlines(
     graph_bounds: tuple[int, int], interval: int = 1
-) -> Iterator[tuple[list[Vector2], int]]:
+) -> Iterator[tuple[list[Vector], int]]:
     for x in range(
         -graph_bounds[0] * extra_lines_multiplier,
         graph_bounds[0] * extra_lines_multiplier,
@@ -179,7 +179,7 @@ def create_basis(
 def create_unit_circle(
     fn: InvertibleFunction = _IDENTITY,
 ) -> None:
-    def generate_circle() -> Iterator[list[Vector2]]:
+    def generate_circle() -> Iterator[list[Vector]]:
         theta_increment: float = 0.01
         scale_radius: float = 1.0
 
@@ -235,7 +235,7 @@ def create_x_and_y(
 
 
 def _draw_labelled_triangle(
-    vertices_in_model_space: Sequence[Vector2],
+    vertices_in_model_space: Sequence[Vector],
     labels: Sequence[str],
     fn: InvertibleFunction = _IDENTITY,
     color: tuple[float, float, float] = (0.0, 0.0, 1.0),

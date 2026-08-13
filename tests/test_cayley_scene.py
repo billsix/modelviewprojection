@@ -12,7 +12,7 @@ from collections.abc import Callable
 
 import numpy as np
 from gacalc.base import MultiVectorBase
-from gacalc.g3 import Vector3
+from gacalc.g3 import Vector
 from gacalc.transforms import (
     InvertibleFunction,
     compose,
@@ -25,21 +25,21 @@ from modelviewprojection.cayley import cayleygraph, cayleyscene
 from modelviewprojection.mathutils import rotate_x, rotate_y, rotate_z
 
 # demo constants (verbatim from modelviewperspectiveprojection.py)
-P1_POS: Vector3 = Vector3(-9.0, 1.0, 0.0)
+P1_POS: Vector = Vector(-9.0, 1.0, 0.0)
 P1_ROT: float = math.radians(45.0)
 SQ_ROT: float = math.radians(90.0)
 ROT_AROUND_P1: float = math.radians(30.0)
-P2_POS: Vector3 = Vector3(9.0, 0.5, 0.0)
+P2_POS: Vector = Vector(9.0, 0.5, 0.0)
 P2_ROT: float = math.radians(-20.0)
-CAM_POS: Vector3 = Vector3(-1.5, 0.0, 8.5)
+CAM_POS: Vector = Vector(-1.5, 0.0, 8.5)
 CAM_ROT_Y: float = math.radians(25.0)
 CAM_ROT_X: float = math.radians(15.0)
 
-SAMPLES: list[Vector3] = [
-    Vector3(0.0, 0.0, 0.0),
-    Vector3(1.0, 1.0, 0.0),
-    Vector3(-1.0, -1.0, 0.0),
-    Vector3(0.3, -0.7, 0.2),
+SAMPLES: list[Vector] = [
+    Vector(0.0, 0.0, 0.0),
+    Vector(1.0, 1.0, 0.0),
+    Vector(-1.0, -1.0, 0.0),
+    Vector(0.3, -0.7, 0.2),
 ]
 
 
@@ -55,9 +55,9 @@ def build_scene() -> cayleyscene.Scene:
                 src="square",
                 dst="paddle1",
                 steps=[
-                    ("T_-Z", translate(Vector3(0.0, 0.0, -5.0))),
+                    ("T_-Z", translate(Vector(0.0, 0.0, -5.0))),
                     ("R_Z", rotate_z(ROT_AROUND_P1)),
-                    ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
+                    ("T_X", translate(Vector(1.5, 0.0, 0.0))),
                     ("R2_Z", rotate_z(SQ_ROT)),
                 ],
             ),
@@ -132,7 +132,7 @@ def assert_same_fn(
     fa: Callable[..., MultiVectorBase],
     fb: Callable[..., MultiVectorBase],
 ) -> None:
-    p: Vector3
+    p: Vector
     for p in SAMPLES:
         assert fa(p).isclose(fb(p), rel_tol=1e-5, abs_tol=1e-5)
 
@@ -158,7 +158,7 @@ def test_transform_paddle1_matches_demo() -> None:
     k: int
     for k in range(0, 200):
         t: float = k * 0.1
-        want: InvertibleFunction[Vector3] = compose(
+        want: InvertibleFunction[Vector] = compose(
             [translate(P1_POS * i(t, 2)), rotate_z(P1_ROT * i(t, 7))]
         )
         assert_same_fn(animation.transform("paddle1", t).func, want.func)
@@ -169,13 +169,13 @@ def test_transform_square_nested_matches_demo() -> None:
     k: int
     for k in range(0, 350):
         t: float = k * 0.1
-        want: InvertibleFunction[Vector3] = compose(
+        want: InvertibleFunction[Vector] = compose(
             [
                 translate(P1_POS * i(t, 2)),
                 rotate_z(P1_ROT * i(t, 7)),
-                translate(Vector3(0.0, 0.0, -5.0) * i(t, 12)),
+                translate(Vector(0.0, 0.0, -5.0) * i(t, 12)),
                 rotate_z(ROT_AROUND_P1 * i(t, 17)),
-                translate(Vector3(1.5, 0.0, 0.0) * i(t, 22)),
+                translate(Vector(1.5, 0.0, 0.0) * i(t, 22)),
                 rotate_z(SQ_ROT * i(t, 27)),
             ]
         )
@@ -187,11 +187,11 @@ def test_transform_paddle2_and_camera_match_demo() -> None:
     k: int
     for k in range(0, 600):
         t: float = k * 0.1
-        p2: InvertibleFunction[Vector3] = compose(
+        p2: InvertibleFunction[Vector] = compose(
             [translate(P2_POS * i(t, 32)), rotate_z(P2_ROT * i(t, 37))]
         )
         assert_same_fn(animation.transform("paddle2", t).func, p2.func)
-        cam: InvertibleFunction[Vector3] = compose(
+        cam: InvertibleFunction[Vector] = compose(
             [
                 translate(CAM_POS * i(t, 47)),
                 rotate_y(CAM_ROT_Y * i(t, 52)),
@@ -247,21 +247,21 @@ def test_camera_controls_edit_edge_steps_in_place() -> None:
     )
     tstep: cayleygraph.Step = cam_edge.steps[0]
     slot_before: tuple[float, float] = animation.timeline.slot(tstep)
-    cam_before: Vector3 = animation.transform("camera", 60.0)(
-        Vector3(0.0, 0.0, 0.0)
+    cam_before: Vector = animation.transform("camera", 60.0)(
+        Vector(0.0, 0.0, 0.0)
     )
-    morph_before: Vector3 = animation.inverse_transform(80.0)(
-        Vector3(1.0, 1.0, 1.0)
+    morph_before: Vector = animation.inverse_transform(80.0)(
+        Vector(1.0, 1.0, 1.0)
     )
 
     controls.px, controls.py, controls.pz = 5.0, 2.0, -3.0
     controls.apply()
 
     assert animation.timeline.slot(tstep) == slot_before  # id(step) unchanged
-    assert not animation.transform("camera", 60.0)(Vector3(0, 0, 0)).isclose(
+    assert not animation.transform("camera", 60.0)(Vector(0, 0, 0)).isclose(
         cam_before, rel_tol=1e-5, abs_tol=1e-5
     )
-    assert not animation.inverse_transform(80.0)(Vector3(1, 1, 1)).isclose(
+    assert not animation.inverse_transform(80.0)(Vector(1, 1, 1)).isclose(
         morph_before, rel_tol=1e-5, abs_tol=1e-5
     )
 
@@ -269,18 +269,18 @@ def test_camera_controls_edit_edge_steps_in_place() -> None:
 def test_to_matrix_realizes_affine_function() -> None:
     f: InvertibleFunction = compose(
         [
-            translate(Vector3(3.0, 4.0, 5.0)),
+            translate(Vector(3.0, 4.0, 5.0)),
             rotate_z(math.radians(30.0)),
             uniform_scale(2.0),
         ]
     )
     transform_matrix: np.ndarray = cayleyscene.to_matrix(f)
-    p: Vector3
+    p: Vector
     for p in SAMPLES:
         got: np.ndarray = transform_matrix @ np.array(
             [p.coeff_e_1, p.coeff_e_2, p.coeff_e_3, 1.0]
         )
-        want: Vector3 = f(p)
+        want: Vector = f(p)
         # float(): want's coefficients can be sympy (rotor rotations go through
         # gacalc magnitude()/sympy.sqrt); np.allclose can't handle an object
         # array.
@@ -299,12 +299,12 @@ def test_to_matrix_of_engine_transform_matches_point_application() -> None:
     animation: cayleyscene.Animation = cayleyscene.Animation(build_scene())
     f: InvertibleFunction = animation.transform("square", 20.0)
     transform_matrix: np.ndarray = cayleyscene.to_matrix(f)
-    p: Vector3
+    p: Vector
     for p in SAMPLES:
         got: np.ndarray = transform_matrix @ np.array(
             [p.coeff_e_1, p.coeff_e_2, p.coeff_e_3, 1.0]
         )
-        want: Vector3 = f(p)
+        want: Vector = f(p)
         # float(): want's coefficients can be sympy (rotor rotations go through
         # gacalc magnitude()/sympy.sqrt); np.allclose can't handle an object
         # array.
@@ -340,7 +340,7 @@ def test_morph_transform_matches_demo_inverse() -> None:
     k: int
     for k in range(550, 800):  # sweep across the morph window (55..80)
         t: float = k * 0.1
-        want: InvertibleFunction[Vector3] = inverse(
+        want: InvertibleFunction[Vector] = inverse(
             compose(
                 [
                     translate(CAM_POS * i(t, 62)),
@@ -354,7 +354,7 @@ def test_morph_transform_matches_demo_inverse() -> None:
 
 def test_morph_transform_identity_before_it_starts() -> None:
     animation: cayleyscene.Animation = cayleyscene.Animation(build_full_scene())
-    p: Vector3
+    p: Vector
     for p in SAMPLES:
         assert animation.inverse_transform(30.0)(p).isclose(
             p, rel_tol=1e-5, abs_tol=1e-5

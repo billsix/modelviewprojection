@@ -13,10 +13,11 @@ import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from gacalc.g3 import Vector
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-from modelviewprojection.mathutils import Vector3, find_normal
+from modelviewprojection.mathutils import find_normal
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
@@ -64,11 +65,11 @@ def render_scene() -> None:
     GL.glEnable(GL.GL_TEXTURE_2D)
 
     corners = [
-        Vector3(0.0, 0.80, 0.0),  # 0 top
-        Vector3(-0.5, 0.0, -0.50),  # 1 back-left
-        Vector3(0.5, 0.0, -0.50),  # 2 back-right
-        Vector3(0.5, 0.0, 0.5),  # 3 front-right
-        Vector3(-0.5, 0.0, 0.5),  # 4 front-left
+        Vector(0.0, 0.80, 0.0),  # 0 top
+        Vector(-0.5, 0.0, -0.50),  # 1 back-left
+        Vector(0.5, 0.0, -0.50),  # 2 back-right
+        Vector(0.5, 0.0, 0.5),  # 3 front-right
+        Vector(-0.5, 0.0, 0.5),  # 4 front-left
     ]
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)

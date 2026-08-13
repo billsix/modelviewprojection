@@ -29,7 +29,7 @@ import typing
 from collections.abc import Sequence
 from typing import Any
 
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector
 
 from . import context
 from . import text as _text
@@ -48,7 +48,7 @@ def _as_xy(pos: PointLike | RectLike) -> tuple[float, float]:
         # `object`; both coordinate flavors read fine as float.
         r = typing.cast("_RectBase[float]", pos)
         return (float(r.left), float(r.top))
-    if isinstance(pos, Vector2):
+    if isinstance(pos, Vector):
         return (float(pos.x), float(pos.y))
     return (float(pos[0]), float(pos[1]))
 

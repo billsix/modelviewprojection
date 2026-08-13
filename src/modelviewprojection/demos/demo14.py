@@ -21,7 +21,7 @@ import sys
 
 import glfw
 import OpenGL.GL as GL
-from gacalc.g3 import Vector3, e_1, e_2, e_3
+from gacalc.g3 import Vector, e_1, e_2, e_3
 from gacalc.transforms import (
     InvertibleFunction,
     compose,
@@ -35,7 +35,7 @@ from modelviewprojection.mathutils import rotate_z
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-zero = Vector3.zero()
+zero = Vector.zero()
 
 
 if not glfw.init():
@@ -65,9 +65,9 @@ GL.glLoadIdentity()
 
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector3]
+    vertices: list[Vector]
     color: colorutils.Color3
-    position: Vector3
+    position: Vector
     rotation: float = 0.0
 
 
@@ -99,14 +99,14 @@ paddle2: Paddle = Paddle(
 # doc-region-begin define camera class
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector3 = dataclasses.field(default_factory=lambda: zero)
+    position_ws: Vector = dataclasses.field(default_factory=lambda: zero)
 
 
 camera: Camera = Camera()
 # doc-region-end define camera class
 
 # doc-region-begin instantiate square
-square: list[Vector3] = [
+square: list[Vector] = [
     -0.5 * e_1 + -0.5 * e_2,
     0.5 * e_1 + -0.5 * e_2,
     0.5 * e_1 + 0.5 * e_2,
@@ -187,7 +187,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*paddle1.color)
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        ms_to_ndc: InvertibleFunction[Vector3] = compose(
+        ms_to_ndc: InvertibleFunction[Vector] = compose(
             [
                 # camera space to NDC
                 uniform_scale(m=1.0 / 10.0),
@@ -203,7 +203,7 @@ while not glfw.window_should_close(window):
             ]
         )
 
-        paddle1_vector_ndc: Vector3 = ms_to_ndc(p1_v_ms)
+        paddle1_vector_ndc: Vector = ms_to_ndc(p1_v_ms)
         GL.glVertex3f(*paddle1_vector_ndc)
     GL.glEnd()
     # doc-region-end draw paddle 1
@@ -213,7 +213,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(0.0, 0.0, 1.0)
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
-        ms_to_ndc: InvertibleFunction[Vector3] = compose(
+        ms_to_ndc: InvertibleFunction[Vector] = compose(
             [
                 # camera space to NDC
                 uniform_scale(m=1.0 / 10.0),
@@ -237,7 +237,7 @@ while not glfw.window_should_close(window):
                 ),
             ]
         )
-        square_vector_ndc: Vector3 = ms_to_ndc(ms)
+        square_vector_ndc: Vector = ms_to_ndc(ms)
         GL.glVertex3f(*square_vector_ndc)
     GL.glEnd()
     # doc-region-end draw square
@@ -247,7 +247,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*paddle2.color)
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        ms_to_ndc: InvertibleFunction[Vector3] = compose(
+        ms_to_ndc: InvertibleFunction[Vector] = compose(
             [
                 # camera space to NDC
                 uniform_scale(m=1.0 / 10.0),
@@ -263,7 +263,7 @@ while not glfw.window_should_close(window):
             ]
         )
 
-        paddle2_vector_ndc: Vector3 = ms_to_ndc(p2_v_ms)
+        paddle2_vector_ndc: Vector = ms_to_ndc(p2_v_ms)
         GL.glVertex3f(*paddle2_vector_ndc)
     GL.glEnd()
     # doc-region-end draw paddle 2

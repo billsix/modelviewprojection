@@ -28,15 +28,15 @@ fails with a dtype cast error.
 """
 
 import numpy as np
-from gacalc.g3 import Vector3
+from gacalc.g3 import Vector
 from gacalc.transforms import translate
 
 from modelviewprojection.cayley import cayleygraph, cayleyscene
 from modelviewprojection.mathutils import rotate_z
 
 
-def _v(x: float, y: float, z: float) -> Vector3:
-    return Vector3(coeff_e_1=x, coeff_e_2=y, coeff_e_3=z)
+def _v(x: float, y: float, z: float) -> Vector:
+    return Vector(coeff_e_1=x, coeff_e_2=y, coeff_e_3=z)
 
 
 def _focus_matrix() -> np.ndarray:

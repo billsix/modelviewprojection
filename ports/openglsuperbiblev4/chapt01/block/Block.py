@@ -18,10 +18,11 @@ import glfw
 import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
+from gacalc.g3 import Vector
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-from modelviewprojection.mathutils import Vector3, plane_equation
+from modelviewprojection.mathutils import plane_equation
 
 STAGE_LABELS = (
     "0  Wireframe cube",
@@ -46,9 +47,9 @@ v_light_pos = (-80.0, 120.0, 100.0, 0.0)
 # Three points defining the ground plane (used to derive the plane
 # equation for the planar-shadow projection)
 ground = [
-    Vector3(0.0, -25.0, 0.0),
-    Vector3(10.0, -25.0, 0.0),
-    Vector3(10.0, -25.0, -10.0),
+    Vector(0.0, -25.0, 0.0),
+    Vector(10.0, -25.0, 0.0),
+    Vector(10.0, -25.0, -10.0),
 ]
 
 textures = [0, 0, 0, 0]
@@ -73,7 +74,7 @@ _window = None  # set in main(); used by the Controls buttons
 
 
 def make_planar_shadow_matrix(
-    plane_normal: Vector3,
+    plane_normal: Vector,
     plane_d: float,
     light_pos: "tuple[float, float, float, float]",
 ) -> "np.ndarray":

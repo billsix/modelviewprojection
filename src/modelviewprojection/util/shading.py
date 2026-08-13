@@ -25,7 +25,7 @@ from here instead of redefining them.
 import math
 import typing
 
-from gacalc.g3 import Vector3
+from gacalc.g3 import Vector
 
 from modelviewprojection.mathutils import find_normal
 
@@ -56,7 +56,7 @@ def _face_normal(
     >>> _face_normal((0, 0, 0), (1, 0, 0), (2, 0, 0))
     (0.0, 0.0, 0.0)
     """
-    n = find_normal(Vector3(*a), Vector3(*b), Vector3(*c))
+    n = find_normal(Vector(*a), Vector(*b), Vector(*c))
     mag = abs(n)
     # gacalc keeps exact/int inputs symbolic (Coef); coerce at this
     # float-typed boundary so callers (and OpenGL) get plain floats.

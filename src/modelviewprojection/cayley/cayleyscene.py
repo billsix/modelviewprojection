@@ -33,7 +33,7 @@ import dataclasses
 import typing
 
 import numpy as np
-from gacalc.g3 import Vector3
+from gacalc.g3 import Vector
 from gacalc.transforms import (
     InvertibleFunction,
     compose,
@@ -73,7 +73,7 @@ class CameraControls:
     rot_x: float
 
     def apply(self) -> None:
-        self.translate_step.fn = translate(Vector3(self.px, self.py, self.pz))
+        self.translate_step.fn = translate(Vector(self.px, self.py, self.pz))
         self.rot_y_step.fn = rotate_y(self.rot_y)
         self.rot_x_step.fn = rotate_x(self.rot_x)
 
@@ -448,7 +448,7 @@ class Animation(typing.Generic[N]):
 
 
 def to_matrix(f: InvertibleFunction) -> np.ndarray:
-    """Realize an **affine** ``InvertibleFunction`` on ``Vector3`` as a 4x4
+    """Realize an **affine** ``InvertibleFunction`` on ``Vector`` as a 4x4
     (row-major, ``M @ [x, y, z, 1]``) for upload as a GL model matrix.
 
     Columns come from ``f(e_i) - f(0)`` and the translation from ``f(0)`` -- so
@@ -458,9 +458,9 @@ def to_matrix(f: InvertibleFunction) -> np.ndarray:
     A translation becomes a 4x4 whose last column is the offset:
 
     >>> import numpy as np
-    >>> from gacalc.g3 import Vector3
+    >>> from gacalc.g3 import Vector
     >>> from gacalc.transforms import translate
-    >>> m = to_matrix(translate(Vector3(3.0, 4.0, 5.0)))
+    >>> m = to_matrix(translate(Vector(3.0, 4.0, 5.0)))
     >>> m[:, 3].tolist()
     [3.0, 4.0, 5.0, 1.0]
 
@@ -470,10 +470,10 @@ def to_matrix(f: InvertibleFunction) -> np.ndarray:
     >>> (m @ np.array([1.0, 2.0, 3.0, 1.0])).tolist()
     [4.0, 6.0, 8.0, 1.0]
     """
-    o = f(Vector3(0.0, 0.0, 0.0))
-    cx = f(Vector3(1.0, 0.0, 0.0)) - o
-    cy = f(Vector3(0.0, 1.0, 0.0)) - o
-    cz = f(Vector3(0.0, 0.0, 1.0)) - o
+    o = f(Vector(0.0, 0.0, 0.0))
+    cx = f(Vector(1.0, 0.0, 0.0)) - o
+    cy = f(Vector(0.0, 1.0, 0.0)) - o
+    cz = f(Vector(0.0, 0.0, 1.0)) - o
     # gacalc coefficients can be sympy expressions (magnitude() uses sympy.sqrt,
     # so rotor-based rotations yield sympy-typed components). Force float64
     # here: otherwise np.array infers dtype=object and downstream np.linalg.inv

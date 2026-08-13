@@ -27,7 +27,7 @@ import OpenGL.GL as GL
 # full (Python naming), so read the graph labels as:
 #     R -> rotate(...)      T -> translate(b=...)
 #     S -> uniform_scale(m=...)
-from gacalc.g2 import Vector2, e_1, e_2
+from gacalc.g2 import Vector, e_1, e_2
 from gacalc.transforms import InvertibleFunction, translate
 
 import modelviewprojection.util.colorutils as colorutils
@@ -61,9 +61,9 @@ GL.glLoadIdentity()
 # doc-region-begin define paddle class
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector2]
+    vertices: list[Vector]
     color: colorutils.Color3
-    position: Vector2
+    position: Vector
     # doc-region-end define paddle class
 
 
@@ -136,7 +136,7 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc: Vector2 = translate(b=paddle1.position)(p1_v_ms)
+        paddle1_vector_ndc: Vector = translate(b=paddle1.position)(p1_v_ms)
         # we could have written
         # paddle1_vector_ndc: Vector = paddle1.position + p1_v_ms
         GL.glVertex2f(*paddle1_vector_ndc)
@@ -146,10 +146,10 @@ while not glfw.window_should_close(window):
     # doc-region-begin draw paddle 2
     GL.glColor3f(*paddle2.color)
 
-    p2_fn: InvertibleFunction[Vector2] = translate(b=paddle2.position)
+    p2_fn: InvertibleFunction[Vector] = translate(b=paddle2.position)
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        paddle2_vector_ndc: Vector2 = p2_fn(p2_v_ms)
+        paddle2_vector_ndc: Vector = p2_fn(p2_v_ms)
         GL.glVertex2f(*paddle2_vector_ndc)
     GL.glEnd()
     # doc-region-end draw paddle 2

@@ -41,7 +41,7 @@ from collections.abc import Iterator
 from math import atan2, degrees, sqrt
 from typing import Any
 
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector
 
 from . import context
 from ._types import Anchor, Drawable, PointLike
@@ -197,13 +197,13 @@ class Actor:
         self._set_pos((self._anchor_pos()[0], value))
 
     @property
-    def pos(self) -> Vector2:
+    def pos(self) -> Vector:
         # the anchor position AS a geometric-algebra vector: game code adds
         # velocities (``self.pos + self.velocity``), takes differences
         # (``player.pos - self.pos``), and measures magnitudes directly.
         # (Anything needing a tuple unpacks it -- gacalc vectors iterate.)
         px, py = self._anchor_pos()
-        return Vector2(px, py)
+        return Vector(px, py)
 
     @pos.setter
     def pos(self, value: PointLike) -> None:

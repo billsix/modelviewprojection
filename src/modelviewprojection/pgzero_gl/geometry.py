@@ -15,7 +15,7 @@ Raspberry Pi Press and authors).
 
 This module used to carry pygame ``Vector2``/``Vector3`` work-alikes; the
 games now use the gacalc geometric-algebra vectors directly
-(``gacalc.g2.Vector2`` / ``gacalc.g3.Vector3`` -- see the ctc section of the
+(``gacalc.g2.Vector`` / ``gacalc.g3.Vector`` -- see the ctc section of the
 repo CLAUDE.md), so only the rectangles remain.  Position-like parameters
 here and across the shim are typed :data:`VectorLike` / ``Any`` -- pygame
 accepts any indexable/iterable pair, including gacalc vectors.

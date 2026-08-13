@@ -23,7 +23,7 @@ from collections.abc import Callable, Sequence
 from dataclasses import InitVar, dataclass
 from enum import Enum
 
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector
 
 from modelviewprojection.pgzero_gl import (
     Actor,
@@ -59,10 +59,10 @@ def sign(x: float) -> int:
 class Impact(Actor):
     # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
     # would treat the property object as this field's default value
-    spawn_pos: InitVar[tuple[float, float] | Vector2]
+    spawn_pos: InitVar[tuple[float, float] | Vector]
     time: int = 0
 
-    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector) -> None:
         super().__init__("blank", spawn_pos)
 
     def update(self) -> None:
@@ -83,7 +83,7 @@ class Ball(Actor):
     # values. (The book's original uses two floats, dx and dy, and explains
     # them as a vector; here it IS one -- a gacalc grade-1 vector of the
     # plane's geometric algebra.)
-    dir: Vector2
+    dir: Vector
     speed: int = 5
 
     def __post_init__(self) -> None:
@@ -147,16 +147,16 @@ class Ball(Actor):
                     # bat. This gives the player a bit of control over where the ball goes.
 
                     # Bounce the opposite way on the X axis
-                    self.dir = Vector2(-self.dir.x, self.dir.y)
+                    self.dir = Vector(-self.dir.x, self.dir.y)
 
                     # Deflect slightly up or down depending on where ball hit bat
-                    self.dir = Vector2(
+                    self.dir = Vector(
                         self.dir.x, self.dir.y + difference_y / 128
                     )
 
                     # Limit the Y component of the vector so we don't get into a situation where the ball is bouncing
                     # up and down too rapidly
-                    self.dir = Vector2(
+                    self.dir = Vector(
                         self.dir.x, min(max(float(self.dir.y), -1), 1)
                     )
 
@@ -167,7 +167,7 @@ class Ball(Actor):
 
                     # Create an impact effect
                     game.impacts.append(
-                        Impact(self.pos - Vector2(new_dir_x * 10, 0))
+                        Impact(self.pos - Vector(new_dir_x * 10, 0))
                     )
 
                     # Increase speed with each hit
@@ -195,7 +195,7 @@ class Ball(Actor):
             if abs(self.y - HALF_HEIGHT) > 220:
                 # Invert vertical direction and apply new dy to y so that the ball is no longer overlapping with the
                 # edge of the arena
-                self.dir = Vector2(self.dir.x, -self.dir.y)
+                self.dir = Vector(self.dir.x, -self.dir.y)
                 self.y += self.dir.y
 
                 # Create impact effect
@@ -302,7 +302,7 @@ class Game:
         self.bats: list[Bat] = [Bat(0, controls[0]), Bat(1, controls[1])]
 
         # Create a ball object
-        self.ball: Ball = Ball(Vector2(-1, 0))
+        self.ball: Ball = Ball(Vector(-1, 0))
 
         # Create an empty list which will later store the details of currently playing impact
         # animations - these are displayed for a short time every time the ball bounces
@@ -347,7 +347,7 @@ class Game:
             elif self.bats[losing_player].timer == 0:
                 # After 20 frames, create a new ball, heading in the direction of the player who just missed the ball
                 direction: int = -1 if losing_player == 0 else 1
-                self.ball = Ball(Vector2(direction, 0))
+                self.ball = Ball(Vector(direction, 0))
 
     def draw(self) -> None:
         # Draw background

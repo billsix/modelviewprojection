@@ -26,7 +26,7 @@ from enum import Enum, auto
 
 import glfw
 import OpenGL.GL as GL
-from gacalc.g3 import Vector3
+from gacalc.g3 import Vector
 from gacalc.transforms import translate
 
 from modelviewprojection import matrix_stack as ms
@@ -62,7 +62,7 @@ class Space(Enum):
 camera_edge = cayleygraph.Edge(
     src=Space.camera,
     dst=Space.world,
-    steps=[("T", translate(Vector3(-1.5, 2.0, 0.0)))],
+    steps=[("T", translate(Vector(-1.5, 2.0, 0.0)))],
 )
 
 graph = cayleygraph.CayleyGraph(
@@ -71,7 +71,7 @@ graph = cayleygraph.CayleyGraph(
             src=Space.paddle1,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector3(-9.0, 1.0, 0.0))),
+                ("T", translate(Vector(-9.0, 1.0, 0.0))),
                 ("R", rotate_z(math.radians(45.0))),
             ],
         ),
@@ -81,7 +81,7 @@ graph = cayleygraph.CayleyGraph(
             dst=Space.paddle1,
             steps=[
                 ("R1", rotate_z(math.radians(30.0))),
-                ("T_X", translate(Vector3(1.5, 0.0, 0.0))),
+                ("T_X", translate(Vector(1.5, 0.0, 0.0))),
                 ("R2", rotate_z(math.radians(90.0))),
             ],
         ),
@@ -89,7 +89,7 @@ graph = cayleygraph.CayleyGraph(
             src=Space.paddle2,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector3(9.0, 0.5, 0.0))),
+                ("T", translate(Vector(9.0, 0.5, 0.0))),
                 ("R", rotate_z(math.radians(-20.0))),
             ],
         ),
@@ -180,7 +180,7 @@ def jump(start: float) -> None:
 
 def apply_camera() -> None:
     camera_edge.steps[0].fn = translate(
-        Vector3(cam_pos["x"], cam_pos["y"], cam_pos["z"])
+        Vector(cam_pos["x"], cam_pos["y"], cam_pos["z"])
     )
 
 

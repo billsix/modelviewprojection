@@ -1,9 +1,39 @@
 # Adopt unsuffixed gacalc types (Vector2 → g2.Vector, …)
 
-**Status:** proposed — BLOCKED on the gacalc release (0.0.16) that drops the suffixes
+**Status:** CODE DONE, verified in-sandbox (2026-08-13). Batches 1–6 below complete; batch 7
+(book teaching-prose) awaits Bill's decision; the full containerized `make test` gate is the
+only remaining verification (in-sandbox proof is strong — see below).
+
+**Done + verified in-sandbox against gacalc 0.0.16 (installed from PyPI):**
+- **Code (64 .py):** 58 via `tasks/adhoc/.../migrate_0016.py` (direct-import + facade split +
+  module-qualify) + `mathutils.py` via `migrate_mathutils.py` (4-context: code / doctest-input /
+  doctest-repr-output / prose-example). Both codemods idempotent (2nd run = no-op).
+- **De-facade:** the 12 SuperBible ports now import `Vector` straight from `gacalc.g3`; mathutils
+  re-exports **no** gacalc type (finishes `tasks/defacade-mathutils-gacalc-reexports.md`).
+- **Book markers (batch 5):** ch05×2 / ch06×6 / ch14×2 renamed to the **real** 0.0.16 names
+  (`Vector declaration`, `Vector __add__/__sub__/__mul__ method`), verified against the 0.0.16
+  sdist's baked `g2.py`/`g3.py`; all 10 extract **non-empty** (no silent-empty trap).
+- **Dockerfile `ARG GACALC_VERSION` → 0.0.16**; `requirements.txt` already `==0.0.16`.
+- **Gates (sandbox venv, gacalc 0.0.16):** ruff clean + `format --check` idempotent; ty clean on
+  mathutils + qualify tests; 72 tests pass (16 mathutils doctests, test_mathutils + unpacking = 25,
+  cayley/focus = 31); E501 clean; zero leftover suffixed gacalc types in `.py`.
+
+**Remaining:** batch 7 (below) — Bill's call; and the containerized `make test` + `make html`
+gate (re-confirms; the change is pure type-renaming, and the one container-only risk — marker
+resolution — is already proven).
 **Priority:** 4
 **Difficulty:** 5
 **Created:** 2026-08-13
+
+**Decision (2026-08-13): direct-import / module-qualify, NOT facade-alias.** A facade-alias
+approach (`from gacalc.g2 import Vector as Vector2`, keeping mvp's suffixed names) was considered
+and **rejected** — it re-adds the suffix locally and fights gacalc's "module is the namespace"
+design, and mathutils is already 96% not-a-facade (only `Vector3` leaks, to 12 ports — see below).
+The half-written `tasks/adhoc/adopt-unsuffixed-gacalc-graded-types/alias_imports.py` is **dead**;
+remove it when this task runs. As part of this pass, finish the de-facade
+(`tasks/defacade-mathutils-gacalc-reexports.md`): make the 12 straggler ports import their gacalc
+`Vector` directly so mathutils re-exports **no** gacalc type. `mathutils.py` itself switches to
+`from gacalc.g3 import Vector` / `from gacalc.g2 import Vector` internally.
 
 ## Context
 

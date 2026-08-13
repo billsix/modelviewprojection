@@ -26,7 +26,7 @@ import matplotlib
 import matplotlib.pyplot as plt
 import matplotlib.ticker
 import numpy as np
-from gacalc.g2 import Vector2, e_1, e_2
+from gacalc.g2 import Vector, e_1, e_2
 from gacalc.transforms import (
     InvertibleFunction,
     compose_intermediate_fns,
@@ -42,17 +42,17 @@ matplotlib.use("agg")
 
 #: One axis of a matplotlib point set: the parallel array of xs, or of ys.  A
 #: 2-D point set is the pair ``(xs, ys)``.  The transforms themselves are gacalc
-#: ``InvertibleFunction``s over :class:`Vector2`; ``_apply`` bridges the two
+#: ``InvertibleFunction``s over :class:`Vector`; ``_apply`` bridges the two
 #: representations at the matplotlib boundary (like ``util.nbplotutils._xy``).
 Axis = Sequence[float]
 
 
 def _apply(
-    fn: InvertibleFunction[Vector2], xs: Axis, ys: Axis
+    fn: InvertibleFunction[Vector], xs: Axis, ys: Axis
 ) -> tuple[list[float], list[float]]:
     """Apply the gacalc transform ``fn`` to matplotlib parallel arrays.
 
-    Packs each ``(x, y)`` into a :class:`Vector2`, applies ``fn``, and reads the
+    Packs each ``(x, y)`` into a :class:`Vector`, applies ``fn``, and reads the
     coordinates back out as parallel ``float`` lists.  The ``float`` casts guard
     against sympy ``Float`` coefficients leaking from a rotation (same reason as
     ``util.nbplotutils._xy``); a purely numeric pipeline stays numeric anyway.
@@ -65,8 +65,8 @@ def _apply(
 
 
 def _accumulate(
-    procedures: list[InvertibleFunction[Vector2]], forwards: bool
-) -> Iterator[tuple[InvertibleFunction[Vector2], int]]:
+    procedures: list[InvertibleFunction[Vector]], forwards: bool
+) -> Iterator[tuple[InvertibleFunction[Vector], int]]:
     """The per-frame "aggregate transform + steps remaining" sequence.
 
     Formerly the bespoke ``accumulate_transformation`` generator; gacalc's
@@ -146,7 +146,7 @@ def main() -> None:
         title: str,
         filename: str,
         geometry: Geometry,
-        procedures: list[InvertibleFunction[Vector2]],
+        procedures: list[InvertibleFunction[Vector]],
         forwards: bool = True,
         graph_bounds: tuple[int, int] = (10, 10),
         gridline_interval: int = 1,
@@ -175,9 +175,9 @@ def main() -> None:
 
         # create a single frame of the animated gif
         def create_single_frame(
-            accumfn: InvertibleFunction[Vector2],
+            accumfn: InvertibleFunction[Vector],
             steps_remaining: int,
-            fn: InvertibleFunction[Vector2],
+            fn: InvertibleFunction[Vector],
             frame_number: int,
         ) -> Iterator[plt.Figure]:
             for round_number in [1] if not forwards else [1, 2]:

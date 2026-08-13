@@ -17,7 +17,7 @@ import typing
 from enum import Enum, auto
 
 import glfw
-from gacalc.g3 import Vector3
+from gacalc.g3 import Vector
 from gacalc.transforms import translate
 
 from modelviewprojection import matrix_stack as ms
@@ -68,14 +68,14 @@ graph = cayleygraph.CayleyGraph(
             src=Space.paddle1,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector3(-9.0, 1.0, 0.0))),
+                ("T", translate(Vector(-9.0, 1.0, 0.0))),
                 ("R_z", rotate_z(math.radians(45.0))),
             ],
         ),
         cayleygraph.Edge(
             src=Space.square_base,
             dst=Space.paddle1,
-            steps=[("T_-Z", translate(Vector3(0.0, 0.0, -5.0)))],
+            steps=[("T_-Z", translate(Vector(0.0, 0.0, -5.0)))],
         ),
         *[
             cayleygraph.Edge(
@@ -83,7 +83,7 @@ graph = cayleygraph.CayleyGraph(
                 dst=Space.square_base,
                 steps=[
                     ("R_Z", rotate_z(AROUND + i * math.pi / 2.0)),
-                    ("T_X", translate(Vector3(3.0, 0.0, 0.0))),
+                    ("T_X", translate(Vector(3.0, 0.0, 0.0))),
                     ("R2_Z", rotate_z(SQUARE_ROT)),
                 ],
             )

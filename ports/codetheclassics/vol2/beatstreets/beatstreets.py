@@ -38,7 +38,7 @@ from enum import Enum
 from random import choice, randint
 from typing import Any, cast, override
 
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector
 
 from modelviewprojection.pgzero_gl import (
     Actor,
@@ -82,11 +82,11 @@ BASE_STAMINA_DAMAGE_MULTIPLIER: int = 100
 MIN_STAMINA: int = -100
 
 # Defaults for Fighter/Enemy constructor params, as named module-level constants
-# rather than inline ``Vector2(...)`` defaults (which ruff B008 flags as a call in
+# rather than inline ``Vector(...)`` defaults (which ruff B008 flags as a call in
 # a default argument). gacalc vectors are frozen, so sharing one is safe -- storing
 # the argument directly, with no defensive copy, cannot alias-mutate anything.
-DEFAULT_HALF_HIT_AREA: Vector2 = Vector2(25, 20)
-DEFAULT_ENEMY_SPEED: Vector2 = Vector2(1, 1)
+DEFAULT_HALF_HIT_AREA: Vector = Vector(25, 20)
+DEFAULT_ENEMY_SPEED: Vector = Vector(1, 1)
 
 DEBUG_LOGGING_ENABLED: bool = False
 DEBUG_SHOW_SCROLL_POS: bool = False
@@ -470,7 +470,7 @@ with open(
 
 
 # The ScrollHeightActor class extends Pygame Zero's Actor class by providing the attribute 'vpos', which stores the
-# object's current position using Pygame's Vector2 class. All code should change or read the position via vpos, as
+# object's current position using Pygame's Vector class. All code should change or read the position via vpos, as
 # opposed to Actor's x/y or pos attributes. When the object is drawn, we set self.pos (equivalent to setting both
 # self.x and self.y) based on vpos, but taking scrolling into account.
 # It also includes the attribute height_above_ground which allows an actor to be considered to be in the air. This
@@ -486,16 +486,16 @@ class ScrollHeightActor(Actor):
         separate_shadow: bool = False,
     ) -> None:
         super().__init__(img, pos, anchor=anchor)
-        self.vpos: Vector2 = Vector2(*pos)
+        self.vpos: Vector = Vector(*pos)
         self.height_above_ground: float = 0
         if separate_shadow:
             self.shadow_actor: Any = Actor("blank", pos, anchor=anchor)
         else:
             self.shadow_actor = None
 
-    # We draw with the supplied Vector2 offset to enable scrolling
+    # We draw with the supplied Vector offset to enable scrolling
     @override
-    def draw(self, offset: Vector2) -> None:  # ty: ignore[invalid-method-override]  # faithful port: ScrollHeightActor.draw takes a scroll offset, widening Actor.draw(self)
+    def draw(self, offset: Vector) -> None:  # ty: ignore[invalid-method-override]  # faithful port: ScrollHeightActor.draw takes a scroll offset, widening Actor.draw(self)
         # Draw shadow first, if we are using a separate shadow sprite (most have the shadow as part of the sprite
         # but for player it is separate)
         if self.shadow_actor is not None:
@@ -549,12 +549,12 @@ class Fighter(ScrollHeightActor, ABC):
         self,
         pos: Any,
         anchor: Any,
-        speed: Vector2,
+        speed: Vector,
         sprite: str,
         health: int,
         anim_update_rate: int = 8,
         stamina: int = 500,
-        half_hit_area: Vector2 = DEFAULT_HALF_HIT_AREA,
+        half_hit_area: Vector = DEFAULT_HALF_HIT_AREA,
         lives: int = 1,
         colour_variant: Any = None,
         separate_shadow: bool = False,
@@ -562,8 +562,8 @@ class Fighter(ScrollHeightActor, ABC):
     ) -> None:
         super().__init__("blank", pos, anchor, separate_shadow=separate_shadow)
 
-        # Speed is a Vector2 containing x and y speed.
-        self.speed: Vector2 = speed
+        # Speed is a Vector containing x and y speed.
+        self.speed: Vector = speed
 
         # e.g. "hero" or "enemy"
         self.sprite: str = sprite
@@ -588,7 +588,7 @@ class Fighter(ScrollHeightActor, ABC):
         # Are we currently walking? Used to determine whether to use standing or walking animation
         self.walking: bool = False
 
-        self.vel: Vector2 = Vector2(
+        self.vel: Vector = Vector(
             0, 0
         )  # Velocity X used when falling or being pushed backwards or for flying kick, velocity Y for jumping
 
@@ -602,7 +602,7 @@ class Fighter(ScrollHeightActor, ABC):
 
         # Determines whether an opponent's attack will hit us, based on the distance between us and the attack's reach
         # Larger number for the portal, because the portal is physically bigger
-        self.half_hit_area: Vector2 = half_hit_area
+        self.half_hit_area: Vector = half_hit_area
 
         self.health: int = health
         self.start_health: int = health
@@ -627,8 +627,8 @@ class Fighter(ScrollHeightActor, ABC):
 
         # Apply gravity and velocity if in air
         if self.height_above_ground > 0 or self.vel.y != 0:
-            self.vpos = Vector2(self.vpos.x + self.vel.x, self.vpos.y)
-            self.vel = Vector2(
+            self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)
+            self.vel = Vector(
                 self.vel.x,
                 self.vel.y
                 + (
@@ -641,7 +641,7 @@ class Fighter(ScrollHeightActor, ABC):
             self.apply_movement_boundaries(float(self.vel.x), 0)
             if self.height_above_ground < 0:
                 self.height_above_ground: int = 0
-                self.vel = Vector2(0, 0)
+                self.vel = Vector(0, 0)
 
                 # Don't do the been hit animation after landing (from flying kick or from being thrown)
                 self.hit_timer = 0
@@ -653,9 +653,9 @@ class Fighter(ScrollHeightActor, ABC):
         # Portals don't fall when they die, so the logic for them dying is within their class
         if self.falling_state == Fighter.FallingState.FALLING:
             # Get pushed backwards
-            self.vpos = Vector2(self.vpos.x + self.vel.x, self.vpos.y)
+            self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)
             new_vel_x, _ = move_towards(float(self.vel.x), 0, 0.5)
-            self.vel = Vector2(new_vel_x, self.vel.y)
+            self.vel = Vector(new_vel_x, self.vel.y)
 
             self.apply_movement_boundaries(float(self.vel.x), 0)
 
@@ -685,7 +685,7 @@ class Fighter(ScrollHeightActor, ABC):
         elif self.falling_state == Fighter.FallingState.GETTING_UP:
             self.frame += 1
             # Move forward slightly as we get up
-            self.vpos = Vector2(self.vpos.x + 0.1 * self.facing_x, self.vpos.y)
+            self.vpos = Vector(self.vpos.x + 0.1 * self.facing_x, self.vpos.y)
             if self.frame > 20:
                 self.falling_state = Fighter.FallingState.STANDING
                 self.frame = 0
@@ -723,7 +723,7 @@ class Fighter(ScrollHeightActor, ABC):
             # weapon, but we update weapon pos so that if we drop the weapon, it reappears as a distinct sprite in the
             # correct location
             if self.weapon is not None:
-                self.weapon.vpos = self.vpos + Vector2(self.facing_x * 20, 0)
+                self.weapon.vpos = self.vpos + Vector(self.facing_x * 20, 0)
 
             # Are we ready to attack or pick up/drop a weapon?
             # If we're out of stamina, recovery time will be longer
@@ -782,7 +782,7 @@ class Fighter(ScrollHeightActor, ABC):
 
                         # Is this a flying kick?
                         if attack.flying_kick:
-                            self.vel = Vector2(
+                            self.vel = Vector(
                                 FLYING_KICK_VEL_X * self.facing_x,
                                 FLYING_KICK_VEL_Y,
                             )
@@ -800,18 +800,18 @@ class Fighter(ScrollHeightActor, ABC):
                 if desired_facing is not None:
                     self.facing_x = desired_facing
 
-                target: Vector2 = self.get_move_target()
+                target: Vector = self.get_move_target()
                 if target != self.vpos:
                     self.walking = True
 
                     new_x, dx = move_towards(
                         float(self.vpos.x), float(target.x), float(self.speed.x)
                     )
-                    self.vpos = Vector2(new_x, self.vpos.y)
+                    self.vpos = Vector(new_x, self.vpos.y)
                     new_y, dy = move_towards(
                         float(self.vpos.y), float(target.y), float(self.speed.y)
                     )
-                    self.vpos = Vector2(self.vpos.x, new_y)
+                    self.vpos = Vector(self.vpos.x, new_y)
 
                     self.apply_movement_boundaries(dx, dy)
 
@@ -857,7 +857,7 @@ class Fighter(ScrollHeightActor, ABC):
         if attack.strength > 0:
             # Loop through all opponents to see which (if any) this attack should hit
             for opponent in self.get_opponents():
-                vec: Vector2 = opponent.vpos - self.vpos
+                vec: Vector = opponent.vpos - self.vpos
                 facing_correct: bool = sign(self.facing_x) == sign(float(vec.x))
                 if attack.rear_attack:
                     facing_correct = not facing_correct
@@ -964,7 +964,7 @@ class Fighter(ScrollHeightActor, ABC):
                     and not self.use_die_animation
                 ):
                     # Get knocked backwards
-                    self.vel = Vector2(
+                    self.vel = Vector(
                         self.vel.x + -self.facing_x * 10, self.vel.y
                     )
 
@@ -974,7 +974,7 @@ class Fighter(ScrollHeightActor, ABC):
         pass
 
     @override
-    def draw(self, offset: Vector2) -> None:
+    def draw(self, offset: Vector) -> None:
         # Determine sprite to use based on our current action
         self.image = self.determine_sprite()
 
@@ -1142,24 +1142,24 @@ class Fighter(ScrollHeightActor, ABC):
     def thrown(self, dir_x: int) -> None:
         self.log("Thrown")
         self.falling_state = Fighter.FallingState.THROWN
-        self.vel = Vector2(dir_x * PLAYER_THROW_VEL_X, PLAYER_THROW_VEL_Y)
+        self.vel = Vector(dir_x * PLAYER_THROW_VEL_X, PLAYER_THROW_VEL_Y)
         self.facing_x = -dir_x
 
         # Shift position for throw animation
-        self.vpos = Vector2(self.vpos.x + dir_x * 50, self.vpos.y)
+        self.vpos = Vector(self.vpos.x + dir_x * 50, self.vpos.y)
         self.height_above_ground = 45
 
     def apply_movement_boundaries(self, dx: float, dy: float) -> None:
         # A fighter outside the boundary can walk in a direction which will help them get inside the boundary, but not
         # in the direction that will take them further out of it
         if dx < 0 and self.vpos.x < game.boundary.left:
-            self.vpos = Vector2(game.boundary.left, self.vpos.y)
+            self.vpos = Vector(game.boundary.left, self.vpos.y)
         elif dx > 0 and self.vpos.x > game.boundary.right:
-            self.vpos = Vector2(game.boundary.right, self.vpos.y)
+            self.vpos = Vector(game.boundary.right, self.vpos.y)
         if dy < 0 and self.vpos.y < game.boundary.top:
-            self.vpos = Vector2(self.vpos.x, game.boundary.top)
+            self.vpos = Vector(self.vpos.x, game.boundary.top)
         elif dy > 0 and self.vpos.y > game.boundary.bottom:
-            self.vpos = Vector2(self.vpos.x, game.boundary.bottom)
+            self.vpos = Vector(self.vpos.x, game.boundary.bottom)
 
     # Every class that inherits from Fighter must implement each of the following abstract methods
 
@@ -1180,7 +1180,7 @@ class Fighter(ScrollHeightActor, ABC):
         pass
 
     @abstractmethod
-    def get_move_target(self) -> Vector2:
+    def get_move_target(self) -> Vector:
         pass
 
     @abstractmethod
@@ -1194,7 +1194,7 @@ class Player(Fighter):
         super().__init__(
             pos=(400, 400),
             anchor=("center", 256),
-            speed=Vector2(3, 2),
+            speed=Vector(3, 2),
             sprite="hero",
             health=30,
             lives=3,
@@ -1215,7 +1215,7 @@ class Player(Fighter):
                 powerup.collect(self)
 
     @override
-    def draw(self, offset: Vector2) -> None:
+    def draw(self, offset: Vector) -> None:
         super().draw(offset)
         # screen.draw.text(f"{self.vpos}", (0,0))
         # screen.draw.text(f"{self.vpos}", self.pos)
@@ -1266,9 +1266,9 @@ class Player(Fighter):
     def get_opponents(self) -> list:
         return game.enemies
 
-    def get_move_target(self) -> Vector2:
+    def get_move_target(self) -> Vector:
         # Our target position is our current position offset based on control inputs and speed
-        return self.vpos + Vector2(
+        return self.vpos + Vector(
             self.controls.get_x() * self.speed.x,
             self.controls.get_y() * self.speed.y,
         )
@@ -1308,12 +1308,12 @@ class Enemy(Fighter, ABC):
         name: str,
         attacks: Any,
         start_timer: int,
-        speed: Vector2 = DEFAULT_ENEMY_SPEED,
+        speed: Vector = DEFAULT_ENEMY_SPEED,
         health: int = 15,
         stamina: int = 500,
         approach_player_distance: int = ENEMY_APPROACH_PLAYER_DISTANCE,
         anchor_y: int = 256,
-        half_hit_area: Vector2 = DEFAULT_HALF_HIT_AREA,
+        half_hit_area: Vector = DEFAULT_HALF_HIT_AREA,
         colour_variant: Any = None,
         hit_sound: Any = None,
         score: int = 10,
@@ -1332,9 +1332,9 @@ class Enemy(Fighter, ABC):
             hit_sound=hit_sound,
         )
 
-        # Target is a Vector2 instance
+        # Target is a Vector instance
         # Must make a copy of the value, not a copy of the reference
-        self.target: Vector2 = self.vpos
+        self.target: Vector = self.vpos
 
         self.target_weapon: Any = None
 
@@ -1366,7 +1366,7 @@ class Enemy(Fighter, ABC):
                     and randint(0, 500) == 0
                 ):
                     self.log("Back away from attack")
-                    self.target = Vector2(
+                    self.target = Vector(
                         self.vpos.x - self.facing_x * 90, self.target.y
                     )
                     self.state = Enemy.State.GO_TO_POS
@@ -1377,7 +1377,7 @@ class Enemy(Fighter, ABC):
                         x_offset: int = ENEMY_APPROACH_PLAYER_DISTANCE_BARREL
                     else:
                         x_offset = self.approach_player_distance
-                    self.target = Vector2(
+                    self.target = Vector(
                         player.vpos.x
                         + x_offset * sign(self.vpos.x - player.vpos.x),
                         player.vpos.y,
@@ -1426,7 +1426,7 @@ class Enemy(Fighter, ABC):
             or self.state == Enemy.State.GO_TO_WEAPON
         ):
             # Ensure that target position is within the level boundary
-            self.target = Vector2(
+            self.target = Vector(
                 min(
                     max(self.target.x, game.boundary.left),
                     game.boundary.right,
@@ -1453,7 +1453,7 @@ class Enemy(Fighter, ABC):
         super().update()
 
     @override
-    def draw(self, offset: Vector2) -> None:
+    def draw(self, offset: Vector) -> None:
         super().draw(offset)
 
         if DEBUG_SHOW_TARGET_POS:
@@ -1508,12 +1508,12 @@ class Enemy(Fighter, ABC):
     def get_opponents(self) -> list:
         return [game.player]
 
-    def get_move_target(self) -> Vector2:
+    def get_move_target(self) -> Vector:
         # Move towards player
         # Choose a location to walk to, depending on which side of the player we're on
         # We aim for a position 1 pixel above the player on the Y axis, so that we draw behind them
         # offset_x = 80 if self.vpos.x > game.player.vpos.x else -80
-        # return game.player.vpos + Vector2(offset_x, -1)
+        # return game.player.vpos + Vector(offset_x, -1)
         if self.target is None:
             # If no target, just return our current position
             return self.vpos
@@ -1579,12 +1579,12 @@ class Enemy(Fighter, ABC):
                     # we're on now (e.g. if we're below, stay below). If Y pos is same, choose Y side randomly.
                     self.log("Begin flanking (same target)")
                     self.state = Enemy.State.GO_TO_POS
-                    self.target = Vector2(
+                    self.target = Vector(
                         player.vpos.x - sign(self.vpos.x - player.vpos.x) * 50,
                         player.vpos.y + sign(self.vpos.y - player.vpos.y) * 50,
                     )
                     if self.target.y == player.vpos.y:
-                        self.target = Vector2(
+                        self.target = Vector(
                             self.target.x,
                             player.vpos.y + choice((-1, 1)) * 50,
                         )
@@ -1604,7 +1604,7 @@ class Enemy(Fighter, ABC):
                 x2: int = int(player.vpos.x + (400 * x_side))
                 x: int = randint(min(x1, x2), max(x1, x2))
                 y: int = randint(game.boundary.top, game.boundary.bottom)
-                self.target = Vector2(x, y)
+                self.target = Vector(x, y)
                 self.state = Enemy.State.GO_TO_POS
 
             else:
@@ -1633,7 +1633,7 @@ class EnemyHoodie(Enemy):
             "hoodie",
             ("hoodie_lpunch", "hoodie_rpunch", "hoodie_special"),
             health=12,
-            speed=Vector2(1.2, 1),
+            speed=Vector(1.2, 1),
             start_timer=start_timer,
             colour_variant=randint(0, 2),
             score=20,
@@ -1734,11 +1734,11 @@ class EnemyScooterboy(Enemy):
                 self.frame = 0
 
             # Move forward
-            self.target = Vector2(
+            self.target = Vector(
                 self.vpos.x + self.facing_x * self.scooter_speed,
                 self.target.y,
             )
-            self.vpos = Vector2(self.target.x, self.vpos.y)
+            self.vpos = Vector(self.target.x, self.vpos.y)
 
             # Turn around if we've gone off the edge of the screen
             # We check self.x which is the actual screen position as opposed to the position in the scrolling level
@@ -1746,15 +1746,15 @@ class EnemyScooterboy(Enemy):
                 self.facing_x < 0 and self.x < -200
             ):
                 self.facing_x = -self.facing_x
-                self.target = Vector2(self.target.x, player.vpos.y)
+                self.target = Vector(self.target.x, player.vpos.y)
 
                 # If player is standing, move to the same Y position as player, otherwise choose a random Y position
                 # which is not close to the player Y position (to avoid player getting stunlocked)
                 if game.player.falling_state == Fighter.FallingState.STANDING:
-                    self.vpos = Vector2(self.vpos.x, self.target.y)
+                    self.vpos = Vector(self.vpos.x, self.target.y)
                 else:
                     while abs(self.vpos.y - self.target.y) < 40:
-                        self.vpos = Vector2(
+                        self.vpos = Vector(
                             self.vpos.x, randint(MIN_WALK_Y, HEIGHT - 1)
                         )
 
@@ -1815,12 +1815,12 @@ class EnemyBoss(Enemy):
                 "boss_kick",
                 "boss_grab_player",
             ),
-            speed=Vector2(0.9, 0.8),
+            speed=Vector(0.9, 0.8),
             health=25,
             stamina=1000,
             start_timer=start_timer,
             anchor_y=280,
-            half_hit_area=Vector2(30, 20),
+            half_hit_area=Vector(30, 20),
             colour_variant=randint(0, 2),
             score=75,
         )
@@ -1881,7 +1881,7 @@ class EnemyPortal(Enemy):
             (),
             start_timer=start_timer,
             anchor_y=340,
-            half_hit_area=Vector2(50, 50),
+            half_hit_area=Vector(50, 50),
             hit_sound="portal_hit",
         )
         self.enemies: Any = enemies
@@ -2000,7 +2000,7 @@ class Scooter(ScrollHeightActor):
 
     def update(self) -> None:
         self.frame += 1
-        self.vpos = Vector2(self.vpos.x + self.vel_x, self.vpos.y)
+        self.vpos = Vector(self.vpos.x + self.vel_x, self.vpos.y)
         self.vel_x *= 0.94
         facing_id: int = 1 if self.facing_x > 0 else 0
         self.image: str = f"scooterboy_bike_{facing_id}_{min(self.frame // 30, 2)}_{self.colour_variant}"
@@ -2029,7 +2029,7 @@ class Weapon(ScrollHeightActor):
         self.name: str = name
         self.end_pickup_frame: int = end_pickup_frame
         self.held: bool = False
-        self.vel: Vector2 = Vector2(0, 0)
+        self.vel: Vector = Vector(0, 0)
         self.bounciness: float = bounciness
         self.ground_friction: float = ground_friction
         self.air_friction: float = air_friction
@@ -2039,7 +2039,7 @@ class Weapon(ScrollHeightActor):
             # If not held, check whether we're above the ground, or if we're moving
             if self.height_above_ground > 0 or self.vel.y != 0:
                 # Fall to ground
-                self.vel = Vector2(self.vel.x, self.vel.y + WEAPON_GRAVITY)
+                self.vel = Vector(self.vel.x, self.vel.y + WEAPON_GRAVITY)
                 if self.vel.y > self.height_above_ground:
                     # Bounce if we have bounciness, but stop bouncing if Y velocity is low
                     if self.bounciness > 0 and self.vel.y > 1:
@@ -2048,20 +2048,20 @@ class Weapon(ScrollHeightActor):
                             abs(self.height_above_ground - self.vel.y)
                             * self.bounciness
                         )
-                        self.vel = Vector2(
+                        self.vel = Vector(
                             self.vel.x, -self.vel.y * self.bounciness
                         )
                         # print(f"{self.vel.y=}, {self.height_above_ground=}")
                     else:
                         self.height_above_ground = 0
-                        self.vel = Vector2(self.vel.x, 0)
+                        self.vel = Vector(self.vel.x, 0)
                 else:
                     # Didn't bounce - apply velocity to Y pos
                     self.height_above_ground -= self.vel.y
 
                 assert self.height_above_ground >= 0
 
-            self.vpos = Vector2(self.vpos.x + self.vel.x, self.vpos.y)
+            self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)
 
             # Friction on X axis, varies depending on whether we're on the ground or in the air
             friction: float = (
@@ -2069,9 +2069,9 @@ class Weapon(ScrollHeightActor):
                 if self.height_above_ground == 0
                 else self.air_friction
             )
-            self.vel = Vector2(self.vel.x * friction, self.vel.y)
+            self.vel = Vector(self.vel.x * friction, self.vel.y)
             if abs(self.vel.x) < 0.05:
-                self.vel = Vector2(0, self.vel.y)
+                self.vel = Vector(0, self.vel.y)
 
     def can_be_picked_up(self) -> bool:
         return not self.held and self.height_above_ground == 0
@@ -2080,7 +2080,7 @@ class Weapon(ScrollHeightActor):
         assert not self.held
         self.held = True
         self.height_above_ground = hold_height  # for when we are dropped
-        self.vel = Vector2(0, 0)
+        self.vel = Vector(0, 0)
         self.image: str = "blank"
 
     def dropped(self) -> None:
@@ -2154,11 +2154,11 @@ class Barrel(Weapon):
 
     def throw(self, dir_x: int, thrower: Any) -> None:
         self.dropped()
-        self.vel = Vector2(dir_x * BARREL_THROW_VEL_X, BARREL_THROW_VEL_Y)
+        self.vel = Vector(dir_x * BARREL_THROW_VEL_X, BARREL_THROW_VEL_Y)
         self.last_thrower = thrower
 
         # Shift position for throw animation
-        self.vpos = Vector2(self.vpos.x + dir_x * 104, self.vpos.y)
+        self.vpos = Vector(self.vpos.x + dir_x * 104, self.vpos.y)
         # self.height_above_ground += 54
 
     @override
@@ -2754,7 +2754,7 @@ class Game:
         self.timer: int = 0
         self.score: int = 0
 
-        self.scroll_offset: Vector2 = Vector2(0, 0)
+        self.scroll_offset: Vector = Vector(0, 0)
         self.max_scroll_offset_x: int = 0
         self.scrolling: bool = False
 
@@ -2886,7 +2886,7 @@ class Game:
                 # Scroll at 1-4px per frame depending on player's distance from right edge
                 scroll_speed = self.player.x / (WIDTH / 4)
                 scroll_speed = min(diff, scroll_speed)
-                self.scroll_offset = Vector2(
+                self.scroll_offset = Vector(
                     self.scroll_offset.x + scroll_speed, self.scroll_offset.y
                 )
                 # ``Rect.left``'s setter takes a float; ``scroll_offset.x`` is a
@@ -3074,8 +3074,8 @@ class Game:
         # Set initial position for background tiles
         # Due to isometric nature of background, each background tile includes a transparent part - the second line
         # skips that part for the first tile
-        pos: Vector2 = -self.scroll_offset
-        pos = Vector2(pos.x - BACKGROUND_TILE_SPACING, pos.y)
+        pos: Vector = -self.scroll_offset
+        pos = Vector(pos.x - BACKGROUND_TILE_SPACING, pos.y)
 
         # Draw background tiles
         p = Profiler()
@@ -3083,12 +3083,12 @@ class Game:
             # Don't bother drawing tile if it's off the left of the screen
             if pos.x + 417 >= 0:
                 screen.blit(tile, pos)
-                pos = Vector2(pos.x + BACKGROUND_TILE_SPACING, pos.y)
+                pos = Vector(pos.x + BACKGROUND_TILE_SPACING, pos.y)
                 if pos.x >= WIDTH:
                     # Stop once we've reached or gone past the right edge of the screen
                     break
             else:
-                pos = Vector2(pos.x + BACKGROUND_TILE_SPACING, pos.y)
+                pos = Vector(pos.x + BACKGROUND_TILE_SPACING, pos.y)
         if DEBUG_PROFILING:
             print("bg " + str(p.get_ms()))
 

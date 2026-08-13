@@ -20,10 +20,11 @@ import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from gacalc.g3 import Vector
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-from modelviewprojection.mathutils import Vector3, plane_equation
+from modelviewprojection.mathutils import plane_equation
 
 PWD = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
@@ -66,7 +67,7 @@ def make_planar_shadow_matrix(
     before perspective divide and the shadow disappears; negate the
     matrix when needed. See tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md."""
     p1, p2, p3 = plane_pts
-    pn, pd = plane_equation(Vector3(*p1), Vector3(*p2), Vector3(*p3))
+    pn, pd = plane_equation(Vector(*p1), Vector(*p2), Vector(*p3))
     a, b, c, d = pn.coeff_e_1, pn.coeff_e_2, pn.coeff_e_3, pd
     dx, dy, dz = -light_pos[0], -light_pos[1], -light_pos[2]
     s = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0

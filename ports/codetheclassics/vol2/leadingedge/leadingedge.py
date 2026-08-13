@@ -32,8 +32,8 @@ from enum import Enum
 from random import choice, randint, uniform
 from typing import Any, Optional, cast, override
 
-from gacalc.g2 import Vector2
-from gacalc.g3 import Vector3
+import gacalc.g2 as g2
+import gacalc.g3 as g3
 
 from modelviewprojection.pgzero_gl import draw as gldraw
 from modelviewprojection.pgzero_gl import (
@@ -55,14 +55,14 @@ from modelviewprojection.pgzero_gl import (
 # game moves cars along X (steering) and Z (forward motion) independently, so
 # the two single-coordinate replacements below are spelled once here instead of
 # repeating the three-argument constructor at every one of their ~11 call sites.
-def with_x(vector: Vector3, x: float) -> Vector3:
+def with_x(vector: g3.Vector, x: float) -> g3.Vector:
     """Return ``vector`` with its x coordinate replaced by ``x``."""
-    return Vector3(x, vector.y, vector.z)
+    return g3.Vector(x, vector.y, vector.z)
 
 
-def with_z(vector: Vector3, z: float) -> Vector3:
+def with_z(vector: g3.Vector, z: float) -> g3.Vector:
     """Return ``vector`` with its z coordinate replaced by ``z``."""
-    return Vector3(vector.x, vector.y, z)
+    return g3.Vector(vector.x, vector.y, z)
 
 
 # If the game window doesn't fit on the screen, you may need to turn off or reduce display scaling in the Windows/macOS settings
@@ -515,7 +515,7 @@ class TrackPieceStartLine(TrackPiece):
 
 @dataclass(eq=False)
 class Car:
-    pos: Vector3
+    pos: g3.Vector
     car_letter: str
     speed: float = 0
     grip: float = 1
@@ -560,7 +560,7 @@ class Car:
 # inherited fields into the subclass __init__ signature (see task doc rule 3);
 # also the car letter is chosen randomly for the super() call.
 class CPUCar(Car):
-    def __init__(self, pos: Vector3, accel: float, speed: float) -> None:
+    def __init__(self, pos: g3.Vector, accel: float, speed: float) -> None:
         super().__init__(pos, choice(("b", "c", "d", "e")))
 
         # CPU cars accelerate faster than player but have a lower top speed
@@ -641,9 +641,9 @@ class CPUCar(Car):
 
 # Not a dataclass: same rule-3 reason as CPUCar (Car is a dataclass base).
 class PlayerCar(Car):
-    def __init__(self, pos: Vector3, controls: Controls) -> None:
+    def __init__(self, pos: g3.Vector, controls: Controls) -> None:
         super().__init__(pos, "a")
-        self.pos: Vector3 = pos
+        self.pos: g3.Vector = pos
         self.controls: Controls = controls
         self.offset_x_change: float = 0
         self.resetting: bool = False
@@ -809,7 +809,7 @@ class PlayerCar(Car):
                     # so we can't do a normal distance calculation.
                     # Instead we just check X and Z differences separately (Y is irrelevant as cars are always
                     # on the ground)
-                    vec: Vector3 = self.pos - car.pos
+                    vec: g3.Vector = self.pos - car.pos
                     collide_front_distance_z: float = 0.6
                     collide_back_distance_z: float = 1.2
                     if (
@@ -1325,10 +1325,12 @@ class Game:
 
         self.setup_cars(controls)
 
-        self.camera: Vector3 = Vector3(0, 400, 0)
+        self.camera: g3.Vector = g3.Vector(0, 400, 0)
 
         self.background: Any = images.background
-        self.bg_offset: Vector2 = Vector2(-self.background.get_width() // 2, 30)
+        self.bg_offset: g2.Vector = g2.Vector(
+            -self.background.get_width() // 2, 30
+        )
 
         self.first_frame: bool = True
         self.on_screen_debug_strs: list[str] = []
@@ -1351,7 +1353,7 @@ class Game:
             x: int = -400 if i % 2 == 0 else 400
             if i == 0 and controls is not None:
                 # Don't create player car on title screen
-                self.player_car = PlayerCar(Vector3(x, 0, z), controls)
+                self.player_car = PlayerCar(g3.Vector(x, 0, z), controls)
                 self.cars.append(self.player_car)
             else:
                 target_speed: float = remap(
@@ -1363,7 +1365,7 @@ class Game:
                 )
                 accel: float = remap(i, 0, NUM_CARS - 1, 1.5, 2)
                 self.cars.append(
-                    CPUCar(Vector3(x, 0, z), speed=target_speed, accel=accel)
+                    CPUCar(g3.Vector(x, 0, z), speed=target_speed, accel=accel)
                 )
 
         if self.player_car is not None:
@@ -1425,7 +1427,7 @@ class Game:
             self.cars.sort(key=lambda car: car.pos.z)
 
         # Update camera position to follow player car
-        self.camera = Vector3(
+        self.camera = g3.Vector(
             self.camera_follow_car.pos.x,
             self.camera.y,
             self.camera_follow_car.pos.z + CAMERA_FOLLOW_DISTANCE,
@@ -1471,7 +1473,7 @@ class Game:
         # Ignore if camera moved backwards (debug camera only), or the camera is before the start of the track
         # Don't do this on first frame, as camera won't have its correct initial Z position at the beginning of the frame
         distance: float = old_camera_z - new_camera_z
-        offset_change: Vector2 = Vector2(0, 0)
+        offset_change: g2.Vector = g2.Vector(0, 0)
         if (
             distance > 0
             and not self.first_frame
@@ -1507,9 +1509,9 @@ class Game:
                 assert 0 <= fraction_first <= 1 and 0 <= fraction_last <= 1
 
                 offset_change = (
-                    Vector2(prev_track.offset_x, prev_track.offset_y)
+                    g2.Vector(prev_track.offset_x, prev_track.offset_y)
                     * fraction_first
-                    + Vector2(new_track.offset_x, new_track.offset_y)
+                    + g2.Vector(new_track.offset_x, new_track.offset_y)
                     * fraction_last
                 )
 
@@ -1519,14 +1521,17 @@ class Game:
                 if new_ahead - prev_ahead > 1:
                     for i in range(prev_ahead + 1, new_ahead):
                         piece: TrackPiece = self.track[i]
-                        offset_change += Vector2(piece.offset_x, piece.offset_y)
+                        offset_change += g2.Vector(
+                            piece.offset_x, piece.offset_y
+                        )
 
             else:
                 # Movement was just within one track piece
                 fraction: float = distance / SPACING
                 assert 0 <= fraction <= 1
                 offset_change = (
-                    Vector2(prev_track.offset_x, prev_track.offset_y) * fraction
+                    g2.Vector(prev_track.offset_x, prev_track.offset_y)
+                    * fraction
                 )
 
             # Shift background by the calculated offset
@@ -1534,12 +1539,12 @@ class Game:
 
             # Keep bg_offset.x within the range -backgroundwidth to +backgroundwidth
             while self.bg_offset.x < -self.background.get_width():
-                self.bg_offset = Vector2(
+                self.bg_offset = g2.Vector(
                     self.bg_offset.x + self.background.get_width(),
                     self.bg_offset.y,
                 )
             while self.bg_offset.x > self.background.get_width():
-                self.bg_offset = Vector2(
+                self.bg_offset = g2.Vector(
                     self.bg_offset.x - self.background.get_width(),
                     self.bg_offset.y,
                 )
@@ -1553,7 +1558,7 @@ class Game:
         # This deals with moving the background when the camera is moving backwards, which will only happen if the
         # player uses the down arrow key debug mode
         if new_ahead < prev_ahead:
-            self.bg_offset = Vector2(
+            self.bg_offset = g2.Vector(
                 self.bg_offset.x - self.track[prev_ahead].offset_x,
                 self.bg_offset.y - self.track[prev_ahead].offset_y,
             )
@@ -1585,30 +1590,30 @@ class Game:
         if self.bg_offset.x > 0:
             screen.blit(
                 self.background,
-                self.bg_offset - Vector2(self.background.get_width(), 0),
+                self.bg_offset - g2.Vector(self.background.get_width(), 0),
             )
         if self.bg_offset.x + self.background.get_width() < WIDTH:
             screen.blit(
                 self.background,
-                self.bg_offset + Vector2(self.background.get_width(), 0),
+                self.bg_offset + g2.Vector(self.background.get_width(), 0),
             )
         times["bg"] = profile_bg.get_ms()
 
         def transform(
-            point_v3: Vector3,
+            point_v3: g3.Vector,
             w: Optional[float] = None,
             h: Optional[float] = None,
             clipping_plane: float = CLIPPING_PLANE,
         ) -> Any:
-            # This local function receives a point as a Vector3 and transforms it into a Vector2 point in screen space
+            # This local function receives a point as a g3.Vector and transforms it into a g2.Vector point in screen space
             # When called for a car or scenery item, w and h are specified, referring to the size of the original
             # sprite, so it also calculates and returns the scaled width and height, based on the distance from the camera
-            newpoint: Vector3 = point_v3 - self.camera
+            newpoint: g3.Vector = point_v3 - self.camera
             if newpoint.z > clipping_plane:
                 return None if w is None else (None, None, None)
 
             # Apply perspective and centre on the screen
-            point_v2: Vector2 = Vector2(
+            point_v2: g2.Vector = g2.Vector(
                 (newpoint.x / newpoint.z) + HALF_WIDTH,
                 (newpoint.y / newpoint.z) + HALF_HEIGHT,
             )
@@ -1622,8 +1627,8 @@ class Game:
 
         # offset and offset_delta keep track of the cumulative changes in track offsets (X and Y - Z remains as 0), so
         # that each track piece is drawn in the correct position
-        offset: Vector3 = Vector3(0, 0, 0)
-        offset_delta: Vector3 = Vector3(0, 0, 0)
+        offset: g3.Vector = g3.Vector(0, 0, 0)
+        offset_delta: g3.Vector = g3.Vector(0, 0, 0)
 
         # Tuples of pairs of Vector2s storing screen positions of left and right edges of the track, central
         # stripes and left/right rumble strips. We remember them so they don't need to be recalculated when joining up
@@ -1680,8 +1685,12 @@ class Game:
 
             # Because the camera is pointing down the negative Z axis, negative/positive X mean right/left from
             # camera's perspective
-            left: Vector3 = Vector3(track_piece.width / 2, 0, current_piece_z)
-            right: Vector3 = Vector3(-track_piece.width / 2, 0, current_piece_z)
+            left: g3.Vector = g3.Vector(
+                track_piece.width / 2, 0, current_piece_z
+            )
+            right: g3.Vector = g3.Vector(
+                -track_piece.width / 2, 0, current_piece_z
+            )
 
             # Interpolate for X offset between first and next track piece. Without this, going around corners would
             # look very juddery
@@ -1696,13 +1705,13 @@ class Game:
                     current_piece_z,
                     adjusted_camera_z,
                 )
-                offset_delta = Vector3(
+                offset_delta = g3.Vector(
                     fraction * track_piece.offset_x,
                     fraction * track_piece.offset_y,
                     0,
                 )
             else:
-                offset_delta += Vector3(
+                offset_delta += g3.Vector(
                     track_piece.offset_x, track_piece.offset_y, 0
                 )
 
@@ -1720,21 +1729,21 @@ class Game:
             # Calculate screen pos of central stripe
             # Always work out stripe points even for pieces which don't need them, because the next track piece may
             # make use of the calculated points to connect up to
-            stripe_left: Vector3 = (
-                Vector3(HALF_STRIPE_W, 0, current_piece_z) + offset
+            stripe_left: g3.Vector = (
+                g3.Vector(HALF_STRIPE_W, 0, current_piece_z) + offset
             )
-            stripe_right: Vector3 = (
-                Vector3(-HALF_STRIPE_W, 0, current_piece_z) + offset
+            stripe_right: g3.Vector = (
+                g3.Vector(-HALF_STRIPE_W, 0, current_piece_z) + offset
             )
             stripe_left_screen = transform(stripe_left)
             stripe_right_screen = transform(stripe_right)
 
             # Calculate screen pos of outer parts of left/right rumble strips (can just use left/right track positions
             # for inner part that touches track)
-            rumble_strip_left_outer: Vector3 = left + Vector3(
+            rumble_strip_left_outer: g3.Vector = left + g3.Vector(
                 HALF_RUMBLE_STRIP_W, 0, 0
             )
-            rumble_strip_right_outer: Vector3 = right - Vector3(
+            rumble_strip_right_outer: g3.Vector = right - g3.Vector(
                 HALF_RUMBLE_STRIP_W, 0, 0
             )
             rumble_strip_left_outer_screen = transform(rumble_strip_left_outer)
@@ -1743,17 +1752,17 @@ class Game:
             )
 
             # Calculate screen pos of left and right yellow lines, which are just inside the outer edges of the track
-            yellow_line_left_outer: Vector3 = left - Vector3(
+            yellow_line_left_outer: g3.Vector = left - g3.Vector(
                 YELLOW_LINE_DISTANCE_FROM_EDGE, 0, 0
             )
-            yellow_line_left_inner: Vector3 = yellow_line_left_outer - Vector3(
-                HALF_YELLOW_LINE_W, 0, 0
+            yellow_line_left_inner: g3.Vector = (
+                yellow_line_left_outer - g3.Vector(HALF_YELLOW_LINE_W, 0, 0)
             )
-            yellow_line_right_outer: Vector3 = right + Vector3(
+            yellow_line_right_outer: g3.Vector = right + g3.Vector(
                 YELLOW_LINE_DISTANCE_FROM_EDGE, 0, 0
             )
-            yellow_line_right_inner: Vector3 = (
-                yellow_line_right_outer + Vector3(HALF_YELLOW_LINE_W, 0, 0)
+            yellow_line_right_inner: g3.Vector = (
+                yellow_line_right_outer + g3.Vector(HALF_YELLOW_LINE_W, 0, 0)
             )
             yellow_line_left_outer_screen = transform(yellow_line_left_outer)
             yellow_line_left_inner_screen = transform(yellow_line_left_inner)
@@ -1946,8 +1955,8 @@ class Game:
             if SHOW_SCENERY:
                 for obj in track_piece.scenery:
                     if track_ahead_i * SPACING < obj.max_draw_distance:
-                        pos_v3: Vector3 = (
-                            Vector3(obj.x, 0, current_piece_z) + offset
+                        pos_v3: g3.Vector = (
+                            g3.Vector(obj.x, 0, current_piece_z) + offset
                         )
                         if (
                             self.camera.z - current_piece_z
@@ -1966,7 +1975,7 @@ class Game:
                                 and scaled_w < MAX_SCENERY_SCALED_WIDTH
                             ):
                                 # Anchor point at bottom
-                                pos -= Vector2(scaled_w // 2, scaled_h)
+                                pos -= g2.Vector(scaled_w // 2, scaled_h)
                                 try:
                                     profile_scale: Profiler = Profiler()
                                     scaled = SCALE_FUNC(
@@ -1997,7 +2006,7 @@ class Game:
                 # Each car needs to be drawn during the track piece it is on, but with an additional offset interpolated
                 # towards the next track piece, so that it starts turning a corner as it reaches the piece
                 # Also, the order of  drawing needs to be correct if there is more than one car per track piece
-                car_offset: Vector3 = offset
+                car_offset: g3.Vector = offset
                 if car.pos.z % SPACING != 0:
                     # Interpolate offset between this and next track piece
                     # Note that "Interpolate for X offset between first and next track piece"
@@ -2010,7 +2019,7 @@ class Game:
                         float(car.pos.z),
                     )
                     next_track_piece: TrackPiece = self.track[i + 1]
-                    car_offset += Vector3(
+                    car_offset += g3.Vector(
                         fraction * next_track_piece.offset_x,
                         fraction * next_track_piece.offset_y,
                         -fraction * SPACING,
@@ -2025,9 +2034,9 @@ class Game:
                 # (For Y offset, you can achieve an interesting effect by changing 0 to -car_offset.y / 2, but
                 # it is a bit glitchy sometimes so we've left it at zero)
                 if car is self.camera_follow_car:
-                    car_offset = Vector3(0, 0, car_offset.z)
+                    car_offset = g3.Vector(0, 0, car_offset.z)
 
-                pos_v3 = Vector3(car.pos.x, 0, current_piece_z) + car_offset
+                pos_v3 = g3.Vector(car.pos.x, 0, current_piece_z) + car_offset
                 scale: int = 2
 
                 # For CPU cars, choose the sprite to use based on the car's angle in relation to the camera
@@ -2064,7 +2073,7 @@ class Game:
 
                 if pos is not None and scaled_w < MAX_CAR_SCALED_WIDTH:
                     # Anchor point at bottom, centre
-                    pos -= Vector2(scaled_w // 2, scaled_h)
+                    pos -= g2.Vector(scaled_w // 2, scaled_h)
                     profile_scale = Profiler()
                     scaled = SCALE_FUNC(img, (int(scaled_w), int(scaled_h)))
                     times["car_scale"] += profile_scale.get_ms()
@@ -2218,7 +2227,7 @@ class Game:
             print(self.frame_counter, times)
 
             # test drawing a very large polygon
-            # gldraw.polygon(screen.surface, (255,0,0), (Vector2(-4000,test), Vector2(WIDTH*4,test), Vector2(0,test+500)))
+            # gldraw.polygon(screen.surface, (255,0,0), (g2.Vector(-4000,test), g2.Vector(WIDTH*4,test), g2.Vector(0,test+500)))
 
     # Returns index of track piece at the specified Z position, or None if the specified position is off the end
     # of the track

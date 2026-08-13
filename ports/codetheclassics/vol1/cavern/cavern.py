@@ -20,7 +20,7 @@ from enum import Enum, IntEnum
 from random import choice, randint, random, shuffle
 from typing import Any, ClassVar, Optional, cast, override
 
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector
 
 from modelviewprojection.pgzero_gl import (
     Actor,
@@ -140,7 +140,7 @@ def sign(x: float) -> int:
 class CollideActor(Actor):
     def __init__(
         self,
-        pos: tuple[float, float] | Vector2,
+        pos: tuple[float, float] | Vector,
         anchor: tuple[str, str] = ANCHOR_CENTRE,
     ) -> None:
         super().__init__("blank", pos, anchor)
@@ -194,7 +194,7 @@ class Orb(CollideActor):
 
     # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
     # would treat the property object as this field's default value
-    spawn_pos: InitVar[tuple[float, float] | Vector2]
+    spawn_pos: InitVar[tuple[float, float] | Vector]
     # Orbs are initially blown horizontally, then start floating upwards
     direction_x: int
     floating: bool = False
@@ -206,7 +206,7 @@ class Orb(CollideActor):
         6  # Number of frames during which we will be pushed horizontally
     )
 
-    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector) -> None:
         super().__init__(spawn_pos)
 
     def hit_test(self, bolt: "Bolt") -> bool:
@@ -259,11 +259,11 @@ class Bolt(CollideActor):
 
     # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
     # would treat the property object as this field's default value
-    spawn_pos: InitVar[tuple[float, float] | Vector2]
+    spawn_pos: InitVar[tuple[float, float] | Vector]
     direction_x: int
     active: bool = True
 
-    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector) -> None:
         super().__init__(spawn_pos)
 
     def update(self) -> None:
@@ -287,11 +287,11 @@ class Bolt(CollideActor):
 class Pop(Actor):
     # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
     # would treat the property object as this field's default value
-    spawn_pos: InitVar[tuple[float, float] | Vector2]
+    spawn_pos: InitVar[tuple[float, float] | Vector]
     type: int
     timer: int = -1
 
-    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector) -> None:
         super().__init__("blank", spawn_pos)
 
     def update(self) -> None:
@@ -302,7 +302,7 @@ class Pop(Actor):
 class GravityActor(CollideActor):
     MAX_FALL_SPEED: int = 10
 
-    def __init__(self, pos: tuple[float, float] | Vector2) -> None:
+    def __init__(self, pos: tuple[float, float] | Vector) -> None:
         super().__init__(pos, ANCHOR_CENTRE_BOTTOM)
 
         self.vel_y: int = 0
@@ -344,7 +344,7 @@ class Fruit(GravityActor):
         EXTRA_LIFE = 4
 
     def __init__(
-        self, pos: tuple[float, float] | Vector2, trapped_enemy_type: int = 0
+        self, pos: tuple[float, float] | Vector, trapped_enemy_type: int = 0
     ) -> None:
         super().__init__(pos)
 
@@ -536,14 +536,14 @@ class Robot(GravityActor):
 
     # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
     # would treat the property object as this field's default value
-    spawn_pos: InitVar[tuple[float, float] | Vector2]
+    spawn_pos: InitVar[tuple[float, float] | Vector]
     type: int
     direction_x: int = 1
     alive: bool = True
     change_dir_timer: int = 0
     fire_timer: int = 100
 
-    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector) -> None:
         super().__init__(spawn_pos)
         self.speed: int = randint(1, 3)
 
@@ -602,7 +602,7 @@ class Robot(GravityActor):
             #  Once the fire timer has been set to 0, it will count up - frame 8 of the animation is when the actual bolt is fired
             game.bolts.append(
                 Bolt(
-                    self.pos + Vector2(self.direction_x * 20, -38),
+                    self.pos + Vector(self.direction_x * 20, -38),
                     self.direction_x,
                 )
             )

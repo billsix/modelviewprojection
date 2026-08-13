@@ -488,8 +488,8 @@ tests listed after.
 
 .. literalinclude:: _gacalc_src/g2.py
    :language: python
-   :start-after: doc-region-begin Vector2 __add__ method
-   :end-before: doc-region-end Vector2 __add__ method
+   :start-after: doc-region-begin Vector __add__ method
+   :end-before: doc-region-end Vector __add__ method
    :linenos:
    :lineno-match:
    :caption: gacalc/g2.py
@@ -501,8 +501,8 @@ method.
 
 .. literalinclude:: _gacalc_src/g2.py
    :language: python
-   :start-after: doc-region-begin Vector2 __sub__ method
-   :end-before: doc-region-end Vector2 __sub__ method
+   :start-after: doc-region-begin Vector __sub__ method
+   :end-before: doc-region-end Vector __sub__ method
    :linenos:
    :lineno-match:
    :caption: gacalc/g2.py
@@ -642,8 +642,8 @@ that this object is on the right hand side of the multiplication.
 
 .. literalinclude:: _gacalc_src/g2.py
    :language: python
-   :start-after: doc-region-begin Vector2 __mul__ method
-   :end-before: doc-region-end Vector2 __mul__ method
+   :start-after: doc-region-begin Vector __mul__ method
+   :end-before: doc-region-end Vector __mul__ method
    :linenos:
    :lineno-match:
    :caption: gacalc/g2.py

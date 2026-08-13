@@ -54,7 +54,7 @@ import IPython.display
 import matplotlib
 import moviepy
 import numpy as np
-from gacalc.g2 import Vector2, e_1, e_2
+from gacalc.g2 import Vector, e_1, e_2
 from gacalc.transforms import (
     InvertibleFunction,
     compose,
@@ -71,7 +71,7 @@ matplotlib.rcParams["axes.formatter.use_mathtext"] = True
 
 e_1 = e_1
 e_2 = e_2
-zero = Vector2.zero()
+zero = Vector.zero()
 
 
 # %% [markdown]
@@ -127,7 +127,7 @@ fake_fb.show_framebuffer()
 # by Shirley and Marshner, page 60
 
 # %%
-ndc_to_screen: InvertibleFunction[Vector2] = compose(
+ndc_to_screen: InvertibleFunction[Vector] = compose(
     [
         translate(b=-0.5 * e_1 + -0.5 * e_2),
         scale_non_uniform(fake_fb.width, fake_fb.height),
@@ -145,7 +145,7 @@ ndc_to_screen: InvertibleFunction[Vector2] = compose(
 # %%
 # Example: draw a white triangle
 
-triangle_in_ndc: list[Vector2] = [
+triangle_in_ndc: list[Vector] = [
     zero,
     0.2 * e_1,
     0.2 * e_1 + 0.2 * e_2,
@@ -158,7 +158,7 @@ triangle_in_ndc: list[Vector2] = [
 # For each vector, apply the function
 
 # %%
-triangle_in_screen: list[Vector2] = [ndc_to_screen(x) for x in triangle_in_ndc]
+triangle_in_screen: list[Vector] = [ndc_to_screen(x) for x in triangle_in_ndc]
 print(triangle_in_screen)
 
 # %%
@@ -201,7 +201,7 @@ sixty_fps_times_2_sec = 120
 # Create 10 frames with simple animation
 for i in range(sixty_fps_times_2_sec):
     fake_fb.clear_framebuffer()
-    move: InvertibleFunction[Vector2] = translate(
+    move: InvertibleFunction[Vector] = translate(
         b=0.5 * (np.sin(np.pi / 60.0 * float(i))) * e_2
     )
 

@@ -15,11 +15,11 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GLU as GLU
+from gacalc.g3 import Vector
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import (
-    Vector3,
     find_normal,
     plane_equation,
 )
@@ -49,7 +49,7 @@ SPHERE_LIGHT = _primitives.build_sphere(5.0, 10, 10)
 
 
 def make_planar_shadow_matrix(
-    plane_normal: Vector3,
+    plane_normal: Vector,
     plane_d: float,
     light_pos_4: "tuple[float, float, float, float]",
 ) -> "np.ndarray":
@@ -95,7 +95,7 @@ def make_planar_shadow_matrix(
     )
 
 
-def _emit_face(p1: Vector3, p2: Vector3, p3: Vector3) -> None:
+def _emit_face(p1: Vector, p2: Vector, p3: Vector) -> None:
     n = find_normal(p1, p2, p3)
     GL.glNormal3f(n.coeff_e_1, n.coeff_e_2, n.coeff_e_3)
     GL.glVertex3f(p1.coeff_e_1, p1.coeff_e_2, p1.coeff_e_3)
@@ -117,25 +117,25 @@ def draw_jet(n_shadow: int) -> None:
     GL.glVertex3f(15.0, 0.0, 30.0)
 
     _emit_face(
-        Vector3(15.0, 0.0, 30.0),
-        Vector3(0.0, 15.0, 30.0),
-        Vector3(0.0, 0.0, 60.0),
+        Vector(15.0, 0.0, 30.0),
+        Vector(0.0, 15.0, 30.0),
+        Vector(0.0, 0.0, 60.0),
     )
     _emit_face(
-        Vector3(0.0, 0.0, 60.0),
-        Vector3(0.0, 15.0, 30.0),
-        Vector3(-15.0, 0.0, 30.0),
+        Vector(0.0, 0.0, 60.0),
+        Vector(0.0, 15.0, 30.0),
+        Vector(-15.0, 0.0, 30.0),
     )
 
     _emit_face(
-        Vector3(-15.0, 0.0, 30.0),
-        Vector3(0.0, 15.0, 30.0),
-        Vector3(0.0, 0.0, -56.0),
+        Vector(-15.0, 0.0, 30.0),
+        Vector(0.0, 15.0, 30.0),
+        Vector(0.0, 0.0, -56.0),
     )
     _emit_face(
-        Vector3(0.0, 0.0, -56.0),
-        Vector3(0.0, 15.0, 30.0),
-        Vector3(15.0, 0.0, 30.0),
+        Vector(0.0, 0.0, -56.0),
+        Vector(0.0, 15.0, 30.0),
+        Vector(15.0, 0.0, 30.0),
     )
 
     GL.glNormal3f(0.0, -1.0, 0.0)
@@ -144,24 +144,24 @@ def draw_jet(n_shadow: int) -> None:
     GL.glVertex3f(0.0, 0.0, -56.0)
 
     _emit_face(
-        Vector3(0.0, 2.0, 27.0),
-        Vector3(-60.0, 2.0, -8.0),
-        Vector3(60.0, 2.0, -8.0),
+        Vector(0.0, 2.0, 27.0),
+        Vector(-60.0, 2.0, -8.0),
+        Vector(60.0, 2.0, -8.0),
     )
     _emit_face(
-        Vector3(60.0, 2.0, -8.0),
-        Vector3(0.0, 7.0, -8.0),
-        Vector3(0.0, 2.0, 27.0),
+        Vector(60.0, 2.0, -8.0),
+        Vector(0.0, 7.0, -8.0),
+        Vector(0.0, 2.0, 27.0),
     )
     _emit_face(
-        Vector3(60.0, 2.0, -8.0),
-        Vector3(-60.0, 2.0, -8.0),
-        Vector3(0.0, 7.0, -8.0),
+        Vector(60.0, 2.0, -8.0),
+        Vector(-60.0, 2.0, -8.0),
+        Vector(0.0, 7.0, -8.0),
     )
     _emit_face(
-        Vector3(0.0, 2.0, 27.0),
-        Vector3(0.0, 7.0, -8.0),
-        Vector3(-60.0, 2.0, -8.0),
+        Vector(0.0, 2.0, 27.0),
+        Vector(0.0, 7.0, -8.0),
+        Vector(-60.0, 2.0, -8.0),
     )
 
     GL.glNormal3f(0.0, -1.0, 0.0)
@@ -170,35 +170,35 @@ def draw_jet(n_shadow: int) -> None:
     GL.glVertex3f(0.0, -0.50, -40.0)
 
     _emit_face(
-        Vector3(0.0, -0.5, -40.0),
-        Vector3(30.0, -0.5, -57.0),
-        Vector3(0.0, 4.0, -57.0),
+        Vector(0.0, -0.5, -40.0),
+        Vector(30.0, -0.5, -57.0),
+        Vector(0.0, 4.0, -57.0),
     )
     _emit_face(
-        Vector3(0.0, 4.0, -57.0),
-        Vector3(-30.0, -0.5, -57.0),
-        Vector3(0.0, -0.5, -40.0),
+        Vector(0.0, 4.0, -57.0),
+        Vector(-30.0, -0.5, -57.0),
+        Vector(0.0, -0.5, -40.0),
     )
     _emit_face(
-        Vector3(30.0, -0.5, -57.0),
-        Vector3(-30.0, -0.5, -57.0),
-        Vector3(0.0, 4.0, -57.0),
+        Vector(30.0, -0.5, -57.0),
+        Vector(-30.0, -0.5, -57.0),
+        Vector(0.0, 4.0, -57.0),
     )
 
     _emit_face(
-        Vector3(0.0, 0.5, -40.0),
-        Vector3(3.0, 0.5, -57.0),
-        Vector3(0.0, 25.0, -65.0),
+        Vector(0.0, 0.5, -40.0),
+        Vector(3.0, 0.5, -57.0),
+        Vector(0.0, 25.0, -65.0),
     )
     _emit_face(
-        Vector3(0.0, 25.0, -65.0),
-        Vector3(-3.0, 0.5, -57.0),
-        Vector3(0.0, 0.5, -40.0),
+        Vector(0.0, 25.0, -65.0),
+        Vector(-3.0, 0.5, -57.0),
+        Vector(0.0, 0.5, -40.0),
     )
     _emit_face(
-        Vector3(3.0, 0.5, -57.0),
-        Vector3(-3.0, 0.5, -57.0),
-        Vector3(0.0, 25.0, -65.0),
+        Vector(3.0, 0.5, -57.0),
+        Vector(-3.0, 0.5, -57.0),
+        Vector(0.0, 25.0, -65.0),
     )
 
     GL.glEnd()
@@ -268,9 +268,9 @@ def setup_rc() -> None:
     GL.glClearColor(0.0, 0.0, 1.0, 1.0)
 
     # Three points on the ground plane
-    p1 = Vector3(-30.0, -149.0, -20.0)
-    p2 = Vector3(-30.0, -149.0, 20.0)
-    p3 = Vector3(40.0, -149.0, 20.0)
+    p1 = Vector(-30.0, -149.0, -20.0)
+    p2 = Vector(-30.0, -149.0, 20.0)
+    p3 = Vector(40.0, -149.0, 20.0)
     plane_normal, plane_d = plane_equation(p1, p2, p3)
     shadow_mat = make_planar_shadow_matrix(plane_normal, plane_d, light_pos)
 

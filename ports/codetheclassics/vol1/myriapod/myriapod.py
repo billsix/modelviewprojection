@@ -21,7 +21,7 @@ from enum import Enum, IntEnum
 from random import choice, randint, random
 from typing import Any, ClassVar, Optional
 
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector
 
 from modelviewprojection.pgzero_gl import (
     Actor,
@@ -76,11 +76,11 @@ def cell2pos(
 class Explosion(Actor):
     # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
     # would treat the property object as this field's default value
-    spawn_pos: InitVar[tuple[float, float] | Vector2]
+    spawn_pos: InitVar[tuple[float, float] | Vector]
     type: int
     timer: int = 0
 
-    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector) -> None:
         super().__init__("blank", spawn_pos)
 
     def update(self) -> None:
@@ -99,7 +99,7 @@ class Player(Actor):
 
     # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
     # would treat the property object as this field's default value
-    spawn_pos: InitVar[tuple[float, float] | Vector2]
+    spawn_pos: InitVar[tuple[float, float] | Vector]
     # These determine which frame of animation the player sprite will use
     direction: int = 0
     frame: int = 0
@@ -112,7 +112,7 @@ class Player(Actor):
     # down - when it reaches zero the player can shoot again
     fire_timer: int = 0
 
-    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector) -> None:
         super().__init__("blank", spawn_pos)
 
     def move(self, dx: int, dy: int, speed: int) -> None:
@@ -353,10 +353,10 @@ class Rock(Actor):
 class Bullet(Actor):
     # named spawn_pos, NOT pos: pos is an Actor property, and a dataclass
     # would treat the property object as this field's default value
-    spawn_pos: InitVar[tuple[float, float] | Vector2]
+    spawn_pos: InitVar[tuple[float, float] | Vector]
     done: bool = False
 
-    def __post_init__(self, spawn_pos: tuple[float, float] | Vector2) -> None:
+    def __post_init__(self, spawn_pos: tuple[float, float] | Vector) -> None:
         super().__init__("bullet", spawn_pos)
 
     def update(self) -> None:

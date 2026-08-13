@@ -21,7 +21,7 @@ import sys
 
 import glfw
 import OpenGL.GL as GL
-from gacalc.g2 import Vector2, e_1, e_2
+from gacalc.g2 import Vector, e_1, e_2
 from gacalc.transforms import (
     InvertibleFunction,
     compose,
@@ -61,9 +61,9 @@ GL.glLoadIdentity()
 
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector2]
+    vertices: list[Vector]
     color: colorutils.Color3
-    position: Vector2
+    position: Vector
     rotation: float = 0.0
 
 
@@ -144,7 +144,7 @@ while not glfw.window_should_close(window):
 
     for p1_v_ms in paddle1.vertices:
         # doc-region-begin paddle 1 transformations
-        fn: InvertibleFunction[Vector2] = compose(
+        fn: InvertibleFunction[Vector] = compose(
             [
                 uniform_scale(m=1.0 / 10.0),
                 translate(b=paddle1.position),
@@ -152,7 +152,7 @@ while not glfw.window_should_close(window):
             ]
         )
         # doc-region-end paddle 1 transformations
-        paddle1_vector_ndc: Vector2 = fn(p1_v_ms)
+        paddle1_vector_ndc: Vector = fn(p1_v_ms)
         GL.glVertex2f(*paddle1_vector_ndc)
     GL.glEnd()
     # doc-region-end draw paddle 1
@@ -163,14 +163,14 @@ while not glfw.window_should_close(window):
 
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        fn: InvertibleFunction[Vector2] = compose(
+        fn: InvertibleFunction[Vector] = compose(
             [
                 uniform_scale(m=1.0 / 10.0),
                 translate(b=paddle2.position),
                 rotate(paddle2.rotation),
             ]
         )
-        paddle2_vector_ndc: Vector2 = fn(p2_v_ms)
+        paddle2_vector_ndc: Vector = fn(p2_v_ms)
         GL.glVertex2f(*paddle2_vector_ndc)
     GL.glEnd()
     # doc-region-end draw paddle 2

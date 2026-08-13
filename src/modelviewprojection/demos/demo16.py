@@ -21,7 +21,7 @@ import sys
 
 import glfw
 import OpenGL.GL as GL
-from gacalc.g3 import Vector3, e_1, e_2, e_3
+from gacalc.g3 import Vector, e_1, e_2, e_3
 from gacalc.transforms import compose, inverse, translate, uniform_scale
 
 import modelviewprojection.util.colorutils as colorutils
@@ -29,7 +29,7 @@ from modelviewprojection.mathutils import fn_stack, rotate_z
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-zero = Vector3.zero()
+zero = Vector.zero()
 
 
 if not glfw.init():
@@ -59,9 +59,9 @@ GL.glLoadIdentity()
 
 @dataclasses.dataclass
 class Paddle:
-    vertices: list[Vector3]
+    vertices: list[Vector]
     color: colorutils.Color3
-    position: Vector3
+    position: Vector
     rotation: float = 0.0
 
 
@@ -93,14 +93,14 @@ paddle2: Paddle = Paddle(
 # doc-region-begin define camera class
 @dataclasses.dataclass
 class Camera:
-    position_ws: Vector3 = dataclasses.field(default_factory=lambda: zero)
+    position_ws: Vector = dataclasses.field(default_factory=lambda: zero)
 
 
 camera: Camera = Camera()
 # doc-region-end define camera class
 
 # doc-region-begin instantiate square
-square: list[Vector3] = [
+square: list[Vector] = [
     -0.5 * e_1 + -0.5 * e_2,
     0.5 * e_1 + -0.5 * e_2,
     0.5 * e_1 + 0.5 * e_2,
