@@ -316,7 +316,7 @@ Glossary
    Translation
      The transformation that shifts a point by a fixed offset, moving it without
      rotating or resizing it.  In this course ``translate(b=...)`` is built
-     directly on :term:`Vector <Vector (Vector2 / Vector3)>` addition --- it adds
+     directly on :term:`Vector <Vector>` addition --- it adds
      the offset ``b`` to every point you hand it --- and it is one of the three
      core transformations, alongside :term:`Scaling` and :term:`Rotation`.  Its
      inverse simply shifts back by the negative offset.
@@ -331,7 +331,7 @@ Glossary
      The transformation that stretches or shrinks an object by multiplying each
      coordinate by a scale factor: a factor above 1 grows it, a factor between 0
      and 1 shrinks it.  ``uniform_scale(m=...)`` multiplies every component of a
-     :term:`Vector <Vector (Vector2 / Vector3)>` by the same number ``m`` (the
+     :term:`Vector <Vector>` by the same number ``m`` (the
      shape stays the same, only the size changes), and it is how the course
      squeezes 20-unit-wide :term:`World Space` down into the -1 to 1 range of
      :term:`Normalized Device Coordinates`.  Scaling happens relative to the
@@ -381,7 +381,7 @@ Glossary
      A single point in space, given by its coordinates --- for example, the four
      corners that define a rectangular paddle.  The early demos hand each vertex
      to OpenGL with ``glVertex2f`` / ``glVertex3f`` to mark out a shape; later
-     the same points are stored as :term:`Vectors <Vector (Vector2 / Vector3)>`
+     the same points are stored as :term:`Vectors <Vector>`
      and transformed from one space to another.  In modern OpenGL a vertex can
      also carry extra data beyond its position, such as a color.
 
@@ -391,7 +391,7 @@ Glossary
      as it introduces buffers and shaders at the same time.
 
    Natural Basis / Basis Vector
-     The small set of unit-length :term:`Vectors <Vector (Vector2 / Vector3)>`
+     The small set of unit-length :term:`Vectors <Vector>`
      that every other vector is built from by scaling and adding.  The course
      calls them the *natural basis*: ``e_1`` is one unit along the x axis,
      ``e_2`` one unit along y, and (in 3D) ``e_3`` one unit along z.  Any vector
@@ -434,10 +434,11 @@ Glossary
      products) with heavy vector notation, so lean on the diagrams and the
      coordinate-system section and skip the electromagnetism.
 
-   Vector (Vector2 / Vector3)
+   Vector
      A quantity with both a size and a direction, stored as a list of
-     coordinates: ``Vector2`` holds an (x, y) pair for 2D work, ``Vector3`` an
-     (x, y, z) triple for 3D.  The course uses vectors for two related things ---
+     coordinates.  The dimension lives in the module: ``gacalc.g2.Vector``
+     holds an (x, y) pair for 2D work, ``gacalc.g3.Vector`` an (x, y, z) triple
+     for 3D.  The course uses vectors for two related things ---
      the position of a :term:`Vertex`, and the offset of a :term:`Translation`
      --- and gives them arithmetic that matches the geometry: adding two vectors
      adds their components, and multiplying by a number scales them.  Every

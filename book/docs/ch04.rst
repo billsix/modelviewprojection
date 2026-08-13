@@ -49,7 +49,7 @@ Keyboard Input  Action
 Paddles which don't move are quite boring.  Let's make them move up or down
 by getting keyboard input.
 
-And while we are at it, let's go ahead and create data structures for a :term:`Vector <Vector (Vector2 / Vector3)>`,
+And while we are at it, let's go ahead and create data structures for a :term:`Vector <Vector>`,
 and for the collection of :term:`vertices <Vertex>` that make up a Paddle.
 
 Code

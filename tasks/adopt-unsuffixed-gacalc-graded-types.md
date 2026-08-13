@@ -1,8 +1,10 @@
 # Adopt unsuffixed gacalc types (Vector2 → g2.Vector, …)
 
-**Status:** CODE DONE, verified in-sandbox (2026-08-13). Batches 1–6 below complete; batch 7
-(book teaching-prose) awaits Bill's decision; the full containerized `make test` gate is the
-only remaining verification (in-sandbox proof is strong — see below).
+**Status:** COMPLETE (2026-08-13), pending Bill's commit of the staged book-prose (batch 7).
+Batches 1–6 committed by Bill (`18a0f7b2 "upgrade to gacalc 0.0.16"`); batch 7 done and staged;
+**both container gates pass** (`make test` = 104 passed; `make html` = doc-region anchors all
+resolve / no empty regions / Sphinx build succeeded with no `:term:` breakage from the glossary
+rename). Ready to archive once batch 7 is committed.
 
 **Done + verified in-sandbox against gacalc 0.0.16 (installed from PyPI):**
 - **Code (64 .py):** 58 via `tasks/adhoc/.../migrate_0016.py` (direct-import + facade split +

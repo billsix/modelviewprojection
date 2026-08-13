@@ -150,9 +150,9 @@ negative.  The built-in ``inverse`` agrees:
 
 .. code:: Python
 
-      >>> from gacalc.g2 import Vector2
+      >>> from gacalc.g2 import Vector
       >>> from gacalc.transforms import inverse, translate
-      >>> e_1, e_2 = Vector2.e_1, Vector2.e_2
+      >>> e_1, e_2 = Vector.e_1, Vector.e_2
       >>> b = 3.0 * e_1 + 4.0 * e_2
       >>> p = 10.0 * e_1 + 20.0 * e_2
       >>> inverse(translate(b=b))(p).is_close(translate(b=-b)(p))
@@ -169,10 +169,10 @@ negative angle.  The built-in ``inverse`` agrees:
 .. code:: Python
 
       >>> import math
-      >>> from gacalc.g2 import Vector2
+      >>> from gacalc.g2 import Vector
       >>> from gacalc.transforms import inverse
       >>> from modelviewprojection.mathutils import rotate
-      >>> e_1, e_2 = Vector2.e_1, Vector2.e_2
+      >>> e_1, e_2 = Vector.e_1, Vector.e_2
       >>> angle = math.radians(90.0)
       >>> p = 1.0 * e_1 + 2.0 * e_2
       >>> inverse(rotate(angle))(p).is_close(rotate(-angle)(p))
@@ -187,9 +187,9 @@ The built-in ``inverse`` agrees:
 
 .. code:: Python
 
-      >>> from gacalc.g2 import Vector2
+      >>> from gacalc.g2 import Vector
       >>> from gacalc.transforms import inverse, scale_non_uniform
-      >>> e_1, e_2 = Vector2.e_1, Vector2.e_2
+      >>> e_1, e_2 = Vector.e_1, Vector.e_2
       >>> p = 8.0 * e_1 + 12.0 * e_2
       >>> inverse(scale_non_uniform(2.0, 4.0))(p).is_close(
       ...     scale_non_uniform(1.0 / 2.0, 1.0 / 4.0)(p))
@@ -216,10 +216,10 @@ The :term:`inverse <Inverse>` of ``compose([f1, f2])`` is ``compose([inverse(f2)
 .. code:: Python
 
       >>> import math
-      >>> from gacalc.g2 import Vector2
+      >>> from gacalc.g2 import Vector
       >>> from gacalc.transforms import compose, inverse, translate
       >>> from modelviewprojection.mathutils import rotate
-      >>> e_1, e_2 = Vector2.e_1, Vector2.e_2
+      >>> e_1, e_2 = Vector.e_1, Vector.e_2
       >>> f1 = rotate(math.radians(30.0))
       >>> f2 = translate(b=3.0 * e_1 + 4.0 * e_2)
       >>> p = 5.0 * e_1 + 6.0 * e_2

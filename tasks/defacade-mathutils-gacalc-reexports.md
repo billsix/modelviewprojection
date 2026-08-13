@@ -1,6 +1,10 @@
 # De-facade mathutils: stop re-exporting gacalc types
 
-**Status:** proposed (2026-08-13) — executed as part of the 0.0.16 adoption pass, not standalone
+**Status:** DONE (2026-08-13) — executed within the 0.0.16 adoption pass. The 12 SuperBible
+ports now import `Vector` straight from `gacalc.g3`; `mathutils` re-exports **no** gacalc type
+(verified: `grep "mathutils import" ports src tests` returns no gacalc type/transform). The stale
+`assignments/demo02/vec1.py` was left for `tasks/assignments-review.md` as noted. Committed in
+Bill's `18a0f7b2`. Ready to archive alongside the adoption task.
 **Priority:** 5
 **Difficulty:** 2
 **Created:** 2026-08-13

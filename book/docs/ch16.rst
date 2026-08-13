@@ -181,7 +181,7 @@ Description
 :term:`Function stack <Function Stack>`.  Internally it has a list, where index 0 is
 the bottom of the stack.  In python we can store any object
 as a variable, and we will be storing functions which transform
-a :term:`vector <Vector (Vector2 / Vector3)>` to another vector, through the "modelspace_to_ndc_fn" method.
+a :term:`vector <Vector>` to another vector, through the "modelspace_to_ndc_fn" method.
 
 
 

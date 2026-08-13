@@ -518,7 +518,7 @@ Remove Z of Camera Space from the Rest of the Matrix
 We successfully moved :inlinetex:`z_c` out of the upper left quadrant, but in doing so, we moved it down
 to the lower right. Can we get rid of it there too?  Turn out, we can.
 
-Since the :term:`vector <Vector (Vector2 / Vector3)>` multiplied by this matrix will provide :inlinetex:`z_c` as it's third element,
+Since the :term:`vector <Vector>` multiplied by this matrix will provide :inlinetex:`z_c` as it's third element,
 we can put :inlinetex:`-z_c` into the :inlinetex:`w` by taking the explicit version of it out of the fourth column,
 and put :inlinetex:`-1` into the third column's :inlinetex:`w`.
 

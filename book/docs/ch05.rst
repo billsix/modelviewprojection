@@ -61,7 +61,7 @@ a set of :term:`vertices <Vertex>` for the Paddle, relative to the paddle's cent
 that is independent of its
 placement in :term:`NDC <Normalized Device Coordinates>`.
 
-Rather than using values for each :term:`vector <Vector (Vector2 / Vector3)>` relative to NDC, in the
+Rather than using values for each :term:`vector <Vector>` relative to NDC, in the
 Paddle data structure, each vector will be an offset from
 the center of the Paddle.  The center of the paddle will be considered x=0, y=0.
 Before rendering, each Paddle's
@@ -101,7 +101,7 @@ Data Structures
 
 
 We added a top-level ``translate`` function.  Given a :term:`translation <Translation>` amount ``b``,
-``translate(b=b)`` returns an :term:`invertible function <Invertible Function>` that shifts any :term:`vector <Vector (Vector2 / Vector3)>` by ``b``
+``translate(b=b)`` returns an :term:`invertible function <Invertible Function>` that shifts any :term:`vector <Vector>` by ``b``
 --- internally, this is just vector addition, ``vector + b``.  This is a
 primitive that we will be using to transform from one space to another.
 
@@ -111,22 +111,22 @@ import them and try it out
 
 .. code:: Python
 
-       >>> from gacalc.g2 import Vector2
+       >>> from gacalc.g2 import Vector
        >>> from gacalc.transforms import translate
-       >>> shift = translate(b=Vector2(x=3, y=4))
-       >>> shift(Vector2(x=1, y=2))
-       Vector2(x=4, y=6)
+       >>> shift = translate(b=Vector(coeff_e_1=3, coeff_e_2=4))
+       >>> shift(Vector(coeff_e_1=1, coeff_e_2=2))
+       g2.Vector(coeff_e_1=4, coeff_e_2=6)
 
 Note the use of "keyword arguments".  Without using keyword
 arguments, the code might look like this:
 
 .. code:: Python
 
-       >>> from gacalc.g2 import Vector2
+       >>> from gacalc.g2 import Vector
        >>> from gacalc.transforms import translate
-       >>> shift = translate(b=Vector2(3, 4))
-       >>> shift(Vector2(1, 2))
-       Vector2(x=4, y=6)
+       >>> shift = translate(b=Vector(3, 4))
+       >>> shift(Vector(1, 2))
+       g2.Vector(coeff_e_1=4, coeff_e_2=6)
 
 Keyword arguments allow the reader to understand the purpose of the
 parameters are, at the call-site of the function.
@@ -150,9 +150,9 @@ The Natural Basis
 
 We will define each :term:`vertex <Vertex>` relative to the paddle's center using two special
 unit vectors, the :term:`natural basis <Natural Basis / Basis Vector>`: ``e_1`` is one unit along the x axis, and
-``e_2`` is one unit along the y axis.  ``Vector2`` provides them (and the
-:term:`origin <Origin>`) as the class constants ``Vector2.e_1``, ``Vector2.e_2``, and
-``Vector2.zero()``.
+``e_2`` is one unit along the y axis.  ``Vector`` provides them (and the
+:term:`origin <Origin>`) as the class constants ``Vector.e_1``, ``Vector.e_2``, and
+``Vector.zero()``.
 
 Any 2D vector is a *scaled sum* of these two: scale each :term:`basis vector <Natural Basis / Basis Vector>` by a
 number (``__rmul__``) and add the results (``__add__``).  So ``3 * e_1 + 2 *
@@ -191,7 +191,7 @@ Handling User Input
 
 
 * We put the :term:`transformation <Transformation>` on the center of the paddle, instead
-  of directly on each :term:`vector <Vector (Vector2 / Vector3)>`.  This is because the :term:`vertices <Vertex>` are
+  of directly on each :term:`vector <Vector>`.  This is because the :term:`vertices <Vertex>` are
   defined relative to the center of the paddle.
 
 The Event Loop

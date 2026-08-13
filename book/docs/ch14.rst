@@ -103,7 +103,7 @@ Description
 
 
 
-* :term:`Vector <Vector (Vector2 / Vector3)>` data will now have an X, Y, and Z component.
+* :term:`Vector <Vector>` data will now have an X, Y, and Z component.
 * :term:`Rotations <Rotation>` around an angle in 3D space follow the right hand rule_.  Here's a link to them
   in matrix_ form, which we have not yet covered.
 
@@ -134,8 +134,8 @@ Description
 
 
 The :term:`natural basis <Natural Basis / Basis Vector>` extends to 3D with a third unit vector, ``e_3``, one unit
-along the z axis --- the class constants ``Vector3.e_1``, ``Vector3.e_2``, and
-``Vector3.e_3``.
+along the z axis --- the class constants ``Vector.e_1``, ``Vector.e_2``, and
+``Vector.e_3``.
 
 A 3D :term:`vertex <Vertex>` is then ``a * e_1 + b * e_2 + c * e_3`` --- the same scaled-sum form
 as in 2D, with the new z term.

@@ -471,14 +471,14 @@ and convert them to NDC.
     \]
 
 Modelviewprojection comes with a math library, the 2D version is
-named "mathutils.py".  The main class in this module is "Vector2",
-which has two components: and x value, and a y value.  To add a vector2d
+named "mathutils.py".  The main class in this module is "Vector",
+which has two components: and x value, and a y value.  To add a vector
 to another one on the right hand side of the '+' symbol, we just add
-the respective components together, and create a new Vector2.
+the respective components together, and create a new Vector.
 
 
 
-``Vector2`` is the same data structure introduced earlier; it is unchanged here.
+``Vector`` is the same data structure introduced earlier; it is unchanged here.
 
 In a Python class, we can overload the '+' symbol, to make
 objects addable, by implementing the :py:meth:`__add__ <modelviewprojection.mathutils.MultiVectorBase.__add__>`
@@ -515,7 +515,7 @@ In our graphics code, instead of using "a+b", we'll use a more descriptive
 name: "translate", which is implemented using the addition symbol.  But a few
 things to note, :py:meth:`translate <modelviewprojection.mathutils.translate>`
 is a function on the mathutils module, not a method
-on Vector2 class, and it's wrapped in a class named
+on Vector class, and it's wrapped in a class named
 :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`.
 
 
@@ -532,13 +532,13 @@ on Vector2 class, and it's wrapped in a class named
 
 Notice in particular that the "b" parameter
 is passed as an argument to "translate",
-but the function for translating, named "f", and the inverse of "f" named "f_inv", take a Vector2.
-This is because we will be translating many Vector2s using the same amount.
+but the function for translating, named "f", and the inverse of "f" named "f_inv", take a Vector.
+This is because we will be translating many Vectors using the same amount.
 
 
 :term:`Invertible functions <Invertible Function>` are stored in pairs, with the "active" function
 being the first one passed to the constructor.  So for translate above,
-the adding of the Vector2s will be the function, but
+the adding of the Vectors will be the function, but
 :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`
 holds onto the second function, for later use to be able to undo the function's
 application.
@@ -548,11 +548,11 @@ We call "translate", a function which takes a translate amount, both in the x
 direction and the y direction, but we have not yet specified what needs to be translated
 by that amount.  "translate" returns an
 :class:`InvertibleFunction <modelviewprojection.mathutils.InvertibleFunction>`, which is
-Callable[Vector2, Vector2].  Callable[Vector2, Vector2] is a type which
-is a function that takes a Vector2 as input, and returns a Vector2 (in this case,
-the output is the input, translated by Vector2(x=2.0, y=3.0).
+Callable[Vector, Vector].  Callable[Vector, Vector] is a type which
+is a function that takes a Vector as input, and returns a Vector (in this case,
+the output is the input, translated by Vector(2.0, 3.0).
 
-On the next 3 lines, we call the function t, passing in a Vector2 to be translated, and
+On the next 3 lines, we call the function t, passing in a Vector to be translated, and
 we test if the result is equal to the specified amount.  ("approx", is a function from the
 pytest module, which when tested for equality, returns true if the two floating point
 numbers under comparison are "close enough").
@@ -633,9 +633,9 @@ We can get the inverse of the procedure by the following
 
 
 
-Back to method's on the Vector2 class.  We can also define scaling of a Vector2,
-by implementing multiplication of Vector2's by a scalar, meaning a real number
-that scaled the Vector2 by the same amount in all directions.  We do this
+Back to method's on the Vector class.  We can also define scaling of a Vector,
+by implementing multiplication of Vector's by a scalar, meaning a real number
+that scaled the Vector by the same amount in all directions.  We do this
 by implementing the :py:meth:`__mul__ <modelviewprojection.mathutils.MultiVectorBase.__mul__>`
 and :py:meth:`__rmul__ <modelviewprojection.mathutils.MultiVectorBase.__rmul__>` methods, where __rmul__ just means
 that this object is on the right hand side of the multiplication.
@@ -656,8 +656,8 @@ Just like we made a top level invertible function called "translate" for additio
 we are going to do the same for multiplication, and call it "uniform_scale".
 Notice in particular that the scalar is passed as an argument to
 :py:meth:`uniform_scale <modelviewprojection.mathutils.uniform_scale>`,
-but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vector2.
-This is because we will be scaling many Vector2s using the same scaling factor.
+but the function for scaling "f", and the inverse of "f" named "f_inv", take a Vector.
+This is because we will be scaling many Vectors using the same scaling factor.
 
 .. literalinclude:: _gacalc_src/transforms.py
    :language: python

@@ -8,9 +8,10 @@ External sources Bill draws from: **OpenGL SuperBible v4** (main porting source 
 
 ## Central abstraction — Cayley graphs + `InvertibleFunction`
 
-The whole curriculum is built on **one substituted abstraction**: instead of 4×4 matrices, transformations are `InvertibleFunction`s on `Vector2`/`Vector3`, and coordinate systems form a **Cayley graph** where nodes are spaces and directed edges are these functions.
+The whole curriculum is built on **one substituted abstraction**: instead of 4×4 matrices, transformations are `InvertibleFunction`s on gacalc's `Vector` (`gacalc.g2.Vector` in 2D, `gacalc.g3.Vector` in 3D — the dimension lives in the module), and coordinate systems form a **Cayley graph** where nodes are spaces and directed edges are these functions.
 
-> **Note (2026-06-08):** `mathutils.py` is now a **façade over the `gacalc` geometric-algebra library** — `Vector2`/`Vector3` are gacalc's graded vector types (the old in-repo `Vector2D`/`Vector3D` were deleted), `InvertibleFunction`/`translate`/`compose`/`scale_non_uniform`/… come from `gacalc.transforms`, and rotations come from gacalc's `plane_rotation(a, b)` (gacalc ≥ 0.0.8) — `rotate`/`rotate_x/y/z` are direct bindings of it to the relevant basis-vector pairs (half-angle rotor sandwich under the hood; numeric θ stays float, no sympy leak). mvp keeps only the graphics-specific math (projections, plane geometry, `FunctionStack`; the orientation predicates live in `framebuffer/softwarerendering.py`, their sole consumer). The code migration is complete; the remaining book-prose work is `tasks/book-rotate-prose-update.md`.
+> **Note (2026-06-08, updated 2026-08-13):** the vector algebra and transform layer come from the **`gacalc` geometric-algebra library** — gacalc's `Vector` (the old in-repo `Vector2D`/`Vector3D` were deleted), `InvertibleFunction`/`translate`/`compose`/`scale_non_uniform`/… from `gacalc.transforms`, and rotations from gacalc's `plane_rotation(a, b)` (gacalc ≥ 0.0.8) — `rotate`/`rotate_x/y/z` are direct bindings of it to the relevant basis-vector pairs (half-angle rotor sandwich under the hood; numeric θ stays float, no sympy leak). mvp keeps only the graphics-specific math (projections, plane geometry, `FunctionStack`; the orientation predicates live in `framebuffer/softwarerendering.py`, their sole consumer).
+> **`mathutils.py` is NOT a re-export façade (de-façaded 2026-08-13, gacalc 0.0.16).** It imports the gacalc pieces it needs *internally* for its own signatures and re-exports **no** gacalc type — callers import those from gacalc directly (`from gacalc.g2 import Vector`, `from gacalc.transforms import translate`). gacalc **0.0.16 dropped the dimension suffix** (`Vector2`/`Vector3` → `Vector`, `Bivector3` → `Bivector`), so multi-dimension files module-qualify (`import gacalc.g2 as g2` → `g2.Vector`) and reprs are module-qualified (`g2.Vector(coeff_e_1=…)`). The code migration is complete; the remaining book-prose work is `tasks/book-rotate-prose-update.md`.
 
 This substitution is the *point* of the course — it lets Bill explain everything (model→world→camera→NDC, push/pop, perspective) using only "function composition" and "inverse," with no linear-algebra prerequisite.
 
@@ -35,7 +36,7 @@ The same Pong scene (two paddles + a square defined relative to paddle1) is re-i
 - **demo01–06**: 2D, immediate-mode (`glBegin`/`glEnd`), function composition via `mathutils.compose()`.
 - **demo07**: Pong paddles introduced — the running scene used through the rest of the course.
 - **demo12**: Matrix-stack concept introduced (still 2D, still function-based).
-- **demo16**: Jump to 3D (`Vector3`, Z-axis, depth).
+- **demo16**: Jump to 3D (`Vector`, Z-axis, depth).
 - **demo19**: Switch to OpenGL 2.1 fixed-function — `glMatrixMode`/`glLoadIdentity`/`glRotatef`/`glTranslate`/`gluPerspective`/`glPushMatrix`/`glPopMatrix`. *First time matrices exist*, but hidden behind the same API shape the student already learned. Comments say "just like putting the identity function on the lambda stack."
 - **demo19a–19e**: SuperBible ports (axes3d, atom, solar, sphereworld) — all fixed-function 3D.
 - **demo20**: Still fixed-function MVP calls, but with a trivial pass-through shader pair (`triangle.vert`/`.frag`) — introduces shader compilation only.
@@ -74,7 +75,7 @@ When porting any future demo, follow demo22's structure (subfolder with `.vert`/
 - The book chapters (`book/docs/chNN.rst`) are the authoritative source for terminology — use *Cayley graph*, *space*, *modelspace→NDC*, *invertible function*, not linear-algebra vocabulary.
 - Reference the visualizations in `src/modelviewprojection/mvpvisualization/` (`coordinatesystems.py`, `pushmatrix.py`, `modelviewperspectiveprojection.py`) when the user wants to *show* the graph traversal interactively — those are pedagogical aids, not demos. They are part of the installed package (run by path, e.g. `python src/modelviewprojection/mvpvisualization/coordinatesystems.py`).
 - Match the demo-era style (procedural, globals, inline comments explaining the *why*), not idiomatic modern Python. When porting from external sources, port *into* his style rather than preserving the source's structure.
-- **Passing a vector to immediate-mode GL: unpack it.** Write `GL.glVertex3f(*v)` / `GL.glVertex2f(*v)`, not `GL.glVertex3f(v.coeff_e_1, v.coeff_e_2, v.coeff_e_3)`. gacalc's `Vector2`/`Vector3` iterate their coordinates in `(e_1, e_2[, e_3])` order with exactly the right arity, so `*v` *is* the coordinate args (demos 05–18 use this). The iteration-order contract is guarded by `tests/test_gl_vector_unpacking.py`, so a gacalc upgrade that changed iteration order/arity fails there instead of the demos silently mis-drawing.
+- **Passing a vector to immediate-mode GL: unpack it.** Write `GL.glVertex3f(*v)` / `GL.glVertex2f(*v)`, not `GL.glVertex3f(v.coeff_e_1, v.coeff_e_2, v.coeff_e_3)`. gacalc's `g2.Vector`/`g3.Vector` iterate their coordinates in `(e_1, e_2[, e_3])` order with exactly the right arity, so `*v` *is* the coordinate args (demos 05–18 use this). The iteration-order contract is guarded by `tests/test_gl_vector_unpacking.py`, so a gacalc upgrade that changed iteration order/arity fails there instead of the demos silently mis-drawing.
 
 ---
 
@@ -187,7 +188,7 @@ with no `sys.path` dance (so no `# noqa: E402`, and E402 is no longer ignored fo
     8-voice-per-Sound cap, music streamed in chunks. Headless → graceful no-op.
   - `geometry.Rect` is **integer-coord like `pygame.Rect`**; **`ZRect`** is the float
     variant, and **`Actor` uses `ZRect`** to keep sub-pixel positions.
-  - **The games use `gacalc.g2.Vector2` / `gacalc.g3.Vector3` DIRECTLY**
+  - **The games use `gacalc.g2.Vector` / `gacalc.g3.Vector` DIRECTLY**
     (2026-07-09; needs `gacalc>=0.0.8` — the release with `x`/`y`/`z`
     coordinate properties and quotient `/`). There is **no shim vector
     type** — `geometry.py` keeps only `Rect`/`ZRect` (the short-lived
@@ -198,7 +199,7 @@ with no `sys.path` dance (so no `# noqa: E402`, and E402 is no longer ignored fo
     (float via `float(...)` at float-typed boundaries — gacalc returns
     `Coef`, which admits sympy), `rotate(deg)`→`plane_rotation(e_1, e_2)`
     (kinetix's module-level `_turn`), copies/`.pos` mixing via
-    `Vector2(*x)` unpacking, in-place `normalize_ip`/`scale_to_length`
+    `Vector(*x)` unpacking, in-place `normalize_ip`/`scale_to_length`
     → rebinding. Vector `*` scalar scales; two vectors is the geometric
     product; every game dot product is an explicit call (Bill, 2026-07-09).
     Shim position parameters (Actor pos setter, `screen.blit`) **unpack**
@@ -206,9 +207,9 @@ with no `sys.path` dance (so no `# noqa: E402`, and E402 is no longer ignored fo
     vectors.
   - **gacalc vectors are FROZEN (immutable) — frozen since 0.0.14, pin now 0.0.15 — so a
     coordinate is changed by REBINDING, never in place.** Write
-    `self.dir = Vector2(-self.dir.x, self.dir.y)`, not `self.dir.x = -self.dir.x`;
+    `self.dir = Vector(-self.dir.x, self.dir.y)`, not `self.dir.x = -self.dir.x`;
     an augmented write becomes
-    `self.vpos = Vector2(self.vpos.x + self.vel.x, self.vpos.y)`. The ~80-site
+    `self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)`. The ~80-site
     conversion landed 2026-07-23 with the 0.0.13 → 0.0.14 pin bump. Two things to
     know when a write is rejected: a **field** write (`v.coeff_e_1 = …`) raises a
     clean `FrozenInstanceError`, but the ergonomic **property** write (`v.x = …`)
@@ -219,8 +220,8 @@ with no `sys.path` dance (so no `# noqa: E402`, and E402 is no longer ignored fo
     **Immutability retired the aliasing hazard that used to live here.** A vector in
     a shared location (module constant, class attribute, default argument) can no
     longer be mutated out from under its other readers, and the basis constants
-    (`Vector2.e_1`, …) are safe to share. The defensive copies that were the fix for
-    that — `self.half_hit_area = Vector2(*half_hit_area)` in `beatstreets`, guarding
+    (`Vector.e_1`, …) are safe to share. The defensive copies that were the fix for
+    that — `self.half_hit_area = Vector(*half_hit_area)` in `beatstreets`, guarding
     a `Player`/`EnemyVax`/`EnemyHoodie`/`EnemyScooterboy` shared default (found
     2026-07-18) — became redundant, and **the deliberate removal pass ran
     2026-07-25**: 12 pure-aliasing copies deleted; 2 kept because they *normalize*
@@ -276,7 +277,7 @@ back-to-back `literalinclude` pairs already appear in the book). Use this when a
 needs a docstring or doctests that students should not have to read.
 
 **Some listings are included from GACALC's source, pulled in DOCS-ONLY (2026-07-20).** The
-vector/transform math (`Vector2`/`Vector3`, `translate`, `uniform_scale`, `InvertibleFunction`,
+vector/transform math (`Vector`, `translate`, `uniform_scale`, `InvertibleFunction`,
 `__call__`, `inverse`, add/subtract/mul) lives in the external **gacalc** library, not in this
 repo. The book still shows that code by `literalinclude`-ing gacalc's own `doc-region` markers
 from a copy of gacalc's source:
@@ -287,6 +288,16 @@ from a copy of gacalc's source:
   sdist and unpacks `src/gacalc/*.py` to `/opt/gacalc-src`. Nothing imports it; it is never on
   `sys.path`. The sdist is used, not a git clone, because it already contains the generated
   `g1/g2/g3/scalar.py` with markers baked in (no checkout, no code generation needed).
+  - **gacalc ships pre-generated — never build it from source to inspect it.** Both the
+    wheel and the sdist carry `g1/g2/g3/scalar.py` (and their doc-region markers) already
+    generated; gacalc's `tools/gen_specialized.py` runs a *slow* symbolic generator (tens of
+    seconds for 𝒢₃). So to see gacalc's real types, reprs, or marker names for a version,
+    **`pip install gacalc==<v>` into a throwaway venv and read/grep the installed
+    `site-packages/gacalc/*.py`** (or unpack the sdist tarball) — do **not** `pip download
+    --no-binary :all:`, clone the repo, or run `make generate`, all of which rebuild from
+    source for nothing. (Learned 2026-08-13 verifying the 0.0.16 marker rename: the installed
+    wheel had the exact `Vector declaration` / `Vector __add__ method` anchors — instant —
+    while a `--no-binary` download tried to run the generator and timed out.)
 - **`entrypoint.sh` copies `/opt/gacalc-src/*.py` into `book/docs/_gacalc_src/`** (gitignored)
   before the build, so `literalinclude:: _gacalc_src/<mod>.py` can reach it. These listings
   caption `gacalc/<mod>.py`.

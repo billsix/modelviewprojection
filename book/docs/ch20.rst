@@ -79,7 +79,7 @@ In this demo, we keep most of the code from the previous demo the same,
 we just add in programmable :term:`shaders <Shader>`.  So the calls to "glVertex"
 are no longer a :term:`black box <Black Box vs White Box>`, in which something happens of the graphics card;
 instead, before sending :term:`modelspace<Modelspace>` data to the graphics card, we program
-a sequence of :term:`transformations <Transformation>` that happen on the graphics card per :term:`vector <Vector (Vector2 / Vector3)>`,
+a sequence of :term:`transformations <Transformation>` that happen on the graphics card per :term:`vector <Vector>`,
 which a driver could implement in parallel.
 
 We have some new imports, "glUseProgram", "GL_VERTEX_SHADER", "GL_FRAGMENT_SHADER"

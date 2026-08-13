@@ -8,6 +8,13 @@ __pycache__
 # Sphinx HTML/LaTeX/PDF build outputs
 book/docs/_build/
 
+# Built book artifacts copied here by entrypoint.sh (the .keep sentinel stays tracked)
+output/*
+!output/.keep
+
+# Transient per-chapter copies left by the book build (identical to the .rst source)
+book/docs/*.rst.new
+
 # Auto-generated from `git rev-parse HEAD` on every Makefile run
 book/docs/version.txt
 
