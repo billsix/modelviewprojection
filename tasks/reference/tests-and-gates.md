@@ -73,7 +73,7 @@ imports work solely via `pythonpath = src` in `pytest.ini`.
 
 ## 3. Tests that encode contracts (each guards a specific incident)
 
-- **`tests/test_gl_vector_unpacking.py`** — pins gacalc `Vector2`/`Vector3`
+- **`tests/test_gl_vector_unpacking.py`** — pins gacalc's `g2.Vector`/`g3.Vector`
   **iteration order and arity**, so `GL.glVertex3f(*v)` (used in demos 05–18)
   can't silently mis-draw after a gacalc upgrade. Uses a positional-args
   recorder; no GL required.
@@ -101,7 +101,7 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   seed, 300 frames of headless `update()`, canonical dump of every actor's
   numeric state, run old-source-old-dep vs new-source-new-dep and diff —
   byte-identical for all six games. Gotcha: an `id()`-keyed visited-set gives
-  **false skips** (`Actor.pos` returns a fresh `Vector2` per call and freed
+  **false skips** (`Actor.pos` returns a fresh `Vector` per call and freed
   temporaries' ids get reused) — check leaves before the cycle guard.
   (`tasks/archive/2026/07/23/frozen-vectors-rebind-migration.md`)
 - **Definitions gate** (`runpy.run_path` with `go` stubbed): executes class
@@ -180,7 +180,7 @@ carries the full detail). Any future bulk mechanical pass should follow these:
 8. **Invoke the tool the way the gate does.** "The ports are not
    ruff-formatted" was a measurement error — measured at ruff's default 88
    while `format.sh` formats at 80 (130 of 133 files were already formatted).
-9. **Classifier for `Vector2(*x)` copy sites** (post-frozen-gacalc): a
+9. **Classifier for `Vector(*x)` copy sites** (post-frozen-gacalc): a
    *vector-typed* source is a pure aliasing copy (redundant now); an
    `Any`/tuple-typed source is *normalization* and must stay. A green ty run
    is itself the proof (it would reject `= x` for a tuple source). And a

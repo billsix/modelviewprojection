@@ -152,7 +152,7 @@ could in principle hit the same at extreme angles — untested.
   (`tasks/archive/2026/05/26/HANDOFF-2026-05-13.md`)
 - **gacalc's general transform layer can leak sympy into a hot path.** The
   generic `rotor_rotation` returns a symbolic `Gn` (~2.7 ms/edge) where the
-  specialized `Vector3.rotor_from_vectors(...).sandwich(...)` path stays float
+  specialized `Vector.rotor_from_vectors(...).sandwich(...)` path stays float
   (~0.035 ms) — same family as the `plane_rotation` 25× entry in
   `design-decisions.md`, different API. If a viz demo's frame time collapses,
   check coefficient types first.

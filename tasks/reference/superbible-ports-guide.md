@@ -117,14 +117,12 @@ Mechanical, uniform — new ports match these so students can read across demos.
   only moves *when the tessellation trig runs*, not how drawing happens).
 - **Shader era** (chapt17+): shader files keep the book's `.vs`/`.fs` names
   (students read along; mvp's `.vert`/`.frag` convention does not apply here).
-- **Vectors:** the lit/shadow ports use `Vector3` + the plane helpers. Note:
-  12 files currently import `Vector3` *through* `modelviewprojection.mathutils`
-  — a leftover of the removed-facade era that works only incidentally
-  (`mathutils` happens to import `Vector3` internally; `__all__` doesn't gate
-  `from X import Y`). **New code imports `from gacalc.g3 import Vector3`**;
-  the 12 existing sites are a known deviation, listed in
-  `notable-subsystems.md` §4b — don't "fix" them unasked, but don't copy the
-  pattern either.
+- **Vectors:** the lit/shadow ports use gacalc's `Vector` + the plane helpers,
+  imported `from gacalc.g3 import Vector` **directly**. (Through gacalc 0.0.15
+  these 12 ports pulled `Vector3` *through* `modelviewprojection.mathutils`;
+  that was **de-facaded in the gacalc 0.0.16 adoption — 2026-08-13** — so
+  `mathutils` re-exports no gacalc type and every port sources `Vector` from
+  `gacalc.g3` itself.)
 - **Per-demo skeleton:** header comment (name, one-liner, "OpenGL SuperBible,
   Chapter NN", "Python port of <X>.cpp by Richard S. Wright Jr."), the
   Wayland guard (`PYOPENGL_PLATFORM=x11` when unset under a Wayland session),

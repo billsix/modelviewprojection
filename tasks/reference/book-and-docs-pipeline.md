@@ -84,7 +84,7 @@ A chapter `.rst` selects between them (real example, `book/docs/ch16.rst:51`):
 
 ```python
 # doc-region-begin define rotate around
-def rotate_around(angle_in_radians: float, center: Vector2) -> InvertibleFunction[Vector2]:
+def rotate_around(angle_in_radians: float, center: Vector) -> InvertibleFunction[Vector]:
     # doc-region-end rotate around signature
     """..docstring.."""
     # doc-region-begin rotate around body
@@ -116,7 +116,7 @@ It is invoked two ways, both in the container: by `entrypoint.sh:29` as a **buil
 
 mvp depends on gacalc **twice, for two different reasons**, and the two must stay in lockstep.
 
-**(a) The runtime WHEEL.** `requirements.txt:3` pins `gacalc==0.0.14`. This is the ordinary runtime dependency — `pip`-installed into `/venv`, imported by the package (`from gacalc.g2 import Vector2`, etc.). `pyproject.toml` reads dependencies dynamically from `requirements.txt` (`[tool.setuptools.dynamic]`).
+**(a) The runtime WHEEL.** `requirements.txt:3` pins `gacalc==0.0.16`. This is the ordinary runtime dependency — `pip`-installed into `/venv`, imported by the package (`from gacalc.g2 import Vector`, etc.). `pyproject.toml` reads dependencies dynamically from `requirements.txt` (`[tool.setuptools.dynamic]`).
 
 **(b) The docs-only SOURCE sdist.** The book `literalinclude`s **gacalc's own source** (its `functions.py`, `transforms.py`, `g2.py`, `g3.py`) to teach GA concepts — e.g. `book/docs/ch06.rst` quotes `_gacalc_src/functions.py` for `InvertibleFunction`, ch05/ch14 quote `g2.py`/`g3.py`/`transforms.py`. To do that, gacalc's real source must be *on disk inside the book tree*. The `Dockerfile` (`ARG GACALC_VERSION=0.0.14`, must equal the requirements pin):
 
@@ -194,6 +194,6 @@ listing. (`tasks/dangling-book-code-includes.md`)
   program / uniform diagrams and a scope-hierarchy nested-block diagram.
 - Known residuals from the gacalc-listing migration: `Vector2D`-era naming
   drift in some prose, and the basis-vector listings were dropped (gacalc
-  doesn't mark `Vector2.e_1` — post-class assignments; recoverable only via a
+  doesn't mark `Vector.e_1` — post-class assignments; recoverable only via a
   future gacalc release). (`tasks/dangling-book-code-includes.md`,
   `tasks/book-rotate-prose-update.md`)
