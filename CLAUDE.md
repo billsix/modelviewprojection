@@ -176,7 +176,7 @@ with no `sys.path` dance (so no `# noqa: E402`, and E402 is no longer ignored fo
   (`src/modelviewprojection/pgzero_gl/`) is our code** — it may get real bug
   fixes to reproduce pygame/pgzero APIs correctly.
 - **Enforcement:** `entrypoint/format.sh` runs `ty check` on `vol1` + `vol2` (the
-  shim is covered by `ty check /mvp/src`, being inside the package now).
+  shim is covered by `ty check src`, being inside the package now).
 - **Fidelity gotchas worth not rediscovering:**
   - Audio is a **single-device software mixer on `miniaudio`** (`src/modelviewprojection/pgzero_gl/audio.py`,
     2026-07-09), not `pygame.mixer` (host SDL is broken) and no longer `just_playback` —

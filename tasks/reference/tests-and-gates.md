@@ -47,7 +47,11 @@ quiet, first confirm it actually *ran*.
 
 **Makefile gotcha:** the `format` recipe must `cd /mvp` in the `bash -c`
 itself — `loadpackages.sh`'s own `cd` is subprocess-local and does not carry to
-`format.sh`, which uses relative paths (`ruff check src`).
+`format.sh`. As of 2026-08-14 `format.sh` uses **relative paths for every step**
+(ruff *and* ty — ty's paths were absolute `/mvp/...` before) and guards its venv
+activation, so it runs from the repo root **in the container and on the host**;
+the exit hook is now a single `cd /mvp && format.sh`. The outer `cd` to the root
+is therefore required for the ty steps too now, not just ruff.
 
 ## 2. Shape of the test suite
 
