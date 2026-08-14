@@ -1148,8 +1148,6 @@ def planar_shadow_matrix(
     )
 
 
-
-
 # Recomputed in the per-frame draw loop from the slider-driven
 # light_dir; see `shadow_matrix` in the main loop below.
 

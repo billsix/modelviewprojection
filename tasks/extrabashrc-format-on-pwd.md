@@ -1,8 +1,36 @@
 # .extrabashrc: run format.sh once on pwd (/mvp), not per-subdir
 
-**Status:** proposed — needs go-ahead (small, well-specified)
+**Status:** DONE 2026-08-14 — scope expanded per Bill's clarification: not just fix the exit
+hook, but make `format.sh` runnable **both** in the container (`cd /mvp`) and on the host
+(`cd <repo>`). Verified green in the container (exit 0) and running end-to-end on the host.
+Ready to archive.
 **Priority:** 4
 **Difficulty:** 1
+
+## Done (2026-08-14)
+
+**Root cause verified first** (per the "test the blocker" rule): from `/mvp/src`,
+`format.sh`'s relative `ruff check src` resolves to `src/src` → error; from `/mvp` it's clean.
+
+1. **`entrypoint/dotfiles/.extrabashrc`** — exit hook now `cd /mvp/ && format.sh` (one call from
+   the root), replacing the two per-subdir `cd … && format.sh` lines.
+2. **`entrypoint/format.sh` made portable** (Bill's in-AND-out-of-container goal): the venv
+   activation is guarded (`[ -f /venv/bin/activate ] && source …`, skipped on the host), and the
+   `ty check` paths are now **relative** (`ty check src`/`tests`/`ports/...`) like ruff already
+   was — so `format.sh` runs identically from the repo root in either place. No `pyproject.toml`
+   change was needed (ruff's excludes already cover exclusions).
+3. **`src/modelviewprojection/util/shading.py`** — fixed a **pre-existing** ty error (NOT a
+   0.0.16 regression — the `tuple(genexpr)` → `tuple[float, ...]` vs `tuple[float, float, float]`
+   pattern reproduces under gacalc 0.0.15 too). Unpacked the three coords explicitly so the return
+   is a fixed-length 3-tuple; doctests unchanged (2 passed). This was making `format.sh` red on
+   every shell exit — likely the bulk of Bill's "issues when I exit the shell".
+4. **`src/modelviewprojection/demos/demo22/demo22.py`** — `ruff format` removed 2 stray blank
+   lines (pre-existing drift the broken hook never reached; format.sh doing its job).
+
+**Verify:** container `cd /mvp && format.sh` → all ruff+ty green, exit 0. Host `cd <repo> &&
+bash entrypoint/format.sh` (no `/venv`) → guard skips cleanly, all 8 ruff steps green, ty paths
+resolve (only unresolved-import noise from a minimal venv lacking glfw/PyOpenGL — real host has
+them). shading.py doctests pass in-container.
 
 ## Goal
 

@@ -2,8 +2,11 @@ alias ls='ls --color=auto'
 export GPG_TTY=$(tty)
 exit() {
     echo "Formatting on shell exit"
-    cd /mvp/src/ && format.sh
-    cd /mvp/tests/ && format.sh
+    # Run format.sh ONCE from the project root: its ruff steps use relative paths
+    # (`ruff check src`, `tests`, `assignments`, `ports`), so it must run from /mvp,
+    # not from a subdir (cd-ing into src/ made `ruff check src` resolve to src/src and
+    # fail).  pyproject.toml's excludes handle what shouldn't be formatted.
+    cd /mvp/ && format.sh
     builtin exit "$@"
 }
 cd /mvp/

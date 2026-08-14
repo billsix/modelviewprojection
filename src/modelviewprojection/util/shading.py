@@ -58,9 +58,15 @@ def _face_normal(
     """
     n = find_normal(Vector(*a), Vector(*b), Vector(*c))
     mag = abs(n)
-    # gacalc keeps exact/int inputs symbolic (Coef); coerce at this
-    # float-typed boundary so callers (and OpenGL) get plain floats.
-    return tuple(float(x) for x in (1.0 / mag) * n) if mag else (0.0, 0.0, 0.0)
+    if not mag:
+        # a degenerate (zero-area) triangle has no normal
+        return (0.0, 0.0, 0.0)
+    # gacalc keeps exact/int inputs symbolic (Coef); coerce at this float-typed
+    # boundary so callers (and OpenGL) get plain floats.  Unpack the three
+    # coordinates explicitly rather than tuple(genexpr) so the return type is a
+    # fixed-length 3-tuple (ty can't prove a tuple(genexpr) has exactly three).
+    x, y, z = (1.0 / mag) * n
+    return (float(x), float(y), float(z))
 
 
 def light_dir_ws(az_deg: float, el_deg: float) -> tuple[float, float, float]:
