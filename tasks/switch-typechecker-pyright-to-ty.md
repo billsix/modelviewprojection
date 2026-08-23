@@ -1,6 +1,9 @@
 # Switch the type checker from pyright to ty (single checker: ty)
 
-**Status:** proposed — needs go-ahead. Created 2026-07-21 (Bill).
+**Status:** in-progress (2026-08-23) — **ty wired as the active emacs LSP; pyright kept installed
+as a fallback** (Bill's call 2026-08-23, open Q2 → "wire ty, verify, then remove"). Awaiting Bill's
+**interactive** verification in `make shell` emacs; the pyright/libatomic/MELPA removal is deferred
+until then (see "Remaining" below). Not archived.
 **Priority:** 5
 **Difficulty:** 3
 
@@ -32,29 +35,44 @@ now-unused pyright install.** The gate needs no change.
 
 ## Plan
 
-1. **Dockerfile:** remove `uv pip install pyright` (line ~128). Check whether the adjacent
-   `dnf install -y libatomic` on that line was there *for* pyright (a Node runtime dep); if
-   nothing else needs it, remove it too — otherwise keep it and just drop the pyright pip.
-2. **Emacs LSP → ty.** Point `init.el` at ty's language server (`ty server`) instead of
-   `lsp-pyright`. Options to evaluate: an `lsp-mode` client for ty (may need a small custom
-   `lsp-register-client` stanza, since `lsp-pyright` is python-specific), or `eglot` with
-   `ty server`. Remove `lsp-pyright` from the MELPA package list
-   (`entrypoint/dotfiles/.emacs.d/install-melpa-packages.el`) once it's no longer referenced.
-   **Do NOT edit the vendored `.emacs.d/elpa/` package tree** (off-limits, committed on
-   purpose) — only the config (`init.el`) and the install list.
-3. **Verify:** rebuild the image; `make format` still green (ty gate unchanged); open a source
-   file in `make shell`'s emacs and confirm ty diagnostics appear via the LSP (and pyright no
-   longer runs). Then confirm gacalc's precise operator types (`v2 * v2 : Rotor2`) show
-   correctly once mvp bumps its gacalc pin to a release carrying the overloads.
+1. **Emacs LSP → ty. [DONE 2026-08-23]** `entrypoint/dotfiles/.emacs.d/init.el`: replaced the
+   `lsp-pyright` `use-package` stanza with a self-contained custom lsp-mode client that runs
+   `ty server` (`lsp-register-client` + `make-lsp-client`, `:server-id 'ty`, `:priority 1`,
+   `:activation-fn (lsp-activate-on "python")`). No MELPA package is needed for a custom client,
+   so `install-melpa-packages.el` was left untouched (`lsp-pyright` stays there as the fallback
+   package). The `lsp-pyright` block was **commented out, not deleted**, with a note on how to flip
+   back. The existing `(python-mode . lsp-deferred)` hook in the `lsp-mode` block already starts the
+   client on open. Verified the elisp reads cleanly (`emacs --batch` sexp scan). **Did NOT touch the
+   vendored `.emacs.d/elpa/` tree.**
+2. **Dockerfile + libatomic — DEFERRED (fallback kept).** Not done, on purpose: pyright stays
+   installed as the fallback. The removal, once Bill verifies ty interactively, is:
+   - `Dockerfile:54` — drop `uv pip install pyright --python /venv/bin/python && \`.
+   - `Dockerfile:51-52` — the `libatomic (a pyright runtime dep)` comment.
+   - `entrypoint/01-install-base.sh:59-61` — `dnf install -y libatomic` + its comment (it exists
+     *only* for pyright; nothing else needs it — reconfirm with a grep at removal time).
+   - `install-melpa-packages.el:7` — the `lsp-pyright` package (unused once the fallback is dropped).
+   (Task's original line numbers were stale — Dockerfile is ~54, not ~128; corrected here.)
+3. **Verify — needs Bill (interactive, can't be done headlessly).** Rebuild the image; `make format`
+   still green (ty gate unchanged — it already ran ty, so this can't regress it). Open a source file
+   in `make shell`'s emacs and confirm ty diagnostics appear via the LSP. Then confirm gacalc's
+   precise operator types (`v2 * v2 : Rotor2`) show correctly (gacalc pin is already 0.0.16, which
+   carries the overloads). Once confirmed, do step 2's removals and archive.
+
+## Remaining (blocks archive)
+
+- **Bill:** verify ty's LSP works in emacs (open a `.py`, confirm diagnostics; no pyright process).
+- **Then:** do the step-2 removals (pyright pip, libatomic, `lsp-pyright` MELPA entry, restore-note
+  cleanup in `init.el`) and archive this task.
 
 ## Open questions
 
 1. **Is ty's LSP mature enough for the emacs workflow?** ty ships `ty server` (LSP), but
-   `lsp-mode` has no first-class ty client the way it has `lsp-pyright`. Need to confirm a
-   clean integration (custom `lsp-mode` client vs `eglot`) before dropping pyright, or keep
-   pyright installed-but-unwired as a temporary fallback.
-2. **Keep pyright as a fallback, or hard-remove?** Recommendation: wire ty first, verify it
-   works interactively, *then* remove the pyright install — not the reverse.
+   `lsp-mode` has no first-class ty client the way it has `lsp-pyright`. **Resolved by
+   implementation:** wired a custom `lsp-register-client` for `ty server` (the task's primary
+   suggested option), not `eglot`. Whether it's *mature enough in practice* is exactly what Bill's
+   interactive verification (step 3) will show — the fallback exists precisely so a "no" is cheap.
+2. **Keep pyright as a fallback, or hard-remove?** **Answered 2026-08-23 (Bill): keep as fallback.**
+   Wire ty now, verify interactively, then remove pyright — done in that order.
 
 ## Not in scope
 

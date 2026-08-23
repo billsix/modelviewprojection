@@ -28,15 +28,31 @@
   :init
   (setq lsp-keymap-prefix "C-c l"))
 
-(use-package lsp-pyright
-  :after lsp-mode
-  :hook (python-mode . (lambda ()
-                         (require 'lsp-pyright)
-                         (lsp-deferred)))  ; or just (lsp)
-  :config
-  ;; Optional: configure Pyright
-  (setq lsp-pyright-typechecking-mode "basic"
-        lsp-pyright-auto-import-completions t))
+;; Type checker: ty (Astral) -- mvp's single checker, matching the format.sh
+;; gate. ty ships an LSP via `ty server`; lsp-mode has no first-class ty client,
+;; so register one directly (needs no MELPA package). The lsp-mode block above
+;; already hooks python-mode -> lsp-deferred, so this client starts on open.
+;; pyright is kept installed as a fallback: to switch back, comment out this
+;; block and uncomment the lsp-pyright block below.
+(with-eval-after-load 'lsp-mode
+  (lsp-register-client
+   (make-lsp-client
+    :new-connection (lsp-stdio-connection '("ty" "server"))
+    :activation-fn (lsp-activate-on "python")
+    :server-id 'ty
+    :priority 1)))
+
+;; Fallback type checker: pyright (still installed, just unwired). To restore it,
+;; uncomment this block and comment out the ty client above.
+;; (use-package lsp-pyright
+;;   :after lsp-mode
+;;   :hook (python-mode . (lambda ()
+;;                          (require 'lsp-pyright)
+;;                          (lsp-deferred)))  ; or just (lsp)
+;;   :config
+;;   ;; Optional: configure Pyright
+;;   (setq lsp-pyright-typechecking-mode "basic"
+;;         lsp-pyright-auto-import-completions t))
 
 ;; set the LSP root for this project
 (require 'lsp-mode)
