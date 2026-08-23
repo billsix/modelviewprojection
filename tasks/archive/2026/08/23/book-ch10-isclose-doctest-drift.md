@@ -1,6 +1,8 @@
 # ch10 book doctests use the pre-0.0.15 `is_close` (renamed + tolerances changed)
 
-**Status:** proposed (2026-08-13) — needs go-ahead
+**Status:** complete
+**Completed:** 2026-08-23 (William Emerison Six <billsix@gmail.com>). All 4 sites fixed and
+verified `True` against a throwaway `gacalc==0.0.16` venv.
 **Priority:** 6
 **Difficulty:** 2
 **Created:** 2026-08-13
@@ -38,7 +40,12 @@ Re-grep at implementation time (`grep -n "is_close" book/docs/*.rst`) — the co
 
 ## Verify
 
-These aren't gated, so verify by hand: paste each doctest into a `gacalc==0.0.16` REPL and confirm
-it prints `True` with the tolerances added. (Optional, larger: wire `.rst` doctests into the gate
-via `sphinx.ext.doctest` / a `doctest-glob`, so book examples stop drifting silently — but that is
-its own task, not this one.)
+These aren't gated, so verified by hand (2026-08-23): replicated all four doctests in a throwaway
+`gacalc==0.0.16` venv — `translate`/`scale_non_uniform`/`compose`/`inverse` from `gacalc.transforms`,
+`rotate` replicated as `plane_rotation(Vector.e_1, Vector.e_2)` (its mvp binding, `mathutils.py:100`) —
+and all four `isclose(..., rel_tol=1e-5, abs_tol=1e-5)` printed **True**. Left the four line numbers
+(158/178/194/226) unchanged; the two multi-line examples (194, 226) got the tolerances appended to the
+continuation line's `other` argument.
+
+(Optional, larger, NOT done here: wire `.rst` doctests into the gate via `sphinx.ext.doctest` /
+a `doctest-glob`, so book examples stop drifting silently — its own task, not this one.)

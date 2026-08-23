@@ -155,7 +155,7 @@ negative.  The built-in ``inverse`` agrees:
       >>> e_1, e_2 = Vector.e_1, Vector.e_2
       >>> b = 3.0 * e_1 + 4.0 * e_2
       >>> p = 10.0 * e_1 + 20.0 * e_2
-      >>> inverse(translate(b=b))(p).is_close(translate(b=-b)(p))
+      >>> inverse(translate(b=b))(p).isclose(translate(b=-b)(p), rel_tol=1e-5, abs_tol=1e-5)
       True
 
 Inverse Of Rotate
@@ -175,7 +175,7 @@ negative angle.  The built-in ``inverse`` agrees:
       >>> e_1, e_2 = Vector.e_1, Vector.e_2
       >>> angle = math.radians(90.0)
       >>> p = 1.0 * e_1 + 2.0 * e_2
-      >>> inverse(rotate(angle))(p).is_close(rotate(-angle)(p))
+      >>> inverse(rotate(angle))(p).isclose(rotate(-angle)(p), rel_tol=1e-5, abs_tol=1e-5)
       True
 
 Inverse Of Scale
@@ -191,8 +191,8 @@ The built-in ``inverse`` agrees:
       >>> from gacalc.transforms import inverse, scale_non_uniform
       >>> e_1, e_2 = Vector.e_1, Vector.e_2
       >>> p = 8.0 * e_1 + 12.0 * e_2
-      >>> inverse(scale_non_uniform(2.0, 4.0))(p).is_close(
-      ...     scale_non_uniform(1.0 / 2.0, 1.0 / 4.0)(p))
+      >>> inverse(scale_non_uniform(2.0, 4.0))(p).isclose(
+      ...     scale_non_uniform(1.0 / 2.0, 1.0 / 4.0)(p), rel_tol=1e-5, abs_tol=1e-5)
       True
 
 
@@ -223,8 +223,8 @@ The :term:`inverse <Inverse>` of ``compose([f1, f2])`` is ``compose([inverse(f2)
       >>> f1 = rotate(math.radians(30.0))
       >>> f2 = translate(b=3.0 * e_1 + 4.0 * e_2)
       >>> p = 5.0 * e_1 + 6.0 * e_2
-      >>> inverse(compose([f1, f2]))(p).is_close(
-      ...     compose([inverse(f2), inverse(f1)])(p))
+      >>> inverse(compose([f1, f2]))(p).isclose(
+      ...     compose([inverse(f2), inverse(f1)])(p), rel_tol=1e-5, abs_tol=1e-5)
       True
 
 
