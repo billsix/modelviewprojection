@@ -31,7 +31,7 @@ from typing import Any
 import glfw
 import OpenGL.GL as GL
 
-from . import context
+from . import audio, context
 from .input import keyboard
 
 
@@ -201,6 +201,11 @@ def main(g: dict[str, Any] | None = None) -> None:
                 signal.signal(_sig, _prev)
             except (ValueError, OSError):
                 pass
+        # Stop the audio device's native callback thread BEFORE we exit --
+        # otherwise a game playing music (e.g. Cavern) closes its window but the
+        # process hangs, the miniaudio thread keeping Python alive. shutdown() is
+        # internally guarded and a no-op when no device was opened (headless).
+        audio.shutdown()
         glfw.terminate()
 
 

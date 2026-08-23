@@ -186,6 +186,10 @@ with no `sys.path` dance (so no `# noqa: E402`, and E402 is no longer ignored fo
     `PlaybackDevice`, all voices mixed in the callback like pygame's channels:
     decoded-buffer voices with gapless loop wraparound and per-frame fade ramps,
     8-voice-per-Sound cap, music streamed in chunks. Headless → graceful no-op.
+    The runner **closes the device on exit** (`audio.shutdown()` in `runner.py`'s
+    `finally`) — its callback runs on a native thread, so without this a game
+    playing music closes its window on Esc but the **process hangs** (fixed
+    2026-08-23; see `tasks/reference/notable-subsystems.md`).
   - `geometry.Rect` is **integer-coord like `pygame.Rect`**; **`ZRect`** is the float
     variant, and **`Actor` uses `ZRect`** to keep sub-pixel positions.
   - **The games use `gacalc.g2.Vector` / `gacalc.g3.Vector` DIRECTLY**

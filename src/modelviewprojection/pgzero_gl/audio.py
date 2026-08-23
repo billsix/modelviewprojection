@@ -253,8 +253,37 @@ class _Engine:
         with self._lock:
             v.done = True
 
+    def shutdown(self) -> None:
+        """Stop the output device and its native callback thread.
+
+        miniaudio's ``PlaybackDevice`` runs its mixer callback on a background
+        thread that is NOT a Python ``threading.Thread``; if it is left running
+        when the game loop ends, the process hangs on exit -- the window closes
+        but Python never returns (seen on real hardware playing music; headless
+        the device never opens, so this is a no-op there). Closing the device
+        stops that thread. Idempotent and best-effort -- audio is optional.
+
+        The device is closed with the lock RELEASED: ``close()`` joins the
+        callback thread, which itself takes ``self._lock`` in the mixer, so
+        holding it here would deadlock.
+        """
+        with self._lock:
+            self._voices = []
+            device = self._device
+            self._device = None
+        if device is not None:
+            try:
+                device.close()
+            except Exception:
+                pass
+
 
 _engine = _Engine()
+
+
+def shutdown() -> None:
+    """Tear down the audio backend at game exit (see :meth:`_Engine.shutdown`)."""
+    _engine.shutdown()
 
 
 def _decode(path: str) -> _PCM:

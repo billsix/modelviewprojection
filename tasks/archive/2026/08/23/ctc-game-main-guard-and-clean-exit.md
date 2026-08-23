@@ -1,9 +1,16 @@
 # CtC games: guard `go()` behind `if __name__ == "__main__"` + exit cleanly
 
-**Status:** in-progress (2026-08-23) — **both parts implemented & verified as far as is possible
-headlessly** (idempotency proven, all files compile, ruff clean, ty shows no new errors). The
-remaining "exits cleanly on window-close/Esc/SIGTERM" claim needs Bill's **display + in-container**
-verification (see "Verified / Remaining" below). Not archived.
+**Status:** complete
+**Completed:** 2026-08-23 — all three parts done and **Bill-verified on his hardware**: Cavern and
+boing (he checked all the games) exit cleanly on Esc. The third bug was the meaty one — Bill
+reported Cavern: pressing Esc closes the window but **the process hangs**. Root cause: the runner's
+`finally` tore down GLFW but **never stopped the miniaudio audio device**, whose native callback
+thread then kept Python alive after the loop ended. Headless never hit it (no audio device opens →
+no thread), which is why Parts 1–2 verified clean headlessly. Fixed by adding `audio.shutdown()`
+(closes the `PlaybackDevice`, lock released to avoid a callback-thread-join deadlock) and calling it
+from the runner's `finally` (see "Part 3"). Durable knowledge harvested to
+`tasks/reference/notable-subsystems.md` (shim + audio exit gotcha, `go`→`main`) and
+`tasks/reference/design-decisions.md` (audio decision).
 
 **Follow-up (2026-08-23, Bill's request): renamed the shim launch function `go` → `main`.** Now
 that the call is guarded by `if __name__ == "__main__":`, `main()` reads more naturally than the
@@ -81,8 +88,38 @@ covers all 10 games):
 - **Cleanup.** Ensure the `finally: glfw.terminate()` runs and any renderer/GL
   resources are released, so exit is clean (exit 0), matching the mvpViz explorers.
 
+## Part 3 — audio device never stopped → process hangs on exit (found 2026-08-23, Bill's hardware)
+
+**Symptom (Cavern):** Esc closes the window, but the process hangs — it took a kill to stop.
+
+**Root cause.** `pgzero_gl` audio is a single-device software mixer on **miniaudio**
+(`audio.py`). Cavern plays background music (`music.play("theme")`, `cavern.py:976`), which
+opens a `miniaudio.PlaybackDevice`. That device runs its mixer callback on a **native (C)
+thread that is not a Python `threading.Thread`.** The runner's `finally` only did
+`glfw.terminate()` (window closes — the visible part) and **never closed the audio device**, so
+the audio thread stayed alive and kept the interpreter from exiting. Headless the device never
+opens (`_ensure_device` fails → `_failed=True`, no thread), so Parts 1–2 looked clean — the bug
+is display+audio-hardware-only.
+
+**Fix (one change, covers all 10 games).**
+- `audio.py`: `_Engine.shutdown()` clears voices and calls `device.close()` **with the lock
+  released** (close joins the callback thread, which itself takes `self._lock` — closing under
+  the lock would deadlock). Idempotent, best-effort. Module-level `audio.shutdown()` wraps it.
+- `runner.py`: the loop's `finally` now calls `audio.shutdown()` (local `from . import audio`,
+  guarded) *before* `glfw.terminate()`.
+
+**Headless gate:** `py_compile` clean; `ruff check` clean on both files; `audio.shutdown()`
+proven idempotent as a no-op with no device (double call). ty shows only environment
+`unresolved-import` (miniaudio/glfw/OpenGL not in the sandbox) — no type errors from the change.
+
+**Needs Bill (display + audio hardware):** Cavern now exits 0 on Esc/window-close, *and* a
+sound-effects-only game (e.g. boing) still exits 0 — confirming the fix isn't music-specific.
+
 ## Plan
 
+- [x] **Part 3 — audio device shutdown (`pgzero_gl/audio.py` + `runner.py`).** See Part 3 above:
+      `audio.shutdown()` closes the miniaudio `PlaybackDevice` from the runner's `finally`, so the
+      native audio thread no longer keeps the process alive after the window closes.
 - [x] **Part 2 — shared runner (`pgzero_gl/runner.py`).** Two additions, one change covers
       all 10 games:
       - **Esc-to-quit** in the key callback — on Esc PRESS, `glfw.set_window_should_close`.
@@ -104,10 +141,14 @@ covers all 10 games):
       check` + `ruff format --check` clean on games and runner; `ty check runner.py` shows only
       environment `unresolved-import` for `glfw`/`OpenGL.GL` (not installed in the sandbox) —
       **no type errors from the changes**.
-- [ ] **Needs Bill (display + container):** run a game, close the window / press Esc / send
-      SIGTERM, confirm it now exits 0 (was SIGKILL). `_smoketest.py` still renders a frame per
-      game. Full in-container `make format` (ty with deps installed) green. Then archive +
-      `/archive-task` triages the adhoc codemod (one-shot → `git rm`).
+- [x] **Bill verified Esc (2026-08-23):** "escape seems to be working now" — Cavern exits
+      cleanly on Esc on Bill's hardware (the audio-thread hang from Part 3 is gone). This is the
+      key confirmation the headless gate couldn't give.
+- [ ] **Remaining (optional, Bill's call before archive):** confirm a **sound-effects-only** game
+      (e.g. boing) also exits 0 (proves the fix isn't music-specific); confirm **window-close
+      button** and **SIGTERM** (`podman stop`) also exit 0 (Part 2's other paths); full
+      in-container `make format` (ty with deps) green. Then archive + `/archive-task` triages the
+      adhoc codemods (`add_main_guard.py`, `rename_go_to_main.py` — one-shot → `git rm`).
 
 ## Open questions — all resolved (2026-08-23)
 
