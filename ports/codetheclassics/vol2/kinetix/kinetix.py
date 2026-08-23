@@ -1424,4 +1424,5 @@ game: Any = Game(ai_controls)
 total_frames: int = 0
 
 # Tell Pygame Zero to take over
-go()
+if __name__ == "__main__":
+    go()

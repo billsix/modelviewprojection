@@ -2436,4 +2436,5 @@ demo_start_timer: float = 0
 accumulated_time: float = 0
 
 # Tell Pygame Zero to take over
-go()
+if __name__ == "__main__":
+    go()

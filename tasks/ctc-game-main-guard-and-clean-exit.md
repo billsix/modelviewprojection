@@ -1,6 +1,9 @@
 # CtC games: guard `go()` behind `if __name__ == "__main__"` + exit cleanly
 
-**Status:** proposed — needs go-ahead
+**Status:** in-progress (2026-08-23) — **both parts implemented & verified as far as is possible
+headlessly** (idempotency proven, all files compile, ruff clean, ty shows no new errors). The
+remaining "exits cleanly on window-close/Esc/SIGTERM" claim needs Bill's **display + in-container**
+verification (see "Verified / Remaining" below). Not archived.
 **Priority:** 5
 **Difficulty:** 4
 **Created:** 2026-07-18 (surfaced while profiling gacalc via the CtC games; the
@@ -68,21 +71,41 @@ covers all 10 games):
 
 ## Plan
 
-- [ ] Reproduce: run a game (e.g. `vol1/boing/boing.py`), close the window, confirm
-      the process lingers (needs kill). Compare with an mvpViz explorer that exits 0.
-- [ ] Fix the shared runner (Part 2): window-close + Esc + signal handling + clean
-      teardown. Verify a single game now exits 0 on window-close and on Ctrl-C.
-- [ ] Add the `__main__` guard to all 10 game files (Part 1); confirm each still
-      launches when run directly and no longer launches on bare import
-      (`python -c "import importlib.util, …"` / the `_smoketest.py` import path).
-- [ ] Gate: `_smoketest.py` for each game still renders a frame; `make format`
-      (ruff + ty) clean; a quick play-test of 2–3 games (window closes cleanly).
+- [x] **Part 2 — shared runner (`pgzero_gl/runner.py`).** Two additions, one change covers
+      all 10 games:
+      - **Esc-to-quit** in the key callback — on Esc PRESS, `glfw.set_window_should_close`.
+        Runs *after* the game's own `on_key_down`, so gameplay is unchanged. Mirrors the
+        explorers' `cayley_gl.common_key` (`cayley_gl.py:624`). Grep confirmed only
+        `leadingedge` reads `keyboard.escape` (to end the game), so Esc-quit is consistent
+        with it and a pure additive exit for the other 9.
+      - **SIGINT/SIGTERM handlers** installed around the loop (restored in `finally`) that
+        call `quit_game()` — fixes Ctrl-C / `podman stop` / the PID-1-ignores-SIGTERM case
+        (the "needed SIGKILL" symptom). Guarded with `try/except (ValueError, OSError)` so a
+        non-main-thread caller (a test harness) skips them and still exits via
+        window-close / `PGZERO_MAX_FRAMES`.
+- [x] **Part 1 — `__main__` guard on all 10 games.** Done via an idempotent codemod,
+      `tasks/adhoc/ctc-game-main-guard-and-clean-exit/add_main_guard.py` (run once; re-run
+      reports 0 changes — idempotency proven). Each trailing bare `go()` → `if __name__ ==
+      "__main__": go()`, with all game state/functions left at module scope (required for
+      `go()`'s caller-frame introspection). Original launch comments left verbatim (faithful).
+- [x] **Headless gate:** all 10 games + `runner.py` + the codemod `py_compile` clean; `ruff
+      check` + `ruff format --check` clean on games and runner; `ty check runner.py` shows only
+      environment `unresolved-import` for `glfw`/`OpenGL.GL` (not installed in the sandbox) —
+      **no type errors from the changes**.
+- [ ] **Needs Bill (display + container):** run a game, close the window / press Esc / send
+      SIGTERM, confirm it now exits 0 (was SIGKILL). `_smoketest.py` still renders a frame per
+      game. Full in-container `make format` (ty with deps installed) green. Then archive +
+      `/archive-task` triages the adhoc codemod (one-shot → `git rm`).
 
-## Open questions
+## Open questions — all resolved (2026-08-23)
 
-- Should the guard wrap only `go()`, or also a tiny `def main(): …` refactor? (Lean:
-  minimal — just guard `go()`, keep the games near-verbatim.)
-- Is `libdecor` available/desired in the image for real Wayland window decorations,
-  or should we rely on Esc-to-quit + the X11 path for closing?
-- Do the mvpVisualization explorers already do the right thing (they exit 0) — can
-  the runner just adopt `cayley_gl.run_loop`'s close/signal handling verbatim?
+1. **Guard only `go()`, or a `def main()` refactor?** → **Only `go()`** (minimal, near-verbatim),
+   as recommended. The caveat section makes moving code into the guard actively wrong.
+2. **`libdecor` for Wayland decorations, or rely on Esc/X11?** → **Sidestepped.** Esc-to-quit +
+   the signal handlers give exit paths that don't depend on window-manager decorations, so
+   `libdecor` is not required. Adding it for a real title-bar close button is an optional,
+   separate nicety — not needed for a clean exit.
+3. **Adopt `cayley_gl.run_loop` verbatim?** → **No — took its idea, not its body.** `run_loop`
+   is imgui-specific; the reason the explorers exit cleanly is `common_key`'s Esc→
+   `set_window_should_close`. Mirrored that (Esc) and added signal handling the explorers don't
+   have (the games can run as PID 1 in a container, where the explorers don't).

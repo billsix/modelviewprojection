@@ -23,6 +23,7 @@ functions take no ``dt`` (we pass one only if the signature accepts it).
 from __future__ import annotations
 
 import os
+import signal
 import sys
 import time
 from typing import Any
@@ -135,12 +136,38 @@ def go(g: dict[str, Any] | None = None) -> None:
             keyboard._press(key)
             if on_key_down:
                 _call_key_hook(hook=on_key_down, key=key, mods=mods)
+            # Esc always ends the game -- a keyboard exit that does not depend on
+            # window-manager decorations (some Wayland setups have no title-bar
+            # close button). Mirrors the mvpVisualization explorers' common_key.
+            # Runs AFTER the game's own on_key_down so gameplay is unchanged
+            # (leadingedge, the one game that reads keyboard.escape, already ends
+            # on Esc -- so this stays consistent with it).
+            if key == glfw.KEY_ESCAPE:
+                glfw.set_window_should_close(win, True)
         elif action == glfw.RELEASE:
             keyboard._release(key)
             if on_key_up:
                 _call_key_hook(hook=on_key_up, key=key, mods=mods)
 
     glfw.set_key_callback(window, key_cb)
+
+    # Exit cleanly on Ctrl-C / SIGTERM (e.g. `podman stop`) by asking the window
+    # to close; the loop then ends between frames and the `finally` tears down.
+    # Without this the games needed SIGKILL -- and as PID 1 in a container,
+    # SIGTERM is ignored unless a handler is installed. Previous handlers are
+    # restored in the `finally` so `go()` leaves global signal state as it found
+    # it. Installing signal handlers only works on the main thread; skip quietly
+    # otherwise (a test harness), where window-close / PGZERO_MAX_FRAMES suffice.
+    prev_handlers: list[tuple[int, Any]] = []
+
+    def _request_quit(_signum: int, _frame: Any) -> None:
+        quit_game()
+
+    for _sig in (signal.SIGINT, signal.SIGTERM):
+        try:
+            prev_handlers.append((_sig, signal.signal(_sig, _request_quit)))
+        except (ValueError, OSError):
+            pass
 
     frame: float = 1.0 / 60.0
     next_t: float = time.perf_counter()
@@ -169,6 +196,11 @@ def go(g: dict[str, Any] | None = None) -> None:
             else:
                 next_t = time.perf_counter()
     finally:
+        for _sig, _prev in prev_handlers:
+            try:
+                signal.signal(_sig, _prev)
+            except (ValueError, OSError):
+                pass
         glfw.terminate()
 
 

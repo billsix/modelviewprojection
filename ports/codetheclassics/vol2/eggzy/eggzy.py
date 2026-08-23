@@ -2022,4 +2022,5 @@ game_over_state_timer: int = 0
 total_frames: int = 0
 
 # Tell Pygame Zero to take over
-go()
+if __name__ == "__main__":
+    go()

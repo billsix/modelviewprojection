@@ -1384,4 +1384,5 @@ menu_difficulty: int = 0
 # Create a new Game object
 game: Game = Game()
 
-go()
+if __name__ == "__main__":
+    go()

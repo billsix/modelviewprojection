@@ -1070,4 +1070,5 @@ state: State = State.MENU
 # Create a new Game object, without a Player object
 game: Game = Game()
 
-go()
+if __name__ == "__main__":
+    go()

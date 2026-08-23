@@ -3316,4 +3316,5 @@ state = State.TITLE
 game: "Game" = cast("Game", None)
 
 # Tell Pygame Zero to take over
-go()
+if __name__ == "__main__":
+    go()

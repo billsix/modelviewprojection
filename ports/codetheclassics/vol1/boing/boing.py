@@ -513,4 +513,5 @@ state = State.MENU
 game: Game = Game()
 
 # Tell Pygame Zero to start - this line is only required when running the game from an IDE such as IDLE or PyCharm
-go()
+if __name__ == "__main__":
+    go()
