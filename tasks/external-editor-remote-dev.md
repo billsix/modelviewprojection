@@ -1,11 +1,19 @@
 # Drive the dev container from an external editor (VS Code / Zed) via `make lsp-start`
 
-**Status:** **PARKED 2026-08-23 — do not start.** Deferred by William Emerison Six
-<billsix@gmail.com> until the ecosystem standardizes: revisit once **Zed's dev-container
-support reaches parity with VS Code's** (see "Trigger to revisit"). Research is done and
-captured below; four design decisions are open and must be answered before any code.
+**Status:** **blocked (2026-08-23) — do not start.** Deferred by William Emerison Six
+<billsix@gmail.com> until the ecosystem standardizes. Research is done and captured below;
+four design decisions are open and must be answered before any code.
 **Priority:** 8
 **Difficulty:** 6
+**Blocked on:** Zed's dev-container / remote support reaching VS Code parity — the "still in
+development" caveats on Zed's dev-containers docs being gone (auto-rebuild on
+`devcontainer.json` change, a stable podman path), OR a common cross-editor "attach an
+external editor to a running container" standard emerging.
+**Recheck:** `WebFetch https://zed.dev/docs/dev-containers` and check whether the "still in
+development" / "must be manually restarted" / "do not trigger automatic rebuilds" caveats
+are **gone**. *Cleared* = the page no longer flags the feature as in-development (stable
+auto-rebuild + podman path). Also glance at `https://zed.dev/docs/remote-development` for any
+container-native (non-SSH) attach story.
 
 **Type:** dev-environment / container tooling. No book or `src/` changes.
 
@@ -117,9 +125,8 @@ netavark + a published port).
 
 ## Trigger to revisit
 
-Un-park when **Zed's dev-container / remote support standardizes to VS Code parity** — the
-"still in development" caveats on <https://zed.dev/docs/dev-containers> are gone
-(auto-rebuild on `devcontainer.json` change, stable podman path), OR a common
-cross-editor standard for "attach an external editor to a running container" emerges.
+See the `**Blocked on:**` / `**Recheck:**` fields in the header — run `/recheck-blocked` to
+test the gate. In short: un-block when Zed's dev-container / remote support standardizes to
+VS Code parity, or a common cross-editor "attach to a running container" standard emerges.
 Until then the maintainer is deliberately not investing — the approaches are too
 editor-specific and in-flux (William Emerison Six <billsix@gmail.com>, 2026-08-23).
