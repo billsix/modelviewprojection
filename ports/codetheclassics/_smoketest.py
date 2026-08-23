@@ -190,14 +190,17 @@ def main():
         from modelviewprojection.pgzero_gl import renderer
 
         context.renderer = renderer.Renderer(w, h)
-    # Neutralise the game's module-level ``go()`` call so importing it renders
-    # nothing and opens no window -- we drive update()/draw() ourselves below.
-    # (Games do ``from modelviewprojection.pgzero_gl import go``, binding this attribute at their
+    # Neutralise the game's launch ``main()`` so importing it renders nothing and
+    # opens no window -- we drive update()/draw() ourselves below. Since the games
+    # now guard the call behind ``if __name__ == "__main__":`` and exec_module runs
+    # them as ``game_under_test`` (not ``__main__``), the import no longer launches
+    # on its own; this stub stays as belt-and-suspenders. (Games do ``from
+    # modelviewprojection.pgzero_gl import main``, binding this attribute at their
     # import time, so it must be stubbed before ``exec_module`` runs.)  Formerly
-    # ``pgzero_gl.pgzrun.go``; the honest-imports pass (2026-07-08) removed the
-    # synthetic ``pgzrun`` module -- ``go`` now lives directly on the package.
-    pgzero_gl.go = lambda g=None: None
-    pgzero_gl.runner.go = lambda g=None: None
+    # ``go`` / ``pgzero_gl.pgzrun.go``; renamed ``go`` -> ``main`` 2026-08-23, and
+    # the honest-imports pass (2026-07-08) removed the synthetic ``pgzrun`` module.
+    pgzero_gl.main = lambda g=None: None
+    pgzero_gl.runner.main = lambda g=None: None
 
     spec = importlib.util.spec_from_file_location("game_under_test", path)
     mod = importlib.util.module_from_spec(spec)

@@ -39,10 +39,10 @@ from gacalc.g2 import Vector
 
 from modelviewprojection.pgzero_gl import (
     Actor,
-    go,
     images,
     joystick,
     keyboard,
+    main,
     mask,
     mixer,
     music,
@@ -1756,4 +1756,4 @@ state_timer: int = 0
 
 # Tell Pygame Zero to take over
 if __name__ == "__main__":
-    go()
+    main()

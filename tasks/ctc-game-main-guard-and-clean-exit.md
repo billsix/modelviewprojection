@@ -4,6 +4,18 @@
 headlessly** (idempotency proven, all files compile, ruff clean, ty shows no new errors). The
 remaining "exits cleanly on window-close/Esc/SIGTERM" claim needs Bill's **display + in-container**
 verification (see "Verified / Remaining" below). Not archived.
+
+**Follow-up (2026-08-23, Bill's request): renamed the shim launch function `go` → `main`.** Now
+that the call is guarded by `if __name__ == "__main__":`, `main()` reads more naturally than the
+old `go()` (which mirrored pgzero's `pgzrun.go()`). Renamed `def go` → `def main` in
+`pgzero_gl/runner.py` and its `__init__.py` export + `__all__`; updated the `go()` mentions in
+`context.py` and the `go`-stub in `ports/codetheclassics/_smoketest.py` (whose comment was also
+corrected — the `__main__` guard, not the stub, is now what stops import-time launch); and moved
+all 10 games' `import go`/`go()` → `main` via a second word-precise idempotent codemod,
+`tasks/adhoc/.../rename_go_to_main.py` (+ `ruff --fix` to re-sort the import). Docstrings that
+described `go` as "one of PyGame Zero's globals (`pgzrun.go`)" were reworded — `main` is this
+port's own launch entry, not a pgzero global. ruff + ty clean; only `pgzrun.go` (the external
+pgzero API being emulated) is still named, deliberately.
 **Priority:** 5
 **Difficulty:** 4
 **Created:** 2026-07-18 (surfaced while profiling gacalc via the CtC games; the

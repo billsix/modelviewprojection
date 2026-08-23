@@ -44,7 +44,7 @@ glfw_ready: bool = False
 
 # Directory that contains the game's images/, sounds/, music/ folders.
 # None means "resolve lazily" -- because game objects (and thus image/sound
-# loads) are routinely created at module-import time, BEFORE go() runs, we infer
+# loads) are routinely created at module-import time, BEFORE main() runs, we infer
 # the root from the main script's location when it hasn't been set explicitly.
 asset_root: str | None = None
 
@@ -54,7 +54,7 @@ def get_asset_root() -> str:
 
     Uses the explicitly-set :data:`asset_root` if present; otherwise infers it
     from the main script's location (game objects load assets at import time,
-    before :func:`~pgzero_gl.go` runs and could set it), falling back to the
+    before :func:`~pgzero_gl.main` runs and could set it), falling back to the
     current working directory.
     """
     if asset_root is not None:
@@ -75,6 +75,6 @@ def require_renderer() -> Renderer:
     if renderer is None:
         raise RuntimeError(
             "No GL renderer yet -- drawing happens inside the game loop "
-            "(after go()).  Don't draw at import time."
+            "(after main()).  Don't draw at import time."
         )
     return renderer

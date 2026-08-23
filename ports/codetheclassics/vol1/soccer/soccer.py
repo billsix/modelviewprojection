@@ -27,9 +27,9 @@ from gacalc.g2 import Vector
 from modelviewprojection.pgzero_gl import (
     Actor,
     Rect,
-    go,
     keyboard,
     keys,
+    main,
     mixer,
     music,
     screen,
@@ -1385,4 +1385,4 @@ menu_difficulty: int = 0
 game: Game = Game()
 
 if __name__ == "__main__":
-    go()
+    main()

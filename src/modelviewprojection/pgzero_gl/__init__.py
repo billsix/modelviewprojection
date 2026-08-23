@@ -27,7 +27,8 @@ with ::
 and otherwise keeps PyGame Zero's globals: :class:`Actor`, :data:`screen`,
 :data:`keyboard`, :data:`keys`, :data:`sounds`, :data:`music`, :data:`images`,
 :class:`Rect`, :data:`mixer` (a no-op stand-in for pygame.mixer) and
-:func:`go` (PyGame Zero's ``pgzrun.go``). Deeper pygame APIs are real
+:func:`main` (this port's launch entry, replacing PyGame Zero's ``pgzrun.go``).
+Deeper pygame APIs are real
 submodules imported explicitly: :mod:`pgzero_gl.geometry` (Rect/ZRect;
 vectors come from gacalc directly),
 :mod:`pgzero_gl.draw`, :mod:`pgzero_gl.transform`, :mod:`pgzero_gl.surface`,
@@ -49,7 +50,7 @@ from .audio import music
 from .geometry import Rect, ZRect
 from .input import keyboard, keys
 from .resources import images, sounds
-from .runner import go, quit_game
+from .runner import main, quit_game
 from .screen import screen
 
 __all__ = [
@@ -62,7 +63,7 @@ __all__ = [
     "sounds",
     "music",
     "screen",
-    "go",
+    "main",
     "exit",
     "mixer",
 ]

@@ -36,10 +36,10 @@ from gacalc.g2 import Vector
 from modelviewprojection.pgzero_gl import (
     Actor,
     Rect,
-    go,
     images,
     joystick,
     keyboard,
+    main,
     mixer,
     music,
     screen,
@@ -2023,4 +2023,4 @@ total_frames: int = 0
 
 # Tell Pygame Zero to take over
 if __name__ == "__main__":
-    go()
+    main()

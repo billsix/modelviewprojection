@@ -27,8 +27,8 @@ from gacalc.g2 import Vector
 
 from modelviewprojection.pgzero_gl import (
     Actor,
-    go,
     keyboard,
+    main,
     mixer,
     music,
     screen,
@@ -514,4 +514,4 @@ game: Game = Game()
 
 # Tell Pygame Zero to start - this line is only required when running the game from an IDE such as IDLE or PyCharm
 if __name__ == "__main__":
-    go()
+    main()

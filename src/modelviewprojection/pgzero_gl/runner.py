@@ -13,7 +13,7 @@ Raspberry Pi Press and authors).
 * Repo: https://github.com/raspberrypipress/Code-the-Classics-Vol1
 * Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 
-:func:`go` replaces pgzero's ``pgzrun.go()``. It reads ``WIDTH``/``HEIGHT``/
+:func:`main` replaces pgzero's ``pgzrun.go()``. It reads ``WIDTH``/``HEIGHT``/
 ``TITLE``/``update``/``draw``/``on_*`` from the calling game module, opens a GL
 window (3.3 core by default, or fixed-function 1.x under ``PGZERO_GL=1``), and
 runs a fixed 60 Hz loop -- the games assume a fixed timestep, so most ``update``
@@ -84,7 +84,7 @@ def _make_window(
     return win
 
 
-def go(g: dict[str, Any] | None = None) -> None:
+def main(g: dict[str, Any] | None = None) -> None:
     """Run the game whose globals are ``g`` (defaults to the caller's module)."""
     if g is None:
         g = sys._getframe(1).f_globals
@@ -155,7 +155,7 @@ def go(g: dict[str, Any] | None = None) -> None:
     # to close; the loop then ends between frames and the `finally` tears down.
     # Without this the games needed SIGKILL -- and as PID 1 in a container,
     # SIGTERM is ignored unless a handler is installed. Previous handlers are
-    # restored in the `finally` so `go()` leaves global signal state as it found
+    # restored in the `finally` so `main()` leaves global signal state as it found
     # it. Installing signal handlers only works on the main thread; skip quietly
     # otherwise (a test harness), where window-close / PGZERO_MAX_FRAMES suffice.
     prev_handlers: list[tuple[int, Any]] = []

@@ -40,10 +40,10 @@ from gacalc.transforms import plane_rotation
 
 from modelviewprojection.pgzero_gl import (
     Actor,
-    go,
     images,
     joystick,
     keyboard,
+    main,
     mixer,
     music,
     screen,
@@ -1425,4 +1425,4 @@ total_frames: int = 0
 
 # Tell Pygame Zero to take over
 if __name__ == "__main__":
-    go()
+    main()

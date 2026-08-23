@@ -37,10 +37,10 @@ import gacalc.g3 as g3
 
 from modelviewprojection.pgzero_gl import draw as gldraw
 from modelviewprojection.pgzero_gl import (
-    go,
     images,
     joystick,
     keyboard,
+    main,
     mixer,
     music,
     screen,
@@ -2437,4 +2437,4 @@ accumulated_time: float = 0
 
 # Tell Pygame Zero to take over
 if __name__ == "__main__":
-    go()
+    main()

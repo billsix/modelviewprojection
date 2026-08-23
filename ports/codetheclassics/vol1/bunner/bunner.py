@@ -26,9 +26,9 @@ from typing import Any, ClassVar, Optional, override
 from modelviewprojection.pgzero_gl import (
     Actor,
     Rect,
-    go,
     keyboard,
     keys,
+    main,
     mixer,
     music,
     screen,
@@ -1095,4 +1095,4 @@ state: State = State.MENU
 game: Game = Game()
 
 if __name__ == "__main__":
-    go()
+    main()
