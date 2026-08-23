@@ -56,8 +56,4 @@ dnf install -y \
 
 dnf install -y pinentry || status=1
 
-# libatomic is a runtime dependency of pyright (the Dockerfile pip-installs pyright
-# into /venv). Always installed, as in the original Dockerfile.
-dnf install -y libatomic || status=1
-
 exit $status

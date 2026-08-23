@@ -48,10 +48,8 @@ RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      # build-system.requires -- so the backend must already be in /venv. Python
      # 3.12+ venvs no longer seed setuptools, so without this the editable
      # install fails with ModuleNotFoundError and `make format` never runs.
-     # (gacalc's Dockerfile does the same thing.) libatomic (a pyright runtime
-     # dep) is installed by 01-install-base.sh above.
+     # (gacalc's Dockerfile does the same thing.)
      uv pip install setuptools wheel --python /venv/bin/python && \
-     uv pip install pyright --python /venv/bin/python && \
      if [ "$USE_JUPYTER" = "1" ]; then \
         uv pip install moviepy --python /venv/bin/python && \
         jupytext-config set-default-viewer python && \

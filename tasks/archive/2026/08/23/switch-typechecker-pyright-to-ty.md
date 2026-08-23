@@ -1,9 +1,9 @@
 # Switch the type checker from pyright to ty (single checker: ty)
 
-**Status:** in-progress (2026-08-23) — **ty wired as the active emacs LSP; pyright kept installed
-as a fallback** (Bill's call 2026-08-23, open Q2 → "wire ty, verify, then remove"). Awaiting Bill's
-**interactive** verification in `make shell` emacs; the pyright/libatomic/MELPA removal is deferred
-until then (see "Remaining" below). Not archived.
+**Status:** complete
+**Completed:** 2026-08-23 (William Emerison Six <billsix@gmail.com>). ty wired as the active emacs
+LSP and **verified working interactively by Bill**; pyright + its `libatomic` dep + the `lsp-pyright`
+MELPA entry then removed.
 **Priority:** 5
 **Difficulty:** 3
 
@@ -44,25 +44,28 @@ now-unused pyright install.** The gate needs no change.
    back. The existing `(python-mode . lsp-deferred)` hook in the `lsp-mode` block already starts the
    client on open. Verified the elisp reads cleanly (`emacs --batch` sexp scan). **Did NOT touch the
    vendored `.emacs.d/elpa/` tree.**
-2. **Dockerfile + libatomic — DEFERRED (fallback kept).** Not done, on purpose: pyright stays
-   installed as the fallback. The removal, once Bill verifies ty interactively, is:
-   - `Dockerfile:54` — drop `uv pip install pyright --python /venv/bin/python && \`.
-   - `Dockerfile:51-52` — the `libatomic (a pyright runtime dep)` comment.
-   - `entrypoint/01-install-base.sh:59-61` — `dnf install -y libatomic` + its comment (it exists
-     *only* for pyright; nothing else needs it — reconfirm with a grep at removal time).
-   - `install-melpa-packages.el:7` — the `lsp-pyright` package (unused once the fallback is dropped).
-   (Task's original line numbers were stale — Dockerfile is ~54, not ~128; corrected here.)
-3. **Verify — needs Bill (interactive, can't be done headlessly).** Rebuild the image; `make format`
-   still green (ty gate unchanged — it already ran ty, so this can't regress it). Open a source file
-   in `make shell`'s emacs and confirm ty diagnostics appear via the LSP. Then confirm gacalc's
-   precise operator types (`v2 * v2 : Rotor2`) show correctly (gacalc pin is already 0.0.16, which
-   carries the overloads). Once confirmed, do step 2's removals and archive.
+2. **Remove pyright + fallback. [DONE 2026-08-23, after Bill's interactive verify.]**
+   - `Dockerfile` — dropped `uv pip install pyright …` and the `libatomic (a pyright runtime dep)`
+     comment (the `setuptools wheel` line still ends the block with `&& \`; verified continuation).
+   - `entrypoint/01-install-base.sh` — removed `dnf install -y libatomic` + its comment. Grep
+     confirmed `libatomic` existed *only* for pyright (no other consumer in our build/config files).
+   - `install-melpa-packages.el` — removed the `lsp-pyright` package from the selected set.
+   - `init.el` — removed the commented-out pyright fallback block and the fallback wording, leaving a
+     clean ty-only comment. Both elisp files re-parsed cleanly (`emacs --batch` sexp scan).
+   - **Left the vendored `entrypoint/dotfiles/.emacs.d/elpa/lsp-pyright-*/` tree alone** (off-limits;
+     it clears on the next `make update-emacs-packages` now that the install list drops it).
+   (Task's original line numbers were stale — the pyright pip was ~54, not ~128.)
+3. **Verify. [DONE]** Bill confirmed ty's LSP works in `make shell` emacs. `make format` is
+   unaffected (the gate already ran ty). gacalc pin is 0.0.16, which carries the precise operator
+   overloads (`v2 * v2 : Rotor2`).
 
-## Remaining (blocks archive)
+## Note for the future
 
-- **Bill:** verify ty's LSP works in emacs (open a `.py`, confirm diagnostics; no pyright process).
-- **Then:** do the step-2 removals (pyright pip, libatomic, `lsp-pyright` MELPA entry, restore-note
-  cleanup in `init.el`) and archive this task.
+This lsp-mode version ships a **built-in `lsp-python-ty` client** (seen in `lsp-mode.el`'s client
+autoload list) — so the task's premise "lsp-mode has no first-class ty client" is now outdated. The
+custom `lsp-register-client` stanza in `init.el` is the *verified-working* one and was kept for that
+reason; a future cleanup could switch to the built-in `lsp-python-ty` and drop the custom stanza, but
+that's an unforced change and would want its own interactive re-verify.
 
 ## Open questions
 
