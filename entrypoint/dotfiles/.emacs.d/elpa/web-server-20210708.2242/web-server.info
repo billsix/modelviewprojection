@@ -1,4 +1,4 @@
-This is web-server.info, produced by makeinfo version 6.8 from
+This is web-server.info, produced by makeinfo version 7.1.1 from
 web-server.texi.
 
 This file documents the Emacs Web Server (web-server)
@@ -8,9 +8,9 @@ This file documents the Emacs Web Server (web-server)
      Permission is granted to copy, distribute and/or modify this
      document under the terms of the GNU Free Documentation License,
      Version 1.3 or any later version published by the Free Software
-     Foundation; with the Invariant Section being “GNU GENERAL PUBLIC
-     LICENSE,” A copy of the license is included in the section entitled
-     “GNU Free Documentation License.”
+     Foundation; with the Invariant Section being "GNU GENERAL PUBLIC
+     LICENSE," A copy of the license is included in the section entitled
+     "GNU Free Documentation License."
 INFO-DIR-SECTION Emacs
 START-INFO-DIR-ENTRY
 * Web Server: (web-server).     Web Server for Emacs.
@@ -29,9 +29,9 @@ This file documents the Emacs Web Server (web-server)
      Permission is granted to copy, distribute and/or modify this
      document under the terms of the GNU Free Documentation License,
      Version 1.3 or any later version published by the Free Software
-     Foundation; with the Invariant Section being “GNU GENERAL PUBLIC
-     LICENSE,” A copy of the license is included in the section entitled
-     “GNU Free Documentation License.”
+     Foundation; with the Invariant Section being "GNU GENERAL PUBLIC
+     LICENSE," A copy of the license is included in the section entitled
+     "GNU Free Documentation License."
 
 * Menu:
 
@@ -92,7 +92,7 @@ matchers consists of an HTTP header and a regular expression.  When the
 regular expression matches the content of the given header the matcher
 succeeds and the associated handler is called.  For example the
 following matches any ‘GET’ request whose path starts with the substring
-“foo”.
+"foo".
 
      (:GET . "^foo")
 
@@ -103,7 +103,7 @@ value.  For example the following matcher matches every request,
      (lambda (_) t)
 
    and the following matches only requests in which the supplied
-“number” parameter is odd.
+"number" parameter is odd.
 
      (lambda (request)
        (oddp (string-to-number (cdr (assoc "number" request)))))
@@ -165,9 +165,9 @@ File: web-server.info,  Node: Usage Examples,  Next: Hello World,  Prev: Request
 These examples demonstrate usage.
 * Menu:
 
-* Hello World::                 Serve “Hello World” to every request
-* Hello World UTF8::            Serve “Hello World” w/UTF8 encoding
-* Hello World HTML::            Serve “Hello World” in HTML
+* Hello World::                 Serve "Hello World" to every request
+* Hello World UTF8::            Serve "Hello World" w/UTF8 encoding
+* Hello World HTML::            Serve "Hello World" in HTML
 * File Server::                 Serve files from a document root
 * URL Parameter Echo::          Echo parameters from a URL query string
 * POST Echo::                   Echo POST parameters back
@@ -184,10 +184,10 @@ File: web-server.info,  Node: Hello World,  Next: Hello World UTF8,  Prev: Usage
 4.1 Hello World
 ===============
 
-The simplest possible “hello world” example.  The handler consists of a
+The simplest possible "hello world" example.  The handler consists of a
 single (matcher .  handler) pair.  The function matcher matches _every_
 incoming HTTP request.  The handler responds by setting the content type
-to ‘text/plain’, and then sending the string “hello world”.  When the
+to ‘text/plain’, and then sending the string "hello world".  When the
 handler exits the network connection of the request is closed.
 
 ;;; hello-world.el --- simple hello world server using Emacs Web Server
@@ -206,7 +206,7 @@ File: web-server.info,  Node: Hello World UTF8,  Next: Hello World HTML,  Prev: 
 4.2 Hello World UTF8
 ====================
 
-This example only differs from the previous in that the “Content-type”
+This example only differs from the previous in that the "Content-type"
 indicates UTF8 encoded data, and the hello world sent is selected at
 random from a list of different languages.
 
@@ -256,7 +256,7 @@ File: web-server.info,  Node: Hello World HTML,  Next: File Server,  Prev: Hello
 </html>")))
  9002)
 
-   This variation of the “hello world” example sends a ‘text/html’
+   This variation of the "hello world" example sends a ‘text/html’
 response instead of a simple ‘text/plain’ response.
 
 
@@ -269,7 +269,7 @@ The following example implements a file server which will serve files
 from the ‘docroot’ document root set to the current working directory in
 this example.  Four helper functions are used; ‘ws-in-directory-p’ is
 used to check if the requested path is within the document root.  If not
-then ‘ws-send-404’ is used to send a default “File Not Found”.  If so
+then ‘ws-send-404’ is used to send a default "File Not Found".  If so
 then the file is served with ‘ws-send-file’ (which appropriately sets
 the mime-type of the response based on the extension of the file) if it
 is a file or is served with ‘ws-send-directory-list’ if it is a
@@ -330,7 +330,7 @@ File: web-server.info,  Node: POST Echo,  Next: Basic Authentication,  Prev: URL
 4.6 POST Echo
 =============
 
-The following example echos back the content of the “message” field in a
+The following example echos back the content of the "message" field in a
 ‘POST’ request.
 
 ;;; post-echo.el --- echo back posted message using Emacs Web Server
@@ -362,19 +362,19 @@ File: web-server.info,  Node: Basic Authentication,  Next: Org-mode Export,  Pre
 
 The following example demonstrates BASIC HTTP authentication.  The
 handler prompts an unauthenticated client for authentication by sending
-a “WWW-Authenticate” header.
+a "WWW-Authenticate" header.
 
      (ws-response-header process 401
        '("WWW-Authenticate" . "Basic realm=\"example\"")
        '("Content-type" . "text/plain"))
 
-   The client replies by setting the “Authorization” HTTP header which
+   The client replies by setting the "Authorization" HTTP header which
 is parsed into a list of the form ‘(PROTOCOL USERNAME . PASSWORD)’.
 Currently only BASIC HTTP authentication is supported.
 
 Note: BASIC HTTP authentication passes user credentials in plain text
 between the client and the server and should generally only be used with
-HTTPS network encryption.  While the Emacs web server currently doesn’t
+HTTPS network encryption.  While the Emacs web server currently doesn't
 support HTTPS network encryption it may be run behind an HTTPS proxy
 server (e.g., Apache or Nginx) with HTTPS support.
 
@@ -456,7 +456,7 @@ File: web-server.info,  Node: File Upload,  Next: Web Socket,  Prev: Org-mode Ex
 ===============
 
 The following example demonstrates accessing an uploaded file.  This
-simple server accesses the file named “file” and returns it’s sha1sum
+simple server accesses the file named "file" and returns it's sha1sum
 and file name.
 
 ;;; file-upload.el --- use an uploaded file
@@ -571,8 +571,8 @@ File: web-server.info,  Node: Gzipped Transfer Encoding,  Next: Chunked Transfer
 4.11 Gzipped Transfer Encoding
 ==============================
 
-HTTP Responses may be compressed by setting the “gzip” (or “compress” or
-“deflate”) content- or transfer-encoding HTTP headers in
+HTTP Responses may be compressed by setting the "gzip" (or "compress" or
+"deflate") content- or transfer-encoding HTTP headers in
 ‘ws-response-header’.  Any further data sent to the process using
 ‘ws-send’ will automatically be appropriately compressed.
 
@@ -609,7 +609,7 @@ File: web-server.info,  Node: Chunked Transfer Encoding,  Next: Function Index, 
 4.12 Chunked Transfer Encoding
 ==============================
 
-Similarly, HTTP Responses may be sent using the “chunked” transfer
+Similarly, HTTP Responses may be sent using the "chunked" transfer
 encoding by passing the appropriate HTTP header to ‘ws-response-header’.
 Any further data sent to the process using ‘ws-send’ will automatically
 be appropriately encoded for chunked transfer.
@@ -692,7 +692,7 @@ The following functions start and stop Emacs web servers.  The
 
  -- Function: ws-stop server
      ‘ws-stop’ stops ‘server’ deletes all related processes, and frees
-     the server’s port.  Evaluate the following to stop all emacs web
+     the server's port.  Evaluate the following to stop all emacs web
      servers.
           (mapc #'ws-stop ws-servers)
 
@@ -710,7 +710,7 @@ associated with responding to HTTP requests.
      Send the headers required to start an HTTP response to ‘proc’.
      ‘proc’ should be a ‘ws-request’ ‘proc’ of an active request.
 
-     For example start a standard 200 “OK” HTML response with the
+     For example start a standard 200 "OK" HTML response with the
      following.
 
           (ws-response-header process 200 '("Content-type" . "text/html"))
@@ -721,7 +721,7 @@ associated with responding to HTTP requests.
           (ws-response-header process 200
                       '("Content-type" . "text/plain; charset=utf-8"))
 
-     Additionally, when “Content-Encoding” or “Transfer-Encoding”
+     Additionally, when "Content-Encoding" or "Transfer-Encoding"
      headers are supplied any subsequent data written to ‘proc’ using
      ‘ws-send’ will be encoded appropriately including sending the
      appropriate data upon the end of transmission for chunked transfer
@@ -738,18 +738,18 @@ associated with responding to HTTP requests.
      encodings are in use, apply them to ‘string’ before sending.
 
  -- Function: ws-send-500 process &rest msg-and-args
-     ‘ws-send-500’ sends a default 500 “Internal Server Error” response
+     ‘ws-send-500’ sends a default 500 "Internal Server Error" response
      to ‘process’.
 
  -- Function: ws-send-404 process &rest msg-and-args
-     ‘ws-send-500’ sends a default 404 “File Not Found” response to
+     ‘ws-send-500’ sends a default 404 "File Not Found" response to
      ‘process’.
 
  -- Function: ws-send-file process path &optional mime-type
      ‘ws-send-file’ sends the file located at ‘path’ to ‘process’.  If
      the optional ‘mime-type’ is not set, then the mime-type is
      determined by calling ‘mm-default-file-encoding’ on ‘path’ or is
-     set to “application/octet-stream” if no mime-type can be
+     set to "application/octet-stream" if no mime-type can be
      determined.
 
  -- Function: ws-send-directory-list process directory &optional match
@@ -812,13 +812,13 @@ lines used to compress data according to content and or transfer
 encoding HTTP headers passed to *note ws-response-header::.
 
  -- Variable: ws-compress-cmd
-     Command used for the “compress” Content or Transfer coding.
+     Command used for the "compress" Content or Transfer coding.
 
  -- Variable: ws-deflate-cmd
-     Command used for the “deflate” Content or Transfer coding.
+     Command used for the "deflate" Content or Transfer coding.
 
  -- Variable: ws-gzip-cmd
-     Command used for the “gzip” Content or Transfer coding.
+     Command used for the "gzip" Content or Transfer coding.
 
 
 File: web-server.info,  Node: Copying,  Next: GNU Free Documentation License,  Prev: Function Index,  Up: Top
@@ -842,7 +842,7 @@ and other kinds of works.
    The licenses for most software and other practical works are designed
 to take away your freedom to share and change the works.  By contrast,
 the GNU General Public License is intended to guarantee your freedom to
-share and change all versions of a program—to make sure it remains free
+share and change all versions of a program--to make sure it remains free
 software for all its users.  We, the Free Software Foundation, use the
 GNU General Public License for most of our software; it applies also to
 any other work released this way by its authors.  You can apply it to
@@ -870,16 +870,16 @@ know their rights.
 (1) assert copyright on the software, and (2) offer you this License
 giving you legal permission to copy, distribute and/or modify it.
 
-   For the developers’ and authors’ protection, the GPL clearly explains
-that there is no warranty for this free software.  For both users’ and
-authors’ sake, the GPL requires that modified versions be marked as
+   For the developers' and authors' protection, the GPL clearly explains
+that there is no warranty for this free software.  For both users' and
+authors' sake, the GPL requires that modified versions be marked as
 changed, so that their problems will not be attributed erroneously to
 authors of previous versions.
 
    Some devices are designed to deny users access to install or run
 modified versions of the software inside them, although the manufacturer
 can do so.  This is fundamentally incompatible with the aim of
-protecting users’ freedom to change the software.  The systematic
+protecting users' freedom to change the software.  The systematic
 pattern of such abuse occurs in the area of products for individuals to
 use, which is precisely where it is most unacceptable.  Therefore, we
 have designed this version of the GPL to prohibit the practice for those
@@ -902,25 +902,25 @@ TERMS AND CONDITIONS
 
   0. Definitions.
 
-     “This License” refers to version 3 of the GNU General Public
+     "This License" refers to version 3 of the GNU General Public
      License.
 
-     “Copyright” also means copyright-like laws that apply to other
+     "Copyright" also means copyright-like laws that apply to other
      kinds of works, such as semiconductor masks.
 
-     “The Program” refers to any copyrightable work licensed under this
-     License.  Each licensee is addressed as “you”.  “Licensees” and
-     “recipients” may be individuals or organizations.
+     "The Program" refers to any copyrightable work licensed under this
+     License.  Each licensee is addressed as "you".  "Licensees" and
+     "recipients" may be individuals or organizations.
 
-     To “modify” a work means to copy from or adapt all or part of the
+     To "modify" a work means to copy from or adapt all or part of the
      work in a fashion requiring copyright permission, other than the
-     making of an exact copy.  The resulting work is called a “modified
-     version” of the earlier work or a work “based on” the earlier work.
+     making of an exact copy.  The resulting work is called a "modified
+     version" of the earlier work or a work "based on" the earlier work.
 
-     A “covered work” means either the unmodified Program or a work
+     A "covered work" means either the unmodified Program or a work
      based on the Program.
 
-     To “propagate” a work means to do anything with it that, without
+     To "propagate" a work means to do anything with it that, without
      permission, would make you directly or secondarily liable for
      infringement under applicable copyright law, except executing it on
      a computer or modifying a private copy.  Propagation includes
@@ -928,12 +928,12 @@ TERMS AND CONDITIONS
      available to the public, and in some countries other activities as
      well.
 
-     To “convey” a work means any kind of propagation that enables other
+     To "convey" a work means any kind of propagation that enables other
      parties to make or receive copies.  Mere interaction with a user
      through a computer network, with no transfer of a copy, is not
      conveying.
 
-     An interactive user interface displays “Appropriate Legal Notices”
+     An interactive user interface displays "Appropriate Legal Notices"
      to the extent that it includes a convenient and prominently visible
      feature that (1) displays an appropriate copyright notice, and (2)
      tells the user that there is no warranty for the work (except to
@@ -945,33 +945,33 @@ TERMS AND CONDITIONS
 
   1. Source Code.
 
-     The “source code” for a work means the preferred form of the work
-     for making modifications to it.  “Object code” means any non-source
+     The "source code" for a work means the preferred form of the work
+     for making modifications to it.  "Object code" means any non-source
      form of a work.
 
-     A “Standard Interface” means an interface that either is an
+     A "Standard Interface" means an interface that either is an
      official standard defined by a recognized standards body, or, in
      the case of interfaces specified for a particular programming
      language, one that is widely used among developers working in that
      language.
 
-     The “System Libraries” of an executable work include anything,
+     The "System Libraries" of an executable work include anything,
      other than the work as a whole, that (a) is included in the normal
      form of packaging a Major Component, but which is not part of that
      Major Component, and (b) serves only to enable use of the work with
      that Major Component, or to implement a Standard Interface for
      which an implementation is available to the public in source code
-     form.  A “Major Component”, in this context, means a major
+     form.  A "Major Component", in this context, means a major
      essential component (kernel, window system, and so on) of the
      specific operating system (if any) on which the executable work
      runs, or a compiler used to produce the work, or an object code
      interpreter used to run it.
 
-     The “Corresponding Source” for a work in object code form means all
+     The "Corresponding Source" for a work in object code form means all
      the source code needed to generate, install, and (for an executable
      work) run the object code and to modify the work, including scripts
      to control those activities.  However, it does not include the
-     work’s System Libraries, or general-purpose tools or generally
+     work's System Libraries, or general-purpose tools or generally
      available free programs which are used unmodified in performing
      those activities but which are not part of the work.  For example,
      Corresponding Source includes interface definition files associated
@@ -1015,7 +1015,7 @@ TERMS AND CONDITIONS
      the conditions stated below.  Sublicensing is not allowed; section
      10 makes it unnecessary.
 
-  3. Protecting Users’ Legal Rights From Anti-Circumvention Law.
+  3. Protecting Users' Legal Rights From Anti-Circumvention Law.
 
      No covered work shall be deemed part of an effective technological
      measure under any applicable law fulfilling obligations under
@@ -1028,12 +1028,12 @@ TERMS AND CONDITIONS
      circumvention is effected by exercising rights under this License
      with respect to the covered work, and you disclaim any intention to
      limit operation or modification of the work as a means of
-     enforcing, against the work’s users, your or third parties’ legal
+     enforcing, against the work's users, your or third parties' legal
      rights to forbid circumvention of technological measures.
 
   4. Conveying Verbatim Copies.
 
-     You may convey verbatim copies of the Program’s source code as you
+     You may convey verbatim copies of the Program's source code as you
      receive it, in any medium, provided that you conspicuously and
      appropriately publish on each copy an appropriate copyright notice;
      keep intact all notices stating that this License and any
@@ -1057,7 +1057,7 @@ TERMS AND CONDITIONS
        b. The work must carry prominent notices stating that it is
           released under this License and any conditions added under
           section 7.  This requirement modifies the requirement in
-          section 4 to “keep intact all notices”.
+          section 4 to "keep intact all notices".
 
        c. You must license the entire work, as a whole, under this
           License to anyone who comes into possession of a copy.  This
@@ -1077,9 +1077,9 @@ TERMS AND CONDITIONS
      works, which are not by their nature extensions of the covered
      work, and which are not combined with it such as to form a larger
      program, in or on a volume of a storage or distribution medium, is
-     called an “aggregate” if the compilation and its resulting
+     called an "aggregate" if the compilation and its resulting
      copyright are not used to limit the access or legal rights of the
-     compilation’s users beyond what the individual works permit.
+     compilation's users beyond what the individual works permit.
      Inclusion of a covered work in an aggregate does not cause this
      License to apply to the other parts of the aggregate.
 
@@ -1137,13 +1137,13 @@ TERMS AND CONDITIONS
      excluded from the Corresponding Source as a System Library, need
      not be included in conveying the object code work.
 
-     A “User Product” is either (1) a “consumer product”, which means
+     A "User Product" is either (1) a "consumer product", which means
      any tangible personal property which is normally used for personal,
      family, or household purposes, or (2) anything designed or sold for
      incorporation into a dwelling.  In determining whether a product is
      a consumer product, doubtful cases shall be resolved in favor of
      coverage.  For a particular product received by a particular user,
-     “normally used” refers to a typical or common use of that class of
+     "normally used" refers to a typical or common use of that class of
      product, regardless of the status of the particular user or of the
      way in which the particular user actually uses, or expects or is
      expected to use, the product.  A product is a consumer product
@@ -1151,7 +1151,7 @@ TERMS AND CONDITIONS
      industrial or non-consumer uses, unless such uses represent the
      only significant mode of use of the product.
 
-     “Installation Information” for a User Product means any methods,
+     "Installation Information" for a User Product means any methods,
      procedures, authorization keys, or other information required to
      install and execute modified versions of a covered work in that
      User Product from a modified version of its Corresponding Source.
@@ -1187,7 +1187,7 @@ TERMS AND CONDITIONS
 
   7. Additional Terms.
 
-     “Additional permissions” are terms that supplement the terms of
+     "Additional permissions" are terms that supplement the terms of
      this License by making exceptions from one or more of its
      conditions.  Additional permissions that are applicable to the
      entire Program shall be treated as though they were included in
@@ -1232,8 +1232,8 @@ TERMS AND CONDITIONS
           the recipient, for any liability that these contractual
           assumptions directly impose on those licensors and authors.
 
-     All other non-permissive additional terms are considered “further
-     restrictions” within the meaning of section 10.  If the Program as
+     All other non-permissive additional terms are considered "further
+     restrictions" within the meaning of section 10.  If the Program as
      you received it, or any part of it, contains a notice stating that
      it is governed by this License along with a term that is a further
      restriction, you may remove that term.  If a license document
@@ -1299,12 +1299,12 @@ TERMS AND CONDITIONS
      responsible for enforcing compliance by third parties with this
      License.
 
-     An “entity transaction” is a transaction transferring control of an
+     An "entity transaction" is a transaction transferring control of an
      organization, or substantially all assets of one, or subdividing an
      organization, or merging organizations.  If propagation of a
      covered work results from an entity transaction, each party to that
      transaction who receives a copy of the work also receives whatever
-     licenses to the work the party’s predecessor in interest had or
+     licenses to the work the party's predecessor in interest had or
      could give under the previous paragraph, plus a right to possession
      of the Corresponding Source of the work from the predecessor in
      interest, if the predecessor has it or can get it with reasonable
@@ -1321,31 +1321,31 @@ TERMS AND CONDITIONS
 
   11. Patents.
 
-     A “contributor” is a copyright holder who authorizes use under this
+     A "contributor" is a copyright holder who authorizes use under this
      License of the Program or a work on which the Program is based.
-     The work thus licensed is called the contributor’s “contributor
-     version”.
+     The work thus licensed is called the contributor's "contributor
+     version".
 
-     A contributor’s “essential patent claims” are all patent claims
+     A contributor's "essential patent claims" are all patent claims
      owned or controlled by the contributor, whether already acquired or
      hereafter acquired, that would be infringed by some manner,
      permitted by this License, of making, using, or selling its
      contributor version, but do not include claims that would be
      infringed only as a consequence of further modification of the
-     contributor version.  For purposes of this definition, “control”
+     contributor version.  For purposes of this definition, "control"
      includes the right to grant patent sublicenses in a manner
      consistent with the requirements of this License.
 
      Each contributor grants you a non-exclusive, worldwide,
-     royalty-free patent license under the contributor’s essential
+     royalty-free patent license under the contributor's essential
      patent claims, to make, use, sell, offer for sale, import and
      otherwise run, modify and propagate the contents of its contributor
      version.
 
-     In the following three paragraphs, a “patent license” is any
+     In the following three paragraphs, a "patent license" is any
      express agreement or commitment, however denominated, not to
      enforce a patent (such as an express permission to practice a
-     patent or covenant not to sue for patent infringement).  To “grant”
+     patent or covenant not to sue for patent infringement).  To "grant"
      such a patent license to a party means to make such an agreement or
      commitment not to enforce a patent against the party.
 
@@ -1358,9 +1358,9 @@ TERMS AND CONDITIONS
      yourself of the benefit of the patent license for this particular
      work, or (3) arrange, in a manner consistent with the requirements
      of this License, to extend the patent license to downstream
-     recipients.  “Knowingly relying” means you have actual knowledge
+     recipients.  "Knowingly relying" means you have actual knowledge
      that, but for the patent license, your conveying the covered work
-     in a country, or your recipient’s use of the covered work in a
+     in a country, or your recipient's use of the covered work in a
      country, would infringe one or more identifiable patents in that
      country that you have reason to believe are valid.
 
@@ -1372,7 +1372,7 @@ TERMS AND CONDITIONS
      patent license you grant is automatically extended to all
      recipients of the covered work and works based on it.
 
-     A patent license is “discriminatory” if it does not include within
+     A patent license is "discriminatory" if it does not include within
      the scope of its coverage, prohibits the exercise of, or is
      conditioned on the non-exercise of one or more of the rights that
      are specifically granted under this License.  You may not convey a
@@ -1392,7 +1392,7 @@ TERMS AND CONDITIONS
      any implied license or other defenses to infringement that may
      otherwise be available to you under applicable patent law.
 
-  12. No Surrender of Others’ Freedom.
+  12. No Surrender of Others' Freedom.
 
      If conditions are imposed on you (whether by court order, agreement
      or otherwise) that contradict the conditions of this License, they
@@ -1425,7 +1425,7 @@ TERMS AND CONDITIONS
 
      Each version is given a distinguishing version number.  If the
      Program specifies that a certain numbered version of the GNU
-     General Public License “or any later version” applies to it, you
+     General Public License "or any later version" applies to it, you
      have the option of following the terms and conditions either of
      that numbered version or of any later version published by the Free
      Software Foundation.  If the Program does not specify a version
@@ -1434,7 +1434,7 @@ TERMS AND CONDITIONS
 
      If the Program specifies that a proxy can decide which future
      versions of the GNU General Public License can be used, that
-     proxy’s public statement of acceptance of a version permanently
+     proxy's public statement of acceptance of a version permanently
      authorizes you to choose that version for the Program.
 
      Later license versions may give you additional or different
@@ -1446,7 +1446,7 @@ TERMS AND CONDITIONS
 
      THERE IS NO WARRANTY FOR THE PROGRAM, TO THE EXTENT PERMITTED BY
      APPLICABLE LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE
-     COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM “AS IS”
+     COPYRIGHT HOLDERS AND/OR OTHER PARTIES PROVIDE THE PROGRAM "AS IS"
      WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED,
      INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
      MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE
@@ -1490,7 +1490,7 @@ terms.
    To do so, attach the following notices to the program.  It is safest
 to attach them to the start of each source file to most effectively
 state the exclusion of warranty; and each file should have at least the
-“copyright” line and a pointer to where the full notice is found.
+"copyright" line and a pointer to where the full notice is found.
 
      ONE LINE TO GIVE THE PROGRAM'S NAME AND A BRIEF IDEA OF WHAT IT DOES.
      Copyright (C) YEAR NAME OF AUTHOR
@@ -1521,11 +1521,11 @@ notice like this when it starts in an interactive mode:
 
    The hypothetical commands ‘show w’ and ‘show c’ should show the
 appropriate parts of the General Public License.  Of course, your
-program’s commands might be different; for a GUI interface, you would
-use an “about box”.
+program's commands might be different; for a GUI interface, you would
+use an "about box".
 
    You should also get your employer (if you work as a programmer) or
-school, if any, to sign a “copyright disclaimer” for the program, if
+school, if any, to sign a "copyright disclaimer" for the program, if
 necessary.  For more information on this, and how to apply and follow
 the GNU GPL, see <http://www.gnu.org/licenses/>.
 
@@ -1560,7 +1560,7 @@ Appendix B GNU Free Documentation License
      author and publisher a way to get credit for their work, while not
      being considered responsible for modifications made by others.
 
-     This License is a kind of “copyleft”, which means that derivative
+     This License is a kind of "copyleft", which means that derivative
      works of the document must themselves be free in the same sense.
      It complements the GNU General Public License, which is a copyleft
      license designed for free software.
@@ -1581,18 +1581,18 @@ Appendix B GNU Free Documentation License
      be distributed under the terms of this License.  Such a notice
      grants a world-wide, royalty-free license, unlimited in duration,
      to use that work under the conditions stated herein.  The
-     “Document”, below, refers to any such manual or work.  Any member
-     of the public is a licensee, and is addressed as “you”.  You accept
+     "Document", below, refers to any such manual or work.  Any member
+     of the public is a licensee, and is addressed as "you".  You accept
      the license if you copy, modify or distribute the work in a way
      requiring permission under copyright law.
 
-     A “Modified Version” of the Document means any work containing the
+     A "Modified Version" of the Document means any work containing the
      Document or a portion of it, either copied verbatim, or with
      modifications and/or translated into another language.
 
-     A “Secondary Section” is a named appendix or a front-matter section
+     A "Secondary Section" is a named appendix or a front-matter section
      of the Document that deals exclusively with the relationship of the
-     publishers or authors of the Document to the Document’s overall
+     publishers or authors of the Document to the Document's overall
      subject (or to related matters) and contains nothing that could
      fall directly within that overall subject.  (Thus, if the Document
      is in part a textbook of mathematics, a Secondary Section may not
@@ -1601,7 +1601,7 @@ Appendix B GNU Free Documentation License
      of legal, commercial, philosophical, ethical or political position
      regarding them.
 
-     The “Invariant Sections” are certain Secondary Sections whose
+     The "Invariant Sections" are certain Secondary Sections whose
      titles are designated, as being those of Invariant Sections, in the
      notice that says that the Document is released under this License.
      If a section does not fit the above definition of Secondary then it
@@ -1609,13 +1609,13 @@ Appendix B GNU Free Documentation License
      contain zero Invariant Sections.  If the Document does not identify
      any Invariant Sections then there are none.
 
-     The “Cover Texts” are certain short passages of text that are
+     The "Cover Texts" are certain short passages of text that are
      listed, as Front-Cover Texts or Back-Cover Texts, in the notice
      that says that the Document is released under this License.  A
      Front-Cover Text may be at most 5 words, and a Back-Cover Text may
      be at most 25 words.
 
-     A “Transparent” copy of the Document means a machine-readable copy,
+     A "Transparent" copy of the Document means a machine-readable copy,
      represented in a format whose specification is available to the
      general public, that is suitable for revising the document
      straightforwardly with generic text editors or (for images composed
@@ -1627,7 +1627,7 @@ Appendix B GNU Free Documentation License
      been arranged to thwart or discourage subsequent modification by
      readers is not Transparent.  An image format is not Transparent if
      used for any substantial amount of text.  A copy that is not
-     “Transparent” is called “Opaque”.
+     "Transparent" is called "Opaque".
 
      Examples of suitable formats for Transparent copies include plain
      ASCII without markup, Texinfo input format, LaTeX input format,
@@ -1640,23 +1640,23 @@ Appendix B GNU Free Documentation License
      the machine-generated HTML, PostScript or PDF produced by some word
      processors for output purposes only.
 
-     The “Title Page” means, for a printed book, the title page itself,
+     The "Title Page" means, for a printed book, the title page itself,
      plus such following pages as are needed to hold, legibly, the
      material this License requires to appear in the title page.  For
-     works in formats which do not have any title page as such, “Title
-     Page” means the text near the most prominent appearance of the
-     work’s title, preceding the beginning of the body of the text.
+     works in formats which do not have any title page as such, "Title
+     Page" means the text near the most prominent appearance of the
+     work's title, preceding the beginning of the body of the text.
 
-     The “publisher” means any person or entity that distributes copies
+     The "publisher" means any person or entity that distributes copies
      of the Document to the public.
 
-     A section “Entitled XYZ” means a named subunit of the Document
+     A section "Entitled XYZ" means a named subunit of the Document
      whose title either is precisely XYZ or contains XYZ in parentheses
      following text that translates XYZ in another language.  (Here XYZ
      stands for a specific section name mentioned below, such as
-     “Acknowledgements”, “Dedications”, “Endorsements”, or “History”.)
-     To “Preserve the Title” of such a section when you modify the
-     Document means that it remains a section “Entitled XYZ” according
+     "Acknowledgements", "Dedications", "Endorsements", or "History".)
+     To "Preserve the Title" of such a section when you modify the
+     Document means that it remains a section "Entitled XYZ" according
      to this definition.
 
      The Document may include Warranty Disclaimers next to the notice
@@ -1686,7 +1686,7 @@ Appendix B GNU Free Documentation License
 
      If you publish printed copies (or copies in media that commonly
      have printed covers) of the Document, numbering more than 100, and
-     the Document’s license notice requires Cover Texts, you must
+     the Document's license notice requires Cover Texts, you must
      enclose the copies in covers that carry, clearly and legibly, all
      these Cover Texts: Front-Cover Texts on the front cover, and
      Back-Cover Texts on the back cover.  Both covers must also clearly
@@ -1758,15 +1758,15 @@ Appendix B GNU Free Documentation License
           the Addendum below.
 
        G. Preserve in that license notice the full lists of Invariant
-          Sections and required Cover Texts given in the Document’s
+          Sections and required Cover Texts given in the Document's
           license notice.
 
        H. Include an unaltered copy of this License.
 
-       I. Preserve the section Entitled “History”, Preserve its Title,
+       I. Preserve the section Entitled "History", Preserve its Title,
           and add to it an item stating at least the title, year, new
           authors, and publisher of the Modified Version as given on the
-          Title Page.  If there is no section Entitled “History” in the
+          Title Page.  If there is no section Entitled "History" in the
           Document, create one stating the title, year, authors, and
           publisher of the Document as given on its Title Page, then add
           an item describing the Modified Version as stated in the
@@ -1776,12 +1776,12 @@ Appendix B GNU Free Documentation License
           for public access to a Transparent copy of the Document, and
           likewise the network locations given in the Document for
           previous versions it was based on.  These may be placed in the
-          “History” section.  You may omit a network location for a work
+          "History" section.  You may omit a network location for a work
           that was published at least four years before the Document
           itself, or if the original publisher of the version it refers
           to gives permission.
 
-       K. For any section Entitled “Acknowledgements” or “Dedications”,
+       K. For any section Entitled "Acknowledgements" or "Dedications",
           Preserve the Title of the section, and preserve in the section
           all the substance and tone of each of the contributor
           acknowledgements and/or dedications given therein.
@@ -1790,11 +1790,11 @@ Appendix B GNU Free Documentation License
           in their text and in their titles.  Section numbers or the
           equivalent are not considered part of the section titles.
 
-       M. Delete any section Entitled “Endorsements”.  Such a section
+       M. Delete any section Entitled "Endorsements".  Such a section
           may not be included in the Modified Version.
 
        N. Do not retitle any existing section to be Entitled
-          “Endorsements” or to conflict in title with any Invariant
+          "Endorsements" or to conflict in title with any Invariant
           Section.
 
        O. Preserve any Warranty Disclaimers.
@@ -1803,15 +1803,15 @@ Appendix B GNU Free Documentation License
      appendices that qualify as Secondary Sections and contain no
      material copied from the Document, you may at your option designate
      some or all of these sections as invariant.  To do this, add their
-     titles to the list of Invariant Sections in the Modified Version’s
+     titles to the list of Invariant Sections in the Modified Version's
      license notice.  These titles must be distinct from any other
      section titles.
 
-     You may add a section Entitled “Endorsements”, provided it contains
+     You may add a section Entitled "Endorsements", provided it contains
      nothing but endorsements of your Modified Version by various
-     parties—for example, statements of peer review or that the text has
-     been approved by an organization as the authoritative definition of
-     a standard.
+     parties--for example, statements of peer review or that the text
+     has been approved by an organization as the authoritative
+     definition of a standard.
 
      You may add a passage of up to five words as a Front-Cover Text,
      and a passage of up to 25 words as a Back-Cover Text, to the end of
@@ -1849,10 +1849,10 @@ Appendix B GNU Free Documentation License
      combined work.
 
      In the combination, you must combine any sections Entitled
-     “History” in the various original documents, forming one section
-     Entitled “History”; likewise combine any sections Entitled
-     “Acknowledgements”, and any sections Entitled “Dedications”.  You
-     must delete all sections Entitled “Endorsements.”
+     "History" in the various original documents, forming one section
+     Entitled "History"; likewise combine any sections Entitled
+     "Acknowledgements", and any sections Entitled "Dedications".  You
+     must delete all sections Entitled "Endorsements."
 
   6. COLLECTIONS OF DOCUMENTS
 
@@ -1873,16 +1873,16 @@ Appendix B GNU Free Documentation License
 
      A compilation of the Document or its derivatives with other
      separate and independent documents or works, in or on a volume of a
-     storage or distribution medium, is called an “aggregate” if the
+     storage or distribution medium, is called an "aggregate" if the
      copyright resulting from the compilation is not used to limit the
-     legal rights of the compilation’s users beyond what the individual
+     legal rights of the compilation's users beyond what the individual
      works permit.  When the Document is included in an aggregate, this
      License does not apply to the other works in the aggregate which
      are not themselves derivative works of the Document.
 
      If the Cover Text requirement of section 3 is applicable to these
      copies of the Document, then if the Document is less than one half
-     of the entire aggregate, the Document’s Cover Texts may be placed
+     of the entire aggregate, the Document's Cover Texts may be placed
      on covers that bracket the Document within the aggregate, or the
      electronic equivalent of covers if the Document is in electronic
      form.  Otherwise they must appear on printed covers that bracket
@@ -1904,8 +1904,8 @@ Appendix B GNU Free Documentation License
      this License or a notice or disclaimer, the original version will
      prevail.
 
-     If a section in the Document is Entitled “Acknowledgements”,
-     “Dedications”, or “History”, the requirement (section 4) to
+     If a section in the Document is Entitled "Acknowledgements",
+     "Dedications", or "History", the requirement (section 4) to
      Preserve its Title (section 1) will typically require changing the
      actual title.
 
@@ -1946,7 +1946,7 @@ Appendix B GNU Free Documentation License
 
      Each version of the License is given a distinguishing version
      number.  If the Document specifies that a particular numbered
-     version of this License “or any later version” applies to it, you
+     version of this License "or any later version" applies to it, you
      have the option of following the terms and conditions either of
      that specified version or of any later version that has been
      published (not as a draft) by the Free Software Foundation.  If the
@@ -1954,29 +1954,29 @@ Appendix B GNU Free Documentation License
      choose any version ever published (not as a draft) by the Free
      Software Foundation.  If the Document specifies that a proxy can
      decide which future versions of this License can be used, that
-     proxy’s public statement of acceptance of a version permanently
+     proxy's public statement of acceptance of a version permanently
      authorizes you to choose that version for the Document.
 
   11. RELICENSING
 
-     “Massive Multiauthor Collaboration Site” (or “MMC Site”) means any
+     "Massive Multiauthor Collaboration Site" (or "MMC Site") means any
      World Wide Web server that publishes copyrightable works and also
      provides prominent facilities for anybody to edit those works.  A
      public wiki that anybody can edit is an example of such a server.
-     A “Massive Multiauthor Collaboration” (or “MMC”) contained in the
+     A "Massive Multiauthor Collaboration" (or "MMC") contained in the
      site means any set of copyrightable works thus published on the MMC
      site.
 
-     “CC-BY-SA” means the Creative Commons Attribution-Share Alike 3.0
+     "CC-BY-SA" means the Creative Commons Attribution-Share Alike 3.0
      license published by Creative Commons Corporation, a not-for-profit
      corporation with a principal place of business in San Francisco,
      California, as well as future copyleft versions of that license
      published by that same organization.
 
-     “Incorporate” means to publish or republish a Document, in whole or
+     "Incorporate" means to publish or republish a Document, in whole or
      in part, as part of another Document.
 
-     An MMC is “eligible for relicensing” if it is licensed under this
+     An MMC is "eligible for relicensing" if it is licensed under this
      License, and if all works that were first published under this
      License somewhere other than this MMC, and subsequently
      incorporated in whole or in part into the MMC, (1) had no cover
@@ -2003,7 +2003,7 @@ notices just after the title page:
        Free Documentation License''.
 
    If you have Invariant Sections, Front-Cover Texts and Back-Cover
-Texts, replace the “with...Texts.” line with this:
+Texts, replace the "with...Texts."  line with this:
 
          with the Invariant Sections being LIST THEIR TITLES, with
          the Front-Cover Texts being LIST, and with the Back-Cover Texts
@@ -2058,45 +2058,45 @@ Index
 
 
 Tag Table:
-Node: Top709
-Node: Introduction2088
-Node: Handlers2778
-Node: Requests4796
-Node: Usage Examples6114
-Node: Hello World7048
-Node: Hello World UTF87885
-Node: Hello World HTML9065
-Node: File Server9780
-Node: URL Parameter Echo11143
-Node: POST Echo12377
-Node: Basic Authentication13446
-Node: Org-mode Export14987
-Node: File Upload17729
-Node: Web Socket18885
-Node: Gzipped Transfer Encoding22129
-Node: Chunked Transfer Encoding23797
-Node: Function Index25592
-Ref: ws-server25876
-Ref: ws-request26202
-Ref: ws-start26966
-Ref: ws-servers27253
-Ref: ws-stop27346
-Ref: ws-stop-all27579
-Ref: ws-response-header27872
-Ref: ws-send29112
-Ref: ws-send-50029291
-Ref: ws-send-40429448
-Ref: ws-send-file29598
-Ref: ws-send-directory-list29971
-Ref: ws-in-directory-p30353
-Ref: ws-with-authentication30672
-Ref: ws-web-socket-connect31508
-Ref: ws-compress-cmd32395
-Ref: ws-deflate-cmd32495
-Ref: ws-gzip-cmd32593
-Node: Copying32685
-Node: GNU Free Documentation License70476
-Node: Index95831
+Node: Top703
+Node: Introduction2074
+Node: Handlers2764
+Node: Requests4774
+Node: Usage Examples6092
+Node: Hello World7014
+Node: Hello World UTF87843
+Node: Hello World HTML9019
+Node: File Server9730
+Node: URL Parameter Echo11089
+Node: POST Echo12323
+Node: Basic Authentication13388
+Node: Org-mode Export14919
+Node: File Upload17661
+Node: Web Socket18811
+Node: Gzipped Transfer Encoding22055
+Node: Chunked Transfer Encoding23711
+Node: Function Index25502
+Ref: ws-server25786
+Ref: ws-request26112
+Ref: ws-start26876
+Ref: ws-servers27163
+Ref: ws-stop27256
+Ref: ws-stop-all27487
+Ref: ws-response-header27780
+Ref: ws-send29008
+Ref: ws-send-50029187
+Ref: ws-send-40429340
+Ref: ws-send-file29486
+Ref: ws-send-directory-list29855
+Ref: ws-in-directory-p30237
+Ref: ws-with-authentication30556
+Ref: ws-web-socket-connect31392
+Ref: ws-compress-cmd32279
+Ref: ws-deflate-cmd32375
+Ref: ws-gzip-cmd32469
+Node: Copying32557
+Node: GNU Free Documentation License70145
+Node: Index95300
 
 End Tag Table
 
