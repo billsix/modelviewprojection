@@ -4,9 +4,11 @@
 **Priority:** 6
 **Difficulty:** 4
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Blocked on:** maintainer names the exact SB4 demo and the target demos (and the desired directional-vs-
-positional visual convention).
-**Recheck:** the Open questions below are answered — especially *which* SB4 demo (maintainer-gated;
+**Blocked on:** the maintainer's visual-convention choice (directional marker: arrow-from-infinity vs
+sphere) + which target demos. **Q1 (which SB4 demo) is now ANSWERED** by
+`tasks/reference/lighting-and-shading.md`: it's **`ports/openglsuperbiblev4/chapt05/shadow/shadow.py:41`**
+(`light_pos` w = 0.0 = directional). So only the aesthetic/convention half remains.
+**Recheck:** the marker-convention + target-demo questions are answered (maintainer-gated;
 `/recheck-blocked` surfaces it).
 
 ## Goal
