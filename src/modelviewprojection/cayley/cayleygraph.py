@@ -32,6 +32,21 @@ A ``Step``'s ``fn`` stays mutable on purpose: that is a transform *parameter*
 (e.g. the editable virtual camera rewrites it in place), not the graph
 structure.
 
+**On the name.** A textbook *Cayley graph* has group elements as nodes and one
+fixed generating set acting at every node; a graph whose nodes are points a
+group merely *acts on* is, strictly, a *Schreier graph*.  But coordinate frames
+form a **torsor** over the transform group -- the group acts simply
+transitively on them (every frame is carried to every other by exactly one
+transform; no frame is privileged, which is the book's whole point) -- and the
+Schreier graph of a simply transitive action *is* the Cayley graph.  So the
+name is earned, not just evocative.  In categorical terms the structure is a
+**groupoid** (spaces as objects, invertible transforms as arrows), and
+:meth:`CayleyGraph.path` computes the unique morphism in the free groupoid on
+this DAG.  The engineering twin is ROS's ``tf2`` frame tree, which composes and
+auto-inverts transforms along paths the same way.  Depth + web references:
+``tasks/reference/composable-function-algebraic-identity.md`` in the
+`geometricalgebra <https://github.com/billsix/geometricalgebra>`_ repo.
+
 No OpenGL here -- pure data + math, so it is unit-testable with no display.
 """
 
