@@ -44,9 +44,10 @@ just exit code).
    otherwise-invisible object (Bongo Bongo) is rendered.
 2. **It lands in the BOOK, not a demo**: a section on the stencil test illustrated with a
    **screenshot** of the effect. Possible supporting material, maintainer's ideas:
-   - a **recorded video of real gameplay** captured from **Ship of Harkinian** (the
-     HarbourMasters OoT PC port — the same family as the Ghostship codebase already
-     documented in runClaudeInContainer's reference set);
+   - a **recorded video of real gameplay** captured from **Ship of Harkinian**
+     (github.com/HarbourMasters/Shipwright, the OoT PC port — the same family as the
+     Ghostship codebase already documented in the reference set of runClaudeInContainer,
+     github.com/billsix/runClaudeInContainer);
    - a **frame capture showing the frame being built**, via **RenderDoc** or **apitrace**
      (apitrace was "the other tool" the maintainer couldn't recall: open-source GL call
      tracer/replayer; RenderDoc is the interactive single-frame debugger — better for
