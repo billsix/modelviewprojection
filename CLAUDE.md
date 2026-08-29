@@ -132,7 +132,8 @@ sync anymore (multivariate-math uses the identical scheme).
 Don't guess package names; verify them in a clean Fedora container. Pattern:
 
 ```sh
-# nested podman needs --cgroups=disabled; --rm so the container is ephemeral.
+# --cgroups=disabled is harmless belt-and-braces for nested podman (make targets
+# auto-apply it via PODMAN_RUN_FLAGS); --rm so the container is ephemeral.
 podman run --rm --cgroups=disabled -v "$(pwd)":/srcro:ro registry.fedoraproject.org/fedora:44 bash -c '
   cp -a /srcro /mvp && cd /mvp
   <install candidate deps>            # e.g. dnf install ...

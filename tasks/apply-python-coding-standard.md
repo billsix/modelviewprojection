@@ -244,8 +244,8 @@ in-sandbox run. After each module:
   `bash -c`).
 - **Tests:** `make test` (or the repo's suite target). Green before handing a module
   to Bill.
-- Nested podman: every inner `podman run` needs `--cgroups=disabled` (transient
-  add-run-revert per the standing arrangement); check `/dev/fuse` first.
+- Nested podman: `--cgroups=disabled` auto-applies to inner `podman run`s via
+  `PODMAN_RUN_FLAGS` (keyed on `NESTED_PODMAN=1`, 2026-08-29); check `/dev/fuse` first.
 - **No generated code in mvp** (unlike gacalc) as of this writing — so no
   generator-vs-output split to worry about. If that changes, apply the gacalc rule:
   fix the generator, check the emitted output against the standard, never hand-edit
