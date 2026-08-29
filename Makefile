@@ -36,7 +36,7 @@ FILES_TO_MOUNT = -v $(shell pwd):/mvp/:Z \
                 $(GITCONFIG_MOUNT) \
                 $(GNUPG_MOUNT)
 
-USE_X = -e DISPLAY=$(DISPLAY) \
+X_FLAGS_FOR_CONTAINER = -e DISPLAY=$(DISPLAY) \
 	-v /tmp/.X11-unix:/tmp/.X11-unix \
 	--security-opt label=type:container_runtime_t
 # GPU render node for hardware GL (Wayland EGL / X11); skipped if /dev/dri is absent.
@@ -100,7 +100,7 @@ clean: ## Delete the output directory, cleaning out the HTML and the PDF
 SHELL_RUN_FLAGS = \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
-		$(USE_X) \
+		$(X_FLAGS_FOR_CONTAINER) \
 		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(EXPOSE_PORT) \
 		$(ELPA_MOUNT)
@@ -132,7 +132,7 @@ jupyter: image ## Run Jupyter Lab in a container (open http://127.0.0.1:8888/lab
 	$(CONTAINER_CMD) run -it --rm \
 		--entrypoint /bin/bash \
 		$(FILES_TO_MOUNT) \
-		$(USE_X) \
+		$(X_FLAGS_FOR_CONTAINER) \
 		$(WAYLAND_FLAGS_FOR_CONTAINER) \
 		$(EXPOSE_PORT) \
                 $(ELPA_MOUNT) \
