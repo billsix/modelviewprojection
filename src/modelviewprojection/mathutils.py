@@ -294,13 +294,13 @@ def find_normal(p1: g3.Vector, p2: g3.Vector, p3: g3.Vector) -> g3.Vector:
     >>> import gacalc.g3 as g3
     >>> origin = 0.0 * g3.Vector.e_1
     >>> find_normal(origin, 1.0 * g3.Vector.e_1, 1.0 * g3.Vector.e_2)
-    g3.Vector(coeff_e_1=0.0, coeff_e_2=-0.0, coeff_e_3=1.0)
+    g3.Vector(coeff_e_1=0.0, coeff_e_2=0.0, coeff_e_3=1.0)
 
     Reversing the winding flips the normal -- which is exactly how a renderer
     tells a front face from a back face:
 
     >>> find_normal(origin, 1.0 * g3.Vector.e_2, 1.0 * g3.Vector.e_1)
-    g3.Vector(coeff_e_1=0.0, coeff_e_2=-0.0, coeff_e_3=-1.0)
+    g3.Vector(coeff_e_1=0.0, coeff_e_2=0.0, coeff_e_3=-1.0)
 
     The length is twice the triangle's area, not 1 -- this triangle has area
     ``0.5``:
@@ -309,11 +309,10 @@ def find_normal(p1: g3.Vector, p2: g3.Vector, p3: g3.Vector) -> g3.Vector:
     >>> float(abs(n))
     1.0
     """
-    bivector: g3.Bivector = (p2 - p1) ^ (p3 - p1)
-    # the cross product is the dual of the wedge; in 𝒢₃ the dual of a bivector
-    # is a vector, so this already *is* the normal (gacalc types it g3.Vector as
-    # of 0.0.13 -- no coefficient reads or reconstruction needed)
-    return bivector.dual()
+    # the cross product of the two edge vectors, under its GA definition: gacalc
+    # 0.0.18's g3.Vector.cross is exactly (edge1 ^ edge2).dual() -- the dual of
+    # the wedge -- as a generated closed form, typed Vector -> Vector
+    return (p2 - p1).cross(p3 - p1)
 
 
 def plane_equation(
@@ -334,7 +333,7 @@ def plane_equation(
     ...     1.0 * g3.Vector.e_2 + 3.0 * g3.Vector.e_3,
     ... )
     >>> normal
-    g3.Vector(coeff_e_1=0.0, coeff_e_2=-0.0, coeff_e_3=1.0)
+    g3.Vector(coeff_e_1=0.0, coeff_e_2=0.0, coeff_e_3=1.0)
     >>> d
     -3.0
 

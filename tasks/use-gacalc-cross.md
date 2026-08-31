@@ -1,14 +1,20 @@
 # Use gacalc's cross product everywhere (bump to gacalc 0.0.18)
 
-**Status:** blocked
+**Status:** in-progress — code done + verified 2026-08-31; two open items: (a) the maintainer
+is picking a better name for `_pipeline._gacalc_cross`, (b) display verification is the
+maintainer's (headless GL is unverifiable in the nested container per `CLAUDE.md`).
+Verification so far: containerized `make test` 104 green (against installed gacalc 0.0.18);
+`make check-regions` green (book anchors resolve against the 0.0.18 sdist); ruff green;
+mathutils+shading doctests green (three `-0.0` repr expectations updated — the closed form
+emits `+0.0` where wedge+dual emitted `-0.0`; equal as numbers, different as reprs); all three
+converted sites proven numerically identical to `np.cross` in-container (500 random pairs +
+cylinder builder + the demo22 line replicated); sign identity `(a∧b).dual() == cross(a,b)`
+proven symbolically. NOTE: `make format`'s ty half fails with 74 errors that are **toolchain
+drift** (the rebuilt image pulled the stricter ty 0.0.72), not from this change — tracked
+separately in `tasks/ty-0072-strictness-sweep.md`.
 **Priority:** 3
 **Difficulty:** 4
 **Created:** 2026-08-31
-**Blocked on:** gacalc 0.0.18 published to PyPI (the release carrying
-`gacalc.vectorcalc.cross` and the generated `g3.Vector.cross`; see gacalc's
-`tasks/release-0.0.18.md` in github.com/billsix/geometricalgebra).
-**Recheck:** WebFetch `https://pypi.org/pypi/gacalc/json` and look for `"0.0.18"`
-in `releases` — present means cleared (compare versions with a version-aware sort).
 
 ## BLUF
 

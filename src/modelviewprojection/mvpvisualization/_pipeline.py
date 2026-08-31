@@ -46,6 +46,8 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders
+from gacalc.g3 import Vector
+from gacalc.vectorcalc import cross
 from imgui_bundle import imgui, imgui_md
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 from numpy import ndarray
@@ -645,6 +647,18 @@ def build_origin_sphere_solid(
     return np.array(verts, dtype=np.float32)
 
 
+def _cross_arrays(a: np.ndarray, b: np.ndarray) -> np.ndarray:
+    """gacalc's cross product of two 3-component arrays, as a float32 array.
+
+    Round-trips through ``g3.Vector`` so every cross product in this repo goes
+    through gacalc (the dual of the wedge) rather than numpy; iteration yields
+    the coordinates back in ``(e_1, e_2, e_3)`` order."""
+    return np.array(
+        list(cross(Vector(*map(float, a)), Vector(*map(float, b)))),
+        dtype=np.float32,
+    )
+
+
 def build_cylinders_for_edges(
     edges: list,
     radius: float = 0.05,
@@ -674,9 +688,9 @@ def build_cylinders_for_edges(
             ref = np.array([1.0, 0.0, 0.0], dtype=np.float32)
         else:
             ref = np.array([0.0, 1.0, 0.0], dtype=np.float32)
-        right = np.cross(forward_unit, ref)
+        right = _cross_arrays(forward_unit, ref)
         right = right / float(np.linalg.norm(right))
-        up = np.cross(forward_unit, right)
+        up = _cross_arrays(forward_unit, right)
 
         for i in range(slices):
             a0 = 2.0 * math.pi * i / slices

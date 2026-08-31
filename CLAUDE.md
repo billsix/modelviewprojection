@@ -505,6 +505,16 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 - `tasks/axis-cylinder-cone-lighting.md` — deferred.
 
 **Cross-repo (done):**
+- **gacalc bumped to 0.0.18 (2026-08-31): the cross product.** `mathutils.find_normal`
+  is now one line — `(p2 - p1).cross(p3 - p1)`, gacalc's generated `g3.Vector.cross`
+  (the dual of the wedge as a closed form, typed `Vector -> Vector`) — and the three
+  former `np.cross` sites (demo22's light lookAt; `_pipeline.build_cylinders_for_edges`
+  ×2 via the `_gacalc_cross` helper) route through gacalc with array↔`Vector`
+  round-trips: **every cross product in mvp goes through gacalc** (Bill's call). Pin
+  bumped in `requirements.txt` AND the Dockerfile `ARG GACALC_VERSION`; 0.0.16→0.0.18
+  needed no other migration (no `.exp(`-on-vector or explicit-`n` `.dual(` sites).
+  Work record: `tasks/archive/2026/08/31/use-gacalc-cross.md`; design notes in
+  `tasks/reference/design-decisions.md` › "Math library & gacalc integration".
 - **gacalc bumped to 0.0.15 (2026-08-04): graded module constants + `isclose`.**
   `from gacalc.g2 import e_1` is now a `Vector2` (was `G2`), so the demos import basis
   constants **unqualified** — pin bumped to **0.0.15** in `requirements.txt` + the

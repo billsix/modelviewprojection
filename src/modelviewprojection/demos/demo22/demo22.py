@@ -81,6 +81,8 @@ import imageio.v3 as iio
 import numpy as np
 import OpenGL.GL as GL
 import OpenGL.GL.shaders as shaders
+from gacalc.g3 import Vector
+from gacalc.vectorcalc import cross
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
@@ -639,7 +641,14 @@ def _light_proj_view(
     if np.linalg.norm(upn) < 1e-6:
         upn = np.array([0.0, 0.0, 1.0], dtype=np.float32)
     upn /= np.linalg.norm(upn)
-    s = np.cross(f, upn)
+    # the side vector, via gacalc's cross product (the dual of the wedge):
+    # round-trip the float32 arrays through g3.Vector -- iteration yields the
+    # coordinates back in (e_1, e_2, e_3) order.  f and upn are unit and
+    # orthogonal, so s comes out unit as well.
+    s = np.array(
+        list(cross(Vector(*map(float, f)), Vector(*map(float, upn)))),
+        dtype=np.float32,
+    )
 
     view = np.identity(4, dtype=np.float32)
     view[0, :3] = s
