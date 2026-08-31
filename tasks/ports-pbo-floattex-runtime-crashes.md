@@ -1,7 +1,16 @@
 # Pre-existing runtime crashes: pixbufobj (PBO readback) + texfloat (float-texture segfault)
 
-**Status:** in progress (2026-08-02) — **pixbufobj fix applied**, **texfloat
-instrumented**; awaiting Bill's host-GL verification (can't reproduce headless).
+**Status:** in progress — **pixbufobj VERIFIED FIXED on host GL 2026-08-31** (maintainer ran
+it via `make shell-exec`, toggled "Use PBOs" ON — `PBOs: ON` printed, no `[pixbufobj] GL
+error` line, clean exit). **texfloat's SIGSEGV is GONE, replaced by a clean pre-GL failure**
+(same host run): `imageio` raises `OSError: Could not find a backend to open …Blobbies.exr`
+at `setup_textures` — the venv has no EXR-capable backend (imageio suggests `pyav` or
+`opencv`). It never reaches the float-texture GL code. Plausible retro-explanation of the
+original uncatchable C-level SIGSEGV: a native crash inside whatever EXR decode backend the
+older image carried; the environment moved and the honest error surfaced. NEXT: maintainer
+decides the EXR backend (a real runtime dep — `imageio[pyav]` vs opencv vs converting the
+.exr assets); then re-run to see whether the GL path crashes at all, and remove the
+`_trace()` instrumentation once it runs.
 **Priority:** 3
 **Difficulty:** 5
 

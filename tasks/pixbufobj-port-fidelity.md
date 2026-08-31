@@ -1,7 +1,11 @@
 # pixbufobj port renders "multiple spinning images" (not like the C++)
 
-**Status:** open — **needs reproduction on Bill's hardware GPU** (does NOT reproduce in the
-sandbox's software GL). Paused 2026-08-02 (Bill).
+**Status:** open — **REPRODUCED on the maintainer's hardware GPU 2026-08-31** ("spinning but
+not clean", observed during the PBO-crash verification run; still does NOT reproduce in the
+sandbox's software GL). Newly practical debugging path: `make shell-exec CMD="python ports/…/
+pixbufobj.py"` from the sandbox reaches the host display (verified 2026-08-31), so
+instrumented builds can now be iterated with the maintainer watching, instead of waiting for
+dedicated host sessions.
 **Priority:** 5
 **Difficulty:** 6
 

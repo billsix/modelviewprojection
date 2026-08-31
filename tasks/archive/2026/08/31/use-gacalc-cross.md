@@ -1,8 +1,13 @@
 # Use gacalc's cross product everywhere (bump to gacalc 0.0.18)
 
-**Status:** in-progress — code done + verified 2026-08-31; two open items: (a) the maintainer
-is picking a better name for `_pipeline._gacalc_cross`, (b) display verification is the
-maintainer's (headless GL is unverifiable in the nested container per `CLAUDE.md`).
+**Status:** DONE — archived 2026-08-31. Code committed (`83317697`, the cross-only half of
+the split; helper named `_cross_arrays`, maintainer's pick); **display verification passed
+the same day**: the maintainer ran demo22 ("appears to be working" — the converted
+light-space/shadow path) and `mvpvisualization/coordinatesystems.py` ("looks fine" — the
+cylinder frames through the converted cross) on host GL via the `make shell-exec` display
+route. The "full gate green" clause of the original done-state was DECOUPLED: the format
+gate's ty half is red from unrelated toolchain drift, tracked in
+`tasks/ty-0072-strictness-sweep.md` — not this task's gate.
 Verification so far: containerized `make test` 104 green (against installed gacalc 0.0.18);
 `make check-regions` green (book anchors resolve against the 0.0.18 sdist); ruff green;
 mathutils+shading doctests green (three `-0.0` repr expectations updated — the closed form
