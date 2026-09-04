@@ -63,21 +63,6 @@ def _scale(sx: float, sy: float) -> NDArray[np.float32]:
     return m
 
 
-def _rotate_z(degrees: float) -> NDArray[np.float32]:
-    """Return a 4x4 rotation about z; positive turns the sprite visually CCW."""
-    # PyGame's transform.rotate turns the image counter-clockwise (as seen on
-    # screen) for a positive angle.  Screen y is inverted relative to maths y,
-    # so the visual CCW rotation uses this sign convention.
-    t = np.radians(degrees)
-    c, s = np.cos(t), np.sin(t)
-    m: NDArray[np.float32] = _identity()
-    m[0, 0] = c
-    m[0, 1] = s
-    m[1, 0] = -s
-    m[1, 1] = c
-    return m
-
-
 def ortho_pixels(width: float, height: float) -> NDArray[np.float32]:
     """Map pixel space (0,0)=top-left .. (width,height)=bottom-right to NDC."""
     m: NDArray[np.float32] = _identity()
@@ -218,16 +203,12 @@ class Renderer:
         self,
         image: Drawable,
         topleft: PointLike,
-        angle: float = 0.0,
-        anchor: PointLike | None = None,
-        tint: Any = (1.0, 1.0, 1.0, 1.0),
         src: Any = None,
     ) -> None:
         """Draw a textured quad.
 
-        ``topleft``/``anchor`` are pixel coords; ``anchor`` is the pivot for
-        rotation (defaults to the sprite centre). ``src``, if given as a pixel
-        rect ``(x, y, w, h)`` into the image, draws only that sub-region (used for
+        ``topleft`` is a pixel coord. ``src``, if given as a pixel rect
+        ``(x, y, w, h)`` into the image, draws only that sub-region (used for
         atlases / tilesets, e.g. ``screen.surface.blit(..., area=rect)``).
         """
         tx, ty = topleft
@@ -244,22 +225,15 @@ class Renderer:
             tex_off = (0.0, 0.0)
             tex_scale = (1.0, 1.0)
         model: NDArray[np.float32] = _translate(x=tx, y=ty) @ _scale(sx=w, sy=h)
-        if angle:
-            if anchor is None:
-                anchor = (tx + w * 0.5, ty + h * 0.5)
-            ax, ay = anchor
-            model = (
-                _translate(x=ax, y=ay)
-                @ _rotate_z(angle)
-                @ _translate(x=-ax, y=-ay)
-                @ model
-            )
         GL.glBindVertexArray(self.quad_vao)
         GL.glUniformMatrix4fv(self.u_model, 1, GL.GL_TRUE, model)
         GL.glUniform2f(self.u_tex_off, *tex_off)
         GL.glUniform2f(self.u_tex_scale, *tex_scale)
         GL.glUniform1i(self.u_use_tex, 1)
-        GL.glUniform4f(self.u_tint, *_rgba(tint))
+        # Sprites draw untinted.  uTint is shared program state -- flat fills
+        # (filled_rect/rect/...) set it to a colour -- so reset it to white for
+        # this texture * uTint draw.
+        GL.glUniform4f(self.u_tint, 1.0, 1.0, 1.0, 1.0)
         GL.glActiveTexture(GL.GL_TEXTURE0)
         GL.glBindTexture(GL.GL_TEXTURE_2D, image.gl_texture())
         GL.glUniform1i(self.u_tex, 0)

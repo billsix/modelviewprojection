@@ -1,7 +1,8 @@
 # pgzero_gl — de-abstraction & gacalc options (choose per item)
 
-**Status:** partially decided (maintainer, 2026-09-04) — Group 1 approved & extracted to
-`tasks/pgzero-gl-remove-dead-code.md`; Groups 2-3 recommendations accepted (see resolved Open Questions)
+**Status:** partially decided (maintainer, 2026-09-04) — Group 1 **DONE & archived**
+(`tasks/archive/2026/09/04/pgzero-gl-remove-dead-code.md`); Groups 2-3 recommendations accepted (see resolved
+Open Questions)
 **Priority:** 5
 **Difficulty:** 4
 
@@ -29,10 +30,11 @@ small and standalone. Full rationale + `file:line` evidence:
 - Each group is independent; none blocks another. Verify with a plain `make image` (the repo's gate) after any
   code group; per-game behavior is unchanged by design (dead paths / equivalent math).
 
-## Group 1 — delete dead pgzero-fidelity → **APPROVED, EXTRACTED to `tasks/pgzero-gl-remove-dead-code.md`**
+## Group 1 — delete dead pgzero-fidelity → **DONE (archived `tasks/archive/2026/09/04/pgzero-gl-remove-dead-code.md`)**
 
-**Decision (maintainer, 2026-09-04):** approved. The always-dead pure deletions now live in their own
-ready-to-implement task, re-verified across the book's demos AND the ports (not just the games). Two items the
+**Decision (maintainer, 2026-09-04):** approved, implemented, and verified (net −166 lines; 104 tests pass;
+boing/beatstreets render headless on both renderers). The always-dead pure deletions were re-verified across
+the book's demos AND the ports (not just the games). Two items the
 readers wrongly flagged as dead were **corrected to KEEP** during that re-verification: `_Mixer.find_channel`/
 `get_busy` (beatstreets uses them) and `joystick.init()` (all 5 vol2 games call it). The list below is kept for
 history; the authoritative, corrected list is in the extracted task. The `_rgba` color collapse (item 5's second
@@ -99,8 +101,8 @@ No abstraction added — these remove hand-rolled component arithmetic in favor 
 
 ## Open questions — RESOLVED (maintainer, 2026-09-04: "I go with your recommendations on all 3")
 
-1. **Which groups/items?** → **Group 1 approved**, extracted to `tasks/pgzero-gl-remove-dead-code.md` (ready to
-   implement). Groups 2-3 proceed per the recommendations below.
+1. **Which groups/items?** → **Group 1 done & archived** (`tasks/archive/2026/09/04/pgzero-gl-remove-dead-code.md`).
+   Groups 2-3 proceed per the recommendations below.
 2. **`angle_to` + `_offset_cache` — verify demos / re-measure first?** → **Yes, and done for `angle_to`:** the
    whole-repo grep (demos + ports) shows **zero** `angle_to` callers, so it is now in the deletion task.
    **`_offset_cache` (item 11) still needs its re-measure** before deletion — that measurement is the remaining

@@ -52,11 +52,6 @@ def get_count() -> int:
     return n
 
 
-def get_init() -> bool:
-    """Return whether the joystick subsystem is initialised (always True here)."""
-    return True
-
-
 def init() -> None:
     """No-op: GLFW joysticks need no explicit init (pygame API compatibility)."""
     pass
@@ -93,22 +88,6 @@ class Joystick:
         """No-op (pygame API compatibility)."""
         pass
 
-    def get_init(self) -> bool:
-        """Return whether this joystick is initialised (always True here)."""
-        return True
-
-    def get_id(self) -> int:
-        """Return this joystick's id (its GLFW index)."""
-        return self.index
-
-    def get_name(self) -> str:
-        """Return the controller's name, or ``""`` if unavailable."""
-        try:
-            name = glfw.get_joystick_name(self.index)
-            return name.decode() if isinstance(name, bytes) else (name or "")
-        except Exception:
-            return ""
-
     def _axes(self) -> list[float]:
         """Return the current analog-axis values, or ``[]`` if unavailable."""
         if not context.glfw_ready:
@@ -135,10 +114,6 @@ class Joystick:
             return _read_glfw_array(glfw.get_joystick_hats(self.index))
         except Exception:
             return []
-
-    def get_numaxes(self) -> int:
-        """Return the number of analog axes."""
-        return len(self._axes())
 
     def get_axis(self, i: int) -> float:
         """Return axis ``i`` in -1.0..1.0 (0.0 if out of range / unavailable)."""

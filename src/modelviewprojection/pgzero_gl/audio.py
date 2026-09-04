@@ -321,17 +321,15 @@ class Sound:
     def play(
         self,
         loops: int = 0,
-        maxtime: int = 0,
         fade_ms: int = 0,
         volume: float | None = None,
     ) -> None:
         """Play the effect (overlapping prior plays); ``loops != 0`` loops it.
 
-        ``maxtime`` is accepted for ``pygame.mixer.Sound.play`` compatibility
-        but ignored.  ``fade_ms`` ramps this play's voice up from silence
-        inside the mixer.  ``volume`` overrides this effect's volume for THIS
-        play only (the mixer.Sound wrapper in ``__init__`` uses this to give
-        pygame's per-instance-volume semantics without a Sound per volume).
+        ``fade_ms`` ramps this play's voice up from silence inside the mixer.
+        ``volume`` overrides this effect's volume for THIS play only (the
+        mixer.Sound wrapper in ``__init__`` uses this to give pygame's
+        per-instance-volume semantics without a Sound per volume).
         """
         if not _BACKEND:
             return

@@ -21,7 +21,6 @@ game code is unchanged:
   position;
 * ``actor.pos`` / ``.x`` / ``.y`` are the anchor position; ``.left`` / ``.center``
   / ... are rect edges delegated to an underlying :class:`Rect`;
-* ``actor.angle`` rotates about the anchor;
 * arbitrary game attributes (``.dx``, ``.speed``, ...) are ordinary instance
   attributes.
 
@@ -38,7 +37,7 @@ tasks/ctc-shim-dynamism-audit.md.
 from __future__ import annotations
 
 from collections.abc import Iterator
-from math import atan2, degrees, sqrt
+from math import sqrt
 from typing import Any
 
 from gacalc.g2 import Vector
@@ -51,30 +50,6 @@ from .resources import images
 _ANCHOR_FRAC = {
     "x": {"left": 0.0, "center": 0.5, "middle": 0.5, "right": 1.0},
     "y": {"top": 0.0, "center": 0.5, "middle": 0.5, "bottom": 1.0},
-}
-
-# rect attributes delegated straight through to the underlying Rect
-_DELEGATED = {
-    "left",
-    "right",
-    "top",
-    "bottom",
-    "centerx",
-    "centery",
-    "center",
-    "topleft",
-    "topright",
-    "bottomleft",
-    "bottomright",
-    "midtop",
-    "midbottom",
-    "midleft",
-    "midright",
-    "width",
-    "height",
-    "size",
-    "w",
-    "h",
 }
 
 
@@ -95,7 +70,6 @@ class Actor:
     # truncating each frame (pygame.Rect / our int Rect would drift).
     _rect: ZRect
     _anchor_value: Anchor
-    _angle: float
     _image: Drawable | None
     _image_name: str | None
     # memoized anchor offset; None = recompute (invalidated when the anchor
@@ -107,14 +81,12 @@ class Actor:
         image: str | Drawable,
         pos: PointLike | None = None,
         anchor: Anchor | None = None,
-        **kwargs: float,
     ) -> None:
         self._rect = ZRect(0, 0, 0, 0)
         self._offset_cache = None
         self._anchor_value = (
             anchor if anchor is not None else ("center", "center")
         )
-        self._angle = 0.0
         self._image = None
         self._image_name = None
 
@@ -123,14 +95,7 @@ class Actor:
         if pos is not None:
             self._set_pos(pos)
         else:
-            sym: dict[str, Any] = {
-                k: v for k, v in kwargs.items() if k in _DELEGATED
-            }
-            if sym:
-                k, v = next(iter(sym.items()))
-                setattr(self._rect, k, v)
-            else:
-                self._rect.topleft = (0, 0)
+            self._rect.topleft = (0, 0)
 
     # -- image ----------------------------------------------------------------
     def _set_image(self, image: str | Drawable) -> None:
@@ -208,14 +173,6 @@ class Actor:
     @pos.setter
     def pos(self, value: PointLike) -> None:
         self._set_pos(value)
-
-    @property
-    def angle(self) -> float:
-        return self._angle
-
-    @angle.setter
-    def angle(self, value: float) -> None:
-        self._angle = value
 
     @property
     def image(self) -> str:
@@ -308,21 +265,13 @@ class Actor:
 
     # -- drawing & geometry ---------------------------------------------------
     def draw(self) -> None:
-        """Draw the sprite at its current position/angle via the active renderer."""
+        """Draw the sprite at its current position via the active renderer."""
         # _set_image ran in __init__, so _image is always bound by draw time
         assert self._image is not None
         context.require_renderer().draw_image(
             image=self._image,
             topleft=self._rect.topleft,
-            angle=self._angle,
-            anchor=self._anchor_pos(),
         )
-
-    def angle_to(self, target: "Actor" | PointLike) -> float:
-        """Return the angle (degrees) from this actor to ``target`` (Actor or point)."""
-        tx, ty = target.pos if isinstance(target, Actor) else target
-        mx, my = self.pos
-        return degrees(atan2(my - ty, tx - mx))  # screen y inverted
 
     def distance_to(self, target: "Actor" | PointLike) -> float:
         """Return the distance from this actor to ``target`` (Actor or point)."""

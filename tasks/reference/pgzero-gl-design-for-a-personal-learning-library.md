@@ -208,6 +208,10 @@ integer-indexable (the `_as_xy`/`get_hat` blockers above).
 
 ## Related
 
-- `tasks/pgzero-gl-de-abstraction-options.md` — the actionable options (each `proposed — needs go-ahead`).
+- **Category B (always-dead code) was removed 2026-09-04** — `tasks/archive/2026/09/04/pgzero-gl-remove-dead-code.md`
+  (net −166 lines; verified: 104 tests pass, both renderers draw sprites headless). The corrections above
+  (`joystick.init()`, `_Mixer.find_channel`/`get_busy` kept) held.
+- `tasks/pgzero-gl-de-abstraction-options.md` — the remaining options (Group 2 gacalc clarity, Group 3
+  judgment calls); Group 1 is the removal above.
 - `tasks/gacalc-transforms-for-rotate-translate.md` — the renderer-matrix / GA-transform slice.
 - Repo `CLAUDE.md` — "duplication across demos is deliberate" and "the graphics engine stays matrix-based".

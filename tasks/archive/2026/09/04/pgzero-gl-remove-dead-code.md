@@ -1,8 +1,28 @@
 # pgzero_gl — remove the always-dead pgzero-fidelity code
 
-**Status:** approved — ready to implement (maintainer greenlit, 2026-09-04)
+**Status:** DONE — implemented & verified 2026-09-04 (see Result below)
 **Priority:** 3
 **Difficulty:** 3
+
+## Result (2026-09-04)
+
+All nine deletions applied (net **−166 lines**: 26 insertions, 192 deletions across 9 shim files), plus the
+now-unused `angle`/`anchor` params removed from both renderers' `draw_image` and two stale `on_key_down` doc
+mentions fixed in `input.py`. The two reader-flagged-but-actually-live items were **kept** (`joystick.init()`,
+`_Mixer.find_channel`/`get_busy`). One test (`tests/test_ctc_actor_field_collisions.py`) hardcoded `angle` in
+the expected Actor property set — updated to drop it (the whole point of the deletion). Verified in the nested
+container (image built `BUILD_DOCS=0 USE_EMACS=0 USE_JUPYTER=0 USE_X_WINDOWS=1` — the deletion can't touch the
+trimmed paths):
+
+- **ruff** check + format clean/idempotent; **ty** no real errors (only host-env unresolved-imports).
+- **pytest: 104 passed** (`make test`).
+- **Headless game runs** (Xvfb + Mesa llvmpipe): boing GL 3.3 core rc=0 (mean 0.127, 11,467 colours), boing
+  GL 1.x fixed-func rc=0 (mean 0.127), beatstreets GL 3.3 rc=0 (mean 0.0625, exercised the kept
+  `find_channel`/`get_busy` + joystick + surface). Sprites render untinted — the `tint` removal is
+  behavior-preserving on both renderers.
+
+Rationale + the verified-dead evidence live in
+`tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md`.
 
 ## BLUF
 

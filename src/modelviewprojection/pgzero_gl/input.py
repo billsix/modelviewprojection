@@ -14,9 +14,9 @@ Raspberry Pi Press and authors).
 * Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 
 Reproduces pgzero's ``keyboard`` object (boolean attribute access:
-``keyboard.space``, ``keyboard.left``, ...) and the ``keys`` constants used by
-the ``on_key_down(key)`` hook. Both are keyed on GLFW key codes; the runner
-feeds key events in via :meth:`Keyboard._press`/:meth:`Keyboard._release`.
+``keyboard.space``, ``keyboard.left``, ...) and the ``keys`` code constants the
+games compare against. Both are keyed on GLFW key codes; the runner feeds key
+events in via :meth:`Keyboard._press`/:meth:`Keyboard._release`.
 """
 
 from __future__ import annotations
@@ -89,8 +89,8 @@ class Keyboard:
 
 
 class _Keys:
-    """pgzero `keys.SPACE` etc.  Values are GLFW codes, matching what the runner
-    passes to on_key_down(key)."""
+    """pgzero `keys.SPACE` etc.  Values are GLFW codes, matching the codes the
+    runner records via `Keyboard._press`/`_release`."""
 
     def __getattr__(self, name: str) -> int:
         if name.startswith("_"):

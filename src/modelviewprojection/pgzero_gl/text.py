@@ -121,14 +121,9 @@ def _render(text: str, size: int, color: Any, fontname: str | None) -> Image:
     # Measure.
     dummy: Any = PILImage.new("RGBA", (1, 1))
     d: Any = ImageDraw.Draw(dummy)
-    try:
-        bbox = d.textbbox((0, 0), text, font=font)
-        w, h = int(max(1, bbox[2] - bbox[0])), int(max(1, bbox[3] - bbox[1]))
-        ox, oy = bbox[0], bbox[1]
-    except Exception:
-        w, h = getattr(d, "textsize")(text, font=font)  # legacy Pillow fallback
-        ox, oy = 0, 0
-        w, h = int(max(1, w)), int(max(1, h))
+    bbox = d.textbbox((0, 0), text, font=font)
+    w, h = int(max(1, bbox[2] - bbox[0])), int(max(1, bbox[3] - bbox[1]))
+    ox, oy = bbox[0], bbox[1]
     surf: Any = PILImage.new("RGBA", (w, h), (0, 0, 0, 0))
     ImageDraw.Draw(surf).text(
         (-ox, -oy), text, font=font, fill=_to_rgb(color) + (255,)
