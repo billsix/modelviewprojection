@@ -49,7 +49,7 @@ from typing import TYPE_CHECKING, Any, cast
 import numpy as np
 from numpy.typing import NDArray
 
-from . import context
+from .context import Context
 
 if TYPE_CHECKING:
     import miniaudio
@@ -384,7 +384,7 @@ class _Music:
 
     def _path(self, name: str) -> str | None:
         """Resolve a track ``name`` to a file under ``music/``, or ``None``."""
-        base: str = os.path.join(context.get_asset_root(), "music", name)
+        base: str = os.path.join(Context.get_asset_root(), "music", name)
         if os.path.isfile(base):
             return base
         for ext in ("ogg", "mp3", "wav"):

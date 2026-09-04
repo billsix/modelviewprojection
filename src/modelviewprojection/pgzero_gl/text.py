@@ -31,7 +31,7 @@ import numpy as np
 from PIL import Image as PILImage
 from PIL import ImageDraw, ImageFont
 
-from . import context
+from .context import Context
 from .resources import Image
 
 DEFAULT_FONT_SIZE = 24
@@ -76,7 +76,7 @@ def _get_font(fontname: str | None, size: int) -> Any:
     if fontname:
         # game-supplied font name -> fonts/<name>.ttf
         cand: str = os.path.join(
-            context.get_asset_root(), "fonts", fontname + ".ttf"
+            Context.get_asset_root(), "fonts", fontname + ".ttf"
         )
         if os.path.exists(cand):
             path = cand
@@ -158,4 +158,4 @@ def draw(text: object, surf: Any = None, **kwargs: Any) -> None:
     fx, fy = _ANCHORS.get(anchor, (0.0, 0.0))
     px, py = pos  # unpack: tuple OR gacalc vector
     topleft = (px - img.width * fx, py - img.height * fy)
-    context.require_renderer().draw_image(image=img, topleft=topleft)
+    Context.require_renderer().draw_image(image=img, topleft=topleft)

@@ -31,9 +31,9 @@ from typing import Any
 
 from gacalc.g2 import Vector
 
-from . import context
 from . import text as _text
 from ._types import Color, Drawable, PointLike
+from .context import Context
 from .geometry import Rect, _RectBase  # noqa: F401  # Rect kept for re-export
 from .resources import images
 
@@ -62,23 +62,23 @@ class _Painter:
 
     def rect(self, rect: RectLike, color: Color) -> None:
         """Draw the outline of ``rect`` in ``color``."""
-        context.require_renderer().rect(
+        Context.require_renderer().rect(
             x=rect.x, y=rect.y, w=rect.width, h=rect.height, color=color
         )
 
     def filled_rect(self, rect: RectLike, color: Color) -> None:
         """Draw ``rect`` filled with ``color``."""
-        context.require_renderer().filled_rect(
+        Context.require_renderer().filled_rect(
             x=rect.x, y=rect.y, w=rect.width, h=rect.height, color=color
         )
 
     def line(self, start: PointLike, end: PointLike, color: Color) -> None:
         """Draw a line from ``start`` to ``end`` in ``color``."""
-        context.require_renderer().line(start=start, end=end, color=color)
+        Context.require_renderer().line(start=start, end=end, color=color)
 
     def circle(self, pos: PointLike, radius: float, color: Color) -> None:
         """Draw the outline of a circle centred at ``pos``."""
-        context.require_renderer().circle(
+        Context.require_renderer().circle(
             pos=pos, radius=radius, color=color, filled=False
         )
 
@@ -86,7 +86,7 @@ class _Painter:
         self, pos: PointLike, radius: float, color: Color
     ) -> None:
         """Draw a filled circle centred at ``pos``."""
-        context.require_renderer().circle(
+        Context.require_renderer().circle(
             pos=pos, radius=radius, color=color, filled=True
         )
 
@@ -99,7 +99,7 @@ class _Surface:
 
     def set_clip(self, rect: RectLike | Sequence[float] | None) -> None:
         """Clip subsequent drawing to ``rect`` (``None`` clears the clip)."""
-        context.require_renderer().set_clip(rect)
+        Context.require_renderer().set_clip(rect)
 
     def blit(
         self,
@@ -110,21 +110,21 @@ class _Surface:
         """Blit ``image`` (name or Image) at ``pos``; ``area`` is a sub-rect source."""
         img = images.load(image) if isinstance(image, str) else image
         src: tuple[Any, ...] | None = tuple(area) if area is not None else None
-        context.require_renderer().draw_image(
+        Context.require_renderer().draw_image(
             image=img, topleft=_as_xy(pos), src=src
         )
 
     def get_width(self) -> int:
         """Return the screen width in pixels."""
-        return context.require_renderer().width
+        return Context.require_renderer().width
 
     def get_height(self) -> int:
         """Return the screen height in pixels."""
-        return context.require_renderer().height
+        return Context.require_renderer().height
 
     def get_size(self) -> tuple[int, int]:
         """Return ``(width, height)`` in pixels."""
-        r = context.require_renderer()
+        r = Context.require_renderer()
         return (r.width, r.height)
 
 
@@ -138,30 +138,30 @@ class Screen:
     @property
     def width(self) -> int:
         """The screen width in pixels."""
-        return context.require_renderer().width
+        return Context.require_renderer().width
 
     @property
     def height(self) -> int:
         """The screen height in pixels."""
-        return context.require_renderer().height
+        return Context.require_renderer().height
 
     def bounds(self) -> Rect:
         """Return a :class:`Rect` covering the whole screen."""
-        r = context.require_renderer()
+        r = Context.require_renderer()
         return Rect(0, 0, r.width, r.height)
 
     def clear(self) -> None:
         """Clear the screen to black."""
-        context.require_renderer().fill((0, 0, 0))
+        Context.require_renderer().fill((0, 0, 0))
 
     def fill(self, color: Color) -> None:
         """Fill the whole screen with ``color``."""
-        context.require_renderer().fill(color)
+        Context.require_renderer().fill(color)
 
     def blit(self, image: str | Drawable, pos: PointLike | RectLike) -> None:
         """Blit ``image`` (name or Image) at ``pos`` (a point or a Rect's topleft)."""
         img = images.load(image) if isinstance(image, str) else image
-        context.require_renderer().draw_image(image=img, topleft=_as_xy(pos))
+        Context.require_renderer().draw_image(image=img, topleft=_as_xy(pos))
 
 
 screen = Screen()

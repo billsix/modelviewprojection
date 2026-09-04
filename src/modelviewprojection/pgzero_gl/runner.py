@@ -31,7 +31,8 @@ from typing import Any
 import glfw
 import OpenGL.GL as GL
 
-from . import audio, context
+from . import audio
+from .context import Context
 from .input import keyboard
 
 
@@ -60,7 +61,7 @@ def _make_window(
     """Init GLFW, create the GL window/context, and return the window handle."""
     if not glfw.init():
         raise RuntimeError("glfw.init() failed")
-    context.glfw_ready = True
+    Context.glfw_ready = True
     if legacy:
         # Fixed-function: a compatibility (2.1) context exposes GL 1.x.
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -96,14 +97,14 @@ def main(g: dict[str, Any] | None = None) -> None:
     # Assets live next to the game file.
     game_file = g.get("__file__")
     if game_file:
-        context.asset_root = os.path.dirname(os.path.abspath(game_file))
+        Context.asset_root = os.path.dirname(os.path.abspath(game_file))
 
     renderer_cls, legacy = _select_renderer()
     window: Any = _make_window(
         width=width, height=height, title=title, legacy=legacy
     )
-    context.window = window
-    context.renderer = renderer_cls(width, height)
+    Context.window = window
+    Context.renderer = renderer_cls(width, height)
 
     # Diagnostics for on-hardware verification: PGZERO_GL_INFO=1 prints which GL
     # backend + driver is actually in use (confirms real GPU vs software, and
@@ -173,7 +174,7 @@ def main(g: dict[str, Any] | None = None) -> None:
                 update(frame) if update_takes_dt else update()
 
             fb_w, fb_h = glfw.get_framebuffer_size(window)
-            context.renderer.begin_frame(fb_width=fb_w, fb_height=fb_h)
+            Context.renderer.begin_frame(fb_width=fb_w, fb_height=fb_h)
             if draw:
                 draw()
             glfw.swap_buffers(window)
@@ -204,5 +205,5 @@ def main(g: dict[str, Any] | None = None) -> None:
 
 def quit_game() -> None:
     """Ask the window to close, ending the game loop (pgzero's ``exit()``)."""
-    if context.window is not None:
-        glfw.set_window_should_close(context.window, True)
+    if Context.window is not None:
+        glfw.set_window_should_close(Context.window, True)

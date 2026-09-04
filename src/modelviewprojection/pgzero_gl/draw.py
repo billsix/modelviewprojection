@@ -20,8 +20,8 @@ from __future__ import annotations
 from collections.abc import Sequence
 from typing import Any
 
-from . import context
 from ._types import Color, PointLike
+from .context import Context
 from .geometry import _RectBase
 
 # what pygame.draw.rect accepts: any rect flavor (int Rect, float ZRect)
@@ -29,7 +29,7 @@ RectLike = _RectBase[Any]  # any coordinate flavor (int Rect / float ZRect)
 
 
 def rect(surface: Any, color: Color, rect: RectLike, width: int = 0) -> None:
-    r = context.require_renderer()
+    r = Context.require_renderer()
     x, y, w, h = rect.x, rect.y, rect.width, rect.height
     (r.rect if width else r.filled_rect)(x=x, y=y, w=w, h=h, color=color)
 
@@ -37,13 +37,13 @@ def rect(surface: Any, color: Color, rect: RectLike, width: int = 0) -> None:
 def line(
     surface: Any, color: Color, start: PointLike, end: PointLike, width: int = 1
 ) -> None:
-    context.require_renderer().line(start=start, end=end, color=color)
+    Context.require_renderer().line(start=start, end=end, color=color)
 
 
 def polygon(
     surface: Any, color: Color, points: Sequence[PointLike], width: int = 0
 ) -> None:
-    context.require_renderer().polygon(
+    Context.require_renderer().polygon(
         points=points, color=color, filled=(width == 0)
     )
 
@@ -52,10 +52,10 @@ def polygon(
 def gfx_filled_polygon(
     surface: Any, points: Sequence[PointLike], color: Color
 ) -> None:
-    context.require_renderer().polygon(points=points, color=color, filled=True)
+    Context.require_renderer().polygon(points=points, color=color, filled=True)
 
 
 def gfx_polygon(
     surface: Any, points: Sequence[PointLike], color: Color
 ) -> None:
-    context.require_renderer().polygon(points=points, color=color, filled=False)
+    Context.require_renderer().polygon(points=points, color=color, filled=False)

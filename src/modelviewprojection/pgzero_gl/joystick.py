@@ -26,7 +26,7 @@ from typing import Any
 
 import glfw
 
-from . import context
+from .context import Context
 
 # GLFW hat bit flags -> pygame (x, y) with y up = +1 (pygame convention).
 _HAT_UP = 1
@@ -40,7 +40,7 @@ def get_count() -> int:
     # GLFW must be initialized first.  Game modules call setup_joystick_controls()
     # at import time (before the window/loop exist); querying GLFW then returns
     # garbage, so report "no joysticks" until the runner has init'd GLFW.
-    if not context.glfw_ready:
+    if not Context.glfw_ready:
         return 0
     n: int = 0
     for jid in range(16):
@@ -90,7 +90,7 @@ class Joystick:
 
     def _axes(self) -> list[float]:
         """Return the current analog-axis values, or ``[]`` if unavailable."""
-        if not context.glfw_ready:
+        if not Context.glfw_ready:
             return []
         try:
             return _read_glfw_array(glfw.get_joystick_axes(self.index))
@@ -99,7 +99,7 @@ class Joystick:
 
     def _buttons(self) -> list[int]:
         """Return the current button states, or ``[]`` if unavailable."""
-        if not context.glfw_ready:
+        if not Context.glfw_ready:
             return []
         try:
             return _read_glfw_array(glfw.get_joystick_buttons(self.index))
@@ -108,7 +108,7 @@ class Joystick:
 
     def _hats(self) -> list[int]:
         """Return the current hat (d-pad) bitflags, or ``[]`` if unavailable."""
-        if not context.glfw_ready:
+        if not Context.glfw_ready:
             return []
         try:
             return _read_glfw_array(glfw.get_joystick_hats(self.index))

@@ -1,8 +1,8 @@
 # pgzero_gl — de-abstraction & gacalc options (choose per item)
 
 **Status:** partially decided (maintainer, 2026-09-04) — Group 1 **DONE & archived**
-(`tasks/archive/2026/09/04/pgzero-gl-remove-dead-code.md`); Groups 2-3 recommendations accepted (see resolved
-Open Questions)
+(`tasks/archive/2026/09/04/pgzero-gl-remove-dead-code.md`); **Group 2 done** (2026-09-04); Group 3 pending
+(see resolved Open Questions)
 **Priority:** 5
 **Difficulty:** 4
 
@@ -68,7 +68,15 @@ Each is a pure deletion with no behavior change. High confidence.
    only the instance `get_init`/`get_name`/`get_id`/`get_numaxes` are dead. (Both are now handled correctly in
    the extracted deletion task.)
 
-## Group 2 — gacalc clarity in Actor (behavior-preserving; makes math read as GA)
+## Group 2 — gacalc clarity in Actor → **DONE 2026-09-04**
+
+**Both items landed** (in `src/modelviewprojection/pgzero_gl/actor.py`, staged): `_anchor_offset` now returns a
+`Vector`, `_anchor_pos` = `Vector(left, top) + offset`, `_set_pos` = `Vector(*pos) - offset` (unpacked to scalar
+`left`/`top` once at the `_rect` boundary), the `x`/`y` properties read `.x`/`.y` (Vector isn't indexable), `pos`
+returns `_anchor_pos()` directly, and `distance_to` is `(target_pos - self.pos).magnitude()`. Behavior-preserving:
+104 tests pass; boing/eggzy(distance_to)/kinetix(Vector-heavy pos) all render headless rc=0, and boing's pixel
+mean is byte-identical to before the change (0.126653). No abstraction added — just the GA idiom the games
+already use.
 
 No abstraction added — these remove hand-rolled component arithmetic in favor of the ops the callers already use.
 
@@ -80,10 +88,11 @@ No abstraction added — these remove hand-rolled component arithmetic in favor 
 
 ## Group 3 — judgment calls (measure or discuss first; do NOT do blind)
 
-11. **`_offset_cache`** (actor.py:103,145,156-165,237,298,307): 8 touch-points + a 5-site invalidation web
-    guarding two dict lookups + two multiplies. It was justified by an audit of the *old* `__getattr__` string-
-    ladder cost; now that x/y are plain properties it may be noise. **Re-measure first**; if it doesn't matter,
-    delete it (removes all 5 invalidation sites and a `None`-typed field). Correctness-sensitive — don't rush.
+11. **`_offset_cache`** → **DONE (deleted 2026-09-04).** Re-measured with `tasks/adhoc/pgzero-gl-offset-cache/measure.py`:
+    the cache saves ~422 ns/read (uncached x-reads are ~65% slower, 652→1075 ns), but that is **~0.16% of a 60 fps
+    frame's budget** (~26 µs/frame at the audit's read rate) — never drops a frame. Maintainer's call: delete it.
+    Removed the `_offset_cache` field and all 5 invalidation sites; behavior-preserving (104 tests pass, boing's
+    pixel mean byte-identical at 0.126653). One less correctness surface.
 12. **eggzy/cavern velocity → `Vector`?** **DECIDED (maintainer, 2026-09-04): preserve the scalar-vs-Vector
     teaching contrast on purpose.** Leave **cavern scalar** (it teaches per-component motion next to kinetix's
     Vector-native style). The only optional tidy is eggzy's one `Vector(dx,dy).normalize()*DASH_SPEED`
@@ -110,9 +119,13 @@ No abstraction added — these remove hand-rolled component arithmetic in favor 
 3. **eggzy/cavern vectorization (item 12)?** → **Preserve the scalar-vs-Vector contrast on purpose.** cavern
    stays scalar; only eggzy's `:911` normalize round-trip is an optional tidy. Recorded in item 12 above.
 
-### Remaining actionable work in THIS task (after Group 1 left)
+### Remaining actionable work in THIS task
 
-- **Group 2 (items 9-10)** — gacalc clarity in `Actor.distance_to` and the anchor math; behavior-preserving,
-  ready when you want them.
-- **Group 3 item 11** — re-measure `_offset_cache`, then delete only if it's noise.
-- **Group 3 item 12** — optional eggzy `:911` tidy; cavern left scalar by decision.
+- ~~**Group 1** — dead-code deletions~~ → done & archived (2026-09-04).
+- ~~**Group 2 (items 9-10)** — gacalc clarity in `Actor.distance_to` + anchor math~~ → done (2026-09-04).
+- ~~**Group 3 item 11** — re-measure/delete `_offset_cache`~~ → done (deleted 2026-09-04; measurement in
+  `tasks/adhoc/pgzero-gl-offset-cache/measure.py`).
+- **Group 3 item 12** — eggzy `:911` tidy → **maintainer chose LEAVE the games untouched** (2026-09-04). No action.
+- **Matrix→gacalc task** (`gacalc-transforms-for-rotate-translate.md`) → **parked** by maintainer (2026-09-04).
+
+All items in this task are now resolved (done or declined).

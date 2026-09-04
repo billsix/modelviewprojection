@@ -44,9 +44,10 @@ import functools
 import os
 from typing import Any
 
-from . import audio, context
+from . import audio
 from .actor import Actor
 from .audio import music
+from .context import Context
 from .geometry import Rect, ZRect
 from .input import keyboard, keys
 from .resources import images, sounds
@@ -123,7 +124,7 @@ class _MixerSound:
     def __init__(self, path: Any) -> None:
         # pygame resolves relative to the game folder; so do we.
         self._sound = _pooled_sound(
-            os.path.join(context.get_asset_root(), str(path))
+            os.path.join(Context.get_asset_root(), str(path))
         )
         self._volume: float = 1.0
 
