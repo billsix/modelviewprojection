@@ -1,6 +1,6 @@
 # Code the Classics: inline pgzero_gl per-game, strip + restructure, then re-extract
 
-**Status:** proposed — plan agreed, 2 design decisions open before the step-tasks are scaffolded (maintainer, 2026-09-04)
+**Status:** in progress — step 1 (inline) & step 2 (strip/restructure) DONE and **play-tested good (maintainer, 2026-09-05)**; both step-tasks archived. The tightening pass on the inlined copies is also DONE (2026-09-05, `tasks/archive/2026/09/05/codetheclassics-tighten-games.md`). **Step 3 (re-extract the real shared library) is the remaining work and is PARKED** (maintainer, 2026-09-06: not yet) — `tasks/pgzero-gl-step3-reextract-library.md`, its own task, Priority 9 until the maintainer says go.
 **Priority:** 4
 **Difficulty:** 7
 

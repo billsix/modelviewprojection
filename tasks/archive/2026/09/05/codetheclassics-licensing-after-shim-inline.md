@@ -1,8 +1,14 @@
 # Code-the-Classics licensing after the shim inline/re-extract
 
-**Status:** actionable — **DECIDED 2026-09-05 (William Emerison Six <billsix@gmail.com>): BSD-2-Clause** for the inlined engine code (permissive; matches the existing `ports/codetheclassics/LICENSE` declaration for the per-game files). No longer blocked. Remaining: the ~15-min mechanical header pass (drop the interim pygame-LGPL headers, apply BSD-2-Clause) — awaiting go-ahead to execute. Maintainer confirmed 2026-09-04 the pygame-LGPL courtesy should be dropped (the shim is his clean-room code, and inline+strip has dissolved its "pygame reimplementation" identity per game).
+**Status:** DONE + ARCHIVED 2026-09-05 — every one of the eleven game files carries the BSD-2-Clause dual-© header (applied game by game inside the tightening pass, vol 2 as © 2024) and `ports/codetheclassics/LICENSE` states the inlined engine's licence; the only remainder, the fate of the LGPL shim source under `src/modelviewprojection/pgzero_gl/`, belongs to `tasks/pgzero-gl-step3-reextract-library.md`. Was: actionable — **DECIDED 2026-09-05 (William Emerison Six <billsix@gmail.com>): BSD-2-Clause** for the inlined engine code (permissive; matches the existing `ports/codetheclassics/LICENSE` declaration for the per-game files). No longer blocked. Remaining: the ~15-min mechanical header pass (drop the interim pygame-LGPL headers, apply BSD-2-Clause) — awaiting go-ahead to execute. Maintainer confirmed 2026-09-04 the pygame-LGPL courtesy should be dropped (the shim is his clean-room code, and inline+strip has dissolved its "pygame reimplementation" identity per game).
 **Priority:** 3
 **Difficulty:** 3
+**Progress (2026-09-05):** the header pass is **folded into the per-game tightening pass**
+(`tasks/archive/2026/09/05/codetheclassics-tighten-games.md`) — each game gets its BSD-2-Clause dual-© header as it
+is tightened. **Done:** `boing.py`, `boing_gl1.py`; `ports/codetheclassics/LICENSE` now states the
+inlined engine's licence. **Correction:** the vol 2 copyright line is **© 2024** Eben Upton
+<eben@raspberrypi.com> (per `LICENSE`), not the 2020 guessed below. The shim source under
+`src/modelviewprojection/pgzero_gl/` stays LGPL until step 3 decides its fate.
 
 ## Findings (2026-09-04) — the license state is now concrete
 

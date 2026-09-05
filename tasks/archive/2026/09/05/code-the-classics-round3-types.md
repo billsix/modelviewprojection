@@ -1,11 +1,12 @@
 # Code the Classics — round 3: add more types
 
-**Status:** blocked
+**Status:** DONE + ARCHIVED 2026-09-05 (as subsumed — every game's types concern was covered by the tightening pass; see the umbrella's completion record). Was: SUBSUMED — folded into `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` (maintainer, 2026-09-05):
+"add more types" is absorbed into that umbrella's per-game tightening pass (concern 2, tighter
+functions + precise types). This doc stays for its prior-rounds context and is archived as subsumed
+when the games it would cover are done. Not an independent actionable task.
 **Priority:** 7
 **Difficulty:** 4
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Blocked on:** maintainer answers the Open questions below (which games / which remaining types; type
-annotations vs new object types).
 **Recheck:** the Open questions below are answered (maintainer-gated; `/recheck-blocked` surfaces it).
 
 ## Goal

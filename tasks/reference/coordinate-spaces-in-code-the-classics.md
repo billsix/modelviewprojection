@@ -119,6 +119,14 @@ scrollers do exactly that, in its simplest form.
   the reason for the feasibility task `tasks/archive/2026/09/05/codetheclassics-camera-as-inverse.md` (rewriting
   `screen = world − camera` as an explicit `inverse(translate(camera))`).
 
+> **Two scrollers were tried and left raw (2026-09-05).** Converting `bunner`/`avenger`'s
+> world→screen to `inverse(translate(camera))` was attempted and declined — not for effort, for
+> structure: `bunner`'s `draw(offset_x, offset_y)` is dual-role (camera scroll *and* row→child
+> nesting share the one signature, mutated in place), and `avenger`'s "camera" y is a *derived,
+> clamped* `player.y/4` plus parallax and x-wrap — not a camera placement, so `inverse(translate)`
+> would misrepresent it. `soccer` + `beatstreets` are the two clean showcases; detail in archived
+> `tasks/archive/2026/09/05/codetheclassics-camera-as-inverse-other-scrollers.md`.
+
 ## Grid / tile spaces — a real second space, but a fixed affine
 
 Five games carry a discrete grid distinct from pixels, related by a **constant** scale-plus-offset
@@ -158,6 +166,13 @@ a rotation matrix and composes it with a translation to reach the screen.
 > exact GA-native 90° rotation; `e_12`'s components are ±1, so no `sin`/`cos`). Byte-identical to
 > the old matrix; see `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-via-pseudoscalar.md`. The `cell2pos`
 > translate stays hand-rolled (a plain integer offset).
+
+> **The rotor was rejected here (2026-09-05).** A general `rotate(θ)`/`plane_rotation` for the 90°
+> steps is float and inexact (~1e-16 — enough to flip an `int()` pixel), and an earlier pass wrongly
+> "recommended not doing it" by weighing only that rotor. The exact answer is multiplication by the
+> unit pseudoscalar `e_12` (components ±1, no `sin`/`cos`) — GA-native and byte-identical to the old
+> 2×2 integer matrices. Detail in archived
+> `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-via-pseudoscalar.md`.
 
 (Note: `kinetix`'s `_turn = plane_rotation(e_1, e_2)` at
 `kinetix.py:2674`/`:3367` rotates a *velocity vector in place* for multiball spread — a rotation

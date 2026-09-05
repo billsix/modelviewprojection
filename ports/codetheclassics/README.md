@@ -81,7 +81,8 @@ the **fixed-function OpenGL 1.x** backend instead (`renderer_gl1.py` — `glOrth
 PGZERO_GL=1 python ports/codetheclassics/vol1/boing/boing.py
 ```
 
-Both produce the same picture (verify with `_smoketest.py <game> --gl1`).
+Both produce the same picture (verify from the repo root with
+`tools/ctc_verify_game.sh ports/codetheclassics/vol1/boing/boing.py 180 --against ports/codetheclassics/vol1/boing/boing_gl1.py`).
 
 Verified on real hardware: AMD Radeon RX 7600 XT (radeonsi, Mesa 26, GL 4.6
 Compatibility Profile) — the fixed-function backend runs on the GPU's compat
@@ -109,16 +110,17 @@ done
 ```
 
 Audio and gamepad input require a real device and are **verified by hand**.
-**Rendering, though, can be checked headless** — `_smoketest.py` renders one
-frame to an offscreen EGL pbuffer (Mesa llvmpipe, no display/GPU) and writes a
-PNG:
+**Rendering and game state, though, can be checked headless** against a git
+ref, from the repo root, with an X server on `:99` (the dev sandbox's Xvfb)
+and the project image built:
 
 ```sh
-python _smoketest.py vol1/boing/boing.py     # -> /tmp/boing.png
-python _smoketest.py vol2/eggzy/eggzy.py      # -> /tmp/eggzy.png
+tools/ctc_verify_game.sh ports/codetheclassics/vol1/boing/boing.py 180   # frame 180 pixel-identical to HEAD?
+tools/ctc_state_trace.py <game.py> <frames> <keyscript>                   # scripted-input state dump (in the container)
+tools/ctc_compare_traces.py base.txt cur.txt                              # structural diff of two dumps
 ```
 
-It exits non-zero if the frame is mostly black, so it doubles as a CI guard.
+These are the gates every edit to a game runs (`tasks/reference/tests-and-gates.md`).
 Game *logic* (and eggzy's Tiled-map loading) is covered by import/run tests.
 
 ## Games

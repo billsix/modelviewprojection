@@ -659,7 +659,8 @@ def run_loop(
             menubar()
         w, h = glfw.get_framebuffer_size(window)
         GL.glViewport(0, 0, w, h)
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # ty: ignore[unsupported-operator]
+        mask = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
+        GL.glClear(mask)
         frame(w, h)
         imgui.render()
         impl.render(imgui.get_draw_data())

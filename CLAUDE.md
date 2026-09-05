@@ -233,6 +233,30 @@ with no `sys.path` dance (so no `# noqa: E402`, and E402 is no longer ignored fo
     `Any`/tuple-typed inputs; the `DEFAULT_*` constants stay (removing one re-trips
     ruff `B008`). Details: `tasks/reference/design-decisions.md` › Ports.
 - History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`.
+- **The games are tightened (2026-09-05) — the standard is `tasks/reference/code-the-classics-tightening.md`; read
+  it before editing any game.** Each game is ONE file, demo-style: its engine half (audio mixer, loaders, GL
+  renderer as dataclasses built by factories, the `Actor` sprite, keyboard/gamepad) then the game, then the
+  loop the game owns; an `if __name__ != "__main__": sys.exit(...)` guard precedes the first resource;
+  Protocols are structural (never declared by subclassing); every `match` ends in `case _: raise`;
+  `@dataclass(slots=True)` state objects with `#:` field doc-comments; BSD-2-Clause dual-© headers.
+  Engines are byte-identical per family and were built by splice scripts (recorded in the archived umbrella
+  `tasks/archive/2026/09/05/codetheclassics-tighten-games.md`). **Gates for any edit to a game:**
+  `tools/ctc_verify_game.sh` (frame pixel identity vs a git ref) + `tools/ctc_state_trace.py` /
+  `tools/ctc_compare_traces.py` (scripted-input state trace) — see `tests-and-gates.md`; both need the
+  sandbox's Xvfb and the nested image. Three known deliberate deviations from the pre-tightening shim
+  (leadingedge's and beatstreets' fades, bunner's debug labels) are shim bug fixes listed in the reference
+  doc §6. `ports/codetheclassics/_smoketest.py` is dead (`tasks/remove-ctc-smoketest.md`, proposed).
+- **Step 3 of `tasks/pgzero-gl-inline-strip-reextract.md` (re-extract the real shared library from the
+  tightened copies) is PARKED** — its own task, `tasks/pgzero-gl-step3-reextract-library.md`, not next-work
+  until the maintainer says go (2026-09-06); the per-family engine flag list in the reference doc §6 is its
+  map. Decided 2026-09-06: the engine keeps `PointLike = tuple | Vector` at its input boundary
+  (`tasks/reference/point-type-decision.md` — measured; `update()` is ~1% of the frame budget). Open
+  The renderers' `uModel` and ortho are DEFINED with gacalc transforms (a `MatrixTemplate` compiled once
+  at import, filled per draw — 7× faster than the numpy it replaced; `tasks/reference/gacalc-transforms-in-the-renderer.md`);
+  the ten template copies move into gacalc later (`tasks/ctc-use-gacalc-matrix-template.md`, blocked on
+  geometricalgebra `tasks/matrix-template-compile-once.md`). Open: `tasks/demos-exit-if-not-main.md`
+  (the import guard for the demos, proposed). The factories
+  are classmethods (`Renderer.create`, `Image.load`, ...) — reference doc §1b.
 
 ---
 

@@ -126,7 +126,7 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         self.context = wx.glcanvas.GLContext(self)
         self.init_gl = False
 
-        self.rotation_angle = 0
+        self.rotation_angle = 0.0
         self.rotation_speed = 5
         self.is_enabled = True
         self.color = (0.0, 1.0, 1.0)
@@ -167,7 +167,8 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
     def on_draw(self) -> None:
-        GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+        mask = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
+        GL.glClear(mask)
         GL.glLoadIdentity()
         GL.glRotatef(self.rotation_angle, 0.0, 0.0, 1.0)
         GL.glBegin(GL.GL_QUADS)

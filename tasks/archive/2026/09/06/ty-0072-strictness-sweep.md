@@ -1,6 +1,6 @@
 # ty 0.0.72 strictness sweep — 74 new errors from the toolchain, not from code changes
 
-**Status:** proposed — needs go-ahead (and one decision: the glClear fix touches published book regions)
+**Status:** DONE + ARCHIVED 2026-09-06 — `make format` exits 0 under ty 0.0.74 + gacalc 0.0.19 (image rebuilt for the pin); the 36 invariance errors cleared with the pin, and the only fallout was two now-unused blanket `# ty: ignore`s on demo07's `@` compositions (removed; ruff reflowed the two book lines). 104 tests. Was: READY — glClear half DONE (2026-09-05); **unblocked 2026-09-06: gacalc 0.0.19 is on PyPI (uploaded 2026-09-05), `requirements.txt` and the Dockerfile's `GACALC_VERSION` are pinned to it (resolvability checked in the nested image with `pip download`), so the remaining 36 errors are actionable — not started; first step is `make image` for the new pin, then `make format` to see what 0.0.19's `[V]`/`[Any]` returns clear.**
 **Priority:** 3
 **Difficulty:** 5
 **Created:** 2026-08-31
@@ -64,3 +64,35 @@ hits in touched files are all pre-existing lines). Ruff, `make test` (104), and
 2. **The gacalc-generics class** — approve filing a gacalc typing task (factories/`compose`/
    `to_matrix` bind precise `V`; ships as 0.0.19; mvp keeps its precise annotations)?
    RECOMMENDED. The mvp gate stays red on those ~25 until that lands.
+
+## Progress (2026-09-05, later same day)
+
+Ran the gate under **ty 0.0.74** (image rebuild); 71 diagnostics. Resolved the two mvp-owned
+classes; the rest is gacalc's:
+
+- **glClear (34 sites) — DONE, maintainer chose bare `# ty: ignore`** (idiomatic GL `A | B`,
+  PyOpenGL's `Constant` is opaque to ty — verified: `sum`, `A|B`, `int(A)|int(B)` all fail; a
+  bare ignore keeps the 4-space demo lines at 77 cols, in-book). 31 demos got the inline bare
+  ignore; **3 deep-indent (8-space) sites** (`wxapp.py:185`, `wxapp2.py:170`,
+  `mvpvisualization/cayley_gl.py:662`) became a `mask = A | B  # ty: ignore` local + `glClear(mask)`
+  (76 cols) since inline would hit 81 → E501. Two **pre-existing rule-coded** ignores
+  (`demo22.py:701` at 99 cols, `cayley_gl.py:662`) normalized to the chosen form. **E501 = 0.**
+- **`wxapp2.py:129` `rotation_angle = 0` → `0.0`** — the one genuine `invalid-assignment` (float
+  accumulates into an int-inferred attr; runtime already rebinds to float, so behavior unchanged).
+- **Result: 71 → 36.** ruff fully green, `make test` 104 passed. The remaining **36 are all the
+  gacalc-invariance class** (22 `compose` no-matching-overload, 11 `to_matrix`/`create_graphs`
+  invalid-argument-type, 3 `uniform_scale` invalid-assignment).
+- **The 36 are blocked on gacalc 0.0.19** — task filed AND being implemented:
+  `github.com/billsix/geometricalgebra` `tasks/ty-invariance-transform-factories-bind-v.md`. When
+  that ships, bump the mvp pin and the 36 clear; then `make format` is fully green and this task
+  archives.
+
+## Completion record (2026-09-06, Fable, overnight)
+
+- `make image BUILD_DOCS=0 USE_EMACS=0 USE_JUPYTER=0 USE_SPYDER=0` with the 0.0.19 pin (ty 0.0.74
+  inside); `make format` → the 36 gacalc-invariance errors are gone (`uniform_scale`/`scale_non_uniform`
+  bind `[V]`, `to_matrix`/`compose` accept the precise `V`), leaving 2 warnings: unused blanket
+  `# ty: ignore` on `src/modelviewprojection/demos/demo07.py:151` and `:169` (the `@` compositions the
+  0.0.18 overloads rejected). Removed; `make format` exit 0; 104 tests.
+- The maintainer's rebuild with the default flags (`make image`, docs on) is still owed by whoever runs
+  it next — the ty/ruff half of the gate does not depend on the docs flag.

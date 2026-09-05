@@ -149,6 +149,12 @@ built with **integer-exact** `InvertibleFunction`s so it replicates the original
 book only where the abstraction has been taught. Evidence base for all three:
 `tasks/reference/coordinate-spaces-in-code-the-classics.md`.
 
+**Update 2026-09-05 (boing tightening pilot):** boing now creates its window and renderer at
+module level before any game object, with no `__main__` guard and the loop at the bottom —
+byte-for-byte the demos' shape (`demo07.py:38-47`). The `require_renderer()` lazy guard that the
+framework era needed is gone. Standard for the other games:
+`tasks/reference/code-the-classics-tightening.md`.
+
 ## Doc drift found in passing (fix separately)
 
 `CLAUDE.md` says "demo12: Matrix-stack concept introduced", but the `FunctionStack`/`fn_stack` abstraction
