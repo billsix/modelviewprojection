@@ -3,7 +3,7 @@
 **Status:** proposed — depends on step 2 (do not start until step 2 has landed for enough games)
 **Priority:** 7
 **Difficulty:** 6
-**Part of:** `tasks/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Depends on:** `tasks/pgzero-gl-step2-strip-and-restructure.md`
+**Part of:** `tasks/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Depends on:** `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md`
 
 ## BLUF
 

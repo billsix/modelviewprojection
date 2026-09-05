@@ -83,7 +83,7 @@ it is frame-identical but not raw-bit-identical. (One more reason to prefer the 
   inverted `in_edge` indexing, less clear.
 - **Convert the renderer without lambdify** — same as the 492× point.
 - **Convert `bunner`/`avenger` cameras** — separate concern; structural poor fits, left raw (see
-  `tasks/codetheclassics-camera-as-inverse-other-scrollers.md`).
+  `tasks/archive/2026/09/05/codetheclassics-camera-as-inverse-other-scrollers.md`).
 - **Move the game-logic direct-path onto gacalc wholesale** — already largely true and done
   opportunistically (soccer/leadingedge/beatstreets `inverse(translate)`, myriapod `* e_12`,
   kinetix `plane_rotation`); no big-bang needed.
@@ -110,4 +110,4 @@ it is frame-identical but not raw-bit-identical. (One more reason to prefer the 
 - geometricalgebra `tasks/add-quarter-turn-to-g2.md` — proposal to make `quarter_turn` a real
   gacalc function (**g2-only**; the removed `rotate_90_degrees` — which mis-transformed e₃+ vectors
   — is why it must be dimension-specific).
-- `tasks/codetheclassics-myriapod-rotation-via-pseudoscalar.md` — where `* e_12` lives today.
+- `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-via-pseudoscalar.md` — where `* e_12` lives today.

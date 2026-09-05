@@ -45,11 +45,12 @@ never happening** (leaving 11 divergent ~3.4k-line copies), so the re-extraction
 
 1. ~~inline the shim into each game file~~ → **DONE 2026-09-04** (all 10 games, byte-identical frame-trace proof;
    archived `tasks/archive/2026/09/04/pgzero-gl-step1-inline-per-game.md`). Staged; maintainer commits.
-2. ~~strip dead slice, restructure, absorb the loop~~ → **DONE 2026-09-04** (all 10 games, byte-identical;
-   the abstraction gradient realized — boing rawest at 1851 lines, beatstreets richest at 6014). Staged; maintainer commits + play-tests.
+2. ~~strip dead slice, restructure, absorb the loop~~ → **DONE 2026-09-04, play-tested good + archived 2026-09-05**
+   (all 10 games, byte-identical; the abstraction gradient realized — boing rawest at 1851 lines, beatstreets
+   richest at 6014). Archived `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md`; maintainer squashes + merges.
 3. **`tasks/pgzero-gl-step3-reextract-library.md`** — re-extract the real shared library. *Step 2 done → unblocked; awaiting maintainer decision.*
 
-**Side branch (not a step):** `tasks/pgzero-gl-boing-gl14.md` — a GL 1.4 fixed-function companion `boing_gl1.py`
+**Side branch (not a step):** `tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md` — a GL 1.4 fixed-function companion `boing_gl1.py`
 beside the 3.3 `boing.py`, for studying the pipeline difference. Independent of step 3; awaiting go-ahead.
 
 > **Adhoc cleanup at final archive (marked 2026-09-05):** when this initiative wraps and its `tasks/adhoc/pgzero-gl-*`

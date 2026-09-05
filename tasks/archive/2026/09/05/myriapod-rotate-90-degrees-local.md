@@ -15,7 +15,7 @@ Byte-identical to the prior `* e_12` loop.
 
 ## Context / decision trail (2026-09-04)
 
-- Builds directly on `tasks/codetheclassics-myriapod-rotation-via-pseudoscalar.md`, which replaced
+- Builds directly on `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-via-pseudoscalar.md`, which replaced
   the hand-rolled 2×2 matrices with `offset * e_12`.
 - The maintainer wanted a **named** form too ("I like named functions", and "students should know
   `* e_12` rotates 90°"). Both are served by a named local function whose body is `* e_12`.
@@ -58,6 +58,6 @@ Byte-identical to the prior `* e_12` loop.
 
 ## Related
 
-- `tasks/codetheclassics-myriapod-rotation-via-pseudoscalar.md` — the `* e_12` this builds on.
+- `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-via-pseudoscalar.md` — the `* e_12` this builds on.
 - geometricalgebra `tasks/add-quarter-turn-to-g2.md` — the (parked, standalone) gacalc alternative.
 - `tasks/reference/gacalc-symbolic-transforms-and-lambdify.md` — the wider gacalc-transforms study.

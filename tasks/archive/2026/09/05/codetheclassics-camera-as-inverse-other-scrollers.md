@@ -100,5 +100,5 @@ in difficulty, so each is verified independently:
 
 ## Related
 
-- `tasks/codetheclassics-camera-as-inverse.md` — the soccer showcase (the pattern + feasibility).
+- `tasks/archive/2026/09/05/codetheclassics-camera-as-inverse.md` — the soccer showcase (the pattern + feasibility).
 - `tasks/reference/coordinate-spaces-in-code-the-classics.md` — the per-game camera sites.

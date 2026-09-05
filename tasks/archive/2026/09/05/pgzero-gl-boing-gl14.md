@@ -171,7 +171,7 @@ calls `Context.renderer.begin_frame(...)` / `draw()` through the identical inter
   gradient's rawest *modern* rung) and `boing_gl1.py` (fixed-function GL 1.x / 2.1-compat, the
   demo19-era pipeline) — a deliberate side-by-side for studying the pipeline difference; the
   other 9 games are 3.3 Core only.
-- `tasks/pgzero-gl-step2-strip-and-restructure.md` › boing row + the boing design-decision
+- `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md` › boing row + the boing design-decision
   block: cross-link this companion.
 - `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md`: record that the
   fixed-function `Renderer1x` back end now has a live consumer in the ports (boing_gl1), not just
@@ -192,7 +192,7 @@ calls `Context.renderer.begin_frame(...)` / `draw()` through the identical inter
 
 ## Related
 
-- `tasks/pgzero-gl-step2-strip-and-restructure.md` — where boing became the rawest game (the
+- `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md` — where boing became the rawest game (the
   base this derives from); the boing depth-1/depth-2 decision block.
 - `tasks/pgzero-gl-inline-strip-reextract.md` — the umbrella initiative (inline → strip →
   re-extract).

@@ -1,6 +1,6 @@
 # Code the Classics: express myriapod's segment rotation as rotate ∘ translate functions
 
-**Status:** SUPERSEDED 2026-09-04 by `tasks/codetheclassics-myriapod-rotation-via-pseudoscalar.md`. This doc declined the `rotate ∘ translate` framing because gacalc has no exact integer `rotate` — but that missed the exact answer: a 90° rotation in 2-D GA is multiplication by the **unit pseudoscalar `e_12`** (implemented, byte-identical). Kept for the decision history; the "Feasibility findings" below record *why the rotor-based approach was wrong*, which is still useful.
+**Status:** SUPERSEDED 2026-09-04 by `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-via-pseudoscalar.md`. This doc declined the `rotate ∘ translate` framing because gacalc has no exact integer `rotate` — but that missed the exact answer: a 90° rotation in 2-D GA is multiplication by the **unit pseudoscalar `e_12`** (implemented, byte-identical). Kept for the decision history; the "Feasibility findings" below record *why the rotor-based approach was wrong*, which is still useful.
 **Priority:** 5
 **Difficulty:** 4
 
@@ -129,7 +129,7 @@ frame-trace harness regardless.
 
 - `tasks/reference/coordinate-spaces-in-code-the-classics.md` › "The two genuine composed
   transforms" — the evidence base (myriapod is exception #1).
-- `tasks/codetheclassics-camera-as-inverse.md` — the 2-D *translate* sibling (this is the *rotate*
+- `tasks/archive/2026/09/05/codetheclassics-camera-as-inverse.md` — the 2-D *translate* sibling (this is the *rotate*
   sibling); same "build on existing book/gacalc functions" guidance.
-- `tasks/codetheclassics-leadingedge-projection-functions.md` — the 3-D projection case.
+- `tasks/archive/2026/09/05/codetheclassics-leadingedge-projection-functions.md` — the 3-D projection case.
 - `tasks/adhoc/pgzero-gl-inline/` — the byte-identical trace harness (and the exactness check).

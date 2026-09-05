@@ -40,7 +40,7 @@ frame-trace harness), and the abstraction-vs-clarity trade-off is a maintainer c
 
 Applies to the **four scrollers only** — `bunner`, `soccer`, `avenger`, `beatstreets`. The five
 single-screen games have no camera; `leadingedge`'s genuine 3-D camera is its own task
-(`tasks/codetheclassics-leadingedge-projection-functions.md`).
+(`tasks/archive/2026/09/05/codetheclassics-leadingedge-projection-functions.md`).
 
 ## Context (read first)
 
@@ -124,7 +124,7 @@ abstraction; **(2) don't reintroduce the pgzero framework.** Import from **`gaca
 ## Related
 
 - `tasks/reference/coordinate-spaces-in-code-the-classics.md` — the finding (evidence base).
-- `tasks/codetheclassics-myriapod-rotation-as-functions.md` — the sibling "rotation as functions"
+- `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-as-functions.md` — the sibling "rotation as functions"
   concern (the 2-D rotate case; this is the 2-D translate case).
-- `tasks/codetheclassics-leadingedge-projection-functions.md` — the 3-D camera/projection case.
+- `tasks/archive/2026/09/05/codetheclassics-leadingedge-projection-functions.md` — the 3-D camera/projection case.
 - `tasks/adhoc/pgzero-gl-inline/` — the byte-identical frame-trace harness to verify with.

@@ -114,8 +114,8 @@ the pgzero framework.** Import from **`gacalc.transforms`** (decided).
 
 - `tasks/reference/coordinate-spaces-in-code-the-classics.md` › "leadingedge — a genuine 3-D → 2-D
   perspective projection" — the evidence base (the set's one true multi-space game).
-- `tasks/codetheclassics-camera-as-inverse.md` — the 2-D camera-inverse case (this is its 3-D
+- `tasks/archive/2026/09/05/codetheclassics-camera-as-inverse.md` — the 2-D camera-inverse case (this is its 3-D
   cousin, on a real camera).
-- `tasks/codetheclassics-myriapod-rotation-as-functions.md` — the 2-D rotate case.
+- `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-as-functions.md` — the 2-D rotate case.
 - `CLAUDE.md` › pedagogical arc (demo19/ch19 perspective) — the course chapters this game mirrors.
 - `tasks/adhoc/pgzero-gl-inline/` — the byte-identical trace harness (`update(dt)` variant).

@@ -19,7 +19,7 @@
   reproduced it by hand and got identical results for translate / scale / a pseudoscalar 90°).
 - **Raises `ValueError` on a non-linear `fn`** — a perspective divide (leadingedge) can't be
   recovered by probing points, so it correctly refuses. (Consistent with leaving that projection
-  hand-rolled, as done in `codetheclassics-leadingedge-projection-functions.md`.)
+  hand-rolled, as done in `tasks/archive/2026/09/05/codetheclassics-leadingedge-projection-functions.md`.)
 
 So mode (a) "gacalc transform → 4×4 for GL" needs **no basis-sampling of our own** and no bespoke
 bridge; it's one call, in mvp's convention.

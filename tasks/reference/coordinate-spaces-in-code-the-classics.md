@@ -23,9 +23,9 @@ forward-only.
 
 The teaching value of this doc: it maps each game onto the course's framework so a reader can
 see **where the book's abstractions do and don't show up in real game code**, and it is the
-evidence base behind two follow-on tasks (`tasks/pgzero-gl-boing-gl14.md` — a GL-1.x vs 3.3
+evidence base behind two follow-on tasks (`tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md` — a GL-1.x vs 3.3
 study; and a camera-as-`inverse(translate())` refactor, feasibility task
-`tasks/codetheclassics-camera-as-inverse.md`).
+`tasks/archive/2026/09/05/codetheclassics-camera-as-inverse.md`).
 
 ## Why this doc exists (the question)
 
@@ -116,7 +116,7 @@ scrollers do exactly that, in its simplest form.
   negation, composed with nothing, applied by mutating-then-restoring `x`/`y` (or subtracting a
   `Vector`) inside `Actor.draw`. Same concept — "render through the inverse of the camera's
   placement" — stripped to its degenerate one-edge case. **This is the teachable bridge**, and
-  the reason for the feasibility task `tasks/codetheclassics-camera-as-inverse.md` (rewriting
+  the reason for the feasibility task `tasks/archive/2026/09/05/codetheclassics-camera-as-inverse.md` (rewriting
   `screen = world − camera` as an explicit `inverse(translate(camera))`).
 
 ## Grid / tile spaces — a real second space, but a fixed affine
@@ -156,7 +156,7 @@ a rotation matrix and composes it with a translation to reach the screen.
 > **Update (2026-09-04):** the rotate half is now expressed the course's way — the four `in_edge`
 > rotations are `offset · e_12^in_edge`, **multiplication by the unit pseudoscalar** `e_12` (the
 > exact GA-native 90° rotation; `e_12`'s components are ±1, so no `sin`/`cos`). Byte-identical to
-> the old matrix; see `tasks/codetheclassics-myriapod-rotation-via-pseudoscalar.md`. The `cell2pos`
+> the old matrix; see `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-via-pseudoscalar.md`. The `cell2pos`
 > translate stays hand-rolled (a plain integer offset).
 
 (Note: `kinetix`'s `_turn = plane_rotation(e_1, e_2)` at
@@ -232,17 +232,17 @@ book's machinery inside a real game (see the feasibility task).
 
 - `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md` — the shim's design and
   per-game usage slices (the engine these games sit on).
-- `tasks/pgzero-gl-boing-gl14.md` — the GL 1.x vs 3.3 boing study (uses the model/texture/NDC
+- `tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md` — the GL 1.x vs 3.3 boing study (uses the model/texture/NDC
   space section above).
 - Three feasibility tasks this research spawned, each "build on existing book/gacalc functions,
   study first, byte-identical" (maintainer, 2026-09-04) — outcomes on branch
   `codetheclassics-gl1-and-space-refactors`:
-  - `tasks/codetheclassics-camera-as-inverse.md` — **IMPLEMENTED (soccer showcase)**: `screen =
+  - `tasks/archive/2026/09/05/codetheclassics-camera-as-inverse.md` — **IMPLEMENTED (soccer showcase)**: `screen =
     world − camera` → `inverse(translate(camera))`, frame-180 AE=0. Replication to the other
     scrollers left as a maintainer decision.
-  - `tasks/codetheclassics-leadingedge-projection-functions.md` — **IMPLEMENTED**: world→camera →
+  - `tasks/archive/2026/09/05/codetheclassics-leadingedge-projection-functions.md` — **IMPLEMENTED**: world→camera →
     `inverse(translate())` in `g3`, perspective divide left hand-rolled, frame-180 AE=0.
-  - `tasks/codetheclassics-myriapod-rotation-via-pseudoscalar.md` — **IMPLEMENTED**: the four
+  - `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-via-pseudoscalar.md` — **IMPLEMENTED**: the four
     `in_edge` rotations are now `offset · e_12^in_edge` — multiplication by the unit pseudoscalar,
     the exact GA-native 90° rotation (no `sin`/`cos`), frame-180 AE=0. (Supersedes
     `...-myriapod-rotation-as-functions.md`, which wrongly declined a `rotate∘translate` framing

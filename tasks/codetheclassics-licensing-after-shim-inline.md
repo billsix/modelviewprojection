@@ -1,6 +1,6 @@
 # Code-the-Classics licensing after the shim inline/re-extract
 
-**Status:** proposed — BLOCKED on ONE maintainer decision: **BSD-2-Clause vs GPLv2 for the inlined engine code** (a permissive-vs-copyleft policy fork). Everything else is settled; it's a ~15-min mechanical header pass once decided. Maintainer confirmed 2026-09-04 the pygame-LGPL courtesy should be dropped (the shim is his clean-room code, and inline+strip has dissolved its "pygame reimplementation" identity per game).
+**Status:** actionable — **DECIDED 2026-09-05 (William Emerison Six <billsix@gmail.com>): BSD-2-Clause** for the inlined engine code (permissive; matches the existing `ports/codetheclassics/LICENSE` declaration for the per-game files). No longer blocked. Remaining: the ~15-min mechanical header pass (drop the interim pygame-LGPL headers, apply BSD-2-Clause) — awaiting go-ahead to execute. Maintainer confirmed 2026-09-04 the pygame-LGPL courtesy should be dropped (the shim is his clean-room code, and inline+strip has dissolved its "pygame reimplementation" identity per game).
 **Priority:** 3
 **Difficulty:** 3
 
@@ -166,7 +166,7 @@ license; until then it stays as-is (it's the source the games were inlined from)
 ## Related
 
 - `tasks/pgzero-gl-inline-strip-reextract.md` — step 3 re-extract (the natural home for this).
-- `tasks/pgzero-gl-boing-gl14.md` — `boing_gl1.py` inherits the same interim LGPL header; it is in
+- `tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md` — `boing_gl1.py` inherits the same interim LGPL header; it is in
   scope for this cleanup along with the other 10 game files.
 - `CLAUDE.md` › Code-the-Classics — records the games as BSD-2-Clause, © Eben Upton et al., and the
   shim as LGPL-2.1 (both to be updated when this lands).

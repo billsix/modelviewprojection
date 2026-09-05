@@ -67,7 +67,7 @@ below were **considered and deferred** — not rejected; revisit anytime the mai
 **FOLLOW-ON (maintainer, 2026-09-04): a GL 1.4 fixed-function COMPANION to boing** — `boing_gl1.py` beside
 `boing.py`, same game, drawn with the fixed-function OpenGL 1.x pipeline (2.1-compat context, `Renderer1x`)
 so a student can `diff` the two and compare the old immediate-mode pipeline (demo19 era) against 3.3 Core +
-shaders. The 3.3 `boing.py` is untouched. Planned in **`tasks/pgzero-gl-boing-gl14.md`** (awaiting go-ahead).
+shaders. The 3.3 `boing.py` is untouched. Planned in **`tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md`** (awaiting go-ahead).
 
 **Further raw steps still available on boing ("depth 2" — deferred, the gradient can go deeper if wanted):**
 (a) replace the lazy `resources` loader with demo-style **eager texture loading up front + `glDeleteTextures`
@@ -102,7 +102,7 @@ on boing, prove frame-180 byte-identical, and re-baseline the gradient's bottom 
 
 | Game | vol | stripped | restructured | loop absorbed | trace clean | notes |
 |---|---|---|---|---|---|---|
-| boing | 1 | ✅ | ✅ | ✅ | ✅ | **DONE (template)** — Actor dropped → dataclasses + blit/draw_sprite; 3617→1851 lines (−49%); frame-180 byte-identical. **Follow-on:** GL 1.4 companion `boing_gl1.py` planned (`tasks/pgzero-gl-boing-gl14.md`) |
+| boing | 1 | ✅ | ✅ | ✅ | ✅ | **DONE (template)** — Actor dropped → dataclasses + blit/draw_sprite; 3617→1851 lines (−49%); frame-180 byte-identical. **Follow-on:** GL 1.4 companion `boing_gl1.py` planned (`tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md`) |
 | cavern | 1 | ✅ | ✅ | ✅ | n/a | **DONE** — kept Actor (gradient); loop absorbed, unused modules stripped, screen→blit; 4024→2971 (−26%); byte-identical |
 | myriapod | 1 | ✅ | ✅ | ✅ | n/a | **DONE** — kept Actor; same pattern as cavern; 4106→3053 (−26%); byte-identical |
 | bunner | 1 | ✅ | ✅ | ✅ | n/a | **DONE** — richest vol1: KEEPS surface/draw/text/screen (uses screen.draw.text + gldraw.rect + screen.surface) + Actor; only loop absorbed + unused standalone modules stripped; 4128→3583 (−13%); byte-identical; pre-existing scroll_pos suppressed |

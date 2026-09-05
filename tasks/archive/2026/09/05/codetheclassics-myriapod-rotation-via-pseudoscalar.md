@@ -15,7 +15,7 @@ and no floating-point error** (unlike a general `rotate(θ)` rotor). Proven byte
 
 ## Decision trail (for review — this corrects an earlier wrong call)
 
-- **Sibling task `tasks/codetheclassics-myriapod-rotation-as-functions.md` first RECOMMENDED NOT
+- **Sibling task `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-as-functions.md` first RECOMMENDED NOT
   doing this** (2026-09-04), on the reasoning that `gacalc.transforms` has no `rotate`, the rotor
   (`plane_rotation`) is float and inexact for 90° (unsafe on this integer game), and a bespoke
   integer `InvertibleFunction` was ceremony that didn't beat the exact 2×2 matrix.
@@ -71,9 +71,9 @@ with no truncation — the downstream `cell2pos` and `self.pos` stay integer, by
 
 ## Related
 
-- `tasks/codetheclassics-myriapod-rotation-as-functions.md` — the superseded `rotate∘translate`
+- `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-as-functions.md` — the superseded `rotate∘translate`
   framing (kept for the decision history).
 - `tasks/reference/coordinate-spaces-in-code-the-classics.md` — myriapod is the one game with a
   genuine composed rotate-then-translate; this makes the rotate half a course-native operation.
-- `tasks/codetheclassics-camera-as-inverse.md`, `...-leadingedge-projection-functions.md` — the
+- `tasks/archive/2026/09/05/codetheclassics-camera-as-inverse.md`, `...-leadingedge-projection-functions.md` — the
   translation siblings (both landed byte-identical).

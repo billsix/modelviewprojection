@@ -141,10 +141,10 @@ game are:
    *framework* dependency (its runner/inversion), not the book's math.
 
 This is why the three "express X as a taught function" tasks are *consistent* with the philosophy,
-not exceptions to it: `tasks/codetheclassics-camera-as-inverse.md` (camera = `inverse(translate)`),
-`tasks/codetheclassics-myriapod-rotation-as-functions.md` (segment placement = `rotate ∘ translate`,
+not exceptions to it: `tasks/archive/2026/09/05/codetheclassics-camera-as-inverse.md` (camera = `inverse(translate)`),
+`tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-as-functions.md` (segment placement = `rotate ∘ translate`,
 built with **integer-exact** `InvertibleFunction`s so it replicates the original bit-for-bit), and
-`tasks/codetheclassics-leadingedge-projection-functions.md` (world→camera = `inverse(translate)` in
+`tasks/archive/2026/09/05/codetheclassics-leadingedge-projection-functions.md` (world→camera = `inverse(translate)` in
 `g3`). Each imports from `gacalc.transforms`, keeps behaviour byte-identical, and is placed in the
 book only where the abstraction has been taught. Evidence base for all three:
 `tasks/reference/coordinate-spaces-in-code-the-classics.md`.
