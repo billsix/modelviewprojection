@@ -14,7 +14,7 @@ Raspberry Pi Press and authors).
 * Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 
 :func:`main` replaces pgzero's ``pgzrun.go()``. It reads ``WIDTH``/``HEIGHT``/
-``TITLE``/``update``/``draw``/``on_*`` from the calling game module, opens a GL
+``TITLE``/``update``/``draw`` from the calling game module, opens a GL
 window (3.3 core by default, or fixed-function 1.x under ``PGZERO_GL=1``), and
 runs a fixed 60 Hz loop -- the games assume a fixed timestep, so most ``update``
 functions take no ``dt`` (we pass one only if the signature accepts it).
@@ -31,7 +31,8 @@ from typing import Any
 import glfw
 import OpenGL.GL as GL
 
-from . import audio, context
+from . import audio
+from .context import Context
 from .input import keyboard
 
 
@@ -60,7 +61,7 @@ def _make_window(
     """Init GLFW, create the GL window/context, and return the window handle."""
     if not glfw.init():
         raise RuntimeError("glfw.init() failed")
-    context.glfw_ready = True
+    Context.glfw_ready = True
     if legacy:
         # Fixed-function: a compatibility (2.1) context exposes GL 1.x.
         glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
@@ -96,14 +97,14 @@ def main(g: dict[str, Any] | None = None) -> None:
     # Assets live next to the game file.
     game_file = g.get("__file__")
     if game_file:
-        context.asset_root = os.path.dirname(os.path.abspath(game_file))
+        Context.asset_root = os.path.dirname(os.path.abspath(game_file))
 
     renderer_cls, legacy = _select_renderer()
     window: Any = _make_window(
         width=width, height=height, title=title, legacy=legacy
     )
-    context.window = window
-    context.renderer = renderer_cls(width, height)
+    Context.window = window
+    Context.renderer = renderer_cls(width, height)
 
     # Diagnostics for on-hardware verification: PGZERO_GL_INFO=1 prints which GL
     # backend + driver is actually in use (confirms real GPU vs software, and
@@ -122,8 +123,6 @@ def main(g: dict[str, Any] | None = None) -> None:
 
     update = g.get("update")
     draw = g.get("draw")
-    on_key_down = g.get("on_key_down")
-    on_key_up = g.get("on_key_up")
 
     update_takes_dt: bool = (
         update is not None and update.__code__.co_argcount >= 1
@@ -134,20 +133,15 @@ def main(g: dict[str, Any] | None = None) -> None:
     ) -> None:
         if action == glfw.PRESS:
             keyboard._press(key)
-            if on_key_down:
-                _call_key_hook(hook=on_key_down, key=key, mods=mods)
             # Esc always ends the game -- a keyboard exit that does not depend on
             # window-manager decorations (some Wayland setups have no title-bar
             # close button). Mirrors the mvpVisualization explorers' common_key.
-            # Runs AFTER the game's own on_key_down so gameplay is unchanged
             # (leadingedge, the one game that reads keyboard.escape, already ends
-            # on Esc -- so this stays consistent with it).
+            # on Esc -- so this stays consistent with it.)
             if key == glfw.KEY_ESCAPE:
                 glfw.set_window_should_close(win, True)
         elif action == glfw.RELEASE:
             keyboard._release(key)
-            if on_key_up:
-                _call_key_hook(hook=on_key_up, key=key, mods=mods)
 
     glfw.set_key_callback(window, key_cb)
 
@@ -180,7 +174,7 @@ def main(g: dict[str, Any] | None = None) -> None:
                 update(frame) if update_takes_dt else update()
 
             fb_w, fb_h = glfw.get_framebuffer_size(window)
-            context.renderer.begin_frame(fb_width=fb_w, fb_height=fb_h)
+            Context.renderer.begin_frame(fb_width=fb_w, fb_height=fb_h)
             if draw:
                 draw()
             glfw.swap_buffers(window)
@@ -209,22 +203,7 @@ def main(g: dict[str, Any] | None = None) -> None:
         glfw.terminate()
 
 
-def _call_key_hook(hook: Any, key: int, mods: int) -> None:
-    """Call a game's ``on_key_*`` hook, passing whichever of (key, mod) it declares.
-
-    ``hook`` is a game function we introspect via ``__code__``, hence ``Any``.
-    """
-    # Pass whichever of (key, mod) the handler declares, like pgzero does.
-    names = hook.__code__.co_varnames[: hook.__code__.co_argcount]
-    kwargs: dict[str, Any] = {}
-    if "key" in names:
-        kwargs["key"] = key
-    if "mod" in names:
-        kwargs["mod"] = mods
-    hook(**kwargs)
-
-
 def quit_game() -> None:
     """Ask the window to close, ending the game loop (pgzero's ``exit()``)."""
-    if context.window is not None:
-        glfw.set_window_should_close(context.window, True)
+    if Context.window is not None:
+        glfw.set_window_should_close(Context.window, True)

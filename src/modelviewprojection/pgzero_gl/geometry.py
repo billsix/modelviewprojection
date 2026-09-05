@@ -41,32 +41,6 @@ _C = TypeVar("_C", int, float)
 VectorLike = Any
 
 
-_VIRTUALS = {
-    "topleft",
-    "topright",
-    "bottomleft",
-    "bottomright",
-    "midtop",
-    "midbottom",
-    "midleft",
-    "midright",
-    "center",
-    "centerx",
-    "centery",
-    "left",
-    "right",
-    "top",
-    "bottom",
-    "width",
-    "height",
-    "size",
-    "w",
-    "h",
-    "x",
-    "y",
-}
-
-
 class _RectBase(Generic[_C]):
     """The shared rectangle implementation, generic over its coordinate type.
 

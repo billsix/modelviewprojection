@@ -82,9 +82,6 @@ class Renderer1x:
         self,
         image: Drawable,
         topleft: PointLike,
-        angle: float = 0.0,
-        anchor: PointLike | None = None,
-        tint: Any = (1.0, 1.0, 1.0, 1.0),
         src: Any = None,
     ) -> None:
         """Draw a textured quad (see :meth:`Renderer.draw_image` for the semantics)."""
@@ -100,17 +97,11 @@ class Renderer1x:
 
         GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glBindTexture(GL.GL_TEXTURE_2D, image.gl_texture())
-        GL.glColor4f(*_rgba(tint))
+        # Sprites draw untinted; GL_MODULATE multiplies the texture by glColor,
+        # which flat fills set to a colour -- so reset it to white.
+        GL.glColor4f(1.0, 1.0, 1.0, 1.0)
 
         GL.glPushMatrix()
-        if angle:
-            ax, ay = (
-                anchor if anchor is not None else (tx + w * 0.5, ty + h * 0.5)
-            )
-            GL.glTranslatef(ax, ay, 0.0)
-            # -angle to match the 3.3 renderer's y-down rotation convention.
-            GL.glRotatef(-angle, 0.0, 0.0, 1.0)
-            GL.glTranslatef(-ax, -ay, 0.0)
         GL.glTranslatef(tx, ty, 0.0)
         GL.glScalef(w, h, 1.0)
         GL.glBegin(GL.GL_QUADS)

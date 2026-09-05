@@ -26,7 +26,7 @@ from typing import Any
 
 import glfw
 
-from . import context
+from .context import Context
 
 # GLFW hat bit flags -> pygame (x, y) with y up = +1 (pygame convention).
 _HAT_UP = 1
@@ -40,7 +40,7 @@ def get_count() -> int:
     # GLFW must be initialized first.  Game modules call setup_joystick_controls()
     # at import time (before the window/loop exist); querying GLFW then returns
     # garbage, so report "no joysticks" until the runner has init'd GLFW.
-    if not context.glfw_ready:
+    if not Context.glfw_ready:
         return 0
     n: int = 0
     for jid in range(16):
@@ -50,11 +50,6 @@ def get_count() -> int:
         except Exception:
             pass
     return n
-
-
-def get_init() -> bool:
-    """Return whether the joystick subsystem is initialised (always True here)."""
-    return True
 
 
 def init() -> None:
@@ -93,25 +88,9 @@ class Joystick:
         """No-op (pygame API compatibility)."""
         pass
 
-    def get_init(self) -> bool:
-        """Return whether this joystick is initialised (always True here)."""
-        return True
-
-    def get_id(self) -> int:
-        """Return this joystick's id (its GLFW index)."""
-        return self.index
-
-    def get_name(self) -> str:
-        """Return the controller's name, or ``""`` if unavailable."""
-        try:
-            name = glfw.get_joystick_name(self.index)
-            return name.decode() if isinstance(name, bytes) else (name or "")
-        except Exception:
-            return ""
-
     def _axes(self) -> list[float]:
         """Return the current analog-axis values, or ``[]`` if unavailable."""
-        if not context.glfw_ready:
+        if not Context.glfw_ready:
             return []
         try:
             return _read_glfw_array(glfw.get_joystick_axes(self.index))
@@ -120,7 +99,7 @@ class Joystick:
 
     def _buttons(self) -> list[int]:
         """Return the current button states, or ``[]`` if unavailable."""
-        if not context.glfw_ready:
+        if not Context.glfw_ready:
             return []
         try:
             return _read_glfw_array(glfw.get_joystick_buttons(self.index))
@@ -129,16 +108,12 @@ class Joystick:
 
     def _hats(self) -> list[int]:
         """Return the current hat (d-pad) bitflags, or ``[]`` if unavailable."""
-        if not context.glfw_ready:
+        if not Context.glfw_ready:
             return []
         try:
             return _read_glfw_array(glfw.get_joystick_hats(self.index))
         except Exception:
             return []
-
-    def get_numaxes(self) -> int:
-        """Return the number of analog axes."""
-        return len(self._axes())
 
     def get_axis(self, i: int) -> float:
         """Return axis ``i`` in -1.0..1.0 (0.0 if out of range / unavailable)."""

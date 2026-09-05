@@ -50,8 +50,9 @@ def actor_property_names() -> set[str]:
 def test_actor_properties_exist() -> None:
     props: set[str] = actor_property_names()
     # the core pgzero surface must be present (a rename would silently
-    # defang the collision check below)
-    assert {"x", "y", "pos", "image", "anchor", "angle"} <= props
+    # defang the collision check below).  ``angle`` was removed 2026-09-04
+    # (dead sprite-rotation path -- no game ever set it), so it is not here.
+    assert {"x", "y", "pos", "image", "anchor"} <= props
 
 
 def test_no_dataclass_field_shadows_an_actor_property() -> None:

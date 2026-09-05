@@ -49,7 +49,7 @@ from typing import TYPE_CHECKING, Any, cast
 import numpy as np
 from numpy.typing import NDArray
 
-from . import context
+from .context import Context
 
 if TYPE_CHECKING:
     import miniaudio
@@ -321,17 +321,15 @@ class Sound:
     def play(
         self,
         loops: int = 0,
-        maxtime: int = 0,
         fade_ms: int = 0,
         volume: float | None = None,
     ) -> None:
         """Play the effect (overlapping prior plays); ``loops != 0`` loops it.
 
-        ``maxtime`` is accepted for ``pygame.mixer.Sound.play`` compatibility
-        but ignored.  ``fade_ms`` ramps this play's voice up from silence
-        inside the mixer.  ``volume`` overrides this effect's volume for THIS
-        play only (the mixer.Sound wrapper in ``__init__`` uses this to give
-        pygame's per-instance-volume semantics without a Sound per volume).
+        ``fade_ms`` ramps this play's voice up from silence inside the mixer.
+        ``volume`` overrides this effect's volume for THIS play only (the
+        mixer.Sound wrapper in ``__init__`` uses this to give pygame's
+        per-instance-volume semantics without a Sound per volume).
         """
         if not _BACKEND:
             return
@@ -386,7 +384,7 @@ class _Music:
 
     def _path(self, name: str) -> str | None:
         """Resolve a track ``name`` to a file under ``music/``, or ``None``."""
-        base: str = os.path.join(context.get_asset_root(), "music", name)
+        base: str = os.path.join(Context.get_asset_root(), "music", name)
         if os.path.isfile(base):
             return base
         for ext in ("ogg", "mp3", "wav"):

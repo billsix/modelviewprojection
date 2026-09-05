@@ -5,13 +5,15 @@
 # Full license text: src/modelviewprojection/pgzero_gl/LICENSE.
 # License source: https://raw.githubusercontent.com/pygame/pygame/main/docs/LGPL.txt
 """
-boing -- a Code-the-Classics game with pgzero_gl inlined.
+boing_gl1 -- the OpenGL 1.x (fixed-function) rendering of boing.
 
-The pgzero_gl engine is pasted in full at the top (step 1 of the
-inline/strip/re-extract initiative); the game code follows below.
-
-See boing_gl1.py for the fixed-function OpenGL 1.x rendering of this same game
-(diff the two to compare the GL 1.x and 3.3-core pipelines).
+A study companion to boing.py: the SAME game, drawn with the OpenGL 1.x
+fixed-function pipeline (a 2.1 compatibility context + glOrtho + glBegin/glEnd
+immediate mode + fixed-function texturing) instead of 3.3 core + shaders. Diff
+this file against boing.py to see exactly what changes between the two pipelines
+-- the game logic is identical; only the renderer (Renderer1x, below) and the
+window/context setup differ. The fixed-function era here is the one the book
+introduces at demo19 (glMatrixMode / glOrtho / glBegin / glEnable(GL_TEXTURE_2D)).
 """
 
 from __future__ import annotations
@@ -101,7 +103,7 @@ Raspberry Pi Press and authors).
 * Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 
 A tiny holder for state that several shim modules need but which is only known
-once the game starts: the active :class:`~pgzero_gl.renderer.Renderer` (created
+once the game starts: the active :class:`~pgzero_gl.renderer_gl1.Renderer1x` (created
 after the GL context exists) and the asset root directory. It is a **class**
 (``Context``) with class-level state, not module globals -- so both the shim and
 the single-file inlined games (each game inlines the whole shim) stay
@@ -122,7 +124,7 @@ class Context:
 
     #: The active renderer. ``None`` until the runner creates the GL context;
     #: drawing before then raises a clear error (see :meth:`require_renderer`).
-    renderer: Renderer | None = None
+    renderer: Renderer1x | None = None
 
     #: The active GLFW window handle (set by the runner; used by ``exit()``).
     #: GLFW handles are opaque pointers, so this is typed ``Any``.
@@ -156,7 +158,7 @@ class Context:
         return os.getcwd()
 
     @staticmethod
-    def require_renderer() -> Renderer:
+    def require_renderer() -> Renderer1x:
         """Return the active renderer, or raise if the GL context isn't up yet.
 
         Raises ``RuntimeError`` if called before the game loop created the GL
@@ -779,9 +781,9 @@ images = _Loader(
 )
 sounds = _Loader(subdir="sounds", extns=["ogg", "wav", "oga"], make=audio.Sound)
 
-# ===== pgzero_gl/renderer.py =====
+# ===== pgzero_gl/renderer_gl1.py (fixed-function OpenGL 1.x) =====
 
-"""The OpenGL 3.3 core back end -- textured quads in pgzero pixel space.
+"""The OpenGL 1.x fixed-function back end -- textured quads in pgzero pixel space.
 
 Part of the ModelViewProjection "Code the Classics" port (originals (c)
 Raspberry Pi Press and authors).
@@ -790,15 +792,12 @@ Raspberry Pi Press and authors).
 * Book: https://magazine.raspberrypi.com/books/code-the-classics-vol-I-2ed
 
 PyGame Zero draws by blitting CPU surfaces in a top-left-origin, y-down pixel
-coordinate system. We reproduce that exactly with an orthographic projection
-(:func:`ortho_pixels`) and textured quads, so the ported game code keeps its
-original pixel coordinates unchanged. One shader program does both jobs --
-textured sprites and flat-colour primitives -- switched by the ``uUseTex``
-uniform and multiplied by a ``uTint`` colour. :class:`pgzero_gl.renderer_gl1` is
-the fixed-function sibling that draws the same pixels for old GL stacks.
-
-Matrices are row-major numpy, uploaded with ``transpose=GL_TRUE``; all
-coordinates are pgzero pixels: ``(0, 0)`` top-left, ``+x`` right, ``+y`` down.
+coordinate system. We reproduce that exactly with a fixed-function orthographic
+projection (``glOrtho``) and immediate-mode textured quads (``glBegin``/``glEnd``
++ ``glTexCoord2f``/``glVertex2f``), so the ported game code keeps its original
+pixel coordinates unchanged. Tinting uses the fixed-function texture environment
+(``GL_MODULATE``: texture * glColor). This is the GL 1.x rendering of boing;
+boing.py is the 3.3-core + shaders sibling that draws the same pixels.
 """
 
 
@@ -806,157 +805,38 @@ if TYPE_CHECKING:
     pass
 
 # ---------------------------------------------------------------------------
-# Matrix helpers (row-major numpy; uploaded with transpose=GL_TRUE).
-# All coordinates are PyGame-Zero pixels: (0,0) top-left, +x right, +y down.
+# Fixed-function OpenGL 1.x renderer -- a drop-in for the 3.3-core Renderer.
+#
+# Draws with the OpenGL 1.x FIXED-FUNCTION pipeline: glOrtho for the pixel-space
+# projection, glBegin/glEnd immediate mode + glTexCoord2f/glVertex2f for the
+# textured quad, and GL_MODULATE (texture * glColor) for tinting -- no shaders,
+# no VAO. The interface is identical to the 3.3 Renderer, so blit()/draw_sprite()
+# and all the game code below are unchanged. The texture upload
+# (Image.gl_texture, above) is glGenTextures/glTexImage2D, which is
+# 1.x-compatible. The 3.3 renderer (boing.py) and this one draw the same pixels.
 # ---------------------------------------------------------------------------
 
 
-def _identity() -> NDArray[np.float32]:
-    """Return a 4x4 identity matrix."""
-    return np.identity(4, dtype=np.float32)
-
-
-def _translate(x: float, y: float) -> NDArray[np.float32]:
-    """Return a 4x4 translation by ``(x, y)`` pixels."""
-    m: NDArray[np.float32] = _identity()
-    m[0, 3] = x
-    m[1, 3] = y
-    return m
-
-
-def _scale(sx: float, sy: float) -> NDArray[np.float32]:
-    """Return a 4x4 non-uniform scale by ``(sx, sy)``."""
-    m: NDArray[np.float32] = _identity()
-    m[0, 0] = sx
-    m[1, 1] = sy
-    return m
-
-
-def ortho_pixels(width: float, height: float) -> NDArray[np.float32]:
-    """Map pixel space (0,0)=top-left .. (width,height)=bottom-right to NDC."""
-    m: NDArray[np.float32] = _identity()
-    m[0, 0] = 2.0 / width
-    m[0, 3] = -1.0
-    m[1, 1] = -2.0 / height
-    m[1, 3] = 1.0
-    m[2, 2] = -1.0
-    return m
-
-
-# ---------------------------------------------------------------------------
-# Shaders.  One program: textured (sprites) or flat (rects/lines/circles),
-# switched by the uUseTex uniform, multiplied by a uTint colour.
-# ---------------------------------------------------------------------------
-
-_VERT = """
-#version 330 core
-layout(location = 0) in vec2 aPos;
-uniform mat4 uOrtho;
-uniform mat4 uModel;
-uniform vec2 uTexOffset;
-uniform vec2 uTexScale;
-out vec2 vTex;
-void main() {
-    vTex = aPos * uTexScale + uTexOffset;
-    gl_Position = uOrtho * uModel * vec4(aPos, 0.0, 1.0);
-}
-"""
-
-_FRAG = """
-#version 330 core
-in vec2 vTex;
-uniform sampler2D uTex;
-uniform vec4 uTint;
-uniform bool uUseTex;
-out vec4 frag;
-void main() {
-    if (uUseTex) {
-        frag = texture(uTex, vTex) * uTint;
-    } else {
-        frag = uTint;
-    }
-}
-"""
-
-
-def _compile(src: str, kind: Any) -> int:
-    """Compile one GLSL shader of the given ``kind``; raise on a compile error.
-
-    ``kind`` is a PyOpenGL ``GL_*_SHADER`` constant (opaque, so typed ``Any``).
-    """
-    sid: int = GL.glCreateShader(kind)
-    GL.glShaderSource(sid, src)
-    GL.glCompileShader(sid)
-    if GL.glGetShaderiv(sid, GL.GL_COMPILE_STATUS) != GL.GL_TRUE:
-        raise RuntimeError(GL.glGetShaderInfoLog(sid).decode())
-    return sid
-
-
-class Renderer:
-    """Owns the GL program and the quad/line buffers.
-
-    Created once, after the GL context exists (see :mod:`pgzero_gl.runner`).
-    """
+class Renderer1x:
+    """Fixed-function (OpenGL 1.x) renderer with the same interface as :class:`Renderer`."""
 
     def __init__(self, width: int, height: int) -> None:
-        self.width = width  # logical (game) pixels
+        self.width = width
         self.height = height
-        # Framebuffer pixels -- may exceed logical on HiDPI / scaled displays.
-        # Updated every begin_frame from the real framebuffer size.
         self.fb_width = width
         self.fb_height = height
-        self.ortho = ortho_pixels(width=width, height=height)
-
-        vs: int = _compile(src=_VERT, kind=GL.GL_VERTEX_SHADER)
-        fs: int = _compile(src=_FRAG, kind=GL.GL_FRAGMENT_SHADER)
-        self.program = GL.glCreateProgram()
-        GL.glAttachShader(self.program, vs)
-        GL.glAttachShader(self.program, fs)
-        GL.glLinkProgram(self.program)
-        if GL.glGetProgramiv(self.program, GL.GL_LINK_STATUS) != GL.GL_TRUE:
-            raise RuntimeError(GL.glGetProgramInfoLog(self.program).decode())
-        GL.glDeleteShader(vs)
-        GL.glDeleteShader(fs)
-
-        self.u_ortho = GL.glGetUniformLocation(self.program, "uOrtho")
-        self.u_model = GL.glGetUniformLocation(self.program, "uModel")
-        self.u_tint = GL.glGetUniformLocation(self.program, "uTint")
-        self.u_use_tex = GL.glGetUniformLocation(self.program, "uUseTex")
-        self.u_tex = GL.glGetUniformLocation(self.program, "uTex")
-        self.u_tex_off = GL.glGetUniformLocation(self.program, "uTexOffset")
-        self.u_tex_scale = GL.glGetUniformLocation(self.program, "uTexScale")
-
-        # Unit quad [0,1]x[0,1] as two triangles (location 0 = aPos).
-        quad: NDArray[np.float32] = np.array(
-            [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1], dtype=np.float32
-        )
-        self.quad_vao = GL.glGenVertexArrays(1)
-        self.quad_vbo = GL.glGenBuffers(1)
-        GL.glBindVertexArray(self.quad_vao)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.quad_vbo)
-        GL.glBufferData(
-            GL.GL_ARRAY_BUFFER, quad.nbytes, quad, GL.GL_STATIC_DRAW
-        )
-        GL.glEnableVertexAttribArray(0)
-        GL.glVertexAttribPointer(0, 2, GL.GL_FLOAT, GL.GL_FALSE, 0, None)
-
-        # Dynamic buffer for primitives given in raw pixel coords (lines etc.).
-        self.prim_vao = GL.glGenVertexArrays(1)
-        self.prim_vbo = GL.glGenBuffers(1)
-        GL.glBindVertexArray(self.prim_vao)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.prim_vbo)
-        GL.glEnableVertexAttribArray(0)
-        GL.glVertexAttribPointer(0, 2, GL.GL_FLOAT, GL.GL_FALSE, 0, None)
-
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         GL.glDisable(GL.GL_DEPTH_TEST)
+        # Fixed-function texture env: texture * glColor (matches the 3.3 path's
+        # frag = texture * uTint).
+        GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
 
     # -- frame ----------------------------------------------------------------
     def begin_frame(
         self, fb_width: int | None = None, fb_height: int | None = None
     ) -> None:
-        """Start a frame: update framebuffer size, clear, bind the program + ortho."""
+        """Start a frame: update framebuffer size, clear, set the pixel-space ortho."""
         if fb_width and fb_height:
             self.fb_width = fb_width
             self.fb_height = fb_height
@@ -964,8 +844,12 @@ class Renderer:
         GL.glViewport(0, 0, self.fb_width, self.fb_height)
         GL.glClearColor(0.0, 0.0, 0.0, 1.0)
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-        GL.glUseProgram(self.program)
-        GL.glUniformMatrix4fv(self.u_ortho, 1, GL.GL_TRUE, self.ortho)
+        # Pixel-space projection: (0,0) top-left .. (W,H) bottom-right.
+        GL.glMatrixMode(GL.GL_PROJECTION)
+        GL.glLoadIdentity()
+        GL.glOrtho(0.0, self.width, self.height, 0.0, -1.0, 1.0)
+        GL.glMatrixMode(GL.GL_MODELVIEW)
+        GL.glLoadIdentity()
 
     # -- sprites --------------------------------------------------------------
     def draw_image(
@@ -974,39 +858,37 @@ class Renderer:
         topleft: PointLike,
         src: Any = None,
     ) -> None:
-        """Draw a textured quad.
-
-        ``topleft`` is a pixel coord. ``src``, if given as a pixel rect
-        ``(x, y, w, h)`` into the image, draws only that sub-region (used for
-        atlases / tilesets, e.g. ``screen.surface.blit(..., area=rect)``).
-        """
+        """Draw a textured quad (see :meth:`Renderer.draw_image` for the semantics)."""
         tx, ty = topleft
         if src is not None:
             sx, sy, sw, sh = src
             w, h = sw, sh
-            tex_off: tuple[float, float] = (sx / image.width, sy / image.height)
-            tex_scale: tuple[float, float] = (
-                sw / image.width,
-                sh / image.height,
-            )
+            u0, v0 = sx / image.width, sy / image.height
+            u1, v1 = (sx + sw) / image.width, (sy + sh) / image.height
         else:
             w, h = image.width, image.height
-            tex_off = (0.0, 0.0)
-            tex_scale = (1.0, 1.0)
-        model: NDArray[np.float32] = _translate(x=tx, y=ty) @ _scale(sx=w, sy=h)
-        GL.glBindVertexArray(self.quad_vao)
-        GL.glUniformMatrix4fv(self.u_model, 1, GL.GL_TRUE, model)
-        GL.glUniform2f(self.u_tex_off, *tex_off)
-        GL.glUniform2f(self.u_tex_scale, *tex_scale)
-        GL.glUniform1i(self.u_use_tex, 1)
-        # Sprites draw untinted.  uTint is shared program state -- flat fills
-        # (filled_rect/rect/...) set it to a colour -- so reset it to white for
-        # this texture * uTint draw.
-        GL.glUniform4f(self.u_tint, 1.0, 1.0, 1.0, 1.0)
-        GL.glActiveTexture(GL.GL_TEXTURE0)
+            u0, v0, u1, v1 = 0.0, 0.0, 1.0, 1.0
+
+        GL.glEnable(GL.GL_TEXTURE_2D)
         GL.glBindTexture(GL.GL_TEXTURE_2D, image.gl_texture())
-        GL.glUniform1i(self.u_tex, 0)
-        GL.glDrawArrays(GL.GL_TRIANGLES, 0, 6)
+        # Sprites draw untinted; GL_MODULATE multiplies the texture by glColor,
+        # which flat fills set to a colour -- so reset it to white.
+        GL.glColor4f(1.0, 1.0, 1.0, 1.0)
+
+        GL.glPushMatrix()
+        GL.glTranslatef(tx, ty, 0.0)
+        GL.glScalef(w, h, 1.0)
+        GL.glBegin(GL.GL_QUADS)
+        GL.glTexCoord2f(u0, v0)
+        GL.glVertex2f(0.0, 0.0)
+        GL.glTexCoord2f(u1, v0)
+        GL.glVertex2f(1.0, 0.0)
+        GL.glTexCoord2f(u1, v1)
+        GL.glVertex2f(1.0, 1.0)
+        GL.glTexCoord2f(u0, v1)
+        GL.glVertex2f(0.0, 1.0)
+        GL.glEnd()
+        GL.glPopMatrix()
 
     # -- flat colour ----------------------------------------------------------
     def fill(self, color: Any) -> None:
@@ -1015,75 +897,62 @@ class Renderer:
         GL.glClearColor(c[0], c[1], c[2], c[3])
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
+    def _flat(self, verts: Any, color: Any, mode: Any) -> None:
+        """Draw flat-colour ``verts`` (iterable of (x, y)) with GL ``mode``."""
+        GL.glDisable(GL.GL_TEXTURE_2D)
+        GL.glColor4f(*_rgba(color))
+        GL.glBegin(mode)
+        for x, y in verts:
+            GL.glVertex2f(float(x), float(y))
+        GL.glEnd()
+
     def filled_rect(
         self, x: float, y: float, w: float, h: float, color: Any
     ) -> None:
         """Draw a filled rectangle at ``(x, y)`` of size ``(w, h)``."""
-        model: NDArray[np.float32] = _translate(x=x, y=y) @ _scale(sx=w, sy=h)
-        GL.glBindVertexArray(self.quad_vao)
-        GL.glUniformMatrix4fv(self.u_model, 1, GL.GL_TRUE, model)
-        GL.glUniform1i(self.u_use_tex, 0)
-        GL.glUniform4f(self.u_tint, *_rgba(color))
-        GL.glDrawArrays(GL.GL_TRIANGLES, 0, 6)
-
-    def _draw_prim(self, verts: Any, color: Any, mode: Any) -> None:
-        """Upload ``verts`` (flat pixel xy pairs) and draw them with GL ``mode``.
-
-        ``mode`` is a PyOpenGL primitive constant (``GL_LINES`` etc.; typed ``Any``).
-        """
-        data: NDArray[np.float32] = np.asarray(verts, dtype=np.float32).reshape(
-            -1
+        self._flat(
+            verts=[(x, y), (x + w, y), (x + w, y + h), (x, y + h)],
+            color=color,
+            mode=GL.GL_QUADS,
         )
-        GL.glBindVertexArray(self.prim_vao)
-        GL.glBindBuffer(GL.GL_ARRAY_BUFFER, self.prim_vbo)
-        GL.glBufferData(
-            GL.GL_ARRAY_BUFFER, data.nbytes, data, GL.GL_DYNAMIC_DRAW
-        )
-        GL.glUniformMatrix4fv(self.u_model, 1, GL.GL_TRUE, _identity())
-        GL.glUniform1i(self.u_use_tex, 0)
-        GL.glUniform4f(self.u_tint, *_rgba(color))
-        GL.glDrawArrays(mode, 0, len(data) // 2)
 
     def rect(self, x: float, y: float, w: float, h: float, color: Any) -> None:
         """Draw the outline of a rectangle at ``(x, y)`` of size ``(w, h)``."""
-        self._draw_prim(
-            verts=[x, y, x + w, y, x + w, y + h, x, y + h, x, y],
+        self._flat(
+            verts=[(x, y), (x + w, y), (x + w, y + h), (x, y + h)],
             color=color,
             mode=GL.GL_LINE_LOOP,
         )
 
     def line(self, start: PointLike, end: PointLike, color: Any) -> None:
         """Draw a line segment from ``start`` to ``end``."""
-        self._draw_prim(
-            verts=[*start, *end],  # unpack: tuples OR gacalc vectors
-            color=color,
-            mode=GL.GL_LINES,
-        )
+        self._flat(verts=[start, end], color=color, mode=GL.GL_LINES)
 
     def polygon(self, points: Any, color: Any, filled: bool) -> None:
-        """Draw a polygon through ``points`` (filled fan, or outline)."""
-        pts: list[float] = []
-        for p in points:
-            # unpack, not index: points may be tuples OR gacalc vectors
-            px, py = p
-            pts += [float(px), float(py)]
-        mode = GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_LOOP
-        self._draw_prim(verts=pts, color=color, mode=mode)
+        """Draw a polygon through ``points`` (filled, or outline)."""
+        mode = GL.GL_POLYGON if filled else GL.GL_LINE_LOOP
+        # unpack, not index: points may be tuples OR gacalc vectors
+        self._flat(
+            verts=[(px, py) for px, py in points], color=color, mode=mode
+        )
 
     def circle(
         self, pos: PointLike, radius: float, color: Any, filled: bool
     ) -> None:
         """Draw a circle centred at ``pos`` (filled fan, or outline)."""
         cx, cy = pos
+        n: int = 48
         pts = []
         if filled:
-            pts += [cx, cy]
-        n: int = 48
+            pts.append((cx, cy))
         for i in range(n + 1):
             a: float = 2.0 * np.pi * i / n
-            pts += [cx + radius * np.cos(a), cy + radius * np.sin(a)]
-        mode = GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_STRIP
-        self._draw_prim(verts=pts, color=color, mode=mode)
+            pts.append((cx + radius * np.cos(a), cy + radius * np.sin(a)))
+        self._flat(
+            verts=pts,
+            color=color,
+            mode=GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_STRIP,
+        )
 
     # -- scissor (screen.surface.set_clip) ------------------------------------
     def set_clip(self, rect: Any) -> None:
@@ -1092,10 +961,9 @@ class Renderer:
             GL.glDisable(GL.GL_SCISSOR_TEST)
             return
         x, y, w, h = rect
-        sx: float = self.fb_width / self.width
-        sy: float = self.fb_height / self.height
+        sx = self.fb_width / self.width
+        sy = self.fb_height / self.height
         GL.glEnable(GL.GL_SCISSOR_TEST)
-        # glScissor is in framebuffer pixels with origin bottom-left.
         GL.glScissor(
             int(x * sx),
             int(self.fb_height - (y + h) * sy),
@@ -1781,20 +1649,22 @@ if __name__ == "__main__":
     if not glfw.init():
         raise RuntimeError("glfw.init() failed")
     Context.glfw_ready = True
-    glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
-    glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
-    glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
-    glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
+    # OpenGL 2.1 compatibility context: 2.1 predates the core/compat profile
+    # split, so request version 2.1 with the default (ANY) profile and no
+    # forward-compat. The fixed-function pipeline this game draws with (glOrtho
+    # + glBegin) is not available in a 3.3 core context -- that is the whole
+    # point of this GL 1.x variant. See boing.py for the 3.3-core original.
+    glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
+    glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
     window = glfw.create_window(WIDTH, HEIGHT, TITLE, None, None)
     if not window:
         glfw.terminate()
         raise RuntimeError("glfw.create_window() failed")
     glfw.make_context_current(window)
     glfw.swap_interval(1)
-    # macOS core profile requires a non-zero VAO bound at all times.
-    GL.glBindVertexArray(GL.glGenVertexArrays(1))
+    # No VAO: the fixed-function pipeline needs none (VAOs are a 3.0+ construct).
     Context.window = window
-    Context.renderer = Renderer(WIDTH, HEIGHT)
+    Context.renderer = Renderer1x(WIDTH, HEIGHT)
 
     def _key_cb(
         win: Any, key: int, scancode: int, action: int, mods: int

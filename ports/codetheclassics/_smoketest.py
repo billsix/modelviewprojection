@@ -163,9 +163,9 @@ def main():
     )  # games open data files (e.g. attacks.json) by relative path
 
     import modelviewprojection.pgzero_gl as pgzero_gl
-    from modelviewprojection.pgzero_gl import context
+    from modelviewprojection.pgzero_gl.context import Context
 
-    context.glfw_ready = True  # let joystick query (stubbed) but stay safe
+    Context.glfw_ready = True  # let joystick query (stubbed) but stay safe
 
     # Read WIDTH/HEIGHT from the game source without running it yet.
     src = open(path, encoding="utf-8").read()
@@ -181,15 +181,15 @@ def main():
     w, h = w or 800, h or 600
 
     make_context(w, h, legacy=gl1)
-    context.asset_root = gamedir
+    Context.asset_root = gamedir
     if gl1:
         from modelviewprojection.pgzero_gl.renderer_gl1 import Renderer1x
 
-        context.renderer = Renderer1x(w, h)
+        Context.renderer = Renderer1x(w, h)
     else:
         from modelviewprojection.pgzero_gl import renderer
 
-        context.renderer = renderer.Renderer(w, h)
+        Context.renderer = renderer.Renderer(w, h)
     # Neutralise the game's launch ``main()`` so importing it renders nothing and
     # opens no window -- we drive update()/draw() ourselves below. Since the games
     # now guard the call behind ``if __name__ == "__main__":`` and exec_module runs
@@ -208,7 +208,7 @@ def main():
     spec.loader.exec_module(mod)
 
     _setup(mod, name)
-    context.renderer.begin_frame(w, h)
+    Context.renderer.begin_frame(w, h)
     mod.draw()
     GL.glFinish()
     px = np.frombuffer(

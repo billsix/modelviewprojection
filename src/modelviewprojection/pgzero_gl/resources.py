@@ -35,7 +35,8 @@ import OpenGL.GL as GL
 from numpy.typing import NDArray
 from PIL import Image as PILImage
 
-from . import audio, context
+from . import audio
+from .context import Context
 from .geometry import Rect
 
 
@@ -89,7 +90,7 @@ class Image:
     def gl_texture(self) -> int:
         """Return this image's GL texture name, uploading it to the GPU on first call."""
         if self._tex is None:
-            context.require_renderer()
+            Context.require_renderer()
             self._tex = GL.glGenTextures(1)
             GL.glBindTexture(GL.GL_TEXTURE_2D, self._tex)
             GL.glTexParameteri(
@@ -136,7 +137,7 @@ class _Loader:
 
     def _path(self, name: str) -> str | None:
         """Resolve ``name`` to an on-disk path under the resource folder, or ``None``."""
-        base: str = os.path.join(context.get_asset_root(), self._subdir, name)
+        base: str = os.path.join(Context.get_asset_root(), self._subdir, name)
         if os.path.isfile(base):
             return base
         for ext in self._extns:

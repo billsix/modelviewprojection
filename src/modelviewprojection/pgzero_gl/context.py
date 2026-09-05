@@ -15,9 +15,14 @@ Raspberry Pi Press and authors).
 
 A tiny holder for state that several shim modules need but which is only known
 once the game starts: the active :class:`~pgzero_gl.renderer.Renderer` (created
-after the GL context exists) and the asset root directory. Keeping it in one
-plain module, imported everywhere, avoids threading the renderer through every
-draw call and avoids import cycles between the API modules.
+after the GL context exists) and the asset root directory. It is a **class**
+(``Context``) with class-level state, not module globals -- so both the shim and
+the single-file inlined games (each game inlines the whole shim) stay
+type-checker-legible: ``Context.renderer = ...`` is a typed class-attribute
+assignment ty understands, whereas a module-global reached through a
+``sys.modules[__name__]`` alias (which the inlined games would need) is not. It
+keeps the same job: one shared holder imported everywhere, so the renderer isn't
+threaded through every draw call and there are no import cycles.
 """
 
 from __future__ import annotations
@@ -29,52 +34,55 @@ from typing import TYPE_CHECKING, Any
 if TYPE_CHECKING:
     from .renderer import Renderer
 
-# The active renderer.Renderer instance.  None until runner.run() creates the
-# GL context.  Drawing before then raises a clear error.
-renderer: Renderer | None = None
 
-# The active GLFW window handle (set by the runner); used by exit().  GLFW
-# window handles are opaque pointers, so this is typed Any.
-window: Any = None
+class Context:
+    """Process-wide shim state. The class attributes ARE the shared state."""
 
-# True once glfw.init() has succeeded.  Joystick queries must not touch GLFW
-# before this (game modules call setup_joystick_controls() at import time, before
-# the window/loop exist).
-glfw_ready: bool = False
+    #: The active renderer. ``None`` until the runner creates the GL context;
+    #: drawing before then raises a clear error (see :meth:`require_renderer`).
+    renderer: Renderer | None = None
 
-# Directory that contains the game's images/, sounds/, music/ folders.
-# None means "resolve lazily" -- because game objects (and thus image/sound
-# loads) are routinely created at module-import time, BEFORE main() runs, we infer
-# the root from the main script's location when it hasn't been set explicitly.
-asset_root: str | None = None
+    #: The active GLFW window handle (set by the runner; used by ``exit()``).
+    #: GLFW handles are opaque pointers, so this is typed ``Any``.
+    window: Any = None
 
+    #: ``True`` once ``glfw.init()`` has succeeded. Joystick queries must not
+    #: touch GLFW before this (games call ``setup_joystick_controls()`` at import
+    #: time, before the window/loop exist).
+    glfw_ready: bool = False
 
-def get_asset_root() -> str:
-    """Return the directory holding the game's ``images/``/``sounds/``/``music/``.
+    #: Directory holding the game's ``images/``/``sounds/``/``music/``. ``None``
+    #: means "resolve lazily": game objects (hence asset loads) are routinely
+    #: created at import time, before ``main()`` runs, so the root is inferred
+    #: from the main script's location when it hasn't been set explicitly.
+    asset_root: str | None = None
 
-    Uses the explicitly-set :data:`asset_root` if present; otherwise infers it
-    from the main script's location (game objects load assets at import time,
-    before :func:`~pgzero_gl.main` runs and could set it), falling back to the
-    current working directory.
-    """
-    if asset_root is not None:
-        return asset_root
-    main = sys.modules.get("__main__")
-    main_file = getattr(main, "__file__", None)
-    if main_file:
-        return os.path.dirname(os.path.abspath(main_file))
-    return os.getcwd()
+    @staticmethod
+    def get_asset_root() -> str:
+        """Return the dir holding ``images/``/``sounds/``/``music/``.
 
+        Uses :attr:`asset_root` if set; otherwise infers it from the main
+        script's location (assets load at import time, before ``main()`` could
+        set it), falling back to the current working directory.
+        """
+        if Context.asset_root is not None:
+            return Context.asset_root
+        main = sys.modules.get("__main__")
+        main_file = getattr(main, "__file__", None)
+        if main_file:
+            return os.path.dirname(os.path.abspath(main_file))
+        return os.getcwd()
 
-def require_renderer() -> Renderer:
-    """Return the active :class:`~pgzero_gl.renderer.Renderer`.
+    @staticmethod
+    def require_renderer() -> Renderer:
+        """Return the active renderer, or raise if the GL context isn't up yet.
 
-    Raises ``RuntimeError`` if called before the game loop has created the GL
-    context (i.e. if a game tries to draw at import time).
-    """
-    if renderer is None:
-        raise RuntimeError(
-            "No GL renderer yet -- drawing happens inside the game loop "
-            "(after main()).  Don't draw at import time."
-        )
-    return renderer
+        Raises ``RuntimeError`` if called before the game loop created the GL
+        context (i.e. if a game tries to draw at import time).
+        """
+        if Context.renderer is None:
+            raise RuntimeError(
+                "No GL renderer yet -- drawing happens inside the game loop "
+                "(after main()).  Don't draw at import time."
+            )
+        return Context.renderer

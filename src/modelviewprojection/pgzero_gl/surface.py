@@ -34,8 +34,8 @@ import numpy as np
 import OpenGL.GL as GL
 from numpy.typing import NDArray
 
-from . import context
 from ._types import Color, ColorRGBA, PointLike, RGBASource
+from .context import Context
 from .geometry import Rect
 
 SRCALPHA = 0x00010000
@@ -149,7 +149,7 @@ class Surface:
     # -- drawable-by-screen.blit interface (like resources.Image) -------------
     def gl_texture(self) -> int:
         """Return this surface's GL texture name, uploading the CPU buffer if dirty."""
-        context.require_renderer()
+        Context.require_renderer()
         if self._tex is None:
             self._tex = GL.glGenTextures(1)
         if self._dirty:
