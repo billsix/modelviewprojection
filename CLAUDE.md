@@ -208,6 +208,11 @@ its fate — it, not the games, carries the LGPL question.
     `inverse(translate(...))`. Vector `*` scalar scales; two vectors is the geometric product; every
     dot product is an explicit call (Bill, 2026-07-09). Engine position parameters **unpack**
     (`x, y = pos`) so they accept tuples AND vectors — that is the `PointLike` boundary.
+  - **Composition style (maintainer, 2026-09-06): `f @ g` only when the chain fits on one line;
+    `compose([f, g, ...])` the moment it would wrap** — same order (`f` after `g`, last listed applied
+    first), one function per line, instead of the formatter's dangling `@` with exploded arguments.
+    Applied to the ten engines' `MODEL`/`ortho_pixels` and demo07's paddle transforms. numpy's
+    matrix `@` (the `mvpvisualization` demos, `test_cayley_scene`) is not composition and keeps `@`.
   - **gacalc vectors are FROZEN** (since 0.0.14; pin now 0.0.19): a coordinate is changed by
     rebinding, never in place — `self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)`. A field
     write raises `FrozenInstanceError`; a property write (`v.x = …`) raises a confusing
@@ -219,10 +224,13 @@ its fate — it, not the games, carries the LGPL question.
     `update()` is ~1% of the 60 Hz budget, but `Vector.__eq__` falls into `sympy.simplify` when two
     plain floats *differ* (~48 µs; beatstreets compares targets every frame) — a gacalc fix is filed
     (geometricalgebra `tasks/fast-numeric-equality.md`).
-- **Open, CtC-adjacent:** `tasks/ctc-use-gacalc-matrix-template.md` (blocked on geometricalgebra
-  `tasks/matrix-template-compile-once.md`: delete the ten `MatrixTemplate` copies once gacalc ships
-  it); `tasks/demos-exit-if-not-main.md` (the import guard for the course demos, proposed);
-  `tasks/swap-myriapod-rotate90-to-gacalc.md` (blocked on a gacalc quarter-turn).
+- **Open, CtC-adjacent — both READY once gacalc 0.0.20 is on PyPI and the pin is bumped (the
+  features shipped in gacalc's tree 2026-09-06):** `tasks/ctc-use-gacalc-matrix-template.md` (delete
+  the ten `MatrixTemplate` copies; build `MODEL` with gacalc's `to_matrix_template` /
+  `fn.to_matrix_template(g3.Vector, params)` — same `fill(...)` call sites) and
+  `tasks/swap-myriapod-rotate90-to-gacalc.md` (delete myriapod's local quarter turn; import
+  `gacalc.g2.rotate_90_degrees`); plus `tasks/demos-exit-if-not-main.md` (the import guard for the
+  course demos, proposed).
 - History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`,
   `tasks/archive/2026/08/01/move-ctc-pgzero-shim-into-package.md`.
 

@@ -39,6 +39,7 @@ import sympy
 from gacalc.g2 import Vector
 from gacalc.transforms import (
     InvertibleFunction,
+    compose,
     plane_rotation,
     scale_non_uniform,
     to_matrix,
@@ -697,8 +698,12 @@ _TX, _TY, _W, _H = sympy.symbols("tx ty w h")
 #: The model matrix: scale the unit quad to (w, h), then translate to (tx, ty);
 #: ``MODEL.fill(tx, ty, w, h)``
 MODEL: MatrixTemplate = MatrixTemplate.compile(
-    translate(b=_TX * g3.Vector.e_1 + _TY * g3.Vector.e_2)
-    @ scale_non_uniform(_W, _H, 1),
+    compose(
+        [
+            translate(b=_TX * g3.Vector.e_1 + _TY * g3.Vector.e_2),
+            scale_non_uniform(_W, _H, 1),
+        ]
+    ),
     (_TX, _TY, _W, _H),
 )
 
@@ -710,8 +715,12 @@ def ortho_pixels(width: float, height: float) -> NDArray[np.float32]:
     """
     return np.asarray(
         to_matrix(
-            translate(b=-1 * g3.Vector.e_1 + 1 * g3.Vector.e_2)
-            @ scale_non_uniform(2.0 / width, -2.0 / height, -1),
+            compose(
+                [
+                    translate(b=-1 * g3.Vector.e_1 + 1 * g3.Vector.e_2),
+                    scale_non_uniform(2.0 / width, -2.0 / height, -1),
+                ]
+            ),
             g3.Vector,
         ),
         dtype=np.float32,

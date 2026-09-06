@@ -28,7 +28,12 @@ import OpenGL.GL as GL
 #     R -> rotate(...)      T -> translate(b=...)
 #     S -> uniform_scale(m=...)
 from gacalc.g2 import Vector, e_1, e_2
-from gacalc.transforms import InvertibleFunction, translate, uniform_scale
+from gacalc.transforms import (
+    InvertibleFunction,
+    compose,
+    translate,
+    uniform_scale,
+)
 
 import modelviewprojection.util.colorutils as colorutils
 from modelviewprojection.mathutils import rotate
@@ -144,8 +149,8 @@ while not glfw.window_should_close(window):
 
     # doc-region-begin compose transformations on paddle 1
     world_space_to_ndc = uniform_scale(m=1.0 / 10.0)
-    p1_space_to_world_space = rotate(paddle1.rotation) @ translate(
-        b=paddle1.position
+    p1_space_to_world_space = compose(
+        [rotate(paddle1.rotation), translate(b=paddle1.position)]
     )
     p1_to_ndc: InvertibleFunction[Vector] = (
         world_space_to_ndc @ p1_space_to_world_space
@@ -162,8 +167,8 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*paddle2.color)
 
     world_space_to_ndc = uniform_scale(m=1.0 / 10.0)
-    p2_space_to_world_space = rotate(paddle2.rotation) @ translate(
-        b=paddle2.position
+    p2_space_to_world_space = compose(
+        [rotate(paddle2.rotation), translate(b=paddle2.position)]
     )
     p2_to_ndc: InvertibleFunction[Vector] = (
         world_space_to_ndc @ p2_space_to_world_space

@@ -93,10 +93,10 @@ it is frame-identical but not raw-bit-identical. (One more reason to prefer the 
 1. **Renderer model matrix via lambdify** — viable and *faster*; rollout touches the shim renderer
    + the 10 inlined game copies (or lands via step 3 re-extract). Owned by
    `tasks/pgzero-gl-renderer-matrix-via-gacalc-perf.md`.
-2. **A named, exact, fast `quarter_turn`** — lambdify the symbolic `plane_rotation(e_1,e_2)(pi/2)`,
-   or add a real `quarter_turn` to gacalc so it's a first-class call (see
-   `tasks/add-quarter-turn-to-gacalc.md`). Then `myriapod` could read `quarter_turn(offset)` instead
-   of `offset * e_12`.
+2. **A named, exact, fast quarter turn** — DONE in gacalc 0.0.20 as `g2.rotate_90_degrees()`
+   (an `InvertibleFunction[Vector]`, the generated closed form of `v * e_12`, exact — no lambdify
+   needed) plus the `g2.Vector.rotate_90_degrees()` method. `myriapod` swaps its local copy for it
+   once the pin is bumped (`tasks/swap-myriapod-rotate90-to-gacalc.md`).
 3. **General reuse:** any hot-path transform with a fixed composition is a candidate — derive once
    symbolically, lambdify, cache the function. The one-time matrices (e.g. `ortho_pixels`) can use
    `to_matrix` directly with no perf concern at all.
@@ -107,7 +107,7 @@ it is frame-identical but not raw-bit-identical. (One more reason to prefer the 
 - `tasks/gacalc-transforms-for-rotate-translate.md` — the parent study (the crux: `to_matrix`
   exists + is correct).
 - `tasks/pgzero-gl-renderer-matrix-via-gacalc-perf.md` — the perf/rollout task for the renderer.
-- geometricalgebra `tasks/add-quarter-turn-to-g2.md` — proposal to make `quarter_turn` a real
-  gacalc function (**g2-only**; the removed `rotate_90_degrees` — which mis-transformed e₃+ vectors
-  — is why it must be dimension-specific).
+- geometricalgebra `tasks/archive/2026/09/06/add-quarter-turn-to-g2.md` — the record of gacalc's
+  `rotate_90_degrees` (**g2-only**, shipped 2026-09-06 in 0.0.20; the removed general-dimension
+  `rotate_90_degrees` — which mis-transformed e₃+ vectors — is why it is dimension-specific).
 - `tasks/archive/2026/09/05/codetheclassics-myriapod-rotation-via-pseudoscalar.md` — where `* e_12` lives today.

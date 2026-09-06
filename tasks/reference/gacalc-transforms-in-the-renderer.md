@@ -52,9 +52,16 @@ blade dict instead of computing products, hence 514.) `to_matrix` per draw is ou
 
 ```python
 STX, STY, SW, SH = sympy.symbols("tx ty w h")
-M = to_matrix(translate(b=STX * g3.Vector.e_1 + STY * g3.Vector.e_2)
-              @ scale_non_uniform(SW, SH, 1),
-              g3.Vector, backend="sympy")        # [[w,0,0,tx],[0,h,0,ty],[0,0,1,0],[0,0,0,1]]
+M = to_matrix(
+    compose(
+        [
+            translate(b=STX * g3.Vector.e_1 + STY * g3.Vector.e_2),
+            scale_non_uniform(SW, SH, 1),
+        ]
+    ),
+    g3.Vector,
+    backend="sympy",
+)  # [[w,0,0,tx],[0,h,0,ty],[0,0,1,0],[0,0,0,1]]
 ```
 
 and either `sympy.lambdify((STX, STY, SW, SH), M, "numpy")` (2× faster than today) or, reading off
@@ -68,13 +75,17 @@ is built once anyway.
 
 Every GL 3.3 game engine now carries a `MatrixTemplate` (frozen dataclass: the constant 4×4 plus
 `(row, col, parameter)` slots, `compile(fn, params)` from `to_matrix(..., backend="sympy")`, `fill`)
-and defines `MODEL = MatrixTemplate.compile(translate(b=_TX * g3.Vector.e_1 + _TY * g3.Vector.e_2)
-@ scale_non_uniform(_W, _H, 1), (_TX, _TY, _W, _H))`; `ortho_pixels` is `to_matrix` of
-`translate(b=-1 * e_1 + 1 * e_2) @ scale_non_uniform(2/w, -2/h, -1)` with numbers, once per
-renderer. `_translate`/`_scale` are gone. Gated frame-identical and trace-identical in all games
-(`tasks/archive/2026/09/06/renderer-model-matrix-from-gacalc.md`). **Next:** the template becomes a
-gacalc feature (geometricalgebra `tasks/matrix-template-compile-once.md`, a method on the function
-types) and the ten copies are deleted — mvp `tasks/ctc-use-gacalc-matrix-template.md`, blocked on it.
+and defines `MODEL = MatrixTemplate.compile(compose([translate(b=_TX * g3.Vector.e_1 + _TY *
+g3.Vector.e_2), scale_non_uniform(_W, _H, 1)]), (_TX, _TY, _W, _H))`; `ortho_pixels` is `to_matrix`
+of `compose([translate(b=-1 * e_1 + 1 * e_2), scale_non_uniform(2/w, -2/h, -1)])` with numbers, once
+per renderer. (Written with `compose([...])`, not `@`, since 2026-09-06: the maintainer's rule is `@`
+only when the chain fits on one line — see `CLAUDE.md` › gacalc dialect.) `_translate`/`_scale` are gone. Gated frame-identical and trace-identical in all games
+(`tasks/archive/2026/09/06/renderer-model-matrix-from-gacalc.md`). **Next:** gacalc 0.0.20 ships the
+template as a library feature — `to_matrix_template(fn, cls, params)` / `fn.to_matrix_template(...)`
+returning a `MatrixTemplate` with the same `fill(*values)` (and expression entries such as a symbolic
+rotation angle handled via one lambdified call; geometricalgebra
+`tasks/archive/2026/09/06/matrix-template-compile-once.md`) — so the ten copies get deleted once the
+pin is bumped: mvp `tasks/ctc-use-gacalc-matrix-template.md`, ready.
 
 ## How the decision was reached
 
@@ -91,6 +102,7 @@ types) and the ten copies are deleted — mvp `tasks/ctc-use-gacalc-matrix-templ
   ("I love it") adopted it the same day, with the translation written as gacalc's linear-combination
   idiom; all ten GL 3.3 engines were converted and gated. `boing_gl1`'s fixed-function
   `glTranslatef`/`glScalef` path has no matrix to build and stays as is.
-- **Next:** the template moves into gacalc as a method on the function types (geometricalgebra
-  `tasks/matrix-template-compile-once.md`, "eventually, not today"), and the ten copies are then
-  deleted (mvp `tasks/ctc-use-gacalc-matrix-template.md`, blocked on it).
+- **2026-09-06, the library version:** the maintainer's "eventually, not today" became "go ahead"
+  the same day; gacalc implemented `to_matrix_template` / `MatrixTemplate` (24 tests across 𝒢₂/𝒢₃,
+  linear/affine) for release 0.0.20. The ten copies are deleted once mvp pins it
+  (`tasks/ctc-use-gacalc-matrix-template.md`, ready).
