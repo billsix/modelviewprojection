@@ -1,6 +1,6 @@
 # Replace hand-written rotate/translate/scale matrices with gacalc transforms
 
-**Status:** STUDIED 2026-09-04 (findings below; NO decision or implementation, per the task's own instruction). **Crux answered: gacalc has a built-in `to_matrix` bridge.** Recommendation: the *direct-path* (game-logic point math) is already largely done via gacalc; **leave the renderer's `uModel` matrices as-is**. Awaiting maintainer discussion.
+**Status:** DONE + ARCHIVED 2026-09-06 — the study is complete and harvested to `tasks/reference/gacalc-transforms-in-the-renderer.md`; the 2026-09-06 census found no hand-rolled point transform left in the games (the direct path is entirely gacalc), and the perf half (`pgzero-gl-renderer-matrix-via-gacalc-perf`, archived the same day) found a compile-once path that makes a gacalc-defined `uModel` *faster* than today's numpy — so the earlier "leave the renderer as-is" recommendation is now a taste call, put to the maintainer as `tasks/renderer-model-matrix-from-gacalc.md`.
 **Priority:** 5
 **Difficulty:** 5
 
@@ -37,7 +37,7 @@ bridge; it's one call, in mvp's convention.
   via `soccer`/`leadingedge`/`beatstreets` `inverse(translate(...))`. So the "make game logic use
   gacalc vectors + transforms" half of this task is mostly done in passing.
 
-### Recommendation (options for you — not decided)
+### Recommendation as first written (2026-09-04; superseded 2026-09-06 — see Status and the reference doc)
 
 1. **Direct-path: keep going as opportunity arises** — it's already the pattern; convert any
    remaining hand-rolled point math to gacalc vectors/transforms case by case. Low risk, high

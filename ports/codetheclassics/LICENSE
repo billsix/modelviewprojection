@@ -47,3 +47,13 @@ Copyright (c) 2026 William Emerison Six, and is licensed under the GNU Lesser
 General Public License v2.1 (the same license as pygame). It now lives in the
 package at src/modelviewprojection/pgzero_gl/; see
 src/modelviewprojection/pgzero_gl/LICENSE.
+
+---
+
+Each per-game file also carries an INLINED rendering/audio/input engine (the
+former pgzero_gl shim, copied into the game and then reduced to what that game
+uses). That inlined engine code is Copyright (c) 2026 William Emerison Six and
+is licensed under the SAME BSD 2-Clause License as the game code above, so each
+per-game file is uniformly BSD-2-Clause (dual copyright: game (c) Eben Upton et
+al.; inlined engine (c) William Emerison Six). Decided 2026-09-05; see
+tasks/codetheclassics-licensing-after-shim-inline.md.

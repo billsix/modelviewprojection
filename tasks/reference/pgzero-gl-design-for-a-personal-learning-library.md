@@ -6,9 +6,12 @@
 anchored `file:line` and checked against the real game sources. Author: synthesized for
 William Emerison Six <billsix@gmail.com>. Project: `github.com/billsix/modelviewprojection`.
 
-**This is a reference doc — it states what is TRUE, not a work plan.** The actionable, choose-one-per-item
-options live in the sibling task `tasks/pgzero-gl-de-abstraction-options.md`; the transform/matrix slice has
-its own task `tasks/gacalc-transforms-for-rotate-translate.md`. Both cross-link back here.
+**Dated snapshot (2026-09-03), kept as the map of what each game used.** Two days later the shim was inlined
+per game (steps 1–2 of `tasks/pgzero-gl-inline-strip-reextract.md`) and each copy tightened
+(`tasks/reference/code-the-classics-tightening.md` — its §3/§6 per-family engine flags are the current form
+of the usage slices below); the package shim source is unused by the games until step 3 (parked). Options
+still open from this study: `tasks/pgzero-gl-de-abstraction-options.md` (Group 3); the transform/matrix slice
+was resolved by `tasks/reference/gacalc-transforms-in-the-renderer.md`.
 
 ## BLUF
 

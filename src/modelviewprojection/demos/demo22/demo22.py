@@ -698,7 +698,7 @@ def render_shadow_map(
     GL.glClearColor(
         1.0, 1.0, 1.0, 1.0
     )  # depth=far for fragments we don't write
-    GL.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT)  # ty: ignore[unsupported-operator]
+    GL.glClear(GL.GL_DEPTH_BUFFER_BIT | GL.GL_COLOR_BUFFER_BIT)  # ty: ignore
     # Polygon offset to fight self-shadowing acne on the cube.  The
     # offset is in shadow-map space; tune empirically.
     GL.glEnable(GL.GL_POLYGON_OFFSET_FILL)
@@ -1414,7 +1414,7 @@ while not glfw.window_should_close(window):
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
+    GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)  # ty: ignore
 
     ms.set_to_identity_matrix(ms.MatrixStack.model)
     ms.set_to_identity_matrix(ms.MatrixStack.view)

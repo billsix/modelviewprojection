@@ -1,7 +1,7 @@
 # Step 3 — re-extract a library that actually makes sense
 
-**Status:** proposed — depends on step 2 (do not start until step 2 has landed for enough games)
-**Priority:** 7
+**Status:** PARKED — maintainer, 2026-09-06: "I don't want to re-extract yet"; stays its own task, not next-work until the maintainer says go. Steps 1 (inline) & 2 (strip/restructure) landed, and **the tightening pass that this step takes as input is complete (2026-09-05: all ten games, `tasks/archive/2026/09/05/codetheclassics-tighten-games.md`; the per-family engine flag list is `tasks/reference/code-the-classics-tightening.md` §6)**; it also inherits the licensing remainder — what becomes of the LGPL shim source under `src/modelviewprojection/pgzero_gl/` (`tasks/archive/2026/09/05/codetheclassics-licensing-after-shim-inline.md`). Steps 1–2 and **play-tested good (maintainer, 2026-09-05)**; this step is unblocked and actionable (the games are inlined/un-library-ized now — this step re-extracts the real shared library), awaiting the maintainer's call on the re-extraction criterion before extracting.
+**Priority:** 9
 **Difficulty:** 6
 **Part of:** `tasks/pgzero-gl-inline-strip-reextract.md` (umbrella) · **Depends on:** `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md`
 
@@ -38,6 +38,16 @@ game's update/draw* is exactly the thing step 2 removed and must not come back. 
    or does it stay for the demos while the games use the new one? Resolve explicitly.
 4. Re-run every game's headless + differential-trace check after extraction — extraction must be
    behavior-preserving too.
+
+## Input from the tightening analysis (2026-09-05)
+
+The inlined engines are byte-identical within three families (cavern ≡ myriapod; eggzy ≡
+beatstreets ≡ leadingedge; kinetix/avenger/soccer/bunner the same text with different alias
+lines) — `tasks/reference/code-the-classics-tightening.md` §3. The tightening pass
+(`tasks/archive/2026/09/05/codetheclassics-tighten-games.md`) runs BEFORE this step and produces one tightened engine
+per family, spliced into the siblings; those tightened copies are this step's input, and the
+per-game exceptions (only leadingedge uses the mixer fades, only avenger builds `mixer.Sound`,
+only bunner/soccer use `Sound.play(-1)`) are the first data for criterion (a).
 
 ## Open questions
 

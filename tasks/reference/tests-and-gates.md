@@ -108,6 +108,17 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   **false skips** (`Actor.pos` returns a fresh `Vector` per call and freed
   temporaries' ids get reused) — check leaves before the cycle guard.
   (`tasks/archive/2026/07/23/frozen-vectors-rebind-migration.md`)
+- **Code-the-Classics behaviour gates** (2026-09-05, promoted to `tools/` when the
+  tightening umbrella archived): `tools/ctc_verify_game.sh <game.py> [frame]
+  [ref|--against other.py]` — frame-N pixel identity of the working tree vs a git
+  ref (baseline captured twice as a determinism check, ImageMagick `AE`), reusing
+  `tools/ctc_capture_frame.py` (the step-1 capture, promoted 2026-09-06); `tools/ctc_state_trace.py <game.py> <frames> <keyscript>`
+  + `tools/ctc_compare_traces.py base cur`
+  — seeded, audio-stubbed, scripted-input trace that runs the game as `__main__`
+  with its loop disabled, drives `update()`, and dumps the whole `game` object
+  graph per frame for a diff (the input-path complement; the frame gate only
+  sees the attract mode). Both need the sandbox's Xvfb on `:99` and the nested
+  image. Details: `tasks/reference/code-the-classics-tightening.md` §5.
 - **Definitions gate** (`runpy.run_path` with `go` stubbed): executes class
   bodies, which `py_compile` does not — this caught ~20 latent bugs in the
   shim-dynamism audit. (`tasks/archive/2026/07/09/ctc-shim-dynamism-audit.md`)
@@ -118,15 +129,15 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   emission sequences, used to prove the `_primitives.py` extraction faithful
   (recurring ≤1 ULP torus discrepancy is expected — `(i+1)*step` vs
   `a0+step`). (`tasks/archive/2026/05/29/extract-data-generation.md`)
-- **CtC smoke test** (`ports/codetheclassics/_smoketest.py`): renders one
-  frame per game to an offscreen EGL pbuffer and fails if mostly black.
-  **Nothing runs it automatically** — it was silently broken 2026-07-08 →
-  2026-07-25 and is a manual tool, not a gate. Env facts it depends on: both
-  `PYOPENGL_PLATFORM=egl` *and* `EGL_PLATFORM=surfaceless` must be set
+- **CtC smoke test** (`ports/codetheclassics/_smoketest.py`): **removed
+  2026-09-06** — it imported a game as a module, which no game allows now
+  (they own their loops and exit on import); the `tools/ctc_*` gates above
+  replaced it. Its EGL lore, should a pbuffer capture ever be wanted again:
+  both `PYOPENGL_PLATFORM=egl` *and* `EGL_PLATFORM=surfaceless` must be set
   **before** `from OpenGL import …`, or PyOpenGL binds GLX and every call
-  raises "no valid context". And judge the output by *looking at the PNGs*,
-  not only the non-black percentage.
-  (`tasks/archive/2026/07/25/fix-smoketest-broken-pgzrun.md`)
+  raises "no valid context".
+  (`tasks/archive/2026/07/25/fix-smoketest-broken-pgzrun.md`,
+  `tasks/archive/2026/09/06/remove-ctc-smoketest.md`)
 - **Headless plotting**: `plotsforbook/plotutils/matplotgraphs.py` falls back
   to `Agg` when `DISPLAY` is unset (it once hardcoded `TkAgg` and couldn't be
   imported headless). (`tasks/archive/2026/07/19/doctests-everywhere.md`)

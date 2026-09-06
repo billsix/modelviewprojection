@@ -156,83 +156,75 @@ podman run --rm --cgroups=disabled -v "$(pwd)":/srcro:ro registry.fedoraproject.
 
 ## Code-the-Classics ports (`ports/codetheclassics/`)
 
-A separate subtree from the course: **10 faithful game ports** under
-`ports/codetheclassics/vol1/` and `vol2/` (BSD-2-Clause, © Eben Upton et al.),
-running on **`pgzero_gl`**, a clean-room PyGame-Zero/pygame compatibility shim on
-GLFW + OpenGL 3.3 core. **The shim lives IN the package** at
-`src/modelviewprojection/pgzero_gl/` (moved out of `ports/codetheclassics/`
-2026-08-01, LGPL-2.1 — see `tasks/archive/2026/08/01/move-ctc-pgzero-shim-into-package.md`);
-the games import it as `from modelviewprojection.pgzero_gl import ...` at the top,
-with no `sys.path` dance (so no `# noqa: E402`, and E402 is no longer ignored for
-`ports/codetheclassics/**` — only for `ports/openglsuperbiblev4/**`).
+A separate subtree from the course: **10 faithful game ports** (11 files — boing also has a
+fixed-function `boing_gl1.py`) under `ports/codetheclassics/vol1/` and `vol2/` (BSD-2-Clause, © Eben
+Upton et al.; the inlined engine © William Emerison Six, same licence). **Each game is ONE
+self-contained file** on GLFW + OpenGL 3.3 core: its engine half (audio mixer, image/sound loaders,
+the GL renderer, the `Actor` sprite, keyboard/gamepad), then the game, then the loop the game itself
+owns — the course's library-not-framework style. History: the games ran on a shared clean-room
+pygame-zero shim, `src/modelviewprojection/pgzero_gl/` (LGPL-2.1), until it was **inlined per game
+and stripped** (steps 1–2 of `tasks/pgzero-gl-inline-strip-reextract.md`, 2026-09-04/05) and the
+copies **tightened** (2026-09-05, `tasks/archive/2026/09/05/codetheclassics-tighten-games.md`). The
+shim source still sits in the package, unused by the games, until step 3 (re-extract what is
+genuinely shared; **parked** by the maintainer, `tasks/pgzero-gl-step3-reextract-library.md`) decides
+its fate — it, not the games, carries the LGPL question.
 
-- **Two different rule-sets.** The **games are behaviour-faithful ports** —
-  **no behaviour changes** (same RNG call order, same update/draw order, same
-  gameplay), but as of 2026-07-08 their *structure* may be modernized:
-  dataclasses, `match`, type annotations, `@override`, precise callable types
-  (see the `ctc-*` task series; this relaxes the old "no restructuring" rule —
-  Bill's call). As of 2026-07-08 the games and the SuperBible ports are also
-  **ruff-formatted** by `format.sh` (`ruff check ports --fix` + `ruff format
-  ports`) — the old byte-faithful/no-ruff rule is fully retired. The **shim
-  (`src/modelviewprojection/pgzero_gl/`) is our code** — it may get real bug
-  fixes to reproduce pygame/pgzero APIs correctly.
-- **Enforcement:** `entrypoint/format.sh` runs `ty check` on `vol1` + `vol2` (the
-  shim is covered by `ty check src`, being inside the package now).
+- **The rule-set: behaviour-faithful, structure free.** No behaviour change — same RNG call order,
+  same update/draw order, same gameplay — but structure is modernized freely (dataclasses, `match`,
+  annotations, `@override`, precise types; the 2026-07-08 relaxation of the old "no restructuring"
+  rule, Bill's call). ruff-formatted like the rest of `ports/`; `entrypoint/format.sh` runs
+  `ty check` on `vol1` + `vol2`.
+- **The standard for the files' shape is `tasks/reference/code-the-classics-tightening.md` — read it
+  before editing any game.** In one breath: plain `# ===== engine: … =====` banners; only the engine
+  the game uses; window and renderer created at module level after an `if __name__ != "__main__":
+  sys.exit(...)` guard; Protocols structural, never declared by subclassing; every `match` ends in
+  `case _: raise`; `@dataclass(slots=True)` state objects with every attribute declared and `#:`
+  field doc-comments; GL resources are dataclasses built by `@classmethod` factories
+  (`Renderer.create`, `Image.load`, …); the renderer's model and ortho matrices are defined with
+  gacalc transforms, compiled once at import (`tasks/reference/gacalc-transforms-in-the-renderer.md`);
+  the engine's input boundary type `PointLike = tuple | Vector` is kept on purpose
+  (`tasks/reference/point-type-decision.md`).
+- **Gates for any edit to a game** (`tasks/reference/tests-and-gates.md`): `tools/ctc_verify_game.sh`
+  (frame pixel identity vs a git ref) and `tools/ctc_state_trace.py` + `tools/ctc_compare_traces.py`
+  (a seeded scripted-input state trace, compared structurally); `tools/ctc_profile_update.py` when
+  something feels slow. All need the sandbox's Xvfb on `:99` and the nested image. Three deliberate
+  deviations from the pre-tightening pixels are on record (two shim fade bugs, bunner's debug labels)
+  — reference doc §6. Audio and the gamepad are never covered by the gates; play-test.
 - **Fidelity gotchas worth not rediscovering:**
-  - Audio is a **single-device software mixer on `miniaudio`** (`src/modelviewprojection/pgzero_gl/audio.py`,
-    2026-07-09), not `pygame.mixer` (host SDL is broken) and no longer `just_playback` —
-    its stream-per-voice model exhausted ALSA client slots and **blocked the game
-    thread** (leadingedge's 41 engine samples; see
-    `tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md`). One
-    `PlaybackDevice`, all voices mixed in the callback like pygame's channels:
-    decoded-buffer voices with gapless loop wraparound and per-frame fade ramps,
-    8-voice-per-Sound cap, music streamed in chunks. Headless → graceful no-op.
-    The runner **closes the device on exit** (`audio.shutdown()` in `runner.py`'s
-    `finally`) — its callback runs on a native thread, so without this a game
-    playing music closes its window on Esc but the **process hangs** (fixed
-    2026-08-23; see `tasks/reference/notable-subsystems.md`).
-  - `geometry.Rect` is **integer-coord like `pygame.Rect`**; **`ZRect`** is the float
-    variant, and **`Actor` uses `ZRect`** to keep sub-pixel positions.
-  - **The games use `gacalc.g2.Vector` / `gacalc.g3.Vector` DIRECTLY**
-    (2026-07-09; needs `gacalc>=0.0.8` — the release with `x`/`y`/`z`
-    coordinate properties and quotient `/`). There is **no shim vector
-    type** — `geometry.py` keeps only `Rect`/`ZRect` (the short-lived
-    gacalc-backed subclass of 2026-07-08 was superseded the next day;
-    see gacalc's `tasks/archive/2026/07/09/upgrade-rotation-and-ctc-vector-mapping.md`,
-    `github.com/billsix/geometricalgebra`).
-    The dialect mapping: `length`→`magnitude`, `dot`→`scalar_product`
-    (float via `float(...)` at float-typed boundaries — gacalc returns
-    `Coef`, which admits sympy), `rotate(deg)`→`plane_rotation(e_1, e_2)`
-    (kinetix's module-level `_turn`), copies/`.pos` mixing via
-    `Vector(*x)` unpacking, in-place `normalize_ip`/`scale_to_length`
-    → rebinding. Vector `*` scalar scales; two vectors is the geometric
-    product; every game dot product is an explicit call (Bill, 2026-07-09).
-    Shim position parameters (Actor pos setter, `screen.blit`) **unpack**
-    (`x, y = pos`) rather than index, so they accept tuples AND gacalc
-    vectors.
-  - **gacalc vectors are FROZEN (immutable) — frozen since 0.0.14, pin now 0.0.15 — so a
-    coordinate is changed by REBINDING, never in place.** Write
-    `self.dir = Vector(-self.dir.x, self.dir.y)`, not `self.dir.x = -self.dir.x`;
-    an augmented write becomes
-    `self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)`. The ~80-site
-    conversion landed 2026-07-23 with the 0.0.13 → 0.0.14 pin bump. Two things to
-    know when a write is rejected: a **field** write (`v.coeff_e_1 = …`) raises a
-    clean `FrozenInstanceError`, but the ergonomic **property** write (`v.x = …`)
-    raises a confusing `TypeError: super(type, obj)…` — a Python 3.14
-    frozen+slots+property quirk gacalc keeps deliberately, not a bug in this repo.
-    And **`ty` catches a plain `v.x = …` but NOT an augmented `v.x += …`**, so a
-    grep for `\.(x|y|z)\s*[-+*/]?=` is still part of any audit.
-    **Immutability retired the aliasing hazard that used to live here.** A vector in
-    a shared location (module constant, class attribute, default argument) can no
-    longer be mutated out from under its other readers, and the basis constants
-    (`Vector.e_1`, …) are safe to share. The defensive copies that were the fix for
-    that — `self.half_hit_area = Vector(*half_hit_area)` in `beatstreets`, guarding
-    a `Player`/`EnemyVax`/`EnemyHoodie`/`EnemyScooterboy` shared default (found
-    2026-07-18) — became redundant, and **the deliberate removal pass ran
-    2026-07-25**: 12 pure-aliasing copies deleted; 2 kept because they *normalize*
-    `Any`/tuple-typed inputs; the `DEFAULT_*` constants stay (removing one re-trips
-    ruff `B008`). Details: `tasks/reference/design-decisions.md` › Ports.
-- History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`.
+  - Audio is a **single-device software mixer on `miniaudio`** (each engine's audio section; the
+    same design as the package shim's `audio.py`, 2026-07-09): not `pygame.mixer` (host SDL is broken),
+    not `just_playback` (its stream-per-voice model exhausted ALSA client slots and blocked the game
+    thread — `tasks/archive/2026/07/09/leadingedge-audio-clunk-and-freeze.md`). One `PlaybackDevice`,
+    all voices mixed in the callback; headless → graceful no-op. Each game's loop **closes the device
+    in its `finally`** (`shutdown_audio()`), or a music-playing game hangs the process after the
+    window closes (2026-08-23; `tasks/reference/notable-subsystems.md`).
+  - Rectangles: each engine's `Rect` is a **float** dataclass (the `Actor` keeps sub-pixel positions
+    in it); a game that needs pygame's whole-pixel mutable rect (eggzy's level builder, beatstreets'
+    bars) has `IntRect`. The old shim's `geometry.Rect`/`ZRect` pair is history.
+  - **The games use `gacalc.g2.Vector` / `gacalc.g3.Vector` DIRECTLY** (since 2026-07-09; there is no
+    engine vector type). Dialect: `length`→`magnitude`, `dot`→`scalar_product` (with `float(...)` at
+    float-typed boundaries — gacalc returns `Coef`, which admits sympy), `rotate(deg)`→
+    `plane_rotation(e_1, e_2)` (kinetix's `_turn`), myriapod's quarter turn is `* e_12`, cameras are
+    `inverse(translate(...))`. Vector `*` scalar scales; two vectors is the geometric product; every
+    dot product is an explicit call (Bill, 2026-07-09). Engine position parameters **unpack**
+    (`x, y = pos`) so they accept tuples AND vectors — that is the `PointLike` boundary.
+  - **gacalc vectors are FROZEN** (since 0.0.14; pin now 0.0.19): a coordinate is changed by
+    rebinding, never in place — `self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)`. A field
+    write raises `FrozenInstanceError`; a property write (`v.x = …`) raises a confusing
+    `TypeError: super(type, obj)…` (a Python 3.14 frozen+slots+property quirk gacalc keeps). **`ty`
+    catches `v.x = …` but NOT `v.x += …`**, so a grep for `\.(x|y|z)\s*[-+*/]?=` is part of any
+    audit. Immutability retired the old aliasing hazard (shared defaults are safe; the defensive
+    copies were removed 2026-07-25 — `tasks/reference/design-decisions.md` › Ports).
+  - **Known gacalc costs** (measured 2026-09-06): vector ops are 0.1–0.4 µs and a game's whole
+    `update()` is ~1% of the 60 Hz budget, but `Vector.__eq__` falls into `sympy.simplify` when two
+    plain floats *differ* (~48 µs; beatstreets compares targets every frame) — a gacalc fix is filed
+    (geometricalgebra `tasks/fast-numeric-equality.md`).
+- **Open, CtC-adjacent:** `tasks/ctc-use-gacalc-matrix-template.md` (blocked on geometricalgebra
+  `tasks/matrix-template-compile-once.md`: delete the ten `MatrixTemplate` copies once gacalc ships
+  it); `tasks/demos-exit-if-not-main.md` (the import guard for the course demos, proposed);
+  `tasks/swap-myriapod-rotate90-to-gacalc.md` (blocked on a gacalc quarter-turn).
+- History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`,
+  `tasks/archive/2026/08/01/move-ctc-pgzero-shim-into-package.md`.
 
 ---
 
@@ -505,6 +497,12 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 - `tasks/axis-cylinder-cone-lighting.md` — deferred.
 
 **Cross-repo (done):**
+- **gacalc bumped to 0.0.19 (2026-09-06): typing precision.** gacalc's scalar transform
+  factories now bind the caller's `V` and `to_matrix` accepts any `InvertibleFunction`, which
+  cleared the 36 ty-invariance errors the 2026-08-31 ty bump had left in `src`/`tests`;
+  `make format` is fully green again. Pin bumped in `requirements.txt` AND the Dockerfile
+  `ARG GACALC_VERSION`; no code migration (two now-unused blanket `# ty: ignore`s in demo07
+  removed). Record: `tasks/archive/2026/09/06/ty-0072-strictness-sweep.md`.
 - **gacalc bumped to 0.0.18 (2026-08-31): the cross product.** `mathutils.find_normal`
   is now one line — `(p2 - p1).cross(p3 - p1)`, gacalc's generated `g3.Vector.cross`
   (the dual of the wedge as a closed form, typed `Vector -> Vector`) — and the three

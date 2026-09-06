@@ -12,9 +12,13 @@
 # `if __name__ == "__main__": main()` fires and its asset_root (from __file__)
 # resolves.
 #
+# Promoted from tasks/adhoc/pgzero-gl-inline/ on 2026-09-06: it is the capture
+# half of tools/ctc_verify_game.sh (run that; call this directly only to get a
+# single PNG of frame N).
+#
 # Usage (headless, PGZERO_MAX_FRAMES must be >= the capture frame):
 #   CAPTURE_FRAME=180 CAPTURE_OUT=/tmp/x.png DISPLAY=:99 \
-#   PGZERO_MAX_FRAMES=180 python capture_frame.py <game.py>
+#   PGZERO_MAX_FRAMES=180 python tools/ctc_capture_frame.py <game.py>
 
 import os
 import random
