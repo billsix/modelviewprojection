@@ -54,7 +54,7 @@ This complements `CLAUDE.md` (the current rules) by recording **why** each rule 
 
 ## Ports — Code-the-Classics games
 
-The 10 CtC ports sit on one clean-room `pgzero_gl` shim (GLFW + OpenGL 3.3 core). The **rule-set evolved**, so date order matters:
+The 10 CtC ports sat on one clean-room `pgzero_gl` shim (GLFW + OpenGL 3.3 core) until 2026-09-04/05, when it was inlined per game and each copy tightened (`tasks/reference/code-the-classics-tightening.md`); the decisions below still govern the games. The **rule-set evolved**, so date order matters:
 
 - **Original rule (2026-06 → 06-29): behaviour-faithful ports, annotations only, NO restructuring, NO ruff.** Games were still treated as line-by-line BSD-derivative copies diffable against upstream. Type-clean via `ty`; nullable-but-unguarded Actor attrs typed `Any` not `Optional` (games deref assuming non-null; `Optional` just relocates the error). (`2026/06/25/port-codetheclassics-vol1.md`, `.../vol2.md`, `2026/06/29/codetheclassics-types-and-docstrings.md`)
 

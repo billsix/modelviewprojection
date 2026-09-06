@@ -52,7 +52,13 @@ not own the loop. (b) imgui's GLFW backend in demo21+ — `demo21.py:126` `GlfwR
 mouse/char/scroll callbacks, but the demo pumps imgui explicitly each frame (`imgui.new_frame()` …
 `impl.render(imgui.get_draw_data())`), so imgui is a library the demo drives, not a framework owning control.
 
-### The corollary that matters most: `pgzero_gl` is the framework side
+### The corollary that matters most: `pgzero_gl` WAS the framework side (resolved 2026-09-05)
+
+> **Resolved:** steps 1–2 of the inline initiative (2026-09-04/05) inlined the shim into each game and made
+> every game own its loop; the tightening pass (2026-09-05) then gave them the demos' shape — module-level
+> window and renderer, the loop at the bottom, calls *down* into the engine. The games are library-style
+> now (`tasks/reference/code-the-classics-tightening.md` §1). The paragraph below is kept as the record of
+> why that was worth doing.
 
 The Code-the-Classics games (`ports/codetheclassics/{vol1,vol2}/`) are the **exception** to the house style:
 they are **framework-style**. Each game defines `WIDTH`/`HEIGHT`/`update()`/`draw()`/`on_*` and hands control to
@@ -106,8 +112,9 @@ lighting, planar shadows, texturing, per-vertex normals (demo22–24). The clean
   point of the whole course (transformations you *call*, not callbacks a framework invokes). Both are load-bearing
   pedagogy, not tech debt. This is the demo-side form of the general convention "duplication across demos is
   deliberate."
-- **The one place the style is violated is `pgzero_gl`/the ports** — and correcting that (library-izing the
-  games) is tracked in `tasks/pgzero-gl-inline-strip-reextract.md`, which flows directly from this record.
+- **The one place the style was violated was `pgzero_gl`/the ports** — corrected 2026-09-05 (library-izing
+  the games: `tasks/pgzero-gl-inline-strip-reextract.md` steps 1–2 plus the tightening pass); only its step 3
+  (re-extract what is genuinely shared) remains, parked.
 - **When adding a demo:** keep it a single top-to-bottom script that owns its loop, calls down into
   `mathutils`/`matrix_stack`/`util`, adds ~one concept over its predecessor, and shares a helper only after the
   concept it embodies has been taught inline once.

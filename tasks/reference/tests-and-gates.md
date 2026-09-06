@@ -112,7 +112,7 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   tightening umbrella archived): `tools/ctc_verify_game.sh <game.py> [frame]
   [ref|--against other.py]` — frame-N pixel identity of the working tree vs a git
   ref (baseline captured twice as a determinism check, ImageMagick `AE`), reusing
-  the step-1 `capture_frame.py`; `tools/ctc_state_trace.py <game.py> <frames> <keyscript>`
+  `tools/ctc_capture_frame.py` (the step-1 capture, promoted 2026-09-06); `tools/ctc_state_trace.py <game.py> <frames> <keyscript>`
   + `tools/ctc_compare_traces.py base cur`
   — seeded, audio-stubbed, scripted-input trace that runs the game as `__main__`
   with its loop disabled, drives `update()`, and dumps the whole `game` object

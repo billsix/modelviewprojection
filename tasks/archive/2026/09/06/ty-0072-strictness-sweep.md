@@ -1,6 +1,6 @@
 # ty 0.0.72 strictness sweep — 74 new errors from the toolchain, not from code changes
 
-**Status:** DONE + ARCHIVED 2026-09-06 — `make format` exits 0 under ty 0.0.74 + gacalc 0.0.19 (image rebuilt for the pin); the 36 invariance errors cleared with the pin, and the only fallout was two now-unused blanket `# ty: ignore`s on demo07's `@` compositions (removed; ruff reflowed the two book lines). 104 tests. Was: READY — glClear half DONE (2026-09-05); **unblocked 2026-09-06: gacalc 0.0.19 is on PyPI (uploaded 2026-09-05), `requirements.txt` and the Dockerfile's `GACALC_VERSION` are pinned to it (resolvability checked in the nested image with `pip download`), so the remaining 36 errors are actionable — not started; first step is `make image` for the new pin, then `make format` to see what 0.0.19's `[V]`/`[Any]` returns clear.**
+**Status:** DONE + ARCHIVED 2026-09-06 — `make format` exits 0 under ty 0.0.74 + gacalc 0.0.19 (image rebuilt for the pin); the 36 invariance errors cleared with the pin, and the only fallout was two now-unused blanket `# ty: ignore`s on demo07's `@` compositions (removed; ruff reflowed the two book lines). 104 tests.
 **Priority:** 3
 **Difficulty:** 5
 **Created:** 2026-08-31
@@ -54,7 +54,7 @@ hits in touched files are all pre-existing lines). Ruff, `make test` (104), and
   an int-typed `time_remaining`), `bunner.py:811`, `beatstreets.py:640`, `notebooksrc/ndc.py`,
   `wxapp*.py` (3).
 
-## Open questions
+## Open questions (both settled: Q1 by the maintainer 2026-09-05 — bare `# ty: ignore`; Q2 yes — filed, shipped as gacalc 0.0.19)
 
 1. **glClear + opaque `Constant`** — pick one: (a) append a bare `# ty: ignore` per site
    (RECOMMENDED: keeps the real GL idiom in the book listings; bare rather than rule-coded

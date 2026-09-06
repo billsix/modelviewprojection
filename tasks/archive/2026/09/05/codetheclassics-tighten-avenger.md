@@ -66,7 +66,7 @@ local shadowing the module `joystick`.
 filename"), 4264 false, 4343–4348 (mixer restart rationale — the mixer calls are no-ops now; keep
 only the `set_num_channels(16)` reason if the real mixer honours it), 4375 false, 4377 → banner.
 
-## Plan / Verify / Open questions
+## Plan, as scaffolded before the work (the record below is what happened)
 
 Engine: splice kinetix's, restoring `_MixerSound`/`_pooled_sound`, the `Sound` fade/loop/
 volume/stop paths, `Mask` (minus `overlap`), `set_clip`, `screen.draw.line`. Game: `Game` and

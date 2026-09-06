@@ -68,7 +68,7 @@ pgzero_gl.runner.main()" — rewrite as the main-loop banner; 2941 is the env va
 **Traps:** `mixer.quit/init` + `music.play` at 2874–2882 (drop the mixer no-ops, keep the
 music); `game = Game()` at 2889 consumes RNG at import; no `ty: ignore` in the game part.
 
-## Plan
+## Plan, as scaffolded before the work (the record below is what happened)
 
 1. Engine half: apply boing's engine tightening (reference doc §1.2–§1.5), keeping `Actor`,
    `screen.blit`-style `blit`, and the `Rect`/`ZRect` slice cavern's `Actor` needs; write it so

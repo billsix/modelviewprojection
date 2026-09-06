@@ -72,7 +72,7 @@ attribution, keep "read/write position via vpos"); **5653 keep** (why `screen.su
 with an area); 5733–5742 (`getattr` idiom); 5818 false; 5916 (mixer restart — no-ops); 5941
 false; 5943 → banner; 5992 env var.
 
-## Plan / Verify / Open questions
+## Plan, as scaffolded before the work (the record below is what happened)
 
 Engine: splice kinetix's, restoring `Surface`, `screen.draw.text`, `_Mixer.find_channel/get_busy`
 only if the scooter path stays. Game: `Stage`/`Attack`/`Profiler` first (safe), then the

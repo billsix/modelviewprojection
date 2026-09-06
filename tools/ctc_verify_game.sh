@@ -10,17 +10,14 @@
 # The baseline is `git show <ref>:<game>` (default ref: HEAD), written beside
 # the game as _baseline_<name>.py so it finds the same images/ sounds/ music/
 # folders (the games resolve assets from their own file's directory). Each
-# capture is a seeded, frame-counted PNG from capture_frame.py (the step-1
+# capture is a seeded, frame-counted PNG from ctc_capture_frame.py (the step-1
 # harness): the baseline is captured TWICE (a determinism check, so a game
 # that isn't reproducible even unchanged can't masquerade as a pass), then the
 # working-tree file once, and the PNGs are compared with ImageMagick's AE
 # (absolute-error pixel count) metric. AE=0 on both comparisons is a pass.
 #
 # Runs the captures in the project's own container (the nested mvp image),
-# under the sandbox's Xvfb on :99. Reuses tasks/adhoc/pgzero-gl-inline/
-# capture_frame.py unchanged (that adhoc dir lives until its umbrella,
-# tasks/pgzero-gl-inline-strip-reextract.md, archives -- move capture_frame.py
-# into tools/ first when it does).
+# under the sandbox's Xvfb on :99. The capture itself is tools/ctc_capture_frame.py.
 #
 # Usage (repo root as CWD, `Xvfb :99` running, `make image` built):
 #   tools/ctc_verify_game.sh \
@@ -30,7 +27,7 @@
 set -u
 game="$1"; N="${2:-180}"
 dir=$(dirname "$game"); base=$(basename "$game" .py)
-capture=tasks/adhoc/pgzero-gl-inline/capture_frame.py
+capture=tools/ctc_capture_frame.py
 out=${VERIFY_OUT:-/tmp/claude-verify}; mkdir -p "$out"
 
 if [ "${3:-}" = "--against" ]; then

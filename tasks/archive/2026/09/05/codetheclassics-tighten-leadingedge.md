@@ -60,7 +60,7 @@ helpers live in the draw section"), 3004 as "no-op here", **4627 keep** (the >1 
 rationale, reworded without the framework name), 4887–4896 (`getattr` idiom), 4931 false, 5045
 (mixer restart — no-ops), 5069 false, 5071 → banner, 5121 env var.
 
-## Plan / Verify / Open questions
+## Plan, as scaffolded before the work (the record below is what happened)
 
 Engine: splice kinetix's, restoring the `Sound` fade/loop/volume/stop paths, `transform.scale`,
 `Surface`, `screen.draw.text`, the polygon helpers. Game: the dataclass list, `match` blocks,

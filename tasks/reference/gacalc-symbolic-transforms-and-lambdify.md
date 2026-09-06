@@ -5,7 +5,7 @@
 into whether the `pgzero_gl` renderer (and the games) can build their transforms from the
 maintainer's own gacalc math without paying a runtime cost. **Every number below is measured** in
 the mvp container (software GL); absolute microseconds vary by host — the **ratios** are the point.
-Reproduce with `tasks/adhoc/gacalc-lambdify-transforms/perf_test.py`.
+The harness `perf_test.py` was removed 2026-09-06 when its task archived (one-shot; in git history under the archived task); the 2026-09-06 re-measurement (gacalc 0.0.19) and the adopted compile-once path are in `gacalc-transforms-in-the-renderer.md`.
 
 ## BLUF — the technique worth remembering
 
@@ -103,7 +103,7 @@ it is frame-identical but not raw-bit-identical. (One more reason to prefer the 
 
 ## Related
 
-- `tasks/adhoc/gacalc-lambdify-transforms/perf_test.py` — the runnable harness for every number here.
+- `perf_test.py` (removed 2026-09-06 when its task archived (one-shot; in git history under the archived task)) — the harness for every number here.
 - `tasks/gacalc-transforms-for-rotate-translate.md` — the parent study (the crux: `to_matrix`
   exists + is correct).
 - `tasks/pgzero-gl-renderer-matrix-via-gacalc-perf.md` — the perf/rollout task for the renderer.

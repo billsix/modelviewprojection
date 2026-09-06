@@ -88,7 +88,7 @@ No abstraction added — these remove hand-rolled component arithmetic in favor 
 
 ## Group 3 — judgment calls (measure or discuss first; do NOT do blind)
 
-11. **`_offset_cache`** → **DONE (deleted 2026-09-04).** Re-measured with `tasks/adhoc/pgzero-gl-offset-cache/measure.py`:
+11. **`_offset_cache`** → **DONE (deleted 2026-09-04).** Re-measured with `measure.py (removed 2026-09-06 when its task archived (one-shot; in git history under the archived task))`:
     the cache saves ~422 ns/read (uncached x-reads are ~65% slower, 652→1075 ns), but that is **~0.16% of a 60 fps
     frame's budget** (~26 µs/frame at the audit's read rate) — never drops a frame. Maintainer's call: delete it.
     Removed the `_offset_cache` field and all 5 invalidation sites; behavior-preserving (104 tests pass, boing's
@@ -124,7 +124,7 @@ No abstraction added — these remove hand-rolled component arithmetic in favor 
 - ~~**Group 1** — dead-code deletions~~ → done & archived (2026-09-04).
 - ~~**Group 2 (items 9-10)** — gacalc clarity in `Actor.distance_to` + anchor math~~ → done (2026-09-04).
 - ~~**Group 3 item 11** — re-measure/delete `_offset_cache`~~ → done (deleted 2026-09-04; measurement in
-  `tasks/adhoc/pgzero-gl-offset-cache/measure.py`).
+  `measure.py (removed 2026-09-06 when its task archived (one-shot; in git history under the archived task))`).
 - **Group 3 item 12** — eggzy `:911` tidy → **maintainer chose LEAVE the games untouched** (2026-09-04). No action.
 - **Matrix→gacalc task** (`gacalc-transforms-for-rotate-translate.md`) → **parked** by maintainer (2026-09-04).
 

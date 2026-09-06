@@ -3,7 +3,7 @@
 **Decided 2026-09-06 (Fable, executing `tasks/archive/2026/09/06/pointlike-type-study.md` with the
 maintainer's delegated discretion; William Emerison Six <billsix@gmail.com> may overrule).** Project:
 `github.com/billsix/modelviewprojection`; the vector type is gacalc's `g2.Vector`
-(`github.com/billsix/geometricalgebra`). Numbers from `tasks/adhoc/pointlike-type-study/bench_point_types.py`
+(`github.com/billsix/geometricalgebra`). Numbers from `bench_point_types.py` (removed 2026-09-06 when its task archived (one-shot; in git history under the archived task))
 and `tools/ctc_profile_update.py` (promoted from the study's `bench_game_update.py`), in the project image (gacalc 0.0.19, Python 3.14), 2026-09-06.
 
 ## The decision

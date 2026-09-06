@@ -52,7 +52,7 @@ Small, focused, individually-documented modules the demos import: `axes.py` (uni
 ### `ports/` — faithful ports from external graphics sources
 Not part of the installed package; kept in mvp's style for teaching and as porting source material.
 - **`ports/openglsuperbiblev4/`** — ~104 Python ports of the *OpenGL SuperBible v4* examples, organized by chapter (`chapt01 … chapt22`). The main source Bill draws demos from; some are already slotted into the numbered demos (`axes3d`→demo19a, `atom`→19b, `solar`→19c, `sphereworld`→19e, `Block`→demo22 — see `CLAUDE.md` › "SuperBible port plan").
-- **`ports/codetheclassics/`** — ports of the *Code the Classics* (vol 1 & 2) games (boing, bunner, cavern, myriapod, soccer / avenger, beatstreets, eggzy, kinetix, leadingedge). Built on **`pgzero_gl/`**, an in-repo Pygame-Zero-compatible layer that renders through OpenGL and uses gacalc `g2.Vector`/`g3.Vector` throughout — frozen since the 0.0.14 pin, so positions and velocities are updated by rebinding (`self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)`), never by writing a coordinate in place. These exercise the library as a real consumer; see `CLAUDE.md` › "Code-the-Classics ports".
+- **`ports/codetheclassics/`** — ports of the *Code the Classics* (vol 1 & 2) games (boing, bunner, cavern, myriapod, soccer / avenger, beatstreets, eggzy, kinetix, leadingedge), each **one self-contained file** (its own inlined, tightened engine on GLFW + OpenGL 3.3 core; since 2026-09-05 — `tasks/reference/code-the-classics-tightening.md`). The old shared shim source, `src/modelviewprojection/pgzero_gl/`, stays in the package unused until step 3 of `tasks/pgzero-gl-inline-strip-reextract.md` (parked) decides its fate.
 
 ---
 
@@ -99,7 +99,7 @@ point here.)
 | Shared demo helpers (axes, windowing, clipping, camera, colors, shading) | `src/modelviewprojection/util/` |
 | Notebook / static book figure generation | `src/modelviewprojection/notebooksrc/` (jupytext), `plotsforbook/generate_plots.py` |
 | A SuperBible example port | `ports/openglsuperbiblev4/chaptNN/<name>/<name>.py` |
-| A Code-the-Classics game port (and its Pygame-Zero→GL layer) | `ports/codetheclassics/vol{1,2}/<game>/<game>.py` (layer: `pgzero_gl/`) |
+| A Code-the-Classics game port (engine half + game half in one file) | `ports/codetheclassics/vol{1,2}/<game>/<game>.py`; gates in `tools/ctc_*` |
 | The book chapters (prose + `literalinclude` markers) | `book/docs/chNN.rst` (config `book/docs/conf.py`) |
 | The book build pipeline, doc-region mechanics, gacalc docs-source injection | **`tasks/reference/book-and-docs-pipeline.md`** |
 | Figures, math images (`inlinetex`), notebook generation | **`tasks/reference/book-figures-and-images.md`** |

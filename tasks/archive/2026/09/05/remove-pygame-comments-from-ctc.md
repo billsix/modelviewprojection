@@ -1,6 +1,6 @@
 # Remove the now-misleading pygame / PyGame Zero comments from the Code-the-Classics code
 
-**Status:** DONE + ARCHIVED 2026-09-05 (as subsumed — every game's comments concern was covered by the tightening pass; see the umbrella's completion record). Was: SUBSUMED — folded into `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` (maintainer, 2026-09-05):
+**Status:** DONE + ARCHIVED 2026-09-05 (as subsumed — every game's comments concern was covered by the tightening pass; see the umbrella's completion record).
 the comment strip runs as one of that umbrella's three per-game concerns. This doc stays as the
 comment-concern checklist (the ~987-mention breakdown, the comments-only-never-identifiers rule) and
 is archived as subsumed once every game's comments are done. Not an independent actionable task.

@@ -72,7 +72,7 @@ keep**, 3413 false, 3504 → main-loop banner. Engine comments carrying real rat
 fact, drop the framing): 1478–1490 (`Surface` = composite offscreen buffer), 1015, 2377–2380,
 1078–1084 (images decode immediately because objects exist at import).
 
-## Plan / Verify
+## Plan, as scaffolded before the work (the record below is what happened)
 
 Engine: decide the debug flag (Q1), then strip; keep `Sound` loop/`set_volume`/`stop` and
 `from_rgba`. Game: dataclass/slots the plain-`super()` classes and `Game` (declare its six),

@@ -1,6 +1,6 @@
 # Can the renderer build its GPU matrix from gacalc transforms? (perf investigation)
 
-**Status:** DONE + ARCHIVED 2026-09-06 (Fable, overnight, on the maintainer's "execute") — investigated and measured: `to_matrix` per draw is 514 µs (161× today's 3.19 µs, gacalc 0.0.19), but **defining the transform in gacalc once with sympy symbols and compiling the fill is 0.47 µs — 7× faster than today's hand-built numpy**. Findings and the pattern: `tasks/reference/gacalc-transforms-in-the-renderer.md`; the adoption decision is the maintainer's, filed as `tasks/renderer-model-matrix-from-gacalc.md`. Was: proposed — investigation; a **492× per-call regression measured** (2026-09-04).
+**Status:** DONE + ARCHIVED 2026-09-06 (Fable, overnight, on the maintainer's "execute") — investigated and measured: `to_matrix` per draw is 514 µs (161× today's 3.19 µs, gacalc 0.0.19), but **defining the transform in gacalc once with sympy symbols and compiling the fill is 0.47 µs — 7× faster than today's hand-built numpy**. Findings and the pattern: `tasks/reference/gacalc-transforms-in-the-renderer.md`; the adoption decision is the maintainer's, filed as `tasks/renderer-model-matrix-from-gacalc.md`.
 **Priority:** 5
 **Difficulty:** 4
 

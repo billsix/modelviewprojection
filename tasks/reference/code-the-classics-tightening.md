@@ -1,27 +1,26 @@
 # Tightening the Code-the-Classics games — the standard, the findings, the traps
 
-**What this is:** the durable record of *how* the inlined Code-the-Classics games are tightened
+**What this is:** the durable record of *how* the inlined Code-the-Classics games were tightened
 (dataclasses + `__post_init__`, tighter functions, Protocols, the pygame-comment strip) and *why*
-each choice was made — established on the **boing pilot** (`boing.py` + its `boing_gl1.py`
-companion, 2026-09-05, a Fable session) and meant to be applied to the other nine games. Read it
-before touching any game under `ports/codetheclassics/`. Work tracking lives in the umbrella task
-`tasks/archive/2026/09/05/codetheclassics-tighten-games.md`; this doc states what is true. Project:
+each choice was made. The standard was set on the **boing pilot** (`boing.py` + its `boing_gl1.py`
+companion, 2026-09-05, a Fable session), confirmed by the maintainer the same day (William Emerison
+Six <billsix@gmail.com>: "looks great"), applied to all ten games that day, and refined on 2026-09-06
+(§1b's classmethod factories, the gacalc-defined matrices). Read it before touching any game under
+`ports/codetheclassics/`. The work's story lives in the archived umbrella
+`tasks/archive/2026/09/05/codetheclassics-tighten-games.md`; this doc states what is true of the games
+now. Every rule below that came from a maintainer instruction says so. Project:
 `github.com/billsix/modelviewprojection`.
 
-**Status of the standard:** set by the boing pilot and **confirmed by the maintainer 2026-09-05**
-(William Emerison Six <billsix@gmail.com>: "looks great"); it applies to the other nine games. Every rule
-below that came from a maintainer instruction says so.
+## 1. The shape of a tightened game (what every game looks like now)
 
-## 1. The shape of a tightened game (what boing looks like now)
-
-Read `ports/codetheclassics/vol1/boing/boing.py` top to bottom; this is the target shape.
+Read `ports/codetheclassics/vol1/boing/boing.py` top to bottom; it is the smallest instance of the shape.
 
 1. **Header + docstring.** BSD-2-Clause with dual copyright, read from
    `ports/codetheclassics/LICENSE` (vol 1: © 2019 Eben Upton <eben@raspberrypi.org>; vol 2:
    © 2024 Eben Upton <eben@raspberrypi.com> — note **2024**, not the 2020 an earlier task guessed);
    the inlined engine © 2026 William Emerison Six. This is the header pass the licensing task
-   (`tasks/codetheclassics-licensing-after-shim-inline.md`) decided; it is folded into each game's
-   tightening pass rather than run separately. The module docstring names the game, the pipeline,
+   (`tasks/archive/2026/09/05/codetheclassics-licensing-after-shim-inline.md`) decided; it was folded
+   into each game's tightening pass rather than run separately. The module docstring names the game, the pipeline,
    and the read-top-to-bottom layout — no "pgzero_gl inlined" framing.
 2. **Plain section banners.** `# ===== engine: audio =====`, `# ===== engine: images and sounds
    =====`, `# ===== engine: renderer (OpenGL 3.3 core) =====`, `# ===== window and GL context
@@ -34,19 +33,19 @@ Read `ports/codetheclassics/vol1/boing/boing.py` top to bottom; this is the targ
    reimplements pygame" framing is dropped.
 3. **Demo-style ordering, no `__main__` guard (maintainer, 2026-09-05).** Engine definitions →
    **window + GL context + renderer created at module level** (`renderer: SpriteRenderer =
-   Renderer(WIDTH, HEIGHT)`; a failure raises and ends the program) → game code → the loop at the
+   Renderer.create(WIDTH, HEIGHT)`; a failure raises and ends the program) → game code → the loop at the
    bottom. Exactly the demos' shape (`demos/demo07.py:38-47` creates its window at the top). The
    maintainer's question that settled it: *"is there any reason it would need to be checked if it
    existed every time?"* — no: the old `require_renderer()` guard existed only because the game
    objects were built at import while the window was created later under `if __name__ ==
    "__main__"`, a leftover of the framework era. Consequences: importing the file opens a window
-   (nothing live depended on import-without-window — `_smoketest.py` was written for the shared
-   shim and already cannot reach an inlined game's renderer), and the harnesses run the file as
-   `__main__` (see §5). **Import guard (maintainer, 2026-09-05):** the window section opens with
+   (nothing live depended on import-without-window; the old `_smoketest.py`, which imported a game
+   as a module, was removed 2026-09-06), and the harnesses run the file as `__main__` (see §5). **Import guard (maintainer, 2026-09-05):** the window section opens with
    `if __name__ != "__main__": sys.exit(...)`, so a tool that imports the file to inspect it stops
    before any window, GL context or sound device is acquired (everything above that line is
    definitions plus lazy loaders). Note the demos themselves do NOT carry such a guard — they open
-   their window at import — so this is a games-only convention for now.
+   their window at import — so this is a games-only convention until `tasks/demos-exit-if-not-main.md`
+   (proposed) brings the demos in line.
 4. **Only what this game uses.** boing dropped: `Context` (dissolved into `ASSET_ROOT` from
    `__file__` plus the module-level `renderer`), the `Drawable`/`RGBASource` protocols and the
    `Point`/`PointLike`/`Anchor`/`Color*` aliases, `Image.from_rgba/get_width/get_height`,
@@ -58,7 +57,8 @@ Read `ports/codetheclassics/vol1/boing/boing.py` top to bottom; this is the targ
    primitives VAO/VBO, `draw_image(src=…)`, the `_Keys` class and the `k_*`/modifier key table
    (the key table is now the seven keys boing reads), `_Mixer` and the `mixer.quit()/init()`
    boilerplate, the `_text = audio = sys.modules[__name__]` alias, the dead `sign()`.
-   1854 → 1270 lines (−31%); `boing_gl1.py` 1724 → 1170.
+   1854 → 1270 lines at the pilot (−31%); `boing_gl1.py` 1724 → 1170 — the final numbers, after the
+   later refinements, are in §6.
 5. **Dataclasses.** Engine state objects are `@dataclass(slots=True)` (`_Voice`, `_Engine`,
    `Sound`, `_Music`, `_Loader[T]`, `Keyboard`); game objects keep `eq=False` (identity
    semantics) and add `slots=True`. **Every attribute is a declared field** — that is what
@@ -96,7 +96,7 @@ Read `ports/codetheclassics/vol1/boing/boing.py` top to bottom; this is the targ
    `getattr(sounds, …)`, `space_pressed = keyboard.space and not space_down`. The upstream
    teaching comments on the *game logic* (the ball physics essay, the AI weighting) stay
    verbatim; only pygame-framed comments were rewritten, keeping their rationale.
-9. **Field documentation — comments, in Sphinx's `#:` form (recommendation).** The maintainer
+9. **Field documentation — comments, in Sphinx's `#:` form (maintainer's decision).** The maintainer
    asked (2026-09-05) whether Python has a standard way to attach a description to a dataclass
    field instead of a comment. Researched: `dataclasses.field(metadata=…)` exists but the docs
    say it "is not used at all by Data Classes, and is provided as a third-party extension
@@ -159,9 +159,10 @@ meaningless; not frozen because `fb_width`/`fb_height` change every frame — an
 `Image` is a dataclass of `rgba` plus the lazy `_tex`, `width`/`height` are properties, and
 `Image.load(path)` / `Image.from_rgba(arr)` are its factories (vol2: `Surface.create(...)`,
 `Mask.from_image(...)`). The fixed-function `Renderer1x` gets its own `create`, so `boing.py` and
-`boing_gl1.py` share the same window line. Done by the idempotent codemod
-`tasks/adhoc/codetheclassics-tighten-games/renderer_dataclasses.py` (re-running it on a converted
-file is a no-op), verified frame-identical on all six games. This is also the answer to §1a's
+`boing_gl1.py` share the same window line. The split was done by the idempotent codemod
+`renderer_dataclasses.py` (one-shot; removed 2026-09-06 when its task archived, in git history under
+the archived umbrella), verified frame-identical on all six vol1 files, and the vol2 splice produced
+the shape directly. This is also the answer to §1a's
 "constructors that compute the base's inputs": the computation moves to a factory. Applying that
 to the Actor hierarchies (bunner's rows, myriapod's `Rock`) is a candidate follow-up, not done.
 
@@ -177,10 +178,15 @@ hand-written `__init__` (what the factory split left behind), a sentinel `InitVa
 class (it is the annotation type everywhere). Private helpers (`_link_program`, `_make_buffer`)
 and transformations (`scale_image`) stay free functions.
 
+**The renderer's matrices are defined with gacalc (2026-09-06).** `MODEL` (the sprite's translate
++ scale) is a `MatrixTemplate` compiled once at import from `to_matrix` over sympy symbols and
+filled per draw; `ortho_pixels` is `to_matrix` with numbers, once per renderer. Why, the numbers, and
+the library-side follow-up: `tasks/reference/gacalc-transforms-in-the-renderer.md`.
+
 ## 2. Deliberately NOT changed in boing (and why)
 
-- ~~`Image` and `Renderer`/`Renderer1x` keep their hand-rolled `__init__`s.~~ **Superseded
-  2026-09-05:** the maintainer decided the shape — see §1b below — and it is applied everywhere.
+- (The pilot had kept `Image` and `Renderer`/`Renderer1x`'s hand-rolled `__init__`s; the maintainer
+  decided their shape the same day — §1b — and it was applied everywhere.)
 - **The shader keeps its flat-colour branch** (`uUseTex`/`uTint`) even though boing only draws
   untinted sprites — so boing's renderer stays the same program the richer games run. A comment
   says so. Cutting it is a renderer decision, not a tightening one.
@@ -204,14 +210,15 @@ handful of doc lines and in the one `_text = audio = … = sys.modules[__name__]
 | vol2 | eggzy ≡ beatstreets ≡ leadingedge (identical modulo a 1–3 line offset); kinetix, avenger the same set with `mask transform joystick` | + `mask transform joystick`, `_MixerSound` |
 
 Consequence for method: **the engine half of a family is produced by a script, from boing's**:
-`tasks/adhoc/codetheclassics-tighten-games/splice_vol1_engine.py <name> <Title> <keys>` builds the
-vol1-minimal engine (boing's tightened engine + a float `Rect` dataclass + the slotted `Actor`),
-parameterised only by the game name, window title and the key names the game reads; cavern was
-built that way (2026-09-05) and myriapod reuses it. Hand-tighten only the game halves. The family
-engine carries the UNION of its games' needs (e.g. `Actor.anchor`'s setter is myriapod's, not
-cavern's) — that union is exactly what step 3 will find shared. This
-also matters for step 3 of `tasks/pgzero-gl-inline-strip-reextract.md` (re-extract the shared
-library): what is "genuinely shared in the same shape" is already visible per family.
+`splice_vol1_engine.py <name> <Title> <keys>` built the vol1-minimal engine (boing's tightened engine
++ a float `Rect` dataclass + the slotted `Actor`), parameterised only by the game name, window title
+and the key names the game reads; cavern was built that way and myriapod reused it. Only the game
+halves were hand-tightened. The family engine carries the UNION of its games' needs (e.g.
+`Actor.anchor`'s setter is myriapod's, not cavern's) — that union is exactly what step 3 of
+`tasks/pgzero-gl-inline-strip-reextract.md` (re-extract the shared library; parked) will find
+shared: what is "genuinely shared in the same shape" is already visible per family. Both splice
+scripts were one-shot and were removed 2026-09-06 when the umbrella's scripts were archived (git
+history has them); the flag lists in §6 are what they recorded.
 
 Two per-game exceptions the reader census found and the splice must respect: **leadingedge is the
 only game that uses `Sound.play(loops=…, fade_ms=…)`, `Sound.fadeout/set_volume`** (so the mixer's
@@ -263,9 +270,10 @@ it compares dumps structurally, ignoring named keys and collapsing named classes
   whole scooter-engine channel path (`EnemyScooterboy`, ~130 lines) is dead at runtime.
 - **`update(dt)` arity:** leadingedge is the only game whose `update` takes a delta; its loop
   passes `_dt`.
-- **`# ty: ignore` suppressions in the game halves** exist (soccer/bunner/avenger
+- **`# ty: ignore` suppressions in the game halves** existed (soccer/bunner/avenger
   `invalid-method-override` on widened `draw()`; bunner `scroll_pos`; eggzy `:4241`; beatstreets
-  ×5) — a tightening pass should try to remove the *cause*, not carry them forward.
+  ×5); the pass removed every cause (`draw_at` for the widened overrides, `float`-typed accumulators)
+  rather than carrying them forward.
 
 ## 5. Verification — the harnesses (promoted to `tools/` on 2026-09-05 when the umbrella archived)
 
@@ -273,7 +281,7 @@ it compares dumps structurally, ignoring named keys and collapsing named classes
   committed baseline (`git show <ref>:<game>` written beside the game so assets resolve),
   baseline captured twice (determinism check) then the working file, compared with ImageMagick
   `AE`. `--against <other.py>` compares two working-tree files (boing vs boing_gl1). Reuses the
-  step-1 `capture_frame.py`. Covers **the no-input attract mode only**.
+  `tools/ctc_capture_frame.py`. Covers **the no-input attract mode only**.
 - **`tools/ctc_state_trace.py <game.py> <frames> <keyscript> [skip]`** — the input-path complement: seeds
   `random`, stubs `miniaudio` (its device open can block headless), runs the file as `__main__`
   with `glfw.window_should_close` patched to `True` (window + renderer get built, zero frames run),
@@ -302,7 +310,7 @@ it compares dumps structurally, ignoring named keys and collapsing named classes
   that actually reaches the code you changed — boing's first script never made a bat hit the
   ball (0 impacts); the second one covered MENU→PLAY, 72 impact frames, 7 AI offsets, ball speed
   to 9, scores to 7.
-- boing's record: frame 180 AE=0 for `boing.py` vs HEAD, `boing_gl1.py` vs HEAD, and
+- The pilot's record: frame 180 AE=0 for `boing.py` vs HEAD, `boing_gl1.py` vs HEAD, and
   `boing_gl1.py` vs `boing.py`; 1500-frame input trace byte-identical across all three; ruff +
   `ty check ports/codetheclassics/vol1` clean (`make format` was red at the time on 36 gacalc-
   invariance diagnostics in `src`/`tests`; green since the gacalc 0.0.19 pin, 2026-09-06 —
@@ -313,22 +321,22 @@ it compares dumps structurally, ignoring named keys and collapsing named classes
   SIGKILLed container) — restart it (`pkill -x Xvfb; Xvfb :99 …`) and rerun; nested shell quoting
   silently emptied a key script once (pass scripts via a mounted file, not nested `-c` strings).
 
-## 6. Outcome (2026-09-05) — numbers, deviations, and what step 3 inherits
+## 6. Outcome — numbers, deviations, and what step 3 inherits
 
-| game | lines before | after | change | pygame/pgzero mentions left |
+| game | lines before (2026-09-05, pre-tightening HEAD) | after (2026-09-06 tree) | change | pygame/pgzero mentions left |
 |---|---|---|---|---|
-| boing | 1854 | 1367 | −26% | 2 |
-| boing_gl1 | 1724 | 1222 | −29% | 2 |
-| cavern | 2971 | 2010 | −32% | 2 |
-| myriapod | 3081 | 2119 | −31% | 2 |
-| bunner | 3583 | 2248 | −37% | 2 |
-| soccer | 3886 | 2620 | −33% | 2 |
-| kinetix | 4124 | 2653 | −36% | 2 |
-| avenger | 4456 | 2989 | −33% | 2 |
-| eggzy | 4727 | 3326 | −30% | 4 |
-| leadingedge | 5151 | 3784 | −27% | 2 |
-| beatstreets | 6022 | 4749 | −21% | 3 |
-| **all eleven files** | **41579** | **29087** | **−30%** | (the `PGZERO_MAX_FRAMES` env var, plus the int-Rect rationale in eggzy/beatstreets) |
+| boing | 1854 | 1431 | −23% | 2 |
+| boing_gl1 | 1724 | 1224 | −29% | 2 |
+| cavern | 2971 | 2078 | −30% | 2 |
+| myriapod | 3081 | 2188 | −29% | 2 |
+| bunner | 3583 | 2316 | −35% | 2 |
+| soccer | 3886 | 2688 | −31% | 2 |
+| kinetix | 4124 | 2721 | −34% | 2 |
+| avenger | 4456 | 3057 | −31% | 2 |
+| eggzy | 4727 | 3394 | −28% | 4 |
+| leadingedge | 5151 | 3851 | −25% | 2 |
+| beatstreets | 6022 | 4817 | −20% | 3 |
+| **all eleven files** | **41579** | **29765** | **−28%** | the `PGZERO_MAX_FRAMES` env var; the int-Rect rationale in eggzy and beatstreets |
 
 **Per-game engine flags** (the vol2 splice's, the map of what each game actually uses — step 3's
 "genuinely shared in the same shape" question starts here): kinetix `surface,joystick,clip`;
@@ -356,9 +364,21 @@ into a crash — write the deliberate `pass` arms; `Game`'s `player`-less attrac
 only in leadingedge; the loop-carried `prev_*` pattern in leadingedge's draw is a dataclass in
 disguise (`TrackPieceScreen`).
 
+## 7. After the pass (2026-09-06)
+
+The maintainer's play-test passed; the dead smoke test was deleted; the factories became
+`@classmethod`s (§1b); the `PointLike` boundary type was measured and kept
+(`tasks/reference/point-type-decision.md`); the renderers' matrices were redefined with gacalc
+(`tasks/reference/gacalc-transforms-in-the-renderer.md`), with the library-side version filed in
+geometricalgebra (`tasks/matrix-template-compile-once.md`) and mvp's consumer task blocked on it
+(`tasks/ctc-use-gacalc-matrix-template.md`); the one-shot codemods were removed and the harnesses
+live in `tools/` (`ctc_verify_game.sh`, `ctc_capture_frame.py`, `ctc_state_trace.py`,
+`ctc_compare_traces.py`, `ctc_profile_update.py`). Step 3 of the inline initiative stays parked.
+
 ## Related
 
-- `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` — the umbrella (per-game checklist, decisions log, completion record).
+- `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` — the umbrella (the story of the pass, per-game table, outcome).
+- `tasks/reference/point-type-decision.md`, `tasks/reference/gacalc-transforms-in-the-renderer.md`, `tasks/reference/tests-and-gates.md` — the follow-on decisions and the gates.
 - `tasks/archive/2026/09/05/codetheclassics-tighten-boing.md` — the pilot's work record (archived after sign-off).
 - `tasks/reference/library-not-framework-authorship-style.md` — why demo style is the target.
 - `tasks/reference/pgzero-gl-design-for-a-personal-learning-library.md` — the shim's design and

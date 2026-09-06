@@ -53,10 +53,7 @@ never happening** (leaving 11 divergent ~3.4k-line copies), so the re-extraction
 **Side branch (not a step):** `tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md` — a GL 1.4 fixed-function companion `boing_gl1.py`
 beside the 3.3 `boing.py`, for studying the pipeline difference. Independent of step 3; awaiting go-ahead.
 
-> **Adhoc cleanup at final archive (marked 2026-09-05):** when this initiative wraps and its `tasks/adhoc/pgzero-gl-*`
-> scripts are triaged, **`git rm tasks/adhoc/pgzero-gl-boing-gl14/make_boing_gl1.py`** — it is a one-shot generator
-> (its task archived 2026-09-05); kept for now only to avoid disturbing the adhoc tree while step 3 still needs the
-> sibling `pgzero-gl-inline/capture_frame.py` harness. (Maintainer: leave it for now, delete at that archive.)
+> **Adhoc cleanup DONE 2026-09-06** (the maintainer: "archive the one-shot adhoc scripts now"): `tasks/adhoc/pgzero-gl-inline/` and `pgzero-gl-boing-gl14/` are gone (`git rm`; history under the archived step tasks); `capture_frame.py` was promoted to `tools/ctc_capture_frame.py` because `tools/ctc_verify_game.sh` depends on it.
 
 Ordering is expressed by priority + a "Depends on" note, NOT by `blocked` (that status is reserved for
 *external* gates; a step waiting on an earlier step is within our control — just do them in order).

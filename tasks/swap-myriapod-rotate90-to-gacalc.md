@@ -46,7 +46,7 @@ source of truth for "multiply a vector by the unit pseudoscalar to turn it a qua
 3. Keep `inverse(...)` for the −90° arm exactly as now (gacalc's version is an `InvertibleFunction`,
    so `inverse(quarter_turn)` works identically).
 4. **Verify behavior-identical** — the sprite-direction turns must be pixel-for-pixel unchanged. Run
-   the seeded frame-capture check (`tasks/adhoc/pgzero-gl-inline/capture_frame.py`) on myriapod
+   the seeded frame-capture check (`tools/ctc_verify_game.sh`) on myriapod
    before/after: frame-180 byte-identical. Then `make test` + `make format` green.
 
 ## Done-state

@@ -121,7 +121,7 @@ scrollers do exactly that, in its simplest form.
 
 > **Two scrollers were tried and left raw (2026-09-05).** Converting `bunner`/`avenger`'s
 > world→screen to `inverse(translate(camera))` was attempted and declined — not for effort, for
-> structure: `bunner`'s `draw(offset_x, offset_y)` is dual-role (camera scroll *and* row→child
+> structure: `bunner`'s `draw(offset_x, offset_y)` (`draw_at` since the 2026-09-05 tightening) is dual-role (camera scroll *and* row→child
 > nesting share the one signature, mutated in place), and `avenger`'s "camera" y is a *derived,
 > clamped* `player.y/4` plus parallax and x-wrap — not a camera placement, so `inverse(translate)`
 > would misrepresent it. `soccer` + `beatstreets` are the two clean showcases; detail in archived

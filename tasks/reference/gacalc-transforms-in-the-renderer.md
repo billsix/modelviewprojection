@@ -5,7 +5,7 @@ transforms (`github.com/billsix/geometricalgebra`, `gacalc.transforms`) — what
 the pattern that makes "gacalc as the single source of truth for the GPU matrix" free. Harvested
 2026-09-06 from `tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md` (the 2026-09-04
 study) and `tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md` (the perf half, measured
-2026-09-06 with `tasks/adhoc/pgzero-gl-renderer-matrix-via-gacalc-perf/bench_model_matrix.py`, gacalc 0.0.19).
+2026-09-06 with `bench_model_matrix.py`, removed 2026-09-06 when its task archived (one-shot; in git history under the archived task),, gacalc 0.0.19).
 Project: `github.com/billsix/modelviewprojection`.
 
 ## The bridge exists and matches mvp's convention
@@ -76,12 +76,21 @@ renderer. `_translate`/`_scale` are gone. Gated frame-identical and trace-identi
 gacalc feature (geometricalgebra `tasks/matrix-template-compile-once.md`, a method on the function
 types) and the ten copies are deleted — mvp `tasks/ctc-use-gacalc-matrix-template.md`, blocked on it.
 
-## The recommendation as it stood before adoption (Fable, 2026-09-06)
+## How the decision was reached
 
-- Keep the direct path as is; nothing hand-rolled remains that a gacalc transform would express better.
-- The renderer's `uModel` **can** come from gacalc at no cost with the compile-once pattern; whether to
-  do it is a taste call ("one source of truth" vs. eleven engine copies + gates to re-run, and step 3
-  of `tasks/pgzero-gl-inline-strip-reextract.md` — parked — would be the natural moment). Filed as
-  `tasks/renderer-model-matrix-from-gacalc.md` (READY, awaiting go-ahead) with the exact code.
-- If it is done, `boing_gl1`'s fixed-function `glTranslatef`/`glScalef` path is out of scope (no matrix
-  to build).
+- **2026-09-03/04, the study** (`tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md`):
+  the maintainer wanted his own gacalc math to be the single source of truth for the renderer's
+  transforms, either converted to the GL matrix or applied directly to vectors. The crux — does gacalc
+  have a clean transform-to-matrix bridge? — was answered yes (`to_matrix`, mvp's convention); the
+  inventory showed the direct path already gacalc and the renderer's `uModel` rotation-free. First
+  perf measurement: `to_matrix` per draw at 1669 µs, 492× the hand-built numpy — so the study
+  recommended leaving the renderer alone, and the perf half became its own task.
+- **2026-09-06, the perf investigation** (`tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md`):
+  re-measured under gacalc 0.0.19 (514 µs, 161×) and found the compile-once path above (0.47 µs, 7×
+  *faster* than the numpy it replaces), which turned "leave it" into a taste call. The maintainer
+  ("I love it") adopted it the same day, with the translation written as gacalc's linear-combination
+  idiom; all ten GL 3.3 engines were converted and gated. `boing_gl1`'s fixed-function
+  `glTranslatef`/`glScalef` path has no matrix to build and stays as is.
+- **Next:** the template moves into gacalc as a method on the function types (geometricalgebra
+  `tasks/matrix-template-compile-once.md`, "eventually, not today"), and the ten copies are then
+  deleted (mvp `tasks/ctc-use-gacalc-matrix-template.md`, blocked on it).

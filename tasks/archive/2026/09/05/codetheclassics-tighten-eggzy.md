@@ -61,7 +61,7 @@ bounds" — why `get_rect` is custom), 4183–4184 (why `screen.surface.blit` wi
 (`getattr` idiom — moot with `load()`); 2895 as "no-op here"; **delete/rewrite:** 4454 false,
 4617 (mixer restart — no-ops now), 4646 false, 4648 → banner; 4697 env var.
 
-## Plan / Verify / Open questions
+## Plan, as scaffolded before the work (the record below is what happened)
 
 Engine: splice kinetix's, restore `draw_image(src=…)`, `screen.draw.rect`, `gldraw.rect`,
 joystick. Game: `Game`/`Player` fields, the `match` conversions, `join`, header (vol 2 © 2024),

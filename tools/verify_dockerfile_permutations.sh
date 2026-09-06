@@ -1,7 +1,10 @@
 #!/usr/bin/env bash
 #
-# verify-permutations.sh -- prove the REAL Dockerfile installs the right package
-# groups for different feature-flag permutations.
+# verify_dockerfile_permutations.sh -- prove the REAL Dockerfile installs the
+# right package groups for different feature-flag permutations. Run it after
+# changing the Dockerfile's flag-gated groups or an entrypoint/0N-install-*.sh
+# script (promoted from tasks/adhoc/extract-dockerfile-steps-into-host-scripts/
+# on 2026-09-06; repo root as CWD).
 #
 # The flag logic lives in the Dockerfile (per-group 0N-install-*.sh scripts take no
 # options; the Dockerfile's ARG `if` blocks decide which run). So the honest test is to
@@ -21,7 +24,7 @@
 # on -- and never transitive dependencies. So a group's representative package appears
 # in that set IFF that group's script ran. Immune to both problems above.
 #
-# Run from the repo root:  bash tasks/adhoc/.../verify-permutations.sh
+# Run from the repo root:  bash tools/verify_dockerfile_permutations.sh
 # Requires nested podman (this sandbox) and network. The buildkit layer cache + dnf
 # cache mount make re-runs fast. Each image is removed after checking.
 set -uo pipefail

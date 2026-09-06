@@ -17,8 +17,7 @@ compared with a version-aware sort).
 Each of the ten OpenGL 3.3 game engines (`ports/codetheclassics/vol1/{boing,bunner,cavern,myriapod,
 soccer}/*.py`, `vol2/{avenger,beatstreets,eggzy,kinetix,leadingedge}/*.py`; not `boing_gl1.py`,
 whose fixed-function path has no matrix) carries an identical ~50-line `MatrixTemplate` dataclass and
-the `MODEL`/`ortho_pixels` definitions built with it (added 2026-09-06 by
-`tasks/adhoc/renderer-model-matrix-from-gacalc/model_matrix_from_gacalc.py`, gated frame-identical).
+the `MODEL`/`ortho_pixels` definitions built with it (added 2026-09-06 by the codemod `model_matrix_from_gacalc.py`, gated frame-identical; the script was removed 2026-09-06 when its task archived (one-shot; in git history under the archived task)).
 Once gacalc provides the same thing, delete the ten copies and build `MODEL` with the library call;
 `ortho_pixels` keeps calling `to_matrix` with numbers. Byte-identical output expected; the usual
 gates apply.
