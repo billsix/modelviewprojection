@@ -40,6 +40,7 @@ import sympy
 from gacalc.g2 import Vector
 from gacalc.transforms import (
     InvertibleFunction,
+    MatrixTemplate,
     compose,
     inverse,
     scale_non_uniform,
@@ -665,75 +666,15 @@ def _identity() -> NDArray[np.float32]:
     return np.identity(4, dtype=np.float32)
 
 
-# The sprite's model matrix (scale the unit quad to w x h, then move it to
-# (tx, ty) pixels) and the orthographic projection are DEFINED with gacalc's
-# transforms -- the course's own math -- and converted to the GL 4x4 by
-# ``to_matrix``, which puts the translation in the last column (column vectors,
-# premultiply; the ``GL_TRUE`` on upload transposes into GL's layout). The model
-# matrix is needed per sprite per frame, so it is converted ONCE, at import,
-# over sympy symbols, into a template that a draw fills by poking four numbers:
-# 0.47 microseconds a sprite, against 3.19 for two numpy matrices and a matmul
-# (tasks/reference/gacalc-transforms-in-the-renderer.md).
-
-
-@dataclass(slots=True, frozen=True)
-class MatrixTemplate:
-    """A 4x4 matrix with a few varying entries: its constant part, and the
-    (row, column, parameter) of each entry that is a parameter -- read off a
-    gacalc transform built over sympy symbols. Build one with
-    :meth:`MatrixTemplate.compile`.
-    """
-
-    #: the matrix with every parameter entry zeroed
-    constants: NDArray[np.float32]
-    #: (row, column, index into fill()'s arguments) per parameter entry
-    slots: tuple[tuple[int, int, int], ...]
-
-    @classmethod
-    def compile(
-        cls, fn: InvertibleFunction[g3.Vector], params: Sequence[sympy.Symbol]
-    ) -> MatrixTemplate:
-        """The template of ``fn``, a gacalc transform over the symbols ``params``."""
-        m = to_matrix(fn, g3.Vector, backend="sympy")
-        assert isinstance(m, sympy.Matrix)
-        constants: NDArray[np.float32] = np.array(
-            [
-                [
-                    0.0 if m[i, j].free_symbols else float(m[i, j])
-                    for j in range(4)
-                ]
-                for i in range(4)
-            ],
-            dtype=np.float32,
-        )
-        slots = tuple(
-            (i, j, params.index(m[i, j]))
-            for i in range(4)
-            for j in range(4)
-            if m[i, j].free_symbols
-        )
-        return cls(constants, slots)
-
-    def fill(self, *params: float) -> NDArray[np.float32]:
-        """The matrix for these parameter values."""
-        m: NDArray[np.float32] = self.constants.copy()
-        for row, col, k in self.slots:
-            m[row, col] = params[k]
-        return m
-
-
 _TX, _TY, _W, _H = sympy.symbols("tx ty w h")
 #: The model matrix: scale the unit quad to (w, h), then translate to (tx, ty);
 #: ``MODEL.fill(tx, ty, w, h)``
-MODEL: MatrixTemplate = MatrixTemplate.compile(
-    compose(
-        [
-            translate(b=_TX * g3.Vector.e_1 + _TY * g3.Vector.e_2),
-            scale_non_uniform(_W, _H, 1),
-        ]
-    ),
-    (_TX, _TY, _W, _H),
-)
+MODEL: MatrixTemplate = compose(
+    [
+        translate(b=_TX * g3.Vector.e_1 + _TY * g3.Vector.e_2),
+        scale_non_uniform(_W, _H, 1),
+    ]
+).to_matrix_template(g3.Vector, (_TX, _TY, _W, _H))
 
 
 def ortho_pixels(width: float, height: float) -> NDArray[np.float32]:

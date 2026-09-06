@@ -1,6 +1,6 @@
 # Swap myriapod's local `rotate_90_degrees` for gacalc's `g2.rotate_90_degrees` (on the next gacalc release)
 
-**Status:** ready — gacalc HAS the feature (implemented 2026-09-06 in its working tree as
+**Status:** DONE — 2026-09-06. myriapod now imports gacalc's g2.rotate_90_degrees() factory; frame gate AE=0. gacalc pinned 0.0.20 (requirements.txt + Dockerfile). ty + ruff + 104 pytest green. Archived same day. — gacalc HAS the feature (implemented 2026-09-06 in its working tree as
 `g2.rotate_90_degrees()` + `g2.Vector.rotate_90_degrees()`, record
 `tasks/archive/2026/09/06/add-quarter-turn-to-g2.md` in github.com/billsix/geometricalgebra).
 Unblocked by the maintainer 2026-09-06; step 1 below is the gacalc release itself (PyPI was at

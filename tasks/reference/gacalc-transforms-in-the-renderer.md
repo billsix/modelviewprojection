@@ -106,3 +106,15 @@ pin is bumped: mvp `tasks/ctc-use-gacalc-matrix-template.md`, ready.
   the same day; gacalc implemented `to_matrix_template` / `MatrixTemplate` (24 tests across 𝒢₂/𝒢₃,
   linear/affine) for release 0.0.20. The ten copies are deleted once mvp pins it
   (`tasks/ctc-use-gacalc-matrix-template.md`, ready).
+
+## Update 2026-09-06 — the per-game `MatrixTemplate` copies are gone
+
+gacalc 0.0.20 shipped `to_matrix_template` / `MatrixTemplate` (the compile-once
+template this doc describes), so the ten identical per-game `MatrixTemplate`
+classes were deleted and each `MODEL` is now built with the library call —
+`compose([...]).to_matrix_template(g3.Vector, (_TX, _TY, _W, _H))`, typed
+`MODEL: MatrixTemplate` (imported from `gacalc.transforms`); `MODEL.fill(...)`
+call sites unchanged, output bit-identical (all ten games' frame gate AE=0).
+myriapod's local `rotate_90_degrees` was likewise replaced by gacalc's
+`g2.rotate_90_degrees()` factory. Pin bumped to `gacalc==0.0.20` in
+`requirements.txt` + the Dockerfile. Codemod: `tasks/adhoc/ctc-use-gacalc-matrix-template/apply.py`.

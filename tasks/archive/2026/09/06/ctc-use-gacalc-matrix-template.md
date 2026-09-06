@@ -1,6 +1,6 @@
 # Code the Classics: use gacalc's matrix template, delete the ten `MatrixTemplate` copies
 
-**Status:** ready — gacalc HAS the feature (`to_matrix_template` / `MatrixTemplate` + the method
+**Status:** DONE — 2026-09-06. ten MatrixTemplate copies deleted, MODEL built with gacalc to_matrix_template; all ten frame gates AE=0. gacalc pinned 0.0.20 (requirements.txt + Dockerfile). ty + ruff + 104 pytest green. Archived same day. — gacalc HAS the feature (`to_matrix_template` / `MatrixTemplate` + the method
 forms on `ComposableFunction`, implemented 2026-09-06; record
 `tasks/archive/2026/09/06/matrix-template-compile-once.md` in `github.com/billsix/geometricalgebra`).
 Unblocked by the maintainer 2026-09-06 ("I'll make a release of geometricalgebra today"); step 1

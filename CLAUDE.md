@@ -213,7 +213,7 @@ its fate — it, not the games, carries the LGPL question.
     first), one function per line, instead of the formatter's dangling `@` with exploded arguments.
     Applied to the ten engines' `MODEL`/`ortho_pixels` and demo07's paddle transforms. numpy's
     matrix `@` (the `mvpvisualization` demos, `test_cayley_scene`) is not composition and keeps `@`.
-  - **gacalc vectors are FROZEN** (since 0.0.14; pin now 0.0.19): a coordinate is changed by
+  - **gacalc vectors are FROZEN** (since 0.0.14; pin now 0.0.20): a coordinate is changed by
     rebinding, never in place — `self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)`. A field
     write raises `FrozenInstanceError`; a property write (`v.x = …`) raises a confusing
     `TypeError: super(type, obj)…` (a Python 3.14 frozen+slots+property quirk gacalc keeps). **`ty`

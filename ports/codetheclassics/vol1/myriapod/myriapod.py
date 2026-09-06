@@ -24,7 +24,7 @@ import signal
 import sys
 import threading
 import time
-from collections.abc import Callable, Generator, Iterator, Sequence
+from collections.abc import Callable, Generator, Iterator
 from dataclasses import InitVar, dataclass, field
 from enum import Enum, IntEnum
 from random import choice, randint, random
@@ -35,9 +35,10 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 import sympy
-from gacalc.g2 import Vector, e_12
+from gacalc.g2 import Vector, rotate_90_degrees
 from gacalc.transforms import (
     InvertibleFunction,
+    MatrixTemplate,
     compose,
     identity,
     inverse,
@@ -534,75 +535,15 @@ def _identity() -> NDArray[np.float32]:
     return np.identity(4, dtype=np.float32)
 
 
-# The sprite's model matrix (scale the unit quad to w x h, then move it to
-# (tx, ty) pixels) and the orthographic projection are DEFINED with gacalc's
-# transforms -- the course's own math -- and converted to the GL 4x4 by
-# ``to_matrix``, which puts the translation in the last column (column vectors,
-# premultiply; the ``GL_TRUE`` on upload transposes into GL's layout). The model
-# matrix is needed per sprite per frame, so it is converted ONCE, at import,
-# over sympy symbols, into a template that a draw fills by poking four numbers:
-# 0.47 microseconds a sprite, against 3.19 for two numpy matrices and a matmul
-# (tasks/reference/gacalc-transforms-in-the-renderer.md).
-
-
-@dataclass(slots=True, frozen=True)
-class MatrixTemplate:
-    """A 4x4 matrix with a few varying entries: its constant part, and the
-    (row, column, parameter) of each entry that is a parameter -- read off a
-    gacalc transform built over sympy symbols. Build one with
-    :meth:`MatrixTemplate.compile`.
-    """
-
-    #: the matrix with every parameter entry zeroed
-    constants: NDArray[np.float32]
-    #: (row, column, index into fill()'s arguments) per parameter entry
-    slots: tuple[tuple[int, int, int], ...]
-
-    @classmethod
-    def compile(
-        cls, fn: InvertibleFunction[g3.Vector], params: Sequence[sympy.Symbol]
-    ) -> MatrixTemplate:
-        """The template of ``fn``, a gacalc transform over the symbols ``params``."""
-        m = to_matrix(fn, g3.Vector, backend="sympy")
-        assert isinstance(m, sympy.Matrix)
-        constants: NDArray[np.float32] = np.array(
-            [
-                [
-                    0.0 if m[i, j].free_symbols else float(m[i, j])
-                    for j in range(4)
-                ]
-                for i in range(4)
-            ],
-            dtype=np.float32,
-        )
-        slots = tuple(
-            (i, j, params.index(m[i, j]))
-            for i in range(4)
-            for j in range(4)
-            if m[i, j].free_symbols
-        )
-        return cls(constants, slots)
-
-    def fill(self, *params: float) -> NDArray[np.float32]:
-        """The matrix for these parameter values."""
-        m: NDArray[np.float32] = self.constants.copy()
-        for row, col, k in self.slots:
-            m[row, col] = params[k]
-        return m
-
-
 _TX, _TY, _W, _H = sympy.symbols("tx ty w h")
 #: The model matrix: scale the unit quad to (w, h), then translate to (tx, ty);
 #: ``MODEL.fill(tx, ty, w, h)``
-MODEL: MatrixTemplate = MatrixTemplate.compile(
-    compose(
-        [
-            translate(b=_TX * g3.Vector.e_1 + _TY * g3.Vector.e_2),
-            scale_non_uniform(_W, _H, 1),
-        ]
-    ),
-    (_TX, _TY, _W, _H),
-)
+MODEL: MatrixTemplate = compose(
+    [
+        translate(b=_TX * g3.Vector.e_1 + _TY * g3.Vector.e_2),
+        scale_non_uniform(_W, _H, 1),
+    ]
+).to_matrix_template(g3.Vector, (_TX, _TY, _W, _H))
 
 
 def ortho_pixels(width: float, height: float) -> NDArray[np.float32]:
@@ -1122,18 +1063,12 @@ def cell2pos(
     return ((cell_x * 32) + 32 + x_offset, (cell_y * 32) + 16 + y_offset)
 
 
-# A 90-degree turn in the e_1 e_2 plane. In 2-D geometric algebra that turn IS
-# multiplication by the unit pseudoscalar e_12: (x, y) -> (-y, x). It is EXACT
-# (e_12's components are +/-1, so no sin/cos and no floating-point error, unlike
-# a general rotate(theta) rotor). Named as an InvertibleFunction so it composes:
-# a segment's entry edge selects a 0/90/180/270-degree turn (I^0..I^3), which is
-# rotate_90_degrees applied in_edge times -- the _rotations table below.
-rotate_90_degrees: InvertibleFunction[Vector] = InvertibleFunction(
-    func=lambda v: v * e_12,
-    latex_repr=r"R_{+90}",
-    inverse=lambda v: v * -e_12,
-    latex_repr_inv=r"R_{-90}",
-)
+# A 90-degree turn in the e_1 e_2 plane: multiplication by the unit pseudoscalar
+# e_12, (x, y) -> (-y, x). EXACT (no sin/cos), so it composes without drift. This
+# was a local copy until gacalc grew it; it is now gacalc's g2.rotate_90_degrees()
+# -- a factory returning the InvertibleFunction. Bound once and reused for the +90
+# and the -90 (inverse) arms of the _rotations table below.
+_rotate_90: InvertibleFunction[Vector] = rotate_90_degrees()
 # Rotating 90 degrees twice is multiplication by e_12^2 = -1: a 180-degree turn
 # is negation (its own inverse) -- cheaper than composing rotate_90_degrees with
 # itself.
@@ -1148,9 +1083,9 @@ rotate_180_degrees: InvertibleFunction[Vector] = InvertibleFunction(
 # inverse(rotate_90_degrees) rather than three composed turns.
 _rotations: list[InvertibleFunction[Vector]] = [
     identity(),
-    rotate_90_degrees,
+    _rotate_90,
     rotate_180_degrees,
-    inverse(rotate_90_degrees),
+    inverse(_rotate_90),
 ]
 
 
