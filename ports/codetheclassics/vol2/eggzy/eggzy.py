@@ -41,6 +41,7 @@ from gacalc.g2 import Vector
 from gacalc.transforms import (
     MatrixTemplate,
     compose,
+    identity,
     scale_non_uniform,
     to_matrix,
     translate,
@@ -553,9 +554,11 @@ sounds: _Loader[Sound] = _Loader("sounds", ("ogg", "wav", "oga"), Sound)
 # uploaded with ``transpose=GL_TRUE``.
 
 
-def _identity() -> NDArray[np.float32]:
-    """Return a 4x4 identity matrix."""
-    return np.identity(4, dtype=np.float32)
+#: The 4x4 identity model matrix, built once at import through gacalc --
+#: the same machinery as ``ortho_pixels`` / ``MODEL``.
+_IDENTITY: NDArray[np.float32] = np.asarray(
+    to_matrix(identity(), g3.Vector), dtype=np.float32
+)
 
 
 _TX, _TY, _W, _H = sympy.symbols("tx ty w h")
@@ -812,7 +815,7 @@ class Renderer:
         GL.glBufferData(
             GL.GL_ARRAY_BUFFER, verts.nbytes, verts, GL.GL_DYNAMIC_DRAW
         )
-        GL.glUniformMatrix4fv(self.uniforms.model, 1, GL.GL_TRUE, _identity())
+        GL.glUniformMatrix4fv(self.uniforms.model, 1, GL.GL_TRUE, _IDENTITY)
         GL.glUniform1i(self.uniforms.use_tex, 0)
         r, g, b = color
         GL.glUniform4f(self.uniforms.tint, r / 255.0, g / 255.0, b / 255.0, 1.0)

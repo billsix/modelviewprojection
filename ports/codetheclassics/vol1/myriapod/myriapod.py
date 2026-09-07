@@ -530,11 +530,6 @@ sounds: _Loader[Sound] = _Loader("sounds", ("ogg", "wav", "oga"), Sound)
 # uploaded with ``transpose=GL_TRUE``.
 
 
-def _identity() -> NDArray[np.float32]:
-    """Return a 4x4 identity matrix."""
-    return np.identity(4, dtype=np.float32)
-
-
 _TX, _TY, _W, _H = sympy.symbols("tx ty w h")
 #: The model matrix: scale the unit quad to (w, h), then translate to (tx, ty);
 #: ``MODEL.fill(tx, ty, w, h)``

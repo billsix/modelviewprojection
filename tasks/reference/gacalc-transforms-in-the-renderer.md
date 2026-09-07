@@ -121,3 +121,15 @@ myriapod's local `rotate_90_degrees` was likewise replaced by gacalc's
 `requirements.txt` + the Dockerfile. The one-shot codemod that performed the
 rewrite was removed after the change committed (recoverable from git history);
 the work record is `tasks/archive/2026/09/06/ctc-use-gacalc-matrix-template.md`.
+
+## Update 2026-09-07 — the identity model matrix goes through gacalc too
+
+A dead-code sweep found `_identity()` (raw `np.identity(4, dtype=np.float32)`)
+unused in four games and live in six. The four dead copies were deleted; the six
+live ones now build the identity model matrix once at import through the same
+machinery as `ortho_pixels` — a module-level `_IDENTITY: NDArray[np.float32] =
+np.asarray(to_matrix(identity(), g3.Vector), dtype=np.float32)` — so `_identity`
+is gone from all ten games. Bit-identical (frame gate AE=0), since gacalc's
+`to_matrix(backend="numpy")` already returns `np.float32` and identity's entries
+are exact in float32. Work record:
+`tasks/archive/2026/09/07/ctc-identity-cleanup.md`.

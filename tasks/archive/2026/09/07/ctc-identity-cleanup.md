@@ -1,6 +1,6 @@
 # CtC `_identity()` cleanup — remove the dead copies, and consider routing the live ones through gacalc
 
-**Status:** Part A in progress (approved); Part B proposed — needs go-ahead
+**Status:** DONE 2026-09-07 (both parts; staged for the maintainer)
 **Priority:** 5
 **Difficulty:** 2
 
@@ -60,6 +60,14 @@ let `make format` (ruff + ty) confirm. A small idempotent codemod under
 games (`tools/ctc_verify_game.sh`) — must stay AE=0 (the deleted function is
 uncalled, so the render cannot change).
 
+**Done 2026-09-07.** Codemod `tasks/adhoc/ctc-identity-cleanup/apply.py` removed the
+four copies (−5 lines each; idempotent — proven by a second no-op run). `make format`
+(ruff + ty) clean and ruff left all files unchanged (correct spacing). Frame gates
+green: boing / cavern / myriapod / kinetix all `PASS (frame 180 byte-identical, AE=0)`.
+Staged for the maintainer. (Owed follow-up per the stage-don't-commit rule: the one-shot
+codemod is `git rm`'d only after the commit that carries it lands — do it when Part B
+resolves and this task archives, or sooner once Part A's commit exists.)
+
 ## Part B — route the six live `_identity()` through gacalc? (PROPOSED)
 
 The six games (`bunner`, `soccer`, `avenger`, `beatstreets` — 3 call sites —,
@@ -75,22 +83,51 @@ _IDENTITY: NDArray[np.float32] = to_matrix(identity(), g3.Vector).astype(np.floa
 GL.glUniformMatrix4fv(self.uniforms.model, 1, GL.GL_TRUE, _IDENTITY)
 ```
 
-**Risks / things to verify before doing this:**
+Use the **same wrapper the games already use for `ortho_pixels`** —
+`np.asarray(to_matrix(...), dtype=np.float32)` — so the shape mirrors the
+existing code exactly and ty is satisfied (`to_matrix` is annotated
+`np.ndarray | sympy.Matrix`; the `np.asarray(..., dtype=np.float32)` pins it to
+`NDArray[np.float32]`):
 
-- **dtype + contiguity.** `to_matrix(..., backend="numpy")` returns an
-  `np.ndarray` whose dtype is likely float64; `glUniformMatrix4fv` needs a
-  contiguous float32. Keep the `.astype(np.float32)` (and confirm C-contiguity)
-  or the swap is not byte-identical to `np.identity(4, dtype=np.float32)`.
-- **Transpose convention.** The call passes `GL_TRUE` (transpose); identity is
-  symmetric so transpose is a no-op here, but confirm nothing else assumes the
-  helper returns a fresh array per call (it currently allocates each call; a
-  shared module constant is fine only if no caller mutates it — none should).
-- **Is it worth it?** This is a taste/consistency call, not a bug. The counter-
-  argument: `np.identity(4)` is clearer and cheaper than routing a trivial
-  identity through the GA machinery. Decide before implementing.
+```python
+_IDENTITY: NDArray[np.float32] = np.asarray(
+    to_matrix(identity(), g3.Vector), dtype=np.float32
+)
+```
 
-**Verification if approved:** same gates as Part A across all six games —
-frame gate AE=0 (identity is identity, so bit-identical output expected).
+**No dtype hazard (earlier note corrected 2026-09-07).** gacalc's
+`to_matrix(backend="numpy")` and `MatrixTemplate.fill()` already return
+`np.float32` — the games upload gacalc-built `MODEL`/`ortho` straight into
+`glUniformMatrix4fv` today. Identity's entries (0.0, 1.0) are exact in float32,
+so `to_matrix(identity(), g3.Vector)` is **bit-identical** to `np.identity(4,
+dtype=np.float32)`; the `np.asarray(..., dtype=np.float32)` is a no-op copy kept
+only for the annotation and to match `ortho_pixels`. There is no float64 in the
+path (matrices *must* be float32: the `model` uniform is a GLSL `mat4`, set via
+the float variant `glUniformMatrix4fv`, which reads `GLfloat` — ints/float64 do
+not apply).
+
+**One real thing to keep in mind:** a module-level `_IDENTITY` constant is shared
+across all call sites (the old `_identity()` allocated a fresh array each call).
+That is fine because every use is a read-only upload — no caller mutates it.
+
+**Verification:** same gates as Part A across all six games — frame gate AE=0
+(identity is identity, so bit-identical output expected).
+
+**Done 2026-09-07** (maintainer chose consistency: "the identity function exists
+and the machinery to turn it into a matrix at module load time exists — use
+it"). Codemod `tasks/adhoc/ctc-identity-cleanup/route_identity_through_gacalc.py`
+did all six: `identity` added to the `gacalc.transforms` import (isort position,
+after `compose`), `def _identity()` replaced by the module-level `_IDENTITY`
+constant, call sites rewritten (bunner/soccer/avenger/eggzy/leadingedge 1 each,
+beatstreets 3). Idempotent (second run no-op). `make format` clean (ty accepts
+the import and the `NDArray[np.float32]` assignment via the `np.asarray` wrapper;
+ruff left files unchanged). Frame gates: all six `PASS ... AE=0`. Net result:
+`_identity` is gone from all ten games — the four dead copies deleted (Part A),
+the six live ones now build the identity through gacalc like `MODEL`/`ortho`.
+
+**Owed follow-up (stage-don't-commit ordering):** the two one-shot codemods
+(`apply.py`, `route_identity_through_gacalc.py`) are `git rm`'d only *after* the
+commit that carries them lands — do it once the maintainer commits this work.
 
 ## Related
 
