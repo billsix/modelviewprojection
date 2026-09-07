@@ -371,8 +371,8 @@ The maintainer's play-test passed; the dead smoke test was deleted; the factorie
 (`tasks/reference/point-type-decision.md`); the renderers' matrices were redefined with gacalc
 (`tasks/reference/gacalc-transforms-in-the-renderer.md`), and the library-side version shipped in
 geometricalgebra the same day (`to_matrix_template` / `MatrixTemplate`, gacalc 0.0.20; its
-`tasks/archive/2026/09/06/matrix-template-compile-once.md`) with mvp's consumer task ready for the pin
-bump (`tasks/ctc-use-gacalc-matrix-template.md`); the one-shot codemods were removed and the harnesses
+`tasks/archive/2026/09/06/matrix-template-compile-once.md`) and mvp adopted it 2026-09-06 when it
+pinned 0.0.20 (`tasks/archive/2026/09/06/ctc-use-gacalc-matrix-template.md`); the one-shot codemods were removed and the harnesses
 live in `tools/` (`ctc_verify_game.sh`, `ctc_capture_frame.py`, `ctc_state_trace.py`,
 `ctc_compare_traces.py`, `ctc_profile_update.py`). Step 3 of the inline initiative stays parked.
 

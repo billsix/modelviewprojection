@@ -84,8 +84,9 @@ only when the chain fits on one line — see `CLAUDE.md` › gacalc dialect.) `_
 template as a library feature — `to_matrix_template(fn, cls, params)` / `fn.to_matrix_template(...)`
 returning a `MatrixTemplate` with the same `fill(*values)` (and expression entries such as a symbolic
 rotation angle handled via one lambdified call; geometricalgebra
-`tasks/archive/2026/09/06/matrix-template-compile-once.md`) — so the ten copies get deleted once the
-pin is bumped: mvp `tasks/ctc-use-gacalc-matrix-template.md`, ready.
+`tasks/archive/2026/09/06/matrix-template-compile-once.md`) — and the ten copies were deleted when
+mvp pinned 0.0.20: `tasks/archive/2026/09/06/ctc-use-gacalc-matrix-template.md` (see the Update
+below).
 
 ## How the decision was reached
 
@@ -104,8 +105,8 @@ pin is bumped: mvp `tasks/ctc-use-gacalc-matrix-template.md`, ready.
   `glTranslatef`/`glScalef` path has no matrix to build and stays as is.
 - **2026-09-06, the library version:** the maintainer's "eventually, not today" became "go ahead"
   the same day; gacalc implemented `to_matrix_template` / `MatrixTemplate` (24 tests across 𝒢₂/𝒢₃,
-  linear/affine) for release 0.0.20. The ten copies are deleted once mvp pins it
-  (`tasks/ctc-use-gacalc-matrix-template.md`, ready).
+  linear/affine) for release 0.0.20. The ten copies were deleted when mvp pinned it
+  (`tasks/archive/2026/09/06/ctc-use-gacalc-matrix-template.md`).
 
 ## Update 2026-09-06 — the per-game `MatrixTemplate` copies are gone
 
@@ -117,4 +118,6 @@ classes were deleted and each `MODEL` is now built with the library call —
 call sites unchanged, output bit-identical (all ten games' frame gate AE=0).
 myriapod's local `rotate_90_degrees` was likewise replaced by gacalc's
 `g2.rotate_90_degrees()` factory. Pin bumped to `gacalc==0.0.20` in
-`requirements.txt` + the Dockerfile. Codemod: `tasks/adhoc/ctc-use-gacalc-matrix-template/apply.py`.
+`requirements.txt` + the Dockerfile. The one-shot codemod that performed the
+rewrite was removed after the change committed (recoverable from git history);
+the work record is `tasks/archive/2026/09/06/ctc-use-gacalc-matrix-template.md`.

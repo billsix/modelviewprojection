@@ -95,8 +95,8 @@ it is frame-identical but not raw-bit-identical. (One more reason to prefer the 
    `tasks/pgzero-gl-renderer-matrix-via-gacalc-perf.md`.
 2. **A named, exact, fast quarter turn** — DONE in gacalc 0.0.20 as `g2.rotate_90_degrees()`
    (an `InvertibleFunction[Vector]`, the generated closed form of `v * e_12`, exact — no lambdify
-   needed) plus the `g2.Vector.rotate_90_degrees()` method. `myriapod` swaps its local copy for it
-   once the pin is bumped (`tasks/swap-myriapod-rotate90-to-gacalc.md`).
+   needed) plus the `g2.Vector.rotate_90_degrees()` method. `myriapod` swapped its local copy for it
+   when mvp pinned 0.0.20, 2026-09-06 (`tasks/archive/2026/09/06/swap-myriapod-rotate90-to-gacalc.md`).
 3. **General reuse:** any hot-path transform with a fixed composition is a candidate — derive once
    symbolically, lambdify, cache the function. The one-time matrices (e.g. `ortho_pixels`) can use
    `to_matrix` directly with no perf concern at all.

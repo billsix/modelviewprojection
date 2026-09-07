@@ -224,13 +224,13 @@ its fate — it, not the games, carries the LGPL question.
     `update()` is ~1% of the 60 Hz budget, but `Vector.__eq__` falls into `sympy.simplify` when two
     plain floats *differ* (~48 µs; beatstreets compares targets every frame) — a gacalc fix is filed
     (geometricalgebra `tasks/fast-numeric-equality.md`).
-- **Open, CtC-adjacent — both READY once gacalc 0.0.20 is on PyPI and the pin is bumped (the
-  features shipped in gacalc's tree 2026-09-06):** `tasks/ctc-use-gacalc-matrix-template.md` (delete
-  the ten `MatrixTemplate` copies; build `MODEL` with gacalc's `to_matrix_template` /
-  `fn.to_matrix_template(g3.Vector, params)` — same `fill(...)` call sites) and
-  `tasks/swap-myriapod-rotate90-to-gacalc.md` (delete myriapod's local quarter turn; import
-  `gacalc.g2.rotate_90_degrees`); plus `tasks/demos-exit-if-not-main.md` (the import guard for the
-  course demos, proposed).
+- **CtC-adjacent, DONE 2026-09-06 (gacalc 0.0.20 pinned in `requirements.txt` + Dockerfile):**
+  `tasks/archive/2026/09/06/ctc-use-gacalc-matrix-template.md` (deleted the ten `MatrixTemplate`
+  copies; `MODEL: MatrixTemplate` now built with gacalc's `to_matrix_template(g3.Vector, params)`,
+  `fill(...)` call sites unchanged) and
+  `tasks/archive/2026/09/06/swap-myriapod-rotate90-to-gacalc.md` (myriapod's local quarter turn
+  replaced by `gacalc.g2.rotate_90_degrees`). Both gated frame-identical (AE=0). Still open:
+  `tasks/demos-exit-if-not-main.md` (the import guard for the course demos, proposed).
 - History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`,
   `tasks/archive/2026/08/01/move-ctc-pgzero-shim-into-package.md`.
 
