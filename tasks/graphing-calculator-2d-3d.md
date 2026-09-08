@@ -1,13 +1,17 @@
 # Graphing-calculator program (2D and 3D), building on the assignment function viewer
 
-**Status:** blocked
+**Status:** proposed — needs go-ahead
 **Priority:** 6
 **Difficulty:** 5
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Blocked on:** maintainer answers the Open questions below (extend the assignment vs new standalone; one
-program or two; interactivity/function input; GL style; 3D surface form). **Location resolved 2026-08-27:
-this IS mvp work — the assignments' OpenGL math-function viewer, not the moved-out `mathdemos/`.**
-**Recheck:** the Open questions below are answered (maintainer-gated; `/recheck-blocked` surfaces it).
+**Needs:** the maintainer's answers to the Open questions below (extend the assignment vs new
+standalone; one program or two; interactivity/function input; GL style; 3D surface form).
+**Location resolved 2026-08-27: this IS mvp work — the assignments' OpenGL math-function viewer,
+not the moved-out `mathdemos/`.**
+
+*(Was `**Status:** blocked` until 2026-09-08. Re-filed: `blocked` is for a concrete, **testable**
+gate outside our control, with a `Recheck:` someone can run — a decision the maintainer owes is the
+`proposed — needs go-ahead` state. `/recheck-blocked` had nothing to run for this one.)*
 
 ## Goal
 

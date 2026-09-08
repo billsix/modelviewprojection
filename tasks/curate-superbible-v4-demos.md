@@ -1,12 +1,15 @@
 # Curate which OpenGL SuperBible v4 demos are worth studying; log it
 
-**Status:** blocked
+**Status:** proposed — needs go-ahead
 **Priority:** 7
 **Difficulty:** 3
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Blocked on:** maintainer answers the Open questions below (where to log — book vs reference doc; the
-"worth it" criteria).
-**Recheck:** the Open questions below are answered (maintainer-gated; `/recheck-blocked` surfaces it).
+**Needs:** the maintainer's answers to the Open questions below (where to log — book vs reference
+doc; the "worth it" criteria).
+
+*(Was `**Status:** blocked` until 2026-09-08. Re-filed: `blocked` is for a concrete, **testable**
+gate outside our control, with a `Recheck:` someone can run — a decision the maintainer owes is the
+`proposed — needs go-ahead` state. `/recheck-blocked` had nothing to run for this one.)*
 
 ## Goal
 

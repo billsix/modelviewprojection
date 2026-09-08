@@ -111,7 +111,8 @@ Work:
    `glUniformMatrix4fv` / the `mvpMatrix` uniform; the `pyMatrixStack` API used
    here (`MatrixStack` enum model/view/projection/modelview/modelviewprojection,
    `push_matrix(stack)` context manager, `set_to_identity_matrix`, `rotate_x/y/z`,
-   `translate`, `perspective`, `multiply` — `src/modelviewprojection/pyMatrixStack.py`);
+   `translate`, `perspective`, `multiply` — `src/modelviewprojection/matrix_stack.py`,
+   renamed from `pyMatrixStack.py` 2026-07-19);
    fill in the empty "The Event Loop" section. TODO.org also asks to "connect with
    20 — draw VBO, draw VAO, give shader variables names similar to 20" — diagrams
    are part of doing this well.

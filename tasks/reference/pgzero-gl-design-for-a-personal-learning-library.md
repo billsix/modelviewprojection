@@ -10,7 +10,7 @@ William Emerison Six <billsix@gmail.com>. Project: `github.com/billsix/modelview
 per game (steps 1–2 of `tasks/pgzero-gl-inline-strip-reextract.md`) and each copy tightened
 (`tasks/reference/code-the-classics-tightening.md` — its §3/§6 per-family engine flags are the current form
 of the usage slices below); the package shim source is unused by the games until step 3 (parked). Options
-still open from this study: `tasks/pgzero-gl-de-abstraction-options.md` (Group 3); the transform/matrix slice
+still open from this study: `tasks/archive/2026/09/08/pgzero-gl-de-abstraction-options.md` (Group 3); the transform/matrix slice
 was resolved by `tasks/reference/gacalc-transforms-in-the-renderer.md`.
 
 ## BLUF
@@ -126,7 +126,7 @@ hand-rolled component arithmetic in favor of the same GA ops the callers already
 The renderer's `_translate`/`_scale`/`_rotate_z`/`ortho_pixels` (renderer.py:50-89) are hand-rolled 4×4 numpy
 matrices at the `glUniformMatrix4fv` boundary — the graphics-engine layer the repo's `CLAUDE.md` deliberately
 keeps matrix-based. The GA→matrix question (can a gacalc transform *produce* a `uModel` matrix, or only apply
-directly to CPU-side vectors?) is the subject of `tasks/gacalc-transforms-for-rotate-translate.md`; the study
+directly to CPU-side vectors?) is the subject of `tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md`; the study
 above steers toward **"direct mode for actor/game math, leave the renderer matrices as-is."**
 
 ## Duplication is a feature here (the maintainer's stance, made explicit)
@@ -214,7 +214,7 @@ integer-indexable (the `_as_xy`/`get_hat` blockers above).
 - **Category B (always-dead code) was removed 2026-09-04** — `tasks/archive/2026/09/04/pgzero-gl-remove-dead-code.md`
   (net −166 lines; verified: 104 tests pass, both renderers draw sprites headless). The corrections above
   (`joystick.init()`, `_Mixer.find_channel`/`get_busy` kept) held.
-- `tasks/pgzero-gl-de-abstraction-options.md` — the remaining options (Group 2 gacalc clarity, Group 3
+- `tasks/archive/2026/09/08/pgzero-gl-de-abstraction-options.md` — the remaining options (Group 2 gacalc clarity, Group 3
   judgment calls); Group 1 is the removal above.
-- `tasks/gacalc-transforms-for-rotate-translate.md` — the renderer-matrix / GA-transform slice.
+- `tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md` — the renderer-matrix / GA-transform slice.
 - Repo `CLAUDE.md` — "duplication across demos is deliberate" and "the graphics engine stays matrix-based".

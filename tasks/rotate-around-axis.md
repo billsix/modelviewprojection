@@ -1,22 +1,29 @@
-# Plan: `rotate_around_axis` in `pyMatrixStack`
+# Plan: `rotate_around_axis` in `matrix_stack`
 
 **Status:** not started — research-only until Bill OKs the decomposition below.
 **Priority:** 5
 **Difficulty:** 4
 
+*(De-staled 2026-09-08: this doc was written against `pyMatrixStack.py` and `Vector3D`. The
+module was renamed to `matrix_stack.py` on 2026-07-19
+(`tasks/archive/2026/07/19/rename-pymatrixstack-module.md`) and the vector type is now
+gacalc's `Vector`. The proposed signature's `matrixStack` parameter was also renamed to
+`matrix_stack`, matching the module's real convention and the `N` naming rules. No design
+content changed.)*
+
 **Reference implementation in the ports tree (NOT what to copy):** `chapt04/transform/transform.py` and `chapt04/transformgl/transformgl.py` have a `rotation_matrix_about_axis(angle_rad, x, y, z)` that does **direct Rodrigues** — that's the *faithful translation* of `m3dRotationMatrix44` in math3d.cpp. **This task wants the opposite** for the curriculum side: build arbitrary-axis rotation as a *composition of axis-aligned rotations* (`rotate_z` to align in XZ-plane, `rotate_y` to align with X, `rotate_x` for the actual rotation, then inverse to undo alignment) — Bill's pedagogical choice so students see arbitrary-axis rotation built from rotations they already know. The ports tree's direct Rodrigues stays as-is (the C++ does it that way, so the faithful translation should too); the curriculum side gets the decomposed version.
 
 ## What
 
-Add a `rotate_around_axis(matrixStack, axis, angle)` to `src/modelviewprojection/pyMatrixStack.py` — equivalent to SuperBible's `m3dRotationMatrix44(angle, x, y, z)` and OpenGL's `glRotatef(angle, x, y, z)`.
+Add a `rotate_around_axis(matrix_stack, axis, angle)` to `src/modelviewprojection/matrix_stack.py` — equivalent to SuperBible's `m3dRotationMatrix44(angle, x, y, z)` and OpenGL's `glRotatef(angle, x, y, z)`.
 
 Used heavily by `GLFrame::RotateLocal*`/`RotateWorld` in chapt05+. Without it, porting any `GLFrame`-driven demo (`sphereworld`, anything with an FPS camera) requires fighting the source.
 
-## Why pyMatrixStack and not mathutils
+## Why matrix_stack and not mathutils
 
-Bill's instruction: "for tier one, update pyMatrixStack to have equivalent functionality, in my style." mathutils-side `rotate_x/y/z` already exists as `InvertibleFunction[Vector3D]`; the matrix-era equivalent goes in pyMatrixStack to match the demo era (19+) where SuperBible-style demos get ported.
+Bill's instruction: "for tier one, update matrix_stack to have equivalent functionality, in my style." mathutils-side `rotate_x/y/z` already exists as `InvertibleFunction[Vector]`; the matrix-era equivalent goes in matrix_stack to match the demo era (19+) where SuperBible-style demos get ported.
 
-(If Bill later wants the same in mathutils as `rotate_around_axis` returning `InvertibleFunction[Vector3D]`, the same decomposition works there — just with `compose([...])` instead of in-place matrix mutation. Note as future work.)
+(If Bill later wants the same in mathutils as `rotate_around_axis` returning `InvertibleFunction[Vector]`, the same decomposition works there — just with `compose([...])` instead of in-place matrix mutation. Note as future work.)
 
 ## Approach — decomposed, *not* Rodrigues
 
@@ -51,7 +58,7 @@ Recommend (a) — efficiency is a non-goal for the course; the readable composit
 
 ```python
 def rotate_around_axis(
-    matrixStack: MatrixStack,
+    matrix_stack: MatrixStack,
     axis: tuple[float, float, float],   # need not be a unit vector — normalize internally
     angle: float,                       # radians
 ) -> None:
@@ -62,7 +69,7 @@ Following the in-place mutation pattern of `rotate_x` etc.
 
 ## Docstring goals
 
-Following the `pyMatrixStack` convention (the docstring explains the math by hand):
+Following the `matrix_stack` convention (the docstring explains the math by hand):
 
 1. State the goal: rotate by `angle` about an arbitrary unit axis.
 2. Show the alignment computation: how α and β are derived from `(ax, ay, az)`.
@@ -71,7 +78,7 @@ Following the `pyMatrixStack` convention (the docstring explains the math by han
 
 ## Scope
 
-- Add `rotate_around_axis(matrixStack, axis, angle)` to `pyMatrixStack.py`.
+- Add `rotate_around_axis(matrix_stack, axis, angle)` to `matrix_stack.py`.
 - Add unit tests verifying:
   - `rotate_around_axis(stack, (1,0,0), θ)` matches `rotate_x(stack, θ)` (within float tolerance).
   - Same for Y and Z.
@@ -80,7 +87,7 @@ Following the `pyMatrixStack` convention (the docstring explains the math by han
 
 ## Out of scope
 
-- The mathutils-side `InvertibleFunction[Vector3D]` version. Defer until a demo earlier than demo19 needs arbitrary-axis rotation (unlikely — the Pong scene only uses Z-axis rotations through demo18).
+- The mathutils-side `InvertibleFunction[Vector]` version. Defer until a demo earlier than demo19 needs arbitrary-axis rotation (unlikely — the Pong scene only uses Z-axis rotations through demo18).
 - Caching alignment angles for an axis used many times in one frame. (Don't optimize.)
 
 ## Open questions

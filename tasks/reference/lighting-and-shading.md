@@ -22,38 +22,57 @@ The SB4 ports (`ports/openglsuperbiblev4/`) use fixed-function lighting; **chapt
 chapter**. The light *type* is read off the 4th component of the light position:
 - **DIRECTIONAL (w = 0.0 — "infinitely far away"):** `chapt05/shadow/shadow.py:41`
   `light_pos = (-75.0, 150.0, -50.0, 0.0)`. **This is the concrete answer to "which SB4 demo does a
-  directional light far away"** (`tasks/port-sb4-directional-far-light.md`).
+  directional light far away"** (`tasks/lighting-types-and-visualization.md`, strand C).
 - **SPOTLIGHT (positional w = 1.0 + a cone):** `chapt05/spot/spot.py:29`
   `light_pos = (0.0, 0.0, 75.0, 1.0)` + `GL_SPOT_DIRECTION` (`:121`) + a spot cutoff. This is the
-  "flashlight" primitive (`tasks/demo22-light-types-and-flashlight.md`).
+  "flashlight" primitive (`tasks/lighting-types-and-visualization.md`, strand A).
 - **POSITIONAL (w = 1.0):** the lit-object ports — litjet, shinyjet, the sphereworlds (chapt05/06/08/…)
-  — all use a `w = 1.0` light position. (These are what got the visible-light-source marker in archived
-  `2026/06/14/ports-visible-light-source.md`.)
+  — all use a `w = 1.0` light position.
 - **AMBIENT-only:** `chapt05/ambient/`.
+
+> **Correction (2026-09-08): the SB4 ports have NO light marker.** An earlier revision of this doc
+> said the positional ports "got the visible-light-source marker in archived
+> `2026/06/14/ports-visible-light-source.md`". They did not: that task is archived with
+> `**Status:** not started` — one of five 2026-06-14 satellites archived because their content was
+> *folded into* the `tasks/ports-ux-pass.md` umbrella, where it is still Phase 3 item #40, unstarted.
+> Verified 2026-09-08: `grep -rn light_marker ports/` returns nothing and
+> `ports/openglsuperbiblev4/_common.py` has no `draw_light_marker`. **The marker that does exist is
+> demo22's** — a cone + bulb (`src/modelviewprojection/demos/demo22/demo22.py:1049`, `:1076`, placed
+> at `:1483`), which is what "demo22-style marker" refers to and what the ports would copy.
 
 ### 3. `mvpvisualization` / Cayley engine — NO lighting at all (verified)
 Grep for `glLight`/Lambert/diffuse/specular/Blinn across `src/modelviewprojection/cayley/` and
 `mvpvisualization/` returns nothing — the Cayley engine has **no lighting mechanism**. So any lighting in
-a `mvpvisualization` demo (`tasks/mvpvis-lighting-demo-half-angle.md`) is a **net-new engine capability**,
-not an extension of existing code (reuse demo23's half-vector math for the shading itself).
+a `mvpvisualization` demo (`tasks/lighting-types-and-visualization.md`, strand B) is a **net-new engine
+capability**, not an extension of existing code (reuse demo23's half-vector math for the shading itself).
+`tasks/axis-cylinder-cone-lighting.md` Option 2 would build the same lit-shader pipeline for the axis
+arrows — whichever runs first should build it for both.
 
 ## The rule to remember
 
 **Fixed-function light type = the `w` of the light position:** `w = 0.0` → directional (a direction, no
 position, no attenuation); `w = 1.0` → positional (has a place; add `GL_SPOT_*` → spotlight). This is why
 a directional light should NOT get a positional sphere marker — it has no position — which is the
-distinction `tasks/port-sb4-directional-far-light.md` is about.
+distinction strand C of `tasks/lighting-types-and-visualization.md` is about.
 
-## What this de-blocks (the facts these tasks were asking for)
+## What this de-blocks (the facts those tasks were asking for)
 
-- `tasks/port-sb4-directional-far-light.md` — the demo is **`chapt05/shadow`** (w=0); only the
-  marker-convention (arrow-from-infinity vs sphere) remains a maintainer aesthetic call.
-- `tasks/demo22-light-types-and-flashlight.md` — "flashlight" = a spotlight; the reference impl is
+The three tasks below were merged into **`tasks/lighting-types-and-visualization.md`** on
+2026-09-08 (originals archived at `tasks/archive/2026/09/08/`), precisely because this doc had
+answered their factual halves and only one scope conversation was left across all three:
+
+- **directional-far-light (now strand C)** — the demo is **`chapt05/shadow`** (w=0); only the
+  marker convention (arrow-from-infinity vs sphere) remains a maintainer aesthetic call — and note
+  the marker itself is still unbuilt (see the Correction above).
+- **light types + flashlight (now strand A)** — "flashlight" = a spotlight; the reference impl is
   `chapt05/spot` (positional + `GL_SPOT_DIRECTION` + cutoff). demo22 is directional-only today.
-- `tasks/mvpvis-lighting-demo-half-angle.md` — confirmed net-new (Cayley has no lighting); reuse
+- **half-angle visualization (now strand B)** — confirmed net-new (Cayley has no lighting); reuse
   `demo23/litjet.frag:47` half-vector math.
 
 ## Cross-links
 
 - `tasks/reference/superbible-ports-guide.md` (the port tree), `notable-subsystems.md` (demo inventory).
-- The lighting tasks above cite this doc for their factual half.
+- `tasks/lighting-types-and-visualization.md` — the one open lighting task, which cites this doc for
+  its factual half; `tasks/ports-ux-pass.md` Phase 3 #40 is where the ports' marker is sequenced.
+- `tasks/axis-cylinder-cone-lighting.md` — lighting the viz demos' axis arrows (deferred); shares
+  the lit-shader pipeline with strand B.

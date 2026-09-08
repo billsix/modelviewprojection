@@ -1,12 +1,15 @@
 # GitHub Actions: format-check CI (phase 1), then releases (phase 2), then other repos
 
-**Status:** blocked
+**Status:** proposed — needs go-ahead
 **Priority:** 5
 **Difficulty:** 4
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Blocked on:** maintainer answers the Open questions below (local-run via `act`; runner environment;
-registry = ghcr.io).
-**Recheck:** the Open questions below are answered (maintainer-gated; `/recheck-blocked` surfaces it).
+**Needs:** the maintainer's answers to the Open questions below (local-run via `act`; runner
+environment; registry = ghcr.io).
+
+*(Was `**Status:** blocked` until 2026-09-08. Re-filed: `blocked` is for a concrete, **testable**
+gate outside our control, with a `Recheck:` someone can run — a decision the maintainer owes is the
+`proposed — needs go-ahead` state. `/recheck-blocked` had nothing to run for this one.)*
 
 ## Goal
 

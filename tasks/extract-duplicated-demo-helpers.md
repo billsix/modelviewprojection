@@ -1,10 +1,19 @@
 # Plan: extract duplicated demo helpers into a shared module
 
-**Status:** in progress (2026-05-27) — `shading.py` (`_face_normal`,
-`light_dir_ws`), `windowing.py` (`on_key`), and `clipping.py`
-(`draw_in_square_viewport`) all extracted & committed (see Progress below).
-Remaining: `shaderutils.py` / `set_mvp_uniforms` (deferred — demo22 variant) and
-per-demo `handle_inputs` (separate, [`dedup-handle-inputs.md`](archive/2026/06/01/dedup-handle-inputs.md)).
+**Status:** in progress — **only one item is left.** `shading.py` (`_face_normal`,
+`light_dir_ws`), `windowing.py` (`on_key`), `clipping.py` (`draw_in_square_viewport`) and
+`axes.py` (`draw_unit_axes`) are all extracted, committed, and **live in
+`src/modelviewprojection/util/`** since the 2026-06-03 restructure
+(`tasks/archive/2026/06/03/restructure-directories.md`) — the "staged, not committed" notes in
+Progress below are from 2026-05/06 and are long since committed.
+**Remaining: `shaderutils.py` / `set_mvp_uniforms`** (deferred — demo22 was the variant).
+Re-measured 2026-09-08: **3 copies, not 4** — `demos/demo22a/demo22a.py`, `demos/demo23/demo23.py`
+and `demos/demo24/demo24.py` define it; demo22 no longer does, which removes the
+variant-reconciliation question that deferred it. None of those four demos has a book chapter, so
+this last extraction carries **zero book risk**.
+Per-demo `handle_inputs` is separate and settled — kept per-demo by design
+([`dedup-handle-inputs.md`](archive/2026/06/01/dedup-handle-inputs.md)); the camera-walk sub-block
+became `util/cameracontrols.py`.
 **Priority:** 5
 **Difficulty:** 5
 **Type:** refactor of `src/modelviewprojection/demo*.py`, coordinated with the book.
@@ -105,7 +114,7 @@ One small module per *concept*, named for the idea it teaches, so a demo's impor
 line reads like a sentence and reinforces what's being reused. Each holds the
 canonical (majority-cluster) version of its helper:
 
-| New module (sibling of `mathutils.py`) | Helper(s) | Concept |
+| New module (now under `util/`; the table says "sibling of `mathutils.py`" because it predates the 2026-06-03 restructure) | Helper(s) | Concept |
 |---|---|---|
 | `clipping.py` | `draw_in_square_viewport` | the `glScissor`/`glViewport` square-viewport lesson |
 | `windowing.py` | `on_key` | escape-to-quit key handler |
@@ -113,7 +122,7 @@ canonical (majority-cluster) version of its helper:
 | `shaderutils.py` | `set_mvp_uniforms` | MVP uniform upload |
 
 Naming follows Bill's existing convention (`mathutils.py`, `colorutils.py`,
-`pyMatrixStack.py`) — plain `clipping.py` style chosen over `*utils` for the
+`matrix_stack.py`) — plain `clipping.py` style chosen over `*utils` for the
 concept-named ones; adjust if Bill prefers the `clippingutils.py` form. Imports
 read e.g. `from modelviewprojection.clipping import draw_in_square_viewport`.
 

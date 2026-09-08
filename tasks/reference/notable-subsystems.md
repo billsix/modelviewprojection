@@ -172,7 +172,7 @@ Two independent porting projects, both kept under `ports/` (not in the curriculu
 
 ## Cross-cutting gotchas
 
-- **gacalc is a hard dependency (`github.com/billsix/geometricalgebra`).** Its generated modules (`g1.py`/`g2.py`/`g3.py`/`scalar.py`) are gitignored and produced by its generator. If `from gacalc.g2 import Vector` fails, gacalc hasn't been generated/installed — that's a gacalc-side `make generate`, not an mvp bug.
+- **gacalc is a hard dependency (`github.com/billsix/geometricalgebra`).** Its generated modules (`g1.py`/`g2.py`/`g3.py`, plus `g4.py`/`g5.py` in a release build) are gitignored and produced by its generator. If `from gacalc.g2 import Vector` fails, gacalc hasn't been generated/installed — that's a gacalc-side `make generate`, not an mvp bug. (There is no `scalar.py`; the grade-0 `Scalar` type went per-algebra in gacalc on 2026-07-22 and now lives inside each `gN.py`.)
 - **Don't re-add facades.** Both `mathutils` and `pgzero_gl` had re-export facades that were deliberately removed; imports now say what they mean (`from gacalc… import`). Adding a convenience re-export re-introduces the anti-pattern.
 - **Two stacks, two meanings.** `mathutils.FunctionStack` (composes `InvertibleFunction`s) vs `matrix_stack.py` / `ms` (composes numpy 4×4s). The Cayley GL shell drives the numpy one for uniform upload; the algebra-first material uses the function one.
 - **The `id(step)`-keyed timeline** means Step identity is what the timeline tracks: mutate a `Step.fn` in place (the editable-camera pattern), never replace the `Step` object, or its timeline slot is lost.

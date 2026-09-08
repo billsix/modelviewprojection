@@ -292,9 +292,11 @@ from a copy of gacalc's source:
   source: the `Dockerfile` (`ARG GACALC_VERSION`, must match the requirements pin) fetches the
   sdist and unpacks `src/gacalc/*.py` to `/opt/gacalc-src`. Nothing imports it; it is never on
   `sys.path`. The sdist is used, not a git clone, because it already contains the generated
-  `g1/g2/g3/scalar.py` with markers baked in (no checkout, no code generation needed).
+  `g1/g2/g3` (and `g4`/`g5`, which a release build bakes in) with markers baked in — no checkout,
+  no code generation needed. **There is no `scalar.py`:** gacalc's grade-0 `Scalar` type went
+  per-algebra on 2026-07-22 and now lives inside each `gN.py`.
   - **gacalc ships pre-generated — never build it from source to inspect it.** Both the
-    wheel and the sdist carry `g1/g2/g3/scalar.py` (and their doc-region markers) already
+    wheel and the sdist carry `g1/g2/g3` (and `g4`/`g5`; plus their doc-region markers) already
     generated; gacalc's `tools/gen_specialized.py` runs a *slow* symbolic generator (tens of
     seconds for 𝒢₃). So to see gacalc's real types, reprs, or marker names for a version,
     **`pip install gacalc==<v>` into a throwaway venv and read/grep the installed
@@ -315,7 +317,11 @@ from a copy of gacalc's source:
   pin and the Dockerfile's `ARG GACALC_VERSION` to the same released version, then rebuild the
   image. gacalc's markers must exist in that release (they landed in gacalc 0.0.11).
 - Editing the *content* of a gacalc-included listing means editing gacalc and releasing it —
-  this repo only points at it. See `tasks/dangling-book-code-includes.md`.
+  this repo only points at it. The build-out record is
+  `tasks/archive/2026/09/08/dangling-book-code-includes.md` (closed 2026-09-08); the standing
+  mechanics live in `tasks/reference/book-and-docs-pipeline.md` §3. One listing is still missing on
+  purpose: ch05/ch14's basis constants, because gacalc does not mark its post-class `Cls.e_1 = …`
+  assignments — filed there as `tasks/mark-basis-constants-for-doc-regions.md`.
 
 ## Coding standard (Python)
 
@@ -483,8 +489,13 @@ The list below is the curated set of the notable ones; `tasks/` is authoritative
   folded into the Phase 2 / Phase 3 sections — archived 2026-06-14). **NEXT** is
   Phase 2: walk-around (demo22-style) camera for every 3D-space port (orbit only
   when justified), with sphereworld as the canary. Phase 3 is keyboard
-  standardization, CLI→imgui, and visible light markers.
-- `tasks/demo22-light-radius-imgui.md` — *curriculum-side*: imgui slider for demo22's light radius.
+  standardization, CLI→imgui, and visible light markers. **Note the ports have no light marker
+  yet** — #40 is unstarted, and the archived `ports-visible-light-source.md` satellite is archived
+  *unstarted* too, which three now-merged tasks had misread as done.
+- `tasks/lighting-types-and-visualization.md` — the one open lighting task (merged 2026-09-08 from
+  three): demo22's light types + flashlight, an L/V/N/H half-angle visualization for
+  `mvpvisualization/`, and the ports' light-marker convention (a `w = 0.0` directional light gets no
+  positional sphere). Facts already established: `tasks/reference/lighting-and-shading.md`.
 
 Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 `resolve_default_window_size()`, `init_imgui(window)`, `WindowState`,
@@ -495,7 +506,7 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 **Math / `matrix_stack`:**
 - `tasks/archive/2026/08/03/planar-shadow-matrix.md` — **done** (2026-08-03): `planar_shadow(matrix_stack, plane_eq, light_pos)` added — the directional/parallel SuperBible shadow, deliberately *not* an `InvertibleFunction` (rank-deficient) — with `tests/test_matrix_stack.py`. Rationale in `tasks/reference/design-decisions.md` › "The matrix / function stack".
 - `tasks/rotate-around-axis.md` — `rotate_around_axis` decomposed as a sequence of axis-aligned rotations (Bill's pedagogy choice; don't drop Rodrigues on them).
-- `tasks/face-normal-vector3d-io.md` — investigation (not started).
+- `tasks/mathutils-helpers-via-gacalc.md` — should `sine`/`abs_sin` be re-expressed via gacalc's named measures, and should `_face_normal` take/return `Vector` instead of tuples? (merged 2026-09-08 from two tasks; needs one review).
 
 **Book / curriculum:**
 - `tasks/book-rotate-prose-update.md` — **the remaining book-prose work** (Bill's to write): update rotate prose for `plane_rotation`, and it carries the old gacalc-math-migration Phase 4 (ch05/06/14 teach gacalc vectors as *the* vector type). The code phases are done and archived.

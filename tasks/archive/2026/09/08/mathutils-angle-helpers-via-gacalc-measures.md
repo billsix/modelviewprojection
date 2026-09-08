@@ -1,5 +1,13 @@
 # Rewrite mathutils' `sine` / `abs_sin` in terms of gacalc's named measures
 
+**Status:** **MERGED 2026-09-08 into `tasks/mathutils-helpers-via-gacalc.md`** — not done,
+not dropped. Both this and its sibling asked the same question (should a `mathutils` helper be
+re-expressed in gacalc's vocabulary?) about the same module, needed the same single decision, and
+share the same doctest + autodoc gate, so they became one review. Everything below is kept as the
+record of the original analysis.
+
+(Superseded status line follows.)
+
 **Status:** proposed — needs go-ahead. Audit done 2026-08-24 (William Emerison Six <billsix@gmail.com>),
 spun out of gacalc's measure work (`github.com/billsix/geometricalgebra`,
 `tasks/area-volume-content.md` / `explicit-symbolic-tests-and-helper-cleanup.md`).

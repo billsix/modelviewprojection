@@ -1,10 +1,25 @@
 # Plan: ImGui controls for light position radius in demo22
 
-**Status:** not started — task #35. Recorded 2026-04-28.
-**Priority:** 6
-**Difficulty:** 3
+**Status:** **DONE — closed 2026-09-08 as already implemented.** The work exists in
+`src/modelviewprojection/demos/demo22/demo22.py`; nobody recorded it against this task, so it sat
+at "not started" while the feature shipped. Verified 2026-09-08:
 
-**Scope:** `/mvp/src/modelviewprojection/demo22.py` (curriculum-side), *not* the SuperBible ports.
+- `:1396-1404` — three imgui sliders in the light panel: `"Azimuth (deg)"` (0–360),
+  `"Elevation (deg)"` (5–89), and `"Radius (marker only)"` (10–150), driving the module-level
+  `light_az_deg` / `light_el_deg` / `light_radius` (`:176-177`, `:1111`).
+- `:1407-1410` — the light direction and the shadow are recomputed **every frame** from the
+  slider values, so moving a slider reshapes the Lambert shading and the floor shadow live.
+- **The open question below is answered by the code:** the visible marker *does* track the
+  slider — `:1483-1489` places the cone+bulb at `light_dir * light_radius` and orients it from
+  `light_az_deg`/`light_el_deg`. And the answer to "radius only, or angle too?" turned out to be
+  *both*: azimuth and elevation are the pedagogically useful pair (they change the shading),
+  while radius is marker-only, which the slider label says out loud.
+
+Recorded 2026-04-28 as task #35. **Priority:** 6 · **Difficulty:** 3
+
+**Scope:** `src/modelviewprojection/demos/demo22/demo22.py` (curriculum-side), *not* the
+SuperBible ports. (The original path in this doc, `src/modelviewprojection/demo22.py`, predates
+the 2026-06-03 restructure that moved the demos into `demos/`.)
 
 ## What
 

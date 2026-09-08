@@ -53,7 +53,7 @@ The eight UX tasks Bill added on 2026-04-28 aren't independent. Several share he
 
 #40 visible light ── (independent additive)
 #35 demo22 slider ── (curriculum side, isolated)
-#3, #4 pyMatrixStack ── (curriculum side, no port dependency)
+#3, #4 matrix_stack  ── (curriculum side, no port dependency)
 ```
 
 Cross-project surface: the only soft dependency is "demo22 must remain the camera + visible-light reference." It already does.
@@ -78,7 +78,7 @@ Tasks: **#38 (walk-around camera), then #39 (sphereworld) immediately after.**
 (Detail for both folded in below from the archived `ports-walkaround-camera.md`
 and `ports-sphereworld-camera-fix.md` satellites, 2026-06-14.)
 
-- Read demo22's camera in `/mvp/src/modelviewprojection/demo22.py` and document the model.
+- Read demo22's camera in `src/modelviewprojection/demos/demo22/demo22.py` and document the model.
 - Add `Camera` class (or module-level functions) to `_common.py`:
   - `Camera.update(window, dt)` — read keys, mutate position/yaw.
   - `Camera.apply()` — call the equivalent of `gluLookAt` with current state.
@@ -95,7 +95,7 @@ something, unless you tell me a reason why." Many SuperBible originals chose
 orbit/dolly because the C++ demos were short showpieces; for students walking the
 textbook, walk-around makes spatial relationships (light position, shadow
 direction, normals) tangible.
-**Reference:** demo22's camera (`/mvp/src/modelviewprojection/demo22.py`) — read
+**Reference:** demo22's camera (`src/modelviewprojection/demos/demo22/demo22.py`) — read
 it, document the model (likely yaw + position triple, no roll, pitch clamped or
 absent), then replace per-demo cameras in the ports with the same model. The
 `gluLookAt`-equivalent view setup becomes uniform across ports.
@@ -150,7 +150,7 @@ Help → Controls entry to the menubar that displays the active bindings.
 space should be consistent." Currently each chapter chose its own (X/Y/Z+Shift for
 movement in chapt15+ shaders; arrow keys for pan in chapt12; WASD-ish elsewhere;
 R/L/U/D for rotation; assorted single-letter toggles B/V/F/P/M).
-**Reference:** demo22's controls (`/mvp/src/modelviewprojection/demo22.py`) — read
+**Reference:** demo22's controls (`src/modelviewprojection/demos/demo22/demo22.py`) — read
 first, don't guess. **Likely convention (verify against demo22):** W/A/S/D
 forward/left/back/right; Q/E or mouse for yaw; Space/Shift up/down (or disallow
 vertical for floor-bound demos); Esc to quit (already universal); demo-specific
@@ -199,9 +199,13 @@ lit), chapt08 (sphereworld, tunnel), chapt09 (advanced texturing), chapt11
 fragmentshaders, imageproc — have `light_pos` uniforms), chapt18 (fboshadowmap,
 fbodrawbuffers, fboenvmap, hdrbloom), chapt19 (SphereWorld32). Any demo that
 intentionally hides the light keeps current behavior with a comment.
-**Coordination:** demo22's own marker should track the radius slider once #35
-([`demo22-light-radius-imgui.md`](demo22-light-radius-imgui.md)) lands; the
-walk-around camera (#38) makes the marker more useful (walk around the light).
+**Coordination:** demo22's own marker already tracks the radius slider (#35 is done —
+`demos/demo22/demo22.py:1483-1489` places the cone+bulb at `light_dir * light_radius`); the
+walk-around camera (#38) makes the marker more useful (walk around the light). **The light-type
+and directional-marker-convention questions this item raises now live in
+[`lighting-types-and-visualization.md`](lighting-types-and-visualization.md) (strand C)** — answer
+them there before building #40, since a `w = 0.0` directional light must not get a positional
+sphere.
 **Open Qs:** marker as sphere vs point sprite vs billboard (sphere simplest;
 demo22 likely sphere); pure white vs tinted toward diffuse color (ask Bill); size
 relative to scene scale (chapt15 ~100-unit vs chapt08 ~1-unit) — pass per-demo or
@@ -209,8 +213,9 @@ scale by scene radius; defer.
 
 ### Independent / pick whenever
 
-- **#35 demo22 light radius slider** ([`demo22-light-radius-imgui.md`](demo22-light-radius-imgui.md)) — one file, one sitting, no dependency on the port pass.
-- **#3 planar_shadow / #4 rotate_around_axis** ([`planar-shadow-matrix.md`](planar-shadow-matrix.md), [`rotate-around-axis.md`](rotate-around-axis.md)) — curriculum-side `pyMatrixStack`. No port dependency. Do these when a curriculum demo actually needs them (`chapt01/block` already has inline copies of the shadow math; nothing else blocks).
+- ~~**#35 demo22 light radius slider**~~ — **DONE**; closed 2026-09-08 as already implemented (demo22 carries azimuth/elevation/radius imgui sliders). Record: [`archive/2026/09/08/demo22-light-radius-imgui.md`](archive/2026/09/08/demo22-light-radius-imgui.md).
+- **#3 planar_shadow** — **DONE** 2026-08-03: [`archive/2026/08/03/planar-shadow-matrix.md`](archive/2026/08/03/planar-shadow-matrix.md) added `planar_shadow(matrix_stack, plane_eq, light_pos)` (the directional/parallel SuperBible shadow, deliberately not an `InvertibleFunction`).
+- **#4 rotate_around_axis** ([`rotate-around-axis.md`](rotate-around-axis.md)) — curriculum-side `matrix_stack`. No port dependency. Do it when a curriculum demo actually needs it (`chapt01/block` already has inline copies of the shadow math; nothing else blocks).
 
 ## Smoke-test approach (used in Phase 1, repeat for Phases 2–3)
 

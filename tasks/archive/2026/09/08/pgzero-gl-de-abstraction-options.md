@@ -1,8 +1,20 @@
 # pgzero_gl — de-abstraction & gacalc options (choose per item)
 
-**Status:** partially decided (maintainer, 2026-09-04) — Group 1 **DONE & archived**
-(`tasks/archive/2026/09/04/pgzero-gl-remove-dead-code.md`); **Group 2 done** (2026-09-04); Group 3 pending
-(see resolved Open Questions)
+**Status:** **DONE — closed 2026-09-08.** Every item is resolved (see "Remaining actionable work"
+at the foot of this doc, which already read "All items in this task are now resolved (done or
+declined)"): Group 1 **done & archived** (`tasks/archive/2026/09/04/pgzero-gl-remove-dead-code.md`),
+Group 2 **done** (2026-09-04), Group 3 item 11 **done** (`_offset_cache` measured and deleted),
+item 12 **declined** (the scalar-vs-Vector teaching contrast is kept on purpose). The task simply
+was not archived when its last item closed.
+
+One cross-reference in the body is now stale and is corrected here rather than in place: the
+matrix→gacalc question it defers to was **not** left parked. It was investigated, adopted, and
+archived — `tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md` (the study) and
+`tasks/archive/2026/09/06/renderer-model-matrix-from-gacalc.md` (the adoption); the standing
+write-up is `tasks/reference/gacalc-transforms-in-the-renderer.md`. Note also that the whole
+`pgzero_gl` package this task operates on was inlined per game on 2026-09-04/05, so the
+`file:line` references below point at the shared shim as it stood before the inline.
+
 **Priority:** 5
 **Difficulty:** 4
 

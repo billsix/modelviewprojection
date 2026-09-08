@@ -44,6 +44,13 @@ identically when executed, and the book build is unaffected.
   region (`CLAUDE.md` › "The book includes code by MARKER") — check each file's markers around
   `glfw.init()` before inserting; a guard inside a `doc-region` would be printed in a chapter.
 - **`wxapp.py` / `wxapp2.py`** are framework-style (wx owns the loop) and out of scope here.
+- **Not a re-opening of the CLOSED main-guard plan.** `tasks/archive/2026/07/19/demo-main-guards-and-dedent.md`
+  ("CLOSED — NOT NEEDED. Do not implement this plan") proposed something different: wrapping each
+  demo's whole body under `if __name__ == "__main__":`, which reshapes 25 files and forces
+  `:dedent:` on 129 book `literalinclude`s. **This task inserts one guard-and-exit line** before the
+  first resource acquisition, outside any `doc-region`; no file changes shape and no book directive
+  changes. The closed plan's premise was also different — it existed to collapse `pytest.ini`'s
+  allow-list, which this task explicitly keeps (see the bullet above).
 
 ## Plan
 

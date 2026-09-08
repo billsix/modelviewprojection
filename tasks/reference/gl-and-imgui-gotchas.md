@@ -102,7 +102,7 @@ Diagnosis pattern worth copying: renders were pixel-identical, `glGetError()`
 clean, `glGetFloatv(GL_MODELVIEW_MATRIX)` correct — the smoking gun was a
 manual `M @ v` showing `w = −120`.
 (`tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md`; live consumer:
-`tasks/planar-shadow-matrix.md`)
+`tasks/archive/2026/08/03/planar-shadow-matrix.md`)
 
 ## 4. Screen-space line thickness (why `frustum.geom` exists)
 

@@ -25,8 +25,12 @@ The assignments froze while the curriculum moved:
 
 - **Their own vector type**: each ships a private `Vertex2D` with
   hand-rolled `__add__`/`__mul__`/`translate` — pre-dating the gacalc
-  migration. The demos' single vector vocabulary is `gacalc.g2.Vector2`
-  via `mathutils` (and rotation is now the plane+angle factory). An
+  migration. The demos' single vector vocabulary is **`gacalc.g2.Vector`,
+  imported from gacalc directly** (and rotation is now the plane+angle
+  factory). *(Updated 2026-09-08: this doc said `gacalc.g2.Vector2` "via
+  `mathutils`" — gacalc dropped the dimension suffix in 0.0.16, and
+  `mathutils` stopped re-exporting gacalc types in the same pass, so
+  callers import from `gacalc.g2` / `gacalc.g3` themselves.)* An
   assignment teaching "figure out strafing" on a bespoke vector class no
   longer matches the course the student just read.
 - **Stale compat shims**: `from __future__ import annotations  # to
@@ -44,8 +48,9 @@ The assignments froze while the curriculum moved:
    still the right exercise given where the demos are (strafing is
    camera-relative translation — post-gacalc it's one
    `translate(rotate(angle)(offset))` composition)? If kept, should the
-   scaffold hand the student `mathutils` (Vector2, translate, rotate)
-   instead of a bespoke `Vertex2D`?
+   scaffold hand the student the course vocabulary (`gacalc.g2.Vector`,
+   `gacalc.transforms.translate`, `mathutils.rotate`) instead of a bespoke
+   `Vertex2D`?
 2. Which demo does each assignment pair with, and should they live/point
    there (e.g. `demo02/` already mirrors a demo number)?
 3. Solution management: are these handed out as-is (students fill in),

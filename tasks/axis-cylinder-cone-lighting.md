@@ -1,18 +1,26 @@
 # Lighting for the cylinder+cone axes (deferred)
 
-**Status: deferred 2026-04-30.** Bill verified the cylinder+cone axes look
+**Status:** deferred 2026-04-30. Bill verified the cylinder+cone axes look
 correct on hardware; current shading is flat. He wants the lighted look
 from the source demo eventually, just not today.
 **Priority:** 8
 **Difficulty:** 4
 
+*(Paths de-staled 2026-09-08: this doc predates the 2026-06-03 restructure, so it said
+`mvpVisualization/` (capital V, with its own per-demo subdirectories) and a top-level
+`demo19a.py`/`demo22/`. The tree is now `src/modelviewprojection/{demos,mvpvisualization}/`.
+No design content changed. Also cross-linked 2026-09-08: **Option 2 builds the same
+`mvpvisualization/` lit-shader pipeline that strand B of
+`tasks/lighting-types-and-visualization.md` needs** — whichever of the two runs first should build
+it for both.)*
+
 ## Context
 
-The cylinder+cone axis arrows in `demo19a.py`,
-`mvpVisualization/modelview/modelview.py`, and the 6 mvpVisualization demos
+The cylinder+cone axis arrows in `demos/demo19a.py`,
+`mvpvisualization/modelview.py`, and the 6 other `mvpvisualization/` demos
 (coordinatesystems, model, pushmatrix, modelview2d, modelvieworthoprojection,
 modelviewperspectiveprojection) were ported from
-`/mvp/ports/openglsuperbiblev4/chapt10/axes3d/axes3d.py` and double-thickness
+`ports/openglsuperbiblev4/chapt10/axes3d/axes3d.py` and double-thickness
 applied (`rod_radius=0.05`, `cone_radius=0.12`).
 
 The geometry helpers already emit per-vertex `glNormal3f` calls (cylinder
@@ -24,7 +32,7 @@ no shading falloff, all one flat color.
 
 ## Reference: original lighting setup
 
-From `/mvp/ports/openglsuperbiblev4/chapt10/axes3d/axes3d.py:103-119`:
+From `ports/openglsuperbiblev4/chapt10/axes3d/axes3d.py:103-119`:
 
 ```python
 def setup_rc() -> None:
@@ -52,7 +60,7 @@ red/green/blue + grayed-out logic keeps working with no other change.
 
 ## Option 1 — Cheap win: fixed-function demos
 
-**Scope:** `demo19a.py` and `mvpVisualization/modelview/modelview.py` only.
+**Scope:** `demos/demo19a.py` and `mvpvisualization/modelview.py` only.
 ~15 minutes total.
 
 Both files are fixed-function (1.4 / 2.x), `glColor3f`-based. Drop the lighting
@@ -68,9 +76,9 @@ this should be safe — but spot-check after enabling. If culling produces
 holes, swap two vertices in one of the triangle fans or skip culling.
 
 ### Files
-- `/mvp/src/modelviewprojection/demo19a.py` — add the lighting block before
+- `src/modelviewprojection/demos/demo19a.py` — add the lighting block before
   the main loop. Keep `glColor3f` calls in `draw_unit_axes` as-is.
-- `/mvp/mvpVisualization/modelview/modelview.py` — same, before the main loop.
+- `src/modelviewprojection/mvpvisualization/modelview.py` — same, before the main loop.
 
 ### Verification
 - Run each demo. Cylinders should show smooth shading (brighter on the
@@ -82,12 +90,12 @@ holes, swap two vertices in one of the triangle fans or skip culling.
 
 ## Option 2 — Full polish: 6 mvpVisualization demos (3.3 Core, shaders)
 
-**Scope:** the 6 shader-based mvpViz demos.
+**Scope:** the 6 shader-based `mvpvisualization/` demos.
 
 These don't have a fixed-function pipeline; they use `axis.vert +
 triangle.frag` with a single `uniform vec3 color`. To light the axes:
 
-1. **Add a normal vertex attribute.** Modify `_pipeline.build_axis_arrow_solid()`
+1. **Add a normal vertex attribute.** Modify `mvpvisualization/_pipeline.py`'s `build_axis_arrow_solid()`
    to also return per-vertex normals, OR add a parallel
    `build_axis_arrow_solid_normals()`. Cylinder side normal = outward radial
    `(c, 0, s)`; cone side normal = `(c, slope, s)` normalized (slope = base /
@@ -128,7 +136,7 @@ triangle.frag` with a single `uniform vec3 color`. To light the axes:
    `project()` body.
 
 ### Files
-- `/mvp/mvpVisualization/_pipeline.py` — add normals to
+- `src/modelviewprojection/mvpvisualization/_pipeline.py` — add normals to
   `build_axis_arrow_solid()` (or a sibling builder), add `make_lit_lines_vao`.
 - 6 × `axis_lit.vert` + 6 × `axis_lit.frag` (12 new shader files), one set
   per demo dir. Animated copies in modelview2d / ortho / perspective.
@@ -140,7 +148,7 @@ triangle.frag` with a single `uniform vec3 color`. To light the axes:
 
 ### Reference
 Demo22 already does Lambert lighting in shaders — model on
-`/mvp/src/modelviewprojection/demo22/block.frag` for the lit-frag pattern.
+`src/modelviewprojection/demos/demo22/block.frag` for the lit-frag pattern.
 
 ### Verification
 - Run each of the 6 demos. The cylinder+cone axes should show smooth

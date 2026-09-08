@@ -92,7 +92,7 @@ it is frame-identical but not raw-bit-identical. (One more reason to prefer the 
 
 1. **Renderer model matrix via lambdify** — viable and *faster*; rollout touches the shim renderer
    + the 10 inlined game copies (or lands via step 3 re-extract). Owned by
-   `tasks/pgzero-gl-renderer-matrix-via-gacalc-perf.md`.
+   `tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md`.
 2. **A named, exact, fast quarter turn** — DONE in gacalc 0.0.20 as `g2.rotate_90_degrees()`
    (an `InvertibleFunction[Vector]`, the generated closed form of `v * e_12`, exact — no lambdify
    needed) plus the `g2.Vector.rotate_90_degrees()` method. `myriapod` swapped its local copy for it
@@ -104,9 +104,9 @@ it is frame-identical but not raw-bit-identical. (One more reason to prefer the 
 ## Related
 
 - `perf_test.py` (removed 2026-09-06 when its task archived (one-shot; in git history under the archived task)) — the harness for every number here.
-- `tasks/gacalc-transforms-for-rotate-translate.md` — the parent study (the crux: `to_matrix`
+- `tasks/archive/2026/09/06/gacalc-transforms-for-rotate-translate.md` — the parent study (the crux: `to_matrix`
   exists + is correct).
-- `tasks/pgzero-gl-renderer-matrix-via-gacalc-perf.md` — the perf/rollout task for the renderer.
+- `tasks/archive/2026/09/06/pgzero-gl-renderer-matrix-via-gacalc-perf.md` — the perf/rollout task for the renderer.
 - geometricalgebra `tasks/archive/2026/09/06/add-quarter-turn-to-g2.md` — the record of gacalc's
   `rotate_90_degrees` (**g2-only**, shipped 2026-09-06 in 0.0.20; the removed general-dimension
   `rotate_90_degrees` — which mis-transformed e₃+ vectors — is why it is dimension-specific).

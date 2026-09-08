@@ -50,8 +50,11 @@ never happening** (leaving 11 divergent ~3.4k-line copies), so the re-extraction
    richest at 6014). Archived `tasks/archive/2026/09/05/pgzero-gl-step2-strip-and-restructure.md`; maintainer squashes + merges.
 3. **`tasks/pgzero-gl-step3-reextract-library.md`** — re-extract the real shared library. *Step 2 done → unblocked; awaiting maintainer decision.*
 
-**Side branch (not a step):** `tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md` — a GL 1.4 fixed-function companion `boing_gl1.py`
-beside the 3.3 `boing.py`, for studying the pipeline difference. Independent of step 3; awaiting go-ahead.
+**Side branch (not a step):** ~~awaiting go-ahead~~ → **DONE.** `boing_gl1.py` exists beside the 3.3
+`boing.py` (both tightened 2026-09-05; 1224 vs 1375 lines), so the pipeline-difference study the
+branch was for can be read as a plain `diff` of the two files — they share the same `SpriteRenderer`
+Protocol text and differ only in the concrete renderer. Archived:
+`tasks/archive/2026/09/05/pgzero-gl-boing-gl14.md`.
 
 > **Adhoc cleanup DONE 2026-09-06** (the maintainer: "archive the one-shot adhoc scripts now"): `tasks/adhoc/pgzero-gl-inline/` and `pgzero-gl-boing-gl14/` are gone (`git rm`; history under the archived step tasks); `capture_frame.py` was promoted to `tools/ctc_capture_frame.py` because `tools/ctc_verify_game.sh` depends on it.
 

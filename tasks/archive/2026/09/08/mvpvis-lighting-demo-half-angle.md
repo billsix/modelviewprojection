@@ -1,5 +1,15 @@
 # New MVP-visualization demo: lighting with half-angle vectors + light source
 
+**Status:** **MERGED 2026-09-08 into `tasks/lighting-types-and-visualization.md`** — not
+done, not dropped. This task and its two siblings each asked in their own Open questions
+whether they were the same effort; they were, so they became one. The merged task carries
+this one’s content, the facts `tasks/reference/lighting-and-shading.md` established, and a
+correction: the claim below that the archived `ports-visible-light-source.md` “added the
+visible light marker across lit ports” is **false** — that task is archived unstarted and no
+marker exists in `ports/`. Everything below is kept as the record of the original ask.
+
+(Superseded status line follows.)
+
 **Status:** blocked
 **Priority:** 7
 **Difficulty:** 5

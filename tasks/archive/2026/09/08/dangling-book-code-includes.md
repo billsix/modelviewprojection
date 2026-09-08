@@ -1,9 +1,35 @@
 # 25 book code listings are silently EMPTY — dangling `literalinclude` anchors
 
-**Status:** **substantially DONE 2026-07-20.** Checker done; local mismatches done; gacalc
-markers released (0.0.11); **sdist wired into the Docker build and all 42 directives
-repointed/resolved.** Book build is green (checker passes, Sphinx has no gacalc-anchor
-warnings). Remaining is refinement, not blocking — see "What was done" below.
+**Status:** **DONE — closed 2026-09-08.** Was "substantially DONE 2026-07-20"; everything it
+left open has since closed, verified 2026-09-08:
+
+- **Open question 2 ("how should the book reach the gacalc source?") — answered by the work this
+  doc itself records.** `entrypoint.sh` copies `/opt/gacalc-src/*.py` into
+  `book/docs/_gacalc_src/` (gitignored) before the build, so `literalinclude::
+  _gacalc_src/<mod>.py` resolves. The "needs a spike" note was written before that landed.
+- **Open question 3 ("pin exactly?") — done.** `requirements.txt` pins `gacalc==0.0.20` and the
+  Dockerfile's `ARG GACALC_VERSION=0.0.20` matches it; the lockstep rule is documented in
+  `tasks/reference/book-and-docs-pipeline.md` §3 and enforced by convention on every bump
+  (0.0.11 → 0.0.14 → 0.0.15 → 0.0.16 → 0.0.18 → 0.0.19 → 0.0.20, both files each time).
+- **Plan step 4, the white-box/black-box call — decided and recorded.** White-box the ch06
+  `InvertibleFunction` cluster (the course narrates that code line by line); black-box the
+  ch05/ch14 data types (the author tells students not to stress the implementation). Now a
+  standing editorial rule in `tasks/reference/book-and-docs-pipeline.md` §6 and
+  `tasks/reference/design-decisions.md` › "Book & code-sync".
+- **Known imperfection "ch01 import first module still warns" — fixed** by
+  `tasks/archive/2026/07/23/demo01-import-region-empty.md` (adjacent begin/end markers with no
+  lines between; the checker gained an empty-slice check in
+  `tasks/archive/2026/08/01/check-doc-regions-empty-slices.md`).
+- **Known imperfection "`Vector2D` vs `Vector2` naming drift in the prose" — gone.**
+  `grep -rn "Vector2D\|Vector3D\|Vector2\b\|Vector3\b" book/` returns nothing (checked
+  2026-09-08); the prose says `Vector` throughout, swept by the gacalc 0.0.16 adoption
+  (`tasks/archive/2026/08/13/adopt-unsuffixed-gacalc-graded-types.md`).
+- **Known imperfection "basis listings dropped" — the one live residual, and it is gacalc's.**
+  ch05/ch14 still name the basis constants in prose rather than showing them, because gacalc
+  does not mark its post-class `Cls.e_1 = …` assignments. Filed upstream as
+  geometricalgebra `tasks/mark-basis-constants-for-doc-regions.md` (proposed, 2026-09-08);
+  when it ships, restore the two listings here and bump the pin + `ARG` together.
+
 **Priority:** 6
 **Difficulty:** 3
 

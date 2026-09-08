@@ -110,27 +110,37 @@ If an anchor **doesn't resolve** (marker renamed/deleted/typo'd, or the target f
 - `_unresolved_anchor_errors()` — walks every `book/docs/**/*.rst`, finds each `literalinclude` with a `:start-after:`/`:end-before:` doc-region option, resolves the target path relative to the `.rst`, and asserts the `doc-region-begin <name>` / `doc-region-end <name>` string is present in the target (mirroring Sphinx's *containing-line* match). Missing target file or missing marker → error.
 - `_name_collision_errors()` — walks every `*.py` in the repo *except* under `book/docs/`, and for begin- and end-markers **separately** flags (a) exact-duplicate names and (b) any name that is a **prefix** of another in the same file.
 
-It is invoked two ways, both in the container: by `entrypoint.sh:29` as a **build gate** (before `make html`), and standalone via **`make check-regions`** (`Makefile:150`) — which populates `_gacalc_src` first (mirroring the entrypoint) then runs the checker, because some anchors resolve against gacalc's files that only exist inside the image. The checker's own module docstring notes a *third* check (region content vs a lockfile, for cross-repo drift) is planned but unwired, pending a marker-ID scheme (`tasks/dangling-book-code-includes.md`).
+It is invoked two ways, both in the container: by `entrypoint.sh:29` as a **build gate** (before `make html`), and standalone via **`make check-regions`** (`Makefile:150`) — which populates `_gacalc_src` first (mirroring the entrypoint) then runs the checker, because some anchors resolve against gacalc's files that only exist inside the image. The checker's own module docstring notes a *third* check (region content vs a lockfile, for cross-repo drift) is planned but unwired, pending a marker-ID scheme (`tasks/archive/2026/09/08/dangling-book-code-includes.md`).
 
 ## 3. The gacalc integration for docs
 
 mvp depends on gacalc **twice, for two different reasons**, and the two must stay in lockstep.
 
-**(a) The runtime WHEEL.** `requirements.txt:3` pins `gacalc==0.0.16`. This is the ordinary runtime dependency — `pip`-installed into `/venv`, imported by the package (`from gacalc.g2 import Vector`, etc.). `pyproject.toml` reads dependencies dynamically from `requirements.txt` (`[tool.setuptools.dynamic]`).
+**(a) The runtime WHEEL.** `requirements.txt:3` pins `gacalc==0.0.20` (the value moves with every bump — 0.0.11 → 0.0.14 → 0.0.15 → 0.0.16 → 0.0.18 → 0.0.19 → 0.0.20 so far; what matters is the lockstep rule below, not the number). This is the ordinary runtime dependency — `pip`-installed into `/venv`, imported by the package (`from gacalc.g2 import Vector`, etc.). `pyproject.toml` reads dependencies dynamically from `requirements.txt` (`[tool.setuptools.dynamic]`).
 
-**(b) The docs-only SOURCE sdist.** The book `literalinclude`s **gacalc's own source** (its `functions.py`, `transforms.py`, `g2.py`, `g3.py`) to teach GA concepts — e.g. `book/docs/ch06.rst` quotes `_gacalc_src/functions.py` for `InvertibleFunction`, ch05/ch14 quote `g2.py`/`g3.py`/`transforms.py`. To do that, gacalc's real source must be *on disk inside the book tree*. The `Dockerfile` (`ARG GACALC_VERSION=0.0.14`, must equal the requirements pin):
+**(b) The docs-only SOURCE sdist.** The book `literalinclude`s **gacalc's own source** (its `functions.py`, `transforms.py`, `g2.py`, `g3.py`) to teach GA concepts — e.g. `book/docs/ch06.rst` quotes `_gacalc_src/functions.py` for `InvertibleFunction`, ch05/ch14 quote `g2.py`/`g3.py`/`transforms.py`. To do that, gacalc's real source must be *on disk inside the book tree*. The `Dockerfile` (`ARG GACALC_VERSION=0.0.20`, must equal the requirements pin):
 
 1. Fetches the gacalc **sdist** from the PyPI JSON API for exactly `${GACALC_VERSION}`.
 2. Extracts it and copies `src/gacalc/*.py` into the image at **`/opt/gacalc-src/`**.
-3. `entrypoint.sh:23-24` (and `make check-regions`) then copies `/opt/gacalc-src/*.py` → **`book/docs/_gacalc_src/`** at build time.
+3. `entrypoint.sh:29` (and `make check-regions`) then copies `/opt/gacalc-src/*.py` → **`book/docs/_gacalc_src/`** at build time.
 
-`_gacalc_src/` is **gitignored** (`.gitignore:183`), docs-only, never on `sys.path`, never imported. It exists purely as literalinclude fodder.
+`_gacalc_src/` is **gitignored** (`.gitignore:190`), docs-only, never on `sys.path`, never imported. It exists purely as literalinclude fodder.
 
-**Why the sdist, not a git clone.** gacalc's `g1.py`/`g2.py`/`g3.py`/`scalar.py` are *code-generated and gitignored in gacalc's own repo* — a git clone would contain no generated modules (you'd have to run gacalc's generator). The **sdist has the generated modules, with their doc-region markers, baked in** (gacalc bakes them into the sdist/wheel at build time). So pulling the sdist gets ready-to-quote source with zero code generation and zero toolchain here.
+**What the sdist actually contains** (checked 2026-09-08 against gacalc's `Makefile` and `setup.py`):
+the nine hand-written modules — `base.py`, `functions.py`, `transforms.py`, `gn.py`, `frame.py`,
+`measure.py`, `vectorcalc.py`, `nbplotutils.py`, `__init__.py` — plus the generated
+**`g1.py` … `g5.py`**. `make dist` sets `GACALC_DIMS=1,2,3,4,5` so 𝒢₄/𝒢₅ are generated once at
+publish and baked in, even though a dev `make generate` builds only g1–g3.
+**There is no `scalar.py`** — earlier revisions of this doc listed one, but gacalc made the grade-0
+`Scalar` type **per-algebra** on 2026-07-22 (so `Scalar.dual()` can name its own algebra's
+pseudoscalar without a circular import); each `gN.py` now carries its own. Nothing in the book
+quoted it.
 
-**The lockstep rule.** `ARG GACALC_VERSION` (`Dockerfile:92` as of this writing) **must equal** the `gacalc==` pin in `requirements.txt`. The same version drives both the runtime wheel and the docs source, so *the book never documents a gacalc version the code doesn't run*. Bump both together (the Dockerfile's comment states this explicitly). `GACALC_VERSION` is declared as a *late* `ARG` (not up top with the feature-flag ARGs) deliberately, so a version bump only rebuilds that cheap final layer, not the expensive TeX/dnf install above it.
+**Why the sdist, not a git clone.** gacalc's `g1.py`/`g2.py`/`g3.py` are *code-generated and gitignored in gacalc's own repo* — a git clone would contain no generated modules (you'd have to run gacalc's generator). The **sdist has the generated modules, with their doc-region markers, baked in** (gacalc bakes them into the sdist/wheel at build time). So pulling the sdist gets ready-to-quote source with zero code generation and zero toolchain here.
 
-**Why the sdist and not a git clone (measured):** gacalc's `g1/g2/g3/scalar.py` are code-generated *and gitignored in gacalc's repo* — a clone would need gacalc's generator run in the image (~30 s for 𝒢₃, needs numpy+sympy); the sdist ships the generated modules with their doc-region markers baked in. Related time-saver: **`pip download --no-binary :all: gacalc` hangs building metadata** — fetch the sdist tarball via the PyPI JSON API instead, as the Dockerfile does. (`tasks/dangling-book-code-includes.md`)
+**The lockstep rule.** `ARG GACALC_VERSION` (`Dockerfile:90` as of this writing) **must equal** the `gacalc==` pin in `requirements.txt`. The same version drives both the runtime wheel and the docs source, so *the book never documents a gacalc version the code doesn't run*. Bump both together (the Dockerfile's comment states this explicitly). `GACALC_VERSION` is declared as a *late* `ARG` (not up top with the feature-flag ARGs) deliberately, so a version bump only rebuilds that cheap final layer, not the expensive TeX/dnf install above it.
+
+**Why the sdist and not a git clone (measured):** gacalc's `g1/g2/g3` (plus `g4`/`g5` in a release build) are code-generated *and gitignored in gacalc's repo* — a clone would need gacalc's generator run in the image (~30 s for 𝒢₃, needs numpy+sympy); the sdist ships the generated modules with their doc-region markers baked in. Related time-saver: **`pip download --no-binary :all: gacalc` hangs building metadata** — fetch the sdist tarball via the PyPI JSON API instead, as the Dockerfile does. (`tasks/archive/2026/09/08/dangling-book-code-includes.md`)
 
 ## 4. The container build/run flow
 
@@ -175,7 +185,7 @@ where the course narrates that code line by line (the ch06
 `InvertibleFunction` cluster); *black-box* (prose + a pointer) where the
 author already tells students not to stress the implementation (the ch05/ch14
 data types). Apply the same test to any future "the code moved upstream"
-listing. (`tasks/dangling-book-code-includes.md`)
+listing. (`tasks/archive/2026/09/08/dangling-book-code-includes.md`)
 
 **State of the book (measured 2026-07-30)** — where the chapters actually are:
 
@@ -195,5 +205,5 @@ listing. (`tasks/dangling-book-code-includes.md`)
 - Known residuals from the gacalc-listing migration: `Vector2D`-era naming
   drift in some prose, and the basis-vector listings were dropped (gacalc
   doesn't mark `Vector.e_1` — post-class assignments; recoverable only via a
-  future gacalc release). (`tasks/dangling-book-code-includes.md`,
+  future gacalc release). (`tasks/archive/2026/09/08/dangling-book-code-includes.md`,
   `tasks/book-rotate-prose-update.md`)

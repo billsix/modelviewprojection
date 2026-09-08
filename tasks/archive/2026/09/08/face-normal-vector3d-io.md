@@ -1,5 +1,13 @@
 # Task: investigate `_face_normal` taking / returning `Vector3D`
 
+**Status:** **MERGED 2026-09-08 into `tasks/mathutils-helpers-via-gacalc.md`** — not done,
+not dropped. Both this and its sibling asked the same question (should a `mathutils` helper be
+re-expressed in gacalc's vocabulary?) about the same module, needed the same single decision, and
+share the same doctest + autodoc gate, so they became one review. Everything below is kept as the
+record of the original analysis.
+
+(Superseded status line follows.)
+
 **Status:** not started (investigation). **Type:** refactor of
 `src/modelviewprojection/shading.py` + its callers. Follow-up to
 [`shading-use-vector3d.md`](archive/2026/05/26/shading-use-vector3d.md) (Finding 1, done — made
