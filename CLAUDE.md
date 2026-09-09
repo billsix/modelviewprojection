@@ -255,6 +255,13 @@ call.** Record: `tasks/archive/2026/09/09/assignments-1-and-2-review.md` and
   gallery.
 - **`assignment2` renders an empty window until its hole is filled** — that is
   correct, not a bug, and its header comment says so.
+- **Checking one still renders:** `tools/verify_render.sh <script> [frames]
+  [png] [hold-keys] [--allow-blank]` (needs `make image` and an `Xvfb :99`).
+  It works on any GLFW script here — demos and visualizations too — and reports
+  a colour histogram rather than demanding pixel-identity, which is
+  `tools/ctc_verify_game.sh`'s job for the games. Pass `--allow-blank` for
+  `assignment2-screenspace.py`, whose empty window is correct until its hole is
+  filled.
 - **No reference solutions exist anywhere, and where they should live is
   undecided.** Worth settling: `demo02/vec1.py` was unrunnable for a month
   (an `ImportError` from the 2026-08-13 mathutils de-facade) because nothing

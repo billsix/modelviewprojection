@@ -2,8 +2,8 @@
 
 **Status:** **DONE — closed 2026-09-09.** All four student-facing files are updated. The two
 cross-cutting questions this inherited were rehomed rather than archived with it: the
-book-cross-reference one to `tasks/book-code-drift-ch16-21.md` (it is book prose, and those
-chapters are open), and the reference-solutions one to `CLAUDE.md` › Assignments, where it is
+book-cross-reference one to its own task, `tasks/book-link-chapters-to-assignments.md`, and the
+reference-solutions one to `CLAUDE.md` › Assignments, where it is
 recorded as undecided alongside the fact that nothing currently runs these files — which is how
 `demo02/vec1.py` stayed broken for a month.
 **Priority:** 6
@@ -172,9 +172,8 @@ new code automatically.
 
 ## Rehomed when this closed
 
-- **Book cross-references** — should a chapter point at the assignment that exercises it? Moved to
-  `tasks/book-code-drift-ch16-21.md`; it is prose work in Bill's voice and those chapters are
-  already open.
+- **Book cross-references** — should a chapter point at the assignment that exercises it? Now its
+  own task, `tasks/book-link-chapters-to-assignments.md` (Bill, 2026-09-09).
 - **Reference solutions** — none exist for the three holes, and where they should live is
   undecided. Recorded in `CLAUDE.md` › Assignments. The concrete argument for settling it: all
   three solutions are pure math, `vec1.py` can be gated in the pytest suite (verified: it reaches

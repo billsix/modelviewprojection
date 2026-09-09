@@ -119,6 +119,24 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   graph per frame for a diff (the input-path complement; the frame gate only
   sees the attract mode). Both need the sandbox's Xvfb on `:99` and the nested
   image. Details: `tasks/reference/code-the-classics-tightening.md` §5.
+- **Render gate for a demo / visualization / assignment** (2026-09-09):
+  `tools/verify_render.sh <script> [frames] [png] [hold-keys] [--allow-blank]`
+  + `tools/render_probe.py`. Drives the script for N frames in the project
+  image under the sandbox's Xvfb, reads the **back buffer** with
+  `glReadPixels` just before each swap, and reports the colour histogram (a
+  count per object) plus the camera. Deliberately NOT the CtC check above:
+  those games have a byte-identical contract, the demos do not, so this proves
+  "it still draws, and here is what" rather than AE=0.
+  **Two things it exists to work around, both hit 2026-09-08/09:**
+  `import -display :99 -window root` captures **black** for these programs (no
+  window manager maps the GLFW window onto the Xvfb root), which is why it
+  reads the framebuffer instead; and a single-colour frame is the CORRECT
+  state for `assignments/assignment2-screenspace.py`, whose exercise hole is
+  what makes the scene appear — hence `--allow-blank`, without which a blank
+  frame is a failure. `--hold RIGHT,LEFT_SHIFT` holds keys down so a camera
+  path can be exercised with nobody at the keyboard.
+  Promoted from `tasks/adhoc/assignments-review/`, where it gated the
+  assignment re-syncs (`tasks/archive/2026/09/09/assignments-1-and-2-review.md`).
 - **Definitions gate** (`runpy.run_path` with `go` stubbed): executes class
   bodies, which `py_compile` does not — this caught ~20 latent bugs in the
   shim-dynamism audit. (`tasks/archive/2026/07/09/ctc-shim-dynamism-audit.md`)
@@ -217,7 +235,16 @@ carries the full detail). Any future bulk mechanical pass should follow these:
 - **The CtC games have no automatic gate** — the smoke test is manual (§4),
   and `ty` covers the shim + games only via `format.sh`.
 - **The SuperBible ports have no gate at all** beyond ruff formatting; they
-  are hardware-verified by Bill only.
+  are hardware-verified by Bill only. (`tools/verify_render.sh` would work on
+  them — they are GLFW scripts like the demos — but nothing runs it for them.)
+- **The demos, visualizations and assignments are not gated automatically
+  either.** `tools/verify_render.sh` is the check, and it is manual: the demos
+  open a window at import, so they cannot be collected by pytest, which is also
+  why `pytest.ini` carries its allow-list. `assignments/demo02/vec1.py` is the
+  exception — it is pure math, opens nothing, and CAN be run in-process
+  (verified 2026-09-09: it reaches its exercise hole and raises
+  `AssertionError`). Nothing does so today, which is how it stayed broken for a
+  month after the 2026-08-13 mathutils de-facade.
 
 ## 8. Vestigial / trap files a reader will trip over
 
