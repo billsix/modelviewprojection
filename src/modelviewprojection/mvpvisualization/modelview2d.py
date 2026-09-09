@@ -21,6 +21,7 @@ the squash scales by 1/10 down onto the ±1 NDC square."""
 
 import math
 import os
+import sys
 import typing
 from enum import Enum, auto
 
@@ -143,6 +144,15 @@ DRAW = {
     Space.square: "square",
     Space.paddle2: "paddle2",
 }
+
+# This file is a program, not a module: from here on it acquires resources (a
+# window, a GL context) and then runs its own loop.  A tool that imports it to
+# inspect it stops here instead of opening a window.
+if __name__ != "__main__":
+    sys.exit(
+        "this is a visualization, run it directly rather than importing it"
+    )
+
 
 window, impl, imguiio = cayley_gl.setup("Model View 2D (Cayley)")
 # no camera/orbit: the 2D view is flat (setup_ortho_2d_view), zoomed by the

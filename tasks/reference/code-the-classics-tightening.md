@@ -43,9 +43,13 @@ Read `ports/codetheclassics/vol1/boing/boing.py` top to bottom; it is the smalle
    as a module, was removed 2026-09-06), and the harnesses run the file as `__main__` (see §5). **Import guard (maintainer, 2026-09-05):** the window section opens with
    `if __name__ != "__main__": sys.exit(...)`, so a tool that imports the file to inspect it stops
    before any window, GL context or sound device is acquired (everything above that line is
-   definitions plus lazy loaders). Note the demos themselves do NOT carry such a guard — they open
-   their window at import — so this is a games-only convention until `tasks/demos-exit-if-not-main.md`
-   (proposed) brings the demos in line.
+   definitions plus lazy loaders). **No longer games-only: the 30 demos and 7
+   visualizations were brought in line on 2026-09-09**, with the same one-line guard placed above
+   each file's first resource acquisition — `glfw.init()` for a demo, `cayley_gl.setup(...)` for a
+   visualization — so importing any runnable file in this repo now stops before a window opens.
+   Excluded on purpose: `mvpvisualization/_pipeline.py` and `cayley_gl.py`, which are the engine
+   those files import, and `wxapp*.py`, which are framework-style.
+   (`tasks/archive/2026/09/09/demos-exit-if-not-main.md`)
 4. **Only what this game uses.** boing dropped: `Context` (dissolved into `ASSET_ROOT` from
    `__file__` plus the module-level `renderer`), the `Drawable`/`RGBASource` protocols and the
    `Point`/`PointLike`/`Anchor`/`Color*` aliases, `Image.from_rgba/get_width/get_height`,

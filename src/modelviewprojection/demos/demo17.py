@@ -36,6 +36,13 @@ from modelviewprojection.mathutils import (
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
+# This file is a program, not a module: from here on it acquires resources (a
+# window, a GL context) and then runs its own loop.  A tool that imports it to
+# inspect it stops here instead of opening a window.
+if __name__ != "__main__":
+    sys.exit("this is a demo, run it directly rather than importing it")
+
+
 if not glfw.init():
     sys.exit()
 

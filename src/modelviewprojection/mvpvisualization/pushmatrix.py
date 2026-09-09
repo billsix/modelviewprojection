@@ -13,6 +13,7 @@ mechanisms."""
 
 import math
 import os
+import sys
 import typing
 from enum import Enum, auto
 
@@ -122,6 +123,15 @@ scene = cayleyscene.Scene(
 animation = cayleyscene.Animation(scene)
 GEOMETRY = {Space.paddle1: "paddle1"}
 GEOMETRY.update({_square(i): "square" for i in range(NUM_SQUARES)})
+
+# This file is a program, not a module: from here on it acquires resources (a
+# window, a GL context) and then runs its own loop.  A tool that imports it to
+# inspect it stops here instead of opening a window.
+if __name__ != "__main__":
+    sys.exit(
+        "this is a visualization, run it directly rather than importing it"
+    )
+
 
 window, impl, imguiio = cayley_gl.setup("Push Matrix (Cayley)")
 camera = cayley_gl.make_camera()

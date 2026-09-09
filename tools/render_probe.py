@@ -110,15 +110,20 @@ if args.png:
     image.save(args.png)
     print(f"  wrote {args.png}")
 
+# Report the camera when there is one to report -- but assume NOTHING about
+# its shape.  The demos alone have three: demo18's 3D `position_ws` with
+# rot_y/rot_x, the 2D demos' g2 `position_ws` with neither, and the orbit
+# cameras in demo22 and the Cayley visualizations, which have no `position_ws`
+# at all.  This is diagnostic output; it must never be the reason a render
+# check fails.
 camera = globals_after.get("camera")
-if camera is not None:
-    # 2D demos carry a g2 camera with no z and no rotation, so report what this
-    # one actually has rather than assuming demo18's shape
-    coords = ", ".join(f"{float(c):.2f}" for c in camera.position_ws)
+position = getattr(camera, "position_ws", None) if camera is not None else None
+if position is not None:
+    coords = ", ".join(f"{float(c):.2f}" for c in position)
     angles = " ".join(
         f"{name}={getattr(camera, name):.4f}"
         for name in ("rot_y", "rot_x")
-        if hasattr(camera, name)
+        if isinstance(getattr(camera, name, None), (int, float))
     )
     print(f"  camera: ({coords}) {angles}".rstrip())
 

@@ -77,6 +77,13 @@ from modelviewprojection.util.windowing import on_key
 # GLFW + GL 3.3 core context setup
 # ---------------------------------------------------------------------------
 
+# This file is a program, not a module: from here on it acquires resources (a
+# window, a GL context) and then runs its own loop.  A tool that imports it to
+# inspect it stops here instead of opening a window.
+if __name__ != "__main__":
+    sys.exit("this is a demo, run it directly rather than importing it")
+
+
 if not glfw.init():
     sys.exit()
 

@@ -15,6 +15,7 @@ against the placement arrows, the inverse).  No camera object is drawn."""
 
 import math
 import os
+import sys
 import typing
 from enum import Enum, auto
 
@@ -124,6 +125,15 @@ def sync_steps() -> None:
 def frame_of(space: Space) -> np.ndarray:
     """4x4 placing ``space``-local coords into world (along the arrows)."""
     return cayleyscene.to_matrix(graph.path(space, Space.world).function())
+
+
+# This file is a program, not a module: from here on it acquires resources (a
+# window, a GL context) and then runs its own loop.  A tool that imports it to
+# inspect it stops here instead of opening a window.
+if __name__ != "__main__":
+    sys.exit(
+        "this is a visualization, run it directly rather than importing it"
+    )
 
 
 window, impl, imguiio = cayley_gl.setup("Coordinate Systems (Cayley)")

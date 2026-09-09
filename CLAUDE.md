@@ -229,8 +229,9 @@ its fate — it, not the games, carries the LGPL question.
   copies; `MODEL: MatrixTemplate` now built with gacalc's `to_matrix_template(g3.Vector, params)`,
   `fill(...)` call sites unchanged) and
   `tasks/archive/2026/09/06/swap-myriapod-rotate90-to-gacalc.md` (myriapod's local quarter turn
-  replaced by `gacalc.g2.rotate_90_degrees`). Both gated frame-identical (AE=0). Still open:
-  `tasks/demos-exit-if-not-main.md` (the import guard for the course demos, proposed).
+  replaced by `gacalc.g2.rotate_90_degrees`). Both gated frame-identical (AE=0). The import guard those games
+  introduced is now repo-wide: `tasks/archive/2026/09/09/demos-exit-if-not-main.md` gave the same
+  `if __name__ != "__main__": sys.exit(...)` to all 30 demos and 7 visualizations (2026-09-09).
 - History: `tasks/archive/2026/06/29/codetheclassics-types-and-docstrings.md`,
   `tasks/archive/2026/08/01/move-ctc-pgzero-shim-into-package.md`.
 

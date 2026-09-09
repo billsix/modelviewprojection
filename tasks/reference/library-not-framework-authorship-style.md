@@ -156,9 +156,26 @@ built with **integer-exact** `InvertibleFunction`s so it replicates the original
 book only where the abstraction has been taught. Evidence base for all three:
 `tasks/reference/coordinate-spaces-in-code-the-classics.md`.
 
+**Update 2026-09-09 — the shape now includes an exit-if-imported guard.** Every demo and
+visualization opens its resource-acquiring section with
+
+```python
+if __name__ != "__main__":
+    sys.exit("this is a demo, run it directly rather than importing it")
+```
+
+which does NOT change the library-not-framework shape above: the file is still a flat top-to-bottom
+script that owns its own loop, and nothing is indented under a `if __name__ == "__main__":` wrapper
+(that reshaping was proposed and **declined** — `tasks/archive/2026/07/19/demo-main-guards-and-dedent.md`).
+The guard only refuses the *import* path, which was never a supported way to use these files. It sits
+outside every `doc-region`, so no chapter prints it; demo01 is the one file where that forced the guard
+above a region's opening marker rather than directly above `glfw.init()`. The engine modules
+`mvpvisualization/_pipeline.py` and `cayley_gl.py` are deliberately unguarded — the demos import them.
+(`tasks/archive/2026/09/09/demos-exit-if-not-main.md`)
+
 **Update 2026-09-05 (boing tightening pilot):** boing now creates its window and renderer at
-module level before any game object, with no `__main__` guard and the loop at the bottom —
-byte-for-byte the demos' shape (`demo07.py:38-47`). The `require_renderer()` lazy guard that the
+module level before any game object, with no wrapping `if __name__ == "__main__":` block and the
+loop at the bottom — byte-for-byte the demos' shape (`demo07.py:38-47`). The `require_renderer()` lazy guard that the
 framework era needed is gone. Standard for the other games:
 `tasks/reference/code-the-classics-tightening.md`.
 
