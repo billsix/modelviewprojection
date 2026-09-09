@@ -1,8 +1,11 @@
-# Assignments 1 and 2 — decide their direction, then modernize the scaffold
+# Assignments 1, 2 and demo02/vec1 — decide their direction, then modernize the scaffold
 
-**Status:** **DONE — closed 2026-09-09.** All four student-facing files are updated; the
-remaining items are the two cross-cutting questions at the foot of this doc (solution management,
-book cross-references), which are Bill's to answer and are not per-assignment work.
+**Status:** **DONE — closed 2026-09-09.** All four student-facing files are updated. The two
+cross-cutting questions this inherited were rehomed rather than archived with it: the
+book-cross-reference one to `tasks/book-code-drift-ch16-21.md` (it is book prose, and those
+chapters are open), and the reference-solutions one to `CLAUDE.md` › Assignments, where it is
+recorded as undecided alongside the fact that nothing currently runs these files — which is how
+`demo02/vec1.py` stayed broken for a month.
 **Priority:** 6
 **Difficulty:** 4
 **Created:** 2026-09-09, carrying the unfinished half of `assignments-review.md` (archived
@@ -12,11 +15,15 @@ assignments, and see how they should be updated relative to the other demos."*
 
 ## BLUF
 
-`assignments/assignment3-strafe.py` was re-synced onto demo18 on 2026-09-08 and is done. The other
-two student-facing assignments still carry pre-migration code, but **neither is a mechanical
-re-sync the way assignment 3 was** — each needs a decision first, and they are different decisions.
-Done = each assignment either modernized, re-scoped, or explicitly left alone with the reason
-recorded.
+`assignments/assignment3-strafe.py` was re-synced onto demo18 on 2026-09-08. This task finished the
+rest on 2026-09-09: **assignment 1** (a worked-example gallery, not an exercise — shared helpers
+adopted, plus two real book bugs fixed), **assignment 2** (demo11's pipeline, gacalc vocabulary, its
+two `ndc_to_screenspace_*` stubs kept as the exercise), and **`demo02/vec1.py`**, which turned out
+not to be stale but **broken** — an `ImportError` since the 2026-08-13 mathutils de-facade, in a
+file the book publishes.
+
+Each file was either modernized or explicitly left alone with the reason recorded; each exercise
+hole was kept and proven solvable. Details per file below.
 
 ## Context — read first
 
@@ -163,18 +170,17 @@ inverse(fahrenheit_to_kelvin)`) passes every assert. **`check_doc_regions.py` is
 marker names were kept identical, so `mathhomework1.rst` needed no edit and its listings pick up the
 new code automatically.
 
-## Also in scope, unchanged from the original task
+## Rehomed when this closed
 
-- **Solution management** — are these handed out as-is for students to fill in, and if so where do
-  reference solutions live? Unanswered since 2026-07-09, and it applies to all three assignments
-  including the now-finished assignment 3.
-- **Book cross-references** — should a chapter point at the matching assignment where the concept
-  lands? Also unanswered.
-
-## Open questions
-
-1. **Solution management** — where do reference solutions live, for all three assignments?
-2. **Book cross-references** — should chapters link to the assignment that exercises them?
+- **Book cross-references** — should a chapter point at the assignment that exercises it? Moved to
+  `tasks/book-code-drift-ch16-21.md`; it is prose work in Bill's voice and those chapters are
+  already open.
+- **Reference solutions** — none exist for the three holes, and where they should live is
+  undecided. Recorded in `CLAUDE.md` › Assignments. The concrete argument for settling it: all
+  three solutions are pure math, `vec1.py` can be gated in the pytest suite (verified: it reaches
+  its hole in-process and raises `AssertionError`), and a test asserting exactly that would have
+  caught the month-long `ImportError` on the day it landed. The three GL files open a window at
+  import, so they cannot be gated the same way.
 
 ## Related
 

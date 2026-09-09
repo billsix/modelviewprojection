@@ -241,23 +241,26 @@ its fate — it, not the games, carries the LGPL question.
 Student-facing exercises (`assignment1.py`, `assignment2-screenspace.py`,
 `assignment3-strafe.py`, `demo02/`), runnable standalone, **covered by
 `format.sh`** since 2026-07-09 (ruff check + format; `T201` exempted — their
-printed output is the point). Their content is being brought up to date one at
-a time; **don't "fix" their vocabulary ad hoc — the exercise design is Bill's
-call.** State as of 2026-09-09:
+printed output is the point). **All four were brought up to date 2026-09-08/09**
+— they use `gacalc` + `mathutils` and the shared `util/` helpers exactly as the
+demos do. **Don't "fix" their vocabulary ad hoc — the exercise design is Bill's
+call.** Record: `tasks/archive/2026/09/09/assignments-1-and-2-review.md` and
+`tasks/archive/2026/09/09/assignments-review.md`.
 
-- **`assignment3-strafe.py` — done.** Re-synced onto **demo18**, the demo it was
-  copied from (its window title said "Demo 17", which was itself drift): the
-  bespoke `Vertex2D`/`Vertex` classes are gone, it uses `gacalc` +
-  `mathutils`'s function stack like the demo, and the exercise — strafe the
-  camera on Shift+Left/Right — is untouched. demo18's gamepad block was removed
-  because it contained the answer. Record:
-  `tasks/archive/2026/09/09/assignments-review.md`.
-- **`assignment1.py` / `assignment2-screenspace.py` — open**, each needing a
-  decision first, not a re-sync: assignment 1 is **book-published** (16
-  `doc-region` markers into `programmingproj1.rst`), and assignment 2's bespoke
-  `Vertex` **is** its exercise (the `ndc_to_screenspace_*` methods). Task:
-  `tasks/assignments-1-and-2-review.md`.
-- `demo02/vec1.py` already imports `mathutils`; nothing to do.
+- **Three of them carry a deliberate hole** — `assignment2-screenspace.py` (the
+  two `ndc_to_screenspace_*` mappings), `assignment3-strafe.py` (strafe on
+  Shift+Left/Right), `demo02/vec1.py` (three temperature conversions). Each was
+  verified solvable; **leave the holes alone.** `assignment1.py` has none — the
+  book asks the student to "draw whatever you'd like", so it is a worked-example
+  gallery.
+- **`assignment2` renders an empty window until its hole is filled** — that is
+  correct, not a bug, and its header comment says so.
+- **No reference solutions exist anywhere, and where they should live is
+  undecided.** Worth settling: `demo02/vec1.py` was unrunnable for a month
+  (an `ImportError` from the 2026-08-13 mathutils de-facade) because nothing
+  runs these files. vec1 is pure math and *can* be gated in the pytest suite;
+  the three GL files open a window at import and cannot, so their only check is
+  a manual headless render.
 
 ## The book includes code by MARKER, not by line number — so line numbers take care of themselves
 

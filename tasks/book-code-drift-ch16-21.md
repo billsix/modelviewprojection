@@ -120,6 +120,16 @@ Work:
    before writing; he may want it split with a future ch22 (TODO.org sketches
    ch22 = ch21 + color-as-uniform).
 
+## Inherited 2026-09-09: should chapters link to their assignment?
+
+Carried from `assignments-1-and-2-review.md` when it closed — it is book prose, not assignment
+work, and these chapters are already open for rework. All four assignments are now current
+(`assignments/assignment{1,2,3}*.py`, `assignments/demo02/vec1.py`), three of them carrying a
+deliberate exercise hole. Open question, Bill's call: should the chapter that teaches a concept
+point at the assignment that exercises it? Two assignments are already book-published in their own
+right (`assignment1.py` → `programmingproj1.rst`, `demo02/vec1.py` → `mathhomework1.rst`), so this
+is about *cross*-linking from the numbered chapters, not about publishing them.
+
 ## Out of scope (noted, not planned here)
 - `demo22a`/`demo23`/`demo24` (pyramid/litjet/sphereworld) exist in `src/` with
   **no chapters** and aren't in the toctree (stops at ch21). Curriculum gap, not
