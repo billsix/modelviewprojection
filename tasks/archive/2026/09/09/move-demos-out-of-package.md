@@ -1,6 +1,22 @@
 # Move the runnable scripts out of the package, into top-level `demos/` + `visualizations/`
 
-**Status:** **PARKED 2026-07-19 — NOT approved, do not start.** No files were moved.
+**Status:** **DECLINED — closed 2026-09-09 (Bill).** No files were ever moved.
+
+To be precise about what happened when, because the two are different decisions: on
+**2026-07-19** Bill called off the *framing* — this had been drafted as a prerequisite of the
+doctest work, which was already complete, so the task was goal drift. That left the file **parked**
+rather than declined, because the underlying idea (move the demos for **student discoverability**)
+had never been judged on its own merits; this doc said so explicitly, and said it would need "a
+fresh, explicit decision" before anyone started. On **2026-09-09** Bill made that decision: not
+doing it.
+
+Nothing is lost by archiving. The expensive measurements below were already harvested into
+`tasks/reference/design-decisions.md` › "Tooling, types & gates" when that doc was written, and the
+entry there is updated to point here. If this is ever revived, start from those measurements rather
+than re-taking them — but note they date from 2026-07-19 and the tree has moved since (the
+Code-the-Classics games were inlined, `pyMatrixStack` was renamed, `demo22b`/`demo24` came and
+went), so the file counts want re-checking before they are trusted.
+
 **Priority:** 10
 **Difficulty:** 9
 

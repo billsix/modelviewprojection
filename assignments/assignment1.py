@@ -27,6 +27,9 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 
+from modelviewprojection.util.clipping import draw_in_square_viewport
+from modelviewprojection.util.windowing import on_key
+
 if not glfw.init():
     sys.exit()
 
@@ -40,12 +43,6 @@ if not window:
 
 glfw.make_context_current(window)
 
-
-def on_key(window, key, scancode, action, mods):
-    if key == glfw.KEY_ESCAPE and action == glfw.PRESS:
-        glfw.set_window_should_close(window, 1)
-
-
 glfw.set_key_callback(window, on_key)
 
 GL.glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -56,38 +53,10 @@ GL.glMatrixMode(GL.GL_MODELVIEW)
 GL.glLoadIdentity()
 
 
-def draw_in_square_viewport() -> None:
-    GL.glClearColor(0.2, 0.2, 0.2, 1.0)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-
-    width, height = glfw.get_framebuffer_size(window)
-
-    min = width if width < height else height
-
-    GL.glEnable(GL.GL_SCISSOR_TEST)
-    GL.glScissor(
-        int((width - min) / 2.0),
-        int((height - min) / 2.0),
-        min,
-        min,
-    )
-
-    GL.glClearColor(0.0, 0.0, 0.0, 1.0)
-    GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-    GL.glDisable(GL.GL_SCISSOR_TEST)
-
-    GL.glViewport(
-        int(0.0 + (width - min) / 2.0),
-        int(0.0 + (height - min) / 2.0),
-        min,
-        min,
-    )
-
-
 program_start_time = glfw.get_time()
 
 
-# doc-region-begin draw a triangle
+# doc-region-begin draw a quadrilateral
 def draw_a_quadrilateral() -> None:
     GL.glColor3f(0.578123, 0.0, 1.0)
     GL.glBegin(GL.GL_QUADS)
@@ -98,7 +67,7 @@ def draw_a_quadrilateral() -> None:
     GL.glEnd()
 
 
-# doc-region-end draw a triangle
+# doc-region-end draw a quadrilateral
 
 
 # doc-region-begin draw x squared precomputed
@@ -186,8 +155,8 @@ def plot(
     # [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]
     # >>> list(range(0,10,2))
     # [0, 2, 4, 6, 8]
-    # >>> np.arange(.0,1.0,.2)
-    # array([. , .2, .4, .6, .8])
+    # >>> np.arange(0.0, 1.0, 0.2)
+    # array([0. , 0.2, 0.4, 0.6, 0.8])
     for x in np.arange(domain[0], domain[1], interval, dtype=float):
         # GL.glVertex is here twice because line segments are assumed to be in
         # pairs
@@ -280,7 +249,7 @@ while not glfw.window_should_close(window):
     GL.glViewport(0, 0, width, height)
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-    draw_in_square_viewport()
+    draw_in_square_viewport(window)
     draw_a_quadrilateral()
     draw_an_oscillating_triangle(elapsed_time_in_seconds)
     draw_x_squared_with_precomputed_values()

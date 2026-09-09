@@ -32,16 +32,16 @@ Examples
 ========
 
 
-Draw a triangle
----------------
+Draw a quadrilateral
+-------------------
 
-Draw a triangle that doesn't move, using predefined coordinates
+Draw a quadrilateral that doesn't move, using predefined coordinates
 in NDC.
 
 .. literalinclude:: ../../assignments/assignment1.py
    :language: python
-   :start-after: doc-region-begin draw a triangle
-   :end-before: doc-region-end draw a triangle
+   :start-after: doc-region-begin draw a quadrilateral
+   :end-before: doc-region-end draw a quadrilateral
    :linenos:
    :lineno-match:
    :caption: assignments/assignment1.py
