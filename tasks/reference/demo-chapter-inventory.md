@@ -97,19 +97,36 @@ Each module's docstring names its introducing demo and exceptions (CLAUDE.md's
 | `cameracontrols` (`walk_around_camera`) | demo19 (inline, teach-once) | 11 files: 19a–19e, 20–24 | demo19 inline; demo17/18 keep their own — they teach the `InvertibleFunction` camera |
 | `colorutils` (`Color4`) | demo05 era | 18 files | — |
 | `shading` | demo22 | demo22, 22a, 23 | — |
+| `shaderutils` (`set_mvp_uniforms`) | demo22a era | demo22a, 23, 24 | — (no chapter covers these three) |
 | `axes` | demo19a | demo19a only | — |
 | `nbplotutils` | — | **none** — sole consumer is `notebooksrc/plot2d.py`; not a demo helper despite its location | — |
+
+### Measured, and deliberately NOT extracted
+
+The same 2026-05-27 pass that produced the table above measured every other
+repeated top-level `def` across the demos (AST, bodies normalized for
+whitespace).  These stayed duplicated **on purpose** — recorded here so nobody
+re-measures them and proposes the same DRY pass again:
+
+| helper | copies | distinct variants | why it stays |
+|---|---:|---:|---|
+| `handle_inputs` | 21 | 18 | the keys each demo wires up **are** the lesson (`design-decisions.md`; only the camera-walk sub-block deduped, into `cameracontrols`) |
+| `handle_movement_of_paddles` | 6 | 4 | mostly varies per demo |
+| `make_vao` | 4 | 3 | evolves demo to demo |
+| `draw_sphere` | 4 | 4 | all four differ |
+| `compile_shader_program` | 4 | 4 | evolves demo to demo |
+| `load_texture`, `_build_marker_cone/sphere`, `planar_shadow_matrix` | 2–3 | all distinct | no identical cluster to extract |
 
 Notes: `cameracontrols`' own docstring still names only "20, 21, 22, 22a, 23,
 24, and 19e" — 19a–19d were converted from orbit to walk-around later
 (`tasks/archive/2026/06/01/dedup-handle-inputs.md`) and now use it too; the
 docstring undercounts. Only ch03 *teaches* `draw_in_square_viewport` and only
 ch04 shows the call — the other chapters' demos just use it
-(`tasks/extract-duplicated-demo-helpers.md` measured this).
+(`tasks/archive/2026/09/09/extract-duplicated-demo-helpers.md` measured this).
 
-The remaining known duplication (`on_key` 30 copies pre-dedup, `handle_inputs`
-21 copies / 18 variants — KEPT by design, the key wiring is the lesson) is
-tracked in `tasks/extract-duplicated-demo-helpers.md`.
+The dedup itself is **finished** (2026-09-09, `tasks/archive/2026/09/09/extract-duplicated-demo-helpers.md`); what remains
+duplicated — `handle_inputs` at 21 copies / 18 variants and the rest of the
+table above — is KEPT by design, not a backlog.
 
 ## 5. Adjacent traps
 

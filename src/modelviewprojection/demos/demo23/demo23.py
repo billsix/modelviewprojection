@@ -60,6 +60,7 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.matrix_stack as ms
 from modelviewprojection.util.cameracontrols import walk_around_camera
+from modelviewprojection.util.shaderutils import set_mvp_uniforms
 from modelviewprojection.util.shading import _face_normal, light_dir_ws
 from modelviewprojection.util.windowing import on_key
 
@@ -195,25 +196,8 @@ u_shininess = GL.glGetUniformLocation(program, "shininess")
 u_lighting_mode = GL.glGetUniformLocation(program, "lightingMode")
 
 
-def set_mvp_uniforms() -> None:
-    GL.glUniformMatrix4fv(
-        u_mvp,
-        1,
-        GL.GL_TRUE,
-        np.ascontiguousarray(
-            ms.get_current_matrix(ms.MatrixStack.modelviewprojection),
-            dtype=np.float32,
-        ),
-    )
-    GL.glUniformMatrix4fv(
-        u_model,
-        1,
-        GL.GL_TRUE,
-        np.ascontiguousarray(
-            ms.get_current_matrix(ms.MatrixStack.model),
-            dtype=np.float32,
-        ),
-    )
+# set_mvp_uniforms is imported from modelviewprojection.util.shaderutils (see
+# imports above); it takes the two uniform locations looked up just above.
 
 
 # ---------------------------------------------------------------------------
@@ -491,14 +475,14 @@ while not glfw.window_should_close(window):
         if wireframe:
             GL.glUniform1i(u_lighting_mode, 0)
             GL.glUniform3f(u_base, 1.0, 1.0, 0.0)
-            set_mvp_uniforms()
+            set_mvp_uniforms(u_mvp, u_model)
             GL.glBindVertexArray(wire_vao)
             GL.glDrawArrays(GL.GL_LINES, 0, wire_count)
             GL.glBindVertexArray(0)
         else:
             GL.glUniform1i(u_lighting_mode, lighting_mode)
             GL.glUniform3f(u_base, *JET_COLOR)
-            set_mvp_uniforms()
+            set_mvp_uniforms(u_mvp, u_model)
             GL.glBindVertexArray(jet_vao)
             GL.glDrawArrays(GL.GL_TRIANGLES, 0, jet_count)
             GL.glBindVertexArray(0)
@@ -520,14 +504,14 @@ while not glfw.window_should_close(window):
         ms.rotate_x(ms.MatrixStack.model, math.radians(-light_el_deg))
 
         GL.glUniform3f(u_base, *LIGHT_MARKER_CONE_COLOR)
-        set_mvp_uniforms()
+        set_mvp_uniforms(u_mvp, u_model)
         GL.glBindVertexArray(marker_cone_vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, marker_cone_count)
         GL.glBindVertexArray(0)
 
         # Bulb at the base of the cone (= local origin).
         GL.glUniform3f(u_base, *LIGHT_MARKER_BULB_COLOR)
-        set_mvp_uniforms()
+        set_mvp_uniforms(u_mvp, u_model)
         GL.glBindVertexArray(marker_bulb_vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, marker_bulb_count)
         GL.glBindVertexArray(0)

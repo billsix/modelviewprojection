@@ -2,7 +2,7 @@
 
 **Status:** ✅ complete 2026-06-01 (Bill verified). **Type:** refactor of
 `src/modelviewprojection/demo*.py`, book-coupled. Spun off from
-[`extract-duplicated-demo-helpers.md`](extract-duplicated-demo-helpers.md).
+[`extract-duplicated-demo-helpers.md`](../../09/09/extract-duplicated-demo-helpers.md).
 
 Final scope: 13 demos using the shared `walk_around_camera` helper —
 Phase A (8 demos already using the raw-float idiom: demo19, 20, 21, 22, 22a,

@@ -71,6 +71,7 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 import modelviewprojection.matrix_stack as ms
 from modelviewprojection.mvpvisualization._pipeline import GLenum
 from modelviewprojection.util.cameracontrols import walk_around_camera
+from modelviewprojection.util.shaderutils import set_mvp_uniforms
 from modelviewprojection.util.windowing import on_key
 
 # ---------------------------------------------------------------------------
@@ -198,25 +199,8 @@ u_render_mode = GL.glGetUniformLocation(program, "renderMode")
 u_tex = GL.glGetUniformLocation(program, "tex")
 
 
-def set_mvp_uniforms() -> None:
-    GL.glUniformMatrix4fv(
-        u_mvp,
-        1,
-        GL.GL_TRUE,
-        np.ascontiguousarray(
-            ms.get_current_matrix(ms.MatrixStack.modelviewprojection),
-            dtype=np.float32,
-        ),
-    )
-    GL.glUniformMatrix4fv(
-        u_model,
-        1,
-        GL.GL_TRUE,
-        np.ascontiguousarray(
-            ms.get_current_matrix(ms.MatrixStack.model),
-            dtype=np.float32,
-        ),
-    )
+# set_mvp_uniforms is imported from modelviewprojection.util.shaderutils (see
+# imports above); it takes the two uniform locations looked up just above.
 
 
 # ---------------------------------------------------------------------------
@@ -566,7 +550,7 @@ def draw_inhabitants(yrot: float) -> None:
     for ox, oy, oz in sphere_origins:
         with ms.push_matrix(ms.MatrixStack.model):
             ms.translate(ms.MatrixStack.model, ox, oy, oz)
-            set_mvp_uniforms()
+            set_mvp_uniforms(u_mvp, u_model)
             _bind_and_draw(sphere_big_vao, sphere_big_count)
 
     # Torus + orbiting small sphere, sitting at (0, 0.1, -2.5).
@@ -578,13 +562,13 @@ def draw_inhabitants(yrot: float) -> None:
         with ms.push_matrix(ms.MatrixStack.model):
             ms.rotate_y(ms.MatrixStack.model, -2.0 * yrot)
             ms.translate(ms.MatrixStack.model, 1.0, 0.0, 0.0)
-            set_mvp_uniforms()
+            set_mvp_uniforms(u_mvp, u_model)
             _bind_and_draw(sphere_small_vao, sphere_small_count)
 
         # Torus:  yrot about Y, wood texture.
         ms.rotate_y(ms.MatrixStack.model, yrot)
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex_wood)
-        set_mvp_uniforms()
+        set_mvp_uniforms(u_mvp, u_model)
         _bind_and_draw(torus_vao, torus_count)
 
 
@@ -702,7 +686,7 @@ while not glfw.window_should_close(window):
         GL.glUniform3f(u_base, 1.0, 1.0, 0.0)
         GL.glActiveTexture(GL.GL_TEXTURE0)
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex_grass)
-        set_mvp_uniforms()
+        set_mvp_uniforms(u_mvp, u_model)
         _bind_and_draw(ground_vao, ground_count)
         draw_inhabitants(yrot)
     else:
@@ -710,7 +694,7 @@ while not glfw.window_should_close(window):
         GL.glUniform1i(u_render_mode, 1)
         GL.glActiveTexture(GL.GL_TEXTURE0)
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex_grass)
-        set_mvp_uniforms()
+        set_mvp_uniforms(u_mvp, u_model)
         _bind_and_draw(ground_vao, ground_count)
 
         # ---- Shadow pass ----
@@ -761,7 +745,7 @@ while not glfw.window_should_close(window):
                 LIGHT_MARKER_SCALE,
                 LIGHT_MARKER_SCALE,
             )
-            set_mvp_uniforms()
+            set_mvp_uniforms(u_mvp, u_model)
             _bind_and_draw(sphere_small_vao, sphere_small_count)
 
     GL.glUseProgram(0)

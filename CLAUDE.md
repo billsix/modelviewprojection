@@ -45,7 +45,7 @@ The same Pong scene (two paddles + a square defined relative to paddle1) is re-i
 
 Modern style (demo20+): OpenGL 3.3 Core, shaders in separate `.vert`/`.frag` files in a `demos/demoNN/` subfolder, `matrix_stack` for matrices, `util.colorutils.Color4`, optional `imgui_bundle` controls.
 
-Note (2026-06-03 restructure): the package is grouped — demos under `src/modelviewprojection/demos/`, helpers under `util/` (windowing, clipping, colorutils, cameracontrols, shading, nbplotutils, axes), the software framebuffer under `framebuffer/`; `mathutils.py` + `matrix_stack.py` stay at the package top. Imports are absolute (`from modelviewprojection.util.colorutils import …`); demos still run by path.
+Note (2026-06-03 restructure): the package is grouped — demos under `src/modelviewprojection/demos/`, helpers under `util/` (windowing, clipping, colorutils, cameracontrols, shading, shaderutils, nbplotutils, axes), the software framebuffer under `framebuffer/`; `mathutils.py` + `matrix_stack.py` stay at the package top. Imports are absolute (`from modelviewprojection.util.colorutils import …`); demos still run by path.
 
 ---
 
@@ -536,7 +536,6 @@ Shared helper for the ports tree: `/mvp/ports/openglsuperbiblev4/_common.py` —
 - `tasks/book-rotate-prose-update.md` — **the remaining book-prose work** (Bill's to write): update rotate prose for `plane_rotation`, and it carries the old gacalc-math-migration Phase 4 (ch05/06/14 teach gacalc vectors as *the* vector type). The code phases are done and archived.
 - `tasks/book-code-drift-ch16-21.md` — book-prose drift tracker (planned/partial), self-contained: the per-chapter `chNN-fixes.md` satellites were folded in and archived 2026-06-14. Its sibling `book-code-drift-ch7-15` is **complete** (archived `tasks/archive/2026/08/02/book-code-drift-ch7-15.md`).
 - `tasks/v4-chapt14-shadowmap-fix.md` — the one v4 demo not yet landed.
-- `tasks/extract-duplicated-demo-helpers.md` — in progress (helper dedup).
 - `tasks/axis-cylinder-cone-lighting.md` — deferred.
 
 **Cross-repo (done):**

@@ -62,6 +62,7 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.matrix_stack as ms
 from modelviewprojection.util.cameracontrols import walk_around_camera
+from modelviewprojection.util.shaderutils import set_mvp_uniforms
 from modelviewprojection.util.shading import _face_normal, light_dir_ws
 from modelviewprojection.util.windowing import on_key
 
@@ -198,25 +199,8 @@ u_diffuse = GL.glGetUniformLocation(program, "diffuseColor")
 u_tex = GL.glGetUniformLocation(program, "tex")
 
 
-def set_mvp_uniforms() -> None:
-    GL.glUniformMatrix4fv(
-        u_mvp,
-        1,
-        GL.GL_TRUE,
-        np.ascontiguousarray(
-            ms.get_current_matrix(ms.MatrixStack.modelviewprojection),
-            dtype=np.float32,
-        ),
-    )
-    GL.glUniformMatrix4fv(
-        u_model,
-        1,
-        GL.GL_TRUE,
-        np.ascontiguousarray(
-            ms.get_current_matrix(ms.MatrixStack.model),
-            dtype=np.float32,
-        ),
-    )
+# set_mvp_uniforms is imported from modelviewprojection.util.shaderutils (see
+# imports above); it takes the two uniform locations looked up just above.
 
 
 # ---------------------------------------------------------------------------
@@ -584,7 +568,7 @@ while not glfw.window_should_close(window):
             GL.glUniform1i(u_use_lighting, 0)
             GL.glUniform1i(u_use_texture, 0)
             GL.glUniform3f(u_flat, 1.0, 1.0, 0.0)
-            set_mvp_uniforms()
+            set_mvp_uniforms(u_mvp, u_model)
             GL.glBindVertexArray(wire_vao)
             GL.glDrawArrays(GL.GL_LINES, 0, wire_count)
             GL.glBindVertexArray(0)
@@ -594,7 +578,7 @@ while not glfw.window_should_close(window):
             GL.glUniform3f(u_flat, 0.8, 0.6, 0.4)  # sandstone fallback
             GL.glActiveTexture(GL.GL_TEXTURE0)
             GL.glBindTexture(GL.GL_TEXTURE_2D, tex_stone)
-            set_mvp_uniforms()
+            set_mvp_uniforms(u_mvp, u_model)
             GL.glBindVertexArray(pyramid_vao)
             GL.glDrawArrays(GL.GL_TRIANGLES, 0, pyramid_count)
             GL.glBindVertexArray(0)
@@ -626,7 +610,7 @@ while not glfw.window_should_close(window):
 
         # Cone -- red, apex closer to scene, base near the bulb.
         GL.glUniform3f(u_flat, *LIGHT_MARKER_CONE_COLOR)
-        set_mvp_uniforms()
+        set_mvp_uniforms(u_mvp, u_model)
         GL.glBindVertexArray(marker_cone_vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, marker_cone_count)
         GL.glBindVertexArray(0)
@@ -634,7 +618,7 @@ while not glfw.window_should_close(window):
         # Bulb -- yellow sphere at the base of the cone (= local
         # origin), where the light conceptually shines from.
         GL.glUniform3f(u_flat, *LIGHT_MARKER_BULB_COLOR)
-        set_mvp_uniforms()
+        set_mvp_uniforms(u_mvp, u_model)
         GL.glBindVertexArray(marker_bulb_vao)
         GL.glDrawArrays(GL.GL_TRIANGLES, 0, marker_bulb_count)
         GL.glBindVertexArray(0)
