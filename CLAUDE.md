@@ -239,12 +239,25 @@ its fate — it, not the games, carries the LGPL question.
 ## Assignments (`assignments/`)
 
 Student-facing exercises (`assignment1.py`, `assignment2-screenspace.py`,
-`assignment3-strafe.py`, `demo02/`), runnable standalone. As of 2026-07-09
-they are **covered by `format.sh`** (ruff check + format; `T201` exempted —
-their printed output is the point), but their *content* predates the gacalc
-migration: each carries a bespoke `Vertex2D` and raw GLFW boilerplate.
-Modernization direction is an open task (`tasks/assignments-review.md`) —
-don't "fix" their vocabulary ad hoc; the exercise design is Bill's call.
+`assignment3-strafe.py`, `demo02/`), runnable standalone, **covered by
+`format.sh`** since 2026-07-09 (ruff check + format; `T201` exempted — their
+printed output is the point). Their content is being brought up to date one at
+a time; **don't "fix" their vocabulary ad hoc — the exercise design is Bill's
+call.** State as of 2026-09-09:
+
+- **`assignment3-strafe.py` — done.** Re-synced onto **demo18**, the demo it was
+  copied from (its window title said "Demo 17", which was itself drift): the
+  bespoke `Vertex2D`/`Vertex` classes are gone, it uses `gacalc` +
+  `mathutils`'s function stack like the demo, and the exercise — strafe the
+  camera on Shift+Left/Right — is untouched. demo18's gamepad block was removed
+  because it contained the answer. Record:
+  `tasks/archive/2026/09/09/assignments-review.md`.
+- **`assignment1.py` / `assignment2-screenspace.py` — open**, each needing a
+  decision first, not a re-sync: assignment 1 is **book-published** (16
+  `doc-region` markers into `programmingproj1.rst`), and assignment 2's bespoke
+  `Vertex` **is** its exercise (the `ndc_to_screenspace_*` methods). Task:
+  `tasks/assignments-1-and-2-review.md`.
+- `demo02/vec1.py` already imports `mathutils`; nothing to do.
 
 ## The book includes code by MARKER, not by line number — so line numbers take care of themselves
 

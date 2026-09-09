@@ -1,8 +1,19 @@
 # Review the assignments against the modern demos; update or re-scope them
 
-**Status:** in progress — **assignment 3 (strafe) is DONE, 2026-09-08.** It was re-synced onto
-the demo it came from; detail in "Assignment 3 — done" below. Assignments 1 and 2 still need
-their direction decided (the questions further down), so they are the remaining scope.
+**Status:** **DONE — closed 2026-09-09.** Assignment 3 (strafe), the one Bill named when he
+filed this, was re-synced onto demo18 and gated; the record is "Assignment 3 — done" below. The
+unfinished half — assignments 1 and 2, which each need a *decision* before any code and are not
+mechanical re-syncs the way assignment 3 was — was spun out to
+**`tasks/assignments-1-and-2-review.md`** rather than archived with this doc, so the open questions
+stay visible. `assignments/demo02/vec1.py` needed nothing (already on `mathutils`).
+
+**The verification harness was removed with this archive** (`tasks/adhoc/assignments-review/`,
+`git rm`'d — the standing one-shot lifecycle: committed during the task in `3c161dfa`, deleted at
+archive, recoverable with `git show 3c161dfa:tasks/adhoc/assignments-review/verify.sh`). It is
+*reusable* rather than one-shot — it renders any GL script in this repo headlessly, and
+`tools/ctc_verify_game.sh` is the same idea already promoted for the Code-the-Classics games — so
+if assignments 1 or 2 get the same treatment, recover it rather than rewriting it; promoting it to
+`tools/` at that point would be reasonable. Deleting it was Bill's call (2026-09-09).
 **Priority:** 6
 **Difficulty:** 5
 **Created:** 2026-07-09 (Bill: "Take a look at the assignments, and see how
