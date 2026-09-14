@@ -1,6 +1,6 @@
 # The mvp book & docs pipeline
 
-**Reference document** — how the Sphinx book is built and how it pulls code (including gacalc's) via doc-region literalinclude. Not a task; update in place. Last updated 2026-07-30.
+**Reference document** — how the Sphinx book is built and how it pulls code (including gacalc's) via doc-region literalinclude. Not a task; update in place. Last updated 2026-09-13.
 
 Sibling doc: **`tasks/reference/book-figures-and-images.md`** owns everything that produces an image or executed notebook (the five figure toolchains, the `inlinetex` extension, jupytext). This doc owns the build sequence and the code-quoting mechanism. **`tasks/reference/notebook-sphinx-integration.md`** owns the percent-notebook↔Sphinx cross-reference mechanism (`(label)=` in a markdown cell → `:ref:` from RST → HTML link) and the nbsphinx-vs-myst_nb handler situation (both are enabled; myst_nb is the active handler, and that is load-bearing — see that doc, and the deferred `tasks/consider-removing-nbsphinx.md`).
 
@@ -112,6 +112,22 @@ If an anchor **doesn't resolve** (marker renamed/deleted/typo'd, or the target f
 
 It is invoked two ways, both in the container: by `entrypoint.sh:29` as a **build gate** (before `make html`), and standalone via **`make check-regions`** (`Makefile:150`) — which populates `_gacalc_src` first (mirroring the entrypoint) then runs the checker, because some anchors resolve against gacalc's files that only exist inside the image. The checker's own module docstring notes a *third* check (region content vs a lockfile, for cross-repo drift) is planned but unwired, pending a marker-ID scheme (`tasks/archive/2026/09/08/dangling-book-code-includes.md`).
 
+### Includes are by MARKER, not by line number — so line numbers take care of themselves
+
+**Every `literalinclude` in `book/docs/` selects code with `:start-after: doc-region-begin <name>` / `:end-before: doc-region-end <name>` and renders it with `:lineno-match:`.** Measured 2026-07-19: **174 `:lineno-match:`, zero `:lineno-start:`, zero `:lines:`** — not one listing is pinned to a hardcoded line range.
+
+**Consequence: editing a source file NEVER "breaks" the book's line numbers.** Sphinx recomputes them from the markers at build time, so if you add 175 lines near the top of `mathutils.py`, every later listing simply renders with its new, correct numbers. That is the entire reason the markers exist. **Do not report a line-number shift as an impact, a regression, or something needing repair — it is the design working.** (Claude did exactly that on 2026-07-19 and Bill had to correct it.)
+
+**What DOES change the book, and is worth checking before you edit:**
+
+1. **Code text inside a published region** — adding a statement, or a **docstring**, to a function whose region the book includes. That lands verbatim in the chapter.
+2. **Adding, moving, renaming, or deleting a region marker** — that changes which lines a chapter publishes, and a renamed marker breaks the include outright (Sphinx finds no anchor).
+3. Prose citing a specific number, or an `:emphasize-lines:` — neither exists in this book today (checked 2026-07-19), so in practice only 1 and 2 apply.
+
+So the check before editing a source file is **"is this text inside a published region?"** — never "did the line numbers move?".
+
+**`doc-region-begin` / `doc-region-end` comments are part of the book build.** A refactor that moves code must move its markers, and markers must not split a logical unit. `book/docs/*.rst` has **129** `literalinclude`s pointing into `demos/`.
+
 ## 3. The gacalc integration for docs
 
 mvp depends on gacalc **twice, for two different reasons**, and the two must stay in lockstep.
@@ -122,7 +138,7 @@ mvp depends on gacalc **twice, for two different reasons**, and the two must sta
 
 1. Fetches the gacalc **sdist** from the PyPI JSON API for exactly `${GACALC_VERSION}`.
 2. Extracts it and copies `src/gacalc/*.py` into the image at **`/opt/gacalc-src/`**.
-3. `entrypoint.sh:29` (and `make check-regions`) then copies `/opt/gacalc-src/*.py` → **`book/docs/_gacalc_src/`** at build time.
+3. `entrypoint.sh:29` (and `make check-regions`) then copies `/opt/gacalc-src/*.py` → **`book/docs/_gacalc_src/`** at build time, so `literalinclude:: _gacalc_src/<mod>.py` can reach it. These listings caption `gacalc/<mod>.py`.
 
 `_gacalc_src/` is **gitignored** (`.gitignore:190`), docs-only, never on `sys.path`, never imported. It exists purely as literalinclude fodder.
 
@@ -138,9 +154,11 @@ quoted it.
 
 **Why the sdist, not a git clone.** gacalc's `g1.py`/`g2.py`/`g3.py` are *code-generated and gitignored in gacalc's own repo* — a git clone would contain no generated modules (you'd have to run gacalc's generator). The **sdist has the generated modules, with their doc-region markers, baked in** (gacalc bakes them into the sdist/wheel at build time). So pulling the sdist gets ready-to-quote source with zero code generation and zero toolchain here.
 
-**The lockstep rule.** `ARG GACALC_VERSION` (`Dockerfile:90` as of this writing) **must equal** the `gacalc==` pin in `requirements.txt`. The same version drives both the runtime wheel and the docs source, so *the book never documents a gacalc version the code doesn't run*. Bump both together (the Dockerfile's comment states this explicitly). `GACALC_VERSION` is declared as a *late* `ARG` (not up top with the feature-flag ARGs) deliberately, so a version bump only rebuilds that cheap final layer, not the expensive TeX/dnf install above it.
+**The lockstep rule.** `ARG GACALC_VERSION` (`Dockerfile:90` as of this writing) **must equal** the `gacalc==` pin in `requirements.txt`. The same version drives both the runtime wheel and the docs source, so *the book never documents a gacalc version the code doesn't run*. Bump both together (the Dockerfile's comment states this explicitly). `GACALC_VERSION` is declared as a *late* `ARG` (not up top with the feature-flag ARGs) deliberately, so a version bump only rebuilds that cheap final layer, not the expensive TeX/dnf install above it. gacalc's markers must exist in that release (they landed in gacalc 0.0.11).
 
 **Why the sdist and not a git clone (measured):** gacalc's `g1/g2/g3` (plus `g4`/`g5` in a release build) are code-generated *and gitignored in gacalc's repo* — a clone would need gacalc's generator run in the image (~30 s for 𝒢₃, needs numpy+sympy); the sdist ships the generated modules with their doc-region markers baked in. Related time-saver: **`pip download --no-binary :all: gacalc` hangs building metadata** — fetch the sdist tarball via the PyPI JSON API instead, as the Dockerfile does. (`tasks/archive/2026/09/08/dangling-book-code-includes.md`)
+
+**gacalc ships pre-generated — never build it from source to inspect it.** Both the wheel and the sdist carry `g1/g2/g3` (and `g4`/`g5`; plus their doc-region markers) already generated; gacalc's `tools/gen_specialized.py` runs a *slow* symbolic generator (tens of seconds for 𝒢₃). So to see gacalc's real types, reprs, or marker names for a version, **`pip install gacalc==<v>` into a throwaway venv and read/grep the installed `site-packages/gacalc/*.py`** (or unpack the sdist tarball) — do **not** `pip download --no-binary :all:`, clone the repo, or run `make generate`, all of which rebuild from source for nothing. (Learned 2026-08-13 verifying the 0.0.16 marker rename: the installed wheel had the exact `Vector declaration` / `Vector __add__ method` anchors — instant — while a `--no-binary` download tried to run the generator and timed out.)
 
 ## 4. The container build/run flow
 
@@ -152,7 +170,11 @@ quoted it.
 
 **`make check-regions`** (`Makefile:150`) is the standalone anchor validator; it runs in the container, populates `_gacalc_src` from `/opt/gacalc-src` first (because gacalc anchors resolve there), then runs the checker. The html build runs the same check via `entrypoint.sh`, so `check-regions` is *not* wired as an html prerequisite.
 
-**Related non-book targets.** `make format` (container ruff+ty via `loadpackages.sh && format.sh`), `make shell` (interactive), `make jupyter` (JupyterLab on 8888; opens py:percent files as notebooks on a single click and has the Jupyter-news prompt disabled — both baked into the Dockerfile's `USE_JUPYTER` block, see CLAUDE.md's sync section for the `--level=user` gotcha). Two residues of that Jupyter work: the `jupytext-config`/`labextension` calls **must stay inside the `if [ "$USE_JUPYTER" = "1" ]` guard** (the flag defaults 0 in the Dockerfile, so an unguarded call breaks a lean build with command-not-found), and since JupyterLab 4.1 a user *can* re-enable a disabled plugin unless `jupyter labextension lock` is used — deliberately skipped for a single-user container. `format.sh` runs every step and exits nonzero if *any* failed (so one pass reports all the red).
+**Related non-book targets.** `make format` (container ruff+ty via `loadpackages.sh && format.sh`), `make shell` (interactive), `make jupyter` (JupyterLab on 8888; opens py:percent files as notebooks on a single click and has the Jupyter-news prompt disabled — both baked into the Dockerfile's `USE_JUPYTER` block, see the JupyterLab-defaults subsection below for the `--level=user` gotcha). Two residues of that Jupyter work: the `jupytext-config`/`labextension` calls **must stay inside the `if [ "$USE_JUPYTER" = "1" ]` guard** (the flag defaults 0 in the Dockerfile, so an unguarded call breaks a lean build with command-not-found), and since JupyterLab 4.1 a user *can* re-enable a disabled plugin unless `jupyter labextension lock` is used — deliberately skipped for a single-user container. `format.sh` runs every step and exits nonzero if *any* failed (so one pass reports all the red).
+
+### JupyterLab defaults baked by the USE_JUPYTER block
+
+The `USE_JUPYTER` block also bakes two JupyterLab defaults (2026-07-29): `jupytext-config set-default-viewer python` (single-click opens py:percent files as notebooks) and `jupyter labextension disable --level=user "@jupyterlab/apputils-extension:announcements"` (no news prompt). **The `--level=user` flag is required:** at that point in the RUN the venv has no `jupyter` binary yet (the requirements install that seeds `jupyter_core` comes later), so the default sys_prefix level resolves through `/usr/bin/jupyter` and writes `/usr/etc/...`, which the venv-launched server never reads — user level writes `/root/.jupyter/labconfig/`, read under any prefix.
 
 **Running nested** (inside the sandbox): `--cgroups=disabled` is auto-applied to every inner `podman run` via the Makefile's `PODMAN_RUN_FLAGS` (keyed on the sandbox's `NESTED_PODMAN=1` export, 2026-08-29; historically hand-added because the sandbox's `/sys/fs/cgroup` was read-only). The book build itself is headless (no GUI); the xvfb/`DISPLAY` recipe is only relevant for the OpenGL *demo* targets (`make shell` + running a `demos/*.py`), not for `make html`. Note the html/shell/jupyter targets carry `-it` — needed for the aspell gate (§1) and for interactive shells; a fully non-interactive nested html build will hang at spellcheck unless aspell input is clean.
 
@@ -205,5 +227,6 @@ listing. (`tasks/archive/2026/09/08/dangling-book-code-includes.md`)
 - Known residuals from the gacalc-listing migration: `Vector2D`-era naming
   drift in some prose, and the basis-vector listings were dropped (gacalc
   doesn't mark `Vector.e_1` — post-class assignments; recoverable only via a
-  future gacalc release). (`tasks/archive/2026/09/08/dangling-book-code-includes.md`,
+  future gacalc release — filed as `tasks/mark-basis-constants-for-doc-regions.md`).
+  (`tasks/archive/2026/09/08/dangling-book-code-includes.md`,
   `tasks/book-rotate-prose-update.md`)

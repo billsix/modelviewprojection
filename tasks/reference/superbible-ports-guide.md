@@ -47,6 +47,23 @@ curriculum; the `ports/` versions are separate, faithful translations. Don't
 conflate same-named demos (Block, sphereworld, atom, solar) across the two
 trees.
 
+### The curriculum-side port plan (do not re-port)
+
+**Already ported into the curriculum (do not re-port):**
+- `axes3d` → demo19a (unit basis vector visualization)
+- `atom` → demo19b
+- `solar` → demo19c (sun/earth/moon nested frames)
+- chapt12 `moons` → demo19d (branching planets/moons matrix-stack hierarchy)
+- `sphereworld` → demo19e (FPS camera + random sphere field) — fixed-function 2.1 version using GLU spheres
+- `Block` → demo22 (cube with lighting + planar shadow + texture)
+- `pyramid` → **demo22a** (gentler texturing intro before Block's complexity)
+- `litjet` → **demo23** (per-vertex normals on a complex mesh, specular)
+- `sphereworld` modernized → **demo24** (3.3-Core, lit)
+
+The 2026-04-27 wishlist (litjet, pyramid, modernized sphereworld) is **implemented** — demo22a/23/24 exist as `demoNN/` subfolders with their own shaders and textures; none of 19a–e/22–24 has a book chapter yet (their long header comments are the docs — see `tasks/reference/demo-chapter-inventory.md`).
+
+When porting any future demo, follow demo22's structure (subfolder with `.vert`/`.frag`/asset files, `compile_program()` helper, VAO/VBO tracked in `all_vaos`/`all_vbos`, `matrix_stack` for MVP). Confirm slot before writing code — pedagogical placement matters more than the port itself.
+
 ## 2. The upstream source (`/superbible/`, when mounted)
 
 - Layout: `examples/src/chaptNN/<demo>/<demo>.cpp` — one 200–400-line cpp per

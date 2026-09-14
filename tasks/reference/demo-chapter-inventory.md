@@ -5,9 +5,9 @@ the book chapters, the demos that have **no** chapter (and the header-comment
 convention that compensates), and the shared-helper adoption ledger. Not a
 task; update in place. Last updated 2026-07-30.
 
-`CLAUDE.md` › "Pedagogical arc" has the narrative; this doc is the checkable
-table. Measured from `literalinclude` targets in `book/docs/*.rst` and the
-demo imports, 2026-07-30.
+`tasks/reference/architecture-overview.md` › §2 (the numbered demos) has the
+narrative arc; this doc is the checkable table. Measured from `literalinclude`
+targets in `book/docs/*.rst` and the demo imports, 2026-07-30.
 
 ---
 

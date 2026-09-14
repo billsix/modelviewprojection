@@ -6,9 +6,10 @@ Check here before writing or debugging any GL/imgui/GLFW code in this repo.
 Not a task; update in place. Last updated 2026-07-30.
 
 Sources are archived task docs, cited per entry. The repo-wide GL *conventions*
-(row-major + transpose at upload, CCW winding, VAO-never-zero, the `-1`
-uniform sentinel) live in `CLAUDE.md` › "Coding standard › (c) mvp-specific";
-this doc is the failure modes.
+(import order, GL constants aren't `int`, the `-1` uniform sentinel, row-major +
+transpose at upload, CCW winding, GL-resource registry, VAO-never-zero, shader
+resolution) live in **§7 of this doc** (moved out of `CLAUDE.md`, 2026-09-13); the
+sections above are the failure modes.
 
 ---
 
@@ -163,3 +164,33 @@ could in principle hit the same at extreme angles — untested.
   `libcst` (preserves comments/whitespace), not regex and not raw `ast`
   unparse. (`tasks/archive/2026/04/28/postmortem-phase2-attempt-1.md`,
   `2026/05/26/notes-2026-05-02-v4-camera-attempt-reverted.md`)
+
+## 7. Repo-wide GL conventions (moved from CLAUDE.md, 2026-09-13)
+
+These are the standing GL/shader conventions for writing new code in this repo — the
+mvp-specific rules a general Python standard would miss. (Failure modes are §§1–6 above.)
+
+- **Import order is semantically load-bearing, not cosmetic.** `glfw` and `OpenGL.GL`
+  **must** import before `imgui_bundle` or PyOpenGL's context tracking fails at window
+  setup; demos get imgui via `cayley_gl.imgui`, not their own import. See
+  `cayley_gl.py:30-35`. isort must not reorder these.
+- **GL constants are not `int`.** PyOpenGL constants are `IntConstant`, so annotating a
+  GL enum parameter as `int` needs a checker suppression. Decide it **once** rather than
+  copy-pasting `# ty: ignore` a fourth time — currently duplicated in `_pipeline.py`,
+  `demo21.py`, `demo22.py`. Also: the repo mixes `# ty: ignore` and `# type: ignore`;
+  prefer `# ty: ignore`, which is the checker actually running.
+- **`-1` is the "uniform/attribute not present" sentinel**, and **each check must be
+  justified independently** — gating one uniform's use on *another* uniform's presence
+  caused a real bug (`cayley_gl.py:190-193` documents it).
+- **All 4x4s are row-major, `M @ column_vector`; the transpose happens exactly at the
+  `glUniformMatrix4fv` boundary** (`GL_TRUE`). Do not "fix" that flag.
+- **Winding is CCW everywhere** and outward normals depend on it; any new geometry
+  builder documents its winding.
+- **Shaders resolve relative to the calling demo's directory** (`shader_dir`,
+  keyword-only), never cwd. GLSL 330 has no `#include`, so composition is string
+  concatenation (`_pipeline.py:183-196`).
+- **GL resources are freed via a central registry, not RAII.** New code creates handles
+  through `_pipeline`'s builders so `cleanup()` releases them; several older demos
+  predate this and call a bare `glfw.terminate()`.
+- **macOS Core Profile requires a non-zero VAO bound at all times** — the default VAO in
+  `_pipeline.py:113-121` is deliberate, and `glBindVertexArray(0)` is never called.

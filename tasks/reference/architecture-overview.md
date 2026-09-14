@@ -30,7 +30,7 @@ The graphics-specific math layer. As of the 2026-06 migration (and the 2026-08-1
 A pure-Python reimplementation of OpenGL's fixed-function matrix stack, introduced once the course reaches OpenGL 3.3 Core (demo21+), where matrices finally exist. `MatrixStack` enum (`model`/`view`/`projection`/`modelview`/`modelviewprojection`), a `push_matrix(stack)` context manager, and `rotate_*`/`translate`/`scale`/`ortho`/`perspective`/`multiply` operating on `numpy` 4×4 arrays. Deliberately mirrors the `FunctionStack` API shape the student already learned — "just like putting the identity function on the lambda stack." Matrices upload as the `mvpMatrix` uniform.
 
 ### The numbered demos — `demos/demo01.py … demo24` (the teaching spine)
-The single most important subsystem: the same Pong-like scene (two paddles + a square defined relative to paddle1) re-implemented at progressively lower-level machinery, one new concept per demo. Arc (detail in `CLAUDE.md` › "Pedagogical arc"): **01–06** 2D immediate-mode with function composition; **07** introduces the paddles; **12** the matrix-stack *concept* (still function-based); **16** jumps to 3D; **19** switches to OpenGL 2.1 fixed-function (first real matrices, hidden behind the familiar API), with `19a–19e` porting SuperBible examples; **20** adds a pass-through shader pair; **21+** OpenGL 3.3 Core with `matrix_stack`; **22/22a/23/24** lighting, planar shadows, texturing (later demos are `demoNN/` subfolders carrying their own `.vert`/`.frag`/assets). Near-identical code across demos is **deliberate** — the course shares a concept only after teaching it; don't DRY the `Paddle`/`Camera` copies.
+The single most important subsystem: the same Pong-like scene (two paddles + a square defined relative to paddle1) re-implemented at progressively lower-level machinery, one new concept per demo. Arc (checkable chapter↔demo table in `tasks/reference/demo-chapter-inventory.md`): **01–06** 2D immediate-mode with function composition; **07** introduces the paddles; **12** the matrix-stack *concept* (still function-based); **16** jumps to 3D; **19** switches to OpenGL 2.1 fixed-function (first real matrices, hidden behind the familiar API), with `19a–19e` porting SuperBible examples; **20** adds a pass-through shader pair; **21+** OpenGL 3.3 Core with `matrix_stack`; **22/22a/23/24** lighting, planar shadows, texturing (later demos are `demoNN/` subfolders carrying their own `.vert`/`.frag`/assets). Near-identical code across demos is **deliberate** — the course shares a concept only after teaching it; don't DRY the `Paddle`/`Camera` copies. Don't propose new "scenes"—extend the paddle/square/ground scene unless there's a concept it can't demonstrate (e.g., spheres for lighting, complex meshes for normals).
 
 ### `mvpvisualization/` — interactive pipeline & coordinate-system visualizations
 Pedagogical *aids*, not demos: standalone GLFW/ImGui programs that **show** the Cayley-graph traversal and MVP pipeline interactively (`coordinatesystems.py`, `model.py`, `modelview.py`, `modelview2d.py`, `modelvieworthoprojection.py`, `modelviewperspectiveprojection.py`, `pushmatrix.py`). Each is built on the Cayley-graph engine (§ below) via the shared GL toolkit `cayley_gl.py`. `_pipeline.py` owns the common boilerplate — window/ImGui setup, shader compilation (`compile_program`/`build_pipeline`, with per-demo `project_*.glsl` snippets appended to shared `.vert` shaders), VAO/VBO builders, the standard paddle/square/ground/axis/NDC-cube meshes, the orbit `Camera`, and `cleanup()`; each demo file keeps only its pipeline creation, `draw_*` functions, and main loop. Run by path (`python src/modelviewprojection/mvpvisualization/coordinatesystems.py`).
@@ -110,4 +110,63 @@ point here.)
 | Dependency pins (must stay in sync with Dockerfile) | `requirements.txt` + `CLAUDE.md` › "Keeping the Dockerfile, Makefile, and dependencies in sync" |
 | Coding standard, naming exemptions, per-file ruff ignores | `CLAUDE.md` › "Coding standard (Python)" + `[tool.ruff]` in `pyproject.toml` |
 | Build/run/test/format commands | `Makefile`, `README.md`, `CLAUDE.md` › "Dev environment" |
-| Student exercises | `assignments/` |
+| Student exercises | `assignments/` (see §7) |
+
+---
+
+## 6. The central abstraction — reference detail
+
+*(Relocated verbatim from `CLAUDE.md` › "Central abstraction — Cayley graphs + `InvertibleFunction`". §1 and §3 above carry the high-level framing and the gacalc relationship; this section is the reference detail that lived in `CLAUDE.md`.)*
+
+**Rotations.** rotations from gacalc's `plane_rotation(a, b)` (gacalc ≥ 0.0.8) — `rotate`/`rotate_x/y/z` are direct bindings of it to the relevant basis-vector pairs (half-angle rotor sandwich under the hood; numeric θ stays float, no sympy leak).
+
+**`mathutils.py` de-façade detail (gacalc 0.0.16).** gacalc **0.0.16 dropped the dimension suffix** (`Vector2`/`Vector3` → `Vector`, `Bivector3` → `Bivector`), so multi-dimension files module-qualify (`import gacalc.g2 as g2` → `g2.Vector`) and reprs are module-qualified (`g2.Vector(coeff_e_1=…)`).
+
+**The abstraction (in `src/modelviewprojection/mathutils.py`):**
+- `InvertibleFunction[V]` = `(func, inverse, latex_repr, latex_repr_inv)`. `__call__` runs forward; `inverse(f)` swaps; `f1 @ f2` is `compose([f1, f2])`.
+- Primitives: `translate(b)`, `uniform_scale(m)`, `scale_non_uniform(*factors)`, `rotate(θ)`, `rotate_x/y/z(θ)`, `rotate_around(θ, center)`, `ortho(...)`, `perspective(...)`, `cs_to_ndc_space_fn`, `identity()`.
+- `compose(list)` traverses a path; `inverse(...)` walks an edge backwards. **No matrix appears anywhere in demos 01–18.**
+- `FunctionStack` + module-level `fn_stack` = the Python analogue of OpenGL's matrix stack. `fn_stack.push(f)` / `fn_stack.pop()` / `fn_stack.modelspace_to_ndc_fn()` (= `compose(stack)`) / `push_transformation(f)` context manager.
+
+**The Cayley graph framing (book chapters 02, 05, 07–10, 13, 16, 19):**
+- Nodes = coordinate spaces (modelspace, world, camera, NDC, screen, …; nested spaces like "square space" defined relative to "paddle1 space").
+- Directed edges = invertible functions converting *from one space to another*.
+- To go between any two nodes: trace a path, `compose` the edge functions, `inverse` for any edge traversed against its arrow.
+- Bill credits *Mathematics for 3D Game Programming* (Fig 1.3) for the seed; calls it Cayley graph after later reading abstract algebra. Camera placement = same operation as object placement, so the world↔camera arrow can be reversed — that's the pedagogical hinge.
+
+---
+
+## 7. Assignments (`assignments/`)
+
+*(Relocated verbatim from `CLAUDE.md` › "Assignments (`assignments/`)".)*
+
+Student-facing exercises (`assignment1.py`, `assignment2-screenspace.py`,
+`assignment3-strafe.py`, `demo02/`), runnable standalone, **covered by
+`format.sh`** since 2026-07-09 (ruff check + format; `T201` exempted — their
+printed output is the point). **All four were brought up to date 2026-09-08/09**
+— they use `gacalc` + `mathutils` and the shared `util/` helpers exactly as the
+demos do. **Don't "fix" their vocabulary ad hoc — the exercise design is Bill's
+call.** Record: `tasks/archive/2026/09/09/assignments-1-and-2-review.md` and
+`tasks/archive/2026/09/09/assignments-review.md`.
+
+- **Three of them carry a deliberate hole** — `assignment2-screenspace.py` (the
+  two `ndc_to_screenspace_*` mappings), `assignment3-strafe.py` (strafe on
+  Shift+Left/Right), `demo02/vec1.py` (three temperature conversions). Each was
+  verified solvable; **leave the holes alone.** `assignment1.py` has none — the
+  book asks the student to "draw whatever you'd like", so it is a worked-example
+  gallery.
+- **`assignment2` renders an empty window until its hole is filled** — that is
+  correct, not a bug, and its header comment says so.
+- **Checking one still renders:** `tools/verify_render.sh <script> [frames]
+  [png] [hold-keys] [--allow-blank]` (needs `make image` and an `Xvfb :99`).
+  It works on any GLFW script here — demos and visualizations too — and reports
+  a colour histogram rather than demanding pixel-identity, which is
+  `tools/ctc_verify_game.sh`'s job for the games. Pass `--allow-blank` for
+  `assignment2-screenspace.py`, whose empty window is correct until its hole is
+  filled.
+- **No reference solutions exist anywhere, and where they should live is
+  undecided.** Worth settling: `demo02/vec1.py` was unrunnable for a month
+  (an `ImportError` from the 2026-08-13 mathutils de-facade) because nothing
+  runs these files. vec1 is pure math and *can* be gated in the pytest suite;
+  the three GL files open a window at import and cannot, so their only check is
+  a manual headless render.

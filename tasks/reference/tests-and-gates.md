@@ -179,7 +179,8 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   (all three: `tasks/archive/2026/07/24/make-format-gate-is-red.md`)
 - **ty is a partial oracle for frozen-vector writes:** it flags `v.x = …`
   (invalid-assignment) but says nothing about `v.x += …` — pair it with a grep
-  (see `CLAUDE.md` › Code-the-Classics).
+  for `\.(x|y|z)\s*[-+*/]?=` (see
+  `tasks/reference/code-the-classics-tightening.md` §8, frozen vectors).
 - **Never check mvp against an installed gacalc with `ty --python <prefix>`**
   — it gives false readings (e.g. `Vector − Vector → G3`). The container's
   gate works because `/venv --system-site-packages` puts pip and ty in one

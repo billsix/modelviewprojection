@@ -154,6 +154,15 @@ Two independent porting projects, both kept under `ports/` (not in the curriculu
 - **`runner.go()` reads its CALLER's module globals** via `sys._getframe(1).f_globals` (`WIDTH`/`HEIGHT`/`update`/`draw`/`on_*`) — so a `__main__` guard in a game is safe only if the game's state and functions stay at module scope.
 (`tasks/archive/2026/07/09/ctc-shim-dynamism-audit.md`)
 
+**Fidelity gotchas worth not rediscovering (from the CLAUDE.md CtC section):**
+- Rectangles: each engine's `Rect` is a **float** dataclass (the `Actor` keeps sub-pixel positions
+  in it); a game that needs pygame's whole-pixel mutable rect (eggzy's level builder, beatstreets'
+  bars) has `IntRect`. The old shim's `geometry.Rect`/`ZRect` pair is history.
+- **Known gacalc costs** (measured 2026-09-06): vector ops are 0.1–0.4 µs and a game's whole
+  `update()` is ~1% of the 60 Hz budget, but `Vector.__eq__` falls into `sympy.simplify` when two
+  plain floats *differ* (~48 µs; beatstreets compares targets every frame) — a gacalc fix is filed
+  (geometricalgebra `tasks/fast-numeric-equality.md`).
+
 **Licensing gotcha (real).** The upstream repos have **no license** → default all-rights-reserved. Original code/graphics/audio are © Raspberry Pi Press. These ports are included for educational use on Bill's authorization (2026-06-24); every file carries an attribution header. **If this tree is ever published, confirm redistribution permission with Raspberry Pi Press first.** (The `pgzero_gl` *shim itself* is Bill's clean-room LGPL-2.1 reimplementation — separate from the games.)
 
 ### 4b. `ports/openglsuperbiblev4/` — C++ SuperBible → Python
@@ -176,3 +185,47 @@ Two independent porting projects, both kept under `ports/` (not in the curriculu
 - **Don't re-add facades.** Both `mathutils` and `pgzero_gl` had re-export facades that were deliberately removed; imports now say what they mean (`from gacalc… import`). Adding a convenience re-export re-introduces the anti-pattern.
 - **Two stacks, two meanings.** `mathutils.FunctionStack` (composes `InvertibleFunction`s) vs `matrix_stack.py` / `ms` (composes numpy 4×4s). The Cayley GL shell drives the numpy one for uniform upload; the algebra-first material uses the function one.
 - **The `id(step)`-keyed timeline** means Step identity is what the timeline tracks: mutate a `Step.fn` in place (the editable-camera pattern), never replace the `Step` object, or its timeline slot is lost.
+
+---
+
+## Dependencies & texExpToPng
+
+**texExpToPng is built from a SHA-pinned git clone** (unvendored 2026-07-08;
+the old copy at `book/docs/_static/tex_exp_to_png/` is gone). The Dockerfile's
+`BUILD_DOCS` block clones `https://github.com/billsix/tex-expression-to-png.git`,
+checks out the pinned SHA (`67da442d…` at time of writing — **the Dockerfile is
+authoritative, this note is not**), and meson-builds it to
+`/usr/local/bin/texExpToPng`. Two things any pin must carry, because the book
+breaks without them: the `--bg`/`--fg` dvipng flags, and the
+`\documentclass[varwidth]{standalone}` fix that lets the book's display math —
+`\[…\]`, `align*` in ch04/ch06/ch14 — render (an early pin used bare `standalone`
+and failed on those). When the external tool changes, push the GitHub mirror and
+**bump the SHA in the Dockerfile deliberately** — there is no vendored copy to
+sync anymore (multivariate-math uses the identical scheme).
+
+## Testing deps in a throwaway container
+
+### How to resolve drift — and TEST it in a throwaway container
+
+Don't guess package names; verify them in a clean Fedora container. Pattern:
+
+```sh
+# --cgroups=disabled is harmless belt-and-braces for nested podman (make targets
+# auto-apply it via PODMAN_RUN_FLAGS); --rm so the container is ephemeral.
+podman run --rm --cgroups=disabled -v "$(pwd)":/srcro:ro registry.fedoraproject.org/fedora:44 bash -c '
+  cp -a /srcro /mvp && cd /mvp
+  <install candidate deps>            # e.g. dnf install ...
+  texExpToPng --exp "\$x^2\$" --size 200 --fg "rgb 1 1 1" --bg Transparent -o /tmp/x.png
+'
+```
+
+- **On-screen GL can't be verified headless** in a nested container (no display /
+  GPU / xauth) — verify via *package import* + *texExpToPng render*, not a window.
+  (Getting the GUI to run in a container was its own task —
+  `tasks/archive/2026/06/15/run-demos-in-container-wayland.md`.)
+- **tmpfs:** the podman image store is a tmpfs (size varies — `df -h /var/lib/containers`,
+  16 GB as of 2026-06-14). **`podman rmi` each test image when done** to reclaim it;
+  `podman image prune -f` clears dangling layers.
+- After changing `requirements.txt`: re-check whether a new heavy dep should be a
+  *distro* package in the Dockerfile (vs left to pip), then re-run `make image` to
+  confirm.

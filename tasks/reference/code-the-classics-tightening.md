@@ -380,6 +380,37 @@ pinned 0.0.20 (`tasks/archive/2026/09/06/ctc-use-gacalc-matrix-template.md`); th
 live in `tools/` (`ctc_verify_game.sh`, `ctc_capture_frame.py`, `ctc_state_trace.py`,
 `ctc_compare_traces.py`, `ctc_profile_update.py`). Step 3 of the inline initiative stays parked.
 
+## 8. The rule-set, the gacalc dialect, composition style, and frozen vectors
+
+These are the "read before editing any game" essentials that used to live in `CLAUDE.md` ›
+Code-the-Classics; kept verbatim here so nothing points at a cut section.
+
+- **The rule-set: behaviour-faithful, structure free.** No behaviour change — same RNG call order,
+  same update/draw order, same gameplay — but structure is modernized freely (dataclasses, `match`,
+  annotations, `@override`, precise types; the 2026-07-08 relaxation of the old "no restructuring"
+  rule, Bill's call). ruff-formatted like the rest of `ports/`; `entrypoint/format.sh` runs
+  `ty check` on `vol1` + `vol2`.
+- **The games use `gacalc.g2.Vector` / `gacalc.g3.Vector` DIRECTLY** (since 2026-07-09; there is no
+  engine vector type). Dialect: `length`→`magnitude`, `dot`→`scalar_product` (with `float(...)` at
+  float-typed boundaries — gacalc returns `Coef`, which admits sympy), `rotate(deg)`→
+  `plane_rotation(e_1, e_2)` (kinetix's `_turn`), myriapod's quarter turn is `* e_12`, cameras are
+  `inverse(translate(...))`. Vector `*` scalar scales; two vectors is the geometric product; every
+  dot product is an explicit call (Bill, 2026-07-09). Engine position parameters **unpack**
+  (`x, y = pos`) so they accept tuples AND vectors — that is the `PointLike` boundary
+  (`tasks/reference/point-type-decision.md`).
+- **Composition style (maintainer, 2026-09-06): `f @ g` only when the chain fits on one line;
+  `compose([f, g, ...])` the moment it would wrap** — same order (`f` after `g`, last listed applied
+  first), one function per line, instead of the formatter's dangling `@` with exploded arguments.
+  Applied to the ten engines' `MODEL`/`ortho_pixels` and demo07's paddle transforms. numpy's
+  matrix `@` (the `mvpvisualization` demos, `test_cayley_scene`) is not composition and keeps `@`.
+- **gacalc vectors are FROZEN** (since 0.0.14; pin now 0.0.20): a coordinate is changed by
+  rebinding, never in place — `self.vpos = Vector(self.vpos.x + self.vel.x, self.vpos.y)`. A field
+  write raises `FrozenInstanceError`; a property write (`v.x = …`) raises a confusing
+  `TypeError: super(type, obj)…` (a Python 3.14 frozen+slots+property quirk gacalc keeps). **`ty`
+  catches `v.x = …` but NOT `v.x += …`**, so a grep for `\.(x|y|z)\s*[-+*/]?=` is part of any
+  audit. Immutability retired the old aliasing hazard (shared defaults are safe; the defensive
+  copies were removed 2026-07-25 — `tasks/reference/design-decisions.md` › Ports).
+
 ## Related
 
 - `tasks/archive/2026/09/05/codetheclassics-tighten-games.md` — the umbrella (the story of the pass, per-game table, outcome).
