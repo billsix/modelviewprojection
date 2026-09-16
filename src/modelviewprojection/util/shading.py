@@ -56,8 +56,8 @@ def _face_normal(
     >>> _face_normal((0, 0, 0), (1, 0, 0), (2, 0, 0))
     (0.0, 0.0, 0.0)
     """
-    n = find_normal(Vector(*a), Vector(*b), Vector(*c))
-    mag = abs(n)
+    n: Vector = find_normal(Vector(*a), Vector(*b), Vector(*c))
+    mag: typing.Any = abs(n)  # gacalc Coef: int | float | sympy.Expr
     if not mag:
         # a degenerate (zero-area) triangle has no normal
         return (0.0, 0.0, 0.0)
@@ -95,8 +95,8 @@ def light_dir_ws(az_deg: float, el_deg: float) -> tuple[float, float, float]:
     >>> round((x * x + y * y + z * z) ** 0.5, 6)
     1.0
     """
-    az = math.radians(az_deg)
-    el = math.radians(el_deg)
+    az: float = math.radians(az_deg)
+    el: float = math.radians(el_deg)
     return (
         math.cos(el) * math.cos(az),
         math.sin(el),

@@ -24,7 +24,12 @@ import numpy as np
 import PIL
 import PIL.Image
 from gacalc.g2 import Vector, e_1, e_2
-from gacalc.transforms import compose, scale_non_uniform, translate
+from gacalc.transforms import (
+    InvertibleFunction,
+    compose,
+    scale_non_uniform,
+    translate,
+)
 
 from modelviewprojection.mathutils import cosine
 
@@ -149,7 +154,7 @@ class FrameBuffer:
 
     def screenspace_to_framebuffer(self, v: Vector) -> Vector:
         """Convert from OpenGL-style coords to framebuffer array coords."""
-        ss_to_fb = compose(
+        ss_to_fb: InvertibleFunction = compose(
             [
                 translate((self.height - 1) * e_2),
                 scale_non_uniform(1, -1),

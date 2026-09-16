@@ -1,0 +1,134 @@
+#!/usr/bin/env python3
+"""Flag local variables that lack an explicit type annotation.
+
+`ty` infers local types and never requires an annotation, and ruff's
+flake8-annotations rules cover only function signatures -- so nothing off the
+shelf enforces the house rule that locals are annotated too
+(`tasks/annotate-all-local-variables.md`).  This does.
+
+A finding is a plain ``name = ...`` assignment inside a function whose ``name``
+is never given an annotation anywhere in that same function (an ``AnnAssign``
+like ``name: T = ...`` or an annotated parameter).  So annotating a name once
+covers all its later re-binds.
+
+Deliberately NOT flagged (can't carry an inline annotation, or aren't ours):
+tuple/list unpack targets, attribute/subscript targets (``self.x = ...``),
+augmented assignment (``x += 1``), ``for`` / ``with as`` / ``except as`` /
+comprehension / walrus targets, and module-level assignments (the rule is about
+*local* variables).  Nested functions are checked in their own scope.
+
+Usage (paths are files or dirs; default ``src``):
+    python tools/check_local_annotations.py [path ...]
+Exit status is nonzero if any finding is reported.  Run it in the container:
+    make shell-exec CMD='python tools/check_local_annotations.py src'
+"""
+
+from __future__ import annotations
+
+import ast
+import pathlib
+import sys
+
+
+def _annotated_names(fn: ast.FunctionDef | ast.AsyncFunctionDef) -> set[str]:
+    """Names that carry an annotation somewhere in ``fn``'s own scope: annotated
+    params, plus ``AnnAssign`` targets not inside a nested function."""
+    names: set[str] = set()
+    args = fn.args
+    for a in (
+        *args.posonlyargs,
+        *args.args,
+        *args.kwonlyargs,
+        args.vararg,
+        args.kwarg,
+    ):
+        if a is not None and a.annotation is not None:
+            names.add(a.arg)
+    for node in _own_scope_nodes(fn):
+        if isinstance(node, ast.AnnAssign) and isinstance(
+            node.target, ast.Name
+        ):
+            names.add(node.target.id)
+    return names
+
+
+def _own_scope_nodes(
+    fn: ast.FunctionDef | ast.AsyncFunctionDef,
+) -> list[ast.AST]:
+    """Every node lexically inside ``fn`` but NOT inside a nested def/lambda/
+    class/comprehension (those have their own scopes).
+
+    A ``class`` body nested in ``fn`` is filtered out too: its assignments are
+    class attributes / enum members, not locals of ``fn`` (annotating them
+    would change their meaning), and its methods are separate scopes that
+    ``check_file``'s own walk visits independently.
+    """
+    out: list[ast.AST] = []
+    for stmt in fn.body:
+        for node in ast.walk(stmt):
+            out.append(node)
+    # Drop anything that lives inside a nested scope (ast.walk descends into
+    # nested functions/lambdas/classes too, so filter their subtrees out).
+    nested: set[int] = set()
+    for stmt in fn.body:
+        for node in ast.walk(stmt):
+            if node is not fn and isinstance(
+                node,
+                (
+                    ast.FunctionDef,
+                    ast.AsyncFunctionDef,
+                    ast.Lambda,
+                    ast.ClassDef,
+                ),
+            ):
+                for inner in ast.walk(node):
+                    if inner is not node:
+                        nested.add(id(inner))
+    return [n for n in out if id(n) not in nested]
+
+
+def check_file(path: pathlib.Path) -> list[tuple[int, str]]:
+    tree = ast.parse(path.read_text(), filename=str(path))
+    findings: list[tuple[int, str]] = []
+    for fn in ast.walk(tree):
+        if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
+            continue
+        annotated = _annotated_names(fn)
+        for node in _own_scope_nodes(fn):
+            if not isinstance(node, ast.Assign):
+                continue
+            for target in node.targets:
+                if isinstance(target, ast.Name) and target.id not in annotated:
+                    findings.append((node.lineno, target.id))
+    return sorted(set(findings))
+
+
+def iter_py(paths: list[str]) -> list[pathlib.Path]:
+    files: list[pathlib.Path] = []
+    for p in paths:
+        pp = pathlib.Path(p)
+        if pp.is_dir():
+            files.extend(sorted(pp.rglob("*.py")))
+        elif pp.suffix == ".py":
+            files.append(pp)
+    return files
+
+
+def main() -> int:
+    root = pathlib.Path(__file__).resolve().parents[1]
+    args = sys.argv[1:] or ["src"]
+    total = 0
+    for f in iter_py(args):
+        findings = check_file(f)
+        if findings:
+            rel = f.resolve().relative_to(root)
+            for lineno, name in findings:
+                print(f"{rel}:{lineno}: local '{name}' lacks a type annotation")
+            total += len(findings)
+    if total:
+        print(f"\n{total} un-annotated local(s)")
+    return 1 if total else 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

@@ -19,6 +19,7 @@ import typing
 from enum import Enum, auto
 
 import glfw
+import numpy as np
 from gacalc.g3 import Vector
 from gacalc.transforms import translate
 
@@ -261,7 +262,7 @@ def frame(w: int, h: int) -> None:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0
         )
-    t = state["time"]
+    t: float = state["time"]
     graph_panel(t)
 
     state["mouse"] = cayley_gl.orbit_input(
@@ -275,7 +276,7 @@ def frame(w: int, h: int) -> None:
     ms.set_to_identity_matrix(ms.MatrixStack.model)
     standard_objects.draw_ground()
 
-    morph = cayleyscene.to_matrix(animation.inverse_transform(t))
+    morph: np.ndarray = cayleyscene.to_matrix(animation.inverse_transform(t))
 
     # the camera, drawn as an object (axis + its NDC cube; no frustum here)
     if t >= animation.timeline.arrival_time(Space.camera):
@@ -288,12 +289,14 @@ def frame(w: int, h: int) -> None:
 
     # world axis: bright at the start and during the two pauses, else grayed
     # (matches the original modelview reveal).
-    bright = t < 5.0 or (35.0 < t < 40.0) or (50.0 < t < 55.0)
+    bright: bool = t < 5.0 or (35.0 < t < 40.0) or (50.0 < t < 55.0)
     ms.set_current_matrix(ms.MatrixStack.model, morph)
     standard_objects.draw_axis(grayed=not bright)
 
     for space, mesh in DRAW.items():
-        m = morph @ cayleyscene.to_matrix(animation.transform(space, t))
+        m: np.ndarray = morph @ cayleyscene.to_matrix(
+            animation.transform(space, t)
+        )
         ms.set_current_matrix(ms.MatrixStack.model, m)
         if animation.axis_visible(space, t):
             standard_objects.draw_axis()

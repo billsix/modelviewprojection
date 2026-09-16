@@ -34,6 +34,8 @@ import OpenGL.GL as GL
 from numpy.typing import NDArray
 
 if TYPE_CHECKING:
+    from modelviewprojection.mvpvisualization._pipeline import GLenum
+
     from ._types import Drawable, PointLike
 
 # ---------------------------------------------------------------------------
@@ -298,7 +300,7 @@ class Renderer:
             # unpack, not index: points may be tuples OR gacalc vectors
             px, py = p
             pts += [float(px), float(py)]
-        mode = GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_LOOP
+        mode: GLenum = GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_LOOP
         self._draw_prim(verts=pts, color=color, mode=mode)
 
     def circle(
@@ -306,14 +308,14 @@ class Renderer:
     ) -> None:
         """Draw a circle centred at ``pos`` (filled fan, or outline)."""
         cx, cy = pos
-        pts = []
+        pts: list[float] = []
         if filled:
             pts += [cx, cy]
         n: int = 48
         for i in range(n + 1):
             a: float = 2.0 * np.pi * i / n
             pts += [cx + radius * np.cos(a), cy + radius * np.sin(a)]
-        mode = GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_STRIP
+        mode: GLenum = GL.GL_TRIANGLE_FAN if filled else GL.GL_LINE_STRIP
         self._draw_prim(verts=pts, color=color, mode=mode)
 
     # -- scissor (screen.surface.set_clip) ------------------------------------

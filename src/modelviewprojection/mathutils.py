@@ -348,14 +348,14 @@ def plane_equation(
     the plane equation come out to zero on the plane itself -- for any point
     ``P`` there, ``normal . P + d == 0``.
     """
-    n = find_normal(p1, p2, p3)
-    inv_len = 1.0 / float(abs(n))
-    n_unit = g3.Vector(
+    n: g3.Vector = find_normal(p1, p2, p3)
+    inv_len: float = 1.0 / float(abs(n))
+    n_unit: g3.Vector = g3.Vector(
         coeff_e_1=float(n.coeff_e_1) * inv_len,
         coeff_e_2=float(n.coeff_e_2) * inv_len,
         coeff_e_3=float(n.coeff_e_3) * inv_len,
     )
-    d = float(-n_unit.dot(p1).scalar_part())
+    d: float = float(-n_unit.dot(p1).scalar_part())
     return (n_unit, d)
 
 
@@ -428,7 +428,7 @@ def ortho(
     [3.0, 4.0, -5.0]
     """
     # doc-region-begin ortho body
-    midpoint = g3.Vector(
+    midpoint: g3.Vector = g3.Vector(
         coeff_e_1=(left + right) / 2.0,
         coeff_e_2=(bottom + top) / 2.0,
         coeff_e_3=(near + far) / 2.0,

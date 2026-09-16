@@ -176,9 +176,9 @@ def handle_inputs() -> None:
 
 def compile_shader_program() -> int:
     with open(os.path.join(pwd, "litjet.vert")) as f:
-        vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
+        vs: int = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
     with open(os.path.join(pwd, "litjet.frag")) as f:
-        fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
+        fs: int = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
     return shaders.compileProgram(vs, fs)
 
 
@@ -267,7 +267,7 @@ def _build_jet() -> np.ndarray:
     out: list[float] = []
     for a, b, c, n in _JET_TRIS:
         if n is None:
-            n = _face_normal(a, b, c)
+            n: tuple[float, float, float] | None = _face_normal(a, b, c)
         for vert in (a, b, c):
             out.extend(v * _MESH_SCALE for v in vert)
             out.extend(n)
@@ -278,7 +278,7 @@ def _build_jet_wire() -> np.ndarray:
     """Edge list for wireframe mode -- every triangle's three edges,
     duplicates and all.  Cheap and clear."""
     out: list[float] = []
-    zero = (0.0, 0.0, 0.0)
+    zero: tuple[float, float, float] = (0.0, 0.0, 0.0)
     for a, b, c, _n in _JET_TRIS:
         for p, q in ((a, b), (b, c), (c, a)):
             out.extend(v * _MESH_SCALE for v in p)
@@ -293,13 +293,13 @@ def _build_marker_cone(radius: float, height: float, slices: int) -> np.ndarray:
     chapt05/spot.cpp's bulb-at-base / cone-body-behind layout.  Same
     6-float layout (pos + zero normal) as the jet.  Drawn unlit."""
     out: list[float] = []
-    base_pts = []
+    base_pts: list[tuple[float, float, float]] = []
     for i in range(slices + 1):
-        t = i / slices * 2.0 * math.pi
+        t: float = i / slices * 2.0 * math.pi
         base_pts.append((radius * math.cos(t), radius * math.sin(t), 0.0))
 
-    apex = (0.0, 0.0, height)
-    base_center = (0.0, 0.0, 0.0)
+    apex: tuple[float, float, float] = (0.0, 0.0, height)
+    base_center: tuple[float, float, float] = (0.0, 0.0, 0.0)
     # Slant sides:  (apex, p[i], p[i+1]) is CCW from outside.
     for i in range(slices):
         for v in (apex, base_pts[i], base_pts[i + 1]):
@@ -317,19 +317,19 @@ def _build_marker_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
     """Tiny UV sphere for the bulb (6-float layout, unlit)."""
     out: list[float] = []
     for i in range(stacks):
-        phi0 = math.pi * (i / stacks) - math.pi / 2.0
-        phi1 = math.pi * ((i + 1) / stacks) - math.pi / 2.0
+        phi0: float = math.pi * (i / stacks) - math.pi / 2.0
+        phi1: float = math.pi * ((i + 1) / stacks) - math.pi / 2.0
         cphi0, sphi0 = math.cos(phi0), math.sin(phi0)
         cphi1, sphi1 = math.cos(phi1), math.sin(phi1)
         for j in range(slices):
-            t0 = 2.0 * math.pi * (j / slices)
-            t1 = 2.0 * math.pi * ((j + 1) / slices)
+            t0: float = 2.0 * math.pi * (j / slices)
+            t1: float = 2.0 * math.pi * ((j + 1) / slices)
             ct0, st0 = math.cos(t0), math.sin(t0)
             ct1, st1 = math.cos(t1), math.sin(t1)
-            p00 = (cphi0 * st0, sphi0, cphi0 * ct0)
-            p10 = (cphi0 * st1, sphi0, cphi0 * ct1)
-            p01 = (cphi1 * st0, sphi1, cphi1 * ct0)
-            p11 = (cphi1 * st1, sphi1, cphi1 * ct1)
+            p00: tuple[float, float, float] = (cphi0 * st0, sphi0, cphi0 * ct0)
+            p10: tuple[float, float, float] = (cphi0 * st1, sphi0, cphi0 * ct1)
+            p01: tuple[float, float, float] = (cphi1 * st0, sphi1, cphi1 * ct0)
+            p11: tuple[float, float, float] = (cphi1 * st1, sphi1, cphi1 * ct1)
             for v in (p00, p10, p01, p10, p11, p01):
                 out.extend(p * radius for p in v)
                 out.extend((0.0, 0.0, 0.0))
@@ -338,8 +338,8 @@ def _build_marker_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
 
 def make_vao(vertex_data: np.ndarray) -> tuple[int, int, int]:
     vertex_data = np.ascontiguousarray(vertex_data, dtype=np.float32)
-    vao = GL.glGenVertexArrays(1)
-    vbo = GL.glGenBuffers(1)
+    vao: int = GL.glGenVertexArrays(1)
+    vbo: int = GL.glGenBuffers(1)
     GL.glBindVertexArray(vao)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
     GL.glBufferData(

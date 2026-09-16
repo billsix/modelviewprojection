@@ -32,7 +32,7 @@ def generategridlines(
         graph_bounds[0] * extra_lines_multiplier,
         interval,
     ):
-        thickness = 4 if np.isclose(x, 0.0) else 1
+        thickness: int = 4 if np.isclose(x, 0.0) else 1
         yield (
             [x, x],
             [

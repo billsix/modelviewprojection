@@ -112,7 +112,7 @@ class _Voice:
             self.fade_step = 1.0 / (_SAMPLE_RATE * fade_in_ms / 1000.0)
 
     def start_fadeout(self, ms: float) -> None:
-        frames = max(_SAMPLE_RATE * ms / 1000.0, 1.0)
+        frames: float = max(_SAMPLE_RATE * ms / 1000.0, 1.0)
         self.fade_step = -self.fade_gain / frames
         self.stop_when_faded = True
 
@@ -133,12 +133,12 @@ class _Engine:
         if self._failed or not _BACKEND:
             return False
         try:
-            device = _ma.PlaybackDevice(
+            device: miniaudio.PlaybackDevice = _ma.PlaybackDevice(
                 output_format=_ma.SampleFormat.FLOAT32,
                 nchannels=_CHANNELS,
                 sample_rate=_SAMPLE_RATE,
             )
-            gen = self._mixer()
+            gen: Generator[_PCM, int, None] = self._mixer()
             next(gen)  # prime the generator protocol
             # numpy arrays satisfy the buffer protocol miniaudio consumes;
             # its stubs only admit bytes/array.array, hence the cast.
@@ -153,11 +153,11 @@ class _Engine:
 
     # -- the mixer callback (runs on miniaudio's thread) ------------------
     def _mixer(self) -> Generator[_PCM, int, None]:
-        required = yield np.zeros(0, dtype=np.float32)
+        required: int = yield np.zeros(0, dtype=np.float32)
         while True:
-            out = np.zeros(required * _CHANNELS, dtype=np.float32)
+            out: np.ndarray = np.zeros(required * _CHANNELS, dtype=np.float32)
             with self._lock:
-                voices = list(self._voices)
+                voices: list[_Voice] = list(self._voices)
             for v in voices:
                 try:
                     self._mix_voice(v, out, required)
@@ -169,21 +169,21 @@ class _Engine:
 
     def _mix_voice(self, v: _Voice, out: _PCM, frames: int) -> None:
         """Add up to ``frames`` frames of ``v`` into ``out`` (interleaved)."""
-        filled = 0
+        filled: int = 0
         while filled < frames and not v.done:
             if v.stream is not None:
-                chunk = self._next_stream_chunk(v)
+                chunk: _PCM | None = self._next_stream_chunk(v)
                 if chunk is None:
                     v.done = True
                     break
-                take = min(frames - filled, len(chunk) // _CHANNELS)
-                seg = chunk[: take * _CHANNELS]
+                take: int = min(frames - filled, len(chunk) // _CHANNELS)
+                seg: np.ndarray = chunk[: take * _CHANNELS]
                 # stash any remainder for the next pull
-                rest = chunk[take * _CHANNELS :]
+                rest: np.ndarray = chunk[take * _CHANNELS :]
                 v.samples = rest if len(rest) else None
             else:
                 assert v.samples is not None
-                total = len(v.samples) // _CHANNELS
+                total: int = len(v.samples) // _CHANNELS
                 if v.pos >= total:
                     if v.looping:
                         v.pos = 0  # gapless wraparound
@@ -197,7 +197,7 @@ class _Engine:
             gain: _PCM | float
             if v.fade_step != 0.0:
                 # a per-frame linear ramp while fading (in or out)
-                ramp = v.fade_gain + v.fade_step * np.arange(
+                ramp: np.ndarray = v.fade_gain + v.fade_step * np.arange(
                     1, take + 1, dtype=np.float32
                 )
                 np.clip(ramp, 0.0, 1.0, out=ramp)
@@ -209,7 +209,7 @@ class _Engine:
                     v.done = True
             else:
                 gain = v.fade_gain * v.volume
-            sl = slice(filled * _CHANNELS, (filled + take) * _CHANNELS)
+            sl: slice = slice(filled * _CHANNELS, (filled + take) * _CHANNELS)
             out[sl] += seg * gain
             filled += take
 
@@ -234,7 +234,7 @@ class _Engine:
     ) -> _Voice | None:
         if not self._ensure_device():
             return None
-        v = _Voice(samples, None, volume, looping, fade_in_ms)
+        v: _Voice = _Voice(samples, None, volume, looping, fade_in_ms)
         with self._lock:
             self._voices.append(v)
         return v
@@ -244,7 +244,9 @@ class _Engine:
     ) -> _Voice | None:
         if not self._ensure_device():
             return None
-        v = _Voice(None, stream, volume, looping=False, fade_in_ms=fade_in_ms)
+        v: _Voice = _Voice(
+            None, stream, volume, looping=False, fade_in_ms=fade_in_ms
+        )
         with self._lock:
             self._voices.append(v)
         return v
@@ -269,7 +271,7 @@ class _Engine:
         """
         with self._lock:
             self._voices = []
-            device = self._device
+            device: miniaudio.PlaybackDevice | None = self._device
             self._device = None
         if device is not None:
             try:
@@ -287,7 +289,7 @@ def shutdown() -> None:
 
 
 def _decode(path: str) -> _PCM:
-    decoded = _ma.decode_file(
+    decoded: Any = _ma.decode_file(  # miniaudio.DecodedSoundFile
         path,
         output_format=_ma.SampleFormat.FLOAT32,
         nchannels=_CHANNELS,
@@ -333,13 +335,13 @@ class Sound:
         """
         if not _BACKEND:
             return
-        buf = self._buffer()
+        buf: _PCM | None = self._buffer()
         if buf is None:
             return
-        live = self._live()
+        live: list[_Voice] = self._live()
         if len(live) >= _MAX_VOICES_PER_SOUND:
             _engine.stop_voice(live[0])  # oldest voice yields its budget
-        v = _engine.play_buffer(
+        v: _Voice | None = _engine.play_buffer(
             buf,
             self._volume if volume is None else volume,
             looping=loops != 0,
@@ -394,14 +396,15 @@ class _Music:
         return None
 
     def _stream(self, path: str) -> Iterator[Any]:
-        outer = self
+        outer: _Music = self
 
         def gen() -> Iterator[Any]:
             # music streams from disk (a decoded multi-minute track would be
             # tens of MB); looping restarts the stream -- like SDL_mixer's
             # streamed music, the loop seam lands on a chunk boundary.
             while True:
-                inner = _ma.stream_file(
+                # miniaudio stream_file generator (yields PCM frame arrays)
+                inner: Any = _ma.stream_file(
                     path,
                     output_format=_ma.SampleFormat.FLOAT32,
                     nchannels=_CHANNELS,

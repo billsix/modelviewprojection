@@ -22,7 +22,12 @@ from enum import Enum, auto
 import glfw
 import numpy as np
 from gacalc.g3 import Vector
-from gacalc.transforms import translate
+from gacalc.transforms import (
+    InvertibleFunction,
+    compose,
+    inverse,
+    translate,
+)
 
 from modelviewprojection import matrix_stack as ms
 from modelviewprojection.cayley import (
@@ -269,7 +274,7 @@ def imgui_menubar() -> None:
             "Camera Radius", camera.r, 10.0, 1000.0
         )
         imgui.separator()
-        changed = False
+        changed: bool = False
         for label, key in (
             ("X_Worldspace", "px"),
             ("Y_Worldspace", "py"),
@@ -371,19 +376,27 @@ def frame(w: int, h: int) -> None:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0
         )
-    t = state["time"]
+    t: float = state["time"]
     graph_panel(t)
 
     state["mouse"] = cayley_gl.orbit_input(
         window, imguiio, camera, state["mouse"]
     )
     cayley_gl.setup_orbit_view(camera, w, h)
-    morph = cayleyscene.to_matrix(animation.inverse_transform(t))
+    morph: np.ndarray = cayleyscene.to_matrix(animation.inverse_transform(t))
     if state["center_on"]:
-        frm = morph @ cayleyscene.to_matrix(
-            animation.transform(state["center_on"], t)
+        # gacalc inverse of the entity's frame (the world->camera inverse
+        # composed with its placement), realized to a matrix for the view stack
+        # -- not np.linalg.inv (CLAUDE.md: express transforms with gacalc).
+        frame_fn: InvertibleFunction = compose(
+            [
+                animation.inverse_transform(t),
+                animation.transform(state["center_on"], t),
+            ]
         )
-        ms.multiply(ms.MatrixStack.view, np.linalg.inv(frm))
+        ms.multiply(
+            ms.MatrixStack.view, cayleyscene.to_matrix(inverse(frame_fn))
+        )
 
     # world reference: NDC cube + ground (un-morphed)
     ms.set_to_identity_matrix(ms.MatrixStack.model)
@@ -398,7 +411,9 @@ def frame(w: int, h: int) -> None:
             ms.MatrixStack.model,
             morph @ cayleyscene.to_matrix(animation.transform(Space.camera, t)),
         )
-        ry = animation.timeline.arrival_time(Space.camera) + scene.step_duration
+        ry: float = (
+            animation.timeline.arrival_time(Space.camera) + scene.step_duration
+        )
         if t >= ry:
             standard_objects.draw_rect_prism(t, state["line_width"], w, h)
         standard_objects.draw_axis()
@@ -411,7 +426,9 @@ def frame(w: int, h: int) -> None:
     )
 
     for space, mesh in DRAW.items():
-        m = morph @ cayleyscene.to_matrix(animation.transform(space, t))
+        m: np.ndarray = morph @ cayleyscene.to_matrix(
+            animation.transform(space, t)
+        )
         ms.set_current_matrix(ms.MatrixStack.model, m)
         if animation.axis_visible(space, t):
             standard_objects.draw_axis()

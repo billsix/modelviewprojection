@@ -156,14 +156,15 @@ class _Loader:
                 "No %s found like %r in %s/"
                 % (self._subdir[:-1], name, self._subdir)
             )
-        res = self._cache[name] = self._make(p)
+        res: Any = self._make(p)
+        self._cache[name] = res
         return res
 
     def __getattr__(self, name: str) -> Any:
         if name.startswith("_"):
             raise AttributeError(name)
         try:
-            res = self.load(name)
+            res: Any = self.load(name)
         except KeyError as e:
             raise AttributeError(*e.args) from None
         # First-touch caching: bind the loaded resource as a real instance

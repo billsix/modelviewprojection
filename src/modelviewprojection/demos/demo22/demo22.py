@@ -75,6 +75,7 @@ import dataclasses
 import math
 import os
 import sys
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -236,9 +237,9 @@ GL.glDepthFunc(GL.GL_LEQUAL)
 
 def compile_shader_program() -> int:
     with open(os.path.join(pwd, "block.vert")) as f:
-        vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
+        vs: int = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
     with open(os.path.join(pwd, "block.frag")) as f:
-        fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
+        fs: int = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
     # validate=False -- see _compile_inline below for the macOS reason.
     return shaders.compileProgram(vs, fs, validate=False)
 
@@ -269,7 +270,7 @@ class MainPipeline:
 
 
 def _build_main_pipeline() -> MainPipeline:
-    prog = compile_shader_program()
+    prog: int = compile_shader_program()
     return MainPipeline(
         program=prog,
         u_mvp=GL.glGetUniformLocation(prog, "mvpMatrix"),
@@ -473,7 +474,7 @@ class ShadowViewPipeline:
 
 
 def _build_shadow_depth_pipeline() -> ShadowDepthPipeline:
-    prog = _compile_inline(SHADOW_DEPTH_VS, SHADOW_DEPTH_FS)
+    prog: int = _compile_inline(SHADOW_DEPTH_VS, SHADOW_DEPTH_FS)
     return ShadowDepthPipeline(
         program=prog,
         u_light_mvp=GL.glGetUniformLocation(prog, "lightMVP"),
@@ -481,7 +482,7 @@ def _build_shadow_depth_pipeline() -> ShadowDepthPipeline:
 
 
 def _build_block_shadow_pipeline() -> BlockShadowPipeline:
-    prog = _compile_inline(BLOCK_SHADOW_VS, BLOCK_SHADOW_FS)
+    prog: int = _compile_inline(BLOCK_SHADOW_VS, BLOCK_SHADOW_FS)
     return BlockShadowPipeline(
         program=prog,
         u_mvp=GL.glGetUniformLocation(prog, "mvpMatrix"),
@@ -499,7 +500,7 @@ def _build_block_shadow_pipeline() -> BlockShadowPipeline:
 
 
 def _build_shadow_view_pipeline() -> ShadowViewPipeline:
-    prog = _compile_inline(SHADOW_VIEW_VS, SHADOW_VIEW_FS)
+    prog: int = _compile_inline(SHADOW_VIEW_VS, SHADOW_VIEW_FS)
     return ShadowViewPipeline(
         program=prog,
         u_depth_tex=GL.glGetUniformLocation(prog, "depthTex"),
@@ -537,10 +538,10 @@ class ShadowResources:
 
 
 def _build_shadow_resources() -> ShadowResources:
-    fbo = GL.glGenFramebuffers(1)
+    fbo: int = GL.glGenFramebuffers(1)
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, fbo)
 
-    depth_tex = GL.glGenTextures(1)
+    depth_tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, depth_tex)
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D,
@@ -578,7 +579,7 @@ def _build_shadow_resources() -> ShadowResources:
         0,
     )
 
-    debug_tex = GL.glGenTextures(1)
+    debug_tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, debug_tex)
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D,
@@ -638,13 +639,13 @@ def _light_proj_view(
     # Light position: 100 units along light_dir from origin.
     lx, ly, lz = (c * 100.0 for c in light_dir)
     # lookat from light_pos to origin, world up = +Y.
-    eye = np.array([lx, ly, lz], dtype=np.float32)
-    center = np.array([0.0, 0.0, 0.0], dtype=np.float32)
-    up = np.array([0.0, 1.0, 0.0], dtype=np.float32)
+    eye: np.ndarray = np.array([lx, ly, lz], dtype=np.float32)
+    center: np.ndarray = np.array([0.0, 0.0, 0.0], dtype=np.float32)
+    up: np.ndarray = np.array([0.0, 1.0, 0.0], dtype=np.float32)
 
-    f = center - eye
+    f: np.ndarray = center - eye
     f /= np.linalg.norm(f)
-    upn = up - f * np.dot(f, up)
+    upn: np.ndarray = up - f * np.dot(f, up)
     if np.linalg.norm(upn) < 1e-6:
         upn = np.array([0.0, 0.0, 1.0], dtype=np.float32)
     upn /= np.linalg.norm(upn)
@@ -652,12 +653,12 @@ def _light_proj_view(
     # round-trip the float32 arrays through g3.Vector -- iteration yields the
     # coordinates back in (e_1, e_2, e_3) order.  f and upn are unit and
     # orthogonal, so s comes out unit as well.
-    s = np.array(
+    s: np.ndarray = np.array(
         list(cross(Vector(*map(float, f)), Vector(*map(float, upn)))),
         dtype=np.float32,
     )
 
-    view = np.identity(4, dtype=np.float32)
+    view: np.ndarray = np.identity(4, dtype=np.float32)
     view[0, :3] = s
     view[1, :3] = upn
     view[2, :3] = -f
@@ -671,7 +672,7 @@ def _light_proj_view(
     left, right = -120.0, 120.0
     bottom, top = -120.0, 120.0
     near, far = 1.0, 300.0
-    proj = np.identity(4, dtype=np.float32)
+    proj: np.ndarray = np.identity(4, dtype=np.float32)
     proj[0, 0] = 2.0 / (right - left)
     proj[1, 1] = 2.0 / (top - bottom)
     proj[2, 2] = -2.0 / (far - near)
@@ -700,7 +701,7 @@ def render_shadow_map(
     # Save the camera-pass clear color so we can restore it at the
     # end of this function -- otherwise the "depth=far is white"
     # clear leaks into the next frame's screen clear.
-    saved_clear = (GL.GLfloat * 4)()
+    saved_clear: typing.Any = (GL.GLfloat * 4)()
     GL.glGetFloatv(GL.GL_COLOR_CLEAR_VALUE, saved_clear)
     GL.glClearColor(
         1.0, 1.0, 1.0, 1.0
@@ -717,8 +718,10 @@ def render_shadow_map(
         vao: int = cube_solid_vao,
         count: int = cube_solid_count,
     ) -> None:
-        model = ms.get_current_matrix(ms.MatrixStack.model)
-        mvp = light_proj @ light_view @ np.asarray(model, dtype=np.float32)
+        model: np.ndarray = ms.get_current_matrix(ms.MatrixStack.model)
+        mvp: np.ndarray = (
+            light_proj @ light_view @ np.asarray(model, dtype=np.float32)
+        )
         GL.glUniformMatrix4fv(
             shadow_depth.u_light_mvp,
             1,
@@ -751,10 +754,10 @@ def set_uniforms() -> None:
     program's ``shadowMatrix`` uniform with ``shadow_matrix * model``
     so the vertex shader can transform fragment positions into the
     light's clip-space and sample the shadow texture."""
-    mvp_loc = block_shadow.u_mvp if _using_shadow_map else main.u_mvp
-    model_loc = block_shadow.u_model if _using_shadow_map else main.u_model
+    mvp_loc: int = block_shadow.u_mvp if _using_shadow_map else main.u_mvp
+    model_loc: int = block_shadow.u_model if _using_shadow_map else main.u_model
 
-    model = ms.get_current_matrix(ms.MatrixStack.model)
+    model: np.ndarray = ms.get_current_matrix(ms.MatrixStack.model)
     GL.glUniformMatrix4fv(
         mvp_loc,
         1,
@@ -776,7 +779,7 @@ def set_uniforms() -> None:
         # model space to shadow-map UV space.  Pre-multiply by the
         # current model matrix here so the shader gets a single
         # ready-to-use matrix.
-        sm = _shadow_pv_scaled @ np.asarray(model, dtype=np.float32)
+        sm: np.ndarray = _shadow_pv_scaled @ np.asarray(model, dtype=np.float32)
         GL.glUniformMatrix4fv(
             block_shadow.u_shadow,
             1,
@@ -791,13 +794,13 @@ def set_uniforms() -> None:
 
 
 def load_texture(path: str) -> int:
-    img = iio.imread(path)
+    img: np.ndarray = iio.imread(path)
     if img.ndim == 2:
         img = np.stack([img, img, img], axis=-1)
     h, w = img.shape[:2]
     img = np.ascontiguousarray(img, dtype=np.uint8)
 
-    tex = GL.glGenTextures(1)
+    tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
@@ -862,7 +865,7 @@ class AttribSpec:
 def make_vbo(data: np.ndarray, usage: GLenum = GL.GL_STATIC_DRAW) -> int:
     """Allocate a VBO and upload ``data``.  Touches no VAO state."""
     data = np.ascontiguousarray(data, dtype=np.float32)
-    vbo = GL.glGenBuffers(1)
+    vbo: int = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
     GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, usage)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, 0)
@@ -871,7 +874,7 @@ def make_vbo(data: np.ndarray, usage: GLenum = GL.GL_STATIC_DRAW) -> int:
 
 def make_vao(attribs: list[AttribSpec]) -> int:
     """Build a VAO that reads each AttribSpec from its VBO."""
-    vao = GL.glGenVertexArrays(1)
+    vao: int = GL.glGenVertexArrays(1)
     GL.glBindVertexArray(vao)
     for a in attribs:
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, a.vbo)
@@ -905,8 +908,8 @@ def _make_interleaved_mesh(vertex_data: np.ndarray) -> tuple[int, int, int]:
     shape as the previous all-in-one ``make_vao``, used by the five
     mesh sites below."""
     vertex_data = np.ascontiguousarray(vertex_data, dtype=np.float32)
-    vbo = make_vbo(vertex_data)
-    vao = make_vao(_interleaved_attribs(vbo))
+    vbo: int = make_vbo(vertex_data)
+    vao: int = make_vao(_interleaved_attribs(vbo))
     return vao, vbo, vertex_data.size // _FLOATS_PER_VERTEX
 
 
@@ -926,10 +929,10 @@ def _make_interleaved_mesh(vertex_data: np.ndarray) -> tuple[int, int, int]:
 
 
 def _build_cube_solid() -> np.ndarray:
-    s = 25.0
+    s: float = 25.0
     # for each face: 4 corner positions (CCW from outside), then a single
     # outward normal, then the corresponding 4 uv coords.
-    faces = [
+    faces: list = [
         # +Z
         (
             [(-s, -s, +s), (+s, -s, +s), (+s, +s, +s), (-s, +s, +s)],
@@ -979,8 +982,8 @@ def _build_cube_solid() -> np.ndarray:
 
 
 def _build_cube_wire_full() -> np.ndarray:
-    s = 25.0
-    corners = [
+    s: float = 25.0
+    corners: list[tuple[float, float, float]] = [
         (-s, -s, -s),
         (+s, -s, -s),
         (+s, +s, -s),
@@ -990,7 +993,7 @@ def _build_cube_wire_full() -> np.ndarray:
         (+s, +s, +s),
         (-s, +s, +s),  # front face
     ]
-    edges = [
+    edges: list[tuple[int, int]] = [
         # back face
         (0, 1),
         (1, 2),
@@ -1030,12 +1033,22 @@ FLOOR_Y = -25.3
 
 
 def _build_floor() -> np.ndarray:
-    e = 100.0
-    y = FLOOR_Y
+    e: float = 100.0
+    y: float = FLOOR_Y
     # CCW seen from above (+Y normal)
-    corners = [(-e, y, -e), (-e, y, +e), (+e, y, +e), (+e, y, -e)]
-    uvs = [(0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)]
-    n = (0.0, 1.0, 0.0)
+    corners: list[tuple[float, float, float]] = [
+        (-e, y, -e),
+        (-e, y, +e),
+        (+e, y, +e),
+        (+e, y, -e),
+    ]
+    uvs: list[tuple[float, float]] = [
+        (0.0, 0.0),
+        (0.0, 1.0),
+        (1.0, 1.0),
+        (1.0, 0.0),
+    ]
+    n: tuple[float, float, float] = (0.0, 1.0, 0.0)
     out: list[float] = []
     for i in (0, 1, 2, 0, 2, 3):
         out.extend(corners[i])
@@ -1059,12 +1072,12 @@ def _build_marker_cone(radius: float, height: float, slices: int) -> np.ndarray:
     the demo's 8-float layout (pos + zero normal + zero uv).  Drawn
     unlit."""
     out: list[float] = []
-    base_pts = []
+    base_pts: list[tuple[float, float, float]] = []
     for i in range(slices + 1):
-        t = i / slices * 2.0 * math.pi
+        t: float = i / slices * 2.0 * math.pi
         base_pts.append((radius * math.cos(t), radius * math.sin(t), 0.0))
-    apex = (0.0, 0.0, height)
-    base_center = (0.0, 0.0, 0.0)
+    apex: tuple[float, float, float] = (0.0, 0.0, height)
+    base_center: tuple[float, float, float] = (0.0, 0.0, 0.0)
     # Slant sides:  (apex, p[i], p[i+1]) is CCW from outside.
     for i in range(slices):
         for v in (apex, base_pts[i], base_pts[i + 1]):
@@ -1084,19 +1097,19 @@ def _build_marker_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
     """UV sphere for the bulb (8-float layout, unlit)."""
     out: list[float] = []
     for i in range(stacks):
-        phi0 = math.pi * (i / stacks) - math.pi / 2.0
-        phi1 = math.pi * ((i + 1) / stacks) - math.pi / 2.0
+        phi0: float = math.pi * (i / stacks) - math.pi / 2.0
+        phi1: float = math.pi * ((i + 1) / stacks) - math.pi / 2.0
         cphi0, sphi0 = math.cos(phi0), math.sin(phi0)
         cphi1, sphi1 = math.cos(phi1), math.sin(phi1)
         for j in range(slices):
-            t0 = 2.0 * math.pi * (j / slices)
-            t1 = 2.0 * math.pi * ((j + 1) / slices)
+            t0: float = 2.0 * math.pi * (j / slices)
+            t1: float = 2.0 * math.pi * ((j + 1) / slices)
             ct0, st0 = math.cos(t0), math.sin(t0)
             ct1, st1 = math.cos(t1), math.sin(t1)
-            p00 = (cphi0 * st0, sphi0, cphi0 * ct0)
-            p10 = (cphi0 * st1, sphi0, cphi0 * ct1)
-            p01 = (cphi1 * st0, sphi1, cphi1 * ct0)
-            p11 = (cphi1 * st1, sphi1, cphi1 * ct1)
+            p00: tuple[float, float, float] = (cphi0 * st0, sphi0, cphi0 * ct0)
+            p10: tuple[float, float, float] = (cphi0 * st1, sphi0, cphi0 * ct1)
+            p01: tuple[float, float, float] = (cphi1 * st0, sphi1, cphi1 * ct0)
+            p11: tuple[float, float, float] = (cphi1 * st1, sphi1, cphi1 * ct1)
             for v in (p00, p10, p01, p10, p11, p01):
                 out.extend(p * radius for p in v)
                 out.extend((0.0, 0.0, 0.0))
@@ -1152,7 +1165,7 @@ def planar_shadow_matrix(
     """
     a, b, c, d = plane
     lx, ly, lz, lw = light
-    dot = a * lx + b * ly + c * lz + d * lw
+    dot: float = a * lx + b * ly + c * lz + d * lw
     return np.array(
         [
             [dot - lx * a, -lx * b, -lx * c, -lx * d],
@@ -1216,7 +1229,7 @@ def draw_floor(stage: int) -> None:
     # stage (3 or 4), the floor needs lighting on so the FS runs the
     # shadow lookup.  In the planar-shadow path the floor stays
     # unlit (the shadow is a separate black quad drawn over it).
-    receive_shadow = stage in (3, 4) and shadow_algo == "shadow_map"
+    receive_shadow: bool = stage in (3, 4) and shadow_algo == "shadow_map"
 
     with ms.push_matrix(ms.MatrixStack.model):
         if stage == 4:
@@ -1297,7 +1310,7 @@ def draw_cube(stage: int) -> None:
             # share a texture, so the cube looks like a wooden block from
             # any angle.  Face vertex offsets in the solid VAO are 6
             # apart in the order:  +Z, -Z, +Y, -Y, +X, -X.
-            faces_to_draw = [
+            faces_to_draw: list = [
                 (tex_block_front, 0),  # +Z front
                 (tex_block_front, 6),  # -Z back
                 (tex_block_top, 12),  # +Y top

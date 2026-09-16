@@ -95,7 +95,7 @@ def main(g: dict[str, Any] | None = None) -> None:
     title: str = g.get("TITLE", "Pygame Zero Game")
 
     # Assets live next to the game file.
-    game_file = g.get("__file__")
+    game_file: str | None = g.get("__file__")
     if game_file:
         Context.asset_root = os.path.dirname(os.path.abspath(game_file))
 
@@ -121,8 +121,8 @@ def main(g: dict[str, Any] | None = None) -> None:
         )
     _max_frames: int = int(os.environ.get("PGZERO_MAX_FRAMES", "0") or 0)
 
-    update = g.get("update")
-    draw = g.get("draw")
+    update: Any = g.get("update")
+    draw: Any = g.get("draw")
 
     update_takes_dt: bool = (
         update is not None and update.__code__.co_argcount >= 1

@@ -132,7 +132,9 @@ def setup_window(
 
     imgui.create_context()
 
-    window = glfw.create_window(int(width), int(height), title, None, None)
+    window: "GLFWWindow | None" = glfw.create_window(
+        int(width), int(height), title, None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit("Could not initialize Window")
@@ -144,16 +146,16 @@ def setup_window(
     # VAOs override-bind when they need a specific layout, and we
     # never call glBindVertexArray(0).  Mesa and NVIDIA tolerate the
     # spec violation silently; Apple's driver does not.
-    _default_vao = GL.glGenVertexArrays(1)
+    _default_vao: int = GL.glGenVertexArrays(1)
     GL.glBindVertexArray(_default_vao)
 
-    impl = GlfwRenderer(window)
+    impl: "GlfwRenderer" = GlfwRenderer(window)
     if not impl:
         glfw.terminate()
         sys.exit(1)
 
     init_fonts_and_markdown()
-    imguiio = imgui.get_io()
+    imguiio: imgui.IO = imgui.get_io()
 
     GL.glClearColor(13.0 / 255.0, 64.0 / 255.0, 5.0 / 255.0, 1.0)
     GL.glClearDepth(1.0)
@@ -188,7 +190,7 @@ def install_camera_scroll(
     pre-existing scroll callback.  Skip this in 2D demos with no zoom."""
     # glfw's stub types `cbfun` as the callback, but None is the documented
     # value that clears the current callback (and returns the previous one).
-    prev_cb = [glfw.set_scroll_callback(window, None)]  # ty: ignore[invalid-argument-type]
+    prev_cb: list[typing.Any] = [glfw.set_scroll_callback(window, None)]  # ty: ignore[invalid-argument-type]
 
     def scroll_cb(win: "GLFWWindow", x_offset: float, y_offset: float) -> None:
         if prev_cb[0] is not None:
@@ -232,17 +234,17 @@ def compile_program(
     ``uniform_color.vert`` call.  GLSL 330 has no ``#include``, so this string
     concatenation is how each demo's projection animation is injected into the
     two shared vertex shaders."""
-    vsrc = _read_shader(vert, shader_dir)
+    vsrc: str = _read_shader(vert, shader_dir)
     if project is not None:
         vsrc = vsrc + "\n" + _read_shader(project, shader_dir)
-    vs = shaders.compileShader(vsrc, GL.GL_VERTEX_SHADER)
-    fs = shaders.compileShader(
+    vs: int = shaders.compileShader(vsrc, GL.GL_VERTEX_SHADER)
+    fs: int = shaders.compileShader(
         _read_shader(frag, shader_dir), GL.GL_FRAGMENT_SHADER
     )
     if geom is None:
-        prog = shaders.compileProgram(vs, fs)
+        prog: int = shaders.compileProgram(vs, fs)
     else:
-        gs = shaders.compileShader(
+        gs: int = shaders.compileShader(
             _read_shader(geom, shader_dir), GL.GL_GEOMETRY_SHADER
         )
         prog = shaders.compileProgram(vs, gs, fs)
@@ -280,6 +282,10 @@ class Pipeline:
     u_near: int = -1
     u_far: int = -1
     u_time: int = -1
+    # Per-step squash progress for project_perspective.glsl: (squash x, squash
+    # y, translate, scale) in [0,1], from Animation.gpu_progress.  -1 when the
+    # program's project() snippet doesn't declare `squash_ratios`.
+    u_squash: int = -1
     # Screen-space frustum-edge uniforms (``screenspace=True``).
     u_thickness: int = -1
     u_viewport: int = -1
@@ -311,7 +317,7 @@ def build_pipeline(
     def u(name: str, enabled: bool) -> int:
         return GL.glGetUniformLocation(prog, name) if enabled else -1
 
-    prog = compile_program(
+    prog: int = compile_program(
         vert, frag, geom=geom, project=project, shader_dir=shader_dir
     )
     return Pipeline(
@@ -329,6 +335,8 @@ def build_pipeline(
         u_near=u("near_z", anim),
         u_far=u("far_z", anim),
         u_time=u("time", anim),
+        # -1 unless the project snippet declares it (only project_perspective).
+        u_squash=GL.glGetUniformLocation(prog, "squash_ratios"),
         u_thickness=u("u_thickness", screenspace),
         u_viewport=u("u_viewport_size", screenspace),
     )
@@ -376,7 +384,7 @@ def make_vbo(data: ndarray, usage: GLenum = GL.GL_STATIC_DRAW) -> int:
     contiguous float32 -- the helper coerces).  Touches no VAO state.
     The handle is registered into ``all_vbos`` for cleanup."""
     data = np.ascontiguousarray(data, dtype=np.float32)
-    vbo = GL.glGenBuffers(1)
+    vbo: int = GL.glGenBuffers(1)
     all_vbos.append(vbo)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
     GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, usage)
@@ -387,7 +395,7 @@ def make_vbo(data: ndarray, usage: GLenum = GL.GL_STATIC_DRAW) -> int:
 def make_vao(attribs: list[AttribSpec]) -> int:
     """Build a VAO that reads each ``AttribSpec`` from its VBO.  The
     handle is registered into ``all_vaos`` for cleanup."""
-    vao = GL.glGenVertexArrays(1)
+    vao: int = GL.glGenVertexArrays(1)
     all_vaos.append(vao)
     GL.glBindVertexArray(vao)
     for a in attribs:
@@ -425,12 +433,12 @@ def make_triangle_vao(
     ``attr_*`` parameters are the shader's attribute indices, which differ
     per program."""
     vertices = np.ascontiguousarray(vertices, dtype=np.float32).flatten()
-    n_verts = vertices.size // floats_per_vertex
-    colors = np.tile(np.array([r, g, b], dtype=np.float32), n_verts)
+    n_verts: int = vertices.size // floats_per_vertex
+    colors: ndarray = np.tile(np.array([r, g, b], dtype=np.float32), n_verts)
 
-    pos_vbo = make_vbo(vertices)
-    color_vbo = make_vbo(colors)
-    vao = make_vao(
+    pos_vbo: int = make_vbo(vertices)
+    color_vbo: int = make_vbo(colors)
+    vao: int = make_vao(
         [
             AttribSpec(
                 vbo=pos_vbo,
@@ -453,9 +461,9 @@ def make_lines_vao(vertices: ndarray, attr_position: int) -> tuple[int, int]:
     """Position-only VAO for the lines pipelines (ground/axis/cube/frustum).
     Returns (vao, vertex_count)."""
     vertices = np.ascontiguousarray(vertices, dtype=np.float32).flatten()
-    n_verts = vertices.size // floats_per_vertex
-    vbo = make_vbo(vertices)
-    vao = make_vao(
+    n_verts: int = vertices.size // floats_per_vertex
+    vbo: int = make_vbo(vertices)
+    vao: int = make_vao(
         [
             AttribSpec(
                 vbo=vbo,
@@ -502,7 +510,7 @@ square_vertices: ndarray = np.array(
 def build_ground_vertices() -> ndarray:
     """A 41x41 grid of perpendicular line segments at y=-5 (x and z range
     -20..20)."""
-    verts = []
+    verts: list[float] = []
     for x in range(-20, 21, 1):
         for z in range(-20, 21, 1):
             verts.append(float(-x))
@@ -524,7 +532,7 @@ def build_axis_vertices() -> ndarray:
     """A Y-pointing axis line plus a 2-segment arrowhead.  ``draw_axis``
     in each demo binds this 3 times with model rotations to make X/Y/Z."""
     # fmt: off
-    verts = [
+    verts: list[float] = [
         0.0,  0.0,  0.0,
         0.0,  1.0,  0.0,
         # arrow
@@ -549,10 +557,10 @@ def build_ground_cylinders(
     [-extent, extent].  Replaces the redundant-line-pairs approach of
     ``build_ground_vertices()`` with the 82 visually-unique edges (41
     along each axis)."""
-    n = int(extent / step)
+    n: int = int(extent / step)
     edges: list = []
     for i in range(-n, n + 1):
-        coord = i * step
+        coord: float = i * step
         # horizontal line at z = coord, x spanning [-extent, extent]
         edges.append(((-extent, y, coord), (extent, y, coord)))
         # vertical line at x = coord, z spanning [-extent, extent]
@@ -577,12 +585,12 @@ def build_axis_arrow_solid(
     + ``glDrawArrays(GL_TRIANGLES, ...)``.  Components per slice:
     cylinder side (2 triangles), cylinder bottom cap (1), cone base
     disk (1), cone side (1) -- 5 triangles * slices total."""
-    h_rod = rod_length
-    h_tip = rod_length + cone_length
+    h_rod: float = rod_length
+    h_tip: float = rod_length + cone_length
     verts: list[float] = []
     for i in range(slices):
-        a0 = 2.0 * math.pi * i / slices
-        a1 = 2.0 * math.pi * (i + 1) / slices
+        a0: float = 2.0 * math.pi * i / slices
+        a1: float = 2.0 * math.pi * (i + 1) / slices
         c0, s0 = math.cos(a0), math.sin(a0)
         c1, s1 = math.cos(a1), math.sin(a1)
 
@@ -628,20 +636,36 @@ def build_origin_sphere_solid(
     Returns 2 * slices * stacks triangles."""
     verts: list[float] = []
     for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
+        lat0: float = math.pi * (-0.5 + float(i) / stacks)
+        lat1: float = math.pi * (-0.5 + float(i + 1) / stacks)
         s0, c0 = math.sin(lat0), math.cos(lat0)
         s1, c1 = math.sin(lat1), math.cos(lat1)
         for j in range(slices):
-            lng0 = 2.0 * math.pi * float(j) / slices
-            lng1 = 2.0 * math.pi * float(j + 1) / slices
+            lng0: float = 2.0 * math.pi * float(j) / slices
+            lng1: float = 2.0 * math.pi * float(j + 1) / slices
             cl0, sl0 = math.cos(lng0), math.sin(lng0)
             cl1, sl1 = math.cos(lng1), math.sin(lng1)
             # Two CCW triangles per quad-strip cell, viewed from outside.
-            p00 = (radius * cl0 * c0, radius * sl0 * c0, radius * s0)
-            p01 = (radius * cl1 * c0, radius * sl1 * c0, radius * s0)
-            p10 = (radius * cl0 * c1, radius * sl0 * c1, radius * s1)
-            p11 = (radius * cl1 * c1, radius * sl1 * c1, radius * s1)
+            p00: tuple[float, float, float] = (
+                radius * cl0 * c0,
+                radius * sl0 * c0,
+                radius * s0,
+            )
+            p01: tuple[float, float, float] = (
+                radius * cl1 * c0,
+                radius * sl1 * c0,
+                radius * s0,
+            )
+            p10: tuple[float, float, float] = (
+                radius * cl0 * c1,
+                radius * sl0 * c1,
+                radius * s1,
+            )
+            p11: tuple[float, float, float] = (
+                radius * cl1 * c1,
+                radius * sl1 * c1,
+                radius * s1,
+            )
             verts += [*p10, *p00, *p11]
             verts += [*p11, *p00, *p01]
     return np.array(verts, dtype=np.float32)
@@ -674,37 +698,37 @@ def build_cylinders_for_edges(
     diagonal symmetry of the side strip)."""
     verts: list[float] = []
     for raw_p0, raw_p1 in edges:
-        p0 = np.array(raw_p0, dtype=np.float32)
-        p1 = np.array(raw_p1, dtype=np.float32)
-        forward = p1 - p0
-        length = float(np.linalg.norm(forward))
+        p0: ndarray = np.array(raw_p0, dtype=np.float32)
+        p1: ndarray = np.array(raw_p1, dtype=np.float32)
+        forward: ndarray = p1 - p0
+        length: float = float(np.linalg.norm(forward))
         if length < 1e-9:
             continue
-        forward_unit = forward / length
+        forward_unit: ndarray = forward / length
 
         # Pick a reference axis not parallel to forward, then derive an
         # orthonormal (right, up) frame perpendicular to forward.
         if abs(forward_unit[1]) > 0.9:
-            ref = np.array([1.0, 0.0, 0.0], dtype=np.float32)
+            ref: ndarray = np.array([1.0, 0.0, 0.0], dtype=np.float32)
         else:
             ref = np.array([0.0, 1.0, 0.0], dtype=np.float32)
-        right = _cross_arrays(forward_unit, ref)
+        right: ndarray = _cross_arrays(forward_unit, ref)
         right = right / float(np.linalg.norm(right))
-        up = _cross_arrays(forward_unit, right)
+        up: ndarray = _cross_arrays(forward_unit, right)
 
         for i in range(slices):
-            a0 = 2.0 * math.pi * i / slices
-            a1 = 2.0 * math.pi * (i + 1) / slices
-            off0 = right * (math.cos(a0) * radius) + up * (
+            a0: float = 2.0 * math.pi * i / slices
+            a1: float = 2.0 * math.pi * (i + 1) / slices
+            off0: ndarray = right * (math.cos(a0) * radius) + up * (
                 math.sin(a0) * radius
             )
-            off1 = right * (math.cos(a1) * radius) + up * (
+            off1: ndarray = right * (math.cos(a1) * radius) + up * (
                 math.sin(a1) * radius
             )
-            b0 = p0 + off0
-            b1 = p0 + off1
-            t0 = p1 + off0
-            t1 = p1 + off1
+            b0: ndarray = p0 + off0
+            b1: ndarray = p0 + off1
+            t0: ndarray = p1 + off0
+            t1: ndarray = p1 + off1
 
             # Cylinder side -- two triangles per slice
             verts += [float(b0[0]), float(b0[1]), float(b0[2])]
@@ -732,7 +756,7 @@ def build_ndc_cube_cylinders(radius: float = 0.05, slices: int = 20) -> ndarray:
     """Solid cylinder mesh for the 12 edges of the NDC cube.  Replacement
     for ``build_ndc_cube_vertices()`` when rendering the NDC outline as
     solid white tubes instead of thick lines."""
-    edges = [
+    edges: list = [
         # back square (z = -1)
         ((-1.0, -1.0, -1.0), (1.0, -1.0, -1.0)),
         ((1.0, -1.0, -1.0), (1.0, 1.0, -1.0)),
@@ -756,7 +780,7 @@ def build_ndc_cube_vertices() -> ndarray:
     """The 12 edges of the NDC cube as line segments.  Used by all demos
     EXCEPT modelview2d (which uses a 2D z=0 outline -- defined inline there)."""
     # fmt: off
-    verts = [
+    verts: list[float] = [
         # back square (z=-1)
         -1.0, -1.0, -1.0,
          1.0, -1.0, -1.0,

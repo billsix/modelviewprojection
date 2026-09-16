@@ -146,8 +146,8 @@ def handle_inputs() -> None:
     if glfw.get_key(window, glfw.KEY_PAGE_DOWN) == glfw.PRESS:
         camera.rot_x -= 0.03
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
-        forwards_cs = -1 * e_3
-        forward_ws = compose(
+        forwards_cs: Vector = -1 * e_3
+        forward_ws: Vector = compose(
             [translate(b=camera.position_ws), rotate_y(camera.rot_y)]
         )(forwards_cs)
         camera.position_ws = forward_ws

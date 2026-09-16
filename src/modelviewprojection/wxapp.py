@@ -16,6 +16,7 @@
 # Boston, MA 02111-1307, USA.
 
 
+import ctypes
 import math
 import time
 
@@ -61,7 +62,7 @@ void main()
 
 class GLPanel(wxgl.GLCanvas):
     def __init__(self, parent: wx.Window) -> None:
-        attribs = [
+        attribs: list[int] = [
             wxgl.WX_GL_RGBA,
             wxgl.WX_GL_DOUBLEBUFFER,
             wxgl.WX_GL_DEPTH_SIZE,
@@ -97,36 +98,38 @@ class GLPanel(wxgl.GLCanvas):
         self.SwapBuffers()
 
     def OnTimer(self, event: wx.TimerEvent) -> None:
-        now = time.time()
-        dt = now - self.last_time
+        now: float = time.time()
+        dt: float = now - self.last_time
         self.last_time = now
         self.angle += self.speed * dt
         self.Refresh(False)
 
     def compile_shader(self, source: str, shader_type: GLenum) -> int:
-        shader = GL.glCreateShader(shader_type)
+        shader: int = GL.glCreateShader(shader_type)
         GL.glShaderSource(shader, source)
         GL.glCompileShader(shader)
         if not GL.glGetShaderiv(shader, GL.GL_COMPILE_STATUS):
-            error = GL.glGetShaderInfoLog(shader).decode()
+            error: str = GL.glGetShaderInfoLog(shader).decode()
             raise RuntimeError(f"Shader compile error: {error}")
         return shader
 
     def InitGL(self) -> None:
-        vs = self.compile_shader(vertex_shader_src, GL.GL_VERTEX_SHADER)
-        fs = self.compile_shader(fragment_shader_src, GL.GL_FRAGMENT_SHADER)
+        vs: int = self.compile_shader(vertex_shader_src, GL.GL_VERTEX_SHADER)
+        fs: int = self.compile_shader(
+            fragment_shader_src, GL.GL_FRAGMENT_SHADER
+        )
         self.program = GL.glCreateProgram()
         GL.glAttachShader(self.program, vs)
         GL.glAttachShader(self.program, fs)
         GL.glLinkProgram(self.program)
         if not GL.glGetProgramiv(self.program, GL.GL_LINK_STATUS):
-            error = GL.glGetProgramInfoLog(self.program).decode()
+            error: str = GL.glGetProgramInfoLog(self.program).decode()
             raise RuntimeError(f"Program link error: {error}")
         GL.glDeleteShader(vs)
         GL.glDeleteShader(fs)
 
         # Triangle data (pos + color)
-        vertices = np.array(
+        vertices: np.ndarray = np.array(
             [
                 # positions       # colors
                 0.0,
@@ -152,7 +155,7 @@ class GLPanel(wxgl.GLCanvas):
         )
 
         self.vao = GL.glGenVertexArrays(1)
-        vbo = GL.glGenBuffers(1)
+        vbo: int = GL.glGenBuffers(1)
 
         GL.glBindVertexArray(self.vao)
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
@@ -160,8 +163,8 @@ class GLPanel(wxgl.GLCanvas):
             GL.GL_ARRAY_BUFFER, vertices.nbytes, vertices, GL.GL_STATIC_DRAW
         )
 
-        stride = 6 * vertices.itemsize
-        offset = GL.ctypes.c_void_p(0)
+        stride: int = 6 * vertices.itemsize
+        offset: ctypes.c_void_p = GL.ctypes.c_void_p(0)
 
         # Position attribute
         GL.glVertexAttribPointer(0, 3, GL.GL_FLOAT, False, stride, offset)
@@ -180,13 +183,13 @@ class GLPanel(wxgl.GLCanvas):
     def OnDraw(self) -> None:
         w, h = self.GetClientSize()
 
-        dw = self.GetContentScaleFactor()
+        dw: float = self.GetContentScaleFactor()
         GL.glViewport(0, 0, int(w * dw), int(h * dw))
-        mask = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
+        mask: int = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
         GL.glClear(mask)
 
         GL.glUseProgram(self.program)
-        angle_loc = GL.glGetUniformLocation(self.program, "angle")
+        angle_loc: int = GL.glGetUniformLocation(self.program, "angle")
         GL.glUniform1f(angle_loc, self.angle)
 
         GL.glBindVertexArray(self.vao)
@@ -199,20 +202,20 @@ class MainFrame(wx.Frame):
         super().__init__(
             None, title="wxPython OpenGL 3.3 Example", size=wx.Size(600, 500)
         )
-        panel = wx.Panel(self)
+        panel: wx.Panel = wx.Panel(self)
 
         # --- Menu Bar ---
-        menubar = wx.MenuBar()
+        menubar: wx.MenuBar = wx.MenuBar()
 
         # Application menu
-        app_menu = wx.Menu()
-        quit_item = app_menu.Append(wx.ID_EXIT, "Quit\tCtrl+Q")
+        app_menu: wx.Menu = wx.Menu()
+        quit_item: wx.MenuItem = app_menu.Append(wx.ID_EXIT, "Quit\tCtrl+Q")
         self.Bind(wx.EVT_MENU, self.on_quit, quit_item)
         menubar.Append(app_menu, "Application")
 
         # Edit menu
-        edit_menu = wx.Menu()
-        prefs_item = edit_menu.Append(
+        edit_menu: wx.Menu = wx.Menu()
+        prefs_item: wx.MenuItem = edit_menu.Append(
             wx.ID_PREFERENCES, "Preferences...\tCtrl+,"
         )
         self.Bind(wx.EVT_MENU, self.on_preferences, prefs_item)
@@ -221,16 +224,16 @@ class MainFrame(wx.Frame):
         self.SetMenuBar(menubar)
 
         # --- Layout with canvas and controls ---
-        vbox = wx.BoxSizer(wx.VERTICAL)
-        hbox = wx.BoxSizer(wx.HORIZONTAL)
+        vbox: wx.BoxSizer = wx.BoxSizer(wx.VERTICAL)
+        hbox: wx.BoxSizer = wx.BoxSizer(wx.HORIZONTAL)
 
         self.canvas = GLPanel(panel)
         vbox.Add(self.canvas, 1, wx.EXPAND | wx.ALL, 5)
 
         # Buttons
-        btn1 = wx.Button(panel, label="Pause")
-        btn2 = wx.Button(panel, label="Reverse")
-        btn3 = wx.Button(panel, label="Reset")
+        btn1: wx.Button = wx.Button(panel, label="Pause")
+        btn2: wx.Button = wx.Button(panel, label="Reverse")
+        btn3: wx.Button = wx.Button(panel, label="Reset")
         self.slider = wx.Slider(
             panel, value=60, minValue=0, maxValue=360, style=wx.SL_HORIZONTAL
         )
@@ -283,7 +286,7 @@ class MainFrame(wx.Frame):
 
 class MyApp(wx.App):
     def OnInit(self) -> bool:
-        frame = MainFrame()
+        frame: MainFrame = MainFrame()
         frame.Show()
         return True
 

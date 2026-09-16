@@ -180,9 +180,9 @@ def handle_inputs() -> None:
 
 def compile_shader_program() -> int:
     with open(os.path.join(pwd, "pyramid.vert")) as f:
-        vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
+        vs: int = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
     with open(os.path.join(pwd, "pyramid.frag")) as f:
-        fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
+        fs: int = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
     return shaders.compileProgram(vs, fs)
 
 
@@ -209,13 +209,13 @@ u_tex = GL.glGetUniformLocation(program, "tex")
 
 
 def load_texture(path: str) -> int:
-    img = iio.imread(path)
+    img: np.ndarray = iio.imread(path)
     if img.ndim == 2:
         img = np.stack([img, img, img], axis=-1)
     h, w = img.shape[:2]
     img = np.ascontiguousarray(img, dtype=np.uint8)
 
-    tex = GL.glGenTextures(1)
+    tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
     GL.glTexParameteri(
         GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_CLAMP_TO_EDGE
@@ -268,7 +268,7 @@ _STRIDE = _FLOATS_PER_VERTEX * 4
 
 
 def _build_pyramid() -> np.ndarray:
-    corners = [
+    corners: list[tuple[float, float, float]] = [
         (0.0, 0.80, 0.00),  # 0 top
         (-0.5, 0.00, -0.50),  # 1 back-left
         (0.5, 0.00, -0.50),  # 2 back-right
@@ -278,8 +278,8 @@ def _build_pyramid() -> np.ndarray:
 
     # base normal points down, two triangles cover the square.  uv
     # tiles the stone texture once across the base.
-    base_n = (0.0, -1.0, 0.0)
-    triangles = [
+    base_n: tuple[float, float, float] = (0.0, -1.0, 0.0)
+    triangles: list = [
         # base (CCW from below, so normal faces -Y)
         (corners[2], corners[4], corners[1], base_n, [(1, 1), (0, 0), (0, 1)]),
         (corners[2], corners[3], corners[4], base_n, [(1, 1), (1, 0), (0, 0)]),
@@ -327,14 +327,14 @@ def _build_pyramid() -> np.ndarray:
 
 
 def _build_pyramid_wire() -> np.ndarray:
-    corners = [
+    corners: list[tuple[float, float, float]] = [
         (0.0, 0.80, 0.00),
         (-0.5, 0.00, -0.50),
         (0.5, 0.00, -0.50),
         (0.5, 0.00, 0.50),
         (-0.5, 0.00, 0.50),
     ]
-    edges = [
+    edges: list[tuple[int, int]] = [
         # base
         (1, 2),
         (2, 3),
@@ -366,14 +366,14 @@ def _build_marker_cone(radius: float, height: float, slices: int) -> np.ndarray:
 
     Drawn unlit, so normals are zeros and uvs are (0, 0)."""
     out: list[float] = []
-    base_pts = []
+    base_pts: list[tuple[float, float, float]] = []
     for i in range(slices + 1):
-        t = i / slices * 2.0 * math.pi
+        t: float = i / slices * 2.0 * math.pi
         # Base ring sits at z=0, apex juts out to z=+height.
         base_pts.append((radius * math.cos(t), radius * math.sin(t), 0.0))
 
-    apex = (0.0, 0.0, height)
-    base_center = (0.0, 0.0, 0.0)
+    apex: tuple[float, float, float] = (0.0, 0.0, height)
+    base_center: tuple[float, float, float] = (0.0, 0.0, 0.0)
 
     # Slant sides:  (apex, p[i], p[i+1]) is CCW from outside (the
     # cross-product points radially-outward + slightly toward +z).
@@ -400,19 +400,19 @@ def _build_marker_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
     unlit, but the winding still has to be CCW for back-face culling."""
     out: list[float] = []
     for i in range(stacks):
-        phi0 = math.pi * (i / stacks) - math.pi / 2.0
-        phi1 = math.pi * ((i + 1) / stacks) - math.pi / 2.0
+        phi0: float = math.pi * (i / stacks) - math.pi / 2.0
+        phi1: float = math.pi * ((i + 1) / stacks) - math.pi / 2.0
         cphi0, sphi0 = math.cos(phi0), math.sin(phi0)
         cphi1, sphi1 = math.cos(phi1), math.sin(phi1)
         for j in range(slices):
-            t0 = 2.0 * math.pi * (j / slices)
-            t1 = 2.0 * math.pi * ((j + 1) / slices)
+            t0: float = 2.0 * math.pi * (j / slices)
+            t1: float = 2.0 * math.pi * ((j + 1) / slices)
             ct0, st0 = math.cos(t0), math.sin(t0)
             ct1, st1 = math.cos(t1), math.sin(t1)
-            p00 = (cphi0 * st0, sphi0, cphi0 * ct0)
-            p10 = (cphi0 * st1, sphi0, cphi0 * ct1)
-            p01 = (cphi1 * st0, sphi1, cphi1 * ct0)
-            p11 = (cphi1 * st1, sphi1, cphi1 * ct1)
+            p00: tuple[float, float, float] = (cphi0 * st0, sphi0, cphi0 * ct0)
+            p10: tuple[float, float, float] = (cphi0 * st1, sphi0, cphi0 * ct1)
+            p01: tuple[float, float, float] = (cphi1 * st0, sphi1, cphi1 * ct0)
+            p11: tuple[float, float, float] = (cphi1 * st1, sphi1, cphi1 * ct1)
             for v in (p00, p10, p01, p10, p11, p01):
                 out.extend(p * radius for p in v)
                 out.extend((0.0, 0.0, 0.0))
@@ -422,8 +422,8 @@ def _build_marker_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
 
 def make_vao(vertex_data: np.ndarray) -> tuple[int, int, int]:
     vertex_data = np.ascontiguousarray(vertex_data, dtype=np.float32)
-    vao = GL.glGenVertexArrays(1)
-    vbo = GL.glGenBuffers(1)
+    vao: int = GL.glGenVertexArrays(1)
+    vbo: int = GL.glGenBuffers(1)
     GL.glBindVertexArray(vao)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
     GL.glBufferData(

@@ -20,7 +20,7 @@ import itertools
 import math
 import sys
 from collections import namedtuple
-from collections.abc import Iterator, Sequence
+from collections.abc import Iterable, Iterator, Sequence
 
 import matplotlib
 import matplotlib.pyplot as plt
@@ -57,7 +57,9 @@ def _apply(
     against sympy ``Float`` coefficients leaking from a rotation (same reason as
     ``util.nbplotutils._xy``); a purely numeric pipeline stays numeric anyway.
     """
-    vectors = [fn(float(x) * e_1 + float(y) * e_2) for x, y in zip(xs, ys)]
+    vectors: list[Vector] = [
+        fn(float(x) * e_1 + float(y) * e_2) for x, y in zip(xs, ys)
+    ]
     return (
         [float(v.coeff_e_1) for v in vectors],
         [float(v.coeff_e_2) for v in vectors],
@@ -81,15 +83,17 @@ def _accumulate(
     is just ``len(procedures) - i`` (both old branches produced that identical
     countdown).
     """
-    intermediates = compose_intermediate_fns(
-        list(reversed(procedures)), relative_basis=not forwards
+    intermediates: Iterable[InvertibleFunction[Vector]] = (
+        compose_intermediate_fns(
+            list(reversed(procedures)), relative_basis=not forwards
+        )
     )
     for i, aggregate_fn in enumerate(intermediates):
         yield aggregate_fn, len(procedures) - i
 
 
 def main() -> None:
-    modules = [sys.modules[__name__]]
+    modules: list = [sys.modules[__name__]]
     for m in modules:
         try:
             doctest.testmod(m, raise_on_error=True)
@@ -104,9 +108,11 @@ def main() -> None:
 
     ### Step 1
 
-    Geometry = namedtuple("Geometry", "points color names")
+    # Geometry is a type (namedtuple class); the annotation required by
+    # check_local_annotations disables ruff's namedtuple N806 exemption.
+    Geometry: type = namedtuple("Geometry", "points color names")  # noqa: N806
 
-    paddle1 = Geometry(
+    paddle1: Geometry = Geometry(
         points=list(
             zip(
                 *np.array(
@@ -124,7 +130,7 @@ def main() -> None:
         names=["c", "d", "a", "b"],
     )
 
-    paddle2 = Geometry(
+    paddle2: Geometry = Geometry(
         points=list(
             zip(
                 *np.array(
@@ -162,7 +168,7 @@ def main() -> None:
         axes.set_xlim((-graph_bounds[0], graph_bounds[0]))
         axes.set_ylim((-graph_bounds[1], graph_bounds[1]))
 
-        procs = procedures.copy()
+        procs: list[InvertibleFunction[Vector]] = procedures.copy()
         procs = list(reversed(procs))
         # when plotting the transformations is forwards order, show the axis
         # at the last step first before plotting the data
@@ -243,7 +249,7 @@ def main() -> None:
                 )
 
                 if steps_remaining <= 0:
-                    plot_character = "-"
+                    plot_character: str = "-"
                 else:
                     plot_character = "."
                 # plot the points
@@ -284,7 +290,7 @@ def main() -> None:
                 yield fig
 
         # create a single frame
-        animated_images_list = [
+        animated_images_list: list[Iterator[plt.Figure]] = [
             create_single_frame(accumfn, steps_remaining, fn, frame_number)
             for (accumfn, steps_remaining), fn, frame_number in zip(
                 _accumulate(procs, forwards),
@@ -293,7 +299,7 @@ def main() -> None:
             )
         ]
 
-        flattened_animated_images_list = list(
+        flattened_animated_images_list: list[plt.Figure] = list(
             itertools.chain(*animated_images_list)
         )
 
@@ -456,7 +462,7 @@ def main() -> None:
         forwards=False,
     )
 
-    square = Geometry(
+    square: Geometry = Geometry(
         points=list(
             zip(
                 *np.array(
@@ -498,9 +504,9 @@ def main() -> None:
         forwards=True,
     )
 
-    t = np.linspace(0, np.pi * 2, 100)
-    circ = [list(np.cos(t) * 10), list(np.sin(t) * 10)]
-    circle = Geometry(points=circ, color=(0.0, 1.0, 0.0), names=[])
+    t: np.ndarray = np.linspace(0, np.pi * 2, 100)
+    circ: list = [list(np.cos(t) * 10), list(np.sin(t) * 10)]
+    circle: Geometry = Geometry(points=circ, color=(0.0, 1.0, 0.0), names=[])
 
     create_graphs(
         title="Circle, Relative to Local Space",
@@ -526,7 +532,7 @@ def main() -> None:
         forwards=True,
     )
 
-    square_ndc = Geometry(
+    square_ndc: Geometry = Geometry(
         points=list(
             zip(
                 *np.array(

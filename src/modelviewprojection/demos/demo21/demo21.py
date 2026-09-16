@@ -92,7 +92,7 @@ def init_fonts_and_markdown() -> None:
 
 def impl_glfw_init() -> "GLFWWindow":
     width, height = 500, 500
-    window_name = "ModelViewProjection Demo 21 "
+    window_name: str = "ModelViewProjection Demo 21 "
 
     if not glfw.init():
         print("Could not initialize OpenGL context")
@@ -106,7 +106,7 @@ def impl_glfw_init() -> "GLFWWindow":
     glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
 
     # Create a windowed mode window and its OpenGL context
-    window = glfw.create_window(
+    window: "GLFWWindow" = glfw.create_window(
         int(width), int(height), window_name, None, None
     )
     glfw.make_context_current(window)
@@ -117,7 +117,7 @@ def impl_glfw_init() -> "GLFWWindow":
     # VAOs override-bind when they need a specific layout, and we
     # never call glBindVertexArray(0).  Mesa and NVIDIA tolerate the
     # spec violation silently; Apple's driver does not.
-    _default_vao = GL.glGenVertexArrays(1)
+    _default_vao: int = GL.glGenVertexArrays(1)
     GL.glBindVertexArray(_default_vao)
 
     if not window:
@@ -163,9 +163,9 @@ if __enable_blend__:
 
 def compile_program(vert_filename: str, frag_filename: str) -> int:
     with open(os.path.join(pwd, vert_filename), "r") as f:
-        vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
+        vs: int = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
     with open(os.path.join(pwd, frag_filename), "r") as f:
-        fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
+        fs: int = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
     # validate=False -- glValidateProgram is a debug check that the
     # PyOpenGL helper runs at link time.  On macOS Core Profile it
     # complains about samplers sharing texture unit 0 (their default
@@ -199,7 +199,7 @@ class GroundPipeline:
 
 
 def _build_triangle_pipeline() -> TrianglePipeline:
-    prog = compile_program("triangle.vert", "triangle.frag")
+    prog: int = compile_program("triangle.vert", "triangle.frag")
     return TrianglePipeline(
         program=prog,
         u_mvp=GL.glGetUniformLocation(prog, "mvpMatrix"),
@@ -209,7 +209,7 @@ def _build_triangle_pipeline() -> TrianglePipeline:
 
 
 def _build_ground_pipeline() -> GroundPipeline:
-    prog = compile_program("ground.vert", "ground.frag")
+    prog: int = compile_program("ground.vert", "ground.frag")
     return GroundPipeline(
         program=prog,
         u_mvp=GL.glGetUniformLocation(prog, "mvpMatrix"),
@@ -254,7 +254,7 @@ class AttribSpec:
 def make_vbo(data: NDArray, usage: GLenum = GL.GL_STATIC_DRAW) -> int:
     """Allocate a VBO and upload ``data``.  Touches no VAO state."""
     data = np.ascontiguousarray(data, dtype=np.float32)
-    vbo = GL.glGenBuffers(1)
+    vbo: int = GL.glGenBuffers(1)
     all_vbos.append(vbo)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
     GL.glBufferData(GL.GL_ARRAY_BUFFER, data.nbytes, data, usage)
@@ -264,7 +264,7 @@ def make_vbo(data: NDArray, usage: GLenum = GL.GL_STATIC_DRAW) -> int:
 
 def make_vao(attribs: list[AttribSpec]) -> int:
     """Build a VAO that reads each AttribSpec from its VBO."""
-    vao = GL.glGenVertexArrays(1)
+    vao: int = GL.glGenVertexArrays(1)
     all_vaos.append(vao)
     GL.glBindVertexArray(vao)
     for a in attribs:

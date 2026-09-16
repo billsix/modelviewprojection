@@ -20,7 +20,7 @@ def _draw_solid_cylinder(
     gluCylinder)."""
     GL.glBegin(GL.GL_QUAD_STRIP)
     for i in range(slices + 1):
-        a = 2.0 * math.pi * float(i) / slices
+        a: float = 2.0 * math.pi * float(i) / slices
         c, s = math.cos(a), math.sin(a)
         GL.glNormal3f(c, s, 0.0)
         GL.glVertex3f(c * base_radius, s * base_radius, 0.0)
@@ -34,7 +34,7 @@ def _draw_solid_cone(base: float, height: float, slices: int) -> None:
     GL.glNormal3f(0.0, 0.0, 1.0)
     GL.glVertex3f(0.0, 0.0, height)
     for i in range(slices + 1):
-        a = 2.0 * math.pi * float(i) / slices
+        a: float = 2.0 * math.pi * float(i) / slices
         GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
     GL.glEnd()
     # Base disk
@@ -42,7 +42,7 @@ def _draw_solid_cone(base: float, height: float, slices: int) -> None:
     GL.glNormal3f(0.0, 0.0, -1.0)
     GL.glVertex3f(0.0, 0.0, 0.0)
     for i in range(slices, -1, -1):
-        a = 2.0 * math.pi * float(i) / slices
+        a: float = 2.0 * math.pi * float(i) / slices
         GL.glVertex3f(math.cos(a) * base, math.sin(a) * base, 0.0)
     GL.glEnd()
 
@@ -53,13 +53,13 @@ def _draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
     (lat1, lat0) per slice so the outward face winds CCW under the default
     glFrontFace(GL_CCW)."""
     for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
+        lat0: float = math.pi * (-0.5 + float(i) / stacks)
+        lat1: float = math.pi * (-0.5 + float(i + 1) / stacks)
         s0, c0 = math.sin(lat0), math.cos(lat0)
         s1, c1 = math.sin(lat1), math.cos(lat1)
         GL.glBegin(GL.GL_QUAD_STRIP)
         for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
+            lng: float = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
             GL.glNormal3f(cl * c1, sl * c1, s1)
             GL.glVertex3f(radius * cl * c1, radius * sl * c1, radius * s1)
@@ -78,10 +78,10 @@ def draw_unit_axes(scale: float = 1.0) -> None:
     *scale* multiplies all geometry proportionally -- pass <1.0 for a
     smaller gizmo that fits inside a nested local frame.
     """
-    rod_radius = 0.05 * scale
-    cone_radius = 0.12 * scale
-    rod_length = 0.85 * scale
-    cone_length = 0.15 * scale
+    rod_radius: float = 0.05 * scale
+    cone_radius: float = 0.12 * scale
+    rod_length: float = 0.85 * scale
+    cone_length: float = 0.15 * scale
 
     # Force solid fill for the gizmo geometry regardless of the caller's
     # polygon mode (demo19e renders the rest of its scene as wireframe).

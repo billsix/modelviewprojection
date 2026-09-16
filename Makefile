@@ -164,6 +164,27 @@ format: image ## (container) ruff + ty over the source (loadpackages.sh + format
 		-c 'cd /mvp && loadpackages.sh && format.sh'
 
 
+# Read-only type gate: ty over the whole source (no ruff, no --fix -- nothing is
+# mutated), plus the local-variable annotation checker (tools/, enforcing the
+# "every local is annotated" rule).  Every step runs and the target fails if ANY
+# failed (s=1 accumulates), so one run reports all the red.  `$$s` is a literal
+# `$s` for the shell (Make would otherwise expand `$s`).
+.PHONY: type-check
+type-check: image ## (container) ty + local-annotation check over the source
+	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) --rm \
+		--entrypoint /bin/bash \
+		$(FILES_TO_MOUNT) \
+		$(CONTAINER_NAME) \
+		-c 'cd /mvp && loadpackages.sh && \
+			source /venv/bin/activate; s=0; \
+			ty check src || s=1; \
+			ty check tests || s=1; \
+			ty check ports/codetheclassics/vol1 || s=1; \
+			ty check ports/codetheclassics/vol2 || s=1; \
+			python tools/check_local_annotations.py src tests || s=1; \
+			exit $$s'
+
+
 # Run the pytest suite INSIDE the container (the image's pinned interpreter, with
 # glfw/GL present -- so the windowing modules and their doctests that cannot import
 # on a bare host DO run here).  Same suite and environment as the book-build gate

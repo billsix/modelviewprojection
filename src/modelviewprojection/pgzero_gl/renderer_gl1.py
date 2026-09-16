@@ -40,6 +40,8 @@ import OpenGL.GL as GL
 from .renderer import _rgba  # shared colour normaliser
 
 if TYPE_CHECKING:
+    from modelviewprojection.mvpvisualization._pipeline import GLenum
+
     from ._types import Drawable, PointLike
 
 
@@ -156,7 +158,7 @@ class Renderer1x:
 
     def polygon(self, points: Any, color: Any, filled: bool) -> None:
         """Draw a polygon through ``points`` (filled, or outline)."""
-        mode = GL.GL_POLYGON if filled else GL.GL_LINE_LOOP
+        mode: GLenum = GL.GL_POLYGON if filled else GL.GL_LINE_LOOP
         # unpack, not index: points may be tuples OR gacalc vectors
         self._flat(
             verts=[(px, py) for px, py in points], color=color, mode=mode
@@ -168,7 +170,7 @@ class Renderer1x:
         """Draw a circle centred at ``pos`` (filled fan, or outline)."""
         cx, cy = pos
         n: int = 48
-        pts = []
+        pts: list[tuple[float, float]] = []
         if filled:
             pts.append((cx, cy))
         for i in range(n + 1):
@@ -187,8 +189,8 @@ class Renderer1x:
             GL.glDisable(GL.GL_SCISSOR_TEST)
             return
         x, y, w, h = rect
-        sx = self.fb_width / self.width
-        sy = self.fb_height / self.height
+        sx: float = self.fb_width / self.width
+        sy: float = self.fb_height / self.height
         GL.glEnable(GL.GL_SCISSOR_TEST)
         GL.glScissor(
             int(x * sx),

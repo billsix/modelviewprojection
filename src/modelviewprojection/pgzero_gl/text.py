@@ -121,7 +121,9 @@ def _render(text: str, size: int, color: Any, fontname: str | None) -> Image:
     # Measure.
     dummy: Any = PILImage.new("RGBA", (1, 1))
     d: Any = ImageDraw.Draw(dummy)
-    bbox = d.textbbox((0, 0), text, font=font)
+    bbox: tuple[float, float, float, float] = d.textbbox(
+        (0, 0), text, font=font
+    )
     w, h = int(max(1, bbox[2] - bbox[0])), int(max(1, bbox[3] - bbox[1]))
     ox, oy = bbox[0], bbox[1]
     surf: Any = PILImage.new("RGBA", (w, h), (0, 0, 0, 0))
@@ -137,15 +139,15 @@ def draw(text: object, surf: Any = None, **kwargs: Any) -> None:
     """screen.draw.text(text, pos=..., color=..., fontsize=...).  One of the
     anchor keywords (pos == topleft) gives the position."""
     text = str(text)
-    color = kwargs.get("color", (255, 255, 255))
+    color: Any = kwargs.get("color", (255, 255, 255))
     size: int = int(kwargs.get("fontsize", DEFAULT_FONT_SIZE))
-    fontname = kwargs.get("fontname")
+    fontname: str | None = kwargs.get("fontname")
 
     img: Image = _render(text=text, size=size, color=color, fontname=fontname)
 
     # Determine anchor + position.
     anchor: str = "topleft"
-    pos = kwargs.get("pos")
+    pos: Any = kwargs.get("pos")
     if pos is None:
         for name in _ANCHORS:
             if name in kwargs:
@@ -157,5 +159,5 @@ def draw(text: object, surf: Any = None, **kwargs: Any) -> None:
 
     fx, fy = _ANCHORS.get(anchor, (0.0, 0.0))
     px, py = pos  # unpack: tuple OR gacalc vector
-    topleft = (px - img.width * fx, py - img.height * fy)
+    topleft: tuple[float, float] = (px - img.width * fx, py - img.height * fy)
     Context.require_renderer().draw_image(image=img, topleft=topleft)

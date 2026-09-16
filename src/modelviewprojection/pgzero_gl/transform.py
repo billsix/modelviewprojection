@@ -22,7 +22,7 @@ from .resources import Image as GLImage
 
 
 def scale(surf: Any, size: Any, dest: Any = None) -> Any:
-    pil = PILImage.fromarray(surf.rgba).resize(
+    pil: PILImage.Image = PILImage.fromarray(surf.rgba).resize(
         (max(1, int(size[0])), max(1, int(size[1]))),
         PILImage.Resampling.NEAREST,
     )
@@ -30,7 +30,7 @@ def scale(surf: Any, size: Any, dest: Any = None) -> Any:
 
 
 def smoothscale(surf: Any, size: Any, dest: Any = None) -> Any:
-    pil = PILImage.fromarray(surf.rgba).resize(
+    pil: PILImage.Image = PILImage.fromarray(surf.rgba).resize(
         (max(1, int(size[0])), max(1, int(size[1]))),
         PILImage.Resampling.BILINEAR,
     )

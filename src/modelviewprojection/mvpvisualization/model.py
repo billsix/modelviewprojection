@@ -16,6 +16,7 @@ import typing
 from enum import Enum, auto
 
 import glfw
+import numpy as np
 from gacalc.g3 import Vector
 from gacalc.transforms import translate
 
@@ -230,7 +231,7 @@ def frame(w: int, h: int) -> None:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0
         )
-    t = state["time"]
+    t: float = state["time"]
     graph_panel(t)
 
     # --- input + view ---
@@ -250,7 +251,7 @@ def frame(w: int, h: int) -> None:
     )
 
     for space, mesh in DRAW.items():
-        m = cayleyscene.to_matrix(animation.transform(space, t))
+        m: np.ndarray = cayleyscene.to_matrix(animation.transform(space, t))
         ms.set_current_matrix(ms.MatrixStack.model, m)
         if animation.axis_visible(space, t):
             standard_objects.draw_axis()

@@ -43,7 +43,12 @@ if typing.TYPE_CHECKING:
     # glfw's stubs type every window parameter as `_GLFWwindowPointerT`.  The
     # leading underscore marks it private and it does not exist at runtime, so
     # alias it once, under TYPE_CHECKING, instead of repeating a private import.
-    from glfw import _GLFWwindowPointerT
+    # _GLFWmonitor is likewise a stub-only glfw C-binding type (the fullscreen
+    # monitor query); _Pointer is ctypes'.  (glfw's GLFWvidmode return type is
+    # not importable/nameable, so `mode` below is annotated Any.)
+    from ctypes import _Pointer
+
+    from glfw import _GLFWmonitor, _GLFWwindowPointerT
     from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
     GLFWWindow = _GLFWwindowPointerT
@@ -123,7 +128,7 @@ def orbit_input(
         camera.rot_x -= math.radians(1.0)
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
         camera.rot_x += math.radians(1.0)
-    new = glfw.get_cursor_pos(window)
+    new: tuple[float, float] | None = glfw.get_cursor_pos(window)
     if glfw.PRESS == glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT):
         if not imguiio.want_capture_mouse and prev_mouse:
             camera.rot_y -= 0.2 * math.radians(new[0] - prev_mouse[0])
@@ -160,7 +165,7 @@ def setup_ortho_2d_view(
     is a fixed view z-push so the z~=0 scene sits inside [near, far].  The
     viewport is letterboxed to a centered square so the scene keeps its
     aspect."""
-    m = min(w, h)
+    m: int = min(w, h)
     GL.glViewport(int((w - m) / 2.0), int((h - m) / 2.0), m, m)
     ms.set_to_identity_matrix(ms.MatrixStack.model)
     ms.set_to_identity_matrix(ms.MatrixStack.view)
@@ -194,6 +199,8 @@ Mesh = tuple[GLHandle, VertexCount]
 #: Was `typing.Optional[typing.Tuple[int, int, int]]` with a `# vao,n,vbo`
 #: comment doing the work this name now does.
 MutableMesh = tuple[GLHandle, VertexCount, GLHandle]
+#: A 3D point as a plain float triple (edge endpoints in the volume builders).
+Point3 = tuple[float, float, float]
 
 
 @dataclasses.dataclass
@@ -222,7 +229,7 @@ class StandardObjects:
         if p.u_fov != -1:  # perspective squash reads fov/aspect/near/far
             GL.glUniform1f(p.u_fov, PIPELINE_FOV)
             GL.glUniform1f(p.u_aspect, PIPELINE_ASPECT)
-            volume = (
+            volume: Frustum | RectangularPrism | None = (
                 self.frustum if self.frustum is not None else self.rect_prism
             )
             if volume is not None:
@@ -330,7 +337,7 @@ class StandardObjects:
         fov/aspect/near/far)."""
         assert self.volume_pipeline is not None
         assert self.frustum is not None
-        p = self.volume_pipeline
+        p: _p.Pipeline = self.volume_pipeline
         GL.glUseProgram(p.program)
         GL.glUniform1f(p.u_fov, self.frustum.field_of_view)
         GL.glUniform1f(p.u_aspect, self.frustum.aspect_ratio)
@@ -347,7 +354,7 @@ class StandardObjects:
         well-defined)."""
         assert self.volume_pipeline is not None
         assert self.rect_prism is not None
-        p = self.volume_pipeline
+        p: _p.Pipeline = self.volume_pipeline
         GL.glUseProgram(p.program)
         GL.glUniform1f(p.u_fov, PIPELINE_FOV)
         GL.glUniform1f(p.u_aspect, PIPELINE_ASPECT)
@@ -361,7 +368,7 @@ class StandardObjects:
         rebuild)."""
         assert self.frustum is not None
         assert self.volume_geo is not None
-        verts = frustum_lines(self.frustum)
+        verts: np.ndarray = frustum_lines(self.frustum)
         _vao, _n, vbo = self.volume_geo
         GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
         GL.glBufferData(
@@ -386,8 +393,8 @@ def build_standard(
     (``os.path.dirname(os.path.abspath(__file__))``), so the shaders load
     relative to the demo.  ``animated`` + ``project`` select the squash shader
     for the triangle/axis pipelines."""
-    proj = project if animated else "project_identity.glsl"
-    triangle = _p.build_pipeline(
+    proj: str = project if animated else "project_identity.glsl"
+    triangle: _p.Pipeline = _p.build_pipeline(
         "per_vertex_color.vert",
         "passthrough.frag",
         shader_dir=shader_dir,
@@ -395,13 +402,13 @@ def build_standard(
         anim=animated,
         project=proj,
     )
-    ground_p = _p.build_pipeline(
+    ground_p: _p.Pipeline = _p.build_pipeline(
         "uniform_color.vert",
         "passthrough.frag",
         shader_dir=shader_dir,
         color=True,
     )
-    axis_p = _p.build_pipeline(
+    axis_p: _p.Pipeline = _p.build_pipeline(
         "uniform_color.vert",
         "passthrough.frag",
         shader_dir=shader_dir,
@@ -409,13 +416,13 @@ def build_standard(
         anim=animated,
         project=proj,
     )
-    cube_p = _p.build_pipeline(
+    cube_p: _p.Pipeline = _p.build_pipeline(
         "uniform_color.vert",
         "passthrough.frag",
         shader_dir=shader_dir,
         color=True,
     )
-    meshes = {
+    meshes: dict[str, Mesh] = {
         "paddle1": _p.make_triangle_vao(
             _p.paddle_vertices,
             r=0.578123,
@@ -441,7 +448,7 @@ def build_standard(
             attr_color=triangle.attr_color,
         ),
     }
-    standard_objects = StandardObjects(
+    standard_objects: StandardObjects = StandardObjects(
         triangle_pipeline=triangle,
         ground_pipeline=ground_p,
         axis_pipeline=axis_p,
@@ -462,9 +469,11 @@ def build_standard(
         frustum=frustum,
         rect_prism=rect_prism,
     )
-    volume = frustum if frustum is not None else rect_prism
+    volume: Frustum | RectangularPrism | None = (
+        frustum if frustum is not None else rect_prism
+    )
     if volume is not None:
-        vp = _p.build_pipeline(
+        vp: _p.Pipeline = _p.build_pipeline(
             "uniform_color.vert",
             "passthrough_geom.frag",
             shader_dir=shader_dir,
@@ -475,12 +484,12 @@ def build_standard(
             project=project,
         )
         if frustum is not None:
-            verts = frustum_lines(frustum)
+            verts: np.ndarray = frustum_lines(frustum)
         else:
             assert rect_prism is not None
             verts = rectangular_prism_lines(rect_prism)
-        vbo = _p.make_vbo(verts, usage=GL.GL_DYNAMIC_DRAW)
-        vao = _p.make_vao(
+        vbo: int = _p.make_vbo(verts, usage=GL.GL_DYNAMIC_DRAW)
+        vao: int = _p.make_vao(
             [
                 _p.AttribSpec(
                     vbo=vbo,
@@ -511,7 +520,7 @@ def gui_button(
     if button.active:
         imgui.push_style_color(imgui.Col_.button.value, (0.6, 0.2, 0.2, 1.0))
     imgui.push_id(f"{button.label}@{button.start}")
-    clicked = imgui.button(button.label)
+    clicked: bool = imgui.button(button.label)
     imgui.pop_id()
     if button.active:
         imgui.pop_style_color(1)
@@ -569,11 +578,13 @@ def menu_action(
     action: typing.Callable[[], None],
     *,
     selected: bool = False,
+    enabled: bool = True,
 ) -> None:
     """A menubar item that also shows its keyboard shortcut (``key``, in the
-    right-hand column) and an optional check mark (``selected``).  Runs
-    ``action()`` once on click.  Call inside a ``begin_menu`` block."""
-    clicked, _ = imgui.menu_item(label, key, selected, True)
+    right-hand column) and an optional check mark (``selected``).  ``enabled``
+    False greys it out (unselectable).  Runs ``action()`` once on click.  Call
+    inside a ``begin_menu`` block."""
+    clicked, _ = imgui.menu_item(label, key, selected, enabled)
     if clicked:
         action()
 
@@ -597,10 +608,11 @@ def toggle_fullscreen(window: "GLFWWindow", state: WindowState) -> None:
     else:
         state.saved_x, state.saved_y = glfw.get_window_pos(window)
         state.saved_w, state.saved_h = glfw.get_window_size(window)
-        monitor = glfw.get_primary_monitor()
+        monitor: _Pointer[_GLFWmonitor] | None = glfw.get_primary_monitor()
         if monitor is None:
             return
-        mode = glfw.get_video_mode(monitor)
+        # glfw's GLFWvidmode return type is not importable for annotation
+        mode: typing.Any = glfw.get_video_mode(monitor)
         glfw.set_window_monitor(
             window,
             monitor,
@@ -647,7 +659,7 @@ def run_loop(
     these mouse-driven menus."""
     if on_key is not None:
         glfw.set_key_callback(window, on_key)
-    t_prev = glfw.get_time()
+    t_prev: float = glfw.get_time()
     while not glfw.window_should_close(window):
         while glfw.get_time() < t_prev + 1.0 / target_framerate:
             pass
@@ -659,7 +671,7 @@ def run_loop(
             menubar()
         w, h = glfw.get_framebuffer_size(window)
         GL.glViewport(0, 0, w, h)
-        mask = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
+        mask: int = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
         GL.glClear(mask)
         frame(w, h)
         imgui.render()
@@ -684,7 +696,7 @@ def _volume_edges(
     """The 12 edges of a view volume (front face at z=n, back at z=fa) as a flat
     GL_LINES vertex array.  Shared by the frustum and the rectangular prism --
     they differ only in whether the front/back cross sections match."""
-    edges = [
+    edges: list[tuple[Point3, Point3]] = [
         ((fl, ftt, n), (frr, ftt, n)),
         ((frr, ftt, n), (frr, fb, n)),
         ((frr, fb, n), (fl, fb, n)),
@@ -708,10 +720,10 @@ def _volume_edges(
 def frustum_lines(f: Frustum) -> np.ndarray:
     """The perspective frustum outline: corners scale with -z by tan(fov/2), so
     the back face is larger than the front."""
-    ft = -f.near_z * math.tan(math.radians(f.field_of_view) / 2.0)
-    fr_ = ft * f.aspect_ratio
-    bt = -f.far_z * math.tan(math.radians(f.field_of_view) / 2.0)
-    br = bt * f.aspect_ratio
+    ft: float = -f.near_z * math.tan(math.radians(f.field_of_view) / 2.0)
+    fr_: float = ft * f.aspect_ratio
+    bt: float = -f.far_z * math.tan(math.radians(f.field_of_view) / 2.0)
+    br: float = bt * f.aspect_ratio
     return _volume_edges(
         f.near_z, f.far_z, -fr_, fr_, ft, -ft, -br, br, bt, -bt
     )
@@ -719,5 +731,43 @@ def frustum_lines(f: Frustum) -> np.ndarray:
 
 def rectangular_prism_lines(b: RectangularPrism) -> np.ndarray:
     """The orthographic box outline: front == back == ±half_size (no taper)."""
-    h = b.half_size
+    h: float = b.half_size
     return _volume_edges(b.near_z, b.far_z, -h, h, h, -h, -h, h, h, -h)
+
+
+def framebuffer_grid_lines(
+    w_px: int,
+    h_px: int,
+    half_w: float,
+    half_h: float,
+    z_front: float = 1.0,
+    z_back: float = -1.0,
+) -> np.ndarray:
+    """A ``w_px`` x ``h_px`` pixel grid drawn as GL_LINES on a front face
+    (``z_front``) and a back face (``z_back``), with the four corner edges
+    joining them -- the framebuffer-as-rectangular-prism wireframe.
+
+    Unlike ``build_ground_vertices`` (a fixed 40x40 floor grid in the X-Z plane
+    at y=-5), this is a *configurable* grid in the X-Y plane centred at the
+    origin: cells span x in [-half_w, half_w], y in [-half_h, half_h].  Each
+    cell is (2*half_w/w_px) x (2*half_h/h_px), so a 20x10 grid over +-10 x +-5
+    has square 1x1 pixels.  The two faces plus the connectors let a per-frame
+    scale morph it flat (z*0) -> prism (z*1) -> NDC (x,y scaled to +-1)."""
+    verts: list[float] = []
+
+    def face(zc: float) -> None:
+        # vertical grid lines (constant x), spanning the full height
+        for i in range(w_px + 1):
+            x: float = -half_w + (2.0 * half_w) * i / w_px
+            verts.extend([x, -half_h, zc, x, half_h, zc])
+        # horizontal grid lines (constant y), spanning the full width
+        for j in range(h_px + 1):
+            y: float = -half_h + (2.0 * half_h) * j / h_px
+            verts.extend([-half_w, y, zc, half_w, y, zc])
+
+    face(z_front)
+    face(z_back)
+    for sx in (-half_w, half_w):  # four corner edges front <-> back
+        for sy in (-half_h, half_h):
+            verts.extend([sx, sy, z_front, sx, sy, z_back])
+    return np.array(verts, dtype=np.float32)

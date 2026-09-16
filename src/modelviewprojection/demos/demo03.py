@@ -73,7 +73,7 @@ def draw_in_square_viewport(window: "GLFWWindow") -> None:
     # doc-region-begin get framebuffer size
     w, h = glfw.get_framebuffer_size(window)
 
-    square_size = w if w < h else h
+    square_size: int = w if w < h else h
     # doc-region-end get framebuffer size
 
     # doc-region-begin enable scissor test

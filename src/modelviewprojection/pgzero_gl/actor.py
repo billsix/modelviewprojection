@@ -95,7 +95,7 @@ class Actor:
     # -- image ----------------------------------------------------------------
     def _set_image(self, image: str | Drawable) -> None:
         """Set/replace the sprite image (by name or Image), preserving the anchor pos."""
-        img = images.load(image) if isinstance(image, str) else image
+        img: Drawable = images.load(image) if isinstance(image, str) else image
         keep: Vector | None = None
         if self._image is not None:
             keep = self._anchor_pos()
@@ -108,7 +108,7 @@ class Actor:
     # -- anchor / position ----------------------------------------------------
     def _anchor_offset(self) -> Vector:
         """Return the anchor's pixel offset from the rect's top-left corner."""
-        av = self._anchor_value
+        av: Anchor = self._anchor_value
         return Vector(
             _calc(value=av[0], dim="x", total=self._rect.width),
             _calc(value=av[1], dim="y", total=self._rect.height),
@@ -122,7 +122,7 @@ class Actor:
         """Move the sprite so its anchor lands on ``pos`` (top-left = pos - offset)."""
         # Vector(*pos) accepts a tuple OR a gacalc vector (both iterate to x, y).
         # float(): gacalc's .x/.y are Coef (float | sympy Expr); the rect is float.
-        topleft = Vector(*pos) - self._anchor_offset()
+        topleft: Vector = Vector(*pos) - self._anchor_offset()
         self._rect.left = float(topleft.x)
         self._rect.top = float(topleft.y)
 
@@ -257,14 +257,14 @@ class Actor:
         """Return the distance from this actor to ``target`` (Actor or point)."""
         # self.pos is already a gacalc vector; measure the difference directly,
         # the same idiom the games use ((a.pos - b.pos).magnitude()).
-        target_pos = (
+        target_pos: Vector = (
             target.pos if isinstance(target, Actor) else Vector(*target)
         )
         return float((target_pos - self.pos).magnitude())
 
     def colliderect(self, other: "Actor" | "_RectBase[Any]") -> bool:
         """Return whether this actor's rect overlaps ``other`` (Actor or Rect)."""
-        o = other._rect if isinstance(other, Actor) else other
+        o: _RectBase[Any] = other._rect if isinstance(other, Actor) else other
         return self._rect.colliderect(o)
 
     def collidepoint(self, *p: Any) -> bool:

@@ -32,6 +32,8 @@ import sys
 from typing import TYPE_CHECKING, Any
 
 if TYPE_CHECKING:
+    from types import ModuleType
+
     from .renderer import Renderer
 
 
@@ -67,8 +69,8 @@ class Context:
         """
         if Context.asset_root is not None:
             return Context.asset_root
-        main = sys.modules.get("__main__")
-        main_file = getattr(main, "__file__", None)
+        main: ModuleType | None = sys.modules.get("__main__")
+        main_file: str | None = getattr(main, "__file__", None)
         if main_file:
             return os.path.dirname(os.path.abspath(main_file))
         return os.getcwd()

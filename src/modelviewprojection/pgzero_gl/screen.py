@@ -37,6 +37,9 @@ from .context import Context
 from .geometry import Rect, _RectBase  # noqa: F401  # Rect kept for re-export
 from .resources import images
 
+if typing.TYPE_CHECKING:
+    from .renderer import Renderer
+
 # any rect flavor (int Rect / float ZRect)
 RectLike = _RectBase[Any]  # any coordinate flavor (int Rect / float ZRect)
 
@@ -46,7 +49,7 @@ def _as_xy(pos: PointLike | RectLike) -> tuple[float, float]:
     if isinstance(pos, _RectBase):
         # ty resolves the constrained-TypeVar property through Any to
         # `object`; both coordinate flavors read fine as float.
-        r = typing.cast("_RectBase[float]", pos)
+        r: _RectBase[float] = typing.cast("_RectBase[float]", pos)
         return (float(r.left), float(r.top))
     if isinstance(pos, Vector):
         return (float(pos.x), float(pos.y))
@@ -108,7 +111,7 @@ class _Surface:
         area: RectLike | Sequence[float] | None = None,
     ) -> None:
         """Blit ``image`` (name or Image) at ``pos``; ``area`` is a sub-rect source."""
-        img = images.load(image) if isinstance(image, str) else image
+        img: Drawable = images.load(image) if isinstance(image, str) else image
         src: tuple[Any, ...] | None = tuple(area) if area is not None else None
         Context.require_renderer().draw_image(
             image=img, topleft=_as_xy(pos), src=src
@@ -124,7 +127,7 @@ class _Surface:
 
     def get_size(self) -> tuple[int, int]:
         """Return ``(width, height)`` in pixels."""
-        r = Context.require_renderer()
+        r: Renderer = Context.require_renderer()
         return (r.width, r.height)
 
 
@@ -147,7 +150,7 @@ class Screen:
 
     def bounds(self) -> Rect:
         """Return a :class:`Rect` covering the whole screen."""
-        r = Context.require_renderer()
+        r: Renderer = Context.require_renderer()
         return Rect(0, 0, r.width, r.height)
 
     def clear(self) -> None:
@@ -160,7 +163,7 @@ class Screen:
 
     def blit(self, image: str | Drawable, pos: PointLike | RectLike) -> None:
         """Blit ``image`` (name or Image) at ``pos`` (a point or a Rect's topleft)."""
-        img = images.load(image) if isinstance(image, str) else image
+        img: Drawable = images.load(image) if isinstance(image, str) else image
         Context.require_renderer().draw_image(image=img, topleft=_as_xy(pos))
 
 

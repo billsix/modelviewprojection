@@ -217,7 +217,7 @@ class Path:
         (innermost), the dst-incident edge last (outermost)."""
         edge_fns: typing.List[InvertibleFunction] = []
         for edge, forward in self.route:
-            efn = edge.function()
+            efn: InvertibleFunction = edge.function()
             edge_fns.append(efn if forward else inverse(efn))
         if not edge_fns:
             return identity()
@@ -276,7 +276,7 @@ class CayleyGraph(typing.Generic[N]):
         def visit(n: N) -> None:
             color[n] = _DfsColor.GRAY
             for m in directed.get(n, []):
-                c = color.get(m, _DfsColor.WHITE)
+                c: _DfsColor = color.get(m, _DfsColor.WHITE)
                 if c == _DfsColor.GRAY:
                     raise ValueError(
                         f"Cayley graph must be acyclic; cycle through "
@@ -318,7 +318,7 @@ class CayleyGraph(typing.Generic[N]):
             prev: Parents = {a: None}
             q: typing.Deque[N] = deque([a])
             while q:
-                n = q.popleft()
+                n: N = q.popleft()
                 if n == b:
                     break
                 for neighbor, edge, forward in self._adj.get(n, ()):  # type: ignore[misc]
@@ -336,9 +336,9 @@ class CayleyGraph(typing.Generic[N]):
         ) -> typing.List[typing.Tuple[Edge, bool]]:
             """Follow parents from b back to a, then reverse into a->b order."""
             route: typing.List[typing.Tuple[Edge, bool]] = []
-            cur = b
+            cur: N = b
             while prev[cur] is not None:
-                step = prev[cur]
+                step: typing.Optional[typing.Tuple[N, Edge, bool]] = prev[cur]
                 assert step is not None
                 parent, edge, forward = step
                 route.append((edge, forward))
@@ -354,7 +354,7 @@ class CayleyGraph(typing.Generic[N]):
                 # also fail for an unknown node, but it would report "no path",
                 # implying the space exists and is unreachable -- when the real
                 # mistake is usually a typo'd Enum member.
-                unknown = start if start not in self._adj else end
+                unknown: N = start if start not in self._adj else end
                 raise ValueError(f"unknown space {node_label(unknown)!r}")
             case _:
                 return walk_back(breadth_first_parents())

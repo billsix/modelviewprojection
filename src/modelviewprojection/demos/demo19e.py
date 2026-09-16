@@ -79,7 +79,7 @@ def draw_in_square_viewport() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
 
     w, h = glfw.get_framebuffer_size(window)
-    minimal_dimension = w if w < h else h
+    minimal_dimension: int = w if w < h else h
 
     GL.glEnable(GL.GL_SCISSOR_TEST)
     GL.glScissor(

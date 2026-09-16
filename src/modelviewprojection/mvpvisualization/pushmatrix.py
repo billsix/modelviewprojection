@@ -18,6 +18,7 @@ import typing
 from enum import Enum, auto
 
 import glfw
+import numpy as np
 from gacalc.g3 import Vector
 from gacalc.transforms import translate
 
@@ -244,7 +245,7 @@ def frame(w: int, h: int) -> None:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0
         )
-    t = state["time"]
+    t: float = state["time"]
     graph_panel(t)
 
     state["mouse"] = cayley_gl.orbit_input(
@@ -262,8 +263,8 @@ def frame(w: int, h: int) -> None:
     )
 
     for placement in scene.coordinate_frames:
-        space = placement.space
-        m = cayleyscene.to_matrix(animation.transform(space, t))
+        space: Space = placement.space
+        m: np.ndarray = cayleyscene.to_matrix(animation.transform(space, t))
         ms.set_current_matrix(ms.MatrixStack.model, m)
         if animation.axis_visible(space, t):
             standard_objects.draw_axis()  # bright while building
@@ -271,7 +272,7 @@ def frame(w: int, h: int) -> None:
             space, t
         ):
             standard_objects.draw_axis(grayed=True)  # persistent marker
-        mesh = GEOMETRY.get(space)
+        mesh: str | None = GEOMETRY.get(space)
         if mesh is not None and animation.geometry_visible(space, t):
             ms.set_current_matrix(ms.MatrixStack.model, m)
             standard_objects.draw_mesh(mesh)

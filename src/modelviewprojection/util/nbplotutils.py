@@ -65,7 +65,7 @@ def generategridlines(
         graph_bounds[0] * extra_lines_multiplier,
         interval,
     ):
-        thickness = 4 if np.isclose(x, 0.0) else 1
+        thickness: int = 4 if np.isclose(x, 0.0) else 1
         yield (
             [
                 x * e_1 + (-graph_bounds[1] * extra_lines_multiplier) * e_2,
@@ -125,7 +125,7 @@ def create_graphs(
 ) -> Generator[matplotlib.axes.Axes, None, matplotlib.figure.Figure]:
     fig: matplotlib.figure.Figure
     fig, axes = plt.subplots(figsize=graph_bounds)
-    token = _axes.set(axes)
+    token: contextvars.Token[matplotlib.axes.Axes] = _axes.set(axes)
     axes.set_xlim((-graph_bounds[0], graph_bounds[0]))
     axes.set_ylim((-graph_bounds[1], graph_bounds[1]))
 
@@ -214,7 +214,7 @@ def create_x_and_y(
     ycolor: tuple[float, float, float] = (1.0, 0.0, 1.0),
 ) -> None:
     # x axis
-    x_axis = [zero, e_1]
+    x_axis: list[Vector] = [zero, e_1]
     plt.plot(
         [fn(vec).coeff_e_1 for vec in x_axis],
         [fn(vec).coeff_e_2 for vec in x_axis],
@@ -224,7 +224,7 @@ def create_x_and_y(
     )
 
     # y axis
-    y_axis = [zero, e_2]
+    y_axis: list[Vector] = [zero, e_2]
     plt.plot(
         [fn(vec).coeff_e_1 for vec in y_axis],
         [fn(vec).coeff_e_2 for vec in y_axis],
@@ -247,21 +247,21 @@ def _draw_labelled_triangle(
     (91-92% identical); only the two non-origin vertices, the label strings, and
     which way the labels are nudged in x ever differed.
     """
-    axes = _current_axes()
-    x_prime_direction_world_space = fn(e_1) - fn(zero)
-    x_world_space = e_1
-    y_prime_direction_world_space = fn(e_2) - fn(zero)
-    angle_radians = math.atan2(
+    axes: matplotlib.axes.Axes = _current_axes()
+    x_prime_direction_world_space: Vector = fn(e_1) - fn(zero)
+    x_world_space: Vector = e_1
+    y_prime_direction_world_space: Vector = fn(e_2) - fn(zero)
+    angle_radians: float = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
     )
-    label_offset = (
+    label_offset: Vector = (
         0 * x_prime_direction_world_space + 0.20 * y_prime_direction_world_space
     )
 
-    vertices = [fn(v) for v in vertices_in_model_space]
+    vertices: list[Vector] = [fn(v) for v in vertices_in_model_space]
 
-    triangle = Polygon(
+    triangle: Polygon = Polygon(
         _xy(vertices),
         closed=True,
         facecolor="lightblue",
@@ -269,7 +269,7 @@ def _draw_labelled_triangle(
     )
     axes.add_patch(triangle)
 
-    vertices_as_np = np.array(_xy(vertices))
+    vertices_as_np: np.ndarray = np.array(_xy(vertices))
     # Plot dots at the vertices
     axes.scatter(
         vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
@@ -342,19 +342,19 @@ def draw_ndc(
     fn: InvertibleFunction = _IDENTITY,
     color: tuple[float, float, float] = (0.0, 0.0, 1.0),
 ) -> None:
-    axes = _current_axes()
-    x_prime_direction_world_space = fn(e_1) - fn(zero)
-    x_world_space = e_1
-    y_prime_direction_world_space = fn(e_2) - fn(zero)
-    angle_radians = math.atan2(
+    axes: matplotlib.axes.Axes = _current_axes()
+    x_prime_direction_world_space: Vector = fn(e_1) - fn(zero)
+    x_world_space: Vector = e_1
+    y_prime_direction_world_space: Vector = fn(e_2) - fn(zero)
+    angle_radians: float = math.atan2(
         sine(x_world_space, x_prime_direction_world_space),
         cosine(x_world_space, x_prime_direction_world_space),
     )
-    label_offset = (
+    label_offset: Vector = (
         0 * x_prime_direction_world_space + 0.20 * y_prime_direction_world_space
     )
 
-    vertices = [
+    vertices: list[Vector] = [
         fn(v)
         for v in [
             -1 * e_1 + -1 * e_2,
@@ -364,7 +364,7 @@ def draw_ndc(
         ]
     ]
 
-    square = Polygon(
+    square: Polygon = Polygon(
         _xy(vertices),
         closed=True,
         fc="none",
@@ -372,14 +372,14 @@ def draw_ndc(
     )
     axes.add_patch(square)
 
-    vertices_as_np = np.array(_xy(vertices))
+    vertices_as_np: np.ndarray = np.array(_xy(vertices))
     # Plot dots at the vertices
     axes.scatter(
         vertices_as_np[:, 0], vertices_as_np[:, 1], color="red", s=5, zorder=5
     )  # zorder ensures dots are on top
 
     # Label each vertex
-    labels = ["(-1,-1)", "(1,-1)", "(1,1)", "(-1,1)"]
+    labels: list[str] = ["(-1,-1)", "(1,-1)", "(1,1)", "(-1,1)"]
     for i, label in enumerate(labels):
         # Use plt.annotate to place the label near the point
         plt.annotate(
@@ -401,12 +401,12 @@ def draw_screen(
     fn: InvertibleFunction = _IDENTITY,
     color: tuple[float, float, float] = (0.0, 0.0, 1.0),
 ) -> None:
-    axes = _current_axes()
-    d_width = 2.0 / width
-    d_height = 2.0 / height
+    axes: matplotlib.axes.Axes = _current_axes()
+    d_width: float = 2.0 / width
+    d_height: float = 2.0 / height
     for x in range(width):
         for y in range(height):
-            vertices = [
+            vertices: list[Vector] = [
                 fn(v)
                 for v in [
                     (-1.0 + d_width * x) * e_1 + (-1.0 + d_height * y) * e_2,
@@ -419,7 +419,7 @@ def draw_screen(
                 ]
             ]
 
-            square = Polygon(
+            square: Polygon = Polygon(
                 _xy(vertices),
                 closed=True,
                 fc="none",

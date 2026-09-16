@@ -26,6 +26,7 @@ import typing
 from enum import Enum, auto
 
 import glfw
+import numpy as np
 import OpenGL.GL as GL
 from gacalc.g3 import Vector
 from gacalc.transforms import translate
@@ -244,7 +245,7 @@ def imgui_menubar() -> None:
         )
         imgui.end_menu()
     if imgui.begin_menu("Camera", True):  # flat 2D: position only, no orbit
-        changed = False
+        changed: bool = False
         for label, key in (
             ("X_Worldspace", "x"),
             ("Y_Worldspace", "y"),
@@ -334,15 +335,15 @@ def frame(w: int, h: int) -> None:
         state["time"] = min(
             animation.timeline.duration, state["time"] + state["speed"] / 60.0
         )
-    t = state["time"]
+    t: float = state["time"]
     graph_panel(t)
 
     cayley_gl.setup_ortho_2d_view(
         w, h, half_extent=1.0 if state["ndc"] else 15.0
     )
     GL.glDisable(GL.GL_DEPTH_TEST)  # flat 2D -> painter order
-    lw = state["line_width"]
-    morph = cayleyscene.to_matrix(animation.inverse_transform(t))
+    lw: float = state["line_width"]
+    morph: np.ndarray = cayleyscene.to_matrix(animation.inverse_transform(t))
 
     # persistent reference: the ±1 NDC square + the world graph paper
     # (un-morphed)
@@ -354,7 +355,7 @@ def frame(w: int, h: int) -> None:
     # the virtual camera, drawn as an object: its graph paper + axis + the view
     # volume (±10 prism), which the squash scales by 1/10 onto the NDC square.
     if t >= animation.timeline.arrival_time(Space.camera):
-        base = morph @ cayleyscene.to_matrix(
+        base: np.ndarray = morph @ cayleyscene.to_matrix(
             animation.transform(Space.camera, t)
         )
         ms.set_current_matrix(ms.MatrixStack.model, base @ GROUND_ROT)
@@ -373,7 +374,9 @@ def frame(w: int, h: int) -> None:
     # each frame: while building -> its local graph paper + axis; once built ->
     # its geometry (the mesh squashes with the animation).
     for space, mesh in DRAW.items():
-        m = morph @ cayleyscene.to_matrix(animation.transform(space, t))
+        m: np.ndarray = morph @ cayleyscene.to_matrix(
+            animation.transform(space, t)
+        )
         if animation.axis_visible(space, t):
             ms.set_current_matrix(ms.MatrixStack.model, m @ GROUND_ROT)
             standard_objects.draw_ground()

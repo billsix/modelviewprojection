@@ -61,7 +61,7 @@ class _RectBase(Generic[_C]):
 
     def __init__(self, *args: Any) -> None:
         if len(args) == 1:  # Rect(other) or Rect((x,y,w,h))
-            a = args[0]
+            a: Any = args[0]
             if isinstance(a, _RectBase):
                 x, y, w, h = a.x, a.y, a.width, a.height
             else:

@@ -18,18 +18,21 @@ ignored: everything draws to the screen via the active renderer.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ._types import Color, PointLike
 from .context import Context
 from .geometry import _RectBase
+
+if TYPE_CHECKING:
+    from .renderer import Renderer
 
 # what pygame.draw.rect accepts: any rect flavor (int Rect, float ZRect)
 RectLike = _RectBase[Any]  # any coordinate flavor (int Rect / float ZRect)
 
 
 def rect(surface: Any, color: Color, rect: RectLike, width: int = 0) -> None:
-    r = Context.require_renderer()
+    r: Renderer = Context.require_renderer()
     x, y, w, h = rect.x, rect.y, rect.width, rect.height
     (r.rect if width else r.filled_rect)(x=x, y=y, w=w, h=h, color=color)
 

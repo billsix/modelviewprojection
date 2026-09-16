@@ -95,17 +95,17 @@ class ControlPanel(wx.Panel):
     def __init__(self, parent: wx.Window, opengl_panel: "OpenGLPanel") -> None:
         super().__init__(parent)
 
-        notebook = wx.Notebook(self)
+        notebook: wx.Notebook = wx.Notebook(self)
 
-        tab1 = AnimationControlTab(notebook, opengl_panel)
-        tab2 = ColorControlTab(notebook, opengl_panel)
-        tab3 = wx.Panel(notebook)  # placeholder
+        tab1: AnimationControlTab = AnimationControlTab(notebook, opengl_panel)
+        tab2: ColorControlTab = ColorControlTab(notebook, opengl_panel)
+        tab3: wx.Panel = wx.Panel(notebook)  # placeholder
 
         notebook.AddPage(tab1, "Animation")
         notebook.AddPage(tab2, "Color")
         notebook.AddPage(tab3, "Misc")
 
-        sizer = wx.BoxSizer(wx.VERTICAL)
+        sizer: wx.BoxSizer = wx.BoxSizer(wx.VERTICAL)
         sizer.Add(notebook, 1, wx.EXPAND)
         self.SetSizer(sizer)
 
@@ -114,7 +114,7 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
     """OpenGL rendering panel. Cannot live in XRC (needs custom attribList)."""
 
     def __init__(self, parent: wx.Window) -> None:
-        attrib_list = [
+        attrib_list: list[int] = [
             wx.glcanvas.WX_GL_RGBA,
             wx.glcanvas.WX_GL_DOUBLEBUFFER,
             wx.glcanvas.WX_GL_DEPTH_SIZE,
@@ -167,7 +167,7 @@ class OpenGLPanel(wx.glcanvas.GLCanvas):
         GL.glMatrixMode(GL.GL_MODELVIEW)
 
     def on_draw(self) -> None:
-        mask = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
+        mask: int = GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT  # ty: ignore
         GL.glClear(mask)
         GL.glLoadIdentity()
         GL.glRotatef(self.rotation_angle, 0.0, 0.0, 1.0)

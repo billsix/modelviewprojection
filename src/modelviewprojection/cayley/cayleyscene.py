@@ -189,7 +189,7 @@ class InverseOpsTrack:
     group_title: str
 
     def live(self, time: float) -> InvertibleFunction:
-        fwd = compose(
+        fwd: InvertibleFunction = compose(
             [s.fn.at(interp(time, start, dur)) for s, start, dur in self.timed]
         )
         return fwd if self.forward else inverse(fwd)
@@ -237,8 +237,8 @@ class Timeline(typing.Generic[N]):
         self._slot: typing.Dict[int, typing.Tuple[float, float]] = {}
         self._window: typing.Dict[N, typing.Tuple[float, float]] = {}
 
-        dur = scene.step_duration
-        t = 0.0
+        dur: float = scene.step_duration
+        t: float = 0.0
 
         # 1) object-placement tree (forward edges, visit order)
         for placement in scene.coordinate_frames:
@@ -246,7 +246,7 @@ class Timeline(typing.Generic[N]):
             ((edge_obj, _fwd),) = scene.graph.path(
                 placement.space, placement.parent
             ).route
-            first = t
+            first: float = t
             for s in edge_obj.steps:
                 self.steps.append(
                     TimedStep(s.label, s, t, dur, placement.space)
@@ -259,14 +259,16 @@ class Timeline(typing.Generic[N]):
         for op in scene.to_ndc:
             t += op.dwell_before
             if isinstance(op, InverseOperations):
-                title = op.group_title or (
+                title: str = op.group_title or (
                     f"{cayleygraph.node_label(op.from_space)}->"
                     f"{cayleygraph.node_label(op.to_space)}"
                 )
                 for edge, forward in scene.graph.path(
                     op.from_space, op.to_space
                 ).route:
-                    timed = []
+                    timed: typing.List[
+                        typing.Tuple[cayleygraph.Step, float, float]
+                    ] = []
                     for s in edge.steps:
                         timed.append((s, t, dur))
                         t += dur
@@ -323,10 +325,12 @@ class Animation(typing.Generic[N]):
         Composes edge-by-edge; each substep at its own local ``t``, so a nested
         child rides on its already-placed ancestors (theirs read ``at(1.0)``).
         """
-        route = self.scene.graph.path(space, self.scene.root).route
+        route: typing.List[typing.Tuple[cayleygraph.Edge, bool]] = (
+            self.scene.graph.path(space, self.scene.root).route
+        )
         edge_fns: typing.List[InvertibleFunction] = []
         for edge, forward in route:
-            live = compose(
+            live: InvertibleFunction = compose(
                 [
                     s.fn.at(interp(time, *self.timeline.slot(s)))
                     for s in edge.steps
@@ -349,7 +353,7 @@ class Animation(typing.Generic[N]):
         """The accumulated world->camera inverse applied to world geometry at
         ``time`` (the inverse of the camera placement).  Identity until it
         begins."""
-        tracks = self.timeline.inverse_tracks
+        tracks: typing.List[InverseOpsTrack] = self.timeline.inverse_tracks
         if not tracks:
             return identity()
         # first-declared track innermost -> reverse for compose (like edges)
@@ -386,18 +390,18 @@ class Animation(typing.Generic[N]):
         groups: typing.Dict[N, GuiGroup] = {}
         tops: typing.List[GuiGroup] = []
         for placement in self.scene.coordinate_frames:
-            buttons = [
+            buttons: typing.List[GuiButton] = [
                 GuiButton(ts.label, ts.start, self._is_active(ts.start, time))
                 for ts in self.timeline.steps
                 if ts.space == placement.space
             ]
-            g = GuiGroup(
+            g: GuiGroup = GuiGroup(
                 f"{cayleygraph.node_label(placement.space)}->"
                 f"{cayleygraph.node_label(placement.parent)}",
                 buttons,
             )
             groups[placement.space] = g
-            parent = groups.get(placement.parent)
+            parent: typing.Optional[GuiGroup] = groups.get(placement.parent)
             (parent.children if parent else tops).append(g)
         return tops
 
@@ -409,10 +413,10 @@ class Animation(typing.Generic[N]):
         out: typing.List[GuiGroup] = []
         for op in self.scene.to_ndc:
             if isinstance(op, InverseOperations):
-                track = self._track_for(op)
+                track: typing.Optional[InverseOpsTrack] = self._track_for(op)
                 if track is None:
                     continue
-                buttons = [
+                buttons: typing.List[GuiButton] = [
                     GuiButton(
                         s.label + "^{-1}",
                         start,
@@ -422,7 +426,7 @@ class Animation(typing.Generic[N]):
                 ]
                 out.append(GuiGroup(track.group_title, buttons))
             else:  # NonInvertibleTransformation
-                steps = [
+                steps: typing.List[GpuStep] = [
                     g
                     for g in self.timeline.gpu_steps
                     if g.group_title == op.group_title
@@ -437,7 +441,7 @@ class Animation(typing.Generic[N]):
     def _track_for(
         self, op: InverseOperations
     ) -> typing.Optional[InverseOpsTrack]:
-        title = op.group_title or (
+        title: str = op.group_title or (
             f"{cayleygraph.node_label(op.from_space)}->"
             f"{cayleygraph.node_label(op.to_space)}"
         )
@@ -470,10 +474,10 @@ def to_matrix(f: InvertibleFunction) -> np.ndarray:
     >>> (m @ np.array([1.0, 2.0, 3.0, 1.0])).tolist()
     [4.0, 6.0, 8.0, 1.0]
     """
-    o = f(Vector(0.0, 0.0, 0.0))
-    cx = f(Vector(1.0, 0.0, 0.0)) - o
-    cy = f(Vector(0.0, 1.0, 0.0)) - o
-    cz = f(Vector(0.0, 0.0, 1.0)) - o
+    o: Vector = f(Vector(0.0, 0.0, 0.0))
+    cx: Vector = f(Vector(1.0, 0.0, 0.0)) - o
+    cy: Vector = f(Vector(0.0, 1.0, 0.0)) - o
+    cz: Vector = f(Vector(0.0, 0.0, 1.0)) - o
     # gacalc coefficients can be sympy expressions (magnitude() uses sympy.sqrt,
     # so rotor-based rotations yield sympy-typed components). Force float64
     # here: otherwise np.array infers dtype=object and downstream np.linalg.inv

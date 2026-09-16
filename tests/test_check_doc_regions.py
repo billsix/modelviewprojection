@@ -17,6 +17,7 @@ which both markers-exist checks passed while Sphinx rendered nothing.
 
 from __future__ import annotations
 
+import importlib.machinery
 import importlib.util
 import pathlib
 import types
@@ -28,8 +29,10 @@ _CHECKER_PATH: pathlib.Path = _REPO_ROOT / "tools" / "check_doc_regions.py"
 
 
 def _load_checker() -> types.ModuleType:
-    spec = importlib.util.spec_from_file_location(
-        "check_doc_regions", _CHECKER_PATH
+    spec: importlib.machinery.ModuleSpec | None = (
+        importlib.util.spec_from_file_location(
+            "check_doc_regions", _CHECKER_PATH
+        )
     )
     assert spec is not None and spec.loader is not None
     module: types.ModuleType = importlib.util.module_from_spec(spec)

@@ -209,7 +209,7 @@ def push_matrix(m: MatrixStack) -> typing.Iterator[MatrixStack]:
     >>> np.diag(get_current_matrix(MatrixStack.model)).tolist()
     [1.0, 1.0, 1.0, 1.0]
     """
-    matrix_stack = m
+    matrix_stack: MatrixStack = m
     try:
         _push_matrix(matrix_stack)
         yield matrix_stack
@@ -254,11 +254,11 @@ def rotate_x(matrix_stack: MatrixStack, rads: float) -> None:
     M(4,1)  M(4,2)*cos+M(4,3)*sin  M(4,2)*-sin+M(4,3)*cos  M(4,4)
     """
 
-    m = get_current_matrix(matrix_stack)
-    copy_of_m = np.copy(m)
+    m: np.ndarray = get_current_matrix(matrix_stack)
+    copy_of_m: np.ndarray = np.copy(m)
 
-    c = math.cos(rads)
-    s = math.sin(rads)
+    c: float = math.cos(rads)
+    s: float = math.sin(rads)
 
     m[0, 1] = copy_of_m[0, 1] * c + copy_of_m[0, 2] * s
     m[1, 1] = copy_of_m[1, 1] * c + copy_of_m[1, 2] * s
@@ -292,11 +292,11 @@ def rotate_y(matrix_stack: MatrixStack, rads: float) -> None:
     M(3,1)*cos+M(3,3)*-sin    M(3,2)     M(3,1)*sin+M(3,3)*cos     M(3,4)
     M(4,1)*cos+M(4,3)*-sin    M(4,2)     M(4,1)*sin+M(4,3)*cos     M(4,4)
     """
-    m = get_current_matrix(matrix_stack)
-    copy_of_m = np.copy(m)
+    m: np.ndarray = get_current_matrix(matrix_stack)
+    copy_of_m: np.ndarray = np.copy(m)
 
-    c = math.cos(rads)
-    s = math.sin(rads)
+    c: float = math.cos(rads)
+    s: float = math.sin(rads)
 
     m[0, 0] = copy_of_m[0, 0] * c + copy_of_m[0, 2] * -s
     m[1, 0] = copy_of_m[1, 0] * c + copy_of_m[1, 2] * -s
@@ -330,11 +330,11 @@ def rotate_z(matrix_stack: MatrixStack, rads: float) -> None:
     M(3,1)*cos+M(3,2)*sin    M(3,1)*-sin+M(3,2)*cos M(3,3) M(3,4)
     M(4,1)*cos+M(4,2)*sin    M(4,1)*-sin+M(4,2)*cos M(4,3) M(4,4)
     """
-    m = get_current_matrix(matrix_stack)
-    copy_of_m = np.copy(m)
+    m: np.ndarray = get_current_matrix(matrix_stack)
+    copy_of_m: np.ndarray = np.copy(m)
 
-    c = math.cos(rads)
-    s = math.sin(rads)
+    c: float = math.cos(rads)
+    s: float = math.sin(rads)
 
     m[0, 0] = copy_of_m[0, 0] * c + copy_of_m[0, 1] * s
     m[1, 0] = copy_of_m[1, 0] * c + copy_of_m[1, 1] * s
@@ -368,7 +368,7 @@ def translate(matrix_stack: MatrixStack, x: float, y: float, z: float) -> None:
     M(3,1) M(3,2) M(3,3) (M(3,1)*x + M(3,2)*y + M(3,3)*z + M(3,4)*w)
     M(4,1) M(4,2) M(4,3) (M(4,1)*x + M(4,2)*y + M(4,3)*z + M(4,4)*w)
     """
-    m = get_current_matrix(matrix_stack)
+    m: np.ndarray = get_current_matrix(matrix_stack)
 
     m[0, 3] = m[0, 0] * x + m[0, 1] * y + m[0, 2] * z + m[0, 3]
     m[1, 3] = m[1, 0] * x + m[1, 1] * y + m[1, 2] * z + m[1, 3]
@@ -397,7 +397,7 @@ def scale(matrix_stack: MatrixStack, x: float, y: float, z: float) -> None:
     M(3,1)*x  M(3,2)*y  M(3,3)*z  M(3,4)
     M(4,1)*x  M(4,2)*y  M(4,3)*z  M(4,4)
     """
-    m = get_current_matrix(matrix_stack)
+    m: np.ndarray = get_current_matrix(matrix_stack)
 
     m[0, 0] = m[0, 0] * x
     m[1, 0] = m[1, 0] * x
@@ -417,7 +417,7 @@ def scale(matrix_stack: MatrixStack, x: float, y: float, z: float) -> None:
 
 def multiply(matrix_stack: MatrixStack, rhs: np.ndarray) -> None:
     """Matrix multiply"""
-    m = get_current_matrix(matrix_stack)
+    m: np.ndarray = get_current_matrix(matrix_stack)
     m[0:4, 0:4] = np.matmul(m.copy(), rhs)
 
 
@@ -473,7 +473,7 @@ def planar_shadow(
     dx, dy, dz = -light_pos[0], -light_pos[1], -light_pos[2]
 
     # fmt: off
-    shadow = np.array(
+    shadow: np.ndarray = np.array(
         [
             [b * dy + c * dz, -b * dx,         -c * dx,         -d * dx],
             [-a * dy,         a * dx + c * dz, -c * dy,         -d * dy],
@@ -484,7 +484,7 @@ def planar_shadow(
     )
     # fmt: on
 
-    m = get_current_matrix(matrix_stack)
+    m: np.ndarray = get_current_matrix(matrix_stack)
     m[0:4, 0:4] = np.matmul(m.copy(), shadow)
 
 
@@ -502,13 +502,13 @@ def ortho(
 
     http://www.songho.ca/opengl/gl_projectionmatrix.html
     """
-    dx = right - left
-    dy = top - bottom
-    dz = far - near
+    dx: float = right - left
+    dy: float = top - bottom
+    dz: float = far - near
 
-    rx = -(right + left) / (right - left)
-    ry = -(top + bottom) / (top - bottom)
-    rz = -(far + near) / (far - near)
+    rx: float = -(right + left) / (right - left)
+    ry: float = -(top + bottom) / (top - bottom)
+    rz: float = -(far + near) / (far - near)
 
     # fmt: off
     __projectionStack__[-1] = np.array(
@@ -537,11 +537,11 @@ def perspective(
 
     http://www.songho.ca/opengl/gl_projectionmatrix.html
     """
-    top = near_z * math.tan(math.radians(field_of_view) / 2.0)
-    right = top * aspect_ratio
+    top: float = near_z * math.tan(math.radians(field_of_view) / 2.0)
+    right: float = top * aspect_ratio
 
     # m34 is a constant, inlining it would make the line > 80 chars
-    m34 = -2 * (far_z * near_z) / (far_z - near_z)
+    m34: float = -2 * (far_z * near_z) / (far_z - near_z)
     # fmt: off
     # The rows are hand-aligned into matrix columns and run a few chars past 80.
     # In a book about matrices that layout IS the documentation, so these keep

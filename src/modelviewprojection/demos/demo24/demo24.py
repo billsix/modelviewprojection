@@ -178,9 +178,9 @@ def handle_inputs() -> None:
 
 def compile_shader_program() -> int:
     with open(os.path.join(pwd, "sphereworld.vert")) as f:
-        vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
+        vs: int = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
     with open(os.path.join(pwd, "sphereworld.frag")) as f:
-        fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
+        fs: int = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
     return shaders.compileProgram(vs, fs)
 
 
@@ -209,24 +209,24 @@ u_tex = GL.glGetUniformLocation(program, "tex")
 
 
 def load_texture(path: str, repeat: bool) -> int:
-    img = iio.imread(path)
+    img: np.ndarray = iio.imread(path)
     if img.ndim == 2:
         img = np.stack([img, img, img], axis=-1)
     h, w = img.shape[:2]
     img = np.ascontiguousarray(img, dtype=np.uint8)
 
-    tex = GL.glGenTextures(1)
+    tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
-    wrap = GL.GL_REPEAT if repeat else GL.GL_CLAMP_TO_EDGE
+    wrap: GLenum = GL.GL_REPEAT if repeat else GL.GL_CLAMP_TO_EDGE
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, wrap)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, wrap)
     GL.glTexParameteri(
         GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR_MIPMAP_LINEAR
     )
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
-    channels = img.shape[2]
-    fmt = GL.GL_RGB if channels == 3 else GL.GL_RGBA
-    internal = GL.GL_RGB8 if channels == 3 else GL.GL_RGBA8
+    channels: int = img.shape[2]
+    fmt: GLenum = GL.GL_RGB if channels == 3 else GL.GL_RGBA
+    internal: GLenum = GL.GL_RGB8 if channels == 3 else GL.GL_RGBA8
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D,
         0,
@@ -272,38 +272,40 @@ _STRIDE = _FLOATS_PER_VERTEX * 4
 def _build_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
     out: list[float] = []
     for i in range(stacks):
-        v0 = i / stacks
-        v1 = (i + 1) / stacks
-        phi0 = math.pi * v0 - math.pi / 2.0  # -pi/2 (south) .. pi/2 (north)
-        phi1 = math.pi * v1 - math.pi / 2.0
+        v0: float = i / stacks
+        v1: float = (i + 1) / stacks
+        phi0: float = (
+            math.pi * v0 - math.pi / 2.0
+        )  # -pi/2 (south) .. pi/2 (north)
+        phi1: float = math.pi * v1 - math.pi / 2.0
         cphi0, sphi0 = math.cos(phi0), math.sin(phi0)
         cphi1, sphi1 = math.cos(phi1), math.sin(phi1)
         for j in range(slices):
-            u0 = j / slices
-            u1 = (j + 1) / slices
-            t0 = 2.0 * math.pi * u0
-            t1 = 2.0 * math.pi * u1
+            u0: float = j / slices
+            u1: float = (j + 1) / slices
+            t0: float = 2.0 * math.pi * u0
+            t1: float = 2.0 * math.pi * u1
             ct0, st0 = math.cos(t0), math.sin(t0)
             ct1, st1 = math.cos(t1), math.sin(t1)
 
             # Four corners of this latitude/longitude quad.  Normal
             # equals the unit-radius position (it's a sphere).
-            p00 = (
+            p00: tuple = (
                 (cphi0 * st0, sphi0, cphi0 * ct0),
                 (cphi0 * st0, sphi0, cphi0 * ct0),
                 (u0, v0),
             )
-            p10 = (
+            p10: tuple = (
                 (cphi0 * st1, sphi0, cphi0 * ct1),
                 (cphi0 * st1, sphi0, cphi0 * ct1),
                 (u1, v0),
             )
-            p01 = (
+            p01: tuple = (
                 (cphi1 * st0, sphi1, cphi1 * ct0),
                 (cphi1 * st0, sphi1, cphi1 * ct0),
                 (u0, v1),
             )
-            p11 = (
+            p11: tuple = (
                 (cphi1 * st1, sphi1, cphi1 * ct1),
                 (cphi1 * st1, sphi1, cphi1 * ct1),
                 (u1, v1),
@@ -325,13 +327,13 @@ def _build_torus(
     major ring, rings = segments around the minor ring."""
     out: list[float] = []
     for i in range(sides):
-        u0 = i / sides * 2.0 * math.pi
-        u1 = (i + 1) / sides * 2.0 * math.pi
+        u0: float = i / sides * 2.0 * math.pi
+        u1: float = (i + 1) / sides * 2.0 * math.pi
         cu0, su0 = math.cos(u0), math.sin(u0)
         cu1, su1 = math.cos(u1), math.sin(u1)
         for j in range(rings):
-            v0 = j / rings * 2.0 * math.pi
-            v1 = (j + 1) / rings * 2.0 * math.pi
+            v0: float = j / rings * 2.0 * math.pi
+            v1: float = (j + 1) / rings * 2.0 * math.pi
             cv0, sv0 = math.cos(v0), math.sin(v0)
             cv1, sv1 = math.cos(v1), math.sin(v1)
 
@@ -347,18 +349,20 @@ def _build_torus(
                 tuple[float, float, float],
                 tuple[float, float],
             ]:
-                pos = (
+                pos: tuple[float, float, float] = (
                     (major_radius + minor_radius * cv) * cu,
                     minor_radius * sv,
                     (major_radius + minor_radius * cv) * su,
                 )
-                nrm = (cv * cu, sv, cv * su)
+                nrm: tuple[float, float, float] = (cv * cu, sv, cv * su)
                 return (pos, nrm, (us, vs))
 
-            p00 = vert(cu0, su0, cv0, sv0, i / sides, j / rings)
-            p01 = vert(cu0, su0, cv1, sv1, i / sides, (j + 1) / rings)
-            p10 = vert(cu1, su1, cv0, sv0, (i + 1) / sides, j / rings)
-            p11 = vert(cu1, su1, cv1, sv1, (i + 1) / sides, (j + 1) / rings)
+            p00: tuple = vert(cu0, su0, cv0, sv0, i / sides, j / rings)
+            p01: tuple = vert(cu0, su0, cv1, sv1, i / sides, (j + 1) / rings)
+            p10: tuple = vert(cu1, su1, cv0, sv0, (i + 1) / sides, j / rings)
+            p11: tuple = vert(
+                cu1, su1, cv1, sv1, (i + 1) / sides, (j + 1) / rings
+            )
 
             for v in (p00, p01, p10, p10, p01, p11):
                 pos, nrm, uv = v
@@ -375,22 +379,22 @@ def _build_ground(
     increment by tex_step per cell so the (REPEAT-wrapped) texture
     tiles."""
     out: list[float] = []
-    n_cells = int(round((2 * extent) / step))
+    n_cells: int = int(round((2 * extent) / step))
     for i in range(n_cells):
-        x0 = -extent + i * step
-        x1 = x0 + step
-        s0 = i * tex_step
-        s1 = s0 + tex_step
+        x0: float = -extent + i * step
+        x1: float = x0 + step
+        s0: float = i * tex_step
+        s1: float = s0 + tex_step
         for j in range(n_cells):
-            z0 = -extent + j * step
-            z1 = z0 + step
-            t0 = j * tex_step
-            t1 = t0 + tex_step
+            z0: float = -extent + j * step
+            z1: float = z0 + step
+            t0: float = j * tex_step
+            t1: float = t0 + tex_step
 
-            p00 = ((x0, y, z0), (0.0, 1.0, 0.0), (s0, t0))
-            p10 = ((x1, y, z0), (0.0, 1.0, 0.0), (s1, t0))
-            p01 = ((x0, y, z1), (0.0, 1.0, 0.0), (s0, t1))
-            p11 = ((x1, y, z1), (0.0, 1.0, 0.0), (s1, t1))
+            p00: tuple = ((x0, y, z0), (0.0, 1.0, 0.0), (s0, t0))
+            p10: tuple = ((x1, y, z0), (0.0, 1.0, 0.0), (s1, t0))
+            p01: tuple = ((x0, y, z1), (0.0, 1.0, 0.0), (s0, t1))
+            p11: tuple = ((x1, y, z1), (0.0, 1.0, 0.0), (s1, t1))
 
             for v in (p00, p01, p10, p10, p01, p11):
                 pos, nrm, uv = v
@@ -402,8 +406,8 @@ def _build_ground(
 
 def make_vao(vertex_data: np.ndarray) -> tuple[int, int, int]:
     vertex_data = np.ascontiguousarray(vertex_data, dtype=np.float32)
-    vao = GL.glGenVertexArrays(1)
-    vbo = GL.glGenBuffers(1)
+    vao: int = GL.glGenVertexArrays(1)
+    vbo: int = GL.glGenBuffers(1)
     GL.glBindVertexArray(vao)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo)
     GL.glBufferData(
@@ -480,8 +484,8 @@ def light_position_ws(
     rotates toward +Z (counter-clockwise looking down from +Y).
     elevation=0 is on the XZ plane; positive elevation lifts toward
     +Y."""
-    az = math.radians(az_deg)
-    el = math.radians(el_deg)
+    az: float = math.radians(az_deg)
+    el: float = math.radians(el_deg)
     return (
         distance * math.cos(el) * math.cos(az),
         distance * math.sin(el),
@@ -501,7 +505,7 @@ def planar_shadow_matrix(
     and L=(light_x,light_y,light_z,light_w).  Stored row-major."""
     a, b, c, d = plane
     light_x, light_y, light_z, light_w = light
-    dot = a * light_x + b * light_y + c * light_z + d * light_w
+    dot: float = a * light_x + b * light_y + c * light_z + d * light_w
     return np.array(
         [
             [dot - a * light_x, -b * light_x, -c * light_x, -d * light_x],
