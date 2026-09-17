@@ -51,6 +51,7 @@ import dataclasses
 import math
 import os
 import sys
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -61,6 +62,7 @@ from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 import modelviewprojection.matrix_stack as ms
+from modelviewprojection.mvpvisualization._pipeline import GLenum
 from modelviewprojection.util.cameracontrols import walk_around_camera
 from modelviewprojection.util.shaderutils import set_mvp_uniforms
 from modelviewprojection.util.shading import _face_normal, light_dir_ws
@@ -80,14 +82,14 @@ if __name__ != "__main__":
 if not glfw.init():
     sys.exit()
 
-pwd = os.path.dirname(os.path.abspath(__file__))
+pwd: str = os.path.dirname(os.path.abspath(__file__))
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
 glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
 
-window = glfw.create_window(
+window: typing.Any = glfw.create_window(
     600,
     600,
     "ModelViewProjection Demo 22a -- Textured Pyramid",
@@ -101,7 +103,7 @@ glfw.make_context_current(window)
 
 
 imgui.create_context()
-impl = GlfwRenderer(window)
+impl: GlfwRenderer = GlfwRenderer(window)
 
 
 glfw.set_key_callback(window, on_key)
@@ -188,15 +190,15 @@ def compile_shader_program() -> int:
 
 program: int = compile_shader_program()
 
-u_mvp = GL.glGetUniformLocation(program, "mvpMatrix")
-u_model = GL.glGetUniformLocation(program, "modelMatrix")
-u_flat = GL.glGetUniformLocation(program, "flatColor")
-u_use_lighting = GL.glGetUniformLocation(program, "useLighting")
-u_use_texture = GL.glGetUniformLocation(program, "useTexture")
-u_light_dir = GL.glGetUniformLocation(program, "lightDirWS")
-u_ambient = GL.glGetUniformLocation(program, "ambientColor")
-u_diffuse = GL.glGetUniformLocation(program, "diffuseColor")
-u_tex = GL.glGetUniformLocation(program, "tex")
+u_mvp: int = GL.glGetUniformLocation(program, "mvpMatrix")
+u_model: int = GL.glGetUniformLocation(program, "modelMatrix")
+u_flat: int = GL.glGetUniformLocation(program, "flatColor")
+u_use_lighting: int = GL.glGetUniformLocation(program, "useLighting")
+u_use_texture: int = GL.glGetUniformLocation(program, "useTexture")
+u_light_dir: int = GL.glGetUniformLocation(program, "lightDirWS")
+u_ambient: int = GL.glGetUniformLocation(program, "ambientColor")
+u_diffuse: int = GL.glGetUniformLocation(program, "diffuseColor")
+u_tex: int = GL.glGetUniformLocation(program, "tex")
 
 
 # set_mvp_uniforms is imported from modelviewprojection.util.shaderutils (see
@@ -240,7 +242,7 @@ def load_texture(path: str) -> int:
     return tex
 
 
-tex_stone = load_texture(os.path.join(pwd, "stone.tga"))
+tex_stone: int = load_texture(os.path.join(pwd, "stone.tga"))
 
 
 # ---------------------------------------------------------------------------
@@ -259,8 +261,8 @@ tex_stone = load_texture(os.path.join(pwd, "stone.tga"))
 # ---------------------------------------------------------------------------
 
 
-_FLOATS_PER_VERTEX = 8  # 3 pos + 3 normal + 2 uv
-_STRIDE = _FLOATS_PER_VERTEX * 4
+_FLOATS_PER_VERTEX: int = 8  # 3 pos + 3 normal + 2 uv
+_STRIDE: int = _FLOATS_PER_VERTEX * 4
 
 
 # _face_normal is imported from modelviewprojection.util.shading (see imports
@@ -524,11 +526,13 @@ while not glfw.window_should_close(window):
     )
     imgui.end()
 
-    light_dir = light_dir_ws(light_az_deg, light_el_deg)
+    light_dir: tuple[float, float, float] = light_dir_ws(
+        light_az_deg, light_el_deg
+    )
 
     # Apply the imgui-selected texture filter (cheap; just sets two
     # parameters on the bound texture object).
-    flt = GL.GL_NEAREST if filter_nearest else GL.GL_LINEAR
+    flt: GLenum = GL.GL_NEAREST if filter_nearest else GL.GL_LINEAR
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex_stone)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, flt)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, flt)
@@ -542,7 +546,7 @@ while not glfw.window_should_close(window):
     ms.set_to_identity_matrix(ms.MatrixStack.view)
     ms.set_to_identity_matrix(ms.MatrixStack.projection)
 
-    aspect = float(width) / float(height) if height > 0 else 1.0
+    aspect: float = float(width) / float(height) if height > 0 else 1.0
     ms.perspective(
         field_of_view=45.0,
         aspect_ratio=aspect,

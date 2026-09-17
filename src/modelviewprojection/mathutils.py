@@ -57,7 +57,7 @@ from gacalc.transforms import (
     translate,
 )
 
-__all__ = [
+__all__: list[str] = [
     # Only the graphics-specific math DEFINED here.  The vector algebra and the
     # transform layer are gacalc's -- import those from gacalc directly
     # (``from gacalc.g2 import Vector``, ``from gacalc.transforms import
@@ -669,7 +669,7 @@ class FunctionStack(typing.Generic[V]):
         return compose(self.stack)
 
 
-fn_stack = FunctionStack()
+fn_stack: FunctionStack = FunctionStack()
 # doc-region-end define function stack class
 
 

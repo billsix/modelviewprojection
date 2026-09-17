@@ -50,6 +50,7 @@ import dataclasses
 import math
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -78,14 +79,14 @@ if __name__ != "__main__":
 if not glfw.init():
     sys.exit()
 
-pwd = os.path.dirname(os.path.abspath(__file__))
+pwd: str = os.path.dirname(os.path.abspath(__file__))
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
 glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
 
-window = glfw.create_window(
+window: typing.Any = glfw.create_window(
     600,
     600,
     "ModelViewProjection Demo 23 -- Lit Jet",
@@ -99,7 +100,7 @@ glfw.make_context_current(window)
 
 
 imgui.create_context()
-impl = GlfwRenderer(window)
+impl: GlfwRenderer = GlfwRenderer(window)
 
 
 glfw.set_key_callback(window, on_key)
@@ -184,16 +185,16 @@ def compile_shader_program() -> int:
 
 program: int = compile_shader_program()
 
-u_mvp = GL.glGetUniformLocation(program, "mvpMatrix")
-u_model = GL.glGetUniformLocation(program, "modelMatrix")
-u_base = GL.glGetUniformLocation(program, "baseColor")
-u_camera_pos = GL.glGetUniformLocation(program, "cameraPosWS")
-u_light_dir = GL.glGetUniformLocation(program, "lightDirWS")
-u_ambient = GL.glGetUniformLocation(program, "ambientColor")
-u_diffuse = GL.glGetUniformLocation(program, "diffuseColor")
-u_specular = GL.glGetUniformLocation(program, "specularColor")
-u_shininess = GL.glGetUniformLocation(program, "shininess")
-u_lighting_mode = GL.glGetUniformLocation(program, "lightingMode")
+u_mvp: int = GL.glGetUniformLocation(program, "mvpMatrix")
+u_model: int = GL.glGetUniformLocation(program, "modelMatrix")
+u_base: int = GL.glGetUniformLocation(program, "baseColor")
+u_camera_pos: int = GL.glGetUniformLocation(program, "cameraPosWS")
+u_light_dir: int = GL.glGetUniformLocation(program, "lightDirWS")
+u_ambient: int = GL.glGetUniformLocation(program, "ambientColor")
+u_diffuse: int = GL.glGetUniformLocation(program, "diffuseColor")
+u_specular: int = GL.glGetUniformLocation(program, "specularColor")
+u_shininess: int = GL.glGetUniformLocation(program, "shininess")
+u_lighting_mode: int = GL.glGetUniformLocation(program, "lightingMode")
 
 
 # set_mvp_uniforms is imported from modelviewprojection.util.shaderutils (see
@@ -216,9 +217,9 @@ u_lighting_mode = GL.glGetUniformLocation(program, "lightingMode")
 # ---------------------------------------------------------------------------
 
 
-_FLOATS_PER_VERTEX = 6  # 3 pos + 3 normal
-_STRIDE = _FLOATS_PER_VERTEX * 4
-_MESH_SCALE = 1.0 / 50.0
+_FLOATS_PER_VERTEX: int = 6  # 3 pos + 3 normal
+_STRIDE: int = _FLOATS_PER_VERTEX * 4
+_MESH_SCALE: float = 1.0 / 50.0
 
 
 # _face_normal is imported from modelviewprojection.util.shading (see imports
@@ -387,7 +388,7 @@ LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)
 # above).
 
 # Mid-gray jet body, matching SuperBible glColor3ub(128,128,128).
-JET_COLOR = (0.5, 0.5, 0.5)
+JET_COLOR: tuple[float, float, float] = (0.5, 0.5, 0.5)
 
 
 # ---------------------------------------------------------------------------
@@ -438,7 +439,9 @@ while not glfw.window_should_close(window):
     )
     imgui.end()
 
-    light_dir = light_dir_ws(light_az_deg, light_el_deg)
+    light_dir: tuple[float, float, float] = light_dir_ws(
+        light_az_deg, light_el_deg
+    )
 
     width, height = glfw.get_framebuffer_size(window)
     GL.glViewport(0, 0, width, height)
@@ -448,7 +451,7 @@ while not glfw.window_should_close(window):
     ms.set_to_identity_matrix(ms.MatrixStack.view)
     ms.set_to_identity_matrix(ms.MatrixStack.projection)
 
-    aspect = float(width) / float(height) if height > 0 else 1.0
+    aspect: float = float(width) / float(height) if height > 0 else 1.0
     ms.perspective(
         field_of_view=45.0,
         aspect_ratio=aspect,

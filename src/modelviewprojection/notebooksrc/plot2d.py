@@ -49,6 +49,7 @@ import gacalc.g2 as g2
 import gacalc.g3 as g3
 import sympy
 from gacalc.transforms import (
+    InvertibleFunction,
     compose,
     compose_intermediate_fns,
     identity,
@@ -116,7 +117,7 @@ inverse(
 #
 
 # %%
-fn = rotate(math.radians(53.130102))
+fn: InvertibleFunction[g2.Vector] = rotate(math.radians(53.130102))
 with create_graphs(graph_bounds=(5, 5)) as axes:
     create_basis(fn=fn)
     create_x_and_y(fn=fn)

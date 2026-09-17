@@ -18,6 +18,7 @@
 
 import dataclasses
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -29,7 +30,7 @@ from modelviewprojection.mathutils import fn_stack, rotate_z
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-zero = Vector.zero()
+zero: Vector = Vector.zero()
 
 
 # This file is a program, not a module: from here on it acquires resources (a
@@ -45,7 +46,9 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 16", None, None)
+window: typing.Any = glfw.create_window(  # glfw window handle
+    500, 500, "ModelViewProjection Demo 16", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -205,7 +208,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*paddle1.color)
     GL.glBegin(GL.GL_QUADS)
     for p1_v_ms in paddle1.vertices:
-        paddle1_vector_ndc = fn_stack.modelspace_to_ndc_fn()(p1_v_ms)
+        paddle1_vector_ndc: Vector = fn_stack.modelspace_to_ndc_fn()(p1_v_ms)
         GL.glVertex3f(*paddle1_vector_ndc)
     GL.glEnd()
     # doc-region-end draw paddle 1
@@ -226,7 +229,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(0.0, 0.0, 1.0)
     GL.glBegin(GL.GL_QUADS)
     for ms in square:
-        square_vector_ndc = fn_stack.modelspace_to_ndc_fn()(ms)
+        square_vector_ndc: Vector = fn_stack.modelspace_to_ndc_fn()(ms)
         GL.glVertex3f(*square_vector_ndc)
     GL.glEnd()
     # doc-region-end draw square
@@ -249,7 +252,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*paddle2.color)
     GL.glBegin(GL.GL_QUADS)
     for p2_v_ms in paddle2.vertices:
-        paddle2_vector_ndc = fn_stack.modelspace_to_ndc_fn()(p2_v_ms)
+        paddle2_vector_ndc: Vector = fn_stack.modelspace_to_ndc_fn()(p2_v_ms)
         GL.glVertex3f(*paddle2_vector_ndc)
     GL.glEnd()
     # doc-region-end draw paddle 2
