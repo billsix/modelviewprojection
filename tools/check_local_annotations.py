@@ -94,11 +94,26 @@ def check_file(path: pathlib.Path) -> list[tuple[int, str]]:
         if not isinstance(fn, (ast.FunctionDef, ast.AsyncFunctionDef)):
             continue
         annotated = _annotated_names(fn)
-        for node in _own_scope_nodes(fn):
+        scope = _own_scope_nodes(fn)
+        # A name declared `global`/`nonlocal` in this function is NOT a local of
+        # it -- it rebinds a module/enclosing variable annotated at THAT scope,
+        # and Python forbids annotating a global/nonlocal-declared name
+        # (`SyntaxError: annotated name can't be global`).  So skip them here.
+        declared_elsewhere: set[str] = {
+            name
+            for node in scope
+            if isinstance(node, (ast.Global, ast.Nonlocal))
+            for name in node.names
+        }
+        for node in scope:
             if not isinstance(node, ast.Assign):
                 continue
             for target in node.targets:
-                if isinstance(target, ast.Name) and target.id not in annotated:
+                if (
+                    isinstance(target, ast.Name)
+                    and target.id not in annotated
+                    and target.id not in declared_elsewhere
+                ):
                     findings.append((node.lineno, target.id))
     return sorted(set(findings))
 

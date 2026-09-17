@@ -30,7 +30,15 @@ from collections.abc import Callable, Generator, Iterator, Sequence
 from dataclasses import InitVar, dataclass, field
 from enum import Enum
 from random import choice, randint
-from typing import TYPE_CHECKING, Any, ClassVar, Protocol, cast, override
+from typing import (
+    TYPE_CHECKING,
+    Any,
+    ClassVar,
+    Protocol,
+    TypeAlias,
+    cast,
+    override,
+)
 
 import gacalc.g3 as g3
 import glfw
@@ -134,7 +142,7 @@ if TYPE_CHECKING:
     import miniaudio
 
 #: interleaved float32 PCM at the mixing format
-_PCM = NDArray[np.float32]
+_PCM: TypeAlias = NDArray[np.float32]
 
 # the miniaudio module, or None if it isn't installed (Any: the sentinel
 # and the module share a type)
@@ -147,12 +155,12 @@ except Exception:  # pragma: no cover - depends on runtime env
     pass
 
 # One mixing format for everything; decode/stream converts to it.
-_SAMPLE_RATE = 44100
-_CHANNELS = 2
+_SAMPLE_RATE: int = 44100
+_CHANNELS: int = 2
 
 # Cap the concurrent voices per effect so a rapidly re-fired sound (the
 # ball hitting a bat) recycles its oldest voice instead of piling up.
-_MAX_VOICES_PER_SOUND = 8
+_MAX_VOICES_PER_SOUND: int = 8
 
 
 @dataclass(slots=True)
@@ -191,12 +199,12 @@ class _Engine:
         if self._failed or _ma is None:
             return False
         try:
-            device = _ma.PlaybackDevice(
+            device: miniaudio.PlaybackDevice = _ma.PlaybackDevice(
                 output_format=_ma.SampleFormat.FLOAT32,
                 nchannels=_CHANNELS,
                 sample_rate=_SAMPLE_RATE,
             )
-            gen = self._mixer()
+            gen: Generator[_PCM, int, None] = self._mixer()
             next(gen)  # prime the generator protocol
             # numpy arrays satisfy the buffer protocol miniaudio consumes;
             # its stubs only admit bytes/array.array, hence the cast.
@@ -211,11 +219,11 @@ class _Engine:
 
     # -- the mixer callback (runs on miniaudio's thread) ------------------
     def _mixer(self) -> Generator[_PCM, int, None]:
-        required = yield np.zeros(0, dtype=np.float32)
+        required: int = yield np.zeros(0, dtype=np.float32)
         while True:
-            out = np.zeros(required * _CHANNELS, dtype=np.float32)
+            out: _PCM = np.zeros(required * _CHANNELS, dtype=np.float32)
             with self._lock:
-                voices = list(self._voices)
+                voices: list[_Voice] = list(self._voices)
             for v in voices:
                 try:
                     self._mix_voice(v, out, required)
@@ -227,28 +235,28 @@ class _Engine:
 
     def _mix_voice(self, v: _Voice, out: _PCM, frames: int) -> None:
         """Add up to ``frames`` frames of ``v`` into ``out`` (interleaved)."""
-        filled = 0
+        filled: int = 0
         while filled < frames and not v.done:
             if v.stream is not None:
-                chunk = self._next_stream_chunk(v)
+                chunk: _PCM | None = self._next_stream_chunk(v)
                 if chunk is None:
                     v.done = True
                     break
-                take = min(frames - filled, len(chunk) // _CHANNELS)
-                seg = chunk[: take * _CHANNELS]
+                take: int = min(frames - filled, len(chunk) // _CHANNELS)
+                seg: _PCM = chunk[: take * _CHANNELS]
                 # stash any remainder for the next pull
-                rest = chunk[take * _CHANNELS :]
+                rest: _PCM = chunk[take * _CHANNELS :]
                 v.samples = rest if len(rest) else None
             else:
                 assert v.samples is not None
-                total = len(v.samples) // _CHANNELS
+                total: int = len(v.samples) // _CHANNELS
                 if v.pos >= total:
                     v.done = True
                     break
                 take = min(frames - filled, total - v.pos)
                 seg = v.samples[v.pos * _CHANNELS : (v.pos + take) * _CHANNELS]
                 v.pos += take
-            sl = slice(filled * _CHANNELS, (filled + take) * _CHANNELS)
+            sl: slice = slice(filled * _CHANNELS, (filled + take) * _CHANNELS)
             out[sl] += seg * v.volume
             filled += take
 
@@ -267,7 +275,7 @@ class _Engine:
     def play_buffer(self, samples: _PCM, volume: float) -> _Voice | None:
         if not self._ensure_device():
             return None
-        v = _Voice(samples, None, volume)
+        v: _Voice = _Voice(samples, None, volume)
         with self._lock:
             self._voices.append(v)
         return v
@@ -277,7 +285,7 @@ class _Engine:
     ) -> _Voice | None:
         if not self._ensure_device():
             return None
-        v = _Voice(None, stream, volume)
+        v: _Voice = _Voice(None, stream, volume)
         with self._lock:
             self._voices.append(v)
         return v
@@ -302,7 +310,7 @@ class _Engine:
         """
         with self._lock:
             self._voices = []
-            device = self._device
+            device: miniaudio.PlaybackDevice | None = self._device
             self._device = None
         if device is not None:
             try:
@@ -311,7 +319,7 @@ class _Engine:
                 pass
 
 
-_engine = _Engine()
+_engine: _Engine = _Engine()
 
 
 def shutdown_audio() -> None:
@@ -320,7 +328,7 @@ def shutdown_audio() -> None:
 
 
 def _decode(path: str) -> _PCM:
-    decoded = _ma.decode_file(
+    decoded: Any = _ma.decode_file(  # miniaudio DecodedSoundFile (via Any _ma)
         path,
         output_format=_ma.SampleFormat.FLOAT32,
         nchannels=_CHANNELS,
@@ -356,13 +364,13 @@ class Sound:
         """Play the effect, overlapping any prior plays still sounding."""
         if _ma is None:
             return
-        buf = self._buffer()
+        buf: _PCM | None = self._buffer()
         if buf is None:
             return
-        live = self._live()
+        live: list[_Voice] = self._live()
         if len(live) >= _MAX_VOICES_PER_SOUND:
             _engine.stop_voice(live[0])  # oldest voice yields its budget
-        v = _engine.play_buffer(buf, 1.0)
+        v: _Voice | None = _engine.play_buffer(buf, 1.0)
         if v is not None:
             self._voices.append(v)
 
@@ -389,14 +397,14 @@ class _Music:
         return None
 
     def _stream(self, path: str) -> Iterator[Any]:
-        outer = self
+        outer: _Music = self
 
         def gen() -> Iterator[Any]:
             # music streams from disk (a decoded multi-minute track would be
             # tens of MB); looping restarts the stream, so the loop seam
             # lands on a chunk boundary.
             while True:
-                inner = _ma.stream_file(
+                inner: Iterator[Any] = _ma.stream_file(
                     path,
                     output_format=_ma.SampleFormat.FLOAT32,
                     nchannels=_CHANNELS,
@@ -439,7 +447,7 @@ class _Music:
             self._voice = None
 
 
-music = _Music()
+music: _Music = _Music()
 
 # ===== engine: images and sounds =====
 #
@@ -705,7 +713,7 @@ def ortho_pixels(width: float, height: float) -> NDArray[np.float32]:
 # the flat-colour branch is kept so this renderer is the same program the
 # richer games run.
 
-_VERT = """
+_VERT: str = """
 #version 330 core
 layout(location = 0) in vec2 aPos;
 uniform mat4 uOrtho;
@@ -719,7 +727,7 @@ void main() {
 }
 """
 
-_FRAG = """
+_FRAG: str = """
 #version 330 core
 in vec2 vTex;
 uniform sampler2D uTex;
@@ -979,7 +987,7 @@ class Renderer:
         program, query its uniforms, upload the unit quad, set the blend
         state. Needs a current GL context."""
         program: int = _link_program()
-        uniforms = Uniforms(
+        uniforms: Uniforms = Uniforms(
             ortho=GL.glGetUniformLocation(program, "uOrtho"),
             model=GL.glGetUniformLocation(program, "uModel"),
             tint=GL.glGetUniformLocation(program, "uTint"),
@@ -991,8 +999,8 @@ class Renderer:
         quad_verts: NDArray[np.float32] = np.array(
             [0, 0, 1, 0, 1, 1, 0, 0, 1, 1, 0, 1], dtype=np.float32
         )
-        quad = _make_buffer(quad_verts)
-        prim = _make_buffer(None)
+        quad: GLBuffer = _make_buffer(quad_verts)
+        prim: GLBuffer = _make_buffer(None)
         GL.glEnable(GL.GL_BLEND)
         GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
         GL.glDisable(GL.GL_DEPTH_TEST)
@@ -1023,7 +1031,9 @@ glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
 glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
-window = glfw.create_window(WIDTH, HEIGHT, TITLE, None, None)
+window: Any = glfw.create_window(
+    WIDTH, HEIGHT, TITLE, None, None
+)  # opaque GLFW window handle
 if not window:
     glfw.terminate()
     raise RuntimeError("glfw.create_window() failed")
@@ -1072,12 +1082,12 @@ def _get_font(size: int) -> Any:
 
 def _render_text(text: str, size: int, color: tuple[int, int, int]) -> Image:
     """Rasterize ``text`` to a cached Image."""
-    key = (text, size, color)
+    key: tuple[str, int, tuple[int, int, int]] = (text, size, color)
     if key not in _text_cache:
         font: Any = _get_font(size)
-        bbox = ImageDraw.Draw(PILImage.new("RGBA", (1, 1))).textbbox(
-            (0, 0), text, font=font
-        )
+        bbox: tuple[float, float, float, float] = ImageDraw.Draw(
+            PILImage.new("RGBA", (1, 1))
+        ).textbbox((0, 0), text, font=font)
         w, h = int(max(1, bbox[2] - bbox[0])), int(max(1, bbox[3] - bbox[1]))
         surf: Any = PILImage.new("RGBA", (w, h), (0, 0, 0, 0))
         ImageDraw.Draw(surf).text(
@@ -1112,9 +1122,9 @@ def draw_system_text(
 #: tasks/reference/point-type-decision.md: the boundary unpack costs 0.05-0.13
 #: microseconds, upstream's literal tuples stay as written, and all arithmetic
 #: is on Vector.
-PointLike = tuple[float, float] | Vector
+PointLike: TypeAlias = tuple[float, float] | Vector
 #: An anchor: per axis a named fraction ("left"/"center"/...) or a pixel offset.
-Anchor = tuple[str | float, str | float]
+Anchor: TypeAlias = tuple[str | float, str | float]
 
 _ANCHOR_FRAC: dict[str, dict[str, float]] = {
     "x": {"left": 0.0, "center": 0.5, "middle": 0.5, "right": 1.0},
@@ -1406,7 +1416,7 @@ class Keyboard:
         return code in self._pressed
 
 
-keyboard = Keyboard()
+keyboard: Keyboard = Keyboard()
 
 
 def _key_cb(win: Any, key: int, scancode: int, action: int, mods: int) -> None:
@@ -1430,10 +1440,10 @@ glfw.set_key_callback(window, _key_cb)
 # ``list()`` of it would be [pointer, count], not the values: index the pointer.
 
 # GLFW hat bit flags -> (x, y) with y up = +1.
-_HAT_UP = 1
-_HAT_RIGHT = 2
-_HAT_DOWN = 4
-_HAT_LEFT = 8
+_HAT_UP: int = 1
+_HAT_RIGHT: int = 2
+_HAT_DOWN: int = 4
+_HAT_LEFT: int = 8
 
 
 def joystick_count() -> int:
@@ -2813,7 +2823,7 @@ class Enemy(Fighter, ABC):
     def update(self) -> None:
         match self.state:
             case Enemy.State.APPROACH_PLAYER:
-                player = game.player
+                player: Player = game.player
 
                 # If player is attacking and we are quite close, chance (each frame) of backing up a little
                 if (
@@ -4737,10 +4747,10 @@ for _sig in (signal.SIGINT, signal.SIGTERM):
 
 # Fixed 60 Hz timestep -- beatstreets' update() takes no dt. PGZERO_MAX_FRAMES=N
 # (set by the headless frame-capture harness) stops after N frames.
-_max_frames = int(os.environ.get("PGZERO_MAX_FRAMES", "0") or 0)
-_dt = 1.0 / 60.0
-_next_t = time.perf_counter()
-_frame_count = 0
+_max_frames: int = int(os.environ.get("PGZERO_MAX_FRAMES", "0") or 0)
+_dt: float = 1.0 / 60.0
+_next_t: float = time.perf_counter()
+_frame_count: int = 0
 try:
     while not glfw.window_should_close(window):
         glfw.poll_events()
@@ -4753,7 +4763,7 @@ try:
         if _max_frames and _frame_count >= _max_frames:
             break
         _next_t += _dt
-        _sleep = _next_t - time.perf_counter()
+        _sleep: float = _next_t - time.perf_counter()
         if _sleep > 0:
             time.sleep(_sleep)
         else:
