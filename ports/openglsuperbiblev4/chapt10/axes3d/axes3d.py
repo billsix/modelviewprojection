@@ -9,6 +9,7 @@ import math
 import os
 import sys
 import time
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -16,12 +17,13 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+# glfw window handle
+_window: typing.Any = None  # set in main(); used by the Quit menu item
 
 
 x_rot: float = 0.0
@@ -29,11 +31,11 @@ y_rot: float = 0.0
 
 # Axis-arrow dimensions (rod + cone arrowhead). The originals regenerated
 # all of this trig every frame for three axes; precompute each piece once.
-ROD_RADIUS = 0.025
-CONE_RADIUS = 0.06
-ROD_LENGTH = 0.85
-CONE_LENGTH = 0.15
-AXIS_SLICES = 20
+ROD_RADIUS: float = 0.025
+CONE_RADIUS: float = 0.06
+ROD_LENGTH: float = 0.85
+CONE_LENGTH: float = 0.15
+AXIS_SLICES: int = 20
 
 
 def _build_cylinder_rings(
@@ -43,9 +45,9 @@ def _build_cylinder_rings(
     gluCylinder replacement emits ONE normal shared by each segment's base+top
     vertex pair, which neither draw_mesh mode expresses, so _draw_cylinder
     replays these directly. The trig still runs only once, here."""
-    rings = []
+    rings: list = []
     for i in range(slices + 1):
-        a = 2.0 * math.pi * float(i) / slices
+        a: float = 2.0 * math.pi * float(i) / slices
         c, s = math.cos(a), math.sin(a)
         rings.append(
             (
@@ -72,7 +74,7 @@ def _build_cone_disk(radius: float, slices: int) -> "_primitives.Mesh":
     flat normal for the whole fan (replay with draw_mesh(flat=True))."""
     band: list = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
     for i in range(slices, -1, -1):
-        a = 2.0 * math.pi * float(i) / slices
+        a: float = 2.0 * math.pi * float(i) / slices
         band.append(
             (
                 0.0,
@@ -88,12 +90,16 @@ def _build_cone_disk(radius: float, slices: int) -> "_primitives.Mesh":
     return (GL.GL_TRIANGLE_FAN, [band])
 
 
-CYLINDER_RINGS = _build_cylinder_rings(
+CYLINDER_RINGS: list = _build_cylinder_rings(
     ROD_RADIUS, ROD_RADIUS, ROD_LENGTH, AXIS_SLICES
 )
-CONE_BODY = _primitives.build_cone(CONE_RADIUS, CONE_LENGTH, AXIS_SLICES)
-CONE_DISK = _build_cone_disk(CONE_RADIUS, AXIS_SLICES)
-ORIGIN_SPHERE = _primitives.build_sphere(0.05, 15, 15, swap_winding=True)
+CONE_BODY: _primitives.Mesh = _primitives.build_cone(
+    CONE_RADIUS, CONE_LENGTH, AXIS_SLICES
+)
+CONE_DISK: _primitives.Mesh = _build_cone_disk(CONE_RADIUS, AXIS_SLICES)
+ORIGIN_SPHERE: _primitives.Mesh = _primitives.build_sphere(
+    0.05, 15, 15, swap_winding=True
+)
 
 
 def draw_unit_axes() -> None:
@@ -145,9 +151,9 @@ def render_scene() -> None:
 
 
 def setup_rc() -> None:
-    white_light = (0.05, 0.05, 0.05, 1.0)
-    source_light = (0.25, 0.25, 0.25, 1.0)
-    light_pos = (-10.0, 5.0, 5.0, 1.0)
+    white_light: tuple[float, float, float, float] = (0.05, 0.05, 0.05, 1.0)
+    source_light: tuple[float, float, float, float] = (0.25, 0.25, 0.25, 1.0)
+    light_pos: tuple[float, float, float, float] = (-10.0, 5.0, 5.0, 1.0)
 
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glFrontFace(GL.GL_CCW)
@@ -183,7 +189,7 @@ ROT_DEG_PER_SEC: float = 90.0
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -243,7 +249,8 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(800, 600, "Unit Axis", None, None)
+    # glfw window handle
+    window: typing.Any = glfw.create_window(800, 600, "Unit Axis", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -253,7 +260,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -262,11 +269,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

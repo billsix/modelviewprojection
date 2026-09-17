@@ -18,6 +18,7 @@
 import math
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -26,12 +27,12 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main()
 control_camera: bool = True
 no_shadows: bool = False
 show_shadow_map: bool = False
@@ -43,17 +44,17 @@ shadow_width: int = 1024
 shadow_height: int = 512
 shadow_texture_id: int = 0
 
-ambient_light = (0.2, 0.2, 0.2, 1.0)
-diffuse_light = (0.7, 0.7, 0.7, 1.0)
+ambient_light: tuple[float, float, float, float] = (0.2, 0.2, 0.2, 1.0)
+diffuse_light: tuple[float, float, float, float] = (0.7, 0.7, 0.7, 1.0)
 
-light_pos = [100.0, 300.0, 100.0, 1.0]
-camera_pos = [100.0, 150.0, 200.0, 1.0]
+light_pos: list[float] = [100.0, 300.0, 100.0, 1.0]
+camera_pos: list[float] = [100.0, 150.0, 200.0, 1.0]
 camera_zoom: float = 0.3
 texture_matrix: np.ndarray = np.eye(4, dtype=np.float32).flatten()
 
 
 def draw_solid_cube(size: float) -> None:
-    s = size / 2.0
+    s: float = size / 2.0
     GL.glBegin(GL.GL_QUADS)
     for nx, ny, nz, vs in [
         (0, 0, 1, [(-s, -s, s), (s, -s, s), (s, s, s), (-s, s, s)]),
@@ -69,14 +70,14 @@ def draw_solid_cube(size: float) -> None:
     GL.glEnd()
 
 
-SPHERE = _primitives.build_sphere(25.0, 50, 50)
-CONE = _primitives.build_cone(25.0, 50.0, 50)
-TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
+SPHERE: _primitives.Mesh = _primitives.build_sphere(25.0, 50, 50)
+CONE: _primitives.Mesh = _primitives.build_cone(25.0, 50.0, 50)
+TORUS: _primitives.Mesh = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 
 def draw_solid_octahedron() -> None:
     """A unit octahedron -- 8 triangle faces, vertices at ±1 on each axis."""
-    verts = [
+    verts: list[tuple[float, float, float]] = [
         (1.0, 0.0, 0.0),
         (-1.0, 0.0, 0.0),
         (0.0, 1.0, 0.0),
@@ -84,7 +85,7 @@ def draw_solid_octahedron() -> None:
         (0.0, 0.0, 1.0),
         (0.0, 0.0, -1.0),
     ]
-    faces = [
+    faces: list[tuple[int, int, int]] = [
         (0, 2, 4),
         (2, 1, 4),
         (1, 3, 4),
@@ -97,7 +98,7 @@ def draw_solid_octahedron() -> None:
     GL.glBegin(GL.GL_TRIANGLES)
     for f in faces:
         for i in f:
-            v = verts[i]
+            v: tuple[float, float, float] = verts[i]
             GL.glNormal3f(*v)
             GL.glVertex3f(*v)
     GL.glEnd()
@@ -147,17 +148,19 @@ def draw_models(draw_base_plane: bool) -> None:
 def regenerate_shadow_map() -> None:
     global texture_matrix
 
-    scene_bounding_radius = 95.0
-    light_to_scene = math.sqrt(
+    scene_bounding_radius: float = 95.0
+    light_to_scene: float = math.sqrt(
         light_pos[0] ** 2 + light_pos[1] ** 2 + light_pos[2] ** 2
     )
-    near = light_to_scene - scene_bounding_radius
-    fov = math.degrees(2.0 * math.atan(scene_bounding_radius / light_to_scene))
+    near: float = light_to_scene - scene_bounding_radius
+    fov: float = math.degrees(
+        2.0 * math.atan(scene_bounding_radius / light_to_scene)
+    )
 
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     GLU.gluPerspective(fov, 1.0, near, near + 2.0 * scene_bounding_radius)
-    light_projection = np.array(
+    light_projection: np.ndarray = np.array(
         GL.glGetFloatv(GL.GL_PROJECTION_MATRIX), dtype=np.float32
     )
 
@@ -166,7 +169,7 @@ def regenerate_shadow_map() -> None:
     GLU.gluLookAt(
         light_pos[0], light_pos[1], light_pos[2], 0.0, 0.0, 0.0, 0.0, 1.0, 0.0
     )
-    light_modelview = np.array(
+    light_modelview: np.ndarray = np.array(
         GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
     )
     GL.glViewport(0, 0, shadow_width, shadow_height)
@@ -199,7 +202,7 @@ def regenerate_shadow_map() -> None:
     GL.glColorMask(True, True, True, True)
     GL.glDisable(GL.GL_POLYGON_OFFSET_FILL)
 
-    bias_matrix = np.array(
+    bias_matrix: np.ndarray = np.array(
         [
             0.5,
             0.0,
@@ -220,10 +223,10 @@ def regenerate_shadow_map() -> None:
         ],
         dtype=np.float32,
     ).reshape(4, 4)
-    proj = light_projection.reshape(4, 4)
-    mv = light_modelview.reshape(4, 4)
+    proj: np.ndarray = light_projection.reshape(4, 4)
+    mv: np.ndarray = light_modelview.reshape(4, 4)
     # Column-major matmul: (bias * proj * mv) -- transposed for GL plane eqs
-    m = (bias_matrix @ proj @ mv).T
+    m: np.ndarray = (bias_matrix @ proj @ mv).T
     texture_matrix = m.flatten().astype(np.float32)
 
 
@@ -231,7 +234,7 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if window_width > window_height:
-        ar = float(window_width) / float(window_height)
+        ar: float = float(window_width) / float(window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -307,8 +310,8 @@ def render_scene() -> None:
         draw_models(True)
     else:
         # Ambient pass
-        low_amb = (0.1, 0.1, 0.1, 1.0)
-        low_diff = (0.35, 0.35, 0.35, 1.0)
+        low_amb: tuple[float, float, float, float] = (0.1, 0.1, 0.1, 1.0)
+        low_diff: tuple[float, float, float, float] = (0.35, 0.35, 0.35, 1.0)
         GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, low_amb)
         GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, low_diff)
         draw_models(True)
@@ -348,7 +351,7 @@ def _nudge(axis: int, d: float) -> None:
     # X/Y/Z move the camera or the light, mirroring on_key (the panel's
     # control radio selects which); regenerate the shadow map after a
     # light move so the shadow follows.
-    pos = camera_pos if control_camera else light_pos
+    pos: list[float] = camera_pos if control_camera else light_pos
     pos[axis] += d
     if not control_camera:
         regenerate_shadow_map()
@@ -475,8 +478,8 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
         glfw.set_window_should_close(window, True)
         return
 
-    pos = camera_pos if control_camera else light_pos
-    delta = -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+    pos: list[float] = camera_pos if control_camera else light_pos
+    delta: float = -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
 
     if key == glfw.KEY_X:
         pos[0] += delta
@@ -495,7 +498,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(
         window_width, window_height, "Shadow Mapping Demo", None, None
     )
     if not window:
@@ -506,7 +509,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

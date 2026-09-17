@@ -11,6 +11,7 @@ import os
 import random
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -23,30 +24,30 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import plane_equation
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
-NUM_SPHERES = 30
-sphere_positions = []
+NUM_SPHERES: int = 30
+sphere_positions: list[tuple[float, float, float]] = []
 camera_x: float = 0.0
 camera_y: float = 0.0
 camera_z: float = 0.0
 camera_yaw: float = 0.0
 
-f_light_pos = (-100.0, 100.0, 50.0, 1.0)
-f_no_light = (0.0, 0.0, 0.0, 0.0)
-f_low_light = (0.25, 0.25, 0.25, 1.0)
-f_bright_light = (1.0, 1.0, 1.0, 1.0)
+f_light_pos: tuple[float, float, float, float] = (-100.0, 100.0, 50.0, 1.0)
+f_no_light: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
+f_low_light: tuple[float, float, float, float] = (0.25, 0.25, 0.25, 1.0)
+f_bright_light: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
 
 GROUND_TEXTURE, TORUS_TEXTURE, SPHERE_TEXTURE = 0, 1, 2
-texture_files = ["grass.tga", "wood.tga", "orb.tga"]
-texture_objects = [0, 0, 0]
+texture_files: list[str] = ["grass.tga", "wood.tga", "orb.tga"]
+texture_objects: list[int] = [0, 0, 0]
 
-shadow_mat = None
+shadow_mat: np.ndarray | None = None
 y_rot: float = 0.0
 
 
@@ -58,7 +59,7 @@ def make_planar_shadow_matrix(
     # CCW plane_equation can land w<0; OpenGL clips before perspective
     # divide and the shadow disappears. Negate to keep w positive.
     # See tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md.
-    s = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
+    s: float = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
             s * (b * dy + c * dz),
@@ -85,10 +86,10 @@ def make_planar_shadow_matrix(
 # Geometry is identical every frame, so build the vertex bands once at import
 # and replay them (textured) in draw_inhabitants / draw_ground instead of
 # re-running the sin/cos loops on every draw.
-SPHERE_BIG = _primitives.build_sphere(0.3, 17, 9)
-SPHERE_SMALL = _primitives.build_sphere(0.1, 17, 9)
-TORUS = _primitives.build_torus(0.35, 0.15, 61, 37)
-GROUND = _primitives.build_ground(
+SPHERE_BIG: _primitives.Mesh = _primitives.build_sphere(0.3, 17, 9)
+SPHERE_SMALL: _primitives.Mesh = _primitives.build_sphere(0.1, 17, 9)
+TORUS: _primitives.Mesh = _primitives.build_torus(0.35, 0.15, 61, 37)
+GROUND: _primitives.Mesh = _primitives.build_ground(
     20.0, 1.0, -0.4, tex_step=1.0 / (20.0 * 0.075)
 )
 
@@ -103,7 +104,7 @@ def load_textures() -> None:
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
     for i, fname in enumerate(texture_files):
-        img = iio.imread(os.path.join(PWD, fname))
+        img: np.ndarray = iio.imread(os.path.join(PWD, fname))
         img = np.flipud(img)
         h, w = img.shape[:2]
         if img.ndim == 3 and img.shape[2] == 4:
@@ -242,8 +243,8 @@ def setup_rc() -> None:
 
     random.seed(0)
     for _ in range(NUM_SPHERES):
-        sx = (random.randint(0, 399) - 200) * 0.1
-        sz = (random.randint(0, 399) - 200) * 0.1
+        sx: float = (random.randint(0, 399) - 200) * 0.1
+        sz: float = (random.randint(0, 399) - 200) * 0.1
         sphere_positions.append((sx, 0.0, sz))
 
     load_textures()
@@ -271,8 +272,8 @@ TORUS_DEG_PER_SEC: float = 30.0
 
 def handle_camera_keys(window, dt: float) -> None:
     global camera_x, camera_z, camera_yaw
-    move = MOVE_UNITS_PER_SEC * dt
-    yaw = YAW_RAD_PER_SEC * dt
+    move: float = MOVE_UNITS_PER_SEC * dt
+    yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera_x += -move * math.sin(camera_yaw)
         camera_z += -move * math.cos(camera_yaw)
@@ -298,7 +299,7 @@ BTN_YAW_STEP: float = 0.1
 
 def _walk(direction: int) -> None:
     global camera_x, camera_z
-    m = BTN_MOVE_STEP * direction
+    m: float = BTN_MOVE_STEP * direction
     camera_x += -m * math.sin(camera_yaw)
     camera_z += -m * math.cos(camera_yaw)
 
@@ -336,7 +337,7 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
     glfw.window_hint(glfw.STENCIL_BITS, 8)
 
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         800, 600, "OpenGL SphereWorld Demo + Texture Maps", None, None
     )
     if not window:
@@ -349,7 +350,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -358,11 +359,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

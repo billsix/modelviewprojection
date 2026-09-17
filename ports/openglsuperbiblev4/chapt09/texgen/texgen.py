@@ -7,6 +7,7 @@
 import os
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -15,27 +16,28 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Controls buttons
+_window: typing.Any = None  # glfw window handle; set in main()
 
 x_rot: float = 0.0
 y_rot: float = 0.0
-to_textures = [0, 0]
+to_textures: list[int] = [0, 0]
 i_render_mode: int = 3
 
 
 # Torus the texgen modes are demonstrated on -- texgen generates its
 # texcoords, so none are stored; tessellate once at import.
-TORUS = _primitives.build_torus(0.35, 0.15, 61, 37)
+TORUS: _primitives.Mesh = _primitives.build_torus(0.35, 0.15, 61, 37)
 
 
 def apply_mode(mode: int) -> None:
-    z_plane = [0.0, 0.0, 1.0, 0.0]
+    z_plane: list[float] = [0.0, 0.0, 1.0, 0.0]
     if mode == 1:
         GL.glTexGeni(GL.GL_S, GL.GL_TEXTURE_GEN_MODE, GL.GL_OBJECT_LINEAR)
         GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, GL.GL_OBJECT_LINEAR)
@@ -109,9 +111,11 @@ def setup_rc() -> None:
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_DECAL)
 
     for i, fname in enumerate(["stripes.tga", "Environment.tga"]):
-        img = np.flipud(iio.imread(os.path.join(PWD, fname)))
+        img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+        fmt: Constant = (
+            GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+        )
         img = np.ascontiguousarray(img, dtype=np.uint8)
         to_textures[i] = GL.glGenTextures(1)
         GL.glBindTexture(GL.GL_TEXTURE_2D, to_textures[i])
@@ -153,7 +157,7 @@ ROT_DEG_PER_SEC: float = 90.0
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -224,7 +228,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         800, 600, "Texture Coordinate Generation", None, None
     )
     if not window:
@@ -235,7 +239,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -245,11 +249,11 @@ def main() -> None:
     change_size(w, h)
 
     glfw.swap_interval(1)
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

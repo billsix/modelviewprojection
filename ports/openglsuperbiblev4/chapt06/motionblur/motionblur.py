@@ -12,6 +12,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -19,38 +20,38 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main() for Quit item
 
 
-f_light_pos = (-100.0, 100.0, 50.0, 1.0)
-f_no_light = (0.0, 0.0, 0.0, 0.0)
-f_low_light = (0.25, 0.25, 0.25, 1.0)
-f_bright_light = (1.0, 1.0, 1.0, 1.0)
+f_light_pos: tuple[float, float, float, float] = (-100.0, 100.0, 50.0, 1.0)
+f_no_light: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
+f_low_light: tuple[float, float, float, float] = (0.25, 0.25, 0.25, 1.0)
+f_bright_light: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
 
-y_rot = 45.0
+y_rot: float = 45.0
 
 
 # The revolving sphere is the same every frame (drawn 10x per frame for
 # the accumulation-buffer blur) -- tessellate once at import, replay each pass.
-SPHERE = _primitives.build_sphere(0.1, 17, 9)
+SPHERE: _primitives.Mesh = _primitives.build_sphere(0.1, 17, 9)
 
 
 def draw_ground() -> None:
-    extent = 20.0
-    step = 0.5
-    bounce = 0
+    extent: float = 20.0
+    step: float = 0.5
+    bounce: int = 0
     GL.glShadeModel(GL.GL_FLAT)
-    strip = -extent
+    strip: float = -extent
     while strip <= extent:
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        run = extent
+        run: float = extent
         while run >= -extent:
-            color = 1.0 if bounce % 2 == 0 else 0.0
+            color: float = 1.0 if bounce % 2 == 0 else 0.0
             GL.glColor4f(color, color, color, 0.5)
             GL.glVertex3f(strip, 0.0, run)
             GL.glVertex3f(strip + step, 0.0, run)
@@ -76,10 +77,10 @@ def draw_geometry() -> None:
 
 def render_scene() -> None:
     global y_rot
-    f_passes = 10.0
+    f_passes: float = 10.0
     y_rot = 35.0
 
-    f_pass = 0.0
+    f_pass: float = 0.0
     while f_pass < f_passes:
         y_rot += 0.75
         draw_geometry()
@@ -159,7 +160,7 @@ def main() -> None:
     glfw.window_hint(glfw.ACCUM_BLUE_BITS, 16)
     glfw.window_hint(glfw.ACCUM_ALPHA_BITS, 16)
 
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         800, 600, "Motion Blur with the Accumulation Buffer", None, None
     )
     if not window:
@@ -171,7 +172,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

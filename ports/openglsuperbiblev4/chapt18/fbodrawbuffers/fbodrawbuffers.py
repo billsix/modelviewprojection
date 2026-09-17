@@ -14,6 +14,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -24,12 +25,14 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = (
+    None  # glfw window handle; set in main(), used by Quit control button
+)
 window_width: int = 512
 window_height: int = 512
 fbo_width: int = 512
@@ -38,8 +41,8 @@ fbo_height: int = 512
 use_draw_buffers: bool = True
 do_processing: bool = True
 
-TOTAL_SHADERS = 6
-shader_names = [
+TOTAL_SHADERS: int = 6
+shader_names: list[str] = [
     "multirender",
     "combine",
     "blur",
@@ -47,34 +50,34 @@ shader_names = [
     "grayscale",
     "colorinvert",
 ]
-f_shader = [0] * TOTAL_SHADERS
-prog_obj = [0] * TOTAL_SHADERS
+f_shader: list[int] = [0] * TOTAL_SHADERS
+prog_obj: list[int] = [0] * TOTAL_SHADERS
 
-wall_texture_id = [0, 0, 0, 0]
-render_texture_id = [0, 0, 0, 0, 0]
-framebuffer_id = [0, 0]
+wall_texture_id: list[int] = [0, 0, 0, 0]
+render_texture_id: list[int] = [0, 0, 0, 0, 0]
+framebuffer_id: list[int] = [0, 0]
 renderbuffer_id: int = 0
 max_tex_size: int = 0
 max_draw_buffers: int = 4
-tex_coord_offsets = np.zeros(18, dtype=np.float32)
+tex_coord_offsets: np.ndarray = np.zeros(18, dtype=np.float32)
 
-ambient_light = [0.4, 0.4, 0.4, 1.0]
-diffuse_light = [0.6, 0.6, 0.6, 1.0]
-specular_light = [1.0, 1.0, 1.0, 1.0]
-light_pos = [0.0, 125.0, 0.0, 1.0]
-camera_pos = [50.0, 50.0, 100.0, 1.0]
+ambient_light: list[float] = [0.4, 0.4, 0.4, 1.0]
+diffuse_light: list[float] = [0.6, 0.6, 0.6, 1.0]
+specular_light: list[float] = [1.0, 1.0, 1.0, 1.0]
+light_pos: list[float] = [0.0, 125.0, 0.0, 1.0]
+camera_pos: list[float] = [50.0, 50.0, 100.0, 1.0]
 camera_zoom: float = 1.5
 animation_angle: float = 0.0
 
 
-SPHERE_CENTER = _primitives.build_sphere(20.0, 32, 32)
-SPHERE = _primitives.build_sphere(25.0, 50, 50)
-CONE = _primitives.build_cone(25.0, 50.0, 50)
-TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
+SPHERE_CENTER: _primitives.Mesh = _primitives.build_sphere(20.0, 32, 32)
+SPHERE: _primitives.Mesh = _primitives.build_sphere(25.0, 50, 50)
+CONE: _primitives.Mesh = _primitives.build_cone(25.0, 50.0, 50)
+TORUS: _primitives.Mesh = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 
 def draw_solid_octahedron() -> None:
-    verts = [
+    verts: list[tuple[int, int, int]] = [
         (1, 0, 0),
         (-1, 0, 0),
         (0, 1, 0),
@@ -82,7 +85,7 @@ def draw_solid_octahedron() -> None:
         (0, 0, 1),
         (0, 0, -1),
     ]
-    faces = [
+    faces: list[tuple[int, int, int]] = [
         (0, 2, 4),
         (0, 4, 3),
         (0, 3, 5),
@@ -95,9 +98,9 @@ def draw_solid_octahedron() -> None:
     GL.glBegin(GL.GL_TRIANGLES)
     for i, j, k in faces:
         a, b, c = verts[i], verts[j], verts[k]
-        nx = (b[1] - a[1]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[1] - a[1])
-        ny = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2])
-        nz = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+        nx: int = (b[1] - a[1]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[1] - a[1])
+        ny: int = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2])
+        nz: int = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
         GL.glNormal3f(nx, ny, nz)
         GL.glVertex3f(*a)
         GL.glVertex3f(*b)
@@ -116,7 +119,7 @@ def draw_models(_draw_teapot: bool) -> None:
     GL.glEnd()
 
     GL.glEnable(GL.GL_TEXTURE_2D)
-    walls = [
+    walls: list = [
         (
             wall_texture_id[0],
             (1.0, 0.0, 0.0),
@@ -159,7 +162,12 @@ def draw_models(_draw_teapot: bool) -> None:
         ),
     ]
     GL.glColor3f(1.0, 1.0, 1.0)
-    uvs = [(0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)]
+    uvs: list[tuple[float, float]] = [
+        (0.0, 0.0),
+        (0.0, 1.0),
+        (1.0, 1.0),
+        (1.0, 0.0),
+    ]
     for tex, (nx, ny, nz), verts in walls:
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
         GL.glNormal3f(nx, ny, nz)
@@ -214,25 +222,25 @@ def draw_models(_draw_teapot: bool) -> None:
 
 
 def prepare_shader(n: int) -> None:
-    fname = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
+    fname: str = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
     with open(fname) as f:
-        fs_src = f.read()
+        fs_src: str = f.read()
     f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
     prog_obj[n] = GL.glCreateProgram()
     GL.glAttachShader(prog_obj[n], f_shader[n])
     GL.glLinkProgram(prog_obj[n])
     if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info = GL.glGetProgramInfoLog(prog_obj[n])
+        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
 
 
 def setup_textures() -> None:
     global wall_texture_id, render_texture_id
-    files = ["WRHS.tga", "MAMS.tga", "WPI.tga", "Babson.tga"]
+    files: list[str] = ["WRHS.tga", "MAMS.tga", "WPI.tga", "Babson.tga"]
     wall_texture_id = list(GL.glGenTextures(4))
     for i, name in enumerate(files):
-        img = iio.imread(os.path.join(PWD, name))
+        img: np.ndarray = iio.imread(os.path.join(PWD, name))
         img = np.flipud(img)
         if img.ndim == 3 and img.shape[2] == 4:
             img = img[:, :, :3]
@@ -310,7 +318,7 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if window_width > window_height:
-        ar = float(window_width) / float(window_height)
+        ar: float = float(window_width) / float(window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -368,19 +376,19 @@ def render_scene() -> None:
             max_draw_buffers,
             [GL.GL_COLOR_ATTACHMENT0 + i for i in range(max_draw_buffers)],
         )
-        loops = [0]
+        loops: list[int] = [0]
     else:
         loops = list(range(max_draw_buffers))
 
     for loop in loops:
         if use_draw_buffers:
-            shader_num = 0
+            shader_num: int = 0
         else:
             shader_num = loop + 2
             GL.glDrawBuffer(GL.GL_COLOR_ATTACHMENT0 + loop)
 
         GL.glUseProgram(prog_obj[shader_num])
-        loc = GL.glGetUniformLocation(prog_obj[shader_num], "sampler0")
+        loc: int = GL.glGetUniformLocation(prog_obj[shader_num], "sampler0")
         if loc != -1:
             GL.glUniform1i(loc, 0)
         loc = GL.glGetUniformLocation(prog_obj[shader_num], "tc_offset")
@@ -462,7 +470,7 @@ def setup_rc() -> None:
     GL.glRenderbufferStorage(
         GL.GL_RENDERBUFFER, GL.GL_DEPTH_COMPONENT32, fbo_width, fbo_height
     )
-    fbs = list(GL.glGenFramebuffers(2))
+    fbs: list[int] = list(GL.glGenFramebuffers(2))
     framebuffer_id[0], framebuffer_id[1] = fbs
     GL.glBindFramebuffer(GL.GL_FRAMEBUFFER, framebuffer_id[0])
     GL.glFramebufferRenderbuffer(
@@ -492,7 +500,7 @@ def setup_rc() -> None:
 
 def change_size(w: int, h: int) -> None:
     global window_width, window_height, fbo_width, fbo_height
-    orig = (fbo_width, fbo_height)
+    orig: tuple[int, int] = (fbo_width, fbo_height)
     window_width = fbo_width = w
     window_height = fbo_height = h
     if fbo_width > max_tex_size:
@@ -517,8 +525,8 @@ def change_size(w: int, h: int) -> None:
                 GL.GL_UNSIGNED_BYTE,
                 None,
             )
-        x_inc = 1.0 / fbo_width
-        y_inc = 1.0 / fbo_height
+        x_inc: float = 1.0 / fbo_width
+        y_inc: float = 1.0 / fbo_height
         for i in range(3):
             for j in range(3):
                 tex_coord_offsets[(((i * 3) + j) * 2) + 0] = -x_inc + i * x_inc
@@ -587,7 +595,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
         return
-    delta = -1.0 if (mods & glfw.MOD_SHIFT) else 1.0
+    delta: float = -1.0 if (mods & glfw.MOD_SHIFT) else 1.0
     if key == glfw.KEY_X:
         camera_pos[0] += delta
     elif key == glfw.KEY_Y:
@@ -610,7 +618,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "FBO Draw Buffers Demo", None, None
     )
     if not window:
@@ -621,7 +629,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

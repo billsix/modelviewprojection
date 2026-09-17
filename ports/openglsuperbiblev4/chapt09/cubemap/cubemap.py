@@ -8,6 +8,7 @@ import math
 import os
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -16,20 +17,21 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
 camera_x: float = 0.0
 camera_y: float = 0.0
 camera_z: float = 0.0
 camera_yaw: float = 0.0
 
-cube_faces = [
+cube_faces: list[str] = [
     "pos_x.tga",
     "neg_x.tga",
     "pos_y.tga",
@@ -37,7 +39,7 @@ cube_faces = [
     "pos_z.tga",
     "neg_z.tga",
 ]
-cube_targets = [
+cube_targets: list[Constant] = [
     GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X,
     GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
     GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
@@ -49,11 +51,11 @@ cube_targets = [
 
 # Reflective sphere -- cube-map texgen generates its texcoords, so none
 # are stored; tessellate once at import.
-SPHERE = _primitives.build_sphere(0.75, 41, 41)
+SPHERE: _primitives.Mesh = _primitives.build_sphere(0.75, 41, 41)
 
 
 def draw_skybox() -> None:
-    e = 15.0
+    e: float = 15.0
     GL.glBegin(GL.GL_QUADS)
     # -X
     GL.glTexCoord3f(-1.0, -1.0, 1.0)
@@ -137,9 +139,11 @@ def setup_rc() -> None:
     )
 
     for i, fname in enumerate(cube_faces):
-        img = np.flipud(iio.imread(os.path.join(PWD, fname)))
+        img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+        fmt: Constant = (
+            GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+        )
         img = np.ascontiguousarray(img, dtype=np.uint8)
         GL.glTexParameteri(
             GL.GL_TEXTURE_CUBE_MAP, GL.GL_GENERATE_MIPMAP, GL.GL_TRUE
@@ -225,8 +229,8 @@ YAW_RAD_PER_SEC: float = 1.5
 
 def handle_camera_keys(window, dt: float) -> None:
     global camera_x, camera_z, camera_yaw
-    move = MOVE_UNITS_PER_SEC * dt
-    yaw = YAW_RAD_PER_SEC * dt
+    move: float = MOVE_UNITS_PER_SEC * dt
+    yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera_x += -move * math.sin(camera_yaw)
         camera_z += -move * math.cos(camera_yaw)
@@ -252,7 +256,7 @@ BTN_YAW_STEP: float = 0.1
 
 def _walk(direction: int) -> None:
     global camera_x, camera_z
-    m = BTN_MOVE_STEP * direction
+    m: float = BTN_MOVE_STEP * direction
     camera_x += -m * math.sin(camera_yaw)
     camera_z += -m * math.cos(camera_yaw)
 
@@ -288,7 +292,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(800, 600, "OpenGL Cube Maps", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "OpenGL Cube Maps", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -298,7 +304,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -307,11 +313,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

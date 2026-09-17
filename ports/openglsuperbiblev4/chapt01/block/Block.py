@@ -13,6 +13,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -21,10 +22,11 @@ import OpenGL.GL as GL
 from gacalc.g3 import Vector
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
 from modelviewprojection.mathutils import plane_equation
 
-STAGE_LABELS = (
+STAGE_LABELS: tuple[str, ...] = (
     "0  Wireframe cube",
     "1  Wireframe cube + hidden-line removal",
     "2  Solid uniform-colored cube",
@@ -38,29 +40,30 @@ STAGE_LABELS = (
 n_step: int = 0
 
 # Lighting data
-light_ambient = (0.2, 0.2, 0.2, 1.0)
-light_diffuse = (0.7, 0.7, 0.7, 1.0)
-light_specular = (0.9, 0.9, 0.9, 1.0)
-material_color = (0.8, 0.0, 0.0, 1.0)
-v_light_pos = (-80.0, 120.0, 100.0, 0.0)
+light_ambient: tuple[float, float, float, float] = (0.2, 0.2, 0.2, 1.0)
+light_diffuse: tuple[float, float, float, float] = (0.7, 0.7, 0.7, 1.0)
+light_specular: tuple[float, float, float, float] = (0.9, 0.9, 0.9, 1.0)
+material_color: tuple[float, float, float, float] = (0.8, 0.0, 0.0, 1.0)
+v_light_pos: tuple[float, float, float, float] = (-80.0, 120.0, 100.0, 0.0)
 
 # Three points defining the ground plane (used to derive the plane
 # equation for the planar-shadow projection)
-ground = [
+ground: list[Vector] = [
     Vector(0.0, -25.0, 0.0),
     Vector(10.0, -25.0, 0.0),
     Vector(10.0, -25.0, -10.0),
 ]
 
-textures = [0, 0, 0, 0]
+textures: list[int] = [0, 0, 0, 0]
 window_width: int = 800
 window_height: int = 600
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Controls buttons
+# set in main(); used by the Controls buttons
+_window: typing.Any = None  # glfw window handle
 
 
 # ---------------------------------------------------------------------------
@@ -97,9 +100,9 @@ def make_planar_shadow_matrix(
         plane_normal.coeff_e_2,
         plane_normal.coeff_e_3,
     )
-    d = plane_d
+    d: float = plane_d
     dx, dy, dz = -light_pos[0], -light_pos[1], -light_pos[2]
-    sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
+    sign: float = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
             # column 0
@@ -133,7 +136,7 @@ def make_planar_shadow_matrix(
 
 
 def draw_solid_cube(size: float) -> None:
-    s = size / 2.0
+    s: float = size / 2.0
     GL.glBegin(GL.GL_QUADS)
     # +Z
     GL.glNormal3f(0.0, 0.0, 1.0)
@@ -175,8 +178,10 @@ def draw_solid_cube(size: float) -> None:
 
 
 def draw_wire_cube(size: float) -> None:
-    s = size / 2.0
-    edges = [
+    s: float = size / 2.0
+    edges: list[
+        tuple[tuple[float, float, float], tuple[float, float, float]]
+    ] = [
         # Bottom face
         ((-s, -s, -s), (s, -s, -s)),
         ((s, -s, -s), (s, -s, s)),
@@ -206,23 +211,23 @@ def draw_wire_cube(size: float) -> None:
 
 
 def load_tga_texture(path: str) -> int:
-    img = iio.imread(path)
+    img: np.ndarray = iio.imread(path)
     if img.ndim == 2:
         img = np.stack([img, img, img], axis=-1)
     # OpenGL expects bottom-up; imageio returns top-down
     img = np.flipud(img)
     h, w = img.shape[:2]
-    channels = img.shape[2] if img.ndim == 3 else 1
+    channels: int = img.shape[2] if img.ndim == 3 else 1
     img = np.ascontiguousarray(img, dtype=np.uint8)
 
-    tex = GL.glGenTextures(1)
+    tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT)
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT)
-    fmt = GL.GL_RGBA if channels == 4 else GL.GL_RGB
-    internal = GL.GL_RGBA8 if channels == 4 else GL.GL_RGB8
+    fmt: Constant = GL.GL_RGBA if channels == 4 else GL.GL_RGB
+    internal: Constant = GL.GL_RGBA8 if channels == 4 else GL.GL_RGB8
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D, 0, internal, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
     )
@@ -326,7 +331,9 @@ def render_scene() -> None:
         draw_solid_cube(50.0)
     elif n_step == 4:
         # Lit cube + planar shadow
-        cube_transform = GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX)  # noqa: F841
+        cube_transform: np.ndarray = GL.glGetFloatv(  # noqa: F841
+            GL.GL_MODELVIEW_MATRIX
+        )
         draw_solid_cube(50.0)
         GL.glPopMatrix()
 
@@ -334,7 +341,7 @@ def render_scene() -> None:
         GL.glPushMatrix()
 
         plane_normal, plane_d = plane_equation(ground[0], ground[1], ground[2])
-        shadow_mat = make_planar_shadow_matrix(
+        shadow_mat: np.ndarray = make_planar_shadow_matrix(
             plane_normal, plane_d, v_light_pos
         )
         GL.glMultMatrixf(shadow_mat)
@@ -418,8 +425,8 @@ def change_size(w: int, h: int) -> None:
         h = 1
 
     if w <= h:
-        win_h = 100.0 * float(h) / float(w)
-        win_w = 100.0
+        win_h: float = 100.0 * float(h) / float(w)
+        win_w: float = 100.0
     else:
         win_w = 100.0 * float(w) / float(h)
         win_h = 100.0
@@ -490,7 +497,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "3D Effects Demo", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "3D Effects Demo", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -500,7 +509,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so SPACE/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

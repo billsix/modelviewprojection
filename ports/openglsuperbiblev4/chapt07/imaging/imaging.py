@@ -13,6 +13,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -21,16 +22,17 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main()
 image_data: np.ndarray
 image_w: int = 0
 image_h: int = 0
-image_fmt = GL.GL_RGB
+image_fmt: Constant = GL.GL_RGB
 
 MODE_RAW, MODE_CONTRAST, MODE_INVERT, MODE_EMBOSS, MODE_SHARPEN = 1, 2, 3, 4, 5
 i_render_mode: int = MODE_RAW
@@ -38,13 +40,13 @@ b_histogram: bool = False
 
 # Luminance weights (Rec. 601). In the C++ this was a 4x4 GL_COLOR
 # matrix; here it's just a dot-product against (R, G, B).
-LUM_WEIGHTS = np.array([0.30, 0.59, 0.11], dtype=np.float32)
+LUM_WEIGHTS: np.ndarray = np.array([0.30, 0.59, 0.11], dtype=np.float32)
 
-KERNEL_SHARPEN = np.array(
+KERNEL_SHARPEN: np.ndarray = np.array(
     [[0.0, -1.0, 0.0], [-1.0, 5.0, -1.0], [0.0, -1.0, 0.0]],
     dtype=np.float32,
 )
-KERNEL_EMBOSS = np.array(
+KERNEL_EMBOSS: np.ndarray = np.array(
     [[2.0, 0.0, 0.0], [0.0, -1.0, 0.0], [0.0, 0.0, -1.0]],
     dtype=np.float32,
 )
@@ -52,7 +54,7 @@ KERNEL_EMBOSS = np.array(
 
 def load_image() -> None:
     global image_data, image_w, image_h, image_fmt
-    img = iio.imread(os.path.join(PWD, "horse.tga"))
+    img: np.ndarray = iio.imread(os.path.join(PWD, "horse.tga"))
     img = np.flipud(img)
     image_h, image_w = img.shape[:2]
     if img.ndim == 3 and img.shape[2] == 4:
@@ -68,8 +70,8 @@ def convolve3x3(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
     """3x3 convolution per channel, edge-padded. Returns uint8 clipped
     0..255. Same result as the deprecated glConvolutionFilter2D."""
     h, w = image.shape[:2]
-    padded = np.pad(image, ((1, 1), (1, 1), (0, 0)), mode="edge")
-    out = np.zeros(image.shape, dtype=np.float32)
+    padded: np.ndarray = np.pad(image, ((1, 1), (1, 1), (0, 0)), mode="edge")
+    out: np.ndarray = np.zeros(image.shape, dtype=np.float32)
     for i in range(3):
         for j in range(3):
             out += kernel[i, j] * padded[i : i + h, j : j + w].astype(
@@ -81,7 +83,7 @@ def convolve3x3(image: np.ndarray, kernel: np.ndarray) -> np.ndarray:
 def to_luminance(image: np.ndarray) -> np.ndarray:
     """Collapse RGB to luminance, expanded back to 3 channels so the
     rest of the pipeline doesn't have to special-case grayscale."""
-    lum = image[:, :, :3].astype(np.float32) @ LUM_WEIGHTS
+    lum: np.ndarray = image[:, :, :3].astype(np.float32) @ LUM_WEIGHTS
     lum = np.clip(lum, 0, 255).astype(np.uint8)
     return np.stack([lum, lum, lum], axis=-1)
 
@@ -98,7 +100,7 @@ def process_image(mode: int) -> np.ndarray:
         )
     if mode == MODE_INVERT:
         # C++: glColorTable inverting every entry.
-        out = image_data.copy()
+        out: np.ndarray = image_data.copy()
         out[:, :, :3] = 255 - out[:, :, :3]
         return out
     if mode == MODE_EMBOSS:
@@ -112,7 +114,9 @@ def process_image(mode: int) -> np.ndarray:
 def compute_histogram(image: np.ndarray) -> np.ndarray:
     """256-bin luminance histogram. C++ used glHistogram + glGetHistogram
     on the luminance-converted draw."""
-    lum = (image[:, :, :3].astype(np.float32) @ LUM_WEIGHTS).astype(np.uint8)
+    lum: np.ndarray = (image[:, :, :3].astype(np.float32) @ LUM_WEIGHTS).astype(
+        np.uint8
+    )
     counts, _ = np.histogram(lum, bins=256, range=(0, 256))
     return counts.astype(np.int32)
 
@@ -122,10 +126,10 @@ def render_scene() -> None:
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
     GL.glRasterPos2i(0, 0)
-    viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
+    viewport: np.ndarray = GL.glGetIntegerv(GL.GL_VIEWPORT)
     GL.glPixelZoom(viewport[2] / image_w, viewport[3] / image_h)
 
-    processed = process_image(i_render_mode)
+    processed: np.ndarray = process_image(i_render_mode)
     processed = np.ascontiguousarray(processed)
     GL.glDrawPixels(image_w, image_h, image_fmt, GL.GL_UNSIGNED_BYTE, processed)
 
@@ -133,15 +137,15 @@ def render_scene() -> None:
         # Scale histogram x-extent to the window so it stays readable
         # at any window size; y-extent is fixed at 25% of window height.
         GL.glPixelZoom(1.0, 1.0)
-        hist = compute_histogram(processed)
-        largest = int(hist[:255].max()) or 1
+        hist: np.ndarray = compute_histogram(processed)
+        largest: int = int(hist[:255].max()) or 1
         win_w, win_h = float(viewport[2]), float(viewport[3])
         GL.glColor3f(1.0, 1.0, 0.0)
         GL.glLineWidth(2.0)
         GL.glBegin(GL.GL_LINE_STRIP)
         for i in range(256):
-            x = (i / 255.0) * win_w
-            y = (float(hist[i]) / largest) * (win_h * 0.25)
+            x: float = (i / 255.0) * win_w
+            y: float = (float(hist[i]) / largest) * (win_h * 0.25)
             GL.glVertex2f(x, y)
         GL.glEnd()
         GL.glLineWidth(1.0)
@@ -216,7 +220,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(600, 600, "OpenGL Imaging subset", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        600, 600, "OpenGL Imaging subset", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -226,7 +232,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
     # key callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)

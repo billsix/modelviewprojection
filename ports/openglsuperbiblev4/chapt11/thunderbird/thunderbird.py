@@ -9,6 +9,7 @@
 import os
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -17,32 +18,33 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
 # The shared loader lives one directory up
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import _common  # noqa: E402
 from _thunderbird_data import load_model  # noqa: E402
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
 x_rot: float = 0.0
 y_rot: float = 0.0
-texture_objects = [0, 0]
+texture_objects: list[int] = [0, 0]
 BODY_TEXTURE, GLASS_TEXTURE = 0, 1
 body_list: int = 0
 glass_list: int = 0
 
-GL_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FE
-GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT = 0x84FF
+GL_TEXTURE_MAX_ANISOTROPY_EXT: int = 0x84FE
+GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: int = 0x84FF
 
 
 def draw_body(model: "dict[str, np.ndarray]") -> None:
-    fi = model["face_indices"]
-    verts = model["vertices"]
-    norms = model["normals"]
-    texs = model["textures"]
+    fi: np.ndarray = model["face_indices"]
+    verts: np.ndarray = model["vertices"]
+    norms: np.ndarray = model["normals"]
+    texs: np.ndarray = model["textures"]
     GL.glBegin(GL.GL_TRIANGLES)
     for face in fi:
         for i in range(3):
@@ -53,10 +55,10 @@ def draw_body(model: "dict[str, np.ndarray]") -> None:
 
 
 def draw_glass(model: "dict[str, np.ndarray]") -> None:
-    fi = model["face_indices_glass"]
-    verts = model["vertices_glass"]
-    norms = model["normals_glass"]
-    texs = model["textures_glass"]
+    fi: np.ndarray = model["face_indices_glass"]
+    verts: np.ndarray = model["vertices_glass"]
+    norms: np.ndarray = model["normals_glass"]
+    texs: np.ndarray = model["textures_glass"]
     GL.glBegin(GL.GL_TRIANGLES)
     for face in fi:
         for i in range(3):
@@ -67,17 +69,19 @@ def draw_glass(model: "dict[str, np.ndarray]") -> None:
 
 
 def load_texture(path: str) -> int:
-    img = np.flipud(iio.imread(path))
+    img: np.ndarray = np.flipud(iio.imread(path))
     h, w = img.shape[:2]
-    fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+    fmt: Constant = (
+        GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+    )
     img = np.ascontiguousarray(img, dtype=np.uint8)
-    tex = GL.glGenTextures(1)
+    tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
     )
     try:
-        f_largest = GL.glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT)
+        f_largest: float = GL.glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT)
         GL.glTexParameterf(
             GL.GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT, float(f_largest)
         )
@@ -93,10 +97,10 @@ def load_texture(path: str) -> int:
 def setup_rc() -> None:
     global body_list, glass_list
 
-    f_amb_light = (0.1, 0.1, 0.1, 0.0)
-    f_diff_light = (1.0, 1.0, 1.0, 0.0)
-    f_spec_light = (0.5, 0.5, 0.5, 0.0)
-    light_pos = (-100.0, 100.0, 100.0, 1.0)
+    f_amb_light: tuple[float, float, float, float] = (0.1, 0.1, 0.1, 0.0)
+    f_diff_light: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 0.0)
+    f_spec_light: tuple[float, float, float, float] = (0.5, 0.5, 0.5, 0.0)
+    light_pos: tuple[float, float, float, float] = (-100.0, 100.0, 100.0, 1.0)
 
     GL.glClearColor(0.0, 0.0, 0.5, 1.0)
     GL.glEnable(GL.GL_DEPTH_TEST)
@@ -135,7 +139,7 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_RESCALE_NORMAL)
 
     # Compile body and glass into display lists
-    model = load_model(PWD)
+    model: dict[str, np.ndarray] = load_model(PWD)
     body_list = GL.glGenLists(2)
     glass_list = body_list + 1
 
@@ -151,7 +155,7 @@ def setup_rc() -> None:
 
 
 def render_scene() -> None:
-    f_scale = 0.01
+    f_scale: float = 0.01
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
     GL.glEnable(GL.GL_TEXTURE_2D)
 
@@ -211,7 +215,7 @@ ROT_DEG_PER_SEC: float = 90.0
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -271,7 +275,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(800, 600, "Thunderbird", None, None)
+    window: typing.Any = glfw.create_window(800, 600, "Thunderbird", None, None)
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -281,7 +285,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -290,11 +294,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

@@ -14,6 +14,7 @@
 import os
 import random
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -22,12 +23,12 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main()
 window_width: int = 1024
 window_height: int = 768
 
@@ -41,12 +42,12 @@ prog_obj: int = 0
 v_shader: int = 0
 f_shader: int = 0
 
-camera_pos = [100.0, 150.0, 200.0, 1.0]
+camera_pos: list[float] = [100.0, 150.0, 200.0, 1.0]
 camera_zoom: float = 0.6
 
 
 def draw_solid_cube(size: float) -> None:
-    s = size / 2.0
+    s: float = size / 2.0
     GL.glBegin(GL.GL_QUADS)
     for nx, ny, nz, vs in [
         (0, 0, 1, [(-s, -s, s), (s, -s, s), (s, s, s), (-s, s, s)]),
@@ -62,9 +63,9 @@ def draw_solid_cube(size: float) -> None:
     GL.glEnd()
 
 
-SPHERE = _primitives.build_sphere(25.0, 50, 50)
-CONE = _primitives.build_cone(25.0, 50.0, 50)
-TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
+SPHERE: _primitives.Mesh = _primitives.build_sphere(25.0, 50, 50)
+CONE: _primitives.Mesh = _primitives.build_cone(25.0, 50.0, 50)
+TORUS: _primitives.Mesh = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 
 def draw_models() -> None:
@@ -104,7 +105,7 @@ def link_program(first_time: bool) -> None:
     global flicker_location
     GL.glLinkProgram(prog_obj)
     if not GL.glGetProgramiv(prog_obj, GL.GL_LINK_STATUS):
-        info = GL.glGetProgramInfoLog(prog_obj)
+        info: bytes = GL.glGetProgramInfoLog(prog_obj)
         sys.stderr.write(f"Program link error: {info}\n")
         sys.exit(1)
     if first_time:
@@ -120,7 +121,7 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if window_width > window_height:
-        ar = float(window_width) / float(window_height)
+        ar: float = float(window_width) / float(window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -173,9 +174,9 @@ def setup_rc() -> None:
     GL.glShadeModel(GL.GL_SMOOTH)
 
     with open(os.path.join(PWD, "shaders", "shaders.vs")) as f:
-        vs_src = f.read()
+        vs_src: str = f.read()
     with open(os.path.join(PWD, "shaders", "shaders.fs")) as f:
-        fs_src = f.read()
+        fs_src: str = f.read()
 
     v_shader = shaders_mod.compileShader(vs_src, GL.GL_VERTEX_SHADER)
     f_shader = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
@@ -295,7 +296,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(
         window_width, window_height, "Hello World GLSL Shaders", None, None
     )
     if not window:
@@ -306,7 +307,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

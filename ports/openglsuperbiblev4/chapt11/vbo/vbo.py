@@ -11,6 +11,7 @@
 import os
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -19,21 +20,22 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import _common  # noqa: E402
 from _thunderbird_data import load_model  # noqa: E402
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
 x_rot: float = 0.0
 y_rot: float = 0.0
 
-texture_objects = [0, 0, 0]
+texture_objects: list[int] = [0, 0, 0]
 BODY_TEXTURE, GLASS_TEXTURE, CUBE_MAP = 0, 1, 2
-cube_faces = [
+cube_faces: list[str] = [
     "pos_x.tga",
     "neg_x.tga",
     "pos_y.tga",
@@ -41,7 +43,7 @@ cube_faces = [
     "pos_z.tga",
     "neg_z.tga",
 ]
-cube_targets = [
+cube_targets: list[Constant] = [
     GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X,
     GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
     GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
@@ -51,8 +53,8 @@ cube_targets = [
 ]
 
 # VBO state
-body_vbos = {"vert": 0, "norm": 0, "tex": 0, "count": 0}
-glass_vbos = {"vert": 0, "norm": 0, "tex": 0, "count": 0}
+body_vbos: dict[str, int] = {"vert": 0, "norm": 0, "tex": 0, "count": 0}
+glass_vbos: dict[str, int] = {"vert": 0, "norm": 0, "tex": 0, "count": 0}
 
 
 def expand_mesh(
@@ -65,12 +67,12 @@ def expand_mesh(
     GL VBOs need one parallel stream per attribute. Expand the
     `face_indices` table (3 vertices x 9 indices each) into per-vertex
     flat arrays."""
-    n_faces = face_indices.shape[0]
-    n_verts = n_faces * 3
-    out_v = np.empty((n_verts, 3), dtype=np.float32)
-    out_n = np.empty((n_verts, 3), dtype=np.float32)
-    out_t = np.empty((n_verts, 2), dtype=np.float32)
-    k = 0
+    n_faces: int = face_indices.shape[0]
+    n_verts: int = n_faces * 3
+    out_v: np.ndarray = np.empty((n_verts, 3), dtype=np.float32)
+    out_n: np.ndarray = np.empty((n_verts, 3), dtype=np.float32)
+    out_t: np.ndarray = np.empty((n_verts, 2), dtype=np.float32)
+    k: int = 0
     for face in face_indices:
         for i in range(3):
             out_v[k] = vertices[face[i]]
@@ -83,15 +85,15 @@ def expand_mesh(
 def make_vbos(
     verts: np.ndarray, norms: np.ndarray, texs: np.ndarray
 ) -> "dict[str, int]":
-    vbo_v = GL.glGenBuffers(1)
+    vbo_v: int = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo_v)
     GL.glBufferData(GL.GL_ARRAY_BUFFER, verts.nbytes, verts, GL.GL_STATIC_DRAW)
 
-    vbo_n = GL.glGenBuffers(1)
+    vbo_n: int = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo_n)
     GL.glBufferData(GL.GL_ARRAY_BUFFER, norms.nbytes, norms, GL.GL_STATIC_DRAW)
 
-    vbo_t = GL.glGenBuffers(1)
+    vbo_t: int = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_ARRAY_BUFFER, vbo_t)
     GL.glBufferData(GL.GL_ARRAY_BUFFER, texs.nbytes, texs, GL.GL_STATIC_DRAW)
 
@@ -123,7 +125,7 @@ def draw_vbos(vbos: "dict[str, int]") -> None:
 def load_cube_map() -> int:
     """Load the 6 pos_x/neg_x/... TGA files into a single cube-map
     texture used by draw_sky_box()."""
-    tex = GL.glGenTextures(1)
+    tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, tex)
     for p in [
         (GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
@@ -134,9 +136,11 @@ def load_cube_map() -> int:
     ]:
         GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, p[0], p[1])
     for i, fname in enumerate(cube_faces):
-        img = np.flipud(iio.imread(os.path.join(PWD, fname)))
+        img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+        fmt: Constant = (
+            GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+        )
         img = np.ascontiguousarray(img, dtype=np.uint8)
         GL.glTexImage2D(
             cube_targets[i], 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
@@ -150,8 +154,8 @@ def draw_sky_box() -> None:
     background that surrounds the scene.  Drawn before the plane so
     the plane writes on top of it.  Uses TU0 with TEXTURE_CUBE_MAP
     since this demo doesn't use multi-texturing for reflection."""
-    e = 50.0
-    faces = [
+    e: float = 50.0
+    faces: list[tuple[tuple[int, int, int], tuple[float, float, float]]] = [
         # -X
         ((-1, -1, 1), (-e, -e, e)),
         ((-1, -1, -1), (-e, -e, -e)),
@@ -191,11 +195,13 @@ def draw_sky_box() -> None:
 
 
 def load_texture(path: str) -> int:
-    img = np.flipud(iio.imread(path))
+    img: np.ndarray = np.flipud(iio.imread(path))
     h, w = img.shape[:2]
-    fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+    fmt: Constant = (
+        GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+    )
     img = np.ascontiguousarray(img, dtype=np.uint8)
-    tex = GL.glGenTextures(1)
+    tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
@@ -207,10 +213,10 @@ def load_texture(path: str) -> int:
 
 def setup_rc() -> None:
     global body_vbos, glass_vbos
-    f_amb = (0.1, 0.1, 0.1, 0.0)
-    f_diff = (1.0, 1.0, 1.0, 0.0)
-    f_spec = (0.5, 0.5, 0.5, 0.0)
-    light_pos = (-100.0, 100.0, 100.0, 1.0)
+    f_amb: tuple[float, float, float, float] = (0.1, 0.1, 0.1, 0.0)
+    f_diff: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 0.0)
+    f_spec: tuple[float, float, float, float] = (0.5, 0.5, 0.5, 0.0)
+    light_pos: tuple[float, float, float, float] = (-100.0, 100.0, 100.0, 1.0)
 
     GL.glClearColor(0.0, 0.0, 0.5, 1.0)
     GL.glEnable(GL.GL_DEPTH_TEST)
@@ -248,7 +254,7 @@ def setup_rc() -> None:
     # and just enable RESCALE_NORMAL.
     GL.glEnable(GL.GL_RESCALE_NORMAL)
 
-    model = load_model(PWD)
+    model: dict[str, np.ndarray] = load_model(PWD)
     bv, bn, bt = expand_mesh(
         model["face_indices"],
         model["vertices"],
@@ -267,7 +273,7 @@ def setup_rc() -> None:
 
 
 def render_scene() -> None:
-    f_scale = 0.01
+    f_scale: float = 0.01
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     # Sky box first, in world space (before the plane's translate/rotate).
@@ -339,7 +345,7 @@ ROT_DEG_PER_SEC: float = 90.0
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -399,7 +405,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(
         800, 600, "OpenGL ThunderBird w/ VBOs", None, None
     )
     if not window:
@@ -411,7 +417,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -420,11 +426,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

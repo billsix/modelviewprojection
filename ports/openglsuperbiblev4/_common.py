@@ -54,6 +54,7 @@ higher in the tree.)
 from __future__ import annotations
 
 import math
+import typing
 from collections.abc import Callable, Sequence
 from dataclasses import dataclass, field
 from typing import Optional
@@ -69,10 +70,10 @@ WINDOW_DEFAULT: tuple[int, int] = (1920, 1080)
 def resolve_default_window_size() -> tuple[int, int]:
     """Pick an initial window size: 1920x1080 if the primary monitor
     fits it, otherwise 90% of the monitor's video mode."""
-    monitor = glfw.get_primary_monitor()
+    monitor: typing.Any = glfw.get_primary_monitor()  # glfw monitor handle
     if monitor is None:
         return WINDOW_DEFAULT
-    mode = glfw.get_video_mode(monitor)
+    mode: typing.Any = glfw.get_video_mode(monitor)  # glfw video mode
     mw, mh = mode.size.width, mode.size.height
     if mw >= WINDOW_DEFAULT[0] and mh >= WINDOW_DEFAULT[1]:
         return WINDOW_DEFAULT
@@ -129,10 +130,10 @@ def toggle_fullscreen(window, state: WindowState) -> None:
     else:
         state.saved_x, state.saved_y = glfw.get_window_pos(window)
         state.saved_w, state.saved_h = glfw.get_window_size(window)
-        monitor = glfw.get_primary_monitor()
+        monitor: typing.Any = glfw.get_primary_monitor()  # glfw monitor handle
         if monitor is None:
             return
-        mode = glfw.get_video_mode(monitor)
+        mode: typing.Any = glfw.get_video_mode(monitor)  # glfw video mode
         glfw.set_window_monitor(
             window,
             monitor,
@@ -160,7 +161,7 @@ def draw_menubar(
     Pushes a tighter ``frame_padding`` style around the main menubar so
     the bar height stays close to the font height."""
     imgui.push_style_var(imgui.StyleVar_.frame_padding.value, (6.0, 2.0))
-    opened = imgui.begin_main_menu_bar()
+    opened: bool = imgui.begin_main_menu_bar()
     if not opened:
         imgui.pop_style_var(1)
         return
@@ -264,7 +265,9 @@ def bind_camera_inputs(window, camera: Camera) -> None:
     with any previously-registered scroll callback (so demos that have
     their own scroll handler keep it). Call once at startup, after
     ``glfw.create_window`` and the demo's other callbacks."""
-    prev_cb = glfw.set_scroll_callback(window, None)
+    prev_cb: typing.Any = glfw.set_scroll_callback(  # previous scroll callback
+        window, None
+    )
 
     def _scroll_cb(_win, x_offset: float, y_offset: float) -> None:
         camera._scroll_accum += y_offset
@@ -295,9 +298,9 @@ def update_camera(
 
     Respects ``imgui.io.want_capture_*`` so clicking inside an imgui
     panel doesn't move the camera."""
-    io = imgui.get_io()
-    want_kbd = io.want_capture_keyboard
-    want_mouse = io.want_capture_mouse
+    io: typing.Any = imgui.get_io()  # imgui IO
+    want_kbd: bool = io.want_capture_keyboard
+    want_mouse: bool = io.want_capture_mouse
 
     cy, sy = math.cos(camera.rot_y), math.sin(camera.rot_y)
     fwd_x, fwd_z = -sy, -cy
@@ -305,7 +308,7 @@ def update_camera(
 
     if camera._scroll_accum != 0.0 and not want_mouse:
         if camera.focus_index < 0:
-            d = camera._scroll_accum * camera.scroll_speed
+            d: float = camera._scroll_accum * camera.scroll_speed
             camera.position[0] += fwd_x * d
             camera.position[2] += fwd_z * d
         else:
@@ -325,7 +328,7 @@ def update_camera(
             camera.rot_x += camera.look_step
 
         if camera.focus_index < 0:
-            ms = camera.move_speed
+            ms: float = camera.move_speed
             if glfw.get_key(window, glfw.KEY_W) == glfw.PRESS:
                 camera.position[0] += fwd_x * ms
                 camera.position[2] += fwd_z * ms
@@ -344,14 +347,14 @@ def update_camera(
                 camera.position[1] -= ms
 
     if not want_mouse:
-        cur = glfw.get_cursor_pos(window)
-        pressed = (
+        cur: tuple[float, float] = glfw.get_cursor_pos(window)
+        pressed: bool = (
             glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS
         )
         if pressed:
             if camera._prev_mouse is not None:
-                dx = cur[0] - camera._prev_mouse[0]
-                dy = cur[1] - camera._prev_mouse[1]
+                dx: float = cur[0] - camera._prev_mouse[0]
+                dy: float = cur[1] - camera._prev_mouse[1]
                 camera.rot_y -= dx * camera.mouse_look_speed
                 camera.rot_x -= dy * camera.mouse_look_speed
             camera._prev_mouse = cur
@@ -360,7 +363,7 @@ def update_camera(
     else:
         camera._prev_mouse = None
 
-    half_pi = math.pi / 2.0
+    half_pi: float = math.pi / 2.0
     if camera.rot_x > half_pi:
         camera.rot_x = half_pi
     elif camera.rot_x < -half_pi:
@@ -409,7 +412,7 @@ def draw_camera_controls(
             f"{camera.position[1]:.2f}, {camera.position[2]:.2f})"
         )
     else:
-        obj = scene_objects[camera.focus_index]
+        obj: SceneObject = scene_objects[camera.focus_index]
         ox, oy, oz = obj.position()
         imgui.text(f"Mode: Focus on '{obj.name}'")
         imgui.text(f"Object at ({ox:.2f}, {oy:.2f}, {oz:.2f})")

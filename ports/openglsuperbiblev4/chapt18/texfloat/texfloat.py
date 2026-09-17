@@ -14,6 +14,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -23,22 +24,22 @@ import OpenGL.GL.shaders as shaders_mod
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main(), used by Quit
 window_width: int = 1024
 window_height: int = 768
 
 CLAMPED, TRIVIAL, IRIS, WHITEBALANCE = 0, 1, 2, 3
-TOTAL_SHADERS = 4
-shader_names = ["clamped", "trivial", "iris", "whitebalance"]
-f_shader = [0] * TOTAL_SHADERS
-prog_obj = [0] * TOTAL_SHADERS
+TOTAL_SHADERS: int = 4
+shader_names: list[str] = ["clamped", "trivial", "iris", "whitebalance"]
+f_shader: list[int] = [0] * TOTAL_SHADERS
+prog_obj: list[int] = [0] * TOTAL_SHADERS
 current_shader: int = TRIVIAL
 
-exr_files = [
+exr_files: list[str] = [
     "Blobbies.exr",
     "Desk.exr",
     "GoldenGate.exr",
@@ -48,7 +49,7 @@ exr_files = [
     "StillLife.exr",
     "Tree.exr",
 ]
-image_names = [os.path.splitext(f)[0] for f in exr_files]
+image_names: list[str] = [os.path.splitext(f)[0] for f in exr_files]
 current_image: int = 0
 
 f_texels: np.ndarray | None = None
@@ -77,19 +78,19 @@ def _trace(msg: str) -> None:
 
 
 def prepare_shader(n: int) -> None:
-    fname = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
+    fname: str = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
     with open(fname) as f:
-        fs_src = f.read()
+        fs_src: str = f.read()
     f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
     prog_obj[n] = GL.glCreateProgram()
     GL.glAttachShader(prog_obj[n], f_shader[n])
     GL.glLinkProgram(prog_obj[n])
     if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info = GL.glGetProgramInfoLog(prog_obj[n])
+        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
     GL.glUseProgram(prog_obj[n])
-    loc = GL.glGetUniformLocation(prog_obj[n], "sampler0")
+    loc: int = GL.glGetUniformLocation(prog_obj[n], "sampler0")
     if loc != -1:
         GL.glUniform1i(loc, 0)
     GL.glUseProgram(0)
@@ -100,8 +101,8 @@ def alter_aspect() -> None:
     if window_height == 0:
         x_aspect, y_aspect = 0.00001, 1.0
         return
-    ta = float(npot_w) / float(npot_h)
-    wa = float(window_width) / float(window_height)
+    ta: float = float(npot_w) / float(npot_h)
+    wa: float = float(window_width) / float(window_height)
     if ta > wa:
         x_aspect, y_aspect = 1.0, wa / ta
     else:
@@ -112,7 +113,9 @@ def setup_textures(which: int) -> None:
     global f_texels, npot_w, npot_h, pot_w, pot_h, current_image
     current_image = which
     _trace(f"setup_textures({which}): imread {exr_files[which]}")
-    img = iio.imread(os.path.join(PWD, "openexr-images", exr_files[which]))
+    img: np.ndarray = iio.imread(
+        os.path.join(PWD, "openexr-images", exr_files[which])
+    )
     img = np.flipud(img).astype(np.float32)
     if img.ndim == 3 and img.shape[2] >= 3:
         img = img[:, :, :3]
@@ -158,19 +161,19 @@ def render_scene() -> None:
     GL.glUseProgram(prog_obj[current_shader])
 
     if current_shader in (IRIS, WHITEBALANCE) and f_texels is not None:
-        center_u = int(((f_cursor_x / x_aspect) + 1.0) * 0.5 * npot_w)
-        center_v = int(((f_cursor_y / y_aspect) + 1.0) * 0.5 * npot_h)
-        u0 = max(0, center_u - 25)
-        u1 = min(npot_w, center_u + 26)
-        v0 = max(0, center_v - 25)
-        v1 = min(npot_h, center_v + 26)
+        center_u: int = int(((f_cursor_x / x_aspect) + 1.0) * 0.5 * npot_w)
+        center_v: int = int(((f_cursor_y / y_aspect) + 1.0) * 0.5 * npot_h)
+        u0: int = max(0, center_u - 25)
+        u1: int = min(npot_w, center_u + 26)
+        v0: int = max(0, center_v - 25)
+        v1: int = min(npot_h, center_v + 26)
         if u1 > u0 and v1 > v0:
-            patch = f_texels[v0:v1, u0:u1]
-            new_max = patch.reshape(-1, 3).max(axis=0)
+            patch: np.ndarray = f_texels[v0:v1, u0:u1]
+            new_max: np.ndarray = patch.reshape(-1, 3).max(axis=0)
             max_r += (new_max[0] - max_r) * 0.01
             max_g += (new_max[1] - max_g) * 0.01
             max_b += (new_max[2] - max_b) * 0.01
-        loc = GL.glGetUniformLocation(prog_obj[current_shader], "max")
+        loc: int = GL.glGetUniformLocation(prog_obj[current_shader], "max")
         if loc != -1:
             GL.glUniform3f(loc, max_r, max_g, max_b)
 
@@ -188,8 +191,8 @@ def render_scene() -> None:
     GL.glUseProgram(0)
 
     if current_shader in (IRIS, WHITEBALANCE):
-        hw = 51.0 * x_aspect / npot_w
-        hh = 51.0 * y_aspect / npot_h
+        hw: float = 51.0 * x_aspect / npot_w
+        hh: float = 51.0 * y_aspect / npot_h
         GL.glColor4f(1.0, 0.0, 0.0, 1.0)
         GL.glBegin(GL.GL_LINE_LOOP)
         GL.glVertex2f(f_cursor_x - hw, f_cursor_y - hh)
@@ -328,7 +331,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "Floating-Point Texture Demo", None, None
     )
     if not window:
@@ -339,7 +342,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Register our callbacks AFTER GlfwRenderer (it installs non-chaining glfw
     # key + cursor callbacks); imgui still gets mouse via process_inputs.
     glfw.set_key_callback(window, on_key)

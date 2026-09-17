@@ -7,6 +7,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -15,23 +16,24 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
-image_data = None
+_window: typing.Any = None  # glfw window handle; set in main()
+image_data: np.ndarray | None = None
 image_w: int = 0
 image_h: int = 0
-image_fmt = GL.GL_RGB
+image_fmt: Constant = GL.GL_RGB
 
 i_render_mode: int = 1
 
 
 def load_image() -> None:
     global image_data, image_w, image_h, image_fmt
-    img = iio.imread(os.path.join(PWD, "horse.tga"))
+    img: np.ndarray = iio.imread(os.path.join(PWD, "horse.tga"))
     img = np.flipud(img)
     image_h, image_w = img.shape[:2]
     if img.ndim == 3 and img.shape[2] == 4:
@@ -47,8 +49,8 @@ def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
     GL.glRasterPos2i(0, 0)
 
-    modified = None
-    modified_fmt = image_fmt
+    modified: np.ndarray | None = None
+    modified_fmt: Constant = image_fmt
 
     if i_render_mode == 2:
         # Flip
@@ -56,7 +58,7 @@ def render_scene() -> None:
         GL.glRasterPos2i(image_w, image_h)
     elif i_render_mode == 3:
         # Zoom
-        viewport = GL.glGetIntegerv(GL.GL_VIEWPORT)
+        viewport: np.ndarray = GL.glGetIntegerv(GL.GL_VIEWPORT)
         GL.glPixelZoom(viewport[2] / image_w, viewport[3] / image_h)
     elif i_render_mode == 4:
         GL.glPixelTransferf(GL.GL_RED_SCALE, 1.0)
@@ -74,8 +76,8 @@ def render_scene() -> None:
         # Black & white. C++ did this via glPixelTransfer scale + a
         # GL_LUMINANCE readback round-trip; same math (Rec. 601 weights)
         # in numpy, no driver dependency.
-        weights = np.array([0.30, 0.59, 0.11], dtype=np.float32)
-        lum = image_data[:, :, :3].astype(np.float32) @ weights
+        weights: np.ndarray = np.array([0.30, 0.59, 0.11], dtype=np.float32)
+        lum: np.ndarray = image_data[:, :, :3].astype(np.float32) @ weights
         modified = np.ascontiguousarray(np.clip(lum, 0, 255).astype(np.uint8))
         modified_fmt = GL.GL_LUMINANCE
     elif i_render_mode == 8:
@@ -170,7 +172,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "OpenGL Image Operations", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "OpenGL Image Operations", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -180,7 +184,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
     # key callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)

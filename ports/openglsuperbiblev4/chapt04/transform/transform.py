@@ -10,6 +10,7 @@ import math
 import os
 import sys
 import time
+import typing
 
 import glfw
 import numpy as np
@@ -18,11 +19,11 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # set in main(); used by the Quit menu item
 
 y_rot: float = 0.0
 
@@ -34,15 +35,15 @@ def rotation_matrix_about_axis(
     column-major rotation matrix about an arbitrary unit axis (x, y, z)
     by `angle_rad` radians. Uses Rodrigues' formula expanded into the
     standard 4x4 form."""
-    c = math.cos(angle_rad)
-    s = math.sin(angle_rad)
-    one_c = 1.0 - c
+    c: float = math.cos(angle_rad)
+    s: float = math.sin(angle_rad)
+    one_c: float = 1.0 - c
 
-    mag = math.sqrt(x * x + y * y + z * z)
+    mag: float = math.sqrt(x * x + y * y + z * z)
     if mag != 0.0:
         x, y, z = x / mag, y / mag, z / mag
 
-    m = np.array(
+    m: np.ndarray = np.array(
         [
             # column 0
             (one_c * x * x) + c,
@@ -75,36 +76,36 @@ def transform_vector3(
 ) -> "tuple[float, float, float]":
     """Replacement for m3dTransformVector3 -- multiply a 3-vector
     (treating w=1) by a 4x4 column-major matrix. Returns a 3-tuple."""
-    out_x = m[0] * v[0] + m[4] * v[1] + m[8] * v[2] + m[12]
-    out_y = m[1] * v[0] + m[5] * v[1] + m[9] * v[2] + m[13]
-    out_z = m[2] * v[0] + m[6] * v[1] + m[10] * v[2] + m[14]
+    out_x: float = m[0] * v[0] + m[4] * v[1] + m[8] * v[2] + m[12]
+    out_y: float = m[1] * v[0] + m[5] * v[1] + m[9] * v[2] + m[13]
+    out_z: float = m[2] * v[0] + m[6] * v[1] + m[10] * v[2] + m[14]
     return (out_x, out_y, out_z)
 
 
 def draw_torus(m_transform: "np.ndarray") -> None:
     """Draw a torus by hand-transforming each vertex through m_transform
     on the CPU before sending to glVertex3fv."""
-    major_radius = 0.35
-    minor_radius = 0.15
-    num_major = 40
-    num_minor = 20
-    major_step = 2.0 * math.pi / num_major
-    minor_step = 2.0 * math.pi / num_minor
+    major_radius: float = 0.35
+    minor_radius: float = 0.15
+    num_major: int = 40
+    num_minor: int = 20
+    major_step: float = 2.0 * math.pi / num_major
+    minor_step: float = 2.0 * math.pi / num_minor
 
     for i in range(num_major):
-        a0 = i * major_step
-        a1 = a0 + major_step
-        x0 = math.cos(a0)
-        y0 = math.sin(a0)
-        x1 = math.cos(a1)
-        y1 = math.sin(a1)
+        a0: float = i * major_step
+        a1: float = a0 + major_step
+        x0: float = math.cos(a0)
+        y0: float = math.sin(a0)
+        x1: float = math.cos(a1)
+        y1: float = math.sin(a1)
 
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
         for j in range(num_minor + 1):
-            b = j * minor_step
-            c = math.cos(b)
-            r = minor_radius * c + major_radius
-            z = minor_radius * math.sin(b)
+            b: float = j * minor_step
+            c: float = math.cos(b)
+            r: float = minor_radius * c + major_radius
+            z: float = minor_radius * math.sin(b)
 
             GL.glVertex3fv(transform_vector3((x0 * r, y0 * r, z), m_transform))
             GL.glVertex3fv(transform_vector3((x1 * r, y1 * r, z), m_transform))
@@ -114,7 +115,7 @@ def draw_torus(m_transform: "np.ndarray") -> None:
 def render_scene() -> None:
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
-    transformation_matrix = rotation_matrix_about_axis(
+    transformation_matrix: np.ndarray = rotation_matrix_about_axis(
         math.radians(y_rot), 0.0, 1.0, 0.0
     )
     # Translation in the last column of a column-major 4x4
@@ -134,7 +135,7 @@ def change_size(w: int, h: int) -> None:
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
-    f_aspect = float(w) / float(h)
+    f_aspect: float = float(w) / float(h)
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     GLU.gluPerspective(35.0, f_aspect, 1.0, 50.0)
@@ -176,7 +177,7 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         800, 600, "Manual Transformations Demo", None, None
     )
     if not window:
@@ -189,7 +190,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -198,11 +199,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

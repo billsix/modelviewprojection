@@ -14,6 +14,7 @@ import os
 import random
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -26,27 +27,27 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import plane_equation
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
-NUM_SPHERES = 30
+NUM_SPHERES: int = 30
 GROUND_TEXTURE, TORUS_TEXTURE, SPHERE_TEXTURE = 0, 1, 2
-texture_files = ["grass.tga", "wood.tga", "orb.tga"]
+texture_files: list[str] = ["grass.tga", "wood.tga", "orb.tga"]
 
 window_width: int = 800
 window_height: int = 600
 
-light_pos = [-100.0, 100.0, 50.0, 1.0]
-no_light = [0.0, 0.0, 0.0, 0.0]
-low_light = [0.25, 0.25, 0.25, 1.0]
-bright_light = [1.0, 1.0, 1.0, 1.0]
+light_pos: list[float] = [-100.0, 100.0, 50.0, 1.0]
+no_light: list[float] = [0.0, 0.0, 0.0, 0.0]
+low_light: list[float] = [0.25, 0.25, 0.25, 1.0]
+bright_light: list[float] = [1.0, 1.0, 1.0, 1.0]
 
-texture_objects = [0, 0, 0]
+texture_objects: list[int] = [0, 0, 0]
 sphere_positions: list = []
-shadow_matrix = np.identity(4, dtype=np.float32)
+shadow_matrix: np.ndarray = np.identity(4, dtype=np.float32)
 torus_list: int = 0
 sphere_list: int = 0
 
@@ -70,7 +71,7 @@ def make_planar_shadow_matrix(
     pn, pd = plane_equation(Vector(*p1), Vector(*p2), Vector(*p3))
     a, b, c, d = pn.coeff_e_1, pn.coeff_e_2, pn.coeff_e_3, pd
     dx, dy, dz = -light_pos[0], -light_pos[1], -light_pos[2]
-    s = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
+    s: float = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
             s * (b * dy + c * dz),
@@ -97,18 +98,18 @@ def make_planar_shadow_matrix(
 def gl_draw_torus(
     major: float, minor: float, n_major: int, n_minor: int
 ) -> None:
-    major_step = 2.0 * math.pi / n_major
-    minor_step = 2.0 * math.pi / n_minor
+    major_step: float = 2.0 * math.pi / n_major
+    minor_step: float = 2.0 * math.pi / n_minor
     for i in range(n_major):
         a0, a1 = i * major_step, (i + 1) * major_step
         x0, y0 = math.cos(a0), math.sin(a0)
         x1, y1 = math.cos(a1), math.sin(a1)
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
         for j in range(n_minor + 1):
-            b = j * minor_step
+            b: float = j * minor_step
             cb, sb = math.cos(b), math.sin(b)
-            r = minor * cb + major
-            z = minor * sb
+            r: float = minor * cb + major
+            z: float = minor * sb
             u, v = float(i) / n_major, float(j) / n_minor
             GL.glNormal3f(x0 * cb, y0 * cb, sb)
             GL.glTexCoord2f(u, v)
@@ -120,7 +121,7 @@ def gl_draw_torus(
 
 
 def gl_draw_sphere(radius: float, slices: int, stacks: int) -> None:
-    obj = GLU.gluNewQuadric()
+    obj: typing.Any = GLU.gluNewQuadric()  # GLU quadric object
     GLU.gluQuadricNormals(obj, GLU.GLU_SMOOTH)
     GLU.gluQuadricTexture(obj, GL.GL_TRUE)
     GLU.gluSphere(obj, radius, slices, stacks)
@@ -128,19 +129,19 @@ def gl_draw_sphere(radius: float, slices: int, stacks: int) -> None:
 
 
 def draw_ground() -> None:
-    f_extent = 20.0
-    step = 1.0
-    y = -0.4
-    tex_step = 1.0 / (f_extent * 0.075)
+    f_extent: float = 20.0
+    step: float = 1.0
+    y: float = -0.4
+    tex_step: float = 1.0 / (f_extent * 0.075)
     GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[GROUND_TEXTURE])
     GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT)
     GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT)
-    s = 0.0
-    strip = -f_extent
+    s: float = 0.0
+    strip: float = -f_extent
     while strip <= f_extent:
-        t = 0.0
+        t: float = 0.0
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        run = f_extent
+        run: float = f_extent
         while run >= -f_extent:
             GL.glTexCoord2f(s, t)
             GL.glNormal3f(0.0, 1.0, 0.0)
@@ -236,7 +237,11 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_LIGHTING)
     GL.glEnable(GL.GL_LIGHT0)
 
-    plane_pts = [(0.0, -0.4, 0.0), (10.0, -0.4, 0.0), (5.0, -0.4, -5.0)]
+    plane_pts: list[tuple[float, float, float]] = [
+        (0.0, -0.4, 0.0),
+        (10.0, -0.4, 0.0),
+        (5.0, -0.4, -5.0),
+    ]
     shadow_matrix = make_planar_shadow_matrix(plane_pts)
 
     GL.glEnable(GL.GL_COLOR_MATERIAL)
@@ -245,15 +250,15 @@ def setup_rc() -> None:
 
     random.seed(42)
     for _ in range(NUM_SPHERES):
-        sx = (random.randint(0, 399) - 200) * 0.1
-        sz = (random.randint(0, 399) - 200) * 0.1
+        sx: float = (random.randint(0, 399) - 200) * 0.1
+        sz: float = (random.randint(0, 399) - 200) * 0.1
         sphere_positions.append((sx, sz))
 
     GL.glEnable(GL.GL_TEXTURE_2D)
     texture_objects = list(GL.glGenTextures(3))
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
     for i, name in enumerate(texture_files):
-        img = iio.imread(os.path.join(PWD, name))
+        img: np.ndarray = iio.imread(os.path.join(PWD, name))
         img = np.flipud(img)
         if img.ndim == 3 and img.shape[2] == 4:
             img = img[:, :, :3]
@@ -304,7 +309,7 @@ def change_size(w: int, h: int) -> None:
         h = 1
     window_width, window_height = w, h
     GL.glViewport(0, 0, w, h)
-    aspect = float(w) / float(h)
+    aspect: float = float(w) / float(h)
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     GLU.gluPerspective(35.0, aspect, 1.0, 50.0)
@@ -328,10 +333,10 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
 
 def handle_camera_keys(window, dt: float) -> None:
     global camera_x, camera_z, camera_yaw
-    move = MOVE_UNITS_PER_SEC * dt
-    yaw_rad = math.radians(camera_yaw)
-    fwd_x = -math.sin(yaw_rad) * move
-    fwd_z = -math.cos(yaw_rad) * move
+    move: float = MOVE_UNITS_PER_SEC * dt
+    yaw_rad: float = math.radians(camera_yaw)
+    fwd_x: float = -math.sin(yaw_rad) * move
+    fwd_z: float = -math.cos(yaw_rad) * move
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera_x += fwd_x
         camera_z += fwd_z
@@ -353,8 +358,8 @@ BTN_YAW_STEP_DEG: float = 5.0
 
 def _walk(direction: int) -> None:
     global camera_x, camera_z
-    yaw_rad = math.radians(camera_yaw)
-    m = BTN_MOVE_STEP * direction
+    yaw_rad: float = math.radians(camera_yaw)
+    m: float = BTN_MOVE_STEP * direction
     camera_x += -math.sin(yaw_rad) * m
     camera_z += -math.cos(yaw_rad) * m
 
@@ -397,7 +402,7 @@ def main() -> None:
     glfw.window_hint(glfw.STENCIL_BITS, 8)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "SphereWorld32", None, None
     )
     if not window:
@@ -410,7 +415,7 @@ def main() -> None:
     GL.glEnable(GL.GL_MULTISAMPLE)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -419,11 +424,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

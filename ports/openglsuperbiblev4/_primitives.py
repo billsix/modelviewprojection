@@ -31,11 +31,14 @@ Demos import it the same way as ``_common`` -- prepend the ports root to
 from __future__ import annotations
 
 import math
+from typing import TypeAlias
 
 import OpenGL.GL as GL
 
-Vertex = tuple[float, float, float, float, float, float, float, float]
-Mesh = tuple[int, list[list[Vertex]]]
+Vertex: TypeAlias = tuple[
+    float, float, float, float, float, float, float, float
+]
+Mesh: TypeAlias = tuple[int, list[list[Vertex]]]
 
 
 def build_sphere(
@@ -51,17 +54,17 @@ def build_sphere(
     """
     bands: list[list[Vertex]] = []
     for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
+        lat0: float = math.pi * (-0.5 + float(i) / stacks)
+        lat1: float = math.pi * (-0.5 + float(i + 1) / stacks)
         sin0, cos0 = math.sin(lat0), math.cos(lat0)
         sin1, cos1 = math.sin(lat1), math.cos(lat1)
         v0, v1 = float(i) / stacks, float(i + 1) / stacks
         band: list[Vertex] = []
         for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
+            lng: float = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
-            u = float(j) / slices
-            row0 = (
+            u: float = float(j) / slices
+            row0: Vertex = (
                 cl * cos0,
                 sl * cos0,
                 sin0,
@@ -71,7 +74,7 @@ def build_sphere(
                 radius * sl * cos0,
                 radius * sin0,
             )
-            row1 = (
+            row1: Vertex = (
                 cl * cos1,
                 sl * cos1,
                 sin1,
@@ -97,22 +100,22 @@ def build_torus(major: float, minor: float, n_major: int, n_minor: int) -> Mesh:
     frame. ``major``/``minor`` are the ring and tube radii; ``n_major``/
     ``n_minor`` the subdivisions around each. Texture coords run u around the
     ring, v around the tube."""
-    major_step = 2.0 * math.pi / n_major
-    minor_step = 2.0 * math.pi / n_minor
+    major_step: float = 2.0 * math.pi / n_major
+    minor_step: float = 2.0 * math.pi / n_minor
     bands: list[list[Vertex]] = []
     for i in range(n_major):
-        a0 = i * major_step
-        a1 = a0 + major_step
+        a0: float = i * major_step
+        a1: float = a0 + major_step
         x0, y0 = math.cos(a0), math.sin(a0)
         x1, y1 = math.cos(a1), math.sin(a1)
         u0, u1 = float(i) / n_major, float(i + 1) / n_major
         band: list[Vertex] = []
         for j in range(n_minor + 1):
-            b = j * minor_step
+            b: float = j * minor_step
             cb, sb = math.cos(b), math.sin(b)
-            r = minor * cb + major
-            z = minor * sb
-            v = float(j) / n_minor
+            r: float = minor * cb + major
+            z: float = minor * sb
+            v: float = float(j) / n_minor
             band.append((x0 * cb, y0 * cb, sb, u0, v, x0 * r, y0 * r, z))
             band.append((x1 * cb, y1 * cb, sb, u1, v, x1 * r, y1 * r, z))
         bands.append(band)
@@ -132,12 +135,12 @@ def build_ground(
     textured sphereworlds use. The checkerboard (per-vertex color) and GL_LINES
     grounds in other demos are handled per-demo, not here."""
     bands: list[list[Vertex]] = []
-    s = 0.0
-    strip = -extent
+    s: float = 0.0
+    strip: float = -extent
     while strip <= extent:
-        t = 0.0
+        t: float = 0.0
         band: list[Vertex] = []
-        run = extent
+        run: float = extent
         while run >= -extent:
             band.append((0.0, 1.0, 0.0, s, t, strip, y, run))
             band.append((0.0, 1.0, 0.0, s + tex_step, t, strip + step, y, run))
@@ -160,7 +163,7 @@ def build_cone(base: float, height: float, slices: int) -> Mesh:
     (axes3d) add their own disk."""
     band: list[Vertex] = [(0.0, 0.0, 1.0, 0.0, 0.0, 0.0, 0.0, height)]
     for i in range(slices + 1):
-        a = 2.0 * math.pi * float(i) / slices
+        a: float = 2.0 * math.pi * float(i) / slices
         band.append(
             (
                 0.0,
@@ -196,7 +199,7 @@ def draw_mesh(
     for band in bands:
         GL.glBegin(mode)
         if flat and normals and band:
-            n = band[0]
+            n: Vertex = band[0]
             GL.glNormal3f(n[0], n[1], n[2])
         for v in band:
             if normals and not flat:

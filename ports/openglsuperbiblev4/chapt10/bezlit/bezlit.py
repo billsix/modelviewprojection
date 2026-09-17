@@ -6,6 +6,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -13,14 +14,15 @@ import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+# glfw window handle
+_window: typing.Any = None  # set in main(); used by the Quit menu item
 
 
-ctrl_points = np.array(
+ctrl_points: np.ndarray = np.array(
     [
         [[-4.0, 0.0, 4.0], [-2.0, 4.0, 4.0], [4.0, 0.0, 4.0]],
         [[-4.0, 0.0, 0.0], [-2.0, 4.0, 0.0], [4.0, 0.0, 0.0]],
@@ -46,9 +48,9 @@ def render_scene() -> None:
 
 
 def setup_rc() -> None:
-    ambient = (0.3, 0.3, 0.3, 1.0)
-    diffuse = (0.7, 0.7, 0.7, 1.0)
-    light_pos = (20.0, 0.0, 0.0, 0.0)
+    ambient: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 1.0)
+    diffuse: tuple[float, float, float, float] = (0.7, 0.7, 0.7, 1.0)
+    light_pos: tuple[float, float, float, float] = (20.0, 0.0, 0.0, 0.0)
 
     GL.glClearColor(1.0, 1.0, 1.0, 1.0)
     GL.glEnable(GL.GL_DEPTH_TEST)
@@ -102,7 +104,10 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(800, 600, "Lit Bezier Surface", None, None)
+    # glfw window handle
+    window: typing.Any = glfw.create_window(
+        800, 600, "Lit Bezier Surface", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -111,7 +116,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)

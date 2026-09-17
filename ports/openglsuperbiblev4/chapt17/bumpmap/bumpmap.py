@@ -16,6 +16,7 @@
 import math
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -25,56 +26,56 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main()
 window_width: int = 512
 window_height: int = 512
 
 BUMPMAP, SHOWBUMP = 0, 1
-TOTAL_SHADER_SETS = 2
-shader_names = ["bumpmap", "showbump"]
+TOTAL_SHADER_SETS: int = 2
+shader_names: list[str] = ["bumpmap", "showbump"]
 BOX, CYLINDER, TORUS = 0, 1, 2
-shape_names = ["box", "cylinder", "torus"]
+shape_names: list[str] = ["box", "cylinder", "torus"]
 RIVETS, PYRAMIDS = 0, 1
-bumpmap_names = ["rivets", "pyramids"]
+bumpmap_names: list[str] = ["rivets", "pyramids"]
 
-f_shader = [0] * TOTAL_SHADER_SETS
-v_shader = [0] * TOTAL_SHADER_SETS
-prog_obj = [0] * TOTAL_SHADER_SETS
+f_shader: list[int] = [0] * TOTAL_SHADER_SETS
+v_shader: list[int] = [0] * TOTAL_SHADER_SETS
+prog_obj: list[int] = [0] * TOTAL_SHADER_SETS
 which_shader: int = BUMPMAP
 which_shape: int = BOX
 which_bumpmap: int = RIVETS
 
-camera_pos = [0.0, 125.0, -200.0, 1.0]
+camera_pos: list[float] = [0.0, 125.0, -200.0, 1.0]
 light_rotation: float = 90.0
-light_pos0 = np.zeros(3, dtype=np.float32)
+light_pos0: np.ndarray = np.zeros(3, dtype=np.float32)
 max_tex_size: int = 0
 
 
 def update_light() -> None:
-    a = -light_rotation * math.pi / 180.0
+    a: float = -light_rotation * math.pi / 180.0
     light_pos0[0] = 300.0 * math.cos(a)
     light_pos0[1] = 0.0
     light_pos0[2] = 300.0 * math.sin(a)
 
 
 def create_rivet_map() -> None:
-    tex_size = min(max_tex_size, 128)
-    texels = np.zeros(tex_size * tex_size * 4, dtype=np.float32)
-    half = (tex_size - 1) * 0.5
+    tex_size: int = min(max_tex_size, 128)
+    texels: np.ndarray = np.zeros(tex_size * tex_size * 4, dtype=np.float32)
+    half: float = (tex_size - 1) * 0.5
     for v in range(tex_size):
-        y = (v - half) / half
+        y: float = (v - half) / half
         for u in range(tex_size):
-            x = (u - half) / half
-            r = x * x + y * y
-            idx = (v * tex_size + u) * 4
+            x: float = (u - half) / half
+            r: float = x * x + y * y
+            idx: int = (v * tex_size + u) * 4
             if r <= 0.64:
                 nx, ny = x * 1.25, y * 1.25
-                nz = math.sqrt(0.64 - r) * 1.25
-                s = 1.0 / math.sqrt(nx * nx + ny * ny + nz * nz)
+                nz: float = math.sqrt(0.64 - r) * 1.25
+                s: float = 1.0 / math.sqrt(nx * nx + ny * ny + nz * nz)
                 texels[idx] = nx * s * 0.5 + 0.5
                 texels[idx + 1] = ny * s * 0.5 + 0.5
                 texels[idx + 2] = nz * s * 0.5 + 0.5
@@ -95,19 +96,19 @@ def create_rivet_map() -> None:
 
 
 def create_pyramid_map() -> None:
-    tex_size = min(max_tex_size, 128)
-    texels = np.zeros(tex_size * tex_size * 4, dtype=np.float32)
-    half = (tex_size - 1) * 0.5
+    tex_size: int = min(max_tex_size, 128)
+    texels: np.ndarray = np.zeros(tex_size * tex_size * 4, dtype=np.float32)
+    half: float = (tex_size - 1) * 0.5
     for v in range(tex_size):
-        y = (v - half) / half
+        y: float = (v - half) / half
         for u in range(tex_size):
-            x = (u - half) / half
-            idx = (v * tex_size + u) * 4
+            x: float = (u - half) / half
+            idx: int = (v * tex_size + u) * 4
             if (abs(x) + abs(y)) <= 0.8:
-                nx = 0.75 if x >= 0 else -0.75
-                ny = 0.75 if y >= 0 else -0.75
-                nz = 1.0
-                s = 1.0 / math.sqrt(nx * nx + ny * ny + nz * nz)
+                nx: float = 0.75 if x >= 0 else -0.75
+                ny: float = 0.75 if y >= 0 else -0.75
+                nz: float = 1.0
+                s: float = 1.0 / math.sqrt(nx * nx + ny * ny + nz * nz)
                 texels[idx] = nx * s * 0.5 + 0.5
                 texels[idx + 1] = ny * s * 0.5 + 0.5
                 texels[idx + 2] = nz * s * 0.5 + 0.5
@@ -128,11 +129,11 @@ def create_pyramid_map() -> None:
 
 
 def prepare_shader(n: int) -> None:
-    name = shader_names[n]
+    name: str = shader_names[n]
     with open(os.path.join(PWD, "shaders", f"{name}.vs")) as f:
-        vs_src = f.read()
+        vs_src: str = f.read()
     with open(os.path.join(PWD, "shaders", f"{name}.fs")) as f:
-        fs_src = f.read()
+        fs_src: str = f.read()
     v_shader[n] = shaders_mod.compileShader(vs_src, GL.GL_VERTEX_SHADER)
     f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
     prog_obj[n] = GL.glCreateProgram()
@@ -140,7 +141,7 @@ def prepare_shader(n: int) -> None:
     GL.glAttachShader(prog_obj[n], f_shader[n])
     GL.glLinkProgram(prog_obj[n])
     if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info = GL.glGetProgramInfoLog(prog_obj[n])
+        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
 
@@ -152,10 +153,10 @@ def draw_cylinder(
     x_tex_scale: float,
     y_tex_scale: float,
 ) -> None:
-    inc = (2.0 * math.pi) / slices
+    inc: float = (2.0 * math.pi) / slices
     GL.glBegin(GL.GL_QUAD_STRIP)
     for i in range(slices + 1):
-        a = inc * i
+        a: float = inc * i
         GL.glMultiTexCoord2f(GL.GL_TEXTURE0, x_tex_scale * i / slices, 0.0)
         GL.glMultiTexCoord3f(
             GL.GL_TEXTURE1,
@@ -217,19 +218,19 @@ def draw_torus(
     x_tex_scale: float,
     y_tex_scale: float,
 ) -> None:
-    s_inc = (2.0 * math.pi) / slices
-    r_inc = (2.0 * math.pi) / rings
+    s_inc: float = (2.0 * math.pi) / slices
+    r_inc: float = (2.0 * math.pi) / rings
     for i in range(rings + 1):
         GL.glBegin(GL.GL_QUAD_STRIP)
         for j in range(slices + 1):
-            sj = s_inc * j
-            cs = math.cos(sj)
-            ss = math.sin(sj)
+            sj: float = s_inc * j
+            cs: float = math.cos(sj)
+            ss: float = math.sin(sj)
             for offset in (1, 0):
-                ri = r_inc * (i + offset) if offset else r_inc * i
-                cr = math.cos(ri)
-                sr = math.sin(ri)
-                u_idx = (i + offset) if offset else i
+                ri: float = r_inc * (i + offset) if offset else r_inc * i
+                cr: float = math.cos(ri)
+                sr: float = math.sin(ri)
+                u_idx: int = (i + offset) if offset else i
                 GL.glMultiTexCoord2f(
                     GL.GL_TEXTURE0,
                     x_tex_scale * u_idx / rings,
@@ -248,14 +249,14 @@ def draw_torus(
                     0.0,
                 )
                 GL.glMultiTexCoord3f(GL.GL_TEXTURE3, cr, ss, sr)
-                rr = inner_radius + ring_radius + ring_radius * cs
+                rr: float = inner_radius + ring_radius + ring_radius * cs
                 GL.glVertex3f(rr * cr, ring_radius * ss, rr * sr)
         GL.glEnd()
 
 
 def draw_box(size: float, tex_scale: float) -> None:
-    s = size * 0.5
-    faces = [
+    s: float = size * 0.5
+    faces: list = [
         (
             (1, 0, 0),
             (0, 1, 0),
@@ -294,7 +295,7 @@ def draw_box(size: float, tex_scale: float) -> None:
         ),
     ]
     GL.glBegin(GL.GL_QUADS)
-    uvs = [
+    uvs: list[tuple[float, float]] = [
         (0.0, 0.0),
         (0.0, tex_scale),
         (tex_scale, tex_scale),
@@ -312,8 +313,8 @@ def draw_box(size: float, tex_scale: float) -> None:
 
 
 def draw_models() -> None:
-    p = prog_obj[which_shader]
-    loc = GL.glGetUniformLocation(p, "sampler0")
+    p: int = prog_obj[which_shader]
+    loc: int = GL.glGetUniformLocation(p, "sampler0")
     if loc != -1:
         GL.glUniform1i(loc, 0)
     loc = GL.glGetUniformLocation(p, "lightPos0")
@@ -508,7 +509,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "Bump Mapping Demo", None, None
     )
     if not window:
@@ -519,7 +520,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

@@ -12,6 +12,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -21,32 +22,32 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main()
 window_width: int = 1024
 window_height: int = 768
 
 CHECKERBOARD, BEACHBALL, TOYBALL = 0, 1, 2
-TOTAL_SHADER_SETS = 3
-shader_names = ["checkerboard", "beachball", "toyball"]
-v_shader = [0] * TOTAL_SHADER_SETS
-f_shader = [0] * TOTAL_SHADER_SETS
-prog_obj = [0] * TOTAL_SHADER_SETS
+TOTAL_SHADER_SETS: int = 3
+shader_names: list[str] = ["checkerboard", "beachball", "toyball"]
+v_shader: list[int] = [0] * TOTAL_SHADER_SETS
+f_shader: list[int] = [0] * TOTAL_SHADER_SETS
+prog_obj: list[int] = [0] * TOTAL_SHADER_SETS
 which_shader: int = CHECKERBOARD
 
-camera_pos = [50.0, 50.0, 150.0, 1.0]
+camera_pos: list[float] = [50.0, 50.0, 150.0, 1.0]
 camera_zoom: float = 0.4
-light_pos = np.array([140.0, 250.0, 140.0, 1.0], dtype=np.float32)
+light_pos: np.ndarray = np.array([140.0, 250.0, 140.0, 1.0], dtype=np.float32)
 light_rotation: float = 0.0
 tess: int = 75
 
 
 def transform_vec3(v: np.ndarray, m: np.ndarray) -> np.ndarray:
-    out = np.zeros(3, dtype=np.float32)
+    out: np.ndarray = np.zeros(3, dtype=np.float32)
     for r in range(3):
         out[r] = (
             m[r] * v[0] + m[r + 4] * v[1] + m[r + 8] * v[2] + m[r + 12] * v[3]
@@ -66,11 +67,11 @@ rebuild_sphere()
 
 
 def prepare_shader(n: int) -> None:
-    name = shader_names[n]
+    name: str = shader_names[n]
     with open(os.path.join(PWD, "shaders", f"{name}.vs")) as f:
-        vs_src = f.read()
+        vs_src: str = f.read()
     with open(os.path.join(PWD, "shaders", f"{name}.fs")) as f:
-        fs_src = f.read()
+        fs_src: str = f.read()
     v_shader[n] = shaders_mod.compileShader(vs_src, GL.GL_VERTEX_SHADER)
     f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
     prog_obj[n] = GL.glCreateProgram()
@@ -78,7 +79,7 @@ def prepare_shader(n: int) -> None:
     GL.glAttachShader(prog_obj[n], f_shader[n])
     GL.glLinkProgram(prog_obj[n])
     if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info = GL.glGetProgramInfoLog(prog_obj[n])
+        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
 
@@ -86,13 +87,13 @@ def prepare_shader(n: int) -> None:
 def draw_models() -> None:
     GL.glPushMatrix()
     GL.glRotatef(light_rotation, 0.0, 1.0, 0.0)
-    mv = np.array(
+    mv: np.ndarray = np.array(
         GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
     ).flatten()
-    light_pos_eye = transform_vec3(light_pos, mv)
+    light_pos_eye: np.ndarray = transform_vec3(light_pos, mv)
     GL.glPopMatrix()
-    p = prog_obj[which_shader]
-    loc = GL.glGetUniformLocation(p, "lightPos")
+    p: int = prog_obj[which_shader]
+    loc: int = GL.glGetUniformLocation(p, "lightPos")
     if loc != -1:
         GL.glUniform3fv(loc, 1, light_pos_eye)
     _primitives.draw_mesh(sphere_mesh)
@@ -102,7 +103,7 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if window_width > window_height:
-        ar = float(window_width) / float(window_height)
+        ar: float = float(window_width) / float(window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -262,7 +263,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width,
         window_height,
         "Procedural Texture Mapping Demo",
@@ -277,7 +278,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

@@ -16,6 +16,7 @@
 import os
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -24,13 +25,14 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main(), used by Quit
 window_width: int = 512
 window_height: int = 512
 env_map_size: int = 512
@@ -39,29 +41,29 @@ use_env_map: bool = True
 show_env_map: bool = False
 use_fbo: bool = False
 
-wall_texture_id = [0] * 5
+wall_texture_id: list[int] = [0] * 5
 env_map_texture_id: int = 0
 framebuffer_id: int = 0
 renderbuffer_id: int = 0
 max_cube_tex_size: int = 0
 
-ambient_light = [0.4, 0.4, 0.4, 1.0]
-diffuse_light = [0.6, 0.6, 0.6, 1.0]
-specular_light = [1.0, 1.0, 1.0, 1.0]
-light_pos = [0.0, 125.0, 0.0, 1.0]
-camera_pos = [50.0, 50.0, 100.0, 1.0]
+ambient_light: list[float] = [0.4, 0.4, 0.4, 1.0]
+diffuse_light: list[float] = [0.6, 0.6, 0.6, 1.0]
+specular_light: list[float] = [1.0, 1.0, 1.0, 1.0]
+light_pos: list[float] = [0.0, 125.0, 0.0, 1.0]
+camera_pos: list[float] = [50.0, 50.0, 100.0, 1.0]
 camera_zoom: float = 1.5
 animation_angle: float = 0.0
 
 
-SPHERE_CENTER = _primitives.build_sphere(20.0, 32, 32)
-SPHERE = _primitives.build_sphere(25.0, 50, 50)
-CONE = _primitives.build_cone(25.0, 50.0, 50)
-TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
+SPHERE_CENTER: _primitives.Mesh = _primitives.build_sphere(20.0, 32, 32)
+SPHERE: _primitives.Mesh = _primitives.build_sphere(25.0, 50, 50)
+CONE: _primitives.Mesh = _primitives.build_cone(25.0, 50.0, 50)
+TORUS: _primitives.Mesh = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 
 def draw_solid_octahedron() -> None:
-    verts = [
+    verts: list[tuple[int, int, int]] = [
         (1, 0, 0),
         (-1, 0, 0),
         (0, 1, 0),
@@ -69,7 +71,7 @@ def draw_solid_octahedron() -> None:
         (0, 0, 1),
         (0, 0, -1),
     ]
-    faces = [
+    faces: list[tuple[int, int, int]] = [
         (0, 2, 4),
         (0, 4, 3),
         (0, 3, 5),
@@ -102,7 +104,7 @@ def draw_models(draw_center: bool) -> None:
     GL.glEnd()
 
     GL.glEnable(GL.GL_TEXTURE_2D)
-    walls = [
+    walls: list = [
         (
             wall_texture_id[0],
             (1.0, 0.0, 0.0),
@@ -145,7 +147,12 @@ def draw_models(draw_center: bool) -> None:
         ),
     ]
     GL.glColor3f(1.0, 1.0, 1.0)
-    uvs = [(0.0, 0.0), (0.0, 1.0), (1.0, 1.0), (1.0, 0.0)]
+    uvs: list[tuple[float, float]] = [
+        (0.0, 0.0),
+        (0.0, 1.0),
+        (1.0, 1.0),
+        (1.0, 0.0),
+    ]
     for tex, (nx, ny, nz), verts in walls:
         GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
         GL.glNormal3f(nx, ny, nz)
@@ -169,10 +176,10 @@ def draw_models(draw_center: bool) -> None:
         # The reflective object: replaced glutSolidTeapot with a sphere.
         GL.glColor3f(1.0, 0.6, 0.4)
         if use_env_map:
-            mv = np.array(
+            mv: np.ndarray = np.array(
                 GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
             ).reshape((4, 4))
-            inv_mv = np.identity(4, dtype=np.float32)
+            inv_mv: np.ndarray = np.identity(4, dtype=np.float32)
             inv_mv[:3, :3] = mv[:3, :3].T
             GL.glEnable(GL.GL_TEXTURE_CUBE_MAP)
             GL.glEnable(GL.GL_TEXTURE_GEN_S)
@@ -220,7 +227,7 @@ def draw_models(draw_center: bool) -> None:
     GL.glPopMatrix()
 
 
-CUBE_FACES = [
+CUBE_FACES: list[tuple[Constant, tuple[int, int, int, int, int, int]]] = [
     (GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X, (1, 0, 0, 0, -1, 0)),
     (GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X, (-1, 0, 0, 0, -1, 0)),
     (GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y, (0, 1, 0, 0, 0, 1)),
@@ -269,7 +276,7 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if window_width > window_height:
-        ar = float(window_width) / float(window_height)
+        ar: float = float(window_width) / float(window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -319,7 +326,7 @@ def render_scene() -> None:
         GL.glBindTexture(GL.GL_TEXTURE_2D, wall_texture_id[4])
         GL.glDisable(GL.GL_LIGHTING)
         GL.glColor4f(1.0, 1.0, 1.0, 1.0)
-        offsets = [
+        offsets: list[tuple[float, float]] = [
             (0.25, 0.0),
             (-0.75, 0.0),
             (-0.25, -0.5),
@@ -328,7 +335,9 @@ def render_scene() -> None:
             (0.75, 0.0),
         ]
         for (face, _), (ox, oy) in zip(CUBE_FACES, offsets):
-            texels = GL.glGetTexImage(face, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE)
+            texels: np.ndarray = GL.glGetTexImage(
+                face, 0, GL.GL_RGBA, GL.GL_UNSIGNED_BYTE
+            )
             GL.glTexImage2D(
                 GL.GL_TEXTURE_2D,
                 0,
@@ -367,9 +376,9 @@ def render_scene() -> None:
 def setup_textures() -> None:
     global wall_texture_id, env_map_texture_id
     wall_texture_id = list(GL.glGenTextures(5))
-    files = ["WRHS.tga", "MAMS.tga", "WPI.tga", "Babson.tga"]
+    files: list[str] = ["WRHS.tga", "MAMS.tga", "WPI.tga", "Babson.tga"]
     for i, name in enumerate(files):
-        img = iio.imread(os.path.join(PWD, name))
+        img: np.ndarray = iio.imread(os.path.join(PWD, name))
         img = np.flipud(img)
         if img.ndim == 3 and img.shape[2] == 4:
             img = img[:, :, :3]
@@ -487,7 +496,7 @@ def setup_rc() -> None:
 
 def change_size(w: int, h: int) -> None:
     global window_width, window_height, env_map_size
-    orig = env_map_size
+    orig: int = env_map_size
     window_width, window_height = w, h
     env_map_size = max_cube_tex_size if use_fbo else min(w, h)
     if env_map_size > max_cube_tex_size:
@@ -588,7 +597,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
         return
-    delta = -1.0 if (mods & glfw.MOD_SHIFT) else 1.0
+    delta: float = -1.0 if (mods & glfw.MOD_SHIFT) else 1.0
     if key == glfw.KEY_X:
         camera_pos[0] += delta
     elif key == glfw.KEY_Y:
@@ -611,7 +620,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "FBO Environment Mapping Demo", None, None
     )
     if not window:
@@ -622,7 +631,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -634,8 +643,8 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    frame_count = 0
-    last_t = time.time()
+    frame_count: int = 0
+    last_t: float = time.time()
     while not glfw.window_should_close(window):
         glfw.poll_events()
         impl.process_inputs()
@@ -647,9 +656,9 @@ def main() -> None:
         glfw.swap_buffers(window)
         frame_count += 1
         if frame_count == 100:
-            now = time.time()
-            fps = 100.0 / (now - last_t)
-            label = "with FBOs" if use_fbo else "without FBOs"
+            now: float = time.time()
+            fps: float = 100.0 / (now - last_t)
+            label: str = "with FBOs" if use_fbo else "without FBOs"
             glfw.set_window_title(window, f"Draw scene {label} {fps:.1f} fps")
             last_t = now
             frame_count = 0

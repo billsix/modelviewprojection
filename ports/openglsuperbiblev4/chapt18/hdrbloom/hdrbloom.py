@@ -14,6 +14,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -23,12 +24,14 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = (
+    None  # glfw window handle; set in main(), used by the Quit control button
+)
 
 window_width: int = 512
 window_height: int = 512
@@ -36,21 +39,21 @@ fbo_width: int = 512
 fbo_height: int = 512
 
 HDRBALL, GAUSSIAN, COMBINE, SHOW2D = 0, 1, 2, 3
-TOTAL_SHADER_SETS = 4
-shader_names = ["hdrball", "gaussian", "combine", "show2d"]
-v_shader = [0] * TOTAL_SHADER_SETS
-f_shader = [0] * TOTAL_SHADER_SETS
-prog_obj = [0] * TOTAL_SHADER_SETS
+TOTAL_SHADER_SETS: int = 4
+shader_names: list[str] = ["hdrball", "gaussian", "combine", "show2d"]
+v_shader: list[int] = [0] * TOTAL_SHADER_SETS
+f_shader: list[int] = [0] * TOTAL_SHADER_SETS
+prog_obj: list[int] = [0] * TOTAL_SHADER_SETS
 
-ORIG_SCENE = 0
-BRIGHT_PASS = 1
-PRE_BLUR = 2
-POST_BLUR = 3
-JUST_BLOOM = 4
-NO_AFTER_GLOW = 5
-JUST_AFTER_GLOW = 6
-FULL_SCENE = 7
-stop_point_names = [
+ORIG_SCENE: int = 0
+BRIGHT_PASS: int = 1
+PRE_BLUR: int = 2
+POST_BLUR: int = 3
+JUST_BLOOM: int = 4
+NO_AFTER_GLOW: int = 5
+JUST_AFTER_GLOW: int = 6
+FULL_SCENE: int = 7
+stop_point_names: list[str] = [
     "orig",
     "bright",
     "pre-blur",
@@ -68,7 +71,7 @@ framebuffer_id: list = [0] * 5
 renderbuffer_id: int = 0
 pbo_id: int = 0
 max_tex_size: int = 0
-tex_coord_offsets = np.zeros((4, 5 * 5 * 2), dtype=np.float32)
+tex_coord_offsets: np.ndarray = np.zeros((4, 5 * 5 * 2), dtype=np.float32)
 
 light_pos_loc: int = -1
 bloom_limit_loc: int = -1
@@ -76,9 +79,9 @@ offsets_loc: int = -1
 star_intensity_loc: int = -1
 after_glow_loc: int = -1
 
-camera_pos = [50.0, 50.0, 150.0, 1.0]
+camera_pos: list[float] = [50.0, 50.0, 150.0, 1.0]
 camera_zoom: float = 0.4
-light_pos = np.array([140.0, 250.0, 140.0, 1.0], dtype=np.float32)
+light_pos: np.ndarray = np.array([140.0, 250.0, 140.0, 1.0], dtype=np.float32)
 light_rotation: float = 30.0
 bloom_limit: float = 1.0
 tess: int = 75
@@ -88,7 +91,7 @@ paused: bool = False
 
 
 def transform_vec3(v: np.ndarray, m: np.ndarray) -> np.ndarray:
-    out = np.zeros(3, dtype=np.float32)
+    out: np.ndarray = np.zeros(3, dtype=np.float32)
     for r in range(3):
         out[r] = (
             m[r] * v[0] + m[r + 4] * v[1] + m[r + 8] * v[2] + m[r + 12] * v[3]
@@ -108,11 +111,11 @@ rebuild_sphere()
 
 
 def prepare_shader(n: int) -> None:
-    name = shader_names[n]
+    name: str = shader_names[n]
     with open(os.path.join(PWD, "shaders", f"{name}.vs")) as f:
-        vs_src = f.read()
+        vs_src: str = f.read()
     with open(os.path.join(PWD, "shaders", f"{name}.fs")) as f:
-        fs_src = f.read()
+        fs_src: str = f.read()
     v_shader[n] = shaders_mod.compileShader(vs_src, GL.GL_VERTEX_SHADER)
     f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
     prog_obj[n] = GL.glCreateProgram()
@@ -120,7 +123,7 @@ def prepare_shader(n: int) -> None:
     GL.glAttachShader(prog_obj[n], f_shader[n])
     GL.glLinkProgram(prog_obj[n])
     if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info = GL.glGetProgramInfoLog(prog_obj[n])
+        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
 
@@ -128,10 +131,10 @@ def prepare_shader(n: int) -> None:
 def draw_models() -> None:
     GL.glPushMatrix()
     GL.glRotatef(light_rotation, 0.0, 1.0, 0.0)
-    mv = np.array(
+    mv: np.ndarray = np.array(
         GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
     ).flatten()
-    light_pos_eye = transform_vec3(light_pos, mv)
+    light_pos_eye: np.ndarray = transform_vec3(light_pos, mv)
     GL.glPopMatrix()
     GL.glUniform3fv(light_pos_loc, 1, light_pos_eye)
     GL.glPushMatrix()
@@ -237,7 +240,7 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if window_width > window_height:
-        ar = float(window_width) / float(window_height)
+        ar: float = float(window_width) / float(window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -365,7 +368,7 @@ def setup_rc() -> None:
     GL.glUniform1f(bloom_limit_loc, bloom_limit)
     GL.glUseProgram(prog_obj[GAUSSIAN])
     offsets_loc = GL.glGetUniformLocation(prog_obj[GAUSSIAN], "tc_offset")
-    s = GL.glGetUniformLocation(prog_obj[GAUSSIAN], "sampler0")
+    s: int = GL.glGetUniformLocation(prog_obj[GAUSSIAN], "sampler0")
     if s != -1:
         GL.glUniform1i(s, 0)
     GL.glUseProgram(prog_obj[COMBINE])
@@ -388,7 +391,7 @@ def setup_rc() -> None:
     # the size *changes* from the initial, so at the default size it would stay
     # the old 1-byte placeholder and the after-glow glReadPixels-into-PBO would
     # read past the end -> GL_INVALID_OPERATION on startup. Same pitch as change_size.
-    _pbo_pitch = ((fbo_width * 3) + 3) & ~0x3
+    _pbo_pitch: int = ((fbo_width * 3) + 3) & ~0x3
     GL.glBufferData(
         GL.GL_PIXEL_PACK_BUFFER,
         fbo_height * _pbo_pitch,
@@ -439,7 +442,7 @@ def setup_rc() -> None:
 
 def change_size(w: int, h: int) -> None:
     global window_width, window_height, fbo_width, fbo_height, after_glow_valid
-    orig = (fbo_width, fbo_height)
+    orig: tuple[int, int] = (fbo_width, fbo_height)
     window_width = fbo_width = w
     window_height = fbo_height = h
     if fbo_width > max_tex_size:
@@ -448,7 +451,7 @@ def change_size(w: int, h: int) -> None:
         fbo_height = max_tex_size
     if (fbo_width, fbo_height) != orig and pbo_id != 0:
         GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_id)
-        pitch = ((fbo_width * 3) + 3) & ~0x3
+        pitch: int = ((fbo_width * 3) + 3) & ~0x3
         GL.glBufferData(
             GL.GL_PIXEL_PACK_BUFFER, fbo_height * pitch, None, GL.GL_STREAM_COPY
         )
@@ -485,8 +488,8 @@ def change_size(w: int, h: int) -> None:
                 None,
             )
         for k in range(4):
-            xi = 1.0 / float(fbo_width >> k)
-            yi = 1.0 / float(fbo_height >> k)
+            xi: float = 1.0 / float(fbo_width >> k)
+            yi: float = 1.0 / float(fbo_height >> k)
             for i in range(5):
                 for j in range(5):
                     tex_coord_offsets[k][((i * 5) + j) * 2 + 0] = (
@@ -624,7 +627,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "High Dynamic Range Bloom Demo", None, None
     )
     if not window:
@@ -635,7 +638,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

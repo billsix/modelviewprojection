@@ -8,20 +8,21 @@
 import os
 import sys
 import time
+import typing
 
 import glfw
 import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main()
 x_rot: float = 0.0
 y_rot: float = 0.0
-ambient_light = [1.0, 1.0, 1.0]
+ambient_light: list[float] = [1.0, 1.0, 1.0]
 
 
 def draw_jet() -> None:
@@ -162,7 +163,7 @@ def setup_rc() -> None:
 
 
 def change_size(w: int, h: int) -> None:
-    n_range = 80.0
+    n_range: float = 80.0
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
@@ -212,7 +213,7 @@ def _nudge_rot(axis: str, d: float) -> None:
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -236,7 +237,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
     glfw.window_hint(glfw.SAMPLES, 4)
 
-    window = glfw.create_window(800, 600, "Ambient Light Jet", None, None)
+    window: typing.Any = glfw.create_window(
+        800, 600, "Ambient Light Jet", None, None
+    )  # glfw window handle
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -247,7 +250,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
     # key callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -256,11 +259,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

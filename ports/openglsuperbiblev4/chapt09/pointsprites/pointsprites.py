@@ -8,6 +8,7 @@
 import os
 import random
 import sys
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -16,26 +17,27 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main()
 SCREEN_X, SCREEN_Y = 800, 600
 SMALL_STARS, MEDIUM_STARS, LARGE_STARS = 100, 40, 15
 small_stars, medium_stars, large_stars = [], [], []
 draw_mode: int = 1
-textures = [0, 0]
+textures: list[int] = [0, 0]
 
 
 def load_textures() -> None:
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
     for i, fname in enumerate(["star.tga", "moon.tga"]):
-        img = np.flipud(iio.imread(os.path.join(PWD, fname)))
+        img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
         if img.ndim == 3 and img.shape[2] == 4:
-            fmt = GL.GL_RGBA
+            fmt: Constant = GL.GL_RGBA
         else:
             fmt = GL.GL_RGB
         img = np.ascontiguousarray(img, dtype=np.uint8)
@@ -229,7 +231,9 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(800, 600, "Point Sprites", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "Point Sprites", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -238,7 +242,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
     # key callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)

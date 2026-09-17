@@ -14,6 +14,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -22,25 +23,26 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+# glfw window handle; set in main(), used by the Quit control button
+_window: typing.Any = None
 
 # Pick ids encoded as the red byte (0..255).  0 reserved for background.
-PICK_BG = 0
-PICK_EARTH = 1
-PICK_EARTH_MOON = 2
-PICK_MARS = 3
-PICK_MARS_MOON1 = 4
-PICK_MARS_MOON2 = 5
+PICK_BG: int = 0
+PICK_EARTH: int = 1
+PICK_EARTH_MOON: int = 2
+PICK_MARS: int = 3
+PICK_MARS_MOON1: int = 4
+PICK_MARS_MOON2: int = 5
 
 # Bright distinct colors used when the user enables the "Show selection
 # buffer" checkbox -- the actual encoded pick ids (1..5 in the red byte)
 # are too dim to see by eye.  Same scene topology, just visually
 # distinguishable.
-PICK_PALETTE = {
+PICK_PALETTE: dict[int, tuple[float, float, float]] = {
     PICK_EARTH: (1.0, 0.0, 0.0),  # red
     PICK_EARTH_MOON: (1.0, 0.6, 0.0),  # orange
     PICK_MARS: (1.0, 1.0, 0.0),  # yellow
@@ -53,7 +55,7 @@ show_pick_buffer: bool = False
 
 
 def draw_sphere(radius: float) -> None:
-    obj = GLU.gluNewQuadric()
+    obj: typing.Any = GLU.gluNewQuadric()  # GLU quadric object
     GLU.gluQuadricNormals(obj, GLU.GLU_SMOOTH)
     GLU.gluSphere(obj, radius, 26, 13)
     GLU.gluDeleteQuadric(obj)
@@ -120,7 +122,7 @@ def render_scene() -> None:
         _draw_scene("normal")
 
 
-_PICK_MSG = {
+_PICK_MSG: dict[int, str] = {
     PICK_EARTH: "You clicked Earth.",
     PICK_EARTH_MOON: "You clicked Earth. - Specifically the moon.",
     PICK_MARS: "You clicked Mars.",
@@ -134,11 +136,11 @@ def process_selection(window, x_pos: float, y_pos: float) -> None:
     # on HiDPI displays.  Scale into framebuffer pixels for glReadPixels.
     win_w, win_h = glfw.get_window_size(window)
     fb_w, fb_h = glfw.get_framebuffer_size(window)
-    scale_x = fb_w / float(win_w) if win_w else 1.0
-    scale_y = fb_h / float(win_h) if win_h else 1.0
-    fb_x = int(x_pos * scale_x)
+    scale_x: float = fb_w / float(win_w) if win_w else 1.0
+    scale_y: float = fb_h / float(win_h) if win_h else 1.0
+    fb_x: int = int(x_pos * scale_x)
     # GLFW y is from top, GL y is from bottom.
-    fb_y = fb_h - int(y_pos * scale_y) - 1
+    fb_y: int = fb_h - int(y_pos * scale_y) - 1
 
     # Repaint the back buffer with picking colors.  Background is solid
     # black so the R byte == 0 means "missed".  We don't swap, so the
@@ -151,18 +153,20 @@ def process_selection(window, x_pos: float, y_pos: float) -> None:
     GL.glClearColor(0.60, 0.60, 0.60, 1.0)
 
     GL.glReadBuffer(GL.GL_BACK)
-    pixel = GL.glReadPixels(fb_x, fb_y, 1, 1, GL.GL_RGB, GL.GL_UNSIGNED_BYTE)
-    arr = np.frombuffer(pixel, dtype=np.uint8)
-    obj_id = int(arr[0])  # R channel = pick id
+    pixel: typing.Any = GL.glReadPixels(  # raw RGB pixel buffer (bytes)
+        fb_x, fb_y, 1, 1, GL.GL_RGB, GL.GL_UNSIGNED_BYTE
+    )
+    arr: np.ndarray = np.frombuffer(pixel, dtype=np.uint8)
+    obj_id: int = int(arr[0])  # R channel = pick id
     glfw.set_window_title(
         window, _PICK_MSG.get(obj_id, "Nothing was clicked on!")
     )
 
 
 def setup_rc() -> None:
-    dim_light = (0.1, 0.1, 0.1, 1.0)
-    source_light = (0.65, 0.65, 0.65, 1.0)
-    light_pos = (0.0, 0.0, 0.0, 1.0)
+    dim_light: tuple[float, float, float, float] = (0.1, 0.1, 0.1, 1.0)
+    source_light: tuple[float, float, float, float] = (0.65, 0.65, 0.65, 1.0)
+    light_pos: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glFrontFace(GL.GL_CCW)
     GL.glEnable(GL.GL_CULL_FACE)
@@ -223,7 +227,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         800, 600, "Pick a Planet (Hierarchical)", None, None
     )
     if not window:
@@ -240,7 +244,7 @@ def main() -> None:
     # picking handler would never fire.  Instead we poll the left
     # button each frame and edge-detect a press, gated on whether
     # imgui wants the mouse (so clicks on the imgui panel don't pick).
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
     # key callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -249,13 +253,13 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    prev_click = False
+    prev_click: bool = False
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
         impl.process_inputs()
 
-        click = (
+        click: bool = (
             glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS
         )
         if click and not prev_click and not imgui.get_io().want_capture_mouse:

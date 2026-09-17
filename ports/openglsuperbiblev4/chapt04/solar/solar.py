@@ -8,6 +8,7 @@
 import os
 import sys
 import time
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -15,16 +16,16 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main(), used by Quit
 
-white_light = (0.2, 0.2, 0.2, 1.0)
-source_light = (0.8, 0.8, 0.8, 1.0)
-light_pos = (0.0, 0.0, 0.0, 1.0)
+white_light: tuple[float, float, float, float] = (0.2, 0.2, 0.2, 1.0)
+source_light: tuple[float, float, float, float] = (0.8, 0.8, 0.8, 1.0)
+light_pos: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 1.0)
 
 f_moon_rot: float = 0.0
 f_earth_rot: float = 0.0
@@ -41,8 +42,12 @@ start_time: float = 0.0
 # + GL_CULL_FACE keep it. The default (lat0, lat1) order would wind it CW, cull
 # the near hemisphere, and light the far one (whose normals point away from the
 # sun -> no diffuse).
-PLANET_SPHERE = _primitives.build_sphere(15.0, 30, 17, swap_winding=True)
-MOON_SPHERE = _primitives.build_sphere(6.0, 30, 17, swap_winding=True)
+PLANET_SPHERE: _primitives.Mesh = _primitives.build_sphere(
+    15.0, 30, 17, swap_winding=True
+)
+MOON_SPHERE: _primitives.Mesh = _primitives.build_sphere(
+    6.0, 30, 17, swap_winding=True
+)
 
 
 def render_scene() -> None:
@@ -80,7 +85,7 @@ def render_scene() -> None:
 
 def update_animation() -> None:
     global f_earth_rot, f_moon_rot
-    elapsed = time.monotonic() - start_time
+    elapsed: float = time.monotonic() - start_time
     f_moon_rot = (elapsed * MOON_DEG_PER_SEC) % 360.0
     f_earth_rot = (elapsed * EARTH_DEG_PER_SEC) % 360.0
 
@@ -106,7 +111,7 @@ def change_size(w: int, h: int) -> None:
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
-    f_aspect = float(w) / float(h)
+    f_aspect: float = float(w) / float(h)
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     GLU.gluPerspective(45.0, f_aspect, 1.0, 425.0)
@@ -145,7 +150,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "Earth/Moon/Sun System", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "Earth/Moon/Sun System", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -156,7 +163,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)

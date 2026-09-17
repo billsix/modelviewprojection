@@ -10,6 +10,7 @@ import math
 import os
 import sys
 import time
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -17,19 +18,24 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main() for Quit item
 
 
-f_light_pos = (-100.0, 100.0, 50.0, 1.0)
-f_light_pos_mirror = (-100.0, -100.0, 50.0, 1.0)
-f_no_light = (0.0, 0.0, 0.0, 0.0)
-f_low_light = (0.25, 0.25, 0.25, 1.0)
-f_bright_light = (1.0, 1.0, 1.0, 1.0)
+f_light_pos: tuple[float, float, float, float] = (-100.0, 100.0, 50.0, 1.0)
+f_light_pos_mirror: tuple[float, float, float, float] = (
+    -100.0,
+    -100.0,
+    50.0,
+    1.0,
+)
+f_no_light: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
+f_low_light: tuple[float, float, float, float] = (0.25, 0.25, 0.25, 1.0)
+f_bright_light: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
 
 y_rot: float = 0.0
 
@@ -49,22 +55,22 @@ def apply_camera_transform() -> None:
 
 # The orbiting sphere and torus are the same every frame -- run the
 # tessellation once at import, replay the stored vertices each frame.
-SPHERE = _primitives.build_sphere(0.1, 17, 9)
-TORUS = _primitives.build_torus(0.35, 0.15, 61, 37)
+SPHERE: _primitives.Mesh = _primitives.build_sphere(0.1, 17, 9)
+TORUS: _primitives.Mesh = _primitives.build_torus(0.35, 0.15, 61, 37)
 
 
 def draw_ground() -> None:
     """Black-and-white transparent checkerboard at y=0."""
-    extent = 20.0
-    step = 0.5
-    bounce = 0
+    extent: float = 20.0
+    step: float = 0.5
+    bounce: int = 0
     GL.glShadeModel(GL.GL_FLAT)
-    strip = -extent
+    strip: float = -extent
     while strip <= extent:
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        run = extent
+        run: float = extent
         while run >= -extent:
-            color = 1.0 if bounce % 2 == 0 else 0.0
+            color: float = 1.0 if bounce % 2 == 0 else 0.0
             GL.glColor4f(color, color, color, 0.5)
             GL.glVertex3f(strip, 0.0, run)
             GL.glVertex3f(strip + step, 0.0, run)
@@ -165,8 +171,8 @@ YAW_RAD_PER_SEC: float = 1.5
 
 def handle_camera_keys(window, dt: float) -> None:
     global camera_x, camera_z, camera_yaw
-    move = MOVE_UNITS_PER_SEC * dt
-    yaw = YAW_RAD_PER_SEC * dt
+    move: float = MOVE_UNITS_PER_SEC * dt
+    yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera_x += -move * math.sin(camera_yaw)
         camera_z += -move * math.cos(camera_yaw)
@@ -187,7 +193,7 @@ BTN_YAW_STEP: float = 0.1
 
 def _walk(direction: int) -> None:
     global camera_x, camera_z
-    m = BTN_MOVE_STEP * direction
+    m: float = BTN_MOVE_STEP * direction
     camera_x += -m * math.sin(camera_yaw)
     camera_z += -m * math.cos(camera_yaw)
 
@@ -224,7 +230,7 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         800, 600, "OpenGL Blending and Transparency", None, None
     )
     if not window:
@@ -237,7 +243,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -246,11 +252,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

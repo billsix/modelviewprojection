@@ -7,6 +7,7 @@ import math
 import os
 import sys
 import time
+import typing
 
 import glfw
 import numpy as np
@@ -14,13 +15,14 @@ import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+# set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle
 
-GL_PI = 3.1415
+GL_PI: float = 3.1415
 
 x_rot: float = 0.0
 y_rot: float = 0.0
@@ -72,16 +74,16 @@ def render_scene() -> None:
     GL.glRotatef(x_rot, 1.0, 0.0, 0.0)
     GL.glRotatef(y_rot, 0.0, 1.0, 0.0)
 
-    sizes = np.zeros(2, dtype=np.float32)
+    sizes: np.ndarray = np.zeros(2, dtype=np.float32)
     GL.glGetFloatv(GL.GL_POINT_SIZE_RANGE, sizes)
-    step = GL.glGetFloatv(GL.GL_POINT_SIZE_GRANULARITY)
+    step: float = GL.glGetFloatv(GL.GL_POINT_SIZE_GRANULARITY)
 
-    cur_size = float(sizes[0])
-    z = -50.0
-    angle = 0.0
+    cur_size: float = float(sizes[0])
+    z: float = -50.0
+    angle: float = 0.0
     while angle <= (2.0 * GL_PI) * 3.0:
-        x = 50.0 * math.sin(angle)
-        y = 50.0 * math.cos(angle)
+        x: float = 50.0 * math.sin(angle)
+        y: float = 50.0 * math.cos(angle)
         GL.glPointSize(cur_size)
         GL.glBegin(GL.GL_POINTS)
         GL.glVertex3f(x, y, z)
@@ -99,7 +101,7 @@ def setup_rc() -> None:
 
 
 def change_size(w: int, h: int) -> None:
-    n_range = 100.0
+    n_range: float = 100.0
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
@@ -136,7 +138,7 @@ ROT_DEG_PER_SEC: float = 90.0
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -161,7 +163,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "Point Sizes Example", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "Point Sizes Example", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -171,7 +175,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -181,11 +185,11 @@ def main() -> None:
     change_size(w, h)
 
     glfw.swap_interval(1)
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

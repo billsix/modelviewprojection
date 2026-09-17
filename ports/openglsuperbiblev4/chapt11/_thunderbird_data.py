@@ -30,32 +30,32 @@ def _parse_array(text: str, name: str, dtype: "np.dtype | type") -> np.ndarray:
     """
     # Locate the declaration; the body runs from the first '{' after '='
     # to the matching closing '};'.
-    pattern = re.compile(
+    pattern: re.Pattern[str] = re.compile(
         r"\b" + re.escape(name) + r"\s*\[\d+\](?:\s*\[\d+\])?\s*=\s*",
         re.MULTILINE,
     )
-    m = pattern.search(text)
+    m: re.Match[str] | None = pattern.search(text)
     if not m:
         raise ValueError(f"Could not find array {name!r} in source")
 
     # Walk forward from the equals sign to the matching '};'
-    start = text.index("{", m.end())
-    depth = 0
-    i = start
+    start: int = text.index("{", m.end())
+    depth: int = 0
+    i: int = start
     while i < len(text):
-        c = text[i]
+        c: str = text[i]
         if c == "{":
             depth += 1
         elif c == "}":
             depth -= 1
             if depth == 0:
-                end = i + 1
+                end: int = i + 1
                 break
         i += 1
     else:
         raise ValueError(f"Unterminated body for {name!r}")
 
-    body = text[start:end]
+    body: str = text[start:end]
     # Strip C++ // line comments and /* block */ comments
     body = re.sub(r"//[^\n]*", "", body)
     body = re.sub(r"/\*.*?\*/", "", body, flags=re.DOTALL)
@@ -71,15 +71,15 @@ def load_model(directory: str) -> dict[str, np.ndarray]:
     if directory in _cache:
         return _cache[directory]
 
-    body_path = os.path.join(directory, "body.cpp")
-    glass_path = os.path.join(directory, "glass.cpp")
+    body_path: str = os.path.join(directory, "body.cpp")
+    glass_path: str = os.path.join(directory, "glass.cpp")
 
     with open(body_path) as f:
-        body_text = f.read()
+        body_text: str = f.read()
     with open(glass_path) as f:
-        glass_text = f.read()
+        glass_text: str = f.read()
 
-    data = {
+    data: dict[str, np.ndarray] = {
         "face_indices": _parse_array(body_text, "face_indicies", np.int32),
         "vertices": _parse_array(body_text, "vertices", np.float32),
         "normals": _parse_array(body_text, "normals", np.float32),

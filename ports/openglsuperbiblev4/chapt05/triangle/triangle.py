@@ -6,17 +6,18 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
 
 def render_scene() -> None:
@@ -43,8 +44,8 @@ def change_size(w: int, h: int) -> None:
     GL.glViewport(0, 0, w, h)
     GL.glLoadIdentity()
     if w <= h:
-        win_h = 250.0 * h / w
-        win_w = 250.0
+        win_h: float = 250.0 * h / w
+        win_w: float = 250.0
     else:
         win_w = 250.0 * w / h
         win_h = 250.0
@@ -81,7 +82,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "RGB Triangle", None, None)
+    window: typing.Any = glfw.create_window(
+        800, 600, "RGB Triangle", None, None
+    )  # glfw window handle
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -91,7 +94,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

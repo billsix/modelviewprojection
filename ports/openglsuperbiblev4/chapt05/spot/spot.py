@@ -9,6 +9,7 @@ import math
 import os
 import sys
 import time
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -16,27 +17,27 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Controls buttons
+_window: typing.Any = None  # glfw window handle; set in main()
 
 x_rot: float = 0.0
 y_rot: float = 0.0
 
-light_pos = (0.0, 0.0, 75.0, 1.0)
-specular = (1.0, 1.0, 1.0, 1.0)
-specref = (1.0, 1.0, 1.0, 1.0)
-ambient_light = (0.5, 0.5, 0.5, 1.0)
-spot_dir = (0.0, 0.0, -1.0)
+light_pos: tuple[float, float, float, float] = (0.0, 0.0, 75.0, 1.0)
+specular: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
+specref: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
+ambient_light: tuple[float, float, float, float] = (0.5, 0.5, 0.5, 1.0)
+spot_dir: tuple[float, float, float] = (0.0, 0.0, -1.0)
 
-MODE_FLAT = 1
-MODE_SMOOTH = 2
-MODE_VERYLOW = 3
-MODE_MEDIUM = 4
-MODE_VERYHIGH = 5
+MODE_FLAT: int = 1
+MODE_SMOOTH: int = 2
+MODE_VERYLOW: int = 3
+MODE_MEDIUM: int = 4
+MODE_VERYHIGH: int = 5
 
 i_shade: int = MODE_FLAT
 i_tess: int = MODE_VERYLOW
@@ -51,18 +52,18 @@ def _build_slant_cone(
     emitting apex-side (r1,z1) then base-side (r0,z0) so the outward faces wind
     CCW under glFrontFace(GL_CCW) (else they'd be culled). Per-vertex normals,
     so replay with the default draw_mesh."""
-    slope = base / height if height != 0 else 0.0
-    mag = math.sqrt(1.0 + slope * slope)
-    nz = slope / mag
+    slope: float = base / height if height != 0 else 0.0
+    mag: float = math.sqrt(1.0 + slope * slope)
+    nz: float = slope / mag
     bands: list = []
     for i in range(stacks):
-        z0 = float(i) / stacks * height
-        z1 = float(i + 1) / stacks * height
-        r0 = base * (1.0 - float(i) / stacks)
-        r1 = base * (1.0 - float(i + 1) / stacks)
+        z0: float = float(i) / stacks * height
+        z1: float = float(i + 1) / stacks * height
+        r0: float = base * (1.0 - float(i) / stacks)
+        r1: float = base * (1.0 - float(i + 1) / stacks)
         band: list = []
         for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
+            lng: float = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
             nx, ny = cl / mag, sl / mag
             band.append((nx, ny, nz, 0.0, 0.0, r1 * cl, r1 * sl, z1))
@@ -76,7 +77,7 @@ def _build_cone_cap(base: float, slices: int) -> "_primitives.Mesh":
     one flat normal for the whole fan -- replay with draw_mesh(flat=True)."""
     band: list = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
     for j in range(slices + 1):
-        lng = 2.0 * math.pi * float(j) / slices
+        lng: float = 2.0 * math.pi * float(j) / slices
         band.append(
             (
                 0.0,
@@ -97,12 +98,20 @@ def _build_cone_cap(base: float, slices: int) -> "_primitives.Mesh":
 # variant once at import, replay each frame. All spheres use swap_winding so
 # they emit (lat1, lat0) per band: the camera-facing side then winds CCW under
 # glFrontFace(GL_CCW) and isn't culled (the unlit far hemisphere otherwise).
-CONE_SLANT = _build_slant_cone(4.0, 6.0, 15, 15)
-CONE_CAP = _build_cone_cap(4.0, 15)
-BULB_SPHERE = _primitives.build_sphere(3.0, 15, 15, swap_winding=True)
-BLUE_SPHERE_LOW = _primitives.build_sphere(30.0, 7, 7, swap_winding=True)
-BLUE_SPHERE_MEDIUM = _primitives.build_sphere(30.0, 15, 15, swap_winding=True)
-BLUE_SPHERE_HIGH = _primitives.build_sphere(30.0, 50, 50, swap_winding=True)
+CONE_SLANT: _primitives.Mesh = _build_slant_cone(4.0, 6.0, 15, 15)
+CONE_CAP: _primitives.Mesh = _build_cone_cap(4.0, 15)
+BULB_SPHERE: _primitives.Mesh = _primitives.build_sphere(
+    3.0, 15, 15, swap_winding=True
+)
+BLUE_SPHERE_LOW: _primitives.Mesh = _primitives.build_sphere(
+    30.0, 7, 7, swap_winding=True
+)
+BLUE_SPHERE_MEDIUM: _primitives.Mesh = _primitives.build_sphere(
+    30.0, 15, 15, swap_winding=True
+)
+BLUE_SPHERE_HIGH: _primitives.Mesh = _primitives.build_sphere(
+    30.0, 50, 50, swap_winding=True
+)
 
 
 def render_scene() -> None:
@@ -246,7 +255,7 @@ def change_size(w: int, h: int) -> None:
     GL.glViewport(0, 0, w, h)
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
-    f_aspect = float(w) / float(h)
+    f_aspect: float = float(w) / float(h)
     GLU.gluPerspective(35.0, f_aspect, 1.0, 500.0)
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
@@ -264,7 +273,7 @@ ROT_DEG_PER_SEC: float = 90.0
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -287,7 +296,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "Spot Light", None, None)
+    window: typing.Any = glfw.create_window(
+        800, 600, "Spot Light", None, None
+    )  # glfw window handle
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -298,7 +309,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -307,11 +318,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()
