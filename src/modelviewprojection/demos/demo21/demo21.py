@@ -45,7 +45,7 @@ if typing.TYPE_CHECKING:
     # runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
 # This file is a program, not a module: from here on it acquires resources (a
@@ -59,12 +59,12 @@ if not glfw.init():
     sys.exit()
 
 # NEW - for shader location
-pwd = os.path.dirname(os.path.abspath(__file__))
+pwd: str = os.path.dirname(os.path.abspath(__file__))
 
 # NEW - for shaders
-glfloat_size = 4
-floats_per_vector = 3
-floats_per_color = 4
+glfloat_size: int = 4
+floats_per_vector: int = 3
+floats_per_color: int = 4
 
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
@@ -129,8 +129,8 @@ def impl_glfw_init() -> "GLFWWindow":
 
 
 imgui.create_context()
-window = impl_glfw_init()
-impl = GlfwRenderer(window)
+window: "GLFWWindow" = impl_glfw_init()
+impl: GlfwRenderer = GlfwRenderer(window)
 init_fonts_and_markdown()
 
 if not impl:
@@ -217,8 +217,8 @@ def _build_ground_pipeline() -> GroundPipeline:
     )
 
 
-triangle = _build_triangle_pipeline()
-ground = _build_ground_pipeline()
+triangle: TrianglePipeline = _build_triangle_pipeline()
+ground: GroundPipeline = _build_ground_pipeline()
 
 
 # ---------------------------------------------------------------------------
@@ -335,20 +335,26 @@ square_color: colorutils.Color4 = colorutils.Color4(r=0.0, g=0.0, b=1.0, a=0.75)
 
 # Build VBOs first.  paddle_pos_vbo is shared by paddle1 and paddle2
 # -- the same vertex bytes feeding two VAOs.
-ground_vertices = _build_ground_vertices()
+ground_vertices: NDArray = _build_ground_vertices()
 
-paddle_pos_vbo = make_vbo(paddle_vertices)
-square_pos_vbo = make_vbo(square_vertices)
-ground_pos_vbo = make_vbo(ground_vertices)
+paddle_pos_vbo: int = make_vbo(paddle_vertices)
+square_pos_vbo: int = make_vbo(square_vertices)
+ground_pos_vbo: int = make_vbo(ground_vertices)
 
-paddle1_vertex_count = paddle_vertices.size // floats_per_vector
-paddle2_vertex_count = paddle1_vertex_count
-square_vertex_count = square_vertices.size // floats_per_vector
-ground_vertex_count = ground_vertices.size // floats_per_vector
+paddle1_vertex_count: int = paddle_vertices.size // floats_per_vector
+paddle2_vertex_count: int = paddle1_vertex_count
+square_vertex_count: int = square_vertices.size // floats_per_vector
+ground_vertex_count: int = ground_vertices.size // floats_per_vector
 
-paddle1_color_vbo = make_vbo(_color_array(paddle1_color, paddle1_vertex_count))
-paddle2_color_vbo = make_vbo(_color_array(paddle2_color, paddle2_vertex_count))
-square_color_vbo = make_vbo(_color_array(square_color, square_vertex_count))
+paddle1_color_vbo: int = make_vbo(
+    _color_array(paddle1_color, paddle1_vertex_count)
+)
+paddle2_color_vbo: int = make_vbo(
+    _color_array(paddle2_color, paddle2_vertex_count)
+)
+square_color_vbo: int = make_vbo(
+    _color_array(square_color, square_vertex_count)
+)
 
 
 def _triangle_attribs(pos_vbo: int, color_vbo: int) -> list[AttribSpec]:
@@ -370,11 +376,15 @@ def _triangle_attribs(pos_vbo: int, color_vbo: int) -> list[AttribSpec]:
 
 # paddle1 and paddle2 both reference paddle_pos_vbo -- one upload,
 # two VAOs.  Previously this was two uploads via make_colored_vao.
-paddle1_vao = make_vao(_triangle_attribs(paddle_pos_vbo, paddle1_color_vbo))
-paddle2_vao = make_vao(_triangle_attribs(paddle_pos_vbo, paddle2_color_vbo))
-square_vao = make_vao(_triangle_attribs(square_pos_vbo, square_color_vbo))
+paddle1_vao: int = make_vao(
+    _triangle_attribs(paddle_pos_vbo, paddle1_color_vbo)
+)
+paddle2_vao: int = make_vao(
+    _triangle_attribs(paddle_pos_vbo, paddle2_color_vbo)
+)
+square_vao: int = make_vao(_triangle_attribs(square_pos_vbo, square_color_vbo))
 
-ground_vao = make_vao(
+ground_vao: int = make_vao(
     [
         AttribSpec(
             vbo=ground_pos_vbo,
@@ -403,7 +413,7 @@ square_rotation: float = 0.0
 square_rotation_around_paddle1: float = 0.0
 
 
-number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
+number_of_controllers: int = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
 @dataclasses.dataclass
@@ -415,7 +425,7 @@ class Camera:
     rot_x: float = 0.0
 
 
-camera = Camera(x=0.0, y=0.0, z=40.0, rot_y=0.0, rot_x=0.0)
+camera: Camera = Camera(x=0.0, y=0.0, z=40.0, rot_y=0.0, rot_x=0.0)
 
 
 # ---------------------------------------------------------------------------
@@ -486,10 +496,10 @@ def handle_inputs() -> None:
 # fmt: on
 
 
-TARGET_FRAMERATE = 60  # fps
+TARGET_FRAMERATE: int = 60  # fps
 
 # to try to standardize on 60 fps, compare times between frames
-time_at_beginning_of_previous_frame = glfw.get_time()
+time_at_beginning_of_previous_frame: float = glfw.get_time()
 
 # Loop until the user closes the window
 while not glfw.window_should_close(window):
@@ -559,7 +569,7 @@ while not glfw.window_should_close(window):
 
     handle_inputs()
 
-    axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
+    axes_list: typing.Any = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
             camera.x += 1.0 * axes_list[0][0] * math.cos(camera.rot_y)

@@ -9,6 +9,7 @@ import os
 import random
 import sys
 import time
+import typing
 
 import glfw
 import numpy as np
@@ -20,24 +21,24 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import plane_equation
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main() for Quit button
 
-NUM_SPHERES = 30
-sphere_positions = []
+NUM_SPHERES: int = 30
+sphere_positions: list[tuple[float, float, float]] = []
 camera_x: float = 0.0
 camera_y: float = 0.0
 camera_z: float = 0.0
 camera_yaw: float = 0.0
-f_light_pos = (-100.0, 100.0, 50.0, 1.0)
-f_no_light = (0.0, 0.0, 0.0, 0.0)
-f_low_light = (0.25, 0.25, 0.25, 1.0)
-f_bright_light = (1.0, 1.0, 1.0, 1.0)
-shadow_mat = None
+f_light_pos: tuple[float, float, float, float] = (-100.0, 100.0, 50.0, 1.0)
+f_no_light: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
+f_low_light: tuple[float, float, float, float] = (0.25, 0.25, 0.25, 1.0)
+f_bright_light: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
+shadow_mat: np.ndarray | None = None
 y_rot: float = 0.0
 fog_enabled: bool = True
 
@@ -52,12 +53,12 @@ def make_planar_shadow_matrix(
         plane_normal.coeff_e_2,
         plane_normal.coeff_e_3,
     )
-    d = plane_d
+    d: float = plane_d
     dx, dy, dz = -light_pos_4[0], -light_pos_4[1], -light_pos_4[2]
     # CCW plane_equation can land w<0; OpenGL clips before perspective
     # divide and the shadow disappears. Negate to keep w positive.
     # See tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md.
-    sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
+    sign: float = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
             sign * (b * dy + c * dz),
@@ -85,10 +86,10 @@ def make_planar_shadow_matrix(
 # and replay them in draw_inhabitants / render_scene instead of re-running the
 # sin/cos loops on every draw. 30 spheres + a torus, each drawn twice per frame
 # (the shadow pass), were the bulk of the per-frame CPU cost.
-SPHERE_BIG = _primitives.build_sphere(0.3, 17, 9)
-SPHERE_SMALL = _primitives.build_sphere(0.1, 17, 9)
-TORUS = _primitives.build_torus(0.35, 0.15, 61, 37)
-GROUND = _primitives.build_ground(20.0, 1.0, -0.4)
+SPHERE_BIG: _primitives.Mesh = _primitives.build_sphere(0.3, 17, 9)
+SPHERE_SMALL: _primitives.Mesh = _primitives.build_sphere(0.1, 17, 9)
+TORUS: _primitives.Mesh = _primitives.build_torus(0.35, 0.15, 61, 37)
+GROUND: _primitives.Mesh = _primitives.build_ground(20.0, 1.0, -0.4)
 
 
 def apply_camera_transform() -> None:
@@ -165,7 +166,7 @@ BTN_YAW_STEP: float = 0.025
 def _walk(direction: float) -> None:
     """Move forward (+1) or back (-1) along the current heading."""
     global camera_x, camera_z
-    step = direction * BTN_MOVE_STEP
+    step: float = direction * BTN_MOVE_STEP
     camera_x += -step * math.sin(camera_yaw)
     camera_z += -step * math.cos(camera_yaw)
 
@@ -241,8 +242,8 @@ def setup_rc() -> None:
 
     random.seed(0)
     for _ in range(NUM_SPHERES):
-        sx = (random.randint(0, 399) - 200) * 0.1
-        sz = (random.randint(0, 399) - 200) * 0.1
+        sx: float = (random.randint(0, 399) - 200) * 0.1
+        sz: float = (random.randint(0, 399) - 200) * 0.1
         sphere_positions.append((sx, 0.0, sz))
 
 
@@ -250,7 +251,7 @@ def change_size(w: int, h: int) -> None:
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
-    f_aspect = float(w) / float(h)
+    f_aspect: float = float(w) / float(h)
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     GLU.gluPerspective(35.0, f_aspect, 1.0, 50.0)
@@ -269,8 +270,8 @@ TORUS_DEG_PER_SEC: float = 30.0
 
 def handle_camera_keys(window, dt: float) -> None:
     global camera_x, camera_z, camera_yaw
-    move = MOVE_UNITS_PER_SEC * dt
-    yaw = YAW_RAD_PER_SEC * dt
+    move: float = MOVE_UNITS_PER_SEC * dt
+    yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera_x += -move * math.sin(camera_yaw)
         camera_z += -move * math.cos(camera_yaw)
@@ -296,7 +297,7 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         800, 600, "OpenGL SphereWorld Demo + Fog", None, None
     )
     if not window:
@@ -309,7 +310,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -318,11 +319,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

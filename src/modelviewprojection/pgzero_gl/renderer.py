@@ -81,7 +81,7 @@ def ortho_pixels(width: float, height: float) -> NDArray[np.float32]:
 # switched by the uUseTex uniform, multiplied by a uTint colour.
 # ---------------------------------------------------------------------------
 
-_VERT = """
+_VERT: str = """
 #version 330 core
 layout(location = 0) in vec2 aPos;
 uniform mat4 uOrtho;
@@ -95,7 +95,7 @@ void main() {
 }
 """
 
-_FRAG = """
+_FRAG: str = """
 #version 330 core
 in vec2 vTex;
 uniform sampler2D uTex;

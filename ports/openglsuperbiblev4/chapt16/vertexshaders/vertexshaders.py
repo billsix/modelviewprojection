@@ -17,6 +17,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -26,19 +27,19 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main()
 window_width: int = 1024
 window_height: int = 768
 
 SIMPLE, DIFFUSE, SPECULAR, SEPSPEC, TEXSPEC = 0, 1, 2, 3, 4
 THREELIGHTS, FOGCOORD, FOG, PTSIZE, STRETCH = 5, 6, 7, 8, 9
-TOTAL_SHADERS = 10
-shader_names = [
+TOTAL_SHADERS: int = 10
+shader_names: list[str] = [
     "simple",
     "diffuse",
     "specular",
@@ -51,20 +52,20 @@ shader_names = [
     "stretch",
 ]
 
-v_shader = [0] * TOTAL_SHADERS
-prog_obj = [0] * TOTAL_SHADERS
+v_shader: list[int] = [0] * TOTAL_SHADERS
+prog_obj: list[int] = [0] * TOTAL_SHADERS
 
 which_shader: int = SIMPLE
 
-camera_pos = [100.0, 75.0, 150.0, 1.0]
+camera_pos: list[float] = [100.0, 75.0, 150.0, 1.0]
 camera_zoom: float = 0.4
 
-light_pos0 = np.array([140.0, 250.0, 140.0, 1.0], dtype=np.float32)
-light_pos1 = np.array([-140.0, 250.0, 140.0, 1.0], dtype=np.float32)
-light_pos2 = np.array([0.0, 250.0, -200.0, 1.0], dtype=np.float32)
+light_pos0: np.ndarray = np.array([140.0, 250.0, 140.0, 1.0], dtype=np.float32)
+light_pos1: np.ndarray = np.array([-140.0, 250.0, 140.0, 1.0], dtype=np.float32)
+light_pos2: np.ndarray = np.array([0.0, 250.0, -200.0, 1.0], dtype=np.float32)
 
-squash_stretch = [1.0, 1.5, 0.75, 1.0]
-fog_color = [0.5, 0.8, 0.5, 1.0]
+squash_stretch: list[float] = [1.0, 1.5, 0.75, 1.0]
+fog_color: list[float] = [0.5, 0.8, 0.5, 1.0]
 light_rotation: float = 0.0
 density: float = 0.005
 
@@ -73,7 +74,7 @@ max_tex_size: int = 0
 
 def transform_vec3(v: np.ndarray, m: np.ndarray) -> np.ndarray:
     """Like m3dTransformVector3: 4x4 column-major mat times 4-vec, drop w."""
-    out = np.zeros(3, dtype=np.float32)
+    out: np.ndarray = np.zeros(3, dtype=np.float32)
     for r in range(3):
         out[r] = (
             m[r] * v[0] + m[r + 4] * v[1] + m[r + 8] * v[2] + m[r + 12] * v[3]
@@ -82,13 +83,13 @@ def transform_vec3(v: np.ndarray, m: np.ndarray) -> np.ndarray:
 
 
 def create_pow_map(r: float, g: float, b: float) -> None:
-    tex_size = min(max_tex_size, 512)
-    texels = np.zeros(tex_size * 4, dtype=np.float32)
+    tex_size: int = min(max_tex_size, 512)
+    texels: np.ndarray = np.zeros(tex_size * 4, dtype=np.float32)
     for x in range(tex_size):
         # Range trick: incoming N.H scaled by 8 and biased by -7 so we
         # only sample the upper 1/8 of the curve where it varies.
-        t = (float(x) / float(tex_size - 1)) * 0.125 + 0.875
-        v = pow(t, 128.0)
+        t: float = (float(x) / float(tex_size - 1)) * 0.125 + 0.875
+        v: float = pow(t, 128.0)
         texels[x * 4 + 0] = r * v
         texels[x * 4 + 1] = g * v
         texels[x * 4 + 2] = b * v
@@ -107,7 +108,7 @@ def create_pow_map(r: float, g: float, b: float) -> None:
 
 
 def draw_solid_cube(size: float) -> None:
-    s = size / 2.0
+    s: float = size / 2.0
     GL.glBegin(GL.GL_QUADS)
     for nx, ny, nz, vs in [
         (0, 0, 1, [(-s, -s, s), (s, -s, s), (s, s, s), (-s, s, s)]),
@@ -123,16 +124,16 @@ def draw_solid_cube(size: float) -> None:
     GL.glEnd()
 
 
-SPHERE_BIG = _primitives.build_sphere(25.0, 50, 50)
-SPHERE_SMALL = _primitives.build_sphere(25.0, 32, 32)
-CONE = _primitives.build_cone(25.0, 50.0, 50)
-TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
+SPHERE_BIG: _primitives.Mesh = _primitives.build_sphere(25.0, 50, 50)
+SPHERE_SMALL: _primitives.Mesh = _primitives.build_sphere(25.0, 32, 32)
+CONE: _primitives.Mesh = _primitives.build_cone(25.0, 50.0, 50)
+TORUS: _primitives.Mesh = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 
 def prepare_shader(shader_num: int) -> None:
-    fname = os.path.join(PWD, "shaders", f"{shader_names[shader_num]}.vs")
+    fname: str = os.path.join(PWD, "shaders", f"{shader_names[shader_num]}.vs")
     with open(fname) as f:
-        vs_src = f.read()
+        vs_src: str = f.read()
     v_shader[shader_num] = shaders_mod.compileShader(
         vs_src, GL.GL_VERTEX_SHADER
     )
@@ -140,7 +141,7 @@ def prepare_shader(shader_num: int) -> None:
     GL.glAttachShader(prog_obj[shader_num], v_shader[shader_num])
     GL.glLinkProgram(prog_obj[shader_num])
     if not GL.glGetProgramiv(prog_obj[shader_num], GL.GL_LINK_STATUS):
-        info = GL.glGetProgramInfoLog(prog_obj[shader_num])
+        info: bytes = GL.glGetProgramInfoLog(prog_obj[shader_num])
         sys.stderr.write(f"Program {shader_num} link error: {info}\n")
         sys.exit(1)
 
@@ -149,18 +150,18 @@ def draw_models() -> None:
     # Transform light positions to eye space
     GL.glPushMatrix()
     GL.glRotatef(light_rotation, 0.0, 1.0, 0.0)
-    mv = np.array(
+    mv: np.ndarray = np.array(
         GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
     ).flatten()
-    light_pos_eye0 = transform_vec3(light_pos0, mv)
+    light_pos_eye0: np.ndarray = transform_vec3(light_pos0, mv)
     light_pos_eye1 = light_pos_eye2 = np.zeros(3, dtype=np.float32)
     if which_shader == THREELIGHTS:
-        light_pos_eye1 = transform_vec3(light_pos1, mv)
-        light_pos_eye2 = transform_vec3(light_pos2, mv)
+        light_pos_eye1: np.ndarray = transform_vec3(light_pos1, mv)
+        light_pos_eye2: np.ndarray = transform_vec3(light_pos2, mv)
     GL.glPopMatrix()
 
-    p = prog_obj[which_shader]
-    loc = GL.glGetUniformLocation(p, "lightPos[0]")
+    p: int = prog_obj[which_shader]
+    loc: int = GL.glGetUniformLocation(p, "lightPos[0]")
     if loc != -1:
         GL.glUniform3fv(loc, 1, light_pos_eye0)
     loc = GL.glGetUniformLocation(p, "lightPos[1]")
@@ -201,7 +202,11 @@ def draw_models() -> None:
     GL.glPopMatrix()
 
     if which_shader == STRETCH:
-        rotated = [squash_stretch[0], squash_stretch[2], squash_stretch[1]]
+        rotated: list[float] = [
+            squash_stretch[0],
+            squash_stretch[2],
+            squash_stretch[1],
+        ]
         loc = GL.glGetUniformLocation(p, "squashStretch")
         if loc != -1:
             GL.glUniform3fv(loc, 1, np.array(rotated, dtype=np.float32))
@@ -226,7 +231,7 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if window_width > window_height:
-        ar = float(window_width) / float(window_height)
+        ar: float = float(window_width) / float(window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -459,7 +464,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "Vertex Shaders Demo", None, None
     )
     if not window:
@@ -470,7 +475,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

@@ -60,7 +60,7 @@ if typing.TYPE_CHECKING:
     # runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
 glfloat_size: int = 4
@@ -77,7 +77,7 @@ floats_per_color: int = 3
 #: is what these APIs really take -- and it replaces the per-parameter
 #: type-ignore comments that used to be copy-pasted onto every such signature
 #: (_pipeline, demo21, demo22).
-GLenum = int | Constant
+GLenum: typing.TypeAlias = int | Constant
 
 
 # ---------------------------------------------------------------------------

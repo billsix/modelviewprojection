@@ -107,14 +107,14 @@ if __name__ != "__main__":
 if not glfw.init():
     sys.exit()
 
-pwd = os.path.dirname(os.path.abspath(__file__))
+pwd: str = os.path.dirname(os.path.abspath(__file__))
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
 glfw.window_hint(glfw.OPENGL_PROFILE, glfw.OPENGL_CORE_PROFILE)
 glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
 
-window = glfw.create_window(
+window: typing.Any = glfw.create_window(
     600,
     600,
     "ModelViewProjection Demo 22 -- 3D Effects",
@@ -132,13 +132,13 @@ glfw.make_context_current(window)
 # override-bind when they need a specific layout, and we never call
 # glBindVertexArray(0).  Mesa and NVIDIA tolerate the spec violation
 # silently; Apple's driver does not.
-_default_vao = GL.glGenVertexArrays(1)
+_default_vao: int = GL.glGenVertexArrays(1)
 GL.glBindVertexArray(_default_vao)
 
 
 # ImGui setup -- mirrors the pattern used in demo21.
 imgui.create_context()
-impl = GlfwRenderer(window)
+impl: GlfwRenderer = GlfwRenderer(window)
 
 
 n_step: int = 0
@@ -285,7 +285,7 @@ def _build_main_pipeline() -> MainPipeline:
     )
 
 
-main = _build_main_pipeline()
+main: MainPipeline = _build_main_pipeline()
 
 
 # ---------------------------------------------------------------------------
@@ -304,7 +304,7 @@ main = _build_main_pipeline()
 # so the same FBO can be sampled as a normal 2D texture for the
 # "View shadow map" overlay (sampler2DShadow can't be sampled with a
 # regular texture() call).
-SHADOW_DEPTH_VS = """
+SHADOW_DEPTH_VS: str = """
 #version 330 core
 layout (location = 0) in vec3 position;
 uniform mat4 lightMVP;        // = lightProj * lightView * model
@@ -313,7 +313,7 @@ void main() {
 }
 """
 
-SHADOW_DEPTH_FS = """
+SHADOW_DEPTH_FS: str = """
 #version 330 core
 out float depth_out;          // R32F color attachment, just for visualization
 void main() {
@@ -327,7 +327,7 @@ void main() {
 # the light's clip space, scale-biased into [0, 1] texture coords;
 # textureProj does the perspective divide and depth comparison in
 # hardware.
-BLOCK_SHADOW_VS = """
+BLOCK_SHADOW_VS: str = """
 #version 330 core
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 normal_in;
@@ -349,7 +349,7 @@ void main() {
 }
 """
 
-BLOCK_SHADOW_FS = """
+BLOCK_SHADOW_FS: str = """
 #version 330 core
 in vec3 v_normal_ws;
 in vec2 v_texcoord;
@@ -388,7 +388,7 @@ void main() {
 # UVs so the depth map fills the whole window regardless of either
 # the framebuffer size or the depth texture size.  See feedback memory
 # `feedback_render_to_texture_match_framebuffer.md`.
-SHADOW_VIEW_VS = """
+SHADOW_VIEW_VS: str = """
 #version 330 core
 out vec2 v_uv;
 void main() {
@@ -407,7 +407,7 @@ void main() {
 }
 """
 
-SHADOW_VIEW_FS = """
+SHADOW_VIEW_FS: str = """
 #version 330 core
 in vec2 v_uv;
 uniform sampler2D depthTex;     // R32F debug attachment, not sampler2DShadow
@@ -507,9 +507,9 @@ def _build_shadow_view_pipeline() -> ShadowViewPipeline:
     )
 
 
-shadow_depth = _build_shadow_depth_pipeline()
-block_shadow = _build_block_shadow_pipeline()
-shadow_view = _build_shadow_view_pipeline()
+shadow_depth: ShadowDepthPipeline = _build_shadow_depth_pipeline()
+block_shadow: BlockShadowPipeline = _build_block_shadow_pipeline()
+shadow_view: ShadowViewPipeline = _build_shadow_view_pipeline()
 
 
 # ---------------------------------------------------------------------------
@@ -612,13 +612,13 @@ def _build_shadow_resources() -> ShadowResources:
     return ShadowResources(fbo=fbo, depth_tex=depth_tex, debug_tex=debug_tex)
 
 
-shadow_res = _build_shadow_resources()
+shadow_res: ShadowResources = _build_shadow_resources()
 
 
 # Scale-bias matrix to convert clip-space [-1, 1] coordinates into
 # texture space [0, 1].  Multiplied with the light's projection-view-
 # model in shadowMatrix.
-_SCALE_BIAS = np.array(
+_SCALE_BIAS: np.ndarray = np.array(
     [
         [0.5, 0.0, 0.0, 0.5],
         [0.0, 0.5, 0.0, 0.5],
@@ -821,10 +821,10 @@ def load_texture(path: str) -> int:
     return tex
 
 
-tex_floor = load_texture(os.path.join(pwd, "floor.tga"))
-tex_block_front = load_texture(os.path.join(pwd, "Block4.tga"))
-tex_block_top = load_texture(os.path.join(pwd, "Block5.tga"))
-tex_block_right = load_texture(os.path.join(pwd, "Block6.tga"))
+tex_floor: int = load_texture(os.path.join(pwd, "floor.tga"))
+tex_block_front: int = load_texture(os.path.join(pwd, "Block4.tga"))
+tex_block_top: int = load_texture(os.path.join(pwd, "Block5.tga"))
+tex_block_right: int = load_texture(os.path.join(pwd, "Block6.tga"))
 
 
 # ---------------------------------------------------------------------------
@@ -836,8 +836,8 @@ tex_block_right = load_texture(os.path.join(pwd, "Block6.tga"))
 # ---------------------------------------------------------------------------
 
 
-_FLOATS_PER_VERTEX = 8  # 3 pos + 3 normal + 2 uv
-_STRIDE = _FLOATS_PER_VERTEX * 4
+_FLOATS_PER_VERTEX: int = 8  # 3 pos + 3 normal + 2 uv
+_STRIDE: int = _FLOATS_PER_VERTEX * 4
 
 
 # Two-step VAO/VBO construction.  The OpenGL model is:
@@ -1029,7 +1029,7 @@ cube_wire_vao, _, cube_wire_count = _make_interleaved_mesh(
 
 # Floor geometry -------------------------------------------------------------
 
-FLOOR_Y = -25.3
+FLOOR_Y: float = -25.3
 
 
 def _build_floor() -> np.ndarray:
@@ -1146,7 +1146,7 @@ LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)
 # above).
 
 # floor plane equation:  ax + by + cz + d = 0.  Floor is y = FLOOR_Y, so:
-FLOOR_PLANE = (0.0, 1.0, 0.0, -FLOOR_Y)
+FLOOR_PLANE: tuple[float, float, float, float] = (0.0, 1.0, 0.0, -FLOOR_Y)
 
 
 def planar_shadow_matrix(
@@ -1427,8 +1427,10 @@ while not glfw.window_should_close(window):
     # Recompute light + shadow each frame so the slider drives both
     # the Lambert shading on the cube AND the planar shadow on the
     # floor.  light_dir is read by setup_uniforms via closure scope.
-    light_dir = light_dir_ws(light_az_deg, light_el_deg)
-    shadow_matrix = planar_shadow_matrix(
+    light_dir: tuple[float, float, float] = light_dir_ws(
+        light_az_deg, light_el_deg
+    )
+    shadow_matrix: np.ndarray = planar_shadow_matrix(
         FLOOR_PLANE, (light_dir[0], light_dir[1], light_dir[2], 0.0)
     )
 
@@ -1440,7 +1442,7 @@ while not glfw.window_should_close(window):
     ms.set_to_identity_matrix(ms.MatrixStack.view)
     ms.set_to_identity_matrix(ms.MatrixStack.projection)
 
-    aspect = float(width) / float(height) if height > 0 else 1.0
+    aspect: float = float(width) / float(height) if height > 0 else 1.0
     ms.perspective(
         field_of_view=45.0,
         aspect_ratio=aspect,
@@ -1457,7 +1459,7 @@ while not glfw.window_should_close(window):
     # Decide which path we're on this frame.  When stages 3 / 4 use
     # the shadow-map algorithm we need a depth pass first; the camera
     # pass then samples that texture for shadow occlusion.
-    using_sm = shadow_algo == "shadow_map" and n_step in (3, 4)
+    using_sm: bool = shadow_algo == "shadow_map" and n_step in (3, 4)
 
     if using_sm:
         # Pass 1: depth from light's POV.  Returns the shadowMatrix

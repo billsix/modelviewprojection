@@ -10,17 +10,18 @@
 import math
 import os
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main() (Quit menu item)
 
 window_width: int = 400
 window_height: int = 200
@@ -32,16 +33,16 @@ def draw_circle() -> None:
     GL.glBegin(GL.GL_TRIANGLE_FAN)
     GL.glVertex2f(0.0, 0.0)
     for d in range(0, 361, 10):
-        a = d * math.pi / 180.0
+        a: float = d * math.pi / 180.0
         GL.glVertex2f(math.sin(a), math.cos(a))
     GL.glEnd()
 
 
 def setup_gl_state() -> None:
-    aspect = window_width / window_height if window_height else 1.0
+    aspect: float = window_width / window_height if window_height else 1.0
     yt, yb = 0.05, -0.05
-    xl = yt * aspect
-    xr = yb * aspect
+    xl: float = yt * aspect
+    xr: float = yb * aspect
     GL.glViewport(0, 0, window_width, window_height)
     GL.glClearColor(0.0, 1.0, 1.0, 1.0)
     GL.glMatrixMode(GL.GL_PROJECTION)
@@ -52,21 +53,21 @@ def setup_gl_state() -> None:
 
 
 def draw() -> None:
-    nle_x = window_width // 2 - int(0.3 * (window_width // 2))
-    nle_y = window_height // 2
-    nre_x = window_width // 2 + int(0.3 * (window_width // 2))
-    nre_y = window_height // 2
-    min_len = 0.1 * (window_width // 2)
-    lt_mag = max(
+    nle_x: int = window_width // 2 - int(0.3 * (window_width // 2))
+    nle_y: int = window_height // 2
+    nre_x: int = window_width // 2 + int(0.3 * (window_width // 2))
+    nre_y: int = window_height // 2
+    min_len: float = 0.1 * (window_width // 2)
+    lt_mag: float = max(
         min_len, math.sqrt((mouse_x - nle_x) ** 2 + (mouse_y - nle_y) ** 2)
     )
-    rt_mag = max(
+    rt_mag: float = max(
         min_len, math.sqrt((mouse_x - nre_x) ** 2 + (mouse_y - nre_y) ** 2)
     )
-    left_x = (mouse_x - nle_x) / lt_mag
-    left_y = -(mouse_y - nle_y) / lt_mag
-    right_x = (mouse_x - nre_x) / rt_mag
-    right_y = -(mouse_y - nre_y) / rt_mag
+    left_x: float = (mouse_x - nle_x) / lt_mag
+    left_y: float = -(mouse_y - nle_y) / lt_mag
+    right_x: float = (mouse_x - nre_x) / rt_mag
+    right_y: float = -(mouse_y - nre_y) / rt_mag
 
     GL.glClear(GL.GL_COLOR_BUFFER_BIT)
     GL.glMatrixMode(GL.GL_PROJECTION)
@@ -140,7 +141,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "Eyeballs (GLX/Python)", None, None
     )
     if not window:
@@ -151,7 +152,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key/cursor callbacks AFTER GlfwRenderer -- it installs its own
     # glfw callbacks that don't chain, so mouse tracking / Esc must be last.
     glfw.set_cursor_pos_callback(window, on_mouse_pos)

@@ -16,6 +16,7 @@ against the placement arrows, the inverse).  No camera object is drawn."""
 import math
 import os
 import sys
+import types
 import typing
 from enum import Enum, auto
 
@@ -39,10 +40,10 @@ if typing.TYPE_CHECKING:
     # and absent at runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
-imgui = cayley_gl.imgui
+imgui: types.ModuleType = cayley_gl.imgui
 
 
 class Space(Enum):
@@ -54,7 +55,7 @@ class Space(Enum):
 
 # live parameters -- all start at zero, like the original (keyboard-driven
 # there, slider-driven here).
-params = {
+params: dict[str, float] = {
     "p1x": -9.0,
     "p1y": 1.0,
     "p1rot": 0.0,
@@ -65,7 +66,7 @@ params = {
     "sqrot": 0.0,
 }
 
-paddle1_edge = cayleygraph.Edge(
+paddle1_edge: cayleygraph.Edge = cayleygraph.Edge(
     src=Space.paddle1,
     dst=Space.world,
     steps=[
@@ -74,7 +75,7 @@ paddle1_edge = cayleygraph.Edge(
     ],
 )
 # square sits behind paddle1 (z -0.5), rotates around it, slides out, spins.
-square_edge = cayleygraph.Edge(
+square_edge: cayleygraph.Edge = cayleygraph.Edge(
     src=Space.square,
     dst=Space.paddle1,
     steps=[
@@ -84,7 +85,7 @@ square_edge = cayleygraph.Edge(
         ("R_sq", rotate_z(params["sqrot"])),
     ],
 )
-paddle2_edge = cayleygraph.Edge(
+paddle2_edge: cayleygraph.Edge = cayleygraph.Edge(
     src=Space.paddle2,
     dst=Space.world,
     steps=[
@@ -92,14 +93,16 @@ paddle2_edge = cayleygraph.Edge(
         ("R_z", rotate_z(params["p2rot"])),
     ],
 )
-graph = cayleygraph.CayleyGraph([paddle1_edge, square_edge, paddle2_edge])
+graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
+    [paddle1_edge, square_edge, paddle2_edge]
+)
 
-DRAW = [
+DRAW: list[tuple[Space, str]] = [
     (Space.paddle1, "paddle1"),
     (Space.square, "square"),
     (Space.paddle2, "paddle2"),
 ]
-FOCUS = [
+FOCUS: list[tuple[str, Space | None]] = [
     ("NDC", None),
     ("Paddle 1", Space.paddle1),
     ("Square", Space.square),
@@ -137,17 +140,19 @@ if __name__ != "__main__":
 
 
 window, impl, imguiio = cayley_gl.setup("Coordinate Systems (Cayley)")
-camera = cayley_gl.make_camera(r=85.0)
+camera: cayley_gl._p.Camera = cayley_gl.make_camera(r=85.0)
 cayley_gl.install_scroll(window, imguiio, camera)
-pwd = os.path.dirname(os.path.abspath(__file__))
-standard_objects = cayley_gl.build_standard(shader_dir=pwd, animated=False)
+pwd: str = os.path.dirname(os.path.abspath(__file__))
+standard_objects: cayley_gl.StandardObjects = cayley_gl.build_standard(
+    shader_dir=pwd, animated=False
+)
 
 state: dict[str, typing.Any] = {
     "mouse": None,
     "line_width": 2.0,
     "center_on": None,
 }
-win_state = cayley_gl.WindowState()
+win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 
 
 def _focus(node: Space | None) -> None:

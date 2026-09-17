@@ -47,13 +47,13 @@ if typing.TYPE_CHECKING:
     # and absent at runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
 # imgui via cayley_gl so glfw + OpenGL.GL import BEFORE imgui_bundle (its own GL
 # loader must come after, or PyOpenGL's context tracking breaks at window
 # setup).
-imgui = cayley_gl.imgui
+imgui: typing.Any = cayley_gl.imgui
 
 
 # --- the scene, declared -- spaces are enum members; the whole (immutable,
@@ -67,7 +67,7 @@ class Space(Enum):
     camera = auto()
 
 
-camera_edge = cayleygraph.Edge(
+camera_edge: cayleygraph.Edge = cayleygraph.Edge(
     src=Space.camera,
     dst=Space.world,
     steps=[
@@ -77,7 +77,7 @@ camera_edge = cayleygraph.Edge(
     ],
 )
 
-graph = cayleygraph.CayleyGraph(
+graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
     [
         cayleygraph.Edge(
             src=Space.paddle1,
@@ -109,7 +109,7 @@ graph = cayleygraph.CayleyGraph(
     ]
 )
 
-scene = cayleyscene.Scene(
+scene: cayleyscene.Scene = cayleyscene.Scene(
     graph=graph,
     root=Space.world,
     coordinate_frames=[
@@ -150,8 +150,8 @@ scene = cayleyscene.Scene(
     ],
     end_dwell=5.0,
 )
-animation = cayleyscene.Animation(scene)
-controls = cayleyscene.CameraControls(
+animation: cayleyscene.Animation = cayleyscene.Animation(scene)
+controls: cayleyscene.CameraControls = cayleyscene.CameraControls(
     translate_step=camera_edge.steps[0],
     rot_y_step=camera_edge.steps[1],
     rot_x_step=camera_edge.steps[2],
@@ -161,13 +161,13 @@ controls = cayleyscene.CameraControls(
     rot_y=math.radians(25.0),
     rot_x=math.radians(15.0),
 )
-DRAW = {
+DRAW: dict[Space, str] = {
     Space.paddle1: "paddle1",
     Space.square: "square",
     Space.paddle2: "paddle2",
 }
 # (button label, node to center on; None centers on the origin / NDC)
-FOCUS = [
+FOCUS: list[tuple[str, Space | None]] = [
     ("NDC", None),
     ("Paddle1", Space.paddle1),
     ("Square", Space.square),
@@ -177,7 +177,7 @@ FOCUS = [
 # center_on sentinel for the framebuffer itself (not a graph node): the
 # "View From -> Framebuffer" option, selectable only once the framebuffer has
 # settled back at its original bottom-left space (see imgui_menubar / frame).
-FB_FOCUS = "framebuffer"
+FB_FOCUS: str = "framebuffer"
 
 # --- framebuffer <-> NDC bracket -------------------------------------------
 # A student asked why the raster warps when the framebuffer's aspect ratio
@@ -192,16 +192,16 @@ FB_FOCUS = "framebuffer"
 # back out together -- NDC square -> prism (aspect) then centre -> bottom-left
 # origin (the glViewport scale+offset).  The pixel W/H also drives the demo's
 # own frustum aspect, so it is one number everywhere.
-FB_W_DEFAULT = 20
-FB_H_DEFAULT = 10
-PROLOGUE_HOLD = 2.0  # show the flat grid before it starts moving
-MORPH_DUR = scene.step_duration  # each warp phase, at the demo's own tempo
-PROLOGUE_DUR = PROLOGUE_HOLD + 3.0 * MORPH_DUR  # translate, warp, extrude
-DEMO_DUR = animation.timeline.duration  # the untouched existing demo
-EPILOGUE_WARP = MORPH_DUR  # NDC square -> centred prism (un-warp the aspect)
-EPILOGUE_TRANSLATE = MORPH_DUR  # centre -> framebuffer bottom-left origin
-EPILOGUE_HOLD = 3.0
-TOTAL_DUR = (
+FB_W_DEFAULT: int = 20
+FB_H_DEFAULT: int = 10
+PROLOGUE_HOLD: float = 2.0  # show the flat grid before it starts moving
+MORPH_DUR: float = scene.step_duration  # each warp phase, at the demo's tempo
+PROLOGUE_DUR: float = PROLOGUE_HOLD + 3.0 * MORPH_DUR  # translate/warp/extrude
+DEMO_DUR: float = animation.timeline.duration  # the untouched existing demo
+EPILOGUE_WARP: float = MORPH_DUR  # NDC square -> centred prism (un-warp aspect)
+EPILOGUE_TRANSLATE: float = MORPH_DUR  # centre -> framebuffer bottom-left
+EPILOGUE_HOLD: float = 3.0
+TOTAL_DUR: float = (
     PROLOGUE_DUR + DEMO_DUR + EPILOGUE_WARP + EPILOGUE_TRANSLATE + EPILOGUE_HOLD
 )
 
@@ -219,10 +219,10 @@ if __name__ != "__main__":
 window, impl, imguiio = cayley_gl.setup(
     "Model View Perspective Projection (Cayley)"
 )
-camera = cayley_gl.make_camera()
+camera: _p.Camera = cayley_gl.make_camera()
 cayley_gl.install_scroll(window, imguiio, camera)
-pwd = os.path.dirname(os.path.abspath(__file__))
-standard_objects = cayley_gl.build_standard(
+pwd: str = os.path.dirname(os.path.abspath(__file__))
+standard_objects: cayley_gl.StandardObjects = cayley_gl.build_standard(
     shader_dir=pwd,
     animated=True,
     project="project_perspective.glsl",
@@ -239,7 +239,7 @@ state: dict[str, typing.Any] = {
     "fb_w": FB_W_DEFAULT,
     "fb_h": FB_H_DEFAULT,
 }
-win_state = cayley_gl.WindowState()
+win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 
 
 # --- framebuffer grid mesh + its prologue/epilogue morph -------------------

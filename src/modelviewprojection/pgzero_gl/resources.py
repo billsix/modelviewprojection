@@ -184,7 +184,9 @@ class _Loader:
         self._cache.clear()
 
 
-images = _Loader(
+images: _Loader = _Loader(
     subdir="images", extns=["png", "gif", "jpg", "jpeg", "bmp"], make=Image
 )
-sounds = _Loader(subdir="sounds", extns=["ogg", "wav", "oga"], make=audio.Sound)
+sounds: _Loader = _Loader(
+    subdir="sounds", extns=["ogg", "wav", "oga"], make=audio.Sound
+)

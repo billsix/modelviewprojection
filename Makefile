@@ -193,7 +193,9 @@ type-check: image ## (container) ty + local-annotation check over the source
 			ty check tests || s=1; \
 			ty check ports/codetheclassics/vol1 || s=1; \
 			ty check ports/codetheclassics/vol2 || s=1; \
-			python tools/check_local_annotations.py src tests || s=1; \
+			python tools/check_local_annotations.py --include-module \
+				src tests ports/codetheclassics \
+				ports/openglsuperbiblev4 || s=1; \
 			exit $$s'
 
 
@@ -271,6 +273,48 @@ image-export: ## export the OCI image to a timestamped tar in the repo root
 .PHONY: image-import
 image-import: ## import an OCI image tar: make image-import FILE=foo.tar
 	$(CONTAINER_CMD) load -i $(FILE)
+
+
+# --- Phase 2: release automation (tasks/github-actions-release-ci.md) ---------
+# Thin-wrapper CI: the release workflow calls these make targets; only the
+# registry login and the GitHub Release creation (both GitHub-API) live in YAML.
+RELEASE_VERSION ?= $(shell git describe --tags --always --dirty)
+DIST_DIR ?= dist
+IMAGE_REF ?= ghcr.io/billsix/$(CONTAINER_NAME)
+
+# Non-interactive book build (the `html` target above uses -it, unusable in CI).
+# Runs the image's default entrypoint, which runs the tests, then builds the
+# three book forms (HTML/PDF/EPUB) into ./output/modelviewprojection/.  Needs a
+# BUILD_DOCS=1 image (the default).
+.PHONY: book
+book: image ## (container) build the book (HTML+PDF+EPUB) into ./output/ -- non-interactive
+	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) --rm \
+		$(FILES_TO_MOUNT) \
+		$(CONTAINER_NAME)
+
+# Bundle the tracked source (git archive) + the built book into one tarball, both
+# under a versioned prefix.  Depends on `book`, so the artifacts exist first.
+.PHONY: release-tarball
+release-tarball: book ## (CI) bundle source + built book -> $(DIST_DIR)/<name>-<ver>.tar.gz
+	rm -rf $(DIST_DIR)/stage
+	mkdir -p $(DIST_DIR)/stage/$(CONTAINER_NAME)-$(RELEASE_VERSION)
+	git archive HEAD | tar -x -C $(DIST_DIR)/stage/$(CONTAINER_NAME)-$(RELEASE_VERSION)
+	cp -r output/$(CONTAINER_NAME) \
+		$(DIST_DIR)/stage/$(CONTAINER_NAME)-$(RELEASE_VERSION)/book-output
+	tar -czf $(DIST_DIR)/$(CONTAINER_NAME)-$(RELEASE_VERSION).tar.gz \
+		-C $(DIST_DIR)/stage $(CONTAINER_NAME)-$(RELEASE_VERSION)
+	rm -rf $(DIST_DIR)/stage
+	@echo "wrote $(DIST_DIR)/$(CONTAINER_NAME)-$(RELEASE_VERSION).tar.gz"
+
+# Tag the built image with the release version + latest and push to the registry.
+# The CALLER must already be logged in ($(CONTAINER_CMD) login) -- the workflow
+# does that with GITHUB_TOKEN.  IMAGE_REF overridable for a different registry.
+.PHONY: image-push
+image-push: image ## (CI) tag $(IMAGE_REF):$(RELEASE_VERSION) + :latest and push both
+	$(CONTAINER_CMD) tag $(CONTAINER_NAME) $(IMAGE_REF):$(RELEASE_VERSION)
+	$(CONTAINER_CMD) tag $(CONTAINER_NAME) $(IMAGE_REF):latest
+	$(CONTAINER_CMD) push $(IMAGE_REF):$(RELEASE_VERSION)
+	$(CONTAINER_CMD) push $(IMAGE_REF):latest
 
 
 .PHONY: help

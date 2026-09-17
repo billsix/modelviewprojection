@@ -10,6 +10,7 @@
 import os
 import sys
 import time
+import typing
 
 import glfw
 import numpy as np
@@ -24,28 +25,29 @@ from modelviewprojection.mathutils import (
     plane_equation,
 )
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
 
 x_rot: float = 0.0
 y_rot: float = 0.0
 
-ambient_light = (0.3, 0.3, 0.3, 1.0)
-diffuse_light = (0.7, 0.7, 0.7, 1.0)
-specular = (1.0, 1.0, 1.0, 1.0)
-light_pos = (-75.0, 150.0, -50.0, 0.0)
-specref = (1.0, 1.0, 1.0, 1.0)
+ambient_light: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 1.0)
+diffuse_light: tuple[float, float, float, float] = (0.7, 0.7, 0.7, 1.0)
+specular: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
+light_pos: tuple[float, float, float, float] = (-75.0, 150.0, -50.0, 0.0)
+specref: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
 
-shadow_mat = None  # built in setup_rc -- 4x4 column-major np array
+# built in setup_rc -- 4x4 column-major np array
+shadow_mat: np.ndarray | None = None
 
 # Yellow light-source marker sphere, redrawn each frame at the light
 # position -- tessellate once at import.
-SPHERE_LIGHT = _primitives.build_sphere(5.0, 10, 10)
+SPHERE_LIGHT: _primitives.Mesh = _primitives.build_sphere(5.0, 10, 10)
 
 
 def make_planar_shadow_matrix(
@@ -67,11 +69,11 @@ def make_planar_shadow_matrix(
         plane_normal.coeff_e_2,
         plane_normal.coeff_e_3,
     )
-    d = plane_d
-    dx = -light_pos_4[0]
-    dy = -light_pos_4[1]
-    dz = -light_pos_4[2]
-    sign = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
+    d: float = plane_d
+    dx: float = -light_pos_4[0]
+    dy: float = -light_pos_4[1]
+    dz: float = -light_pos_4[2]
+    sign: float = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
             sign * (b * dy + c * dz),
@@ -96,7 +98,7 @@ def make_planar_shadow_matrix(
 
 
 def _emit_face(p1: Vector, p2: Vector, p3: Vector) -> None:
-    n = find_normal(p1, p2, p3)
+    n: Vector = find_normal(p1, p2, p3)
     GL.glNormal3f(n.coeff_e_1, n.coeff_e_2, n.coeff_e_3)
     GL.glVertex3f(p1.coeff_e_1, p1.coeff_e_2, p1.coeff_e_3)
     GL.glVertex3f(p2.coeff_e_1, p2.coeff_e_2, p2.coeff_e_3)
@@ -268,9 +270,9 @@ def setup_rc() -> None:
     GL.glClearColor(0.0, 0.0, 1.0, 1.0)
 
     # Three points on the ground plane
-    p1 = Vector(-30.0, -149.0, -20.0)
-    p2 = Vector(-30.0, -149.0, 20.0)
-    p3 = Vector(40.0, -149.0, 20.0)
+    p1: Vector = Vector(-30.0, -149.0, -20.0)
+    p2: Vector = Vector(-30.0, -149.0, 20.0)
+    p3: Vector = Vector(40.0, -149.0, 20.0)
     plane_normal, plane_d = plane_equation(p1, p2, p3)
     shadow_mat = make_planar_shadow_matrix(plane_normal, plane_d, light_pos)
 
@@ -283,7 +285,7 @@ def change_size(w: int, h: int) -> None:
     GL.glViewport(0, 0, w, h)
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
-    f_aspect = float(w) / float(h)
+    f_aspect: float = float(w) / float(h)
     GLU.gluPerspective(60.0, f_aspect, 200.0, 500.0)
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
@@ -302,7 +304,7 @@ ROT_DEG_PER_SEC: float = 90.0
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -364,7 +366,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "Shadow", None, None)
+    window: typing.Any = glfw.create_window(
+        800, 600, "Shadow", None, None
+    )  # glfw window handle
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -375,7 +379,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -384,11 +388,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

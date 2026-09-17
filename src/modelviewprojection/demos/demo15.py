@@ -18,6 +18,7 @@
 
 import dataclasses
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -35,7 +36,7 @@ from modelviewprojection.mathutils import rotate_z
 from modelviewprojection.util.clipping import draw_in_square_viewport
 from modelviewprojection.util.windowing import on_key
 
-zero = Vector.zero()
+zero: Vector = Vector.zero()
 
 
 # This file is a program, not a module: from here on it acquires resources (a
@@ -51,7 +52,9 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 15", None, None)
+window: typing.Any = glfw.create_window(  # glfw window handle
+    500, 500, "ModelViewProjection Demo 15", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()

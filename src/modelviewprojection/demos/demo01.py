@@ -29,7 +29,7 @@ if typing.TYPE_CHECKING:
     # runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
 # This file is a program, not a module: from here on it acquires resources (a
@@ -50,7 +50,9 @@ glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 # doc-region-end use opengl 1.4
 
 # doc-region-begin create window
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 1", None, None)
+window: "GLFWWindow" = glfw.create_window(
+    500, 500, "ModelViewProjection Demo 1", None, None
+)
 # doc-region-end create window
 
 # doc-region-begin if the window is not created correctly, quit

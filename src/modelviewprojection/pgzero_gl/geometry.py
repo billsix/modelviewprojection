@@ -24,7 +24,7 @@ accepts any indexable/iterable pair, including gacalc vectors.
 from __future__ import annotations
 
 from collections.abc import Iterator
-from typing import Any, Generic, Self, TypeVar
+from typing import Any, Generic, Self, TypeAlias, TypeVar
 
 from ._types import PointLike
 
@@ -38,7 +38,7 @@ _C = TypeVar("_C", int, float)
 
 # A vector-like operand: a gacalc vector, a tuple, or any object providing
 # two (or three) coordinates -- whatever pygame would accept.
-VectorLike = Any
+VectorLike: TypeAlias = Any
 
 
 class _RectBase(Generic[_C]):

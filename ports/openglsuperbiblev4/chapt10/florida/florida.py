@@ -8,6 +8,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -16,11 +17,12 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+# glfw window handle
+_window: typing.Any = None  # set in main(); used by the Quit control button
 COAST: np.ndarray = np.array(
     [
         [-70.0, 30.0, 0.0],
@@ -60,9 +62,9 @@ LAKE: np.ndarray = np.array(
     dtype=np.float64,
 )
 
-DRAW_LOOPS = 0
-DRAW_CONCAVE = 1
-DRAW_COMPLEX = 2
+DRAW_LOOPS: int = 0
+DRAW_CONCAVE: int = 1
+DRAW_COMPLEX: int = 2
 
 i_method: int = DRAW_LOOPS
 
@@ -81,7 +83,7 @@ def _tess_loops() -> None:
 
 def _tess_polygon(contours: list[np.ndarray]) -> None:
     GL.glColor3f(0.0, 1.0, 0.0)
-    tess = GLU.gluNewTess()
+    tess: typing.Any = GLU.gluNewTess()  # GLU tessellator object
     GLU.gluTessCallback(tess, GLU.GLU_TESS_BEGIN, GL.glBegin)
     GLU.gluTessCallback(tess, GLU.GLU_TESS_END, GL.glEnd)
     GLU.gluTessCallback(tess, GLU.GLU_TESS_VERTEX, GL.glVertex3dv)
@@ -173,7 +175,10 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(500, 400, "Tesselated Florida", None, None)
+    # glfw window handle
+    window: typing.Any = glfw.create_window(
+        500, 400, "Tesselated Florida", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -182,7 +187,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
     # key callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)

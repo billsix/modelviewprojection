@@ -8,6 +8,7 @@
 import os
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -16,25 +17,26 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 import _common  # noqa: E402
 from _thunderbird_data import load_model  # noqa: E402
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
 x_rot: float = 0.0
 y_rot: float = 0.0
 
 CUBE_MAP, BODY_TEXTURE, GLASS_TEXTURE = 0, 1, 2
-texture_objects = [0, 0, 0]
+texture_objects: list[int] = [0, 0, 0]
 
 # Static jet mesh (vertices/normals/faces parsed from body.cpp + glass.cpp).
 # Loaded once in setup_rc; render_scene just replays it in immediate mode.
 jet_model: "dict[str, np.ndarray] | None" = None
-cube_faces = [
+cube_faces: list[str] = [
     "pos_x.tga",
     "neg_x.tga",
     "pos_y.tga",
@@ -42,7 +44,7 @@ cube_faces = [
     "pos_z.tga",
     "neg_z.tga",
 ]
-cube_targets = [
+cube_targets: list[Constant] = [
     GL.GL_TEXTURE_CUBE_MAP_POSITIVE_X,
     GL.GL_TEXTURE_CUBE_MAP_NEGATIVE_X,
     GL.GL_TEXTURE_CUBE_MAP_POSITIVE_Y,
@@ -53,10 +55,10 @@ cube_targets = [
 
 
 def draw_body(model: "dict[str, np.ndarray]") -> None:
-    fi = model["face_indices"]
-    verts = model["vertices"]
-    norms = model["normals"]
-    texs = model["textures"]
+    fi: np.ndarray = model["face_indices"]
+    verts: np.ndarray = model["vertices"]
+    norms: np.ndarray = model["normals"]
+    texs: np.ndarray = model["textures"]
     GL.glBegin(GL.GL_TRIANGLES)
     for face in fi:
         for i in range(3):
@@ -67,10 +69,10 @@ def draw_body(model: "dict[str, np.ndarray]") -> None:
 
 
 def draw_glass(model: "dict[str, np.ndarray]") -> None:
-    fi = model["face_indices_glass"]
-    verts = model["vertices_glass"]
-    norms = model["normals_glass"]
-    texs = model["textures_glass"]
+    fi: np.ndarray = model["face_indices_glass"]
+    verts: np.ndarray = model["vertices_glass"]
+    norms: np.ndarray = model["normals_glass"]
+    texs: np.ndarray = model["textures_glass"]
     GL.glBegin(GL.GL_TRIANGLES)
     for face in fi:
         for i in range(3):
@@ -81,11 +83,13 @@ def draw_glass(model: "dict[str, np.ndarray]") -> None:
 
 
 def load_2d_texture(path: str) -> int:
-    img = np.flipud(iio.imread(path))
+    img: np.ndarray = np.flipud(iio.imread(path))
     h, w = img.shape[:2]
-    fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+    fmt: Constant = (
+        GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+    )
     img = np.ascontiguousarray(img, dtype=np.uint8)
-    tex = GL.glGenTextures(1)
+    tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, tex)
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D, 0, fmt, w, h, 0, fmt, GL.GL_UNSIGNED_BYTE, img
@@ -100,9 +104,9 @@ def draw_sky_box() -> None:
     cube map (no texgen) so the user sees the environment as the
     background.  The C++ samples TU1 with manual 3D texcoords
     matching each vertex's direction from origin."""
-    e = 50.0
+    e: float = 50.0
     # (texcoord, vertex) for each of 24 quad vertices, six faces.
-    faces = [
+    faces: list[tuple[tuple[int, int, int], tuple[float, float, float]]] = [
         # -X
         ((-1, -1, 1), (-e, -e, e)),
         ((-1, -1, -1), (-e, -e, -e)),
@@ -142,7 +146,7 @@ def draw_sky_box() -> None:
 
 
 def load_cube_map() -> int:
-    tex = GL.glGenTextures(1)
+    tex: int = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_CUBE_MAP, tex)
     for p in [
         (GL.GL_TEXTURE_MAG_FILTER, GL.GL_LINEAR),
@@ -153,9 +157,11 @@ def load_cube_map() -> int:
     ]:
         GL.glTexParameteri(GL.GL_TEXTURE_CUBE_MAP, p[0], p[1])
     for i, fname in enumerate(cube_faces):
-        img = np.flipud(iio.imread(os.path.join(PWD, fname)))
+        img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+        fmt: Constant = (
+            GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+        )
         img = np.ascontiguousarray(img, dtype=np.uint8)
         GL.glTexParameteri(
             GL.GL_TEXTURE_CUBE_MAP, GL.GL_GENERATE_MIPMAP, GL.GL_TRUE
@@ -170,10 +176,10 @@ def setup_rc() -> None:
     global jet_model
     jet_model = load_model(PWD)
 
-    f_amb = (0.1, 0.1, 0.1, 0.0)
-    f_diff = (1.0, 1.0, 1.0, 0.0)
-    f_spec = (0.5, 0.5, 0.5, 0.0)
-    light_pos = (-100.0, 100.0, 100.0, 1.0)
+    f_amb: tuple[float, float, float, float] = (0.1, 0.1, 0.1, 0.0)
+    f_diff: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 0.0)
+    f_spec: tuple[float, float, float, float] = (0.5, 0.5, 0.5, 0.0)
+    light_pos: tuple[float, float, float, float] = (-100.0, 100.0, 100.0, 1.0)
 
     GL.glClearColor(0.0, 0.0, 0.5, 1.0)
     GL.glEnable(GL.GL_DEPTH_TEST)
@@ -214,7 +220,7 @@ def setup_rc() -> None:
 
 
 def render_scene() -> None:
-    f_scale = 0.01
+    f_scale: float = 0.01
     GL.glClear(GL.GL_COLOR_BUFFER_BIT | GL.GL_DEPTH_BUFFER_BIT)
 
     # Sky box first, in world space (before the plane's translate/rotate).
@@ -241,7 +247,7 @@ def render_scene() -> None:
     # rotations above apply to both as a rigid body; per-mesh fixups
     # are local to each draw block.
 
-    model = jet_model
+    model: dict[str, np.ndarray] | None = jet_model
 
     # Body: TU0 = body decal, TU1 = cube map reflection (texgen)
     GL.glActiveTexture(GL.GL_TEXTURE0)
@@ -309,7 +315,7 @@ ROT_DEG_PER_SEC: float = 90.0
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -369,7 +375,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(
         800, 600, "Thunderbird w/ Cube Map Reflection", None, None
     )
     if not window:
@@ -381,7 +387,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -390,11 +396,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

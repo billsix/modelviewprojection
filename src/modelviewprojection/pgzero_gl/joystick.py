@@ -29,10 +29,10 @@ import glfw
 from .context import Context
 
 # GLFW hat bit flags -> pygame (x, y) with y up = +1 (pygame convention).
-_HAT_UP = 1
-_HAT_RIGHT = 2
-_HAT_DOWN = 4
-_HAT_LEFT = 8
+_HAT_UP: int = 1
+_HAT_RIGHT: int = 2
+_HAT_DOWN: int = 4
+_HAT_LEFT: int = 8
 
 
 def get_count() -> int:

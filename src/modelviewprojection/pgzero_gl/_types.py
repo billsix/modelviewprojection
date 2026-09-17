@@ -15,26 +15,26 @@ anywhere in ``pgzero_gl``.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import Protocol
+from typing import Protocol, TypeAlias
 
 import numpy as np
 from gacalc.g2 import Vector
 from numpy.typing import NDArray
 
 # A colour as the games supply it: 3 (RGB) or 4 (RGBA) channels, each 0-255.
-ColorRGB = tuple[int, int, int]
-ColorRGBA = tuple[int, int, int, int]
-Color = ColorRGB | ColorRGBA
+ColorRGB: TypeAlias = tuple[int, int, int]
+ColorRGBA: TypeAlias = tuple[int, int, int, int]
+Color: TypeAlias = ColorRGB | ColorRGBA
 
 # A 2-D position in PyGame Zero's top-left-origin, y-down pixel space. ``Point``
 # is the concrete pair the shim returns; ``PointLike`` is what it accepts (the
 # games pass tuples, lists, or gacalc vectors -- anything unpack-able as x, y).
-Point = tuple[float, float]
-PointLike = Sequence[float] | Vector
+Point: TypeAlias = tuple[float, float]
+PointLike: TypeAlias = Sequence[float] | Vector
 
 # An anchor spec: each component is a named fraction ("left"/"center"/...)
 # or a literal pixel offset.
-Anchor = tuple[str | float, str | float]
+Anchor: TypeAlias = tuple[str | float, str | float]
 
 
 class Drawable(Protocol):

@@ -7,6 +7,7 @@
 import os
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -16,14 +17,15 @@ import OpenGL.GLU as GLU
 from gacalc.g3 import Vector
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
 from modelviewprojection.mathutils import find_normal
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Controls buttons
+_window: typing.Any = None  # glfw window handle; set in main()
 
 x_rot: float = 0.0
 y_rot: float = 0.0
@@ -37,11 +39,13 @@ mag_filter_idx: int = 0  # 0=Linear, 1=Nearest
 
 def load_texture() -> None:
     global texture_id
-    img = iio.imread(os.path.join(PWD, "stone.tga"))
+    img: np.ndarray = iio.imread(os.path.join(PWD, "stone.tga"))
     img = np.flipud(img)
     h, w = img.shape[:2]
-    fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
-    internal = GL.GL_RGBA8 if fmt == GL.GL_RGBA else GL.GL_RGB8
+    fmt: Constant = (
+        GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+    )
+    internal: Constant = GL.GL_RGBA8 if fmt == GL.GL_RGBA else GL.GL_RGB8
     img = np.ascontiguousarray(img, dtype=np.uint8)
 
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
@@ -64,7 +68,7 @@ def render_scene() -> None:
     )
     GL.glEnable(GL.GL_TEXTURE_2D)
 
-    corners = [
+    corners: list[Vector] = [
         Vector(0.0, 0.80, 0.0),  # 0 top
         Vector(-0.5, 0.0, -0.50),  # 1 back-left
         Vector(0.5, 0.0, -0.50),  # 2 back-right
@@ -103,7 +107,7 @@ def render_scene() -> None:
         (corners[0], corners[2], corners[1]),
         (corners[0], corners[3], corners[2]),
     ]:
-        n = find_normal(*tri)
+        n: Vector = find_normal(*tri)
         GL.glNormal3f(n.coeff_e_1, n.coeff_e_2, n.coeff_e_3)
         GL.glTexCoord2f(0.5, 1.0)
         GL.glVertex3f(*tri[0])
@@ -117,9 +121,9 @@ def render_scene() -> None:
 
 
 def setup_rc() -> None:
-    white_light = (0.05, 0.05, 0.05, 1.0)
-    source_light = (0.25, 0.25, 0.25, 1.0)
-    light_pos = (-10.0, 5.0, 5.0, 1.0)
+    white_light: tuple[float, float, float, float] = (0.05, 0.05, 0.05, 1.0)
+    source_light: tuple[float, float, float, float] = (0.25, 0.25, 0.25, 1.0)
+    light_pos: tuple[float, float, float, float] = (-10.0, 5.0, 5.0, 1.0)
 
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glFrontFace(GL.GL_CCW)
@@ -156,7 +160,7 @@ ROT_DEG_PER_SEC: float = 90.0
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -185,21 +189,21 @@ def _nudge_y(d: float) -> None:
 def _set_env(idx: int) -> None:
     global env_mode_idx
     env_mode_idx = idx
-    modes = [GL.GL_MODULATE, GL.GL_REPLACE]
+    modes: list[Constant] = [GL.GL_MODULATE, GL.GL_REPLACE]
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, modes[idx])
 
 
 def _set_min(idx: int) -> None:
     global min_filter_idx
     min_filter_idx = idx
-    f = [GL.GL_LINEAR, GL.GL_NEAREST]
+    f: list[Constant] = [GL.GL_LINEAR, GL.GL_NEAREST]
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MIN_FILTER, f[idx])
 
 
 def _set_mag(idx: int) -> None:
     global mag_filter_idx
     mag_filter_idx = idx
-    f = [GL.GL_LINEAR, GL.GL_NEAREST]
+    f: list[Constant] = [GL.GL_LINEAR, GL.GL_NEAREST]
     GL.glTexParameteri(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_MAG_FILTER, f[idx])
 
 
@@ -261,7 +265,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
     glfw.window_hint(glfw.SAMPLES, 4)
 
-    window = glfw.create_window(800, 600, "Textured Pyramid", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "Textured Pyramid", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -271,7 +277,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -281,11 +287,11 @@ def main() -> None:
     change_size(w, h)
 
     glfw.swap_interval(1)
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

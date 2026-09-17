@@ -9,6 +9,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -16,11 +17,11 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
 x1: float = 100.0
 y1: float = 150.0
@@ -90,9 +91,9 @@ def main() -> None:
     global _window
     if not glfw.init():
         sys.exit(1)
-    monitor = glfw.get_primary_monitor()
-    mode = glfw.get_video_mode(monitor)
-    window = glfw.create_window(
+    monitor: typing.Any = glfw.get_primary_monitor()  # glfw monitor handle
+    mode: typing.Any = glfw.get_video_mode(monitor)  # glfw video mode
+    window: typing.Any = glfw.create_window(  # glfw window handle
         mode.size.width, mode.size.height, "Full Screen Demo", monitor, None
     )
     if not window:
@@ -103,7 +104,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)

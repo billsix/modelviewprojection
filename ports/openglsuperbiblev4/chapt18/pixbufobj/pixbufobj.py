@@ -16,6 +16,7 @@ import ctypes
 import os
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -24,11 +25,13 @@ import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = (
+    None  # glfw window handle; set in main(); used by the Quit control button
+)
 window_width: int = 512
 window_height: int = 512
 data_width: int = 512
@@ -60,7 +63,7 @@ def _check_gl(label: str) -> None:
     # Instrumentation: report the exact GL error site if the PBO fix doesn't
     # fully hold on this Mesa. glReadPixels into a PBO is the call that was
     # raising 1282; a clean run prints nothing here.
-    err = GL.glGetError()
+    err: int = GL.glGetError()
     if err != 0:
         print(
             f"[pixbufobj] GL error {err} (0x{err:x}) after {label}",
@@ -69,14 +72,14 @@ def _check_gl(label: str) -> None:
 
 
 def setup_textures() -> None:
-    img = iio.imread(os.path.join(PWD, "reservoir.tga"))
+    img: np.ndarray = iio.imread(os.path.join(PWD, "reservoir.tga"))
     img = np.flipud(img)
     if img.ndim == 3 and img.shape[2] == 4:
         img = img[:, :, :3]
     img = np.ascontiguousarray(img, dtype=np.uint8)
     h, w = img.shape[:2]
 
-    half = (img.astype(np.uint16) >> 1).astype(np.uint8)
+    half: np.ndarray = (img.astype(np.uint16) >> 1).astype(np.uint8)
     GL.glBindTexture(GL.GL_TEXTURE_2D, 1)
     GL.glTexImage2D(
         GL.GL_TEXTURE_2D,
@@ -94,7 +97,7 @@ def setup_textures() -> None:
     for p in (GL.GL_TEXTURE_WRAP_S, GL.GL_TEXTURE_WRAP_T):
         GL.glTexParameteri(GL.GL_TEXTURE_2D, p, GL.GL_CLAMP_TO_BORDER)
 
-    quarter = (half.astype(np.uint16) >> 1).astype(np.uint8)
+    quarter: np.ndarray = (half.astype(np.uint16) >> 1).astype(np.uint8)
     for i in (2, 3, 4):
         GL.glBindTexture(GL.GL_TEXTURE_2D, i)
         GL.glTexImage2D(
@@ -128,8 +131,8 @@ def setup_textures() -> None:
 def render_scene() -> None:
     global current_frame
     current_frame = (current_frame + 1) % 3
-    last_frame = (current_frame + 2) % 3
-    frame_before_that = (current_frame + 1) % 3
+    last_frame: int = (current_frame + 2) % 3
+    frame_before_that: int = (current_frame + 1) % 3
 
     # Re-assert the per-unit 2D enables each frame. setup_textures enabled
     # GL_TEXTURE_2D on units 0/1/2 once, but the cleanup at the END of
@@ -150,7 +153,7 @@ def render_scene() -> None:
     GL.glTranslatef(-0.5, -0.5, 0.0)
 
     if not use_motion_blur:
-        copied = GL.glGetFloatv(GL.GL_TEXTURE_MATRIX)
+        copied: np.ndarray = GL.glGetFloatv(GL.GL_TEXTURE_MATRIX)
         GL.glActiveTexture(GL.GL_TEXTURE1)
         GL.glLoadMatrixf(copied)
         GL.glBindTexture(GL.GL_TEXTURE_2D, 1)
@@ -202,9 +205,13 @@ def render_scene() -> None:
     # read-write; without, the bytes are already in client memory.
     if use_pbos:
         GL.glBindBuffer(GL.GL_PIXEL_UNPACK_BUFFER, pbo_ids[last_frame])
-        ptr = GL.glMapBuffer(GL.GL_PIXEL_UNPACK_BUFFER, GL.GL_READ_WRITE)
+        ptr: typing.Any = (
+            GL.glMapBuffer(  # mapped-buffer pointer (c_void_p-like)
+                GL.GL_PIXEL_UNPACK_BUFFER, GL.GL_READ_WRITE
+            )
+        )
         if ptr:
-            arr = np.ctypeslib.as_array(
+            arr: np.ndarray = np.ctypeslib.as_array(
                 (ctypes.c_uint8 * (data_height * data_pitch)).from_address(
                     int(ptr)
                 )
@@ -213,7 +220,9 @@ def render_scene() -> None:
             GL.glUnmapBuffer(GL.GL_PIXEL_UNPACK_BUFFER)
     else:
         if pixels[last_frame] is not None:
-            buf = np.frombuffer(pixels[last_frame], dtype=np.uint8).copy()
+            buf: np.ndarray = np.frombuffer(
+                pixels[last_frame], dtype=np.uint8
+            ).copy()
             buf >>= 2
             pixels[last_frame] = buf.tobytes()
 
@@ -285,7 +294,9 @@ def toggle_pbos() -> None:
     if use_pbos:
         for i in range(3):
             GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_ids[i])
-            data = pixels[i] if pixels[i] is not None else None
+            data: typing.Any = (
+                pixels[i] if pixels[i] is not None else None
+            )  # pixel data (numpy array or None)
             GL.glBufferData(
                 GL.GL_PIXEL_PACK_BUFFER,
                 data_height * data_pitch,
@@ -297,7 +308,7 @@ def toggle_pbos() -> None:
     else:
         for i in range(3):
             GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_ids[i])
-            buf = GL.glGetBufferSubData(
+            buf: np.ndarray = GL.glGetBufferSubData(
                 GL.GL_PIXEL_PACK_BUFFER, 0, data_height * data_pitch
             )
             pixels[i] = bytes(buf)
@@ -390,7 +401,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "Pixel Buffer Object Demo", None, None
     )
     if not window:
@@ -401,7 +412,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -413,8 +424,8 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    frame_count = 0
-    last_t = time.time()
+    frame_count: int = 0
+    last_t: float = time.time()
     while not glfw.window_should_close(window):
         glfw.poll_events()
         impl.process_inputs()
@@ -426,9 +437,9 @@ def main() -> None:
         glfw.swap_buffers(window)
         frame_count += 1
         if frame_count == 100:
-            now = time.time()
-            fps = 100.0 / (now - last_t)
-            label = "with PBOs" if use_pbos else "without PBOs"
+            now: float = time.time()
+            fps: float = 100.0 / (now - last_t)
+            label: str = "with PBOs" if use_pbos else "without PBOs"
             glfw.set_window_title(window, f"Draw scene {label} {fps:.1f} fps")
             last_t = now
             frame_count = 0

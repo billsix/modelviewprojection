@@ -15,6 +15,7 @@
 import math
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -23,12 +24,14 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = (
+    None  # glfw window handle; set in main(); used by the Quit control button
+)
 window_width: int = 512
 window_height: int = 512
 shadow_width: int = 512
@@ -41,21 +44,21 @@ use_fbo: bool = False
 factor: float = 4.0
 ambient_shadow_available: bool = False
 
-ambient_light = [0.2, 0.2, 0.2, 1.0]
-diffuse_light = [0.7, 0.7, 0.7, 1.0]
-light_pos = [100.0, 300.0, 100.0, 1.0]
-camera_pos = [100.0, 150.0, 200.0, 1.0]
+ambient_light: list[float] = [0.2, 0.2, 0.2, 1.0]
+diffuse_light: list[float] = [0.7, 0.7, 0.7, 1.0]
+light_pos: list[float] = [100.0, 300.0, 100.0, 1.0]
+camera_pos: list[float] = [100.0, 150.0, 200.0, 1.0]
 camera_zoom: float = 0.3
 
 shadow_texture_id: int = 0
 framebuffer_id: int = 0
 renderbuffer_id: int = 0
 max_tex_size: int = 0
-texture_matrix = np.identity(4, dtype=np.float32)
+texture_matrix: np.ndarray = np.identity(4, dtype=np.float32)
 
 
 def draw_solid_cube(size: float) -> None:
-    s = size / 2.0
+    s: float = size / 2.0
     GL.glBegin(GL.GL_QUADS)
     for nx, ny, nz, vs in [
         (0, 0, 1, [(-s, -s, s), (s, -s, s), (s, s, s), (-s, s, s)]),
@@ -71,13 +74,13 @@ def draw_solid_cube(size: float) -> None:
     GL.glEnd()
 
 
-SPHERE = _primitives.build_sphere(25.0, 50, 50)
-CONE = _primitives.build_cone(25.0, 50.0, 50)
-TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
+SPHERE: _primitives.Mesh = _primitives.build_sphere(25.0, 50, 50)
+CONE: _primitives.Mesh = _primitives.build_cone(25.0, 50.0, 50)
+TORUS: _primitives.Mesh = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 
 def draw_solid_octahedron() -> None:
-    verts = [
+    verts: list[tuple[int, int, int]] = [
         (1, 0, 0),
         (-1, 0, 0),
         (0, 1, 0),
@@ -85,7 +88,7 @@ def draw_solid_octahedron() -> None:
         (0, 0, 1),
         (0, 0, -1),
     ]
-    faces = [
+    faces: list[tuple[int, int, int]] = [
         (0, 2, 4),
         (0, 4, 3),
         (0, 3, 5),
@@ -98,9 +101,9 @@ def draw_solid_octahedron() -> None:
     GL.glBegin(GL.GL_TRIANGLES)
     for i, j, k in faces:
         a, b, c = verts[i], verts[j], verts[k]
-        nx = (b[1] - a[1]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[1] - a[1])
-        ny = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2])
-        nz = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+        nx: int = (b[1] - a[1]) * (c[2] - a[2]) - (b[2] - a[2]) * (c[1] - a[1])
+        ny: int = (b[2] - a[2]) * (c[0] - a[0]) - (b[0] - a[0]) * (c[2] - a[2])
+        nz: int = (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
         GL.glNormal3f(nx, ny, nz)
         GL.glVertex3f(*a)
         GL.glVertex3f(*b)
@@ -147,15 +150,15 @@ def draw_models(draw_base: bool) -> None:
 
 def regenerate_shadow_map() -> None:
     global texture_matrix
-    light_to_scene = math.sqrt(sum(p * p for p in light_pos[:3]))
-    scene_radius = 95.0
-    near_plane = light_to_scene - scene_radius
-    fov = math.degrees(2.0 * math.atan(scene_radius / light_to_scene))
+    light_to_scene: float = math.sqrt(sum(p * p for p in light_pos[:3]))
+    scene_radius: float = 95.0
+    near_plane: float = light_to_scene - scene_radius
+    fov: float = math.degrees(2.0 * math.atan(scene_radius / light_to_scene))
 
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     GLU.gluPerspective(fov, 1.0, near_plane, near_plane + 2.0 * scene_radius)
-    light_proj = np.array(
+    light_proj: np.ndarray = np.array(
         GL.glGetFloatv(GL.GL_PROJECTION_MATRIX), dtype=np.float32
     ).reshape((4, 4))
     GL.glMatrixMode(GL.GL_MODELVIEW)
@@ -163,7 +166,7 @@ def regenerate_shadow_map() -> None:
     GLU.gluLookAt(
         light_pos[0], light_pos[1], light_pos[2], 0.0, 0.0, 0.0, 0.0, 1.0, 0.0
     )
-    light_mv = np.array(
+    light_mv: np.ndarray = np.array(
         GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
     ).reshape((4, 4))
     GL.glViewport(0, 0, shadow_width, shadow_height)
@@ -197,7 +200,7 @@ def regenerate_shadow_map() -> None:
     GL.glColorMask(True, True, True, True)
     GL.glDisable(GL.GL_POLYGON_OFFSET_FILL)
 
-    bias = np.array(
+    bias: np.ndarray = np.array(
         [
             [0.5, 0.0, 0.0, 0.5],
             [0.0, 0.5, 0.0, 0.5],
@@ -207,9 +210,9 @@ def regenerate_shadow_map() -> None:
         dtype=np.float32,
     )
     # GL matrices are column-major, so light_proj_T @ light_mv_T = (light_mv @ light_proj).T
-    proj_t = light_proj.T
-    mv_t = light_mv.T
-    combined = bias @ proj_t @ mv_t
+    proj_t: np.ndarray = light_proj.T
+    mv_t: np.ndarray = light_mv.T
+    combined: np.ndarray = bias @ proj_t @ mv_t
     texture_matrix = combined.T  # rows = s,t,r,q plane equations
 
 
@@ -217,7 +220,7 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if window_width > window_height:
-        ar = float(window_width) / float(window_height)
+        ar: float = float(window_width) / float(window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -292,8 +295,8 @@ def render_scene() -> None:
         draw_models(True)
     else:
         if not ambient_shadow_available:
-            low_amb = [0.1, 0.1, 0.1, 1.0]
-            low_dif = [0.35, 0.35, 0.35, 1.0]
+            low_amb: list[float] = [0.1, 0.1, 0.1, 1.0]
+            low_dif: list[float] = [0.35, 0.35, 0.35, 1.0]
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_AMBIENT, low_amb)
             GL.glLightfv(GL.GL_LIGHT0, GL.GL_DIFFUSE, low_dif)
             draw_models(True)
@@ -346,7 +349,7 @@ def setup_rc() -> None:
     GL.glEnable(GL.GL_LIGHT0)
 
     max_tex_size = GL.glGetIntegerv(GL.GL_MAX_TEXTURE_SIZE)
-    max_rb = GL.glGetIntegerv(GL.GL_MAX_RENDERBUFFER_SIZE)
+    max_rb: int = GL.glGetIntegerv(GL.GL_MAX_RENDERBUFFER_SIZE)
     max_tex_size = min(max_tex_size, max_rb, 2048)
 
     shadow_texture_id = GL.glGenTextures(1)
@@ -414,7 +417,7 @@ def on_framebuffer_size(_window, w: int, h: int) -> None:
 def _nudge(axis: int, delta: float) -> None:
     # Move whichever target the panel/keyboard selects (camera or light);
     # moving the light requires regenerating the shadow map (mirrors on_key).
-    target = camera_pos if control_camera else light_pos
+    target: list[float] = camera_pos if control_camera else light_pos
     target[axis] += delta
     if not control_camera:
         regenerate_shadow_map()
@@ -515,8 +518,8 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
     if key == glfw.KEY_ESCAPE:
         glfw.set_window_should_close(window, True)
         return
-    target = camera_pos if control_camera else light_pos
-    delta = -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
+    target: list[float] = camera_pos if control_camera else light_pos
+    delta: float = -5.0 if (mods & glfw.MOD_SHIFT) else 5.0
     if key == glfw.KEY_X:
         target[0] += delta
     elif key == glfw.KEY_Y:
@@ -543,7 +546,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "FBO Shadow Mapping Demo", None, None
     )
     if not window:
@@ -554,7 +557,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

@@ -8,6 +8,7 @@
 import os
 import sys
 import time
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -18,11 +19,11 @@ from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
 from modelviewprojection.mathutils import find_normal
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
 
 x_rot: float = 0.0
@@ -33,7 +34,7 @@ def _emit_face(p1: Vector, p2: Vector, p3: Vector) -> None:
     """Compute the face normal via mathutils.find_normal (CCW
     convention -- same direction as math3d.cpp's m3dFindNormal),
     issue glNormal3f, then issue the three glVertex3f calls."""
-    n = find_normal(p1, p2, p3)
+    n: Vector = find_normal(p1, p2, p3)
     GL.glNormal3f(n.coeff_e_1, n.coeff_e_2, n.coeff_e_3)
     GL.glVertex3f(p1.coeff_e_1, p1.coeff_e_2, p1.coeff_e_3)
     GL.glVertex3f(p2.coeff_e_1, p2.coeff_e_2, p2.coeff_e_3)
@@ -156,8 +157,8 @@ def render_scene() -> None:
 
 
 def setup_rc() -> None:
-    ambient_light = (0.3, 0.3, 0.3, 1.0)
-    diffuse_light = (0.7, 0.7, 0.7, 1.0)
+    ambient_light: tuple[float, float, float, float] = (0.3, 0.3, 0.3, 1.0)
+    diffuse_light: tuple[float, float, float, float] = (0.7, 0.7, 0.7, 1.0)
 
     GL.glEnable(GL.GL_DEPTH_TEST)
     GL.glFrontFace(GL.GL_CCW)
@@ -176,13 +177,13 @@ def setup_rc() -> None:
 
 
 def change_size(w: int, h: int) -> None:
-    light_pos = (-50.0, 50.0, 100.0, 1.0)
+    light_pos: tuple[float, float, float, float] = (-50.0, 50.0, 100.0, 1.0)
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
-    f_aspect = float(w) / float(h)
+    f_aspect: float = float(w) / float(h)
     GLU.gluPerspective(45.0, f_aspect, 1.0, 225.0)
     GL.glMatrixMode(GL.GL_MODELVIEW)
     GL.glLoadIdentity()
@@ -201,7 +202,7 @@ ROT_DEG_PER_SEC: float = 90.0
 
 def handle_special_keys(window, dt: float) -> None:
     global x_rot, y_rot
-    step = ROT_DEG_PER_SEC * dt
+    step: float = ROT_DEG_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         x_rot -= step
     if glfw.get_key(window, glfw.KEY_DOWN) == glfw.PRESS:
@@ -263,7 +264,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "Lighted Jet", None, None)
+    window: typing.Any = glfw.create_window(
+        800, 600, "Lighted Jet", None, None
+    )  # glfw window handle
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -274,7 +277,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -283,11 +286,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

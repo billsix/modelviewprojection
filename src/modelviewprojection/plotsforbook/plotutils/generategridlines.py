@@ -20,7 +20,7 @@ import typing
 
 import numpy as np
 
-extra_lines_multiplier = 3
+extra_lines_multiplier: int = 3
 
 
 def generategridlines(

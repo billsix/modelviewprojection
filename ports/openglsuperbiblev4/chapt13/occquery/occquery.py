@@ -16,6 +16,7 @@ import math
 import os
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -24,12 +25,13 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main()
 window_width: int = 1024
 window_height: int = 768
 
@@ -38,17 +40,17 @@ occlusion_detection: bool = True
 show_bounding_volume: bool = False
 query_ids: np.ndarray = np.zeros(27, dtype=np.uint32)
 
-ambient_light = (0.4, 0.4, 0.4, 1.0)
-diffuse_light = (0.9, 0.9, 0.9, 1.0)
-light_pos = (100.0, 300.0, 100.0, 1.0)
+ambient_light: tuple[float, float, float, float] = (0.4, 0.4, 0.4, 1.0)
+diffuse_light: tuple[float, float, float, float] = (0.9, 0.9, 0.9, 1.0)
+light_pos: tuple[float, float, float, float] = (100.0, 300.0, 100.0, 1.0)
 
-camera_pos = [200.0, 300.0, 400.0, 1.0]
+camera_pos: list[float] = [200.0, 300.0, 400.0, 1.0]
 camera_zoom: float = 0.6
 texture_id: int = 0
 
 
 def draw_solid_cube(size: float) -> None:
-    s = size / 2.0
+    s: float = size / 2.0
     GL.glBegin(GL.GL_QUADS)
     for nx, ny, nz, vs in [
         (0, 0, 1, [(-s, -s, s), (s, -s, s), (s, s, s), (-s, s, s)]),
@@ -66,13 +68,13 @@ def draw_solid_cube(size: float) -> None:
 
 def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
     for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
+        lat0: float = math.pi * (-0.5 + float(i) / stacks)
+        lat1: float = math.pi * (-0.5 + float(i + 1) / stacks)
         s0, c0 = math.sin(lat0), math.cos(lat0)
         s1, c1 = math.sin(lat1), math.cos(lat1)
         GL.glBegin(GL.GL_QUAD_STRIP)
         for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
+            lng: float = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
             GL.glNormal3f(cl * c0, sl * c0, s0)
             GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
@@ -110,9 +112,9 @@ def draw_occluder() -> None:
 
 
 def draw_sphere_at(idx: int) -> None:
-    occluded = False
+    occluded: bool = False
     if occlusion_detection:
-        passing = GL.glGetQueryObjectiv(query_ids[idx], GL.GL_QUERY_RESULT)
+        passing: int = GL.glGetQueryObjectiv(query_ids[idx], GL.GL_QUERY_RESULT)
         if passing == 0:
             occluded = True
     if not occluded:
@@ -176,7 +178,7 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if window_width > window_height:
-        ar = float(window_width) / float(window_height)
+        ar: float = float(window_width) / float(window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -266,7 +268,7 @@ def setup_rc() -> None:
     GL.glDepthFunc(GL.GL_LESS)
 
     # Screen-door stipple pattern
-    mask = np.zeros(32, dtype=np.uint32)
+    mask: np.ndarray = np.zeros(32, dtype=np.uint32)
     for i in range(0, 32, 2):
         mask[i] = 0xAAAAAAAA
         mask[i + 1] = 0x55555555
@@ -285,9 +287,11 @@ def setup_rc() -> None:
     GL.glTexGeni(GL.GL_T, GL.GL_TEXTURE_GEN_MODE, GL.GL_OBJECT_LINEAR)
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
 
-    img = np.flipud(iio.imread(os.path.join(PWD, "logo.tga")))
+    img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, "logo.tga")))
     h, w = img.shape[:2]
-    fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+    fmt: Constant = (
+        GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+    )
     img = np.ascontiguousarray(img, dtype=np.uint8)
     texture_id = GL.glGenTextures(1)
     GL.glBindTexture(GL.GL_TEXTURE_2D, texture_id)
@@ -331,7 +335,7 @@ def on_key(window, key: int, _scancode: int, action: int, mods: int) -> None:
 
     # Movement keys fire on PRESS or REPEAT so holding the key keeps
     # moving, matching GLUT glutSpecialFunc's auto-repeat behavior.
-    is_movement = key in (
+    is_movement: bool = key in (
         glfw.KEY_LEFT,
         glfw.KEY_RIGHT,
         glfw.KEY_UP,
@@ -375,7 +379,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 5)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(
         window_width, window_height, "Occlusion Query Demo", None, None
     )
     if not window:
@@ -386,7 +390,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -399,8 +403,8 @@ def main() -> None:
     # immediate-mode rates (a handful of fps with 540k triangles), 100
     # frames takes 20+ seconds and feels frozen.  Report on a 1-second
     # wall-clock cadence instead so the user sees the number quickly.
-    frames = 0
-    frame_timer = time.monotonic()
+    frames: int = 0
+    frame_timer: float = time.monotonic()
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
@@ -413,10 +417,10 @@ def main() -> None:
         glfw.swap_buffers(window)
 
         frames += 1
-        now = time.monotonic()
+        now: float = time.monotonic()
         if now - frame_timer >= 1.0:
-            fps = frames / (now - frame_timer)
-            label = "with" if occlusion_detection else "without"
+            fps: float = frames / (now - frame_timer)
+            label: str = "with" if occlusion_detection else "without"
             glfw.set_window_title(
                 window,
                 f"Draw scene {label} occlusion detection {fps:.1f} fps",

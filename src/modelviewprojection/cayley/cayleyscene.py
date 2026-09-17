@@ -48,7 +48,7 @@ from modelviewprojection.mathutils import rotate_x, rotate_y
 #: node-id type for a scene's coordinate spaces (an Enum member, typically)
 N = typing.TypeVar("N")
 
-DEFAULT_STEP_DURATION = 5.0
+DEFAULT_STEP_DURATION: float = 5.0
 
 
 @dataclasses.dataclass

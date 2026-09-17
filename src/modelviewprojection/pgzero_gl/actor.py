@@ -46,7 +46,7 @@ from .context import Context
 from .geometry import ZRect, _RectBase
 from .resources import images
 
-_ANCHOR_FRAC = {
+_ANCHOR_FRAC: dict[str, dict[str, float]] = {
     "x": {"left": 0.0, "center": 0.5, "middle": 0.5, "right": 1.0},
     "y": {"top": 0.0, "center": 0.5, "middle": 0.5, "bottom": 1.0},
 }

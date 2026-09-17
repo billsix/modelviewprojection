@@ -9,6 +9,7 @@ import math
 import os
 import sys
 import time
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -16,11 +17,12 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+# set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle
 
 
 def imgui_menubar() -> None:
@@ -97,7 +99,9 @@ def main() -> None:
     # Match GLUT_SINGLE -- single buffer, no swap between draws
     glfw.window_hint(glfw.DOUBLEBUFFER, glfw.FALSE)
 
-    window = glfw.create_window(800, 600, "OpenGL Single Buffered", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "OpenGL Single Buffered", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -107,7 +111,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -116,13 +120,13 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_tick = time.monotonic()
+    last_tick: float = time.monotonic()
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
         impl.process_inputs()
 
-        now = time.monotonic()
+        now: float = time.monotonic()
         if now - last_tick >= TICK_INTERVAL:
             render_scene()
             # Single-buffered: draw the menubar over the accumulating

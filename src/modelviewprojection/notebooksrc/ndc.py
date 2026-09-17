@@ -69,9 +69,9 @@ warnings.filterwarnings("error", category=RuntimeWarning)
 matplotlib.rcParams["axes.formatter.use_mathtext"] = True
 
 
-e_1 = e_1
-e_2 = e_2
-zero = Vector.zero()
+e_1: Vector = e_1
+e_2: Vector = e_2
+zero: Vector = Vector.zero()
 
 
 # %% [markdown]
@@ -194,9 +194,9 @@ fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
 fake_fb.show_framebuffer()
 
 # %%
-frames = []
+frames: list = []
 
-sixty_fps_times_2_sec = 120
+sixty_fps_times_2_sec: int = 120
 
 # Create 10 frames with simple animation
 for i in range(sixty_fps_times_2_sec):
@@ -218,10 +218,10 @@ for i in range(sixty_fps_times_2_sec):
 # use, it doesn't really matter for our understanding.
 
 # %%
-np_frames = [np.array(img) for img in frames]
+np_frames: list[np.ndarray] = [np.array(img) for img in frames]
 
-frames_np = [np.array(img) for img in frames]
-clip = moviepy.ImageSequenceClip(frames_np, fps=60)
+frames_np: list[np.ndarray] = [np.array(img) for img in frames]
+clip: moviepy.ImageSequenceClip = moviepy.ImageSequenceClip(frames_np, fps=60)
 # logger=None silences moviepy's tqdm progress bar; its U+2588 fill chars
 # break pdflatex when notebook output is captured into LaTeX.
 clip.write_videofile("animation.mp4", codec="libx264", logger=None)

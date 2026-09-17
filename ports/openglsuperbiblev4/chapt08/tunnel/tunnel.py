@@ -9,6 +9,7 @@ import math
 import os
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -17,17 +18,18 @@ import OpenGL.GL as GL
 import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Controls buttons
+_window: typing.Any = None  # glfw window handle; set in main()
 
 TEXTURE_BRICK, TEXTURE_FLOOR, TEXTURE_CEILING = 0, 1, 2
-texture_files = ["brick.tga", "floor.tga", "ceiling.tga"]
-textures = [0, 0, 0]
-filter_idx = 5  # 0..5 selects min filter mode
+texture_files: list[str] = ["brick.tga", "floor.tga", "ceiling.tga"]
+textures: list[int] = [0, 0, 0]
+filter_idx: int = 5  # 0..5 selects min filter mode
 
 # Walk-around camera. Initial position puts the camera at the tunnel
 # mouth looking down -Z, matching the original z_pos=-60 view.
@@ -48,7 +50,7 @@ def load_textures() -> None:
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
 
     for i, fname in enumerate(texture_files):
-        img = iio.imread(os.path.join(PWD, fname))
+        img: np.ndarray = iio.imread(os.path.join(PWD, fname))
         img = np.flipud(img)
         h, w = img.shape[:2]
         if img.ndim == 3 and img.shape[2] == 4:
@@ -79,7 +81,7 @@ def load_textures() -> None:
 
 
 def apply_filter(idx: int) -> None:
-    modes = [
+    modes: list[Constant] = [
         GL.GL_NEAREST,
         GL.GL_LINEAR,
         GL.GL_NEAREST_MIPMAP_NEAREST,
@@ -99,7 +101,7 @@ def render_scene() -> None:
     GL.glPushMatrix()
     apply_camera_transform()
 
-    z = 60.0
+    z: float = 60.0
     while z >= 0.0:
         # Floor
         GL.glBindTexture(GL.GL_TEXTURE_2D, textures[TEXTURE_FLOOR])
@@ -188,8 +190,8 @@ YAW_RAD_PER_SEC: float = 1.5
 
 def handle_special_keys(window, dt: float) -> None:
     global camera_x, camera_z, camera_yaw
-    move = MOVE_UNITS_PER_SEC * dt
-    yaw = YAW_RAD_PER_SEC * dt
+    move: float = MOVE_UNITS_PER_SEC * dt
+    yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera_x += -move * math.sin(camera_yaw)
         camera_z += -move * math.cos(camera_yaw)
@@ -209,7 +211,7 @@ def on_key(window, key: int, _scancode: int, action: int, _mods: int) -> None:
 
 def _move(sign: float) -> None:
     global camera_x, camera_z
-    step = sign * MOVE_UNITS_PER_SEC / 60.0
+    step: float = sign * MOVE_UNITS_PER_SEC / 60.0
     camera_x += -step * math.sin(camera_yaw)
     camera_z += -step * math.cos(camera_yaw)
 
@@ -219,7 +221,7 @@ def _yaw(sign: float) -> None:
     camera_yaw += sign * YAW_RAD_PER_SEC / 60.0
 
 
-FILTER_NAMES = [
+FILTER_NAMES: list[str] = [
     "GL_NEAREST",
     "GL_LINEAR",
     "GL_NEAREST_MIPMAP_NEAREST",
@@ -268,7 +270,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "Tunnel", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "Tunnel", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -278,7 +282,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -289,11 +293,11 @@ def main() -> None:
     change_size(w, h)
 
     glfw.swap_interval(1)
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

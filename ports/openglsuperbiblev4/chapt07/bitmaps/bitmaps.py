@@ -5,6 +5,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -13,14 +14,14 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
 
-fire = np.array(
+fire: np.ndarray = np.array(
     [
         0x00,
         0x00,
@@ -209,7 +210,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(512, 512, "OpenGL Bitmaps", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        512, 512, "OpenGL Bitmaps", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -219,7 +222,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)

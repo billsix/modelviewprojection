@@ -18,6 +18,7 @@
 
 import dataclasses
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -49,7 +50,9 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 17", None, None)
+window: typing.Any = glfw.create_window(  # glfw window handle
+    500, 500, "ModelViewProjection Demo 17", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -242,8 +245,8 @@ while not glfw.window_should_close(window):
                 GL.glColor3f(*paddle1.color)
                 GL.glBegin(GL.GL_QUADS)
                 for p1_v_ms in paddle1.vertices:
-                    paddle1_vector_ndc = fn_stack.modelspace_to_ndc_fn()(
-                        p1_v_ms
+                    paddle1_vector_ndc: Vector = (
+                        fn_stack.modelspace_to_ndc_fn()(p1_v_ms)
                     )
                     GL.glVertex3f(*paddle1_vector_ndc)
                 GL.glEnd()
@@ -263,7 +266,9 @@ while not glfw.window_should_close(window):
                     GL.glColor3f(0.0, 0.0, 1.0)
                     GL.glBegin(GL.GL_QUADS)
                     for ms in square:
-                        square_vector_ndc = fn_stack.modelspace_to_ndc_fn()(ms)
+                        square_vector_ndc: Vector = (
+                            fn_stack.modelspace_to_ndc_fn()(ms)
+                        )
                         GL.glVertex3f(*square_vector_ndc)
                     GL.glEnd()
 
@@ -280,8 +285,8 @@ while not glfw.window_should_close(window):
                 GL.glColor3f(*paddle2.color)
                 GL.glBegin(GL.GL_QUADS)
                 for p2_v_ms in paddle2.vertices:
-                    paddle2_vector_ndc = fn_stack.modelspace_to_ndc_fn()(
-                        p2_v_ms
+                    paddle2_vector_ndc: Vector = (
+                        fn_stack.modelspace_to_ndc_fn()(p2_v_ms)
                     )
                     GL.glVertex3f(*paddle2_vector_ndc)
                 GL.glEnd()

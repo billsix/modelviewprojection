@@ -59,6 +59,7 @@ import math
 import os
 import random
 import sys
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -88,7 +89,7 @@ if __name__ != "__main__":
 if not glfw.init():
     sys.exit()
 
-pwd = os.path.dirname(os.path.abspath(__file__))
+pwd: str = os.path.dirname(os.path.abspath(__file__))
 
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 3)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 3)
@@ -98,7 +99,7 @@ glfw.window_hint(glfw.OPENGL_FORWARD_COMPAT, glfw.TRUE)
 # stencil buffer so overlapping shadows don't double-darken.
 glfw.window_hint(glfw.STENCIL_BITS, 8)
 
-window = glfw.create_window(
+window: typing.Any = glfw.create_window(
     800,
     600,
     "ModelViewProjection Demo 24 -- SphereWorld",
@@ -112,7 +113,7 @@ glfw.make_context_current(window)
 
 
 imgui.create_context()
-impl = GlfwRenderer(window)
+impl: GlfwRenderer = GlfwRenderer(window)
 
 
 glfw.set_key_callback(window, on_key)
@@ -186,17 +187,17 @@ def compile_shader_program() -> int:
 
 program: int = compile_shader_program()
 
-u_mvp = GL.glGetUniformLocation(program, "mvpMatrix")
-u_model = GL.glGetUniformLocation(program, "modelMatrix")
-u_base = GL.glGetUniformLocation(program, "baseColor")
-u_camera_pos = GL.glGetUniformLocation(program, "cameraPosWS")
-u_light_pos = GL.glGetUniformLocation(program, "lightPosWS")
-u_ambient = GL.glGetUniformLocation(program, "ambientColor")
-u_diffuse = GL.glGetUniformLocation(program, "diffuseColor")
-u_specular = GL.glGetUniformLocation(program, "specularColor")
-u_shininess = GL.glGetUniformLocation(program, "shininess")
-u_render_mode = GL.glGetUniformLocation(program, "renderMode")
-u_tex = GL.glGetUniformLocation(program, "tex")
+u_mvp: int = GL.glGetUniformLocation(program, "mvpMatrix")
+u_model: int = GL.glGetUniformLocation(program, "modelMatrix")
+u_base: int = GL.glGetUniformLocation(program, "baseColor")
+u_camera_pos: int = GL.glGetUniformLocation(program, "cameraPosWS")
+u_light_pos: int = GL.glGetUniformLocation(program, "lightPosWS")
+u_ambient: int = GL.glGetUniformLocation(program, "ambientColor")
+u_diffuse: int = GL.glGetUniformLocation(program, "diffuseColor")
+u_specular: int = GL.glGetUniformLocation(program, "specularColor")
+u_shininess: int = GL.glGetUniformLocation(program, "shininess")
+u_render_mode: int = GL.glGetUniformLocation(program, "renderMode")
+u_tex: int = GL.glGetUniformLocation(program, "tex")
 
 
 # set_mvp_uniforms is imported from modelviewprojection.util.shaderutils (see
@@ -243,9 +244,9 @@ def load_texture(path: str, repeat: bool) -> int:
     return tex
 
 
-tex_grass = load_texture(os.path.join(pwd, "grass.tga"), repeat=True)
-tex_wood = load_texture(os.path.join(pwd, "wood.tga"), repeat=False)
-tex_orb = load_texture(os.path.join(pwd, "orb.tga"), repeat=False)
+tex_grass: int = load_texture(os.path.join(pwd, "grass.tga"), repeat=True)
+tex_wood: int = load_texture(os.path.join(pwd, "wood.tga"), repeat=False)
+tex_orb: int = load_texture(os.path.join(pwd, "orb.tga"), repeat=False)
 
 
 # ---------------------------------------------------------------------------
@@ -265,8 +266,8 @@ tex_orb = load_texture(os.path.join(pwd, "orb.tga"), repeat=False)
 # parameterizations have it pointing the wrong way, so we swap.
 # ---------------------------------------------------------------------------
 
-_FLOATS_PER_VERTEX = 8
-_STRIDE = _FLOATS_PER_VERTEX * 4
+_FLOATS_PER_VERTEX: int = 8
+_STRIDE: int = _FLOATS_PER_VERTEX * 4
 
 
 def _build_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
@@ -444,8 +445,8 @@ torus_vao, torus_vbo, torus_count = make_vao(_build_torus(0.35, 0.15, 61, 37))
 # Ground:  40-unit-wide grid centered on origin, 1-unit cells, at
 # y=-0.4 (matches SuperBible).  texStep = 1/(20*0.075) ≈ 0.667 per
 # cell, so the grass texture tiles ~30 times across the floor.
-GROUND_Y = -0.4
-GROUND_EXTENT = 20.0
+GROUND_Y: float = -0.4
+GROUND_EXTENT: float = 20.0
 ground_vao, ground_vbo, ground_count = make_vao(
     _build_ground(GROUND_EXTENT, 1.0, GROUND_Y, 1.0 / (GROUND_EXTENT * 0.075))
 )
@@ -459,8 +460,8 @@ ground_vao, ground_vbo, ground_count = make_vao(
 # anyway -- but Python's random is independent of that, so we pin it).
 # ---------------------------------------------------------------------------
 
-_rng = random.Random(42)
-NUM_INHABITANTS = 30
+_rng: random.Random = random.Random(42)
+NUM_INHABITANTS: int = 30
 sphere_origins: list[tuple[float, float, float]] = []
 for _ in range(NUM_INHABITANTS):
     sphere_origins.append(
@@ -520,7 +521,7 @@ def planar_shadow_matrix(
 # Ground plane y = GROUND_Y, normal +Y, so 0*x + 1*y + 0*z + (-GROUND_Y) = 0
 # i.e. plane = (0, 1, 0, 0.4).  Light position is recomputed each
 # frame from the imgui sliders, so the shadow matrix is too.
-GROUND_PLANE = (0.0, 1.0, 0.0, -GROUND_Y)
+GROUND_PLANE: tuple[float, float, float, float] = (0.0, 1.0, 0.0, -GROUND_Y)
 
 # Yellow ball drawn at the light's location (chapt05/shadow.cpp:272).
 # Origin's small sphere mesh is radius 0.1; we scale it 20x in the
@@ -599,7 +600,7 @@ while not glfw.window_should_close(window):
     # Animation tied to wall clock so the scene moves at a consistent
     # speed regardless of frame rate.  SuperBible original was 0.5
     # degrees per 33ms ≈ 15 deg/sec ≈ 0.26 rad/sec.
-    yrot = (glfw.get_time() - start_time) * 0.26
+    yrot: float = (glfw.get_time() - start_time) * 0.26
 
     imgui.new_frame()
     imgui.set_next_window_size(
@@ -630,8 +631,10 @@ while not glfw.window_should_close(window):
     _, shininess = imgui.slider_float("Shininess", shininess, 1.0, 256.0)
     imgui.end()
 
-    light_pos = light_position_ws(light_az_deg, light_el_deg, light_distance)
-    shadow_matrix = planar_shadow_matrix(
+    light_pos: tuple[float, float, float] = light_position_ws(
+        light_az_deg, light_el_deg, light_distance
+    )
+    shadow_matrix: np.ndarray = planar_shadow_matrix(
         GROUND_PLANE, (light_pos[0], light_pos[1], light_pos[2], 1.0)
     )
 
@@ -652,7 +655,7 @@ while not glfw.window_should_close(window):
     ms.set_to_identity_matrix(ms.MatrixStack.view)
     ms.set_to_identity_matrix(ms.MatrixStack.projection)
 
-    aspect = float(width) / float(height) if height > 0 else 1.0
+    aspect: float = float(width) / float(height) if height > 0 else 1.0
     ms.perspective(
         field_of_view=35.0,  # SuperBible used 35 degrees
         aspect_ratio=aspect,

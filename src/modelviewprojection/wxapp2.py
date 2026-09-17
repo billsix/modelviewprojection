@@ -29,7 +29,7 @@ from OpenGL import GL
 # ---------------------------------------------------------------------------
 
 
-pwd = os.path.dirname(os.path.abspath(__file__))
+pwd: str = os.path.dirname(os.path.abspath(__file__))
 
 
 @functools.cache
@@ -235,6 +235,6 @@ class MainFrame(wx.Frame):
 # ---------------------------------------------------------------------------
 
 if __name__ == "__main__":
-    app = wx.App(False)
-    frame = MainFrame()
+    app: wx.App = wx.App(False)
+    frame: MainFrame = MainFrame()
     app.MainLoop()

@@ -38,7 +38,7 @@ from ._types import Color, ColorRGBA, PointLike, RGBASource
 from .context import Context
 from .geometry import Rect
 
-SRCALPHA = 0x00010000
+SRCALPHA: int = 0x00010000
 
 
 def _rgba_tuple(color: Sequence[int]) -> ColorRGBA:

@@ -27,7 +27,7 @@ from __future__ import annotations
 
 import typing
 from collections.abc import Sequence
-from typing import Any
+from typing import Any, TypeAlias
 
 from gacalc.g2 import Vector
 
@@ -41,7 +41,7 @@ if typing.TYPE_CHECKING:
     from .renderer import Renderer
 
 # any rect flavor (int Rect / float ZRect)
-RectLike = _RectBase[Any]  # any coordinate flavor (int Rect / float ZRect)
+RectLike: TypeAlias = _RectBase[Any]
 
 
 def _as_xy(pos: PointLike | RectLike) -> tuple[float, float]:
@@ -167,4 +167,4 @@ class Screen:
         Context.require_renderer().draw_image(image=img, topleft=_as_xy(pos))
 
 
-screen = Screen()
+screen: Screen = Screen()

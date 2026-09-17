@@ -11,6 +11,7 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -20,12 +21,12 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
+_window: typing.Any = None  # glfw window handle; set in main()
 window_width: int = 1024
 window_height: int = 512
 texture_width: int = 1024
@@ -34,8 +35,8 @@ texture_height: int = 512
 PASS_THROUGH, BLUR, SHARPEN, DILATION, EROSION, LAPLACIAN, SOBEL, PREWITT = (
     range(8)
 )
-TOTAL_SHADERS = 8
-shader_names = [
+TOTAL_SHADERS: int = 8
+shader_names: list[str] = [
     "passthrough",
     "blur",
     "sharpen",
@@ -45,15 +46,15 @@ shader_names = [
     "sobel",
     "prewitt",
 ]
-f_shader = [0] * TOTAL_SHADERS
-prog_obj = [0] * TOTAL_SHADERS
+f_shader: list[int] = [0] * TOTAL_SHADERS
+prog_obj: list[int] = [0] * TOTAL_SHADERS
 which_shader: int = PASS_THROUGH
 
-camera_pos = [100.0, 75.0, 150.0, 1.0]
+camera_pos: list[float] = [100.0, 75.0, 150.0, 1.0]
 camera_zoom: float = 0.3
-light_pos = [140.0, 250.0, 140.0, 1.0]
-ambient_light = [0.2, 0.2, 0.2, 1.0]
-diffuse_light = [0.7, 0.7, 0.7, 1.0]
+light_pos: list[float] = [140.0, 250.0, 140.0, 1.0]
+ambient_light: list[float] = [0.2, 0.2, 0.2, 1.0]
+diffuse_light: list[float] = [0.7, 0.7, 0.7, 1.0]
 light_rotation: float = 0.0
 tex_coord_offsets: np.ndarray = np.zeros(18, dtype=np.float32)
 num_passes: int = 2
@@ -61,7 +62,7 @@ max_tex_size: int = 0
 
 
 def draw_solid_cube(size: float) -> None:
-    s = size / 2.0
+    s: float = size / 2.0
     GL.glBegin(GL.GL_QUADS)
     for nx, ny, nz, vs in [
         (0, 0, 1, [(-s, -s, s), (s, -s, s), (s, s, s), (-s, s, s)]),
@@ -77,22 +78,22 @@ def draw_solid_cube(size: float) -> None:
     GL.glEnd()
 
 
-SPHERE_BIG = _primitives.build_sphere(25.0, 50, 50)
-SPHERE_SMALL = _primitives.build_sphere(25.0, 32, 32)
-CONE = _primitives.build_cone(25.0, 50.0, 50)
-TORUS = _primitives.build_torus(16.0, 8.0, 50, 50)
+SPHERE_BIG: _primitives.Mesh = _primitives.build_sphere(25.0, 50, 50)
+SPHERE_SMALL: _primitives.Mesh = _primitives.build_sphere(25.0, 32, 32)
+CONE: _primitives.Mesh = _primitives.build_cone(25.0, 50.0, 50)
+TORUS: _primitives.Mesh = _primitives.build_torus(16.0, 8.0, 50, 50)
 
 
 def prepare_shader(n: int) -> None:
-    fname = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
+    fname: str = os.path.join(PWD, "shaders", f"{shader_names[n]}.fs")
     with open(fname) as f:
-        fs_src = f.read()
+        fs_src: str = f.read()
     f_shader[n] = shaders_mod.compileShader(fs_src, GL.GL_FRAGMENT_SHADER)
     prog_obj[n] = GL.glCreateProgram()
     GL.glAttachShader(prog_obj[n], f_shader[n])
     GL.glLinkProgram(prog_obj[n])
     if not GL.glGetProgramiv(prog_obj[n], GL.GL_LINK_STATUS):
-        info = GL.glGetProgramInfoLog(prog_obj[n])
+        info: bytes = GL.glGetProgramInfoLog(prog_obj[n])
         sys.stderr.write(f"Program {n} link error: {info}\n")
         sys.exit(1)
 
@@ -140,7 +141,7 @@ def render_scene() -> None:
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     if window_width > window_height:
-        ar = float(window_width) / float(window_height)
+        ar: float = float(window_width) / float(window_height)
         GL.glFrustum(
             -ar * camera_zoom,
             ar * camera_zoom,
@@ -178,9 +179,9 @@ def render_scene() -> None:
 
     draw_models()
 
-    p = prog_obj[which_shader]
+    p: int = prog_obj[which_shader]
     GL.glUseProgram(p)
-    loc = GL.glGetUniformLocation(p, "sampler0")
+    loc: int = GL.glGetUniformLocation(p, "sampler0")
     if loc != -1:
         GL.glUniform1i(loc, 0)
     loc = GL.glGetUniformLocation(p, "tc_offset")
@@ -205,8 +206,8 @@ def render_scene() -> None:
             0,
         )
         GL.glClear(GL.GL_COLOR_BUFFER_BIT)
-        wx = float(texture_width) / float(window_width)
-        wy = float(texture_height) / float(window_height)
+        wx: float = float(texture_width) / float(window_width)
+        wy: float = float(texture_height) / float(window_height)
         GL.glBegin(GL.GL_QUADS)
         GL.glMultiTexCoord2f(GL.GL_TEXTURE0, 0.0, 0.0)
         GL.glVertex2f(-wx, -wy)
@@ -333,8 +334,8 @@ def change_size(w: int, h: int) -> None:
     if texture_height > max_tex_size:
         texture_height = max_tex_size
 
-    x_inc = 1.0 / float(texture_width)
-    y_inc = 1.0 / float(texture_height)
+    x_inc: float = 1.0 / float(texture_width)
+    y_inc: float = 1.0 / float(texture_height)
     for i in range(3):
         for j in range(3):
             tex_coord_offsets[(((i * 3) + j) * 2) + 0] = (-1.0 * x_inc) + (
@@ -380,7 +381,7 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         window_width, window_height, "Image Processing Demo", None, None
     )
     if not window:
@@ -391,7 +392,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)

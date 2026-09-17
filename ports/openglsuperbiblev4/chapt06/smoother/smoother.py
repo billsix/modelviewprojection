@@ -10,6 +10,7 @@ import math
 import os
 import random
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -17,20 +18,20 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit control button
-SCREEN_X = 800
-SCREEN_Y = 600
-SMALL_STARS = 100
-MEDIUM_STARS = 40
-LARGE_STARS = 15
+_window: typing.Any = None  # glfw window handle; set in main() for Quit button
+SCREEN_X: int = 800
+SCREEN_Y: int = 600
+SMALL_STARS: int = 100
+MEDIUM_STARS: int = 40
+LARGE_STARS: int = 15
 
-small_stars = []
-medium_stars = []
-large_stars = []
+small_stars: list[tuple[float, float]] = []
+medium_stars: list[tuple[float, float]] = []
+large_stars: list[tuple[float, float]] = []
 
 antialiased: bool = True
 
@@ -62,7 +63,7 @@ def render_scene() -> None:
     GL.glBegin(GL.GL_TRIANGLE_FAN)
     x, y, r = 700.0, 500.0, 50.0
     GL.glVertex2f(x, y)
-    angle = 0.0
+    angle: float = 0.0
     while angle < 2.0 * 3.141592:
         GL.glVertex2f(x + math.cos(angle) * r, y + math.sin(angle) * r)
         angle += 0.1
@@ -110,8 +111,8 @@ def apply_antialiasing(enabled: bool) -> None:
 def setup_rc() -> None:
     random.seed(0)
     for _ in range(SMALL_STARS):
-        sx = float(random.randint(0, SCREEN_X - 1))
-        sy = float(random.randint(0, SCREEN_Y - 100 - 1)) + 100.0
+        sx: float = float(random.randint(0, SCREEN_X - 1))
+        sy: float = float(random.randint(0, SCREEN_Y - 100 - 1)) + 100.0
         small_stars.append((sx, sy))
     for _ in range(MEDIUM_STARS):
         sx = float(random.randint(0, SCREEN_X * 10 - 1)) / 10.0
@@ -171,7 +172,7 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(  # glfw window handle
         800, 600, "Smoothing Out The Jaggies", None, None
     )
     if not window:
@@ -183,7 +184,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw
     # key callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)

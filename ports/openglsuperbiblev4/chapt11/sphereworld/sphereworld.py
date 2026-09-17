@@ -9,6 +9,7 @@ import os
 import random
 import sys
 import time
+import typing
 
 import glfw
 import imageio.v3 as iio
@@ -18,34 +19,35 @@ import OpenGL.GLU as GLU
 from gacalc.g3 import Vector
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
+from OpenGL.constant import Constant
 
 from modelviewprojection.mathutils import plane_equation
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
-NUM_SPHERES = 30
-sphere_positions = []
+NUM_SPHERES: int = 30
+sphere_positions: list[tuple[float, float, float]] = []
 camera_x: float = 0.0
 camera_y: float = 0.0
 camera_z: float = 0.0
 camera_yaw: float = 0.0
 
-f_light_pos = (-100.0, 100.0, 50.0, 1.0)
-f_no_light = (0.0, 0.0, 0.0, 0.0)
-f_low_light = (0.25, 0.25, 0.25, 1.0)
-f_bright_light = (1.0, 1.0, 1.0, 1.0)
+f_light_pos: tuple[float, float, float, float] = (-100.0, 100.0, 50.0, 1.0)
+f_no_light: tuple[float, float, float, float] = (0.0, 0.0, 0.0, 0.0)
+f_low_light: tuple[float, float, float, float] = (0.25, 0.25, 0.25, 1.0)
+f_bright_light: tuple[float, float, float, float] = (1.0, 1.0, 1.0, 1.0)
 
 GROUND_TEXTURE, TORUS_TEXTURE, SPHERE_TEXTURE = 0, 1, 2
-texture_files = ["grass.tga", "wood.tga", "orb.tga"]
-texture_objects = [0, 0, 0]
+texture_files: list[str] = ["grass.tga", "wood.tga", "orb.tga"]
+texture_objects: list[int] = [0, 0, 0]
 ground_list: int = 0
 sphere_list: int = 0
 torus_list: int = 0
-shadow_mat = None
+shadow_mat: np.ndarray | None = None
 y_rot: float = 0.0
 
 
@@ -57,7 +59,7 @@ def make_planar_shadow_matrix(
     # CCW plane_equation can land w<0; OpenGL clips before perspective
     # divide and the shadow disappears. Negate to keep w positive.
     # See tasks/archive/2026/05/26/notes-planar-shadow-w-clipping.md.
-    s = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
+    s: float = 1.0 if (a * dx + b * dy + c * dz) > 0.0 else -1.0
     return np.array(
         [
             s * (b * dy + c * dz),
@@ -83,15 +85,15 @@ def make_planar_shadow_matrix(
 
 def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
     for i in range(stacks):
-        lat0 = math.pi * (-0.5 + float(i) / stacks)
-        lat1 = math.pi * (-0.5 + float(i + 1) / stacks)
+        lat0: float = math.pi * (-0.5 + float(i) / stacks)
+        lat1: float = math.pi * (-0.5 + float(i + 1) / stacks)
         s0, c0 = math.sin(lat0), math.cos(lat0)
         s1, c1 = math.sin(lat1), math.cos(lat1)
         GL.glBegin(GL.GL_QUAD_STRIP)
         for j in range(slices + 1):
-            lng = 2.0 * math.pi * float(j) / slices
+            lng: float = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
-            u = float(j) / slices
+            u: float = float(j) / slices
             GL.glNormal3f(cl * c0, sl * c0, s0)
             GL.glTexCoord2f(u, float(i) / stacks)
             GL.glVertex3f(radius * cl * c0, radius * sl * c0, radius * s0)
@@ -102,8 +104,8 @@ def draw_solid_sphere(radius: float, slices: int, stacks: int) -> None:
 
 
 def draw_torus(major: float, minor: float, n_major: int, n_minor: int) -> None:
-    major_step = 2.0 * math.pi / n_major
-    minor_step = 2.0 * math.pi / n_minor
+    major_step: float = 2.0 * math.pi / n_major
+    minor_step: float = 2.0 * math.pi / n_minor
     for i in range(n_major):
         a0, a1 = i * major_step, (i + 1) * major_step
         x0, y0 = math.cos(a0), math.sin(a0)
@@ -111,11 +113,11 @@ def draw_torus(major: float, minor: float, n_major: int, n_minor: int) -> None:
         u0, u1 = float(i) / n_major, float(i + 1) / n_major
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
         for j in range(n_minor + 1):
-            b = j * minor_step
+            b: float = j * minor_step
             cb, sb = math.cos(b), math.sin(b)
-            r = minor * cb + major
-            z = minor * sb
-            v = float(j) / n_minor
+            r: float = minor * cb + major
+            z: float = minor * sb
+            v: float = float(j) / n_minor
             GL.glNormal3f(x0 * cb, y0 * cb, sb)
             GL.glTexCoord2f(u0, v)
             GL.glVertex3f(x0 * r, y0 * r, z)
@@ -127,16 +129,16 @@ def draw_torus(major: float, minor: float, n_major: int, n_minor: int) -> None:
 
 def draw_ground() -> None:
     extent, step, y = 20.0, 1.0, -0.4
-    tex_step = 1.0 / (extent * 0.075)
+    tex_step: float = 1.0 / (extent * 0.075)
     GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[GROUND_TEXTURE])
     GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_S, GL.GL_REPEAT)
     GL.glTexParameterf(GL.GL_TEXTURE_2D, GL.GL_TEXTURE_WRAP_T, GL.GL_REPEAT)
-    s = 0.0
-    strip = -extent
+    s: float = 0.0
+    strip: float = -extent
     while strip <= extent:
-        t = 0.0
+        t: float = 0.0
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
-        run = extent
+        run: float = extent
         while run >= -extent:
             GL.glTexCoord2f(s, t)
             GL.glNormal3f(0.0, 1.0, 0.0)
@@ -161,9 +163,11 @@ def load_textures() -> None:
     GL.glPixelStorei(GL.GL_UNPACK_ALIGNMENT, 1)
     GL.glTexEnvi(GL.GL_TEXTURE_ENV, GL.GL_TEXTURE_ENV_MODE, GL.GL_MODULATE)
     for i, fname in enumerate(texture_files):
-        img = np.flipud(iio.imread(os.path.join(PWD, fname)))
+        img: np.ndarray = np.flipud(iio.imread(os.path.join(PWD, fname)))
         h, w = img.shape[:2]
-        fmt = GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+        fmt: Constant = (
+            GL.GL_RGBA if img.ndim == 3 and img.shape[2] == 4 else GL.GL_RGB
+        )
         img = np.ascontiguousarray(img, dtype=np.uint8)
         texture_objects[i] = GL.glGenTextures(1)
         GL.glBindTexture(GL.GL_TEXTURE_2D, texture_objects[i])
@@ -287,8 +291,8 @@ def setup_rc() -> None:
 
     random.seed(0)
     for _ in range(NUM_SPHERES):
-        sx = (random.randint(0, 399) - 200) * 0.1
-        sz = (random.randint(0, 399) - 200) * 0.1
+        sx: float = (random.randint(0, 399) - 200) * 0.1
+        sz: float = (random.randint(0, 399) - 200) * 0.1
         sphere_positions.append((sx, 0.0, sz))
 
     load_textures()
@@ -333,8 +337,8 @@ TORUS_DEG_PER_SEC: float = 30.0
 
 def handle_camera_keys(window, dt: float) -> None:
     global camera_x, camera_z, camera_yaw
-    move = MOVE_UNITS_PER_SEC * dt
-    yaw = YAW_RAD_PER_SEC * dt
+    move: float = MOVE_UNITS_PER_SEC * dt
+    yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         camera_x += -move * math.sin(camera_yaw)
         camera_z += -move * math.cos(camera_yaw)
@@ -360,7 +364,7 @@ BTN_YAW_STEP: float = 0.1
 
 def _walk(direction: int) -> None:
     global camera_x, camera_z
-    m = BTN_MOVE_STEP * direction
+    m: float = BTN_MOVE_STEP * direction
     camera_x += -m * math.sin(camera_yaw)
     camera_z += -m * math.cos(camera_yaw)
 
@@ -397,7 +401,7 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
     glfw.window_hint(glfw.STENCIL_BITS, 8)
-    window = glfw.create_window(
+    window: typing.Any = glfw.create_window(
         800, 600, "Sphereworld with display lists", None, None
     )
     if not window:
@@ -409,7 +413,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -418,11 +422,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

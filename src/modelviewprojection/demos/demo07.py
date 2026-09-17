@@ -18,6 +18,7 @@
 
 import dataclasses
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -53,7 +54,9 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 7", None, None)
+window: typing.Any = glfw.create_window(  # glfw window handle
+    500, 500, "ModelViewProjection Demo 7", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -155,8 +158,8 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*paddle1.color)
 
     # doc-region-begin compose transformations on paddle 1
-    world_space_to_ndc = uniform_scale(m=1.0 / 10.0)
-    p1_space_to_world_space = compose(
+    world_space_to_ndc: InvertibleFunction[Vector] = uniform_scale(m=1.0 / 10.0)
+    p1_space_to_world_space: InvertibleFunction[Vector] = compose(
         [rotate(paddle1.rotation), translate(b=paddle1.position)]
     )
     p1_to_ndc: InvertibleFunction[Vector] = (
@@ -174,7 +177,7 @@ while not glfw.window_should_close(window):
     GL.glColor3f(*paddle2.color)
 
     world_space_to_ndc = uniform_scale(m=1.0 / 10.0)
-    p2_space_to_world_space = compose(
+    p2_space_to_world_space: InvertibleFunction[Vector] = compose(
         [rotate(paddle2.rotation), translate(b=paddle2.position)]
     )
     p2_to_ndc: InvertibleFunction[Vector] = (

@@ -11,17 +11,18 @@
 
 import os
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
 
 def imgui_menubar() -> None:
@@ -44,14 +45,16 @@ def main() -> None:
         sys.exit(1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
-    window = glfw.create_window(640, 480, "Text2D", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        640, 480, "Text2D", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
     _window = window
     glfw.make_context_current(window)
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
 
     while not glfw.window_should_close(window):
         glfw.poll_events()
@@ -64,13 +67,13 @@ def main() -> None:
 
         imgui.new_frame()
         imgui_menubar()
-        flags = (
+        flags: int = (
             imgui.WindowFlags_.no_decoration.value
             | imgui.WindowFlags_.no_background.value
             | imgui.WindowFlags_.no_inputs.value
         )
         imgui.set_next_window_pos((0, 0))
-        size = glfw.get_framebuffer_size(window)
+        size: tuple[int, int] = glfw.get_framebuffer_size(window)
         imgui.set_next_window_size((size[0], size[1]))
         imgui.begin("text", None, flags)
         imgui.set_cursor_pos((20, 20))

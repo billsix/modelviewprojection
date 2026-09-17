@@ -19,6 +19,7 @@ import doctest
 import itertools
 import math
 import sys
+import typing
 from collections import namedtuple
 from collections.abc import Iterable, Iterator, Sequence
 
@@ -44,7 +45,7 @@ matplotlib.use("agg")
 #: 2-D point set is the pair ``(xs, ys)``.  The transforms themselves are gacalc
 #: ``InvertibleFunction``s over :class:`Vector`; ``_apply`` bridges the two
 #: representations at the matplotlib boundary (like ``util.nbplotutils._xy``).
-Axis = Sequence[float]
+Axis: typing.TypeAlias = Sequence[float]
 
 
 def _apply(

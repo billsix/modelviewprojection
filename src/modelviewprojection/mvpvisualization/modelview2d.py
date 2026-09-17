@@ -22,6 +22,7 @@ the squash scales by 1/10 down onto the ±1 NDC square."""
 import math
 import os
 import sys
+import types
 import typing
 from enum import Enum, auto
 
@@ -46,10 +47,10 @@ if typing.TYPE_CHECKING:
     # and absent at runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
-imgui = cayley_gl.imgui
+imgui: types.ModuleType = cayley_gl.imgui
 
 
 class Space(Enum):
@@ -61,13 +62,13 @@ class Space(Enum):
 
 
 # 2D camera: a position only -- no rotation, so the edge has a single step.
-camera_edge = cayleygraph.Edge(
+camera_edge: cayleygraph.Edge = cayleygraph.Edge(
     src=Space.camera,
     dst=Space.world,
     steps=[("T", translate(Vector(-1.5, 2.0, 0.0)))],
 )
 
-graph = cayleygraph.CayleyGraph(
+graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
     [
         cayleygraph.Edge(
             src=Space.paddle1,
@@ -99,7 +100,7 @@ graph = cayleygraph.CayleyGraph(
     ]
 )
 
-scene = cayleyscene.Scene(
+scene: cayleyscene.Scene = cayleyscene.Scene(
     graph=graph,
     root=Space.world,
     coordinate_frames=[
@@ -139,8 +140,8 @@ scene = cayleyscene.Scene(
         ),
     ],
 )
-animation = cayleyscene.Animation(scene)
-DRAW = {
+animation: cayleyscene.Animation = cayleyscene.Animation(scene)
+DRAW: dict[Space, str] = {
     Space.paddle1: "paddle1",
     Space.square: "square",
     Space.paddle2: "paddle2",
@@ -160,8 +161,8 @@ window, impl, imguiio = cayley_gl.setup("Model View 2D (Cayley)")
 # NDC checkbox, not orbited.
 # project_modelview2d squashes x/y by 1/10; the camera's view volume is a flat
 # ±10 rectangular prism (near==far -> a square in 2D) that scales onto ±1 NDC.
-pwd = os.path.dirname(os.path.abspath(__file__))
-standard_objects = cayley_gl.build_standard(
+pwd: str = os.path.dirname(os.path.abspath(__file__))
+standard_objects: cayley_gl.StandardObjects = cayley_gl.build_standard(
     shader_dir=pwd,
     animated=True,
     project="project_modelview2d.glsl",
@@ -171,10 +172,10 @@ standard_objects = cayley_gl.build_standard(
 )
 
 # the grid drawn flat in the XY plane (its default lies in XZ).
-GROUND_ROT = cayleyscene.to_matrix(
+GROUND_ROT: np.ndarray = cayleyscene.to_matrix(
     rotate_y(math.radians(90.0)) @ rotate_z(math.radians(90.0))
 )
-cam_pos = {"x": -1.5, "y": 2.0, "z": 0.0}
+cam_pos: dict[str, float] = {"x": -1.5, "y": 2.0, "z": 0.0}
 state: dict[str, typing.Any] = {
     "time": 0.0,
     "speed": 1.0,
@@ -182,7 +183,7 @@ state: dict[str, typing.Any] = {
     "ndc": False,
     "line_width": 2.0,
 }
-win_state = cayley_gl.WindowState()
+win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 
 
 def jump(start: float) -> None:

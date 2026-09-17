@@ -18,6 +18,7 @@
 
 import dataclasses
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -47,7 +48,9 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 5", None, None)
+window: typing.Any = glfw.create_window(  # glfw window handle
+    500, 500, "ModelViewProjection Demo 5", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()

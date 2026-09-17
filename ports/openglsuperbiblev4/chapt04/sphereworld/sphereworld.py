@@ -16,6 +16,7 @@ import os
 import random
 import sys
 import time
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -23,17 +24,17 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 import _primitives  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main(), used by Quit
 
-NUM_SPHERES = 50
+NUM_SPHERES: int = 50
 
 # 50 sphere positions, generated once at startup
-sphere_positions = []
+sphere_positions: list[tuple[float, float, float]] = []
 
 # Camera state: position + yaw (rotation about Y). The C++ GLFrame
 # tracks (origin, forward, up); for this demo only origin + yaw is used.
@@ -42,15 +43,15 @@ camera_y: float = 0.0
 camera_z: float = 0.0
 camera_yaw: float = 0.0
 
-y_rot = 0.0  # animation angle for the orbiting sphere/torus group
+y_rot: float = 0.0  # animation angle for the orbiting sphere/torus group
 
 
 # The 50 field spheres, the orbiting sphere, and the torus are identical
 # every frame -- tessellate once at import, replay the stored vertices.
 # This demo renders in wireframe with lighting off (see setup_rc), so the
 # torus emits no normals, matching the original hand-written generator.
-SPHERE = _primitives.build_sphere(0.1, 13, 26)
-TORUS = _primitives.build_torus(0.35, 0.15, 40, 20)
+SPHERE: _primitives.Mesh = _primitives.build_sphere(0.1, 13, 26)
+TORUS: _primitives.Mesh = _primitives.build_torus(0.35, 0.15, 40, 20)
 
 
 def apply_camera_transform() -> None:
@@ -68,18 +69,18 @@ def setup_rc() -> None:
     random.seed(0)
     for _ in range(NUM_SPHERES):
         # Place between -20 and 20 in 0.1 increments
-        sx = (random.randint(0, 399) - 200) * 0.1
-        sz = (random.randint(0, 399) - 200) * 0.1
+        sx: float = (random.randint(0, 399) - 200) * 0.1
+        sz: float = (random.randint(0, 399) - 200) * 0.1
         sphere_positions.append((sx, 0.0, sz))
 
 
 def draw_ground() -> None:
-    extent = 20.0
-    step = 1.0
-    y = -0.4
+    extent: float = 20.0
+    step: float = 1.0
+    y: float = -0.4
 
     GL.glBegin(GL.GL_LINES)
-    line = -extent
+    line: float = -extent
     while line <= extent:
         GL.glVertex3f(line, y, extent)
         GL.glVertex3f(line, y, -extent)
@@ -125,7 +126,7 @@ def change_size(w: int, h: int) -> None:
     if h == 0:
         h = 1
     GL.glViewport(0, 0, w, h)
-    f_aspect = float(w) / float(h)
+    f_aspect: float = float(w) / float(h)
     GL.glMatrixMode(GL.GL_PROJECTION)
     GL.glLoadIdentity()
     GLU.gluPerspective(35.0, f_aspect, 1.0, 50.0)
@@ -147,8 +148,8 @@ TORUS_DEG_PER_SEC: float = 30.0
 def handle_camera_keys(window, dt: float) -> None:
     """Replaces GLFrame::MoveForward / RotateLocalY for arrow keys."""
     global camera_x, camera_z, camera_yaw
-    move = MOVE_UNITS_PER_SEC * dt
-    yaw = YAW_RAD_PER_SEC * dt
+    move: float = MOVE_UNITS_PER_SEC * dt
+    yaw: float = YAW_RAD_PER_SEC * dt
     if glfw.get_key(window, glfw.KEY_UP) == glfw.PRESS:
         # Forward in world coords for a camera rotated about +Y by yaw:
         # the default forward (0,0,-1) becomes (-sin yaw, 0, -cos yaw)
@@ -177,7 +178,7 @@ BTN_YAW_STEP: float = 0.1
 
 def _walk(direction: int) -> None:
     global camera_x, camera_z
-    m = BTN_MOVE_STEP * direction
+    m: float = BTN_MOVE_STEP * direction
     camera_x += -m * math.sin(camera_yaw)
     camera_z += -m * math.cos(camera_yaw)
 
@@ -215,7 +216,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "OpenGL SphereWorld Demo", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "OpenGL SphereWorld Demo", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -226,7 +229,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so navigation/Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -235,11 +238,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()

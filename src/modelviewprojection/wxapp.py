@@ -19,6 +19,7 @@
 import ctypes
 import math
 import time
+import typing
 
 import numpy as np
 import wx
@@ -30,10 +31,10 @@ from OpenGL.constant import Constant
 #: to `OpenGL.constant.Constant`, not `int`, so a plain `int` annotation rejects
 #: them.  Duplicated from mvpvisualization/_pipeline.py on purpose: importing
 #: that module here would drag glfw + imgui into a wx app.
-GLenum = int | Constant
+GLenum: typing.TypeAlias = int | Constant
 
 
-vertex_shader_src = """
+vertex_shader_src: str = """
 #version 330 core
 layout (location = 0) in vec3 position;
 layout (location = 1) in vec3 color;
@@ -49,7 +50,7 @@ void main()
 }
 """
 
-fragment_shader_src = """
+fragment_shader_src: str = """
 #version 330 core
 in vec3 vColor;
 out vec4 FragColor;
@@ -292,5 +293,5 @@ class MyApp(wx.App):
 
 
 if __name__ == "__main__":
-    app = MyApp(False)
+    app: MyApp = MyApp(False)
     app.MainLoop()

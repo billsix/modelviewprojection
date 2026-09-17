@@ -28,6 +28,7 @@ from modelviewprojection.cayley import (
     cayleyscene,
 )
 from modelviewprojection.mathutils import rotate_z
+from modelviewprojection.mvpvisualization import _pipeline as _p
 from modelviewprojection.mvpvisualization import (
     cayley_gl,
 )
@@ -37,17 +38,17 @@ if typing.TYPE_CHECKING:
     # and absent at runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
 # imgui via cayley_gl so glfw + OpenGL.GL import BEFORE imgui_bundle (its own GL
 # loader must come after, or PyOpenGL's context tracking breaks at window
 # setup).
-imgui = cayley_gl.imgui
+imgui: typing.Any = cayley_gl.imgui
 
-AROUND = math.radians(10.0)
-SQUARE_ROT = math.radians(45.0)
-NUM_SQUARES = 4
+AROUND: float = math.radians(10.0)
+SQUARE_ROT: float = math.radians(45.0)
+NUM_SQUARES: int = 4
 
 
 class Space(Enum):
@@ -64,7 +65,7 @@ def _square(i: int) -> Space:  # Space.square0 .. Space.square3 by index
     return Space[f"square{i}"]
 
 
-graph = cayleygraph.CayleyGraph(
+graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
     [
         cayleygraph.Edge(
             src=Space.paddle1,
@@ -94,7 +95,7 @@ graph = cayleygraph.CayleyGraph(
     ]
 )
 
-coordinate_frames = [
+coordinate_frames: list[cayleyscene.CoordinateFrame] = [
     cayleyscene.CoordinateFrame(
         space=Space.paddle1,
         parent=Space.world,
@@ -118,11 +119,11 @@ for i in range(NUM_SQUARES):
             dwell_before=0.0 if i == 0 else 5.0,
         )
     )
-scene = cayleyscene.Scene(
+scene: cayleyscene.Scene = cayleyscene.Scene(
     graph=graph, root=Space.world, coordinate_frames=coordinate_frames
 )
-animation = cayleyscene.Animation(scene)
-GEOMETRY = {Space.paddle1: "paddle1"}
+animation: cayleyscene.Animation = cayleyscene.Animation(scene)
+GEOMETRY: dict[Space, str] = {Space.paddle1: "paddle1"}
 GEOMETRY.update({_square(i): "square" for i in range(NUM_SQUARES)})
 
 # This file is a program, not a module: from here on it acquires resources (a
@@ -135,10 +136,12 @@ if __name__ != "__main__":
 
 
 window, impl, imguiio = cayley_gl.setup("Push Matrix (Cayley)")
-camera = cayley_gl.make_camera()
+camera: _p.Camera = cayley_gl.make_camera()
 cayley_gl.install_scroll(window, imguiio, camera)
-pwd = os.path.dirname(os.path.abspath(__file__))
-standard_objects = cayley_gl.build_standard(shader_dir=pwd, animated=False)
+pwd: str = os.path.dirname(os.path.abspath(__file__))
+standard_objects: cayley_gl.StandardObjects = cayley_gl.build_standard(
+    shader_dir=pwd, animated=False
+)
 
 state: dict[str, typing.Any] = {
     "time": 0.0,
@@ -146,7 +149,7 @@ state: dict[str, typing.Any] = {
     "paused": False,
     "mouse": None,
 }
-win_state = cayley_gl.WindowState()
+win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 
 
 def jump(start: float) -> None:

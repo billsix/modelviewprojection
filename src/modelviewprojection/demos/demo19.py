@@ -19,6 +19,7 @@
 import dataclasses
 import math
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -43,7 +44,9 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 19", None, None)
+window: typing.Any = glfw.create_window(  # glfw window handle
+    500, 500, "ModelViewProjection Demo 19", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -91,7 +94,7 @@ paddle2: Paddle = Paddle(
 )
 
 
-number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
+number_of_controllers: int = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
 @dataclasses.dataclass
@@ -185,7 +188,8 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport(window)
     handle_inputs()
 
-    axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
+    # glfw joystick axes buffer (per-axis floats, real type is a ctypes array)
+    axes_list: typing.Any = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
             camera.x += 1 * axes_list[0][0] * math.cos(camera.rot_y)

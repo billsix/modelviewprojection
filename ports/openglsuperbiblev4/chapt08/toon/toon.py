@@ -7,6 +7,7 @@ import math
 import os
 import sys
 import time
+import typing
 
 import glfw
 import numpy as np
@@ -15,21 +16,21 @@ import OpenGL.GLU as GLU
 from imgui_bundle import imgui
 from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-PWD = os.path.dirname(os.path.abspath(__file__))
+PWD: str = os.path.dirname(os.path.abspath(__file__))
 sys.path.insert(0, os.path.dirname(os.path.dirname(PWD)))
 import _common  # noqa: E402
 
-_window = None  # set in main(); used by the Quit menu item
+_window: typing.Any = None  # glfw window handle; set in main()
 
-v_light_dir = np.array([-1.0, 1.0, 1.0], dtype=np.float32)
+v_light_dir: np.ndarray = np.array([-1.0, 1.0, 1.0], dtype=np.float32)
 y_rot: float = 0.0
 
 
 def invert_matrix44(m: "np.ndarray") -> "np.ndarray":
     """Replacement for m3dInvertMatrix44. m is a flat 16-element
     column-major numpy array. Returns the inverse, also column-major."""
-    mat = m.reshape((4, 4)).T  # convert column-major flat to row-major 4x4
-    inv = np.linalg.inv(mat)
+    mat: np.ndarray = m.reshape((4, 4)).T  # column-major flat to row-major 4x4
+    inv: np.ndarray = np.linalg.inv(mat)
     return inv.T.flatten().astype(np.float32)
 
 
@@ -37,7 +38,7 @@ def transform_vector3(v: "np.ndarray", m: "np.ndarray") -> "np.ndarray":
     """m is a flat 16-element column-major matrix; v is a 3-vector,
     treated as (x, y, z, 1) when applying the rotation portion (the
     translation is subtracted by the caller)."""
-    out = np.empty(3, dtype=np.float32)
+    out: np.ndarray = np.empty(3, dtype=np.float32)
     out[0] = m[0] * v[0] + m[4] * v[1] + m[8] * v[2]
     out[1] = m[1] * v[0] + m[5] * v[1] + m[9] * v[2]
     out[2] = m[2] * v[0] + m[6] * v[1] + m[10] * v[2]
@@ -45,7 +46,7 @@ def transform_vector3(v: "np.ndarray", m: "np.ndarray") -> "np.ndarray":
 
 
 def normalize3(v: "np.ndarray") -> "np.ndarray":
-    n = math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
+    n: float = math.sqrt(v[0] * v[0] + v[1] * v[1] + v[2] * v[2])
     if n != 0.0:
         return v / n
     return v
@@ -64,36 +65,36 @@ def toon_draw_torus(
     # translation column) and then subtracted the translation column
     # back out to leave a pure direction; transform_vector3 here
     # already does the rotation-only form, so no subtraction.
-    model = np.array(
+    model: np.ndarray = np.array(
         GL.glGetFloatv(GL.GL_MODELVIEW_MATRIX), dtype=np.float32
     ).flatten()
-    inverted = invert_matrix44(model)
-    new_light = normalize3(transform_vector3(light_dir, inverted))
+    inverted: np.ndarray = invert_matrix44(model)
+    new_light: np.ndarray = normalize3(transform_vector3(light_dir, inverted))
 
-    major_step = 2.0 * math.pi / num_major
-    minor_step = 2.0 * math.pi / num_minor
+    major_step: float = 2.0 * math.pi / num_major
+    minor_step: float = 2.0 * math.pi / num_minor
 
     for i in range(num_major):
-        a0 = i * major_step
-        a1 = a0 + major_step
+        a0: float = i * major_step
+        a1: float = a0 + major_step
         x0, y0 = math.cos(a0), math.sin(a0)
         x1, y1 = math.cos(a1), math.sin(a1)
 
         GL.glBegin(GL.GL_TRIANGLE_STRIP)
         for j in range(num_minor + 1):
-            b = j * minor_step
-            cb = math.cos(b)
-            r = minor_radius * cb + major_radius
-            z = minor_radius * math.sin(b)
+            b: float = j * minor_step
+            cb: float = math.cos(b)
+            r: float = minor_radius * cb + major_radius
+            z: float = minor_radius * math.sin(b)
 
-            n0 = np.array(
+            n0: np.ndarray = np.array(
                 [x0 * cb, y0 * cb, z / minor_radius], dtype=np.float32
             )
             n0 = normalize3(n0)
             GL.glTexCoord1f(float(np.dot(new_light, n0)))
             GL.glVertex3f(x0 * r, y0 * r, z)
 
-            n1 = np.array(
+            n1: np.ndarray = np.array(
                 [x1 * cb, y1 * cb, z / minor_radius], dtype=np.float32
             )
             n1 = normalize3(n1)
@@ -113,7 +114,7 @@ def render_scene() -> None:
 
 def setup_rc() -> None:
     # 1D toon texture: 4 shades of green
-    toon_table = np.array(
+    toon_table: np.ndarray = np.array(
         [[0, 32, 0], [0, 64, 0], [0, 127, 0], [0, 127, 0]],
         dtype=np.uint8,
     )
@@ -182,7 +183,9 @@ def main() -> None:
     glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
     glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-    window = glfw.create_window(800, 600, "Toon/Cell Shading Demo", None, None)
+    window: typing.Any = glfw.create_window(  # glfw window handle
+        800, 600, "Toon/Cell Shading Demo", None, None
+    )
     if not window:
         glfw.terminate()
         sys.exit(1)
@@ -193,7 +196,7 @@ def main() -> None:
     glfw.set_framebuffer_size_callback(window, on_framebuffer_size)
 
     imgui.create_context()
-    impl = GlfwRenderer(window)
+    impl: GlfwRenderer = GlfwRenderer(window)
     # Set our key callback AFTER GlfwRenderer -- it installs its own glfw key
     # callback that doesn't chain, so Esc must be registered last.
     glfw.set_key_callback(window, on_key)
@@ -202,11 +205,11 @@ def main() -> None:
     w, h = glfw.get_framebuffer_size(window)
     change_size(w, h)
 
-    last_frame = time.monotonic()
+    last_frame: float = time.monotonic()
 
     while not glfw.window_should_close(window):
-        now = time.monotonic()
-        dt = now - last_frame
+        now: float = time.monotonic()
+        dt: float = now - last_frame
         last_frame = now
 
         glfw.poll_events()
