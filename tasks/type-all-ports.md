@@ -1,0 +1,87 @@
+# Type all the ports — local, module, and global variables
+
+**Status:** in progress — started 2026-09-17 (William Emerison Six <billsix@gmail.com> away,
+commit permission granted, gpg disabled, no pushes). Done autonomously with subagent fan-out +
+container ty verification; **decisions below are for the maintainer to review on return.**
+**Priority:** 5
+**Difficulty:** 6
+
+## BLUF
+
+The maintainer reversed the earlier "ports are exempt from the annotation rule" decision:
+*"do the adding type work, to all of the ports. I want everything typed. local variables. module
+variables. global variables. these are my ports."* This task adds explicit type annotations to
+**every** local and module-level (global) variable in `ports/`, extending the annotation sweep
+that already covered `src` + `tests` (locals). Done = the annotation checker reports zero for the
+ports (locals + module-level via `--include-module`), and the annotations introduce no new `ty`
+errors.
+
+## Context — the reversal
+
+Earlier (archived `tasks/archive/2026/09/17/annotate-all-local-variables.md`) the maintainer
+confirmed "leave ports alone": the ports were exempt from the local-annotation rule because they
+are behaviour-faithful ports (openglsuperbible v4, code-the-classics) and the ~2148 locals were
+judged huge low-value churn. On 2026-09-17 he reversed that and asked for **all** ports typed,
+including module/global variables (which the earlier sweep never touched, even in `src`).
+
+Scope measured 2026-09-17 (`tools/check_local_annotations.py --include-module`):
+
+- `ports/codetheclassics` (vol1 + vol2): **627** bindings (403 locals + 202 module-level+), 11 files.
+- `ports/openglsuperbiblev4`: **2314** bindings (1745 locals + 569 module-level+), 104 files.
+- (`src` also has **362** un-annotated module-level bindings — the src sweep did locals only. Not
+  in this task's explicit scope; flagged as a follow-up below.)
+
+## The annotation checker now handles module-level
+
+`tools/check_local_annotations.py` gained a `--include-module` flag: besides function locals it
+flags module-scope `name = ...` assignments (including inside top-level `if`/`for`/`with`/`try`
+blocks) that are never annotated at module scope. Off by default, so the existing `src`+`tests`
+gate stays locals-only. Same exemptions as locals (tuple-unpack, `for`/`with`/`except`/
+comprehension/walrus, augmented, attribute/subscript targets); class-body assignments are already
+excluded (they're class attributes / Enum members, not module globals).
+
+## Decisions made autonomously (for maintainer review)
+
+- **codetheclassics — fully typed AND kept ty-clean.** These are already in the `make type-check`
+  ty gate and were ty-clean, so annotating them (locals + module-level) is safe and verifiable.
+  Behaviour-faithful, so subagents added ONLY annotations — no logic changes, no gacalc conversion,
+  no rebinding of frozen gacalc vector components.
+- **openglsuperbiblev4 — annotated, but NOT made ty-clean.** This tree is NOT in the ty gate and
+  has **194 pre-existing `ty` diagnostics** (glfw/imgui stub mismatches, e.g.
+  `glfw.set_window_should_close` wanting a non-`None` pointer, `imgui` missing members) that are
+  *not* annotation problems. Making it ty-clean would mean fixing/ignoring 194 diagnostics in
+  faithful port code — a separate, larger, riskier job the maintainer did not ask for. Discretion
+  call: **add the annotations he asked for**, verify they add **no new** ty diagnostics (baseline
+  194, guard: the count must not rise), and leave the pre-existing 194 for a separate decision (see
+  follow-ups). This gives "everything typed" (annotations present) without silently committing to a
+  faithful-port ty-clean rabbit hole.
+- **GL constants in ports** are annotated with `OpenGL.constant.Constant` (or `int` where used as an
+  index), not the `mvpvisualization._pipeline.GLenum` alias, to avoid coupling a standalone port to
+  the package's internals.
+- **The gate** (see "Gate changes") enforces the ports' local+module annotations via
+  `check_local_annotations.py --include-module`, but does NOT add openglsuperbible to the `ty` step
+  (because of the 194).
+
+## Gate changes
+
+- `make type-check` extended to run `check_local_annotations.py --include-module` over
+  `ports/codetheclassics` and `ports/openglsuperbiblev4` (enforces the new ports annotations).
+- `ty` step unchanged in scope (src, tests, ports/codetheclassics) — openglsuperbible stays out of
+  the ty step pending the 194-diagnostic decision.
+
+## Follow-ups (for the maintainer)
+
+1. **`src` module-level (362).** The maintainer said he wants module/global variables typed
+   "everything". The src sweep did locals only. Annotating src's 362 module-level bindings + turning
+   on `--include-module` for the src gate is a natural next step, deferred here because the explicit
+   ask was "the ports". Low-risk (src is ty-clean) — say the word.
+2. **openglsuperbible's 194 pre-existing ty diagnostics.** Decide whether to fix them, blanket-
+   `# ty: ignore` them, or leave the tree out of the ty gate permanently (it's faithful port code).
+   Only then can openglsuperbible join the ty step.
+
+## Progress log
+
+- Checker `--include-module` support added + tested.
+- (in progress) codetheclassics: 4 subagents typing the 11 files; then container ty gate + commit.
+- (pending) openglsuperbiblev4: chunked subagent waves by chapter; annotate + ty-count guard +
+  commit per chunk.
