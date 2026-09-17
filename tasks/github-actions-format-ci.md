@@ -1,11 +1,31 @@
 # GitHub Actions: format-check CI (phase 1), then releases (phase 2), then other repos
 
-**Status:** proposed — needs go-ahead
+**Status:** in progress — **Phase 1 landed** (`make check-format` + `.github/workflows/format-check.yml`,
+verified locally both ways). Phase 2 (releases) is proposed and spawns its own task; the cross-project
+replication is done for geometricalgebra.
 **Priority:** 5
 **Difficulty:** 4
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Needs:** the maintainer's answers to the Open questions below (runner environment; registry =
-ghcr.io).
+**Phase 1 implemented:** 2026-09-17 (William Emerison Six <billsix@gmail.com>).
+
+## Phase 1 landed (2026-09-17)
+
+- **`make check-format`** (Makefile) = run `make format` (ruff `--fix`/`ruff format`, + `ty check` —
+  fails on any ty error), then `git diff --exit-code` to fail if the code was not already formatted.
+  All logic is in the make target, per the governing principle.
+- **`.github/workflows/format-check.yml`** = `checkout` → `make check-format BUILD_DOCS=0 USE_EMACS=0
+  USE_JUPYTER=0 USE_X_WINDOWS=0` on `ubuntu-latest`, on push + pull_request. Nothing else in YAML.
+- **Runner environment (Open Q1, resolved):** `ubuntu-latest` (ships Docker); the image is built
+  in-workflow from the committed Dockerfile (self-contained, no registry needed for phase 1), built
+  lean (the format/ty check needs no docs/emacs/jupyter/X). `CONTAINER_CMD` already auto-detects
+  podman→docker (`Makefile:11`), so the identical target runs in CI and on the maintainer's host.
+- **Verified locally** (nested podman, the acceptance test per the principle): a clean tree →
+  `make check-format` exit 0 (ruff unchanged, ty green, empty diff); a deliberately unformatted line
+  → exit nonzero (ruff reformatted it, `git diff --exit-code` caught it). The gate bites.
+- **Not verifiable locally — the one caveat:** the sandbox has podman, not docker, so the
+  docker-on-the-runner path (BuildKit `--mount=type=cache`, `:Z` mount labels as a no-op on
+  non-SELinux Ubuntu) is exercised only when CI first runs. If the first run fails on a
+  docker-specific detail, that is the thing to fix — the make target itself is proven.
 
 *(Was `**Status:** blocked` until 2026-09-08. Re-filed: `blocked` is for a concrete, **testable**
 gate outside our control, with a `Recheck:` someone can run — a decision the maintainer owes is the
@@ -64,15 +84,13 @@ Consequences that shape every phase:
 
 ## Plan (phased — line items are explicit per the maintainer's ask)
 
-- [ ] **Phase 1 (this task):** add a **`make check-format`** target (= `make format` +
-      `git diff --exit-code`) and a format-check GitHub Action that is just `checkout` →
-      `make check-format`. The diff-fail logic lives in the Makefile, per the governing principle,
-      so the maintainer runs the exact CI check locally with one command.
-- [ ] **Document the principle (end of Phase 1):** capture "CI is a thin wrapper over the
-      make/Dockerfile system; every workflow is `checkout` → `make <target>`; all logic lives in
-      make targets that run locally" as a durable convention — a concise rule in `CLAUDE.md`, or a
-      `tasks/reference/` doc if it needs the fuller rationale/examples. (Maintainer's ask: don't
-      leave the principle buried in this task doc.)
+- [x] **Phase 1 (this task):** added the **`make check-format`** target (= `make format` +
+      `git diff --exit-code`) and `.github/workflows/format-check.yml` (just `checkout` →
+      `make check-format`). The diff-fail logic lives in the Makefile, per the governing principle,
+      so the maintainer runs the exact CI check locally with one command. Verified both paths.
+- [x] **Document the principle (end of Phase 1):** the "CI is a thin wrapper over the
+      make/Dockerfile system" principle is now a concise rule in `CLAUDE.md` (the "Continuous
+      integration" section), pointing here for the roadmap and rationale.
 - [ ] **Line item → spawn a NEW task (Phase 2)** once Phase 1 lands: on **tagged releases**, push a
       container image to a registry (**ghcr.io** — "ideally on GitHub itself") **and** build a release
       tarball bundling the source + the **three book forms (HTML/PDF/EPUB)** — each as a `make` target

@@ -164,6 +164,18 @@ format: image ## (container) ruff + ty over the source (loadpackages.sh + format
 		-c 'cd /mvp && loadpackages.sh && format.sh'
 
 
+# CI check: run `format` (which mutates via `ruff --fix`/`ruff format` and fails
+# on any ty error), then fail if it changed any tracked file -- i.e. the code
+# was not already formatted.  This is the whole format-check gate in ONE make
+# target so CI is a thin wrapper (checkout -> `make check-format`) and the
+# maintainer reproduces exactly what CI does with the same command locally.  Run
+# it lean in CI: `make check-format BUILD_DOCS=0 USE_EMACS=0 USE_JUPYTER=0
+# USE_X_WINDOWS=0` (the format/ty step needs no docs/emacs/jupyter/X).
+.PHONY: check-format
+check-format: format ## (CI) run format, then fail if it changed any tracked file
+	git diff --exit-code
+
+
 # Read-only type gate: ty over the whole source (no ruff, no --fix -- nothing is
 # mutated), plus the local-variable annotation checker (tools/, enforcing the
 # "every local is annotated" rule).  Every step runs and the target fails if ANY

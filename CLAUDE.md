@@ -95,6 +95,10 @@ The mvp invariants worth keeping in front of you:
 
 ---
 
+## Continuous integration
+
+CI (`.github/workflows/`) is a **thin wrapper over the make/Dockerfile system**: every workflow is `checkout` → `make <target>`, with all build/check/release logic in make targets so it runs identically in CI and on a laptop (`CONTAINER_CMD` auto-detects podman→docker; runners are ubuntu-latest, which ships Docker). If CI needs a step, add it as a `make` target first (runnable locally), never as inline YAML. Phase 1 is `format-check.yml` = `make check-format` (runs `format`, then fails on a `git diff`). Roadmap (releases on tag → a container image to a registry + a release tarball of source + the three book forms) and rationale: `tasks/github-actions-format-ci.md`.
+
 ## Tasks
 
 Active work lives in `tasks/` (one file per task — authoritative; the session-start scan surfaces it); durable knowledge in `tasks/reference/`; completed tasks are archived under `tasks/archive/<YYYY>/<MM>/<DD>/`. There is no `plans/` directory or session HANDOFF files. The SuperBible port itself is complete; its remaining UX work is tracked by the umbrella `tasks/ports-ux-pass.md` (read first). The gacalc version-bump history and other design rationale live in `tasks/reference/design-decisions.md`.
