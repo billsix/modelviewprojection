@@ -97,7 +97,7 @@ The mvp invariants worth keeping in front of you:
 
 ## Continuous integration
 
-CI (`.github/workflows/`) is a **thin wrapper over the make/Dockerfile system**: every workflow is `checkout` → `make <target>`, with all build/check/release logic in make targets so it runs identically in CI and on a laptop (`CONTAINER_CMD` auto-detects podman→docker; runners are ubuntu-latest, which ships Docker). If CI needs a step, add it as a `make` target first (runnable locally), never as inline YAML. Phase 1 is `format-check.yml` = `make check-format` (runs `format`, then fails on a `git diff`). Roadmap (releases on tag → a container image to a registry + a release tarball of source + the three book forms) and rationale: `tasks/github-actions-format-ci.md`.
+CI (`.github/workflows/`) is a **thin wrapper over the make/Dockerfile system**: every workflow is `checkout` → `make <target>`, with all build/check/release logic in make targets so it runs identically in CI and on a laptop (`CONTAINER_CMD` auto-detects podman→docker; runners are ubuntu-latest, which ships Docker). If CI needs a step, add it as a `make` target first (runnable locally), never as inline YAML. Phase 1 is `format-check.yml` = `make check-format` (runs `format`, then fails on a `git diff`). Phase 2 is `release.yml` (on a `v*` tag) = `make release-tarball` + `make image-push` (source + the three book forms → a GitHub Release; image → ghcr.io) — implemented but **needs the maintainer to test** (registry auth, tag trigger, full book build). Rationale/roadmap: `tasks/github-actions-format-ci.md` (phase 1) and `tasks/github-actions-release-ci.md` (phase 2).
 
 ## Tasks
 

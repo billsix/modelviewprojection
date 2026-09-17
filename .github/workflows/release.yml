@@ -1,0 +1,52 @@
+# Phase 2 of the GitHub CI/CD work (tasks/github-actions-release-ci.md).
+#
+# Governing principle: CI is a THIN WRAPPER over the make/Dockerfile system.
+# Everything buildable is a `make` target that runs locally; only the two
+# irreducibly GitHub-specific steps live here in YAML: logging in to the
+# registry, and creating the GitHub Release. Everything between them
+# (build image, build book, make tarball, tag + push image) is `make`.
+#
+# Triggered by pushing a version tag (e.g. v1.2.3). NEEDS MAINTAINER TESTING:
+# registry auth, the tag trigger, and the GitHub Release step are only exercised
+# on a real tag push -- see tasks/github-actions-release-ci.md.
+name: release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write   # create the GitHub Release
+      packages: write   # push the image to ghcr.io
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0   # full history so `git describe --tags` works
+
+      # GitHub-API step (no local `make` equivalent): registry login.
+      - name: Log in to ghcr.io
+        run: echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+
+      # All build/bundle logic is in the Makefile (runs identically locally).
+      - name: Build book + release tarball
+        run: >-
+          make release-tarball
+          RELEASE_VERSION=${{ github.ref_name }}
+          BUILD_DOCS=1 USE_EMACS=0 USE_JUPYTER=0 USE_X_WINDOWS=0
+
+      - name: Push image to ghcr.io
+        run: >-
+          make image-push
+          RELEASE_VERSION=${{ github.ref_name }}
+          BUILD_DOCS=1 USE_EMACS=0 USE_JUPYTER=0 USE_X_WINDOWS=0
+
+      # GitHub-API step (no local `make` equivalent): create the Release and
+      # attach the tarball built by `make release-tarball`.
+      - name: Create GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: dist/*.tar.gz
