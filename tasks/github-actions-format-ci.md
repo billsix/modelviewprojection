@@ -4,8 +4,8 @@
 **Priority:** 5
 **Difficulty:** 4
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Needs:** the maintainer's answers to the Open questions below (local-run via `act`; runner
-environment; registry = ghcr.io).
+**Needs:** the maintainer's answers to the Open questions below (runner environment; registry =
+ghcr.io).
 
 *(Was `**Status:** blocked` until 2026-09-08. Re-filed: `blocked` is for a concrete, **testable**
 gate outside our control, with a `Recheck:` someone can run — a decision the maintainer owes is the
@@ -24,11 +24,39 @@ done, I want a reminder to do this on other projects as well, such as geometrica
 
 This is a **phased** task — the structure below is deliberate.
 
+## Governing design principle — CI is a THIN WRAPPER over the make/Dockerfile system
+
+**Every workflow does as little as possible: `checkout` → `make <target>`. All real work lives in
+the Makefile + Dockerfile so it runs identically on a laptop and in CI** — no build/test/release
+logic in YAML. This is the whole point of the task: what CI does must be reproducible locally with
+the same command, not a GitHub-only path that drifts from what the maintainer runs by hand.
+
+Consequences that shape every phase:
+
+- **If a workflow needs a step, add it as a `make` target first**, then have the workflow call it.
+  The format-check is not "run `make format` then a YAML `git diff` step" but a single make target
+  (e.g. `make check-format` = `make format` + `git diff --exit-code`) so the exact CI behaviour is
+  one command locally. Same for phase 2: image push and the release-tarball build are `make`
+  targets the workflow invokes, not inline `docker push`/`tar` in YAML.
+- **`CONTAINER_CMD` auto-detects podman→docker** (`$(shell command -v podman >/dev/null 2>&1 &&
+  echo podman || echo docker)`) so the identical `make` target runs on a GitHub runner (Docker) and
+  on the maintainer's host (podman). No podman-vs-docker branching in the workflow.
+- **Local runnability is the acceptance test**, not just "the Action is green": because the
+  workflow does nothing but call a `make` target, the maintainer reproduces exactly what CI does by
+  running that same target on his host (nested podman drives the container). There is no need to
+  simulate the GitHub runner locally — the make/Dockerfile system *is* the local path. If a thing
+  can only be done in GitHub's environment, that's a smell to flag, not design around.
+- This mirrors the shared container-template convention (make drives the container; scripts run
+  both in-container and on the host from the repo root) and the imps `*-upstream-container-ci`
+  tasks, where the workflow just calls `make appimage` and the Makefile drives everything.
+
 ## Context (investigation 2026-08-27)
 
 - **There is NO CI today** — `.github/` does not exist (`tasks/reference/tests-and-gates.md:14-18`;
   confirmed on disk). `make format` is the only standing gate, portable host + container.
-- Nested podman is available in the sandbox, so GitHub Actions can be run locally via `act`/`nektos`.
+- Nested podman is available in the sandbox and on the maintainer's host, so every `make` target a
+  workflow calls runs locally with the identical command — which is the whole local-reproducibility
+  story (no GitHub-runner simulator needed).
 - The three book forms (HTML/PDF/EPUB) exist (archived `2026/07/08/finish-pdf-epub-build.md`); image
   export/import targets exist (`Makefile:211-215`, archived `2026/06/13/fix-image-export-import-gaps.md`).
 - **Personal convention:** the agent stages, the maintainer commits — so any `.github/workflows/*.yml`
@@ -36,18 +64,26 @@ This is a **phased** task — the structure below is deliberate.
 
 ## Plan (phased — line items are explicit per the maintainer's ask)
 
-- [ ] **Phase 1 (this task):** investigate running Actions locally (`act` under nested podman); add a
-      **format-check** GitHub Action = run `make format`, fail if `git diff` is non-empty.
+- [ ] **Phase 1 (this task):** add a **`make check-format`** target (= `make format` +
+      `git diff --exit-code`) and a format-check GitHub Action that is just `checkout` →
+      `make check-format`. The diff-fail logic lives in the Makefile, per the governing principle,
+      so the maintainer runs the exact CI check locally with one command.
+- [ ] **Document the principle (end of Phase 1):** capture "CI is a thin wrapper over the
+      make/Dockerfile system; every workflow is `checkout` → `make <target>`; all logic lives in
+      make targets that run locally" as a durable convention — a concise rule in `CLAUDE.md`, or a
+      `tasks/reference/` doc if it needs the fuller rationale/examples. (Maintainer's ask: don't
+      leave the principle buried in this task doc.)
 - [ ] **Line item → spawn a NEW task (Phase 2)** once Phase 1 lands: on **tagged releases**, push a
       container image to a registry (**ghcr.io** — "ideally on GitHub itself") **and** build a release
-      tarball bundling the source + the **three book forms (HTML/PDF/EPUB)**.
+      tarball bundling the source + the **three book forms (HTML/PDF/EPUB)** — each as a `make` target
+      the workflow calls (e.g. `make image-push`, `make release-tarball`), not inline YAML.
 - [ ] **Cross-project reminder:** after Phase 2, replicate this on other projects, e.g.
       `geometricalgebra` (and note it belongs on the shared container template generally).
 
 ## Open questions
 
-1. **Run locally via `act`** under the sandbox's nested podman — acceptable as the "can we run them
-   locally?" answer?
-2. **Format action's runner environment** — mvp's `make format` needs the container (or the portable
-   host path with editable install + gacalc generated). Which runner environment should the Action use?
-3. **Registry** confirmed as **ghcr.io**?
+1. **Format action's runner environment** — mvp's `make format` needs the container (or the portable
+   host path with editable install + gacalc generated). Which runner environment should the Action
+   use? (This is the one place the runner matters; the governing principle keeps everything else in
+   make targets.)
+2. **Registry** confirmed as **ghcr.io**?
