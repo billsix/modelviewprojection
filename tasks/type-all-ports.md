@@ -1,8 +1,10 @@
 # Type all the ports — local, module, and global variables
 
-**Status:** in progress — started 2026-09-17 (William Emerison Six <billsix@gmail.com> away,
-commit permission granted, gpg disabled, no pushes). Done autonomously with subagent fan-out +
-container ty verification; **decisions below are for the maintainer to review on return.**
+**Status:** ports DONE — both `ports/codetheclassics` and `ports/openglsuperbiblev4` fully
+annotated (locals + module-level), enforced by `make type-check` (green). Done autonomously
+2026-09-17 (William Emerison Six <billsix@gmail.com> away; commit permission, gpg off, no pushes).
+**Decisions below are for the maintainer to review.** Remaining: `src` module-level (362) — a
+follow-up, see below.
 **Priority:** 5
 **Difficulty:** 6
 
@@ -81,7 +83,20 @@ excluded (they're class attributes / Enum members, not module globals).
 
 ## Progress log
 
-- Checker `--include-module` support added + tested.
-- (in progress) codetheclassics: 4 subagents typing the 11 files; then container ty gate + commit.
-- (pending) openglsuperbiblev4: chunked subagent waves by chapter; annotate + ty-count guard +
-  commit per chunk.
+- Checker `--include-module` support added + tested; also fixed the checker to skip
+  `global`/`nonlocal`-declared names (can't carry an inline annotation) — committed `c46b144d` +
+  the fix folded into the codetheclassics commit.
+- **codetheclassics DONE** (`88263050`): all 11 games, locals + module-level, via 4 subagents;
+  container `make format` ty 8/8, ruff clean, checker `--include-module` zero.
+- **openglsuperbiblev4 DONE** (`91c0ee3c`): all 104 files (97 changed), locals + module-level, via
+  7 subagents (by chapter). checker `--include-module` zero, ruff clean. **ty count-check: the
+  annotations added ZERO new diagnostics and resolved 93 pre-existing ones (194 -> 101).** The 101
+  remaining are pre-existing glfw/imgui stub mismatches (follow-up #2).
+- **Gate flipped**: `make type-check` now also runs `check_local_annotations.py --include-module`
+  over both port trees (and passes). `ty` step scope unchanged (openglsuperbible stays out because
+  of the 101). `make type-check` is green end to end.
+- Per-tree type conventions used by the subagents: GL handles -> int; bare `GL.GL_*` ->
+  `OpenGL.constant.Constant`; numpy -> np.ndarray; glfw window/monitor/videomode + GLU
+  quadric/nurbs/tess handles -> documented `typing.Any`; meshes -> `_primitives.Mesh`; type aliases
+  -> `TypeAlias`; scalars/tuples/lists as appropriate. Chained `a = b = ...` handled by annotating
+  a later single-target rebind (no behavioral split).

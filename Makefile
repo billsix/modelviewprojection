@@ -194,6 +194,8 @@ type-check: image ## (container) ty + local-annotation check over the source
 			ty check ports/codetheclassics/vol1 || s=1; \
 			ty check ports/codetheclassics/vol2 || s=1; \
 			python tools/check_local_annotations.py src tests || s=1; \
+			python tools/check_local_annotations.py --include-module \
+				ports/codetheclassics ports/openglsuperbiblev4 || s=1; \
 			exit $$s'
 
 
