@@ -15,6 +15,7 @@ as an object, and the world->camera ``InverseOperations`` (the original's
 import math
 import os
 import sys
+import types
 import typing
 from enum import Enum, auto
 
@@ -38,11 +39,11 @@ if typing.TYPE_CHECKING:
     # and absent at runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
 # imgui via cayley_gl so glfw + OpenGL.GL import before imgui_bundle.
-imgui = cayley_gl.imgui
+imgui: types.ModuleType = cayley_gl.imgui
 
 
 class Space(Enum):
@@ -53,7 +54,7 @@ class Space(Enum):
     camera = auto()
 
 
-camera_edge = cayleygraph.Edge(
+camera_edge: cayleygraph.Edge = cayleygraph.Edge(
     src=Space.camera,
     dst=Space.world,
     steps=[
@@ -63,7 +64,7 @@ camera_edge = cayleygraph.Edge(
     ],
 )
 
-graph = cayleygraph.CayleyGraph(
+graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
     [
         cayleygraph.Edge(
             src=Space.paddle1,
@@ -95,7 +96,7 @@ graph = cayleygraph.CayleyGraph(
     ]
 )
 
-scene = cayleyscene.Scene(
+scene: cayleyscene.Scene = cayleyscene.Scene(
     graph=graph,
     root=Space.world,
     coordinate_frames=[
@@ -129,8 +130,8 @@ scene = cayleyscene.Scene(
         ),
     ],
 )
-animation = cayleyscene.Animation(scene)
-DRAW = {
+animation: cayleyscene.Animation = cayleyscene.Animation(scene)
+DRAW: dict[Space, str] = {
     Space.paddle1: "paddle1",
     Space.square: "square",
     Space.paddle2: "paddle2",
@@ -146,11 +147,13 @@ if __name__ != "__main__":
 
 
 window, impl, imguiio = cayley_gl.setup("Model View (Cayley)")
-camera = cayley_gl.make_camera(r=30.0)
+camera: cayley_gl._p.Camera = cayley_gl.make_camera(r=30.0)
 cayley_gl.install_scroll(window, imguiio, camera)
 # static perspective: no squash shader, no frustum
-pwd = os.path.dirname(os.path.abspath(__file__))
-standard_objects = cayley_gl.build_standard(shader_dir=pwd, animated=False)
+pwd: str = os.path.dirname(os.path.abspath(__file__))
+standard_objects: cayley_gl.StandardObjects = cayley_gl.build_standard(
+    shader_dir=pwd, animated=False
+)
 
 state: dict[str, typing.Any] = {
     "time": 0.0,
@@ -158,7 +161,7 @@ state: dict[str, typing.Any] = {
     "paused": False,
     "mouse": None,
 }
-win_state = cayley_gl.WindowState()
+win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 
 
 def jump(start: float) -> None:

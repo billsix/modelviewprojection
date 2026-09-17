@@ -54,7 +54,7 @@ from .resources import images, sounds
 from .runner import main, quit_game
 from .screen import screen
 
-__all__ = [
+__all__: list[str] = [
     "Actor",
     "Rect",
     "ZRect",

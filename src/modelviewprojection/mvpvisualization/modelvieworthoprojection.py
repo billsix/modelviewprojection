@@ -16,6 +16,7 @@ squash."""
 import math
 import os
 import sys
+import types
 import typing
 from enum import Enum, auto
 
@@ -44,10 +45,10 @@ if typing.TYPE_CHECKING:
     # and absent at runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
-imgui = cayley_gl.imgui
+imgui: types.ModuleType = cayley_gl.imgui
 
 
 class Space(Enum):
@@ -58,7 +59,7 @@ class Space(Enum):
     camera = auto()
 
 
-camera_edge = cayleygraph.Edge(
+camera_edge: cayleygraph.Edge = cayleygraph.Edge(
     src=Space.camera,
     dst=Space.world,
     steps=[
@@ -68,7 +69,7 @@ camera_edge = cayleygraph.Edge(
     ],
 )
 
-graph = cayleygraph.CayleyGraph(
+graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
     [
         cayleygraph.Edge(
             src=Space.paddle1,
@@ -100,7 +101,7 @@ graph = cayleygraph.CayleyGraph(
     ]
 )
 
-scene = cayleyscene.Scene(
+scene: cayleyscene.Scene = cayleyscene.Scene(
     graph=graph,
     root=Space.world,
     coordinate_frames=[
@@ -136,8 +137,8 @@ scene = cayleyscene.Scene(
         ),
     ],
 )
-animation = cayleyscene.Animation(scene)
-controls = cayleyscene.CameraControls(
+animation: cayleyscene.Animation = cayleyscene.Animation(scene)
+controls: cayleyscene.CameraControls = cayleyscene.CameraControls(
     translate_step=camera_edge.steps[0],
     rot_y_step=camera_edge.steps[1],
     rot_x_step=camera_edge.steps[2],
@@ -147,12 +148,12 @@ controls = cayleyscene.CameraControls(
     rot_y=math.radians(25.0),
     rot_x=math.radians(15.0),
 )
-DRAW = {
+DRAW: dict[Space, str] = {
     Space.paddle1: "paddle1",
     Space.square: "square",
     Space.paddle2: "paddle2",
 }
-FOCUS = [
+FOCUS: list[tuple[str, Space | None]] = [
     ("NDC", None),
     ("Paddle1", Space.paddle1),
     ("Square", Space.square),
@@ -170,12 +171,12 @@ if __name__ != "__main__":
 
 
 window, impl, imguiio = cayley_gl.setup("Model View Ortho Projection (Cayley)")
-camera = cayley_gl.make_camera()
+camera: cayley_gl._p.Camera = cayley_gl.make_camera()
 cayley_gl.install_scroll(window, imguiio, camera)
 # orthographic: project_ortho squash + a rectangular-prism view volume (matches
 # the shader's hard-coded box dims: half-size 5, near -0.5, far -15.5).
-pwd = os.path.dirname(os.path.abspath(__file__))
-standard_objects = cayley_gl.build_standard(
+pwd: str = os.path.dirname(os.path.abspath(__file__))
+standard_objects: cayley_gl.StandardObjects = cayley_gl.build_standard(
     shader_dir=pwd,
     animated=True,
     project="project_ortho.glsl",
@@ -192,7 +193,7 @@ state: dict[str, typing.Any] = {
     "line_width": 2.0,
     "center_on": None,
 }
-win_state = cayley_gl.WindowState()
+win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 
 
 def jump(start: float) -> None:

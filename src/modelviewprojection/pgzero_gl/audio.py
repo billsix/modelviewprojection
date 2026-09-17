@@ -44,7 +44,7 @@ import os
 import threading
 from collections.abc import Generator, Iterator
 from dataclasses import InitVar, dataclass, field
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, TypeAlias, cast
 
 import numpy as np
 from numpy.typing import NDArray
@@ -55,7 +55,7 @@ if TYPE_CHECKING:
     import miniaudio
 
 #: interleaved float32 PCM at the mixing format
-_PCM = NDArray[np.float32]
+_PCM: TypeAlias = NDArray[np.float32]
 
 # the miniaudio module (or None if unavailable); Any so the sentinel and
 # the module share a type
@@ -76,12 +76,12 @@ def available() -> bool:
 
 
 # One mixing format for everything; decode/stream converts to it.
-_SAMPLE_RATE = 44100
-_CHANNELS = 2
+_SAMPLE_RATE: int = 44100
+_CHANNELS: int = 2
 
 # pygame.mixer defaults to 8 mixing channels; cap concurrent voices per
 # effect similarly so a rapidly-refired sound reuses its budget.
-_MAX_VOICES_PER_SOUND = 8
+_MAX_VOICES_PER_SOUND: int = 8
 
 
 @dataclass(slots=True)
@@ -280,7 +280,7 @@ class _Engine:
                 pass
 
 
-_engine = _Engine()
+_engine: _Engine = _Engine()
 
 
 def shutdown() -> None:
@@ -466,4 +466,4 @@ class _Music:
         self._voice.start_fadeout(seconds * 1000.0)
 
 
-music = _Music()
+music: _Music = _Music()

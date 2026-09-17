@@ -101,5 +101,5 @@ class _Keys:
         return code
 
 
-keyboard = Keyboard()
-keys = _Keys()
+keyboard: Keyboard = Keyboard()
+keys: _Keys = _Keys()

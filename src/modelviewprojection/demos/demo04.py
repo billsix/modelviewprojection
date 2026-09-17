@@ -18,6 +18,7 @@
 
 import dataclasses
 import sys
+import typing
 
 import glfw
 import OpenGL.GL as GL
@@ -39,7 +40,9 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 4", None, None)
+window: typing.Any = glfw.create_window(  # glfw window handle
+    500, 500, "ModelViewProjection Demo 4", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -74,7 +77,7 @@ class Paddle:
 
 
 # doc-region-begin instantiate paddles
-paddle1 = Paddle(
+paddle1: Paddle = Paddle(
     vertices=[
         Vector(x=-1.0, y=-0.3),
         Vector(x=-0.8, y=-0.3),
@@ -84,7 +87,7 @@ paddle1 = Paddle(
     color=colorutils.Color3(r=0.578123, g=0.0, b=1.0),
 )
 
-paddle2 = Paddle(
+paddle2: Paddle = Paddle(
     vertices=[
         Vector(0.8, -0.3),
         Vector(1.0, -0.3),

@@ -18,7 +18,7 @@ ignored: everything draws to the screen via the active renderer.
 from __future__ import annotations
 
 from collections.abc import Sequence
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 from ._types import Color, PointLike
 from .context import Context
@@ -28,7 +28,8 @@ if TYPE_CHECKING:
     from .renderer import Renderer
 
 # what pygame.draw.rect accepts: any rect flavor (int Rect, float ZRect)
-RectLike = _RectBase[Any]  # any coordinate flavor (int Rect / float ZRect)
+# any coordinate flavor (int Rect / float ZRect)
+RectLike: TypeAlias = _RectBase[Any]
 
 
 def rect(surface: Any, color: Color, rect: RectLike, width: int = 0) -> None:

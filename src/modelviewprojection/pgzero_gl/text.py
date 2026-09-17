@@ -34,7 +34,7 @@ from PIL import ImageDraw, ImageFont
 from .context import Context
 from .resources import Image
 
-DEFAULT_FONT_SIZE = 24
+DEFAULT_FONT_SIZE: int = 24
 
 # Anchor keyword -> (horizontal fraction, vertical fraction) of the text box.
 _ANCHORS: dict[str, tuple[float, float]] = {

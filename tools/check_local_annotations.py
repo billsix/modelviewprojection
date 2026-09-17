@@ -162,6 +162,20 @@ def check_file_module(path: pathlib.Path) -> list[tuple[int, str]]:
     for node in scope:
         if not isinstance(node, ast.Assign):
             continue
+        # A `TypeVar`/`ParamSpec`/`TypeVarTuple` definition cannot carry an
+        # annotation (`X: TypeVar = TypeVar(...)` makes the type checker stop
+        # treating X as a type variable), so don't flag it.
+        if isinstance(node.value, ast.Call):
+            func = node.value.func
+            fname = (
+                func.id
+                if isinstance(func, ast.Name)
+                else func.attr
+                if isinstance(func, ast.Attribute)
+                else ""
+            )
+            if fname in ("TypeVar", "ParamSpec", "TypeVarTuple"):
+                continue
         for target in node.targets:
             if isinstance(target, ast.Name) and target.id not in annotated:
                 findings.append((node.lineno, target.id))

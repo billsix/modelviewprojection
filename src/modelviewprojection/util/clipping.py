@@ -34,7 +34,7 @@ if typing.TYPE_CHECKING:
     # runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
 def draw_in_square_viewport(window: "GLFWWindow") -> None:

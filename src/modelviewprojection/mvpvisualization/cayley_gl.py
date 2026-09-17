@@ -51,12 +51,12 @@ if typing.TYPE_CHECKING:
     from glfw import _GLFWmonitor, _GLFWwindowPointerT
     from imgui_bundle.python_backends.glfw_backend import GlfwRenderer
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 # The paddle/square + axis squash shaders use these fixed pipeline values (the
 # frustum outline uses the real frustum aspect instead).
-PIPELINE_FOV = 45.0
-PIPELINE_ASPECT = 1.0
+PIPELINE_FOV: float = 45.0
+PIPELINE_ASPECT: float = 1.0
 
 
 @dataclasses.dataclass
@@ -94,8 +94,8 @@ def setup(title: str) -> tuple["GLFWWindow", "GlfwRenderer", imgui.IO]:
     return window, impl, imguiio
 
 
-_DEFAULT_ROT_Y = math.radians(45.0)
-_DEFAULT_ROT_X = math.radians(35.264)
+_DEFAULT_ROT_Y: float = math.radians(45.0)
+_DEFAULT_ROT_X: float = math.radians(35.264)
 
 
 def make_camera(
@@ -189,18 +189,18 @@ def setup_ortho_2d_view(
 #: A GL object name -- a VAO, VBO, texture, or program.  OpenGL hands these back
 #: as plain ints; the alias records *which kind* of int a field holds, which the
 #: bare `int` did not.
-GLHandle = int
+GLHandle: typing.TypeAlias = int
 #: How many vertices to draw for a mesh (the count passed to glDrawArrays).
-VertexCount = int
+VertexCount: typing.TypeAlias = int
 #: A drawable mesh: the VAO to bind and how many vertices to draw.  Was written
 #: out as `typing.Tuple[int, int]` at every use.
-Mesh = tuple[GLHandle, VertexCount]
+Mesh: typing.TypeAlias = tuple[GLHandle, VertexCount]
 #: A mesh whose vertex data is re-uploaded at runtime, so its VBO is kept too.
 #: Was `typing.Optional[typing.Tuple[int, int, int]]` with a `# vao,n,vbo`
 #: comment doing the work this name now does.
-MutableMesh = tuple[GLHandle, VertexCount, GLHandle]
+MutableMesh: typing.TypeAlias = tuple[GLHandle, VertexCount, GLHandle]
 #: A 3D point as a plain float triple (edge endpoints in the volume builders).
-Point3 = tuple[float, float, float]
+Point3: typing.TypeAlias = tuple[float, float, float]
 
 
 @dataclasses.dataclass

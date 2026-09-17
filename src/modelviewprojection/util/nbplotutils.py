@@ -41,9 +41,9 @@ from modelviewprojection.mathutils import cosine, sine
 if get_ipython() is not None:
     set_matplotlib_formats("svg")
 
-extra_lines_multiplier = 3
+extra_lines_multiplier: int = 3
 
-zero = Vector.zero()
+zero: Vector = Vector.zero()
 
 
 def _xy(vertices: Sequence[Vector]) -> np.ndarray:
@@ -152,7 +152,7 @@ def create_graphs(
 
 # the shared no-op default for create_basis (B008: don't call in defaults;
 # identity() is stateless, so one module-level instance serves every call)
-_IDENTITY = identity()
+_IDENTITY: InvertibleFunction = identity()
 
 
 def create_basis(

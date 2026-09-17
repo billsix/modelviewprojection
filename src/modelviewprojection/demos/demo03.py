@@ -28,7 +28,7 @@ if typing.TYPE_CHECKING:
     # runtime, so alias it here for the annotations below.
     from glfw import _GLFWwindowPointerT
 
-    GLFWWindow = _GLFWwindowPointerT
+    GLFWWindow: typing.TypeAlias = _GLFWwindowPointerT
 
 
 # This file is a program, not a module: from here on it acquires resources (a
@@ -44,7 +44,9 @@ if not glfw.init():
 glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 1)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 4)
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 3", None, None)
+window: "GLFWWindow" = glfw.create_window(
+    500, 500, "ModelViewProjection Demo 3", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()

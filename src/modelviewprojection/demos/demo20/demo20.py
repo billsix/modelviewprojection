@@ -20,6 +20,7 @@ import dataclasses
 import math
 import os
 import sys
+import typing
 
 import glfw
 import numpy as np
@@ -53,7 +54,11 @@ glfw.window_hint(glfw.CONTEXT_VERSION_MAJOR, 2)
 glfw.window_hint(glfw.CONTEXT_VERSION_MINOR, 1)
 # doc-region-end open gl version 2.1
 
-window = glfw.create_window(500, 500, "ModelViewProjection Demo 20", None, None)
+# glfw's window handle type is private and absent at runtime, so type
+# the opaque handle as Any.
+window: typing.Any = glfw.create_window(
+    500, 500, "ModelViewProjection Demo 20", None, None
+)
 if not window:
     glfw.terminate()
     sys.exit()
@@ -99,7 +104,7 @@ paddle2: Paddle = Paddle(
 )
 
 
-number_of_controllers = glfw.joystick_present(glfw.JOYSTICK_1)
+number_of_controllers: int = glfw.joystick_present(glfw.JOYSTICK_1)
 
 
 @dataclasses.dataclass
@@ -165,15 +170,15 @@ time_at_beginning_of_previous_frame: float = glfw.get_time()
 # compile shaders
 
 # initialize shaders
-pwd = os.path.dirname(os.path.abspath(__file__))
+pwd: str = os.path.dirname(os.path.abspath(__file__))
 
 with open(os.path.join(pwd, "triangle.vert"), "r") as f:
-    vs = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
+    vs: int = shaders.compileShader(f.read(), GL.GL_VERTEX_SHADER)
 
 with open(os.path.join(pwd, "triangle.frag"), "r") as f:
-    fs = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
+    fs: int = shaders.compileShader(f.read(), GL.GL_FRAGMENT_SHADER)
 
-shader = shaders.compileProgram(vs, fs)
+shader: int = shaders.compileProgram(vs, fs)
 GL.glUseProgram(shader)
 # doc-region-end compile shaders
 
@@ -194,7 +199,7 @@ while not glfw.window_should_close(window):
     draw_in_square_viewport(window)
     handle_inputs()
 
-    axes_list = glfw.get_joystick_axes(glfw.JOYSTICK_1)
+    axes_list: typing.Any = glfw.get_joystick_axes(glfw.JOYSTICK_1)
     if len(axes_list) >= 1 and axes_list[0]:
         if math.fabs(float(axes_list[0][0])) > 0.1:
             camera.x += 1.0 * axes_list[0][0] * math.cos(camera.rot_y)
