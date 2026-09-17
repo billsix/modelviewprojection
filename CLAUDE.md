@@ -84,6 +84,8 @@ Every `literalinclude` in `book/docs/` selects code by `doc-region-begin`/`doc-r
 
 The Python coding standard is the shared cross-project doc **`runClaudeInContainer/tasks/reference/python-coding-standard.md`** (canonical: github.com/billsix/runClaudeInContainer; mounted in every session at `~/.claude/reference/python-coding-standard.md`) — its "modelviewprojection-specific additions" section carries mvp's own rules and worked examples. A green `make format` means the mechanical (ruff) tier is done; spend attention on the judgment calls there.
 
+A separate **`make type-check`** gate runs `ty` (src/tests/ports) plus `tools/check_local_annotations.py src tests` — an AST checker enforcing that **every local variable in `src` + `tests` carries an explicit annotation** (not just an inferred type). It exempts un-annotatable targets (tuple-unpack, `for`/`with`/`except`/comprehension/walrus, augmented, attribute/subscript, module- and class-body). `ports/**` is exempt from the local-annotation rule (faithful-port code). The checker lives only in `make type-check`, not `make format`.
+
 The mvp invariants worth keeping in front of you:
 
 - **`line-length = 80`** (not the shared default 88) — the book is built as a PDF, where wider lines wrap badly.
