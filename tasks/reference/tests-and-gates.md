@@ -11,13 +11,22 @@ build and the doc-region checker) and `design-decisions.md` (which owns the
 
 ---
 
-## 1. The gate chain — and the fact that there is no CI
+## 1. The gate chain (local gates + GitHub Actions CI)
 
-**There is no CI.** `.github/` does not exist; every gate is local or
-in-container, and `make html` on Bill's machine is the de-facto pipeline. The
-gates, in the order they bite:
+**CI now exists** (added 2026-09-17/18): `.github/workflows/checks.yml` runs on every
+push + PR as two check-only jobs — `format` (`make check-format`) and `type`
+(`make type-check`) — and `.github/workflows/release.yml` runs on a `v*` tag
+(`make release-tarball` + `make image-push`). CI is a thin wrapper: each job is
+`checkout` → `make <target>`, all logic in the Makefile, so the same command runs
+locally (see CLAUDE.md › "Continuous integration"). The local gates below are
+therefore also the CI gates. The gates, in the order they bite:
 
-1. **`make format`** — the only standing code gate. Runs in-container:
+0. **`make check-format` / `make type-check`** — the CI check jobs, also runnable
+   locally. `check-format` = `make format` then `git diff --exit-code` (fails if the
+   code wasn't already formatted; never commits). `type-check` = `ty` + the
+   local/module annotation checker (`tools/check_local_annotations.py
+   --include-module`) over src/tests/ports.
+1. **`make format`** — the standing code gate. Runs in-container:
    `loadpackages.sh` (activate `/venv`, `cd /mvp`, editable install) then
    `entrypoint/format.sh` (ruff check `--fix`, ruff format, `ty check` over
    `src`, `tests`, and the three `ports/codetheclassics/*` trees). Every step

@@ -58,6 +58,22 @@ pyproject.toml → `make release` → `git push origin v<version>`. **Next versi
 (pyproject bumped 0.0.2 → 0.0.3 on 2026-09-18). The old `0.0.02` tag used a different scheme and
 does not match the `v*` trigger.
 
+## Owed manual steps after the first `v0.0.3` push (maintainer)
+
+`v0.0.3` was tagged + pushed 2026-09-18, triggering `release.yml` for the first time. Still owed /
+to verify:
+
+1. **Verify the `release.yml` run went green** — the first real exercise of the full `BUILD_DOCS=1`
+   book build, the ghcr push (`make image-push`), the source+book tarball (`make release-tarball`),
+   and the GitHub Release creation. If it failed, that log is the concrete fix list.
+2. **Make the ghcr package Public (one-time).** The first push creates
+   `ghcr.io/billsix/modelviewprojection` as a **private** package; to let anyone `docker pull` it,
+   flip it to Public: GitHub → your Packages → the package → Package settings → Change visibility →
+   Public. (Pushing needs no PAT — the workflow's `GITHUB_TOKEN` + `packages: write` covers it.)
+3. **If the release job's "Create GitHub Release" step warns about Node 20**, pin
+   `softprops/action-gh-release` to a Node 24 release (the `checkout` actions were already bumped to
+   `@v5`; `softprops@v2` is the only remaining JS action that might still be Node 20).
+
 ## What is verified vs. needs testing
 
 **Verified locally (sandbox, podman):**

@@ -120,9 +120,17 @@ Contributing
 Run the gate before sending a change:
 
 ```sh
-make format    # ruff check --fix, ruff format, and ty over src/tests/ports
-make test      # or: python -m pytest -q   (doctests in the library run too)
+make format       # ruff check --fix, ruff format, and ty over src/tests/ports
+make type-check   # ty + the local/module-variable annotation checker
+make test         # or: python -m pytest -q   (doctests in the library run too)
 ```
+
+GitHub Actions runs these same gates: `.github/workflows/checks.yml` runs
+`make check-format` and `make type-check` (check-only, never reformats) on every
+push and PR, and `.github/workflows/release.yml` publishes on a `v*` tag (a
+container image to ghcr.io + a source-plus-book tarball on a GitHub Release). CI
+is a thin wrapper — each job is just `checkout` → `make <target>` — so what CI
+runs is exactly what you run locally. Cut a release with `make release`.
 
 Most of PEP 8 is enforced mechanically by `ruff` (see `[tool.ruff]` in
 `pyproject.toml`), so a green `make format` settles layout, imports, naming
