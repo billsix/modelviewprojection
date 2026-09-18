@@ -103,4 +103,19 @@ tarfile.open(fileobj=io.BytesIO(urllib.request.urlopen(url).read())).extractall(
     cp /opt/gacalc-sdist/gacalc-${GACALC_VERSION}/src/gacalc/*.py /opt/gacalc-src/ && \
     rm -rf /opt/gacalc-sdist
 
+# Bake the project's OWN source into the image so a PULLED image is runnable
+# standalone with no bind-mount: the entrypoint builds the book / runs the demos
+# and tests from this baked copy.  `make shell` and the run targets bind-mount
+# the live host repo over /mvp, which SHADOWS this baked copy at the same path,
+# so development overrides it (see tasks/reference/container-source-and-mounts.md).
+# The editable install below targets /mvp, so imports resolve to the baked source
+# when pulled and to the live mount during development; loadpackages.sh re-runs
+# it idempotently on entry.  COPY is LATE (after the dnf/pip/TeX layers) so a
+# source change rebuilds only these two layers, not the expensive ones above.
+# .dockerignore keeps .git / output / *.tar / caches out of the baked tree.
+COPY . /mvp
+RUN source /venv/bin/activate && cd /mvp && \
+    uv pip install --no-deps --no-index --no-build-isolation -e . \
+        --python /venv/bin/python
+
 ENTRYPOINT ["/entrypoint.sh"]

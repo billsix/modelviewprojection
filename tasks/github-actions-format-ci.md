@@ -1,6 +1,6 @@
 # GitHub Actions: format-check CI (phase 1), then releases (phase 2), then other repos
 
-**Status:** in progress — **Phase 1 COMPLETE** (`make check-format` + `format-check.yml`; the
+**Status:** in progress — **Phase 1 COMPLETE** (`make check-format` + `checks.yml`; the
 Actions run is **confirmed green on GitHub**, 2026-09-18). Phase 2 (releases) is implemented in
 `tasks/github-actions-release-ci.md` and awaits the maintainer's test; a `make release` tag target
 (ported from geometricalgebra) was added to cut it. Cross-project replication done for
@@ -16,8 +16,11 @@ geometricalgebra.
 - **`make check-format`** (Makefile) = run `make format` (ruff `--fix`/`ruff format`, + `ty check` —
   fails on any ty error), then `git diff --exit-code` to fail if the code was not already formatted.
   All logic is in the make target, per the governing principle.
-- **`.github/workflows/format-check.yml`** = `checkout` → `make check-format BUILD_DOCS=0 USE_EMACS=0
-  USE_JUPYTER=0 USE_X_WINDOWS=0` on `ubuntu-latest`, on push + pull_request. Nothing else in YAML.
+- **`.github/workflows/checks.yml`** = two check-only jobs on push + pull_request (`ubuntu-latest`):
+  `format` (`make check-format`) and `type` (`make type-check`) — both `checkout` → `make <target>`,
+  nothing else in YAML. Added the `type` job 2026-09-18 (maintainer: format AND type on every commit,
+  not just release). Neither job commits or reformats the repo (the formatter runs in the disposable
+  runner and the job fails on a `git diff`).
 - **Runner environment (Open Q1, resolved):** `ubuntu-latest` (ships Docker); the image is built
   in-workflow from the committed Dockerfile (self-contained, no registry needed for phase 1), built
   lean (the format/ty check needs no docs/emacs/jupyter/X). `CONTAINER_CMD` already auto-detects
@@ -88,7 +91,7 @@ Consequences that shape every phase:
 ## Plan (phased — line items are explicit per the maintainer's ask)
 
 - [x] **Phase 1 (this task):** added the **`make check-format`** target (= `make format` +
-      `git diff --exit-code`) and `.github/workflows/format-check.yml` (just `checkout` →
+      `git diff --exit-code`) and `.github/workflows/checks.yml` (just `checkout` →
       `make check-format`). The diff-fail logic lives in the Makefile, per the governing principle,
       so the maintainer runs the exact CI check locally with one command. Verified both paths.
 - [x] **Document the principle (end of Phase 1):** the "CI is a thin wrapper over the

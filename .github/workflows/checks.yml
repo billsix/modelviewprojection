@@ -1,0 +1,34 @@
+# Check-only CI (phase 1 of tasks/github-actions-format-ci.md), on every push + PR.
+#
+# Governing principle: CI is a THIN WRAPPER over the make/Dockerfile system.
+# Each job is just `checkout` -> `make <target>`; all logic lives in the Makefile.
+#
+# These jobs NEVER modify the repo: `make check-format` runs the formatter inside
+# the disposable runner checkout and then FAILS on any `git diff` -- there is no
+# `git commit`/`git push` anywhere, so a push whose code is mis-formatted or fails
+# type-checking makes the action red without ever reformatting or committing.
+# `type-check` is read-only (ty + the annotation checker touch no files).
+name: checks
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  format:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: make check-format
+        run: >-
+          make check-format
+          BUILD_DOCS=0 USE_EMACS=0 USE_JUPYTER=0 USE_X_WINDOWS=0
+
+  type:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: make type-check
+        run: >-
+          make type-check
+          BUILD_DOCS=0 USE_EMACS=0 USE_JUPYTER=0 USE_X_WINDOWS=0

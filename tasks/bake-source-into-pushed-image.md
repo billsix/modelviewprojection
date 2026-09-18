@@ -1,12 +1,15 @@
 # Bake the source into the image (pullable-and-runnable), keep the live-mount override
 
-**Status:** proposed — needs go-ahead
+**Status:** IMPLEMENTED + verified 2026-09-18 (go-ahead given: Q1–4 all yes). `Dockerfile` bakes
+the source (`COPY . /mvp` + build-time `-e .`), `.dockerignore` extended, reference doc written.
+Offline-export test passed both ways (104 tests offline with no mount; bind-mount shadows the bake).
+**Remaining:** propagate the general convention to `dotfiles/.ai-coding-conventions.personal.md`
+(held pending the maintainer's OK / after v0.0.3). Staged for the maintainer to commit.
 **Priority:** 5
 **Difficulty:** 4
 **Started:** 2026-09-18 (William Emerison Six <billsix@gmail.com>)
-**Sequencing:** if the pushed ghcr image should contain source, do this BEFORE cutting the
-`v0.0.3` release (see `tasks/github-actions-release-ci.md`) — otherwise the `v0.0.3` image won't
-have source.
+**Sequencing:** done BEFORE cutting `v0.0.3` (so the pushed ghcr image contains source), per the
+maintainer.
 
 ## BLUF
 
