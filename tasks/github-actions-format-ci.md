@@ -1,12 +1,15 @@
 # GitHub Actions: format-check CI (phase 1), then releases (phase 2), then other repos
 
-**Status:** in progress — **Phase 1 landed** (`make check-format` + `.github/workflows/format-check.yml`,
-verified locally both ways). Phase 2 (releases) is proposed and spawns its own task; the cross-project
-replication is done for geometricalgebra.
+**Status:** in progress — **Phase 1 COMPLETE** (`make check-format` + `format-check.yml`; the
+Actions run is **confirmed green on GitHub**, 2026-09-18). Phase 2 (releases) is implemented in
+`tasks/github-actions-release-ci.md` and awaits the maintainer's test; a `make release` tag target
+(ported from geometricalgebra) was added to cut it. Cross-project replication done for
+geometricalgebra.
 **Priority:** 5
 **Difficulty:** 4
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Phase 1 implemented:** 2026-09-17 (William Emerison Six <billsix@gmail.com>).
+**Phase 1 implemented:** 2026-09-17; **confirmed green on GitHub:** 2026-09-18 (William Emerison Six
+<billsix@gmail.com>).
 
 ## Phase 1 landed (2026-09-17)
 

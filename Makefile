@@ -11,6 +11,12 @@ USE_X_WINDOWS ?= 1
 CONTAINER_CMD ?= $(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker)
 CONTAINER_NAME = modelviewprojection
 
+# Release version, read from pyproject.toml (the single source of truth). The
+# `release` target tags v$(VERSION); pushing that tag triggers .github/workflows/
+# release.yml (which builds + publishes the image and the release tarball).
+# Bump `version` in pyproject.toml to cut a new release.
+VERSION := $(shell python -c "import tomllib; print(tomllib.load(open('pyproject.toml','rb'))['project']['version'])")
+
 # Extra flags for every container `run`. Auto-set when running nested inside a
 # runClaudeInContainer/runCrushInContainer sandbox (which exports NESTED_PODMAN=1,
 # making --cgroups=disabled apply so podman-in-podman works); empty — and
@@ -315,6 +321,21 @@ image-push: image ## (CI) tag $(IMAGE_REF):$(RELEASE_VERSION) + :latest and push
 	$(CONTAINER_CMD) tag $(CONTAINER_NAME) $(IMAGE_REF):latest
 	$(CONTAINER_CMD) push $(IMAGE_REF):$(RELEASE_VERSION)
 	$(CONTAINER_CMD) push $(IMAGE_REF):latest
+
+# Cut a release: create the git tag v$(VERSION) whose push triggers release.yml
+# (which builds + publishes the image and the release tarball).  Host-only --
+# git stays on the host, and the artifacts are built by CI, not here.  Guarded so
+# a re-used version fails loudly: bump `version` in pyproject.toml to release
+# again.  Ported from geometricalgebra's `release` target (minus the PyPI/twine
+# upload -- this project publishes via the tag-triggered workflow, not PyPI).
+.PHONY: release
+release: ## (host) version-tag guard + git tag v$(VERSION); push it to run release.yml
+	@git rev-parse "v$(VERSION)" >/dev/null 2>&1 \
+		&& { echo "tag v$(VERSION) already exists -- bump version in pyproject.toml"; exit 1; } \
+		|| true
+	git tag "v$(VERSION)"
+	@echo "Tagged v$(VERSION). Push it to trigger the release workflow:"
+	@echo "    git push origin v$(VERSION)"
 
 
 .PHONY: help

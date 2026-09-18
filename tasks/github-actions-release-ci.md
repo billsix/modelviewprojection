@@ -48,6 +48,16 @@ Workflow `.github/workflows/release.yml`:
   `GITHUB_TOKEN` → `make release-tarball` (builds the BUILD_DOCS=1 image + book + tarball) →
   `make image-push` → attach `dist/*.tar.gz` to a GitHub Release.
 
+## Cutting a release (the tag mechanism, added 2026-09-18)
+
+The version lives in `pyproject.toml` (`version = "..."`), read by the Makefile's `VERSION`.
+`make release` (host-only, ported from geometricalgebra's `release` target minus the PyPI/twine
+upload) guards against a re-used tag, then `git tag v$(VERSION)` and prints the push command.
+**Pushing that tag is what triggers `release.yml`.** So the flow is: bump `version` in
+pyproject.toml → `make release` → `git push origin v<version>`. **Next version: `v0.0.3`**
+(pyproject bumped 0.0.2 → 0.0.3 on 2026-09-18). The old `0.0.02` tag used a different scheme and
+does not match the `v*` trigger.
+
 ## What is verified vs. needs testing
 
 **Verified locally (sandbox, podman):**
