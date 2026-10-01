@@ -22,6 +22,7 @@ COPY requirements.txt /requirements.txt
 # install fails the build.
 RUN  --mount=type=cache,target=/var/cache/libdnf5 \
      --mount=type=cache,target=/var/lib/dnf \
+     --mount=type=cache,target=/root/.cache/uv \
      echo "keepcache=True" >> /etc/dnf/dnf.conf && \
      /usr/local/bin/01-install-base.sh && \
      if [ "$BUILD_DOCS" = "1" ];    then /usr/local/bin/02-install-docs.sh;     fi && \
