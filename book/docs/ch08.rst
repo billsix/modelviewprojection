@@ -151,7 +151,7 @@ But from this we will learn something important.
 
 
 
-.. figure:: _static/rotate-sloppy-forwards-3.svg
+.. figure:: _static/epix/rotate-sloppy-forwards-3.*
     :class: no-scale
     :align: center
     :alt: Demo 08
@@ -159,7 +159,7 @@ But from this we will learn something important.
 
 translating back to the origin
 
-.. figure:: _static/rotate-sloppy-forwards-4.svg
+.. figure:: _static/epix/rotate-sloppy-forwards-4.*
     :class: no-scale
     :align: center
     :alt: Demo 08
@@ -167,7 +167,7 @@ translating back to the origin
 
 resetting the :term:`coordinate system <Coordinate System>`
 
-.. figure:: _static/rotate-sloppy-forwards-5.svg
+.. figure:: _static/epix/rotate-sloppy-forwards-5.*
     :class: no-scale
     :align: center
     :alt: Demo 08
@@ -176,7 +176,7 @@ resetting the :term:`coordinate system <Coordinate System>`
 
 rotating
 
-.. figure:: _static/rotate-sloppy-forwards-6.svg
+.. figure:: _static/epix/rotate-sloppy-forwards-6.*
     :class: no-scale
     :align: center
     :alt: Demo 08
@@ -184,7 +184,7 @@ rotating
 
 resetting the coordinate system
 
-.. figure:: _static/rotate-sloppy-forwards-7.svg
+.. figure:: _static/epix/rotate-sloppy-forwards-7.*
     :class: no-scale
     :align: center
     :alt: Demo 08
@@ -194,7 +194,7 @@ resetting the coordinate system
 
 and them translating them back to the paddle space origin
 
-.. figure:: _static/rotate-sloppy-forwards-8.svg
+.. figure:: _static/epix/rotate-sloppy-forwards-8.*
     :class: no-scale
     :align: center
     :alt: Demo 08

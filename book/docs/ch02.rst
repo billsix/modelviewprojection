@@ -105,7 +105,7 @@ Draw Paddle 1
 
 The paddle looks like this relative to :term:`NDC<Normalized Device Coordinates>`:
 
-.. figure:: _static/plot1.svg
+.. figure:: _static/epix/plot1.*
     :class: no-scale
     :align: center
     :alt: Rectangle
@@ -129,7 +129,7 @@ Draw Paddle 2
 
 The 2 paddles looks like this relative to :term:`NDC<Normalized Device Coordinates>`:
 
-.. figure:: _static/plot2.svg
+.. figure:: _static/epix/plot2.*
     :class: no-scale
     :align: center
     :alt: Rectangle
@@ -196,7 +196,7 @@ program using "screen-space" (Any space_ means a system of numbers which you're 
 
 What looks alright in screen-space on a large monitor...
 
-.. figure:: _static/screenspace2.svg
+.. figure:: _static/epix/screenspace2.*
     :class: no-scale
     :align: center
     :alt: Screenspace
@@ -207,7 +207,7 @@ What looks alright in screen-space on a large monitor...
 
 Isn't the same picture on a smaller monitor.
 
-.. figure:: _static/screenspace.svg
+.. figure:: _static/epix/screenspace.*
     :class: no-scale
     :align: center
     :alt: Screenspace
@@ -234,7 +234,7 @@ actual word for that???)
 
 
 
-.. figure:: _static/ndcSpace.svg
+.. figure:: _static/epix/ndcSpace.*
     :class: no-scale
     :align: center
     :alt: NDC space
@@ -246,7 +246,7 @@ actual word for that???)
 It should look the same whether we own a small monitor (ignoring
 :term:`aspect ratio <Aspect Ratio>`, for now).
 
-.. figure:: _static/ndcSpace1.svg
+.. figure:: _static/epix/ndcSpace1.*
     :class: no-scale
     :align: center
     :alt: NDC space
@@ -256,7 +256,7 @@ It should look the same whether we own a small monitor (ignoring
 
 Or a large monitor.
 
-.. figure:: _static/screenspace2.svg
+.. figure:: _static/epix/screenspace2.*
     :class: no-scale
     :align: center
     :alt: NDC space

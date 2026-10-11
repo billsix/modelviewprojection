@@ -65,7 +65,7 @@ at the origin (Because by putting the center of the object at the origin,
 :term:`scaling <Scaling>` and :term:`rotating <Rotation>` the object are trivial, as shown in later chapters).
 
 
-.. figure:: _static/modelspace.svg
+.. figure:: _static/epix/modelspace.*
     :class: no-scale
     :align: center
     :alt: Representing a Paddle using Modelspace
@@ -133,7 +133,7 @@ The animation above shows multiple steps, shown now without animation.
 Modelspace of Paddle 1
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. figure:: _static/translation-forwards-0.svg
+.. figure:: _static/epix/translation-forwards-0.*
     :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace
@@ -162,7 +162,7 @@ is translated, and the graph paper comes with it, onto which you can
 plot the vertices.  Notice that the :term:`coordinate system <Coordinate System>` labels below the plot and to the left of the plot
 is unchanged.  That is :term:`world space <World Space>`, which has not changed.
 
-.. figure:: _static/translation-forwards-2.svg
+.. figure:: _static/epix/translation-forwards-2.*
     :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace Superimposed on World Space
@@ -184,7 +184,7 @@ d               (1,-3)                    (1,-3) + (9,3) = (-8,-1)
 Paddle 1's vertices in WorldSpace Coordinates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. figure:: _static/translation-forwards-3.svg
+.. figure:: _static/epix/translation-forwards-3.*
     :class: no-scale
     :align: center
     :alt: Paddle 1's Vertices in World Space
@@ -218,7 +218,7 @@ are different values.
 Modelspace of Paddle 2
 ~~~~~~~~~~~~~~~~~~~~~~
 
-.. figure:: _static/translation2-forwards-0.svg
+.. figure:: _static/epix/translation2-forwards-0.*
     :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace
@@ -239,7 +239,7 @@ d               (1,-3)
 Modelspace of Paddle 2 Superimposed on Worldspace after the translation
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-.. figure:: _static/translation2-forwards-2.svg
+.. figure:: _static/epix/translation2-forwards-2.*
     :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace Superimposed on World Space
@@ -261,7 +261,7 @@ Paddle 2's vertices in WorldSpace Coordinates
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 
-.. figure:: _static/translation2-forwards-3.svg
+.. figure:: _static/epix/translation2-forwards-3.*
     :class: no-scale
     :align: center
     :alt: Paddle 1's Vertices in World Space
@@ -320,7 +320,7 @@ by "scale"ing each component of the :term:`vertices <Vertex>` by some coefficien
 
 
 
-.. figure:: _static/scale-0.svg
+.. figure:: _static/epix/scale-0.*
     :class: no-scale
     :align: center
     :alt: Modelspace
@@ -328,7 +328,7 @@ by "scale"ing each component of the :term:`vertices <Vertex>` by some coefficien
 
     Modelspace
 
-.. figure:: _static/scale-2.svg
+.. figure:: _static/epix/scale-2.*
     :class: no-scale
     :align: center
     :alt: Modelspace Superimposed on World Space
@@ -336,7 +336,7 @@ by "scale"ing each component of the :term:`vertices <Vertex>` by some coefficien
 
     Modelspace Superimposed on World Space
 
-.. figure:: _static/scale-4.svg
+.. figure:: _static/epix/scale-4.*
     :class: no-scale
     :align: center
     :alt: Worldspace
@@ -729,7 +729,7 @@ Rendering Paddle 1
 
 
 
-.. figure:: _static/translation-forwards-0.svg
+.. figure:: _static/epix/translation-forwards-0.*
     :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace
@@ -739,7 +739,7 @@ Rendering Paddle 1
 
 
 
-.. figure:: _static/translation-forwards-2.svg
+.. figure:: _static/epix/translation-forwards-2.*
     :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace Superimposed on World Space
@@ -747,7 +747,7 @@ Rendering Paddle 1
 
     Paddle 1's Modelspace Superimposed on World Space
 
-.. figure:: _static/translation-forwards-3.svg
+.. figure:: _static/epix/translation-forwards-3.*
     :class: no-scale
     :align: center
     :alt: Paddle 1's Modelspace Superimposed on World Space
@@ -782,7 +782,7 @@ Rendering Paddle 2
 
 
 
-.. figure:: _static/translation2-forwards-0.svg
+.. figure:: _static/epix/translation2-forwards-0.*
     :class: no-scale
     :align: center
     :alt: Paddle 2's Modelspace
@@ -791,7 +791,7 @@ Rendering Paddle 2
     Paddle 2's Modelspace
 
 
-.. figure:: _static/translation2-forwards-2.svg
+.. figure:: _static/epix/translation2-forwards-2.*
     :class: no-scale
     :align: center
     :alt: Paddle 2's Modelspace Superimposed on World Space
@@ -801,7 +801,7 @@ Rendering Paddle 2
 
 
 
-.. figure:: _static/translation2-forwards-3.svg
+.. figure:: _static/epix/translation2-forwards-3.*
     :class: no-scale
     :align: center
     :alt: Paddle 2's Modelspace Superimposed on World Space

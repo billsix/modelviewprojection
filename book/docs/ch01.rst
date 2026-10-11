@@ -68,7 +68,7 @@ to the user. Within the frame, a pixel is referenced using an x and y index on t
 
     Pixels, each with a Red, Green, and Blue component.
 
-.. figure:: _static/monitor.svg
+.. figure:: _static/epix/monitor.*
     :class: no-scale
     :align: center
     :alt: 1024x768 monitor
@@ -76,7 +76,7 @@ to the user. Within the frame, a pixel is referenced using an x and y index on t
 
     1024x768 monitor
 
-.. figure:: _static/monitor2.svg
+.. figure:: _static/epix/monitor2.*
     :class: no-scale
     :align: center
     :alt: 1920x1200 monitor

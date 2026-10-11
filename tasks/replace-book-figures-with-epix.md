@@ -28,6 +28,130 @@ and their generator are retired (confirmed dead by Bill 2026-10-11), and the cle
 containerized book build (html + latexpdf + epub) is green with no reference
 regressions. All decisions are settled; ready to execute on go-ahead.
 
+## Progress (started 2026-10-11, go-ahead given)
+
+- **Phase 1 (container) — DONE, verified.** `USE_EPIX`/`EPIX_COMMIT` added to the
+  Dockerfile as a self-contained LATE layer (ARGs declared right before use; scripts
+  COPYed from `entrypoint/epix/` so the early `COPY entrypoint/*.sh` cache — hence
+  the giant texlive `dnf` layer — is NOT busted). Scripts:
+  `entrypoint/epix/install-epix-deps.sh` (the render toolchain dnf) and
+  `install-epix.sh` (shallow fetch of the pin, meson install, nanobind build via
+  epix-mirror's `build_py.sh`, `/epix`→`/opt/epix-src` move, editable install).
+  Makefile gained `USE_EPIX ?= 1` + `--build-arg`. `make image USE_EPIX=1` succeeds;
+  only the epix layer rebuilt (cache held through texlive). Verified in-image:
+  `epix --version` → 1.2.22, `import epix` OK. Image 5.6 GB → 6.16 GB.
+- **Phase 2 (renderer) — DONE.** `tools/render_epix_figures.py` ported from gacalc
+  (fresh-interpreter `runpy`, `elaps --pdf` + ImageMagick PNG flatten; `elaps`-absent
+  guard). Output dir `book/docs/_static/epix/`.
+- **Pilot figure — DONE, parity-checked.** `book/figures/epix/_scene2d.py` (axes
+  scene + `filled_rect`/`point_label`/`vector`, keyword-only) + `modelspace.py` (the
+  ch16 paddle-modelspace figure). Rendered in-container to PDF+PNG and compared to
+  the gnuplot original: gist matches (tall paddle rect, corners a/b/c/d), now clean
+  LaTeX type on arrow-axes. Parity PNGs in `output/epix-parity/`.
+- **Axis style settled (Q, Bill 2026-10-11): (b) numbered ticks.** The scene is a
+  gnuplot-style framed box with integer numeric ticks on all four sides (numbers on
+  bottom/left), drawn OUTSIDE the box so figure content never occludes them. Corner
+  dots on labelled points: kept (Bill's call). `modelspace` re-rendered to match.
+- **Pilot 2 — transformation family (3b) DONE, parity-checked.** `translation-forwards`
+  ported as `_translation_scene.py` + three thin per-frame files (`-0`, `-2`, `-3`)
+  driving `modelviewprojection.mathutils.translate` on `gacalc` `Vector2`s — the
+  picture is produced by the exact code ch06 teaches. All three frames
+  (paddle-in-modelspace → frame+paddle slid to world (-9,2) → paddle at world,
+  axes home) render in-container and match the matplotlib originals' gist (grid,
+  moving origin bands, blue/magenta modelspace unit axes, purple a/b/c/d dots,
+  numbered ticks, "Step N" title). Parity PNGs in `output/epix-parity/`. One fig per
+  file (libepix global state ⇒ fresh process each), so each referenced frame number is
+  its own thin file — matches the `_static/<name>-<n>.svg` reference scheme.
+- **Bulk port — in progress.** Generalized the transform-sequence machinery into
+  `_transform_sequence.py` (`transform_frame` draws the modelspace frame as the
+  transform applied to the basis — one rule that covers translate, scale, and rotate —
+  and places the paddle via the same transform; all from `mathutils`). Done &
+  parity-checked so far (**10 figures**): `modelspace`; `translation-forwards-{0,2,3}`;
+  `translation2-forwards-{0,2,3}` (paddle2, red); `scale-{0,2,4}` (basis axes stretch
+  2×/3× correctly). All render in-container and match the originals' gist.
+- **Rotation families (12) — DONE, parity-checked.** `incorrectrotate-forwards-{1..6}`
+  (rotate about the WRONG centre / world origin — the mistake) and
+  `rotate-sloppy-forwards-{3..8}` (correct result the sloppy way). Q6 answered
+  **(a) full fidelity**: the scene now draws grid + origin bands + modelspace axes all
+  under one `frame_transform`, with Liang-Barsky clipping, so a round-1 rotation frame
+  turns the whole grid 65°/45° exactly like the original (`incorrectrotate-4` matches).
+  Unifying this also *corrected* `scale-2` (its grid genuinely scales 2×/3× in the
+  original — my first pass had a plain grid). Per-frame `frame_transform`/`paddle`
+  transforms replicate the generator's `accumulate_transformation` + round logic,
+  built from `mathutils` (`translate`/`rotate`/`scale_non_uniform`/`compose`).
+- **3b COMPLETE: 21 matplotlib frames + `modelspace` = 22 figures ported & matched.**
+- **3a COMPLETE: 13 gnuplot statics ported & matched.** `monitor`, `monitor2`,
+  `screenspace`, `screenspace2`, `ndcSpace`, `ndcSpace1`, `viewport`, `plot1-4`,
+  `disproportionate1/2`. Added to `_scene2d.py`: `framed_plot_scene` (variable
+  range/aspect/tick-interval, bottom-left numbers, `set size ratio` via unequal
+  `scale_x`/`scale_y`), `clipped_rect` (Liang-Barsky — the screenspace paddles clip to
+  the monitor), and `plot_path`/`plot_markers`/`plot_text`. These are static coordinate
+  diagrams — no transform, so no `mathutils`. (ePiX `LabelPos.l`/`.r` place the label to
+  the left/right OF the anchor — pinned down empirically; labels placed outward per
+  vertex.)
+- **FIGURE PORT COMPLETE: all 35 live figures ported & parity-checked** (1 modelspace +
+  21 matplotlib + 13 gnuplot). All render in-container under `USE_EPIX`; comparison PNGs
+  in `output/epix-parity/`.
+- **Phase 4 (rewire + retire) — DONE.**
+  - `.rst` refs rewired: 42 refs across 7 chapters (ch01–04, 06–08) from
+    `_static/<name>.svg` → `_static/epix/<name>.*`, by an idempotent codemod
+    (`tasks/adhoc/replace-book-figures-with-epix/rewire_rst.py`); re-grep for the old
+    paths returns zero.
+  - Retired (git rm, 36 files): `src/modelviewprojection/plotsforbook/`
+    (`generate_plots.py` + `plotutils/`) and `book/docs/_static/gnuplot/`. Removed the
+    `generate_plots_for_book` console script + the `plotsforbook` per-file-ignore from
+    `pyproject.toml`, the `plotsforbook` entry from `pytest.ini`, and the
+    `rotate0-0.svg` dummy target + `cd gnuplot && make` from `_static/Makefile`.
+    `util/nbplotutils.py` (notebook matplotlib helper) KEPT — separate from plotsforbook.
+  - `entrypoint.sh` now runs `python tools/render_epix_figures.py` before the Sphinx
+    build (after the editable install, so `mathutils` is importable).
+- **Phase 5 (clean build) — VERIFIED (html + latexpdf + epub).** On a clean tree
+  (`git clean -fdx`) in a fresh container: 35 ePiX figures rendered (png+pdf); `_static`
+  make built the dot+tex figures; **`sphinx-build -M html` (rc 0), `-M latexpdf` → a
+  289-page `modelviewprojection.pdf` using all 35 ePiX PDFs (rc 0), and `-M epub` (rc 0,
+  15 MB)** all succeed. Zero figure-related warnings; all `_static/epix/*` refs resolve.
+  (2026-10-12.)
+- **Build blocker found + fixed (NOT a figure issue):** the real `make html` runs
+  `entrypoint.sh`, whose `pytest --exitfirst` runs *before* the docs and was failing on a
+  **pre-existing** doctest — `util/shading.py::_face_normal` returned sympy
+  `(Zero, Zero, Float)` instead of the floats its `-> tuple[float, float, float]`
+  signature promises (gacalc routes integer-valued input through sympy). Fixed by coercing
+  the return to `float`; full suite now 89 passed, 0 failed. shading.py is unrelated to
+  the figures (untouched since 2026-07-19) — the figure migration itself did not break any
+  build step. (A second apparent failure, `aspell` "Stdin not a terminal", is only an
+  artifact of a non-TTY run; the real `make html` uses `podman run -it`.)
+- **Template-drift surfaced:** mvp's Makefile/Dockerfile do not follow the standard
+  container template (no `make test`/`make docs`, no `NESTED_PODMAN`/`MINIMAL_IMAGE`,
+  interactive spellcheck in the build path). Tracked in
+  `tasks/conform-makefile-dockerfile-to-standard-template.md` (separate from this task).
+- **Interactive spellcheck removed from the build path (2026-10-12, Option A):**
+  `entrypoint.sh` → `make html` had an `aspell check` prerequisite that needed a TTY.
+  Replaced with a non-interactive `tools/spellcheck.sh` (`aspell list`, reusing
+  `mvp_dict.pws`), and `spellcheck` taken off the Sphinx catch-all, so the build is
+  headless. Detail: `tasks/non-interactive-spellcheck.md`.
+- **`make html` CONFIRMED working end-to-end (2026-10-12).** Running the *current*
+  `entrypoint.sh` (which `make html` mounts via `-v ./entrypoint/entrypoint.sh`):
+  pytest passes (shading fix), `render_epix_figures.py` generates the 35 figures,
+  and html + a 289-page latex PDF (with every ePiX figure PDF) + epub all build, with
+  no TTY/aspell errors. **Gotcha for future debugging:** the image's *baked*
+  `/entrypoint.sh` is stale (predates the render line added here) — `make html` mounts
+  the live copy so it's fine, but running the baked `/entrypoint.sh` directly skips the
+  render step and the latex build then fails on unresolved `_static/epix/*.*` wildcards
+  (the figures were never generated). A fresh `make image` re-bakes it.
+- **`.gitignore`:** added `book/docs/_static/epix/` (the rendered png+pdf are build
+  artifacts) and removed the now-dead `_static/gnuplot/*` rules.
+- **Remaining — see `tasks/review-epix-figure-migration.md`** (the review + finish pass
+  the maintainer asked for): visual-parity sign-off, marker-colour + figure-source-E501
+  policy calls, the `check_epix_keywords` gate, the full `latexpdf`/`epub` build, and the
+  `CLAUDE.md` + `book-figures-and-images.md` doc updates (not yet done).
+
+## Resolved — Q6 (2026-10-11)
+
+6. **Rotation round-1 frames — replicate the rotated grid?** Answered **(a) full
+   fidelity**: replicate the rotated grid. Implemented via one `frame_transform`
+   driving grid+bands+axes with Liang-Barsky clipping to the frame. Verified against
+   `incorrectrotate-forwards-4-ORIG` (grid turned 65°) and the scale/translation grids.
+
 ## Context (read first, cold-start orientation)
 
 **What to read, in order:**

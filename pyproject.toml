@@ -86,8 +86,6 @@ ignore = []
 "src/modelviewprojection/wxapp2.py" = ["N802"]
 # assignments are student-facing scripts whose printed output IS the point.
 "assignments/**" = ["T201"]
-# build-time script; its progress output is deliberate.
-"src/modelviewprojection/plotsforbook/**" = ["T201"]
 # jupytext notebooks: printed output IS the notebook content.
 "src/modelviewprojection/notebooksrc/**" = ["T201"]
 # command-line dev tools: printing diagnostics to stdout IS their job.
@@ -105,4 +103,3 @@ ignore = []
 "ports/openglsuperbiblev4/**" = ["E402"]
 
 [project.scripts]
-generate_plots_for_book = "modelviewprojection.plotsforbook.generate_plots:main"

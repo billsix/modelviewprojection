@@ -104,6 +104,29 @@ tarfile.open(fileobj=io.BytesIO(urllib.request.urlopen(url).read())).extractall(
     cp /opt/gacalc-sdist/gacalc-${GACALC_VERSION}/src/gacalc/*.py /opt/gacalc-src/ && \
     rm -rf /opt/gacalc-sdist
 
+# ePiX -- the book's LaTeX-native figure source (github.com/billsix/epix-mirror),
+# built from source at ONE pinned commit and installed into /usr/local, with its
+# Python front-end (`epix`) installed editable in /venv. Figures live in
+# book/figures/epix/*.py and render to _static/epix/<name>.{pdf,png}. Mirrors the
+# sibling geometricalgebra repo's setup; it replaced the gnuplot + matplotlib book
+# figures (see tasks/replace-book-figures-with-epix.md).
+#
+# Declared HERE (not with the ARGs up top) and COPYing from entrypoint/epix/ (NOT
+# matched by the early `COPY entrypoint/*.sh`) so this is a self-contained LATE
+# layer: toggling USE_EPIX or bumping EPIX_COMMIT rebuilds only this layer, never
+# the expensive dnf/TeX install above. Default 0 so a plain build is unaffected;
+# the Makefile passes USE_EPIX=1. Kept ABOVE the `COPY . /mvp` baked-source layer
+# so an ordinary source change does not invalidate this (expensive) ePiX build.
+ARG USE_EPIX=0
+ARG EPIX_COMMIT=ebf3ca607ae6c1d4fa307e8b0359960d875d219c
+COPY entrypoint/epix/install-epix-deps.sh entrypoint/epix/install-epix.sh /usr/local/bin/
+RUN --mount=type=cache,target=/var/cache/libdnf5 \
+    --mount=type=cache,target=/var/lib/dnf \
+    if [ "$USE_EPIX" = "1" ]; then \
+      bash /usr/local/bin/install-epix-deps.sh && \
+      EPIX_COMMIT="$EPIX_COMMIT" bash /usr/local/bin/install-epix.sh ; \
+    fi
+
 # Bake the project's OWN source into the image so a PULLED image is runnable
 # standalone with no bind-mount: the entrypoint builds the book / runs the demos
 # and tests from this baked copy.  `make shell` and the run targets bind-mount
