@@ -128,12 +128,12 @@ def build_ground(
     y: float = -0.4,
     tex_step: float = 0.0,
 ) -> Mesh:
-    """Precompute the flat ground grid as ``GL_TRIANGLE_STRIP`` bands (one per
-    z-strip), every normal pointing up. With the default ``tex_step=0.0`` all
-    texture coords are (0, 0) -- the plain grid the lit sphereworlds use. Pass
-    ``tex_step > 0`` (e.g. ``1 / (extent * 0.075)``) for the s/t-stepped grid the
-    textured sphereworlds use. The checkerboard (per-vertex color) and GL_LINES
-    grounds in other demos are handled per-demo, not here."""
+    """Precompute the flat ground grid as ``GL_TRIANGLE_STRIP`` bands (one
+    per z-strip), every normal pointing up. With the default ``tex_step=0.0``
+    all texture coords are (0, 0) -- the plain grid the lit sphereworlds use.
+    Pass ``tex_step > 0`` (e.g. ``1 / (extent * 0.075)``) for the s/t-stepped
+    grid the textured sphereworlds use. The checkerboard (per-vertex color)
+    and GL_LINES grounds in other demos are handled per-demo, not here."""
     bands: list[list[Vertex]] = []
     s: float = 0.0
     strip: float = -extent

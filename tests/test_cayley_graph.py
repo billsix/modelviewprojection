@@ -41,7 +41,7 @@ def build_graph() -> cayleygraph.CayleyGraph:
                 src="paddle1",
                 dst="world",
                 steps=[
-                    ("T", translate(PADDLE1_POS)),
+                    ("T", translate(b=PADDLE1_POS)),
                     ("R_z", rotate_z(PADDLE1_ROT)),
                 ],
             ),
@@ -49,9 +49,9 @@ def build_graph() -> cayleygraph.CayleyGraph:
                 src="square",
                 dst="paddle1",
                 steps=[
-                    ("T_-Z", translate(Vector(0.0, 0.0, -5.0))),
+                    ("T_-Z", translate(b=Vector(0.0, 0.0, -5.0))),
                     ("R_Z", rotate_z(ROT_AROUND_P1)),
-                    ("T_X", translate(Vector(1.5, 0.0, 0.0))),
+                    ("T_X", translate(b=Vector(1.5, 0.0, 0.0))),
                     ("R2_Z", rotate_z(SQUARE_ROT)),
                 ],
             ),
@@ -59,7 +59,7 @@ def build_graph() -> cayleygraph.CayleyGraph:
                 src="camera",
                 dst="world",
                 steps=[
-                    ("T", translate(CAM_POS)),
+                    ("T", translate(b=CAM_POS)),
                     ("R_y", rotate_y(CAM_ROT_Y)),
                     ("R_x", rotate_x(CAM_ROT_X)),
                 ],
@@ -84,7 +84,7 @@ def test_forward_single_edge_equals_compose_of_steps() -> None:
     g: cayleygraph.CayleyGraph = build_graph()
     got: InvertibleFunction = g.path("paddle1", "world").function()
     want: InvertibleFunction[Vector] = compose(
-        [translate(PADDLE1_POS), rotate_z(PADDLE1_ROT)]
+        [translate(b=PADDLE1_POS), rotate_z(PADDLE1_ROT)]
     )
     assert_same_fn(got.func, want.func)
 
@@ -124,14 +124,14 @@ def test_multi_hop_all_forward() -> None:
     # square->paddle1 applied first (innermost), then paddle1->world
     a: InvertibleFunction[Vector] = compose(
         [
-            translate(Vector(0.0, 0.0, -5.0)),
+            translate(b=Vector(0.0, 0.0, -5.0)),
             rotate_z(ROT_AROUND_P1),
-            translate(Vector(1.5, 0.0, 0.0)),
+            translate(b=Vector(1.5, 0.0, 0.0)),
             rotate_z(SQUARE_ROT),
         ]
     )
     b: InvertibleFunction[Vector] = compose(
-        [translate(PADDLE1_POS), rotate_z(PADDLE1_ROT)]
+        [translate(b=PADDLE1_POS), rotate_z(PADDLE1_ROT)]
     )
     want: InvertibleFunction[Vector] = compose([b, a])
     assert_same_fn(got.func, want.func)
@@ -143,17 +143,17 @@ def test_multi_hop_crosses_root_with_one_inverse() -> None:
     got: InvertibleFunction = g.path("square", "camera").function()
     a: InvertibleFunction[Vector] = compose(
         [
-            translate(Vector(0.0, 0.0, -5.0)),
+            translate(b=Vector(0.0, 0.0, -5.0)),
             rotate_z(ROT_AROUND_P1),
-            translate(Vector(1.5, 0.0, 0.0)),
+            translate(b=Vector(1.5, 0.0, 0.0)),
             rotate_z(SQUARE_ROT),
         ]
     )
     b: InvertibleFunction[Vector] = compose(
-        [translate(PADDLE1_POS), rotate_z(PADDLE1_ROT)]
+        [translate(b=PADDLE1_POS), rotate_z(PADDLE1_ROT)]
     )
     cam_to_world: InvertibleFunction[Vector] = compose(
-        [translate(CAM_POS), rotate_y(CAM_ROT_Y), rotate_x(CAM_ROT_X)]
+        [translate(b=CAM_POS), rotate_y(CAM_ROT_Y), rotate_x(CAM_ROT_X)]
     )
     want: InvertibleFunction[Vector] = compose(
         [inverse(cam_to_world), b, a]
@@ -185,7 +185,7 @@ def test_oriented_steps_backward_inverts_and_relabels_in_reading_order() -> (
     assert all(not s.forward for s in steps)
     # each oriented fn is the inverse of the forward primitive
     fwd: list[InvertibleFunction[Vector]] = [
-        translate(CAM_POS),
+        translate(b=CAM_POS),
         rotate_y(CAM_ROT_Y),
         rotate_x(CAM_ROT_X),
     ]
@@ -226,12 +226,12 @@ def test_no_path_raises() -> None:
             cayleygraph.Edge(
                 src="paddle1",
                 dst="world",
-                steps=[("T", translate(PADDLE1_POS))],
+                steps=[("T", translate(b=PADDLE1_POS))],
             ),
             cayleygraph.Edge(
                 src="island",
                 dst="island2",
-                steps=[("T", translate(Vector(1, 0, 0)))],
+                steps=[("T", translate(b=Vector(1, 0, 0)))],
             ),  # disconnected
         ]
     )
@@ -246,12 +246,12 @@ def test_cyclic_graph_rejected() -> None:
                 cayleygraph.Edge(
                     src="a",
                     dst="b",
-                    steps=[("T", translate(Vector(1, 0, 0)))],
+                    steps=[("T", translate(b=Vector(1, 0, 0)))],
                 ),
                 cayleygraph.Edge(
                     src="b",
                     dst="a",
-                    steps=[("T", translate(Vector(0, 1, 0)))],
+                    steps=[("T", translate(b=Vector(0, 1, 0)))],
                 ),
             ]
         )
@@ -276,7 +276,7 @@ def test_enum_node_identifiers() -> None:
             cayleygraph.Edge(
                 src=Space.paddle,
                 dst=Space.world,
-                steps=[("T", translate(Vector(3.0, 0.0, 0.0)))],
+                steps=[("T", translate(b=Vector(3.0, 0.0, 0.0)))],
             ),
         ]
     )

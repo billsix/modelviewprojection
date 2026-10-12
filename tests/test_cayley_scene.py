@@ -49,28 +49,28 @@ def build_scene() -> cayleyscene.Scene:
             cayleygraph.Edge(
                 src="paddle1",
                 dst="world",
-                steps=[("T", translate(P1_POS)), ("R_z", rotate_z(P1_ROT))],
+                steps=[("T", translate(b=P1_POS)), ("R_z", rotate_z(P1_ROT))],
             ),
             cayleygraph.Edge(
                 src="square",
                 dst="paddle1",
                 steps=[
-                    ("T_-Z", translate(Vector(0.0, 0.0, -5.0))),
+                    ("T_-Z", translate(b=Vector(0.0, 0.0, -5.0))),
                     ("R_Z", rotate_z(ROT_AROUND_P1)),
-                    ("T_X", translate(Vector(1.5, 0.0, 0.0))),
+                    ("T_X", translate(b=Vector(1.5, 0.0, 0.0))),
                     ("R2_Z", rotate_z(SQ_ROT)),
                 ],
             ),
             cayleygraph.Edge(
                 src="paddle2",
                 dst="world",
-                steps=[("T", translate(P2_POS)), ("R_z", rotate_z(P2_ROT))],
+                steps=[("T", translate(b=P2_POS)), ("R_z", rotate_z(P2_ROT))],
             ),
             cayleygraph.Edge(
                 src="camera",
                 dst="world",
                 steps=[
-                    ("T", translate(CAM_POS)),
+                    ("T", translate(b=CAM_POS)),
                     ("R_y", rotate_y(CAM_ROT_Y)),
                     ("R_x", rotate_x(CAM_ROT_X)),
                 ],
@@ -159,7 +159,7 @@ def test_transform_paddle1_matches_demo() -> None:
     for k in range(0, 200):
         t: float = k * 0.1
         want: InvertibleFunction[Vector] = compose(
-            [translate(P1_POS * i(t, 2)), rotate_z(P1_ROT * i(t, 7))]
+            [translate(b=P1_POS * i(t, 2)), rotate_z(P1_ROT * i(t, 7))]
         )
         assert_same_fn(animation.transform("paddle1", t).func, want.func)
 
@@ -171,11 +171,11 @@ def test_transform_square_nested_matches_demo() -> None:
         t: float = k * 0.1
         want: InvertibleFunction[Vector] = compose(
             [
-                translate(P1_POS * i(t, 2)),
+                translate(b=P1_POS * i(t, 2)),
                 rotate_z(P1_ROT * i(t, 7)),
-                translate(Vector(0.0, 0.0, -5.0) * i(t, 12)),
+                translate(b=Vector(0.0, 0.0, -5.0) * i(t, 12)),
                 rotate_z(ROT_AROUND_P1 * i(t, 17)),
-                translate(Vector(1.5, 0.0, 0.0) * i(t, 22)),
+                translate(b=Vector(1.5, 0.0, 0.0) * i(t, 22)),
                 rotate_z(SQ_ROT * i(t, 27)),
             ]
         )
@@ -188,12 +188,12 @@ def test_transform_paddle2_and_camera_match_demo() -> None:
     for k in range(0, 600):
         t: float = k * 0.1
         p2: InvertibleFunction[Vector] = compose(
-            [translate(P2_POS * i(t, 32)), rotate_z(P2_ROT * i(t, 37))]
+            [translate(b=P2_POS * i(t, 32)), rotate_z(P2_ROT * i(t, 37))]
         )
         assert_same_fn(animation.transform("paddle2", t).func, p2.func)
         cam: InvertibleFunction[Vector] = compose(
             [
-                translate(CAM_POS * i(t, 47)),
+                translate(b=CAM_POS * i(t, 47)),
                 rotate_y(CAM_ROT_Y * i(t, 52)),
                 rotate_x(CAM_ROT_X * i(t, 57)),
             ]
@@ -269,9 +269,9 @@ def test_camera_controls_edit_edge_steps_in_place() -> None:
 def test_to_matrix_realizes_affine_function() -> None:
     f: InvertibleFunction = compose(
         [
-            translate(Vector(3.0, 4.0, 5.0)),
+            translate(b=Vector(3.0, 4.0, 5.0)),
             rotate_z(math.radians(30.0)),
-            uniform_scale(2.0),
+            uniform_scale(m=2.0),
         ]
     )
     transform_matrix: np.ndarray = cayleyscene.to_matrix(f)
@@ -343,7 +343,7 @@ def test_morph_transform_matches_demo_inverse() -> None:
         want: InvertibleFunction[Vector] = inverse(
             compose(
                 [
-                    translate(CAM_POS * i(t, 62)),
+                    translate(b=CAM_POS * i(t, 62)),
                     rotate_y(CAM_ROT_Y * i(t, 67)),
                     rotate_x(CAM_ROT_X * i(t, 72)),
                 ]

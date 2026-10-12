@@ -387,10 +387,11 @@ def setup_rc() -> None:
 
     pbo_id = GL.glGenBuffers(1)
     GL.glBindBuffer(GL.GL_PIXEL_PACK_BUFFER, pbo_id)
-    # Allocate the PBO at its real size now. change_size only resizes it when
-    # the size *changes* from the initial, so at the default size it would stay
-    # the old 1-byte placeholder and the after-glow glReadPixels-into-PBO would
-    # read past the end -> GL_INVALID_OPERATION on startup. Same pitch as change_size.
+    # Allocate the PBO at its real size now. change_size only resizes it
+    # when the size *changes* from the initial, so at the default size it
+    # would stay the old 1-byte placeholder and the after-glow
+    # glReadPixels-into-PBO would read past the end -> GL_INVALID_OPERATION
+    # on startup. Same pitch as change_size.
     _pbo_pitch: int = ((fbo_width * 3) + 3) & ~0x3
     GL.glBufferData(
         GL.GL_PIXEL_PACK_BUFFER,

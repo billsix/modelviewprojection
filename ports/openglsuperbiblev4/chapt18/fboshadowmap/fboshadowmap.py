@@ -209,7 +209,8 @@ def regenerate_shadow_map() -> None:
         ],
         dtype=np.float32,
     )
-    # GL matrices are column-major, so light_proj_T @ light_mv_T = (light_mv @ light_proj).T
+    # GL matrices are column-major, so
+    # light_proj_T @ light_mv_T = (light_mv @ light_proj).T
     proj_t: np.ndarray = light_proj.T
     mv_t: np.ndarray = light_mv.T
     combined: np.ndarray = bias @ proj_t @ mv_t

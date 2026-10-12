@@ -137,7 +137,7 @@ def rotate_around(
     """
     # doc-region-begin rotate around body
     return compose(
-        [translate(center), rotate(angle_in_radians), translate(-center)]
+        [translate(b=center), rotate(angle_in_radians), translate(b=-center)]
     )
     # doc-region-end define rotate around
 
@@ -444,7 +444,7 @@ def ortho(
                 2.0 / length_y,
                 2.0 / (-length_z),
             ),
-            translate(-midpoint),
+            translate(b=-midpoint),
         ]
     )
 
@@ -590,7 +590,7 @@ class FunctionStack(typing.Generic[V]):
     >>> import gacalc.g3 as g3
     >>> from gacalc.transforms import translate
     >>> stack = FunctionStack()
-    >>> stack.push(translate(1.0 * g3.Vector.e_1))
+    >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
     >>> len(stack.stack)
     1
     >>> _ = stack.pop()
@@ -609,7 +609,7 @@ class FunctionStack(typing.Generic[V]):
         """Add a transformation to the top of the stack.
 
         >>> stack = FunctionStack()
-        >>> stack.push(translate(1.0 * g3.Vector.e_1))
+        >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
         >>> len(stack.stack)
         1
         """
@@ -621,7 +621,7 @@ class FunctionStack(typing.Generic[V]):
         """Remove the top transformation and return it.
 
         >>> stack = FunctionStack()
-        >>> stack.push(translate(1.0 * g3.Vector.e_1))
+        >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
         >>> popped = stack.pop()
         >>> len(stack.stack)
         0
@@ -634,8 +634,8 @@ class FunctionStack(typing.Generic[V]):
         """Empty the stack.
 
         >>> stack = FunctionStack()
-        >>> stack.push(translate(1.0 * g3.Vector.e_1))
-        >>> stack.push(translate(2.0 * g3.Vector.e_2))
+        >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
+        >>> stack.push(translate(b=2.0 * g3.Vector.e_2))
         >>> stack.clear()
         >>> len(stack.stack)
         0
@@ -659,8 +659,8 @@ class FunctionStack(typing.Generic[V]):
         Pushed transformations apply as one function -- here the scale runs
         first, then the translate:
 
-        >>> stack.push(translate(1.0 * g3.Vector.e_1))
-        >>> stack.push(uniform_scale(2.0))
+        >>> stack.push(translate(b=1.0 * g3.Vector.e_1))
+        >>> stack.push(uniform_scale(m=2.0))
         >>> composed = stack.modelspace_to_ndc_fn()
         >>> [round(float(c), 6) for c in composed(1.0 * g3.Vector.e_1)]
         [3.0, 0.0, 0.0]
@@ -688,7 +688,7 @@ def push_transformation(
 
     >>> import gacalc.g3 as g3
     >>> from gacalc.transforms import translate
-    >>> with push_transformation(translate(1.0 * g3.Vector.e_1)) as stack:
+    >>> with push_transformation(translate(b=1.0 * g3.Vector.e_1)) as stack:
     ...     len(stack.stack)
     1
 
@@ -701,8 +701,8 @@ def push_transformation(
     Nesting composes -- each block adds one transformation and removes it
     again:
 
-    >>> with push_transformation(translate(1.0 * g3.Vector.e_1)):
-    ...     with push_transformation(translate(2.0 * g3.Vector.e_2)) as stack:
+    >>> with push_transformation(translate(b=1.0 * g3.Vector.e_1)):
+    ...     with push_transformation(translate(b=2.0 * g3.Vector.e_2)) as stack:
     ...         len(stack.stack)
     2
     >>> len(stack.stack)
@@ -711,7 +711,7 @@ def push_transformation(
     An exception still unwinds the stack, because the pop is in a ``finally``:
 
     >>> try:
-    ...     with push_transformation(translate(1.0 * g3.Vector.e_1)) as stack:
+    ...     with push_transformation(translate(b=1.0 * g3.Vector.e_1)) as stack:
     ...         raise ValueError("a draw call failed")
     ... except ValueError:
     ...     len(stack.stack)
