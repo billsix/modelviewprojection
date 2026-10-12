@@ -71,14 +71,14 @@ graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
             src=Space.paddle1,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector(-9.0, 1.0, 0.0))),
+                ("T", translate(b=Vector(-9.0, 1.0, 0.0))),
                 ("R_z", rotate_z(math.radians(45.0))),
             ],
         ),
         cayleygraph.Edge(
             src=Space.square_base,
             dst=Space.paddle1,
-            steps=[("T_-Z", translate(Vector(0.0, 0.0, -5.0)))],
+            steps=[("T_-Z", translate(b=Vector(0.0, 0.0, -5.0)))],
         ),
         *[
             cayleygraph.Edge(
@@ -86,7 +86,7 @@ graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
                 dst=Space.square_base,
                 steps=[
                     ("R_Z", rotate_z(AROUND + i * math.pi / 2.0)),
-                    ("T_X", translate(Vector(3.0, 0.0, 0.0))),
+                    ("T_X", translate(b=Vector(3.0, 0.0, 0.0))),
                     ("R2_Z", rotate_z(SQUARE_ROT)),
                 ],
             )

@@ -200,8 +200,8 @@ Built for past migrations; reach for these shapes instead of reinventing them.
 
 ## 6. Bulk-edit playbook (hard-learned, 2026-07-18/19)
 
-From the coding-standard sweep (`tasks/apply-python-coding-standard.md`, which
-carries the full detail). Any future bulk mechanical pass should follow these:
+From the coding-standard sweep (`tasks/archive/2026/10/12/apply-python-coding-standard.md`,
+which carries the full detail). Any future bulk mechanical pass should follow these:
 
 1. **Find a signature's end with the AST** (`node.body[0].lineno`), never by
    text-scanning for `:` — the text heuristic deleted three functions from

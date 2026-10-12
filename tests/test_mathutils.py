@@ -315,17 +315,17 @@ def test_function_stack_push_pop() -> None:
     fn_stack.clear()
     e_1: g3.Vector = g3.Vector.e_1
 
-    fn_stack.push(uniform_scale(1.0))
+    fn_stack.push(uniform_scale(m=1.0))
     assert fn_stack.modelspace_to_ndc_fn()(e_1).isclose(
         e_1, rel_tol=1e-5, abs_tol=1e-5
     )
 
-    fn_stack.push(translate(e_1))  # x + 1
+    fn_stack.push(translate(b=e_1))  # x + 1
     assert fn_stack.modelspace_to_ndc_fn()(e_1).isclose(
         2 * e_1, rel_tol=1e-5, abs_tol=1e-5
     )
 
-    fn_stack.push(uniform_scale(2.0))  # (x * 2) + 1
+    fn_stack.push(uniform_scale(m=2.0))  # (x * 2) + 1
     assert fn_stack.modelspace_to_ndc_fn()(e_1).isclose(
         3 * e_1, rel_tol=1e-5, abs_tol=1e-5
     )

@@ -73,7 +73,7 @@ class CameraControls:
     rot_x: float
 
     def apply(self) -> None:
-        self.translate_step.fn = translate(Vector(self.px, self.py, self.pz))
+        self.translate_step.fn = translate(b=Vector(self.px, self.py, self.pz))
         self.rot_y_step.fn = rotate_y(self.rot_y)
         self.rot_x_step.fn = rotate_x(self.rot_x)
 
@@ -464,7 +464,7 @@ def to_matrix(f: InvertibleFunction) -> np.ndarray:
     >>> import numpy as np
     >>> from gacalc.g3 import Vector
     >>> from gacalc.transforms import translate
-    >>> m = to_matrix(translate(Vector(3.0, 4.0, 5.0)))
+    >>> m = to_matrix(translate(b=Vector(3.0, 4.0, 5.0)))
     >>> m[:, 3].tolist()
     [3.0, 4.0, 5.0, 1.0]
 

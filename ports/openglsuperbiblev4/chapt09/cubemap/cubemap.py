@@ -171,8 +171,9 @@ def render_scene() -> None:
     GL.glPushMatrix()
     apply_camera_transform()
 
-    # Skybox -- manual texture coordinates, no texgen. Re-assert the cube map
-    # each frame (setup_rc enabled it once, but we disable it before imgui draws).
+    # Skybox -- manual texture coordinates, no texgen. Re-assert the cube
+    # map each frame (setup_rc enabled it once, but we disable it before
+    # imgui draws).
     GL.glEnable(GL.GL_TEXTURE_CUBE_MAP)
     GL.glDisable(GL.GL_TEXTURE_GEN_S)
     GL.glDisable(GL.GL_TEXTURE_GEN_T)

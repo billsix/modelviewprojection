@@ -45,7 +45,7 @@ def _focus_matrix() -> np.ndarray:
     edge: cayleygraph.Edge[str] = cayleygraph.Edge(
         src="paddle1",
         dst="world",
-        steps=[("T", translate(_v(0.5, 0.3, 0.0))), ("R_z", rotate_z(0.7))],
+        steps=[("T", translate(b=_v(0.5, 0.3, 0.0))), ("R_z", rotate_z(0.7))],
     )
     graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph([edge])
     return cayleyscene.to_matrix(graph.path("world", "paddle1").function())

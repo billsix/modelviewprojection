@@ -188,12 +188,13 @@ def draw_menubar(
 def menu_action(
     label: str, key: str, action: Callable[[], None], *, selected: bool = False
 ) -> None:
-    """A menubar item that mirrors a keyboard control. ``key`` is shown in the
-    item's right-hand shortcut column (so the menu both performs the action and
-    tells the user the keyboard equivalent); ``selected`` shows a check mark
-    (for the current mode / shader). Clicking runs ``action()`` once -- menus
-    can't "hold to repeat", so continuous motion stays on the keyboard and the
-    menu item is a discoverable single-step. Call inside a ``begin_menu`` block."""
+    """A menubar item that mirrors a keyboard control. ``key`` is shown in
+    the item's right-hand shortcut column (so the menu both performs the
+    action and tells the user the keyboard equivalent); ``selected`` shows a
+    check mark (for the current mode / shader). Clicking runs ``action()``
+    once -- menus can't "hold to repeat", so continuous motion stays on the
+    keyboard and the menu item is a discoverable single-step. Call inside a
+    ``begin_menu`` block."""
     clicked, _ = imgui.menu_item(label, key, selected, True)
     if clicked:
         action()

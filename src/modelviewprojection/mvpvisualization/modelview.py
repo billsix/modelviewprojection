@@ -58,7 +58,7 @@ camera_edge: cayleygraph.Edge = cayleygraph.Edge(
     src=Space.camera,
     dst=Space.world,
     steps=[
-        ("T", translate(Vector(-4.0, 0.0, 8.0))),
+        ("T", translate(b=Vector(-4.0, 0.0, 8.0))),
         ("R_y", rotate_y(math.radians(-30.0))),
         ("R_x", rotate_x(math.radians(15.0))),
     ],
@@ -70,7 +70,7 @@ graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
             src=Space.paddle1,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector(-9.0, 1.0, 0.0))),
+                ("T", translate(b=Vector(-9.0, 1.0, 0.0))),
                 ("R_z", rotate_z(math.radians(45.0))),
             ],
         ),
@@ -78,9 +78,9 @@ graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
             src=Space.square,
             dst=Space.paddle1,
             steps=[
-                ("T_-Z", translate(Vector(0.0, 0.0, -1.0))),
+                ("T_-Z", translate(b=Vector(0.0, 0.0, -1.0))),
                 ("R_Z", rotate_z(math.radians(30.0))),
-                ("T_X", translate(Vector(2.0, 0.0, 0.0))),
+                ("T_X", translate(b=Vector(2.0, 0.0, 0.0))),
                 ("R2_Z", rotate_z(math.radians(90.0))),
             ],
         ),
@@ -88,7 +88,7 @@ graph: cayleygraph.CayleyGraph = cayleygraph.CayleyGraph(
             src=Space.paddle2,
             dst=Space.world,
             steps=[
-                ("T", translate(Vector(9.0, 0.5, 0.0))),
+                ("T", translate(b=Vector(9.0, 0.5, 0.0))),
                 ("R_z", rotate_z(math.radians(-45.0))),
             ],
         ),

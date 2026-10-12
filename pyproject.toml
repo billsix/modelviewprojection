@@ -97,9 +97,30 @@ ignore = []
 # PGZERO_GL_INFO-gated backend-info print (T201). Everything else (naming,
 # imports, ty) is enforced normally.
 "src/modelviewprojection/pgzero_gl/**" = ["E501", "T201"]
-"ports/**" = ["E501", "S311", "T201", "E711", "E712", "B007",
-              "UP035", "E722", "E741", "E731", "B008", "F841", "UP007"]
-# E402 kept for the SuperBible ports only -- see the note above.
-"ports/openglsuperbiblev4/**" = ["E402"]
+# Measured 2026-09-09, then trimmed to what is actually in use: ten rules
+# (E711, E712, B007, UP035, E722, E741, E731, B008, F841, UP007) suppressed
+# nothing in either port and were deleted at the maintainer's direction, per the
+# open-issues discipline -- a retired ignore must not stay documented as if it
+# were live.  What remains is only what has violations to suppress: E501
+# (codetheclassics only), S311, T201, and E402 (SuperBible only).
+#
+# If a future upstream re-import trips one of the deleted rules, re-add it here
+# with a one-line reason rather than reinstating the whole old list.
+#
+# NOTE the two entries below are scoped per-port rather than one "ports/**".
+# ruff UNIONS every per-file-ignores pattern that matches a file -- a more
+# specific entry cannot subtract a rule a broader one grants -- so retiring E501
+# for the SuperBible ports required the broad entry to stop matching them.
+# Verified empirically (2026-09-09) by appending a 100-char line and watching it
+# pass while both entries were present.
+"ports/codetheclassics/**" = ["E501", "S311", "T201"]
+# The SuperBible ports carry the same list MINUS E501, PLUS E402. The whole port
+# was brought under the 80-column limit on 2026-09-09: six over-long comment
+# paragraphs reflowed (as paragraphs, not single lines), and one 107-character
+# annotation replaced by the `PlanePoints` alias in chapt19/SphereWorld32.
+#
+# E402 (module import after a sys.path insert) is these ports' own: they are run
+# by path and must insert their own directory to find `_common`/`_primitives`.
+"ports/openglsuperbiblev4/**" = ["S311", "T201", "E402"]
 
 [project.scripts]

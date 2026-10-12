@@ -156,7 +156,7 @@ class FrameBuffer:
         """Convert from OpenGL-style coords to framebuffer array coords."""
         ss_to_fb: InvertibleFunction = compose(
             [
-                translate((self.height - 1) * e_2),
+                translate(b=(self.height - 1) * e_2),
                 scale_non_uniform(1, -1),
             ]
         )
