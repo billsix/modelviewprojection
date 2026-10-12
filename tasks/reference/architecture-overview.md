@@ -46,8 +46,8 @@ Small, focused, individually-documented modules the demos import: `axes.py` (uni
 
 **Naming trap:** `notebooksrc/framebuffer.py` (a book notebook source) and the `framebuffer/` package (the software rasterizer) are two different things that share a word.
 
-### `notebooksrc/` and `plotsforbook/` — figure/notebook generation
-`notebooksrc/` — jupytext percent-format source (`plot2d.py`, `ndc.py`, `framebuffer.py`) for the book's interactive/notebook figures. `plotsforbook/generate_plots.py` (entry point `generate_plots_for_book`, see `pyproject.toml`) plus its `plotutils/` (grid lines, matplotlib graphs, transformation plots) — a build-time script that renders the static matplotlib figures the chapters embed.
+### `notebooksrc/` — notebook generation (static figures moved to ePiX)
+`notebooksrc/` — jupytext percent-format source (`plot2d.py`, `ndc.py`, `framebuffer.py`) for the book's interactive/notebook figures. The book's static math figures are **no longer** generated here: the former `plotsforbook/generate_plots.py` (matplotlib) was retired 2026-10-11 and replaced by ePiX sources under `book/figures/epix/`, rendered by `tools/render_epix_figures.py` (the transform figures drive `mathutils`). See `tasks/reference/book-figures-and-images.md` §1.
 
 ### `ports/` — faithful ports from external graphics sources
 Not part of the installed package; kept in mvp's style for teaching and as porting source material.
@@ -97,7 +97,7 @@ point here.)
 | The software rasterizer & 2D orientation predicates | `src/modelviewprojection/framebuffer/softwarerendering.py` |
 | Cayley-graph data structure / path routing (no GL) | `src/modelviewprojection/cayley/cayleygraph.py` (`cayleyscene.py` for scene→render) |
 | Shared demo helpers (axes, windowing, clipping, camera, colors, shading) | `src/modelviewprojection/util/` |
-| Notebook / static book figure generation | `src/modelviewprojection/notebooksrc/` (jupytext), `plotsforbook/generate_plots.py` |
+| Notebook generation / static book figures | `src/modelviewprojection/notebooksrc/` (jupytext); ePiX figures in `book/figures/epix/` (rendered by `tools/render_epix_figures.py`) |
 | A SuperBible example port | `ports/openglsuperbiblev4/chaptNN/<name>/<name>.py` |
 | A Code-the-Classics game port (engine half + game half in one file) | `ports/codetheclassics/vol{1,2}/<game>/<game>.py`; gates in `tools/ctc_*` |
 | The book chapters (prose + `literalinclude` markers) | `book/docs/chNN.rst` (config `book/docs/conf.py`) |

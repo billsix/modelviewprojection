@@ -2,7 +2,7 @@
 
 **Reference document** — how the Sphinx book is built and how it pulls code (including gacalc's) via doc-region literalinclude. Not a task; update in place. Last updated 2026-09-13.
 
-Sibling doc: **`tasks/reference/book-figures-and-images.md`** owns everything that produces an image or executed notebook (the five figure toolchains, the `inlinetex` extension, jupytext). This doc owns the build sequence and the code-quoting mechanism. **`tasks/reference/notebook-sphinx-integration.md`** owns the percent-notebook↔Sphinx cross-reference mechanism (`(label)=` in a markdown cell → `:ref:` from RST → HTML link) and the nbsphinx-vs-myst_nb handler situation (both are enabled; myst_nb is the active handler, and that is load-bearing — see that doc, and the deferred `tasks/consider-removing-nbsphinx.md`).
+Sibling doc: **`tasks/reference/book-figures-and-images.md`** owns everything that produces an image or executed notebook (the four figure toolchains, the `inlinetex` extension, jupytext). This doc owns the build sequence and the code-quoting mechanism. **`tasks/reference/notebook-sphinx-integration.md`** owns the percent-notebook↔Sphinx cross-reference mechanism (`(label)=` in a markdown cell → `:ref:` from RST → HTML link) and the nbsphinx-vs-myst_nb handler situation (both are enabled; myst_nb is the active handler, and that is load-bearing — see that doc, and the deferred `tasks/consider-removing-nbsphinx.md`).
 
 ---
 
@@ -21,11 +21,12 @@ In order, inside the container:
 1. Activate `/venv` (`source /venv/bin/activate`), `cd /mvp`.
 2. `pytest --exitfirst --disable-warnings || exit` — **the test suite gates the book build**. A failing test aborts before any docs are produced.
 3. **Regenerate the jupytext notebooks** — `plot2d`, `framebuffer`, `ndc` are converted from their `.py` sources in `src/modelviewprojection/notebooksrc/` into `.ipynb`, written to **both** `notebooks/`/`assignments/` **and** `book/docs/` (so nbsphinx/myst-nb can execute+embed them). These `.ipynb` are build artifacts (gitignored — `.gitignore:39`).
-4. `uv pip install --no-deps --no-index --no-build-isolation -e . --python "$(which python)"` — editable install of the package. **The `--python` flag is load-bearing** (matches `loadpackages.sh`): the earlier `--system` form targeted `/usr`, which has no setuptools, so the editable build failed → the `generate_plots_for_book` console script never installed → `_static/make` died at exit 127 → **the plot SVGs silently never regenerated** (invisible on incremental builds because previously-generated SVGs persist; a clean tree exposed ~44 "not readable" warnings). Fixed 2026-07-23 (`tasks/archive/2026/07/23/fix-editable-install-system-flag.md`).
-5. **Populate the docs-only gacalc source** into `book/docs/_gacalc_src/` (see §3).
-6. `python tools/check_doc_regions.py || exit` — **the anchor checker gates the build** (see §2). Runs *after* `_gacalc_src` is populated, because some anchors resolve against gacalc's files.
-7. `cd /mvp/book/docs && make html && make latexpdf && make epub`.
-8. Copy artifacts to the bind-mounted output tree and `touch .nojekyll` (see below).
+4. `uv pip install --no-deps --no-index --no-build-isolation -e . --python "$(which python)"` — editable install of the package. **The `--python` flag is load-bearing** (matches `loadpackages.sh`): the earlier `--system` form targeted `/usr`, which has no setuptools, so the editable build failed → downstream figure generation silently never ran → "not readable" warnings on a clean tree (invisible incrementally because previously-generated figures persist). Fixed 2026-07-23 (`tasks/archive/2026/07/23/fix-editable-install-system-flag.md`). The install must precede the next step: the ePiX transform figures import `modelviewprojection.mathutils`. (The original symptom was the now-retired `generate_plots_for_book` console script dying at `_static/make` exit 127; see `book-figures-and-images.md` §1.)
+5. `python tools/render_epix_figures.py || exit` — **render the book's ePiX math figures** (`book/figures/epix/*.py` → `_static/epix/<name>.{pdf,png}`); gated by `USE_EPIX`, exits 2 cleanly when `elaps` is absent. See `book-figures-and-images.md` §1.
+6. **Populate the docs-only gacalc source** into `book/docs/_gacalc_src/` (see §3).
+7. `python tools/check_doc_regions.py || exit` — **the anchor checker gates the build** (see §2). Runs *after* `_gacalc_src` is populated, because some anchors resolve against gacalc's files.
+8. `cd /mvp/book/docs && make html && make latexpdf && make epub`.
+9. Copy artifacts to the bind-mounted output tree and `touch .nojekyll` (see below).
 
 ### Output location
 

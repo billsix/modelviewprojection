@@ -62,7 +62,11 @@ split would be: **`make test`** = just the pytest gate; **`make docs`** = the do
 2. **`CONTAINER_CMD`** auto-detect podman→docker (gacalc's form).
 3. **`make test`** — a minimal headless `podman run … --entrypoint /bin/bash … -c 'loadpackages.sh && pytest …'` (like gacalc's `test`), `: image` prereq.
 4. **`make docs`** — the doc build, non-interactive; keep `make html` as an alias or retire it. Split `entrypoint.sh` so the test gate and the doc build are separately invokable.
-5. **Non-interactive spellcheck** — move the `spellcheck` prereq out of the Sphinx catch-all and make it headless. **Detailed in its own task: `tasks/non-interactive-spellcheck.md`** (options: `aspell list` reusing `mvp_dict.pws` as-is; or `pyspelling`/`sphinxcontrib-spelling` for RST-aware checks, converting the `.pws` to a wordlist).
+5. **Non-interactive spellcheck** — **DONE 2026-10-12** (Option A): `spellcheck` taken
+   off the Sphinx catch-all; `tools/spellcheck.sh` does a headless `aspell list` reusing
+   `mvp_dict.pws`. The doc build is now non-interactive. See
+   `tasks/non-interactive-spellcheck.md`. (A top-level containerized `make spellcheck`
+   target is still part of this template conformance — not yet added.)
 6. **`MINIMAL_IMAGE`** — flip `BUILD_DOCS`/`USE_EMACS`/`USE_JUPYTER`/`USE_X_WINDOWS`/`USE_EPIX` off for a lean test image (gacalc's idiom; mirror into the Dockerfile ARGs).
 7. **`check-format`** (= `make format` then `git diff --exit-code`) for CI parity.
 8. Update `.github/workflows/*` to call the new `make` targets; update `README`/`CLAUDE.md`.

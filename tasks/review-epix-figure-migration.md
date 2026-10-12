@@ -72,18 +72,17 @@ figure-related warnings; these are quality/polish/verification items.
   the renderer cleanly (the `elaps`-absent guard returns exit 2 with a message) rather
   than cryptically.
 
-### D. Docs to update (not yet done)
-- [ ] **`tasks/reference/book-figures-and-images.md`** — rewrite the "five toolchains"
-  section: gnuplot + matplotlib(`generate_plots.py`) are **gone**, replaced by ePiX
-  (`book/figures/epix/` → `_static/epix/`, rendered by `tools/render_epix_figures.py`
-  in `entrypoint.sh`). graphviz, texExpToPng/`inlinetex`, and the notebooks remain.
-- [ ] **`CLAUDE.md`** — add an ePiX bullet to the "Keeping the Dockerfile, Makefile …
-  in sync" section (the `USE_EPIX`/`EPIX_COMMIT` late layer, the two `entrypoint/epix/`
-  scripts, `EPIX_COMMIT = ebf3ca6…` matching gacalc), and note the book figures now
-  come from `book/figures/epix/` driving `mathutils`.
-- [ ] **`conf.py` imgconverter:** the inkscape svg→pdf converter existed for the old
-  SVGs. ePiX now supplies PDFs directly, but other committed SVGs remain (`Maththing.svg`,
-  the CC art). Confirm the converter is still needed / harmless, don't remove blindly.
+### D. Docs to update
+- [x] **`tasks/reference/book-figures-and-images.md`** — DONE 2026-10-12 (pre-squash
+  rewrite): §1 now describes four toolchains with ePiX in place of gnuplot + matplotlib,
+  the clean-build note no longer cites the retired console script, and §4's imgconverter
+  line is corrected.
+- [x] **`CLAUDE.md`** — DONE 2026-10-12: item 4 added to the "Keeping the Dockerfile,
+  Makefile … in sync" section (`USE_EPIX`/`EPIX_COMMIT` late layer, the `entrypoint/epix/`
+  scripts, the pin matching gacalc, figures from `book/figures/epix/` driving `mathutils`).
+- [ ] **`conf.py` imgconverter:** documented (keep it — it now serves only the remaining
+  committed SVG art, `Maththing.svg` + CC images). Still confirm empirically in the full
+  `make latexpdf` that nothing regressed when the math-plot SVGs disappeared.
 
 ### E. Cleanliness checks
 - [ ] `rg "_static/(monitor|screenspace|ndcSpace|viewport|plot[1-4]|disproportionate|translation-forwards|translation2-forwards|scale-[024]|incorrectrotate|rotate-sloppy|modelspace)\.(svg|png)" book/docs/*.rst` → **zero** (all rewired to `_static/epix/<name>.*`).

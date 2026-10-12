@@ -5,7 +5,7 @@ The ePiX replacement for the matplotlib families `_static/<name>-<n>.svg`:
 Each frame shows a paddle as four labelled points over a unit grid, with the modelspace
 frame (blue x-axis, magenta y-axis, highlighted origin bands) and the paddle positions
 BOTH computed by driving mvp's OWN taught code -- `modelviewprojection.mathutils`
-(`translate` / `scale_non_uniform` / `rotate` composed on `gacalc` `Vector2`s) -- so the
+(`translate` / `scale_non_uniform` / `rotate` composed on `gacalc` `Vector`s) -- so the
 picture is produced by the exact functions the chapter teaches.
 
 The modelspace frame is drawn as the transform applied to the basis: the x-axis is
@@ -31,7 +31,7 @@ from _scene2d import (
     coordinate_axes_scene,
     epix,
 )
-from gacalc.g2 import Vector2
+from gacalc.g2 import Vector
 from gacalc.transforms import InvertibleFunction
 
 from modelviewprojection.mathutils import (
@@ -59,19 +59,19 @@ __all__: list[str] = [
     "transform_frame",
 ]
 
-E1: Vector2 = Vector2.e_1
-E2: Vector2 = Vector2.e_2
-ORIGIN_VEC: Vector2 = 0 * E1 + 0 * E2
+E1: Vector = Vector.e_1
+E2: Vector = Vector.e_2
+ORIGIN_VEC: Vector = 0 * E1 + 0 * E2
 
 #: the paddle shape (c, d, a, b corners), shared by paddle1 and paddle2.
-_CORNERS: list[tuple[Vector2, str]] = [
+_CORNERS: list[tuple[Vector, str]] = [
     (-1 * E1 + -3 * E2, "c"),
     (1 * E1 + -3 * E2, "d"),
     (1 * E1 + 3 * E2, "a"),
     (-1 * E1 + 3 * E2, "b"),
 ]
-PADDLE1: list[tuple[Vector2, str]] = _CORNERS
-PADDLE2: list[tuple[Vector2, str]] = _CORNERS
+PADDLE1: list[tuple[Vector, str]] = _CORNERS
+PADDLE2: list[tuple[Vector, str]] = _CORNERS
 
 PADDLE1_COLOR: epix.Color = epix.rgb(r=0.578, g=0.0, b=1.0)  # purple
 PADDLE2_COLOR: epix.Color = epix.rgb(r=1.0, g=0.0, b=0.0)  # red
@@ -82,13 +82,13 @@ X_AXIS: epix.Color = epix.rgb(r=0.0, g=0.0, b=1.0)  # modelspace x, blue
 Y_AXIS: epix.Color = epix.rgb(r=1.0, g=0.0, b=1.0)  # modelspace y, magenta
 
 
-def identity() -> InvertibleFunction[Vector2]:
+def identity() -> InvertibleFunction[Vector]:
     """The identity transform, built from the taught code (a zero translation)."""
     return translate(b=ORIGIN_VEC)
 
 
-def _pt(v: Vector2) -> Point:
-    """A `gacalc` `Vector2` as an `epix.Point` (coords may be sympy; coerce to float)."""
+def _pt(v: Vector) -> Point:
+    """A `gacalc` `Vector` as an `epix.Point` (coords may be sympy; coerce to float)."""
     return Point(x=float(v.x), y=float(v.y))
 
 
@@ -124,7 +124,7 @@ def _clip(
     return (x0 + t0 * dx, y0 + t0 * dy, x0 + t1 * dx, y0 + t1 * dy)
 
 
-def _seg(a: Vector2, b: Vector2, bound: float) -> None:
+def _seg(a: Vector, b: Vector, bound: float) -> None:
     """Draw the segment a->b clipped to the frame (endpoints already in world coords)."""
     pa: Point = _pt(a)
     pb: Point = _pt(b)
@@ -139,7 +139,7 @@ def _seg(a: Vector2, b: Vector2, bound: float) -> None:
 
 
 def _draw_grid(
-    frame_transform: InvertibleFunction[Vector2], bound: float
+    frame_transform: InvertibleFunction[Vector], bound: float
 ) -> None:
     """The unit grid, drawn under `frame_transform` and clipped to the frame -- so a
     translation leaves it standard (integer grid maps to itself), a scale spaces it
@@ -164,7 +164,7 @@ def _draw_grid(
 
 
 def _draw_modelspace_frame(
-    frame_transform: InvertibleFunction[Vector2], bound: float
+    frame_transform: InvertibleFunction[Vector], bound: float
 ) -> None:
     """The modelspace frame under `frame_transform`: the thick origin bands are the
     transformed modelspace axis-lines (x=0, y=0), and the blue/magenta unit axes are
@@ -188,9 +188,9 @@ def _draw_modelspace_frame(
 
 
 def _draw_geometry(
-    geometry: list[tuple[Vector2, str]],
+    geometry: list[tuple[Vector, str]],
     color: epix.Color,
-    transform: InvertibleFunction[Vector2],
+    transform: InvertibleFunction[Vector],
 ) -> None:
     """The paddle points placed by `transform` (the taught code), each labelled."""
     epix.pen(color=color, width=1.2)
@@ -208,10 +208,10 @@ def _draw_geometry(
 
 
 def transform_frame(
-    geometry: list[tuple[Vector2, str]],
+    geometry: list[tuple[Vector, str]],
     color: epix.Color,
-    frame_transform: InvertibleFunction[Vector2],
-    paddle_transform: InvertibleFunction[Vector2],
+    frame_transform: InvertibleFunction[Vector],
+    paddle_transform: InvertibleFunction[Vector],
     step: int,
     title_base: str,
     bound: float = 10.0,

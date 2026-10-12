@@ -16,7 +16,6 @@ dnf install -y \
     g++ \
     gcc \
     git \
-    gnuplot \
     graphviz \
     ImageMagick \
     inkscape \
