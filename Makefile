@@ -7,6 +7,10 @@ USE_EMACS ?= 1
 USE_JUPYTER ?= 1
 USE_SPYDER ?= 0
 USE_X_WINDOWS ?= 1
+# ePiX (the book's LaTeX-native figure toolchain) built from source into the
+# image.  Default on; Dockerfile default is 0, so this build-arg is what turns it
+# on.  See tasks/replace-book-figures-with-epix.md.
+USE_EPIX ?= 1
 
 CONTAINER_CMD ?= $(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker)
 CONTAINER_NAME = modelviewprojection
@@ -100,6 +104,7 @@ image: ## Build a podman image in which to build the book
                          --build-arg USE_JUPYTER=$(USE_JUPYTER) \
                          --build-arg USE_SPYDER=$(USE_SPYDER) \
                          --build-arg USE_X_WINDOWS=$(USE_X_WINDOWS) \
+                         --build-arg USE_EPIX=$(USE_EPIX) \
                          $(ELPA_MOUNT) \
                          -t $(CONTAINER_NAME) \
                          .

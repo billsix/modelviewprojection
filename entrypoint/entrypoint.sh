@@ -17,10 +17,16 @@ jupytext --to notebook src/modelviewprojection/notebooksrc/ndc.py --output book/
 
 # Install into the ACTIVE venv (which has setuptools/wheel, seeded by the
 # Dockerfile), not --system: --system targets /usr, which has no setuptools, so
-# the editable build fails and the `generate_plots_for_book` console-script never
-# installs -- then `book/docs/_static/make` dies (command not found) and the plot
-# SVGs never regenerate.  Matches loadpackages.sh.
+# the editable build fails.  The package must be importable for the ePiX figures,
+# which drive modelviewprojection.mathutils.  Matches loadpackages.sh.
 uv pip install --no-deps --no-index --no-build-isolation -e . --python "$(which python)"
+
+# Render the book's ePiX figures (book/figures/epix/*.py) into _static/epix/ before
+# Sphinx runs.  These replaced the old gnuplot + matplotlib book figures; they need
+# the package installed above (they drive mathutils) and ePiX in the image
+# (USE_EPIX=1, the default).  The graphviz (.dot) and texExpToPng (.tex) figures are
+# still built by book/docs/_static/Makefile during the Sphinx make below.
+python tools/render_epix_figures.py || exit
 
 # Populate the docs-only gacalc source tree (baked into the image at
 # /opt/gacalc-src by the Dockerfile) so the book's literalinclude directives can

@@ -165,9 +165,11 @@ Built for past migrations; reach for these shapes instead of reinventing them.
   raises "no valid context".
   (`tasks/archive/2026/07/25/fix-smoketest-broken-pgzrun.md`,
   `tasks/archive/2026/09/06/remove-ctc-smoketest.md`)
-- **Headless plotting**: `plotsforbook/plotutils/matplotgraphs.py` falls back
-  to `Agg` when `DISPLAY` is unset (it once hardcoded `TkAgg` and couldn't be
-  imported headless). (`tasks/archive/2026/07/19/doctests-everywhere.md`)
+- **Headless plotting**: the static book figures are now ePiX (rendered via a
+  LaTeX toolchain with no matplotlib backend to select). `util/nbplotutils.py`
+  still guards its matplotlib use behind `get_ipython() is not None` so it imports
+  headless. (The retired `plotsforbook/plotutils/matplotgraphs.py` carried an
+  `Agg`-fallback lesson — `tasks/archive/2026/07/19/doctests-everywhere.md`.)
 
 ## 5. Type-checker playbook (ty)
 

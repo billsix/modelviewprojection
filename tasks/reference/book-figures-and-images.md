@@ -1,9 +1,10 @@
 # The mvp book's figures, math images & notebooks
 
 **Reference document** — how every image and executed notebook in the book
-comes to exist: the five figure toolchains, the custom `inlinetex` Sphinx
+comes to exist: the four figure toolchains, the custom `inlinetex` Sphinx
 extension, and the jupytext notebook pipeline. Not a task; update in place.
-Last updated 2026-07-30.
+Last updated 2026-10-12 (the math plots moved from gnuplot + matplotlib to
+**ePiX**; see `tasks/archive/2026/10/12/replace-book-figures-with-epix.md`).
 
 Sibling of `tasks/reference/book-and-docs-pipeline.md`, which owns the Sphinx
 build sequence and the doc-region `literalinclude` mechanism. This doc owns
@@ -15,29 +16,44 @@ decided = best-fidelity dual light/dark assets, implementation deferred).
 
 ---
 
-## 1. The five toolchains
+## 1. The four toolchains
 
-All but the last are driven by `book/docs/_static/Makefile` (invoked as
-`cd _static/ && make` by `book/docs/Makefile` before — and its PNG copy step
-after — every Sphinx target):
+The `.tex` labels and the `.dot` graphs are driven by `book/docs/_static/Makefile`
+(invoked as `cd _static/ && make` by `book/docs/Makefile` before — and its PNG copy
+step after — every Sphinx target). The ePiX figures are driven **separately**, by
+`tools/render_epix_figures.py` run from `entrypoint.sh` before Sphinx (not by the
+`_static/Makefile`). `inlinetex` runs during the Sphinx build itself.
 
 | Source | Tool | Output |
 |---|---|---|
 | `_static/*.tex` (~35 Cayley edge labels: `p1ToW.tex`, `wToNDC.tex`, …) | `texExpToPng --size 300` | `_static/*.png` |
 | `_static/*.dot` (~26 Cayley graphs: `demo02.dot` … `demo18-8.dot`) | graphviz `dot -Tpng` | `_static/*.png` |
-| `_static/gnuplot/*.gp` (+ `.dat`) | gnuplot → `.svg`, inkscape → `.png`, copied up | `_static/` |
-| `src/modelviewprojection/plotsforbook/generate_plots.py` | the `generate_plots_for_book` console script | ~170 `.svg` in `_static/` |
+| `book/figures/epix/*.py` (35: the coordinate/space plots + the transform-step frames) | ePiX, via `tools/render_epix_figures.py` | `_static/epix/<name>.{pdf,png}` |
 | `.. inlinetex::` / `:itex:` in the `.rst` | `book/docs/_ext/inlinetex.py` → texExpToPng | `_static/inlinetex/<sha1>.png` — generated during the **Sphinx run**, not by make |
 
 Mechanics worth knowing before touching any of it:
 
-- **The matplotlib generator runs via a dummy make target**: the target is one
-  arbitrary output file (`rotate0-0.svg`) whose prerequisite is the *generator
-  source*, so editing `generate_plots.py` regenerates everything. The script
-  writes `./<name>-<n>.svg` **relative to cwd** — it only works because make
-  runs it from `_static/`. Run it anywhere else and it scatters 170 SVGs.
-- **The generated SVGs are not tracked.** On an incremental build they persist
-  on disk, which is what made the `--system` install bug invisible (below).
+- **The ePiX figures are a separate pipeline** (added 2026-10-11, replacing the
+  gnuplot plots and the `generate_plots.py` matplotlib frames — see
+  `tasks/archive/2026/10/12/replace-book-figures-with-epix.md`). Each figure is one jupytext-percent
+  `.py` under `book/figures/epix/`, **one figure per file** (the renderer runs each
+  in a fresh interpreter because `libepix` keeps global drawing state), every
+  argument keyword-only. `render_epix_figures.py` writes `<name>.pdf` (via `elaps
+  --pdf`) and `<name>.png` (flattened onto a solid background so dark-mode HTML
+  pages don't show a transparent sheet) into `_static/epix/`. Chapters reference
+  `.. figure:: _static/epix/<name>.*` — the wildcard resolves to the PDF for the
+  `latex` builder and the PNG for `html`; there is **no SVG** in this path. The
+  transform figures (`translation*`, `scale*`, `*rotate*`, `modelspace`) **drive
+  mvp's own taught code** — they import `modelviewprojection.mathutils` over gacalc
+  `Vector`/`InvertibleFunction`s, so the renderer runs *after* the editable install
+  in `entrypoint.sh`; the 13 static coordinate plots use no `mathutils`. The build
+  is gated by `USE_EPIX` (a Dockerfile LATE layer pinning `EPIX_COMMIT`, matching
+  the gacalc pin); with `USE_EPIX=0` the renderer exits 2 with a message rather than
+  failing cryptically. Shared scene helpers: `_scene2d.py` (framed plots, clipped
+  rects, markers) and `_transform_sequence.py` (`transform_frame`).
+- **The ePiX outputs are not tracked** (`_static/epix/` is gitignored — the pdf+png
+  are build artifacts). As with the old generated SVGs, they persist on disk across
+  incremental builds, so **a clean build is the only honest test** (below).
 - **`/usr/local/bin/texExpToPng` is an explicit make prerequisite** of the
   `.tex → .png` rule, deliberately: a `BUILD_DOCS=0` image fails there with a
   clear message instead of at the first invocation.
@@ -54,16 +70,19 @@ Mechanics worth knowing before touching any of it:
   `<IMG SRC=…/>` HTML labels, so they stay on the `_static/Makefile` `.tex`
   pattern rule at size 300.
 
-### The `--system` failure chain (why a clean build is the real test)
+### Clean builds are the real test (a generated figure can silently vanish)
 
-`entrypoint.sh` installs the package with `--python "$(which python)"`. It
-briefly used `--system`, which targets `/usr` (no setuptools) → the editable
-build fails → the **`generate_plots_for_book` console script never installs**
-→ `_static/make` dies at exit 127 → ~44 "`_static/*.svg` not readable"
-warnings — but only on a **clean** tree, because previously-generated SVGs
-persist. Clean-build warning count went 72 → 10 when fixed. To smoke-test this
-class of failure, build after `git clean -fdx` (or in a fresh container), not
-incrementally. (`tasks/archive/2026/07/23/fix-editable-install-system-flag.md`)
+`entrypoint.sh` installs the package with `--python "$(which python)"`. This flag is
+load-bearing: the earlier `--system` form targeted `/usr` (no setuptools) → the
+editable build failed → downstream figure generation never ran → "not readable"
+warnings — but only on a **clean** tree, because previously-generated figures
+persist on disk. The editable install now also makes `modelviewprojection.mathutils`
+importable for `render_epix_figures.py`, so the same failure class would silently
+blank the transform figures. Smoke-test after `git clean -fdx` (or in a fresh
+container), not incrementally. (Historical: the original symptom was the retired
+`generate_plots_for_book` console script failing → `_static/make` exit 127 → ~44
+warnings, clean-build count 72 → 10 when fixed, 2026-07-23 —
+`tasks/archive/2026/07/23/fix-editable-install-system-flag.md`.)
 
 ## 2. The `inlinetex` extension (`book/docs/_ext/inlinetex.py`)
 
@@ -159,7 +178,9 @@ the point). Use `.. inlinetex::` / the inline role.
 - **Live:** `furo` theme; `autodoc`+`napoleon`; `nbsphinx` + `myst_nb`;
   `sphinxcontrib.bibtex` (`references.bib`); `mathjax` (HTML only);
   `inlinetex`; `sphinx.ext.imgconverter` with an inkscape svg→pdf converter —
-  that converter is what lets the ~190 SVGs survive into the LaTeX build;
+  now that ePiX supplies PDFs directly (and the math-plot SVGs are gone), the
+  converter serves only the remaining committed SVG art (`Maththing.svg`, the CC
+  images); keep it — don't remove it blindly on the strength of the ePiX migration;
   `latex_engine = "lualatex"`, `latex_use_xindy = False` (rationale in the
   pipeline doc).
 - **Dead config that will mislead you:** `imgmath_image_format` /

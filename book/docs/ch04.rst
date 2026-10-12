@@ -282,7 +282,7 @@ to only flush the screen at 60 :term:`hertz <Hertz>` (frames per second).
   the numbers from the data structures of Paddle and its
   associated vertices.
 
-.. figure:: _static/plot3.svg
+.. figure:: _static/epix/plot3.*
     :class: no-scale
     :align: center
     :alt: Adding input offset
@@ -301,7 +301,7 @@ to only flush the screen at 60 :term:`hertz <Hertz>` (frames per second).
    :caption: src/modelviewprojection/demos/demo04.py
 
 
-.. figure:: _static/plot4.svg
+.. figure:: _static/epix/plot4.*
     :class: no-scale
     :align: center
     :alt: Adding input offset to Paddle 1

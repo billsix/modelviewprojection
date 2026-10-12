@@ -26,16 +26,15 @@ book/docs/_static/formula.aux
 book/docs/_static/formula.dvi
 book/docs/_static/formula.tex
 
-# Auto-generated images at the immediate _static/ level (gnuplot, dot, texExpToPng).
+# Auto-generated images at the immediate _static/ level (dot, texExpToPng).
 # Subdirs of _static/ (e.g. ccbysa*) hold tracked source images and are unaffected.
 book/docs/_static/*.png
 book/docs/_static/*.svg
 book/docs/_static/*.gif
 
-# gnuplot output (the .gp source files in this dir are tracked; the generated
-# .png/.svg are also copied up to _static/ by the Makefile)
-book/docs/_static/gnuplot/*.png
-book/docs/_static/gnuplot/*.svg
+# ePiX figure output (the sources live in book/figures/epix/; tools/render_epix_figures.py
+# renders <name>.{pdf,png} here at build time -- all generated, none tracked).
+book/docs/_static/epix/
 
 # inlinetex extension's hash-named PNG cache
 book/docs/_static/inlinetex/

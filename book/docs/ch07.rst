@@ -485,7 +485,7 @@ See :mod:`modelviewprojection.mathutils.compose`
 * :term:`modelspace<Modelspace>` :term:`vertices <Vertex>`
 
 
-.. figure:: _static/incorrectrotate-forwards-1.svg
+.. figure:: _static/epix/incorrectrotate-forwards-1.*
     :class: no-scale
     :align: center
     :alt:
@@ -495,7 +495,7 @@ See :mod:`modelviewprojection.mathutils.compose`
 * Translate
 
 
-.. figure:: _static/incorrectrotate-forwards-2.svg
+.. figure:: _static/epix/incorrectrotate-forwards-2.*
     :class: no-scale
     :align: center
     :alt:
@@ -504,7 +504,7 @@ See :mod:`modelviewprojection.mathutils.compose`
 
 * Reset the :term:`coordinate system <Coordinate System>`
 
-.. figure:: _static/incorrectrotate-forwards-3.svg
+.. figure:: _static/epix/incorrectrotate-forwards-3.*
     :class: no-scale
     :align: center
     :alt:
@@ -514,7 +514,7 @@ See :mod:`modelviewprojection.mathutils.compose`
 
 * Rotate around World Spaces's origin
 
-.. figure:: _static/incorrectrotate-forwards-4.svg
+.. figure:: _static/epix/incorrectrotate-forwards-4.*
     :class: no-scale
     :align: center
     :alt:
@@ -525,7 +525,7 @@ See :mod:`modelviewprojection.mathutils.compose`
 * Reset the coordinate system
 
 
-.. figure:: _static/incorrectrotate-forwards-5.svg
+.. figure:: _static/epix/incorrectrotate-forwards-5.*
     :class: no-scale
     :align: center
     :alt:
@@ -536,7 +536,7 @@ See :mod:`modelviewprojection.mathutils.compose`
 * Final world space coordinates
 
 
-.. figure:: _static/incorrectrotate-forwards-6.svg
+.. figure:: _static/epix/incorrectrotate-forwards-6.*
     :class: no-scale
     :align: center
     :alt:
