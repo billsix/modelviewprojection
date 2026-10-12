@@ -68,8 +68,8 @@ latexpdf + epub) is green with no figure-related warnings.
     originals (decision Q6 = full fidelity).
 - **Rewire + retire.** `.rst` refs rewired (42 refs across ch01–04, 06–08) from
   `_static/<name>.svg` → `_static/epix/<name>.*` (wildcard → PDF for latex, PNG for
-  html) by the idempotent codemod `tasks/adhoc/replace-book-figures-with-epix/
-  rewire_rst.py`. Retired (git rm): `src/modelviewprojection/plotsforbook/`
+  html) by a one-shot idempotent codemod (`rewire_rst.py`, removed at archive —
+  see git history). Retired (git rm): `src/modelviewprojection/plotsforbook/`
   (`generate_plots.py` + `plotutils/`) and `book/docs/_static/gnuplot/`; removed the
   `generate_plots_for_book` console script + `plotsforbook` per-file-ignore from
   `pyproject.toml`, the `plotsforbook` entry from `pytest.ini`, and the

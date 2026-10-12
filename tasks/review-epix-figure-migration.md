@@ -8,7 +8,7 @@
 ## BLUF
 
 The book's gnuplot + matplotlib figures were replaced by ePiX
-(`tasks/replace-book-figures-with-epix.md`, done 2026-10-11). This task is the
+(`tasks/archive/2026/10/12/replace-book-figures-with-epix.md`, done 2026-10-12). This task is the
 **review + finish** pass: eyeball the 35 ported figures against the originals,
 decide the handful of open cosmetic/policy calls, and complete the doc/gate
 loose ends before the maintainer relies on it. "Done" = every item below is
@@ -18,7 +18,7 @@ figure-related warnings; these are quality/polish/verification items.
 
 ## Context
 
-- Work record + decisions: `tasks/replace-book-figures-with-epix.md` (Phases 1–5).
+- Work record + decisions: `tasks/archive/2026/10/12/replace-book-figures-with-epix.md`.
 - The 35 figure sources: `book/figures/epix/*.py` (driven by
   `tools/render_epix_figures.py` → `book/docs/_static/epix/<name>.{pdf,png}`).
 - **Side-by-side comparison images (generated during the port):**
@@ -94,6 +94,6 @@ figure-related warnings; these are quality/polish/verification items.
 ## Done-but-record
 
 The migration itself: `USE_EPIX` container layer, the renderer, the 35 figures
-(22 driving `mathutils`), the `.rst` rewiring (42 refs, codemod at
-`tasks/adhoc/replace-book-figures-with-epix/rewire_rst.py`), and the retirement of
-`plotsforbook/` + the gnuplot subtree. All staged; the maintainer commits.
+(22 driving `mathutils`), the `.rst` rewiring (42 refs, by a one-shot codemod
+removed at archive — see git history), and the retirement of `plotsforbook/` +
+the gnuplot subtree. All staged; the maintainer commits.

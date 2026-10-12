@@ -4,7 +4,7 @@
 comes to exist: the four figure toolchains, the custom `inlinetex` Sphinx
 extension, and the jupytext notebook pipeline. Not a task; update in place.
 Last updated 2026-10-12 (the math plots moved from gnuplot + matplotlib to
-**ePiX**; see `tasks/replace-book-figures-with-epix.md`).
+**ePiX**; see `tasks/archive/2026/10/12/replace-book-figures-with-epix.md`).
 
 Sibling of `tasks/reference/book-and-docs-pipeline.md`, which owns the Sphinx
 build sequence and the doc-region `literalinclude` mechanism. This doc owns
@@ -35,7 +35,7 @@ Mechanics worth knowing before touching any of it:
 
 - **The ePiX figures are a separate pipeline** (added 2026-10-11, replacing the
   gnuplot plots and the `generate_plots.py` matplotlib frames — see
-  `tasks/replace-book-figures-with-epix.md`). Each figure is one jupytext-percent
+  `tasks/archive/2026/10/12/replace-book-figures-with-epix.md`). Each figure is one jupytext-percent
   `.py` under `book/figures/epix/`, **one figure per file** (the renderer runs each
   in a fresh interpreter because `libepix` keeps global drawing state), every
   argument keyword-only. `render_epix_figures.py` writes `<name>.pdf` (via `elaps
