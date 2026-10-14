@@ -30,6 +30,7 @@ dnf upgrade -y || status=1
 
 dnf install -y \
     gcc-g++ \
+    git \
     glib \
     glib2-devel \
     glfw \

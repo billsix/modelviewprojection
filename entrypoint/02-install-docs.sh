@@ -15,7 +15,6 @@ dnf install -y \
     aspell-en \
     g++ \
     gcc \
-    git \
     graphviz \
     ImageMagick \
     inkscape \
