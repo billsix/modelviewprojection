@@ -65,7 +65,7 @@ split would be: **`make test`** = just the pytest gate; **`make docs`** = the do
 5. **Non-interactive spellcheck** — **DONE 2026-10-12** (Option A): `spellcheck` taken
    off the Sphinx catch-all; `tools/spellcheck.sh` does a headless `aspell list` reusing
    `mvp_dict.pws`. The doc build is now non-interactive. See
-   `tasks/non-interactive-spellcheck.md`. (A top-level containerized `make spellcheck`
+   `tasks/archive/2026/10/22/non-interactive-spellcheck.md`. (A top-level containerized `make spellcheck`
    target is still part of this template conformance — not yet added.)
 6. **`MINIMAL_IMAGE`** — flip `BUILD_DOCS`/`USE_EMACS`/`USE_JUPYTER`/`USE_X_WINDOWS`/`USE_EPIX` off for a lean test image (gacalc's idiom; mirror into the Dockerfile ARGs).
 7. **`check-format`** (= `make format` then `git diff --exit-code`) for CI parity.

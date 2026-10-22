@@ -36,7 +36,7 @@ GitHub Pages).
   `output/modelviewprojection/` → `dist/…/book-output/`, tars to
   `dist/modelviewprojection-<RELEASE_VERSION>.tar.gz`. `RELEASE_VERSION` defaults to
   `git describe --tags --always --dirty`; the workflow passes `${{ github.ref_name }}`.
-- **Governing principle** (from `tasks/github-actions-format-ci.md` / `github-actions-release-ci.md`): CI
+- **Governing principle** (from `tasks/archive/2026/10/22/github-actions-format-ci.md` / `github-actions-release-ci.md`): CI
   is a THIN wrapper over `make` — every buildable/bundling step is a local `make` target; only registry
   login and Release creation are YAML (they hit GitHub's API). Keep that split.
 - **No GitHub Pages deploy today.** `.github/workflows/` has only `checks.yml` + `release.yml`; the
@@ -98,7 +98,7 @@ GitHub Pages).
 ## Related
 
 - `tasks/github-actions-release-ci.md` — the release workflow this extends (Phase 2; needs testing).
-- `tasks/github-actions-format-ci.md` — Phase 1 (check-only CI) + the governing "CI is a thin wrapper"
+- `tasks/archive/2026/10/22/github-actions-format-ci.md` — Phase 1 (check-only CI) + the governing "CI is a thin wrapper"
   principle.
 - `tasks/consider-removing-nbsphinx.md` — adjacent book-tooling task (unrelated to release, noted for
   context on the book build).

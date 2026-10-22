@@ -57,7 +57,7 @@ it governs every container-template project (geometricalgebra, etc.), each rolle
 
 ## See also
 
-- `tasks/bake-source-into-pushed-image.md` — the work record for this change.
+- `tasks/archive/2026/10/22/bake-source-into-pushed-image.md` — the work record for this change.
 - `tasks/github-actions-release-ci.md` — the release workflow that pushes the (now source-bearing)
   image to ghcr.
 - `tasks/reference/book-and-docs-pipeline.md` — the book build a pulled image runs.

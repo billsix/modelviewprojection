@@ -7,7 +7,7 @@ testing").
 **Priority:** 5
 **Difficulty:** 5
 **Started:** 2026-09-17 (William Emerison Six <billsix@gmail.com>) — spawned from
-`tasks/github-actions-format-ci.md` (Phase 1) on its completion, per that task's plan.
+`tasks/archive/2026/10/22/github-actions-format-ci.md` (Phase 1) on its completion, per that task's plan.
 
 ## BLUF
 
@@ -117,6 +117,6 @@ to verify:
 
 ## See also
 
-- `tasks/github-actions-format-ci.md` — Phase 1 (format-check) + the governing principle.
+- `tasks/archive/2026/10/22/github-actions-format-ci.md` — Phase 1 (format-check) + the governing principle.
 - `github.com/billsix/geometricalgebra` › `tasks/github-actions-ci.md` — the sibling replication
   (a PyPI-published library, so its Phase 2 is PyPI-first).
