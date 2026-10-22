@@ -10,7 +10,11 @@ original uncatchable C-level SIGSEGV: a native crash inside whatever EXR decode 
 older image carried; the environment moved and the honest error surfaced. NEXT: maintainer
 decides the EXR backend (a real runtime dep — `imageio[pyav]` vs opencv vs converting the
 .exr assets); then re-run to see whether the GL path crashes at all, and remove the
-`_trace()` instrumentation once it runs.
+`_trace()` instrumentation once it runs. **DECIDED 2026-10-22 (William Emerison Six
+<billsix@gmail.com>): use the imageio EXR backend** — keep the assets as `.exr` and add the backend
+imageio needs to decode EXR (verify the exact one actually decodes EXR — likely freeimage /
+OpenImageIO rather than pyav); NOT opencv, NOT converting the assets. Then re-run the GL path and
+strip `_trace()`.
 **Priority:** 3
 **Difficulty:** 5
 

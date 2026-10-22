@@ -1,9 +1,17 @@
 # Bring mvp's Makefile/Dockerfile onto the standard container template
 
-**Status:** proposed — needs go-ahead
+**Status:** approved 2026-10-22 — **do all 3 remaining leftovers, then archive** (William Emerison Six <billsix@gmail.com>).
 **Priority:** 4
 **Difficulty:** 5
-**Created:** 2026-10-12 (William Emerison Six <billsix@gmail.com>)
+**Created:** 2026-10-12 **Updated:** 2026-10-22 (William Emerison Six <billsix@gmail.com>)
+
+> **DECISION 2026-10-22 (William Emerison Six <billsix@gmail.com>): approved — do all 3 leftovers, then archive.**
+> ⚠️ **The drift table below was measured on a stale branch.** On `master` today the substantive items
+> are ALREADY PRESENT — `make test`, `PODMAN_RUN_FLAGS`/`NESTED_PODMAN`, `CONTAINER_CMD` podman→docker
+> auto-detect, and the non-interactive `make book` all exist (verified 2026-10-22). The genuine remaining
+> work is only: (1) alias `html`→`docs`; (2) add the `MINIMAL_IMAGE` lean-image flag; (3) add a
+> `check-generated` target IF it applies (mvp has no code generator — confirm or skip as N/A).
+> **Re-measure against `master` before editing; don't redo work already done.**
 
 ## BLUF
 
