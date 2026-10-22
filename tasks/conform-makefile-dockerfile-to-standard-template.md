@@ -1,90 +1,56 @@
 # Bring mvp's Makefile/Dockerfile onto the standard container template
 
-**Status:** approved 2026-10-22 — **do all 3 remaining leftovers, then archive** (William Emerison Six <billsix@gmail.com>).
+**Status:** done — 2026-10-22 (William Emerison Six <billsix@gmail.com>).
 **Priority:** 4
 **Difficulty:** 5
 **Created:** 2026-10-12 **Updated:** 2026-10-22 (William Emerison Six <billsix@gmail.com>)
 
-> **DECISION 2026-10-22 (William Emerison Six <billsix@gmail.com>): approved — do all 3 leftovers, then archive.**
-> ⚠️ **The drift table below was measured on a stale branch.** On `master` today the substantive items
-> are ALREADY PRESENT — `make test`, `PODMAN_RUN_FLAGS`/`NESTED_PODMAN`, `CONTAINER_CMD` podman→docker
-> auto-detect, and the non-interactive `make book` all exist (verified 2026-10-22). The genuine remaining
-> work is only: (1) alias `html`→`docs`; (2) add the `MINIMAL_IMAGE` lean-image flag; (3) add a
-> `check-generated` target IF it applies (mvp has no code generator — confirm or skip as N/A).
-> **Re-measure against `master` before editing; don't redo work already done.**
+## What this was
 
-## BLUF
+mvp's `Makefile`/`Dockerfile` had drifted from the standard container template that
+gacalc and epix-mirror follow. The drift was first measured 2026-10-11 during the ePiX
+figure migration, when every nested `podman run` needed a hand-added `--cgroups=disabled`
+and the real doc build could not run headless (an interactive aspell gate).
 
-mvp's `Makefile`/`Dockerfile` have **drifted from the standard container template** that
-gacalc and epix-mirror now follow (epix-mirror was "brought onto the standard template"
-2026-10-06). This task closes the gaps: add the standard **`make test`** and **`make docs`**
-targets, nested-podman support (**`NESTED_PODMAN`/`PODMAN_RUN_FLAGS`**), a lean-image
-flag (**`MINIMAL_IMAGE`**), `CONTAINER_CMD` auto-detect, and the `check-*` targets; and
-make the doc build **non-interactive** (the current `spellcheck` prereq needs a TTY).
-"Done" = a fresh checkout can run `make test` and `make docs` headless (e.g. in CI or a
-nested sandbox) without manual `--cgroups=disabled` or an interactive prompt. Surfaced
-2026-10-11 during the ePiX figure migration, where every containerized run needed a
-hand-added `--cgroups=disabled` and the real `make html` could not be run headless.
+Most of the drift closed before this task reached its final step: by 2026-10-22 `master`
+already had `make test`, `PODMAN_RUN_FLAGS`/`NESTED_PODMAN`, `CONTAINER_CMD` podman→docker
+auto-detect, `check-format`, `type-check`, and a non-interactive book build. The original
+drift table in git history was measured on a stale branch and was re-measured against
+`master` before editing (per the 2026-10-22 decision), so none of that was redone.
 
-## Context — the drift (measured 2026-10-11)
+## What was done (the three genuine leftovers)
 
-Targets, mvp vs. the template (gacalc):
+Work commit `6189c16e`:
 
-| | template (gacalc / epix-mirror) | mvp today |
-|---|---|---|
-| docs | `make docs` | `make html` (non-standard name) |
-| tests | `make test` (standalone) | **none** — pytest only runs buried inside `make html`'s `entrypoint.sh` |
-| nested podman | `NESTED_PODMAN=1` → `PODMAN_RUN_FLAGS = --cgroups=disabled` on every `run` | **none** — nested runs fail without a hand-added flag |
-| lean image | `MINIMAL_IMAGE=1` flips feature flags off | **none** |
-| container cmd | `CONTAINER_CMD` auto-detects podman→docker | hardcoded `podman` |
-| check targets | `check-format`, `check-generated`, `check-regions` | only `check-regions` |
+1. **`MINIMAL_IMAGE`** — the five optional-feature flags (`BUILD_DOCS`, `USE_EMACS`,
+   `USE_JUPYTER`, `USE_X_WINDOWS`, `USE_EPIX`) now use the standard idiom
+   `?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)`: full by default (host or nested), lean
+   only on `make image MINIMAL_IMAGE=1`. `USE_SPYDER` stays `?= 0`. The Dockerfile ARGs
+   already existed (default 0) and the Makefile already passed each as `--build-arg`, so
+   no Dockerfile change was needed. **Verified**: the lean image (3.87 GB) builds nested
+   and passes the full `make test` gate (112 passed) — glfw/pyopengl live in the base
+   group + `requirements.txt`, and the headless pytest imports/doctests need none of the
+   X11/Wayland client libs that `USE_X_WINDOWS=0` drops.
 
-mvp's current targets: `all check-regions clean format help html image image-export
-image-import jupyter shell update-emacs-packages`.
+2. **`docs` target name** — `docs` is now the canonical, non-interactive doc build
+   (standard template name), writing the book's `version.txt` commit stamp; `html` and
+   `book` are aliases of it. `html` dropped its `-it`, which existed only for the old
+   interactive aspell gate (spellcheck has been headless since 2026-10-12,
+   `tasks/archive/2026/10/22/non-interactive-spellcheck.md`). `release-tarball` keeps
+   working through the `book` alias and now also gets the version stamp.
 
-**Two concrete pains this caused during the figure migration:**
-1. Every `podman run` for rendering/building had to be issued by hand with
-   `--cgroups=disabled` because the Makefile has no `NESTED_PODMAN`/`PODMAN_RUN_FLAGS`.
-2. The real build could not be run headless: `make html` → `entrypoint.sh` → `make`
-   (Sphinx catch-all) has a **`spellcheck` prerequisite that runs `aspell` interactively**
-   (`book/docs/Makefile:20`), which dies "Stdin not a terminal" without a TTY and prompts
-   the maintainer per-misspelling with one. A `make docs` should be non-interactive;
-   move spellcheck to its own target (e.g. `make spellcheck`) or an `aspell list`-based
-   non-interactive check.
+3. **`check-generated`** — **N/A**. mvp has no code generator (no `generate` target, no
+   `tools/` generator), so no determinism gate is added. Confirmed, not skipped blindly.
 
-## What the build actually is now (so a redesign preserves it)
+Doc deltas shipped in the same commit: `README.md` quick-start uses `make docs` and notes
+`MINIMAL_IMAGE`; `tasks/reference/book-and-docs-pipeline.md` corrected in the three places
+that still claimed `-it` was required for an interactive aspell gate.
 
-`make html` (top Makefile) does `podman run -it … $(CONTAINER_NAME)` → the default
-`ENTRYPOINT` is `entrypoint/entrypoint.sh`, which runs, in order: `pytest --exitfirst`;
-jupytext (3 notebook sources → `.ipynb`); editable install; **`render_epix_figures.py`**
-(the book's ePiX figures, added 2026-10-11); copy gacalc docs-source; `check_doc_regions.py`;
-then `cd book/docs && make html && make latexpdf && make epub`; copy to `/output`.
+## Left for the maintainer (optional, non-blocking)
 
-So `make html` is really "run the tests, then build all three doc formats." The template
-split would be: **`make test`** = just the pytest gate; **`make docs`** = the doc build
-(figures + Sphinx html/latexpdf/epub), non-interactive.
-
-## Proposed steps
-
-1. **`PODMAN_RUN_FLAGS`/`NESTED_PODMAN`:** add `PODMAN_RUN_FLAGS ?= $(if $(filter 1,$(NESTED_PODMAN)),--cgroups=disabled)` and append `$(PODMAN_RUN_FLAGS)` to every `podman run`. Copy gacalc's form verbatim.
-2. **`CONTAINER_CMD`** auto-detect podman→docker (gacalc's form).
-3. **`make test`** — a minimal headless `podman run … --entrypoint /bin/bash … -c 'loadpackages.sh && pytest …'` (like gacalc's `test`), `: image` prereq.
-4. **`make docs`** — the doc build, non-interactive; keep `make html` as an alias or retire it. Split `entrypoint.sh` so the test gate and the doc build are separately invokable.
-5. **Non-interactive spellcheck** — **DONE 2026-10-12** (Option A): `spellcheck` taken
-   off the Sphinx catch-all; `tools/spellcheck.sh` does a headless `aspell list` reusing
-   `mvp_dict.pws`. The doc build is now non-interactive. See
-   `tasks/archive/2026/10/22/non-interactive-spellcheck.md`. (A top-level containerized `make spellcheck`
-   target is still part of this template conformance — not yet added.)
-6. **`MINIMAL_IMAGE`** — flip `BUILD_DOCS`/`USE_EMACS`/`USE_JUPYTER`/`USE_X_WINDOWS`/`USE_EPIX` off for a lean test image (gacalc's idiom; mirror into the Dockerfile ARGs).
-7. **`check-format`** (= `make format` then `git diff --exit-code`) for CI parity.
-8. Update `.github/workflows/*` to call the new `make` targets; update `README`/`CLAUDE.md`.
-
-## Notes / open questions
-
-1. mvp is a private app+book (not published), so the template's `dist`/`upload`/`release`
-   targets are **N/A** — skip them (unlike gacalc). Confirm.
-2. The interactive spellcheck is long-standing; confirm moving it out of the build path is
-   wanted (the maintainer may rely on the per-build prompt). Recommend: `make spellcheck`
-   as a separate, opt-in target.
-3. Not blocking the ePiX figure migration — that build works once the unrelated
-   `shading.py` doctest is fixed (done 2026-10-11). This is pure conformance/ergonomics.
+- Several reference docs still mention `make html` in passing (`tests-and-gates.md`,
+  `glossary-authoring.md`, `notebook-sphinx-integration.md`, `architecture-overview.md`).
+  These are **not wrong** — `make html` still works as an alias — so they were left as-is
+  to avoid churn. Repoint them to `make docs` whenever those docs are next touched.
+- Historical task-record bullets in `tasks/reference/design-decisions.md` that say
+  "make html … resolved" describe past runs and were deliberately **not** rewritten.
