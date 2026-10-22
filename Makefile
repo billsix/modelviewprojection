@@ -1,16 +1,22 @@
 .DEFAULT_GOAL := shell
 
-# Modify these to 0 if you want a quicker build and don't
-# need the features
-BUILD_DOCS ?= 1
-USE_EMACS ?= 1
-USE_JUPYTER ?= 1
+# Optional-feature flags: full by default (host OR nested), lean only when
+# `make image MINIMAL_IMAGE=1` (a small export/airgap/CI image).  MINIMAL_IMAGE is
+# build CONTENT and is independent of NESTED_PODMAN (run capability); the sandbox
+# does NOT export it, so a plain nested `make image` still builds the FULL image.
+# The pytest gate (`make test`) needs none of these -- glfw/pyopengl live in the
+# base group + requirements.txt, so a lean image still runs the full test gate.
+# Override any individually: `make image MINIMAL_IMAGE=1 BUILD_DOCS=1`.  Convention:
+# runClaudeInContainer tasks/reference/minimal-nested-images.md.
+BUILD_DOCS ?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)
+USE_EMACS ?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)
+USE_JUPYTER ?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)
 USE_SPYDER ?= 0
-USE_X_WINDOWS ?= 1
+USE_X_WINDOWS ?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)
 # ePiX (the book's LaTeX-native figure toolchain) built from source into the
 # image.  Default on; Dockerfile default is 0, so this build-arg is what turns it
 # on.  See tasks/replace-book-figures-with-epix.md.
-USE_EPIX ?= 1
+USE_EPIX ?= $(if $(filter 1,$(MINIMAL_IMAGE)),0,1)
 
 CONTAINER_CMD ?= $(shell command -v podman >/dev/null 2>&1 && echo podman || echo docker)
 CONTAINER_NAME = modelviewprojection
@@ -269,12 +275,22 @@ update-emacs-packages: ## USE_EMACS=1: rebuild image, wipe+reinstall elpa, strip
 	@echo "Done: reinstalled packages, stripped *.elc/*.eln, staged elpa -- review and commit."
 
 
-html: image ## Build the html from the sphinx source
+# The standard doc build (template name `docs`).  Writes the commit stamp the book
+# embeds (book/docs/version.txt, gitignored, included by intro.rst), then runs the
+# image's default ENTRYPOINT (entrypoint.sh) NON-INTERACTIVELY: it runs the tests,
+# then builds all three book forms (HTML/PDF/EPUB) into ./output/.  Headless, so it
+# runs in CI or a nested sandbox with no TTY.  `html`/`book` are kept as aliases
+# (the former was interactive `-it`; the latter was a second headless copy).
+.PHONY: docs
+docs: image ## (container) build the book (HTML+PDF+EPUB) into ./output/ -- non-interactive
 	printf "This documentation was generated from from commit " > book/docs/version.txt
 	git rev-parse HEAD >> book/docs/version.txt
-	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) -it --rm  \
+	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) --rm  \
                 $(FILES_TO_MOUNT) \
                 $(CONTAINER_NAME)
+
+.PHONY: html
+html: docs ## alias for `docs` (legacy name)
 
 
 .PHONY: image-export
@@ -293,15 +309,11 @@ RELEASE_VERSION ?= $(shell git describe --tags --always --dirty)
 DIST_DIR ?= dist
 IMAGE_REF ?= ghcr.io/billsix/$(CONTAINER_NAME)
 
-# Non-interactive book build (the `html` target above uses -it, unusable in CI).
-# Runs the image's default entrypoint, which runs the tests, then builds the
-# three book forms (HTML/PDF/EPUB) into ./output/modelviewprojection/.  Needs a
-# BUILD_DOCS=1 image (the default).
+# `book` is kept as an alias of `docs` (the standard name) so release-tarball's
+# prerequisite and any existing muscle memory keep working.  release-tarball now
+# gets the commit stamp too, since `docs` writes version.txt.
 .PHONY: book
-book: image ## (container) build the book (HTML+PDF+EPUB) into ./output/ -- non-interactive
-	$(CONTAINER_CMD) run $(PODMAN_RUN_FLAGS) --rm \
-		$(FILES_TO_MOUNT) \
-		$(CONTAINER_NAME)
+book: docs ## alias for `docs` (legacy name; release-tarball depends on it)
 
 # Bundle the tracked source (git archive) + the built book into one tarball, both
 # under a versioned prefix.  Depends on `book`, so the artifacts exist first.

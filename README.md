@@ -112,8 +112,12 @@ The book builds in a podman container:
 
 ```sh
 make image     # build the container (Sphinx + TeX Live)
-make html      # build the book (HTML/PDF/EPUB land under output/)
+make docs      # build the book (HTML/PDF/EPUB land under output/)
 ```
+
+`make html` and `make book` are aliases of `make docs`. For a smaller image that
+still runs the test/format gate (no docs/TeX/Emacs/Jupyter/X/ePiX), build with
+`make image MINIMAL_IMAGE=1`.
 
 Contributing
 ------------
