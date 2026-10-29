@@ -1,6 +1,6 @@
 # Parameterize bare generic type annotations
 
-**Status:** in progress. **Priority:** 5  **Difficulty:** 2
+**Status:** done (2026-10-29). **Priority:** 5  **Difficulty:** 2
 
 ## BLUF
 
@@ -23,7 +23,8 @@ no parameter):
   bands/rings `list[tuple[float, ...]]` / `list[list[tuple[float, ...]]]`; demo24
   vertices the exact `(pos, normal, uv)` type `vert()` already returns; `cayley`
   adjacency `Dict[N, list[N]]` / `Dict[N, tuple[N, ...]]`; `factorial`'s callback
-  `Callable[[int], int]`.
+  `Callable[..., int]` (the test passes `factorial` to itself, a 2-arg function —
+  `Callable[[int], int]` would be wrong).
 - **`Any`-parameterized where the literal is genuinely heterogeneous / deeply
   nested** — the demo/port geometry tables (`PLANETS`, `faces`, `triangles`,
   `_JET_TRIS`, `walls`, …) are `list[tuple[Any, ...]]`; `pixels`/`frames`/
