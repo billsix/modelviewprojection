@@ -43,6 +43,7 @@ import os
 import pathlib
 import runpy
 import sys
+from typing import Any
 
 import glfw
 import OpenGL.GL as GL
@@ -84,7 +85,7 @@ if os.environ.get("MVP_GLFW_X11"):
 
 _real_swap = glfw.swap_buffers
 _real_flush = GL.glFlush
-state: dict = {"frames": 0, "swaps": 0, "image": None}
+state: dict[str, Any] = {"frames": 0, "swaps": 0, "image": None}
 
 
 def _end_frame(window) -> None:
@@ -122,7 +123,7 @@ glfw.swap_buffers = _probing_swap
 GL.glFlush = _probing_flush
 glfw.window_should_close = lambda window: state["frames"] >= args.frames
 
-globals_after: dict = runpy.run_path(args.script, run_name="__main__")
+globals_after: dict[str, Any] = runpy.run_path(args.script, run_name="__main__")
 
 print(f"{args.script}: {state['frames']} frame(s)")
 

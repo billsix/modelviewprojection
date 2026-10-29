@@ -46,6 +46,7 @@
 #   A / D                  -- pitch the pyramid
 #   ESC                    -- quit
 
+from typing import Any
 import ctypes
 import dataclasses
 import math
@@ -281,7 +282,7 @@ def _build_pyramid() -> np.ndarray:
     # base normal points down, two triangles cover the square.  uv
     # tiles the stone texture once across the base.
     base_n: tuple[float, float, float] = (0.0, -1.0, 0.0)
-    triangles: list = [
+    triangles: list[tuple[Any, ...]] = [
         # base (CCW from below, so normal faces -Y)
         (corners[2], corners[4], corners[1], base_n, [(1, 1), (0, 0), (0, 1)]),
         (corners[2], corners[3], corners[4], base_n, [(1, 1), (1, 0), (0, 0)]),
@@ -461,8 +462,8 @@ marker_bulb_vao, marker_bulb_vbo, marker_bulb_count = make_vao(
     _build_marker_sphere(radius=0.07, slices=14, stacks=8)
 )
 LIGHT_MARKER_DISTANCE: float = 1.4  # how far from origin the marker sits
-LIGHT_MARKER_CONE_COLOR: tuple = (0.85, 0.15, 0.15)  # red, like spot.cpp
-LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)  # yellow
+LIGHT_MARKER_CONE_COLOR: tuple[float, float, float] = (0.85, 0.15, 0.15)  # red, like spot.cpp
+LIGHT_MARKER_BULB_COLOR: tuple[float, float, float] = (1.00, 1.00, 0.00)  # yellow
 
 
 # ---------------------------------------------------------------------------

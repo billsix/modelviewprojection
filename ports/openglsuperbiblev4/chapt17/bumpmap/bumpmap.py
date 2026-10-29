@@ -13,6 +13,7 @@
 # OpenGL SuperBible, Chapter 17
 # Python port of bumpmap.cpp by Benjamin Lipchak
 
+from typing import Any
 import math
 import os
 import sys
@@ -256,7 +257,7 @@ def draw_torus(
 
 def draw_box(size: float, tex_scale: float) -> None:
     s: float = size * 0.5
-    faces: list = [
+    faces: list[tuple[Any, ...]] = [
         (
             (1, 0, 0),
             (0, 1, 0),

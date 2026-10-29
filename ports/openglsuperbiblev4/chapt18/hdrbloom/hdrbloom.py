@@ -66,8 +66,8 @@ stop_point_names: list[str] = [
 which_stop_point: int = FULL_SCENE
 after_glow_valid: bool = False
 
-texture_id: list = [0] * 7
-framebuffer_id: list = [0] * 5
+texture_id: list[int] = [0] * 7
+framebuffer_id: list[int] = [0] * 5
 renderbuffer_id: int = 0
 pbo_id: int = 0
 max_tex_size: int = 0

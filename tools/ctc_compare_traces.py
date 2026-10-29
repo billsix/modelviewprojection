@@ -21,6 +21,7 @@ import argparse
 import ast
 from collections.abc import Iterator
 from pathlib import Path
+from typing import Any
 
 ap = argparse.ArgumentParser()
 ap.add_argument("base")
@@ -33,7 +34,7 @@ IGNORE = set(filter(None, args.ignore.split(",")))
 OPAQUE = set(filter(None, args.opaque.split(",")))
 
 
-def load(path: str) -> list:
+def load(path: str) -> list[Any]:
     return [
         ast.literal_eval(line.split(" ", 1)[1]) for line in Path(path).open()
     ]

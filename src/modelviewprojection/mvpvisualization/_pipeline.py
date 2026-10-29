@@ -558,7 +558,7 @@ def build_ground_cylinders(
     ``build_ground_vertices()`` with the 82 visually-unique edges (41
     along each axis)."""
     n: int = int(extent / step)
-    edges: list = []
+    edges: list[tuple[tuple[float, float, float], tuple[float, float, float]]] = []
     for i in range(-n, n + 1):
         coord: float = i * step
         # horizontal line at z = coord, x spanning [-extent, extent]
@@ -684,7 +684,7 @@ def _cross_arrays(a: np.ndarray, b: np.ndarray) -> np.ndarray:
 
 
 def build_cylinders_for_edges(
-    edges: list,
+    edges: list[tuple[tuple[float, float, float], tuple[float, float, float]]],
     radius: float = 0.05,
     slices: int = 20,
 ) -> ndarray:
@@ -756,7 +756,7 @@ def build_ndc_cube_cylinders(radius: float = 0.05, slices: int = 20) -> ndarray:
     """Solid cylinder mesh for the 12 edges of the NDC cube.  Replacement
     for ``build_ndc_cube_vertices()`` when rendering the NDC outline as
     solid white tubes instead of thick lines."""
-    edges: list = [
+    edges: list[tuple[tuple[float, float, float], tuple[float, float, float]]] = [
         # back square (z = -1)
         ((-1.0, -1.0, -1.0), (1.0, -1.0, -1.0)),
         ((1.0, -1.0, -1.0), (1.0, 1.0, -1.0)),

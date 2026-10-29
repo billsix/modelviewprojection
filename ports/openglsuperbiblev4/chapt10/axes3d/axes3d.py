@@ -40,12 +40,12 @@ AXIS_SLICES: int = 20
 
 def _build_cylinder_rings(
     base_radius: float, top_radius: float, height: float, slices: int
-) -> list:
+) -> list[list[tuple[float, ...]]]:
     """Precompute the cylinder side surface's per-segment rings. The original
     gluCylinder replacement emits ONE normal shared by each segment's base+top
     vertex pair, which neither draw_mesh mode expresses, so _draw_cylinder
     replays these directly. The trig still runs only once, here."""
-    rings: list = []
+    rings: list[list[tuple[float, ...]]] = []
     for i in range(slices + 1):
         a: float = 2.0 * math.pi * float(i) / slices
         c, s = math.cos(a), math.sin(a)
@@ -72,7 +72,7 @@ def _draw_cylinder() -> None:
 def _build_cone_disk(radius: float, slices: int) -> "_primitives.Mesh":
     """The cone's base cap: a -Z-facing GL_TRIANGLE_FAN wound in reverse, one
     flat normal for the whole fan (replay with draw_mesh(flat=True))."""
-    band: list = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
+    band: list[tuple[float, ...]] = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
     for i in range(slices, -1, -1):
         a: float = 2.0 * math.pi * float(i) / slices
         band.append(
@@ -90,7 +90,7 @@ def _build_cone_disk(radius: float, slices: int) -> "_primitives.Mesh":
     return (GL.GL_TRIANGLE_FAN, [band])
 
 
-CYLINDER_RINGS: list = _build_cylinder_rings(
+CYLINDER_RINGS: list[list[tuple[float, ...]]] = _build_cylinder_rings(
     ROD_RADIUS, ROD_RADIUS, ROD_LENGTH, AXIS_SLICES
 )
 CONE_BODY: _primitives.Mesh = _primitives.build_cone(

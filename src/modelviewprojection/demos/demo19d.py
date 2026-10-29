@@ -33,6 +33,7 @@
 # forward/back -- standard walk-around camera shared with the other
 # 3D demos.
 
+from typing import Any
 import dataclasses
 import math
 import sys
@@ -106,7 +107,7 @@ def handle_inputs() -> None:
 
 # Each planet:  (color, orbit_radius, orbit_speed, planet_radius, moons)
 # Each moon:    (color, orbit_radius, orbit_speed, moon_radius)
-PLANETS: list = [
+PLANETS: list[tuple[Any, ...]] = [
     (
         (0.6, 0.9, 1.0),  # mercury-ish
         12.0,

@@ -46,7 +46,7 @@ low_light: list[float] = [0.25, 0.25, 0.25, 1.0]
 bright_light: list[float] = [1.0, 1.0, 1.0, 1.0]
 
 texture_objects: list[int] = [0, 0, 0]
-sphere_positions: list = []
+sphere_positions: list[tuple[float, float]] = []
 shadow_matrix: np.ndarray = np.identity(4, dtype=np.float32)
 torus_list: int = 0
 sphere_list: int = 0
