@@ -291,22 +291,22 @@ def _build_sphere(radius: float, slices: int, stacks: int) -> np.ndarray:
 
             # Four corners of this latitude/longitude quad.  Normal
             # equals the unit-radius position (it's a sphere).
-            p00: tuple = (
+            p00: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = (
                 (cphi0 * st0, sphi0, cphi0 * ct0),
                 (cphi0 * st0, sphi0, cphi0 * ct0),
                 (u0, v0),
             )
-            p10: tuple = (
+            p10: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = (
                 (cphi0 * st1, sphi0, cphi0 * ct1),
                 (cphi0 * st1, sphi0, cphi0 * ct1),
                 (u1, v0),
             )
-            p01: tuple = (
+            p01: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = (
                 (cphi1 * st0, sphi1, cphi1 * ct0),
                 (cphi1 * st0, sphi1, cphi1 * ct0),
                 (u0, v1),
             )
-            p11: tuple = (
+            p11: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = (
                 (cphi1 * st1, sphi1, cphi1 * ct1),
                 (cphi1 * st1, sphi1, cphi1 * ct1),
                 (u1, v1),
@@ -358,10 +358,10 @@ def _build_torus(
                 nrm: tuple[float, float, float] = (cv * cu, sv, cv * su)
                 return (pos, nrm, (us, vs))
 
-            p00: tuple = vert(cu0, su0, cv0, sv0, i / sides, j / rings)
-            p01: tuple = vert(cu0, su0, cv1, sv1, i / sides, (j + 1) / rings)
-            p10: tuple = vert(cu1, su1, cv0, sv0, (i + 1) / sides, j / rings)
-            p11: tuple = vert(
+            p00: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = vert(cu0, su0, cv0, sv0, i / sides, j / rings)
+            p01: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = vert(cu0, su0, cv1, sv1, i / sides, (j + 1) / rings)
+            p10: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = vert(cu1, su1, cv0, sv0, (i + 1) / sides, j / rings)
+            p11: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = vert(
                 cu1, su1, cv1, sv1, (i + 1) / sides, (j + 1) / rings
             )
 
@@ -392,10 +392,10 @@ def _build_ground(
             t0: float = j * tex_step
             t1: float = t0 + tex_step
 
-            p00: tuple = ((x0, y, z0), (0.0, 1.0, 0.0), (s0, t0))
-            p10: tuple = ((x1, y, z0), (0.0, 1.0, 0.0), (s1, t0))
-            p01: tuple = ((x0, y, z1), (0.0, 1.0, 0.0), (s0, t1))
-            p11: tuple = ((x1, y, z1), (0.0, 1.0, 0.0), (s1, t1))
+            p00: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = ((x0, y, z0), (0.0, 1.0, 0.0), (s0, t0))
+            p10: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = ((x1, y, z0), (0.0, 1.0, 0.0), (s1, t0))
+            p01: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = ((x0, y, z1), (0.0, 1.0, 0.0), (s0, t1))
+            p11: tuple[tuple[float, float, float], tuple[float, float, float], tuple[float, float]] = ((x1, y, z1), (0.0, 1.0, 0.0), (s1, t1))
 
             for v in (p00, p01, p10, p10, p01, p11):
                 pos, nrm, uv = v

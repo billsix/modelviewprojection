@@ -710,7 +710,7 @@ def _volume_edges(
         ((fl, fb, n), (bl, bb, fa)),
         ((frr, fb, n), (brr, bb, fa)),
     ]
-    verts: list = []
+    verts: list[float] = []
     for p0, p1 in edges:
         verts += [float(p0[0]), float(p0[1]), float(p0[2])]
         verts += [float(p1[0]), float(p1[1]), float(p1[2])]

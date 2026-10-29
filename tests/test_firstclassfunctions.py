@@ -25,7 +25,7 @@ def test_first_class_functions() -> None:
     def doubler(x: int) -> int:
         return x * 2
 
-    def add_five_to_result_of(f: typing.Callable[[int], int], x: int) -> int:
+    def add_five_to_result_of(f: typing.Callable[..., int], x: int) -> int:
         return 5 + f(x)
 
     assert 11 == add_five_to_result_of(doubler, 3)
@@ -35,7 +35,7 @@ def test_first_class_functions() -> None:
 
 # doc-region-begin test factorial no recursion
 def test_factorial_no_recursion() -> None:
-    def factorial(n: int, f: typing.Callable) -> int:
+    def factorial(n: int, f: typing.Callable[..., int]) -> int:
         if n == 1:
             return 1
         else:

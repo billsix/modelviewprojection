@@ -45,6 +45,7 @@
 #   A / D                  -- pitch the jet
 #   ESC                    -- quit
 
+from typing import Any
 import ctypes
 import dataclasses
 import math
@@ -228,7 +229,7 @@ _MESH_SCALE: float = 1.0 / 50.0
 
 # (a, b, c, normal_or_None).  Order and orientation match litjet.cpp
 # exactly; CCW from outside the jet so GL_BACK culling works.
-_JET_TRIS: list = [
+_JET_TRIS: list[tuple[Any, ...]] = [
     # Nose cone -- bottom flat triangle, then two slanted sides.
     ((0.0, 0.0, 60.0), (-15.0, 0.0, 30.0), (15.0, 0.0, 30.0), (0.0, -1.0, 0.0)),
     ((15.0, 0.0, 30.0), (0.0, 15.0, 30.0), (0.0, 0.0, 60.0), None),
@@ -372,8 +373,8 @@ marker_bulb_vao, marker_bulb_vbo, marker_bulb_count = make_vao(
     _build_marker_sphere(radius=0.10, slices=14, stacks=8)
 )
 LIGHT_MARKER_DISTANCE: float = 2.0
-LIGHT_MARKER_CONE_COLOR: tuple = (0.85, 0.15, 0.15)
-LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)
+LIGHT_MARKER_CONE_COLOR: tuple[float, float, float] = (0.85, 0.15, 0.15)
+LIGHT_MARKER_BULB_COLOR: tuple[float, float, float] = (1.00, 1.00, 0.00)
 
 
 # ---------------------------------------------------------------------------

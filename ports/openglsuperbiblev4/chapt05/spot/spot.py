@@ -55,13 +55,13 @@ def _build_slant_cone(
     slope: float = base / height if height != 0 else 0.0
     mag: float = math.sqrt(1.0 + slope * slope)
     nz: float = slope / mag
-    bands: list = []
+    bands: list[list[tuple[float, ...]]] = []
     for i in range(stacks):
         z0: float = float(i) / stacks * height
         z1: float = float(i + 1) / stacks * height
         r0: float = base * (1.0 - float(i) / stacks)
         r1: float = base * (1.0 - float(i + 1) / stacks)
-        band: list = []
+        band: list[tuple[float, ...]] = []
         for j in range(slices + 1):
             lng: float = 2.0 * math.pi * float(j) / slices
             cl, sl = math.cos(lng), math.sin(lng)
@@ -75,7 +75,7 @@ def _build_slant_cone(
 def _build_cone_cap(base: float, slices: int) -> "_primitives.Mesh":
     """Cone base cap at z=0 facing -Z, wound (cos, -sin) so it's CCW from -Z;
     one flat normal for the whole fan -- replay with draw_mesh(flat=True)."""
-    band: list = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
+    band: list[tuple[float, ...]] = [(0.0, 0.0, -1.0, 0.0, 0.0, 0.0, 0.0, 0.0)]
     for j in range(slices + 1):
         lng: float = 2.0 * math.pi * float(j) / slices
         band.append(

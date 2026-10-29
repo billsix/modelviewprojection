@@ -36,7 +36,7 @@ from .context import Context
 from .input import keyboard
 
 
-def _select_renderer() -> tuple[type, bool]:
+def _select_renderer() -> tuple[type[Any], bool]:
     """Pick the renderer backend (and whether it needs a legacy GL context).
 
     Reads ``PGZERO_GL``; default = modern 3.3 core + shaders. Returns

@@ -49,6 +49,7 @@
 
 # %%
 import warnings
+from typing import Any
 
 import IPython.display
 import matplotlib
@@ -194,7 +195,7 @@ fake_fb.draw_filled_triangle(*triangle_in_screen, color=(255, 255, 255))
 fake_fb.show_framebuffer()
 
 # %%
-frames: list = []
+frames: list[Any] = []
 
 sixty_fps_times_2_sec: int = 120
 

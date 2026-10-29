@@ -13,6 +13,7 @@
 # OpenGL SuperBible, Chapter 18
 # Python port of fboenvmap.cpp by Benjamin Lipchak
 
+from typing import Any
 import os
 import sys
 import time
@@ -104,7 +105,7 @@ def draw_models(draw_center: bool) -> None:
     GL.glEnd()
 
     GL.glEnable(GL.GL_TEXTURE_2D)
-    walls: list = [
+    walls: list[tuple[Any, ...]] = [
         (
             wall_texture_id[0],
             (1.0, 0.0, 0.0),

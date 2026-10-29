@@ -12,6 +12,7 @@
 # OpenGL SuperBible, Chapter 18
 # Python port of fbodrawbuffers.cpp by Benjamin Lipchak
 
+from typing import Any
 import os
 import sys
 import typing
@@ -119,7 +120,7 @@ def draw_models(_draw_teapot: bool) -> None:
     GL.glEnd()
 
     GL.glEnable(GL.GL_TEXTURE_2D)
-    walls: list = [
+    walls: list[tuple[Any, ...]] = [
         (
             wall_texture_id[0],
             (1.0, 0.0, 0.0),

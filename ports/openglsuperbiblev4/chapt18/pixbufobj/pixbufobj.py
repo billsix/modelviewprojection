@@ -12,6 +12,7 @@
 # OpenGL SuperBible, Chapter 18
 # Python port of pixbufobj.cpp by Benjamin Lipchak
 
+from typing import Any
 import ctypes
 import os
 import sys
@@ -43,12 +44,12 @@ data_offset_y: int = 0
 use_pbos: bool = False
 use_motion_blur: bool = True
 
-pixels: list = [
+pixels: list[Any] = [
     None,
     None,
     None,
 ]  # numpy arrays in client mode, None when on GPU
-frame_good: list = [False, False, False]
+frame_good: list[bool] = [False, False, False]
 current_frame: int = 0
 angle_increment: float = 1.0
 usage_hint: int = GL.GL_STREAM_COPY
@@ -56,7 +57,7 @@ usage_hint: int = GL.GL_STREAM_COPY
 # previously bound the pixel-pack buffers by the literal names 1/2/3 WITHOUT
 # ever calling glGenBuffers, which is what tripped glReadPixels with
 # GL_INVALID_OPERATION (1282) on Mesa. Use real generated ids instead.
-pbo_ids: list = []
+pbo_ids: list[int] = []
 
 
 def _check_gl(label: str) -> None:

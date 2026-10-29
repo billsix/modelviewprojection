@@ -70,6 +70,7 @@
 #   UP / DOWN              -- walk forward / backward (camera relative)
 #   ESC                    -- quit
 
+from typing import Any
 import ctypes
 import dataclasses
 import math
@@ -932,7 +933,7 @@ def _build_cube_solid() -> np.ndarray:
     s: float = 25.0
     # for each face: 4 corner positions (CCW from outside), then a single
     # outward normal, then the corresponding 4 uv coords.
-    faces: list = [
+    faces: list[tuple[Any, ...]] = [
         # +Z
         (
             [(-s, -s, +s), (+s, -s, +s), (+s, +s, +s), (-s, +s, +s)],
@@ -1129,8 +1130,8 @@ marker_bulb_vao, marker_bulb_vbo, marker_bulb_count = _make_interleaved_mesh(
 # purely a visual cue (helps students see "the light is over there"
 # without changing what the floor and cube actually receive).
 light_radius: float = 55.0
-LIGHT_MARKER_CONE_COLOR: tuple = (0.85, 0.15, 0.15)
-LIGHT_MARKER_BULB_COLOR: tuple = (1.00, 1.00, 0.00)
+LIGHT_MARKER_CONE_COLOR: tuple[float, float, float] = (0.85, 0.15, 0.15)
+LIGHT_MARKER_BULB_COLOR: tuple[float, float, float] = (1.00, 1.00, 0.00)
 
 
 # ---------------------------------------------------------------------------
@@ -1310,7 +1311,7 @@ def draw_cube(stage: int) -> None:
             # share a texture, so the cube looks like a wooden block from
             # any angle.  Face vertex offsets in the solid VAO are 6
             # apart in the order:  +Z, -Z, +Y, -Y, +X, -X.
-            faces_to_draw: list = [
+            faces_to_draw: list[tuple[Any, ...]] = [
                 (tex_block_front, 0),  # +Z front
                 (tex_block_front, 6),  # -Z back
                 (tex_block_top, 12),  # +Y top

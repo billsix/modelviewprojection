@@ -259,16 +259,16 @@ class CayleyGraph(typing.Generic[N]):
     def __init__(self, edges: typing.Iterable[Edge]) -> None:
         self._edges: typing.Tuple[Edge, ...] = tuple(edges)
         # undirected adjacency: space -> ((neighbor, edge, walked_forward), ...)
-        adj: typing.Dict[N, list] = {}
+        adj: typing.Dict[N, list[tuple[N, Edge, bool]]] = {}
         for e in self._edges:
             adj.setdefault(e.src, []).append((e.dst, e, True))
             adj.setdefault(e.dst, []).append((e.src, e, False))
-        self._adj: typing.Dict[N, tuple] = {k: tuple(v) for k, v in adj.items()}
+        self._adj: typing.Dict[N, tuple[tuple[N, Edge, bool], ...]] = {k: tuple(v) for k, v in adj.items()}
         self._assert_acyclic()
 
     def _assert_acyclic(self) -> None:
         """Validate the DIRECTED edges have no cycle (DFS 3-coloring)."""
-        directed: typing.Dict[N, list] = {}
+        directed: typing.Dict[N, list[N]] = {}
         for e in self._edges:
             directed.setdefault(e.src, []).append(e.dst)
         color: typing.Dict[N, _DfsColor] = {}

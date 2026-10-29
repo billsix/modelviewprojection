@@ -125,7 +125,7 @@ _TEXTURE_FILES: tuple[tuple[str, str], ...] = (
 
 def build_cube_solid() -> np.ndarray:
     s: float = 25.0
-    faces: list = [
+    faces: list[tuple[Any, ...]] = [
         # +Z
         (
             [(-s, -s, +s), (+s, -s, +s), (+s, +s, +s), (-s, +s, +s)],
