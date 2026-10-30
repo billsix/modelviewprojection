@@ -33,11 +33,11 @@
 # forward/back -- standard walk-around camera shared with the other
 # 3D demos.
 
-from typing import Any
 import dataclasses
 import math
 import sys
 import typing
+from typing import Any
 
 import glfw
 import OpenGL.GL as GL

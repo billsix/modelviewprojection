@@ -13,11 +13,11 @@
 # OpenGL SuperBible, Chapter 17
 # Python port of bumpmap.cpp by Benjamin Lipchak
 
-from typing import Any
 import math
 import os
 import sys
 import typing
+from typing import Any
 
 import glfw
 import numpy as np

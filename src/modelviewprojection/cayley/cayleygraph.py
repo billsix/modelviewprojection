@@ -263,7 +263,9 @@ class CayleyGraph(typing.Generic[N]):
         for e in self._edges:
             adj.setdefault(e.src, []).append((e.dst, e, True))
             adj.setdefault(e.dst, []).append((e.src, e, False))
-        self._adj: typing.Dict[N, tuple[tuple[N, Edge, bool], ...]] = {k: tuple(v) for k, v in adj.items()}
+        self._adj: typing.Dict[N, tuple[tuple[N, Edge, bool], ...]] = {
+            k: tuple(v) for k, v in adj.items()
+        }
         self._assert_acyclic()
 
     def _assert_acyclic(self) -> None:

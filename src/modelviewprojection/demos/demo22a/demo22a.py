@@ -46,13 +46,13 @@
 #   A / D                  -- pitch the pyramid
 #   ESC                    -- quit
 
-from typing import Any
 import ctypes
 import dataclasses
 import math
 import os
 import sys
 import typing
+from typing import Any
 
 import glfw
 import imageio.v3 as iio
@@ -462,8 +462,16 @@ marker_bulb_vao, marker_bulb_vbo, marker_bulb_count = make_vao(
     _build_marker_sphere(radius=0.07, slices=14, stacks=8)
 )
 LIGHT_MARKER_DISTANCE: float = 1.4  # how far from origin the marker sits
-LIGHT_MARKER_CONE_COLOR: tuple[float, float, float] = (0.85, 0.15, 0.15)  # red, like spot.cpp
-LIGHT_MARKER_BULB_COLOR: tuple[float, float, float] = (1.00, 1.00, 0.00)  # yellow
+LIGHT_MARKER_CONE_COLOR: tuple[float, float, float] = (
+    0.85,
+    0.15,
+    0.15,
+)  # red, like spot.cpp
+LIGHT_MARKER_BULB_COLOR: tuple[float, float, float] = (
+    1.00,
+    1.00,
+    0.00,
+)  # yellow
 
 
 # ---------------------------------------------------------------------------

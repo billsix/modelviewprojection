@@ -90,13 +90,13 @@
 #   UP / DOWN              -- walk forward / backward (camera relative)
 #   ESC                    -- quit
 
-from typing import Any
 import ctypes
 import dataclasses
 import math
 import os
 import sys
 import typing
+from typing import Any
 
 import export_scene  # sibling module, resolved by run-by-path sys.path[0]
 import glfw

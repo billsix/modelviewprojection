@@ -12,12 +12,12 @@
 # OpenGL SuperBible, Chapter 18
 # Python port of pixbufobj.cpp by Benjamin Lipchak
 
-from typing import Any
 import ctypes
 import os
 import sys
 import time
 import typing
+from typing import Any
 
 import glfw
 import imageio.v3 as iio

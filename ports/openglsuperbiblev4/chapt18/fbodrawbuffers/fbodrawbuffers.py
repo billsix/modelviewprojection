@@ -12,10 +12,10 @@
 # OpenGL SuperBible, Chapter 18
 # Python port of fbodrawbuffers.cpp by Benjamin Lipchak
 
-from typing import Any
 import os
 import sys
 import typing
+from typing import Any
 
 import glfw
 import imageio.v3 as iio
