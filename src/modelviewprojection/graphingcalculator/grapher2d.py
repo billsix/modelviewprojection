@@ -27,6 +27,7 @@ the ortho is an affine (invertible) map from plot space to NDC.
 """
 
 import dataclasses
+import enum
 import math
 import os
 import sys
@@ -104,10 +105,28 @@ TICK_LENGTH: float = 0.15  # half-length of an axis tick mark, world units
 GRID_COLOR: Color = (0.16, 0.16, 0.2)
 AXIS_COLOR: Color = (0.6, 0.6, 0.72)
 
+# Basis-vector reference frame (the BASIS backdrop): unit e1/e2 arrows measured
+# in plot units, so they scale with zoom like the grid, mirroring the 3D
+# cayley_gl.draw_axis convention -- e1 red, e2 green, the origin a white dot.
+BASIS_HEAD_LEN: float = 0.18  # arrowhead length, fraction of the unit shaft
+BASIS_HEAD_HALF_W: float = 0.09  # arrowhead half-width, plot units
+ORIGIN_DOT_RADIUS: float = 0.08  # plot units
+E1_COLOR: Color = (1.0, 0.25, 0.25)
+E2_COLOR: Color = (0.25, 0.95, 0.35)
+ORIGIN_COLOR: Color = (1.0, 1.0, 1.0)
+
 
 # ---------------------------------------------------------------------------
 # View + window state.
 # ---------------------------------------------------------------------------
+
+
+class Backdrop(enum.Enum):
+    """What reference frame is drawn behind the plotted curves."""
+
+    GRID = enum.auto()  # graph paper: grid + axes + tick marks
+    AXES = enum.auto()  # just the axes with tick marks
+    BASIS = enum.auto()  # the origin (white dot) and the e1/e2 unit vectors
 
 
 @dataclasses.dataclass
@@ -118,7 +137,7 @@ class View2D:
     center_y: float = 0.0
     half_height: float = 8.0  # world units from center to top edge (zoom)
     tick_spacing: float = 1.0
-    show_grid: bool = True
+    backdrop: Backdrop = Backdrop.GRID
 
 
 view: View2D = View2D()
@@ -180,6 +199,47 @@ def build_axes_and_ticks(spacing: float) -> np.ndarray:
         # tick on the x axis (a short vertical mark), and on the y axis.
         verts.extend([c, -TICK_LENGTH, 0.0, c, TICK_LENGTH, 0.0])
         verts.extend([-TICK_LENGTH, c, 0.0, TICK_LENGTH, c, 0.0])
+    return np.array(verts, dtype=np.float32)
+
+
+def build_basis_shaft(dx: float, dy: float) -> np.ndarray:
+    """The shaft of the unit basis vector along (dx, dy) (GL_LINES)."""
+    return np.array([0.0, 0.0, 0.0, dx, dy, 0.0], dtype=np.float32)
+
+
+def build_basis_head(dx: float, dy: float) -> np.ndarray:
+    """A filled triangular arrowhead at the tip of unit vector (dx, dy)."""
+    perp_x: float = -dy
+    perp_y: float = dx
+    back_x: float = dx * (1.0 - BASIS_HEAD_LEN)
+    back_y: float = dy * (1.0 - BASIS_HEAD_LEN)
+    tip: list[float] = [dx, dy, 0.0]
+    left: list[float] = [
+        back_x + BASIS_HEAD_HALF_W * perp_x,
+        back_y + BASIS_HEAD_HALF_W * perp_y,
+        0.0,
+    ]
+    right: list[float] = [
+        back_x - BASIS_HEAD_HALF_W * perp_x,
+        back_y - BASIS_HEAD_HALF_W * perp_y,
+        0.0,
+    ]
+    return np.array(tip + left + right, dtype=np.float32)
+
+
+def build_origin_dot() -> np.ndarray:
+    """A filled circle at the origin (GL_TRIANGLE_FAN: center then rim)."""
+    verts: list[float] = [0.0, 0.0, 0.0]
+    segments: int = 24
+    for i in range(segments + 1):
+        theta: float = 2.0 * math.pi * float(i) / float(segments)
+        verts.extend(
+            [
+                ORIGIN_DOT_RADIUS * math.cos(theta),
+                ORIGIN_DOT_RADIUS * math.sin(theta),
+                0.0,
+            ]
+        )
     return np.array(verts, dtype=np.float32)
 
 
@@ -266,6 +326,14 @@ curve_lines: list[DynamicLines] = [
 curve_build_key: tuple[float, float, int] | None = None
 # spacing the dynamic grid/axis meshes were last built at (rebuild on change)
 built_spacing: float = view.tick_spacing
+
+# The basis-vector backdrop is static geometry in plot units (built once; the
+# ortho view scales it with zoom).
+e1_shaft: DynamicLines = build_dynamic_lines(build_basis_shaft(1.0, 0.0))
+e1_head: DynamicLines = build_dynamic_lines(build_basis_head(1.0, 0.0))
+e2_shaft: DynamicLines = build_dynamic_lines(build_basis_shaft(0.0, 1.0))
+e2_head: DynamicLines = build_dynamic_lines(build_basis_head(0.0, 1.0))
+origin_dot: DynamicLines = build_dynamic_lines(build_origin_dot())
 
 
 def rebuild_grid_if_needed() -> None:
@@ -387,8 +455,26 @@ def reset_view() -> None:
     view.half_height = 8.0
 
 
-def toggle_grid() -> None:
-    view.show_grid = not view.show_grid
+def set_backdrop(mode: Backdrop) -> None:
+    view.backdrop = mode
+
+
+def cycle_backdrop() -> None:
+    members: list[Backdrop] = list(Backdrop)
+    idx: int = members.index(view.backdrop)
+    view.backdrop = members[(idx + 1) % len(members)]
+
+
+def draw_basis_frame() -> None:
+    """Origin (white dot) + the e1/e2 unit-vector arrows (BASIS backdrop)."""
+    # Dot first, so it stays on top at the origin where the shafts begin.
+    draw_lines(
+        origin_dot.vao, origin_dot.count, ORIGIN_COLOR, GL.GL_TRIANGLE_FAN
+    )
+    draw_lines(e1_shaft.vao, e1_shaft.count, E1_COLOR, GL.GL_LINES)
+    draw_lines(e1_head.vao, e1_head.count, E1_COLOR, GL.GL_TRIANGLES)
+    draw_lines(e2_shaft.vao, e2_shaft.count, E2_COLOR, GL.GL_LINES)
+    draw_lines(e2_head.vao, e2_head.count, E2_COLOR, GL.GL_TRIANGLES)
 
 
 def imgui_menubar() -> None:
@@ -413,7 +499,22 @@ def imgui_menubar() -> None:
             "Tick/grid spacing", view.tick_spacing, 0.25, 10.0
         )
         cayley_gl.menu_action(
-            "Show Grid", "G", toggle_grid, selected=view.show_grid
+            "Backdrop: Grid",
+            "G",
+            lambda: set_backdrop(Backdrop.GRID),
+            selected=view.backdrop == Backdrop.GRID,
+        )
+        cayley_gl.menu_action(
+            "Backdrop: Axes + ticks",
+            "",
+            lambda: set_backdrop(Backdrop.AXES),
+            selected=view.backdrop == Backdrop.AXES,
+        )
+        cayley_gl.menu_action(
+            "Backdrop: Origin + e1/e2",
+            "",
+            lambda: set_backdrop(Backdrop.BASIS),
+            selected=view.backdrop == Backdrop.BASIS,
         )
         cayley_gl.menu_action("Reset View", "0", reset_view)
         imgui.end_menu()
@@ -435,7 +536,7 @@ def on_key(
     if action != glfw.PRESS:
         return
     if key == glfw.KEY_G:
-        toggle_grid()
+        cycle_backdrop()
     elif key == glfw.KEY_0:
         reset_view()
 
@@ -446,14 +547,17 @@ def frame(w: int, h: int) -> None:
     rebuild_grid_if_needed()
     rebuild_curves_if_needed(w, h)
     apply_ortho_view(w, h)
-    if view.show_grid:
+    if view.backdrop == Backdrop.GRID:
         draw_lines(grid_lines.vao, grid_lines.count, GRID_COLOR, GL.GL_LINES)
-    draw_lines(axis_lines.vao, axis_lines.count, AXIS_COLOR, GL.GL_LINES)
+    if view.backdrop in (Backdrop.GRID, Backdrop.AXES):
+        draw_lines(axis_lines.vao, axis_lines.count, AXIS_COLOR, GL.GL_LINES)
+    if view.backdrop == Backdrop.BASIS:
+        draw_basis_frame()
     # The shared GL setup leaves depth-testing on (GL_LESS) and everything
-    # here is at z=0, so a curve pixel landing on an already-drawn graph-paper
+    # here is at z=0, so a curve pixel landing on an already-drawn backdrop
     # pixel has equal depth and is rejected -- which punched holes in a curve
     # right where a sin/cos peak runs along the y=1 grid line.  Clear depth
-    # after the graph paper so the plotted curves always draw over it.
+    # after the backdrop so the plotted curves always draw over it.
     GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
     for pf, lines in zip(FUNCTIONS, curve_lines):
         draw_lines(lines.vao, lines.count, pf.color, GL.GL_LINE_STRIP)
