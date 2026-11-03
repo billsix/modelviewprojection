@@ -3,7 +3,7 @@
 **Reference document** — the trap corpus accumulated porting ~100 SuperBible
 demos and building the viz engine: each entry cost a debugging session to find.
 Check here before writing or debugging any GL/imgui/GLFW code in this repo.
-Not a task; update in place. Last updated 2026-07-30.
+Not a task; update in place. Last updated 2026-11-03.
 
 Sources are archived task docs, cited per entry. The repo-wide GL *conventions*
 (import order, GL constants aren't `int`, the `-1` uniform sentinel, row-major +
@@ -233,3 +233,36 @@ mvp-specific rules a general Python standard would miss. (Failure modes are §§
   predate this and call a bare `glfw.terminate()`.
 - **macOS Core Profile requires a non-zero VAO bound at all times** — the default VAO in
   `_pipeline.py:113-121` is deliberate, and `glBindVertexArray(0)` is never called.
+
+## 8. A flat 2D plot on the shared (3D) GL setup — the graphing calculators
+
+Both traps come from drawing a flat `z=0` plot through `_pipeline.setup_window`,
+whose defaults are tuned for the 3D viz engine. Source: the base graphers,
+`tasks/archive/2026/11/03/graphing-calculator-2d-3d.md`.
+
+- **Depth-test z-fighting punches holes where two coplanar primitives overlap.**
+  `setup_window` enables `GL_DEPTH_TEST` with `GL_LESS` for *every* program and
+  `run_loop` clears depth each frame. A 2D plot draws grid, axes and curves all
+  at `z=0`, so once a grid pixel is written (depth ≈ 0.5) a curve pixel on the
+  same spot has **equal** depth, fails `GL_LESS`, and is silently dropped. In
+  grapher2d this showed as holes in the sin/cos curves exactly at their peaks:
+  the peaks sit on the `y=1` grid line (grid spacing 1.0), so the curve runs
+  *along* it for a stretch and was rejected the whole way. Fix: `glClear(
+  GL_DEPTH_BUFFER_BIT)` after the static graph paper (grid + axes) and before
+  the curves, so the curves always draw over the paper. (Disabling
+  `GL_DEPTH_TEST` for the 2D pass works too; the depth clear is the smaller,
+  layer-local change.) The anti-aliasing/resampling below does **not** fix this
+  — it is a depth problem, not a rasterization one, and chasing it as the latter
+  wasted a pass.
+
+- **A fixed, dense vertex set over a fixed world range goes sub-pixel at some
+  zooms and the `GL_LINE_STRIP` stipples (same family as §4).** grapher2d first
+  sampled each curve as 4000 vertices over `[-50, 50]` and zoomed with an ortho
+  window. At the default zoom the segments are ≈1.7px and shrink further zoomed
+  out; where the curve runs near-horizontal (the extrema) GL's diamond-exit rule
+  drops the sub-pixel segments and the curve looks dashed. Fix: enable
+  `GL_LINE_SMOOTH` + alpha blending, **and resample each curve to the visible
+  x-window — one point per pixel column — whenever the view moves** (not a fixed
+  set over a fixed range). Segments then stay ≈1px at every zoom: smooth zoomed
+  in, gapless zoomed out, the way a calculator plots per column. A fixed sample
+  count cannot satisfy both ends at once.
