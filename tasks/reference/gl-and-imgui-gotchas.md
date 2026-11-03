@@ -266,3 +266,33 @@ whose defaults are tuned for the 3D viz engine. Source: the base graphers,
   set over a fixed range). Segments then stay ≈1px at every zoom: smooth zoomed
   in, gapless zoomed out, the way a calculator plots per column. A fixed sample
   count cannot satisfy both ends at once.
+
+## 9. TeX billboard labels (texExpToPng) — the pipeline and its traps
+
+The graphers caption with real typeset math via `mvpvisualization/labels.py`
+(`LabelRenderer`) + `billboard.vert`/`billboard.frag`: texExpToPng renders a LaTeX
+string to a PNG, uploaded as an RGBA texture, drawn as a camera-facing billboard.
+Reintroduced from the multivariate-math copy of the removed mvp
+`mathdemos/_labels.py`. Source:
+`tasks/archive/2026/11/03/graphing-calculator-latex-labels.md`.
+
+- **Constant-screen-size billboard (works in ortho AND perspective).** Project the
+  world `center` to clip space, then `clip.xy += offset * clip.w`, where `offset`
+  is the NDC corner (CPU-scaled by pixel height and glyph aspect). The `* w` makes
+  the offset survive the perspective divide as a fixed screen size; in the ortho 2D
+  view `w == 1`, so the same shader works there too. No per-label matrix.
+- **texExpToPng in this image ignores `--fg` — it renders the formula
+  BLACK-on-transparent regardless** (verified: `rgb 1 1 1`, `rgb 1.0 1.0 1.0`,
+  `White` all give RGB 0,0,0). But the **alpha channel carries the glyph
+  coverage**, so the fragment shader paints the glyph a fixed colour using
+  `texture(...).a` as a mask, never the texture's (black) RGB. Don't rely on `--fg`
+  for label colour here.
+- **texExpToPng writes `formula.tex`/`.dvi` into the current directory**, so run it
+  with `cwd=<scratch dir>` (the renderer's temp cache dir), not the repo root.
+- **A label pass layered over another program must save+restore GL state.**
+  `begin()` saves the caller's `GL_BLEND`/`GL_DEPTH_TEST` enable bits (and VAO);
+  `end()` restores them. Forcing a fixed state (e.g. `glDisable(GL_BLEND)` in
+  `end()`) silently broke grapher2d's line smoothing on the next frame.
+- Graceful degradation: `shutil.which("texExpToPng")` is None on a bare host, so
+  `LabelRenderer.available` is False and every method no-ops — the program runs
+  unchanged, just without labels.

@@ -26,7 +26,9 @@ view is the plot->NDC **ortho edge** realised onto the projection stack
 the ortho is an affine (invertible) map from plot space to NDC.
 """
 
+import atexit
 import dataclasses
+import enum
 import math
 import os
 import sys
@@ -40,6 +42,7 @@ import OpenGL.GL as GL
 import modelviewprojection.matrix_stack as ms
 from modelviewprojection.mvpvisualization import _pipeline as _p
 from modelviewprojection.mvpvisualization import cayley_gl
+from modelviewprojection.mvpvisualization import labels as _labels
 
 if typing.TYPE_CHECKING:
     # glfw types window handles as `_GLFWwindowPointerT`: private, absent at
@@ -65,29 +68,39 @@ Color: typing.TypeAlias = tuple[float, float, float]
 
 @dataclasses.dataclass(frozen=True)
 class PlottedFunction:
-    """One graphed function: the callable, a label, and its curve colour."""
+    """One graphed function: the callable, a label, its colour, and the LaTeX
+    (authored in source) that the billboard renderer typesets as its caption."""
 
     fn: typing.Callable[[float], float]
     label: str
     color: Color
+    latex: str
 
 
 FUNCTIONS: list[PlottedFunction] = [
     PlottedFunction(
-        fn=lambda x: math.sin(x), label="sin(x)", color=(0.95, 0.35, 0.35)
+        fn=lambda x: math.sin(x),
+        label="sin(x)",
+        color=(0.95, 0.35, 0.35),
+        latex=r"\sin(x)",
     ),
     PlottedFunction(
-        fn=lambda x: math.cos(x), label="cos(x)", color=(0.35, 0.75, 0.95)
+        fn=lambda x: math.cos(x),
+        label="cos(x)",
+        color=(0.35, 0.75, 0.95),
+        latex=r"\cos(x)",
     ),
     PlottedFunction(
         fn=lambda x: 0.25 * x * x - 2.0,
         label="x^2/4 - 2",
         color=(0.55, 0.9, 0.5),
+        latex=r"\tfrac{x^2}{4}-2",
     ),
     PlottedFunction(
         fn=lambda x: 0.05 * x * x * x,
         label="x^3/20",
         color=(0.95, 0.8, 0.4),
+        latex=r"\tfrac{x^3}{20}",
     ),
 ]
 
@@ -104,10 +117,28 @@ TICK_LENGTH: float = 0.15  # half-length of an axis tick mark, world units
 GRID_COLOR: Color = (0.16, 0.16, 0.2)
 AXIS_COLOR: Color = (0.6, 0.6, 0.72)
 
+# Basis-vector reference frame (the BASIS backdrop): unit e1/e2 arrows measured
+# in plot units, so they scale with zoom like the grid, mirroring the 3D
+# cayley_gl.draw_axis convention -- e1 red, e2 green, the origin a white dot.
+BASIS_HEAD_LEN: float = 0.18  # arrowhead length, fraction of the unit shaft
+BASIS_HEAD_HALF_W: float = 0.09  # arrowhead half-width, plot units
+ORIGIN_DOT_RADIUS: float = 0.08  # plot units
+E1_COLOR: Color = (1.0, 0.25, 0.25)
+E2_COLOR: Color = (0.25, 0.95, 0.35)
+ORIGIN_COLOR: Color = (1.0, 1.0, 1.0)
+
 
 # ---------------------------------------------------------------------------
 # View + window state.
 # ---------------------------------------------------------------------------
+
+
+class Backdrop(enum.Enum):
+    """What reference frame is drawn behind the plotted curves."""
+
+    GRID = enum.auto()  # graph paper: grid + axes + tick marks
+    AXES = enum.auto()  # just the axes with tick marks
+    BASIS = enum.auto()  # the origin (white dot) and the e1/e2 unit vectors
 
 
 @dataclasses.dataclass
@@ -118,11 +149,14 @@ class View2D:
     center_y: float = 0.0
     half_height: float = 8.0  # world units from center to top edge (zoom)
     tick_spacing: float = 1.0
-    show_grid: bool = True
+    backdrop: Backdrop = Backdrop.GRID
+    show_labels: bool = True
 
 
 view: View2D = View2D()
 win_state: cayley_gl.WindowState = cayley_gl.WindowState()
+#: Previous cursor position while a left-drag pan is in progress (else None).
+mouse_prev: tuple[float, float] | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -181,6 +215,47 @@ def build_axes_and_ticks(spacing: float) -> np.ndarray:
     return np.array(verts, dtype=np.float32)
 
 
+def build_basis_shaft(dx: float, dy: float) -> np.ndarray:
+    """The shaft of the unit basis vector along (dx, dy) (GL_LINES)."""
+    return np.array([0.0, 0.0, 0.0, dx, dy, 0.0], dtype=np.float32)
+
+
+def build_basis_head(dx: float, dy: float) -> np.ndarray:
+    """A filled triangular arrowhead at the tip of unit vector (dx, dy)."""
+    perp_x: float = -dy
+    perp_y: float = dx
+    back_x: float = dx * (1.0 - BASIS_HEAD_LEN)
+    back_y: float = dy * (1.0 - BASIS_HEAD_LEN)
+    tip: list[float] = [dx, dy, 0.0]
+    left: list[float] = [
+        back_x + BASIS_HEAD_HALF_W * perp_x,
+        back_y + BASIS_HEAD_HALF_W * perp_y,
+        0.0,
+    ]
+    right: list[float] = [
+        back_x - BASIS_HEAD_HALF_W * perp_x,
+        back_y - BASIS_HEAD_HALF_W * perp_y,
+        0.0,
+    ]
+    return np.array(tip + left + right, dtype=np.float32)
+
+
+def build_origin_dot() -> np.ndarray:
+    """A filled circle at the origin (GL_TRIANGLE_FAN: center then rim)."""
+    verts: list[float] = [0.0, 0.0, 0.0]
+    segments: int = 24
+    for i in range(segments + 1):
+        theta: float = 2.0 * math.pi * float(i) / float(segments)
+        verts.extend(
+            [
+                ORIGIN_DOT_RADIUS * math.cos(theta),
+                ORIGIN_DOT_RADIUS * math.sin(theta),
+                0.0,
+            ]
+        )
+    return np.array(verts, dtype=np.float32)
+
+
 # ---------------------------------------------------------------------------
 # This file is a program, not a module: it now acquires a window + GL context
 # and runs its own loop.  A tool that imports it to inspect it stops here.
@@ -209,6 +284,9 @@ line_pipeline: _p.Pipeline = _p.build_pipeline(
     shader_dir=MVP_SHADER_DIR,
     color=True,
 )
+# Runtime TeX billboard labels (no-op if texExpToPng is not on PATH).
+label_renderer: _labels.LabelRenderer = _labels.LabelRenderer(MVP_SHADER_DIR)
+atexit.register(label_renderer.cleanup)
 
 
 @dataclasses.dataclass
@@ -264,6 +342,14 @@ curve_lines: list[DynamicLines] = [
 curve_build_key: tuple[float, float, int] | None = None
 # spacing the dynamic grid/axis meshes were last built at (rebuild on change)
 built_spacing: float = view.tick_spacing
+
+# The basis-vector backdrop is static geometry in plot units (built once; the
+# ortho view scales it with zoom).
+e1_shaft: DynamicLines = build_dynamic_lines(build_basis_shaft(1.0, 0.0))
+e1_head: DynamicLines = build_dynamic_lines(build_basis_head(1.0, 0.0))
+e2_shaft: DynamicLines = build_dynamic_lines(build_basis_shaft(0.0, 1.0))
+e2_head: DynamicLines = build_dynamic_lines(build_basis_head(0.0, 1.0))
+origin_dot: DynamicLines = build_dynamic_lines(build_origin_dot())
 
 
 def rebuild_grid_if_needed() -> None:
@@ -342,14 +428,69 @@ def handle_pan_zoom_keys() -> None:
         view.half_height = max(0.25, view.half_height / 1.03)
 
 
+def mouse_pan(h: int) -> None:
+    """Left-drag pans the view so the grabbed plot point tracks the cursor.
+
+    The pixel delta converts to world units by ``2*half_height / height`` (the
+    ortho window's world-per-pixel, the same on x and y), so a drag moves the
+    plot by exactly the distance dragged at any zoom.  Ignored while imgui owns
+    the mouse (a menu is open under the pointer).
+    """
+    global mouse_prev
+    pos: tuple[float, float] = glfw.get_cursor_pos(window)
+    down: bool = (
+        glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS
+    )
+    if down and not imguiio.want_capture_mouse and mouse_prev is not None:
+        world_per_px: float = 2.0 * view.half_height / float(h) if h else 0.0
+        view.center_x -= (pos[0] - mouse_prev[0]) * world_per_px
+        view.center_y += (pos[1] - mouse_prev[1]) * world_per_px
+    mouse_prev = pos if down else None
+
+
+def install_scroll_zoom() -> None:
+    """Mouse wheel scales the zoom (half_height), chaining imgui's callback."""
+    # None is glfw's documented "clear and return the previous callback" value;
+    # the stub types it as the callback, hence the suppression.
+    prev_cb: list[typing.Any] = [glfw.set_scroll_callback(window, None)]  # ty: ignore[invalid-argument-type]
+
+    def scroll_cb(win: "GLFWWindow", x_off: float, y_off: float) -> None:
+        if prev_cb[0] is not None:
+            prev_cb[0](win, x_off, y_off)
+        if not imguiio.want_capture_mouse:
+            view.half_height = min(
+                PLOT_HALF_RANGE, max(0.25, view.half_height * 0.9**y_off)
+            )
+
+    glfw.set_scroll_callback(window, scroll_cb)
+
+
 def reset_view() -> None:
     view.center_x = 0.0
     view.center_y = 0.0
     view.half_height = 8.0
 
 
-def toggle_grid() -> None:
-    view.show_grid = not view.show_grid
+def set_backdrop(mode: Backdrop) -> None:
+    view.backdrop = mode
+
+
+def cycle_backdrop() -> None:
+    members: list[Backdrop] = list(Backdrop)
+    idx: int = members.index(view.backdrop)
+    view.backdrop = members[(idx + 1) % len(members)]
+
+
+def draw_basis_frame() -> None:
+    """Origin (white dot) + the e1/e2 unit-vector arrows (BASIS backdrop)."""
+    # Dot first, so it stays on top at the origin where the shafts begin.
+    draw_lines(
+        origin_dot.vao, origin_dot.count, ORIGIN_COLOR, GL.GL_TRIANGLE_FAN
+    )
+    draw_lines(e1_shaft.vao, e1_shaft.count, E1_COLOR, GL.GL_LINES)
+    draw_lines(e1_head.vao, e1_head.count, E1_COLOR, GL.GL_TRIANGLES)
+    draw_lines(e2_shaft.vao, e2_shaft.count, E2_COLOR, GL.GL_LINES)
+    draw_lines(e2_head.vao, e2_head.count, E2_COLOR, GL.GL_TRIANGLES)
 
 
 def imgui_menubar() -> None:
@@ -374,9 +515,27 @@ def imgui_menubar() -> None:
             "Tick/grid spacing", view.tick_spacing, 0.25, 10.0
         )
         cayley_gl.menu_action(
-            "Show Grid", "G", toggle_grid, selected=view.show_grid
+            "Backdrop: Grid",
+            "G",
+            lambda: set_backdrop(Backdrop.GRID),
+            selected=view.backdrop == Backdrop.GRID,
+        )
+        cayley_gl.menu_action(
+            "Backdrop: Axes + ticks",
+            "",
+            lambda: set_backdrop(Backdrop.AXES),
+            selected=view.backdrop == Backdrop.AXES,
+        )
+        cayley_gl.menu_action(
+            "Backdrop: Origin + e1/e2",
+            "",
+            lambda: set_backdrop(Backdrop.BASIS),
+            selected=view.backdrop == Backdrop.BASIS,
         )
         cayley_gl.menu_action("Reset View", "0", reset_view)
+        cayley_gl.menu_action(
+            "Labels", "L", toggle_labels, selected=view.show_labels
+        )
         imgui.end_menu()
     if imgui.begin_menu("View", True):
         cayley_gl.menu_action(
@@ -396,27 +555,56 @@ def on_key(
     if action != glfw.PRESS:
         return
     if key == glfw.KEY_G:
-        toggle_grid()
+        cycle_backdrop()
     elif key == glfw.KEY_0:
         reset_view()
+    elif key == glfw.KEY_L:
+        toggle_labels()
+
+
+def toggle_labels() -> None:
+    view.show_labels = not view.show_labels
+
+
+def draw_labels(w: int, h: int) -> None:
+    """Billboard LaTeX captions: one per curve (anchored on the curve, right of
+    center) plus the x/y axis names near the visible axis ends."""
+    v_m: np.ndarray = ms.get_current_matrix(ms.MatrixStack.view)
+    p_m: np.ndarray = ms.get_current_matrix(ms.MatrixStack.projection)
+    label_renderer.begin(v_m, p_m, (w, h))
+    aspect: float = float(w) / float(h) if h else 1.0
+    half_w: float = view.half_height * aspect
+    x_at: float = view.center_x + 0.55 * half_w
+    for pf in FUNCTIONS:
+        label_renderer.draw(pf.latex, (x_at, float(pf.fn(x_at)), 0.0))
+    label_renderer.draw("x", (view.center_x + 0.9 * half_w, 0.0, 0.0))
+    label_renderer.draw("y", (0.0, view.center_y + 0.9 * view.half_height, 0.0))
+    label_renderer.end()
 
 
 def frame(w: int, h: int) -> None:
     handle_pan_zoom_keys()
+    mouse_pan(h)
     rebuild_grid_if_needed()
     rebuild_curves_if_needed(w, h)
     apply_ortho_view(w, h)
-    if view.show_grid:
+    if view.backdrop == Backdrop.GRID:
         draw_lines(grid_lines.vao, grid_lines.count, GRID_COLOR, GL.GL_LINES)
-    draw_lines(axis_lines.vao, axis_lines.count, AXIS_COLOR, GL.GL_LINES)
+    if view.backdrop in (Backdrop.GRID, Backdrop.AXES):
+        draw_lines(axis_lines.vao, axis_lines.count, AXIS_COLOR, GL.GL_LINES)
+    if view.backdrop == Backdrop.BASIS:
+        draw_basis_frame()
     # The shared GL setup leaves depth-testing on (GL_LESS) and everything
-    # here is at z=0, so a curve pixel landing on an already-drawn graph-paper
+    # here is at z=0, so a curve pixel landing on an already-drawn backdrop
     # pixel has equal depth and is rejected -- which punched holes in a curve
     # right where a sin/cos peak runs along the y=1 grid line.  Clear depth
-    # after the graph paper so the plotted curves always draw over it.
+    # after the backdrop so the plotted curves always draw over it.
     GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
     for pf, lines in zip(FUNCTIONS, curve_lines):
         draw_lines(lines.vao, lines.count, pf.color, GL.GL_LINE_STRIP)
+    if view.show_labels and label_renderer.available:
+        draw_labels(w, h)
 
 
+install_scroll_zoom()
 cayley_gl.run_loop(window, impl, frame, imgui_menubar, on_key)
