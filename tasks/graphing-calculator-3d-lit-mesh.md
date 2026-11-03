@@ -1,11 +1,13 @@
 # 3D grapher — lit triangle-mesh surface (Blinn-Phong / half-angle)
 
-**Status:** proposed — needs go-ahead (gated on the base 3D grapher landing first)
+**Status:** proposed — needs go-ahead (the base-grapher prerequisite is now satisfied)
 **Priority:** 7
 **Difficulty:** 6
 **Started:** 2026-11-03 (William Emerison Six <billsix@gmail.com>)
-**Part of:** the graphing-calculator work — `tasks/graphing-calculator-2d-3d.md` (read that first).
-**Depends on:** the base 3D `f(x,y)` grapher (wireframe/mesh) from that task existing.
+**Part of:** the graphing-calculator work — `tasks/archive/2026/11/03/graphing-calculator-2d-3d.md`
+(the base 2D/3D graphers, now done+archived; read that first).
+**Depends on:** the base 3D `f(x,y)` grapher (`src/modelviewprojection/graphingcalculator/grapher3d.py`)
+— **done** as of 2026-11-03, so this is unblocked and waiting only on the go-ahead.
 
 ## BLUF
 
@@ -18,7 +20,7 @@ specular highlight that tracks the light and view.
 
 ## Why a separate task
 
-The base task (`graphing-calculator-2d-3d.md`) deliberately stops at **wireframe + mesh, no
+The base task (`tasks/archive/2026/11/03/graphing-calculator-2d-3d.md`) deliberately stops at **wireframe + mesh, no
 lighting** so the first version lands small. Lighting adds a real chunk of net-new machinery
 (normals, a light model, a lit shader, material params), so it gets its own commit boundary.
 
