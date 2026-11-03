@@ -35,6 +35,9 @@ The single most important subsystem: the same Pong-like scene (two paddles + a s
 ### `mvpvisualization/` — interactive pipeline & coordinate-system visualizations
 Pedagogical *aids*, not demos: standalone GLFW/ImGui programs that **show** the Cayley-graph traversal and MVP pipeline interactively (`coordinatesystems.py`, `model.py`, `modelview.py`, `modelview2d.py`, `modelvieworthoprojection.py`, `modelviewperspectiveprojection.py`, `pushmatrix.py`). Each is built on the Cayley-graph engine (§ below) via the shared GL toolkit `cayley_gl.py`. `_pipeline.py` owns the common boilerplate — window/ImGui setup, shader compilation (`compile_program`/`build_pipeline`, with per-demo `project_*.glsl` snippets appended to shared `.vert` shaders), VAO/VBO builders, the standard paddle/square/ground/axis/NDC-cube meshes, the orbit `Camera`, and `cleanup()`; each demo file keeps only its pipeline creation, `draw_*` functions, and main loop. Run by path (`python src/modelviewprojection/mvpvisualization/coordinatesystems.py`).
 
+### `graphingcalculator/` — standalone function graphers
+Two run-by-path programs that plot first-class Python functions graphing-calculator style (functions authored in source, not typed at runtime): `grapher2d.py` (`f(x)` over pannable/zoomable axes with grid + ticks) and `grapher3d.py` (`f(x,y)` height field as a wireframe mesh on launch, with an opt-in height-shaded solid and an orbit camera). Both reuse the `mvpvisualization` GL toolkit (`cayley_gl` + `_pipeline`) and `matrix_stack` — only `ports/` is off-limits to import. The lit triangle-mesh (Blinn-Phong) version is the follow-on `tasks/graphing-calculator-3d-lit-mesh.md`; the 2D depth-clear and per-pixel-column resampling gotchas are in `gl-and-imgui-gotchas.md` §8.
+
 ### `framebuffer/softwarerendering.py` — the software rasterizer
 A from-scratch, no-OpenGL renderer used to teach what the GPU does: a `FrameBuffer` dataclass (backed by a PIL image, displayable inline in notebooks) with `screenspace_to_framebuffer`, `set_color`, and `draw_filled_triangle`. Carries the 2D **orientation predicates** (`is_counter_clockwise`, `is_clockwise`, `is_parallel_and_same_orientation`) — their sole consumer, which is why they live here rather than in `mathutils`.
 
@@ -94,6 +97,7 @@ point here.)
 | The real 4×4 matrix stack (demo21+, OpenGL 3.3) | `src/modelviewprojection/matrix_stack.py` |
 | A specific teaching demo | `src/modelviewprojection/demos/demoNN.py` (later ones: `demos/demoNN/demoNN.py` + shaders) |
 | Interactive pipeline / coordinate-system visualizations | `src/modelviewprojection/mvpvisualization/` (shared setup in `_pipeline.py`, GL toolkit in `cayley_gl.py`) |
+| Graphing-calculator programs (`f(x)`, `f(x,y)` surface) | `src/modelviewprojection/graphingcalculator/grapher{2,3}d.py` |
 | The software rasterizer & 2D orientation predicates | `src/modelviewprojection/framebuffer/softwarerendering.py` |
 | Cayley-graph data structure / path routing (no GL) | `src/modelviewprojection/cayley/cayleygraph.py` (`cayleyscene.py` for scene→render) |
 | Shared demo helpers (axes, windowing, clipping, camera, colors, shading) | `src/modelviewprojection/util/` |
