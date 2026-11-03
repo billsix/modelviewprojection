@@ -93,12 +93,12 @@ FUNCTIONS: list[PlottedFunction] = [
 
 
 # ---------------------------------------------------------------------------
-# Fixed plot extents (world/plot coordinates).  Geometry is built once over
-# this range; pan/zoom only move the ortho view window across it.
+# Fixed plot extents (world/plot coordinates) for the grid and axes, which are
+# built once over this range; pan/zoom only move the ortho window across them.
+# The curves instead resample to the visible window each time the view moves.
 # ---------------------------------------------------------------------------
 
-PLOT_HALF_RANGE: float = 50.0  # grid/curves span [-50, 50] in x and y
-CURVE_SAMPLES: int = 4000  # samples per curve across the x range
+PLOT_HALF_RANGE: float = 50.0  # grid/axes span [-50, 50] in x and y
 TICK_LENGTH: float = 0.15  # half-length of an axis tick mark, world units
 
 GRID_COLOR: Color = (0.16, 0.16, 0.2)
@@ -131,11 +131,21 @@ win_state: cayley_gl.WindowState = cayley_gl.WindowState()
 # ---------------------------------------------------------------------------
 
 
-def sample_curve(fn: typing.Callable[[float], float]) -> np.ndarray:
-    """Sample ``fn`` across the x range into a GL_LINE_STRIP vertex array."""
-    xs: np.ndarray = np.linspace(
-        -PLOT_HALF_RANGE, PLOT_HALF_RANGE, CURVE_SAMPLES
-    )
+def sample_curve(
+    fn: typing.Callable[[float], float],
+    x_lo: float,
+    x_hi: float,
+    n_samples: int,
+) -> np.ndarray:
+    """Sample ``fn`` across ``[x_lo, x_hi]`` into a GL_LINE_STRIP vertex array.
+
+    The sample range and count follow the visible window -- one point per pixel
+    column -- the way a graphing calculator plots.  Tying the sampling to the
+    view keeps the polyline smooth when zoomed in and stops it degenerating
+    into dropped sub-pixel segments (the dashed-at-the-peaks look) when zoomed
+    out, which a fixed sample set over a fixed range cannot do at both ends.
+    """
+    xs: np.ndarray = np.linspace(x_lo, x_hi, n_samples)
     verts: list[float] = []
     for x in xs:
         xf: float = float(x)
@@ -181,6 +191,15 @@ if __name__ != "__main__":
 
 window, impl, imguiio = cayley_gl.setup("2D Graphing Calculator")
 GL.glClearColor(0.07, 0.07, 0.09, 1.0)
+
+# Anti-alias the lines.  A curve is thousands of tiny GL_LINE_STRIP segments;
+# where it runs near-horizontal (the sin/cos peaks and troughs) those sub-pixel
+# segments drop out under GL's diamond-exit rule and the curve looks dashed.
+# Smooth-line coverage, blended in, fills those gaps and softens every edge.
+GL.glEnable(GL.GL_LINE_SMOOTH)
+GL.glHint(GL.GL_LINE_SMOOTH_HINT, GL.GL_NICEST)
+GL.glEnable(GL.GL_BLEND)
+GL.glBlendFunc(GL.GL_SRC_ALPHA, GL.GL_ONE_MINUS_SRC_ALPHA)
 
 # The shared solid-colour line pipeline + its shaders live in mvpvisualization.
 MVP_SHADER_DIR: str = os.path.dirname(os.path.abspath(cayley_gl.__file__))
@@ -236,10 +255,13 @@ grid_lines: DynamicLines = build_dynamic_lines(build_grid(view.tick_spacing))
 axis_lines: DynamicLines = build_dynamic_lines(
     build_axes_and_ticks(view.tick_spacing)
 )
-curve_meshes: list[tuple[int, int]] = [
-    _p.make_lines_vao(sample_curve(pf.fn), line_pipeline.attr_position)
-    for pf in FUNCTIONS
+# Curves are resampled to the visible window each time the view moves, so they
+# start as empty dynamic meshes and the first frame fills them.
+curve_lines: list[DynamicLines] = [
+    build_dynamic_lines(sample_curve(pf.fn, -1.0, 1.0, 2)) for pf in FUNCTIONS
 ]
+# (x_lo, x_hi, n_samples) the curves were last sampled at (rebuild on change)
+curve_build_key: tuple[float, float, int] | None = None
 # spacing the dynamic grid/axis meshes were last built at (rebuild on change)
 built_spacing: float = view.tick_spacing
 
@@ -251,6 +273,22 @@ def rebuild_grid_if_needed() -> None:
     update_dynamic_lines(grid_lines, build_grid(view.tick_spacing))
     update_dynamic_lines(axis_lines, build_axes_and_ticks(view.tick_spacing))
     built_spacing = view.tick_spacing
+
+
+def rebuild_curves_if_needed(w: int, h: int) -> None:
+    """Resample every curve across the visible x window when the view moves."""
+    global curve_build_key
+    aspect: float = float(w) / float(h) if h else 1.0
+    half_w: float = view.half_height * aspect
+    x_lo: float = view.center_x - half_w
+    x_hi: float = view.center_x + half_w
+    n_samples: int = max(2, int(w))  # one sample per pixel column
+    key: tuple[float, float, int] = (round(x_lo, 3), round(x_hi, 3), n_samples)
+    if key == curve_build_key:
+        return
+    for lines, pf in zip(curve_lines, FUNCTIONS):
+        update_dynamic_lines(lines, sample_curve(pf.fn, x_lo, x_hi, n_samples))
+    curve_build_key = key
 
 
 # ---------------------------------------------------------------------------
@@ -366,12 +404,13 @@ def on_key(
 def frame(w: int, h: int) -> None:
     handle_pan_zoom_keys()
     rebuild_grid_if_needed()
+    rebuild_curves_if_needed(w, h)
     apply_ortho_view(w, h)
     if view.show_grid:
         draw_lines(grid_lines.vao, grid_lines.count, GRID_COLOR, GL.GL_LINES)
     draw_lines(axis_lines.vao, axis_lines.count, AXIS_COLOR, GL.GL_LINES)
-    for pf, (vao, count) in zip(FUNCTIONS, curve_meshes):
-        draw_lines(vao, count, pf.color, GL.GL_LINE_STRIP)
+    for pf, lines in zip(FUNCTIONS, curve_lines):
+        draw_lines(lines.vao, lines.count, pf.color, GL.GL_LINE_STRIP)
 
 
 cayley_gl.run_loop(window, impl, frame, imgui_menubar, on_key)

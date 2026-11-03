@@ -113,7 +113,7 @@ class View3D:
     dx: float = 0.5
     dy: float = 0.5
     show_wireframe: bool = True
-    show_solid: bool = True
+    show_solid: bool = False  # start as a bare wireframe mesh; solid is opt-in
 
 
 view: View3D = View3D()

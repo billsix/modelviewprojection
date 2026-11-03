@@ -22,7 +22,7 @@ parser); the imgui menubar sets only the view. Both are GL 3.3 core, shader-base
   half-height (zoom), tick/grid spacing; arrows pan, `-`/`=` zoom, `G` toggles the grid, `F11`
   fullscreen. The plot→NDC view is the course's **ortho edge** (`matrix_stack.ortho`).
 - **`grapher3d.py`** — plots an `f(x,y)` height field (domain x→world x, y→world z, value→up/y) as
-  a **wireframe and/or a height-shaded solid mesh**. Surface menu picks the function (saddle,
+  a **wireframe mesh by default**, with a height-shaded solid as an opt-in toggle. Surface menu picks the function (saddle,
   paraboloid, ripple, waves); Controls menu sets the grid steps **dx** and **dy** (live rebuild)
   and toggles wireframe/solid; an orbit camera (left-drag / arrows / scroll) looks around it.
   Perspective via `cayley_gl.setup_orbit_view` (`matrix_stack.perspective`). Lighting was kept out
@@ -60,6 +60,22 @@ transforms and optionally mesh normals). gacalc separately has an `[Unreleased]`
 accumulated additive features (pyproject already at 0.1.0), release-worthy on its own schedule but
 not forced by this work. Terminology caveat carried into the follow-on: Blinn's half *vector*
 (bisector of L and V) is not the GA rotor half-*angle* `cos(θ/2) + I sin(θ/2)`.
+
+## Review fixes (2026-11-03, maintainer review before merge)
+
+Two defects surfaced in the on-display review and were fixed on the same branch:
+
+1. **2D curve "holes" at the sin/cos peaks.** Drawing each curve as one fixed set of 4000
+   `GL_LINE_STRIP` vertices over `[-50, 50]` left sub-pixel segments where the curve runs
+   near-horizontal (the extrema); GL's diamond-exit rasterisation drops those, so the curve looked
+   dashed at every peak/trough. Fixed by (a) enabling `GL_LINE_SMOOTH` + alpha blending and
+   (b) **resampling each curve to the visible x-window, one point per pixel column, whenever the
+   view moves** — segments stay ~1px at every zoom, so the polyline is smooth zoomed in and gapless
+   zoomed out (a fixed sample set over a fixed range cannot be both). Verified at the default view
+   and held zoom-out.
+2. **3D started as a solid surface, not a wireframe.** The agreed starting point was a bare
+   wireframe mesh. `View3D.show_solid` now defaults to `False` (wireframe-only on launch); the
+   height-shaded solid stays available via the Controls menu / `S`.
 
 ## Verification
 
