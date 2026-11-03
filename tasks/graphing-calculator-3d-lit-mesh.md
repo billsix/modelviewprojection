@@ -38,6 +38,42 @@ lighting** so the first version lands small. Lighting adds a real chunk of net-n
       alongside the existing dx/dy + view controls.
 - [ ] Keep wireframe available (toggle), so the lit surface and the mesh can be compared.
 
+## The Blinn-Phong math (what's actually needed) + gacalc status
+
+The specular term uses the **cosine** of the angle between the surface normal `N` and the
+**halfway vector** `H` — and because `N` and `H` are unit vectors, that cosine is just their dot
+product. **No `cos()`/`sin()`/`acos()` call is needed anywhere.** For a fragment:
+
+```
+L = normalize(lightDir)          // unit direction TO the light
+V = normalize(eyeDir)            // unit direction TO the viewer/eye
+H = normalize(L + V)             // the halfway vector  (this is the "half")
+N = normalize(surfaceNormal)
+
+diffuse  = max(0, dot(N, L))
+specular = pow(max(0, dot(N, H)), shininess)   // only when dot(N,L) > 0
+color    = ambient + diffuse*materialDiffuse + specular*materialSpecular
+```
+
+`dot(N, H)` *is* `cos(angle between N and H)` (unit vectors); `shininess` sharpens the highlight.
+This is distinct from the original **Phong** model, which uses the reflection vector `R` and
+`dot(R, V)`; Blinn's `dot(N, H)` is cheaper and is the "half-angle" model Bill asked for.
+
+**gacalc (geometricalgebra) — NO new release needed (verified 2026-11-03).** Every piece above maps
+to **released** gacalc API (predates tag `v0.0.20`): `H = (L.normalize() + V.normalize()).normalize()`
+uses `Vector.__add__` + `.normalize()`; the dots are `.scalar_product()`; `.magnitude()` is there
+too; and `rotor_from_vectors` / `transforms.rotor_for` exist if we ever want a GA framing. In
+practice `H` and the dots are computed **in the GLSL fragment shader on the GPU**, so gacalc is not
+in that runtime path at all — gacalc is CPU-side only, for the MVP transforms and (optionally) the
+mesh normals, both already supported.
+
+> **Terminology caveat.** Blinn's "half **vector**" (the bisector `normalize(L+V)`) is a *different*
+> thing from the geometric-algebra rotor "half **angle**" (`rotor_for(θ)` builds
+> `cos(θ/2) + I sin(θ/2)`). They share the word "half" but are unrelated constructs — the shading
+> math needs the former and never calls the latter. gacalc *does* have an `[Unreleased]` versor
+> `angle()` / `plane_of_rotation()` set that exposes the rotor half-angle, but only a *pedagogical*
+> "here's the GA connection" aside would use it; the lighting itself doesn't.
+
 ## Inspiration — the openglsuperbible v4 port (read before writing the shader)
 
 - `ports/openglsuperbiblev4/chapt16/vertexshaders/shaders/specular.vs` — **per-vertex** half-vector:

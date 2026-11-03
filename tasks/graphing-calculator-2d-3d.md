@@ -1,12 +1,12 @@
 # Graphing-calculator programs (2D and 3D), building on the assignment function viewer
 
-**Status:** proposed — needs go-ahead (design decided; a few open questions remain below)
+**Status:** proposed — **design complete, ready to implement on go-ahead** (all open questions resolved)
 **Priority:** 6
 **Difficulty:** 5
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Design answered:** 2026-11-03 (William Emerison Six <billsix@gmail.com>) — the five original
-open questions are now resolved under "Decisions" below; new open questions (location/naming,
-book-published, GL version, menubar infra reuse) are at the bottom and still block coding.
+**Design answered:** 2026-11-03 (William Emerison Six <billsix@gmail.com>) — all open questions
+(both the original five and the second round: location/naming, book-published, GL version, menubar
+infra) are resolved under "Decisions" below. No open questions remain; awaiting the go-ahead to code.
 **Follow-on:** `tasks/graphing-calculator-3d-lit-mesh.md` — the triangle-mesh, Blinn-Phong-lit
 version of the 3D plotter (half-angle specular, modelled on the v4 port).
 
@@ -88,28 +88,33 @@ the height field, add a light, and shade. **Inspiration: the openglsuperbible v4
 `H = normalize(L + normalize(-V.xyz))`) and `chapt17/lighting/shaders/specular.{vs,fs}` (the
 per-fragment version). That is exactly "whichever one does the half angles" — Blinn-Phong.
 
-## Open questions (new — these block coding)
+## Decisions — round 2 (2026-11-03, answers to the second-round questions)
 
-1. **Where do the two programs live, and what are they named?** Options: a new top-level
-   `graphingcalculator/` dir (sibling of `assignments/`, `ports/`); under the installed package at
-   `src/modelviewprojection/graphingcalculator/` (run by path, like `mvpvisualization/`); or inside
-   `assignments/` as new standalone scripts. Recommendation: **`src/modelviewprojection/graphingcalculator/`**
-   with `grapher2d.py` + `grapher3d.py`, so they're part of the installed package and runnable by
-   path like the existing `mvpvisualization/` aids — but your call.
-2. **Are these book chapters, or just programs?** The repo *is* the textbook. Do you want these
-   written up as book chapters (new `book/docs/chNN.rst` with `literalinclude` doc-regions), or
-   kept as standalone programs with no book prose for now? (This decides whether I add
-   doc-region markers as I write.)
-3. **Which GL version / profile?** The modern demos / code-the-classics ports target **GL 3.3
-   core**; some SuperBible ports go to 4.x. Recommendation: **3.3 core** (simplest modern baseline,
-   matches code-the-classics). OK?
-4. **Reuse the v4 menubar infra, or build fresh?** The v4 port has `_common.draw_view_menu` + the
-   "Controls menu, never a floating window; F11 toggles fullscreen" convention
-   (`tasks/reference/gl-and-imgui-gotchas.md`). These aren't v4 ports, so do you want them to
-   **import and reuse `ports/openglsuperbiblev4/_common`**, or carry a small self-contained menubar
-   helper of their own (no cross-import into the ports tree)? Recommendation: **self-contained** —
-   keep the grapher independent of the ports subtree.
-5. **gacalc for the transforms?** House rule says express transforms with gacalc and realize to a
-   matrix only at upload. Confirm you want the graphers to follow that (ortho/camera as
-   `InvertibleFunction`s via `cayleyscene.to_matrix`), rather than hand-built projection matrices —
-   I'll default to **yes** unless you'd rather keep these two outside the Cayley-graph pedagogy.
+1. **Location / naming: `src/modelviewprojection/graphingcalculator/`** with **`grapher2d.py`** +
+   **`grapher3d.py`** — part of the installed package, run by path like the `mvpvisualization/`
+   aids.
+2. **Just programs for now** — no book chapters. Do **not** add `literalinclude` doc-region markers;
+   these are standalone programs with no book prose yet. (A book write-up can be a later task.)
+3. **GL 3.3 core profile** — matches the code-the-classics ports.
+4. **Self-contained imgui menubar helper, mvp's own copy.** Do **not** import
+   `ports/openglsuperbiblev4/_common`; the grapher carries its own small menubar helper (Controls
+   menu for view settings, F11 fullscreen) inside `graphingcalculator/`, keeping it independent of
+   the `ports/` subtree. It **must use imgui** for these controls. Because it is a deliberate copy
+   of the same convention the v4 port implements in `_common.draw_view_menu`, the two can drift —
+   mvp `CLAUDE.md` carries a drift-watch note so a future session reconciles them on purpose.
+5. **Yes — gacalc for the transforms.** Ortho (2D) / camera (3D) are `InvertibleFunction`s;
+   realize to a 4×4 with `cayleyscene.to_matrix` only at the GL uniform upload. No hand-built
+   projection matrices.
+
+## gacalc (geometricalgebra) — no release needed for this work (verified 2026-11-03)
+
+Checked `github.com/billsix/geometricalgebra` (gacalc) for the half-vector / half-angle question
+(raised for the lit follow-on). **No new gacalc release is required.** Everything the lighting math
+needs is in the **released** API (predates tag `v0.0.20`): `Vector.__add__`, `.normalize()`,
+`.magnitude()`, `.scalar_product()` (the N·L dot), plus `rotor_from_vectors` / `plane_rotation` /
+`transforms.rotor_for` if we ever want the GA-rotor framing. The Blinn-Phong **half vector**
+`H = normalize(L + V)` and specular `scalar_product(N, H) ** shininess` are built from those — and
+in fact H is computed in the **GLSL fragment shader on the GPU**, so gacalc isn't even in that
+runtime path; gacalc is used CPU-side only for the MVP transforms (decision #5) and optionally
+mesh normals, all already supported. Full detail + the terminology caveat (Blinn's half *vector* ≠
+the GA rotor half-*angle* `cos(θ/2)+I sin(θ/2)`) is in the follow-on task.
