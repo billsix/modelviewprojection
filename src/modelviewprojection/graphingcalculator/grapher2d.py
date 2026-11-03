@@ -123,6 +123,8 @@ class View2D:
 
 view: View2D = View2D()
 win_state: cayley_gl.WindowState = cayley_gl.WindowState()
+#: Previous cursor position while a left-drag pan is in progress (else None).
+mouse_prev: tuple[float, float] | None = None
 
 
 # ---------------------------------------------------------------------------
@@ -342,6 +344,43 @@ def handle_pan_zoom_keys() -> None:
         view.half_height = max(0.25, view.half_height / 1.03)
 
 
+def mouse_pan(h: int) -> None:
+    """Left-drag pans the view so the grabbed plot point tracks the cursor.
+
+    The pixel delta converts to world units by ``2*half_height / height`` (the
+    ortho window's world-per-pixel, the same on x and y), so a drag moves the
+    plot by exactly the distance dragged at any zoom.  Ignored while imgui owns
+    the mouse (a menu is open under the pointer).
+    """
+    global mouse_prev
+    pos: tuple[float, float] = glfw.get_cursor_pos(window)
+    down: bool = (
+        glfw.get_mouse_button(window, glfw.MOUSE_BUTTON_LEFT) == glfw.PRESS
+    )
+    if down and not imguiio.want_capture_mouse and mouse_prev is not None:
+        world_per_px: float = 2.0 * view.half_height / float(h) if h else 0.0
+        view.center_x -= (pos[0] - mouse_prev[0]) * world_per_px
+        view.center_y += (pos[1] - mouse_prev[1]) * world_per_px
+    mouse_prev = pos if down else None
+
+
+def install_scroll_zoom() -> None:
+    """Mouse wheel scales the zoom (half_height), chaining imgui's callback."""
+    # None is glfw's documented "clear and return the previous callback" value;
+    # the stub types it as the callback, hence the suppression.
+    prev_cb: list[typing.Any] = [glfw.set_scroll_callback(window, None)]  # ty: ignore[invalid-argument-type]
+
+    def scroll_cb(win: "GLFWWindow", x_off: float, y_off: float) -> None:
+        if prev_cb[0] is not None:
+            prev_cb[0](win, x_off, y_off)
+        if not imguiio.want_capture_mouse:
+            view.half_height = min(
+                PLOT_HALF_RANGE, max(0.25, view.half_height * 0.9**y_off)
+            )
+
+    glfw.set_scroll_callback(window, scroll_cb)
+
+
 def reset_view() -> None:
     view.center_x = 0.0
     view.center_y = 0.0
@@ -403,6 +442,7 @@ def on_key(
 
 def frame(w: int, h: int) -> None:
     handle_pan_zoom_keys()
+    mouse_pan(h)
     rebuild_grid_if_needed()
     rebuild_curves_if_needed(w, h)
     apply_ortho_view(w, h)
@@ -419,4 +459,5 @@ def frame(w: int, h: int) -> None:
         draw_lines(lines.vao, lines.count, pf.color, GL.GL_LINE_STRIP)
 
 
+install_scroll_zoom()
 cayley_gl.run_loop(window, impl, frame, imgui_menubar, on_key)
