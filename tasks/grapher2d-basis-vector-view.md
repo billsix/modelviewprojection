@@ -63,6 +63,21 @@ origin-dot + e₁/e₂ arrows, mirroring the colour convention the 3D visualizat
 - [ ] Headless-verify via `tools/verify_render.sh` (origin dot white, e₁ red along +x, e₂ green
       along +y).
 
+## Decisions (batch go-ahead 2026-11-03, William Emerison Six <billsix@gmail.com>)
+
+Options are logged under "Open questions" below; chosen for this pass:
+1. **Mutually-exclusive 3-way backdrop mode** (grid | axes+ticks | basis), grid default, cycled
+   by `G`.
+2. **All geometry in world units**, mirroring the 3D `draw_axis` the request points at: unit-length
+   arrows with a proportional triangular head, origin a small fixed-fraction dot — everything
+   scales with zoom like the grid, and the mesh is static (no per-frame rescale). This refines the
+   doc's earlier constant-screen-size lean; the 3D convention is the better model. Constant-screen
+   sizing (open question 2) is logged as the alternative.
+3. **Bare** in basis mode — origin dot + e₁/e₂ arrows only, no faint axes behind.
+4. **No text labels** here; deferred to `tasks/graphing-calculator-latex-labels.md`.
+5. Draw via **path B** (flat line+triangle arrow in grapher2d's own `line_pipeline`), per the
+   "Decision" section above.
+
 ## Open questions
 
 1. **Mode model.** Make the backdrop a 3-way **mutually-exclusive mode** (grid | axes+ticks |

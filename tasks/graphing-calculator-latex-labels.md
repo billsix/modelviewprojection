@@ -104,6 +104,16 @@ The proven settings: `--exp "$<latex>$" --size 600 --fg "rgb 1 1 1" --bg Transpa
 - [ ] Harvest the reusable billboard/texture lesson into `tasks/reference/gl-and-imgui-gotchas.md`
       (mvp regained a textured pipeline) on completion.
 
+## Decisions (batch go-ahead 2026-11-03, William Emerison Six <billsix@gmail.com>)
+
+Options are logged under "Open questions" below; chosen for this pass:
+1. **Shared `mvpvisualization/labels.py`** (+ `billboard.vert` / `billboard.frag` beside it),
+   reused by both graphers.
+2. **2D labels:** one caption per curve + `x` / `y` axis names (tick numbers deferred).
+3. **LaTeX authored by hand** as a `latex` field on `PlottedFunction` / `Surface`.
+4. **3D labels:** `x` / `y` / `z` axis-tip labels + the current surface's equation as a caption.
+5. **Proven defaults:** `--size 600`, `--fg "rgb 1 1 1"`, `--bg Transparent`, `height_px ≈ 44`.
+
 ## Open questions
 
 1. **Where does the label code live?** A shared `mvpvisualization/labels.py` (both graphers + any
