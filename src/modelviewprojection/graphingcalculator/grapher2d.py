@@ -409,6 +409,12 @@ def frame(w: int, h: int) -> None:
     if view.show_grid:
         draw_lines(grid_lines.vao, grid_lines.count, GRID_COLOR, GL.GL_LINES)
     draw_lines(axis_lines.vao, axis_lines.count, AXIS_COLOR, GL.GL_LINES)
+    # The shared GL setup leaves depth-testing on (GL_LESS) and everything
+    # here is at z=0, so a curve pixel landing on an already-drawn graph-paper
+    # pixel has equal depth and is rejected -- which punched holes in a curve
+    # right where a sin/cos peak runs along the y=1 grid line.  Clear depth
+    # after the graph paper so the plotted curves always draw over it.
+    GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
     for pf, lines in zip(FUNCTIONS, curve_lines):
         draw_lines(lines.vao, lines.count, pf.color, GL.GL_LINE_STRIP)
 

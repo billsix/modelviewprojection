@@ -65,14 +65,19 @@ not forced by this work. Terminology caveat carried into the follow-on: Blinn's 
 
 Two defects surfaced in the on-display review and were fixed on the same branch:
 
-1. **2D curve "holes" at the sin/cos peaks.** Drawing each curve as one fixed set of 4000
-   `GL_LINE_STRIP` vertices over `[-50, 50]` left sub-pixel segments where the curve runs
-   near-horizontal (the extrema); GL's diamond-exit rasterisation drops those, so the curve looked
-   dashed at every peak/trough. Fixed by (a) enabling `GL_LINE_SMOOTH` + alpha blending and
-   (b) **resampling each curve to the visible x-window, one point per pixel column, whenever the
-   view moves** — segments stay ~1px at every zoom, so the polyline is smooth zoomed in and gapless
-   zoomed out (a fixed sample set over a fixed range cannot be both). Verified at the default view
-   and held zoom-out.
+1. **2D curve "holes" at the sin/cos peaks — depth-buffer z-fighting (the real root cause).**
+   `_pipeline.setup_window` leaves `GL_DEPTH_TEST` on (`GL_LESS`) for all programs, and the 2D plot
+   draws everything at `z=0`. A curve pixel that lands on an already-drawn grid/axis pixel then has
+   **equal** depth and fails `GL_LESS`, so it is dropped. The sin/cos peaks sit exactly on the `y=1`
+   grid line (grid spacing 1.0), so each peak runs *along* that line and the curve was rejected for
+   a whole stretch — the holes. Fixed by **clearing the depth buffer after drawing the graph paper
+   (grid + axes), before the curves** (`glClear(GL_DEPTH_BUFFER_BIT)` in `frame`), so the plotted
+   curves always draw over the paper. (Maintainer's diagnosis; verified at the default view.)
+   - A first pass had instead enabled `GL_LINE_SMOOTH` + alpha blending and **resampled each curve
+     to the visible x-window, one point per pixel column on view change** — kept, because it is a
+     genuine improvement (segments stay ~1px at every zoom: smooth zoomed in, gapless zoomed out,
+     which a fixed 4000-vertex set over `[-50, 50]` cannot be at both ends) — but it did *not* fix
+     the peak holes on its own; the depth clear is what resolved them.
 2. **3D started as a solid surface, not a wireframe.** The agreed starting point was a bare
    wireframe mesh. `View3D.show_solid` now defaults to `False` (wireframe-only on launch); the
    height-shaded solid stays available via the Controls menu / `S`.
