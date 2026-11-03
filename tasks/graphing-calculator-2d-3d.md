@@ -1,136 +1,72 @@
-# Graphing-calculator programs (2D and 3D), building on the assignment function viewer
+# Graphing-calculator programs (2D and 3D) — DONE
 
-**Status:** proposed — **design complete, ready to implement on go-ahead** (all open questions resolved)
-**Priority:** 6
-**Difficulty:** 5
+**Status:** done (2026-11-03) — implemented and headless-verified. On-display visual/interaction
+verification remains the maintainer's, per the repo's "Bill verifies anything requiring a display"
+convention (not a blocker; the headless render is real evidence here because the graphers take
+`imgui` via `cayley_gl` with `glfw` imported first, so the bundled-glfw import-order gotcha that
+usually makes a headless sweep untrustworthy does not apply).
 **Started:** 2026-08-27 (William Emerison Six <billsix@gmail.com>)
-**Design answered:** 2026-11-03 (William Emerison Six <billsix@gmail.com>) — all open questions
-(both the original five and the second round: location/naming, book-published, GL version, menubar
-infra) are resolved under "Decisions" below. No open questions remain; awaiting the go-ahead to code.
-**Follow-on:** `tasks/graphing-calculator-3d-lit-mesh.md` — the triangle-mesh, Blinn-Phong-lit
-version of the 3D plotter (half-angle specular, modelled on the v4 port).
+**Completed:** 2026-11-03 (William Emerison Six <billsix@gmail.com>, with Claude Opus 4.8)
+**Follow-on (still open):** `tasks/graphing-calculator-3d-lit-mesh.md` — the triangle-mesh,
+Blinn-Phong-lit (half-angle specular) version of the 3D surface, modelled on the v4 port.
 
-## BLUF
+## What was built
 
-Build **two separate standalone programs** — a 2D `f(x)` grapher and a 3D `f(x,y)` surface
-grapher — that feel like a familiar graphing calculator (axes, tick marks, zoom, pan). Functions
-are **first-class Python callables written into the program source** (no runtime equation
-parser); the only runtime UI is an **imgui menubar** for view settings (zoom/pan ranges, tick
-spacing; and dx/dy grid resolution in 3D). Both are **shader-based** (modern core-profile GL),
-not the immediate-mode GL 1.4 of `assignment1.py`. "Done" = both programs run, plot a small set
-of authored functions correctly, and expose their view controls in the menubar. The lit/triangle
-3D surface is explicitly **out of scope here** and lives in the follow-on task.
+Two standalone, run-by-path programs under
+**`src/modelviewprojection/graphingcalculator/`** that plot first-class Python functions the way a
+graphing calculator does. Functions are authored in each program's source (no runtime equation
+parser); the imgui menubar sets only the view. Both are GL 3.3 core, shader-based.
 
-## Decisions (2026-11-03 — answers to the original Open questions)
+- **`grapher2d.py`** — plots a list of `f(x)` callables (sin, cos, a parabola, a cubic) over
+  pannable/zoomable axes with tick marks and a grid. Controls menu: x/y center (pan), y
+  half-height (zoom), tick/grid spacing; arrows pan, `-`/`=` zoom, `G` toggles the grid, `F11`
+  fullscreen. The plot→NDC view is the course's **ortho edge** (`matrix_stack.ortho`).
+- **`grapher3d.py`** — plots an `f(x,y)` height field (domain x→world x, y→world z, value→up/y) as
+  a **wireframe and/or a height-shaded solid mesh**. Surface menu picks the function (saddle,
+  paraboloid, ripple, waves); Controls menu sets the grid steps **dx** and **dy** (live rebuild)
+  and toggles wireframe/solid; an orbit camera (left-drag / arrows / scroll) looks around it.
+  Perspective via `cayley_gl.setup_orbit_view` (`matrix_stack.perspective`). Lighting was kept out
+  of scope — it is the follow-on task.
 
-1. **Standalone, not an edit of the assignment.** Two brand-new programs, free to borrow from
-   `assignments/assignment1.py` as much as useful, but it is left alone (it is book-published as
-   `programmingproj1.rst` — see Context — so we don't disturb it). Should **feel familiar to a
-   graphing-calculator user**, and be **driven by Python functions, not by any GUI
-   function-entry** — no equation textbox/parser.
-2. **Two separate programs** — one 2D, one 3D. Not a single app with a mode toggle.
-3. **No runtime function interactivity.** Functions are chosen at *authoring* time, as
-   **first-class functions** in the source (a list of `Callable`s). Runtime UI is view-only:
-   **zoom, pan, axes, and tick marks**, with **imgui controls in a menubar** to set them.
-4. **Shader-based** modern GL (not fixed-function / GL 1.4).
-5. **3D: start with wireframe and mesh**, with **dx and dy (grid sampling steps) configurable in
-   the menubar**. A **follow-on task** covers rebuilding the surface out of **triangles with
-   Blinn-Phong shading** (the half-angle / halfway-vector model) — see Follow-on below.
+## Design decisions (as built)
 
-## Context (investigation 2026-08-27) — the 2D viewer already exists in the assignments
+1. **Standalone programs**, not an edit of the book-published `assignments/assignment1.py` (which
+   has the original immediate-mode GL 1.4 `f(x)` plotter). The assignment was left untouched; the
+   graphers borrowed the *idea* of sampling a callable, not its GL style.
+2. **Two separate programs** (2D, 3D), not one app with a mode toggle.
+3. **Functions authored in source** as first-class callables; the only runtime UI is the view
+   (pan/zoom/axes/ticks in 2D, dx/dy/surface/draw-mode in 3D), all via the imgui menubar.
+4. **GL 3.3 core, shader-based.**
+5. **Reused the shared course infra, not a private copy.** Only the `ports/` subtree is off-limits
+   to import (it is supplemental). The graphers build on `mvpvisualization.cayley_gl` (window +
+   imgui + GL context, orbit camera, menubar helpers `menu_action`/`toggle_fullscreen`/`WindowState`/
+   `common_key`, `run_loop`) and `_pipeline` (the uniform-colour line pipeline + the
+   per-vertex-colour pipeline for the height-shaded solid, the shared `uniform_color.vert` /
+   `per_vertex_color.vert` / `passthrough.frag` shaders, and the VAO/VBO builders), with the view
+   from `matrix_stack`. No grapher-specific shaders. Each grapher is ONE self-contained program
+   file (the house style for demos/ports). The menubar follows the same convention the v4 port
+   uses, so CLAUDE.md's GL/imgui section notes the reuse (and that only `ports/` is off-limits).
 
-- **The 2D OpenGL math-function viewer is `assignments/assignment1.py`.** It already has a real
-  arbitrary-function plotter: `plot(fn, domain, interval)` (def at `assignments/assignment1.py:146`;
-  it samples via `np.arange` and draws `GL_LINES`), plus a hand-precomputed `f(x)=x²` version and a
-  polar/parametric loop. Immediate-mode GL, context hinted **1.4**
-  (`assignments/assignment1.py:36-37`). We **borrow its plotting idea**, not its GL style (we go
-  shader-based per decision #4).
-- It is **book-published**: `assignment1.py → programmingproj1.rst`
-  (`tasks/reference/demo-chapter-inventory.md:119`, `book-and-docs-pipeline.md:79`). Because we
-  build standalone (decision #1), we don't edit it and don't perturb the book.
-- No 3D plotting exists anywhere in mvp yet — the 3D `f(x,y)` surface is net-new. Superseded task
-  slug: `math-plotting-2d-and-3d.md`.
+## gacalc (geometricalgebra) — no release needed for the half-vector/half-angle follow-on
 
-## Plan (draft — unblocks once the remaining Open questions are answered)
+Checked `github.com/billsix/geometricalgebra` for the lit follow-on's half-vector question.
+**No new gacalc release is required.** Everything the Blinn-Phong math needs ships in the
+**released** API (predates tag `v0.0.20`): `Vector.__add__`, `.normalize()`, `.magnitude()`,
+`.scalar_product()` (the N·L dot), plus `rotor_from_vectors` / `transforms.rotor_for` for the
+GA-rotor framing. The half vector `H = normalize(L + V)` and specular
+`scalar_product(N, H) ** shininess` build from those — and in fact `H` lives in the GLSL fragment
+shader on the GPU, so gacalc is not in that runtime path at all (it is CPU-side only, for the MVP
+transforms and optionally mesh normals). gacalc separately has an `[Unreleased]` section with
+accumulated additive features (pyproject already at 0.1.0), release-worthy on its own schedule but
+not forced by this work. Terminology caveat carried into the follow-on: Blinn's half *vector*
+(bisector of L and V) is not the GA rotor half-*angle* `cos(θ/2) + I sin(θ/2)`.
 
-### 2D grapher — `f(x)`
-- [ ] New standalone shader-based program. Authored input: a list of first-class functions to
-      plot, each `Callable[[float], float]` with a label + colour (e.g. a small frozen list /
-      dataclass table at module top).
-- [ ] Render: axes, tick marks (labelled), a grid, and each function sampled over the current
-      x-domain drawn as a line strip (VBO + a simple 2D shader; one draw per function).
-- [ ] View model: zoom + pan (keyboard/mouse), with the current x-range / y-range and tick
-      spacing also settable from the menubar. Pan/zoom just moves the orthographic view.
-- [ ] Transforms via gacalc per house architecture (ortho view as an `InvertibleFunction`;
-      realize to a matrix with `cayleyscene.to_matrix` only for the GL uniform) unless the GL
-      version question (Q3 below) pushes us elsewhere — confirm in review.
-- [ ] Menubar: a Controls menu for view settings + F11 fullscreen (match the v4 port convention —
-      pending Q4 on whether to reuse `_common.draw_view_menu`).
+## Verification
 
-### 3D grapher — `f(x,y)` surface (wireframe + mesh)
-- [ ] New standalone shader-based program. Authored input: a list of `Callable[[float, float],
-      float]` surfaces, each with a domain over (x, y).
-- [ ] Build a height-field mesh over the domain sampled at **dx × dy** steps; draw as **wireframe
-      and/or mesh** (`GL_LINES` / `GL_TRIANGLES`-as-wireframe, no lighting yet — flat/by-height
-      colour).
-- [ ] 3D axes + tick marks; an orbit/zoom/pan camera.
-- [ ] Menubar: **dx and dy** (grid resolution) configurable live, plus the view/zoom/pan/tick
-      controls and F11 fullscreen.
-- [ ] Rebuild the mesh when dx/dy change.
-
-## Follow-on (own task) — lit triangle-mesh 3D surface
-
-`tasks/graphing-calculator-3d-lit-mesh.md`: take the 3D grapher's height field and render it as a
-**solid triangle mesh with Blinn-Phong lighting** (the half-angle / halfway-vector specular model,
-as opposed to Phong's reflection-vector model). Compute per-vertex (or per-face) **normals** from
-the height field, add a light, and shade. **Inspiration: the openglsuperbible v4 port** —
-`ports/openglsuperbiblev4/chapt16/vertexshaders/shaders/specular.vs` (per-vertex half-vector
-`H = normalize(L + normalize(-V.xyz))`) and `chapt17/lighting/shaders/specular.{vs,fs}` (the
-per-fragment version). That is exactly "whichever one does the half angles" — Blinn-Phong.
-
-## Decisions — round 2 (2026-11-03, answers to the second-round questions)
-
-1. **Location / naming: `src/modelviewprojection/graphingcalculator/`** with **`grapher2d.py`** +
-   **`grapher3d.py`** — part of the installed package, run by path like the `mvpvisualization/`
-   aids.
-2. **Just programs for now** — no book chapters. Do **not** add `literalinclude` doc-region markers;
-   these are standalone programs with no book prose yet. (A book write-up can be a later task.)
-3. **GL 3.3 core profile** — matches the code-the-classics ports.
-4. **Menubar + GL infra: reuse `mvpvisualization.cayley_gl`** (revised 2026-11-03 — supersedes the
-   earlier "own copy" plan). Do **not** import the `ports/openglsuperbiblev4/_common` helper (keep
-   the grapher out of the `ports/` subtree), but **do** build on the core-package toolkit
-   `modelviewprojection.mvpvisualization.cayley_gl` — the same one `mvpvisualization/modelview.py`
-   uses — for the window/GL-context setup (it handles the glfw-before-imgui import order + the
-   non-zero VAO), the orbit camera (`make_camera`/`orbit_input`/`setup_orbit_view`), the imgui
-   menubar helpers (`menu_action`, `toggle_fullscreen`, `WindowState`, `common_key`), and
-   `run_loop`. The grapher's *geometry* (plot lines, axes/ticks, surface mesh) and any grapher-
-   specific shaders are its own, under `graphingcalculator/`. Controls still **use imgui** and live
-   in a menubar (Controls menu + F11 fullscreen), per the house convention. No separate menubar copy,
-   so no drift-watch is needed.
-5. **Yes — gacalc / the Cayley engine for the transforms.** Realised in practice (2026-11-03) as:
-   the plot->NDC view is the course's **ortho edge** for 2D (`matrix_stack.ortho`, the same affine
-   map `mathutils.ortho` defines) and the **perspective + orbit camera** for 3D
-   (`cayley_gl.setup_orbit_view` → `matrix_stack.perspective`), exactly as the modern demos
-   (`mvpvisualization/modelview.py`) do it; any *model-space* placement built from gacalc primitives
-   is realised with `cayleyscene.to_matrix` at upload. No hand-rolled projection matrices in the
-   grapher — the matrices come from the shared `matrix_stack` / `cayleyscene`, not literal arrays.
-
-**Scope note (2026-11-03): only `ports/` is off-limits to import** (it's supplemental material);
-the grapher reuses the rest of the package freely — `mvpvisualization.cayley_gl` + `_pipeline` (window,
-imgui, orbit camera, menubar, loop, the solid-colour line pipeline, VAO/VBO builders), `matrix_stack`,
-and `cayley.cayleyscene`. Shaders are the shared `uniform_color.vert` + `passthrough.frag` from
-`mvpvisualization/` (no grapher-specific shaders). Each grapher is ONE self-contained program file
-(house style for demos/ports), run by path.
-
-## gacalc (geometricalgebra) — no release needed for this work (verified 2026-11-03)
-
-Checked `github.com/billsix/geometricalgebra` (gacalc) for the half-vector / half-angle question
-(raised for the lit follow-on). **No new gacalc release is required.** Everything the lighting math
-needs is in the **released** API (predates tag `v0.0.20`): `Vector.__add__`, `.normalize()`,
-`.magnitude()`, `.scalar_product()` (the N·L dot), plus `rotor_from_vectors` / `plane_rotation` /
-`transforms.rotor_for` if we ever want the GA-rotor framing. The Blinn-Phong **half vector**
-`H = normalize(L + V)` and specular `scalar_product(N, H) ** shininess` are built from those — and
-in fact H is computed in the **GLSL fragment shader on the GPU**, so gacalc isn't even in that
-runtime path; gacalc is used CPU-side only for the MVP transforms (decision #5) and optionally
-mesh normals, all already supported. Full detail + the terminology caveat (Blinn's half *vector* ≠
-the GA rotor half-*angle* `cos(θ/2)+I sin(θ/2)`) is in the follow-on task.
+Both programs: ruff-clean (line-length 80), ty-clean (modulo the host-only `glfw`
+`_GLFWwindowPointerT` stub diagnostic that `mvpvisualization/modelview.py` also shows — the
+container gate resolves it), and the local/module annotation checker clean. Rendered headless via
+`tools/verify_render.sh` (12 frames, Xvfb `:99`): grapher2d drew all four curves in their exact
+colours over the grid; grapher3d drew the saddle `x*y/4` as the expected hyperbolic paraboloid
+(height-shaded solid + wireframe + 3D axes/ticks). The maintainer's on-display pass (pan/zoom,
+menubar interaction, Wayland) is the remaining check.
