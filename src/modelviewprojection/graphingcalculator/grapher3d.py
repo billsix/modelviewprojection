@@ -28,6 +28,7 @@ the perspective view from ``matrix_stack`` (via ``setup_orbit_view``).  Only the
 ``ports/`` subtree is off-limits.
 """
 
+import atexit
 import dataclasses
 import math
 import os
@@ -39,8 +40,10 @@ import glfw
 import numpy as np
 import OpenGL.GL as GL
 
+import modelviewprojection.matrix_stack as ms
 from modelviewprojection.mvpvisualization import _pipeline as _p
 from modelviewprojection.mvpvisualization import cayley_gl
+from modelviewprojection.mvpvisualization import labels as _labels
 
 if typing.TYPE_CHECKING:
     from glfw import _GLFWwindowPointerT
@@ -62,11 +65,13 @@ Color: typing.TypeAlias = tuple[float, float, float]
 
 @dataclasses.dataclass(frozen=True)
 class Surface:
-    """One graphed surface: f(x, y), a label, and a base colour."""
+    """One graphed surface: f(x, y), a label, a colour, and the LaTeX (authored
+    in source) that the billboard renderer typesets as its equation caption."""
 
     fn: typing.Callable[[float, float], float]
     label: str
     color: Color
+    latex: str
 
 
 def _ripple(x: float, y: float) -> float:
@@ -79,17 +84,25 @@ SURFACES: list[Surface] = [
         fn=lambda x, y: x * y / 4.0,
         label="saddle: x*y/4",
         color=(0.95, 0.55, 0.35),
+        latex=r"z=\tfrac{xy}{4}",
     ),
     Surface(
         fn=lambda x, y: (x * x + y * y) / 8.0,
         label="paraboloid: (x^2+y^2)/8",
         color=(0.45, 0.8, 0.95),
+        latex=r"z=\tfrac{x^2+y^2}{8}",
     ),
-    Surface(fn=_ripple, label="ripple: 2 sin(r)", color=(0.6, 0.9, 0.5)),
+    Surface(
+        fn=_ripple,
+        label="ripple: 2 sin(r)",
+        color=(0.6, 0.9, 0.5),
+        latex=r"z=2\sin\sqrt{x^2+y^2}",
+    ),
     Surface(
         fn=lambda x, y: math.sin(x) * math.cos(y),
         label="waves: sin(x) cos(y)",
         color=(0.9, 0.75, 0.45),
+        latex=r"z=\sin(x)\cos(y)",
     ),
 ]
 
@@ -114,6 +127,7 @@ class View3D:
     dy: float = 0.5
     show_wireframe: bool = True
     show_solid: bool = False  # start as a bare wireframe mesh; solid is opt-in
+    show_labels: bool = True
 
 
 view: View3D = View3D()
@@ -266,6 +280,9 @@ surface_pipeline: _p.Pipeline = _p.build_pipeline(
     shader_dir=MVP_SHADER_DIR,
     per_vertex_color=True,
 )
+# Runtime TeX billboard labels (no-op if texExpToPng is not on PATH).
+label_renderer: _labels.LabelRenderer = _labels.LabelRenderer(MVP_SHADER_DIR)
+atexit.register(label_renderer.cleanup)
 
 
 @dataclasses.dataclass
@@ -420,6 +437,9 @@ def imgui_menubar() -> None:
         cayley_gl.menu_action(
             "Solid surface", "S", _toggle_solid, selected=view.show_solid
         )
+        cayley_gl.menu_action(
+            "Labels", "L", toggle_labels, selected=view.show_labels
+        )
         imgui.end_menu()
     if imgui.begin_menu("View", True):
         cayley_gl.menu_action(
@@ -454,6 +474,28 @@ def on_key(
         _toggle_wire()
     elif key == glfw.KEY_S:
         _toggle_solid()
+    elif key == glfw.KEY_L:
+        toggle_labels()
+
+
+def toggle_labels() -> None:
+    view.show_labels = not view.show_labels
+
+
+def draw_labels(w: int, h: int) -> None:
+    """Billboard LaTeX labels: the x/y/z axis tips (domain x -> world x, domain
+    y -> world z, height -> world y) and the current surface's equation above
+    the plot."""
+    v_m: np.ndarray = ms.get_current_matrix(ms.MatrixStack.view)
+    p_m: np.ndarray = ms.get_current_matrix(ms.MatrixStack.projection)
+    label_renderer.begin(v_m, p_m, (w, h))
+    label_renderer.draw("x", (AXIS_LENGTH + 0.4, 0.0, 0.0))
+    label_renderer.draw("y", (0.0, 0.0, AXIS_LENGTH + 0.4))
+    label_renderer.draw("z", (0.0, AXIS_LENGTH + 0.4, 0.0))
+    label_renderer.draw(
+        SURFACES[view.current].latex, (0.0, AXIS_LENGTH + 1.6, 0.0)
+    )
+    label_renderer.end()
 
 
 def frame(w: int, h: int) -> None:
@@ -470,6 +512,8 @@ def frame(w: int, h: int) -> None:
             meshes.wire_count,
             SURFACES[view.current].color,
         )
+    if view.show_labels and label_renderer.available:
+        draw_labels(w, h)
 
 
 cayley_gl.run_loop(window, impl, frame, imgui_menubar, on_key)
