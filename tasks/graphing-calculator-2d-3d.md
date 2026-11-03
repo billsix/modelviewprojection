@@ -96,15 +96,31 @@ per-fragment version). That is exactly "whichever one does the half angles" — 
 2. **Just programs for now** — no book chapters. Do **not** add `literalinclude` doc-region markers;
    these are standalone programs with no book prose yet. (A book write-up can be a later task.)
 3. **GL 3.3 core profile** — matches the code-the-classics ports.
-4. **Self-contained imgui menubar helper, mvp's own copy.** Do **not** import
-   `ports/openglsuperbiblev4/_common`; the grapher carries its own small menubar helper (Controls
-   menu for view settings, F11 fullscreen) inside `graphingcalculator/`, keeping it independent of
-   the `ports/` subtree. It **must use imgui** for these controls. Because it is a deliberate copy
-   of the same convention the v4 port implements in `_common.draw_view_menu`, the two can drift —
-   mvp `CLAUDE.md` carries a drift-watch note so a future session reconciles them on purpose.
-5. **Yes — gacalc for the transforms.** Ortho (2D) / camera (3D) are `InvertibleFunction`s;
-   realize to a 4×4 with `cayleyscene.to_matrix` only at the GL uniform upload. No hand-built
-   projection matrices.
+4. **Menubar + GL infra: reuse `mvpvisualization.cayley_gl`** (revised 2026-11-03 — supersedes the
+   earlier "own copy" plan). Do **not** import the `ports/openglsuperbiblev4/_common` helper (keep
+   the grapher out of the `ports/` subtree), but **do** build on the core-package toolkit
+   `modelviewprojection.mvpvisualization.cayley_gl` — the same one `mvpvisualization/modelview.py`
+   uses — for the window/GL-context setup (it handles the glfw-before-imgui import order + the
+   non-zero VAO), the orbit camera (`make_camera`/`orbit_input`/`setup_orbit_view`), the imgui
+   menubar helpers (`menu_action`, `toggle_fullscreen`, `WindowState`, `common_key`), and
+   `run_loop`. The grapher's *geometry* (plot lines, axes/ticks, surface mesh) and any grapher-
+   specific shaders are its own, under `graphingcalculator/`. Controls still **use imgui** and live
+   in a menubar (Controls menu + F11 fullscreen), per the house convention. No separate menubar copy,
+   so no drift-watch is needed.
+5. **Yes — gacalc / the Cayley engine for the transforms.** Realised in practice (2026-11-03) as:
+   the plot->NDC view is the course's **ortho edge** for 2D (`matrix_stack.ortho`, the same affine
+   map `mathutils.ortho` defines) and the **perspective + orbit camera** for 3D
+   (`cayley_gl.setup_orbit_view` → `matrix_stack.perspective`), exactly as the modern demos
+   (`mvpvisualization/modelview.py`) do it; any *model-space* placement built from gacalc primitives
+   is realised with `cayleyscene.to_matrix` at upload. No hand-rolled projection matrices in the
+   grapher — the matrices come from the shared `matrix_stack` / `cayleyscene`, not literal arrays.
+
+**Scope note (2026-11-03): only `ports/` is off-limits to import** (it's supplemental material);
+the grapher reuses the rest of the package freely — `mvpvisualization.cayley_gl` + `_pipeline` (window,
+imgui, orbit camera, menubar, loop, the solid-colour line pipeline, VAO/VBO builders), `matrix_stack`,
+and `cayley.cayleyscene`. Shaders are the shared `uniform_color.vert` + `passthrough.frag` from
+`mvpvisualization/` (no grapher-specific shaders). Each grapher is ONE self-contained program file
+(house style for demos/ports), run by path.
 
 ## gacalc (geometricalgebra) — no release needed for this work (verified 2026-11-03)
 
