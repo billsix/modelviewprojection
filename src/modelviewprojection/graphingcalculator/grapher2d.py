@@ -26,6 +26,7 @@ view is the plot->NDC **ortho edge** realised onto the projection stack
 the ortho is an affine (invertible) map from plot space to NDC.
 """
 
+import atexit
 import dataclasses
 import enum
 import math
@@ -41,6 +42,7 @@ import OpenGL.GL as GL
 import modelviewprojection.matrix_stack as ms
 from modelviewprojection.mvpvisualization import _pipeline as _p
 from modelviewprojection.mvpvisualization import cayley_gl
+from modelviewprojection.mvpvisualization import labels as _labels
 
 if typing.TYPE_CHECKING:
     # glfw types window handles as `_GLFWwindowPointerT`: private, absent at
@@ -66,29 +68,39 @@ Color: typing.TypeAlias = tuple[float, float, float]
 
 @dataclasses.dataclass(frozen=True)
 class PlottedFunction:
-    """One graphed function: the callable, a label, and its curve colour."""
+    """One graphed function: the callable, a label, its colour, and the LaTeX
+    (authored in source) that the billboard renderer typesets as its caption."""
 
     fn: typing.Callable[[float], float]
     label: str
     color: Color
+    latex: str
 
 
 FUNCTIONS: list[PlottedFunction] = [
     PlottedFunction(
-        fn=lambda x: math.sin(x), label="sin(x)", color=(0.95, 0.35, 0.35)
+        fn=lambda x: math.sin(x),
+        label="sin(x)",
+        color=(0.95, 0.35, 0.35),
+        latex=r"\sin(x)",
     ),
     PlottedFunction(
-        fn=lambda x: math.cos(x), label="cos(x)", color=(0.35, 0.75, 0.95)
+        fn=lambda x: math.cos(x),
+        label="cos(x)",
+        color=(0.35, 0.75, 0.95),
+        latex=r"\cos(x)",
     ),
     PlottedFunction(
         fn=lambda x: 0.25 * x * x - 2.0,
         label="x^2/4 - 2",
         color=(0.55, 0.9, 0.5),
+        latex=r"\tfrac{x^2}{4}-2",
     ),
     PlottedFunction(
         fn=lambda x: 0.05 * x * x * x,
         label="x^3/20",
         color=(0.95, 0.8, 0.4),
+        latex=r"\tfrac{x^3}{20}",
     ),
 ]
 
@@ -138,6 +150,7 @@ class View2D:
     half_height: float = 8.0  # world units from center to top edge (zoom)
     tick_spacing: float = 1.0
     backdrop: Backdrop = Backdrop.GRID
+    show_labels: bool = True
 
 
 view: View2D = View2D()
@@ -271,6 +284,9 @@ line_pipeline: _p.Pipeline = _p.build_pipeline(
     shader_dir=MVP_SHADER_DIR,
     color=True,
 )
+# Runtime TeX billboard labels (no-op if texExpToPng is not on PATH).
+label_renderer: _labels.LabelRenderer = _labels.LabelRenderer(MVP_SHADER_DIR)
+atexit.register(label_renderer.cleanup)
 
 
 @dataclasses.dataclass
@@ -517,6 +533,9 @@ def imgui_menubar() -> None:
             selected=view.backdrop == Backdrop.BASIS,
         )
         cayley_gl.menu_action("Reset View", "0", reset_view)
+        cayley_gl.menu_action(
+            "Labels", "L", toggle_labels, selected=view.show_labels
+        )
         imgui.end_menu()
     if imgui.begin_menu("View", True):
         cayley_gl.menu_action(
@@ -539,6 +558,28 @@ def on_key(
         cycle_backdrop()
     elif key == glfw.KEY_0:
         reset_view()
+    elif key == glfw.KEY_L:
+        toggle_labels()
+
+
+def toggle_labels() -> None:
+    view.show_labels = not view.show_labels
+
+
+def draw_labels(w: int, h: int) -> None:
+    """Billboard LaTeX captions: one per curve (anchored on the curve, right of
+    center) plus the x/y axis names near the visible axis ends."""
+    v_m: np.ndarray = ms.get_current_matrix(ms.MatrixStack.view)
+    p_m: np.ndarray = ms.get_current_matrix(ms.MatrixStack.projection)
+    label_renderer.begin(v_m, p_m, (w, h))
+    aspect: float = float(w) / float(h) if h else 1.0
+    half_w: float = view.half_height * aspect
+    x_at: float = view.center_x + 0.55 * half_w
+    for pf in FUNCTIONS:
+        label_renderer.draw(pf.latex, (x_at, float(pf.fn(x_at)), 0.0))
+    label_renderer.draw("x", (view.center_x + 0.9 * half_w, 0.0, 0.0))
+    label_renderer.draw("y", (0.0, view.center_y + 0.9 * view.half_height, 0.0))
+    label_renderer.end()
 
 
 def frame(w: int, h: int) -> None:
@@ -561,6 +602,8 @@ def frame(w: int, h: int) -> None:
     GL.glClear(GL.GL_DEPTH_BUFFER_BIT)
     for pf, lines in zip(FUNCTIONS, curve_lines):
         draw_lines(lines.vao, lines.count, pf.color, GL.GL_LINE_STRIP)
+    if view.show_labels and label_renderer.available:
+        draw_labels(w, h)
 
 
 install_scroll_zoom()
